@@ -22,7 +22,7 @@ sources:
   - https://www.ohlins.eu/de/products/mountainbike/rxfdj-m1-air-26-dirt--7687/
 updated: 2026-07-05
 # Click ranges taken from the individual product pages at ohlins.eu (German
-# site). Clicks counted from fully closed (firmest).
+# site). Clicks counted from fully closed (firmest) → default `dial_ccw`.
 
 # --------------------------------------------------------------------------
 # Dampers
@@ -31,26 +31,26 @@ dampers:
   otx18:
     name: OTX18
     description: Trail/downcountry damper (RXF34). Separate spring and damping systems.
-    adjusters:
-      high_speed_compression: { clicks: 3 }
-      low_speed_compression:  { clicks: 15 }
-      rebound:                { clicks: 15 }
+    adjustments:
+      - { name: High-Speed Compression, type: step, max: 3 }
+      - { name: Low-Speed Compression,  type: step, max: 15 }
+      - { name: Rebound,                type: step, max: 15 }
 
   ttx18_m2:
     name: TTX18 (m.2 generation)
     description: Twin-tube trail/enduro damper, m.2 generation. HSC includes a Climb Mode detent.
-    adjusters:
-      high_speed_compression: { clicks: 3 }
-      low_speed_compression:  { clicks: 15 }
-      rebound:                { clicks: 15 }
+    adjustments:
+      - { name: High-Speed Compression, type: step, max: 3, notes: HSC includes a Climb Mode detent }
+      - { name: Low-Speed Compression,  type: step, max: 15 }
+      - { name: Rebound,                type: step, max: 15 }
 
   ttx18_m3:
     name: TTX18 (m.3 generation)
     description: Twin-tube trail/enduro/DH damper, m.3 generation.
-    adjusters:
-      high_speed_compression: { clicks: 3 }
-      low_speed_compression:  { clicks: 16 }
-      rebound:                { clicks: 16 }
+    adjustments:
+      - { name: High-Speed Compression, type: step, max: 3 }
+      - { name: Low-Speed Compression,  type: step, max: 16 }
+      - { name: Rebound,                type: step, max: 16 }
 
   otx14_r:
     name: OTX14 R
@@ -58,13 +58,16 @@ dampers:
       XC race damper (RXC34 m.1). Low-speed rebound, low-speed compression and
       high-speed compression are all externally adjustable, plus a lockout
       lever (7.5mm travel per click; 5.5mm-per-click adapter also available).
-      Exact click counts were not published on the product page — verify
-      before relying on them.
-    adjusters: {}
-    lockout: true
+      Exact click counts were not published on the product page — only the
+      lockout is modelled below; verify the click ranges before adding them.
+    adjustments:
+      - { name: Lockout, type: boolean, notes: Lockout lever (7.5mm travel/click; 5.5mm/click adapter available) }
 
 # --------------------------------------------------------------------------
 # Forks — current Öhlins MTB lineup.
+# Air trims share the `&air_spring` anchor (Pressure); coil trims list a Spring
+# Rate. Volume-spacer / ramp-up chamber counts are not published per model, so
+# no Volume Spacers adjustment is generated — see follow-ups.
 # --------------------------------------------------------------------------
 forks:
   - model: "RXC34 m.1"
@@ -75,13 +78,20 @@ forks:
     trims:
       - trim: Aluminum (remote)
         travel_mm: [100, 110, 120]
+        spring: Air
         dampers: [otx14_r]
+        adjustments: &air_spring
+          - { name: Pressure, type: numerical, unit: psi, min: 0 }
       - trim: Carbon crown (remote)
         travel_mm: [100, 110, 120]
+        spring: Air
         dampers: [otx14_r]
+        adjustments: *air_spring
       - trim: Carbon crown (manual)
         travel_mm: [100, 110, 120]
+        spring: Air
         dampers: [otx14_r]
+        adjustments: *air_spring
 
   - model: "RXF34 m.2"
     category: Downcountry / Trail
@@ -92,7 +102,9 @@ forks:
       - trim: Air OTX18
         travel_mm: [120, 130, 140]
         offset_mm: [44]
+        spring: Air
         dampers: [otx18]
+        adjustments: *air_spring
 
   - model: "RXF36 m.2"
     category: Trail
@@ -103,7 +115,9 @@ forks:
       - trim: Air TTX18
         travel_mm: [140, 150, 160, 170]
         offset_mm: [38, 44, 51]
+        spring: Air
         dampers: [ttx18_m2]
+        adjustments: *air_spring
 
   - model: "RXF36 m.3"
     category: Trail
@@ -114,10 +128,15 @@ forks:
       - trim: Air TTX18
         travel_mm: [140, 150, 160, 170]   # up to 170mm on 27.5", 140-160mm on 29"
         offset_mm: [38, 44, 51]
+        spring: Air
         dampers: [ttx18_m3]
+        adjustments: *air_spring
       - trim: Coil
         url: https://www.ohlins.eu/de/products/mountainbike/rxf36-m3-coil--6430/
+        spring: Coil
         dampers: [ttx18_m3]
+        adjustments: &coil_spring
+          - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
 
   - model: "RXF38 m.3"
     category: Enduro
@@ -128,11 +147,15 @@ forks:
       - trim: Air
         travel_mm: [160, 170, 180]
         offset_mm: [44]
+        spring: Air
         dampers: [ttx18_m3]
+        adjustments: *air_spring
       - trim: Coil
         travel_mm: [170]
         offset_mm: [44]
+        spring: Coil
         dampers: [ttx18_m3]
+        adjustments: *coil_spring
     note: >
       An RXF38 m.2 (Air TTX18) also exists in the current lineup
       (ohlins.eu/de/products/mountainbike/rxf38-m2-air-ttx18-29--7694/) but its
@@ -147,11 +170,15 @@ forks:
       - trim: Air
         travel_mm: [200]
         offset_mm: [46, 50, 54, 58]
+        spring: Air
         dampers: [ttx18_m3]
+        adjustments: *air_spring
       - trim: Coil
         travel_mm: [200]
         offset_mm: [46, 50, 54, 58]
+        spring: Coil
         dampers: [ttx18_m3]
+        adjustments: *coil_spring
     note: >
       A DH38 m.1 (Air, universal) also exists
       (ohlins.eu/de/products/mountainbike/dh38-m1-downhill-front-fork--7683/)
@@ -165,10 +192,16 @@ forks:
     trims:
       - trim: Air TTX18
         travel_mm: [90]
+        spring: Air
         dampers: [ttx18_m2]
+        adjustments: *air_spring
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):
+#   - Ramp-up chamber / volume-spacer counts per model — not published; add a
+#     Volume Spacers adjustment (with published `max`) once a spec lists it.
+#   - Coil trims: spring preload range and available spring rates are not
+#     published per model — only a generic Spring Rate adjustment is generated.
 #   - OTX14 R exact click counts (RXC34) — product page didn't publish them,
 #     only lockout lever throw (7.5mm/click, or 5.5mm/click w/ adapter).
 #   - RXF38 m.2 and DH38 m.1 click tables — assumed to match their m.3/m.2

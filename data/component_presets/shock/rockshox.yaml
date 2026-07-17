@@ -14,8 +14,9 @@ sources:
   - https://road.cc/offroad/content/news/rockshox-rear-shocks-2024-your-guide-to-all-the-models-details-and-specs-from-the-range
 updated: 2026-07-05
 # Click ranges from SRAM/RockShox support documentation and official product
-# pages (sram.com). Compression clicks counted from fully CLOSED (firmest);
-# rebound clicks counted from fully OPEN (fastest).
+# pages (sram.com). Compression clicks counted from fully CLOSED (firmest) →
+# default `dial_ccw`; rebound clicks counted from fully OPEN (fastest), noted
+# per adjuster.
 
 # --------------------------------------------------------------------------
 # Dampers
@@ -28,24 +29,20 @@ dampers:
       Dual-compression + rebound + threshold/hydraulic-bottom-out system.
       Letters break down as: R (Rebound), C2 (dual compression: LSC + HSC),
       T (Threshold/HBO).
-    adjusters:
-      high_speed_compression: { clicks: 5 }
-      low_speed_compression:  { clicks: 5 }
-      rebound:                { clicks: 15 }
-    note: >
-      LSC adjusted by hand; HSC requires 3mm hex key. Rebound adjusted via dial.
-      Counts from fully OPEN (fastest) for rebound, fully CLOSED (firmest) for
-      compression.
+    adjustments:
+      - { name: High-Speed Compression, type: step, max: 5, notes: Requires a 3mm hex key }
+      - { name: Low-Speed Compression,  type: step, max: 5, notes: Adjusted by hand }
+      - { name: Rebound, type: step, max: 15, notes: Counted from fully open (fastest) }
 
   rc2:
     name: RC2
     description: >
       Downhill/gravity damper variant (Super Deluxe Ultimate DH, BoXXer DH).
       Two external compression circuits + rebound (no threshold).
-    adjusters:
-      high_speed_compression: { clicks: 5 }
-      low_speed_compression:  { clicks: 5 }
-      rebound:                { clicks: 15 }
+    adjustments:
+      - { name: High-Speed Compression, type: step, max: 5 }
+      - { name: Low-Speed Compression,  type: step, max: 5 }
+      - { name: Rebound, type: step, max: 15, notes: Counted from fully open (fastest) }
     note: "Similar click counts to RC2T but tuned for DH/gravity riding."
 
   vivid_coil:
@@ -54,15 +51,12 @@ dampers:
       Coil shock (Vivid Coil Ultimate 2025+). Dual-compression + rebound +
       hydraulic bottom-out adjustment + threshold climbing switch (lock-out
       position).
-    adjusters:
-      high_speed_compression: { clicks: 5 }
-      low_speed_compression:  { clicks: 5 }
-      rebound:                { clicks: 20 }
-      hydraulic_bottom_out:   { clicks: 5 }
-    compression_positions: [Locked-out, Open]
-    note: >
-      Both compression dials divided into 5 clicks each. HBO (hydraulic bottom
-      out) has 5 clicks. Threshold lever provides climb/pedal-mode lock-out.
+    adjustments:
+      - { name: High-Speed Compression, type: step, max: 5 }
+      - { name: Low-Speed Compression,  type: step, max: 5 }
+      - { name: Rebound, type: step, max: 20, notes: Counted from fully open (fastest) }
+      - { name: Hydraulic Bottom Out, type: step, max: 5 }
+      - { name: Threshold, type: categorical, options: [Open, Locked-out], notes: Climb/pedal-mode lock-out lever }
 
   rct:
     name: RCT
@@ -70,10 +64,10 @@ dampers:
       Trail air shock (Deluxe Ultimate, SIDLuxe Ultimate, Vivid Ultimate).
       Dual-compression + rebound damping. Similar architecture to RC2T but
       lacks the threshold/HBO system; may have different click counts.
-    adjusters:
-      high_speed_compression: { clicks: 5 }
-      low_speed_compression:  { clicks: 5 }
-      rebound:                { clicks: 15 }
+    adjustments:
+      - { name: High-Speed Compression, type: step, max: 5 }
+      - { name: Low-Speed Compression,  type: step, max: 5 }
+      - { name: Rebound, type: step, max: 15, notes: Counted from fully open (fastest) }
     note: "Click counts inferred from RC2T; verify independently."
 
   debonair_plus:
@@ -82,26 +76,31 @@ dampers:
       Air spring system found on many RockShox shocks (Super Deluxe,
       SIDLuxe, Deluxe, Vivid air models). Large-volume, progressive tuning
       via air pressure and volume spacers, not manual click adjusters.
-    adjusters: {}
+    adjustments: []
     note: >
-      DebonAir+ is a spring design, not a damper. No click adjustments.
-      Tuning via air pressure (PSI) and optional volume spacers.
+      DebonAir+ is a spring design, not a damper. No click adjustments —
+      tuning via air pressure (PSI) and optional volume spacers (spring-side).
 
   touch_down_rc2t:
     name: TouchDown RC2T
     description: >
       Air shock variant combining Vivid platform with RC2T damping and
       TouchDown hydraulic bottom-out (proprietary HBO system).
-    adjusters:
-      high_speed_compression: { clicks: 5 }
-      low_speed_compression:  { clicks: 5 }
-      rebound:                { clicks: 15 }
+    adjustments:
+      - { name: High-Speed Compression, type: step, max: 5 }
+      - { name: Low-Speed Compression,  type: step, max: 5 }
+      - { name: Rebound, type: step, max: 15, notes: Counted from fully open (fastest) }
 
 # --------------------------------------------------------------------------
 # Shocks — current (2025/2026) RockShox lineup.
 # Shocks are sold by stroke/eye-to-eye length to match a given frame, not by a
 # fixed "travel" like forks — `stroke_mm` lists commonly offered lengths when
 # published on the product page.
+#
+# The model-level `spring:` decides the spring adjustment; the trim-level
+# `spring:` (DebonAir+, SoloAir, …) is the informational spring-variant name.
+# Air shocks share the `&air_spring` anchor (Pressure), coil shocks list a
+# Spring Rate. Volume-spacer counts are not published per model — see follow-ups.
 # --------------------------------------------------------------------------
 shocks:
   - model: "Deluxe"
@@ -113,13 +112,17 @@ shocks:
       - trim: Ultimate
         dampers: [rct]
         spring: DebonAir+
+        adjustments: &air_spring
+          - { name: Pressure, type: numerical, unit: psi, min: 0 }
       - trim: Select+
         dampers: [rct]
         spring: DebonAir
+        adjustments: *air_spring
         note: OEM only
       - trim: Select
         dampers: [rct]
         spring: SoloAir
+        adjustments: *air_spring
         note: OEM only
 
   - model: "Super Deluxe"
@@ -131,13 +134,16 @@ shocks:
       - trim: Ultimate
         dampers: [rc2t]
         spring: DebonAir+
+        adjustments: *air_spring
       - trim: Select+
         dampers: [rc2t]
         spring: DebonAir
+        adjustments: *air_spring
         note: OEM only
       - trim: Select
         dampers: [rc2t]
         spring: SoloAir
+        adjustments: *air_spring
         note: OEM only
 
   - model: "Super Deluxe Coil"
@@ -148,11 +154,15 @@ shocks:
     trims:
       - trim: Ultimate
         dampers: [rc2t]
+        adjustments: &coil_spring
+          - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
       - trim: Select+
         dampers: [rc2t]
+        adjustments: *coil_spring
         note: OEM only
       - trim: Select
         dampers: [rc2t]
+        adjustments: *coil_spring
         note: OEM only
 
   - model: "Super Deluxe Ultimate DH"
@@ -164,6 +174,7 @@ shocks:
       - trim: Ultimate DH
         dampers: [rc2]
         spring: DebonAir+
+        adjustments: *air_spring
         note: DH/gravity tuning; tighter damping range than trail Super Deluxe
 
   - model: "Vivid Air"
@@ -175,13 +186,16 @@ shocks:
       - trim: Ultimate
         dampers: [touch_down_rc2t]
         spring: DebonAir+
+        adjustments: *air_spring
       - trim: Select+
         dampers: [touch_down_rc2t]
         spring: DebonAir
+        adjustments: *air_spring
         note: OEM only
       - trim: Select
         dampers: [touch_down_rc2t]
         spring: SoloAir
+        adjustments: *air_spring
         note: OEM only
 
   - model: "Vivid Coil"
@@ -192,6 +206,7 @@ shocks:
     trims:
       - trim: Ultimate
         dampers: [vivid_coil]
+        adjustments: *coil_spring
         note: >
           Dual compression (5 clicks each) + 20-click rebound + 5-click
           adjustable HBO + threshold climb switch. Both compression dials
@@ -205,6 +220,7 @@ shocks:
     trims:
       - trim: Ultimate DH
         dampers: [vivid_coil]
+        adjustments: *coil_spring
         note: DH-tuned variant of Vivid Coil
 
   - model: "SIDLuxe"
@@ -216,13 +232,16 @@ shocks:
       - trim: Ultimate Flight Attendant
         dampers: [rct]
         spring: DebonAir+
+        adjustments: *air_spring
         note: Electronic damper adjustment
       - trim: Ultimate
         dampers: [rct]
         spring: DebonAir+
+        adjustments: *air_spring
       - trim: Select+
         dampers: [rct]
         spring: DebonAir
+        adjustments: *air_spring
         note: OEM only
 
   - model: "Monarch"
@@ -234,16 +253,20 @@ shocks:
       - trim: XX
         dampers: [rct]
         spring: SoloAir
+        adjustments: *air_spring
         note: XLoc remote lockout
       - trim: RT3
         dampers: [rct]
         spring: SoloAir
+        adjustments: *air_spring
       - trim: RL
         dampers: [rct]
         spring: DebonAir
+        adjustments: *air_spring
       - trim: R
         dampers: [rct]
         spring: SoloAir
+        adjustments: *air_spring
 
   - model: "Monarch Plus RC3"
     category: Enduro / Gravity
@@ -254,10 +277,13 @@ shocks:
       - trim: Ultimate
         dampers: [rc2t]
         spring: DebonAir+
+        adjustments: *air_spring
         note: Piggyback reservoir design
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):
+#   - Volume-spacer (Bottomless Token) max counts per air model — not published;
+#     add a Volume Spacers adjustment (with published `max`) once a spec lists it.
 #   - RCT damper click counts (Deluxe Ultimate, SIDLuxe, Vivid Air) — inferred
 #     from RC2T but not independently confirmed; verify against SRAM manuals.
 #   - Charger Race Day damper (SID/Reba/Pike/Rudy XC forks) — click counts not

@@ -84,6 +84,41 @@ class StepAdjustment extends Adjustment {
     }
   }
 
+  static StepAdjustmentVisualization _visualizationFromYaml(String? name) {
+    switch (name) {
+      case null:
+      case 'dial_ccw':
+        return StepAdjustmentVisualization.sliderWithCounterclockwiseDial;
+      case 'dial_cw':
+        return StepAdjustmentVisualization.sliderWithClockwiseDial;
+      case 'stepper':
+        return StepAdjustmentVisualization.minusButtonValuePlusButton;
+      case 'slider':
+        return StepAdjustmentVisualization.slider;
+      default:
+        throw ArgumentError('Unknown step visualization "$name"');
+    }
+  }
+
+  factory StepAdjustment.fromYaml(Map<String, dynamic> map) {
+    _checkPresetKeys(map, const {
+      'name', 'type', 'min', 'max', 'step', 'unit', 'visualization', 'notes',
+    });
+    final max = (map['max'] as num?)?.toInt();
+    if (max == null) {
+      throw ArgumentError('Step adjustment "${map['name']}" requires "max"');
+    }
+    return StepAdjustment(
+      name: _requirePresetName(map),
+      notes: map['notes'] as String?,
+      unit: AdjustmentUnit.fromLegacy(map['unit'] as String?),
+      min: (map['min'] as num?)?.toInt() ?? 0,
+      max: max,
+      step: (map['step'] as num?)?.toInt() ?? 1,
+      visualization: _visualizationFromYaml(map['visualization'] as String?),
+    );
+  }
+
   @override
   IconData getIconData() => StepAdjustment.iconData;
 

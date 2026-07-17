@@ -15,7 +15,7 @@ sources:
 updated: 2026-07-05
 # Click ranges taken from the per-model spec tables on the official FOX
 # product pages (ridefox.com/pages/fox-<model>). Clicks counted from fully
-# closed (firmest); an adjuster with "16 clicks" has range 0..16.
+# closed (firmest) → default `dial_ccw`; an adjuster with "16 clicks" is 0..16.
 
 # --------------------------------------------------------------------------
 # Dampers
@@ -27,27 +27,27 @@ dampers:
       Shared gravity damper platform in FLOAT X2 and DHX2. Variable Valve
       Control on both high-speed circuits. Optional 2-position independent
       Firm Mode lever on Factory/Performance Elite.
-    adjusters:
-      high_speed_compression: { clicks: 8 }
-      low_speed_compression:  { clicks: 16 }
-      high_speed_rebound:     { clicks: 8 }
-      low_speed_rebound:      { clicks: 16 }
+    adjustments:
+      - { name: High-Speed Compression, type: step, max: 8 }
+      - { name: Low-Speed Compression,  type: step, max: 16 }
+      - { name: High-Speed Rebound,     type: step, max: 8 }
+      - { name: Low-Speed Rebound,      type: step, max: 16 }
     firm_mode: optional 2-position independent lever
 
   float_x:
     name: FLOAT X damper
     description: All-mountain air shock damper. Tool-free 2-position lever (Open/Firm).
-    adjusters:
-      low_speed_compression: { clicks: 11 }
-      low_speed_rebound:     { clicks: 16 }
-    compression_positions: [Open, Firm]
+    adjustments:
+      - { name: Low-Speed Compression, type: step, max: 11 }
+      - { name: Low-Speed Rebound,     type: step, max: 16 }
+      - { name: Compression Mode, type: categorical, options: [Open, Firm] }
 
   float:
     name: FLOAT damper
     description: XC/Trail air shock damper. 2-position lever with 3-position micro-adjust in Open mode.
-    adjusters:
-      rebound: { clicks: 12 }
-    compression_positions: [Open, Firm]
+    adjustments:
+      - { name: Rebound, type: step, max: 12 }
+      - { name: Compression Mode, type: categorical, options: [Open, Firm] }
     open_mode_micro_adjust: 3-position
 
   float_sl:
@@ -56,23 +56,28 @@ dampers:
       Lightest XC race damper. 3-position lever (Open/Medium/Firm) with
       3-position micro-adjust in Open mode; remote variants available in
       2-position or 3-position handlebar remote.
-    adjusters:
-      rebound: { clicks: 12 }
-    compression_positions: [Open, Medium, Firm]
+    adjustments:
+      - { name: Rebound, type: step, max: 12 }
+      - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm] }
 
   dhx_coil:
     name: DHX damper (coil)
     description: Coil-sprung trail/enduro damper. Tool-free adjusters, 2-position Firm switch.
-    adjusters:
-      low_speed_compression: { clicks: 11 }
-      low_speed_rebound:     { clicks: 16 }
-    compression_positions: [Open, Firm]
+    adjustments:
+      - { name: Low-Speed Compression, type: step, max: 11 }
+      - { name: Low-Speed Rebound,     type: step, max: 16 }
+      - { name: Compression Mode, type: categorical, options: [Open, Firm] }
 
 # --------------------------------------------------------------------------
 # Shocks — current (2025/2026) FOX lineup.
 # Shocks are sold by eye-to-eye/stroke length to match a given frame, not by a
 # fixed "travel" like forks — `stroke_mm` lists commonly offered strokes
 # rather than an exhaustive per-frame spec.
+#
+# The model-level `spring:` decides the spring adjustment: air shocks share the
+# `&air_spring` anchor (Pressure), coil shocks list a Spring Rate. Volume-spacer
+# counts are not published per model, so no Volume Spacers adjustment is
+# generated — see follow-ups.
 # --------------------------------------------------------------------------
 shocks:
   - model: "FLOAT SL"
@@ -84,9 +89,12 @@ shocks:
       - trim: Factory
         stanchion: Kashima
         dampers: [float_sl]
+        adjustments: &air_spring
+          - { name: Pressure, type: numerical, unit: psi, min: 0 }
       - trim: Performance
         stanchion: 7000-series alloy, black anodized
         dampers: [float_sl]
+        adjustments: *air_spring
 
   - model: "FLOAT"
     category: XC / Trail
@@ -97,15 +105,19 @@ shocks:
       - trim: Factory
         stanchion: Kashima
         dampers: [float]
+        adjustments: *air_spring
       - trim: Performance Elite
         stanchion: 7000-series alloy, black anodized
         dampers: [float]
+        adjustments: *air_spring
       - trim: Performance
         stanchion: 7000-series alloy, black anodized
         dampers: [float]
+        adjustments: *air_spring
       - trim: Rhythm
         stanchion: 6000-series alloy, black anodized
         dampers: [float]
+        adjustments: *air_spring
         note: OEM complete bikes only
 
   - model: "FLOAT X"
@@ -117,12 +129,15 @@ shocks:
       - trim: Factory
         stanchion: Kashima
         dampers: [float_x]
+        adjustments: *air_spring
       - trim: Performance Elite
         stanchion: 7000-series alloy, black anodized
         dampers: [float_x]
+        adjustments: *air_spring
       - trim: Performance
         stanchion: 7000-series alloy, black anodized
         dampers: [float_x]
+        adjustments: *air_spring
         note: simplified/fixed LSC on some builds; LSR remains 16 clicks
 
   - model: "FLOAT X2"
@@ -134,12 +149,15 @@ shocks:
       - trim: Factory
         stanchion: Kashima
         dampers: [vvc2]
+        adjustments: *air_spring
       - trim: Performance Elite
         stanchion: 7000-series alloy, black anodized
         dampers: [vvc2]
+        adjustments: *air_spring
       - trim: Performance
         stanchion: 7000-series alloy, black anodized
         dampers: [vvc2]
+        adjustments: *air_spring
         note: OEM complete bikes only; simplified external adjustments
 
   - model: "DHX"
@@ -153,6 +171,8 @@ shocks:
         dampers: [dhx_coil]
         mount: [Metric, Metric Trunnion]
         stroke_mm: [55, 60, 62.5, 65]
+        adjustments: &coil_spring
+          - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
         note: "Coil spring sold separately. Common sizes: 210x55, 230x60, 230x65, 185x55, 205x60, 205x62.5"
 
   - model: "DHX2"
@@ -164,20 +184,26 @@ shocks:
       - trim: Factory
         stanchion: Kashima
         dampers: [vvc2]
+        adjustments: *coil_spring
       - trim: Performance Elite
         stanchion: 7000-series alloy, black anodized
         dampers: [vvc2]
+        adjustments: *coil_spring
       - trim: Performance
         stanchion: 7000-series alloy, black anodized
         dampers: [vvc2]
+        adjustments: *coil_spring
         note: OEM complete bikes only; simplified external adjustments
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):
+#   - Volume-spacer counts per model are not published in the FOX spec tables,
+#     so no Volume Spacers adjustment is generated. Add one (with the published
+#     `max`) per air trim once a spec table lists it.
 #   - Live Valve Neo variants (FLOAT X Live Valve Neo, FLOAT X2 Live Valve
 #     Neo, DHX Live Valve Neo) are electronically controlled — no manual
-#     click-based adjustment model. Would need a distinct schema shape
-#     (modes/profiles instead of click counts) if added.
+#     click-based adjustment model. Would need modes/profiles (categorical
+#     entries) instead of click counts if added.
 #   - Exact stroke/eye-to-eye options for FLOAT/FLOAT X/FLOAT X2/FLOAT SL are
 #     frame-dependent and not listed in per-model spec tables; only DHX's
 #     common sizes were published on its product page.

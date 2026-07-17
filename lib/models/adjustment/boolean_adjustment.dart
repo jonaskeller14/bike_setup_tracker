@@ -48,6 +48,15 @@ class BooleanAdjustment extends Adjustment {
     }
   }
 
+  factory BooleanAdjustment.fromYaml(Map<String, dynamic> map) {
+    _checkPresetKeys(map, const {'name', 'type', 'unit', 'notes'});
+    return BooleanAdjustment(
+      name: _requirePresetName(map),
+      notes: map['notes'] as String?,
+      unit: AdjustmentUnit.fromLegacy(map['unit'] as String?),
+    );
+  }
+
   @override
   IconData getIconData() => BooleanAdjustment.iconData;
 

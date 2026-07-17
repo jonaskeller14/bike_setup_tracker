@@ -15,6 +15,7 @@ import 'pages/home_page.dart';
 import 'pages/loading_error_page.dart';
 import 'pages/onboarding_page.dart';
 import 'repositories/app_repository.dart';
+import 'repositories/component_preset_repository.dart';
 import 'services/backup_service.dart';
 import 'services/database_migration_service.dart';
 import 'services/deep_link_service.dart';
@@ -125,6 +126,7 @@ class LoadingGate extends StatelessWidget {
           return MultiProvider(
             providers: [
               Provider<AppDatabase>.value(value: appRepository.database),
+              Provider<ComponentPresetRepository>(create: (_) => ComponentPresetRepository()),
               ChangeNotifierProvider.value(value: appSettings),
               ChangeNotifierProvider.value(value: appRepository),
               ProxyProvider<AppRepository, BackupService>(

@@ -84,6 +84,40 @@ sealed class Adjustment {
       default: throw Exception("Json Version $version of Adjustment incompatible.");
     }
   }
+
+  static Adjustment fromYaml(Map<String, dynamic> map) {
+    final typeString = map['type'];
+    if (typeString == null) {
+      throw ArgumentError('Preset adjustment is missing the required "type" key: $map');
+    }
+    final type = AdjustmentType.values.firstWhereOrNull((e) => e.name == typeString);
+    switch (type) {
+      case AdjustmentType.step: return StepAdjustment.fromYaml(map);
+      case AdjustmentType.numerical: return NumericalAdjustment.fromYaml(map);
+      case AdjustmentType.categorical: return CategoricalAdjustment.fromYaml(map);
+      case AdjustmentType.boolean: return BooleanAdjustment.fromYaml(map);
+      case AdjustmentType.text:
+      case AdjustmentType.duration:
+        throw ArgumentError('Preset adjustment type "$typeString" is not supported in data.');
+      case null:
+        throw ArgumentError('Unknown preset adjustment type "$typeString".');
+    }
+  }
+}
+
+void _checkPresetKeys(Map<String, dynamic> map, Set<String> allowed) {
+  final unknown = map.keys.where((k) => !allowed.contains(k)).toList();
+  if (unknown.isNotEmpty) {
+    throw ArgumentError('Unknown preset adjustment key(s) ${unknown.join(', ')} in $map');
+  }
+}
+
+String _requirePresetName(Map<String, dynamic> map) {
+  final name = map['name'];
+  if (name is! String || name.isEmpty) {
+    throw ArgumentError('Preset adjustment requires a non-empty "name": $map');
+  }
+  return name;
 }
 
 bool adjustmentValuesEqual(dynamic a, dynamic b) =>

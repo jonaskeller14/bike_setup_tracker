@@ -16,7 +16,7 @@ sources:
   - https://www.ohlins.eu/de/products/mountainbike/ttx22-m2-piggyback-105x35-267x89mm--5708/
 updated: 2026-07-05
 # Click ranges taken from the individual product pages at ohlins.eu (German
-# site). Clicks counted from fully closed (firmest).
+# site). Clicks counted from fully closed (firmest) → default `dial_ccw`.
 
 # --------------------------------------------------------------------------
 # Dampers
@@ -25,18 +25,18 @@ dampers:
   ttx1air_m2:
     name: TTX1Air m.2
     description: Twin-tube air shock.
-    adjusters:
-      high_speed_compression: { clicks: 3 }
-      low_speed_compression:  { clicks: 16 }
-      rebound:                { clicks: 7 }
+    adjustments:
+      - { name: High-Speed Compression, type: step, max: 3 }
+      - { name: Low-Speed Compression,  type: step, max: 16 }
+      - { name: Rebound,                type: step, max: 7 }
 
   ttx2air_m2:
     name: TTX2Air m.2
     description: Twin-tube air shock; coarser external adjustment range than TTX1Air.
-    adjusters:
-      high_speed_compression: { clicks: 3 }
-      low_speed_compression:  { clicks: 12 }
-      rebound:                { clicks: 3 }
+    adjustments:
+      - { name: High-Speed Compression, type: step, max: 3 }
+      - { name: Low-Speed Compression,  type: step, max: 12 }
+      - { name: Rebound,                type: step, max: 3 }
 
   txc1air:
     name: TXC1Air
@@ -44,30 +44,33 @@ dampers:
       Cross-country air shock (pairs with RXC34 fork). Rebound is externally
       adjustable; compression click count was not separately specified on the
       product page — verify before relying on it.
-    adjusters:
-      rebound: { clicks: 12 }
+    adjustments:
+      - { name: Rebound, type: step, max: 12 }
 
   txc2air:
     name: TXC2Air
     description: Cross-country air shock, newer generation. Three riding modes via manual lever.
-    adjusters:
-      low_speed_compression: { clicks: 16 }   # in Open mode
-      rebound:               { clicks: 12 }
-    compression_positions: [Open, Medium, Firm]   # "three riding modes via manual lever"
+    adjustments:
+      - { name: Low-Speed Compression, type: step, max: 16, notes: In Open mode }
+      - { name: Rebound, type: step, max: 12 }
+      - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm], notes: Three riding modes via manual lever }
 
   ttx22_m2:
     name: TTX22 m.2
     description: Twin-tube coil shock. Same cartridge across Piggyback/Side-by-side/Trunnion mount variants.
-    adjusters:
-      high_speed_compression: { clicks: 3 }
-      low_speed_compression:  { clicks: 16 }
-      rebound:                { clicks: 7 }
+    adjustments:
+      - { name: High-Speed Compression, type: step, max: 3 }
+      - { name: Low-Speed Compression,  type: step, max: 16 }
+      - { name: Rebound,                type: step, max: 7 }
 
 # --------------------------------------------------------------------------
 # Shocks — current Öhlins MTB lineup.
 # Shocks are sold by eye-to-eye/stroke length to match a given frame, not by a
 # fixed "travel" like forks — `stroke_mm` lists the eye-to-eye × stroke sizes
 # published on the product page.
+#
+# Air models share the `&air_spring` anchor (Pressure); the coil TTX22 m.2 lists
+# a Spring Rate.
 # --------------------------------------------------------------------------
 shocks:
   - model: "TTX1Air"
@@ -78,6 +81,8 @@ shocks:
     trims:
       - trim: Universal
         dampers: [ttx1air_m2]
+        adjustments: &air_spring
+          - { name: Pressure, type: numerical, unit: psi, min: 0 }
 
   - model: "TTX1Air m.2"
     category: Air
@@ -89,6 +94,7 @@ shocks:
         mount: [Trunnion, Standard eyelet]
         stroke_mm: ["165x45/42.5/40/37.5 (Trunnion)", "185x55/52.5/50/47.5 (Trunnion)", "190x45/42.5/40/37.5", "210x55/52.5/50/47.5"]
         dampers: [ttx1air_m2]
+        adjustments: *air_spring
 
   - model: "TTX2Air"
     category: Air
@@ -98,6 +104,7 @@ shocks:
     trims:
       - trim: Universal
         dampers: [ttx2air_m2]
+        adjustments: *air_spring
 
   - model: "TTX2Air m.2"
     category: Air
@@ -109,6 +116,7 @@ shocks:
         mount: [Trunnion, Metric]
         stroke_mm: ["185x55/52.5/50/47.5 (Trunnion)", "205x65/62.5/60/57.5 (Trunnion)", "210x55/52.5/50/47.5 (Metric)", "230x65/62.5/60/57.5 (Metric)"]
         dampers: [ttx2air_m2]
+        adjustments: *air_spring
         note: air pressure adjustable up to 325psi; volume-spacer chamber system
 
   - model: "TXC1Air"
@@ -121,6 +129,7 @@ shocks:
         mount: [Trunnion Remote, Remote]
         stroke_mm: ["165x37.5/40 (Trunnion Remote)", "185x47.5/50 (Trunnion Remote)", "190x37.5/40 (Remote)", "210x47.5/50 (Remote)"]
         dampers: [txc1air]
+        adjustments: *air_spring
         note: X-Country-tuned hydraulics; pairs with RXC34 fork
 
   - model: "TXC2Air"
@@ -133,6 +142,7 @@ shocks:
         mount: [Standard eyelet, Remote (5.5mm cable pull adapter)]
         stroke_mm: ["165x37.5/40/42.5/45", "185x47.5/50/52.5/55", "190x37.5/40/42.5/45", "210x47.5/50/52.5/55"]
         dampers: [txc2air]
+        adjustments: *air_spring
         note: X-Country-tuned hydraulics; weighs from 255g
 
   - model: "TTX22 m.2"
@@ -144,22 +154,29 @@ shocks:
       - trim: Piggyback
         stroke_mm: ["51 (267 eye-to-eye)"]
         dampers: [ttx22_m2]
+        adjustments: &coil_spring
+          - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
       - trim: Side-by-side
         url: https://www.ohlins.eu/de/products/mountainbike/ttx22-m2-side-by-side--7681/
         mount: MTBM 220x series
         dampers: [ttx22_m2]
+        adjustments: *coil_spring
       - trim: Trunnion Piggyback
         url: https://www.ohlins.eu/de/products/mountainbike/ttx22-m2-trunnion-piggyback-mtbm--7680/
         mount: MTBM 224x series
         dampers: [ttx22_m2]
+        adjustments: *coil_spring
       - trim: Trunnion Side-by-side
         url: https://www.ohlins.eu/de/products/mountainbike/ttx22-m2-trunnion-side-by--7679/
         mount: MTBM 222x series
         dampers: [ttx22_m2]
+        adjustments: *coil_spring
     note: Coil spring sold separately (Öhlins 18065-series).
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):
+#   - Volume-spacer chamber counts (TTX2Air m.2 and others) — not published as
+#     a max; add a Volume Spacers adjustment once a spec lists it.
 #   - TXC1Air's compression click count wasn't separately specified on its
 #     product page (unlike TXC2Air's confirmed 16 clicks) — verify before
 #     relying on it.

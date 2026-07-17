@@ -83,6 +83,17 @@ class NumericalAdjustment extends Adjustment {
     }
   }
 
+  factory NumericalAdjustment.fromYaml(Map<String, dynamic> map) {
+    _checkPresetKeys(map, const {'name', 'type', 'min', 'max', 'unit', 'notes'});
+    return NumericalAdjustment(
+      name: _requirePresetName(map),
+      notes: map['notes'] as String?,
+      unit: AdjustmentUnit.fromLegacy(map['unit'] as String?),
+      min: (map['min'] as num?)?.toDouble(),
+      max: (map['max'] as num?)?.toDouble(),
+    );
+  }
+
   @override
   IconData getIconData() => NumericalAdjustment.iconData;
 

@@ -209,83 +209,99 @@ needs no gating — it does nothing until a UI entry point calls it.
 
 ---
 
-## Phase 1 — Data layer: schema rev, data migration, parser, repository, CI test
+## Phase 1 — Data layer: schema rev, data migration, parser, repository, CI test ✅
 
 **Goal:** YAML → typed in-memory index, validated in CI. No UI.
 
-1. **Dependencies / assets**
-   - Add `yaml: ^3.x` to `pubspec.yaml`.
-   - Declare `data/component_presets/fork/` and `data/component_presets/shock/`
+**Status:** ✅ Complete — all 6 brand files migrated, parser + strict
+`Adjustment.fromYaml` + repository landed, `test/component_presets_test.dart`
+green (31 catalog tests), full suite green (675). SAG auto-injection is deferred
+to Phase 2's `buildApplication` per the combine-order note (parser holds trim +
+damper specs only).
+
+1. ✅ **Dependencies / assets**
+   - ✅ Add `yaml: ^3.x` to `pubspec.yaml` (added `yaml: ^3.1.2`).
+   - ✅ Declare `data/component_presets/fork/` and `data/component_presets/shock/`
      as asset directories.
-2. **Schema revision (`SCHEMA.md`)**
-   - Replace the `adjusters` / `compression_positions` sections with the
+2. ✅ **Schema revision (`SCHEMA.md`)**
+   - ✅ Replace the `adjusters` / `compression_positions` sections with the
      sparse `adjustments:` list format (fields, defaults table, supported
      `type` and `visualization` values, anchor-reuse tip, combine order,
      SAG auto-injection note).
-   - `spring: Air | Coil` documented as informational metadata per trim
+   - ✅ `spring: Air | Coil` documented as informational metadata per trim
      (model-level default for shocks stays).
-3. **Data migration of existing files** (AI-agent-friendly task, one commit
+3. ✅ **Data migration of existing files** (AI-agent-friendly task, one commit
    per brand file, CI-checked from the first file on)
-   - Convert every damper's `adjusters`/`compression_positions` into
+   - ✅ Convert every damper's `adjusters`/`compression_positions` into
      `adjustments:` lists — RockShox Charger 3.1/3.2 gain their real
      from-middle ranges (HSC −2…+2, LSC −7…+7) **and
      `visualization: dial_cw`** (increasing value = clockwise; −2 lies
      counterclockwise of the 0 detent) in this pass; check
      `shock/rockshox.yaml` (RC2T, Vivid) for the same convention, and decide
      dial direction per adjuster wherever a brand counts from open.
-   - Add spring `adjustments` to models/trims: pressure chamber(s), volume
+     *(Shock RC2T/RC2/RCT/Vivid compression is 0–5 from fully closed → default
+     `dial_ccw`; rebound counts from open → recorded in each adjuster's
+     `notes`. Only the fork Charger 3.1/3.2 use the from-middle + `dial_cw`
+     treatment.)*
+   - ✅ Add spring `adjustments` to models/trims: pressure chamber(s), volume
      spacers **only where the fork/shock actually takes them** (max where
      published), spring-rate/preload for coil. Where hardware details aren't
      published, list only what is certain and add a follow-up note — never
-     guess.
-4. **Models**
-   - `Adjustment.fromYaml(Map)` — static dispatcher on `type` in
+     guess. *(Pressure for every air trim via a per-file `&air_spring` anchor;
+     Spring Rate for coil trims. Volume-spacer counts are not published in any
+     current source, so none were generated — each file's follow-ups note the
+     gap. Öhlins OTX14 R's lockout lever became a `Lockout` boolean.)*
+4. ✅ **Models**
+   - ✅ `Adjustment.fromYaml(Map)` — static dispatcher on `type` in
      `adjustment.dart` (mirroring `fromJson`'s structure) + one factory per
      supported subclass (step/numerical/categorical/boolean) holding the
      sparse defaults and the `visualization` name→enum mapping. **Strict**:
-     unknown keys throw. Separate code path from the persisted `fromJson`
-     (no `version` field) — never mixed.
-   - `lib/models/component_preset.dart` — `PresetAdjustmentSpec`: a trivial
+     unknown keys throw (`_checkPresetKeys`). Separate code path from the
+     persisted `fromJson` (no `version` field) — never mixed.
+   - ✅ `lib/models/component_preset.dart` — `PresetAdjustmentSpec`: a trivial
      holder of the raw (normalized) map whose `Adjustment build()` delegates
      to `Adjustment.fromYaml` — keeps instantiation (fresh UUIDs) deferred
      to selection time per B2.
-   - `DamperSpec`: key, name, description, `List<PresetAdjustmentSpec>`,
+   - ✅ `DamperSpec`: key, name, description, `List<PresetAdjustmentSpec>`,
      freeform info map (remote, firm_mode, …).
-   - `ComponentPresetVariant` (one per brand×model×trim): brand, model, trim,
+   - ✅ `ComponentPresetVariant` (one per brand×model×trim): brand, model, trim,
      `ComponentType`, category, yearRange, url (trim override > model),
      wheelSizes, travel/stroke options, spring label,
      `List<PresetAdjustmentSpec>` (trim-level), resolved `List<DamperSpec>`,
      stanchion, note.
-   - `String get presetKey` → `"<type>/<brand>/<model>/<trim>"` — computed
+   - ✅ `String get presetKey` → `"<type>/<brand>/<model>/<trim>"` — computed
      index identity only, never persisted (see provenance decision).
-5. **Parser** — pure function `List<ComponentPresetVariant> parseBrandFile(String yamlSource)`
-   (in the model file or `lib/utils/component_preset_parser.dart`): resolves
-   damper refs, applies sparse defaults, throws descriptive errors on
-   malformed data. Takes a string → shared verbatim by app (assets) and test
-   (filesystem). YAML anchors are handled by the `yaml` package before the
-   parser ever sees them.
-6. **Repository** — `lib/repositories/component_preset_repository.dart`
-   - Plain class (immutable data, no `ChangeNotifier`), provided via
+5. ✅ **Parser** — pure function `List<ComponentPresetVariant> parseBrandFile(String yamlSource)`
+   in `lib/utils/component_preset_parser.dart`: resolves damper refs, applies
+   sparse defaults, throws descriptive `FormatException`s on malformed data;
+   normalizes `YamlMap`/`YamlList` to plain Dart collections. Takes a string →
+   shared verbatim by app (assets) and test (filesystem). YAML anchors are
+   handled by the `yaml` package before the parser ever sees them.
+6. ✅ **Repository** — `lib/repositories/component_preset_repository.dart`
+   - ✅ Plain class (immutable data, no `ChangeNotifier`), provided via
      `Provider` in `main.dart`.
-   - `Future<List<ComponentPresetVariant>> forType(ComponentType)` — on first
+   - ✅ `Future<List<ComponentPresetVariant>> forType(ComponentType)` — on first
      call: `AssetManifest` lookup → load + parse that type's files → cache.
-   - `Future<List<ComponentPresetVariant>> all()` — loads every type dir
-     (needed by C2's cross-type search). Same session cache.
-   - Parse errors: log + skip the offending file (app must never crash on bad
+   - ✅ `Future<List<ComponentPresetVariant>> all()` — loads every type dir
+     (needed by C2's cross-type search). Same session cache; also populates the
+     per-type cache.
+   - ✅ Parse errors: log + skip the offending file (app must never crash on bad
      data; CI is the correctness gate).
-7. **CI validation test** — `test/component_presets_test.dart`
-   - Enumerates `data/component_presets/**/*.yaml` via `dart:io`, runs
+7. ✅ **CI validation test** — `test/component_presets_test.dart`
+   - ✅ Enumerates `data/component_presets/**/*.yaml` via `dart:io`, runs
      `parseBrandFile` on each, then **`build()`s every adjustment spec into a
      real `Adjustment` via the strict `fromYaml`** (unknown keys throw → the
      test doubles as a typo detector for data edits) and asserts:
-     `component_type` matches its directory, damper keys resolve,
-     `min < max` and `step > 0` on step adjustments, categorical options
-     non-empty, urls are http(s), no duplicate presetKeys.
-   - This test is the compile-time-safety replacement — **an AI data edit that
+     `component_type` matches its directory, damper keys resolve (enforced by
+     the parser), `min < max` and `step > 0` on step adjustments, categorical
+     options non-empty, urls are http(s), no duplicate presetKeys.
+   - ✅ This test is the compile-time-safety replacement — **an AI data edit that
      breaks the schema fails CI, not the app.**
 
-**Acceptance:** `flutter test` green; repository returns parsed variants for
-fork + shock in a throwaway unit test; app size delta ≈ nothing.
+**Acceptance:** ✅ `flutter test` green (675 total, incl. 31 catalog tests);
+`flutter analyze` clean on all new/changed files; parser returns parsed variants
+for fork + shock (exercised by the CI test on the real asset files); app size
+delta ≈ nothing (text YAML only).
 
 ---
 

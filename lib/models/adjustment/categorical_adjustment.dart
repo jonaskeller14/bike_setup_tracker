@@ -63,6 +63,21 @@ class CategoricalAdjustment extends Adjustment {
     }
   }
 
+  factory CategoricalAdjustment.fromYaml(Map<String, dynamic> map) {
+    _checkPresetKeys(map, const {'name', 'type', 'options', 'multiSelect', 'unit', 'notes'});
+    final rawOptions = map['options'];
+    if (rawOptions is! List || rawOptions.isEmpty) {
+      throw ArgumentError('Categorical adjustment "${map['name']}" requires a non-empty "options" list');
+    }
+    return CategoricalAdjustment(
+      name: _requirePresetName(map),
+      notes: map['notes'] as String?,
+      unit: AdjustmentUnit.fromLegacy(map['unit'] as String?),
+      options: rawOptions.map((e) => e.toString()).toSet(),
+      multiSelect: map['multiSelect'] as bool? ?? false,
+    );
+  }
+
   @override
   IconData getIconData() => CategoricalAdjustment.iconData;
 

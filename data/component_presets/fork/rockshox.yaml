@@ -14,10 +14,10 @@ sources:
   - https://support.rockshox.com/hc/en-us/articles/26413299077659-How-did-the-adjustment-range-of-Low-Speed-Compression-and-High-Speed-Compression-change-on-RockShox-Charger-3-1/
 updated: 2026-07-05
 # Click ranges from SRAM/RockShox support documentation and official product
-# pages (sram.com). Charger 3/3.1 clicks are counted from the middle position:
-# HSC: -2, -1, 0 (middle/neutral), +1, +2 = 5 clicks total
-# LSC: -7, -6, ..., 0 (middle), ..., +6, +7 = 15 clicks total
-# Rebound: 0-18 clicks, counted from fully OPEN (fastest rebound).
+# pages (sram.com). Charger 3/3.1 compression is counted from the MIDDLE detent
+# (HSC -2..+2, LSC -7..+7) and stored with those literal ranges plus
+# `visualization: dial_cw` (increasing value = clockwise; -2 lies
+# counterclockwise of the 0 detent). Rebound is 0-18, counted from fully OPEN.
 
 # --------------------------------------------------------------------------
 # Dampers
@@ -30,14 +30,13 @@ dampers:
       Charger 3 but improved damping curve, especially in LSC open positions
       (68% more oil flow) and overall reduced damping baseline. RC2 variant
       adds remote control.
-    adjusters:
-      high_speed_compression: { clicks: 5 }
-      low_speed_compression:  { clicks: 15 }
-      rebound:                { clicks: 18 }
+    adjustments:
+      - { name: High-Speed Compression, type: step, min: -2, max: 2, visualization: dial_cw, notes: Counted from the middle detent }
+      - { name: Low-Speed Compression,  type: step, min: -7, max: 7, visualization: dial_cw, notes: Counted from the middle detent }
+      - { name: Rebound, type: step, max: 18, notes: Counted from fully open (fastest) }
     note: >
-      HSC counted from middle (-2 to +2); LSC counted from middle (-7 to +7);
-      Rebound counted from fully OPEN (fastest). The +/- symbol on each dial
-      indicates direction relative to the white etched indicator line.
+      The +/- symbol on each compression dial indicates direction relative to
+      the white etched indicator line.
 
   charger_3_2:
     name: Charger 3.2
@@ -45,14 +44,11 @@ dampers:
       Charger for 2027+ Pike, Lyrik, ZEB, BoXXer. Likely same click counts as
       Charger 3.1 but with further refinements; exact damping internals not
       independently confirmed for 3.2 generation.
-    adjusters:
-      high_speed_compression: { clicks: 5 }
-      low_speed_compression:  { clicks: 15 }
-      rebound:                { clicks: 18 }
-    note: >
-      HSC counted from middle (-2 to +2); LSC counted from middle (-7 to +7);
-      Rebound counted from fully OPEN (fastest). Same counting method as
-      Charger 3.1.
+    adjustments:
+      - { name: High-Speed Compression, type: step, min: -2, max: 2, visualization: dial_cw, notes: Counted from the middle detent }
+      - { name: Low-Speed Compression,  type: step, min: -7, max: 7, visualization: dial_cw, notes: Counted from the middle detent }
+      - { name: Rebound, type: step, max: 18, notes: Counted from fully open (fastest) }
+    note: Same counting method as Charger 3.1.
 
   charger_race_day_2:
     name: Charger Race Day 2
@@ -60,23 +56,26 @@ dampers:
       Lightweight XC damper (SID SL, SID, Reba Ultimate, Rudy XPLR/XL).
       Simpler tuning range than Charger 3.x aimed at marathon/XC racing.
       Exact click counts not confirmed; flagged as follow-up.
-    adjusters: {}
+    adjustments: []
     note: "Click counts unconfirmed — verify against SRAM official docs"
 
   motion_control:
     name: Motion Control
     description: Simplified trail damper (Reba, Psylo). Entry-level tuning.
-    adjusters: {}
+    adjustments: []
     note: "Click counts unconfirmed"
 
   isolator_rl:
     name: Isolator RL
     description: Remote lockout trail damper. Click counts unconfirmed.
-    adjusters: {}
+    adjustments: []
     note: "Click counts unconfirmed"
 
 # --------------------------------------------------------------------------
 # Forks — current (2025/2026/2027) RockShox lineup.
+# Every current RockShox fork is air-sprung, so trims share the `&air_spring`
+# anchor (Pressure only; Bottomless Token counts are not published per model,
+# so no Volume Spacers adjustment is generated — see follow-ups).
 # --------------------------------------------------------------------------
 forks:
   - model: "SID SL"
@@ -88,11 +87,16 @@ forks:
       - trim: Ultimate
         travel_mm: [100, 110]
         stanchion: 32mm
+        spring: Air
         dampers: [charger_race_day_2]
+        adjustments: &air_spring
+          - { name: Pressure, type: numerical, unit: psi, min: 0 }
       - trim: Select+
         travel_mm: [100, 110]
         stanchion: 32mm
+        spring: Air
         dampers: [charger_race_day_2]
+        adjustments: *air_spring
         note: OEM only
 
   - model: "SID"
@@ -104,11 +108,15 @@ forks:
       - trim: Ultimate
         travel_mm: [110, 120]
         stanchion: 35mm
+        spring: Air
         dampers: [charger_race_day_2]
+        adjustments: *air_spring
       - trim: Select+
         travel_mm: [110, 120]
         stanchion: 35mm
+        spring: Air
         dampers: [charger_race_day_2]
+        adjustments: *air_spring
         note: OEM only
 
   - model: "Reba"
@@ -120,11 +128,15 @@ forks:
       - trim: Ultimate
         travel_mm: [100, 120, 130]
         stanchion: 35mm
+        spring: Air
         dampers: [charger_race_day_2, isolator_rl]
+        adjustments: *air_spring
       - trim: Select+
         travel_mm: [100, 120, 130]
         stanchion: 35mm
+        spring: Air
         dampers: [charger_race_day_2]
+        adjustments: *air_spring
         note: OEM only
 
   - model: "Pike"
@@ -136,25 +148,35 @@ forks:
       - trim: Ultimate
         travel_mm: [120, 130, 140]
         stanchion: 35mm
+        spring: Air
         dampers: [charger_3_1]
+        adjustments: *air_spring
       - trim: Ultimate Flight Attendant
         travel_mm: [120, 130, 140]
         stanchion: 35mm
+        spring: Air
         dampers: [charger_3_1]
+        adjustments: *air_spring
         note: Electronic damper adjustment
       - trim: Select+
         travel_mm: [120, 130, 140]
         stanchion: 35mm
+        spring: Air
         dampers: [charger_3_1]
+        adjustments: *air_spring
       - trim: Select
         travel_mm: [130]
         stanchion: 35mm
+        spring: Air
         dampers: [charger_3_1]
+        adjustments: *air_spring
         note: OEM only
       - trim: Base
         travel_mm: [130]
         stanchion: 35mm
+        spring: Air
         dampers: [charger_3_1]
+        adjustments: *air_spring
         note: OEM only
 
   - model: "Lyrik"
@@ -166,15 +188,21 @@ forks:
       - trim: Ultimate
         travel_mm: [140, 150, 160, 170]
         stanchion: 35mm
+        spring: Air
         dampers: [charger_3_1]
+        adjustments: *air_spring
       - trim: Select+
         travel_mm: [140, 150, 160, 170]
         stanchion: 35mm
+        spring: Air
         dampers: [charger_3_1]
+        adjustments: *air_spring
       - trim: Select
         travel_mm: [140, 160]
         stanchion: 35mm
+        spring: Air
         dampers: [charger_3_1]
+        adjustments: *air_spring
         note: OEM only
 
   - model: "ZEB"
@@ -186,15 +214,21 @@ forks:
       - trim: Ultimate
         travel_mm: [150, 160, 170, 180]   # 10mm increments
         stanchion: 38mm
+        spring: Air
         dampers: [charger_3_1]
+        adjustments: *air_spring
       - trim: Select+
         travel_mm: [160, 170, 180]
         stanchion: 38mm
+        spring: Air
         dampers: [charger_3_1]
+        adjustments: *air_spring
       - trim: Select
         travel_mm: [160, 170]
         stanchion: 38mm
+        spring: Air
         dampers: [charger_3_1]
+        adjustments: *air_spring
         note: OEM only
 
   - model: "BoXXer"
@@ -205,10 +239,14 @@ forks:
     trims:
       - trim: Ultimate
         stanchion: 38mm (dual-crown)
+        spring: Air
         dampers: [charger_3_1]   # or RC2 variant
+        adjustments: *air_spring
       - trim: Select+
         stanchion: 38mm (dual-crown)
+        spring: Air
         dampers: [charger_3_1]
+        adjustments: *air_spring
         note: OEM only
 
   - model: "Rudy XPLR"
@@ -220,7 +258,9 @@ forks:
       - trim: Ultimate
         travel_mm: [40]
         stanchion: 30mm
+        spring: Air
         dampers: [charger_race_day_2]
+        adjustments: *air_spring
 
   - model: "Rudy XL"
     category: Gravel / Bikepacking
@@ -231,11 +271,16 @@ forks:
       - trim: Ultimate
         travel_mm: [60]
         stanchion: 30mm
+        spring: Air
         dampers: [charger_race_day_2]
+        adjustments: *air_spring
     note: Fits 29x2.2" tires max
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):
+#   - Bottomless Token (volume spacer) max counts per model — not published on
+#     the product pages fetched; add a Volume Spacers adjustment (with the
+#     published `max`) per trim once a spec table lists it.
 #   - Charger Race Day 2 exact click counts (SID/Reba/Rudy) — not published
 #     on the official product pages fetched; verify against SRAM service
 #     manuals or TrailHead app before relying on them.

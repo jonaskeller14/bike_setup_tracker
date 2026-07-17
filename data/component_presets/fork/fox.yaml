@@ -8,8 +8,8 @@
 # are defined once under `dampers:` and each fork trim references a damper key.
 # This keeps the numbers correct in exactly one place.
 #
-# See SCHEMA.md in this folder for field definitions and how these entries map
-# to the app's Adjustment presets (lib/widgets/sheets/component_add_adjustment.dart).
+# See SCHEMA.md in this folder for the sparse `adjustments:` format, the field
+# defaults table, and how these entries map to the app's Adjustment presets.
 
 brand: FOX
 component_type: fork
@@ -28,7 +28,8 @@ sources:
 updated: 2026-07-05
 # All click ranges below were taken from the per-model spec tables on the
 # official FOX product pages (ridefox.com/pages/fox-<model>). Clicks are counted
-# from fully closed (firmest); an adjuster with "18 clicks" has range 0..18.
+# from fully closed (firmest); an adjuster with "18 clicks" has range 0..18
+# (the default `dial_ccw` visualization).
 
 # --------------------------------------------------------------------------
 # Dampers — click ranges shared across every fork that ships with the damper.
@@ -37,48 +38,53 @@ dampers:
   grip_x2:
     name: GRIP X2
     description: Most tunable, descent-focused damper (enduro/DH). Four external adjusters.
-    adjusters:
-      high_speed_compression: { clicks: 8 }
-      low_speed_compression:  { clicks: 18 }
-      high_speed_rebound:     { clicks: 8 }
-      low_speed_rebound:      { clicks: 16 }
+    adjustments:
+      - { name: High-Speed Compression, type: step, max: 8 }
+      - { name: Low-Speed Compression,  type: step, max: 18 }
+      - { name: High-Speed Rebound,     type: step, max: 8 }
+      - { name: Low-Speed Rebound,      type: step, max: 16 }
     valves: 23
 
   grip_x:
     name: GRIP X
     description: Trail-focused damper. HSC dial has a Firm detent at its final click (170° sweep).
-    adjusters:
-      high_speed_compression: { clicks: 15 }   # firm mode engaged at final click
-      low_speed_compression:  { clicks: 16 }
-      rebound:                { clicks: 17 }   # FOX labels this "low-speed rebound"; single rebound knob
+    adjustments:
+      - { name: High-Speed Compression, type: step, max: 15, notes: Firm mode engaged at the final click }
+      - { name: Low-Speed Compression,  type: step, max: 16 }
+      - { name: Rebound, type: step, max: 17, notes: FOX labels this "low-speed rebound"; single rebound knob }
     firm_mode: at final HSC click
 
   grip_sl:
     name: GRIP SL
     description: Lightweight XC damper. Three on-the-fly compression positions (Open/Medium/Firm), 2-position remote compatible.
-    adjusters:
-      rebound: { clicks: 17 }   # FOX labels "low-speed rebound"; single rebound knob
-    compression_positions: [Open, Medium, Firm]
+    adjustments:
+      - { name: Rebound, type: step, max: 17, notes: FOX labels this "low-speed rebound"; single rebound knob }
+      - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm] }
     remote: 2-position
 
   grip:
     name: GRIP
     description: Updated GRIP cartridge (Performance/Rhythm trims). Three on-the-fly compression positions with micro-adjust detents.
-    adjusters:
-      rebound: { clicks: 10 }
-    compression_positions: [Open, Medium, Firm]
+    adjustments:
+      - { name: Rebound, type: step, max: 10 }
+      - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm] }
 
   rail:
     name: RAIL
     description: Adventure/e-bike damper (AWL). Tool-free external adjusters.
-    adjusters:
-      rebound: { clicks: 9 }
-    compression_positions: [1, 2]   # 2-position "SWEEP ADJUST" compression
+    adjustments:
+      - { name: Rebound, type: step, max: 9 }
+      - { name: Compression Mode, type: categorical, options: ["1", "2"], notes: 2-position SWEEP ADJUST compression }
 
 # --------------------------------------------------------------------------
 # Forks — current (2025/2026) FOX lineup.
 # `trims` are the user-facing sub-models; the damper (and therefore the click
 # ranges) can differ per trim. Where a trim offers a choice of damper, list all.
+#
+# Every current FOX fork is air-sprung, so trims share the `&air_spring` anchor
+# (Pressure only). Volume-spacer counts are not published per model on the FOX
+# pages, so spacers are intentionally omitted rather than guessed — see the
+# follow-ups footer.
 # --------------------------------------------------------------------------
 forks:
   - model: "32 Taper-Cast"
@@ -90,11 +96,16 @@ forks:
       - trim: Factory
         travel_mm: [40, 50]
         stanchion: Kashima
+        spring: Air
         dampers: [grip_sl]
+        adjustments: &air_spring
+          - { name: Pressure, type: numerical, unit: psi, min: 0 }
       - trim: Performance
         travel_mm: [40]
         stanchion: 7000-series alloy, black anodized
+        spring: Air
         dampers: [grip]
+        adjustments: *air_spring
     note: 12x100 Kabolt thru-axle, integrated fender mounts
 
   - model: "32 Step-Cast"
@@ -106,11 +117,15 @@ forks:
       - trim: Factory
         travel_mm: [100]
         stanchion: Kashima
+        spring: Air
         dampers: [grip_sl]
+        adjustments: *air_spring
       - trim: Performance
         travel_mm: [100]
         stanchion: 7000-series alloy, black anodized
+        spring: Air
         dampers: [grip]
+        adjustments: *air_spring
 
   - model: "34 SL"
     category: Downcountry
@@ -121,15 +136,21 @@ forks:
       - trim: Factory
         travel_mm: [120, 130]
         stanchion: Kashima
+        spring: Air
         dampers: [grip_sl]
+        adjustments: *air_spring
       - trim: Performance Elite
         travel_mm: [120]
         stanchion: 7000-series alloy, black anodized
+        spring: Air
         dampers: [grip_sl]
+        adjustments: *air_spring
       - trim: Performance
         travel_mm: [120]
         stanchion: 7000-series alloy, black anodized
+        spring: Air
         dampers: [grip]
+        adjustments: *air_spring
 
   - model: "34"
     category: Trail
@@ -140,19 +161,27 @@ forks:
       - trim: Factory
         travel_mm: [130, 140]
         stanchion: Kashima
+        spring: Air
         dampers: [grip_x]
+        adjustments: *air_spring
       - trim: Performance Elite
         travel_mm: [130]
         stanchion: 7000-series alloy, black anodized
+        spring: Air
         dampers: [grip_x]
+        adjustments: *air_spring
       - trim: Performance
         travel_mm: [130]
         stanchion: 7000-series alloy, black anodized
+        spring: Air
         dampers: [grip]
+        adjustments: *air_spring
       - trim: Rhythm
         travel_mm: [130, 150]
         stanchion: 6000-series alloy, black anodized
+        spring: Air
         dampers: [grip]
+        adjustments: *air_spring
         note: OEM complete bikes only
 
   - model: "36 SL"
@@ -164,15 +193,21 @@ forks:
       - trim: Factory
         travel_mm: [130, 140]
         stanchion: Kashima
+        spring: Air
         dampers: [grip_x]
+        adjustments: *air_spring
       - trim: Performance Elite
         travel_mm: [140]
         stanchion: 7000-series alloy, black anodized
+        spring: Air
         dampers: [grip_x]
+        adjustments: *air_spring
       - trim: Performance
         travel_mm: [140]
         stanchion: 7000-series alloy, black anodized
+        spring: Air
         dampers: [grip]
+        adjustments: *air_spring
 
   - model: "36"
     category: All-Mountain
@@ -183,19 +218,27 @@ forks:
       - trim: Factory
         travel_mm: [150, 160]
         stanchion: Kashima
+        spring: Air
         dampers: [grip_x2, grip_x]   # buyer-selectable damper
+        adjustments: *air_spring
       - trim: Performance Elite
         travel_mm: [160]
         stanchion: 7000-series alloy, black anodized
+        spring: Air
         dampers: [grip_x]
+        adjustments: *air_spring
       - trim: Performance
         travel_mm: [160]
         stanchion: 7000-series alloy, black anodized
+        spring: Air
         dampers: [grip]
+        adjustments: *air_spring
       - trim: Rhythm
         travel_mm: [150, 160]
         stanchion: 6000-series alloy, black anodized
+        spring: Air
         dampers: [grip]
+        adjustments: *air_spring
         note: OEM complete bikes only
 
   - model: "38"
@@ -207,15 +250,21 @@ forks:
       - trim: Factory
         travel_mm: [160, 170, 180]
         stanchion: Kashima
+        spring: Air
         dampers: [grip_x2]
+        adjustments: *air_spring
       - trim: Performance Elite
         travel_mm: [170]
         stanchion: 7000-series alloy, black anodized
+        spring: Air
         dampers: [grip_x2]
+        adjustments: *air_spring
       - trim: Rhythm
         travel_mm: [160, 170, 180]
         stanchion: 6000-series alloy, black anodized
+        spring: Air
         dampers: [grip]
+        adjustments: *air_spring
         note: OEM complete bikes only
 
   - model: "40"
@@ -227,7 +276,9 @@ forks:
       - trim: Factory
         travel_mm: [203]
         stanchion: Kashima
+        spring: Air
         dampers: [grip_x2]
+        adjustments: *air_spring
 
   - model: "Podium"
     category: Enduro
@@ -238,7 +289,9 @@ forks:
       - trim: Factory
         travel_mm: [160, 170]
         stanchion: Kashima
+        spring: Air
         dampers: [grip_x2]
+        adjustments: *air_spring
         note: >
           Inverted (USD) single-crown chassis. Crown heights 58HT/68HT,
           44mm offset, custom steel 20mm axle, Float EVOL GlideCore air spring.
@@ -255,16 +308,23 @@ forks:
       - trim: Standard
         travel_mm: [100, 120, 130, 140, 150, 160, 170, 180, 203]
         stanchion: 34mm
+        spring: Air
         dampers: [rail]
+        adjustments: *air_spring
         note: Rated to 169kg system weight; fender/rack/light/ABS mounts.
       - trim: HD
         travel_mm: [100, 120, 130, 140, 150, 160, 170, 180, 203]
         stanchion: 36mm
+        spring: Air
         dampers: [rail]
+        adjustments: *air_spring
         note: 29in only; higher-load chassis for e-bikes.
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):
+#   - Volume-spacer counts (per model) are not published on the FOX pages, so
+#     no Volume Spacers adjustment is generated. Add one (with the published
+#     `max`) per trim once a spec table lists it.
 #   - Older model years (pre-2025) used FIT4 and GRIP2 dampers with different
 #     click counts. Add a dated `dampers` entry + `year_range` per fork when
 #     pulling those from archived FOX spec sheets (tech.ridefox.com/bike/list/spec-sheets).

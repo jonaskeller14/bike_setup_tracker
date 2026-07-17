@@ -84,6 +84,7 @@ dependencies:
   archive: ^3.6.1
   readmore: ^3.0.0
   units_converter: ^3.2.0
+  yaml: ^3.1.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -119,7 +120,13 @@ flutter:
     - assets/icons/logo_1024_white.png
     - assets/strava/1.2-Strava-API-Logos/1.2-Strava-API-Logos/Powered by Strava/pwrdBy_strava_orange/api_logo_pwrdBy_strava_stack_orange.png
     - assets/mapbox/mapbox-logo.png
-    
+    # Component preset database — one YAML per brand; a directory declaration
+    # bundles every file in it (non-recursive), so new brand files are picked
+    # up with zero pubspec changes. SCHEMA.md sits in the parent dir and is
+    # intentionally not declared (repo-only, not shipped).
+    - data/component_presets/fork/
+    - data/component_presets/shock/
+
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

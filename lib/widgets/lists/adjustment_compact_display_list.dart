@@ -3,6 +3,7 @@ import '../../models/adjustment/adjustment.dart';
 import '../../models/component.dart';
 import '../../models/person.dart';
 import '../../theme.dart';
+import '../notes_text.dart';
 
 class AdjustmentCompactSummary {
   final bool hasContent;
@@ -273,12 +274,11 @@ class _AdjustmentTableRow extends StatelessWidget {
                       ),
                       const SizedBox(width: 2),
                       Flexible(
-                        child: Text(
+                        child: NotesText(
                           item.notes!,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.onInverseSurface,
-                            fontSize: 13,
-                          ),
+                          fontSize: 13,
+                          color: Theme.of(context).colorScheme.onInverseSurface,
+                          maxLines: 10,
                         ),
                       ),
                     ],
@@ -669,6 +669,7 @@ Tooltip _infoTooltip({
     triggerMode: TooltipTriggerMode.longPress,
     preferBelow: false,
     showDuration: const Duration(seconds: 5),
+    enableTapToDismiss: false,
     decoration: BoxDecoration(
       color: Theme.of(context).colorScheme.inverseSurface,
       borderRadius: BorderRadius.circular(8),

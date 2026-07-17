@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../models/adjustment/adjustment.dart';
+import 'sheet.dart';
 
 void showSetCategoricalSheet({
   required BuildContext context,
@@ -58,6 +59,15 @@ void showSetCategoricalSheet({
                             )
                           : const SizedBox.shrink(),
                     ),
+                    if (adjustment.options.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 8),
+                        child: SheetFilterEmptyHint(
+                          icon: CategoricalAdjustment.iconData,
+                          title: 'No options yet',
+                          hint: 'Edit this adjustment to add options.',
+                        ),
+                      ),
                     Wrap(
                       spacing: 8,
                       children: [

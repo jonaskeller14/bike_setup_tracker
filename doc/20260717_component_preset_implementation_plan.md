@@ -305,39 +305,47 @@ delta ≈ nothing (text YAML only).
 
 ---
 
-## Phase 2 — Prefill engine (C6 semantics)
+## Phase 2 — Prefill engine (C6 semantics) ✅
 
 **Goal:** turn a selected variant + chosen damper into form-fill data.
 Pure logic, fully unit-tested, still no UI.
 
-1. **Result object** — `PresetApplication { String name; ComponentType componentType; String notes; List<Adjustment> adjustments; }`
-   produced by `buildApplication(variant, damper)`. (Not `toComponent()` —
-   ComponentPage prefills a form; it never needs a full `Component`.)
-2. **Name builder**: `"<Brand> <Model> <Trim>"`; append damper name only when
+**Status:** ✅ Complete — `PresetApplication` + `buildApplication` landed in
+`lib/models/component_preset.dart` and `lib/utils/component_preset_application.dart`;
+SAG discipline notes extracted to shared `kForkSagNotes`/`kShockSagNotes`
+constants (reused by `component_add_adjustment.dart`, single source of truth);
+13 new tests in `test/component_preset_application_test.dart` green, full suite
+green (688 total).
+
+1. ✅ **Result object** — `PresetApplication { String name; ComponentType componentType; String notes; List<Adjustment> adjustments; }`
+   produced by `buildApplication(variant, [damper])`. (Not `toComponent()` —
+   ComponentPage prefills a form; it never needs a full `Component`.) A single
+   damper is resolved automatically so callers may omit it.
+2. ✅ **Name builder**: `"<Brand> <Model> <Trim>"`; append damper name only when
    the trim offers >1 damper (disambiguation), e.g.
    `"FOX 36 Factory GRIP X2"`.
-3. **Notes builder**: compact spec block — damper (name + description),
+3. ✅ **Notes builder**: compact spec block — damper (name + description),
    spring label, travel/stroke options, wheel sizes, stanchion, year range,
    trim note, and the product URL as last line. Damper description mentions
    of unpublished adjusters surface here ("Rebound clicks not published —
    add manually").
-4. **Adjustment assembly** — mostly data-driven now:
-   - `[...trim.adjustmentSpecs, SAG, ...damper.adjustmentSpecs].map(build)`
-   - **SAG**: the existing `SagAdjustment` preset with discipline notes,
+4. ✅ **Adjustment assembly** — mostly data-driven now:
+   - ✅ `[...trim.adjustmentSpecs, SAG, ...damper.adjustmentSpecs].map(build)`
+   - ✅ **SAG**: the existing `SagAdjustment` preset with discipline notes,
      auto-injected for fork/shock. If the trim lists exactly **one**
-     travel option, prefill it as the SAG travel value; if several, leave
-     unset (they're in notes).
-   - Fresh UUIDs at build time; nothing is added that the data doesn't
+     travel/stroke option, prefill it as the SAG travel value; if several,
+     leave unset (they're in notes).
+   - ✅ Fresh UUIDs at build time; nothing is added that the data doesn't
      declare (no generic Lockout/Pressure/Spacers/0–20 clicks).
-5. **Unit tests** — `test/component_preset_application_test.dart`: GRIP X2
+5. ✅ **Unit tests** — `test/component_preset_application_test.dart`: GRIP X2
    air fork (Pressure + Spacers + SAG + 4 clicks adjustments with 8/18/8/16),
    Charger 3.1 (HSC −2…+2, LSC −7…+7 preserved end-to-end), dual-chamber
    spring (two pressure adjustments), air fork without declared spacers
    (none generated), coil variant (Spring Rate, no Pressure/Spacers),
    compression-mode categorical, multi-damper naming, single-travel SAG
-   prefill, combine order = trim → SAG → damper.
+   prefill, multiple-travel SAG unset, combine order = trim → SAG → damper.
 
-**Acceptance:** assembly + builders fully covered by tests; generated
+**Acceptance:** ✅ assembly + builders fully covered by tests; generated
 adjustments are indistinguishable from hand-built ones (fresh UUIDs, valid
 per `isValidValue`).
 

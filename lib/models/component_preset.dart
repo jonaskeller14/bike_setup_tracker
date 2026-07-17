@@ -83,3 +83,17 @@ class ComponentPresetVariant {
   /// decision). Used as an index key and for the CI duplicate check.
   String get presetKey => '${componentType.name}/$brand/$model/$trim';
 }
+
+class PresetApplication {
+  final String name;
+  final ComponentType componentType;
+  final String notes;
+  final List<Adjustment> adjustments;
+
+  const PresetApplication({
+    required this.name,
+    required this.componentType,
+    required this.notes,
+    required this.adjustments,
+  });
+}

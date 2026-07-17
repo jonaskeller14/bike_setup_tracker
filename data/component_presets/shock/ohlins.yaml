@@ -74,7 +74,7 @@ dampers:
 # --------------------------------------------------------------------------
 shocks:
   - model: "TTX1Air"
-    category: Air
+    category: Trail / Enduro
     spring: Air
     year_range: "2025-2026"
     url: https://www.ohlins.eu/de/products/mountainbike/ttx1air-universal--7689/
@@ -85,7 +85,7 @@ shocks:
           - { name: Pressure, type: numerical, unit: psi, min: 0 }
 
   - model: "TTX1Air m.2"
-    category: Air
+    category: Trail / Enduro
     spring: Air
     year_range: "2025-2026"
     url: https://www.ohlins.eu/de/products/mountainbike/ttx1air-m2-universal--7749/
@@ -97,7 +97,7 @@ shocks:
         adjustments: *air_spring
 
   - model: "TTX2Air"
-    category: Air
+    category: Trail / Enduro
     spring: Air
     year_range: "2025-2026"
     url: https://www.ohlins.eu/de/products/mountainbike/ttx2-air-universal--7690/
@@ -107,7 +107,7 @@ shocks:
         adjustments: *air_spring
 
   - model: "TTX2Air m.2"
-    category: Air
+    category: Trail / Enduro
     spring: Air
     year_range: "2025-2026"
     url: https://www.ohlins.eu/de/products/mountainbike/ttx2air-m2-universal--7750/

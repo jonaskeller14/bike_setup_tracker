@@ -351,52 +351,61 @@ per `isValidValue`).
 
 ---
 
-## Phase 3 — UI: field order, catalog card, picker sheet, apply logic
+## Phase 3 — UI: field order, catalog card, picker sheet, apply logic ✅
 
 **Goal:** the complete C1+C4+C5+C6 flow behind the flag. Add mode only.
 
-1. **Flag** — add `enableComponentPresets` to `AppSettings` + `kDebugMode`
-   toggle in `features_page.dart` (do this first; everything below checks it).
-2. **C1 — field reorder** in `component_page.dart`: Type dropdown above Name
-   field; drop the name autofocus in add mode (first decision is now the
-   type). Unconditional (not flag-gated) — it's an improvement on its own;
-   flag-gating a field order would double the layout code for no benefit.
-3. **C4 — catalog card** — `lib/widgets/preset_catalog_card.dart`
-   - Shown when: flag on ∧ mode == add ∧ `_componentType` ∈ {fork, shock}.
-     One-line compact card under the Type dropdown: icon + "Choose from
-     catalog" + brand teaser (from repository index) + chevron.
-   - Not shown in edit/duplicate/replace modes (see resolved question above).
-4. **C5 — picker sheet** — `lib/widgets/sheets/component_preset_picker.dart`
-   - Modal bottom sheet, same scaffolding as
+**Status:** ✅ Complete — flag + `kDebugMode` toggle, C1 reorder (unconditional),
+`PresetCatalogCard`, `showComponentPresetPicker` (brands → models → trims →
+damper staging + pinned search), and `_applyPreset` all landed. Shared matcher
+extracted to `lib/utils/component_preset_search.dart` (Phase 4 reuses it).
+`flutter analyze` clean on all changed files; full suite green (688).
+
+1. ✅ **Flag** — added `enableComponentPresets` to `AppSettings` (getter +
+   setter + `_persistBool` + `loadAppSettings` entry) + `kDebugMode` toggle in
+   `features_page.dart` under *Bikes & Components*.
+2. ✅ **C1 — field reorder** in `component_page.dart`: Type dropdown above Name
+   field; name autofocus dropped (first decision is now the type).
+   Unconditional (not flag-gated).
+3. ✅ **C4 — catalog card** — `lib/widgets/preset_catalog_card.dart`
+   - ✅ Shown when: flag on ∧ mode == add ∧ `_componentType` ∈ {fork, shock}.
+     Compact `primaryContainer` card under the Type dropdown: icon + "Choose
+     from catalog" + brand teaser (first 3 brands from the repository index,
+     loaded async; falls back to a generic subtitle) + chevron.
+   - ✅ Not shown in edit/duplicate/replace modes.
+4. ✅ **C5 — picker sheet** — `lib/widgets/sheets/component_preset_picker.dart`
+   - ✅ Modal bottom sheet, same scaffolding as
      `showComponentAddAdjustmentBottomSheet` (SheetHeader, safe area,
-     scroll-controlled). Internal `Navigator`-less staging (simple state
-     enum: brands → models → trims → damper), back arrow in header.
-   - **Search field pinned on top** (only stage 1): typing ≥2 chars switches
+     scroll-controlled). Internal `Navigator`-less staging (state enum:
+     brands → models → trims → damper), back arrow in header.
+   - ✅ **Search field pinned on top** (only stage 1): typing ≥2 chars switches
      to a flat filtered list across the whole type. Matcher: case-insensitive
-     AND-of-tokens over `"brand model trim damper"` (`"rs lyrik ult"` matches
-     RockShox Lyrik Ultimate). Matcher lives in a shared helper — Phase 4
-     reuses it verbatim.
-   - Rows: model rows grouped by `category`; trim rows with subtitle
-     (damper · travel range · stanchion) and a **year badge** chip
-     (`year_range`). Search-result rows: `"FOX 38 Factory"` + same subtitle
-     + badge.
-   - **Damper stage inside the sheet**: only when the chosen trim has >1
-     damper — large option rows (damper name + description + adjuster
-     summary "HSC ±2 · LSC ±7 · Rebound 18", derived from the damper's
-     adjustment specs). Single damper → stage skipped, sheet pops with the
-     selection.
-   - Returns `(variant, damper)` to the caller.
-5. **C6 — apply logic** in `_ComponentPageState`
-   - `_applyPreset(PresetApplication app)` (add mode only):
-     - **name + notes: always overwritten** (see resolved question).
-     - componentType: set if null (entry via C4 means it's already set; this
-       matters for Phase 4, where a suggestion can set the type).
-     - adjustments: if the list is empty or still identical to the previous
-       preset application → replace silently. Otherwise one dialog:
-       *"Replace N existing adjustments?"* — **Replace / Keep both / Cancel**
-       (Keep both appends).
-     - track `_lastPresetAdjustments` for that check, call `_changeListener()`.
-   - Everything stays editable afterwards; no link back to YAML.
+     AND-of-tokens over `"brand model trim damper…"` in shared
+     `component_preset_search.dart` — Phase 4 reuses it verbatim.
+   - ✅ Rows: model rows grouped by `category` (uppercase headers); trim rows
+     with subtitle (damper · travel range · stanchion) and a **year badge**
+     chip (`year_range`). Search-result rows: `"FOX 38 Factory"` + same
+     subtitle + badge.
+   - ✅ **Damper stage inside the sheet**: only when the chosen trim has >1
+     damper — `Card` option rows (damper name + description + adjuster
+     summary "HSC ±2 · LSC ±7 · Rebound 18", derived from the damper's step
+     adjustment specs). Single/zero damper → stage skipped, sheet pops with
+     the selection.
+   - ✅ Returns `ComponentPresetPickerResult(variant, damper)` to the caller.
+5. ✅ **C6 — apply logic** in `_ComponentPageState`
+   - ✅ `_applyPreset(PresetApplication app)` (add mode only):
+     - ✅ **name + notes: always overwritten**; notes section auto-expanded so
+       the overwrite is visible.
+     - ✅ componentType: set only if null (matters for Phase 4).
+     - ✅ adjustments: empty or still identical to `_lastPresetAdjustments` →
+       replace silently. Otherwise one dialog: *Replace / Keep both / Cancel*
+       (Keep both appends and clears `_lastPresetAdjustments`). The dialog lives
+       in `lib/widgets/dialogs/apply_preset_adjustments.dart`
+       (`showApplyPresetAdjustmentsDialog` → `PresetAdjustmentChoice`), adaptive
+       styling like the other dialogs.
+     - ✅ tracks `_lastPresetAdjustments`, pushes the new list through the
+       adjustments `FormField`, calls `_changeListener()`.
+   - ✅ Everything stays editable afterwards; no link back to YAML.
 
 **Acceptance (manual, flag on):** add fork → card visible → 3–4 taps to a
 fully prefilled component with real click ranges (Lyrik Ultimate shows

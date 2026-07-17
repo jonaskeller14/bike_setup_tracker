@@ -40,6 +40,7 @@ class AppSettings extends ChangeNotifier {
   bool _showSetupCalendarHint = true;
   bool _enableCalendar = false;
   bool _enableSetupImages = false;
+  bool _enableComponentPresets = false;
   int _firstDayOfWeek = DateTime.monday; // 1 = Monday … 7 = Sunday
 
   // Temporary Settings (in-memory only, never persisted)
@@ -86,6 +87,7 @@ class AppSettings extends ChangeNotifier {
   bool get hintShownThisSession => _hintShownThisSession;
   bool get enableCalendar => _enableCalendar;
   bool get enableSetupImages => _enableSetupImages;
+  bool get enableComponentPresets => _enableComponentPresets;
   int get firstDayOfWeek => _firstDayOfWeek;
 
   // Temporary Settings
@@ -321,6 +323,13 @@ class AppSettings extends ChangeNotifier {
     _persistBool('enableSetupImages', newValue);
   }
 
+  set enableComponentPresets(bool newValue) {
+    if (newValue == _enableComponentPresets) return;
+    _enableComponentPresets = newValue;
+    notifyListeners();
+    _persistBool('enableComponentPresets', newValue);
+  }
+
   set firstDayOfWeek(int newValue) {
     if (newValue == _firstDayOfWeek) return;
     _firstDayOfWeek = newValue;
@@ -444,6 +453,7 @@ class AppSettings extends ChangeNotifier {
       _showSetupCalendarHint = prefs.getBool('${_kPrefix}showSetupCalendarHint') ?? _showSetupCalendarHint;
       _enableCalendar = prefs.getBool('${_kPrefix}enableCalendar') ?? _enableCalendar;
       _enableSetupImages = prefs.getBool('${_kPrefix}enableSetupImages') ?? _enableSetupImages;
+      _enableComponentPresets = prefs.getBool('${_kPrefix}enableComponentPresets') ?? _enableComponentPresets;
       _firstDayOfWeek = prefs.getInt('${_kPrefix}firstDayOfWeek') ?? _firstDayOfWeek;
     } catch (e, st) {
       debugPrint("ERROR loading App Settings: $e\n$st");

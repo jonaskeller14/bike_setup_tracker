@@ -7,16 +7,21 @@ import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/component.dart';
+import '../models/component_preset.dart';
 import '../models/context/context_position.dart';
 import '../models/installation.dart';
 import '../repositories/app_repository.dart';
 import '../services/subscription_service.dart';
 import '../theme.dart';
+import '../utils/component_preset_application.dart';
+import '../widgets/dialogs/apply_preset_adjustments.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/empty_state_placeholder2.dart';
 import '../widgets/lists/adjustment_edit_list.dart';
+import '../widgets/preset_catalog_card.dart';
 import '../widgets/set_installation_timeline.dart';
 import '../widgets/sheets/component_add_adjustment.dart';
+import '../widgets/sheets/component_preset_picker.dart';
 import '../widgets/text/section_title.dart';
 import 'adjustment/boolean_adjustment_page.dart';
 import 'adjustment/categorical_adjustment_page.dart';
@@ -75,6 +80,9 @@ class _ComponentPageState extends State<ComponentPage> {
   late ComponentType? _initialComponentType;
   late List<Installation> _initialInstallations;
   bool _expanded = false;
+
+  List<Adjustment>? _lastPresetAdjustments;
+  VoidCallback? _adjustmentsFieldNotify;
 
   @override
   void initState() {
@@ -261,6 +269,47 @@ class _ComponentPageState extends State<ComponentPage> {
     onChanged?.call();
   }
 
+  Future<void> _openPresetPicker() async {
+    final type = _componentType;
+    if (type == null) return;
+    final result = await showComponentPresetPicker(context: context, componentType: type);
+    if (result == null || !mounted) return;
+    await _applyPreset(buildApplication(result.variant, result.damper));
+  }
+
+  Future<void> _applyPreset(PresetApplication app) async {
+    final untouched = _adjustments.isEmpty ||
+        (_lastPresetAdjustments != null && listEquals(_adjustments, _lastPresetAdjustments));
+
+    var append = false;
+    if (!untouched) {
+      final choice = await showApplyPresetAdjustmentsDialog(
+        context,
+        existingCount: _adjustments.length,
+      );
+      if (choice == null || choice == PresetAdjustmentChoice.cancel) return;
+      append = choice == PresetAdjustmentChoice.keepBoth;
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _nameController.text = app.name;
+      _notesController.text = app.notes;
+      _componentType ??= app.componentType;
+      if (append) {
+        _adjustments = [..._adjustments, ...app.adjustments];
+        // The list no longer matches a single preset → next re-pick will prompt.
+        _lastPresetAdjustments = null;
+      } else {
+        _adjustments = List.from(app.adjustments);
+        _lastPresetAdjustments = List.from(app.adjustments);
+      }
+      if (app.notes.isNotEmpty) _expanded = true;
+    });
+    _adjustmentsFieldNotify?.call();
+    _changeListener();
+  }
+
   void _saveComponent() {
     if (!_formKey.currentState!.validate()) {
       setState(() => _expanded = true);
@@ -322,7 +371,6 @@ class _ComponentPageState extends State<ComponentPage> {
       controller: _nameController,
       textInputAction: TextInputAction.next,
       autovalidateMode: AutovalidateMode.onUserInteraction,
-      autofocus: widget.mode == ComponentPageMode.add,
       onChanged: (value) => setState(() {}), // see filled/fillColor
       decoration: InputDecoration(
         labelText: 'Component Name',
@@ -678,9 +726,18 @@ class _ComponentPageState extends State<ComponentPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        _nameField(),
-                        const SizedBox(height: 12),
                         _componentTypeField(existingComponentsCount: existingComponentsCount),
+                        if (appSettings.enableComponentPresets &&
+                            widget.mode == ComponentPageMode.add &&
+                            (_componentType == ComponentType.fork || _componentType == ComponentType.shock)) ...[
+                          const SizedBox(height: 12),
+                          PresetCatalogCard(
+                            componentType: _componentType!,
+                            onTap: _openPresetPicker,
+                          ),
+                        ],
+                        const SizedBox(height: 12),
+                        _nameField(),
                         Center(
                           child: TextButton.icon(
                             onPressed: () => setState(() => _expanded = !_expanded),
@@ -733,6 +790,7 @@ class _ComponentPageState extends State<ComponentPage> {
                       initialValue: _adjustments,
                       builder: (FormFieldState<List<Adjustment>> field) {
                         void notify() => field.didChange(List.from(_adjustments));
+                        _adjustmentsFieldNotify = notify;
 
                         void showAddBottomSheet() => showComponentAddAdjustmentBottomSheet(
                           context: context,

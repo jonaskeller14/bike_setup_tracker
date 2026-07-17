@@ -73,6 +73,27 @@ class FeaturesPage extends StatelessWidget {
                   'This allows you to uninstall components and move them between different bikes without losing track of their history, usage, or setups.',
                 ),
               ),
+              if (kDebugMode)
+                ListTile(
+                  leading: const Icon(Icons.auto_awesome_outlined),
+                  title: const Text("Component Presets"),
+                  subtitle: _offOnOptionWidgets[appSettings.enableComponentPresets] ?? const Text("-"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () => appSettingsRadioGroupSheet<bool>(
+                    context: context,
+                    title: "Component Presets",
+                    value: appSettings.enableComponentPresets,
+                    optionWidgets: _offOnOptionWidgets,
+                    onChanged: (bool? newValue) {
+                      if (newValue == null) return;
+                      appSettings.enableComponentPresets = newValue;
+                      Navigator.pop(context);
+                    },
+                    infoText: 'When adding a fork or shock, pick the model from a built-in '
+                        'catalog to prefill its name, notes and adjustments (click ranges, '
+                        'air pressure, SAG) automatically. You can still edit everything afterwards.',
+                  ),
+                ),
               const Divider(),
               const SectionTitle(title: 'Setups'),
               ListTile(

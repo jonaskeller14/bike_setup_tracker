@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,9 +12,11 @@ import '../models/component_preset.dart';
 import '../models/context/context_position.dart';
 import '../models/installation.dart';
 import '../repositories/app_repository.dart';
+import '../repositories/component_preset_repository.dart';
 import '../services/subscription_service.dart';
 import '../theme.dart';
 import '../utils/component_preset_application.dart';
+import '../utils/component_preset_search.dart';
 import '../widgets/dialogs/apply_preset_adjustments.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/empty_state_placeholder2.dart';
@@ -67,6 +70,7 @@ class _ComponentPageState extends State<ComponentPage> {
   final _formKey = GlobalKey<FormState>();
   bool _formHasChanges = false;
   late TextEditingController _nameController;
+  final FocusNode _nameFocusNode = FocusNode();
   late TextEditingController _notesController;
   late TextEditingController _initialDistanceController;
   late TextEditingController _initialElevationGainController;
@@ -83,6 +87,12 @@ class _ComponentPageState extends State<ComponentPage> {
 
   List<Adjustment>? _lastPresetAdjustments;
   VoidCallback? _adjustmentsFieldNotify;
+
+  /// Cross-type catalog index for the name-field autocomplete (C2), loaded once
+  /// and cached. Null until loaded; the autocomplete simply shows nothing until
+  /// then.
+  List<ComponentPresetVariant>? _presetIndex;
+  bool _presetIndexLoading = false;
 
   @override
   void initState() {
@@ -128,6 +138,26 @@ class _ComponentPageState extends State<ComponentPage> {
     _initialElapsedTimeController.addListener(_changeListener);
 
     if (widget.mode != ComponentPageMode.add) _expanded = true;
+
+    // Preload the autocomplete index (add mode + flag on) so suggestions are
+    // ready by the time the user types, without blocking page load.
+    if (widget.mode == ComponentPageMode.add && appSettings.enableComponentPresets) {
+      unawaited(_loadPresetIndex());
+    }
+  }
+
+  Future<void> _loadPresetIndex() async {
+    if (_presetIndex != null || _presetIndexLoading) return;
+    _presetIndexLoading = true;
+    try {
+      final variants = await context.read<ComponentPresetRepository>().all();
+      if (!mounted) return;
+      setState(() => _presetIndex = variants);
+    } catch (_) {
+      // Autocomplete is an optional convenience; ignore load failures.
+    } finally {
+      _presetIndexLoading = false;
+    }
   }
 
   void _changeListener() {
@@ -148,6 +178,7 @@ class _ComponentPageState extends State<ComponentPage> {
   void dispose() {
     _nameController.removeListener(_changeListener);
     _nameController.dispose();
+    _nameFocusNode.dispose();
     _notesController.removeListener(_changeListener);
     _notesController.dispose();
 
@@ -366,16 +397,45 @@ class _ComponentPageState extends State<ComponentPage> {
     onChanged?.call();
   }
 
-  Widget _nameField() {
+  Widget _nameField({required bool presetsEnabled}) {
+    if (!presetsEnabled) {
+      return _nameTextField(presetsEnabled: false);
+    }
+    return RawAutocomplete<PresetSuggestion>(
+      textEditingController: _nameController,
+      focusNode: _nameFocusNode,
+      optionsBuilder: (TextEditingValue value) {
+        final index = _presetIndex;
+        if (index == null) return const Iterable<PresetSuggestion>.empty();
+        return suggestPresets(index, value.text);
+      },
+      displayStringForOption: (suggestion) => suggestion.displayName,
+      onSelected: (suggestion) {
+        _nameFocusNode.unfocus();
+        unawaited(_applyPreset(buildApplication(suggestion.variant, suggestion.damper)));
+      },
+      fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) =>
+          _nameTextField(presetsEnabled: true, onFieldSubmitted: onFieldSubmitted),
+      optionsViewBuilder: (context, onSelected, options) =>
+          _suggestionsOverlay(onSelected, options.toList()),
+    );
+  }
+
+  Widget _nameTextField({required bool presetsEnabled, VoidCallback? onFieldSubmitted}) {
     return TextFormField(
       controller: _nameController,
+      focusNode: _nameFocusNode,
       textInputAction: TextInputAction.next,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       onChanged: (value) => setState(() {}), // see filled/fillColor
+      onFieldSubmitted: (_) => onFieldSubmitted?.call(),
       decoration: InputDecoration(
         labelText: 'Component Name',
         border: const OutlineInputBorder(),
         hintText: 'Enter component name',
+        helperText: presetsEnabled && _nameController.text.trim().isEmpty
+            ? "Tip: type a product name — e.g. 'Fox 38'"
+            : null,
         fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == ComponentPageMode.edit && _nameController.text.trim() != widget.component?.name,
       ),
@@ -383,6 +443,46 @@ class _ComponentPageState extends State<ComponentPage> {
         if (value == null || value.trim().isEmpty) return 'Name is required';
         return null;
       },
+    );
+  }
+
+  Widget _suggestionsOverlay(
+    AutocompleteOnSelected<PresetSuggestion> onSelected,
+    List<PresetSuggestion> options,
+  ) {
+    // Anchor the overlay to the field's left edge and match its width (the
+    // field spans the page's 16px horizontal padding).
+    final width = MediaQuery.of(context).size.width - 32;
+    return Align(
+      alignment: Alignment.topLeft,
+      child: SizedBox(
+        width: width,
+        child: Material(
+          elevation: 4,
+          borderRadius: BorderRadius.circular(8),
+          clipBehavior: Clip.antiAlias,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 280),
+            child: ListView.builder(
+              padding: EdgeInsets.zero,
+              shrinkWrap: true,
+              itemCount: options.length,
+              itemBuilder: (context, i) {
+                final suggestion = options[i];
+                final subtitle = presetSuggestionSubtitle(suggestion);
+                final yearRange = suggestion.variant.yearRange;
+                return ListTile(
+                  dense: true,
+                  title: Text(suggestion.displayName),
+                  subtitle: subtitle == null ? null : Text(subtitle, maxLines: 1, overflow: TextOverflow.ellipsis),
+                  trailing: yearRange == null || yearRange.isEmpty ? null : _PresetYearBadge(yearRange),
+                  onTap: () => onSelected(suggestion),
+                );
+              },
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -735,9 +835,13 @@ class _ComponentPageState extends State<ComponentPage> {
                             componentType: _componentType!,
                             onTap: _openPresetPicker,
                           ),
+                          const SizedBox(height: 12),
                         ],
                         const SizedBox(height: 12),
-                        _nameField(),
+                        _nameField(
+                          presetsEnabled: appSettings.enableComponentPresets &&
+                              widget.mode == ComponentPageMode.add,
+                        ),
                         Center(
                           child: TextButton.icon(
                             onPressed: () => setState(() => _expanded = !_expanded),
@@ -858,4 +962,32 @@ class _ComponentPageState extends State<ComponentPage> {
 
 class _Sentinel {
   const _Sentinel();
+}
+
+/// Small year-range chip for autocomplete suggestion rows (mirrors the picker's
+/// year badge).
+class _PresetYearBadge extends StatelessWidget {
+  final String text;
+
+  const _PresetYearBadge(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: colors.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          color: colors.onSurfaceVariant,
+        ),
+      ),
+    );
+  }
 }

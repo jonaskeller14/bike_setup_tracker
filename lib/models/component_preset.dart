@@ -82,6 +82,20 @@ class ComponentPresetVariant {
   /// Stable, computed catalog identity — never persisted (see provenance
   /// decision). Used as an index key and for the CI duplicate check.
   String get presetKey => '${componentType.name}/$brand/$model/$trim';
+
+  /// Compact travel/stroke label for subtitles: `160 mm`, `140–170 mm` for
+  /// forks, the stroke options joined for shocks; `null` when unknown.
+  String? get travelLabel {
+    if (componentType == ComponentType.fork && travelOptions.isNotEmpty) {
+      return travelOptions.length == 1
+          ? '${travelOptions.single} mm'
+          : '${travelOptions.first}–${travelOptions.last} mm';
+    }
+    if (componentType == ComponentType.shock && strokeOptions.isNotEmpty) {
+      return strokeOptions.join(' / ');
+    }
+    return null;
+  }
 }
 
 class PresetApplication {

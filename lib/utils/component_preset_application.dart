@@ -42,13 +42,16 @@ PresetApplication buildApplication(
   );
 }
 
-String _buildName(ComponentPresetVariant variant, DamperSpec? damper) {
+String presetVariantDisplayName(ComponentPresetVariant variant, [DamperSpec? damper]) {
   final parts = <String>[variant.brand, variant.model, variant.trim];
   if (variant.dampers.length > 1 && damper != null) {
     parts.add(damper.name);
   }
   return parts.where((p) => p.isNotEmpty).join(' ');
 }
+
+String _buildName(ComponentPresetVariant variant, DamperSpec? damper) =>
+    presetVariantDisplayName(variant, damper);
 
 String _buildNotes(ComponentPresetVariant variant, DamperSpec? damper) {
   final lines = <String>[];

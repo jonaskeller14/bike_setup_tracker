@@ -218,9 +218,20 @@ class _ComponentPresetPickerSheetState extends State<_ComponentPresetPickerSheet
     }
     final variants = _variants;
     if (variants == null) {
-      return const Padding(
-        padding: EdgeInsets.all(32),
-        child: Center(child: CircularProgressIndicator()),
+      return const Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(8),
+              bottomRight: Radius.circular(8),
+            ),
+            child: LinearProgressIndicator(
+              minHeight: 3,
+              backgroundColor: Colors.transparent,
+            ),
+          ),
+        ],
       );
     }
 
@@ -365,21 +376,10 @@ class _ComponentPresetPickerSheetState extends State<_ComponentPresetPickerSheet
     final parts = <String>[];
     final damperNames = v.dampers.map((d) => d.name).where((n) => n.isNotEmpty).toList();
     if (damperNames.isNotEmpty) parts.add(damperNames.join(' / '));
-    final travel = _travelLabel(v);
+    final travel = v.travelLabel;
     if (travel != null) parts.add(travel);
     if (v.stanchion != null && v.stanchion!.isNotEmpty) parts.add(v.stanchion!);
     return parts.isEmpty ? null : parts.join(' · ');
-  }
-
-  String? _travelLabel(ComponentPresetVariant v) {
-    if (v.componentType == ComponentType.fork && v.travelOptions.isNotEmpty) {
-      final opts = v.travelOptions;
-      return opts.length == 1 ? '${opts.single} mm' : '${opts.first}–${opts.last} mm';
-    }
-    if (v.componentType == ComponentType.shock && v.strokeOptions.isNotEmpty) {
-      return v.strokeOptions.join(' / ');
-    }
-    return null;
   }
 
   // --- stage 4: damper ------------------------------------------------------

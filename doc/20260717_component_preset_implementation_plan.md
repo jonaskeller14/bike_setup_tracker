@@ -416,27 +416,48 @@ flag off → app indistinguishable from today.
 
 ---
 
-## Phase 4 — C2: name-field autocomplete
+## Phase 4 — C2: name-field autocomplete ✅
 
 **Goal:** the power-user path — type `"fox 38"` into Name, tap a suggestion,
 done. Reuses Phase 1 index + Phase 3 matcher/apply. Add mode only.
 
-1. Wrap the name field in a `RawAutocomplete`/overlay (anchored below the
-   field, above keyboard): flag on ∧ mode == add, trigger at ≥3 characters,
-   max 5 suggestions, ranked (brand-prefix match > token match).
-2. Index source: `repository.all()` — **cross-type**, so suggestions work
-   before a type is chosen; kick off loading on first keystroke.
-3. Suggestion row: title `"FOX 38 Factory"`, subtitle damper · travel · year
-   badge. Trims with >1 damper appear once per damper (flat list — no
-   damper sub-step in an autocomplete).
-4. On select → same `_applyPreset` as C4, which **also sets the component
-   type** if not yet chosen (removes a tap instead of adding one).
-5. Discoverability hint: name-field `helperText` *"Tip: type a product name —
-   e.g. 'Fox 38'"*, only while flag on ∧ add mode ∧ field empty.
-6. No-match / user keeps typing → overlay disappears, zero friction.
+**Status:** ✅ Complete — `RawAutocomplete` wraps the name field in add mode
+behind the flag; suggestion logic (`suggestPresets`, `PresetSuggestion`,
+`presetSuggestionSubtitle`) extended the shared `component_preset_search.dart`;
+the name builder was promoted to a public `presetVariantDisplayName` and a
+`travelLabel` getter added to `ComponentPresetVariant` (both reused by the
+picker) as single sources of truth. On select it runs the same `_applyPreset`
+pipeline as C4. `flutter analyze` clean on all changed files; 8 new tests in
+`test/component_preset_search_test.dart` green, full suite green.
 
-**Acceptance:** `"fox 38"` → suggestion → tap = name + type + adjustments set
-with 5 keystrokes and 1 tap; typing `"My old clunker"` never shows UI noise.
+1. ✅ Wrap the name field in a `RawAutocomplete` (overlay anchored below the
+   field, width-matched to it): flag on ∧ mode == add, trigger at ≥3
+   characters, max 5 suggestions, ranked (brand-prefix match > token match).
+   *(Plain `TextFormField` retained unchanged when the flag is off or not in
+   add mode; the existing `_nameController`/new `_nameFocusNode` are passed
+   straight into `RawAutocomplete`.)*
+2. ✅ Index source: `repository.all()` — **cross-type**, so suggestions work
+   before a type is chosen. *(Preloaded once in `initState` — add mode ∧ flag
+   on — via `unawaited(_loadPresetIndex())` so it's ready by the first
+   keystroke without a load race; the session cache means it's usually already
+   warm from the catalog card. `optionsBuilder` reads the cache synchronously
+   and shows nothing until it lands.)*
+3. ✅ Suggestion row: title `"FOX 38 Factory"`, subtitle damper · travel, year
+   badge chip as the trailing widget. Trims with >1 damper appear once per
+   damper (flat list — no damper sub-step in an autocomplete), the damper name
+   appended to the title for disambiguation.
+4. ✅ On select → same `_applyPreset` as C4, which **also sets the component
+   type** if not yet chosen (removes a tap instead of adding one); the field
+   is unfocused so the prefilled result is visible.
+5. ✅ Discoverability hint: name-field `helperText` *"Tip: type a product name —
+   e.g. 'Fox 38'"*, only while flag on ∧ add mode ∧ field empty.
+6. ✅ No-match / user keeps typing → `optionsBuilder` returns empty → overlay
+   disappears, zero friction.
+
+**Acceptance:** ✅ `"fox 38"` → suggestion → tap = name + type + adjustments set
+with 5 keystrokes and 1 tap; typing `"My old clunker"` never shows UI noise
+(covered by unit tests for ranking, per-damper expansion, threshold, and
+subtitle formatting).
 
 ---
 

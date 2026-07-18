@@ -1,0 +1,113 @@
+# Marzocchi mountain-bike shocks — adjustment preset database
+#
+# Marzocchi currently sells exactly two rear shocks: the air-sprung Bomber
+# Air and the coil-sprung Bomber CR. See SCHEMA.md in this folder for the
+# sparse `adjustments:` format and field defaults.
+
+brand: Marzocchi
+component_type: shock
+sources:
+  - https://bike.marzocchi.com/collections/shocks
+  - https://bike.marzocchi.com/products/bomber-air
+  - https://bike.marzocchi.com/products/bomber-cr-rear-shock
+  - https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-269_REV_A%202022%20Marzocchi%20Bomber%20Air%20Shock%20Owners%20Guide%20Rev%20A_FINAL.pdf
+  - https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-205_Marzocchi-BomberCR-Tuning-Guide-white-RevA.pdf
+updated: 2026-07-18
+# Click counts (where known) come from the official owner's/tuning guide
+# PDFs on tech.ridefox.com, not the marketing product pages. Clicks counted
+# from fully closed (firmest) → default `dial_ccw` visualization.
+
+# --------------------------------------------------------------------------
+# Dampers
+# --------------------------------------------------------------------------
+dampers:
+  bomber_air:
+    name: Bomber Air
+    description: >
+      Rebound clicks are published in the official 2022 Bomber Air Shock
+      Owner's Guide (rebound table tops out at 10). Low-Speed Compression is
+      a continuously-turning knob (not a positional lever); the guide gives
+      direction of adjustment only (CW = firmer) and no click count, so no
+      Compression adjustment is listed — never guessed.
+    adjustments:
+      - { name: Rebound, type: step, max: 10 }
+
+  bomber_cr:
+    name: Bomber CR
+    description: >
+      Official tuning guide (605-00-205) documents Low-Speed Compression and
+      Rebound only by direction (turn CW to increase damping) with no click
+      counts. Some third-party reviews cite 15-16 clicks for each, but that
+      is not an official Marzocchi/FOX spec, so it is intentionally left out
+      here — see Follow-ups. Coil spring preload is also adjustable (turn
+      CCW to increase sag; do not turn CW more than two full turns) but isn't
+      modeled as an Adjustment — the schema has no preload/turns field.
+    adjustments: []
+
+# --------------------------------------------------------------------------
+# Shocks — current Marzocchi lineup. Sold by eye-to-eye x stroke to match a
+# frame, not a fixed "travel"; `stroke_mm` lists the sizes published per
+# mount type on each product page.
+# --------------------------------------------------------------------------
+shocks:
+  - model: "Bomber Air"
+    category: Trail / Enduro
+    spring: Air
+    year_range: "2025-2026"
+    url: https://bike.marzocchi.com/products/bomber-air
+    trims:
+      - trim: Metric
+        mount: Metric (compatible with FOX bearing mounts)
+        stroke_mm: ["190x45", "210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x65", "250x75"]
+        dampers: [bomber_air]
+        adjustments: &air_spring
+          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+        note: >
+          Max air pressure 350psi. Adjustable volume spacers in 0.1 in³
+          increments; max spacer count not published.
+      - trim: Trunnion
+        mount: Trunnion
+        stroke_mm: ["185x52.5", "185x55", "205x60", "205x62.5", "225x75"]
+        dampers: [bomber_air]
+        adjustments: *air_spring
+
+  - model: "Bomber CR"
+    category: Enduro / Downhill
+    spring: Coil
+    year_range: "2025-2026"
+    url: https://bike.marzocchi.com/products/bomber-cr-rear-shock
+    trims:
+      - trim: Standard
+        mount: Standard eyelet
+        stroke_mm: ["210x50", "210x55", "230x60", "230x65", "250x75", "7.5x2.0in", "7.875x2.0in", "7.875x2.25in", "8.5x2.5in", "8.75x2.75in"]
+        dampers: [bomber_cr]
+        adjustments: &coil_spring
+          - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
+        note: >
+          Coil spring sold separately, color-coded to rider weight
+          (Purple/Blue/Green/Yellow ~ Soft/Medium/Firm/X-Firm); Marzocchi
+          does not publish the actual lbs/in rate per color.
+      - trim: Trunnion
+        mount: Trunnion (threaded reservoir end)
+        stroke_mm: ["185x52.5", "185x55", "205x60", "205x65", "225x75", "9.5x3.0in"]
+        dampers: [bomber_cr]
+        adjustments: *coil_spring
+
+# --------------------------------------------------------------------------
+# Follow-ups (not yet captured — avoid guessing):
+#   - Bomber CR's Low-Speed Compression and Rebound click counts are not
+#     published in any official Marzocchi/FOX document found (only adjust
+#     direction is documented). Third-party reviews cite ~15-16 clicks for
+#     each, but per the research rules for this catalog only official
+#     sources count — add real numbers once Marzocchi publishes a spec table
+#     with click counts (or a per-part spec sheet on tech.ridefox.com).
+#   - Bomber Air's Low-Speed Compression click count is likewise unpublished
+#     (continuously-turning knob per the owner's guide, no detents listed).
+#   - Bomber Air's volume-spacer max count (spacers sold in 0.1 in³
+#     increments) isn't published as a "max spacers" number the way the fork
+#     tuning guides publish one — omitted rather than guessed.
+#   - Neither shock's coil Spring Rate color-code table (Purple/Blue/Green/
+#     Yellow) gives an actual lbs/in number, only a rider-weight band and a
+#     relative label (Soft/Medium/Firm/X-Firm) — same treatment as FOX/Öhlins
+#     coil shocks in this catalog: Spring Rate stays a bare numerical field.
+# --------------------------------------------------------------------------

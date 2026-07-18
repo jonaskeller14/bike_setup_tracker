@@ -20,6 +20,7 @@ class PresetCatalogCard extends StatefulWidget {
 
 class _PresetCatalogCardState extends State<PresetCatalogCard> {
   String? _teaser;
+  static const List<String> _popularBrands = ['fox', 'rockshox'];
 
   @override
   void initState() {
@@ -45,7 +46,18 @@ class _PresetCatalogCardState extends State<PresetCatalogCard> {
       for (final v in variants) {
         if (!brands.contains(v.brand)) brands.add(v.brand);
       }
-      setState(() => _teaser = brands.take(3).join(' · '));
+      if (brands.isEmpty) return; // Keep the generic subtitle.
+      // Surface popular brands first, keeping the alphabetical order otherwise.
+      brands.sort((a, b) {
+        final ia = _popularBrands.indexOf(a.toLowerCase());
+        final ib = _popularBrands.indexOf(b.toLowerCase());
+        if (ia != ib) return (ia == -1 ? 999 : ia).compareTo(ib == -1 ? 999 : ib);
+        return a.compareTo(b);
+      });
+      const shown = 3;
+      final teaser = brands.take(shown).join(' · ');
+      setState(() =>
+          _teaser = brands.length > shown ? '$teaser · …' : teaser);
     } catch (_) {
       // Teaser is optional; leave the generic subtitle in place on failure.
     }

@@ -25,6 +25,19 @@ in one place, every model that uses it gets it.
 | `dampers` | Map of `damper_key` → damper definition |
 | `forks` / `shocks` | List of models (key name matches `component_type`) |
 
+### Sourcing policy
+
+Prefer the manufacturer's own site (product pages, spec sheets, official PDF
+manuals) for every number. When a brand simply doesn't publish a click-count
+total anywhere official — common for boutique brands whose marketing copy only
+gives a recommended starting position — a **pinkbike.com review article's own
+body text** (the written review itself, not the reader comments below it) is
+an allowed fallback source for that one number. Cite the article URL in
+`sources:` same as any other source, and note in the damper's `description`
+that the figure comes from a Pinkbike review rather than the manufacturer.
+Other outlets (Vital MTB, Bikeradar, forums, YouTube, etc.) are still out of
+scope — this exception is Pinkbike-body-text only.
+
 ## Top-level example
 
 ```yaml

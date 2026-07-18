@@ -1,0 +1,230 @@
+# SR SUNTOUR mountain-bike rear shocks — adjustment preset database
+#
+# Same design as shock/fox.yaml and shock/ohlins.yaml: click ranges belong to
+# the DAMPER, defined once under `dampers:` and referenced by key from each
+# shock's trims. See SCHEMA.md in this folder.
+
+brand: SR SUNTOUR
+component_type: shock
+sources:
+  - https://www.srsuntour.com/products/rear-shock/
+  - https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/Rear%20Shock%20Manual/MY19_EN_General_Rear_shock_manual-20200623.pdf
+  - https://www.srsuntour.com/products/rear-shock/RS25-EDGE-EVO-2CR-METRIC-8187.html
+  - https://www.srsuntour.com/products/rear-shock/RS24-EDGE-X-2CR-METRIC-8194.html
+  - https://www.srsuntour.com/products/rear-shock/RS24-TRIAir2-3CR-METRIC-8203.html
+  - https://www.srsuntour.com/products/rear-shock/RS24-TRIAir2-2CR-METRIC-8205.html
+  - https://www.srsuntour.com/products/rear-shock/RS24-TRIAir2-R-METRIC-8207.html
+  - https://www.srsuntour.com/products/rear-shock/RS25-Raidon-R-METRIC-8157.html
+  - https://www.srsuntour.com/products/rear-shock/RS25-Raidon-LO-METRIC-8156.html
+updated: 2026-07-18
+# Function codes on SR SUNTOUR's rear-shock spec tables ("R", "RC", "2CR",
+# "3CR", "LO") follow the same PCS naming convention documented for their
+# forks (fork/suntour.yaml / the suspension-fork glossary): R = rebound-only,
+# 2CR/3CR = discrete-position on-the-fly compression lever + rebound, LO =
+# hydraulic lockout. All current models are air-sprung.
+#
+# Click counts are almost never published on official product pages — the one
+# confirmed exception is the TRIAIR2 family, whose spec table explicitly
+# states "8 clicks rebound" for every variant (R/2CR/3CR). Every other
+# rebound/compression dial below is left as adjustments: [] rather than
+# guessed — see the Follow-ups footer.
+
+# --------------------------------------------------------------------------
+# Dampers
+# --------------------------------------------------------------------------
+dampers:
+  edge_r:
+    name: EDGE R
+    description: >
+      Rebound-only cartridge on the EDGE Evo/EDGE X shocks. External
+      low-speed rebound dial; no user compression adjustment. Click count is
+      not published on the official product page.
+    adjustments: []
+    note: "Rebound click count unconfirmed"
+
+  edge_2cr:
+    name: EDGE 2CR
+    description: >
+      2-position on-the-fly compression lever (Open, Firm settings) plus a
+      low-speed rebound dial. Shared cartridge naming/function across both
+      EDGE Evo (XC/Trail) and EDGE X (reinforced eMTB) shocks. Rebound click
+      count is not published.
+    adjustments:
+      - { name: Compression Mode, type: categorical, options: [Open, Firm], notes: 2-position on-the-fly lever }
+    note: "Low-speed rebound click count unconfirmed"
+
+  edge_evo_r_2cr:
+    name: EDGE Evo R-2CR
+    description: >
+      Handlebar-remote version of EDGE 2CR: a remote-actuated 2-position
+      compression lever (Open, Firm settings) plus a low-speed rebound dial.
+      Rebound click count is not published.
+    adjustments:
+      - { name: Compression Mode, type: categorical, options: [Open, Firm], notes: Handlebar-remote 2-position lever }
+    note: "Low-speed rebound click count unconfirmed"
+
+  triair2_r:
+    name: TRIAIR2 R
+    description: >
+      Rebound-only cartridge on the TRIAIR2 piggyback shock. Officially
+      published spec: 8 clicks of rebound. Also features an air-backed IFP
+      and volume-spacer spring-curve adjustment.
+    adjustments:
+      - { name: Rebound, type: step, max: 8 }
+
+  triair2_2cr:
+    name: TRIAIR2 2CR
+    description: >
+      TRIAIR2 cartridge with a 2-position on-the-fly compression lever (Open,
+      Firm settings) plus the same 8-click rebound dial as the R variant.
+    adjustments:
+      - { name: Compression Mode, type: categorical, options: [Open, Firm], notes: 2-position on-the-fly lever }
+      - { name: Rebound, type: step, max: 8 }
+
+  triair2_3cr:
+    name: TRIAIR2 3CR
+    description: >
+      TRIAIR2 cartridge with a 3-position on-the-fly compression lever (Open,
+      Medium, Firm settings) plus the same 8-click rebound dial as the R
+      variant.
+    adjustments:
+      - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm], notes: 3-position on-the-fly lever }
+      - { name: Rebound, type: step, max: 8 }
+
+  raidon_shock_r:
+    name: RAIDON R
+    description: >
+      Rebound-only cartridge on the RAIDON XC/Trail shock. External low-speed
+      rebound dial; no user compression adjustment. Click count is not
+      published on the official product page.
+    adjustments: []
+    note: "Rebound click count unconfirmed"
+
+  raidon_shock_lo:
+    name: RAIDON LO
+    description: >
+      Hydraulic lockout variant of the RAIDON shock (fixed-rate damping when
+      unlocked); the lockout on/off function is documented on the official
+      product page. No numeric click counts are published for this cartridge.
+    adjustments:
+      - { name: Lockout, type: boolean, notes: Hydraulic lockout lever }
+
+# --------------------------------------------------------------------------
+# Shocks — current (2025/2026) SR SUNTOUR MTB lineup. Shocks are sold by
+# eye-to-eye/stroke length to fit a given frame; `stroke_mm` lists the
+# combinations published on the official product page. All current models are
+# air-sprung, so trims share the &air_spring anchor (Pressure only).
+# --------------------------------------------------------------------------
+shocks:
+  - model: "EDGE Evo"
+    category: XC / Trail
+    spring: Air
+    year_range: "2025-2026"
+    url: https://www.srsuntour.com/products/rear-shock/RS25-EDGE-EVO-2CR-METRIC-8187.html
+    trims:
+      - trim: 2CR
+        mount: [Metric, Trunnion, Standard eyelet]
+        stroke_mm: ["230x57.5/60/62.5/65", "210x47.5/50/52.5/55", "190x37.5/40/42.5/45"]
+        dampers: [edge_2cr]
+        adjustments: &air_spring
+          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+        note: Glide ring; air-volume-spacer spring-curve adjustment.
+      - trim: R
+        url: https://www.srsuntour.com/products/rear-shock/RS25-EDGE-EVO-R-METRIC-8188.html
+        mount: [Metric, Trunnion, Standard eyelet]
+        stroke_mm: ["230x57.5/60/62.5/65", "210x47.5/50/52.5/55", "190x37.5/40/42.5/45"]
+        dampers: [edge_r]
+        adjustments: *air_spring
+      - trim: R-2CR
+        url: https://www.srsuntour.com/products/rear-shock/RS25-EDGE-EVO-R-2CR-METRIC-8201.html
+        mount: [Metric, Trunnion, Standard eyelet]
+        stroke_mm: ["230x57.5/60/62.5/65", "210x47.5/50/52.5/55", "190x37.5/40/42.5/45"]
+        dampers: [edge_evo_r_2cr]
+        adjustments: *air_spring
+        note: Handlebar-remote compression lever.
+
+  - model: "EDGE X"
+    category: Trail (eMTB, reinforced)
+    spring: Air
+    year_range: "2024-2026"
+    url: https://www.srsuntour.com/products/rear-shock/RS24-EDGE-X-2CR-METRIC-8194.html
+    trims:
+      - trim: 2CR
+        mount: [Metric, Trunnion, Standard eyelet]
+        stroke_mm: ["210x47.5/50/52.5/55", "190x37.5/40/42.5/45", "170x27.5/30/32.5/35"]
+        dampers: [edge_2cr]
+        adjustments: *air_spring
+        note: Reinforced/updated structure for demands of modern full-suspension e-MTBs.
+      - trim: R
+        url: https://www.srsuntour.com/products/rear-shock/RS24-EDGE-X-R-METRIC-8196.html
+        mount: [Metric, Trunnion, Standard eyelet]
+        stroke_mm: ["210x47.5/50/52.5/55", "190x37.5/40/42.5/45", "170x27.5/30/32.5/35"]
+        dampers: [edge_r]
+        adjustments: *air_spring
+
+  - model: "TRIAIR2"
+    category: Enduro (eMTB)
+    spring: Air
+    year_range: "2024-2026"
+    url: https://www.srsuntour.com/products/rear-shock/RS24-TRIAir2-3CR-METRIC-8203.html
+    trims:
+      - trim: 3CR
+        mount: [Metric, Trunnion, Standard eyelet]
+        stroke_mm: ["250x67.5/70/72.5/75", "230x57.5/60/62.5/65", "210x47.5/50/52.5/55", "190x37.5/40/42.5/45"]
+        dampers: [triair2_3cr]
+        adjustments: *air_spring
+        note: Redesigned piggyback for better oil flow/clearance; air-backed IFP; volume-spacer spring-curve adjustment; glide ring.
+      - trim: 2CR
+        url: https://www.srsuntour.com/products/rear-shock/RS24-TRIAir2-2CR-METRIC-8205.html
+        mount: [Metric, Trunnion, Standard eyelet]
+        stroke_mm: ["250x67.5/70/72.5/75", "230x57.5/60/62.5/65", "210x47.5/50/52.5/55", "190x37.5/40/42.5/45"]
+        dampers: [triair2_2cr]
+        adjustments: *air_spring
+      - trim: R
+        url: https://www.srsuntour.com/products/rear-shock/RS24-TRIAir2-R-METRIC-8207.html
+        mount: [Metric, Trunnion, Standard eyelet]
+        stroke_mm: ["250x67.5/70/72.5/75", "230x57.5/60/62.5/65", "210x47.5/50/52.5/55", "190x37.5/40/42.5/45"]
+        dampers: [triair2_r]
+        adjustments: *air_spring
+
+  - model: "RAIDON"
+    category: XC / Trail
+    spring: Air
+    year_range: "2025-2026"
+    url: https://www.srsuntour.com/products/rear-shock/RS25-Raidon-R-METRIC-8157.html
+    trims:
+      - trim: R
+        mount: [Metric, Standard eyelet]
+        stroke_mm: ["190x37.5/40/42.5/45", "170x27.5/30/32.5/35"]
+        dampers: [raidon_shock_r]
+        adjustments: *air_spring
+      - trim: LO
+        url: https://www.srsuntour.com/products/rear-shock/RS25-Raidon-LO-METRIC-8156.html
+        mount: [Metric, Standard eyelet]
+        stroke_mm: ["190x37.5/40/42.5/45", "170x27.5/30/32.5/35"]
+        dampers: [raidon_shock_lo]
+        adjustments: *air_spring
+
+# --------------------------------------------------------------------------
+# Follow-ups (not yet captured — avoid guessing):
+#   - No official SR SUNTOUR source publishes rebound/compression click
+#     counts for EDGE Evo, EDGE X or RAIDON — only TRIAIR2's spec table states
+#     an explicit "8 clicks rebound" (confirmed identical across its R/2CR/3CR
+#     variants), which is captured above; everything else is left as
+#     adjustments: [] rather than guessed.
+#   - Volume-spacer max counts (mentioned as a tuning feature on EDGE Evo/EDGE
+#     X/TRIAIR2 product pages) are not broken out per stroke length on the
+#     pages fetched — no Volume Spacers adjustment was added rather than
+#     guessing a number.
+#   - The original TRIAIR (pre-TRIAIR2) product pages returned server errors
+#     (HTTP 500) during verification and appear to have been superseded by
+#     TRIAIR2 in the current catalog — not included as a separate model.
+#   - An older EDGE generation (RS19: plain "EDGE", with LOR/LOR8/R/RC
+#     variants) and EDGE Plus (RS21) are still listed in SR SUNTOUR's product
+#     catalog but appear to predate the current EDGE Evo/EDGE X generation —
+#     not included per the "current higher-end lineup" scope of this task.
+#   - Stroke-length lists above were confirmed on each family's Metric-mount
+#     product page only; Standard-eyelet/Trunnion-mount variants are assumed
+#     to share the same stroke options (standard SR SUNTOUR practice) but
+#     weren't independently re-verified per mount type.
+# --------------------------------------------------------------------------

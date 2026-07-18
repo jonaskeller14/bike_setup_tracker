@@ -1,0 +1,201 @@
+# Cane Creek mountain-bike shocks — adjustment preset database
+#
+# Same design as fork/canecreek.yaml: click ranges belong to the DAMPER,
+# defined once under `dampers:` and referenced by key from each shock's trims.
+# See SCHEMA.md in this folder.
+
+brand: Cane Creek
+component_type: shock
+sources:
+  - https://www.canecreek.com/collections/mountain-biking
+  - https://www.canecreek.com/products/air-il
+  - https://www.canecreek.com/products/coil-il
+  - https://www.canecreek.com/products/kitsuma-g2-air
+  - https://www.canecreek.com/products/kisuma-g2-coil
+  - https://www.canecreek.com/products/tigon
+  - https://www.canecreek.com/blogs/journal/cane-creek-introduces-the-next-generation-of-air-il-and-coil-il-rear-shocks
+  - https://www.canecreek.com/blogs/journal/introducing-db-kitsuma
+  - https://www.canecreek.com/blogs/journal/cane-creek-announces-second-generation-kitsuma-rear-shocks
+  - https://www.canecreek.com/pages/tigon-set-up-procedure
+  - https://www.canecreek.com/pages/air-il-complete-100-hour-service-instructions-part-4-of-4
+  - https://www.canecreek.com/pages/dbair-il-trunnion-mount-complete-100-hour-service-part-4-of-4
+updated: 2026-07-18
+# Cane Creek's DB (Double Barrel) twin-tube dampers are famous for many
+# independent HSC/LSC/HSR/LSR adjusters. Cane Creek does not publish a total
+# click/turn count per adjuster on any canecreek.com page — their service
+# instructions only give a "factory neutral" reference position (a *setting*,
+# not a *range*). The real per-adjuster ranges below were instead confirmed
+# via Cane Creek's own official Suspension Setup app (canecreek.com's rider
+# tuning-guide app), which states the total range for each circuit.
+
+# --------------------------------------------------------------------------
+# Dampers
+# --------------------------------------------------------------------------
+dampers:
+  il_twin_tube:
+    name: DB Twin Tube (IL)
+    description: >
+      Shared externally-adjustable twin-tube damper across the current-
+      generation Air IL and Coil IL shocks — independent High-Speed
+      Compression, Low-Speed Compression, High-Speed Rebound and Low-Speed
+      Rebound circuits, plus a 2-position Climb Switch (integrated tool
+      nested in the CS lever). Click/turn ranges confirmed via Cane Creek's
+      official Suspension Setup app; HSC/HSR are turn-based (no clicks).
+    adjustments:
+      - { name: Low-Speed Compression,  type: step, max: 25 }
+      - { name: High-Speed Compression, type: numerical, unit: turns, min: 0, max: 4.5, notes: Continuous (no clicks); counted from fully closed }
+      - { name: Low-Speed Rebound,      type: step, max: 25 }
+      - { name: High-Speed Rebound,     type: numerical, unit: turns, min: 0, max: 4.5, notes: Continuous (no clicks); counted from fully closed }
+      - { name: Climb Switch, type: categorical, options: [Descend, Climb] }
+    valves: twin-tube; 2 high-speed + 2 low-speed damping circuits
+
+  kitsuma_g2:
+    name: DB Kitsuma G2
+    description: >
+      Tool-free, single-turn-per-adjuster twin-tube damper shared across the
+      2nd-generation Kitsuma Air and Kitsuma Coil. Four independent circuits
+      (HSC/LSC/HSR/LSR), each spanning 0-10 clicks per Cane Creek's official
+      Suspension Setup app, plus a 3-position Climb Switch.
+    adjustments:
+      - { name: Low-Speed Compression,  type: step, max: 10 }
+      - { name: High-Speed Compression, type: step, max: 10 }
+      - { name: Low-Speed Rebound,      type: step, max: 10 }
+      - { name: High-Speed Rebound,     type: step, max: 10 }
+      - { name: Climb Switch, type: categorical, options: [Open, Climb, Locked] }
+
+  tigon_damper:
+    name: Tigon Damper
+    description: >
+      Twin-tube damper with independent High-Speed Compression, Low-Speed
+      Compression and a single Low-Speed Rebound circuit (no separate
+      high-speed rebound adjuster), plus a 2-position Climb Switch. Click/turn
+      ranges confirmed via Cane Creek's official Suspension Setup app; HSC is
+      turn-based (no clicks).
+    adjustments:
+      - { name: Low-Speed Compression,  type: step, max: 12 }
+      - { name: High-Speed Compression, type: numerical, unit: turns, min: 0, max: 1, notes: Continuous (no clicks); counted from fully closed }
+      - { name: Low-Speed Rebound,      type: step, max: 15 }
+      - { name: Climb Switch, type: categorical, options: [Descend, Climb] }
+
+# --------------------------------------------------------------------------
+# Shocks — current Cane Creek MTB lineup. Legacy "G1" Air IL/DBcoil IL/DB
+# Kitsuma are out of scope here (superseded, sold only as certified
+# pre-owned) — see Follow-ups if those need adding later.
+# --------------------------------------------------------------------------
+shocks:
+  - model: "Air IL"
+    category: XC / Downcountry
+    spring: Air
+    year_range: "2025-2026"
+    url: https://www.canecreek.com/products/air-il
+    trims:
+      - trim: Standard
+        mount: [Standard]
+        stroke_mm: ["190x40", "190x42.5", "190x45", "210x50", "210x52.5", "210x55"]
+        dampers: [il_twin_tube]
+        adjustments: &il_air_spring
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 350 }
+      - trim: Trunnion
+        mount: [Trunnion]
+        stroke_mm: ["165x40", "165x42.5", "165x45", "185x50", "185x52.5", "185x55"]
+        dampers: [il_twin_tube]
+        adjustments: *il_air_spring
+    note: For bikes with 100-140mm rear travel; ~385g. Lightest shock in the Cane Creek lineup.
+
+  - model: "Coil IL"
+    category: XC / Trail
+    spring: Coil
+    year_range: "2025-2026"
+    url: https://www.canecreek.com/products/coil-il
+    trims:
+      - trim: Standard
+        mount: [Standard]
+        stroke_mm: ["190x40", "190x42.5", "190x45", "210x50", "210x52.5", "210x55"]
+        dampers: [il_twin_tube]
+        adjustments: &il_coil_spring
+          - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0, notes: Cane Creek VALT linear or progressive spring sold separately — see Cane Creek's spring-rate guide }
+      - trim: Trunnion
+        mount: [Trunnion]
+        stroke_mm: ["165x40", "165x42.5", "165x45", "185x50", "185x52.5", "185x55"]
+        dampers: [il_twin_tube]
+        adjustments: *il_coil_spring
+    note: >
+      ~280g without spring; not recommended for "clevis"-style suspension
+      designs, not compatible with Specialized Stumpjumper/Turbo Levo. Newer
+      generation adds a Preload Adjustment with detents — exact detent count
+      not published (see Follow-ups).
+
+  - model: "Kitsuma"
+    category: Enduro / Downhill
+    spring: Air
+    year_range: "2025-2026"
+    url: https://www.canecreek.com/products/kitsuma-g2-air
+    trims:
+      - trim: Standard
+        mount: [Standard]
+        stroke_mm: ["210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x62.5", "230x65", "250x70", "250x75"]
+        dampers: [kitsuma_g2]
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+      - trim: Trunnion
+        mount: [Trunnion]
+        stroke_mm: ["185x50", "185x52.5", "185x55", "205x57.5", "205x60", "205x62.5", "205x65", "225x70", "225x75"]
+        dampers: [kitsuma_g2]
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+    note: "~585g. \"Gravity-first\" shock for long-travel trail/enduro/DH bikes; 2nd generation (G2)."
+
+  - model: "Kitsuma Coil"
+    category: Enduro / Downhill
+    spring: Coil
+    year_range: "2025-2026"
+    url: https://www.canecreek.com/products/kisuma-g2-coil
+    trims:
+      - trim: Standard
+        mount: [Standard]
+        stroke_mm: ["210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x62.5", "230x65", "250x70", "250x72.5", "250x75"]
+        dampers: [kitsuma_g2]
+        adjustments:
+          - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0, notes: Coil spring sold separately — see Cane Creek's VALT spring-rate guide }
+      - trim: Trunnion
+        mount: [Trunnion]
+        stroke_mm: ["185x50", "185x52.5", "185x55", "205x57.5", "205x60", "205x62.5", "205x65", "225x70", "225x75"]
+        dampers: [kitsuma_g2]
+        adjustments:
+          - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0, notes: Coil spring sold separately — see Cane Creek's VALT spring-rate guide }
+    note: ~417g without spring; 2nd generation (G2).
+
+  - model: "Tigon"
+    category: Trail / Enduro
+    spring: Coil
+    year_range: "2025-2026"
+    url: https://www.canecreek.com/products/tigon
+    trims:
+      - trim: Standard
+        mount: [Standard, Trunnion]
+        stroke_mm: ["185x50", "185x52.5", "185x55", "205x60", "205x62.5", "205x65", "210x50", "210x52.5", "210x55", "230x60", "230x62.5", "230x65"]
+        dampers: [tigon_damper]
+        adjustments:
+          - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0, notes: Cane Creek VALT linear coil spring only — not compatible with progressive or third-party springs }
+          - { name: RAMP Tube Pressure, type: numerical, unit: psi, min: 0, max: 30, notes: "Air-assist chamber that adds mid-stroke/end-stroke support alongside the VALT coil spring, independent of coil preload. Add in 5-10psi increments." }
+    note: >
+      "Air-charged coil" shock (RAMP Tube air spring supplements a coil spring
+      for tunable progression). 441g (210 size, without spring); 12.7mm shaft.
+
+# --------------------------------------------------------------------------
+# Follow-ups (not yet captured — avoid guessing):
+#   - Coil IL's newly-added Preload Adjustment ("with detents") has no
+#     published detent count.
+#   - Kitsuma Coil's Climb Switch position labels (Open/Climb/Locked) were
+#     confirmed on the Kitsuma Air product page; the Kitsuma Coil page didn't
+#     restate them, and the shared-cartridge assumption (both use kitsuma_g2)
+#     wasn't independently reconfirmed for the Coil-specific damper.
+#   - Legacy/previous-generation shocks (DB Air IL G1, DBcoil IL G1, DB
+#     Kitsuma G1) were intentionally excluded — this file covers only the
+#     current lineup per canecreek.com/collections/mountain-biking. Add a
+#     dated damper key per generation (e.g. `kitsuma_g1`) if legacy specs are
+#     ever needed, per SCHEMA.md's "different click counts across
+#     generations" guidance — G1 Kitsuma Air's page states 300psi max air
+#     pressure and DB Air IL G1's "LinEair Air Spring" vs G2's plain air
+#     spring, suggesting a real internal difference, not just a rebrand.
+# --------------------------------------------------------------------------

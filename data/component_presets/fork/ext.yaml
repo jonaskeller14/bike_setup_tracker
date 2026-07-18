@@ -1,0 +1,143 @@
+# EXT (Extreme Racing Shox) mountain-bike forks — adjustment preset database
+#
+# Same design as fork/fox.yaml and fork/ohlins.yaml: click ranges belong to
+# the DAMPER cartridge, defined once under `dampers:` and referenced by key
+# from each fork's trims. See SCHEMA.md in this folder.
+#
+# EXT is an Italian boutique brand (extremeshox.com). Its current MTB fork
+# lineup is small: the single-crown "Era" trail/enduro fork (V2.1 and the
+# longer-travel V2 LT) and the dual-crown DH/enduro "Vaia". Both use EXT's
+# "HS3" hybrid air spring: two positive air valves (Main "+" chamber, filled
+# first via a high-pressure Secondary "++" chamber) plus a self-equalizing
+# negative chamber.
+#
+# IMPORTANT — click counts: EXT's product pages and official "quick manual"
+# PDFs (extremeshox.com/manuals/) name each hydraulic adjuster (Low-Speed
+# Compression, High-Speed Compression, Rebound) and confirm the counting
+# convention (turning fully clockwise = fully closed = click 0; opening is
+# counterclockwise — the same convention as the schema's default `dial_ccw`),
+# but neither publishes a maximum click count for any of the three adjusters.
+# The quick manuals only print a rider-weight-based table of *suggested
+# starting* clicks (well short of the mechanical max), which is not the same
+# thing as the click range — so, per SCHEMA.md's "never guess a number" rule,
+# no `step` adjustments are generated for these dampers. See "Follow-ups".
+brand: EXT
+component_type: fork
+sources:
+  - https://extremeshox.com/
+  - https://extremeshox.com/manuals/
+  - https://extremeshox.com/product/ext-era-v2-1/
+  - https://extremeshox.com/product/ext-era-v2-lt/
+  - https://extremeshox.com/product/vaia/
+  - https://extremeshox.com/wp-content/uploads/2023/08/quick-manual-Era-v2_20x30.pdf
+  - https://extremeshox.com/wp-content/uploads/2024/12/Vaia-Quick-Manual-1.pdf
+updated: 2026-07-17
+
+# --------------------------------------------------------------------------
+# Dampers
+# --------------------------------------------------------------------------
+dampers:
+  era_cartridge:
+    name: EXT Era 3-Way Cartridge
+    description: >
+      Shared damper cartridge across both Era V2.1 and Era V2 LT (confirmed
+      by EXT's own quick manual, which covers both forks together): high
+      volume cartridge with a 22mm piston, HDRV compression valve (24mm
+      piston) and a 24mm-piston IFP reservoir. Independently adjustable
+      Low-Speed Compression, High-Speed Compression and Rebound. EXT does
+      not publish a maximum click count for any of the three adjusters —
+      only a weight-based table of suggested (non-maximal) starting clicks
+      — so no step adjustments are generated here; verify the true click
+      range with EXT before relying on a number.
+    adjustments: []
+    adjusters: LSC (nickel dial, top of right leg) / HSC (black dial, top of right leg) / Rebound (red dial, bottom of right leg)
+
+  vaia_cartridge:
+    name: EXT Vaia 3-Way Cartridge
+    description: >
+      Vaia's own damper cartridge (dual-crown downhill fork). Independently
+      adjustable Low-Speed Compression, High-Speed Compression and Rebound,
+      all counted from fully closed (click 0) with the same clockwise-closes
+      convention as Era. No maximum click count is published on the product
+      page or quick manual — omitted rather than guessed.
+    adjustments: []
+    adjusters: LSC (nickel dial) / HSC (black dial) / Rebound (red dial), all on the fork's left leg
+
+# --------------------------------------------------------------------------
+# Forks — current EXT MTB lineup (extremeshox.com, checked 2026-07-17).
+# Both forks share the HS3 hybrid air spring (Main "+" / Secondary "++"
+# chambers), so trims share the &hs3_air_spring anchor. EXT states an overall
+# max inflation pressure per fork (not broken out per chamber the way the
+# Aria shock's is) — recorded as a note rather than a per-chamber `max`.
+# Wheel size isn't stated on either product page, so it is omitted rather
+# than guessed — see Follow-ups.
+# --------------------------------------------------------------------------
+forks:
+  - model: "Era V2.1"
+    category: Trail / Enduro
+    year_range: "2025-2026"
+    url: https://extremeshox.com/product/ext-era-v2-1/
+    trims:
+      - trim: Standard
+        travel_mm: [130, 140, 150, 160, 170]
+        stanchion: 36mm, forged AL 7050 T6 crown
+        spring: Air
+        dampers: [era_cartridge]
+        adjustments: &hs3_air_spring
+          - { name: Main Chamber Pressure, type: numerical, unit: psi, min: 0 }
+          - { name: Secondary Chamber Pressure, type: numerical, unit: psi, min: 0, notes: Inflate ++ (secondary) chamber before + (main) chamber; do not exceed 200 psi / 14 bar combined per the product warning label (not broken out per chamber) }
+        note: HS3 hybrid dual-positive-chamber air spring; 15QR Boost Torque Cap dropout (15x110mm)
+
+  - model: "Era V2 LT"
+    category: Enduro
+    year_range: "2025-2026"
+    url: https://extremeshox.com/product/ext-era-v2-lt/
+    trims:
+      - trim: Standard
+        travel_mm: [180, 190]
+        stanchion: 36mm, stem/crown-integrated design
+        spring: Air
+        dampers: [era_cartridge]
+        adjustments: *hs3_air_spring
+        note: >
+          Longer-travel Super Enduro sibling of the Era V2.1; same HS3
+          spring/damper system per EXT's combined Era V2/V2 LT quick manual.
+          Axle-to-crown: 594mm (180mm travel) / 604mm (190mm travel).
+
+  - model: "Vaia"
+    category: Downhill / Enduro
+    year_range: "2025-2026"
+    url: https://extremeshox.com/product/vaia/
+    trims:
+      - trim: Standard
+        travel_mm: [170, 180, 190, 200]
+        stanchion: 38.5mm tapered, dual-crown
+        spring: Air
+        dampers: [vaia_cartridge]
+        adjustments:
+          - { name: Main Chamber Pressure, type: numerical, unit: psi, min: 0 }
+          - { name: Secondary Chamber Pressure, type: numerical, unit: psi, min: 0, notes: Inflate ++ (secondary) chamber before + (main) chamber; do not exceed 250 psi / 17 bar combined per the product warning label (not broken out per chamber) }
+        offset_mm: [44, 48]
+        note: >
+          Interchangeable 20mm/15mm(110 Boost) Grade-5 titanium axle;
+          two-position cam stem sets 44mm (enduro) or 48mm (DH) offset.
+          Weight ~3195g (200mm travel, 20mm axle, cut steerer, oil included).
+
+# --------------------------------------------------------------------------
+# Follow-ups (not yet captured — avoid guessing):
+#   - No maximum click counts are published anywhere for LSC/HSC/Rebound on
+#     either Era (V2.1/V2 LT) or Vaia. The Era quick manual's rider-weight
+#     table gives only a *suggested starting point* (e.g. HSC-LSC-R = 10-10-18
+#     for a <60kg rider), which is not the mechanical max — verify the real
+#     range with EXT support/dealer before adding step adjustments.
+#   - Era V2.1/V2 LT: published max inflation is a single combined figure
+#     (200 psi / 14 bar) rather than separate + / ++ chamber limits like the
+#     Aria shock (280/600 psi) — not modeled as a per-chamber `max` to avoid
+#     misattributing the number to the wrong valve.
+#   - Vaia: same ambiguity, single combined ceiling of 250 psi / 17 bar.
+#   - Wheel size (29" / 27.5" / mullet) is not stated on either the Era V2.1,
+#     Era V2 LT, or Vaia product pages — omitted rather than guessed.
+#   - HS3 volume-spacer / ramp-up chamber counts are not published per model.
+#   - No older/legacy EXT MTB fork generations (pre-Era V2) are covered —
+#     only the current (2026) lineup listed on extremeshox.com.
+# --------------------------------------------------------------------------

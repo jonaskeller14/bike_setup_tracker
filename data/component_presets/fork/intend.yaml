@@ -1,0 +1,270 @@
+# INTEND mountain-bike forks — adjustment preset database
+#
+# Same design as fork/fox.yaml and fork/ohlins.yaml: click ranges belong to the
+# DAMPER cartridge, defined once under `dampers:` and referenced by key from
+# each fork's trims. See SCHEMA.md in this folder.
+#
+# INTEND (Freiburg, Germany) builds inverted (upside-down) MTB forks only — no
+# shocks, hence no shock/intend.yaml. Every current model is air-sprung; no
+# coil fork is currently offered.
+#
+# IMPORTANT: unlike FOX/Öhlins, INTEND does not publish a total click count for
+# either the Rebound or Compression dial on any current damper. Their own
+# official fork-setup guide (intend-bc.com/fork-setup/) describes Low-Speed
+# Compression as having two *feel zones* ("clicks 1-6" coarser for racers,
+# then a finer zone continuing to "fully open" for comfort riders) but never
+# states a total maximum — so, per the "never guess a number" rule, no step
+# adjustment is generated for Rebound/Compression on any INTEND damper. See
+# the Follow-ups footer.
+
+brand: INTEND
+component_type: fork
+sources:
+  - https://www.intend-bc.com/product-page-category/forks/
+  - https://www.intend-bc.com/fork-chart/
+  - https://www.intend-bc.com/fork-setup/
+  - https://www.intend-bc.com/products/smooth-operator/
+  - https://www.intend-bc.com/products/samurai-xc/
+  - https://www.intend-bc.com/products/samurai-32/
+  - https://www.intend-bc.com/products/samurai-supertr/
+  - https://www.intend-bc.com/products/intend-hero/
+  - https://www.intend-bc.com/products/essentials/
+  - https://www.intend-bc.com/products/intend-edge/
+  - https://www.intend-bc.com/products/intend-flash/
+  - https://www.intend-bc.com/products/flash-38/
+  - https://www.intend-bc.com/products/infinity-en/
+  - https://www.intend-bc.com/products/bandit/
+updated: 2026-07-17
+
+# --------------------------------------------------------------------------
+# Dampers
+# --------------------------------------------------------------------------
+dampers:
+  closed_cartridge:
+    name: Closed Cartridge (self-bleeding)
+    description: >
+      INTEND's standard closed-cartridge damper, shared across Samurai Super TR,
+      Hero, Edge, Flash 35, Flash 38, Infinity EN and Bandit. A single external
+      Rebound dial and a single external Compression dial (no HS/LS split).
+      Current-production units ship with the retrofittable "Smooth Operator"
+      compression valve as standard equipment on Hero/Edge/Flash 35/Flash
+      38/Infinity EN/Bandit (not on Samurai or Essential, and not on older
+      units — retrofittable separately). No total click count is published for
+      either dial; the official setup guide only describes Low-Speed
+      Compression as having a coarser zone (clicks 1-6) followed by a finer
+      zone continuing to fully open. Never independently confirmed/quantified
+      — not modelled as a step adjustment. See Follow-ups.
+    adjustments: []
+
+  open_bath:
+    name: Open Bath (self-bleeding)
+    description: >
+      Essential's entry-level open-bath damper. External Low-Speed Rebound and
+      Low-Speed Compression dials. No click counts published — see Follow-ups.
+    adjustments: []
+
+  energizer:
+    name: INTEND Energizer
+    description: >
+      3-position lockout cartridge offered on the Samurai XC (29" and 32").
+      Open / Gravel / Road modes; Road is ~99% firm and lets the fork sink
+      slowly into sag for a climbing position. Optional remote available.
+    adjustments:
+      - { name: Mode, type: categorical, options: [Open, Gravel, Road] }
+
+  rs_charger_raceday:
+    name: RockShox Charger Raceday (OEM)
+    description: >
+      Third-party RockShox Charger Raceday cartridge (Raceday 1 or 2
+      generation), offered as an alternative to the Energizer on the Samurai
+      XC (29"/32") for riders standardizing on RockShox damping; limits the
+      fork to 120mm max travel. 2- or 3-position lockout, with or without
+      remote. Its click/damping specs are RockShox's own and are out of scope
+      for this INTEND brand file — not modelled here.
+    adjustments: []
+
+# --------------------------------------------------------------------------
+# Forks — current INTEND lineup (all inverted, all air-sprung).
+# Every trim shares the `&air_spring` anchor (Pressure only); INTEND's
+# swappable "progression" bottom caps are a relative soft/firm choice with no
+# published volume number, so no Volume Spacers adjustment is generated — see
+# Follow-ups.
+# --------------------------------------------------------------------------
+forks:
+  - model: "Samurai XC 29"
+    category: XC / Down-country
+    year_range: "2025-2026"
+    url: https://www.intend-bc.com/products/samurai-xc/
+    wheel_size: [29]
+    trims:
+      - trim: Standard
+        travel_mm: [100, 110, 120, 130]
+        offset_mm: [44]
+        spring: Air
+        dampers: [energizer, rs_charger_raceday]
+        adjustments: &air_spring
+          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+        note: >
+          Max travel is 130mm with the Energizer cartridge but only 120mm
+          when fitted with the RockShox Charger Raceday cartridge.
+
+  - model: "Samurai XC 32"
+    category: XC
+    year_range: "2025-2026"
+    url: https://www.intend-bc.com/products/samurai-32/
+    wheel_size: [32]
+    trims:
+      - trim: Standard
+        travel_mm: [120, 130]
+        offset_mm: [46, 48] # 46mm at sag, 48mm fully extended
+        stanchion: 35mm
+        spring: Air
+        dampers: [energizer, rs_charger_raceday]
+        adjustments: *air_spring
+        note: >
+          Max travel is 130mm with the Energizer cartridge but only 120mm
+          when fitted with the RockShox Charger Raceday cartridge.
+
+  - model: "Samurai Super TR"
+    category: Downcountry / Trail / Enduro
+    year_range: "2025-2026"
+    url: https://www.intend-bc.com/products/samurai-supertr/
+    wheel_size: [29]
+    trims:
+      - trim: Standard
+        travel_mm: [140, 150, 160, 170]
+        offset_mm: [44]
+        spring: Air
+        dampers: [closed_cartridge]
+        adjustments: *air_spring
+
+  - model: "Hero"
+    category: Trail / All-Mountain / Enduro
+    year_range: "2025-2026"
+    url: https://www.intend-bc.com/products/intend-hero/
+    wheel_size: [29]
+    trims:
+      - trim: Standard
+        travel_mm: [140, 150, 160, 170]
+        offset_mm: [44]
+        stanchion: 44mm upper / 35mm lower (inverted)
+        spring: Air
+        dampers: [closed_cartridge]
+        adjustments: *air_spring
+        note: No TorqueCap compatibility from April 2025 on.
+
+  - model: "Essential"
+    category: Trail / All-Mountain / Enduro
+    year_range: "2025-2026"
+    url: https://www.intend-bc.com/products/essentials/
+    wheel_size: [29]
+    trims:
+      - trim: Standard
+        travel_mm: [150, 160, 170]
+        offset_mm: [44]
+        stanchion: 35mm
+        spring: Air
+        dampers: [open_bath]
+        adjustments: *air_spring
+        note: >
+          Budget-line model. Early first-production-batch units are not
+          compatible with a retrofit Linearizer or the current TravelRanger
+          air unit.
+
+  - model: "Edge"
+    category: Enduro
+    year_range: "2025-2026"
+    url: https://www.intend-bc.com/products/intend-edge/
+    wheel_size: [29]
+    trims:
+      - trim: Standard
+        travel_mm: [150, 160, 170, 180]
+        offset_mm: [44]
+        stanchion: 35mm
+        spring: Air
+        dampers: [closed_cartridge]
+        adjustments: *air_spring
+
+  - model: "Flash 35"
+    category: Enduro / Freeride
+    year_range: "2025-2026"
+    url: https://www.intend-bc.com/products/intend-flash/
+    wheel_size: [29]
+    trims:
+      - trim: Standard
+        travel_mm: [160, 170, 180, 190]
+        offset_mm: [44]
+        stanchion: 35mm
+        spring: Air
+        dampers: [closed_cartridge]
+        adjustments: *air_spring
+
+  - model: "Flash 38"
+    category: Enduro / Freeride / DH
+    year_range: "2025-2026"
+    url: https://www.intend-bc.com/products/flash-38/
+    wheel_size: [29]
+    trims:
+      - trim: Standard
+        travel_mm: [160, 170, 180, 190]
+        offset_mm: [44]
+        stanchion: 38mm
+        spring: Air
+        dampers: [closed_cartridge]
+        adjustments: *air_spring
+        note: Swappable axle design — 15x110 or 20x110 Boost.
+
+  - model: "Infinity EN"
+    category: Enduro / Freeride / DH (Dual Crown)
+    year_range: "2025-2026"
+    url: https://www.intend-bc.com/products/infinity-en/
+    wheel_size: [29]
+    trims:
+      - trim: Standard
+        travel_mm: [160, 170, 180, 190]
+        offset_mm: [44]
+        stanchion: 35mm
+        spring: Air
+        dampers: [closed_cartridge]
+        adjustments: *air_spring
+        note: Dual-crown chassis.
+
+  - model: "Bandit"
+    category: Enduro / Freeride
+    year_range: "2025-2026"
+    url: https://www.intend-bc.com/products/bandit/
+    wheel_size: [29]
+    trims:
+      - trim: Standard
+        travel_mm: [160, 170, 180, 190]
+        offset_mm: [44]
+        stanchion: 35mm
+        spring: Air
+        dampers: [closed_cartridge]
+        adjustments: *air_spring
+
+# --------------------------------------------------------------------------
+# Follow-ups (not yet captured — avoid guessing):
+#   - Rebound/Compression click counts (closed_cartridge, open_bath): INTEND
+#     does not publish a total click count anywhere on their official site.
+#     The fork-setup guide only describes Low-Speed Compression as having a
+#     coarser zone (clicks 1-6) followed by a finer zone continuing to fully
+#     open, with no stated maximum. If INTEND ever publishes an exact number
+#     (or it's confirmed via an official spec sheet/PDF rather than a review),
+#     add `{ name: Compression, type: step, max: N }` / `Rebound` accordingly.
+#   - RockShox Charger Raceday (rs_charger_raceday): click/damping specs are
+#     RockShox's own, not published on the INTEND product pages — would need
+#     to come from RockShox's own documentation, out of scope here.
+#   - Progression / volume bottom caps: every model ships with 2 interchangeable
+#     bottom caps (a "less" and "more" progression option, one pre-installed)
+#     but no numeric volume (cc) is published per model, so no Volume Spacers
+#     adjustment is generated.
+#   - Smooth Operator compression valve: standard equipment on current-
+#     production Hero/Edge/Flash 35/Flash 38/Infinity EN/Bandit (since ~Dec
+#     2025) and separately retrofittable to older units; purely a shim-stack
+#     refinement with no published click spec, so it isn't modelled as its own
+#     damper key.
+#   - Older/legacy INTEND fork generations (e.g. Ebonite and pre-Blackline
+#     2-piece-crown models) are not covered — only the current lineup shown on
+#     intend-bc.com/fork-chart/ as of 2026-07-17.
+# --------------------------------------------------------------------------

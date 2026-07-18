@@ -167,6 +167,7 @@ adjustments.
 
 ```yaml
 - model: "36"                 # model name
+  complete: true              # optional; omit or set to true if all click counts published
   category: All-Mountain      # discipline (informational/grouping)
   year_range: "2025-2026"     # model years these specs apply to
   url: https://ridefox.com/pages/fox-36   # source page for this model
@@ -229,6 +230,10 @@ reference.
 The formats above aren't rigid — small deviations are expected as brands don't
 all publish specs the same way:
 
+- **`complete: false`**: set on a model when any damper it uses has unpublished
+  click counts (`adjustments: []`). The UI will not show incomplete models in
+  the preset picker — they're excluded until the data is complete. Omit the
+  field or set to `true` if all click counts are published.
 - **Per-trim `url` override**: if a trim/variant has its own product page
   (e.g. a "Coil" version sold separately from the "Air" version), give it its
   own `url:` inside that trim instead of relying on the model-level one.

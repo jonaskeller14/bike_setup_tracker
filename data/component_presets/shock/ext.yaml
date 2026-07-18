@@ -194,6 +194,7 @@ shocks:
       reservoir.
 
   - model: "Arma V3"
+    complete: false
     category: Downhill
     spring: Coil
     year_range: "2025-2026"

@@ -74,6 +74,7 @@ dampers:
 # --------------------------------------------------------------------------
 forks:
   - model: "Era V2.1"
+    complete: false
     category: Trail / Enduro
     year_range: "2025-2026"
     url: https://extremeshox.com/product/ext-era-v2-1/
@@ -89,6 +90,7 @@ forks:
         note: HS3 hybrid dual-positive-chamber air spring; 15QR Boost Torque Cap dropout (15x110mm)
 
   - model: "Era V2 LT"
+    complete: false
     category: Enduro
     year_range: "2025-2026"
     url: https://extremeshox.com/product/ext-era-v2-lt/
@@ -105,6 +107,7 @@ forks:
           Axle-to-crown: 594mm (180mm travel) / 604mm (190mm travel).
 
   - model: "Vaia"
+    complete: false
     category: Downhill / Enduro
     year_range: "2025-2026"
     url: https://extremeshox.com/product/vaia/

@@ -134,6 +134,7 @@ dampers:
 # --------------------------------------------------------------------------
 forks:
   - model: "RUX"
+    complete: false
     category: Downhill
     year_range: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-RUX38-Boost-8390.html
@@ -151,6 +152,7 @@ forks:
         note: Downhill/Freeride chassis. Postmount 203mm, max rotor 220mm.
 
   - model: "DUROLUX 36X"
+    complete: false
     category: All-Mountain (eMTB)
     year_range: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-DUROLUX36X-Boost-8049.html
@@ -167,6 +169,7 @@ forks:
         note: eMTB_AM-tuned variant of the DUROLUX chassis with a lighter 36mm stanchion; ABS mount optional.
 
   - model: "DUROLUX 38"
+    complete: false
     category: Enduro
     year_range: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-DUROLUX38-Boost-8051.html
@@ -193,6 +196,7 @@ forks:
         note: eMTB_Enduro tune; ABS mount optional.
 
   - model: "AION 36"
+    complete: false
     category: All-Mountain
     year_range: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-AION36-Boost-8057.html
@@ -208,6 +212,7 @@ forks:
         axle: ø15-110 (15AH4)
 
   - model: "AION 38X"
+    complete: false
     category: All-Mountain (eMTB)
     year_range: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-AION38X-Boost-8053.html
@@ -224,6 +229,7 @@ forks:
         note: ABS mount optional.
 
   - model: "AURON 36"
+    complete: false
     category: All-Mountain
     year_range: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-AURON36-Boost-8244.html
@@ -239,6 +245,7 @@ forks:
         axle: ø15-110 (15AH4)
 
   - model: "ZERON 36"
+    complete: false
     category: All-Mountain
     year_range: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-ZERON36-Boost-8138.html
@@ -254,6 +261,7 @@ forks:
         axle: ø15-110 (15AH4)
 
   - model: "ZERON 36X"
+    complete: false
     category: All-Mountain (eMTB)
     year_range: "2026"
     url: https://www.srsuntour.com/products/fork/SF26-ZERON36X-Boost-8140.html

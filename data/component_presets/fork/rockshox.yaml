@@ -79,6 +79,7 @@ dampers:
 # --------------------------------------------------------------------------
 forks:
   - model: "SID SL"
+    complete: false
     category: XC
     year_range: "2025-2026"
     url: https://www.sram.com/en/rockshox/series/sid-sl
@@ -100,6 +101,7 @@ forks:
         note: OEM only
 
   - model: "SID"
+    complete: false
     category: XC
     year_range: "2025-2026"
     url: https://www.sram.com/en/rockshox/series/sid
@@ -120,6 +122,7 @@ forks:
         note: OEM only
 
   - model: "Reba"
+    complete: false
     category: XC / Trail
     year_range: "2025-2026"
     url: https://www.sram.com/en/rockshox/series/reba
@@ -250,6 +253,7 @@ forks:
         note: OEM only
 
   - model: "Rudy XPLR"
+    complete: false
     category: Gravel / Bikepacking
     year_range: "2025-2026"
     url: https://www.sram.com/en/rockshox/series/rudy-xplr
@@ -263,6 +267,7 @@ forks:
         adjustments: *air_spring
 
   - model: "Rudy XL"
+    complete: false
     category: Gravel / Bikepacking
     year_range: "2025-2026"
     url: https://www.sram.com/en/rockshox/series/rudy-xl

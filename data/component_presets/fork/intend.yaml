@@ -92,6 +92,7 @@ dampers:
 # --------------------------------------------------------------------------
 forks:
   - model: "Samurai XC 29"
+    complete: false
     category: XC / Down-country
     year_range: "2025-2026"
     url: https://www.intend-bc.com/products/samurai-xc/
@@ -109,6 +110,7 @@ forks:
           when fitted with the RockShox Charger Raceday cartridge.
 
   - model: "Samurai XC 32"
+    complete: false
     category: XC
     year_range: "2025-2026"
     url: https://www.intend-bc.com/products/samurai-32/
@@ -126,6 +128,7 @@ forks:
           when fitted with the RockShox Charger Raceday cartridge.
 
   - model: "Samurai Super TR"
+    complete: false
     category: Downcountry / Trail / Enduro
     year_range: "2025-2026"
     url: https://www.intend-bc.com/products/samurai-supertr/
@@ -139,6 +142,7 @@ forks:
         adjustments: *air_spring
 
   - model: "Hero"
+    complete: false
     category: Trail / All-Mountain / Enduro
     year_range: "2025-2026"
     url: https://www.intend-bc.com/products/intend-hero/
@@ -154,6 +158,7 @@ forks:
         note: No TorqueCap compatibility from April 2025 on.
 
   - model: "Essential"
+    complete: false
     category: Trail / All-Mountain / Enduro
     year_range: "2025-2026"
     url: https://www.intend-bc.com/products/essentials/
@@ -172,6 +177,7 @@ forks:
           air unit.
 
   - model: "Edge"
+    complete: false
     category: Enduro
     year_range: "2025-2026"
     url: https://www.intend-bc.com/products/intend-edge/
@@ -186,6 +192,7 @@ forks:
         adjustments: *air_spring
 
   - model: "Flash 35"
+    complete: false
     category: Enduro / Freeride
     year_range: "2025-2026"
     url: https://www.intend-bc.com/products/intend-flash/
@@ -200,6 +207,7 @@ forks:
         adjustments: *air_spring
 
   - model: "Flash 38"
+    complete: false
     category: Enduro / Freeride / DH
     year_range: "2025-2026"
     url: https://www.intend-bc.com/products/flash-38/
@@ -215,6 +223,7 @@ forks:
         note: Swappable axle design — 15x110 or 20x110 Boost.
 
   - model: "Infinity EN"
+    complete: false
     category: Enduro / Freeride / DH (Dual Crown)
     year_range: "2025-2026"
     url: https://www.intend-bc.com/products/infinity-en/
@@ -230,6 +239,7 @@ forks:
         note: Dual-crown chassis.
 
   - model: "Bandit"
+    complete: false
     category: Enduro / Freeride
     year_range: "2025-2026"
     url: https://www.intend-bc.com/products/bandit/

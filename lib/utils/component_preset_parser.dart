@@ -47,6 +47,7 @@ List<ComponentPresetVariant> parseBrandFile(String yamlSource) {
       throw FormatException('A $modelsKey entry for $brand is not a map');
     }
     final model = _requireString(rawModel, 'model');
+    final complete = _boolOrTrue(rawModel['complete']);
     final category = rawModel['category']?.toString();
     final yearRange = rawModel['year_range']?.toString();
     final modelUrl = rawModel['url']?.toString();
@@ -89,6 +90,7 @@ List<ComponentPresetVariant> parseBrandFile(String yamlSource) {
         dampers: trimDampers,
         stanchion: rawTrim['stanchion']?.toString(),
         note: rawTrim['note']?.toString() ?? modelNote,
+        complete: complete,
       ));
     }
   }
@@ -160,4 +162,9 @@ List<String> _stringList(dynamic raw) {
 List<num> _numList(dynamic raw) {
   if (raw is! YamlList) return const [];
   return raw.whereType<num>().toList();
+}
+
+bool _boolOrTrue(dynamic raw) {
+  if (raw is bool) return raw;
+  return true;
 }

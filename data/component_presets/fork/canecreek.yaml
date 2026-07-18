@@ -106,6 +106,7 @@ forks:
           explicitly listed 27.5in+).
 
   - model: "Helm DJ"
+    complete: false
     category: Dirt Jump / Dual Slalom / Street
     year_range: "2025-2026"
     url: https://www.canecreek.com/products/helm-dj

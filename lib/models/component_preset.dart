@@ -61,6 +61,10 @@ class ComponentPresetVariant {
   final String? stanchion;
   final String? note;
 
+  /// Whether all adjustment click counts are published (true by default).
+  /// Incomplete models are filtered from the UI preset picker.
+  final bool complete;
+
   const ComponentPresetVariant({
     required this.brand,
     required this.model,
@@ -77,6 +81,7 @@ class ComponentPresetVariant {
     this.dampers = const [],
     this.stanchion,
     this.note,
+    this.complete = true,
   });
 
   /// Stable, computed catalog identity — never persisted (see provenance

@@ -51,7 +51,9 @@ class ComponentPresetRepository {
     for (final path in paths) {
       try {
         final source = await rootBundle.loadString(path);
-        variants.addAll(parseBrandFile(source));
+        variants.addAll(
+          parseBrandFile(source).where((v) => v.complete),
+        );
       } catch (error, stack) {
         debugPrint('ComponentPresetRepository: skipping unparseable "$path": $error');
         debugPrintStack(stackTrace: stack);

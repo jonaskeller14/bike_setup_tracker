@@ -187,6 +187,7 @@ forks:
       — see follow-ups.
 
   - model: Diamond 36
+    complete: false
     category: Trail / Enduro
     year_range: "2024-2026"
     url: https://dvosuspension.com/product/diamond-36-core/
@@ -217,6 +218,7 @@ forks:
           maximum usable spacer count — omitted rather than guessed.
 
   - model: Diamond
+    complete: false
     category: Trail / Enduro
     year_range: "2024-2026"
     url: https://dvosuspension.com/product/diamond-d3/

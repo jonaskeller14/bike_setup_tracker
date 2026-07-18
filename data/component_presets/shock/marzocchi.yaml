@@ -72,6 +72,7 @@ shocks:
         adjustments: *air_spring
 
   - model: "Bomber CR"
+    complete: false
     category: Enduro / Downhill
     spring: Coil
     year_range: "2025-2026"

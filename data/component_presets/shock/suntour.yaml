@@ -117,6 +117,7 @@ dampers:
 # --------------------------------------------------------------------------
 shocks:
   - model: "EDGE Evo"
+    complete: false
     category: XC / Trail
     spring: Air
     year_range: "2025-2026"
@@ -144,6 +145,7 @@ shocks:
         note: Handlebar-remote compression lever.
 
   - model: "EDGE X"
+    complete: false
     category: Trail (eMTB, reinforced)
     spring: Air
     year_range: "2024-2026"
@@ -188,6 +190,7 @@ shocks:
         adjustments: *air_spring
 
   - model: "RAIDON"
+    complete: false
     category: XC / Trail
     spring: Air
     year_range: "2025-2026"

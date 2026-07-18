@@ -280,6 +280,10 @@ class _ComponentPresetPickerSheetState extends State<_ComponentPresetPickerSheet
   Widget _modelList(List<ComponentPresetVariant> variants) {
     final forBrand = variants.where((v) => v.brand == _brand).toList();
 
+    if (forBrand.isEmpty) {
+      return const _EmptyHint(text: 'No models available for this brand.');
+    }
+
     // Group models by category (categories and models both in first-seen order)
     // so a category that recurs later in the file stays under one header.
     final categories = <String>[];

@@ -10,6 +10,7 @@ import '../../services/subscription_service.dart';
 import '../../utils/setup_actions.dart';
 import '../chips/setup_list_filter_widget.dart';
 import '../empty_state_placeholder.dart';
+import '../hints/getting_started_guide_hint.dart';
 import '../hints/setup_calendar_hint.dart';
 import '../hints/setup_hint_selection.dart';
 import '../hints/setup_task_hint.dart';
@@ -24,7 +25,21 @@ import '../sheets/task_rule_sheet.dart';
 class SetupList extends StatelessWidget {
   const SetupList({super.key});
 
-  Widget _emptyPlaceholder(BuildContext context) {
+  Widget _emptyPlaceholder(BuildContext context, {required bool showStartupGuide}) {
+    if (showStartupGuide) {
+      return const SingleChildScrollView(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          spacing: 8,
+          children: [
+            SetupListFilterWidget(),
+            GettingStartedGuideHint(),
+          ],
+        ),
+      );
+    }
     return CustomScrollView(
       slivers: [
         const SliverPadding(
@@ -63,6 +78,13 @@ class SetupList extends StatelessWidget {
         : const <StravaActivity>[];
     final taskEntries = appRepository.filteredTaskEntries.values;
     final installations = appRepository.filteredInstallations;
+
+    // Onboarding guide: shown until all three getting-started steps are done
+    // (mirrors the self-guard inside GettingStartedGuideHint).
+    final showStartupGuide = appSettings.showGettingStartedGuideHint &&
+        !(appRepository.bikes.isNotEmpty &&
+            appRepository.components.isNotEmpty &&
+            appRepository.setups.isNotEmpty);
 
     // Horizon date is the "furthest" loaded activity date in the current scroll direction.
     // ASC: newest activity date. DESC: oldest activity date.
@@ -111,32 +133,38 @@ class SetupList extends StatelessWidget {
         ? a.date.compareTo(b.date)
         : b.date.compareTo(a.date));
 
-    final Widget? hint = switch (selectSetupHint(
-      settings: appSettings,
-      setupCount: setupsList.length,
-      stravaActivityCount: stravaActivities.length,
-    )) {
-      SetupHint.task => const SetupTaskHint(),
-      SetupHint.calendar => const SetupCalendarHint(),
-      SetupHint.none => null,
-    };
+    // Only one hint at a time at the top: the onboarding guide takes priority over
+    // the task/calendar suggestion hints.
+    final Widget? hint = showStartupGuide
+        ? null
+        : switch (selectSetupHint(
+            settings: appSettings,
+            setupCount: setupsList.length,
+            stravaActivityCount: stravaActivities.length,
+          )) {
+            SetupHint.task => const SetupTaskHint(),
+            SetupHint.calendar => const SetupCalendarHint(),
+            SetupHint.none => null,
+          };
 
     return entries.isEmpty && !appRepository.isLoadingMoreStrava
-        ? _emptyPlaceholder(context)
+        ? _emptyPlaceholder(context, showStartupGuide: showStartupGuide)
         : ListView.builder(
             padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
             itemCount: entries.length + 1 + (appRepository.isLoadingMoreStrava ? 1 : 0), // 1 header + optional loader
             itemBuilder: (context, index) {
               if (index == 0) {
-                if (hint == null) return const SetupListFilterWidget();
+                final headerChildren = <Widget>[
+                  if (showStartupGuide) const GettingStartedGuideHint(),
+                  ?hint,
+                  const SetupListFilterWidget(),
+                ];
+                if (headerChildren.length == 1) return headerChildren.first;
                 return Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   spacing: 8,
-                  children: [
-                    hint,
-                    const SetupListFilterWidget(),
-                  ],
+                  children: headerChildren,
                 );
               }
 

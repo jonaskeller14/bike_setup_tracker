@@ -52,8 +52,8 @@ dampers:
       confirmed 10-click High Speed Compression and 5-click Low Speed
       Compression, both counted from fully open, clockwise = more support.
     adjustments:
-      - { name: High Speed Compression, type: step, max: 10, notes: "Counted from fully open (softest); clockwise = more support" }
-      - { name: Low Speed Compression, type: step, max: 5, notes: "Counted from fully open (softest); clockwise = more support" }
+      - { name: HSC, type: step, max: 10, notes: "High-Speed Compression; Counted from fully open (softest); clockwise = more support" }
+      - { name: LSC, type: step, max: 5, notes: "Low-Speed Compression; Counted from fully open (softest); clockwise = more support" }
     note: "Rebound total click count unconfirmed (DVO's chart labels the fully-open end '18+') — see follow-ups"
 
   jade_coil:
@@ -63,8 +63,8 @@ dampers:
       Compression, Low Speed Compression and Rebound totals are each
       independently confirmed via DVO's official tech setup page.
     adjustments:
-      - { name: High Speed Compression, type: step, max: 24, notes: "Counted from fully open (counter-clockwise = open per DVO's base-tune instructions); clockwise = firmer" }
-      - { name: Low Speed Compression, type: step, max: 22, notes: "Counted from fully open; clockwise = firmer" }
+      - { name: HSC, type: step, max: 24, notes: "High-Speed Compression; Counted from fully open (counter-clockwise = open per DVO's base-tune instructions); clockwise = firmer" }
+      - { name: LSC, type: step, max: 22, notes: "Low-Speed Compression; Counted from fully open; clockwise = firmer" }
       - { name: Rebound, type: step, max: 37, notes: "Counted from fully closed (clockwise = closed/slowest per DVO's base-tune instructions); opening (counter-clockwise) increases speed" }
 
   topaz_prime:
@@ -75,8 +75,8 @@ dampers:
       fully open, clockwise = more support), plus a 9-click Rebound shared
       across all current Topaz models.
     adjustments:
-      - { name: High Speed Compression, type: step, max: 10, notes: "Counted from fully open (softest); clockwise = more support" }
-      - { name: Low Speed Compression, type: step, max: 5, notes: "Counted from fully open (softest); clockwise = more support" }
+      - { name: HSC, type: step, max: 10, notes: "High-Speed Compression; Counted from fully open (softest); clockwise = more support" }
+      - { name: LSC, type: step, max: 5, notes: "Low-Speed Compression; Counted from fully open (softest); clockwise = more support" }
       - { name: Rebound, type: step, max: 9, notes: "Counted from fully closed (clockwise); shared scale across all current Topaz models" }
 
   topaz_pro:

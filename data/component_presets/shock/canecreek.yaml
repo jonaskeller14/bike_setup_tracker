@@ -42,10 +42,10 @@ dampers:
       nested in the CS lever). Click/turn ranges confirmed via Cane Creek's
       official Suspension Setup app; HSC/HSR are turn-based (no clicks).
     adjustments:
-      - { name: Low-Speed Compression,  type: step, max: 25 }
-      - { name: High-Speed Compression, type: numerical, unit: turns, min: 0, max: 4.5, notes: Continuous (no clicks); counted from fully closed }
-      - { name: Low-Speed Rebound,      type: step, max: 25 }
-      - { name: High-Speed Rebound,     type: numerical, unit: turns, min: 0, max: 4.5, notes: Continuous (no clicks); counted from fully closed }
+      - { name: LSC, type: step, max: 25, notes: Low-Speed Compression }
+      - { name: HSC, type: numerical, unit: turns, min: 0, max: 4.5, notes: "High-Speed Compression; Continuous (no clicks); counted from fully closed" }
+      - { name: LSR, type: step, max: 25, notes: Low-Speed Rebound }
+      - { name: HSR, type: numerical, unit: turns, min: 0, max: 4.5, notes: "High-Speed Rebound; Continuous (no clicks); counted from fully closed" }
       - { name: Climb Switch, type: categorical, options: [Descend, Climb] }
     valves: twin-tube; 2 high-speed + 2 low-speed damping circuits
 
@@ -57,10 +57,10 @@ dampers:
       (HSC/LSC/HSR/LSR), each spanning 0-10 clicks per Cane Creek's official
       Suspension Setup app, plus a 3-position Climb Switch.
     adjustments:
-      - { name: Low-Speed Compression,  type: step, max: 10 }
-      - { name: High-Speed Compression, type: step, max: 10 }
-      - { name: Low-Speed Rebound,      type: step, max: 10 }
-      - { name: High-Speed Rebound,     type: step, max: 10 }
+      - { name: LSC, type: step, max: 10, notes: Low-Speed Compression }
+      - { name: HSC, type: step, max: 10, notes: High-Speed Compression }
+      - { name: LSR, type: step, max: 10, notes: Low-Speed Rebound }
+      - { name: HSR, type: step, max: 10, notes: High-Speed Rebound }
       - { name: Climb Switch, type: categorical, options: [Open, Climb, Locked] }
 
   tigon_damper:
@@ -72,9 +72,9 @@ dampers:
       ranges confirmed via Cane Creek's official Suspension Setup app; HSC is
       turn-based (no clicks).
     adjustments:
-      - { name: Low-Speed Compression,  type: step, max: 12 }
-      - { name: High-Speed Compression, type: numerical, unit: turns, min: 0, max: 1, notes: Continuous (no clicks); counted from fully closed }
-      - { name: Low-Speed Rebound,      type: step, max: 15 }
+      - { name: LSC, type: step, max: 12, notes: Low-Speed Compression }
+      - { name: HSC, type: numerical, unit: turns, min: 0, max: 1, notes: "High-Speed Compression; Continuous (no clicks); counted from fully closed" }
+      - { name: Rebound, type: step, max: 15, notes: Low-Speed Rebound }
       - { name: Climb Switch, type: categorical, options: [Descend, Climb] }
 
 # --------------------------------------------------------------------------

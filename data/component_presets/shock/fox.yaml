@@ -28,18 +28,18 @@ dampers:
       Control on both high-speed circuits. Optional 2-position independent
       Firm Mode lever on Factory/Performance Elite.
     adjustments:
-      - { name: High-Speed Compression, type: step, max: 8 }
-      - { name: Low-Speed Compression,  type: step, max: 16 }
-      - { name: High-Speed Rebound,     type: step, max: 8 }
-      - { name: Low-Speed Rebound,      type: step, max: 16 }
+      - { name: HSC, type: step, max: 8, notes: High-Speed Compression }
+      - { name: LSC, type: step, max: 16, notes: Low-Speed Compression }
+      - { name: HSR, type: step, max: 8, notes: High-Speed Rebound }
+      - { name: LSR, type: step, max: 16, notes: Low-Speed Rebound }
     firm_mode: optional 2-position independent lever
 
   float_x:
     name: FLOAT X damper
     description: All-mountain air shock damper. Tool-free 2-position lever (Open/Firm).
     adjustments:
-      - { name: Low-Speed Compression, type: step, max: 11 }
-      - { name: Low-Speed Rebound,     type: step, max: 16 }
+      - { name: Compression, type: step, max: 11, notes: Low-Speed Compression }
+      - { name: Rebound, type: step, max: 16, notes: Low-Speed Rebound }
       - { name: Compression Mode, type: categorical, options: [Open, Firm] }
 
   float:
@@ -64,8 +64,8 @@ dampers:
     name: DHX damper (coil)
     description: Coil-sprung trail/enduro damper. Tool-free adjusters, 2-position Firm switch.
     adjustments:
-      - { name: Low-Speed Compression, type: step, max: 11 }
-      - { name: Low-Speed Rebound,     type: step, max: 16 }
+      - { name: Compression, type: step, max: 11, notes: Low-Speed Compression }
+      - { name: Rebound, type: step, max: 16, notes: Low-Speed Rebound }
       - { name: Compression Mode, type: categorical, options: [Open, Firm] }
 
 # --------------------------------------------------------------------------

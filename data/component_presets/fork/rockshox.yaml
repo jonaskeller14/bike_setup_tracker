@@ -31,8 +31,8 @@ dampers:
       (68% more oil flow) and overall reduced damping baseline. RC2 variant
       adds remote control.
     adjustments:
-      - { name: High-Speed Compression, type: step, min: -2, max: 2, visualization: dial_cw, notes: Counted from the middle detent }
-      - { name: Low-Speed Compression,  type: step, min: -7, max: 7, visualization: dial_cw, notes: Counted from the middle detent }
+      - { name: HSC, type: step, min: -2, max: 2, visualization: dial_cw, notes: "High-Speed Compression; Counted from the middle detent" }
+      - { name: LSC, type: step, min: -7, max: 7, visualization: dial_cw, notes: "Low-Speed Compression; Counted from the middle detent" }
       - { name: Rebound, type: step, max: 18, notes: Counted from fully open (fastest) }
     note: >
       The +/- symbol on each compression dial indicates direction relative to
@@ -45,8 +45,8 @@ dampers:
       Charger 3.1 but with further refinements; exact damping internals not
       independently confirmed for 3.2 generation.
     adjustments:
-      - { name: High-Speed Compression, type: step, min: -2, max: 2, visualization: dial_cw, notes: Counted from the middle detent }
-      - { name: Low-Speed Compression,  type: step, min: -7, max: 7, visualization: dial_cw, notes: Counted from the middle detent }
+      - { name: HSC, type: step, min: -2, max: 2, visualization: dial_cw, notes: "High-Speed Compression; Counted from the middle detent" }
+      - { name: LSC, type: step, min: -7, max: 7, visualization: dial_cw, notes: "Low-Speed Compression; Counted from the middle detent" }
       - { name: Rebound, type: step, max: 18, notes: Counted from fully open (fastest) }
     note: Same counting method as Charger 3.1.
 

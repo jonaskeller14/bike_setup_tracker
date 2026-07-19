@@ -30,8 +30,8 @@ dampers:
       Letters break down as: R (Rebound), C2 (dual compression: LSC + HSC),
       T (Threshold/HBO).
     adjustments:
-      - { name: High-Speed Compression, type: step, max: 5, notes: Requires a 3mm hex key }
-      - { name: Low-Speed Compression,  type: step, max: 5, notes: Adjusted by hand }
+      - { name: HSC, type: step, max: 5, notes: "High-Speed Compression; Requires a 3mm hex key" }
+      - { name: LSC, type: step, max: 5, notes: "Low-Speed Compression; Adjusted by hand" }
       - { name: Rebound, type: step, max: 15, notes: Counted from fully open (fastest) }
 
   rc2:
@@ -40,8 +40,8 @@ dampers:
       Downhill/gravity damper variant (Super Deluxe Ultimate DH, BoXXer DH).
       Two external compression circuits + rebound (no threshold).
     adjustments:
-      - { name: High-Speed Compression, type: step, max: 5 }
-      - { name: Low-Speed Compression,  type: step, max: 5 }
+      - { name: HSC, type: step, max: 5, notes: High-Speed Compression }
+      - { name: LSC, type: step, max: 5, notes: Low-Speed Compression }
       - { name: Rebound, type: step, max: 15, notes: Counted from fully open (fastest) }
     note: "Similar click counts to RC2T but tuned for DH/gravity riding."
 
@@ -52,8 +52,8 @@ dampers:
       hydraulic bottom-out adjustment + threshold climbing switch (lock-out
       position).
     adjustments:
-      - { name: High-Speed Compression, type: step, max: 5 }
-      - { name: Low-Speed Compression,  type: step, max: 5 }
+      - { name: HSC, type: step, max: 5, notes: High-Speed Compression }
+      - { name: LSC, type: step, max: 5, notes: Low-Speed Compression }
       - { name: Rebound, type: step, max: 20, notes: Counted from fully open (fastest) }
       - { name: Hydraulic Bottom Out, type: step, max: 5 }
       - { name: Threshold, type: categorical, options: [Open, Locked-out], notes: Climb/pedal-mode lock-out lever }
@@ -65,8 +65,8 @@ dampers:
       Dual-compression + rebound damping. Similar architecture to RC2T but
       lacks the threshold/HBO system; may have different click counts.
     adjustments:
-      - { name: High-Speed Compression, type: step, max: 5 }
-      - { name: Low-Speed Compression,  type: step, max: 5 }
+      - { name: HSC, type: step, max: 5, notes: High-Speed Compression }
+      - { name: LSC, type: step, max: 5, notes: Low-Speed Compression }
       - { name: Rebound, type: step, max: 15, notes: Counted from fully open (fastest) }
     note: "Click counts inferred from RC2T; verify independently."
 
@@ -87,8 +87,8 @@ dampers:
       Air shock variant combining Vivid platform with RC2T damping and
       TouchDown hydraulic bottom-out (proprietary HBO system).
     adjustments:
-      - { name: High-Speed Compression, type: step, max: 5 }
-      - { name: Low-Speed Compression,  type: step, max: 5 }
+      - { name: HSC, type: step, max: 5, notes: High-Speed Compression }
+      - { name: LSC, type: step, max: 5, notes: Low-Speed Compression }
       - { name: Rebound, type: step, max: 15, notes: Counted from fully open (fastest) }
 
 # --------------------------------------------------------------------------

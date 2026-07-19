@@ -32,25 +32,25 @@ dampers:
     name: OTX18
     description: Trail/downcountry damper (RXF34). Separate spring and damping systems.
     adjustments:
-      - { name: High-Speed Compression, type: step, max: 3 }
-      - { name: Low-Speed Compression,  type: step, max: 15 }
-      - { name: Rebound,                type: step, max: 15 }
+      - { name: HSC, type: step, max: 3, notes: High-Speed Compression }
+      - { name: LSC, type: step, max: 15, notes: Low-Speed Compression }
+      - { name: Rebound, type: step, max: 15 }
 
   ttx18_m2:
     name: TTX18 (m.2 generation)
     description: Twin-tube trail/enduro damper, m.2 generation. HSC includes a Climb Mode detent.
     adjustments:
-      - { name: High-Speed Compression, type: step, max: 3, notes: HSC includes a Climb Mode detent }
-      - { name: Low-Speed Compression,  type: step, max: 15 }
-      - { name: Rebound,                type: step, max: 15 }
+      - { name: HSC, type: step, max: 3, notes: "High-Speed Compression; includes a Climb Mode detent" }
+      - { name: LSC, type: step, max: 15, notes: Low-Speed Compression }
+      - { name: Rebound, type: step, max: 15 }
 
   ttx18_m3:
     name: TTX18 (m.3 generation)
     description: Twin-tube trail/enduro/DH damper, m.3 generation.
     adjustments:
-      - { name: High-Speed Compression, type: step, max: 3 }
-      - { name: Low-Speed Compression,  type: step, max: 16 }
-      - { name: Rebound,                type: step, max: 16 }
+      - { name: HSC, type: step, max: 3, notes: High-Speed Compression }
+      - { name: LSC, type: step, max: 16, notes: Low-Speed Compression }
+      - { name: Rebound, type: step, max: 16 }
 
   otx14_r:
     name: OTX14 R

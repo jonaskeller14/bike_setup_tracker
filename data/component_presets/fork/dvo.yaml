@@ -52,7 +52,7 @@ dampers:
       total click/rotation count is published for this tier outside the
       Diamond, so both are omitted here rather than guessed.
     adjustments:
-      - { name: Low Speed Compression, type: step, max: 6, notes: "DVO 'Quick Range' adjuster; position 1 = fully open (softest), 6 = firmest" }
+      - { name: Compression, type: step, max: 6, notes: "Low-Speed Compression; DVO 'Quick Range' adjuster; position 1 = fully open (softest), 6 = firmest" }
     note: "HSC total and Rebound total unconfirmed for this tier outside the Diamond — see follow-ups"
 
   quick_range_d2e2:
@@ -64,7 +64,7 @@ dampers:
       adjustment). No externally adjustable High Speed Compression at this
       tier.
     adjustments:
-      - { name: Low Speed Compression, type: step, max: 4, notes: "Soft → Medium → Firm dial; counted from fully open (soft)" }
+      - { name: Compression, type: step, max: 4, notes: "Low-Speed Compression; Soft → Medium → Firm dial; counted from fully open (soft)" }
     note: "Rebound total unconfirmed for this tier — see follow-ups"
 
   diamond_d1e1:
@@ -77,8 +77,8 @@ dampers:
       an externally adjustable OTT negative-spring preload (5mm allen key), 14
       full rotations total (6 clicks per rotation).
     adjustments:
-      - { name: High Speed Compression, type: step, max: 29, notes: "Adjust in full 1-2 rotations rather than single clicks; counted from fully open (softest); clockwise = firmer" }
-      - { name: Low Speed Compression, type: step, max: 6, notes: "DVO 'Quick Range' adjuster; position 1 = fully open (softest), 6 = firmest" }
+      - { name: HSC, type: step, max: 29, notes: "High-Speed Compression; Adjust in full 1-2 rotations rather than single clicks; counted from fully open (softest); clockwise = firmer" }
+      - { name: LSC, type: step, max: 6, notes: "Low-Speed Compression; DVO 'Quick Range' adjuster; position 1 = fully open (softest), 6 = firmest" }
       - { name: Rebound, type: step, max: 20, notes: "Counted from fully closed (slowest); opening (counterclockwise) increases speed" }
 
   diamond_d3e3:
@@ -111,7 +111,7 @@ dampers:
       full-range High Speed Compression adjuster (rotation-based; no published
       total — omitted).
     adjustments:
-      - { name: Low Speed Compression, type: step, max: 5, notes: "Counted from fully open (softest); clockwise click = firmer" }
+      - { name: Compression, type: step, max: 5, notes: "Low-Speed Compression; Counted from fully open (softest); clockwise click = firmer" }
       - { name: Rebound, type: step, max: 25, notes: "Counted from fully closed (slowest); shared scale across all Onyx 38 models" }
     note: "HSC total rotations unconfirmed — see follow-ups"
 
@@ -121,7 +121,7 @@ dampers:
       Mid-tier Onyx 38 damper — confirmed 3-click Low Speed Compression Quick
       Range. No High Speed Compression adjuster.
     adjustments:
-      - { name: Low Speed Compression, type: step, max: 3, notes: "Counted from fully open (softest); clockwise click = firmer" }
+      - { name: Compression, type: step, max: 3, notes: "Low-Speed Compression; Counted from fully open (softest); clockwise click = firmer" }
       - { name: Rebound, type: step, max: 25, notes: "Counted from fully closed (slowest); shared scale across all Onyx 38 models" }
 
   onyx38_d3e3:

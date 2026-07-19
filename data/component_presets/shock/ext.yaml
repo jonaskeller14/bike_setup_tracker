@@ -59,8 +59,8 @@ dampers:
       Storia V3 review body text, which states plainly: "There are 14 clicks
       of LSC, 14 clicks of HSC, and 10 possible rebound settings."
     adjustments:
-      - { name: Low-Speed Compression,  type: step, max: 14, notes: "Source: Pinkbike Storia V3 review, not EXT's own site." }
-      - { name: High-Speed Compression, type: step, max: 14, notes: "Source: Pinkbike Storia V3 review, not EXT's own site." }
+      - { name: LSC, type: step, max: 14, notes: "Low-Speed Compression; Source: Pinkbike Storia V3 review, not EXT's own site." }
+      - { name: HSC, type: step, max: 14, notes: "High-Speed Compression; Source: Pinkbike Storia V3 review, not EXT's own site." }
       - { name: Rebound, type: step, max: 10, notes: "Source: Pinkbike Storia V3 review (\"10 possible rebound settings\"), not EXT's own site." }
       - { name: LOK (Climb Switch), type: boolean, notes: "Black lever on damper head. Turn clockwise = LOK (firm/pedal-platform circuit engaged); counterclockwise = Open. EXT's proprietary \"Lok\" pedaling-support circuit, not a true hydraulic lockout." }
     adjusters: LSC/BL (4mm Allen) / HSC/BH (12mm wrench or socket) / Rebound/R (bottom knob)
@@ -104,8 +104,8 @@ dampers:
       from-closed/total notation cleanly, so Rebound is left unmodeled — see
       Follow-ups.
     adjustments:
-      - { name: Low-Speed Compression,  type: step, max: 14, notes: "Source: Pinkbike Arma V4 review, not EXT's own site." }
-      - { name: High-Speed Compression, type: step, max: 15, notes: "Source: Pinkbike Arma V4 review, not EXT's own site." }
+      - { name: LSC, type: step, max: 14, notes: "Low-Speed Compression; Source: Pinkbike Arma V4 review, not EXT's own site." }
+      - { name: HSC, type: step, max: 15, notes: "High-Speed Compression; Source: Pinkbike Arma V4 review, not EXT's own site." }
       - { name: HBC, type: step, max: 10, notes: "Hydraulic bottom-out control, last 20% of stroke. Source: Pinkbike Arma V4 review, not EXT's own site." }
     adjusters: LSC (4mm Allen) / HSC (5mm Allen) / Rebound / HBC
 

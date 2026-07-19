@@ -39,18 +39,18 @@ dampers:
     name: GRIP X2
     description: Most tunable, descent-focused damper (enduro/DH). Four external adjusters.
     adjustments:
-      - { name: High-Speed Compression, type: step, max: 8 }
-      - { name: Low-Speed Compression,  type: step, max: 18 }
-      - { name: High-Speed Rebound,     type: step, max: 8 }
-      - { name: Low-Speed Rebound,      type: step, max: 16 }
+      - { name: HSC, type: step, max: 8, notes: High-Speed Compression }
+      - { name: LSC, type: step, max: 18, notes: Low-Speed Compression }
+      - { name: HSR, type: step, max: 8, notes: High-Speed Rebound }
+      - { name: LSR, type: step, max: 16, notes: Low-Speed Rebound }
     valves: 23
 
   grip_x:
     name: GRIP X
     description: Trail-focused damper. HSC dial has a Firm detent at its final click (170° sweep).
     adjustments:
-      - { name: High-Speed Compression, type: step, max: 15, notes: Firm mode engaged at the final click }
-      - { name: Low-Speed Compression,  type: step, max: 16 }
+      - { name: HSC, type: step, max: 15, notes: "High-Speed Compression; Firm mode engaged at the final click" }
+      - { name: LSC, type: step, max: 16, notes: Low-Speed Compression }
       - { name: Rebound, type: step, max: 17, notes: FOX labels this "low-speed rebound"; single rebound knob }
     firm_mode: at final HSC click
 

@@ -131,10 +131,10 @@ grip_x2:
   name: GRIP X2               # display name
   description: ...            # short blurb
   adjustments:                # each maps 1:1 to an Adjustment via fromYaml
-    - { name: High-Speed Compression, type: step, max: 8 }
-    - { name: Low-Speed Compression,  type: step, max: 18 }
-    - { name: High-Speed Rebound,     type: step, max: 8 }
-    - { name: Low-Speed Rebound,      type: step, max: 16 }
+    - { name: HSC, type: step, max: 8, notes: High-Speed Compression }
+    - { name: LSC, type: step, max: 18, notes: Low-Speed Compression }
+    - { name: HSR, type: step, max: 8, notes: High-Speed Rebound }
+    - { name: LSR, type: step, max: 16, notes: Low-Speed Rebound }
   valves: 23                  # informational (freeform key → damper.info)
 ```
 
@@ -142,9 +142,28 @@ grip_x2:
 charger_3_1:
   name: Charger 3.1
   adjustments:
-    - { name: High-Speed Compression, type: step, min: -2, max: 2, visualization: dial_cw }
-    - { name: Low-Speed Compression,  type: step, min: -7, max: 7, visualization: dial_cw }
+    - { name: HSC, type: step, min: -2, max: 2, visualization: dial_cw, notes: High-Speed Compression }
+    - { name: LSC, type: step, min: -7, max: 7, visualization: dial_cw, notes: Low-Speed Compression }
     - { name: Rebound, type: step, max: 18, notes: Counted from fully open (fastest) }
+```
+
+When a damper has both a high-speed and a low-speed circuit for compression or
+rebound, name the adjustment with the abbreviation (`HSC`/`LSC`/`HSR`/`LSR`)
+and put the spelled-out name in `notes` (prefixed before any other note text,
+separated by `; `) — see the examples above.
+
+When a damper has only a single compression or rebound circuit, skip the speed
+qualifier in `name` and just use `Compression` / `Rebound` — but if the source
+material itself calls that single circuit "Low-Speed" (or "High-Speed"), keep
+that qualifier as the first clause of `notes`, same `; `-separated convention:
+
+```yaml
+helm_damper:
+  name: Helm Damper
+  adjustments:
+    - { name: HSC, type: step, max: 10, notes: High-Speed Compression }
+    - { name: LSC, type: step, max: 17, notes: Low-Speed Compression }
+    - { name: Rebound, type: step, max: 10, notes: "Low-Speed Rebound; Cane Creek labels this the fork's single rebound circuit (no separate high-speed rebound adjuster)" }
 ```
 
 An on-the-fly compression lever (old `compression_positions`) is now a

@@ -64,7 +64,7 @@ dampers:
       Low-Speed Compression dial (not a 2-position sweep) plus the same
       9-click rebound scale. Per the official Bomber 58 tuning guide.
     adjustments:
-      - { name: Low-Speed Compression, type: step, max: 8 }
+      - { name: Compression, type: step, max: 8, notes: Low-Speed Compression }
       - { name: Rebound, type: step, max: 9 }
 
 # --------------------------------------------------------------------------

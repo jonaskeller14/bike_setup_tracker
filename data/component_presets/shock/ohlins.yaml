@@ -26,17 +26,17 @@ dampers:
     name: TTX1Air m.2
     description: Twin-tube air shock.
     adjustments:
-      - { name: High-Speed Compression, type: step, max: 3 }
-      - { name: Low-Speed Compression,  type: step, max: 16 }
-      - { name: Rebound,                type: step, max: 7 }
+      - { name: HSC, type: step, max: 3, notes: High-Speed Compression }
+      - { name: LSC, type: step, max: 16, notes: Low-Speed Compression }
+      - { name: Rebound, type: step, max: 7 }
 
   ttx2air_m2:
     name: TTX2Air m.2
     description: Twin-tube air shock; coarser external adjustment range than TTX1Air.
     adjustments:
-      - { name: High-Speed Compression, type: step, max: 3 }
-      - { name: Low-Speed Compression,  type: step, max: 12 }
-      - { name: Rebound,                type: step, max: 3 }
+      - { name: HSC, type: step, max: 3, notes: High-Speed Compression }
+      - { name: LSC, type: step, max: 12, notes: Low-Speed Compression }
+      - { name: Rebound, type: step, max: 3 }
 
   txc1air:
     name: TXC1Air
@@ -51,7 +51,7 @@ dampers:
     name: TXC2Air
     description: Cross-country air shock, newer generation. Three riding modes via manual lever.
     adjustments:
-      - { name: Low-Speed Compression, type: step, max: 16, notes: In Open mode }
+      - { name: Compression, type: step, max: 16, notes: "Low-Speed Compression; In Open mode" }
       - { name: Rebound, type: step, max: 12 }
       - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm], notes: Three riding modes via manual lever }
 
@@ -59,9 +59,9 @@ dampers:
     name: TTX22 m.2
     description: Twin-tube coil shock. Same cartridge across Piggyback/Side-by-side/Trunnion mount variants.
     adjustments:
-      - { name: High-Speed Compression, type: step, max: 3 }
-      - { name: Low-Speed Compression,  type: step, max: 16 }
-      - { name: Rebound,                type: step, max: 7 }
+      - { name: HSC, type: step, max: 3, notes: High-Speed Compression }
+      - { name: LSC, type: step, max: 16, notes: Low-Speed Compression }
+      - { name: Rebound, type: step, max: 7 }
 
 # --------------------------------------------------------------------------
 # Shocks — current Öhlins MTB lineup.

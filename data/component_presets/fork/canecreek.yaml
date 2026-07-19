@@ -39,9 +39,9 @@ dampers:
       MKII Coil and Works Series spec pages independently list identical
       10/17/10 position counts.
     adjustments:
-      - { name: High-Speed Compression, type: step, max: 10 }
-      - { name: Low-Speed Compression,  type: step, max: 17 }
-      - { name: Low-Speed Rebound,      type: step, max: 10, notes: Cane Creek labels this the fork's single rebound circuit (no separate high-speed rebound adjuster) }
+      - { name: HSC, type: step, max: 10, notes: High-Speed Compression }
+      - { name: LSC, type: step, max: 17, notes: Low-Speed Compression }
+      - { name: Rebound, type: step, max: 10, notes: "Low-Speed Rebound; Cane Creek labels this the fork's single rebound circuit (no separate high-speed rebound adjuster)" }
 
   helm_dj_damper:
     name: Helm DJ Damper

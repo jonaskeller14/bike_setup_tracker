@@ -83,6 +83,8 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
                     context: context,
                     adjustment: adjustment,
                     selected: selected,
+                    initialValue: initialValue,
+                    highlighting: highlighting,
                     onChanged: (List<String> newSelection) {
                       field.didChange(newSelection);
                       onChanged(newSelection);

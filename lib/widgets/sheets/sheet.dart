@@ -52,18 +52,21 @@ class SheetFilterEmptyHint extends StatelessWidget {
   final IconData icon;
   final String title;
   final String? hint;
+  final VoidCallback? onTap;
 
   const SheetFilterEmptyHint({
     super.key,
     required this.icon,
     required this.title,
     this.hint,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final actionable = onTap != null;
     return CustomPaint(
       painter: DashedBorderPainter(
         color: colors.outlineVariant,
@@ -73,6 +76,9 @@ class SheetFilterEmptyHint extends StatelessWidget {
         borderRadius: 12,
       ),
       child: ListTile(
+        onTap: onTap,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        trailing: actionable ? const Icon(Icons.arrow_forward_ios, size: 16.0) : null,
         leading: Icon(
           icon,
           size: 24,

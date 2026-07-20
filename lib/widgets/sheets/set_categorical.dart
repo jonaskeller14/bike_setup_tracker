@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../models/adjustment/adjustment.dart';
+import '../../theme.dart';
 import 'sheet.dart';
 
 void showSetCategoricalSheet({
@@ -9,9 +10,14 @@ void showSetCategoricalSheet({
   required CategoricalAdjustment adjustment,
   required List<String> selected,
   required ValueChanged<List<String>> onChanged,
+  List<String>? initialValue,
+  bool highlighting = true,
 }) async {
   final bool multiSelect = adjustment.multiSelect;
   final Set<String> current = selected.toSet();
+
+  final bool isInitial = initialValue == null;
+  final Set<String> initialSet = (initialValue ?? const <String>[]).toSet();
 
   final List<String> danglingOrder =
       selected.where((v) => !adjustment.options.contains(v)).toList();
@@ -31,6 +37,7 @@ void showSetCategoricalSheet({
       return StatefulBuilder(
         builder: (context, setSheetState) {
           final scheme = Theme.of(context).colorScheme;
+          final highlights = Theme.of(context).extension<ValueHighlightColors>();
           final bool hasDanglingSelected = danglingOrder.any(current.contains);
 
           return SafeArea(
@@ -76,6 +83,16 @@ void showSetCategoricalSheet({
                             label: option,
                             selected: current.contains(option),
                             multiSelect: multiSelect,
+                            highlightColor: !highlighting ||
+                                    !current.contains(option) ||
+                                    initialSet.contains(option)
+                                ? null
+                                : (isInitial
+                                    ? highlights?.initial ?? Colors.green
+                                    : highlights?.changed ?? Colors.orange),
+                            isPrevious: highlighting &&
+                                !current.contains(option) &&
+                                initialSet.contains(option),
                             onTap: () {
                               unawaited(HapticFeedback.selectionClick());
                               if (multiSelect) {
@@ -84,8 +101,6 @@ void showSetCategoricalSheet({
                                 });
                                 onChanged(emit());
                               } else {
-                                // Reflect the selection in the sheet, then close
-                                // shortly after so the tap is visible.
                                 setSheetState(() {
                                   current
                                     ..clear()
@@ -98,8 +113,6 @@ void showSetCategoricalSheet({
                               }
                             },
                           ),
-                        // No-longer-valid preselected values, shown error-red so the
-                        // user can see and remove them.
                         for (final value in danglingOrder)
                           if (current.contains(value))
                             _DanglingChip(
@@ -127,29 +140,59 @@ class _OptionChip extends StatelessWidget {
   final String label;
   final bool selected;
   final bool multiSelect;
+
+  final Color? highlightColor;
+
+  final bool isPrevious;
   final VoidCallback onTap;
 
   const _OptionChip({
     required this.label,
     required this.selected,
     required this.multiSelect,
+    required this.highlightColor,
+    required this.isPrevious,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (multiSelect) {
-      return FilterChip(
-        label: Text(label),
-        selected: selected,
-        onSelected: (_) => onTap(),
-      );
-    }
-    return ChoiceChip(
-      label: Text(label),
-      selected: selected,
-      onSelected: (_) => onTap(),
-    );
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+
+    final Color? labelColor = highlightColor ?? (isPrevious ? scheme.onSurfaceVariant : null);
+    final TextStyle? labelStyle =
+        labelColor == null ? null : theme.textTheme.labelLarge?.copyWith(color: labelColor);
+    final BorderSide? side = highlightColor != null
+        ? BorderSide(color: highlightColor!)
+        : (isPrevious ? BorderSide(color: scheme.outline) : null);
+    final Widget? avatar = isPrevious
+        ? Icon(Icons.history, size: 18, color: scheme.onSurfaceVariant)
+        : null;
+
+    final Widget chip = multiSelect
+        ? FilterChip(
+            label: Text(label),
+            selected: selected,
+            avatar: avatar,
+            labelStyle: labelStyle,
+            side: side,
+            selectedColor: highlightColor?.withValues(alpha: 0.18),
+            checkmarkColor: highlightColor,
+            onSelected: (_) => onTap(),
+          )
+        : ChoiceChip(
+            label: Text(label),
+            selected: selected,
+            avatar: avatar,
+            labelStyle: labelStyle,
+            side: side,
+            selectedColor: highlightColor?.withValues(alpha: 0.18),
+            checkmarkColor: highlightColor,
+            onSelected: (_) => onTap(),
+          );
+
+    return isPrevious ? Tooltip(message: 'Previous value', child: chip) : chip;
   }
 }
 

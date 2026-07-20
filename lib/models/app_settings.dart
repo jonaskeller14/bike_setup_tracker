@@ -30,7 +30,7 @@ class AppSettings extends ChangeNotifier {
   bool _enableTaskPriority = true;
   bool _enableTaskInterval = false;
   bool _enableTaskDelay = false;
-  bool _enableGarageTaskIndicator = false;
+  bool _enableGarageTaskIndicator = true;
   bool _enableInstallationTimeline = false;
   bool _useMapBoxTiles = false;
   bool _showStravaLinkGearHint = true;

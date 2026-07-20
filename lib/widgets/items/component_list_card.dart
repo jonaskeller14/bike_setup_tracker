@@ -6,6 +6,7 @@ import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/component.dart';
 import '../../models/installation.dart';
+import '../../models/task/task_rule.dart';
 import '../../pages/details/component_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
@@ -35,6 +36,13 @@ class ComponentListCard extends StatelessWidget{
     final appRepository = context.watch<AppRepository>();
     final subscriptionService = context.watch<SubscriptionService>();
     final bikes = appRepository.bikes;
+
+    TaskStatusType? indicatorStatus;
+    if (appSettings.enableTask && appSettings.enableGarageTaskIndicator) {
+      indicatorStatus = appRepository.componentTaskIndicatorStatus(component.id);
+    }
+    final indicatorBorderColor = color ?? Theme.of(context).colorScheme.surface;
+
     return Card(
       key: ValueKey(component.id),
       elevation: elevation,
@@ -62,7 +70,26 @@ class ComponentListCard extends StatelessWidget{
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ListTile(
-              leading: Icon(component.componentType.getIconData()),
+              leading: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Icon(component.componentType.getIconData()),
+                  if (indicatorStatus != null)
+                    Positioned(
+                      top: -2,
+                      right: -2,
+                      child: Container(
+                        width: 10,
+                        height: 10,
+                        decoration: BoxDecoration(
+                          color: indicatorStatus.getStatusColor(context),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: indicatorBorderColor, width: 1.5),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
               minTileHeight: 0,
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
@@ -189,7 +216,7 @@ class ComponentListCard extends StatelessWidget{
                       if (option == _ComponentOptions.replace) {
                         return component.bike != null && appSettings.enableInstallationTimeline;
                       }
-                        
+
                       return true;
                     }).map((option) {
                       return PopupMenuItem<_ComponentOptions>(

@@ -495,6 +495,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                                     labelText: 'Notes (optional)',
                                     hintText: 'Enter measuring procedure/instrument/...',
                                     helperText: _notesController.text.trim().isEmpty ? null : "View these notes by tapping the ⓘ icon next to the name.",
+                                    helperMaxLines: 2,
                                     border: const OutlineInputBorder(),
                                     fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                     filled: widget.mode == AdjustmentPageMode.edit && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),

@@ -17,47 +17,48 @@ enum ComponentTypeCategory {
 
 enum ComponentType {
   frame('Frame', ComponentTypeCategory.frame),
-  
+
   fork('Fork', ComponentTypeCategory.suspension),
   shock('Shock', ComponentTypeCategory.suspension),
-  
+
   cockpit('Handlebar', ComponentTypeCategory.cockpit),
   stem('Stem', ComponentTypeCategory.cockpit),
-  grip('Grip', ComponentTypeCategory.cockpit),
+  grip('Grip', ComponentTypeCategory.cockpit, maxCount: 2),
   headset('Headset', ComponentTypeCategory.cockpit),
-  
-  shifter('Shifter', ComponentTypeCategory.drivetrain),
+
+  shifter('Shifter', ComponentTypeCategory.drivetrain, maxCount: 2),
   bottomBracket('Bottom Bracket', ComponentTypeCategory.drivetrain),
   crank('Crank', ComponentTypeCategory.drivetrain),
-  derailleur('Derailleur', ComponentTypeCategory.drivetrain),
+  derailleur('Derailleur', ComponentTypeCategory.drivetrain, maxCount: 2),
   chainring('Chainring', ComponentTypeCategory.drivetrain),
   casette('Cassette', ComponentTypeCategory.drivetrain),
   chain('Chain', ComponentTypeCategory.drivetrain),
-  pedal('Pedal', ComponentTypeCategory.drivetrain),
-  shiftInnerCable('Shift Inner Cable', ComponentTypeCategory.drivetrain),
-  
-  brakeCalliper('Brake Calliper', ComponentTypeCategory.brakes),
-  brakeLever('Brake Lever', ComponentTypeCategory.brakes),
-  brakePad('Brake Pad', ComponentTypeCategory.brakes),
-  brakeDisc('Brake Disc', ComponentTypeCategory.brakes),
-  
+  pedal('Pedal', ComponentTypeCategory.drivetrain, maxCount: 2),
+  shiftInnerCable('Shift Inner Cable', ComponentTypeCategory.drivetrain, maxCount: 2),
+
+  brakeCalliper('Brake Calliper', ComponentTypeCategory.brakes, maxCount: 2),
+  brakeLever('Brake Lever', ComponentTypeCategory.brakes, maxCount: 2),
+  brakePad('Brake Pad', ComponentTypeCategory.brakes, maxCount: 2),
+  brakeDisc('Brake Disc', ComponentTypeCategory.brakes, maxCount: 2),
+
   wheelFront('Front Wheel', ComponentTypeCategory.wheels),
   wheelRear('Rear Wheel', ComponentTypeCategory.wheels),
-  tire('Tire', ComponentTypeCategory.wheels),
-  
+  tire('Tire', ComponentTypeCategory.wheels, maxCount: 2),
+
   saddle('Saddle', ComponentTypeCategory.seating),
   seatpost('Seatpost', ComponentTypeCategory.seating),
-  
-  battery('Battery', ComponentTypeCategory.electronics),
+
+  battery('Battery', ComponentTypeCategory.electronics, maxCount: 2),
   motor('Motor', ComponentTypeCategory.electronics),
-  
+
   bearing('Bearing', ComponentTypeCategory.others),
   equipment('Equipment', ComponentTypeCategory.others),
   other('Other', ComponentTypeCategory.others);
 
   final String label;
   final ComponentTypeCategory category;
-  const ComponentType(this.label, this.category);
+  final int maxCount;
+  const ComponentType(this.label, this.category, {this.maxCount = 1});
 
   IconData getIconData() {
     switch (this) {

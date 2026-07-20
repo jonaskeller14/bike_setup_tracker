@@ -250,6 +250,7 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
                           helperText: uninstalledComponents.isEmpty
                               ? "No uninstalled components available"
                               : null,
+                          helperMaxLines: 2,
                         ),
                         hint: const Text("Select a component"),
                         selectedItemBuilder: (_) => [

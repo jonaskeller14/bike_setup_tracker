@@ -372,6 +372,7 @@ class _CategoricalMetricPageState extends State<CategoricalMetricPage> {
                                         labelText: 'Notes (optional)',
                                         hintText: 'Enter measuring procedure/instrument/...',
                                         helperText: _notesController.text.trim().isEmpty ? null : "View these notes by tapping the ⓘ icon next to the name.",
+                                        helperMaxLines: 2,
                                         border: const OutlineInputBorder(),
                                         fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                         filled: widget.mode == MetricPageMode.edit && _notesController.text.trim() != (_initialAdj?.notes ?? ""),

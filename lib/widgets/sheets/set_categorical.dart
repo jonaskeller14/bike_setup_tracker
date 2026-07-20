@@ -39,6 +39,7 @@ void showSetCategoricalSheet({
           final scheme = Theme.of(context).colorScheme;
           final highlights = Theme.of(context).extension<ValueHighlightColors>();
           final bool hasDanglingSelected = danglingOrder.any(current.contains);
+          final bool hasMultipleSelectedError = !multiSelect && current.length > 1;
 
           return SafeArea(
             child: SingleChildScrollView(
@@ -60,6 +61,23 @@ void showSetCategoricalSheet({
                                 leading: Icon(Icons.error_outline, color: scheme.error),
                                 title: Text(
                                   'Some selected options no longer exist.',
+                                  style: TextStyle(color: scheme.error),
+                                ),
+                              ),
+                            )
+                          : const SizedBox.shrink(),
+                    ),
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      child: hasMultipleSelectedError
+                          ? Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: ListTile(
+                                contentPadding: EdgeInsets.zero,
+                                dense: true,
+                                leading: Icon(Icons.error_outline, color: scheme.error),
+                                title: Text(
+                                  'Multiple options selected, but only one is allowed.',
                                   style: TextStyle(color: scheme.error),
                                 ),
                               ),

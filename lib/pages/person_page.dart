@@ -304,6 +304,7 @@ class _PersonPageState extends State<PersonPage> {
         helperText: existingPersons.values.any((p) => p.id != widget.person?.id && p.stravaAthlete != null && p.stravaAthlete == _stravaAthlete)
           ? "WARNING: Strava Athlete already assigned to another Person"
           : null,
+        helperMaxLines: 2,
         fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == PersonPageMode.edit && _stravaAthlete != _initialStravaAthlete,
       ),

@@ -6,6 +6,8 @@ import '../../models/component.dart';
 import '../../utils/component_preset_application.dart';
 import '../items/adjustment_properties.dart';
 import '../items/adjustment_type_icon.dart';
+import 'component_type_picker.dart';
+import 'sheet.dart';
 import 'sheet_header.dart';
 
 final Map<ComponentType, List<Adjustment>> _adjustmentPresets = {
@@ -106,145 +108,194 @@ void showComponentAddAdjustmentBottomSheet({
   bool enableDurationAdjustment = false,
   required Future<void> Function(Adjustment adjustment) addAdjustmentFromPreset,
   required Future<void> Function<T extends Adjustment>() addAdjustment,
+  Future<void> Function(ComponentType componentType)? onComponentTypeSelected,
 }) async {
   await showModalBottomSheet(
     useSafeArea: true,
     showDragHandle: true,
     isScrollControlled: true,
-    context: context, 
-    builder: (BuildContext context) {
-      return SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SheetHeader(title: "Add Adjustment", showClose: false),
-            const SizedBox(height: 16),
-            Flexible(
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                      child: Text(
-                        componentType != null ? "Suggested for ${componentType.label}" : "Pre-filled Templates",
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.2,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
+    context: context,
+    builder: (_) => _ComponentAddAdjustmentSheet(
+      componentType: componentType,
+      enableDurationAdjustment: enableDurationAdjustment,
+      addAdjustmentFromPreset: addAdjustmentFromPreset,
+      addAdjustment: addAdjustment,
+      onComponentTypeSelected: onComponentTypeSelected,
+    ),
+  );
+}
+
+class _ComponentAddAdjustmentSheet extends StatefulWidget {
+  final ComponentType? componentType;
+  final bool enableDurationAdjustment;
+  final Future<void> Function(Adjustment adjustment) addAdjustmentFromPreset;
+  final Future<void> Function<T extends Adjustment>() addAdjustment;
+  final Future<void> Function(ComponentType componentType)? onComponentTypeSelected;
+
+  const _ComponentAddAdjustmentSheet({
+    required this.componentType,
+    required this.enableDurationAdjustment,
+    required this.addAdjustmentFromPreset,
+    required this.addAdjustment,
+    required this.onComponentTypeSelected,
+  });
+
+  @override
+  State<_ComponentAddAdjustmentSheet> createState() => _ComponentAddAdjustmentSheetState();
+}
+
+class _ComponentAddAdjustmentSheetState extends State<_ComponentAddAdjustmentSheet> {
+  late ComponentType? _selectedType = widget.componentType;
+
+  Future<void> _pickComponentType() async {
+    final onComponentTypeSelected = widget.onComponentTypeSelected;
+    if (onComponentTypeSelected == null) return;
+    final pickedType = await showComponentTypePickerSheet(context: context);
+    if (pickedType == null) return;
+    setState(() => _selectedType = pickedType);
+    await onComponentTypeSelected(pickedType);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final componentType = _selectedType;
+    return SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SheetHeader(title: "Add Adjustment", showClose: false),
+          const SizedBox(height: 16),
+          Flexible(
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    child: Text(
+                      componentType != null ? "Suggested for ${componentType.label}" : "Pre-filled Templates",
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
-                    if (componentType == null) 
+                  ),
+                  if (componentType == null)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: SheetFilterEmptyHint(
+                        icon: widget.onComponentTypeSelected != null ? Icons.category_outlined : Icons.info_outline,
+                        title: widget.onComponentTypeSelected != null
+                            ? "Select a component type"
+                            : "No templates available",
+                        hint: widget.onComponentTypeSelected != null
+                            ? "Templates are suggested per component type."
+                            : "Select a component type first.",
+                        onTap: widget.onComponentTypeSelected == null ? null : _pickComponentType,
+                      ),
+                    )
+                  else
+                    if (_adjustmentPresets[componentType] != null && _adjustmentPresets[componentType]!.isNotEmpty)
+                      ..._adjustmentPresets[componentType]!.map((adjustmentPreset) => ListTile(
+                        leading: AdjustmentTypeIcon(adjustmentPreset),
+                        title: Text(adjustmentPreset.name),
+                        subtitle: AdjustmentProperties(adjustmentPreset, singleLine: true, compact: true),
+                        trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                        onTap: () async {
+                          Navigator.pop(context);
+                          await widget.addAdjustmentFromPreset(adjustmentPreset);
+                        },
+                      ))
+                    else
                       Text(
-                        "No templates available. Select a component type first.",
+                        "No templates available.",
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
-                      )
-                    else
-                      if (_adjustmentPresets[componentType] != null && _adjustmentPresets[componentType]!.isNotEmpty)
-                        ..._adjustmentPresets[componentType]!.map((adjustmentPreset) => ListTile(
-                          leading: AdjustmentTypeIcon(adjustmentPreset),
-                          title: Text(adjustmentPreset.name),
-                          subtitle: AdjustmentProperties(adjustmentPreset, singleLine: true, compact: true),
-                          trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                          onTap: () async {
-                            Navigator.pop(context);
-                            await addAdjustmentFromPreset(adjustmentPreset);
-                          },
-                        ))
-                      else 
-                        Text(
-                          "No templates available.",
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                    const Divider(height: 16),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                      child: Text(
-                        "Custom Adjustment",
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.2,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
+                      ),
+                  const Divider(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    child: Text(
+                      "Custom Adjustment",
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
+                  ),
+                  ListTile(
+                    leading: Icon(NumericalAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
+                    title: const Text("Numerical Adjustment"),
+                    subtitle: const Text("Pressure (psi/bar), Length, Angle, Weight", style: TextStyle(fontSize: 12)),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                    onTap: () async {
+                      Navigator.pop(context); // Close sheet first
+                      await widget.addAdjustment<NumericalAdjustment>(); // Then execute logic
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(StepAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
+                    title: const Text("Step Adjustment"),
+                    subtitle: const Text("Rebound/Compression clicks, Spacers, Increments", style: TextStyle(fontSize: 12)),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                    onTap: () async {
+                      Navigator.pop(context); // Close sheet first
+                      await widget.addAdjustment<StepAdjustment>(); // Then execute logic
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(CategoricalAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
+                    title: const Text("Categorical Adjustment"),
+                    subtitle: const Text("Tire Compound (soft/hard), Brand, Style, Mode", style: TextStyle(fontSize: 12)),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                    onTap: () async {
+                      Navigator.pop(context); // Close sheet first
+                      await widget.addAdjustment<CategoricalAdjustment>(); // Then execute logic
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(BooleanAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
+                    title: const Text("On/Off Adjustment"),
+                    subtitle: const Text("Lockout, Climb switch, Component installed? Yes/No", style: TextStyle(fontSize: 12)),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                    onTap: () async {
+                      Navigator.pop(context); // Close sheet first
+                      await widget.addAdjustment<BooleanAdjustment>(); // Then execute logic
+                    },
+                  ),
+                  if (context.read<AppSettings>().enableTextAdjustment)
                     ListTile(
-                      leading: Icon(NumericalAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                      title: const Text("Numerical Adjustment"),
-                      subtitle: const Text("Pressure (psi/bar), Length, Angle, Weight", style: TextStyle(fontSize: 12)),
+                      leading: Icon(TextAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
+                      title: const Text("Text Adjustment"),
+                      subtitle: const Text("Notes, advanced settings details", style: TextStyle(fontSize: 12)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: () async {
                         Navigator.pop(context); // Close sheet first
-                        await addAdjustment<NumericalAdjustment>(); // Then execute logic
+                        await widget.addAdjustment<TextAdjustment>(); // Then execute logic
                       },
                     ),
+                  if (widget.enableDurationAdjustment)
                     ListTile(
-                      leading: Icon(StepAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                      title: const Text("Step Adjustment"),
-                      subtitle: const Text("Rebound/Compression clicks, Spacers, Increments", style: TextStyle(fontSize: 12)),
+                      leading: Icon(DurationAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
+                      title: const Text("Duration Adjustment"),
+                      subtitle: const Text("Time Span", style: TextStyle(fontSize: 12)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: () async {
                         Navigator.pop(context); // Close sheet first
-                        await addAdjustment<StepAdjustment>(); // Then execute logic
+                        await widget.addAdjustment<DurationAdjustment>(); // Then execute logic
                       },
                     ),
-                    ListTile(
-                      leading: Icon(CategoricalAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                      title: const Text("Categorical Adjustment"),
-                      subtitle: const Text("Tire Compound (soft/hard), Brand, Style, Mode", style: TextStyle(fontSize: 12)),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                      onTap: () async {
-                        Navigator.pop(context); // Close sheet first
-                        await addAdjustment<CategoricalAdjustment>(); // Then execute logic
-                      },
-                    ),
-                    ListTile(
-                      leading: Icon(BooleanAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                      title: const Text("On/Off Adjustment"),
-                      subtitle: const Text("Lockout, Climb switch, Component installed? Yes/No", style: TextStyle(fontSize: 12)),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                      onTap: () async {
-                        Navigator.pop(context); // Close sheet first
-                        await addAdjustment<BooleanAdjustment>(); // Then execute logic
-                      },
-                    ),
-                    if (context.read<AppSettings>().enableTextAdjustment)
-                      ListTile(
-                        leading: Icon(TextAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                        title: const Text("Text Adjustment"),
-                        subtitle: const Text("Notes, advanced settings details", style: TextStyle(fontSize: 12)),
-                        trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                        onTap: () async {
-                          Navigator.pop(context); // Close sheet first
-                          await addAdjustment<TextAdjustment>(); // Then execute logic
-                        },
-                      ),
-                    if (enableDurationAdjustment)
-                      ListTile(
-                        leading: Icon(DurationAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                        title: const Text("Duration Adjustment"),
-                        subtitle: const Text("Time Span", style: TextStyle(fontSize: 12)),
-                        trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                        onTap: () async {
-                          Navigator.pop(context); // Close sheet first
-                          await addAdjustment<DurationAdjustment>(); // Then execute logic
-                        },
-                      ),
-                  ],
-                ),
+                ],
               ),
             ),
-          ],
-        ),
-      );
-    },
-  );
+          ),
+        ],
+      ),
+    );
+  }
 }
-  

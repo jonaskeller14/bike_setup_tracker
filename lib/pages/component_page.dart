@@ -25,6 +25,7 @@ import '../widgets/preset_catalog_card.dart';
 import '../widgets/set_installation_timeline.dart';
 import '../widgets/sheets/component_add_adjustment.dart';
 import '../widgets/sheets/component_preset_picker.dart';
+import '../widgets/sheets/component_type_picker.dart';
 import '../widgets/text/section_title.dart';
 import 'adjustment/boolean_adjustment_page.dart';
 import 'adjustment/categorical_adjustment_page.dart';
@@ -87,6 +88,7 @@ class _ComponentPageState extends State<ComponentPage> {
 
   List<Adjustment>? _lastPresetAdjustments;
   VoidCallback? _adjustmentsFieldNotify;
+  VoidCallback? _componentTypeFieldNotify;
 
   /// Cross-type catalog index for the name-field autocomplete (C2), loaded once
   /// and cached. Null until loaded; the autocomplete simply shows nothing until
@@ -300,6 +302,12 @@ class _ComponentPageState extends State<ComponentPage> {
     onChanged?.call();
   }
 
+  Future<void> _setComponentType(ComponentType componentType) async {
+    setState(() => _componentType = componentType);
+    _componentTypeFieldNotify?.call();
+    _changeListener();
+  }
+
   Future<void> _openPresetPicker() async {
     final type = _componentType;
     if (type == null) return;
@@ -338,6 +346,7 @@ class _ComponentPageState extends State<ComponentPage> {
       if (app.notes.isNotEmpty) _expanded = true;
     });
     _adjustmentsFieldNotify?.call();
+    _componentTypeFieldNotify?.call();
     _changeListener();
   }
 
@@ -487,73 +496,80 @@ class _ComponentPageState extends State<ComponentPage> {
   }
 
   Widget _componentTypeField({required int existingComponentsCount}) {
-    return DropdownButtonFormField<Object?>(
+    final type = _componentType;
+    final highlightBaseline = widget.mode == ComponentPageMode.edit ? widget.component?.componentType : null;
+    final isChanged = highlightBaseline != null && type != highlightBaseline;
+    final isOverLimit = type != null && existingComponentsCount >= type.maxCount;
+    // DropdownButton's own default (see DropdownButton._textStyle).
+    final dropdownTextStyle = Theme.of(context).textTheme.titleMedium!;
+    return FormField<ComponentType?>(
       initialValue: _componentType,
-      isExpanded: true,
       autovalidateMode: AutovalidateMode.onUserInteraction,
-      hint: const Text("Please select type"),
-      decoration: InputDecoration(
-        labelText: 'Type',
-        border: const OutlineInputBorder(),
-        hintText: "Choose a type for this component",
-        helperText: existingComponentsCount > 0
-            ? Intl.plural(
-                existingComponentsCount,
-                one: "WARNING: There is one ${_componentType?.label}-Component already installed on this bike.",
-                other: "WARNING: There are $existingComponentsCount ${_componentType?.label}-Components already installed on this bike.",
-              )
-            : null,
-        fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
-        filled: widget.mode == ComponentPageMode.edit && _componentType != widget.component?.componentType,
-      ),
-      items: () {
-        final items = <DropdownMenuItem<Object?>>[];
-        for (final category in ComponentTypeCategory.values) {
-          items.add(
-            DropdownMenuItem<Object?>(
-              enabled: false,
-              value: category,
-              child: Text(
-                category.label.toUpperCase(),
-                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.2),
-              ),
-            ),
-          );
-          items.addAll(
-            ComponentType.values
-                .where((t) => t.category == category)
-                .map((componentType) {
-              return DropdownMenuItem<Object?>(
-                value: componentType,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  spacing: 8,
-                  children: [
-                    Icon(componentType.getIconData()),
-                    Expanded(child: Text(componentType.label, overflow: TextOverflow.ellipsis)),
-                  ],
-                ),
-              );
-            })
-          );
-        }
-        return items;
-      }(),
-      onChanged: (Object? newComponentType) {
-        if (newComponentType == null || newComponentType is! ComponentType) return;
-        setState(() {
-          _componentType = newComponentType;
-        });
-        _changeListener();
-      },
-      validator: (Object? value) {
-        if (value == null || value is! ComponentType) {
+      validator: (ComponentType? value) {
+        if (value == null) {
           return 'Component type cannot be empty. You can edit it later.';
         }
         return null;
       },
+      builder: (FormFieldState<ComponentType?> field) {
+        _componentTypeFieldNotify = () => field.didChange(_componentType);
+        return InkWell(
+          onTap: () => _pickComponentType(field),
+          borderRadius: BorderRadius.circular(4),
+          child: InputDecorator(
+            // Never "empty": the placeholder below stands in for a value, so the
+            // label keeps floating (as the dropdown's `hint` used to make it).
+            isEmpty: false,
+            decoration: InputDecoration(
+              labelText: 'Type',
+              border: const OutlineInputBorder(),
+              errorText: field.errorText,
+              suffixIcon: const Icon(Icons.arrow_drop_down),
+              helperText: isOverLimit
+                  ? Intl.plural(
+                      type.maxCount,
+                      one: "WARNING: There is already one ${type.label}-Component installed on this bike.",
+                      other: "WARNING: There are already ${type.maxCount} ${type.label}-Components installed on this bike.",
+                    )
+                  : null,
+              helperMaxLines: 2,
+              fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
+              filled: isChanged,
+            ),
+            // Same text style DropdownButton applies to its value/hint, so this
+            // field reads identically to the Bike dropdown below.
+            child: DefaultTextStyle(
+              style: type == null
+                  ? dropdownTextStyle.copyWith(
+                      color: field.hasError ? Theme.of(context).colorScheme.error : Theme.of(context).hintColor,
+                    )
+                  : dropdownTextStyle,
+              child: type == null
+                  ? const Text("Please select type")
+                  : Row(
+                      spacing: 8,
+                      children: [
+                        Icon(type.getIconData()),
+                        Expanded(child: Text(type.label, overflow: TextOverflow.ellipsis)),
+                      ],
+                    ),
+            ),
+          ),
+        );
+      },
     );
+  }
+
+  Future<void> _pickComponentType(FormFieldState<ComponentType?> field) async {
+    final picked = await showComponentTypePickerSheet(
+      context: context,
+      selectedComponentType: _componentType,
+      initialComponentType: widget.mode == ComponentPageMode.edit ? widget.component?.componentType : null,
+    );
+    if (picked == null || !mounted) return;
+    setState(() => _componentType = picked);
+    field.didChange(picked);
+    _changeListener();
   }
 
   Widget _notesField() {
@@ -902,6 +918,7 @@ class _ComponentPageState extends State<ComponentPage> {
                           enableDurationAdjustment: _enableDurationAdjustment,
                           addAdjustmentFromPreset: (a) => _addAdjustmentFromPreset(a, onChanged: notify),
                           addAdjustment: <T extends Adjustment>() => _addAdjustment<T>(onChanged: notify),
+                          onComponentTypeSelected: _componentType == null ? _setComponentType : null,
                         );
 
                         return Column(

@@ -251,6 +251,7 @@ class _SagAdjustmentPageState extends State<SagAdjustmentPage> {
                               helperText: _travel() == null
                                   ? 'Add it to enter and read sag in mm as well as %.'
                                   : null,
+                              helperMaxLines: 2,
                               suffixText: 'mm',
                               border: const OutlineInputBorder(),
                               prefixIcon: const Icon(SagAdjustment.travelIconData),
@@ -286,6 +287,7 @@ class _SagAdjustmentPageState extends State<SagAdjustmentPage> {
                                 labelText: 'Notes (optional)',
                                 hintText: 'Enter measuring procedure/instrument/...',
                                 helperText: _notesController.text.trim().isEmpty ? null : "View these notes by tapping the ⓘ icon next to the name.",
+                                helperMaxLines: 2,
                                 border: const OutlineInputBorder(),
                                 fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                 filled: widget.mode == AdjustmentPageMode.edit && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),

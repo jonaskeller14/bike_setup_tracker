@@ -223,6 +223,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
                 isDense: true,
                 hintText: 'Please enter',
                 helperText: helperText,
+                helperMaxLines: 2,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 suffixIcon: _buildSuffix(context),
                 suffixIconConstraints: const BoxConstraints(minHeight: 48, minWidth: 0),

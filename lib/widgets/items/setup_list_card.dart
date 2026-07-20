@@ -31,14 +31,7 @@ class SetupListCard extends StatefulWidget {
 }
 
 class _SetupListCardState extends State<SetupListCard> {
-  late bool _displayOnlyChanges;
-
-  @override
-  void initState() {
-    super.initState();
-    final setup = context.read<AppRepository>().setups[widget.setupId];
-    _displayOnlyChanges = !(setup?.isCurrent ?? false);
-  }
+  bool _displayOnlyChanges = true;
 
   Widget _setupCardCurrentLabel(BuildContext context) {
     return Positioned(

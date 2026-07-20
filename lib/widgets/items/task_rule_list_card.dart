@@ -161,158 +161,161 @@ class TaskRuleListCard extends StatelessWidget {
 
     final statusColor = status.type.getStatusColor(context);
 
-    return Opacity(
-      opacity: isCompleted ? 0.5 : 1,
-      child: Card(
-        margin: const EdgeInsets.symmetric(vertical: 4.0),
-        clipBehavior: Clip.antiAlias, // Borderradius for InkWell,
-        child: ListTile(
-          leading: Checkbox(
-            value: isCompleted,
-            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            visualDensity: VisualDensity.compact,
-            onChanged: isCompleted ? null : (bool? value) async {
-              unawaited(HapticFeedback.lightImpact());
-              await TaskActions.addTaskEntry(context, taskRule: taskRule);
-            },
-          ),
-          contentPadding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
-          minTileHeight: 0,
-          onTap: () async {
-            await Navigator.push<void>(
-              context,
-              MaterialPageRoute(
-                builder: (context) => TaskRuleDetailsPage(taskRuleId: taskRuleId),
-              ),
-            );
-          },
-          titleAlignment: ListTileTitleAlignment.top,
-          title: Text(
-            taskRule.name,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              decoration: isCompleted ? TextDecoration.lineThrough: null,
-              decorationThickness: 2,
+    return Hero(
+      tag: 'task-rule-card-${taskRule.id}',
+      child: Opacity(
+        opacity: isCompleted ? 0.5 : 1,
+        child: Card(
+          margin: const EdgeInsets.symmetric(vertical: 4.0),
+          clipBehavior: Clip.antiAlias, // Borderradius for InkWell,
+          child: ListTile(
+            leading: Checkbox(
+              value: isCompleted,
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              visualDensity: VisualDensity.compact,
+              onChanged: isCompleted ? null : (bool? value) async {
+                unawaited(HapticFeedback.lightImpact());
+                await TaskActions.addTaskEntry(context, taskRule: taskRule);
+              },
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _filterWidget(context, taskRule: taskRule, component: component, bike: bike),
-              if (appSettings.enableTaskPriority)
-                _priorityWidget(context, taskRule: taskRule),
-              if (appSettings.enableTaskTags && taskRule.tags.isNotEmpty)
-                _tagsWidget(context, taskRule: taskRule),
-              if (taskRule.notes != null && taskRule.notes!.isNotEmpty)
-                _notesWidget(context, taskRule: taskRule),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                spacing: 8,
-                children: [
-                  if (taskRule.interval != null)
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      spacing: 2,
-                      children: [
-                        Icon(taskRule.interval!.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                        Text(
-                          '${taskRule.repeat ? "Every " : "After "}${taskRule.interval!.toDisplayValue(distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit, dateFormat: appSettings.dateFormat)}',
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
-                    ),
-                  if (taskRule.delay != null && taskRule.delay!.isPositive)
-                    Flexible(
-                      child: Row(
+            contentPadding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+            minTileHeight: 0,
+            onTap: () async {
+              await Navigator.push<void>(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TaskRuleDetailsPage(taskRuleId: taskRuleId),
+                ),
+              );
+            },
+            titleAlignment: ListTileTitleAlignment.top,
+            title: Text(
+              taskRule.name,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                decoration: isCompleted ? TextDecoration.lineThrough: null,
+                decorationThickness: 2,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _filterWidget(context, taskRule: taskRule, component: component, bike: bike),
+                if (appSettings.enableTaskPriority)
+                  _priorityWidget(context, taskRule: taskRule),
+                if (appSettings.enableTaskTags && taskRule.tags.isNotEmpty)
+                  _tagsWidget(context, taskRule: taskRule),
+                if (taskRule.notes != null && taskRule.notes!.isNotEmpty)
+                  _notesWidget(context, taskRule: taskRule),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  spacing: 8,
+                  children: [
+                    if (taskRule.interval != null)
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
                         spacing: 2,
                         children: [
-                          Icon(Icons.history, size: 13, color: Theme.of(context).extension<ValueHighlightColors>()!.changed),
-                          Expanded(
-                            child: Text(
-                              '+${taskRule.delay!.toDisplayValue(distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit, dateFormat: appSettings.dateFormat)}',
-                              style: TextStyle(color: Theme.of(context).extension<ValueHighlightColors>()!.changed, fontSize: 13),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                          Icon(taskRule.interval!.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                          Text(
+                            '${taskRule.repeat ? "Every " : "After "}${taskRule.interval!.toDisplayValue(distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit, dateFormat: appSettings.dateFormat)}',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                              fontSize: 13,
                             ),
                           ),
                         ],
                       ),
-                    ),
+                    if (taskRule.delay != null && taskRule.delay!.isPositive)
+                      Flexible(
+                        child: Row(
+                          spacing: 2,
+                          children: [
+                            Icon(Icons.history, size: 13, color: Theme.of(context).extension<ValueHighlightColors>()!.changed),
+                            Expanded(
+                              child: Text(
+                                '+${taskRule.delay!.toDisplayValue(distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit, dateFormat: appSettings.dateFormat)}',
+                                style: TextStyle(color: Theme.of(context).extension<ValueHighlightColors>()!.changed, fontSize: 13),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+                if (!isCompleted && taskRule.interval != null) ...[
+                  const SizedBox(height: 8),
+                  LinearProgressIndicator(
+                    value: status.progress.clamp(0.0, 1.0),
+                    backgroundColor: statusColor.withValues(alpha: 0.1),
+                    color: statusColor,
+                    minHeight: 4,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ],
-              ),
-              if (!isCompleted && taskRule.interval != null) ...[
-                const SizedBox(height: 8),
-                LinearProgressIndicator(
-                  value: status.progress.clamp(0.0, 1.0),
-                  backgroundColor: statusColor.withValues(alpha: 0.1),
-                  color: statusColor,
-                  minHeight: 4,
-                  borderRadius: BorderRadius.circular(2),
+              ],
+            ),
+            trailing: PopupMenuButton<_TaskRuleOptions>(
+              onSelected: (_TaskRuleOptions value) async {
+                switch (value) {
+                  case _TaskRuleOptions.edit:
+                    await TaskActions.editTaskRule(context, taskRule: taskRule);
+                  case _TaskRuleOptions.remove:
+                    await TaskActions.removeTaskRule(context, taskRule: taskRule);
+                  case _TaskRuleOptions.duplicate:
+                    await TaskActions.duplicateTaskRule(context, taskRule: taskRule);
+                  case _TaskRuleOptions.addEntry:
+                    await TaskActions.addTaskEntry(context, taskRule: taskRule);
+                }
+              },
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<_TaskRuleOptions>>[
+                const PopupMenuItem<_TaskRuleOptions>(
+                  value: _TaskRuleOptions.edit,
+                  child: Row(
+                    spacing: 10,
+                    children: [
+                      Icon(Icons.edit, size: 20),
+                      Text('Edit'),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem<_TaskRuleOptions>(
+                  value: _TaskRuleOptions.duplicate,
+                  child: Row(
+                    spacing: 10,
+                    children: [
+                      Icon(Icons.copy, size: 20),
+                      Text('Duplicate'),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem<_TaskRuleOptions>(
+                  value: _TaskRuleOptions.remove,
+                  child: Row(
+                    spacing: 10,
+                    children: [
+                      Icon(Icons.delete, size: 20),
+                      Text('Remove'),
+                    ],
+                  ),
+                ),
+                const PopupMenuDivider(),
+                PopupMenuItem(
+                  enabled: !isCompleted,
+                  value: _TaskRuleOptions.addEntry,
+                  child: const Row(
+                    spacing: 10,
+                    children: [
+                      Icon(Icons.check, size: 20),
+                      Text('Add Task Entry'),
+                    ],
+                  ),
                 ),
               ],
-            ],
-          ),
-          trailing: PopupMenuButton<_TaskRuleOptions>(
-            onSelected: (_TaskRuleOptions value) async {
-              switch (value) {
-                case _TaskRuleOptions.edit:
-                  await TaskActions.editTaskRule(context, taskRule: taskRule);
-                case _TaskRuleOptions.remove:
-                  await TaskActions.removeTaskRule(context, taskRule: taskRule);
-                case _TaskRuleOptions.duplicate:
-                  await TaskActions.duplicateTaskRule(context, taskRule: taskRule);
-                case _TaskRuleOptions.addEntry:
-                  await TaskActions.addTaskEntry(context, taskRule: taskRule);
-              }
-            },
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<_TaskRuleOptions>>[
-              const PopupMenuItem<_TaskRuleOptions>(
-                value: _TaskRuleOptions.edit,
-                child: Row(
-                  spacing: 10,
-                  children: [
-                    Icon(Icons.edit, size: 20),
-                    Text('Edit'),
-                  ],
-                ),
-              ),
-              const PopupMenuItem<_TaskRuleOptions>(
-                value: _TaskRuleOptions.duplicate,
-                child: Row(
-                  spacing: 10,
-                  children: [
-                    Icon(Icons.copy, size: 20),
-                    Text('Duplicate'),
-                  ],
-                ),
-              ),
-              const PopupMenuItem<_TaskRuleOptions>(
-                value: _TaskRuleOptions.remove,
-                child: Row(
-                  spacing: 10,
-                  children: [
-                    Icon(Icons.delete, size: 20),
-                    Text('Remove'),
-                  ],
-                ),
-              ),
-              const PopupMenuDivider(),
-              PopupMenuItem(
-                enabled: !isCompleted,
-                value: _TaskRuleOptions.addEntry,
-                child: const Row(
-                  spacing: 10,
-                  children: [
-                    Icon(Icons.check, size: 20),
-                    Text('Add Task Entry'),
-                  ],
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),

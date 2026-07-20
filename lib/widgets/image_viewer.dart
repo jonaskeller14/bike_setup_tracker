@@ -98,17 +98,20 @@ class _ImageViewerState extends State<ImageViewer> {
             minScale: 0.5,
             maxScale: 6,
             child: Center(
-              child: Image.file(
-                file,
-                fit: BoxFit.contain,
-                errorBuilder: (_, _, _) => const Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.broken_image_outlined, size: 64, color: Colors.white54),
-                      SizedBox(height: 8),
-                      Text('Image not found', style: TextStyle(color: Colors.white54)),
-                    ],
+              child: Hero(
+                tag: 'setup-image-${_images[index]}',
+                child: Image.file(
+                  file,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, _, _) => const Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.broken_image_outlined, size: 64, color: Colors.white54),
+                        SizedBox(height: 8),
+                        Text('Image not found', style: TextStyle(color: Colors.white54)),
+                      ],
+                    ),
                   ),
                 ),
               ),

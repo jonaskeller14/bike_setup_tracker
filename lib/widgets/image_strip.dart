@@ -158,13 +158,16 @@ class _ImageStripState extends State<ImageStrip> with TickerProviderStateMixin {
       children: [
         GestureDetector(
           onTap: () => _openViewer(context, index),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Image.file(
-              file,
-              fit: BoxFit.cover,
-              cacheWidth: 300,
-              errorBuilder: (_, _, _) => _placeholder(context),
+          child: Hero(
+            tag: 'setup-image-$filename',
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.file(
+                file,
+                fit: BoxFit.cover,
+                cacheWidth: 300,
+                errorBuilder: (_, _, _) => _placeholder(context),
+              ),
             ),
           ),
         ),

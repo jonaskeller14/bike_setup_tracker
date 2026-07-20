@@ -161,7 +161,9 @@ class TaskRuleDisplayCard extends StatelessWidget {
 
     final statusColor = status.type.getStatusColor(context);
 
-    return Opacity(
+    return Hero(
+      tag: 'task-rule-card-${taskRule.id}',
+      child: Opacity(
       opacity: isCompleted ? 0.5 : 1,
       child: Card.outlined(
         margin: EdgeInsets.zero,
@@ -256,6 +258,7 @@ class TaskRuleDisplayCard extends StatelessWidget {
             ],
           ),
         ),
+      ),
       ),
     );
   }

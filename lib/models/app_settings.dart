@@ -28,7 +28,7 @@ class AppSettings extends ChangeNotifier {
   bool _enableGarage = true;
   bool _enableTask = false;
   bool _enableTaskPriority = true;
-  bool _enableTaskInterval = false;
+  bool _enableTaskInterval = true;
   bool _enableTaskDelay = false;
   bool _enableGarageTaskIndicator = true;
   bool _enableInstallationTimeline = false;

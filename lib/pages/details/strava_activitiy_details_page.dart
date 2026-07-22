@@ -40,8 +40,14 @@ class StravaActivityDetailsPage extends StatelessWidget {
 class StravaActivitiyPageContent extends StatelessWidget {
   final StravaActivity stravaActivity;
   final bool showCloseButton;
+  final VoidCallback? onMapPressed;
 
-  const StravaActivitiyPageContent({super.key, required this.stravaActivity, this.showCloseButton = false});
+  const StravaActivitiyPageContent({
+    super.key,
+    required this.stravaActivity,
+    this.showCloseButton = false,
+    this.onMapPressed,
+  });
 
   String _formatDistance(double? meters, String distanceUnit) {
     if (meters == null) return "-";
@@ -134,11 +140,16 @@ class StravaActivitiyPageContent extends StatelessWidget {
                   ),
                 ),
               ),
+              if (onMapPressed != null) ...[
+                const SizedBox(width: 8),
+                sheetMapButton(context, onPressed: onMapPressed!),
+              ],
               if (showCloseButton) ...[
                 const SizedBox(width: 8),
                 sheetCloseButton(context),
-                const SizedBox(width: 16),
               ],
+              if (onMapPressed != null || showCloseButton)
+                const SizedBox(width: 16),
             ],
           ),
           Padding(

@@ -212,16 +212,16 @@ class AppRepository extends ChangeNotifier {
     final statusRules = rules.map((rule) => TaskRuleWithStatus(rule: rule, status: getTaskRuleStatus(rule)));
     final toDo = statusRules.where((tr) => tr.status.type != TaskStatusType.completed).toList();
 
-    // Sort open Tasks: Status (Overdue > Due > Upcoming), then by progress, then by Priority (Critical > High > Medium > Low)
+    // Sort open Tasks: Status (Overdue > Due > Upcoming), then by Priority (Critical > High > Medium > Low), then by progress
     toDo.sort((a, b) {
       if (a.status.type.index != b.status.type.index) {
         return b.status.type.index.compareTo(a.status.type.index);
       }
-      final progressComparison = b.status.progress.compareTo(a.status.progress);
-      if (progressComparison != 0) {
-        return progressComparison;
+      final priorityComparison = b.rule.priority.index.compareTo(a.rule.priority.index);
+      if (priorityComparison != 0) {
+        return priorityComparison;
       }
-      return b.rule.priority.index.compareTo(a.rule.priority.index);
+      return b.status.progress.compareTo(a.status.progress);
     });
     return toDo;
   }

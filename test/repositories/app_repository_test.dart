@@ -718,7 +718,7 @@ void main() {
       expect(repository.filteredOpenTaskRules.containsKey(rule2.id), false);
     });
 
-    test("toDoTaskRules sorts by status, then progress, then priority", () async {
+    test("toDoTaskRules sorts by status, then priority, then progress", () async {
       final ruleLow = TaskRule(name: "Low", priority: TaskPriority.low, tags: const {});
       final ruleHigh = TaskRule(name: "High", priority: TaskPriority.high, tags: const {});
       final ruleMedium = TaskRule(name: "Medium", priority: TaskPriority.medium, tags: const {});
@@ -732,13 +732,44 @@ void main() {
 
       final toDo = repository.openTaskRules;
       expect(toDo.length, 4);
-      
-      // Since all have the same status (Due, because interval is null) and progress (0.0), 
+
+      // Since all have the same status (Due, because interval is null) and progress (0.0),
       // they should be sorted by priority (Critical > High > Medium > Low)
       expect(toDo[0].rule.name, "Critical");
       expect(toDo[1].rule.name, "High");
       expect(toDo[2].rule.name, "Medium");
       expect(toDo[3].rule.name, "Low");
+    });
+
+    test("toDoTaskRules prioritizes severity over fine-grained urgency within a status bucket", () async {
+      // Regression test: Critical trigger-less task (due, progress 0.0) should rank above
+      // Low-priority task that's genuinely due (progress >= 1.0)
+      final ruleCriticalNoTrigger = TaskRule(
+        name: "Critical (no trigger)",
+        priority: TaskPriority.critical,
+        tags: const {},
+      );
+      final ruleLowDue = TaskRule(
+        name: "Low (due)",
+        priority: TaskPriority.low,
+        tags: const {},
+        interval: DateTimeThreshold(DateTime.now().subtract(const Duration(hours: 1))),
+      );
+
+      await repository.addTaskRule(ruleCriticalNoTrigger);
+      await repository.addTaskRule(ruleLowDue);
+      await pumpEventQueue();
+
+      final toDo = repository.openTaskRules;
+      expect(toDo.length, 2);
+
+      // Both should be in the "due" bucket; Critical should sort first despite having lower progress
+      expect(toDo[0].rule.name, "Critical (no trigger)");
+      expect(toDo[0].status.type, TaskStatusType.due);
+      expect(toDo[0].status.progress, 0.0);
+      expect(toDo[1].rule.name, "Low (due)");
+      expect(toDo[1].status.type, TaskStatusType.due);
+      expect(toDo[1].status.progress > 1.0, true); // Progress > 1.0 for the interval-based due task
     });
 
     test("openTaskRulesStatusType returns the aggregated highest priority status", () async {

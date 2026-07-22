@@ -11,8 +11,9 @@ import '../sheets/rating_entry_details.dart';
 
 class RatingEntryListTile extends StatelessWidget {
   final RatingEntry ratingEntry;
+  final bool showDate;
 
-  const RatingEntryListTile({super.key, required this.ratingEntry});
+  const RatingEntryListTile({super.key, required this.ratingEntry, this.showDate = true});
 
   Widget _buildStatItem(BuildContext context, String iconText, String text, {bool secondary = false}) {
     return Row(
@@ -68,21 +69,22 @@ class RatingEntryListTile extends StatelessWidget {
             crossAxisAlignment: WrapCrossAlignment.center,
             spacing: 4,
             children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                spacing: 2,
-                children: [
-                  Icon(Icons.calendar_month, size: 12, color: colorScheme.onSurfaceVariant),
-                  Text(
-                    DateFormat(appSettings.dateFormat).format(ratingEntry.dateTimeLocal),
-                    style: TextStyle(
-                      color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                      fontSize: 12,
+              if (showDate)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  spacing: 2,
+                  children: [
+                    Icon(Icons.calendar_month, size: 12, color: colorScheme.onSurfaceVariant),
+                    Text(
+                      DateFormat(appSettings.dateFormat).format(ratingEntry.dateTimeLocal),
+                      style: TextStyle(
+                        color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                        fontSize: 12,
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
               Row(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,

@@ -10,6 +10,7 @@ import '../theme.dart';
 import 'text/section_title.dart';
 
 class SetInstallationTimeline extends StatefulWidget {
+  final String title;
   final List<Installation> initialInstallations;
   final List<Installation>? originalInstallations;
   final Function(List<Installation>) onChanged;
@@ -17,6 +18,7 @@ class SetInstallationTimeline extends StatefulWidget {
 
   const SetInstallationTimeline({
     super.key,
+    this.title = 'Installation Timeline',
     required this.initialInstallations,
     this.originalInstallations,
     required this.onChanged,
@@ -148,7 +150,7 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SectionTitle(
-              title: 'Installation Timeline',
+              title: widget.title,
               trailing: widget.isEntryEditable == null
                   ? IconButton(
                       icon: const Icon(Icons.add, size: 20),

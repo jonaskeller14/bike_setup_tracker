@@ -7,6 +7,7 @@ import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../repositories/app_repository.dart';
+import '../../widgets/sheets/app_settings_checkbox_group.dart';
 import '../../widgets/sheets/app_settings_radio_group.dart';
 import '../../widgets/text/section_title.dart';
 
@@ -17,6 +18,16 @@ class FeaturesPage extends StatelessWidget {
     false: Text('Off'),
     true: Text('On'),
   };
+
+  static String _timelineGroupingSummary(AppSettings settings) {
+    final enabled = [
+      if (settings.enableTimelineDayHeaders) 'Day Headers',
+      if (settings.enableTimelineSetupGrouping) 'Setup Grouping',
+      if (settings.enableTimelineReplacementDetection) 'Replacement Detection',
+      if (settings.enableTimelineStravaContext) 'Strava Context',
+    ];
+    return enabled.isEmpty ? 'Off' : enabled.join(', ');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -171,6 +182,45 @@ class FeaturesPage extends StatelessWidget {
                         'device. They are NOT included in cloud/Drive backups and will be lost on '
                         'reinstall or when restoring from a backup. Use "Export Images" to move them '
                         'to a new device.',
+                  ),
+                ),
+              if (kDebugMode)
+                ListTile(
+                  leading: const Icon(Icons.view_agenda_outlined),
+                  title: const Text("Timeline Grouping"),
+                  subtitle: Text(_timelineGroupingSummary(appSettings)),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () => appSettingsCheckboxGroupSheet(
+                    context: context,
+                    title: "Timeline Grouping",
+                    infoText: 'Controls how the Setup History timeline condenses '
+                        'related entries. Each pass can be toggled on its own.',
+                    options: [
+                      AppSettingsCheckboxOption(
+                        title: 'Day Headers',
+                        subtitle: 'Group entries under a header per day.',
+                        value: () => appSettings.enableTimelineDayHeaders,
+                        onChanged: (v) => appSettings.enableTimelineDayHeaders = v,
+                      ),
+                      AppSettingsCheckboxOption(
+                        title: 'Setup Grouping',
+                        subtitle: 'Merge setups of the same bike recorded close together.',
+                        value: () => appSettings.enableTimelineSetupGrouping,
+                        onChanged: (v) => appSettings.enableTimelineSetupGrouping = v,
+                      ),
+                      AppSettingsCheckboxOption(
+                        title: 'Replacement Detection',
+                        subtitle: 'Show a removal and the install replacing it as one entry.',
+                        value: () => appSettings.enableTimelineReplacementDetection,
+                        onChanged: (v) => appSettings.enableTimelineReplacementDetection = v,
+                      ),
+                      AppSettingsCheckboxOption(
+                        title: 'Strava Context',
+                        subtitle: 'Mark entries recorded during a ride as part of that activity.',
+                        value: () => appSettings.enableTimelineStravaContext,
+                        onChanged: (v) => appSettings.enableTimelineStravaContext = v,
+                      ),
+                    ],
                   ),
                 ),
               const Divider(),

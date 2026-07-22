@@ -8,10 +8,12 @@ import '../notes_text.dart';
 
 class AdjustmentCompactSummary {
   final bool hasContent;
+  final bool collapsedHasContent;
   final bool collapsedHidesSomething;
 
   const AdjustmentCompactSummary({
     required this.hasContent,
+    required this.collapsedHasContent,
     required this.collapsedHidesSomething,
   });
 }
@@ -156,6 +158,7 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
     final collapsedCells = visibleCells(true);
     return AdjustmentCompactSummary(
       hasContent: expandedCells > 0,
+      collapsedHasContent: collapsedCells > 0,
       collapsedHidesSomething: expandedCells > collapsedCells,
     );
   }

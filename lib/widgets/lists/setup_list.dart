@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
@@ -8,6 +9,7 @@ import '../../pages/details/setup_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/setup_actions.dart';
+import '../../utils/timeline_grouping.dart';
 import '../chips/setup_list_filter_widget.dart';
 import '../empty_state_placeholder.dart';
 import '../hints/getting_started_guide_hint.dart';
@@ -16,11 +18,16 @@ import '../hints/setup_hint_selection.dart';
 import '../hints/setup_task_hint.dart';
 import '../items/installation_list_tile.dart';
 import '../items/rating_entry_list_tile.dart';
+import '../items/replacement_list_tile.dart';
+import '../items/setup_group_card.dart';
 import '../items/setup_list_card.dart';
+import '../items/strava_context_wrapper.dart';
 import '../items/strava_list_tile.dart';
 import '../items/task_entry_list_item.dart';
 import '../sheets/installation_sheet.dart';
+import '../sheets/replacement_sheet.dart';
 import '../sheets/task_rule_sheet.dart';
+import '../timeline_day_header.dart';
 
 class SetupList extends StatelessWidget {
   const SetupList({super.key});
@@ -63,6 +70,161 @@ class SetupList extends StatelessWidget {
     );
   }
 
+  void _maybeTriggerStravaLazyLoad(
+    AppRepository appRepository,
+    bool sortAscending,
+    StravaActivity activity,
+  ) {
+    if (!appRepository.hasMoreStrava || appRepository.isLoadingMoreStrava) return;
+
+    final activities = appRepository.filteredStravaActivities.values.toList();
+    activities.sort(
+      (a, b) => sortAscending
+          ? a.startDate.compareTo(b.startDate)
+          : b.startDate.compareTo(a.startDate),
+    );
+
+    if (activities.length >= 5) {
+      final tailActivities = activities.sublist(activities.length - 5);
+      if (tailActivities.contains(activity)) {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          appRepository.loadMoreStravaActivities();
+        });
+      }
+    } else if (activities.isNotEmpty && activities.last == activity) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        appRepository.loadMoreStravaActivities();
+      });
+    }
+  }
+
+  void _openSetupDetails(
+    BuildContext context,
+    Iterable<Setup> setupsList,
+    Setup setup,
+  ) {
+    unawaited(
+      Navigator.push<void>(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SetupDetailsPage(
+            setupIds: setupsList.map((s) => s.id).toList(),
+            initialSetup: setup,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEntryTile(
+    BuildContext context,
+    TimelineEntry entry, {
+    required AppSettings appSettings,
+    required AppRepository appRepository,
+    required bool sortAscending,
+    required Iterable<Setup> setupsList,
+  }) {
+    final showDate = !appSettings.enableTimelineDayHeaders;
+
+    switch (entry) {
+      case StravaEntry():
+        _maybeTriggerStravaLazyLoad(
+          appRepository,
+          sortAscending,
+          entry.activity,
+        );
+        return StravaListTile(stravaActivity: entry.activity, showDate: showDate);
+      case SetupEntry():
+        final setup = entry.setup;
+        return SetupListCard(
+          setupId: setup.id,
+          onTap: () => _openSetupDetails(context, setupsList, setup),
+          displayBikeAdjustmentValues: appSettings.setupListBikeAdjustmentValues,
+          displayPersonAdjustmentValues: appSettings.setupListPersonAdjustmentValues,
+          showDate: showDate,
+        );
+      case TaskTimeLineEntry():
+        return TaskEntryListItem(
+          taskEntryId: entry.taskEntry.id,
+          showDate: showDate,
+          onTap: () => showTaskRuleSheet(
+            context,
+            taskRuleId: entry.taskEntry.taskRule,
+            highlightTaskEntryId: entry.taskEntry.id,
+          ),
+        );
+      case InstallationEntry():
+        return InstallationListTile(
+          componentInstallation: entry.componentInstallation,
+          showDate: showDate,
+          onTap: () async {
+            await showEditInstallationSheet(
+              context,
+              component: entry.componentInstallation.component,
+              editEntry: entry.componentInstallation,
+            );
+          },
+        );
+      case RatingEntryTimelineEntry():
+        return RatingEntryListTile(
+          ratingEntry: entry.ratingEntry,
+          showDate: showDate,
+        );
+    }
+  }
+
+  Widget _buildRow(
+    BuildContext context,
+    TimelineRow row, {
+    required AppSettings appSettings,
+    required AppRepository appRepository,
+    required bool sortAscending,
+    required Iterable<Setup> setupsList,
+  }) {
+    final Widget child = switch (row) {
+      DayHeaderRow() => TimelineDayHeader(day: row.day),
+      SingleEntryRow() => _buildEntryTile(
+        context,
+        row.entry,
+        appSettings: appSettings,
+        appRepository: appRepository,
+        sortAscending: sortAscending,
+        setupsList: setupsList,
+      ),
+      SetupGroupRow() => SetupGroupCard(
+        setupIds: row.setups.map((e) => e.setup.id).toList(),
+        onTapSetup: (setup) => _openSetupDetails(context, setupsList, setup),
+        displayBikeAdjustmentValues: appSettings.setupListBikeAdjustmentValues,
+        displayPersonAdjustmentValues:
+            appSettings.setupListPersonAdjustmentValues,
+      ),
+      ReplacementRow() => ReplacementListTile(
+        row: row,
+        showDate: !appSettings.enableTimelineDayHeaders,
+        onTap: () async {
+          await showReplacementSheet(
+            context,
+            removed: row.removed,
+            installed: row.installed,
+          );
+        },
+      ),
+    };
+
+    // Day headers span the full screen width; every other row carries the
+    // list's horizontal padding itself.
+    if (row is DayHeaderRow) return child;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: row is EntryRow && row.stravaContext != null
+          ? StravaContextWrapper(
+              stravaContext: row.stravaContext!,
+              child: child,
+            )
+          : child,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
@@ -88,50 +250,61 @@ class SetupList extends StatelessWidget {
 
     // Horizon date is the "furthest" loaded activity date in the current scroll direction.
     // ASC: newest activity date. DESC: oldest activity date.
-    final horizonDate = stravaActivities.isEmpty 
-        ? null 
+    final horizonDate = stravaActivities.isEmpty
+        ? null
         : sortAscending
-            ? stravaActivities.map((a) => a.startDate).reduce((a, b) => a.isAfter(b) ? a : b)
-            : stravaActivities.map((a) => a.startDate).reduce((a, b) => a.isBefore(b) ? a : b);
+        ? stravaActivities
+              .map((a) => a.startDate)
+              .reduce((a, b) => a.isAfter(b) ? a : b)
+        : stravaActivities
+              .map((a) => a.startDate)
+              .reduce((a, b) => a.isBefore(b) ? a : b);
 
-    final List<TimelineEntry> entries =  [
+    final List<TimelineEntry> entries = [
       if (appSettings.displayShowSetups) ...setupsList
-          .where((s) {
-            if (horizonDate == null || !appRepository.hasMoreStrava) return true;
-            return sortAscending 
-                ? !s.datetime.isAfter(horizonDate) // ASC: hide newer than horizon
-                : !s.datetime.isBefore(horizonDate); // DESC: hide older than horizon
-          })
-          .map((s) => SetupEntry(s)), 
+            .where((s) {
+              if (horizonDate == null || !appRepository.hasMoreStrava) return true;
+              return sortAscending
+                  ? !s.datetime.isAfter(horizonDate) // ASC: hide newer than horizon
+                  : !s.datetime.isBefore(horizonDate); // DESC: hide older than horizon
+            })
+            .map((s) => SetupEntry(s)),
       if (showingStrava) ...stravaActivities.map((a) => StravaEntry(a)),
       if (appSettings.displayShowTasks) ...taskEntries
-          .where((t) {
-            if (horizonDate == null || !appRepository.hasMoreStrava) return true;
-            return sortAscending 
-                ? !t.dateTimeUTC.isAfter(horizonDate) // ASC: hide newer than horizon
-                : !t.dateTimeUTC.isBefore(horizonDate); // DESC: hide older than horizon
-          })
-          .map((t) => TaskTimeLineEntry(t)),
+            .where((t) {
+              if (horizonDate == null || !appRepository.hasMoreStrava) return true;
+              return sortAscending
+                  ? !t.dateTimeUTC.isAfter(horizonDate) // ASC: hide newer than horizon
+                  : !t.dateTimeUTC.isBefore(horizonDate); // DESC: hide older than horizon
+            })
+            .map((t) => TaskTimeLineEntry(t)),
       if (appSettings.displayShowInstallations) ...installations
-          .where((ci) {
-            if (horizonDate == null || !appRepository.hasMoreStrava) return true;
-            return sortAscending
-                ? !ci.installation.dateTimeUTC.isAfter(horizonDate) // ASC: hide newer than horizon
-                : !ci.installation.dateTimeUTC.isBefore(horizonDate); // DESC: hide older than horizon
-          })
-          .map((ci) => InstallationEntry(ci)),
+            .where((ci) {
+              if (horizonDate == null || !appRepository.hasMoreStrava) return true;
+              return sortAscending
+                  ? !ci.installation.dateTimeUTC.isAfter(horizonDate) // ASC: hide newer than horizon
+                  : !ci.installation.dateTimeUTC.isBefore(horizonDate); // DESC: hide older than horizon
+            })
+            .map((ci) => InstallationEntry(ci)),
       if (appSettings.enableRating && appSettings.displayShowRatingEntries) ...appRepository.filteredRatingEntries.values
-          .where((re) {
-            if (horizonDate == null || !appRepository.hasMoreStrava) return true;
-            return sortAscending
-                ? !re.dateTimeUTC.isAfter(horizonDate) // ASC: hide newer than horizon
-                : !re.dateTimeUTC.isBefore(horizonDate); // DESC: hide older than horizon
-          })
-          .map((re) => RatingEntryTimelineEntry(re)),
+            .where((re) {
+              if (horizonDate == null || !appRepository.hasMoreStrava) return true;
+              return sortAscending
+                  ? !re.dateTimeUTC.isAfter(horizonDate) // ASC: hide newer than horizon
+                  : !re.dateTimeUTC.isBefore(horizonDate); // DESC: hide older than horizon
+            })
+            .map((re) => RatingEntryTimelineEntry(re)),
     ];
     entries.sort((a, b) => sortAscending
         ? a.date.compareTo(b.date)
-        : b.date.compareTo(a.date));
+        : b.date.compareTo(a.date),
+    );
+
+    final rows = buildTimelineRows(
+      entries,
+      sortAscending: sortAscending,
+      appSettings: appSettings,
+    );
 
     // Only one hint at a time at the top: the onboarding guide takes priority over
     // the task/calendar suggestion hints.
@@ -149,97 +322,68 @@ class SetupList extends StatelessWidget {
 
     return entries.isEmpty && !appRepository.isLoadingMoreStrava
         ? _emptyPlaceholder(context, showStartupGuide: showStartupGuide)
-        : ListView.builder(
-            padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
-            itemCount: entries.length + 1 + (appRepository.isLoadingMoreStrava ? 1 : 0), // 1 header + optional loader
-            itemBuilder: (context, index) {
-              if (index == 0) {
-                final headerChildren = <Widget>[
-                  if (showStartupGuide) const GettingStartedGuideHint(),
-                  ?hint,
-                  const SetupListFilterWidget(),
-                ];
-                if (headerChildren.length == 1) return headerChildren.first;
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 8,
-                  children: headerChildren,
-                );
-              }
-
-              if (index > entries.length) {
-                return const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: CircularProgressIndicator(),
-                  ),
-                );
-              }
-              
-              final entry = entries[index - 1];
-
-              // Check for lazy loading trigger
-              if (entry is StravaEntry && appRepository.hasMoreStrava && !appRepository.isLoadingMoreStrava) {
-                final activities = appRepository.filteredStravaActivities.values.toList();
-                activities.sort((a, b) => sortAscending 
-                    ? a.startDate.compareTo(b.startDate) 
-                    : b.startDate.compareTo(a.startDate));
-                
-                if (activities.length >= 5) {
-                   final tailActivities = activities.sublist(activities.length - 5);
-                   if (tailActivities.contains(entry.activity)) {
-                     WidgetsBinding.instance.addPostFrameCallback((_) async {
-                       appRepository.loadMoreStravaActivities();
-                     });
-                   }
-                } else if (activities.isNotEmpty && activities.last == entry.activity) {
-                   WidgetsBinding.instance.addPostFrameCallback((_) async {
-                     appRepository.loadMoreStravaActivities();
-                   });
-                }
-              }
-
-              switch (entry) {
-                case StravaEntry(): 
-                  return StravaListTile(stravaActivity: entry.activity);
-                case SetupEntry():
-                  final setup = entry.setup;
-                  return SetupListCard(
-                    setupId: setup.id,
-                    onTap: () async {
-                      Navigator.push<void>(context, MaterialPageRoute(builder: (context) => SetupDetailsPage(
-                        setupIds: setupsList.map((s) => s.id).toList(),
-                        initialSetup: setup,
-                      )));
-                    },
-                    displayBikeAdjustmentValues: appSettings.setupListBikeAdjustmentValues,
-                    displayPersonAdjustmentValues: appSettings.setupListPersonAdjustmentValues,
-                  );
-                case TaskTimeLineEntry():
-                  return TaskEntryListItem(
-                    taskEntryId: entry.taskEntry.id,
-                    onTap: () => showTaskRuleSheet(
-                      context, 
-                      taskRuleId: entry.taskEntry.taskRule, 
-                      highlightTaskEntryId: entry.taskEntry.id,
-                    ),
-                  );
-                case InstallationEntry():
-                  return InstallationListTile(
-                    componentInstallation: entry.componentInstallation,
-                    onTap: () async {
-                      await showEditInstallationSheet(
-                        context,
-                        component: entry.componentInstallation.component,
-                        editEntry: entry.componentInstallation,
+        : CustomScrollView(
+            slivers: [
+              //FIXME: Good practice to have only one element inside of CustomScrollView?
+              SliverPadding(
+                // Horizontal padding lives on the individual rows so day
+                // headers can span the full screen width.
+                padding: const EdgeInsets.only(top: 16, bottom: 16 + 100),
+                sliver: SliverList.builder(
+                  itemCount:
+                      rows.length +
+                      1 +
+                      (appRepository.isLoadingMoreStrava
+                          ? 1
+                          : 0), // 1 header + optional loader
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                      final headerChildren = <Widget>[
+                        if (showStartupGuide) const GettingStartedGuideHint(),
+                        ?hint,
+                        const SetupListFilterWidget(),
+                      ];
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: headerChildren.length == 1
+                            ? headerChildren.first
+                            : Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                spacing: 8,
+                                children: headerChildren,
+                              ),
                       );
-                    },
-                  );
-                case RatingEntryTimelineEntry():
-                  return RatingEntryListTile(ratingEntry: entry.ratingEntry);
-              }
-            },
+                    }
+
+                    if (index > rows.length) {
+                      return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
+                    }
+
+                    final row = rows[index - 1];
+                    // Key each row to its stable entry identity so element
+                    // state (card expansion, Strava context wrapper) tracks the
+                    // logical entry across the reordering an edit can cause.
+                    return KeyedSubtree(
+                      key: row.key,
+                      child: _buildRow(
+                        context,
+                        row,
+                        appSettings: appSettings,
+                        appRepository: appRepository,
+                        sortAscending: sortAscending,
+                        setupsList: setupsList,
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
           );
   }
 }

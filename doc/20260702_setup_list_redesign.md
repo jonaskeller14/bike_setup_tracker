@@ -201,3 +201,84 @@ rounded-top/-bottom bar (first/last) matching the existing "View on Strava" oran
 - `lib/models/timeline_entry.dart`, `lib/models/installation.dart`, `lib/models/strava/strava_activity.dart`
 - `lib/repositories/app_repository.dart` (`ComponentInstallation`, horizon/lazy-load getters)
 - `lib/widgets/lists/adjustment_compact_display_list.dart`
+
+---
+
+# Round 2 — Refinements after first on-device review (2026-07-07)
+
+Rollout 1–4 is implemented (`buildTimelineRows` pipeline + tiles + 30 unit tests). The points below
+came from reviewing the result on-device. Guiding principle: **the timeline reads as day sections
+containing event blocks; a ride is a block that owns everything that happened during it.**
+
+## R1 — Strava bar on *every* activity ("ride block" model)
+
+**Change of mental model:** the orange bar no longer means "entry during a ride" — it marks a
+*ride block*: the activity tile itself plus every entry inside its time window. Consequences:
+
+1. **Every** activity tile gets the bar (previously only activities containing entries).
+2. Two adjacent activities must read as **two separate blocks**: bars never merge across different
+   activity ids. Visually enforced with a small vertical end-inset (~3 px) at `isFirst`/`isLast`,
+   so back-to-back rides show a visible break while a ride + its during-entries stay seamless.
+3. **New ordering pass (block regrouping):** rows attributed to activity X are pulled adjacent to
+   X's tile — immediately after it in ASC, immediately before it in DESC — preserving their
+   relative order. No-op when activities don't overlap (the common case).
+
+**Overlap edge case** (a2 starts during a1):
+- Entry inside *both* windows → innermost wins (latest `startDate`, i.e. a2) → chronological order
+  already yields contiguous blocks: `a1 | a2, entry`.
+- Entry inside a1 *only* but after a2's start (a2 already ended) → block regrouping reorders
+  display to `a1, entry, a2` (ASC) / `a2, entry, a1` (DESC). Displayed times become locally
+  non-monotonic — accepted price for unbroken blocks.
+- Both cases get dedicated ASC + DESC tests in `timeline_grouping_test.dart`.
+
+## R2 — Setup group card polish *(decided 2026-07-07)*
+
+- **Group condition tightened:** members must additionally share the same **local day** (keeps the
+  header's `HH:mm – HH:mm` range honest). The 2 h adjacency chain stays — a morning and an evening
+  session on the same day remain separate groups.
+- **No "Current" border / corner label on the group card** — a group is not "current", one member
+  is.
+- **Header:** bike (title), time range (single time when min == max), setup count, shared place,
+  weather (temperature + condition) from the first member that has any — shared testing-session
+  context. No date (the day band carries it, see R4).
+- **Members are radically minimal (test-session view):** each member renders **only its collapsed
+  `AdjustmentCompactDisplayList`** (changed values only) stacked vertically, plus an
+  expand chevron. Expanding a member reveals its setup title, time, score, tags/images/notes,
+  editing popup menu, and the full (all-values) adjustment list. Tapping a member still opens the
+  setup details page. Rationale: in a 5-setup test session the *values* are the relevant data;
+  everything else is one chevron away.
+- **The current member** is framed at group level: primary border + small `Current` label around
+  that member's section.
+
+## R3 — Replacement tile & dedicated sheet *(decided 2026-07-07)*
+
+- **Tile:** verb title (`⇄ Replaced Fork`, `Icons.swap_horiz` inline in the title row); subtitle
+  has 4 lines: time (range when the two events differ), bike, `Installed <new>`,
+  `Deinstalled <old>` (with component-type icons).
+- **Tap opens a dedicated ReplacementSheet** (`lib/widgets/sheets/replacement_sheet.dart`) —
+  **combined editor**: swap preview box (mirrors `InstallationSheet`'s origin→target box) +
+  bike/time, then both components' `SetInstallationTimeline`s stacked vertically (side-by-side is
+  too cramped on phones), each with only its replacement event editable, one Save persisting both
+  components.
+
+## R4 — Prominent full-bleed day dividers + date de-duplication
+
+- Horizontal list padding moves from the sliver into the individual rows so day headers can span
+  the **full screen width** as a slim band (`surfaceContainerHighest`, small vertical padding) —
+  clearly a *section* boundary, not just another divider line.
+- Header text always carries the absolute date: `Today · Mon, 07.07.2026`.
+- **Dates disappear from tiles inside the timeline** (time stays) *(decided 2026-07-07)*: with day
+  sections, per-tile dates are redundant noise — the standard feed pattern (Strava, messengers,
+  photo apps). Since `StravaListTile` / `TaskEntryListItem` / `InstallationListTile` /
+  `RatingEntryListTile` / `SetupListCard` are reused outside the timeline (search overlay,
+  task-rule details page, Strava dashboard), this is an opt-in `showDate: false` flag passed only
+  by `SetupList`; everywhere else keeps the date.
+
+
+TODOS: More refinements after the ROUND 2
+- Setup group. Expand collapsed setups to use full width so that chevron buttons align horizontally. Use horizontal dividers to divide setups. 
+- Setup group: i dont like bike as title. replace it with "2 Setups" from the subtitle. put bike in the subtitle. 
+- Replacement sheet/Preview: Remove time from preview. its not obvious which component is installed/deinstalled. Maybe we can use green/red colors or other style to improve this. Put the bike above the "component <-> component". 
+- replacement sheet: if both compeonnts have the same name the sections titles are equal. maybe add a little hint (icon or text). 
+- replacement tile: 
+- MAJOR BUG: When i edit something like a taskEntry or Setup (change the datetime and save). Coming back to the setupList, it wont update as expected. Should be displayed as during activitiy (left orange bar) now but isnt. 

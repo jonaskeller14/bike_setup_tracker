@@ -17,6 +17,13 @@ class SetupListCard extends StatefulWidget {
   final void Function()? onTap;
   final bool displayBikeAdjustmentValues;
   final bool displayPersonAdjustmentValues;
+  final bool showDate;
+
+  /// Rendered as a member of a SetupGroupCard: no Card wrapper; collapsed to
+  /// just the changed adjustment values. The always-visible expand chevron
+  /// reveals title, time, metadata, the editing menu and the full value list.
+  final bool embedded;
+  final bool hidePlace;
 
   const SetupListCard({
     super.key,
@@ -24,6 +31,9 @@ class SetupListCard extends StatefulWidget {
     required this.onTap,
     required this.displayBikeAdjustmentValues,
     required this.displayPersonAdjustmentValues,
+    this.showDate = true,
+    this.embedded = false,
+    this.hidePlace = false,
   });
 
   @override
@@ -35,8 +45,8 @@ class _SetupListCardState extends State<SetupListCard> {
 
   Widget _setupCardCurrentLabel(BuildContext context) {
     return Positioned(
-      top: -1, 
-      right: -1, 
+      top: -1,
+      right: -1,
       child: Container(
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.primary,
@@ -80,6 +90,42 @@ class _SetupListCardState extends State<SetupListCard> {
     );
   }
 
+  Widget _optionsMenu(BuildContext context, Setup setup, AppSettings appSettings) {
+    return PopupMenuButton<_SetupOptions>(
+      onSelected: (_SetupOptions value) async {
+        switch (value) {
+          case _SetupOptions.edit:
+            await SetupActions.editSetup(context, setup: setup);
+          case _SetupOptions.share:
+            await SetupActions.shareSetup(context, setup: setup);
+          case _SetupOptions.restore:
+            await SetupActions.duplicateSetup(context, setup: setup);
+          case _SetupOptions.addRating:
+            await SetupActions.addRatingEntryForSetup(context, setup: setup);
+          case _SetupOptions.remove:
+            await SetupActions.removeSetup(context, setup: setup);
+        }
+      },
+      itemBuilder: (BuildContext context) {
+        return _SetupOptions.values.where((option) {
+          if (!appSettings.enableRating && (option == _SetupOptions.addRating)) return false;
+          return true;
+        }).map((option) {
+          return PopupMenuItem<_SetupOptions>(
+            value: option,
+            child: Row(
+              spacing: 10,
+              children: [
+                Icon(option.iconData, size: 20),
+                Text(option.label),
+              ],
+            ),
+          );
+        }).toList();
+      },
+    );
+  }
+
   Widget _setupListTile(BuildContext context, Setup setup, AdjustmentCompactSummary summary) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
@@ -87,15 +133,20 @@ class _SetupListCardState extends State<SetupListCard> {
     final double? score = appSettings.enableRating
         ? appRepository.scoreForSetup(setup.id)
         : null;
+    // Embedded members get their chevron from the embedded wrapper instead.
+    final bool showInlineExpandIcon = !widget.embedded && summary.collapsedHidesSomething;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      // Embedded (group member): pull the trailing edge in to 4 so the popup
+      // menu lines up with the expand chevron below it instead of sitting
+      // inset with empty space to its right.
+      padding: EdgeInsets.fromLTRB(16, 12, widget.embedded ? 4 : 16, 0),
       child: Stack(
         children: [
           ConstrainedBox(
             // Content must be at least as tall as the trailing buttons,
             constraints: BoxConstraints(
-              minHeight: summary.collapsedHidesSomething
+              minHeight: showInlineExpandIcon
                   ? 2 * kMinInteractiveDimension
                   : kMinInteractiveDimension,
             ),
@@ -127,21 +178,22 @@ class _SetupListCardState extends State<SetupListCard> {
                     crossAxisAlignment: WrapCrossAlignment.center,
                     spacing: 4,
                     children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        spacing: 2,
-                        children: [
-                          Icon(Icons.calendar_month, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                          Text(
-                            DateFormat(appSettings.dateFormat).format(setup.datetimeLocal),
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                              fontSize: 13,
+                      if (widget.showDate)
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          spacing: 2,
+                          children: [
+                            Icon(Icons.calendar_month, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                            Text(
+                              DateFormat(appSettings.dateFormat).format(setup.datetimeLocal),
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                                fontSize: 13,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
+                          ],
+                        ),
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -161,39 +213,40 @@ class _SetupListCardState extends State<SetupListCard> {
                       ),
                     ],
                   ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    spacing: 2,
-                    children: [
-                      Icon(
-                        Bike.iconData,
-                        size: 13,
-                        color: bikes.containsKey(setup.bike)
-                            ? Theme.of(context).colorScheme.onSurfaceVariant
-                            : Theme.of(context).colorScheme.error,
-                      ),
-                      Flexible(
-                        child: Text(
-                          bikes[setup.bike]?.name ?? "BIKE NOT FOUND",
-                          style: TextStyle(
-                            color: bikes.containsKey(setup.bike)
-                                ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
-                                : Theme.of(context).colorScheme.error,
-                            fontSize: 13,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
+                  if (!widget.embedded)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      spacing: 2,
+                      children: [
+                        Icon(
+                          Bike.iconData,
+                          size: 13,
+                          color: bikes.containsKey(setup.bike)
+                              ? Theme.of(context).colorScheme.onSurfaceVariant
+                              : Theme.of(context).colorScheme.error,
                         ),
-                      ),
-                    ],
-                  ),
+                        Flexible(
+                          child: Text(
+                            bikes[setup.bike]?.name ?? "BIKE NOT FOUND",
+                            style: TextStyle(
+                              color: bikes.containsKey(setup.bike)
+                                  ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
+                                  : Theme.of(context).colorScheme.error,
+                              fontSize: 13,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ),
+                      ],
+                    ),
                   Wrap(
                     alignment: WrapAlignment.start,
                     crossAxisAlignment: WrapCrossAlignment.center,
                     spacing: 4,
                     children: [
-                      if (setup.place != null) ... [
+                      if (setup.place != null && !widget.hidePlace) ... [
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -210,7 +263,7 @@ class _SetupListCardState extends State<SetupListCard> {
                           ],
                         ),
                       ],
-                      if (setup.weather?.currentTemperature != null) ... [
+                      if (!widget.embedded && setup.weather?.currentTemperature != null) ... [
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -226,7 +279,7 @@ class _SetupListCardState extends State<SetupListCard> {
                           ],
                         )
                       ],
-                      if (setup.weather?.condition != null)
+                      if (!widget.embedded && setup.weather?.condition != null)
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -305,41 +358,9 @@ class _SetupListCardState extends State<SetupListCard> {
           Positioned(
             top: 0,
             right: 0,
-            child: PopupMenuButton<_SetupOptions>(
-              onSelected: (_SetupOptions value) async {
-                switch (value) {
-                  case _SetupOptions.edit:
-                    await SetupActions.editSetup(context, setup: setup);
-                  case _SetupOptions.share:
-                    await SetupActions.shareSetup(context, setup: setup);
-                  case _SetupOptions.restore:
-                    await SetupActions.duplicateSetup(context, setup: setup);
-                  case _SetupOptions.addRating:
-                    await SetupActions.addRatingEntryForSetup(context, setup: setup);
-                  case _SetupOptions.remove:
-                    await SetupActions.removeSetup(context, setup: setup);
-                }
-              },
-              itemBuilder: (BuildContext context) {
-                return _SetupOptions.values.where((option) {
-                  if (!appSettings.enableRating && (option == _SetupOptions.addRating)) return false;
-                  return true;
-                }).map((option) {
-                  return PopupMenuItem<_SetupOptions>(
-                    value: option,
-                    child: Row(
-                      spacing: 10,
-                      children: [
-                        Icon(option.iconData, size: 20),
-                        Text(option.label),
-                      ],
-                    ),
-                  );
-                }).toList();
-              },
-            ),
+            child: _optionsMenu(context, setup, appSettings),
           ),
-          if (summary.collapsedHidesSomething)
+          if (showInlineExpandIcon)
             Positioned(
               bottom: 0,
               right: 0,
@@ -354,6 +375,90 @@ class _SetupListCardState extends State<SetupListCard> {
                 },
               ),
             ),
+        ],
+      ),
+    );
+  }
+
+  Widget _noChangesHint(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      child: Text(
+        'No changes',
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+          color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+          fontStyle: FontStyle.italic,
+        ),
+      ),
+    );
+  }
+
+  /// Group-member layout: collapsed it is just the changed adjustment values;
+  /// the chevron expands to the full card content (title, time, metadata,
+  /// menu, all values).
+  Widget _buildEmbedded(
+    BuildContext context,
+    Setup setup,
+    AdjustmentCompactSummary summary,
+    AdjustmentCompactDisplayList adjustmentList,
+  ) {
+    final bool expanded = !_displayOnlyChanges;
+
+    return InkWell(
+      onTap: widget.onTap,
+      child: Stack(
+        children: [
+          // Force the stack to the full card width so the right-anchored
+          // chevron lands at the card edge and aligns across members,
+          // regardless of how wide each member's value list is.
+          const SizedBox(width: double.infinity),
+          ConstrainedBox(
+            // Keep room for the chevron even when the value list is short.
+            constraints: const BoxConstraints(minHeight: kMinInteractiveDimension),
+            child: AnimatedSize(
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.easeInOut,
+              alignment: Alignment.topCenter,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (expanded) _setupListTile(context, setup, summary),
+                  Padding(
+                    padding: EdgeInsets.only(
+                      top: expanded ? 0 : 8,
+                      bottom: 8,
+                      // Keep the last value row clear of the chevron.
+                      right: kMinInteractiveDimension,
+                    ),
+                    child: !expanded && !summary.collapsedHasContent
+                        ? _noChangesHint(context)
+                        : adjustmentList,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          // Bottom-anchored so it stays with the last line when the collapsed
+          // value list wraps to multiple lines. The bottom padding matches the
+          // content's own bottom padding so the chevron lines up with the last
+          // row rather than sitting below it.
+          Positioned(
+            bottom: 0,
+            right: 4,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 6), //FIXME was 8
+              child: ExpandIcon(
+                isExpanded: expanded,
+                color: PopupMenuTheme.of(context).iconColor ?? IconTheme.of(context).color,
+                expandedColor: Theme.of(context).colorScheme.primary,
+                onPressed: (bool expanded) {
+                  setState(() {
+                    _displayOnlyChanges = expanded;
+                  });
+                },
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -393,6 +498,24 @@ class _SetupListCardState extends State<SetupListCard> {
       displayPersonAdjustmentValues: displayPerson,
     );
 
+    final adjustmentList = AdjustmentCompactDisplayList(
+      components: breakdown.components,
+      persons: breakdown.person != null ? [breakdown.person!] : const [],
+      danglingComponents: breakdown.danglingComponents,
+      danglingPersons: breakdown.danglingPersons,
+      adjustmentValues: adjustmentValues,
+      previousAdjustmentValues: previousAdjustmentValues,
+      showRowIcons: true,
+      highlightInitialValues: true,
+      displayOnlyChanges: _displayOnlyChanges,
+      displayBikeAdjustmentValues: widget.displayBikeAdjustmentValues,
+      displayPersonAdjustmentValues: displayPerson,
+    );
+
+    if (widget.embedded) {
+      return _buildEmbedded(context, setup, summary, adjustmentList);
+    }
+
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4.0),
       shape: setup.isCurrent
@@ -418,19 +541,7 @@ class _SetupListCardState extends State<SetupListCard> {
                   alignment: Alignment.topCenter,
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 8),
-                    child: AdjustmentCompactDisplayList(
-                      components: breakdown.components,
-                      persons: breakdown.person != null ? [breakdown.person!] : const [],
-                      danglingComponents: breakdown.danglingComponents,
-                      danglingPersons: breakdown.danglingPersons,
-                      adjustmentValues: adjustmentValues,
-                      previousAdjustmentValues: previousAdjustmentValues,
-                      showRowIcons: true,
-                      highlightInitialValues: true,
-                      displayOnlyChanges: _displayOnlyChanges,
-                      displayBikeAdjustmentValues: widget.displayBikeAdjustmentValues,
-                      displayPersonAdjustmentValues: displayPerson,
-                    ),
+                    child: adjustmentList,
                   ),
                 ),
               ],

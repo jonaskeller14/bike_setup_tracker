@@ -41,6 +41,11 @@ class AppSettings extends ChangeNotifier {
   bool _enableCalendar = false;
   bool _enableSetupImages = false;
   bool _enableComponentPresets = false;
+  // Setup timeline grouping passes (debug-only, see FeaturesPage)
+  bool _enableTimelineDayHeaders = false;
+  bool _enableTimelineSetupGrouping = false;
+  bool _enableTimelineReplacementDetection = false;
+  bool _enableTimelineStravaContext = false;
   int _firstDayOfWeek = DateTime.monday; // 1 = Monday … 7 = Sunday
 
   // Temporary Settings (in-memory only, never persisted)
@@ -88,6 +93,10 @@ class AppSettings extends ChangeNotifier {
   bool get enableCalendar => _enableCalendar;
   bool get enableSetupImages => _enableSetupImages;
   bool get enableComponentPresets => _enableComponentPresets;
+  bool get enableTimelineDayHeaders => _enableTimelineDayHeaders;
+  bool get enableTimelineSetupGrouping => _enableTimelineSetupGrouping;
+  bool get enableTimelineReplacementDetection => _enableTimelineReplacementDetection;
+  bool get enableTimelineStravaContext => _enableTimelineStravaContext;
   int get firstDayOfWeek => _firstDayOfWeek;
 
   // Temporary Settings
@@ -330,6 +339,34 @@ class AppSettings extends ChangeNotifier {
     _persistBool('enableComponentPresets', newValue);
   }
 
+  set enableTimelineDayHeaders(bool newValue) {
+    if (newValue == _enableTimelineDayHeaders) return;
+    _enableTimelineDayHeaders = newValue;
+    notifyListeners();
+    _persistBool('enableTimelineDayHeaders', newValue);
+  }
+
+  set enableTimelineSetupGrouping(bool newValue) {
+    if (newValue == _enableTimelineSetupGrouping) return;
+    _enableTimelineSetupGrouping = newValue;
+    notifyListeners();
+    _persistBool('enableTimelineSetupGrouping', newValue);
+  }
+
+  set enableTimelineReplacementDetection(bool newValue) {
+    if (newValue == _enableTimelineReplacementDetection) return;
+    _enableTimelineReplacementDetection = newValue;
+    notifyListeners();
+    _persistBool('enableTimelineReplacementDetection', newValue);
+  }
+
+  set enableTimelineStravaContext(bool newValue) {
+    if (newValue == _enableTimelineStravaContext) return;
+    _enableTimelineStravaContext = newValue;
+    notifyListeners();
+    _persistBool('enableTimelineStravaContext', newValue);
+  }
+
   set firstDayOfWeek(int newValue) {
     if (newValue == _firstDayOfWeek) return;
     _firstDayOfWeek = newValue;
@@ -454,6 +491,10 @@ class AppSettings extends ChangeNotifier {
       _enableCalendar = prefs.getBool('${_kPrefix}enableCalendar') ?? _enableCalendar;
       _enableSetupImages = prefs.getBool('${_kPrefix}enableSetupImages') ?? _enableSetupImages;
       _enableComponentPresets = prefs.getBool('${_kPrefix}enableComponentPresets') ?? _enableComponentPresets;
+      _enableTimelineDayHeaders = prefs.getBool('${_kPrefix}enableTimelineDayHeaders') ?? _enableTimelineDayHeaders;
+      _enableTimelineSetupGrouping = prefs.getBool('${_kPrefix}enableTimelineSetupGrouping') ?? _enableTimelineSetupGrouping;
+      _enableTimelineReplacementDetection = prefs.getBool('${_kPrefix}enableTimelineReplacementDetection') ?? _enableTimelineReplacementDetection;
+      _enableTimelineStravaContext = prefs.getBool('${_kPrefix}enableTimelineStravaContext') ?? _enableTimelineStravaContext;
       _firstDayOfWeek = prefs.getInt('${_kPrefix}firstDayOfWeek') ?? _firstDayOfWeek;
     } catch (e, st) {
       debugPrint("ERROR loading App Settings: $e\n$st");

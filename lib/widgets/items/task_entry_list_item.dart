@@ -14,12 +14,14 @@ class TaskEntryListItem extends StatefulWidget {
   final String taskEntryId;
   final ComponentStats? previousSnapshot;
   final VoidCallback? onTap;
+  final bool showDate;
 
   const TaskEntryListItem({
     super.key,
     required this.taskEntryId,
     this.previousSnapshot,
     this.onTap,
+    this.showDate = true,
   });
 
   @override
@@ -83,21 +85,22 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
             crossAxisAlignment: WrapCrossAlignment.center,
             spacing: 4,
             children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                spacing: 2,
-                children: [
-                  Icon(Icons.calendar_month, size: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                  Text(
-                    DateFormat(appSettings.dateFormat).format(taskEntry.dateTimeLocal),
-                    style: TextStyle(
-                      color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                      fontSize: 12,
+              if (widget.showDate)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  spacing: 2,
+                  children: [
+                    Icon(Icons.calendar_month, size: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    Text(
+                      DateFormat(appSettings.dateFormat).format(taskEntry.dateTimeLocal),
+                      style: TextStyle(
+                        color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                        fontSize: 12,
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
               Row(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,

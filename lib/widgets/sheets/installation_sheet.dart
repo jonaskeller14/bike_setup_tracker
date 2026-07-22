@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/bike.dart';
@@ -99,23 +100,18 @@ class _InstallationSheetState extends State<InstallationSheet> {
   }
 
   void _onConfirm() async {
-    if (_formKey.currentState?.validate() ?? false) {
-      final updatedComponent = widget.component.copyWith(
-        installations: _installations,
-      );
-      await context.read<AppRepository>().editComponent(updatedComponent);
-      if (!mounted) return;
-      Navigator.pop(context);
-    }
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    
+    final updatedComponent = widget.component.copyWith(
+      installations: _installations,
+    );
+    await context.read<AppRepository>().editComponent(updatedComponent);
+    if (!mounted) return;
+    Navigator.pop(context);    
   }
 
-  bool get _hasChanges {
-    if (_installations.length != widget.component.installations.length) return true;
-    for (int i = 0; i < _installations.length; i++) {
-      if (_installations[i] != widget.component.installations[i]) return true;
-    }
-    return false;
-  }
+  bool get _hasChanges =>
+      !listEquals(_installations, widget.component.installations);
 
   @override
   Widget build(BuildContext context) {

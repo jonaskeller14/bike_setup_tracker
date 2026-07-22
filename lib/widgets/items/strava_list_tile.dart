@@ -9,11 +9,13 @@ import '../../services/strava_service.dart';
 class StravaListTile extends StatelessWidget {
   final StravaActivity stravaActivity;
   final EdgeInsetsGeometry? contentPadding;
+  final bool showDate;
 
   const StravaListTile({
     super.key,
     required this.stravaActivity,
     this.contentPadding,
+    this.showDate = true,
   });
 
   @override
@@ -30,21 +32,22 @@ class StravaListTile extends StatelessWidget {
             crossAxisAlignment: WrapCrossAlignment.center,
             spacing: 4,
             children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                spacing: 2,
-                children: [
-                  Icon(Icons.calendar_month, size: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                  Text(
-                    DateFormat(appSettings.dateFormat).format(stravaActivity.startDateLocal),
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                      fontSize: 12,
+              if (showDate)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  spacing: 2,
+                  children: [
+                    Icon(Icons.calendar_month, size: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    Text(
+                      DateFormat(appSettings.dateFormat).format(stravaActivity.startDateLocal),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                        fontSize: 12,
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
               Row(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,

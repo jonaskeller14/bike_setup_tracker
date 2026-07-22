@@ -9,11 +9,13 @@ import '../../repositories/app_repository.dart';
 class InstallationListTile extends StatelessWidget {
   final ComponentInstallation componentInstallation;
   final VoidCallback? onTap;
+  final bool showDate;
 
   const InstallationListTile({
     super.key,
     required this.componentInstallation,
     this.onTap,
+    this.showDate = true,
   });
 
   @override
@@ -42,21 +44,22 @@ class InstallationListTile extends StatelessWidget {
             crossAxisAlignment: WrapCrossAlignment.center,
             spacing: 4,
             children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                spacing: 2,
-                children: [
-                  Icon(Icons.calendar_month, size: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                  Text(
-                    DateFormat(appSettings.dateFormat).format(componentInstallation.installation.dateTimeLocal),
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                      fontSize: 12,
+              if (showDate)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  spacing: 2,
+                  children: [
+                    Icon(Icons.calendar_month, size: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    Text(
+                      DateFormat(appSettings.dateFormat).format(componentInstallation.installation.dateTimeLocal),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                        fontSize: 12,
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
               Row(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,

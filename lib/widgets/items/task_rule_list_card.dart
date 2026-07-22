@@ -11,6 +11,7 @@ import '../../repositories/app_repository.dart';
 import '../../theme.dart';
 import '../../utils/task_actions.dart';
 import '../notes_text.dart';
+import '../sheets/set_task_delay.dart';
 
 class TaskRuleListCard extends StatelessWidget {
   final String taskRuleId;
@@ -161,6 +162,8 @@ class TaskRuleListCard extends StatelessWidget {
 
     final statusColor = status.type.getStatusColor(context);
 
+    final canSetDelay = !isCompleted && canQuickEditTaskDelay(taskRule, appSettings);
+
     return Hero(
       tag: 'task-rule-card-${taskRule.id}',
       child: Opacity(
@@ -267,8 +270,8 @@ class TaskRuleListCard extends StatelessWidget {
                     await TaskActions.removeTaskRule(context, taskRule: taskRule);
                   case _TaskRuleOptions.duplicate:
                     await TaskActions.duplicateTaskRule(context, taskRule: taskRule);
-                  case _TaskRuleOptions.addEntry:
-                    await TaskActions.addTaskEntry(context, taskRule: taskRule);
+                  case _TaskRuleOptions.setDelay:
+                    await TaskActions.setTaskDelay(context, taskRule: taskRule);
                 }
               },
               itemBuilder: (BuildContext context) => <PopupMenuEntry<_TaskRuleOptions>>[
@@ -282,6 +285,17 @@ class TaskRuleListCard extends StatelessWidget {
                     ],
                   ),
                 ),
+                if (canSetDelay)
+                  PopupMenuItem<_TaskRuleOptions>(
+                    value: _TaskRuleOptions.setDelay,
+                    child: Row(
+                      spacing: 10,
+                      children: [
+                        const Icon(Icons.history, size: 20),
+                        Text(taskRule.delay == null ? 'Add Delay' : 'Edit Delay'),
+                      ],
+                    ),
+                  ),
                 const PopupMenuItem<_TaskRuleOptions>(
                   value: _TaskRuleOptions.duplicate,
                   child: Row(
@@ -302,18 +316,6 @@ class TaskRuleListCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                const PopupMenuDivider(),
-                PopupMenuItem(
-                  enabled: !isCompleted,
-                  value: _TaskRuleOptions.addEntry,
-                  child: const Row(
-                    spacing: 10,
-                    children: [
-                      Icon(Icons.check, size: 20),
-                      Text('Add Task Entry'),
-                    ],
-                  ),
-                ),
               ],
             ),
           ),
@@ -327,5 +329,5 @@ enum _TaskRuleOptions {
   edit,
   duplicate,
   remove,
-  addEntry,
+  setDelay,
 }

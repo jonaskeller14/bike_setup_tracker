@@ -118,6 +118,9 @@ class _TaskRulePageState extends State<TaskRulePage> {
 
       _delayType = _getThresholdType(widget.taskRule!.delay);
       _delayValueController = TextEditingController(text: _getThresholdValueString(widget.taskRule!.delay));
+      if (_delayType == _ThresholdType.none) {
+        _delayType = _delayTypeForInterval(_intervalType);
+      }
     } else {
       _intervalValueController = TextEditingController();
       _delayValueController = TextEditingController();
@@ -126,6 +129,37 @@ class _TaskRulePageState extends State<TaskRulePage> {
     _intervalValueController.addListener(_changeListener);
     _delayValueController.addListener(_changeListener);
   }
+
+  /// Types a delay can use. A delay is added on top of the trigger, so it has
+  /// to share the trigger's unit — a date deadline has no unit to add to.
+  static const Set<_ThresholdType> _delayThresholdTypes = {
+    _ThresholdType.distance,
+    _ThresholdType.elevation,
+    _ThresholdType.movingTime,
+    _ThresholdType.elapsedTime,
+    _ThresholdType.duration,
+    _ThresholdType.activityCount,
+  };
+
+  /// An unset delay follows the trigger type, so the only thing left to do is
+  /// type a value.
+  _ThresholdType _delayTypeForInterval(_ThresholdType intervalType) =>
+      _delayThresholdTypes.contains(intervalType) ? intervalType : _ThresholdType.none;
+
+  bool get _hasSavedDelay => widget.taskRule?.delay != null;
+
+  /// A delay exists only once a positive value is typed. An empty field — or an
+  /// explicit zero, offered as a way to drop a delay that was already saved —
+  /// means "no delay", so the preselected type never becomes a delay of zero.
+  bool get _hasDelayValue {
+    final raw = _delayValueController.text.trim();
+    if (raw.isEmpty) return false;
+    final parsed = double.tryParse(raw);
+    return parsed != null && parsed > 0;
+  }
+
+  _ThresholdType get _effectiveDelayType =>
+      _hasDelayValue ? _delayType : _ThresholdType.none;
 
   _ThresholdType _getThresholdType(TaskThreshold? threshold) {
     switch (threshold) {
@@ -164,7 +198,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
         _intervalType != _getThresholdType(widget.taskRule?.interval) ||
         _intervalValueController.text != _getThresholdValueString(widget.taskRule?.interval) ||
         (_intervalType == _ThresholdType.dateTime && _intervalDate != (widget.taskRule?.interval is DateTimeThreshold ? (widget.taskRule!.interval as DateTimeThreshold).deadline : null)) ||
-        _delayType != _getThresholdType(widget.taskRule?.delay) ||
+        _effectiveDelayType != _getThresholdType(widget.taskRule?.delay) ||
         _delayValueController.text != _getThresholdValueString(widget.taskRule?.delay);
 
     if (_formHasChanges != hasChanges) {
@@ -294,7 +328,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
   }
 
   bool get _needsAsset =>
-      _thresholdNeedsAsset(_intervalType) || _thresholdNeedsAsset(_delayType);
+      _thresholdNeedsAsset(_intervalType) || _thresholdNeedsAsset(_effectiveDelayType);
 
   List<TextInputFormatter>? _valueInputFormatters(_ThresholdType type) {
     return switch (type) {
@@ -345,7 +379,16 @@ class _TaskRulePageState extends State<TaskRulePage> {
 
   String? _validateIntervalValue(String? value) => _validateThresholdValue(_intervalType, value);
 
-  String? _validateDelayValue(String? value) => _validateThresholdValue(_delayType, value);
+  String? _validateDelayValue(String? value) {
+    // The type is only a preselection until a value is typed, so an empty
+    // field is valid and simply means "no delay".
+    final raw = value?.trim() ?? '';
+    if (raw.isEmpty) return null;
+    // Zero reads as "drop the delay", which only makes sense for a delay that
+    // is already saved. _saveTaskRule then stores no delay at all.
+    if (_hasSavedDelay && double.tryParse(raw) == 0) return null;
+    return _validateThresholdValue(_delayType, value);
+  }
 
   TaskThreshold? _createThreshold(_ThresholdType type, String value, DateTime? date) {
     if (type == _ThresholdType.none) return null;
@@ -379,7 +422,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
     final notes = _notesController.text.trim();
     
     final interval = _createThreshold(_intervalType, _intervalValueController.text, _intervalDate);
-    final delay = (_intervalType == _ThresholdType.dateTime)
+    final delay = (_intervalType == _ThresholdType.dateTime || !_hasDelayValue)
         ? null
         : _createThreshold(_delayType, _delayValueController.text, null);
 
@@ -714,7 +757,15 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                   items: _intervalTypeItems(hasStravaEntitlement),
                                   onChanged: (v) {
                                     if (v != null) {
-                                      setState(() => _intervalType = v);
+                                      setState(() {
+                                        _intervalType = v;
+                                        // Keep an unset delay pointed at the new
+                                        // trigger; a typed one keeps its type so
+                                        // the mismatch stays visible.
+                                        if (!_hasDelayValue) {
+                                          _delayType = _delayTypeForInterval(v);
+                                        }
+                                      });
                                       _changeListener();
                                     }
                                   },
@@ -817,8 +868,6 @@ class _TaskRulePageState extends State<TaskRulePage> {
                             ),
                             if (widget.mode == TaskRulePageMode.edit && appSettings.enableTaskDelay) ...[
                               const SizedBox(height: 12),
-                              //TODO: If delay must match trigger type --> a value field is sufficient
-                              //TODO: Add user info --> What is a delay?
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 spacing: 8,
@@ -832,9 +881,9 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                         labelText: "Delay Type (Optional)",
                                         border: const OutlineInputBorder(),
                                         fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
-                                        filled: widget.mode == TaskRulePageMode.edit && _delayType != _getThresholdType(widget.taskRule?.delay),
+                                        filled: widget.mode == TaskRulePageMode.edit && _effectiveDelayType != _getThresholdType(widget.taskRule?.delay),
                                       ),
-                                      items: [_ThresholdType.none, _ThresholdType.distance, _ThresholdType.elevation, _ThresholdType.movingTime, _ThresholdType.elapsedTime, _ThresholdType.duration, _ThresholdType.activityCount]
+                                      items: [_ThresholdType.none, ..._delayThresholdTypes]
                                           .map((t) => DropdownMenuItem(value: t, child: Text(t.label)))
                                           .toList(),
                                       onChanged: (v) {
@@ -844,7 +893,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                         }
                                       },
                                       validator: (v) {
-                                        if (v != null && v != _ThresholdType.none && v != _intervalType) {
+                                        if (_hasDelayValue && v != null && v != _ThresholdType.none && v != _intervalType) {
                                           return 'Must match trigger type';
                                         }
                                         return null;
@@ -873,6 +922,16 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                             _ThresholdType.activityCount => 'rides',
                                             _ => '',
                                           },
+                                          suffixIcon: _delayValueController.text.isEmpty
+                                              ? null
+                                              : IconButton(
+                                                  icon: const Icon(Icons.clear, size: 20),
+                                                  tooltip: 'Clear',
+                                                  onPressed: () {
+                                                    _delayValueController.clear();
+                                                    setState(() {});
+                                                  },
+                                                ),
                                           border: const OutlineInputBorder(),
                                           fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                           filled: widget.mode == TaskRulePageMode.edit && _delayValueController.text != _getThresholdValueString(widget.taskRule?.delay),
@@ -881,6 +940,15 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                       ),
                                     ),
                                 ],
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(12, 6, 12, 0),
+                                child: Text(
+                                  "A delay postpones when this task becomes due, without changing its interval. It only applies once: completing the task clears the delay automatically.",
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Theme.of(context).hintColor,
+                                  ),
+                                ),
                               ),
                             ],
                           ],

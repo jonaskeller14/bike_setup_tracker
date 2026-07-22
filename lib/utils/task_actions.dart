@@ -5,6 +5,7 @@ import '../models/task/task_rule.dart';
 import '../pages/task_entry_page.dart';
 import '../pages/task_rule_page.dart';
 import '../repositories/app_repository.dart';
+import '../widgets/sheets/set_task_delay.dart';
 
 class TaskActions {
   static Future<void> addTaskRule(BuildContext context) async {
@@ -29,6 +30,15 @@ class TaskActions {
     if (editedRule == null) return;
 
     await appRepository.editTaskRule(editedRule);
+  }
+
+  static Future<void> setTaskDelay(BuildContext context, {required TaskRule taskRule}) async {
+    final appRepository = context.read<AppRepository>();
+
+    final updatedRule = await showSetTaskDelaySheet(context: context, taskRule: taskRule);
+    if (updatedRule == null) return;
+
+    await appRepository.editTaskRule(updatedRule);
   }
 
   static Future<void> duplicateTaskRule(BuildContext context, {required TaskRule taskRule}) async {

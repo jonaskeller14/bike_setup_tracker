@@ -399,10 +399,9 @@ class _Catalog {
   const _Catalog._({
     required this.variants,
     required this.brands,
-    required Map<String, List<_ModelRow>> modelRowsByBrand,
-    required Map<String, List<ComponentPresetVariant>> trimsByModel,
-  }) : _modelRowsByBrand = modelRowsByBrand,
-       _trimsByModel = trimsByModel;
+    required this._modelRowsByBrand,
+    required this._trimsByModel,
+  });
 
   /// Every variant of the type, in catalog order — the corpus search runs over.
   final List<ComponentPresetVariant> variants;

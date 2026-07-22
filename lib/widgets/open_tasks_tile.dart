@@ -22,8 +22,8 @@ class OpenTasksTile extends StatelessWidget {
 
   const OpenTasksTile._({
     super.key,
-    required _OTTAssociation association,
-  }) : _association = association;
+    required this._association,
+  });
 
   factory OpenTasksTile.bike({Key? key, required String bikeId}) =>
     OpenTasksTile._(key: key, association: _OTTBikeAssociation(id: bikeId));

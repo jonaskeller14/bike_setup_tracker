@@ -123,8 +123,8 @@ class ReplacementListTile extends StatelessWidget {
           // minVerticalPadding: 4, //TODO
           minLeadingWidth: 0,
           horizontalTitleGap: 8,
-          leading: Padding(
-            padding: const EdgeInsets.only(top: 1),
+          leading: const Padding(
+            padding: EdgeInsets.only(top: 1),
             child: Icon(
               Icons.swap_horiz,
               // size: 20,

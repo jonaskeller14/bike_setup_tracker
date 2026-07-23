@@ -32,6 +32,14 @@ Follow these steps in order. Do not skip the constraints at the bottom.
   edited yet.** Print a table of each typo with its `file:line`, the wrong text, and the suggested
   fix, then ask the user to fix them (or confirm they want to proceed anyway) before re-running.
   Only continue to step 3 when the review is clean or the user explicitly waives a finding.
+- If the diff is large enough that you delegate this review to a subagent, have that same subagent
+  also summarize the user-facing changes it saw (new/changed features, fixed bugs, feature-flag
+  state — e.g. "debug only, not exposed yet") while it's already reading every file. Bring that
+  summary back for use in steps 5–6 instead of inferring notes from commit subjects alone, and
+  cross-check it against `git log <prevTag>..HEAD --oneline` (step 5) so nothing gets missed and
+  nothing gets attributed to the wrong commit. Commit subjects alone are not a reliable source for
+  release notes — they routinely overstate what's actually user-visible (e.g. a feature still gated
+  behind a debug flag, or a doc claiming a UI element that was never added).
 
 ## 3. Update the version in both files
 - Edit `pubspec.yaml`: replace the version in the `version:` line. Keep the trailing
@@ -50,6 +58,9 @@ Follow these steps in order. Do not skip the constraints at the bottom.
 ## 5. GitHub release notes
 - List user-facing commits since the previous tag: `git log <prevTag>..HEAD --oneline`
   (ignore the just-created `Release …` commit).
+- Cross-reference this list against the change summary gathered in step 2 (if a subagent produced
+  one) — that's what tells you whether a commit's feature actually shipped to users or is still
+  behind a debug flag.
 - Optionally WebFetch `https://github.com/jonaskeller14/bike_setup_tracker/releases` to mirror
   the current formatting.
 - Produce notes in this exact structure and print them in a ```markdown code block:
@@ -57,21 +68,24 @@ Follow these steps in order. Do not skip the constraints at the bottom.
   - `## Bugs:` then `- ` bullets for fixes.
   - Footer: `**Full Changelog**: [<prevTag>...vX.Y.Z+B](https://github.com/jonaskeller14/bike_setup_tracker/compare/<prevTag>...vX.Y.Z+B)`
   - Omit purely internal commits (refactor/chore/docs/test/build tooling) unless user-visible.
+  - Omit any feature still gated behind a debug-only flag or otherwise not exposed to users yet.
 
 ## 6. App Store / Play Store release notes
-- Print a separate, short "What's New" block (plain text, 4–6 bullets), user-focused and free of
-  technical jargon (no "refactor", "sealed class", "verification flow", etc.).
+- Print a separate, short "What's New" block, user-focused and free of technical jargon (no
+  "refactor", "sealed class", "verification flow", etc.), as 4–6 bullets inside its own ```
+  code block (plain text, not markdown) so it's easy to copy-paste as-is.
 - **Platform-specific split:** check whether this release contains changes that only apply to one
   store's platform. 
   Genuinely platform-bound examples: iOS-only — Siri / Apple Shortcuts, App Attest, Apple Sign-In,
   Live Activities; Android-only — Play Integrity, predictive back gesture, Material You / dynamic
-  color theming. If the release has such changes, print **two separate "What's New" blocks** — one
-  labeled **App Store (iOS)** and one labeled **Play Store (Android)** — and put each
-  platform-specific bullet only in the matching block. The Play Store notes must never mention
-  iOS-only features (e.g. no "Improved Siri / Apple Shortcuts integration"), and the App Store
-  notes must never mention Android-only features. Shared bullets appear in both.
-- If the release has no platform-specific changes, print a single combined "What's New" block as
-  before.
+  color theming. If the release has such changes, print **two separate "What's New" blocks, each in
+  its own ``` code block** — one labeled **App Store (iOS)** and one labeled **Play Store
+  (Android)** — and put each platform-specific bullet only in the matching block. The Play Store
+  notes must never mention iOS-only features (e.g. no "Improved Siri / Apple Shortcuts
+  integration"), and the App Store notes must never mention Android-only features. Shared bullets
+  appear in both.
+- If the release has no platform-specific changes, print a single combined "What's New" code block
+  as before.
 
 ## 7. Summary
 - Print: the new version, the release commit hash, the tag name, and a reminder that nothing was

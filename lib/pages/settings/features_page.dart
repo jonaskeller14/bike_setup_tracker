@@ -303,6 +303,26 @@ class FeaturesPage extends StatelessWidget {
                 ),
               ),
               ListTile(
+                enabled: appSettings.enableTask,
+                leading: const Icon(Icons.more_time_rounded),
+                title: const Text("Task Delay"),
+                subtitle: _offOnOptionWidgets[appSettings.enableTaskDelay] ?? const Text("-"),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                onTap: () => appSettingsRadioGroupSheet<bool>(
+                  context: context,
+                  title: "Task Delay",
+                  value: appSettings.enableTaskDelay,
+                  optionWidgets: _offOnOptionWidgets,
+                  onChanged: (bool? newValue) {
+                    if (newValue == null) return;
+                    appSettings.enableTaskDelay = newValue;
+                    Navigator.pop(context);
+                  },
+                  infoText: 'Lets you postpone when a task becomes due, without changing its interval. '
+                      'A delay only applies once: completing the task clears it automatically.',
+                ),
+              ),
+              ListTile(
                 enabled: appSettings.enableTask && appSettings.enableGarage,
                 leading: const Icon(Icons.adjust),
                 title: const Text("Garage Task Indicator"),
@@ -321,25 +341,6 @@ class FeaturesPage extends StatelessWidget {
                   infoText: 'Shows a colored status dot on component icons in the Garage when they have open tasks.',
                 ),
               ),
-              if (kDebugMode)
-                ListTile(
-                  enabled: appSettings.enableTask,
-                  leading: const Icon(Icons.more_time_rounded),
-                  title: const Text("Task Delay"),
-                  subtitle: _offOnOptionWidgets[appSettings.enableTaskDelay] ?? const Text("-"),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                  onTap: () => appSettingsRadioGroupSheet<bool>(
-                    context: context,
-                    title: "Task Delay",
-                    value: appSettings.enableTaskDelay,
-                    optionWidgets: _offOnOptionWidgets,
-                    onChanged: (bool? newValue) {
-                      if (newValue == null) return;
-                      appSettings.enableTaskDelay = newValue;
-                      Navigator.pop(context);
-                    },
-                  ),
-                ),
               const Divider(),
               const SectionTitle(title: 'Other'),
               if (Platform.isAndroid)

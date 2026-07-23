@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import '../../models/app_settings.dart';
 import '../../models/task/task_rule.dart';
 import '../../models/task/task_threshold.dart';
@@ -45,8 +46,8 @@ bool _acceptsDecimals(TaskThreshold interval) =>
 String _delayValueString(TaskThreshold? delay) {
   return switch (delay) {
     null => '',
-    DistanceThreshold() => (delay.meters / 1000).toStringAsFixed(1),
-    ElevationThreshold() => delay.meters.toStringAsFixed(0),
+    DistanceThreshold() => NumberFormat('0.#####', 'en_US').format(delay.meters / 1000),
+    ElevationThreshold() => NumberFormat('0.#####', 'en_US').format(delay.meters),
     MovingTimeThreshold() => delay.hours.inHours.toString(),
     ElapsedTimeThreshold() => delay.hours.inHours.toString(),
     DurationThreshold() => delay.days.inDays.toString(),

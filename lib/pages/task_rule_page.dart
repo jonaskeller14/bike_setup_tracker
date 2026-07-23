@@ -177,14 +177,18 @@ class _TaskRulePageState extends State<TaskRulePage> {
   String _getThresholdValueString(TaskThreshold? threshold) {
     switch (threshold) {
       case null: return "";
-      case DistanceThreshold(): return (threshold.meters / 1000).toStringAsFixed(1);
-      case ElevationThreshold(): return threshold.meters.toStringAsFixed(0);
+      case DistanceThreshold(): return NumberFormat('0.#####', 'en_US').format(threshold.meters / 1000);
+      case ElevationThreshold(): return NumberFormat('0.#####', 'en_US').format(threshold.meters);
       case ActivityCountThreshold(): return threshold.count.toString();
       case MovingTimeThreshold(): return threshold.hours.inHours.toString();
       case ElapsedTimeThreshold(): return threshold.hours.inHours.toString();
       case DurationThreshold(): return threshold.days.inDays.toString();
-      case DateTimeThreshold(): return ''; 
+      case DateTimeThreshold(): return '';
     }
+  }
+
+  bool _valueChanged(TextEditingController controller, TaskThreshold? saved) {
+    return double.tryParse(controller.text.trim()) != double.tryParse(_getThresholdValueString(saved));
   }
 
   void _changeListener() {
@@ -196,10 +200,10 @@ class _TaskRulePageState extends State<TaskRulePage> {
         _association != _initialAssociation ||
         _repeat != (widget.taskRule?.repeat ?? true) ||
         _intervalType != _getThresholdType(widget.taskRule?.interval) ||
-        _intervalValueController.text != _getThresholdValueString(widget.taskRule?.interval) ||
+        _valueChanged(_intervalValueController, widget.taskRule?.interval) ||
         (_intervalType == _ThresholdType.dateTime && _intervalDate != (widget.taskRule?.interval is DateTimeThreshold ? (widget.taskRule!.interval as DateTimeThreshold).deadline : null)) ||
         _effectiveDelayType != _getThresholdType(widget.taskRule?.delay) ||
-        _delayValueController.text != _getThresholdValueString(widget.taskRule?.delay);
+        _valueChanged(_delayValueController, widget.taskRule?.delay);
 
     if (_formHasChanges != hasChanges) {
       setState(() {
@@ -842,7 +846,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                       },
                                       border: const OutlineInputBorder(),
                                       fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
-                                      filled: widget.mode == TaskRulePageMode.edit && _intervalValueController.text != _getThresholdValueString(widget.taskRule?.interval),
+                                      filled: widget.mode == TaskRulePageMode.edit && _valueChanged(_intervalValueController, widget.taskRule?.interval),
                                     ),
                                   ),
                                 ),
@@ -867,7 +871,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                               ),
                             ),
                             if (widget.mode == TaskRulePageMode.edit && appSettings.enableTaskDelay) ...[
-                              const SizedBox(height: 12),
+                              const SizedBox(height: 36),
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 spacing: 8,
@@ -934,7 +938,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                                 ),
                                           border: const OutlineInputBorder(),
                                           fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
-                                          filled: widget.mode == TaskRulePageMode.edit && _delayValueController.text != _getThresholdValueString(widget.taskRule?.delay),
+                                          filled: widget.mode == TaskRulePageMode.edit && _valueChanged(_delayValueController, widget.taskRule?.delay),
                                         ),
                                         onChanged: (value) => setState(() {}),
                                       ),

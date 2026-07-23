@@ -25,7 +25,7 @@ Future<TaskAssociation?> showTaskAssociationSheet({
   );
 }
 
-const double _labelWidthFactor = 0.36;
+const double _chipSpacing = 8;
 
 class _TaskAssociationPickerSheet extends StatefulWidget {
   final TaskAssociation selected;
@@ -181,17 +181,14 @@ class _TaskAssociationPickerSheetState extends State<_TaskAssociationPickerSheet
     const association = GeneralTaskAssociation();
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: LayoutBuilder(
-        builder: (context, constraints) => Align(
-          alignment: Alignment.centerLeft,
-          child: _chipFor(
-            association: association,
-            icon: Icons.circle_outlined,
-            label: 'General Task',
-            tooltip: 'A task that is not linked to a bike or component',
-            maxLabelWidth: constraints.maxWidth,
-            emphasized: true,
-          ),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: _chipFor(
+          association: association,
+          icon: Icons.circle_outlined,
+          label: 'General Task',
+          tooltip: 'A task that is not linked to a bike or component',
+          emphasized: true,
         ),
       ),
     );
@@ -201,19 +198,16 @@ class _TaskAssociationPickerSheetState extends State<_TaskAssociationPickerSheet
     final scheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: LayoutBuilder(
-        builder: (context, constraints) => Align(
-          alignment: Alignment.centerLeft,
-          child: _chipFor(
-            association: association,
-            icon: Icons.error_outline,
-            label: association.bikeId != null ? 'BIKE NOT FOUND' : 'COMPONENT NOT FOUND',
-            tooltip: 'This entry no longer exists',
-            maxLabelWidth: constraints.maxWidth * _labelWidthFactor,
-            backgroundColor: scheme.errorContainer,
-            foregroundColor: scheme.onErrorContainer,
-            borderColor: scheme.error,
-          ),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: _chipFor(
+          association: association,
+          icon: Icons.error_outline,
+          label: association.bikeId != null ? 'BIKE NOT FOUND' : 'COMPONENT NOT FOUND',
+          tooltip: 'This entry no longer exists',
+          backgroundColor: scheme.errorContainer,
+          foregroundColor: scheme.onErrorContainer,
+          borderColor: scheme.error,
         ),
       ),
     );
@@ -233,7 +227,7 @@ class _TaskAssociationPickerSheetState extends State<_TaskAssociationPickerSheet
         padding: EdgeInsets.fromLTRB(12, bike != null ? 8 : 12, 12, bike != null ? 8 : 12),
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final maxLabelWidth = constraints.maxWidth * _labelWidthFactor;
+            final chipMaxWidth = (constraints.maxWidth - _chipSpacing) / 2;
 
             return Column(
               mainAxisSize: MainAxisSize.min,
@@ -249,7 +243,6 @@ class _TaskAssociationPickerSheetState extends State<_TaskAssociationPickerSheet
                       icon: Bike.iconData,
                       label: bike.name,
                       tooltip: bike.name,
-                      maxLabelWidth: constraints.maxWidth,
                       emphasized: true,
                     ),
                   )
@@ -277,7 +270,7 @@ class _TaskAssociationPickerSheetState extends State<_TaskAssociationPickerSheet
                   // which is why a symmetric spacing/runSpacing renders with a
                   // far bigger vertical gap. Let the tap padding be the run gap.
                   Wrap(
-                    spacing: 8,
+                    spacing: _chipSpacing,
                     runSpacing: 0,
                     children: [
                       for (final component in group.components)
@@ -287,7 +280,7 @@ class _TaskAssociationPickerSheetState extends State<_TaskAssociationPickerSheet
                           label: component.name,
                           tooltip: '${component.name} · ${component.componentType.label}'
                               '${bike != null ? ' · ${bike.name}' : ' · ${group.label}'}',
-                          maxLabelWidth: maxLabelWidth,
+                          maxWidth: chipMaxWidth,
                         ),
                     ],
                   ),
@@ -305,7 +298,7 @@ class _TaskAssociationPickerSheetState extends State<_TaskAssociationPickerSheet
     required IconData icon,
     required String label,
     required String tooltip,
-    required double maxLabelWidth,
+    double? maxWidth,
     bool emphasized = false,
     Color? backgroundColor,
     Color? foregroundColor,
@@ -318,7 +311,7 @@ class _TaskAssociationPickerSheetState extends State<_TaskAssociationPickerSheet
       label: label,
       tooltip: tooltip,
       selected: isSelected,
-      maxLabelWidth: maxLabelWidth,
+      maxWidth: maxWidth,
       emphasized: emphasized,
       highlightColor: _highlightColorFor(association),
       isPrevious: _isPrevious(association),
@@ -433,9 +426,12 @@ class _AssociationChip extends StatelessWidget {
   final String tooltip;
   final bool selected;
 
-  /// Caps the label, not the chip: a [Chip] sizes itself to its label, so a
-  /// `Flexible` around the chip would not constrain it.
-  final double maxLabelWidth;
+  /// Hard cap on the whole chip. A chip re-lays its label against whatever
+  /// bounded width it is handed, so constraining the chip is enough to make the
+  /// label ellipsize — and it is the only way to know what a chip actually
+  /// costs a row. `null` lets it take the full width its parent offers, which
+  /// is already bounded by the row, so it can never overflow.
+  final double? maxWidth;
 
   /// Tint for a picked chip that differs from the saved association; `null`
   /// leaves the plain selected look (unchanged, or not editing).
@@ -460,7 +456,7 @@ class _AssociationChip extends StatelessWidget {
     required this.label,
     required this.tooltip,
     required this.selected,
-    required this.maxLabelWidth,
+    required this.maxWidth,
     required this.highlightColor,
     required this.isPrevious,
     required this.onTap,
@@ -478,9 +474,9 @@ class _AssociationChip extends StatelessWidget {
     final Color? labelColor =
         highlightColor ?? (isPrevious ? scheme.onSurfaceVariant : foregroundColor);
     // Component chips sit one step below the chip default (labelLarge), which
-    // buys a couple of characters and helps two of them share a row. The bike
-    // and General Task chips keep the default size and go semi-bold, so they
-    // read as headers rather than as peers of the components.
+    // buys a couple of characters inside the half-row cap. The bike and General
+    // Task chips keep the default size and go semi-bold, so they read as
+    // headers rather than as peers of the components.
     final TextStyle? baseStyle = emphasized
         ? theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600)
         : theme.textTheme.labelMedium;
@@ -503,10 +499,7 @@ class _AssociationChip extends StatelessWidget {
               size: emphasized ? 18 : 16,
               color: labelColor,
             ),
-      label: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: maxLabelWidth),
-        child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
-      ),
+      label: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
       selected: selected,
       labelStyle: labelStyle,
       side: side,
@@ -525,7 +518,9 @@ class _AssociationChip extends StatelessWidget {
 
     return Tooltip(
       message: isPrevious ? 'Previous value' : tooltip,
-      child: chip,
+      child: maxWidth == null
+          ? chip
+          : ConstrainedBox(constraints: BoxConstraints(maxWidth: maxWidth!), child: chip),
     );
   }
 }

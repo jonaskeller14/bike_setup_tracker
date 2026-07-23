@@ -279,6 +279,6 @@ TODOS: More refinements after the ROUND 2
 - Setup group. Expand collapsed setups to use full width so that chevron buttons align horizontally. Use horizontal dividers to divide setups. 
 - Setup group: i dont like bike as title. replace it with "2 Setups" from the subtitle. put bike in the subtitle. 
 - Replacement sheet/Preview: Remove time from preview. its not obvious which component is installed/deinstalled. Maybe we can use green/red colors or other style to improve this. Put the bike above the "component <-> component". 
-- replacement sheet: if both compeonnts have the same name the sections titles are equal. maybe add a little hint (icon or text). 
+- replacement sheet: if both components have the same name the sections titles are equal. maybe add a little hint (icon or text). 
 - replacement tile: 
 - MAJOR BUG: When i edit something like a taskEntry or Setup (change the datetime and save). Coming back to the setupList, it wont update as expected. Should be displayed as during activitiy (left orange bar) now but isnt. 

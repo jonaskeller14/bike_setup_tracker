@@ -113,7 +113,7 @@ class _ReplacementSheetState extends State<ReplacementSheet> {
 
     final String removedVerb = switch (widget.removed.installation.parentType) {
       InstallationParentType.archived => 'Archived',
-      _ => 'Deinstalled',
+      _ => 'Uninstalled',
     };
 
     final bool sameName =

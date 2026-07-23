@@ -63,7 +63,7 @@ Component makeComponent({
   );
 }
 
-/// A Deinstallation event of [component] coming off [originBike].
+/// An Uninstallation event of [component] coming off [originBike].
 InstallationEntry deinstallEntry({
   required Component component,
   required DateTime utc,

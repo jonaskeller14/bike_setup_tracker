@@ -140,7 +140,7 @@ class FeaturesPage extends StatelessWidget {
                     appSettings.enableMultiSelect = newValue;
                     Navigator.pop(context);
                   },
-                  infoText: 'Enables multi-select mode for Categorical Adjustments, allowing you to select multiple options instead of just one.',
+                  infoText: 'Makes the "Multi Select" checkbox available when editing a Categorical Adjustment, letting you allow multiple options to be selected instead of just one.',
                 ),
               ),
               ListTile(

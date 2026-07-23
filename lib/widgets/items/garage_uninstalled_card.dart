@@ -292,7 +292,7 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
     );
     final archivedComponents = appRepository.archivedComponents;
 
-    final showUninstalledCompnoent = widget.componentToShowDetails != null && uninstalledComponents.keys.contains(widget.componentToShowDetails);
+    final showUninstalledComponent = widget.componentToShowDetails != null && uninstalledComponents.keys.contains(widget.componentToShowDetails);
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4.0),
@@ -433,7 +433,7 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
           ),
 
           // ── Detail card for selected uninstalled component ───────────
-          if (showUninstalledCompnoent)
+          if (showUninstalledComponent)
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
               child: LongPressDraggable<Component>(
@@ -465,7 +465,7 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                   archivedComponents.isNotEmpty || isDraggingNonArchived;
 
               if (!showSection) {
-                if (showUninstalledCompnoent) {
+                if (showUninstalledComponent) {
                   return const SizedBox(height: 12);
                 } else {
                   return const SizedBox.shrink();

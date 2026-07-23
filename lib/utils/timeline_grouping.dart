@@ -71,7 +71,7 @@ class SetupGroupRow extends EntryRow {
   DateTime get anchorDateLocal => setups.first.setup.datetimeLocal;
 }
 
-/// A component replacement: [removed] (a [Deinstallation] or [Archival] that
+/// A component replacement: [removed] (a [Uninstallation] or [Archival] that
 /// came off the bike) and [installed] (a [BikeInstallation]) of the same
 /// component type on the same bike within the replacement window.
 class ReplacementRow extends EntryRow {
@@ -161,7 +161,7 @@ class ReplacementPairing {
       consumedIds = const {};
 }
 
-/// Pairs each removal — a [Deinstallation] or an [Archival] that came off a
+/// Pairs each removal — a [Uninstallation] or an [Archival] that came off a
 /// bike — with the nearest unconsumed [BikeInstallation] of the same component
 /// type onto that same bike (different component) within [window]. The install
 /// half may be a component's initial ("Added") install, so replacing with a

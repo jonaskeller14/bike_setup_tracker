@@ -113,7 +113,10 @@ class _SetTaskDelaySheetState extends State<_SetTaskDelaySheet> {
   void initState() {
     super.initState();
     _interval = widget.taskRule.interval!;
-    _valueController = TextEditingController(text: _delayValueString(widget.taskRule.delay));
+    final initialValue = _delayValueString(widget.taskRule.delay);
+    _valueController = TextEditingController(text: initialValue)
+      // Preselect so typing replaces the existing delay instead of appending.
+      ..selection = TextSelection(baseOffset: 0, extentOffset: initialValue.length);
   }
 
   @override

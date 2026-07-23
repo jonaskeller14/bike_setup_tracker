@@ -147,6 +147,34 @@ class TaskRuleListCard extends StatelessWidget {
     );
   }
 
+  /// Background revealed while swiping the card to the left.
+  Widget _delaySwipeBackground(BuildContext context, {required TaskRule taskRule}) {
+    final color = Theme.of(context).extension<ValueHighlightColors>()!.changed;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0), // matches the card margin
+      child: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          spacing: 6,
+          children: [
+            Icon(Icons.history, size: 20, color: color),
+            Text(
+              taskRule.delay == null ? 'Add Delay' : 'Edit Delay',
+              style: TextStyle(color: color, fontWeight: FontWeight.w500),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
@@ -164,7 +192,7 @@ class TaskRuleListCard extends StatelessWidget {
 
     final canSetDelay = !isCompleted && canQuickEditTaskDelay(taskRule, appSettings);
 
-    return Hero(
+    final card = Hero(
       tag: 'task-rule-card-${taskRule.id}',
       child: Opacity(
         opacity: isCompleted ? 0.5 : 1,
@@ -321,6 +349,35 @@ class TaskRuleListCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+
+    if (!canSetDelay) return card;
+
+    // The orange sits behind the card rather than in Dismissible's `background`,
+    // which clips to the revealed strip and leaves a gap at the card's corners.
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: IgnorePointer(child: _delaySwipeBackground(context, taskRule: taskRule)),
+        ),
+        Dismissible(
+          key: ValueKey('task-rule-swipe-${taskRule.id}'),
+          direction: DismissDirection.endToStart,
+          dismissThresholds: const {DismissDirection.endToStart: 0.3},
+          onUpdate: (DismissUpdateDetails details) {
+            if (details.reached && !details.previousReached) {
+              unawaited(HapticFeedback.lightImpact());
+            }
+          },
+          // The card always springs back — the swipe is a shortcut to the sheet,
+          // not a destructive action.
+          confirmDismiss: (_) async {
+            unawaited(TaskActions.setTaskDelay(context, taskRule: taskRule));
+            return false;
+          },
+          child: card,
+        ),
+      ],
     );
   }
 }

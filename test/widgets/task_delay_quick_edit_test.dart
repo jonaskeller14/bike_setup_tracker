@@ -128,6 +128,13 @@ void main() {
   });
 
   group('TaskRuleListCard delay option', () {
+    // The swipe-to-delay background behind the card renders the same label,
+    // so a bare find.text() is ambiguous once the popup menu is open.
+    Finder findMenuOption(String text) => find.descendant(
+          of: find.byWidgetPredicate((widget) => widget is PopupMenuItem),
+          matching: find.text(text),
+        );
+
     Future<void> pumpCardMenu(WidgetTester tester, TaskRule rule) async {
       await tester.runAsync(() async {
         await appRepository.addBike(bike);
@@ -144,7 +151,7 @@ void main() {
       await pumpCardMenu(tester, ruleWith(interval: const DurationThreshold(Duration(days: 30))));
 
       expect(find.text('Add Task Entry'), findsNothing);
-      expect(find.text('Add Delay'), findsOneWidget);
+      expect(findMenuOption('Add Delay'), findsOneWidget);
     });
 
     testWidgets('labels the option "Edit Delay" once a delay exists', (tester) async {
@@ -153,7 +160,7 @@ void main() {
         delay: const DurationThreshold(Duration(days: 5)),
       ));
 
-      expect(find.text('Edit Delay'), findsOneWidget);
+      expect(findMenuOption('Edit Delay'), findsOneWidget);
     });
 
     testWidgets('hides the option when no valid delay could be saved', (tester) async {
@@ -177,7 +184,7 @@ void main() {
     testWidgets('opens a sheet showing the rule alongside the value field', (tester) async {
       await pumpCardMenu(tester, ruleWith(interval: const DurationThreshold(Duration(days: 30))));
 
-      await tester.tap(find.text('Add Delay'));
+      await tester.tap(findMenuOption('Add Delay'));
       await tester.pumpAndSettle();
 
       expect(find.text('Delay Value'), findsOneWidget);
@@ -189,7 +196,7 @@ void main() {
       final rule = ruleWith(interval: const DurationThreshold(Duration(days: 30)));
       await pumpCardMenu(tester, rule);
 
-      await tester.tap(find.text('Add Delay'));
+      await tester.tap(findMenuOption('Add Delay'));
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextFormField), '5');
       await tester.pump();
@@ -208,7 +215,7 @@ void main() {
       );
       await pumpCardMenu(tester, rule);
 
-      await tester.tap(find.text('Edit Delay'));
+      await tester.tap(findMenuOption('Edit Delay'));
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextFormField), '');
       await tester.pump();
@@ -222,7 +229,7 @@ void main() {
       final rule = ruleWith(interval: const DurationThreshold(Duration(days: 30)));
       await pumpCardMenu(tester, rule);
 
-      await tester.tap(find.text('Add Delay'));
+      await tester.tap(findMenuOption('Add Delay'));
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextFormField), '0');
       await tester.pump();
@@ -240,7 +247,7 @@ void main() {
       );
       await pumpCardMenu(tester, rule);
 
-      await tester.tap(find.text('Edit Delay'));
+      await tester.tap(findMenuOption('Edit Delay'));
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextFormField), '0');
       await tester.pump();
@@ -259,7 +266,7 @@ void main() {
       );
       await pumpCardMenu(tester, rule);
 
-      await tester.tap(find.text('Edit Delay'));
+      await tester.tap(findMenuOption('Edit Delay'));
       await tester.pumpAndSettle();
 
       // The icon shows only while the field holds a value.

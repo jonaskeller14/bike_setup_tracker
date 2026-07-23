@@ -9,6 +9,7 @@ import 'package:url_launcher/url_launcher_string.dart';
 import '../../env/env.dart';
 import '../../models/app_settings.dart';
 import '../../models/context/context_position.dart';
+import '../../utils/url.dart';
 
 class ContextLocationCard extends StatelessWidget {
   final LocationData? position;
@@ -71,14 +72,7 @@ class ContextLocationCard extends StatelessWidget {
                     initialCenter: LatLng(position!.latitude!, position!.longitude!),
                     initialZoom: 13,
                     minZoom: 3,
-                    onTap: (_, _) async {
-                      final String urlScheme = Theme.of(context).platform == TargetPlatform.iOS ? 'maps' : 'geo';
-                      await launchUrlString(
-                        '$urlScheme:${position!.latitude},${position!.longitude}'
-                        '?q=${position!.latitude},${position!.longitude}'
-                        '(${Uri.encodeComponent(displayName)})',
-                      );
-                    },
+                    onTap: (_, _) => launchLocationOnMap(context, position!.latitude!, position!.longitude!, displayName),
                     interactionOptions: const InteractionOptions(flags: InteractiveFlag.none),
                   ),
                   children: [

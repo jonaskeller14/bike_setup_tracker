@@ -48,7 +48,7 @@ Future<void> launchAppUrl(BuildContext context, {
 Future<void> launchAppEmail(BuildContext context, String email, {String? subject, String? body}) async {
   final encodedBody = Uri.encodeComponent(body ?? "");
   final uri = Uri.parse('mailto:$email?subject=${Uri.encodeComponent(subject ?? '')}&body=$encodedBody');
-  
+
   if (await canLaunchUrl(uri)) { // Check if email client exists
     if (await launchUrl(uri)) {
       return;
@@ -58,7 +58,7 @@ Future<void> launchAppEmail(BuildContext context, String email, {String? subject
         persist: false,
         showCloseIcon: true,
         closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        content: Text('Failed to open email client for: $email', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
+        content: Text('Failed to open email client for: $email', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
         backgroundColor: Theme.of(context).colorScheme.errorContainer
       ));
     }
@@ -68,9 +68,33 @@ Future<void> launchAppEmail(BuildContext context, String email, {String? subject
       persist: false,
       showCloseIcon: true,
       closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-      content: Text('Could not find an email app on your device.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
+      content: Text('Could not find an email app on your device.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
       backgroundColor: Theme.of(context).colorScheme.errorContainer
     ));
   }
+}
+
+Future<void> launchLocationOnMap(BuildContext context, double latitude, double longitude, String displayName) async {
+  final String urlScheme = Theme.of(context).platform == TargetPlatform.iOS ? 'maps' : 'geo';
+  final String url = '$urlScheme:$latitude,$longitude?q=$latitude,$longitude(${Uri.encodeComponent(displayName)})';
+  final uri = Uri.parse(url);
+
+  if (await canLaunchUrl(uri)) {
+    if (await launchUrl(uri)) {
+      return;
+    }
+  }
+
+  if (!context.mounted) return;
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    persist: false,
+    showCloseIcon: true,
+    closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
+    content: Text(
+      'No maps app found. Please install Apple Maps, Google Maps, or another maps application.',
+      style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer),
+    ),
+    backgroundColor: Theme.of(context).colorScheme.errorContainer,
+  ));
 }
 

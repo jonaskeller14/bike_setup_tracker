@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../models/app_settings.dart';
 import '../../models/task/task_rule.dart';
 import '../../models/task/task_threshold.dart';
+import '../../theme.dart';
 import '../task_rule_display_card.dart';
 import 'sheet_header.dart';
 
@@ -108,15 +109,16 @@ class _SetTaskDelaySheetState extends State<_SetTaskDelaySheet> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _valueController;
   late final TaskThreshold _interval;
+  late final String _initialValue;
 
   @override
   void initState() {
     super.initState();
     _interval = widget.taskRule.interval!;
-    final initialValue = _delayValueString(widget.taskRule.delay);
-    _valueController = TextEditingController(text: initialValue)
+    _initialValue = _delayValueString(widget.taskRule.delay);
+    _valueController = TextEditingController(text: _initialValue)
       // Preselect so typing replaces the existing delay instead of appending.
-      ..selection = TextSelection(baseOffset: 0, extentOffset: initialValue.length);
+      ..selection = TextSelection(baseOffset: 0, extentOffset: _initialValue.length);
   }
 
   @override
@@ -126,6 +128,9 @@ class _SetTaskDelaySheetState extends State<_SetTaskDelaySheet> {
   }
 
   bool get _hadDelay => widget.taskRule.delay != null;
+
+  bool get _valueChanged =>
+      double.tryParse(_valueController.text.trim()) != double.tryParse(_initialValue);
 
   TaskThreshold? get _delay => _buildDelay(_interval, _valueController.text);
 
@@ -211,6 +216,8 @@ class _SetTaskDelaySheetState extends State<_SetTaskDelaySheet> {
                                           },
                                         ),
                                   border: const OutlineInputBorder(),
+                                  fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
+                                  filled: _hadDelay && _valueChanged,
                                 ),
                               ),
                             ),

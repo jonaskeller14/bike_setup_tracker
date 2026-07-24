@@ -7,9 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 # Development
 flutter pub get                            # Fetch dependencies
-flutter run                                # Run app on connected device
 flutter analyze                            # Static analysis (lint)
-dart format .                              # Format code
 
 # Testing
 flutter test                               # Run all tests
@@ -18,11 +16,6 @@ flutter test test/some_test.dart           # Run a single test file
 # Code generation (required after modifying database tables, models with @JsonSerializable, or env/)
 flutter pub run build_runner build         # Generate .g.dart files (drift, envied)
 flutter pub run build_runner clean         # Clean generated files
-
-# Builds
-flutter build apk                          # Android APK
-flutter build appbundle                    # Android App Bundle (Play Store)
-flutter build ios                          # iOS
 ```
 
 CI runs `flutter pub get` → `flutter analyze` → `flutter test` on push to `main`/`dev`.
@@ -46,7 +39,7 @@ DAOs → AppDatabase (Drift/SQLite)
 
 ### Database
 
-Drift ORM over SQLite3. Schema version 3 with explicit migration strategy.
+Drift ORM over SQLite3 with an explicit, append-only migration strategy (`schemaVersion` + `onUpgrade` steps in `lib/database/app_database.dart`).
 
 - **Tables** (`lib/database/tables/`): 13 tables — bikes, components, installations, setups, setup_adjustment_values, adjustments, persons, ratings, task_rules, task_entries, strava activities, etc.
 - **DAOs** (`lib/database/daos/`): One DAO per entity group; `SoftDeleteDaoMixin` provides the soft-delete pattern (all deletes set `isDeleted = true` rather than removing rows).
@@ -101,7 +94,48 @@ Secrets (e.g., `MAPBOX_TOKEN`) are stored in `.env` and obfuscated via `envied`.
 - `SystemUiMode.edgeToEdge` is set globally for full-bleed UI.
 - The app targets iOS (App Store) and Android (Play Store); web and desktop builds exist but are secondary.
 
-## Commit Rules
+## Code Conventions
 
-- Do NOT include "coauthored by claude" or similar notes in commit messages.
-- Use clear, descriptive summaries of the functional changes.
+Match the surrounding code. Before writing a new widget, page, sheet, DAO, or model,
+open the nearest existing one of the same kind and mirror its structure, naming, and
+idioms. Consistency with existing code outranks personal preference.
+
+### UI/UX
+- **Reuse before rebuild.** Prefer existing widgets in `lib/widgets/` (and `lists/`,
+  `sheets/`) over new ones. New UI should look and behave like its neighbors — same
+  spacing, same interaction patterns.
+- **Style via `lib/theme.dart` and `Theme.of(context)`** — never hardcode colors or
+  text styles. Both `materialAppTheme` and `materialAppDarkTheme` exist; verify new UI in
+  **light and dark**.
+- **Overflow-safe & resolution-agnostic by default.** Every layout must survive long
+  text and narrow/wide screens. Use `Flexible`/`Expanded`, `TextOverflow.ellipsis`,
+  `FittedBox`, `LayoutBuilder` as appropriate. Never assume a fixed width fits.
+- **Respect insets.** Wrap screen content in `SafeArea` and handle the keyboard
+  (`viewInsets`) so nothing hides behind the notch, home indicator, or keyboard — the app
+  is edge-to-edge (`SystemUiMode.edgeToEdge`).
+- **Every async view handles three states:** loading, empty, and error — not just the
+  happy path. Reuse the existing empty-state sheet helpers.
+- **Feedback is consistent.** Confirm completed actions and surface errors via `SnackBar`;
+  fire `HapticFeedback` on primary/destructive interactions; gate destructive/irreversible
+  actions behind a confirmation dialog (see the `lib/utils/*_actions.dart` pattern).
+
+### Code quality
+- **Maintainable over clever.** Small, single-purpose widgets and functions. Keep
+  pages thin — delegate logic to `lib/utils/*_actions.dart` and `AppRepository`.
+- **Comments only when they add non-inferable value** (a *why*, a non-obvious edge
+  case). No comments that restate the code.
+- **No dead scaffolding.** Don't leave TODOs, commented-out code, or unused params.
+- **Surgical, clean-diff edits.** Change only what the task functionally requires. No
+  reformatting, re-aligning, or "cleanup" of untouched lines; a 3-line fix beats a 10-line
+  one. New files follow full style; for existing code, leave lines you don't touch as-is.
+- **Guard `context` across async gaps.** After an `await`, check `mounted` /
+  `context.mounted` before using `context` or calling `setState` (matches existing usage).
+- **Minimize rebuilds.** Use `context.read` for one-off reads and `context.select` to watch
+  a single field; reserve `context.watch` for when the whole object is needed. Keep `const`
+  constructors wherever possible.
+
+### Tests
+- **Add/extend tests when logic is non-trivial** (repository logic, mappers,
+  migrations, computed status, date/duration math). Skip tests for pure-layout tweaks.
+- Mirror the `lib/` path under `test/`; use `group`/`setUp`/`tearDown` and
+  `AppDatabase.memory()` (see `test/rating_score_service_test.dart`).

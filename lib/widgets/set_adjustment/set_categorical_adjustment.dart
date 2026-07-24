@@ -39,7 +39,10 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
     // Only options that still exist are shown in the field; any dangling values
     // are surfaced (and removable) inside the sheet.
     final List<String> selected = value ?? const [];
-    final List<String> validSelected = adjustment.options.where(selected.contains).toList();
+    final List<String> validSelected = [
+      for (final option in adjustment.options)
+        for (var i = 0; i < selected.where((v) => v == option).length; i++) option,
+    ];
     final bool hasValidValue = validSelected.isNotEmpty;
 
     return Container(
@@ -72,8 +75,12 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
                 if (selection.any((e) => !adjustment.options.contains(e))) {
                   return 'Contains options that no longer exist';
                 }
-                if (!adjustment.multiSelect && selection.length > 1) {
+                final distinct = selection.toSet();
+                if (!adjustment.multiSelect && distinct.length > 1) {
                   return 'Only one option can be selected';
+                }
+                if (!adjustment.counted && selection.length != distinct.length) {
+                  return 'An option cannot be selected more than once';
                 }
                 return null;
               },
@@ -118,7 +125,7 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      hasValidValue ? validSelected.join(Adjustment.multiValueSeparator) : "Please select",
+                      hasValidValue ? Adjustment.formatValue(validSelected) : "Please select",
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: hasValidValue ? highlightColor : Theme.of(context).hintColor,

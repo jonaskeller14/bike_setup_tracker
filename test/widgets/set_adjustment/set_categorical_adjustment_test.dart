@@ -14,6 +14,7 @@ void main() {
     required List<String>? value,
     required Key formKey,
     bool multiSelect = false,
+    bool counted = false,
   }) {
     return MaterialApp(
       theme: materialAppTheme,
@@ -31,6 +32,7 @@ void main() {
               unit: null,
               options: options,
               multiSelect: multiSelect,
+              counted: counted,
             ),
           ),
         ),
@@ -118,6 +120,44 @@ void main() {
       expect(find.text(invalidOption1), findsNothing);
       // ...but the dangling value still makes the field invalid.
       expect(formKey.currentState!.validate(), isFalse);
+    });
+  });
+
+  group("SetCategoricalAdjustmentWidget/counted", () {
+    testWidgets('field renders grouped counts in option order', (WidgetTester tester) async {
+      final formKey = GlobalKey<FormState>();
+      await tester.pumpWidget(buildWidget(
+        initialValue: null,
+        value: const ["Option #1", "Option #1", "Option #2", "Option #2", "Option #2"],
+        formKey: formKey,
+        multiSelect: true,
+        counted: true,
+      ));
+      expect(find.text("Option #1 (2), Option #2 (3)"), findsOneWidget);
+    });
+
+    testWidgets('a counted value validates when counted:true', (WidgetTester tester) async {
+      final formKey = GlobalKey<FormState>();
+      await tester.pumpWidget(buildWidget(
+        initialValue: null,
+        value: const ["Option #1", "Option #1", "Option #1"],
+        formKey: formKey,
+        counted: true,
+      ));
+      expect(formKey.currentState!.validate(), isTrue);
+    });
+
+    testWidgets('repeats are rejected when counted:false', (WidgetTester tester) async {
+      final formKey = GlobalKey<FormState>();
+      await tester.pumpWidget(buildWidget(
+        initialValue: null,
+        value: const ["Option #1", "Option #1"],
+        formKey: formKey,
+        multiSelect: true,
+      ));
+      expect(formKey.currentState!.validate(), isFalse);
+      await tester.pump();
+      expect(find.text('An option cannot be selected more than once'), findsOneWidget);
     });
   });
 

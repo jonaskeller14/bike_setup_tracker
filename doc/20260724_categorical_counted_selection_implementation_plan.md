@@ -175,7 +175,9 @@ tests + `flutter analyze` green on touched files.
 
 ## Phase 3 — Counting picker sheet, field rendering & validation
 
-**Status:** ⬜ Not started
+**Status:** ✅ Complete — sheet counted branch (`InputChip` tap-to-increment / × decrement,
+counted-single reset), grouped `emit()`, `formatValue`-based field text, and the four-state
+validator landed; new/extended tests and `flutter analyze` green on touched files.
 
 **Files:**
 - `lib/widgets/sheets/set_categorical.dart` — counted branch (increment on tap, × to decrement,

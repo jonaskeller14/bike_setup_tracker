@@ -44,6 +44,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
   late Set<String> _initialOptions;
 
   bool _multiSelect = false;
+  bool _counted = false;
   List<String>? _previewValues;
   late CategoricalAdjustment _previewAdjustment;
 
@@ -51,6 +52,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
   void initState() {
     super.initState();
     _multiSelect = widget.adjustment?.multiSelect ?? false;
+    _counted = widget.adjustment?.counted ?? false;
     _nameController = TextEditingController(text: widget.adjustment?.name);
     _nameController.addListener(_changeListener);
     _notesController = TextEditingController(text: widget.adjustment?.notes);
@@ -78,6 +80,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
       unit: widget.adjustment?.unit,
       options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toSet(),
       multiSelect: _multiSelect,
+      counted: _counted,
     );
   }
 
@@ -87,6 +90,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
     final hasChanges = _nameController.text.trim() != (widget.adjustment?.name ?? '') ||
         _notesController.text.trim() != (widget.adjustment?.notes ?? '') ||
         _multiSelect != (widget.adjustment?.multiSelect ?? false) ||
+        _counted != (widget.adjustment?.counted ?? false) ||
         !setEquals(_initialOptions, options);
     if (_formHasChanges != hasChanges) {
       setState(() {
@@ -176,6 +180,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
       unit: widget.adjustment?.unit,
       options: options,
       multiSelect: _multiSelect,
+      counted: _counted,
     ));
   }
 
@@ -316,6 +321,23 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                                 if (newValue == null) return;
                                 setState(() {
                                   _multiSelect = newValue;
+                                  _previewValues = null;
+                                  _previewAdjustment = _composePreview();
+                                });
+                                _changeListener();
+                              },
+                            ),
+                          if (appSettings.enableCountedSelect || _counted)
+                            CheckboxListTile(
+                              contentPadding: EdgeInsets.zero,
+                              controlAffinity: ListTileControlAffinity.leading,
+                              title: const Text('Count Occurrences'),
+                              subtitle: const Text('Allow the same option multiple times'),
+                              value: _counted,
+                              onChanged: (bool? newValue) {
+                                if (newValue == null) return;
+                                setState(() {
+                                  _counted = newValue;
                                   _previewValues = null;
                                   _previewAdjustment = _composePreview();
                                 });

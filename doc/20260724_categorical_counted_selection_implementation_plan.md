@@ -138,7 +138,9 @@ tests green, `flutter analyze` clean on touched files.
 
 ## Phase 2 — Adjustment & metric page "Count occurrences" checkbox
 
-**Status:** ⬜ Not started
+**Status:** ✅ Complete — `_counted` state + guarded "Count Occurrences" `CheckboxListTile` landed on
+both the adjustment and metric pages, mirroring Multi Select; preview/save/change-detection all wired;
+tests + `flutter analyze` green on touched files.
 
 **Files:**
 - `lib/pages/adjustment/categorical_adjustment_page.dart`

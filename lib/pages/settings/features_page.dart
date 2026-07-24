@@ -143,6 +143,25 @@ class FeaturesPage extends StatelessWidget {
                   infoText: 'Makes the "Multi Select" checkbox available when editing a Categorical Adjustment, letting you allow multiple options to be selected instead of just one.',
                 ),
               ),
+              if (kDebugMode)
+                ListTile(
+                  leading: const Icon(Icons.exposure_plus_1),
+                  title: const Text("Count occurrences"),
+                  subtitle: _offOnOptionWidgets[appSettings.enableCountedSelect] ?? const Text("-"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () => appSettingsRadioGroupSheet<bool>(
+                    context: context,
+                    title: "Count occurrences",
+                    value: appSettings.enableCountedSelect,
+                    optionWidgets: _offOnOptionWidgets,
+                    onChanged: (bool? newValue) {
+                      if (newValue == null) return;
+                      appSettings.enableCountedSelect = newValue;
+                      Navigator.pop(context);
+                    },
+                    infoText: 'Makes the "Count occurrences" checkbox available when editing a Categorical Adjustment, letting you select the same option multiple times (e.g. "Bars (2), Gels (3)").',
+                  ),
+                ),
               ListTile(
                 leading: const Icon(Icons.tag),
                 title: const Text("Setup Tags"),

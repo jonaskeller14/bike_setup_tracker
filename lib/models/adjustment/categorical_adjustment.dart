@@ -3,6 +3,7 @@ part of 'adjustment.dart';
 class CategoricalAdjustment extends Adjustment {
   final Set<String> options;
   final bool multiSelect;
+  final bool counted;
 
   static const IconData iconData = Icons.category;
 
@@ -13,6 +14,7 @@ class CategoricalAdjustment extends Adjustment {
     required super.unit,
     required this.options,
     this.multiSelect = false,
+    this.counted = false,
   });
 
   @override
@@ -23,6 +25,7 @@ class CategoricalAdjustment extends Adjustment {
       unit: unit,
       options: options,
       multiSelect: multiSelect,
+      counted: counted,
     );
   }
 
@@ -31,13 +34,16 @@ class CategoricalAdjustment extends Adjustment {
     // Values are canonically List<String>; a legacy single String is tolerated.
     final list = categoricalValueAsList(value);
     if (list == null || list.isEmpty) return false;
-    if (!multiSelect && list.length > 1) return false;
-    return list.every(options.contains);
+    if (!list.every(options.contains)) return false;
+    final distinct = list.toSet();
+    if (distinct.length > 1 && !multiSelect) return false;
+    if (distinct.length != list.length && !counted) return false;
+    return true;
   }
 
   @override
   Map<String, dynamic> toJson() => {
-    'version': multiSelect ? 2 : 1,
+    'version': counted ? 3 : (multiSelect ? 2 : 1),
     'id': id,
     'name': name,
     'notes': notes,
@@ -45,12 +51,13 @@ class CategoricalAdjustment extends Adjustment {
     'unit': unit?.encode(),
     'options': options.toList(),
     'multiSelect': multiSelect,
+    'counted': counted,
   };
 
   factory CategoricalAdjustment.fromJson(Map<String, dynamic> json) {
     final int? version = json["version"];
     switch (version) {
-      case null || 1 || 2:
+      case null || 1 || 2 || 3:
         return CategoricalAdjustment(
           id: json["id"],
           name: json['name'],
@@ -58,13 +65,14 @@ class CategoricalAdjustment extends Adjustment {
           unit: AdjustmentUnit.decode(json['unit'] as String?),
           options: Set<String>.from(json['options']),
           multiSelect: json['multiSelect'] as bool? ?? false,
+          counted: json['counted'] as bool? ?? false,
         );
       default: throw Exception("Json Version $version of CategoricalAdjustment incompatible.");
     }
   }
 
   factory CategoricalAdjustment.fromYaml(Map<String, dynamic> map) {
-    _checkPresetKeys(map, const {'name', 'type', 'options', 'multiSelect', 'unit', 'notes'});
+    _checkPresetKeys(map, const {'name', 'type', 'options', 'multiSelect', 'counted', 'unit', 'notes'});
     final rawOptions = map['options'];
     if (rawOptions is! List || rawOptions.isEmpty) {
       throw ArgumentError('Categorical adjustment "${map['name']}" requires a non-empty "options" list');
@@ -75,6 +83,7 @@ class CategoricalAdjustment extends Adjustment {
       unit: AdjustmentUnit.fromLegacy(map['unit'] as String?),
       options: rawOptions.map((e) => e.toString()).toSet(),
       multiSelect: map['multiSelect'] as bool? ?? false,
+      counted: map['counted'] as bool? ?? false,
     );
   }
 
@@ -91,11 +100,12 @@ class CategoricalAdjustment extends Adjustment {
         notes == other.notes &&
         unit == other.unit &&
         multiSelect == other.multiSelect &&
+        counted == other.counted &&
         setEquals(options, other.options);
   }
 
   @override
   int get hashCode {
-    return Object.hash(id, name, notes, unit, multiSelect, Object.hashAllUnordered(options));
+    return Object.hash(id, name, notes, unit, multiSelect, counted, Object.hashAllUnordered(options));
   }
 }

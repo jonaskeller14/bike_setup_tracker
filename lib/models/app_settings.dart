@@ -19,6 +19,7 @@ class AppSettings extends ChangeNotifier {
   bool _enableGoogleDrive = false;  // False is default, can only be activated on Android (see AppSettingsPage)
   bool _enableTextAdjustment = false;
   bool _enableMultiSelect = false;
+  bool _enableCountedSelect = false;
   bool _enablePerson = false;
   bool _enableRating = false;
   bool _enableSetupTags = false;
@@ -70,6 +71,7 @@ class AppSettings extends ChangeNotifier {
   bool get enableGoogleDrive => _enableGoogleDrive;
   bool get enableTextAdjustment => _enableTextAdjustment;
   bool get enableMultiSelect => _enableMultiSelect;
+  bool get enableCountedSelect => _enableCountedSelect;
   bool get enablePerson => _enablePerson;
   bool get enableRating => _enableRating;
   bool get enableSetupTags => _enableSetupTags;
@@ -190,6 +192,13 @@ class AppSettings extends ChangeNotifier {
     _enableMultiSelect = newValue;
     notifyListeners();
     _persistBool('enableMultiSelect', newValue);
+  }
+
+  set enableCountedSelect(bool newValue) {
+    if (newValue == _enableCountedSelect) return;
+    _enableCountedSelect = newValue;
+    notifyListeners();
+    _persistBool('enableCountedSelect', newValue);
   }
 
   set enablePerson(bool newValue) {
@@ -469,6 +478,7 @@ class AppSettings extends ChangeNotifier {
       _enableGoogleDrive = prefs.getBool('${_kPrefix}enableGoogleDrive') ?? _enableGoogleDrive;
       _enableTextAdjustment = prefs.getBool('${_kPrefix}enableTextAdjustment') ?? _enableTextAdjustment;
       _enableMultiSelect = prefs.getBool('${_kPrefix}enableMultiSelect') ?? _enableMultiSelect;
+      _enableCountedSelect = prefs.getBool('${_kPrefix}enableCountedSelect') ?? _enableCountedSelect;
       _enablePerson = prefs.getBool('${_kPrefix}enablePerson') ?? _enablePerson;
       _enableRating = prefs.getBool('${_kPrefix}enableRating') ?? _enableRating;
       _enableSetupTags = prefs.getBool('${_kPrefix}enableSetupTags') ?? _enableSetupTags;

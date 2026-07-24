@@ -93,8 +93,12 @@ void main() {
       expect(() => Adjustment.fromJson(payload(1)), returnsNormally);
     });
 
+    test('accepts version 3 (counted)', () {
+      expect(() => Adjustment.fromJson(payload(3)), returnsNormally);
+    });
+
     test('still guards against an unknown future version', () {
-      expect(() => Adjustment.fromJson(payload(3)), throwsException);
+      expect(() => Adjustment.fromJson(payload(4)), throwsException);
     });
   });
 

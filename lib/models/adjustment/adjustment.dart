@@ -59,7 +59,15 @@ sealed class Adjustment {
       case Duration():
         String twoDigits(int n) => n.toString().padLeft(2, '0');
         return '${twoDigits(value.inHours)}:${twoDigits(value.inMinutes.remainder(60))}:${twoDigits(value.inSeconds.remainder(60))}';
-      case List(): return value.isEmpty ? '-' : value.map(formatValue).join(multiValueSeparator);
+      case List():
+        if (value.isEmpty) return '-';
+        final counts = <dynamic, int>{};
+        for (final element in value) {
+          counts[element] = (counts[element] ?? 0) + 1;
+        }
+        return counts.entries
+            .map((entry) => entry.value == 1 ? formatValue(entry.key) : '${formatValue(entry.key)} (${entry.value})')
+            .join(multiValueSeparator);
       default: return value.toString();
     }
   }
@@ -67,7 +75,7 @@ sealed class Adjustment {
   static Adjustment fromJson(Map<String, dynamic> json) {
     final int? version = json["version"];
     switch (version) {
-      case null || 1 || 2:
+      case null || 1 || 2 || 3:
         final typeString = json['type'];
         final type = AdjustmentType.values.firstWhere(
           (e) => e.name == typeString,

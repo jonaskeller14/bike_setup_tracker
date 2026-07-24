@@ -51,5 +51,18 @@ void main() {
       test('empty list returns dash', () => expect(Adjustment.formatValue(<String>[]), '-'));
       test('formats elements individually', () => expect(Adjustment.formatValue([1, 2]), '1, 2'));
     });
+
+    group('List (counted categorical, grouped rendering)', () {
+      test('groups repeats with a count suffix', () {
+        expect(Adjustment.formatValue(['Bar', 'Bar', 'Gel', 'Gel', 'Gel']), 'Bar (2), Gel (3)');
+      });
+      test('omits (1) for a non-repeated element', () => expect(Adjustment.formatValue(['Bottle']), 'Bottle'));
+      test('mixes repeated and single-count elements', () {
+        expect(Adjustment.formatValue(['Bar', 'Bar', 'Bottle']), 'Bar (2), Bottle');
+      });
+      test('preserves first-occurrence order, not sorted', () {
+        expect(Adjustment.formatValue(['Gel', 'Bar', 'Gel', 'Bar']), 'Gel (2), Bar (2)');
+      });
+    });
   });
 }

@@ -17,6 +17,7 @@ class AdjustmentSetList extends StatefulWidget {
   final void Function({required Adjustment adjustment, required dynamic newValue}) onAdjustmentValueChanged;
   final void Function({required Adjustment adjustment}) removeFromAdjustmentValues;
   final bool prefillFromInitial;
+  final Future<void> Function({required CategoricalAdjustment adjustment, required String option})? onAddCategoricalOption;
 
   const AdjustmentSetList({
     super.key,
@@ -26,6 +27,7 @@ class AdjustmentSetList extends StatefulWidget {
     required this.onAdjustmentValueChanged,
     required this.removeFromAdjustmentValues,
     this.prefillFromInitial = true,
+    this.onAddCategoricalOption,
   });
 
   @override
@@ -148,6 +150,9 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
               adjustment: adjustment,
               initialValue: categoricalValueAsList(widget.initialAdjustmentValues[adjustment.id]),
               value: categoricalValueAsList(_adjustmentValues[adjustment.id]),
+              onAddOption: widget.onAddCategoricalOption == null
+                  ? null
+                  : (String option) => widget.onAddCategoricalOption!(adjustment: adjustment, option: option),
               onChanged: (List<String>? newValue) {
                 setState(() => _adjustmentValues[adjustment.id] = newValue);
                 if (newValue == null) {

@@ -657,6 +657,26 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     _changeListener();
   }
 
+  Future<void> _onAddBikeCategoricalOption({required CategoricalAdjustment adjustment, required String option}) async {
+    final appRepository = context.read<AppRepository>();
+    final component = appRepository.components.values.firstWhereOrNull((c) => c.adjustments.any((a) => a.id == adjustment.id));
+    if (component == null) return;
+    final updated = component.adjustments
+        .map((a) => a.id == adjustment.id && a is CategoricalAdjustment ? a.copyWith(options: {...a.options, option}) : a)
+        .toList();
+    await appRepository.editComponent(component.copyWith(adjustments: updated));
+  }
+
+  Future<void> _onAddPersonCategoricalOption({required CategoricalAdjustment adjustment, required String option}) async {
+    final appRepository = context.read<AppRepository>();
+    final person = appRepository.persons.values.firstWhereOrNull((p) => p.adjustments.any((a) => a.id == adjustment.id));
+    if (person == null) return;
+    final updated = person.adjustments
+        .map((a) => a.id == adjustment.id && a is CategoricalAdjustment ? a.copyWith(options: {...a.options, option}) : a)
+        .toList();
+    await appRepository.editPerson(person.copyWith(adjustments: updated));
+  }
+
   void _handlePopInvoked(bool didPop, dynamic result) async {
     if (didPop) return;
     if (!_formHasChanges) return;
@@ -1057,6 +1077,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                     danglingBikeAdjustmentValues: _danglingBikeAdjustmentValues,
                     onAdjustmentValueChanged: _onBikeAdjustmentValueChanged,
                     onRemoveFromAdjustmentValues: _removeFromBikeAdjustmentValues,
+                    onAddCategoricalOption: _onAddBikeCategoricalOption,
                     onDanglingRemove: (id) {
                       setState(() {
                         _danglingBikeAdjustmentValues.remove(id);
@@ -1075,6 +1096,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                       danglingPersonAdjustmentValues: _danglingPersonAdjustmentValues,
                       onAdjustmentValueChanged: _onPersonAdjustmentValueChanged,
                       onRemoveFromAdjustmentValues: _removeFromPersonAdjustmentValues,
+                      onAddCategoricalOption: _onAddPersonCategoricalOption,
                       changeListener: _changeListener,
                       onDanglingRemove: (id) {
                         setState(() {

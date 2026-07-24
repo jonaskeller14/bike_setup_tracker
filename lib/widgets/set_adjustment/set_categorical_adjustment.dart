@@ -10,6 +10,7 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
   final List<String>? value;
   final ValueChanged<List<String>?> onChanged;
   final bool highlighting;
+  final Future<void> Function(String option)? onAddOption;
 
   const SetCategoricalAdjustmentWidget({
     required super.key,
@@ -18,6 +19,7 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
     required this.value,
     required this.onChanged,
     this.highlighting = true,
+    this.onAddOption,
   });
 
   @override
@@ -92,6 +94,7 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
                     selected: selected,
                     initialValue: initialValue,
                     highlighting: highlighting,
+                    onAddOption: onAddOption,
                     onChanged: (List<String> newSelection) {
                       field.didChange(newSelection);
                       onChanged(newSelection);

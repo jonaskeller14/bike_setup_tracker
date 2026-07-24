@@ -264,4 +264,126 @@ void main() {
       expect(emitted, isEmpty);
     });
   });
+
+  group("SetCategoricalAdjustmentWidget/add option", () {
+    Widget buildAddWidget({
+      List<String>? value,
+      Future<void> Function(String option)? onAddOption,
+      void Function(List<String>?)? onChanged,
+      bool multiSelect = false,
+      bool counted = false,
+    }) {
+      return MaterialApp(
+        theme: materialAppTheme,
+        home: Scaffold(
+          body: SetCategoricalAdjustmentWidget(
+            key: const ValueKey("cat-add"),
+            initialValue: null,
+            value: value,
+            onChanged: onChanged ?? (_) {},
+            onAddOption: onAddOption,
+            adjustment: CategoricalAdjustment(
+              name: "CategoricalAdjustment #1",
+              notes: null,
+              unit: null,
+              options: options,
+              multiSelect: multiSelect,
+              counted: counted,
+            ),
+          ),
+        ),
+      );
+    }
+
+    testWidgets('no "+" chip in the sheet when onAddOption is null', (WidgetTester tester) async {
+      await tester.pumpWidget(buildAddWidget(value: [validOption]));
+      await tester.tap(find.text(validOption));
+      await tester.pumpAndSettle();
+      expect(find.byType(ActionChip), findsNothing);
+    });
+
+    testWidgets('"+" chip persists the typed option and auto-selects it', (WidgetTester tester) async {
+      final added = <String>[];
+      List<String>? emitted;
+      await tester.pumpWidget(buildAddWidget(
+        value: [validOption],
+        multiSelect: true,
+        onChanged: (v) => emitted = v,
+        onAddOption: (option) async {
+          added.add(option);
+        },
+      ));
+      await tester.tap(find.text(validOption));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ActionChip), findsOneWidget);
+      await tester.tap(find.byType(ActionChip));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField), 'New Option');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+
+      expect(added, ['New Option']);
+      expect(emitted, contains('New Option'));
+    });
+
+    testWidgets('a duplicate option is rejected before persisting', (WidgetTester tester) async {
+      final added = <String>[];
+      await tester.pumpWidget(buildAddWidget(
+        value: [validOption],
+        multiSelect: true,
+        onAddOption: (option) async {
+          added.add(option);
+        },
+      ));
+      await tester.tap(find.text(validOption));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(ActionChip));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField), validOption);
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+
+      expect(added, isEmpty, reason: 'a duplicate never reaches the persist callback');
+      expect(find.text('Already exists'), findsOneWidget);
+    });
+  });
+
+  group("CategoricalAdjustment.copyWith", () {
+    test('overrides only the given fields and keeps the rest', () {
+      final adjustment = CategoricalAdjustment(
+        name: 'n',
+        notes: 'note',
+        unit: null,
+        options: {'a', 'b'},
+        multiSelect: true,
+        counted: true,
+      );
+      final result = adjustment.copyWith(options: {...adjustment.options, 'c'});
+      expect(result.options, {'a', 'b', 'c'});
+      expect(result.id, adjustment.id);
+      expect(result.name, 'n');
+      expect(result.notes, 'note');
+      expect(result.multiSelect, isTrue);
+      expect(result.counted, isTrue);
+    });
+
+    test('with no arguments returns an equal copy', () {
+      final adjustment = CategoricalAdjustment(
+        name: 'n',
+        notes: 'note',
+        unit: null,
+        options: {'a'},
+        multiSelect: true,
+      );
+      expect(adjustment.copyWith(), adjustment);
+    });
+
+    test('can clear a nullable field explicitly', () {
+      final adjustment = CategoricalAdjustment(name: 'n', notes: 'note', unit: null, options: {'a'});
+      expect(adjustment.copyWith(notes: null).notes, isNull);
+    });
+  });
 }

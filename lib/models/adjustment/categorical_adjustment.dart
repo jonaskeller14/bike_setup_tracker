@@ -87,6 +87,26 @@ class CategoricalAdjustment extends Adjustment {
     );
   }
 
+  CategoricalAdjustment copyWith({
+    Object? id = const _Sentinel(),
+    Object? name = const _Sentinel(),
+    Object? notes = const _Sentinel(),
+    Object? unit = const _Sentinel(),
+    Object? options = const _Sentinel(),
+    Object? multiSelect = const _Sentinel(),
+    Object? counted = const _Sentinel(),
+  }) {
+    return CategoricalAdjustment(
+      id: id is _Sentinel ? this.id : (id as String),
+      name: name is _Sentinel ? this.name : (name as String),
+      notes: notes is _Sentinel ? this.notes : (notes as String?),
+      unit: unit is _Sentinel ? this.unit : (unit as AdjustmentUnit?),
+      options: options is _Sentinel ? this.options : (options as Set<String>),
+      multiSelect: multiSelect is _Sentinel ? this.multiSelect : (multiSelect as bool),
+      counted: counted is _Sentinel ? this.counted : (counted as bool),
+    );
+  }
+
   @override
   IconData getIconData() => CategoricalAdjustment.iconData;
 

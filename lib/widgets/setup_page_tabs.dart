@@ -204,6 +204,7 @@ class SetupBikeTab extends StatefulWidget {
   final void Function({required Adjustment adjustment, required dynamic newValue}) onAdjustmentValueChanged;
   final void Function({required Adjustment adjustment}) onRemoveFromAdjustmentValues;
   final Function(String) onDanglingRemove;
+  final Future<void> Function({required CategoricalAdjustment adjustment, required String option})? onAddCategoricalOption;
 
   const SetupBikeTab({
     super.key,
@@ -217,6 +218,7 @@ class SetupBikeTab extends StatefulWidget {
     required this.onAdjustmentValueChanged,
     required this.onRemoveFromAdjustmentValues,
     required this.onDanglingRemove,
+    this.onAddCategoricalOption,
   });
 
   @override
@@ -315,6 +317,7 @@ class _SetupBikeTabState extends State<SetupBikeTab> {
                     adjustmentValues: widget.bikeAdjustmentValues,
                     onAdjustmentValueChanged: widget.onAdjustmentValueChanged,
                     removeFromAdjustmentValues: widget.onRemoveFromAdjustmentValues,
+                    onAddCategoricalOption: widget.onAddCategoricalOption,
                   ),
                 ],
               ),
@@ -362,6 +365,7 @@ class SetupPersonTab extends StatelessWidget {
   final void Function({required Adjustment adjustment}) onRemoveFromAdjustmentValues;
   final VoidCallback changeListener;
   final Function(String) onDanglingRemove;
+  final Future<void> Function({required CategoricalAdjustment adjustment, required String option})? onAddCategoricalOption;
 
   const SetupPersonTab({
     super.key,
@@ -375,6 +379,7 @@ class SetupPersonTab extends StatelessWidget {
     required this.onRemoveFromAdjustmentValues,
     required this.changeListener,
     required this.onDanglingRemove,
+    this.onAddCategoricalOption,
   });
 
   @override
@@ -425,6 +430,7 @@ class SetupPersonTab extends StatelessWidget {
                   onAdjustmentValueChanged: onAdjustmentValueChanged,
                   removeFromAdjustmentValues: onRemoveFromAdjustmentValues,
                   prefillFromInitial: false,
+                  onAddCategoricalOption: onAddCategoricalOption,
                 ),
               ],
             ),

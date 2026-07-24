@@ -472,6 +472,18 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
     _changeListener();
   }
 
+  Future<void> _onAddMetricCategoricalOption({required CategoricalAdjustment adjustment, required String option}) async {
+    final appRepository = context.read<AppRepository>();
+    final rating = appRepository.ratings.values.firstWhereOrNull((r) => r.metrics.any((m) => m.adjustment.id == adjustment.id));
+    if (rating == null) return;
+    final updated = rating.metrics
+        .map((m) => m.adjustment.id == adjustment.id && m.adjustment is CategoricalAdjustment
+            ? m.copyWith(adjustment: (m.adjustment as CategoricalAdjustment).copyWith(options: {...(m.adjustment as CategoricalAdjustment).options, option}))
+            : m)
+        .toList();
+    await appRepository.editRating(rating.copyWith(metrics: updated));
+  }
+
   void _handlePopInvoked(bool didPop, dynamic result) async {
     if (didPop) return;
     if (!_formHasChanges) return;
@@ -901,6 +913,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
                               adjustmentValues: _metricValues,
                               onAdjustmentValueChanged: _onMetricValueChanged,
                               removeFromAdjustmentValues: _removeFromMetricValues,
+                              onAddCategoricalOption: _onAddMetricCategoricalOption,
                             ),
                           ],
                         ),

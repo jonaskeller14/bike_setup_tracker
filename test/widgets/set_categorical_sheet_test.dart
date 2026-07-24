@@ -11,6 +11,7 @@ void main() {
     required List<String> selected,
     required bool multiSelect,
     required ValueChanged<List<String>> onChanged,
+    List<String>? initialValue,
   }) {
     return MaterialApp(
       theme: materialAppTheme,
@@ -28,6 +29,7 @@ void main() {
                 counted: true,
               ),
               selected: selected,
+              initialValue: initialValue,
               onChanged: onChanged,
             ),
             child: const Text("Open"),
@@ -101,6 +103,32 @@ void main() {
       expect(emitted, const ["Gel"]);
       // The sheet stays open (no auto-close) so counting can continue.
       expect(find.widgetWithText(InputChip, "Bar"), findsOneWidget);
+    });
+  });
+
+  group("showSetCategoricalSheet/counted highlighting", () {
+    testWidgets('an unchanged count stays unhighlighted, an increased count turns orange', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(buildHarness(
+        selected: const ["Bar"],
+        initialValue: const ["Bar"],
+        multiSelect: true,
+        onChanged: (_) {},
+      ));
+      await tester.tap(find.text("Open"));
+      await tester.pumpAndSettle();
+
+      final unchangedChip = tester.widget<InputChip>(find.widgetWithText(InputChip, "Bar (1)"));
+      expect(unchangedChip.checkmarkColor, isNull, reason: 'count matches the previous value');
+
+      await tester.tap(find.widgetWithText(InputChip, "Bar (1)"));
+      await tester.pump();
+
+      final highlights = materialAppTheme.extension<ValueHighlightColors>()!;
+      final increasedChip = tester.widget<InputChip>(find.widgetWithText(InputChip, "Bar (2)"));
+      expect(increasedChip.checkmarkColor, highlights.changed);
+      expect(increasedChip.selectedColor, highlights.changed.withValues(alpha: 0.18));
     });
   });
 }

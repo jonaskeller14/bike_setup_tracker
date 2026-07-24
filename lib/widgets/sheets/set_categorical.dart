@@ -22,6 +22,10 @@ void showSetCategoricalSheet({
 
   final bool isInitial = initialValue == null;
   final Set<String> initialSet = (initialValue ?? const <String>[]).toSet();
+  final Map<String, int> initialCounts = {
+    for (final option in adjustment.options)
+      option: (initialValue ?? const <String>[]).where((v) => v == option).length,
+  };
 
   final List<String> danglingOrder =
       selected.where((v) => !adjustment.options.contains(v)).toList();
@@ -113,14 +117,14 @@ void showSetCategoricalSheet({
                               count: counts[option] ?? 0,
                               highlightColor: !highlighting ||
                                       (counts[option] ?? 0) == 0 ||
-                                      initialSet.contains(option)
+                                      (counts[option] ?? 0) == (initialCounts[option] ?? 0)
                                   ? null
                                   : (isInitial
                                       ? highlights?.initial ?? Colors.green
                                       : highlights?.changed ?? Colors.orange),
                               isPrevious: highlighting &&
                                   (counts[option] ?? 0) == 0 &&
-                                  initialSet.contains(option),
+                                  (initialCounts[option] ?? 0) > 0,
                               onTap: () {
                                 unawaited(HapticFeedback.selectionClick());
                                 setSheetState(() {
@@ -301,7 +305,9 @@ class _CountedOptionChip extends StatelessWidget {
       labelStyle: labelStyle,
       side: side,
       selectedColor: highlightColor?.withValues(alpha: 0.18),
+      checkmarkColor: highlightColor,
       deleteIcon: count > 0 ? const Icon(Icons.close, size: 18) : null,
+      deleteIconColor: highlightColor,
       onDeleted: count > 0 ? onDecrement : null,
       onPressed: onTap,
     );

@@ -332,6 +332,9 @@ class _CategoricalMetricPageState extends State<CategoricalMetricPage> {
                                 CheckboxListTile(
                                   contentPadding: EdgeInsets.zero,
                                   controlAffinity: ListTileControlAffinity.leading,
+                                  tileColor: widget.mode == MetricPageMode.edit && _multiSelect != (_initialAdj?.multiSelect ?? false)
+                                      ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
+                                      : null,
                                   title: const Text('Multi Select'),
                                   subtitle: const Text('Allow more than one selection'),
                                   value: _multiSelect,
@@ -349,6 +352,9 @@ class _CategoricalMetricPageState extends State<CategoricalMetricPage> {
                                 CheckboxListTile(
                                   contentPadding: EdgeInsets.zero,
                                   controlAffinity: ListTileControlAffinity.leading,
+                                  tileColor: widget.mode == MetricPageMode.edit && _counted != (_initialAdj?.counted ?? false)
+                                      ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
+                                      : null,
                                   title: const Text('Count Occurrences'),
                                   subtitle: const Text('Allow the same option multiple times'),
                                   value: _counted,

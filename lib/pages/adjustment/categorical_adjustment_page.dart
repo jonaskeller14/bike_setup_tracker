@@ -314,6 +314,9 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                             CheckboxListTile(
                               contentPadding: EdgeInsets.zero,
                               controlAffinity: ListTileControlAffinity.leading,
+                              tileColor: widget.mode == AdjustmentPageMode.edit && _multiSelect != (widget.adjustment?.multiSelect ?? false)
+                                  ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
+                                  : null,
                               title: const Text('Multi Select'),
                               subtitle: const Text('Allow more than one selection'),
                               value: _multiSelect,
@@ -331,6 +334,9 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                             CheckboxListTile(
                               contentPadding: EdgeInsets.zero,
                               controlAffinity: ListTileControlAffinity.leading,
+                              tileColor: widget.mode == AdjustmentPageMode.edit && _counted != (widget.adjustment?.counted ?? false)
+                                  ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
+                                  : null,
                               title: const Text('Count Occurrences'),
                               subtitle: const Text('Allow the same option multiple times'),
                               value: _counted,

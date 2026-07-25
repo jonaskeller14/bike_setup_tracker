@@ -773,14 +773,18 @@ class _TimelineDataSource extends CalendarDataSource<EntryRow> {
     };
   }
 
-  /// A replacement spans its earlier half to its later one; when both halves
-  /// share a timestamp it falls back to the point-event span so a dot renders.
+  /// A replacement spans its earlier half to its later one, but never shorter
+  /// than [kCalendarZeroDuration]: the two halves sit within [kReplacementWindow]
+  /// (minutes apart), so in timeslot views (day/3-day/week) the real span would
+  /// render as a 1-2px sliver and vanish. Clamping to the point-event minimum
+  /// keeps it a visible block there while month/schedule ignore duration anyway.
   DateTime _replacementEndTime(ReplacementRow row) {
     final start = row.anchorDateLocal;
     final removed = row.removed.installation.dateTimeLocal;
     final installed = row.installed.installation.dateTimeLocal;
     final later = removed.isAfter(installed) ? removed : installed;
-    return later.isAfter(start) ? later : start.add(kCalendarZeroDuration);
+    final minEnd = start.add(kCalendarZeroDuration);
+    return later.isAfter(minEnd) ? later : minEnd;
   }
 
   @override

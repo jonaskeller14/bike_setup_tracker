@@ -299,7 +299,7 @@ void main() {
       await tester.pumpWidget(buildAddWidget(value: [validOption]));
       await tester.tap(find.text(validOption));
       await tester.pumpAndSettle();
-      expect(find.byType(ActionChip), findsNothing);
+      expect(find.byIcon(Icons.add), findsNothing);
     });
 
     testWidgets('"+" chip persists the typed option and auto-selects it', (WidgetTester tester) async {
@@ -316,8 +316,8 @@ void main() {
       await tester.tap(find.text(validOption));
       await tester.pumpAndSettle();
 
-      expect(find.byType(ActionChip), findsOneWidget);
-      await tester.tap(find.byType(ActionChip));
+      expect(find.byIcon(Icons.add), findsOneWidget);
+      await tester.tap(find.byIcon(Icons.add));
       await tester.pumpAndSettle();
 
       await tester.enterText(find.byType(TextField), 'New Option');
@@ -339,7 +339,7 @@ void main() {
       ));
       await tester.tap(find.text(validOption));
       await tester.pumpAndSettle();
-      await tester.tap(find.byType(ActionChip));
+      await tester.tap(find.byIcon(Icons.add));
       await tester.pumpAndSettle();
 
       await tester.enterText(find.byType(TextField), validOption);

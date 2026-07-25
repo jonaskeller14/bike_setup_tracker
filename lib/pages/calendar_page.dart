@@ -7,15 +7,19 @@ import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import '../icons/simple_icons.dart';
 import '../models/app_settings.dart';
+import '../models/component.dart';
+import '../models/installation.dart';
 import '../models/rating_entry.dart';
 import '../models/setup.dart';
 import '../models/timeline_entry.dart';
 import '../repositories/app_repository.dart';
 import '../services/subscription_service.dart';
+import '../utils/installation_timeline_validation.dart';
 import '../utils/timeline_grouping.dart';
 import '../widgets/chips/filter_sheet_chip.dart';
 import '../widgets/sheets/installation_sheet.dart';
 import '../widgets/sheets/rating_entry_details.dart';
+import '../widgets/sheets/replacement_sheet.dart';
 import '../widgets/sheets/setup_details.dart';
 import '../widgets/sheets/strava_activity.dart';
 import '../widgets/sheets/task_rule_sheet.dart';
@@ -294,8 +298,14 @@ class _CalendarPageState extends State<CalendarPage> {
         switch (row) {
           case SingleEntryRow(:final entry):
             await _openEntry(entry);
-          // Grouped rows get their own sheets in a later phase.
-          case ReplacementRow() || SetupGroupRow():
+          case ReplacementRow():
+            await showReplacementSheet(
+              context,
+              removed: row.removed,
+              installed: row.installed,
+            );
+          // Setup groups get their own sheet in a later phase.
+          case SetupGroupRow():
             return;
         }
       default: return;
@@ -333,10 +343,56 @@ class _CalendarPageState extends State<CalendarPage> {
     switch (row) {
       case SingleEntryRow(:final entry):
         await _moveEntry(entry, newLocal);
-      // Moving a grouped row lands in a later phase.
-      case ReplacementRow() || SetupGroupRow():
+      case ReplacementRow():
+        await _moveReplacement(row, newLocal);
+      // Moving a setup group lands in a later phase.
+      case SetupGroupRow():
         return;
     }
+  }
+
+  List<Installation> _reDated(
+    Component component,
+    Installation moved,
+    DateTime newUtc,
+    DateTime newLocal,
+  ) {
+    final updated = moved.copyWith(dateTimeUTC: newUtc, dateTimeLocal: newLocal);
+    return component.installations.map((i) => i == moved ? updated : i).toList();
+  }
+
+  /// Moves both halves of a replacement onto the same new date/time. The halves
+  /// always sit on different components, so this is two writes — both timelines
+  /// are validated up front so a rejected move never persists half of it.
+  Future<void> _moveReplacement(ReplacementRow row, DateTime newLocal) async {
+    final newUtc = newLocal.toUtc();
+    final oldLocal = row.anchorDateLocal;
+    final appRepository = context.read<AppRepository>();
+
+    final removedComponent = row.removed.component;
+    final installedComponent = row.installed.component;
+    final updatedRemoved =
+        _reDated(removedComponent, row.removed.installation, newUtc, newLocal);
+    final updatedInstalled =
+        _reDated(installedComponent, row.installed.installation, newUtc, newLocal);
+
+    if (!isValidInstallationTimeline(updatedRemoved) ||
+        !isValidInstallationTimeline(updatedInstalled)) {
+      _rejectMove("Can't move this replacement there.");
+      return;
+    }
+
+    await appRepository.editComponent(removedComponent.copyWith(installations: updatedRemoved));
+    await appRepository.editComponent(installedComponent.copyWith(installations: updatedInstalled));
+    _showMoveUndoSnackBar(
+      calendarSubjectForRow(row),
+      oldLocal,
+      newLocal,
+      () async {
+        await appRepository.editComponent(removedComponent);
+        await appRepository.editComponent(installedComponent);
+      },
+    );
   }
 
   Future<void> _moveEntry(TimelineEntry entry, DateTime newLocal) async {
@@ -368,12 +424,12 @@ class _CalendarPageState extends State<CalendarPage> {
       case InstallationEntry():
         final ci = entry.componentInstallation;
         final originalComponent = ci.component;
-        final oldInstallation = ci.installation;
-        final newInstallation =
-            oldInstallation.copyWith(dateTimeUTC: newUtc, dateTimeLocal: newLocal);
-        final updatedInstallations = originalComponent.installations
-            .map((i) => i == oldInstallation ? newInstallation : i)
-            .toList();
+        final updatedInstallations =
+            _reDated(originalComponent, ci.installation, newUtc, newLocal);
+        if (!isValidInstallationTimeline(updatedInstallations)) {
+          _rejectMove("Can't move this installation there.");
+          return;
+        }
         await appRepository.editComponent(originalComponent.copyWith(installations: updatedInstallations));
         _showMoveUndoSnackBar(
           calendarSubjectFor(entry),
@@ -391,22 +447,27 @@ class _CalendarPageState extends State<CalendarPage> {
           () => appRepository.editRatingEntry(original),
         );
       case StravaEntry():
-        // Strava activities are synced and read-only — reject the move and
-        // rebuild so the appointment snaps back to its original slot.
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          persist: false,
-          showCloseIcon: true,
-          closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-          duration: const Duration(seconds: 2),
-          backgroundColor: Theme.of(context).colorScheme.errorContainer,
-          content: Text(
-            "Strava activities can't be edited.",
-            style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer),
-          ),
-        ));
-        setState(() {});
+        // Strava activities are synced and read-only.
+        _rejectMove("Strava activities can't be edited.");
     }
+  }
+
+  /// Refuses a drag: explains why and rebuilds so the appointment snaps back to
+  /// its original slot.
+  void _rejectMove(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      persist: false,
+      showCloseIcon: true,
+      closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
+      duration: const Duration(seconds: 2),
+      backgroundColor: Theme.of(context).colorScheme.errorContainer,
+      content: Text(
+        message,
+        style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer),
+      ),
+    ));
+    setState(() {});
   }
 
   void _showMoveUndoSnackBar(

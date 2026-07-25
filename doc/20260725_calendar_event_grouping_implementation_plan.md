@@ -219,7 +219,11 @@ Phase 4. **Strava coverage code untouched.**
 
 ## Phase 4 — Replacement tap + guarded drag (identical-date, validity-checked)
 
-**Status:** ⬜ Not started
+**Status:** ✅ Complete — tap opens `showReplacementSheet`; dragging a replacement
+re-dates both halves to one identical timestamp (both timelines validated before
+either write, undo restores both components); the same
+`isValidInstallationTimeline` guard now rejects invalid single-installation drags
+via a shared `_rejectMove` snap-back.
 
 Wire the replacement interactions: tap opens the shared sheet; drag moves both
 halves to one identical date, guarded by the Phase 1 validity function, with the

@@ -54,12 +54,14 @@ void main() {
 
         await tester.tap(find.widgetWithText(InputChip, "Bar"));
         await tester.pump();
-        await tester.tap(find.widgetWithText(InputChip, "Bar (1)"));
+        // A count of 1 shows no "(1)" suffix, so the chip is still labelled "Bar".
+        expect(find.widgetWithText(InputChip, "Bar (1)"), findsNothing);
+        await tester.tap(find.widgetWithText(InputChip, "Bar"));
         await tester.pump();
 
         await tester.tap(find.widgetWithText(InputChip, "Gel"));
         await tester.pump();
-        await tester.tap(find.widgetWithText(InputChip, "Gel (1)"));
+        await tester.tap(find.widgetWithText(InputChip, "Gel"));
         await tester.pump();
         await tester.tap(find.widgetWithText(InputChip, "Gel (2)"));
         await tester.pump();
@@ -90,7 +92,7 @@ void main() {
 
       await tester.tap(find.widgetWithText(InputChip, "Bar"));
       await tester.pump();
-      await tester.tap(find.widgetWithText(InputChip, "Bar (1)"));
+      await tester.tap(find.widgetWithText(InputChip, "Bar"));
       await tester.pump();
       await tester.tap(find.widgetWithText(InputChip, "Bar (2)"));
       await tester.pump();
@@ -119,10 +121,10 @@ void main() {
       await tester.tap(find.text("Open"));
       await tester.pumpAndSettle();
 
-      final unchangedChip = tester.widget<InputChip>(find.widgetWithText(InputChip, "Bar (1)"));
+      final unchangedChip = tester.widget<InputChip>(find.widgetWithText(InputChip, "Bar"));
       expect(unchangedChip.checkmarkColor, isNull, reason: 'count matches the previous value');
 
-      await tester.tap(find.widgetWithText(InputChip, "Bar (1)"));
+      await tester.tap(find.widgetWithText(InputChip, "Bar"));
       await tester.pump();
 
       final highlights = materialAppTheme.extension<ValueHighlightColors>()!;

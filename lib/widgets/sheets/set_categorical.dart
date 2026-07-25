@@ -379,7 +379,7 @@ class _CountedOptionChip extends StatelessWidget {
         : null;
 
     final Widget chip = InputChip(
-      label: Text(count > 0 ? '$label ($count)' : label),
+      label: Text(count > 1 ? '$label ($count)' : label),
       selected: count > 0,
       avatar: avatar,
       labelStyle: labelStyle,
@@ -429,6 +429,7 @@ class _AddOptionChipState extends State<_AddOptionChip> {
       });
       return;
     }
+    _focusNode.unfocus();
     setState(() {
       _submitting = true;
       _error = null;
@@ -457,20 +458,21 @@ class _AddOptionChipState extends State<_AddOptionChip> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     if (!_editing) {
-      // Match the label height of the neighbouring text chips so the pill lines
-      // up; an icon-only label is otherwise a few pixels shorter.
-      final labelStyle = theme.chipTheme.labelStyle ?? theme.textTheme.labelLarge;
-      final double labelHeight = (labelStyle?.fontSize ?? 14) * (labelStyle?.height ?? 1.4);
-      return ActionChip(
-        label: SizedBox(
-          height: labelHeight,
-          child: const Center(
-            widthFactor: 1,
-            child: Icon(Icons.add, size: 18),
-          ),
+      final scheme = theme.colorScheme;
+      // Bare, primary-coloured add affordance. Pulled left to sit tighter to the
+      // previous chip than the Wrap's 8px spacing alone allows. Tapping expands
+      // it into the inline text field below.
+      return Transform.translate(
+        offset: const Offset(-8, 0),
+        child: IconButton(
+          icon: const Icon(Icons.add),
+          tooltip: 'Add option',
+          color: scheme.primary,
+          visualDensity: VisualDensity.compact,
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+          onPressed: () => setState(() => _editing = true),
         ),
-        tooltip: 'Add option',
-        onPressed: () => setState(() => _editing = true),
       );
     }
     return SizedBox(
@@ -479,7 +481,11 @@ class _AddOptionChipState extends State<_AddOptionChip> {
         controller: _controller,
         focusNode: _focusNode,
         autofocus: true,
-        enabled: !_submitting,
+        // readOnly (not `enabled: false`) while submitting: keep the field
+        // mounted so its input connection isn't torn down and rebuilt mid-submit
+        // while the soft keyboard is animating — that churn could leave the
+        // editor stuck open on a second consecutive add.
+        readOnly: _submitting,
         textInputAction: TextInputAction.done,
         textCapitalization: TextCapitalization.sentences,
         style: theme.textTheme.labelLarge,

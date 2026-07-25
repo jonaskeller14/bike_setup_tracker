@@ -75,10 +75,14 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
       mainAxisSize: MainAxisSize.min,
       children: List.generate(widget.adjustments.length, (index) {
         final adjustment = widget.adjustments[index];
+        // Keyed by identity (adjustment.id), not content, so persisting a
+        // definition change (e.g. adding a categorical option) updates the row in
+        // place instead of tearing down its editing state — including a FormField
+        // whose FormFieldState an open sheet still writes to.
         switch (adjustment) {
           case BooleanAdjustment(): 
             return SetBooleanAdjustmentWidget(
-              key: ValueKey(adjustment),
+              key: ValueKey(adjustment.id),
               adjustment: adjustment,
               initialValue: widget.initialAdjustmentValues[adjustment.id],
               value: _adjustmentValues[adjustment.id],
@@ -94,7 +98,7 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
             );
           case SagAdjustment():
             return SetSagAdjustmentWidget(
-              key: ValueKey(adjustment),
+              key: ValueKey(adjustment.id),
               adjustment: adjustment,
               initialValue: widget.initialAdjustmentValues[adjustment.id],
               value: _adjustmentValues[adjustment.id]?.toString(),
@@ -110,7 +114,7 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
             );
           case NumericalAdjustment():
             return SetNumericalAdjustmentWidget(
-              key: ValueKey(adjustment),
+              key: ValueKey(adjustment.id),
               adjustment: adjustment,
               initialValue: widget.initialAdjustmentValues[adjustment.id],
               value: _adjustmentValues[adjustment.id]?.toString(),
@@ -126,7 +130,7 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
             );
           case StepAdjustment():
             return SetStepAdjustmentWidget(
-              key: ValueKey(adjustment), 
+              key: ValueKey(adjustment.id), 
               adjustment: adjustment,
               initialValue: widget.initialAdjustmentValues[adjustment.id]?.toDouble(),
               value: _adjustmentValues[adjustment.id]?.toDouble(), 
@@ -146,7 +150,7 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
             );
           case CategoricalAdjustment():
             return SetCategoricalAdjustmentWidget(
-              key: ValueKey(adjustment),
+              key: ValueKey(adjustment.id),
               adjustment: adjustment,
               initialValue: categoricalValueAsList(widget.initialAdjustmentValues[adjustment.id]),
               value: categoricalValueAsList(_adjustmentValues[adjustment.id]),
@@ -164,7 +168,7 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
             );
           case TextAdjustment():
             return SetTextAdjustmentWidget(
-              key: ValueKey(adjustment),
+              key: ValueKey(adjustment.id),
               adjustment: adjustment,
               initialValue: textValueAsString(widget.initialAdjustmentValues[adjustment.id]),
               value: textValueAsString(_adjustmentValues[adjustment.id]),
@@ -179,7 +183,7 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
             );
           case DurationAdjustment():
             return SetDurationAdjustmentWidget(
-              key: ValueKey(adjustment),
+              key: ValueKey(adjustment.id),
               adjustment: adjustment,
               initialValue: widget.initialAdjustmentValues[adjustment.id],
               value: _adjustmentValues[adjustment.id], 

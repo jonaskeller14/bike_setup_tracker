@@ -684,4 +684,99 @@ void main() {
       }
     });
   });
+
+  group('collapseIntoRows', () {
+    List<EntryRow> collapse(
+      List<TimelineEntry> entries, {
+      bool ascending = false,
+      AppSettings? settings,
+    }) {
+      return collapseIntoRows(
+        sorted(entries, ascending: ascending),
+        appSettings: settings ?? groupingSettings(),
+      );
+    }
+
+    test('collapses a replacement pair into one row at the earlier slot', () {
+      final removed = deinstallEntry(
+        component: makeComponent(id: 'old'),
+        utc: DateTime.utc(2026, 7, 1, 10),
+        installationId: 'd1',
+      );
+      final installed = installEntry(
+        component: makeComponent(id: 'new'),
+        utc: DateTime.utc(2026, 7, 1, 10, 3),
+        installationId: 'i1',
+      );
+      final later = setupEntry(id: 's1', utc: DateTime.utc(2026, 7, 1, 14));
+      final rows = collapse([removed, installed, later], ascending: true);
+
+      expect(rows, hasLength(2));
+      final replacement = rows[0] as ReplacementRow;
+      expect(replacement.removed.component.id, 'old');
+      expect(replacement.installed.component.id, 'new');
+      expect(replacement.anchorInstallation.id, 'd1');
+      expect(rows[1], isA<SingleEntryRow>());
+    });
+
+    test('collapses a run of setups into a group row', () {
+      final s1 = setupEntry(id: 's1', utc: DateTime.utc(2026, 7, 1, 10));
+      final s2 = setupEntry(id: 's2', utc: DateTime.utc(2026, 7, 1, 11));
+      final rows = collapse([s1, s2], ascending: true);
+      expect(rows, hasLength(1));
+      expect((rows.single as SetupGroupRow).setups.map((e) => e.setup.id),
+          ['s1', 's2']);
+    });
+
+    test('all passes off yields only single rows', () {
+      final s1 = setupEntry(id: 's1', utc: DateTime.utc(2026, 7, 1, 10));
+      final s2 = setupEntry(id: 's2', utc: DateTime.utc(2026, 7, 1, 11));
+      final removed = deinstallEntry(
+        component: makeComponent(id: 'old'),
+        utc: DateTime.utc(2026, 7, 1, 12),
+        installationId: 'd1',
+      );
+      final installed = installEntry(
+        component: makeComponent(id: 'new'),
+        utc: DateTime.utc(2026, 7, 1, 12, 3),
+        installationId: 'i1',
+      );
+      final rows = collapse(
+        [s1, s2, removed, installed],
+        settings: groupingSettings(
+          dayHeaders: false,
+          setupGrouping: false,
+          replacementDetection: false,
+          stravaContext: false,
+        ),
+      );
+      expect(rows, hasLength(4));
+      expect(rows.whereType<SingleEntryRow>(), hasLength(4));
+    });
+
+    test('never emits day headers or annotates strava context', () {
+      final activity = stravaEntry(id: 1, startUtc: DateTime.utc(2026, 7, 1, 10));
+      final during = setupEntry(id: 's1', utc: DateTime.utc(2026, 7, 1, 10, 15));
+      final during2 = setupEntry(id: 's2', utc: DateTime.utc(2026, 7, 1, 10, 45));
+      final nextDay = setupEntry(id: 's3', utc: DateTime.utc(2026, 7, 2, 10));
+      final rows = collapse([activity, during, during2, nextDay], ascending: true);
+
+      // `EntryRow` cannot be a `DayHeaderRow`, but the row count proves no
+      // header slots were emitted: activity + setup group + next-day setup.
+      expect(rows, hasLength(3));
+      expect(rows.whereType<SetupGroupRow>(), hasLength(1));
+      for (final row in rows) {
+        expect(row.stravaContext, isNull);
+      }
+    });
+
+    test('setups in different ride contexts are still split', () {
+      final activity = stravaEntry(id: 1, startUtc: DateTime.utc(2026, 7, 1, 10));
+      final during = setupEntry(id: 's1', utc: DateTime.utc(2026, 7, 1, 10, 30));
+      final after = setupEntry(id: 's2', utc: DateTime.utc(2026, 7, 1, 11, 30));
+      final rows = collapse([activity, during, after], ascending: true);
+      expect(rows.whereType<SetupGroupRow>(), isEmpty);
+      expect(rows, hasLength(3));
+    });
+  });
 }

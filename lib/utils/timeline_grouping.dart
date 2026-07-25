@@ -236,17 +236,56 @@ ReplacementPairing pairReplacements(
   return ReplacementPairing(pairsByAnchorId: pairs, consumedIds: consumed);
 }
 
-List<TimelineRow> buildTimelineRows(
+/// The Strava activities used as grouping context, empty when the feature is off.
+List<StravaActivity> _contextActivities(
+  List<TimelineEntry> entries,
+  AppSettings appSettings,
+) => appSettings.enableTimelineStravaContext
+    ? entries.whereType<StravaEntry>().map((e) => e.activity).toList()
+    : const <StravaActivity>[];
+
+StravaActivity? _contextOf(
+  List<StravaActivity> activities,
+  TimelineEntry entry,
+) => entry is StravaEntry
+    ? null
+    : containingStravaActivity(activities, entry.date);
+
+/// The activity a built row sits inside, mirroring how the row was formed.
+/// A [ReplacementRow] only counts as during a ride when both of its halves
+/// fall inside the same activity.
+StravaActivity? _rowActivity(List<StravaActivity> activities, EntryRow row) {
+  switch (row) {
+    case SingleEntryRow(:final entry):
+      return _contextOf(activities, entry);
+    case SetupGroupRow(:final setups):
+      return _contextOf(activities, setups.first);
+    case ReplacementRow(:final removed, :final installed):
+      final removedContext = containingStravaActivity(
+        activities,
+        removed.installation.dateTimeUTC,
+      );
+      final installedContext = containingStravaActivity(
+        activities,
+        installed.installation.dateTimeUTC,
+      );
+      return (removedContext != null && removedContext == installedContext)
+          ? removedContext
+          : null;
+  }
+}
+
+/// Collapses [sortedEntries] into display rows: replacement pairs, runs of
+/// setups, and singles for everything else. Shared by the timeline list and
+/// the calendar — it neither sets [EntryRow.stravaContext] nor emits
+/// [DayHeaderRow]s, which are list-only passes in [buildTimelineRows].
+List<EntryRow> collapseIntoRows(
   List<TimelineEntry> sortedEntries, {
-  required bool sortAscending,
   required AppSettings appSettings,
 }) {
-  final activities = appSettings.enableTimelineStravaContext
-      ? sortedEntries.whereType<StravaEntry>().map((e) => e.activity).toList()
-      : const <StravaActivity>[];
-  StravaActivity? contextOf(TimelineEntry entry) => entry is StravaEntry
-      ? null
-      : containingStravaActivity(activities, entry.date);
+  final activities = _contextActivities(sortedEntries, appSettings);
+  StravaActivity? contextOf(TimelineEntry entry) =>
+      _contextOf(activities, entry);
 
   final pairing = appSettings.enableTimelineReplacementDetection
       ? pairReplacements(sortedEntries, window: kReplacementWindow)
@@ -255,7 +294,6 @@ List<TimelineRow> buildTimelineRows(
   // Base rows in display order. Replacement rows are emitted at the earlier
   // event's slot; the later half is skipped.
   final rows = <EntryRow>[];
-  final duringActivity = <EntryRow, StravaActivity?>{};
   int i = 0;
   while (i < sortedEntries.length) {
     final entry = sortedEntries[i];
@@ -267,24 +305,9 @@ List<TimelineRow> buildTimelineRows(
       final pair =
           pairing.pairsByAnchorId[entry.componentInstallation.installation.id];
       if (pair != null) {
-        final row = ReplacementRow(
-          removed: pair.removed,
-          installed: pair.installed,
+        rows.add(
+          ReplacementRow(removed: pair.removed, installed: pair.installed),
         );
-        // Only annotated when both halves fall inside the same activity.
-        final removedContext = containingStravaActivity(
-          activities,
-          pair.removed.installation.dateTimeUTC,
-        );
-        final installedContext = containingStravaActivity(
-          activities,
-          pair.installed.installation.dateTimeUTC,
-        );
-        duringActivity[row] =
-            (removedContext != null && removedContext == installedContext)
-            ? removedContext
-            : null;
-        rows.add(row);
       }
       i++;
       continue;
@@ -307,21 +330,34 @@ List<TimelineRow> buildTimelineRows(
         j++;
       }
       if (run.length >= 2) {
-        final row = SetupGroupRow(run);
-        duringActivity[row] = contextOf(run.first);
-        rows.add(row);
+        rows.add(SetupGroupRow(run));
         i = j;
         continue;
       }
     }
 
-    final row = SingleEntryRow(entry);
-    duringActivity[row] = contextOf(entry);
-    rows.add(row);
+    rows.add(SingleEntryRow(entry));
     i++;
   }
 
+  return rows;
+}
+
+List<TimelineRow> buildTimelineRows(
+  List<TimelineEntry> sortedEntries, {
+  required bool sortAscending,
+  required AppSettings appSettings,
+}) {
+  final rows = collapseIntoRows(sortedEntries, appSettings: appSettings);
+
   if (appSettings.enableTimelineStravaContext) {
+    // Recomputed from the built rows rather than carried out of the grouping
+    // core: only this list-only pass needs it, the calendar takes plain rows.
+    final activities = _contextActivities(sortedEntries, appSettings);
+    final duringActivity = <EntryRow, StravaActivity?>{
+      for (final row in rows) row: _rowActivity(activities, row),
+    };
+
     // Every activity tile anchors its own ride block.
     final activityRowIds = <int>{};
     for (final row in rows) {

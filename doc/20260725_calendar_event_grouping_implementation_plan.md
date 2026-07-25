@@ -109,7 +109,7 @@ guard share a single definition of "valid timeline".
 
 ## Phase 2 — Shared grouping core (`collapseIntoRows`) reused by `buildTimelineRows`
 
-**Status:** ⬜ Not started
+**Status:** ✅ Complete — `collapseIntoRows` in `lib/utils/timeline_grouping.dart` now holds the replacement/setup-group/single collapsing; `buildTimelineRows` delegates to it and recomputes the per-row containing activity (via `_rowActivity`) for its unchanged strava-context and day-header passes.
 
 Refactor `buildTimelineRows` so its grouping body (replacement pairing + setup-
 group collapsing → `List<EntryRow>`) is a standalone function the calendar can
@@ -121,36 +121,36 @@ passes.
 - `test/utils/timeline_grouping_test.dart` *(edit/extend if present, else new)*
 
 **Steps:**
-- [ ] Add `List<EntryRow> collapseIntoRows(List<TimelineEntry> sortedEntries, {required AppSettings appSettings})`
+- [x] Add `List<EntryRow> collapseIntoRows(List<TimelineEntry> sortedEntries, {required AppSettings appSettings})`
       containing exactly the current base-row construction loop from
       `buildTimelineRows` (the `while (i < sortedEntries.length)` block that emits
       `ReplacementRow` / `SetupGroupRow` / `SingleEntryRow`). It must keep using
       `pairReplacements` (gated by `enableTimelineReplacementDetection`) and setup
       grouping (gated by `enableTimelineSetupGrouping`). It must **not** set
       `stravaContext` or emit `DayHeaderRow`s.
-- [ ] Note the coupling: the current base loop also fills `duringActivity` and
+- [x] Note the coupling: the current base loop also fills `duringActivity` and
       later uses it for the strava-context pass. Keep that pass **inside**
       `buildTimelineRows`: have `collapseIntoRows` return only the rows; let
       `buildTimelineRows` recompute the per-row containing activity via the
       existing `contextOf`/`containingStravaActivity` helpers when
       `enableTimelineStravaContext` is on (it already calls these). This keeps the
       strava-context + day-header layering identical for SetupList.
-- [ ] Rewrite `buildTimelineRows` to: `final rows = collapseIntoRows(sortedEntries, appSettings: appSettings);`
+- [x] Rewrite `buildTimelineRows` to: `final rows = collapseIntoRows(sortedEntries, appSettings: appSettings);`
       then run the unchanged strava-context reordering/annotation and day-header
       passes on `rows`. Confirm output is byte-for-byte equivalent to before for
       every flag combination.
 
 **Verification:**
-- [ ] Extend timeline-grouping tests to call `collapseIntoRows` directly and
+- [x] Extend timeline-grouping tests to call `collapseIntoRows` directly and
       assert: replacement pair collapses to one `ReplacementRow` at the earlier
       slot with the other half consumed; setup run collapses to `SetupGroupRow`;
       flags off → all `SingleEntryRow`; **no `DayHeaderRow` and no `stravaContext`**
       ever appear in its output.
-- [ ] Add/keep a `buildTimelineRows` regression test asserting SetupList-facing
+- [x] Add/keep a `buildTimelineRows` regression test asserting SetupList-facing
       output is unchanged (day headers present when flag on, strava-context
       annotated when flag on, replacement/group collapsing intact).
-- [ ] `flutter test test/utils/timeline_grouping_test.dart`
-- [ ] `flutter analyze` clean.
+- [x] `flutter test test/utils/timeline_grouping_test.dart`
+- [x] `flutter analyze` clean.
 
 **Commit:** `refactor(timeline): extract collapseIntoRows core shared by list + calendar`
 

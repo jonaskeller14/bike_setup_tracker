@@ -12,6 +12,7 @@ import '../models/setup.dart';
 import '../models/timeline_entry.dart';
 import '../repositories/app_repository.dart';
 import '../services/subscription_service.dart';
+import '../utils/timeline_grouping.dart';
 import '../widgets/chips/filter_sheet_chip.dart';
 import '../widgets/sheets/installation_sheet.dart';
 import '../widgets/sheets/rating_entry_details.dart';
@@ -63,6 +64,30 @@ String calendarSubjectFor(TimelineEntry entry) => switch (entry) {
       TaskTimeLineEntry() => entry.taskEntry.name,
       InstallationEntry() => entry.componentInstallation.shortLabel,
       RatingEntryTimelineEntry() => entry.ratingEntry.displayName,
+    };
+
+IconData calendarIconForRow(EntryRow row) => switch (row) {
+      SingleEntryRow(:final entry) => calendarIconFor(entry),
+      ReplacementRow() => Icons.swap_horiz,
+      SetupGroupRow() => Setup.iconData,
+    };
+
+Color calendarColorForRow(EntryRow row, ColorScheme cs) => switch (row) {
+      SingleEntryRow(:final entry) => calendarColorFor(entry, cs),
+      ReplacementRow() => cs.secondary,
+      SetupGroupRow() => cs.primary,
+    };
+
+Color calendarOnColorForRow(EntryRow row, ColorScheme cs) => switch (row) {
+      SingleEntryRow(:final entry) => calendarOnColorFor(entry, cs),
+      ReplacementRow() => cs.onSecondary,
+      SetupGroupRow() => cs.onPrimary,
+    };
+
+String calendarSubjectForRow(EntryRow row) => switch (row) {
+      SingleEntryRow(:final entry) => calendarSubjectFor(entry),
+      ReplacementRow() => 'Replaced ${row.removed.component.componentType.label}',
+      SetupGroupRow() => '${row.setups.length} setups',
     };
 
 class CalendarPage extends StatefulWidget {
@@ -176,6 +201,23 @@ class _CalendarPageState extends State<CalendarPage> {
     ];
   }
 
+  /// Collapses the built entries into display rows shared with the timeline
+  /// list. Setup grouping stays off for the calendar in v1: rather than
+  /// threading an override through the shared core, any [SetupGroupRow] it
+  /// produced is expanded back into its per-setup rows.
+  List<EntryRow> _buildRows(List<TimelineEntry> entries, AppSettings settings) {
+    final sortedEntries = [...entries]..sort((a, b) => a.date.compareTo(b.date));
+    final rows = <EntryRow>[];
+    for (final row in collapseIntoRows(sortedEntries, appSettings: settings)) {
+      if (row is SetupGroupRow) {
+        rows.addAll(row.setups.map(SingleEntryRow.new));
+      } else {
+        rows.add(row);
+      }
+    }
+    return rows;
+  }
+
   /// When the user navigates earlier than the currently loaded Strava window,
   /// page in older activities until the visible range is covered (or there is
   /// nothing more to load). Strava is paginated per active filter, so the loaded
@@ -246,37 +288,58 @@ class _CalendarPageState extends State<CalendarPage> {
       case CalendarElement.appointment:
         final appointments = details.appointments;
         if (appointments == null || appointments.isEmpty) return;
-        final entry = appointments.first;
-        if (entry is! TimelineEntry) return;
+        final row = appointments.first;
+        if (row is! EntryRow) return;
 
-        switch (entry) {
-          case SetupEntry():
-            await showSetupDetailsSheet(context: context, setup: entry.setup);
-          case StravaEntry():
-            await showStravaActivitySheet(context: context, stravaActivity: entry.activity);
-          case TaskTimeLineEntry():
-            await showTaskRuleSheet(
-              context,
-              taskRuleId: entry.taskEntry.taskRule,
-              highlightTaskEntryId: entry.taskEntry.id,
-            );
-          case InstallationEntry():
-            await showEditInstallationSheet(
-              context,
-              component: entry.componentInstallation.component,
-              editEntry: entry.componentInstallation,
-            );
-          case RatingEntryTimelineEntry():
-            await showRatingEntryDetailsSheet(context: context, ratingEntry: entry.ratingEntry);
+        switch (row) {
+          case SingleEntryRow(:final entry):
+            await _openEntry(entry);
+          // Grouped rows get their own sheets in a later phase.
+          case ReplacementRow() || SetupGroupRow():
+            return;
         }
       default: return;
-    }    
+    }
+  }
+
+  Future<void> _openEntry(TimelineEntry entry) async {
+    switch (entry) {
+      case SetupEntry():
+        await showSetupDetailsSheet(context: context, setup: entry.setup);
+      case StravaEntry():
+        await showStravaActivitySheet(context: context, stravaActivity: entry.activity);
+      case TaskTimeLineEntry():
+        await showTaskRuleSheet(
+          context,
+          taskRuleId: entry.taskEntry.taskRule,
+          highlightTaskEntryId: entry.taskEntry.id,
+        );
+      case InstallationEntry():
+        await showEditInstallationSheet(
+          context,
+          component: entry.componentInstallation.component,
+          editEntry: entry.componentInstallation,
+        );
+      case RatingEntryTimelineEntry():
+        await showRatingEntryDetailsSheet(context: context, ratingEntry: entry.ratingEntry);
+    }
   }
 
   Future<void> _onDragEnd(AppointmentDragEndDetails details) async {
-    final entry = details.appointment;
+    final row = details.appointment;
     final newLocal = details.droppingTime;
-    if (entry is! TimelineEntry || newLocal == null) return;
+    if (row is! EntryRow || newLocal == null) return;
+
+    switch (row) {
+      case SingleEntryRow(:final entry):
+        await _moveEntry(entry, newLocal);
+      // Moving a grouped row lands in a later phase.
+      case ReplacementRow() || SetupGroupRow():
+        return;
+    }
+  }
+
+  Future<void> _moveEntry(TimelineEntry entry, DateTime newLocal) async {
     final newUtc = newLocal.toUtc();
     final oldLocal = entry.date.toLocal();
     final appRepository = context.read<AppRepository>();
@@ -377,6 +440,7 @@ class _CalendarPageState extends State<CalendarPage> {
     final appSettings = context.watch<AppSettings>();
     final subscriptionService = context.watch<SubscriptionService>();
     final entries = _buildEntries(appRepository, appSettings, subscriptionService);
+    final rows = _buildRows(entries, appSettings);
     final cs = Theme.of(context).colorScheme;
 
     return PopScope(
@@ -466,7 +530,7 @@ class _CalendarPageState extends State<CalendarPage> {
                     view: _defaultView.view,
                     firstDayOfWeek: appSettings.firstDayOfWeek,
                     maxDate: DateTime.now().add(kCalendarZeroDuration),
-                    dataSource: _TimelineDataSource(entries, cs),
+                    dataSource: _TimelineDataSource(rows, cs),
                     allowDragAndDrop: true,
                     dragAndDropSettings: DragAndDropSettings(
                       indicatorTimeFormat: appSettings.timeFormat,
@@ -574,11 +638,11 @@ class _CalendarPageState extends State<CalendarPage> {
       );
     }
 
-    final entry = details.appointments.first;
-    if (entry is! TimelineEntry) return const SizedBox.shrink();
+    final row = details.appointments.first;
+    if (row is! EntryRow) return const SizedBox.shrink();
     final cs = Theme.of(context).colorScheme;
-    final color = calendarColorFor(entry, cs);
-    final onColor = calendarOnColorFor(entry, cs);
+    final color = calendarColorForRow(row, cs);
+    final onColor = calendarOnColorForRow(row, cs);
     final height = details.bounds.height;
     final width = details.bounds.width;
     // Decide what fits so a narrow column (many concurrent events) never
@@ -605,11 +669,11 @@ class _CalendarPageState extends State<CalendarPage> {
               mainAxisSize: MainAxisSize.max,
               spacing: 4,
               children: [
-                Icon(calendarIconFor(entry), size: iconSize, color: onColor),
+                Icon(calendarIconForRow(row), size: iconSize, color: onColor),
                 if (showText)
                   Expanded(
                     child: Text(
-                      calendarSubjectFor(entry),
+                      calendarSubjectForRow(row),
                       maxLines: 1,
                       softWrap: false,
                       overflow: TextOverflow.ellipsis,
@@ -622,39 +686,54 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 }
 
-class _TimelineDataSource extends CalendarDataSource<TimelineEntry> {
-  _TimelineDataSource(List<TimelineEntry> source, this._cs) {
+class _TimelineDataSource extends CalendarDataSource<EntryRow> {
+  _TimelineDataSource(List<EntryRow> source, this._cs) {
     appointments = source;
   }
 
   final ColorScheme _cs;
 
-  TimelineEntry _entry(int index) => appointments![index] as TimelineEntry;
+  EntryRow _row(int index) => appointments![index] as EntryRow;
 
   @override
-  DateTime getStartTime(int index) => _entry(index).date.toLocal();
+  DateTime getStartTime(int index) => _row(index).anchorDateLocal;
 
   @override
   DateTime getEndTime(int index) {
-    final entry = _entry(index);
-    if (entry is StravaEntry) {
-      return entry.activity.startDate.toLocal().add(entry.activity.elapsedTime);
-    }
-    return entry.date.toLocal().add(kCalendarZeroDuration);
+    final row = _row(index);
+    return switch (row) {
+      // Anchored to the row's start (not `startDate.toLocal()`) so the span
+      // stays positive for activities recorded in another timezone.
+      SingleEntryRow(entry: StravaEntry(:final activity)) =>
+        row.anchorDateLocal.add(activity.elapsedTime),
+      ReplacementRow() => _replacementEndTime(row),
+      SingleEntryRow() || SetupGroupRow() =>
+        row.anchorDateLocal.add(kCalendarZeroDuration),
+    };
+  }
+
+  /// A replacement spans its earlier half to its later one; when both halves
+  /// share a timestamp it falls back to the point-event span so a dot renders.
+  DateTime _replacementEndTime(ReplacementRow row) {
+    final start = row.anchorDateLocal;
+    final removed = row.removed.installation.dateTimeLocal;
+    final installed = row.installed.installation.dateTimeLocal;
+    final later = removed.isAfter(installed) ? removed : installed;
+    return later.isAfter(start) ? later : start.add(kCalendarZeroDuration);
   }
 
   @override
-  String getSubject(int index) => calendarSubjectFor(_entry(index));
+  String getSubject(int index) => calendarSubjectForRow(_row(index));
 
   @override
-  Color getColor(int index) => calendarColorFor(_entry(index), _cs);
+  Color getColor(int index) => calendarColorForRow(_row(index), _cs);
 
   // Required for drag-and-drop with custom appointment objects. The new date is
   // applied by [_onDragEnd] via the repository, so we just hand back the same
-  // entry to satisfy the framework's non-null conversion contract.
+  // row to satisfy the framework's non-null conversion contract.
   @override
-  TimelineEntry convertAppointmentToObject(
-          TimelineEntry customData, Appointment appointment) =>
+  EntryRow convertAppointmentToObject(
+          EntryRow customData, Appointment appointment) =>
       customData;
 }
 

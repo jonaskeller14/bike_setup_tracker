@@ -158,7 +158,7 @@ passes.
 
 ## Phase 3 — Calendar consumes grouped rows (render only, no interaction change)
 
-**Status:** ⬜ Not started
+**Status:** ✅ Complete — the calendar builds `collapseIntoRows` rows (setup groups expanded back to singles), `_TimelineDataSource` is a `CalendarDataSource<EntryRow>` anchored on `anchorDateLocal`, and `calendar*ForRow` dispatchers render replacements as one `cs.secondary` appointment; tap/drag still unwrap `SingleEntryRow` only.
 
 Insert grouping between `_buildEntries` and the data source, widen the data
 source to `EntryRow`, and add row-aware render helpers. Tap/drag still operate

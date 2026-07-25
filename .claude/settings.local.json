@@ -17,7 +17,9 @@
     ],
     "ask": [
       "Bash(git commit)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "PowerShell(git commit)",
+      "PowerShell(git commit *)"
     ],
     "additionalDirectories": [
       "D:\\20220821_Website_jonaskeller14\\bike_setup_tracker"

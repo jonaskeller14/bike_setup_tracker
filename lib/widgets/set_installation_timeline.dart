@@ -7,6 +7,7 @@ import '../models/bike.dart';
 import '../models/installation.dart';
 import '../repositories/app_repository.dart';
 import '../theme.dart';
+import '../utils/installation_timeline_validation.dart';
 import 'text/section_title.dart';
 
 class SetInstallationTimeline extends StatefulWidget {
@@ -118,33 +119,7 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
 
     return FormField<List<Installation>>(
       initialValue: _installations,
-      validator: (value) {
-        if (_installations.isEmpty) {
-          return 'At least one entry is required';
-        }
-        for (int i = 0; i < _installations.length; i++) {
-          final current = _installations[i];
-
-          if (i < _installations.length - 1) {
-            if (current is Archival) {
-              return 'Archival can only be the last entry in the timeline';
-            }
-            final next = _installations[i + 1];
-            if (current is Uninstallation && next is Uninstallation) {
-              return 'Cannot have consecutive uninstallations';
-            }
-            if (current is BikeInstallation && next is BikeInstallation && current.bikeId == next.bikeId) {
-              return 'Cannot have consecutive installations on the same bike';
-            }
-          }
-        }
-        final fromBeginningCount = _installations.where((e) => e.dateTimeUTC.millisecondsSinceEpoch == 0).length;
-        if (fromBeginningCount > 1) {
-          return 'Multiple "From beginning" entries are not allowed';
-        }
-
-        return null;
-      },
+      validator: (value) => validateInstallationTimeline(_installations),
       builder: (state) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,

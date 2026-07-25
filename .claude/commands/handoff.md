@@ -43,7 +43,9 @@ copy) containing a fully self-contained brief. It must include, in this order:
 - **Out of scope:** do not start other phases or touch files outside the scope list.
 - **On completion:** when all verification passes, open `<plan doc>` and set this phase's
   `**Status:**` to `✅ Complete` with a one-line note of what landed; then stage the changes
-  and commit with `<Commit subject>` (or run `/gc`), following the repo's commit rules.
+  and **stop — summarize what changed and ask before committing.** The user reviews every
+  diff manually. Only commit once they say so, with `<Commit subject>` (or `/gc`), following
+  the repo's commit rules. Never commit as the closing step of the phase on your own.
 
 ## Constraints
 - The brief must be self-contained: a fresh window with no prior context should be able to

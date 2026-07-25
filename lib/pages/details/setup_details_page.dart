@@ -152,6 +152,24 @@ class SetupDetailsPageContent extends StatelessWidget {
 
   const SetupDetailsPageContent({super.key, required this.setup, this.showEditButton = false, this.showCloseButton = false});
 
+  Widget _currentLabel(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primary,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+      child: Text(
+        'Current',
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.onPrimary,
+          fontWeight: FontWeight.w600,
+          fontSize: 12,
+        ),
+      ),
+    );
+  }
+
   SliverAppBar _setupTitle(BuildContext context, {required Setup setup}) {
     final appSettings = context.read<AppSettings>();
     
@@ -170,10 +188,21 @@ class SetupDetailsPageContent extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SelectableText(
-                  setup.displayName,
-                  style: Theme.of(context).textTheme.titleLarge,
-                  maxLines: 1,
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      child: SelectableText(
+                        setup.displayName,
+                        style: Theme.of(context).textTheme.titleLarge,
+                        maxLines: 1,
+                      ),
+                    ),
+                    if (setup.isCurrent) ...[
+                      const SizedBox(width: 8),
+                      _currentLabel(context),
+                    ],
+                  ],
                 ),
                 Text(
                   "${DateFormat(appSettings.dateFormat).format(setup.datetimeLocal)} • ${DateFormat(appSettings.timeFormat).format(setup.datetimeLocal)}",

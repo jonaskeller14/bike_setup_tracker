@@ -161,6 +161,24 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                         size: 40,
                         color: Theme.of(context).colorScheme.primary,
                       ),
+                      if (setup.isCurrent)
+                        Align(
+                          alignment: const Alignment(0, -0.35),
+                          child: Container(
+                            width: 12,
+                            height: 12,
+                            alignment: Alignment.center,
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.star,
+                              size: 8,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ),

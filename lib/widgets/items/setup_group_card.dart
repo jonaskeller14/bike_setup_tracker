@@ -23,35 +23,47 @@ class SetupGroupCard extends StatelessWidget {
     required this.displayPersonAdjustmentValues,
   });
 
-  Widget _metadataRow(
-    BuildContext context,
-    IconData icon,
-    String text, {
-    Color? iconColor,
-    Color? textColor,
-  }) {
+  Widget _subtitleRow(BuildContext context, IconData icon, String text, {bool isError = false}) {
+    final scheme = Theme.of(context).colorScheme;
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
       spacing: 2,
       children: [
-        Icon(
-          icon,
-          size: 13,
-          color: iconColor ?? Theme.of(context).colorScheme.onSurfaceVariant,
-        ),
+        Icon(icon, size: 13, color: isError ? scheme.error : scheme.onSurfaceVariant),
         Flexible(
           child: Text(
             text,
             style: TextStyle(
-              color:
-                  textColor ??
-                  Theme.of(
-                    context,
-                  ).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+              color: isError ? scheme.error : scheme.onSurfaceVariant.withValues(alpha: 0.8),
               fontSize: 13,
             ),
             overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Secondary metadata below the tile: more muted than the subtitle line.
+  Widget _metadataRow(BuildContext context, IconData icon, String text, {Color? iconColor}) {
+    final scheme = Theme.of(context).colorScheme;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      spacing: 2,
+      children: [
+        Icon(icon, size: 13, color: (iconColor ?? scheme.onSurfaceVariant).withValues(alpha: 0.6)),
+        Flexible(
+          child: Text(
+            text,
+            style: TextStyle(
+              color: scheme.onSurfaceVariant.withValues(alpha: 0.6),
+              fontSize: 13,
+            ),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
           ),
         ),
       ],
@@ -140,6 +152,29 @@ class SetupGroupCard extends StatelessWidget {
     final startText = timeFormat.format(earliest);
     final endText = timeFormat.format(latest);
     final timeText = startText == endText ? startText : "$startText – $endText";
+    // Members share a local day, so one date covers the group. The day header
+    // states it when enabled.
+    final dateTimeText = appSettings.enableTimelineDayHeaders
+        ? timeText
+        : "${DateFormat(appSettings.dateFormat).format(earliest)} • $timeText";
+
+    final metadataRows = <Widget>[
+      if (sharedPlace != null)
+        _metadataRow(context, Icons.location_pin, sharedPlace),
+      if (weather?.currentTemperature != null)
+        _metadataRow(
+          context,
+          ContextWeather.currentTemperatureIconData,
+          "${ContextWeather.convertTemperatureFromCelsius(weather!.currentTemperature!, appSettings.temperatureUnit)?.round()} ${appSettings.temperatureUnit}",
+        ),
+      if (weather?.condition != null)
+        _metadataRow(
+          context,
+          weather?.condition?.iconData ?? Icons.question_mark,
+          weather?.condition?.value ?? "-",
+          iconColor: weather?.condition?.color,
+        ),
+    ];
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4.0),
@@ -153,67 +188,59 @@ class SetupGroupCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  spacing: 8,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(
-                      Setup.iconData,
-                      size: 18,
-                      
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    const Padding(
+                      padding: EdgeInsets.only(top: 1),
+                      child: Icon(Setup.iconData),
                     ),
+                    const SizedBox(width: 8),
                     Expanded(
-                      child: Text(
-                        "${setups.length} Setups",
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.bold),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "${setups.length} Setups",
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                          Wrap(
+                            alignment: WrapAlignment.start,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: 8,
+                            children: [
+                              Text(
+                                dateTimeText,
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                                  fontSize: 13,
+                                ),
+                              ),
+                              _subtitleRow(
+                                context,
+                                Bike.iconData,
+                                bikes[bikeId]?.name ?? "BIKE NOT FOUND",
+                                isError: !bikeFound,
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
-                Wrap(
-                  alignment: WrapAlignment.start,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  spacing: 4,
-                  children: [
-                    _metadataRow(
-                      context,
-                      Bike.iconData,
-                      bikes[bikeId]?.name ?? "BIKE NOT FOUND",
-                      iconColor: bikeFound
-                          ? null
-                          : Theme.of(context).colorScheme.error,
-                      textColor: bikeFound
-                          ? null
-                          : Theme.of(context).colorScheme.error,
+                if (metadataRows.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Wrap(
+                      alignment: WrapAlignment.start,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 8,
+                      children: metadataRows,
                     ),
-                    // Members share a local day, so one date covers the group.
-                    // The day header states it when enabled.
-                    if (!appSettings.enableTimelineDayHeaders)
-                      _metadataRow(
-                        context,
-                        Icons.calendar_month,
-                        DateFormat(appSettings.dateFormat).format(earliest),
-                      ),
-                    _metadataRow(context, Icons.access_time, timeText),
-                    if (sharedPlace != null)
-                      _metadataRow(context, Icons.location_pin, sharedPlace),
-                    if (weather?.currentTemperature != null)
-                      _metadataRow(
-                        context,
-                        ContextWeather.currentTemperatureIconData,
-                        "${ContextWeather.convertTemperatureFromCelsius(weather!.currentTemperature!, appSettings.temperatureUnit)?.round()} ${appSettings.temperatureUnit}",
-                      ),
-                    if (weather?.condition != null)
-                      _metadataRow(
-                        context,
-                        weather?.condition?.iconData ?? Icons.question_mark,
-                        weather?.condition?.value ?? "-",
-                        iconColor: weather?.condition?.color,
-                      ),
-                  ],
-                ),
+                  ),
               ],
             ),
           ),

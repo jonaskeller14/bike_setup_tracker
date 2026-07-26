@@ -126,6 +126,53 @@ class _SetupListCardState extends State<SetupListCard> {
     );
   }
 
+  Widget _subtitleRow(BuildContext context, IconData icon, String text, {bool isError = false}) {
+    final scheme = Theme.of(context).colorScheme;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      spacing: 2,
+      children: [
+        Icon(icon, size: 13, color: isError ? scheme.error : scheme.onSurfaceVariant),
+        Flexible(
+          child: Text(
+            text,
+            style: TextStyle(
+              color: isError ? scheme.error : scheme.onSurfaceVariant.withValues(alpha: 0.8),
+              fontSize: 13,
+            ),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Secondary metadata below the tile: more muted than the subtitle line.
+  Widget _metadataRow(BuildContext context, IconData icon, String text, {Color? iconColor}) {
+    final scheme = Theme.of(context).colorScheme;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      spacing: 2,
+      children: [
+        Icon(icon, size: 13, color: (iconColor ?? scheme.onSurfaceVariant).withValues(alpha: 0.6)),
+        Flexible(
+          child: Text(
+            text,
+            style: TextStyle(
+              color: scheme.onSurfaceVariant.withValues(alpha: 0.6),
+              fontSize: 13,
+            ),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _setupListTile(BuildContext context, Setup setup, AdjustmentCompactSummary summary) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
@@ -135,6 +182,36 @@ class _SetupListCardState extends State<SetupListCard> {
         : null;
     // Embedded members get their chevron from the embedded wrapper instead.
     final bool showInlineExpandIcon = !widget.embedded && summary.collapsedHidesSomething;
+
+    final dateText = DateFormat(appSettings.dateFormat).format(setup.datetimeLocal);
+    final timeText = DateFormat(appSettings.timeFormat).format(setup.datetimeLocal);
+
+    final metadataRows = <Widget>[
+      if (setup.place != null && !widget.hidePlace)
+        _metadataRow(
+          context,
+          Icons.location_pin,
+          "${setup.place?.locality}, ${setup.place?.isoCountryCode}",
+        ),
+      if (!widget.embedded && setup.weather?.currentTemperature != null)
+        _metadataRow(
+          context,
+          ContextWeather.currentTemperatureIconData,
+          "${ContextWeather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, appSettings.temperatureUnit)?.round()} ${appSettings.temperatureUnit}",
+        ),
+      if (!widget.embedded && setup.weather?.condition != null)
+        _metadataRow(
+          context,
+          setup.weather?.condition?.iconData ?? Icons.question_mark,
+          setup.weather?.condition?.value ?? "-",
+          iconColor: setup.weather?.condition?.color,
+        ),
+      if (appSettings.enableSetupTags)
+        ...setup.tags.map((tag) => _metadataRow(context, Icons.tag, tag)),
+      if (appSettings.enableSetupImages && setup.images.isNotEmpty)
+        _metadataRow(context, Icons.photo_library_outlined, '${setup.images.length}'),
+    ];
+    final bool hasNotes = setup.notes != null && setup.notes!.isNotEmpty;
 
     return Padding(
       // Embedded (group member): pull the trailing edge in to 4 so the popup
@@ -157,199 +234,97 @@ class _SetupListCardState extends State<SetupListCard> {
                 children: [
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: 8,
                     children: [
-                      Expanded(
-                        child: Text(
-                          setup.displayName,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 3,
-                        ),
+                      const Padding(
+                        padding: EdgeInsets.only(top: 1),
+                        child: Icon(Setup.iconData),
                       ),
-                      if (score != null)
-                        _scoreBadge(context, score),
-                    ],
-                  ),
-                  Wrap(
-                    alignment: WrapAlignment.start,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    spacing: 4,
-                    children: [
-                      if (widget.showDate)
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          spacing: 2,
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(Icons.calendar_month, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                            Text(
-                              DateFormat(appSettings.dateFormat).format(setup.datetimeLocal),
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                                fontSize: 13,
-                              ),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              spacing: 8,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    setup.displayName,
+                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 3,
+                                  ),
+                                ),
+                                if (score != null)
+                                  _scoreBadge(context, score),
+                              ],
+                            ),
+                            Wrap(
+                              alignment: WrapAlignment.start,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              spacing: 8,
+                              children: [
+                                Text(
+                                  widget.showDate ? "$dateText • $timeText" : timeText,
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                                    fontSize: 13,
+                                  ),
+                                ),
+                                if (!widget.embedded)
+                                  _subtitleRow(
+                                    context,
+                                    Bike.iconData,
+                                    bikes[setup.bike]?.name ?? "BIKE NOT FOUND",
+                                    isError: !bikes.containsKey(setup.bike),
+                                  ),
+                              ],
                             ),
                           ],
                         ),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        spacing: 2,
+                      ),
+                    ],
+                  ),
+                  if (metadataRows.isNotEmpty || hasNotes)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(Icons.access_time, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                          Flexible(
-                            child: Text(
-                              DateFormat(appSettings.timeFormat).format(setup.datetimeLocal),
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                                fontSize: 13,
-                              ),
+                          if (metadataRows.isNotEmpty)
+                            Wrap(
+                              alignment: WrapAlignment.start,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              spacing: 8,
+                              children: metadataRows,
                             ),
-                          ),
+                          if (hasNotes)
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 3),
+                                  child: Icon(
+                                    Icons.notes,
+                                    size: 13,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+                                  ),
+                                ),
+                                const SizedBox(width: 2),
+                                Expanded(
+                                  child: NotesText(
+                                    setup.notes!,
+                                    fontSize: 13,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+                                  ),
+                                ),
+                              ],
+                            ),
                         ],
                       ),
-                    ],
-                  ),
-                  if (!widget.embedded)
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      spacing: 2,
-                      children: [
-                        Icon(
-                          Bike.iconData,
-                          size: 13,
-                          color: bikes.containsKey(setup.bike)
-                              ? Theme.of(context).colorScheme.onSurfaceVariant
-                              : Theme.of(context).colorScheme.error,
-                        ),
-                        Flexible(
-                          child: Text(
-                            bikes[setup.bike]?.name ?? "BIKE NOT FOUND",
-                            style: TextStyle(
-                              color: bikes.containsKey(setup.bike)
-                                  ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
-                                  : Theme.of(context).colorScheme.error,
-                              fontSize: 13,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
-                        ),
-                      ],
-                    ),
-                  Wrap(
-                    alignment: WrapAlignment.start,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    spacing: 4,
-                    children: [
-                      if (setup.place != null && !widget.hidePlace) ... [
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          spacing: 2,
-                          children: [
-                            Icon(Icons.location_pin, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                            Flexible(
-                              child: Text(
-                                "${setup.place?.locality}, ${setup.place?.isoCountryCode}",
-                                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                      if (!widget.embedded && setup.weather?.currentTemperature != null) ... [
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          spacing: 2,
-                          children: [
-                            Icon(ContextWeather.currentTemperatureIconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                            Flexible(
-                              child: Text(
-                                "${ContextWeather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, appSettings.temperatureUnit)?.round()} ${appSettings.temperatureUnit}",
-                                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-                              ),
-                            ),
-                          ],
-                        )
-                      ],
-                      if (!widget.embedded && setup.weather?.condition != null)
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          spacing: 2,
-                          children: [
-                            Icon(setup.weather?.condition?.iconData ?? Icons.question_mark, size: 13, color: setup.weather?.condition?.color),
-                            Flexible(
-                              child: Text(
-                                setup.weather?.condition?.value ?? "-",
-                                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-                              ),
-                            ),
-                          ],
-                        ),
-                      if (appSettings.enableSetupTags)
-                        ...setup.tags.map((tag) {
-                          return Row(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            spacing: 2,
-                            children: [
-                              Icon(Icons.tag, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                              Flexible(
-                                child: Text(
-                                  tag,
-                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
-                          );
-                        }),
-                      if (appSettings.enableSetupImages && setup.images.isNotEmpty)
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          spacing: 2,
-                          children: [
-                            Icon(Icons.photo_library_outlined, size: 13,
-                                color: Theme.of(context).colorScheme.onSurfaceVariant),
-                            Text('${setup.images.length}',
-                                style: TextStyle(
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                                    fontSize: 13)),
-                          ],
-                        ),
-                    ],
-                  ),
-                  if (setup.notes != null && setup.notes!.isNotEmpty)
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 3),
-                          child: Icon(
-                            Icons.notes,
-                            size: 13,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                        const SizedBox(width: 2),
-                        Expanded(
-                          child: NotesText(
-                            setup.notes!,
-                            fontSize: 13,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                          ),
-                        ),
-                      ],
                     ),
                 ],
               ),

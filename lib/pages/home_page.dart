@@ -142,21 +142,24 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       body: SafeArea(
-        child: <Widget>[
-          if (appSettings.enableGarage)
-            const GarageList()
-          else ...[
-            const BikeList(),
-            const ComponentList(),
+        child: IndexedStack(
+          index: pageIndex,
+          children: <Widget>[
+            if (appSettings.enableGarage)
+              const GarageList()
+            else ...[
+              const BikeList(),
+              const ComponentList(),
+            ],
+            const SetupList(),
+            if (appSettings.enablePerson)
+              const PersonList(),
+            if (appSettings.enableRating)
+              const RatingList(),
+            if (appSettings.enableTask)
+              const TaskList(),
           ],
-          const SetupList(),
-          if (appSettings.enablePerson)
-            const PersonList(),
-          if (appSettings.enableRating)
-            const RatingList(),
-          if (appSettings.enableTask)
-            const TaskList(),
-        ][pageIndex],
+        ),
       ),
       floatingActionButton: <Widget>[
         if (appSettings.enableGarage)

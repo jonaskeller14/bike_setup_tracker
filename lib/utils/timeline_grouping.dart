@@ -118,23 +118,58 @@ DateTime timelineEntryLocalDate(TimelineEntry entry) => switch (entry) {
   RatingEntryTimelineEntry(:final ratingEntry) => ratingEntry.dateTimeLocal,
 };
 
-/// The activity whose window `[startDate, startDate + elapsedTime]` contains
-/// [utc]. With overlapping activities the one starting latest (innermost)
-/// wins. Returns null when no activity contains [utc].
-StravaActivity? containingStravaActivity(
-  Iterable<StravaActivity> activities,
-  DateTime utc,
-) {
-  StravaActivity? containing;
-  for (final activity in activities) {
-    final start = activity.startDate;
-    final end = start.add(activity.elapsedTime);
-    if (utc.isBefore(start) || utc.isAfter(end)) continue;
-    if (containing == null || start.isAfter(containing.startDate)) {
-      containing = activity;
+/// Sorted index answering "which activity's window contains this instant" in
+/// O(log n) instead of a scan over every loaded activity — the lookup runs per
+/// timeline row, so with 1k+ loaded activities linear scans made list builds
+/// quadratic.
+class StravaActivityIndex {
+  final List<StravaActivity> _byStart;
+
+  /// Running max of window end over `_byStart[0..i]`; lets the backwards walk
+  /// in [containing] stop as soon as no earlier activity can still reach the
+  /// queried instant.
+  final List<DateTime> _maxEndPrefix;
+
+  StravaActivityIndex._(this._byStart, this._maxEndPrefix);
+
+  factory StravaActivityIndex(Iterable<StravaActivity> activities) {
+    final sorted = activities.toList()
+      ..sort((a, b) => a.startDate.compareTo(b.startDate));
+    final maxEnds = <DateTime>[];
+    DateTime? runningMax;
+    for (final activity in sorted) {
+      final end = activity.startDate.add(activity.elapsedTime);
+      if (runningMax == null || end.isAfter(runningMax)) runningMax = end;
+      maxEnds.add(runningMax);
     }
+    return StravaActivityIndex._(sorted, maxEnds);
   }
-  return containing;
+
+  /// The activity whose window `[startDate, startDate + elapsedTime]` contains
+  /// [utc]. With overlapping activities the one starting latest (innermost)
+  /// wins. Returns null when no activity contains [utc].
+  StravaActivity? containing(DateTime utc) {
+    // Last index with startDate <= utc.
+    int lo = 0, hi = _byStart.length - 1, idx = -1;
+    while (lo <= hi) {
+      final mid = (lo + hi) >> 1;
+      if (_byStart[mid].startDate.isAfter(utc)) {
+        hi = mid - 1;
+      } else {
+        idx = mid;
+        lo = mid + 1;
+      }
+    }
+    // Walk towards earlier starts; the first hit is the innermost.
+    for (var i = idx; i >= 0; i--) {
+      if (_maxEndPrefix[i].isBefore(utc)) break;
+      final activity = _byStart[i];
+      if (!activity.startDate.add(activity.elapsedTime).isBefore(utc)) {
+        return activity;
+      }
+    }
+    return null;
+  }
 }
 
 class ReplacementPair {
@@ -237,36 +272,34 @@ ReplacementPairing pairReplacements(
 }
 
 /// The Strava activities used as grouping context, empty when the feature is off.
-List<StravaActivity> _contextActivities(
+StravaActivityIndex _contextIndex(
   List<TimelineEntry> entries,
   AppSettings appSettings,
-) => appSettings.enableTimelineStravaContext
-    ? entries.whereType<StravaEntry>().map((e) => e.activity).toList()
-    : const <StravaActivity>[];
+) => StravaActivityIndex(
+  appSettings.enableTimelineStravaContext
+      ? entries.whereType<StravaEntry>().map((e) => e.activity)
+      : const <StravaActivity>[],
+);
 
 StravaActivity? _contextOf(
-  List<StravaActivity> activities,
+  StravaActivityIndex activities,
   TimelineEntry entry,
-) => entry is StravaEntry
-    ? null
-    : containingStravaActivity(activities, entry.date);
+) => entry is StravaEntry ? null : activities.containing(entry.date);
 
 /// The activity a built row sits inside, mirroring how the row was formed.
 /// A [ReplacementRow] only counts as during a ride when both of its halves
 /// fall inside the same activity.
-StravaActivity? _rowActivity(List<StravaActivity> activities, EntryRow row) {
+StravaActivity? _rowActivity(StravaActivityIndex activities, EntryRow row) {
   switch (row) {
     case SingleEntryRow(:final entry):
       return _contextOf(activities, entry);
     case SetupGroupRow(:final setups):
       return _contextOf(activities, setups.first);
     case ReplacementRow(:final removed, :final installed):
-      final removedContext = containingStravaActivity(
-        activities,
+      final removedContext = activities.containing(
         removed.installation.dateTimeUTC,
       );
-      final installedContext = containingStravaActivity(
-        activities,
+      final installedContext = activities.containing(
         installed.installation.dateTimeUTC,
       );
       return (removedContext != null && removedContext == installedContext)
@@ -283,7 +316,7 @@ List<EntryRow> collapseIntoRows(
   List<TimelineEntry> sortedEntries, {
   required AppSettings appSettings,
 }) {
-  final activities = _contextActivities(sortedEntries, appSettings);
+  final activities = _contextIndex(sortedEntries, appSettings);
   StravaActivity? contextOf(TimelineEntry entry) =>
       _contextOf(activities, entry);
 
@@ -353,7 +386,7 @@ List<TimelineRow> buildTimelineRows(
   if (appSettings.enableTimelineStravaContext) {
     // Recomputed from the built rows rather than carried out of the grouping
     // core: only this list-only pass needs it, the calendar takes plain rows.
-    final activities = _contextActivities(sortedEntries, appSettings);
+    final activities = _contextIndex(sortedEntries, appSettings);
     final duringActivity = <EntryRow, StravaActivity?>{
       for (final row in rows) row: _rowActivity(activities, row),
     };

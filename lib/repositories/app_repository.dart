@@ -486,6 +486,12 @@ class AppRepository extends ChangeNotifier {
   }
 
   void _resolveData() {
+    // Drop the lazily built rating/score lookup caches
+    _setupsByBikeSorted = null;
+    _ratingEntriesBySetup = null;
+    _applicableMetricsByBike = null;
+    _setupScoreCache.clear();
+
     final result = SetupResolutionService.resolveSetups(
       setups: _setups,
       bikes: _bikes,
@@ -1011,12 +1017,50 @@ class AppRepository extends ChangeNotifier {
     }
   }
   
-  String? resolveSetupId({required String bikeId, required DateTime atUtc}) {
-    Setup? best;
+  // Lazily built lookup caches for rating/score resolution.
+  Map<String, List<Setup>>? _setupsByBikeSorted;
+  Map<String, List<RatingEntry>>? _ratingEntriesBySetup;
+  Map<String, List<RatingMetric>>? _applicableMetricsByBike;
+  final Map<String, double?> _setupScoreCache = {};
+
+  Map<String, List<Setup>> get _setupsByBike {
+    final cached = _setupsByBikeSorted;
+    if (cached != null) return cached;
+    final map = <String, List<Setup>>{};
     for (final setup in _setups.values) {
-      if (setup.bike != bikeId) continue;
-      if (setup.datetime.isAfter(atUtc)) continue;
-      if (best == null || setup.datetime.isAfter(best.datetime)) best = setup;
+      (map[setup.bike] ??= []).add(setup);
+    }
+    for (final list in map.values) {
+      list.sort((a, b) => a.datetime.compareTo(b.datetime));
+    }
+    return _setupsByBikeSorted = map;
+  }
+
+  Map<String, List<RatingEntry>> get _entriesBySetup {
+    final cached = _ratingEntriesBySetup;
+    if (cached != null) return cached;
+    final map = <String, List<RatingEntry>>{};
+    for (final ratingEntry in _ratingEntries.values) {
+      final setupId = resolveSetupId(bikeId: ratingEntry.bike, atUtc: ratingEntry.dateTimeUTC);
+      if (setupId != null) (map[setupId] ??= []).add(ratingEntry);
+    }
+    return _ratingEntriesBySetup = map;
+  }
+
+  String? resolveSetupId({required String bikeId, required DateTime atUtc}) {
+    final sorted = _setupsByBike[bikeId];
+    if (sorted == null) return null;
+    // Binary search for the latest setup with datetime <= atUtc.
+    Setup? best;
+    int lo = 0, hi = sorted.length - 1;
+    while (lo <= hi) {
+      final mid = (lo + hi) >> 1;
+      if (sorted[mid].datetime.isAfter(atUtc)) {
+        hi = mid - 1;
+      } else {
+        best = sorted[mid];
+        lo = mid + 1;
+      }
     }
     return best?.id;
   }
@@ -1024,7 +1068,13 @@ class AppRepository extends ChangeNotifier {
   String? resolvedSetupIdFor(RatingEntry entry) =>
       resolveSetupId(bikeId: entry.bike, atUtc: entry.dateTimeUTC);
 
-  List<RatingMetric> _applicableMetricsForBike(String bikeId) {
+  List<RatingMetric> _applicableMetricsForBike(String bikeId) =>
+      (_applicableMetricsByBike ??= {}).putIfAbsent(
+        bikeId,
+        () => _computeApplicableMetricsForBike(bikeId),
+      );
+
+  List<RatingMetric> _computeApplicableMetricsForBike(String bikeId) {
     final bikePerson = _bikes[bikeId]?.person;
     final bikeComponents = _components.values.where((c) => c.bike == bikeId);
     final componentIds = bikeComponents.map((c) => c.id).toSet();
@@ -1050,16 +1100,19 @@ class AppRepository extends ChangeNotifier {
   EntryScoreBreakdown entryBreakdown(RatingEntry entry) =>
       RatingScoreService.breakdown(_applicableMetricsForBike(entry.bike), entry.metricValues);
 
-  List<RatingEntry> ratingEntriesForSetup(String setupId) => _ratingEntries.values
-      .where((entry) => resolveSetupId(bikeId: entry.bike, atUtc: entry.dateTimeUTC) == setupId)
-      .toList();
+  List<RatingEntry> ratingEntriesForSetup(String setupId) =>
+      _entriesBySetup[setupId] ?? const [];
 
   double? scoreForSetup(String setupId) {
+    if (_setupScoreCache.containsKey(setupId)) return _setupScoreCache[setupId];
     final entries = ratingEntriesForSetup(setupId);
-    if (entries.isEmpty) return null;
-    return RatingScoreService.setupScore(
-      entries.map((e) => (metrics: _applicableMetricsForBike(e.bike), values: e.metricValues)),
-    );
+    final score = entries.isEmpty
+        ? null
+        : RatingScoreService.setupScore(
+            entries.map((e) => (metrics: _applicableMetricsForBike(e.bike), values: e.metricValues)),
+          );
+    _setupScoreCache[setupId] = score;
+    return score;
   }
 
   Map<String, double> metricScoresForSetup(String setupId) {

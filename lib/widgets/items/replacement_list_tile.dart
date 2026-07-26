@@ -19,19 +19,22 @@ class ReplacementListTile extends StatelessWidget {
     this.showDate = true,
   });
 
-  Widget _subtitleRow(BuildContext context, IconData icon, String text, {Color? color}) {
-    final effectiveColor = color ?? Theme.of(context).colorScheme.onSurfaceVariant;
+  Widget _subtitleRow(BuildContext context, IconData icon, String text, {bool isError = false}) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
       spacing: 2,
       children: [
-        Icon(icon, size: 12, color: effectiveColor),
+        Icon(icon, size: 12, color: isError
+            ? Theme.of(context).colorScheme.error
+            : Theme.of(context).colorScheme.onSurfaceVariant),
         Flexible(
           child: Text(
             text,
             style: TextStyle(
-              color: color ?? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+              color: isError
+                  ? Theme.of(context).colorScheme.error
+                  : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
               fontSize: 12,
             ),
             overflow: TextOverflow.ellipsis,
@@ -42,8 +45,6 @@ class ReplacementListTile extends StatelessWidget {
     );
   }
 
-  /// Where the component ended up after this event, used as the trailing
-  /// destination glyph (matches the vocabulary in [InstallationListTile]).
   static IconData _destinationIcon(InstallationParentType type) => switch (type) {
         InstallationParentType.bike => Bike.iconData,
         InstallationParentType.none => Icons.shelves,
@@ -67,7 +68,7 @@ class ReplacementListTile extends StatelessWidget {
   }) {
     final scheme = Theme.of(context).colorScheme;
     final nameColor =
-        emphasized ? scheme.onSurface : scheme.onSurfaceVariant.withValues(alpha: 0.7);
+        emphasized ? scheme.onSurface : scheme.onSurfaceVariant.withValues(alpha: 0.6);
     final glyphColor =
         emphasized ? scheme.onSurfaceVariant : scheme.onSurfaceVariant.withValues(alpha: 0.6);
     return Row(
@@ -109,112 +110,77 @@ class ReplacementListTile extends StatelessWidget {
         : installedTime;
     final laterTime = earlierTime == removedTime ? installedTime : removedTime;
     final timeText = earlierTime == laterTime ? earlierTime : "$earlierTime – $laterTime";
+    final dateText = DateFormat(appSettings.dateFormat).format(row.anchorDateLocal);
 
     final componentType = row.removed.component.componentType;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ListTile(
-          onTap: onTap,
-          titleAlignment: ListTileTitleAlignment.top,
-          // contentPadding: const EdgeInsets.symmetric(horizontal: 16),//TODO
-          // minVerticalPadding: 4, //TODO
-          minLeadingWidth: 0,
-          horizontalTitleGap: 8,
-          leading: const Padding(
-            padding: EdgeInsets.only(top: 1),
-            child: Icon(
-              Icons.swap_horiz,
-              // size: 20,
-              // color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          ),
-          // title: Text(
-          //   "Replaced ${componentType.label}",
-          //   overflow: TextOverflow.ellipsis,
-          //   maxLines: 1,
-          //   style: const TextStyle(fontWeight: FontWeight.bold),
-          // ),
-          title: Row(
-            spacing: 6,
-            children: [
-              // Icon(Icons.swap_horiz, size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
-              Flexible(
-                child: Text(
-                  "Replaced ${componentType.label}",
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  // style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
+    return InkWell(
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ListTile(
+            titleAlignment: ListTileTitleAlignment.top,
+            minLeadingWidth: 0,
+            horizontalTitleGap: 8,
+            leading: const Padding(
+              padding: EdgeInsets.only(top: 1),
+              child: Icon(
+                Icons.swap_horiz,
               ),
-            ],
-          ),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Wrap(
-                alignment: WrapAlignment.start,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 8,
-                runSpacing: 2,
-                children: [
-                  if (showDate)
-                    _subtitleRow(
-                      context,
-                      Icons.calendar_month,
-                      DateFormat(appSettings.dateFormat).format(row.anchorDateLocal),
+            ),
+            title: Text(
+              "Replaced ${componentType.label}",
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+              maxLines: 1,
+            ),
+            contentPadding: const EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 4),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Wrap(
+                  alignment: WrapAlignment.start,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 8,
+                  children: [
+                    Text(
+                      showDate ? "$dateText • $timeText" : timeText,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                        fontSize: 12,
+                      ),
                     ),
-                  // Time carries no icon: an HH:mm reads as a time unaided, and
-                  // dropping the clock glyph thins the subtitle and lets the wider
-                  // Wrap spacing separate it cleanly from the bike beside it.
-                  Text(
-                    timeText,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                      fontSize: 12,
-                    ),
-                  ),
-                  if (!showDate)
                     _subtitleRow(
                       context,
                       Bike.iconData,
                       bikeName,
-                      color: isBikeError ? Theme.of(context).colorScheme.error : null,
+                      isError: isBikeError,
                     ),
+                  ],
+                ),
+              ],
+            ),
+            dense: true,
+            visualDensity: VisualDensity.compact,
+            minTileHeight: 0,
+            minVerticalPadding: 0,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
+            child: IntrinsicWidth(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _componentRow(context, row.installed, emphasized: false),
+                  _componentRow(context, row.removed, emphasized: false),
                 ],
               ),
-              if (showDate)
-                _subtitleRow(
-                  context,
-                  Bike.iconData,
-                  bikeName,
-                  color: isBikeError ? Theme.of(context).colorScheme.error : null,
-                ),
-              const SizedBox(height: 1),
-              // Sized to the longer of the two component names so the arrows and
-              // destination glyphs align in one column that sits just after the
-              // name — never shoved to the far edge on wide / tablet layouts.
-            ],
+            ),
           ),
-          dense: true,
-          visualDensity: VisualDensity.compact,
-          minTileHeight: 0,
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: IntrinsicWidth(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _componentRow(context, row.installed, emphasized: false),
-                      _componentRow(context, row.removed, emphasized: false),
-                    ],
-                  ),
-                ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

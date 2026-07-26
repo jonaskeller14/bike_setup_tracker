@@ -6,6 +6,7 @@ import '../../models/component.dart';
 import '../../models/installation.dart';
 import '../../repositories/app_repository.dart';
 import '../../theme.dart';
+import '../../utils/timeline_grouping.dart';
 import '../set_installation_timeline.dart';
 import 'sheet_header.dart';
 
@@ -143,6 +144,17 @@ class _ReplacementSheetState extends State<ReplacementSheet> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                      child: Text(
+                        'A replacement is simply two installations within '
+                        '${kReplacementWindow.inMinutes} minutes: one component '
+                        'removed and another installed on the same bike.',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
                     // Old -> Swap -> New Preview
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),

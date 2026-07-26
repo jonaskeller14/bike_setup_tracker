@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
@@ -6,6 +7,7 @@ import '../../models/timeline_entry.dart';
 import '../../pages/details/setup_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
+import '../../utils/timeline_grouping.dart';
 import '../items/installation_list_tile.dart';
 import '../items/rating_entry_list_tile.dart';
 import '../items/setup_list_card.dart';
@@ -13,6 +15,7 @@ import '../items/strava_list_tile.dart';
 import '../items/task_entry_list_item.dart';
 import '../sheets/installation_sheet.dart';
 import '../sheets/task_rule_sheet.dart';
+import '../timeline_day_header.dart';
 
 class SetupListSearch extends StatelessWidget {
   const SetupListSearch({
@@ -38,10 +41,21 @@ class SetupListSearch extends StatelessWidget {
         );
       },
       viewBuilder: (Iterable<Widget> suggestions) {
-        return ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: suggestions.length,
-          itemBuilder: (context, index) => suggestions.elementAt(index),
+        // The search view is pushed as its own route, outside this widget's
+        // ancestor Scaffold — Scaffold.resizeToAvoidBottomInset zeroes out
+        // viewInsets.bottom for its body subtree, so reading MediaQuery from
+        // the outer (Scaffold-body) context would always see 0 here. A
+        // Builder gets a context that belongs to the route itself instead.
+        return Builder(
+          builder: (context) {
+            final mediaQuery = MediaQuery.of(context);
+            final bottomInset = math.max(mediaQuery.viewPadding.bottom, mediaQuery.viewInsets.bottom);
+            return ListView.builder(
+              padding: EdgeInsets.only(bottom: bottomInset),
+              itemCount: suggestions.length,
+              itemBuilder: (context, index) => suggestions.elementAt(index),
+            );
+          },
         );
       },
       suggestionsBuilder: (context, controller) async {
@@ -97,11 +111,15 @@ class SetupListSearch extends StatelessWidget {
           return sortAscending ? a.date.compareTo(b.date) : b.date.compareTo(a.date);
         });
 
-        return matchingEntries.map((entry) {
+        final showDayHeaders = appSettings.enableTimelineDayHeaders;
+        final showDate = !showDayHeaders;
+
+        Widget entryWidget(TimelineEntry entry) {
           switch (entry) {
             case SetupEntry():
               return SetupListCard(
-                setupId: entry.setup.id, 
+                setupId: entry.setup.id,
+                showDate: showDate,
                 onTap: () async {
                   await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => SetupDetailsPage(
                     setupIds: matchingEntries.whereType<SetupEntry>().map((e) => e.setup.id).toList(),
@@ -112,19 +130,21 @@ class SetupListSearch extends StatelessWidget {
                 displayPersonAdjustmentValues: appSettings.setupListPersonAdjustmentValues,
               );
             case StravaEntry():
-              return StravaListTile(stravaActivity: entry.activity);
+              return StravaListTile(stravaActivity: entry.activity, showDate: showDate);
             case TaskTimeLineEntry():
               return TaskEntryListItem(
                 taskEntryId: entry.taskEntry.id,
+                showDate: showDate,
                 onTap: () => showTaskRuleSheet(
                   context,
-                  taskRuleId: entry.taskEntry.taskRule, 
+                  taskRuleId: entry.taskEntry.taskRule,
                   highlightTaskEntryId: entry.taskEntry.id,
                 ),
               );
             case InstallationEntry():
               return InstallationListTile(
                 componentInstallation: entry.componentInstallation,
+                showDate: showDate,
                 onTap: () async {
                   await showEditInstallationSheet(
                     context,
@@ -134,9 +154,39 @@ class SetupListSearch extends StatelessWidget {
                 },
               );
             case RatingEntryTimelineEntry():
-              return RatingEntryListTile(ratingEntry: entry.ratingEntry);
+              return RatingEntryListTile(ratingEntry: entry.ratingEntry, showDate: showDate);
           }
-        });
+        }
+
+        // Setups render as cards; everything else as a plain tile row. Dividers
+        // only sit between two adjacent tile rows (matches SetupList._isTileRow).
+        bool isTileEntry(TimelineEntry entry) => entry is! SetupEntry;
+
+        final widgets = <Widget>[];
+        DateTime? currentDay;
+        TimelineEntry? previous;
+        for (final entry in matchingEntries) {
+          if (showDayHeaders) {
+            final local = timelineEntryLocalDate(entry);
+            final day = DateTime(local.year, local.month, local.day);
+            if (day != currentDay) {
+              widgets.add(TimelineDayHeader(day: day));
+              currentDay = day;
+              previous = null; // no divider right after a header
+            }
+          }
+          if (previous != null && isTileEntry(previous) && isTileEntry(entry)) {
+            widgets.add(const Divider(height: 1));
+          }
+          widgets.add(
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: entryWidget(entry),
+            ),
+          );
+          previous = entry;
+        }
+        return widgets;
       },
     );
   }

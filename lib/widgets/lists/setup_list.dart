@@ -27,6 +27,7 @@ import '../items/task_entry_list_item.dart';
 import '../sheets/installation_sheet.dart';
 import '../sheets/replacement_sheet.dart';
 import '../sheets/task_rule_sheet.dart';
+import '../sticky_section.dart';
 import '../timeline_day_header.dart';
 
 class SetupList extends StatelessWidget {
@@ -70,32 +71,36 @@ class SetupList extends StatelessWidget {
     );
   }
 
+  /// The activities whose tiles trigger loading the next Strava page: the
+  /// (up to) five at the tail of the loaded window in display order. Computed
+  /// once per build so the per-tile check is a set lookup instead of a sort of
+  /// the whole window.
+  Set<int> _lazyLoadTriggerIds(
+    AppRepository appRepository,
+    Iterable<StravaActivity> activities,
+    bool sortAscending,
+  ) {
+    if (!appRepository.hasMoreStrava) return const {};
+    final sorted = activities.toList()
+      ..sort(
+        (a, b) => sortAscending
+            ? a.startDate.compareTo(b.startDate)
+            : b.startDate.compareTo(a.startDate),
+      );
+    final tailStart = sorted.length > 5 ? sorted.length - 5 : 0;
+    return {for (final a in sorted.sublist(tailStart)) a.id};
+  }
+
   void _maybeTriggerStravaLazyLoad(
     AppRepository appRepository,
-    bool sortAscending,
+    Set<int> lazyLoadTriggerIds,
     StravaActivity activity,
   ) {
     if (!appRepository.hasMoreStrava || appRepository.isLoadingMoreStrava) return;
-
-    final activities = appRepository.filteredStravaActivities.values.toList();
-    activities.sort(
-      (a, b) => sortAscending
-          ? a.startDate.compareTo(b.startDate)
-          : b.startDate.compareTo(a.startDate),
-    );
-
-    if (activities.length >= 5) {
-      final tailActivities = activities.sublist(activities.length - 5);
-      if (tailActivities.contains(activity)) {
-        WidgetsBinding.instance.addPostFrameCallback((_) async {
-          appRepository.loadMoreStravaActivities();
-        });
-      }
-    } else if (activities.isNotEmpty && activities.last == activity) {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        appRepository.loadMoreStravaActivities();
-      });
-    }
+    if (!lazyLoadTriggerIds.contains(activity.id)) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(appRepository.loadMoreStravaActivities());
+    });
   }
 
   void _openSetupDetails(
@@ -121,7 +126,7 @@ class SetupList extends StatelessWidget {
     TimelineEntry entry, {
     required AppSettings appSettings,
     required AppRepository appRepository,
-    required bool sortAscending,
+    required Set<int> lazyLoadTriggerIds,
     required Iterable<Setup> setupsList,
   }) {
     final showDate = !appSettings.enableTimelineDayHeaders;
@@ -130,7 +135,7 @@ class SetupList extends StatelessWidget {
       case StravaEntry():
         _maybeTriggerStravaLazyLoad(
           appRepository,
-          sortAscending,
+          lazyLoadTriggerIds,
           entry.activity,
         );
         return StravaListTile(stravaActivity: entry.activity, showDate: showDate);
@@ -173,12 +178,26 @@ class SetupList extends StatelessWidget {
     }
   }
 
+  // Dividers are only meaningful between two plain ListTile-style rows
+  bool _isTileRow(TimelineRow row) => switch (row) {
+    DayHeaderRow() => false,
+    SetupGroupRow() => false,
+    ReplacementRow() => true,
+    SingleEntryRow(:final entry) => switch (entry) {
+      SetupEntry() => false,
+      StravaEntry() ||
+      TaskTimeLineEntry() ||
+      InstallationEntry() ||
+      RatingEntryTimelineEntry() => true,
+    },
+  };
+
   Widget _buildRow(
     BuildContext context,
     TimelineRow row, {
     required AppSettings appSettings,
     required AppRepository appRepository,
-    required bool sortAscending,
+    required Set<int> lazyLoadTriggerIds,
     required Iterable<Setup> setupsList,
   }) {
     final Widget child = switch (row) {
@@ -188,7 +207,7 @@ class SetupList extends StatelessWidget {
         row.entry,
         appSettings: appSettings,
         appRepository: appRepository,
-        sortAscending: sortAscending,
+        lazyLoadTriggerIds: lazyLoadTriggerIds,
         setupsList: setupsList,
       ),
       SetupGroupRow() => SetupGroupCard(
@@ -238,6 +257,11 @@ class SetupList extends StatelessWidget {
     final stravaActivities = showingStrava
         ? appRepository.filteredStravaActivities.values
         : const <StravaActivity>[];
+    final lazyLoadTriggerIds = _lazyLoadTriggerIds(
+      appRepository,
+      stravaActivities,
+      sortAscending,
+    );
     final taskEntries = appRepository.filteredTaskEntries.values;
     final installations = appRepository.filteredInstallations;
 
@@ -320,70 +344,188 @@ class SetupList extends StatelessWidget {
             SetupHint.none => null,
           };
 
-    return entries.isEmpty && !appRepository.isLoadingMoreStrava
-        ? _emptyPlaceholder(context, showStartupGuide: showStartupGuide)
-        : CustomScrollView(
-            slivers: [
-              //FIXME: Good practice to have only one element inside of CustomScrollView?
-              SliverPadding(
-                // Horizontal padding lives on the individual rows so day
-                // headers can span the full screen width.
-                padding: const EdgeInsets.only(top: 16, bottom: 16 + 100),
-                sliver: SliverList.builder(
-                  itemCount:
-                      rows.length +
-                      1 +
-                      (appRepository.isLoadingMoreStrava
-                          ? 1
-                          : 0), // 1 header + optional loader
-                  itemBuilder: (context, index) {
-                    if (index == 0) {
-                      final headerChildren = <Widget>[
-                        if (showStartupGuide) const GettingStartedGuideHint(),
-                        ?hint,
-                        const SetupListFilterWidget(),
-                      ];
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: headerChildren.length == 1
-                            ? headerChildren.first
-                            : Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                spacing: 8,
-                                children: headerChildren,
-                              ),
-                      );
-                    }
+    if (entries.isEmpty && !appRepository.isLoadingMoreStrava) {
+      return _emptyPlaceholder(context, showStartupGuide: showStartupGuide);
+    }
 
-                    if (index > rows.length) {
-                      return const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(16.0),
-                          child: CircularProgressIndicator(),
-                        ),
-                      );
-                    }
+    final headerChildren = <Widget>[
+      if (showStartupGuide) const GettingStartedGuideHint(),
+      ?hint,
+      const SetupListFilterWidget(),
+    ];
 
-                    final row = rows[index - 1];
-                    // Key each row to its stable entry identity so element
-                    // state (card expansion, Strava context wrapper) tracks the
-                    // logical entry across the reordering an edit can cause.
-                    return KeyedSubtree(
-                      key: row.key,
-                      child: _buildRow(
-                        context,
-                        row,
-                        appSettings: appSettings,
-                        appRepository: appRepository,
-                        sortAscending: sortAscending,
-                        setupsList: setupsList,
-                      ),
-                    );
-                  },
-                ),
+    return CustomScrollView(
+      slivers: [
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            child: headerChildren.length == 1
+                ? headerChildren.first
+                : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 8,
+                    children: headerChildren,
+                  ),
+          ),
+        ),
+        ..._buildRowSlivers(
+          context,
+          rows,
+          appSettings: appSettings,
+          appRepository: appRepository,
+          lazyLoadTriggerIds: lazyLoadTriggerIds,
+          setupsList: setupsList,
+        ),
+        if (appRepository.isLoadingMoreStrava)
+          const SliverToBoxAdapter(
+            child: Center(
+              child: Padding(
+                padding: EdgeInsets.all(16.0),
+                child: CircularProgressIndicator(),
               ),
-            ],
+            ),
+          ),
+        const SliverToBoxAdapter(child: SizedBox(height: 16 + 100)),
+      ],
+    );
+  }
+
+  List<Widget> _buildRowSlivers(
+    BuildContext context,
+    List<TimelineRow> rows, {
+    required AppSettings appSettings,
+    required AppRepository appRepository,
+    required Set<int> lazyLoadTriggerIds,
+    required Iterable<Setup> setupsList,
+  }) {
+    if (!appSettings.enableTimelineDayHeaders) {
+      return [
+        _daySliverList(
+          context,
+          rows,
+          appSettings: appSettings,
+          appRepository: appRepository,
+          lazyLoadTriggerIds: lazyLoadTriggerIds,
+          setupsList: setupsList,
+        ),
+      ];
+    }
+
+    // One box child per day so a single SliverList can build sections lazily
+    // (a sliver group per day is inflated eagerly and made deep windows take
+    // seconds to build). The pinning happens inside each section, see
+    // StickySection.
+    final sections = <({DayHeaderRow header, List<TimelineRow> rows})>[];
+    for (final row in rows) {
+      if (row is DayHeaderRow) {
+        sections.add((header: row, rows: []));
+      } else if (sections.isNotEmpty) {
+        sections.last.rows.add(row);
+      }
+    }
+
+    return [
+      SliverList.builder(
+        itemCount: sections.length,
+        itemBuilder: (context, index) {
+          final section = sections[index];
+          return KeyedSubtree(
+            key: section.header.key,
+            child: _daySection(
+              context,
+              section.header,
+              section.rows,
+              appSettings: appSettings,
+              appRepository: appRepository,
+              lazyLoadTriggerIds: lazyLoadTriggerIds,
+              setupsList: setupsList,
+            ),
           );
+        },
+      ),
+    ];
+  }
+
+  Widget _daySection(
+    BuildContext context,
+    DayHeaderRow header,
+    List<TimelineRow> group, {
+    required AppSettings appSettings,
+    required AppRepository appRepository,
+    required Set<int> lazyLoadTriggerIds,
+    required Iterable<Setup> setupsList,
+  }) {
+    final children = <Widget>[];
+    for (var i = 0; i < group.length; i++) {
+      children.add(
+        KeyedSubtree(
+          key: group[i].key,
+          child: _buildRow(
+            context,
+            group[i],
+            appSettings: appSettings,
+            appRepository: appRepository,
+            lazyLoadTriggerIds: lazyLoadTriggerIds,
+            setupsList: setupsList,
+          ),
+        ),
+      );
+      if (i + 1 < group.length &&
+          _isTileRow(group[i]) &&
+          _isTileRow(group[i + 1])) {
+        children.add(const Divider(height: 1));
+      }
+    }
+    return StickySection(
+      // Flush under the appbar (no margin) and opaque, so scrolled rows don't
+      // bleed through while it's pinned.
+      header: TimelineDayHeader(day: header.day, margin: EdgeInsets.zero),
+      content: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: children,
+        ),
+      ),
+    );
+  }
+
+  Widget _daySliverList(
+    BuildContext context,
+    List<TimelineRow> group, {
+    required AppSettings appSettings,
+    required AppRepository appRepository,
+    required Set<int> lazyLoadTriggerIds,
+    required Iterable<Setup> setupsList,
+  }) {
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      sliver: SliverList.separated(
+        itemCount: group.length,
+        separatorBuilder: (context, index) {
+          return _isTileRow(group[index]) && _isTileRow(group[index + 1])
+              ? const Divider(height: 1)
+              : const SizedBox.shrink();
+        },
+        itemBuilder: (context, index) {
+          final row = group[index];
+          // Key each row to its stable entry identity so element state (card
+          // expansion, Strava context wrapper) tracks the logical entry across
+          // the reordering an edit can cause.
+          return KeyedSubtree(
+            key: row.key,
+            child: _buildRow(
+              context,
+              row,
+              appSettings: appSettings,
+              appRepository: appRepository,
+              lazyLoadTriggerIds: lazyLoadTriggerIds,
+              setupsList: setupsList,
+            ),
+          );
+        },
+      ),
+    );
   }
 }

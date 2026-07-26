@@ -18,6 +18,44 @@ class InstallationListTile extends StatelessWidget {
     this.showDate = true,
   });
 
+  Widget _subtitleRow(BuildContext context, IconData icon, String text, {bool isError = false}) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      spacing: 2,
+      children: [
+        Icon(icon, size: 12, color: isError
+            ? Theme.of(context).colorScheme.error
+            : Theme.of(context).colorScheme.onSurfaceVariant),
+        Flexible(
+          child: Text(
+            text,
+            style: TextStyle(
+              color: isError
+                  ? Theme.of(context).colorScheme.error
+                  : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+              fontSize: 12,
+            ),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
+        ),
+      ],
+    );
+  }
+
+  static IconData _bikeIcon(InstallationParentType type) => switch (type) {
+        InstallationParentType.bike => Bike.iconData,
+        InstallationParentType.none => Icons.shelves,
+        InstallationParentType.archived => Icons.inventory_2_outlined,
+      };
+
+  static String _bikeLabel(InstallationParentType type, String bikeName) => switch (type) {
+        InstallationParentType.bike => bikeName,
+        InstallationParentType.none => 'Uninstalled',
+        InstallationParentType.archived => 'Archive',
+      };
+
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
@@ -27,142 +65,70 @@ class InstallationListTile extends StatelessWidget {
     final originParentType = componentInstallation.originParentType ?? InstallationParentType.none;
     final targetParentType = componentInstallation.installation.parentType;
 
-    final originBikeName = bikes[componentInstallation.originParent]?.name ?? "BIKE NOT FOUND";
-    final targetBikeName = bikes[componentInstallation.installation.parent]?.name ?? "BIKE NOT FOUND";
+    // Deinstallation/archival: the target ("Uninstalled"/"Archive") is already
+    // implied by the title, so show where the component came from instead.
+    final isDeinstallation = targetParentType != InstallationParentType.bike;
+    final showBikeInfo = !isDeinstallation || !componentInstallation.isInitial;
 
-    final isOriginError = componentInstallation.originParent != null && !bikes.containsKey(componentInstallation.originParent);
-    final isTargetError = componentInstallation.installation.parent != null && !bikes.containsKey(componentInstallation.installation.parent);
+    final displayParentType = isDeinstallation ? originParentType : targetParentType;
+    final displayBikeId = isDeinstallation
+        ? componentInstallation.originParent
+        : componentInstallation.installation.parent;
+    final displayBikeName = bikes[displayBikeId]?.name ?? "BIKE NOT FOUND";
+    final isDisplayError = displayBikeId != null && !bikes.containsKey(displayBikeId);
+
+    final timeText = DateFormat(appSettings.timeFormat).format(componentInstallation.installation.dateTimeLocal);
+    final dateText = DateFormat(appSettings.dateFormat).format(componentInstallation.installation.dateTimeLocal);
 
     return ListTile(
       onTap: onTap,
-      title: Text(componentInstallation.label),
+      titleAlignment: ListTileTitleAlignment.top,
+      minLeadingWidth: 0,
+      horizontalTitleGap: 8,
+      leading: Padding(
+        padding: EdgeInsets.zero,
+        child: Transform.scale(
+          scaleX: targetParentType == InstallationParentType.bike ? 0.7 : -0.7,
+          child: const Icon(Icons.arrow_right_alt, fontWeight: FontWeight.w600),
+        ),
+      ),
+      title: Text(
+        componentInstallation.label,
+        overflow: TextOverflow.ellipsis,
+        style: const TextStyle(fontWeight: FontWeight.bold),
+        maxLines: 1,
+      ),
+      contentPadding: const EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 4),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Wrap(
             alignment: WrapAlignment.start,
             crossAxisAlignment: WrapCrossAlignment.center,
-            spacing: 4,
+            spacing: 8,
             children: [
-              if (showDate)
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  spacing: 2,
-                  children: [
-                    Icon(Icons.calendar_month, size: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                    Text(
-                      DateFormat(appSettings.dateFormat).format(componentInstallation.installation.dateTimeLocal),
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                spacing: 2,
-                children: [
-                  Icon(Icons.access_time, size: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                  Flexible(
-                    child: Text(
-                      DateFormat(appSettings.timeFormat).format(componentInstallation.installation.dateTimeLocal),
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              if (!componentInstallation.isInitial) ...[
-                Flexible(
-                  child: _CompactBikeLabel(
-                    parentType: originParentType,
-                    bikeName: originBikeName,
-                    isError: isOriginError,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6),
-                  child: Icon(Icons.arrow_forward, size: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                ),
-              ] else ...[
-                 Padding(
-                  padding: const EdgeInsets.only(right: 6),
-                  child: Icon(Icons.arrow_forward, size: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                ),
-              ],
-              Flexible(
-                child: _CompactBikeLabel(
-                  parentType: targetParentType,
-                  bikeName: targetBikeName,
-                  isError: isTargetError,
+              Text(
+                showDate ? "$dateText • $timeText" : timeText,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                  fontSize: 12,
                 ),
               ),
+              if (showBikeInfo)
+                _subtitleRow(
+                  context,
+                  _bikeIcon(displayParentType),
+                  _bikeLabel(displayParentType, displayBikeName),
+                  isError: isDisplayError,
+                ),
             ],
           ),
         ],
       ),
       dense: true,
       visualDensity: VisualDensity.compact,
-    );
-  }
-}
-
-class _CompactBikeLabel extends StatelessWidget {
-  final InstallationParentType parentType;
-  final String bikeName;
-  final bool isError;
-
-  const _CompactBikeLabel({
-    required this.parentType,
-    required this.bikeName,
-    this.isError = false,
-  });
-
-  IconData get _icon => switch (parentType) {
-        InstallationParentType.bike => Bike.iconData,
-        InstallationParentType.none => Icons.shelves,
-        InstallationParentType.archived => Icons.inventory_2_outlined,
-      };
-
-  String get _label => switch (parentType) {
-        InstallationParentType.bike => bikeName,
-        InstallationParentType.none => 'Uninstalled',
-        InstallationParentType.archived => 'Archive',
-      };
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      spacing: 4,
-      children: [
-        Icon(
-          _icon,
-          size: 12,
-          color: isError ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.onSurfaceVariant,
-        ),
-        Flexible(
-          child: Text(
-            _label,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: isError 
-                  ? Theme.of(context).colorScheme.error 
-                  : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-              fontSize: 12,
-            ),
-          ),
-        ),
-      ],
+      minTileHeight: 0,
+      minVerticalPadding: 0,
     );
   }
 }

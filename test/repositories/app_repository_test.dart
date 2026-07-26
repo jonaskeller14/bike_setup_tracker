@@ -899,4 +899,105 @@ void main() {
       expect(repository.filteredOpenTaskRules.containsKey(rule.id), isFalse);
     });
   });
+
+  group("AppRepository - resolveSetupId", () {
+    late AppDatabase database;
+    late AppRepository repository;
+    final bike1 = Bike(name: "Bike #1", person: null);
+    final bike2 = Bike(name: "Bike #2", person: null);
+
+    setUp(() async {
+      database = AppDatabase.memory();
+      repository = AppRepository(database);
+      await pumpEventQueue();
+    });
+
+    tearDown(() async {
+      await database.close();
+    });
+
+    Setup buildSetup(String bikeId, DateTime datetime) => Setup(
+      name: "Setup",
+      tags: {},
+      datetime: datetime.toUtc(),
+      datetimeLocal: datetime.toLocal(),
+      bike: bikeId,
+      person: null,
+      bikeAdjustmentValues: {},
+      personAdjustmentValues: {},
+    );
+
+    test("returns null when the bike has no setups", () async {
+      await repository.addBike(bike1);
+      await pumpEventQueue();
+
+      expect(repository.resolveSetupId(bikeId: bike1.id, atUtc: DateTime(2025).toUtc()), isNull);
+    });
+
+    test("returns null when atUtc precedes every setup", () async {
+      final setup = buildSetup(bike1.id, DateTime(2025, 6, 1));
+      await repository.addBike(bike1);
+      await repository.addSetup(setup);
+      await pumpEventQueue();
+
+      expect(repository.resolveSetupId(bikeId: bike1.id, atUtc: DateTime(2025, 1, 1).toUtc()), isNull);
+    });
+
+    test("returns the setup on an exact timestamp match", () async {
+      final setup = buildSetup(bike1.id, DateTime(2025, 6, 1));
+      await repository.addBike(bike1);
+      await repository.addSetup(setup);
+      await pumpEventQueue();
+
+      expect(repository.resolveSetupId(bikeId: bike1.id, atUtc: DateTime(2025, 6, 1).toUtc()), setup.id);
+    });
+
+    test("returns the latest setup at or before atUtc", () async {
+      final early = buildSetup(bike1.id, DateTime(2025, 1, 1));
+      final middle = buildSetup(bike1.id, DateTime(2025, 6, 1));
+      final late_ = buildSetup(bike1.id, DateTime(2025, 12, 1));
+      await repository.addBike(bike1);
+      await repository.addSetup(late_);
+      await repository.addSetup(early);
+      await repository.addSetup(middle);
+      await pumpEventQueue();
+
+      // Between middle and late_ -> middle.
+      expect(repository.resolveSetupId(bikeId: bike1.id, atUtc: DateTime(2025, 9, 1).toUtc()), middle.id);
+      // After all -> the latest.
+      expect(repository.resolveSetupId(bikeId: bike1.id, atUtc: DateTime(2026, 1, 1).toUtc()), late_.id);
+      // Exactly on the earliest -> earliest.
+      expect(repository.resolveSetupId(bikeId: bike1.id, atUtc: DateTime(2025, 1, 1).toUtc()), early.id);
+    });
+
+    test("resolves independently per bike", () async {
+      final setup1 = buildSetup(bike1.id, DateTime(2025, 1, 1));
+      final setup2 = buildSetup(bike2.id, DateTime(2025, 6, 1));
+      await repository.addBike(bike1);
+      await repository.addBike(bike2);
+      await repository.addSetup(setup1);
+      await repository.addSetup(setup2);
+      await pumpEventQueue();
+
+      final at = DateTime(2025, 12, 1).toUtc();
+      expect(repository.resolveSetupId(bikeId: bike1.id, atUtc: at), setup1.id);
+      expect(repository.resolveSetupId(bikeId: bike2.id, atUtc: at), setup2.id);
+      // bike2's setup postdates this instant.
+      expect(repository.resolveSetupId(bikeId: bike2.id, atUtc: DateTime(2025, 3, 1).toUtc()), isNull);
+    });
+
+    test("returns one of the matching setups when timestamps are identical", () async {
+      final at = DateTime(2025, 6, 1);
+      final a = buildSetup(bike1.id, at);
+      final b = buildSetup(bike1.id, at);
+      await repository.addBike(bike1);
+      await repository.addSetup(a);
+      await repository.addSetup(b);
+      await pumpEventQueue();
+
+      // Tie-break is unspecified, but it must land on an exact match, not null.
+      final resolved = repository.resolveSetupId(bikeId: bike1.id, atUtc: at.toUtc());
+      expect(resolved, anyOf(a.id, b.id));
+    });
+  });
 }

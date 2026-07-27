@@ -4,7 +4,6 @@ import '../../utils/timeline_grouping.dart';
 class StravaContextWrapper extends StatelessWidget {
   static const Color stravaOrange = Color(0xFFFC5200);
   static const double _barWidth = 4;
-  static const double _contentInset = 10;
   static const double _endInset = 3;
 
   final StravaContext stravaContext;
@@ -20,6 +19,7 @@ class StravaContextWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
+        child,
         Positioned(
           left: 0,
           top: stravaContext.isFirst ? _endInset : 0,
@@ -34,10 +34,6 @@ class StravaContextWrapper extends StatelessWidget {
               ),
             ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: _barWidth + _contentInset),
-          child: child,
         ),
       ],
     );

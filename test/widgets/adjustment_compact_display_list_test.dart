@@ -99,7 +99,7 @@ void main() {
       ..previousPersonAdjustmentValues = Map.from(previousPersonValues);
   }
 
-  /// Builds the widget exactly the way SetupListCard does: run the setup through
+  /// Builds the widget exactly the way SetupListTile does: run the setup through
   /// [DanglingAdjustmentService.analyzeSetup] and feed the resulting normal /
   /// dangling groups into the provider-free list.
   Widget compactFor(Setup setup, {required bool displayOnlyChanges, bool displayPerson = true}) {

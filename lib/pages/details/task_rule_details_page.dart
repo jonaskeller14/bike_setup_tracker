@@ -126,6 +126,7 @@ class _TaskRuleDetailsPageContentState extends State<TaskRuleDetailsPageContent>
                   taskEntryId: te.id,
                   previousSnapshot: previousEntry?.snapshot,
                   onTap: null, // disable infinite tap
+                  showTaskRule: false,
                 ),
               );
             }),

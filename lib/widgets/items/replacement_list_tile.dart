@@ -6,6 +6,7 @@ import '../../models/bike.dart';
 import '../../models/installation.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/timeline_grouping.dart';
+import 'tile_meta_row.dart';
 
 class ReplacementListTile extends StatelessWidget {
   final ReplacementRow row;
@@ -18,32 +19,6 @@ class ReplacementListTile extends StatelessWidget {
     this.onTap,
     this.showDate = true,
   });
-
-  Widget _subtitleRow(BuildContext context, IconData icon, String text, {bool isError = false}) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      spacing: 2,
-      children: [
-        Icon(icon, size: 12, color: isError
-            ? Theme.of(context).colorScheme.error
-            : Theme.of(context).colorScheme.onSurfaceVariant),
-        Flexible(
-          child: Text(
-            text,
-            style: TextStyle(
-              color: isError
-                  ? Theme.of(context).colorScheme.error
-                  : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-              fontSize: 12,
-            ),
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
-          ),
-        ),
-      ],
-    );
-  }
 
   static IconData _destinationIcon(InstallationParentType type) => switch (type) {
         InstallationParentType.bike => Bike.iconData,
@@ -152,10 +127,9 @@ class ReplacementListTile extends StatelessWidget {
                         fontSize: 12,
                       ),
                     ),
-                    _subtitleRow(
-                      context,
-                      Bike.iconData,
-                      bikeName,
+                    TileMetaRow(
+                      icon: Bike.iconData,
+                      text: bikeName,
                       isError: isBikeError,
                     ),
                   ],

@@ -11,6 +11,8 @@ import '../../repositories/app_repository.dart';
 import '../../services/dangling_adjustment_service.dart';
 import '../../services/image_storage_service.dart';
 import '../../utils/setup_actions.dart';
+import '../../widgets/current_setup_badge.dart';
+import '../../widgets/current_setup_highlight.dart';
 import '../../widgets/display_adjustment/display_adjustment_list.dart';
 import '../../widgets/display_adjustment/display_dangling_adjustment.dart';
 import '../../widgets/empty_state_placeholder2.dart';
@@ -46,6 +48,18 @@ class _SetupDetailsPageState extends State<SetupDetailsPage> {
     super.initState();
     if (widget.initialSetup != null) _currentPageIndex = widget.setupIds.indexOf(widget.initialSetup!.id);
     _pageController = PageController(initialPage: _currentPageIndex);
+  }
+
+  double _currentTint(List<Setup?> setups) {
+    final double page = _pageController.hasClients && _pageController.position.hasContentDimensions
+        ? (_pageController.page ?? _currentPageIndex.toDouble())
+        : _currentPageIndex.toDouble();
+
+    double tintAt(int index) =>
+        (setups[index.clamp(0, setups.length - 1)]?.isCurrent ?? false) ? 1 : 0;
+
+    final double t = page - page.floorToDouble();
+    return tintAt(page.floor()) * (1 - t) + tintAt(page.ceil()) * t;
   }
 
   Row _navigationRow(int index) {
@@ -122,6 +136,14 @@ class _SetupDetailsPageState extends State<SetupDetailsPage> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
+        flexibleSpace: AnimatedBuilder(
+          animation: _pageController,
+          builder: (context, _) => Container(
+            color: Theme.of(context).colorScheme.primary.withValues(
+              alpha: CurrentSetupHighlight.fillAlpha * _currentTint(setups),
+            ),
+          ),
+        ),
         title: _navigationRow(_currentPageIndex),
         actions: [
           IconButton(
@@ -152,34 +174,20 @@ class SetupDetailsPageContent extends StatelessWidget {
 
   const SetupDetailsPageContent({super.key, required this.setup, this.showEditButton = false, this.showCloseButton = false});
 
-  Widget _currentLabel(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-      child: Text(
-        'Current',
-        style: TextStyle(
-          color: Theme.of(context).colorScheme.onPrimary,
-          fontWeight: FontWeight.w600,
-          fontSize: 12,
-        ),
-      ),
-    );
-  }
-
   SliverAppBar _setupTitle(BuildContext context, {required Setup setup}) {
     final appSettings = context.read<AppSettings>();
-    
+    final colorScheme = Theme.of(context).colorScheme;
+    final Color background = setup.isCurrent
+        ? CurrentSetupHighlight.opaqueFill(colorScheme)
+        : colorScheme.surface;
+
     return SliverAppBar(
       pinned: true,
-      expandedHeight: null, 
-      toolbarHeight: 70, 
+      expandedHeight: null,
+      toolbarHeight: 70,
       automaticallyImplyLeading: false,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      surfaceTintColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: background,
+      surfaceTintColor: background,
       centerTitle: false,
       title: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -200,7 +208,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                     ),
                     if (setup.isCurrent) ...[
                       const SizedBox(width: 8),
-                      _currentLabel(context),
+                      const CurrentSetupBadge(),
                     ],
                   ],
                 ),

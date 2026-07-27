@@ -5,6 +5,7 @@ import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/installation.dart';
 import '../../repositories/app_repository.dart';
+import 'tile_meta_row.dart';
 
 class InstallationListTile extends StatelessWidget {
   final ComponentInstallation componentInstallation;
@@ -17,32 +18,6 @@ class InstallationListTile extends StatelessWidget {
     this.onTap,
     this.showDate = true,
   });
-
-  Widget _subtitleRow(BuildContext context, IconData icon, String text, {bool isError = false}) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      spacing: 2,
-      children: [
-        Icon(icon, size: 12, color: isError
-            ? Theme.of(context).colorScheme.error
-            : Theme.of(context).colorScheme.onSurfaceVariant),
-        Flexible(
-          child: Text(
-            text,
-            style: TextStyle(
-              color: isError
-                  ? Theme.of(context).colorScheme.error
-                  : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-              fontSize: 12,
-            ),
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
-          ),
-        ),
-      ],
-    );
-  }
 
   static IconData _bikeIcon(InstallationParentType type) => switch (type) {
         InstallationParentType.bike => Bike.iconData,
@@ -115,10 +90,9 @@ class InstallationListTile extends StatelessWidget {
                 ),
               ),
               if (showBikeInfo)
-                _subtitleRow(
-                  context,
-                  _bikeIcon(displayParentType),
-                  _bikeLabel(displayParentType, displayBikeName),
+                TileMetaRow(
+                  icon: _bikeIcon(displayParentType),
+                  text: _bikeLabel(displayParentType, displayBikeName),
                   isError: isDisplayError,
                 ),
             ],

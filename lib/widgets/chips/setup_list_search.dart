@@ -10,7 +10,7 @@ import '../../services/subscription_service.dart';
 import '../../utils/timeline_grouping.dart';
 import '../items/installation_list_tile.dart';
 import '../items/rating_entry_list_tile.dart';
-import '../items/setup_list_card.dart';
+import '../items/setup_list_tile.dart';
 import '../items/strava_list_tile.dart';
 import '../items/task_entry_list_item.dart';
 import '../sheets/installation_sheet.dart';
@@ -117,7 +117,7 @@ class SetupListSearch extends StatelessWidget {
         Widget entryWidget(TimelineEntry entry) {
           switch (entry) {
             case SetupEntry():
-              return SetupListCard(
+              return SetupListTile(
                 setupId: entry.setup.id,
                 showDate: showDate,
                 onTap: () async {
@@ -158,10 +158,6 @@ class SetupListSearch extends StatelessWidget {
           }
         }
 
-        // Setups render as cards; everything else as a plain tile row. Dividers
-        // only sit between two adjacent tile rows (matches SetupList._isTileRow).
-        bool isTileEntry(TimelineEntry entry) => entry is! SetupEntry;
-
         final widgets = <Widget>[];
         DateTime? currentDay;
         TimelineEntry? previous;
@@ -170,20 +166,14 @@ class SetupListSearch extends StatelessWidget {
             final local = timelineEntryLocalDate(entry);
             final day = DateTime(local.year, local.month, local.day);
             if (day != currentDay) {
-              widgets.add(TimelineDayHeader(day: day));
+              widgets.add(TimelineDayHeader(day: day, onContainerSurface: true));
               currentDay = day;
               previous = null; // no divider right after a header
             }
           }
-          if (previous != null && isTileEntry(previous) && isTileEntry(entry)) {
-            widgets.add(const Divider(height: 1));
-          }
-          widgets.add(
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: entryWidget(entry),
-            ),
-          );
+          if (previous != null) widgets.add(const Divider(height: 1));
+          // Every row is full-bleed and carries its own 16 px content inset.
+          widgets.add(entryWidget(entry));
           previous = entry;
         }
         return widgets;

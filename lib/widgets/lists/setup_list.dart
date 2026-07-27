@@ -19,8 +19,8 @@ import '../hints/setup_task_hint.dart';
 import '../items/installation_list_tile.dart';
 import '../items/rating_entry_list_tile.dart';
 import '../items/replacement_list_tile.dart';
-import '../items/setup_group_card.dart';
-import '../items/setup_list_card.dart';
+import '../items/setup_group_section.dart';
+import '../items/setup_list_tile.dart';
 import '../items/strava_context_wrapper.dart';
 import '../items/strava_list_tile.dart';
 import '../items/task_entry_list_item.dart';
@@ -128,6 +128,7 @@ class SetupList extends StatelessWidget {
     required AppRepository appRepository,
     required Set<int> lazyLoadTriggerIds,
     required Iterable<Setup> setupsList,
+    required double currentBarLeft,
   }) {
     final showDate = !appSettings.enableTimelineDayHeaders;
 
@@ -141,12 +142,13 @@ class SetupList extends StatelessWidget {
         return StravaListTile(stravaActivity: entry.activity, showDate: showDate);
       case SetupEntry():
         final setup = entry.setup;
-        return SetupListCard(
+        return SetupListTile(
           setupId: setup.id,
           onTap: () => _openSetupDetails(context, setupsList, setup),
           displayBikeAdjustmentValues: appSettings.setupListBikeAdjustmentValues,
           displayPersonAdjustmentValues: appSettings.setupListPersonAdjustmentValues,
           showDate: showDate,
+          currentBarLeft: currentBarLeft,
         );
       case TaskTimeLineEntry():
         return TaskEntryListItem(
@@ -178,20 +180,6 @@ class SetupList extends StatelessWidget {
     }
   }
 
-  // Dividers are only meaningful between two plain ListTile-style rows
-  bool _isTileRow(TimelineRow row) => switch (row) {
-    DayHeaderRow() => false,
-    SetupGroupRow() => false,
-    ReplacementRow() => true,
-    SingleEntryRow(:final entry) => switch (entry) {
-      SetupEntry() => false,
-      StravaEntry() ||
-      TaskTimeLineEntry() ||
-      InstallationEntry() ||
-      RatingEntryTimelineEntry() => true,
-    },
-  };
-
   Widget _buildRow(
     BuildContext context,
     TimelineRow row, {
@@ -200,6 +188,10 @@ class SetupList extends StatelessWidget {
     required Set<int> lazyLoadTriggerIds,
     required Iterable<Setup> setupsList,
   }) {
+    // A row inside a ride block already spends the left gutter on the Strava
+    // bar, so the current-setup bar moves aside to sit next to it.
+    final bool hasStravaContext = row is EntryRow && row.stravaContext != null;
+
     final Widget child = switch (row) {
       DayHeaderRow() => TimelineDayHeader(day: row.day),
       SingleEntryRow() => _buildEntryTile(
@@ -209,8 +201,9 @@ class SetupList extends StatelessWidget {
         appRepository: appRepository,
         lazyLoadTriggerIds: lazyLoadTriggerIds,
         setupsList: setupsList,
+        currentBarLeft: hasStravaContext ? 6 : 0,
       ),
-      SetupGroupRow() => SetupGroupCard(
+      SetupGroupRow() => SetupGroupSection(
         setupIds: row.setups.map((e) => e.setup.id).toList(),
         onTapSetup: (setup) => _openSetupDetails(context, setupsList, setup),
         displayBikeAdjustmentValues: appSettings.setupListBikeAdjustmentValues,
@@ -230,18 +223,12 @@ class SetupList extends StatelessWidget {
       ),
     };
 
-    // Day headers span the full screen width; every other row carries the
-    // list's horizontal padding itself.
-    if (row is DayHeaderRow) return child;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: row is EntryRow && row.stravaContext != null
-          ? StravaContextWrapper(
-              stravaContext: row.stravaContext!,
-              child: child,
-            )
-          : child,
-    );
+    // Every row is full-bleed and owns its own 16 px content inset; the Strava
+    // bar is painted into that gutter rather than insetting the row further.
+    if (row is EntryRow && row.stravaContext != null) {
+      return StravaContextWrapper(stravaContext: row.stravaContext!, child: child);
+    }
+    return child;
   }
 
   @override
@@ -471,11 +458,7 @@ class SetupList extends StatelessWidget {
           ),
         ),
       );
-      if (i + 1 < group.length &&
-          _isTileRow(group[i]) &&
-          _isTileRow(group[i + 1])) {
-        children.add(const Divider(height: 1));
-      }
+      if (i + 1 < group.length) children.add(const Divider(height: 1));
     }
     return StickySection(
       // Flush under the appbar (no margin) and opaque, so scrolled rows don't
@@ -503,11 +486,7 @@ class SetupList extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8),
       sliver: SliverList.separated(
         itemCount: group.length,
-        separatorBuilder: (context, index) {
-          return _isTileRow(group[index]) && _isTileRow(group[index + 1])
-              ? const Divider(height: 1)
-              : const SizedBox.shrink();
-        },
+        separatorBuilder: (context, index) => const Divider(height: 1),
         itemBuilder: (context, index) {
           final row = group[index];
           // Key each row to its stable entry identity so element state (card

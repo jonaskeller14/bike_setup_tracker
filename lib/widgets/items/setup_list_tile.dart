@@ -9,23 +9,28 @@ import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/dangling_adjustment_service.dart';
 import '../../utils/setup_actions.dart';
+import '../current_setup_badge.dart';
+import '../current_setup_highlight.dart';
 import '../lists/adjustment_compact_display_list.dart';
 import '../notes_text.dart';
+import 'tile_meta_row.dart';
 
-class SetupListCard extends StatefulWidget {
+class SetupListTile extends StatefulWidget {
   final String setupId;
   final void Function()? onTap;
   final bool displayBikeAdjustmentValues;
   final bool displayPersonAdjustmentValues;
   final bool showDate;
 
-  /// Rendered as a member of a SetupGroupCard: no Card wrapper; collapsed to
-  /// just the changed adjustment values. The always-visible expand chevron
-  /// reveals title, time, metadata, the editing menu and the full value list.
+  /// Rendered as a member of a SetupGroupSection: collapsed to just the changed
+  /// adjustment values. The always-visible expand chevron reveals title, time,
+  /// metadata, the editing menu and the full value list.
   final bool embedded;
   final bool hidePlace;
 
-  const SetupListCard({
+  final double currentBarLeft;
+
+  const SetupListTile({
     super.key,
     required this.setupId,
     required this.onTap,
@@ -34,39 +39,15 @@ class SetupListCard extends StatefulWidget {
     this.showDate = true,
     this.embedded = false,
     this.hidePlace = false,
+    this.currentBarLeft = 0,
   });
 
   @override
-  State<SetupListCard> createState() => _SetupListCardState();
+  State<SetupListTile> createState() => _SetupListTileState();
 }
 
-class _SetupListCardState extends State<SetupListCard> {
+class _SetupListTileState extends State<SetupListTile> {
   bool _displayOnlyChanges = true;
-
-  Widget _setupCardCurrentLabel(BuildContext context) {
-    return Positioned(
-      top: -1,
-      right: -1,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primary,
-          borderRadius: const BorderRadius.only(
-            topRight: Radius.circular(12),
-            bottomLeft: Radius.circular(12 / 2),
-          ),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-        child: Text(
-          'Current',
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onPrimary,
-            fontWeight: FontWeight.w600,
-            fontSize: 12,
-          ),
-        ),
-      ),
-    );
-  }
 
   Widget _scoreBadge(BuildContext context, double score) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -126,53 +107,6 @@ class _SetupListCardState extends State<SetupListCard> {
     );
   }
 
-  Widget _subtitleRow(BuildContext context, IconData icon, String text, {bool isError = false}) {
-    final scheme = Theme.of(context).colorScheme;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      spacing: 2,
-      children: [
-        Icon(icon, size: 13, color: isError ? scheme.error : scheme.onSurfaceVariant),
-        Flexible(
-          child: Text(
-            text,
-            style: TextStyle(
-              color: isError ? scheme.error : scheme.onSurfaceVariant.withValues(alpha: 0.8),
-              fontSize: 13,
-            ),
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// Secondary metadata below the tile: more muted than the subtitle line.
-  Widget _metadataRow(BuildContext context, IconData icon, String text, {Color? iconColor}) {
-    final scheme = Theme.of(context).colorScheme;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      spacing: 2,
-      children: [
-        Icon(icon, size: 13, color: (iconColor ?? scheme.onSurfaceVariant).withValues(alpha: 0.6)),
-        Flexible(
-          child: Text(
-            text,
-            style: TextStyle(
-              color: scheme.onSurfaceVariant.withValues(alpha: 0.6),
-              fontSize: 13,
-            ),
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _setupListTile(BuildContext context, Setup setup, AdjustmentCompactSummary summary) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
@@ -188,36 +122,56 @@ class _SetupListCardState extends State<SetupListCard> {
 
     final metadataRows = <Widget>[
       if (setup.place != null && !widget.hidePlace)
-        _metadataRow(
-          context,
-          Icons.location_pin,
-          "${setup.place?.locality}, ${setup.place?.isoCountryCode}",
+        TileMetaRow(
+          icon: Icons.location_pin,
+          text: "${setup.place?.locality}, ${setup.place?.isoCountryCode}",
+          muted: true,
         ),
       if (!widget.embedded && setup.weather?.currentTemperature != null)
-        _metadataRow(
-          context,
-          ContextWeather.currentTemperatureIconData,
-          "${ContextWeather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, appSettings.temperatureUnit)?.round()} ${appSettings.temperatureUnit}",
+        TileMetaRow(
+          icon: ContextWeather.currentTemperatureIconData,
+          text: "${ContextWeather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, appSettings.temperatureUnit)?.round()} ${appSettings.temperatureUnit}",
+          muted: true,
         ),
       if (!widget.embedded && setup.weather?.condition != null)
-        _metadataRow(
-          context,
-          setup.weather?.condition?.iconData ?? Icons.question_mark,
-          setup.weather?.condition?.value ?? "-",
+        TileMetaRow(
+          icon: setup.weather?.condition?.iconData ?? Icons.question_mark,
+          text: setup.weather?.condition?.value ?? "-",
           iconColor: setup.weather?.condition?.color,
+          muted: true,
         ),
       if (appSettings.enableSetupTags)
-        ...setup.tags.map((tag) => _metadataRow(context, Icons.tag, tag)),
+        ...setup.tags.map((tag) => TileMetaRow(icon: Icons.tag, text: tag, muted: true)),
       if (appSettings.enableSetupImages && setup.images.isNotEmpty)
-        _metadataRow(context, Icons.photo_library_outlined, '${setup.images.length}'),
+        TileMetaRow(
+          icon: Icons.photo_library_outlined,
+          text: '${setup.images.length}',
+          muted: true,
+        ),
     ];
     final bool hasNotes = setup.notes != null && setup.notes!.isNotEmpty;
 
+    // One badge only — stacking two pushed the subtitle down. The bar and tint
+    // already mark the current setup, so its badge yields to the score.
+    final Widget? badge = score != null
+        ? _scoreBadge(context, score)
+        : setup.isCurrent
+        ? const CurrentSetupBadge()
+        : null;
+
     return Padding(
-      // Embedded (group member): pull the trailing edge in to 4 so the popup
-      // menu lines up with the expand chevron below it instead of sitting
-      // inset with empty space to its right.
-      padding: EdgeInsets.fromLTRB(16, 12, widget.embedded ? 4 : 16, 0),
+      // Horizontal only. The popup menu and chevron need the row's full height
+      // for their touch targets, so a vertical inset here would just push the
+      // stacked buttons — and with them the row's minimum height — further
+      // apart, opening dead space above the values. The content carries its own
+      // vertical inset instead.
+      //
+      // Embedded (group member): the group's container already carries the row
+      // inset, and the trailing edge pulls in to 4 so the popup menu lines up
+      // with the expand chevron below it.
+      padding: widget.embedded
+          ? const EdgeInsets.only(left: 8, right: 4)
+          : const EdgeInsets.symmetric(horizontal: 16),
       child: Stack(
         children: [
           ConstrainedBox(
@@ -228,7 +182,11 @@ class _SetupListCardState extends State<SetupListCard> {
                   : kMinInteractiveDimension,
             ),
             child: Padding(
-              padding: const EdgeInsets.only(right: kMinInteractiveDimension + 8),
+              padding: const EdgeInsets.only(
+                top: 8,
+                bottom: 8,
+                right: kMinInteractiveDimension + 8,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -258,8 +216,7 @@ class _SetupListCardState extends State<SetupListCard> {
                                     maxLines: 3,
                                   ),
                                 ),
-                                if (score != null)
-                                  _scoreBadge(context, score),
+                                ?badge,
                               ],
                             ),
                             Wrap(
@@ -271,14 +228,13 @@ class _SetupListCardState extends State<SetupListCard> {
                                   widget.showDate ? "$dateText • $timeText" : timeText,
                                   style: TextStyle(
                                     color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                                    fontSize: 13,
+                                    fontSize: 12,
                                   ),
                                 ),
                                 if (!widget.embedded)
-                                  _subtitleRow(
-                                    context,
-                                    Bike.iconData,
-                                    bikes[setup.bike]?.name ?? "BIKE NOT FOUND",
+                                  TileMetaRow(
+                                    icon: Bike.iconData,
+                                    text: bikes[setup.bike]?.name ?? "BIKE NOT FOUND",
                                     isError: !bikes.containsKey(setup.bike),
                                   ),
                               ],
@@ -309,7 +265,7 @@ class _SetupListCardState extends State<SetupListCard> {
                                   padding: const EdgeInsets.only(top: 3),
                                   child: Icon(
                                     Icons.notes,
-                                    size: 13,
+                                    size: 12,
                                     color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
                                   ),
                                 ),
@@ -317,7 +273,7 @@ class _SetupListCardState extends State<SetupListCard> {
                                 Expanded(
                                   child: NotesText(
                                     setup.notes!,
-                                    fontSize: 13,
+                                    fontSize: 12,
                                     color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
                                   ),
                                 ),
@@ -355,9 +311,10 @@ class _SetupListCardState extends State<SetupListCard> {
     );
   }
 
+  /// Embedded-only: lines up with the member's value rows.
   Widget _noChangesHint(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      padding: const EdgeInsets.fromLTRB(8, 6, 0, 6),
       child: Text(
         'No changes',
         style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -369,8 +326,8 @@ class _SetupListCardState extends State<SetupListCard> {
   }
 
   /// Group-member layout: collapsed it is just the changed adjustment values;
-  /// the chevron expands to the full card content (title, time, metadata,
-  /// menu, all values).
+  /// the chevron expands to the full content (title, time, metadata, menu,
+  /// all values).
   Widget _buildEmbedded(
     BuildContext context,
     Setup setup,
@@ -383,8 +340,8 @@ class _SetupListCardState extends State<SetupListCard> {
       onTap: widget.onTap,
       child: Stack(
         children: [
-          // Force the stack to the full card width so the right-anchored
-          // chevron lands at the card edge and aligns across members,
+          // Force the stack to the full row width so the right-anchored
+          // chevron lands at the row edge and aligns across members,
           // regardless of how wide each member's value list is.
           const SizedBox(width: double.infinity),
           ConstrainedBox(
@@ -421,7 +378,7 @@ class _SetupListCardState extends State<SetupListCard> {
             bottom: 0,
             right: 4,
             child: Padding(
-              padding: const EdgeInsets.only(bottom: 6), //FIXME was 8
+              padding: const EdgeInsets.only(bottom: 6),
               child: ExpandIcon(
                 isExpanded: expanded,
                 color: PopupMenuTheme.of(context).iconColor ?? IconTheme.of(context).color,
@@ -485,28 +442,22 @@ class _SetupListCardState extends State<SetupListCard> {
       displayOnlyChanges: _displayOnlyChanges,
       displayBikeAdjustmentValues: widget.displayBikeAdjustmentValues,
       displayPersonAdjustmentValues: displayPerson,
+      // Group members sit inside the group's container, which is already
+      // inset — their values line up with the member title instead.
+      contentInset: widget.embedded ? 8 : null,
     );
 
-    if (widget.embedded) {
-      return _buildEmbedded(context, setup, summary, adjustmentList);
-    }
+    // Whether the list renders anything in its current state — its padding
+    // would otherwise add height to a row with no values.
+    final bool hasValues = _displayOnlyChanges
+        ? summary.collapsedHasContent
+        : summary.hasContent;
 
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 4.0),
-      shape: setup.isCurrent
-          ? RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide(
-              color: Theme.of(context).colorScheme.primary,
-              width: 2,
-            ))
-          : null,
-      clipBehavior: Clip.antiAlias, // Borderradius for InkWell,
-      child: InkWell(
-        onTap: widget.onTap,
-        child: Stack(
-          children: [
-            Column(
+    final Widget content = widget.embedded
+        ? _buildEmbedded(context, setup, summary, adjustmentList)
+        : InkWell(
+            onTap: widget.onTap,
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _setupListTile(context, setup, summary),
@@ -514,18 +465,21 @@ class _SetupListCardState extends State<SetupListCard> {
                   duration: const Duration(milliseconds: 400),
                   curve: Curves.easeInOut,
                   alignment: Alignment.topCenter,
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: adjustmentList,
-                  ),
+                  child: hasValues
+                      ? Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: adjustmentList,
+                        )
+                      : const SizedBox.shrink(),
                 ),
               ],
             ),
-            if (setup.isCurrent)
-              _setupCardCurrentLabel(context),
-          ],
-        ),
-      ),
+          );
+
+    if (!setup.isCurrent) return content;
+    return CurrentSetupHighlight(
+      barLeft: widget.currentBarLeft,
+      child: content,
     );
   }
 }

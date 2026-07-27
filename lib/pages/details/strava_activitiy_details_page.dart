@@ -7,7 +7,7 @@ import '../../models/strava/strava_activity.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/strava_service.dart';
 import '../../widgets/items/component_list_card.dart';
-import '../../widgets/items/setup_list_card.dart';
+import '../../widgets/items/setup_list_tile.dart';
 import '../../widgets/sheets/sheet.dart';
 import '../setup_page.dart';
 
@@ -317,14 +317,19 @@ class StravaActivitiyPageContent extends StatelessWidget {
                     "Setups (${uniqueSetups.length})",
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                   ),
-                  childrenPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  childrenPadding: const EdgeInsets.symmetric(vertical: 8),
                   children: [
                     ...uniqueSetups.map((setup) {
-                      return SetupListCard(
-                        setupId: setup.id,
-                        displayBikeAdjustmentValues: true,
-                        displayPersonAdjustmentValues: true,
-                        onTap: null,
+                      return Card(
+                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                        // Rounds the InkWell and the current-setup bar.
+                        clipBehavior: Clip.antiAlias,
+                        child: SetupListTile(
+                          setupId: setup.id,
+                          displayBikeAdjustmentValues: true,
+                          displayPersonAdjustmentValues: true,
+                          onTap: null,
+                        ),
                       );
                     }),
                     const SizedBox(height: 8),

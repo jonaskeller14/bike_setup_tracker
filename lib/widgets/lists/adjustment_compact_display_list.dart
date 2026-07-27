@@ -39,6 +39,10 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
   final bool displayPersonAdjustmentValues;
   final bool missingValuesPlaceholder;
 
+  /// Where the value rows start relative to this widget's own left edge.
+  /// Defaults to [_contentInset].
+  final double? contentInset;
+
   const AdjustmentCompactDisplayList({
     super.key,
     this.components = const [],
@@ -53,6 +57,7 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
     this.displayBikeAdjustmentValues = true,
     this.displayPersonAdjustmentValues = true,
     this.missingValuesPlaceholder = false,
+    this.contentInset,
   });
 
   static List<_ResolvedItem> _resolveItems({
@@ -192,7 +197,11 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
         );
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: _outerPadding),
+      padding: EdgeInsets.symmetric(
+        horizontal: contentInset == null
+            ? _outerPadding
+            : math.max(0, contentInset! - _rowIndent),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,

@@ -15,6 +15,7 @@ class TaskEntryListItem extends StatefulWidget {
   final ComponentStats? previousSnapshot;
   final VoidCallback? onTap;
   final bool showDate;
+  final bool showTaskRule;
 
   const TaskEntryListItem({
     super.key,
@@ -22,6 +23,7 @@ class TaskEntryListItem extends StatefulWidget {
     this.previousSnapshot,
     this.onTap,
     this.showDate = true,
+    this.showTaskRule = true,
   });
 
   @override
@@ -120,33 +122,34 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
                         fontSize: 12,
                       ),
                     ),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      spacing: 2,
-                      children: [
-                        Icon(
-                          Icons.check_box_outline_blank,
-                          size: 12,
-                          color: taskRules.containsKey(taskEntry.taskRule)
-                              ? colorScheme.onSurfaceVariant
-                              : colorScheme.error,
-                        ),
-                        Flexible(
-                          child: Text(
-                            taskRule?.name ?? "TASK NOT FOUND",
-                            style: TextStyle(
-                              color: taskRules.containsKey(taskEntry.taskRule)
-                                  ? colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
-                                  : colorScheme.error,
-                              fontSize: 12,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
+                    if (widget.showTaskRule)
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        spacing: 2,
+                        children: [
+                          Icon(
+                            Icons.check_box_outline_blank,
+                            size: 12,
+                            color: taskRules.containsKey(taskEntry.taskRule)
+                                ? colorScheme.onSurfaceVariant
+                                : colorScheme.error,
                           ),
-                        ),
-                      ],
-                    ),
+                          Flexible(
+                            child: Text(
+                              taskRule?.name ?? "TASK NOT FOUND",
+                              style: TextStyle(
+                                color: taskRules.containsKey(taskEntry.taskRule)
+                                    ? colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
+                                    : colorScheme.error,
+                                fontSize: 12,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                          ),
+                        ],
+                      ),
                   ],
                 ),
               ],

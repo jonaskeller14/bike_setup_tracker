@@ -841,4 +841,124 @@ void main() {
       expect(importedEntry.snapshot!.activityCount, 0);
     });
   });
+
+  group("Component Swap", () {
+    const staleSnapshot = ComponentStats(
+      distance: 999000.0,
+      elevationGain: 0,
+      movingTime: Duration.zero,
+      elapsedTime: Duration.zero,
+      activityCount: 99,
+    );
+    final swapDate = DateTime.utc(2024, 3, 1);
+
+    StravaActivity activity(int id, DateTime start, double distance) => StravaActivity(
+      id: id,
+      name: "Ride $id",
+      athlete: 1,
+      sportType: SportType.Ride,
+      startDate: start,
+      startDateLocal: start,
+      gearId: "g123",
+      startLat: 0,
+      startLon: 0,
+      distance: distance,
+      totalElevationGain: 0,
+      movingTime: const Duration(hours: 1),
+      elapsedTime: const Duration(hours: 1),
+    );
+
+    /// Retires [outgoing] and installs [incoming] on the same bike, either as one
+    /// batched edit or as two separate ones, and reports what the listeners saw.
+    Future<({int notifications, double? outgoingDistance, double? incomingDistance})> runSwap({
+      required bool batched,
+    }) async {
+      final database = AppDatabase.memory();
+      final repository = AppRepository(database);
+      await pumpEventQueue();
+
+      final bike = Bike(name: "Test Bike", person: null, stravaGear: "g123");
+      await repository.addBike(bike);
+      final outgoing = Component(
+        name: "Old Chain",
+        componentType: ComponentType.chain,
+        installations: [Installation.sinceBeginning(parent: bike.id)],
+      );
+      final incoming = Component(name: "New Chain", componentType: ComponentType.chain, installations: []);
+      await repository.addComponent(outgoing);
+      await repository.addComponent(incoming);
+
+      await repository.setStravaActivities([
+        activity(1, DateTime.utc(2024, 1, 1, 12), 100000.0),
+        activity(2, DateTime.utc(2024, 4, 1, 12), 50000.0),
+      ]);
+
+      final outgoingEntry = TaskEntry(
+        name: "Waxed old",
+        taskRule: "rule_out",
+        componentId: outgoing.id,
+        dateTimeUTC: DateTime.utc(2024, 1, 2),
+        dateTimeLocal: DateTime.utc(2024, 1, 2),
+        snapshot: staleSnapshot,
+      );
+      final incomingEntry = TaskEntry(
+        name: "Waxed new",
+        taskRule: "rule_in",
+        componentId: incoming.id,
+        dateTimeUTC: DateTime.utc(2024, 6, 2),
+        dateTimeLocal: DateTime.utc(2024, 6, 2),
+        snapshot: staleSnapshot,
+      );
+      await repository.addTaskEntry(outgoingEntry);
+      await repository.addTaskEntry(incomingEntry);
+      await pumpEventQueue();
+
+      final installed = incoming.copyWith(installations: [
+        Installation(parent: bike.id, dateTimeUTC: swapDate, dateTimeLocal: swapDate),
+      ]);
+      final retired = outgoing.copyWith(installations: [
+        ...outgoing.installations,
+        Installation(parent: null, dateTimeUTC: swapDate, dateTimeLocal: swapDate),
+      ]);
+
+      var notifications = 0;
+      void countNotification() => notifications++;
+      repository.addListener(countNotification);
+
+      if (batched) {
+        await repository.editComponents([installed, retired]);
+      } else {
+        await repository.editComponent(installed);
+        await repository.editComponent(retired);
+      }
+      await pumpEventQueue();
+      repository.removeListener(countNotification);
+
+      final result = (
+        notifications: notifications,
+        outgoingDistance: repository.taskEntries[outgoingEntry.id]?.snapshot?.distance,
+        incomingDistance: repository.taskEntries[incomingEntry.id]?.snapshot?.distance,
+      );
+      await database.close();
+      return result;
+    }
+
+    test("a batched swap heals the snapshots of both components", () async {
+      final result = await runSwap(batched: true);
+
+      // The outgoing component keeps the ride it did before the swap; the
+      // incoming one picks up the ride after it.
+      expect(result.outgoingDistance, 100000.0);
+      expect(result.incomingDistance, 50000.0);
+    });
+
+    test("a batched swap notifies listeners less often than two separate edits", () async {
+      final batched = await runSwap(batched: true);
+      final separate = await runSwap(batched: false);
+
+      expect(batched.outgoingDistance, separate.outgoingDistance);
+      expect(batched.incomingDistance, separate.incomingDistance);
+      expect(batched.notifications, lessThan(separate.notifications));
+    });
+  });
 }

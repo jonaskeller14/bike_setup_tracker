@@ -120,6 +120,35 @@ void main() {
 
       expect(repository.components.containsKey(component1.id), false);
     });
+
+    test("editComponents applies every edit of a swap", () async {
+      final spare = Component(
+        name: "Spare Fork",
+        installations: [],
+        componentType: ComponentType.fork,
+        adjustments: [],
+      );
+      await repository.addBike(bike1);
+      await repository.addComponent(component1);
+      await repository.addComponent(spare);
+      await pumpEventQueue();
+
+      final at = DateTime.utc(2024, 6, 1);
+      await repository.editComponents([
+        spare.copyWith(installations: [
+          Installation(parent: bike1.id, dateTimeUTC: at, dateTimeLocal: at.toLocal()),
+        ]),
+        component1.copyWith(installations: [
+          ...component1.installations,
+          Installation(parent: null, dateTimeUTC: at, dateTimeLocal: at.toLocal()),
+        ]),
+      ]);
+      await pumpEventQueue();
+
+      expect(repository.components[spare.id]?.bike, bike1.id);
+      expect(repository.components[component1.id]?.bike, null);
+      expect(repository.components[component1.id]?.installations.length, 2);
+    });
   });
 
   group("AppRepository - Setups", () {

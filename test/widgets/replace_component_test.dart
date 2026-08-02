@@ -193,6 +193,54 @@ void main() {
       expect(find.text('Spare Fork'), findsWidgets);
     });
 
+    testWidgets('rejects a date that is not after the replaced component\'s last installation', (tester) async {
+      // Last installation lies in the future, so the default replacement date
+      // (now) is too early.
+      final future = DateTime.now().add(const Duration(days: 5));
+      currentComponent = currentComponent.copyWith(installations: [
+        Installation(parent: 'b1', dateTimeUTC: future.toUtc(), dateTimeLocal: future),
+      ]);
+      componentsMap = {currentComponent.id: currentComponent, spareFork.id: spareFork};
+
+      ReplaceComponentResult? result;
+      await tester.pumpWidget(harness(onResult: (r) => result = r));
+      await openSheet(tester);
+
+      await tester.tap(find.text('Continue'));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('Must be after last installation'), findsOneWidget);
+      expect(result, isNull);
+    });
+
+    testWidgets('rejects a date that is not after the selected component\'s last installation', (tester) async {
+      // The replaced component allows the default date, but the picked one was
+      // (de)installed later, so the swap would put the timeline out of order.
+      final future = DateTime.now().add(const Duration(days: 5));
+      spareFork = spareFork.copyWith(installations: [
+        Installation(parent: null, dateTimeUTC: future.toUtc(), dateTimeLocal: future),
+      ]);
+      componentsMap = {currentComponent.id: currentComponent, spareFork.id: spareFork};
+
+      ReplaceComponentResult? result;
+      await tester.pumpWidget(harness(onResult: (r) => result = r));
+      await openSheet(tester);
+
+      // "New" mode only checks the replaced component, which is fine with now.
+      await tester.tap(find.text('Existing'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(DropdownButtonFormField<String>));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Spare Fork').last);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Continue'));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('Must be after last installation'), findsOneWidget);
+      expect(result, isNull);
+    });
+
     testWidgets('keeps the selected component in the dropdown after it gets installed (no crash)', (tester) async {
       await tester.pumpWidget(harness(onResult: (_) {}));
       await openSheet(tester);

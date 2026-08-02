@@ -886,17 +886,29 @@ class AppRepository extends ChangeNotifier {
     final entries = (await database.taskDao.getAllEntriesBypass())
         .map((e) => e.toModel())
         .toList();
-    for (final entry in entries) {
-      final newSnapshot = await getStatsAt(
-        componentId: entry.componentId,
-        bikeId: entry.bikeId,
-        date: entry.dateTimeUTC,
-      );
-      
-      if (newSnapshot != entry.snapshot) {
-        await database.taskDao.upsertEntry(entry.copyWith(snapshot: newSnapshot).toCompanion());
+
+    // Issued together rather than one await at a time: each stats query is a
+    // round-trip to the database isolate, and awaiting them serially stalls on
+    // that latency once per entry.
+    final snapshots = await Future.wait(entries.map((entry) => getStatsAt(
+      componentId: entry.componentId,
+      bikeId: entry.bikeId,
+      date: entry.dateTimeUTC,
+    )));
+
+    final changed = [
+      for (var i = 0; i < entries.length; i++)
+        if (snapshots[i] != entries[i].snapshot) entries[i].copyWith(snapshot: snapshots[i]),
+    ];
+    if (changed.isEmpty) return;
+
+    // One transaction: written individually, every upsert re-emits the task
+    // entry stream, which re-resolves all setups on the UI isolate.
+    await database.transaction(() async {
+      for (final entry in changed) {
+        await database.taskDao.upsertEntry(entry.toCompanion());
       }
-    }
+    });
   }
 
   TaskStatus getTaskRuleStatus(TaskRule rule) {
@@ -1250,32 +1262,11 @@ class AppRepository extends ChangeNotifier {
   }
 
   Future<void> editComponent(Component component, {List<ValueUnitConversion> conversions = const []}) async {
-    // Installation history (which bike, when) and the component's initial stats
-    // both feed into its computed stats, and therefore into the snapshots of any
-    // task entries linked to it. Live component stats recompute via SQL joins,
-    // but persisted task-entry snapshots must be recomputed explicitly.
-    final old = _components[component.id];
-    final statsInputsChanged = old == null ||
-        !listEquals(old.installations, component.installations) ||
-        old.initialDistance != component.initialDistance ||
-        old.initialElevationGain != component.initialElevationGain ||
-        old.initialMovingTime != component.initialMovingTime ||
-        old.initialElapsedTime != component.initialElapsedTime ||
-        old.initialActivityCount != component.initialActivityCount;
+    final statsInputsChanged = _componentStatsInputsChanged(component);
 
     final updated = component.copyWith(lastModified: DateTime.now().toUtc());
     await database.transaction(() async {
-      await database.componentsDao.updateComponentWithData(
-        component: updated.toCompanion(),
-        adjustmentsList: updated.adjustments.asMap().entries.map((entry) =>
-          entry.value.toCompanion(componentId: updated.id, orderIndex: entry.key)
-        ).toList(),
-        installationsList: updated.installations.map((inst) =>
-          // Preserve the stable installation ids across edits; only normalise the
-          // owning componentId.
-          inst.copyWith(componentId: updated.id).toCompanion()
-        ).toList(),
-      );
+      await _writeComponentWithData(updated);
       for (final c in conversions) {
         await database.setupsDao.convertAdjustmentValues(
           c.adjustmentId,
@@ -1285,6 +1276,50 @@ class AppRepository extends ChangeNotifier {
     });
 
     if (statsInputsChanged) await refreshTaskEntrySnapshots();
+  }
+
+  Future<void> editComponents(Iterable<Component> components) async {
+    final statsInputsChanged = components.any(_componentStatsInputsChanged);
+    final updates = components
+        .map((c) => c.copyWith(lastModified: DateTime.now().toUtc()))
+        .toList();
+
+    await database.transaction(() async {
+      for (final updated in updates) {
+        await _writeComponentWithData(updated);
+      }
+    });
+
+    if (statsInputsChanged) await refreshTaskEntrySnapshots();
+  }
+
+  /// Installation history (which bike, when) and the component's initial stats
+  /// both feed into its computed stats, and therefore into the snapshots of any
+  /// task entries linked to it. Live component stats recompute via SQL joins,
+  /// but persisted task-entry snapshots must be recomputed explicitly.
+  bool _componentStatsInputsChanged(Component component) {
+    final old = _components[component.id];
+    return old == null ||
+        !listEquals(old.installations, component.installations) ||
+        old.initialDistance != component.initialDistance ||
+        old.initialElevationGain != component.initialElevationGain ||
+        old.initialMovingTime != component.initialMovingTime ||
+        old.initialElapsedTime != component.initialElapsedTime ||
+        old.initialActivityCount != component.initialActivityCount;
+  }
+
+  Future<void> _writeComponentWithData(Component updated) {
+    return database.componentsDao.updateComponentWithData(
+      component: updated.toCompanion(),
+      adjustmentsList: updated.adjustments.asMap().entries.map((entry) =>
+        entry.value.toCompanion(componentId: updated.id, orderIndex: entry.key)
+      ).toList(),
+      installationsList: updated.installations.map((inst) =>
+        // Preserve the stable installation ids across edits; only normalise the
+        // owning componentId.
+        inst.copyWith(componentId: updated.id).toCompanion()
+      ).toList(),
+    );
   }
 
   Future<void> archiveComponent(Component component, {DateTime? at}) async {

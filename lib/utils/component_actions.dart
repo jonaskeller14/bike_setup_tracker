@@ -96,14 +96,16 @@ class ComponentActions {
       case ReplaceComponentExistingResult(:final existingComponent, :final replacementDate):
         // Swap in an already uninstalled component: install it on the same bike and
         // retire the current one, both at the replacement date.
-        await appRepository.editComponent(existingComponent.copyWith(installations: [
-          ...existingComponent.installations,
-          Installation(parent: component.bike, dateTimeUTC: replacementDate.toUtc(), dateTimeLocal: replacementDate.toLocal()),
-        ]));
-        await appRepository.editComponent(component.copyWith(installations: [
-          ...component.installations,
-          uninstallation,
-        ]));
+        await appRepository.editComponents([
+          existingComponent.copyWith(installations: [
+            ...existingComponent.installations,
+            Installation(parent: component.bike, dateTimeUTC: replacementDate.toUtc(), dateTimeLocal: replacementDate.toLocal()),
+          ]),
+          component.copyWith(installations: [
+            ...component.installations,
+            uninstallation,
+          ]),
+        ]);
 
         messenger.showSnackBar(SnackBar(
           content: Text("Replaced '${component.name}' with '${existingComponent.name}'."),

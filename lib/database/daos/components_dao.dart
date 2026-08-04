@@ -46,9 +46,11 @@ class ComponentsDao extends DatabaseAccessor<AppDatabase> with _$ComponentsDaoMi
           entry.installations.add(installation);
         }
       }
-      // Sort adjustments by orderIndex
+      // The join returns rows in no guaranteed order, so both child lists are
+      // sorted explicitly — callers read installations chronologically.
       for (final entry in grouped.values) {
         entry.adjustments.sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
+        entry.installations.sort((a, b) => a.dateTimeUTC.compareTo(b.dateTimeUTC));
       }
       return grouped.values.toList();
     });

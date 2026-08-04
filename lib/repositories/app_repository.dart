@@ -953,29 +953,41 @@ class AppRepository extends ChangeNotifier {
   }
 
   Future<void> removeComponents(Iterable<Component> components) async {
-    for (var component in components) {
-      await database.componentsDao.deleteComponent(component.id);
-    }
+    if (components.isEmpty) return;
+    await database.transaction(() async {
+      for (var component in components) {
+        await database.componentsDao.deleteComponent(component.id);
+      }
+    });
   }
 
   Future<void> restoreComponents(Iterable<Component> components) async {
-    for (var component in components) {
-      final updated = component.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
-      await database.componentsDao.updateComponent(updated.toCompanion());
-    }
+    if (components.isEmpty) return;
+    await database.transaction(() async {
+      for (var component in components) {
+        final updated = component.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
+        await database.componentsDao.updateComponent(updated.toCompanion());
+      }
+    });
   }
 
   Future<void> removeSetups(Iterable<Setup> setups) async {
-    for (var setup in setups) {
-      await database.setupsDao.deleteSetup(setup.id);
-    }
+    if (setups.isEmpty) return;
+    await database.transaction(() async {
+      for (var setup in setups) {
+        await database.setupsDao.deleteSetup(setup.id);
+      }
+    });
   }
 
   Future<void> restoreSetups(Iterable<Setup> setups) async {
-    for (var setup in setups) {
-      final updated = setup.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
-      await database.setupsDao.updateSetup(updated.toCompanion());
-    }
+    if (setups.isEmpty) return;
+    await database.transaction(() async {
+      for (var setup in setups) {
+        final updated = setup.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
+        await database.setupsDao.updateSetup(updated.toCompanion());
+      }
+    });
   }
 
   Future<void> removePerson(Person person) async {
@@ -988,16 +1000,22 @@ class AppRepository extends ChangeNotifier {
   }
 
   Future<void> removeRatings(Iterable<Rating> ratings) async {
-    for (var rating in ratings) {
-      await database.ratingsDao.deleteRating(rating.id);
-    }
+    if (ratings.isEmpty) return;
+    await database.transaction(() async {
+      for (var rating in ratings) {
+        await database.ratingsDao.deleteRating(rating.id);
+      }
+    });
   }
 
   Future<void> restoreRatings(Iterable<Rating> ratings) async {
-    for (var rating in ratings) {
-      final updated = rating.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
-      await database.ratingsDao.updateRating(updated.toCompanion());
-    }
+    if (ratings.isEmpty) return;
+    await database.transaction(() async {
+      for (var rating in ratings) {
+        final updated = rating.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
+        await database.ratingsDao.updateRating(updated.toCompanion());
+      }
+    });
   }
 
   Future<void> addRatingEntry(RatingEntry entry) async {
@@ -1017,16 +1035,22 @@ class AppRepository extends ChangeNotifier {
   }
 
   Future<void> removeRatingEntries(Iterable<RatingEntry> entries) async {
-    for (final entry in entries) {
-      await database.ratingEntriesDao.deleteRatingEntry(entry.id);
-    }
+    if (entries.isEmpty) return;
+    await database.transaction(() async {
+      for (final entry in entries) {
+        await database.ratingEntriesDao.deleteRatingEntry(entry.id);
+      }
+    });
   }
 
   Future<void> restoreRatingEntries(Iterable<RatingEntry> entries) async {
-    for (final entry in entries) {
-      final updated = entry.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
-      await database.ratingEntriesDao.updateRatingEntry(updated.toCompanion());
-    }
+    if (entries.isEmpty) return;
+    await database.transaction(() async {
+      for (final entry in entries) {
+        final updated = entry.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
+        await database.ratingEntriesDao.updateRatingEntry(updated.toCompanion());
+      }
+    });
   }
   
   // Lazily built lookup caches for rating/score resolution.
@@ -1141,29 +1165,41 @@ class AppRepository extends ChangeNotifier {
       };
 
   Future<void> removeTaskRules(Iterable<TaskRule> rules) async {
-    for (var rule in rules) {
-      await database.taskDao.deleteRule(rule.id);
-    }
+    if (rules.isEmpty) return;
+    await database.transaction(() async {
+      for (var rule in rules) {
+        await database.taskDao.deleteRule(rule.id);
+      }
+    });
   }
 
   Future<void> restoreTaskRules(Iterable<TaskRule> rules) async {
-    for (var rule in rules) {
-      final updated = rule.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
-      await database.taskDao.updateRule(updated.toCompanion());
-    }
+    if (rules.isEmpty) return;
+    await database.transaction(() async {
+      for (var rule in rules) {
+        final updated = rule.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
+        await database.taskDao.updateRule(updated.toCompanion());
+      }
+    });
   }
 
   Future<void> removeTaskEntries(Iterable<TaskEntry> entries) async {
-    for (var entry in entries) {
-      await database.taskDao.deleteEntry(entry.id);
-    }
+    if (entries.isEmpty) return;
+    await database.transaction(() async {
+      for (var entry in entries) {
+        await database.taskDao.deleteEntry(entry.id);
+      }
+    });
   }
 
   Future<void> restoreTaskEntries(Iterable<TaskEntry> entries) async {
-    for (var entry in entries) {
-      final updated = entry.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
-      await database.taskDao.updateEntry(updated.toCompanion());
-    }
+    if (entries.isEmpty) return;
+    await database.transaction(() async {
+      for (var entry in entries) {
+        final updated = entry.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
+        await database.taskDao.updateEntry(updated.toCompanion());
+      }
+    });
   }
 
   Future<void> addBike(Bike bike) async {
@@ -1194,6 +1230,17 @@ class AppRepository extends ChangeNotifier {
   Future<void> addTaskRule(TaskRule rule) async {
     final updated = rule.copyWith(lastModified: DateTime.now().toUtc());
     await database.taskDao.insertRule(updated.toCompanion());
+  }
+
+  Future<void> addTaskRules(Iterable<TaskRule> rules) async {
+    if (rules.isEmpty) return;
+    final now = DateTime.now().toUtc();
+
+    await database.transaction(() async {
+      for (final rule in rules) {
+        await database.taskDao.insertRule(rule.copyWith(lastModified: now).toCompanion());
+      }
+    });
   }
 
   Future<void> editTaskRule(TaskRule rule) async {
@@ -1494,9 +1541,12 @@ class AppRepository extends ChangeNotifier {
   }
 
   Future<void> setStravaAthletes(Iterable<StravaAthlete> athletes) async {
-    for (var a in athletes) {
-      await database.stravaDao.upsertAthlete(a.toCompanion());
-    }
+    if (athletes.isEmpty) return;
+    await database.transaction(() async {
+      for (var a in athletes) {
+        await database.stravaDao.upsertAthlete(a.toCompanion());
+      }
+    });
   }
 
   Future<void> setStravaGears(Iterable<StravaGear> gears) async {

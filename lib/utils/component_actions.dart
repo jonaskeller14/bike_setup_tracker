@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/adjustment/adjustment.dart';
+import '../models/app_settings.dart';
 import '../models/component.dart';
 import '../models/installation.dart';
 import '../pages/adjustment/boolean_adjustment_page.dart';
@@ -13,6 +14,7 @@ import '../pages/adjustment/text_adjustment_page.dart';
 import '../pages/component_page.dart';
 import '../repositories/app_repository.dart';
 import '../widgets/sheets/component_add_adjustment.dart';
+import '../widgets/sheets/copy_task_rules.dart';
 import '../widgets/sheets/replace_component.dart';
 import 'bike_actions.dart';
 
@@ -77,6 +79,42 @@ class ComponentActions {
     if (newComponent == null) return;
 
     await appRepository.addComponent(newComponent);
+
+    if (!context.mounted) return;
+    await _copyTaskRulesTo(context, source: component, target: newComponent);
+  }
+
+  static Future<void> _copyTaskRulesTo(BuildContext context, {
+    required Component source,
+    required Component target,
+  }) async {
+    if (!context.read<AppSettings>().enableTask) return;
+
+    final appRepository = context.read<AppRepository>();
+    final messenger = ScaffoldMessenger.of(context);
+
+    final rules = appRepository.taskRules.values
+        .where((rule) => rule.componentId == source.id)
+        .toList();
+    if (rules.isEmpty) return;
+
+    final selected = await showCopyTaskRulesSheet(context, taskRules: rules, componentName: target.name);
+    if (selected == null || selected.isEmpty) return;
+
+    // deepCopy() keeps the original componentId, so it has to be re-pointed.
+    final copies = selected.map((rule) => rule.deepCopy().copyWith(componentId: target.id)).toList();
+    await appRepository.addTaskRules(copies);
+
+    messenger.showSnackBar(SnackBar(
+      content: Text("Copied ${copies.length} task${copies.length == 1 ? '' : 's'} to '${target.name}'."),
+      duration: const Duration(seconds: 5),
+      persist: false,
+      showCloseIcon: true,
+      action: SnackBarAction(
+        label: 'UNDO',
+        onPressed: () async => appRepository.removeTaskRules(copies),
+      ),
+    ));
   }
 
   static Future<void> replaceComponent(BuildContext context, {required Component component}) async {
@@ -133,6 +171,9 @@ class ComponentActions {
           ...component.installations,
           uninstallation,
         ]));
+
+        if (!context.mounted) return;
+        await _copyTaskRulesTo(context, source: component, target: newComponent);
     }
   }
 

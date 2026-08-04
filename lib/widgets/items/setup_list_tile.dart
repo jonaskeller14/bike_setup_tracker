@@ -30,6 +30,11 @@ class SetupListTile extends StatefulWidget {
 
   final double currentBarLeft;
 
+  /// Extra outer inset the tile absorbs itself: for the current setup it is
+  /// painted over by the highlight, so the tile grows instead of leaving a gap
+  /// between its fill and whatever sits above/below it (e.g. a day header).
+  final EdgeInsets edgeInset;
+
   const SetupListTile({
     super.key,
     required this.setupId,
@@ -40,6 +45,7 @@ class SetupListTile extends StatefulWidget {
     this.embedded = false,
     this.hidePlace = false,
     this.currentBarLeft = 0,
+    this.edgeInset = EdgeInsets.zero,
   });
 
   @override
@@ -50,21 +56,20 @@ class _SetupListTileState extends State<SetupListTile> {
   bool _displayOnlyChanges = true;
 
   Widget _scoreBadge(BuildContext context, double score) {
-    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: colorScheme.primaryContainer,
+        color: const Color(0xFFF9A825),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         spacing: 2,
         children: [
-          Icon(RatingEntry.iconData, size: 13, color: colorScheme.onPrimaryContainer),
+          const Icon(RatingEntry.iconData, size: 13, color: Colors.white),
           Text(
-            "${score.toStringAsFixed(1)} / 10",
-            style: TextStyle(color: colorScheme.onPrimaryContainer, fontWeight: FontWeight.bold, fontSize: 12),
+            score.toStringAsFixed(1),
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
           ),
         ],
       ),
@@ -476,9 +481,12 @@ class _SetupListTileState extends State<SetupListTile> {
             ),
           );
 
-    if (!setup.isCurrent) return content;
+    if (!setup.isCurrent) {
+      return Padding(padding: widget.edgeInset, child: content);
+    }
     return CurrentSetupHighlight(
       barLeft: widget.currentBarLeft,
+      padding: widget.edgeInset,
       child: content,
     );
   }

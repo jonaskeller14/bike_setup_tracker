@@ -10,11 +10,13 @@ class CurrentSetupHighlight extends StatelessWidget {
 
   final Widget child;
   final double barLeft;
+  final EdgeInsets padding;
 
   const CurrentSetupHighlight({
     super.key,
     required this.child,
     this.barLeft = 0,
+    this.padding = EdgeInsets.zero,
   });
 
   @override
@@ -25,7 +27,7 @@ class CurrentSetupHighlight extends StatelessWidget {
         Positioned.fill(
           child: ColoredBox(color: primary.withValues(alpha: fillAlpha)),
         ),
-        child,
+        Padding(padding: padding, child: child),
         Positioned(
           left: barLeft,
           top: 0,

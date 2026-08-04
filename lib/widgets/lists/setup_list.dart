@@ -129,6 +129,7 @@ class SetupList extends StatelessWidget {
     required Set<int> lazyLoadTriggerIds,
     required Iterable<Setup> setupsList,
     required double currentBarLeft,
+    required EdgeInsets edgeInset,
   }) {
     final showDate = !appSettings.enableTimelineDayHeaders;
 
@@ -149,6 +150,7 @@ class SetupList extends StatelessWidget {
           displayPersonAdjustmentValues: appSettings.setupListPersonAdjustmentValues,
           showDate: showDate,
           currentBarLeft: currentBarLeft,
+          edgeInset: edgeInset,
         );
       case TaskTimeLineEntry():
         return TaskEntryListItem(
@@ -187,10 +189,15 @@ class SetupList extends StatelessWidget {
     required AppRepository appRepository,
     required Set<int> lazyLoadTriggerIds,
     required Iterable<Setup> setupsList,
+    EdgeInsets edgeInset = EdgeInsets.zero,
   }) {
     // A row inside a ride block already spends the left gutter on the Strava
     // bar, so the current-setup bar moves aside to sit next to it.
     final bool hasStravaContext = row is EntryRow && row.stravaContext != null;
+
+    // A setup tile takes the inset itself so its current-setup highlight paints
+    // over it; every other row takes it as plain outer padding.
+    final bool absorbsEdgeInset = row is SingleEntryRow && row.entry is SetupEntry;
 
     final Widget child = switch (row) {
       DayHeaderRow() => TimelineDayHeader(day: row.day),
@@ -202,6 +209,7 @@ class SetupList extends StatelessWidget {
         lazyLoadTriggerIds: lazyLoadTriggerIds,
         setupsList: setupsList,
         currentBarLeft: hasStravaContext ? 6 : 0,
+        edgeInset: edgeInset,
       ),
       SetupGroupRow() => SetupGroupSection(
         setupIds: row.setups.map((e) => e.setup.id).toList(),
@@ -225,10 +233,10 @@ class SetupList extends StatelessWidget {
 
     // Every row is full-bleed and owns its own 16 px content inset; the Strava
     // bar is painted into that gutter rather than insetting the row further.
-    if (row is EntryRow && row.stravaContext != null) {
-      return StravaContextWrapper(stravaContext: row.stravaContext!, child: child);
-    }
-    return child;
+    final Widget wrapped = row is EntryRow && row.stravaContext != null
+        ? StravaContextWrapper(stravaContext: row.stravaContext!, child: child)
+        : child;
+    return absorbsEdgeInset ? wrapped : Padding(padding: edgeInset, child: wrapped);
   }
 
   @override
@@ -455,6 +463,10 @@ class SetupList extends StatelessWidget {
             appRepository: appRepository,
             lazyLoadTriggerIds: lazyLoadTriggerIds,
             setupsList: setupsList,
+            edgeInset: EdgeInsets.only(
+              top: i == 0 ? 8 : 0,
+              bottom: i == group.length - 1 ? 8 : 0,
+            ),
           ),
         ),
       );
@@ -464,12 +476,9 @@ class SetupList extends StatelessWidget {
       // Flush under the appbar (no margin) and opaque, so scrolled rows don't
       // bleed through while it's pinned.
       header: TimelineDayHeader(day: header.day, margin: EdgeInsets.zero),
-      content: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: children,
-        ),
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: children,
       ),
     );
   }

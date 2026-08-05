@@ -1,9 +1,12 @@
 ---
+name: gc
 description: Commit the currently staged changes with a generated conventional-commit message
-argument-hint: "[optional message or hint]"
 allowed-tools: Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git branch:*), Bash(git commit:*)
-model: claude-haiku-4-5-20251001
 ---
+
+## Codex execution
+
+Delegate this workflow to the project-local `commit-staged` custom agent. It runs on the configured lightweight model; do not execute the commit workflow in the parent agent.
 
 Commit the changes that are **already staged**. Do not stage anything yourself.
 

@@ -107,7 +107,7 @@ class _InstallationSheetState extends State<InstallationSheet> {
     );
     await context.read<AppRepository>().editComponent(updatedComponent);
     if (!mounted) return;
-    Navigator.pop(context);    
+    Navigator.pop(context);
   }
 
   bool get _hasChanges =>

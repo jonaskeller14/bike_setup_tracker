@@ -882,8 +882,11 @@ class AppRepository extends ChangeNotifier {
   /// lags bulk writes (Strava sync, import) until the watch-stream propagates,
   /// and (2) it omits trashed entries, which must be healed too since restore
   /// does not recompute the snapshot.
-  Future<void> refreshTaskEntrySnapshots() async {
-    final entries = (await database.taskDao.getAllEntriesBypass())
+  Future<void> refreshTaskEntrySnapshots({Set<String>? componentIds}) async {
+    final dbEntries = componentIds == null
+        ? await database.taskDao.getAllEntriesBypass()
+        : await database.taskDao.getEntriesForComponentIdsBypass(componentIds);
+    final entries = dbEntries
         .map((e) => e.toModel())
         .toList();
 
@@ -1322,12 +1325,16 @@ class AppRepository extends ChangeNotifier {
       }
     });
 
-    if (statsInputsChanged) await refreshTaskEntrySnapshots();
+    if (statsInputsChanged) await refreshTaskEntrySnapshots(componentIds: {component.id});
   }
 
   Future<void> editComponents(Iterable<Component> components) async {
-    final statsInputsChanged = components.any(_componentStatsInputsChanged);
-    final updates = components
+    final componentList = components.toList();
+    final changedComponentIds = componentList
+        .where(_componentStatsInputsChanged)
+        .map((component) => component.id)
+        .toSet();
+    final updates = componentList
         .map((c) => c.copyWith(lastModified: DateTime.now().toUtc()))
         .toList();
 
@@ -1337,7 +1344,9 @@ class AppRepository extends ChangeNotifier {
       }
     });
 
-    if (statsInputsChanged) await refreshTaskEntrySnapshots();
+    if (changedComponentIds.isNotEmpty) {
+      await refreshTaskEntrySnapshots(componentIds: changedComponentIds);
+    }
   }
 
   /// Installation history (which bike, when) and the component's initial stats

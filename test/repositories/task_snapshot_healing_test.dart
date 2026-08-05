@@ -797,6 +797,41 @@ void main() {
       expect(healed.toModel().snapshot?.distance, 100000.0); // healed
     });
 
+    test("component edits refresh only that component's active and trashed entries", () async {
+      final target = Component(name: "Target Chain", componentType: ComponentType.chain, installations: []);
+      final unrelated = Component(name: "Unrelated Chain", componentType: ComponentType.chain, installations: []);
+      await repository.addComponent(target);
+      await repository.addComponent(unrelated);
+
+      final entryDate = DateTime.utc(2024, 1, 2);
+      final staleSnapshot = const ComponentStats(
+        distance: 999000.0,
+        elevationGain: 0,
+        movingTime: Duration.zero,
+        elapsedTime: Duration.zero,
+        activityCount: 99,
+      );
+      final targetEntry = TaskEntry(name: "Target task", taskRule: "target_rule", componentId: target.id, dateTimeUTC: entryDate, dateTimeLocal: entryDate, snapshot: staleSnapshot);
+      final trashedTargetEntry = TaskEntry(name: "Trashed target task", taskRule: "target_rule", componentId: target.id, dateTimeUTC: entryDate, dateTimeLocal: entryDate, isDeleted: true, snapshot: staleSnapshot);
+      final unrelatedEntry = TaskEntry(name: "Unrelated task", taskRule: "unrelated_rule", componentId: unrelated.id, dateTimeUTC: entryDate, dateTimeLocal: entryDate, snapshot: staleSnapshot);
+      final bikeOnlyEntry = TaskEntry(name: "Bike task", taskRule: "bike_rule", dateTimeUTC: entryDate, dateTimeLocal: entryDate, snapshot: staleSnapshot);
+      await database.taskDao.insertEntry(targetEntry.toCompanion());
+      await database.taskDao.insertEntry(trashedTargetEntry.toCompanion());
+      await database.taskDao.insertEntry(unrelatedEntry.toCompanion());
+      await database.taskDao.insertEntry(bikeOnlyEntry.toCompanion());
+
+      await repository.editComponent(target.copyWith(initialDistance: 1000.0));
+
+      final entries = {
+        for (final entry in await database.taskDao.getAllEntriesBypass()) entry.id: entry.toModel(),
+      };
+      expect(entries[targetEntry.id]?.snapshot?.distance, 1000.0);
+      expect(entries[trashedTargetEntry.id]?.snapshot?.distance, 1000.0);
+      expect(entries[trashedTargetEntry.id]?.isDeleted, isTrue);
+      expect(entries[unrelatedEntry.id]?.snapshot, staleSnapshot);
+      expect(entries[bikeOnlyEntry.id]?.snapshot, staleSnapshot);
+    });
+
     test("importing entries with broken component links succeeds with zero stats", () async {
       // Import data with a task entry that references a non-existent component.
       // This can happen when components are deleted but task entries survive.

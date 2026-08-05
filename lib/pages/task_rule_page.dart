@@ -72,6 +72,8 @@ class _TaskRulePageState extends State<TaskRulePage> {
   late TextEditingController _notesController;
   late TextEditingController _intervalValueController;
   late TextEditingController _delayValueController;
+  final FocusNode _intervalValueFocusNode = FocusNode();
+  final FocusNode _delayValueFocusNode = FocusNode();
   
   TaskPriority _priority = TaskPriority.medium;
   Set<String> _tags = {};
@@ -212,6 +214,28 @@ class _TaskRulePageState extends State<TaskRulePage> {
     }
   }
 
+  void _focusAndSelectIntervalValue() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _intervalValueFocusNode.requestFocus();
+      _intervalValueController.selection = TextSelection(
+        baseOffset: 0,
+        extentOffset: _intervalValueController.text.length,
+      );
+    });
+  }
+
+  void _focusAndSelectDelayValue() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _delayValueFocusNode.requestFocus();
+      _delayValueController.selection = TextSelection(
+        baseOffset: 0,
+        extentOffset: _delayValueController.text.length,
+      );
+    });
+  }
+
   @override
   void dispose() {
     _nameController.removeListener(_changeListener);
@@ -220,8 +244,10 @@ class _TaskRulePageState extends State<TaskRulePage> {
     _notesController.dispose();
     _intervalValueController.removeListener(_changeListener);
     _intervalValueController.dispose();
+    _intervalValueFocusNode.dispose();
     _delayValueController.removeListener(_changeListener);
     _delayValueController.dispose();
+    _delayValueFocusNode.dispose();
 
     super.dispose();
   }
@@ -749,6 +775,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                             children: [
                               Expanded(
                                 child: DropdownButtonFormField<_ThresholdType?>(
+                                  key: const Key('taskRuleIntervalType'),
                                   initialValue: _intervalType,
                                   isExpanded: true,
                                   autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -771,6 +798,9 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                         }
                                       });
                                       _changeListener();
+                                      if (v != _ThresholdType.none && v != _ThresholdType.dateTime) {
+                                        _focusAndSelectIntervalValue();
+                                      }
                                     }
                                   },
                                 ),
@@ -824,7 +854,9 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                 _ThresholdType.elapsedTime ||
                                 _ThresholdType.duration => Expanded(
                                   child: TextFormField(
+                                    key: const Key('taskRuleIntervalValue'),
                                     controller: _intervalValueController,
+                                    focusNode: _intervalValueFocusNode,
                                     autovalidateMode: AutovalidateMode.onUserInteraction,
                                     keyboardType: TextInputType.numberWithOptions(
                                       decimal: _intervalType == _ThresholdType.distance || _intervalType == _ThresholdType.elevation,
@@ -878,6 +910,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                 children: [
                                   Expanded(
                                     child: DropdownButtonFormField<_ThresholdType>(
+                                      key: const Key('taskRuleDelayType'),
                                       initialValue: _delayType,
                                       isExpanded: true,
                                       autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -894,6 +927,9 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                         if (v != null) {
                                           setState(() => _delayType = v);
                                           _changeListener();
+                                          if (v != _ThresholdType.none) {
+                                            _focusAndSelectDelayValue();
+                                          }
                                         }
                                       },
                                       validator: (v) {
@@ -907,7 +943,9 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                   if (_delayType != _ThresholdType.none)
                                     Expanded(
                                       child: TextFormField(
+                                        key: const Key('taskRuleDelayValue'),
                                         controller: _delayValueController,
+                                        focusNode: _delayValueFocusNode,
                                         autovalidateMode: AutovalidateMode.onUserInteraction,
                                         keyboardType: TextInputType.numberWithOptions(
                                           decimal: _delayType == _ThresholdType.distance || _delayType == _ThresholdType.elevation,

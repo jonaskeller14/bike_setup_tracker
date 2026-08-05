@@ -1,3 +1,10 @@
-# Trusted-project defaults. Managed/session policy may impose stricter limits.
 sandbox_mode = "workspace-write"
 approval_policy = "on-request"
+
+[mcp_servers.firebase]
+command = "npx"
+args = [
+    "-y",
+    "firebase-tools@latest",
+    "mcp",
+]

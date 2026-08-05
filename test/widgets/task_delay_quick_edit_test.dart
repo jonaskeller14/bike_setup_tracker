@@ -392,6 +392,34 @@ void main() {
       await tester.pumpAndSettle();
     }
 
+    Future<void> selectDelayTypeAndExpectSelection(
+      WidgetTester tester,
+      TaskRule rule,
+      String expectedValue,
+    ) async {
+      await openEditPage(tester, rule);
+
+      final typeDropdown = find.byKey(const Key('taskRuleDelayType'));
+      await tester.ensureVisible(typeDropdown);
+      await tester.pumpAndSettle();
+      await tester.tap(typeDropdown);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Duration').last);
+      await tester.pumpAndSettle();
+
+      final valueField = find.byKey(const Key('taskRuleDelayValue'));
+      final editableText = tester.widget<EditableText>(
+        find.descendant(of: valueField, matching: find.byType(EditableText)),
+      );
+
+      expect(editableText.focusNode.hasFocus, isTrue);
+      expect(editableText.controller.text, expectedValue);
+      expect(
+        editableText.controller.selection,
+        TextSelection(baseOffset: 0, extentOffset: expectedValue.length),
+      );
+    }
+
     testWidgets('preselects the trigger type so only a value is missing', (tester) async {
       await openEditPage(tester, ruleWith(interval: const DurationThreshold(Duration(days: 30))));
 
@@ -496,6 +524,70 @@ void main() {
 
       expect(popped, isNotNull);
       expect(popped!.delay, isNull);
+    });
+
+    testWidgets('focuses an empty value after selecting a delay type', (tester) async {
+      await selectDelayTypeAndExpectSelection(
+        tester,
+        ruleWith(interval: const DurationThreshold(Duration(days: 30))),
+        '',
+      );
+    });
+
+    testWidgets('selects an existing value after selecting a delay type', (tester) async {
+      await selectDelayTypeAndExpectSelection(
+        tester,
+        ruleWith(
+          interval: const DurationThreshold(Duration(days: 30)),
+          delay: const DurationThreshold(Duration(days: 5)),
+        ),
+        '5',
+      );
+    });
+  });
+
+  group('TaskRulePage interval value focus', () {
+    Future<void> selectDurationAndExpectSelection(
+      WidgetTester tester,
+      TaskRulePage page,
+      String expectedValue,
+    ) async {
+      await tester.pumpWidget(wrap(page));
+      await tester.pumpAndSettle();
+
+      final typeDropdown = find.byKey(const Key('taskRuleIntervalType'));
+      await tester.ensureVisible(typeDropdown);
+      await tester.pumpAndSettle();
+      await tester.tap(typeDropdown);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Duration').last);
+      await tester.pumpAndSettle();
+
+      final valueField = find.byKey(const Key('taskRuleIntervalValue'));
+      final editableText = tester.widget<EditableText>(
+        find.descendant(of: valueField, matching: find.byType(EditableText)),
+      );
+
+      expect(editableText.focusNode.hasFocus, isTrue);
+      expect(editableText.controller.text, expectedValue);
+      expect(
+        editableText.controller.selection,
+        TextSelection(baseOffset: 0, extentOffset: expectedValue.length),
+      );
+    }
+
+    testWidgets('focuses an empty value in add mode', (tester) async {
+      await selectDurationAndExpectSelection(tester, TaskRulePage.add(), '');
+    });
+
+    testWidgets('selects the existing value in edit mode', (tester) async {
+      final rule = ruleWith(interval: const DurationThreshold(Duration(days: 30)));
+      await selectDurationAndExpectSelection(tester, TaskRulePage.edit(taskRule: rule), '30');
+    });
+
+    testWidgets('selects the existing value in duplicate mode', (tester) async {
+      final rule = ruleWith(interval: const DurationThreshold(Duration(days: 30)));
+      await selectDurationAndExpectSelection(tester, TaskRulePage.duplicate(taskRule: rule), '30');
     });
   });
 }

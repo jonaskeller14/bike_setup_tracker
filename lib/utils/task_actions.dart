@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
@@ -56,25 +57,27 @@ class TaskActions {
   static Future<void> removeTaskRule(BuildContext context, {required TaskRule taskRule}) async {
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);
-    
+
     final obsoleteTaskEntries = appRepository.taskEntries.values.where((te) => te.taskRule == taskRule.id).toList();
 
     await appRepository.removeTaskRules([taskRule]);
     await appRepository.removeTaskEntries(obsoleteTaskEntries);
 
-    messenger.showSnackBar(SnackBar(
-      content: Text("Task '${taskRule.name}' and corresponding entries moved to trash."),
-      duration: const Duration(seconds: 5),
-      persist: false,
-      showCloseIcon: true,
-      action: SnackBarAction(
-        label: 'UNDO',
-        onPressed: () async {
-          await appRepository.restoreTaskRules([taskRule]);
-          await appRepository.restoreTaskEntries(obsoleteTaskEntries);
-        },
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text("Task '${taskRule.name}' and corresponding entries moved to trash."),
+        duration: const Duration(seconds: 5),
+        persist: false,
+        showCloseIcon: true,
+        action: SnackBarAction(
+          label: 'UNDO',
+          onPressed: () async {
+            await appRepository.restoreTaskRules([taskRule]);
+            await appRepository.restoreTaskEntries(obsoleteTaskEntries);
+          },
+        ),
       ),
-    ));
+    );
   }
 
   static Future<void> restoreTaskRule(BuildContext context, {required TaskRule taskRule}) async {
@@ -150,6 +153,35 @@ class TaskActions {
       action: SnackBarAction(
         label: 'UNDO',
         onPressed: () async => appRepository.restoreTaskEntries([taskEntry]),
+      ),
+    ));
+  }
+
+  static Future<void> removeTaskEntries(BuildContext context, {required Iterable<String> taskEntryIds}) async {
+    final appRepository = context.read<AppRepository>();
+    final messenger = ScaffoldMessenger.of(context);
+
+    final taskEntries = taskEntryIds
+      .map((teId) => appRepository.taskEntries[teId])
+      .whereType<TaskEntry>()
+      .toList();
+    if (taskEntries.isEmpty) return;
+    await appRepository.removeTaskEntries(taskEntries);
+
+    messenger.showSnackBar(SnackBar(
+      content: Text(
+        Intl.plural(
+          taskEntries.length,
+          one: "Task Entry '${taskEntries[0].name}' moved to trash.",
+          other: "${taskEntries.length} Task Entries moved to trash.",
+        ),
+      ),
+      duration: const Duration(seconds: 5),
+      persist: false,
+      showCloseIcon: true,
+      action: SnackBarAction(
+        label: 'UNDO',
+        onPressed: () async => appRepository.restoreTaskEntries(taskEntries),
       ),
     ));
   }

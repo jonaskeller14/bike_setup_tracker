@@ -83,7 +83,7 @@ extension InstallationDbMapper on InstallationDb {
 
 extension AdjustmentDbMapper on AdjustmentDb {
   Adjustment toModel() {
-    final Map<String, dynamic> payload = jsonDecode(jsonPayload ?? '{}');
+    final Map<String, dynamic> payload = jsonDecode(jsonPayload ?? '{}') as Map<String, dynamic>;
     // Ensure core fields from the table override anything in the payload
     payload['id'] = id;
     payload['name'] = name;
@@ -129,7 +129,7 @@ extension RatingDbMapper on RatingDb {
 
 extension RatingMetricDbMapper on RatingMetricDb {
   RatingMetric toModel() {
-    final Map<String, dynamic> payload = jsonDecode(jsonPayload ?? '{}');
+    final Map<String, dynamic> payload = jsonDecode(jsonPayload ?? '{}') as Map<String, dynamic>;
     payload['id'] = id;
     payload['name'] = name;
     payload['notes'] = notes;
@@ -156,8 +156,8 @@ extension TaskRuleDbMapper on TaskRuleDb {
       notes: notes,
       priority: priority,
       tags: tags,
-      interval: interval != null ? TaskThreshold.fromJson(jsonDecode(interval!)) : null,
-      delay: delay != null ? TaskThreshold.fromJson(jsonDecode(delay!)) : null,
+      interval: interval != null ? TaskThreshold.fromJson(jsonDecode(interval!) as Map<String, dynamic>) : null,
+      delay: delay != null ? TaskThreshold.fromJson(jsonDecode(delay!) as Map<String, dynamic>) : null,
       repeat: repeat,
     );
   }
@@ -176,7 +176,7 @@ extension TaskEntryDbMapper on TaskEntryDb {
       notes: notes,
       componentId: componentId,
       bikeId: bikeId,
-      snapshot: snapshot != null ? ComponentStats.fromJson(jsonDecode(snapshot!)) : null,
+      snapshot: snapshot != null ? ComponentStats.fromJson(jsonDecode(snapshot!) as Map<String, dynamic>) : null,
     );
   }
 }

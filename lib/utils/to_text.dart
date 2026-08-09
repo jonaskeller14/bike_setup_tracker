@@ -3,8 +3,12 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
+import '../models/bike.dart';
+import '../models/component.dart';
 import '../models/context/context_position.dart';
 import '../models/context/context_weather.dart';
+import '../models/person.dart';
+import '../models/rating.dart';
 import '../models/selected_data.dart';
 import '../models/setup.dart';
 import '../models/task/task_entry.dart';
@@ -95,10 +99,10 @@ String setupToText({
 void _appendSetupText(
   StringBuffer buffer, 
   Setup setup, 
-  Map<String, dynamic> bikes, 
-  Map<String, dynamic> persons, 
-  Map<String, dynamic> components, 
-  Map<String, dynamic> ratings,
+  Map<String, Bike> bikes,
+  Map<String, Person> persons,
+  Map<String, Component> components,
+  Map<String, Rating> ratings,
   AppSettings settings
 ) {
   final dateString = DateFormat(settings.dateFormat).format(setup.datetimeLocal);

@@ -9,7 +9,7 @@ class WeatherConverter extends TypeConverter<ContextWeather, String> {
 
   @override
   ContextWeather fromSql(String fromDb) {
-    return ContextWeather.fromJson(json.decode(fromDb));
+    return ContextWeather.fromJson(json.decode(fromDb) as Map<String, dynamic>);
   }
 
   @override

@@ -58,24 +58,24 @@ class Rating {
   };
 
   factory Rating.fromJson({required Map<String, dynamic> json}) {
-    final int? version = json["version"];
+    final int? version = json["version"] as int?;
     switch (version) {
       case null || 1 || 2:
         // Legacy: a flat list of adjustments without weights -> default metrics.
         return Rating(
-          id: json["id"],
-          isDeleted: json["isDeleted"],
-          lastModified: DateTime.tryParse(json["lastModified"] ?? ""),
-          name: json['name'],
-          notes: json['notes'],
-          filter: json["filter"],
+          id: json["id"] as String?,
+          isDeleted: json["isDeleted"] as bool?,
+          lastModified: DateTime.tryParse(json["lastModified"] as String? ?? ""),
+          name: json['name'] as String,
+          notes: json['notes'] as String?,
+          filter: json["filter"] as String?,
           filterType: FilterType.values.firstWhere(
-            (e) => e.toString() == json["filterType"],
+            (e) => e.toString() == json["filterType"] as String?,
             orElse: () => FilterType.global,
           ),
           metrics: (json["adjustments"] as List<dynamic>?)
             ?.map((adjustmentJson) => RatingMetric(
-                  adjustment: Adjustment.fromJson(adjustmentJson),
+                  adjustment: Adjustment.fromJson(adjustmentJson as Map<String, dynamic>),
                 ))
             .toList()
             ?? <RatingMetric>[],
@@ -83,14 +83,14 @@ class Rating {
         );
       case 3:
         return Rating(
-          id: json["id"],
-          isDeleted: json["isDeleted"],
-          lastModified: DateTime.tryParse(json["lastModified"] ?? ""),
-          name: json['name'],
-          notes: json['notes'],
-          filter: json["filter"],
+          id: json["id"] as String?,
+          isDeleted: json["isDeleted"] as bool?,
+          lastModified: DateTime.tryParse(json["lastModified"] as String? ?? ""),
+          name: json['name'] as String,
+          notes: json['notes'] as String?,
+          filter: json["filter"] as String?,
           filterType: FilterType.values.firstWhere(
-            (e) => e.toString() == json["filterType"],
+            (e) => e.toString() == json["filterType"] as String?,
             orElse: () => FilterType.global,
           ),
           metrics: (json["metrics"] as List<dynamic>?)

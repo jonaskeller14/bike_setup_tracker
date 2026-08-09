@@ -80,25 +80,25 @@ class Setup {
   };
 
   factory Setup.fromJson({required Map<String, dynamic> json}) {
-    final int? version = json["version"];
+    final int? version = json["version"] as int?;
     switch (version) {
       case null || 1 || 2 || 3 || 4 || 5 || 6:
         return Setup(
-          id: json['id'],
-          isDeleted: json["isDeleted"],
-          lastModified: DateTime.tryParse(json["lastModified"] ?? ""),
-          name: json['name'],
-          datetime: DateTime.parse(json['datetime']).toUtc(),
-          datetimeLocal: (DateTime.tryParse(json['datetimeLocal'] ?? '') ?? DateTime.parse(json['datetime'])).copyWith(isUtc: false),
+          id: json['id'] as String?,
+          isDeleted: json["isDeleted"] as bool?,
+          lastModified: DateTime.tryParse(json["lastModified"] as String? ?? ""),
+          name: json['name'] as String?,
+          datetime: DateTime.parse(json['datetime'] as String).toUtc(),
+          datetimeLocal: (DateTime.tryParse(json['datetimeLocal'] as String? ?? '') ?? DateTime.parse(json['datetime'] as String)).copyWith(isUtc: false),
           notes: json['notes'] != null ? json['notes'] as String : null,
           tags: (json['tags'] as List?)?.map((item) => item as String).toSet() ?? <String>{},
-          bike: json['bike'],
-          person: json['person'],
+          bike: json['bike'] as String,
+          person: json['person'] as String?,
           bikeAdjustmentValues: adjustmentValuesFromJson((json['bikeAdjustmentValues'] ?? json['adjustmentValues']) as Map<String, dynamic>? ?? {}),
           personAdjustmentValues: adjustmentValuesFromJson((json['personAdjustmentValues']) as Map<String, dynamic>? ?? {}),
-          position: json['position'] != null ? ContextPosition.fromJson(json['position']) : null,
-          place: json['place'] != null ? ContextPlace.fromJson(json['place']) : null,
-          weather: json['weather'] != null ? ContextWeather.fromJson(json['weather']) : null,
+          position: json['position'] != null ? ContextPosition.fromJson(json['position'] as Map<String, dynamic>) : null,
+          place: json['place'] != null ? ContextPlace.fromJson(json['place'] as Map<String, dynamic>) : null,
+          weather: json['weather'] != null ? ContextWeather.fromJson(json['weather'] as Map<String, dynamic>) : null,
           images: (json['images'] as List?)?.map((e) => e as String).toList() ?? <String>[],
         );
       default: throw Exception("Json Version $version of Setup incompatible.");

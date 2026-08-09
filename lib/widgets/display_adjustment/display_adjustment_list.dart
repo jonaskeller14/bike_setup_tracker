@@ -38,8 +38,8 @@ class AdjustmentDisplayList extends StatelessWidget {
             return DisplayBooleanAdjustmentWidget(
               key: ValueKey(adjustment),
               adjustment: adjustment,
-              initialValue: initialValue,
-              value: value,
+              initialValue: initialValue as bool?,
+              value: value as bool?,
               isError: isError,
               onRemove: onRemoveAdjustment,
             );
@@ -47,8 +47,8 @@ class AdjustmentDisplayList extends StatelessWidget {
             return DisplaySagAdjustmentWidget(
               key: ValueKey(adjustment),
               adjustment: adjustment,
-              initialValue: initialValue,
-              value: value,
+              initialValue: initialValue as num?,
+              value: value as num?,
               isError: isError,
               onRemove: onRemoveAdjustment,
             );
@@ -56,8 +56,8 @@ class AdjustmentDisplayList extends StatelessWidget {
             return DisplayNumericalAdjustmentWidget(
               key: ValueKey(adjustment),
               adjustment: adjustment,
-              initialValue: initialValue,
-              value: value,
+              initialValue: initialValue as num?,
+              value: value as num?,
               isError: isError,
               onRemove: onRemoveAdjustment,
             );
@@ -65,8 +65,8 @@ class AdjustmentDisplayList extends StatelessWidget {
             return DisplayStepAdjustmentWidget(
               key: ValueKey(adjustment),
               adjustment: adjustment,
-              initialValue: initialValue,
-              value: value,
+              initialValue: initialValue as num?,
+              value: value as num?,
               isError: isError,
               onRemove: onRemoveAdjustment,
             );
@@ -92,8 +92,8 @@ class AdjustmentDisplayList extends StatelessWidget {
             return DisplayDurationAdjustmentWidget(
               key: ValueKey(adjustment),
               adjustment: adjustment,
-              initialValue: initialValue,
-              value: value,
+              initialValue: initialValue as Duration?,
+              value: value as Duration?,
               isError: isError,
               onRemove: onRemoveAdjustment,
             );

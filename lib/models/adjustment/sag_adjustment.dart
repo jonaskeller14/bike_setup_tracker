@@ -73,16 +73,16 @@ class SagAdjustment extends NumericalAdjustment {
   };
 
   factory SagAdjustment.fromJson(Map<String, dynamic> json) {
-    final int? version = json["version"];
+    final int? version = json["version"] as int?;
     switch (version) {
       // Must accept every version NumericalAdjustment stamps: toJson() inherits
       // `version` from it, so a bump there without one here makes sag payloads
       // fail to decode their own output.
       case null || 1 || 2:
         return SagAdjustment(
-          id: json["id"],
-          name: json['name'],
-          notes: json['notes'],
+          id: json["id"] as String?,
+          name: json['name'] as String,
+          notes: json['notes'] as String?,
           referenceTravelMm: (json['referenceTravelMm'] as num?)?.toDouble(),
         );
       default: throw Exception("Json Version $version of SagAdjustment incompatible.");

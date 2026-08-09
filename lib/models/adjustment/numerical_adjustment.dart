@@ -67,14 +67,14 @@ class NumericalAdjustment extends Adjustment {
   };
 
   factory NumericalAdjustment.fromJson(Map<String, dynamic> json) {
-    final int? version = json["version"];
+    final int? version = json["version"] as int?;
     switch (version) {
       case null || 1 || 2:  // also bump version in SagAdjustment
         if (json[adjustmentSubtypeKey] == _sagSubtype) return SagAdjustment.fromJson(json);
         return NumericalAdjustment(
-          id: json["id"],
-          name: json['name'],
-          notes: json['notes'],
+          id: json["id"] as String?,
+          name: json['name'] as String,
+          notes: json['notes'] as String?,
           unit: AdjustmentUnit.decode(json['unit'] as String?),
           min: (json['min'] as num?)?.toDouble(),
           max: (json['max'] as num?)?.toDouble(),

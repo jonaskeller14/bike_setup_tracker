@@ -217,22 +217,22 @@ class Component {
   };
 
   factory Component.fromJson({required Map<String, dynamic> json}) {
-    final int? version = json["version"];
+    final int? version = json["version"] as int?;
     switch (version) {
       case null || 1:
         final bike = json["bike"] as String?;
         return Component(
           id: json["id"] as String,
           isDeleted: json["isDeleted"] as bool,
-          lastModified: DateTime.tryParse(json["lastModified"] ?? ""),
+          lastModified: DateTime.tryParse(json["lastModified"] as String? ?? ""),
           name: json['name'] as String,
-          componentType: ComponentType.fromString(json['componentType']),
+          componentType: ComponentType.fromString(json['componentType'] as String?),
           installations: [
             Installation.sinceBeginning(parent: bike, componentId: json["id"] as String)
           ],
           notes: json["notes"] as String?,
           adjustments: (json["adjustments"] as List<dynamic>?)
-            ?.map((adjustmentJson) => Adjustment.fromJson(adjustmentJson))
+            ?.map((adjustmentJson) => Adjustment.fromJson(adjustmentJson as Map<String, dynamic>))
             .toList()
             ?? <Adjustment>[],
           orderIndex: json["orderIndex"] as int? ?? 0,
@@ -251,15 +251,15 @@ class Component {
         return Component(
           id: json["id"] as String,
           isDeleted: json["isDeleted"] as bool,
-          lastModified: DateTime.tryParse(json["lastModified"] ?? ""),
+          lastModified: DateTime.tryParse(json["lastModified"] as String? ?? ""),
           name: json['name'] as String,
-          componentType: ComponentType.fromString(json['componentType']),
+          componentType: ComponentType.fromString(json['componentType'] as String?),
           installations: (json["installations"] as List<dynamic>?)
-            ?.map((i) => Installation.fromJson(i, componentId: json["id"] as String))
+            ?.map((i) => Installation.fromJson(i as Map<String, dynamic>, componentId: json["id"] as String))
             .toList() ?? [],
           notes: json["notes"] as String?,
           adjustments: (json["adjustments"] as List<dynamic>?)
-            ?.map((adjustmentJson) => Adjustment.fromJson(adjustmentJson))
+            ?.map((adjustmentJson) => Adjustment.fromJson(adjustmentJson as Map<String, dynamic>))
             .toList()
             ?? <Adjustment>[],
           orderIndex: json["orderIndex"] as int? ?? 0,

@@ -41,7 +41,7 @@ class RatingMetric {
   };
 
   factory RatingMetric.fromJson(Map<String, dynamic> json) {
-    final int? version = json['version'];
+    final int? version = json['version'] as int?;
     switch (version) {
       case null || 1:
         return RatingMetric(

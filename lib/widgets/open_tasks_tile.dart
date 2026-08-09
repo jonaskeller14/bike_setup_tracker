@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../models/task/task_rule.dart';
 import '../pages/task_rule_page.dart';
 import '../repositories/app_repository.dart';
 import 'items/task_rule_list_card.dart';
@@ -68,7 +69,7 @@ class OpenTasksTile extends StatelessWidget {
         Center(
           child: TextButton.icon(
             onPressed: () async {
-              final newTaskRule = await Navigator.push(
+              final newTaskRule = await Navigator.push<TaskRule>(
                 context,
                 MaterialPageRoute(
                   builder: (context) => switch (_association) {

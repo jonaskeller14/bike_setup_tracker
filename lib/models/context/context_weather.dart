@@ -178,20 +178,20 @@ class ContextWeather {
   };
 
   factory ContextWeather.fromJson(Map<String, dynamic> json) {
-    final int? version = json["version"];
+    final int? version = json["version"] as int?;
     switch (version) {
       case null || 1:
         return ContextWeather(
-          currentDateTime: DateTime.parse(json['currentDateTime']),
-          currentTemperature: json['currentTemperature'],
-          currentWeatherCode: json['currentWeatherCode'],
-          currentHumidity: json['currentHumidity'],
-          currentWindSpeed: json['currentWindSpeed'],
-          currentPrecipitation: json['currentPrecipitation'],
-          currentSoilMoisture0to7cm: json['currentSoilMoisture0to7cm'],
-          dayAccumulatedPrecipitation: json['dayAccumulatedPrecipitation'],
-          condition: Condition.values.firstWhereOrNull((e) => e.toString() == json['condition']),
-          conditionManuallySet: json['conditionManuallySet'] ?? false,
+          currentDateTime: DateTime.parse(json['currentDateTime'] as String),
+          currentTemperature: json['currentTemperature'] as double?,
+          currentWeatherCode: json['currentWeatherCode'] as int?,
+          currentHumidity: json['currentHumidity'] as double?,
+          currentWindSpeed: json['currentWindSpeed'] as double?,
+          currentPrecipitation: json['currentPrecipitation'] as double?,
+          currentSoilMoisture0to7cm: json['currentSoilMoisture0to7cm'] as double?,
+          dayAccumulatedPrecipitation: json['dayAccumulatedPrecipitation'] as double?,
+          condition: Condition.values.firstWhereOrNull((e) => e.toString() == json['condition'] as String?),
+          conditionManuallySet: json['conditionManuallySet'] as bool? ?? false,
         );
       default: throw Exception("Json Version $version of Weather incompatible.");
     }

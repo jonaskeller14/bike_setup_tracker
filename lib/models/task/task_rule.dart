@@ -105,17 +105,17 @@ class TaskRule {
   };
 
   factory TaskRule.fromJson(Map<String, dynamic> json) {
-    final int? version = json["version"];
+    final int? version = json["version"] as int?;
     switch (version) {
       case null || 1:
         return TaskRule(
           id: json["id"] as String,
           isDeleted: json["isDeleted"] as bool,
-          lastModified: DateTime.parse(json["lastModified"]),
+          lastModified: DateTime.parse(json["lastModified"] as String),
           name: json["name"] as String,
           notes: json["notes"] as String?,
           priority: TaskPriority.values.firstWhere(
-            (p) => p.toString() == json['priority'],
+            (p) => p.toString() == (json['priority'] as String?),
             orElse: () => TaskPriority.medium,
           ),
           tags: (json['tags'] as List?)?.map((item) => item as String).toSet() ?? <String>{},

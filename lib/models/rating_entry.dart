@@ -68,26 +68,26 @@ class RatingEntry {
   };
 
   factory RatingEntry.fromJson({required Map<String, dynamic> json}) {
-    final int? version = json['version'];
+    final int? version = json['version'] as int?;
     switch (version) {
       case null || 1:
         return RatingEntry(
-          id: json['id'],
-          isDeleted: json['isDeleted'],
-          lastModified: DateTime.tryParse(json['lastModified'] ?? ''),
+          id: json['id'] as String?,
+          isDeleted: json['isDeleted'] as bool?,
+          lastModified: DateTime.tryParse(json['lastModified'] as String? ?? ''),
           name: json['name'] as String?,
-          bike: json['bike'],
+          bike: json['bike'] as String,
           setupId: json['setupId'] as String,
-          dateTimeUTC: DateTime.parse(json['dateTimeUTC']).toUtc(),
-          dateTimeLocal: (DateTime.tryParse(json['dateTimeLocal'] ?? '') ??
-                  DateTime.parse(json['dateTimeUTC']))
+          dateTimeUTC: DateTime.parse(json['dateTimeUTC'] as String).toUtc(),
+          dateTimeLocal: (DateTime.tryParse(json['dateTimeLocal'] as String? ?? '') ??
+                  DateTime.parse(json['dateTimeUTC'] as String))
               .copyWith(isUtc: false),
           notes: json['notes'] as String?,
           metricValues: Setup.adjustmentValuesFromJson(
               (json['metricValues']) as Map<String, dynamic>? ?? {}),
-          position: json['position'] != null ? ContextPosition.fromJson(json['position']) : null,
-          place: json['place'] != null ? ContextPlace.fromJson(json['place']) : null,
-          weather: json['weather'] != null ? ContextWeather.fromJson(json['weather']) : null,
+          position: json['position'] != null ? ContextPosition.fromJson(json['position'] as Map<String, dynamic>) : null,
+          place: json['place'] != null ? ContextPlace.fromJson(json['place'] as Map<String, dynamic>) : null,
+          weather: json['weather'] != null ? ContextWeather.fromJson(json['weather'] as Map<String, dynamic>) : null,
         );
       default:
         throw Exception('Json Version $version of RatingEntry incompatible.');

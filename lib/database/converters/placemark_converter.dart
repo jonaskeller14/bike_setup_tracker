@@ -9,22 +9,22 @@ class PlacemarkConverter extends TypeConverter<geo.Placemark, String> {
 
   @override
   geo.Placemark fromSql(String fromDb) {
-    final Map<String, dynamic> jsonMap = json.decode(fromDb);
-    final int? version = jsonMap["version"];
+    final Map<String, dynamic> jsonMap = json.decode(fromDb) as Map<String, dynamic>;
+    final int? version = jsonMap["version"] as int?;
     switch (version) {
       case null || 1:
         return geo.Placemark(
-          name: jsonMap['name'],
-          street: jsonMap['street'],
-          isoCountryCode: jsonMap['isoCountryCode'],
-          country: jsonMap['country'],
-          postalCode: jsonMap['postalCode'],
-          administrativeArea: jsonMap['administrativeArea'],
-          subAdministrativeArea: jsonMap['subAdministrativeArea'],
-          locality: jsonMap['locality'],
-          subLocality: jsonMap['subLocality'],
-          thoroughfare: jsonMap['thoroughfare'],
-          subThoroughfare: jsonMap['subThoroughfare'],
+          name: jsonMap['name'] as String?,
+          street: jsonMap['street'] as String?,
+          isoCountryCode: jsonMap['isoCountryCode'] as String?,
+          country: jsonMap['country'] as String?,
+          postalCode: jsonMap['postalCode'] as String?,
+          administrativeArea: jsonMap['administrativeArea'] as String?,
+          subAdministrativeArea: jsonMap['subAdministrativeArea'] as String?,
+          locality: jsonMap['locality'] as String?,
+          subLocality: jsonMap['subLocality'] as String?,
+          thoroughfare: jsonMap['thoroughfare'] as String?,
+          subThoroughfare: jsonMap['subThoroughfare'] as String?,
         );
       default:
         throw Exception("Json Version $version of Placemark incompatible.");

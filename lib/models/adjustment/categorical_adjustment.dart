@@ -55,15 +55,15 @@ class CategoricalAdjustment extends Adjustment {
   };
 
   factory CategoricalAdjustment.fromJson(Map<String, dynamic> json) {
-    final int? version = json["version"];
+    final int? version = json["version"] as int?;
     switch (version) {
       case null || 1 || 2 || 3:
         return CategoricalAdjustment(
-          id: json["id"],
-          name: json['name'],
-          notes: json['notes'],
+          id: json["id"] as String?,
+          name: json['name'] as String,
+          notes: json['notes'] as String?,
           unit: AdjustmentUnit.decode(json['unit'] as String?),
-          options: Set<String>.from(json['options']),
+          options: Set<String>.from(json['options'] as Iterable<dynamic>),
           multiSelect: json['multiSelect'] as bool? ?? false,
           counted: json['counted'] as bool? ?? false,
         );

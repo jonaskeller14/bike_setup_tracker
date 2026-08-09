@@ -99,7 +99,7 @@ class LocationService extends ChangeNotifier {
     if (latitude is! _Sentinel) newMap["latitude"] = latitude as double?;
     if (longitude is! _Sentinel) newMap["longitude"] = longitude as double?;
     if (altitude is! _Sentinel) newMap["altitude"] = altitude as double?;
-    newMap['time'] = newMap['time'] != null ? DateTime.parse(newMap['time']).millisecondsSinceEpoch.toDouble() : null;
+    newMap['time'] = newMap['time'] != null ? DateTime.parse(newMap['time'] as String).millisecondsSinceEpoch.toDouble() : null;
     return LocationData.fromMap(newMap);
   }
 }

@@ -265,8 +265,8 @@ class StravaService extends ChangeNotifier {
 
         // Mirror the server-driven sync state when we're not in the middle of an auth or disconnect
         final inSyncDomain = _state is StravaIdle || _state is StravaSyncing || _state is StravaFailed;
-        final String remoteStatus = data['strava_sync_status'] ?? 'idle';
-        final String remoteError = data['strava_sync_error'] ?? '';
+        final String remoteStatus = data['strava_sync_status'] as String? ?? 'idle';
+        final String remoteError = data['strava_sync_error'] as String? ?? '';
 
         if (inSyncDomain) {
           if (remoteStatus == 'syncing') {
@@ -309,7 +309,7 @@ class StravaService extends ChangeNotifier {
         final data = change.doc.data();
         if (data == null || !data.containsKey('activities')) continue;
 
-        final Map<String, dynamic> activitiesMap = data['activities'];
+        final Map<String, dynamic> activitiesMap = data['activities'] as Map<String, dynamic>;
 
         if (change.type == DocumentChangeType.removed) {
           // If a whole batch is deleted, add all its activities to the deletion list.

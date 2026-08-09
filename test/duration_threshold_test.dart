@@ -8,7 +8,7 @@ void main() {
     final threshold = const DurationThreshold(Duration(days: 30));
     final jsonString = jsonEncode(threshold.toJson());
     final decodedJson = jsonDecode(jsonString);
-    final newThreshold = TaskThreshold.fromJson(decodedJson) as DurationThreshold;
+    final newThreshold = TaskThreshold.fromJson(decodedJson as Map<String, dynamic>) as DurationThreshold;
     expect(newThreshold.days.inDays, 30);
   });
 }

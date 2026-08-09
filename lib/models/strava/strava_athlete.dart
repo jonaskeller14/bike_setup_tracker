@@ -28,12 +28,12 @@ class StravaAthlete {
   };
 
   factory StravaAthlete.fromJson(Map<String, dynamic> json) {
-    final int? version = json["version"];
+    final int? version = json["version"] as int?;
     switch (version) {
       case null:
         return StravaAthlete(
           id: json["id"] as int,
-          lastModified: DateTime.tryParse(json["lastModified"] ?? ""),
+          lastModified: DateTime.tryParse(json["lastModified"] as String? ?? ""),
           firstname: json['firstname'] as String?,
           lastname: json['lastname'] as String?,
           profile: json['profile'] as String?,
@@ -44,7 +44,7 @@ class StravaAthlete {
   }
 
   factory StravaAthlete.fromFirestore(Map<String, dynamic> json) {
-    final int? version = json["version"];
+    final int? version = json["version"] as int?;
     switch (version) {
       case null:
         return StravaAthlete(

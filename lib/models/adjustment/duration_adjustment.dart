@@ -62,16 +62,16 @@ class DurationAdjustment extends Adjustment {
   };
 
   factory DurationAdjustment.fromJson(Map<String, dynamic> json) {
-    final int? version = json["version"];
+    final int? version = json["version"] as int?;
     switch (version) {
       case null || 1:
         return DurationAdjustment(
-          id: json["id"],
-          name: json['name'],
-          notes: json['notes'],
+          id: json["id"] as String?,
+          name: json['name'] as String,
+          notes: json['notes'] as String?,
           unit: AdjustmentUnit.decode(json['unit'] as String?),
-          min: DurationAdjustment.tryParseDurationString(json["min"]),
-          max: DurationAdjustment.tryParseDurationString(json["max"]),
+          min: DurationAdjustment.tryParseDurationString(json["min"] as String?),
+          max: DurationAdjustment.tryParseDurationString(json["max"] as String?),
         );
       default: throw Exception("Json Version $version of DurationAdjustment incompatible.");
     }

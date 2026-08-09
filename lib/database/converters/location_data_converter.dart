@@ -9,9 +9,9 @@ class LocationDataConverter extends TypeConverter<LocationData, String> {
 
   @override
   LocationData fromSql(String fromDb) {
-    final Map<String, dynamic> jsonMap = json.decode(fromDb);
+    final Map<String, dynamic> jsonMap = json.decode(fromDb) as Map<String, dynamic>;
     // Mimics the parsing logic from Setup.dart for backward compatibility
-    final int? version = jsonMap["version"];
+    final int? version = jsonMap["version"] as int?;
     switch (version) {
       case null || 1:
         return LocationData.fromMap({

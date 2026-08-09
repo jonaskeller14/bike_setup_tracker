@@ -135,10 +135,10 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                           enableTooltip: true,
                           tooltipShape: const SfPaddleTooltipShape(),
                           onChanged: (dynamic newValue) {
-                            onChanged(newValue);
+                            onChanged(newValue as double?);
                           },
                           onChangeEnd: (dynamic newValue) {
-                            onChangedEnd(newValue);
+                            onChangedEnd(newValue as double?);
                           },
                         ),
                       ),

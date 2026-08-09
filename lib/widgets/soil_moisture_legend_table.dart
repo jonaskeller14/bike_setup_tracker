@@ -62,7 +62,7 @@ class SoilMoistureLegendTable extends StatelessWidget {
             cells: [
               DataCell(
                 Text(
-                  data['range']!,
+                  data['range']! as String,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(fontFamily: 'monospace'),
                 ),
               ),
@@ -77,7 +77,7 @@ class SoilMoistureLegendTable extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      data['label']!,
+                      data['label']! as String,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(color: data['color'] as Color),
                     ),
                   ],

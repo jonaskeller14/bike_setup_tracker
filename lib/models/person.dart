@@ -51,17 +51,17 @@ class Person {
   };
 
   factory Person.fromJson(Map<String, dynamic> json) {
-    final int? version = json["version"];
+    final int? version = json["version"] as int?;
     switch (version) {
       case null || 1:
         return Person(
-          id: json["id"],
-          isDeleted: json["isDeleted"],
-          lastModified: DateTime.tryParse(json["lastModified"] ?? ""),
-          name: json['name'],
-          notes: json['notes'],
-          stravaAthlete: json['stravaAthlete'],
-          adjustments: (json["adjustments"] as List<dynamic>?)?.map((adjustmentJson) => Adjustment.fromJson(adjustmentJson)).toList() ?? <Adjustment>[],
+          id: json["id"] as String?,
+          isDeleted: json["isDeleted"] as bool?,
+          lastModified: DateTime.tryParse(json["lastModified"] as String? ?? ""),
+          name: json['name'] as String,
+          notes: json['notes'] as String?,
+          stravaAthlete: json['stravaAthlete'] as int?,
+          adjustments: (json["adjustments"] as List<dynamic>?)?.map((adjustmentJson) => Adjustment.fromJson(adjustmentJson as Map<String, dynamic>)).toList() ?? <Adjustment>[],
           orderIndex: json['orderIndex'] as int? ?? 0,
         );
       default: throw Exception("Json Version $version of Person incompatible.");

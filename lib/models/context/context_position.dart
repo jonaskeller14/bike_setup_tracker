@@ -26,7 +26,7 @@ class ContextPosition {
       'speed': json['speed'],
       'speed_accuracy': json['speedAccuracy'], // key expected by LocationData.fromMap
       'time': json['time'] != null
-          ? DateTime.parse(json['time']).millisecondsSinceEpoch.toDouble()
+          ? DateTime.parse(json['time'] as String).millisecondsSinceEpoch.toDouble()
           : null,
     });
   }

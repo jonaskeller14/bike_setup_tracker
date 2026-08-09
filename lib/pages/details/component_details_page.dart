@@ -185,8 +185,8 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
 
         switch (adjustment) {
           case BooleanAdjustment(): _sortAscending
-              ? setups.sort((a, b) => ((v(a) ?? false) ? 1 : 0).compareTo((v(b) ?? false) ? 1 : 0))
-              : setups.sort((a, b) => ((v(b) ?? false) ? 1 : 0).compareTo((v(a) ?? false) ? 1 : 0));
+              ? setups.sort((a, b) => ((v(a) as bool? ?? false) ? 1 : 0).compareTo((v(b) as bool? ?? false) ? 1 : 0))
+              : setups.sort((a, b) => ((v(b) as bool? ?? false) ? 1 : 0).compareTo((v(a) as bool? ?? false) ? 1 : 0));
           case StepAdjustment(): _sortAscending
               ? setups.sort((a, b) => ((v(a) ?? 0) as int).compareTo((v(b) ?? 0) as int))
               : setups.sort((a, b) => ((v(b) ?? 0) as int).compareTo((v(a) ?? 0) as int));

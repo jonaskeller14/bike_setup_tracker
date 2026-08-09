@@ -73,10 +73,10 @@ sealed class Adjustment {
   }
 
   static Adjustment fromJson(Map<String, dynamic> json) {
-    final int? version = json["version"];
+    final int? version = json["version"] as int?;
     switch (version) {
       case null || 1 || 2 || 3:
-        final typeString = json['type'];
+        final typeString = json['type'] as String;
         final type = AdjustmentType.values.firstWhere(
           (e) => e.name == typeString,
           orElse: () => throw Exception('Unknown adjustment type: $typeString'),

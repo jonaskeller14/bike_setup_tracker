@@ -84,8 +84,8 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
             return SetBooleanAdjustmentWidget(
               key: ValueKey(adjustment.id),
               adjustment: adjustment,
-              initialValue: widget.initialAdjustmentValues[adjustment.id],
-              value: _adjustmentValues[adjustment.id],
+              initialValue: widget.initialAdjustmentValues[adjustment.id] as bool?,
+              value: _adjustmentValues[adjustment.id] as bool?,
               onChanged: (bool? newValue) {
                 unawaited(HapticFeedback.lightImpact());
                 setState(() => _adjustmentValues[adjustment.id] = newValue);
@@ -100,7 +100,7 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
             return SetSagAdjustmentWidget(
               key: ValueKey(adjustment.id),
               adjustment: adjustment,
-              initialValue: widget.initialAdjustmentValues[adjustment.id],
+              initialValue: widget.initialAdjustmentValues[adjustment.id] as double?,
               value: _adjustmentValues[adjustment.id]?.toString(),
               onChanged: (String newValue) {
                 setState(() => _adjustmentValues[adjustment.id] = newValue);
@@ -116,7 +116,7 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
             return SetNumericalAdjustmentWidget(
               key: ValueKey(adjustment.id),
               adjustment: adjustment,
-              initialValue: widget.initialAdjustmentValues[adjustment.id],
+              initialValue: widget.initialAdjustmentValues[adjustment.id] as double?,
               value: _adjustmentValues[adjustment.id]?.toString(),
               onChanged: (String newValue) {
                 setState(() => _adjustmentValues[adjustment.id] = newValue);
@@ -132,8 +132,8 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
             return SetStepAdjustmentWidget(
               key: ValueKey(adjustment.id), 
               adjustment: adjustment,
-              initialValue: widget.initialAdjustmentValues[adjustment.id]?.toDouble(),
-              value: _adjustmentValues[adjustment.id]?.toDouble(), 
+              initialValue: (widget.initialAdjustmentValues[adjustment.id] as num?)?.toDouble(),
+              value: (_adjustmentValues[adjustment.id] as num?)?.toDouble(),
               onChanged: (double? newValue) {
                 unawaited(HapticFeedback.lightImpact());
                 setState(() {
@@ -185,8 +185,8 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
             return SetDurationAdjustmentWidget(
               key: ValueKey(adjustment.id),
               adjustment: adjustment,
-              initialValue: widget.initialAdjustmentValues[adjustment.id],
-              value: _adjustmentValues[adjustment.id], 
+              initialValue: widget.initialAdjustmentValues[adjustment.id] as Duration?,
+              value: _adjustmentValues[adjustment.id] as Duration?,
               onChanged: (Duration? newValue) {
                 if (!mounted) return;
                 setState(() => _adjustmentValues[adjustment.id] = newValue);

@@ -18,12 +18,12 @@ class StravaGear {
   };
 
   factory StravaGear.fromJson(Map<String, dynamic> json) {
-    final int? version = json["version"];
+    final int? version = json["version"] as int?;
     switch (version) {
       case null:
         return StravaGear(
           id: json["id"] as String,
-          lastModified: DateTime.tryParse(json["lastModified"] ?? ""),
+          lastModified: DateTime.tryParse(json["lastModified"] as String? ?? ""),
           name: json['name'] as String,
         );
       default: throw Exception("Json Version $version of StravaGear incompatible.");
@@ -31,7 +31,7 @@ class StravaGear {
   }
 
   factory StravaGear.fromFirestore(Map<String, dynamic> json) {
-    final int? version = json["version"];
+    final int? version = json["version"] as int?;
     switch (version) {
       case null:
         return StravaGear(

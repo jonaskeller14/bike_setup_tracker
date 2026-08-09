@@ -449,7 +449,7 @@ _CellText _cellDisplayText(Adjustment adjustment, dynamic value, dynamic previou
     case StepAdjustment():
       if ((value is num && previousValue is num) || (value is Duration && previousValue is Duration)) {
         final dynamic changeValue = value - previousValue;
-        changeText = (changeValue is num ? changeValue > 0 : !changeValue.isNegative)
+        changeText = (changeValue is num ? changeValue > 0 : !(changeValue as Duration).isNegative)
             ? "+${Adjustment.formatValue(changeValue)}"
             : Adjustment.formatValue(changeValue);
       } else {

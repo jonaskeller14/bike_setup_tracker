@@ -64,19 +64,19 @@ class StepAdjustment extends Adjustment {
   };
 
   factory StepAdjustment.fromJson(Map<String, dynamic> json) {
-    final int? version = json["version"];
+    final int? version = json["version"] as int?;
     switch (version) {
       case null || 1:
         return StepAdjustment(
-          id: json["id"],
-          name: json['name'],
-          notes: json['notes'],
+          id: json["id"] as String?,
+          name: json['name'] as String,
+          notes: json['notes'] as String?,
           unit: AdjustmentUnit.decode(json['unit'] as String?),
           step: (json['step'] as num).toInt(),
           min: (json['min'] as num).toInt(),
           max: (json['max'] as num).toInt(),
           visualization: StepAdjustmentVisualization.values.firstWhere(
-            (e) => e.toString() == json['visualization'],
+            (e) => e.toString() == json['visualization'] as String?,
             orElse: () => StepAdjustmentVisualization.slider,
           ),
         );

@@ -50,14 +50,14 @@ class TaskEntry {
 
   factory TaskEntry.fromJson(Map<String, dynamic> json) {
     return TaskEntry(
-        id: json['id'],
-        isDeleted: json["isDeleted"],
-        lastModified: DateTime.parse(json["lastModified"]),
-        name: json['name'],
+        id: json['id'] as String?,
+        isDeleted: json["isDeleted"] as bool?,
+        lastModified: DateTime.parse(json["lastModified"] as String),
+        name: json['name'] as String,
         notes: json['notes'] != null ? json['notes'] as String : null,
-        dateTimeUTC: DateTime.parse(json['dateTimeUTC']).toUtc(),
-        dateTimeLocal: DateTime.parse(json['dateTimeLocal'] ?? '').copyWith(isUtc: false),
-        taskRule: json['taskRule'],
+        dateTimeUTC: DateTime.parse(json['dateTimeUTC'] as String).toUtc(),
+        dateTimeLocal: DateTime.parse(json['dateTimeLocal'] as String? ?? '').copyWith(isUtc: false),
+        taskRule: json['taskRule'] as String,
         componentId: json['componentId'] as String?,
         bikeId: json['bikeId'] as String?,
         snapshot: json['snapshot'] != null 

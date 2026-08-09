@@ -38,7 +38,7 @@ class NotificationService {
     
     final data = message.data;
     final type = data['type'];
-    final activityIdStr = data['activityId'];
+    final activityIdStr = data['activityId'] as String?;
 
     if (type == 'strava_sync' && activityIdStr != null) {
       final activityId = int.tryParse(activityIdStr);

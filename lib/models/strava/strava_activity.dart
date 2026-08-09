@@ -62,17 +62,17 @@ class StravaActivity {
   };
 
   factory StravaActivity.fromJson(Map<String, dynamic> json) {
-    final int? version = json["version"];
+    final int? version = json["version"] as int?;
     switch (version) {
       case null:
         return StravaActivity(
           id: json["id"] as int,
-          lastModified: DateTime.tryParse(json["lastModified"] ?? ""),
+          lastModified: DateTime.tryParse(json["lastModified"] as String? ?? ""),
           name: json['name'] as String,
           athlete: json['athleteId'] as int,
           sportType: SportType.fromString(json['sportType'] as String?),
-          startDate: DateTime.parse(json['startDate']),
-          startDateLocal: DateTime.parse(json['startDateLocal']).copyWith(isUtc: false),
+          startDate: DateTime.parse(json['startDate'] as String),
+          startDateLocal: DateTime.parse(json['startDateLocal'] as String).copyWith(isUtc: false),
           gearId: json['gearId'] as String?,
           startLat: (json['startLat'] as num?)?.toDouble(),
           startLon: (json['startLon'] as num?)?.toDouble(),
@@ -87,7 +87,7 @@ class StravaActivity {
   }
 
   factory StravaActivity.fromFirestore(Map<String, dynamic> json) {
-    final int? version = json["version"];
+    final int? version = json["version"] as int?;
     switch (version) {
       case null:
         return StravaActivity(
@@ -96,8 +96,8 @@ class StravaActivity {
           name: json['name'] as String,
           athlete: json['athleteId'] as int,
           sportType: SportType.fromString(json['sportType'] as String?),
-          startDate: DateTime.parse(json['startDate']),
-          startDateLocal: DateTime.parse(json['startDateLocal']).copyWith(isUtc: false),
+          startDate: DateTime.parse(json['startDate'] as String),
+          startDateLocal: DateTime.parse(json['startDateLocal'] as String).copyWith(isUtc: false),
           gearId: json['gearId'] as String?,
           startLat: (json['startLat'] as num?)?.toDouble(),
           startLon: (json['startLon'] as num?)?.toDouble(),

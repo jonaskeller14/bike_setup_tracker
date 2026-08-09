@@ -19,16 +19,16 @@ class ContextPlace {
 
   static geo.Placemark fromJson(Map<String, dynamic> json) {
     return geo.Placemark(
-      name: json['name'],
-      thoroughfare: json['thoroughfare'],
-      subThoroughfare: json['subThoroughfare'],
-      locality: json['locality'],
-      subLocality: json['subLocality'],
-      administrativeArea: json['administrativeArea'],
-      subAdministrativeArea: json['subAdministrativeArea'],
-      postalCode: json['postalCode'],
-      country: json['country'],
-      isoCountryCode: json['isoCountryCode'],
+      name: json['name'] as String?,
+      thoroughfare: json['thoroughfare'] as String?,
+      subThoroughfare: json['subThoroughfare'] as String?,
+      locality: json['locality'] as String?,
+      subLocality: json['subLocality'] as String?,
+      administrativeArea: json['administrativeArea'] as String?,
+      subAdministrativeArea: json['subAdministrativeArea'] as String?,
+      postalCode: json['postalCode'] as String?,
+      country: json['country'] as String?,
+      isoCountryCode: json['isoCountryCode'] as String?,
     );
   }
 

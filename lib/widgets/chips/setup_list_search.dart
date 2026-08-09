@@ -7,6 +7,7 @@ import '../../models/timeline_entry.dart';
 import '../../pages/details/setup_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
+import '../../utils/text_search.dart';
 import '../../utils/timeline_grouping.dart';
 import '../items/installation_list_tile.dart';
 import '../items/rating_entry_list_tile.dart';
@@ -64,17 +65,24 @@ class SetupListSearch extends StatelessWidget {
         final subscriptionService = context.read<SubscriptionService>();
 
         final controllerText = controller.text.trim().toLowerCase();
+        final searchTokens = tokenizeSearchQuery(controllerText);
         final sortAscending = appRepository.stravaSortAscending;
 
         final List<TimelineEntry> matchingEntries = [];
 
         if (appSettings.displayShowSetups) {
           final setups = appRepository.filteredSetups.values;
-          matchingEntries.addAll(setups.where((s) =>
-            s.displayName.toLowerCase().contains(controllerText) ||
-            (s.notes ?? "").toLowerCase().contains(controllerText) ||
-            ContextPlace.matches(s.place, controllerText)
-          ).map((s) => SetupEntry(s)));
+          matchingEntries.addAll(
+            setups
+                .where(
+                  (s) => searchFieldsMatch([
+                    s.displayName,
+                    s.notes,
+                    ...ContextPlace.searchableFields(s.place),
+                  ], searchTokens),
+                )
+                .map((s) => SetupEntry(s)),
+          );
         }
 
         if (appSettings.displayShowActivities && appSettings.enableStrava && subscriptionService.hasStravaEntitlement) {
@@ -84,27 +92,45 @@ class SetupListSearch extends StatelessWidget {
 
         if (appSettings.displayShowTasks) {
           final tasks = appRepository.filteredTaskEntries.values;
-          matchingEntries.addAll(tasks.where((t) =>
-            t.name.toLowerCase().contains(controllerText) ||
-            (t.notes ?? "").toLowerCase().contains(controllerText)
-          ).map((t) => TaskTimeLineEntry(t)));
+          matchingEntries.addAll(
+            tasks
+                .where(
+                  (t) => searchFieldsMatch([
+                    t.name,
+                    t.notes,
+                  ], searchTokens),
+                )
+                .map((t) => TaskTimeLineEntry(t)),
+          );
         }
 
         if (appSettings.displayShowInstallations) {
           final installations = appRepository.filteredInstallations;
-          matchingEntries.addAll(installations.where((ci) =>
-            ci.component.name.toLowerCase().contains(controllerText) ||
-            ci.component.componentType.label.toLowerCase().contains(controllerText)
-          ).map((ci) => InstallationEntry(ci)));
+          matchingEntries.addAll(
+            installations
+                .where(
+                  (ci) => searchFieldsMatch([
+                    ci.component.name,
+                    ci.component.componentType.label,
+                  ], searchTokens),
+                )
+                .map((ci) => InstallationEntry(ci)),
+          );
         }
 
         if (appSettings.enableRating && appSettings.displayShowRatingEntries) {
           final ratingEntries = appRepository.filteredRatingEntries.values;
-          matchingEntries.addAll(ratingEntries.where((re) =>
-            re.displayName.toLowerCase().contains(controllerText) ||
-            (re.notes ?? "").toLowerCase().contains(controllerText) ||
-            ContextPlace.matches(re.place, controllerText)
-          ).map((re) => RatingEntryTimelineEntry(re)));
+          matchingEntries.addAll(
+            ratingEntries
+                .where(
+                  (re) => searchFieldsMatch([
+                    re.displayName,
+                    re.notes,
+                    ...ContextPlace.searchableFields(re.place),
+                  ], searchTokens),
+                )
+                .map((re) => RatingEntryTimelineEntry(re)),
+          );
         }
 
         matchingEntries.sort((a, b) {

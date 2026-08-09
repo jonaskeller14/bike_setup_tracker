@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import '../../models/component_stats.dart';
+import '../../utils/text_search.dart';
 import '../app_database.dart';
 import '../tables/bikes.dart';
 import '../tables/installations.dart';
@@ -68,9 +69,16 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
   }
 
   Future<List<StravaActivityDb>> searchActivitiesByName(String query) {
-    return (select(stravaActivities)
-          ..where((t) => t.name.lower().like('%${query.toLowerCase()}%')))
-        .get();
+    final tokens = tokenizeSearchQuery(query);
+    final statement = select(stravaActivities);
+    if (tokens.isNotEmpty) {
+      statement.where(
+        (t) => tokens
+            .map<Expression<bool>>((token) => t.name.lower().like('%$token%'))
+            .reduce((left, right) => left & right),
+      );
+    }
+    return statement.get();
   }
 
   Future<StravaActivityDb?> getActivityById(int id) {
@@ -243,7 +251,7 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
 
     final row = await query.getSingleOrNull();
     if (row == null) return ComponentStats.zero();
-
+    
     return ComponentStats(
       distance: row.read<double>('distance'),
       elevationGain: row.read<double>('elevation'),
@@ -277,7 +285,7 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
 
     final row = await query.getSingleOrNull();
     if (row == null) return ComponentStats.zero();
-    
+
     return ComponentStats(
       distance: row.read<double>('distance'),
       elevationGain: row.read<double>('elevation'),

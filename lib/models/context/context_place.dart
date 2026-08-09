@@ -1,4 +1,5 @@
 import 'package:geocoding/geocoding.dart' as geo;
+import '../../utils/text_search.dart';
 
 class ContextPlace {
   const ContextPlace._();
@@ -33,7 +34,12 @@ class ContextPlace {
 
   static bool matches(geo.Placemark? place, String query) {
     if (place == null) return false;
-    final fields = [
+    return searchFieldsMatch(searchableFields(place), tokenizeSearchQuery(query));
+  }
+
+  static Iterable<String?> searchableFields(geo.Placemark? place) {
+    if (place == null) return const [];
+    return [
       place.name,
       place.thoroughfare,
       place.subThoroughfare,
@@ -45,7 +51,6 @@ class ContextPlace {
       place.country,
       place.isoCountryCode,
     ];
-    return fields.any((f) => f != null && f.toLowerCase().contains(query));
   }
 
   static bool equal(geo.Placemark? a, geo.Placemark? b) {

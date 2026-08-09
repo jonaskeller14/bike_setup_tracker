@@ -45,6 +45,7 @@ linter:
     discarded_futures: true
     no_logic_in_create_state: true
     prefer_relative_imports: true
+    avoid_empty_else: true
 
     # # Style Consistency
     always_declare_return_types: true
@@ -52,6 +53,9 @@ linter:
     directives_ordering: true
     sort_constructors_first: false
     require_trailing_commas: true
+    prefer_contains: true
+    file_names: true
+    prefer_interpolation_to_compose_strings: true
 
     # # Clean Code / Maintainability
     prefer_final_locals: true

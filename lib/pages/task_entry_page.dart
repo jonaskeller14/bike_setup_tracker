@@ -13,6 +13,7 @@ import '../models/task/task_rule.dart';
 import '../repositories/app_repository.dart';
 import '../theme.dart';
 import '../widgets/dialogs/discard_changes.dart';
+import '../widgets/sheets/task_association_picker.dart';
 import '../widgets/task_rule_display_card.dart';
 
 enum TaskEntryPageMode { add, edit, duplicate }
@@ -233,118 +234,77 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
     return 'WARNING: Differs from the task rule, which is linked to ${_describeAssociation(ruleAssociation, bikes, components)}.';
   }
 
-  DropdownMenuItem<TaskAssociation> _dropdownMenuItemNone() {
-    return const DropdownMenuItem<TaskAssociation>(
-      value: GeneralTaskAssociation(),
-      child: Row(
-        spacing: 8,
-        children: [
-          Icon(Icons.circle_outlined),
-          Text("General Task"),
-        ],
-      ),
-    );
-  }
+  Widget _associationDisplay(Map<String, Bike> bikes, Map<String, Component> components) {
+    final scheme = Theme.of(context).colorScheme;
 
-  DropdownMenuItem<TaskAssociation> _dropdownMenuItemBike(Bike bike) {
-    return DropdownMenuItem<TaskAssociation>(
-      value: BikeTaskAssociation(bike.id),
-      child: Row(
-        spacing: 8,
-        children: [
-          const Icon(Bike.iconData),
-          Expanded(child: Text(bike.name, overflow: TextOverflow.ellipsis)),
-        ],
-      ),
-    );
-  }
+    IconData icon;
+    String primary;
+    String? secondary;
+    Color? errorColor;
 
-  DropdownMenuItem<TaskAssociation> _dropdownMenuItemComponent(Component component, Map<String, Bike> bikes) {
-    return DropdownMenuItem<TaskAssociation>(
-      value: ComponentTaskAssociation(component.id),
-      child: Row(
-        spacing: 8,
-        children: [
-          Flexible(
-            fit: FlexFit.tight,
-            child: Row(
-              spacing: 8,
-              children: [
-                Icon(component.componentType.getIconData()),
-                Expanded(
-                  child: Text(component.name, overflow: TextOverflow.ellipsis),
-                ),
-              ],
-            ),
-          ),
-          Flexible(
-            fit: FlexFit.tight,
-            child: Row(
-              spacing: 8,
-              children: [
-                Icon(
-                  switch (component.latestInstallation) {
-                    Archival() => Icons.inventory_2_outlined,
-                    BikeInstallation() => Bike.iconData,
-                    Uninstallation() || null => Icons.shelves,
-                  },
-                  color: switch (component.latestInstallation) {
-                    BikeInstallation(:final bikeId) when !bikes.containsKey(bikeId) => Theme.of(context).colorScheme.error,
-                    _ => null,
-                  },
-                ),
-                Expanded(
-                  child: Text(
-                    switch (component.latestInstallation) {
-                      Archival() => "Archived",
-                      BikeInstallation(:final bikeId) => bikes[bikeId]?.name ?? "BIKE NOT FOUND",
-                      Uninstallation() || null => "Not installed",
-                    },
-                    style: switch (component.latestInstallation) {
-                      BikeInstallation(:final bikeId) when !bikes.containsKey(bikeId) => TextStyle(color: Theme.of(context).colorScheme.error),
-                      _ => null,
-                    },
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  DropdownMenuItem<TaskAssociation> _dropdownMenuItemMissing(TaskAssociation association, {String? label}) {
-    final String resolvedLabel;
-    final IconData icon;
-
-    if (label != null) {
-      resolvedLabel = label;
-      icon = association.bikeId != null ? Bike.iconData : Icons.grid_view_sharp;
-    } else if (association.bikeId != null) {
-      resolvedLabel = "BIKE NOT FOUND";
-      icon = Bike.iconData;
-    } else if (association.componentId != null) {
-      resolvedLabel = "COMPONENT NOT FOUND";
-      icon = Icons.grid_view_sharp;
-    } else {
-      resolvedLabel = "ENTRY NOT FOUND";
-      icon = Icons.help_outline_rounded;
+    switch (_association) {
+      case GeneralTaskAssociation():
+        icon = Icons.circle_outlined;
+        primary = "General Task";
+      case BikeTaskAssociation(:final id):
+        final bike = bikes[id];
+        icon = Bike.iconData;
+        primary = bike?.name ?? "BIKE NOT FOUND";
+        errorColor = bike == null ? scheme.error : null;
+      case ComponentTaskAssociation(:final id):
+        final component = components[id];
+        if (component == null) {
+          icon = Component.iconData;
+          primary = "COMPONENT NOT FOUND";
+          errorColor = scheme.error;
+          break;
+        }
+        icon = component.componentType.getIconData();
+        primary = component.name;
+        switch (component.latestInstallation) {
+          case Archival():
+            secondary = "Archived";
+          case BikeInstallation(:final bikeId):
+            final bike = bikes[bikeId];
+            secondary = bike == null ? "BIKE NOT FOUND" : "on ${bike.name}";
+            if (bike == null) errorColor = scheme.error;
+          case Uninstallation() || null:
+            secondary = "Not installed";
+        }
     }
 
-    return DropdownMenuItem<TaskAssociation>(
-      value: association,
-      child: Row(
-        spacing: 8,
-        children: [
-          Icon(icon, color: Theme.of(context).colorScheme.error),
-          Text(
-            resolvedLabel,
-            style: TextStyle(color: Theme.of(context).colorScheme.error),
+    return Row(
+      spacing: 8,
+      children: [
+        Icon(icon, color: errorColor),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                primary,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  height: 1.1,
+                  color: errorColor,
+                ),
+              ),
+              if (secondary != null)
+                Text(
+                  secondary,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    height: 1.1,
+                    color: errorColor ?? Theme.of(context).hintColor,
+                  ),
+                ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -357,16 +317,6 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
     final mismatch = _linkMismatchWarning(bikes, components);
     if (mismatch != null) parts.add(mismatch);
     return parts.isEmpty ? null : parts.join('\n');
-  }
-
-  DropdownMenuItem<TaskAssociation?> _dropdownMenuSection(String label) {
-    return DropdownMenuItem<TaskAssociation?>(
-      enabled: false,
-      child: Text(
-        label,
-        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.2),
-      ),
-    );
   }
 
   @override
@@ -434,53 +384,39 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
                   ),
                   if (widget.mode == TaskEntryPageMode.edit) ...[
                     const SizedBox(height: 12),
-                    DropdownButtonFormField<TaskAssociation?>(
+                    FormField<TaskAssociation>(
                       initialValue: _association,
-                      isExpanded: true,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
-                      decoration: InputDecoration(
-                        labelText: 'Linked To',
-                        border: const OutlineInputBorder(),
-                        fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
-                        filled: _association != _initialAssociation,
-                        helperText: _selectionHelperText(bikes, components),
-                        helperMaxLines: 3,
-                        helperStyle: TextStyle(color: Theme.of(context).colorScheme.error),
-                      ),
-                      items: [
-                        _dropdownMenuItemNone(),
-                        _dropdownMenuSection("BIKES"),
-                        ...bikes.values.map((b) => _dropdownMenuItemBike(b)),
-                        ...[
-                          if (_association is BikeTaskAssociation && !bikes.containsKey(_association.bikeId))
-                            _dropdownMenuItemMissing(_association),
-                        ],
-                        _dropdownMenuSection("COMPONENTS"),
-                        ...(() {
-                          final nonArchived = components.values
-                              .where((c) => !c.isArchived)
-                              .toList()
-                            ..sort((a, b) => (a.bike ?? "").compareTo(b.bike ?? ""));
-                          final archivedPreselected = components.values
-                              .where((c) => c.isArchived &&
-                                  _initialAssociation is ComponentTaskAssociation &&
-                                  _initialAssociation.componentId == c.id)
-                              .toList();
-                          return [
-                            ...nonArchived.map((c) => _dropdownMenuItemComponent(c, bikes)),
-                            ...archivedPreselected.map((c) => _dropdownMenuItemComponent(c, bikes)),
-                          ];
-                        })(),
-                        ...[
-                          if (_association is ComponentTaskAssociation && !components.containsKey(_association.componentId))
-                            _dropdownMenuItemMissing(_association),
-                        ],
-                      ],
-                      onChanged: (v) {
-                        if (v != null) {
-                          setState(() => _association = v);
-                          _changeListener();
-                        }
+                      builder: (field) {
+                        return InkWell(
+                          onTap: () async {
+                            final picked = await showTaskAssociationSheet(
+                              context: context,
+                              selected: _association,
+                              initial: _initialAssociation,
+                            );
+                            if (picked == null) return;
+                            setState(() => _association = picked);
+                            field.didChange(picked);
+                            _changeListener();
+                          },
+                          child: InputDecorator(
+                            decoration: InputDecoration(
+                              labelText: 'Linked To',
+                              border: const OutlineInputBorder(),
+                              suffixIcon: Icon(
+                                Icons.arrow_drop_down,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                              fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
+                              filled: _association != _initialAssociation,
+                              helperText: _selectionHelperText(bikes, components),
+                              helperMaxLines: 3,
+                              helperStyle: TextStyle(color: Theme.of(context).colorScheme.error),
+                            ),
+                            child: _associationDisplay(bikes, components),
+                          ),
+                        );
                       },
                     ),
                   ],

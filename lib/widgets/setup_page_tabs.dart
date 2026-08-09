@@ -203,7 +203,7 @@ class SetupBikeTab extends StatefulWidget {
   final Map<String, dynamic> danglingBikeAdjustmentValues;
   final void Function({required Adjustment adjustment, required dynamic newValue}) onAdjustmentValueChanged;
   final void Function({required Adjustment adjustment}) onRemoveFromAdjustmentValues;
-  final Function(String) onDanglingRemove;
+  final void Function(String) onDanglingRemove;
   final Future<void> Function({required CategoricalAdjustment adjustment, required String option})? onAddCategoricalOption;
 
   const SetupBikeTab({
@@ -364,7 +364,7 @@ class SetupPersonTab extends StatelessWidget {
   final void Function({required Adjustment adjustment, required dynamic newValue}) onAdjustmentValueChanged;
   final void Function({required Adjustment adjustment}) onRemoveFromAdjustmentValues;
   final VoidCallback changeListener;
-  final Function(String) onDanglingRemove;
+  final void Function(String) onDanglingRemove;
   final Future<void> Function({required CategoricalAdjustment adjustment, required String option})? onAddCategoricalOption;
 
   const SetupPersonTab({

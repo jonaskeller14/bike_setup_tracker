@@ -76,7 +76,7 @@ void main() {
   Future<void> settleRepository(WidgetTester tester, bool Function() until) async {
     await tester.runAsync(() async {
       for (var attempts = 0; !until() && attempts < 100; attempts++) {
-        await Future.delayed(const Duration(milliseconds: 50));
+        await Future<void>.delayed(const Duration(milliseconds: 50));
       }
     });
     await tester.pumpAndSettle();

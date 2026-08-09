@@ -30,7 +30,7 @@ void showRatingAddAdjustmentBottomSheet({
   required Future<void> Function(Adjustment adjustment) addAdjustmentFromPreset,
   required Future<void> Function<T extends Adjustment>() addAdjustment,
 }) async {
-  await showModalBottomSheet(
+  await showModalBottomSheet<void>(
     useSafeArea: true,
     showDragHandle: true,
     isScrollControlled: true,

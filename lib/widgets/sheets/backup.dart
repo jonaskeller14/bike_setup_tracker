@@ -12,7 +12,7 @@ import '../../utils/file_import.dart';
 import 'sheet_header.dart';
 
 class BackupSheetContent extends StatefulWidget {
-  final Function(SelectedData) onRestore;
+  final void Function(SelectedData) onRestore;
   final VoidCallback? onBack;
 
   const BackupSheetContent({super.key, required this.onRestore, this.onBack});

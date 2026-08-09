@@ -136,7 +136,7 @@ class WeatherService extends ChangeNotifier {
       if (counter <= 2 && !isRateLimit) {
         setStatus(const WeatherSearching());
         // debugPrint("WeatherService Error --> Trying again after 10s.");
-        await Future.delayed(const Duration(seconds: 10));
+        await Future<void>.delayed(const Duration(seconds: 10));
         return fetchWeather(lat: lat, lon: lon, datetime: datetime, counter: counter + 1);
       } else {
         return null;

@@ -143,7 +143,7 @@ class SelectDataMethodSheetContent extends StatelessWidget {
 
 class SelectDataItemsSheetContent extends StatefulWidget {
   final SelectedData allData;
-  final Function(SelectedData) onConfirm;
+  final void Function(SelectedData) onConfirm;
   final VoidCallback onBack;
 
   const SelectDataItemsSheetContent({

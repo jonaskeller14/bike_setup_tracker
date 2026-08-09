@@ -220,7 +220,7 @@ class _ImportSheetFlowState extends State<ImportSheetFlow> {
 }
 
 class SelectImportSourceSheetContent extends StatefulWidget {
-  final Function(SelectedData) onFile;
+  final void Function(SelectedData) onFile;
   final VoidCallback onBackup;
 
   const SelectImportSourceSheetContent({

@@ -35,7 +35,7 @@ void main() async {
     await data.addBike(b);
     bikes.add(b);
   }
-  await Future.delayed(Duration.zero);
+  await Future<void>.delayed(Duration.zero);
 
   // Create 100 persons (only first has long text and notes)
   for (final idx in List.generate(100, (idx) => idx)) {
@@ -60,7 +60,7 @@ void main() async {
     await data.addPerson(p);
     persons.add(p);
   }
-  await Future.delayed(Duration.zero);
+  await Future<void>.delayed(Duration.zero);
 
   // Create 100 components, distributed across bikes with various statuses
   for (final idx in List.generate(100, (idx) => idx)) {
@@ -195,7 +195,7 @@ void main() async {
     await data.addRating(rating);
     ratings.add(rating);
   }
-  await Future.delayed(Duration.zero);
+  await Future<void>.delayed(Duration.zero);
 
   // Add task rules (one per component, only first has long text)
   for (final idx in List.generate(components.length, (idx) => idx)) {
@@ -209,7 +209,7 @@ void main() async {
       interval: const DurationThreshold(Duration(days: 30)),
     ));
   }
-  await Future.delayed(Duration.zero);
+  await Future<void>.delayed(Duration.zero);
 
   // Add task entries (one per task rule, only first has long text)
   if (data.taskRules.isNotEmpty) {

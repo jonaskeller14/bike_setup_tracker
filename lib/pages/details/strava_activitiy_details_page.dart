@@ -339,9 +339,9 @@ class StravaActivitiyPageContent extends StatelessWidget {
                     Center(
                       child: TextButton.icon(
                         onPressed: () async {
-                          final result = await Navigator.push(
+                          final result = await Navigator.push<Setup>(
                             context,
-                            MaterialPageRoute(
+                            MaterialPageRoute<Setup>(
                               builder: (context) => SetupPage.addFromStravaActivity(
                                 context: context,
                                 stravaActivity: stravaActivity,

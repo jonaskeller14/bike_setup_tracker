@@ -206,7 +206,7 @@ class StravaService extends ChangeNotifier {
         // Athlete unchanged but doc updated — check if subscription lapsed.
         _checkEntitlementExpiry(data);
       }
-    }, onError: (e) => _handleError("UserDoc", e, userMessage: "Connection verify failed"));
+    }, onError: (Object e) => _handleError("UserDoc", e, userMessage: "Connection verify failed"));
   }
 
   Future<void> _startDataListeners() async {
@@ -277,7 +277,7 @@ class StravaService extends ChangeNotifier {
       } else {
         await _appRepository.setStravaAthletes([]);
       }
-    }, onError: (e) => _handleError("AthleteSync", e));
+    }, onError: (Object e) => _handleError("AthleteSync", e));
   }
 
   void _listenToActivities() {
@@ -326,7 +326,7 @@ class StravaService extends ChangeNotifier {
           toDelete: toDelete,
         ));
       }
-    }, onError: (e) => _handleError("SyncStream", e, userMessage: "Background sync error"));
+    }, onError: (Object e) => _handleError("SyncStream", e, userMessage: "Background sync error"));
   }
       
   static const Duration _renewalGracePeriod = Duration(hours: 4);
@@ -485,9 +485,8 @@ class StravaService extends ChangeNotifier {
   Future<void> _refreshAvailability() async {
     try {
       final functions = FirebaseFunctions.instanceFor(region: 'europe-west3');
-      final result = await functions.httpsCallable('checkStravaAvailability').call();
-      final data = result.data as Map<String, dynamic>;
-      _availability = data['available'] == true
+      final result = await functions.httpsCallable('checkStravaAvailability').call<Map<String, dynamic>>();
+      _availability = result.data['available'] == true
           ? StravaAvailability.available
           : StravaAvailability.full;
       _availabilityCheckedAt = DateTime.now();
@@ -597,7 +596,7 @@ class StravaService extends ChangeNotifier {
       await functions.httpsCallable(
         'syncActivities',
         options: HttpsCallableOptions(timeout: const Duration(seconds: 15))
-      ).call();
+      ).call<void>();
     } on FirebaseFunctionsException catch (e) {
       _setState(StravaFailed(
         _friendlyFunctionError(e) ?? "Sync failed: [${e.code}] ${e.message}",
@@ -612,7 +611,7 @@ class StravaService extends ChangeNotifier {
     _setState(const StravaSyncing());
     try {
       final functions = FirebaseFunctions.instanceFor(region: 'europe-west3');
-      await functions.httpsCallable('syncFullHistory').call();
+      await functions.httpsCallable('syncFullHistory').call<void>();
     } on FirebaseFunctionsException catch (e) {
       _setState(StravaFailed(
         _friendlyFunctionError(e) ?? "Full history sync failed: [${e.code}] ${e.message}",

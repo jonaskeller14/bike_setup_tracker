@@ -31,7 +31,7 @@ class DeepLinkService {
 
     _linkSubscription = _appLinks.uriLinkStream.listen(
       _handleDeepLink,
-      onError: (err) {
+      onError: (Object err) {
         debugPrint('DeepLinkService error: $err');
       },
     );

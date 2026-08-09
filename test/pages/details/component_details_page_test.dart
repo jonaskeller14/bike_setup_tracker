@@ -85,7 +85,7 @@ void main() {
     await tester.runAsync(() async {
       int attempts = 0;
       while (appRepository.components['comp1'] == null && attempts < 10) {
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future<void>.delayed(const Duration(milliseconds: 100));
         attempts++;
       }
     });
@@ -115,7 +115,7 @@ void main() {
     await tester.runAsync(() async {
       int attempts = 0;
       while (appRepository.components['comp1'] == null && attempts < 10) {
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future<void>.delayed(const Duration(milliseconds: 100));
         attempts++;
       }
     });
@@ -159,7 +159,7 @@ void main() {
     await tester.runAsync(() async {
       int attempts = 0;
       while (appRepository.components['comp1'] == null && attempts < 10) {
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future<void>.delayed(const Duration(milliseconds: 100));
         attempts++;
       }
     });
@@ -212,7 +212,7 @@ void main() {
     await tester.runAsync(() async {
       int attempts = 0;
       while (appRepository.components['comp1'] == null && attempts < 10) {
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future<void>.delayed(const Duration(milliseconds: 100));
         attempts++;
       }
     });
@@ -274,7 +274,7 @@ void main() {
     await tester.runAsync(() async {
       int attempts = 0;
       while (appRepository.components['comp1'] == null && attempts < 10) {
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future<void>.delayed(const Duration(milliseconds: 100));
         attempts++;
       }
     });
@@ -326,7 +326,7 @@ void main() {
     await tester.runAsync(() async {
       int attempts = 0;
       while (appRepository.components['comp1'] == null && attempts < 10) {
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future<void>.delayed(const Duration(milliseconds: 100));
         attempts++;
       }
     });
@@ -416,7 +416,7 @@ void main() {
     await tester.runAsync(() async {
       int attempts = 0;
       while (appRepository.components['comp1'] == null && attempts < 10) {
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future<void>.delayed(const Duration(milliseconds: 100));
         attempts++;
       }
     });
@@ -447,7 +447,7 @@ void main() {
     await tester.runAsync(() async {
       int attempts = 0;
       while (appRepository.components['comp1'] == null && attempts < 10) {
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future<void>.delayed(const Duration(milliseconds: 100));
         attempts++;
       }
     });
@@ -487,7 +487,7 @@ void main() {
     await tester.runAsync(() async {
       int attempts = 0;
       while (appRepository.components['comp1'] == null && attempts < 10) {
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future<void>.delayed(const Duration(milliseconds: 100));
         attempts++;
       }
     });
@@ -533,7 +533,7 @@ void main() {
     await tester.runAsync(() async {
       int attempts = 0;
       while (appRepository.components['comp1'] == null && attempts < 10) {
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future<void>.delayed(const Duration(milliseconds: 100));
         attempts++;
       }
     });
@@ -562,7 +562,7 @@ void main() {
     await tester.runAsync(() async {
       int attempts = 0;
       while (appRepository.components['comp1'] == null && attempts < 10) {
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future<void>.delayed(const Duration(milliseconds: 100));
         attempts++;
       }
     });
@@ -596,7 +596,7 @@ void main() {
     await tester.runAsync(() async {
       int attempts = 0;
       while (appRepository.components['comp1'] == null && attempts < 10) {
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future<void>.delayed(const Duration(milliseconds: 100));
         attempts++;
       }
     });
@@ -630,7 +630,7 @@ void main() {
     await tester.runAsync(() async {
       int attempts = 0;
       while (appRepository.components['comp1'] == null && attempts < 10) {
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future<void>.delayed(const Duration(milliseconds: 100));
         attempts++;
       }
     });

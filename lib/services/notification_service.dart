@@ -69,7 +69,7 @@ class NotificationService {
       // Small delay and retry for "cold starts" where the app is launched from a notification
       // and the database streams haven't emitted the first set of data yet.
       debugPrint('NotificationService: Activity $activityId not in memory yet, retrying... ($retryCount)');
-      await Future.delayed(const Duration(milliseconds: 800));
+      await Future<void>.delayed(const Duration(milliseconds: 800));
       return _navigateToStravaActivity(activityId, retryCount: retryCount + 1);
     } else {
       debugPrint('NotificationService: Activity $activityId not found after retries.');

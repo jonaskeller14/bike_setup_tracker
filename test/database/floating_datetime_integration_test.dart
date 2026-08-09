@@ -10,13 +10,13 @@ void main() {
     final String serverStartDateStr = "2024-05-15T08:41:00Z";
 
     test('Setup handles floating time accurately via fromJson and toJson', () {
-      final json = {
+      final json = <String, dynamic>{
         "id": "s1",
         "isDeleted": false,
         "name": "Race Setup",
         "datetime": serverStartDateStr,
         "datetimeLocal": serverStartDateLocalStr,
-        "tags": [],
+        "tags": <String>[],
         "bike": "b1",
         "person": "p1",
       };

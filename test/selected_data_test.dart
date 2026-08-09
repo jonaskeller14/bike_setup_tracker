@@ -22,14 +22,14 @@ void main() {
 
     final selectedData = SelectedData(taskRules: {rule.id: rule});
 
-    final exportMap = {
-      'persons': [],
-      'bikes': [],
-      'setups': [],
-      'components': [],
-      'ratings': [],
+    final exportMap = <String, dynamic>{
+      'persons': <dynamic>[],
+      'bikes': <dynamic>[],
+      'setups': <dynamic>[],
+      'components': <dynamic>[],
+      'ratings': <dynamic>[],
       'taskRules': selectedData.taskRules.values.map((tr) => tr.toJson()).toList(),
-      'taskEntries': [],
+      'taskEntries': <dynamic>[],
     };
     
     final jsonString = jsonEncode(exportMap);

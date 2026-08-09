@@ -442,7 +442,7 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
         _setState(const SubscriptionError('Missing transaction id for iOS purchase.'));
         return false;
       }
-      await functions.httpsCallable('verifySubscription').call({
+      await functions.httpsCallable('verifySubscription').call<void>({
         'platform': Platform.isIOS ? 'ios' : 'android',
         'productId': pd.productID,
         'purchaseToken': Platform.isIOS

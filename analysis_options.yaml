@@ -17,7 +17,7 @@ analyzer:
   # Enable strict analysis for more robust code
   language:
     strict-casts: true
-  #   strict-inference: true
+    strict-inference: true
     strict-raw-types: true
 
   # Exclude generated files and build artifacts from analysis

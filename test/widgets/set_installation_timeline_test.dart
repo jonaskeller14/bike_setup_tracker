@@ -31,7 +31,7 @@ void main() {
   Widget createWidgetUnderTest({
     List<Installation> initialInstallations = const [],
     List<Installation>? originalInstallations,
-    Function(List<Installation>)? onChanged,
+    void Function(List<Installation>)? onChanged,
   }) {
     return MultiProvider(
       providers: [
@@ -64,7 +64,7 @@ void main() {
         // to avoid DropdownButton assertion errors
         int attempts = 0;
         while (appRepository.bikes.isEmpty && attempts < 100) {
-          await Future.delayed(const Duration(milliseconds: 10));
+          await Future<void>.delayed(const Duration(milliseconds: 10));
           attempts++;
         }
       });
@@ -91,7 +91,7 @@ void main() {
         await appRepository.addBike(Bike(id: 'bike1', name: 'Bike 1', person: 'Me'));
         int attempts = 0;
         while (appRepository.bikes.isEmpty && attempts < 100) {
-          await Future.delayed(const Duration(milliseconds: 10));
+          await Future<void>.delayed(const Duration(milliseconds: 10));
           attempts++;
         }
       });
@@ -133,7 +133,7 @@ void main() {
         await appRepository.addBike(bike);
         int attempts = 0;
         while (appRepository.bikes.isEmpty && attempts < 100) {
-          await Future.delayed(const Duration(milliseconds: 10));
+          await Future<void>.delayed(const Duration(milliseconds: 10));
           attempts++;
         }
       });
@@ -163,7 +163,7 @@ void main() {
         await appRepository.addBike(Bike(id: 'bike2', name: 'Bike 2', person: 'Me'));
         int attempts = 0;
         while (appRepository.bikes.length < 2 && attempts < 100) {
-          await Future.delayed(const Duration(milliseconds: 10));
+          await Future<void>.delayed(const Duration(milliseconds: 10));
           attempts++;
         }
       });
@@ -191,7 +191,7 @@ void main() {
         await appRepository.addBike(Bike(id: 'bike1', name: 'Bike 1', person: 'Me'));
         int attempts = 0;
         while (appRepository.bikes.isEmpty && attempts < 100) {
-          await Future.delayed(const Duration(milliseconds: 10));
+          await Future<void>.delayed(const Duration(milliseconds: 10));
           attempts++;
         }
       });

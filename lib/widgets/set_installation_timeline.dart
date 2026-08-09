@@ -14,7 +14,7 @@ class SetInstallationTimeline extends StatefulWidget {
   final String title;
   final List<Installation> initialInstallations;
   final List<Installation>? originalInstallations;
-  final Function(List<Installation>) onChanged;
+  final void Function(List<Installation>) onChanged;
   final bool Function(Installation installation)? isEntryEditable;
 
   const SetInstallationTimeline({

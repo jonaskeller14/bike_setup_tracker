@@ -104,14 +104,14 @@ void main() {
       );
 
       // 2. Mock remote data (missing Strava activities)
-      final remoteDataJson = {
-        'persons': [],
-        'bikes': [],
-        'setups': [],
-        'components': [],
-        'ratings': [],
-        'taskRules': [],
-        'taskEntries': [],
+      final remoteDataJson = <String, dynamic>{
+        'persons': <dynamic>[],
+        'bikes': <dynamic>[],
+        'setups': <dynamic>[],
+        'components': <dynamic>[],
+        'ratings': <dynamic>[],
+        'taskRules': <dynamic>[],
+        'taskEntries': <dynamic>[],
         // No Strava keys here as they would be in a new backup
       };
       final remoteData = SelectedData.fromJson(remoteDataJson);

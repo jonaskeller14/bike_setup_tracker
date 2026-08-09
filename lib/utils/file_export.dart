@@ -46,7 +46,7 @@ class FileExport {
           ),
         );
       }
-    }).catchError((e, st) {
+    }).catchError((Object e, StackTrace st) {
       debugPrint('Export failed: $e\n$st');
       scaffoldMessenger.showSnackBar(
         SnackBar(
@@ -90,7 +90,7 @@ class FileExport {
           ),
         );
       }
-    }).catchError((e, st) {
+    }).catchError((Object e, StackTrace st) {
       debugPrint('Export failed: $e\n$st');
       scaffoldMessenger.showSnackBar(
         SnackBar(

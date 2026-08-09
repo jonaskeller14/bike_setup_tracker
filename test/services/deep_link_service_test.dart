@@ -36,7 +36,7 @@ void main() {
     uriController.add(uri);
 
     // Allow stream processing
-    await Future.delayed(Duration.zero);
+    await Future<void>.delayed(Duration.zero);
 
     // If it didn't throw and handled correctly, that's a pass for this basic test.
     // In a real scenario, we'd mock NavigationService.context and verify HomePage.addSetup call.
@@ -48,10 +48,10 @@ void main() {
     await deepLinkService.init();
 
     uriController.add(uri);
-    await Future.delayed(Duration.zero);
+    await Future<void>.delayed(Duration.zero);
 
     uriController.add(uri);
-    await Future.delayed(Duration.zero);
+    await Future<void>.delayed(Duration.zero);
 
     // The second one should have been ignored (check logs manually or use a more advanced mock)
   });

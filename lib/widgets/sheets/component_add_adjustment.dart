@@ -110,7 +110,7 @@ void showComponentAddAdjustmentBottomSheet({
   required Future<void> Function<T extends Adjustment>() addAdjustment,
   Future<void> Function(ComponentType componentType)? onComponentTypeSelected,
 }) async {
-  await showModalBottomSheet(
+  await showModalBottomSheet<void>(
     useSafeArea: true,
     showDragHandle: true,
     isScrollControlled: true,

@@ -20,6 +20,7 @@ import '../widgets/lists/garage_list.dart';
 import '../widgets/lists/person_list.dart';
 import '../widgets/lists/rating_list.dart';
 import '../widgets/lists/setup_list.dart';
+import '../widgets/lists/setup_list_controller.dart';
 import '../widgets/lists/task_list.dart';
 import '../widgets/sheets/export.dart';
 import '../widgets/sheets/import.dart';
@@ -37,6 +38,13 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int? _currentPageIndex;
+  final SetupListController _setupListController = SetupListController();
+
+  @override
+  void dispose() {
+    _setupListController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -151,7 +159,7 @@ class _HomePageState extends State<HomePage> {
               const BikeList(),
               const ComponentList(),
             ],
-            const SetupList(),
+            SetupList(controller: _setupListController),
             if (appSettings.enablePerson)
               const PersonList(),
             if (appSettings.enableRating)
@@ -183,11 +191,29 @@ class _HomePageState extends State<HomePage> {
             child: const Icon(Icons.add),
           ),
         ],
-        FloatingActionButton(
-          heroTag: "addSetup",
-          onPressed: () async {SetupActions.addSetup(context);},
-          tooltip: 'Add Setup',
-          child: const Icon(Icons.add),
+        ListenableBuilder(
+          listenable: _setupListController,
+          builder: (context, child) => Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              if (_setupListController.showBackToTop) ...[
+                FloatingActionButton.small(
+                  heroTag: "setupBackToTop",
+                  onPressed: _setupListController.scrollBackToTop,
+                  tooltip: 'Back to top',
+                  child: const Icon(Icons.arrow_upward),
+                ),
+                const SizedBox(height: 12),
+              ],
+              FloatingActionButton(
+                heroTag: "addSetup",
+                onPressed: () async {SetupActions.addSetup(context);},
+                tooltip: 'Add Setup',
+                child: const Icon(Icons.add),
+              ),
+            ],
+          ),
         ),
         if (appSettings.enablePerson)
           FloatingActionButton(

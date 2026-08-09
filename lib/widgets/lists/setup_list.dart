@@ -29,9 +29,12 @@ import '../sheets/replacement_sheet.dart';
 import '../sheets/task_rule_sheet.dart';
 import '../sticky_section.dart';
 import '../timeline_day_header.dart';
+import 'setup_list_controller.dart';
 
 class SetupList extends StatelessWidget {
-  const SetupList({super.key});
+  final SetupListController? controller;
+
+  const SetupList({super.key, this.controller});
 
   Widget _emptyPlaceholder(BuildContext context, {required bool showStartupGuide}) {
     if (showStartupGuide) {
@@ -343,25 +346,32 @@ class SetupList extends StatelessWidget {
       return _emptyPlaceholder(context, showStartupGuide: showStartupGuide);
     }
 
-    final headerChildren = <Widget>[
+    final hintChildren = <Widget>[
       if (showStartupGuide) const GettingStartedGuideHint(),
       ?hint,
-      const SetupListFilterWidget(),
     ];
 
     return CustomScrollView(
+      controller: controller?.scrollController,
       slivers: [
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-            child: headerChildren.length == 1
-                ? headerChildren.first
-                : Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: 8,
-                    children: headerChildren,
-                  ),
+        if (hintChildren.isNotEmpty)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              child: hintChildren.length == 1
+                  ? hintChildren.first
+                  : Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: 8,
+                      children: hintChildren,
+                    ),
+            ),
+          ),
+        SliverPersistentHeader(
+          floating: true,
+          delegate: _SetupFilterHeaderDelegate(
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           ),
         ),
         ..._buildRowSlivers(
@@ -515,5 +525,40 @@ class SetupList extends StatelessWidget {
         },
       ),
     );
+  }
+}
+
+class _SetupFilterHeaderDelegate extends SliverPersistentHeaderDelegate {
+  static const double _height = 64;
+
+  final Color backgroundColor;
+
+  const _SetupFilterHeaderDelegate({required this.backgroundColor});
+
+  @override
+  double get minExtent => _height;
+
+  @override
+  double get maxExtent => _height;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return Material(
+      color: backgroundColor,
+      elevation: overlapsContent ? 2 : 0,
+      child: const Padding(
+        padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
+        child: SetupListFilterWidget(),
+      ),
+    );
+  }
+
+  @override
+  bool shouldRebuild(covariant _SetupFilterHeaderDelegate oldDelegate) {
+    return backgroundColor != oldDelegate.backgroundColor;
   }
 }

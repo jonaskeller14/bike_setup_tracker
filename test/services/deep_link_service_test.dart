@@ -15,7 +15,7 @@ void main() {
     TestWidgetsFlutterBinding.ensureInitialized();
     mockAppLinks = MockAppLinks();
     uriController = StreamController<Uri>.broadcast();
-    
+
     when(() => mockAppLinks.uriLinkStream).thenAnswer((_) => uriController.stream);
     when(() => mockAppLinks.getInitialLink()).thenAnswer((_) async => null);
 
@@ -28,31 +28,31 @@ void main() {
 
   test('DeepLinkService handles add-setup URI', () async {
     final uri = Uri.parse('bike-setup-tracker://add-setup');
-    
+
     // We can't easily test the actual navigation here without a full widget test,
     // but we can verify that the service listens to the stream and handles the URI.
-    deepLinkService.init();
-    
+    await deepLinkService.init();
+
     uriController.add(uri);
-    
+
     // Allow stream processing
     await Future.delayed(Duration.zero);
-    
+
     // If it didn't throw and handled correctly, that's a pass for this basic test.
     // In a real scenario, we'd mock NavigationService.context and verify HomePage.addSetup call.
   });
 
   test('DeepLinkService ignores duplicate links within 1 second', () async {
     final uri = Uri.parse('bike-setup-tracker://add-setup');
-    
-    deepLinkService.init();
-    
+
+    await deepLinkService.init();
+
     uriController.add(uri);
     await Future.delayed(Duration.zero);
-    
+
     uriController.add(uri);
     await Future.delayed(Duration.zero);
-    
+
     // The second one should have been ignored (check logs manually or use a more advanced mock)
   });
 }

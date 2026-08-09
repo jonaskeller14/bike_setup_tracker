@@ -9,7 +9,6 @@ import '../../utils/to_text.dart';
 import 'data_select.dart';
 import 'share_format.dart';
 
-
 Future<void> shareData(BuildContext context) async {
   final shareResult = await showModalBottomSheet<ShareResult?>(
     context: context,
@@ -25,7 +24,8 @@ Future<void> shareData(BuildContext context) async {
   if (!context.mounted) return;
 
   switch (shareResult.format) {
-    case ShareFormats.json: FileExport.shareJson(
+    case ShareFormats.json:
+      await FileExport.shareJson(
       context: context,
       database: context.read<AppDatabase>(),
       selectedData: shareResult.selectedData,
@@ -36,11 +36,13 @@ Future<void> shareData(BuildContext context) async {
         selectedData: shareResult.selectedData,
       );
       await ShareService.shareText(context: context, text: content);
-    case ShareFormats.csv: FileExport.shareCsv(
+    case ShareFormats.csv:
+      await FileExport.shareCsv(
       context: context,
       data: shareResult.selectedData,
     );
-    case ShareFormats.xlsx: FileExport.shareXlsx(
+    case ShareFormats.xlsx:
+      await FileExport.shareXlsx(
       context: context,
       data: shareResult.selectedData,
     );
@@ -81,9 +83,12 @@ class _ShareSheetFlowState extends State<ShareSheetFlow> {
 
   void _onBack() {
     switch (_step) {
-      case ShareSheetFlowSteps.step1SelectFormat: break;
-      case ShareSheetFlowSteps.step2SelectDataMehod: setState(() => _step = ShareSheetFlowSteps.step1SelectFormat);
-      case ShareSheetFlowSteps.step3SelectDataItems: setState(() => _step = ShareSheetFlowSteps.step2SelectDataMehod);
+      case ShareSheetFlowSteps.step1SelectFormat:
+        break;
+      case ShareSheetFlowSteps.step2SelectDataMehod:
+        setState(() => _step = ShareSheetFlowSteps.step1SelectFormat);
+      case ShareSheetFlowSteps.step3SelectDataItems:
+        setState(() => _step = ShareSheetFlowSteps.step2SelectDataMehod);
     }
   }
 
@@ -117,7 +122,8 @@ class _ShareSheetFlowState extends State<ShareSheetFlow> {
             },
           ),
           ShareSheetFlowSteps.step2SelectDataMehod => SelectDataMethodSheetContent(
-            onAllSelected: () => Navigator.of(context).pop(ShareResult(
+            onAllSelected: () => Navigator.of(context).pop(
+              ShareResult(
               format: _shareFormat!, 
               selectedData: SelectedData(
                 persons: widget.appRepository.persons,
@@ -128,8 +134,9 @@ class _ShareSheetFlowState extends State<ShareSheetFlow> {
                 ratingEntries: widget.appRepository.ratingEntries,
                 taskRules: widget.appRepository.taskRules,
                 taskEntries: widget.appRepository.taskEntries,
-              )
-            )),
+                ),
+              ),
+            ),
             onManualSelected: () => setState(() => _step = ShareSheetFlowSteps.step3SelectDataItems),
             onBack: _onBack, 
           ),

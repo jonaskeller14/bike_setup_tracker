@@ -26,21 +26,18 @@ Future<void> exportData(BuildContext context) async {
   if (!context.mounted) return;
 
   switch (exportResult.exportDestination) {
-    case ExportDestination.file: FileExport.downloadJson(
+    case ExportDestination.file:
+      await FileExport.downloadJson(
       context: context,
       database: context.read<AppDatabase>(),
       selectedData: exportResult.selectedData,
     );
-    case ExportDestination.backup: BackupService.saveBackup(
-      context: context,
-      database: context.read<AppDatabase>(),
-      force: true
-    );
-    case ExportDestination.googleDriveBackup: context.read<GoogleDriveService>().saveBackup(
-      context: context,
-      force: true
-    );
-    case ExportDestination.imageBundle: FileExport.downloadImageBundle(
+    case ExportDestination.backup:
+      await BackupService.saveBackup(context: context, database: context.read<AppDatabase>(), force: true);
+    case ExportDestination.googleDriveBackup:
+      await context.read<GoogleDriveService>().saveBackup(context: context, force: true);
+    case ExportDestination.imageBundle:
+      await FileExport.downloadImageBundle(
       context: context,
       database: context.read<AppDatabase>(),
       selectedData: exportResult.selectedData,
@@ -110,33 +107,41 @@ class _ExportSheetFlowState extends State<ExportSheetFlow> {
               _destination = ExportDestination.file;
               setState(() => _step = ExportSheetFlowSteps.step2SelectDataMethod);
             },
-            onBackup: () => Navigator.of(context).pop(ExportResult(
+            onBackup: () => Navigator.of(context).pop(
+              ExportResult(
               exportDestination: ExportDestination.backup,
               selectedData: _allData,
-            )),
-            onGoogleDriveBackup: () => Navigator.of(context).pop(ExportResult(
+              ),
+            ),
+            onGoogleDriveBackup: () => Navigator.of(context).pop(
+              ExportResult(
               exportDestination: ExportDestination.googleDriveBackup,
               selectedData: _allData,
-            )),
+              ),
+            ),
             onImageBundle: () {
               _destination = ExportDestination.imageBundle;
               setState(() => _step = ExportSheetFlowSteps.step2SelectDataMethod);
             },
           ),
           ExportSheetFlowSteps.step2SelectDataMethod => SelectDataMethodSheetContent(
-            onAllSelected: () => Navigator.of(context).pop(ExportResult(
+            onAllSelected: () => Navigator.of(context).pop(
+              ExportResult(
               exportDestination: _destination,
               selectedData: _allData,
-            )),
+              ),
+            ),
             onManualSelected: () => setState(() => _step = ExportSheetFlowSteps.step3SelectDataItems),
             onBack: () => setState(() => _step = ExportSheetFlowSteps.step1SelectDestination),
           ),
           ExportSheetFlowSteps.step3SelectDataItems => SelectDataItemsSheetContent(
             allData: _allData,
-            onConfirm: (SelectedData selected) => Navigator.of(context).pop(ExportResult(
+            onConfirm: (SelectedData selected) => Navigator.of(context).pop(
+              ExportResult(
               exportDestination: _destination,
               selectedData: selected,
-            )),
+              ),
+            ),
             onBack: () => setState(() => _step = ExportSheetFlowSteps.step2SelectDataMethod),
           ),
         },

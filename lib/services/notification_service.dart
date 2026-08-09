@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import '../pages/details/strava_activitiy_details_page.dart';
@@ -35,7 +36,7 @@ class NotificationService {
 
   void _handleMessage(RemoteMessage message) async {
     debugPrint('NotificationService: Received message data: ${message.data}');
-    
+
     final data = message.data;
     final type = data['type'];
     final activityIdStr = data['activityId'] as String?;
@@ -55,11 +56,13 @@ class NotificationService {
   Future<void> _navigateToStravaActivity(int activityId, {int retryCount = 0}) async {
     // Check if repository has activities. On fresh launch, it might take a moment to load from DB.
     final activity = _appRepository.stravaActivities[activityId];
-    
+
     if (activity != null) {
+      unawaited(
       NavigationService.navigator?.push(
         MaterialPageRoute(
           builder: (context) => StravaActivityDetailsPage(stravaActivity: activity),
+          ),
         ),
       );
     } else if (retryCount < 3) {

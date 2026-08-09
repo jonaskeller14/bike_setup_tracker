@@ -84,12 +84,11 @@ class ImageStorageService {
     await jsonTempFile.writeAsString(jsonString);
 
     // When a subset is requested, only include images referenced by those setups.
-    final Set<String>? allowedFilenames =
-        selectedData?.setups.values.expand((s) => s.images).toSet();
+    final Set<String>? allowedFilenames = selectedData?.setups.values.expand((s) => s.images).toSet();
 
     final encoder = ZipFileEncoder();
     encoder.create(zipPath);
-    encoder.addFile(jsonTempFile, 'data.json');
+    await encoder.addFile(jsonTempFile, 'data.json');
 
     final imagesDir = Directory(await _imagesPath());
     if (imagesDir.existsSync()) {
@@ -97,13 +96,13 @@ class ImageStorageService {
         if (entity is File) {
           final filename = p.basename(entity.path);
           if (allowedFilenames == null || allowedFilenames.contains(filename)) {
-            encoder.addFile(entity, 'images/$filename');
+            await encoder.addFile(entity, 'images/$filename');
           }
         }
       }
     }
 
-    encoder.close();
+    await encoder.close();
     await jsonTempFile.delete();
 
     return File(zipPath);

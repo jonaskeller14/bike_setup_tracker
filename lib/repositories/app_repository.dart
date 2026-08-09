@@ -27,24 +27,30 @@ import '../services/backup_service.dart';
 import '../services/rating_score_service.dart';
 import '../services/setup_resolution_service.dart';
 import '../utils/unit_conversion.dart';
-
+  
 class AppRepository extends ChangeNotifier {
   final AppDatabase database;
   final List<StreamSubscription<dynamic>> _subscriptions = [];
-  
+    
   /// Track if the repository has been disposed.
   /// This is used as a safety guard for asynchronous operations that might
   /// complete after the repository is closed (common in tests), preventing
   /// 'notifyListeners() called after dispose()' crashes.
   bool _isDisposed = false;
   bool _pendingDataChange = false;
-
+    
   /// Streams whose first emission must arrive before the app is considered
   /// ready. Deep-link handlers (e.g. "Add Setup") read these caches
   /// synchronously, so the UI must not mount until they are populated.
   static const _requiredInitialStreams = {
-    'bikes', 'components', 'persons', 'ratings', 'ratingEntries',
-    'taskRules', 'taskEntries', 'setups',
+    'bikes',
+    'components',
+    'persons',
+    'ratings',
+    'ratingEntries',
+    'taskRules',
+    'taskEntries',
+    'setups',
   };
   final Set<String> _firedInitialStreams = <String>{};
   final Completer<void> _initialDataCompleter = Completer<void>();
@@ -109,9 +115,9 @@ class AppRepository extends ChangeNotifier {
   Future<List<StravaActivity>> getFilteredStravaActivitiesWithPosition() async {
     final allWithPos = await database.stravaDao.watchActivitiesWithPosition().first;
     final activities = allWithPos.map((a) => a.toModel()).toList();
-    
+
     if (_selectedBike == null) return activities;
-    
+
     final selectedStravaGear = bikes[_selectedBike]?.stravaGear;
     if (selectedStravaGear == null) {
       return activities.where((a) {
@@ -335,7 +341,7 @@ class AppRepository extends ChangeNotifier {
   }
 
   Future<void> initialize() async {
-    BackupService.deleteOldBackups();
+    unawaited(BackupService.deleteOldBackups());
     unawaited(initialStravaLoad());
   }
 
@@ -669,7 +675,7 @@ class AppRepository extends ChangeNotifier {
     for (final component in components.values) {
       final sorted = List<Installation>.from(component.installations)
         ..sort((a, b) => a.dateTimeUTC.compareTo(b.dateTimeUTC));
-      
+
       for (int i = 0; i < sorted.length; i++) {
         final installation = sorted[i];
         if (installation.dateTimeUTC.millisecondsSinceEpoch == 0) continue;
@@ -677,7 +683,7 @@ class AppRepository extends ChangeNotifier {
         final previousInstallation = i > 0 ? sorted[i-1] : null;
         final originParent = previousInstallation?.parent;
         final isInitial = i == 0;
-
+        
         final ci = ComponentInstallation(
           component: component,
           installation: installation,
@@ -685,7 +691,7 @@ class AppRepository extends ChangeNotifier {
           originParentType: previousInstallation?.parentType,
           isInitial: isInitial,
         );
-        
+
         if (selectedBike == null || installation.parent == selectedBike || originParent == selectedBike) {
           _filteredInstallations.add(ci);
         }
@@ -1104,11 +1110,9 @@ class AppRepository extends ChangeNotifier {
     return best?.id;
   }
 
-  String? resolvedSetupIdFor(RatingEntry entry) =>
-      resolveSetupId(bikeId: entry.bike, atUtc: entry.dateTimeUTC);
+  String? resolvedSetupIdFor(RatingEntry entry) => resolveSetupId(bikeId: entry.bike, atUtc: entry.dateTimeUTC);
 
-  List<RatingMetric> _applicableMetricsForBike(String bikeId) =>
-      (_applicableMetricsByBike ??= {}).putIfAbsent(
+  List<RatingMetric> _applicableMetricsForBike(String bikeId) => (_applicableMetricsByBike ??= {}).putIfAbsent(
         bikeId,
         () => _computeApplicableMetricsForBike(bikeId),
       );
@@ -1139,8 +1143,7 @@ class AppRepository extends ChangeNotifier {
   EntryScoreBreakdown entryBreakdown(RatingEntry entry) =>
       RatingScoreService.breakdown(_applicableMetricsForBike(entry.bike), entry.metricValues);
 
-  List<RatingEntry> ratingEntriesForSetup(String setupId) =>
-      _entriesBySetup[setupId] ?? const [];
+  List<RatingEntry> ratingEntriesForSetup(String setupId) => _entriesBySetup[setupId] ?? const [];
 
   double? scoreForSetup(String setupId) {
     if (_setupScoreCache.containsKey(setupId)) return _setupScoreCache[setupId];
@@ -1301,13 +1304,13 @@ class AppRepository extends ChangeNotifier {
       }
     });
   }
-
+    
   Future<void> editBike(Bike bike) async {
     final gearChanged = _bikes[bike.id]?.stravaGear != bike.stravaGear;
-    
+
     final updated = bike.copyWith(lastModified: DateTime.now().toUtc());
     await database.bikesDao.updateBike(updated.toCompanion());
-    
+
     if (gearChanged) await refreshTaskEntrySnapshots();
   }
 
@@ -1524,7 +1527,7 @@ class AppRepository extends ChangeNotifier {
 
   Future<void> setStravaActivities(Iterable<StravaActivity> activities, {List<int>? toDelete}) async {
     final versionAtStart = _stravaOperationVersion;
-    
+
     // Perform bulk operations in a single transaction for performance and to reduce race conditions
     await database.transaction(() async {
       if (toDelete != null && toDelete.isNotEmpty) {
@@ -1561,7 +1564,7 @@ class AppRepository extends ChangeNotifier {
   Future<void> setStravaGears(Iterable<StravaGear> gears) async {
     await database.stravaDao.syncGears(gears.map((g) => g.toCompanion()));
   }
-  
+
   Future<void> clearStravaData() async {
     _stravaOperationVersion++; 
     

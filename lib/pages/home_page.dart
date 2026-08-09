@@ -55,8 +55,15 @@ class _HomePageState extends State<HomePage> {
     final defaultIndex = appRepository.bikes.isEmpty  || appRepository.components.isEmpty
         ? 0
         : (appSettings.enableGarage ? 1 : 2);
-    final pageIndex = (_currentPageIndex ?? defaultIndex)
-        .clamp(0, (-1)+ (appSettings.enableGarage ? 1 : 2) + 1 + (appSettings.enablePerson ? 1 : 0) + (appSettings.enableRating ? 1: 0) + (appSettings.enableTask ? 1 : 0));
+    final pageIndex = (_currentPageIndex ?? defaultIndex).clamp(
+      0,
+      (-1) +
+          (appSettings.enableGarage ? 1 : 2) +
+          1 +
+          (appSettings.enablePerson ? 1 : 0) +
+          (appSettings.enableRating ? 1 : 0) +
+          (appSettings.enableTask ? 1 : 0),
+    );
     return Scaffold(
       appBar: AppBar(
         leading: Padding(
@@ -80,18 +87,13 @@ class _HomePageState extends State<HomePage> {
             const Text("Components"),
           ],
           const Text("Setup History"),
-          if (appSettings.enablePerson)
-            const Text("Profile"),
-          if (appSettings.enableRating)
-            const Text("Ratings"),
-          if (appSettings.enableTask)
-            const Text("Tasks"),
+          if (appSettings.enablePerson) const Text("Profile"),
+          if (appSettings.enableRating) const Text("Ratings"),
+          if (appSettings.enableTask) const Text("Tasks"),
         ][pageIndex],
         actions: [
-          if (appSettings.enableStrava)
-            const StravaSyncButton(),
-          if (appSettings.enableGoogleDrive)
-            const GoogleDriveSyncButton(),
+          if (appSettings.enableStrava) const StravaSyncButton(),
+          if (appSettings.enableGoogleDrive) const GoogleDriveSyncButton(),
           PopupMenuButton<_AppOptions>(
             onSelected: (_AppOptions result) async {
               switch (result) {
@@ -126,16 +128,28 @@ class _HomePageState extends State<HomePage> {
         },
         destinations: <Widget>[
           if (appSettings.enableGarage)
-            NavigationDestination(icon: Badge(isLabelVisible: appRepository.selectedBike != null, backgroundColor: Theme.of(context).primaryColor, child: const Icon(Bike.iconData)), label: 'Bikes')
+            NavigationDestination(
+              icon: Badge(
+                isLabelVisible: appRepository.selectedBike != null,
+                backgroundColor: Theme.of(context).primaryColor,
+                child: const Icon(Bike.iconData),
+              ),
+              label: 'Bikes',
+            )
           else ...[
-            NavigationDestination(icon: Badge(isLabelVisible: appRepository.selectedBike != null, backgroundColor: Theme.of(context).primaryColor, child: const Icon(Bike.iconData)), label: 'Bikes'),
+            NavigationDestination(
+              icon: Badge(
+                isLabelVisible: appRepository.selectedBike != null,
+                backgroundColor: Theme.of(context).primaryColor,
+                child: const Icon(Bike.iconData),
+              ),
+              label: 'Bikes',
+            ),
             const NavigationDestination(icon: Icon(Component.iconData), label: 'Components'),
           ],
           const NavigationDestination(icon: Icon(Setup.iconData), label: 'Setups'),
-          if (appSettings.enablePerson)
-            const NavigationDestination(icon: Icon(Person.iconData), label: "Profile"),
-          if (appSettings.enableRating)
-            const NavigationDestination(icon: Icon(Rating.iconData), label: "Ratings"),
+          if (appSettings.enablePerson) const NavigationDestination(icon: Icon(Person.iconData), label: "Profile"),
+          if (appSettings.enableRating) const NavigationDestination(icon: Icon(Rating.iconData), label: "Ratings"),
           if (appSettings.enableTask)
             NavigationDestination(
               icon: Badge.count(
@@ -160,12 +174,9 @@ class _HomePageState extends State<HomePage> {
               const ComponentList(),
             ],
             SetupList(controller: _setupListController),
-            if (appSettings.enablePerson)
-              const PersonList(),
-            if (appSettings.enableRating)
-              const RatingList(),
-            if (appSettings.enableTask)
-              const TaskList(),
+            if (appSettings.enablePerson) const PersonList(),
+            if (appSettings.enableRating) const RatingList(),
+            if (appSettings.enableTask) const TaskList(),
           ],
         ),
       ),
@@ -173,20 +184,26 @@ class _HomePageState extends State<HomePage> {
         if (appSettings.enableGarage)
           FloatingActionButton(
             heroTag: "addBike",
-            onPressed: () async {BikeActions.addBike(context);},
+            onPressed: () async {
+              await BikeActions.addBike(context);
+            },
             tooltip: 'Add Bike',
             child: const Icon(Icons.add),
           )
         else ... [
           FloatingActionButton(
             heroTag: "addBike",
-            onPressed: () async {BikeActions.addBike(context);},
+            onPressed: () async {
+              await BikeActions.addBike(context);
+            },
             tooltip: 'Add Bike',
             child: const Icon(Icons.add),
           ),
           FloatingActionButton(
             heroTag: "addComponent",
-            onPressed: () async {ComponentActions.addComponent(context);},
+            onPressed: () async {
+              await ComponentActions.addComponent(context);
+            },
             tooltip: 'Add Component',
             child: const Icon(Icons.add),
           ),
@@ -208,7 +225,9 @@ class _HomePageState extends State<HomePage> {
               ],
               FloatingActionButton(
                 heroTag: "addSetup",
-                onPressed: () async {SetupActions.addSetup(context);},
+                onPressed: () async {
+                  await SetupActions.addSetup(context);
+                },
                 tooltip: 'Add Setup',
                 child: const Icon(Icons.add),
               ),
@@ -218,21 +237,27 @@ class _HomePageState extends State<HomePage> {
         if (appSettings.enablePerson)
           FloatingActionButton(
             heroTag: "addPerson",
-            onPressed: () async {PersonActions.addPerson(context);},
+            onPressed: () async {
+              await PersonActions.addPerson(context);
+            },
             tooltip: 'Add Person',
             child: const Icon(Icons.add),
           ),
         if (appSettings.enableRating)
           FloatingActionButton(
             heroTag: "addRating",
-            onPressed: () async {RatingActions.addRating(context);},
+            onPressed: () async {
+              await RatingActions.addRating(context);
+            },
             tooltip: 'Add Rating',
             child: const Icon(Icons.add),
           ),
         if (appSettings.enableTask)
           FloatingActionButton(
             heroTag: "addTask",
-            onPressed: () async {TaskActions.addTaskRule(context);},
+            onPressed: () async {
+              await TaskActions.addTaskRule(context);
+            },
             tooltip: 'Add Task',
             child: const Icon(Icons.add),
           ),
@@ -247,6 +272,7 @@ enum _AppOptions {
   share('Share Data', Icons.share),
   trash('Trash', Icons.delete),
   settings("Settings", Icons.settings);
+
   final String label;
   final IconData iconData;
   const _AppOptions(this.label, this.iconData);

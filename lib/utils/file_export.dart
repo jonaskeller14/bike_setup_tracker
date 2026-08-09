@@ -22,7 +22,8 @@ class FileExport {
     final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
     final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
 
-    _downloadJson(database: database, selectedData: selectedData).then((result) {
+    await _downloadJson(database: database, selectedData: selectedData)
+        .then((result) {
       // On iOS, result might not contain a path even if successful
       final isSuccess = result != null && (Platform.isIOS || result.path != null);
 
@@ -68,35 +69,41 @@ class FileExport {
     final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
     final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
 
-    _downloadImageBundle(database: database, selectedData: selectedData).then((result) {
+    await _downloadImageBundle(database: database, selectedData: selectedData).then((result) {
       final isSuccess = result != null && (Platform.isIOS || result.path != null);
       if (!isSuccess) {
-        scaffoldMessenger.showSnackBar(SnackBar(
-          persist: false,
-          showCloseIcon: true,
-          closeIconColor: onErrorContainerColor,
-          content: Text('Export failed', style: TextStyle(color: onErrorContainerColor)),
-          backgroundColor: errorContainerColor,
-        ));
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            persist: false,
+            showCloseIcon: true,
+            closeIconColor: onErrorContainerColor,
+            content: Text('Export failed', style: TextStyle(color: onErrorContainerColor)),
+            backgroundColor: errorContainerColor,
+          ),
+        );
       } else {
-        scaffoldMessenger.showSnackBar(SnackBar(
-          persist: false,
-          showCloseIcon: true,
-          content: Text('Saved to: ${result.path ?? 'Unknown location'}'),
-        ));
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            persist: false,
+            showCloseIcon: true,
+            content: Text('Saved to: ${result.path ?? 'Unknown location'}'),
+          ),
+        );
       }
     }).catchError((e, st) {
       debugPrint('Export failed: $e\n$st');
-      scaffoldMessenger.showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        closeIconColor: onErrorContainerColor,
-        content: Text('Export failed: $e', style: TextStyle(color: onErrorContainerColor)),
-        backgroundColor: errorContainerColor,
-      ));
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          persist: false,
+          showCloseIcon: true,
+          closeIconColor: onErrorContainerColor,
+          content: Text('Export failed: $e', style: TextStyle(color: onErrorContainerColor)),
+          backgroundColor: errorContainerColor,
+        ),
+      );
     });
   }
-
+      
   static Future<FileSaveResult?> _downloadImageBundle({
     required AppDatabase database,
     SelectedData? selectedData,
@@ -116,7 +123,7 @@ class FileExport {
       return null;
     }
   }
-
+        
   static Future<void> exportLatestBackup(BuildContext context) async {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
@@ -125,7 +132,7 @@ class FileExport {
     try {
       final dir = await getApplicationDocumentsDirectory();
       final backupDir = Directory('${dir.path}/backup');
-      
+
       if (!await backupDir.exists()) {
         scaffoldMessenger.showSnackBar(
           SnackBar(
@@ -139,11 +146,8 @@ class FileExport {
         return;
       }
 
-      final files = backupDir.listSync()
-        .whereType<File>()
-        .where((f) => f.path.endsWith('.json'))
-        .toList();
-        
+      final files = backupDir.listSync().whereType<File>().where((f) => f.path.endsWith('.json')).toList();
+
       if (files.isEmpty) {
         scaffoldMessenger.showSnackBar(
           SnackBar(
@@ -187,7 +191,7 @@ class FileExport {
           SnackBar(
             persist: false,
             showCloseIcon: true,
-            content: Text('Saved to: ${result.path ?? "Unknown location"}')
+            content: Text('Saved to: ${result.path ?? "Unknown location"}'),
           ),
         );
       }

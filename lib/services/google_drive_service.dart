@@ -68,20 +68,20 @@ class GoogleDriveService extends ChangeNotifier {
       await _silentSetup();  // scheduleSilentSync() and saveBackup() included here
     } else {
       scheduleSilentSync();
-      saveBackup();
+      unawaited(saveBackup());
     }
   }
-
+      
   void _setErrorMessage(String message) {
     _errorMessage = message;
     notifyListeners();
   }
-
+    
   void _setStatus(GoogleDriveServiceStatus newStatus) {
     _status = newStatus;
     notifyListeners();
   }
-
+    
   Future<void> _silentSetup() async {
     final GoogleSignIn signIn = GoogleSignIn.instance;
 
@@ -91,10 +91,8 @@ class GoogleDriveService extends ChangeNotifier {
         serverClientId: "473188600318-2fbh7usdhumouj41r55jm7r61nkunsag.apps.googleusercontent.com",
       );
 
-      signIn.authenticationEvents
-          .listen(_handleAuthenticationEvent)
-          .onError(_handleAuthenticationError);
-      
+      signIn.authenticationEvents.listen(_handleAuthenticationEvent).onError(_handleAuthenticationError);
+
       await signIn.attemptLightweightAuthentication(); // Silent Sign in
     } catch (error) {
       _setErrorMessage("Google Sign In Setup Failed: $error");
@@ -126,10 +124,7 @@ class GoogleDriveService extends ChangeNotifier {
   Future<void> _handleAuthenticationError(Object e) async {
     _currentUser = null;
     _isAuthorized = false;
-    _errorMessage =
-        e is GoogleSignInException
-            ? _errorMessageFromSignInException(e)
-            : 'Unknown error: $e';
+    _errorMessage = e is GoogleSignInException ? _errorMessageFromSignInException(e) : 'Unknown error: $e';
     notifyListeners(); // Notify UI of sign-out/error
   }
 
@@ -161,8 +156,7 @@ class GoogleDriveService extends ChangeNotifier {
       return;
     }
 
-    final Map<String, String>? headers = await _currentUser!.authorizationClient
-        .authorizationHeaders(_scopes);
+    final Map<String, String>? headers = await _currentUser!.authorizationClient.authorizationHeaders(_scopes);
 
     if (headers == null) {
       throw Exception("Failed to obtain authorization headers.");
@@ -179,7 +173,7 @@ class GoogleDriveService extends ChangeNotifier {
       _setStatus(GoogleDriveServiceStatus.idle);
       return;
     }
-    
+
     _setErrorMessage('');
 
     try {
@@ -200,7 +194,7 @@ class GoogleDriveService extends ChangeNotifier {
 
   Future<void> interactiveSync() async {
     _setStatus(GoogleDriveServiceStatus.syncing);
-    _setErrorMessage(''); 
+    _setErrorMessage('');
 
     if (_currentUser == null) await interactiveSignIn();
     if (_currentUser == null) {
@@ -227,12 +221,12 @@ class GoogleDriveService extends ChangeNotifier {
         
         await clearToken();
         await _handleAuthorizeScopes();
-
+    
         if (!_isAuthorized) {
           _setStatus(GoogleDriveServiceStatus.idle);
           return;
         }
-
+    
         try {
           await _initializeDriveApi(); // Re-initialize API with new authorization
           await _download();
@@ -249,7 +243,7 @@ class GoogleDriveService extends ChangeNotifier {
     } catch (e) {
       _setErrorMessage('General Sync Error: $e');
     }
-    
+
     _setStatus(GoogleDriveServiceStatus.idle);
     notifyListeners();
   }
@@ -261,7 +255,7 @@ class GoogleDriveService extends ChangeNotifier {
     if (_driveApi == null || !_isAuthorized) return;
 
     _setStatus(GoogleDriveServiceStatus.syncing);
-    
+
     try {
       await _download();
       await _upload();  // only upload if download was successfull!
@@ -285,7 +279,7 @@ class GoogleDriveService extends ChangeNotifier {
     
     _setStatus(GoogleDriveServiceStatus.idle);
   }
-
+    
   void scheduleSilentSync() {
     _syncTimer?.cancel();
 
@@ -317,7 +311,7 @@ class GoogleDriveService extends ChangeNotifier {
       Stream.fromIterable([fileBytes]),
       fileBytes.length,
     );
-    
+
     final fileId = await _getFileId(); // Check if file already exists in appDataFolder
 
     if (fileId != null) {
@@ -370,16 +364,16 @@ class GoogleDriveService extends ChangeNotifier {
       q: "name = '$_fileName' and trashed = false", 
       $fields: 'files(id)',
     );
-
+    
     if (fileList.files?.isNotEmpty == true) {
       return fileList.files!.first.id;
     }
     return null;
   }
-
+      
   Future<void> signOut() async {
     _setStatus(GoogleDriveServiceStatus.syncing);
-    
+
     try {
       await GoogleSignIn.instance.disconnect();
     } catch (error) {
@@ -389,7 +383,7 @@ class GoogleDriveService extends ChangeNotifier {
       _driveApi = null;
       _isAuthorized = false;
       _errorMessage = '';
-      
+
       _setStatus(GoogleDriveServiceStatus.idle);
       notifyListeners();
     }
@@ -463,15 +457,15 @@ class GoogleDriveService extends ChangeNotifier {
         final scaffoldMessenger = ScaffoldMessenger.of(context);
         final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
         final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
-        scaffoldMessenger.showSnackBar(SnackBar(
-          persist: false,
-          showCloseIcon: true,
-          closeIconColor: onErrorContainerColor,
-          content: Text("Error backing up to Google Drive: $e", 
-            style: TextStyle(color: onErrorContainerColor)
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            persist: false,
+            showCloseIcon: true,
+            closeIconColor: onErrorContainerColor,
+            content: Text("Error backing up to Google Drive: $e", style: TextStyle(color: onErrorContainerColor)),
+            backgroundColor: errorContainerColor,
           ), 
-          backgroundColor: errorContainerColor,
-        ));
+        );
       }
     }
   }
@@ -590,7 +584,6 @@ class GoogleDriveService extends ChangeNotifier {
     }
   }
 }
-
 
 class AuthenticatedClient extends http.BaseClient {
   final http.Client _baseClient;

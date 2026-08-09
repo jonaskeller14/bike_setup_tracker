@@ -39,7 +39,7 @@ class QuickActionsService {
     debugPrint('Received quick action: $shortcutType');
 
     if (shortcutType == 'add_setup') {
-      _triggerAddSetup();
+      unawaited(_triggerAddSetup());
     }
   }
 

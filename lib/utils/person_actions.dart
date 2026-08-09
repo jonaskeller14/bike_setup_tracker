@@ -94,6 +94,10 @@ class PersonActions {
 
   static Future<void> onReorderPerson(BuildContext context, {required int oldIndex, required int newIndex}) async {
     final appRepository = context.read<AppRepository>();
-    appRepository.reorderPerson(oldIndex: oldIndex, newIndex: newIndex, filteredPersonsList: appRepository.filteredPersons.values.toList());
+    await appRepository.reorderPerson(
+      oldIndex: oldIndex,
+      newIndex: newIndex,
+      filteredPersonsList: appRepository.filteredPersons.values.toList(),
+    );
   }
 }

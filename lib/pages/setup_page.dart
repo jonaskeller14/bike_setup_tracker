@@ -55,8 +55,7 @@ class SetupPage extends StatefulWidget {
     this.initialBike,
   });
 
-  factory SetupPage.add({Key? key}) => 
-    SetupPage._(key: key, mode: SetupPageMode.add);
+  factory SetupPage.add({Key? key}) => SetupPage._(key: key, mode: SetupPageMode.add);
 
   factory SetupPage.addFromStravaActivity({
     Key? key, 
@@ -80,11 +79,11 @@ class SetupPage extends StatefulWidget {
 
   factory SetupPage.duplicate({Key? key, required Setup setup}) => 
     SetupPage._(key: key, setup: setup, mode: SetupPageMode.duplicate);
-
+  
   @override
   State<SetupPage> createState() => _SetupPageState();
 }
-
+    
 class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   bool _formHasChanges = false;
@@ -98,7 +97,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   late String _initialBike;
   late String? _person;
   late String? _initialPerson;
-
+    
   List<String> _images = [];
   List<String> _initialImages = [];
   String? _imagesDirPath;
@@ -107,7 +106,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   late DateTime _initialDateTimeUtc;
   late DateTime _selectedDateTimeLocal;
   late DateTime _initialDateTimeLocal;
-  
+
   final Map<String, dynamic> _bikeAdjustmentValues = {};
   final Map<String, dynamic> _personAdjustmentValues = {};
   final Map<String, dynamic> _initialBikeAdjustmentValues = {};
@@ -138,7 +137,10 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     _selectedDateTimeLocal = widget.setup?.datetimeLocal ?? widget.initialDateTimeLocal ?? now;
     _initialDateTimeLocal = _selectedDateTimeLocal;
 
-    _selectedDateTimeUtc = widget.setup?.datetime.copyWith(isUtc: true) ?? widget.initialDateTimeUtc?.copyWith(isUtc: true) ?? _selectedDateTimeLocal.toUtc();
+    _selectedDateTimeUtc =
+        widget.setup?.datetime.copyWith(isUtc: true) ??
+        widget.initialDateTimeUtc?.copyWith(isUtc: true) ??
+        _selectedDateTimeLocal.toUtc();
     _initialDateTimeUtc = _selectedDateTimeUtc;
 
     _currentLocation.value = widget.setup?.position;
@@ -155,7 +157,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
     final bikes = appRepository.bikes;
     _initialBike = widget.setup?.bike ?? widget.initialBike?.id ?? appRepository.filteredBikes.keys.firstOrNull ?? '';
-    
+
     _initialPerson = widget.setup?.person ?? bikes[_initialBike]?.person;
 
     _onBikeChange(_initialBike);
@@ -290,8 +292,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     await updateLocation();
     if (_currentLocation.value == null) return;
 
-    updateWeather();
-    updateAddress();
+    unawaited(updateWeather());
+    unawaited(updateAddress());
   }
 
   Future<void> updateLocation() async {
@@ -469,7 +471,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       _setDanglingAdjustmentValues();
     });
     _changeListener();
-    askAndUpdateWeather();
+    unawaited(askAndUpdateWeather());
     
     const mapEquality = DeepCollectionEquality();
     if (mapEquality.equals(_previousBikeAdjustmentValues, tmpPreviousBikeAdjustmentValues) && mapEquality.equals(_previousPersonAdjustmentValues, tmpPreviousPersonAdjustmentValues)) return;
@@ -487,7 +489,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     });
     _changeListener();
   }
-
+    
   Future<void> _pickTime() async {
     final tmpPreviousBikeAdjustmentValues = Map<String, dynamic>.from(_previousBikeAdjustmentValues);
     final tmpPreviousPersonAdjustmentValues = Map<String, dynamic>.from(_previousPersonAdjustmentValues);
@@ -499,7 +501,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     );
 
     if (!mounted || pickedTime == null) return;
-    
+
     final DateTime newDateTimeLocal = _selectedDateTimeLocal.copyWith(hour: pickedTime.hour, minute: pickedTime.minute);
     if (newDateTimeLocal == _selectedDateTimeLocal) return;
     if (newDateTimeLocal.isAfter(DateTime.now())) {
@@ -521,7 +523,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       _setDanglingAdjustmentValues();
     });
     _changeListener();
-    askAndUpdateWeather();
+    unawaited(askAndUpdateWeather());
 
     const mapEquality = DeepCollectionEquality();
     if (mapEquality.equals(_previousBikeAdjustmentValues, tmpPreviousBikeAdjustmentValues) && mapEquality.equals(_previousPersonAdjustmentValues, tmpPreviousPersonAdjustmentValues)) return;
@@ -798,7 +800,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                       }
 
                       if (requestWeatherUpdate) { // After setting new location: _currentLocation = result.location
-                        askAndUpdateWeather();
+                        unawaited(askAndUpdateWeather());
                       }
 
                       _changeListener();
@@ -911,21 +913,22 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
             if (appSettings.enableSetupTags) ... [
               ..._tags.map((tag) => FilterChip(
                 avatar: const Icon(Icons.tag),
-                showCheckmark: false,
-                selected: widget.mode != SetupPageMode.edit,
-                label: Text(tag), 
-                onSelected: (_) {
-                  setState(() => _tags.remove(tag));
-                  _changeListener();
-                },
-                onDeleted: () {
-                  setState(() => _tags.remove(tag));
-                  _changeListener();
-                },
-                backgroundColor: widget.mode == SetupPageMode.edit && !widget.setup!.tags.contains(tag)
-                    ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
-                    : null,
-              )),
+                  showCheckmark: false,
+                  selected: widget.mode != SetupPageMode.edit,
+                  label: Text(tag), 
+                  onSelected: (_) {
+                    setState(() => _tags.remove(tag));
+                    _changeListener();
+                  },
+                  onDeleted: () {
+                    setState(() => _tags.remove(tag));
+                    _changeListener();
+                  },
+                  backgroundColor: widget.mode == SetupPageMode.edit && !widget.setup!.tags.contains(tag)
+                      ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
+                      : null,
+                ),
+              ),
               ActionChip(
                 avatar: const Icon(Icons.add),
                 label: const Text("Tags"),
@@ -949,7 +952,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
               ),
           ],
         );
-      }
+      },
     );
   }
 

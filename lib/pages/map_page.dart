@@ -79,7 +79,7 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
       setState(() {
         _userLocation = LatLng(locationData.latitude!, locationData.longitude!);
       });
-      _animatedMapMove(_userLocation!, 15);
+      await _animatedMapMove(_userLocation!, 15);
     }
   }
 
@@ -105,9 +105,7 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
     final appRepository = context.watch<AppRepository>();
     final subscriptionService = context.watch<SubscriptionService>();
     final setups = appRepository.filteredSetups.values.where(
-      (s) =>
-          (s.position?.latitude?.isFinite ?? false) &&
-          (s.position?.longitude?.isFinite ?? false),
+      (s) => (s.position?.latitude?.isFinite ?? false) && (s.position?.longitude?.isFinite ?? false),
     );
 
     return FutureBuilder<List<StravaActivity>>(
@@ -141,8 +139,7 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
           if (appSettings.displayShowSetups)
             ...setups.map(
               (setup) => Marker(
-                point:
-                    LatLng(setup.position!.latitude!, setup.position!.longitude!),
+                point: LatLng(setup.position!.latitude!, setup.position!.longitude!),
                 width: 40,
                 height: 40,
                 child: GestureDetector(
@@ -186,9 +183,7 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
             ),
           if (appSettings.enableStrava && subscriptionService.hasStravaEntitlement && appSettings.displayShowActivities)
             ...stravaActivities
-                .where((a) =>
-                    (a.startLat?.isFinite ?? false) &&
-                    (a.startLon?.isFinite ?? false))
+                .where((a) => (a.startLat?.isFinite ?? false) && (a.startLon?.isFinite ?? false))
                 .map(
               (activity) => Marker(
                 point: LatLng(activity.startLat!, activity.startLon!),
@@ -238,9 +233,9 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
             ),
           if (appSettings.enableRating && appSettings.displayShowRatingEntries)
             ...appRepository.filteredRatingEntries.values
-                .where((re) =>
-                    (re.position?.latitude?.isFinite ?? false) &&
-                    (re.position?.longitude?.isFinite ?? false))
+                .where(
+                  (re) => (re.position?.latitude?.isFinite ?? false) && (re.position?.longitude?.isFinite ?? false),
+                )
                 .map(
               (ratingEntry) => Marker(
                 point: LatLng(ratingEntry.position!.latitude!, ratingEntry.position!.longitude!),
@@ -314,7 +309,8 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                 children: [
                   if (appSettings.useMapBoxTiles && Env.mapboxToken.isNotEmpty)
                     TileLayer(
-                      urlTemplate: 'https://api.mapbox.com/styles/v1/mapbox/{style_id}/tiles/256/{z}/{x}/{y}?access_token={access_token}',
+                      urlTemplate:
+                          'https://api.mapbox.com/styles/v1/mapbox/{style_id}/tiles/256/{z}/{x}/{y}?access_token={access_token}',
                       additionalOptions: {
                         'access_token': Env.mapboxToken,
                         'style_id': Theme.of(context).brightness == Brightness.dark ? 'dark-v11' : 'outdoors-v12',
@@ -324,8 +320,7 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                     )
                   else
                     TileLayer(
-                      urlTemplate:
-                          'https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png',
+                      urlTemplate: 'https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png',
                       subdomains: const ['a', 'b', 'c'],
                       minZoom: 3,
                       maxZoom: 18,
@@ -336,10 +331,26 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                         return ColorFiltered(
                           colorFilter: isDarkMode
                               ? const ColorFilter.matrix(<double>[
-                                  -0.2126, -0.7152, -0.0722, 0, 255,
-                                  -0.2126, -0.7152, -0.0722, 0, 255,
-                                  -0.2126, -0.7152, -0.0722, 0, 255,
-                                  0, 0, 0, 1, 0,
+                                  -0.2126,
+                                  -0.7152,
+                                  -0.0722,
+                                  0,
+                                  255,
+                                  -0.2126,
+                                  -0.7152,
+                                  -0.0722,
+                                  0,
+                                  255,
+                                  -0.2126,
+                                  -0.7152,
+                                  -0.0722,
+                                  0,
+                                  255,
+                                  0,
+                                  0,
+                                  0,
+                                  1,
+                                  0,
                                 ])
                               : const ColorFilter.matrix(<double>[
                                   0.6, 0.3, 0.1, 0, 0,  // Muted Red
@@ -386,8 +397,7 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                       },
                     ),
                   ),
-                  if (userLocationMarker != null)
-                    MarkerLayer(markers: [userLocationMarker]),
+                  if (userLocationMarker != null) MarkerLayer(markers: [userLocationMarker]),
                   RichAttributionWidget(
                     alignment: AttributionAlignment.bottomLeft,
                     showFlutterMapAttribution: false,
@@ -423,7 +433,9 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                       if (stravaActivities.isNotEmpty)
                         const LogoSourceAttribution(
                           Image(
-                            image: AssetImage('assets/strava/1.2-Strava-API-Logos/1.2-Strava-API-Logos/Powered by Strava/pwrdBy_strava_orange/api_logo_pwrdBy_strava_stack_orange.png'),
+                            image: AssetImage(
+                              'assets/strava/1.2-Strava-API-Logos/1.2-Strava-API-Logos/Powered by Strava/pwrdBy_strava_orange/api_logo_pwrdBy_strava_stack_orange.png',
+                            ),
                             height: 24,
                           ),
                           tooltip: 'Powered by Strava',

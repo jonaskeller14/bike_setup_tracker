@@ -61,8 +61,7 @@ class RatingEntryPage extends StatefulWidget {
     DateTime? initialDateTimeUtc,
     DateTime? initialDateTimeLocal,
     String? initialSetupId,
-  }) =>
-      RatingEntryPage._(
+  }) => RatingEntryPage._(
         key: key,
         mode: RatingEntryPageMode.add,
         initialBike: initialBike,
@@ -200,8 +199,8 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
     await updateLocation();
     if (_currentLocation.value == null) return;
 
-    updateWeather();
-    updateAddress();
+    unawaited(updateWeather());
+    unawaited(updateAddress());
   }
 
   Future<void> updateLocation() async {
@@ -309,7 +308,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
       _selectedDateTimeUtc = newDateTimeLocal.toUtc();
     });
     _changeListener();
-    askAndUpdateWeather();
+    unawaited(askAndUpdateWeather());
   }
 
   Future<void> _pickTime() async {
@@ -339,7 +338,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
       _selectedDateTimeUtc = newDateTimeLocal.toUtc();
     });
     _changeListener();
-    askAndUpdateWeather();
+    unawaited(askAndUpdateWeather());
   }
 
   Future<void> askAndUpdateWeather() async {
@@ -592,7 +591,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
                       }
 
                       if (requestWeatherUpdate) {
-                        askAndUpdateWeather();
+                        unawaited(askAndUpdateWeather());
                       }
 
                       _changeListener();

@@ -54,7 +54,8 @@ class RatingActions {
 
     await appRepository.removeRatings([rating]);
 
-    messenger.showSnackBar(SnackBar(
+    messenger.showSnackBar(
+      SnackBar(
       content: Text("Rating '${rating.name}' moved to trash."),
       duration: const Duration(seconds: 5),
       persist: false,
@@ -65,7 +66,8 @@ class RatingActions {
           await appRepository.restoreRatings([rating]);
         },
       ),
-    ));
+      ),
+    );
   }
 
   static Future<void> restoreRating(BuildContext context, {required Rating rating}) async {
@@ -74,7 +76,8 @@ class RatingActions {
 
     await appRepository.restoreRatings([rating]);
 
-    messenger.showSnackBar(SnackBar(
+    messenger.showSnackBar(
+      SnackBar(
       content: Text("Rating '${rating.name}' restored from trash."),
       duration: const Duration(seconds: 5),
       persist: false,
@@ -85,11 +88,16 @@ class RatingActions {
           await appRepository.removeRatings([rating]);
         },
       ),
-    ));
+      ),
+    );
   }
 
   static Future<void> onReorderRating(BuildContext context, {required int oldIndex, required int newIndex}) async {
     final appRepository = context.read<AppRepository>();
-    appRepository.reorderRating(oldIndex: oldIndex, newIndex: newIndex, filteredRatingsList: appRepository.filteredRatings.values.toList());
+    await appRepository.reorderRating(
+      oldIndex: oldIndex,
+      newIndex: newIndex,
+      filteredRatingsList: appRepository.filteredRatings.values.toList(),
+    );
   }
 }

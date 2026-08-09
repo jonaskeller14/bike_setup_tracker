@@ -8,7 +8,7 @@ import '../utils/setup_actions.dart';
 import '../utils/task_actions.dart';
 import 'navigation_service.dart';
 import 'strava_service.dart';
-
+  
 class DeepLinkService {
   static final DeepLinkService _instance = DeepLinkService._internal();
   factory DeepLinkService() => _instance;
@@ -16,7 +16,7 @@ class DeepLinkService {
   // Internal constructor for singleton and test injection
   @visibleForTesting
   DeepLinkService.test(this._appLinks);
-  
+
   DeepLinkService._internal() : _appLinks = AppLinks();
 
   final AppLinks _appLinks;
@@ -62,22 +62,22 @@ class DeepLinkService {
 
     switch (uri.host) {
       case 'add-setup':
-        _triggerAddSetup();
+        await _triggerAddSetup();
       case 'add-bike':
-        _triggerAddBike();
+        await _triggerAddBike();
       case 'add-component':
-        _triggerAddComponent();
+        await _triggerAddComponent();
       case 'add-task':
-        _triggerAddTaskRule();
+        await _triggerAddTaskRule();
       case 'add':
         // App Actions CREATE capability routes here: ?type={matched shortcutId}
         switch (uri.queryParameters['type']) {
           case 'setup':
-            _triggerAddSetup();
+            await _triggerAddSetup();
           case 'bike':
-            _triggerAddBike();
+            await _triggerAddBike();
           case 'component':
-            _triggerAddComponent();
+            await _triggerAddComponent();
         }
       case 'strava-auth':
         _notifyStravaAuthCallback(
@@ -127,5 +127,4 @@ class DeepLinkService {
 
     await TaskActions.addTaskRule(context);
   }
-
 }

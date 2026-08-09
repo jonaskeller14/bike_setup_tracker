@@ -30,9 +30,7 @@ class StravaActivityDetailsPage extends StatelessWidget {
           ),
         ],
       ),
-      body: SafeArea(
-        child: StravaActivitiyPageContent(stravaActivity: stravaActivity)
-      ),
+      body: SafeArea(child: StravaActivitiyPageContent(stravaActivity: stravaActivity)),
     );
   }
 }
@@ -127,9 +125,7 @@ class StravaActivitiyPageContent extends StatelessWidget {
                     child: Icon(Icons.person, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   ),
                   title: Text(
-                    athlete != null
-                        ? "${athlete.firstname ?? ""} ${athlete.lastname ?? ""}".trim()
-                        : "Strava Athlete",
+                    athlete != null ? "${athlete.firstname ?? ""} ${athlete.lastname ?? ""}".trim() : "Strava Athlete",
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   subtitle: Text(
@@ -148,8 +144,7 @@ class StravaActivitiyPageContent extends StatelessWidget {
                 const SizedBox(width: 8),
                 sheetCloseButton(context),
               ],
-              if (onMapPressed != null || showCloseButton)
-                const SizedBox(width: 16),
+              if (onMapPressed != null || showCloseButton) const SizedBox(width: 16),
             ],
           ),
           Padding(
@@ -236,45 +231,47 @@ class StravaActivitiyPageContent extends StatelessWidget {
           
           const Divider(height: 1),
           if (stravaGear != null) ...[
-            Builder(builder: (context) {
-              final linkedBike = appRepository.bikes.values
-                  .where((b) => b.stravaGear == stravaGear.id)
-                  .firstOrNull;
-              final activityTimeUtc = stravaActivity.startDateLocal.toUtc();
-              final installedComponents = appRepository.components.values
-                  .where((c) => linkedBike != null && c.bikeAt(activityTimeUtc) == linkedBike.id)
-                  .toList();
-              final bool enabled = installedComponents.isNotEmpty;
-              final Color disabledColor = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38);
-              return ExpansionTile(
-                shape: const Border(),
-                collapsedShape: const Border(),
-                leading: Icon(Icons.pedal_bike, color: enabled ? null : disabledColor),
-                title: Text(
-                  linkedBike?.name ?? "No bike linked to this Strava gear",
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: enabled ? null : disabledColor,
+            Builder(
+              builder: (context) {
+                final linkedBike = appRepository.bikes.values.where((b) => b.stravaGear == stravaGear.id).firstOrNull;
+                final activityTimeUtc = stravaActivity.startDateLocal.toUtc();
+                final installedComponents = appRepository.components.values
+                    .where((c) => linkedBike != null && c.bikeAt(activityTimeUtc) == linkedBike.id)
+                    .toList();
+                final bool enabled = installedComponents.isNotEmpty;
+                final Color disabledColor = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38);
+                return ExpansionTile(
+                  shape: const Border(),
+                  collapsedShape: const Border(),
+                  leading: Icon(Icons.pedal_bike, color: enabled ? null : disabledColor),
+                  title: Text(
+                    linkedBike?.name ?? "No bike linked to this Strava gear",
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: enabled ? null : disabledColor,
+                    ),
                   ),
-                ),
-                subtitle: Text(
-                  stravaGear.name,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: enabled
-                        ? Theme.of(context).colorScheme.onSurfaceVariant
-                        : disabledColor,
+                  subtitle: Text(
+                    stravaGear.name,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: enabled
+                          ? Theme.of(context).colorScheme.onSurfaceVariant
+                          : disabledColor,
+                    ),
                   ),
-                ),
-                childrenPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
-                enabled: enabled,
-                children: installedComponents
-                    .map((c) => ComponentListCard(
-                          component: c,
-                          showCurrentAdjustmentValues: false,
-                        ))
-                    .toList(),
-              );
-            }),
+                  childrenPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+                  enabled: enabled,
+                  children: installedComponents
+                        .map(
+                          (c) => ComponentListCard(
+                            component: c,
+                            showCurrentAdjustmentValues: false,
+                          ),
+                        )
+                      .toList(),
+                );
+              },
+            ),
             const Divider(height: 1),
             
             // Add Setups related to this activity
@@ -286,16 +283,22 @@ class StravaActivitiyPageContent extends StatelessWidget {
                 
                 // Setups added after activity started, but before it ended
                 final activityEnd = stravaActivity.startDateLocal.add(stravaActivity.elapsedTime);
-                final setupsDuringActivity = allSetupsForGear.where((s) => 
+                final setupsDuringActivity = allSetupsForGear
+                    .where(
+                      (s) =>
                   s.datetimeLocal.isAfter(stravaActivity.startDateLocal) &&
-                  s.datetimeLocal.isBefore(activityEnd)
-                ).toList();
+                          s.datetimeLocal.isBefore(activityEnd),
+                    )
+                    .toList();
 
                 // Setup active at the start of the activity (latest one before/on start)
-                final setupsBeforeOrOnStart = allSetupsForGear.where((s) => 
+                final setupsBeforeOrOnStart = allSetupsForGear
+                    .where(
+                      (s) =>
                   s.datetimeLocal.isBefore(stravaActivity.startDateLocal) || 
-                  s.datetimeLocal.isAtSameMomentAs(stravaActivity.startDateLocal)
-                ).toList();
+                          s.datetimeLocal.isAtSameMomentAs(stravaActivity.startDateLocal),
+                    )
+                    .toList();
                 setupsBeforeOrOnStart.sort((a, b) => b.datetimeLocal.compareTo(a.datetimeLocal));
                 
                 final List<Setup> relevantSetups = [];
@@ -346,7 +349,7 @@ class StravaActivitiyPageContent extends StatelessWidget {
                             ),
                           );
                           if (result is Setup) {
-                            appRepository.addSetup(result);
+                            await appRepository.addSetup(result);
                           }
                         },
                         icon: const Icon(Icons.add),
@@ -355,7 +358,7 @@ class StravaActivitiyPageContent extends StatelessWidget {
                     ),
                   ],
                 );
-              }
+              },
             ),
             const Divider(height: 1),
           ],

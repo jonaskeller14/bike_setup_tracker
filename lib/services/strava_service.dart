@@ -10,11 +10,11 @@ import '../models/strava/strava_athlete.dart';
 import '../models/strava/strava_gear.dart';
 import '../repositories/app_repository.dart';
 import 'subscription_service.dart';
-
+  
 sealed class StravaState {
   const StravaState();
 }
-
+  
 class StravaIdle extends StravaState {
   const StravaIdle();
 }
@@ -98,11 +98,11 @@ class StravaService extends ChangeNotifier {
   StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _athleteSubscription;
   bool _isDisposed = false;
   bool _wasEntitled = false;
-  
+
   DateTime? _lastRecentSync;
   DateTime? _lastFullSync;
   int? _syncDay;
-  
+
   AppRepository _appRepository;
   AppSettings _appSettings;
 
@@ -116,9 +116,9 @@ class StravaService extends ChangeNotifier {
   }
 
   Future<void> _stopListening() async {
-    _activitiesSubscription?.cancel();
-    _userDocSubscription?.cancel();
-    _athleteSubscription?.cancel();
+    await _activitiesSubscription?.cancel();
+    await _userDocSubscription?.cancel();
+    await _athleteSubscription?.cancel();
     _activitiesSubscription = null;
     _userDocSubscription = null;
     _athleteSubscription = null;
@@ -140,8 +140,8 @@ class StravaService extends ChangeNotifier {
 
     try {
       await _loadUserId();
-      _listenToUserDocument();
-      _registerFcmToken();
+      await _listenToUserDocument();
+      await _registerFcmToken();
       await _syncSettingsToFirestore();
       unawaited(checkAvailability());
     } catch (e) {
@@ -180,9 +180,7 @@ class StravaService extends ChangeNotifier {
 
       final previousAthleteId = _activeAthleteId;
       final rawLinked = data['linked_athletes'];
-      _linkedAthletes = rawLinked is List
-          ? rawLinked.map((e) => e.toString()).toList()
-          : const [];
+      _linkedAthletes = rawLinked is List ? rawLinked.map((e) => e.toString()).toList() : const [];
       _activeAthleteId = _linkedAthletes.firstOrNull;
 
       // Athlete just became linked — OAuth round-trip succeeded. Clear any
@@ -212,7 +210,7 @@ class StravaService extends ChangeNotifier {
   }
 
   Future<void> _startDataListeners() async {
-    _listenToAthleteDocument();
+    await _listenToAthleteDocument();
     _listenToActivities();
   }
 
@@ -231,11 +229,7 @@ class StravaService extends ChangeNotifier {
     if (athleteId == null) return;
 
     await _athleteSubscription?.cancel();
-    _athleteSubscription = FirebaseFirestore.instance
-        .collection('athletes')
-        .doc(athleteId)
-        .snapshots()
-        .listen((snapshot) async {
+    _athleteSubscription = FirebaseFirestore.instance.collection('athletes').doc(athleteId).snapshots().listen((snapshot) async {
       if (_activeAthleteId != athleteId) return; // listener stale
       final data = snapshot.data();
       if (snapshot.exists && data != null) {
@@ -247,10 +241,7 @@ class StravaService extends ChangeNotifier {
         final rawGears = data['gears'];
         if (rawGears is List) {
           try {
-            final gears = rawGears
-                .whereType<Map<String, dynamic>>()
-                .map((g) => StravaGear.fromFirestore(g))
-                .toList();
+            final gears = rawGears.whereType<Map<String, dynamic>>().map((g) => StravaGear.fromFirestore(g)).toList();
             unawaited(_appRepository.setStravaGears(gears));
           } catch (e) {
             _handleError("GearSync", e);
@@ -337,17 +328,15 @@ class StravaService extends ChangeNotifier {
       }
     }, onError: (e) => _handleError("SyncStream", e, userMessage: "Background sync error"));
   }
-
-
+      
   static const Duration _renewalGracePeriod = Duration(hours: 4);
-
+          
   /// Called whenever the user doc updates while the athlete is still linked.
   /// If the subscription has lapsed, stops data listeners and wipes local
   /// Strava data. Keeps [linked_athletes] in Firestore and Bike/Person Strava
   /// links in SQLite so reconnecting after resubscribing needs no manual setup.
   void _checkEntitlementExpiry(Map<String, dynamic> data) {
-    final entitlementData =
-        data['entitlement']?['strava'] as Map<String, dynamic>?;
+    final entitlementData = data['entitlement']?['strava'] as Map<String, dynamic>?;
 
     DateTime? expiresAt;
     bool autoRenewing = false;
@@ -361,8 +350,7 @@ class StravaService extends ChangeNotifier {
     // so that the renewal webhook delivery window (~30 s) does not trigger a
     // premature data clear. Non-renewing subscriptions expire on the dot.
     final buffer = autoRenewing ? _renewalGracePeriod : Duration.zero;
-    final isEntitled = expiresAt != null &&
-        DateTime.now().isBefore(expiresAt.add(buffer));
+    final isEntitled = expiresAt != null && DateTime.now().isBefore(expiresAt.add(buffer));
 
     if (_wasEntitled && !isEntitled) {
       // Only clear local data when entitlement transitions from active → inactive.
@@ -385,12 +373,12 @@ class StravaService extends ChangeNotifier {
     try {
       final messaging = FirebaseMessaging.instance;
       final NotificationSettings settings = await messaging.requestPermission();
-      
+
       if (settings.authorizationStatus == AuthorizationStatus.authorized) {
         final String? token = await messaging.getToken();
         if (token != null) {
           final Map<String, dynamic> data = {'fcm_token': token};
-          
+
           // TTL: cleanup anonymous user docs that never link Strava. Once a
           // user links any athlete, this device "counts" — drop the TTL so
           // the doc survives indefinitely.
@@ -475,8 +463,7 @@ class StravaService extends ChangeNotifier {
   Future<StravaAvailability> checkAvailability({bool force = false}) async {
     final cachedAt = _availabilityCheckedAt;
     final cached = _availability;
-    final fresh = cachedAt != null &&
-        DateTime.now().difference(cachedAt) < _availabilityCacheTtl;
+    final fresh = cachedAt != null && DateTime.now().difference(cachedAt) < _availabilityCacheTtl;
     if (!force && cached != null && fresh) return cached;
 
     final existing = _inFlightAvailabilityCheck;
@@ -544,14 +531,14 @@ class StravaService extends ChangeNotifier {
         "&response_type=code"
         "&approval_prompt=auto"
         "&scope=$_scope"
-        "&state=$_userId"
+        "&state=$_userId",
       );
 
       if (!await canLaunchUrl(authUrl)) {
         _handleError(
           "StravaAuth",
           Exception("Failed to launch authUrl: $authUrl"),
-          userMessage: "Could not find a program to launch the link."
+          userMessage: "Could not find a program to launch the link.",
         );
         return;
       }
@@ -587,10 +574,7 @@ class StravaService extends ChangeNotifier {
 
     try {
       if (athleteId != null) {
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(uid)
-            .update({
+        await FirebaseFirestore.instance.collection('users').doc(uid).update({
           'linked_athletes': FieldValue.arrayRemove([athleteId]),
         });
       }
@@ -610,10 +594,10 @@ class StravaService extends ChangeNotifier {
     _setState(const StravaSyncing());
     try {
       final functions = FirebaseFunctions.instanceFor(region: 'europe-west3');
-      await functions
-          .httpsCallable('syncActivities',
-              options: HttpsCallableOptions(timeout: const Duration(seconds: 15)))
-          .call();
+      await functions.httpsCallable(
+        'syncActivities',
+        options: HttpsCallableOptions(timeout: const Duration(seconds: 15))
+      ).call();
     } on FirebaseFunctionsException catch (e) {
       _setState(StravaFailed(
         _friendlyFunctionError(e) ?? "Sync failed: [${e.code}] ${e.message}",

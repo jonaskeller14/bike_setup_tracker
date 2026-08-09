@@ -50,7 +50,7 @@ class BikeActions {
   static Future<void> duplicateBikeWithComponents(BuildContext context, {required Bike bike}) async {
     final appRepository = context.read<AppRepository>();
     final bikeComponents = appRepository.components.values.where((c) => c.bike == bike.id).toList();
-    
+
     final newBike = await Navigator.push<Bike>(
       context,
       MaterialPageRoute(
@@ -60,7 +60,9 @@ class BikeActions {
     if (newBike == null) return;
 
     await appRepository.addBike(newBike);
-    await Future.wait(bikeComponents.map((c) => appRepository.addComponent(c.deepCopy().copyWithNewInstallation(newBike.id))));
+    await Future.wait(
+      bikeComponents.map((c) => appRepository.addComponent(c.deepCopy().copyWithNewInstallation(newBike.id))),
+    );
   }
 
   static Future<void> removeBike(BuildContext context, {required Bike bike}) async {
@@ -70,24 +72,29 @@ class BikeActions {
 
     final obsoleteComponents = appRepository.components.values.where((c) => c.bike == bike.id).toList();
     final obsoleteSetups = appRepository.setups.values.where((s) => s.bike == bike.id).toList();
-    final obsoleteRatings = appRepository.ratings.values.where((r) => r.filterType == FilterType.bike && r.filter == bike.id).toList();
+    final obsoleteRatings = appRepository.ratings.values
+        .where((r) => r.filterType == FilterType.bike && r.filter == bike.id)
+        .toList();
 
     await appRepository.removeBike(bike);
     await appRepository.removeComponents(obsoleteComponents);
     await appRepository.removeSetups(obsoleteSetups);
     await appRepository.removeRatings(obsoleteRatings);
-    
+
     String message = "Bike '${bike.name}' moved to trash.";
     if (appSettings.enableRating) {
       if (obsoleteComponents.isNotEmpty || obsoleteSetups.isNotEmpty || obsoleteRatings.isNotEmpty) {
-        message += "\n${obsoleteComponents.length} Components, ${obsoleteSetups.length} Setups and ${obsoleteRatings.length} Ratings which belong to this Bike are deleted as well.";
+        message +=
+            "\n${obsoleteComponents.length} Components, ${obsoleteSetups.length} Setups and ${obsoleteRatings.length} Ratings which belong to this Bike are deleted as well.";
       }
     } else {
       if (obsoleteComponents.isNotEmpty || obsoleteSetups.isNotEmpty) {
-        message += "\n${obsoleteComponents.length} Components, ${obsoleteSetups.length} Setups which belong to this Bike are deleted as well.";
+        message +=
+            "\n${obsoleteComponents.length} Components, ${obsoleteSetups.length} Setups which belong to this Bike are deleted as well.";
       }
     }
-    messenger.showSnackBar(SnackBar(
+    messenger.showSnackBar(
+      SnackBar(
       content: Text(message),
       duration: const Duration(seconds: 10),
       persist: false,
@@ -101,7 +108,8 @@ class BikeActions {
           await appRepository.restoreRatings(obsoleteRatings);
         },
       ),
-    ));
+      ),
+    );
   }
 
   static Future<void> restoreBike(BuildContext context, {required Bike bike}) async {
@@ -110,7 +118,8 @@ class BikeActions {
 
     await appRepository.restoreBike(bike);
 
-    messenger.showSnackBar(SnackBar(
+    messenger.showSnackBar(
+      SnackBar(
       content: Text("Bike '${bike.name}' restored from trash."),
       duration: const Duration(seconds: 5),
       persist: false,
@@ -121,11 +130,16 @@ class BikeActions {
           await appRepository.removeBike(bike);
         },
       ),
-    ));
+      ),
+    );
   }
 
   static Future<void> onReorderBikes(BuildContext context, {required int oldIndex, required int newIndex}) async {
     final appRepository = context.read<AppRepository>();
-    appRepository.reorderBike(oldIndex: oldIndex, newIndex: newIndex, filteredBikesList: appRepository.bikes.values.toList());
+    await appRepository.reorderBike(
+      oldIndex: oldIndex,
+      newIndex: newIndex,
+      filteredBikesList: appRepository.bikes.values.toList(),
+    );
   }
 }

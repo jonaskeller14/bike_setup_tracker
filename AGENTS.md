@@ -126,8 +126,9 @@ idioms. Consistency with existing code outranks personal preference.
   case). No comments that restate the code.
 - **No dead scaffolding.** Don't leave TODOs, commented-out code, or unused params.
 - **Surgical, clean-diff edits.** Change only what the task functionally requires. No
-  reformatting, re-aligning, or "cleanup" of untouched lines; a 3-line fix beats a 10-line
-  one. New files follow full style; for existing code, leave lines you don't touch as-is.
+  reformatting, re-aligning, or "cleanup" of untouched lines; never run a whole-file formatter
+  for a minor edit. A 3-line fix beats a 10-line one. Run `dart format` for newly created files;
+  for existing code, leave lines you don't touch as-is.
 - **Guard `context` across async gaps.** After an `await`, check `mounted` /
   `context.mounted` before using `context` or calling `setState` (matches existing usage).
 - **Minimize rebuilds.** Use `context.read` for one-off reads and `context.select` to watch

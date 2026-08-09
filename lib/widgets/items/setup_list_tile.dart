@@ -375,25 +375,20 @@ class _SetupListTileState extends State<SetupListTile> {
               ),
             ),
           ),
-          // Bottom-anchored so it stays with the last line when the collapsed
-          // value list wraps to multiple lines. The bottom padding matches the
-          // content's own bottom padding so the chevron lines up with the last
-          // row rather than sitting below it.
+          // Keep the chevron at the top of the row. Once expanded, move it one
+          // touch target down so it sits directly below the popup menu.
           Positioned(
-            bottom: 0,
+            top: expanded ? kMinInteractiveDimension : 0,
             right: 4,
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 6),
-              child: ExpandIcon(
-                isExpanded: expanded,
-                color: PopupMenuTheme.of(context).iconColor ?? IconTheme.of(context).color,
-                expandedColor: Theme.of(context).colorScheme.primary,
-                onPressed: (bool expanded) {
-                  setState(() {
-                    _displayOnlyChanges = expanded;
-                  });
-                },
-              ),
+            child: ExpandIcon(
+              isExpanded: expanded,
+              color: PopupMenuTheme.of(context).iconColor ?? IconTheme.of(context).color,
+              expandedColor: Theme.of(context).colorScheme.primary,
+              onPressed: (bool expanded) {
+                setState(() {
+                  _displayOnlyChanges = expanded;
+                });
+              },
             ),
           ),
         ],

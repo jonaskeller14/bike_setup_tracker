@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/component.dart';

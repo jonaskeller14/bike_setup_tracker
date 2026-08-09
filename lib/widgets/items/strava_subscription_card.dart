@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+
 import '../../models/app_settings.dart';
 import '../../models/strava/strava_plan.dart';
 import '../../services/subscription_service.dart';

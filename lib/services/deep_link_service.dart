@@ -1,7 +1,9 @@
 import 'dart:async';
+
 import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../utils/bike_actions.dart';
 import '../utils/component_actions.dart';
 import '../utils/setup_actions.dart';

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart' show setEquals;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
 import '../models/adjustment/adjustment.dart';
 import '../models/component.dart';
 import '../models/person.dart';

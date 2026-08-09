@@ -44,6 +44,7 @@ linter:
     use_build_context_synchronously: true
     discarded_futures: true
     no_logic_in_create_state: true
+    prefer_relative_imports: true
 
     # # Style Consistency
     always_declare_return_types: true

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'filter_sheet_chip.dart';
 
 class PersonListFilterWidget extends StatelessWidget {

@@ -1,6 +1,8 @@
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../models/app_settings.dart';
 import '../../models/context/context_place.dart';
 import '../../models/timeline_entry.dart';

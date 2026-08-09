@@ -1,8 +1,9 @@
-import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../models/app_settings.dart';
+import '../../models/task/task_rule.dart';
 import '../../repositories/app_repository.dart';
 import '../sheets/filter.dart';
 

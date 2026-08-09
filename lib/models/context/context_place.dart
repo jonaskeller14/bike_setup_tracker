@@ -1,4 +1,5 @@
 import 'package:geocoding/geocoding.dart' as geo;
+
 import '../../utils/text_search.dart';
 
 class ContextPlace {

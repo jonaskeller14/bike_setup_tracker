@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../models/context/context_weather.dart';
 
 class SoilMoistureLegendTable extends StatelessWidget {

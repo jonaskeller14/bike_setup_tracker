@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+
 import '../models/adjustment/adjustment.dart';
 import '../models/component.dart';
 import '../models/person.dart';

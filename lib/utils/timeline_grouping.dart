@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+
 import '../models/app_settings.dart';
 import '../models/installation.dart';
 import '../models/strava/strava_activity.dart';

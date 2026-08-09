@@ -1,10 +1,11 @@
-import 'package:bike_setup_tracker/widgets/items/task_rule_list_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../repositories/app_repository.dart';
 import '../../utils/task_actions.dart';
 import '../chips/task_list_filter_widget.dart';
 import '../empty_state_placeholder.dart';
+import '../items/task_rule_list_card.dart';
 
 class TaskList extends StatefulWidget {
   const TaskList({super.key});

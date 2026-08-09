@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+
 import '../../models/app_settings.dart';
 import '../../models/component.dart';
 import '../../repositories/app_repository.dart';

@@ -1,10 +1,11 @@
-import 'package:bike_setup_tracker/models/context/context_place.dart';
-import 'package:bike_setup_tracker/models/context/context_position.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:location/location.dart';
 import 'package:uuid/uuid.dart';
+
+import 'context/context_place.dart';
+import 'context/context_position.dart';
 import 'context/context_weather.dart';
 import 'setup.dart';
 

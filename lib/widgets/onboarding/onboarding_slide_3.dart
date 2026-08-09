@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../icons/bike_icons.dart';
 import '../../models/adjustment/adjustment.dart';
 import 'onboarding_slide_utils.dart';

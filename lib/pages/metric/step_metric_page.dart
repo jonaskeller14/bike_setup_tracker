@@ -1,6 +1,8 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import '../../models/adjustment/adjustment.dart';
 import '../../models/rating_metric.dart';
 import '../../theme.dart';

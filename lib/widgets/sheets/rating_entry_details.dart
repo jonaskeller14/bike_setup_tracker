@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../models/rating_entry.dart';
 import '../../pages/details/rating_entry_details_page.dart';
 

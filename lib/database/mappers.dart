@@ -1,8 +1,10 @@
 import 'dart:convert';
+
 import 'package:drift/drift.dart' hide Component;
 import 'package:flutter/foundation.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:location/location.dart';
+
 import '../models/adjustment/adjustment.dart';
 import '../models/bike.dart';
 import '../models/component.dart';

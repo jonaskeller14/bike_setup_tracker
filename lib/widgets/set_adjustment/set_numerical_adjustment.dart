@@ -1,11 +1,13 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 import '../../utils/unit_conversion.dart';
 import '../items/adjustment_type_icon.dart';
-import "set_adjustment.dart";
+import 'set_adjustment.dart';
 
 class SetNumericalAdjustmentWidget extends StatefulWidget {
   final NumericalAdjustment adjustment;

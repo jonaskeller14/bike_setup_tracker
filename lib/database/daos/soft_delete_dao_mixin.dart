@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+
 import '../app_database.dart';
 
 /// Mixin to standardize soft-delete queries across all DAOs.

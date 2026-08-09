@@ -1,5 +1,7 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
+
 import '../services/share_service.dart';
 
 class ImageViewer extends StatefulWidget {

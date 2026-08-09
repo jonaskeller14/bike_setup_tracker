@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+
 import '../../models/rating.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/rating_actions.dart';

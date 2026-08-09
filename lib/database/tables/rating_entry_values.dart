@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+
 import 'rating_entries.dart';
 import 'rating_metrics.dart';
 

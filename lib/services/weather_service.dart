@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:open_meteo/open_meteo.dart';
+
 import '../models/context/context_weather.dart';
 
 sealed class WeatherStatus {

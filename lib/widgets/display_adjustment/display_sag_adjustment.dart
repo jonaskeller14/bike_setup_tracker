@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 import '../../utils/unit_conversion.dart';
 import '../items/adjustment_type_icon.dart';
-import "../set_adjustment/set_adjustment.dart";
+import '../set_adjustment/set_adjustment.dart';
 import 'toggleable_unit_value.dart';
 
 /// Sag display: the stored percentage, tappable to the derived mm reading when

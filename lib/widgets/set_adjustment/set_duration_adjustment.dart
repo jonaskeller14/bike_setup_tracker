@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 import '../sheets/set_duration.dart';
-import "set_adjustment.dart";
+import 'set_adjustment.dart';
 
 class SetDurationAdjustmentWidget extends StatelessWidget {
   final DurationAdjustment adjustment;

@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import '../../models/adjustment/adjustment.dart';
-import '../../widgets/items/adjustment_list_card.dart';
+import '../items/adjustment_list_card.dart';
 
 class AdjustmentEditList extends StatelessWidget {
   final List<Adjustment> adjustments;

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:location/location.dart';
 import 'package:provider/provider.dart';
+
 import '../../models/app_settings.dart';
 import '../../models/context/context_place.dart';
 import '../../models/context/context_position.dart';

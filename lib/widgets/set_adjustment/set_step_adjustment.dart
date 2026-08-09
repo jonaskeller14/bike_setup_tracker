@@ -1,10 +1,12 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
+
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
-import "set_adjustment.dart";
+import 'set_adjustment.dart';
 
 class SetStepAdjustmentWidget extends StatelessWidget {
   static const int maxRenderedTicks = 50;

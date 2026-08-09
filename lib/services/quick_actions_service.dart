@@ -1,6 +1,8 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:quick_actions/quick_actions.dart';
+
 import '../utils/setup_actions.dart';
 import 'navigation_service.dart';
 

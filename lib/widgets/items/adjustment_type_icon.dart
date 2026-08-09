@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../models/adjustment/adjustment.dart';
 
 class AdjustmentTypeIcon extends StatelessWidget {

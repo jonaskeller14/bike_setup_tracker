@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../models/adjustment/adjustment.dart';
 import '../models/rating.dart';
 import '../pages/rating_page.dart';

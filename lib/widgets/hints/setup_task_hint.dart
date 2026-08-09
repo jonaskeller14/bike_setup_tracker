@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
 import 'package:provider/provider.dart';
+
 import '../../models/app_settings.dart';
 
 /// Suggestion hint shown in the Setup timeline once the user has recorded at

@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+
 import '../app_database.dart';
 import '../tables/rating_metrics.dart';
 import '../tables/ratings.dart';

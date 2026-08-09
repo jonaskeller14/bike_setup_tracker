@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+
 import '../../models/app_settings.dart';
 import '../../models/task/task_rule.dart';
 import '../../models/task/task_threshold.dart';

@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+
 import '../adjustment_value_codec.dart';
 import '../app_database.dart';
 import '../tables/rating_entries.dart';

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
+
 import '../../theme.dart';
 import '../component_stats.dart';
 import 'task_entry.dart';

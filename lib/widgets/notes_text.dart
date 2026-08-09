@@ -1,7 +1,9 @@
 import 'dart:async';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:readmore/readmore.dart';
+
 import '../utils/url.dart';
 
 final RegExp _urlPattern = RegExp(r'https?://[^\s<>"]+', caseSensitive: false);

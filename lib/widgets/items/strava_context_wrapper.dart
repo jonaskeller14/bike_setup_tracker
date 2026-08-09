@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../utils/timeline_grouping.dart';
 
 class StravaContextWrapper extends StatelessWidget {

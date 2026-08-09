@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+
 import 'strava_plan.dart';
 
 /// Snapshot of the user's entitlement to the Strava sync feature, as derived

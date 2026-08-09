@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../models/task/task_rule.dart';
 import '../pages/task_rule_page.dart';
 import '../repositories/app_repository.dart';

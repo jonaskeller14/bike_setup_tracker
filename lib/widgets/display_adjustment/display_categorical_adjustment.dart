@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
-import "../set_adjustment/set_adjustment.dart";
+import '../set_adjustment/set_adjustment.dart';
 
 class DisplayCategoricalAdjustmentWidget extends StatelessWidget {
   final CategoricalAdjustment adjustment;

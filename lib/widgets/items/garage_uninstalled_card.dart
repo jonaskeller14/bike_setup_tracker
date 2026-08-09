@@ -1,8 +1,10 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:reorderables/reorderables.dart';
+
 import '../../models/component.dart';
 import '../../pages/details/component_details_page.dart';
 import '../../repositories/app_repository.dart';

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../models/adjustment/adjustment.dart';
 
 typedef _RangeParts = ({String? min, String? max, String? step, AdjustmentUnit? unit});

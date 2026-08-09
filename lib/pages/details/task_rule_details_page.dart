@@ -1,8 +1,10 @@
 import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+
 import '../../repositories/app_repository.dart';
 import '../../utils/task_actions.dart';
 import '../../widgets/empty_state_placeholder.dart';

@@ -1,6 +1,8 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../icons/simple_icons.dart';
 import '../../services/strava_service.dart';
 import '../../services/subscription_service.dart';

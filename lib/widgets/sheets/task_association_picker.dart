@@ -1,7 +1,9 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+
 import '../../models/bike.dart';
 import '../../models/component.dart';
 import '../../models/task/task_association.dart';

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../models/app_settings.dart';
 import '../widgets/onboarding/onboarding_slide_1.dart';
 import '../widgets/onboarding/onboarding_slide_2.dart';

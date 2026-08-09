@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
+
 import '../theme.dart';
 
 class InitialChangedValueLegend extends StatelessWidget {

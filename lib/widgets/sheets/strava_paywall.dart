@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 import '../../icons/simple_icons.dart';
 import '../../models/strava/strava_plan.dart';
 import '../../services/subscription_service.dart';

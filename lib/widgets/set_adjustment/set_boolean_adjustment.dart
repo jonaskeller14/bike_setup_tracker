@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
-import "set_adjustment.dart";
+import 'set_adjustment.dart';
 
 class SetBooleanAdjustmentWidget extends StatelessWidget {
   final BooleanAdjustment adjustment;

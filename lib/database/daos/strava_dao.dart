@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+
 import '../../models/component_stats.dart';
 import '../../utils/text_search.dart';
 import '../app_database.dart';

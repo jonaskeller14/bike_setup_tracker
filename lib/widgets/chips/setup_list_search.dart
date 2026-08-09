@@ -114,7 +114,7 @@ class SetupListSearch extends StatelessWidget {
         final showDayHeaders = appSettings.enableTimelineDayHeaders;
         final showDate = !showDayHeaders;
 
-        Widget entryWidget(TimelineEntry entry) {
+        Widget entryWidget(TimelineEntry entry, {EdgeInsets edgeInset = EdgeInsets.zero}) {
           switch (entry) {
             case SetupEntry():
               return SetupListTile(
@@ -128,6 +128,7 @@ class SetupListSearch extends StatelessWidget {
                 },
                 displayBikeAdjustmentValues:appSettings.setupListBikeAdjustmentValues,
                 displayPersonAdjustmentValues: appSettings.setupListPersonAdjustmentValues,
+                edgeInset: edgeInset,
               );
             case StravaEntry():
               return StravaListTile(stravaActivity: entry.activity, showDate: showDate);
@@ -158,22 +159,44 @@ class SetupListSearch extends StatelessWidget {
           }
         }
 
+        DateTime entryDay(TimelineEntry entry) {
+          final local = timelineEntryLocalDate(entry);
+          return DateTime(local.year, local.month, local.day);
+        }
+
         final widgets = <Widget>[];
         DateTime? currentDay;
         TimelineEntry? previous;
-        for (final entry in matchingEntries) {
+        for (var i = 0; i < matchingEntries.length; i++) {
+          final entry = matchingEntries[i];
+          EdgeInsets edgeInset = EdgeInsets.zero;
           if (showDayHeaders) {
-            final local = timelineEntryLocalDate(entry);
-            final day = DateTime(local.year, local.month, local.day);
+            final day = entryDay(entry);
             if (day != currentDay) {
-              widgets.add(TimelineDayHeader(day: day, onContainerSurface: true));
+              widgets.add(
+                TimelineDayHeader(
+                  day: day,
+                  margin: EdgeInsets.zero,
+                  onContainerSurface: true,
+                ),
+              );
               currentDay = day;
               previous = null; // no divider right after a header
             }
+            final isFirstOfDay = previous == null;
+            final isLastOfDay = i == matchingEntries.length - 1 || entryDay(matchingEntries[i + 1]) != day;
+            edgeInset = EdgeInsets.only(
+              top: isFirstOfDay ? 8 : 0,
+              bottom: isLastOfDay ? 8 : 0,
+            );
           }
           if (previous != null) widgets.add(const Divider(height: 1));
-          // Every row is full-bleed and carries its own 16 px content inset.
-          widgets.add(entryWidget(entry));
+          final child = entryWidget(entry, edgeInset: edgeInset);
+          // Setup tiles absorb the inset so their current highlight paints over
+          // it; every other row takes it as plain outer padding.
+          widgets.add(
+            entry is SetupEntry ? child : Padding(padding: edgeInset, child: child),
+          );
           previous = entry;
         }
         return widgets;

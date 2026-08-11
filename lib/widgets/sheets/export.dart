@@ -28,7 +28,7 @@ Future<void> exportData(BuildContext context) async {
 
   switch (exportResult.exportDestination) {
     case ExportDestination.file:
-      await FileExport.downloadJson(
+      await FileExport.saveJson(
       context: context,
       database: context.read<AppDatabase>(),
       selectedData: exportResult.selectedData,
@@ -38,7 +38,7 @@ Future<void> exportData(BuildContext context) async {
     case ExportDestination.googleDriveBackup:
       await context.read<GoogleDriveService>().saveBackup(context: context, force: true);
     case ExportDestination.imageBundle:
-      await FileExport.downloadImageBundle(
+      await FileExport.saveImageBundle(
       context: context,
       database: context.read<AppDatabase>(),
       selectedData: exportResult.selectedData,
@@ -181,8 +181,8 @@ class SelectExportDestinationSheetContent extends StatelessWidget {
                 children: [
                   ListTile(
                     leading: Icon(Icons.insert_drive_file, color: Theme.of(context).colorScheme.primary),
-                    title: const Text("Download File"),
-                    subtitle: const Text("Download json file containing the data"),
+                    title: const Text("Save File"),
+                    subtitle: const Text("Choose where to save the JSON file"),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                     onTap: onFile,
                   ),

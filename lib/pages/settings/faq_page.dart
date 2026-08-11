@@ -39,7 +39,7 @@ class FAQPage extends StatelessWidget {
       // 'What makes a good bike setup?':
       //     'A "good" bike setup is a balance between the laws of physics and the rider’s personal feel. It should provide maximum traction and stability while minimizing rider fatigue. To evaluate a setup, you need to look at Objective Data (e.g. laptimes) and Subjective Feedback (what the rider is feeling).',
       'Can I export or share my data?':
-          'Yes. Use "Export" to save your entire database as a JSON file to your device’s Downloads folder. This file is intended for backups and can be reimported later. \n\nUse "Share" to send a snapshot of your data directly to another app (like Mail, Cloud, or Messenger). You can choose between multiple formats: JSON (reimportable), Excel, CSV, or plain text.',
+          'Yes. Use "Export" to save your entire database as a JSON file. You choose where to save it in your device’s file picker. This file is intended for backups and can be reimported later. \n\nUse "Share" to send a snapshot of your data directly to another app (like Mail, Cloud, or Messenger). You can choose between multiple formats: JSON (reimportable), Excel, CSV, or plain text.',
       'Is my data stored locally?':
           'Yes, all your data is stored locally on your device. We do not collect or store any of your personal information.',
       'I accidentally deleted something. Can I recover it?':

@@ -7,9 +7,6 @@ Flutter 3.44+ uses Swift Package Manager (SPM) by default for iOS/macOS dependen
 | Plugin | Current version | Role | pub.dev |
 |---|---|---|---|
 | `location` | 8.0.1 | GPS / location services | https://pub.dev/packages/location |
-| `file_save_directory` | 1.0.4 | Pick save directory on iOS | https://pub.dev/packages/file_save_directory |
-| `permission_handler_apple` | 9.4.7 | iOS permission handling (transitive via `permission_handler`) | https://pub.dev/packages/permission_handler_apple |
-| `open_file_ios` | 1.0.4 | Open files on iOS (transitive) | https://pub.dev/packages/open_file_ios |
 
 ## What to do when migrating
 
@@ -34,14 +31,11 @@ The `flutter_native_splash:` config block in `pubspec.yaml` is kept so the setti
 
 ## Current status
 
-As of Flutter 3.44 / May 2026, none of these plugins have added SPM support. The build still succeeds because Flutter automatically falls back to CocoaPods for these specific plugins.
+As of Flutter 3.44 / August 2026, `location` has not added SPM support. The build still succeeds because Flutter automatically falls back to CocoaPods for this plugin. The former `file_save_directory` dependency and its transitive `permission_handler_apple` and `open_file_ios` plugins were removed after exports migrated to `file_picker`.
 
 The warning message is:
 ```
 The following plugins do not support Swift Package Manager for ios:
   - location
-  - file_save_directory
-  - permission_handler_apple
-  - open_file_ios
 This will become an error in a future version of Flutter.
 ```

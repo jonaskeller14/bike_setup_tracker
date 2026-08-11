@@ -47,7 +47,6 @@ dependencies:
   uuid: ^4.5.2
   location: ^8.0.1
   geocoding: ^4.0.0
-  file_save_directory: ^1.0.3
   http: ^1.6.0
   file_picker: ^11.0.2
   collection: ^1.19.1

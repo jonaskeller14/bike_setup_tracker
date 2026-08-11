@@ -64,16 +64,22 @@ Follow these steps in order. Do not skip the constraints at the bottom.
 - Optionally WebFetch `https://github.com/jonaskeller14/bike_setup_tracker/releases` to mirror
   the current formatting.
 - Produce notes in this exact structure and print them in a ```markdown code block:
-  - `## Features:` then `- ` bullets with em-dash phrasing for new/changed user-facing features.
-  - `## Bugs:` then `- ` bullets for fixes.
+  - `**Features:**` then `- ` bullets with em-dash phrasing for new/changed user-facing features.
+    Include developer-relevant work here too when it materially affects the project: architecture
+    changes, important refactors, migrations, performance work, CI/coverage, and tooling. Make
+    these bullets specific enough for another developer to understand the change and its impact.
+  - `**Bugs:**` then `- ` bullets for fixes.
   - Footer: `**Full Changelog**: [<prevTag>...vX.Y.Z+B](https://github.com/jonaskeller14/bike_setup_tracker/compare/<prevTag>...vX.Y.Z+B)`
-  - Omit purely internal commits (refactor/chore/docs/test/build tooling) unless user-visible.
   - Omit any feature still gated behind a debug-only flag or otherwise not exposed to users yet.
+  - Use only the `**Features:**` and `**Bugs:**` headers; do not add a separate Development,
+    Performance, or Internal section.
 
 ## 6. App Store / Play Store release notes
-- Print a separate, short "What's New" block, user-focused and free of technical jargon (no
-  "refactor", "sealed class", "verification flow", etc.), as 4–6 bullets inside its own ```
-  code block (plain text, not markdown) so it's easy to copy-paste as-is.
+- Print a separate, concise "What's New" block, user-focused and free of technical jargon (no
+  "refactor", "sealed class", "verification flow", etc.), inside its own ``` code block (plain
+  text, not markdown) so it's easy to copy-paste as-is. Keep each language's complete release-note
+  text at **500 characters or fewer**, including bullets, punctuation, and line breaks. Report the
+  character count beside each generated language block.
 - **Platform-specific split:** check whether this release contains changes that only apply to one
   store's platform. 
   Genuinely platform-bound examples: iOS-only — Siri / Apple Shortcuts, App Attest, Apple Sign-In,

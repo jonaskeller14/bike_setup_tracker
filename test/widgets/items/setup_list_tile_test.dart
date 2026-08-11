@@ -21,7 +21,12 @@ void main() {
 
   tearDown(() => harness.dispose());
 
-  Future<void> pumpTile(WidgetTester tester, Setup setup, {double width = 400}) async {
+  Future<void> pumpTile(
+    WidgetTester tester,
+    Setup setup, {
+    double width = 400,
+    bool showCurrentBadge = false,
+  }) async {
     await tester.pumpWidget(
       harness.wrap(
         SetupListTile(
@@ -29,6 +34,7 @@ void main() {
           onTap: null,
           displayBikeAdjustmentValues: true,
           displayPersonAdjustmentValues: true,
+          showCurrentBadge: showCurrentBadge,
         ),
         width: width,
       ),
@@ -83,7 +89,7 @@ void main() {
     final setup = harness.buildSetup(name: 'Solo', local: DateTime(2026, 7, 2, 10));
     await harness.addSetups(tester, [setup]);
     await harness.reload(tester);
-    await pumpTile(tester, setup);
+    await pumpTile(tester, setup, showCurrentBadge: true);
 
     // No rating entries yet, so the row has no score to show instead.
     expect(harness.repository.scoreForSetup(setup.id), isNull);

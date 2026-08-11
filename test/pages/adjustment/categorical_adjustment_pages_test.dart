@@ -97,6 +97,9 @@ void main() {
       onResult: (value) => result = value,
     );
 
+    await tester.tap(find.text('Show Additional Fields'));
+    await tester.pumpAndSettle();
+
     expect(find.text('Count Occurrences'), findsOneWidget);
 
     await tester.enterText(find.widgetWithText(TextFormField, 'Adjustment Name'), 'Counted Adjustment');

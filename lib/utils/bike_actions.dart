@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/rating_association.dart';
+import '../models/task/task_rule.dart';
 import '../pages/bike_page.dart';
 import '../repositories/app_repository.dart';
+import '../widgets/sheets/delete_task_rules.dart';
 
 class BikeActions {
   static Future<void> addBike(BuildContext context) async {
@@ -76,39 +79,65 @@ class BikeActions {
     final obsoleteRatings = appRepository.ratings.values
         .where((r) => r.filterType == FilterType.bike && r.filter == bike.id)
         .toList();
+    final obsoleteComponentIds = obsoleteComponents.map((component) => component.id).toSet();
+    final relatedTaskRules = appRepository.taskRules.values
+        .where((rule) => rule.bikeId == bike.id || obsoleteComponentIds.contains(rule.componentId))
+        .toList();
+    final selectedTaskRules = relatedTaskRules.isEmpty
+        ? const <TaskRule>[]
+        : await showDeleteTaskRulesSheet(context, taskRules: relatedTaskRules) ?? const <TaskRule>[];
+    final selectedRuleIds = selectedTaskRules.map((rule) => rule.id).toSet();
+    final obsoleteTaskEntries = appRepository.taskEntries.values
+        .where((entry) => selectedRuleIds.contains(entry.taskRule))
+        .toList();
 
     await appRepository.removeBike(bike);
     await appRepository.removeComponents(obsoleteComponents);
     await appRepository.removeSetups(obsoleteSetups);
     await appRepository.removeRatings(obsoleteRatings);
+    await appRepository.removeTaskRules(selectedTaskRules);
+    await appRepository.removeTaskEntries(obsoleteTaskEntries);
 
+    final deletedItems = [
+      if (obsoleteComponents.isNotEmpty)
+        Intl.plural(obsoleteComponents.length, one: '1 component', other: '${obsoleteComponents.length} components'),
+      if (obsoleteSetups.isNotEmpty)
+        Intl.plural(obsoleteSetups.length, one: '1 setup', other: '${obsoleteSetups.length} setups'),
+      if (appSettings.enableRating && obsoleteRatings.isNotEmpty)
+        Intl.plural(obsoleteRatings.length, one: '1 rating', other: '${obsoleteRatings.length} ratings'),
+      if (selectedTaskRules.isNotEmpty)
+        Intl.plural(
+          selectedTaskRules.length,
+          one: '1 task and its entries',
+          other: '${selectedTaskRules.length} tasks and their entries',
+        ),
+    ];
     String message = "Bike '${bike.name}' moved to trash.";
-    if (appSettings.enableRating) {
-      if (obsoleteComponents.isNotEmpty || obsoleteSetups.isNotEmpty || obsoleteRatings.isNotEmpty) {
-        message +=
-            "\n${obsoleteComponents.length} Components, ${obsoleteSetups.length} Setups and ${obsoleteRatings.length} Ratings which belong to this Bike are deleted as well.";
-      }
-    } else {
-      if (obsoleteComponents.isNotEmpty || obsoleteSetups.isNotEmpty) {
-        message +=
-            "\n${obsoleteComponents.length} Components, ${obsoleteSetups.length} Setups which belong to this Bike are deleted as well.";
-      }
+    if (deletedItems.isNotEmpty) {
+      final summary = switch (deletedItems.length) {
+        1 => deletedItems.single,
+        2 => '${deletedItems.first} and ${deletedItems.last}',
+        _ => '${deletedItems.sublist(0, deletedItems.length - 1).join(', ')}, and ${deletedItems.last}',
+      };
+      message += '\nAlso moved to trash: $summary.';
     }
     messenger.showSnackBar(
       SnackBar(
-      content: Text(message),
-      duration: const Duration(seconds: 10),
-      persist: false,
-      showCloseIcon: true,
-      action: SnackBarAction(
-        label: 'UNDO',
-        onPressed: () async {
-          await appRepository.restoreBike(bike);
-          await appRepository.restoreComponents(obsoleteComponents);
-          await appRepository.restoreSetups(obsoleteSetups);
-          await appRepository.restoreRatings(obsoleteRatings);
-        },
-      ),
+        content: Text(message),
+        duration: const Duration(seconds: 10),
+        persist: false,
+        showCloseIcon: true,
+        action: SnackBarAction(
+          label: 'UNDO',
+          onPressed: () async {
+            await appRepository.restoreBike(bike);
+            await appRepository.restoreComponents(obsoleteComponents);
+            await appRepository.restoreSetups(obsoleteSetups);
+            await appRepository.restoreRatings(obsoleteRatings);
+            await appRepository.restoreTaskRules(selectedTaskRules);
+            await appRepository.restoreTaskEntries(obsoleteTaskEntries);
+          },
+        ),
       ),
     );
   }
@@ -121,16 +150,16 @@ class BikeActions {
 
     messenger.showSnackBar(
       SnackBar(
-      content: Text("Bike '${bike.name}' restored from trash."),
-      duration: const Duration(seconds: 5),
-      persist: false,
-      showCloseIcon: true,
-      action: SnackBarAction(
-        label: 'UNDO',
-        onPressed: () async {
-          await appRepository.removeBike(bike);
-        },
-      ),
+        content: Text("Bike '${bike.name}' restored from trash."),
+        duration: const Duration(seconds: 5),
+        persist: false,
+        showCloseIcon: true,
+        action: SnackBarAction(
+          label: 'UNDO',
+          onPressed: () async {
+            await appRepository.removeBike(bike);
+          },
+        ),
       ),
     );
   }

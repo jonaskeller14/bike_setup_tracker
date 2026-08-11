@@ -15,12 +15,14 @@ class StravaListTile extends StatelessWidget {
   final StravaActivity stravaActivity;
   final EdgeInsetsGeometry? contentPadding;
   final bool showDate;
+  final bool showStats;
 
   const StravaListTile({
     super.key,
     required this.stravaActivity,
     this.contentPadding,
     this.showDate = true,
+    this.showStats = false,
   });
 
   Widget _buildStatItem(BuildContext context, IconData icon, String text) {
@@ -57,7 +59,7 @@ class StravaListTile extends StatelessWidget {
     final distance = AppSettings.convertDistanceFromMeters(stravaActivity.distance, appSettings.distanceUnit);
     final elevation = AppSettings.convertElevationFromMeters(stravaActivity.totalElevationGain, appSettings.altitudeUnit);
     final movingTime = stravaActivity.movingTime;
-    final showStats = distance != null || elevation != null || movingTime > Duration.zero;
+    final resolvedShowStats = showStats && (distance != null || elevation != null || movingTime > Duration.zero);
 
     final resolvedPadding = (contentPadding ?? const EdgeInsets.symmetric(horizontal: 16))
         .resolve(Directionality.of(context));
@@ -138,7 +140,7 @@ class StravaListTile extends StatelessWidget {
               child: const Text("View on Strava"),
             ),
           ),
-          if (showStats)
+          if (resolvedShowStats)
             Padding(
               padding: EdgeInsets.only(
                 left: resolvedPadding.left,

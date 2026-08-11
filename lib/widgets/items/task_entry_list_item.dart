@@ -21,6 +21,7 @@ class TaskEntryListItem extends StatefulWidget {
   final bool selected;
   final bool showDate;
   final bool showTaskRule;
+  final bool showStats;
 
   const TaskEntryListItem({
     super.key,
@@ -32,6 +33,7 @@ class TaskEntryListItem extends StatefulWidget {
     this.selected = false,
     this.showDate = true,
     this.showTaskRule = true,
+    this.showStats = false,
   });
 
   @override
@@ -89,13 +91,13 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
         (taskEntry.componentId != taskRules[taskEntry.taskRule]!.componentId ||
             taskEntry.bikeId != taskRules[taskEntry.taskRule]!.bikeId);
     final hasNotes = taskEntry.notes != null && taskEntry.notes!.isNotEmpty;
-    final showStats =
+    final resolvedShowStats =
         appSettings.enableStrava &&
         subscriptionService.hasStravaEntitlement &&
         taskEntry.snapshot != null &&
         taskRules.containsKey(taskEntry.taskRule) &&
         (taskEntry.componentId != null || taskEntry.bikeId != null);
-    final hasBottomBlock = showLinkWarning || hasNotes || showStats;
+    final hasBottomBlock = showLinkWarning || hasNotes || resolvedShowStats;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 180),
@@ -263,7 +265,7 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
                             ),
                           ],
                         ),
-                      if (showStats) ...[
+                      if (resolvedShowStats) ...[
                         const SizedBox(height: 4),
                         Builder(
                           builder: (context) {

@@ -546,14 +546,16 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
   Future<void> askAndUpdateWeather() async {
     if (_currentLocation.value == null) return;
-    final result = await showConfirmationDialog(
-      context,
-      title: 'Update Weather?',
-      content: 'Do you want to fetch the latest weather data for this location, date and time?',
-      trueText: "Yes",
-      falseText: "No",
-    );
-    if (!result) return;
+    if (_currentWeather.value != null) {
+      final result = await showConfirmationDialog(
+        context,
+        title: 'Update Weather?',
+        content: 'Do you want to fetch the latest weather data for this location, date and time?',
+        trueText: "Yes",
+        falseText: "No",
+      );
+      if (!result) return;
+    }
     await updateWeather();
   }
 

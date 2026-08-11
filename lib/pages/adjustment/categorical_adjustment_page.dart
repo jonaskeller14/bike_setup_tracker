@@ -42,6 +42,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
   late TextEditingController _nameController;
   late TextEditingController _notesController;
   late List<TextEditingController> _optionControllers;
+  late List<FocusNode> _optionFocusNodes;
   late Set<String> _initialOptions;
 
   bool _multiSelect = false;
@@ -66,6 +67,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
     for (final optionController in _optionControllers) {
       optionController.addListener(_changeListener);
     }
+    _optionFocusNodes = List.generate(_optionControllers.length, (_) => FocusNode());
     _initialOptions = widget.adjustment?.options.toSet() ?? {};
 
     _previewAdjustment = widget.adjustment ?? _composePreview();
@@ -110,16 +112,24 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
       c.removeListener(_changeListener);
       c.dispose();
     }
+    for (final focusNode in _optionFocusNodes) {
+      focusNode.dispose();
+    }
     super.dispose();
   }
 
   void _addOptionField() {
+    final newFocusNode = FocusNode();
     setState(() {
       final newController = TextEditingController();
       newController.addListener(_changeListener);
       _optionControllers.add(newController);
+      _optionFocusNodes.add(newFocusNode);
       _previewValues = null;
       _previewAdjustment = _composePreview();
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) newFocusNode.requestFocus();
     });
   }
 
@@ -129,6 +139,8 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
       _optionControllers[index].removeListener(_changeListener);
       _optionControllers[index].dispose();
       _optionControllers.removeAt(index);
+      _optionFocusNodes[index].dispose();
+      _optionFocusNodes.removeAt(index);
       _previewValues = null;
       _previewAdjustment = _composePreview();
     });
@@ -280,6 +292,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                                     Expanded(
                                       child: TextFormField(
                                         controller: controller,
+                                        focusNode: _optionFocusNodes[index],
                                         autovalidateMode: AutovalidateMode.onUserInteraction,
                                         decoration: InputDecoration(
                                           labelText: 'Option ${index + 1}',

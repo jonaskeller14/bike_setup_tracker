@@ -129,12 +129,12 @@ class FeaturesPage extends StatelessWidget {
               ),
               ListTile(
                 leading: const Icon(Icons.checklist_rtl),
-                title: const Text("Categorical Multi-select"),
+                title: const Text("Categorical Adjustment: Multi-select"),
                 subtitle: _offOnOptionWidgets[appSettings.enableMultiSelect] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => appSettingsRadioGroupSheet<bool>(
                   context: context,
-                  title: "Categorical Multi-select",
+                  title: "Categorical Adjustment: Multi-select",
                   value: appSettings.enableMultiSelect,
                   optionWidgets: _offOnOptionWidgets,
                   onChanged: (bool? newValue) {
@@ -142,28 +142,29 @@ class FeaturesPage extends StatelessWidget {
                     appSettings.enableMultiSelect = newValue;
                     Navigator.pop(context);
                   },
-                  infoText: 'Makes the "Multi Select" checkbox available when editing a Categorical Adjustment, letting you allow multiple options to be selected instead of just one.',
+                  infoText: 'Adds a Multi-select option to Categorical Adjustments. '
+                      'Enable it for an adjustment to allow selecting multiple categories instead of only one.',
                 ),
               ),
-              if (kDebugMode)
-                ListTile(
-                  leading: const Icon(Icons.exposure_plus_1),
-                  title: const Text("Count occurrences"),
-                  subtitle: _offOnOptionWidgets[appSettings.enableCountedSelect] ?? const Text("-"),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                  onTap: () => appSettingsRadioGroupSheet<bool>(
-                    context: context,
-                    title: "Count occurrences",
-                    value: appSettings.enableCountedSelect,
-                    optionWidgets: _offOnOptionWidgets,
-                    onChanged: (bool? newValue) {
-                      if (newValue == null) return;
-                      appSettings.enableCountedSelect = newValue;
-                      Navigator.pop(context);
-                    },
-                    infoText: 'Makes the "Count occurrences" checkbox available when editing a Categorical Adjustment, letting you select the same option multiple times (e.g. "Bars (2), Gels (3)").',
-                  ),
+              ListTile(
+                leading: const Icon(Icons.exposure_plus_1),
+                title: const Text("Categorical Adjustment: Count occurrences"),
+                subtitle: _offOnOptionWidgets[appSettings.enableCountedSelect] ?? const Text("-"),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                onTap: () => appSettingsRadioGroupSheet<bool>(
+                  context: context,
+                  title: "Categorical Adjustment: Count occurrences",
+                  value: appSettings.enableCountedSelect,
+                  optionWidgets: _offOnOptionWidgets,
+                  onChanged: (bool? newValue) {
+                    if (newValue == null) return;
+                    appSettings.enableCountedSelect = newValue;
+                    Navigator.pop(context);
+                  },
+                  infoText: 'Adds a Count occurrences option to Categorical Adjustments. '
+                      'Enable it for an adjustment to record how many times each category is selected.',
                 ),
+              ),
               ListTile(
                 leading: const Icon(Icons.tag),
                 title: const Text("Setup Tags"),

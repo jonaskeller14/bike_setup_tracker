@@ -21,8 +21,7 @@ class CategoricalMetricPage extends StatefulWidget {
     required this.mode,
   });
 
-  factory CategoricalMetricPage.add({Key? key}) =>
-      CategoricalMetricPage._(key: key, mode: MetricPageMode.add);
+  factory CategoricalMetricPage.add({Key? key}) => CategoricalMetricPage._(key: key, mode: MetricPageMode.add);
 
   factory CategoricalMetricPage.edit({Key? key, required RatingMetric metric}) =>
       CategoricalMetricPage._(key: key, metric: metric, mode: MetricPageMode.edit);
@@ -44,6 +43,7 @@ class _CategoricalMetricPageState extends State<CategoricalMetricPage> {
   late TextEditingController _nameController;
   late TextEditingController _notesController;
   late List<TextEditingController> _optionControllers;
+  late List<FocusNode> _optionFocusNodes;
   late Set<String> _initialOptions;
 
   late CategoricalAdjustment? _initialAdj;
@@ -74,6 +74,7 @@ class _CategoricalMetricPageState extends State<CategoricalMetricPage> {
     for (final optionController in _optionControllers) {
       optionController.addListener(_changeListener);
     }
+    _optionFocusNodes = List.generate(_optionControllers.length, (_) => FocusNode());
     _initialOptions = _initialAdj?.options.toSet() ?? {};
 
     _previewAdjustment = _initialAdj ?? _composePreview();
@@ -117,16 +118,24 @@ class _CategoricalMetricPageState extends State<CategoricalMetricPage> {
       c.removeListener(_changeListener);
       c.dispose();
     }
+    for (final focusNode in _optionFocusNodes) {
+      focusNode.dispose();
+    }
     super.dispose();
   }
 
   void _addOptionField() {
+    final newFocusNode = FocusNode();
     setState(() {
       final newController = TextEditingController();
       newController.addListener(_changeListener);
       _optionControllers.add(newController);
+      _optionFocusNodes.add(newFocusNode);
       _previewValues = null;
       _previewAdjustment = _composePreview();
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) newFocusNode.requestFocus();
     });
   }
 
@@ -136,6 +145,8 @@ class _CategoricalMetricPageState extends State<CategoricalMetricPage> {
       _optionControllers[index].removeListener(_changeListener);
       _optionControllers[index].dispose();
       _optionControllers.removeAt(index);
+      _optionFocusNodes[index].dispose();
+      _optionFocusNodes.removeAt(index);
       _previewValues = null;
       _previewAdjustment = _composePreview();
     });
@@ -298,6 +309,7 @@ class _CategoricalMetricPageState extends State<CategoricalMetricPage> {
                                         Expanded(
                                           child: TextFormField(
                                             controller: controller,
+                                            focusNode: _optionFocusNodes[index],
                                             autovalidateMode: AutovalidateMode.onUserInteraction,
                                             decoration: InputDecoration(
                                               labelText: 'Option ${index + 1}',

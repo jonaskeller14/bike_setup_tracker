@@ -43,9 +43,9 @@ class AppSettings extends ChangeNotifier {
   bool _enableSetupImages = false;
   bool _enableComponentPresets = false;
   // Setup timeline grouping passes (debug-only, see FeaturesPage)
-  bool _enableTimelineDayHeaders = false;
+  bool _enableTimelineDayHeaders = true;
   bool _enableTimelineSetupGrouping = false;
-  bool _enableTimelineReplacementDetection = false;
+  bool _enableTimelineReplacementDetection = true;
   bool _enableTimelineStravaContext = false;
   int _firstDayOfWeek = DateTime.monday; // 1 = Monday … 7 = Sunday
 

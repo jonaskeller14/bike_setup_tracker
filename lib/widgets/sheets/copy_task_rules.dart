@@ -114,9 +114,13 @@ class _CopyTaskRulesSheetState extends State<_CopyTaskRulesSheet> {
             padding: const EdgeInsets.all(16),
             width: double.infinity,
             child: FilledButton.icon(
-              icon: const Icon(Icons.copy),
-              onPressed: _selected.isEmpty ? null : () => Navigator.pop(context, _selected),
-              label: Text("Copy ${_selected.length} task${_selected.length == 1 ? '' : 's'}"),
+              icon: Icon(_selected.isEmpty ? Icons.arrow_forward : Icons.copy),
+              onPressed: () => Navigator.pop(context, _selected),
+              label: Text(
+                _selected.isEmpty
+                    ? 'Continue without copying tasks'
+                    : "Copy ${_selected.length} task${_selected.length == 1 ? '' : 's'}",
+              ),
             ),
           ),
         ],

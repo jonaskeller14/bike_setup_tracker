@@ -10,6 +10,9 @@ on:
 jobs:
   lint_and_test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - name: Checkout
@@ -27,4 +30,11 @@ jobs:
         run: flutter analyze
 
       - name: Flutter Test
-        run: flutter test
+        run: flutter test --coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: coverage/lcov.info
+          fail_ci_if_error: true
+          use_oidc: true

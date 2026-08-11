@@ -3,6 +3,7 @@
 *Component setup tracker for mountain bikers & road cyclists. Log and forget!*
 
 [![Flutter Test Check](https://github.com/jonaskeller14/bike_setup_tracker/actions/workflows/flutter_test.yml/badge.svg)](https://github.com/jonaskeller14/bike_setup_tracker/actions)
+[![codecov](https://codecov.io/gh/jonaskeller14/bike_setup_tracker/graph/badge.svg)](https://codecov.io/gh/jonaskeller14/bike_setup_tracker)
 [![License: All Rights Reserved](https://img.shields.io/badge/License-All_Rights_Reserved-red.svg)](LICENSE)
 [![Play Store Downloads](https://playbadges.pavi2410.com/badge/downloads?id=com.jonaskeller14.bike_setup_tracker&pretty)](https://play.google.com/store/apps/details?id=com.jonaskeller14.bike_setup_tracker)
 [![Play Store Ratings](https://playbadges.pavi2410.com/badge/ratings?id=com.jonaskeller14.bike_setup_tracker&pretty)](https://play.google.com/store/apps/details?id=com.jonaskeller14.bike_setup_tracker)

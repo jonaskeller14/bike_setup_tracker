@@ -216,6 +216,7 @@ class _TaskRuleDetailsPageContentState extends State<TaskRuleDetailsPageContent>
                   selectionMode: isSelectionMode,
                   showTaskRule: false,
                   selected: isSelected,
+                  showStats: true,
                 ),
               );
             }),

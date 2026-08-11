@@ -35,6 +35,7 @@ class SetupListTile extends StatefulWidget {
   /// painted over by the highlight, so the tile grows instead of leaving a gap
   /// between its fill and whatever sits above/below it (e.g. a day header).
   final EdgeInsets edgeInset;
+  final bool showCurrentBadge;
 
   const SetupListTile({
     super.key,
@@ -47,6 +48,7 @@ class SetupListTile extends StatefulWidget {
     this.hidePlace = false,
     this.currentBarLeft = 0,
     this.edgeInset = EdgeInsets.zero,
+    this.showCurrentBadge = false,
   });
 
   @override
@@ -157,13 +159,14 @@ class _SetupListTileState extends State<SetupListTile> {
     ];
     final bool hasNotes = setup.notes != null && setup.notes!.isNotEmpty;
 
-    // One badge only — stacking two pushed the subtitle down. The bar and tint
-    // already mark the current setup, so its badge yields to the score.
+    // One badge only
     final Widget? badge = score != null
         ? _scoreBadge(context, score)
-        : setup.isCurrent
-        ? const CurrentSetupBadge()
-        : null;
+        : widget.showCurrentBadge
+            ? setup.isCurrent
+                  ? const CurrentSetupBadge()
+                  : null
+            : null;
 
     return Padding(
       // Horizontal only. The popup menu and chevron need the row's full height

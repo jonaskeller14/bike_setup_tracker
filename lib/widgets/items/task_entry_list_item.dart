@@ -92,6 +92,7 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
             taskEntry.bikeId != taskRules[taskEntry.taskRule]!.bikeId);
     final hasNotes = taskEntry.notes != null && taskEntry.notes!.isNotEmpty;
     final resolvedShowStats =
+        widget.showStats &&
         appSettings.enableStrava &&
         subscriptionService.hasStravaEntitlement &&
         taskEntry.snapshot != null &&

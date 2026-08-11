@@ -141,6 +141,9 @@ class _CategoricalMetricPageState extends State<CategoricalMetricPage> {
 
   void _removeOptionField(int index) {
     if (_optionControllers.length == 1) return; // keep at least one field
+    if (_optionFocusNodes[index].hasFocus) {
+      FocusScope.of(context).unfocus();
+    }
     setState(() {
       _optionControllers[index].removeListener(_changeListener);
       _optionControllers[index].dispose();

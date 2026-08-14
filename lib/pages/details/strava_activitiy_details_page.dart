@@ -7,6 +7,7 @@ import '../../models/setup.dart';
 import '../../models/strava/strava_activity.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/strava_service.dart';
+import '../../utils/component_actions.dart';
 import '../../widgets/items/component_list_card.dart';
 import '../../widgets/items/setup_list_tile.dart';
 import '../../widgets/sheets/sheet.dart';
@@ -239,7 +240,7 @@ class StravaActivitiyPageContent extends StatelessWidget {
                 final installedComponents = appRepository.components.values
                     .where((c) => linkedBike != null && c.bikeAt(activityTimeUtc) == linkedBike.id)
                     .toList();
-                final bool enabled = installedComponents.isNotEmpty;
+                final bool enabled = linkedBike != null;
                 final Color disabledColor = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38);
                 return ExpansionTile(
                   shape: const Border(),
@@ -262,14 +263,27 @@ class StravaActivitiyPageContent extends StatelessWidget {
                   ),
                   childrenPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
                   enabled: enabled,
-                  children: installedComponents
-                        .map(
+                  children: [
+                    ...installedComponents.map(
                           (c) => ComponentListCard(
                             component: c,
                             showCurrentAdjustmentValues: false,
                           ),
-                        )
-                      .toList(),
+                        ),
+                    if (linkedBike != null) ...[
+                      const SizedBox(height: 8),
+                      Center(
+                        child: TextButton.icon(
+                          onPressed: () => ComponentActions.addComponent(
+                            context,
+                            initialBike: linkedBike.id,
+                          ),
+                          icon: const Icon(Icons.add),
+                          label: const Text("Add Component"),
+                        ),
+                      ),
+                    ],
+                  ],
                 );
               },
             ),

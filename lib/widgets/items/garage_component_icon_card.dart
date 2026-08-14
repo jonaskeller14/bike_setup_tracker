@@ -7,10 +7,24 @@ import '../../models/task/task_rule.dart';
 import '../../repositories/app_repository.dart';
 
 class GarageComponentIconCard extends StatelessWidget {
+  static const double minimumWidth = 44;
+
   final Component component;
   final String? componentToShowDetails;
+  final double? width;
 
-  const GarageComponentIconCard({super.key, required this.component, required this.componentToShowDetails});
+  const GarageComponentIconCard({
+    super.key,
+    required this.component,
+    required this.componentToShowDetails,
+    this.width,
+  });
+
+  static double widthFor(double availableWidth, {required double spacing}) {
+    final fittingCards = ((availableWidth + spacing) / (minimumWidth + spacing)).floor();
+    final cardsPerRow = fittingCards < 1 ? 1 : fittingCards;
+    return (availableWidth - spacing * (cardsPerRow - 1)) / cardsPerRow;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +42,8 @@ class GarageComponentIconCard extends StatelessWidget {
       children: [
         Container(
           key: ValueKey(component.id),
+          width: width,
+          alignment: Alignment.center,
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             color: isSelected

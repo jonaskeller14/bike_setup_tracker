@@ -335,72 +335,83 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                           opacity: (showDropZone || isPassiveDropZone) ? 0.0 : 1.0,
                           child: IgnorePointer(
                             ignoring: showDropZone || isPassiveDropZone,
-                            child: ReorderableWrap(
-                              scrollPhysics: const NeverScrollableScrollPhysics(),
-                              ignorePrimaryScrollController: true,
-                              onReorder: (int oldIndex, int newIndex) async {
-                                await context.read<AppRepository>().reorderComponent(
-                                  oldIndex: oldIndex,
-                                  newIndex: newIndex,
-                                  filteredComponentsList: bikeComponents.values.toList(),
+                            child: LayoutBuilder(
+                              builder: (context, constraints) {
+                                const spacing = 8.0;
+                                final itemWidth = GarageComponentIconCard.widthFor(
+                                  constraints.maxWidth,
+                                  spacing: spacing,
                                 );
-                                widget.setDraggedComponent(null);
+
+                                return ReorderableWrap(
+                                  scrollPhysics: const NeverScrollableScrollPhysics(),
+                                  ignorePrimaryScrollController: true,
+                                  onReorder: (int oldIndex, int newIndex) async {
+                                    await context.read<AppRepository>().reorderComponent(
+                                      oldIndex: oldIndex,
+                                      newIndex: newIndex,
+                                      filteredComponentsList: bikeComponents.values.toList(),
+                                    );
+                                    widget.setDraggedComponent(null);
+                                  },
+                                  onReorderStarted: (index) => widget.setDraggedComponent(bikeComponents.values.toList()[index]),
+                                  onNoReorder: (index) => widget.setDraggedComponent(null),
+                                  runSpacing: spacing,
+                                  spacing: spacing,
+                                  footer: Container(
+                                    width: bikeComponents.isEmpty
+                                        ? double.infinity
+                                        : itemWidth,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: Theme.of(context).colorScheme.outlineVariant,
+                                        width: 1.0,
+                                      ),
+                                    ),
+                                    child: InkWell(
+                                      onTap: () => ComponentActions.addComponent(context, initialBike: widget.bike.id),
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(10),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          mainAxisSize: MainAxisSize.min,
+                                          spacing: 8,
+                                          children: [
+                                            Icon(Icons.add, size: 24, color: Theme.of(context).colorScheme.primary),
+                                            if (bikeComponents.isEmpty)
+                                              Text(
+                                                "Add Component",
+                                                style: TextStyle(
+                                                  color: Theme.of(context).colorScheme.primary,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  children: bikeComponents.values.map((component) => GestureDetector(
+                                    key: ValueKey(component),
+                                    onTap: () => widget.onPressedComponent(component),
+                                    onDoubleTap: () async {
+                                      await Navigator.push<void>(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => ComponentDetailsPage(componentId: component.id),
+                                        ),
+                                      );
+                                    },
+                                    child: GarageComponentIconCard(
+                                      component: component,
+                                      componentToShowDetails: widget.componentToShowDetails,
+                                      width: itemWidth,
+                                    ),
+                                  )).toList(),
+                                );
                               },
-                              onReorderStarted: (index) => widget.setDraggedComponent(bikeComponents.values.toList()[index]),
-                              onNoReorder: (index) => widget.setDraggedComponent(null),
-                              runSpacing: 8,
-                              spacing: 8,
-                              footer: Container(
-                                width: bikeComponents.isEmpty
-                                    ? double.infinity
-                                    : null,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: Theme.of(context).colorScheme.outlineVariant,
-                                    width: 1.0,
-                                  ),
-                                ),
-                                child: InkWell(
-                                  onTap: () => ComponentActions.addComponent(context, initialBike: widget.bike.id),
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(10),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      mainAxisSize: MainAxisSize.min,
-                                      spacing: 8,
-                                      children: [
-                                        Icon(Icons.add, size: 24, color: Theme.of(context).colorScheme.primary),
-                                        if (bikeComponents.isEmpty)
-                                          Text(
-                                            "Add Component",
-                                            style: TextStyle(
-                                              color: Theme.of(context).colorScheme.primary,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              children: bikeComponents.values.map((component) => GestureDetector(
-                                key: ValueKey(component),
-                                onTap: () => widget.onPressedComponent(component),
-                                onDoubleTap: () async {
-                                  await Navigator.push<void>(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => ComponentDetailsPage(componentId: component.id),
-                                    ),
-                                  );
-                                },
-                                child: GarageComponentIconCard(
-                                  component: component,
-                                  componentToShowDetails: widget.componentToShowDetails,
-                                ),
-                              )).toList(),
                             ),
                           ),
                         ),
@@ -417,20 +428,26 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                   bikeComponents.keys.contains(widget.componentToShowDetails))
                 Padding(
                   padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                  child: LongPressDraggable<int>(
-                    data: bikeComponents.keys.toList().indexOf(widget.componentToShowDetails!),
-                    onDragStarted: () => widget.draggedComponentNotifier.value = bikeComponents[widget.componentToShowDetails],
-                    onDragEnd: (_) => widget.draggedComponentNotifier.value = null,
-                    onDraggableCanceled: (_, _) => widget.draggedComponentNotifier.value = null,
-                    dragAnchorStrategy: pointerDragAnchorStrategy,
-                    feedback: GarageComponentIconCard(
-                      component: bikeComponents[widget.componentToShowDetails]!,
-                      componentToShowDetails: widget.componentToShowDetails,
-                    ),
-                    child: ComponentListCard(
-                      component: bikeComponents[widget.componentToShowDetails]!,
-                      index: null,
-                      color: Theme.of(context).colorScheme.tertiaryContainer,
+                  child: LayoutBuilder( // workaround to get same GarageComponentIconCard width
+                    builder: (context, constraints) => LongPressDraggable<int>(
+                      data: bikeComponents.keys.toList().indexOf(widget.componentToShowDetails!),
+                      onDragStarted: () => widget.draggedComponentNotifier.value = bikeComponents[widget.componentToShowDetails],
+                      onDragEnd: (_) => widget.draggedComponentNotifier.value = null,
+                      onDraggableCanceled: (_, _) => widget.draggedComponentNotifier.value = null,
+                      dragAnchorStrategy: pointerDragAnchorStrategy,
+                      feedback: GarageComponentIconCard(
+                        component: bikeComponents[widget.componentToShowDetails]!,
+                        componentToShowDetails: widget.componentToShowDetails,
+                        width: GarageComponentIconCard.widthFor(
+                          constraints.maxWidth,
+                          spacing: 8,
+                        ),
+                      ),
+                      child: ComponentListCard(
+                        component: bikeComponents[widget.componentToShowDetails]!,
+                        index: null,
+                        color: Theme.of(context).colorScheme.tertiaryContainer,
+                      ),
                     ),
                   ),
                 ),

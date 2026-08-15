@@ -24,6 +24,7 @@ class TaskActions {
 
   static Future<void> editTaskRule(BuildContext context, {required TaskRule taskRule}) async {
     final appRepository = context.read<AppRepository>();
+    final messenger = ScaffoldMessenger.of(context);
 
     final editedRule = await Navigator.push<TaskRule>(
       context,
@@ -32,6 +33,43 @@ class TaskActions {
     if (editedRule == null) return;
 
     await appRepository.editTaskRule(editedRule);
+
+    if (editedRule.name == taskRule.name) return;
+
+    final renamedEntries = [
+      ...appRepository.taskEntries.values,
+      ...appRepository.deletedTaskEntries,
+    ]
+        .where((entry) => entry.taskRule == taskRule.id && entry.name.startsWith(taskRule.name))
+        .toList();
+    if (renamedEntries.isEmpty) return;
+
+    await appRepository.editTaskEntry(
+      renamedEntries.map(
+        (entry) => entry.copyWith(
+          name: '${editedRule.name}${entry.name.substring(taskRule.name.length)}',
+        ),
+      ),
+    );
+
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          Intl.plural(
+            renamedEntries.length,
+            one: 'Renamed 1 corresponding Task Entry.',
+            other: 'Renamed ${renamedEntries.length} corresponding Task Entries.',
+          ),
+        ),
+        duration: const Duration(seconds: 5),
+        persist: false,
+        showCloseIcon: true,
+        action: SnackBarAction(
+          label: 'UNDO',
+          onPressed: () async => appRepository.editTaskEntry(renamedEntries),
+        ),
+      ),
+    );
   }
 
   static Future<void> setTaskDelay(BuildContext context, {required TaskRule taskRule}) async {
@@ -124,7 +162,7 @@ class TaskActions {
     );
     if (editedEntry == null) return;
 
-    await appRepository.editTaskEntry(editedEntry);
+    await appRepository.editTaskEntry([editedEntry]);
   }
 
   static Future<void> duplicateTaskEntry(BuildContext context, {required TaskEntry taskEntry}) async {

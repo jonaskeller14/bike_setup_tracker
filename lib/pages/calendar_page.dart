@@ -415,13 +415,13 @@ class _CalendarPageState extends State<CalendarPage> {
       case TaskTimeLineEntry():
         final original = entry.taskEntry;
         await appRepository.editTaskEntry(
-          original.copyWith(dateTimeUTC: newUtc, dateTimeLocal: newLocal),
+          [original.copyWith(dateTimeUTC: newUtc, dateTimeLocal: newLocal)],
         );
         _showMoveUndoSnackBar(
           calendarSubjectFor(entry),
           oldLocal,
           newLocal,
-          () => appRepository.editTaskEntry(original),
+          () => appRepository.editTaskEntry([original]),
         );
       case InstallationEntry():
         final ci = entry.componentInstallation;

@@ -1269,9 +1269,17 @@ class AppRepository extends ChangeNotifier {
     await editTaskRule(rule.copyWith(delay: null));
   }
 
-  Future<void> editTaskEntry(TaskEntry entry) async {
-    final updated = entry.copyWith(lastModified: DateTime.now().toUtc());
-    await database.taskDao.updateEntry(updated.toCompanion());
+  Future<void> editTaskEntry(Iterable<TaskEntry> entries) async {
+    if (entries.isEmpty) return;
+    final now = DateTime.now().toUtc();
+
+    await database.transaction(() async {
+      for (final entry in entries) {
+        await database.taskDao.updateEntry(
+          entry.copyWith(lastModified: now).toCompanion(),
+        );
+      }
+    });
   }
 
   Future<void> addComponent(Component component) async {

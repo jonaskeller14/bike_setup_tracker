@@ -238,9 +238,13 @@ class SetupDetailsPageContent extends StatelessWidget {
   }
 
   PinnedHeaderSliver _sectionTitle(BuildContext context, {required String title}) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return PinnedHeaderSliver(
       child: Container(
-        color: Theme.of(context).colorScheme.surface,
+        color: setup.isCurrent
+            ? CurrentSetupHighlight.opaqueFill(colorScheme)
+            : colorScheme.surface,
         child: SectionTitle(title: title),
       ),
     );
@@ -675,6 +679,7 @@ class SetupDetailsPageContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
+    final colorScheme = Theme.of(context).colorScheme;
     final bikes = appRepository.bikes;
     final persons = appRepository.persons;
     final components = appRepository.components;
@@ -691,49 +696,53 @@ class SetupDetailsPageContent extends StatelessWidget {
     final componentSplit = breakdown.componentSplit;
     final personSplit = breakdown.personSplit;
 
-    return CustomScrollView(
-      slivers: [
-        _setupTitle(context, setup: setup),
-        SliverSafeArea(
-          top: false,
-          sliver: SliverMainAxisGroup(
-            slivers: [
-              SliverMainAxisGroup(
-                slivers: [
-                  _sectionTitle(context, title: "Context"),
-                  _contextSection(context, setup: setup, bike: bike, person: person),
-                ],
-              ),
-              SliverMainAxisGroup(
-                slivers: [
-                  const SliverToBoxAdapter(child: Divider(height: 8)),
-                  _sectionTitle(context, title: "Values"),
-                  _valueSection(
-                    context,
-                    setup: setup,
-                    person: person,
-                    bikeComponents: bikeComponents,
-                    danglingComponentGroups: componentSplit.groups,
-                    danglingDeletedBikeAdjustmentValues: componentSplit.deletedValues,
-                    danglingPersonGroups: personSplit.groups,
-                    danglingDeletedPersonAdjustmentValues: personSplit.deletedValues,
-                  ),
-                  _legend(context),
-                ]
-              ),
-              if (appSettings.enableRating)
+    return ColoredBox(
+      color: setup.isCurrent
+          ? CurrentSetupHighlight.opaqueFill(colorScheme)
+          : colorScheme.surface,
+      child: CustomScrollView(
+        slivers: [
+          _setupTitle(context, setup: setup),
+          SliverSafeArea(
+            top: false,
+            sliver: SliverMainAxisGroup(
+              slivers: [
+                SliverMainAxisGroup(
+                  slivers: [
+                    _sectionTitle(context, title: "Context"),
+                    _contextSection(context, setup: setup, bike: bike, person: person),
+                  ],
+                ),
                 SliverMainAxisGroup(
                   slivers: [
                     const SliverToBoxAdapter(child: Divider(height: 8)),
-                    _sectionTitle(context, title: "Ratings"),
-                    _ratingEntriesSection(context, setup: setup),
-                  ],
+                    _sectionTitle(context, title: "Values"),
+                    _valueSection(
+                      context,
+                      setup: setup,
+                      person: person,
+                      bikeComponents: bikeComponents,
+                      danglingComponentGroups: componentSplit.groups,
+                      danglingDeletedBikeAdjustmentValues: componentSplit.deletedValues,
+                      danglingPersonGroups: personSplit.groups,
+                      danglingDeletedPersonAdjustmentValues: personSplit.deletedValues,
+                    ),
+                    _legend(context),
+                  ]
                 ),
-              
-            ],
+                if (appSettings.enableRating)
+                  SliverMainAxisGroup(
+                    slivers: [
+                      const SliverToBoxAdapter(child: Divider(height: 8)),
+                      _sectionTitle(context, title: "Ratings"),
+                      _ratingEntriesSection(context, setup: setup),
+                    ],
+                  ),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

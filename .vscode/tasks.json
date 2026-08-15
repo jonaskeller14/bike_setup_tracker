@@ -5,7 +5,7 @@
         {
             "label": "Build & Install APK (Debug) [R3CX50CQWVA]",
             "type": "shell",
-            "command": "flutter build apk --debug; adb -s R3CX50CQWVA install build\\app\\outputs\\flutter-apk\\app-debug.apk",
+            "command": "flutter build apk --debug; if ($LASTEXITCODE -eq 0) { adb -s R3CX50CQWVA install build\\app\\outputs\\flutter-apk\\app-debug.apk } else { exit $LASTEXITCODE }",
             "problemMatcher": [],
             "group": "build",
             "presentation": {
@@ -16,7 +16,7 @@
         {
             "label": "Build & Install APK (Release) [R3CX50CQWVA]",
             "type": "shell",
-            "command": "flutter build apk --release; adb -s R3CX50CQWVA install build\\app\\outputs\\flutter-apk\\app-release.apk",
+            "command": "flutter build apk --release; if ($LASTEXITCODE -eq 0) { adb -s R3CX50CQWVA install build\\app\\outputs\\flutter-apk\\app-release.apk } else { exit $LASTEXITCODE }",
             "problemMatcher": [],
             "group": "build",
             "presentation": {

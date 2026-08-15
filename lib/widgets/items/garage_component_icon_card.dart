@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -7,7 +9,8 @@ import '../../models/task/task_rule.dart';
 import '../../repositories/app_repository.dart';
 
 class GarageComponentIconCard extends StatelessWidget {
-  static const double minimumWidth = 44;
+  static const double minimumWidth = 47;
+  static const double rowEndSpacing = 1;
 
   final Component component;
   final String? componentToShowDetails;
@@ -20,10 +23,17 @@ class GarageComponentIconCard extends StatelessWidget {
     this.width,
   });
 
-  static double widthFor(double availableWidth, {required double spacing}) {
-    final fittingCards = ((availableWidth + spacing) / (minimumWidth + spacing)).floor();
+  static double widthFor(
+    double availableWidth, {
+    required double spacing,
+  }) {
+    final safeAvailableWidth = math.max(
+      0.0,
+      availableWidth - rowEndSpacing,
+    );
+    final fittingCards = ((safeAvailableWidth + spacing) / (minimumWidth + spacing)).floor();
     final cardsPerRow = fittingCards < 1 ? 1 : fittingCards;
-    return (availableWidth - spacing * (cardsPerRow - 1)) / cardsPerRow;
+    return (safeAvailableWidth - spacing * (cardsPerRow - 1)) / cardsPerRow;
   }
 
   @override

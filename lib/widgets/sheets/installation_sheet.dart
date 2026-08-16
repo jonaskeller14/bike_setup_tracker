@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/bike.dart';
 import '../../models/component.dart';
+import '../../models/component_installation.dart';
 import '../../models/installation.dart';
 import '../../repositories/app_repository.dart';
 import '../set_installation_timeline.dart';

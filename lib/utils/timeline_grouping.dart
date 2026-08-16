@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 
 import '../models/app_settings.dart';
+import '../models/component_installation.dart';
 import '../models/installation.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/timeline_entry.dart';
-import '../repositories/app_repository.dart' show ComponentInstallation;
 
 const Duration kReplacementWindow = Duration(minutes: 5);
 const Duration kSetupGroupWindow = Duration(hours: 2);

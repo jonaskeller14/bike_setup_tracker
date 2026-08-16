@@ -11,6 +11,7 @@ import '../database/mappers.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/bike.dart';
 import '../models/component.dart';
+import '../models/component_installation.dart';
 import '../models/component_stats.dart';
 import '../models/installation.dart';
 import '../models/person.dart';
@@ -1592,43 +1593,5 @@ class AppRepository extends ChangeNotifier {
     // showing distances from activities that no longer exist.
     await refreshTaskEntrySnapshots();
     _dataChanged();
-  }
-}
-
-class ComponentInstallation {
-  final Component component;
-  final Installation installation;
-  final String? originParent;
-  final InstallationParentType? originParentType;
-  final bool isInitial;
-
-  ComponentInstallation({
-    required this.component,
-    required this.installation,
-    this.originParent,
-    this.originParentType,
-    this.isInitial = false,
-  });
-
-  String get label {
-    final verb = isInitial
-        ? 'Added'
-        : switch (installation.parentType) {
-            InstallationParentType.bike => 'Installed',
-            InstallationParentType.none => 'Uninstalled',
-            InstallationParentType.archived => 'Archived',
-          };
-    return "$verb ${component.name}";
-  }
-
-  String get shortLabel {
-    final symbol = isInitial
-        ? '+'
-        : switch (installation.parentType) {
-            InstallationParentType.bike => '>',
-            InstallationParentType.none => '<',
-            InstallationParentType.archived => 'x',
-          };
-    return "$symbol ${component.name}";
   }
 }

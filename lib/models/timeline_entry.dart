@@ -1,4 +1,4 @@
-import '../repositories/app_repository.dart' show ComponentInstallation;
+import 'component_installation.dart';
 import 'rating_entry.dart';
 import 'setup.dart';
 import 'strava/strava_activity.dart';

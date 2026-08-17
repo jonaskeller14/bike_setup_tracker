@@ -11,6 +11,8 @@ import 'package:bike_setup_tracker/pages/details/component_details_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
+import 'package:bike_setup_tracker/widgets/component_details_page_line_chart.dart';
+import 'package:bike_setup_tracker/widgets/component_details_page_radial_chart.dart';
 import 'package:bike_setup_tracker/widgets/lists/adjustment_edit_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -122,7 +124,8 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    expect(find.text('No adjustments defined for this component'), findsOneWidget);
+    expect(find.text('No adjustments'), findsOneWidget);
+    expect(find.text('No adjustments are defined for this component'), findsOneWidget);
   });
 
   testWidgets('show placeholder when no columns are selected', (WidgetTester tester) async {
@@ -465,7 +468,7 @@ void main() {
     expect(find.byWidgetPredicate((w) => w is Checkbox && w.value == true), findsNWidgets(1));
     expect(find.byWidgetPredicate((w) => w is Checkbox && w.value == false), findsNWidgets(1));
     // Line chart requires at least 2 selected setups
-    expect(find.text('Select at least two setups in the table to visualize a trend'), findsOneWidget);
+    expect(find.text('Not enough setups'), findsOneWidget);
   });
 
   testWidgets('tapping an unselected row selects it', (WidgetTester tester) async {
@@ -511,6 +514,102 @@ void main() {
     // Both rows selected again: header (true) + 2 rows (true) = 3 true checkboxes
     expect(find.byWidgetPredicate((w) => w is Checkbox && w.value == true), findsNWidgets(3));
     expect(find.byWidgetPredicate((w) => w is Checkbox && w.value == false), findsNothing);
+  });
+
+  testWidgets('reselecting a deselected radar setup does not restore its highlight', (WidgetTester tester) async {
+    final adjustments = [
+      StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider),
+      StepAdjustment(id: 'adj2', name: 'Compression', notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider),
+      StepAdjustment(id: 'adj3', name: 'Volume Spacers', notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider),
+    ];
+    await tester.runAsync(() async {
+      await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
+      await appRepository.addComponent(Component(
+        id: 'comp1', name: 'Test Fork',
+        installations: [Installation.sinceBeginning(parent: 'bike1')],
+        componentType: ComponentType.fork,
+        adjustments: adjustments,
+      ));
+      await appRepository.addSetup(Setup(id: 's1', name: 'Setup 1', datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 3, 'adj2': 4, 'adj3': 5}, personAdjustmentValues: {}));
+      await appRepository.addSetup(Setup(id: 's2', name: 'Setup 2', datetime: DateTime(2024, 1, 2).toUtc(), datetimeLocal: DateTime(2024, 1, 2), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5, 'adj2': 6, 'adj3': 7}, personAdjustmentValues: {}));
+    });
+    appRepository.dispose();
+    appRepository = AppRepository(database);
+    await tester.pumpWidget(createWidgetUnderTest('comp1'));
+    await _waitForComponent(tester, appRepository);
+
+    final radarSetup = find.descendant(
+      of: find.byType(ComponentDetailsPageRadialChart),
+      matching: find.text('Setup 1'),
+    );
+    await tester.ensureVisible(radarSetup);
+    await tester.tap(radarSetup);
+    await tester.pumpAndSettle();
+    expect(tester.widget<Text>(radarSetup).style?.fontWeight, FontWeight.bold);
+
+    final setupRow = find.descendant(of: find.byType(DataTable), matching: find.text('Setup 1'));
+    await tester.ensureVisible(setupRow);
+    await tester.tap(setupRow);
+    await tester.pumpAndSettle();
+    await tester.tap(setupRow);
+    await tester.pumpAndSettle();
+
+    final reselectedRadarSetup = find.descendant(
+      of: find.byType(ComponentDetailsPageRadialChart),
+      matching: find.text('Setup 1'),
+    );
+    await tester.ensureVisible(reselectedRadarSetup);
+    expect(tester.widget<Text>(reselectedRadarSetup).style?.fontWeight, FontWeight.normal);
+  });
+
+  testWidgets('re-enabling a removed line-chart column does not restore its highlight', (WidgetTester tester) async {
+    final adjustments = [
+      StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider),
+      StepAdjustment(id: 'adj2', name: 'Compression', notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider),
+    ];
+    await tester.runAsync(() async {
+      await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
+      await appRepository.addComponent(Component(
+        id: 'comp1', name: 'Test Fork',
+        installations: [Installation.sinceBeginning(parent: 'bike1')],
+        componentType: ComponentType.fork,
+        adjustments: adjustments,
+      ));
+      await appRepository.addSetup(Setup(id: 's1', name: 'Setup 1', datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 3, 'adj2': 4}, personAdjustmentValues: {}));
+      await appRepository.addSetup(Setup(id: 's2', name: 'Setup 2', datetime: DateTime(2024, 1, 2).toUtc(), datetimeLocal: DateTime(2024, 1, 2), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5, 'adj2': 6}, personAdjustmentValues: {}));
+    });
+    appRepository.dispose();
+    appRepository = AppRepository(database);
+    await tester.pumpWidget(createWidgetUnderTest('comp1'));
+    await _waitForComponent(tester, appRepository);
+
+    final lineColumn = find.descendant(
+      of: find.byType(ComponentDetailsPageLineChart),
+      matching: find.text('Rebound'),
+    );
+    await tester.ensureVisible(lineColumn);
+    await tester.tap(lineColumn);
+    await tester.pumpAndSettle();
+    expect(tester.widget<Text>(lineColumn).style?.fontWeight, FontWeight.bold);
+
+    await tester.longPress(lineColumn);
+    await tester.pumpAndSettle();
+    expect(find.descendant(of: find.byType(DataTable), matching: find.text('Rebound')), findsNothing);
+
+    await tester.ensureVisible(find.text('Columns'));
+    await tester.tap(find.text('Columns'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.descendant(of: find.byType(Wrap), matching: find.text('Rebound')));
+    await tester.pumpAndSettle();
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pumpAndSettle();
+
+    final reenabledLineColumn = find.descendant(
+      of: find.byType(ComponentDetailsPageLineChart),
+      matching: find.text('Rebound'),
+    );
+    await tester.ensureVisible(reenabledLineColumn);
+    expect(tester.widget<Text>(reenabledLineColumn).style?.fontWeight, FontWeight.normal);
   });
 
   // ── Chart placeholders ─────────────────────────────────────────────────────
@@ -606,7 +705,7 @@ void main() {
     await tester.tap(find.text('Setup 1'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Select at least two setups in the table to visualize a trend'), findsOneWidget);
+    expect(find.text('Not enough setups'), findsOneWidget);
   });
 
   testWidgets('radar chart shows placeholder when fewer than 3 numerical columns are active', (WidgetTester tester) async {
@@ -636,7 +735,7 @@ void main() {
     });
     await tester.pumpAndSettle();
 
-    expect(find.text('At least 3 numerical columns are required to generate a radar chart'), findsOneWidget);
+    expect(find.text('Not enough columns'), findsOneWidget);
   });
 }
 
@@ -665,5 +764,16 @@ Future<void> _waitForRepositoryUpdate(WidgetTester tester) async {
   await tester.pumpAndSettle();
   // Extra pumps to ensure the UI has completely rebuilt from the new stream data
   await tester.pump(const Duration(milliseconds: 500));
+  await tester.pumpAndSettle();
+}
+
+Future<void> _waitForComponent(WidgetTester tester, AppRepository appRepository) async {
+  await tester.runAsync(() async {
+    int attempts = 0;
+    while (appRepository.components['comp1'] == null && attempts < 10) {
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+      attempts++;
+    }
+  });
   await tester.pumpAndSettle();
 }

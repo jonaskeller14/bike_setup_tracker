@@ -9,8 +9,8 @@ import '../../services/image_storage_service.dart';
 import '../../services/setup_comparison_service.dart';
 import '../../theme.dart';
 import '../compare_setups/setup_comparison_header.dart';
+import '../compare_setups/setup_comparison_owner_card.dart';
 import '../compare_setups/setup_comparison_row.dart';
-import '../compare_setups/setup_comparison_section.dart';
 import '../image_strip.dart';
 import '../notes_text.dart';
 import 'sheet.dart';
@@ -100,7 +100,16 @@ class _CompareSetupsState extends State<CompareSetups> {
       includeImages: settings.enableSetupImages,
       includeContext: true,
     );
-    final groups = projection.visibleGroups(differencesOnly: _differencesOnly);
+    final contextGroups = projection.groups
+        .where((group) => group.kind == comparison.SetupComparisonGroupKind.context)
+        .where((group) => !_differencesOnly || group.isDifferent)
+        .toList(growable: false);
+    final valueGroups = projection.groups
+        .where((group) => group.kind != comparison.SetupComparisonGroupKind.context)
+        .where((group) => group.rows.isNotEmpty || group.isStructuralDifference)
+        .where((group) => !_differencesOnly || group.isDifferent)
+        .toList(growable: false);
+    final hasVisibleContent = contextGroups.isNotEmpty || valueGroups.isNotEmpty;
 
     return SizedBox(
       height: maxHeight,
@@ -120,7 +129,7 @@ class _CompareSetupsState extends State<CompareSetups> {
               ),
             ),
           ),
-          if (groups.isEmpty)
+          if (!hasVisibleContent)
             SliverPadding(
               padding: const EdgeInsets.all(16),
               sliver: SliverToBoxAdapter(
@@ -137,15 +146,21 @@ class _CompareSetupsState extends State<CompareSetups> {
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
               sliver: SliverList.list(
                 children: [
-                  for (final group in groups)
-                    group.kind == comparison.SetupComparisonGroupKind.context
-                        ? _ContextSection(
-                            group: group,
-                            differencesOnly: _differencesOnly,
-                            setupAId: setupA.id,
-                            setupBId: setupB.id,
-                          )
-                        : SetupComparisonSection(group: group, differencesOnly: _differencesOnly),
+                  for (final group in contextGroups)
+                    _ContextSection(
+                      group: group,
+                      differencesOnly: _differencesOnly,
+                      setupAId: setupA.id,
+                      setupBId: setupB.id,
+                    ),
+                  if (valueGroups.isNotEmpty) ...[
+                    const Padding(
+                      padding: EdgeInsets.fromLTRB(4, 4, 4, 8),
+                      child: Text('Values'),
+                    ),
+                    for (final group in valueGroups)
+                      SetupComparisonOwnerCard(group: group, differencesOnly: _differencesOnly),
+                  ],
                 ],
               ),
             ),

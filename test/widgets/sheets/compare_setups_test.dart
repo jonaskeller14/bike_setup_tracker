@@ -63,12 +63,68 @@ void main() {
     await pumpComparison(tester, setupAId, setupBId);
 
     expect(find.text('Differences'), findsOneWidget);
+    expect(find.text('Values'), findsOneWidget);
+    expect(find.byKey(const Key('compare-owner-component-fork')), findsOneWidget);
+    expect(find.textContaining('1 of 2 differ'), findsOneWidget);
     expect(find.byKey(const Key('compare-row-fork-pressure')), findsNothing);
 
     await tester.tap(find.text('All'));
     await settle(tester);
 
     expect(find.byKey(const Key('compare-row-fork-pressure')), findsOneWidget);
+  });
+
+  testWidgets('keeps equal explicit and inherited values out of Differences and shows provenance in All', (
+    tester,
+  ) async {
+    final explicit = harness.setup(
+      id: 'explicit',
+      name: 'Explicit',
+      local: DateTime(2026, 8, 1, 10),
+      values: {CompareSetupsHarness.changedAdjustmentId: 4},
+    );
+    final inherited = harness.setup(
+      id: 'inherited',
+      name: 'Inherited',
+      local: DateTime(2026, 8, 2, 10),
+    )..previousBikeAdjustmentValues = {CompareSetupsHarness.changedAdjustmentId: 4};
+    await harness.addSetups(tester, [explicit, inherited]);
+    await harness.reload(tester);
+    await pumpComparison(tester, explicit.id, inherited.id);
+
+    expect(find.byKey(const Key('compare-row-fork-rebound')), findsNothing);
+    await tester.tap(find.text('These setups have no differences'));
+    await settle(tester);
+
+    expect(find.byKey(const Key('compare-row-fork-rebound')), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('compare-panel-b-fork-rebound')),
+        matching: find.text('Inherited'),
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('labels cleared and not-recorded values distinctly', (tester) async {
+    final cleared = harness.setup(
+      id: 'cleared',
+      name: 'Cleared',
+      local: DateTime(2026, 8, 2, 10),
+      values: {CompareSetupsHarness.changedAdjustmentId: null},
+    );
+    final missing = harness.setup(
+      id: 'missing',
+      name: 'Missing',
+      local: DateTime(2026, 8, 1, 10),
+    );
+    await harness.addSetups(tester, [cleared, missing]);
+    await harness.reload(tester);
+    await pumpComparison(tester, cleared.id, missing.id);
+
+    expect(find.text('Cleared'), findsWidgets);
+    expect(find.text('Not recorded'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('identical projections show the empty hint and Show all works', (tester) async {
@@ -106,8 +162,6 @@ void main() {
   });
 
   testWidgets('keeps setup identities pinned while values scroll', (tester) async {
-    await harness.dispose();
-    harness = await CompareSetupsHarness.create(extraAdjustments: 24);
     final (setupAId, setupBId) = await seedPair(tester);
     await pumpComparison(tester, setupAId, setupBId);
     await tester.tap(find.text('All'));

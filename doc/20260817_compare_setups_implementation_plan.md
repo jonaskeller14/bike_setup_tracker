@@ -381,7 +381,7 @@ Differences, and orange changed backgrounds remain legible in light and dark.
 
 ## Phase 3 — Debug feature gate, context, visible notes/tags and side-by-side images
 
-**Status:** 🔄 In progress
+**Status:** ✅ Complete
 
 **Goal:** place the setup-tile entry behind a persisted debug-exposed feature
 setting, then implement the full Context section with the approved information
@@ -538,7 +538,9 @@ weather remains secondary in both themes.
 
 ## Phase 4 — Component, person and dangling value hierarchy
 
-**Status:** ⬜ Not started
+**Status:** ✅ Complete
+
+Values now render as strict-ID component/person/deleted-owner cards with responsive paired values, provenance, state labels, filtering, and safe formatting.
 
 **Goal:** render the main Values section from Phase 1's strict projection,
 including effective/provenance states and structural component differences.

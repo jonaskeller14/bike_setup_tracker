@@ -7,6 +7,7 @@ import '../../models/context/context_position.dart';
 import '../../models/context/context_weather.dart';
 import '../../models/setup_comparison.dart' as comparison;
 import '../../theme.dart';
+import '../items/adjustment_type_icon.dart';
 
 class SetupComparisonRow extends StatelessWidget {
   static const wideBreakpoint = 600.0;
@@ -80,7 +81,29 @@ class _Label extends StatelessWidget {
           const Text('≠', semanticsLabel: 'Different'),
           const SizedBox(width: 6),
         ],
-        Expanded(child: Text(row.label, softWrap: true)),
+        if (row.kind == comparison.SetupComparisonRowKind.adjustment &&
+            (row.adjustmentA ?? row.adjustmentB) != null) ...[
+          AdjustmentTypeIcon(row.adjustmentA ?? row.adjustmentB!, size: 20),
+          const SizedBox(width: 8),
+        ] else if (row.kind == comparison.SetupComparisonRowKind.deletedAdjustment) ...[
+          Icon(Icons.error_outline, size: 20, color: Theme.of(context).colorScheme.error),
+          const SizedBox(width: 8),
+        ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(row.label, softWrap: true),
+              if ((row.adjustmentA ?? row.adjustmentB)?.notes?.trim().isNotEmpty ?? false)
+                Text(
+                  (row.adjustmentA ?? row.adjustmentB)!.notes!.trim(),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -102,6 +125,7 @@ class _ValuePanel extends StatelessWidget {
         side.provenance == comparison.SetupComparisonValueProvenance.deleted ||
         (reference?.isMissing ?? false);
     final text = _displayValue(context, side);
+    final delta = _numericDelta();
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(8),
@@ -110,13 +134,32 @@ class _ValuePanel extends StatelessWidget {
         border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: SelectableText(text),
+      child: Semantics(
+        label: text,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SelectableText(text),
+            if (side.provenance == comparison.SetupComparisonValueProvenance.inherited)
+              Text('Inherited', style: Theme.of(context).textTheme.bodySmall),
+            if (delta != null && identical(side, row.valueB)) Text(delta, style: Theme.of(context).textTheme.bodySmall),
+          ],
+        ),
+      ),
     );
   }
 
   String _displayValue(BuildContext context, comparison.SetupComparisonSideValue side) {
-    if (side.provenance == comparison.SetupComparisonValueProvenance.unavailable) return 'Not recorded';
-    if (side.provenance == comparison.SetupComparisonValueProvenance.deleted) return 'Adjustment deleted';
+    if (side.provenance == comparison.SetupComparisonValueProvenance.unavailable) {
+      return side.definition == null ? 'Owner not present' : 'Not recorded';
+    }
+    if (side.provenance == comparison.SetupComparisonValueProvenance.deleted) {
+      return side.value == null ? 'Adjustment deleted' : 'Adjustment deleted: ${Adjustment.formatValue(side.value)}';
+    }
+    if (side.provenance == comparison.SetupComparisonValueProvenance.dangling) {
+      return side.value == null ? 'Dangling value' : 'Dangling value: ${_formattedAdjustmentValue(side)}';
+    }
+    if (side.value == null) return 'Cleared';
     if (side.value is comparison.SetupComparisonReference) {
       return (side.value as comparison.SetupComparisonReference).label;
     }
@@ -143,8 +186,27 @@ class _ValuePanel extends StatelessWidget {
         _ => '${side.value}',
       };
     }
-    final definition = side.definition;
-    final suffix = definition?.unitSuffix() ?? '';
-    return '${Adjustment.formatValue(side.value)}$suffix';
+    return _formattedAdjustmentValue(side);
+  }
+
+  String _formattedAdjustmentValue(comparison.SetupComparisonSideValue side) {
+    final value = switch (side.definition) {
+      CategoricalAdjustment() => categoricalValueAsList(side.value) ?? side.value,
+      TextAdjustment() => textValueAsString(side.value),
+      _ => side.value,
+    };
+    return '${Adjustment.formatValue(value)}${side.definition?.unitSuffix() ?? ''}';
+  }
+
+  String? _numericDelta() {
+    if (row.kind != comparison.SetupComparisonRowKind.adjustment) return null;
+    final valueA = row.valueA.value;
+    final valueB = row.valueB.value;
+    final unitA = row.adjustmentA?.unit;
+    final unitB = row.adjustmentB?.unit;
+    if (valueA is! num || valueB is! num || unitA != unitB) return null;
+    final delta = valueB - valueA;
+    final sign = delta >= 0 ? '+' : '';
+    return 'Δ $sign${Adjustment.formatValue(delta)}${row.adjustmentB?.unitSuffix() ?? ''}';
   }
 }

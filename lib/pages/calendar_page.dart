@@ -38,6 +38,31 @@ const double kCalendarViewHeaderHeight = 30;
 const int kCalendarMonthWeekRows = 6;
 const double kCalendarMonthCellMinHeight = 95;
 
+DateTime calendarDisplayDateForDay(DateTime day, List<TimelineEntry> entries) {
+  final target = DateUtils.dateOnly(day);
+  DateTime? earliest;
+  for (final entry in entries) {
+    final local = entry.date.toLocal();
+    if (!DateUtils.isSameDay(local, target)) continue;
+    if (earliest == null || local.isBefore(earliest)) earliest = local;
+  }
+  if (earliest == null) return target.copyWith(hour: kCalendarFallbackHour);
+  return earliest.subtract(kCalendarScrollLeadIn);
+}
+
+List<EntryRow> buildCalendarRows(List<TimelineEntry> entries, AppSettings settings) {
+  final sortedEntries = [...entries]..sort((a, b) => a.date.compareTo(b.date));
+  final rows = <EntryRow>[];
+  for (final row in collapseIntoRows(sortedEntries, appSettings: settings)) {
+    if (row is SetupGroupRow) {
+      rows.addAll(row.setups.map(SingleEntryRow.new));
+    } else {
+      rows.add(row);
+    }
+  }
+  return rows;
+}
+
 IconData calendarIconFor(TimelineEntry entry) => switch (entry) {
       SetupEntry() => Setup.iconData,
       StravaEntry() => entry.activity.workout.isNotable
@@ -117,18 +142,6 @@ class _CalendarPageState extends State<CalendarPage> {
   /// Dates currently visible, fed from [SfCalendar.onViewChanged]; used to tell
   /// whether "today" is already on screen (to disable the Today button).
   List<DateTime> _visibleDates = const [];
-
-  DateTime _displayDateForDay(DateTime day, List<TimelineEntry> entries) {
-    final target = DateUtils.dateOnly(day);
-    DateTime? earliest;
-    for (final entry in entries) {
-      final local = entry.date.toLocal();
-      if (!DateUtils.isSameDay(local, target)) continue;
-      if (earliest == null || local.isBefore(earliest)) earliest = local;
-    }
-    if (earliest == null) return target.copyWith(hour: kCalendarFallbackHour);
-    return earliest.subtract(kCalendarScrollLeadIn);
-  }
 
   /// Whether today already falls within the visible date range, so the Today
   /// button can be disabled. (Schedule scrolls freely, so keep it enabled.)
@@ -211,19 +224,6 @@ class _CalendarPageState extends State<CalendarPage> {
   /// list. Setup grouping stays off for the calendar in v1: rather than
   /// threading an override through the shared core, any [SetupGroupRow] it
   /// produced is expanded back into its per-setup rows.
-  List<EntryRow> _buildRows(List<TimelineEntry> entries, AppSettings settings) {
-    final sortedEntries = [...entries]..sort((a, b) => a.date.compareTo(b.date));
-    final rows = <EntryRow>[];
-    for (final row in collapseIntoRows(sortedEntries, appSettings: settings)) {
-      if (row is SetupGroupRow) {
-        rows.addAll(row.setups.map(SingleEntryRow.new));
-      } else {
-        rows.add(row);
-      }
-    }
-    return rows;
-  }
-
   /// When the user navigates earlier than the currently loaded Strava window,
   /// page in older activities until the visible range is covered (or there is
   /// nothing more to load). Strava is paginated per active filter, so the loaded
@@ -272,13 +272,13 @@ class _CalendarPageState extends State<CalendarPage> {
         final date = details.date;
         if (date == null) return;
         if (_selectedView == _CalendarView.threeDay) {
-          setState(() => _controller.displayDate = _displayDateForDay(date, entries));
+          setState(() => _controller.displayDate = calendarDisplayDateForDay(date, entries));
         } else if (_selectedView != _CalendarView.day) {
           setState(() {
             _returnView = _selectedView;
             _selectedView = _CalendarView.day;
             _controller.view = CalendarView.day;
-            _controller.displayDate = _displayDateForDay(date, entries);
+            _controller.displayDate = calendarDisplayDateForDay(date, entries);
           });
         }
       case CalendarElement.calendarCell:
@@ -289,7 +289,7 @@ class _CalendarPageState extends State<CalendarPage> {
           _returnView = _selectedView;
           _selectedView = _CalendarView.day;
           _controller.view = CalendarView.day;
-          _controller.displayDate = _displayDateForDay(date, entries);
+          _controller.displayDate = calendarDisplayDateForDay(date, entries);
         });
       case CalendarElement.appointment:
         final appointments = details.appointments;
@@ -503,7 +503,7 @@ class _CalendarPageState extends State<CalendarPage> {
     final appSettings = context.watch<AppSettings>();
     final subscriptionService = context.watch<SubscriptionService>();
     final entries = _buildEntries(appRepository, appSettings, subscriptionService);
-    final rows = _buildRows(entries, appSettings);
+    final rows = buildCalendarRows(entries, appSettings);
     final cs = Theme.of(context).colorScheme;
 
     return PopScope(
@@ -593,7 +593,7 @@ class _CalendarPageState extends State<CalendarPage> {
                     view: _defaultView.view,
                     firstDayOfWeek: appSettings.firstDayOfWeek,
                     maxDate: DateTime.now().add(kCalendarZeroDuration),
-                    dataSource: _TimelineDataSource(rows, cs),
+                    dataSource: CalendarTimelineDataSource(rows, cs),
                     allowDragAndDrop: true,
                     dragAndDropSettings: DragAndDropSettings(
                       indicatorTimeFormat: appSettings.timeFormat,
@@ -749,8 +749,8 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 }
 
-class _TimelineDataSource extends CalendarDataSource<EntryRow> {
-  _TimelineDataSource(List<EntryRow> source, this._cs) {
+class CalendarTimelineDataSource extends CalendarDataSource<EntryRow> {
+  CalendarTimelineDataSource(List<EntryRow> source, this._cs) {
     appointments = source;
   }
 

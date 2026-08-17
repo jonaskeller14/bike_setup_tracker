@@ -233,7 +233,9 @@ flutter analyze
 
 ## Phase 2 — Sheet shell, responsive paired rows and safe entry point
 
-**Status:** ⬜ Not started
+**Status:** ✅ Complete
+
+Implemented the reactive comparison sheet shell, pinned A/B header, responsive rows, safe entry point, and widget coverage.
 
 **Goal:** replace the empty TODO body with a navigable comparison shell,
 pinned identity/orientation, the default Differences filter and reusable row

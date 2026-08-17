@@ -14,6 +14,7 @@ import '../current_setup_badge.dart';
 import '../current_setup_highlight.dart';
 import '../lists/adjustment_compact_display_list.dart';
 import '../notes_text.dart';
+import '../sheets/compare_setups.dart';
 import 'tile_meta_row.dart';
 
 class SetupListTile extends StatefulWidget {
@@ -80,6 +81,7 @@ class _SetupListTileState extends State<SetupListTile> {
   }
 
   Widget _optionsMenu(BuildContext context, Setup setup, AppSettings appSettings) {
+    final setups = context.read<AppRepository>().setups.values;
     return PopupMenuButton<_SetupOptions>(
       onSelected: (_SetupOptions value) async {
         switch (value) {
@@ -89,6 +91,8 @@ class _SetupListTileState extends State<SetupListTile> {
             await SetupActions.shareSetup(context, setup: setup);
           case _SetupOptions.restore:
             await SetupActions.duplicateSetup(context, setup: setup);
+          case _SetupOptions.compare:
+            await showCompareSetupsSheet(context, setupA: null, setupB: setup);
           case _SetupOptions.addRating:
             await SetupActions.addRatingEntryForSetup(context, setup: setup);
           case _SetupOptions.remove:
@@ -96,21 +100,31 @@ class _SetupListTileState extends State<SetupListTile> {
         }
       },
       itemBuilder: (BuildContext context) {
-        return _SetupOptions.values.where((option) {
-          if (!appSettings.enableRating && (option == _SetupOptions.addRating)) return false;
-          return true;
-        }).map((option) {
-          return PopupMenuItem<_SetupOptions>(
-            value: option,
-            child: Row(
-              spacing: 10,
-              children: [
-                Icon(option.iconData, size: 20),
-                Text(option.label),
-              ],
-            ),
-          );
-        }).toList();
+        return _SetupOptions.values
+            .where((option) {
+              if (!appSettings.enableRating && (option == _SetupOptions.addRating)) return false;
+              if (option == _SetupOptions.compare &&
+                  (setup.isCurrent ||
+                      !setups.any(
+                        (candidate) => candidate.id != setup.id && candidate.bike == setup.bike && candidate.isCurrent,
+                      ))) {
+                return false;
+              }
+              return true;
+            })
+            .map((option) {
+              return PopupMenuItem<_SetupOptions>(
+                value: option,
+                child: Row(
+                  spacing: 10,
+                  children: [
+                    Icon(option.iconData, size: 20),
+                    Text(option.label),
+                  ],
+                ),
+              );
+            })
+            .toList();
       },
     );
   }
@@ -495,6 +509,7 @@ enum _SetupOptions {
   edit("Edit", Icons.edit),
   share("Share", Icons.share),
   restore("Restore", Icons.restore),
+  compare("Compare", Icons.compare),
   addRating("Add Rating", RatingEntry.iconData),
   remove("Remove", Icons.delete);
   final String label;

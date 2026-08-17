@@ -139,4 +139,26 @@ void main() {
 
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('Compare is absent for a current only setup', (tester) async {
+    final setup = harness.buildSetup(name: 'Solo', local: DateTime(2026, 7, 2, 10));
+    await harness.addSetups(tester, [setup]);
+    await harness.reload(tester);
+    await pumpTile(tester, setup);
+
+    await tester.tap(find.byIcon(Icons.more_vert));
+    await settle(tester);
+
+    expect(find.text('Compare'), findsNothing);
+  });
+
+  testWidgets('Compare is present for a historical setup with a current peer', (tester) async {
+    final (older, _) = await seedPair(tester);
+    await pumpTile(tester, older);
+
+    await tester.tap(find.byIcon(Icons.more_vert));
+    await settle(tester);
+
+    expect(find.text('Compare'), findsOneWidget);
+  });
 }

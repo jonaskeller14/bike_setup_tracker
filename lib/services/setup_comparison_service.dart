@@ -1,5 +1,9 @@
+import 'package:flutter/foundation.dart';
+
 import '../models/adjustment/adjustment.dart';
+import '../models/bike.dart';
 import '../models/component.dart';
+import '../models/context/context_weather.dart';
 import '../models/person.dart';
 import '../models/setup.dart';
 import '../models/setup_comparison.dart';
@@ -47,8 +51,13 @@ class SetupComparisonService {
   static SetupComparison build({
     required Setup setupA,
     required Setup setupB,
+    Iterable<Bike> bikes = const [],
     required Iterable<Component> components,
     required Iterable<Person> persons,
+    bool includePerson = false,
+    bool includeTags = false,
+    bool includeImages = false,
+    bool includeContext = false,
   }) {
     final allComponents = List<Component>.of(components);
     final allPersons = List<Person>.of(persons);
@@ -72,6 +81,16 @@ class SetupComparisonService {
       setupAId: setupA.id,
       setupBId: setupB.id,
       groups: [
+        if (includeContext)
+          _buildContextGroup(
+            setupA: setupA,
+            setupB: setupB,
+            bikes: bikes,
+            persons: allPersons,
+            includePerson: includePerson,
+            includeTags: includeTags,
+            includeImages: includeImages,
+          ),
         ..._buildOwnerGroups(
           kind: SetupComparisonGroupKind.component,
           ownersA: componentOwnersA,
@@ -89,6 +108,227 @@ class SetupComparisonService {
       ].whereType<SetupComparisonGroup>(),
     );
   }
+
+  static SetupComparisonGroup _buildContextGroup({
+    required Setup setupA,
+    required Setup setupB,
+    required Iterable<Bike> bikes,
+    required Iterable<Person> persons,
+    required bool includePerson,
+    required bool includeTags,
+    required bool includeImages,
+  }) {
+    final bikesById = {for (final bike in bikes) bike.id: bike};
+    final peopleById = {for (final person in persons) person.id: person};
+    final bikeA = _reference(setupA.bike, bikesById, missingLabel: 'BIKE NOT FOUND', label: (bike) => bike.name);
+    final bikeB = _reference(setupB.bike, bikesById, missingLabel: 'BIKE NOT FOUND', label: (bike) => bike.name);
+    final rows = <SetupComparisonRow>[
+      _contextRow(
+        id: 'bike',
+        label: 'Bike',
+        kind: SetupComparisonRowKind.bike,
+        valueA: bikeA,
+        valueB: bikeB,
+        differs: bikeA.id != bikeB.id || bikeA.isMissing != bikeB.isMissing,
+      ),
+      if (includePerson && (setupA.person != null || setupB.person != null))
+        _personContextRow(setupA.person, setupB.person, peopleById),
+      _contextRow(
+        id: 'notes',
+        label: 'Notes',
+        kind: SetupComparisonRowKind.notes,
+        valueA: setupA.notes,
+        valueB: setupB.notes,
+        differs: setupA.notes != setupB.notes,
+      ),
+      if (includeTags)
+        _contextRow(
+          id: 'tags',
+          label: 'Tags',
+          kind: SetupComparisonRowKind.tags,
+          valueA: setupA.tags.toList()..sort(),
+          valueB: setupB.tags.toList()..sort(),
+          differs: !setEquals(setupA.tags, setupB.tags),
+        ),
+      if (includeImages)
+        _contextRow(
+          id: 'images',
+          label: 'Images',
+          kind: SetupComparisonRowKind.images,
+          valueA: List<String>.of(setupA.images),
+          valueB: List<String>.of(setupB.images),
+          differs: !listEquals(setupA.images, setupB.images),
+        ),
+      _contextDisclosure(
+        id: 'location',
+        label: 'Location',
+        kind: SetupComparisonRowKind.location,
+        headerA: _address(setupA),
+        headerB: _address(setupB),
+        children: [
+          _contextRow(
+            id: 'address',
+            label: 'Address',
+            kind: SetupComparisonRowKind.context,
+            valueA: _address(setupA),
+            valueB: _address(setupB),
+            differs: _address(setupA) != _address(setupB),
+          ),
+          _contextRow(
+            id: 'coordinates',
+            label: 'Latitude/Longitude',
+            kind: SetupComparisonRowKind.context,
+            valueA: (setupA.position?.latitude, setupA.position?.longitude),
+            valueB: (setupB.position?.latitude, setupB.position?.longitude),
+            differs:
+                setupA.position?.latitude != setupB.position?.latitude ||
+                setupA.position?.longitude != setupB.position?.longitude,
+          ),
+          _contextRow(
+            id: 'altitude',
+            label: 'Altitude',
+            kind: SetupComparisonRowKind.context,
+            valueA: setupA.position?.altitude,
+            valueB: setupB.position?.altitude,
+            differs: setupA.position?.altitude != setupB.position?.altitude,
+          ),
+        ],
+      ),
+      _contextDisclosure(
+        id: 'conditions',
+        label: 'Conditions',
+        kind: SetupComparisonRowKind.conditions,
+        headerA: setupA.weather?.getWeatherCodeLabel(),
+        headerB: setupB.weather?.getWeatherCodeLabel(),
+        children: [
+          _weatherRow('weather-code', 'Weather', setupA, setupB, (weather) => weather?.getWeatherCodeLabel()),
+          _weatherRow('condition', 'Condition', setupA, setupB, (weather) => weather?.condition?.value),
+          _weatherRow('temperature', 'Temperature', setupA, setupB, (weather) => weather?.currentTemperature),
+          _weatherRow(
+            'precipitation',
+            'Precipitation',
+            setupA,
+            setupB,
+            (weather) => weather?.dayAccumulatedPrecipitation,
+          ),
+          _weatherRow('humidity', 'Humidity', setupA, setupB, (weather) => weather?.currentHumidity),
+          _weatherRow('wind', 'Windspeed', setupA, setupB, (weather) => weather?.currentWindSpeed),
+          _weatherRow(
+            'soil-moisture',
+            'Soil Moisture',
+            setupA,
+            setupB,
+            (weather) => weather?.currentSoilMoisture0to7cm,
+          ),
+        ],
+      ),
+    ];
+    return SetupComparisonGroup(
+      kind: SetupComparisonGroupKind.context,
+      ownerId: 'context',
+      ownerStateA: SetupComparisonOwnerState.installedOrLinked,
+      ownerStateB: SetupComparisonOwnerState.installedOrLinked,
+      label: 'Context',
+      rows: rows,
+    );
+  }
+
+  static SetupComparisonRow _personContextRow(
+    String? idA,
+    String? idB,
+    Map<String, Person> persons,
+  ) {
+    final valueA = idA == null
+        ? null
+        : _reference(idA, persons, missingLabel: 'Person not found', label: (person) => person.name);
+    final valueB = idB == null
+        ? null
+        : _reference(idB, persons, missingLabel: 'Person not found', label: (person) => person.name);
+    return _contextRow(
+      id: 'person',
+      label: 'Person',
+      kind: SetupComparisonRowKind.person,
+      valueA: valueA,
+      valueB: valueB,
+      differs: idA != idB || (valueA?.isMissing ?? false) != (valueB?.isMissing ?? false),
+    );
+  }
+
+  static SetupComparisonReference _reference<T>(
+    String id,
+    Map<String, T> values, {
+    required String missingLabel,
+    required String Function(T value) label,
+  }) {
+    final value = values[id];
+    return SetupComparisonReference(
+      id: id,
+      label: value == null ? missingLabel : label(value),
+      isMissing: value == null,
+    );
+  }
+
+  static SetupComparisonRow _contextRow({
+    required String id,
+    required String label,
+    required SetupComparisonRowKind kind,
+    required dynamic valueA,
+    required dynamic valueB,
+    required bool differs,
+  }) => SetupComparisonRow(
+    id: id,
+    label: label,
+    kind: kind,
+    valueA: _contextValue(valueA),
+    valueB: _contextValue(valueB),
+    isDifferent: differs,
+  );
+
+  static SetupComparisonRow _contextDisclosure({
+    required String id,
+    required String label,
+    required SetupComparisonRowKind kind,
+    required List<SetupComparisonRow> children,
+    required dynamic headerA,
+    required dynamic headerB,
+  }) => SetupComparisonRow(
+    id: id,
+    label: label,
+    kind: kind,
+    valueA: _contextValue(headerA),
+    valueB: _contextValue(headerB),
+    isDifferent: children.any((row) => row.isDifferent),
+    children: children,
+  );
+
+  static SetupComparisonRow _weatherRow(
+    String id,
+    String label,
+    Setup setupA,
+    Setup setupB,
+    dynamic Function(ContextWeather? weather) read,
+  ) => _contextRow(
+    id: id,
+    label: label,
+    kind: SetupComparisonRowKind.context,
+    valueA: read(setupA.weather),
+    valueB: read(setupB.weather),
+    differs: read(setupA.weather) != read(setupB.weather),
+  );
+
+  static String? _address(Setup setup) {
+    final place = setup.place;
+    if (place == null) return null;
+    return '${place.thoroughfare ?? ''} ${place.subThoroughfare ?? ''}, ${place.locality ?? ''}, ${place.isoCountryCode ?? ''}'
+        .replaceAll(RegExp(r' ,'), '')
+        .trim();
+  }
+
+  static SetupComparisonSideValue _contextValue(dynamic value) => SetupComparisonSideValue(
+    value: value,
+    provenance: value == null ? SetupComparisonValueProvenance.unavailable : SetupComparisonValueProvenance.explicit,
+    definition: null,
+  );
 
   static List<_OwnerData> _componentOwners(SetupAdjustmentBreakdown breakdown, Setup setup) {
     return [

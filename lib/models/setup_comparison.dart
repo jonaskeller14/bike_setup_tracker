@@ -4,7 +4,19 @@ import 'person.dart';
 
 enum SetupComparisonGroupKind { component, person, deletedValues, context, ratings }
 
-enum SetupComparisonRowKind { adjustment, deletedAdjustment, context, rating }
+enum SetupComparisonRowKind {
+  adjustment,
+  deletedAdjustment,
+  bike,
+  person,
+  notes,
+  tags,
+  images,
+  location,
+  conditions,
+  context,
+  rating,
+}
 
 enum SetupComparisonValueProvenance {
   explicit,
@@ -70,7 +82,7 @@ class SetupComparisonGroup {
 
   int get differenceCount {
     if (rows.isEmpty) return isStructuralDifference ? 1 : 0;
-    return rows.where((row) => row.isDifferent).length;
+    return rows.fold(0, (count, row) => count + row.differenceCount);
   }
 
   List<SetupComparisonRow> visibleRows({required bool differencesOnly}) {
@@ -86,15 +98,20 @@ class SetupComparisonRow {
   final SetupComparisonSideValue valueA;
   final SetupComparisonSideValue valueB;
   final bool isDifferent;
+  final List<SetupComparisonRow> children;
 
-  const SetupComparisonRow({
+  SetupComparisonRow({
     required this.id,
     required this.label,
     required this.kind,
     required this.valueA,
     required this.valueB,
     required this.isDifferent,
-  });
+    Iterable<SetupComparisonRow> children = const [],
+  }) : children = List.unmodifiable(children);
+
+  int get differenceCount =>
+      children.isEmpty ? (isDifferent ? 1 : 0) : children.fold(0, (count, child) => count + child.differenceCount);
 
   Adjustment? get adjustmentA => valueA.definition;
   Adjustment? get adjustmentB => valueB.definition;
@@ -112,4 +129,16 @@ class SetupComparisonSideValue {
   });
 
   bool get isRecorded => provenance != SetupComparisonValueProvenance.unavailable;
+}
+
+class SetupComparisonReference {
+  final String id;
+  final String label;
+  final bool isMissing;
+
+  const SetupComparisonReference({
+    required this.id,
+    required this.label,
+    this.isMissing = false,
+  });
 }

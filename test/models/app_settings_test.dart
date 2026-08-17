@@ -49,6 +49,27 @@ void main() {
   });
 
   group('AppSettings — write on touch', () {
+    test('Setup Comparison defaults off, notifies, persists, and reloads', () async {
+      SharedPreferences.setMockInitialValues({});
+      final settings = AppSettings();
+      var notifications = 0;
+      settings.addListener(() => notifications++);
+
+      expect(settings.enableSetupComparison, isFalse);
+      settings.enableSetupComparison = true;
+      await flushWrites();
+
+      expect(notifications, 1);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getBool('${_kPrefix}enableSetupComparison'), isTrue);
+
+      final reloaded = AppSettings();
+      await reloaded.loadAppSettings();
+      expect(reloaded.enableSetupComparison, isTrue);
+      settings.dispose();
+      reloaded.dispose();
+    });
+
     test('a setter persists only its own key', () async {
       SharedPreferences.setMockInitialValues({});
       final settings = AppSettings();
@@ -112,8 +133,7 @@ void main() {
       expect(prefs.getString(_kLegacyBlobKey), isNull);
     });
 
-    test('drops a value equal to the old default so it tracks code defaults',
-        () async {
+    test('drops a value equal to the old default so it tracks code defaults', () async {
       SharedPreferences.setMockInitialValues({
         _kLegacyBlobKey: jsonEncode({
           'enableCalendar': false, // equals old default -> untouched

@@ -44,7 +44,9 @@ class FeaturesPage extends StatelessWidget {
             children: [
               const ListTile(
                 leading: Icon(Icons.info_outline),
-                title: Text('Enable these to add specific functionality to your workflow. Keep them disabled to maintain a simpler interface.'),
+                title: Text(
+                  'Enable these to add specific functionality to your workflow. Keep them disabled to maintain a simpler interface.',
+                ),
                 dense: true,
               ),
               const SectionTitle(title: 'Bikes & Components'),
@@ -63,7 +65,8 @@ class FeaturesPage extends StatelessWidget {
                     appSettings.enableGarage = newValue;
                     Navigator.pop(context);
                   },
-                  infoText: 'Enables the Garage layout which focuses on Bikes and their installed Components. If disabled, the app uses a more traditional list-based interface.',
+                  infoText:
+                      'Enables the Garage layout which focuses on Bikes and their installed Components. If disabled, the app uses a more traditional list-based interface.',
                 ),
               ),
               ListTile(
@@ -81,9 +84,10 @@ class FeaturesPage extends StatelessWidget {
                     appSettings.enableInstallationTimeline = newValue;
                     Navigator.pop(context);
                   },
-                  infoText: 'By default, Components are linked to a Bike. '
-                  'When this setting is enabled, you can track exactly when a component was installed and uninstalled. '
-                  'This allows you to uninstall components and move them between different bikes without losing track of their history, usage, or setups.',
+                  infoText:
+                      'By default, Components are linked to a Bike. '
+                      'When this setting is enabled, you can track exactly when a component was installed and uninstalled. '
+                      'This allows you to uninstall components and move them between different bikes without losing track of their history, usage, or setups.',
                 ),
               ),
               if (kDebugMode)
@@ -102,7 +106,8 @@ class FeaturesPage extends StatelessWidget {
                       appSettings.enableComponentPresets = newValue;
                       Navigator.pop(context);
                     },
-                    infoText: 'When adding a fork or shock, pick the model from a built-in '
+                    infoText:
+                        'When adding a fork or shock, pick the model from a built-in '
                         'catalog to prefill its name, notes and adjustments (click ranges, '
                         'air pressure, SAG) automatically. You can still edit everything afterwards.',
                   ),
@@ -142,7 +147,8 @@ class FeaturesPage extends StatelessWidget {
                     appSettings.enableMultiSelect = newValue;
                     Navigator.pop(context);
                   },
-                  infoText: 'Adds a Multi-select option to Categorical Adjustments. '
+                  infoText:
+                      'Adds a Multi-select option to Categorical Adjustments. '
                       'Enable it for an adjustment to allow selecting multiple categories instead of only one.',
                 ),
               ),
@@ -161,7 +167,8 @@ class FeaturesPage extends StatelessWidget {
                     appSettings.enableCountedSelect = newValue;
                     Navigator.pop(context);
                   },
-                  infoText: 'Adds a Count occurrences option to Categorical Adjustments. '
+                  infoText:
+                      'Adds a Count occurrences option to Categorical Adjustments. '
                       'Enable it for an adjustment to record how many times each category is selected.',
                 ),
               ),
@@ -200,7 +207,8 @@ class FeaturesPage extends StatelessWidget {
                       appSettings.enableSetupImages = newValue;
                       Navigator.pop(context);
                     },
-                    infoText: 'Attach images to setups. WARNING: images are stored only on this '
+                    infoText:
+                        'Attach images to setups. WARNING: images are stored only on this '
                         'device. They are NOT included in cloud/Drive backups and will be lost on '
                         'reinstall or when restoring from a backup. Use "Export Images" to move them '
                         'to a new device.',
@@ -215,7 +223,8 @@ class FeaturesPage extends StatelessWidget {
                   onTap: () => appSettingsCheckboxGroupSheet(
                     context: context,
                     title: "Timeline Grouping",
-                    infoText: 'Controls how the Setup History timeline condenses '
+                    infoText:
+                        'Controls how the Setup History timeline condenses '
                         'related entries. Each pass can be toggled on its own.',
                     options: [
                       AppSettingsCheckboxOption(
@@ -255,7 +264,8 @@ class FeaturesPage extends StatelessWidget {
                 onTap: () => appSettingsRadioGroupSheet<bool>(
                   context: context,
                   title: "Tasks",
-                  infoText: "Plan and track anything from recurring maintenance like fork services and chain cleaning to setup experiments like suspension testing or trying different handlebar widths. Keep a complete log of your goals and achievements in one place.",
+                  infoText:
+                      "Plan and track anything from recurring maintenance like fork services and chain cleaning to setup experiments like suspension testing or trying different handlebar widths. Keep a complete log of your goals and achievements in one place.",
                   value: appSettings.enableTask,
                   optionWidgets: _offOnOptionWidgets,
                   onChanged: (bool? newValue) {
@@ -321,7 +331,8 @@ class FeaturesPage extends StatelessWidget {
                     appSettings.enableTaskInterval = newValue;
                     Navigator.pop(context);
                   },
-                  infoText: "Adds an optional trigger to tasks with a progress bar based on time or, with Strava connected, activity stats like distance, elevation and ride time.",
+                  infoText:
+                      "Adds an optional trigger to tasks with a progress bar based on time or, with Strava connected, activity stats like distance, elevation and ride time.",
                 ),
               ),
               ListTile(
@@ -340,7 +351,8 @@ class FeaturesPage extends StatelessWidget {
                     appSettings.enableTaskDelay = newValue;
                     Navigator.pop(context);
                   },
-                  infoText: 'Lets you postpone when a task becomes due, without changing its interval. '
+                  infoText:
+                      'Lets you postpone when a task becomes due, without changing its interval. '
                       'A delay only applies once: completing the task clears it automatically.',
                 ),
               ),
@@ -381,7 +393,8 @@ class FeaturesPage extends StatelessWidget {
                       appSettings.enableGoogleDrive = newValue;
                       Navigator.pop(context);
                     },
-                    infoText: 'Sync your data across devices and keep secure backups in your Google Drive. Your data is stored privately in your own account; we never have access to it.',
+                    infoText:
+                        'Sync your data across devices and keep secure backups in your Google Drive. Your data is stored privately in your own account; we never have access to it.',
                   ),
                 ),
               ListTile(
@@ -399,9 +412,29 @@ class FeaturesPage extends StatelessWidget {
                     appSettings.enableCalendar = newValue;
                     Navigator.pop(context);
                   },
-                  infoText: "Adds a calendar view, reachable from the Setup History page via the calendar button next to search and map buttons.",
+                  infoText:
+                      "Adds a calendar view, reachable from the Setup History page via the calendar button next to search and map buttons.",
                 ),
               ),
+              if (kDebugMode)
+                ListTile(
+                  leading: const Icon(Icons.compare),
+                  title: const Text("Setup Comparison"),
+                  subtitle: _offOnOptionWidgets[appSettings.enableSetupComparison] ?? const Text("-"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () => appSettingsRadioGroupSheet<bool>(
+                    context: context,
+                    title: "Setup Comparison",
+                    value: appSettings.enableSetupComparison,
+                    optionWidgets: _offOnOptionWidgets,
+                    onChanged: (bool? newValue) {
+                      if (newValue == null) return;
+                      appSettings.enableSetupComparison = newValue;
+                      Navigator.pop(context);
+                    },
+                    infoText: 'Exposes experimental comparison of a historical setup against the current setup.',
+                  ),
+                ),
               if (kDebugMode)
                 ListTile(
                   leading: const Icon(Icons.person),

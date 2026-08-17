@@ -154,11 +154,22 @@ void main() {
 
   testWidgets('Compare is present for a historical setup with a current peer', (tester) async {
     final (older, _) = await seedPair(tester);
+    harness.settings.enableSetupComparison = true;
     await pumpTile(tester, older);
 
     await tester.tap(find.byIcon(Icons.more_vert));
     await settle(tester);
 
     expect(find.text('Compare'), findsOneWidget);
+  });
+
+  testWidgets('Compare stays hidden while the setup comparison flag is off', (tester) async {
+    final (older, _) = await seedPair(tester);
+    await pumpTile(tester, older);
+
+    await tester.tap(find.byIcon(Icons.more_vert));
+    await settle(tester);
+
+    expect(find.text('Compare'), findsNothing);
   });
 }

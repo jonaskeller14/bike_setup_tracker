@@ -129,6 +129,32 @@ void main() {
     expect(find.bySemanticsLabel(RegExp('Different Rebound')), findsOneWidget);
   });
 
+  testWidgets('keeps differing notes and tags visible at a narrow width', (tester) async {
+    harness.settings.enableSetupTags = true;
+    final a = harness.setup(
+      id: 'notes-a',
+      name: 'A',
+      local: DateTime(2026, 8, 1, 10),
+      notes: 'A long note that remains visible without opening another control. ' * 4,
+      tags: {'dry', 'fast'},
+    );
+    final b = harness.setup(
+      id: 'notes-b',
+      name: 'B',
+      local: DateTime(2026, 8, 2, 10),
+      notes: 'Different note',
+      tags: {'wet'},
+    );
+    await harness.addSetups(tester, [a, b]);
+    await harness.reload(tester);
+    await pumpComparison(tester, a.id, b.id, width: 320);
+
+    expect(find.text('Notes & tags'), findsOneWidget);
+    expect(find.textContaining('A long note'), findsOneWidget);
+    expect(find.text('dry'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('explicit cross-bike inputs open and invalid implicit/equal calls do not', (tester) async {
     final setupA = harness.setup(id: 'a', name: 'A', local: DateTime(2026, 8, 1, 10));
     final setupB = harness.setup(

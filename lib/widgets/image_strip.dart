@@ -18,6 +18,7 @@ class ImageStrip extends StatefulWidget {
   final void Function(int index)? onRemove;
   final void Function(int oldIndex, int newIndex)? onReorder;
   final void Function(List<String> newFilenames)? onAdd;
+  final String heroTagPrefix;
 
   const ImageStrip({
     super.key,
@@ -27,6 +28,7 @@ class ImageStrip extends StatefulWidget {
     this.onRemove,
     this.onReorder,
     this.onAdd,
+    this.heroTagPrefix = 'setup-image',
   });
 
   @override
@@ -45,9 +47,11 @@ class _ImageStripState extends State<ImageStrip> with TickerProviderStateMixin {
       if (!oldSet.contains(filename) && !_enterControllers.containsKey(filename)) {
         final ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 280));
         _enterControllers[filename] = ctrl;
-        unawaited(ctrl.forward().then((_) {
-          if (mounted) setState(() => _enterControllers.remove(filename)?.dispose());
-        }));
+        unawaited(
+          ctrl.forward().then((_) {
+            if (mounted) setState(() => _enterControllers.remove(filename)?.dispose());
+          }),
+        );
       }
     }
     // Clean up exit controllers for items removed from widget.images
@@ -59,8 +63,12 @@ class _ImageStripState extends State<ImageStrip> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    for (final ctrl in _enterControllers.values) { ctrl.dispose(); }
-    for (final ctrl in _exitControllers.values) { ctrl.dispose(); }
+    for (final ctrl in _enterControllers.values) {
+      ctrl.dispose();
+    }
+    for (final ctrl in _exitControllers.values) {
+      ctrl.dispose();
+    }
     super.dispose();
   }
 
@@ -72,11 +80,13 @@ class _ImageStripState extends State<ImageStrip> with TickerProviderStateMixin {
       value: 1.0,
     );
     setState(() => _exitControllers[filename] = ctrl);
-    unawaited(ctrl.reverse().then((_) {
-      if (!mounted) return;
-      final index = widget.images.indexOf(filename);
-      if (index != -1) widget.onRemove?.call(index);
-    }));
+    unawaited(
+      ctrl.reverse().then((_) {
+        if (!mounted) return;
+        final index = widget.images.indexOf(filename);
+        if (index != -1) widget.onRemove?.call(index);
+      }),
+    );
   }
 
   Widget _animatedItem(String filename, Widget child) {
@@ -107,19 +117,19 @@ class _ImageStripState extends State<ImageStrip> with TickerProviderStateMixin {
   }
 
   void _openViewer(BuildContext context, int index) {
-    unawaited(Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => ImageViewer(
-          images: widget.images,
-          imagesDir: widget.imagesDir,
-          initialIndex: index,
-          onDelete: widget.onRemove != null
-              ? (deletedIndex) => widget.onRemove?.call(deletedIndex)
-              : null,
+    unawaited(
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ImageViewer(
+            images: widget.images,
+            imagesDir: widget.imagesDir,
+            initialIndex: index,
+            onDelete: widget.onRemove != null ? (deletedIndex) => widget.onRemove?.call(deletedIndex) : null,
+          ),
         ),
       ),
-    ));
+    );
   }
 
   Future<void> _pickImages(BuildContext context) async {
@@ -161,7 +171,7 @@ class _ImageStripState extends State<ImageStrip> with TickerProviderStateMixin {
         GestureDetector(
           onTap: () => _openViewer(context, index),
           child: Hero(
-            tag: 'setup-image-$filename',
+            tag: '${widget.heroTagPrefix}-$filename',
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image.file(
@@ -281,8 +291,7 @@ class _ImageStripState extends State<ImageStrip> with TickerProviderStateMixin {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.add_photo_alternate_outlined,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        Icon(Icons.add_photo_alternate_outlined, color: Theme.of(context).colorScheme.onSurfaceVariant),
                         Text(
                           'Add',
                           style: TextStyle(

@@ -117,14 +117,45 @@ count. Expand to per-metric score rows joined strictly by metric UUID, with the
 metric weight shown as in setup details. A score delta is descriptive only; do
 not name a winner. Missing scores/metrics get explicit unavailable states.
 
+### Sheet actions → restore B and reuse comparison from setup details
+
+The comparison sheet gets a B-specific `Restore B` tonal action. It reuses the
+existing Restore semantics (`SetupActions.duplicateSetup`): copy B into the
+duplicate form at the current time, let the user review/edit it, then save the
+new setup as current. It is not a silent mutation of the historical setup.
+Hide the action when B is already current. After a successful restore, close
+the comparison sheet because its original current-baseline context is stale;
+after cancellation, keep it open.
+
+In `SetupDetailsSheet`, replace the standalone sheet Edit icon with one compact
+overflow menu containing Edit, Restore and Compare; retain the separate Close
+button. Edit is always available, Restore only for a non-current setup, and
+Compare only when `enableSetupComparison` is on and the strict target resolver
+finds a distinct current setup on the same bike. Opening comparison stacks it
+above the details sheet so closing comparison returns to the details context.
+After a successful Restore, close details. Keep the full-page
+`SetupDetailsPage` app-bar behavior unchanged.
+
 ---
 
 ## Feature flag
 
-No new feature flag. The setup-tile Compare action and the unfinished sheet
-already define the feature boundary. Continue respecting the existing
-`enablePerson`, `enableRating`, `enableSetupTags` and `enableSetupImages` flags
-for their corresponding sections.
+Add a persisted `AppSettings.enableSetupComparison` flag, defaulting to
+`false`. Expose its toggle in `FeaturesPage` only inside the existing
+`if (kDebugMode)` development-feature section, so normal release users have no
+settings UI for enabling this unfinished feature.
+
+Guard the setup-tile Compare menu action with **only**
+`appSettings.enableSetupComparison` plus the normal comparison eligibility
+checks. Do not repeat `kDebugMode` in `SetupListTile`: debug-only availability
+comes from where the setting is exposed, while the widget remains driven by
+settings state and straightforward to test. Keep the public
+`showCompareSetupsSheet` API ungated so direct/internal callers and widget tests
+can exercise it independently of the menu rollout.
+
+Continue respecting the existing `enablePerson`, `enableRating`,
+`enableSetupTags` and `enableSetupImages` flags for their corresponding
+sections.
 
 No dependency, database migration, generated file or platform-specific change
 is required.
@@ -348,22 +379,57 @@ Differences, and orange changed backgrounds remain legible in light and dark.
 
 ---
 
-## Phase 3 — Context, visible notes/tags and side-by-side images
+## Phase 3 — Debug feature gate, context, visible notes/tags and side-by-side images
 
-**Status:** ⬜ Not started
+**Status:** 🔄 In progress
 
-**Goal:** implement the full Context section with the approved information
+**Goal:** place the setup-tile entry behind a persisted debug-exposed feature
+setting, then implement the full Context section with the approved information
 priority and two horizontal image strips.
 
 **Files:**
 
 - Modify `lib/models/setup_comparison.dart`
+- Modify `lib/models/app_settings.dart`
 - Modify `lib/services/setup_comparison_service.dart`
+- Modify `lib/pages/settings/features_page.dart`
 - Modify `lib/widgets/sheets/compare_setups.dart`
 - Modify `lib/widgets/compare_setups/setup_comparison_row.dart`
+- Modify `lib/widgets/items/setup_list_tile.dart`
 - Modify `lib/widgets/image_strip.dart`
+- Modify `test/models/app_settings_test.dart`
+- Add `test/pages/settings/features_page_test.dart`
 - Modify `test/services/setup_comparison_service_test.dart`
+- Modify `test/widgets/items/setup_list_tile_test.dart`
 - Modify `test/widgets/sheets/compare_setups_test.dart`
+
+### Debug-exposed feature setting and menu guard
+
+- [ ] Add `_enableSetupComparison = false`, its public getter/setter and
+  `_persistBool('enableSetupComparison', value)` handling to `AppSettings`.
+  Load the same prefixed key in `loadAppSettings`, matching adjacent boolean
+  feature settings exactly.
+- [ ] In `FeaturesPage`, add a `Setup Comparison` list tile inside
+  `if (kDebugMode)`. Reuse `_offOnOptionWidgets` and
+  `appSettingsRadioGroupSheet<bool>`; explain that it exposes comparison of a
+  historical setup against the current setup while the feature is experimental.
+- [ ] In `SetupListTile`, require
+  `appSettings.enableSetupComparison` before including the Compare menu item.
+  Keep the Phase 2 rules too: the setup must be non-current and have a distinct
+  current setup on the same bike.
+- [ ] Do **not** add `kDebugMode` to the `SetupListTile` guard and do not gate
+  `showCompareSetupsSheet`; the setting is the single runtime source of truth.
+- [ ] Update Phase 2-era tests/harness setup so scenarios that expect Compare
+  explicitly enable the setting; default-setting scenarios must now expect the
+  action to be absent.
+- [ ] Extend `app_settings_test.dart` to verify the default is false, the setter
+  notifies/persists it, and a new `AppSettings` instance reloads the stored value.
+- [ ] Add `features_page_test.dart` to verify the debug build shows the Setup
+  Comparison tile, reflects Off/On, and changes the setting through the existing
+  radio-group interaction.
+- [ ] Extend `setup_list_tile_test.dart` to verify: flag off hides Compare even
+  for an otherwise eligible historical setup; flag on shows it only when the
+  current-baseline eligibility rules pass.
 
 ### Context projection
 
@@ -445,21 +511,28 @@ priority and two horizontal image strips.
   Hero prefixes avoid duplicate-Hero exceptions.
 - [ ] Verify `enableSetupTags` and `enableSetupImages` gates hide both UI and
   associated difference counts.
+- [ ] Verify `enableSetupComparison` defaults/persistence, the debug-only
+  FeaturesPage control, and the setting-only setup-tile menu guard.
 - [ ] Format only new/modified files from this phase.
 
 **Verification:**
 
 ```bash
+flutter test test/models/app_settings_test.dart
+flutter test test/pages/settings/features_page_test.dart
 flutter test test/services/setup_comparison_service_test.dart
+flutter test test/widgets/items/setup_list_tile_test.dart
 flutter test test/widgets/sheets/compare_setups_test.dart
 flutter analyze
 ```
 
-Manual: compare setups with long notes, many tags, images on both/one/neither
-side, different places and partial weather; verify strips stay side by side and
+Manual: in a debug build, confirm Setup Comparison defaults Off, the historical
+setup menu hides Compare while Off and shows it after enabling the feature; then
+compare setups with long notes, many tags, images on both/one/neither side,
+different places and partial weather. Verify strips stay side by side and
 weather remains secondary in both themes.
 
-**Commit:** `feat(setups): compare setup context and images`
+**Commit:** `feat(setups): gate comparison and add setup context`
 
 ---
 
@@ -548,23 +621,78 @@ different persons and a setup with dangling values; inspect long values at
 
 ---
 
-## Phase 5 — Ratings, accessibility, goldens and full regression
+## Phase 5 — Sheet actions, ratings, accessibility, goldens and full regression
 
 **Status:** ⬜ Not started
 
-**Goal:** complete Ratings, lock visual behavior, and verify the finished sheet
-as an integrated feature.
+**Goal:** complete the comparison/details sheet actions and Ratings, lock
+visual behavior, and verify the finished experience as an integrated feature.
 
 **Files:**
 
 - Modify `lib/models/setup_comparison.dart`
 - Modify `lib/services/setup_comparison_service.dart`
+- Modify `lib/utils/setup_actions.dart`
+- Modify `lib/pages/details/setup_details_page.dart`
 - Modify `lib/widgets/sheets/compare_setups.dart`
+- Modify `lib/widgets/sheets/setup_details.dart`
 - Modify `lib/widgets/compare_setups/setup_comparison_row.dart`
+- Add `test/utils/setup_actions_test.dart`
 - Modify `test/services/setup_comparison_service_test.dart`
+- Modify `test/widgets/items/setup_list_tile_test.dart`
 - Modify `test/widgets/sheets/compare_setups_test.dart`
+- Add `test/widgets/sheets/setup_details_test.dart`
 - Add `test/widgets/sheets/compare_setups_golden_test.dart`
 - Add generated CI baselines under `test/widgets/sheets/goldens/ci/`
+
+### Restore B from the comparison sheet
+
+- [ ] Change `SetupActions.duplicateSetup` from `Future<void>` to
+  `Future<Setup?>`. Preserve its existing image-copy cleanup and duplicate-form
+  workflow; return the created setup after `addSetup`, and return `null` on
+  cancellation or when the initiating context is lost. Existing callers may
+  continue awaiting and ignoring the result.
+- [ ] Add a compact `FilledButton.tonalIcon` (restore icon, label `Restore B`)
+  to the comparison header/action row. It is explicitly associated with the
+  right/candidate side, remains overflow-safe at 320 px/text scale 2.0, and is
+  hidden when B is current.
+- [ ] Do not gate this in-sheet action with `enableSetupComparison`: once a
+  caller has opened comparison, the setting has already served its menu-entry
+  purpose.
+- [ ] On tap, call `SetupActions.duplicateSetup(context, setup: setupB)`. Keep
+  the comparison sheet open if the duplicate form is cancelled. After a
+  successful add, check `context.mounted` and close comparison rather than
+  leaving an A/B view whose current baseline has changed.
+- [ ] Provide clear button tooltip/semantics (“Restore setup B as current”);
+  the duplicate form is the review/confirmation step, so do not add a second
+  confirmation dialog.
+
+### Setup-details sheet action menu
+
+- [ ] Replace the sheet-only standalone Edit button in
+  `SetupDetailsPageContent` with a filled overflow `PopupMenuButton`; retain the
+  separate Close button. Keep the full-page `SetupDetailsPage` app-bar Edit
+  action unchanged.
+- [ ] Give the menu Edit, Restore and Compare entries using the same labels and
+  icons as `SetupListTile`. Avoid copying the private `_SetupOptions` enum; a
+  small details-sheet-local enum is sufficient.
+- [ ] Edit is always present. Restore is present only when the displayed setup
+  is not current. On successful restore, close details; on cancellation, leave
+  it open.
+- [ ] Compare is present only when
+  `appSettings.enableSetupComparison` is true and Phase 1's target resolver can
+  resolve a distinct current setup on the same bike. Reuse the resolver rather
+  than duplicating `setups.any(...)` eligibility logic.
+- [ ] Launch `showCompareSetupsSheet(context, setupA: null, setupB: setup)`
+  above the details sheet. Do not close details first; dismissing comparison
+  returns the user to the details context.
+- [ ] Keep action callbacks guarded across awaits and handle a setup removed
+  while the sheet is open with the existing missing-setup/error behavior.
+- [ ] Update `showSetupDetailsSheet`/`SetupDetailsPageContent` parameters to
+  express “show sheet actions” rather than an Edit-only contract, without
+  changing default full-page rendering.
+- [ ] Keep the header overflow-safe with a long setup name, Current badge,
+  overflow button and Close button at narrow widths and large text scale.
 
 ### Ratings integration
 
@@ -592,7 +720,8 @@ as an integrated feature.
   Ratings; A precedes B within each row.
 - [ ] Add semantic labels that include row name, side/setup name, formatted
   value, provenance/state and whether the pair differs.
-- [ ] Ensure minimum tap targets for filter, close button and disclosures.
+- [ ] Ensure minimum tap targets for filter, Restore B, action overflow, close
+  button and disclosures.
 - [ ] Verify text scale 1.3 and 2.0 without overflow; the modal remains
   scrollable and the pinned header does not consume the full viewport.
 - [ ] Confirm background highlighting meets contrast expectations in light/dark
@@ -603,9 +732,23 @@ as an integrated feature.
 - [ ] Add rating tests for no ratings, unequal entry counts, equal/different
   rounded scores, strict metric IDs, one-sided missing definitions and
   `enableRating = false`.
+- [ ] Add `setup_actions_test.dart` coverage for the new duplicate return
+  contract: successful duplicate returns the added setup; form cancellation
+  and lost context return `null`; copied images are cleaned on cancellation.
+- [ ] Extend comparison-sheet tests: Restore B is visible only for non-current
+  B, cancellation leaves the sheet open, successful restore closes it, and the
+  button has the required tooltip/semantics.
+- [ ] Add setup-details-sheet tests: overflow replaces the sheet Edit icon;
+  Edit is always present; Restore follows current state; Compare follows the
+  setting plus target resolver; Compare opens above details and returns to it;
+  successful/cancelled Restore closes/retains details as specified.
+- [ ] Re-run/extend setup-list-tile tests to prove the
+  `duplicateSetup` return-type change does not alter the existing Restore menu
+  flow or comparison eligibility.
 - [ ] Add one full interaction test: open from a historical setup tile, confirm
   Current is A, Differences is selected, toggle All, expand Conditions and
-  Ratings, scroll through Values, open an image, and close cleanly.
+  Ratings, scroll through Values, open an image, cancel Restore B, and close
+  cleanly.
 - [ ] Add Alchemist CI goldens using a deterministic provider/repository fixture:
   - 390×844 phone, Differences view, light and dark;
   - 800 px wide layout, All view or a second representative capture;
@@ -622,8 +765,10 @@ as an integrated feature.
 **Verification:**
 
 ```bash
+flutter test test/utils/setup_actions_test.dart
 flutter test test/services/setup_comparison_service_test.dart
 flutter test test/widgets/sheets/compare_setups_test.dart
+flutter test test/widgets/sheets/setup_details_test.dart
 flutter test test/widgets/items/setup_list_tile_test.dart
 flutter test test/widgets/sheets/compare_setups_golden_test.dart --update-goldens
 flutter test test/widgets/sheets/compare_setups_golden_test.dart
@@ -642,9 +787,12 @@ Manual acceptance matrix:
 - images on both/one/neither side, including the same filename;
 - partial/missing location and weather;
 - no ratings, unequal samples and different metric sets;
+- Restore B cancelled and completed, including copied setup images;
+- setup-details Edit/Restore/Compare overflow eligibility and stacked compare
+  navigation;
 - 320, 390 and 800 px widths; text scale 1.0/1.3/2.0; light and dark themes.
 
-**Commit:** `feat(setups): complete rated setup comparison experience`
+**Commit:** `feat(setups): complete setup comparison actions and ratings`
 
 ---
 
@@ -655,12 +803,14 @@ Manual acceptance matrix:
 2. `feat(setups): add responsive setup comparison shell`
    - Modal lifecycle, pinned header, default Differences filter, row primitive
      and setup-tile entry contract.
-3. `feat(setups): compare setup context and images`
-   - Primary/secondary Context, visible notes/tags and side-by-side ImageStrips.
+3. `feat(setups): gate comparison and add setup context`
+   - Persisted debug-exposed feature setting, setup-tile guard,
+     primary/secondary Context, visible notes/tags and side-by-side ImageStrips.
 4. `feat(setups): compare component and person setup values`
    - Owner hierarchy, effective/provenance display and dangling/structural data.
-5. `feat(setups): complete rated setup comparison experience`
-   - Ratings, semantics, goldens and full regression verification.
+5. `feat(setups): complete setup comparison actions and ratings`
+   - Restore B, setup-details action menu, Ratings, semantics, goldens and full
+     regression verification.
 
 Each phase is sized for one commit or small PR and can be handed to a fresh
 context independently. Phases 1–2 establish the stable service/widget contracts;

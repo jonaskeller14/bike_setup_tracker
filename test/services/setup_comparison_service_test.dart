@@ -1,4 +1,5 @@
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
+import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/models/person.dart';
@@ -15,6 +16,9 @@ void main() {
     required String id,
     required String bike,
     String? person,
+    String? notes,
+    Set<String> tags = const {},
+    List<String> images = const [],
     Map<String, dynamic> bikeValues = const {},
     Map<String, dynamic> personValues = const {},
     Map<String, dynamic> previousBikeValues = const {},
@@ -25,11 +29,13 @@ void main() {
         id: id,
         datetime: at ?? DateTime.utc(2026, 1, 2),
         datetimeLocal: (at ?? DateTime.utc(2026, 1, 2)).toLocal(),
-        tags: const {},
+        notes: notes,
+        tags: tags,
         bike: bike,
         person: person,
         bikeAdjustmentValues: bikeValues,
         personAdjustmentValues: personValues,
+        images: images,
       )
       ..previousBikeAdjustmentValues = previousBikeValues
       ..previousPersonAdjustmentValues = previousPersonValues;
@@ -64,11 +70,66 @@ void main() {
     required Setup b,
     Iterable<Component> components = const [],
     Iterable<Person> persons = const [],
+    Iterable<Bike> bikes = const [],
+    bool includeContext = false,
+    bool includePerson = false,
+    bool includeTags = false,
+    bool includeImages = false,
   }) {
-    return SetupComparisonService.build(setupA: a, setupB: b, components: components, persons: persons);
+    return SetupComparisonService.build(
+      setupA: a,
+      setupB: b,
+      bikes: bikes,
+      components: components,
+      persons: persons,
+      includeContext: includeContext,
+      includePerson: includePerson,
+      includeTags: includeTags,
+      includeImages: includeImages,
+    );
   }
 
   group('SetupComparisonService.build', () {
+    test('projects context with strict references and feature-gated tags and images', () {
+      final alex = Person(id: 'person-a', name: 'Alex', adjustments: const []);
+      final result = compare(
+        a: setup(
+          id: 'a',
+          bike: bikeA,
+          person: alex.id,
+          notes: 'first note',
+          tags: {'dry', 'fast'},
+          images: ['one.jpg', 'two.jpg'],
+        ),
+        b: setup(
+          id: 'b',
+          bike: bikeB,
+          person: 'missing-person',
+          notes: 'second note',
+          tags: {'fast', 'dry'},
+          images: ['two.jpg', 'one.jpg'],
+        ),
+        bikes: [
+          Bike(id: bikeA, name: 'Bike A', person: null),
+          Bike(id: bikeB, name: 'Bike B', person: null),
+        ],
+        persons: [alex],
+        includeContext: true,
+        includePerson: true,
+        includeTags: true,
+        includeImages: true,
+      );
+
+      final context = result.groups.firstWhere((group) => group.kind == SetupComparisonGroupKind.context);
+      final rows = {for (final row in context.rows) row.id: row};
+      expect(rows['bike']!.isDifferent, isTrue);
+      expect(rows['person']!.valueB.value, isA<SetupComparisonReference>());
+      expect((rows['person']!.valueB.value as SetupComparisonReference).label, 'Person not found');
+      expect(rows['notes']!.isDifferent, isTrue);
+      expect(rows['tags']!.isDifferent, isFalse);
+      expect(rows['images']!.isDifferent, isTrue);
+    });
+
     test('uses explicit and inherited effective values without treating provenance as a difference', () {
       final adjustment = text('pressure');
       final fork = component(id: 'fork', name: 'Fork', bike: bikeA, adjustments: [adjustment]);

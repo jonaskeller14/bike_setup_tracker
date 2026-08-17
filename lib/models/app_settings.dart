@@ -16,7 +16,7 @@ class AppSettings extends ChangeNotifier {
   String _altitudeUnit = 'm';
   String _precipitationUnit = 'mm';
   String _distanceUnit = 'km';
-  bool _enableGoogleDrive = false;  // False is default, can only be activated on Android (see AppSettingsPage)
+  bool _enableGoogleDrive = false; // False is default, can only be activated on Android (see AppSettingsPage)
   bool _enableTextAdjustment = false;
   bool _enableMultiSelect = false;
   bool _enableCountedSelect = false;
@@ -41,6 +41,7 @@ class AppSettings extends ChangeNotifier {
   bool _showSetupCalendarHint = true;
   bool _enableCalendar = false;
   bool _enableSetupImages = false;
+  bool _enableSetupComparison = false;
   bool _enableComponentPresets = false;
   // Setup timeline grouping passes (debug-only, see FeaturesPage)
   bool _enableTimelineDayHeaders = true;
@@ -94,6 +95,7 @@ class AppSettings extends ChangeNotifier {
   bool get hintShownThisSession => _hintShownThisSession;
   bool get enableCalendar => _enableCalendar;
   bool get enableSetupImages => _enableSetupImages;
+  bool get enableSetupComparison => _enableSetupComparison;
   bool get enableComponentPresets => _enableComponentPresets;
   bool get enableTimelineDayHeaders => _enableTimelineDayHeaders;
   bool get enableTimelineSetupGrouping => _enableTimelineSetupGrouping;
@@ -271,7 +273,7 @@ class AppSettings extends ChangeNotifier {
     _persistBool('enableTaskInterval', newValue);
   }
 
-  set enableTaskDelay (bool newValue) {
+  set enableTaskDelay(bool newValue) {
     if (newValue == _enableTaskDelay) return;
     _enableTaskDelay = newValue;
     notifyListeners();
@@ -339,6 +341,13 @@ class AppSettings extends ChangeNotifier {
     _enableSetupImages = newValue;
     notifyListeners();
     _persistBool('enableSetupImages', newValue);
+  }
+
+  set enableSetupComparison(bool newValue) {
+    if (newValue == _enableSetupComparison) return;
+    _enableSetupComparison = newValue;
+    notifyListeners();
+    _persistBool('enableSetupComparison', newValue);
   }
 
   set enableComponentPresets(bool newValue) {
@@ -491,20 +500,26 @@ class AppSettings extends ChangeNotifier {
       _enableTaskInterval = prefs.getBool('${_kPrefix}enableTaskInterval') ?? _enableTaskInterval;
       _enableTaskDelay = prefs.getBool('${_kPrefix}enableTaskDelay') ?? _enableTaskDelay;
       _enableGarageTaskIndicator = prefs.getBool('${_kPrefix}enableGarageTaskIndicator') ?? _enableGarageTaskIndicator;
-      _enableInstallationTimeline = prefs.getBool('${_kPrefix}enableInstallationTimeline') ?? _enableInstallationTimeline;
+      _enableInstallationTimeline =
+          prefs.getBool('${_kPrefix}enableInstallationTimeline') ?? _enableInstallationTimeline;
       _useMapBoxTiles = prefs.getBool('${_kPrefix}useMapBoxTiles') ?? _useMapBoxTiles;
       _showStravaLinkGearHint = prefs.getBool('${_kPrefix}showStravaLinkGearHint') ?? _showStravaLinkGearHint;
       _showGarageListHint = prefs.getBool('${_kPrefix}showGarageListHint') ?? _showGarageListHint;
-      _showGettingStartedGuideHint = prefs.getBool('${_kPrefix}showGettingStartedGuideHint') ?? _showGettingStartedGuideHint;
+      _showGettingStartedGuideHint =
+          prefs.getBool('${_kPrefix}showGettingStartedGuideHint') ?? _showGettingStartedGuideHint;
       _showSetupTaskHint = prefs.getBool('${_kPrefix}showSetupTaskHint') ?? _showSetupTaskHint;
       _showSetupCalendarHint = prefs.getBool('${_kPrefix}showSetupCalendarHint') ?? _showSetupCalendarHint;
       _enableCalendar = prefs.getBool('${_kPrefix}enableCalendar') ?? _enableCalendar;
       _enableSetupImages = prefs.getBool('${_kPrefix}enableSetupImages') ?? _enableSetupImages;
+      _enableSetupComparison = prefs.getBool('${_kPrefix}enableSetupComparison') ?? _enableSetupComparison;
       _enableComponentPresets = prefs.getBool('${_kPrefix}enableComponentPresets') ?? _enableComponentPresets;
       _enableTimelineDayHeaders = prefs.getBool('${_kPrefix}enableTimelineDayHeaders') ?? _enableTimelineDayHeaders;
-      _enableTimelineSetupGrouping = prefs.getBool('${_kPrefix}enableTimelineSetupGrouping') ?? _enableTimelineSetupGrouping;
-      _enableTimelineReplacementDetection = prefs.getBool('${_kPrefix}enableTimelineReplacementDetection') ?? _enableTimelineReplacementDetection;
-      _enableTimelineStravaContext = prefs.getBool('${_kPrefix}enableTimelineStravaContext') ?? _enableTimelineStravaContext;
+      _enableTimelineSetupGrouping =
+          prefs.getBool('${_kPrefix}enableTimelineSetupGrouping') ?? _enableTimelineSetupGrouping;
+      _enableTimelineReplacementDetection =
+          prefs.getBool('${_kPrefix}enableTimelineReplacementDetection') ?? _enableTimelineReplacementDetection;
+      _enableTimelineStravaContext =
+          prefs.getBool('${_kPrefix}enableTimelineStravaContext') ?? _enableTimelineStravaContext;
       _firstDayOfWeek = prefs.getInt('${_kPrefix}firstDayOfWeek') ?? _firstDayOfWeek;
     } catch (e, st) {
       debugPrint("ERROR loading App Settings: $e\n$st");
@@ -594,6 +609,5 @@ class AppSettings extends ChangeNotifier {
     return meters.convertFromTo(LENGTH.meters, _elevationLengthUnit(targetUnit));
   }
 
-  static String speedUnitForDistance(String distanceUnit) =>
-      distanceUnit == 'mi' ? 'mph' : 'km/h';
+  static String speedUnitForDistance(String distanceUnit) => distanceUnit == 'mi' ? 'mph' : 'km/h';
 }

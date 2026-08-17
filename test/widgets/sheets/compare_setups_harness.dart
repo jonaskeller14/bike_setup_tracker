@@ -70,17 +70,22 @@ class CompareSetupsHarness {
     required DateTime local,
     String bike = bikeId,
     Map<String, dynamic> values = const {},
+    String? notes,
+    Set<String> tags = const {},
+    List<String> images = const [],
   }) {
     return Setup(
       id: id,
       name: name,
       datetime: local.toUtc(),
       datetimeLocal: local,
-      tags: {},
+      notes: notes,
+      tags: tags,
       bike: bike,
       person: null,
       bikeAdjustmentValues: Map<String, dynamic>.from(values),
       personAdjustmentValues: {},
+      images: images,
     );
   }
 

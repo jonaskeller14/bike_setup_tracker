@@ -104,7 +104,8 @@ class _SetupListTileState extends State<SetupListTile> {
             .where((option) {
               if (!appSettings.enableRating && (option == _SetupOptions.addRating)) return false;
               if (option == _SetupOptions.compare &&
-                  (setup.isCurrent ||
+                  (!appSettings.enableSetupComparison ||
+                      setup.isCurrent ||
                       !setups.any(
                         (candidate) => candidate.id != setup.id && candidate.bike == setup.bike && candidate.isCurrent,
                       ))) {
@@ -133,9 +134,7 @@ class _SetupListTileState extends State<SetupListTile> {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
     final bikes = appRepository.bikes;
-    final double? score = appSettings.enableRating
-        ? appRepository.scoreForSetup(setup.id)
-        : null;
+    final double? score = appSettings.enableRating ? appRepository.scoreForSetup(setup.id) : null;
     // Embedded members get their chevron from the embedded wrapper instead.
     final bool showInlineExpandIcon = !widget.embedded && summary.collapsedHidesSomething;
 
@@ -152,7 +151,8 @@ class _SetupListTileState extends State<SetupListTile> {
       if (!widget.embedded && setup.weather?.currentTemperature != null)
         TileMetaRow(
           icon: ContextWeather.currentTemperatureIconData,
-          text: "${ContextWeather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, appSettings.temperatureUnit)?.round()} ${appSettings.temperatureUnit}",
+          text:
+              "${ContextWeather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, appSettings.temperatureUnit)?.round()} ${appSettings.temperatureUnit}",
           muted: true,
         ),
       if (!widget.embedded && setup.weather?.condition != null)
@@ -162,8 +162,7 @@ class _SetupListTileState extends State<SetupListTile> {
           iconColor: setup.weather?.condition?.color,
           muted: true,
         ),
-      if (appSettings.enableSetupTags)
-        ...setup.tags.map((tag) => TileMetaRow(icon: Icons.tag, text: tag, muted: true)),
+      if (appSettings.enableSetupTags) ...setup.tags.map((tag) => TileMetaRow(icon: Icons.tag, text: tag, muted: true)),
       if (appSettings.enableSetupImages && setup.images.isNotEmpty)
         TileMetaRow(
           icon: Icons.photo_library_outlined,
@@ -177,10 +176,10 @@ class _SetupListTileState extends State<SetupListTile> {
     final Widget? badge = score != null
         ? _scoreBadge(context, score)
         : widget.showCurrentBadge
-            ? setup.isCurrent
-                  ? const CurrentSetupBadge()
-                  : null
-            : null;
+        ? setup.isCurrent
+              ? const CurrentSetupBadge()
+              : null
+        : null;
 
     return Padding(
       // Horizontal only. The popup menu and chevron need the row's full height
@@ -192,17 +191,13 @@ class _SetupListTileState extends State<SetupListTile> {
       // Embedded (group member): the group's container already carries the row
       // inset, and the trailing edge pulls in to 4 so the popup menu lines up
       // with the expand chevron below it.
-      padding: widget.embedded
-          ? const EdgeInsets.only(left: 8, right: 4)
-          : const EdgeInsets.symmetric(horizontal: 16),
+      padding: widget.embedded ? const EdgeInsets.only(left: 8, right: 4) : const EdgeInsets.symmetric(horizontal: 16),
       child: Stack(
         children: [
           ConstrainedBox(
             // Content must be at least as tall as the trailing buttons,
             constraints: BoxConstraints(
-              minHeight: showInlineExpandIcon
-                  ? 2 * kMinInteractiveDimension
-                  : kMinInteractiveDimension,
+              minHeight: showInlineExpandIcon ? 2 * kMinInteractiveDimension : kMinInteractiveDimension,
             ),
             child: Padding(
               padding: const EdgeInsets.only(
@@ -385,9 +380,7 @@ class _SetupListTileState extends State<SetupListTile> {
                       // Keep the last value row clear of the chevron.
                       right: kMinInteractiveDimension,
                     ),
-                    child: !expanded && !summary.collapsedHasContent
-                        ? _noChangesHint(context)
-                        : adjustmentList,
+                    child: !expanded && !summary.collapsedHasContent ? _noChangesHint(context) : adjustmentList,
                   ),
                 ],
               ),
@@ -467,9 +460,7 @@ class _SetupListTileState extends State<SetupListTile> {
 
     // Whether the list renders anything in its current state — its padding
     // would otherwise add height to a row with no values.
-    final bool hasValues = _displayOnlyChanges
-        ? summary.collapsedHasContent
-        : summary.hasContent;
+    final bool hasValues = _displayOnlyChanges ? summary.collapsedHasContent : summary.hasContent;
 
     final Widget content = widget.embedded
         ? _buildEmbedded(context, setup, summary, adjustmentList)
@@ -512,6 +503,7 @@ enum _SetupOptions {
   compare("Compare", Icons.compare),
   addRating("Add Rating", RatingEntry.iconData),
   remove("Remove", Icons.delete);
+
   final String label;
   final IconData iconData;
   const _SetupOptions(this.label, this.iconData);

@@ -20,22 +20,47 @@ import '../utils/rating_entry_actions.dart';
 import '../utils/setup_actions.dart';
 import '../utils/task_actions.dart';
 import '../widgets/empty_state_placeholder.dart';
+import '../widgets/sticky_section.dart';
+import '../widgets/timeline_day_header.dart';
 
 class TrashPage extends StatelessWidget{
   const TrashPage({super.key});
 
   ListTile _trashItem({required BuildContext context, required _TrashItem deletedItem}) {
-    final appSettings = context.read<AppSettings>();
-    final dateFormat = DateFormat(appSettings.dateFormat);
-    final timeFormat = DateFormat(appSettings.timeFormat);
+    final timeFormat = DateFormat(context.read<AppSettings>().timeFormat);
 
     return ListTile(
       leading: Icon(deletedItem.iconData),
       title: Text(deletedItem.name, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold)),
-      subtitle: Text("Deleted at: ${dateFormat.format(deletedItem.lastModified.toLocal())} ${timeFormat.format(deletedItem.lastModified.toLocal())}"),
+      subtitle: Text('Deleted at: ${timeFormat.format(deletedItem.lastModified.toLocal())}'),
       trailing: IconButton(
         icon: const Icon(Icons.restore_from_trash),
         onPressed: () => deletedItem.restore(context),
+      ),
+    );
+  }
+
+  Widget _daySection(
+    BuildContext context, {
+    required DateTime day,
+    required List<_TrashItem> items,
+  }) {
+    return StickySection(
+      header: TimelineDayHeader(day: day, margin: EdgeInsets.zero),
+      content: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+        child: Column(
+          children: [
+            for (final item in items)
+              Card(
+                margin: const EdgeInsets.symmetric(vertical: 4),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: _trashItem(context: context, deletedItem: item),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -56,6 +81,15 @@ class TrashPage extends StatelessWidget{
     ];
 
     deletedCombined.sort((a, b) => b.lastModified.compareTo(a.lastModified));
+    final sections = <({DateTime day, List<_TrashItem> items})>[];
+    for (final item in deletedCombined) {
+      final local = item.lastModified.toLocal();
+      final day = DateTime(local.year, local.month, local.day);
+      if (sections.isEmpty || sections.last.day != day) {
+        sections.add((day: day, items: []));
+      }
+      sections.last.items.add(item);
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -94,17 +128,20 @@ class TrashPage extends StatelessWidget{
                         ),
                       ],
                     )
-                  : ListView.builder(
-                      padding: const EdgeInsets.all(16.0),
-                      itemCount: deletedCombined.length,
-                      itemBuilder: (context, index) {
-                        final deletedItem = deletedCombined[index];
-                        return Card(
-                          margin: const EdgeInsets.symmetric(vertical: 4.0),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          child: _trashItem(context: context, deletedItem: deletedItem),
-                        );
-                      },
+                  : CustomScrollView(
+                      slivers: [
+                        SliverList.builder(
+                          itemCount: sections.length,
+                          itemBuilder: (context, index) {
+                            final section = sections[index];
+                            return _daySection(
+                              context,
+                              day: section.day,
+                              items: section.items,
+                            );
+                          },
+                        ),
+                      ],
                     ),
             ),
             SizedBox(height: MediaQuery.of(context).padding.bottom)

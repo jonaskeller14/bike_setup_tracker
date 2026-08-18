@@ -62,8 +62,8 @@ void main() {
     final (setupAId, setupBId) = await seedPair(tester);
     await pumpComparison(tester, setupAId, setupBId);
 
-    expect(find.text('Differences'), findsOneWidget);
-    expect(find.text('Values'), findsOneWidget);
+    expect(find.text('1 Difference'), findsOneWidget);
+    expect(find.text('VALUES'), findsOneWidget);
     expect(find.byKey(const Key('compare-owner-component-fork')), findsOneWidget);
     expect(find.textContaining('1 of 2 differ'), findsOneWidget);
     expect(find.byKey(const Key('compare-row-fork-pressure')), findsNothing);
@@ -161,7 +161,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('keeps setup identities pinned while values scroll', (tester) async {
+  testWidgets('pins the compact title while the comparison summary scrolls away', (tester) async {
     final (setupAId, setupBId) = await seedPair(tester);
     await pumpComparison(tester, setupAId, setupBId);
     await tester.tap(find.text('All'));
@@ -170,8 +170,9 @@ void main() {
     await tester.drag(find.byType(CustomScrollView), const Offset(0, -300));
     await settle(tester);
 
-    expect(find.byKey(const Key('compare-identity-a')), findsOneWidget);
-    expect(find.byKey(const Key('compare-identity-b')), findsOneWidget);
+    expect(find.text('Compare setups'), findsOneWidget);
+    expect(find.byKey(const Key('compare-identity-a')), findsNothing);
+    expect(find.byKey(const Key('compare-identity-b')), findsNothing);
   });
 
   testWidgets('changed rows expose a semantic difference and themed fill', (tester) async {
@@ -280,9 +281,10 @@ void main() {
     expect(find.text('Ratings'), findsNothing);
     await tester.tap(find.text('All'));
     await settle(tester);
-    await tester.drag(find.byType(CustomScrollView), const Offset(0, -500));
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -2000));
     await settle(tester);
-    expect(find.text('Ratings'), findsOneWidget);
+    expect(find.text('RATINGS'), findsOneWidget);
+    expect(find.byType(PinnedHeaderSliver), findsNWidgets(3));
     expect(find.text('No ratings yet'), findsOneWidget);
 
     harness.settings.enableRating = false;

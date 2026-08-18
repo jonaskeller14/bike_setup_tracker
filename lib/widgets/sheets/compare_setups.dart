@@ -14,6 +14,7 @@ import '../compare_setups/setup_comparison_owner_card.dart';
 import '../compare_setups/setup_comparison_row.dart';
 import '../image_strip.dart';
 import '../notes_text.dart';
+import '../text/section_title.dart';
 import 'sheet.dart';
 
 Future<void> showCompareSetupsSheet(
@@ -72,26 +73,41 @@ class _CompareSetupsState extends State<CompareSetups> {
     if (restored != null && mounted) Navigator.pop(context);
   }
 
+  PinnedHeaderSliver _sectionTitle(BuildContext context, String title) {
+    return PinnedHeaderSliver(
+      child: ColoredBox(
+        color: Theme.of(context).colorScheme.surface,
+        child: SectionTitle(title: title),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final repository = context.watch<AppRepository>();
     final settings = context.watch<AppSettings>();
     final setupA = repository.setups[widget.setupAId];
     final setupB = repository.setups[widget.setupBId];
-    final maxHeight = MediaQuery.sizeOf(context).height * 0.92;
 
     if (setupA == null || setupB == null) {
-      return SizedBox(
-        height: maxHeight,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: SheetFilterEmptyHint(
-            icon: Icons.error_outline,
-            title: 'A setup is no longer available',
-            hint: 'Close this sheet and choose two available setups to compare.',
-            onTap: () => Navigator.pop(context),
+      return CustomScrollView(
+        slivers: [
+          const SetupComparisonHeader(),
+          SliverSafeArea(
+            top: false,
+            sliver: SliverPadding(
+              padding: const EdgeInsets.all(16),
+              sliver: SliverToBoxAdapter(
+                child: SheetFilterEmptyHint(
+                  icon: Icons.error_outline,
+                  title: 'A setup is no longer available',
+                  hint: 'Close this sheet and choose two available setups to compare.',
+                  onTap: () => Navigator.pop(context),
+                ),
+              ),
+            ),
           ),
-        ),
+        ],
       );
     }
 
@@ -127,70 +143,103 @@ class _CompareSetupsState extends State<CompareSetups> {
       metricScores: repository.metricScoresForSetup(setupB.id),
       metrics: repository.allRatingMetricsById,
     );
-    final hasVisibleRatings = settings.enableRating &&
-        (!_differencesOnly || ratingsA.entryCount != 0 || ratingsB.entryCount != 0);
+    final hasVisibleRatings =
+        settings.enableRating && (!_differencesOnly || ratingsA.entryCount != 0 || ratingsB.entryCount != 0);
     final hasVisibleContent = contextGroups.isNotEmpty || valueGroups.isNotEmpty || hasVisibleRatings;
 
-    return SizedBox(
-      height: maxHeight,
+    return Material(
+      color: Theme.of(context).colorScheme.surface,
       child: CustomScrollView(
         slivers: [
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: _ComparisonHeaderDelegate(
-              child: SetupComparisonHeader(
-                setupA: setupA,
-                setupB: setupB,
-                differenceCount: projection.differenceCount,
-                differencesOnly: _differencesOnly,
-                onDifferencesOnlyChanged: (value) {
-                  setState(() => _differencesOnly = value);
-                },
-                onRestoreB: setupB.isCurrent ? null : () => _restoreSetupB(setupB),
-              ),
+          SetupComparisonHeader(
+            onRestoreB: setupB.isCurrent ? null : () => _restoreSetupB(setupB),
+          ),
+          SliverToBoxAdapter(
+            child: SetupComparisonSummary(
+              setupA: setupA,
+              setupB: setupB,
+              differenceCount: projection.differenceCount,
+              differencesOnly: _differencesOnly,
+              onDifferencesOnlyChanged: (value) {
+                setState(() => _differencesOnly = value);
+              },
             ),
           ),
-          if (!hasVisibleContent)
-            SliverPadding(
-              padding: const EdgeInsets.all(16),
-              sliver: SliverToBoxAdapter(
-                child: SheetFilterEmptyHint(
-                  icon: Icons.check_circle_outline,
-                  title: 'These setups have no differences',
-                  hint: 'Show every recorded value instead.',
-                  onTap: () => setState(() => _differencesOnly = false),
-                ),
-              ),
-            )
-          else
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-              sliver: SliverList.list(
-                children: [
-                  for (final group in contextGroups)
-                    _ContextSection(
-                      group: group,
-                      differencesOnly: _differencesOnly,
-                      setupAId: setupA.id,
-                      setupBId: setupB.id,
+          SliverSafeArea(
+            top: false,
+            sliver: !hasVisibleContent
+                ? SliverPadding(
+                    padding: const EdgeInsets.all(16),
+                    sliver: SliverToBoxAdapter(
+                      child: SheetFilterEmptyHint(
+                        icon: Icons.check_circle_outline,
+                        title: 'These setups have no differences',
+                        hint: 'Show every recorded value instead.',
+                        onTap: () => setState(() => _differencesOnly = false),
+                      ),
                     ),
-                  if (valueGroups.isNotEmpty) ...[
-                    const Padding(
-                      padding: EdgeInsets.fromLTRB(4, 4, 4, 8),
-                      child: Text('Values'),
-                    ),
-                    for (final group in valueGroups)
-                      SetupComparisonOwnerCard(group: group, differencesOnly: _differencesOnly),
-                  ],
-                  if (settings.enableRating)
-                    _RatingsSection(
-                      ratingsA: ratingsA,
-                      ratingsB: ratingsB,
-                      differencesOnly: _differencesOnly,
-                    ),
-                ],
-              ),
-            ),
+                  )
+                : SliverMainAxisGroup(
+                    slivers: [
+                      if (contextGroups.isNotEmpty)
+                        SliverMainAxisGroup(
+                          slivers: [
+                            _sectionTitle(context, 'Context'),
+                            SliverPadding(
+                              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                              sliver: SliverList.list(
+                                children: [
+                                  for (final group in contextGroups)
+                                    _ContextSection(
+                                      group: group,
+                                      differencesOnly: _differencesOnly,
+                                      setupAId: setupA.id,
+                                      setupBId: setupB.id,
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      if (valueGroups.isNotEmpty)
+                        SliverMainAxisGroup(
+                          slivers: [
+                            const SliverToBoxAdapter(child: Divider(height: 8)),
+                            _sectionTitle(context, 'Values'),
+                            SliverPadding(
+                              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                              sliver: SliverList.list(
+                                children: [
+                                  for (final group in valueGroups)
+                                    SetupComparisonOwnerCard(
+                                      group: group,
+                                      differencesOnly: _differencesOnly,
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      if (hasVisibleRatings)
+                        SliverMainAxisGroup(
+                          slivers: [
+                            const SliverToBoxAdapter(child: Divider(height: 8)),
+                            _sectionTitle(context, 'Ratings'),
+                            SliverPadding(
+                              padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                              sliver: SliverToBoxAdapter(
+                                child: _RatingsSection(
+                                  ratingsA: ratingsA,
+                                  ratingsB: ratingsB,
+                                  differencesOnly: _differencesOnly,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
+          ),
         ],
       ),
     );
@@ -214,57 +263,53 @@ class _RatingsSection extends StatelessWidget {
     if (differencesOnly && noRatings) return const SizedBox.shrink();
     final metricIds = {...ratingsA.metricScores.keys, ...ratingsB.metricScores.keys}.toList()..sort();
     final scoresDiffer = _scoresDiffer || ratingsA.entryCount != ratingsB.entryCount;
-    final delta = ratingsA.score != null && ratingsB.score != null
-        ? ratingsB.score! - ratingsA.score!
-        : null;
-    return Padding(
-      padding: const EdgeInsets.only(top: 12),
-      child: Semantics(
-        container: true,
-        label: 'Ratings',
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Padding(
-              padding: EdgeInsets.fromLTRB(4, 4, 4, 8),
-              child: Text('Ratings'),
-            ),
-            Container(
-              color: scoresDiffer ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Overall', style: Theme.of(context).textTheme.titleSmall),
-                  const SizedBox(height: 6),
-                  Row(
+    final delta = ratingsA.score != null && ratingsB.score != null ? ratingsB.score! - ratingsA.score! : null;
+    return Semantics(
+      container: true,
+      label: 'Ratings',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            color: scoresDiffer ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Overall', style: Theme.of(context).textTheme.titleSmall),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _RatingValue(label: 'A', score: _score(ratingsA.score), count: ratingsA.entryCount),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _RatingValue(label: 'B', score: _score(ratingsB.score), count: ratingsB.entryCount),
+                    ),
+                  ],
+                ),
+                if (delta != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Text(
+                      'Δ ${delta >= 0 ? '+' : ''}${delta.toStringAsFixed(1)}',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ),
+                if (noRatings) const Padding(padding: EdgeInsets.only(top: 8), child: Text('No ratings yet')),
+                if (metricIds.isNotEmpty)
+                  ExpansionTile(
+                    title: const Text('Metric breakdown'),
+                    tilePadding: EdgeInsets.zero,
                     children: [
-                      Expanded(child: _RatingValue(label: 'A', score: _score(ratingsA.score), count: ratingsA.entryCount)),
-                      const SizedBox(width: 8),
-                      Expanded(child: _RatingValue(label: 'B', score: _score(ratingsB.score), count: ratingsB.entryCount)),
+                      for (final id in metricIds) _MetricRow(id: id, ratingsA: ratingsA, ratingsB: ratingsB),
                     ],
                   ),
-                  if (delta != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 6),
-                      child: Text('Δ ${delta >= 0 ? '+' : ''}${delta.toStringAsFixed(1)}', style: Theme.of(context).textTheme.bodySmall),
-                    ),
-                  if (noRatings)
-                    const Padding(padding: EdgeInsets.only(top: 8), child: Text('No ratings yet')),
-                  if (metricIds.isNotEmpty)
-                    ExpansionTile(
-                      title: const Text('Metric breakdown'),
-                      tilePadding: EdgeInsets.zero,
-                      children: [
-                        for (final id in metricIds)
-                          _MetricRow(id: id, ratingsA: ratingsA, ratingsB: ratingsB),
-                      ],
-                    ),
-                ],
-              ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -324,27 +369,6 @@ class _MetricRow extends StatelessWidget {
       ),
     );
   }
-}
-
-class _ComparisonHeaderDelegate extends SliverPersistentHeaderDelegate {
-  final Widget child;
-
-  _ComparisonHeaderDelegate({required this.child});
-
-  @override
-  double get minExtent => 232;
-
-  @override
-  double get maxExtent => 232;
-
-  @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    final surface = Theme.of(context).colorScheme.surface;
-    return Material(color: surface, child: child);
-  }
-
-  @override
-  bool shouldRebuild(_ComparisonHeaderDelegate oldDelegate) => child != oldDelegate.child;
 }
 
 class _ContextSection extends StatelessWidget {

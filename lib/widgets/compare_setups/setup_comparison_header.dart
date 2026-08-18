@@ -8,117 +8,110 @@ import '../current_setup_badge.dart';
 import '../sheets/sheet.dart';
 
 class SetupComparisonHeader extends StatelessWidget {
+  final VoidCallback? onRestoreB;
+
+  const SetupComparisonHeader({super.key, this.onRestoreB});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return SliverAppBar(
+      pinned: true,
+      automaticallyImplyLeading: false,
+      backgroundColor: scheme.surface,
+      surfaceTintColor: scheme.surface,
+      title: sheetTitle(context, 'Compare setups'),
+      actions: [
+        if (onRestoreB != null)
+          Tooltip(
+            message: 'Restore setup B as current',
+            child: Semantics(
+              button: true,
+              label: 'Restore setup B as current',
+              child: FilledButton.tonalIcon(
+                onPressed: onRestoreB,
+                icon: const Icon(Icons.restore, size: 18),
+                label: const Text('Restore B'),
+                style: FilledButton.styleFrom(visualDensity: VisualDensity.compact),
+              ),
+            ),
+          ),
+        const SizedBox(width: 8),
+        sheetCloseButton(context),
+        const SizedBox(width: 16),
+      ],
+      bottom: const PreferredSize(
+        preferredSize: Size.fromHeight(1),
+        child: Divider(height: 1),
+      ),
+    );
+  }
+}
+
+class SetupComparisonSummary extends StatelessWidget {
   final Setup setupA;
   final Setup setupB;
   final int differenceCount;
   final bool differencesOnly;
   final ValueChanged<bool> onDifferencesOnlyChanged;
-  final VoidCallback? onRestoreB;
 
-  const SetupComparisonHeader({
+  const SetupComparisonSummary({
     super.key,
     required this.setupA,
     required this.setupB,
     required this.differenceCount,
     required this.differencesOnly,
     required this.onDifferencesOnlyChanged,
-    this.onRestoreB,
   });
 
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
-    final scheme = Theme.of(context).colorScheme;
-    return Material(
-      color: scheme.surface,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(child: sheetTitle(context, 'Compare setups')),
-                if (onRestoreB != null) ...[
-                  const SizedBox(width: 8),
-                  Tooltip(
-                    message: 'Restore setup B as current',
-                    child: Semantics(
-                      button: true,
-                      label: 'Restore setup B as current',
-                      child: FilledButton.tonalIcon(
-                        onPressed: onRestoreB,
-                        icon: const Icon(Icons.restore, size: 18),
-                        label: const Text('Restore B'),
-                        style: FilledButton.styleFrom(visualDensity: VisualDensity.compact),
-                      ),
-                    ),
-                  ),
-                ],
-                const SizedBox(width: 8),
-                sheetCloseButton(context),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                Expanded(
-                  child: _SetupIdentity(
-                    key: const Key('compare-identity-a'),
-                    setup: setupA,
-                    dateFormat: appSettings.dateFormat,
-                    timeFormat: appSettings.timeFormat,
-                  ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: _SetupIdentity(
+                  key: const Key('compare-identity-a'),
+                  setup: setupA,
+                  dateFormat: appSettings.dateFormat,
+                  timeFormat: appSettings.timeFormat,
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _SetupIdentity(
-                    key: const Key('compare-identity-b'),
-                    setup: setupB,
-                    dateFormat: appSettings.dateFormat,
-                    timeFormat: appSettings.timeFormat,
-                  ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _SetupIdentity(
+                  key: const Key('compare-identity-b'),
+                  setup: setupB,
+                  dateFormat: appSettings.dateFormat,
+                  timeFormat: appSettings.timeFormat,
                 ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerRight,
+            child: SegmentedButton<bool>(
+              key: const Key('compare-filter-control'),
+              showSelectedIcon: false,
+              style: const ButtonStyle(visualDensity: VisualDensity.compact),
+              segments: [
+                ButtonSegment(
+                  value: true,
+                  label: Text('$differenceCount ${differenceCount == 1 ? 'Difference' : 'Differences'}'),
+                ),
+                const ButtonSegment(value: false, label: Text('All')),
               ],
+              selected: {differencesOnly},
+              onSelectionChanged: (selection) => onDifferencesOnlyChanged(selection.single),
             ),
-            const SizedBox(height: 8),
-            LayoutBuilder(
-              builder: (context, constraints) {
-                final count = Text(
-                  '$differenceCount ${differenceCount == 1 ? 'difference' : 'differences'}',
-                  style: Theme.of(context).textTheme.labelLarge,
-                );
-                final filter = SegmentedButton<bool>(
-                  key: const Key('compare-filter-control'),
-                  showSelectedIcon: false,
-                  style: const ButtonStyle(visualDensity: VisualDensity.compact),
-                  segments: const [
-                    ButtonSegment(value: true, label: Text('Differences')),
-                    ButtonSegment(value: false, label: Text('All')),
-                  ],
-                  selected: {differencesOnly},
-                  onSelectionChanged: (selection) => onDifferencesOnlyChanged(selection.single),
-                );
-                if (constraints.maxWidth < 430) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      count,
-                      const SizedBox(height: 4),
-                      Align(alignment: Alignment.centerRight, child: filter),
-                    ],
-                  );
-                }
-                return Row(
-                  children: [
-                    Expanded(child: count),
-                    filter,
-                  ],
-                );
-              },
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

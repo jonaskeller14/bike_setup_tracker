@@ -41,9 +41,7 @@ Future<void> showCompareSetupsSheet(
   return showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
-    showDragHandle: true,
     useSafeArea: true,
-    backgroundColor: Theme.of(context).colorScheme.surface,
     builder: (_) => CompareSetups(
       setupAId: resolution.setupA.id,
       setupBId: resolution.setupB.id,

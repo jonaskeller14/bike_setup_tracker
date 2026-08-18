@@ -20,7 +20,6 @@ Future<void> importData(BuildContext context) async {
   final ImportResult? importResult = await showModalBottomSheet<ImportResult?>(
     context: context,
     isScrollControlled: true,
-    showDragHandle: true,
     useSafeArea: true,
     builder: (sheetContext) {
       return const ImportSheetFlow();

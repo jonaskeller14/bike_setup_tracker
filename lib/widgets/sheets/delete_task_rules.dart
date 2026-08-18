@@ -14,7 +14,6 @@ Future<List<TaskRule>?> showDeleteTaskRulesSheet(
 }) {
   return showModalBottomSheet<List<TaskRule>>(
     useSafeArea: true,
-    showDragHandle: true,
     isScrollControlled: true,
     context: context,
     builder: (_) => _DeleteTaskRulesSheet(taskRules: taskRules),

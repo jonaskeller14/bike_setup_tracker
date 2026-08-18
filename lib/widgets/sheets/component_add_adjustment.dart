@@ -113,7 +113,6 @@ void showComponentAddAdjustmentBottomSheet({
 }) async {
   await showModalBottomSheet<void>(
     useSafeArea: true,
-    showDragHandle: true,
     isScrollControlled: true,
     context: context,
     builder: (_) => _ComponentAddAdjustmentSheet(

@@ -11,7 +11,6 @@ Future<void> showSetSetupTagsSheet({
 }) {
   return showModalBottomSheet(
     useSafeArea: true,
-    showDragHandle: true,
     isScrollControlled: true,
     context: context, 
     builder: (context) {

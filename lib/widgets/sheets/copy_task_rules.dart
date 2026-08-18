@@ -14,7 +14,6 @@ Future<List<TaskRule>?> showCopyTaskRulesSheet(BuildContext context, {
 }) async {
   return showModalBottomSheet<List<TaskRule>>(
     useSafeArea: true,
-    showDragHandle: true,
     isScrollControlled: true,
     context: context,
     builder: (BuildContext context) {

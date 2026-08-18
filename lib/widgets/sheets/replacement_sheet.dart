@@ -19,7 +19,6 @@ Future<void> showReplacementSheet(
 }) async {
   return showModalBottomSheet<void>(
     useSafeArea: true,
-    showDragHandle: true,
     isScrollControlled: true,
     context: context,
     builder: (context) {

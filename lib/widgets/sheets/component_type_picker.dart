@@ -24,7 +24,6 @@ Future<ComponentType?> showComponentTypePickerSheet({
 }) {
   return showModalBottomSheet<ComponentType>(
     useSafeArea: true,
-    showDragHandle: true,
     isScrollControlled: true,
     context: context,
     builder: (_) => _ComponentTypePickerSheet(

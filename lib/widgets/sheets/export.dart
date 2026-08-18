@@ -16,7 +16,6 @@ Future<void> exportData(BuildContext context) async {
   final ExportResult? exportResult = await showModalBottomSheet<ExportResult?>(
     context: context,
     isScrollControlled: true,
-    showDragHandle: true,
     useSafeArea: true,
     builder: (sheetContext) {
       return ExportSheetFlow(allData: context.read<AppRepository>());

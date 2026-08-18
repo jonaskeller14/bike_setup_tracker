@@ -26,7 +26,6 @@ Future<void> appSettingsCheckboxGroupSheet({
 }) {
   return showModalBottomSheet<void>(
     useSafeArea: true,
-    showDragHandle: true,
     isScrollControlled: true,
     context: context,
     builder: (BuildContext context) {

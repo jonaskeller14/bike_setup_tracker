@@ -3,7 +3,6 @@ import 'package:image_picker/image_picker.dart';
 
 Future<ImageSource?> showPickImageSourceSheet(BuildContext context) {
   return showModalBottomSheet<ImageSource>(
-    showDragHandle: true,
     useSafeArea: true,
     context: context,
     builder: (ctx) => SafeArea(

@@ -33,7 +33,6 @@ Future<ReplaceComponentResult?> showReplaceComponentSheet(BuildContext context, 
 }) async {
   return showModalBottomSheet<ReplaceComponentResult?>(
     useSafeArea: true,
-    showDragHandle: true,
     isScrollControlled: true,
     context: context,
     builder: (BuildContext context) {

@@ -12,7 +12,6 @@ Future<void> showComponentTypeFilterSheet({
 }) async {
   return showModalBottomSheet<void>(
     useSafeArea: true,
-    showDragHandle: true,
     isScrollControlled: true,
     context: context,
     builder: (context) {

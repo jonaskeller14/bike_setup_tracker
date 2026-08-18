@@ -17,7 +17,6 @@ void showSetCategoricalSheet({
   Future<void> Function(String option)? onAddOption,
 }) async {
   await showModalBottomSheet<void>(
-    showDragHandle: true,
     useSafeArea: true,
     isScrollControlled: true,
     context: context,

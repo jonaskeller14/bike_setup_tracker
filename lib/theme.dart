@@ -85,11 +85,17 @@ class TaskStatusColors extends ThemeExtension<TaskStatusColors> {
   }
 }
 
+final _lightColorScheme = ColorScheme.fromSeed(
+  seedColor: Colors.blueGrey.shade700,
+  brightness: Brightness.light,
+);
+
 final materialAppTheme = ThemeData(
   useMaterial3: true,
-  colorScheme: ColorScheme.fromSeed(
-    seedColor: Colors.blueGrey.shade700,
-    brightness: Brightness.light,
+  colorScheme: _lightColorScheme,
+  bottomSheetTheme: BottomSheetThemeData(
+    backgroundColor: _lightColorScheme.surface,
+    showDragHandle: true,
   ),
   textTheme: const TextTheme(
     headlineLarge: TextStyle(fontWeight: FontWeight.bold),
@@ -98,11 +104,17 @@ final materialAppTheme = ThemeData(
   extensions: const [ValueHighlightColors.light, TaskStatusColors.light],
 );
 
+final _darkColorScheme = ColorScheme.fromSeed(
+  seedColor: Colors.blueGrey.shade700,
+  brightness: Brightness.dark,
+);
+
 final materialAppDarkTheme = ThemeData(
   useMaterial3: true,
-  colorScheme: ColorScheme.fromSeed(
-    seedColor: Colors.blueGrey.shade700,
-    brightness: Brightness.dark,
+  colorScheme: _darkColorScheme,
+  bottomSheetTheme: BottomSheetThemeData(
+    backgroundColor: _darkColorScheme.surface,
+    showDragHandle: true,
   ),
   textTheme: const TextTheme(
     headlineLarge: TextStyle(fontWeight: FontWeight.bold),

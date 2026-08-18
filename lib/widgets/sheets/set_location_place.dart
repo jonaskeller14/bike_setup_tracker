@@ -29,7 +29,6 @@ Future<LocationAndPlace?> showSetLocationPlaceSheet({
 }) async {
   return showModalBottomSheet(
     useSafeArea: true,
-    showDragHandle: true,
     isScrollControlled: true,
     context: context, 
     builder: (context) {

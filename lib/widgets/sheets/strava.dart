@@ -14,7 +14,6 @@ import 'strava_waitlist.dart';
 Future<void> showStravaSheet({required BuildContext context}) async {
   return showModalBottomSheet<void>(
     useSafeArea: true,
-    showDragHandle: true,
     isScrollControlled: true,
     context: context,
     builder: (BuildContext context) {

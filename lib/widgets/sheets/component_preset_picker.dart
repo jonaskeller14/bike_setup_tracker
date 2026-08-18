@@ -24,7 +24,6 @@ Future<ComponentPresetPickerResult?> showComponentPresetPicker({
 }) {
   return showModalBottomSheet<ComponentPresetPickerResult>(
     useSafeArea: true,
-    showDragHandle: true,
     isScrollControlled: true,
     context: context,
     builder: (_) => _ComponentPresetPickerSheet(componentType: componentType),

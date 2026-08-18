@@ -14,7 +14,6 @@ Future<void> shareData(BuildContext context) async {
   final shareResult = await showModalBottomSheet<ShareResult?>(
     context: context,
     isScrollControlled: true,
-    showDragHandle: true,
     useSafeArea: true,
     builder: (sheetContext) {
       return ShareSheetFlow(appRepository: context.read<AppRepository>());

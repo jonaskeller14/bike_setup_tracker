@@ -13,7 +13,6 @@ void showSetDurationSheet({
 }) async {
   Duration currentValue = value ?? Duration.zero;
   return await showModalBottomSheet<void>(
-    showDragHandle: true,
     useSafeArea: true,
     isScrollControlled: true,
     context: context,

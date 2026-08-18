@@ -25,7 +25,6 @@ void showUnitPickerSheet({
 }) async {
   await showModalBottomSheet<void>(
     useSafeArea: true,
-    showDragHandle: true,
     isScrollControlled: true,
     context: context,
     builder: (context) => _UnitPickerSheet(current: current, onSelected: onSelected),

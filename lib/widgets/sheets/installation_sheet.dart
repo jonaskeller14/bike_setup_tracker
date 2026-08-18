@@ -17,7 +17,6 @@ Future<void> showAddInstallationSheet(BuildContext context, {
 }) async {
   return showModalBottomSheet<void>(
     useSafeArea: true,
-    showDragHandle: true,
     isScrollControlled: true,
     context: context,
     builder: (context) {
@@ -36,7 +35,6 @@ Future<void> showEditInstallationSheet(BuildContext context, {
 }) async {
   return showModalBottomSheet<void>(
     useSafeArea: true,
-    showDragHandle: true,
     isScrollControlled: true,
     context: context, 
     builder: (context) {

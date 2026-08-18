@@ -89,10 +89,8 @@ Future<TaskRule?> showSetTaskDelaySheet({
 }) {
   return showModalBottomSheet<TaskRule>(
     useSafeArea: true,
-    showDragHandle: true,
     isScrollControlled: true,
     context: context,
-    backgroundColor: Theme.of(context).colorScheme.surface,
     builder: (BuildContext context) => _SetTaskDelaySheet(taskRule: taskRule),
   );
 }

@@ -20,7 +20,6 @@ Future<TaskAssociation?> showTaskAssociationSheet({
 }) {
   return showModalBottomSheet<TaskAssociation>(
     useSafeArea: true,
-    showDragHandle: true,
     isScrollControlled: true,
     context: context,
     builder: (_) => _TaskAssociationPickerSheet(selected: selected, initial: initial),

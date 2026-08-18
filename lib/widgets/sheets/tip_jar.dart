@@ -8,7 +8,6 @@ import 'sheet_header.dart';
 Future<void> showTipJarSheet({required BuildContext context}) async {
   await showModalBottomSheet<void>(
     useSafeArea: true,
-    showDragHandle: true,
     isScrollControlled: true,
     context: context,
     builder: (BuildContext context) => const TipJarSheet(),

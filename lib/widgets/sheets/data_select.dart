@@ -26,7 +26,6 @@ Future<SelectedData?> showDataSelectSheet({required BuildContext context, requir
   return showModalBottomSheet<SelectedData?>(
     context: context,
     isScrollControlled: true,
-    showDragHandle: true,
     useSafeArea: true,
     builder: (sheetContext) {
       return DataSelectFlow(allData: data);

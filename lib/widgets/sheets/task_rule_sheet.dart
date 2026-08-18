@@ -9,10 +9,8 @@ import 'sheet_header.dart';
 Future<void> showTaskRuleSheet(BuildContext context, {required String taskRuleId, String? highlightTaskEntryId}) async {
   return showModalBottomSheet<void>(
     useSafeArea: true,
-    showDragHandle: true,
     isScrollControlled: true,
     context: context, 
-    backgroundColor: Theme.of(context).colorScheme.surface,
     builder: (BuildContext context) {
       final appRepository = context.watch<AppRepository>();
       final taskRule = appRepository.taskRules[taskRuleId];

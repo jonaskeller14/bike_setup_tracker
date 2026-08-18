@@ -22,7 +22,6 @@ Future<ContextWeather?> showSetWeatherSheet({
   }) async {
   return showModalBottomSheet<ContextWeather?>(
     useSafeArea: true,
-    showDragHandle: true,
     isScrollControlled: true,
     context: context, 
     builder: (context) {

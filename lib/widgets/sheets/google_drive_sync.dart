@@ -10,7 +10,6 @@ import 'sheet_header.dart';
 Future<void> showGoogleDriveSheet({required BuildContext context}) async {
   return showModalBottomSheet<void>(
     useSafeArea: true,
-    showDragHandle: true,
     isScrollControlled: true,
     context: context, 
     builder: (BuildContext context) => const GoogleDriveSheet(),

@@ -7,7 +7,6 @@ import '../current_setup_highlight.dart';
 Future<void> showSetupDetailsSheet({required BuildContext context, required Setup setup}) async {
   return showModalBottomSheet<void>(
     useSafeArea: true,
-    showDragHandle: true,
     isScrollControlled: true,
     context: context, 
     backgroundColor: setup.isCurrent

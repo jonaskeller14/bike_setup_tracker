@@ -14,7 +14,7 @@ Future<void> showSetupDetailsSheet({required BuildContext context, required Setu
         ? CurrentSetupHighlight.opaqueFill(Theme.of(context).colorScheme)
         : Theme.of(context).colorScheme.surface,
     builder: (BuildContext context) => SafeArea(
-      child: SetupDetailsPageContent(setup: setup, showEditButton: true, showCloseButton: true),
+      child: SetupDetailsPageContent(setup: setup, showSheetActions: true, showCloseButton: true),
     ),
   );
 }

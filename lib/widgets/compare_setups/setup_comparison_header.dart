@@ -13,6 +13,7 @@ class SetupComparisonHeader extends StatelessWidget {
   final int differenceCount;
   final bool differencesOnly;
   final ValueChanged<bool> onDifferencesOnlyChanged;
+  final VoidCallback? onRestoreB;
 
   const SetupComparisonHeader({
     super.key,
@@ -21,6 +22,7 @@ class SetupComparisonHeader extends StatelessWidget {
     required this.differenceCount,
     required this.differencesOnly,
     required this.onDifferencesOnlyChanged,
+    this.onRestoreB,
   });
 
   @override
@@ -37,6 +39,23 @@ class SetupComparisonHeader extends StatelessWidget {
             Row(
               children: [
                 Expanded(child: sheetTitle(context, 'Compare setups')),
+                if (onRestoreB != null) ...[
+                  const SizedBox(width: 8),
+                  Tooltip(
+                    message: 'Restore setup B as current',
+                    child: Semantics(
+                      button: true,
+                      label: 'Restore setup B as current',
+                      child: FilledButton.tonalIcon(
+                        onPressed: onRestoreB,
+                        icon: const Icon(Icons.restore, size: 18),
+                        label: const Text('Restore B'),
+                        style: FilledButton.styleFrom(visualDensity: VisualDensity.compact),
+                      ),
+                    ),
+                  ),
+                ],
+                const SizedBox(width: 8),
                 sheetCloseButton(context),
               ],
             ),

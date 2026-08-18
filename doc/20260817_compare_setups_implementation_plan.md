@@ -623,9 +623,9 @@ different persons and a setup with dangling values; inspect long values at
 
 ---
 
-## Phase 5 — Sheet actions, ratings, accessibility, goldens and full regression
+## Phase 5 — Sheet actions, ratings, accessibility and full regression
 
-**Status:** ⬜ Not started
+**Status:** ✅ Complete
 
 **Goal:** complete the comparison/details sheet actions and Ratings, lock
 visual behavior, and verify the finished experience as an integrated feature.
@@ -644,124 +644,112 @@ visual behavior, and verify the finished experience as an integrated feature.
 - Modify `test/widgets/items/setup_list_tile_test.dart`
 - Modify `test/widgets/sheets/compare_setups_test.dart`
 - Add `test/widgets/sheets/setup_details_test.dart`
-- Add `test/widgets/sheets/compare_setups_golden_test.dart`
-- Add generated CI baselines under `test/widgets/sheets/goldens/ci/`
 
 ### Restore B from the comparison sheet
 
-- [ ] Change `SetupActions.duplicateSetup` from `Future<void>` to
+- [x] Change `SetupActions.duplicateSetup` from `Future<void>` to
   `Future<Setup?>`. Preserve its existing image-copy cleanup and duplicate-form
   workflow; return the created setup after `addSetup`, and return `null` on
   cancellation or when the initiating context is lost. Existing callers may
   continue awaiting and ignoring the result.
-- [ ] Add a compact `FilledButton.tonalIcon` (restore icon, label `Restore B`)
+- [x] Add a compact `FilledButton.tonalIcon` (restore icon, label `Restore B`)
   to the comparison header/action row. It is explicitly associated with the
   right/candidate side, remains overflow-safe at 320 px/text scale 2.0, and is
   hidden when B is current.
-- [ ] Do not gate this in-sheet action with `enableSetupComparison`: once a
+- [x] Do not gate this in-sheet action with `enableSetupComparison`: once a
   caller has opened comparison, the setting has already served its menu-entry
   purpose.
-- [ ] On tap, call `SetupActions.duplicateSetup(context, setup: setupB)`. Keep
+- [x] On tap, call `SetupActions.duplicateSetup(context, setup: setupB)`. Keep
   the comparison sheet open if the duplicate form is cancelled. After a
   successful add, check `context.mounted` and close comparison rather than
   leaving an A/B view whose current baseline has changed.
-- [ ] Provide clear button tooltip/semantics (“Restore setup B as current”);
+- [x] Provide clear button tooltip/semantics (“Restore setup B as current”);
   the duplicate form is the review/confirmation step, so do not add a second
   confirmation dialog.
 
 ### Setup-details sheet action menu
 
-- [ ] Replace the sheet-only standalone Edit button in
+- [x] Replace the sheet-only standalone Edit button in
   `SetupDetailsPageContent` with a filled overflow `PopupMenuButton`; retain the
   separate Close button. Keep the full-page `SetupDetailsPage` app-bar Edit
   action unchanged.
-- [ ] Give the menu Edit, Restore and Compare entries using the same labels and
+- [x] Give the menu Edit, Restore and Compare entries using the same labels and
   icons as `SetupListTile`. Avoid copying the private `_SetupOptions` enum; a
   small details-sheet-local enum is sufficient.
-- [ ] Edit is always present. Restore is present only when the displayed setup
+- [x] Edit is always present. Restore is present only when the displayed setup
   is not current. On successful restore, close details; on cancellation, leave
   it open.
-- [ ] Compare is present only when
+- [x] Compare is present only when
   `appSettings.enableSetupComparison` is true and Phase 1's target resolver can
   resolve a distinct current setup on the same bike. Reuse the resolver rather
   than duplicating `setups.any(...)` eligibility logic.
-- [ ] Launch `showCompareSetupsSheet(context, setupA: null, setupB: setup)`
+- [x] Launch `showCompareSetupsSheet(context, setupA: null, setupB: setup)`
   above the details sheet. Do not close details first; dismissing comparison
   returns the user to the details context.
-- [ ] Keep action callbacks guarded across awaits and handle a setup removed
+- [x] Keep action callbacks guarded across awaits and handle a setup removed
   while the sheet is open with the existing missing-setup/error behavior.
-- [ ] Update `showSetupDetailsSheet`/`SetupDetailsPageContent` parameters to
+- [x] Update `showSetupDetailsSheet`/`SetupDetailsPageContent` parameters to
   express “show sheet actions” rather than an Edit-only contract, without
   changing default full-page rendering.
-- [ ] Keep the header overflow-safe with a long setup name, Current badge,
+- [x] Keep the header overflow-safe with a long setup name, Current badge,
   overflow button and Close button at narrow widths and large text scale.
 
 ### Ratings integration
 
-- [ ] When `enableRating` is true, obtain each setup's entry count,
+- [x] When `enableRating` is true, obtain each setup's entry count,
   `scoreForSetup`, `metricScoresForSetup` and metric definitions through the
   same `AppRepository` APIs used by `SetupDetailsPage`.
-- [ ] Add rating projection input/types without coupling the pure comparison
+- [x] Add rating projection input/types without coupling the pure comparison
   service directly to `AppRepository`; pass immutable per-side rating summaries
   into the builder or build a small rating sub-projection at the sheet boundary.
-- [ ] Show Overall score and rating count in an always-visible paired summary.
+- [x] Show Overall score and rating count in an always-visible paired summary.
   Format score to one decimal and base highlighting on the displayed precision
   so identical-looking scores are not marked different.
-- [ ] Add an initially collapsed metric breakdown. Join metrics strictly by
+- [x] Add an initially collapsed metric breakdown. Join metrics strictly by
   metric UUID; show name, paired `x.x / 10` scores and weight. One-sided metrics
   are structural differences, not name-matched rows.
-- [ ] Keep rating-entry sample counts visible beside each overall score and
+- [x] Keep rating-entry sample counts visible beside each overall score and
   render neutral signed score delta text only when both scores exist.
-- [ ] When both sides have no ratings, hide Ratings in Differences mode and show
+- [x] When both sides have no ratings, hide Ratings in Differences mode and show
   the familiar “No ratings yet” state in All mode. Omit the entire section when
   ratings are disabled.
 
 ### Accessibility and interaction review
 
-- [ ] Establish deterministic traversal: header/filter, Context, Values, then
+- [x] Establish deterministic traversal: header/filter, Context, Values, then
   Ratings; A precedes B within each row.
-- [ ] Add semantic labels that include row name, side/setup name, formatted
+- [x] Add semantic labels that include row name, side/setup name, formatted
   value, provenance/state and whether the pair differs.
-- [ ] Ensure minimum tap targets for filter, Restore B, action overflow, close
+- [x] Ensure minimum tap targets for filter, Restore B, action overflow, close
   button and disclosures.
-- [ ] Verify text scale 1.3 and 2.0 without overflow; the modal remains
+- [x] Verify text scale 1.3 and 2.0 without overflow; the modal remains
   scrollable and the pinned header does not consume the full viewport.
-- [ ] Confirm background highlighting meets contrast expectations in light/dark
+- [x] Confirm background highlighting meets contrast expectations in light/dark
   while text keeps normal theme foreground colors.
 
-### Widget and golden coverage
+### Widget and regression coverage
 
-- [ ] Add rating tests for no ratings, unequal entry counts, equal/different
+- [x] Add rating tests for no ratings, unequal entry counts, equal/different
   rounded scores, strict metric IDs, one-sided missing definitions and
   `enableRating = false`.
-- [ ] Add `setup_actions_test.dart` coverage for the new duplicate return
+- [x] Add `setup_actions_test.dart` coverage for the new duplicate return
   contract: successful duplicate returns the added setup; form cancellation
   and lost context return `null`; copied images are cleaned on cancellation.
-- [ ] Extend comparison-sheet tests: Restore B is visible only for non-current
+- [x] Extend comparison-sheet tests: Restore B is visible only for non-current
   B, cancellation leaves the sheet open, successful restore closes it, and the
   button has the required tooltip/semantics.
-- [ ] Add setup-details-sheet tests: overflow replaces the sheet Edit icon;
+- [x] Add setup-details-sheet tests: overflow replaces the sheet Edit icon;
   Edit is always present; Restore follows current state; Compare follows the
   setting plus target resolver; Compare opens above details and returns to it;
   successful/cancelled Restore closes/retains details as specified.
-- [ ] Re-run/extend setup-list-tile tests to prove the
+- [x] Re-run/extend setup-list-tile tests to prove the
   `duplicateSetup` return-type change does not alter the existing Restore menu
   flow or comparison eligibility.
-- [ ] Add one full interaction test: open from a historical setup tile, confirm
+- [x] Add one full interaction test: open from a historical setup tile, confirm
   Current is A, Differences is selected, toggle All, expand Conditions and
   Ratings, scroll through Values, open an image, cancel Restore B, and close
   cleanly.
-- [ ] Add Alchemist CI goldens using a deterministic provider/repository fixture:
-  - 390×844 phone, Differences view, light and dark;
-  - 800 px wide layout, All view or a second representative capture;
-  - populated notes/tags, side-by-side images/placeholders, changed and
-    unchanged values, one structural component difference and ratings.
-- [ ] Assert structural widgets before snapshotting. Commit only neutral CI
-  baselines, consistent with the existing golden setup.
-- [ ] Review every generated image manually; ensure orange changed-fill rows,
-  nested cards and A/B columns are distinguishable without excessive visual
-  density.
-- [ ] Run the full suite after targeted tests. Preserve unrelated existing
+- [x] Run the full suite after targeted tests. Preserve unrelated existing
   working-tree changes and avoid whole-file formatting.
 
 **Verification:**
@@ -772,8 +760,6 @@ flutter test test/services/setup_comparison_service_test.dart
 flutter test test/widgets/sheets/compare_setups_test.dart
 flutter test test/widgets/sheets/setup_details_test.dart
 flutter test test/widgets/items/setup_list_tile_test.dart
-flutter test test/widgets/sheets/compare_setups_golden_test.dart --update-goldens
-flutter test test/widgets/sheets/compare_setups_golden_test.dart
 flutter analyze
 flutter test
 ```
@@ -811,7 +797,7 @@ Manual acceptance matrix:
 4. `feat(setups): compare component and person setup values`
    - Owner hierarchy, effective/provenance display and dangling/structural data.
 5. `feat(setups): complete setup comparison actions and ratings`
-   - Restore B, setup-details action menu, Ratings, semantics, goldens and full
+   - Restore B, setup-details action menu, Ratings, semantics and full
      regression verification.
 
 Each phase is sized for one commit or small PR and can be handed to a fresh

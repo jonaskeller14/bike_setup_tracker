@@ -1,6 +1,7 @@
 import 'adjustment/adjustment.dart';
 import 'component.dart';
 import 'person.dart';
+import 'rating_metric.dart';
 
 enum SetupComparisonGroupKind { component, person, deletedValues, context, ratings }
 
@@ -141,4 +142,20 @@ class SetupComparisonReference {
     required this.label,
     this.isMissing = false,
   });
+}
+
+/// Immutable ratings data prepared at the sheet boundary from [AppRepository].
+class SetupComparisonRatingSummary {
+  final int entryCount;
+  final double? score;
+  final Map<String, double> metricScores;
+  final Map<String, RatingMetric> metrics;
+
+  SetupComparisonRatingSummary({
+    required this.entryCount,
+    required this.score,
+    required Map<String, double> metricScores,
+    required Map<String, RatingMetric> metrics,
+  })  : metricScores = Map.unmodifiable(metricScores),
+        metrics = Map.unmodifiable(metrics);
 }

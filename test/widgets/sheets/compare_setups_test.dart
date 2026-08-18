@@ -259,4 +259,35 @@ void main() {
     expect(find.byType(CompareSetups), findsNothing);
     expect(find.text('Choose two different setups to compare.'), findsOneWidget);
   });
+
+  testWidgets('Restore B is visible only for a non-current candidate and has clear semantics', (tester) async {
+    final (historicalId, currentId) = await seedPair(tester);
+    await pumpComparison(tester, currentId, historicalId);
+
+    expect(find.text('Restore B'), findsOneWidget);
+    expect(find.byTooltip('Restore setup B as current'), findsOneWidget);
+    expect(find.bySemanticsLabel('Restore setup B as current'), findsOneWidget);
+
+    await pumpComparison(tester, historicalId, currentId);
+    expect(find.text('Restore B'), findsNothing);
+  });
+
+  testWidgets('Ratings is hidden in Differences without ratings and shown in All', (tester) async {
+    harness.settings.enableRating = true;
+    final (setupAId, setupBId) = await seedPair(tester);
+    await pumpComparison(tester, setupAId, setupBId);
+
+    expect(find.text('Ratings'), findsNothing);
+    await tester.tap(find.text('All'));
+    await settle(tester);
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -500));
+    await settle(tester);
+    expect(find.text('Ratings'), findsOneWidget);
+    expect(find.text('No ratings yet'), findsOneWidget);
+
+    harness.settings.enableRating = false;
+    await tester.pump();
+    await settle(tester);
+    expect(find.text('Ratings'), findsNothing);
+  });
 }

@@ -73,7 +73,7 @@ class SetupActions {
     await ImageStorageService().deleteImages(removedImages);
   }
 
-  static Future<void> duplicateSetup(BuildContext context, {required Setup setup}) async {
+  static Future<Setup?> duplicateSetup(BuildContext context, {required Setup setup}) async {
     final appRepository = context.read<AppRepository>();
     final deepCopied = setup.deepCopy();
 
@@ -87,7 +87,7 @@ class SetupActions {
 
     if (!context.mounted) {
       await service.deleteImages(copiedImages);
-      return;
+      return null;
     }
 
     final newSetup = await Navigator.push<Setup>(
@@ -96,10 +96,11 @@ class SetupActions {
     );
     if (newSetup == null) {
       await service.deleteImages(copiedImages);
-      return;
+      return null;
     }
 
     await appRepository.addSetup(newSetup);
+    return newSetup;
   }
 
   static Future<void> removeSetup(BuildContext context, {required Setup setup}) async {

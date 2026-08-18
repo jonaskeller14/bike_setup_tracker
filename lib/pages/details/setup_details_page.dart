@@ -11,6 +11,7 @@ import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/dangling_adjustment_service.dart';
 import '../../services/image_storage_service.dart';
+import '../../services/setup_comparison_service.dart';
 import '../../utils/setup_actions.dart';
 import '../../widgets/current_setup_badge.dart';
 import '../../widgets/current_setup_highlight.dart';
@@ -23,6 +24,7 @@ import '../../widgets/items/card_header_tile.dart';
 import '../../widgets/items/context_location_card.dart';
 import '../../widgets/items/context_weather_card.dart';
 import '../../widgets/notes_text.dart';
+import '../../widgets/sheets/compare_setups.dart';
 import '../../widgets/sheets/sheet.dart';
 import '../../widgets/text/section_title.dart';
 
@@ -170,10 +172,57 @@ class _SetupDetailsPageState extends State<SetupDetailsPage> {
 
 class SetupDetailsPageContent extends StatelessWidget {
   final Setup setup;
-  final bool showEditButton;
+  final bool showSheetActions;
   final bool showCloseButton;
 
-  const SetupDetailsPageContent({super.key, required this.setup, this.showEditButton = false, this.showCloseButton = false});
+  const SetupDetailsPageContent({super.key, required this.setup, this.showSheetActions = false, this.showCloseButton = false});
+
+  Future<void> _onSheetAction(BuildContext context, _SetupDetailsAction action) async {
+    switch (action) {
+      case _SetupDetailsAction.edit:
+        await SetupActions.editSetup(context, setup: setup);
+      case _SetupDetailsAction.restore:
+        final restored = await SetupActions.duplicateSetup(context, setup: setup);
+        if (restored != null && context.mounted) Navigator.pop(context);
+      case _SetupDetailsAction.compare:
+        await showCompareSetupsSheet(context, setupA: null, setupB: setup);
+    }
+  }
+
+  Widget _sheetActions(BuildContext context) {
+    final settings = context.watch<AppSettings>();
+    final setups = context.read<AppRepository>().setups.values;
+    final canCompare = settings.enableSetupComparison &&
+        SetupComparisonService.resolveTargets(setupB: setup, setups: setups) is SetupComparisonTargets;
+    final actions = <_SetupDetailsAction>[
+      _SetupDetailsAction.edit,
+      if (!setup.isCurrent) _SetupDetailsAction.restore,
+      if (canCompare) _SetupDetailsAction.compare,
+    ];
+    return PopupMenuButton<_SetupDetailsAction>(
+      tooltip: 'Setup actions',
+      onSelected: (action) => _onSheetAction(context, action),
+      itemBuilder: (context) => [
+        for (final action in actions)
+          PopupMenuItem(
+            value: action,
+            child: Row(spacing: 10, children: [Icon(action.icon), Text(action.label)]),
+          ),
+      ],
+      child: AbsorbPointer(
+        child: IconButton.filled(
+          iconSize: 20,
+          style: IconButton.styleFrom(
+            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+            foregroundColor: Theme.of(context).colorScheme.onSurface,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+          onPressed: () {},
+          icon: const Icon(Icons.more_vert),
+        ),
+      ),
+    );
+  }
 
   SliverAppBar _setupTitle(BuildContext context, {required Setup setup}) {
     final appSettings = context.read<AppSettings>();
@@ -222,10 +271,9 @@ class SetupDetailsPageContent extends StatelessWidget {
               ],
             ),
           ),
-          if (showEditButton || showCloseButton)
+          if (showSheetActions || showCloseButton)
             const SizedBox(width: 12),
-          if (showEditButton)
-            sheetEditButton(context, onPressed: () => SetupActions.editSetup(context, setup: setup)),
+          if (showSheetActions) _sheetActions(context),
           if (showCloseButton)
             sheetCloseButton(context),
         ],
@@ -745,4 +793,15 @@ class SetupDetailsPageContent extends StatelessWidget {
       ),
     );
   }
+}
+
+enum _SetupDetailsAction {
+  edit('Edit', Icons.edit),
+  restore('Restore', Icons.restore),
+  compare('Compare', Icons.compare);
+
+  final String label;
+  final IconData icon;
+
+  const _SetupDetailsAction(this.label, this.icon);
 }

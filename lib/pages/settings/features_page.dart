@@ -25,7 +25,7 @@ class FeaturesPage extends StatelessWidget {
       if (settings.enableTimelineDayHeaders) 'Day Headers',
       if (settings.enableTimelineSetupGrouping) 'Setup Grouping',
       if (settings.enableTimelineReplacementDetection) 'Replacement Detection',
-      if (settings.enableTimelineStravaContext) 'Strava Context',
+      if (kDebugMode && settings.enableTimelineStravaContext) 'Strava Context',
     ];
     return enabled.isEmpty ? 'Off' : enabled.join(', ');
   }
@@ -194,37 +194,37 @@ class FeaturesPage extends StatelessWidget {
                         'to a new device.',
                   ),
                 ),
-              if (kDebugMode)
-                ListTile(
-                  leading: const Icon(Icons.view_agenda_outlined),
-                  title: const Text("Timeline Grouping"),
-                  subtitle: Text(_timelineGroupingSummary(appSettings)),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                  onTap: () => appSettingsCheckboxGroupSheet(
-                    context: context,
-                    title: "Timeline Grouping",
-                    infoText:
-                        'Controls how the Setup History timeline condenses '
-                        'related entries. Each pass can be toggled on its own.',
-                    options: [
-                      AppSettingsCheckboxOption(
-                        title: 'Day Headers',
-                        subtitle: 'Group entries under a header per day.',
-                        value: () => appSettings.enableTimelineDayHeaders,
-                        onChanged: (v) => appSettings.enableTimelineDayHeaders = v,
-                      ),
-                      AppSettingsCheckboxOption(
-                        title: 'Setup Grouping',
-                        subtitle: 'Merge setups of the same bike recorded close together.',
-                        value: () => appSettings.enableTimelineSetupGrouping,
-                        onChanged: (v) => appSettings.enableTimelineSetupGrouping = v,
-                      ),
-                      AppSettingsCheckboxOption(
-                        title: 'Replacement Detection',
-                        subtitle: 'Show a removal and the install replacing it as one entry.',
-                        value: () => appSettings.enableTimelineReplacementDetection,
-                        onChanged: (v) => appSettings.enableTimelineReplacementDetection = v,
-                      ),
+              ListTile(
+                leading: const Icon(Icons.view_agenda_outlined),
+                title: const Text("Timeline Grouping"),
+                subtitle: Text(_timelineGroupingSummary(appSettings)),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                onTap: () => appSettingsCheckboxGroupSheet(
+                  context: context,
+                  title: "Timeline Grouping",
+                  infoText:
+                      'Controls how the Setup History timeline condenses '
+                      'related entries. Each pass can be toggled on its own.',
+                  options: [
+                    AppSettingsCheckboxOption(
+                      title: 'Day Headers',
+                      subtitle: 'Group entries under a header per day.',
+                      value: () => appSettings.enableTimelineDayHeaders,
+                      onChanged: (v) => appSettings.enableTimelineDayHeaders = v,
+                    ),
+                    AppSettingsCheckboxOption(
+                      title: 'Setup Grouping',
+                      subtitle: 'Merge setups of the same bike recorded close together.',
+                      value: () => appSettings.enableTimelineSetupGrouping,
+                      onChanged: (v) => appSettings.enableTimelineSetupGrouping = v,
+                    ),
+                    AppSettingsCheckboxOption(
+                      title: 'Replacement Detection',
+                      subtitle: 'Show a removal and the install replacing it as one entry.',
+                      value: () => appSettings.enableTimelineReplacementDetection,
+                      onChanged: (v) => appSettings.enableTimelineReplacementDetection = v,
+                    ),
+                    if (kDebugMode)
                       AppSettingsCheckboxOption(
                         title: 'Strava Context',
                         subtitle: 'Mark entries recorded during a ride as part of that activity.',

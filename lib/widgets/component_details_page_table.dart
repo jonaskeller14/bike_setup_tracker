@@ -50,6 +50,37 @@ class ComponentDetailsPageTable extends StatefulWidget {
 class _ComponentDetailsPageTableState extends State<ComponentDetailsPageTable> {
   int _rowsPerPage = 5;
 
+  int _defaultRowsPerPage(int setupCount) {
+    if (setupCount == 0) return 1;
+    return setupCount < 5 ? setupCount : 5;
+  }
+
+  List<int> _availableRowsPerPage(int setupCount) {
+    if (setupCount <= 5) return [_defaultRowsPerPage(setupCount)];
+
+    return [
+      5,
+      if (setupCount > 10) 10,
+      if (setupCount > 20) 20,
+      if (setupCount > 50) 50 else setupCount,
+    ];
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _rowsPerPage = _defaultRowsPerPage(widget.setups.length);
+  }
+
+  @override
+  void didUpdateWidget(covariant ComponentDetailsPageTable oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final availableRowsPerPage = _availableRowsPerPage(widget.setups.length);
+    if (!availableRowsPerPage.contains(_rowsPerPage)) {
+      _rowsPerPage = _defaultRowsPerPage(widget.setups.length);
+    }
+  }
+
   bool get _allSetupsSelected =>
       widget.setups.every((setup) => widget.selectedSetupIds.contains(setup.id));
 
@@ -267,14 +298,7 @@ class _ComponentDetailsPageTableState extends State<ComponentDetailsPageTable> {
   Widget build(BuildContext context) {
     final appSettings = context.read<AppSettings>();
     final theme = Theme.of(context);
-    final availableRowsPerPage = {
-      5,
-      10,
-      20,
-      50,
-      _rowsPerPage,
-      if (widget.setups.length <= 50) widget.setups.length,
-    }.where((value) => value > 0).toList()..sort();
+    final availableRowsPerPage = _availableRowsPerPage(widget.setups.length);
 
     return Theme(
       data: theme.copyWith(

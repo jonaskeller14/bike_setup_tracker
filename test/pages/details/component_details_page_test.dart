@@ -56,6 +56,71 @@ void main() {
     );
   }
 
+  Widget createTableWidget(int setupCount) {
+    final setups = List.generate(
+      setupCount,
+      (index) => Setup(
+        id: 'setup-$index',
+        name: 'Setup $index',
+        datetime: DateTime(2024, 1, 1).toUtc(),
+        datetimeLocal: DateTime(2024, 1, 1),
+        tags: {},
+        bike: 'bike1',
+        person: null,
+        bikeAdjustmentValues: {},
+        personAdjustmentValues: {},
+      ),
+    );
+
+    return ChangeNotifierProvider.value(
+      value: appSettings,
+      child: MaterialApp(
+        theme: materialAppTheme,
+        home: Scaffold(
+          body: ComponentDetailsPageTable(
+            key: ValueKey(setupCount),
+            activeColumns: const [],
+            setups: setups,
+            selectedSetupIds: const {},
+            sortAscending: true,
+            sortColumn: null,
+            bikes: const {},
+            valueFor: (_, _) => null,
+            columnLabel: (_) => '',
+            onSort: (_, _) {},
+            onColumnRemoved: (_) {},
+            onSelectAll: (_) {},
+            onSetupSelected: (_, _) {},
+          ),
+        ),
+      ),
+    );
+  }
+
+  testWidgets('uses setup-aware rows-per-page options and defaults', (WidgetTester tester) async {
+    final cases = <int, List<int>>{
+      0: [1],
+      3: [3],
+      5: [5],
+      7: [5, 7],
+      10: [5, 10],
+      11: [5, 10, 11],
+      20: [5, 10, 20],
+      21: [5, 10, 20, 21],
+      50: [5, 10, 20, 50],
+      51: [5, 10, 20, 50],
+    };
+
+    for (final entry in cases.entries) {
+      await tester.pumpWidget(createTableWidget(entry.key));
+      await tester.pumpAndSettle();
+
+      final dropdown = tester.widget<DropdownButton<int>>(find.byType(DropdownButton<int>));
+      expect(dropdown.value, entry.key < 5 ? entry.key.clamp(1, 5) : 5);
+      expect(dropdown.items!.map((item) => item.value).toList(), entry.value);
+    }
+  });
+
   testWidgets('show placeholder when setups are empty', (WidgetTester tester) async {
     final component = Component(
       id: 'comp1',

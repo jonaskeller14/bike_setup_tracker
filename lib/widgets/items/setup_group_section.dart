@@ -8,6 +8,7 @@ import '../../models/bike.dart';
 import '../../models/context/context_weather.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
+import 'setup_group_header.dart';
 import 'setup_list_tile.dart';
 import 'tile_meta_row.dart';
 
@@ -116,66 +117,15 @@ class SetupGroupSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(top: 1),
-                    child: Icon(Setup.iconData),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "${setups.length} Setups",
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
-                        Wrap(
-                          alignment: WrapAlignment.start,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          spacing: 8,
-                          children: [
-                            Text(
-                              dateTimeText,
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                                fontSize: 12,
-                              ),
-                            ),
-                            TileMetaRow(
-                              icon: Bike.iconData,
-                              text: bikes[bikeId]?.name ?? "BIKE NOT FOUND",
-                              isError: !bikeFound,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              if (metadataRows.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(top: 6),
-                  child: Wrap(
-                    alignment: WrapAlignment.start,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    spacing: 8,
-                    children: metadataRows,
-                  ),
-                ),
-            ],
+        SetupGroupHeader(
+          setupCount: setups.length,
+          dateTimeText: dateTimeText,
+          bikeMetadata: TileMetaRow(
+            icon: Bike.iconData,
+            text: bikes[bikeId]?.name ?? "BIKE NOT FOUND",
+            isError: !bikeFound,
           ),
+          contextMetadata: metadataRows,
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),

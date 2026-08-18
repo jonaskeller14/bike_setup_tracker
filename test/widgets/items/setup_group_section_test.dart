@@ -1,3 +1,4 @@
+import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/widgets/current_setup_highlight.dart';
 import 'package:bike_setup_tracker/widgets/items/setup_group_section.dart';
 import 'package:bike_setup_tracker/widgets/items/setup_list_tile.dart';
@@ -63,6 +64,12 @@ void main() {
       find.descendant(of: find.byType(SetupGroupSection), matching: find.byType(Card)),
       findsNothing,
     );
+  });
+
+  testWidgets('embedded setup rows omit the setup icon', (tester) async {
+    await pumpGroup(tester);
+
+    expect(find.byIcon(Setup.iconData), findsOneWidget);
   });
 
   testWidgets('one container binds every member', (tester) async {

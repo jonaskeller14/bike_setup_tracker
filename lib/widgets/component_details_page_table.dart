@@ -50,20 +50,67 @@ class ComponentDetailsPageTable extends StatefulWidget {
 class _ComponentDetailsPageTableState extends State<ComponentDetailsPageTable> {
   int _rowsPerPage = 5;
 
+  bool get _allSetupsSelected =>
+      widget.setups.every((setup) => widget.selectedSetupIds.contains(setup.id));
+
+  bool? get _selectAllValue {
+    final selectedCount = widget.setups.where((setup) => widget.selectedSetupIds.contains(setup.id)).length;
+    if (selectedCount == 0) return false;
+    if (selectedCount == widget.setups.length) return true;
+    return null;
+  }
+
+  DataColumn _selectionColumn() {
+    return DataColumn(
+      label: Checkbox(
+        key: const ValueKey('select-all-setups'),
+        value: _selectAllValue,
+        tristate: true,
+        onChanged: (_) {
+          unawaited(HapticFeedback.selectionClick());
+          widget.onSelectAll(!_allSetupsSelected);
+        },
+      ),
+    );
+  }
+
   DataColumn _dataColumn(TableColumn column) {
+    final isSorted = widget.sortColumn == column;
+
+    void sort() {
+      widget.onSort(column, isSorted ? !widget.sortAscending : true);
+    }
+
     return DataColumn(
       label: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: sort,
         onLongPress: () {
           unawaited(HapticFeedback.selectionClick());
           widget.onColumnRemoved(column);
         },
-        child: Text(
-          widget.columnLabel(column),
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontWeight: FontWeight.bold),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              child: Text(
+                widget.columnLabel(column),
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            const SizedBox(width: 4),
+            Opacity(
+              opacity: isSorted ? 1 : 0,
+              child: AnimatedRotation(
+                turns: widget.sortAscending ? 0 : 0.5,
+                duration: const Duration(milliseconds: 150),
+                child: const Icon(Icons.arrow_upward, size: 16),
+              ),
+            ),
+          ],
         ),
       ),
-      onSort: (int _, bool ascending) => widget.onSort(column, ascending),
     );
   }
 
@@ -192,13 +239,27 @@ class _ComponentDetailsPageTableState extends State<ComponentDetailsPageTable> {
   }
 
   DataRow _dataRow(BuildContext context, Setup setup, AppSettings appSettings) {
+    final isSelected = widget.selectedSetupIds.contains(setup.id);
+
     return DataRow(
-      selected: widget.selectedSetupIds.contains(setup.id),
+      selected: isSelected,
       onSelectChanged: (selected) {
         unawaited(HapticFeedback.selectionClick());
         widget.onSetupSelected(setup, selected);
       },
-      cells: widget.activeColumns.map((column) => _dataCell(context, setup, column, appSettings)).toList(),
+      cells: [
+        DataCell(
+          Checkbox(
+            key: ValueKey('select-setup-${setup.id}'),
+            value: isSelected,
+            onChanged: (selected) {
+              unawaited(HapticFeedback.selectionClick());
+              widget.onSetupSelected(setup, selected);
+            },
+          ),
+        ),
+        ...widget.activeColumns.map((column) => _dataCell(context, setup, column, appSettings)),
+      ],
     );
   }
 
@@ -229,13 +290,10 @@ class _ComponentDetailsPageTableState extends State<ComponentDetailsPageTable> {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: PaginatedDataTable(
-          onSelectAll: (selected) {
-            unawaited(HapticFeedback.selectionClick());
-            widget.onSelectAll(selected);
-          },
+          horizontalMargin: 8,
           sortAscending: widget.sortAscending,
           sortColumnIndex: widget.activeColumns.contains(widget.sortColumn)
-              ? widget.activeColumns.indexOf(widget.sortColumn!)
+              ? widget.activeColumns.indexOf(widget.sortColumn!) + 1
               : null,
           columnSpacing: 20,
           rowsPerPage: _rowsPerPage,
@@ -244,8 +302,9 @@ class _ComponentDetailsPageTableState extends State<ComponentDetailsPageTable> {
             if (value != null) setState(() => _rowsPerPage = value);
           },
           showEmptyRows: false,
+          showCheckboxColumn: false,
           showFirstLastButtons: true,
-          columns: widget.activeColumns.map(_dataColumn).toList(),
+          columns: [_selectionColumn(), ...widget.activeColumns.map(_dataColumn)],
           source: _SetupDataSource(
             setups: widget.setups,
             selectedSetupIds: widget.selectedSetupIds,

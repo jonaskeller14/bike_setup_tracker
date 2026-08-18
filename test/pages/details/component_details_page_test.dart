@@ -13,6 +13,7 @@ import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/component_details_page_line_chart.dart';
 import 'package:bike_setup_tracker/widgets/component_details_page_radial_chart.dart';
+import 'package:bike_setup_tracker/widgets/component_details_page_table.dart';
 import 'package:bike_setup_tracker/widgets/lists/adjustment_edit_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -95,6 +96,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('No setups yet'), findsOneWidget);
+    expect(find.byType(ComponentDetailsPageTable), findsNothing);
   });
 
   testWidgets('show placeholder when component has no adjustments', (WidgetTester tester) async {
@@ -126,6 +128,7 @@ void main() {
 
     expect(find.text('No adjustments'), findsOneWidget);
     expect(find.text('No adjustments are defined for this component'), findsOneWidget);
+    expect(find.byType(ComponentDetailsPageTable), findsNothing);
   });
 
   testWidgets('show placeholder when no columns are selected', (WidgetTester tester) async {
@@ -287,16 +290,10 @@ void main() {
     await tester.tap(find.text('Compression'));
     await tester.pumpAndSettle();
 
-    // Open columns sheet
-    await tester.tap(find.text('Columns'));
-    await tester.pumpAndSettle();
-
-    // Deselect Compression in the sheet
-    await tester.tap(find.descendant(of: find.byType(Wrap), matching: find.text('Compression')));
-    await tester.pumpAndSettle();
-
-    // Close sheet
-    await tester.tapAt(const Offset(10, 10));
+    // Remove Compression directly from its table header.
+    await tester.longPress(
+      find.descendant(of: find.byType(DataTable), matching: find.text('Compression')),
+    );
     await tester.pumpAndSettle();
 
     // It should not crash, and the column should be removed from the DataTable
@@ -388,7 +385,8 @@ void main() {
     // Assertions after edit
     expect(find.text('New Fork Name'), findsOneWidget);
     expect(find.text('Rebound'), findsNothing);
-    expect(find.text('New Volume Spacers'), findsOneWidget);
+    expect(find.text('No setups yet'), findsOneWidget);
+    expect(find.byType(ComponentDetailsPageTable), findsNothing);
   });
 
   // ── Row selection ──────────────────────────────────────────────────────────
@@ -475,6 +473,63 @@ void main() {
 
     final rowsPerPageDropdown = tester.widget<DropdownButton<int>>(find.byType(DropdownButton<int>));
     expect(rowsPerPageDropdown.items!.map((item) => item.value), contains(7));
+  });
+
+  testWidgets('header checkbox shows and controls selection across all pages', (WidgetTester tester) async {
+    final adjustment = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
+    await tester.runAsync(() async {
+      await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
+      await appRepository.addComponent(Component(
+        id: 'comp1', name: 'Test Fork',
+        installations: [Installation.sinceBeginning(parent: 'bike1')],
+        componentType: ComponentType.fork,
+        adjustments: [adjustment],
+      ));
+      for (int i = 1; i <= 6; i++) {
+        await appRepository.addSetup(Setup(
+          id: 's$i', name: 'Setup $i',
+          datetime: DateTime(2024, 1, i).toUtc(), datetimeLocal: DateTime(2024, 1, i),
+          tags: {}, bike: 'bike1', person: null,
+          bikeAdjustmentValues: {'adj1': i},
+          personAdjustmentValues: {},
+        ));
+      }
+    });
+    appRepository.dispose();
+    appRepository = AppRepository(database);
+    await tester.pumpWidget(createWidgetUnderTest('comp1'));
+    await tester.runAsync(() async {
+      int attempts = 0;
+      while (appRepository.components['comp1'] == null && attempts < 10) {
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+        attempts++;
+      }
+    });
+    await tester.pumpAndSettle();
+
+    Checkbox selectAll() => tester.widget(find.byKey(const ValueKey('select-all-setups')));
+
+    expect(selectAll().value, isNull);
+
+    await tester.tap(find.text('Setup 3'));
+    await tester.tap(find.text('Setup 2'));
+    await tester.pumpAndSettle();
+
+    // The current page is fully selected, but Setup 1 on page two is not.
+    expect(selectAll().value, isNull);
+
+    await tester.tap(find.byKey(const ValueKey('select-all-setups')));
+    await tester.pumpAndSettle();
+    expect(selectAll().value, isTrue);
+
+    await tester.tap(find.byIcon(Icons.chevron_right));
+    await tester.pumpAndSettle();
+    expect(tester.widget<Checkbox>(find.byKey(const ValueKey('select-setup-s1'))).value, isTrue);
+
+    await tester.tap(find.byKey(const ValueKey('select-all-setups')));
+    await tester.pumpAndSettle();
+    expect(selectAll().value, isFalse);
+    expect(tester.widget<Checkbox>(find.byKey(const ValueKey('select-setup-s1'))).value, isFalse);
   });
 
   testWidgets('tapping a selected row deselects it', (WidgetTester tester) async {

@@ -491,7 +491,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                   ],
                 ),
               ),
-              if (activeColumns.isNotEmpty)
+              if (setups.isNotEmpty && activeColumns.isNotEmpty)
                 ComponentDetailsPageTable(
                   activeColumns: activeColumns,
                   setups: setups,
@@ -537,8 +537,8 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                       }
                     });
                   },
-                )
-              else
+                ),
+              if (setups.isNotEmpty && activeColumns.isEmpty)
                 const EmptyStatePlaceholder(
                   icon: Icons.view_column_outlined,
                   title: "No columns",

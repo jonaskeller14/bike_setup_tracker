@@ -252,6 +252,38 @@ void main() {
       expect(rows.whereType<SetupGroupRow>(), isEmpty);
     });
 
+    test('groups same-activity setups beyond the ordinary window', () {
+      final activity = stravaEntry(
+        id: 1,
+        startUtc: DateTime.utc(2026, 7, 1, 10),
+        elapsed: const Duration(hours: 10),
+      );
+      final s1 = setupEntry(id: 's1', utc: DateTime.utc(2026, 7, 1, 10, 15));
+      final s2 = setupEntry(id: 's2', utc: DateTime.utc(2026, 7, 1, 19, 45));
+      final rows = build([activity, s1, s2], ascending: true);
+
+      expect(rows.whereType<SetupGroupRow>().single.setups, [s1, s2]);
+    });
+
+    test('uses activity grouping when Strava context UI is disabled', () {
+      final activity = stravaEntry(
+        id: 1,
+        startUtc: DateTime.utc(2026, 7, 1, 10),
+        elapsed: const Duration(hours: 10),
+      );
+      final s1 = setupEntry(id: 's1', utc: DateTime.utc(2026, 7, 1, 10, 15));
+      final s2 = setupEntry(id: 's2', utc: DateTime.utc(2026, 7, 1, 19, 45));
+      final rows = build(
+        [activity, s1, s2],
+        ascending: true,
+        settings: groupingSettings(stravaContext: false),
+      );
+
+      final group = rows.whereType<SetupGroupRow>().single;
+      expect(group.setups, [s1, s2]);
+      expect(group.stravaContext, isNull);
+    });
+
     test('a non-setup entry between setups breaks the run', () {
       final s1 = setupEntry(id: 's1', utc: DateTime.utc(2026, 7, 1, 10));
       final component = makeComponent(id: 'c1');

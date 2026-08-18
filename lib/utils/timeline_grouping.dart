@@ -272,15 +272,13 @@ ReplacementPairing pairReplacements(
   return ReplacementPairing(pairsByAnchorId: pairs, consumedIds: consumed);
 }
 
-/// The Strava activities used as grouping context, empty when the feature is off.
-StravaActivityIndex _contextIndex(
-  List<TimelineEntry> entries,
-  AppSettings appSettings,
-) => StravaActivityIndex(
-  appSettings.enableTimelineStravaContext
-      ? entries.whereType<StravaEntry>().map((e) => e.activity)
-      : const <StravaActivity>[],
-);
+/// The Strava activities used as grouping context. Activity membership is
+/// timeline data; [AppSettings.enableTimelineStravaContext] only controls its
+/// presentation in [buildTimelineRows].
+StravaActivityIndex _contextIndex(List<TimelineEntry> entries) =>
+    StravaActivityIndex(
+      entries.whereType<StravaEntry>().map((e) => e.activity),
+    );
 
 StravaActivity? _contextOf(
   StravaActivityIndex activities,
@@ -317,7 +315,7 @@ List<EntryRow> collapseIntoRows(
   List<TimelineEntry> sortedEntries, {
   required AppSettings appSettings,
 }) {
-  final activities = _contextIndex(sortedEntries, appSettings);
+  final activities = _contextIndex(sortedEntries);
   StravaActivity? contextOf(TimelineEntry entry) =>
       _contextOf(activities, entry);
 
@@ -357,9 +355,16 @@ List<EntryRow> collapseIntoRows(
         // The group header shows one day + a time range, so members must
         // share the local day.
         if (!_sameLocalDay(next.setup.datetimeLocal, entry.setup.datetimeLocal)) break;
-        // Merging across different ride contexts would misrepresent both.
-        if (contextOf(next) != contextOf(run.last)) break;
-        if (next.date.difference(run.last.date).abs() > kSetupGroupWindow) break;
+        // Merging across different ride contexts would misrepresent both. A
+        // shared ride is sufficient grouping context even for long activities;
+        // otherwise keep the ordinary setup window.
+        final previousContext = contextOf(run.last);
+        final nextContext = contextOf(next);
+        if (nextContext != previousContext) break;
+        if (nextContext == null &&
+            next.date.difference(run.last.date).abs() > kSetupGroupWindow) {
+          break;
+        }
         run.add(next);
         j++;
       }
@@ -387,7 +392,7 @@ List<TimelineRow> buildTimelineRows(
   if (appSettings.enableTimelineStravaContext) {
     // Recomputed from the built rows rather than carried out of the grouping
     // core: only this list-only pass needs it, the calendar takes plain rows.
-    final activities = _contextIndex(sortedEntries, appSettings);
+    final activities = _contextIndex(sortedEntries);
     final duringActivity = <EntryRow, StravaActivity?>{
       for (final row in rows) row: _rowActivity(activities, row),
     };

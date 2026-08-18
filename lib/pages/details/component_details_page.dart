@@ -548,9 +548,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                 EmptyStatePlaceholder(
                   icon: Icons.history_rounded,
                   title: component.adjustments.isEmpty ? 'No adjustments' : 'No setups yet',
-                  subtitle: component.adjustments.isEmpty
-                      ? 'No adjustments are defined for this component'
-                      : null,
+                  subtitle: component.adjustments.isEmpty ? 'No adjustments are defined for this component' : null,
                 ),
               if (activeColumns.isNotEmpty && setups.isNotEmpty) const InitialChangedValueLegend(),
               const SizedBox(height: 16),
@@ -569,6 +567,9 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                 activeColumns: activeColumns,
                 setups: setups,
                 selectedSetups: selectedSetups,
+                showDateAxisLabels:
+                    _sortColumn == null ||
+                    (_sortColumn!.section == TableColumnSection.generalContext && _sortColumn!.label == "Date"),
                 selectedLineChartColumn: _selectedLineChartColumn,
                 valueFor: _rawValue,
                 adjustmentFor: (column) => _findAdjustment(

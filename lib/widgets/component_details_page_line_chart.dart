@@ -18,6 +18,7 @@ class ComponentDetailsPageLineChart extends StatefulWidget {
   final List<TableColumn> activeColumns;
   final List<Setup> setups;
   final List<Setup> selectedSetups;
+  final bool showDateAxisLabels;
   final TableColumn? selectedLineChartColumn;
   final dynamic Function(Setup setup, TableColumn column) valueFor;
   final Adjustment? Function(TableColumn column) adjustmentFor;
@@ -30,6 +31,7 @@ class ComponentDetailsPageLineChart extends StatefulWidget {
     required this.activeColumns,
     required this.setups,
     required this.selectedSetups,
+    required this.showDateAxisLabels,
     required this.selectedLineChartColumn,
     required this.valueFor,
     required this.adjustmentFor,
@@ -137,30 +139,34 @@ class _ComponentDetailsPageLineChartState extends State<ComponentDetailsPageLine
                 );
               }).toList(),
               titlesData: FlTitlesData(
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    reservedSize: 28,
-                    interval: 1,
-                    getTitlesWidget: (value, meta) {
-                      final index = value.toInt();
-                      if (value != index || (index != 0 && index != chartSetups.length - 1)) {
-                        return const SizedBox.shrink();
-                      }
+                bottomTitles: widget.showDateAxisLabels
+                    ? AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          reservedSize: 28,
+                          interval: 1,
+                          getTitlesWidget: (value, meta) {
+                            final index = value.toInt();
+                            if (value != index || (index != 0 && index != chartSetups.length - 1)) {
+                              return const SizedBox.shrink();
+                            }
 
-                      return SideTitleWidget(
-                        meta: meta,
-                        child: FractionalTranslation(
-                          translation: Offset(index == 0 ? 0.5 : -0.5, 0),
-                          child: Text(
-                            DateFormat(appSettings.dateFormat).format(chartSetups[index].datetimeLocal),
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
+                            return SideTitleWidget(
+                              meta: meta,
+                              child: FractionalTranslation(
+                                translation: Offset(index == 0 ? 0.5 : -0.5, 0),
+                                child: Text(
+                                  DateFormat(appSettings.dateFormat).format(chartSetups[index].datetimeLocal),
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    },
-                  ),
-                ),
+                      )
+                    : const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
                 rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                 topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                 leftTitles: AxisTitles(

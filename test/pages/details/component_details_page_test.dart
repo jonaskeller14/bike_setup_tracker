@@ -451,6 +451,28 @@ void main() {
     expect(firstLabelBounds.left, greaterThanOrEqualTo(chartBounds.left));
     expect(lastLabelBounds.right, lessThanOrEqualTo(chartBounds.right));
 
+    await tester.tap(find.descendant(of: find.byType(DataTable), matching: find.text('Name')));
+    await tester.pumpAndSettle();
+    expect(
+      find.descendant(of: find.byType(ComponentDetailsPageLineChart), matching: find.text('2024-01-07')),
+      findsNothing,
+    );
+    expect(
+      find.descendant(of: find.byType(ComponentDetailsPageLineChart), matching: find.text('2024-01-05')),
+      findsNothing,
+    );
+
+    await tester.tap(find.descendant(of: find.byType(DataTable), matching: find.text('Date')));
+    await tester.pumpAndSettle();
+    expect(
+      find.descendant(of: find.byType(ComponentDetailsPageLineChart), matching: find.text('2024-01-07')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: find.byType(ComponentDetailsPageLineChart), matching: find.text('2024-01-05')),
+      findsOneWidget,
+    );
+
     final rowsPerPageDropdown = tester.widget<DropdownButton<int>>(find.byType(DropdownButton<int>));
     expect(rowsPerPageDropdown.items!.map((item) => item.value), contains(7));
   });

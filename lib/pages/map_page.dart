@@ -172,7 +172,7 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
-                              Icons.star,
+                              Icons.flag,
                               size: 8,
                               color: Theme.of(context).colorScheme.primary,
                             ),

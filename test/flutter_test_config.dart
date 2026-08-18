@@ -10,7 +10,9 @@ Future<void> testExecutable(FutureOr<void> Function() testMain) {
         enabled: true,
         obscureText: true,
         renderShadows: false,
-        diffThreshold: 0,
+        // Icon glyphs and anti-aliased curves vary slightly between Windows
+        // baseline generation and the Ubuntu CI renderer.
+        diffThreshold: 0.005,
       ),
     ),
     run: () async {

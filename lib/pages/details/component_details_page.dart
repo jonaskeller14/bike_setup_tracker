@@ -1,25 +1,20 @@
-import 'dart:async';
-
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/component_stats.dart';
-import '../../models/context/context_weather.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
-import '../../theme.dart';
 import '../../utils/component_actions.dart';
 import '../../utils/table_column.dart';
 import '../../widgets/chips/filter_sheet_chip.dart';
 import '../../widgets/component_details_page_line_chart.dart';
 import '../../widgets/component_details_page_radial_chart.dart';
+import '../../widgets/component_details_page_table.dart';
 import '../../widgets/component_stats_card.dart';
 import '../../widgets/display_installation_timeline.dart';
 import '../../widgets/empty_state_placeholder.dart';
@@ -39,12 +34,12 @@ class ComponentDetailsPage extends StatefulWidget {
 }
 
 class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
+  static const int _defaultSelectedSetupCount = 3;
+
   bool _sortAscending = true;
   TableColumn? _sortColumn;
   TableColumn? _selectedLineChartColumn;
   Set<String>? _selectedSetupIds;
-
-  static const bool _highlighting = true;
 
   Map<String, double?> _ratingScores = {};
   Map<String, Map<String, double>> _metricScores = {};
@@ -296,31 +291,6 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     return setups;
   }
 
-  DataColumn _dataColumn(
-    TableColumn column,
-    Iterable<Adjustment> componentAdjustments,
-    Iterable<Adjustment> personAdjustments,
-  ) {
-    return DataColumn(
-      label: GestureDetector(
-        onLongPress: () {
-          unawaited(HapticFeedback.selectionClick());
-          setState(() {
-            column.active = false;
-            if (_selectedLineChartColumn == column) _selectedLineChartColumn = null;
-          });
-        },
-        child: Text(_columnLabel(column, componentAdjustments, personAdjustments), overflow: TextOverflow.ellipsis),
-      ),
-      onSort: (int _, bool ascending) {
-        setState(() {
-          _sortAscending = ascending;
-          _sortColumn = column;
-        });
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
@@ -415,7 +385,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     );
 
     _selectedSetupIds ??= (setups.toList()..sort((a, b) => b.datetime.compareTo(a.datetime)))
-        .take(5)
+        .take(_defaultSelectedSetupCount)
         .map((s) => s.id)
         .toSet();
     _selectedSetupIds!.removeWhere((id) => !setups.any((s) => s.id == id));
@@ -522,213 +492,51 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                 ),
               ),
               if (activeColumns.isNotEmpty)
-                SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  scrollDirection: Axis.horizontal,
-                  child: DataTable(
-                    onSelectAll: (selectAll) {
-                      unawaited(HapticFeedback.selectionClick());
-                      setState(() {
-                        if (selectAll == true) {
-                          _selectedSetupIds!.addAll(setups.map((s) => s.id));
-                        } else {
-                          _selectedSetupIds!.clear();
-                        }
-                      });
-                    },
-                    sortAscending: _sortAscending,
-                    sortColumnIndex: activeColumns.contains(_sortColumn) ? activeColumns.indexOf(_sortColumn!) : null,
-                    columnSpacing: 20,
-                    headingTextStyle: const TextStyle(fontWeight: FontWeight.bold),
-                    dataRowMaxHeight: double.infinity,
-                    columns: activeColumns.map((column) {
-                      return _dataColumn(column, componentAdjustments, personAdjustments);
-                    }).toList(),
-                    rows: setups.map((setup) {
-                      return DataRow(
-                        selected: _selectedSetupIds!.contains(setup.id),
-                        onSelectChanged: (bool? selected) {
-                          unawaited(HapticFeedback.selectionClick());
-                          setState(() {
-                            if (selected == true) {
-                              _selectedSetupIds!.add(setup.id);
-                            } else {
-                              _selectedSetupIds!.remove(setup.id);
-                            }
-                          });
-                        },
-                        cells: activeColumns.map((column) {
-                          switch (column.section) {
-                            case TableColumnSection.generalContext:
-                              return switch (column.label) {
-                                "Name" => DataCell(
-                                  ConstrainedBox(
-                                    constraints: const BoxConstraints(maxWidth: 150),
-                                    child: SingleChildScrollView(
-                                      scrollDirection: Axis.horizontal,
-                                      child: Text(setup.displayName, overflow: TextOverflow.ellipsis),
-                                    ),
-                                  ),
-                                ),
-                                "Notes" => DataCell(
-                                  ConstrainedBox(
-                                    constraints: const BoxConstraints(maxWidth: 300),
-                                    child: SingleChildScrollView(
-                                      scrollDirection: Axis.horizontal,
-                                      child: Text(setup.notes ?? '-', overflow: TextOverflow.ellipsis),
-                                    ),
-                                  ),
-                                ),
-                                "Tags" => DataCell(
-                                  ConstrainedBox(
-                                    constraints: const BoxConstraints(maxWidth: 300),
-                                    child: SingleChildScrollView(
-                                      scrollDirection: Axis.horizontal,
-                                      child: Text(
-                                        setup.tags.isEmpty ? '-' : setup.tags.join('; '),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                "Date" => DataCell(
-                                  Text(DateFormat(appSettings.dateFormat).format(setup.datetimeLocal)),
-                                ),
-                                "Time" => DataCell(
-                                  Text(DateFormat(appSettings.timeFormat).format(setup.datetimeLocal)),
-                                ),
-                                "Place" => DataCell(
-                                  ConstrainedBox(
-                                    constraints: const BoxConstraints(maxWidth: 150),
-                                    child: SingleChildScrollView(
-                                      scrollDirection: Axis.horizontal,
-                                      child: Text(setup.place?.locality ?? '-', overflow: TextOverflow.ellipsis),
-                                    ),
-                                  ),
-                                ),
-                                "Altitude" => DataCell(
-                                  Center(
-                                    child: Text(
-                                      setup.position?.altitude == null
-                                          ? '-'
-                                          : "${setup.position!.altitude!.round()} ${appSettings.altitudeUnit}",
-                                    ),
-                                  ),
-                                ),
-                                "Bike" => DataCell(
-                                  ConstrainedBox(
-                                    constraints: const BoxConstraints(maxWidth: 150),
-                                    child: SingleChildScrollView(
-                                      scrollDirection: Axis.horizontal,
-                                      child: Text(bikes[setup.bike]?.name ?? '-', overflow: TextOverflow.ellipsis),
-                                    ),
-                                  ),
-                                ),
-                                _ => const DataCell(Text("ERROR")),
-                              };
-                            case TableColumnSection.weatherContext:
-                              return switch (column.label) {
-                                "Weather Code" => DataCell(
-                                  Center(child: Text(setup.weather?.getWeatherCodeLabel() ?? "-")),
-                                ),
-                                "Temperature" => DataCell(
-                                  Center(
-                                    child: Text(
-                                      setup.weather?.currentTemperature == null
-                                          ? '-'
-                                          : "${ContextWeather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, appSettings.temperatureUnit)?.round()} ${appSettings.temperatureUnit}",
-                                    ),
-                                  ),
-                                ),
-                                "Precipitation" => DataCell(
-                                  Center(
-                                    child: Text(
-                                      setup.weather?.dayAccumulatedPrecipitation == null
-                                          ? '-'
-                                          : "${ContextWeather.convertPrecipitationFromMm(setup.weather!.dayAccumulatedPrecipitation!, appSettings.precipitationUnit)?.round()} ${appSettings.precipitationUnit}",
-                                    ),
-                                  ),
-                                ),
-                                "Humidity" => DataCell(
-                                  Center(
-                                    child: Text(
-                                      setup.weather?.currentHumidity == null
-                                          ? '-'
-                                          : "${setup.weather!.currentHumidity!.round()} %",
-                                    ),
-                                  ),
-                                ),
-                                "Windspeed" => DataCell(
-                                  Center(
-                                    child: Text(
-                                      setup.weather?.currentWindSpeed == null
-                                          ? '-'
-                                          : "${ContextWeather.convertWindSpeedFromKmh(setup.weather!.currentWindSpeed!, appSettings.windSpeedUnit)?.round()} ${appSettings.windSpeedUnit}",
-                                    ),
-                                  ),
-                                ),
-                                "Soil Moisture" => DataCell(
-                                  Center(
-                                    child: Text(
-                                      setup.weather?.currentSoilMoisture0to7cm == null
-                                          ? '-'
-                                          : setup.weather!.currentSoilMoisture0to7cm!.toStringAsFixed(2),
-                                    ),
-                                  ),
-                                ),
-                                "Condition" => DataCell(
-                                  Center(
-                                    child: Text(
-                                      setup.weather?.condition == null ? '-' : setup.weather?.condition!.value ?? "-",
-                                    ),
-                                  ),
-                                ),
-                                _ => const DataCell(Text("ERROR")),
-                              };
-                            case TableColumnSection.componentAdjustments || TableColumnSection.personAttributes:
-                              final value = _rawValue(setup, column);
-                              final initialValue = switch (column.section) {
-                                TableColumnSection.componentAdjustments =>
-                                  setup.previousBikeAdjustmentValues[column.label],
-                                TableColumnSection.personAttributes =>
-                                  setup.previousPersonAdjustmentValues[column.label],
-                                _ => null,
-                              };
-
-                              Color? highlightColor;
-                              if (_highlighting) {
-                                final bool isChanged = value != null && initialValue != value;
-                                final bool isInitial = initialValue == null;
-                                final highlights = Theme.of(context).extension<ValueHighlightColors>();
-                                highlightColor = isChanged
-                                    ? (isInitial
-                                          ? highlights?.initial ?? Colors.green
-                                          : highlights?.changed ?? Colors.orange)
-                                    : null;
-                              }
-
-                              return DataCell(
-                                Center(
-                                  child: Text(
-                                    Adjustment.formatValue(value),
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      color: highlightColor,
-                                      fontWeight: highlightColor != null ? FontWeight.bold : null,
-                                    ),
-                                  ),
-                                ),
-                              );
-                            case TableColumnSection.ratingScore || TableColumnSection.ratingMetrics:
-                              final score = _rawValue(setup, column) as double?;
-                              return DataCell(
-                                Center(child: Text(score == null ? '-' : "${score.toStringAsFixed(1)} / 10")),
-                              );
-                          }
-                        }).toList(),
-                      );
-                    }).toList(),
+                ComponentDetailsPageTable(
+                  activeColumns: activeColumns,
+                  setups: setups,
+                  selectedSetupIds: _selectedSetupIds!,
+                  sortAscending: _sortAscending,
+                  sortColumn: _sortColumn,
+                  bikes: bikes,
+                  valueFor: _rawValue,
+                  columnLabel: (column) => _columnLabel(
+                    column,
+                    componentAdjustments,
+                    personAdjustments,
                   ),
+                  onSort: (column, ascending) {
+                    setState(() {
+                      _sortAscending = ascending;
+                      _sortColumn = column;
+                    });
+                  },
+                  onColumnRemoved: (column) {
+                    setState(() {
+                      column.active = false;
+                      if (_selectedLineChartColumn == column) {
+                        _selectedLineChartColumn = null;
+                      }
+                    });
+                  },
+                  onSelectAll: (selected) {
+                    setState(() {
+                      if (selected == true) {
+                        _selectedSetupIds!.addAll(setups.map((setup) => setup.id));
+                      } else {
+                        _selectedSetupIds!.clear();
+                      }
+                    });
+                  },
+                  onSetupSelected: (setup, selected) {
+                    setState(() {
+                      if (selected == true) {
+                        _selectedSetupIds!.add(setup.id);
+                      } else {
+                        _selectedSetupIds!.remove(setup.id);
+                      }
+                    });
+                  },
                 )
               else
                 const EmptyStatePlaceholder(
@@ -751,7 +559,11 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
               const SectionTitle(
                 title: "Line Chart",
                 infoText:
-                    "Shows the setups selected in the table above in their current sort order. The y-axis represents adjustment values. Select at least two setups to display a trend. Tap legend entries to highlight a specific line.",
+                    "• Shows the setups selected in the table above in their current sort order.\n"
+                    "• The y-axis represents adjustment values.\n"
+                    "• Select at least two setups to display a trend.\n"
+                    "• Tap a legend entry to highlight a specific line.\n"
+                    "• Long-press a legend entry to remove it from the selection.",
               ),
               ComponentDetailsPageLineChart(
                 activeColumns: activeColumns,
@@ -786,7 +598,10 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
               const SectionTitle(
                 title: "Radial Chart",
                 infoText:
-                    "Shows the setups selected in the table above. Axes are normalized across all data for stable comparison. Tap legend entries to highlight specific graphs.",
+                    "• Shows the setups selected in the table above.\n"
+                    "• Axes are normalized across all data for stable comparison.\n"
+                    "• Tap a legend entry to highlight a specific graph.\n"
+                    "• Long-press a legend entry to remove it from the selection.",
               ),
               ComponentDetailsPageRadialChart(
                 activeColumns: activeColumns,

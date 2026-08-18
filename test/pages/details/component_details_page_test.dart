@@ -393,7 +393,7 @@ void main() {
 
   // ── Row selection ──────────────────────────────────────────────────────────
 
-  testWidgets('initially selects the 5 most recent setups', (WidgetTester tester) async {
+  testWidgets('initially selects the 3 most recent setups', (WidgetTester tester) async {
     final adjustment = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
     await tester.runAsync(() async {
       await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
@@ -425,10 +425,13 @@ void main() {
     });
     await tester.pumpAndSettle();
 
-    // Header checkbox is null/tristate when only some rows are selected, so
-    // only the 5 selected row checkboxes register as true.
-    expect(find.byWidgetPredicate((w) => w is Checkbox && w.value == true), findsNWidgets(5));
-    expect(find.byWidgetPredicate((w) => w is Checkbox && w.value == false), findsNWidgets(2));
+    final lineChart = tester.widget<ComponentDetailsPageLineChart>(
+      find.byType(ComponentDetailsPageLineChart),
+    );
+    expect(lineChart.selectedSetups.map((setup) => setup.id), ['s7', 's6', 's5']);
+
+    final rowsPerPageDropdown = tester.widget<DropdownButton<int>>(find.byType(DropdownButton<int>));
+    expect(rowsPerPageDropdown.items!.map((item) => item.value), contains(7));
   });
 
   testWidgets('tapping a selected row deselects it', (WidgetTester tester) async {

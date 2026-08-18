@@ -137,7 +137,30 @@ class _ComponentDetailsPageLineChartState extends State<ComponentDetailsPageLine
                 );
               }).toList(),
               titlesData: FlTitlesData(
-                bottomTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 28,
+                    interval: 1,
+                    getTitlesWidget: (value, meta) {
+                      final index = value.toInt();
+                      if (value != index || (index != 0 && index != chartSetups.length - 1)) {
+                        return const SizedBox.shrink();
+                      }
+
+                      return SideTitleWidget(
+                        meta: meta,
+                        child: FractionalTranslation(
+                          translation: Offset(index == 0 ? 0.5 : -0.5, 0),
+                          child: Text(
+                            DateFormat(appSettings.dateFormat).format(chartSetups[index].datetimeLocal),
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
                 rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                 topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                 leftTitles: AxisTitles(

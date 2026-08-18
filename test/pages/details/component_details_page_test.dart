@@ -393,7 +393,7 @@ void main() {
 
   // ── Row selection ──────────────────────────────────────────────────────────
 
-  testWidgets('initially selects the 3 most recent setups', (WidgetTester tester) async {
+  testWidgets('initially selects the 3 most recent setups and labels chart endpoints', (WidgetTester tester) async {
     final adjustment = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
     await tester.runAsync(() async {
       await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
@@ -429,6 +429,27 @@ void main() {
       find.byType(ComponentDetailsPageLineChart),
     );
     expect(lineChart.selectedSetups.map((setup) => setup.id), ['s7', 's6', 's5']);
+    expect(
+      find.descendant(of: find.byType(ComponentDetailsPageLineChart), matching: find.text('2024-01-07')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: find.byType(ComponentDetailsPageLineChart), matching: find.text('2024-01-05')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: find.byType(ComponentDetailsPageLineChart), matching: find.text('2024-01-06')),
+      findsNothing,
+    );
+    final chartBounds = tester.getRect(find.byType(ComponentDetailsPageLineChart));
+    final firstLabelBounds = tester.getRect(
+      find.descendant(of: find.byType(ComponentDetailsPageLineChart), matching: find.text('2024-01-07')),
+    );
+    final lastLabelBounds = tester.getRect(
+      find.descendant(of: find.byType(ComponentDetailsPageLineChart), matching: find.text('2024-01-05')),
+    );
+    expect(firstLabelBounds.left, greaterThanOrEqualTo(chartBounds.left));
+    expect(lastLabelBounds.right, lessThanOrEqualTo(chartBounds.right));
 
     final rowsPerPageDropdown = tester.widget<DropdownButton<int>>(find.byType(DropdownButton<int>));
     expect(rowsPerPageDropdown.items!.map((item) => item.value), contains(7));

@@ -11,6 +11,8 @@ import '../../models/selected_data.dart';
 import '../../services/google_drive_service.dart';
 import '../../utils/backup.dart';
 import '../../utils/file_import.dart';
+import '../sticky_section.dart';
+import '../timeline_day_header.dart';
 import 'sheet_header.dart';
 
 class BackupSheetContent extends StatefulWidget {
@@ -33,7 +35,6 @@ class _BackupSheetContentState extends State<BackupSheetContent> {
   ListTile _backupListTile({
     required BuildContext context,
     required Backup backup,
-    required DateFormat dateFormat,
     required DateFormat timeFormat,
   }) {
     return ListTile(
@@ -45,7 +46,7 @@ class _BackupSheetContentState extends State<BackupSheetContent> {
         LocalBackup() => const Text("Local Backup"),
         GoogleDriveBackup() => const Text("Google Drive Backup"),
       },
-      subtitle: Text("Created at: ${dateFormat.format(backup.createdAt.toLocal())} ${timeFormat.format(backup.createdAt.toLocal())}"),
+      subtitle: Text("Created at: ${timeFormat.format(backup.createdAt.toLocal())}"),
       trailing: IconButton(
         onPressed: () async {
           switch (backup) {
@@ -69,6 +70,29 @@ class _BackupSheetContentState extends State<BackupSheetContent> {
         },
         icon: const Icon(Icons.upload),
         tooltip: 'Restore backup',
+      ),
+    );
+  }
+
+  Widget _backupDaySection({
+    required BuildContext context,
+    required DateTime day,
+    required List<Backup> backups,
+    required DateFormat timeFormat,
+  }) {
+    return StickySection(
+      header: TimelineDayHeader(day: day, margin: EdgeInsets.zero),
+      content: Column(
+        children: [
+          for (var index = 0; index < backups.length; index++) ...[
+            _backupListTile(
+              context: context,
+              backup: backups[index],
+              timeFormat: timeFormat,
+            ),
+            if (index + 1 < backups.length) const Divider(),
+          ],
+        ],
       ),
     );
   }
@@ -112,7 +136,6 @@ class _BackupSheetContentState extends State<BackupSheetContent> {
   @override
   Widget build(BuildContext context) {
     final appSettings = context.read<AppSettings>();
-    final dateFormat = DateFormat(appSettings.dateFormat);
     final timeFormat = DateFormat(appSettings.timeFormat);
 
     return SafeArea(
@@ -159,7 +182,6 @@ class _BackupSheetContentState extends State<BackupSheetContent> {
                       title: SelectableText(_readBackupError!),
                       dense: true,
                     ),
-                  const Divider(),
                   FutureBuilder<List<Backup>>(
                     future: _backups, 
                     builder: (context, snapshot) {
@@ -176,20 +198,26 @@ class _BackupSheetContentState extends State<BackupSheetContent> {
                         
                         backups.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
-                        return ListView.separated(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          padding: EdgeInsets.zero,
-                          itemCount: backups.length,
-                          itemBuilder: (context, index) {
-                            return _backupListTile(
-                              context: context,
-                              backup: backups[index],
-                              dateFormat: dateFormat,
-                              timeFormat: timeFormat,
-                            );
-                          },
-                          separatorBuilder: (context, index) => const Divider(),
+                        final sections = <({DateTime day, List<Backup> backups})>[];
+                        for (final backup in backups) {
+                          final local = backup.createdAt.toLocal();
+                          final day = DateTime(local.year, local.month, local.day);
+                          if (sections.isEmpty || sections.last.day != day) {
+                            sections.add((day: day, backups: []));
+                          }
+                          sections.last.backups.add(backup);
+                        }
+
+                        return Column(
+                          children: [
+                            for (final section in sections)
+                              _backupDaySection(
+                                context: context,
+                                day: section.day,
+                                backups: section.backups,
+                                timeFormat: timeFormat,
+                              ),
+                          ],
                         );
                       }
 

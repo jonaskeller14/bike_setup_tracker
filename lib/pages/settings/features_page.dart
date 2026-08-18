@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 import '../../icons/simple_icons.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
-import '../../models/bike.dart';
 import '../../repositories/app_repository.dart';
 import '../../widgets/sheets/app_settings_checkbox_group.dart';
 import '../../widgets/sheets/app_settings_radio_group.dart';
@@ -50,25 +49,6 @@ class FeaturesPage extends StatelessWidget {
                 dense: true,
               ),
               const SectionTitle(title: 'Bikes & Components'),
-              ListTile(
-                leading: const Icon(Bike.iconData),
-                title: const Text("Garage"),
-                subtitle: _offOnOptionWidgets[appSettings.enableGarage] ?? const Text("-"),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => appSettingsRadioGroupSheet<bool>(
-                  context: context,
-                  title: "Garage",
-                  value: appSettings.enableGarage,
-                  optionWidgets: _offOnOptionWidgets,
-                  onChanged: (bool? newValue) {
-                    if (newValue == null) return;
-                    appSettings.enableGarage = newValue;
-                    Navigator.pop(context);
-                  },
-                  infoText:
-                      'Enables the Garage layout which focuses on Bikes and their installed Components. If disabled, the app uses a more traditional list-based interface.',
-                ),
-              ),
               ListTile(
                 leading: const Icon(Icons.checklist),
                 title: const Text("Installation Timeline"),
@@ -357,7 +337,7 @@ class FeaturesPage extends StatelessWidget {
                 ),
               ),
               ListTile(
-                enabled: appSettings.enableTask && appSettings.enableGarage,
+                enabled: appSettings.enableTask,
                 leading: const Icon(Icons.adjust),
                 title: const Text("Garage Task Indicator"),
                 subtitle: _offOnOptionWidgets[appSettings.enableGarageTaskIndicator] ?? const Text("-"),

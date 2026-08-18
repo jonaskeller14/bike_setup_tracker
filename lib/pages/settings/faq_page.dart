@@ -7,9 +7,7 @@ import '../../widgets/text/section_title.dart';
 class FAQPage extends StatelessWidget {
   const FAQPage({super.key});
 
-  /// Adjustments are configured per component, so these entries belong to
-  /// whichever section owns components — "Bikes" with the garage enabled,
-  /// "Components" without. Only one of the two is ever shown at a time.
+  /// Adjustments are configured per component and are managed from Bikes.
   static const Map<String, String> _adjustmentFAQs = {
     'What is an "Adjustment"?':
         'An Adjustment defines a specific part of a component that can be modified (e.g., tire pressure or suspension rebound). It sets the rules — the type, the unit, and the allowed range — while the actual values are recorded within a "Setup."',
@@ -51,8 +49,7 @@ class FAQPage extends StatelessWidget {
       //     'Yes. Turn on "Google Drive Sync" in App Settings → Experimental Features. A cloud icon will appear on the home screen — tap it to sign in and authorize. Once enabled, changes sync automatically and daily backups are saved to your Google Drive so you can access them from any device.',
     },
     'Bikes': {
-      'How do I add a new bike?':
-          'Tap the "+" button in the "Bikes" tab to create a new bike.',
+      'How do I add a new bike?': 'Tap the "+" button in the "Bikes" tab to create a new bike.',
       'Where are my components?':
           'Components are listed directly under the bike they are installed on. Tap a component to see its details and make adjustments.',
       'How do I edit or delete a component?':
@@ -68,23 +65,7 @@ class FAQPage extends StatelessWidget {
           '"Uninstalled" means the component is off the bike but still usable. It stays visible in the Uninstalled section and can be reinstalled at any time — for example, a spare wheelset you swap in for race day, or a saddle you temporarily moved to another bike.\n\n'
           '"Archived" means the component is retired and will never be used again. It is hidden from the main view to keep your garage clean, but all its history and statistics are preserved. Use this for worn-out brake pads or tires, broken or sold parts, or anything you no longer ride. You can still find archived components in the Archived section and restore them if needed.',
       ..._adjustmentFAQs,
-      'How do I reorder my bikes?':
-          'Long-press and drag a bike card to move it up or down in the list.',
-    },
-    'Bike': {
-      'How do I add a new bike?':
-          'Navigate to the "Bikes" tab and tap the "+" button to create a new bike.',
-      'How do I reorder my bikes?':
-          'In the "Bikes" tab, long-press and drag a bike card to your preferred position. This order will be reflected throughout the app.',
-    },
-    'Components': {
-      'How do I add components to my bike?':
-          'Go to the "Components" tab and tap the "+" button. A page opens that lets you assign the component to any of your existing bikes.',
-      'How do I move a component to a different bike?':
-          'In the "Components" tab, tap the three-dot menu on a specific component and select "Edit." Change the assigned bike in the dropdown menu and save your changes.',
-      'How do I reorder components?':
-          'In the "Components" tab, long-press and drag a component card to change its position. This order persists across all component lists.',
-      ..._adjustmentFAQs,
+      'How do I reorder my bikes?': 'Long-press and drag a bike card to move it up or down in the list.',
     },
     'Setup': {
       'What is a "Setup"?':
@@ -111,8 +92,7 @@ class FAQPage extends StatelessWidget {
     "Person": {
       'Why?':
           'Adding a person profile allows you to link bikes to individual riders for a better overview. You can also track personal data (like body weight) that directly influences bike component behavior. Having personal data as context makes finding the optimal setup easier.',
-      'How to add a Person?':
-          'Go to the "Person" tab and tap the "+" button to add a new person.',
+      'How to add a Person?': 'Go to the "Person" tab and tap the "+" button to add a new person.',
       "How to link a Person to a Bike?":
           'Navigate to the "Bikes" tab and select the bike you want to link. Tap the three-dot menu, select "Edit", and choose the person from the dropdown menu.',
     },
@@ -154,25 +134,29 @@ class FAQPage extends StatelessWidget {
           'Both statuses mean the task needs your attention, but at different urgency levels.\n\n'
           '"Due" (shown in orange) means the task has reached 100% of its interval — it\'s time to do it.\n\n'
           '"Overdue" (shown in red) means the task has exceeded the interval by more than 10%. There is a small grace window before a task escalates from Due to Overdue, so a minor overshoot will not immediately turn red.',
-    }
+    },
   };
 
   @override
   Widget build(BuildContext context) {
     final appSettings = context.read<AppSettings>();
 
-    final faqSections = Map.fromEntries(_faqSections.entries.where((entry) {
-      switch (entry.key) {
-        case "Bikes": return appSettings.enableGarage;
-        case "Bike": return !appSettings.enableGarage;
-        case "Components": return !appSettings.enableGarage;
-        case "Person": return appSettings.enablePerson;
-        case "Rating": return appSettings.enableRating;
-        case "Tasks": return appSettings.enableTask;
-        case "Strava Sync": return appSettings.enableStrava;
-        default: return true;
-      }
-    }));
+    final faqSections = Map.fromEntries(
+      _faqSections.entries.where((entry) {
+        switch (entry.key) {
+          case "Person":
+            return appSettings.enablePerson;
+          case "Rating":
+            return appSettings.enableRating;
+          case "Tasks":
+            return appSettings.enableTask;
+          case "Strava Sync":
+            return appSettings.enableStrava;
+          default:
+            return true;
+        }
+      }),
+    );
 
     return Scaffold(
       appBar: AppBar(title: const Text('Frequently asked Questions')),
@@ -182,24 +166,30 @@ class FAQPage extends StatelessWidget {
             top: false,
             sliver: SliverMainAxisGroup(
               slivers: [
-                ...faqSections.entries.map((faqSection) => SliverMainAxisGroup(
-                  slivers: [
-                    PinnedHeaderSliver(
-                      child: Container(
-                        color: Theme.of(context).colorScheme.surface,
-                        child: SectionTitle(title: faqSection.key),
+                ...faqSections.entries.map(
+                  (faqSection) => SliverMainAxisGroup(
+                    slivers: [
+                      PinnedHeaderSliver(
+                        child: Container(
+                          color: Theme.of(context).colorScheme.surface,
+                          child: SectionTitle(title: faqSection.key),
+                        ),
                       ),
-                    ),
-                    SliverList.list(
-                      children: faqSection.value.entries.map((faq) => ListTile(
-                        title: SelectableText(faq.key, style: const TextStyle(fontWeight: FontWeight.bold)),
-                        subtitle: SelectableText(faq.value),
-                        dense: true,
-                      )).toList(),
-                    ),
-                    const SliverToBoxAdapter(child: Divider()),
-                  ],
-                )),
+                      SliverList.list(
+                        children: faqSection.value.entries
+                            .map(
+                              (faq) => ListTile(
+                                title: SelectableText(faq.key, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                subtitle: SelectableText(faq.value),
+                                dense: true,
+                              ),
+                            )
+                            .toList(),
+                      ),
+                      const SliverToBoxAdapter(child: Divider()),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),

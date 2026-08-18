@@ -26,7 +26,6 @@ class AppSettings extends ChangeNotifier {
   bool _enableTaskTags = false;
   final bool _enableStrava = true;
   bool _enableStravaNotifications = true;
-  bool _enableGarage = true;
   bool _enableTask = false;
   bool _enableTaskPriority = true;
   bool _enableTaskInterval = true;
@@ -79,7 +78,6 @@ class AppSettings extends ChangeNotifier {
   bool get enableTaskTags => _enableTaskTags;
   bool get enableStrava => _enableStrava;
   bool get enableStravaNotifications => _enableStravaNotifications;
-  bool get enableGarage => _enableGarage;
   bool get enableTask => _enableTask;
   bool get enableTaskPriority => _enableTaskPriority;
   bool get enableTaskInterval => _enableTaskInterval;
@@ -236,13 +234,6 @@ class AppSettings extends ChangeNotifier {
     _enableStravaNotifications = newValue;
     notifyListeners();
     _persistBool('enableStravaNotifications', newValue);
-  }
-
-  set enableGarage(bool newValue) {
-    if (newValue == _enableGarage) return;
-    _enableGarage = newValue;
-    notifyListeners();
-    _persistBool('enableGarage', newValue);
   }
 
   set enableTask(bool newValue) {
@@ -470,6 +461,7 @@ class AppSettings extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
 
       await _migrateLegacyBlob(prefs);
+      await _removeDeprecatedPreferences(prefs);
 
       _showOnboarding = prefs.getBool('${_kPrefix}showOnboarding') ?? _showOnboarding;
       final storedThemeMode = prefs.getString('${_kPrefix}themeMode');
@@ -494,7 +486,6 @@ class AppSettings extends ChangeNotifier {
       _enableTaskTags = prefs.getBool('${_kPrefix}enableTaskTags') ?? _enableTaskTags;
       // enableStrava should always be true; ignored persisted value
       _enableStravaNotifications = prefs.getBool('${_kPrefix}enableStravaNotifications') ?? _enableStravaNotifications;
-      _enableGarage = prefs.getBool('${_kPrefix}enableGarage') ?? _enableGarage;
       _enableTask = prefs.getBool('${_kPrefix}enableTask') ?? _enableTask;
       _enableTaskPriority = prefs.getBool('${_kPrefix}enableTaskPriority') ?? _enableTaskPriority;
       _enableTaskInterval = prefs.getBool('${_kPrefix}enableTaskInterval') ?? _enableTaskInterval;
@@ -554,6 +545,14 @@ class AppSettings extends ChangeNotifier {
     await prefs.remove(_kLegacyBlobKey);
   }
 
+  static const _deprecatedPreferenceKeys = ['enableGarage'];
+
+  Future<void> _removeDeprecatedPreferences(SharedPreferences prefs) async {
+    for (final key in _deprecatedPreferenceKeys) {
+      await prefs.remove('$_kPrefix$key');
+    }
+  }
+
   /// Default values as written into the old monolithic blob. Used solely by
   /// [_migrateLegacyBlob] to tell an explicit user choice from a frozen default.
   /// These are the defaults at the time the blob format was retired; do not
@@ -573,7 +572,6 @@ class AppSettings extends ChangeNotifier {
     'enableSetupTags': false,
     'enableTaskTags': false,
     'enableStravaNotifications': true,
-    'enableGarage': true,
     'enableTask': false,
     'enableTaskPriority': true,
     'showStravaLinkGearHint': true,

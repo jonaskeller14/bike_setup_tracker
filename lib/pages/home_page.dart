@@ -3,20 +3,16 @@ import 'package:provider/provider.dart';
 
 import '../models/app_settings.dart';
 import '../models/bike.dart';
-import '../models/component.dart';
 import '../models/person.dart';
 import '../models/rating.dart';
 import '../models/setup.dart';
 import '../repositories/app_repository.dart';
 import '../utils/bike_actions.dart';
-import '../utils/component_actions.dart';
 import '../utils/person_actions.dart';
 import '../utils/rating_actions.dart';
 import '../utils/setup_actions.dart';
 import '../utils/task_actions.dart';
 import '../widgets/google_drive_sync_button.dart';
-import '../widgets/lists/bike_list.dart';
-import '../widgets/lists/component_list.dart';
 import '../widgets/lists/garage_list.dart';
 import '../widgets/lists/person_list.dart';
 import '../widgets/lists/rating_list.dart';
@@ -53,24 +49,17 @@ class _HomePageState extends State<HomePage> {
     final appRepository = context.watch<AppRepository>();
     final toDoTaskRulesCount = appRepository.openTaskRules.length;
 
-    final defaultIndex = appRepository.bikes.isEmpty  || appRepository.components.isEmpty
-        ? 0
-        : (appSettings.enableGarage ? 1 : 2);
+    final defaultIndex = appRepository.bikes.isEmpty || appRepository.components.isEmpty ? 0 : 1;
     final pageIndex = (_currentPageIndex ?? defaultIndex).clamp(
       0,
-      (-1) +
-          (appSettings.enableGarage ? 1 : 2) +
-          1 +
-          (appSettings.enablePerson ? 1 : 0) +
-          (appSettings.enableRating ? 1 : 0) +
-          (appSettings.enableTask ? 1 : 0),
+      1 + (appSettings.enablePerson ? 1 : 0) + (appSettings.enableRating ? 1 : 0) + (appSettings.enableTask ? 1 : 0),
     );
     return Scaffold(
       appBar: AppBar(
         leading: Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0),
           child: SizedBox(
-            height: 30, 
+            height: 30,
             width: 30,
             child: ClipOval(
               child: Image.asset(
@@ -81,12 +70,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         title: <Text>[
-          if (appSettings.enableGarage)
-            const Text("Bikes")
-          else ...[
-            const Text("Bikes"),
-            const Text("Components"),
-          ],
+          const Text("Bikes"),
           const Text("Setup History"),
           if (appSettings.enablePerson) const Text("Profile"),
           if (appSettings.enableRating) const Text("Ratings"),
@@ -98,11 +82,16 @@ class _HomePageState extends State<HomePage> {
           PopupMenuButton<_AppOptions>(
             onSelected: (_AppOptions result) async {
               switch (result) {
-                case _AppOptions.import: await importData(context);
-                case _AppOptions.export: await exportData(context);
-                case _AppOptions.share: await shareData(context);
-                case _AppOptions.trash: await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const TrashPage()));
-                case _AppOptions.settings: await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const AppSettingsPage()));
+                case _AppOptions.import:
+                  await importData(context);
+                case _AppOptions.export:
+                  await exportData(context);
+                case _AppOptions.share:
+                  await shareData(context);
+                case _AppOptions.trash:
+                  await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const TrashPage()));
+                case _AppOptions.settings:
+                  await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const AppSettingsPage()));
               }
             },
             itemBuilder: (BuildContext context) => _AppOptions.values.map((appOption) {
@@ -128,26 +117,14 @@ class _HomePageState extends State<HomePage> {
           setState(() => _currentPageIndex = index);
         },
         destinations: <Widget>[
-          if (appSettings.enableGarage)
-            NavigationDestination(
-              icon: Badge(
-                isLabelVisible: appRepository.selectedBike != null,
-                backgroundColor: Theme.of(context).primaryColor,
-                child: const Icon(Bike.iconData),
-              ),
-              label: 'Bikes',
-            )
-          else ...[
-            NavigationDestination(
-              icon: Badge(
-                isLabelVisible: appRepository.selectedBike != null,
-                backgroundColor: Theme.of(context).primaryColor,
-                child: const Icon(Bike.iconData),
-              ),
-              label: 'Bikes',
+          NavigationDestination(
+            icon: Badge(
+              isLabelVisible: appRepository.selectedBike != null,
+              backgroundColor: Theme.of(context).primaryColor,
+              child: const Icon(Bike.iconData),
             ),
-            const NavigationDestination(icon: Icon(Component.iconData), label: 'Components'),
-          ],
+            label: 'Bikes',
+          ),
           const NavigationDestination(icon: Icon(Setup.iconData), label: 'Setups'),
           if (appSettings.enablePerson) const NavigationDestination(icon: Icon(Person.iconData), label: "Profile"),
           if (appSettings.enableRating) const NavigationDestination(icon: Icon(Rating.iconData), label: "Ratings"),
@@ -168,12 +145,7 @@ class _HomePageState extends State<HomePage> {
         child: IndexedStack(
           index: pageIndex,
           children: <Widget>[
-            if (appSettings.enableGarage)
-              const GarageList()
-            else ...[
-              const BikeList(),
-              const ComponentList(),
-            ],
+            const GarageList(),
             SetupList(controller: _setupListController),
             if (appSettings.enablePerson) const PersonList(),
             if (appSettings.enableRating) const RatingList(),
@@ -182,33 +154,14 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       floatingActionButton: <Widget>[
-        if (appSettings.enableGarage)
-          FloatingActionButton(
-            heroTag: "addBike",
-            onPressed: () async {
-              await BikeActions.addBike(context);
-            },
-            tooltip: 'Add Bike',
-            child: const Icon(Icons.add),
-          )
-        else ... [
-          FloatingActionButton(
-            heroTag: "addBike",
-            onPressed: () async {
-              await BikeActions.addBike(context);
-            },
-            tooltip: 'Add Bike',
-            child: const Icon(Icons.add),
-          ),
-          FloatingActionButton(
-            heroTag: "addComponent",
-            onPressed: () async {
-              await ComponentActions.addComponent(context);
-            },
-            tooltip: 'Add Component',
-            child: const Icon(Icons.add),
-          ),
-        ],
+        FloatingActionButton(
+          heroTag: "addBike",
+          onPressed: () async {
+            await BikeActions.addBike(context);
+          },
+          tooltip: 'Add Bike',
+          child: const Icon(Icons.add),
+        ),
         ListenableBuilder(
           listenable: _setupListController,
           builder: (context, child) => Column(

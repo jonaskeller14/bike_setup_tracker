@@ -137,7 +137,6 @@ void main() {
       SharedPreferences.setMockInitialValues({
         _kLegacyBlobKey: jsonEncode({
           'enableCalendar': false, // equals old default -> untouched
-          'enableGarage': true, // equals old default -> untouched
         }),
       });
       final settings = AppSettings();
@@ -146,10 +145,8 @@ void main() {
       final prefs = await SharedPreferences.getInstance();
       // Not migrated: the per-key entries stay absent...
       expect(prefs.getBool('${_kPrefix}enableCalendar'), isNull);
-      expect(prefs.getBool('${_kPrefix}enableGarage'), isNull);
       // ...and the getters fall back to the live code defaults.
       expect(settings.enableCalendar, isFalse);
-      expect(settings.enableGarage, isTrue);
       expect(prefs.getString(_kLegacyBlobKey), isNull);
     });
 

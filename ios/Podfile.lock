@@ -1,25 +1,19 @@
 PODS:
-  - file_save_directory (0.0.1):
-    - Flutter
   - Flutter (1.0.0)
   - location (0.0.1):
     - Flutter
 
 DEPENDENCIES:
-  - file_save_directory (from `.symlinks/plugins/file_save_directory/ios`)
   - Flutter (from `Flutter`)
   - location (from `.symlinks/plugins/location/ios`)
 
 EXTERNAL SOURCES:
-  file_save_directory:
-    :path: ".symlinks/plugins/file_save_directory/ios"
   Flutter:
     :path: Flutter
   location:
     :path: ".symlinks/plugins/location/ios"
 
 SPEC CHECKSUMS:
-  file_save_directory: 3f279c21bb0d050f346265445c26a66e7da841c7
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   location: 155caecf9da4f280ab5fe4a55f94ceccfab838f8
 

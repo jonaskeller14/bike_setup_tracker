@@ -10,7 +10,6 @@ import '../../models/rating_metric.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/dangling_adjustment_service.dart';
-import '../../services/image_storage_service.dart';
 import '../../services/setup_comparison_service.dart';
 import '../../utils/setup_actions.dart';
 import '../../widgets/current_setup_badge.dart';
@@ -18,12 +17,11 @@ import '../../widgets/current_setup_highlight.dart';
 import '../../widgets/display_adjustment/display_adjustment_list.dart';
 import '../../widgets/display_adjustment/display_dangling_adjustment.dart';
 import '../../widgets/empty_state_placeholder2.dart';
-import '../../widgets/image_strip.dart';
 import '../../widgets/initial_changed_value_legend.dart';
 import '../../widgets/items/card_header_tile.dart';
 import '../../widgets/items/context_location_card.dart';
+import '../../widgets/items/context_meta_card.dart';
 import '../../widgets/items/context_weather_card.dart';
-import '../../widgets/notes_text.dart';
 import '../../widgets/sheets/compare_setups.dart';
 import '../../widgets/sheets/sheet.dart';
 import '../../widgets/text/section_title.dart';
@@ -306,43 +304,11 @@ class SetupDetailsPageContent extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (appSettings.enableSetupImages && setup.images.isNotEmpty)
-              FutureBuilder<String>(
-                future: ImageStorageService().getImagesPath(),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) return const SizedBox.shrink();
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: ImageStrip(
-                      images: setup.images,
-                      imagesDir: snapshot.data!,
-                    ),
-                  );
-                },
-              ),
-            if (setup.notes != null || (setup.tags.isNotEmpty && appSettings.enableSetupTags))
-              Card.outlined(
-                margin: const EdgeInsets.symmetric(vertical: 4),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (setup.notes != null)
-                      ListTile(
-                        leading: const Icon(Icons.notes),
-                        titleAlignment: ListTileTitleAlignment.titleHeight,
-                        title: NotesText(setup.notes!, maxLines: 10),
-                        dense: true,
-                      ),
-                    ...setup.tags.map((tag) {
-                      return ListTile(
-                        leading: const Icon(Icons.tag),
-                        title: Text(tag),
-                        dense: true,
-                      );
-                    }),
-                  ],
-                ),
-              ),
+            ContextMetaCard(
+              notes: setup.notes,
+              tags: appSettings.enableSetupTags ? setup.tags : const {},
+              images: appSettings.enableSetupImages ? setup.images : const [],
+            ),
             ContextLocationCard(position: setup.position, place: setup.place, displayName: setup.displayName),
             ContextWeatherCard(weather: setup.weather),
             Card.outlined(

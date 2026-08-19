@@ -6,7 +6,7 @@ import '../../models/app_settings.dart';
 import '../../models/task/task_rule.dart';
 import '../../models/task/task_threshold.dart';
 import '../../theme.dart';
-import '../task_rule_display_card.dart';
+import '../items/task_rule_display_card.dart';
 import 'sheet_header.dart';
 
 bool _intervalSupportsDelay(TaskThreshold interval) {

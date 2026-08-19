@@ -10,7 +10,7 @@ import '../../utils/task_actions.dart';
 import '../../widgets/empty_state_placeholder.dart';
 import '../../widgets/flash_highlight.dart';
 import '../../widgets/items/task_entry_list_item.dart';
-import '../../widgets/task_rule_display_card.dart';
+import '../../widgets/items/task_rule_display_card.dart';
 import '../../widgets/text/section_title.dart';
 
 class TaskRuleDetailsPage extends StatefulWidget {

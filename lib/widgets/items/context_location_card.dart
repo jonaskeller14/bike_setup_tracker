@@ -33,6 +33,7 @@ class ContextLocationCard extends StatelessWidget {
 
     return Card.outlined(
       margin: const EdgeInsets.symmetric(vertical: 4),
+      clipBehavior: Clip.antiAlias,
       child: ExpansionTile(
         dense: true,
         shape: const Border(),

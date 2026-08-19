@@ -5,14 +5,14 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../models/app_settings.dart';
-import '../models/bike.dart';
-import '../models/component.dart';
-import '../models/task/task_rule.dart';
-import '../models/task/task_threshold.dart';
-import '../repositories/app_repository.dart';
-import '../theme.dart';
-import '../utils/task_actions.dart';
+import '../../models/app_settings.dart';
+import '../../models/bike.dart';
+import '../../models/component.dart';
+import '../../models/task/task_rule.dart';
+import '../../models/task/task_threshold.dart';
+import '../../repositories/app_repository.dart';
+import '../../theme.dart';
+import '../../utils/task_actions.dart';
 
 class TaskRuleDisplayCard extends StatelessWidget {
   final TaskRule taskRule;

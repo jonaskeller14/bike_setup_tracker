@@ -17,6 +17,7 @@ class ContextWeatherCard extends StatelessWidget {
 
     return Card.outlined(
       margin: const EdgeInsets.symmetric(vertical: 4),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

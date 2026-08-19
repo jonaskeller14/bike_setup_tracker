@@ -9,8 +9,8 @@ import '../../repositories/app_repository.dart';
 import '../../services/rating_score_service.dart';
 import '../../utils/rating_entry_actions.dart';
 import '../../widgets/items/context_location_card.dart';
+import '../../widgets/items/context_meta_card.dart';
 import '../../widgets/items/context_weather_card.dart';
-import '../../widgets/notes_text.dart';
 import '../../widgets/sheets/sheet.dart';
 
 class RatingEntryDetailsPage extends StatelessWidget {
@@ -282,16 +282,11 @@ class RatingEntryDetailsContent extends StatelessWidget {
     final originalSetup = appRepository.setups[entry.setupId];
 
     return [
-      if (entry.notes != null && entry.notes!.isNotEmpty)
-        Card.outlined(
-          margin: const EdgeInsets.symmetric(vertical: 4),
-          child: ListTile(
-            leading: const Icon(Icons.notes),
-            titleAlignment: ListTileTitleAlignment.titleHeight,
-            title: NotesText(entry.notes!, maxLines: 10),
-            dense: true,
-          ),
-        ),
+      ContextMetaCard(
+        notes: entry.notes,
+        tags: const {},
+        images: const [],
+      ),
       ContextLocationCard(position: entry.position, place: entry.place, displayName: entry.displayName),
       ContextWeatherCard(weather: entry.weather),
       Card.outlined(

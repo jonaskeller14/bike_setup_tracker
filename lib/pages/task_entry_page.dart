@@ -13,8 +13,8 @@ import '../models/task/task_rule.dart';
 import '../repositories/app_repository.dart';
 import '../theme.dart';
 import '../widgets/dialogs/discard_changes.dart';
+import '../widgets/items/task_rule_display_card.dart';
 import '../widgets/sheets/task_association_picker.dart';
-import '../widgets/task_rule_display_card.dart';
 
 enum TaskEntryPageMode { add, edit, duplicate }
 

@@ -1,19 +1,22 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
+import '../../env/env.dart';
 import '../../models/app_settings.dart';
 import '../../models/setup.dart';
 import '../../models/setup_comparison.dart' as comparison;
 import '../../repositories/app_repository.dart';
-import '../../services/image_storage_service.dart';
 import '../../services/setup_comparison_service.dart';
 import '../../theme.dart';
 import '../../utils/setup_actions.dart';
 import '../compare_setups/setup_comparison_header.dart';
 import '../compare_setups/setup_comparison_owner_card.dart';
 import '../compare_setups/setup_comparison_row.dart';
-import '../image_strip.dart';
-import '../notes_text.dart';
+import '../items/context_meta_card_diff.dart';
 import '../text/section_title.dart';
 import 'sheet.dart';
 
@@ -191,8 +194,8 @@ class _CompareSetupsState extends State<CompareSetups> {
                                     _ContextSection(
                                       group: group,
                                       differencesOnly: _differencesOnly,
-                                      setupAId: setupA.id,
-                                      setupBId: setupB.id,
+                                      setupA: setupA,
+                                      setupB: setupB,
                                     ),
                                 ],
                               ),
@@ -325,7 +328,10 @@ class _RatingValue extends StatelessWidget {
     label: '$label overall $score from $count rating${count == 1 ? '' : 's'}',
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [Text('$label: $score'), Text('$count rating${count == 1 ? '' : 's'}', style: Theme.of(context).textTheme.bodySmall)],
+      children: [
+        Text('$label: $score'),
+        Text('$count rating${count == 1 ? '' : 's'}', style: Theme.of(context).textTheme.bodySmall),
+      ],
     ),
   );
 }
@@ -346,7 +352,8 @@ class _MetricRow extends StatelessWidget {
     final weight = metric?.weight.abs();
     final displayedA = scoreA?.toStringAsFixed(1) ?? '–';
     final displayedB = scoreB?.toStringAsFixed(1) ?? '–';
-    final different = displayedA != displayedB || (ratingsA.metrics.containsKey(id) != ratingsB.metrics.containsKey(id));
+    final different =
+        displayedA != displayedB || (ratingsA.metrics.containsKey(id) != ratingsB.metrics.containsKey(id));
     return Semantics(
       label: '$label, A $displayedA / 10, B $displayedB / 10${different ? ', different' : ''}',
       child: Container(
@@ -372,14 +379,14 @@ class _MetricRow extends StatelessWidget {
 class _ContextSection extends StatelessWidget {
   final comparison.SetupComparisonGroup group;
   final bool differencesOnly;
-  final String setupAId;
-  final String setupBId;
+  final Setup setupA;
+  final Setup setupB;
 
   const _ContextSection({
     required this.group,
     required this.differencesOnly,
-    required this.setupAId,
-    required this.setupBId,
+    required this.setupA,
+    required this.setupB,
   });
 
   @override
@@ -388,40 +395,52 @@ class _ContextSection extends StatelessWidget {
     final notes = _row(rows, comparison.SetupComparisonRowKind.notes);
     final tags = _row(rows, comparison.SetupComparisonRowKind.tags);
     final images = _row(rows, comparison.SetupComparisonRowKind.images);
-    final directRows = rows.where(
-      (row) => switch (row.kind) {
-        comparison.SetupComparisonRowKind.notes ||
-        comparison.SetupComparisonRowKind.tags ||
-        comparison.SetupComparisonRowKind.images ||
-        comparison.SetupComparisonRowKind.location ||
-        comparison.SetupComparisonRowKind.conditions => false,
-        _ => true,
-      },
-    );
-    final showNotesTags = _hasVisibleNotesOrTags(notes, tags);
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Card.outlined(
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
-              child: Text(group.label, style: Theme.of(context).textTheme.titleSmall),
+    final bike = _row(rows, comparison.SetupComparisonRowKind.bike);
+    final person = _row(rows, comparison.SetupComparisonRowKind.person);
+    final location = _row(rows, comparison.SetupComparisonRowKind.location);
+    final conditions = _row(rows, comparison.SetupComparisonRowKind.conditions);
+    final showMeta = _hasVisibleMeta(notes, tags, images);
+    return Column(
+      children: [
+        if (showMeta)
+          ContextMetaCardDiff(
+            notesA: notes?.valueA.value as String?,
+            tagsA: _stringSet(tags?.valueA.value),
+            imagesA: _stringList(images?.valueA.value),
+            notesB: notes?.valueB.value as String?,
+            tagsB: _stringSet(tags?.valueB.value),
+            imagesB: _stringList(images?.valueB.value),
+          ),
+        if (location != null &&
+            (setupA.position != null || setupA.place != null || setupB.position != null || setupB.place != null))
+          _ContextDisclosure(
+            groupId: group.ownerId,
+            row: location,
+            differencesOnly: differencesOnly,
+            setupA: setupA,
+            setupB: setupB,
+          ),
+        if (conditions != null && (setupA.weather != null || setupB.weather != null))
+          _ContextDisclosure(
+            groupId: group.ownerId,
+            row: conditions,
+            differencesOnly: differencesOnly,
+            setupA: setupA,
+            setupB: setupB,
+          ),
+        if (bike != null || person != null)
+          Card.outlined(
+            margin: const EdgeInsets.symmetric(vertical: 4),
+            clipBehavior: Clip.antiAlias,
+            child: Column(
+              children: [
+                if (bike != null) SetupComparisonRow(groupId: group.ownerId, row: bike),
+                if (person != null) SetupComparisonRow(groupId: group.ownerId, row: person),
+              ],
             ),
-            for (final row in directRows) SetupComparisonRow(groupId: group.ownerId, row: row),
-            if (showNotesTags) _NotesAndTags(notes: notes, tags: tags),
-            if (images != null) _ComparisonImages(row: images, setupAId: setupAId, setupBId: setupBId),
-            for (final row in rows.where(
-              (row) =>
-                  row.kind == comparison.SetupComparisonRowKind.location ||
-                  row.kind == comparison.SetupComparisonRowKind.conditions,
-            ))
-              _ContextDisclosure(groupId: group.ownerId, row: row, differencesOnly: differencesOnly),
-          ],
-        ),
-      ),
+          ),
+        const SizedBox(height: 8),
+      ],
     );
   }
 
@@ -435,12 +454,13 @@ class _ContextSection extends StatelessWidget {
     return null;
   }
 
-  bool _hasVisibleNotesOrTags(
+  bool _hasVisibleMeta(
     comparison.SetupComparisonRow? notes,
     comparison.SetupComparisonRow? tags,
+    comparison.SetupComparisonRow? images,
   ) {
-    if (differencesOnly) return notes != null || tags != null;
-    return _hasContent(notes) || _hasContent(tags);
+    if (differencesOnly) return notes != null || tags != null || images != null;
+    return _hasContent(notes) || _hasContent(tags) || _hasContent(images);
   }
 
   bool _hasContent(comparison.SetupComparisonRow? row) {
@@ -448,135 +468,26 @@ class _ContextSection extends StatelessWidget {
     final values = [row.valueA.value, row.valueB.value];
     return values.any((value) => value is String ? value.trim().isNotEmpty : value is Iterable && value.isNotEmpty);
   }
-}
 
-class _NotesAndTags extends StatelessWidget {
-  final comparison.SetupComparisonRow? notes;
-  final comparison.SetupComparisonRow? tags;
+  Set<String> _stringSet(dynamic value) => value is Iterable ? value.cast<String>().toSet() : const {};
 
-  const _NotesAndTags({required this.notes, required this.tags});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: (notes?.isDifferent ?? false) || (tags?.isDifferent ?? false)
-          ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
-          : null,
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('Notes & tags'),
-          const SizedBox(height: 8),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: _NotesAndTagsPanel(notes: notes?.valueA.value as String?, tags: tags?.valueA.value),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _NotesAndTagsPanel(notes: notes?.valueB.value as String?, tags: tags?.valueB.value),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _NotesAndTagsPanel extends StatelessWidget {
-  final String? notes;
-  final dynamic tags;
-
-  const _NotesAndTagsPanel({required this.notes, required this.tags});
-
-  @override
-  Widget build(BuildContext context) {
-    final Object? rawTags = tags;
-    final tagValues = rawTags is Iterable ? rawTags.cast<String>() : const <String>[];
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (notes?.trim().isNotEmpty ?? false) NotesText(notes!, maxLines: 10) else const Text('No notes'),
-          if (tagValues.isNotEmpty) ...[
-            if (notes?.trim().isNotEmpty ?? false) const SizedBox(height: 8),
-            Wrap(
-              spacing: 6,
-              runSpacing: 4,
-              children: [for (final tag in tagValues) Chip(avatar: const Icon(Icons.tag, size: 14), label: Text(tag))],
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _ComparisonImages extends StatelessWidget {
-  final comparison.SetupComparisonRow row;
-  final String setupAId;
-  final String setupBId;
-
-  const _ComparisonImages({required this.row, required this.setupAId, required this.setupBId});
-
-  @override
-  Widget build(BuildContext context) {
-    final imagesA = (row.valueA.value as List?)?.cast<String>() ?? const <String>[];
-    final imagesB = (row.valueB.value as List?)?.cast<String>() ?? const <String>[];
-    return Container(
-      color: row.isDifferent ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
-      padding: const EdgeInsets.all(12),
-      child: FutureBuilder<String>(
-        future: ImageStorageService().getImagesPath(),
-        builder: (context, snapshot) => Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Images'),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(child: _imageSide(context, imagesA, snapshot.data, 'compare-$setupAId-a')),
-                const SizedBox(width: 8),
-                Expanded(child: _imageSide(context, imagesB, snapshot.data, 'compare-$setupBId-b')),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _imageSide(BuildContext context, List<String> images, String? path, String prefix) {
-    if (path == null || images.isEmpty) {
-      return Container(
-        height: 80,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: const Text('No images'),
-      );
-    }
-    return ImageStrip(images: images, imagesDir: path, heroTagPrefix: prefix);
-  }
+  List<String> _stringList(dynamic value) => value is Iterable ? value.cast<String>().toList() : const [];
 }
 
 class _ContextDisclosure extends StatelessWidget {
   final String groupId;
   final comparison.SetupComparisonRow row;
   final bool differencesOnly;
+  final Setup setupA;
+  final Setup setupB;
 
-  const _ContextDisclosure({required this.groupId, required this.row, required this.differencesOnly});
+  const _ContextDisclosure({
+    required this.groupId,
+    required this.row,
+    required this.differencesOnly,
+    required this.setupA,
+    required this.setupB,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -585,16 +496,22 @@ class _ContextDisclosure extends StatelessWidget {
     final summary = row.kind == comparison.SetupComparisonRowKind.location
         ? row.children.firstWhere((child) => child.id == 'address')
         : row.children.firstWhere((child) => child.id == 'weather-code');
-    return ExpansionTile(
-      key: Key('compare-disclosure-${row.id}'),
-      dense: true,
-      shape: const Border(),
-      collapsedShape: const Border(),
-      leading: Icon(
-        row.kind == comparison.SetupComparisonRowKind.location ? Icons.location_city : Icons.cloud_outlined,
+    final isLocation = row.kind == comparison.SetupComparisonRowKind.location;
+    return Card.outlined(
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      clipBehavior: Clip.antiAlias,
+      child: ExpansionTile(
+        key: Key('compare-disclosure-${row.id}'),
+        dense: true,
+        shape: const Border(),
+        collapsedShape: const Border(),
+        leading: Icon(isLocation ? Icons.location_city : Icons.cloud_outlined),
+        title: _DisclosureTitle(label: isLocation ? 'Location' : 'Weather & condition', summary: summary),
+        children: [
+          for (final child in children) SetupComparisonRow(groupId: '$groupId-${row.id}', row: child),
+          if (isLocation) _ComparisonMap(setupA: setupA, setupB: setupB),
+        ],
       ),
-      title: _DisclosureTitle(label: row.label, summary: summary),
-      children: [for (final child in children) SetupComparisonRow(groupId: '$groupId-${row.id}', row: child)],
     );
   }
 }
@@ -620,6 +537,161 @@ class _DisclosureTitle extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+}
+
+class _ComparisonMap extends StatelessWidget {
+  final Setup setupA;
+  final Setup setupB;
+
+  const _ComparisonMap({required this.setupA, required this.setupB});
+
+  @override
+  Widget build(BuildContext context) {
+    final settings = context.watch<AppSettings>();
+    final points = <({String label, LatLng point, Color color})>[
+      if (setupA.position?.latitude != null && setupA.position?.longitude != null)
+        (
+          label: 'A',
+          point: LatLng(setupA.position!.latitude!, setupA.position!.longitude!),
+          color: Theme.of(context).colorScheme.primary,
+        ),
+      if (setupB.position?.latitude != null && setupB.position?.longitude != null)
+        (
+          label: 'B',
+          point: LatLng(setupB.position!.latitude!, setupB.position!.longitude!),
+          color: Theme.of(context).colorScheme.tertiary,
+        ),
+    ];
+    if (points.isEmpty) return const SizedBox.shrink();
+
+    return SizedBox(
+      height: 220,
+      child: FlutterMap(
+        options: MapOptions(
+          backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+          initialCenter: points.first.point,
+          initialZoom: 13,
+          minZoom: 3,
+          initialCameraFit: points.length > 1
+              ? CameraFit.bounds(
+                  bounds: LatLngBounds.fromPoints(points.map((point) => point.point).toList()),
+                  padding: const EdgeInsets.all(48),
+                  maxZoom: 16,
+                )
+              : null,
+          interactionOptions: const InteractionOptions(flags: InteractiveFlag.none),
+        ),
+        children: [
+          if (settings.useMapBoxTiles && Env.mapboxToken.isNotEmpty)
+            TileLayer(
+              urlTemplate:
+                  'https://api.mapbox.com/styles/v1/mapbox/{style_id}/tiles/256/{z}/{x}/{y}?access_token={access_token}',
+              additionalOptions: {
+                'access_token': Env.mapboxToken,
+                'style_id': Theme.of(context).brightness == Brightness.dark ? 'dark-v11' : 'outdoors-v12',
+              },
+              userAgentPackageName: 'com.jonaskeller14.bike_setup_tracker',
+              tileDisplay: const TileDisplay.fadeIn(),
+            )
+          else
+            TileLayer(
+              urlTemplate: 'https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png',
+              subdomains: const ['a', 'b', 'c'],
+              minZoom: 3,
+              userAgentPackageName: 'com.jonaskeller14.bike_setup_tracker',
+              tileDisplay: const TileDisplay.fadeIn(),
+              tileBuilder: (context, tileWidget, tile) => ColorFiltered(
+                colorFilter: Theme.of(context).brightness == Brightness.dark
+                    ? const ColorFilter.matrix(<double>[
+                        -0.2126,
+                        -0.7152,
+                        -0.0722,
+                        0,
+                        255,
+                        -0.2126,
+                        -0.7152,
+                        -0.0722,
+                        0,
+                        255,
+                        -0.2126,
+                        -0.7152,
+                        -0.0722,
+                        0,
+                        255,
+                        0,
+                        0,
+                        0,
+                        1,
+                        0,
+                      ])
+                    : const ColorFilter.matrix(<double>[
+                        0.6,
+                        0.3,
+                        0.1,
+                        0,
+                        0,
+                        0.1,
+                        0.8,
+                        0.1,
+                        0,
+                        0,
+                        0.1,
+                        0.3,
+                        0.6,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        1,
+                        0,
+                      ]),
+                child: tileWidget,
+              ),
+            ),
+          MarkerLayer(
+            markers: [
+              for (final point in points)
+                Marker(
+                  point: point.point,
+                  width: 48,
+                  height: 48,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      ImageFiltered(
+                        imageFilter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+                        child: const Icon(Icons.location_pin, size: 46, color: Colors.black38),
+                      ),
+                      Icon(Icons.location_pin, size: 46, color: point.color),
+                      Positioned(
+                        top: 9,
+                        child: Text(
+                          point.label,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.surface,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+          RichAttributionWidget(
+            showFlutterMapAttribution: false,
+            attributions: [
+              TextSourceAttribution(
+                settings.useMapBoxTiles && Env.mapboxToken.isNotEmpty ? 'Mapbox' : 'OpenStreetMap | Cyclosm',
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

@@ -10,6 +10,7 @@ import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 
 Future<void> settle(WidgetTester tester) async {
@@ -73,6 +74,7 @@ class CompareSetupsHarness {
     String? notes,
     Set<String> tags = const {},
     List<String> images = const [],
+    LocationData? position,
   }) {
     return Setup(
       id: id,
@@ -83,6 +85,7 @@ class CompareSetupsHarness {
       tags: tags,
       bike: bike,
       person: null,
+      position: position,
       bikeAdjustmentValues: Map<String, dynamic>.from(values),
       personAdjustmentValues: {},
       images: images,

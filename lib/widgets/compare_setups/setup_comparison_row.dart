@@ -77,10 +77,6 @@ class _Label extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (row.isDifferent) ...[
-          const Text('≠', semanticsLabel: 'Different'),
-          const SizedBox(width: 6),
-        ],
         if (row.kind == comparison.SetupComparisonRowKind.adjustment &&
             (row.adjustmentA ?? row.adjustmentB) != null) ...[
           AdjustmentTypeIcon(row.adjustmentA ?? row.adjustmentB!, size: 20),
@@ -126,20 +122,17 @@ class _ValuePanel extends StatelessWidget {
         (reference?.isMissing ?? false);
     final text = _displayValue(context, side);
     final delta = _numericDelta();
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: hasError ? Theme.of(context).colorScheme.errorContainer : null,
-        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-        borderRadius: BorderRadius.circular(8),
-      ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Semantics(
         label: text,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SelectableText(text),
+            SelectableText(
+              text,
+              style: hasError ? TextStyle(color: Theme.of(context).colorScheme.error) : null,
+            ),
             if (side.provenance == comparison.SetupComparisonValueProvenance.inherited)
               Text('Inherited', style: Theme.of(context).textTheme.bodySmall),
             if (delta != null && identical(side, row.valueB)) Text(delta, style: Theme.of(context).textTheme.bodySmall),

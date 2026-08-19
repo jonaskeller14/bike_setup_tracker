@@ -2,7 +2,9 @@ import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/compare_setups/setup_comparison_row.dart';
 import 'package:bike_setup_tracker/widgets/sheets/compare_setups.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:location/location.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'compare_setups_harness.dart';
@@ -162,6 +164,8 @@ void main() {
   });
 
   testWidgets('pins the compact title while the comparison summary scrolls away', (tester) async {
+    await harness.dispose();
+    harness = await CompareSetupsHarness.create(extraAdjustments: 8);
     final (setupAId, setupBId) = await seedPair(tester);
     await pumpComparison(tester, setupAId, setupBId);
     await tester.tap(find.text('All'));
@@ -204,9 +208,36 @@ void main() {
     await harness.reload(tester);
     await pumpComparison(tester, a.id, b.id, width: 320);
 
-    expect(find.text('Notes & tags'), findsOneWidget);
+    expect(find.byIcon(Icons.notes), findsOneWidget);
+    expect(find.byIcon(Icons.tag), findsOneWidget);
     expect(find.textContaining('A long note'), findsOneWidget);
-    expect(find.text('dry'), findsOneWidget);
+    expect(find.textContaining('dry'), findsOneWidget);
+    expect(find.textContaining('wet'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('location card expands to a fitted map with A and B markers', (tester) async {
+    final a = harness.setup(
+      id: 'location-a',
+      name: 'A',
+      local: DateTime(2026, 8, 1, 10),
+      position: LocationData.fromMap({'latitude': 47.37, 'longitude': 8.54}),
+    );
+    final b = harness.setup(
+      id: 'location-b',
+      name: 'B',
+      local: DateTime(2026, 8, 2, 10),
+      position: LocationData.fromMap({'latitude': 47.38, 'longitude': 8.56}),
+    );
+    await harness.addSetups(tester, [a, b]);
+    await harness.reload(tester);
+    await pumpComparison(tester, a.id, b.id);
+
+    await tester.tap(find.byKey(const Key('compare-disclosure-location')));
+    await settle(tester);
+
+    expect(find.byType(FlutterMap), findsOneWidget);
+    expect(tester.widget<MarkerLayer>(find.byType(MarkerLayer)).markers, hasLength(2));
     expect(tester.takeException(), isNull);
   });
 

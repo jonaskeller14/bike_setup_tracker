@@ -211,6 +211,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       datetime: _selectedDateTimeUtc,
       setups: appRepository.setups.values,
       persons: appRepository.persons,
+      excludedSetupId: widget.mode == SetupPageMode.edit ? widget.setup?.id : null,
     );
 
     // 1. Resolve Bike Adjustments
@@ -439,6 +440,29 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     super.dispose();
   }
 
+  Future<void> _resetValuesIfPreviousSetupChanged({
+    required Map<String, dynamic> previousBikeAdjustmentValues,
+    required Map<String, dynamic> previousPersonAdjustmentValues,
+  }) async {
+    const mapEquality = DeepCollectionEquality();
+    if (mapEquality.equals(_previousBikeAdjustmentValues, previousBikeAdjustmentValues) &&
+        mapEquality.equals(_previousPersonAdjustmentValues, previousPersonAdjustmentValues)) {
+      return;
+    }
+
+    final result = await showConfirmationDialog(
+      context,
+      title: "Previous Setup has changed. Reset Values?",
+      content: "Your current unsaved adjustments were based on the old setup. Resetting the values will discard these changes.",
+      trueText: "Yes",
+      falseText: "No",
+    );
+    if (!result || !mounted) return;
+
+    setState(_setAdjustmentValuesFromPreviousAndInitialAdjustmentValues);
+    _changeListener();
+  }
+
   Future<void> _pickDate() async {
     final tmpPreviousBikeAdjustmentValues = Map<String, dynamic>.from(_previousBikeAdjustmentValues);
     final tmpPreviousPersonAdjustmentValues = Map<String, dynamic>.from(_previousPersonAdjustmentValues);
@@ -474,22 +498,11 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     });
     _changeListener();
     unawaited(askAndUpdateWeather());
-    
-    const mapEquality = DeepCollectionEquality();
-    if (mapEquality.equals(_previousBikeAdjustmentValues, tmpPreviousBikeAdjustmentValues) && mapEquality.equals(_previousPersonAdjustmentValues, tmpPreviousPersonAdjustmentValues)) return;
-    
-    final result = await showConfirmationDialog(
-      context, 
-      title: "Previous Setup has changed. Reset Values?", 
-      content: "Your current unsaved adjustments were based on the old setup. Reseting the values will discard these changes.", 
-      trueText: "Yes", 
-      falseText: "No"
+
+    await _resetValuesIfPreviousSetupChanged(
+      previousBikeAdjustmentValues: tmpPreviousBikeAdjustmentValues,
+      previousPersonAdjustmentValues: tmpPreviousPersonAdjustmentValues,
     );
-    if (result == false) return;
-    setState(() {
-      _setAdjustmentValuesFromPreviousAndInitialAdjustmentValues();
-    });
-    _changeListener();
   }
     
   Future<void> _pickTime() async {
@@ -527,21 +540,10 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     _changeListener();
     unawaited(askAndUpdateWeather());
 
-    const mapEquality = DeepCollectionEquality();
-    if (mapEquality.equals(_previousBikeAdjustmentValues, tmpPreviousBikeAdjustmentValues) && mapEquality.equals(_previousPersonAdjustmentValues, tmpPreviousPersonAdjustmentValues)) return;
-    
-    final result = await showConfirmationDialog(
-      context, 
-      title: "Previous Setup has changed. Reset Values?", 
-      content: "Your current unsaved adjustments were based on the old setup. Reseting the values will discard these changes.", 
-      trueText: "Yes", 
-      falseText: "No"
+    await _resetValuesIfPreviousSetupChanged(
+      previousBikeAdjustmentValues: tmpPreviousBikeAdjustmentValues,
+      previousPersonAdjustmentValues: tmpPreviousPersonAdjustmentValues,
     );
-    if (result == false) return;
-    setState(() {
-      _setAdjustmentValuesFromPreviousAndInitialAdjustmentValues();
-    });
-    _changeListener();
   }
 
   Future<void> askAndUpdateWeather() async {

@@ -396,5 +396,29 @@ void main() {
       // Person values are included in historical state for orange/green highlighting in SetupPage.
       expect(history['person_adj_1'], 'val1');
     });
+
+    test('resolveHistoricalStateAt excludes the setup currently being edited', () {
+      final originalTime = DateTime.utc(2025, 1, 1, 11, 55);
+      final editedSetup = Setup(
+        id: 'edited_setup',
+        name: 'Edited Setup',
+        datetime: originalTime,
+        datetimeLocal: originalTime.toLocal(),
+        bike: myBike.id,
+        person: me.id,
+        tags: {},
+        personAdjustmentValues: {},
+        bikeAdjustmentValues: {pressureAdj.id: '80'},
+      );
+
+      final history = SetupResolutionService.resolveHistoricalStateAt(
+        datetime: originalTime.add(const Duration(minutes: 1)),
+        setups: [editedSetup],
+        persons: {me.id: me},
+        excludedSetupId: editedSetup.id,
+      );
+
+      expect(history, isEmpty);
+    });
   });
 }

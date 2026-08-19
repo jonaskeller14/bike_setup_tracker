@@ -92,13 +92,14 @@ class SetupResolutionService {
     required DateTime datetime,
     required Iterable<Setup> setups,
     required Map<String, Person> persons,
+    String? excludedSetupId,
   }) {
     final Map<String, dynamic> globalState = {};
     
     // 1. Sort setups chronologically up to the target datetime
     // Note: We use .toList() to ensure we don't accidentally mutate the underlying collection if it were mutable.
     final sortedSetups = setups
-        .where((s) => s.datetime.isBefore(datetime))
+        .where((s) => s.id != excludedSetupId && s.datetime.isBefore(datetime))
         .sortedBy((s) => s.datetime);
 
     for (final setup in sortedSetups) {

@@ -28,6 +28,10 @@ The app uses the **Provider pattern** with a single central `AppRepository` (`li
 
 `AppSettings` (`lib/models/app_settings.dart`) is a separate `ChangeNotifier` backed by SharedPreferences, holding feature flags and user preferences (e.g., `enableStrava`, `enableGoogleDrive`, `enablePerson`).
 
+### Feature-flag workflow
+
+New features are gated through `lib/models/app_settings.dart` and exposed for debug testing via `lib/pages/settings/features_page.dart`. Code presence does not mean a feature has shipped to all users; gated prototypes may still change drastically without migration constraints.
+
 Both are provided at the root via `MultiProvider` in `main.dart`, with services (`StravaService`, `GoogleDriveService`, `StorageService`) added as `ChangeNotifierProxyProvider`s.
 
 **Data flow:**

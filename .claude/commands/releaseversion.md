@@ -1,13 +1,15 @@
 ---
-description: Bump app version (patch + build), commit, tag, and generate GitHub + store release notes
+description: Prepare, confirm, and publish a signed Flutter release with GitHub assets
 argument-hint: "[optional explicit version, e.g. 1.4.0]"
-allowed-tools: Read, Edit, Grep, WebFetch, Bash(git add:*), Bash(git commit:*), Bash(git tag:*), Bash(git log:*), Bash(git describe:*), Bash(git status:*), Bash(git diff:*)
+allowed-tools: Read, Edit, Grep, WebFetch, AskUserQuestion, Bash(flutter:*), Bash(git add:*), Bash(git branch:*), Bash(git commit:*), Bash(git describe:*), Bash(git diff:*), Bash(git fetch:*), Bash(git log:*), Bash(git merge:*), Bash(git pull:*), Bash(git push:*), Bash(git status:*), Bash(git switch:*), Bash(git tag:*), Bash(gh:*)
 ---
 
 Cut a new release for this Flutter app. Argument (optional): `$ARGUMENTS` = an explicit
 version name `X.Y.Z` to use instead of the auto-incremented one.
 
-Follow these steps in order. Do not skip the constraints at the bottom.
+Follow these steps in order. Never merge, commit, tag, push, build a signed
+artifact, or create a GitHub release until the applicable confirmation gate has
+been approved.
 
 ## 1. Determine the new version
 - Read `pubspec.yaml` and find the `version:` line (format `X.Y.Z+B`).
@@ -41,21 +43,30 @@ Follow these steps in order. Do not skip the constraints at the bottom.
   release notes — they routinely overstate what's actually user-visible (e.g. a feature still gated
   behind a debug flag, or a doc claiming a UI element that was never added).
 
-## 3. Update the version in both files
+## 3. Branch readiness and merge confirmation
+
+- Releases are cut from `main`. Use `AskUserQuestion` before switching to
+  `main`, fast-forwarding it from `origin/main`, or merging a source branch.
+  Do not push the source branch as a release branch. If declined, stop; if a
+  fast-forward or merge conflicts, stop and report it without improvising a
+  resolution.
+- On the final `main` history, run `flutter clean`, then `flutter pub get` before
+  creating the version commit. This refreshes the build environment and installs
+  `pubspec.lock` versions; it does not upgrade dependency versions. Run
+  `flutter analyze` and `flutter test`, stopping on failure.
+
+## 4. Update the version in both files
 - Edit `pubspec.yaml`: replace the version in the `version:` line. Keep the trailing
   `# TODO: Update AppInfo …` comment intact.
 - Edit `lib/utils/app_info.dart`: set `appVersion` = new `X.Y.Z`, `buildNumber` = new `B`
   (as a string), and `releaseDate` = the current month and year in `"Month YYYY"` form
   (e.g. `July 2026`).
 
-## 4. Commit and tag
+## 5. Prepare the release commit and tag
 - Reuse the previous tag captured in step 2 (or re-run `git describe --tags --abbrev=0`).
-- Create the release commit using only the two version files (leave any other working changes
-  untouched): `git commit pubspec.yaml lib/utils/app_info.dart -m "Release vX.Y.Z+B"`.
-- Create the tag: `git tag vX.Y.Z+B`.
-- Match the repo style exactly: commit message `Release vX.Y.Z+B`, tag `vX.Y.Z+B`.
+- Do not commit or tag yet. They are created only after the publish confirmation.
 
-## 5. GitHub release notes
+## 6. GitHub release notes
 - List user-facing commits since the previous tag: `git log <prevTag>..HEAD --oneline`
   (ignore the just-created `Release …` commit).
 - Cross-reference this list against the change summary gathered in step 2 (if a subagent produced
@@ -74,7 +85,7 @@ Follow these steps in order. Do not skip the constraints at the bottom.
   - Use only the `**Features:**` and `**Bugs:**` headers; do not add a separate Development,
     Performance, or Internal section.
 
-## 6. App Store / Play Store release notes
+## 7. App Store / Play Store release notes
 - Print a separate, concise "What's New" block, user-focused and free of technical jargon (no
   "refactor", "sealed class", "verification flow", etc.), inside its own ``` code block (plain
   text, not markdown) so it's easy to copy-paste as-is. Keep each language's complete release-note
@@ -93,15 +104,29 @@ Follow these steps in order. Do not skip the constraints at the bottom.
 - If the release has no platform-specific changes, print a single combined "What's New" code block
   as before.
 
-## 7. Summary
-- Print: the new version, the release commit hash, the tag name, and a reminder that nothing was
-  pushed — to publish run `git push && git push --tags`, then create the GitHub release manually
-  (the `gh` CLI is not installed here).
+## 8. Publish confirmation and release
+
+- Save the exact GitHub release notes in a temporary UTF-8 Markdown file and
+  show them with the store-note blocks. Use `AskUserQuestion` to confirm the
+  version commit/tag, pushing `main` and the tag, Android AAB build, optional
+  macOS IPA build, and creating a draft GitHub release. If declined, stop.
+- Commit only the two version files with `Release vX.Y.Z+B`, create annotated tag
+  `vX.Y.Z+B`, and push precisely with `git push origin main` then
+  `git push origin vX.Y.Z+B`.
+- Run `flutter build appbundle --release` and verify
+  `build/app/outputs/bundle/release/app-release.aab`. On macOS also run
+  `flutter build ipa --release` and attach the IPA from `build/ios/ipa/`; otherwise
+  provide `gh release upload vX.Y.Z+B build/ios/ipa/<ipa-file>` for the Mac.
+- Create and verify the draft with `gh release create vX.Y.Z+B <assets...>
+  --verify-tag --draft --title "vX.Y.Z+B" --notes-file <notes-file>`, then
+  `gh release view`. Never publish the draft automatically.
 
 ## Constraints
 - The step 2 typo review is a hard gate: if it finds anything, abort before editing/committing/tagging
   and surface the findings — do not silently fix typos and continue.
-- Do NOT `git push`, do NOT create the GitHub release online, do NOT run a build.
 - The release commit must contain ONLY `pubspec.yaml` and `lib/utils/app_info.dart`.
+- Never silently resolve merge conflicts, force-push, or overwrite a release asset.
+- Never log, commit, or expose signing credentials, keystores, `key.properties`,
+  Firebase configuration, or `.env` values.
 - Never add a `Co-Authored-By` line to the commit message.
 - For any multi-paragraph message use multiple `-m` flags (avoid PowerShell here-strings).

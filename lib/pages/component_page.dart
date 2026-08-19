@@ -815,7 +815,13 @@ class _ComponentPageState extends State<ComponentPage> {
     final subscriptionService = context.watch<SubscriptionService>();
     final bikes = appRepository.bikes;
     final currentBike = _installations.lastOrNull?.parent;  // _installations are sorted in init() 
-    final existingComponentsCount = appRepository.components.values.where((c) => c.bike == currentBike && c.componentType == _componentType && widget.component?.id != c.id).length;
+    final existingComponentsCount = currentBike == null
+        ? 0
+        : appRepository.components.values.where((c) =>
+            !c.isArchived &&
+            c.bike == currentBike &&
+            c.componentType == _componentType &&
+            widget.component?.id != c.id).length;
 
     return PopScope( 
       canPop: !_formHasChanges,

@@ -4,6 +4,7 @@ import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component.dart';
+import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/pages/component_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
@@ -153,6 +154,40 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Component type cannot be empty. You can edit it later.'), findsOneWidget);
+    });
+
+    testWidgets('does not count archived components as installed on a bike', (WidgetTester tester) async {
+      final archivedAt = DateTime.now();
+      Component archivedTire(String id) => Component(
+        id: id,
+        name: 'Archived Tire $id',
+        componentType: ComponentType.tire,
+        installations: [
+          Archival(
+            dateTimeUTC: archivedAt.toUtc(),
+            dateTimeLocal: archivedAt,
+          ),
+        ],
+      );
+
+      final component = archivedTire('c1');
+      await tester.runAsync(() async {
+        await appRepository.addComponent(component);
+        await appRepository.addComponent(archivedTire('c2'));
+        await appRepository.addComponent(archivedTire('c3'));
+      });
+      await _waitForRepositoryUpdate(tester, appRepository);
+
+      await tester.pumpWidget(createWidgetUnderTest(
+        component: component,
+        mode: ComponentPageMode.edit,
+      ));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('WARNING: There are already 2 Tire-Components installed on this bike.'),
+        findsNothing,
+      );
     });
 
   });

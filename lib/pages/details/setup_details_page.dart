@@ -6,7 +6,6 @@ import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/component.dart';
 import '../../models/person.dart';
-import '../../models/rating_metric.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/dangling_adjustment_service.dart';
@@ -23,6 +22,7 @@ import '../../widgets/items/context_bike_person_card.dart';
 import '../../widgets/items/context_location_card.dart';
 import '../../widgets/items/context_meta_card.dart';
 import '../../widgets/items/context_weather_card.dart';
+import '../../widgets/items/rating_summary_card.dart';
 import '../../widgets/sheets/compare_setups.dart';
 import '../../widgets/sheets/sheet.dart';
 import '../../widgets/text/section_title.dart';
@@ -548,120 +548,15 @@ class SetupDetailsPageContent extends StatelessWidget {
 
   SliverToBoxAdapter _ratingEntriesSection(BuildContext context, {required Setup setup}) {
     final appRepository = context.watch<AppRepository>();
-    final scheme = Theme.of(context).colorScheme;
-
-    final entryCount = appRepository.ratingEntriesForSetup(setup.id).length;
-    final score = appRepository.scoreForSetup(setup.id);
-    final metricScores = appRepository.metricScoresForSetup(setup.id);
-    final allMetrics = appRepository.allRatingMetricsById;
 
     return SliverToBoxAdapter(
       child: Padding(
         padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
-        child: Card.outlined(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: score == null ? scheme.surfaceContainerHighest : scheme.primaryContainer,
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: Text(
-                        score == null ? "– / 10" : "${score.toStringAsFixed(1)} / 10",
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          color: score == null ? scheme.onSurfaceVariant : scheme.onPrimaryContainer,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        entryCount == 0
-                            ? "No ratings yet"
-                            : "Avg. of $entryCount rating${entryCount == 1 ? '' : 's'}",
-                        style: TextStyle(color: scheme.onSurfaceVariant),
-                      ),
-                    ),
-                  ],
-                ),
-                if (metricScores.isNotEmpty) ...[
-                  const SizedBox(height: 16),
-                  ...metricScores.entries.map((e) {
-                    final RatingMetric? metric = allMetrics[e.key];
-                    if (metric == null) return const SizedBox.shrink();
-                    final goodness = e.value / 10;
-                    final lowerIsBetter = metric.weight < 0;
-                    final absWeight = metric.weight.abs();
-                    final w = absWeight == absWeight.roundToDouble()
-                        ? absWeight.toStringAsFixed(0)
-                        : absWeight.toStringAsFixed(1);
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 6),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  metric.adjustment.name,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(fontWeight: FontWeight.w500),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                "${e.value.toStringAsFixed(1)}/10",
-                                style: TextStyle(fontWeight: FontWeight.bold, color: scheme.onSurface),
-                              ),
-                              const SizedBox(width: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                                decoration: BoxDecoration(
-                                  color: scheme.secondaryContainer,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  "×$w",
-                                  style: TextStyle(color: scheme.onSecondaryContainer, fontSize: 12, fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(4),
-                            child: LinearProgressIndicator(
-                              value: goodness,
-                              minHeight: 6,
-                              backgroundColor: scheme.surfaceContainerHighest,
-                              valueColor: AlwaysStoppedAnimation(scheme.primary),
-                            ),
-                          ),
-                          if (lowerIsBetter)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 2),
-                              child: Text(
-                                "lower is better",
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
-                              ),
-                            ),
-                        ],
-                      ),
-                    );
-                  }),
-                ],
-              ],
-            ),
-          ),
+        child: RatingSummaryCard(
+          entryCount: appRepository.ratingEntriesForSetup(setup.id).length,
+          score: appRepository.scoreForSetup(setup.id),
+          metricScores: appRepository.metricScoresForSetup(setup.id),
+          metrics: appRepository.allRatingMetricsById,
         ),
       ),
     );

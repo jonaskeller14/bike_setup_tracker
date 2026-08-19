@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/context/context_position.dart';
 import '../../models/context/context_weather.dart';
 import '../../models/setup_comparison.dart' as comparison;
 import '../../theme.dart';
-import '../items/adjustment_type_icon.dart';
+import '../display_adjustment_diff/display_adjustment_diff.dart';
 
 class SetupComparisonRow extends StatelessWidget {
   static const wideBreakpoint = 600.0;
@@ -19,6 +18,10 @@ class SetupComparisonRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (row.kind == comparison.SetupComparisonRowKind.adjustment) {
+      return DisplayAdjustmentDiff(groupId: groupId, row: row);
+    }
+
     final id = '$groupId-${row.id}';
     final child = LayoutBuilder(
       builder: (context, constraints) {
@@ -72,34 +75,7 @@ class _Label extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (row.kind == comparison.SetupComparisonRowKind.adjustment &&
-            (row.adjustmentA ?? row.adjustmentB) != null) ...[
-          AdjustmentTypeIcon(row.adjustmentA ?? row.adjustmentB!, size: 20),
-          const SizedBox(width: 8),
-        ] else if (row.kind == comparison.SetupComparisonRowKind.deletedAdjustment) ...[
-          Icon(Icons.error_outline, size: 20, color: Theme.of(context).colorScheme.error),
-          const SizedBox(width: 8),
-        ],
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(row.label, softWrap: true),
-              if ((row.adjustmentA ?? row.adjustmentB)?.notes?.trim().isNotEmpty ?? false)
-                Text(
-                  (row.adjustmentA ?? row.adjustmentB)!.notes!.trim(),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-            ],
-          ),
-        ),
-      ],
-    );
+    return Text(row.label, softWrap: true);
   }
 }
 
@@ -114,12 +90,8 @@ class _ValuePanel extends StatelessWidget {
     final reference = side.value is comparison.SetupComparisonReference
         ? side.value as comparison.SetupComparisonReference
         : null;
-    final hasError =
-        side.provenance == comparison.SetupComparisonValueProvenance.dangling ||
-        side.provenance == comparison.SetupComparisonValueProvenance.deleted ||
-        (reference?.isMissing ?? false);
+    final hasError = reference?.isMissing ?? false;
     final text = _displayValue(context, side);
-    final delta = _numericDelta();
     final color = hasError
         ? Theme.of(context).colorScheme.error
         : row.isDifferent
@@ -138,7 +110,6 @@ class _ValuePanel extends StatelessWidget {
             ),
             if (side.provenance == comparison.SetupComparisonValueProvenance.inherited)
               Text('Inherited', style: Theme.of(context).textTheme.bodySmall),
-            if (delta != null && identical(side, row.valueB)) Text(delta, style: Theme.of(context).textTheme.bodySmall),
           ],
         ),
       ),
@@ -147,13 +118,7 @@ class _ValuePanel extends StatelessWidget {
 
   String _displayValue(BuildContext context, comparison.SetupComparisonSideValue side) {
     if (side.provenance == comparison.SetupComparisonValueProvenance.unavailable) {
-      return side.definition == null ? '-' : 'Not recorded';
-    }
-    if (side.provenance == comparison.SetupComparisonValueProvenance.deleted) {
-      return side.value == null ? 'Adjustment deleted' : 'Adjustment deleted: ${Adjustment.formatValue(side.value)}';
-    }
-    if (side.provenance == comparison.SetupComparisonValueProvenance.dangling) {
-      return side.value == null ? 'Dangling value' : 'Dangling value: ${_formattedAdjustmentValue(side)}';
+      return '-';
     }
     if (side.value == null) return 'Cleared';
     if (side.value is comparison.SetupComparisonReference) {
@@ -182,27 +147,6 @@ class _ValuePanel extends StatelessWidget {
         _ => '${side.value}',
       };
     }
-    return _formattedAdjustmentValue(side);
-  }
-
-  String _formattedAdjustmentValue(comparison.SetupComparisonSideValue side) {
-    final value = switch (side.definition) {
-      CategoricalAdjustment() => categoricalValueAsList(side.value) ?? side.value,
-      TextAdjustment() => textValueAsString(side.value),
-      _ => side.value,
-    };
-    return '${Adjustment.formatValue(value)}${side.definition?.unitSuffix() ?? ''}';
-  }
-
-  String? _numericDelta() {
-    if (row.kind != comparison.SetupComparisonRowKind.adjustment) return null;
-    final valueA = row.valueA.value;
-    final valueB = row.valueB.value;
-    final unitA = row.adjustmentA?.unit;
-    final unitB = row.adjustmentB?.unit;
-    if (valueA is! num || valueB is! num || unitA != unitB) return null;
-    final delta = valueB - valueA;
-    final sign = delta >= 0 ? '+' : '';
-    return 'Δ $sign${Adjustment.formatValue(delta)}${row.adjustmentB?.unitSuffix() ?? ''}';
+    return '${side.value}';
   }
 }

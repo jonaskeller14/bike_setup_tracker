@@ -101,11 +101,7 @@ class SetupComparisonService {
           ownersA: personOwnersA,
           ownersB: personOwnersB,
         ),
-        _buildDeletedGroup(
-          breakdownA: breakdownA,
-          breakdownB: breakdownB,
-        ),
-      ].whereType<SetupComparisonGroup>(),
+      ],
     );
   }
 
@@ -240,10 +236,10 @@ class SetupComparisonService {
   ) {
     final valueA = idA == null
         ? null
-        : _reference(idA, persons, missingLabel: 'Person not found', label: (person) => person.name);
+        : _reference(idA, persons, missingLabel: 'PERSON NOT FOUND', label: (person) => person.name);
     final valueB = idB == null
         ? null
-        : _reference(idB, persons, missingLabel: 'Person not found', label: (person) => person.name);
+        : _reference(idB, persons, missingLabel: 'PERSON NOT FOUND', label: (person) => person.name);
     return _contextRow(
       id: 'person',
       label: 'Person',
@@ -339,14 +335,6 @@ class SetupComparisonService {
           currentValues: setup.bikeAdjustmentValues,
           previousValues: setup.previousBikeAdjustmentValues,
         ),
-      for (final group in breakdown.componentSplit.groups)
-        _OwnerData.component(
-          component: group.component,
-          state: SetupComparisonOwnerState.dangling,
-          adjustments: group.adjustments,
-          currentValues: setup.bikeAdjustmentValues,
-          previousValues: const {},
-        ),
     ];
   }
 
@@ -358,14 +346,6 @@ class SetupComparisonService {
           state: SetupComparisonOwnerState.installedOrLinked,
           currentValues: setup.personAdjustmentValues,
           previousValues: setup.previousPersonAdjustmentValues,
-        ),
-      for (final group in breakdown.personSplit.groups)
-        _OwnerData.person(
-          person: group.person,
-          state: SetupComparisonOwnerState.dangling,
-          adjustments: group.adjustments,
-          currentValues: setup.personAdjustmentValues,
-          previousValues: const {},
         ),
     ];
   }
@@ -472,13 +452,6 @@ class SetupComparisonService {
         definition: adjustment,
       );
     }
-    if (owner.state == SetupComparisonOwnerState.dangling) {
-      return SetupComparisonSideValue(
-        value: owner.currentValues[adjustment.id],
-        provenance: SetupComparisonValueProvenance.dangling,
-        definition: adjustment,
-      );
-    }
     if (owner.currentValues.containsKey(adjustment.id)) {
       return SetupComparisonSideValue(
         value: owner.currentValues[adjustment.id],
@@ -509,65 +482,11 @@ class SetupComparisonService {
     if (ownerStateA != ownerStateB || valueA.definition == null || valueB.definition == null) {
       return true;
     }
-    if (valueA.provenance == SetupComparisonValueProvenance.deleted ||
-        valueB.provenance == SetupComparisonValueProvenance.deleted) {
-      return true;
-    }
     final unavailableA = valueA.provenance == SetupComparisonValueProvenance.unavailable;
     final unavailableB = valueB.provenance == SetupComparisonValueProvenance.unavailable;
     if (unavailableA != unavailableB) return true;
     if (unavailableA) return false;
     return !adjustmentValuesEqual(valueA.value, valueB.value);
-  }
-
-  static SetupComparisonGroup? _buildDeletedGroup({
-    required SetupAdjustmentBreakdown breakdownA,
-    required SetupAdjustmentBreakdown breakdownB,
-  }) {
-    final valuesA = _deletedValues(breakdownA);
-    final valuesB = _deletedValues(breakdownB);
-    if (valuesA.isEmpty && valuesB.isEmpty) return null;
-    final ids = _orderedUnion(valuesA.keys, valuesB.keys);
-    return SetupComparisonGroup(
-      kind: SetupComparisonGroupKind.deletedValues,
-      ownerId: 'deleted-values',
-      ownerStateA: valuesA.isEmpty ? SetupComparisonOwnerState.absent : SetupComparisonOwnerState.dangling,
-      ownerStateB: valuesB.isEmpty ? SetupComparisonOwnerState.absent : SetupComparisonOwnerState.dangling,
-      label: 'Deleted adjustments',
-      rows: [
-        for (final id in ids)
-          SetupComparisonRow(
-            id: id,
-            label: id,
-            kind: SetupComparisonRowKind.deletedAdjustment,
-            valueA: _deletedValue(valuesA, id),
-            valueB: _deletedValue(valuesB, id),
-            isDifferent: true,
-          ),
-      ],
-    );
-  }
-
-  static Map<String, dynamic> _deletedValues(SetupAdjustmentBreakdown breakdown) {
-    return {
-      ...breakdown.componentSplit.deletedValues,
-      ...breakdown.personSplit.deletedValues,
-    };
-  }
-
-  static SetupComparisonSideValue _deletedValue(Map<String, dynamic> values, String id) {
-    if (!values.containsKey(id)) {
-      return const SetupComparisonSideValue(
-        value: null,
-        provenance: SetupComparisonValueProvenance.unavailable,
-        definition: null,
-      );
-    }
-    return SetupComparisonSideValue(
-      value: values[id],
-      provenance: SetupComparisonValueProvenance.deleted,
-      definition: null,
-    );
   }
 
   static List<String> _orderedUnion(Iterable<String> a, Iterable<String> b) {
@@ -593,24 +512,22 @@ class _OwnerData {
   _OwnerData.component({
     required Component component,
     required this.state,
-    List<Adjustment>? adjustments,
     required this.currentValues,
     required this.previousValues,
   }) : id = component.id,
        label = component.name,
-       adjustments = adjustments ?? component.adjustments,
+       adjustments = component.adjustments,
        component = component,
        person = null;
 
   _OwnerData.person({
     required Person person,
     required this.state,
-    List<Adjustment>? adjustments,
     required this.currentValues,
     required this.previousValues,
   }) : id = person.id,
        label = person.name,
-       adjustments = adjustments ?? person.adjustments,
+       adjustments = person.adjustments,
        component = null,
        person = person;
 }

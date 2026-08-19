@@ -3,12 +3,19 @@ import 'package:flutter/material.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../items/adjustment_properties.dart';
 
-Widget nameNotesSetAdjustmentWidget({required BuildContext context, required Adjustment adjustment, required Color? highlightColor}) {
+Widget nameNotesSetAdjustmentWidget({
+  required BuildContext context,
+  required Adjustment adjustment,
+  required Color? highlightColor,
+  TextStyle? textStyle,
+  double? infoIconSize,
+}) {
+  final effectiveTextStyle = (textStyle ?? Theme.of(context).textTheme.bodyLarge)?.copyWith(color: highlightColor);
   return Expanded(
     child: Align(
       alignment: Alignment.centerLeft,
       child: adjustment.notes == null 
-          ? SelectableText(adjustment.name, style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: highlightColor))
+          ? SelectableText(adjustment.name, style: effectiveTextStyle)
           : Tooltip(
               triggerMode: TooltipTriggerMode.tap,
               preferBelow: false,
@@ -67,7 +74,7 @@ Widget nameNotesSetAdjustmentWidget({required BuildContext context, required Adj
               ),
               child: Text.rich( // not selectable because conflict with tooltip
                 TextSpan(
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: highlightColor),
+                  style: effectiveTextStyle,
                   children: [
                     TextSpan(text: adjustment.name),
                     WidgetSpan(
@@ -79,7 +86,7 @@ Widget nameNotesSetAdjustmentWidget({required BuildContext context, required Adj
                           child: Icon(
                             Icons.info_outline,
                             color: highlightColor,
-                            size: Theme.of(context).textTheme.bodyMedium?.fontSize,
+                            size: infoIconSize ?? Theme.of(context).textTheme.bodyMedium?.fontSize,
                           ),
                         ),
                       ),

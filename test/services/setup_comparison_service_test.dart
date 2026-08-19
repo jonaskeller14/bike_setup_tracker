@@ -258,7 +258,7 @@ void main() {
       expect(result.groups[1].ownerStateB, SetupComparisonOwnerState.installedOrLinked);
     });
 
-    test('records dangling, absent, and deleted data without losing structural differences', () {
+    test('ignores dangling and deleted values while preserving structural differences', () {
       final adjustment = text('legacy-value');
       final removed = component(
         id: 'removed',
@@ -292,14 +292,12 @@ void main() {
 
       final removedGroup = result.groups.firstWhere((group) => group.ownerId == 'removed');
       final structuralGroup = result.groups.firstWhere((group) => group.ownerId == 'structural');
-      final deletedGroup = result.groups.firstWhere((group) => group.kind == SetupComparisonGroupKind.deletedValues);
       expect(removedGroup.ownerStateA, SetupComparisonOwnerState.installedOrLinked);
-      expect(removedGroup.ownerStateB, SetupComparisonOwnerState.dangling);
-      expect(removedGroup.rows.single.valueB.provenance, SetupComparisonValueProvenance.dangling);
+      expect(removedGroup.ownerStateB, SetupComparisonOwnerState.absent);
+      expect(removedGroup.rows.single.valueB.provenance, SetupComparisonValueProvenance.unavailable);
       expect(structuralGroup.rows, isEmpty);
       expect(structuralGroup.differenceCount, 1);
-      expect(deletedGroup.rows.single.label, 'deleted-id');
-      expect(deletedGroup.rows.single.valueB.provenance, SetupComparisonValueProvenance.deleted);
+      expect(result.groups.map((group) => group.ownerId), ['removed', 'structural']);
     });
 
     test('joins people strictly by ID, including distinct names and null people', () {

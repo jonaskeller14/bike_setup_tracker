@@ -3,11 +3,10 @@ import 'component.dart';
 import 'person.dart';
 import 'rating_metric.dart';
 
-enum SetupComparisonGroupKind { component, person, deletedValues, context, ratings }
+enum SetupComparisonGroupKind { component, person, context, ratings }
 
 enum SetupComparisonRowKind {
   adjustment,
-  deletedAdjustment,
   bike,
   person,
   notes,
@@ -23,11 +22,9 @@ enum SetupComparisonValueProvenance {
   explicit,
   inherited,
   unavailable,
-  dangling,
-  deleted,
 }
 
-enum SetupComparisonOwnerState { installedOrLinked, dangling, absent }
+enum SetupComparisonOwnerState { installedOrLinked, absent }
 
 class SetupComparison {
   final String setupAId;

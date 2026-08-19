@@ -437,7 +437,7 @@ priority and two horizontal image strips.
   location and conditions. Keep display formatting in widgets; keep raw values
   and explicit equality policies in the service/model.
 - [ ] Resolve bike/person names independently per side. Preserve the ID as the
-  comparison key and show `BIKE NOT FOUND` / `Person not found` states with
+  comparison key and show `BIKE NOT FOUND` / `PERSON NOT FOUND` states with
   error styling consistent with setup details.
 - [ ] Compare notes as nullable text and tags as order-independent sets. Sort
   tags only for deterministic display. Exclude tags entirely when

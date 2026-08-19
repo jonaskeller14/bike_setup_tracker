@@ -69,6 +69,7 @@ void main() {
     expect(find.byKey(const Key('compare-owner-component-fork')), findsOneWidget);
     expect(find.textContaining('1 of 2 differ'), findsOneWidget);
     expect(find.byKey(const Key('compare-row-fork-pressure')), findsNothing);
+    expect(find.textContaining('Δ'), findsNothing);
 
     await tester.tap(find.text('All'));
     await settle(tester);
@@ -369,19 +370,25 @@ void main() {
     expect(find.text('Restore B'), findsNothing);
   });
 
-  testWidgets('Ratings is hidden in Differences without ratings and shown in All', (tester) async {
+  testWidgets('Ratings is shown in Differences and All when enabled', (tester) async {
     harness.settings.enableRating = true;
     final (setupAId, setupBId) = await seedPair(tester);
     await pumpComparison(tester, setupAId, setupBId);
 
-    expect(find.text('Ratings'), findsNothing);
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -2000));
+    await settle(tester);
+    expect(find.text('RATINGS'), findsOneWidget);
+    expect(find.text('No ratings yet'), findsNWidgets(2));
+
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, 2000));
+    await settle(tester);
     await tester.tap(find.text('All'));
     await settle(tester);
     await tester.drag(find.byType(CustomScrollView), const Offset(0, -2000));
     await settle(tester);
     expect(find.text('RATINGS'), findsOneWidget);
     expect(find.byType(PinnedHeaderSliver), findsNWidgets(3));
-    expect(find.text('No ratings yet'), findsOneWidget);
+    expect(find.text('No ratings yet'), findsNWidgets(2));
 
     harness.settings.enableRating = false;
     await tester.pump();

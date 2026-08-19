@@ -19,14 +19,7 @@ class SetupComparisonOwnerCard extends StatelessWidget {
     if (rows.isEmpty && !group.isStructuralDifference) return const SizedBox.shrink();
 
     final scheme = Theme.of(context).colorScheme;
-    final hasError =
-        group.kind == comparison.SetupComparisonGroupKind.deletedValues ||
-        group.ownerStateA == comparison.SetupComparisonOwnerState.dangling ||
-        group.ownerStateB == comparison.SetupComparisonOwnerState.dangling;
-    final headerColor = hasError ? scheme.errorContainer : scheme.outlineVariant;
-    final headerTextColor = hasError
-        ? scheme.error
-        : group.isStructuralDifference
+    final headerTextColor = group.isStructuralDifference
         ? Theme.of(context).extension<ValueHighlightColors>()!.changed
         : null;
     final differenceCount = group.differenceCount;
@@ -42,9 +35,9 @@ class SetupComparisonOwnerCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               CardHeaderTile(
-                color: headerColor,
+                color: scheme.outlineVariant,
                 child: ListTile(
-                  leading: Icon(_icon, color: hasError ? scheme.error : null),
+                  leading: Icon(_icon),
                   title: Semantics(
                     label: group.label,
                     child: Text(
@@ -81,15 +74,11 @@ class SetupComparisonOwnerCard extends StatelessWidget {
     comparison.SetupComparisonGroupKind.component =>
       (group.componentA ?? group.componentB)?.componentType.getIconData() ?? Component.iconData,
     comparison.SetupComparisonGroupKind.person => Person.iconData,
-    comparison.SetupComparisonGroupKind.deletedValues => Icons.error_outline,
     _ => Icons.grid_view_sharp,
   };
 
   String _subtitle(int differenceCount, int totalCount) {
     final count = '$differenceCount of $totalCount differ';
-    if (group.kind == comparison.SetupComparisonGroupKind.deletedValues) {
-      return '$count · Adjustment definitions are no longer available';
-    }
     final states = [
       'A: ${_stateLabel(group.ownerStateA)}',
       'B: ${_stateLabel(group.ownerStateB)}',
@@ -99,10 +88,6 @@ class SetupComparisonOwnerCard extends StatelessWidget {
 
   String _stateLabel(comparison.SetupComparisonOwnerState state) => switch (state) {
     comparison.SetupComparisonOwnerState.installedOrLinked => 'Present',
-    comparison.SetupComparisonOwnerState.dangling =>
-      group.kind == comparison.SetupComparisonGroupKind.person
-          ? 'Person is not linked to this setup'
-          : 'Component was not installed at setup time',
     comparison.SetupComparisonOwnerState.absent => '-',
   };
 }

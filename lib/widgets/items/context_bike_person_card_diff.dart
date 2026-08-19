@@ -52,6 +52,8 @@ class ContextBikePersonCardDiff extends StatelessWidget {
               valueB:
                   personB?.name ?? (setupB.person == null ? 'No person linked to this setup.' : 'PERSON NOT FOUND'),
               different: setupA.person != setupB.person,
+              errorA: setupA.person != null && personA == null,
+              errorB: setupB.person != null && personB == null,
             ),
         ],
       ),

@@ -6,6 +6,7 @@ import '../../models/setup.dart';
 import '../../models/setup_comparison.dart' as comparison;
 import '../../repositories/app_repository.dart';
 import '../../services/setup_comparison_service.dart';
+import '../../theme.dart';
 import '../../utils/setup_actions.dart';
 import '../compare_setups/setup_comparison_header.dart';
 import '../compare_setups/setup_comparison_owner_card.dart';
@@ -71,11 +72,11 @@ class _CompareSetupsState extends State<CompareSetups> {
     if (restored != null && mounted) Navigator.pop(context);
   }
 
-  PinnedHeaderSliver _sectionTitle(BuildContext context, String title) {
+  PinnedHeaderSliver _sectionTitle(BuildContext context, String title, {Widget? trailing}) {
     return PinnedHeaderSliver(
       child: ColoredBox(
         color: Theme.of(context).colorScheme.surface,
-        child: SectionTitle(title: title),
+        child: SectionTitle(title: title, trailing: trailing),
       ),
     );
   }
@@ -123,13 +124,16 @@ class _CompareSetupsState extends State<CompareSetups> {
     );
     final contextGroups = projection.groups
         .where((group) => group.kind == comparison.SetupComparisonGroupKind.context)
-        .where((group) => !_differencesOnly || group.isDifferent)
         .toList(growable: false);
-    final valueGroups = projection.groups
+    final allValueGroups = projection.groups
         .where((group) => group.kind != comparison.SetupComparisonGroupKind.context)
         .where((group) => group.rows.isNotEmpty || group.isStructuralDifference)
+        .toList(growable: false);
+    final valueGroups = allValueGroups
         .where((group) => !_differencesOnly || group.isDifferent)
         .toList(growable: false);
+    final valueDifferenceCount = allValueGroups.fold(0, (count, group) => count + group.differenceCount);
+    final contextHasChanged = contextGroups.any((group) => group.isDifferent);
     final ratingsA = comparison.SetupComparisonRatingSummary(
       entryCount: repository.ratingEntriesForSetup(setupA.id).length,
       score: repository.scoreForSetup(setupA.id),
@@ -143,7 +147,6 @@ class _CompareSetupsState extends State<CompareSetups> {
       metrics: repository.allRatingMetricsById,
     );
     final hasVisibleRatings = settings.enableRating;
-    final hasVisibleContent = contextGroups.isNotEmpty || valueGroups.isNotEmpty || hasVisibleRatings;
 
     return CustomScrollView(
       shrinkWrap: true,
@@ -155,108 +158,170 @@ class _CompareSetupsState extends State<CompareSetups> {
           child: SetupComparisonSummary(
             setupA: setupA,
             setupB: setupB,
-            differenceCount: projection.differenceCount,
-            differencesOnly: _differencesOnly,
-            onDifferencesOnlyChanged: (value) {
-              setState(() => _differencesOnly = value);
-            },
           ),
         ),
         SliverSafeArea(
           top: false,
-          sliver: !hasVisibleContent
-              ? SliverPadding(
-                  padding: const EdgeInsets.all(16),
-                  sliver: SliverToBoxAdapter(
-                    child: SheetFilterEmptyHint(
-                      icon: Icons.check_circle_outline,
-                      title: 'These setups have no differences',
-                      hint: 'Show every recorded value instead.',
-                      onTap: () => setState(() => _differencesOnly = false),
-                    ),
-                  ),
-                )
-              : SliverMainAxisGroup(
+          sliver: SliverMainAxisGroup(
+            slivers: [
+              if (contextGroups.isNotEmpty)
+                SliverMainAxisGroup(
                   slivers: [
-                    if (contextGroups.isNotEmpty)
-                      SliverMainAxisGroup(
-                        slivers: [
-                          _sectionTitle(context, 'Context'),
-                          SliverPadding(
-                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                            sliver: SliverList.list(
-                              children: [
-                                for (final group in contextGroups)
-                                  _ContextSection(
-                                    group: group,
-                                    differencesOnly: _differencesOnly,
-                                    setupA: setupA,
-                                    setupB: setupB,
-                                  ),
-                              ],
+                    _sectionTitle(
+                      context,
+                      'Context',
+                      trailing: contextHasChanged ? const _ContextChangedBadge() : null,
+                    ),
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                      sliver: SliverList.list(
+                        children: [
+                          for (final group in contextGroups)
+                            _ContextSection(
+                              group: group,
+                              setupA: setupA,
+                              setupB: setupB,
                             ),
-                          ),
                         ],
                       ),
-                    if (valueGroups.isNotEmpty)
-                      SliverMainAxisGroup(
-                        slivers: [
-                          const SliverToBoxAdapter(child: Divider(height: 8)),
-                          _sectionTitle(context, 'Values'),
-                          SliverPadding(
-                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                            sliver: SliverList.list(
-                              children: [
-                                for (final group in valueGroups)
-                                  SetupComparisonOwnerCard(
-                                    group: group,
-                                    differencesOnly: _differencesOnly,
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    if (hasVisibleRatings)
-                      SliverMainAxisGroup(
-                        slivers: [
-                          const SliverToBoxAdapter(child: Divider(height: 8)),
-                          _sectionTitle(context, 'Ratings'),
-                          SliverPadding(
-                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-                            sliver: SliverToBoxAdapter(
-                              child: RatingSummaryCardDiff(
-                                ratingsA: ratingsA,
-                                ratingsB: ratingsB,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                    ),
                   ],
                 ),
+              SliverMainAxisGroup(
+                slivers: [
+                  const SliverToBoxAdapter(child: Divider(height: 8)),
+                  _sectionTitle(
+                    context,
+                    'Values',
+                    trailing: _ValueFilter(
+                      differenceCount: valueDifferenceCount,
+                      differencesOnly: _differencesOnly,
+                      onChanged: (value) => setState(() => _differencesOnly = value),
+                    ),
+                  ),
+                  if (valueGroups.isEmpty)
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                      sliver: SliverToBoxAdapter(
+                        child: SheetFilterEmptyHint(
+                          icon: Icons.check_circle_outline,
+                          title: _differencesOnly ? 'These setups have no value differences' : 'No comparable values',
+                          hint: _differencesOnly
+                              ? 'Show every recorded value instead.'
+                              : 'No setup values are available to compare.',
+                          onTap: _differencesOnly ? () => setState(() => _differencesOnly = false) : null,
+                        ),
+                      ),
+                    )
+                  else
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                      sliver: SliverList.list(
+                        children: [
+                          for (final group in valueGroups)
+                            SetupComparisonOwnerCard(
+                              group: group,
+                              differencesOnly: _differencesOnly,
+                            ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+              if (hasVisibleRatings)
+                SliverMainAxisGroup(
+                  slivers: [
+                    const SliverToBoxAdapter(child: Divider(height: 8)),
+                    _sectionTitle(context, 'Ratings'),
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                      sliver: SliverToBoxAdapter(
+                        child: RatingSummaryCardDiff(
+                          ratingsA: ratingsA,
+                          ratingsB: ratingsB,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+            ],
+          ),
         ),
       ],
     );
   }
 }
 
+class _ContextChangedBadge extends StatelessWidget {
+  const _ContextChangedBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    final changedColor = Theme.of(context).extension<ValueHighlightColors>()!.changed;
+    return Semantics(
+      label: 'Context varies',
+      excludeSemantics: true,
+      child: Container(
+        key: const Key('compare-context-changed-badge'),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        decoration: BoxDecoration(
+          color: changedColor.withValues(alpha: 0.08),
+          border: Border.all(color: changedColor),
+          borderRadius: BorderRadius.circular(999),
+        ),
+        child: Text(
+          'Context varies',
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(color: changedColor),
+        ),
+      ),
+    );
+  }
+}
+
+class _ValueFilter extends StatelessWidget {
+  final int differenceCount;
+  final bool differencesOnly;
+  final ValueChanged<bool> onChanged;
+
+  const _ValueFilter({
+    required this.differenceCount,
+    required this.differencesOnly,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SegmentedButton<bool>(
+      key: const Key('compare-filter-control'),
+      showSelectedIcon: false,
+      style: const ButtonStyle(visualDensity: VisualDensity.compact),
+      segments: [
+        ButtonSegment(
+          value: true,
+          label: Text('Differences ($differenceCount)'),
+        ),
+        const ButtonSegment(value: false, label: Text('All')),
+      ],
+      selected: {differencesOnly},
+      onSelectionChanged: (selection) => onChanged(selection.single),
+    );
+  }
+}
+
 class _ContextSection extends StatelessWidget {
   final comparison.SetupComparisonGroup group;
-  final bool differencesOnly;
   final Setup setupA;
   final Setup setupB;
 
   const _ContextSection({
     required this.group,
-    required this.differencesOnly,
     required this.setupA,
     required this.setupB,
   });
 
   @override
   Widget build(BuildContext context) {
-    final rows = group.visibleRows(differencesOnly: differencesOnly);
+    final rows = group.rows;
     final notes = _row(rows, comparison.SetupComparisonRowKind.notes);
     final tags = _row(rows, comparison.SetupComparisonRowKind.tags);
     final images = _row(rows, comparison.SetupComparisonRowKind.images);
@@ -283,13 +348,11 @@ class _ContextSection extends StatelessWidget {
             placeA: setupA.place,
             positionB: setupB.position,
             placeB: setupB.place,
-            differencesOnly: differencesOnly,
           ),
         if (conditions != null && (setupA.weather != null || setupB.weather != null))
           ContextWeatherCardDiff(
             weatherA: setupA.weather,
             weatherB: setupB.weather,
-            differencesOnly: differencesOnly,
           ),
         if (bike != null || person != null)
           ContextBikePersonCardDiff(
@@ -318,7 +381,6 @@ class _ContextSection extends StatelessWidget {
     comparison.SetupComparisonRow? tags,
     comparison.SetupComparisonRow? images,
   ) {
-    if (differencesOnly) return notes != null || tags != null || images != null;
     return _hasContent(notes) || _hasContent(tags) || _hasContent(images);
   }
 

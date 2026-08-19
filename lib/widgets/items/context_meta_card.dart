@@ -31,7 +31,7 @@ class ContextMetaCard extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.notes),
               titleAlignment: ListTileTitleAlignment.titleHeight,
-              title: NotesText(notes!, maxLines: 10),
+              title: NotesText(notes!, maxLines: 5),
               dense: true,
             ),
           if (tags.isNotEmpty)

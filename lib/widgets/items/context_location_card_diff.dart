@@ -10,14 +10,12 @@ import 'package:provider/provider.dart';
 import '../../env/env.dart';
 import '../../models/app_settings.dart';
 import '../../models/context/context_position.dart';
-import '../../theme.dart';
 
 class ContextLocationCardDiff extends StatelessWidget {
   final LocationData? positionA;
   final geo.Placemark? placeA;
   final LocationData? positionB;
   final geo.Placemark? placeB;
-  final bool differencesOnly;
 
   const ContextLocationCardDiff({
     super.key,
@@ -25,7 +23,6 @@ class ContextLocationCardDiff extends StatelessWidget {
     required this.placeA,
     required this.positionB,
     required this.placeB,
-    this.differencesOnly = false,
   });
 
   @override
@@ -36,12 +33,6 @@ class ContextLocationCardDiff extends StatelessWidget {
 
     final addressA = _address(placeA);
     final addressB = _address(placeB);
-    final coordinatesDiffer =
-        positionA?.latitude != positionB?.latitude || positionA?.longitude != positionB?.longitude;
-    final altitudeDiffer = positionA?.altitude != positionB?.altitude;
-    final locationDiffer = addressA != addressB || coordinatesDiffer || altitudeDiffer;
-    final changedColor = Theme.of(context).extension<ValueHighlightColors>()!.changed;
-
     return Card.outlined(
       margin: const EdgeInsets.symmetric(vertical: 4),
       clipBehavior: Clip.antiAlias,
@@ -50,24 +41,21 @@ class ContextLocationCardDiff extends StatelessWidget {
         dense: true,
         shape: const Border(),
         collapsedShape: const Border(),
-        leading: Icon(Icons.location_city, color: locationDiffer ? changedColor : null),
+        leading: const Icon(Icons.location_city),
         title: _ComparisonTextRow(
           valueA: addressA,
           valueB: addressB,
-          different: addressA != addressB,
         ),
         children: [
-          if (!differencesOnly || coordinatesDiffer)
-            ListTile(
-              leading: Icon(Icons.my_location, color: coordinatesDiffer ? changedColor : null),
-              title: _ComparisonTextRow(
-                valueA: _coordinates(positionA),
-                valueB: _coordinates(positionB),
-                different: coordinatesDiffer,
-              ),
-              dense: true,
+          ListTile(
+            leading: const Icon(Icons.my_location),
+            title: _ComparisonTextRow(
+              valueA: _coordinates(positionA),
+              valueB: _coordinates(positionB),
             ),
-          if (!differencesOnly || altitudeDiffer) _AltitudeRow(positionA: positionA, positionB: positionB),
+            dense: true,
+          ),
+          _AltitudeRow(positionA: positionA, positionB: positionB),
           _ComparisonMap(positionA: positionA, positionB: positionB),
         ],
       ),
@@ -100,21 +88,16 @@ class _AltitudeRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settings = context.watch<AppSettings>();
-    final altitudeDiffer = positionA?.altitude != positionB?.altitude;
     String altitude(LocationData? position) {
       final value = ContextPosition.convertAltitudeFromMeters(position?.altitude, settings.altitudeUnit);
       return value == null ? '-' : '${value.round()} ${settings.altitudeUnit}';
     }
 
     return ListTile(
-      leading: Icon(
-        Icons.arrow_upward,
-        color: altitudeDiffer ? Theme.of(context).extension<ValueHighlightColors>()!.changed : null,
-      ),
+      leading: const Icon(Icons.arrow_upward),
       title: _ComparisonTextRow(
         valueA: altitude(positionA),
         valueB: altitude(positionB),
-        different: altitudeDiffer,
       ),
       dense: true,
     );
@@ -124,22 +107,20 @@ class _AltitudeRow extends StatelessWidget {
 class _ComparisonTextRow extends StatelessWidget {
   final String valueA;
   final String valueB;
-  final bool different;
 
-  const _ComparisonTextRow({required this.valueA, required this.valueB, required this.different});
+  const _ComparisonTextRow({required this.valueA, required this.valueB});
 
   @override
   Widget build(BuildContext context) {
-    final color = different ? Theme.of(context).extension<ValueHighlightColors>()!.changed : null;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 8,
       children: [
         Expanded(
-          child: SelectableText(valueA, style: TextStyle(color: color)),
+          child: SelectableText(valueA),
         ),
         Expanded(
-          child: SelectableText(valueB, style: TextStyle(color: color)),
+          child: SelectableText(valueB),
         ),
       ],
     );

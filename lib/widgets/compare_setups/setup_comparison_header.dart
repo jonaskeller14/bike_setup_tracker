@@ -51,17 +51,11 @@ class SetupComparisonHeader extends StatelessWidget {
 class SetupComparisonSummary extends StatelessWidget {
   final Setup setupA;
   final Setup setupB;
-  final int differenceCount;
-  final bool differencesOnly;
-  final ValueChanged<bool> onDifferencesOnlyChanged;
 
   const SetupComparisonSummary({
     super.key,
     required this.setupA,
     required this.setupB,
-    required this.differenceCount,
-    required this.differencesOnly,
-    required this.onDifferencesOnlyChanged,
   });
 
   @override
@@ -69,46 +63,23 @@ class SetupComparisonSummary extends StatelessWidget {
     final appSettings = context.watch<AppSettings>();
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: _SetupIdentity(
-                  key: const Key('compare-identity-a'),
-                  setup: setupA,
-                  dateFormat: appSettings.dateFormat,
-                  timeFormat: appSettings.timeFormat,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _SetupIdentity(
-                  key: const Key('compare-identity-b'),
-                  setup: setupB,
-                  dateFormat: appSettings.dateFormat,
-                  timeFormat: appSettings.timeFormat,
-                ),
-              ),
-            ],
+          Expanded(
+            child: _SetupIdentity(
+              key: const Key('compare-identity-a'),
+              setup: setupA,
+              dateFormat: appSettings.dateFormat,
+              timeFormat: appSettings.timeFormat,
+            ),
           ),
-          const SizedBox(height: 8),
-          Align(
-            alignment: Alignment.centerRight,
-            child: SegmentedButton<bool>(
-              key: const Key('compare-filter-control'),
-              showSelectedIcon: false,
-              style: const ButtonStyle(visualDensity: VisualDensity.compact),
-              segments: [
-                ButtonSegment(
-                  value: true,
-                  label: Text('$differenceCount ${differenceCount == 1 ? 'Difference' : 'Differences'}'),
-                ),
-                const ButtonSegment(value: false, label: Text('All')),
-              ],
-              selected: {differencesOnly},
-              onSelectionChanged: (selection) => onDifferencesOnlyChanged(selection.single),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _SetupIdentity(
+              key: const Key('compare-identity-b'),
+              setup: setupB,
+              dateFormat: appSettings.dateFormat,
+              timeFormat: appSettings.timeFormat,
             ),
           ),
         ],

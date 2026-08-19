@@ -1,8 +1,6 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../services/image_storage_service.dart';
-import '../../theme.dart';
 import '../image_strip.dart';
 import '../notes_text.dart';
 
@@ -38,10 +36,6 @@ class ContextMetaCardDiff extends StatelessWidget {
 
     if (!hasNotes && !hasTags && !hasImages) return const SizedBox.shrink();
 
-    final changedColor = Theme.of(context).extension<ValueHighlightColors>()!.changed;
-    final tagsDiffer = !tagsA.containsAll(tagsB) || !tagsB.containsAll(tagsA);
-    final imagesDiffer = !listEquals(imagesA, imagesB);
-
     return Card.outlined(
       margin: const EdgeInsets.symmetric(vertical: 4),
       clipBehavior: Clip.antiAlias,
@@ -50,30 +44,28 @@ class ContextMetaCardDiff extends StatelessWidget {
         children: [
           if (hasNotes)
             ListTile(
-              leading: Icon(Icons.notes, color: notesDiffer ? changedColor : null),
+              leading: const Icon(Icons.notes),
               titleAlignment: ListTileTitleAlignment.titleHeight,
               title: _ComparisonRow(
                 childA: hasNotesA
-                    ? NotesText(notesA!, maxLines: 10, color: notesDiffer ? changedColor : null)
-                    : Text('-', style: TextStyle(color: notesDiffer ? changedColor : null)),
+                    ? NotesText(notesA!, maxLines: 5)
+                    : const Text('-'),
                 childB: hasNotesB
-                    ? NotesText(notesB!, maxLines: 10, color: notesDiffer ? changedColor : null)
-                    : Text('-', style: TextStyle(color: notesDiffer ? changedColor : null)),
+                    ? NotesText(notesB!, maxLines: 5)
+                    : const Text('-'),
               ),
               dense: true,
             ),
           if (hasTags)
             ListTile(
-              leading: Icon(Icons.tag, color: tagsDiffer ? changedColor : null),
+              leading: const Icon(Icons.tag),
               titleAlignment: ListTileTitleAlignment.titleHeight,
               title: _ComparisonRow(
                 childA: Text(
                   tagsA.isEmpty ? '-' : (tagsA.toList()..sort()).join('\n'),
-                  style: TextStyle(color: tagsDiffer ? changedColor : null),
                 ),
                 childB: Text(
                   tagsB.isEmpty ? '-' : (tagsB.toList()..sort()).join('\n'),
-                  style: TextStyle(color: tagsDiffer ? changedColor : null),
                 ),
               ),
               dense: true,
@@ -84,12 +76,9 @@ class ContextMetaCardDiff extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 16),
-                    child: Icon(
-                      Icons.photo_library_outlined,
-                      color: imagesDiffer ? changedColor : null,
-                    ),
+                  const Padding(
+                    padding: EdgeInsets.only(right: 16),
+                    child: Icon(Icons.photo_library_outlined),
                   ),
                   Expanded(
                     child: FutureBuilder<String>(
@@ -117,13 +106,13 @@ class ContextMetaCardDiff extends StatelessWidget {
                             images: imagesA,
                             imagesDir: snapshot.data!,
                             heroTagPrefix: 'compare-images-a',
-                            emptyColor: imagesDiffer ? changedColor : null,
+                            emptyColor: null,
                           ),
                           childB: _ImageSide(
                             images: imagesB,
                             imagesDir: snapshot.data!,
                             heroTagPrefix: 'compare-images-b',
-                            emptyColor: imagesDiffer ? changedColor : null,
+                            emptyColor: null,
                           ),
                         );
                       },

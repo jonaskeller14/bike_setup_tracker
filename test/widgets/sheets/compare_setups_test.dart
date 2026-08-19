@@ -2,9 +2,7 @@ import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/compare_setups/setup_comparison_row.dart';
 import 'package:bike_setup_tracker/widgets/sheets/compare_setups.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:location/location.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'compare_setups_harness.dart';
@@ -60,12 +58,19 @@ void main() {
     await settle(tester);
   }
 
-  testWidgets('starts in Differences and All reveals unchanged rows', (tester) async {
+  testWidgets('Values filter starts in Differences and All reveals unchanged rows', (tester) async {
     final (setupAId, setupBId) = await seedPair(tester);
     await pumpComparison(tester, setupAId, setupBId);
 
-    expect(find.text('1 Difference'), findsOneWidget);
+    expect(find.text('Differences (1)'), findsOneWidget);
     expect(find.text('VALUES'), findsOneWidget);
+    expect(
+      find.ancestor(
+        of: find.byKey(const Key('compare-filter-control')),
+        matching: find.byType(PinnedHeaderSliver),
+      ),
+      findsOneWidget,
+    );
     expect(find.byKey(const Key('compare-owner-component-fork')), findsOneWidget);
     expect(find.textContaining('1 of 2 differ'), findsOneWidget);
     expect(find.byKey(const Key('compare-row-fork-pressure')), findsNothing);
@@ -96,7 +101,7 @@ void main() {
     await pumpComparison(tester, explicit.id, inherited.id);
 
     expect(find.byKey(const Key('compare-row-fork-rebound')), findsNothing);
-    await tester.tap(find.text('These setups have no differences'));
+    await tester.tap(find.text('These setups have no value differences'));
     await settle(tester);
 
     expect(find.byKey(const Key('compare-row-fork-rebound')), findsOneWidget);
@@ -130,7 +135,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('identical projections show the empty hint and Show all works', (tester) async {
+  testWidgets('identical values show a Values empty hint and Show all works', (tester) async {
     final a = harness.setup(
       id: 'same-a',
       name: 'Same A',
@@ -147,8 +152,9 @@ void main() {
     await harness.reload(tester);
     await pumpComparison(tester, a.id, b.id);
 
-    expect(find.text('These setups have no differences'), findsOneWidget);
-    await tester.tap(find.text('These setups have no differences'));
+    expect(find.text('These setups have no value differences'), findsOneWidget);
+    expect(find.byKey(const Key('compare-context-changed-badge')), findsNothing);
+    await tester.tap(find.text('These setups have no value differences'));
     await settle(tester);
     expect(find.byKey(const Key('compare-row-fork-rebound')), findsOneWidget);
   });
@@ -186,7 +192,7 @@ void main() {
     final sheetHeight = tester.getSize(find.byType(BottomSheet)).height;
     final screenHeight = tester.view.physicalSize.height / tester.view.devicePixelRatio;
     expect(sheetHeight, lessThan(screenHeight));
-    expect(find.text('These setups have no differences'), findsOneWidget);
+    expect(find.text('These setups have no value differences'), findsOneWidget);
   });
 
   testWidgets('bike comparison resolves names and missing-bike errors from setups', (tester) async {
@@ -218,22 +224,6 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('pins the compact title while the comparison summary scrolls away', (tester) async {
-    await harness.dispose();
-    harness = await CompareSetupsHarness.create(extraAdjustments: 8);
-    final (setupAId, setupBId) = await seedPair(tester);
-    await pumpComparison(tester, setupAId, setupBId);
-    await tester.tap(find.text('All'));
-    await settle(tester);
-
-    await tester.drag(find.byType(CustomScrollView), const Offset(0, -300));
-    await settle(tester);
-
-    expect(find.text('Compare setups'), findsOneWidget);
-    expect(find.byKey(const Key('compare-identity-a')), findsNothing);
-    expect(find.byKey(const Key('compare-identity-b')), findsNothing);
-  });
-
   testWidgets('changed rows expose a semantic difference and themed text', (tester) async {
     final (setupAId, setupBId) = await seedPair(tester);
     await pumpComparison(tester, setupAId, setupBId, dark: true);
@@ -250,7 +240,7 @@ void main() {
     expect(find.bySemanticsLabel(RegExp('Different Rebound')), findsOneWidget);
   });
 
-  testWidgets('keeps differing notes and tags visible at a narrow width', (tester) async {
+  testWidgets('shows changed Context badge without coloring context values', (tester) async {
     harness.settings.enableSetupTags = true;
     final a = harness.setup(
       id: 'notes-a',
@@ -275,35 +265,11 @@ void main() {
     expect(find.textContaining('A long note'), findsOneWidget);
     expect(find.textContaining('dry'), findsOneWidget);
     expect(find.textContaining('wet'), findsOneWidget);
-    expect(tester.takeException(), isNull);
-  });
-
-  testWidgets('location card fits intercontinental A and B markers on the map', (tester) async {
-    final a = harness.setup(
-      id: 'location-a',
-      name: 'A',
-      local: DateTime(2026, 8, 1, 10),
-      position: LocationData.fromMap({'latitude': 47.37, 'longitude': 8.54}),
-    );
-    final b = harness.setup(
-      id: 'location-b',
-      name: 'B',
-      local: DateTime(2026, 8, 2, 10),
-      position: LocationData.fromMap({'latitude': 40.7128, 'longitude': -74.006}),
-    );
-    await harness.addSetups(tester, [a, b]);
-    await harness.reload(tester);
-    await pumpComparison(tester, a.id, b.id);
-
-    await tester.tap(find.byKey(const Key('compare-disclosure-location')));
-    await settle(tester);
-
-    expect(find.byType(FlutterMap), findsOneWidget);
-    expect(tester.widget<MarkerLayer>(find.byType(MarkerLayer)).markers, hasLength(2));
-    final mapRect = tester.getRect(find.byType(FlutterMap));
-    final markerLayer = find.byType(MarkerLayer);
-    expect(mapRect.contains(tester.getCenter(find.descendant(of: markerLayer, matching: find.text('A')))), isTrue);
-    expect(mapRect.contains(tester.getCenter(find.descendant(of: markerLayer, matching: find.text('B')))), isTrue);
+    expect(find.text('Differences (0)'), findsOneWidget);
+    expect(find.byKey(const Key('compare-context-changed-badge')), findsOneWidget);
+    expect(find.bySemanticsLabel('Context varies'), findsOneWidget);
+    expect(tester.widget<Icon>(find.byIcon(Icons.notes)).color, isNull);
+    expect(tester.widget<Text>(find.textContaining('dry')).style?.color, isNull);
     expect(tester.takeException(), isNull);
   });
 

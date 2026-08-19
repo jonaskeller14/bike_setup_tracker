@@ -5,7 +5,6 @@ import '../../models/bike.dart';
 import '../../models/person.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
-import '../../theme.dart';
 
 class ContextBikePersonCardDiff extends StatelessWidget {
   final Setup setupA;
@@ -40,7 +39,6 @@ class ContextBikePersonCardDiff extends StatelessWidget {
               icon: Bike.iconData,
               valueA: bikeA?.name ?? 'BIKE NOT FOUND',
               valueB: bikeB?.name ?? 'BIKE NOT FOUND',
-              different: setupA.bike != setupB.bike,
               errorA: bikeA == null,
               errorB: bikeB == null,
             ),
@@ -51,7 +49,6 @@ class ContextBikePersonCardDiff extends StatelessWidget {
                   personA?.name ?? (setupA.person == null ? 'No person linked to this setup.' : 'PERSON NOT FOUND'),
               valueB:
                   personB?.name ?? (setupB.person == null ? 'No person linked to this setup.' : 'PERSON NOT FOUND'),
-              different: setupA.person != setupB.person,
               errorA: setupA.person != null && personA == null,
               errorB: setupB.person != null && personB == null,
             ),
@@ -65,7 +62,6 @@ class _OwnerRow extends StatelessWidget {
   final IconData icon;
   final String? valueA;
   final String? valueB;
-  final bool different;
   final bool errorA;
   final bool errorB;
 
@@ -73,26 +69,24 @@ class _OwnerRow extends StatelessWidget {
     required this.icon,
     required this.valueA,
     required this.valueB,
-    required this.different,
     this.errorA = false,
     this.errorB = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final color = different ? Theme.of(context).extension<ValueHighlightColors>()!.changed : null;
     final errorColor = Theme.of(context).colorScheme.error;
     return ListTile(
-      leading: Icon(icon, color: errorA || errorB ? errorColor : color),
+      leading: Icon(icon, color: errorA || errorB ? errorColor : null),
       title: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: 8,
         children: [
           Expanded(
-            child: SelectableText(valueA ?? '-', style: TextStyle(color: errorA ? errorColor : color)),
+            child: SelectableText(valueA ?? '-', style: TextStyle(color: errorA ? errorColor : null)),
           ),
           Expanded(
-            child: SelectableText(valueB ?? '-', style: TextStyle(color: errorB ? errorColor : color)),
+            child: SelectableText(valueB ?? '-', style: TextStyle(color: errorB ? errorColor : null)),
           ),
         ],
       ),

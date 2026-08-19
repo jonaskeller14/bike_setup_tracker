@@ -11,7 +11,7 @@ import '../../models/person.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/bike_actions.dart';
-import '../../widgets/component_stats_card.dart';
+import '../../widgets/display_data/component_stats_card.dart';
 import '../../widgets/installation_timeline_table.dart';
 import '../../widgets/items/component_list_card.dart';
 import '../../widgets/notes_text.dart';

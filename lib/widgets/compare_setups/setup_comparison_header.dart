@@ -18,7 +18,7 @@ class SetupComparisonHeader extends StatelessWidget {
       automaticallyImplyLeading: false,
       backgroundColor: scheme.surface,
       surfaceTintColor: scheme.surface,
-      title: sheetTitle(context, 'Compare setups'),
+      title: sheetTitle(context, 'Setup comparison'),
       actions: [
         const SizedBox(width: 8),
         sheetCloseButton(context),

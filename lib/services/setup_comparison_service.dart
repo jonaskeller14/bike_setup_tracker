@@ -1,9 +1,5 @@
-import 'package:flutter/foundation.dart';
-
 import '../models/adjustment/adjustment.dart';
-import '../models/bike.dart';
 import '../models/component.dart';
-import '../models/context/context_weather.dart';
 import '../models/person.dart';
 import '../models/setup.dart';
 import '../models/setup_comparison.dart';
@@ -51,13 +47,8 @@ class SetupComparisonService {
   static SetupComparison build({
     required Setup setupA,
     required Setup setupB,
-    Iterable<Bike> bikes = const [],
     required Iterable<Component> components,
     required Iterable<Person> persons,
-    bool includePerson = false,
-    bool includeTags = false,
-    bool includeImages = false,
-    bool includeContext = false,
   }) {
     final allComponents = List<Component>.of(components);
     final allPersons = List<Person>.of(persons);
@@ -78,26 +69,12 @@ class SetupComparisonService {
     final personOwnersB = _personOwners(breakdownB, setupB);
 
     return SetupComparison(
-      setupAId: setupA.id,
-      setupBId: setupB.id,
       groups: [
-        if (includeContext)
-          _buildContextGroup(
-            setupA: setupA,
-            setupB: setupB,
-            bikes: bikes,
-            persons: allPersons,
-            includePerson: includePerson,
-            includeTags: includeTags,
-            includeImages: includeImages,
-          ),
         ..._buildOwnerGroups(
-          kind: SetupComparisonGroupKind.component,
           ownersA: componentOwnersA,
           ownersB: componentOwnersB,
         ),
         ..._buildOwnerGroups(
-          kind: SetupComparisonGroupKind.person,
           ownersA: personOwnersA,
           ownersB: personOwnersB,
         ),
@@ -105,233 +82,11 @@ class SetupComparisonService {
     );
   }
 
-  static SetupComparisonGroup _buildContextGroup({
-    required Setup setupA,
-    required Setup setupB,
-    required Iterable<Bike> bikes,
-    required Iterable<Person> persons,
-    required bool includePerson,
-    required bool includeTags,
-    required bool includeImages,
-  }) {
-    final bikesById = {for (final bike in bikes) bike.id: bike};
-    final peopleById = {for (final person in persons) person.id: person};
-    final bikeA = _reference(setupA.bike, bikesById, missingLabel: 'BIKE NOT FOUND', label: (bike) => bike.name);
-    final bikeB = _reference(setupB.bike, bikesById, missingLabel: 'BIKE NOT FOUND', label: (bike) => bike.name);
-    final rows = <SetupComparisonRow>[
-      _contextRow(
-        id: 'bike',
-        label: 'Bike',
-        kind: SetupComparisonRowKind.bike,
-        valueA: bikeA,
-        valueB: bikeB,
-        differs: bikeA.id != bikeB.id || bikeA.isMissing != bikeB.isMissing,
-      ),
-      if (includePerson && (setupA.person != null || setupB.person != null))
-        _personContextRow(setupA.person, setupB.person, peopleById),
-      _contextRow(
-        id: 'notes',
-        label: 'Notes',
-        kind: SetupComparisonRowKind.notes,
-        valueA: setupA.notes,
-        valueB: setupB.notes,
-        differs: setupA.notes != setupB.notes,
-      ),
-      if (includeTags)
-        _contextRow(
-          id: 'tags',
-          label: 'Tags',
-          kind: SetupComparisonRowKind.tags,
-          valueA: setupA.tags.toList()..sort(),
-          valueB: setupB.tags.toList()..sort(),
-          differs: !setEquals(setupA.tags, setupB.tags),
-        ),
-      if (includeImages)
-        _contextRow(
-          id: 'images',
-          label: 'Images',
-          kind: SetupComparisonRowKind.images,
-          valueA: List<String>.of(setupA.images),
-          valueB: List<String>.of(setupB.images),
-          differs: !listEquals(setupA.images, setupB.images),
-        ),
-      _contextDisclosure(
-        id: 'location',
-        label: 'Location',
-        kind: SetupComparisonRowKind.location,
-        headerA: _address(setupA),
-        headerB: _address(setupB),
-        children: [
-          _contextRow(
-            id: 'address',
-            label: 'Address',
-            kind: SetupComparisonRowKind.context,
-            valueA: _address(setupA),
-            valueB: _address(setupB),
-            differs: _address(setupA) != _address(setupB),
-          ),
-          _contextRow(
-            id: 'coordinates',
-            label: 'Latitude/Longitude',
-            kind: SetupComparisonRowKind.context,
-            valueA: (setupA.position?.latitude, setupA.position?.longitude),
-            valueB: (setupB.position?.latitude, setupB.position?.longitude),
-            differs:
-                setupA.position?.latitude != setupB.position?.latitude ||
-                setupA.position?.longitude != setupB.position?.longitude,
-          ),
-          _contextRow(
-            id: 'altitude',
-            label: 'Altitude',
-            kind: SetupComparisonRowKind.context,
-            valueA: setupA.position?.altitude,
-            valueB: setupB.position?.altitude,
-            differs: setupA.position?.altitude != setupB.position?.altitude,
-          ),
-        ],
-      ),
-      _contextDisclosure(
-        id: 'conditions',
-        label: 'Conditions',
-        kind: SetupComparisonRowKind.conditions,
-        headerA: setupA.weather?.getWeatherCodeLabel(),
-        headerB: setupB.weather?.getWeatherCodeLabel(),
-        children: [
-          _weatherRow('weather-code', 'Weather', setupA, setupB, (weather) => weather?.getWeatherCodeLabel()),
-          _weatherRow('condition', 'Condition', setupA, setupB, (weather) => weather?.condition?.value),
-          _weatherRow('temperature', 'Temperature', setupA, setupB, (weather) => weather?.currentTemperature),
-          _weatherRow(
-            'precipitation',
-            'Precipitation',
-            setupA,
-            setupB,
-            (weather) => weather?.dayAccumulatedPrecipitation,
-          ),
-          _weatherRow('humidity', 'Humidity', setupA, setupB, (weather) => weather?.currentHumidity),
-          _weatherRow('wind', 'Windspeed', setupA, setupB, (weather) => weather?.currentWindSpeed),
-          _weatherRow(
-            'soil-moisture',
-            'Soil Moisture',
-            setupA,
-            setupB,
-            (weather) => weather?.currentSoilMoisture0to7cm,
-          ),
-        ],
-      ),
-    ];
-    return SetupComparisonGroup(
-      kind: SetupComparisonGroupKind.context,
-      ownerId: 'context',
-      ownerStateA: SetupComparisonOwnerState.installedOrLinked,
-      ownerStateB: SetupComparisonOwnerState.installedOrLinked,
-      label: 'Context',
-      rows: rows,
-    );
-  }
-
-  static SetupComparisonRow _personContextRow(
-    String? idA,
-    String? idB,
-    Map<String, Person> persons,
-  ) {
-    final valueA = idA == null
-        ? null
-        : _reference(idA, persons, missingLabel: 'PERSON NOT FOUND', label: (person) => person.name);
-    final valueB = idB == null
-        ? null
-        : _reference(idB, persons, missingLabel: 'PERSON NOT FOUND', label: (person) => person.name);
-    return _contextRow(
-      id: 'person',
-      label: 'Person',
-      kind: SetupComparisonRowKind.person,
-      valueA: valueA,
-      valueB: valueB,
-      differs: idA != idB || (valueA?.isMissing ?? false) != (valueB?.isMissing ?? false),
-    );
-  }
-
-  static SetupComparisonReference _reference<T>(
-    String id,
-    Map<String, T> values, {
-    required String missingLabel,
-    required String Function(T value) label,
-  }) {
-    final value = values[id];
-    return SetupComparisonReference(
-      id: id,
-      label: value == null ? missingLabel : label(value),
-      isMissing: value == null,
-    );
-  }
-
-  static SetupComparisonRow _contextRow({
-    required String id,
-    required String label,
-    required SetupComparisonRowKind kind,
-    required dynamic valueA,
-    required dynamic valueB,
-    required bool differs,
-  }) => SetupComparisonRow(
-    id: id,
-    label: label,
-    kind: kind,
-    valueA: _contextValue(valueA),
-    valueB: _contextValue(valueB),
-    isDifferent: differs,
-  );
-
-  static SetupComparisonRow _contextDisclosure({
-    required String id,
-    required String label,
-    required SetupComparisonRowKind kind,
-    required List<SetupComparisonRow> children,
-    required dynamic headerA,
-    required dynamic headerB,
-  }) => SetupComparisonRow(
-    id: id,
-    label: label,
-    kind: kind,
-    valueA: _contextValue(headerA),
-    valueB: _contextValue(headerB),
-    isDifferent: children.any((row) => row.isDifferent),
-    children: children,
-  );
-
-  static SetupComparisonRow _weatherRow(
-    String id,
-    String label,
-    Setup setupA,
-    Setup setupB,
-    dynamic Function(ContextWeather? weather) read,
-  ) => _contextRow(
-    id: id,
-    label: label,
-    kind: SetupComparisonRowKind.context,
-    valueA: read(setupA.weather),
-    valueB: read(setupB.weather),
-    differs: read(setupA.weather) != read(setupB.weather),
-  );
-
-  static String? _address(Setup setup) {
-    final place = setup.place;
-    if (place == null) return null;
-    return '${place.thoroughfare ?? ''} ${place.subThoroughfare ?? ''}, ${place.locality ?? ''}, ${place.isoCountryCode ?? ''}'
-        .replaceAll(RegExp(r' ,'), '')
-        .trim();
-  }
-
-  static SetupComparisonSideValue _contextValue(dynamic value) => SetupComparisonSideValue(
-    value: value,
-    provenance: value == null ? SetupComparisonValueProvenance.unavailable : SetupComparisonValueProvenance.explicit,
-    definition: null,
-  );
-
   static List<_OwnerData> _componentOwners(SetupAdjustmentBreakdown breakdown, Setup setup) {
     return [
       for (final component in breakdown.components)
-        _OwnerData.component(
+        _ComponentOwnerData(
           component: component,
-          state: SetupComparisonOwnerState.installedOrLinked,
           currentValues: setup.bikeAdjustmentValues,
           previousValues: setup.previousBikeAdjustmentValues,
         ),
@@ -341,9 +96,8 @@ class SetupComparisonService {
   static List<_OwnerData> _personOwners(SetupAdjustmentBreakdown breakdown, Setup setup) {
     return [
       if (breakdown.person != null)
-        _OwnerData.person(
+        _PersonOwnerData(
           person: breakdown.person!,
-          state: SetupComparisonOwnerState.installedOrLinked,
           currentValues: setup.personAdjustmentValues,
           previousValues: setup.previousPersonAdjustmentValues,
         ),
@@ -351,7 +105,6 @@ class SetupComparisonService {
   }
 
   static List<SetupComparisonGroup> _buildOwnerGroups({
-    required SetupComparisonGroupKind kind,
     required List<_OwnerData> ownersA,
     required List<_OwnerData> ownersB,
   }) {
@@ -360,7 +113,7 @@ class SetupComparisonService {
     final orderedIds = _orderedUnion(byIdA.keys, byIdB.keys);
 
     return [
-      for (final id in orderedIds) _buildOwnerGroup(kind: kind, ownerA: byIdA[id], ownerB: byIdB[id]),
+      for (final id in orderedIds) _buildOwnerGroup(ownerA: byIdA[id], ownerB: byIdB[id]),
     ];
   }
 
@@ -373,28 +126,24 @@ class SetupComparisonService {
   }
 
   static SetupComparisonGroup _buildOwnerGroup({
-    required SetupComparisonGroupKind kind,
     required _OwnerData? ownerA,
     required _OwnerData? ownerB,
   }) {
+    final owner = ownerA ?? ownerB!;
     final adjustmentA = _byAdjustmentId(ownerA?.adjustments ?? const []);
     final adjustmentB = _byAdjustmentId(ownerB?.adjustments ?? const []);
     final adjustmentIds = _orderedUnion(adjustmentA.keys, adjustmentB.keys);
-    final stateA = ownerA?.state ?? SetupComparisonOwnerState.absent;
-    final stateB = ownerB?.state ?? SetupComparisonOwnerState.absent;
+    final stateA = ownerA == null ? SetupComparisonOwnerState.absent : SetupComparisonOwnerState.installedOrLinked;
+    final stateB = ownerB == null ? SetupComparisonOwnerState.absent : SetupComparisonOwnerState.installedOrLinked;
 
     return SetupComparisonGroup(
-      kind: kind,
-      ownerId: ownerA?.id ?? ownerB!.id,
+      kind: owner.kind,
+      ownerId: owner.id,
       ownerStateA: stateA,
       ownerStateB: stateB,
-      label: ownerA?.label ?? ownerB!.label,
-      labelA: ownerA?.label,
-      labelB: ownerB?.label,
-      componentA: ownerA?.component,
-      componentB: ownerB?.component,
-      personA: ownerA?.person,
-      personB: ownerB?.person,
+      label: owner.label,
+      componentA: ownerA is _ComponentOwnerData ? ownerA.component : null,
+      componentB: ownerB is _ComponentOwnerData ? ownerB.component : null,
       rows: [
         for (final id in adjustmentIds)
           _buildAdjustmentRow(
@@ -418,7 +167,7 @@ class SetupComparisonService {
     return result;
   }
 
-  static SetupComparisonRow _buildAdjustmentRow({
+  static SetupAdjustmentComparison _buildAdjustmentRow({
     required String id,
     required Adjustment? adjustmentA,
     required Adjustment? adjustmentB,
@@ -429,47 +178,45 @@ class SetupComparisonService {
   }) {
     final valueA = _resolveValue(ownerA, adjustmentA);
     final valueB = _resolveValue(ownerB, adjustmentB);
-    return SetupComparisonRow(
-      id: id,
-      label: adjustmentA?.name ?? adjustmentB!.name,
-      kind: SetupComparisonRowKind.adjustment,
+    return SetupAdjustmentComparison(
+      adjustmentA: adjustmentA,
+      adjustmentB: adjustmentB,
       valueA: valueA,
       valueB: valueB,
-      isDifferent: _valuesDiffer(
-        valueA: valueA,
-        valueB: valueB,
-        ownerStateA: ownerStateA,
-        ownerStateB: ownerStateB,
-      ),
+      isDifferent:
+          adjustmentA == null ||
+          adjustmentB == null ||
+          _valuesDiffer(
+            valueA: valueA,
+            valueB: valueB,
+            ownerStateA: ownerStateA,
+            ownerStateB: ownerStateB,
+          ),
     );
   }
 
   static SetupComparisonSideValue _resolveValue(_OwnerData? owner, Adjustment? adjustment) {
     if (owner == null || adjustment == null) {
-      return SetupComparisonSideValue(
+      return const SetupComparisonSideValue(
         value: null,
         provenance: SetupComparisonValueProvenance.unavailable,
-        definition: adjustment,
       );
     }
     if (owner.currentValues.containsKey(adjustment.id)) {
       return SetupComparisonSideValue(
         value: owner.currentValues[adjustment.id],
         provenance: SetupComparisonValueProvenance.explicit,
-        definition: adjustment,
       );
     }
     if (owner.previousValues.containsKey(adjustment.id)) {
       return SetupComparisonSideValue(
         value: owner.previousValues[adjustment.id],
         provenance: SetupComparisonValueProvenance.inherited,
-        definition: adjustment,
       );
     }
-    return SetupComparisonSideValue(
+    return const SetupComparisonSideValue(
       value: null,
       provenance: SetupComparisonValueProvenance.unavailable,
-      definition: adjustment,
     );
   }
 
@@ -479,7 +226,7 @@ class SetupComparisonService {
     required SetupComparisonOwnerState ownerStateA,
     required SetupComparisonOwnerState ownerStateB,
   }) {
-    if (ownerStateA != ownerStateB || valueA.definition == null || valueB.definition == null) {
+    if (ownerStateA != ownerStateB) {
       return true;
     }
     final unavailableA = valueA.provenance == SetupComparisonValueProvenance.unavailable;
@@ -499,35 +246,61 @@ class SetupComparisonService {
   }
 }
 
-class _OwnerData {
-  final String id;
-  final String label;
-  final SetupComparisonOwnerState state;
-  final List<Adjustment> adjustments;
+sealed class _OwnerData {
   final Map<String, dynamic> currentValues;
   final Map<String, dynamic> previousValues;
-  final Component? component;
-  final Person? person;
 
-  _OwnerData.component({
-    required Component component,
-    required this.state,
+  const _OwnerData({
     required this.currentValues,
     required this.previousValues,
-  }) : id = component.id,
-       label = component.name,
-       adjustments = component.adjustments,
-       component = component,
-       person = null;
+  });
 
-  _OwnerData.person({
-    required Person person,
-    required this.state,
-    required this.currentValues,
-    required this.previousValues,
-  }) : id = person.id,
-       label = person.name,
-       adjustments = person.adjustments,
-       component = null,
-       person = person;
+  String get id;
+  String get label;
+  List<Adjustment> get adjustments;
+  SetupComparisonGroupKind get kind;
+}
+
+final class _ComponentOwnerData extends _OwnerData {
+  final Component component;
+
+  const _ComponentOwnerData({
+    required this.component,
+    required super.currentValues,
+    required super.previousValues,
+  });
+
+  @override
+  String get id => component.id;
+
+  @override
+  String get label => component.name;
+
+  @override
+  List<Adjustment> get adjustments => component.adjustments;
+
+  @override
+  SetupComparisonGroupKind get kind => SetupComparisonGroupKind.component;
+}
+
+final class _PersonOwnerData extends _OwnerData {
+  final Person person;
+
+  const _PersonOwnerData({
+    required this.person,
+    required super.currentValues,
+    required super.previousValues,
+  });
+
+  @override
+  String get id => person.id;
+
+  @override
+  String get label => person.name;
+
+  @override
+  List<Adjustment> get adjustments => person.adjustments;
+
+  @override
+  SetupComparisonGroupKind get kind => SetupComparisonGroupKind.person;
 }

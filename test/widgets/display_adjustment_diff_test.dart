@@ -1,31 +1,28 @@
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/setup_comparison.dart' as comparison;
 import 'package:bike_setup_tracker/theme.dart';
-import 'package:bike_setup_tracker/widgets/compare_setups/setup_comparison_row.dart';
+import 'package:bike_setup_tracker/widgets/display_adjustment/display_adjustment_diff.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  SetupComparisonRow rowFor({
+  DisplayAdjustmentDiff rowFor({
     required Adjustment adjustment,
     required dynamic valueA,
     required dynamic valueB,
   }) {
-    return SetupComparisonRow(
+    return DisplayAdjustmentDiff(
       groupId: 'fork',
-      row: comparison.SetupComparisonRow(
-        id: adjustment.id,
-        label: adjustment.name,
-        kind: comparison.SetupComparisonRowKind.adjustment,
+      row: comparison.SetupAdjustmentComparison(
+        adjustmentA: adjustment,
+        adjustmentB: adjustment,
         valueA: comparison.SetupComparisonSideValue(
           value: valueA,
           provenance: comparison.SetupComparisonValueProvenance.explicit,
-          definition: adjustment,
         ),
         valueB: comparison.SetupComparisonSideValue(
           value: valueB,
           provenance: comparison.SetupComparisonValueProvenance.explicit,
-          definition: adjustment,
         ),
         isDifferent: valueA != valueB,
       ),

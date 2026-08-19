@@ -1,9 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
+import '../../models/context/context_place.dart';
+import '../../models/context/context_position.dart';
 import '../../models/setup.dart';
-import '../../models/setup_comparison.dart' as comparison;
 import '../../repositories/app_repository.dart';
 import '../../services/setup_comparison_service.dart';
 import '../../theme.dart';
@@ -108,33 +110,22 @@ class _CompareSetupsState extends State<CompareSetups> {
     final projection = SetupComparisonService.build(
       setupA: setupA,
       setupB: setupB,
-      bikes: repository.bikes.values,
       components: repository.components.values,
       persons: repository.persons.values,
-      includePerson: settings.enablePerson,
-      includeTags: settings.enableSetupTags,
-      includeImages: settings.enableSetupImages,
-      includeContext: true,
     );
-    final contextGroups = projection.groups
-        .where((group) => group.kind == comparison.SetupComparisonGroupKind.context)
-        .toList(growable: false);
     final allValueGroups = projection.groups
-        .where((group) => group.kind != comparison.SetupComparisonGroupKind.context)
         .where((group) => group.rows.isNotEmpty || group.isStructuralDifference)
         .toList(growable: false);
-    final valueGroups = allValueGroups
-        .where((group) => !_differencesOnly || group.isDifferent)
-        .toList(growable: false);
+    final valueGroups = allValueGroups.where((group) => !_differencesOnly || group.isDifferent).toList(growable: false);
     final valueDifferenceCount = allValueGroups.fold(0, (count, group) => count + group.differenceCount);
-    final contextHasChanged = contextGroups.any((group) => group.isDifferent);
-    final ratingsA = comparison.SetupComparisonRatingSummary(
+    final contextHasChanged = _contextHasChanged(setupA, setupB, settings);
+    final ratingsA = RatingSummaryData(
       entryCount: repository.ratingEntriesForSetup(setupA.id).length,
       score: repository.scoreForSetup(setupA.id),
       metricScores: repository.metricScoresForSetup(setupA.id),
       metrics: repository.allRatingMetricsById,
     );
-    final ratingsB = comparison.SetupComparisonRatingSummary(
+    final ratingsB = RatingSummaryData(
       entryCount: repository.ratingEntriesForSetup(setupB.id).length,
       score: repository.scoreForSetup(setupB.id),
       metricScores: repository.metricScoresForSetup(setupB.id),
@@ -154,29 +145,25 @@ class _CompareSetupsState extends State<CompareSetups> {
           top: false,
           sliver: SliverMainAxisGroup(
             slivers: [
-              if (contextGroups.isNotEmpty)
-                SliverMainAxisGroup(
-                  slivers: [
-                    _sectionTitle(
-                      context,
-                      'Context',
-                      trailing: contextHasChanged ? const _ContextChangedBadge() : null,
-                    ),
-                    SliverPadding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                      sliver: SliverList.list(
-                        children: [
-                          for (final group in contextGroups)
-                            _ContextSection(
-                              group: group,
-                              setupA: setupA,
-                              setupB: setupB,
-                            ),
-                        ],
+              SliverMainAxisGroup(
+                slivers: [
+                  _sectionTitle(
+                    context,
+                    'Context',
+                    trailing: contextHasChanged ? const _ContextChangedBadge() : null,
+                  ),
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                    sliver: SliverToBoxAdapter(
+                      child: _ContextSection(
+                        setupA: setupA,
+                        setupB: setupB,
+                        settings: settings,
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
+              ),
               SliverMainAxisGroup(
                 slivers: [
                   const SliverToBoxAdapter(child: Divider(height: 8)),
@@ -240,6 +227,31 @@ class _CompareSetupsState extends State<CompareSetups> {
       ],
     );
   }
+
+  bool _contextHasChanged(Setup a, Setup b, AppSettings settings) {
+    return a.bike != b.bike ||
+        (settings.enablePerson && a.person != b.person) ||
+        a.notes != b.notes ||
+        (settings.enableSetupTags && !setEquals(a.tags, b.tags)) ||
+        (settings.enableSetupImages && !listEquals(a.images, b.images)) ||
+        !ContextPosition.equal(a.position, b.position) ||
+        !ContextPlace.equal(a.place, b.place) ||
+        _visibleWeatherValues(a) != _visibleWeatherValues(b);
+  }
+
+  Object? _visibleWeatherValues(Setup setup) {
+    final weather = setup.weather;
+    if (weather == null) return null;
+    return (
+      weather.currentWeatherCode,
+      weather.condition,
+      weather.currentTemperature,
+      weather.dayAccumulatedPrecipitation,
+      weather.currentHumidity,
+      weather.currentWindSpeed,
+      weather.currentSoilMoisture0to7cm,
+    );
+  }
 }
 
 class _ContextChangedBadge extends StatelessWidget {
@@ -299,88 +311,46 @@ class _ValueFilter extends StatelessWidget {
 }
 
 class _ContextSection extends StatelessWidget {
-  final comparison.SetupComparisonGroup group;
   final Setup setupA;
   final Setup setupB;
+  final AppSettings settings;
 
   const _ContextSection({
-    required this.group,
     required this.setupA,
     required this.setupB,
+    required this.settings,
   });
 
   @override
   Widget build(BuildContext context) {
-    final rows = group.rows;
-    final notes = _row(rows, comparison.SetupComparisonRowKind.notes);
-    final tags = _row(rows, comparison.SetupComparisonRowKind.tags);
-    final images = _row(rows, comparison.SetupComparisonRowKind.images);
-    final bike = _row(rows, comparison.SetupComparisonRowKind.bike);
-    final person = _row(rows, comparison.SetupComparisonRowKind.person);
-    final location = _row(rows, comparison.SetupComparisonRowKind.location);
-    final conditions = _row(rows, comparison.SetupComparisonRowKind.conditions);
-    final showMeta = _hasVisibleMeta(notes, tags, images);
     return Column(
       children: [
-        if (showMeta)
-          ContextMetaCardDiff(
-            notesA: notes?.valueA.value as String?,
-            tagsA: _stringSet(tags?.valueA.value),
-            imagesA: _stringList(images?.valueA.value),
-            notesB: notes?.valueB.value as String?,
-            tagsB: _stringSet(tags?.valueB.value),
-            imagesB: _stringList(images?.valueB.value),
-          ),
-        if (location != null &&
-            (setupA.position != null || setupA.place != null || setupB.position != null || setupB.place != null))
-          ContextLocationCardDiff(
-            positionA: setupA.position,
-            placeA: setupA.place,
-            positionB: setupB.position,
-            placeB: setupB.place,
-          ),
-        if (conditions != null && (setupA.weather != null || setupB.weather != null))
-          ContextWeatherCardDiff(
-            weatherA: setupA.weather,
-            weatherB: setupB.weather,
-          ),
-        if (bike != null || person != null)
-          ContextBikePersonCardDiff(
-            setupA: setupA,
-            setupB: setupB,
-            showBike: bike != null,
-            showPerson: person != null,
-          ),
+        ContextMetaCardDiff(
+          notesA: setupA.notes,
+          tagsA: settings.enableSetupTags ? setupA.tags : const {},
+          imagesA: settings.enableSetupImages ? setupA.images : const [],
+          notesB: setupB.notes,
+          tagsB: settings.enableSetupTags ? setupB.tags : const {},
+          imagesB: settings.enableSetupImages ? setupB.images : const [],
+        ),
+        ContextLocationCardDiff(
+          positionA: setupA.position,
+          placeA: setupA.place,
+          positionB: setupB.position,
+          placeB: setupB.place,
+        ),
+        ContextWeatherCardDiff(
+          weatherA: setupA.weather,
+          weatherB: setupB.weather,
+        ),
+        ContextBikePersonCardDiff(
+          setupA: setupA,
+          setupB: setupB,
+          showBike: true,
+          showPerson: settings.enablePerson && (setupA.person != null || setupB.person != null),
+        ),
         const SizedBox(height: 8),
       ],
     );
   }
-
-  comparison.SetupComparisonRow? _row(
-    Iterable<comparison.SetupComparisonRow> rows,
-    comparison.SetupComparisonRowKind kind,
-  ) {
-    for (final row in rows) {
-      if (row.kind == kind) return row;
-    }
-    return null;
-  }
-
-  bool _hasVisibleMeta(
-    comparison.SetupComparisonRow? notes,
-    comparison.SetupComparisonRow? tags,
-    comparison.SetupComparisonRow? images,
-  ) {
-    return _hasContent(notes) || _hasContent(tags) || _hasContent(images);
-  }
-
-  bool _hasContent(comparison.SetupComparisonRow? row) {
-    if (row == null) return false;
-    final values = [row.valueA.value, row.valueB.value];
-    return values.any((value) => value is String ? value.trim().isNotEmpty : value is Iterable && value.isNotEmpty);
-  }
-
-  Set<String> _stringSet(dynamic value) => value is Iterable ? value.cast<String>().toSet() : const {};
-
-  List<String> _stringList(dynamic value) => value is Iterable ? value.cast<String>().toList() : const [];
 }

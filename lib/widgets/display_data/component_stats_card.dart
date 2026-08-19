@@ -5,8 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../models/app_settings.dart';
-import '../models/component_stats.dart';
+import '../../models/app_settings.dart';
+import '../../models/component_stats.dart';
 
 class ComponentStatsCard extends StatefulWidget {
   final ComponentStats componentStats;

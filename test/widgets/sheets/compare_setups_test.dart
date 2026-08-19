@@ -1,8 +1,8 @@
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/compare_setups/setup_comparison_header.dart';
-import 'package:bike_setup_tracker/widgets/compare_setups/setup_comparison_row.dart';
 import 'package:bike_setup_tracker/widgets/current_setup_badge.dart';
 import 'package:bike_setup_tracker/widgets/current_setup_highlight.dart';
+import 'package:bike_setup_tracker/widgets/display_adjustment/display_adjustment_diff.dart';
 import 'package:bike_setup_tracker/widgets/sheets/compare_setups.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
@@ -86,7 +86,8 @@ void main() {
       findsOneWidget,
     );
     expect(find.byKey(const Key('compare-owner-component-fork')), findsOneWidget);
-    expect(find.textContaining('1 of 2 differ'), findsOneWidget);
+    expect(find.textContaining('1 of 2 values differs'), findsOneWidget);
+    expect(find.textContaining('A: Present'), findsNothing);
     expect(find.byKey(const Key('compare-row-fork-pressure')), findsNothing);
     expect(find.textContaining('Δ'), findsNothing);
 
@@ -96,7 +97,7 @@ void main() {
     expect(find.byKey(const Key('compare-row-fork-pressure')), findsOneWidget);
   });
 
-  testWidgets('keeps equal explicit and inherited values out of Differences and shows provenance in All', (
+  testWidgets('keeps equal explicit and inherited values out of Differences without showing provenance', (
     tester,
   ) async {
     final explicit = harness.setup(
@@ -119,16 +120,24 @@ void main() {
     await settle(tester);
 
     expect(find.byKey(const Key('compare-row-fork-rebound')), findsOneWidget);
+    expect(find.text('Inherited'), findsOneWidget);
     expect(
       find.descendant(
         of: find.byKey(const Key('compare-panel-b-fork-rebound')),
         matching: find.text('Inherited'),
       ),
+      findsNothing,
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('compare-panel-b-fork-rebound')),
+        matching: find.text('4'),
+      ),
       findsOneWidget,
     );
   });
 
-  testWidgets('labels cleared and not-recorded values distinctly', (tester) async {
+  testWidgets('uses a dash for cleared and unrecorded values', (tester) async {
     final cleared = harness.setup(
       id: 'cleared',
       name: 'Cleared',
@@ -144,8 +153,9 @@ void main() {
     await harness.reload(tester);
     await pumpComparison(tester, cleared.id, missing.id);
 
-    expect(find.text('Cleared'), findsWidgets);
-    expect(find.text('Not recorded'), findsOneWidget);
+    expect(find.text('Cleared'), findsOneWidget);
+    expect(find.text('Not recorded'), findsNothing);
+    expect(find.text('-'), findsNWidgets(2));
     expect(tester.takeException(), isNull);
   });
 
@@ -251,7 +261,7 @@ void main() {
 
       expect(find.byKey(const Key('compare-identity-a')).hitTestable(), findsOneWidget);
       expect(find.byKey(const Key('compare-identity-b')).hitTestable(), findsOneWidget);
-      expect(find.byType(SetupComparisonRow), findsWidgets);
+      expect(find.byType(DisplayAdjustmentDiff), findsWidgets);
       expect(tester.takeException(), isNull);
     }
   });
@@ -342,6 +352,7 @@ void main() {
     await tester.tap(find.text('Cross bike'));
     await settle(tester);
     expect(find.byType(CompareSetups), findsOneWidget);
+    expect(find.textContaining('A: Present · B: -'), findsOneWidget);
     await tester.tap(find.byIcon(Icons.close));
     await settle(tester);
 
@@ -361,7 +372,7 @@ void main() {
     final (setupAId, setupBId) = await seedPair(tester, extraDifferences: true);
     await pumpComparison(tester, setupAId, setupBId);
 
-    expect(find.text('Compare setups').hitTestable(), findsOneWidget);
+    expect(find.text('Setup comparison').hitTestable(), findsOneWidget);
     expect(find.byIcon(Icons.close).hitTestable(), findsOneWidget);
     expect(find.text('Restore B'), findsNothing);
 
@@ -375,7 +386,7 @@ void main() {
     scrollPosition.jumpTo(scrollPosition.maxScrollExtent);
     await settle(tester);
 
-    expect(find.text('Compare setups').hitTestable(), findsNothing);
+    expect(find.text('Setup comparison').hitTestable(), findsNothing);
     expect(find.byIcon(Icons.close).hitTestable(), findsNothing);
     expect(find.text('Restore B'), findsNothing);
     for (final side in ['a', 'b']) {
@@ -528,7 +539,7 @@ void main() {
   testWidgets('missing setup keeps actions without rendering identities', (tester) async {
     await pumpComparison(tester, 'missing-a', 'missing-b');
 
-    expect(find.text('Compare setups'), findsOneWidget);
+    expect(find.text('Setup comparison'), findsOneWidget);
     expect(find.byIcon(Icons.close), findsOneWidget);
     expect(find.byKey(const Key('compare-identity-band')), findsNothing);
     expect(find.text('A setup is no longer available'), findsOneWidget);

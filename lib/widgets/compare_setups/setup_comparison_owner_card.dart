@@ -4,8 +4,8 @@ import '../../models/component.dart';
 import '../../models/person.dart';
 import '../../models/setup_comparison.dart' as comparison;
 import '../../theme.dart';
+import '../display_adjustment/display_adjustment_diff.dart';
 import '../items/card_header_tile.dart';
-import 'setup_comparison_row.dart';
 
 class SetupComparisonOwnerCard extends StatelessWidget {
   final comparison.SetupComparisonGroup group;
@@ -63,7 +63,7 @@ class SetupComparisonOwnerCard extends StatelessWidget {
                   title: Text('-', style: TextStyle(color: headerTextColor)),
                 )
               else
-                for (final row in rows) SetupComparisonRow(groupId: group.ownerId, row: row),
+                for (final row in rows) DisplayAdjustmentDiff(groupId: group.ownerId, row: row),
             ],
           ),
         ),
@@ -75,11 +75,15 @@ class SetupComparisonOwnerCard extends StatelessWidget {
     comparison.SetupComparisonGroupKind.component =>
       (group.componentA ?? group.componentB)?.componentType.getIconData() ?? Component.iconData,
     comparison.SetupComparisonGroupKind.person => Person.iconData,
-    _ => Icons.grid_view_sharp,
   };
 
   String _subtitle(int differenceCount, int totalCount) {
-    final count = '$differenceCount of $totalCount differ';
+    final verb = differenceCount == 1 ? 'differs' : 'differ';
+    final count = '$differenceCount of $totalCount values $verb';
+    if (group.kind != comparison.SetupComparisonGroupKind.component || group.ownerStateA == group.ownerStateB) {
+      return count;
+    }
+
     final states = [
       'A: ${_stateLabel(group.ownerStateA)}',
       'B: ${_stateLabel(group.ownerStateB)}',

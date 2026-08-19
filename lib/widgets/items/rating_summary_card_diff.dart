@@ -1,11 +1,26 @@
 import 'package:flutter/material.dart';
 
-import '../../models/setup_comparison.dart' as comparison;
+import '../../models/rating_metric.dart';
 import 'rating_summary_card.dart';
 
+class RatingSummaryData {
+  final int entryCount;
+  final double? score;
+  final Map<String, double> metricScores;
+  final Map<String, RatingMetric> metrics;
+
+  RatingSummaryData({
+    required this.entryCount,
+    required this.score,
+    required Map<String, double> metricScores,
+    required Map<String, RatingMetric> metrics,
+  }) : metricScores = Map.unmodifiable(metricScores),
+       metrics = Map.unmodifiable(metrics);
+}
+
 class RatingSummaryCardDiff extends StatelessWidget {
-  final comparison.SetupComparisonRatingSummary ratingsA;
-  final comparison.SetupComparisonRatingSummary ratingsB;
+  final RatingSummaryData ratingsA;
+  final RatingSummaryData ratingsB;
 
   const RatingSummaryCardDiff({
     super.key,

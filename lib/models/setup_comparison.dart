@@ -1,22 +1,7 @@
 import 'adjustment/adjustment.dart';
 import 'component.dart';
-import 'person.dart';
-import 'rating_metric.dart';
 
-enum SetupComparisonGroupKind { component, person, context, ratings }
-
-enum SetupComparisonRowKind {
-  adjustment,
-  bike,
-  person,
-  notes,
-  tags,
-  images,
-  location,
-  conditions,
-  context,
-  rating,
-}
+enum SetupComparisonGroupKind { component, person }
 
 enum SetupComparisonValueProvenance {
   explicit,
@@ -27,22 +12,11 @@ enum SetupComparisonValueProvenance {
 enum SetupComparisonOwnerState { installedOrLinked, absent }
 
 class SetupComparison {
-  final String setupAId;
-  final String setupBId;
   final List<SetupComparisonGroup> groups;
 
-  SetupComparison({
-    required this.setupAId,
-    required this.setupBId,
-    required Iterable<SetupComparisonGroup> groups,
-  }) : groups = List.unmodifiable(groups);
+  SetupComparison({required Iterable<SetupComparisonGroup> groups}) : groups = List.unmodifiable(groups);
 
   int get differenceCount => groups.fold(0, (count, group) => count + group.differenceCount);
-
-  List<SetupComparisonGroup> visibleGroups({required bool differencesOnly}) {
-    if (!differencesOnly) return groups;
-    return groups.where((group) => group.isDifferent).toList(growable: false);
-  }
 }
 
 class SetupComparisonGroup {
@@ -51,13 +25,9 @@ class SetupComparisonGroup {
   final SetupComparisonOwnerState ownerStateA;
   final SetupComparisonOwnerState ownerStateB;
   final String label;
-  final String? labelA;
-  final String? labelB;
   final Component? componentA;
   final Component? componentB;
-  final Person? personA;
-  final Person? personB;
-  final List<SetupComparisonRow> rows;
+  final List<SetupAdjustmentComparison> rows;
 
   SetupComparisonGroup({
     required this.kind,
@@ -65,13 +35,9 @@ class SetupComparisonGroup {
     required this.ownerStateA,
     required this.ownerStateB,
     required this.label,
-    this.labelA,
-    this.labelB,
     this.componentA,
     this.componentB,
-    this.personA,
-    this.personB,
-    required Iterable<SetupComparisonRow> rows,
+    required Iterable<SetupAdjustmentComparison> rows,
   }) : rows = List.unmodifiable(rows);
 
   bool get isStructuralDifference => rows.isEmpty && ownerStateA != ownerStateB;
@@ -80,79 +46,41 @@ class SetupComparisonGroup {
 
   int get differenceCount {
     if (rows.isEmpty) return isStructuralDifference ? 1 : 0;
-    return rows.fold(0, (count, row) => count + row.differenceCount);
+    return rows.where((row) => row.isDifferent).length;
   }
 
-  List<SetupComparisonRow> visibleRows({required bool differencesOnly}) {
+  List<SetupAdjustmentComparison> visibleRows({required bool differencesOnly}) {
     if (!differencesOnly) return rows;
     return rows.where((row) => row.isDifferent).toList(growable: false);
   }
 }
 
-class SetupComparisonRow {
-  final String id;
-  final String label;
-  final SetupComparisonRowKind kind;
+class SetupAdjustmentComparison {
+  final Adjustment? adjustmentA;
+  final Adjustment? adjustmentB;
   final SetupComparisonSideValue valueA;
   final SetupComparisonSideValue valueB;
   final bool isDifferent;
-  final List<SetupComparisonRow> children;
 
-  SetupComparisonRow({
-    required this.id,
-    required this.label,
-    required this.kind,
+  SetupAdjustmentComparison({
+    required this.adjustmentA,
+    required this.adjustmentB,
     required this.valueA,
     required this.valueB,
     required this.isDifferent,
-    Iterable<SetupComparisonRow> children = const [],
-  }) : children = List.unmodifiable(children);
+  });
 
-  int get differenceCount =>
-      children.isEmpty ? (isDifferent ? 1 : 0) : children.fold(0, (count, child) => count + child.differenceCount);
-
-  Adjustment? get adjustmentA => valueA.definition;
-  Adjustment? get adjustmentB => valueB.definition;
+  Adjustment get adjustment => adjustmentA ?? adjustmentB!;
+  String get id => adjustment.id;
+  String get label => adjustment.name;
 }
 
 class SetupComparisonSideValue {
   final dynamic value;
   final SetupComparisonValueProvenance provenance;
-  final Adjustment? definition;
 
   const SetupComparisonSideValue({
     required this.value,
     required this.provenance,
-    required this.definition,
   });
-
-  bool get isRecorded => provenance != SetupComparisonValueProvenance.unavailable;
-}
-
-class SetupComparisonReference {
-  final String id;
-  final String label;
-  final bool isMissing;
-
-  const SetupComparisonReference({
-    required this.id,
-    required this.label,
-    this.isMissing = false,
-  });
-}
-
-/// Immutable ratings data prepared at the sheet boundary from [AppRepository].
-class SetupComparisonRatingSummary {
-  final int entryCount;
-  final double? score;
-  final Map<String, double> metricScores;
-  final Map<String, RatingMetric> metrics;
-
-  SetupComparisonRatingSummary({
-    required this.entryCount,
-    required this.score,
-    required Map<String, double> metricScores,
-    required Map<String, RatingMetric> metrics,
-  })  : metricScores = Map.unmodifiable(metricScores),
-        metrics = Map.unmodifiable(metrics);
 }

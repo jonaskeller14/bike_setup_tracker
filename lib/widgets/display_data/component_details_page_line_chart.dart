@@ -7,12 +7,12 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../models/adjustment/adjustment.dart';
-import '../models/app_settings.dart';
-import '../models/setup.dart';
-import '../theme.dart';
-import '../utils/table_column.dart';
-import 'empty_state_placeholder.dart';
+import '../../models/adjustment/adjustment.dart';
+import '../../models/app_settings.dart';
+import '../../models/setup.dart';
+import '../../theme.dart';
+import '../../utils/table_column.dart';
+import '../empty_state_placeholder.dart';
 
 class ComponentDetailsPageLineChart extends StatefulWidget {
   final List<TableColumn> activeColumns;

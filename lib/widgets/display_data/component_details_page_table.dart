@@ -5,13 +5,13 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../models/adjustment/adjustment.dart';
-import '../models/app_settings.dart';
-import '../models/bike.dart';
-import '../models/context/context_weather.dart';
-import '../models/setup.dart';
-import '../theme.dart';
-import '../utils/table_column.dart';
+import '../../models/adjustment/adjustment.dart';
+import '../../models/app_settings.dart';
+import '../../models/bike.dart';
+import '../../models/context/context_weather.dart';
+import '../../models/setup.dart';
+import '../../theme.dart';
+import '../../utils/table_column.dart';
 
 class ComponentDetailsPageTable extends StatefulWidget {
   final List<TableColumn> activeColumns;

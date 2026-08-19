@@ -12,7 +12,7 @@ import '../set_adjustment/set_adjustment.dart';
 
 class DisplayAdjustmentDiff extends StatefulWidget {
   final String groupId;
-  final comparison.SetupComparisonRow row;
+  final comparison.SetupAdjustmentComparison row;
 
   const DisplayAdjustmentDiff({
     super.key,
@@ -27,8 +27,8 @@ class DisplayAdjustmentDiff extends StatefulWidget {
 class _DisplayAdjustmentDiffState extends State<DisplayAdjustmentDiff> {
   int _unitIndex = 0;
 
-  comparison.SetupComparisonRow get row => widget.row;
-  Adjustment get adjustment => (row.adjustmentA ?? row.adjustmentB)!;
+  comparison.SetupAdjustmentComparison get row => widget.row;
+  Adjustment get adjustment => row.adjustment;
   List<UnitCycleEntry> get _unitCycle => _cycleFor(adjustment);
   int get _activeUnitIndex => _unitIndex < _unitCycle.length ? _unitIndex : 0;
   String? get _activeUnitLabel => _unitCycle.isEmpty ? adjustment.unit?.label : _unitCycle[_activeUnitIndex].label;
@@ -84,8 +84,7 @@ class _DisplayAdjustmentDiffState extends State<DisplayAdjustmentDiff> {
                 Expanded(
                   child: _DiffValue(
                     key: Key('compare-panel-a-$id'),
-                    value: _display(row.valueA),
-                    provenance: row.valueA.provenance,
+                    value: _display(row.valueA, row.adjustmentA ?? adjustment),
                     color: changedColor,
                     canToggleUnit: _canToggleUnit,
                     onToggleUnit: _toggleUnit,
@@ -95,8 +94,7 @@ class _DisplayAdjustmentDiffState extends State<DisplayAdjustmentDiff> {
                 Expanded(
                   child: _DiffValue(
                     key: Key('compare-panel-b-$id'),
-                    value: _display(row.valueB),
-                    provenance: row.valueB.provenance,
+                    value: _display(row.valueB, row.adjustmentB ?? adjustment),
                     color: changedColor,
                     canToggleUnit: _canToggleUnit,
                     onToggleUnit: _toggleUnit,
@@ -110,13 +108,15 @@ class _DisplayAdjustmentDiffState extends State<DisplayAdjustmentDiff> {
     );
   }
 
-  _DisplayedValue _display(comparison.SetupComparisonSideValue side) {
+  _DisplayedValue _display(
+    comparison.SetupComparisonSideValue side,
+    Adjustment definition,
+  ) {
     if (side.provenance == comparison.SetupComparisonValueProvenance.unavailable) {
-      return const _DisplayedValue(text: 'Not recorded');
+      return const _DisplayedValue(text: '-');
     }
-    if (side.value == null) return const _DisplayedValue(text: 'Cleared');
+    if (side.value == null) return const _DisplayedValue(text: '-');
 
-    final definition = side.definition ?? adjustment;
     if (_supportsUnitToggle(definition) && side.value is num) {
       final cycle = _cycleFor(definition);
       if (cycle.isNotEmpty) {
@@ -135,13 +135,8 @@ class _DisplayAdjustmentDiffState extends State<DisplayAdjustmentDiff> {
       }
     }
 
-    final value = switch (definition) {
-      CategoricalAdjustment() => categoricalValueAsList(side.value) ?? side.value,
-      TextAdjustment() => textValueAsString(side.value),
-      _ => side.value,
-    };
     return _DisplayedValue(
-      text: Adjustment.formatValue(value),
+      text: Adjustment.formatValue(side.value),
       unit: definition.unit?.label,
       usesMonospace: _usesMonospaceValue(definition),
     );
@@ -160,7 +155,6 @@ class _DisplayAdjustmentDiffState extends State<DisplayAdjustmentDiff> {
 
 class _DiffValue extends StatelessWidget {
   final _DisplayedValue value;
-  final comparison.SetupComparisonValueProvenance provenance;
   final Color? color;
   final bool canToggleUnit;
   final VoidCallback onToggleUnit;
@@ -168,7 +162,6 @@ class _DiffValue extends StatelessWidget {
   const _DiffValue({
     super.key,
     required this.value,
-    required this.provenance,
     required this.color,
     required this.canToggleUnit,
     required this.onToggleUnit,
@@ -217,8 +210,6 @@ class _DiffValue extends StatelessWidget {
                   color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                 ),
               ),
-            if (provenance == comparison.SetupComparisonValueProvenance.inherited)
-              Text('Inherited', style: Theme.of(context).textTheme.bodySmall),
           ],
         ),
       ),

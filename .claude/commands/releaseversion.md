@@ -64,7 +64,9 @@ been approved.
 
 ## 5. Prepare the release commit and tag
 - Reuse the previous tag captured in step 2 (or re-run `git describe --tags --abbrev=0`).
-- Do not commit or tag yet. They are created only after the publish confirmation.
+- Do not commit or tag yet. They are created only after the publish confirmation. The version
+  commit contains only the two version files and uses `Release vX.Y.Z+B`; create a lightweight
+  `vX.Y.Z+B` tag with no annotation message.
 
 ## 6. GitHub release notes
 - List user-facing commits since the previous tag: `git log <prevTag>..HEAD --oneline`
@@ -81,7 +83,10 @@ been approved.
     these bullets specific enough for another developer to understand the change and its impact.
   - `**Bugs:**` then `- ` bullets for fixes.
   - Footer: `**Full Changelog**: [<prevTag>...vX.Y.Z+B](https://github.com/jonaskeller14/bike_setup_tracker/compare/<prevTag>...vX.Y.Z+B)`
-  - Omit any feature still gated behind a debug-only flag or otherwise not exposed to users yet.
+  - Cover the full release diff rather than a selective subset of commits. Include prototypes,
+    feature-flagged work, removed packages, and developer-impacting changes when relevant, but
+    explicitly label their shipping state so the notes never imply that an unreleased feature is
+    generally available.
   - Use only the `**Features:**` and `**Bugs:**` headers; do not add a separate Development,
     Performance, or Internal section.
 
@@ -107,11 +112,13 @@ been approved.
 ## 8. Publish confirmation and release
 
 - Save the exact GitHub release notes in a temporary UTF-8 Markdown file and
-  show them with the store-note blocks. Use `AskUserQuestion` to confirm the
+  show them with the store-note blocks. This file is the single source of truth for the GitHub
+  release: revise it after user feedback and pass it unchanged to `gh release create`, rather than
+  duplicating release content in a tag annotation. Use `AskUserQuestion` to confirm the
   version commit/tag, pushing `main` and the tag, Android AAB build, optional
   macOS IPA build, and creating a draft GitHub release. If declined, stop.
-- Commit only the two version files with `Release vX.Y.Z+B`, create annotated tag
-  `vX.Y.Z+B`, and push precisely with `git push origin main` then
+- Commit only the two version files with `Release vX.Y.Z+B`, create the lightweight, message-free
+  tag with `git tag vX.Y.Z+B` (never `-a` or `-m`), and push precisely with `git push origin main` then
   `git push origin vX.Y.Z+B`.
 - Run `flutter build appbundle --release` and verify
   `build/app/outputs/bundle/release/app-release.aab`. On macOS also run
@@ -125,6 +132,8 @@ been approved.
 - The step 2 typo review is a hard gate: if it finds anything, abort before editing/committing/tagging
   and surface the findings — do not silently fix typos and continue.
 - The release commit must contain ONLY `pubspec.yaml` and `lib/utils/app_info.dart`.
+- Release tags must be lightweight and message-free; GitHub release notes are their only
+  human-readable release description.
 - Never silently resolve merge conflicts, force-push, or overwrite a release asset.
 - Never log, commit, or expose signing credentials, keystores, `key.properties`,
   Firebase configuration, or `.env` values.

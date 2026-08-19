@@ -72,9 +72,10 @@ until the applicable confirmation gate has been approved.
 
 ## 5. Prepare the release commit and tag
 - Reuse the previous tag captured in step 2 (or re-run `git describe --tags --abbrev=0`).
-- Do not commit or tag yet. The version commit and annotated tag will be created
-  only after the publish confirmation in step 8. It must contain only the two
-  version files and use `Release vX.Y.Z+B` / `vX.Y.Z+B`.
+- Do not commit or tag yet. The version commit and lightweight tag will be created
+  only after the publish confirmation in step 8. The commit must contain only the
+  two version files and use `Release vX.Y.Z+B`; the tag is exactly `vX.Y.Z+B` and
+  has no annotation message.
 
 ## 6. GitHub release notes
 - List user-facing commits since the previous tag: `git log <prevTag>..HEAD --oneline`
@@ -91,7 +92,10 @@ until the applicable confirmation gate has been approved.
     these bullets specific enough for another developer to understand the change and its impact.
   - `**Bugs:**` then `- ` bullets for fixes.
   - Footer: `**Full Changelog**: [<prevTag>...vX.Y.Z+B](https://github.com/jonaskeller14/bike_setup_tracker/compare/<prevTag>...vX.Y.Z+B)`
-  - Omit any feature still gated behind a debug-only flag or otherwise not exposed to users yet.
+  - Cover the full release diff rather than a selective subset of commits. Include prototypes,
+    feature-flagged work, removed packages, and developer-impacting changes when relevant, but
+    explicitly label their shipping state (for example, "opt-in prototype" or "disabled by default")
+    so the notes never imply that an unreleased feature is generally available.
   - Use only the `**Features:**` and `**Bugs:**` headers; do not add a separate Development,
     Performance, or Internal section.
 
@@ -117,14 +121,18 @@ until the applicable confirmation gate has been approved.
 ## 8. Publish confirmation and release
 
 - Save the exact GitHub release notes in a temporary UTF-8 Markdown file and
-  show them, along with the store-note blocks, before asking to publish.
+  show them, along with the store-note blocks, before asking to publish. This file is the single
+  source of truth for the GitHub release: revise it after user feedback and pass it unchanged to
+  `gh release create`, so the published notes remain easy to edit in GitHub and are never duplicated
+  in a tag annotation.
 - Use `functions.request_user_input` to request confirmation for the planned
   version commit and tag, push of `main` and that tag, Android AAB build, optional
   macOS IPA build, and draft GitHub release. When that function is unavailable,
   stop and return to the user for a normal chat confirmation instead. Do not
   perform any of these actions in the same turn as the request.
 - After confirmation, commit only `pubspec.yaml` and `lib/utils/app_info.dart`
-  with `Release vX.Y.Z+B`, then create an annotated tag `vX.Y.Z+B`.
+  with `Release vX.Y.Z+B`, then create the lightweight tag `vX.Y.Z+B` with `git tag vX.Y.Z+B`
+  (never `-a` or `-m`).
 - Push precisely with `git push origin main` and `git push origin vX.Y.Z+B`.
 - Build and verify `build/app/outputs/bundle/release/app-release.aab` with
   `flutter build appbundle --release`.
@@ -140,6 +148,8 @@ until the applicable confirmation gate has been approved.
 - The step 2 typo review is a hard gate: if it finds anything, abort before editing/committing/tagging
   and surface the findings — do not silently fix typos and continue.
 - The release commit must contain ONLY `pubspec.yaml` and `lib/utils/app_info.dart`.
+- Release tags must be lightweight and message-free; GitHub release notes are their only
+  human-readable release description.
 - Never silently resolve merge conflicts, force-push, or overwrite a release asset.
 - Never log, commit, or expose signing credentials, keystores, `key.properties`,
   Firebase configuration, or `.env` values.

@@ -1,7 +1,11 @@
 import 'package:bike_setup_tracker/theme.dart';
+import 'package:bike_setup_tracker/widgets/compare_setups/setup_comparison_header.dart';
 import 'package:bike_setup_tracker/widgets/compare_setups/setup_comparison_row.dart';
+import 'package:bike_setup_tracker/widgets/current_setup_badge.dart';
+import 'package:bike_setup_tracker/widgets/current_setup_highlight.dart';
 import 'package:bike_setup_tracker/widgets/sheets/compare_setups.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -17,7 +21,11 @@ void main() {
 
   tearDown(() => harness.dispose());
 
-  Future<(String, String)> seedPair(WidgetTester tester, {String? name}) async {
+  Future<(String, String)> seedPair(
+    WidgetTester tester, {
+    String? name,
+    bool extraDifferences = false,
+  }) async {
     final older = harness.setup(
       id: 'older',
       name: name ?? 'Baseline',
@@ -25,6 +33,8 @@ void main() {
       values: {
         CompareSetupsHarness.changedAdjustmentId: 2,
         CompareSetupsHarness.unchangedAdjustmentId: 80,
+        if (extraDifferences)
+          for (var index = 0; index < 12; index++) 'extra-$index': index,
       },
     );
     final newer = harness.setup(
@@ -34,6 +44,8 @@ void main() {
       values: {
         CompareSetupsHarness.changedAdjustmentId: 4,
         CompareSetupsHarness.unchangedAdjustmentId: 80,
+        if (extraDifferences)
+          for (var index = 0; index < 12; index++) 'extra-$index': index + 1,
       },
     );
     await harness.addSetups(tester, [older, newer]);
@@ -46,12 +58,14 @@ void main() {
     String setupAId,
     String setupBId, {
     double width = 390,
+    double? height,
     bool dark = false,
   }) async {
     await tester.pumpWidget(
       harness.wrap(
         CompareSetups(setupAId: setupAId, setupBId: setupBId),
         width: width,
+        height: height,
         dark: dark,
       ),
     );
@@ -213,15 +227,33 @@ void main() {
     expect(missingBike.style?.color, Theme.of(tester.element(find.text('BIKE NOT FOUND'))).colorScheme.error);
   });
 
-  testWidgets('uses narrow and wide row geometry without overflow', (tester) async {
-    final (setupAId, setupBId) = await seedPair(tester, name: 'L' * 200);
-    await pumpComparison(tester, setupAId, setupBId, width: 320);
-    expect(find.byType(Column), findsWidgets);
-    expect(tester.takeException(), isNull);
+  testWidgets('keeps long identities pinned in narrow and short landscape layouts', (tester) async {
+    await harness.addExtraAdjustments(tester);
+    final (setupAId, setupBId) = await seedPair(
+      tester,
+      name: 'Long setup name ' * 20,
+      extraDifferences: true,
+    );
 
-    await pumpComparison(tester, setupAId, setupBId, width: 800);
-    expect(find.byType(SetupComparisonRow), findsWidgets);
-    expect(tester.takeException(), isNull);
+    for (final dimensions in [(320.0, null), (700.0, 320.0)]) {
+      harness.repository.setups[setupAId]!.isCurrent = dimensions.$2 == null;
+      harness.repository.setups[setupBId]!.isCurrent = dimensions.$2 != null;
+      await pumpComparison(
+        tester,
+        setupAId,
+        setupBId,
+        width: dimensions.$1,
+        height: dimensions.$2,
+      );
+
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -1200));
+      await settle(tester);
+
+      expect(find.byKey(const Key('compare-identity-a')).hitTestable(), findsOneWidget);
+      expect(find.byKey(const Key('compare-identity-b')).hitTestable(), findsOneWidget);
+      expect(find.byType(SetupComparisonRow), findsWidgets);
+      expect(tester.takeException(), isNull);
+    }
   });
 
   testWidgets('changed rows expose a semantic difference and themed text', (tester) async {
@@ -324,16 +356,182 @@ void main() {
     expect(find.text('Choose two different setups to compare.'), findsOneWidget);
   });
 
-  testWidgets('Restore B is visible only for a non-current candidate and has clear semantics', (tester) async {
-    final (historicalId, currentId) = await seedPair(tester);
-    await pumpComparison(tester, currentId, historicalId);
+  testWidgets('scrolls actions away while keeping labeled setup identities pinned', (tester) async {
+    await harness.addExtraAdjustments(tester);
+    final (setupAId, setupBId) = await seedPair(tester, extraDifferences: true);
+    await pumpComparison(tester, setupAId, setupBId);
 
-    expect(find.text('Restore B'), findsOneWidget);
-    expect(find.byTooltip('Restore setup B as current'), findsOneWidget);
-    expect(find.bySemanticsLabel('Restore setup B as current'), findsOneWidget);
-
-    await pumpComparison(tester, historicalId, currentId);
+    expect(find.text('Compare setups').hitTestable(), findsOneWidget);
+    expect(find.byIcon(Icons.close).hitTestable(), findsOneWidget);
     expect(find.text('Restore B'), findsNothing);
+
+    final verticalScrollables = find.byWidgetPredicate(
+      (widget) => widget is Scrollable && widget.axisDirection == AxisDirection.down,
+    );
+    final scrollPosition = tester
+        .stateList<ScrollableState>(verticalScrollables)
+        .firstWhere((state) => state.position.maxScrollExtent > 0)
+        .position;
+    scrollPosition.jumpTo(scrollPosition.maxScrollExtent);
+    await settle(tester);
+
+    expect(find.text('Compare setups').hitTestable(), findsNothing);
+    expect(find.byIcon(Icons.close).hitTestable(), findsNothing);
+    expect(find.text('Restore B'), findsNothing);
+    for (final side in ['a', 'b']) {
+      final identity = find.byKey(Key('compare-identity-$side'));
+      expect(identity.hitTestable(), findsOneWidget);
+      expect(
+        find.descendant(of: identity, matching: find.text(side.toUpperCase())).hitTestable(),
+        findsOneWidget,
+      );
+    }
+  });
+
+  testWidgets('shows both identity lines and highlights only the current setup', (tester) async {
+    final (setupAId, setupBId) = await seedPair(tester);
+    harness.repository.setups[setupAId]!.isCurrent = true;
+    harness.repository.setups[setupBId]!.isCurrent = false;
+    await pumpComparison(tester, setupAId, setupBId);
+
+    final identityA = find.byKey(const Key('compare-identity-a'));
+    final identityB = find.byKey(const Key('compare-identity-b'));
+    expect(find.descendant(of: identityA, matching: find.text('Baseline')), findsOneWidget);
+    expect(find.descendant(of: identityA, matching: find.text('2026-08-01 • 10:00')), findsOneWidget);
+    expect(find.descendant(of: identityA, matching: find.text('A')), findsOneWidget);
+    expect(find.descendant(of: identityB, matching: find.text('Candidate')), findsOneWidget);
+    expect(find.descendant(of: identityB, matching: find.text('2026-08-02 • 10:00')), findsOneWidget);
+    expect(find.descendant(of: identityB, matching: find.text('B')), findsOneWidget);
+    expect(find.descendant(of: identityA, matching: find.byType(CurrentSetupHighlight)), findsOneWidget);
+    expect(find.descendant(of: identityB, matching: find.byType(CurrentSetupHighlight)), findsNothing);
+    expect(
+      find.descendant(of: find.byKey(const Key('compare-identity-band')), matching: find.byType(CurrentSetupBadge)),
+      findsNothing,
+    );
+    expect(
+      find.descendant(of: find.byKey(const Key('compare-identity-band')), matching: find.byType(Divider)),
+      findsNothing,
+    );
+  });
+
+  testWidgets('stacks the pinned Values header below identities and keeps its filter operable', (tester) async {
+    await harness.addExtraAdjustments(tester);
+    final (setupAId, setupBId) = await seedPair(tester, extraDifferences: true);
+    await pumpComparison(tester, setupAId, setupBId, width: 700, height: 320);
+
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -900));
+    await settle(tester);
+
+    final identityRect = tester.getRect(find.byKey(const Key('compare-identity-band')));
+    final valuesHeader = find.ancestor(
+      of: find.byKey(const Key('compare-filter-control')),
+      matching: find.byType(PinnedHeaderSliver),
+    );
+    final valuesHeaderSurface = find
+        .ancestor(
+          of: find.byKey(const Key('compare-filter-control')),
+          matching: find.byType(ColoredBox),
+        )
+        .first;
+    final valuesRect = tester.getRect(valuesHeaderSurface);
+    final viewportRect = tester.getRect(find.byType(CustomScrollView));
+    expect(identityRect.bottom, lessThanOrEqualTo(valuesRect.top));
+    expect(identityRect.top, greaterThanOrEqualTo(viewportRect.top));
+    expect(valuesRect.bottom, lessThanOrEqualTo(viewportRect.bottom));
+    expect(valuesHeader, findsOneWidget);
+
+    await tester.tap(find.text('All').hitTestable());
+    await settle(tester);
+    expect(
+      tester.widget<SegmentedButton<bool>>(find.byKey(const Key('compare-filter-control'))).selected,
+      {false},
+    );
+    expect(
+      tester.getRect(find.byKey(const Key('compare-identity-band'))).bottom,
+      lessThanOrEqualTo(tester.getRect(valuesHeaderSurface).top),
+    );
+    await tester.tap(find.textContaining('Differences'));
+    await settle(tester);
+    expect(
+      tester.widget<SegmentedButton<bool>>(find.byKey(const Key('compare-filter-control'))).selected,
+      {true},
+    );
+  });
+
+  testWidgets('identity callbacks are independently optional and semantic', (tester) async {
+    final setupA = harness.setup(id: 'callback-a', name: 'Callback A', local: DateTime(2026, 8, 1, 10));
+    final setupB = harness.setup(id: 'callback-b', name: 'Callback B', local: DateTime(2026, 8, 2, 10));
+    final semantics = tester.ensureSemantics();
+
+    await tester.pumpWidget(
+      harness.wrap(
+        CustomScrollView(
+          slivers: [SetupComparisonIdentities(setupA: setupA, setupB: setupB)],
+        ),
+      ),
+    );
+    await settle(tester);
+    for (final side in ['a', 'b']) {
+      final data = tester.getSemantics(find.byKey(Key('compare-identity-$side'))).getSemanticsData();
+      expect(data.hasAction(SemanticsAction.tap), isFalse);
+      expect(data.flagsCollection.isButton, isFalse);
+    }
+
+    var tapsA = 0;
+    var tapsB = 0;
+    await tester.pumpWidget(
+      harness.wrap(
+        CustomScrollView(
+          slivers: [
+            SetupComparisonIdentities(
+              setupA: setupA,
+              setupB: setupB,
+              onTapA: () => tapsA++,
+              onTapB: () => tapsB++,
+            ),
+          ],
+        ),
+      ),
+    );
+    await settle(tester);
+    await tester.tap(find.byKey(const Key('compare-identity-a')));
+    await tester.pump();
+    expect((tapsA, tapsB), (1, 0));
+    await tester.tap(find.byKey(const Key('compare-identity-b')));
+    await tester.pump();
+    expect((tapsA, tapsB), (1, 1));
+    semantics.dispose();
+  });
+
+  testWidgets('identity dates remain visible at a larger text scale', (tester) async {
+    final (setupAId, setupBId) = await seedPair(tester, name: 'Long identity name ' * 10);
+    final setupA = harness.repository.setups[setupAId]!;
+    final setupB = harness.repository.setups[setupBId]!;
+    await tester.pumpWidget(
+      harness.wrap(
+        MediaQuery(
+          data: const MediaQueryData(textScaler: TextScaler.linear(1.5)),
+          child: CustomScrollView(
+            slivers: [SetupComparisonIdentities(setupA: setupA, setupB: setupB)],
+          ),
+        ),
+        width: 320,
+      ),
+    );
+    await settle(tester);
+
+    expect(find.text('2026-08-01 • 10:00'), findsOneWidget);
+    expect(find.text('2026-08-02 • 10:00'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('missing setup keeps actions without rendering identities', (tester) async {
+    await pumpComparison(tester, 'missing-a', 'missing-b');
+
+    expect(find.text('Compare setups'), findsOneWidget);
+    expect(find.byIcon(Icons.close), findsOneWidget);
+    expect(find.byKey(const Key('compare-identity-band')), findsNothing);
+    expect(find.text('A setup is no longer available'), findsOneWidget);
   });
 
   testWidgets('Ratings is shown in Differences and All when enabled', (tester) async {
@@ -353,7 +551,7 @@ void main() {
     await tester.drag(find.byType(CustomScrollView), const Offset(0, -2000));
     await settle(tester);
     expect(find.text('RATINGS'), findsOneWidget);
-    expect(find.byType(PinnedHeaderSliver), findsNWidgets(3));
+    expect(find.byType(PinnedHeaderSliver), findsNWidgets(4));
     expect(find.text('No ratings yet'), findsNWidgets(2));
 
     harness.settings.enableRating = false;

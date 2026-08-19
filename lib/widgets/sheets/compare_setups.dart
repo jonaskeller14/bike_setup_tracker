@@ -7,7 +7,6 @@ import '../../models/setup_comparison.dart' as comparison;
 import '../../repositories/app_repository.dart';
 import '../../services/setup_comparison_service.dart';
 import '../../theme.dart';
-import '../../utils/setup_actions.dart';
 import '../compare_setups/setup_comparison_header.dart';
 import '../compare_setups/setup_comparison_owner_card.dart';
 import '../items/context_bike_person_card_diff.dart';
@@ -66,11 +65,6 @@ class CompareSetups extends StatefulWidget {
 
 class _CompareSetupsState extends State<CompareSetups> {
   bool _differencesOnly = true;
-
-  Future<void> _restoreSetupB(Setup setupB) async {
-    final restored = await SetupActions.duplicateSetup(context, setup: setupB);
-    if (restored != null && mounted) Navigator.pop(context);
-  }
 
   PinnedHeaderSliver _sectionTitle(BuildContext context, String title, {Widget? trailing}) {
     return PinnedHeaderSliver(
@@ -151,14 +145,10 @@ class _CompareSetupsState extends State<CompareSetups> {
     return CustomScrollView(
       shrinkWrap: true,
       slivers: [
-        SetupComparisonHeader(
-          onRestoreB: setupB.isCurrent ? null : () => _restoreSetupB(setupB),
-        ),
-        SliverToBoxAdapter(
-          child: SetupComparisonSummary(
-            setupA: setupA,
-            setupB: setupB,
-          ),
+        const SetupComparisonHeader(),
+        SetupComparisonIdentities(
+          setupA: setupA,
+          setupB: setupB,
         ),
         SliverSafeArea(
           top: false,

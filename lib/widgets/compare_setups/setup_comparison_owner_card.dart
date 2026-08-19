@@ -31,6 +31,7 @@ class SetupComparisonOwnerCard extends StatelessWidget {
         padding: const EdgeInsets.only(bottom: 12),
         child: Card.outlined(
           clipBehavior: Clip.antiAlias,
+          margin: EdgeInsets.zero,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

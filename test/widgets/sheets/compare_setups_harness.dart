@@ -22,6 +22,7 @@ class CompareSetupsHarness {
   static const bikeId = 'bike-a';
   static const secondBikeId = 'bike-b';
   static const componentId = 'fork';
+  static const extraComponentId = 'shock';
   static const changedAdjustmentId = 'rebound';
   static const unchangedAdjustmentId = 'pressure';
 
@@ -62,6 +63,22 @@ class CompareSetupsHarness {
       max: 100,
       step: 1,
       visualization: StepAdjustmentVisualization.slider,
+    );
+  }
+
+  Future<void> addExtraAdjustments(WidgetTester tester, {int count = 12}) async {
+    await tester.runAsync(
+      () => repository.addComponent(
+        Component(
+          id: extraComponentId,
+          name: 'Shock',
+          componentType: ComponentType.shock,
+          installations: [Installation.sinceBeginning(parent: bikeId)],
+          adjustments: [
+            for (var index = 0; index < count; index++) _adjustment('extra-$index', 'Adjustment $index'),
+          ],
+        ),
+      ),
     );
   }
 
@@ -112,7 +129,7 @@ class CompareSetupsHarness {
     });
   }
 
-  Widget wrap(Widget child, {double width = 390, bool dark = false}) {
+  Widget wrap(Widget child, {double width = 390, double? height, bool dark = false}) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<AppSettings>.value(value: settings),
@@ -124,7 +141,7 @@ class CompareSetupsHarness {
         darkTheme: materialAppDarkTheme,
         themeMode: dark ? ThemeMode.dark : ThemeMode.light,
         home: Scaffold(
-          body: SizedBox(width: width, child: child),
+          body: SizedBox(width: width, height: height, child: child),
         ),
       ),
     );

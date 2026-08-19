@@ -19,6 +19,7 @@ import '../../widgets/display_adjustment/display_dangling_adjustment.dart';
 import '../../widgets/empty_state_placeholder2.dart';
 import '../../widgets/initial_changed_value_legend.dart';
 import '../../widgets/items/card_header_tile.dart';
+import '../../widgets/items/context_bike_person_card.dart';
 import '../../widgets/items/context_location_card.dart';
 import '../../widgets/items/context_meta_card.dart';
 import '../../widgets/items/context_weather_card.dart';
@@ -311,34 +312,11 @@ class SetupDetailsPageContent extends StatelessWidget {
             ),
             ContextLocationCard(position: setup.position, place: setup.place, displayName: setup.displayName),
             ContextWeatherCard(weather: setup.weather),
-            Card.outlined(
-                margin: const EdgeInsets.symmetric(vertical: 4),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ListTile(
-                      leading: Icon(
-                        Bike.iconData,
-                        color: bike == null
-                            ? Theme.of(context).colorScheme.error
-                            : null,
-                      ),
-                      title: Text(
-                        bike?.name ?? "BIKE NOT FOUND", 
-                        style: bike == null
-                            ? TextStyle(color: Theme.of(context).colorScheme.error)
-                            : null,
-                      ),
-                      dense: true,
-                    ),
-                    if (appSettings.enablePerson)
-                      ListTile(
-                        leading: setup.person != null ? const Icon(Person.iconData): const Icon(Icons.person_off),
-                        title: Text(person?.name ?? (setup.person == null ? "No person linked to this setup." : "Person not found.")),
-                        dense: true,
-                      ),
-                  ],
-                ),
+            ContextBikePersonCard(
+              bike: bike,
+              person: person,
+              personLinked: setup.person != null,
+              showPerson: appSettings.enablePerson,
             ),
           ],
         ),

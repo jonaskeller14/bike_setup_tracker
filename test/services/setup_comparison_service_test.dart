@@ -124,7 +124,7 @@ void main() {
       final rows = {for (final row in context.rows) row.id: row};
       expect(rows['bike']!.isDifferent, isTrue);
       expect(rows['person']!.valueB.value, isA<SetupComparisonReference>());
-      expect((rows['person']!.valueB.value as SetupComparisonReference).label, 'Person not found');
+      expect((rows['person']!.valueB.value as SetupComparisonReference).label, 'PERSON NOT FOUND');
       expect(rows['notes']!.isDifferent, isTrue);
       expect(rows['tags']!.isDifferent, isFalse);
       expect(rows['images']!.isDifferent, isTrue);

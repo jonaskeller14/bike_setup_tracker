@@ -152,6 +152,60 @@ void main() {
     expect(find.byKey(const Key('compare-row-fork-rebound')), findsOneWidget);
   });
 
+  testWidgets('empty comparison sheet wraps its content', (tester) async {
+    final a = harness.setup(
+      id: 'same-sheet-a',
+      name: 'Same A',
+      local: DateTime(2026, 8, 1, 10),
+      values: {CompareSetupsHarness.changedAdjustmentId: 4},
+    );
+    final b = harness.setup(
+      id: 'same-sheet-b',
+      name: 'Same B',
+      local: DateTime(2026, 8, 2, 10),
+      values: {CompareSetupsHarness.changedAdjustmentId: 4},
+    );
+    await harness.addSetups(tester, [a, b]);
+    await harness.reload(tester);
+    await tester.pumpWidget(
+      harness.wrap(
+        Builder(
+          builder: (context) => TextButton(
+            onPressed: () => showCompareSetupsSheet(context, setupA: a, setupB: b),
+            child: const Text('Compare'),
+          ),
+        ),
+      ),
+    );
+    await settle(tester);
+
+    await tester.tap(find.text('Compare'));
+    await settle(tester);
+
+    final sheetHeight = tester.getSize(find.byType(BottomSheet)).height;
+    final screenHeight = tester.view.physicalSize.height / tester.view.devicePixelRatio;
+    expect(sheetHeight, lessThan(screenHeight));
+    expect(find.text('These setups have no differences'), findsOneWidget);
+  });
+
+  testWidgets('bike comparison resolves names and missing-bike errors from setups', (tester) async {
+    final valid = harness.setup(id: 'valid-bike', name: 'Valid', local: DateTime(2026, 8, 1, 10));
+    final missing = harness.setup(
+      id: 'missing-bike',
+      name: 'Missing',
+      local: DateTime(2026, 8, 2, 10),
+      bike: 'deleted-bike',
+    );
+    await harness.addSetups(tester, [valid, missing]);
+    await harness.reload(tester);
+    await pumpComparison(tester, valid.id, missing.id);
+
+    expect(find.text('Bike A'), findsOneWidget);
+    expect(find.text('BIKE NOT FOUND'), findsOneWidget);
+    final missingBike = tester.widget<SelectableText>(find.widgetWithText(SelectableText, 'BIKE NOT FOUND'));
+    expect(missingBike.style?.color, Theme.of(tester.element(find.text('BIKE NOT FOUND'))).colorScheme.error);
+  });
+
   testWidgets('uses narrow and wide row geometry without overflow', (tester) async {
     final (setupAId, setupBId) = await seedPair(tester, name: 'L' * 200);
     await pumpComparison(tester, setupAId, setupBId, width: 320);
@@ -179,12 +233,19 @@ void main() {
     expect(find.byKey(const Key('compare-identity-b')), findsNothing);
   });
 
-  testWidgets('changed rows expose a semantic difference and themed fill', (tester) async {
+  testWidgets('changed rows expose a semantic difference and themed text', (tester) async {
     final (setupAId, setupBId) = await seedPair(tester);
     await pumpComparison(tester, setupAId, setupBId, dark: true);
 
     final row = tester.widget<Container>(find.byKey(const Key('compare-row-fork-rebound')));
-    expect(row.color, materialAppDarkTheme.extension<ValueHighlightColors>()!.changedFill);
+    final value = tester.widget<SelectableText>(
+      find.descendant(
+        of: find.byKey(const Key('compare-panel-a-fork-rebound')),
+        matching: find.byType(SelectableText),
+      ),
+    );
+    expect(row.color, isNull);
+    expect(value.style?.color, materialAppDarkTheme.extension<ValueHighlightColors>()!.changed);
     expect(find.bySemanticsLabel(RegExp('Different Rebound')), findsOneWidget);
   });
 
@@ -216,7 +277,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('location card expands to a fitted map with A and B markers', (tester) async {
+  testWidgets('location card fits intercontinental A and B markers on the map', (tester) async {
     final a = harness.setup(
       id: 'location-a',
       name: 'A',
@@ -227,7 +288,7 @@ void main() {
       id: 'location-b',
       name: 'B',
       local: DateTime(2026, 8, 2, 10),
-      position: LocationData.fromMap({'latitude': 47.38, 'longitude': 8.56}),
+      position: LocationData.fromMap({'latitude': 40.7128, 'longitude': -74.006}),
     );
     await harness.addSetups(tester, [a, b]);
     await harness.reload(tester);
@@ -238,6 +299,10 @@ void main() {
 
     expect(find.byType(FlutterMap), findsOneWidget);
     expect(tester.widget<MarkerLayer>(find.byType(MarkerLayer)).markers, hasLength(2));
+    final mapRect = tester.getRect(find.byType(FlutterMap));
+    final markerLayer = find.byType(MarkerLayer);
+    expect(mapRect.contains(tester.getCenter(find.descendant(of: markerLayer, matching: find.text('A')))), isTrue);
+    expect(mapRect.contains(tester.getCenter(find.descendant(of: markerLayer, matching: find.text('B')))), isTrue);
     expect(tester.takeException(), isNull);
   });
 

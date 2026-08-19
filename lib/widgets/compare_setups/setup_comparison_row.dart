@@ -20,7 +20,6 @@ class SetupComparisonRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final id = '$groupId-${row.id}';
-    final changedFill = Theme.of(context).extension<ValueHighlightColors>()!.changedFill;
     final child = LayoutBuilder(
       builder: (context, constraints) {
         final label = _Label(row: row);
@@ -59,7 +58,6 @@ class SetupComparisonRow extends StatelessWidget {
       label: row.isDifferent ? 'Different ${row.label}' : row.label,
       child: Container(
         key: Key('compare-row-$id'),
-        color: row.isDifferent ? changedFill : null,
         padding: const EdgeInsets.all(12),
         child: child,
       ),
@@ -122,6 +120,11 @@ class _ValuePanel extends StatelessWidget {
         (reference?.isMissing ?? false);
     final text = _displayValue(context, side);
     final delta = _numericDelta();
+    final color = hasError
+        ? Theme.of(context).colorScheme.error
+        : row.isDifferent
+        ? Theme.of(context).extension<ValueHighlightColors>()!.changed
+        : null;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Semantics(
@@ -131,7 +134,7 @@ class _ValuePanel extends StatelessWidget {
           children: [
             SelectableText(
               text,
-              style: hasError ? TextStyle(color: Theme.of(context).colorScheme.error) : null,
+              style: TextStyle(color: color),
             ),
             if (side.provenance == comparison.SetupComparisonValueProvenance.inherited)
               Text('Inherited', style: Theme.of(context).textTheme.bodySmall),
@@ -144,7 +147,7 @@ class _ValuePanel extends StatelessWidget {
 
   String _displayValue(BuildContext context, comparison.SetupComparisonSideValue side) {
     if (side.provenance == comparison.SetupComparisonValueProvenance.unavailable) {
-      return side.definition == null ? 'Owner not present' : 'Not recorded';
+      return side.definition == null ? '-' : 'Not recorded';
     }
     if (side.provenance == comparison.SetupComparisonValueProvenance.deleted) {
       return side.value == null ? 'Adjustment deleted' : 'Adjustment deleted: ${Adjustment.formatValue(side.value)}';

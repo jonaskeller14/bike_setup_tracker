@@ -23,11 +23,12 @@ class SetupComparisonOwnerCard extends StatelessWidget {
         group.kind == comparison.SetupComparisonGroupKind.deletedValues ||
         group.ownerStateA == comparison.SetupComparisonOwnerState.dangling ||
         group.ownerStateB == comparison.SetupComparisonOwnerState.dangling;
-    final headerColor = hasError
-        ? scheme.errorContainer
+    final headerColor = hasError ? scheme.errorContainer : scheme.outlineVariant;
+    final headerTextColor = hasError
+        ? scheme.error
         : group.isStructuralDifference
-        ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
-        : scheme.outlineVariant;
+        ? Theme.of(context).extension<ValueHighlightColors>()!.changed
+        : null;
     final differenceCount = group.differenceCount;
     final totalCount = rows.isEmpty ? differenceCount : group.rows.length;
 
@@ -50,22 +51,22 @@ class SetupComparisonOwnerCard extends StatelessWidget {
                       group.label,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontWeight: FontWeight.bold, color: hasError ? scheme.error : null),
+                      style: TextStyle(fontWeight: FontWeight.bold, color: headerTextColor),
                     ),
                   ),
                   subtitle: Text(
                     _subtitle(differenceCount, totalCount),
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: hasError ? scheme.error : null),
+                    style: TextStyle(color: headerTextColor),
                   ),
                 ),
               ),
               if (rows.isEmpty)
-                const ListTile(
+                ListTile(
                   dense: true,
-                  leading: Icon(Icons.compare_arrows),
-                  title: Text('Owner not present'),
+                  leading: const Icon(Icons.compare_arrows),
+                  title: Text('-', style: TextStyle(color: headerTextColor)),
                 )
               else
                 for (final row in rows) SetupComparisonRow(groupId: group.ownerId, row: row),
@@ -102,6 +103,6 @@ class SetupComparisonOwnerCard extends StatelessWidget {
       group.kind == comparison.SetupComparisonGroupKind.person
           ? 'Person is not linked to this setup'
           : 'Component was not installed at setup time',
-    comparison.SetupComparisonOwnerState.absent => 'Owner not present',
+    comparison.SetupComparisonOwnerState.absent => '-',
   };
 }

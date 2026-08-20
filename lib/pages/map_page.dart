@@ -1,5 +1,3 @@
-import 'dart:ui' show ImageFilter;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
@@ -14,11 +12,11 @@ import '../models/strava/strava_activity.dart';
 import '../repositories/app_repository.dart';
 import '../services/subscription_service.dart';
 import '../widgets/chips/map_filter_widget.dart';
+import '../widgets/map_pins.dart';
 import '../widgets/sheets/rating_entry_details.dart';
 import '../widgets/sheets/setup_details.dart';
 import '../widgets/sheets/strava_activity.dart';
 
-const Color _kMapRatingColor = Color(0xFFF9A825); // amber — rating entries (matches calendar)
 
 class MapPage extends StatefulWidget {
   const MapPage({super.key});
@@ -148,38 +146,7 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                   onTap: () async {
                     await showSetupDetailsSheet(context: context, setup: setup);
                   },
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      ImageFiltered(
-                        imageFilter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
-                        child: const Icon(Icons.location_pin, size: 40, color: Colors.black38),
-                      ),
-                      Icon(
-                        Icons.location_pin,
-                        size: 40,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      if (setup.isCurrent)
-                        Align(
-                          alignment: const Alignment(0, -0.35),
-                          child: Container(
-                            width: 12,
-                            height: 12,
-                            alignment: Alignment.center,
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.flag,
-                              size: 8,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
+                  child: SetupMapPin.icon(isCurrent: setup.isCurrent),
                 ),
               ),
             ),
@@ -198,38 +165,7 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                       stravaActivity: activity,
                     );
                   },
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      ImageFiltered(
-                        imageFilter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
-                        child: const Icon(Icons.location_pin, size: 40, color: Colors.black38),
-                      ),
-                      const Icon(
-                        Icons.location_pin,
-                        size: 40,
-                        color: Color(0xFFFC5200),
-                      ),
-                      if (activity.workout.isNotable)
-                        Align(
-                          alignment: const Alignment(0, -0.35),
-                          child: Container(
-                            width: 12,
-                            height: 12,
-                            alignment: Alignment.center,
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              activity.workout.icon,
-                              size: 8,
-                              color: const Color(0xFFFC5200),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
+                  child: StravaActivityMapPin(workoutType: activity.workout),
                 ),
               ),
             ),
@@ -247,20 +183,7 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                   onTap: () async {
                     await showRatingEntryDetailsSheet(context: context, ratingEntry: ratingEntry);
                   },
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      ImageFiltered(
-                        imageFilter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
-                        child: const Icon(Icons.location_pin, size: 40, color: Colors.black38),
-                      ),
-                      const Icon(
-                        Icons.location_pin,
-                        size: 40,
-                        color: _kMapRatingColor,
-                      ),
-                    ],
-                  ),
+                  child: const RatingEntryMapPin(),
                 ),
               ),
             ),

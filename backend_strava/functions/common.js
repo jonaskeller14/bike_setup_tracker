@@ -3,6 +3,60 @@ const { db, logger, admin } = require("./firebase");
 // TTL: Expiration duration for all data (1 year)
 const TTL_DAYS = 365;
 const getTTLTimestamp = () => admin.firestore.Timestamp.fromDate(new Date(Date.now() + TTL_DAYS * 24 * 60 * 60 * 1000));
+const ENTITLEMENT_RENEWAL_BUFFER_MS = 4 * 60 * 60 * 1000;
+
+/**
+ * Evaluates the server-written Strava entitlement. Canceled subscriptions stay
+ * active until expiresAt, while auto-renewing subscriptions receive a small
+ * buffer to absorb store webhook delivery delays around renewal.
+ */
+function hasActiveStravaEntitlement(entitlement, nowMs = Date.now()) {
+  if (!entitlement || !entitlement.expiresAt) return false;
+
+  const rawExpiry = entitlement.expiresAt;
+  const expiresAtMs = typeof rawExpiry.toMillis === "function"
+    ? rawExpiry.toMillis()
+    : new Date(rawExpiry).getTime();
+  if (!Number.isFinite(expiresAtMs)) return false;
+
+  const bufferMs = entitlement.autoRenewing === true
+    ? ENTITLEMENT_RENEWAL_BUFFER_MS
+    : 0;
+  return nowMs < expiresAtMs + bufferMs;
+}
+
+function googlePlayBillingPhase(lineItem) {
+  const offerPhase = lineItem?.offerPhase;
+  return offerPhase === "freeTrial" ||
+      offerPhase === "FREE_TRIAL" ||
+      offerPhase?.freeTrial != null
+    ? "trial"
+    : "standard";
+}
+
+function appStoreBillingPhase(transaction) {
+  return transaction?.offerType === 1 ||
+      transaction?.offerType === "INTRODUCTORY" ||
+      transaction?.offerDiscountType === "FREE_TRIAL"
+    ? "trial"
+    : "standard";
+}
+
+async function userHasActiveStravaEntitlement(userId, nowMs = Date.now()) {
+  const userSnap = await db.collection("users").doc(userId).get();
+  return userSnap.exists && hasActiveStravaEntitlement(
+    userSnap.data()?.entitlement?.strava,
+    nowMs
+  );
+}
+
+async function requireActiveStravaEntitlement(userId) {
+  if (!await userHasActiveStravaEntitlement(userId)) {
+    const error = new Error("An active Strava Sync subscription is required.");
+    error.code = "permission-denied";
+    throw error;
+  }
+}
 
 /**
  * Custom error for Strava API rate limiting (HTTP 429).
@@ -347,4 +401,9 @@ module.exports = {
   getTTLTimestamp,
   getAthleteIdForCaller,
   athleteHasActiveEntitlement,
+  hasActiveStravaEntitlement,
+  userHasActiveStravaEntitlement,
+  requireActiveStravaEntitlement,
+  googlePlayBillingPhase,
+  appStoreBillingPhase,
 };

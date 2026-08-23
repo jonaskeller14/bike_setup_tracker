@@ -1,17 +1,53 @@
 const { onRequest, onCall, HttpsError } = require("firebase-functions/v2/https");
+const crypto = require("crypto");
 const { db, logger, admin } = require("./firebase");
 const { syncFullHistory, syncRecent } = require("./sync");
+const {
+  requireActiveStravaEntitlement,
+  userHasActiveStravaEntitlement,
+} = require("./common");
 
 // If the athlete was fully synced within this window, skip the full re-sync
 // and just pull recent activities. Webhooks + weekly scheduled sync cover any
 // drift beyond this freshness boundary.
 const FULL_SYNC_FRESHNESS_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+const OAUTH_STATE_TTL_MS = 10 * 60 * 1000;
+
+/**
+ * Creates a short-lived, one-time OAuth state value. The Firebase UID never
+ * leaves the backend, preventing account-linking attacks based on forged UIDs.
+ */
+exports.createStravaOAuthState = onCall(
+  { enforceAppCheck: true },
+  async (request) => {
+    const userId = request.auth?.uid;
+    if (!userId) {
+      throw new HttpsError("unauthenticated", "Sign in required.");
+    }
+
+    try {
+      await requireActiveStravaEntitlement(userId);
+    } catch (error) {
+      throw new HttpsError("permission-denied", error.message);
+    }
+
+    const state = crypto.randomBytes(32).toString("base64url");
+    const expiresAt = admin.firestore.Timestamp.fromDate(
+      new Date(Date.now() + OAUTH_STATE_TTL_MS)
+    );
+    await db.collection("strava_oauth_states").doc(state).set({
+      userId,
+      expiresAt,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    return { state };
+  }
+);
 
 /**
  * STRATEGY: OAuth Token Exchange
  * Strava redirects the user here after they click 'Authorize' in the app.
- * We receive a 'code' and a 'state' (= the app's anonymous Firebase userId
- * passed through the OAuth flow).
+ * We receive a 'code' and a short-lived, one-time server-created state value.
  *
  * Writes:
  *   athletes/{athleteId}  - profile + oauth + initial sync state
@@ -21,21 +57,43 @@ exports.exchangeToken = onRequest(
   { secrets: ["STRAVA_CLIENT_ID", "STRAVA_CLIENT_SECRET"] },
   async (req, res) => {
     const code = req.query.code;
-    const userId = req.query.state;
+    const state = req.query.state;
 
-    if (!code || !userId) {
-      logger.error("MISSING_CODE_OR_USERID", { code, userId });
+    if (!code || !state) {
+      logger.error("MISSING_CODE_OR_STATE", { hasCode: Boolean(code), hasState: Boolean(state) });
       return res.status(400).send("Missing code or user identification");
     }
 
-    // Verify the userId in `state` is a real Firebase anonymous user before
-    // exchanging any tokens. Prevents an attacker who discovers this URL from
-    // linking a Strava account to an arbitrary or non-existent UID.
+    const stateRef = db.collection("strava_oauth_states").doc(String(state));
+    let userId;
     try {
-      await admin.auth().getUser(userId);
+      await db.runTransaction(async (tx) => {
+        const stateSnap = await tx.get(stateRef);
+        const stateData = stateSnap.data();
+        const expiresAt = stateData?.expiresAt?.toMillis?.() ?? 0;
+        if (!stateSnap.exists || !stateData?.userId || expiresAt <= Date.now()) {
+          throw new Error("INVALID_OR_EXPIRED_STATE");
+        }
+        userId = stateData.userId;
+        tx.delete(stateRef);
+      });
     } catch (e) {
-      logger.warn("INVALID_USER_ID_IN_STATE", { userId });
+      logger.warn("INVALID_OR_EXPIRED_OAUTH_STATE");
       return res.redirect("bike-setup-tracker://strava-auth?success=false&error=invalid_state");
+    }
+
+    let isEntitled = false;
+    try {
+      isEntitled = await userHasActiveStravaEntitlement(userId);
+    } catch (error) {
+      logger.error("STRAVA_AUTH_ENTITLEMENT_CHECK_FAILED", {
+        userId,
+        error: error.message,
+      });
+    }
+    if (!isEntitled) {
+      logger.warn("STRAVA_AUTH_PERMISSION_DENIED", { userId });
+      return res.redirect("bike-setup-tracker://strava-auth?success=false&error=permission_denied");
     }
 
     try {

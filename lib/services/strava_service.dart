@@ -529,6 +529,15 @@ class StravaService extends ChangeNotifier {
         return;
       }
 
+      final functions = FirebaseFunctions.instanceFor(region: 'europe-west3');
+      final result = await functions
+          .httpsCallable('createStravaOAuthState')
+          .call<Map<String, dynamic>>();
+      final oauthState = result.data['state'] as String?;
+      if (oauthState == null || oauthState.isEmpty) {
+        throw StateError('The server returned an invalid OAuth state.');
+      }
+
       final Uri authUrl = Uri.https(
         'www.strava.com',
         '/oauth/mobile/authorize',
@@ -538,7 +547,7 @@ class StravaService extends ChangeNotifier {
           'response_type': 'code',
           'approval_prompt': 'auto',
           'scope': _scope,
-          'state': _userId,
+          'state': oauthState,
         },
       );
 

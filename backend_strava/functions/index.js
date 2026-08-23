@@ -13,6 +13,7 @@ const subscriptionCleanup = require("./subscription_cleanup");
 
 // Auth + availability
 exports.exchangeToken = auth.exchangeToken;
+exports.createStravaOAuthState = auth.createStravaOAuthState;
 exports.checkStravaAvailability = auth.checkStravaAvailability;
 
 // Webhook

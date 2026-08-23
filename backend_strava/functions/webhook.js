@@ -41,7 +41,7 @@ exports.stravaWebhook = onRequest(
       // Cloud Tasks dedupes by taskName for ~1 hour — handles Strava retries.
       const taskName = `${athleteId}_${activityId}_${aspectType}_${eventTime || 'notime'}`;
 
-      const queue = getFunctions().taskQueue("projects/bike-setup-tracker-strava/locations/europe-west3/functions/webhookWorker");
+      const queue = getFunctions(admin.app()).taskQueue("locations/europe-west3/functions/webhookWorker");
 
       try {
         await queue.enqueue({ event }, { taskName });

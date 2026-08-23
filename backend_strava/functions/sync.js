@@ -8,6 +8,7 @@ const {
   isBikeActivity,
   getTTLTimestamp,
   getAthleteIdForCaller,
+  requireActiveStravaEntitlement,
 } = require("./common");
 
 /**
@@ -65,6 +66,12 @@ exports.syncActivities = onCall(
     const userId = request.auth ? request.auth.uid : null;
     if (!userId) {
       throw new HttpsError("unauthenticated", "User must be logged in.");
+    }
+
+    try {
+      await requireActiveStravaEntitlement(userId);
+    } catch (error) {
+      throw new HttpsError("permission-denied", error.message);
     }
 
     const athleteId = await getAthleteIdForCaller(
@@ -275,6 +282,11 @@ exports.syncFullHistoryCloud = onCall(
     const userId = request.auth ? request.auth.uid : null;
     if (!userId) {
       throw new HttpsError("unauthenticated", "User must be logged in.");
+    }
+    try {
+      await requireActiveStravaEntitlement(userId);
+    } catch (error) {
+      throw new HttpsError("permission-denied", error.message);
     }
     const athleteId = await getAthleteIdForCaller(
       userId,

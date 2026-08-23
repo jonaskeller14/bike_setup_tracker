@@ -20,7 +20,7 @@ class StravaSubscriptionCard extends StatelessWidget {
 
     final entitlement = subscription.entitlement;
     final plan = entitlement?.plan ?? StravaPlan.monthly;
-    final price = subscription.localizedPrice(plan) ?? plan.price;
+    final price = subscription.localizedPrice(plan) ?? '—';
     final dateFormat = appSettings.dateFormat;
 
     final Widget content = switch (entitlement) {

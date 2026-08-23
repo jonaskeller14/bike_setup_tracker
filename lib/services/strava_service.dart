@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -38,7 +39,10 @@ enum StravaAvailability { available, full, networkError }
 
 class StravaService extends ChangeNotifier {
   static const String _stravaClientId = "193047";
-  static const String _redirectUri = "https://europe-west3-bike-setup-tracker-strava.cloudfunctions.net/exchangeToken";
+  static String get _redirectUri {
+    final projectId = Firebase.app().options.projectId;
+    return "https://europe-west3-$projectId.cloudfunctions.net/exchangeToken";
+  }
   static const String _scope = "read,profile:read_all,activity:read_all";
 
   StravaState _state = const StravaIdle();
@@ -525,14 +529,17 @@ class StravaService extends ChangeNotifier {
         return;
       }
 
-      final Uri authUrl = Uri.parse(
-        "https://www.strava.com/oauth/mobile/authorize"
-        "?client_id=$_stravaClientId"
-        "&redirect_uri=$_redirectUri"
-        "&response_type=code"
-        "&approval_prompt=auto"
-        "&scope=$_scope"
-        "&state=$_userId",
+      final Uri authUrl = Uri.https(
+        'www.strava.com',
+        '/oauth/mobile/authorize',
+        {
+          'client_id': _stravaClientId,
+          'redirect_uri': _redirectUri,
+          'response_type': 'code',
+          'approval_prompt': 'auto',
+          'scope': _scope,
+          'state': _userId,
+        },
       );
 
       if (!await canLaunchUrl(authUrl)) {
@@ -561,7 +568,9 @@ class StravaService extends ChangeNotifier {
   void handleStravaAuthCallback({required bool success, String? error}) {
     if (success) return;
     _setState(StravaFailed(
-      error != null && error.isNotEmpty
+      error == 'permission_denied'
+          ? 'An active Strava Sync subscription is required.'
+          : error != null && error.isNotEmpty
           ? "Strava sign-in failed: $error"
           : "Strava sign-in failed. Please try again.",
     ));
@@ -632,6 +641,8 @@ class StravaService extends ChangeNotifier {
         return "No internet connection. Please check your connection and try again.";
       case 'unauthenticated':
         return "Authentication error. Please try again or reconnect to Strava.";
+      case 'permission-denied':
+        return "An active Strava Sync subscription is required.";
       case 'resource-exhausted':
         return "Too many requests. Please try again later.";
       default:

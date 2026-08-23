@@ -196,6 +196,7 @@ class SetupDetailsPageContent extends StatelessWidget {
         SetupComparisonService.resolveTargets(setupB: setup, setups: setups) is SetupComparisonTargets;
     final actions = <_SetupDetailsAction>[
       _SetupDetailsAction.edit,
+      //TODO: add "add rating" and "remove" ?
       if (!setup.isCurrent) _SetupDetailsAction.restore,
       if (canCompare) _SetupDetailsAction.compare,
     ];

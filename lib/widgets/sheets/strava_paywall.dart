@@ -119,7 +119,7 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
                                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                     color: Colors.white.withAlpha(235),
                                     height: 1.5,
-                                  )
+                                  ),
                                 ),
                               ],
                             ),
@@ -148,7 +148,7 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
                         onChanged: (StravaPlan? stravaPlan) {
                           if (stravaPlan == null) return;
                           setState(() => _selectedPlan = stravaPlan);
-                        }, 
+                        },
                         child: Column(
                           children: StravaPlan.values.map((plan) {
                             return Card.outlined(
@@ -278,8 +278,8 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
                           ),
                         ),
                       );
-                    }, 
-                    separatorBuilder: (BuildContext context, int index) => const Divider(), 
+                    },
+                    separatorBuilder: (BuildContext context, int index) => const Divider(),
                     itemCount: features.length,
                   ),
                   const SizedBox(height: 16),
@@ -469,7 +469,8 @@ class _TopoPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white.withAlpha(26) // 10% opacity
+      ..color = Colors.white
+          .withAlpha(26) // 10% opacity
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.2;
 

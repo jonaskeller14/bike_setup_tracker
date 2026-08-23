@@ -71,14 +71,17 @@ class StravaSubscriptionCard extends StatelessWidget {
     const activeBgColor = Color(0xFFE7F6EE);
     final colors = Theme.of(context).colorScheme;
 
-    final renewLabel = entitlement.autoRenewing ? 'Renews' : 'Expires';
+    final isTrial = entitlement.billingPhase == StravaBillingPhase.trial;
+    final renewLabel = isTrial
+        ? entitlement.autoRenewing ? 'First charge' : 'Trial ends'
+        : entitlement.autoRenewing ? 'Renews' : 'Expires';
     final renewDate = DateFormat(kDebugMode ? '$dateFormat HH:mm:ss' : dateFormat).format(entitlement.expiresAt);
 
     return Column(
       children: [
         _header(
           context,
-          label: isActive ? 'ACTIVE' : 'EXPIRED',
+          label: isActive ? isTrial ? 'TRIAL' : 'ACTIVE' : 'EXPIRED',
           color: isActive ? activeColor : colors.error,
           bgColor: isActive ? activeBgColor : colors.errorContainer,
         ),
@@ -120,7 +123,13 @@ class StravaSubscriptionCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.baseline,
       textBaseline: TextBaseline.alphabetic,
       children: [
-        Text(price, style: textTheme.titleLarge),
+        Flexible(
+          child: Text(
+            price,
+            overflow: TextOverflow.ellipsis,
+            style: textTheme.titleLarge,
+          ),
+        ),
         const SizedBox(width: 6),
         Text(period, style: textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
       ],
@@ -133,7 +142,14 @@ class StravaSubscriptionCard extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label, style: textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
-        Text(value, style: textTheme.labelMedium),
+        Flexible(
+          child: Text(
+            value,
+            textAlign: TextAlign.end,
+            overflow: TextOverflow.ellipsis,
+            style: textTheme.labelMedium,
+          ),
+        ),
       ],
     );
   }

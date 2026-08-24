@@ -3,8 +3,6 @@ import 'package:flutter/foundation.dart';
 
 import 'strava_plan.dart';
 
-enum StravaBillingPhase { trial, standard }
-
 /// Snapshot of the user's entitlement to the Strava sync feature, as derived
 /// from the backend `users/{uid}.entitlement.strava` document. This document
 /// is the source of truth in production — it is written by the Cloud Function
@@ -19,7 +17,6 @@ class StravaEntitlement {
   final String productId;
   final String platform;
   final bool autoRenewing;
-  final StravaBillingPhase billingPhase;
 
   const StravaEntitlement({
     required this.plan,
@@ -27,7 +24,6 @@ class StravaEntitlement {
     required this.productId,
     required this.platform,
     required this.autoRenewing,
-    required this.billingPhase,
   });
 
   bool get isActive {
@@ -67,10 +63,6 @@ class StravaEntitlement {
       productId: data['productId'] as String? ?? '',
       platform: data['platform'] as String? ?? '',
       autoRenewing: data['autoRenewing'] as bool? ?? false,
-      billingPhase: StravaBillingPhase.values.firstWhere(
-        (phase) => phase.name == data['billingPhase'],
-        orElse: () => StravaBillingPhase.standard,
-      ),
     );
   }
 }

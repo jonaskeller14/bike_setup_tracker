@@ -151,14 +151,15 @@ class _GarageListState extends State<GarageList> {
       if (appSettings.enableInstallationTimeline) {
         unawaited(showAddInstallationSheet(context, component: component, targetBikeId: null, isArchiving: true));
       } else {
+        final now = DateTime.now();
         await appRepository.editComponent(
           component.copyWith(
             installations: [
-              Archival(
-                componentId: component.id,
-                dateTimeUTC: DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
-                dateTimeLocal: DateTime.fromMillisecondsSinceEpoch(0),
-              ),
+            Archival(
+              componentId: component.id,
+              dateTimeUTC: now.toUtc(),
+              dateTimeLocal: now,
+            ),
             ],
           ),
         );

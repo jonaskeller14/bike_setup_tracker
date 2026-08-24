@@ -265,7 +265,7 @@ class _ContextChangedBadge extends StatelessWidget {
       excludeSemantics: true,
       child: Container(
         key: const Key('compare-context-changed-badge'),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
         decoration: BoxDecoration(
           color: changedColor.withValues(alpha: 0.08),
           border: Border.all(color: changedColor),
@@ -273,7 +273,7 @@ class _ContextChangedBadge extends StatelessWidget {
         ),
         child: Text(
           'Context varies',
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(color: changedColor),
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(color: changedColor),
         ),
       ),
     );

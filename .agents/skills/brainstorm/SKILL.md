@@ -4,8 +4,6 @@ description: Explore a feature/change and write a concept-brainstorming doc in d
 allowed-tools: Read, Grep, Glob, Bash(date:*), Bash(ls:*), Write, WebFetch
 ---
 
-**GitHub workflow:** `$ARGUMENTS` is a GitHub issue, not a local filename. Read its body and comments, and publish the concept as an issue comment. Do not create a concept file under `doc/`. The issue body owns phases, checkboxes, and status; comments own rationale, architecture decisions, Mermaid diagrams, and open questions.
-
 Produce a **concept-brainstorming document** for `$ARGUMENTS`, matching the style of the
 existing brainstorm docs in `doc/` (e.g. `doc/20260717_component_preset_concepts.md`).
 This is a thinking step: **do not write or change any app code.**

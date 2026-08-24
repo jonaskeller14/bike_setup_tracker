@@ -48,27 +48,25 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
   Widget build(BuildContext context) {
     final subscription = context.watch<SubscriptionService>();
     final isBusy = subscription.isBusy;
-    final selectedOffer = subscription.offerFor(_selectedPlan);
-    final offersReady = subscription.offersReady;
-    final yearlySavingsPercent = subscription.yearlySavingsPercent;
 
     final isIOS = Theme.of(context).platform == TargetPlatform.iOS;
     final storeSettings = isIOS ? 'App Store settings' : 'Google Play settings';
     final manageSubscriptionUrl = isIOS
         ? 'https://apps.apple.com/account/subscriptions'
         : 'https://play.google.com/store/account/subscriptions'
-              '?sku=strava_sync'
-              '&package=com.jonaskeller14.bike_setup_tracker';
+            '?sku=strava_sync'
+            '&package=com.jonaskeller14.bike_setup_tracker';
 
-    final eulaRecognizer = TapGestureRecognizer()..onTap = () => launchAppUrl(context, url: AppInfo.eulaUrl);
+    final eulaRecognizer = TapGestureRecognizer()
+      ..onTap = () => launchAppUrl(context, url: AppInfo.eulaUrl);
     final privacyRecognizer = TapGestureRecognizer()
       ..onTap = () => launchAppUrl(context, url: AppInfo.privacyPolicyUrl);
     final storeSettingsRecognizer = TapGestureRecognizer()
       ..onTap = () => launchAppUrl(
-        context,
-        url: manageSubscriptionUrl,
-        launchMode: LaunchMode.externalApplication,
-      );
+            context,
+            url: manageSubscriptionUrl,
+            launchMode: LaunchMode.externalApplication,
+          );
 
     return SafeArea(
       child: Column(
@@ -121,7 +119,7 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
                                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                     color: Colors.white.withAlpha(235),
                                     height: 1.5,
-                                  ),
+                                  )
                                 ),
                               ],
                             ),
@@ -150,7 +148,7 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
                         onChanged: (StravaPlan? stravaPlan) {
                           if (stravaPlan == null) return;
                           setState(() => _selectedPlan = stravaPlan);
-                        },
+                        }, 
                         child: Column(
                           children: StravaPlan.values.map((plan) {
                             return Card.outlined(
@@ -174,16 +172,13 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
                                   title: Row(
                                     spacing: 8,
                                     children: [
-                                      Flexible(
-                                        child: Text(
-                                          plan.label,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                      Text(
+                                        plan.label,
+                                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                          fontWeight: FontWeight.bold,
                                         ),
                                       ),
-                                      if (plan == StravaPlan.yearly && yearlySavingsPercent != null)
+                                      if (plan.save != null)
                                         Container(
                                           padding: const EdgeInsets.symmetric(
                                             horizontal: 7,
@@ -194,7 +189,7 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
                                             borderRadius: BorderRadius.circular(100),
                                           ),
                                           child: Text(
-                                            'SAVE $yearlySavingsPercent%',
+                                            'SAVE ${plan.save}',
                                             style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                               color: Colors.white,
                                               fontWeight: FontWeight.bold,
@@ -203,12 +198,16 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
                                         ),
                                     ],
                                   ),
-                                  subtitle: Text(
-                                    plan.tagline,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                    ),
+                                  subtitle: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        plan.tagline,
+                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                   secondary: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -220,7 +219,7 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
                                         textBaseline: TextBaseline.alphabetic,
                                         children: [
                                           Text(
-                                            subscription.localizedPrice(plan) ?? '—',
+                                            subscription.localizedPrice(plan) ?? plan.price,
                                             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                               letterSpacing: -0.3,
                                             ),
@@ -234,12 +233,11 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
                                           ),
                                         ],
                                       ),
-                                      if (subscription.offerFor(plan)?.isTrialEligible == true)
+                                      if (plan.perMonth != null)
                                         Text(
-                                          '7 days free',
-                                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                            color: Theme.of(context).colorScheme.primary,
-                                            fontWeight: FontWeight.bold,
+                                          '${plan.perMonth} / month',
+                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                                           ),
                                         ),
                                     ],
@@ -280,8 +278,8 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
                           ),
                         ),
                       );
-                    },
-                    separatorBuilder: (BuildContext context, int index) => const Divider(),
+                    }, 
+                    separatorBuilder: (BuildContext context, int index) => const Divider(), 
                     itemCount: features.length,
                   ),
                   const SizedBox(height: 16),
@@ -320,36 +318,34 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
                         Container(
                           padding: const EdgeInsets.all(12),
                           child: Column(
-                            children: bullets.indexed
-                                .map(
-                                  (e) => Padding(
-                                    padding: EdgeInsets.only(
-                                      bottom: e.$1 < bullets.length - 1 ? 8 : 0,
+                            children: bullets.indexed.map(
+                              (e) => Padding(
+                                padding: EdgeInsets.only(
+                                  bottom: e.$1 < bullets.length - 1 ? 8 : 0,
+                                ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '·',
+                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      ),
                                     ),
-                                    child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          '·',
-                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                          ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        e.$2,
+                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                          height: 1.45,
                                         ),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            e.$2,
-                                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                              height: 1.45,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
+                                      ),
                                     ),
-                                  ),
-                                )
-                                .toList(),
+                                  ],
+                                ),
+                              ),
+                            ).toList(),
                           ),
                         ),
                       ],
@@ -368,11 +364,8 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 children: [
-                  TextSpan(
-                    text: selectedOffer?.isTrialEligible == true
-                        ? '7 days free, then ${selectedOffer!.localizedRecurringPrice}${_selectedPlan.period}. '
-                              'Cancel before the trial ends to avoid a charge. Manage or cancel anytime in your '
-                        : 'Auto-renewable subscription. Manage or cancel anytime in your ',
+                  const TextSpan(
+                    text: 'Auto-renewable subscription. Manage or cancel anytime in your ',
                   ),
                   TextSpan(
                     text: storeSettings,
@@ -445,13 +438,9 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
                     )
                   : const Icon(Icons.auto_awesome),
               label: Text(
-                selectedOffer == null
-                    ? 'Loading store price…'
-                    : selectedOffer.isTrialEligible
-                    ? 'Start 7-day free trial'
-                    : 'Subscribe — ${selectedOffer.localizedRecurringPrice}${_selectedPlan.period.replaceAll('/ ', '/')}',
+                'Subscribe — ${subscription.localizedPrice(_selectedPlan) ?? _selectedPlan.price}${_selectedPlan.period.replaceAll('/ ', '/')}',
               ),
-              onPressed: isBusy || !offersReady ? null : () => subscription.buy(_selectedPlan),
+              onPressed: isBusy ? null : () => subscription.buy(_selectedPlan),
               style: FilledButton.styleFrom(
                 iconSize: 18,
                 textStyle: const TextStyle(
@@ -480,8 +469,7 @@ class _TopoPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white
-          .withAlpha(26) // 10% opacity
+      ..color = Colors.white.withAlpha(26) // 10% opacity
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.2;
 

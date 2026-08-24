@@ -52,12 +52,7 @@ app.*.map.json
 
 # Firebase configuration
 android/app/google-services.json
-android/app/src/dev/google-services.json
-android/app/src/prod/google-services.json
-
 ios/Runner/GoogleService-Info.plist
-ios/Runner/Firebase/Dev/GoogleService-Info.plist
-ios/Runner/Firebase/Prod/GoogleService-Info.plist
 
 # Google Cloud Console
 ios/Runner/client_*.plist

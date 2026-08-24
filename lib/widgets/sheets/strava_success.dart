@@ -21,8 +21,6 @@ class StravaSuccess extends StatelessWidget {
     final subscription = context.watch<SubscriptionService>();
     final authError = stravaService.errorMessage ?? '';
     final justPurchased = subscription.justPurchasedStrava;
-    final isTrial = subscription.entitlement?.billingPhase ==
-        StravaBillingPhase.trial;
 
     return SafeArea(
       child: Padding(
@@ -51,16 +49,14 @@ class StravaSuccess extends StatelessWidget {
                       ),
                       const SizedBox(height: 14),
                       Text(
-                        isTrial ? 'Your trial has started.' : "You're in.",
+                        "You're in.",
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       const SizedBox(height: 6),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Text(
-                          isTrial
-                              ? 'Strava Sync is fully active for 7 days. Connect your Strava login next to import your history. Cancel in your store settings before the trial ends to avoid a charge.'
-                              : 'Strava Sync is active on this account. Connect your Strava login next so we can start importing activities.',
+                          'Strava Sync is active on this account. Connect your Strava login next so we can start importing activities.',
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -68,9 +64,7 @@ class StravaSuccess extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      StravaSubscriptionCard(
-                        backgroundColor: Theme.of(context).colorScheme.surface,
-                      ),
+                      const StravaSubscriptionCard(backgroundColor: Colors.white),
                     ] else ...[
                       Container(
                         width: 84,

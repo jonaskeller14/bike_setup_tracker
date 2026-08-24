@@ -1,17 +1,16 @@
 ---
 name: plan
-description: Turn decided feature work into a phased GitHub issue plan (no code)
+description: Turn a decided concept into a concrete, step-by-step implementation plan in doc/ (no code)
 allowed-tools: Read, Grep, Glob, Bash(date:*), Bash(ls:*), Write
 ---
 
-**GitHub workflow:** `$ARGUMENTS` identifies a GitHub issue. Read the issue body and comments, then write the phased implementation plan into the issue body after confirmation. Do not create a plan file under `doc/`; use comments for detailed rationale, architecture diagrams, and progress evidence.
-
-Turn the decided concept for `$ARGUMENTS` into a concrete **implementation plan in the GitHub
-issue**. Do not create a plan file under `doc/`. This is still a planning step:
+Turn the decided concept for `$ARGUMENTS` into a concrete **implementation plan**, matching
+the style of the existing plans in `doc/` (e.g.
+`doc/20260717_component_preset_implementation_plan.md`). This is still a planning step:
 **do not write or change any app code.**
 
 ## 1. Read the decisions
-- Read the issue body and relevant architecture/decision comments.
+- Open the referenced `_concept.md` doc (or, if only a topic was given, find it in `doc/`).
 - Extract the chosen option for every lettered decision area and every answer to the
   "Open questions" section.
 
@@ -22,7 +21,9 @@ issue**. Do not create a plan file under `doc/`. This is still a planning step:
 - Do NOT create the plan file until the user confirms. If they adjust a decision, update the
   recap and ask again.
 
-## 3. Write the plan into the issue body
+## 3. Write the plan
+- Filename: `doc/<YYYYMMDD>_<slug>_implementation_plan.md` (`date +%Y%m%d`; reuse the
+  concept doc's slug). Honor an explicit filename if the user gave one.
 - Structure it like the existing implementation plans:
   - `# <Topic> — implementation plan`
   - `**Status:** Approved concept → phased implementation plan`
@@ -41,11 +42,11 @@ issue**. Do not create a plan file under `doc/`. This is still a planning step:
   phase is independently mergeable where possible.
 
 ## 4. Hand back
-- Print the issue URL and the phase list. Point the user at `/handoff <issue> <phase>` to
-  execute a single phase in a fresh context window.
+- Print the file path and the phase list (one line each with its commit subject). Point the
+  user at `/handoff <plan> <phase>` to execute a single phase in a fresh context window.
 
 ## Constraints
-- No app code — this step only updates issue planning.
+- No app code — this step only writes the plan doc.
 - Do not skip the step 2 confirmation gate; the plan file must not be written before the
   user approves the decisions.
 - Every phase must be independently verifiable (its own tests / checks), and follow the

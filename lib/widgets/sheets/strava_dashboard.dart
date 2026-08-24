@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -9,7 +7,6 @@ import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/strava/strava_activity.dart';
 import '../../models/strava/strava_athlete.dart';
-import '../../models/strava/strava_gear.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/strava_service.dart';
 import '../dialogs/strava_disconnect.dart';
@@ -29,91 +26,6 @@ class StravaDashboardSheet extends StatefulWidget {
 
 class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
   final GlobalKey<TooltipState> _syncInfoTooltipKey = GlobalKey<TooltipState>();
-
-  Wrap _gearWrap({required Iterable<StravaGear> gears, required Iterable<Bike> bikes}) {
-    return Wrap(
-      alignment: WrapAlignment.start,
-      spacing: 4,
-      children: gears.map((g) {
-        final linkedBikes = bikes.where((b) => b.stravaGear == g.id);
-        final unlinkedBikes = bikes.where((b) => b.stravaGear == null).toList();
-
-        final Widget chip = Chip(
-          avatar: linkedBikes.isEmpty
-              ? Icon(Icons.link_off, color: Theme.of(context).colorScheme.error)
-              : const Icon(Icons.link),
-          label: Text(g.name),
-        );
-
-        return PopupMenuButton<_StravaGearMenuOption>(
-          tooltip: "Bike Options",
-          onSelected: (_StravaGearMenuOption option) async {
-            switch (option) {
-              case _LinkToBike():
-                final updatedBike = option.bike.copyWith(stravaGear: g.id);
-                await context.read<AppRepository>().editBike(updatedBike);
-              case _AddNewBike():
-                final newBike = Bike(
-                  name: g.name,
-                  person: null,
-                  stravaGear: g.id,
-                );
-                await context.read<AppRepository>().addBike(newBike);
-              case _UnlinkBike():
-                final updatedBike = option.bike.copyWith(stravaGear: null);
-                await context.read<AppRepository>().editBike(updatedBike);
-            }
-          },
-          itemBuilder: (BuildContext context) {
-            return [
-              if (linkedBikes.isNotEmpty) ...[
-                ...linkedBikes.map((Bike linkedBike) {
-                  return PopupMenuItem<_StravaGearMenuOption>(
-                    value: _UnlinkBike(linkedBike),
-                    child: Row(
-                      spacing: 8,
-                      children: [
-                        const Icon(Icons.link_off),
-                        Expanded(child: Text("Unlink Bike '${linkedBike.name}'", overflow: TextOverflow.ellipsis)),
-                      ],
-                    ),
-                  );
-                })
-              ]
-              else ... [
-                if (unlinkedBikes.isNotEmpty) ...[
-                  ...unlinkedBikes.map((Bike bike) {
-                    return PopupMenuItem<_StravaGearMenuOption>(
-                      value: _LinkToBike(bike),
-                      child: Row(
-                        spacing: 8,
-                        children: [
-                          const Icon(Icons.link),
-                          Expanded(child: Text("Link to '${bike.name}'", overflow: TextOverflow.ellipsis)),
-                        ],
-                      ),
-                    );
-                  }),
-                  const PopupMenuDivider(),
-                ],
-                const PopupMenuItem<_StravaGearMenuOption>(
-                  value: _AddNewBike(),
-                  child: Row(
-                    spacing: 8,
-                    children: [
-                      Icon(Icons.add),
-                      Text("Add as new Bike"),
-                    ],
-                  ),
-                ),
-              ]
-            ];
-          },
-          child: chip,
-        );
-      }).toList(),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -168,11 +80,90 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
                       const StravaGearLinkHint(),
                       const SizedBox(height: 4),
                     ],
-                    _gearWrap(gears: gears, bikes: appRepository.bikes.values)
+                    Wrap(
+                      alignment: WrapAlignment.start,
+                      spacing: 4,
+                      children: gears.map((g) {
+                        final linkedBikes = appRepository.bikes.values.where((b) => b.stravaGear == g.id);
+                        final unlinkedBikes = appRepository.bikes.values.where((b) => b.stravaGear == null).toList();
+
+                        final Widget chip = Chip(
+                          avatar: linkedBikes.isEmpty
+                              ? Icon(Icons.link_off, color: Theme.of(context).colorScheme.error)
+                              : const Icon(Icons.link),
+                          label: Text(g.name),
+                        );
+
+                        return PopupMenuButton<_StravaGearMenuOption>(
+                          tooltip: "Bike Options",
+                          onSelected: (_StravaGearMenuOption option) async {
+                            switch (option) {
+                              case _LinkToBike():
+                                final updatedBike = option.bike.copyWith(stravaGear: g.id);
+                                await context.read<AppRepository>().editBike(updatedBike);
+                              case _AddNewBike():
+                                final newBike = Bike(
+                                  name: g.name,
+                                  person: null,
+                                  stravaGear: g.id,
+                                );
+                                await context.read<AppRepository>().addBike(newBike);
+                              case _UnlinkBike():
+                                final updatedBike = option.bike.copyWith(stravaGear: null);
+                                await context.read<AppRepository>().editBike(updatedBike);
+                            }
+                          },
+                          itemBuilder: (BuildContext context) {
+                            return [
+                              if (linkedBikes.isNotEmpty) ...[
+                                ...linkedBikes.map((Bike linkedBike) {
+                                  return PopupMenuItem<_StravaGearMenuOption>(
+                                    value: _UnlinkBike(linkedBike),
+                                    child: Row(
+                                      spacing: 8,
+                                      children: [
+                                        const Icon(Icons.link_off),
+                                        Expanded(child: Text("Unlink Bike '${linkedBike.name}'", overflow: TextOverflow.ellipsis)),
+                                      ],
+                                    ),
+                                  );
+                                })
+                              ]
+                              else ... [
+                                if (unlinkedBikes.isNotEmpty) ...[
+                                  ...unlinkedBikes.map((Bike bike) {
+                                    return PopupMenuItem<_StravaGearMenuOption>(
+                                      value: _LinkToBike(bike),
+                                      child: Row(
+                                        spacing: 8,
+                                        children: [
+                                          const Icon(Icons.link),
+                                          Expanded(child: Text("Link to '${bike.name}'", overflow: TextOverflow.ellipsis)),
+                                        ],
+                                      ),
+                                    );
+                                  }),
+                                  const PopupMenuDivider(),
+                                ],
+                                const PopupMenuItem<_StravaGearMenuOption>(
+                                  value: _AddNewBike(),
+                                  child: Row(
+                                    spacing: 8,
+                                    children: [
+                                      Icon(Icons.add),
+                                      Text("Add as new Bike"),
+                                    ],
+                                  ),
+                                ),
+                              ]
+                            ];
+                          },
+                          child: chip,
+                        );
+                      }).toList(),
+                    ),
                   ],
                   
-                  const Divider(),
-                  const SheetSectionTitle(title: "Latest Activities:"),
                   FutureBuilder<List<StravaActivity>>(
                     future: appRepository.latestStravaActivities,
                     builder: (context, snapshot) {
@@ -181,6 +172,8 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            const Divider(),
+                            const SheetSectionTitle(title: "Latest Synced Activities:"),
                             ...latestActivities.map((activity) => StravaListTile(
                               stravaActivity: activity,
                               contentPadding: EdgeInsets.zero,
@@ -226,7 +219,28 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
                   ),
                   Expanded(
                     flex: 2,
-                    child: _StravaSyncButton(stravaService: stravaService),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.icon(
+                        onPressed: stravaService.canSyncRecent
+                            ? () => stravaService.triggerManualSync()
+                            : null,
+                        icon: stravaService.isBusy
+                            ? const SizedBox(
+                                height: 16,
+                                width: 16,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : const Icon(Icons.sync),
+                        label: Text(
+                          stravaService.isBusy
+                              ? "Syncing"
+                              : stravaService.canSyncRecent
+                                  ? "Sync"
+                                  : "Recently Synced",
+                        ),
+                      ),
+                    ),
                   ),
                   // Expanded(
                   //   flex: 2,
@@ -268,6 +282,8 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
       ),
     );
   }
+
+
 
   Widget _emptyAthletePlaceholder(BuildContext context) {
     return ListTile(
@@ -388,116 +404,6 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
       ),
     );
   }
-}
-
-class _StravaSyncButton extends StatefulWidget {
-  final StravaService stravaService;
-
-  const _StravaSyncButton({required this.stravaService});
-
-  @override
-  State<_StravaSyncButton> createState() => _StravaSyncButtonState();
-}
-
-class _StravaSyncButtonState extends State<_StravaSyncButton> {
-  final ValueNotifier<Duration?> _remaining = ValueNotifier(null);
-  Timer? _timer;
-
-  @override
-  void initState() {
-    super.initState();
-    widget.stravaService.addListener(_handleServiceChanged);
-    _handleServiceChanged();
-  }
-
-  @override
-  void didUpdateWidget(covariant _StravaSyncButton oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.stravaService == widget.stravaService) return;
-
-    oldWidget.stravaService.removeListener(_handleServiceChanged);
-    widget.stravaService.addListener(_handleServiceChanged);
-    _handleServiceChanged();
-  }
-
-  void _handleServiceChanged() {
-    _updateRemaining();
-
-    // Service notifications mark state or sync-time changes. The local timer,
-    // rather than StravaService, advances the visible countdown each second.
-    final remaining = _remaining.value;
-    if (remaining != null && remaining > Duration.zero && _timer == null) {
-      _timer = Timer.periodic(
-        const Duration(seconds: 1),
-        (_) => _updateRemaining(),
-      );
-    }
-  }
-
-  void _updateRemaining() {
-    final remaining = widget.stravaService.manualSyncRemaining;
-    _remaining.value = remaining;
-
-    if (remaining == null || remaining <= Duration.zero) {
-      _timer?.cancel();
-      _timer = null;
-    }
-  }
-
-  @override
-  void dispose() {
-    widget.stravaService.removeListener(_handleServiceChanged);
-    _timer?.cancel();
-    _remaining.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ValueListenableBuilder<Duration?>(
-      valueListenable: _remaining,
-      builder: (context, remaining, _) {
-        final isBusy = widget.stravaService.isBusy;
-        final canSync = widget.stravaService.canSyncRecent;
-        final label = isBusy
-            ? 'Syncing'
-            : canSync
-                ? 'Sync'
-                : 'In ${_formatRemaining(remaining ?? Duration.zero)}';
-
-        return SizedBox(
-          width: double.infinity,
-          child: FilledButton.icon(
-            onPressed: canSync ? widget.stravaService.triggerManualSync : null,
-            icon: isBusy
-                ? const SizedBox(
-                    height: 16,
-                    width: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.sync),
-            label: Flexible(
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(label, maxLines: 1),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-String _formatRemaining(Duration duration) {
-  if (duration.inHours > 0) {
-    return '${duration.inHours}h ${duration.inMinutes.remainder(60)}m';
-  }
-  if (duration.inMinutes > 0) {
-    return '${duration.inMinutes} min';
-  }
-  final seconds = (duration.inMilliseconds / Duration.millisecondsPerSecond).ceil();
-  return '${seconds}s';
 }
 
 Widget _busyTile(BuildContext context, {required String label}) {

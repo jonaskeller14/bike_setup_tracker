@@ -1,3 +1,5 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geocoding/geocoding.dart' as geo;
@@ -15,14 +17,12 @@ class ContextLocationCard extends StatelessWidget {
   final LocationData? position;
   final geo.Placemark? place;
   final String displayName;
-  final Widget mapPin;
 
   const ContextLocationCard({
     super.key,
     required this.position,
     required this.place,
     required this.displayName,
-    required this.mapPin,
   });
 
   @override
@@ -122,7 +122,20 @@ class ContextLocationCard extends StatelessWidget {
                           point: LatLng(position!.latitude!, position!.longitude!),
                           width: 40,
                           height: 40,
-                          child: mapPin,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              ImageFiltered(
+                                imageFilter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+                                child: const Icon(Icons.location_pin, size: 40, color: Colors.black38),
+                              ),
+                              Icon(
+                                Icons.location_pin,
+                                size: 40,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),

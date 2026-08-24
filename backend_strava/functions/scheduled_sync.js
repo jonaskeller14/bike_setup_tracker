@@ -42,8 +42,8 @@ exports.enqueueWeeklySyncs = onSchedule(
         count: athletesSnapshot.size,
       });
 
-      const queue = getFunctions(admin.app()).taskQueue(
-        "locations/europe-west3/functions/scheduledSyncWorker"
+      const queue = getFunctions().taskQueue(
+        "projects/bike-setup-tracker-strava/locations/europe-west3/functions/scheduledSyncWorker"
       );
 
       let delaySeconds = 0;

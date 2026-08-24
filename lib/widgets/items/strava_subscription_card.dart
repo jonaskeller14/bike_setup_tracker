@@ -20,7 +20,7 @@ class StravaSubscriptionCard extends StatelessWidget {
 
     final entitlement = subscription.entitlement;
     final plan = entitlement?.plan ?? StravaPlan.monthly;
-    final price = subscription.localizedPrice(plan) ?? '—';
+    final price = subscription.localizedPrice(plan) ?? plan.price;
     final dateFormat = appSettings.dateFormat;
 
     final Widget content = switch (entitlement) {
@@ -71,17 +71,14 @@ class StravaSubscriptionCard extends StatelessWidget {
     const activeBgColor = Color(0xFFE7F6EE);
     final colors = Theme.of(context).colorScheme;
 
-    final isTrial = entitlement.billingPhase == StravaBillingPhase.trial;
-    final renewLabel = isTrial
-        ? entitlement.autoRenewing ? 'First charge' : 'Trial ends'
-        : entitlement.autoRenewing ? 'Renews' : 'Expires';
+    final renewLabel = entitlement.autoRenewing ? 'Renews' : 'Expires';
     final renewDate = DateFormat(kDebugMode ? '$dateFormat HH:mm:ss' : dateFormat).format(entitlement.expiresAt);
 
     return Column(
       children: [
         _header(
           context,
-          label: isActive ? isTrial ? 'TRIAL' : 'ACTIVE' : 'EXPIRED',
+          label: isActive ? 'ACTIVE' : 'EXPIRED',
           color: isActive ? activeColor : colors.error,
           bgColor: isActive ? activeBgColor : colors.errorContainer,
         ),
@@ -123,13 +120,7 @@ class StravaSubscriptionCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.baseline,
       textBaseline: TextBaseline.alphabetic,
       children: [
-        Flexible(
-          child: Text(
-            price,
-            overflow: TextOverflow.ellipsis,
-            style: textTheme.titleLarge,
-          ),
-        ),
+        Text(price, style: textTheme.titleLarge),
         const SizedBox(width: 6),
         Text(period, style: textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
       ],
@@ -142,14 +133,7 @@ class StravaSubscriptionCard extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label, style: textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
-        Flexible(
-          child: Text(
-            value,
-            textAlign: TextAlign.end,
-            overflow: TextOverflow.ellipsis,
-            style: textTheme.labelMedium,
-          ),
-        ),
+        Text(value, style: textTheme.labelMedium),
       ],
     );
   }

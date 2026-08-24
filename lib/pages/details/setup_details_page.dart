@@ -23,7 +23,6 @@ import '../../widgets/items/context_location_card.dart';
 import '../../widgets/items/context_meta_card.dart';
 import '../../widgets/items/context_weather_card.dart';
 import '../../widgets/items/rating_summary_card.dart';
-import '../../widgets/map_pins.dart';
 import '../../widgets/sheets/compare_setups.dart';
 import '../../widgets/sheets/sheet.dart';
 import '../../widgets/text/section_title.dart';
@@ -196,7 +195,6 @@ class SetupDetailsPageContent extends StatelessWidget {
         SetupComparisonService.resolveTargets(setupB: setup, setups: setups) is SetupComparisonTargets;
     final actions = <_SetupDetailsAction>[
       _SetupDetailsAction.edit,
-      //TODO: add "add rating" and "remove" ?
       if (!setup.isCurrent) _SetupDetailsAction.restore,
       if (canCompare) _SetupDetailsAction.compare,
     ];
@@ -312,7 +310,7 @@ class SetupDetailsPageContent extends StatelessWidget {
               tags: appSettings.enableSetupTags ? setup.tags : const {},
               images: appSettings.enableSetupImages ? setup.images : const [],
             ),
-            ContextLocationCard(position: setup.position, place: setup.place, displayName: setup.displayName, mapPin: SetupMapPin.icon(isCurrent: setup.isCurrent)),
+            ContextLocationCard(position: setup.position, place: setup.place, displayName: setup.displayName),
             ContextWeatherCard(weather: setup.weather),
             ContextBikePersonCard(
               bike: bike,

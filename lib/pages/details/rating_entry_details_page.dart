@@ -11,7 +11,6 @@ import '../../utils/rating_entry_actions.dart';
 import '../../widgets/items/context_location_card.dart';
 import '../../widgets/items/context_meta_card.dart';
 import '../../widgets/items/context_weather_card.dart';
-import '../../widgets/map_pins.dart';
 import '../../widgets/sheets/sheet.dart';
 
 class RatingEntryDetailsPage extends StatelessWidget {
@@ -288,7 +287,7 @@ class RatingEntryDetailsContent extends StatelessWidget {
         tags: const {},
         images: const [],
       ),
-      ContextLocationCard(position: entry.position, place: entry.place, displayName: entry.displayName, mapPin: const RatingEntryMapPin()),
+      ContextLocationCard(position: entry.position, place: entry.place, displayName: entry.displayName),
       ContextWeatherCard(weather: entry.weather),
       Card.outlined(
         margin: const EdgeInsets.symmetric(vertical: 4),

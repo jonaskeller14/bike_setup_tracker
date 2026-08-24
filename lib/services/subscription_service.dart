@@ -4,17 +4,14 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
-import 'package:in_app_purchase_storekit/store_kit_2_wrappers.dart';
 import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
 
 import '../models/strava/strava_entitlement.dart';
 import '../models/strava/strava_plan.dart';
-import '../models/strava/strava_store_offer.dart';
 
 export '../models/strava/strava_entitlement.dart';
 
@@ -63,17 +60,18 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
   bool _justPurchasedStrava = false;
   bool get justPurchasedStrava => _justPurchasedStrava;
 
-  final Map<StravaPlan, StravaStoreOffer> _planOffers = {};
+  /// Maps a StravaPlan to the ProductDetails that should be used to purchase
+  /// it on the current platform. On Android, each entry is a
+  /// GooglePlayProductDetails for a specific base plan (carries its
+  /// offerToken). On iOS, each entry is a distinct App Store product.
+  final Map<StravaPlan, ProductDetails> _planProducts = {};
 
   SubscriptionState _state = const SubscriptionIdle();
   StravaEntitlement? _entitlement;
 
   bool get isBusy => switch (_state) {
     SubscriptionIdle() || SubscriptionError() => false,
-    SubscriptionPurchasing() ||
-    SubscriptionVerifying() ||
-    SubscriptionRestoring() ||
-    SubscriptionLoadingProducts() => true,
+    SubscriptionPurchasing() || SubscriptionVerifying() || SubscriptionRestoring() || SubscriptionLoadingProducts() => true,
   };
 
   /// True while `restorePurchases` is in flight at app launch — the cached
@@ -89,7 +87,7 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
   // network). verifySubscription is idempotent server-side, so retrying is safe.
   static const int _maxVerifyAttempts = 3;
 
-  // Restore triggered by paywall button
+  // Restore triggered by paywall button 
   // --> timeout can surface "nothing found" without flashing errors during
   // the silent launch/resume/lapse auto-restores.
   bool _userInitiatedRestore = false;
@@ -99,7 +97,6 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
     final s = _state;
     return s is SubscriptionError ? s.message : null;
   }
-
   bool get storeAvailable => _storeAvailable;
   bool get isInitialized => _isInitialized;
   String? get userId => _userId;
@@ -107,21 +104,11 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
   bool get hasStravaEntitlement => _entitlement?.isActive ?? false;
   StravaPlan? get activePlan => _entitlement?.plan;
   bool get isRestoring => _isRestoring;
-  bool get offersReady => StravaPlan.values.every(_planOffers.containsKey) && !isBusy;
-  StravaStoreOffer? offerFor(StravaPlan plan) => _planOffers[plan];
-  String? localizedPrice(StravaPlan plan) => _planOffers[plan]?.localizedRecurringPrice;
 
-  int? get yearlySavingsPercent {
-    final monthly = _planOffers[StravaPlan.monthly];
-    final yearly = _planOffers[StravaPlan.yearly];
-    if (monthly == null || yearly == null) return null;
-    return StravaStoreOffer.yearlySavingsPercent(
-      monthlyPrice: monthly.recurringPrice,
-      monthlyCurrencyCode: monthly.currencyCode,
-      yearlyPrice: yearly.recurringPrice,
-      yearlyCurrencyCode: yearly.currencyCode,
-    );
-  }
+  /// Localized price string from the store for a given plan (e.g. "€0.99",
+  /// "$1.09"), or `null` if products haven't loaded yet — callers should fall
+  /// back to the hardcoded [StravaPlan.price].
+  String? localizedPrice(StravaPlan plan) => _planProducts[plan]?.price;
 
   @override
   void notifyListeners() {
@@ -140,14 +127,11 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state != AppLifecycleState.resumed) {
-      return;
-    }
-    if (hasStravaEntitlement || !_storeAvailable || _isRestoring) {
-      return;
-    }
+    if (state != AppLifecycleState.resumed) { return; }
+    if (hasStravaEntitlement || !_storeAvailable || _isRestoring) { return; }
     final now = DateTime.now();
-    if (_lastAutoRestoreAt != null && now.difference(_lastAutoRestoreAt!) < _autoRestoreCooldown) {
+    if (_lastAutoRestoreAt != null &&
+        now.difference(_lastAutoRestoreAt!) < _autoRestoreCooldown) {
       return;
     }
     _lastAutoRestoreAt = now;
@@ -178,13 +162,12 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
     // handlers then own the outcome. Without this guard a slow verify (cold
     // Cloud Function start or the bounded transient retries) could still be in
     // flight at 5s and we'd wrongly tell the user no purchase was found.
-    if (_userInitiatedRestore && _state is SubscriptionRestoring && !hasStravaEntitlement) {
-      _setState(
-        const SubscriptionError(
+    if (_userInitiatedRestore &&
+        _state is SubscriptionRestoring &&
+        !hasStravaEntitlement) {
+      _setState(const SubscriptionError(
           'No previous purchase found for this account. Make sure you are '
-          'signed in to the same Google/Apple account that bought the subscription.',
-        ),
-      );
+          'signed in to the same Google/Apple account that bought the subscription.'));
     }
     _endRestore();
   }
@@ -220,7 +203,8 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
       // store-initiated events (Ask to Buy, deferred purchases) can't be
       // surfaced. Safe no-op on Android.
       if (Platform.isIOS) {
-        final addition = _iap.getPlatformAddition<InAppPurchaseStoreKitPlatformAddition>();
+        final addition = _iap
+            .getPlatformAddition<InAppPurchaseStoreKitPlatformAddition>();
         await addition.setDelegate(_StoreKitPaymentQueueDelegate());
       }
 
@@ -255,10 +239,15 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
     if (_userId == null) return;
 
     await _entitlementSub?.cancel();
-    _entitlementSub = FirebaseFirestore.instance.collection('users').doc(_userId).snapshots().listen((snap) {
+    _entitlementSub = FirebaseFirestore.instance
+        .collection('users')
+        .doc(_userId)
+        .snapshots()
+        .listen((snap) {
       final previousEntitlement = _entitlement;
       final data = snap.data();
-      final entitlementMap = data?[_firestoreField] as Map<String, dynamic>?;
+      final entitlementMap =
+          data?[_firestoreField] as Map<String, dynamic>?;
       final stravaMap = entitlementMap?['strava'] as Map<String, dynamic>?;
       _entitlement = StravaEntitlement.fromMap(stravaMap);
       notifyListeners();
@@ -301,19 +290,10 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
         debugPrint('SubscriptionService: products not found in store: ${response.notFoundIDs}');
       }
 
-      _planOffers.clear();
-      if (Platform.isAndroid) {
-        _loadAndroidOffers(response.productDetails);
-      } else if (Platform.isIOS) {
-        await _loadIosOffers(response.productDetails);
-      }
-      if (!StravaPlan.values.every(_planOffers.containsKey)) {
-        _setState(
-          const SubscriptionError(
-            'Subscription plans are not fully available. Please try again later.',
-          ),
-        );
-        return;
+      _planProducts.clear();
+      for (final pd in response.productDetails) {
+        final plan = _planForProduct(pd);
+        if (plan != null) _planProducts[plan] = pd;
       }
       _setState(const SubscriptionIdle());
     } catch (e) {
@@ -321,64 +301,17 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
-  void _loadAndroidOffers(List<ProductDetails> products) {
-    final candidates = <StravaPlan, List<GooglePlayProductDetails>>{};
-    for (final pd in products.whereType<GooglePlayProductDetails>()) {
+  StravaPlan? _planForProduct(ProductDetails pd) {
+    if (Platform.isIOS) {
+      return StravaPlan.fromIosProductId(pd.id);
+    }
+    if (Platform.isAndroid && pd is GooglePlayProductDetails) {
       final idx = pd.subscriptionIndex;
       final offers = pd.productDetails.subscriptionOfferDetails;
-      if (idx == null || offers == null || idx >= offers.length) continue;
-      final plan = StravaPlan.fromAndroidBasePlanId(offers[idx].basePlanId);
-      if (plan != null) candidates.putIfAbsent(plan, () => []).add(pd);
+      if (idx == null || offers == null || idx >= offers.length) return null;
+      return StravaPlan.fromAndroidBasePlanId(offers[idx].basePlanId);
     }
-
-    for (final entry in candidates.entries) {
-      entry.value.sort((a, b) => _androidOfferSortKey(a).compareTo(_androidOfferSortKey(b)));
-      final selected = entry.value.first;
-      final details = selected.productDetails.subscriptionOfferDetails![selected.subscriptionIndex!];
-      final recurringPhase = details.pricingPhases.last;
-      _planOffers[entry.key] = StravaStoreOffer(
-        productDetails: selected,
-        localizedRecurringPrice: recurringPhase.formattedPrice,
-        recurringPrice: recurringPhase.priceAmountMicros / 1000000,
-        currencyCode: recurringPhase.priceCurrencyCode,
-        isTrialEligible: details.offerTags.contains(
-          StravaStoreOffer.trialOfferTag,
-        ),
-        offerToken: selected.offerToken,
-      );
-    }
-  }
-
-  String _androidOfferSortKey(GooglePlayProductDetails product) {
-    final details = product.productDetails.subscriptionOfferDetails![product.subscriptionIndex!];
-    return androidStravaOfferSelectionKey(
-      offerTags: details.offerTags,
-      offerId: details.offerId,
-      offerToken: details.offerIdToken,
-    );
-  }
-
-  Future<void> _loadIosOffers(List<ProductDetails> products) async {
-    for (final product in products) {
-      final plan = StravaPlan.fromIosProductId(product.id);
-      if (plan == null) continue;
-      var eligible = false;
-      try {
-        eligible = await SK2Product.isIntroductoryOfferEligible(product.id);
-      } on PlatformException catch (error) {
-        debugPrint(
-          'SubscriptionService: intro eligibility unavailable for '
-          '${product.id}: ${error.message}',
-        );
-      }
-      _planOffers[plan] = StravaStoreOffer(
-        productDetails: product,
-        localizedRecurringPrice: product.price,
-        recurringPrice: product.rawPrice,
-        currencyCode: product.currencyCode,
-        isTrialEligible: eligible,
-      );
-    }
+    return null;
   }
 
   /// Initiates a purchase for the given plan. Resolves when the platform
@@ -389,8 +322,8 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
       _setState(const SubscriptionError('Store is not available on this device.'));
       return;
     }
-    final offer = _planOffers[plan];
-    if (offer == null || !offersReady) {
+    final product = _planProducts[plan];
+    if (product == null) {
       _setState(const SubscriptionError('Plan not loaded yet — try again in a moment.'));
       return;
     }
@@ -398,11 +331,10 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
     _setState(const SubscriptionPurchasing());
     try {
       final PurchaseParam param;
-      final product = offer.productDetails;
       if (Platform.isAndroid && product is GooglePlayProductDetails) {
         param = GooglePlayPurchaseParam(
           productDetails: product,
-          offerToken: offer.offerToken,
+          offerToken: product.offerToken,
           applicationUserName: _userId,
         );
       } else {
@@ -411,10 +343,7 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
           applicationUserName: _userId,
         );
       }
-      final launched = await _iap.buyNonConsumable(purchaseParam: param);
-      if (!launched && _state is SubscriptionPurchasing) {
-        _setState(const SubscriptionIdle());
-      }
+      await _iap.buyNonConsumable(purchaseParam: param);
     } catch (e) {
       _setState(SubscriptionError('Purchase failed: $e'));
     }
@@ -436,7 +365,6 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
       // If nothing was restored the stream emits no events, so status would
       // stay stuck at restoring forever. Reset it here; stream events that
       // arrive after this point will override the status as needed.
-      // TODO: Review, is this correct?
       if (_state is SubscriptionRestoring) {
         _setState(const SubscriptionIdle());
       }
@@ -448,16 +376,8 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
 
   Future<void> _onPurchaseUpdate(List<PurchaseDetails> purchases) async {
     for (final pd in purchases) {
-      // Google Play reports a user-cancelled billing dialog without a product
-      // ID, so handle cancellation before filtering for Strava products.
-      if (pd.status == PurchaseStatus.canceled && _state is SubscriptionPurchasing) {
-        _setState(const SubscriptionIdle());
-        continue;
-      }
       if (!StravaPlan.isStravaProductId(pd.productID)) continue;
-      debugPrint(
-        'SubscriptionService _onPurchaseUpdate: ${pd.productID} → ${pd.status} (source=${pd.verificationData.source})',
-      );
+      debugPrint('SubscriptionService _onPurchaseUpdate: ${pd.productID} → ${pd.status} (source=${pd.verificationData.source})');
       bool granted = false;
       switch (pd.status) {
         case PurchaseStatus.pending:
@@ -512,7 +432,8 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
 
     try {
       debugPrint('SubscriptionService _verifyAndAcknowledge: calling verifySubscription for ${pd.productID}');
-      final functions = FirebaseFunctions.instanceFor(region: 'europe-west3');
+      final functions =
+          FirebaseFunctions.instanceFor(region: 'europe-west3');
       // On iOS, the App Store Server API expects a numeric transactionId
       // (e.g. "2000000123456789"), not the base64 receipt that
       // serverVerificationData contains. pd.purchaseID is the
@@ -527,7 +448,9 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
       await functions.httpsCallable('verifySubscription').call<void>({
         'platform': Platform.isIOS ? 'ios' : 'android',
         'productId': pd.productID,
-        'purchaseToken': Platform.isIOS ? iosTxId : pd.verificationData.serverVerificationData,
+        'purchaseToken': Platform.isIOS
+            ? iosTxId
+            : pd.verificationData.serverVerificationData,
         'source': pd.verificationData.source,
         // Android needs the package name on the backend (Play API call).
         // It's not available on PurchaseDetails directly, but the Cloud
@@ -544,7 +467,9 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
     } on FirebaseFunctionsException catch (e) {
       // Transient (auth/App Check not ready, network) → bounded retry with
       // backoff. ensureSignedIn() is cheap when already signed in.
-      final isTransient = e.code == 'unauthenticated' || e.code == 'unavailable' || e.code == 'deadline-exceeded';
+      final isTransient = e.code == 'unauthenticated' ||
+          e.code == 'unavailable' ||
+          e.code == 'deadline-exceeded';
       if (isTransient && attempt < _maxVerifyAttempts - 1) {
         debugPrint('SubscriptionService: verify failed (${e.code}) — retry ${attempt + 1}/${_maxVerifyAttempts - 1}');
         await AuthService.ensureSignedIn();
@@ -562,13 +487,11 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
       // The store reports the subscription as lapsed/expired (CF returns
       // permission-denied "Purchase is not active."). Terminal — no retry, and a
       // clear, non-alarming message rather than a raw verify error.
-      if (e.code == 'permission-denied' && (e.message ?? '').toLowerCase().contains('not active')) {
-        _setState(
-          const SubscriptionError(
+      if (e.code == 'permission-denied' &&
+          (e.message ?? '').toLowerCase().contains('not active')) {
+        _setState(const SubscriptionError(
             'This subscription is no longer active on your store account. '
-            'If you renewed recently, try again in a moment.',
-          ),
-        );
+            'If you renewed recently, try again in a moment.'));
         return false;
       }
       _setState(SubscriptionError(_friendlyVerifyError(e) ?? 'Could not verify purchase: [${e.code}] ${e.message}'));
@@ -607,7 +530,8 @@ class _StoreKitPaymentQueueDelegate implements SKPaymentQueueDelegateWrapper {
   bool shouldContinueTransaction(
     SKPaymentTransactionWrapper transaction,
     SKStorefrontWrapper storefront,
-  ) => true;
+  ) =>
+      true;
 
   @override
   bool shouldShowPriceConsent() => false;

@@ -1,13 +1,11 @@
 ---
-description: Explore a feature/change in a GitHub issue and prepare an issue comment (no code)
-argument-hint: "<GitHub issue URL or number>"
+description: Explore a feature/change and write a concept-brainstorming doc in doc/ (no code)
+argument-hint: "<topic> — what you want to explore"
 allowed-tools: Read, Grep, Glob, Bash(date:*), Bash(ls:*), Write, WebFetch
 ---
 
-GitHub Issues are canonical. Read the issue body/comments and prepare the brainstorm as an issue comment; do not create a new planning file under `doc/`. The issue body owns status/checklists, while comments own rationale and Mermaid architecture diagrams.
-
-Produce an **issue comment** for the GitHub issue supplied in `$ARGUMENTS`, using existing
-brainstorm docs only as historical style reference.
+Produce a **concept-brainstorming document** for `$ARGUMENTS`, matching the style of the
+existing brainstorm docs in `doc/` (e.g. `doc/20260717_component_preset_concepts.md`).
 This is a thinking step: **do not write or change any app code.**
 
 ## 1. Ground it in the codebase first
@@ -16,8 +14,10 @@ This is a thinking step: **do not write or change any app code.**
 - Note real constraints you find (existing patterns, migrations, feature flags, platform
   guards) so the options are grounded, not generic.
 
-## 2. Prepare the issue comment
-- Do not create a local planning file.
+## 2. Write the doc
+- Filename: `doc/<YYYYMMDD>_<slug>_concept.md` where `<YYYYMMDD>` is today's date
+  (run `date +%Y%m%d`) and `<slug>` is the topic in lower_snake_case. If the user gave an
+  explicit filename in `$ARGUMENTS`, use that instead.
 - Structure it like the existing concept docs:
   - `# <Topic> — concept brainstorming`
   - `**Status:** Brainstorming — pick one option per section, then run /plan.`
@@ -30,8 +30,8 @@ This is a thinking step: **do not write or change any app code.**
   - `## Open questions for the final plan` — anything the user must decide before /plan.
 
 ## 3. Hand back
-- Ask the user to confirm or adjust choices. After confirmation, update the issue body with
-  implementation phases and acceptance checkboxes.
+- Print the file path and a 3–5 line summary: the key decision areas and your recommended
+  combination. Then ask the user to confirm/adjust choices before running `/plan`.
 
 ## Constraints
 - No app code, no dependency changes, no migrations — this step only writes the doc.

@@ -1,20 +1,19 @@
 ---
-description: Emit a paste-ready brief to execute ONE GitHub issue phase in a fresh context window
-argument-hint: "<GitHub issue URL or number> [phase number — defaults to next unfinished]"
+description: Emit a paste-ready, self-contained brief to execute ONE plan phase in a fresh context window
+argument-hint: "<path to the _implementation_plan.md doc> [phase number — defaults to next unfinished]"
 allowed-tools: Read, Grep, Glob, Edit
 ---
 
-GitHub Issues are canonical. Read the phase from the issue body and relevant comments; do not create or update a local plan file under `doc/`. On completion, check the issue boxes and add a progress comment with verification evidence.
-
-Generate a self-contained kickoff brief for a single phase of a GitHub issue, so it can be
-executed in a **fresh Claude context window**. `$ARGUMENTS` is the issue URL/number, optionally
-followed by a phase number (e.g. `1 3`). Do not create or update a plan file under `doc/`.
+Generate a self-contained kickoff brief for a single phase of an implementation plan, so it
+can be executed in a **fresh Claude context window** without loading the whole plan or this
+conversation. `$ARGUMENTS` = the plan doc path, optionally followed by a phase number (e.g.
+`doc/20260724_foo_implementation_plan.md` or `… 3`).
 
 ## 1. Pick and read the phase
 - If a phase number was given, use it. Otherwise **default to the first phase whose
   `**Status:**` is not `✅ Complete`** (the next unfinished phase, top to bottom). If every
   phase is complete, say so and stop.
-- State which phase you selected, then locate it in the issue body and read its goal, `**Files:**`,
+- State which phase you selected, then locate `## Phase <N>` and read its goal, `**Files:**`,
   checklist,
   `**Verification:**`, and `**Commit:**`.
 - Skim the plan's `## Resolved open questions` and `## Feature flag` for any decision that
@@ -22,13 +21,14 @@ followed by a phase number (e.g. `1 3`). Do not create or update a plan file und
   what is assumed already done).
 
 ## 2. (Optional) mark it in progress
-- Do not edit a local plan file. If requested, update only the issue phase status.
+- In the plan doc, set this phase's `**Status:**` line to `🔄 In progress`. Leave all other
+  phases untouched. (Skip if the user asked you not to modify the plan.)
 
 ## 3. Print the paste-ready brief
 Print ONE fenced ```markdown code block (nothing else around it that the user shouldn't
 copy) containing a fully self-contained brief. It must include, in this order:
 
-- **Title:** `Implement Phase <N> — <goal>` and the issue URL (for reference).
+- **Title:** `Implement Phase <N> — <goal>` and the plan doc path (for reference if needed).
 - **Context:** 2–4 lines — what the feature is, the relevant decisions/flag, and what
   earlier phases are assumed complete. Enough to work without reading the whole plan.
 - **Scope — files to touch:** the concrete paths from `**Files:**`.
@@ -41,8 +41,8 @@ copy) containing a fully self-contained brief. It must include, in this order:
 - **Verification:** the exact `flutter test` targets / `flutter analyze` / manual checks
   from the phase's `**Verification:**`. Nothing is done until these pass.
 - **Out of scope:** do not start other phases or touch files outside the scope list.
-- **On completion:** when all verification passes, check this phase's issue boxes and add a
-  one-line progress comment with verification evidence; then stage the changes
+- **On completion:** when all verification passes, open `<plan doc>` and set this phase's
+  `**Status:**` to `✅ Complete` with a one-line note of what landed; then stage the changes
   and **stop — summarize what changed and ask before committing.** The user reviews every
   diff manually. Only commit once they say so, with `<Commit subject>` (or `/gc`), following
   the repo's commit rules. Never commit as the closing step of the phase on your own.

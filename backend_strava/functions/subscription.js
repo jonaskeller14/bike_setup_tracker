@@ -8,10 +8,6 @@ const {
   NotificationTypeV2,
   Environment,
 } = require("@apple/app-store-server-library");
-const {
-  googlePlayBillingPhase,
-  appStoreBillingPhase,
-} = require("./common");
 
 /**
  * Maps a Play base-plan tag or App Store product id to the canonical plan
@@ -191,8 +187,6 @@ exports.playSubscriptionWebhook = onMessagePublished(
         break;
 
       case 6:  // SUBSCRIPTION_IN_GRACE_PERIOD — keep access during grace period
-        await _refreshPlayEntitlement(userRefs, purchaseToken);
-        break;
       default:
         logger.info("PLAY_NOTIFICATION_NO_ACTION", { notificationType });
         break;
@@ -234,7 +228,6 @@ async function _refreshPlayEntitlement(userRefs, purchaseToken) {
   const update = {
     "entitlement.strava.expiresAt": admin.firestore.Timestamp.fromDate(expiry),
     "entitlement.strava.autoRenewing": purchase.subscriptionState === "SUBSCRIPTION_STATE_ACTIVE",
-    "entitlement.strava.billingPhase": googlePlayBillingPhase(lineItem),
     ...(plan && { "entitlement.strava.plan": plan }),
   };
 
@@ -355,7 +348,6 @@ exports.appStoreServerNotifications = onRequest(
         const update = {
           "entitlement.strava.expiresAt": admin.firestore.Timestamp.fromDate(expiry),
           "entitlement.strava.autoRenewing": true,
-          "entitlement.strava.billingPhase": "standard",
           ...(plan && { "entitlement.strava.plan": plan }),
         };
         await Promise.all(userRefs.map(ref => ref.update(update)));
@@ -389,7 +381,6 @@ exports.appStoreServerNotifications = onRequest(
           const update = {
             "entitlement.strava.expiresAt": admin.firestore.Timestamp.fromDate(expiry),
             "entitlement.strava.autoRenewing": true,
-            "entitlement.strava.billingPhase": appStoreBillingPhase(transaction),
             ...(plan && { "entitlement.strava.plan": plan }),
           };
           await Promise.all(userRefs.map(ref => ref.update(update)));
@@ -442,7 +433,6 @@ async function _expireEntitlement(userRef, platform) {
   await userRef.update({
     "entitlement.strava.expiresAt": admin.firestore.Timestamp.now(),
     "entitlement.strava.autoRenewing": false,
-    "entitlement.strava.billingPhase": "standard",
   });
   logger.info("ENTITLEMENT_EXPIRED", { platform, userId: userRef.id });
 }
@@ -486,7 +476,6 @@ async function verifyGooglePlayPurchase(productId, purchaseToken) {
     productId: lineItem.productId || ANDROID_PRODUCT_ID,
     platform: "android",
     autoRenewing: purchase.subscriptionState === "SUBSCRIPTION_STATE_ACTIVE",
-    billingPhase: googlePlayBillingPhase(lineItem),
     purchaseToken,                          // bridge for webhook lookups
   };
 }
@@ -537,7 +526,6 @@ async function verifyAppStorePurchase(productId, transactionId) {
     productId: decoded.productId,
     platform: "ios",
     autoRenewing,
-    billingPhase: appStoreBillingPhase(decoded),
     originalTransactionId: decoded.originalTransactionId, // bridge for webhook lookups
   };
 }

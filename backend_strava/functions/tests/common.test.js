@@ -1,4 +1,9 @@
-const { isBikeActivity } = require('../common');
+const {
+  isBikeActivity,
+  hasActiveStravaEntitlement,
+  googlePlayBillingPhase,
+  appStoreBillingPhase,
+} = require('../common');
 
 // Mock Firebase Admin so the tests run locally and instantly
 // without needing a real database or internet connection.
@@ -45,6 +50,52 @@ jest.mock('../firebase', () => {
     db: mockDb,
     admin: require('firebase-admin')
   };
+});
+
+describe('Strava entitlement evaluation', () => {
+  const now = Date.parse('2026-08-21T12:00:00Z');
+
+  it('rejects missing and malformed entitlements', () => {
+    expect(hasActiveStravaEntitlement(null, now)).toBe(false);
+    expect(hasActiveStravaEntitlement({ expiresAt: 'invalid' }, now)).toBe(false);
+  });
+
+  it('accepts paid and trial entitlements before expiry', () => {
+    const expiresAt = new Date(now + 60_000).toISOString();
+    expect(hasActiveStravaEntitlement({ expiresAt, autoRenewing: true }, now)).toBe(true);
+    expect(hasActiveStravaEntitlement({ expiresAt, autoRenewing: false }, now)).toBe(true);
+  });
+
+  it('keeps canceled access only until expiry', () => {
+    const expiresAt = new Date(now - 1).toISOString();
+    expect(hasActiveStravaEntitlement({ expiresAt, autoRenewing: false }, now)).toBe(false);
+  });
+
+  it('allows a short renewal webhook buffer only when auto-renewing', () => {
+    const recentlyExpired = new Date(now - 60_000).toISOString();
+    const longExpired = new Date(now - 5 * 60 * 60 * 1000).toISOString();
+    expect(hasActiveStravaEntitlement({ expiresAt: recentlyExpired, autoRenewing: true }, now)).toBe(true);
+    expect(hasActiveStravaEntitlement({ expiresAt: longExpired, autoRenewing: true }, now)).toBe(false);
+  });
+
+  it('supports Firestore Timestamp-like values', () => {
+    const expiresAt = { toMillis: () => now + 60_000 };
+    expect(hasActiveStravaEntitlement({ expiresAt, autoRenewing: false }, now)).toBe(true);
+  });
+});
+
+describe('store billing phase derivation', () => {
+  it('derives Google Play free-trial phases', () => {
+    expect(googlePlayBillingPhase({ offerPhase: { freeTrial: {} } })).toBe('trial');
+    expect(googlePlayBillingPhase({ offerPhase: 'FREE_TRIAL' })).toBe('trial');
+    expect(googlePlayBillingPhase({ offerDetails: { offerTags: ['strava-trial-7d'] } })).toBe('standard');
+  });
+
+  it('derives App Store introductory phases', () => {
+    expect(appStoreBillingPhase({ offerType: 1 })).toBe('trial');
+    expect(appStoreBillingPhase({ offerDiscountType: 'FREE_TRIAL' })).toBe('trial');
+    expect(appStoreBillingPhase({ offerType: 2 })).toBe('standard');
+  });
 });
 
 // Require our common module AFTER mocking firebase

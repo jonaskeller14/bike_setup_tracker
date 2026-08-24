@@ -20,6 +20,16 @@ flutter pub run build_runner clean         # Clean generated files
 
 CI runs `flutter pub get` → `flutter analyze` → `flutter test` on push to `main`/`dev`.
 
+## Planning and feature status
+
+GitHub Issues are the canonical planning and status tracker:
+
+- Put the summary, acceptance criteria, implementation phases, and progress checkboxes in the issue body.
+- Mark completed work with checked boxes and keep the issue status current.
+- Add comments for architecture decisions, Mermaid diagrams, implementation findings, test evidence, and links to relevant pull requests or commits.
+
+When implementing an issue, read the issue body and its comments first, update the relevant checklist items as work lands, and leave a concise progress comment when a phase changes status. Do not close the issue.
+
 ## Architecture
 
 ### State Management

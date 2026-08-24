@@ -68,6 +68,11 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Short-lived OAuth state records map random state to a UID. Server-only.
+    match /strava_oauth_states/{state} {
+      allow read, write: if false;
+    }
+
     // `server_config/strava_limits` — read-only availability config.
     match /server_config/{doc} {
       allow read:  if true;

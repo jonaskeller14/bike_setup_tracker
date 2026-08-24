@@ -104,7 +104,10 @@ class TipService extends ChangeNotifier {
         param = PurchaseParam(productDetails: product);
       }
       // Consumable: autoConsume (default true) makes it re-buyable on Android.
-      await _iap.buyConsumable(purchaseParam: param);
+      final launched = await _iap.buyConsumable(purchaseParam: param);
+      if (!launched) {
+        _setBusy(false);
+      }
     } catch (e) {
       _setBusy(false);
       _setError('Tip purchase failed: $e');
@@ -115,7 +118,7 @@ class TipService extends ChangeNotifier {
     for (final pd in purchases) {
       debugPrint('TipService _onPurchaseUpdate: ${pd.productID} → ${pd.status}');
 
-      // On iOS a canceled/failed purchase can arrive with an empty productID,
+      // A canceled/failed purchase can arrive with an empty productID,
       // so the terminal states must clear our busy spinner regardless of the
       // id — tips are the only purchases this service ever initiates. The
       // success path stays gated to recognised tip products.

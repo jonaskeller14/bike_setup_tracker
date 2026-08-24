@@ -1,5 +1,3 @@
-import 'dart:ui' show ImageFilter;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geocoding/geocoding.dart' as geo;
@@ -10,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../../env/env.dart';
 import '../../models/app_settings.dart';
 import '../../models/context/context_position.dart';
+import '../map_pins.dart';
 
 class ContextLocationCardDiff extends StatelessWidget {
   final LocationData? positionA;
@@ -136,18 +135,16 @@ class _ComparisonMap extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settings = context.watch<AppSettings>();
-    final points = <({String label, LatLng point, Color color})>[
+    final points = <({String label, LatLng point})>[
       if (positionA?.latitude != null && positionA?.longitude != null)
         (
           label: 'A',
           point: LatLng(positionA!.latitude!, positionA!.longitude!),
-          color: Theme.of(context).colorScheme.primary,
         ),
       if (positionB?.latitude != null && positionB?.longitude != null)
         (
           label: 'B',
           point: LatLng(positionB!.latitude!, positionB!.longitude!),
-          color: Theme.of(context).colorScheme.primary,
         ),
     ];
     if (points.isEmpty) return const SizedBox.shrink();
@@ -244,37 +241,7 @@ class _ComparisonMap extends StatelessWidget {
                   point: point.point,
                   width: 48,
                   height: 48,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      ImageFiltered(
-                        imageFilter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
-                        child: const Icon(Icons.location_pin, size: 46, color: Colors.black38),
-                      ),
-                      Icon(Icons.location_pin, size: 46, color: point.color),
-                      Align(
-                        alignment: const Alignment(0, -0.35),
-                        child: Container(
-                          width: 16,
-                          height: 16,
-                          alignment: Alignment.center,
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Text(
-                            point.label,
-                            style: TextStyle(
-                              color: point.color,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              height: 1,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                  child: SetupMapPin.label(label: point.label)
                 ),
             ],
           ),

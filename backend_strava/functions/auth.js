@@ -12,6 +12,52 @@ const {
 // drift beyond this freshness boundary.
 const FULL_SYNC_FRESHNESS_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 const OAUTH_STATE_TTL_MS = 10 * 60 * 1000;
+// Temporary compatibility window for released app versions that still send
+// their Firebase UID as the OAuth state. Remove this fallback after rollout.
+const LEGACY_OAUTH_STATE_DEADLINE_MS = Date.parse("2026-10-31T00:00:00Z");
+const LEGACY_FIREBASE_UID_PATTERN = /^[A-Za-z0-9]{28}$/;
+
+async function resolveOAuthUserId(state, nowMs = Date.now()) {
+  const stateRef = db.collection("strava_oauth_states").doc(String(state));
+  let userId;
+
+  try {
+    userId = await db.runTransaction(async (tx) => {
+      const stateSnap = await tx.get(stateRef);
+      if (!stateSnap.exists) return null;
+
+      const stateData = stateSnap.data();
+      const expiresAt = stateData?.expiresAt?.toMillis?.() ?? 0;
+      if (!stateData?.userId || expiresAt <= nowMs) {
+        throw new Error("INVALID_OR_EXPIRED_STATE");
+      }
+      tx.delete(stateRef);
+      return stateData.userId;
+    });
+  } catch (error) {
+    logger.warn("INVALID_OR_EXPIRED_OAUTH_STATE");
+    return null;
+  }
+
+  if (userId) return { userId, isLegacy: false };
+  if (nowMs >= LEGACY_OAUTH_STATE_DEADLINE_MS ||
+      !LEGACY_FIREBASE_UID_PATTERN.test(String(state))) {
+    return null;
+  }
+
+  try {
+    await admin.auth().getUser(String(state));
+    logger.warn("LEGACY_OAUTH_STATE_ACCEPTED", {
+      migrationDeadline: new Date(LEGACY_OAUTH_STATE_DEADLINE_MS).toISOString(),
+    });
+    return { userId: String(state), isLegacy: true };
+  } catch (error) {
+    logger.warn("INVALID_LEGACY_OAUTH_STATE");
+    return null;
+  }
+}
+
+exports.resolveOAuthUserId = resolveOAuthUserId;
 
 /**
  * Creates a short-lived, one-time OAuth state value. The Firebase UID never
@@ -48,6 +94,8 @@ exports.createStravaOAuthState = onCall(
  * STRATEGY: OAuth Token Exchange
  * Strava redirects the user here after they click 'Authorize' in the app.
  * We receive a 'code' and a short-lived, one-time server-created state value.
+ * During the migration window, legacy app versions may still send a Firebase
+ * UID as state; that compatibility path expires on 2026-10-31.
  *
  * Writes:
  *   athletes/{athleteId}  - profile + oauth + initial sync state
@@ -64,23 +112,11 @@ exports.exchangeToken = onRequest(
       return res.status(400).send("Missing code or user identification");
     }
 
-    const stateRef = db.collection("strava_oauth_states").doc(String(state));
-    let userId;
-    try {
-      await db.runTransaction(async (tx) => {
-        const stateSnap = await tx.get(stateRef);
-        const stateData = stateSnap.data();
-        const expiresAt = stateData?.expiresAt?.toMillis?.() ?? 0;
-        if (!stateSnap.exists || !stateData?.userId || expiresAt <= Date.now()) {
-          throw new Error("INVALID_OR_EXPIRED_STATE");
-        }
-        userId = stateData.userId;
-        tx.delete(stateRef);
-      });
-    } catch (e) {
-      logger.warn("INVALID_OR_EXPIRED_OAUTH_STATE");
+    const oauthUser = await resolveOAuthUserId(state);
+    if (!oauthUser) {
       return res.redirect("bike-setup-tracker://strava-auth?success=false&error=invalid_state");
     }
+    const { userId } = oauthUser;
 
     let isEntitled = false;
     try {

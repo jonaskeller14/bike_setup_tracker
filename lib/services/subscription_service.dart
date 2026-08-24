@@ -411,7 +411,10 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
           applicationUserName: _userId,
         );
       }
-      await _iap.buyNonConsumable(purchaseParam: param);
+      final launched = await _iap.buyNonConsumable(purchaseParam: param);
+      if (!launched && _state is SubscriptionPurchasing) {
+        _setState(const SubscriptionIdle());
+      }
     } catch (e) {
       _setState(SubscriptionError('Purchase failed: $e'));
     }
@@ -445,6 +448,12 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
 
   Future<void> _onPurchaseUpdate(List<PurchaseDetails> purchases) async {
     for (final pd in purchases) {
+      // Google Play reports a user-cancelled billing dialog without a product
+      // ID, so handle cancellation before filtering for Strava products.
+      if (pd.status == PurchaseStatus.canceled && _state is SubscriptionPurchasing) {
+        _setState(const SubscriptionIdle());
+        continue;
+      }
       if (!StravaPlan.isStravaProductId(pd.productID)) continue;
       debugPrint(
         'SubscriptionService _onPurchaseUpdate: ${pd.productID} → ${pd.status} (source=${pd.verificationData.source})',

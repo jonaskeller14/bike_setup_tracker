@@ -17,6 +17,7 @@ StravaEntitlement _make({
       productId: 'strava_sync_monthly',
       platform: 'ios',
       autoRenewing: autoRenewing,
+      billingPhase: StravaBillingPhase.standard,
     );
 
 void main() {
@@ -73,6 +74,7 @@ void main() {
           productId: '',
           platform: platform,
           autoRenewing: true,
+          billingPhase: StravaBillingPhase.standard,
         );
 
     test('ios → Apple App Store', () {
@@ -190,6 +192,28 @@ void main() {
       });
       expect(e!.productId, 'strava_sync_monthly');
       expect(e.platform, 'ios');
+    });
+
+    test('parses trial billing phase', () {
+      final entitlement = StravaEntitlement.fromMap({
+        'plan': 'yearly',
+        'expiresAt': '2026-08-28T12:00:00Z',
+        'productId': 'strava_sync_yearly',
+        'platform': 'ios',
+        'autoRenewing': true,
+        'billingPhase': 'trial',
+      });
+
+      expect(entitlement?.billingPhase, StravaBillingPhase.trial);
+    });
+
+    test('defaults older records to standard billing', () {
+      final entitlement = StravaEntitlement.fromMap({
+        'plan': 'monthly',
+        'expiresAt': '2026-09-21T12:00:00Z',
+      });
+
+      expect(entitlement?.billingPhase, StravaBillingPhase.standard);
     });
   });
 }

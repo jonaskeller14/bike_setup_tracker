@@ -3,6 +3,45 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "Codex: gc",
+            "type": "shell",
+            "command": "codex",
+            "args": [
+                "exec",
+                "--cd",
+                "${workspaceFolder}",
+                "--model",
+                "gpt-5.6-luna",
+                "--sandbox",
+                "workspace-write",
+                "Use .agents/skills/gc-fast/SKILL.md. Commit the currently staged changes and follow those instructions exactly."
+            ],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Claude: gc",
+            "type": "shell",
+            "command": "claude",
+            "args": [
+                "--model",
+                "haiku",
+                "/gc"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "focus": true
+            },
+            "problemMatcher": []
+        },
+        {
             "label": "Build & Install APK (Debug) [R3CX50CQWVA]",
             "type": "shell",
             "command": "flutter build apk --debug; if ($LASTEXITCODE -eq 0) { adb -s R3CX50CQWVA install build\\app\\outputs\\flutter-apk\\app-debug.apk } else { exit $LASTEXITCODE }",

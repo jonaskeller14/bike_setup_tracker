@@ -30,6 +30,8 @@ GitHub Issues are the canonical planning and status tracker:
 
 When implementing an issue, read the issue body and its comments first, update the relevant checklist items as work lands, and leave a concise progress comment when a phase changes status. Do not close the issue.
 
+- When using the GitHub CLI to write Markdown, use actual multiline input (for example, a PowerShell here-string), never literal `\n` escapes.
+
 ## Architecture
 
 ### State Management

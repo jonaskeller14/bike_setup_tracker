@@ -61,7 +61,11 @@ async function syncRecent(athleteId) {
 }
 
 exports.syncActivities = onCall(
-  { secrets: ["STRAVA_CLIENT_ID", "STRAVA_CLIENT_SECRET"], enforceAppCheck: true },
+  {
+    secrets: ["STRAVA_CLIENT_ID", "STRAVA_CLIENT_SECRET"],
+    enforceAppCheck: true,
+    memory: "512MiB",
+  },
   async (request) => {
     const userId = request.auth ? request.auth.uid : null;
     if (!userId) {

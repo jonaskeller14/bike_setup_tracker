@@ -23,7 +23,9 @@ class StravaIdle extends StravaState {
 }
 
 class StravaSyncing extends StravaState {
-  const StravaSyncing();
+  final bool awaitingCallable;
+
+  const StravaSyncing({this.awaitingCallable = false});
 }
 
 class StravaDisconnecting extends StravaState {
@@ -71,13 +73,21 @@ class StravaService extends ChangeNotifier {
     notifyListeners();
   }
 
+  void _setStateFromFirestore(StravaState newState) {
+    if (_state case StravaSyncing(awaitingCallable: true)) {
+      notifyListeners();
+      return;
+    }
+    _setState(newState);
+  }
+
   /// Cached result of [checkAvailability] — null until the first check
   /// completes. Refreshed lazily when stale. Network failures are not cached so
   /// the next sheet open re-probes immediately.
   StravaAvailability? _availability;
   DateTime? _availabilityCheckedAt;
   static const Duration _availabilityCacheTtl = kDebugMode ? Duration.zero : Duration(minutes: 5);
-  static const Duration _manualSyncCooldown = kDebugMode ? Duration.zero : Duration(hours: 1);
+  static const Duration _manualSyncCooldown = kDebugMode ? Duration(minutes: 2) : Duration(hours: 1);
   Future<void>? _inFlightAvailabilityCheck;
 
   StravaAvailability? get availability => _availability;
@@ -239,9 +249,36 @@ class StravaService extends ChangeNotifier {
       if (_activeAthleteId != athleteId) return; // listener stale
       final data = snapshot.data();
       if (snapshot.exists && data != null) {
-        // Profile
+        // Apply sync metadata before touching SQLite. Snapshot callbacks are
+        // not awaited by the stream, so awaiting first could let an older
+        // callback overwrite a newer timestamp after finishing out of order.
+        _lastRecentSync = _parseDateTime(data['strava_sync_last_recent']);
+        _lastFullSync = _parseDateTime(data['strava_sync_last_full']);
+        _syncDay = data['sync_day'] as int?;
+
+        // Mirror the server-driven sync state when we're not in the middle of an auth or disconnect
+        final inSyncDomain = _state is StravaIdle || _state is StravaSyncing || _state is StravaFailed;
+        final String remoteStatus = data['strava_sync_status'] as String? ?? 'idle';
+        final String remoteError = data['strava_sync_error'] as String? ?? '';
+
+        if (inSyncDomain) {
+          if (remoteStatus == 'syncing') {
+            _setStateFromFirestore(const StravaSyncing());
+          } else if (remoteStatus == 'error') {
+            _setStateFromFirestore(StravaFailed(
+              remoteError.isNotEmpty ? remoteError : 'Sync failed',
+            ));
+          } else if (_state is StravaSyncing) {
+            _setStateFromFirestore(const StravaIdle());
+          } else {
+            notifyListeners();
+          }
+        } else {
+          notifyListeners();
+        }
+
         final athlete = StravaAthlete.fromFirestore(data);
-        await _appRepository.setStravaAthletes([athlete]);
+        unawaited(_appRepository.setStravaAthletes([athlete]));
 
         // Gears are embedded as an array on the athlete doc — no separate listener needed.
         final rawGears = data['gears'];
@@ -254,31 +291,6 @@ class StravaService extends ChangeNotifier {
           }
         } else {
           unawaited(_appRepository.setStravaGears([]));
-        }
-
-        _lastRecentSync = _parseDateTime(data['strava_sync_last_recent']);
-        _lastFullSync = _parseDateTime(data['strava_sync_last_full']);
-        _syncDay = data['sync_day'] as int?;
-
-        // Mirror the server-driven sync state when we're not in the middle of an auth or disconnect
-        final inSyncDomain = _state is StravaIdle || _state is StravaSyncing || _state is StravaFailed;
-        final String remoteStatus = data['strava_sync_status'] as String? ?? 'idle';
-        final String remoteError = data['strava_sync_error'] as String? ?? '';
-
-        if (inSyncDomain) {
-          if (remoteStatus == 'syncing') {
-            _setState(const StravaSyncing());
-          } else if (remoteStatus == 'error') {
-            _setState(StravaFailed(
-              remoteError.isNotEmpty ? remoteError : 'Sync failed',
-            ));
-          } else if (_state is! StravaIdle) {
-            _setState(const StravaIdle());
-          } else {
-            notifyListeners();
-          }
-        } else {
-          notifyListeners();
         }
       } else {
         await _appRepository.setStravaAthletes([]);
@@ -456,6 +468,14 @@ class StravaService extends ChangeNotifier {
     return _lastRecentSync!.add(_manualSyncCooldown);
   }
 
+  Duration? get manualSyncRemaining {
+    final availableAt = manualSyncAvailableAt;
+    if (availableAt == null) return null;
+
+    final remaining = availableAt.difference(DateTime.now());
+    return remaining.isNegative ? Duration.zero : remaining;
+  }
+
   static void openActivityOnStrava(int activityId) async {
     final url = Uri.parse("https://www.strava.com/activities/$activityId");
     await launchUrl(url, mode: LaunchMode.externalApplication);
@@ -609,14 +629,23 @@ class StravaService extends ChangeNotifier {
   }
 
   Future<void> triggerManualSync() async {
-    if (_userId == null) return;
-    _setState(const StravaSyncing());
+    if (_userId == null || !canSyncRecent) return;
+    final lastRecentSyncBeforeRequest = _lastRecentSync;
+    _setState(const StravaSyncing(awaitingCallable: true));
     try {
       final functions = FirebaseFunctions.instanceFor(region: 'europe-west3');
       await functions.httpsCallable(
         'syncActivities',
-        options: HttpsCallableOptions(timeout: const Duration(seconds: 15))
+        options: HttpsCallableOptions(timeout: const Duration(seconds: 30))
       ).call<void>();
+
+      // The callable only returns after writing the server timestamp. Normally
+      // the Firestore listener has already applied it; keep a local fallback
+      // so a delayed snapshot cannot leave the UI busy and the button enabled.
+      if (_lastRecentSync == lastRecentSyncBeforeRequest) {
+        _lastRecentSync = DateTime.now();
+      }
+      _setState(const StravaIdle());
     } on FirebaseFunctionsException catch (e) {
       _setState(StravaFailed(
         _friendlyFunctionError(e) ?? "Sync failed: [${e.code}] ${e.message}",
@@ -627,11 +656,12 @@ class StravaService extends ChangeNotifier {
   }
 
   Future<void> triggerFullHistorySync() async {
-    if (_userId == null) return;
-    _setState(const StravaSyncing());
+    if (_userId == null || isBusy) return;
+    _setState(const StravaSyncing(awaitingCallable: true));
     try {
       final functions = FirebaseFunctions.instanceFor(region: 'europe-west3');
       await functions.httpsCallable('syncFullHistory').call<void>();
+      _setState(const StravaIdle());
     } on FirebaseFunctionsException catch (e) {
       _setState(StravaFailed(
         _friendlyFunctionError(e) ?? "Full history sync failed: [${e.code}] ${e.message}",

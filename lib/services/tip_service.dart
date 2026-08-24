@@ -7,6 +7,27 @@ import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 
 import '../models/tip_product.dart';
 
+sealed class TipState {
+  const TipState();
+}
+
+class TipIdle extends TipState {
+  const TipIdle();
+}
+
+class TipLoadingProducts extends TipState {
+  const TipLoadingProducts();
+}
+
+class TipPurchasing extends TipState {
+  const TipPurchasing();
+}
+
+class TipError extends TipState {
+  final String message;
+  const TipError(this.message);
+}
+
 class TipService extends ChangeNotifier {
   final InAppPurchase _iap = InAppPurchase.instance;
   StreamSubscription<List<PurchaseDetails>>? _purchaseSub;
@@ -17,14 +38,17 @@ class TipService extends ChangeNotifier {
 
   final Map<TipProduct, ProductDetails> _products = {};
 
-  bool _isBusy = false;
-  String? _errorMessage;
+  TipState _state = const TipIdle();
   bool _justTipped = false;
 
-  bool get isBusy => _isBusy;
+  TipState get state => _state;
+  bool get isBusy => switch (_state) {
+    TipIdle() || TipError() => false,
+    TipLoadingProducts() || TipPurchasing() => true,
+  };
   bool get storeAvailable => _storeAvailable;
-  String? get errorMessage => _errorMessage;
   bool get justTipped => _justTipped;
+  bool get productsReady => TipProduct.values.every(_products.containsKey) && !isBusy;
 
   String? localizedPrice(TipProduct tip) => _products[tip]?.price;
 
@@ -49,24 +73,28 @@ class TipService extends ChangeNotifier {
 
       _purchaseSub = _iap.purchaseStream.listen(
         _onPurchaseUpdate,
-        onError: (Object e) => _setError('Purchase stream error: $e'),
+        onError: (Object e) => _setState(TipError('Purchase stream error: $e')),
       );
 
       if (_storeAvailable) {
         await _loadProducts();
+      } else {
+        _setState(const TipError('Store is not available on this device.'));
       }
     } catch (e) {
       debugPrint('TipService: init failed: $e');
+      _setState(TipError('Tip purchase initialization failed: $e'));
       _isInitialized = false; // allow retry
     }
   }
 
   Future<void> _loadProducts() async {
+    _setState(const TipLoadingProducts());
     try {
       final ids = TipProduct.values.map((t) => t.productId).toSet();
       final response = await _iap.queryProductDetails(ids);
       if (response.error != null) {
-        debugPrint('TipService: could not load products: ${response.error!.message}');
+        _setState(TipError('Could not load tips: ${response.error!.message}'));
         return;
       }
       if (response.notFoundIDs.isNotEmpty) {
@@ -78,24 +106,30 @@ class TipService extends ChangeNotifier {
         final tip = TipProduct.fromProductId(pd.id);
         if (tip != null) _products[tip] = pd;
       }
-      notifyListeners();
+      if (!TipProduct.values.every(_products.containsKey)) {
+        _setState(
+          const TipError('Tips are not fully available. Please try again later.'),
+        );
+        return;
+      }
+      _setState(const TipIdle());
     } catch (e) {
-      debugPrint('TipService: could not load products: $e');
+      _setState(TipError('Could not load tips: $e'));
     }
   }
 
   Future<void> buyTip(TipProduct tip) async {
     if (!_storeAvailable) {
-      _setError('Store is not available on this device.');
+      _setState(const TipError('Store is not available on this device.'));
       return;
     }
     final product = _products[tip];
     if (product == null) {
-      _setError('Tip not loaded yet — try again in a moment.');
+      _setState(const TipError('Tip not loaded yet — try again in a moment.'));
       return;
     }
 
-    _setBusy(true);
+    _setState(const TipPurchasing());
     try {
       final PurchaseParam param;
       if (Platform.isAndroid && product is GooglePlayProductDetails) {
@@ -105,43 +139,48 @@ class TipService extends ChangeNotifier {
       }
       // Consumable: autoConsume (default true) makes it re-buyable on Android.
       final launched = await _iap.buyConsumable(purchaseParam: param);
-      if (!launched) {
-        _setBusy(false);
+      if (!launched && _state is TipPurchasing) {
+        _setState(const TipIdle());
       }
     } catch (e) {
-      _setBusy(false);
-      _setError('Tip purchase failed: $e');
+      _setState(TipError('Tip purchase failed: $e'));
     }
   }
 
   Future<void> _onPurchaseUpdate(List<PurchaseDetails> purchases) async {
     for (final pd in purchases) {
       debugPrint('TipService _onPurchaseUpdate: ${pd.productID} → ${pd.status}');
+      final isTipProduct = TipProduct.isTipProductId(pd.productID);
 
       // A canceled/failed purchase can arrive with an empty productID,
-      // so the terminal states must clear our busy spinner regardless of the
-      // id — tips are the only purchases this service ever initiates. The
-      // success path stays gated to recognised tip products.
+      // so allow those terminal states to end an active tip purchase. Ignore
+      // all other events because the purchase stream is shared with the
+      // subscription service.
+      final isEmptyIdTipTerminalState =
+          pd.productID.isEmpty &&
+          _state is TipPurchasing &&
+          (pd.status == PurchaseStatus.error ||
+              pd.status == PurchaseStatus.canceled);
+      if (!isTipProduct && !isEmptyIdTipTerminalState) continue;
+
       switch (pd.status) {
         case PurchaseStatus.pending:
-          if (TipProduct.isTipProductId(pd.productID)) _setBusy(true);
+          _setState(const TipPurchasing());
         case PurchaseStatus.purchased:
         case PurchaseStatus.restored:
-          if (TipProduct.isTipProductId(pd.productID)) {
-            _isBusy = false;
-            _errorMessage = null;
-            _justTipped = true;
-            notifyListeners();
-          }
+          _justTipped = true;
+          _setState(const TipIdle());
         case PurchaseStatus.error:
-          _setError('Tip purchase failed: ${pd.error?.message ?? 'unknown'}');
+          _setState(
+            TipError('Tip purchase failed: ${pd.error?.message ?? 'unknown'}'),
+          );
         case PurchaseStatus.canceled:
-          _setBusy(false);
+          _setState(const TipIdle());
       }
 
       // Consumables need no server verification — complete immediately so the
       // store doesn't redeliver / auto-refund.
-      if (pd.pendingCompletePurchase) {
+      if (isTipProduct && pd.pendingCompletePurchase) {
         try {
           await _iap.completePurchase(pd);
         } catch (e) {
@@ -157,16 +196,11 @@ class TipService extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _setBusy(bool value) {
-    if (_isBusy == value) return;
-    _isBusy = value;
-    notifyListeners();
-  }
-
-  void _setError(String message) {
-    debugPrint('TipService error: $message');
-    _errorMessage = message;
-    _isBusy = false;
+  void _setState(TipState state) {
+    if (state is TipError) {
+      debugPrint('TipService error: ${state.message}');
+    }
+    _state = state;
     notifyListeners();
   }
 }

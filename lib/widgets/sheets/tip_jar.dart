@@ -59,6 +59,11 @@ class _TipBody extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final colors = Theme.of(context).colorScheme;
     final isBusy = tipService.isBusy;
+    final productsReady = tipService.productsReady;
+    final errorMessage = switch (tipService.state) {
+      TipError(:final message) => message,
+      _ => null,
+    };
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -94,8 +99,8 @@ class _TipBody extends StatelessWidget {
               margin: EdgeInsets.zero,
               clipBehavior: Clip.antiAlias,
               child: ListTile(
-                enabled: !isBusy,
-                onTap: isBusy ? null : () => tipService.buyTip(tip),
+                enabled: productsReady,
+                onTap: productsReady ? () => tipService.buyTip(tip) : null,
                 contentPadding: const EdgeInsets.fromLTRB(10, 6, 16, 6),
                 leading: Container(
                   width: 44,
@@ -109,7 +114,7 @@ class _TipBody extends StatelessWidget {
                 ),
                 title: Text(tip.label, style: textTheme.titleSmall),
                 trailing: Text(
-                  tipService.localizedPrice(tip) ?? tip.fallbackPrice,
+                  tipService.localizedPrice(tip) ?? '—',
                   style: textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -129,11 +134,11 @@ class _TipBody extends StatelessWidget {
               ),
             ),
           ),
-        if (tipService.errorMessage != null)
+        if (errorMessage != null)
           Padding(
             padding: const EdgeInsets.only(top: 8),
             child: SelectableText(
-              tipService.errorMessage!,
+              errorMessage,
               textAlign: TextAlign.center,
               style: textTheme.bodySmall?.copyWith(color: colors.error),
             ),

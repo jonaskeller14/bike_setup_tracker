@@ -19,6 +19,7 @@ import '../services/subscription_service.dart';
 import '../theme.dart';
 import '../utils/component_preset_application.dart';
 import '../utils/component_preset_search.dart';
+import '../utils/installation_timeline_validation.dart';
 import '../widgets/dialogs/apply_preset_adjustments.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/empty_state_placeholder2.dart';
@@ -805,8 +806,7 @@ class _ComponentPageState extends State<ComponentPage> {
     );
   }
 
-  bool get _isComplexInstallation => _installations.length > 1 || 
-      (_installations.isNotEmpty && _installations.first.dateTimeUTC.millisecondsSinceEpoch > 0);
+  bool get _isComplexInstallation => isComplexInstallationTimeline(_installations);
 
   @override
   Widget build(BuildContext context) {

@@ -14,6 +14,7 @@ import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/display_data/component_details_page_line_chart.dart';
 import 'package:bike_setup_tracker/widgets/display_data/component_details_page_radial_chart.dart';
 import 'package:bike_setup_tracker/widgets/display_data/component_details_page_table.dart';
+import 'package:bike_setup_tracker/widgets/display_installation_timeline.dart';
 import 'package:bike_setup_tracker/widgets/lists/adjustment_edit_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -162,6 +163,35 @@ void main() {
 
     expect(find.text('No setups yet'), findsOneWidget);
     expect(find.byType(ComponentDetailsPageTable), findsNothing);
+  });
+
+  testWidgets('shows installation history for complex data when feature is disabled', (WidgetTester tester) async {
+    appSettings.enableInstallationTimeline = false;
+    final component = Component(
+      id: 'comp1',
+      name: 'Test Fork',
+      installations: [
+        Installation.sinceBeginning(parent: 'bike1', componentId: 'comp1'),
+        Uninstallation(
+          componentId: 'comp1',
+          dateTimeUTC: DateTime.utc(2026, 1, 2),
+          dateTimeLocal: DateTime(2026, 1, 2),
+        ),
+      ],
+      componentType: ComponentType.fork,
+    );
+    await tester.runAsync(() async {
+      await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
+      await appRepository.addComponent(component);
+    });
+
+    appRepository.dispose();
+    appRepository = AppRepository(database);
+    await tester.pumpWidget(createWidgetUnderTest('comp1'));
+    await _waitForComponent(tester, appRepository);
+
+    expect(find.text('History'), findsOneWidget);
+    expect(find.byType(DisplayInstallationTimeline), findsOneWidget);
   });
 
   testWidgets('show placeholder when component has no adjustments', (WidgetTester tester) async {

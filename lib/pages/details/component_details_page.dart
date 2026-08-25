@@ -10,6 +10,7 @@ import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/component_actions.dart';
+import '../../utils/installation_timeline_validation.dart';
 import '../../utils/table_column.dart';
 import '../../widgets/chips/filter_sheet_chip.dart';
 import '../../widgets/display_data/component_details_page_line_chart.dart';
@@ -437,7 +438,10 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                 const Divider(height: 1),
               ],
 
-              if (appSettings.enableInstallationTimeline) ...[
+              if (shouldUseInstallationTimeline(
+                featureEnabled: appSettings.enableInstallationTimeline,
+                installations: component.installations,
+              )) ...[
                 ExpansionTile(
                   shape: const Border(),
                   collapsedShape: const Border(),

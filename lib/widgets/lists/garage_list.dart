@@ -13,6 +13,7 @@ import '../../models/installation.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/app_hint_service.dart';
 import '../../utils/bike_actions.dart';
+import '../../utils/installation_timeline_validation.dart';
 import '../chips/bike_list_filter_widget.dart';
 import '../empty_state_placeholder.dart';
 import '../hints/app_hint_slot.dart';
@@ -86,7 +87,10 @@ class _GarageListState extends State<GarageList> {
       if (!mounted) return;
 
       if (component.isArchived) {
-        final isSimple = !appSettings.enableInstallationTimeline;
+        final isSimple = !shouldUseInstallationTimeline(
+          featureEnabled: appSettings.enableInstallationTimeline,
+          installations: component.installations,
+        );
 
         // Strip the trailing Archival to recover the pre-archive state.
         final unarchived = component.copyWith(
@@ -115,10 +119,7 @@ class _GarageListState extends State<GarageList> {
           }
         } else {
           // → bike
-          final hasHistory =
-              unarchived.installations.length > 1 ||
-              (unarchived.installations.isNotEmpty &&
-                  unarchived.installations.first.dateTimeUTC.millisecondsSinceEpoch > 0);
+          final hasHistory = isComplexInstallationTimeline(unarchived.installations);
           if (!isSimple || hasHistory) {
             unawaited(showAddInstallationSheet(context, component: unarchived, targetBikeId: newBike));
           } else {
@@ -131,10 +132,10 @@ class _GarageListState extends State<GarageList> {
       }
 
       // Standard (non-archived) install / uninstall flow.
-      final isComplexInstallation =
-          component.installations.length > 1 ||
-          (component.installations.isNotEmpty && component.installations.first.dateTimeUTC.millisecondsSinceEpoch > 0);
-      if (appSettings.enableInstallationTimeline || isComplexInstallation) {
+      if (shouldUseInstallationTimeline(
+        featureEnabled: appSettings.enableInstallationTimeline,
+        installations: component.installations,
+      )) {
         unawaited(showAddInstallationSheet(context, component: component, targetBikeId: newBike));
       } else {
         await appRepository.editComponent(component.copyWithNewInstallation(newBike));
@@ -151,7 +152,10 @@ class _GarageListState extends State<GarageList> {
 
     await Future.microtask(() async {
       if (!mounted) return;
-      if (appSettings.enableInstallationTimeline) {
+      if (shouldUseInstallationTimeline(
+        featureEnabled: appSettings.enableInstallationTimeline,
+        installations: component.installations,
+      )) {
         unawaited(showAddInstallationSheet(context, component: component, targetBikeId: null, isArchiving: true));
       } else {
         await appRepository.editComponent(

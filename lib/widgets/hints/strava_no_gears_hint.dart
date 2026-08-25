@@ -1,20 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widget_previews.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../utils/url.dart';
 
 /// Transient dashboard empty-state guidance, not a persisted app hint.
 class StravaNoGearsHint extends StatelessWidget {
-  static const _stravaGearUrl = 'https://www.strava.com/settings/gear';
-
   static const _noGearsSteps = [
     'Open the Strava app',
     'Profile picture → Gear → Add a new Bike',
     'Come back here and tap Sync',
   ];
 
-  @Preview(name: "StravaNoGearsHint", group: "Hints")
   const StravaNoGearsHint({super.key});
 
   @override
@@ -129,17 +124,13 @@ class StravaNoGearsHint extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
                   FilledButton.tonalIcon(
-                    onPressed: () => launchAppUrl(
-                      context,
-                      url: _stravaGearUrl,
-                      launchMode: LaunchMode.externalApplication,
-                    ),
+                    onPressed: () => launchStrava(context),
                     style: FilledButton.styleFrom(
                       backgroundColor: const Color(0xFFFC4C02),
                       foregroundColor: Colors.white,
                     ),
                     icon: const Icon(Icons.open_in_new, size: 18),
-                    label: const Text('Open Strava Gear'),
+                    label: const Text('Open Strava'),
                   ),
                 ],
               ),

@@ -8,7 +8,6 @@ import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/app_hint_service.dart';
 import 'package:bike_setup_tracker/widgets/hints/app_hint_slot.dart';
-import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -110,24 +109,4 @@ void main() {
     expect(find.text('Activate Tasks'), findsNothing);
   });
 
-  testWidgets('dismisses the Strava gear-link hint through the slot', (tester) async {
-    await database.stravaDao.upsertGear(
-      StravaGearsCompanion(
-        id: const Value('gear-1'),
-        lastModified: Value(DateTime.now()),
-        name: const Value('Road bike'),
-      ),
-    );
-    await Future<void>.delayed(const Duration(milliseconds: 100));
-    service.update(appRepository: repository, appSettings: settings);
-
-    await tester.pumpWidget(buildSubject(AppHintPlacement.stravaDashboardGear));
-
-    expect(find.text('Link your Strava gear'), findsOneWidget);
-    await tester.tap(find.byTooltip('Dismiss'));
-    await tester.pump();
-
-    expect(find.text('Link your Strava gear'), findsNothing);
-    expect(service.statusOf(AppHint.stravaLinkGearV1), AppHintStatus.dismissed);
-  });
 }

@@ -7,6 +7,7 @@ import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/pages/onboarding_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/services/app_hint_service.dart';
 import 'package:bike_setup_tracker/services/backup_service.dart';
 import 'package:bike_setup_tracker/services/google_drive_service.dart';
 import 'package:bike_setup_tracker/services/strava_service.dart';
@@ -24,17 +25,23 @@ void main() {
   late AppDatabase database;
   late AppRepository appRepository;
   late AppSettings appSettings;
+  late AppHintService appHintService;
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     database = AppDatabase.memory();
     appRepository = AppRepository(database);
     appSettings = AppSettings()..showOnboarding = false;
+    appHintService = AppHintService(
+      appRepository: appRepository,
+      appSettings: appSettings,
+    );
   });
 
   tearDown(() async {
     appRepository.dispose();
     appSettings.dispose();
+    appHintService.dispose();
     await database.close();
   });
 
@@ -43,6 +50,7 @@ void main() {
       providers: [
         ChangeNotifierProvider<AppSettings>.value(value: appSettings),
         ChangeNotifierProvider<AppRepository>.value(value: appRepository),
+        ChangeNotifierProvider<AppHintService>.value(value: appHintService),
         Provider<AppDatabase>.value(value: database),
         Provider<BackupService>(create: (_) => BackupService()),
         ChangeNotifierProvider<StravaService>(

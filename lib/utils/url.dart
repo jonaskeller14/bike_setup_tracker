@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// Returns a shortened, human-readable form of [url] for display purposes,
@@ -19,7 +20,7 @@ Future<void> launchAppUrl(BuildContext context, {
   LaunchMode launchMode = LaunchMode.platformDefault,
 }) async {
   final uri = Uri.parse(url);
-  
+
   if (await canLaunchUrl(uri)) { // Check if browser exists
     if (await launchUrl(uri, mode: launchMode)) {
       return;
@@ -43,6 +44,37 @@ Future<void> launchAppUrl(BuildContext context, {
       backgroundColor: Theme.of(context).colorScheme.errorContainer
     ));
   }
+}
+
+/// Opens [appUrl] when its app is installed, otherwise opens [fallbackUrl].
+Future<void> launchAppUrlWithFallback(
+  BuildContext context, {
+  required String appUrl,
+  required String fallbackUrl,
+}) async {
+  final appUri = Uri.parse(appUrl);
+
+  try {
+    if (await launchUrl(appUri, mode: LaunchMode.externalApplication)) return;
+  } on PlatformException {
+    // Fall through to the web URL when no app handles the custom scheme.
+  }
+
+  if (!context.mounted) return;
+  await launchAppUrl(
+    context,
+    url: fallbackUrl,
+    launchMode: LaunchMode.externalApplication,
+  );
+}
+
+/// Opens the installed Strava app, otherwise falls back to its Gear page.
+Future<void> launchStrava(BuildContext context) async {
+  await launchAppUrlWithFallback(
+    context,
+    appUrl: 'strava://',
+    fallbackUrl: 'https://www.strava.com/settings/gear',
+  );
 }
 
 Future<void> launchAppEmail(BuildContext context, String email, {String? subject, String? body}) async {
@@ -97,4 +129,3 @@ Future<void> launchLocationOnMap(BuildContext context, double latitude, double l
     backgroundColor: Theme.of(context).colorScheme.errorContainer,
   ));
 }
-

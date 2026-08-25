@@ -18,6 +18,7 @@ import 'pages/loading_error_page.dart';
 import 'pages/onboarding_page.dart';
 import 'repositories/app_repository.dart';
 import 'repositories/component_preset_repository.dart';
+import 'services/app_hint_service.dart';
 import 'services/backup_service.dart';
 import 'services/database_migration_service.dart';
 import 'services/deep_link_service.dart';
@@ -64,10 +65,18 @@ void main() async {
 
   final appDatabase = AppDatabase();
 
+  final appSettings = AppSettings();
+  final appRepository = AppRepository(appDatabase);
+  final appHintService = AppHintService(
+    appRepository: appRepository,
+    appSettings: appSettings,
+  );
+
   runApp(
     LoadingGate(
-      appSettings: AppSettings(),
-      appRepository: AppRepository(appDatabase),
+      appSettings: appSettings,
+      appRepository: appRepository,
+      appHintService: appHintService,
     ),
   );
 }
@@ -75,11 +84,13 @@ void main() async {
 class LoadingGate extends StatelessWidget {
   final AppSettings appSettings;
   final AppRepository appRepository;
+  final AppHintService appHintService;
 
   const LoadingGate({
     super.key,
     required this.appSettings,
     required this.appRepository,
+    required this.appHintService,
   });
 
   Future<void> _loadAndMigrate(BuildContext context) async {
@@ -115,6 +126,7 @@ class LoadingGate extends StatelessWidget {
       future: Future.wait([
         appSettings.loadAppSettings(),
         _loadAndMigrate(context),
+        appHintService.load(),
       ]),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
@@ -131,6 +143,16 @@ class LoadingGate extends StatelessWidget {
               Provider<ComponentPresetRepository>(create: (_) => ComponentPresetRepository()),
               ChangeNotifierProvider.value(value: appSettings),
               ChangeNotifierProvider.value(value: appRepository),
+              ChangeNotifierProxyProvider2<AppRepository, AppSettings, AppHintService>(
+                create: (_) => appHintService,
+                update: (_, appRepository, appSettings, appHintService) {
+                  appHintService!.update(
+                    appRepository: appRepository,
+                    appSettings: appSettings,
+                  );
+                  return appHintService;
+                },
+              ),
               ProxyProvider<AppRepository, BackupService>(
                 lazy: false,
                 create: (context) => BackupService(),
@@ -140,7 +162,9 @@ class LoadingGate extends StatelessWidget {
                 lazy: false,
                 create: (context) => GoogleDriveService(appRepository, appRepository.database),
                 update: (context, appRepo, settings, googleDriveService) {
-                  if (settings.enableGoogleDrive) googleDriveService!.update(appRepository: appRepo);
+                  if (settings.enableGoogleDrive) {
+                    googleDriveService!.update(appRepository: appRepo);
+                  }
                   return googleDriveService!;
                 },
               ),
@@ -148,7 +172,9 @@ class LoadingGate extends StatelessWidget {
                 lazy: false,
                 create: (context) => StravaService(appRepository, appSettings),
                 update: (context, settings, appRepo, stravaService) {
-                  if (settings.enableStrava) unawaited(stravaService!.update(appRepository: appRepo, appSettings: settings));
+                  if (settings.enableStrava) {
+                    unawaited(stravaService!.update(appRepository: appRepo, appSettings: settings));
+                  }
                   return stravaService!;
                 },
               ),

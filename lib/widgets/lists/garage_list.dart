@@ -11,11 +11,11 @@ import '../../models/bike.dart';
 import '../../models/component.dart';
 import '../../models/installation.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/app_hint_service.dart';
 import '../../utils/bike_actions.dart';
 import '../chips/bike_list_filter_widget.dart';
 import '../empty_state_placeholder.dart';
 import '../hints/app_hint_slot.dart';
-import '../hints/getting_started_guide_hint.dart';
 import '../items/garage_bike_card.dart';
 import '../items/garage_uninstalled_card.dart';
 import '../sheets/installation_sheet.dart';
@@ -102,7 +102,7 @@ class _GarageListState extends State<GarageList> {
             await appRepository.editComponent(
               component.copyWith(
                 installations: [
-                Uninstallation(dateTimeUTC: now.toUtc(), dateTimeLocal: now, componentId: component.id),
+                  Uninstallation(dateTimeUTC: now.toUtc(), dateTimeLocal: now, componentId: component.id),
                 ],
               ),
             );
@@ -115,7 +115,8 @@ class _GarageListState extends State<GarageList> {
           }
         } else {
           // → bike
-          final hasHistory = unarchived.installations.length > 1 ||
+          final hasHistory =
+              unarchived.installations.length > 1 ||
               (unarchived.installations.isNotEmpty &&
                   unarchived.installations.first.dateTimeUTC.millisecondsSinceEpoch > 0);
           if (!isSimple || hasHistory) {
@@ -130,7 +131,8 @@ class _GarageListState extends State<GarageList> {
       }
 
       // Standard (non-archived) install / uninstall flow.
-      final isComplexInstallation = component.installations.length > 1 ||
+      final isComplexInstallation =
+          component.installations.length > 1 ||
           (component.installations.isNotEmpty && component.installations.first.dateTimeUTC.millisecondsSinceEpoch > 0);
       if (appSettings.enableInstallationTimeline || isComplexInstallation) {
         unawaited(showAddInstallationSheet(context, component: component, targetBikeId: newBike));
@@ -169,7 +171,8 @@ class _GarageListState extends State<GarageList> {
   }
 
   Widget _emptyPlaceholder(BuildContext context) {
-    final showGuide = context.watch<AppSettings>().showGettingStartedGuideHint;
+    final showGuide =
+        context.watch<AppHintService>().activeHintFor(AppHintPlacement.garageHeader) == AppHint.gettingStartedV1;
     if (showGuide) {
       return const SingleChildScrollView(
         padding: EdgeInsets.all(16),
@@ -178,7 +181,7 @@ class _GarageListState extends State<GarageList> {
           children: [
             BikeListFilterWidget(),
             SizedBox(height: 8),
-            GettingStartedGuideHint(),
+            AppHintSlot(placement: AppHintPlacement.garageHeader),
           ],
         ),
       );
@@ -262,7 +265,6 @@ class _GarageListState extends State<GarageList> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 8,
                 children: [
-                  GettingStartedGuideHint(),
                   AppHintSlot(placement: AppHintPlacement.garageHeader),
                   BikeListFilterWidget(),
                 ],
@@ -283,7 +285,8 @@ class _GarageListState extends State<GarageList> {
               ),
               proxyDecorator: proxyDecorator,
               onReorderStart: (_) => unawaited(HapticFeedback.lightImpact()),
-              onReorderItem: (int oldIndex, int newIndex) => BikeActions.onReorderBikes(context, oldIndex: oldIndex, newIndex: newIndex),
+              onReorderItem: (int oldIndex, int newIndex) =>
+                  BikeActions.onReorderBikes(context, oldIndex: oldIndex, newIndex: newIndex),
               itemBuilder: (context, index) {
                 final bike = bikesList[index];
                 return GarageBikeCard(

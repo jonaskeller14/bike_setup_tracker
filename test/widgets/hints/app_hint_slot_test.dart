@@ -4,6 +4,7 @@ import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
+import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/app_hint_service.dart';
 import 'package:bike_setup_tracker/widgets/hints/app_hint_slot.dart';
@@ -37,6 +38,18 @@ void main() {
         installations: [Installation.sinceBeginning(parent: firstBike.id)],
       ),
     );
+    final now = DateTime.now();
+    await repository.addSetup(
+      Setup(
+        datetime: now.toUtc(),
+        datetimeLocal: now,
+        tags: const {},
+        bike: firstBike.id,
+        person: null,
+        bikeAdjustmentValues: const {},
+        personAdjustmentValues: const {},
+      ),
+    );
 
     service = AppHintService(appRepository: repository, appSettings: settings);
     await service.load();
@@ -50,11 +63,15 @@ void main() {
     await database.close();
   });
 
-  Widget buildSubject() => MaterialApp(
+  Widget buildSubject([AppHintPlacement placement = AppHintPlacement.garageHeader]) => MaterialApp(
     home: Scaffold(
-      body: ChangeNotifierProvider.value(
-        value: service,
-        child: const AppHintSlot(placement: AppHintPlacement.garageHeader),
+      body: MultiProvider(
+        providers: [
+          ChangeNotifierProvider.value(value: repository),
+          ChangeNotifierProvider.value(value: settings),
+          ChangeNotifierProvider.value(value: service),
+        ],
+        child: AppHintSlot(placement: placement),
       ),
     ),
   );
@@ -78,5 +95,17 @@ void main() {
     expect(service.statusOf(AppHint.garageGesturesV1), AppHintStatus.dismissed);
     final preferences = await SharedPreferences.getInstance();
     expect(preferences.getString('app_hint.garageGesturesV1.status'), 'dismissed');
+  });
+
+  testWidgets('completes the Task hint after enabling Tasks', (tester) async {
+    await tester.pumpWidget(buildSubject(AppHintPlacement.setupHeader));
+
+    expect(find.text('Activate Tasks'), findsOneWidget);
+    await tester.tap(find.text('Activate Tasks'));
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(settings.enableTask, isTrue);
+    expect(service.statusOf(AppHint.setupTasksV1), AppHintStatus.completed);
+    expect(find.text('Activate Tasks'), findsNothing);
   });
 }

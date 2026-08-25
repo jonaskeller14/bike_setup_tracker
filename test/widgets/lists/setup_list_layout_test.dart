@@ -1,3 +1,4 @@
+import 'package:bike_setup_tracker/models/app_hint.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/widgets/items/installation_list_tile.dart';
 import 'package:bike_setup_tracker/widgets/items/setup_list_tile.dart';
@@ -19,9 +20,9 @@ void main() {
     harness = await SetupTileHarness.create(
       installationLocal: day.add(const Duration(hours: 9)),
     );
-    harness.settings.showGettingStartedGuideHint = false;
-    harness.settings.showSetupTaskHint = false;
-    harness.settings.showSetupCalendarHint = false;
+    await harness.hintService.dismiss(AppHint.gettingStartedV1);
+    await harness.hintService.dismiss(AppHint.setupTasksV1);
+    await harness.hintService.dismiss(AppHint.setupCalendarV1);
   });
 
   tearDown(() => harness.dispose());

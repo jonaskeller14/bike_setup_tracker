@@ -6,6 +6,7 @@ import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/services/app_hint_service.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:flutter/material.dart';
@@ -35,8 +36,9 @@ class SetupTileHarness {
   final AppDatabase database;
   AppRepository repository;
   final AppSettings settings;
+  final AppHintService hintService;
 
-  SetupTileHarness._(this.database, this.repository, this.settings);
+  SetupTileHarness._(this.database, this.repository, this.settings, this.hintService);
 
   /// [installationLocal] adds a second, dated installation so the timeline has
   /// a non-setup row to check alignment against.
@@ -84,7 +86,10 @@ class SetupTileHarness {
       ),
     );
 
-    return SetupTileHarness._(database, repository, AppSettings());
+    final settings = AppSettings();
+    final hintService = AppHintService(appRepository: repository, appSettings: settings);
+    await hintService.load();
+    return SetupTileHarness._(database, repository, settings, hintService);
   }
 
   Setup buildSetup({
@@ -119,6 +124,7 @@ class SetupTileHarness {
   Future<void> reload(WidgetTester tester) async {
     repository.dispose();
     repository = AppRepository(database);
+    hintService.update(appRepository: repository, appSettings: settings);
     await tester.runAsync(() async {
       var attempts = 0;
       while (repository.setups.isEmpty && attempts < 20) {
@@ -133,6 +139,7 @@ class SetupTileHarness {
       providers: [
         ChangeNotifierProvider<AppSettings>.value(value: settings),
         ChangeNotifierProvider<AppRepository>.value(value: repository),
+        ChangeNotifierProvider<AppHintService>.value(value: hintService),
         ChangeNotifierProvider<SubscriptionService>(create: (_) => SubscriptionService()),
       ],
       child: app,
@@ -145,7 +152,10 @@ class SetupTileHarness {
         theme: materialAppTheme,
         home: Scaffold(
           body: Center(
-            child: SizedBox(width: width, child: SingleChildScrollView(child: child)),
+            child: SizedBox(
+              width: width,
+              child: SingleChildScrollView(child: child),
+            ),
           ),
         ),
       ),
@@ -156,13 +166,17 @@ class SetupTileHarness {
   /// that build their own viewport.
   Widget wrapFullScreen(Widget child) {
     return _providers(
-      MaterialApp(theme: materialAppTheme, home: Scaffold(body: child)),
+      MaterialApp(
+        theme: materialAppTheme,
+        home: Scaffold(body: child),
+      ),
     );
   }
 
   Future<void> dispose() async {
     repository.dispose();
     settings.dispose();
+    hintService.dispose();
     await database.close();
   }
 }

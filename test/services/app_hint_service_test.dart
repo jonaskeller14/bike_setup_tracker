@@ -4,6 +4,7 @@ import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
+import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/app_hint_service.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -111,7 +112,10 @@ void main() {
   test('Garage gestures eligibility requires two bikes and a component', () async {
     final service = createService();
     await service.load();
-    expect(service.activeHintFor(AppHintPlacement.garageHeader), isNull);
+    expect(
+      service.activeHintFor(AppHintPlacement.garageHeader),
+      AppHint.gettingStartedV1,
+    );
 
     final firstBike = Bike(name: 'First', person: null);
     final secondBike = Bike(name: 'Second', person: null);
@@ -119,13 +123,28 @@ void main() {
     await repository.addBike(secondBike);
     await pumpEventQueue();
     service.update(appRepository: repository, appSettings: settings);
-    expect(service.activeHintFor(AppHintPlacement.garageHeader), isNull);
+    expect(
+      service.activeHintFor(AppHintPlacement.garageHeader),
+      AppHint.gettingStartedV1,
+    );
 
     await repository.addComponent(
       Component(
         name: 'Chain',
         componentType: ComponentType.chain,
         installations: [Installation.sinceBeginning(parent: firstBike.id)],
+      ),
+    );
+    final now = DateTime.now();
+    await repository.addSetup(
+      Setup(
+        datetime: now.toUtc(),
+        datetimeLocal: now,
+        tags: const {},
+        bike: firstBike.id,
+        person: null,
+        bikeAdjustmentValues: const {},
+        personAdjustmentValues: const {},
       ),
     );
     await pumpEventQueue();
@@ -160,6 +179,18 @@ void main() {
         installations: [Installation.sinceBeginning(parent: firstBike.id)],
       ),
     );
+    final now = DateTime.now();
+    await repository.addSetup(
+      Setup(
+        datetime: now.toUtc(),
+        datetimeLocal: now,
+        tags: const {},
+        bike: firstBike.id,
+        person: null,
+        bikeAdjustmentValues: const {},
+        personAdjustmentValues: const {},
+      ),
+    );
     await pumpEventQueue();
 
     final service = createService();
@@ -174,5 +205,52 @@ void main() {
     // Progress remains persisted, while the session-level handling guard resets.
     expect(reloaded.statusOf(AppHint.setupTasksV1), AppHintStatus.dismissed);
     expect(reloaded.activeHintFor(AppHintPlacement.garageHeader), AppHint.garageGesturesV1);
+  });
+
+  test('First Steps takes priority over setup suggestions', () async {
+    final service = createService();
+    await service.load();
+
+    expect(
+      service.activeHintFor(AppHintPlacement.setupHeader),
+      AppHint.gettingStartedV1,
+    );
+  });
+
+  test('Task takes priority over Calendar after First Steps are complete', () async {
+    final firstBike = Bike(name: 'First', person: null);
+    await repository.addBike(firstBike);
+    await repository.addComponent(
+      Component(
+        name: 'Chain',
+        componentType: ComponentType.chain,
+        installations: [Installation.sinceBeginning(parent: firstBike.id)],
+      ),
+    );
+    final now = DateTime.now();
+    for (var index = 0; index < 2; index++) {
+      await repository.addSetup(
+        Setup(
+          datetime: now.add(Duration(minutes: index)).toUtc(),
+          datetimeLocal: now.add(Duration(minutes: index)),
+          tags: const {},
+          bike: firstBike.id,
+          person: null,
+          bikeAdjustmentValues: const {},
+          personAdjustmentValues: const {},
+        ),
+      );
+    }
+    await pumpEventQueue();
+
+    final service = createService();
+    await service.load();
+    service.update(appRepository: repository, appSettings: settings);
+
+    expect(service.activeHintFor(AppHintPlacement.setupHeader), AppHint.setupTasksV1);
+
+    settings.enableTask = true;
+    service.update(appRepository: repository, appSettings: settings);
+    expect(service.activeHintFor(AppHintPlacement.setupHeader), AppHint.setupCalendarV1);
   });
 }

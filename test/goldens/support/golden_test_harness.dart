@@ -2,12 +2,14 @@ import 'dart:io';
 
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
+import 'package:bike_setup_tracker/models/app_hint.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/services/app_hint_service.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:flutter/material.dart';
@@ -47,12 +49,14 @@ class GoldenTestHarness {
   final AppDatabase database;
   final AppRepository repository;
   final AppSettings settings;
+  final AppHintService hintService;
   final SubscriptionService subscriptionService;
 
   GoldenTestHarness._({
     required this.database,
     required this.repository,
     required this.settings,
+    required this.hintService,
     required this.subscriptionService,
   });
 
@@ -84,11 +88,18 @@ class GoldenTestHarness {
     when(
       () => subscriptionService.hasStravaEntitlement,
     ).thenReturn(false);
+    final hintService = AppHintService(
+      appRepository: repository,
+      appSettings: settings,
+    );
+    await hintService.load();
+    await hintService.dismiss(AppHint.gettingStartedV1);
 
     return GoldenTestHarness._(
       database: database,
       repository: repository,
       settings: settings,
+      hintService: hintService,
       subscriptionService: subscriptionService,
     );
   }
@@ -275,6 +286,7 @@ class GoldenTestHarness {
       providers: [
         ChangeNotifierProvider<AppSettings>.value(value: settings),
         ChangeNotifierProvider<AppRepository>.value(value: repository),
+        ChangeNotifierProvider<AppHintService>.value(value: hintService),
         ChangeNotifierProvider<SubscriptionService>.value(
           value: subscriptionService,
         ),
@@ -298,6 +310,7 @@ class GoldenTestHarness {
   Future<void> dispose() async {
     repository.dispose();
     settings.dispose();
+    hintService.dispose();
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
       const MethodChannel('plugins.flutter.io/path_provider'),
       null,

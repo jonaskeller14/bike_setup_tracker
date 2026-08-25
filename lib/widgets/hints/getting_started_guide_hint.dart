@@ -2,21 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:timelines_plus/timelines_plus.dart';
 
-import '../../models/app_settings.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/bike_actions.dart';
 import '../../utils/component_actions.dart';
 import '../../utils/setup_actions.dart';
 
 class GettingStartedGuideHint extends StatelessWidget {
-  const GettingStartedGuideHint({super.key});
+  const GettingStartedGuideHint({super.key, this.onDismiss});
+
+  final VoidCallback? onDismiss;
 
   @override
   Widget build(BuildContext context) {
-    final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
-
-    if (!appSettings.showGettingStartedGuideHint) return const SizedBox.shrink();
 
     final steps = [
       _GuidedStep(label: 'Add your bike', isCompleted: appRepository.bikes.isNotEmpty),
@@ -78,14 +76,14 @@ class GettingStartedGuideHint extends StatelessWidget {
                         ),
                       ),
                     ),
-                    IconButton(
-                      onPressed: () =>
-                          context.read<AppSettings>().showGettingStartedGuideHint = false,
-                      icon: const Icon(Icons.close, size: 18),
-                      color: colorScheme.primary,
-                      visualDensity: VisualDensity.compact,
-                      tooltip: 'Dismiss',
-                    ),
+                    if (onDismiss != null)
+                      IconButton(
+                        onPressed: onDismiss,
+                        icon: const Icon(Icons.close, size: 18),
+                        color: colorScheme.primary,
+                        visualDensity: VisualDensity.compact,
+                        tooltip: 'Dismiss',
+                      ),
                   ],
                 ),
                 Padding(
@@ -179,7 +177,7 @@ class GettingStartedGuideHint extends StatelessWidget {
 }
 
 /// A purely stateless-acting implicitly animated widget.
-/// It observes the `isCompleted` boolean and mathematically tracks 
+/// It observes the `isCompleted` boolean and mathematically tracks
 /// progress from 0.0 to 1.0 when it flips. No timer variables needed.
 class _StepTransitionIndicator extends ImplicitlyAnimatedWidget {
   final int index;
@@ -258,19 +256,13 @@ class _StepTransitionIndicatorState extends AnimatedWidgetBaseState<_StepTransit
     return OutlinedDotIndicator(
       size: 26,
       borderWidth: widget.isCurrent ? 0 : 1.5,
-      color: widget.isCurrent
-          ? widget.colors.primary
-          : widget.colors.primary.withValues(alpha: 0.4),
-      backgroundColor: widget.isCurrent
-          ? widget.colors.primary
-          : widget.colors.surfaceContainerHighest,
+      color: widget.isCurrent ? widget.colors.primary : widget.colors.primary.withValues(alpha: 0.4),
+      backgroundColor: widget.isCurrent ? widget.colors.primary : widget.colors.surfaceContainerHighest,
       child: Center(
         child: Text(
           '${widget.index + 1}',
           style: widget.textTheme.labelSmall?.copyWith(
-            color: widget.isCurrent
-                ? widget.colors.onPrimary
-                : widget.colors.onSurfaceVariant,
+            color: widget.isCurrent ? widget.colors.onPrimary : widget.colors.onSurfaceVariant,
             fontWeight: FontWeight.bold,
             height: 1.0,
           ),

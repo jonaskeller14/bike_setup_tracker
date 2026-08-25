@@ -58,8 +58,9 @@ class AppHintService extends ChangeNotifier {
     if (_hintHandledThisSession) return null;
 
     return switch (placement) {
-      AppHintPlacement.garageHeader => _garageGesturesHint(),
-      AppHintPlacement.setupHeader || AppHintPlacement.stravaDashboard => null,
+      AppHintPlacement.garageHeader => _gettingStartedHint() ?? _garageGesturesHint(),
+      AppHintPlacement.setupHeader => _gettingStartedHint() ?? _setupTaskHint() ?? _setupCalendarHint(),
+      AppHintPlacement.stravaDashboard => null,
     };
   }
 
@@ -83,6 +84,29 @@ class AppHintService extends ChangeNotifier {
         _appRepository.components.isNotEmpty &&
         statusOf(AppHint.garageGesturesV1) == AppHintStatus.unseen;
     return eligible ? AppHint.garageGesturesV1 : null;
+  }
+
+  AppHint? _gettingStartedHint() {
+    final hasCompletedSteps =
+        _appRepository.bikes.isNotEmpty && _appRepository.components.isNotEmpty && _appRepository.setups.isNotEmpty;
+    final eligible = !hasCompletedSteps && statusOf(AppHint.gettingStartedV1) == AppHintStatus.unseen;
+    return eligible ? AppHint.gettingStartedV1 : null;
+  }
+
+  AppHint? _setupTaskHint() {
+    final eligible =
+        !_appSettings.enableTask &&
+        _appRepository.filteredSetups.isNotEmpty &&
+        statusOf(AppHint.setupTasksV1) == AppHintStatus.unseen;
+    return eligible ? AppHint.setupTasksV1 : null;
+  }
+
+  AppHint? _setupCalendarHint() {
+    final eligible =
+        !_appSettings.enableCalendar &&
+        (_appRepository.filteredSetups.length >= 2 || _appRepository.filteredStravaActivities.length > 2) &&
+        statusOf(AppHint.setupCalendarV1) == AppHintStatus.unseen;
+    return eligible ? AppHint.setupCalendarV1 : null;
   }
 
   Future<void> _setStatus(AppHint hint, AppHintStatus status) async {

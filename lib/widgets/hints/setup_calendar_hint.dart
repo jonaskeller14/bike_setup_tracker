@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widget_previews.dart';
-import 'package:provider/provider.dart';
-
-import '../../models/app_settings.dart';
 
 /// Suggestion hint shown in the Setup timeline once the user has a few setups or
 /// Strava activities, nudging them to turn on the Calendar view.
 class SetupCalendarHint extends StatelessWidget {
-  @Preview(name: "SetupCalendarHint", group: "Hints")
-  const SetupCalendarHint({super.key});
+  const SetupCalendarHint({super.key, required this.onActivate, this.onDismiss});
+
+  final Future<void> Function() onActivate;
+  final VoidCallback? onDismiss;
 
   @override
   Widget build(BuildContext context) {
@@ -81,20 +79,7 @@ class SetupCalendarHint extends StatelessWidget {
                         ),
                         const SizedBox(height: 10),
                         FilledButton.tonalIcon(
-                          onPressed: () {
-                            final settings = context.read<AppSettings>();
-                            settings.enableCalendar = true;
-                            settings.hintShownThisSession = true;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                persist: false,
-                                showCloseIcon: true,
-                                content: Text(
-                                  'Calendar enabled — find it next to the search button on the Setups tab',
-                                ),
-                              ),
-                            );
-                          },
+                          onPressed: onActivate,
                           icon: const Icon(Icons.calendar_month, size: 18),
                           label: const Text('Turn on Calendar'),
                         ),
@@ -102,17 +87,14 @@ class SetupCalendarHint extends StatelessWidget {
                     ),
                   ),
                 ),
-                IconButton(
-                  onPressed: () {
-                    final settings = context.read<AppSettings>();
-                    settings.showSetupCalendarHint = false;
-                    settings.hintShownThisSession = true;
-                  },
-                  icon: const Icon(Icons.close, size: 18),
-                  color: colors.tertiary,
-                  visualDensity: VisualDensity.compact,
-                  tooltip: 'Dismiss',
-                ),
+                if (onDismiss != null)
+                  IconButton(
+                    onPressed: onDismiss,
+                    icon: const Icon(Icons.close, size: 18),
+                    color: colors.tertiary,
+                    visualDensity: VisualDensity.compact,
+                    tooltip: 'Dismiss',
+                  ),
               ],
             ),
           ],

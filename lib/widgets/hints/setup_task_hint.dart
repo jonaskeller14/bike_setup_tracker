@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widget_previews.dart';
-import 'package:provider/provider.dart';
-
-import '../../models/app_settings.dart';
 
 /// Suggestion hint shown in the Setup timeline once the user has recorded at
 /// least one setup, nudging them to turn on Task Management.
 class SetupTaskHint extends StatelessWidget {
-  @Preview(name: "SetupTaskHint", group: "Hints")
-  const SetupTaskHint({super.key});
+  const SetupTaskHint({super.key, required this.onActivate, this.onDismiss});
+
+  final Future<void> Function() onActivate;
+  final VoidCallback? onDismiss;
 
   @override
   Widget build(BuildContext context) {
@@ -81,20 +79,7 @@ class SetupTaskHint extends StatelessWidget {
                         ),
                         const SizedBox(height: 10),
                         FilledButton.tonalIcon(
-                          onPressed: () {
-                            final settings = context.read<AppSettings>();
-                            settings.enableTask = true;
-                            settings.hintShownThisSession = true;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                persist: false,
-                                showCloseIcon: true,
-                                content: Text(
-                                  'Tasks enabled — find it in the home bottom navigation bar',
-                                ),
-                              ),
-                            );
-                          },
+                          onPressed: onActivate,
                           icon: const Icon(Icons.add_task, size: 18),
                           label: const Text('Activate Tasks'),
                         ),
@@ -102,17 +87,14 @@ class SetupTaskHint extends StatelessWidget {
                     ),
                   ),
                 ),
-                IconButton(
-                  onPressed: () {
-                    final settings = context.read<AppSettings>();
-                    settings.showSetupTaskHint = false;
-                    settings.hintShownThisSession = true;
-                  },
-                  icon: const Icon(Icons.close, size: 18),
-                  color: colors.tertiary,
-                  visualDensity: VisualDensity.compact,
-                  tooltip: 'Dismiss',
-                ),
+                if (onDismiss != null)
+                  IconButton(
+                    onPressed: onDismiss,
+                    icon: const Icon(Icons.close, size: 18),
+                    color: colors.tertiary,
+                    visualDensity: VisualDensity.compact,
+                    tooltip: 'Dismiss',
+                  ),
               ],
             ),
           ],

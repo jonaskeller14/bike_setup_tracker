@@ -1,10 +1,12 @@
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/database/mappers.dart';
+import 'package:bike_setup_tracker/models/app_hint.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/services/app_hint_service.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/widgets/items/strava_list_tile.dart';
 import 'package:bike_setup_tracker/widgets/lists/setup_list.dart';
@@ -40,16 +42,14 @@ void main() {
     // reporter must be restored within the test body (the binding verifies
     // it), hence the try/finally around the whole test.
     final originalReporter = reportTestException;
-    reportTestException =
-        (FlutterErrorDetails details, String testDescription) {
-          final exception = details.exception;
-          if (exception is PlatformException &&
-              exception.code == 'channel-error') {
-            debugPrint('Ignored billing channel-error (no store in test env).');
-            return;
-          }
-          originalReporter(details, testDescription);
-        };
+    reportTestException = (FlutterErrorDetails details, String testDescription) {
+      final exception = details.exception;
+      if (exception is PlatformException && exception.code == 'channel-error') {
+        debugPrint('Ignored billing channel-error (no store in test env).');
+        return;
+      }
+      originalReporter(details, testDescription);
+    };
     try {
       await _runDeepWindowLazinessTest(tester);
     } finally {
@@ -122,9 +122,6 @@ Future<void> _runDeepWindowLazinessTest(WidgetTester tester) async {
 
   final appSettings = AppSettings();
   appSettings.showOnboarding = false;
-  appSettings.showSetupTaskHint = false;
-  appSettings.showSetupCalendarHint = false;
-  appSettings.showGettingStartedGuideHint = false;
   appSettings.enableTimelineDayHeaders = true;
 
   final appRepository = AppRepository(database);
@@ -136,6 +133,13 @@ Future<void> _runDeepWindowLazinessTest(WidgetTester tester) async {
     // Let the drift streams and the _dataChanged microtask settle.
     await Future<void>.delayed(const Duration(milliseconds: 300));
   });
+  final appHintService = AppHintService(
+    appRepository: appRepository,
+    appSettings: appSettings,
+  );
+  await appHintService.load();
+  await appHintService.dismiss(AppHint.gettingStartedV1);
+  addTearDown(appHintService.dispose);
 
   final show = ValueNotifier<bool>(false);
   addTearDown(show.dispose);
@@ -144,6 +148,7 @@ Future<void> _runDeepWindowLazinessTest(WidgetTester tester) async {
       providers: [
         ChangeNotifierProvider<AppSettings>.value(value: appSettings),
         ChangeNotifierProvider<AppRepository>.value(value: appRepository),
+        ChangeNotifierProvider<AppHintService>.value(value: appHintService),
         ChangeNotifierProvider<SubscriptionService>(
           create: (_) => _EntitledSubscriptionService(),
         ),
@@ -153,8 +158,7 @@ Future<void> _runDeepWindowLazinessTest(WidgetTester tester) async {
           body: SafeArea(
             child: ValueListenableBuilder<bool>(
               valueListenable: show,
-              builder: (_, visible, _) =>
-                  visible ? const SetupList() : const SizedBox.expand(),
+              builder: (_, visible, _) => visible ? const SetupList() : const SizedBox.expand(),
             ),
           ),
         ),

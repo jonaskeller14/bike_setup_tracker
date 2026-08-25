@@ -1,3 +1,4 @@
+import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/compare_setups/setup_comparison_header.dart';
 import 'package:bike_setup_tracker/widgets/current_setup_badge.dart';
@@ -469,7 +470,7 @@ void main() {
     );
   });
 
-  testWidgets('identity callbacks are independently optional and semantic', (tester) async {
+  testWidgets('identities without setup selection are not tappable', (tester) async {
     final setupA = harness.setup(id: 'callback-a', name: 'Callback A', local: DateTime(2026, 8, 1, 10));
     final setupB = harness.setup(id: 'callback-b', name: 'Callback B', local: DateTime(2026, 8, 2, 10));
     final semantics = tester.ensureSemantics();
@@ -488,30 +489,94 @@ void main() {
       expect(data.flagsCollection.isButton, isFalse);
     }
 
-    var tapsA = 0;
-    var tapsB = 0;
-    await tester.pumpWidget(
-      harness.wrap(
-        CustomScrollView(
-          slivers: [
-            SetupComparisonIdentities(
-              setupA: setupA,
-              setupB: setupB,
-              onTapA: () => tapsA++,
-              onTapB: () => tapsB++,
-            ),
-          ],
-        ),
-      ),
-    );
-    await settle(tester);
-    await tester.tap(find.byKey(const Key('compare-identity-a')));
-    await tester.pump();
-    expect((tapsA, tapsB), (1, 0));
-    await tester.tap(find.byKey(const Key('compare-identity-b')));
-    await tester.pump();
-    expect((tapsA, tapsB), (1, 1));
     semantics.dispose();
+  });
+
+  testWidgets('identities select another setup and highlight the opposite selection', (tester) async {
+    final (setupAId, setupBId) = await seedPair(tester);
+    final third = harness.setup(
+      id: 'third',
+      name: 'Third setup',
+      local: DateTime(2026, 8, 3, 10),
+    );
+    await harness.addSetups(tester, [third]);
+    await pumpComparison(tester, setupAId, setupBId);
+
+    expect(
+      tester.widget<PopupMenuButton<Setup>>(find.byType(PopupMenuButton<Setup>).first).initialValue,
+      harness.repository.setups[setupAId],
+    );
+    await tester.tap(find.byType(PopupMenuButton<Setup>).first);
+    await settle(tester);
+
+    final highlightedOption = tester.widget<Container>(find.byKey(const Key('compare-setup-option-newer')));
+    expect(
+      highlightedOption.color,
+      Theme.of(tester.element(find.byType(CompareSetups))).colorScheme.secondaryContainer,
+    );
+    expect(find.byType(CheckedPopupMenuItem<Setup>), findsNothing);
+    expect(find.byType(CurrentSetupBadge), findsOneWidget);
+    expect(find.text('2026-08-03 • 10:00'), findsOneWidget);
+
+    await tester.tap(find.text('Third setup'));
+    await settle(tester);
+
+    expect(
+      find.descendant(of: find.byKey(const Key('compare-identity-a')), matching: find.text('Third setup')),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('same-bike comparisons only offer setups from that bike', (tester) async {
+    final setupA = harness.setup(id: 'same-bike-a', name: 'Same bike A', local: DateTime(2026, 8, 1, 10));
+    final setupB = harness.setup(id: 'same-bike-b', name: 'Same bike B', local: DateTime(2026, 8, 2, 10));
+    final otherBikeSetup = harness.setup(
+      id: 'other-bike',
+      name: 'Other bike setup',
+      bike: CompareSetupsHarness.secondBikeId,
+      local: DateTime(2026, 8, 3, 10),
+    );
+    await harness.addSetups(tester, [setupA, setupB, otherBikeSetup]);
+    await harness.reload(tester);
+    await pumpComparison(tester, setupA.id, setupB.id);
+
+    await tester.tap(find.byType(PopupMenuButton<Setup>).first);
+    await settle(tester);
+
+    expect(find.byKey(const Key('compare-setup-option-same-bike-a')), findsOneWidget);
+    expect(find.byKey(const Key('compare-setup-option-same-bike-b')), findsOneWidget);
+    expect(find.byKey(const Key('compare-setup-option-other-bike')), findsNothing);
+  });
+
+  testWidgets('cross-bike comparisons offer all setups and show bike names', (tester) async {
+    final setupA = harness.setup(id: 'bike-a-setup', name: 'Bike A setup', local: DateTime(2026, 8, 1, 10));
+    final setupB = harness.setup(
+      id: 'bike-b-setup',
+      name: 'Bike B setup',
+      bike: CompareSetupsHarness.secondBikeId,
+      local: DateTime(2026, 8, 2, 10),
+    );
+    await harness.addSetups(tester, [setupA, setupB]);
+    await harness.reload(tester);
+    await pumpComparison(tester, setupA.id, setupB.id);
+
+    await tester.tap(find.byType(PopupMenuButton<Setup>).first);
+    await settle(tester);
+
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('compare-setup-option-bike-a-setup')),
+        matching: find.text('Bike A'),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('compare-setup-option-bike-b-setup')),
+        matching: find.text('Bike B'),
+      ),
+      findsOneWidget,
+    );
   });
 
   testWidgets('identity dates remain visible at a larger text scale', (tester) async {

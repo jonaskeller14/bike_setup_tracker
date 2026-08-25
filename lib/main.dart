@@ -81,7 +81,7 @@ void main() async {
   );
 }
 
-class LoadingGate extends StatelessWidget {
+class LoadingGate extends StatefulWidget {
   final AppSettings appSettings;
   final AppRepository appRepository;
   final AppHintService appHintService;
@@ -93,6 +93,23 @@ class LoadingGate extends StatelessWidget {
     required this.appHintService,
   });
 
+  @override
+  State<LoadingGate> createState() => _LoadingGateState();
+}
+
+class _LoadingGateState extends State<LoadingGate> {
+  late final Future<void> _initialization;
+
+  @override
+  void initState() {
+    super.initState();
+    _initialization = Future.wait([
+      widget.appSettings.loadAppSettings(),
+      _loadAndMigrate(),
+      widget.appHintService.load(),
+    ]);
+  }
+
   Future<void> _loadAndMigrate() async {
     final dbFolder = await getApplicationDocumentsDirectory();
     final dbFile = File(p.join(dbFolder.path, 'bike_setup_tracker.sqlite'));
@@ -100,34 +117,30 @@ class LoadingGate extends StatelessWidget {
 
     if (!dbExists) {
       debugPrint("Starting database migration to Drift...");
-      final legacyData = await appRepository.loadLegacyData();
+      final legacyData = await widget.appRepository.loadLegacyData();
       if (legacyData != null) {
-        final migrationService = DatabaseMigrationService(appRepository.database);
+        final migrationService = DatabaseMigrationService(widget.appRepository.database);
         await migrationService.migrateFromSelectedData(legacyData);
         debugPrint("Migration inserted data successfully.");
 
         // Save a backup of the final JSON state just in case.
-        await BackupService.saveBackup(context: null, database: appRepository.database);
+        await BackupService.saveBackup(context: null, database: widget.appRepository.database);
       }
       debugPrint("Database migration completed.");
     }
 
-    await appRepository.initialize();
+    await widget.appRepository.initialize();
 
     // Block the UI until the in-memory caches reflect the DB. Deep-link
     // handlers (shortcuts/App Actions) read these synchronously, so mounting
     // the navigator before the first emissions causes false-empty checks.
-    await appRepository.initialDataLoaded;
+    await widget.appRepository.initialDataLoaded;
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: Future.wait([
-        appSettings.loadAppSettings(),
-        _loadAndMigrate(),
-        appHintService.load(),
-      ]),
+      future: _initialization,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return MaterialApp(
@@ -139,12 +152,12 @@ class LoadingGate extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.done) {
           return MultiProvider(
             providers: [
-              Provider<AppDatabase>.value(value: appRepository.database),
+              Provider<AppDatabase>.value(value: widget.appRepository.database),
               Provider<ComponentPresetRepository>(create: (_) => ComponentPresetRepository()),
-              ChangeNotifierProvider.value(value: appSettings),
-              ChangeNotifierProvider.value(value: appRepository),
-              ChangeNotifierProxyProvider2<AppRepository, AppSettings, AppHintService>(
-                create: (_) => appHintService,
+              ChangeNotifierProvider.value(value: widget.appSettings),
+              ChangeNotifierProvider.value(value: widget.appRepository),
+              ListenableProxyProvider2<AppRepository, AppSettings, AppHintService>(
+                create: (_) => widget.appHintService,
                 update: (_, appRepository, appSettings, appHintService) {
                   appHintService!.update(
                     appRepository: appRepository,
@@ -156,11 +169,11 @@ class LoadingGate extends StatelessWidget {
               ProxyProvider<AppRepository, BackupService>(
                 lazy: false,
                 create: (context) => BackupService(),
-                update: (context, appRepo, backupService) => backupService!..update(appRepository.database),
+                update: (context, appRepo, backupService) => backupService!..update(appRepo.database),
               ),
               ChangeNotifierProxyProvider2<AppRepository, AppSettings, GoogleDriveService>(
                 lazy: false,
-                create: (context) => GoogleDriveService(appRepository, appRepository.database),
+                create: (context) => GoogleDriveService(widget.appRepository, widget.appRepository.database),
                 update: (context, appRepo, settings, googleDriveService) {
                   if (settings.enableGoogleDrive) {
                     googleDriveService!.update(appRepository: appRepo);
@@ -170,7 +183,7 @@ class LoadingGate extends StatelessWidget {
               ),
               ChangeNotifierProxyProvider2<AppSettings, AppRepository, StravaService>(
                 lazy: false,
-                create: (context) => StravaService(appRepository, appSettings),
+                create: (context) => StravaService(widget.appRepository, widget.appSettings),
                 update: (context, settings, appRepo, stravaService) {
                   if (settings.enableStrava) {
                     unawaited(stravaService!.update(appRepository: appRepo, appSettings: settings));
@@ -200,7 +213,7 @@ class LoadingGate extends StatelessWidget {
                 // Initialize Services after Snapshots are done and context is available
                 unawaited(DeepLinkService().init());
                 unawaited(QuickActionsService().init());
-                NotificationService().init(appRepository);
+                NotificationService().init(widget.appRepository);
                 return const BikeSetupTrackerApp();
               },
             ),

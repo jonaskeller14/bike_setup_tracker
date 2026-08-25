@@ -40,9 +40,10 @@ void main() {
     appSettings: settings,
   );
 
-  test('defaults missing and unknown statuses to unseen', () async {
+  test('defaults missing, unknown, and malformed statuses to unseen', () async {
     SharedPreferences.setMockInitialValues({
       'app_hint.garageGesturesV1.status': 'futureStatus',
+      'app_hint.setupTasksV1.status': false,
     });
     final service = createService();
     await service.load();

@@ -33,9 +33,9 @@ class AppHintService extends ChangeNotifier {
     final preferences = await SharedPreferences.getInstance();
     await _migrateLegacyStatuses(preferences);
     for (final hint in AppHint.values) {
-      final storedValue = preferences.getString(_keyFor(hint));
+      final storedValue = preferences.get(_keyFor(hint));
       final status = AppHintStatus.values.firstWhere(
-        (status) => status.name == storedValue,
+        (status) => storedValue is String && status.name == storedValue,
         orElse: () => AppHintStatus.unseen,
       );
       if (status != AppHintStatus.unseen) _statuses[hint] = status;

@@ -22,6 +22,8 @@ class AppHintSlot extends StatelessWidget {
   Widget build(BuildContext context) {
     final hintService = context.watch<AppHintService>();
     final hint = hintService.activeHintFor(placement);
+    if (hint == null) return const SizedBox.shrink();
+
     return switch (hint) {
       AppHint.gettingStartedV1 => GettingStartedGuideHint(
         onDismiss: () => unawaited(hintService.dismiss(AppHint.gettingStartedV1)),
@@ -42,7 +44,6 @@ class AppHintSlot extends StatelessWidget {
       AppHint.stravaLinkGearV1 => StravaGearLinkHint(
         onDismiss: () => unawaited(hintService.dismiss(AppHint.stravaLinkGearV1)),
       ),
-      _ => const SizedBox.shrink(),
     };
   }
 

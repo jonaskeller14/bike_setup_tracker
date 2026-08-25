@@ -7,6 +7,7 @@ import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/app_hint_service.dart';
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -253,4 +254,28 @@ void main() {
     service.update(appRepository: repository, appSettings: settings);
     expect(service.activeHintFor(AppHintPlacement.setupHeader), AppHint.setupCalendarV1);
   });
+
+  test('Strava link hint requires an unlinked gear', () async {
+    final service = createService();
+    await service.load();
+
+    expect(service.activeHintFor(AppHintPlacement.stravaDashboardGear), isNull);
+
+    await database.stravaDao.upsertGear(
+      StravaGearsCompanion(
+        id: const Value('gear-1'),
+        lastModified: Value(DateTime.now()),
+        name: const Value('Road bike'),
+      ),
+    );
+    await pumpEventQueue();
+    service.update(appRepository: repository, appSettings: settings);
+    expect(service.activeHintFor(AppHintPlacement.stravaDashboardGear), AppHint.stravaLinkGearV1);
+
+    await repository.addBike(Bike(name: 'Road bike', person: null, stravaGear: 'gear-1'));
+    await pumpEventQueue();
+    service.update(appRepository: repository, appSettings: settings);
+    expect(service.activeHintFor(AppHintPlacement.stravaDashboardGear), isNull);
+  });
+
 }

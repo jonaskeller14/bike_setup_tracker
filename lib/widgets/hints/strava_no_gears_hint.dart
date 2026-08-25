@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
 
+/// Transient dashboard empty-state guidance, not a persisted app hint.
 class StravaNoGearsHint extends StatelessWidget {
   static const _noGearsSteps = [
     'Open the Strava app',

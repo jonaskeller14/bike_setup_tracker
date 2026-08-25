@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../icons/simple_icons.dart';
+import '../../models/app_hint.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/strava/strava_activity.dart';
@@ -13,7 +14,7 @@ import '../../models/strava/strava_gear.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/strava_service.dart';
 import '../dialogs/strava_disconnect.dart';
-import '../hints/strava_gear_link_hint.dart';
+import '../hints/app_hint_slot.dart';
 import '../hints/strava_no_gears_hint.dart';
 import '../items/strava_list_tile.dart';
 import '../text/sheet_section_title.dart';
@@ -122,9 +123,6 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
     final stravaService = context.watch<StravaService>();
     final athletes = appRepository.stravaAthletes.values;
     final gears = appRepository.stravaGears.values;
-    final hasUnlinkedGears = gears.any(
-      (g) => appRepository.bikes.values.every((b) => b.stravaGear != g.id),
-    );
     
     return SafeArea(
       child: Column(
@@ -164,8 +162,8 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
                   ] else if (gears.isNotEmpty) ...[
                     const Divider(),
                     const SheetSectionTitle(title: "Strava Gear:"),
-                    if (hasUnlinkedGears && appSettings.showStravaLinkGearHint) ...[
-                      const StravaGearLinkHint(),
+                    if (stravaService.isConnected) ...[
+                      const AppHintSlot(placement: AppHintPlacement.stravaDashboardGear),
                       const SizedBox(height: 4),
                     ],
                     _gearWrap(gears: gears, bikes: appRepository.bikes.values)

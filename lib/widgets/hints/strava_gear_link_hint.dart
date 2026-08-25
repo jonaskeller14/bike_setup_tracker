@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widget_previews.dart';
-import 'package:provider/provider.dart';
-
-import '../../models/app_settings.dart';
 
 class StravaGearLinkHint extends StatelessWidget {
-  @Preview(name: "StravaGearLinkHint", group: "Hints")
-  const StravaGearLinkHint({super.key});
+  const StravaGearLinkHint({super.key, required this.onDismiss});
+
+  final VoidCallback onDismiss;
 
   @override
   Widget build(BuildContext context) {
@@ -82,9 +79,7 @@ class StravaGearLinkHint extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  onPressed: () =>
-                      context.read<AppSettings>().showStravaLinkGearHint =
-                          false,
+                  onPressed: onDismiss,
                   icon: const Icon(Icons.close, size: 18),
                   color: colors.tertiary,
                   visualDensity: VisualDensity.compact,

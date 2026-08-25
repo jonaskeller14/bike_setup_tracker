@@ -126,32 +126,70 @@ class _ComparisonTextRow extends StatelessWidget {
   }
 }
 
-class _ComparisonMap extends StatelessWidget {
+class _ComparisonMap extends StatefulWidget {
   final LocationData? positionA;
   final LocationData? positionB;
 
   const _ComparisonMap({required this.positionA, required this.positionB});
 
   @override
+  State<_ComparisonMap> createState() => _ComparisonMapState();
+}
+
+class _ComparisonMapState extends State<_ComparisonMap> {
+  final MapController _mapController = MapController();
+
+  @override
+  void didUpdateWidget(covariant _ComparisonMap oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (_hasChanged(oldWidget.positionA, widget.positionA) || _hasChanged(oldWidget.positionB, widget.positionB)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _fitCamera();
+      });
+    }
+  }
+
+  bool _hasChanged(LocationData? previous, LocationData? current) =>
+      previous?.latitude != current?.latitude || previous?.longitude != current?.longitude;
+
+  List<({String label, LatLng point})> get _points => [
+    if (widget.positionA?.latitude != null && widget.positionA?.longitude != null)
+      (
+        label: 'A',
+        point: LatLng(widget.positionA!.latitude!, widget.positionA!.longitude!),
+      ),
+    if (widget.positionB?.latitude != null && widget.positionB?.longitude != null)
+      (
+        label: 'B',
+        point: LatLng(widget.positionB!.latitude!, widget.positionB!.longitude!),
+      ),
+  ];
+
+  void _fitCamera() {
+    final points = _points;
+    if (points.length == 1) {
+      _mapController.move(points.single.point, 13);
+    } else if (points.length > 1) {
+      _mapController.fitCamera(
+        CameraFit.bounds(
+          bounds: LatLngBounds.fromPoints(points.map((point) => point.point).toList()),
+          padding: const EdgeInsets.all(48),
+          maxZoom: 16,
+        ),
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final settings = context.watch<AppSettings>();
-    final points = <({String label, LatLng point})>[
-      if (positionA?.latitude != null && positionA?.longitude != null)
-        (
-          label: 'A',
-          point: LatLng(positionA!.latitude!, positionA!.longitude!),
-        ),
-      if (positionB?.latitude != null && positionB?.longitude != null)
-        (
-          label: 'B',
-          point: LatLng(positionB!.latitude!, positionB!.longitude!),
-        ),
-    ];
+    final points = _points;
     if (points.isEmpty) return const SizedBox.shrink();
 
     return SizedBox(
       height: 220,
       child: FlutterMap(
+        mapController: _mapController,
         options: MapOptions(
           backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
           initialCenter: points.first.point,
@@ -241,7 +279,7 @@ class _ComparisonMap extends StatelessWidget {
                   point: point.point,
                   width: 48,
                   height: 48,
-                  child: SetupMapPin.label(label: point.label)
+                  child: SetupMapPin.label(label: point.label),
                 ),
             ],
           ),

@@ -76,10 +76,6 @@ class GoldenTestHarness {
 
     final settings = AppSettings()
       ..showOnboarding = false
-      ..showGettingStartedGuideHint = false
-      ..showGarageListHint = false
-      ..showSetupTaskHint = false
-      ..showSetupCalendarHint = false
       ..enableTimelineDayHeaders = false
       ..enableRating = false
       ..enablePerson = false;

@@ -49,6 +49,38 @@ void main() {
     expect(service.statusOf(AppHint.setupTasksV1), AppHintStatus.unseen);
   });
 
+  test('migrates legacy hint flags to persisted statuses', () async {
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.setBool('app_settings.showGarageListHint', false);
+    await preferences.setBool('app_settings.showSetupTaskHint', true);
+
+    final service = createService();
+    await service.load();
+
+    expect(service.statusOf(AppHint.garageGesturesV1), AppHintStatus.dismissed);
+    expect(service.statusOf(AppHint.setupTasksV1), AppHintStatus.unseen);
+    expect(preferences.getString('app_hint.garageGesturesV1.status'), 'dismissed');
+    expect(preferences.getString('app_hint.setupTasksV1.status'), 'unseen');
+    expect(preferences.getString('app_hint.setupCalendarV1.status'), 'unseen');
+    expect(preferences.getBool('app_settings.showGarageListHint'), isNull);
+    expect(preferences.getBool('app_settings.showSetupTaskHint'), isNull);
+  });
+
+  test('legacy migration is idempotent and preserves a new status', () async {
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.setBool('app_settings.showGarageListHint', false);
+
+    final service = createService();
+    await service.load();
+    await preferences.setBool('app_settings.showGarageListHint', true);
+
+    final reloaded = createService();
+    await reloaded.load();
+
+    expect(reloaded.statusOf(AppHint.garageGesturesV1), AppHintStatus.dismissed);
+    expect(preferences.getBool('app_settings.showGarageListHint'), isNull);
+  });
+
   test('dismiss and complete persist enum values across service recreation', () async {
     final service = createService();
     await service.load();

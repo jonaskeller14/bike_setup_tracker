@@ -7,6 +7,14 @@ import '../repositories/app_repository.dart';
 
 class AppHintService extends ChangeNotifier {
   static const _preferencePrefix = 'app_hint.';
+  static const _legacyPreferencePrefix = 'app_settings.';
+  static const _legacyHints = {
+    AppHint.garageGesturesV1: 'showGarageListHint',
+    AppHint.gettingStartedV1: 'showGettingStartedGuideHint',
+    AppHint.setupTasksV1: 'showSetupTaskHint',
+    AppHint.setupCalendarV1: 'showSetupCalendarHint',
+    AppHint.stravaLinkGearV1: 'showStravaLinkGearHint',
+  };
 
   AppRepository _appRepository;
   AppSettings _appSettings;
@@ -23,6 +31,7 @@ class AppHintService extends ChangeNotifier {
 
   Future<void> load() async {
     final preferences = await SharedPreferences.getInstance();
+    await _migrateLegacyStatuses(preferences);
     for (final hint in AppHint.values) {
       final storedValue = preferences.getString(_keyFor(hint));
       final status = AppHintStatus.values.firstWhere(
@@ -111,6 +120,23 @@ class AppHintService extends ChangeNotifier {
     final preferences = await SharedPreferences.getInstance();
     for (final hint in AppHint.values) {
       await preferences.remove(_keyFor(hint));
+    }
+  }
+
+  Future<void> _migrateLegacyStatuses(SharedPreferences preferences) async {
+    for (final entry in _legacyHints.entries) {
+      final key = _keyFor(entry.key);
+      if (preferences.containsKey(key)) {
+        await preferences.remove('$_legacyPreferencePrefix${entry.value}');
+        continue;
+      }
+
+      final legacyValue = preferences.get('$_legacyPreferencePrefix${entry.value}');
+      final status = legacyValue is bool && !legacyValue ? AppHintStatus.dismissed : AppHintStatus.unseen;
+      final persisted = await preferences.setString(key, status.name);
+      if (persisted) {
+        await preferences.remove('$_legacyPreferencePrefix${entry.value}');
+      }
     }
   }
 }

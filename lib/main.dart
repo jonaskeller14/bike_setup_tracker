@@ -93,7 +93,7 @@ class LoadingGate extends StatelessWidget {
     required this.appHintService,
   });
 
-  Future<void> _loadAndMigrate(BuildContext context) async {
+  Future<void> _loadAndMigrate() async {
     final dbFolder = await getApplicationDocumentsDirectory();
     final dbFile = File(p.join(dbFolder.path, 'bike_setup_tracker.sqlite'));
     final dbExists = await dbFile.exists();
@@ -105,13 +105,13 @@ class LoadingGate extends StatelessWidget {
         final migrationService = DatabaseMigrationService(appRepository.database);
         await migrationService.migrateFromSelectedData(legacyData);
         debugPrint("Migration inserted data successfully.");
-        
+
         // Save a backup of the final JSON state just in case.
         await BackupService.saveBackup(context: null, database: appRepository.database);
       }
       debugPrint("Database migration completed.");
     }
-    
+
     await appRepository.initialize();
 
     // Block the UI until the in-memory caches reflect the DB. Deep-link
@@ -125,7 +125,7 @@ class LoadingGate extends StatelessWidget {
     return FutureBuilder(
       future: Future.wait([
         appSettings.loadAppSettings(),
-        _loadAndMigrate(context),
+        _loadAndMigrate(),
         appHintService.load(),
       ]),
       builder: (context, snapshot) {
@@ -232,9 +232,7 @@ class BikeSetupTrackerApp extends StatelessWidget {
       darkTheme: materialAppDarkTheme,
       themeMode: appSettings.themeMode,
       navigatorKey: NavigationService.navigatorKey,
-      home: appSettings.showOnboarding
-          ? const OnboardingPage()
-          : const HomePage(),
+      home: appSettings.showOnboarding ? const OnboardingPage() : const HomePage(),
       debugShowCheckedModeBanner: false,
     );
   }

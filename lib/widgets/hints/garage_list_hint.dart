@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
-import 'package:provider/provider.dart';
-
-import '../../models/app_settings.dart';
 
 class GarageListHint extends StatelessWidget {
   static const _tips = [
@@ -11,8 +8,10 @@ class GarageListHint extends StatelessWidget {
     'Double-tap a bike card to quickly filter your view and focus on its parts.',
   ];
 
+  final VoidCallback? onDismiss;
+
   @Preview(name: "GarageListHint", group: "Hints")
-  const GarageListHint({super.key});
+  const GarageListHint({super.key, this.onDismiss});
 
   @override
   Widget build(BuildContext context) {
@@ -119,17 +118,14 @@ class GarageListHint extends StatelessWidget {
                     ),
                   ),
                 ),
-                IconButton(
-                  onPressed: () {
-                    final appSettings = context.read<AppSettings>();
-                    appSettings.showGarageListHint = false;
-                    appSettings.hintShownThisSession = true;
-                  },
-                  icon: const Icon(Icons.close, size: 18),
-                  color: colors.tertiary,
-                  visualDensity: VisualDensity.compact,
-                  tooltip: 'Dismiss',
-                ),
+                if (onDismiss != null)
+                  IconButton(
+                    onPressed: onDismiss,
+                    icon: const Icon(Icons.close, size: 18),
+                    color: colors.tertiary,
+                    visualDensity: VisualDensity.compact,
+                    tooltip: 'Dismiss',
+                  ),
               ],
             ),
           ],

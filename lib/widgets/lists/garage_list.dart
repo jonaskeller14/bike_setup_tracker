@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../models/app_hint.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/component.dart';
@@ -13,7 +14,7 @@ import '../../repositories/app_repository.dart';
 import '../../utils/bike_actions.dart';
 import '../chips/bike_list_filter_widget.dart';
 import '../empty_state_placeholder.dart';
-import '../hints/garage_list_hint.dart';
+import '../hints/app_hint_slot.dart';
 import '../hints/getting_started_guide_hint.dart';
 import '../items/garage_bike_card.dart';
 import '../items/garage_uninstalled_card.dart';
@@ -214,7 +215,6 @@ class _GarageListState extends State<GarageList> {
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
-    final appSettings = context.watch<AppSettings>();
     final bikesList = appRepository.filteredBikes.values.toList();
 
     Widget proxyDecorator(Widget child, int index, Animation<double> animation) {
@@ -257,18 +257,14 @@ class _GarageListState extends State<GarageList> {
                 right: 16,
                 bottom: 16 + 100,
               ),
-              header: Column(
+              header: const Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 8,
                 children: [
-                  const GettingStartedGuideHint(),
-                  if (appRepository.bikes.length >= 2 &&
-                      appRepository.components.isNotEmpty &&
-                      appSettings.showGarageListHint &&
-                      !appSettings.hintShownThisSession)
-                    const GarageListHint(),
-                  const BikeListFilterWidget(),
+                  GettingStartedGuideHint(),
+                  AppHintSlot(placement: AppHintPlacement.garageHeader),
+                  BikeListFilterWidget(),
                 ],
               ),
               footer: Column(

@@ -12,6 +12,7 @@ import '../services/data_export_service.dart';
 import '../services/file_save_service.dart';
 import '../services/image_storage_service.dart';
 import '../services/share_service.dart';
+import '../widgets/app_snackbar.dart';
 import 'to_spreadsheet.dart';
 
 class FileExport {
@@ -66,9 +67,6 @@ class FileExport {
     FileSaveService? fileSaveService,
   }) async {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
-    final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
-    final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
-
     await _runSave(
       context: context,
       save: () async {
@@ -79,15 +77,8 @@ class FileExport {
             : <File>[];
 
         if (files.isEmpty) {
-          scaffoldMessenger.showSnackBar(
-            SnackBar(
-              persist: false,
-              showCloseIcon: true,
-              closeIconColor: onErrorContainerColor,
-              content: Text('No backup found yet.', style: TextStyle(color: onErrorContainerColor)),
-              backgroundColor: errorContainerColor,
-            ),
-          );
+          if (!context.mounted) return FileSaveOutcome.cancelled;
+          scaffoldMessenger.showSnackBar(AppSnackBar.error(context, 'No backup found yet.'));
           return FileSaveOutcome.cancelled;
         }
 
@@ -130,31 +121,16 @@ class FileExport {
     required Future<FileSaveOutcome> Function() save,
   }) async {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
-    final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
-    final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
-
     try {
       final result = await save();
       if (result == FileSaveOutcome.saved) {
-        scaffoldMessenger.showSnackBar(
-          const SnackBar(
-            persist: false,
-            showCloseIcon: true,
-            content: Text('File saved'),
-          ),
-        );
+        if (!context.mounted) return;
+        scaffoldMessenger.showSnackBar(AppSnackBar.success(context, 'File saved'));
       }
     } catch (e, st) {
       debugPrint('Export failed: $e\n$st');
-      scaffoldMessenger.showSnackBar(
-        SnackBar(
-          persist: false,
-          showCloseIcon: true,
-          closeIconColor: onErrorContainerColor,
-          content: Text('Export failed: $e', style: TextStyle(color: onErrorContainerColor)),
-          backgroundColor: errorContainerColor,
-        ),
-      );
+      if (!context.mounted) return;
+      scaffoldMessenger.showSnackBar(AppSnackBar.error(context, 'Export failed: $e'));
     }
   }
 
@@ -181,15 +157,7 @@ class FileExport {
       );
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          persist: false,
-          showCloseIcon: true,
-          closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-          content: Text('Error preparing JSON: $e', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
-          backgroundColor: Theme.of(context).colorScheme.errorContainer
-        ),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, 'Error preparing JSON: $e'));
     }
   }
 
@@ -217,15 +185,7 @@ class FileExport {
       );
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          persist: false,
-          showCloseIcon: true,
-          closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-          content: Text('Error preparing Excel: $e', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
-          backgroundColor: Theme.of(context).colorScheme.errorContainer
-        ),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, 'Error preparing Excel: $e'));
     }
   }
 
@@ -252,15 +212,7 @@ class FileExport {
       );
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          persist: false,
-          showCloseIcon: true,
-          closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-          content: Text('Error preparing CSV: $e', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
-          backgroundColor: Theme.of(context).colorScheme.errorContainer
-        ),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, 'Error preparing CSV: $e'));
     }
   }
 

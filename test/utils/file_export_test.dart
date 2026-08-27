@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/services/file_save_service.dart';
+import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/utils/file_export.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -69,6 +70,7 @@ void main() {
     late BuildContext context;
     await tester.pumpWidget(
       MaterialApp(
+        theme: materialAppTheme,
         home: Scaffold(
           body: Builder(
             builder: (builderContext) {
@@ -94,6 +96,11 @@ void main() {
     await tester.pump();
 
     expect(find.text('File saved'), findsOneWidget);
+    final snackBar = tester.widget<SnackBar>(find.byType(SnackBar));
+    final snackBarColors = Theme.of(context).extension<SnackBarColors>()!;
+    expect(snackBar.backgroundColor, snackBarColors.success);
+    expect(snackBar.showCloseIcon, isTrue);
+    expect(snackBar.duration, const Duration(seconds: 5));
     expect(service.fileName, matches(RegExp(r'^\d{8}_\d{6}_export\.json$')));
     expect(service.extension, 'json');
     expect(jsonDecode(utf8.decode(service.bytes!)), isA<Map<String, dynamic>>());

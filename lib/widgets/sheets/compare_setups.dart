@@ -9,6 +9,7 @@ import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/setup_comparison_service.dart';
 import '../../theme.dart';
+import '../app_snackbar.dart';
 import '../compare_setups/setup_comparison_header.dart';
 import '../compare_setups/setup_comparison_owner_card.dart';
 import '../items/context_bike_person_card_diff.dart';
@@ -36,7 +37,7 @@ Future<void> showCompareSetupsSheet(
         : 'No current setup is available to compare.';
     final messenger = ScaffoldMessenger.of(context);
     messenger.hideCurrentSnackBar();
-    messenger.showSnackBar(SnackBar(content: Text(message)));
+    messenger.showSnackBar(AppSnackBar.info(context, message));
     return;
   }
 

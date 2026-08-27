@@ -85,6 +85,40 @@ class TaskStatusColors extends ThemeExtension<TaskStatusColors> {
   }
 }
 
+class SnackBarColors extends ThemeExtension<SnackBarColors> {
+  final Color success;
+  final Color onSuccess;
+
+  const SnackBarColors({required this.success, required this.onSuccess});
+
+  static const light = SnackBarColors(
+    success: Color(0xFF2E7D32), // green 800
+    onSuccess: Colors.white,
+  );
+
+  static const dark = SnackBarColors(
+    success: Color(0xFF81C784), // green 300
+    onSuccess: Colors.black,
+  );
+
+  @override
+  SnackBarColors copyWith({Color? success, Color? onSuccess}) {
+    return SnackBarColors(
+      success: success ?? this.success,
+      onSuccess: onSuccess ?? this.onSuccess,
+    );
+  }
+
+  @override
+  SnackBarColors lerp(SnackBarColors? other, double t) {
+    if (other == null) return this;
+    return SnackBarColors(
+      success: Color.lerp(success, other.success, t)!,
+      onSuccess: Color.lerp(onSuccess, other.onSuccess, t)!,
+    );
+  }
+}
+
 final _lightColorScheme = ColorScheme.fromSeed(
   seedColor: Colors.blueGrey.shade700,
   brightness: Brightness.light,
@@ -101,7 +135,7 @@ final materialAppTheme = ThemeData(
     headlineLarge: TextStyle(fontWeight: FontWeight.bold),
     titleLarge: TextStyle(fontWeight: FontWeight.bold),
   ),
-  extensions: const [ValueHighlightColors.light, TaskStatusColors.light],
+  extensions: const [ValueHighlightColors.light, TaskStatusColors.light, SnackBarColors.light],
 );
 
 final _darkColorScheme = ColorScheme.fromSeed(
@@ -120,7 +154,7 @@ final materialAppDarkTheme = ThemeData(
     headlineLarge: TextStyle(fontWeight: FontWeight.bold),
     titleLarge: TextStyle(fontWeight: FontWeight.bold),
   ),
-  extensions: const [ValueHighlightColors.dark, TaskStatusColors.dark],
+  extensions: const [ValueHighlightColors.dark, TaskStatusColors.dark, SnackBarColors.dark],
 );
 
 List<Color> chartColors(Color primary, int count, {int hueStep = 137}) {

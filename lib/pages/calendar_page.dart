@@ -18,6 +18,7 @@ import '../repositories/app_repository.dart';
 import '../services/subscription_service.dart';
 import '../utils/installation_timeline_validation.dart';
 import '../utils/timeline_grouping.dart';
+import '../widgets/app_snackbar.dart';
 import '../widgets/chips/filter_sheet_chip.dart';
 import '../widgets/sheets/installation_sheet.dart';
 import '../widgets/sheets/rating_entry_details.dart';
@@ -458,17 +459,9 @@ class _CalendarPageState extends State<CalendarPage> {
   /// its original slot.
   void _rejectMove(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      persist: false,
-      showCloseIcon: true,
-      closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-      duration: const Duration(seconds: 2),
-      backgroundColor: Theme.of(context).colorScheme.errorContainer,
-      content: Text(
-        message,
-        style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer),
-      ),
-    ));
+    ScaffoldMessenger.of(context).showSnackBar(
+      AppSnackBar.error(context, message, duration: const Duration(seconds: 2)),
+    );
     setState(() {});
   }
 
@@ -483,14 +476,11 @@ class _CalendarPageState extends State<CalendarPage> {
     final format = DateFormat('${appSettings.dateFormat} ${appSettings.timeFormat}');
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(
-        content: Text(
-          "'$subject' moved\n${format.format(from)}  →  ${format.format(to)}",
-        ),
+      ..showSnackBar(AppSnackBar.info(
+        context,
+        "'$subject' moved\n${format.format(from)}  →  ${format.format(to)}",
         duration: const Duration(seconds: 5),
-        persist: false,
-        showCloseIcon: true,
-        action: SnackBarAction(
+        action: AppSnackBarAction(
           label: 'UNDO',
           onPressed: () async => restore(),
         ),

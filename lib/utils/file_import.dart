@@ -13,6 +13,7 @@ import '../models/setup.dart';
 import '../services/data_export_service.dart';
 import '../services/database_migration_service.dart';
 import '../services/image_storage_service.dart';
+import '../widgets/app_snackbar.dart';
 import 'backup.dart';
 
 class FileImport {
@@ -81,12 +82,7 @@ class FileImport {
 
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          persist: false,
-          showCloseIcon: true,
-          content: Text("Debug file saved to: ${file.path}"),
-          duration: const Duration(seconds: 5),
-        ),
+        AppSnackBar.success(context, 'Debug file saved to: ${file.path}'),
       );
       debugPrint("Saved error file: ${file.path}");
     } catch (saveError) {

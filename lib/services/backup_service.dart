@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../database/app_database.dart';
+import '../widgets/app_snackbar.dart';
 import 'data_export_service.dart';
 
 class BackupService {
@@ -59,30 +60,14 @@ class BackupService {
 
       if (context != null && context.mounted) {
         final scaffoldMessenger = ScaffoldMessenger.of(context);
-        scaffoldMessenger.showSnackBar(
-          SnackBar(
-            persist: false,
-            showCloseIcon: true,
-            content: Text('Saved backup at ${file.path}'),
-          ),
-        );
+        scaffoldMessenger.showSnackBar(AppSnackBar.success(context, 'Saved backup at ${file.path}'));
       }
       // debugPrint('Saved backup at ${file.path}');
       return file;
     } catch (e, st) {
       if (context != null && context.mounted) {
         final scaffoldMessenger = ScaffoldMessenger.of(context);
-        final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
-        final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
-        scaffoldMessenger.showSnackBar(
-          SnackBar(
-            persist: false,
-            showCloseIcon: true,
-            closeIconColor: onErrorContainerColor,
-            content: Text('Error saving backup: $e', style: TextStyle(color: onErrorContainerColor)), 
-            backgroundColor: errorContainerColor,
-          ),
-        );
+        scaffoldMessenger.showSnackBar(AppSnackBar.error(context, 'Error saving backup: $e'));
       }
       debugPrint('Error saving backup: $e\n$st');
       return null;

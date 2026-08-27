@@ -31,7 +31,7 @@ Future<LocationAndPlace?> showSetLocationPlaceSheet({
   return showModalBottomSheet(
     useSafeArea: true,
     isScrollControlled: true,
-    context: context, 
+    context: context,
     builder: (context) {
       return SetLocationPlaceSheetContent(
         locationService: locationService,
@@ -39,7 +39,7 @@ Future<LocationAndPlace?> showSetLocationPlaceSheet({
         addressService: addressService,
         currentPlace: currentPlace,
       );
-    }
+    },
   );
 }
 
@@ -69,9 +69,10 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
   final TextEditingController _addressController = TextEditingController();
   final FocusNode _addressFocusNode = FocusNode();
   String? _addressTextFieldErrorText;
+  String? _settingsErrorMessage;
 
   final ElevationService _elevationService = ElevationService();
-  
+
   ContextPosition? _currentLocation;
   geo.Placemark? _currentPlace;
 
@@ -98,7 +99,9 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
 
     _latitudeController.text = _currentLocation?.latitude?.toString() ?? "";
     _longitudeController.text = _currentLocation?.longitude?.toString() ?? "";
-    _altitudeController.text = ContextPosition.convertAltitudeFromMeters(_currentLocation?.altitude, appSettings.altitudeUnit)?.toString() ?? "";
+    _altitudeController.text =
+        ContextPosition.convertAltitudeFromMeters(_currentLocation?.altitude, appSettings.altitudeUnit)?.toString() ??
+        "";
 
     _addressController.text = _formatAddress(_currentPlace);
   }
@@ -106,15 +109,13 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
   String _formatAddress(geo.Placemark? place) {
     if (place == null) return "";
 
-    final street = place.thoroughfare?.isNotEmpty == true 
+    final street = place.thoroughfare?.isNotEmpty == true
         ? "${place.thoroughfare} ${place.subThoroughfare ?? ""}".trim()
         : place.name;
     final city = place.locality ?? place.subLocality ?? "";
     final region = "${place.administrativeArea ?? ""} ${place.postalCode ?? ""}".trim();
 
-    return [street, city, region, place.country]
-        .where((s) => s != null && s.isNotEmpty)
-        .join(", ");
+    return [street, city, region, place.country].where((s) => s != null && s.isNotEmpty).join(", ");
   }
 
   Future<void> _updateLocationPlace() async {
@@ -143,7 +144,10 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
       return;
     }
 
-    final newAddress = await widget.addressService.fetchAddress(lat: _currentLocation!.latitude!, lon: _currentLocation!.longitude!);
+    final newAddress = await widget.addressService.fetchAddress(
+      lat: _currentLocation!.latitude!,
+      lon: _currentLocation!.longitude!,
+    );
     if (!mounted) return;
     setState(() {
       _currentPlace = newAddress;
@@ -171,11 +175,13 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
     if (_currentLocation?.latitude == null || _currentLocation?.longitude == null) return;
 
     // 2: LOCATION Altitude
-    final newAltitude = await _elevationService.fetchElevation(lat: _currentLocation!.latitude!, lon: _currentLocation!.longitude!);
+    final newAltitude = await _elevationService.fetchElevation(
+      lat: _currentLocation!.latitude!,
+      lon: _currentLocation!.longitude!,
+    );
     if (!mounted) return;
     setState(() {
-      _currentLocation = (_currentLocation ?? const ContextPosition())
-          .copyWith(altitude: newAltitude);
+      _currentLocation = (_currentLocation ?? const ContextPosition()).copyWith(altitude: newAltitude);
       _setFieldsFromLocationPlace();
     });
 
@@ -186,19 +192,19 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
   Future<void> _openLocationSettings() async {
     unawaited(HapticFeedback.selectionClick());
     final opened = await widget.locationService.openLocationSettings();
-    if (!mounted || opened) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Could not open location settings.')),
-    );
+    if (!mounted) return;
+    setState(() {
+      _settingsErrorMessage = opened ? null : 'Could not open location settings.';
+    });
   }
 
   Future<void> _openAppSettings() async {
     unawaited(HapticFeedback.selectionClick());
     final opened = await widget.locationService.openAppSettings();
-    if (!mounted || opened) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Could not open app settings.')),
-    );
+    if (!mounted) return;
+    setState(() {
+      _settingsErrorMessage = opened ? null : 'Could not open app settings.';
+    });
   }
 
   @override
@@ -213,15 +219,14 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
 
   void _save() {
     if (!_formKey.currentState!.validate()) return;
-    Navigator.of(context).pop(LocationAndPlace(
-      location: _currentLocation, 
-      place: _currentPlace
-    ));
+    Navigator.of(context).pop(LocationAndPlace(location: _currentLocation, place: _currentPlace));
   }
 
   void _handlePopInvoked(bool didPop, dynamic result) async {
     if (didPop) return;
-    final hasChanges = !ContextPlace.equal(widget.currentPlace, _currentPlace) || !ContextPosition.equal(widget.currentLocation, _currentLocation);
+    final hasChanges =
+        !ContextPlace.equal(widget.currentPlace, _currentPlace) ||
+        !ContextPosition.equal(widget.currentLocation, _currentLocation);
     if (!hasChanges) {
       Navigator.of(context).pop(null);
       return;
@@ -236,13 +241,18 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
   @override
   Widget build(BuildContext context) {
     final appSettings = context.read<AppSettings>();
-    
+
     return ListenableBuilder(
-      listenable: Listenable.merge([widget.locationService, widget.addressService, _elevationService]), 
+      listenable: Listenable.merge([widget.locationService, widget.addressService, _elevationService]),
       builder: (context, child) {
-        final enableFields = widget.locationService.status != LocationStatus.searching && widget.addressService.status != AddressStatus.searching;
-        final enableUpdate = widget.locationService.status != LocationStatus.searching && widget.addressService.status != AddressStatus.searching;
-        final enableUpdatePlace = enableUpdate && _currentLocation?.latitude != null && _currentLocation?.longitude != null;
+        final enableFields =
+            widget.locationService.status != LocationStatus.searching &&
+            widget.addressService.status != AddressStatus.searching;
+        final enableUpdate =
+            widget.locationService.status != LocationStatus.searching &&
+            widget.addressService.status != AddressStatus.searching;
+        final enableUpdatePlace =
+            enableUpdate && _currentLocation?.latitude != null && _currentLocation?.longitude != null;
         return PopScope(
           canPop: false,
           onPopInvokedWithResult: _handlePopInvoked,
@@ -329,12 +339,25 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                                 dense: true,
                                 contentPadding: EdgeInsets.zero,
                               ),
-                            
+                            if (_settingsErrorMessage != null)
+                              ListTile(
+                                key: const Key('settings-open-error'),
+                                leading: Icon(
+                                  Icons.error_outline,
+                                  color: Theme.of(context).colorScheme.error,
+                                ),
+                                title: Text(_settingsErrorMessage!),
+                                dense: true,
+                                contentPadding: EdgeInsets.zero,
+                              ),
+
                             const SizedBox(height: 16),
                             TextFormField(
                               enabled: enableFields,
                               keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-                              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),],
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
+                              ],
                               controller: _latitudeController,
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(
@@ -366,7 +389,9 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                             TextFormField(
                               enabled: enableFields,
                               keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-                              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),],
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
+                              ],
                               controller: _longitudeController,
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(
@@ -398,7 +423,9 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                             TextFormField(
                               enabled: enableFields,
                               keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-                              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),],
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
+                              ],
                               controller: _altitudeController,
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(
@@ -420,23 +447,26 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                               onChanged: (String newValue) {
                                 setState(() {
                                   _currentLocation = (_currentLocation ?? const ContextPosition()).copyWith(
-                                    altitude: ContextPosition.convertAltitudeToMeters(double.tryParse(newValue), appSettings.altitudeUnit),
+                                    altitude: ContextPosition.convertAltitudeToMeters(
+                                      double.tryParse(newValue),
+                                      appSettings.altitudeUnit,
+                                    ),
                                   );
                                 });
                               },
                             ),
                             const SizedBox(height: 32),
-                            
+
                             SizedBox(
                               width: double.infinity,
                               child: TextButton.icon(
                                 onPressed: enableUpdatePlace ? _updatePlace : null,
-                                icon: widget.addressService.status == AddressStatus.searching 
+                                icon: widget.addressService.status == AddressStatus.searching
                                     ? const SizedBox(
                                         height: 16,
                                         width: 16,
                                         child: CircularProgressIndicator(strokeWidth: 2),
-                                      ) 
+                                      )
                                     : null,
                                 label: const Text("Update Address from Latitude/Longitude"),
                               ),
@@ -468,7 +498,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                             ),
                           ],
                         ),
-                      )
+                      ),
                     ),
                     const SizedBox(height: 16),
                     Padding(
@@ -481,7 +511,9 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                             fit: FlexFit.tight,
                             child: OutlinedButton.icon(
                               onPressed: enableUpdate ? _updateLocationPlace : null,
-                              icon: widget.locationService.status == LocationStatus.searching || widget.addressService.status == AddressStatus.searching
+                              icon:
+                                  widget.locationService.status == LocationStatus.searching ||
+                                      widget.addressService.status == AddressStatus.searching
                                   ? const SizedBox(
                                       height: 16,
                                       width: 16,
@@ -495,7 +527,9 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                             flex: 1,
                             fit: FlexFit.tight,
                             child: FilledButton(
-                              onPressed: ContextPlace.equal(widget.currentPlace, _currentPlace) && ContextPosition.equal(widget.currentLocation, _currentLocation)
+                              onPressed:
+                                  ContextPlace.equal(widget.currentPlace, _currentPlace) &&
+                                      ContextPosition.equal(widget.currentLocation, _currentLocation)
                                   ? null
                                   : _save,
                               child: const Text("Save"),

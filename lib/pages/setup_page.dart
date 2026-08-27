@@ -24,6 +24,7 @@ import '../services/location_service.dart';
 import '../services/setup_resolution_service.dart';
 import '../services/weather_service.dart';
 import '../theme.dart';
+import '../widgets/app_snackbar.dart';
 import '../widgets/dialogs/confirmation.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/image_strip.dart';
@@ -311,14 +312,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         LocationStatus.timeout => 'Location request timed out.',
         _ => 'Error fetching location.',
       };
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        duration: const Duration(seconds: 2),
-        content: Text(message, style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
-        backgroundColor: Theme.of(context).colorScheme.errorContainer,
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        AppSnackBar.error(context, message, duration: const Duration(seconds: 2)),
+      );
       return false;
     }
 
@@ -330,13 +326,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
   Future<void> updateAddress() async {
     if (_currentLocation.value == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        content: Text('Cannot update address without location.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
-        backgroundColor: Theme.of(context).colorScheme.errorContainer
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, 'Cannot update address without location.'));
       
       return;
     }
@@ -348,14 +338,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
     if (!mounted) return;
     if (newAddress == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        duration: const Duration(seconds: 2),
-        content: Text('Error fetching address.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
-        backgroundColor: Theme.of(context).colorScheme.errorContainer
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        AppSnackBar.error(context, 'Error fetching address.', duration: const Duration(seconds: 2)),
+      );
       return;
     }
 
@@ -528,13 +513,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     final DateTime newDateTimeLocal = _selectedDateTimeLocal.copyWith(hour: pickedTime.hour, minute: pickedTime.minute);
     if (newDateTimeLocal == _selectedDateTimeLocal) return;
     if (newDateTimeLocal.isAfter(DateTime.now())) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        content: Text('Date and Time cannot be in the future.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
-        backgroundColor: Theme.of(context).colorScheme.errorContainer
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, 'Date and Time cannot be in the future.'));
       return;
     }
 
@@ -571,14 +550,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
   Future<void> updateWeather() async {
     if (_currentLocation.value == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        duration: const Duration(seconds: 2),
-        content: Text('Cannot update weather without location.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
-        backgroundColor: Theme.of(context).colorScheme.errorContainer
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        AppSnackBar.error(context, 'Cannot update weather without location.', duration: const Duration(seconds: 2)),
+      );
       return;
     }
 
@@ -591,14 +565,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     if (!mounted) return;
     if (currentWeather == null) {
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        duration: const Duration(seconds: 2),
-        content: Text('Error fetching weather.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
-        backgroundColor: Theme.of(context).colorScheme.errorContainer
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        AppSnackBar.error(context, 'Error fetching weather.', duration: const Duration(seconds: 2)),
+      );
       return;
     }
     
@@ -610,15 +579,10 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   void _saveSetup() {
     if (!_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          showCloseIcon: true,
-          closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
+        AppSnackBar.error(
+          context,
+          'Please check all fields for missing or invalid input.',
           duration: const Duration(seconds: 2),
-          content: Text(
-            'Please check all fields for missing or invalid input.', 
-            style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)
-          ),
-          backgroundColor: Theme.of(context).colorScheme.errorContainer,
         ),
       );
       return;

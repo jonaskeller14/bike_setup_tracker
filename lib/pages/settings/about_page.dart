@@ -9,6 +9,7 @@ import '../../models/app_settings.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/app_info.dart';
 import '../../utils/url.dart';
+import '../../widgets/app_snackbar.dart';
 import '../../widgets/text/section_title.dart';
 
 class AboutPage extends StatefulWidget {
@@ -61,9 +62,7 @@ class _AboutPageState extends State<AboutPage> {
               tooltip: 'Copy',
               onPressed: () {
                 unawaited(Clipboard.setData(ClipboardData(text: userId)));
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('User UID copied')),
-                );
+                ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.success(context, 'User UID copied'));
               },
             ),
       dense: true,

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/rating_entry.dart';
 import '../pages/rating_entry_page.dart';
 import '../repositories/app_repository.dart';
+import '../widgets/app_snackbar.dart';
 
 class RatingEntryActions {
   static Future<void> editRatingEntry(BuildContext context, {required RatingEntry ratingEntry}) async {
@@ -36,18 +37,20 @@ class RatingEntryActions {
 
     await appRepository.removeRatingEntries([ratingEntry]);
 
-    messenger.showSnackBar(SnackBar(
-      content: Text("Rating '${ratingEntry.displayName}' moved to trash."),
-      duration: const Duration(seconds: 5),
-      persist: false,
-      showCloseIcon: true,
-      action: SnackBarAction(
-        label: 'UNDO',
-        onPressed: () async {
-          await appRepository.restoreRatingEntries([ratingEntry]);
-        },
+    if (!context.mounted) return;
+    messenger.showSnackBar(
+      AppSnackBar.info(
+        context,
+        "Rating '${ratingEntry.displayName}' moved to trash.",
+        duration: const Duration(seconds: 5),
+        action: AppSnackBarAction(
+          label: 'UNDO',
+          onPressed: () async {
+            await appRepository.restoreRatingEntries([ratingEntry]);
+          },
+        ),
       ),
-    ));
+    );
   }
 
   static Future<void> restoreRatingEntry(BuildContext context, {required RatingEntry ratingEntry}) async {
@@ -56,17 +59,19 @@ class RatingEntryActions {
 
     await appRepository.restoreRatingEntries([ratingEntry]);
 
-    messenger.showSnackBar(SnackBar(
-      content: Text("Rating '${ratingEntry.displayName}' restored."),
-      duration: const Duration(seconds: 5),
-      persist: false,
-      showCloseIcon: true,
-      action: SnackBarAction(
-        label: 'UNDO',
-        onPressed: () async {
-          await appRepository.removeRatingEntries([ratingEntry]);
-        },
+    if (!context.mounted) return;
+    messenger.showSnackBar(
+      AppSnackBar.info(
+        context,
+        "Rating '${ratingEntry.displayName}' restored.",
+        duration: const Duration(seconds: 5),
+        action: AppSnackBarAction(
+          label: 'UNDO',
+          onPressed: () async {
+            await appRepository.removeRatingEntries([ratingEntry]);
+          },
+        ),
       ),
-    ));
+    );
   }
 }

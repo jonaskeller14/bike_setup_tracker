@@ -11,6 +11,7 @@ import '../models/strava/strava_activity.dart';
 import '../repositories/app_repository.dart';
 import '../services/location_service.dart';
 import '../services/subscription_service.dart';
+import '../widgets/app_snackbar.dart';
 import '../widgets/chips/map_filter_widget.dart';
 import '../widgets/map_pins.dart';
 import '../widgets/sheets/rating_entry_details.dart';
@@ -116,12 +117,12 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
       LocationStatus.error => 'Unable to determine your location.',
       _ => 'No valid location was returned.',
     };
-    final action = switch (_locationService.status) {
-      LocationStatus.noService => SnackBarAction(
+    final AppSnackBarAction? action = switch (_locationService.status) {
+      LocationStatus.noService => AppSnackBarAction(
         label: 'Settings',
         onPressed: _locationService.openLocationSettings,
       ),
-      LocationStatus.permissionDeniedForever => SnackBarAction(
+      LocationStatus.permissionDeniedForever => AppSnackBarAction(
         label: 'Settings',
         onPressed: _locationService.openAppSettings,
       ),
@@ -129,7 +130,7 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
     };
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(message), action: action));
+      ..showSnackBar(AppSnackBar.error(context, message, action: action));
   }
 
   Widget _mapControlButton({Key? key, required Widget icon, required VoidCallback? onPressed}) {

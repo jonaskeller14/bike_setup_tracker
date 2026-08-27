@@ -14,6 +14,7 @@ import '../models/selected_data.dart';
 import '../repositories/app_repository.dart';
 import '../utils/backup.dart';
 import '../utils/file_import.dart';
+import '../widgets/app_snackbar.dart';
 import 'data_export_service.dart';
 
 enum GoogleDriveServiceStatus {
@@ -444,30 +445,14 @@ class GoogleDriveService extends ChangeNotifier {
       debugPrint('Successfully backed up to Google Drive: $backupFileName');
       if (context != null && context.mounted) {
         final scaffoldMessenger = ScaffoldMessenger.of(context);
-        scaffoldMessenger.showSnackBar(
-          const SnackBar(
-            persist: false,
-            showCloseIcon: true,
-            content: Text('Successfully created Google Drive Backup'),
-          ),
-        );
+        scaffoldMessenger.showSnackBar(AppSnackBar.success(context, 'Successfully created Google Drive Backup'));
       }
     } catch (e) {
       debugPrint('Error backing up to Google Drive: $e');
       _setErrorMessage('Error backing up to Google Drive: $e');
       if (context != null && context.mounted) {
         final scaffoldMessenger = ScaffoldMessenger.of(context);
-        final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
-        final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
-        scaffoldMessenger.showSnackBar(
-          SnackBar(
-            persist: false,
-            showCloseIcon: true,
-            closeIconColor: onErrorContainerColor,
-            content: Text("Error backing up to Google Drive: $e", style: TextStyle(color: onErrorContainerColor)),
-            backgroundColor: errorContainerColor,
-          ), 
-        );
+        scaffoldMessenger.showSnackBar(AppSnackBar.error(context, 'Error backing up to Google Drive: $e'));
       }
     }
   }

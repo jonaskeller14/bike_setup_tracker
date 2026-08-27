@@ -24,6 +24,7 @@ import '../services/location_service.dart';
 import '../services/rating_score_service.dart';
 import '../services/weather_service.dart';
 import '../theme.dart';
+import '../widgets/app_snackbar.dart';
 import '../widgets/dialogs/confirmation.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/items/card_header_tile.dart';
@@ -217,14 +218,9 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
         LocationStatus.timeout => 'Location request timed out.',
         _ => 'Error fetching location.',
       };
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        duration: const Duration(seconds: 2),
-        content: Text(message, style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
-        backgroundColor: Theme.of(context).colorScheme.errorContainer,
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        AppSnackBar.error(context, message, duration: const Duration(seconds: 2)),
+      );
       return false;
     }
 
@@ -236,13 +232,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
 
   Future<void> updateAddress() async {
     if (_currentLocation.value == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        content: Text('Cannot update address without location.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
-        backgroundColor: Theme.of(context).colorScheme.errorContainer,
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, 'Cannot update address without location.'));
       return;
     }
 
@@ -253,14 +243,9 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
 
     if (!mounted) return;
     if (newAddress == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        duration: const Duration(seconds: 2),
-        content: Text('Error fetching address.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
-        backgroundColor: Theme.of(context).colorScheme.errorContainer,
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        AppSnackBar.error(context, 'Error fetching address.', duration: const Duration(seconds: 2)),
+      );
       return;
     }
 
@@ -333,13 +318,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
     final DateTime newDateTimeLocal = _selectedDateTimeLocal.copyWith(hour: pickedTime.hour, minute: pickedTime.minute);
     if (newDateTimeLocal == _selectedDateTimeLocal) return;
     if (newDateTimeLocal.isAfter(DateTime.now())) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        content: Text('Date and Time cannot be in the future.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
-        backgroundColor: Theme.of(context).colorScheme.errorContainer,
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, 'Date and Time cannot be in the future.'));
       return;
     }
 
@@ -368,14 +347,9 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
 
   Future<void> updateWeather() async {
     if (_currentLocation.value == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        duration: const Duration(seconds: 2),
-        content: Text('Cannot update weather without location.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
-        backgroundColor: Theme.of(context).colorScheme.errorContainer,
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        AppSnackBar.error(context, 'Cannot update weather without location.', duration: const Duration(seconds: 2)),
+      );
       return;
     }
 
@@ -387,14 +361,9 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
 
     if (!mounted) return;
     if (currentWeather == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        duration: const Duration(seconds: 2),
-        content: Text('Error fetching weather.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
-        backgroundColor: Theme.of(context).colorScheme.errorContainer,
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        AppSnackBar.error(context, 'Error fetching weather.', duration: const Duration(seconds: 2)),
+      );
       return;
     }
 
@@ -406,15 +375,10 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
   void _saveRatingEntry() {
     if (!_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          showCloseIcon: true,
-          closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
+        AppSnackBar.error(
+          context,
+          'Please check all fields for missing or invalid input.',
           duration: const Duration(seconds: 2),
-          content: Text(
-            'Please check all fields for missing or invalid input.',
-            style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer),
-          ),
-          backgroundColor: Theme.of(context).colorScheme.errorContainer,
         ),
       );
       return;
@@ -430,15 +394,10 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
     final setupId = _setupId ?? appRepository.resolveSetupId(bikeId: _bike, atUtc: _selectedDateTimeUtc);
     if (setupId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          showCloseIcon: true,
-          closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
+        AppSnackBar.error(
+          context,
+          'No setup exists before this date/time for the selected bike. Create a setup first.',
           duration: const Duration(seconds: 3),
-          content: Text(
-            'No setup exists before this date/time for the selected bike. Create a setup first.',
-            style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer),
-          ),
-          backgroundColor: Theme.of(context).colorScheme.errorContainer,
         ),
       );
       return;

@@ -91,6 +91,18 @@ void main() {
     expect(provider.openLocationSettingsCalls, 0);
   });
 
+  testWidgets('shows inline feedback when location settings cannot open', (tester) async {
+    final provider = FakeSheetLocationProvider()..openLocationSettingsResult = false;
+    final service = LocationService(provider: provider)..setStatus(LocationStatus.noService);
+    await tester.pumpWidget(buildSheet(service: service));
+
+    await tester.tap(find.widgetWithText(TextButton, 'Open settings'));
+    await tester.pump();
+
+    expect(find.text('Could not open location settings.'), findsOneWidget);
+    expect(find.byType(SnackBar), findsNothing);
+  });
+
   testWidgets('ordinary denial retries through the GPS action', (tester) async {
     final provider = FakeSheetLocationProvider()
       ..checkedPermission = LocationProviderPermission.denied
@@ -166,6 +178,8 @@ class FakeSheetLocationProvider implements LocationProvider {
   int getCurrentPositionCalls = 0;
   int openAppSettingsCalls = 0;
   int openLocationSettingsCalls = 0;
+  bool openAppSettingsResult = true;
+  bool openLocationSettingsResult = true;
 
   @override
   Future<LocationProviderPermission> checkPermission() async => checkedPermission;
@@ -182,13 +196,13 @@ class FakeSheetLocationProvider implements LocationProvider {
   @override
   Future<bool> openAppSettings() async {
     openAppSettingsCalls++;
-    return true;
+    return openAppSettingsResult;
   }
 
   @override
   Future<bool> openLocationSettings() async {
     openLocationSettingsCalls++;
-    return true;
+    return openLocationSettingsResult;
   }
 
   @override

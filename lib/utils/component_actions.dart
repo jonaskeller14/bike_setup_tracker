@@ -16,6 +16,7 @@ import '../pages/adjustment/step_adjustment_page.dart';
 import '../pages/adjustment/text_adjustment_page.dart';
 import '../pages/component_page.dart';
 import '../repositories/app_repository.dart';
+import '../widgets/app_snackbar.dart';
 import '../widgets/sheets/component_add_adjustment.dart';
 import '../widgets/sheets/copy_task_rules.dart';
 import '../widgets/sheets/delete_task_rules.dart';
@@ -30,15 +31,11 @@ class ComponentActions {
     if (initialBike is _Sentinel) {
       if (appRepository.filteredBikes.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            persist: false,
-            showCloseIcon: true,
-            closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-            content: Text("Add a bike first", style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
-            backgroundColor: Theme.of(context).colorScheme.errorContainer,
-            action: SnackBarAction(
+          AppSnackBar.error(
+            context,
+            'Add a bike first',
+            action: AppSnackBarAction(
               label: 'ADD',
-              textColor: Theme.of(context).colorScheme.onErrorContainer,
               onPressed: () => BikeActions.addBike(context),
             ),
           ),
@@ -110,13 +107,13 @@ class ComponentActions {
     final copies = selected.map((rule) => rule.deepCopy().copyWith(componentId: target.id)).toList();
     await appRepository.addTaskRules(copies);
 
+    if (!context.mounted) return;
     messenger.showSnackBar(
-      SnackBar(
-        content: Text("Copied ${copies.length} task${copies.length == 1 ? '' : 's'} to '${target.name}'."),
+      AppSnackBar.success(
+        context,
+        "Copied ${copies.length} task${copies.length == 1 ? '' : 's'} to '${target.name}'.",
         duration: const Duration(seconds: 5),
-        persist: false,
-        showCloseIcon: true,
-        action: SnackBarAction(
+        action: AppSnackBarAction(
           label: 'UNDO',
           onPressed: () async => appRepository.removeTaskRules(copies),
         ),
@@ -160,12 +157,12 @@ class ComponentActions {
           ),
         ]);
 
+        if (!context.mounted) return;
         messenger.showSnackBar(
-          SnackBar(
-            content: Text("Replaced '${component.name}' with '${existingComponent.name}'."),
+          AppSnackBar.success(
+            context,
+            "Replaced '${component.name}' with '${existingComponent.name}'.",
             duration: const Duration(seconds: 5),
-            persist: false,
-            showCloseIcon: true,
           ),
         );
 
@@ -222,13 +219,13 @@ class ComponentActions {
             one: '1 task and its entries',
             other: '${selectedTaskRules.length} tasks and their entries',
           )}.';
+    if (!context.mounted) return;
     messenger.showSnackBar(
-      SnackBar(
-        content: Text("Component '${component.name}' moved to trash.$taskSummary"),
+      AppSnackBar.info(
+        context,
+        "Component '${component.name}' moved to trash.$taskSummary",
         duration: const Duration(seconds: 5),
-        persist: false,
-        showCloseIcon: true,
-        action: SnackBarAction(
+        action: AppSnackBarAction(
           label: 'UNDO',
           onPressed: () async {
             await appRepository.restoreComponents([component]);
@@ -246,13 +243,13 @@ class ComponentActions {
 
     await appRepository.restoreComponents([component]);
 
+    if (!context.mounted) return;
     messenger.showSnackBar(
-      SnackBar(
-        content: Text("Component '${component.name}' restored from trash."),
+      AppSnackBar.info(
+        context,
+        "Component '${component.name}' restored from trash.",
         duration: const Duration(seconds: 5),
-        persist: false,
-        showCloseIcon: true,
-        action: SnackBarAction(
+        action: AppSnackBarAction(
           label: 'UNDO',
           onPressed: () async => appRepository.removeComponents([component]),
         ),

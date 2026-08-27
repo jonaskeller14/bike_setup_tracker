@@ -7,6 +7,7 @@ import '../models/person.dart';
 import '../models/rating_association.dart';
 import '../pages/person_page.dart';
 import '../repositories/app_repository.dart';
+import '../widgets/app_snackbar.dart';
 
 class PersonActions {
   static Future<void> addPerson(BuildContext context) async {
@@ -16,7 +17,7 @@ class PersonActions {
       context,
       MaterialPageRoute(builder: (context) => PersonPage.add()),
     );
-    if (person == null) return;    
+    if (person == null) return;
 
     await appRepository.addPerson(person);
   }
@@ -54,7 +55,9 @@ class PersonActions {
     final appSettings = context.read<AppSettings>();
     final messenger = ScaffoldMessenger.of(context);
 
-    final obsoleteRatings = appRepository.ratings.values.where((r) => r.filterType == FilterType.person && r.filter == person.id).toList();
+    final obsoleteRatings = appRepository.ratings.values
+        .where((r) => r.filterType == FilterType.person && r.filter == person.id)
+        .toList();
 
     await appRepository.removePerson(person);
     await appRepository.removeRatings(obsoleteRatings);
@@ -63,16 +66,18 @@ class PersonActions {
     if (obsoleteRatings.isNotEmpty && appSettings.enableRating) {
       message += "\n${obsoleteRatings.length} Ratings which belong to this person are deleted as well.";
     }
-    messenger.showSnackBar(SnackBar(
-      content: Text(message),
-      duration: const Duration(seconds: 5),
-      persist: false,
-      showCloseIcon: true,
-      action: SnackBarAction(
-        label: 'UNDO',
-        onPressed: () async => appRepository.restorePerson(person),
+    if (!context.mounted) return;
+    messenger.showSnackBar(
+      AppSnackBar.info(
+        context,
+        message,
+        duration: const Duration(seconds: 5),
+        action: AppSnackBarAction(
+          label: 'UNDO',
+          onPressed: () async => appRepository.restorePerson(person),
+        ),
       ),
-    ));
+    );
   }
 
   static Future<void> restorePerson(BuildContext context, {required Person person}) async {
@@ -81,16 +86,18 @@ class PersonActions {
 
     await appRepository.restorePerson(person);
 
-    messenger.showSnackBar(SnackBar(
-      content: Text("Person '${person.name}' restored from trash."),
-      duration: const Duration(seconds: 5),
-      persist: false,
-      showCloseIcon: true,
-      action: SnackBarAction(
-        label: 'UNDO',
-        onPressed: () async => appRepository.removePerson(person),
+    if (!context.mounted) return;
+    messenger.showSnackBar(
+      AppSnackBar.info(
+        context,
+        "Person '${person.name}' restored from trash.",
+        duration: const Duration(seconds: 5),
+        action: AppSnackBarAction(
+          label: 'UNDO',
+          onPressed: () async => appRepository.removePerson(person),
+        ),
       ),
-    ));
+    );
   }
 
   static Future<void> onReorderPerson(BuildContext context, {required int oldIndex, required int newIndex}) async {

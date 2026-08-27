@@ -8,6 +8,7 @@ import '../models/rating_association.dart';
 import '../models/task/task_rule.dart';
 import '../pages/bike_page.dart';
 import '../repositories/app_repository.dart';
+import '../widgets/app_snackbar.dart';
 import '../widgets/sheets/delete_task_rules.dart';
 
 class BikeActions {
@@ -121,13 +122,13 @@ class BikeActions {
       };
       message += '\nAlso moved to trash: $summary.';
     }
+    if (!context.mounted) return;
     messenger.showSnackBar(
-      SnackBar(
-        content: Text(message),
+      AppSnackBar.info(
+        context,
+        message,
         duration: const Duration(seconds: 10),
-        persist: false,
-        showCloseIcon: true,
-        action: SnackBarAction(
+        action: AppSnackBarAction(
           label: 'UNDO',
           onPressed: () async {
             await appRepository.restoreBike(bike);
@@ -148,13 +149,13 @@ class BikeActions {
 
     await appRepository.restoreBike(bike);
 
+    if (!context.mounted) return;
     messenger.showSnackBar(
-      SnackBar(
-        content: Text("Bike '${bike.name}' restored from trash."),
+      AppSnackBar.info(
+        context,
+        "Bike '${bike.name}' restored from trash.",
         duration: const Duration(seconds: 5),
-        persist: false,
-        showCloseIcon: true,
-        action: SnackBarAction(
+        action: AppSnackBarAction(
           label: 'UNDO',
           onPressed: () async {
             await appRepository.removeBike(bike);

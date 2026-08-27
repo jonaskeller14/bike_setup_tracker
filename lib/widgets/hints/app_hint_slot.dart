@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../models/app_hint.dart';
 import '../../models/app_settings.dart';
 import '../../services/app_hint_service.dart';
+import '../app_snackbar.dart';
 import 'garage_list_hint.dart';
 import 'getting_started_guide_hint.dart';
 import 'setup_calendar_hint.dart';
@@ -55,11 +56,7 @@ class AppHintSlot extends StatelessWidget {
     await hintService.complete(AppHint.setupTasksV1);
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        content: Text('Tasks enabled — find it in the home bottom navigation bar'),
-      ),
+      AppSnackBar.success(context, 'Tasks enabled — find it in the home bottom navigation bar'),
     );
   }
 
@@ -71,13 +68,7 @@ class AppHintSlot extends StatelessWidget {
     await hintService.complete(AppHint.setupCalendarV1);
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        content: Text(
-          'Calendar enabled — find it next to the search button on the Setups tab',
-        ),
-      ),
+      AppSnackBar.success(context, 'Calendar enabled — find it next to the search button on the Setups tab'),
     );
   }
 }

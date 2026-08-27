@@ -711,32 +711,27 @@ class _CalendarPageState extends State<CalendarPage> {
     final double iconBudget = showText ? width - 12 : width - 4;
     final double iconSize = iconBudget <= 0 ? 0 : (baseIconSize < iconBudget ? baseIconSize : iconBudget);
 
-    // 1. Calculate how many full text lines can physically fit
+    // Calculate how many full text lines can physically fit.
     final double verticalPadding = height < 20 ? 0.0 : 4.0;
     final double availableHeight = height - verticalPadding;
-    final double fontLineHeight = fontSize * 1.15; // Estimated line height
+    final double fontLineHeight = fontSize * 1.15;
     final int maxLines = (availableHeight / fontLineHeight).floor().clamp(1, 100);
-
-    // 2. Center single-line slots, top-align multi-line slots
-    final bool isSingleLine = maxLines == 1;
 
     return Container(
       clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
-        color: color, 
+        color: color,
         borderRadius: BorderRadius.circular(4),
       ),
       padding: EdgeInsets.symmetric(
-        horizontal: showText ? 4 : 2, 
+        horizontal: showText ? 4 : 2,
         vertical: verticalPadding / 2,
       ),
-      alignment: isSingleLine ? Alignment.centerLeft : Alignment.topLeft,
+      alignment: Alignment.centerLeft,
       child: !showIcon
           ? const SizedBox.shrink()
           : Row(
-              crossAxisAlignment: isSingleLine 
-                  ? CrossAxisAlignment.center 
-                  : CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Icon(calendarIconForRow(row), size: iconSize, color: onColor),
                 if (showText) ...[
@@ -747,7 +742,7 @@ class _CalendarPageState extends State<CalendarPage> {
                       maxLines: maxLines,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: onColor, 
+                        color: onColor,
                         fontSize: fontSize,
                         height: 1.15,
                       ),

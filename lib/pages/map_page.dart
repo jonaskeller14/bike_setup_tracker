@@ -112,12 +112,24 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
       LocationStatus.noService => 'Location services are disabled.',
       LocationStatus.noPermission => 'Location permission was not granted.',
       LocationStatus.permissionDeniedForever => 'Location permission is permanently denied.',
+      LocationStatus.timeout => 'Location request timed out. Try again.',
       LocationStatus.error => 'Unable to determine your location.',
       _ => 'No valid location was returned.',
     };
+    final action = switch (_locationService.status) {
+      LocationStatus.noService => SnackBarAction(
+        label: 'Settings',
+        onPressed: _locationService.openLocationSettings,
+      ),
+      LocationStatus.permissionDeniedForever => SnackBarAction(
+        label: 'Settings',
+        onPressed: _locationService.openAppSettings,
+      ),
+      _ => null,
+    };
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(message)));
+      ..showSnackBar(SnackBar(content: Text(message), action: action));
   }
 
   Widget _mapControlButton({Key? key, required Widget icon, required VoidCallback? onPressed}) {

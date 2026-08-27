@@ -291,32 +291,41 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   }
 
   Future<void> fetchLocationAddressWeather() async {
-    await updateLocation();
-    if (_currentLocation.value == null) return;
+    final coordinatesChanged = await updateLocation();
+    if (!coordinatesChanged) return;
 
     unawaited(updateWeather());
     unawaited(updateAddress());
   }
 
-  Future<void> updateLocation() async {
+  Future<bool> updateLocation() async {
+    final previousLocation = _currentLocation.value;
     final newLocation = await _locationService.fetchLocation();
     
-    if (!mounted) return;
+    if (!mounted) return false;
     if (newLocation == null) {
+      final message = switch (_locationService.status) {
+        LocationStatus.noService => 'Location services are disabled.',
+        LocationStatus.noPermission => 'Location permission was not granted.',
+        LocationStatus.permissionDeniedForever => 'Location permission is permanently denied.',
+        LocationStatus.timeout => 'Location request timed out.',
+        _ => 'Error fetching location.',
+      };
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         persist: false,
         showCloseIcon: true,
         closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
         duration: const Duration(seconds: 2),
-        content: Text('Error fetching location.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
+        content: Text(message, style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
         backgroundColor: Theme.of(context).colorScheme.errorContainer,
       ));
-      return;
+      return false;
     }
 
-    if (!mounted) return;
+    if (!mounted) return false;
     _currentLocation.value = newLocation;
     _changeListener();
+    return ContextPosition.hasValidCoordinateChange(previousLocation, newLocation);
   }
 
   Future<void> updateAddress() async {
@@ -790,9 +799,10 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                       final result = await showSetLocationPlaceSheet(context: context, locationService: _locationService, currentLocation: _currentLocation.value, addressService: _addressService, currentPlace: _currentPlace.value);
                       if (result == null) return;
 
-                      final requestWeatherUpdate = !ContextPosition.equal(result.location, _currentLocation.value) && 
-                          result.location?.latitude != null && 
-                          result.location?.latitude != null;
+                      final requestWeatherUpdate = ContextPosition.hasValidCoordinateChange(
+                        _currentLocation.value,
+                        result.location,
+                      );
 
                       if (result.location != null) {
                         _locationService.setStatus(LocationStatus.success);
@@ -820,7 +830,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                 LocationStatus.searching => switch (_addressService.status) {
                   _ => const Icon(Icons.location_searching),
                 },
-                LocationStatus.noPermission || LocationStatus.permissionDeniedForever || LocationStatus.noService || LocationStatus.error => switch (_addressService.status) {
+                LocationStatus.noPermission || LocationStatus.permissionDeniedForever || LocationStatus.noService || LocationStatus.timeout || LocationStatus.error => switch (_addressService.status) {
                   _ => Icon(Icons.location_disabled, color: Theme.of(context).colorScheme.error)
                 },
               },
@@ -848,6 +858,12 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                   AddressStatus.idle || AddressStatus.success || AddressStatus.error => _currentPlace.value != null
                       ? Text("${_currentPlace.value?.locality}, ${_currentPlace.value?.isoCountryCode}") 
                       : const Text("No GPS Permission"),
+                },
+                LocationStatus.timeout => switch (_addressService.status) {
+                  AddressStatus.searching => _loadingIndicator(),
+                  AddressStatus.idle || AddressStatus.success || AddressStatus.error => _currentPlace.value != null
+                      ? Text("${_currentPlace.value?.locality}, ${_currentPlace.value?.isoCountryCode}")
+                      : const Text("GPS Timeout"),
                 },
                 LocationStatus.error => switch (_addressService.status) {
                   AddressStatus.searching => _loadingIndicator(),

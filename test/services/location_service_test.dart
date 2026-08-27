@@ -79,7 +79,7 @@ void main() {
       final service = LocationService(provider: provider);
 
       expect(await service.fetchLocation(), isNull);
-      expect(service.status, LocationStatus.error);
+      expect(service.status, LocationStatus.timeout);
       expect(provider.getCurrentPositionCalls, 1);
     });
 

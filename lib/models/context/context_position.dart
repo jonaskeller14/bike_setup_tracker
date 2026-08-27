@@ -78,6 +78,18 @@ class ContextPosition {
         a != null && b != null && a.latitude == b.latitude && a.longitude == b.longitude && a.altitude == b.altitude;
   }
 
+  static bool hasValidCoordinateChange(ContextPosition? previous, ContextPosition? next) {
+    final latitude = next?.latitude;
+    final longitude = next?.longitude;
+    return latitude != null &&
+        longitude != null &&
+        latitude.isFinite &&
+        longitude.isFinite &&
+        latitude.abs() <= 90 &&
+        longitude.abs() <= 180 &&
+        (latitude != previous?.latitude || longitude != previous?.longitude);
+  }
+
   static LENGTH _altitudeUnitEnum(String unit) => switch (unit) {
     'm' => LENGTH.meters,
     'ft' => LENGTH.feet,

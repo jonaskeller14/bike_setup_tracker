@@ -78,6 +78,31 @@ void main() {
       expect(ContextPosition.equal(original, null), isFalse);
     });
 
+    test('valid coordinate changes ignore altitude and reject unusable coordinates', () {
+      const original = ContextPosition(latitude: 47.1, longitude: 8.2, altitude: 100);
+
+      expect(
+        ContextPosition.hasValidCoordinateChange(original, original.copyWith(altitude: 200)),
+        isFalse,
+      );
+      expect(
+        ContextPosition.hasValidCoordinateChange(original, original.copyWith(latitude: 47.2)),
+        isTrue,
+      );
+      expect(
+        ContextPosition.hasValidCoordinateChange(original, original.copyWith(longitude: null)),
+        isFalse,
+      );
+      expect(
+        ContextPosition.hasValidCoordinateChange(original, original.copyWith(latitude: double.nan)),
+        isFalse,
+      );
+      expect(
+        ContextPosition.hasValidCoordinateChange(original, original.copyWith(longitude: 181)),
+        isFalse,
+      );
+    });
+
     test('converts altitude units', () {
       expect(ContextPosition.convertAltitudeToMeters(328.084, 'ft'), closeTo(100, 0.0001));
       expect(ContextPosition.convertAltitudeFromMeters(100, 'ft'), closeTo(328.084, 0.0001));

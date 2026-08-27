@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geocoding/geocoding.dart' as geo;
@@ -115,12 +117,14 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
         .join(", ");
   }
 
-  void _updateLocationPlace() async {
+  Future<void> _updateLocationPlace() async {
+    unawaited(HapticFeedback.selectionClick());
     // LOCATION: Lat/Lon/Altitiude
     setState(() {
       _addressTextFieldErrorText = null;
     });
     final newLocation = await widget.locationService.fetchLocation();
+    if (!mounted) return;
     if (newLocation == null) return;
     setState(() {
       _currentLocation = newLocation;
@@ -128,10 +132,10 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
     });
 
     // 2: ADDRESS
-    _updatePlace();
+    await _updatePlace();
   }
 
-  void _updatePlace() async {
+  Future<void> _updatePlace() async {
     if (_currentLocation?.latitude == null || _currentLocation?.longitude == null) {
       setState(() {
         _addressTextFieldErrorText = "Could not find address without latitude and longitude";
@@ -140,6 +144,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
     }
 
     final newAddress = await widget.addressService.fetchAddress(lat: _currentLocation!.latitude!, lon: _currentLocation!.longitude!);
+    if (!mounted) return;
     setState(() {
       _currentPlace = newAddress;
       _setFieldsFromLocationPlace();
@@ -147,9 +152,10 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
     });
   }
 
-  void _searchAddress() async {
+  Future<void> _searchAddress() async {
     // 1. LOCATION Lat/Lon
     final newLocation = await widget.locationService.locationFromAddress(_addressController.text.trim());
+    if (!mounted) return;
     if (newLocation == null) {
       setState(() {
         _addressTextFieldErrorText = "Could not find location.";
@@ -166,6 +172,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
 
     // 2: LOCATION Altitude
     final newAltitude = await _elevationService.fetchElevation(lat: _currentLocation!.latitude!, lon: _currentLocation!.longitude!);
+    if (!mounted) return;
     setState(() {
       _currentLocation = (_currentLocation ?? const ContextPosition())
           .copyWith(altitude: newAltitude);
@@ -173,7 +180,25 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
     });
 
     // 3: ADDRESS
-    _updatePlace();
+    await _updatePlace();
+  }
+
+  Future<void> _openLocationSettings() async {
+    unawaited(HapticFeedback.selectionClick());
+    final opened = await widget.locationService.openLocationSettings();
+    if (!mounted || opened) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Could not open location settings.')),
+    );
+  }
+
+  Future<void> _openAppSettings() async {
+    unawaited(HapticFeedback.selectionClick());
+    final opened = await widget.locationService.openAppSettings();
+    if (!mounted || opened) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Could not open app settings.')),
+    );
   }
 
   @override
@@ -240,18 +265,51 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                           children: [
                             if (widget.locationService.status == LocationStatus.noService)
                               ListTile(
+                                key: const Key('location-service-disabled'),
                                 leading: Icon(Icons.location_disabled, color: Theme.of(context).colorScheme.error),
                                 title: const Text("Location services are disabled"),
-                                subtitle: const Text("Please enable GPS in your device settings"),
+                                subtitle: const Text("Enable location services, then try GPS again"),
+                                trailing: TextButton(
+                                  onPressed: _openLocationSettings,
+                                  child: const Text('Open settings'),
+                                ),
                                 dense: true,
                                 contentPadding: EdgeInsets.zero,
                               ),
-                            if (widget.locationService.status == LocationStatus.noPermission ||
-                                widget.locationService.status == LocationStatus.permissionDeniedForever)
+                            if (widget.locationService.status == LocationStatus.noPermission)
                               ListTile(
                                 leading: Icon(Icons.location_disabled, color: Theme.of(context).colorScheme.error),
                                 title: const Text("Location permission denied"),
-                                subtitle: const Text("Grant permission in settings to use this feature"),
+                                subtitle: const Text("Try GPS again to request permission"),
+                                dense: true,
+                                contentPadding: EdgeInsets.zero,
+                              ),
+                            if (widget.locationService.status == LocationStatus.permissionDeniedForever)
+                              ListTile(
+                                key: const Key('location-permission-permanently-denied'),
+                                leading: Icon(Icons.location_disabled, color: Theme.of(context).colorScheme.error),
+                                title: const Text("Location permission permanently denied"),
+                                subtitle: const Text("Allow location access in app settings, then try again"),
+                                trailing: TextButton(
+                                  onPressed: _openAppSettings,
+                                  child: const Text('Open settings'),
+                                ),
+                                dense: true,
+                                contentPadding: EdgeInsets.zero,
+                              ),
+                            if (widget.locationService.status == LocationStatus.timeout)
+                              ListTile(
+                                leading: Icon(Icons.timer_off_outlined, color: Theme.of(context).colorScheme.error),
+                                title: const Text("Location request timed out"),
+                                subtitle: const Text("Move to an open area and try GPS again"),
+                                dense: true,
+                                contentPadding: EdgeInsets.zero,
+                              ),
+                            if (widget.locationService.status == LocationStatus.error)
+                              ListTile(
+                                leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
+                                title: const Text("Could not determine location"),
+                                subtitle: const Text("Check your connection and try GPS again"),
                                 dense: true,
                                 contentPadding: EdgeInsets.zero,
                               ),
@@ -399,14 +457,14 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                                 errorText: _addressTextFieldErrorText,
                                 icon: const Icon(Icons.location_city),
                                 suffixIcon: IconButton(
-                                  onPressed: () => _searchAddress(), 
+                                  onPressed: enableFields ? _searchAddress : null,
                                   icon: Icon(Icons.search, color: Theme.of(context).colorScheme.primary),
                                 ),
                                 fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                 filled: !ContextPlace.equal(widget.currentPlace, _currentPlace),
                               ),
                               validator: null,
-                              onFieldSubmitted: (_) => _searchAddress(),
+                              onFieldSubmitted: enableFields ? (_) => _searchAddress() : null,
                             ),
                           ],
                         ),

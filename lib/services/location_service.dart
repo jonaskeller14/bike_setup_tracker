@@ -12,6 +12,7 @@ enum LocationStatus {
   noService,
   noPermission,
   permissionDeniedForever,
+  timeout,
   error,
   success,
 }
@@ -77,7 +78,7 @@ class LocationService extends ChangeNotifier {
       return null;
     } on TimeoutException catch (error) {
       debugPrint('Location timeout: $error');
-      setStatus(LocationStatus.error);
+      setStatus(LocationStatus.timeout);
       return null;
     } catch (error) {
       debugPrint('Location error: $error');

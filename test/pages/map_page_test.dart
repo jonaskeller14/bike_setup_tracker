@@ -81,6 +81,50 @@ void main() {
     expect(find.byKey(const Key('map-user-location-marker')), findsNothing);
   });
 
+  testWidgets('offers location settings when services are disabled', (tester) async {
+    final provider = FakeMapLocationProvider(null)..serviceEnabled = false;
+    final service = LocationService(provider: provider);
+    await tester.pumpWidget(buildPage(service));
+    await tester.pump();
+
+    await tester.tap(find.byKey(const Key('map-locate-me')));
+    await tester.pump();
+
+    expect(find.text('Location services are disabled.'), findsOneWidget);
+    await tester.tap(find.widgetWithText(TextButton, 'Settings'));
+    expect(provider.openLocationSettingsCalls, 1);
+  });
+
+  testWidgets('offers app settings only for permanent permission denial', (tester) async {
+    final provider = FakeMapLocationProvider(null)
+      ..permission = LocationProviderPermission.deniedForever;
+    final service = LocationService(provider: provider);
+    await tester.pumpWidget(buildPage(service));
+    await tester.pump();
+
+    await tester.tap(find.byKey(const Key('map-locate-me')));
+    await tester.pump();
+
+    expect(find.text('Location permission is permanently denied.'), findsOneWidget);
+    await tester.tap(find.widgetWithText(TextButton, 'Settings'));
+    expect(provider.openAppSettingsCalls, 1);
+  });
+
+  testWidgets('keeps ordinary permission denial retryable without settings action', (tester) async {
+    final provider = FakeMapLocationProvider(null)
+      ..permission = LocationProviderPermission.denied;
+    final service = LocationService(provider: provider);
+    await tester.pumpWidget(buildPage(service));
+    await tester.pump();
+
+    await tester.tap(find.byKey(const Key('map-locate-me')));
+    await tester.pump();
+
+    expect(find.text('Location permission was not granted.'), findsOneWidget);
+    expect(find.widgetWithText(TextButton, 'Settings'), findsNothing);
+    expect(tester.widget<IconButton>(find.byKey(const Key('map-locate-me'))).onPressed, isNotNull);
+  });
+
   testWidgets('rejects non-finite coordinates', (tester) async {
     final provider = FakeMapLocationProvider(
       const ContextPosition(latitude: double.nan, longitude: 8.5417),
@@ -140,12 +184,16 @@ class FakeMapLocationProvider implements LocationProvider {
   Future<ContextPosition>? pendingPosition;
   Object? error;
   int getCurrentPositionCalls = 0;
+  int openAppSettingsCalls = 0;
+  int openLocationSettingsCalls = 0;
+  bool serviceEnabled = true;
+  LocationProviderPermission permission = LocationProviderPermission.whileInUse;
 
   FakeMapLocationProvider(this.position);
 
   @override
   Future<LocationProviderPermission> checkPermission() async {
-    return LocationProviderPermission.whileInUse;
+    return permission;
   }
 
   @override
@@ -157,17 +205,23 @@ class FakeMapLocationProvider implements LocationProvider {
   }
 
   @override
-  Future<bool> isLocationServiceEnabled() async => true;
+  Future<bool> isLocationServiceEnabled() async => serviceEnabled;
 
   @override
-  Future<bool> openAppSettings() async => true;
+  Future<bool> openAppSettings() async {
+    openAppSettingsCalls++;
+    return true;
+  }
 
   @override
-  Future<bool> openLocationSettings() async => true;
+  Future<bool> openLocationSettings() async {
+    openLocationSettingsCalls++;
+    return true;
+  }
 
   @override
   Future<LocationProviderPermission> requestPermission() async {
-    return LocationProviderPermission.whileInUse;
+    return permission;
   }
 }
 

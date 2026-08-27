@@ -191,6 +191,8 @@ void main() {
     await _waitForComponent(tester, appRepository);
 
     expect(find.text('History'), findsOneWidget);
+    await tester.tap(find.text('History'));
+    await tester.pumpAndSettle();
     expect(find.byType(DisplayInstallationTimeline), findsOneWidget);
   });
 

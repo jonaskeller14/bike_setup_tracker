@@ -10,16 +10,16 @@ void main() {
     List<String>? receivedExtensions;
     Uint8List? receivedBytes;
     final service = FileSaveService(({
-      String? fileName,
+      required String fileName,
       required FileType type,
       List<String>? allowedExtensions,
-      Uint8List? bytes,
+      required Uint8List bytes,
     }) async {
       receivedFileName = fileName;
       receivedType = type;
       receivedExtensions = allowedExtensions;
       receivedBytes = bytes;
-      return '/saved/export.json';
+      return Uri.file('/saved/export.json');
     });
 
     final outcome = await service.saveFile(
@@ -40,10 +40,10 @@ void main() {
     String? receivedFileName;
     List<String>? receivedExtensions;
     final service = FileSaveService(({
-      String? fileName,
+      required String fileName,
       required FileType type,
       List<String>? allowedExtensions,
-      Uint8List? bytes,
+      required Uint8List bytes,
     }) async {
       receivedFileName = fileName;
       receivedExtensions = allowedExtensions;
@@ -63,10 +63,10 @@ void main() {
 
   test('lets platform errors propagate', () async {
     final service = FileSaveService(({
-      String? fileName,
+      required String fileName,
       required FileType type,
       List<String>? allowedExtensions,
-      Uint8List? bytes,
+      required Uint8List bytes,
     }) async {
       throw PlatformException(code: 'save_failed');
     });

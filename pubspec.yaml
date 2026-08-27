@@ -46,7 +46,7 @@ dependencies:
   intl: ^0.20.2
   uuid: ^4.5.2
   geolocator: ^14.0.2
-  geocoding: ^4.0.0
+  geocoding: ^5.0.0
   http: ^1.6.0
   file_picker: ^12.1.1
   collection: ^1.19.1

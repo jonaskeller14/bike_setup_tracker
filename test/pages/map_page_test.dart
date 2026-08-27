@@ -91,7 +91,7 @@ void main() {
     await tester.pump();
 
     expect(find.text('Location services are disabled.'), findsOneWidget);
-    await tester.tap(find.widgetWithText(TextButton, 'Settings'));
+    tester.widget<TextButton>(find.widgetWithText(TextButton, 'Settings')).onPressed!();
     expect(provider.openLocationSettingsCalls, 1);
   });
 
@@ -106,7 +106,7 @@ void main() {
     await tester.pump();
 
     expect(find.text('Location permission is permanently denied.'), findsOneWidget);
-    await tester.tap(find.widgetWithText(TextButton, 'Settings'));
+    tester.widget<TextButton>(find.widgetWithText(TextButton, 'Settings')).onPressed!();
     expect(provider.openAppSettingsCalls, 1);
   });
 

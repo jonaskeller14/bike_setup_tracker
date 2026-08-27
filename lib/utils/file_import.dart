@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -54,23 +53,13 @@ class FileImport {
   static Future<ReadJsonFileResult> pickAndReadJsonFile({required AppDatabase appDatabase}) async {
     try {
       // Step 1 — pick a file
-      final picked = await FilePicker.pickFiles(
+      final pickedFile = await FilePicker.pickFile(
         type: FileType.custom,
         allowedExtensions: ['json'],
       );
-      if (picked == null || picked.files.isEmpty) return ReadJsonFileResult.failure("No file was selected.");  // no error message
+      if (pickedFile == null) return ReadJsonFileResult.failure("No file was selected.");  // no error message
 
-      Uint8List fileBytes;
-
-      if (picked.files.single.bytes != null) {
-        // Works in Web / Desktop
-        fileBytes = picked.files.single.bytes!;
-      } else if (picked.files.single.path != null) {
-        // Works in Android / iOS
-        fileBytes = await File(picked.files.single.path!).readAsBytes();
-      } else {
-        return ReadJsonFileResult.failure("Cannot open and read file!");
-      }
+      final fileBytes = await pickedFile.readAsBytes();
 
       final jsonString = utf8.decode(fileBytes);
       final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;

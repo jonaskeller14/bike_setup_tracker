@@ -111,24 +111,16 @@ class ImageStorageService {
   }
 
   Future<ImportBundleResult> importBundle() async {
-    final picked = await FilePicker.pickFiles(
+    final pickedFile = await FilePicker.pickFile(
       type: FileType.custom,
       allowedExtensions: ['zip'],
     );
-    if (picked == null || picked.files.isEmpty) {
+    if (pickedFile == null) {
       return ImportBundleResult.cancelled();
     }
 
     try {
-      final pickedFile = picked.files.single;
-      final Uint8List bytes;
-      if (pickedFile.path != null) {
-        bytes = await File(pickedFile.path!).readAsBytes();
-      } else if (pickedFile.bytes != null) {
-        bytes = pickedFile.bytes!;
-      } else {
-        return ImportBundleResult.failure('Cannot read selected file.');
-      }
+      final bytes = await pickedFile.readAsBytes();
       final archive = ZipDecoder().decodeBytes(bytes);
 
       await ensureDir();

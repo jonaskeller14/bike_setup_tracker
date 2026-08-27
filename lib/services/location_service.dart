@@ -18,6 +18,7 @@ enum LocationStatus {
 }
 
 class LocationService extends ChangeNotifier {
+  static final geo.Geocoding _geocoding = geo.Geocoding();
   final LocationProvider _provider;
   final Future<List<ContextPosition>> Function(String) _addressLookup;
   LocationStatus _status = LocationStatus.idle;
@@ -114,7 +115,7 @@ class LocationService extends ChangeNotifier {
   }
 
   static Future<List<ContextPosition>> _locationsFromAddress(String address) async {
-    final locations = await geo.locationFromAddress(address);
+    final locations = await _geocoding.locationFromAddress(address);
     return locations
         .map(
           (location) => ContextPosition(

@@ -246,7 +246,8 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                                 dense: true,
                                 contentPadding: EdgeInsets.zero,
                               ),
-                            if (widget.locationService.status == LocationStatus.noPermission)
+                            if (widget.locationService.status == LocationStatus.noPermission ||
+                                widget.locationService.status == LocationStatus.permissionDeniedForever)
                               ListTile(
                                 leading: Icon(Icons.location_disabled, color: Theme.of(context).colorScheme.error),
                                 title: const Text("Location permission denied"),

@@ -70,10 +70,6 @@
 		<string>Allows you to attach photos from your library to a bike setup.</string>
 		<key>NSLocationWhenInUseUsageDescription</key>
 		<string>This app uses your location to automatically add location data to your bike setups.</string>
-		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-		<string>This app uses your location to automatically add location data to your bike setups.</string>
-		<key>NSLocationAlwaysUsageDescription</key>
-		<string>This app uses your location to automatically add location data to your bike setups.</string>
 		<key>UIApplicationSceneManifest</key>
 		<dict>
 			<key>UIApplicationSupportsMultipleScenes</key>

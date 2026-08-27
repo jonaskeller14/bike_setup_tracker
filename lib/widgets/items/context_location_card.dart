@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:latlong2/latlong.dart';
-import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -12,7 +11,7 @@ import '../../models/context/context_position.dart';
 import '../../utils/url.dart';
 
 class ContextLocationCard extends StatelessWidget {
-  final LocationData? position;
+  final ContextPosition? position;
   final geo.Placemark? place;
   final String displayName;
   final Widget mapPin;

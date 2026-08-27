@@ -107,6 +107,12 @@ void main() {
             'personAdjustmentValues': {
               'pnum': 75.0,
             },
+            'position': {
+              'latitude': 47,
+              'longitude': 8.2,
+              'altitude': null,
+              'time': '2026-05-01T12:00:00Z',
+            },
           },
         ],
         'ratings': [
@@ -141,6 +147,17 @@ void main() {
             'metricValues': {
               'm_grip': 8.0,
               'm_feel': ['Balanced'], // categorical value shares the codec path
+            },
+            'position': {
+              'latitude': 47.1,
+              'longitude': 8.3,
+              'altitude': 456.7,
+              'accuracy': 4.2,
+              'heading': 180.0,
+              'speed': 8.5,
+              'speedAccuracy': 0.6,
+              'time': '2026-05-01T13:00:00.123Z',
+              'isMock': false,
             },
           },
         ],
@@ -201,12 +218,34 @@ void main() {
       expect(bikeValues['bln'], true);
       expect(bikeValues['dur'], '1:30:00.000000');
       expect((setup['personAdjustmentValues'] as Map)['pnum'], 75.0);
+      expect(setup['position'], {
+        'latitude': 47.0,
+        'longitude': 8.2,
+        'altitude': null,
+        'accuracy': null,
+        'heading': null,
+        'speed': null,
+        'speedAccuracy': null,
+        'time': '2026-05-01T12:00:00.000Z',
+        'isMock': null,
+      });
 
       // Rating-entry metric values go through the same codec path.
       final entry = findById(export, 'ratingEntries', 're1');
       final metricValues = (entry['metricValues'] as Map).cast<String, dynamic>();
       expect(metricValues['m_grip'], 8.0);
       expect(metricValues['m_feel'], ['Balanced']);
+      expect(entry['position'], {
+        'latitude': 47.1,
+        'longitude': 8.3,
+        'altitude': 456.7,
+        'accuracy': 4.2,
+        'heading': 180.0,
+        'speed': 8.5,
+        'speedAccuracy': 0.6,
+        'time': '2026-05-01T13:00:00.123Z',
+        'isMock': false,
+      });
     });
 
     test('is idempotent across all models: a second import→export equals the first', () async {

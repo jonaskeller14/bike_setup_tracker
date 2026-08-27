@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 
 import '../models/adjustment/adjustment.dart';
@@ -119,7 +118,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   final Map<String, dynamic> _danglingPersonAdjustmentValues = {};
 
   final LocationService _locationService = LocationService();
-  final ValueNotifier<LocationData?> _currentLocation = ValueNotifier<LocationData?>(null);
+  final ValueNotifier<ContextPosition?> _currentLocation = ValueNotifier<ContextPosition?>(null);
 
   final AddressService _addressService = AddressService();
   final ValueNotifier<geo.Placemark?> _currentPlace = ValueNotifier<geo.Placemark?>(null);

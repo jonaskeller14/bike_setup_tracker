@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
 
+import '../converters/context_position_converter.dart';
 import '../converters/local_floating_datetime_converter.dart';
-import '../converters/location_data_converter.dart';
 import '../converters/placemark_converter.dart';
 import '../converters/utc_datetime_converter.dart';
 import '../converters/weather_converter.dart';
@@ -23,7 +23,7 @@ class RatingEntries extends Table {
   DateTimeColumn get dateTimeLocal => dateTime().map(const LocalFloatingDateTimeConverter())();
   TextColumn get notes => text().nullable()();
 
-  TextColumn get position => text().map(const LocationDataConverter()).nullable()();
+  TextColumn get position => text().map(const ContextPositionConverter()).nullable()();
   TextColumn get place => text().map(const PlacemarkConverter()).nullable()();
   TextColumn get weather => text().map(const WeatherConverter()).nullable()();
 

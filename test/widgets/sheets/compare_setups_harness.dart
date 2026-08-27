@@ -3,6 +3,7 @@ import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component.dart';
+import 'package:bike_setup_tracker/models/context/context_position.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
@@ -10,7 +11,6 @@ import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 
 Future<void> settle(WidgetTester tester) async {
@@ -91,7 +91,7 @@ class CompareSetupsHarness {
     String? notes,
     Set<String> tags = const {},
     List<String> images = const [],
-    LocationData? position,
+    ContextPosition? position,
   }) {
     return Setup(
       id: id,

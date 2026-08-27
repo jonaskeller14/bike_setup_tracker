@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart' as geo;
-import 'package:location/location.dart';
 import 'package:uuid/uuid.dart';
 
 import 'adjustment/adjustment.dart';
@@ -22,7 +21,7 @@ class Setup {
   final String? person;
   final Map<String, dynamic> bikeAdjustmentValues;
   final Map<String, dynamic> personAdjustmentValues;
-  final LocationData? position;
+  final ContextPosition? position;
   final geo.Placemark? place;
   final ContextWeather? weather;
   final List<String> images;
@@ -74,7 +73,7 @@ class Setup {
     'person': person,
     'bikeAdjustmentValues': adjustmentValuesToJson(bikeAdjustmentValues),
     'personAdjustmentValues': adjustmentValuesToJson(personAdjustmentValues),
-    'position': position != null ? ContextPosition.toJson(position!) : null,
+    'position': position?.toJson(),
     'place': place != null ? ContextPlace.toJson(place!) : null,
     'weather': weather?.toJson(),
     'images': images,
@@ -220,7 +219,7 @@ class Setup {
           : (personAdjustmentValues as Map<String, dynamic>),
       position: position is _Sentinel
           ? this.position
-          : (position as LocationData?),
+          : (position as ContextPosition?),
       place: place is _Sentinel
           ? this.place
           : (place as geo.Placemark?),

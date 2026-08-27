@@ -4261,14 +4261,14 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
         defaultValue: const Constant('[]'),
       ).withConverter<List<String>>($SetupsTable.$converterimages);
   @override
-  late final GeneratedColumnWithTypeConverter<LocationData?, String> position =
-      GeneratedColumn<String>(
-        'position',
-        aliasedName,
-        true,
-        type: DriftSqlType.string,
-        requiredDuringInsert: false,
-      ).withConverter<LocationData?>($SetupsTable.$converterpositionn);
+  late final GeneratedColumnWithTypeConverter<ContextPosition?, String>
+  position = GeneratedColumn<String>(
+    'position',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  ).withConverter<ContextPosition?>($SetupsTable.$converterpositionn);
   @override
   late final GeneratedColumnWithTypeConverter<geo.Placemark?, String> place =
       GeneratedColumn<String>(
@@ -4452,9 +4452,9 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
       const StringListConverter();
   static TypeConverter<List<String>, String> $converterimages =
       const StringListOrderedConverter();
-  static TypeConverter<LocationData, String> $converterposition =
-      const LocationDataConverter();
-  static TypeConverter<LocationData?, String?> $converterpositionn =
+  static TypeConverter<ContextPosition, String> $converterposition =
+      const ContextPositionConverter();
+  static TypeConverter<ContextPosition?, String?> $converterpositionn =
       NullAwareTypeConverter.wrap($converterposition);
   static TypeConverter<geo.Placemark, String> $converterplace =
       const PlacemarkConverter();
@@ -4478,7 +4478,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
   final String? notes;
   final Set<String> tags;
   final List<String> images;
-  final LocationData? position;
+  final ContextPosition? position;
   final geo.Placemark? place;
   final ContextWeather? weather;
   const SetupDb({
@@ -4599,7 +4599,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
       notes: serializer.fromJson<String?>(json['notes']),
       tags: serializer.fromJson<Set<String>>(json['tags']),
       images: serializer.fromJson<List<String>>(json['images']),
-      position: serializer.fromJson<LocationData?>(json['position']),
+      position: serializer.fromJson<ContextPosition?>(json['position']),
       place: serializer.fromJson<geo.Placemark?>(json['place']),
       weather: serializer.fromJson<ContextWeather?>(json['weather']),
     );
@@ -4619,7 +4619,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
       'notes': serializer.toJson<String?>(notes),
       'tags': serializer.toJson<Set<String>>(tags),
       'images': serializer.toJson<List<String>>(images),
-      'position': serializer.toJson<LocationData?>(position),
+      'position': serializer.toJson<ContextPosition?>(position),
       'place': serializer.toJson<geo.Placemark?>(place),
       'weather': serializer.toJson<ContextWeather?>(weather),
     };
@@ -4637,7 +4637,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
     Value<String?> notes = const Value.absent(),
     Set<String>? tags,
     List<String>? images,
-    Value<LocationData?> position = const Value.absent(),
+    Value<ContextPosition?> position = const Value.absent(),
     Value<geo.Placemark?> place = const Value.absent(),
     Value<ContextWeather?> weather = const Value.absent(),
   }) => SetupDb(
@@ -4749,7 +4749,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
   final Value<String?> notes;
   final Value<Set<String>> tags;
   final Value<List<String>> images;
-  final Value<LocationData?> position;
+  final Value<ContextPosition?> position;
   final Value<geo.Placemark?> place;
   final Value<ContextWeather?> weather;
   final Value<int> rowid;
@@ -4840,7 +4840,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
     Value<String?>? notes,
     Value<Set<String>>? tags,
     Value<List<String>>? images,
-    Value<LocationData?>? position,
+    Value<ContextPosition?>? position,
     Value<geo.Placemark?>? place,
     Value<ContextWeather?>? weather,
     Value<int>? rowid,
@@ -6421,14 +6421,14 @@ class $RatingEntriesTable extends RatingEntries
     requiredDuringInsert: false,
   );
   @override
-  late final GeneratedColumnWithTypeConverter<LocationData?, String> position =
-      GeneratedColumn<String>(
-        'position',
-        aliasedName,
-        true,
-        type: DriftSqlType.string,
-        requiredDuringInsert: false,
-      ).withConverter<LocationData?>($RatingEntriesTable.$converterpositionn);
+  late final GeneratedColumnWithTypeConverter<ContextPosition?, String>
+  position = GeneratedColumn<String>(
+    'position',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  ).withConverter<ContextPosition?>($RatingEntriesTable.$converterpositionn);
   @override
   late final GeneratedColumnWithTypeConverter<geo.Placemark?, String> place =
       GeneratedColumn<String>(
@@ -6596,9 +6596,9 @@ class $RatingEntriesTable extends RatingEntries
       const UtcDateTimeConverter();
   static TypeConverter<DateTime, DateTime> $converterdateTimeLocal =
       const LocalFloatingDateTimeConverter();
-  static TypeConverter<LocationData, String> $converterposition =
-      const LocationDataConverter();
-  static TypeConverter<LocationData?, String?> $converterpositionn =
+  static TypeConverter<ContextPosition, String> $converterposition =
+      const ContextPositionConverter();
+  static TypeConverter<ContextPosition?, String?> $converterpositionn =
       NullAwareTypeConverter.wrap($converterposition);
   static TypeConverter<geo.Placemark, String> $converterplace =
       const PlacemarkConverter();
@@ -6620,7 +6620,7 @@ class RatingEntryDb extends DataClass implements Insertable<RatingEntryDb> {
   final DateTime dateTimeUTC;
   final DateTime dateTimeLocal;
   final String? notes;
-  final LocationData? position;
+  final ContextPosition? position;
   final geo.Placemark? place;
   final ContextWeather? weather;
   const RatingEntryDb({
@@ -6723,7 +6723,7 @@ class RatingEntryDb extends DataClass implements Insertable<RatingEntryDb> {
       dateTimeUTC: serializer.fromJson<DateTime>(json['dateTimeUTC']),
       dateTimeLocal: serializer.fromJson<DateTime>(json['dateTimeLocal']),
       notes: serializer.fromJson<String?>(json['notes']),
-      position: serializer.fromJson<LocationData?>(json['position']),
+      position: serializer.fromJson<ContextPosition?>(json['position']),
       place: serializer.fromJson<geo.Placemark?>(json['place']),
       weather: serializer.fromJson<ContextWeather?>(json['weather']),
     );
@@ -6741,7 +6741,7 @@ class RatingEntryDb extends DataClass implements Insertable<RatingEntryDb> {
       'dateTimeUTC': serializer.toJson<DateTime>(dateTimeUTC),
       'dateTimeLocal': serializer.toJson<DateTime>(dateTimeLocal),
       'notes': serializer.toJson<String?>(notes),
-      'position': serializer.toJson<LocationData?>(position),
+      'position': serializer.toJson<ContextPosition?>(position),
       'place': serializer.toJson<geo.Placemark?>(place),
       'weather': serializer.toJson<ContextWeather?>(weather),
     };
@@ -6757,7 +6757,7 @@ class RatingEntryDb extends DataClass implements Insertable<RatingEntryDb> {
     DateTime? dateTimeUTC,
     DateTime? dateTimeLocal,
     Value<String?> notes = const Value.absent(),
-    Value<LocationData?> position = const Value.absent(),
+    Value<ContextPosition?> position = const Value.absent(),
     Value<geo.Placemark?> place = const Value.absent(),
     Value<ContextWeather?> weather = const Value.absent(),
   }) => RatingEntryDb(
@@ -6859,7 +6859,7 @@ class RatingEntriesCompanion extends UpdateCompanion<RatingEntryDb> {
   final Value<DateTime> dateTimeUTC;
   final Value<DateTime> dateTimeLocal;
   final Value<String?> notes;
-  final Value<LocationData?> position;
+  final Value<ContextPosition?> position;
   final Value<geo.Placemark?> place;
   final Value<ContextWeather?> weather;
   final Value<int> rowid;
@@ -6940,7 +6940,7 @@ class RatingEntriesCompanion extends UpdateCompanion<RatingEntryDb> {
     Value<DateTime>? dateTimeUTC,
     Value<DateTime>? dateTimeLocal,
     Value<String?>? notes,
-    Value<LocationData?>? position,
+    Value<ContextPosition?>? position,
     Value<geo.Placemark?>? place,
     Value<ContextWeather?>? weather,
     Value<int>? rowid,
@@ -13075,7 +13075,7 @@ typedef $$SetupsTableCreateCompanionBuilder =
       Value<String?> notes,
       required Set<String> tags,
       Value<List<String>> images,
-      Value<LocationData?> position,
+      Value<ContextPosition?> position,
       Value<geo.Placemark?> place,
       Value<ContextWeather?> weather,
       Value<int> rowid,
@@ -13093,7 +13093,7 @@ typedef $$SetupsTableUpdateCompanionBuilder =
       Value<String?> notes,
       Value<Set<String>> tags,
       Value<List<String>> images,
-      Value<LocationData?> position,
+      Value<ContextPosition?> position,
       Value<geo.Placemark?> place,
       Value<ContextWeather?> weather,
       Value<int> rowid,
@@ -13240,7 +13240,7 @@ class $$SetupsTableFilterComposer
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
-  ColumnWithTypeConverterFilters<LocationData?, LocationData, String>
+  ColumnWithTypeConverterFilters<ContextPosition?, ContextPosition, String>
   get position => $composableBuilder(
     column: $table.position,
     builder: (column) => ColumnWithTypeConverterFilters(column),
@@ -13514,7 +13514,7 @@ class $$SetupsTableAnnotationComposer
   GeneratedColumnWithTypeConverter<List<String>, String> get images =>
       $composableBuilder(column: $table.images, builder: (column) => column);
 
-  GeneratedColumnWithTypeConverter<LocationData?, String> get position =>
+  GeneratedColumnWithTypeConverter<ContextPosition?, String> get position =>
       $composableBuilder(column: $table.position, builder: (column) => column);
 
   GeneratedColumnWithTypeConverter<geo.Placemark?, String> get place =>
@@ -13665,7 +13665,7 @@ class $$SetupsTableTableManager
                 Value<String?> notes = const Value.absent(),
                 Value<Set<String>> tags = const Value.absent(),
                 Value<List<String>> images = const Value.absent(),
-                Value<LocationData?> position = const Value.absent(),
+                Value<ContextPosition?> position = const Value.absent(),
                 Value<geo.Placemark?> place = const Value.absent(),
                 Value<ContextWeather?> weather = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -13699,7 +13699,7 @@ class $$SetupsTableTableManager
                 Value<String?> notes = const Value.absent(),
                 required Set<String> tags,
                 Value<List<String>> images = const Value.absent(),
-                Value<LocationData?> position = const Value.absent(),
+                Value<ContextPosition?> position = const Value.absent(),
                 Value<geo.Placemark?> place = const Value.absent(),
                 Value<ContextWeather?> weather = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -15126,7 +15126,7 @@ typedef $$RatingEntriesTableCreateCompanionBuilder =
       required DateTime dateTimeUTC,
       required DateTime dateTimeLocal,
       Value<String?> notes,
-      Value<LocationData?> position,
+      Value<ContextPosition?> position,
       Value<geo.Placemark?> place,
       Value<ContextWeather?> weather,
       Value<int> rowid,
@@ -15142,7 +15142,7 @@ typedef $$RatingEntriesTableUpdateCompanionBuilder =
       Value<DateTime> dateTimeUTC,
       Value<DateTime> dateTimeLocal,
       Value<String?> notes,
-      Value<LocationData?> position,
+      Value<ContextPosition?> position,
       Value<geo.Placemark?> place,
       Value<ContextWeather?> weather,
       Value<int> rowid,
@@ -15259,7 +15259,7 @@ class $$RatingEntriesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnWithTypeConverterFilters<LocationData?, LocationData, String>
+  ColumnWithTypeConverterFilters<ContextPosition?, ContextPosition, String>
   get position => $composableBuilder(
     column: $table.position,
     builder: (column) => ColumnWithTypeConverterFilters(column),
@@ -15494,7 +15494,7 @@ class $$RatingEntriesTableAnnotationComposer
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
 
-  GeneratedColumnWithTypeConverter<LocationData?, String> get position =>
+  GeneratedColumnWithTypeConverter<ContextPosition?, String> get position =>
       $composableBuilder(column: $table.position, builder: (column) => column);
 
   GeneratedColumnWithTypeConverter<geo.Placemark?, String> get place =>
@@ -15617,7 +15617,7 @@ class $$RatingEntriesTableTableManager
                 Value<DateTime> dateTimeUTC = const Value.absent(),
                 Value<DateTime> dateTimeLocal = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
-                Value<LocationData?> position = const Value.absent(),
+                Value<ContextPosition?> position = const Value.absent(),
                 Value<geo.Placemark?> place = const Value.absent(),
                 Value<ContextWeather?> weather = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -15647,7 +15647,7 @@ class $$RatingEntriesTableTableManager
                 required DateTime dateTimeUTC,
                 required DateTime dateTimeLocal,
                 Value<String?> notes = const Value.absent(),
-                Value<LocationData?> position = const Value.absent(),
+                Value<ContextPosition?> position = const Value.absent(),
                 Value<geo.Placemark?> place = const Value.absent(),
                 Value<ContextWeather?> weather = const Value.absent(),
                 Value<int> rowid = const Value.absent(),

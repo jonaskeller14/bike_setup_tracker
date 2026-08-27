@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
+import '../../models/context/context_position.dart';
 import '../../models/context/context_weather.dart';
 import '../../services/location_service.dart';
 import '../../services/weather_service.dart';
@@ -17,7 +17,7 @@ Future<ContextWeather?> showSetWeatherSheet({
   required WeatherService weatherService, 
   required ContextWeather? currentWeather,
   required LocationService locationService,
-  required LocationData? currentLocation,
+  required ContextPosition? currentLocation,
   required DateTime selectedDateTime,
   }) async {
   return showModalBottomSheet<ContextWeather?>(
@@ -40,7 +40,7 @@ class SetWeatherSheetContent extends StatefulWidget {
   final WeatherService weatherService;
   final ContextWeather? currentWeather;
   final LocationService locationService;
-  final LocationData? currentLocation;
+  final ContextPosition? currentLocation;
   final DateTime selectedDateTime;
 
   const SetWeatherSheetContent({

@@ -4,7 +4,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:intl/intl.dart';
-import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 
 import '../models/adjustment/adjustment.dart';
@@ -105,7 +104,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
   final Map<String, dynamic> _initialMetricValues = {};
 
   final LocationService _locationService = LocationService();
-  final ValueNotifier<LocationData?> _currentLocation = ValueNotifier<LocationData?>(null);
+  final ValueNotifier<ContextPosition?> _currentLocation = ValueNotifier<ContextPosition?>(null);
 
   final AddressService _addressService = AddressService();
   final ValueNotifier<geo.Placemark?> _currentPlace = ValueNotifier<geo.Placemark?>(null);

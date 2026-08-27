@@ -3,12 +3,12 @@ import 'dart:convert';
 import 'package:drift/drift.dart' hide Component;
 import 'package:flutter/foundation.dart';
 import 'package:geocoding/geocoding.dart' as geo;
-import 'package:location/location.dart';
 
 import '../models/adjustment/adjustment.dart';
 import '../models/bike.dart';
 import '../models/component.dart';
 import '../models/component_stats.dart';
+import '../models/context/context_position.dart';
 import '../models/context/context_weather.dart';
 import '../models/installation.dart';
 import '../models/person.dart';
@@ -365,7 +365,7 @@ extension SetupMapper on Setup {
       images: Value<List<String>>(images),
       bikeId: Value<String>(bike),
       personId: Value<String?>(person),
-      position: Value<LocationData?>(position),
+      position: Value<ContextPosition?>(position),
       place: Value<geo.Placemark?>(place),
       weather: Value<ContextWeather?>(weather),
     );
@@ -464,7 +464,7 @@ extension RatingEntryMapper on RatingEntry {
       dateTimeUTC: Value<DateTime>(dateTimeUTC),
       dateTimeLocal: Value<DateTime>(dateTimeLocal),
       notes: Value<String?>(notes),
-      position: Value<LocationData?>(position),
+      position: Value<ContextPosition?>(position),
       place: Value<geo.Placemark?>(place),
       weather: Value<ContextWeather?>(weather),
     );

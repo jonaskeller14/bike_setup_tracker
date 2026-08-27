@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geocoding/geocoding.dart' as geo;
-import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
@@ -15,7 +14,7 @@ import '../dialogs/discard_changes.dart';
 import 'sheet_header.dart';
 
 class LocationAndPlace {
-  final LocationData? location;
+  final ContextPosition? location;
   final geo.Placemark? place;
   const LocationAndPlace({required this.location, required this.place});
 }
@@ -23,7 +22,7 @@ class LocationAndPlace {
 Future<LocationAndPlace?> showSetLocationPlaceSheet({
   required BuildContext context,
   required LocationService locationService,
-  required LocationData? currentLocation,
+  required ContextPosition? currentLocation,
   required AddressService addressService,
   required geo.Placemark? currentPlace,
 }) async {
@@ -44,7 +43,7 @@ Future<LocationAndPlace?> showSetLocationPlaceSheet({
 
 class SetLocationPlaceSheetContent extends StatefulWidget {
   final LocationService locationService;
-  final LocationData? currentLocation;
+  final ContextPosition? currentLocation;
   final AddressService addressService;
   final geo.Placemark? currentPlace;
 
@@ -71,7 +70,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
 
   final ElevationService _elevationService = ElevationService();
   
-  LocationData? _currentLocation;
+  ContextPosition? _currentLocation;
   geo.Placemark? _currentPlace;
 
   @override
@@ -168,7 +167,8 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
     // 2: LOCATION Altitude
     final newAltitude = await _elevationService.fetchElevation(lat: _currentLocation!.latitude!, lon: _currentLocation!.longitude!);
     setState(() {
-      _currentLocation = LocationService.copyWithLocationData(_currentLocation, altitude: newAltitude);
+      _currentLocation = (_currentLocation ?? const ContextPosition())
+          .copyWith(altitude: newAltitude);
       _setFieldsFromLocationPlace();
     });
 
@@ -297,8 +297,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                               },
                               onChanged: (String newValue) {
                                 setState(() {
-                                  _currentLocation = LocationService.copyWithLocationData(
-                                    _currentLocation, 
+                                  _currentLocation = (_currentLocation ?? const ContextPosition()).copyWith(
                                     latitude: double.tryParse(newValue),
                                   );
                                 });
@@ -330,8 +329,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                               },
                               onChanged: (String newValue) {
                                 setState(() {
-                                  _currentLocation = LocationService.copyWithLocationData(
-                                    _currentLocation, 
+                                  _currentLocation = (_currentLocation ?? const ContextPosition()).copyWith(
                                     longitude: double.tryParse(newValue),
                                   );
                                 });
@@ -362,8 +360,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                               },
                               onChanged: (String newValue) {
                                 setState(() {
-                                  _currentLocation = LocationService.copyWithLocationData(
-                                    _currentLocation, 
+                                  _currentLocation = (_currentLocation ?? const ContextPosition()).copyWith(
                                     altitude: ContextPosition.convertAltitudeToMeters(double.tryParse(newValue), appSettings.altitudeUnit),
                                   );
                                 });

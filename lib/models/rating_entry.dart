@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart' as geo;
-import 'package:location/location.dart';
 import 'package:uuid/uuid.dart';
 
 import 'context/context_place.dart';
@@ -22,7 +21,7 @@ class RatingEntry {
 
   final Map<String, dynamic> metricValues;
 
-  final LocationData? position;
+  final ContextPosition? position;
   final geo.Placemark? place;
   final ContextWeather? weather;
 
@@ -63,7 +62,7 @@ class RatingEntry {
     'dateTimeLocal': dateTimeLocal.toIso8601String(),
     'notes': notes,
     'metricValues': Setup.adjustmentValuesToJson(metricValues),
-    'position': position != null ? ContextPosition.toJson(position!) : null,
+    'position': position?.toJson(),
     'place': place != null ? ContextPlace.toJson(place!) : null,
     'weather': weather?.toJson(),
   };
@@ -143,7 +142,7 @@ class RatingEntry {
       metricValues: metricValues is _Sentinel
           ? this.metricValues
           : (metricValues as Map<String, dynamic>),
-      position: position is _Sentinel ? this.position : (position as LocationData?),
+      position: position is _Sentinel ? this.position : (position as ContextPosition?),
       place: place is _Sentinel ? this.place : (place as geo.Placemark?),
       weather: weather is _Sentinel ? this.weather : (weather as ContextWeather?),
     );

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:latlong2/latlong.dart';
-import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 
 import '../../env/env.dart';
@@ -11,9 +10,9 @@ import '../../models/context/context_position.dart';
 import '../map_pins.dart';
 
 class ContextLocationCardDiff extends StatelessWidget {
-  final LocationData? positionA;
+  final ContextPosition? positionA;
   final geo.Placemark? placeA;
-  final LocationData? positionB;
+  final ContextPosition? positionB;
   final geo.Placemark? placeB;
 
   const ContextLocationCardDiff({
@@ -71,7 +70,7 @@ class ContextLocationCardDiff extends StatelessWidget {
     return address.isEmpty ? '-' : address;
   }
 
-  static String _coordinates(LocationData? position) {
+  static String _coordinates(ContextPosition? position) {
     if (position?.latitude == null && position?.longitude == null) return '-';
     return '${position?.latitude?.toStringAsFixed(4) ?? '-'}°/'
         '${position?.longitude?.toStringAsFixed(4) ?? '-'}°';
@@ -79,15 +78,15 @@ class ContextLocationCardDiff extends StatelessWidget {
 }
 
 class _AltitudeRow extends StatelessWidget {
-  final LocationData? positionA;
-  final LocationData? positionB;
+  final ContextPosition? positionA;
+  final ContextPosition? positionB;
 
   const _AltitudeRow({required this.positionA, required this.positionB});
 
   @override
   Widget build(BuildContext context) {
     final settings = context.watch<AppSettings>();
-    String altitude(LocationData? position) {
+    String altitude(ContextPosition? position) {
       final value = ContextPosition.convertAltitudeFromMeters(position?.altitude, settings.altitudeUnit);
       return value == null ? '-' : '${value.round()} ${settings.altitudeUnit}';
     }
@@ -127,8 +126,8 @@ class _ComparisonTextRow extends StatelessWidget {
 }
 
 class _ComparisonMap extends StatefulWidget {
-  final LocationData? positionA;
-  final LocationData? positionB;
+  final ContextPosition? positionA;
+  final ContextPosition? positionB;
 
   const _ComparisonMap({required this.positionA, required this.positionB});
 
@@ -149,7 +148,7 @@ class _ComparisonMapState extends State<_ComparisonMap> {
     }
   }
 
-  bool _hasChanged(LocationData? previous, LocationData? current) =>
+  bool _hasChanged(ContextPosition? previous, ContextPosition? current) =>
       previous?.latitude != current?.latitude || previous?.longitude != current?.longitude;
 
   List<({String label, LatLng point})> get _points => [

@@ -27,7 +27,7 @@ class LocationService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<LocationData?> fetchLocation() async {
+  Future<ContextPosition?> fetchLocation() async {
     setStatus(LocationStatus.searching);
     bool serviceEnabled = await _location.serviceEnabled();
     if (!serviceEnabled) {
@@ -69,10 +69,10 @@ class LocationService extends ChangeNotifier {
       location = null;
       setStatus(LocationStatus.error);
     }    
-    return location;
+    return location == null ? null : _fromLocationData(location);
   }
 
-  Future<LocationData?> locationFromAddress(String address) async {
+  Future<ContextPosition?> locationFromAddress(String address) async {
     setStatus(LocationStatus.searching);
 
     try {
@@ -82,30 +82,34 @@ class LocationService extends ChangeNotifier {
         setStatus(LocationStatus.idle);
         return null;
       }
-      final locationData = LocationData.fromMap(geoLocation.toJson());
-      
       setStatus(LocationStatus.success);
-      return locationData;
+      return ContextPosition(
+        latitude: geoLocation.latitude,
+        longitude: geoLocation.longitude,
+        timestamp: geoLocation.timestamp,
+      );
     } catch (e) {
       setStatus(LocationStatus.error);
       return null;
     }
   }
 
-  static LocationData copyWithLocationData(LocationData? location, {
-    Object? latitude = const _Sentinel(),
-    Object? longitude = const _Sentinel(),
-    Object? altitude = const _Sentinel(),
-  }) {
-    final newMap = location == null ? <String, dynamic>{} : ContextPosition.toJson(location);
-    if (latitude is! _Sentinel) newMap["latitude"] = latitude as double?;
-    if (longitude is! _Sentinel) newMap["longitude"] = longitude as double?;
-    if (altitude is! _Sentinel) newMap["altitude"] = altitude as double?;
-    newMap['time'] = newMap['time'] != null ? DateTime.parse(newMap['time'] as String).millisecondsSinceEpoch.toDouble() : null;
-    return LocationData.fromMap(newMap);
+  static ContextPosition _fromLocationData(LocationData location) {
+    return ContextPosition(
+      latitude: location.latitude,
+      longitude: location.longitude,
+      altitude: location.altitude,
+      accuracy: location.accuracy,
+      heading: location.heading,
+      speed: location.speed,
+      speedAccuracy: location.speedAccuracy,
+      timestamp: location.time == null
+          ? null
+          : DateTime.fromMillisecondsSinceEpoch(
+              location.time!.toInt(),
+              isUtc: true,
+            ),
+      isMock: location.isMock,
+    );
   }
-}
-
-class _Sentinel {
-  const _Sentinel();
 }

@@ -710,12 +710,33 @@ void main() {
         componentId: component1.id,
       );
 
-      await repository.addTaskEntry(entry1);
+      await repository.addTaskEntries([entry1]);
       await pumpEventQueue();
 
       // Entry added -> open count should be 0
       expect(repository.filteredOpenTaskRulesCount, 0);
       expect(repository.filteredOpenTaskRules.containsKey(rule1.id), false);
+    });
+
+    test("addTaskEntries rolls back the batch when one insert fails", () async {
+      await repository.addTaskRule(rule1);
+      await pumpEventQueue();
+
+      final entry = TaskEntry(
+        id: "duplicate-entry-id",
+        name: "Entry",
+        dateTimeUTC: DateTime.now().toUtc(),
+        dateTimeLocal: DateTime.now(),
+        taskRule: rule1.id,
+      );
+
+      await expectLater(
+        repository.addTaskEntries([entry, entry.copyWith(name: "Duplicate")]),
+        throwsA(anything),
+      );
+      await pumpEventQueue();
+
+      expect(repository.taskEntries.containsKey(entry.id), false);
     });
 
     test("openTaskCount handles filtering by bike", () async {

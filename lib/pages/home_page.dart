@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../models/app_settings.dart';
@@ -12,6 +15,7 @@ import '../utils/person_actions.dart';
 import '../utils/rating_actions.dart';
 import '../utils/setup_actions.dart';
 import '../utils/task_actions.dart';
+import '../widgets/animated_app_bar_switcher.dart';
 import '../widgets/google_drive_sync_button.dart';
 import '../widgets/lists/garage_list.dart';
 import '../widgets/lists/person_list.dart';
@@ -36,6 +40,54 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int? _currentPageIndex;
   final SetupListController _setupListController = SetupListController();
+  final Set<String> _selectedTaskRules = {};
+  bool _isDeletingTaskRules = false;
+  bool _isCompletingTaskRules = false;
+
+  bool get _isTaskSelectionMode => _selectedTaskRules.isNotEmpty;
+
+  void _clearTaskRuleSelection() {
+    setState(() => _selectedTaskRules.clear());
+  }
+
+  void _toggleTaskRuleSelection(String taskRuleId) {
+    unawaited(HapticFeedback.selectionClick());
+    setState(() {
+      if (!_selectedTaskRules.remove(taskRuleId)) {
+        _selectedTaskRules.add(taskRuleId);
+      }
+    });
+  }
+
+  Future<void> _deleteSelectedTaskRules() async {
+    if (_isDeletingTaskRules) return;
+
+    final selectedTaskRules = Set<String>.of(_selectedTaskRules);
+    setState(() => _isDeletingTaskRules = true);
+
+    try {
+      await TaskActions.removeTaskRules(context, taskRuleIds: selectedTaskRules);
+      if (!mounted) return;
+      setState(() => _selectedTaskRules.clear());
+    } finally {
+      if (mounted) setState(() => _isDeletingTaskRules = false);
+    }
+  }
+
+  Future<void> _completeSelectedTaskRules() async {
+    if (_isCompletingTaskRules) return;
+
+    final selectedTaskRules = Set<String>.of(_selectedTaskRules);
+    setState(() => _isCompletingTaskRules = true);
+
+    try {
+      await TaskActions.addDefaultTaskEntries(context, taskRuleIds: selectedTaskRules);
+      if (!mounted) return;
+      setState(() => _selectedTaskRules.clear());
+    } finally {
+      if (mounted) setState(() => _isCompletingTaskRules = false);
+    }
+  }
 
   @override
   void dispose() {
@@ -54,67 +106,97 @@ class _HomePageState extends State<HomePage> {
       0,
       1 + (appSettings.enablePerson ? 1 : 0) + (appSettings.enableRating ? 1 : 0) + (appSettings.enableTask ? 1 : 0),
     );
-    return Scaffold(
-      appBar: AppBar(
-        leading: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: SizedBox(
-            height: 30,
-            width: 30,
-            child: ClipOval(
-              child: Image.asset(
-                'assets/icons/logo_256.png',
-                fit: BoxFit.contain,
-              ),
-            ),
-          ),
-        ),
-        title: <Text>[
-          const Text("Bikes"),
-          const Text("Setup History"),
-          if (appSettings.enablePerson) const Text("Profile"),
-          if (appSettings.enableRating) const Text("Ratings"),
-          if (appSettings.enableTask) const Text("Tasks"),
-        ][pageIndex],
-        actions: [
-          if (appSettings.enableStrava) const StravaSyncButton(),
-          if (appSettings.enableGoogleDrive) const GoogleDriveSyncButton(),
-          PopupMenuButton<_AppOptions>(
-            onSelected: (_AppOptions result) async {
-              switch (result) {
-                case _AppOptions.import:
-                  await importData(context);
-                case _AppOptions.export:
-                  await exportData(context);
-                case _AppOptions.share:
-                  await shareData(context);
-                case _AppOptions.trash:
-                  await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const TrashPage()));
-                case _AppOptions.settings:
-                  await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const AppSettingsPage()));
-              }
-            },
-            itemBuilder: (BuildContext context) => _AppOptions.values.map((appOption) {
-              return PopupMenuItem<_AppOptions>(
-                value: appOption,
-                child: Row(
-                  children: [
-                    Icon(appOption.iconData),
-                    const SizedBox(width: 8),
-                    Text(appOption.label),
-                  ],
+    final taskPageIndex = 2 + (appSettings.enablePerson ? 1 : 0) + (appSettings.enableRating ? 1 : 0);
+    final showTaskSelectionAppBar = appSettings.enableTask && pageIndex == taskPageIndex && _isTaskSelectionMode;
+
+    return PopScope(
+      canPop: !showTaskSelectionAppBar,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) _clearTaskRuleSelection();
+      },
+      child: Scaffold(
+      appBar: AnimatedAppBarSwitcher(
+        child: showTaskSelectionAppBar
+            ? AppBar(
+                key: const ValueKey('task-selection-app-bar'),
+                leading: IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: _clearTaskRuleSelection,
                 ),
-              );
-            }).toList(),
-            icon: const Icon(Icons.more_vert),
-          ),
-        ],
+                title: Text('${_selectedTaskRules.length} selected'),
+                actions: [
+                  IconButton(
+                    onPressed: _isDeletingTaskRules || _isCompletingTaskRules ? null : _deleteSelectedTaskRules,
+                    icon: const Icon(Icons.delete),
+                    tooltip: 'Delete selected',
+                  ),
+                ],
+              )
+            : AppBar(
+                key: const ValueKey('default-app-bar'),
+                leading: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: SizedBox(
+                    height: 30,
+                    width: 30,
+                    child: ClipOval(
+                      child: Image.asset(
+                        'assets/icons/logo_256.png',
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                ),
+                title: <Text>[
+                  const Text("Bikes"),
+                  const Text("Setup History"),
+                  if (appSettings.enablePerson) const Text("Profile"),
+                  if (appSettings.enableRating) const Text("Ratings"),
+                  if (appSettings.enableTask) const Text("Tasks"),
+                ][pageIndex],
+                actions: [
+                  if (appSettings.enableStrava) const StravaSyncButton(),
+                  if (appSettings.enableGoogleDrive) const GoogleDriveSyncButton(),
+                  PopupMenuButton<_AppOptions>(
+                    onSelected: (_AppOptions result) async {
+                      switch (result) {
+                        case _AppOptions.import:
+                          await importData(context);
+                        case _AppOptions.export:
+                          await exportData(context);
+                        case _AppOptions.share:
+                          await shareData(context);
+                        case _AppOptions.trash:
+                          await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const TrashPage()));
+                        case _AppOptions.settings:
+                          await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const AppSettingsPage()));
+                      }
+                    },
+                    itemBuilder: (BuildContext context) => _AppOptions.values.map((appOption) {
+                      return PopupMenuItem<_AppOptions>(
+                        value: appOption,
+                        child: Row(
+                          children: [
+                            Icon(appOption.iconData),
+                            const SizedBox(width: 8),
+                            Text(appOption.label),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                    icon: const Icon(Icons.more_vert),
+                  ),
+                ],
+              ),
       ),
       bottomNavigationBar: NavigationBar(
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         selectedIndex: pageIndex,
         onDestinationSelected: (int index) {
-          setState(() => _currentPageIndex = index);
+          setState(() {
+            _currentPageIndex = index;
+            if (index != pageIndex) _selectedTaskRules.clear();
+          });
         },
         destinations: <Widget>[
           NavigationDestination(
@@ -149,7 +231,12 @@ class _HomePageState extends State<HomePage> {
             SetupList(controller: _setupListController),
             if (appSettings.enablePerson) const PersonList(),
             if (appSettings.enableRating) const RatingList(),
-            if (appSettings.enableTask) const TaskList(),
+            if (appSettings.enableTask)
+              TaskList(
+                selectedTaskRules: _selectedTaskRules,
+                onTaskRuleSelectionChanged: _isCompletingTaskRules ? null : _toggleTaskRuleSelection,
+                onSelectedTaskRulesCompleted: _isCompletingTaskRules ? null : _completeSelectedTaskRules,
+              ),
           ],
         ),
       ),
@@ -216,6 +303,7 @@ class _HomePageState extends State<HomePage> {
             child: const Icon(Icons.add),
           ),
       ][pageIndex],
+      ),
     );
   }
 }

@@ -8,7 +8,16 @@ import '../empty_state_placeholder.dart';
 import '../items/task_rule_list_card.dart';
 
 class TaskList extends StatefulWidget {
-  const TaskList({super.key});
+  final Set<String> selectedTaskRules;
+  final ValueChanged<String>? onTaskRuleSelectionChanged;
+  final VoidCallback? onSelectedTaskRulesCompleted;
+
+  const TaskList({
+    super.key,
+    this.selectedTaskRules = const {},
+    this.onTaskRuleSelectionChanged,
+    this.onSelectedTaskRulesCompleted,
+  });
 
   @override
   State<TaskList> createState() => _TaskListState();
@@ -85,7 +94,16 @@ class _TaskListState extends State<TaskList> {
               onAction: () => TaskActions.addTaskRule(context),
             );
           }
-          return TaskRuleListCard(taskRuleId: openTaskRules[index - 1].rule.id);
+          final taskRuleId = openTaskRules[index - 1].rule.id;
+          return TaskRuleListCard(
+            taskRuleId: taskRuleId,
+            selectionMode: widget.selectedTaskRules.isNotEmpty,
+            selected: widget.selectedTaskRules.contains(taskRuleId),
+            onSelectionChanged: widget.onTaskRuleSelectionChanged == null
+                ? null
+                : () => widget.onTaskRuleSelectionChanged!(taskRuleId),
+            onSelectedTaskRulesCompleted: widget.onSelectedTaskRulesCompleted,
+          );
         }
 
         // Divider
@@ -97,7 +115,16 @@ class _TaskListState extends State<TaskList> {
         // Completed tasks
         final completedItemIndex = index - completedSectionStart - 1;
         if (completedItemIndex < visibleCompleted) {
-          return TaskRuleListCard(taskRuleId: completedTaskRules[completedItemIndex].rule.id);
+          final taskRuleId = completedTaskRules[completedItemIndex].rule.id;
+          return TaskRuleListCard(
+            taskRuleId: taskRuleId,
+            selectionMode: widget.selectedTaskRules.isNotEmpty,
+            selected: widget.selectedTaskRules.contains(taskRuleId),
+            onSelectionChanged: widget.onTaskRuleSelectionChanged == null
+                ? null
+                : () => widget.onTaskRuleSelectionChanged!(taskRuleId),
+            onSelectedTaskRulesCompleted: widget.onSelectedTaskRulesCompleted,
+          );
         }
 
         // Show more/less button

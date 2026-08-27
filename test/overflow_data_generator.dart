@@ -215,14 +215,14 @@ void main() async {
   if (data.taskRules.isNotEmpty) {
     int entryIdx = 0;
     for (final rule in data.taskRules.values) {
-      await data.addTaskEntry(TaskEntry(
+      await data.addTaskEntries([TaskEntry(
         name: "Completed check #$entryIdx",
         notes: entryIdx == 0 ? loremIpsum : null,
         dateTimeUTC: DateTime(2025).add(Duration(days: entryIdx)).toUtc(),
         dateTimeLocal: DateTime(2025).add(Duration(days: entryIdx)),
         taskRule: rule.id,
         snapshot: null,
-      ));
+      )]);
       entryIdx++;
     }
   }

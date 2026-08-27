@@ -39,9 +39,7 @@ class TaskActions {
     final renamedEntries = [
       ...appRepository.taskEntries.values,
       ...appRepository.deletedTaskEntries,
-    ]
-        .where((entry) => entry.taskRule == taskRule.id && entry.name.startsWith(taskRule.name))
-        .toList();
+    ].where((entry) => entry.taskRule == taskRule.id && entry.name.startsWith(taskRule.name)).toList();
     if (renamedEntries.isEmpty) return;
 
     await appRepository.editTaskEntry(
@@ -93,25 +91,37 @@ class TaskActions {
     await appRepository.addTaskRule(newRule);
   }
 
-  static Future<void> removeTaskRule(BuildContext context, {required TaskRule taskRule}) async {
+  static Future<void> removeTaskRules(BuildContext context, {required Iterable<String> taskRuleIds}) async {
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);
 
-    final obsoleteTaskEntries = appRepository.taskEntries.values.where((te) => te.taskRule == taskRule.id).toList();
+    final taskRules = taskRuleIds.map((id) => appRepository.taskRules[id]).whereType<TaskRule>().toList();
+    if (taskRules.isEmpty) return;
 
-    await appRepository.removeTaskRules([taskRule]);
+    final taskRuleIdsToRemove = taskRules.map((rule) => rule.id).toSet();
+    final obsoleteTaskEntries = appRepository.taskEntries.values
+        .where((entry) => taskRuleIdsToRemove.contains(entry.taskRule))
+        .toList();
+
+    await appRepository.removeTaskRules(taskRules);
     await appRepository.removeTaskEntries(obsoleteTaskEntries);
 
     messenger.showSnackBar(
       SnackBar(
-        content: Text("Task '${taskRule.name}' and corresponding entries moved to trash."),
+        content: Text(
+          Intl.plural(
+            taskRules.length,
+            one: "Task '${taskRules[0].name}' and corresponding entries moved to trash.",
+            other: '${taskRules.length} Tasks and corresponding entries moved to trash.',
+          ),
+        ),
         duration: const Duration(seconds: 5),
         persist: false,
         showCloseIcon: true,
         action: SnackBarAction(
           label: 'UNDO',
           onPressed: () async {
-            await appRepository.restoreTaskRules([taskRule]);
+            await appRepository.restoreTaskRules(taskRules);
             await appRepository.restoreTaskEntries(obsoleteTaskEntries);
           },
         ),
@@ -148,7 +158,61 @@ class TaskActions {
     );
     if (newEntry == null) return;
 
-    await appRepository.addTaskEntry(newEntry);
+    await appRepository.addTaskEntries([newEntry]);
+  }
+
+  static Future<void> addDefaultTaskEntries(BuildContext context, {required Iterable<String> taskRuleIds}) async {
+    final appRepository = context.read<AppRepository>();
+    final messenger = ScaffoldMessenger.of(context);
+    final taskRules = taskRuleIds
+        .map((id) => appRepository.taskRules[id])
+        .whereType<TaskRule>()
+        .where((taskRule) => appRepository.getTaskRuleStatus(taskRule).type != TaskStatusType.completed)
+        .toList();
+    if (taskRules.isEmpty) return;
+
+    final dateTimeLocal = DateTime.now();
+    final dateTimeUTC = dateTimeLocal.toUtc();
+    final taskEntries = await Future.wait(
+      taskRules.map((taskRule) async {
+        final snapshot = await appRepository.getStatsAt(
+          componentId: taskRule.componentId,
+          bikeId: taskRule.bikeId,
+          date: dateTimeUTC,
+        );
+        return TaskEntry(
+          name: taskRule.name,
+          notes: null,
+          dateTimeUTC: dateTimeUTC,
+          dateTimeLocal: dateTimeLocal,
+          taskRule: taskRule.id,
+          componentId: taskRule.componentId,
+          bikeId: taskRule.bikeId,
+          snapshot: snapshot,
+        );
+      }),
+    );
+
+    await appRepository.addTaskEntries(taskEntries);
+
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          Intl.plural(
+            taskEntries.length,
+            one: "Task '${taskRules[0].name}' completed.",
+            other: '${taskEntries.length} Tasks completed.',
+          ),
+        ),
+        duration: const Duration(seconds: 3),
+        persist: false,
+        showCloseIcon: true,
+        action: SnackBarAction(
+          label: 'UNDO',
+          onPressed: () async => appRepository.removeTaskEntries(taskEntries),
+        ),
+      ),
+    );
   }
 
   static Future<void> editTaskEntry(BuildContext context, {required TaskEntry taskEntry}) async {
@@ -176,7 +240,7 @@ class TaskActions {
     );
     if (newEntry == null) return;
 
-    await appRepository.addTaskEntry(newEntry);
+    await appRepository.addTaskEntries([newEntry]);
   }
 
   static Future<void> removeTaskEntry(BuildContext context, {required TaskEntry taskEntry}) async {

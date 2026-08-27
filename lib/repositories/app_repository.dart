@@ -1257,10 +1257,19 @@ class AppRepository extends ChangeNotifier {
     await database.taskDao.updateRule(updated.toCompanion());
   }
 
-  Future<void> addTaskEntry(TaskEntry entry) async {
-    final updated = entry.copyWith(lastModified: DateTime.now().toUtc());
-    await database.taskDao.insertEntry(updated.toCompanion());
-    await _consumeTaskRuleDelay(entry.taskRule);
+  Future<void> addTaskEntries(Iterable<TaskEntry> entries) async {
+    final entryList = entries.toList();
+    if (entryList.isEmpty) return;
+    final now = DateTime.now().toUtc();
+
+    await database.transaction(() async {
+      for (final entry in entryList) {
+        await database.taskDao.insertEntry(entry.copyWith(lastModified: now).toCompanion());
+      }
+      for (final taskRuleId in entryList.map((entry) => entry.taskRule).toSet()) {
+        await _consumeTaskRuleDelay(taskRuleId);
+      }
+    });
   }
 
   /// Note this is not undone when the entry is deleted again.

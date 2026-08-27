@@ -87,7 +87,7 @@ void main() {
         dateTimeLocal: entryDate.toLocal(),
         snapshot: initialStats,
       );
-      await repository.addTaskEntry(entry);
+      await repository.addTaskEntries([entry]);
       await pumpEventQueue();
 
       // Verify entry is stored with 100km snapshot
@@ -292,7 +292,7 @@ void main() {
         dateTimeLocal: entryDate.toLocal(),
         snapshot: initialStats,
       );
-      await repository.addTaskEntry(entry);
+      await repository.addTaskEntries([entry]);
       await pumpEventQueue();
       expect(repository.taskEntries[entry.id]?.snapshot?.distance, 0.0);
 
@@ -352,7 +352,7 @@ void main() {
         dateTimeLocal: entryDate.toLocal(),
         snapshot: initialStats,
       );
-      await repository.addTaskEntry(entry);
+      await repository.addTaskEntries([entry]);
       await pumpEventQueue();
       expect(repository.taskEntries[entry.id]?.snapshot?.distance, 100000.0);
 
@@ -426,7 +426,7 @@ void main() {
         dateTimeLocal: entryDate.toLocal(),
         snapshot: await repository.getStatsAt(componentId: component.id, date: entryDate),
       );
-      await repository.addTaskEntry(entry);
+      await repository.addTaskEntries([entry]);
       await pumpEventQueue();
       expect(repository.taskEntries[entry.id]?.snapshot?.distance, 0.0);
 
@@ -467,7 +467,7 @@ void main() {
         dateTimeLocal: entryDate.toLocal(),
         snapshot: await repository.getStatsAt(componentId: component.id, date: entryDate),
       );
-      await repository.addTaskEntry(entry);
+      await repository.addTaskEntries([entry]);
       await pumpEventQueue();
       expect(repository.taskEntries[entry.id]?.snapshot?.distance, 0.0);
 
@@ -535,7 +535,7 @@ void main() {
         dateTimeLocal: entryDate.toLocal(),
         snapshot: await repository.getStatsAt(componentId: component.id, date: entryDate),
       );
-      await repository.addTaskEntry(entry);
+      await repository.addTaskEntries([entry]);
       await pumpEventQueue();
       expect(repository.taskEntries[entry.id]?.snapshot?.distance, 100000.0);
 
@@ -604,7 +604,7 @@ void main() {
         dateTimeLocal: entryDate.toLocal(),
         snapshot: await repository.getStatsAt(bikeId: bike.id, date: entryDate),
       );
-      await repository.addTaskEntry(entry);
+      await repository.addTaskEntries([entry]);
       await pumpEventQueue();
       expect(repository.taskEntries[entry.id]?.snapshot?.distance, 0.0);
 
@@ -639,7 +639,7 @@ void main() {
         dateTimeLocal: entryDate.toLocal(),
         snapshot: await repository.getStatsAt(bikeId: bike.id, date: entryDate),
       );
-      await repository.addTaskEntry(entry);
+      await repository.addTaskEntries([entry]);
       await pumpEventQueue();
       expect(repository.taskEntries[entry.id]?.snapshot?.distance, 100000.0);
 
@@ -944,8 +944,7 @@ void main() {
         dateTimeLocal: DateTime.utc(2024, 6, 2),
         snapshot: staleSnapshot,
       );
-      await repository.addTaskEntry(outgoingEntry);
-      await repository.addTaskEntry(incomingEntry);
+      await repository.addTaskEntries([outgoingEntry, incomingEntry]);
       await pumpEventQueue();
 
       final installed = incoming.copyWith(installations: [

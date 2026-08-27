@@ -17,8 +17,19 @@ import '../sheets/set_task_delay.dart';
 
 class TaskRuleListCard extends StatelessWidget {
   final String taskRuleId;
+  final bool selectionMode;
+  final bool selected;
+  final VoidCallback? onSelectionChanged;
+  final VoidCallback? onSelectedTaskRulesCompleted;
 
-  const TaskRuleListCard({super.key, required this.taskRuleId});
+  const TaskRuleListCard({
+    super.key,
+    required this.taskRuleId,
+    this.selectionMode = false,
+    this.selected = false,
+    this.onSelectionChanged,
+    this.onSelectedTaskRulesCompleted,
+  });
 
   Widget _filterWidget(BuildContext context, {required TaskRule taskRule, required Component? component, required Bike? bike}) {
     return Row(
@@ -197,12 +208,21 @@ class TaskRuleListCard extends StatelessWidget {
               : null);
 
     final statusColor = status.type.getStatusColor(context);
+    final defaultCardColor = Theme.of(context).cardTheme.color ?? Theme.of(context).colorScheme.surfaceContainerLow;
 
     final canSetDelay = !isCompleted && canQuickEditTaskDelay(taskRule, appSettings);
 
     final card = Opacity(
-      opacity: isCompleted ? 0.5 : 1,
-      child: Card(
+      opacity: isCompleted && !selected ? 0.5 : 1,
+      child: TweenAnimationBuilder<Color?>(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+        tween: ColorTween(
+          begin: defaultCardColor,
+          end: selected ? Theme.of(context).colorScheme.primaryContainer : defaultCardColor,
+        ),
+        builder: (context, color, child) => Card(
+        color: color,
         margin: const EdgeInsets.symmetric(vertical: 4.0),
         clipBehavior: Clip.antiAlias, // Borderradius for InkWell,
         child: ListTile(
@@ -210,24 +230,31 @@ class TaskRuleListCard extends StatelessWidget {
             value: isCompleted,
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             visualDensity: VisualDensity.compact,
-            onChanged: isCompleted
+            onChanged: isCompleted || (selectionMode && (!selected || onSelectedTaskRulesCompleted == null))
                 ? null
                 : (bool? value) async {
                     unawaited(HapticFeedback.lightImpact());
+                    if (selectionMode) {
+                      onSelectedTaskRulesCompleted!();
+                      return;
+                    }
                     await TaskActions.addTaskEntry(context, taskRule: taskRule);
                   },
           ),
           contentPadding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
           minTileHeight: 0,
-          onTap: () async {
-            await Navigator.push<void>(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    TaskRuleDetailsPage(taskRuleId: taskRuleId),
-              ),
-            );
-          },
+          onTap: selectionMode
+              ? onSelectionChanged
+              : () async {
+                  await Navigator.push<void>(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          TaskRuleDetailsPage(taskRuleId: taskRuleId),
+                    ),
+                  );
+                },
+          onLongPress: onSelectionChanged,
           titleAlignment: ListTileTitleAlignment.top,
           title: Text(
             taskRule.name,
@@ -321,13 +348,13 @@ class TaskRuleListCard extends StatelessWidget {
               ],
             ],
           ),
-          trailing: PopupMenuButton<_TaskRuleOptions>(
+          trailing: selectionMode ? null : PopupMenuButton<_TaskRuleOptions>(
             onSelected: (_TaskRuleOptions value) async {
               switch (value) {
                 case _TaskRuleOptions.edit:
                   await TaskActions.editTaskRule(context, taskRule: taskRule);
                 case _TaskRuleOptions.remove:
-                  await TaskActions.removeTaskRule(context, taskRule: taskRule);
+                  await TaskActions.removeTaskRules(context, taskRuleIds: [taskRule.id]);
                 case _TaskRuleOptions.duplicate:
                   await TaskActions.duplicateTaskRule(
                     context,
@@ -377,6 +404,7 @@ class TaskRuleListCard extends StatelessWidget {
           ),
         ),
       ),
+      ),
     );
 
     // Wrap the outermost widget in the Hero so the whole thing — including the
@@ -386,7 +414,7 @@ class TaskRuleListCard extends StatelessWidget {
     Widget wrapInHero(Widget child) =>
         Hero(tag: 'task-rule-card-${taskRule.id}', child: child);
 
-    if (!canSetDelay) return wrapInHero(card);
+    if (!canSetDelay || selectionMode) return wrapInHero(card);
 
     // The orange sits behind the card rather than in Dismissible's `background`,
     // which clips to the revealed strip and leaves a gap at the card's corners.

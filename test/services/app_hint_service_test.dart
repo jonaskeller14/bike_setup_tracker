@@ -100,6 +100,37 @@ void main() {
     expect(reloaded.statusOf(AppHint.setupTasksV1), AppHintStatus.completed);
   });
 
+  test('installation timeline dismissal is persisted', () async {
+    final service = createService();
+    await service.load();
+    await service.dismiss(AppHint.installationTimelineV1);
+
+    final reloaded = createService();
+    await reloaded.load();
+
+    expect(
+      reloaded.statusOf(AppHint.installationTimelineV1),
+      AppHintStatus.dismissed,
+    );
+  });
+
+  test('installation timeline offer is limited to simple histories', () async {
+    final service = createService();
+    await service.load();
+    final simpleHistory = [Installation.sinceBeginning(parent: 'bike')];
+    final now = DateTime.now();
+    final complexHistory = [
+      ...simpleHistory,
+      Uninstallation(dateTimeUTC: now.toUtc(), dateTimeLocal: now),
+    ];
+
+    expect(service.shouldOfferInstallationTimeline(simpleHistory), isTrue);
+    expect(service.shouldOfferInstallationTimeline(complexHistory), isFalse);
+
+    settings.enableInstallationTimeline = true;
+    expect(service.shouldOfferInstallationTimeline(simpleHistory), isFalse);
+  });
+
   test('resetAll clears progress and the in-memory session guard', () async {
     final service = createService();
     await service.load();

@@ -20,6 +20,7 @@ import '../hints/app_hint_slot.dart';
 import '../items/garage_bike_card.dart';
 import '../items/garage_uninstalled_card.dart';
 import '../sheets/installation_sheet.dart';
+import '../sheets/installation_timeline_hint_sheet.dart';
 
 class GarageList extends StatefulWidget {
   const GarageList({super.key});
@@ -77,6 +78,27 @@ class _GarageListState extends State<GarageList> {
     _scrollDelta = 0;
   }
 
+  Future<void> _offerInstallationTimeline(Component component) async {
+    final appSettings = context.read<AppSettings>();
+    final hintService = context.read<AppHintService>();
+    if (!hintService.shouldOfferInstallationTimeline(component.installations)) {
+      return;
+    }
+
+    final activate = await showInstallationTimelineHintSheet(
+      context,
+      component: component,
+    );
+    if (!mounted) return;
+
+    if (activate) {
+      appSettings.enableInstallationTimeline = true;
+      await hintService.complete(AppHint.installationTimelineV1);
+    } else {
+      await hintService.dismiss(AppHint.installationTimelineV1);
+    }
+  }
+
   void _onAcceptWithDetails({String? newBike}) async {
     if (_draggedComponentNotifier.value == null) return;
     final component = _draggedComponentNotifier.value!;
@@ -84,6 +106,8 @@ class _GarageListState extends State<GarageList> {
     final appSettings = context.read<AppSettings>();
 
     await Future.microtask(() async {
+      if (!mounted) return;
+      await _offerInstallationTimeline(component);
       if (!mounted) return;
 
       if (component.isArchived) {
@@ -151,6 +175,8 @@ class _GarageListState extends State<GarageList> {
     final appSettings = context.read<AppSettings>();
 
     await Future.microtask(() async {
+      if (!mounted) return;
+      await _offerInstallationTimeline(component);
       if (!mounted) return;
       if (shouldUseInstallationTimeline(
         featureEnabled: appSettings.enableInstallationTimeline,

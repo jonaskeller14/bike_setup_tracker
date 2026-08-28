@@ -454,7 +454,13 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                   leading: const Icon(Icons.history),
                   childrenPadding: const EdgeInsets.only(left: 20, right: 16),
                   children: [
-                    DisplayInstallationTimeline(component: component, showTaskEntries: true),
+                    DisplayInstallationTimeline(
+                      component: component,
+                      bikes: bikes,
+                      taskEntries: appRepository.taskEntries.values.where(
+                        (entry) => entry.componentId == component.id,
+                      ),
+                    ),
                   ],
                 ),
                 const Divider(height: 1),

@@ -3,7 +3,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/app_hint.dart';
 import '../models/app_settings.dart';
+import '../models/installation.dart';
 import '../repositories/app_repository.dart';
+import '../utils/installation_timeline_validation.dart';
 
 class AppHintService extends ChangeNotifier {
   static const _preferencePrefix = 'app_hint.';
@@ -43,6 +45,12 @@ class AppHintService extends ChangeNotifier {
   }
 
   AppHintStatus statusOf(AppHint hint) => _statuses[hint] ?? AppHintStatus.unseen;
+
+  bool shouldOfferInstallationTimeline(List<Installation> installations) {
+    return !_appSettings.enableInstallationTimeline &&
+        !isComplexInstallationTimeline(installations) &&
+        statusOf(AppHint.installationTimelineV1) == AppHintStatus.unseen;
+  }
 
   void update({
     required AppRepository appRepository,

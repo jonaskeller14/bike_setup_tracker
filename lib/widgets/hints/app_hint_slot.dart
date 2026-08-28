@@ -45,6 +45,7 @@ class AppHintSlot extends StatelessWidget {
       AppHint.stravaLinkGearV1 => StravaGearLinkHint(
         onDismiss: () => unawaited(hintService.dismiss(AppHint.stravaLinkGearV1)),
       ),
+      AppHint.installationTimelineV1 => const SizedBox.shrink(),
     };
   }
 

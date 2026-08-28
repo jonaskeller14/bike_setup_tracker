@@ -4,6 +4,7 @@ enum AppHint {
   setupTasksV1,
   setupCalendarV1,
   stravaLinkGearV1,
+  installationTimelineV1,
 }
 
 enum AppHintPlacement {

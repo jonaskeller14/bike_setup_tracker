@@ -20,6 +20,7 @@ class ComponentDetailsPageTable extends StatefulWidget {
   final bool sortAscending;
   final TableColumn? sortColumn;
   final Map<String, Bike> bikes;
+  final Map<String, int> setupActivityCounts;
   final dynamic Function(Setup setup, TableColumn column) valueFor;
   final String Function(TableColumn column) columnLabel;
   final void Function(TableColumn column, bool ascending) onSort;
@@ -35,6 +36,7 @@ class ComponentDetailsPageTable extends StatefulWidget {
     required this.sortAscending,
     required this.sortColumn,
     required this.bikes,
+    required this.setupActivityCounts,
     required this.valueFor,
     required this.columnLabel,
     required this.onSort,
@@ -182,6 +184,14 @@ class _ComponentDetailsPageTableState extends State<ComponentDetailsPageTable> {
             ),
           ),
           "Bike" => _scrollableTextCell(widget.bikes[setup.bike]?.name ?? '-'),
+          "Activities" => DataCell(
+            Center(
+              child: Text(
+                '${widget.setupActivityCounts[setup.id] ?? 0}',
+                key: ValueKey('setup-activity-count-${setup.id}'),
+              ),
+            ),
+          ),
           _ => const DataCell(Text("ERROR")),
         };
       case TableColumnSection.weatherContext:

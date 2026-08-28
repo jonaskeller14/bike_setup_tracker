@@ -162,6 +162,15 @@ void main() {
     setupActivityAnalysisService = service;
   }
 
+  Future<void> showActivitiesColumn(WidgetTester tester) async {
+    await tester.tap(find.widgetWithText(FilterChip, 'Columns'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilterChip, 'Activities'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.close));
+    await tester.pumpAndSettle();
+  }
+
   testWidgets('uses setup-aware rows-per-page options and defaults', (WidgetTester tester) async {
     final cases = <int, List<int>>{
       0: [1],
@@ -552,7 +561,7 @@ void main() {
 
   // ── Setup activity counts ─────────────────────────────────────────────────
 
-  testWidgets('gates the Activities column and clears its sort when activity data is removed', (
+  testWidgets('offers the Activities column when data exists and clears its sort when removed', (
     WidgetTester tester,
   ) async {
     final adjustment = StepAdjustment(
@@ -605,6 +614,7 @@ void main() {
     });
     await tester.pumpAndSettle();
 
+    await showActivitiesColumn(tester);
     expect(activitiesHeader(), findsOneWidget);
     expect(find.descendant(of: find.byType(DataTable), matching: find.text('1')), findsWidgets);
 
@@ -624,17 +634,6 @@ void main() {
     await tester.runAsync(() async {
       await insertActivity(2, setupTime.add(const Duration(hours: 2)));
       await waitForSetupCount('s1', 1);
-    });
-    await tester.pumpAndSettle();
-    expect(activitiesHeader(), findsOneWidget);
-
-    await tester.longPress(activitiesHeader());
-    await tester.pumpAndSettle();
-    expect(activitiesHeader(), findsNothing);
-
-    await tester.runAsync(() async {
-      await insertActivity(3, setupTime.add(const Duration(hours: 3)));
-      await waitForSetupCount('s1', 2);
     });
     await tester.pumpAndSettle();
     expect(activitiesHeader(), findsNothing);
@@ -687,6 +686,7 @@ void main() {
     await tester.pumpWidget(createWidgetUnderTest('comp1'));
     await _waitForComponent(tester, appRepository);
     await tester.pump(const Duration(milliseconds: 100));
+    await showActivitiesColumn(tester);
 
     final activitiesHeader = find.descendant(
       of: find.byType(DataTable),
@@ -769,6 +769,7 @@ void main() {
     expect(setupActivityAnalysisService.setupActivityCounts['visible'], 1);
     expect(find.text('Visible Setup'), findsWidgets);
     expect(find.text('Hidden Boundary'), findsWidgets);
+    await showActivitiesColumn(tester);
 
     appRepository.selectSetupTag('visible');
     await tester.pumpAndSettle();
@@ -833,6 +834,7 @@ void main() {
 
     expect(appRepository.stravaActivities.length, 50);
     expect(setupActivityAnalysisService.setupActivityCounts['s1'], 75);
+    await showActivitiesColumn(tester);
     expect(tester.widget<Text>(find.byKey(const ValueKey('setup-activity-count-s1'))).data, '75');
   });
 

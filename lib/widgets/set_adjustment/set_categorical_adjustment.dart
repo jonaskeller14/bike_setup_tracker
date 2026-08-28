@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
+import '../display_adjustment/adjustment_icon_name_notes.dart';
 import '../sheets/set_categorical.dart';
-import 'set_adjustment.dart';
 
 class SetCategoricalAdjustmentWidget extends StatelessWidget {
   final CategoricalAdjustment adjustment;
@@ -59,14 +59,7 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
         children: [
           Flexible(
             flex: 2,
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Icon(CategoricalAdjustment.iconData, color: highlightColor),
-                const SizedBox(width: 10),
-                nameNotesSetAdjustmentWidget(context: context, adjustment: adjustment, highlightColor: highlightColor),
-              ],
-            ),
+            child: AdjustmentIconNameNotes(adjustment: adjustment, color: highlightColor),
           ),
           Flexible(
             flex: 3,

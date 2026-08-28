@@ -61,7 +61,7 @@ class _InstallationTimelineHintSheet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SheetHeader(
-            title: 'Track installation history?',
+            title: 'Installation history',
             leadingIcon: Icon(Icons.history),
           ),
           const SizedBox(height: 16),
@@ -75,6 +75,13 @@ class _InstallationTimelineHintSheet extends StatelessWidget {
                     'Keep a dated history whenever you install, uninstall, move, or archive a component. '
                     'You can review past bike usage and correct the date before saving each change.',
                     style: theme.textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'No need to decide now. You can turn installation history on or off anytime in Settings.',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
                   ),
                   const SizedBox(height: 20),
                   Container(
@@ -112,11 +119,11 @@ class _InstallationTimelineHintSheet extends StatelessWidget {
                 FilledButton.icon(
                   onPressed: () => Navigator.pop(context, true),
                   icon: const Icon(Icons.history),
-                  label: const Text('Activate installation timeline'),
+                  label: const Text('Activate now'),
                 ),
                 TextButton(
                   onPressed: () => Navigator.pop(context, false),
-                  child: const Text("No thanks — don't ask again"),
+                  child: const Text('Continue without tracking'),
                 ),
               ],
             ),

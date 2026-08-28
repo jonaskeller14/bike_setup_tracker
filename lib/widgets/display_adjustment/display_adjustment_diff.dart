@@ -7,8 +7,7 @@ import '../../models/adjustment/adjustment.dart';
 import '../../models/setup_comparison.dart' as comparison;
 import '../../theme.dart';
 import '../../utils/unit_conversion.dart';
-import '../items/adjustment_type_icon.dart';
-import '../set_adjustment/set_adjustment.dart';
+import 'adjustment_icon_name_notes.dart';
 
 class DisplayAdjustmentDiff extends StatefulWidget {
   final String groupId;
@@ -63,19 +62,10 @@ class _DisplayAdjustmentDiffState extends State<DisplayAdjustmentDiff> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AdjustmentTypeIcon(adjustment, size: 20, color: changedColor),
-                const SizedBox(width: 8),
-                nameNotesSetAdjustmentWidget(
-                  context: context,
-                  adjustment: adjustment,
-                  highlightColor: changedColor,
-                  textStyle: Theme.of(context).textTheme.bodyMedium,
-                  infoIconSize: Theme.of(context).textTheme.bodyMedium?.fontSize,
-                ),
-              ],
+            AdjustmentIconNameNotes(
+              adjustment: adjustment,
+              compact: true,
+              color: changedColor,
             ),
             const SizedBox(height: 6),
             Row(

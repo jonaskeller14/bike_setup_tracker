@@ -41,12 +41,16 @@ void main() {
     final result = showInstallationTimelineHintSheet(context, component: component);
     await tester.pumpAndSettle();
 
-    expect(find.text('Track installation history?'), findsOneWidget);
+    expect(find.text('Installation history'), findsOneWidget);
+    expect(
+      find.text('No need to decide now. You can turn installation history on or off anytime in Settings.'),
+      findsOneWidget,
+    );
     expect(find.text('Example timeline'), findsOneWidget);
     expect(find.text('Trail bike'), findsOneWidget);
     expect(find.text('Enduro bike'), findsOneWidget);
 
-    await tester.tap(find.text('Activate installation timeline'));
+    await tester.tap(find.text('Activate now'));
     await tester.pumpAndSettle();
 
     expect(await result, isTrue);
@@ -57,7 +61,7 @@ void main() {
     final result = showInstallationTimelineHintSheet(context, component: component);
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text("No thanks — don't ask again"));
+    await tester.tap(find.text('Continue without tracking'));
     await tester.pumpAndSettle();
 
     expect(await result, isFalse);

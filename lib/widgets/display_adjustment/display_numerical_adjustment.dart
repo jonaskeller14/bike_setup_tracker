@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
-import '../set_adjustment/set_adjustment.dart';
+import 'adjustment_icon_name_notes.dart';
 import 'toggleable_unit_value.dart';
 
 class DisplayNumericalAdjustmentWidget extends StatelessWidget {
@@ -48,14 +48,7 @@ class DisplayNumericalAdjustmentWidget extends StatelessWidget {
         children: [
           Flexible(
             flex: 2,
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              spacing: 10,
-              children: [
-                Icon(NumericalAdjustment.iconData, color: highlightColor),
-                nameNotesSetAdjustmentWidget(context: context, adjustment: adjustment, highlightColor: highlightColor),
-              ],
-            )
+            child: AdjustmentIconNameNotes(adjustment: adjustment, color: highlightColor),
           ),
           Flexible(
             flex: 3,

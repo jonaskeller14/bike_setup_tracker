@@ -7,6 +7,7 @@ import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/app_hint_service.dart';
+import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/hints/app_hint_slot.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -64,6 +65,7 @@ void main() {
   });
 
   Widget buildSubject([AppHintPlacement placement = AppHintPlacement.garageHeader]) => MaterialApp(
+    theme: materialAppTheme,
     home: Scaffold(
       body: MultiProvider(
         providers: [
@@ -108,5 +110,4 @@ void main() {
     expect(service.statusOf(AppHint.setupTasksV1), AppHintStatus.completed);
     expect(find.text('Activate Tasks'), findsNothing);
   });
-
 }

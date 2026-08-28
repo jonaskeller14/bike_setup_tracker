@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../models/adjustment/adjustment.dart';
-import '../set_adjustment/set_adjustment.dart';
+import 'adjustment_icon_name_notes.dart';
 
 class DisplayDanglingAdjustmentWidget extends StatelessWidget {
   final String name;

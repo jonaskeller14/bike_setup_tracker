@@ -2,28 +2,40 @@ import 'package:flutter/material.dart';
 
 import '../../models/adjustment/adjustment.dart';
 import '../items/adjustment_properties.dart';
+import '../items/adjustment_type_icon.dart';
 
-Widget nameNotesSetAdjustmentWidget({
-  required BuildContext context,
-  required Adjustment adjustment,
-  required Color? highlightColor,
-  TextStyle? textStyle,
-  double? infoIconSize,
-}) {
-  final effectiveTextStyle = (textStyle ?? Theme.of(context).textTheme.bodyLarge)?.copyWith(color: highlightColor);
-  return Expanded(
-    child: Align(
-      alignment: Alignment.centerLeft,
-      child: adjustment.notes == null 
-          ? SelectableText(adjustment.name, style: effectiveTextStyle)
-          : Tooltip(
+class AdjustmentIconNameNotes extends StatelessWidget{
+  final Adjustment adjustment;
+  final Color? color;
+  final bool compact;
+  
+  const AdjustmentIconNameNotes({super.key, required this.adjustment, this.color, this.compact = false});
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final textStyle = compact
+        ? textTheme.bodyMedium?.copyWith(color: color)
+        : textTheme.bodyLarge?.copyWith(color: color);
+    final colorScheme = Theme.of(context).colorScheme;
+    
+    return Row(
+      mainAxisSize: MainAxisSize.max,
+      crossAxisAlignment: compact ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+      spacing: compact ? 8 : 10,
+      children: [
+        AdjustmentTypeIcon(adjustment, size: compact ? 20 : 24, color: color),
+        Expanded(
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Tooltip(
               triggerMode: TooltipTriggerMode.tap,
               preferBelow: false,
               showDuration: const Duration(seconds: 5),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.onSecondaryContainer,
                 borderRadius: BorderRadius.circular(8),
-                boxShadow: [BoxShadow(color: Theme.of(context).colorScheme.shadow, blurRadius: 4, offset: const Offset(0, 2))],
+                boxShadow: [BoxShadow(color: colorScheme.shadow, blurRadius: 4, offset: const Offset(0, 2))],
               ),
               padding: const EdgeInsets.all(12),
               richMessage: WidgetSpan(
@@ -34,15 +46,15 @@ Widget nameNotesSetAdjustmentWidget({
                   children: [
                     Text(
                       adjustment.name,
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSecondary,
+                      style: textTheme.labelMedium?.copyWith(
+                        color: colorScheme.onSecondary,
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     AdjustmentProperties(
                       adjustment,
-                      color: Theme.of(context).colorScheme.onSecondary,
+                      color: colorScheme.onSecondary,
                     ),
                     if (adjustment.notes != null)
                       Row(
@@ -54,7 +66,7 @@ Widget nameNotesSetAdjustmentWidget({
                             child: Icon(
                               Icons.notes,
                               size: 13,
-                              color: Theme.of(context).colorScheme.onSecondary,
+                              color: colorScheme.onSecondary,
                             ),
                           ),
                           const SizedBox(width: 2),
@@ -62,7 +74,7 @@ Widget nameNotesSetAdjustmentWidget({
                             child: Text(
                               adjustment.notes!,
                               style: TextStyle(
-                                color: Theme.of(context).colorScheme.onSecondary,
+                                color: colorScheme.onSecondary,
                                 fontSize: 13,
                               ),
                             ),
@@ -74,7 +86,7 @@ Widget nameNotesSetAdjustmentWidget({
               ),
               child: Text.rich( // not selectable because conflict with tooltip
                 TextSpan(
-                  style: effectiveTextStyle,
+                  style: textStyle,
                   children: [
                     TextSpan(text: adjustment.name),
                     WidgetSpan(
@@ -85,8 +97,8 @@ Widget nameNotesSetAdjustmentWidget({
                           opacity: 0.5,
                           child: Icon(
                             Icons.info_outline,
-                            color: highlightColor,
-                            size: infoIconSize ?? Theme.of(context).textTheme.bodyMedium?.fontSize,
+                            color: color,
+                            size: textTheme.bodyMedium?.fontSize,
                           ),
                         ),
                       ),
@@ -95,8 +107,11 @@ Widget nameNotesSetAdjustmentWidget({
                 ),
               ),
             ),
-    ),
-  );
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 Widget nameSetAdjustmentWidget({required BuildContext context, required String name, required Color? highlightColor}) {

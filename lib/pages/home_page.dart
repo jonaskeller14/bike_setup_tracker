@@ -23,6 +23,7 @@ import '../widgets/lists/rating_list.dart';
 import '../widgets/lists/setup_list.dart';
 import '../widgets/lists/setup_list_controller.dart';
 import '../widgets/lists/task_list.dart';
+import '../widgets/lists/task_list_controller.dart';
 import '../widgets/sheets/export.dart';
 import '../widgets/sheets/import.dart';
 import '../widgets/sheets/share.dart';
@@ -40,6 +41,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int? _currentPageIndex;
   final SetupListController _setupListController = SetupListController();
+  final TaskListController _taskListController = TaskListController();
   final Set<String> _selectedTaskRules = {};
   bool _isDeletingTaskRules = false;
   bool _isCompletingTaskRules = false;
@@ -92,6 +94,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     _setupListController.dispose();
+    _taskListController.dispose();
     super.dispose();
   }
 
@@ -233,6 +236,7 @@ class _HomePageState extends State<HomePage> {
             if (appSettings.enableRating) const RatingList(),
             if (appSettings.enableTask)
               TaskList(
+                controller: _taskListController,
                 selectedTaskRules: _selectedTaskRules,
                 onTaskRuleSelectionChanged: _isCompletingTaskRules ? null : _toggleTaskRuleSelection,
                 onSelectedTaskRulesCompleted: _isCompletingTaskRules ? null : _completeSelectedTaskRules,
@@ -294,13 +298,31 @@ class _HomePageState extends State<HomePage> {
             child: const Icon(Icons.add),
           ),
         if (appSettings.enableTask)
-          FloatingActionButton(
-            heroTag: "addTask",
-            onPressed: () async {
-              await TaskActions.addTaskRule(context);
-            },
-            tooltip: 'Add Task',
-            child: const Icon(Icons.add),
+          ListenableBuilder(
+            listenable: _taskListController,
+            builder: (context, child) => Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                if (_taskListController.showBackToTop) ...[
+                  FloatingActionButton.small(
+                    heroTag: "taskBackToTop",
+                    onPressed: _taskListController.scrollBackToTop,
+                    tooltip: 'Back to top',
+                    child: const Icon(Icons.arrow_upward),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                FloatingActionButton(
+                  heroTag: "addTask",
+                  onPressed: () async {
+                    await TaskActions.addTaskRule(context);
+                  },
+                  tooltip: 'Add Task',
+                  child: const Icon(Icons.add),
+                ),
+              ],
+            ),
           ),
       ][pageIndex],
       ),

@@ -89,20 +89,21 @@ class AdjustmentIconNameNotes extends StatelessWidget{
                   style: textStyle,
                   children: [
                     TextSpan(text: adjustment.name),
-                    WidgetSpan(
-                      alignment: PlaceholderAlignment.middle,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 2),
-                        child: Opacity(
-                          opacity: 0.5,
-                          child: Icon(
-                            Icons.info_outline,
-                            color: color,
-                            size: textTheme.bodyMedium?.fontSize,
+                    if (adjustment.notes != null)
+                      WidgetSpan(
+                        alignment: PlaceholderAlignment.middle,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 2),
+                          child: Opacity(
+                            opacity: 0.5,
+                            child: Icon(
+                              Icons.info_outline,
+                              color: color,
+                              size: textTheme.bodyMedium?.fontSize,
+                            ),
                           ),
                         ),
                       ),
-                    ),
                   ],
                 ),
               ),

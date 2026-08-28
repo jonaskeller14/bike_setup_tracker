@@ -58,7 +58,17 @@ class SetupPage extends StatefulWidget {
     this.initialBike,
   });
 
-  factory SetupPage.add({Key? key}) => SetupPage._(key: key, mode: SetupPageMode.add);
+  factory SetupPage.add({
+    Key? key,
+    DateTime? initialDateTimeUtc,
+    DateTime? initialDateTimeLocal,
+  }) =>
+      SetupPage._(
+        key: key,
+        mode: SetupPageMode.add,
+        initialDateTimeUtc: initialDateTimeUtc,
+        initialDateTimeLocal: initialDateTimeLocal,
+      );
 
   factory SetupPage.addFromStravaActivity({
     Key? key, 

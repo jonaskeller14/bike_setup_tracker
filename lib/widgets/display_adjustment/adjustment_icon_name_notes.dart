@@ -157,12 +157,12 @@ class _AdjustmentIconNameNotesState extends State<AdjustmentIconNameNotes> {
                         ],
                       ),
                     if (_analysisService?.hasAnyActivity == true && _isLoading)
-                      const Padding(
-                        padding: EdgeInsets.only(top: 8),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
                         child: Center(
                           child: SizedBox.square(
                             dimension: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2),
+                            child: CircularProgressIndicator(strokeWidth: 2, color: colorScheme.onSecondary),
                           ),
                         ),
                       ),

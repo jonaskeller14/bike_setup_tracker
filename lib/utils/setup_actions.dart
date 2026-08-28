@@ -14,7 +14,10 @@ import 'component_actions.dart';
 import 'to_text.dart';
 
 class SetupActions {
-  static Future<void> addSetup(BuildContext context) async {
+  static Future<void> addSetup(
+    BuildContext context, {
+    DateTime? initialDateTimeLocal,
+  }) async {
     final appRepository = context.read<AppRepository>();
 
     if (appRepository.bikes.values.isEmpty) {
@@ -46,7 +49,12 @@ class SetupActions {
 
     final newSetup = await Navigator.push<Setup>(
       context,
-      MaterialPageRoute(builder: (context) => SetupPage.add()),
+      MaterialPageRoute(
+        builder: (context) => SetupPage.add(
+          initialDateTimeUtc: initialDateTimeLocal?.toUtc(),
+          initialDateTimeLocal: initialDateTimeLocal,
+        ),
+      ),
     );
     if (newSetup == null) return;
 

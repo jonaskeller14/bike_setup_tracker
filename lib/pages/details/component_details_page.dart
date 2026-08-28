@@ -464,7 +464,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
               if (shouldUseInstallationTimeline(
                 featureEnabled: appSettings.enableInstallationTimeline,
                 installations: component.installations,
-              )) ...[
+              ) || appRepository.taskEntries.values.any((te) => te.componentId == widget.componentId)) ...[
                 ExpansionTile(
                   shape: const Border(),
                   collapsedShape: const Border(),

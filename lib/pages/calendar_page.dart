@@ -17,6 +17,7 @@ import '../models/timeline_entry.dart';
 import '../repositories/app_repository.dart';
 import '../services/subscription_service.dart';
 import '../utils/installation_timeline_validation.dart';
+import '../utils/setup_actions.dart';
 import '../utils/timeline_grouping.dart';
 import '../widgets/app_snackbar.dart';
 import '../widgets/chips/filter_sheet_chip.dart';
@@ -38,6 +39,20 @@ const double kCalendarHeaderHeight = 48;
 const double kCalendarViewHeaderHeight = 30;
 const int kCalendarMonthWeekRows = 6;
 const double kCalendarMonthCellMinHeight = 95;
+
+DateTime calendarSlotStart(DateTime date) => date.copyWith(
+      minute: (date.minute ~/ kCalendarZeroDuration.inMinutes) *
+          kCalendarZeroDuration.inMinutes,
+      second: 0,
+      millisecond: 0,
+      microsecond: 0,
+    );
+
+class CalendarAddSetupSlot {
+  const CalendarAddSetupSlot(this.date);
+
+  final DateTime date;
+}
 
 DateTime calendarDisplayDateForDay(DateTime day, List<TimelineEntry> entries) {
   final target = DateUtils.dateOnly(day);
@@ -139,6 +154,8 @@ class _CalendarPageState extends State<CalendarPage> {
   static const _defaultView = _CalendarView.month;
   _CalendarView _selectedView = _defaultView;
   _CalendarView? _returnView;
+  DateTime? _pendingSetupDate;
+  bool _addingSetup = false;
 
   /// Dates currently visible, fed from [SfCalendar.onViewChanged]; used to tell
   /// whether "today" is already on screen (to disable the Today button).
@@ -161,6 +178,7 @@ class _CalendarPageState extends State<CalendarPage> {
       _selectedView = option;
       _controller.view = option.view;
       _returnView = null;
+      _pendingSetupDate = null;
     });
   }
 
@@ -189,6 +207,7 @@ class _CalendarPageState extends State<CalendarPage> {
       _selectedView = returnView;
       _controller.view = returnView.view;
       _returnView = null;
+      _pendingSetupDate = null;
     });
     return true;
   }
@@ -270,6 +289,7 @@ class _CalendarPageState extends State<CalendarPage> {
   Future<void> _onTap(CalendarTapDetails details, List<TimelineEntry> entries) async {
     switch (details.targetElement) {
       case CalendarElement.viewHeader:
+        _clearPendingSetup();
         final date = details.date;
         if (date == null) return;
         if (_selectedView == _CalendarView.threeDay) {
@@ -283,19 +303,40 @@ class _CalendarPageState extends State<CalendarPage> {
           });
         }
       case CalendarElement.calendarCell:
-        if (_selectedView != _CalendarView.month) return;
         final date = details.date;
         if (date == null) return;
-        setState(() {
-          _returnView = _selectedView;
-          _selectedView = _CalendarView.day;
-          _controller.view = CalendarView.day;
-          _controller.displayDate = calendarDisplayDateForDay(date, entries);
-        });
+        if (_selectedView == _CalendarView.month) {
+          setState(() {
+            _returnView = _selectedView;
+            _selectedView = _CalendarView.day;
+            _controller.view = CalendarView.day;
+            _controller.displayDate = calendarDisplayDateForDay(date, entries);
+            _pendingSetupDate = null;
+          });
+          return;
+        }
+        if (_selectedView != _CalendarView.day &&
+            _selectedView != _CalendarView.threeDay &&
+            _selectedView != _CalendarView.week) {
+          return;
+        }
+        final slotStart = calendarSlotStart(date);
+        if (_pendingSetupDate == slotStart) {
+          await _addSetupAtPendingDate();
+          return;
+        }
+        await HapticFeedback.selectionClick();
+        if (!mounted) return;
+        setState(() => _pendingSetupDate = slotStart);
       case CalendarElement.appointment:
+        _clearPendingSetup();
         final appointments = details.appointments;
         if (appointments == null || appointments.isEmpty) return;
         final row = appointments.first;
+        if (row is CalendarAddSetupSlot) {
+          await _addSetupAtDate(row.date);
+          return;
+        }
         if (row is! EntryRow) return;
 
         switch (row) {
@@ -311,7 +352,36 @@ class _CalendarPageState extends State<CalendarPage> {
           case SetupGroupRow():
             return;
         }
-      default: return;
+      default:
+        _clearPendingSetup();
+        return;
+    }
+  }
+
+  void _clearPendingSetup() {
+    if (_pendingSetupDate == null || !mounted) return;
+    setState(() => _pendingSetupDate = null);
+  }
+
+  Future<void> _addSetupAtPendingDate() async {
+    final date = _pendingSetupDate;
+    if (date == null) return;
+    await _addSetupAtDate(date);
+  }
+
+  Future<void> _addSetupAtDate(DateTime date) async {
+    if (_addingSetup) return;
+    _addingSetup = true;
+    await HapticFeedback.selectionClick();
+    if (!mounted) {
+      _addingSetup = false;
+      return;
+    }
+    setState(() => _pendingSetupDate = null);
+    try {
+      await SetupActions.addSetup(context, initialDateTimeLocal: date);
+    } finally {
+      _addingSetup = false;
     }
   }
 
@@ -494,6 +564,10 @@ class _CalendarPageState extends State<CalendarPage> {
     final subscriptionService = context.watch<SubscriptionService>();
     final entries = _buildEntries(appRepository, appSettings, subscriptionService);
     final rows = buildCalendarRows(entries, appSettings);
+    final calendarItems = <Object>[
+      ...rows,
+      if (_pendingSetupDate case final date?) CalendarAddSetupSlot(date),
+    ];
     final cs = Theme.of(context).colorScheme;
 
     return PopScope(
@@ -583,7 +657,7 @@ class _CalendarPageState extends State<CalendarPage> {
                     view: _defaultView.view,
                     firstDayOfWeek: appSettings.firstDayOfWeek,
                     maxDate: DateTime.now().add(kCalendarZeroDuration),
-                    dataSource: CalendarTimelineDataSource(rows, cs),
+                    dataSource: CalendarTimelineDataSource(calendarItems, cs),
                     allowDragAndDrop: true,
                     dragAndDropSettings: DragAndDropSettings(
                       indicatorTimeFormat: appSettings.timeFormat,
@@ -692,6 +766,9 @@ class _CalendarPageState extends State<CalendarPage> {
     }
 
     final row = details.appointments.first;
+    if (row is CalendarAddSetupSlot) {
+      return _addSetupAppointment(context, details, row);
+    }
     if (row is! EntryRow) return const SizedBox.shrink();
     final cs = Theme.of(context).colorScheme;
     final color = calendarColorForRow(row, cs);
@@ -753,23 +830,74 @@ class _CalendarPageState extends State<CalendarPage> {
             ),
     );
   }
+
+  Widget _addSetupAppointment(
+    BuildContext context,
+    CalendarAppointmentDetails details,
+    CalendarAddSetupSlot slot,
+  ) {
+    final cs = Theme.of(context).colorScheme;
+    final showLabel = details.bounds.width >= 88;
+    return Material(
+      color: cs.primaryContainer,
+      shape: RoundedRectangleBorder(
+        side: BorderSide(color: cs.primary),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => _addSetupAtDate(slot.date),
+        child: Center(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.add, size: 18, color: cs.onPrimaryContainer),
+              if (showLabel) ...[
+                const SizedBox(width: 2),
+                Flexible(
+                  child: Text(
+                    'Add setup',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: cs.onPrimaryContainer,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
-class CalendarTimelineDataSource extends CalendarDataSource<EntryRow> {
-  CalendarTimelineDataSource(List<EntryRow> source, this._cs) {
+class CalendarTimelineDataSource extends CalendarDataSource<Object> {
+  CalendarTimelineDataSource(List<Object> source, this._cs) {
     appointments = source;
   }
 
   final ColorScheme _cs;
 
-  EntryRow _row(int index) => appointments![index] as EntryRow;
+  Object _item(int index) => appointments![index] as Object;
 
   @override
-  DateTime getStartTime(int index) => _row(index).anchorDateLocal;
+  DateTime getStartTime(int index) => switch (_item(index)) {
+        EntryRow(:final anchorDateLocal) => anchorDateLocal,
+        CalendarAddSetupSlot(:final date) => date,
+        _ => throw StateError('Unsupported calendar item'),
+      };
 
   @override
   DateTime getEndTime(int index) {
-    final row = _row(index);
+    final item = _item(index);
+    if (item case CalendarAddSetupSlot(:final date)) {
+      return date.add(kCalendarZeroDuration);
+    }
+    final row = item as EntryRow;
     return switch (row) {
       // Anchored to the row's start (not `startDate.toLocal()`) so the span
       // stays positive for activities recorded in another timezone.
@@ -796,17 +924,25 @@ class CalendarTimelineDataSource extends CalendarDataSource<EntryRow> {
   }
 
   @override
-  String getSubject(int index) => calendarSubjectForRow(_row(index));
+  String getSubject(int index) => switch (_item(index)) {
+        final EntryRow row => calendarSubjectForRow(row),
+        CalendarAddSetupSlot() => 'Add setup',
+        _ => '',
+      };
 
   @override
-  Color getColor(int index) => calendarColorForRow(_row(index), _cs);
+  Color getColor(int index) => switch (_item(index)) {
+        final EntryRow row => calendarColorForRow(row, _cs),
+        CalendarAddSetupSlot() => _cs.primaryContainer,
+        _ => Colors.transparent,
+      };
 
   // Required for drag-and-drop with custom appointment objects. The new date is
   // applied by [_onDragEnd] via the repository, so we just hand back the same
   // row to satisfy the framework's non-null conversion contract.
   @override
-  EntryRow convertAppointmentToObject(
-          EntryRow customData, Appointment appointment) =>
+  Object convertAppointmentToObject(
+          Object customData, Appointment appointment) =>
       customData;
 }
 

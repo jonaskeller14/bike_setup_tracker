@@ -303,12 +303,16 @@ class _SetupBikeTabState extends State<SetupBikeTab> {
                       )),
                       leading: Icon(bikeComponent.componentType.getIconData()),
                       enabled: bikeComponent.adjustments.isNotEmpty,
-                      trailing: _initiallyEmptyComponentIds.contains(bikeComponent.id)
-                          ? IconButton(
-                              onPressed: () => ComponentActions.addAdjustmentForComponent(context, component: bikeComponent),
-                              icon: const Icon(Icons.add),
-                            )
-                          : null,
+                      trailing: IconButton(
+                        onPressed: () => ComponentActions.addAdjustmentForComponent(context, component: bikeComponent),
+                        icon: const Icon(Icons.add),
+                      ),
+                      // trailing: _initiallyEmptyComponentIds.contains(bikeComponent.id)
+                      //     ? IconButton(
+                      //         onPressed: () => ComponentActions.addAdjustmentForComponent(context, component: bikeComponent),
+                      //         icon: const Icon(Icons.add),
+                      //       )
+                      //     : null,
                     ),
                   ),
                   AdjustmentSetList(

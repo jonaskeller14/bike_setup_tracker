@@ -26,6 +26,7 @@ import 'services/google_drive_service.dart';
 import 'services/navigation_service.dart';
 import 'services/notification_service.dart';
 import 'services/quick_actions_service.dart';
+import 'services/setup_activity_analysis_service.dart';
 import 'services/strava_service.dart';
 import 'services/subscription_service.dart';
 import 'services/tip_service.dart';
@@ -153,6 +154,9 @@ class _LoadingGateState extends State<LoadingGate> {
           return MultiProvider(
             providers: [
               Provider<AppDatabase>.value(value: widget.appRepository.database),
+              ChangeNotifierProvider<SetupActivityAnalysisService>(
+                create: (_) => SetupActivityAnalysisService(widget.appRepository.database),
+              ),
               Provider<ComponentPresetRepository>(create: (_) => ComponentPresetRepository()),
               ChangeNotifierProvider.value(value: widget.appSettings),
               ChangeNotifierProvider.value(value: widget.appRepository),

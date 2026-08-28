@@ -19,6 +19,7 @@ import '../models/setup.dart';
 import '../models/strava/strava_activity.dart';
 import '../repositories/app_repository.dart';
 import '../services/address_service.dart';
+import '../services/elevation_service.dart';
 import '../services/image_storage_service.dart';
 import '../services/location_service.dart';
 import '../services/setup_resolution_service.dart';
@@ -119,6 +120,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   final Map<String, dynamic> _danglingPersonAdjustmentValues = {};
 
   final LocationService _locationService = LocationService();
+  final ElevationService _elevationService = ElevationService();
   final ValueNotifier<ContextPosition?> _currentLocation = ValueNotifier<ContextPosition?>(null);
 
   final AddressService _addressService = AddressService();
@@ -301,7 +303,10 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
   Future<bool> updateLocation() async {
     final previousLocation = _currentLocation.value;
-    final newLocation = await _locationService.fetchLocation();
+    final fetchedLocation = await _locationService.fetchLocation();
+    final newLocation = fetchedLocation == null
+        ? null
+        : await _elevationService.addMissingElevation(fetchedLocation);
     
     if (!mounted) return false;
     if (newLocation == null) {

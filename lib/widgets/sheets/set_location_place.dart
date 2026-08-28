@@ -45,6 +45,7 @@ Future<LocationAndPlace?> showSetLocationPlaceSheet({
 
 class SetLocationPlaceSheetContent extends StatefulWidget {
   final LocationService locationService;
+  final ElevationService? elevationService;
   final ContextPosition? currentLocation;
   final AddressService addressService;
   final geo.Placemark? currentPlace;
@@ -52,6 +53,7 @@ class SetLocationPlaceSheetContent extends StatefulWidget {
   const SetLocationPlaceSheetContent({
     super.key,
     required this.locationService,
+    this.elevationService,
     required this.currentLocation,
     required this.addressService,
     required this.currentPlace,
@@ -71,7 +73,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
   String? _addressTextFieldErrorText;
   String? _settingsErrorMessage;
 
-  final ElevationService _elevationService = ElevationService();
+  late final ElevationService _elevationService;
 
   ContextPosition? _currentLocation;
   geo.Placemark? _currentPlace;
@@ -80,6 +82,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
   void initState() {
     super.initState();
 
+    _elevationService = widget.elevationService ?? ElevationService();
     _currentLocation = widget.currentLocation;
     _currentPlace = widget.currentPlace;
     _setFieldsFromLocationPlace();
@@ -124,9 +127,11 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
     setState(() {
       _addressTextFieldErrorText = null;
     });
-    final newLocation = await widget.locationService.fetchLocation();
+    final fetchedLocation = await widget.locationService.fetchLocation();
     if (!mounted) return;
-    if (newLocation == null) return;
+    if (fetchedLocation == null) return;
+    final newLocation = await _elevationService.addMissingElevation(fetchedLocation);
+    if (!mounted) return;
     setState(() {
       _currentLocation = newLocation;
       _setFieldsFromLocationPlace();
@@ -175,13 +180,10 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
     if (_currentLocation?.latitude == null || _currentLocation?.longitude == null) return;
 
     // 2: LOCATION Altitude
-    final newAltitude = await _elevationService.fetchElevation(
-      lat: _currentLocation!.latitude!,
-      lon: _currentLocation!.longitude!,
-    );
+    final locationWithElevation = await _elevationService.addMissingElevation(_currentLocation!);
     if (!mounted) return;
     setState(() {
-      _currentLocation = (_currentLocation ?? const ContextPosition()).copyWith(altitude: newAltitude);
+      _currentLocation = locationWithElevation;
       _setFieldsFromLocationPlace();
     });
 

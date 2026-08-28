@@ -1,12 +1,31 @@
 import 'dart:async';
 
 import 'package:bike_setup_tracker/models/context/context_position.dart';
+import 'package:bike_setup_tracker/services/elevation_service.dart';
 import 'package:bike_setup_tracker/services/location_provider.dart';
 import 'package:bike_setup_tracker/services/location_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geolocator/geolocator.dart' as geo;
 
 void main() {
+  group('ElevationService.addMissingElevation', () {
+    test('adds fetched elevation when altitude is missing', () async {
+      final result = await FakeElevationService(512).addMissingElevation(
+        const ContextPosition(latitude: 47.1, longitude: 8.2),
+      );
+
+      expect(result.altitude, 512);
+    });
+
+    test('preserves altitude already reported by the location provider', () async {
+      final service = FakeElevationService(900);
+      const position = ContextPosition(latitude: 47.1, longitude: 8.2, altitude: 512);
+
+      expect(await service.addMissingElevation(position), same(position));
+      expect(service.fetchCalls, 0);
+    });
+  });
+
   group('LocationService.fetchLocation', () {
     test('reports disabled services without checking permission', () async {
       final provider = FakeLocationProvider()..serviceEnabled = false;
@@ -228,7 +247,39 @@ void main() {
       expect(result.speed, isNull);
       expect(result.speedAccuracy, isNull);
     });
+
+    test('keeps non-zero altitude when Android loses the availability flag', () {
+      final result = GeolocatorLocationProvider.mapPosition(
+        geo.Position(
+          latitude: 47.1,
+          longitude: 8.2,
+          timestamp: DateTime.utc(2026, 8, 27),
+          accuracy: 0,
+          altitude: 512,
+          altitudeAccuracy: 0,
+          heading: 0,
+          headingAccuracy: 0,
+          speed: 0,
+          speedAccuracy: 0,
+        ),
+      );
+
+      expect(result.altitude, 512);
+    });
   });
+}
+
+class FakeElevationService extends ElevationService {
+  final double? elevation;
+  int fetchCalls = 0;
+
+  FakeElevationService(this.elevation);
+
+  @override
+  Future<double?> fetchElevation({required double lat, required double lon}) async {
+    fetchCalls++;
+    return elevation;
+  }
 }
 
 class FakeLocationProvider implements LocationProvider {

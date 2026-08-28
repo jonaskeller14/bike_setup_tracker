@@ -81,7 +81,10 @@ class GeolocatorLocationProvider implements LocationProvider {
     return ContextPosition(
       latitude: position.latitude,
       longitude: position.longitude,
-      altitude: position.hasAltitude ? position.altitude : null,
+      // geolocator_android 5.0.3 loses the availability flags while wrapping
+      // Position as AndroidPosition. A missing altitude is still represented as
+      // zero, so preserve a non-zero native value even when the flag was lost.
+      altitude: position.hasAltitude || position.altitude != 0 ? position.altitude : null,
       accuracy: position.hasAccuracy ? position.accuracy : null,
       heading: position.hasHeading ? position.heading : null,
       speed: position.hasSpeed ? position.speed : null,

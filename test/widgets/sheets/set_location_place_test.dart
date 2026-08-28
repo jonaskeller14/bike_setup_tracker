@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/context/context_position.dart';
 import 'package:bike_setup_tracker/services/address_service.dart';
+import 'package:bike_setup_tracker/services/elevation_service.dart';
 import 'package:bike_setup_tracker/services/location_provider.dart';
 import 'package:bike_setup_tracker/services/location_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
@@ -31,6 +32,7 @@ void main() {
       child: Scaffold(
         body: SetLocationPlaceSheetContent(
           locationService: service,
+          elevationService: FakeElevationService(),
           currentLocation: currentLocation,
           addressService: FakeAddressService(),
           currentPlace: currentPlace,
@@ -168,6 +170,14 @@ class FakeAddressService extends AddressService {
   Future<geo.Placemark?> fetchAddress({required double lat, required double lon}) async {
     setStatus(AddressStatus.success);
     return null;
+  }
+}
+
+class FakeElevationService extends ElevationService {
+  @override
+  Future<double?> fetchElevation({required double lat, required double lon}) async {
+    setStatus(ElevationStatus.success);
+    return 512;
   }
 }
 

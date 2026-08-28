@@ -20,6 +20,7 @@ import '../models/rating_entry.dart';
 import '../models/rating_metric.dart';
 import '../repositories/app_repository.dart';
 import '../services/address_service.dart';
+import '../services/elevation_service.dart';
 import '../services/location_service.dart';
 import '../services/rating_score_service.dart';
 import '../services/weather_service.dart';
@@ -105,6 +106,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
   final Map<String, dynamic> _initialMetricValues = {};
 
   final LocationService _locationService = LocationService();
+  final ElevationService _elevationService = ElevationService();
   final ValueNotifier<ContextPosition?> _currentLocation = ValueNotifier<ContextPosition?>(null);
 
   final AddressService _addressService = AddressService();
@@ -207,7 +209,10 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
 
   Future<bool> updateLocation() async {
     final previousLocation = _currentLocation.value;
-    final newLocation = await _locationService.fetchLocation();
+    final fetchedLocation = await _locationService.fetchLocation();
+    final newLocation = fetchedLocation == null
+        ? null
+        : await _elevationService.addMissingElevation(fetchedLocation);
 
     if (!mounted) return false;
     if (newLocation == null) {

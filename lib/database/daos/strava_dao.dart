@@ -32,6 +32,70 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
   Future<List<StravaAthleteDb>> getAllAthletesBypass() => select(stravaAthletes).get();
   Future<List<StravaGearDb>> getAllGearsBypass() => select(stravaGears).get();
   Future<List<StravaActivityDb>> getAllActivitiesBypass() => select(stravaActivities).get();
+
+  /// Counts complete local activity history against every non-deleted setup.
+  ///
+  /// Setup intervals are half-open: a setup is active from its UTC timestamp up
+  /// to, but not including, the next setup's UTC timestamp on the same bike.
+  /// The latest setup remains open-ended.
+  Future<Map<String, int>> getSetupActivityCounts() async {
+    final rows = await customSelect(
+      '''
+      WITH setup_intervals AS (
+        SELECT
+          s.id AS setup_id,
+          s.bike_id,
+          s.datetime AS interval_start,
+          LEAD(s.datetime) OVER (
+            PARTITION BY s.bike_id
+            ORDER BY s.datetime, s.id
+          ) AS interval_end
+        FROM setups s
+        WHERE s.is_deleted = 0
+      )
+      SELECT
+        si.setup_id,
+        COUNT(DISTINCT a.id) AS activity_count
+      FROM setup_intervals si
+      JOIN bikes b ON b.id = si.bike_id
+      LEFT JOIN strava_activities a
+        ON a.gear_id = b.strava_gear
+        AND (si.interval_end IS NULL OR a.start_date < si.interval_end)
+        AND a.start_date + a.elapsed_time > si.interval_start
+      GROUP BY si.setup_id
+      ''',
+      readsFrom: {db.setups, db.bikes, stravaActivities},
+    ).get();
+
+    return {
+      for (final row in rows)
+        row.read<String>('setup_id'): row.read<int>('activity_count'),
+    };
+  }
+
+  Future<bool> hasAnyActivity() async {
+    final row = await _hasAnyActivityQuery().getSingle();
+    return row.read<int>('has_any_activity') != 0;
+  }
+
+  Stream<bool> watchHasAnyActivity() {
+    return _hasAnyActivityQuery()
+        .watchSingle()
+        .map((row) => row.read<int>('has_any_activity') != 0)
+        .distinct();
+  }
+
+  Selectable<QueryRow> _hasAnyActivityQuery() {
+    return customSelect(
+      '''
+      SELECT EXISTS(
+        SELECT 1 FROM strava_activities LIMIT 1
+      ) AS has_any_activity
+      ''',
+      readsFrom: {stravaActivities},
+    );
+  }
+
   /// Paginated activities, optionally filtered by gear so the filter is applied
   /// in SQL rather than after a global fetch.
   ///

@@ -35,7 +35,7 @@ class AppSettings extends ChangeNotifier {
   bool _useMapBoxTiles = false;
   bool _enableCalendar = false;
   bool _enableSetupImages = false;
-  bool _enableSetupComparison = false;
+  bool _enableSetupComparison = true;
   bool _enableComponentPresets = false;
   // Setup timeline grouping passes (debug-only, see FeaturesPage)
   bool _enableTimelineDayHeaders = true;

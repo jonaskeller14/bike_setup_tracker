@@ -10,6 +10,7 @@ import '../app_snackbar.dart';
 import 'garage_list_hint.dart';
 import 'getting_started_guide_hint.dart';
 import 'setup_calendar_hint.dart';
+import 'setup_comparison_hint.dart';
 import 'setup_task_hint.dart';
 import 'strava_gear_link_hint.dart';
 
@@ -41,6 +42,9 @@ class AppHintSlot extends StatelessWidget {
       AppHint.setupCalendarV1 => SetupCalendarHint(
         onDismiss: () => unawaited(hintService.dismiss(AppHint.setupCalendarV1)),
         onActivate: () => _enableCalendar(context, hintService),
+      ),
+      AppHint.setupComparisonV1 => SetupComparisonHint(
+        onDismiss: () => unawaited(hintService.dismiss(AppHint.setupComparisonV1)),
       ),
       AppHint.stravaLinkGearV1 => StravaGearLinkHint(
         onDismiss: () => unawaited(hintService.dismiss(AppHint.stravaLinkGearV1)),

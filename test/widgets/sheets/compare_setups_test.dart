@@ -1,3 +1,4 @@
+import 'package:bike_setup_tracker/models/app_hint.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/compare_setups/setup_comparison_header.dart';
@@ -96,6 +97,25 @@ void main() {
     await settle(tester);
 
     expect(find.byKey(const Key('compare-row-fork-pressure')), findsOneWidget);
+  });
+
+  testWidgets('shows and dismisses the comparison hint above Context', (tester) async {
+    final (setupAId, setupBId) = await seedPair(tester);
+    await harness.hintService.resetAll();
+    await pumpComparison(tester, setupAId, setupBId);
+
+    expect(find.byKey(const Key('compare-setups-hint')), findsOneWidget);
+    expect(find.text('Compare two setups'), findsOneWidget);
+    expect(find.text('CONTEXT'), findsOneWidget);
+    expect(
+      tester.getRect(find.byKey(const Key('compare-setups-hint'))).bottom,
+      lessThan(tester.getRect(find.text('CONTEXT')).top),
+    );
+
+    await tester.tap(find.byTooltip('Dismiss'));
+    await settle(tester);
+    expect(find.byKey(const Key('compare-setups-hint')), findsNothing);
+    expect(harness.hintService.statusOf(AppHint.setupComparisonV1), AppHintStatus.dismissed);
   });
 
   testWidgets('keeps equal explicit and inherited values out of Differences without showing provenance', (

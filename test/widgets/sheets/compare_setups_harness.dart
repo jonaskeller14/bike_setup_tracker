@@ -1,5 +1,6 @@
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
+import 'package:bike_setup_tracker/models/app_hint.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component.dart';
@@ -7,6 +8,7 @@ import 'package:bike_setup_tracker/models/context/context_position.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/services/app_hint_service.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:flutter/material.dart';
@@ -29,8 +31,9 @@ class CompareSetupsHarness {
   final AppDatabase database;
   AppRepository repository;
   final AppSettings settings;
+  final AppHintService hintService;
 
-  CompareSetupsHarness._(this.database, this.repository, this.settings);
+  CompareSetupsHarness._(this.database, this.repository, this.settings, this.hintService);
 
   static Future<CompareSetupsHarness> create({int extraAdjustments = 0}) async {
     final database = AppDatabase.memory();
@@ -50,7 +53,11 @@ class CompareSetupsHarness {
         ],
       ),
     );
-    return CompareSetupsHarness._(database, repository, AppSettings());
+    final settings = AppSettings();
+    final hintService = AppHintService(appRepository: repository, appSettings: settings);
+    await hintService.load();
+    await hintService.dismiss(AppHint.setupComparisonV1);
+    return CompareSetupsHarness._(database, repository, settings, hintService);
   }
 
   static StepAdjustment _adjustment(String id, String name) {
@@ -127,6 +134,7 @@ class CompareSetupsHarness {
         attempts++;
       }
     });
+    hintService.update(appRepository: repository, appSettings: settings);
   }
 
   Widget wrap(Widget child, {double width = 390, double? height, bool dark = false}) {
@@ -134,6 +142,7 @@ class CompareSetupsHarness {
       providers: [
         ChangeNotifierProvider<AppSettings>.value(value: settings),
         ChangeNotifierProvider<AppRepository>.value(value: repository),
+        ChangeNotifierProvider<AppHintService>.value(value: hintService),
         ChangeNotifierProvider<SubscriptionService>(create: (_) => SubscriptionService()),
       ],
       child: MaterialApp(
@@ -150,6 +159,7 @@ class CompareSetupsHarness {
   Future<void> dispose() async {
     repository.dispose();
     settings.dispose();
+    hintService.dispose();
     await database.close();
   }
 }

@@ -310,4 +310,12 @@ void main() {
     expect(service.activeHintFor(AppHintPlacement.stravaDashboardGear), isNull);
   });
 
+  test('setup comparison hint is available until dismissed', () async {
+    final service = createService();
+    await service.load();
+    expect(service.activeHintFor(AppHintPlacement.setupComparison), AppHint.setupComparisonV1);
+
+    await service.dismiss(AppHint.setupComparisonV1);
+    expect(service.activeHintFor(AppHintPlacement.setupComparison), isNull);
+  });
 }

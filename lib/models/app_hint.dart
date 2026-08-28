@@ -3,6 +3,7 @@ enum AppHint {
   gettingStartedV1,
   setupTasksV1,
   setupCalendarV1,
+  setupComparisonV1,
   stravaLinkGearV1,
   installationTimelineV1,
 }
@@ -10,6 +11,7 @@ enum AppHint {
 enum AppHintPlacement {
   garageHeader,
   setupHeader,
+  setupComparison,
   stravaDashboardGear,
 }
 

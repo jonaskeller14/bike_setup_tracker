@@ -68,6 +68,7 @@ class AppHintService extends ChangeNotifier {
     return switch (placement) {
       AppHintPlacement.garageHeader => _gettingStartedHint() ?? _garageGesturesHint(),
       AppHintPlacement.setupHeader => _gettingStartedHint() ?? _setupTaskHint() ?? _setupCalendarHint(),
+      AppHintPlacement.setupComparison => _setupComparisonHint(),
       AppHintPlacement.stravaDashboardGear => _stravaLinkGearHint(),
     };
   }
@@ -115,6 +116,11 @@ class AppHintService extends ChangeNotifier {
         (_appRepository.filteredSetups.length >= 2 || _appRepository.filteredStravaActivities.length > 2) &&
         statusOf(AppHint.setupCalendarV1) == AppHintStatus.unseen;
     return eligible ? AppHint.setupCalendarV1 : null;
+  }
+
+  AppHint? _setupComparisonHint() {
+    final eligible = statusOf(AppHint.setupComparisonV1) == AppHintStatus.unseen;
+    return eligible ? AppHint.setupComparisonV1 : null;
   }
 
   AppHint? _stravaLinkGearHint() {

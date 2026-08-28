@@ -2,16 +2,19 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../models/app_hint.dart';
 import '../../models/app_settings.dart';
 import '../../models/context/context_place.dart';
 import '../../models/context/context_position.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/app_hint_service.dart';
 import '../../services/setup_comparison_service.dart';
 import '../../theme.dart';
 import '../app_snackbar.dart';
 import '../compare_setups/setup_comparison_header.dart';
 import '../compare_setups/setup_comparison_owner_card.dart';
+import '../hints/app_hint_slot.dart';
 import '../items/context_bike_person_card_diff.dart';
 import '../items/context_location_card_diff.dart';
 import '../items/context_meta_card_diff.dart';
@@ -152,7 +155,9 @@ class _CompareSetupsState extends State<CompareSetups> {
     final selectableSetups = _comparisonBikeId == null
         ? appRepository.setups.values
         : appRepository.setups.values.where((setup) => setup.bike == _comparisonBikeId);
-
+    final showComparisonHint = context.select<AppHintService, bool>(
+      (hintService) => hintService.activeHintFor(AppHintPlacement.setupComparison) != null,
+    );
     return CustomScrollView(
       shrinkWrap: true,
       slivers: [
@@ -166,6 +171,13 @@ class _CompareSetupsState extends State<CompareSetups> {
           onSetupAChanged: (setup) => setState(() => _setupAId = setup.id),
           onSetupBChanged: (setup) => setState(() => _setupBId = setup.id),
         ),
+        if (showComparisonHint)
+          const SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
+              child: AppHintSlot(placement: AppHintPlacement.setupComparison),
+            ),
+          ),
         SliverSafeArea(
           top: false,
           sliver: SliverMainAxisGroup(

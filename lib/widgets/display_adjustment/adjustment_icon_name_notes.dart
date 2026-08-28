@@ -1,35 +1,110 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../models/adjustment/adjustment.dart';
+import '../../models/adjustment_activity_histogram.dart';
+import '../../services/setup_activity_analysis_service.dart';
+import '../display_data/adjustment_activity_histogram_chart.dart';
 import '../items/adjustment_properties.dart';
 import '../items/adjustment_type_icon.dart';
 
-class AdjustmentIconNameNotes extends StatelessWidget{
+class AdjustmentIconNameNotes extends StatefulWidget {
   final Adjustment adjustment;
   final Color? color;
   final bool compact;
-  
+
   const AdjustmentIconNameNotes({super.key, required this.adjustment, this.color, this.compact = false});
+
+  @override
+  State<AdjustmentIconNameNotes> createState() => _AdjustmentIconNameNotesState();
+}
+
+class _AdjustmentIconNameNotesState extends State<AdjustmentIconNameNotes> {
+  SetupActivityAnalysisService? _analysisService;
+  Future<AdjustmentActivityHistogram>? _histogramFuture;
+  AdjustmentActivityHistogram? _histogram;
+  bool _isLoading = false;
+
+  @override
+  void didUpdateWidget(covariant AdjustmentIconNameNotes oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.adjustment.id != widget.adjustment.id) {
+      _histogramFuture = null;
+      _histogram = null;
+      _isLoading = false;
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    SetupActivityAnalysisService? service;
+    try {
+      service = Provider.of<SetupActivityAnalysisService>(context);
+    } on ProviderNotFoundException {
+      service = null;
+    }
+    if (!identical(service, _analysisService) || service?.hasAnyActivity != true) {
+      _histogramFuture = null;
+      _histogram = null;
+      _isLoading = false;
+    }
+    _analysisService = service;
+  }
+
+  void _loadHistogram() {
+    final service = _analysisService;
+    if (service == null || !service.hasAnyActivity) return;
+
+    final future = service.getAdjustmentHistogram(widget.adjustment.id);
+    setState(() {
+      _histogramFuture = future;
+      _histogram = null;
+      _isLoading = true;
+    });
+    unawaited(_resolveHistogram(future));
+  }
+
+  Future<void> _resolveHistogram(Future<AdjustmentActivityHistogram> future) async {
+    try {
+      final histogram = await future;
+      if (!mounted || !identical(_histogramFuture, future)) return;
+      setState(() {
+        _histogram = histogram;
+        _isLoading = false;
+      });
+    } catch (error, stackTrace) {
+      debugPrint('Failed to load adjustment activity histogram: $error\n$stackTrace');
+      if (!mounted || !identical(_histogramFuture, future)) return;
+      setState(() {
+        _histogram = null;
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final textStyle = compact
-        ? textTheme.bodyMedium?.copyWith(color: color)
-        : textTheme.bodyLarge?.copyWith(color: color);
+    final textStyle = widget.compact
+        ? textTheme.bodyMedium?.copyWith(color: widget.color)
+        : textTheme.bodyLarge?.copyWith(color: widget.color);
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Row(
       mainAxisSize: MainAxisSize.max,
-      crossAxisAlignment: compact ? CrossAxisAlignment.start : CrossAxisAlignment.center,
-      spacing: compact ? 8 : 10,
+      crossAxisAlignment: widget.compact ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+      spacing: widget.compact ? 8 : 10,
       children: [
-        AdjustmentTypeIcon(adjustment, size: compact ? 20 : 24, color: color),
+        AdjustmentTypeIcon(widget.adjustment, size: widget.compact ? 20 : 24, color: widget.color),
         Expanded(
           child: Align(
             alignment: Alignment.centerLeft,
             child: Tooltip(
               triggerMode: TooltipTriggerMode.tap,
+              onTriggered: _loadHistogram,
               preferBelow: false,
               showDuration: const Duration(seconds: 5),
               decoration: BoxDecoration(
@@ -45,7 +120,7 @@ class AdjustmentIconNameNotes extends StatelessWidget{
                   spacing: 4,
                   children: [
                     Text(
-                      adjustment.name,
+                      widget.adjustment.name,
                       style: textTheme.labelMedium?.copyWith(
                         color: colorScheme.onSecondary,
                         fontSize: 14,
@@ -53,10 +128,10 @@ class AdjustmentIconNameNotes extends StatelessWidget{
                       ),
                     ),
                     AdjustmentProperties(
-                      adjustment,
+                      widget.adjustment,
                       color: colorScheme.onSecondary,
                     ),
-                    if (adjustment.notes != null)
+                    if (widget.adjustment.notes != null)
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -72,7 +147,7 @@ class AdjustmentIconNameNotes extends StatelessWidget{
                           const SizedBox(width: 2),
                           Flexible(
                             child: Text(
-                              adjustment.notes!,
+                              widget.adjustment.notes!,
                               style: TextStyle(
                                 color: colorScheme.onSecondary,
                                 fontSize: 13,
@@ -81,15 +156,31 @@ class AdjustmentIconNameNotes extends StatelessWidget{
                           ),
                         ],
                       ),
+                    if (_analysisService?.hasAnyActivity == true && _isLoading)
+                      const Padding(
+                        padding: EdgeInsets.only(top: 8),
+                        child: Center(
+                          child: SizedBox.square(
+                            dimension: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        ),
+                      ),
+                    if (_analysisService?.hasAnyActivity == true && _histogram?.isEmpty == false)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: AdjustmentActivityHistogramChart(histogram: _histogram!),
+                      ),
                   ],
                 ),
               ),
-              child: Text.rich( // not selectable because conflict with tooltip
+              child: Text.rich(
+                // not selectable because conflict with tooltip
                 TextSpan(
                   style: textStyle,
                   children: [
-                    TextSpan(text: adjustment.name),
-                    if (adjustment.notes != null)
+                    TextSpan(text: widget.adjustment.name),
+                    if (widget.adjustment.notes != null)
                       WidgetSpan(
                         alignment: PlaceholderAlignment.middle,
                         child: Padding(
@@ -98,7 +189,7 @@ class AdjustmentIconNameNotes extends StatelessWidget{
                             opacity: 0.5,
                             child: Icon(
                               Icons.info_outline,
-                              color: color,
+                              color: widget.color,
                               size: textTheme.bodyMedium?.fontSize,
                             ),
                           ),
@@ -119,7 +210,7 @@ Widget nameSetAdjustmentWidget({required BuildContext context, required String n
   return Expanded(
     child: Align(
       alignment: Alignment.centerLeft,
-      child: SelectableText(name, style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: highlightColor))
+      child: SelectableText(name, style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: highlightColor)),
     ),
   );
 }

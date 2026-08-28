@@ -376,7 +376,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
       _columns.add(TableColumn(section: TableColumnSection.generalContext, label: "Tags", active: false));
     }
     if (hasAnyActivity) {
-      _columns.add(TableColumn(section: TableColumnSection.generalContext, label: "Activities", active: true));
+      _columns.add(TableColumn(section: TableColumnSection.generalContext, label: "Activities", active: false));
     }
 
     for (final adjustment in component.adjustments) {

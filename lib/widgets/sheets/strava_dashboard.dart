@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -155,7 +154,6 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
                   if (stravaService.isConnected)
                     _buildSyncInfoSection(context, stravaService: stravaService, appSettings: appSettings),
 
-                  if (kDebugMode) const StravaNoGearsHint(),
                   if (gears.isEmpty && stravaService.isConnected) ...[
                     const Divider(),
                     const StravaNoGearsHint(),

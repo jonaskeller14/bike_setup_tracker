@@ -416,7 +416,7 @@ class _CalendarPageState extends State<CalendarPage> {
     if (row is CalendarAddSetupSlot) {
       await HapticFeedback.selectionClick();
       if (!mounted) return;
-      setState(() => _pendingSetupDate = calendarSlotStart(newLocal));
+      setState(() => _pendingSetupDate = newLocal);
       return;
     }
     if (row is! EntryRow) return;

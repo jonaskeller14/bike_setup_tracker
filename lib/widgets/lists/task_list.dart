@@ -8,6 +8,7 @@ import '../empty_state_placeholder.dart';
 import '../items/task_rule_list_card.dart';
 import '../sticky_section.dart';
 import '../task_caught_up_placeholder.dart';
+import '../task_list_divider.dart';
 import 'list_scroll_controller.dart';
 
 class TaskList extends StatefulWidget {
@@ -108,6 +109,8 @@ class _TaskListState extends State<TaskList> {
     return TaskCaughtUpPlaceholder(
       key: const ValueKey('task-empty-caught-up'),
       bikeName: selectedBike?.name,
+      animate: true,
+      onAddTask: () => TaskActions.addTaskRule(context),
     );
   }
 
@@ -117,52 +120,15 @@ class _TaskListState extends State<TaskList> {
     required VoidCallback onPressed,
     required String section,
   }) {
-    return Center(
-      child: TextButton.icon(
-        key: ValueKey('task-$section-toggle'),
-        onPressed: onPressed,
-        icon: Icon(expanded ? Icons.expand_less : Icons.expand_more),
-        label: Text(expanded ? 'Show less' : 'Show all ($count)'),
-      ),
-    );
-  }
-
-  Widget _sectionHeader({
-    required String title,
-    required int count,
-    required VoidCallback onTap,
-  }) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final label = '$title ($count)';
     return Semantics(
       button: true,
-      header: true,
-      label: '$label. Scroll to section',
-      excludeSemantics: true,
-      onTap: onTap,
-      child: Material(
-        color: colorScheme.surfaceContainerHighest,
-        shape: Border.symmetric(
-          horizontal: BorderSide(color: colorScheme.outlineVariant),
-        ),
-        child: InkWell(
-          onTap: onTap,
-          child: SizedBox(
-            height: _sectionHeaderHeight,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  label,
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ),
+      label: expanded ? 'Show fewer $section tasks' : 'Show all $count $section tasks',
+      child: Center(
+        child: TextButton.icon(
+          key: ValueKey('task-$section-toggle'),
+          onPressed: onPressed,
+          icon: Icon(expanded ? Icons.expand_less : Icons.expand_more),
+          label: Text(expanded ? 'Show less' : 'Show all ($count)'),
         ),
       ),
     );
@@ -188,10 +154,11 @@ class _TaskListState extends State<TaskList> {
     return KeyedSubtree(
       key: key,
       child: StickySection(
-        header: _sectionHeader(
+        header: TaskListDivider(
           title: title,
           count: count,
           onTap: () => _scrollToSection(key),
+          height: _sectionHeaderHeight,
         ),
         content: content,
       ),
@@ -209,6 +176,23 @@ class _TaskListState extends State<TaskList> {
     );
   }
 
+  Widget _animatedSectionContent({
+    required String membershipKey,
+    required Widget child,
+  }) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 220),
+      reverseDuration: const Duration(milliseconds: 180),
+      switchInCurve: Curves.easeOut,
+      switchOutCurve: Curves.easeIn,
+      transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
+      child: KeyedSubtree(
+        key: ValueKey(membershipKey),
+        child: child,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final repository = context.watch<AppRepository>();
@@ -220,9 +204,13 @@ class _TaskListState extends State<TaskList> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final compactDueHeight = (constraints.maxHeight - _filterHeight - 2 * _sectionHeaderHeight)
-            .clamp(0, double.infinity)
-            .toDouble();
+        final compactDueHeight =
+            (constraints.maxHeight -
+                    _filterHeight -
+                    _sectionHeaderHeight -
+                    (upcoming.isNotEmpty || completed.isNotEmpty ? _sectionHeaderHeight : 0))
+                .clamp(0, double.infinity)
+                .toDouble();
         return CustomScrollView(
           key: const PageStorageKey('task-list-scroll'),
           controller: _controller.scrollController,
@@ -239,76 +227,77 @@ class _TaskListState extends State<TaskList> {
                   key: _dueSectionKey,
                   title: 'Due now',
                   count: due.length,
-                  content: due.isEmpty
-                      ? SizedBox(
-                          height: compactDueHeight,
-                          child: _emptyDueSection(repository),
-                        )
-                      : ConstrainedBox(
-                          constraints: BoxConstraints(
-                            minHeight: compactDueHeight,
+                  content: _animatedSectionContent(
+                    membershipKey: 'due-${due.map((task) => task.rule.id).join(',')}',
+                    child: due.isEmpty
+                        ? ConstrainedBox(
+                            constraints: BoxConstraints(
+                              minHeight: compactDueHeight,
+                            ),
+                            child: _emptyDueSection(repository),
+                          )
+                        : ConstrainedBox(
+                            constraints: BoxConstraints(
+                              minHeight: compactDueHeight,
+                            ),
+                            child: _taskCards(
+                              due.map((task) => task.rule.id),
+                            ),
                           ),
-                          child: _taskCards(
-                            due.map((task) => task.rule.id),
-                          ),
-                        ),
-                ),
-                _section(
-                  key: _upcomingSectionKey,
-                  title: 'Upcoming',
-                  count: upcoming.length,
-                  content: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      if (upcoming.isEmpty)
-                        const Padding(
-                          padding: EdgeInsets.fromLTRB(16, 8, 16, 16),
-                          child: Text('No upcoming tasks.'),
-                        )
-                      else
-                        _taskCards(
-                          visibleUpcoming.map((task) => task.rule.id),
-                        ),
-                      if (upcoming.length > 3)
-                        _sectionToggle(
-                          expanded: _showAllUpcoming,
-                          count: upcoming.length,
-                          section: 'upcoming',
-                          onPressed: () => setState(
-                            () => _showAllUpcoming = !_showAllUpcoming,
-                          ),
-                        ),
-                    ],
                   ),
                 ),
-                _section(
-                  key: _completedSectionKey,
-                  title: 'Completed',
-                  count: completed.length,
-                  content: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      if (completed.isEmpty)
-                        const Padding(
-                          padding: EdgeInsets.fromLTRB(16, 8, 16, 16),
-                          child: Text('No completed tasks.'),
-                        )
-                      else
-                        _taskCards(
-                          visibleCompleted.map((task) => task.rule.id),
-                        ),
-                      if (completed.length > 3)
-                        _sectionToggle(
-                          expanded: _showAllCompleted,
-                          count: completed.length,
-                          section: 'completed',
-                          onPressed: () => setState(
-                            () => _showAllCompleted = !_showAllCompleted,
+                if (upcoming.isNotEmpty)
+                  _section(
+                    key: _upcomingSectionKey,
+                    title: 'Upcoming',
+                    count: upcoming.length,
+                    content: _animatedSectionContent(
+                      membershipKey: 'upcoming-${visibleUpcoming.map((task) => task.rule.id).join(',')}',
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _taskCards(
+                            visibleUpcoming.map((task) => task.rule.id),
                           ),
-                        ),
-                    ],
+                          if (upcoming.length > 3)
+                            _sectionToggle(
+                              expanded: _showAllUpcoming,
+                              count: upcoming.length,
+                              section: 'upcoming',
+                              onPressed: () => setState(
+                                () => _showAllUpcoming = !_showAllUpcoming,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
+                if (completed.isNotEmpty)
+                  _section(
+                    key: _completedSectionKey,
+                    title: 'Completed',
+                    count: completed.length,
+                    content: _animatedSectionContent(
+                      membershipKey: 'completed-${visibleCompleted.map((task) => task.rule.id).join(',')}',
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _taskCards(
+                            visibleCompleted.map((task) => task.rule.id),
+                          ),
+                          if (completed.length > 3)
+                            _sectionToggle(
+                              expanded: _showAllCompleted,
+                              count: completed.length,
+                              section: 'completed',
+                              onPressed: () => setState(
+                                () => _showAllCompleted = !_showAllCompleted,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
                 const SizedBox(height: 116),
               ],
             ),

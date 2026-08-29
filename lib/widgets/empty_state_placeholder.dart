@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class EmptyStatePlaceholder extends StatelessWidget {
   final IconData icon;
+  final Widget? iconWidget;
   final String title;
   final String? subtitle;
   final String? actionLabel;
@@ -10,6 +11,7 @@ class EmptyStatePlaceholder extends StatelessWidget {
   const EmptyStatePlaceholder({
     super.key,
     required this.icon,
+    this.iconWidget,
     required this.title,
     this.subtitle,
     this.actionLabel,
@@ -26,11 +28,12 @@ class EmptyStatePlaceholder extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 40,
-              color: colors.onSurfaceVariant.withValues(alpha: 0.35),
-            ),
+            iconWidget ??
+                Icon(
+                  icon,
+                  size: 40,
+                  color: colors.onSurfaceVariant.withValues(alpha: 0.35),
+                ),
             const SizedBox(height: 16),
             Text(
               title,

@@ -43,7 +43,10 @@ void main() {
 
     expect(find.text('Installation history'), findsOneWidget);
     expect(
-      find.text('No need to decide now. You can turn installation history on or off anytime in Settings.'),
+      find.text(
+        'Without installation history, the app only saves the bike where this component is installed now. '
+        'It does not save past installs or removals. You can change this anytime in Settings.',
+      ),
       findsOneWidget,
     );
     expect(find.text('Example timeline'), findsOneWidget);

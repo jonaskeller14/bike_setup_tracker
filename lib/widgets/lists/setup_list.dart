@@ -10,7 +10,6 @@ import '../../models/strava/strava_activity.dart';
 import '../../models/timeline_entry.dart';
 import '../../pages/details/setup_details_page.dart';
 import '../../repositories/app_repository.dart';
-import '../../services/app_hint_service.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/setup_actions.dart';
 import '../../utils/timeline_grouping.dart';

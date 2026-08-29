@@ -197,6 +197,16 @@ class _HomePageState extends State<HomePage> {
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         selectedIndex: pageIndex,
         onDestinationSelected: (int index) {
+          if (index == pageIndex) {
+            if (index == 1) {
+              unawaited(_setupListController.scrollBackToTop());
+              return;
+            }
+            if (index == taskPageIndex) {
+              unawaited(_taskListController.scrollBackToTop());
+              return;
+            }
+          }
           setState(() {
             _currentPageIndex = index;
             if (index != pageIndex) _selectedTaskRules.clear();

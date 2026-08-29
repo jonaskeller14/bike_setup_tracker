@@ -18,6 +18,7 @@ import 'package:bike_setup_tracker/widgets/items/adjustment_list_card.dart';
 import 'package:bike_setup_tracker/widgets/items/component_list_card.dart';
 import 'package:bike_setup_tracker/widgets/items/garage_component_icon_card.dart';
 import 'package:bike_setup_tracker/widgets/lists/garage_list.dart';
+import 'package:bike_setup_tracker/widgets/lists/task_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -332,6 +333,42 @@ void main() {
       badge.backgroundColor,
       TaskStatusType.overdue.getStatusColor(tester.element(_taskBadge())),
     );
+  });
+
+  testWidgets('reselecting Tasks resets its continuous scroll', (tester) async {
+    appSettings.enableTask = true;
+    final upcoming = [
+      for (var i = 1; i <= 12; i++)
+        TaskRule(
+          name: 'Upcoming $i',
+          tags: const {},
+          interval: DateTimeThreshold(
+            DateTime.now().add(Duration(days: i)),
+          ),
+        ),
+    ];
+    await tester.runAsync(() => appRepository.addTaskRules(upcoming));
+
+    await tester.pumpWidget(createWidgetUnderTest());
+    await _waitForRepositoryUpdate(
+      tester,
+      until: (repository) => repository.taskRules.length == upcoming.length,
+    );
+
+    await tester.tap(_navigationDestination('Tasks'));
+    await tester.pumpAndSettle();
+    expect(find.byType(TaskList), findsOneWidget);
+    final taskScroll = find.byKey(
+      const PageStorageKey('task-list-scroll'),
+    );
+    final taskScrollController = tester.widget<CustomScrollView>(taskScroll).controller!;
+    taskScrollController.jumpTo(taskScrollController.position.maxScrollExtent);
+    await tester.pump();
+    expect(taskScrollController.offset, greaterThan(0));
+
+    await tester.tap(_navigationDestination('Tasks'));
+    await tester.pumpAndSettle();
+    expect(taskScrollController.offset, 0);
   });
 }
 

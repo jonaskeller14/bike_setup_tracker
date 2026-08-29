@@ -72,13 +72,15 @@ class _InstallationTimelineHintSheet extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Keep a dated history whenever you install, uninstall, move, or archive a component. '
-                    'You can review past bike usage and correct the date before saving each change.',
+                    'Track when you install, remove, move, or archive components. '
+                    'Set the date for each change to keep an accurate history. '
+                    'This lets your setups show only the components that were installed on the bike at that time.',
                     style: theme.textTheme.bodyMedium,
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'No need to decide now. You can turn installation history on or off anytime in Settings.',
+                    'Without installation history, the app only saves the bike where this component is installed now. '
+                    'It does not save past installs or removals. You can change this anytime in Settings.',
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
@@ -118,7 +120,7 @@ class _InstallationTimelineHintSheet extends StatelessWidget {
               children: [
                 FilledButton.icon(
                   onPressed: () => Navigator.pop(context, true),
-                  icon: const Icon(Icons.history),
+                  icon: const Icon(Icons.format_list_bulleted),
                   label: const Text('Activate now'),
                 ),
                 TextButton(

@@ -284,6 +284,9 @@ class AppRepository extends ChangeNotifier {
       .map(getTaskRuleStatus)
       .any((status) => status.isDue);
 
+  bool get hasTaskRulesInCurrentScope =>
+      _taskRules.values.any(_isTaskRuleInCurrentScope);
+
   /// Open (non-completed) task rules for a bike, including rules attached to its components.
   List<TaskRuleWithStatus> openTaskRulesForBike(String bikeId) {
     final rules = _taskRules.values.where((rule) {

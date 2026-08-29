@@ -29,10 +29,10 @@ import '../sheets/replacement_sheet.dart';
 import '../sheets/task_rule_sheet.dart';
 import '../sticky_section.dart';
 import '../timeline_day_header.dart';
-import 'setup_list_controller.dart';
+import 'list_scroll_controller.dart';
 
 class SetupList extends StatelessWidget {
-  final SetupListController? controller;
+  final ListScrollController? controller;
 
   const SetupList({super.key, this.controller});
 

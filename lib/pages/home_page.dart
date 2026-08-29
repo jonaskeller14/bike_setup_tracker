@@ -19,12 +19,11 @@ import '../utils/task_actions.dart';
 import '../widgets/animated_app_bar_switcher.dart';
 import '../widgets/google_drive_sync_button.dart';
 import '../widgets/lists/garage_list.dart';
+import '../widgets/lists/list_scroll_controller.dart';
 import '../widgets/lists/person_list.dart';
 import '../widgets/lists/rating_list.dart';
 import '../widgets/lists/setup_list.dart';
-import '../widgets/lists/setup_list_controller.dart';
 import '../widgets/lists/task_list.dart';
-import '../widgets/lists/task_list_controller.dart';
 import '../widgets/sheets/export.dart';
 import '../widgets/sheets/import.dart';
 import '../widgets/sheets/share.dart';
@@ -41,8 +40,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int? _currentPageIndex;
-  final SetupListController _setupListController = SetupListController();
-  final TaskListController _taskListController = TaskListController();
+  final ListScrollController _setupListController = ListScrollController();
+  final ListScrollController _taskListController = ListScrollController();
   final Set<String> _selectedTaskRules = {};
   bool _isDeletingTaskRules = false;
   bool _isCompletingTaskRules = false;

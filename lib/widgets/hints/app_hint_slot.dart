@@ -14,9 +14,11 @@ import 'setup_comparison_hint.dart';
 import 'setup_task_hint.dart';
 import 'strava_gear_link_hint.dart';
 
-/// Maps hint IDs to their inline presentation, keeping eligibility out of screens.
 class AppHintSlot extends StatelessWidget {
-  const AppHintSlot({super.key, required this.placement});
+  static const _sizeAnimationDuration = Duration(milliseconds: 200);
+  final EdgeInsetsGeometry padding;
+
+  const AppHintSlot({super.key, required this.placement, this.padding = EdgeInsetsGeometry.zero});
 
   final AppHintPlacement placement;
 
@@ -24,9 +26,8 @@ class AppHintSlot extends StatelessWidget {
   Widget build(BuildContext context) {
     final hintService = context.watch<AppHintService>();
     final hint = hintService.activeHintFor(placement);
-    if (hint == null) return const SizedBox.shrink();
-
-    return switch (hint) {
+    final child = switch (hint) {
+      null => const SizedBox.shrink(),
       AppHint.gettingStartedV1 => GettingStartedGuideHint(
         onDismiss: () => unawaited(hintService.dismiss(AppHint.gettingStartedV1)),
       ),
@@ -51,6 +52,13 @@ class AppHintSlot extends StatelessWidget {
       ),
       AppHint.installationTimelineV1 => const SizedBox.shrink(),
     };
+
+    return AnimatedSize(
+      duration: _sizeAnimationDuration,
+      curve: Curves.easeInOut,
+      alignment: Alignment.topCenter,
+      child: hint != null ? Padding(padding: padding, child: child) : child,
+    );
   }
 
   Future<void> _enableTasks(

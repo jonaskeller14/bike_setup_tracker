@@ -33,7 +33,7 @@ class _TaskListState extends State<TaskList> {
     return CustomScrollView(
       slivers: [
         const SliverPadding(
-          padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+          padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
           sliver: SliverToBoxAdapter(child: TaskListFilterWidget()),
         ),
         SliverFillRemaining(

@@ -155,9 +155,7 @@ class _CompareSetupsState extends State<CompareSetups> {
     final selectableSetups = _comparisonBikeId == null
         ? appRepository.setups.values
         : appRepository.setups.values.where((setup) => setup.bike == _comparisonBikeId);
-    final showComparisonHint = context.select<AppHintService, bool>(
-      (hintService) => hintService.activeHintFor(AppHintPlacement.setupComparison) != null,
-    );
+
     return CustomScrollView(
       shrinkWrap: true,
       slivers: [
@@ -171,13 +169,12 @@ class _CompareSetupsState extends State<CompareSetups> {
           onSetupAChanged: (setup) => setState(() => _setupAId = setup.id),
           onSetupBChanged: (setup) => setState(() => _setupBId = setup.id),
         ),
-        if (showComparisonHint)
-          const SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
-              child: AppHintSlot(placement: AppHintPlacement.setupComparison),
-            ),
+        const SliverToBoxAdapter(
+          child: AppHintSlot(
+            placement: AppHintPlacement.setupComparison,
+            padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
           ),
+        ),
         SliverSafeArea(
           top: false,
           sliver: SliverMainAxisGroup(

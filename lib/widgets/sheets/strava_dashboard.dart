@@ -160,10 +160,11 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
                   ] else if (gears.isNotEmpty) ...[
                     const Divider(),
                     const SheetSectionTitle(title: "Strava Gear:"),
-                    if (stravaService.isConnected) ...[
-                      const AppHintSlot(placement: AppHintPlacement.stravaDashboardGear),
-                      const SizedBox(height: 4),
-                    ],
+                    if (stravaService.isConnected)
+                      const AppHintSlot(
+                        placement: AppHintPlacement.stravaDashboardGear,
+                        padding: EdgeInsets.only(bottom: 4),
+                      ),
                     _gearWrap(gears: gears, bikes: appRepository.bikes.values),
                   ],
 

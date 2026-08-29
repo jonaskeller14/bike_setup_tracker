@@ -37,25 +37,17 @@ class SetupList extends StatelessWidget {
 
   const SetupList({super.key, this.controller});
 
-  Widget _emptyPlaceholder(BuildContext context, {required bool showStartupGuide}) {
-    if (showStartupGuide) {
-      return const SingleChildScrollView(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          spacing: 8,
-          children: [
-            SetupListFilterWidget(),
-            AppHintSlot(placement: AppHintPlacement.setupHeader),
-          ],
-        ),
-      );
-    }
+  Widget _emptyPlaceholder(BuildContext context) {
     return CustomScrollView(
       slivers: [
+        const SliverToBoxAdapter(
+          child: AppHintSlot(
+            placement: AppHintPlacement.setupHeader,
+            padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
+          ),
+        ),
         const SliverPadding(
-          padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+          padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
           sliver: SliverToBoxAdapter(child: SetupListFilterWidget()),
         ),
         SliverFillRemaining(
@@ -244,7 +236,6 @@ class SetupList extends StatelessWidget {
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
-    final appHintService = context.watch<AppHintService>();
     final subscriptionService = context.watch<SubscriptionService>();
     final sortAscending = appRepository.stravaSortAscending;
     final setupsList = appRepository.filteredSetups.values;
@@ -258,9 +249,6 @@ class SetupList extends StatelessWidget {
     );
     final taskEntries = appRepository.filteredTaskEntries.values;
     final installations = appRepository.filteredInstallations;
-
-    final activeSetupHint = appHintService.activeHintFor(AppHintPlacement.setupHeader);
-    final showStartupGuide = activeSetupHint == AppHint.gettingStartedV1;
 
     // Horizon date is the "furthest" loaded activity date in the current scroll direction.
     // ASC: newest activity date. DESC: oldest activity date.
@@ -320,19 +308,18 @@ class SetupList extends StatelessWidget {
     );
 
     if (entries.isEmpty && !appRepository.isLoadingMoreStrava) {
-      return _emptyPlaceholder(context, showStartupGuide: showStartupGuide);
+      return _emptyPlaceholder(context);
     }
 
     return CustomScrollView(
       controller: controller?.scrollController,
       slivers: [
-        if (activeSetupHint != null)
-          const SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
-              child: AppHintSlot(placement: AppHintPlacement.setupHeader),
-            ),
+        const SliverToBoxAdapter(
+          child: AppHintSlot(
+            placement: AppHintPlacement.setupHeader,
+            padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
           ),
+        ),
         SliverPersistentHeader(
           floating: true,
           delegate: _SetupFilterHeaderDelegate(

@@ -201,25 +201,16 @@ class _GarageListState extends State<GarageList> {
   }
 
   Widget _emptyPlaceholder(BuildContext context) {
-    final showGuide =
-        context.watch<AppHintService>().activeHintFor(AppHintPlacement.garageHeader) == AppHint.gettingStartedV1;
-    if (showGuide) {
-      return const SingleChildScrollView(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            BikeListFilterWidget(),
-            SizedBox(height: 8),
-            AppHintSlot(placement: AppHintPlacement.garageHeader),
-          ],
-        ),
-      );
-    }
     return CustomScrollView(
       slivers: [
+        const SliverToBoxAdapter(
+          child: AppHintSlot(
+            placement: AppHintPlacement.garageHeader,
+            padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
+          ),
+        ),
         const SliverPadding(
-          padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+          padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
           sliver: SliverToBoxAdapter(child: BikeListFilterWidget()),
         ),
         SliverFillRemaining(
@@ -286,16 +277,17 @@ class _GarageListState extends State<GarageList> {
               itemCount: bikesList.length,
               padding: const EdgeInsets.only(
                 left: 16,
-                top: 16,
+                top: 8,
                 right: 16,
                 bottom: 16 + 100,
               ),
               header: const Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 8,
                 children: [
-                  AppHintSlot(placement: AppHintPlacement.garageHeader),
+                  AppHintSlot(
+                    placement: AppHintPlacement.garageHeader,
+                    padding: EdgeInsetsGeometry.only(bottom: 8)),
                   BikeListFilterWidget(),
                 ],
               ),

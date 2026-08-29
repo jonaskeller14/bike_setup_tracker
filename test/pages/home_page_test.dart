@@ -5,6 +5,8 @@ import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
+import 'package:bike_setup_tracker/models/task/task_rule.dart';
+import 'package:bike_setup_tracker/models/task/task_threshold.dart';
 import 'package:bike_setup_tracker/pages/onboarding_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/app_hint_service.dart';
@@ -266,11 +268,81 @@ void main() {
     expect(appSettings.showOnboarding, isTrue);
     expect(find.byType(OnboardingPage), findsOneWidget);
   });
+
+  testWidgets('Tasks badge stays hidden for empty and upcoming-only scopes', (tester) async {
+    appSettings.enableTask = true;
+    await tester.pumpWidget(createWidgetUnderTest());
+    await tester.pumpAndSettle();
+
+    expect(tester.widget<Badge>(_taskBadge()).isLabelVisible, isFalse);
+
+    final upcoming = TaskRule(
+      name: 'Upcoming',
+      tags: const {},
+      interval: DateTimeThreshold(DateTime.now().add(const Duration(days: 1))),
+    );
+    await tester.runAsync(() => appRepository.addTaskRule(upcoming));
+    await _waitForRepositoryUpdate(
+      tester,
+      until: (repository) => repository.taskRules.containsKey(upcoming.id),
+    );
+
+    expect(tester.widget<Badge>(_taskBadge()).isLabelVisible, isFalse);
+  });
+
+  testWidgets('Tasks badge shows the actionable count and due color', (tester) async {
+    appSettings.enableTask = true;
+    final due = TaskRule(name: 'Due', tags: const {});
+    await tester.runAsync(() => appRepository.addTaskRule(due));
+
+    await tester.pumpWidget(createWidgetUnderTest());
+    await _waitForRepositoryUpdate(
+      tester,
+      until: (repository) => repository.taskRules.containsKey(due.id),
+    );
+
+    final badge = tester.widget<Badge>(_taskBadge());
+    expect(badge.isLabelVisible, isTrue);
+    expect(find.descendant(of: _taskBadge(), matching: find.text('1')), findsOneWidget);
+    expect(
+      badge.backgroundColor,
+      TaskStatusType.due.getStatusColor(tester.element(_taskBadge())),
+    );
+  });
+
+  testWidgets('Tasks badge lets overdue dominate due for its color', (tester) async {
+    appSettings.enableTask = true;
+    final due = TaskRule(name: 'Due', tags: const {});
+    final overdue = TaskRule(
+      name: 'Overdue',
+      tags: const {},
+      interval: DateTimeThreshold(DateTime.now().subtract(const Duration(days: 4))),
+    );
+    await tester.runAsync(() => appRepository.addTaskRules([due, overdue]));
+
+    await tester.pumpWidget(createWidgetUnderTest());
+    await _waitForRepositoryUpdate(
+      tester,
+      until: (repository) => repository.taskRules.length == 2,
+    );
+
+    final badge = tester.widget<Badge>(_taskBadge());
+    expect(find.descendant(of: _taskBadge(), matching: find.text('2')), findsOneWidget);
+    expect(
+      badge.backgroundColor,
+      TaskStatusType.overdue.getStatusColor(tester.element(_taskBadge())),
+    );
+  });
 }
 
 Finder _navigationDestination(String label) => find.descendant(
   of: find.byType(NavigationBar),
   matching: find.text(label),
+);
+
+Finder _taskBadge() => find.ancestor(
+  of: find.byIcon(Icons.checklist),
+  matching: find.byType(Badge),
 );
 
 String? _appBarTitle(WidgetTester tester) => (tester.widget<AppBar>(find.byType(AppBar).last).title as Text).data;

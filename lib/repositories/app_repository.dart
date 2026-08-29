@@ -204,6 +204,9 @@ class AppRepository extends ChangeNotifier {
   Set<String> get selectedTaskRuleTags => _selectedTaskRuleTags;
   Set<String> get setupTags => _setupTags;
   Set<String> get taskRuleTags => _taskRuleTags;
+  bool get hasActiveTaskPriorityFilter => !setEquals(_selectedTaskPriorities, TaskPriority.values.toSet());
+  bool get hasActiveTaskRuleTagFilter => _selectedTaskRuleTags.isNotEmpty;
+  bool get hasActiveTaskRuleNarrowing => hasActiveTaskPriorityFilter || hasActiveTaskRuleTagFilter;
 
   Map<String, Bike> _filteredBikes = {};
   Map<String, Person> _filteredPersons = {};
@@ -236,6 +239,50 @@ class AppRepository extends ChangeNotifier {
   }
 
   List<TaskRuleWithStatus> get openTaskRules => _openTaskRulesWithStatus(_filteredTaskRules.values);
+
+  List<TaskRuleWithStatus> get actionableTaskRules {
+    final actionable = _filteredTaskRules.values
+        .map((rule) => TaskRuleWithStatus(rule: rule, status: getTaskRuleStatus(rule)))
+        .where((taskRule) => taskRule.status.isDue)
+        .toList();
+    actionable.sort((a, b) {
+      final statusComparison = b.status.type.index.compareTo(a.status.type.index);
+      if (statusComparison != 0) return statusComparison;
+      final priorityComparison = b.rule.priority.index.compareTo(a.rule.priority.index);
+      if (priorityComparison != 0) return priorityComparison;
+      final progressComparison = b.status.progress.compareTo(a.status.progress);
+      if (progressComparison != 0) return progressComparison;
+      return a.rule.id.compareTo(b.rule.id);
+    });
+    return actionable;
+  }
+
+  List<TaskRuleWithStatus> get upcomingTaskRules {
+    final upcoming = _filteredTaskRules.values
+        .map((rule) => TaskRuleWithStatus(rule: rule, status: getTaskRuleStatus(rule)))
+        .where((taskRule) => taskRule.status.type == TaskStatusType.upcoming)
+        .toList();
+    upcoming.sort((a, b) {
+      final progressComparison = b.status.progress.compareTo(a.status.progress);
+      if (progressComparison != 0) return progressComparison;
+      final priorityComparison = b.rule.priority.index.compareTo(a.rule.priority.index);
+      if (priorityComparison != 0) return priorityComparison;
+      return a.rule.id.compareTo(b.rule.id);
+    });
+    return upcoming;
+  }
+
+  int get actionableTaskRulesCount => actionableTaskRules.length;
+
+  TaskStatusType? get worstActionableTaskStatus {
+    final actionable = actionableTaskRules;
+    return actionable.isEmpty ? null : actionable.first.status.type;
+  }
+
+  bool get hasScopeActionableTaskRules => _taskRules.values
+      .where(_isTaskRuleInCurrentScope)
+      .map(getTaskRuleStatus)
+      .any((status) => status.isDue);
 
   /// Open (non-completed) task rules for a bike, including rules attached to its components.
   List<TaskRuleWithStatus> openTaskRulesForBike(String bikeId) {
@@ -290,7 +337,10 @@ class AppRepository extends ChangeNotifier {
   List<TaskRuleWithStatus> get completedTaskRules {
     final statusRules = _filteredTaskRules.values.map((rule) => TaskRuleWithStatus(rule: rule, status: getTaskRuleStatus(rule)));
     final completed = statusRules.where((tr) => tr.status.type == TaskStatusType.completed).toList();
-    completed.sort((a, b) => b.rule.lastModified.compareTo(a.rule.lastModified));
+    completed.sort((a, b) {
+      final modifiedComparison = b.rule.lastModified.compareTo(a.rule.lastModified);
+      return modifiedComparison != 0 ? modifiedComparison : a.rule.id.compareTo(b.rule.id);
+    });
     return completed;
   }
 
@@ -603,23 +653,7 @@ class AppRepository extends ChangeNotifier {
         if (!_selectedTaskPriorities.contains(rule.priority)) return false;
 
         if (selectedTaskRuleTags.isNotEmpty && !entry.value.tags.containsAll(selectedTaskRuleTags)) return false;
-
-        // 1. Global Tasks (no component, no bike)
-        if (rule.componentId == null && rule.bikeId == null) return true;
-        
-        // 2. Bike-linked Tasks
-        if (rule.bikeId != null) {
-          return _selectedBike == null || rule.bikeId == _selectedBike;
-        }
-        
-        // 3. Component-linked Tasks
-        if (rule.componentId != null) {
-          // Hide rules linked to archived (retired/sold) components.
-          if (_components[rule.componentId]?.isArchived ?? false) return false;
-          return _filteredComponents.containsKey(rule.componentId);
-        }
-        
-        return false;
+        return _isTaskRuleInCurrentScope(rule);
       }),
     );
 
@@ -628,6 +662,15 @@ class AppRepository extends ChangeNotifier {
         (entry) => !taskEntries.values.any((te) => te.taskRule == entry.key),
       ),
     );
+  }
+
+  bool _isTaskRuleInCurrentScope(TaskRule rule) {
+    if (rule.componentId == null && rule.bikeId == null) return true;
+    if (rule.bikeId != null) return _selectedBike == null || rule.bikeId == _selectedBike;
+
+    final component = _components[rule.componentId];
+    if (component == null || component.isArchived) return false;
+    return _selectedBike == null || component.bike == _selectedBike;
   }
 
   void _filterTaskEntries() {

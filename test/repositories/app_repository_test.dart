@@ -860,6 +860,133 @@ void main() {
       await pumpEventQueue();
       expect(repository.openTaskRulesStatusType, TaskStatusType.upcoming);
     });
+
+    test("task list projections separate actionable and upcoming rules deterministically", () async {
+      final now = DateTime.now();
+      final overdue = TaskRule(
+        id: "overdue",
+        name: "Overdue",
+        priority: TaskPriority.low,
+        tags: const {},
+        interval: DateTimeThreshold(now.subtract(const Duration(days: 4))),
+      );
+      final dueCritical = TaskRule(
+        id: "due-critical",
+        name: "Due critical",
+        priority: TaskPriority.critical,
+        tags: const {},
+      );
+      final dueLow = TaskRule(
+        id: "due-low",
+        name: "Due low",
+        priority: TaskPriority.low,
+        tags: const {},
+      );
+      final upcomingNear = TaskRule(
+        id: "upcoming-near",
+        name: "Upcoming near",
+        priority: TaskPriority.low,
+        tags: const {},
+        interval: DateTimeThreshold(now.add(const Duration(days: 1))),
+      );
+      final upcomingFar = TaskRule(
+        id: "upcoming-far",
+        name: "Upcoming far",
+        priority: TaskPriority.critical,
+        tags: const {},
+        interval: DateTimeThreshold(now.add(const Duration(days: 3))),
+      );
+
+      expect(repository.actionableTaskRules, isEmpty);
+      expect(repository.upcomingTaskRules, isEmpty);
+      expect(repository.actionableTaskRulesCount, 0);
+      expect(repository.worstActionableTaskStatus, isNull);
+
+      await repository.addTaskRules([dueLow, upcomingFar, dueCritical, upcomingNear, overdue]);
+      await pumpEventQueue();
+
+      expect(
+        repository.actionableTaskRules.map((taskRule) => taskRule.rule.id),
+        [overdue.id, dueCritical.id, dueLow.id],
+      );
+      expect(
+        repository.upcomingTaskRules.map((taskRule) => taskRule.rule.id),
+        [upcomingNear.id, upcomingFar.id],
+      );
+      expect(repository.actionableTaskRulesCount, 3);
+      expect(repository.worstActionableTaskStatus, TaskStatusType.overdue);
+    });
+
+    test("recurring rules become upcoming while completed one-off rules stay completed", () async {
+      final recurring = TaskRule(
+        name: "Recurring",
+        tags: const {},
+        interval: const DurationThreshold(Duration(days: 30)),
+      );
+      final oneOff = TaskRule(name: "One-off", tags: const {}, repeat: false);
+      final completedAt = DateTime.now();
+
+      await repository.addTaskRules([recurring, oneOff]);
+      await pumpEventQueue();
+      await repository.addTaskEntries([
+        TaskEntry(
+          name: recurring.name,
+          dateTimeUTC: completedAt.toUtc(),
+          dateTimeLocal: completedAt,
+          taskRule: recurring.id,
+        ),
+        TaskEntry(
+          name: oneOff.name,
+          dateTimeUTC: completedAt.toUtc(),
+          dateTimeLocal: completedAt,
+          taskRule: oneOff.id,
+        ),
+      ]);
+      await pumpEventQueue();
+
+      expect(repository.upcomingTaskRules.map((taskRule) => taskRule.rule.id), [recurring.id]);
+      expect(repository.completedTaskRules.map((taskRule) => taskRule.rule.id), [oneOff.id]);
+      expect(repository.actionableTaskRules, isEmpty);
+    });
+
+    test("scope query ignores priority and tag narrowing but honors selected bike", () async {
+      final bike2 = Bike(name: "Bike #2", person: null);
+      final bike1Rule = TaskRule(
+        name: "Bike 1 due",
+        bikeId: bike1.id,
+        priority: TaskPriority.critical,
+        tags: const {"service"},
+      );
+      final bike2Rule = TaskRule(name: "Bike 2 due", bikeId: bike2.id, tags: const {"other"});
+
+      await repository.addBike(bike1);
+      await repository.addBike(bike2);
+      await repository.addTaskRules([bike1Rule, bike2Rule]);
+      await pumpEventQueue();
+      repository.onBikeTap(bike1.id);
+      repository.deselectTaskPriority(TaskPriority.critical);
+      await pumpEventQueue();
+
+      expect(repository.hasActiveTaskPriorityFilter, isTrue);
+      expect(repository.hasActiveTaskRuleTagFilter, isFalse);
+      expect(repository.hasActiveTaskRuleNarrowing, isTrue);
+      expect(repository.actionableTaskRules, isEmpty);
+      expect(repository.hasScopeActionableTaskRules, isTrue);
+
+      repository.selectAllTaskPriorities();
+      repository.selectTaskRuleTag("other");
+      await pumpEventQueue();
+
+      expect(repository.hasActiveTaskPriorityFilter, isFalse);
+      expect(repository.hasActiveTaskRuleTagFilter, isTrue);
+      expect(repository.hasActiveTaskRuleNarrowing, isTrue);
+      expect(repository.actionableTaskRules, isEmpty);
+      expect(repository.hasScopeActionableTaskRules, isTrue);
+
+      repository.onBikeTap(bike2.id);
+      await pumpEventQueue();
+      expect(repository.actionableTaskRules.map((taskRule) => taskRule.rule.id), [bike2Rule.id]);
+    });
   });
 
   group("AppRepository - Archive", () {
@@ -941,12 +1068,16 @@ void main() {
       await pumpEventQueue();
 
       expect(repository.filteredOpenTaskRules.containsKey(rule.id), isTrue);
+      expect(repository.actionableTaskRules.map((taskRule) => taskRule.rule.id), [rule.id]);
+      expect(repository.hasScopeActionableTaskRules, isTrue);
 
       final comp = repository.components[component1.id]!;
       await repository.archiveComponent(comp);
       await pumpEventQueue();
 
       expect(repository.filteredOpenTaskRules.containsKey(rule.id), isFalse);
+      expect(repository.actionableTaskRules, isEmpty);
+      expect(repository.hasScopeActionableTaskRules, isFalse);
     });
   });
 

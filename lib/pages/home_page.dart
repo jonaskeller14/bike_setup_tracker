@@ -9,6 +9,7 @@ import '../models/bike.dart';
 import '../models/person.dart';
 import '../models/rating.dart';
 import '../models/setup.dart';
+import '../models/task/task_rule.dart';
 import '../repositories/app_repository.dart';
 import '../utils/bike_actions.dart';
 import '../utils/person_actions.dart';
@@ -102,7 +103,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
-    final toDoTaskRulesCount = appRepository.openTaskRules.length;
+    final actionableTaskRulesCount = appRepository.actionableTaskRulesCount;
 
     final defaultIndex = appRepository.bikes.isEmpty || appRepository.components.isEmpty ? 0 : 1;
     final pageIndex = (_currentPageIndex ?? defaultIndex).clamp(
@@ -216,10 +217,10 @@ class _HomePageState extends State<HomePage> {
           if (appSettings.enableTask)
             NavigationDestination(
               icon: Badge.count(
-                count: toDoTaskRulesCount,
+                count: actionableTaskRulesCount,
                 maxCount: 99,
-                isLabelVisible: toDoTaskRulesCount > 0,
-                backgroundColor: appRepository.openTaskRulesStatusType.getStatusColor(context),
+                isLabelVisible: actionableTaskRulesCount > 0,
+                backgroundColor: (appRepository.worstActionableTaskStatus ?? TaskStatusType.completed).getStatusColor(context),
                 child: const Icon(Icons.checklist),
               ),
               label: "Tasks",

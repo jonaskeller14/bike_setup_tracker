@@ -4,6 +4,7 @@ import 'package:alchemist/alchemist.dart';
 import 'package:bike_setup_tracker/widgets/items/garage_bike_card.dart';
 import 'package:bike_setup_tracker/widgets/items/garage_uninstalled_card.dart';
 import 'package:bike_setup_tracker/widgets/lists/garage_list.dart';
+import 'package:bike_setup_tracker/widgets/lists/list_scroll_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -11,12 +12,20 @@ import '../../goldens/support/golden_test_harness.dart';
 
 void main() {
   late GoldenTestHarness harness;
+  late ListScrollController lightController;
+  late ListScrollController darkController;
 
   setUp(() async {
     harness = await GoldenTestHarness.create();
+    lightController = ListScrollController();
+    darkController = ListScrollController();
   });
 
-  tearDown(() => harness.dispose());
+  tearDown(() {
+    lightController.dispose();
+    darkController.dispose();
+    unawaited(harness.dispose());
+  });
 
   GoldenTestGroup buildScenarios() {
     return GoldenTestGroup(
@@ -27,14 +36,14 @@ void main() {
           name: 'Light',
           child: harness.wrap(
             brightness: Brightness.light,
-            child: const Scaffold(body: GarageList()),
+            child: Scaffold(body: GarageList(controller: lightController)),
           ),
         ),
         GoldenTestScenario(
           name: 'Dark',
           child: harness.wrap(
             brightness: Brightness.dark,
-            child: const Scaffold(body: GarageList()),
+            child: Scaffold(body: GarageList(controller: darkController)),
           ),
         ),
       ],

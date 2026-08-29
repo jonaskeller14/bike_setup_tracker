@@ -40,6 +40,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int? _currentPageIndex;
+  final ListScrollController _garageListController = ListScrollController();
   final ListScrollController _setupListController = ListScrollController();
   final ListScrollController _taskListController = ListScrollController();
   final Set<String> _selectedTaskRules = {};
@@ -93,6 +94,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
+    _garageListController.dispose();
     _setupListController.dispose();
     _taskListController.dispose();
     super.dispose();
@@ -197,6 +199,10 @@ class _HomePageState extends State<HomePage> {
         selectedIndex: pageIndex,
         onDestinationSelected: (int index) {
           if (index == pageIndex) {
+            if (index == 0) {
+              unawaited(_garageListController.scrollBackToTop());
+              return;
+            }
             if (index == 1) {
               unawaited(_setupListController.scrollBackToTop());
               return;
@@ -240,7 +246,7 @@ class _HomePageState extends State<HomePage> {
         child: IndexedStack(
           index: pageIndex,
           children: <Widget>[
-            const GarageList(),
+            GarageList(controller: _garageListController),
             SetupList(controller: _setupListController),
             if (appSettings.enablePerson) const PersonList(),
             if (appSettings.enableRating) const RatingList(),
@@ -255,13 +261,31 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       floatingActionButton: <Widget>[
-        FloatingActionButton(
-          heroTag: "addBike",
-          onPressed: () async {
-            await BikeActions.addBike(context);
-          },
-          tooltip: 'Add Bike',
-          child: const Icon(Icons.add),
+        ListenableBuilder(
+          listenable: _garageListController,
+          builder: (context, child) => Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              if (_garageListController.showBackToTop) ...[
+                FloatingActionButton.small(
+                  heroTag: "garageBackToTop",
+                  onPressed: _garageListController.scrollBackToTop,
+                  tooltip: 'Back to top',
+                  child: const Icon(Icons.arrow_upward),
+                ),
+                const SizedBox(height: 12),
+              ],
+              FloatingActionButton(
+                heroTag: "addBike",
+                onPressed: () async {
+                  await BikeActions.addBike(context);
+                },
+                tooltip: 'Add Bike',
+                child: const Icon(Icons.add),
+              ),
+            ],
+          ),
         ),
         ListenableBuilder(
           listenable: _setupListController,

@@ -412,7 +412,14 @@ class _CalendarPageState extends State<CalendarPage> {
   Future<void> _onDragEnd(AppointmentDragEndDetails details) async {
     final row = details.appointment;
     final newLocal = details.droppingTime;
-    if (row is! EntryRow || newLocal == null) return;
+    if (newLocal == null) return;
+    if (row is CalendarAddSetupSlot) {
+      await HapticFeedback.selectionClick();
+      if (!mounted) return;
+      setState(() => _pendingSetupDate = calendarSlotStart(newLocal));
+      return;
+    }
+    if (row is! EntryRow) return;
 
     switch (row) {
       case SingleEntryRow(:final entry):
@@ -943,9 +950,9 @@ class CalendarTimelineDataSource extends CalendarDataSource<Object> {
         _ => Colors.transparent,
       };
 
-  // Required for drag-and-drop with custom appointment objects. The new date is
-  // applied by [_onDragEnd] via the repository, so we just hand back the same
-  // row to satisfy the framework's non-null conversion contract.
+  // Required for drag-and-drop with custom appointment objects. [_onDragEnd]
+  // applies the new date, so return the same object to satisfy the framework's
+  // non-null conversion contract.
   @override
   Object convertAppointmentToObject(
           Object customData, Appointment appointment) =>

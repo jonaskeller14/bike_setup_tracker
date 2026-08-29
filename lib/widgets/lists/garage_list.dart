@@ -21,9 +21,12 @@ import '../items/garage_bike_card.dart';
 import '../items/garage_uninstalled_card.dart';
 import '../sheets/installation_sheet.dart';
 import '../sheets/installation_timeline_hint_sheet.dart';
+import 'list_scroll_controller.dart';
 
 class GarageList extends StatefulWidget {
-  const GarageList({super.key});
+  final ListScrollController controller;
+
+  const GarageList({super.key, required this.controller});
 
   @override
   State<GarageList> createState() => _GarageListState();
@@ -32,7 +35,6 @@ class GarageList extends StatefulWidget {
 class _GarageListState extends State<GarageList> {
   String? _componentToShowDetails;
   final ValueNotifier<Component?> _draggedComponentNotifier = ValueNotifier<Component?>(null);
-  final ScrollController _scrollController = ScrollController();
   Timer? _scrollTimer;
   double _scrollDelta = 0;
 
@@ -42,7 +44,6 @@ class _GarageListState extends State<GarageList> {
   @override
   void dispose() {
     _scrollTimer?.cancel();
-    _scrollController.dispose();
     _draggedComponentNotifier.dispose();
     super.dispose();
   }
@@ -65,10 +66,10 @@ class _GarageListState extends State<GarageList> {
     }
 
     _scrollTimer ??= Timer.periodic(const Duration(milliseconds: 16), (_) {
-      if (!_scrollController.hasClients || _scrollController.positions.length != 1) return;
-      final pos = _scrollController.position;
+      if (!widget.controller.scrollController.hasClients || widget.controller.scrollController.positions.length != 1) return;
+      final pos = widget.controller.scrollController.position;
       final next = (pos.pixels + _scrollDelta).clamp(pos.minScrollExtent, pos.maxScrollExtent);
-      _scrollController.jumpTo(next);
+      widget.controller.scrollController.jumpTo(next);
     });
   }
 
@@ -202,6 +203,7 @@ class _GarageListState extends State<GarageList> {
 
   Widget _emptyPlaceholder(BuildContext context) {
     return CustomScrollView(
+      controller: widget.controller.scrollController,
       slivers: [
         const SliverToBoxAdapter(
           child: AppHintSlot(
@@ -273,7 +275,7 @@ class _GarageListState extends State<GarageList> {
             onPointerUp: (_) => _stopEdgeScroll(),
             onPointerCancel: (_) => _stopEdgeScroll(),
             child: ReorderableListView.builder(
-              scrollController: _scrollController,
+              scrollController: widget.controller.scrollController,
               itemCount: bikesList.length,
               padding: const EdgeInsets.only(
                 left: 16,

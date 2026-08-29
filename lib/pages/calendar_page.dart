@@ -29,6 +29,7 @@ import '../widgets/sheets/strava_activity.dart';
 import '../widgets/sheets/task_rule_sheet.dart';
 
 const Duration kCalendarZeroDuration = Duration(minutes: 30);
+const double kCalendarTimeSlotHeight = 30;
 const Color kCalendarStravaColor = Color(0xFFFC4C02); // Strava brand orange
 const Color kCalendarRatingColor = Color(0xFFF9A825);
 const Duration kCalendarScrollLeadIn = Duration(minutes: 30);
@@ -657,6 +658,7 @@ class _CalendarPageState extends State<CalendarPage> {
                     view: _defaultView.view,
                     firstDayOfWeek: appSettings.firstDayOfWeek,
                     maxDate: DateTime.now().add(kCalendarZeroDuration),
+                    cellEndPadding: 0,
                     dataSource: CalendarTimelineDataSource(calendarItems, cs),
                     allowDragAndDrop: true,
                     dragAndDropSettings: DragAndDropSettings(
@@ -698,7 +700,8 @@ class _CalendarPageState extends State<CalendarPage> {
                     appointmentBuilder: _appointmentBuilder,
                     timeSlotViewSettings: TimeSlotViewSettings(
                       numberOfDaysInView: _selectedView.days,
-                      timeIntervalHeight: 60,
+                      timeInterval: kCalendarZeroDuration,
+                      timeIntervalHeight: kCalendarTimeSlotHeight,
                       timeFormat: appSettings.timeFormat,
                       timeTextStyle: TextStyle(color: cs.onSurfaceVariant, fontSize: 11),
                       dayFormat: 'EEE',
@@ -837,7 +840,8 @@ class _CalendarPageState extends State<CalendarPage> {
     CalendarAddSetupSlot slot,
   ) {
     final cs = Theme.of(context).colorScheme;
-    final showLabel = details.bounds.width >= 88;
+    final showIcon = details.bounds.width >= 24 && details.bounds.height >= 18;
+    final showLabel = showIcon && details.bounds.width >= 88;
     return Material(
       color: cs.primaryContainer,
       shape: RoundedRectangleBorder(
@@ -847,29 +851,31 @@ class _CalendarPageState extends State<CalendarPage> {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () => _addSetupAtDate(slot.date),
-        child: Center(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.add, size: 18, color: cs.onPrimaryContainer),
-              if (showLabel) ...[
-                const SizedBox(width: 2),
-                Flexible(
-                  child: Text(
-                    'Add setup',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: cs.onPrimaryContainer,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 12,
-                    ),
-                  ),
+        child: !showIcon
+            ? const SizedBox.expand()
+            : Center(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.add, size: 18, color: cs.onPrimaryContainer),
+                    if (showLabel) ...[
+                      const SizedBox(width: 2),
+                      Flexible(
+                        child: Text(
+                          'Add setup',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: cs.onPrimaryContainer,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
-              ],
-            ],
-          ),
-        ),
+              ),
       ),
     );
   }

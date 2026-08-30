@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/component.dart';
+import '../../models/installation.dart';
 import '../../models/task/task_rule.dart';
 import '../../models/task/task_threshold.dart';
 import '../../repositories/app_repository.dart';
@@ -20,42 +21,88 @@ class TaskRuleDisplayCard extends StatelessWidget {
 
   const TaskRuleDisplayCard({super.key, required this.taskRule, required this.showStatus});
 
-  Widget _filterWidget(BuildContext context, {required Component? component, required Bike? bike}) {
+  Widget _filterWidget(BuildContext context, {required Component? component, required Map<String, Bike> bikes}) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
       spacing: 2,
       children: [
         if (taskRule.componentId != null) ...[
-          Icon(
-            component?.componentType.getIconData() ?? Icons.grid_view_sharp,
-            size: 13,
-            color: component != null ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.error,
+          Flexible(
+            fit: FlexFit.tight,
+            child: Row(
+              spacing: 2,
+              children: [
+                Icon(
+                  component?.componentType.getIconData() ?? Icons.grid_view_sharp,
+                  size: 13,
+                  color: component != null ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.error,
+                ),
+                Expanded(
+                  child: Text(
+                    component?.name ?? "COMPONENT NOT FOUND",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: component != null ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8) : Theme.of(context).colorScheme.error,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
           Flexible(
-            child: Text(
-              component?.name ?? "COMPONENT NOT FOUND",
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: component != null ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8) : Theme.of(context).colorScheme.error,
-                fontSize: 13,
-              ),
+            fit: FlexFit.tight,
+            child: Row(
+              spacing: 2,
+              children: [
+                Icon(
+                  switch (component?.latestInstallation) {
+                    Archival() => Icons.inventory_2_outlined,
+                    BikeInstallation() => Bike.iconData,
+                    Uninstallation() || null => Icons.shelves,
+                  },
+                  size: 13,
+                  color: switch (component?.latestInstallation) {
+                    BikeInstallation(:final bikeId) when !bikes.containsKey(bikeId) => Theme.of(context).colorScheme.error,
+                    _ => Theme.of(context).colorScheme.onSurfaceVariant,
+                  },
+                ),
+                Expanded(
+                  child: Text(
+                    switch (component?.latestInstallation) {
+                      Archival() => 'Archived',
+                      BikeInstallation(:final bikeId) => bikes[bikeId]?.name ?? 'BIKE NOT FOUND',
+                      Uninstallation() || null => 'Not installed',
+                    },
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: switch (component?.latestInstallation) {
+                        BikeInstallation(:final bikeId) when !bikes.containsKey(bikeId) => Theme.of(context).colorScheme.error,
+                        _ => Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                      },
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ] else if (taskRule.bikeId != null) ...[
           Icon(
             Bike.iconData, 
             size: 13,
-            color: bike != null ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.error,
+            color: bikes.containsKey(taskRule.bikeId) ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.error,
           ),
           Flexible(
             child: Text(
-              bike?.name ?? "BIKE NOT FOUND",
+              bikes[taskRule.bikeId]?.name ?? "BIKE NOT FOUND",
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                color: bike != null ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8) : Theme.of(context).colorScheme.error,
+                color: bikes.containsKey(taskRule.bikeId) ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8) : Theme.of(context).colorScheme.error,
                 fontSize: 13,
               ),
             ),
@@ -159,8 +206,6 @@ class TaskRuleDisplayCard extends StatelessWidget {
     final isCompleted = status.type == TaskStatusType.completed;
 
     final component = taskRule.componentId != null ? appRepository.components[taskRule.componentId] : null;
-    final bike = taskRule.bikeId != null ? appRepository.bikes[taskRule.bikeId] : (component?.bike != null ? appRepository.bikes[component!.bike] : null);
-
     final statusColor = status.type.getStatusColor(context);
 
     return Hero(
@@ -196,7 +241,7 @@ class TaskRuleDisplayCard extends StatelessWidget {
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _filterWidget(context, component: component, bike: bike),
+              _filterWidget(context, component: component, bikes: appRepository.bikes),
               if (appSettings.enableTaskPriority)
                 _priorityWidget(context),
               if (appSettings.enableTaskTags && taskRule.tags.isNotEmpty)

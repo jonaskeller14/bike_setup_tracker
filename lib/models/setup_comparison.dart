@@ -28,6 +28,9 @@ class SetupComparisonGroup {
   final Component? componentA;
   final Component? componentB;
   final List<SetupAdjustmentComparison> rows;
+  final List<SetupAdjustmentComparison> independentRowsA;
+  final List<SetupAdjustmentComparison> independentRowsB;
+  final bool isInferredComponentPair;
 
   SetupComparisonGroup({
     required this.kind,
@@ -38,15 +41,25 @@ class SetupComparisonGroup {
     this.componentA,
     this.componentB,
     required Iterable<SetupAdjustmentComparison> rows,
-  }) : rows = List.unmodifiable(rows);
+    Iterable<SetupAdjustmentComparison> independentRowsA = const [],
+    Iterable<SetupAdjustmentComparison> independentRowsB = const [],
+    this.isInferredComponentPair = false,
+  }) : rows = List.unmodifiable(rows),
+       independentRowsA = List.unmodifiable(independentRowsA),
+       independentRowsB = List.unmodifiable(independentRowsB);
 
-  bool get isStructuralDifference => rows.isEmpty && ownerStateA != ownerStateB;
+  bool get isStructuralDifference => isInferredComponentPair || (rows.isEmpty && ownerStateA != ownerStateB);
 
-  bool get isAdjustmentlessOneSidedComponent => kind == SetupComparisonGroupKind.component && isStructuralDifference;
+  bool get isComponentInstallationDifference =>
+      kind == SetupComparisonGroupKind.component && (isInferredComponentPair || ownerStateA != ownerStateB);
+
+  bool get isAdjustmentlessOneSidedComponent =>
+      isComponentInstallationDifference && !isInferredComponentPair && rows.isEmpty;
 
   bool get isDifferent => isStructuralDifference || rows.any((row) => row.isDifferent);
 
   int get differenceCount {
+    if (isInferredComponentPair) return 1;
     if (rows.isEmpty) return isStructuralDifference ? 1 : 0;
     return rows.where((row) => row.isDifferent).length;
   }

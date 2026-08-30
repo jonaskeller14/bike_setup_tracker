@@ -16,6 +16,10 @@ class SetupComparisonOwnerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (group.isInferredComponentPair) {
+      return _InferredComponentPair(group: group);
+    }
+
     final rows = group.visibleRows(differencesOnly: differencesOnly);
     if (rows.isEmpty && !group.isStructuralDifference) return const SizedBox.shrink();
 
@@ -115,5 +119,100 @@ class SetupComparisonOwnerCard extends StatelessWidget {
   String _subtitle(int differenceCount, int totalCount) {
     final verb = differenceCount == 1 ? 'differs' : 'differ';
     return '$differenceCount/$totalCount values $verb';
+  }
+}
+
+class _InferredComponentPair extends StatelessWidget {
+  final comparison.SetupComparisonGroup group;
+
+  const _InferredComponentPair({required this.group});
+
+  @override
+  Widget build(BuildContext context) {
+    return KeyedSubtree(
+      key: Key('compare-owner-${group.kind.name}-${group.ownerId}'),
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: _IndependentComponentCard(
+                groupId: group.ownerId,
+                component: group.componentA!,
+                rows: group.independentRowsA,
+                side: DisplayAdjustmentDiffSide.a,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: _IndependentComponentCard(
+                groupId: group.ownerId,
+                component: group.componentB!,
+                rows: group.independentRowsB,
+                side: DisplayAdjustmentDiffSide.b,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _IndependentComponentCard extends StatelessWidget {
+  final String groupId;
+  final Component component;
+  final List<comparison.SetupAdjustmentComparison> rows;
+  final DisplayAdjustmentDiffSide side;
+
+  const _IndependentComponentCard({
+    required this.groupId,
+    required this.component,
+    required this.rows,
+    required this.side,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final sideName = side == DisplayAdjustmentDiffSide.a ? 'a' : 'b';
+    return Card.outlined(
+      key: Key('compare-component-card-$sideName-${component.id}'),
+      clipBehavior: Clip.antiAlias,
+      margin: EdgeInsets.zero,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CardHeaderTile(
+            color: Theme.of(context).colorScheme.outlineVariant,
+            child: ListTile(
+              leading: Icon(component.componentType.getIconData()),
+              title: Semantics(
+                label: component.name,
+                child: Text(
+                  component.name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+              subtitle: rows.isEmpty
+                  ? const Text(
+                      'No adjustments',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    )
+                  : null,
+            ),
+          ),
+          for (final row in rows)
+            DisplayAdjustmentDiff(
+              groupId: groupId,
+              row: row,
+              side: side,
+            ),
+        ],
+      ),
+    );
   }
 }

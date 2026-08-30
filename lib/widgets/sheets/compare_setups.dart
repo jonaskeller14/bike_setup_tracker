@@ -136,10 +136,12 @@ class _CompareSetupsState extends State<CompareSetups> {
         .where((group) => group.rows.isNotEmpty || group.isStructuralDifference)
         .toList(growable: false);
     final valueGroups = allValueGroups
-        .where((group) => !_differencesOnly || (group.isDifferent && !group.isAdjustmentlessOneSidedComponent))
+        .where(
+          (group) => !_differencesOnly || (group.isDifferent && !group.isComponentInstallationDifference),
+        )
         .toList(growable: false);
     final valueDifferenceCount = allValueGroups
-        .where((group) => !group.isAdjustmentlessOneSidedComponent)
+        .where((group) => !group.isComponentInstallationDifference)
         .fold(0, (count, group) => count + group.differenceCount);
     final contextHasChanged = _contextHasChanged(setupA, setupB, appSettings);
     final ratingsA = RatingSummaryData(

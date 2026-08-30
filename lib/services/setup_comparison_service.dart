@@ -70,7 +70,7 @@ class SetupComparisonService {
 
     return SetupComparison(
       groups: [
-        ..._buildOwnerGroups(
+        ..._buildComponentGroups(
           ownersA: componentOwnersA,
           ownersB: componentOwnersB,
         ),
@@ -92,6 +92,175 @@ class SetupComparisonService {
         ),
     ];
   }
+
+  static List<SetupComparisonGroup> _buildComponentGroups({
+    required List<_OwnerData> ownersA,
+    required List<_OwnerData> ownersB,
+  }) {
+    final componentsA = ownersA.cast<_ComponentOwnerData>();
+    final componentsB = ownersB.cast<_ComponentOwnerData>();
+    final byIdB = _byOwnerId(componentsB);
+    final exactIds = componentsA.map((owner) => owner.id).where(byIdB.containsKey).toSet();
+    final onlyA = componentsA.where((owner) => !exactIds.contains(owner.id)).toList();
+    final onlyB = componentsB.where((owner) => !exactIds.contains(owner.id)).toList();
+    final inferredByA = _matchReplacementComponents(onlyA, onlyB);
+    final inferredBIds = inferredByA.values.map((owner) => owner.id).toSet();
+
+    return [
+      for (final ownerA in componentsA)
+        if (exactIds.contains(ownerA.id))
+          _buildOwnerGroup(ownerA: ownerA, ownerB: byIdB[ownerA.id])
+        else if (inferredByA[ownerA.id] case final ownerB?)
+          _buildInferredComponentGroup(ownerA: ownerA, ownerB: ownerB)
+        else
+          _buildOwnerGroup(ownerA: ownerA, ownerB: null),
+      for (final ownerB in onlyB)
+        if (!inferredBIds.contains(ownerB.id)) _buildOwnerGroup(ownerA: null, ownerB: ownerB),
+    ];
+  }
+
+  static Map<String, _ComponentOwnerData> _matchReplacementComponents(
+    List<_ComponentOwnerData> onlyA,
+    List<_ComponentOwnerData> onlyB,
+  ) {
+    final result = <String, _ComponentOwnerData>{};
+    for (final type in ComponentType.values) {
+      final candidatesA = onlyA.where((owner) => owner.component.componentType == type).toList()
+        ..sort((a, b) => a.id.compareTo(b.id));
+      final candidatesB = onlyB.where((owner) => owner.component.componentType == type).toList()
+        ..sort((a, b) => a.id.compareTo(b.id));
+      if (candidatesA.isEmpty || candidatesB.isEmpty) continue;
+
+      if (candidatesA.length <= candidatesB.length) {
+        final assignment = _maximumScoreAssignment(
+          candidatesA,
+          candidatesB,
+          _componentSimilarity,
+        );
+        for (var index = 0; index < candidatesA.length; index++) {
+          result[candidatesA[index].id] = candidatesB[assignment[index]];
+        }
+      } else {
+        final assignment = _maximumScoreAssignment(
+          candidatesB,
+          candidatesA,
+          _componentSimilarity,
+        );
+        for (var index = 0; index < candidatesB.length; index++) {
+          result[candidatesA[assignment[index]].id] = candidatesB[index];
+        }
+      }
+    }
+    return result;
+  }
+
+  /// Returns the index of the assigned [right] item for every [left] item.
+  /// The Hungarian assignment keeps matching deterministic and order-independent.
+  static List<int> _maximumScoreAssignment<T>(
+    List<T> left,
+    List<T> right,
+    double Function(T left, T right) score,
+  ) {
+    assert(left.length <= right.length);
+    final rowCount = left.length;
+    final columnCount = right.length;
+    final rowPotential = List<double>.filled(rowCount + 1, 0);
+    final columnPotential = List<double>.filled(columnCount + 1, 0);
+    final rowForColumn = List<int>.filled(columnCount + 1, 0);
+    final previousColumn = List<int>.filled(columnCount + 1, 0);
+
+    for (var row = 1; row <= rowCount; row++) {
+      rowForColumn[0] = row;
+      var column = 0;
+      final minimum = List<double>.filled(columnCount + 1, double.infinity);
+      final used = List<bool>.filled(columnCount + 1, false);
+      do {
+        used[column] = true;
+        final currentRow = rowForColumn[column];
+        var delta = double.infinity;
+        var nextColumn = 0;
+        for (var candidateColumn = 1; candidateColumn <= columnCount; candidateColumn++) {
+          if (used[candidateColumn]) continue;
+          final cost =
+              -score(left[currentRow - 1], right[candidateColumn - 1]) -
+              rowPotential[currentRow] -
+              columnPotential[candidateColumn];
+          if (cost < minimum[candidateColumn]) {
+            minimum[candidateColumn] = cost;
+            previousColumn[candidateColumn] = column;
+          }
+          if (minimum[candidateColumn] < delta) {
+            delta = minimum[candidateColumn];
+            nextColumn = candidateColumn;
+          }
+        }
+        for (var candidateColumn = 0; candidateColumn <= columnCount; candidateColumn++) {
+          if (used[candidateColumn]) {
+            rowPotential[rowForColumn[candidateColumn]] += delta;
+            columnPotential[candidateColumn] -= delta;
+          } else {
+            minimum[candidateColumn] -= delta;
+          }
+        }
+        column = nextColumn;
+      } while (rowForColumn[column] != 0);
+
+      do {
+        final nextColumn = previousColumn[column];
+        rowForColumn[column] = rowForColumn[nextColumn];
+        column = nextColumn;
+      } while (column != 0);
+    }
+
+    final result = List<int>.filled(rowCount, 0);
+    for (var column = 1; column <= columnCount; column++) {
+      final row = rowForColumn[column];
+      if (row != 0) result[row - 1] = column - 1;
+    }
+    return result;
+  }
+
+  static double _componentSimilarity(
+    _ComponentOwnerData a,
+    _ComponentOwnerData b,
+  ) {
+    final nameSimilarity = _nameSimilarity(a.label, b.label);
+    final adjustmentSimilarity = _setOverlap(
+      a.adjustments.map((adjustment) => _normalize(adjustment.name)).toSet(),
+      b.adjustments.map((adjustment) => _normalize(adjustment.name)).toSet(),
+    );
+    return nameSimilarity * 0.7 + adjustmentSimilarity * 0.3;
+  }
+
+  static double _nameSimilarity(String a, String b) {
+    final normalizedA = _normalize(a);
+    final normalizedB = _normalize(b);
+    if (normalizedA.isEmpty || normalizedB.isEmpty) return 0;
+    final tokenSimilarity = _setOverlap(
+      normalizedA.split(RegExp(r'[^a-z0-9]+')).where((token) => token.isNotEmpty).toSet(),
+      normalizedB.split(RegExp(r'[^a-z0-9]+')).where((token) => token.isNotEmpty).toSet(),
+    );
+    final bigramSimilarity = _setOverlap(
+      _bigrams(normalizedA.replaceAll(' ', '')),
+      _bigrams(normalizedB.replaceAll(' ', '')),
+    );
+    return tokenSimilarity * 0.6 + bigramSimilarity * 0.4;
+  }
+
+  static Set<String> _bigrams(String value) {
+    if (value.isEmpty) return const {};
+    if (value.length == 1) return {value};
+    return {
+      for (var index = 0; index < value.length - 1; index++) value.substring(index, index + 2),
+    };
+  }
+
+  static double _setOverlap(Set<String> a, Set<String> b) {
+    if (a.isEmpty || b.isEmpty) return 0;
+    return 2 * a.intersection(b).length / (a.length + b.length);
+  }
+
+  static String _normalize(String value) => value.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
 
   static List<_OwnerData> _personOwners(SetupAdjustmentBreakdown breakdown, Setup setup) {
     return [
@@ -156,6 +325,49 @@ class SetupComparisonService {
             ownerStateB: stateB,
           ),
       ],
+    );
+  }
+
+  static SetupComparisonGroup _buildInferredComponentGroup({
+    required _ComponentOwnerData ownerA,
+    required _ComponentOwnerData ownerB,
+  }) {
+    return SetupComparisonGroup(
+      kind: SetupComparisonGroupKind.component,
+      ownerId: '${ownerA.id}--${ownerB.id}',
+      ownerStateA: SetupComparisonOwnerState.installedOrLinked,
+      ownerStateB: SetupComparisonOwnerState.installedOrLinked,
+      label: '${ownerA.label} / ${ownerB.label}',
+      componentA: ownerA.component,
+      componentB: ownerB.component,
+      rows: const [],
+      independentRowsA: [
+        for (final adjustment in ownerA.adjustments)
+          SetupAdjustmentComparison(
+            adjustmentA: adjustment,
+            adjustmentB: null,
+            valueA: _resolveValue(ownerA, adjustment),
+            valueB: const SetupComparisonSideValue(
+              value: null,
+              provenance: SetupComparisonValueProvenance.unavailable,
+            ),
+            isDifferent: false,
+          ),
+      ],
+      independentRowsB: [
+        for (final adjustment in ownerB.adjustments)
+          SetupAdjustmentComparison(
+            adjustmentA: null,
+            adjustmentB: adjustment,
+            valueA: const SetupComparisonSideValue(
+              value: null,
+              provenance: SetupComparisonValueProvenance.unavailable,
+            ),
+            valueB: _resolveValue(ownerB, adjustment),
+            isDifferent: false,
+          ),
+      ],
+      isInferredComponentPair: true,
     );
   }
 

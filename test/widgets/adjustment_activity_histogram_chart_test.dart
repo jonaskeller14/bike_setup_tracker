@@ -76,6 +76,14 @@ void main() {
     semantics.dispose();
   });
 
+  testWidgets('shows a compact bottom-to-top activity-count axis label', (tester) async {
+    await tester.pumpWidget(harness(histogram()));
+
+    expect(find.text('Activity count'), findsOneWidget);
+    final axisLabel = tester.widget<RotatedBox>(find.byKey(const ValueKey('histogram-activity-count-axis-label')));
+    expect(axisLabel.quarterTurns, 3);
+  });
+
   testWidgets('touch tooltip retains full exact or bin labels and large counts', (tester) async {
     final data = histogram(binned: true);
     await tester.pumpWidget(harness(data));

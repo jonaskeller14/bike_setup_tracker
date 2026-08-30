@@ -51,6 +51,15 @@ class AdjustmentActivityHistogramChart extends StatelessWidget {
                     topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                     rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                     leftTitles: AxisTitles(
+                      axisNameSize: 18,
+                      axisNameWidget: RotatedBox(
+                        key: const ValueKey('histogram-activity-count-axis-label'),
+                        quarterTurns: 3,
+                        child: Text(
+                          'Activity count',
+                          style: textTheme.labelSmall?.copyWith(color: colorScheme.onSecondary),
+                        ),
+                      ),
                       sideTitles: SideTitles(
                         showTitles: true,
                         reservedSize: 28,

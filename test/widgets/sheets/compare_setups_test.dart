@@ -1,7 +1,10 @@
 import 'package:bike_setup_tracker/models/app_hint.dart';
+import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
+import 'package:bike_setup_tracker/models/setup_comparison.dart' as comparison;
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/compare_setups/setup_comparison_header.dart';
+import 'package:bike_setup_tracker/widgets/compare_setups/setup_comparison_owner_card.dart';
 import 'package:bike_setup_tracker/widgets/current_setup_badge.dart';
 import 'package:bike_setup_tracker/widgets/current_setup_highlight.dart';
 import 'package:bike_setup_tracker/widgets/display_adjustment/display_adjustment_diff.dart';
@@ -88,7 +91,7 @@ void main() {
       findsOneWidget,
     );
     expect(find.byKey(const Key('compare-owner-component-fork')), findsOneWidget);
-    expect(find.textContaining('1 of 2 values differs'), findsOneWidget);
+    expect(find.textContaining('1/2 values differs'), findsOneWidget);
     expect(find.textContaining('A: Present'), findsNothing);
     expect(find.byKey(const Key('compare-row-fork-pressure')), findsNothing);
     expect(find.textContaining('Δ'), findsNothing);
@@ -373,7 +376,8 @@ void main() {
     await tester.tap(find.text('Cross bike'));
     await settle(tester);
     expect(find.byType(CompareSetups), findsOneWidget);
-    expect(find.textContaining('A: Present · B: -'), findsOneWidget);
+    expect(find.textContaining('A: Present'), findsNothing);
+    expect(find.textContaining('B: Present'), findsNothing);
     await tester.tap(find.byIcon(Icons.close));
     await settle(tester);
 
@@ -386,6 +390,86 @@ void main() {
     await settle(tester);
     expect(find.byType(CompareSetups), findsNothing);
     expect(find.text('Choose two different setups to compare.'), findsOneWidget);
+  });
+
+  testWidgets('one-sided component cards occupy only their matching setup column', (tester) async {
+    final setupOnBikeA = harness.setup(
+      id: 'bike-a-setup',
+      name: 'Bike A setup',
+      local: DateTime(2026, 8, 1, 10),
+      values: {CompareSetupsHarness.changedAdjustmentId: 4},
+    );
+    final setupOnBikeB = harness.setup(
+      id: 'bike-b-setup',
+      name: 'Bike B setup',
+      local: DateTime(2026, 8, 2, 10),
+      bike: CompareSetupsHarness.secondBikeId,
+    );
+    await harness.addSetups(tester, [setupOnBikeA, setupOnBikeB]);
+    await harness.reload(tester);
+
+    await pumpComparison(tester, setupOnBikeA.id, setupOnBikeB.id);
+
+    final forkOwner = find.byKey(const Key('compare-owner-component-fork'));
+    final cardA = find.descendant(of: forkOwner, matching: find.byType(Card));
+    final cardARect = tester.getRect(cardA);
+    final identityARect = tester.getRect(find.byKey(const Key('compare-identity-a')));
+    expect(cardARect.left, moreOrLessEquals(identityARect.left));
+    expect(cardARect.width, moreOrLessEquals(identityARect.width));
+    expect(find.byKey(const Key('compare-panel-a-fork-rebound')), findsOneWidget);
+    expect(find.byKey(const Key('compare-panel-b-fork-rebound')), findsNothing);
+    final notInstalledB = find.byKey(const Key('compare-not-installed-fork-b'));
+    expect(notInstalledB, findsOneWidget);
+    expect(tester.getCenter(notInstalledB).dy, moreOrLessEquals(cardARect.center.dy));
+    expect(find.text('Not installed'), findsWidgets);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await pumpComparison(tester, setupOnBikeB.id, setupOnBikeA.id);
+
+    final cardB = find.descendant(
+      of: find.byKey(const Key('compare-owner-component-fork')),
+      matching: find.byType(Card),
+    );
+    final cardBRect = tester.getRect(cardB);
+    final identityBRect = tester.getRect(find.byKey(const Key('compare-identity-b')));
+    expect(cardBRect.left, moreOrLessEquals(identityBRect.left));
+    expect(cardBRect.width, moreOrLessEquals(identityBRect.width));
+    expect(find.byKey(const Key('compare-panel-a-fork-rebound')), findsNothing);
+    expect(find.byKey(const Key('compare-panel-b-fork-rebound')), findsOneWidget);
+    final notInstalledA = find.byKey(const Key('compare-not-installed-fork-a'));
+    expect(notInstalledA, findsOneWidget);
+    expect(tester.getCenter(notInstalledA).dy, moreOrLessEquals(cardBRect.center.dy));
+    expect(find.textContaining('Present'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('one-sided structural component title stays neutral', (tester) async {
+    final group = comparison.SetupComparisonGroup(
+      kind: comparison.SetupComparisonGroupKind.component,
+      ownerId: 'frame',
+      ownerStateA: comparison.SetupComparisonOwnerState.installedOrLinked,
+      ownerStateB: comparison.SetupComparisonOwnerState.absent,
+      label: 'Frame',
+      componentA: Component(
+        id: 'frame',
+        name: 'Frame',
+        componentType: ComponentType.frame,
+        installations: const [],
+      ),
+      rows: const [],
+    );
+    await tester.pumpWidget(
+      harness.wrap(
+        SetupComparisonOwnerCard(group: group, differencesOnly: true),
+      ),
+    );
+    await settle(tester);
+
+    final title = tester.widget<Text>(find.text('Frame'));
+    expect(title.style?.color, isNull);
+    expect(find.textContaining('Present'), findsNothing);
+    expect(find.text('-'), findsNothing);
+    expect(find.text('Not installed'), findsOneWidget);
   });
 
   testWidgets('scrolls actions away while keeping labeled setup identities pinned', (tester) async {

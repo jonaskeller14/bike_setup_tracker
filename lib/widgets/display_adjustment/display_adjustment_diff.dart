@@ -9,14 +9,18 @@ import '../../theme.dart';
 import '../../utils/unit_conversion.dart';
 import 'adjustment_icon_name_notes.dart';
 
+enum DisplayAdjustmentDiffSide { both, a, b }
+
 class DisplayAdjustmentDiff extends StatefulWidget {
   final String groupId;
   final comparison.SetupAdjustmentComparison row;
+  final DisplayAdjustmentDiffSide side;
 
   const DisplayAdjustmentDiff({
     super.key,
     required this.groupId,
     required this.row,
+    this.side = DisplayAdjustmentDiffSide.both,
   });
 
   @override
@@ -71,25 +75,27 @@ class _DisplayAdjustmentDiffState extends State<DisplayAdjustmentDiff> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: _DiffValue(
-                    key: Key('compare-panel-a-$id'),
-                    value: _display(row.valueA, row.adjustmentA ?? adjustment),
-                    color: changedColor,
-                    canToggleUnit: _canToggleUnit,
-                    onToggleUnit: _toggleUnit,
+                if (widget.side != DisplayAdjustmentDiffSide.b)
+                  Expanded(
+                    child: _DiffValue(
+                      key: Key('compare-panel-a-$id'),
+                      value: _display(row.valueA, row.adjustmentA ?? adjustment),
+                      color: changedColor,
+                      canToggleUnit: _canToggleUnit,
+                      onToggleUnit: _toggleUnit,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _DiffValue(
-                    key: Key('compare-panel-b-$id'),
-                    value: _display(row.valueB, row.adjustmentB ?? adjustment),
-                    color: changedColor,
-                    canToggleUnit: _canToggleUnit,
-                    onToggleUnit: _toggleUnit,
+                if (widget.side == DisplayAdjustmentDiffSide.both) const SizedBox(width: 8),
+                if (widget.side != DisplayAdjustmentDiffSide.a)
+                  Expanded(
+                    child: _DiffValue(
+                      key: Key('compare-panel-b-$id'),
+                      value: _display(row.valueB, row.adjustmentB ?? adjustment),
+                      color: changedColor,
+                      canToggleUnit: _canToggleUnit,
+                      onToggleUnit: _toggleUnit,
+                    ),
                   ),
-                ),
               ],
             ),
           ],

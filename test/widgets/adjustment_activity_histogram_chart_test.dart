@@ -80,8 +80,8 @@ void main() {
     await tester.pumpWidget(harness(histogram()));
 
     expect(find.text('Activity count'), findsOneWidget);
-    final axisLabel = tester.widget<RotatedBox>(find.byKey(const ValueKey('histogram-activity-count-axis-label')));
-    expect(axisLabel.quarterTurns, 3);
+    final axisLabel = tester.widget<SizedBox>(find.byKey(const ValueKey('histogram-activity-count-axis-label')));
+    expect(axisLabel.child, isA<Text>());
   });
 
   testWidgets('touch tooltip retains full exact or bin labels and large counts', (tester) async {

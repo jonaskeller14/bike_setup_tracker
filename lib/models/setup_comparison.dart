@@ -42,6 +42,8 @@ class SetupComparisonGroup {
 
   bool get isStructuralDifference => rows.isEmpty && ownerStateA != ownerStateB;
 
+  bool get isAdjustmentlessOneSidedComponent => kind == SetupComparisonGroupKind.component && isStructuralDifference;
+
   bool get isDifferent => isStructuralDifference || rows.any((row) => row.isDifferent);
 
   int get differenceCount {

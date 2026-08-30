@@ -8,7 +8,6 @@ import '../../models/context/context_place.dart';
 import '../../models/context/context_position.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
-import '../../services/app_hint_service.dart';
 import '../../services/setup_comparison_service.dart';
 import '../../theme.dart';
 import '../app_snackbar.dart';
@@ -136,8 +135,12 @@ class _CompareSetupsState extends State<CompareSetups> {
     final allValueGroups = projection.groups
         .where((group) => group.rows.isNotEmpty || group.isStructuralDifference)
         .toList(growable: false);
-    final valueGroups = allValueGroups.where((group) => !_differencesOnly || group.isDifferent).toList(growable: false);
-    final valueDifferenceCount = allValueGroups.fold(0, (count, group) => count + group.differenceCount);
+    final valueGroups = allValueGroups
+        .where((group) => !_differencesOnly || (group.isDifferent && !group.isAdjustmentlessOneSidedComponent))
+        .toList(growable: false);
+    final valueDifferenceCount = allValueGroups
+        .where((group) => !group.isAdjustmentlessOneSidedComponent)
+        .fold(0, (count, group) => count + group.differenceCount);
     final contextHasChanged = _contextHasChanged(setupA, setupB, appSettings);
     final ratingsA = RatingSummaryData(
       entryCount: appRepository.ratingEntriesForSetup(setupA.id).length,

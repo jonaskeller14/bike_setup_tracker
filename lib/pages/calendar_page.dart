@@ -414,7 +414,7 @@ class _CalendarPageState extends State<CalendarPage> {
     final newLocal = details.droppingTime;
     if (newLocal == null) return;
     if (row is CalendarAddSetupSlot) {
-      await HapticFeedback.selectionClick();
+      await HapticFeedback.lightImpact();
       if (!mounted) return;
       setState(() => _pendingSetupDate = newLocal);
       return;
@@ -423,8 +423,10 @@ class _CalendarPageState extends State<CalendarPage> {
 
     switch (row) {
       case SingleEntryRow(:final entry):
+        await HapticFeedback.lightImpact();
         await _moveEntry(entry, newLocal);
       case ReplacementRow():
+        await HapticFeedback.lightImpact();
         await _moveReplacement(row, newLocal);
       // Moving a setup group lands in a later phase.
       case SetupGroupRow():

@@ -1,5 +1,6 @@
 import 'package:bike_setup_tracker/models/app_hint.dart';
 import 'package:bike_setup_tracker/models/component.dart';
+import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/setup_comparison.dart' as comparison;
 import 'package:bike_setup_tracker/theme.dart';
@@ -441,6 +442,57 @@ void main() {
     expect(tester.getCenter(notInstalledA).dy, moreOrLessEquals(cardBRect.center.dy));
     expect(find.textContaining('Present'), findsNothing);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('shows an adjustmentless one-sided component only in All', (tester) async {
+    await tester.runAsync(
+      () => harness.repository.addComponent(
+        Component(
+          id: 'frame',
+          name: 'Frame',
+          componentType: ComponentType.frame,
+          installations: [Installation.sinceBeginning(parent: CompareSetupsHarness.bikeId)],
+          adjustments: const [],
+        ),
+      ),
+    );
+    final setupA = harness.setup(
+      id: 'bike-a-setup',
+      name: 'Bike A setup',
+      local: DateTime(2026, 8, 1, 10),
+      values: {CompareSetupsHarness.changedAdjustmentId: 4},
+    );
+    final setupB = harness.setup(
+      id: 'bike-b-setup',
+      name: 'Bike B setup',
+      local: DateTime(2026, 8, 2, 10),
+      bike: CompareSetupsHarness.secondBikeId,
+    );
+    await harness.addSetups(tester, [setupA, setupB]);
+    await harness.reload(tester);
+    await pumpComparison(tester, setupA.id, setupB.id);
+
+    expect(find.byKey(const Key('compare-owner-component-frame')), findsNothing);
+    expect(find.text('No adjustments'), findsNothing);
+
+    await tester.tap(find.text('All'));
+    await settle(tester);
+
+    final frameCard = find.byKey(const Key('compare-owner-component-frame'));
+    final verticalScrollables = find.byWidgetPredicate(
+      (widget) => widget is Scrollable && widget.axisDirection == AxisDirection.down,
+    );
+    final scrollPosition = tester
+        .stateList<ScrollableState>(verticalScrollables)
+        .firstWhere((state) => state.position.maxScrollExtent > 0)
+        .position;
+    scrollPosition.jumpTo(scrollPosition.maxScrollExtent);
+    await settle(tester);
+    expect(frameCard, findsOneWidget);
+    final subtitle = tester.widget<Text>(
+      find.descendant(of: frameCard, matching: find.text('No adjustments')),
+    );
+    expect(subtitle.style?.color, isNull);
   });
 
   testWidgets('one-sided structural component title stays neutral', (tester) async {

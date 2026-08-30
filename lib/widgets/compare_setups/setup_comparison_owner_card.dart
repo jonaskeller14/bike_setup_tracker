@@ -20,7 +20,8 @@ class SetupComparisonOwnerCard extends StatelessWidget {
     if (rows.isEmpty && !group.isStructuralDifference) return const SizedBox.shrink();
 
     final scheme = Theme.of(context).colorScheme;
-    final detailTextColor = group.isStructuralDifference
+    final noAdjustments = group.isAdjustmentlessOneSidedComponent;
+    final detailTextColor = group.isStructuralDifference && !noAdjustments
         ? Theme.of(context).extension<ValueHighlightColors>()!.changed
         : null;
     final differenceCount = group.differenceCount;
@@ -59,7 +60,7 @@ class SetupComparisonOwnerCard extends StatelessWidget {
                 ),
               ),
               subtitle: Text(
-                _subtitle(differenceCount, totalCount),
+                noAdjustments ? 'No adjustments' : _subtitle(differenceCount, totalCount),
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(color: detailTextColor),

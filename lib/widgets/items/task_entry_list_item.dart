@@ -22,6 +22,7 @@ class TaskEntryListItem extends StatefulWidget {
   final bool showDate;
   final bool showTaskRule;
   final bool showStats;
+  final String? heroTag;
 
   const TaskEntryListItem({
     super.key,
@@ -34,6 +35,7 @@ class TaskEntryListItem extends StatefulWidget {
     this.showDate = true,
     this.showTaskRule = true,
     this.showStats = false,
+    this.heroTag,
   });
 
   @override
@@ -186,7 +188,11 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
                         onSelected: (_TaskEntryListCardPopupMenuButtonOptions value) async {
                           switch (value) {
                             case _TaskEntryListCardPopupMenuButtonOptions.edit:
-                              await TaskActions.editTaskEntry(context, taskEntry: taskEntry);
+                              await TaskActions.editTaskEntry(
+                                context,
+                                taskEntry: taskEntry,
+                                heroTag: widget.heroTag,
+                              );
                             case _TaskEntryListCardPopupMenuButtonOptions.dupliate:
                               await TaskActions.duplicateTaskEntry(context, taskEntry: taskEntry);
                             case _TaskEntryListCardPopupMenuButtonOptions.remove:

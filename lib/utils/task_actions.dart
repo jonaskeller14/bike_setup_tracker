@@ -148,12 +148,21 @@ class TaskActions {
     );
   }
 
-  static Future<void> addTaskEntry(BuildContext context, {required TaskRule taskRule}) async {
+  static Future<void> addTaskEntry(
+    BuildContext context, {
+    required TaskRule taskRule,
+    String? heroTag,
+  }) async {
     final appRepository = context.read<AppRepository>();
 
     final newEntry = await Navigator.push<TaskEntry>(
       context,
-      MaterialPageRoute(builder: (context) => TaskEntryPage.add(taskRule: taskRule)),
+      MaterialPageRoute(
+        builder: (context) => TaskEntryPage.add(
+          taskRule: taskRule,
+          heroTag: heroTag ?? 'task-rule-card-${taskRule.id}',
+        ),
+      ),
     );
     if (newEntry == null) return;
 
@@ -212,7 +221,11 @@ class TaskActions {
     );
   }
 
-  static Future<void> editTaskEntry(BuildContext context, {required TaskEntry taskEntry}) async {
+  static Future<void> editTaskEntry(
+    BuildContext context, {
+    required TaskEntry taskEntry,
+    String? heroTag,
+  }) async {
     final appRepository = context.read<AppRepository>();
     final taskRule = appRepository.taskRules[taskEntry.taskRule];
     if (taskRule == null) return;
@@ -220,7 +233,11 @@ class TaskActions {
     final editedEntry = await Navigator.push<TaskEntry>(
       context,
       MaterialPageRoute(
-        builder: (context) => TaskEntryPage.edit(taskEntry: taskEntry, taskRule: taskRule),
+        builder: (context) => TaskEntryPage.edit(
+          taskEntry: taskEntry,
+          taskRule: taskRule,
+          heroTag: heroTag,
+        ),
       ),
     );
     if (editedEntry == null) return;

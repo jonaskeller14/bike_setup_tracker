@@ -17,8 +17,14 @@ import '../../widgets/text/section_title.dart';
 class TaskRuleDetailsPage extends StatefulWidget {
   final String taskRuleId;
   final String? highlightTaskEntryId;
+  final String? heroTag;
 
-  const TaskRuleDetailsPage({super.key, required this.taskRuleId, this.highlightTaskEntryId});
+  const TaskRuleDetailsPage({
+    super.key,
+    required this.taskRuleId,
+    this.highlightTaskEntryId,
+    this.heroTag,
+  });
 
   @override
   State<TaskRuleDetailsPage> createState() => _TaskRuleDetailsPageState();
@@ -105,6 +111,7 @@ class _TaskRuleDetailsPageState extends State<TaskRuleDetailsPage> {
             child: TaskRuleDetailsPageContent(
               taskRuleId: widget.taskRuleId,
               highlightTaskEntryId: widget.highlightTaskEntryId,
+              heroTag: widget.heroTag ?? 'task-rule-card-${widget.taskRuleId}',
               selectedTaskEntries: _selectedTaskEntries,
               onTaskEntrySelectionChanged: _toggleTaskEntrySelection,
             ),
@@ -118,6 +125,7 @@ class _TaskRuleDetailsPageState extends State<TaskRuleDetailsPage> {
 class TaskRuleDetailsPageContent extends StatefulWidget {
   final String taskRuleId;
   final String? highlightTaskEntryId;
+  final String? heroTag;
   final Set<String> selectedTaskEntries;
   final ValueChanged<String>? onTaskEntrySelectionChanged;
 
@@ -125,6 +133,7 @@ class TaskRuleDetailsPageContent extends StatefulWidget {
     super.key,
     required this.taskRuleId,
     this.highlightTaskEntryId,
+    this.heroTag,
     this.selectedTaskEntries = const {},
     this.onTaskEntrySelectionChanged,
   });
@@ -175,7 +184,11 @@ class _TaskRuleDetailsPageContentState extends State<TaskRuleDetailsPageContent>
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: TaskRuleDisplayCard(taskRule: taskRule, showStatus: true),
+            child: TaskRuleDisplayCard(
+              taskRule: taskRule,
+              showStatus: true,
+              heroTag: widget.heroTag,
+            ),
           ),
           const SizedBox(height: 16),
 
@@ -193,7 +206,11 @@ class _TaskRuleDetailsPageContentState extends State<TaskRuleDetailsPageContent>
               title: 'No entries yet',
               subtitle: 'Complete this task to log your first entry.',
               actionLabel: 'Add entry',
-              onAction: () => TaskActions.addTaskEntry(context, taskRule: taskRule),
+              onAction: () => TaskActions.addTaskEntry(
+                context,
+                taskRule: taskRule,
+                heroTag: widget.heroTag,
+              ),
             )
           else
             ...reversedTaskEntries.mapIndexed((index, te) {
@@ -222,6 +239,7 @@ class _TaskRuleDetailsPageContentState extends State<TaskRuleDetailsPageContent>
                   showTaskRule: false,
                   selected: isSelected,
                   showStats: true,
+                  heroTag: widget.heroTag,
                 ),
               );
             }),

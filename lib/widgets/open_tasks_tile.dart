@@ -65,7 +65,12 @@ class OpenTasksTile extends StatelessWidget {
       ),
       childrenPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
       children: [
-        ...openTasks.map((t) => TaskRuleListCard(taskRuleId: t.rule.id)),
+        ...openTasks.map(
+          (t) => TaskRuleListCard(
+            taskRuleId: t.rule.id,
+            heroTag: 'open-task-card-${t.rule.id}',
+          ),
+        ),
         // const SizedBox(height: 8),
         Center(
           child: TextButton.icon(

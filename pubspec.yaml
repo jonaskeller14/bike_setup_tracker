@@ -17,7 +17,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
 
-version: 1.4.0+36  # TODO: Update AppInfo (lib/utils/app_info.dart)
+version: 1.4.1+37  # TODO: Update AppInfo (lib/utils/app_info.dart)
 
 environment:
   # Floor raised from ^3.9.2 for in_app_purchase_android 0.5.2 (Play Billing 8),

@@ -23,14 +23,15 @@ class TaskEntryPage extends StatefulWidget {
   final TaskEntry? taskEntry;
   final TaskRule taskRule;
   final TaskEntryPageMode mode;
+  final String? heroTag;
 
-  const TaskEntryPage._({super.key, this.taskEntry, required this.taskRule, required this.mode});
+  const TaskEntryPage._({super.key, this.taskEntry, required this.taskRule, required this.mode, this.heroTag});
 
-  factory TaskEntryPage.add({Key? key, required TaskRule taskRule}) => 
-    TaskEntryPage._(key: key, taskRule: taskRule, mode: TaskEntryPageMode.add);
+  factory TaskEntryPage.add({Key? key, required TaskRule taskRule, String? heroTag}) =>
+    TaskEntryPage._(key: key, taskRule: taskRule, mode: TaskEntryPageMode.add, heroTag: heroTag);
 
-  factory TaskEntryPage.edit({Key? key, required TaskEntry taskEntry, required TaskRule taskRule}) => 
-    TaskEntryPage._(key: key, taskEntry: taskEntry, taskRule: taskRule, mode: TaskEntryPageMode.edit);
+  factory TaskEntryPage.edit({Key? key, required TaskEntry taskEntry, required TaskRule taskRule, String? heroTag}) =>
+    TaskEntryPage._(key: key, taskEntry: taskEntry, taskRule: taskRule, mode: TaskEntryPageMode.edit, heroTag: heroTag);
 
   factory TaskEntryPage.duplicate({Key? key, required TaskEntry taskEntry, required TaskRule taskRule}) => 
     TaskEntryPage._(key: key, taskEntry: taskEntry, taskRule: taskRule, mode: TaskEntryPageMode.duplicate);
@@ -346,7 +347,11 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  TaskRuleDisplayCard(taskRule: widget.taskRule, showStatus: false),
+                  TaskRuleDisplayCard(
+                    taskRule: widget.taskRule,
+                    showStatus: false,
+                    heroTag: widget.heroTag,
+                  ),
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _nameController,

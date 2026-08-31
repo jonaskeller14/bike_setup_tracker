@@ -20,6 +20,7 @@ class TaskRuleListCard extends StatelessWidget {
   final String taskRuleId;
   final bool selectionMode;
   final bool selected;
+  final String? heroTag;
   final VoidCallback? onSelectionChanged;
   final VoidCallback? onSelectedTaskRulesCompleted;
 
@@ -28,6 +29,7 @@ class TaskRuleListCard extends StatelessWidget {
     required this.taskRuleId,
     this.selectionMode = false,
     this.selected = false,
+    this.heroTag,
     this.onSelectionChanged,
     this.onSelectedTaskRulesCompleted,
   });
@@ -252,6 +254,7 @@ class TaskRuleListCard extends StatelessWidget {
     final defaultCardColor = Theme.of(context).cardTheme.color ?? Theme.of(context).colorScheme.surfaceContainerLow;
 
     final canSetDelay = !isCompleted && canQuickEditTaskDelay(taskRule, appSettings);
+    final resolvedHeroTag = heroTag ?? 'task-rule-card-${taskRule.id}';
 
     final card = Opacity(
       opacity: isCompleted && !selected ? 0.5 : 1,
@@ -279,7 +282,11 @@ class TaskRuleListCard extends StatelessWidget {
                       onSelectedTaskRulesCompleted!();
                       return;
                     }
-                    await TaskActions.addTaskEntry(context, taskRule: taskRule);
+                    await TaskActions.addTaskEntry(
+                      context,
+                      taskRule: taskRule,
+                      heroTag: resolvedHeroTag,
+                    );
                   },
           ),
           contentPadding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
@@ -291,7 +298,10 @@ class TaskRuleListCard extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
-                          TaskRuleDetailsPage(taskRuleId: taskRuleId),
+                          TaskRuleDetailsPage(
+                            taskRuleId: taskRuleId,
+                            heroTag: resolvedHeroTag,
+                          ),
                     ),
                   );
                 },
@@ -452,8 +462,7 @@ class TaskRuleListCard extends StatelessWidget {
     // orange swipe background — lifts out together during the flight. If the
     // Hero wrapped only the card, the flight would leave a gap that reveals the
     // orange background sitting behind it.
-    Widget wrapInHero(Widget child) =>
-        Hero(tag: 'task-rule-card-${taskRule.id}', child: child);
+    Widget wrapInHero(Widget child) => Hero(tag: resolvedHeroTag, child: child);
 
     if (!canSetDelay || selectionMode) return wrapInHero(card);
 

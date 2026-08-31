@@ -18,8 +18,14 @@ import '../../utils/task_actions.dart';
 class TaskRuleDisplayCard extends StatelessWidget {
   final TaskRule taskRule;
   final bool showStatus;
+  final String? heroTag;
 
-  const TaskRuleDisplayCard({super.key, required this.taskRule, required this.showStatus});
+  const TaskRuleDisplayCard({
+    super.key,
+    required this.taskRule,
+    required this.showStatus,
+    this.heroTag,
+  });
 
   Widget _filterWidget(BuildContext context, {required Component? component, required Map<String, Bike> bikes}) {
     return Row(
@@ -208,9 +214,7 @@ class TaskRuleDisplayCard extends StatelessWidget {
     final component = taskRule.componentId != null ? appRepository.components[taskRule.componentId] : null;
     final statusColor = status.type.getStatusColor(context);
 
-    return Hero(
-      tag: 'task-rule-card-${taskRule.id}',
-      child: Opacity(
+    final card = Opacity(
       opacity: isCompleted ? 0.5 : 1,
       child: Card.outlined(
         margin: EdgeInsets.zero,
@@ -222,7 +226,11 @@ class TaskRuleDisplayCard extends StatelessWidget {
                   visualDensity: VisualDensity.compact,
                   onChanged: isCompleted ? null : (bool? value) async {
                     unawaited(HapticFeedback.lightImpact());
-                    await TaskActions.addTaskEntry(context, taskRule: taskRule);
+                    await TaskActions.addTaskEntry(
+                      context,
+                      taskRule: taskRule,
+                      heroTag: heroTag,
+                    );
                   },
                 )
               : null,
@@ -306,8 +314,9 @@ class TaskRuleDisplayCard extends StatelessWidget {
           ),
         ),
       ),
-      ),
     );
+
+    return heroTag == null ? card : Hero(tag: heroTag!, child: card);
   }
 
   Widget _buildThresholdDetailRow(BuildContext context, TaskThreshold interval, TaskThreshold? delay, TaskStatus status, Color statusColor, String distanceUnit, String altitudeUnit) {

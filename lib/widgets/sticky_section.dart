@@ -40,9 +40,9 @@ class RenderStickySection extends RenderBox
   ScrollPosition _scrollPosition;
   set scrollPosition(ScrollPosition value) {
     if (identical(_scrollPosition, value)) return;
-    if (attached) _scrollPosition.removeListener(markNeedsLayout);
+    if (attached) _scrollPosition.removeListener(markNeedsPaint);
     _scrollPosition = value;
-    if (attached) _scrollPosition.addListener(markNeedsLayout);
+    if (attached) _scrollPosition.addListener(markNeedsPaint);
   }
 
   RenderBox get _content => firstChild!;
@@ -58,12 +58,12 @@ class RenderStickySection extends RenderBox
   @override
   void attach(PipelineOwner owner) {
     super.attach(owner);
-    _scrollPosition.addListener(markNeedsLayout);
+    _scrollPosition.addListener(markNeedsPaint);
   }
 
   @override
   void detach() {
-    _scrollPosition.removeListener(markNeedsLayout);
+    _scrollPosition.removeListener(markNeedsPaint);
     super.detach();
   }
 
@@ -95,9 +95,7 @@ class RenderStickySection extends RenderBox
 
     (_content.parentData! as _StickySectionParentData).offset =
         Offset(0, headerHeight);
-    final maxOffset = math.max(0.0, size.height - headerHeight);
-    (_header.parentData! as _StickySectionParentData).offset =
-        Offset(0, _stuckOffset().clamp(0.0, maxOffset));
+    (_header.parentData! as _StickySectionParentData).offset = Offset.zero;
   }
 
   @override
@@ -112,8 +110,14 @@ class RenderStickySection extends RenderBox
   }
 
   @override
-  void paint(PaintingContext context, Offset offset) =>
-      defaultPaint(context, offset);
+  void paint(PaintingContext context, Offset offset) {
+    // Paint runs after the viewport has applied its content dimensions, so a
+    // size change and any resulting scroll clamp are reflected immediately.
+    final maxOffset = math.max(0.0, size.height - _header.size.height);
+    (_header.parentData! as _StickySectionParentData).offset =
+        Offset(0, _stuckOffset().clamp(0.0, maxOffset));
+    defaultPaint(context, offset);
+  }
 
   @override
   bool hitTestChildren(BoxHitTestResult result, {required Offset position}) =>

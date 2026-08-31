@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../models/app_hint.dart';
 import '../../models/app_settings.dart';
 import '../../models/context/context_place.dart';
 import '../../models/context/context_position.dart';
@@ -9,8 +10,10 @@ import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/setup_comparison_service.dart';
 import '../../theme.dart';
+import '../app_snackbar.dart';
 import '../compare_setups/setup_comparison_header.dart';
 import '../compare_setups/setup_comparison_owner_card.dart';
+import '../hints/app_hint_slot.dart';
 import '../items/context_bike_person_card_diff.dart';
 import '../items/context_location_card_diff.dart';
 import '../items/context_meta_card_diff.dart';
@@ -36,7 +39,7 @@ Future<void> showCompareSetupsSheet(
         : 'No current setup is available to compare.';
     final messenger = ScaffoldMessenger.of(context);
     messenger.hideCurrentSnackBar();
-    messenger.showSnackBar(SnackBar(content: Text(message)));
+    messenger.showSnackBar(AppSnackBar.info(context, message));
     return;
   }
 
@@ -67,6 +70,22 @@ class CompareSetups extends StatefulWidget {
 
 class _CompareSetupsState extends State<CompareSetups> {
   bool _differencesOnly = true;
+  late String _setupAId;
+  late String _setupBId;
+  String? _comparisonBikeId;
+
+  @override
+  void initState() {
+    super.initState();
+    _setupAId = widget.setupAId;
+    _setupBId = widget.setupBId;
+    final setups = context.read<AppRepository>().setups;
+    final setupA = setups[_setupAId];
+    final setupB = setups[_setupBId];
+    if (setupA != null && setupA.bike == setupB?.bike) {
+      _comparisonBikeId = setupA.bike;
+    }
+  }
 
   PinnedHeaderSliver _sectionTitle(BuildContext context, String title, {Widget? trailing}) {
     return PinnedHeaderSliver(
@@ -79,10 +98,10 @@ class _CompareSetupsState extends State<CompareSetups> {
 
   @override
   Widget build(BuildContext context) {
-    final repository = context.watch<AppRepository>();
-    final settings = context.watch<AppSettings>();
-    final setupA = repository.setups[widget.setupAId];
-    final setupB = repository.setups[widget.setupBId];
+    final appRepository = context.watch<AppRepository>();
+    final appSettings = context.watch<AppSettings>();
+    final setupA = appRepository.setups[_setupAId];
+    final setupB = appRepository.setups[_setupBId];
 
     if (setupA == null || setupB == null) {
       return CustomScrollView(
@@ -110,28 +129,37 @@ class _CompareSetupsState extends State<CompareSetups> {
     final projection = SetupComparisonService.build(
       setupA: setupA,
       setupB: setupB,
-      components: repository.components.values,
-      persons: repository.persons.values,
+      components: appRepository.components.values,
+      persons: appRepository.persons.values,
     );
     final allValueGroups = projection.groups
         .where((group) => group.rows.isNotEmpty || group.isStructuralDifference)
         .toList(growable: false);
-    final valueGroups = allValueGroups.where((group) => !_differencesOnly || group.isDifferent).toList(growable: false);
-    final valueDifferenceCount = allValueGroups.fold(0, (count, group) => count + group.differenceCount);
-    final contextHasChanged = _contextHasChanged(setupA, setupB, settings);
+    final valueGroups = allValueGroups
+        .where(
+          (group) => !_differencesOnly || (group.isDifferent && !group.isComponentInstallationDifference),
+        )
+        .toList(growable: false);
+    final valueDifferenceCount = allValueGroups
+        .where((group) => !group.isComponentInstallationDifference)
+        .fold(0, (count, group) => count + group.differenceCount);
+    final contextHasChanged = _contextHasChanged(setupA, setupB, appSettings);
     final ratingsA = RatingSummaryData(
-      entryCount: repository.ratingEntriesForSetup(setupA.id).length,
-      score: repository.scoreForSetup(setupA.id),
-      metricScores: repository.metricScoresForSetup(setupA.id),
-      metrics: repository.allRatingMetricsById,
+      entryCount: appRepository.ratingEntriesForSetup(setupA.id).length,
+      score: appRepository.scoreForSetup(setupA.id),
+      metricScores: appRepository.metricScoresForSetup(setupA.id),
+      metrics: appRepository.allRatingMetricsById,
     );
     final ratingsB = RatingSummaryData(
-      entryCount: repository.ratingEntriesForSetup(setupB.id).length,
-      score: repository.scoreForSetup(setupB.id),
-      metricScores: repository.metricScoresForSetup(setupB.id),
-      metrics: repository.allRatingMetricsById,
+      entryCount: appRepository.ratingEntriesForSetup(setupB.id).length,
+      score: appRepository.scoreForSetup(setupB.id),
+      metricScores: appRepository.metricScoresForSetup(setupB.id),
+      metrics: appRepository.allRatingMetricsById,
     );
-    final hasVisibleRatings = settings.enableRating;
+    final hasVisibleRatings = appSettings.enableRating;
+    final selectableSetups = _comparisonBikeId == null
+        ? appRepository.setups.values
+        : appRepository.setups.values.where((setup) => setup.bike == _comparisonBikeId);
 
     return CustomScrollView(
       shrinkWrap: true,
@@ -140,6 +168,17 @@ class _CompareSetupsState extends State<CompareSetups> {
         SetupComparisonIdentities(
           setupA: setupA,
           setupB: setupB,
+          setups: selectableSetups,
+          showBikeNames: _comparisonBikeId == null,
+          bikeNamesById: appRepository.bikes.map((id, bike) => MapEntry(id, bike.name)),
+          onSetupAChanged: (setup) => setState(() => _setupAId = setup.id),
+          onSetupBChanged: (setup) => setState(() => _setupBId = setup.id),
+        ),
+        const SliverToBoxAdapter(
+          child: AppHintSlot(
+            placement: AppHintPlacement.setupComparison,
+            padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
+          ),
         ),
         SliverSafeArea(
           top: false,
@@ -158,7 +197,7 @@ class _CompareSetupsState extends State<CompareSetups> {
                       child: _ContextSection(
                         setupA: setupA,
                         setupB: setupB,
-                        settings: settings,
+                        settings: appSettings,
                       ),
                     ),
                   ),

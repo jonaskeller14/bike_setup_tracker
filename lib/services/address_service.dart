@@ -9,6 +9,7 @@ enum AddressStatus {
 }
 
 class AddressService extends ChangeNotifier {
+  late final geo.Geocoding _geocoding = geo.Geocoding();
   AddressStatus _status = AddressStatus.idle;
 
   AddressStatus get status => _status;
@@ -21,7 +22,7 @@ class AddressService extends ChangeNotifier {
   Future<geo.Placemark?> fetchAddress({required double lat, required double lon}) async {
     setStatus(AddressStatus.searching);
     try {
-      final List<geo.Placemark> placemarks = await geo.placemarkFromCoordinates(lat, lon);
+      final List<geo.Placemark> placemarks = await _geocoding.placemarkFromCoordinates(lat, lon);
       if (placemarks.isNotEmpty) {
         setStatus(AddressStatus.success);
         return placemarks.first;

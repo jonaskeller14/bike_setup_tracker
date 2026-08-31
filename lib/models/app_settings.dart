@@ -33,14 +33,9 @@ class AppSettings extends ChangeNotifier {
   bool _enableGarageTaskIndicator = true;
   bool _enableInstallationTimeline = false;
   bool _useMapBoxTiles = false;
-  bool _showStravaLinkGearHint = true;
-  bool _showGarageListHint = true;
-  bool _showGettingStartedGuideHint = true;
-  bool _showSetupTaskHint = true;
-  bool _showSetupCalendarHint = true;
   bool _enableCalendar = false;
   bool _enableSetupImages = false;
-  bool _enableSetupComparison = false;
+  bool _enableSetupComparison = true;
   bool _enableComponentPresets = false;
   // Setup timeline grouping passes (debug-only, see FeaturesPage)
   bool _enableTimelineDayHeaders = true;
@@ -57,7 +52,6 @@ class AppSettings extends ChangeNotifier {
   bool _displayShowInstallations = true;
   bool _displayShowTasks = true;
   bool _displayShowRatingEntries = true;
-  bool _hintShownThisSession = false;
 
   bool get showOnboarding => _showOnboarding;
   ThemeMode get themeMode => _themeMode;
@@ -85,12 +79,6 @@ class AppSettings extends ChangeNotifier {
   bool get enableGarageTaskIndicator => _enableGarageTaskIndicator;
   bool get enableInstallationTimeline => _enableInstallationTimeline;
   bool get useMapBoxTiles => _useMapBoxTiles;
-  bool get showStravaLinkGearHint => _showStravaLinkGearHint;
-  bool get showGarageListHint => _showGarageListHint;
-  bool get showGettingStartedGuideHint => _showGettingStartedGuideHint;
-  bool get showSetupTaskHint => _showSetupTaskHint;
-  bool get showSetupCalendarHint => _showSetupCalendarHint;
-  bool get hintShownThisSession => _hintShownThisSession;
   bool get enableCalendar => _enableCalendar;
   bool get enableSetupImages => _enableSetupImages;
   bool get enableSetupComparison => _enableSetupComparison;
@@ -285,41 +273,6 @@ class AppSettings extends ChangeNotifier {
     _persistBool('useMapBoxTiles', newValue);
   }
 
-  set showStravaLinkGearHint(bool newValue) {
-    if (newValue == _showStravaLinkGearHint) return;
-    _showStravaLinkGearHint = newValue;
-    notifyListeners();
-    _persistBool('showStravaLinkGearHint', newValue);
-  }
-
-  set showGarageListHint(bool newValue) {
-    if (newValue == _showGarageListHint) return;
-    _showGarageListHint = newValue;
-    notifyListeners();
-    _persistBool('showGarageListHint', newValue);
-  }
-
-  set showGettingStartedGuideHint(bool newValue) {
-    if (newValue == _showGettingStartedGuideHint) return;
-    _showGettingStartedGuideHint = newValue;
-    notifyListeners();
-    _persistBool('showGettingStartedGuideHint', newValue);
-  }
-
-  set showSetupTaskHint(bool newValue) {
-    if (newValue == _showSetupTaskHint) return;
-    _showSetupTaskHint = newValue;
-    notifyListeners();
-    _persistBool('showSetupTaskHint', newValue);
-  }
-
-  set showSetupCalendarHint(bool newValue) {
-    if (newValue == _showSetupCalendarHint) return;
-    _showSetupCalendarHint = newValue;
-    notifyListeners();
-    _persistBool('showSetupCalendarHint', newValue);
-  }
-
   set enableCalendar(bool newValue) {
     if (newValue == _enableCalendar) return;
     _enableCalendar = newValue;
@@ -383,13 +336,6 @@ class AppSettings extends ChangeNotifier {
     _persistInt('firstDayOfWeek', newValue);
   }
 
-  // Temporary (in-memory only)
-  set hintShownThisSession(bool newValue) {
-    if (newValue == _hintShownThisSession) return;
-    _hintShownThisSession = newValue;
-    notifyListeners();
-  }
-
   set setupListBikeAdjustmentValues(bool newValue) {
     if (newValue == _setupListBikeAdjustmentValues) return;
     _setupListBikeAdjustmentValues = newValue;
@@ -430,15 +376,6 @@ class AppSettings extends ChangeNotifier {
     if (newValue == _displayShowRatingEntries) return;
     _displayShowRatingEntries = newValue;
     notifyListeners();
-  }
-
-  void showAllHints() {
-    showStravaLinkGearHint = true;
-    showGarageListHint = true;
-    showGettingStartedGuideHint = true;
-    showSetupTaskHint = true;
-    showSetupCalendarHint = true;
-    hintShownThisSession = false;
   }
 
   void _persistBool(String name, bool value) async {
@@ -494,12 +431,6 @@ class AppSettings extends ChangeNotifier {
       _enableInstallationTimeline =
           prefs.getBool('${_kPrefix}enableInstallationTimeline') ?? _enableInstallationTimeline;
       _useMapBoxTiles = prefs.getBool('${_kPrefix}useMapBoxTiles') ?? _useMapBoxTiles;
-      _showStravaLinkGearHint = prefs.getBool('${_kPrefix}showStravaLinkGearHint') ?? _showStravaLinkGearHint;
-      _showGarageListHint = prefs.getBool('${_kPrefix}showGarageListHint') ?? _showGarageListHint;
-      _showGettingStartedGuideHint =
-          prefs.getBool('${_kPrefix}showGettingStartedGuideHint') ?? _showGettingStartedGuideHint;
-      _showSetupTaskHint = prefs.getBool('${_kPrefix}showSetupTaskHint') ?? _showSetupTaskHint;
-      _showSetupCalendarHint = prefs.getBool('${_kPrefix}showSetupCalendarHint') ?? _showSetupCalendarHint;
       _enableCalendar = prefs.getBool('${_kPrefix}enableCalendar') ?? _enableCalendar;
       _enableSetupImages = prefs.getBool('${_kPrefix}enableSetupImages') ?? _enableSetupImages;
       _enableSetupComparison = prefs.getBool('${_kPrefix}enableSetupComparison') ?? _enableSetupComparison;
@@ -574,8 +505,6 @@ class AppSettings extends ChangeNotifier {
     'enableStravaNotifications': true,
     'enableTask': false,
     'enableTaskPriority': true,
-    'showStravaLinkGearHint': true,
-    'showGarageListHint': true,
     'enableInstallationTimeline': false,
     'enableCalendar': false,
   };

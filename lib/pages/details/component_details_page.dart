@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -8,8 +10,10 @@ import '../../models/bike.dart';
 import '../../models/component_stats.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/setup_activity_analysis_service.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/component_actions.dart';
+import '../../utils/installation_timeline_validation.dart';
 import '../../utils/table_column.dart';
 import '../../widgets/chips/filter_sheet_chip.dart';
 import '../../widgets/display_data/component_details_page_line_chart.dart';
@@ -103,6 +107,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     required Iterable<Adjustment> componentAdjustments,
     required Iterable<Adjustment> personAdjustments,
     required Map<String, Bike> bikes,
+    required Map<String, int> setupActivityCounts,
   }) {
     if (_sortColumn == null) return setups;
 
@@ -157,6 +162,11 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
             _sortAscending
                 ? setups.sort((a, b) => (bikes[a.bike]?.name ?? '').compareTo(bikes[b.bike]?.name ?? ''))
                 : setups.sort((a, b) => (bikes[b.bike]?.name ?? '').compareTo(bikes[a.bike]?.name ?? ''));
+          case "Activities":
+            int count(Setup setup) => setupActivityCounts[setup.id] ?? 0;
+            _sortAscending
+                ? setups.sort((a, b) => count(a).compareTo(count(b)))
+                : setups.sort((a, b) => count(b).compareTo(count(a)));
           case "Weather Code":
             _sortAscending
                 ? setups.sort(
@@ -296,6 +306,15 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
     final subscriptionService = context.watch<SubscriptionService>();
+    final hasAnyActivity = context.select<SetupActivityAnalysisService, bool>(
+      (service) => service.hasAnyActivity,
+    );
+    final setupActivityCounts = context.select<SetupActivityAnalysisService, Map<String, int>>(
+      (service) => service.setupActivityCounts,
+    );
+    if (hasAnyActivity) {
+      unawaited(context.read<SetupActivityAnalysisService>().getSetupActivityCounts());
+    }
 
     final component = appRepository.components[widget.componentId];
     if (component == null) return const SizedBox.shrink();
@@ -332,6 +351,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
       switch (column.section) {
         case TableColumnSection.generalContext:
           if (column.label == "Tags" && !appSettings.enableSetupTags) _columns.remove(column);
+          if (column.label == "Activities" && !hasAnyActivity) _columns.remove(column);
         case TableColumnSection.componentAdjustments:
           if (!componentAdjustments.any((a) => a.id == column.label)) _columns.remove(column);
         case TableColumnSection.personAttributes:
@@ -354,6 +374,9 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     // Add missing columns
     if (appSettings.enableSetupTags) {
       _columns.add(TableColumn(section: TableColumnSection.generalContext, label: "Tags", active: false));
+    }
+    if (hasAnyActivity) {
+      _columns.add(TableColumn(section: TableColumnSection.generalContext, label: "Activities", active: false));
     }
 
     for (final adjustment in component.adjustments) {
@@ -382,6 +405,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
       componentAdjustments: componentAdjustments,
       personAdjustments: personAdjustments,
       bikes: bikes,
+      setupActivityCounts: setupActivityCounts,
     );
 
     _selectedSetupIds ??= (setups.toList()..sort((a, b) => b.datetime.compareTo(a.datetime)))
@@ -437,7 +461,10 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                 const Divider(height: 1),
               ],
 
-              if (appSettings.enableInstallationTimeline) ...[
+              if (shouldUseInstallationTimeline(
+                featureEnabled: appSettings.enableInstallationTimeline,
+                installations: component.installations,
+              ) || appRepository.taskEntries.values.any((te) => te.componentId == widget.componentId)) ...[
                 ExpansionTile(
                   shape: const Border(),
                   collapsedShape: const Border(),
@@ -450,7 +477,13 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                   leading: const Icon(Icons.history),
                   childrenPadding: const EdgeInsets.only(left: 20, right: 16),
                   children: [
-                    DisplayInstallationTimeline(component: component, showTaskEntries: true),
+                    DisplayInstallationTimeline(
+                      component: component,
+                      bikes: bikes,
+                      taskEntries: appRepository.taskEntries.values.where(
+                        (entry) => entry.componentId == component.id,
+                      ),
+                    ),
                   ],
                 ),
                 const Divider(height: 1),
@@ -499,6 +532,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                   sortAscending: _sortAscending,
                   sortColumn: _sortColumn,
                   bikes: bikes,
+                  setupActivityCounts: setupActivityCounts,
                   valueFor: _rawValue,
                   columnLabel: (column) => _columnLabel(
                     column,

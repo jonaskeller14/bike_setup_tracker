@@ -1,5 +1,12 @@
+import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
+import 'package:bike_setup_tracker/models/app_hint.dart';
+import 'package:bike_setup_tracker/models/component.dart';
+import 'package:bike_setup_tracker/models/installation.dart';
+import 'package:bike_setup_tracker/models/setup.dart';
+import 'package:bike_setup_tracker/models/setup_comparison.dart' as comparison;
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/compare_setups/setup_comparison_header.dart';
+import 'package:bike_setup_tracker/widgets/compare_setups/setup_comparison_owner_card.dart';
 import 'package:bike_setup_tracker/widgets/current_setup_badge.dart';
 import 'package:bike_setup_tracker/widgets/current_setup_highlight.dart';
 import 'package:bike_setup_tracker/widgets/display_adjustment/display_adjustment_diff.dart';
@@ -86,7 +93,7 @@ void main() {
       findsOneWidget,
     );
     expect(find.byKey(const Key('compare-owner-component-fork')), findsOneWidget);
-    expect(find.textContaining('1 of 2 values differs'), findsOneWidget);
+    expect(find.textContaining('1/2 values differs'), findsOneWidget);
     expect(find.textContaining('A: Present'), findsNothing);
     expect(find.byKey(const Key('compare-row-fork-pressure')), findsNothing);
     expect(find.textContaining('Δ'), findsNothing);
@@ -95,6 +102,25 @@ void main() {
     await settle(tester);
 
     expect(find.byKey(const Key('compare-row-fork-pressure')), findsOneWidget);
+  });
+
+  testWidgets('shows and dismisses the comparison hint above Context', (tester) async {
+    final (setupAId, setupBId) = await seedPair(tester);
+    await harness.hintService.resetAll();
+    await pumpComparison(tester, setupAId, setupBId);
+
+    expect(find.byKey(const Key('compare-setups-hint')), findsOneWidget);
+    expect(find.text('Compare two setups'), findsOneWidget);
+    expect(find.text('CONTEXT'), findsOneWidget);
+    expect(
+      tester.getRect(find.byKey(const Key('compare-setups-hint'))).bottom,
+      lessThan(tester.getRect(find.text('CONTEXT')).top),
+    );
+
+    await tester.tap(find.byTooltip('Dismiss'));
+    await settle(tester);
+    expect(find.byKey(const Key('compare-setups-hint')), findsNothing);
+    expect(harness.hintService.statusOf(AppHint.setupComparisonV1), AppHintStatus.dismissed);
   });
 
   testWidgets('keeps equal explicit and inherited values out of Differences without showing provenance', (
@@ -352,7 +378,8 @@ void main() {
     await tester.tap(find.text('Cross bike'));
     await settle(tester);
     expect(find.byType(CompareSetups), findsOneWidget);
-    expect(find.textContaining('A: Present · B: -'), findsOneWidget);
+    expect(find.textContaining('A: Present'), findsNothing);
+    expect(find.textContaining('B: Present'), findsNothing);
     await tester.tap(find.byIcon(Icons.close));
     await settle(tester);
 
@@ -365,6 +392,222 @@ void main() {
     await settle(tester);
     expect(find.byType(CompareSetups), findsNothing);
     expect(find.text('Choose two different setups to compare.'), findsOneWidget);
+  });
+
+  testWidgets('one-sided component cards occupy only their matching setup column', (tester) async {
+    final setupOnBikeA = harness.setup(
+      id: 'bike-a-setup',
+      name: 'Bike A setup',
+      local: DateTime(2026, 8, 1, 10),
+      values: {CompareSetupsHarness.changedAdjustmentId: 4},
+    );
+    final setupOnBikeB = harness.setup(
+      id: 'bike-b-setup',
+      name: 'Bike B setup',
+      local: DateTime(2026, 8, 2, 10),
+      bike: CompareSetupsHarness.secondBikeId,
+    );
+    await harness.addSetups(tester, [setupOnBikeA, setupOnBikeB]);
+    await harness.reload(tester);
+
+    await pumpComparison(tester, setupOnBikeA.id, setupOnBikeB.id);
+
+    expect(find.byKey(const Key('compare-owner-component-fork')), findsNothing);
+    expect(find.text('Differences (0)'), findsOneWidget);
+    await tester.tap(find.text('All'));
+    await settle(tester);
+
+    final forkOwner = find.byKey(const Key('compare-owner-component-fork'));
+    final cardA = find.descendant(of: forkOwner, matching: find.byType(Card));
+    final cardARect = tester.getRect(cardA);
+    final identityARect = tester.getRect(find.byKey(const Key('compare-identity-a')));
+    expect(cardARect.left, moreOrLessEquals(identityARect.left));
+    expect(cardARect.width, moreOrLessEquals(identityARect.width));
+    expect(find.byKey(const Key('compare-panel-a-fork-rebound')), findsOneWidget);
+    expect(find.byKey(const Key('compare-panel-b-fork-rebound')), findsNothing);
+    final notInstalledB = find.byKey(const Key('compare-not-installed-fork-b'));
+    expect(notInstalledB, findsOneWidget);
+    expect(tester.getCenter(notInstalledB).dy, moreOrLessEquals(cardARect.center.dy));
+    expect(find.text('Not installed'), findsWidgets);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await pumpComparison(tester, setupOnBikeB.id, setupOnBikeA.id);
+    expect(find.byKey(const Key('compare-owner-component-fork')), findsNothing);
+    await tester.tap(find.text('All'));
+    await settle(tester);
+
+    final cardB = find.descendant(
+      of: find.byKey(const Key('compare-owner-component-fork')),
+      matching: find.byType(Card),
+    );
+    final cardBRect = tester.getRect(cardB);
+    final identityBRect = tester.getRect(find.byKey(const Key('compare-identity-b')));
+    expect(cardBRect.left, moreOrLessEquals(identityBRect.left));
+    expect(cardBRect.width, moreOrLessEquals(identityBRect.width));
+    expect(find.byKey(const Key('compare-panel-a-fork-rebound')), findsNothing);
+    expect(find.byKey(const Key('compare-panel-b-fork-rebound')), findsOneWidget);
+    final notInstalledA = find.byKey(const Key('compare-not-installed-fork-a'));
+    expect(notInstalledA, findsOneWidget);
+    expect(tester.getCenter(notInstalledA).dy, moreOrLessEquals(cardBRect.center.dy));
+    expect(find.textContaining('Present'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('matched replacement components render as independent cards in the A and B columns', (
+    tester,
+  ) async {
+    await tester.runAsync(
+      () => harness.repository.addComponent(
+        Component(
+          id: 'replacement-fork',
+          name: 'Front Fork 38 2026',
+          componentType: ComponentType.fork,
+          installations: [
+            Installation.sinceBeginning(parent: CompareSetupsHarness.secondBikeId),
+          ],
+          adjustments: [
+            TextAdjustment(
+              id: 'replacement-rebound',
+              name: 'Rebound',
+              notes: null,
+              unit: null,
+            ),
+          ],
+        ),
+      ),
+    );
+    final setupA = harness.setup(
+      id: 'replacement-a',
+      name: 'Before replacement',
+      local: DateTime(2026, 8, 1, 10),
+      values: {CompareSetupsHarness.changedAdjustmentId: 4},
+    );
+    final setupB = harness.setup(
+      id: 'replacement-b',
+      name: 'After replacement',
+      local: DateTime(2026, 8, 2, 10),
+      bike: CompareSetupsHarness.secondBikeId,
+      values: {'replacement-rebound': 'Open'},
+    );
+    await harness.addSetups(tester, [setupA, setupB]);
+    await harness.reload(tester);
+
+    await pumpComparison(tester, setupA.id, setupB.id);
+
+    const groupId = 'fork--replacement-fork';
+    final owner = find.byKey(const Key('compare-owner-component-$groupId'));
+    final cardA = find.byKey(const Key('compare-component-card-a-fork'));
+    final cardB = find.byKey(const Key('compare-component-card-b-replacement-fork'));
+    expect(owner, findsNothing);
+    expect(cardA, findsNothing);
+    expect(cardB, findsNothing);
+    expect(find.text('Differences (0)'), findsOneWidget);
+
+    await tester.tap(find.text('All'));
+    await settle(tester);
+
+    expect(owner, findsOneWidget);
+    expect(cardA, findsOneWidget);
+    expect(cardB, findsOneWidget);
+    expect(find.text('Not installed'), findsNothing);
+    expect(find.text('Different components'), findsNothing);
+    expect(find.text('Possible replacement'), findsNothing);
+    expect(find.byKey(const Key('compare-panel-a-$groupId-rebound')), findsOneWidget);
+    expect(
+      find.byKey(const Key('compare-panel-b-$groupId-replacement-rebound')),
+      findsOneWidget,
+    );
+    expect(find.byKey(const Key('compare-panel-b-$groupId-rebound')), findsNothing);
+    expect(find.byKey(const Key('compare-panel-a-$groupId-replacement-rebound')), findsNothing);
+
+    final identityA = tester.getRect(find.byKey(const Key('compare-identity-a')));
+    final identityB = tester.getRect(find.byKey(const Key('compare-identity-b')));
+    expect(tester.getRect(cardA).left, moreOrLessEquals(identityA.left));
+    expect(tester.getRect(cardA).width, moreOrLessEquals(identityA.width));
+    expect(tester.getRect(cardB).left, moreOrLessEquals(identityB.left));
+    expect(tester.getRect(cardB).width, moreOrLessEquals(identityB.width));
+    expect(find.text('Differences (0)'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('shows an adjustmentless one-sided component only in All', (tester) async {
+    await tester.runAsync(
+      () => harness.repository.addComponent(
+        Component(
+          id: 'frame',
+          name: 'Frame',
+          componentType: ComponentType.frame,
+          installations: [Installation.sinceBeginning(parent: CompareSetupsHarness.bikeId)],
+          adjustments: const [],
+        ),
+      ),
+    );
+    final setupA = harness.setup(
+      id: 'bike-a-setup',
+      name: 'Bike A setup',
+      local: DateTime(2026, 8, 1, 10),
+      values: {CompareSetupsHarness.changedAdjustmentId: 4},
+    );
+    final setupB = harness.setup(
+      id: 'bike-b-setup',
+      name: 'Bike B setup',
+      local: DateTime(2026, 8, 2, 10),
+      bike: CompareSetupsHarness.secondBikeId,
+    );
+    await harness.addSetups(tester, [setupA, setupB]);
+    await harness.reload(tester);
+    await pumpComparison(tester, setupA.id, setupB.id);
+
+    expect(find.byKey(const Key('compare-owner-component-frame')), findsNothing);
+    expect(find.text('No adjustments'), findsNothing);
+
+    await tester.tap(find.text('All'));
+    await settle(tester);
+
+    final frameCard = find.byKey(const Key('compare-owner-component-frame'));
+    final verticalScrollables = find.byWidgetPredicate(
+      (widget) => widget is Scrollable && widget.axisDirection == AxisDirection.down,
+    );
+    final scrollPosition = tester
+        .stateList<ScrollableState>(verticalScrollables)
+        .firstWhere((state) => state.position.maxScrollExtent > 0)
+        .position;
+    scrollPosition.jumpTo(scrollPosition.maxScrollExtent);
+    await settle(tester);
+    expect(frameCard, findsOneWidget);
+    final subtitle = tester.widget<Text>(
+      find.descendant(of: frameCard, matching: find.text('No adjustments')),
+    );
+    expect(subtitle.style?.color, isNull);
+  });
+
+  testWidgets('one-sided structural component title stays neutral', (tester) async {
+    final group = comparison.SetupComparisonGroup(
+      kind: comparison.SetupComparisonGroupKind.component,
+      ownerId: 'frame',
+      ownerStateA: comparison.SetupComparisonOwnerState.installedOrLinked,
+      ownerStateB: comparison.SetupComparisonOwnerState.absent,
+      label: 'Frame',
+      componentA: Component(
+        id: 'frame',
+        name: 'Frame',
+        componentType: ComponentType.frame,
+        installations: const [],
+      ),
+      rows: const [],
+    );
+    await tester.pumpWidget(
+      harness.wrap(
+        SetupComparisonOwnerCard(group: group, differencesOnly: true),
+      ),
+    );
+    await settle(tester);
+
+    final title = tester.widget<Text>(find.text('Frame'));
+    expect(title.style?.color, isNull);
+    expect(find.textContaining('Present'), findsNothing);
+    expect(find.text('-'), findsNothing);
+    expect(find.text('Not installed'), findsOneWidget);
   });
 
   testWidgets('scrolls actions away while keeping labeled setup identities pinned', (tester) async {
@@ -469,7 +712,7 @@ void main() {
     );
   });
 
-  testWidgets('identity callbacks are independently optional and semantic', (tester) async {
+  testWidgets('identities without setup selection are not tappable', (tester) async {
     final setupA = harness.setup(id: 'callback-a', name: 'Callback A', local: DateTime(2026, 8, 1, 10));
     final setupB = harness.setup(id: 'callback-b', name: 'Callback B', local: DateTime(2026, 8, 2, 10));
     final semantics = tester.ensureSemantics();
@@ -488,30 +731,94 @@ void main() {
       expect(data.flagsCollection.isButton, isFalse);
     }
 
-    var tapsA = 0;
-    var tapsB = 0;
-    await tester.pumpWidget(
-      harness.wrap(
-        CustomScrollView(
-          slivers: [
-            SetupComparisonIdentities(
-              setupA: setupA,
-              setupB: setupB,
-              onTapA: () => tapsA++,
-              onTapB: () => tapsB++,
-            ),
-          ],
-        ),
-      ),
-    );
-    await settle(tester);
-    await tester.tap(find.byKey(const Key('compare-identity-a')));
-    await tester.pump();
-    expect((tapsA, tapsB), (1, 0));
-    await tester.tap(find.byKey(const Key('compare-identity-b')));
-    await tester.pump();
-    expect((tapsA, tapsB), (1, 1));
     semantics.dispose();
+  });
+
+  testWidgets('identities select another setup and highlight the opposite selection', (tester) async {
+    final (setupAId, setupBId) = await seedPair(tester);
+    final third = harness.setup(
+      id: 'third',
+      name: 'Third setup',
+      local: DateTime(2026, 8, 3, 10),
+    );
+    await harness.addSetups(tester, [third]);
+    await pumpComparison(tester, setupAId, setupBId);
+
+    expect(
+      tester.widget<PopupMenuButton<Setup>>(find.byType(PopupMenuButton<Setup>).first).initialValue,
+      harness.repository.setups[setupAId],
+    );
+    await tester.tap(find.byType(PopupMenuButton<Setup>).first);
+    await settle(tester);
+
+    final highlightedOption = tester.widget<Container>(find.byKey(const Key('compare-setup-option-newer')));
+    expect(
+      highlightedOption.color,
+      Theme.of(tester.element(find.byType(CompareSetups))).colorScheme.secondaryContainer,
+    );
+    expect(find.byType(CheckedPopupMenuItem<Setup>), findsNothing);
+    expect(find.byType(CurrentSetupBadge), findsOneWidget);
+    expect(find.text('2026-08-03 • 10:00'), findsOneWidget);
+
+    await tester.tap(find.text('Third setup'));
+    await settle(tester);
+
+    expect(
+      find.descendant(of: find.byKey(const Key('compare-identity-a')), matching: find.text('Third setup')),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('same-bike comparisons only offer setups from that bike', (tester) async {
+    final setupA = harness.setup(id: 'same-bike-a', name: 'Same bike A', local: DateTime(2026, 8, 1, 10));
+    final setupB = harness.setup(id: 'same-bike-b', name: 'Same bike B', local: DateTime(2026, 8, 2, 10));
+    final otherBikeSetup = harness.setup(
+      id: 'other-bike',
+      name: 'Other bike setup',
+      bike: CompareSetupsHarness.secondBikeId,
+      local: DateTime(2026, 8, 3, 10),
+    );
+    await harness.addSetups(tester, [setupA, setupB, otherBikeSetup]);
+    await harness.reload(tester);
+    await pumpComparison(tester, setupA.id, setupB.id);
+
+    await tester.tap(find.byType(PopupMenuButton<Setup>).first);
+    await settle(tester);
+
+    expect(find.byKey(const Key('compare-setup-option-same-bike-a')), findsOneWidget);
+    expect(find.byKey(const Key('compare-setup-option-same-bike-b')), findsOneWidget);
+    expect(find.byKey(const Key('compare-setup-option-other-bike')), findsNothing);
+  });
+
+  testWidgets('cross-bike comparisons offer all setups and show bike names', (tester) async {
+    final setupA = harness.setup(id: 'bike-a-setup', name: 'Bike A setup', local: DateTime(2026, 8, 1, 10));
+    final setupB = harness.setup(
+      id: 'bike-b-setup',
+      name: 'Bike B setup',
+      bike: CompareSetupsHarness.secondBikeId,
+      local: DateTime(2026, 8, 2, 10),
+    );
+    await harness.addSetups(tester, [setupA, setupB]);
+    await harness.reload(tester);
+    await pumpComparison(tester, setupA.id, setupB.id);
+
+    await tester.tap(find.byType(PopupMenuButton<Setup>).first);
+    await settle(tester);
+
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('compare-setup-option-bike-a-setup')),
+        matching: find.text('Bike A'),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('compare-setup-option-bike-b-setup')),
+        matching: find.text('Bike B'),
+      ),
+      findsOneWidget,
+    );
   });
 
   testWidgets('identity dates remain visible at a larger text scale', (tester) async {

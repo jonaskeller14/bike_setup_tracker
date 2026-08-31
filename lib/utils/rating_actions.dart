@@ -5,6 +5,7 @@ import '../models/adjustment/adjustment.dart';
 import '../models/rating.dart';
 import '../pages/rating_page.dart';
 import '../repositories/app_repository.dart';
+import '../widgets/app_snackbar.dart';
 
 class RatingActions {
   static Future<void> addRating(BuildContext context) async {
@@ -55,18 +56,18 @@ class RatingActions {
 
     await appRepository.removeRatings([rating]);
 
+    if (!context.mounted) return;
     messenger.showSnackBar(
-      SnackBar(
-      content: Text("Rating '${rating.name}' moved to trash."),
-      duration: const Duration(seconds: 5),
-      persist: false,
-      showCloseIcon: true,
-      action: SnackBarAction(
-        label: 'UNDO',
-        onPressed: () async {
-          await appRepository.restoreRatings([rating]);
-        },
-      ),
+      AppSnackBar.info(
+        context,
+        "Rating '${rating.name}' moved to trash.",
+        duration: const Duration(seconds: 5),
+        action: AppSnackBarAction(
+          label: 'UNDO',
+          onPressed: () async {
+            await appRepository.restoreRatings([rating]);
+          },
+        ),
       ),
     );
   }
@@ -77,18 +78,18 @@ class RatingActions {
 
     await appRepository.restoreRatings([rating]);
 
+    if (!context.mounted) return;
     messenger.showSnackBar(
-      SnackBar(
-      content: Text("Rating '${rating.name}' restored from trash."),
-      duration: const Duration(seconds: 5),
-      persist: false,
-      showCloseIcon: true,
-      action: SnackBarAction(
-        label: 'UNDO',
-        onPressed: () async {
-          await appRepository.removeRatings([rating]);
-        },
-      ),
+      AppSnackBar.info(
+        context,
+        "Rating '${rating.name}' restored from trash.",
+        duration: const Duration(seconds: 5),
+        action: AppSnackBarAction(
+          label: 'UNDO',
+          onPressed: () async {
+            await appRepository.removeRatings([rating]);
+          },
+        ),
       ),
     );
   }

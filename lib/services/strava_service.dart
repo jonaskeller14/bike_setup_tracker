@@ -620,7 +620,6 @@ class StravaService extends ChangeNotifier {
 
       await _stopDataListeners();
       await _appRepository.clearStravaData();
-      _appSettings.showStravaLinkGearHint = true;
 
       _setState(const StravaIdle());
     } catch (e) {

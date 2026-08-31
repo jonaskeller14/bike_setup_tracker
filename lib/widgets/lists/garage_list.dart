@@ -5,22 +5,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../models/app_hint.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/component.dart';
 import '../../models/installation.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/app_hint_service.dart';
 import '../../utils/bike_actions.dart';
+import '../../utils/installation_timeline_validation.dart';
 import '../chips/bike_list_filter_widget.dart';
 import '../empty_state_placeholder.dart';
-import '../hints/garage_list_hint.dart';
-import '../hints/getting_started_guide_hint.dart';
+import '../hints/app_hint_slot.dart';
 import '../items/garage_bike_card.dart';
 import '../items/garage_uninstalled_card.dart';
 import '../sheets/installation_sheet.dart';
+import '../sheets/installation_timeline_hint_sheet.dart';
+import 'list_scroll_controller.dart';
 
 class GarageList extends StatefulWidget {
-  const GarageList({super.key});
+  final ListScrollController controller;
+
+  const GarageList({super.key, required this.controller});
 
   @override
   State<GarageList> createState() => _GarageListState();
@@ -29,7 +35,6 @@ class GarageList extends StatefulWidget {
 class _GarageListState extends State<GarageList> {
   String? _componentToShowDetails;
   final ValueNotifier<Component?> _draggedComponentNotifier = ValueNotifier<Component?>(null);
-  final ScrollController _scrollController = ScrollController();
   Timer? _scrollTimer;
   double _scrollDelta = 0;
 
@@ -39,7 +44,6 @@ class _GarageListState extends State<GarageList> {
   @override
   void dispose() {
     _scrollTimer?.cancel();
-    _scrollController.dispose();
     _draggedComponentNotifier.dispose();
     super.dispose();
   }
@@ -62,10 +66,10 @@ class _GarageListState extends State<GarageList> {
     }
 
     _scrollTimer ??= Timer.periodic(const Duration(milliseconds: 16), (_) {
-      if (!_scrollController.hasClients || _scrollController.positions.length != 1) return;
-      final pos = _scrollController.position;
+      if (!widget.controller.scrollController.hasClients || widget.controller.scrollController.positions.length != 1) return;
+      final pos = widget.controller.scrollController.position;
       final next = (pos.pixels + _scrollDelta).clamp(pos.minScrollExtent, pos.maxScrollExtent);
-      _scrollController.jumpTo(next);
+      widget.controller.scrollController.jumpTo(next);
     });
   }
 
@@ -73,6 +77,27 @@ class _GarageListState extends State<GarageList> {
     _scrollTimer?.cancel();
     _scrollTimer = null;
     _scrollDelta = 0;
+  }
+
+  Future<void> _offerInstallationTimeline(Component component) async {
+    final appSettings = context.read<AppSettings>();
+    final hintService = context.read<AppHintService>();
+    if (!hintService.shouldOfferInstallationTimeline(component.installations)) {
+      return;
+    }
+
+    final activate = await showInstallationTimelineHintSheet(
+      context,
+      component: component,
+    );
+    if (!mounted) return;
+
+    if (activate) {
+      appSettings.enableInstallationTimeline = true;
+      await hintService.complete(AppHint.installationTimelineV1);
+    } else {
+      await hintService.dismiss(AppHint.installationTimelineV1);
+    }
   }
 
   void _onAcceptWithDetails({String? newBike}) async {
@@ -83,9 +108,14 @@ class _GarageListState extends State<GarageList> {
 
     await Future.microtask(() async {
       if (!mounted) return;
+      await _offerInstallationTimeline(component);
+      if (!mounted) return;
 
       if (component.isArchived) {
-        final isSimple = !appSettings.enableInstallationTimeline;
+        final isSimple = !shouldUseInstallationTimeline(
+          featureEnabled: appSettings.enableInstallationTimeline,
+          installations: component.installations,
+        );
 
         // Strip the trailing Archival to recover the pre-archive state.
         final unarchived = component.copyWith(
@@ -101,7 +131,7 @@ class _GarageListState extends State<GarageList> {
             await appRepository.editComponent(
               component.copyWith(
                 installations: [
-                Uninstallation(dateTimeUTC: now.toUtc(), dateTimeLocal: now, componentId: component.id),
+                  Uninstallation(dateTimeUTC: now.toUtc(), dateTimeLocal: now, componentId: component.id),
                 ],
               ),
             );
@@ -114,9 +144,7 @@ class _GarageListState extends State<GarageList> {
           }
         } else {
           // → bike
-          final hasHistory = unarchived.installations.length > 1 ||
-              (unarchived.installations.isNotEmpty &&
-                  unarchived.installations.first.dateTimeUTC.millisecondsSinceEpoch > 0);
+          final hasHistory = isComplexInstallationTimeline(unarchived.installations);
           if (!isSimple || hasHistory) {
             unawaited(showAddInstallationSheet(context, component: unarchived, targetBikeId: newBike));
           } else {
@@ -129,9 +157,10 @@ class _GarageListState extends State<GarageList> {
       }
 
       // Standard (non-archived) install / uninstall flow.
-      final isComplexInstallation = component.installations.length > 1 ||
-          (component.installations.isNotEmpty && component.installations.first.dateTimeUTC.millisecondsSinceEpoch > 0);
-      if (appSettings.enableInstallationTimeline || isComplexInstallation) {
+      if (shouldUseInstallationTimeline(
+        featureEnabled: appSettings.enableInstallationTimeline,
+        installations: component.installations,
+      )) {
         unawaited(showAddInstallationSheet(context, component: component, targetBikeId: newBike));
       } else {
         await appRepository.editComponent(component.copyWithNewInstallation(newBike));
@@ -148,7 +177,12 @@ class _GarageListState extends State<GarageList> {
 
     await Future.microtask(() async {
       if (!mounted) return;
-      if (appSettings.enableInstallationTimeline) {
+      await _offerInstallationTimeline(component);
+      if (!mounted) return;
+      if (shouldUseInstallationTimeline(
+        featureEnabled: appSettings.enableInstallationTimeline,
+        installations: component.installations,
+      )) {
         unawaited(showAddInstallationSheet(context, component: component, targetBikeId: null, isArchiving: true));
       } else {
         await appRepository.editComponent(
@@ -168,24 +202,17 @@ class _GarageListState extends State<GarageList> {
   }
 
   Widget _emptyPlaceholder(BuildContext context) {
-    final showGuide = context.watch<AppSettings>().showGettingStartedGuideHint;
-    if (showGuide) {
-      return const SingleChildScrollView(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            BikeListFilterWidget(),
-            SizedBox(height: 8),
-            GettingStartedGuideHint(),
-          ],
-        ),
-      );
-    }
     return CustomScrollView(
+      controller: widget.controller.scrollController,
       slivers: [
+        const SliverToBoxAdapter(
+          child: AppHintSlot(
+            placement: AppHintPlacement.garageHeader,
+            padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
+          ),
+        ),
         const SliverPadding(
-          padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+          padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
           sliver: SliverToBoxAdapter(child: BikeListFilterWidget()),
         ),
         SliverFillRemaining(
@@ -214,7 +241,6 @@ class _GarageListState extends State<GarageList> {
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
-    final appSettings = context.watch<AppSettings>();
     final bikesList = appRepository.filteredBikes.values.toList();
 
     Widget proxyDecorator(Widget child, int index, Animation<double> animation) {
@@ -249,26 +275,22 @@ class _GarageListState extends State<GarageList> {
             onPointerUp: (_) => _stopEdgeScroll(),
             onPointerCancel: (_) => _stopEdgeScroll(),
             child: ReorderableListView.builder(
-              scrollController: _scrollController,
+              scrollController: widget.controller.scrollController,
               itemCount: bikesList.length,
               padding: const EdgeInsets.only(
                 left: 16,
-                top: 16,
+                top: 8,
                 right: 16,
                 bottom: 16 + 100,
               ),
-              header: Column(
+              header: const Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 8,
                 children: [
-                  const GettingStartedGuideHint(),
-                  if (appRepository.bikes.length >= 2 &&
-                      appRepository.components.isNotEmpty &&
-                      appSettings.showGarageListHint &&
-                      !appSettings.hintShownThisSession)
-                    const GarageListHint(),
-                  const BikeListFilterWidget(),
+                  AppHintSlot(
+                    placement: AppHintPlacement.garageHeader,
+                    padding: EdgeInsetsGeometry.only(bottom: 8)),
+                  BikeListFilterWidget(),
                 ],
               ),
               footer: Column(
@@ -287,7 +309,8 @@ class _GarageListState extends State<GarageList> {
               ),
               proxyDecorator: proxyDecorator,
               onReorderStart: (_) => unawaited(HapticFeedback.lightImpact()),
-              onReorderItem: (int oldIndex, int newIndex) => BikeActions.onReorderBikes(context, oldIndex: oldIndex, newIndex: newIndex),
+              onReorderItem: (int oldIndex, int newIndex) =>
+                  BikeActions.onReorderBikes(context, oldIndex: oldIndex, newIndex: newIndex),
               itemBuilder: (context, index) {
                 final bike = bikesList[index];
                 return GarageBikeCard(

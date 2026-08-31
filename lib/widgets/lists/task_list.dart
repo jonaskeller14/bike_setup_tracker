@@ -6,112 +6,340 @@ import '../../utils/task_actions.dart';
 import '../chips/task_list_filter_widget.dart';
 import '../empty_state_placeholder.dart';
 import '../items/task_rule_list_card.dart';
+import '../sticky_section.dart';
+import '../task_caught_up_placeholder.dart';
+import '../task_list_divider.dart';
+import 'list_scroll_controller.dart';
 
 class TaskList extends StatefulWidget {
-  const TaskList({super.key});
+  final ListScrollController? controller;
+  final Set<String> selectedTaskRules;
+  final ValueChanged<String>? onTaskRuleSelectionChanged;
+  final VoidCallback? onSelectedTaskRulesCompleted;
+
+  const TaskList({
+    super.key,
+    this.controller,
+    this.selectedTaskRules = const {},
+    this.onTaskRuleSelectionChanged,
+    this.onSelectedTaskRulesCompleted,
+  });
 
   @override
   State<TaskList> createState() => _TaskListState();
 }
 
 class _TaskListState extends State<TaskList> {
+  static const double _filterHeight = 64;
+  static const double _sectionHeaderHeight = 40;
+
+  late ListScrollController _controller;
+  late bool _ownsController;
+  final GlobalKey _dueSectionKey = GlobalKey();
+  final GlobalKey _upcomingSectionKey = GlobalKey();
+  final GlobalKey _completedSectionKey = GlobalKey();
+  bool _showAllUpcoming = false;
   bool _showAllCompleted = false;
 
-  Widget _emptyPlaceholder(BuildContext context) {
-    return CustomScrollView(
-      slivers: [
-        const SliverPadding(
-          padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-          sliver: SliverToBoxAdapter(child: TaskListFilterWidget()),
+  @override
+  void initState() {
+    super.initState();
+    _ownsController = widget.controller == null;
+    _controller = widget.controller ?? ListScrollController();
+  }
+
+  @override
+  void didUpdateWidget(covariant TaskList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.controller == oldWidget.controller) return;
+    if (_ownsController) _controller.dispose();
+    _ownsController = widget.controller == null;
+    _controller = widget.controller ?? ListScrollController();
+  }
+
+  @override
+  void dispose() {
+    if (_ownsController) _controller.dispose();
+    super.dispose();
+  }
+
+  Widget _taskRuleCard(String taskRuleId) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: TaskRuleListCard(
+        key: ValueKey('task-rule-$taskRuleId'),
+        taskRuleId: taskRuleId,
+        selectionMode: widget.selectedTaskRules.isNotEmpty,
+        selected: widget.selectedTaskRules.contains(taskRuleId),
+        onSelectionChanged: widget.onTaskRuleSelectionChanged == null
+            ? null
+            : () => widget.onTaskRuleSelectionChanged!(taskRuleId),
+        onSelectedTaskRulesCompleted: widget.onSelectedTaskRulesCompleted,
+      ),
+    );
+  }
+
+  Widget _emptyDueSection(AppRepository repository) {
+    if (!repository.hasTaskRulesInCurrentScope) {
+      return EmptyStatePlaceholder(
+        key: const ValueKey('task-empty-none'),
+        icon: Icons.checklist,
+        title: 'No tasks yet',
+        subtitle: 'Add a task to track service intervals or other bike related todos.',
+        actionLabel: 'Add a task',
+        onAction: () => TaskActions.addTaskRule(context),
+      );
+    }
+
+    if (repository.hasActiveTaskRuleNarrowing && repository.hasScopeActionableTaskRules) {
+      return EmptyStatePlaceholder(
+        key: const ValueKey('task-empty-filtered'),
+        icon: Icons.filter_alt_off,
+        title: 'Nothing due in this view',
+        subtitle: 'Priority or tag filters are hiding tasks that need attention.',
+        actionLabel: 'Clear filters',
+        onAction: () {
+          repository.selectAllTaskPriorities();
+          repository.deselectAllTaskRuleTags();
+        },
+      );
+    }
+
+    final selectedBike = repository.selectedBike == null ? null : repository.bikes[repository.selectedBike!];
+    return TaskCaughtUpPlaceholder(
+      key: const ValueKey('task-empty-caught-up'),
+      bikeName: selectedBike?.name,
+      animate: true,
+      onAddTask: () => TaskActions.addTaskRule(context),
+    );
+  }
+
+  Widget _sectionToggle({
+    required bool expanded,
+    required int count,
+    required VoidCallback onPressed,
+    required String section,
+  }) {
+    return Semantics(
+      button: true,
+      label: expanded ? 'Show fewer $section tasks' : 'Show all $count $section tasks',
+      child: Center(
+        child: TextButton.icon(
+          key: ValueKey('task-$section-toggle'),
+          onPressed: onPressed,
+          icon: Icon(expanded ? Icons.expand_less : Icons.expand_more),
+          label: Text(expanded ? 'Show less' : 'Show all ($count)'),
         ),
-        SliverFillRemaining(
-          hasScrollBody: false,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: EmptyStatePlaceholder(
-              icon: Icons.checklist,
-              title: 'No tasks yet',
-              subtitle: 'Add a task to track service intervals or other bike related todos.',
-              actionLabel: 'Add a task',
-              onAction: () => TaskActions.addTaskRule(context),
-            ),
-          ),
+      ),
+    );
+  }
+
+  Future<void> _scrollToSection(GlobalKey key) async {
+    final sectionContext = key.currentContext;
+    if (sectionContext == null) return;
+    await Scrollable.ensureVisible(
+      sectionContext,
+      alignment: 0,
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  Widget _section({
+    required GlobalKey key,
+    required String title,
+    required int count,
+    required Widget content,
+  }) {
+    return KeyedSubtree(
+      key: key,
+      child: StickySection(
+        header: TaskListDivider(
+          title: title,
+          count: count,
+          onTap: () => _scrollToSection(key),
+          height: _sectionHeaderHeight,
         ),
-      ],
+        content: content,
+      ),
+    );
+  }
+
+  Widget _taskCards(Iterable<String> taskRuleIds) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [for (final id in taskRuleIds) _taskRuleCard(id)],
+      ),
+    );
+  }
+
+  Widget _animatedSectionContent({
+    required String membershipKey,
+    required Widget child,
+  }) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 220),
+      reverseDuration: const Duration(milliseconds: 180),
+      switchInCurve: Curves.easeOut,
+      switchOutCurve: Curves.easeIn,
+      transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
+      child: KeyedSubtree(
+        key: ValueKey(membershipKey),
+        child: child,
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final appRepository = context.watch<AppRepository>();
-    final openTaskRules = appRepository.openTaskRules;
-    final completedTaskRules = appRepository.completedTaskRules;
+    final repository = context.watch<AppRepository>();
+    final due = repository.actionableTaskRules;
+    final upcoming = repository.upcomingTaskRules;
+    final completed = repository.completedTaskRules;
+    final visibleUpcoming = _showAllUpcoming ? upcoming : upcoming.take(3);
+    final visibleCompleted = _showAllCompleted ? completed : completed.take(3);
 
-    if (openTaskRules.isEmpty && completedTaskRules.isEmpty) {
-      return _emptyPlaceholder(context);
-    }
-
-    final int numOpen = openTaskRules.isEmpty ? 1 : openTaskRules.length;
-    final bool hasCompleted = completedTaskRules.isNotEmpty;
-    final int numCompleted = completedTaskRules.length;
-    final bool showToggle = numCompleted > 3;
-    final int visibleCompleted = _showAllCompleted ? numCompleted : (numCompleted > 3 ? 3 : numCompleted);
-
-    int totalItems = 1 + numOpen;
-    if (hasCompleted) {
-      totalItems += 1; // Divider
-      totalItems += visibleCompleted;
-      if (showToggle) {
-        totalItems += 1; // Button
-      }
-    }
-
-    return ListView.builder(
-      padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16 + 100),
-      itemCount: totalItems,
-      itemBuilder: (context, index) {
-        if (index == 0) {
-          return const TaskListFilterWidget();
-        }
-
-        // Open tasks section
-        if (index <= numOpen) {
-          if (openTaskRules.isEmpty) {
-            return EmptyStatePlaceholder(
-              icon: Icons.task_alt,
-              title: 'All caught up',
-              subtitle: 'No open tasks right now.',
-              actionLabel: 'Add a task',
-              onAction: () => TaskActions.addTaskRule(context),
-            );
-          }
-          return TaskRuleListCard(taskRuleId: openTaskRules[index - 1].rule.id);
-        }
-
-        // Divider
-        final completedSectionStart = numOpen + 1;
-        if (index == completedSectionStart) {
-          return const Divider(height: 32);
-        }
-
-        // Completed tasks
-        final completedItemIndex = index - completedSectionStart - 1;
-        if (completedItemIndex < visibleCompleted) {
-          return TaskRuleListCard(taskRuleId: completedTaskRules[completedItemIndex].rule.id);
-        }
-
-        // Show more/less button
-        return Center(
-          child: Padding(
-            padding: const EdgeInsets.only(top: 8.0),
-            child: TextButton.icon(
-              onPressed: () => setState(() => _showAllCompleted = !_showAllCompleted),
-              icon: Icon(_showAllCompleted ? Icons.expand_less : Icons.expand_more),
-              label: Text(_showAllCompleted ? 'Show less' : 'Show ${numCompleted - 3} more'),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compactDueHeight =
+            (constraints.maxHeight -
+                    _filterHeight -
+                    _sectionHeaderHeight -
+                    (upcoming.isNotEmpty || completed.isNotEmpty ? _sectionHeaderHeight : 0))
+                .clamp(0, double.infinity)
+                .toDouble();
+        return CustomScrollView(
+          key: const PageStorageKey('task-list-scroll'),
+          controller: _controller.scrollController,
+          slivers: [
+            SliverPersistentHeader(
+              floating: true,
+              delegate: _TaskFilterHeaderDelegate(
+                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              ),
             ),
-          ),
+            SliverList.list(
+              children: [
+                _section(
+                  key: _dueSectionKey,
+                  title: 'Due now',
+                  count: due.length,
+                  content: _animatedSectionContent(
+                    membershipKey: 'due-${due.map((task) => task.rule.id).join(',')}',
+                    child: due.isEmpty
+                        ? ConstrainedBox(
+                            constraints: BoxConstraints(
+                              minHeight: compactDueHeight,
+                            ),
+                            child: _emptyDueSection(repository),
+                          )
+                        : ConstrainedBox(
+                            constraints: BoxConstraints(
+                              minHeight: compactDueHeight,
+                            ),
+                            child: _taskCards(
+                              due.map((task) => task.rule.id),
+                            ),
+                          ),
+                  ),
+                ),
+                if (upcoming.isNotEmpty)
+                  _section(
+                    key: _upcomingSectionKey,
+                    title: 'Upcoming',
+                    count: upcoming.length,
+                    content: _animatedSectionContent(
+                      membershipKey: 'upcoming-${visibleUpcoming.map((task) => task.rule.id).join(',')}',
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _taskCards(
+                            visibleUpcoming.map((task) => task.rule.id),
+                          ),
+                          if (upcoming.length > 3)
+                            _sectionToggle(
+                              expanded: _showAllUpcoming,
+                              count: upcoming.length,
+                              section: 'upcoming',
+                              onPressed: () => setState(
+                                () => _showAllUpcoming = !_showAllUpcoming,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                if (completed.isNotEmpty)
+                  _section(
+                    key: _completedSectionKey,
+                    title: 'Completed',
+                    count: completed.length,
+                    content: _animatedSectionContent(
+                      membershipKey: 'completed-${visibleCompleted.map((task) => task.rule.id).join(',')}',
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _taskCards(
+                            visibleCompleted.map((task) => task.rule.id),
+                          ),
+                          if (completed.length > 3)
+                            _sectionToggle(
+                              expanded: _showAllCompleted,
+                              count: completed.length,
+                              section: 'completed',
+                              onPressed: () => setState(
+                                () => _showAllCompleted = !_showAllCompleted,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                const SizedBox(height: 116),
+              ],
+            ),
+          ],
         );
       },
     );
+  }
+}
+
+class _TaskFilterHeaderDelegate extends SliverPersistentHeaderDelegate {
+  final Color backgroundColor;
+
+  const _TaskFilterHeaderDelegate({required this.backgroundColor});
+
+  @override
+  double get minExtent => _TaskListState._filterHeight;
+
+  @override
+  double get maxExtent => _TaskListState._filterHeight;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return Material(
+      color: backgroundColor,
+      elevation: overlapsContent ? 2 : 0,
+      child: const Padding(
+        padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: TaskListFilterWidget(),
+        ),
+      ),
+    );
+  }
+
+  @override
+  bool shouldRebuild(covariant _TaskFilterHeaderDelegate oldDelegate) {
+    return backgroundColor != oldDelegate.backgroundColor;
   }
 }

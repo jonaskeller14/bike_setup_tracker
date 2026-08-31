@@ -17,7 +17,9 @@ import '../models/timeline_entry.dart';
 import '../repositories/app_repository.dart';
 import '../services/subscription_service.dart';
 import '../utils/installation_timeline_validation.dart';
+import '../utils/setup_actions.dart';
 import '../utils/timeline_grouping.dart';
+import '../widgets/app_snackbar.dart';
 import '../widgets/chips/filter_sheet_chip.dart';
 import '../widgets/sheets/installation_sheet.dart';
 import '../widgets/sheets/rating_entry_details.dart';
@@ -27,6 +29,7 @@ import '../widgets/sheets/strava_activity.dart';
 import '../widgets/sheets/task_rule_sheet.dart';
 
 const Duration kCalendarZeroDuration = Duration(minutes: 30);
+const double kCalendarTimeSlotHeight = 30;
 const Color kCalendarStravaColor = Color(0xFFFC4C02); // Strava brand orange
 const Color kCalendarRatingColor = Color(0xFFF9A825);
 const Duration kCalendarScrollLeadIn = Duration(minutes: 30);
@@ -37,6 +40,20 @@ const double kCalendarHeaderHeight = 48;
 const double kCalendarViewHeaderHeight = 30;
 const int kCalendarMonthWeekRows = 6;
 const double kCalendarMonthCellMinHeight = 95;
+
+DateTime calendarSlotStart(DateTime date) => date.copyWith(
+      minute: (date.minute ~/ kCalendarZeroDuration.inMinutes) *
+          kCalendarZeroDuration.inMinutes,
+      second: 0,
+      millisecond: 0,
+      microsecond: 0,
+    );
+
+class CalendarAddSetupSlot {
+  const CalendarAddSetupSlot(this.date);
+
+  final DateTime date;
+}
 
 DateTime calendarDisplayDateForDay(DateTime day, List<TimelineEntry> entries) {
   final target = DateUtils.dateOnly(day);
@@ -138,6 +155,8 @@ class _CalendarPageState extends State<CalendarPage> {
   static const _defaultView = _CalendarView.month;
   _CalendarView _selectedView = _defaultView;
   _CalendarView? _returnView;
+  DateTime? _pendingSetupDate;
+  bool _addingSetup = false;
 
   /// Dates currently visible, fed from [SfCalendar.onViewChanged]; used to tell
   /// whether "today" is already on screen (to disable the Today button).
@@ -160,6 +179,7 @@ class _CalendarPageState extends State<CalendarPage> {
       _selectedView = option;
       _controller.view = option.view;
       _returnView = null;
+      _pendingSetupDate = null;
     });
   }
 
@@ -188,6 +208,7 @@ class _CalendarPageState extends State<CalendarPage> {
       _selectedView = returnView;
       _controller.view = returnView.view;
       _returnView = null;
+      _pendingSetupDate = null;
     });
     return true;
   }
@@ -269,6 +290,7 @@ class _CalendarPageState extends State<CalendarPage> {
   Future<void> _onTap(CalendarTapDetails details, List<TimelineEntry> entries) async {
     switch (details.targetElement) {
       case CalendarElement.viewHeader:
+        _clearPendingSetup();
         final date = details.date;
         if (date == null) return;
         if (_selectedView == _CalendarView.threeDay) {
@@ -282,19 +304,40 @@ class _CalendarPageState extends State<CalendarPage> {
           });
         }
       case CalendarElement.calendarCell:
-        if (_selectedView != _CalendarView.month) return;
         final date = details.date;
         if (date == null) return;
-        setState(() {
-          _returnView = _selectedView;
-          _selectedView = _CalendarView.day;
-          _controller.view = CalendarView.day;
-          _controller.displayDate = calendarDisplayDateForDay(date, entries);
-        });
+        if (_selectedView == _CalendarView.month) {
+          setState(() {
+            _returnView = _selectedView;
+            _selectedView = _CalendarView.day;
+            _controller.view = CalendarView.day;
+            _controller.displayDate = calendarDisplayDateForDay(date, entries);
+            _pendingSetupDate = null;
+          });
+          return;
+        }
+        if (_selectedView != _CalendarView.day &&
+            _selectedView != _CalendarView.threeDay &&
+            _selectedView != _CalendarView.week) {
+          return;
+        }
+        final slotStart = calendarSlotStart(date);
+        if (_pendingSetupDate == slotStart) {
+          await _addSetupAtPendingDate();
+          return;
+        }
+        await HapticFeedback.selectionClick();
+        if (!mounted) return;
+        setState(() => _pendingSetupDate = slotStart);
       case CalendarElement.appointment:
+        _clearPendingSetup();
         final appointments = details.appointments;
         if (appointments == null || appointments.isEmpty) return;
         final row = appointments.first;
+        if (row is CalendarAddSetupSlot) {
+          await _addSetupAtDate(row.date);
+          return;
+        }
         if (row is! EntryRow) return;
 
         switch (row) {
@@ -310,7 +353,36 @@ class _CalendarPageState extends State<CalendarPage> {
           case SetupGroupRow():
             return;
         }
-      default: return;
+      default:
+        _clearPendingSetup();
+        return;
+    }
+  }
+
+  void _clearPendingSetup() {
+    if (_pendingSetupDate == null || !mounted) return;
+    setState(() => _pendingSetupDate = null);
+  }
+
+  Future<void> _addSetupAtPendingDate() async {
+    final date = _pendingSetupDate;
+    if (date == null) return;
+    await _addSetupAtDate(date);
+  }
+
+  Future<void> _addSetupAtDate(DateTime date) async {
+    if (_addingSetup) return;
+    _addingSetup = true;
+    await HapticFeedback.selectionClick();
+    if (!mounted) {
+      _addingSetup = false;
+      return;
+    }
+    setState(() => _pendingSetupDate = null);
+    try {
+      await SetupActions.addSetup(context, initialDateTimeLocal: date);
+    } finally {
+      _addingSetup = false;
     }
   }
 
@@ -340,12 +412,21 @@ class _CalendarPageState extends State<CalendarPage> {
   Future<void> _onDragEnd(AppointmentDragEndDetails details) async {
     final row = details.appointment;
     final newLocal = details.droppingTime;
-    if (row is! EntryRow || newLocal == null) return;
+    if (newLocal == null) return;
+    if (row is CalendarAddSetupSlot) {
+      await HapticFeedback.lightImpact();
+      if (!mounted) return;
+      setState(() => _pendingSetupDate = newLocal);
+      return;
+    }
+    if (row is! EntryRow) return;
 
     switch (row) {
       case SingleEntryRow(:final entry):
+        await HapticFeedback.lightImpact();
         await _moveEntry(entry, newLocal);
       case ReplacementRow():
+        await HapticFeedback.lightImpact();
         await _moveReplacement(row, newLocal);
       // Moving a setup group lands in a later phase.
       case SetupGroupRow():
@@ -458,17 +539,9 @@ class _CalendarPageState extends State<CalendarPage> {
   /// its original slot.
   void _rejectMove(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      persist: false,
-      showCloseIcon: true,
-      closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-      duration: const Duration(seconds: 2),
-      backgroundColor: Theme.of(context).colorScheme.errorContainer,
-      content: Text(
-        message,
-        style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer),
-      ),
-    ));
+    ScaffoldMessenger.of(context).showSnackBar(
+      AppSnackBar.error(context, message, duration: const Duration(seconds: 2)),
+    );
     setState(() {});
   }
 
@@ -483,14 +556,11 @@ class _CalendarPageState extends State<CalendarPage> {
     final format = DateFormat('${appSettings.dateFormat} ${appSettings.timeFormat}');
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(
-        content: Text(
-          "'$subject' moved\n${format.format(from)}  →  ${format.format(to)}",
-        ),
+      ..showSnackBar(AppSnackBar.info(
+        context,
+        "'$subject' moved\n${format.format(from)}  →  ${format.format(to)}",
         duration: const Duration(seconds: 5),
-        persist: false,
-        showCloseIcon: true,
-        action: SnackBarAction(
+        action: AppSnackBarAction(
           label: 'UNDO',
           onPressed: () async => restore(),
         ),
@@ -504,6 +574,10 @@ class _CalendarPageState extends State<CalendarPage> {
     final subscriptionService = context.watch<SubscriptionService>();
     final entries = _buildEntries(appRepository, appSettings, subscriptionService);
     final rows = buildCalendarRows(entries, appSettings);
+    final calendarItems = <Object>[
+      ...rows,
+      if (_pendingSetupDate case final date?) CalendarAddSetupSlot(date),
+    ];
     final cs = Theme.of(context).colorScheme;
 
     return PopScope(
@@ -593,7 +667,8 @@ class _CalendarPageState extends State<CalendarPage> {
                     view: _defaultView.view,
                     firstDayOfWeek: appSettings.firstDayOfWeek,
                     maxDate: DateTime.now().add(kCalendarZeroDuration),
-                    dataSource: CalendarTimelineDataSource(rows, cs),
+                    cellEndPadding: 0,
+                    dataSource: CalendarTimelineDataSource(calendarItems, cs),
                     allowDragAndDrop: true,
                     dragAndDropSettings: DragAndDropSettings(
                       indicatorTimeFormat: appSettings.timeFormat,
@@ -634,7 +709,8 @@ class _CalendarPageState extends State<CalendarPage> {
                     appointmentBuilder: _appointmentBuilder,
                     timeSlotViewSettings: TimeSlotViewSettings(
                       numberOfDaysInView: _selectedView.days,
-                      timeIntervalHeight: 60,
+                      timeInterval: kCalendarZeroDuration,
+                      timeIntervalHeight: kCalendarTimeSlotHeight,
                       timeFormat: appSettings.timeFormat,
                       timeTextStyle: TextStyle(color: cs.onSurfaceVariant, fontSize: 11),
                       dayFormat: 'EEE',
@@ -702,6 +778,9 @@ class _CalendarPageState extends State<CalendarPage> {
     }
 
     final row = details.appointments.first;
+    if (row is CalendarAddSetupSlot) {
+      return _addSetupAppointment(context, details, row);
+    }
     if (row is! EntryRow) return const SizedBox.shrink();
     final cs = Theme.of(context).colorScheme;
     final color = calendarColorForRow(row, cs);
@@ -721,49 +800,119 @@ class _CalendarPageState extends State<CalendarPage> {
     final double iconBudget = showText ? width - 12 : width - 4;
     final double iconSize = iconBudget <= 0 ? 0 : (baseIconSize < iconBudget ? baseIconSize : iconBudget);
 
+    // Calculate how many full text lines can physically fit.
+    final double verticalPadding = height < 20 ? 0.0 : 4.0;
+    final double availableHeight = height - verticalPadding;
+    final double fontLineHeight = fontSize * 1.15;
+    final int maxLines = (availableHeight / fontLineHeight).floor().clamp(1, 100);
+
     return Container(
       clipBehavior: Clip.hardEdge,
-      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4)),
-      padding: EdgeInsets.symmetric(horizontal: showText ? 4 : 2, vertical: height < 20 ? 0 : 2),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      padding: EdgeInsets.symmetric(
+        horizontal: showText ? 4 : 2,
+        vertical: verticalPadding / 2,
+      ),
       alignment: Alignment.centerLeft,
       child: !showIcon
           ? const SizedBox.shrink()
           : Row(
-              mainAxisSize: MainAxisSize.max,
-              spacing: 4,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Icon(calendarIconForRow(row), size: iconSize, color: onColor),
-                if (showText)
+                if (showText) ...[
+                  const SizedBox(width: 4),
                   Expanded(
                     child: Text(
                       calendarSubjectForRow(row),
-                      maxLines: 1,
-                      softWrap: false,
+                      maxLines: maxLines,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(color: onColor, fontSize: fontSize),
+                      style: TextStyle(
+                        color: onColor,
+                        fontSize: fontSize,
+                        height: 1.15,
+                      ),
                     ),
                   ),
+                ],
               ],
             ),
     );
   }
+
+  Widget _addSetupAppointment(
+    BuildContext context,
+    CalendarAppointmentDetails details,
+    CalendarAddSetupSlot slot,
+  ) {
+    final cs = Theme.of(context).colorScheme;
+    final showIcon = details.bounds.width >= 24 && details.bounds.height >= 18;
+    final showLabel = showIcon && details.bounds.width >= 88;
+    return Material(
+      color: cs.primaryContainer,
+      shape: RoundedRectangleBorder(
+        side: BorderSide(color: cs.primary),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => _addSetupAtDate(slot.date),
+        child: !showIcon
+            ? const SizedBox.expand()
+            : Center(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.add, size: 18, color: cs.onPrimaryContainer),
+                    if (showLabel) ...[
+                      const SizedBox(width: 2),
+                      Flexible(
+                        child: Text(
+                          'Add setup',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: cs.onPrimaryContainer,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+      ),
+    );
+  }
 }
 
-class CalendarTimelineDataSource extends CalendarDataSource<EntryRow> {
-  CalendarTimelineDataSource(List<EntryRow> source, this._cs) {
+class CalendarTimelineDataSource extends CalendarDataSource<Object> {
+  CalendarTimelineDataSource(List<Object> source, this._cs) {
     appointments = source;
   }
 
   final ColorScheme _cs;
 
-  EntryRow _row(int index) => appointments![index] as EntryRow;
+  Object _item(int index) => appointments![index] as Object;
 
   @override
-  DateTime getStartTime(int index) => _row(index).anchorDateLocal;
+  DateTime getStartTime(int index) => switch (_item(index)) {
+        EntryRow(:final anchorDateLocal) => anchorDateLocal,
+        CalendarAddSetupSlot(:final date) => date,
+        _ => throw StateError('Unsupported calendar item'),
+      };
 
   @override
   DateTime getEndTime(int index) {
-    final row = _row(index);
+    final item = _item(index);
+    if (item case CalendarAddSetupSlot(:final date)) {
+      return date.add(kCalendarZeroDuration);
+    }
+    final row = item as EntryRow;
     return switch (row) {
       // Anchored to the row's start (not `startDate.toLocal()`) so the span
       // stays positive for activities recorded in another timezone.
@@ -790,17 +939,25 @@ class CalendarTimelineDataSource extends CalendarDataSource<EntryRow> {
   }
 
   @override
-  String getSubject(int index) => calendarSubjectForRow(_row(index));
+  String getSubject(int index) => switch (_item(index)) {
+        final EntryRow row => calendarSubjectForRow(row),
+        CalendarAddSetupSlot() => 'Add setup',
+        _ => '',
+      };
 
   @override
-  Color getColor(int index) => calendarColorForRow(_row(index), _cs);
+  Color getColor(int index) => switch (_item(index)) {
+        final EntryRow row => calendarColorForRow(row, _cs),
+        CalendarAddSetupSlot() => _cs.primaryContainer,
+        _ => Colors.transparent,
+      };
 
-  // Required for drag-and-drop with custom appointment objects. The new date is
-  // applied by [_onDragEnd] via the repository, so we just hand back the same
-  // row to satisfy the framework's non-null conversion contract.
+  // Required for drag-and-drop with custom appointment objects. [_onDragEnd]
+  // applies the new date, so return the same object to satisfy the framework's
+  // non-null conversion contract.
   @override
-  EntryRow convertAppointmentToObject(
-          EntryRow customData, Appointment appointment) =>
+  Object convertAppointmentToObject(
+          Object customData, Appointment appointment) =>
       customData;
 }
 

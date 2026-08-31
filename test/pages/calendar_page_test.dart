@@ -82,6 +82,20 @@ void main() {
     });
   });
 
+  group('calendarSlotStart', () {
+    test('rounds a tapped time down to a 30-minute slot', () {
+      final tapped = DateTime(2026, 8, 28, 14, 47, 32, 123, 456);
+
+      expect(calendarSlotStart(tapped), DateTime(2026, 8, 28, 14, 30));
+    });
+
+    test('preserves UTC timestamps', () {
+      final tapped = DateTime.utc(2026, 8, 28, 14, 12);
+
+      expect(calendarSlotStart(tapped), DateTime.utc(2026, 8, 28, 14));
+    });
+  });
+
   test('buildCalendarRows expands setup groups but preserves replacements', () {
     final settings = AppSettings()..enableTimelineSetupGrouping = true;
     final oldComponent = component('old');
@@ -132,6 +146,18 @@ void main() {
   });
 
   group('CalendarTimelineDataSource', () {
+    test('exposes the add-setup slot as a 30-minute calendar item', () {
+      final date = DateTime(2026, 8, 28, 14, 30);
+      final source = CalendarTimelineDataSource(
+        <Object>[CalendarAddSetupSlot(date)],
+        const ColorScheme.light(),
+      );
+
+      expect(source.getStartTime(0), date);
+      expect(source.getEndTime(0), date.add(kCalendarZeroDuration));
+      expect(source.getSubject(0), 'Add setup');
+    });
+
     test('uses a Strava entry local anchor and elapsed duration', () {
       final entry = stravaEntry(
         utc: DateTime.utc(2026, 7, 4, 10),

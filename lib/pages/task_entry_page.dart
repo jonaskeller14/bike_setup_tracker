@@ -12,6 +12,7 @@ import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
 import '../repositories/app_repository.dart';
 import '../theme.dart';
+import '../widgets/app_snackbar.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/items/task_rule_display_card.dart';
 import '../widgets/sheets/task_association_picker.dart';
@@ -145,13 +146,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
     final DateTime newDateTimeLocal = _selectedDateTimeLocal.copyWith(hour: pickedTime.hour, minute: pickedTime.minute);
     if (newDateTimeLocal == _selectedDateTimeLocal) return;
     if (newDateTimeLocal.isAfter(DateTime.now())) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        content: Text('Date and Time cannot be in the future.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
-        backgroundColor: Theme.of(context).colorScheme.errorContainer
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, 'Date and Time cannot be in the future.'));
       return;
     }
 

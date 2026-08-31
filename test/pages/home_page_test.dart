@@ -5,8 +5,11 @@ import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
+import 'package:bike_setup_tracker/models/task/task_rule.dart';
+import 'package:bike_setup_tracker/models/task/task_threshold.dart';
 import 'package:bike_setup_tracker/pages/onboarding_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/services/app_hint_service.dart';
 import 'package:bike_setup_tracker/services/backup_service.dart';
 import 'package:bike_setup_tracker/services/google_drive_service.dart';
 import 'package:bike_setup_tracker/services/strava_service.dart';
@@ -15,6 +18,7 @@ import 'package:bike_setup_tracker/widgets/items/adjustment_list_card.dart';
 import 'package:bike_setup_tracker/widgets/items/component_list_card.dart';
 import 'package:bike_setup_tracker/widgets/items/garage_component_icon_card.dart';
 import 'package:bike_setup_tracker/widgets/lists/garage_list.dart';
+import 'package:bike_setup_tracker/widgets/lists/task_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -24,17 +28,23 @@ void main() {
   late AppDatabase database;
   late AppRepository appRepository;
   late AppSettings appSettings;
+  late AppHintService appHintService;
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     database = AppDatabase.memory();
     appRepository = AppRepository(database);
     appSettings = AppSettings()..showOnboarding = false;
+    appHintService = AppHintService(
+      appRepository: appRepository,
+      appSettings: appSettings,
+    );
   });
 
   tearDown(() async {
     appRepository.dispose();
     appSettings.dispose();
+    appHintService.dispose();
     await database.close();
   });
 
@@ -43,6 +53,7 @@ void main() {
       providers: [
         ChangeNotifierProvider<AppSettings>.value(value: appSettings),
         ChangeNotifierProvider<AppRepository>.value(value: appRepository),
+        ChangeNotifierProvider<AppHintService>.value(value: appHintService),
         Provider<AppDatabase>.value(value: database),
         Provider<BackupService>(create: (_) => BackupService()),
         ChangeNotifierProvider<StravaService>(
@@ -258,11 +269,117 @@ void main() {
     expect(appSettings.showOnboarding, isTrue);
     expect(find.byType(OnboardingPage), findsOneWidget);
   });
+
+  testWidgets('Tasks badge stays hidden for empty and upcoming-only scopes', (tester) async {
+    appSettings.enableTask = true;
+    await tester.pumpWidget(createWidgetUnderTest());
+    await tester.pumpAndSettle();
+
+    expect(tester.widget<Badge>(_taskBadge()).isLabelVisible, isFalse);
+
+    final upcoming = TaskRule(
+      name: 'Upcoming',
+      tags: const {},
+      interval: DateTimeThreshold(DateTime.now().add(const Duration(days: 1))),
+    );
+    await tester.runAsync(() => appRepository.addTaskRule(upcoming));
+    await _waitForRepositoryUpdate(
+      tester,
+      until: (repository) => repository.taskRules.containsKey(upcoming.id),
+    );
+
+    expect(tester.widget<Badge>(_taskBadge()).isLabelVisible, isFalse);
+  });
+
+  testWidgets('Tasks badge shows the actionable count and due color', (tester) async {
+    appSettings.enableTask = true;
+    final due = TaskRule(name: 'Due', tags: const {});
+    await tester.runAsync(() => appRepository.addTaskRule(due));
+
+    await tester.pumpWidget(createWidgetUnderTest());
+    await _waitForRepositoryUpdate(
+      tester,
+      until: (repository) => repository.taskRules.containsKey(due.id),
+    );
+
+    final badge = tester.widget<Badge>(_taskBadge());
+    expect(badge.isLabelVisible, isTrue);
+    expect(find.descendant(of: _taskBadge(), matching: find.text('1')), findsOneWidget);
+    expect(
+      badge.backgroundColor,
+      TaskStatusType.due.getStatusColor(tester.element(_taskBadge())),
+    );
+  });
+
+  testWidgets('Tasks badge lets overdue dominate due for its color', (tester) async {
+    appSettings.enableTask = true;
+    final due = TaskRule(name: 'Due', tags: const {});
+    final overdue = TaskRule(
+      name: 'Overdue',
+      tags: const {},
+      interval: DateTimeThreshold(DateTime.now().subtract(const Duration(days: 4))),
+    );
+    await tester.runAsync(() => appRepository.addTaskRules([due, overdue]));
+
+    await tester.pumpWidget(createWidgetUnderTest());
+    await _waitForRepositoryUpdate(
+      tester,
+      until: (repository) => repository.taskRules.length == 2,
+    );
+
+    final badge = tester.widget<Badge>(_taskBadge());
+    expect(find.descendant(of: _taskBadge(), matching: find.text('2')), findsOneWidget);
+    expect(
+      badge.backgroundColor,
+      TaskStatusType.overdue.getStatusColor(tester.element(_taskBadge())),
+    );
+  });
+
+  testWidgets('reselecting Tasks resets its continuous scroll', (tester) async {
+    appSettings.enableTask = true;
+    final upcoming = [
+      for (var i = 1; i <= 12; i++)
+        TaskRule(
+          name: 'Upcoming $i',
+          tags: const {},
+          interval: DateTimeThreshold(
+            DateTime.now().add(Duration(days: i)),
+          ),
+        ),
+    ];
+    await tester.runAsync(() => appRepository.addTaskRules(upcoming));
+
+    await tester.pumpWidget(createWidgetUnderTest());
+    await _waitForRepositoryUpdate(
+      tester,
+      until: (repository) => repository.taskRules.length == upcoming.length,
+    );
+
+    await tester.tap(_navigationDestination('Tasks'));
+    await tester.pumpAndSettle();
+    expect(find.byType(TaskList), findsOneWidget);
+    final taskScroll = find.byKey(
+      const PageStorageKey('task-list-scroll'),
+    );
+    final taskScrollController = tester.widget<CustomScrollView>(taskScroll).controller!;
+    taskScrollController.jumpTo(taskScrollController.position.maxScrollExtent);
+    await tester.pump();
+    expect(taskScrollController.offset, greaterThan(0));
+
+    await tester.tap(_navigationDestination('Tasks'));
+    await tester.pumpAndSettle();
+    expect(taskScrollController.offset, 0);
+  });
 }
 
 Finder _navigationDestination(String label) => find.descendant(
   of: find.byType(NavigationBar),
   matching: find.text(label),
+);
+
+Finder _taskBadge() => find.ancestor(
+  of: find.byIcon(Icons.checklist),
+  matching: find.byType(Badge),
 );
 
 String? _appBarTitle(WidgetTester tester) => (tester.widget<AppBar>(find.byType(AppBar).last).title as Text).data;

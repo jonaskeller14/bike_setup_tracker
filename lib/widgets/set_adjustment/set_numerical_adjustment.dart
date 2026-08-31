@@ -6,8 +6,7 @@ import 'package:flutter/services.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 import '../../utils/unit_conversion.dart';
-import '../items/adjustment_type_icon.dart';
-import 'set_adjustment.dart';
+import '../display_adjustment/adjustment_icon_name_notes.dart';
 
 class SetNumericalAdjustmentWidget extends StatefulWidget {
   final NumericalAdjustment adjustment;
@@ -201,14 +200,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
         children: [
           Flexible(
             flex: 2,
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                AdjustmentTypeIcon(widget.adjustment, color: highlightColor),
-                const SizedBox(width: 10),
-                nameNotesSetAdjustmentWidget(context: context, adjustment: widget.adjustment, highlightColor: highlightColor),
-              ],
-            )
+            child: AdjustmentIconNameNotes(adjustment: widget.adjustment, color: highlightColor),
           ),
           Flexible(
             flex: 3,

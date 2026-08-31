@@ -6,7 +6,7 @@ import 'package:syncfusion_flutter_sliders/sliders.dart';
 
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
-import 'set_adjustment.dart';
+import '../display_adjustment/adjustment_icon_name_notes.dart';
 
 class SetStepAdjustmentWidget extends StatelessWidget {
   static const int maxRenderedTicks = 50;
@@ -81,14 +81,7 @@ class SetStepAdjustmentWidget extends StatelessWidget {
         children: [
           Flexible(
             flex: 2,
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Icon(StepAdjustment.iconData, color: highlightColor),
-                const SizedBox(width: 10),
-                nameNotesSetAdjustmentWidget(context: context, adjustment: adjustment, highlightColor: highlightColor),
-              ],
-            )
+            child: AdjustmentIconNameNotes(adjustment: adjustment, color: highlightColor),
           ),
           if (value == null)
             Flexible(

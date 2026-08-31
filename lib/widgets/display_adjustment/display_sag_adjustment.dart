@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 import '../../utils/unit_conversion.dart';
-import '../items/adjustment_type_icon.dart';
-import '../set_adjustment/set_adjustment.dart';
+import 'adjustment_icon_name_notes.dart';
 import 'toggleable_unit_value.dart';
 
 /// Sag display: the stored percentage, tappable to the derived mm reading when
@@ -52,14 +51,7 @@ class DisplaySagAdjustmentWidget extends StatelessWidget {
         children: [
           Flexible(
             flex: 2,
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              spacing: 10,
-              children: [
-                AdjustmentTypeIcon(adjustment, color: highlightColor),
-                nameNotesSetAdjustmentWidget(context: context, adjustment: adjustment, highlightColor: highlightColor),
-              ],
-            )
+            child: AdjustmentIconNameNotes(adjustment: adjustment, color: highlightColor),
           ),
           Flexible(
             flex: 3,

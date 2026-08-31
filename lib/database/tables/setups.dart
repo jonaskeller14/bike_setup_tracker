@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
 
+import '../converters/context_position_converter.dart';
 import '../converters/local_floating_datetime_converter.dart';
-import '../converters/location_data_converter.dart';
 import '../converters/placemark_converter.dart';
 import '../converters/string_list_converter.dart';
 import '../converters/string_list_ordered_converter.dart';
@@ -31,7 +31,7 @@ class Setups extends Table {
 
   TextColumn get tags => text().map(const StringListConverter())();
   TextColumn get images => text().map(const StringListOrderedConverter()).withDefault(const Constant('[]'))();
-  TextColumn get position => text().map(const LocationDataConverter()).nullable()();
+  TextColumn get position => text().map(const ContextPositionConverter()).nullable()();
   TextColumn get place => text().map(const PlacemarkConverter()).nullable()();
   TextColumn get weather => text().map(const WeatherConverter()).nullable()();
 

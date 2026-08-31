@@ -5,11 +5,11 @@ import 'package:file_picker/file_picker.dart';
 enum FileSaveOutcome { saved, cancelled }
 
 typedef SaveFilePicker =
-    Future<String?> Function({
-      String? fileName,
+    Future<Uri?> Function({
+      required String fileName,
       required FileType type,
       List<String>? allowedExtensions,
-      Uint8List? bytes,
+      required Uint8List bytes,
     });
 
 class FileSaveService {

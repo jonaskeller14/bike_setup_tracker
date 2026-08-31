@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
+import '../display_adjustment/adjustment_icon_name_notes.dart';
 import '../sheets/set_duration.dart';
-import 'set_adjustment.dart';
 
 class SetDurationAdjustmentWidget extends StatelessWidget {
   final DurationAdjustment adjustment;
@@ -47,14 +47,7 @@ class SetDurationAdjustmentWidget extends StatelessWidget {
         spacing: 20,
         children: [
           Expanded(
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              spacing: 10,
-              children: [
-                Icon(DurationAdjustment.iconData, color: highlightColor),
-                nameNotesSetAdjustmentWidget(context: context, adjustment: adjustment, highlightColor: highlightColor),
-              ],
-            )
+            child: AdjustmentIconNameNotes(adjustment: adjustment, color: highlightColor),
           ),
           if (value == null)
             OutlinedButton(

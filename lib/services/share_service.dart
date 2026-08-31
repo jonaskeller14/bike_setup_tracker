@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 import 'package:share_plus/share_plus.dart';
 
+import '../widgets/app_snackbar.dart';
+
 class ShareService {
   static Future<void> shareFile({
     required BuildContext context,
@@ -12,8 +14,6 @@ class ShareService {
     final fileName = p.basename(filePath);
     final box = context.findRenderObject() as RenderBox?;
     final scaffoldMessenger = ScaffoldMessenger.of(context);
-    final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
-    final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
 
     try {
       await SharePlus.instance.share(
@@ -26,15 +26,8 @@ class ShareService {
         ),
       );
     } catch (e) {
-      scaffoldMessenger.showSnackBar(
-        SnackBar(
-          persist: false,
-          showCloseIcon: true,
-          closeIconColor: onErrorContainerColor,
-          content: Text('${errorMessage ?? 'Error sharing file'}: $e', style: TextStyle(color: onErrorContainerColor)),
-          backgroundColor: errorContainerColor,
-        ),
-      );
+      if (!context.mounted) return;
+      scaffoldMessenger.showSnackBar(AppSnackBar.error(context, '${errorMessage ?? 'Error sharing file'}: $e'));
     }
   }
 
@@ -45,8 +38,6 @@ class ShareService {
   }) async {
     final box = context.findRenderObject() as RenderBox?;
     final scaffoldMessenger = ScaffoldMessenger.of(context);
-    final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
-    final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
 
     try {
       await SharePlus.instance.share(
@@ -57,15 +48,8 @@ class ShareService {
         ),
       );
     } catch (e) {
-      scaffoldMessenger.showSnackBar(
-        SnackBar(
-          persist: false,
-          showCloseIcon: true,
-          closeIconColor: onErrorContainerColor,
-          content: Text('${errorMessage ?? 'Error sharing text'}: $e', style: TextStyle(color: onErrorContainerColor)),
-          backgroundColor: errorContainerColor,
-        ),
-      );
+      if (!context.mounted) return;
+      scaffoldMessenger.showSnackBar(AppSnackBar.error(context, '${errorMessage ?? 'Error sharing text'}: $e'));
     }
   }
 }

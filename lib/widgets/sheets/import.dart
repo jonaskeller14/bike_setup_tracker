@@ -7,6 +7,7 @@ import '../../models/selected_data.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/image_storage_service.dart';
 import '../../utils/file_import.dart';
+import '../app_snackbar.dart';
 import 'backup.dart';
 import 'data_select.dart';
 import 'import_merge_overwrite.dart';
@@ -14,9 +15,6 @@ import 'sheet_header.dart';
 
 Future<void> importData(BuildContext context) async {
   final scaffoldMessenger = ScaffoldMessenger.of(context);
-  final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
-  final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
-
   final ImportResult? importResult = await showModalBottomSheet<ImportResult?>(
     context: context,
     isScrollControlled: true,
@@ -44,33 +42,30 @@ Future<void> importData(BuildContext context) async {
     // (foreign / stale) snapshots. Recompute them against the local Strava
     // activities and installation history.
     await appRepository.refreshTaskEntrySnapshots();
+    if (!context.mounted) return;
     scaffoldMessenger.showSnackBar(
-      SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        content: switch (importResult.importMethod) {
-          ImportMethod.merge => const Text("Data merged successfully"),
-          ImportMethod.overwrite => const Text("Data overwritten successfully"),
-          ImportMethod.replace => const Text("Data replaced successfully"),
+      AppSnackBar.success(
+        context,
+        switch (importResult.importMethod) {
+          ImportMethod.merge => 'Data merged successfully',
+          ImportMethod.overwrite => 'Data overwritten successfully',
+          ImportMethod.replace => 'Data replaced successfully',
         },
-      )
+      ),
     );
   } catch (e) {
-    scaffoldMessenger.showSnackBar(SnackBar(
-      persist: false,
-      showCloseIcon: true,
-      closeIconColor: onErrorContainerColor,
-      content: Text(
+    if (!context.mounted) return;
+    scaffoldMessenger.showSnackBar(
+      AppSnackBar.error(
+        context,
         switch (importResult.importMethod) {
-          ImportMethod.merge => "Merge failed: $e",
-          ImportMethod.overwrite => "Overwriting failed: $e",
-          ImportMethod.replace => "Overwriting failed: $e",
+          ImportMethod.merge => 'Merge failed: $e',
+          ImportMethod.overwrite => 'Overwriting failed: $e',
+          ImportMethod.replace => 'Overwriting failed: $e',
         },
-        style: TextStyle(color: onErrorContainerColor)
       ),
-      backgroundColor: errorContainerColor,
-    ));
-  }  
+    );
+  }
 }
 
 enum ImportSourceOptions {
@@ -123,18 +118,20 @@ class _ImportSheetFlowState extends State<ImportSheetFlow> {
     if (_previousSteps.isEmpty) return;
 
     switch (_step) {
-      case ImportSheetFlowSteps.step1SelectSource: break;
-      case ImportSheetFlowSteps.step2SelectBackup: 
-        _remoteAllData = null; 
+      case ImportSheetFlowSteps.step1SelectSource:
         break;
-      case ImportSheetFlowSteps.step3SelectDataMethod: 
+      case ImportSheetFlowSteps.step2SelectBackup:
+        _remoteAllData = null;
+        break;
+      case ImportSheetFlowSteps.step3SelectDataMethod:
         _remoteAllData = null;
         _remoteSelectedData = null;
         break;
-      case ImportSheetFlowSteps.step4SelectDataItems: 
-        _remoteSelectedData = null; 
+      case ImportSheetFlowSteps.step4SelectDataItems:
+        _remoteSelectedData = null;
         break;
-      case ImportSheetFlowSteps.step5SelectImportMethod: break;
+      case ImportSheetFlowSteps.step5SelectImportMethod:
+        break;
     }
 
     setState(() {
@@ -145,9 +142,9 @@ class _ImportSheetFlowState extends State<ImportSheetFlow> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      canPop: _step == ImportSheetFlowSteps.step1SelectSource, 
+      canPop: _step == ImportSheetFlowSteps.step1SelectSource,
       onPopInvokedWithResult: (didPop, result) {
-        if (didPop) return;  // If the pop already happened (Step One), do nothing.
+        if (didPop) return; // If the pop already happened (Step One), do nothing.
         if (_previousSteps.isNotEmpty) {
           _onBack();
         }
@@ -160,7 +157,7 @@ class _ImportSheetFlowState extends State<ImportSheetFlow> {
               _remoteAllData = appRepository;
               if (_remoteAllData == null) return;
               _setNextStep(ImportSheetFlowSteps.step3SelectDataMethod);
-            }, 
+            },
             onBackup: () => _setNextStep(ImportSheetFlowSteps.step2SelectBackup),
           ),
           ImportSheetFlowSteps.step2SelectBackup => BackupSheetContent(
@@ -195,22 +192,28 @@ class _ImportSheetFlowState extends State<ImportSheetFlow> {
             onConfirm: (SelectedData selectedData) {
               _remoteSelectedData = selectedData;
               _setNextStep(ImportSheetFlowSteps.step5SelectImportMethod);
-            }, 
+            },
             onBack: _onBack,
           ),
           ImportSheetFlowSteps.step5SelectImportMethod => SelectImportMethodSheetContent(
-            onOverwrite: () => Navigator.of(context).pop(ImportResult(
-              importMethod: ImportMethod.overwrite, 
-              dataToImport: _remoteSelectedData!,
-            )), 
-            onMerge: () => Navigator.of(context).pop(ImportResult(
-              importMethod: ImportMethod.merge, 
-              dataToImport: _remoteSelectedData!,
-            )),
-            onReplace:  () => Navigator.of(context).pop(ImportResult(
-              importMethod: ImportMethod.replace,
-              dataToImport: _remoteSelectedData!,
-            )),
+            onOverwrite: () => Navigator.of(context).pop(
+              ImportResult(
+                importMethod: ImportMethod.overwrite,
+                dataToImport: _remoteSelectedData!,
+              ),
+            ),
+            onMerge: () => Navigator.of(context).pop(
+              ImportResult(
+                importMethod: ImportMethod.merge,
+                dataToImport: _remoteSelectedData!,
+              ),
+            ),
+            onReplace: () => Navigator.of(context).pop(
+              ImportResult(
+                importMethod: ImportMethod.replace,
+                dataToImport: _remoteSelectedData!,
+              ),
+            ),
             onBack: _onBack,
           ),
         },
@@ -224,9 +227,9 @@ class SelectImportSourceSheetContent extends StatefulWidget {
   final VoidCallback onBackup;
 
   const SelectImportSourceSheetContent({
-    super.key, 
-    required this.onFile, 
-    required this.onBackup, 
+    super.key,
+    required this.onFile,
+    required this.onBackup,
   });
 
   @override

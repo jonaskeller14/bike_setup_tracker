@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../utils/app_info.dart';
 import '../utils/file_export.dart';
+import '../widgets/app_snackbar.dart';
 
 class LoadingErrorPage extends StatelessWidget {
   const LoadingErrorPage({super.key});
@@ -43,10 +44,7 @@ class LoadingErrorPage extends StatelessWidget {
                         } else {
                           if (!context.mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Could not open email client.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
-                              backgroundColor: Theme.of(context).colorScheme.errorContainer,
-                            ),
+                            AppSnackBar.error(context, 'Could not open email client.'),
                           );
                         }
                       },

@@ -19,7 +19,7 @@ class RatingList extends StatelessWidget {
     return CustomScrollView(
       slivers: [
         const SliverPadding(
-          padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+          padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
           sliver: SliverToBoxAdapter(child: RatingListFilterWidget()),
         ),
         SliverFillRemaining(
@@ -68,7 +68,7 @@ class RatingList extends StatelessWidget {
         ? _emptyPlaceholder(context)
         : ReorderableListView.builder(
             itemCount: ratingsList.length,
-            padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
+            padding: const EdgeInsets.only(left: 16, top: 8, right: 16, bottom: 16+100),
             header: const RatingListFilterWidget(),
             proxyDecorator: proxyDecorator,
             onReorderStart: (_) => unawaited(HapticFeedback.lightImpact()),

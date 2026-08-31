@@ -7,34 +7,49 @@ import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
+import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:bike_setup_tracker/pages/details/component_details_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/services/setup_activity_analysis_service.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/display_data/component_details_page_line_chart.dart';
 import 'package:bike_setup_tracker/widgets/display_data/component_details_page_radial_chart.dart';
 import 'package:bike_setup_tracker/widgets/display_data/component_details_page_table.dart';
+import 'package:bike_setup_tracker/widgets/display_installation_timeline.dart';
 import 'package:bike_setup_tracker/widgets/lists/adjustment_edit_list.dart';
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+class MockSubscriptionService extends Mock implements SubscriptionService {
+  @override
+  bool get hasStravaEntitlement => false;
+}
+
+class MockSetupActivityAnalysisService extends Mock implements SetupActivityAnalysisService {}
 
 void main() {
   late AppDatabase database;
   late AppRepository appRepository;
   late AppSettings appSettings;
+  late SetupActivityAnalysisService setupActivityAnalysisService;
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     database = AppDatabase.memory();
     appRepository = AppRepository(database);
     appSettings = AppSettings();
+    setupActivityAnalysisService = SetupActivityAnalysisService(database);
   });
 
   tearDown(() async {
     appRepository.dispose();
     appSettings.dispose();
+    setupActivityAnalysisService.dispose();
     await database.close();
   });
 
@@ -43,7 +58,8 @@ void main() {
       providers: [
         ChangeNotifierProvider.value(value: appSettings),
         ChangeNotifierProvider.value(value: appRepository),
-        ChangeNotifierProvider<SubscriptionService>(create: (_) => SubscriptionService()),
+        ChangeNotifierProvider.value(value: setupActivityAnalysisService),
+        ChangeNotifierProvider<SubscriptionService>.value(value: MockSubscriptionService()),
       ],
       child: MaterialApp(
         theme: materialAppTheme,
@@ -85,6 +101,7 @@ void main() {
             sortAscending: true,
             sortColumn: null,
             bikes: const {},
+            setupActivityCounts: const {},
             valueFor: (_, _) => null,
             columnLabel: (_) => '',
             onSort: (_, _) {},
@@ -95,6 +112,63 @@ void main() {
         ),
       ),
     );
+  }
+
+  Future<void> insertActivity(
+    int id,
+    DateTime start, {
+    Duration elapsed = const Duration(minutes: 10),
+    String? gearId = 'gear',
+  }) async {
+    await database
+        .into(database.stravaActivities)
+        .insert(
+          StravaActivitiesCompanion.insert(
+            id: Value(id),
+            lastModified: start,
+            name: 'Activity $id',
+            athlete: 1,
+            sportType: SportType.Ride,
+            startDate: start,
+            startDateLocal: start,
+            gearId: Value(gearId),
+            movingTime: elapsed.inSeconds,
+            elapsedTime: elapsed.inSeconds,
+          ),
+        );
+  }
+
+  Future<void> waitForSetupCount(String setupId, int expectedCount) async {
+    for (var attempts = 0; attempts < 20; attempts++) {
+      final counts = await setupActivityAnalysisService.getSetupActivityCounts();
+      if (counts[setupId] == expectedCount &&
+          setupActivityAnalysisService.setupActivityCounts[setupId] == expectedCount) {
+        return;
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+    }
+    fail('Setup $setupId did not reach activity count $expectedCount');
+  }
+
+  Future<void> useStaticAnalysisCounts() async {
+    final counts = Map<String, int>.unmodifiable(
+      await database.stravaDao.getSetupActivityCounts(),
+    );
+    setupActivityAnalysisService.dispose();
+    final service = MockSetupActivityAnalysisService();
+    when(() => service.hasAnyActivity).thenReturn(true);
+    when(() => service.setupActivityCounts).thenReturn(counts);
+    when(service.getSetupActivityCounts).thenAnswer((_) async => counts);
+    setupActivityAnalysisService = service;
+  }
+
+  Future<void> showActivitiesColumn(WidgetTester tester) async {
+    await tester.tap(find.widgetWithText(FilterChip, 'Columns'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilterChip, 'Activities'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.close));
+    await tester.pumpAndSettle();
   }
 
   testWidgets('uses setup-aware rows-per-page options and defaults', (WidgetTester tester) async {
@@ -162,6 +236,37 @@ void main() {
 
     expect(find.text('No setups yet'), findsOneWidget);
     expect(find.byType(ComponentDetailsPageTable), findsNothing);
+  });
+
+  testWidgets('shows installation history for complex data when feature is disabled', (WidgetTester tester) async {
+    appSettings.enableInstallationTimeline = false;
+    final component = Component(
+      id: 'comp1',
+      name: 'Test Fork',
+      installations: [
+        Installation.sinceBeginning(parent: 'bike1', componentId: 'comp1'),
+        Uninstallation(
+          componentId: 'comp1',
+          dateTimeUTC: DateTime.utc(2026, 1, 2),
+          dateTimeLocal: DateTime(2026, 1, 2),
+        ),
+      ],
+      componentType: ComponentType.fork,
+    );
+    await tester.runAsync(() async {
+      await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
+      await appRepository.addComponent(component);
+    });
+
+    appRepository.dispose();
+    appRepository = AppRepository(database);
+    await tester.pumpWidget(createWidgetUnderTest('comp1'));
+    await _waitForComponent(tester, appRepository);
+
+    expect(find.text('History'), findsOneWidget);
+    await tester.tap(find.text('History'));
+    await tester.pumpAndSettle();
+    expect(find.byType(DisplayInstallationTimeline), findsOneWidget);
   });
 
   testWidgets('show placeholder when component has no adjustments', (WidgetTester tester) async {
@@ -452,6 +557,285 @@ void main() {
     expect(find.text('Rebound'), findsNothing);
     expect(find.text('No setups yet'), findsOneWidget);
     expect(find.byType(ComponentDetailsPageTable), findsNothing);
+  });
+
+  // ── Setup activity counts ─────────────────────────────────────────────────
+
+  testWidgets('offers the Activities column when data exists and clears its sort when removed', (
+    WidgetTester tester,
+  ) async {
+    final adjustment = StepAdjustment(
+      id: 'adj1',
+      name: 'Rebound',
+      notes: '',
+      unit: null,
+      step: 1,
+      min: 0,
+      max: 10,
+      visualization: StepAdjustmentVisualization.slider,
+    );
+    final setupTime = DateTime.utc(2024, 1, 1);
+    await tester.runAsync(() async {
+      await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null, stravaGear: 'gear'));
+      await appRepository.addComponent(Component(
+        id: 'comp1',
+        name: 'Test Fork',
+        installations: [Installation.sinceBeginning(parent: 'bike1')],
+        componentType: ComponentType.fork,
+        adjustments: [adjustment],
+      ));
+      await appRepository.addSetup(Setup(
+        id: 's1',
+        name: 'Setup 1',
+        datetime: setupTime,
+        datetimeLocal: setupTime,
+        tags: {},
+        bike: 'bike1',
+        person: null,
+        bikeAdjustmentValues: {'adj1': 5},
+        personAdjustmentValues: {},
+      ));
+    });
+    appRepository.dispose();
+    appRepository = AppRepository(database);
+    await tester.pumpWidget(createWidgetUnderTest('comp1'));
+    await _waitForComponent(tester, appRepository);
+
+    Finder activitiesHeader() => find.descendant(
+      of: find.byType(DataTable),
+      matching: find.text('Activities'),
+    );
+
+    expect(activitiesHeader(), findsNothing);
+
+    await tester.runAsync(() async {
+      await insertActivity(1, setupTime.add(const Duration(hours: 1)));
+      await waitForSetupCount('s1', 1);
+    });
+    await tester.pumpAndSettle();
+
+    await showActivitiesColumn(tester);
+    expect(activitiesHeader(), findsOneWidget);
+    expect(find.descendant(of: find.byType(DataTable), matching: find.text('1')), findsWidgets);
+
+    await tester.tap(activitiesHeader());
+    await tester.pumpAndSettle();
+    expect(tester.widget<PaginatedDataTable>(find.byType(PaginatedDataTable)).sortColumnIndex, isNotNull);
+
+    await tester.runAsync(() async {
+      await database.delete(database.stravaActivities).go();
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+    });
+    await tester.pumpAndSettle();
+
+    expect(activitiesHeader(), findsNothing);
+    expect(tester.widget<PaginatedDataTable>(find.byType(PaginatedDataTable)).sortColumnIndex, isNull);
+
+    await tester.runAsync(() async {
+      await insertActivity(2, setupTime.add(const Duration(hours: 2)));
+      await waitForSetupCount('s1', 1);
+    });
+    await tester.pumpAndSettle();
+    expect(activitiesHeader(), findsNothing);
+  });
+
+  testWidgets('sorts Activities numerically with missing counts displayed as zero', (
+    WidgetTester tester,
+  ) async {
+    final adjustment = StepAdjustment(
+      id: 'adj1',
+      name: 'Rebound',
+      notes: '',
+      unit: null,
+      step: 1,
+      min: 0,
+      max: 10,
+      visualization: StepAdjustmentVisualization.slider,
+    );
+    final baseTime = DateTime.utc(2024, 1, 1);
+    await tester.runAsync(() async {
+      await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null, stravaGear: 'gear'));
+      await appRepository.addComponent(Component(
+        id: 'comp1',
+        name: 'Test Fork',
+        installations: [Installation.sinceBeginning(parent: 'bike1')],
+        componentType: ComponentType.fork,
+        adjustments: [adjustment],
+      ));
+      for (var index = 0; index < 3; index++) {
+        final time = baseTime.add(Duration(days: index));
+        await appRepository.addSetup(Setup(
+          id: 's${index + 1}',
+          name: 'Setup ${index + 1}',
+          datetime: time,
+          datetimeLocal: time,
+          tags: {},
+          bike: 'bike1',
+          person: null,
+          bikeAdjustmentValues: {'adj1': index},
+          personAdjustmentValues: {},
+        ));
+      }
+      await insertActivity(1, baseTime.add(const Duration(hours: 1)));
+      await insertActivity(2, baseTime.add(const Duration(hours: 2)));
+      await insertActivity(3, baseTime.add(const Duration(days: 2, hours: 1)));
+    });
+    appRepository.dispose();
+    appRepository = AppRepository(database);
+    await tester.runAsync(useStaticAnalysisCounts);
+    await tester.pumpWidget(createWidgetUnderTest('comp1'));
+    await _waitForComponent(tester, appRepository);
+    await tester.pump(const Duration(milliseconds: 100));
+    await showActivitiesColumn(tester);
+
+    final activitiesHeader = find.descendant(
+      of: find.byType(DataTable),
+      matching: find.text('Activities'),
+    );
+    await tester.tap(activitiesHeader);
+    await tester.pump();
+
+    List<String> setupOrder() => tester
+        .widgetList<Text>(find.descendant(of: find.byType(DataTable), matching: find.byType(Text)))
+        .map((text) => text.data)
+        .whereType<String>()
+        .where((text) => text.startsWith('Setup '))
+        .toList();
+
+    expect(setupOrder(), ['Setup 2', 'Setup 3', 'Setup 1']);
+    expect(tester.widget<Text>(find.byKey(const ValueKey('setup-activity-count-s2'))).data, '0');
+
+    await tester.tap(activitiesHeader);
+    await tester.pump();
+    expect(setupOrder(), ['Setup 1', 'Setup 3', 'Setup 2']);
+  });
+
+  testWidgets('keeps full-timeline counts when a boundary setup is tag-filtered', (
+    WidgetTester tester,
+  ) async {
+    appSettings.enableSetupTags = true;
+    final adjustment = StepAdjustment(
+      id: 'adj1',
+      name: 'Rebound',
+      notes: '',
+      unit: null,
+      step: 1,
+      min: 0,
+      max: 10,
+      visualization: StepAdjustmentVisualization.slider,
+    );
+    final baseTime = DateTime.utc(2024, 1, 1);
+    await tester.runAsync(() async {
+      await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null, stravaGear: 'gear'));
+      await appRepository.addComponent(Component(
+        id: 'comp1',
+        name: 'Test Fork',
+        installations: [Installation.sinceBeginning(parent: 'bike1')],
+        componentType: ComponentType.fork,
+        adjustments: [adjustment],
+      ));
+      await appRepository.addSetup(Setup(
+        id: 'visible',
+        name: 'Visible Setup',
+        datetime: baseTime,
+        datetimeLocal: baseTime,
+        tags: {'visible'},
+        bike: 'bike1',
+        person: null,
+        bikeAdjustmentValues: {'adj1': 1},
+        personAdjustmentValues: {},
+      ));
+      await appRepository.addSetup(Setup(
+        id: 'hidden-boundary',
+        name: 'Hidden Boundary',
+        datetime: baseTime.add(const Duration(days: 1)),
+        datetimeLocal: baseTime.add(const Duration(days: 1)),
+        tags: {'hidden'},
+        bike: 'bike1',
+        person: null,
+        bikeAdjustmentValues: {'adj1': 2},
+        personAdjustmentValues: {},
+      ));
+      await insertActivity(1, baseTime.add(const Duration(hours: 1)));
+      await insertActivity(2, baseTime.add(const Duration(days: 1, hours: 1)));
+    });
+    appRepository.dispose();
+    appRepository = AppRepository(database);
+    await tester.runAsync(useStaticAnalysisCounts);
+    await tester.pumpWidget(createWidgetUnderTest('comp1'));
+    await _waitForComponent(tester, appRepository);
+    await tester.pumpAndSettle();
+
+    expect(setupActivityAnalysisService.setupActivityCounts['visible'], 1);
+    expect(find.text('Visible Setup'), findsWidgets);
+    expect(find.text('Hidden Boundary'), findsWidgets);
+    await showActivitiesColumn(tester);
+
+    appRepository.selectSetupTag('visible');
+    await tester.pumpAndSettle();
+
+    expect(find.descendant(of: find.byType(DataTable), matching: find.text('Visible Setup')), findsOneWidget);
+    expect(find.descendant(of: find.byType(DataTable), matching: find.text('Hidden Boundary')), findsNothing);
+    expect(tester.widget<Text>(find.byKey(const ValueKey('setup-activity-count-visible'))).data, '1');
+  });
+
+  testWidgets('uses complete activity history beyond the repository page', (
+    WidgetTester tester,
+  ) async {
+    final adjustment = StepAdjustment(
+      id: 'adj1',
+      name: 'Rebound',
+      notes: '',
+      unit: null,
+      step: 1,
+      min: 0,
+      max: 10,
+      visualization: StepAdjustmentVisualization.slider,
+    );
+    final baseTime = DateTime.utc(2024, 1, 1);
+    await tester.runAsync(() async {
+      await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null, stravaGear: 'gear'));
+      await appRepository.addComponent(Component(
+        id: 'comp1',
+        name: 'Test Fork',
+        installations: [Installation.sinceBeginning(parent: 'bike1')],
+        componentType: ComponentType.fork,
+        adjustments: [adjustment],
+      ));
+      await appRepository.addSetup(Setup(
+        id: 's1',
+        name: 'Setup 1',
+        datetime: baseTime,
+        datetimeLocal: baseTime,
+        tags: {},
+        bike: 'bike1',
+        person: null,
+        bikeAdjustmentValues: {'adj1': 1},
+        personAdjustmentValues: {},
+      ));
+      for (var id = 1; id <= 75; id++) {
+        await insertActivity(id, baseTime.add(Duration(minutes: id)));
+      }
+    });
+    appRepository.dispose();
+    appRepository = AppRepository(database);
+    await tester.runAsync(useStaticAnalysisCounts);
+    await tester.pumpWidget(createWidgetUnderTest('comp1'));
+    await _waitForComponent(tester, appRepository);
+    await tester.runAsync(() async {
+      await appRepository.loadMoreStravaActivities();
+      var attempts = 0;
+      while (appRepository.stravaActivities.length < 50 && attempts < 20) {
+        await Future<void>.delayed(const Duration(milliseconds: 20));
+        attempts++;
+      }
+    });
+    await tester.pumpAndSettle();
+
+    expect(appRepository.stravaActivities.length, 50);
+    expect(setupActivityAnalysisService.setupActivityCounts['s1'], 75);
+    await showActivitiesColumn(tester);
+    expect(tester.widget<Text>(find.byKey(const ValueKey('setup-activity-count-s1'))).data, '75');
   });
 
   // ── Row selection ──────────────────────────────────────────────────────────

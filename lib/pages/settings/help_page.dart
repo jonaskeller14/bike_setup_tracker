@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../icons/simple_icons.dart';
 import '../../models/app_settings.dart';
+import '../../services/app_hint_service.dart';
 import '../../utils/app_info.dart';
 import '../../utils/url.dart';
 import '../../widgets/sheets/tip_jar.dart';
@@ -15,7 +16,13 @@ import 'faq_page.dart';
 class HelpPage extends StatelessWidget {
   const HelpPage({super.key});
 
-  Widget _buildContactTile({required BuildContext context, required String title, required String email, required IconData icon, required String subject}) {
+  Widget _buildContactTile({
+    required BuildContext context,
+    required String title,
+    required String email,
+    required IconData icon,
+    required String subject,
+  }) {
     return ListTile(
       leading: Icon(icon),
       title: Text(title),
@@ -44,12 +51,13 @@ class HelpPage extends StatelessWidget {
                 title: const Text("Show Onboarding"),
                 subtitle: const Text("Show onboarding slides to get started."),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () {
+                onTap: () async {
                   final appSettings = context.read<AppSettings>();
-                  appSettings.showAllHints();
+                  await context.read<AppHintService>().resetAll();
+                  if (!context.mounted) return;
                   appSettings.showOnboarding = true;
-                  Navigator.pop(context);  // pop Help Page
-                  Navigator.pop(context);  // pop Settings Page
+                  Navigator.pop(context); // pop Help Page
+                  Navigator.pop(context); // pop Settings Page
                 },
               ),
               ListTile(
@@ -84,7 +92,9 @@ class HelpPage extends StatelessWidget {
                     : const Text('Rate this app on Google PlayStore.'),
                 trailing: const Icon(Icons.open_in_new, size: 16.0),
                 onTap: () {
-                  final url = Theme.of(context).platform == TargetPlatform.iOS ? AppInfo.appStoreUrl : AppInfo.playStoreUrl;
+                  final url = Theme.of(context).platform == TargetPlatform.iOS
+                      ? AppInfo.appStoreUrl
+                      : AppInfo.playStoreUrl;
                   unawaited(launchAppUrl(context, url: url, launchMode: LaunchMode.externalApplication));
                 },
               ),

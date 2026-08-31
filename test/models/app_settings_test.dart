@@ -49,23 +49,23 @@ void main() {
   });
 
   group('AppSettings — write on touch', () {
-    test('Setup Comparison defaults off, notifies, persists, and reloads', () async {
+    test('Setup Comparison defaults on, notifies, persists, and reloads', () async {
       SharedPreferences.setMockInitialValues({});
       final settings = AppSettings();
       var notifications = 0;
       settings.addListener(() => notifications++);
 
-      expect(settings.enableSetupComparison, isFalse);
-      settings.enableSetupComparison = true;
+      expect(settings.enableSetupComparison, isTrue);
+      settings.enableSetupComparison = false;
       await flushWrites();
 
       expect(notifications, 1);
       final prefs = await SharedPreferences.getInstance();
-      expect(prefs.getBool('${_kPrefix}enableSetupComparison'), isTrue);
+      expect(prefs.getBool('${_kPrefix}enableSetupComparison'), isFalse);
 
       final reloaded = AppSettings();
       await reloaded.loadAppSettings();
-      expect(reloaded.enableSetupComparison, isTrue);
+      expect(reloaded.enableSetupComparison, isFalse);
       settings.dispose();
       reloaded.dispose();
     });

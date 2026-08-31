@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
-import '../set_adjustment/set_adjustment.dart';
+import 'adjustment_icon_name_notes.dart';
 
 class DisplayBooleanAdjustmentWidget extends StatelessWidget {
   final BooleanAdjustment adjustment;
@@ -46,14 +46,7 @@ class DisplayBooleanAdjustmentWidget extends StatelessWidget {
         spacing: 20,
         children: [
           Expanded(
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              spacing: 10,
-              children: [
-                Icon(BooleanAdjustment.iconData, color: highlightColor),
-                nameNotesSetAdjustmentWidget(context: context, adjustment: adjustment, highlightColor: highlightColor),
-              ],
-            ),
+            child: AdjustmentIconNameNotes(adjustment: adjustment, color: highlightColor),
           ),
           Flexible(
             child: Column(

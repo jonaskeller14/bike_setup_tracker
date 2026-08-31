@@ -1,12 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-class SetupListController extends ChangeNotifier {
+class ListScrollController extends ChangeNotifier {
   final ScrollController scrollController = ScrollController();
 
   bool _showBackToTop = false;
 
-  SetupListController() {
+  ListScrollController() {
     scrollController.addListener(_updateBackToTopVisibility);
   }
 
@@ -21,16 +23,14 @@ class SetupListController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> scrollBackToTop() {
-    if (!scrollController.hasClients) return Future.value();
-    return Future.wait<void>([
-      HapticFeedback.lightImpact(),
-      scrollController.animateTo(
-        scrollController.position.minScrollExtent,
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.easeOutCubic,
-      ),
-    ]);
+  Future<void> scrollBackToTop() async {
+    unawaited(HapticFeedback.lightImpact());
+    if (!scrollController.hasClients) return;
+    await scrollController.animateTo(
+      scrollController.position.minScrollExtent,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeOutCubic,
+    );
   }
 
   @override

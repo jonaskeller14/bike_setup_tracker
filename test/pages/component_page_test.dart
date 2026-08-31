@@ -9,6 +9,7 @@ import 'package:bike_setup_tracker/pages/component_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
+import 'package:bike_setup_tracker/widgets/set_installation_timeline.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -193,6 +194,29 @@ void main() {
   });
 
   group('ComponentPage Dropdown Scenarios', () {
+    testWidgets('shows timeline editor for complex data when feature is disabled', (WidgetTester tester) async {
+      final component = Component(
+        name: 'Test Component',
+        componentType: ComponentType.fork,
+        installations: [
+          Installation.sinceBeginning(parent: 'bike1'),
+          Uninstallation(
+            dateTimeUTC: DateTime.utc(2026, 1, 2),
+            dateTimeLocal: DateTime(2026, 1, 2),
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(createWidgetUnderTest(
+        component: component,
+        mode: ComponentPageMode.edit,
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SetInstallationTimeline), findsOneWidget);
+      expect(find.byType(DropdownButtonFormField<Installation?>), findsNothing);
+    });
+
     testWidgets('displays "BIKE NOT FOUND" when initial bike is missing', (WidgetTester tester) async {
       // Page requested with an ID that doesn't exist in appRepository
       await tester.pumpWidget(createWidgetUnderTest(

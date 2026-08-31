@@ -9,6 +9,7 @@ import 'package:bike_setup_tracker/pages/task_rule_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
+import 'package:bike_setup_tracker/utils/task_actions.dart';
 import 'package:bike_setup_tracker/widgets/items/task_rule_list_card.dart';
 import 'package:bike_setup_tracker/widgets/sheets/set_task_delay.dart';
 import 'package:flutter/material.dart';
@@ -283,6 +284,41 @@ void main() {
   });
 
   group('completing a task consumes its delay', () {
+    testWidgets('bulk completion skips already completed rules', (tester) async {
+      final openRule = TaskRule(name: 'Open', tags: const {});
+      final completedRule = TaskRule(name: 'Completed', tags: const {});
+      final completedEntry = TaskEntry(
+        name: completedRule.name,
+        dateTimeUTC: DateTime.now().toUtc(),
+        dateTimeLocal: DateTime.now(),
+        taskRule: completedRule.id,
+      );
+      await tester.runAsync(() async {
+        await appRepository.addTaskRules([openRule, completedRule]);
+        await appRepository.addTaskEntries([completedEntry]);
+        await pumpEventQueue();
+      });
+
+      await tester.pumpWidget(wrap(
+        Builder(
+          builder: (context) => Scaffold(
+            body: TextButton(
+              onPressed: () => TaskActions.addDefaultTaskEntries(
+                context,
+                taskRuleIds: [openRule.id, completedRule.id],
+              ),
+              child: const Text('Complete selected'),
+            ),
+          ),
+        ),
+      ));
+      await tester.tap(find.text('Complete selected'));
+      await waitForRepositoryUpdate(tester);
+
+      expect(appRepository.taskEntries.values.where((entry) => entry.taskRule == openRule.id), hasLength(1));
+      expect(appRepository.taskEntries.values.where((entry) => entry.taskRule == completedRule.id), hasLength(1));
+    });
+
     test('adding a task entry drops the delay', () async {
       final rule = ruleWith(
         interval: const DurationThreshold(Duration(days: 30)),
@@ -294,13 +330,13 @@ void main() {
 
       expect(appRepository.taskRules[rule.id]?.delay, isNotNull);
 
-      await appRepository.addTaskEntry(TaskEntry(
+      await appRepository.addTaskEntries([TaskEntry(
         name: 'Done',
         dateTimeUTC: DateTime.now().toUtc(),
         dateTimeLocal: DateTime.now(),
         taskRule: rule.id,
         bikeId: bike.id,
-      ));
+      )]);
       await pumpEventQueue();
 
       expect(appRepository.taskRules[rule.id]?.delay, isNull);
@@ -316,13 +352,13 @@ void main() {
 
       final before = appRepository.taskRules[rule.id]!.lastModified;
 
-      await appRepository.addTaskEntry(TaskEntry(
+      await appRepository.addTaskEntries([TaskEntry(
         name: 'Done',
         dateTimeUTC: DateTime.now().toUtc(),
         dateTimeLocal: DateTime.now(),
         taskRule: rule.id,
         bikeId: bike.id,
-      ));
+      )]);
       await pumpEventQueue();
 
       expect(appRepository.taskRules[rule.id]?.delay, isNull);

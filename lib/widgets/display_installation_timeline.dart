@@ -4,20 +4,22 @@ import 'package:provider/provider.dart';
 import 'package:timelines_plus/timelines_plus.dart';
 
 import '../models/app_settings.dart';
+import '../models/bike.dart';
 import '../models/component.dart';
 import '../models/installation.dart';
 import '../models/task/task_entry.dart';
-import '../repositories/app_repository.dart';
 import 'sheets/task_rule_sheet.dart';
 
 class DisplayInstallationTimeline extends StatelessWidget {
   final Component component;
-  final bool showTaskEntries;
+  final Map<String, Bike> bikes;
+  final Iterable<TaskEntry> taskEntries;
 
   const DisplayInstallationTimeline({
     super.key,
     required this.component,
-    this.showTaskEntries = false,
+    required this.bikes,
+    this.taskEntries = const [],
   });
 
   @override
@@ -26,12 +28,10 @@ class DisplayInstallationTimeline extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     final appSettings = context.watch<AppSettings>();
-    final appRepository = context.watch<AppRepository>();
 
     final items = <_TimelineItem>[
       ...component.installations.map((i) => _InstallationItem(i)),
-      if (showTaskEntries)
-        ...appRepository.taskEntries.values.where((te) => te.componentId == component.id).map((te) => _TaskItem(te))
+      ...taskEntries.map((te) => _TaskItem(te)),
     ]..sort((a, b) {
         final byDate = a.dateTimeUTC.compareTo(b.dateTimeUTC);
         if (byDate != 0) return byDate;
@@ -70,6 +70,7 @@ class DisplayInstallationTimeline extends StatelessWidget {
             _InstallationItem() => _InstallationContents(
                 installation: item.installation,
                 appSettings: appSettings,
+                bikes: bikes,
               ),
             _TaskItem() => _TaskEntryContents(
                 entry: item.taskEntry,
@@ -116,10 +117,12 @@ class DisplayInstallationTimeline extends StatelessWidget {
 class _InstallationContents extends StatelessWidget {
   final Installation installation;
   final AppSettings appSettings;
+  final Map<String, Bike> bikes;
 
   const _InstallationContents({
     required this.installation,
     required this.appSettings,
+    required this.bikes,
   });
 
   @override
@@ -128,7 +131,6 @@ class _InstallationContents extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
 
-    final bikes = context.read<AppRepository>().bikes;
     final bikeName = switch (installation) {
       BikeInstallation() => bikes[installation.parent]?.name ?? 'BIKE NOT FOUND',
       Uninstallation() => 'Uninstalled',

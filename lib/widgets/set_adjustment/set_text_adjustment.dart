@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
-import 'set_adjustment.dart';
+import '../display_adjustment/adjustment_icon_name_notes.dart';
 
 class SetTextAdjustmentWidget extends StatefulWidget {
   final TextAdjustment adjustment;
@@ -82,14 +82,7 @@ class _SetTextAdjustmentWidgetState extends State<SetTextAdjustmentWidget> {
         children: [
           Flexible(
             flex: 2,
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Icon(TextAdjustment.iconData, color: highlightColor),
-                const SizedBox(width: 10),
-                nameNotesSetAdjustmentWidget(context: context, adjustment: widget.adjustment, highlightColor: highlightColor),
-              ],
-            )
+            child: AdjustmentIconNameNotes(adjustment: widget.adjustment, color: highlightColor),
           ),
           Flexible(
             flex: 3,

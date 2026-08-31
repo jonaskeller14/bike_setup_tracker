@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:open_meteo/open_meteo.dart';
 
+import '../models/context/context_position.dart';
+
 enum ElevationStatus {
   idle,
   searching,
@@ -27,13 +29,13 @@ class ElevationService extends ChangeNotifier {
       if (result.containsKey('error') && result['error'] == true) {
         final String reason = result['reason'] as String? ?? 'Unknown API Error';
         debugPrint('Open-Meteo API Error: $reason');
-        throw Exception('API Request Failed: $reason'); 
+        throw Exception('API Request Failed: $reason');
       }
 
       if (result.containsKey('elevation')) {
         final elevationData = result['elevation'];
         if (elevationData is List && elevationData.isNotEmpty) {
-          final newElevation = elevationData.first is double ? elevationData.first as double : null;
+          final newElevation = (elevationData.first as num?)?.toDouble();
           setStatus(ElevationStatus.success);
           return newElevation;
         }
@@ -44,5 +46,14 @@ class ElevationService extends ChangeNotifier {
       setStatus(ElevationStatus.error);
       return null;
     }
+  }
+
+  Future<ContextPosition> addMissingElevation(ContextPosition position) async {
+    final latitude = position.latitude;
+    final longitude = position.longitude;
+    if (position.altitude != null || latitude == null || longitude == null) return position;
+
+    final altitude = await fetchElevation(lat: latitude, lon: longitude);
+    return altitude == null ? position : position.copyWith(altitude: altitude);
   }
 }

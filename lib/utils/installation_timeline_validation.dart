@@ -1,5 +1,15 @@
 import '../models/installation.dart';
 
+bool isComplexInstallationTimeline(List<Installation> installations) =>
+    installations.length > 1 ||
+    (installations.isNotEmpty && installations.first.dateTimeUTC.millisecondsSinceEpoch > 0);
+
+bool shouldUseInstallationTimeline({
+  required bool featureEnabled,
+  required List<Installation> installations,
+}) =>
+    featureEnabled || isComplexInstallationTimeline(installations);
+
 String? validateInstallationTimeline(List<Installation> installations) {
   if (installations.isEmpty) {
     return 'At least one entry is required';

@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/component.dart';
+import '../../models/installation.dart';
 import '../../models/task/task_rule.dart';
 import '../../pages/details/task_rule_details_page.dart';
 import '../../repositories/app_repository.dart';
@@ -17,45 +18,102 @@ import '../sheets/set_task_delay.dart';
 
 class TaskRuleListCard extends StatelessWidget {
   final String taskRuleId;
+  final bool selectionMode;
+  final bool selected;
+  final VoidCallback? onSelectionChanged;
+  final VoidCallback? onSelectedTaskRulesCompleted;
 
-  const TaskRuleListCard({super.key, required this.taskRuleId});
+  const TaskRuleListCard({
+    super.key,
+    required this.taskRuleId,
+    this.selectionMode = false,
+    this.selected = false,
+    this.onSelectionChanged,
+    this.onSelectedTaskRulesCompleted,
+  });
 
-  Widget _filterWidget(BuildContext context, {required TaskRule taskRule, required Component? component, required Bike? bike}) {
+  Widget _filterWidget(BuildContext context, {required TaskRule taskRule, required Component? component, required Map<String, Bike> bikes}) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
       spacing: 2,
       children: [
         if (taskRule.componentId != null) ...[
-          Icon(
-            component?.componentType.getIconData() ?? Icons.grid_view_sharp,
-            size: 13,
-            color: component != null ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.error,
+          Flexible(
+            fit: FlexFit.tight,
+            child: Row(
+              spacing: 2,
+              children: [
+                Icon(
+                  component?.componentType.getIconData() ?? Icons.grid_view_sharp,
+                  size: 13,
+                  color: component != null ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.error,
+                ),
+                Expanded(
+                  child: Text(
+                    component?.name ?? "COMPONENT NOT FOUND",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: component != null ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8) : Theme.of(context).colorScheme.error,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
           Flexible(
-            child: Text(
-              component?.name ?? "COMPONENT NOT FOUND",
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: component != null ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8) : Theme.of(context).colorScheme.error,
-                fontSize: 13,
-              ),
+            fit: FlexFit.tight,
+            child: Row(
+              spacing: 2,
+              children: [
+                Icon(
+                  switch (component?.latestInstallation) {
+                    Archival() => Icons.inventory_2_outlined,
+                    BikeInstallation() => Bike.iconData,
+                    Uninstallation() || null => Icons.shelves,
+                  },
+                  size: 13,
+                  color: switch (component?.latestInstallation) {
+                    BikeInstallation(:final bikeId) when !bikes.containsKey(bikeId) => Theme.of(context).colorScheme.error,
+                    _ => Theme.of(context).colorScheme.onSurfaceVariant,
+                  },
+                ),
+                Expanded(
+                  child: Text(
+                    switch (component?.latestInstallation) {
+                      Archival() => 'Archived',
+                      BikeInstallation(:final bikeId) => bikes[bikeId]?.name ?? 'BIKE NOT FOUND',
+                      Uninstallation() || null => 'Not installed',
+                    },
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: switch (component?.latestInstallation) {
+                        BikeInstallation(:final bikeId) when !bikes.containsKey(bikeId) => Theme.of(context).colorScheme.error,
+                        _ => Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                      },
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ] else if (taskRule.bikeId != null) ...[
           Icon(
             Bike.iconData, 
             size: 13,
-            color: bike != null ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.error,
+            color: bikes.containsKey(taskRule.bikeId) ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.error,
           ),
           Flexible(
             child: Text(
-              bike?.name ?? "BIKE NOT FOUND",
+              bikes[taskRule.bikeId]?.name ?? "BIKE NOT FOUND",
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                color: bike != null ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8) : Theme.of(context).colorScheme.error,
+                color: bikes.containsKey(taskRule.bikeId) ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8) : Theme.of(context).colorScheme.error,
                 fontSize: 13,
               ),
             ),
@@ -190,19 +248,22 @@ class TaskRuleListCard extends StatelessWidget {
     final component = taskRule.componentId != null
         ? appRepository.components[taskRule.componentId]
         : null;
-    final bike = taskRule.bikeId != null
-        ? appRepository.bikes[taskRule.bikeId]
-        : (component?.bike != null
-              ? appRepository.bikes[component!.bike]
-              : null);
-
     final statusColor = status.type.getStatusColor(context);
+    final defaultCardColor = Theme.of(context).cardTheme.color ?? Theme.of(context).colorScheme.surfaceContainerLow;
 
     final canSetDelay = !isCompleted && canQuickEditTaskDelay(taskRule, appSettings);
 
     final card = Opacity(
-      opacity: isCompleted ? 0.5 : 1,
-      child: Card(
+      opacity: isCompleted && !selected ? 0.5 : 1,
+      child: TweenAnimationBuilder<Color?>(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+        tween: ColorTween(
+          begin: defaultCardColor,
+          end: selected ? Theme.of(context).colorScheme.primaryContainer : defaultCardColor,
+        ),
+        builder: (context, color, child) => Card(
+        color: color,
         margin: const EdgeInsets.symmetric(vertical: 4.0),
         clipBehavior: Clip.antiAlias, // Borderradius for InkWell,
         child: ListTile(
@@ -210,24 +271,31 @@ class TaskRuleListCard extends StatelessWidget {
             value: isCompleted,
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             visualDensity: VisualDensity.compact,
-            onChanged: isCompleted
+            onChanged: isCompleted || (selectionMode && (!selected || onSelectedTaskRulesCompleted == null))
                 ? null
                 : (bool? value) async {
                     unawaited(HapticFeedback.lightImpact());
+                    if (selectionMode) {
+                      onSelectedTaskRulesCompleted!();
+                      return;
+                    }
                     await TaskActions.addTaskEntry(context, taskRule: taskRule);
                   },
           ),
           contentPadding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
           minTileHeight: 0,
-          onTap: () async {
-            await Navigator.push<void>(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    TaskRuleDetailsPage(taskRuleId: taskRuleId),
-              ),
-            );
-          },
+          onTap: selectionMode
+              ? onSelectionChanged
+              : () async {
+                  await Navigator.push<void>(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          TaskRuleDetailsPage(taskRuleId: taskRuleId),
+                    ),
+                  );
+                },
+          onLongPress: onSelectionChanged,
           titleAlignment: ListTileTitleAlignment.top,
           title: Text(
             taskRule.name,
@@ -245,7 +313,7 @@ class TaskRuleListCard extends StatelessWidget {
                 context,
                 taskRule: taskRule,
                 component: component,
-                bike: bike,
+                bikes: appRepository.bikes,
               ),
               if (appSettings.enableTaskPriority)
                 _priorityWidget(context, taskRule: taskRule),
@@ -321,13 +389,13 @@ class TaskRuleListCard extends StatelessWidget {
               ],
             ],
           ),
-          trailing: PopupMenuButton<_TaskRuleOptions>(
+          trailing: selectionMode ? null : PopupMenuButton<_TaskRuleOptions>(
             onSelected: (_TaskRuleOptions value) async {
               switch (value) {
                 case _TaskRuleOptions.edit:
                   await TaskActions.editTaskRule(context, taskRule: taskRule);
                 case _TaskRuleOptions.remove:
-                  await TaskActions.removeTaskRule(context, taskRule: taskRule);
+                  await TaskActions.removeTaskRules(context, taskRuleIds: [taskRule.id]);
                 case _TaskRuleOptions.duplicate:
                   await TaskActions.duplicateTaskRule(
                     context,
@@ -377,6 +445,7 @@ class TaskRuleListCard extends StatelessWidget {
           ),
         ),
       ),
+      ),
     );
 
     // Wrap the outermost widget in the Hero so the whole thing — including the
@@ -386,7 +455,7 @@ class TaskRuleListCard extends StatelessWidget {
     Widget wrapInHero(Widget child) =>
         Hero(tag: 'task-rule-card-${taskRule.id}', child: child);
 
-    if (!canSetDelay) return wrapInHero(card);
+    if (!canSetDelay || selectionMode) return wrapInHero(card);
 
     // The orange sits behind the card rather than in Dismissible's `background`,
     // which clips to the revealed strip and leaves a gap at the card's corners.

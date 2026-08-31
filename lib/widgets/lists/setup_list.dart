@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../models/app_hint.dart';
 import '../../models/app_settings.dart';
 import '../../models/setup.dart';
 import '../../models/strava/strava_activity.dart';
@@ -14,10 +15,7 @@ import '../../utils/setup_actions.dart';
 import '../../utils/timeline_grouping.dart';
 import '../chips/setup_list_filter_widget.dart';
 import '../empty_state_placeholder.dart';
-import '../hints/getting_started_guide_hint.dart';
-import '../hints/setup_calendar_hint.dart';
-import '../hints/setup_hint_selection.dart';
-import '../hints/setup_task_hint.dart';
+import '../hints/app_hint_slot.dart';
 import '../items/installation_list_tile.dart';
 import '../items/rating_entry_list_tile.dart';
 import '../items/replacement_list_tile.dart';
@@ -31,32 +29,24 @@ import '../sheets/replacement_sheet.dart';
 import '../sheets/task_rule_sheet.dart';
 import '../sticky_section.dart';
 import '../timeline_day_header.dart';
-import 'setup_list_controller.dart';
+import 'list_scroll_controller.dart';
 
 class SetupList extends StatelessWidget {
-  final SetupListController? controller;
+  final ListScrollController? controller;
 
   const SetupList({super.key, this.controller});
 
-  Widget _emptyPlaceholder(BuildContext context, {required bool showStartupGuide}) {
-    if (showStartupGuide) {
-      return const SingleChildScrollView(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          spacing: 8,
-          children: [
-            SetupListFilterWidget(),
-            GettingStartedGuideHint(),
-          ],
-        ),
-      );
-    }
+  Widget _emptyPlaceholder(BuildContext context) {
     return CustomScrollView(
       slivers: [
+        const SliverToBoxAdapter(
+          child: AppHintSlot(
+            placement: AppHintPlacement.setupHeader,
+            padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
+          ),
+        ),
         const SliverPadding(
-          padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+          padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
           sliver: SliverToBoxAdapter(child: SetupListFilterWidget()),
         ),
         SliverFillRemaining(
@@ -88,9 +78,7 @@ class SetupList extends StatelessWidget {
     if (!appRepository.hasMoreStrava) return const {};
     final sorted = activities.toList()
       ..sort(
-        (a, b) => sortAscending
-            ? a.startDate.compareTo(b.startDate)
-            : b.startDate.compareTo(a.startDate),
+        (a, b) => sortAscending ? a.startDate.compareTo(b.startDate) : b.startDate.compareTo(a.startDate),
       );
     final tailStart = sorted.length > 5 ? sorted.length - 5 : 0;
     return {for (final a in sorted.sublist(tailStart)) a.id};
@@ -220,8 +208,7 @@ class SetupList extends StatelessWidget {
         setupIds: row.setups.map((e) => e.setup.id).toList(),
         onTapSetup: (setup) => _openSetupDetails(context, setupsList, setup),
         displayBikeAdjustmentValues: appSettings.setupListBikeAdjustmentValues,
-        displayPersonAdjustmentValues:
-            appSettings.setupListPersonAdjustmentValues,
+        displayPersonAdjustmentValues: appSettings.setupListPersonAdjustmentValues,
       ),
       ReplacementRow() => ReplacementListTile(
         row: row,
@@ -251,12 +238,9 @@ class SetupList extends StatelessWidget {
     final subscriptionService = context.watch<SubscriptionService>();
     final sortAscending = appRepository.stravaSortAscending;
     final setupsList = appRepository.filteredSetups.values;
-    final bool showingStrava = appSettings.displayShowActivities &&
-        appSettings.enableStrava &&
-        subscriptionService.hasStravaEntitlement;
-    final stravaActivities = showingStrava
-        ? appRepository.filteredStravaActivities.values
-        : const <StravaActivity>[];
+    final bool showingStrava =
+        appSettings.displayShowActivities && appSettings.enableStrava && subscriptionService.hasStravaEntitlement;
+    final stravaActivities = showingStrava ? appRepository.filteredStravaActivities.values : const <StravaActivity>[];
     final lazyLoadTriggerIds = _lazyLoadTriggerIds(
       appRepository,
       stravaActivities,
@@ -265,27 +249,17 @@ class SetupList extends StatelessWidget {
     final taskEntries = appRepository.filteredTaskEntries.values;
     final installations = appRepository.filteredInstallations;
 
-    // Onboarding guide: shown until all three getting-started steps are done
-    // (mirrors the self-guard inside GettingStartedGuideHint).
-    final showStartupGuide = appSettings.showGettingStartedGuideHint &&
-        !(appRepository.bikes.isNotEmpty &&
-            appRepository.components.isNotEmpty &&
-            appRepository.setups.isNotEmpty);
-
     // Horizon date is the "furthest" loaded activity date in the current scroll direction.
     // ASC: newest activity date. DESC: oldest activity date.
     final horizonDate = stravaActivities.isEmpty
         ? null
         : sortAscending
-        ? stravaActivities
-              .map((a) => a.startDate)
-              .reduce((a, b) => a.isAfter(b) ? a : b)
-        : stravaActivities
-              .map((a) => a.startDate)
-              .reduce((a, b) => a.isBefore(b) ? a : b);
+        ? stravaActivities.map((a) => a.startDate).reduce((a, b) => a.isAfter(b) ? a : b)
+        : stravaActivities.map((a) => a.startDate).reduce((a, b) => a.isBefore(b) ? a : b);
 
     final List<TimelineEntry> entries = [
-      if (appSettings.displayShowSetups) ...setupsList
+      if (appSettings.displayShowSetups)
+        ...setupsList
             .where((s) {
               if (horizonDate == null || !appRepository.hasMoreStrava) return true;
               return sortAscending
@@ -294,7 +268,8 @@ class SetupList extends StatelessWidget {
             })
             .map((s) => SetupEntry(s)),
       if (showingStrava) ...stravaActivities.map((a) => StravaEntry(a)),
-      if (appSettings.displayShowTasks) ...taskEntries
+      if (appSettings.displayShowTasks)
+        ...taskEntries
             .where((t) {
               if (horizonDate == null || !appRepository.hasMoreStrava) return true;
               return sortAscending
@@ -302,7 +277,8 @@ class SetupList extends StatelessWidget {
                   : !t.dateTimeUTC.isBefore(horizonDate); // DESC: hide older than horizon
             })
             .map((t) => TaskTimeLineEntry(t)),
-      if (appSettings.displayShowInstallations) ...installations
+      if (appSettings.displayShowInstallations)
+        ...installations
             .where((ci) {
               if (horizonDate == null || !appRepository.hasMoreStrava) return true;
               return sortAscending
@@ -310,7 +286,8 @@ class SetupList extends StatelessWidget {
                   : !ci.installation.dateTimeUTC.isBefore(horizonDate); // DESC: hide older than horizon
             })
             .map((ci) => InstallationEntry(ci)),
-      if (appSettings.enableRating && appSettings.displayShowRatingEntries) ...appRepository.filteredRatingEntries.values
+      if (appSettings.enableRating && appSettings.displayShowRatingEntries)
+        ...appRepository.filteredRatingEntries.values
             .where((re) {
               if (horizonDate == null || !appRepository.hasMoreStrava) return true;
               return sortAscending
@@ -319,9 +296,8 @@ class SetupList extends StatelessWidget {
             })
             .map((re) => RatingEntryTimelineEntry(re)),
     ];
-    entries.sort((a, b) => sortAscending
-        ? a.date.compareTo(b.date)
-        : b.date.compareTo(a.date),
+    entries.sort(
+      (a, b) => sortAscending ? a.date.compareTo(b.date) : b.date.compareTo(a.date),
     );
 
     final rows = buildTimelineRows(
@@ -330,46 +306,19 @@ class SetupList extends StatelessWidget {
       appSettings: appSettings,
     );
 
-    // Only one hint at a time at the top: the onboarding guide takes priority over
-    // the task/calendar suggestion hints.
-    final Widget? hint = showStartupGuide
-        ? null
-        : switch (selectSetupHint(
-            settings: appSettings,
-            setupCount: setupsList.length,
-            stravaActivityCount: stravaActivities.length,
-          )) {
-            SetupHint.task => const SetupTaskHint(),
-            SetupHint.calendar => const SetupCalendarHint(),
-            SetupHint.none => null,
-          };
-
     if (entries.isEmpty && !appRepository.isLoadingMoreStrava) {
-      return _emptyPlaceholder(context, showStartupGuide: showStartupGuide);
+      return _emptyPlaceholder(context);
     }
-
-    final hintChildren = <Widget>[
-      if (showStartupGuide) const GettingStartedGuideHint(),
-      ?hint,
-    ];
 
     return CustomScrollView(
       controller: controller?.scrollController,
       slivers: [
-        if (hintChildren.isNotEmpty)
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-              child: hintChildren.length == 1
-                  ? hintChildren.first
-                  : Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      spacing: 8,
-                      children: hintChildren,
-                    ),
-            ),
+        const SliverToBoxAdapter(
+          child: AppHintSlot(
+            placement: AppHintPlacement.setupHeader,
+            padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
           ),
+        ),
         SliverPersistentHeader(
           floating: true,
           delegate: _SetupFilterHeaderDelegate(

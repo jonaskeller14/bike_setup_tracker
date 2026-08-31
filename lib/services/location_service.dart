@@ -2,110 +2,128 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:geocoding/geocoding.dart' as geo;
-import 'package:location/location.dart';
 
 import '../models/context/context_position.dart';
+import 'location_provider.dart';
 
 enum LocationStatus {
   idle,
   searching,
   noService,
   noPermission,
+  permissionDeniedForever,
+  timeout,
   error,
   success,
 }
 
 class LocationService extends ChangeNotifier {
-  final Location _location = Location();
+  static final geo.Geocoding _geocoding = geo.Geocoding();
+  final LocationProvider _provider;
+  final Future<List<ContextPosition>> Function(String) _addressLookup;
   LocationStatus _status = LocationStatus.idle;
-  static const _timeoutDuration = kDebugMode ? Duration(seconds: 30) : Duration(seconds: 5);
+  bool _disposed = false;
+
+  LocationService({
+    LocationProvider? provider,
+    Future<List<ContextPosition>> Function(String)? addressLookup,
+  }) : _provider = provider ?? GeolocatorLocationProvider(),
+       _addressLookup = addressLookup ?? _locationsFromAddress;
 
   LocationStatus get status => _status;
 
   void setStatus(LocationStatus newStatus) {
+    if (_disposed) return;
     _status = newStatus;
     notifyListeners();
   }
 
-  Future<LocationData?> fetchLocation() async {
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
+
+  Future<ContextPosition?> fetchLocation() async {
+    if (_status == LocationStatus.searching) return null;
     setStatus(LocationStatus.searching);
-    bool serviceEnabled = await _location.serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await _location.requestService();
-      if (!serviceEnabled) {
+    try {
+      if (!await _provider.isLocationServiceEnabled()) {
         setStatus(LocationStatus.noService);
         return null;
       }
-    }
 
-    PermissionStatus permissionGranted = await _location.hasPermission();
-    if (permissionGranted == PermissionStatus.denied) {
-      permissionGranted = await _location.requestPermission();
-      if (permissionGranted != PermissionStatus.granted) {
-        setStatus(LocationStatus.noPermission);
-        return null;
+      var permission = await _provider.checkPermission();
+      if (permission == LocationProviderPermission.denied) {
+        permission = await _provider.requestPermission();
       }
-    }
 
-    LocationData? location;
-    try {
-      location = await Future.any([
-        _location.getLocation(),
-        Future.delayed(_timeoutDuration, () => null),
-      ]);
+      switch (permission) {
+        case LocationProviderPermission.denied:
+        case LocationProviderPermission.unableToDetermine:
+          setStatus(LocationStatus.noPermission);
+          return null;
+        case LocationProviderPermission.deniedForever:
+          setStatus(LocationStatus.permissionDeniedForever);
+          return null;
+        case LocationProviderPermission.whileInUse:
+        case LocationProviderPermission.always:
+          break;
+      }
 
-      location ??= await _location.getLocation().timeout(
-        _timeoutDuration,
-        onTimeout: () {
-          throw TimeoutException('Location retrieval timed out.');
-        },
-      );
+      final location = await _provider.getCurrentPosition();
       setStatus(LocationStatus.success);
-    } on TimeoutException catch (e) {
-      debugPrint("Location Timeout Error: $e");
+      return location;
+    } on LocationProviderServiceDisabledException {
+      setStatus(LocationStatus.noService);
+      return null;
+    } on TimeoutException catch (error) {
+      debugPrint('Location timeout: $error');
+      setStatus(LocationStatus.timeout);
+      return null;
+    } catch (error) {
+      debugPrint('Location error: $error');
       setStatus(LocationStatus.error);
-      location = null;
-    } catch (_) {
-      location = null;
-      setStatus(LocationStatus.error);
-    }    
-    return location;
+      return null;
+    }
   }
 
-  Future<LocationData?> locationFromAddress(String address) async {
+  Future<bool> openAppSettings() => _provider.openAppSettings();
+
+  Future<bool> openLocationSettings() => _provider.openLocationSettings();
+
+  Future<ContextPosition?> locationFromAddress(String address) async {
     setStatus(LocationStatus.searching);
 
     try {
-      final geoLocations = await geo.locationFromAddress(address);
+      final geoLocations = await _addressLookup(address);
       final geoLocation = geoLocations.firstOrNull;
       if (geoLocation == null) {
         setStatus(LocationStatus.idle);
         return null;
       }
-      final locationData = LocationData.fromMap(geoLocation.toJson());
-      
       setStatus(LocationStatus.success);
-      return locationData;
+      return ContextPosition(
+        latitude: geoLocation.latitude,
+        longitude: geoLocation.longitude,
+        timestamp: geoLocation.timestamp,
+      );
     } catch (e) {
       setStatus(LocationStatus.error);
       return null;
     }
   }
 
-  static LocationData copyWithLocationData(LocationData? location, {
-    Object? latitude = const _Sentinel(),
-    Object? longitude = const _Sentinel(),
-    Object? altitude = const _Sentinel(),
-  }) {
-    final newMap = location == null ? <String, dynamic>{} : ContextPosition.toJson(location);
-    if (latitude is! _Sentinel) newMap["latitude"] = latitude as double?;
-    if (longitude is! _Sentinel) newMap["longitude"] = longitude as double?;
-    if (altitude is! _Sentinel) newMap["altitude"] = altitude as double?;
-    newMap['time'] = newMap['time'] != null ? DateTime.parse(newMap['time'] as String).millisecondsSinceEpoch.toDouble() : null;
-    return LocationData.fromMap(newMap);
+  static Future<List<ContextPosition>> _locationsFromAddress(String address) async {
+    final locations = await _geocoding.locationFromAddress(address);
+    return locations
+        .map(
+          (location) => ContextPosition(
+            latitude: location.latitude,
+            longitude: location.longitude,
+            timestamp: location.timestamp,
+          ),
+        )
+        .toList();
   }
-}
-
-class _Sentinel {
-  const _Sentinel();
 }

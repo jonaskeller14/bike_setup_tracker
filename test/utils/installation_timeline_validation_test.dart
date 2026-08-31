@@ -21,6 +21,56 @@ Archival archive(int day) => Archival(
     );
 
 void main() {
+  group('isComplexInstallationTimeline', () {
+    test('treats a single from-beginning entry as simple', () {
+      expect(
+        isComplexInstallationTimeline([
+          Installation.sinceBeginning(parent: 'b1'),
+        ]),
+        isFalse,
+      );
+    });
+
+    test('treats a dated entry as complex', () {
+      expect(isComplexInstallationTimeline([installOn('b1', 1)]), isTrue);
+    });
+
+    test('treats multiple entries as complex', () {
+      expect(
+        isComplexInstallationTimeline([
+          Installation.sinceBeginning(parent: 'b1'),
+          uninstall(2),
+        ]),
+        isTrue,
+      );
+    });
+  });
+
+  group('shouldUseInstallationTimeline', () {
+    test('uses the timeline for complex data when the feature is disabled', () {
+      expect(
+        shouldUseInstallationTimeline(
+          featureEnabled: false,
+          installations: [
+            Installation.sinceBeginning(parent: 'b1'),
+            uninstall(2),
+          ],
+        ),
+        isTrue,
+      );
+    });
+
+    test('keeps simple data in single-entry mode when the feature is disabled', () {
+      expect(
+        shouldUseInstallationTimeline(
+          featureEnabled: false,
+          installations: [Installation.sinceBeginning(parent: 'b1')],
+        ),
+        isFalse,
+      );
+    });
+  });
+
   group('validateInstallationTimeline', () {
     test('rejects an empty timeline', () {
       expect(validateInstallationTimeline([]), 'At least one entry is required');

@@ -4,7 +4,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:intl/intl.dart';
-import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 
 import '../models/adjustment/adjustment.dart';
@@ -21,10 +20,12 @@ import '../models/rating_entry.dart';
 import '../models/rating_metric.dart';
 import '../repositories/app_repository.dart';
 import '../services/address_service.dart';
+import '../services/elevation_service.dart';
 import '../services/location_service.dart';
 import '../services/rating_score_service.dart';
 import '../services/weather_service.dart';
 import '../theme.dart';
+import '../widgets/app_snackbar.dart';
 import '../widgets/dialogs/confirmation.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/items/card_header_tile.dart';
@@ -105,7 +106,8 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
   final Map<String, dynamic> _initialMetricValues = {};
 
   final LocationService _locationService = LocationService();
-  final ValueNotifier<LocationData?> _currentLocation = ValueNotifier<LocationData?>(null);
+  final ElevationService _elevationService = ElevationService();
+  final ValueNotifier<ContextPosition?> _currentLocation = ValueNotifier<ContextPosition?>(null);
 
   final AddressService _addressService = AddressService();
   final ValueNotifier<geo.Placemark?> _currentPlace = ValueNotifier<geo.Placemark?>(null);
@@ -198,43 +200,44 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
   }
 
   Future<void> fetchLocationAddressWeather() async {
-    await updateLocation();
-    if (_currentLocation.value == null) return;
+    final coordinatesChanged = await updateLocation();
+    if (!coordinatesChanged) return;
 
     unawaited(updateWeather());
     unawaited(updateAddress());
   }
 
-  Future<void> updateLocation() async {
-    final newLocation = await _locationService.fetchLocation();
+  Future<bool> updateLocation() async {
+    final previousLocation = _currentLocation.value;
+    final fetchedLocation = await _locationService.fetchLocation();
+    final newLocation = fetchedLocation == null
+        ? null
+        : await _elevationService.addMissingElevation(fetchedLocation);
 
-    if (!mounted) return;
+    if (!mounted) return false;
     if (newLocation == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        duration: const Duration(seconds: 2),
-        content: Text('Error fetching location.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
-        backgroundColor: Theme.of(context).colorScheme.errorContainer,
-      ));
-      return;
+      final message = switch (_locationService.status) {
+        LocationStatus.noService => 'Location services are disabled.',
+        LocationStatus.noPermission => 'Location permission was not granted.',
+        LocationStatus.permissionDeniedForever => 'Location permission is permanently denied.',
+        LocationStatus.timeout => 'Location request timed out.',
+        _ => 'Error fetching location.',
+      };
+      ScaffoldMessenger.of(context).showSnackBar(
+        AppSnackBar.error(context, message, duration: const Duration(seconds: 2)),
+      );
+      return false;
     }
 
-    if (!mounted) return;
+    if (!mounted) return false;
     _currentLocation.value = newLocation;
     _changeListener();
+    return ContextPosition.hasValidCoordinateChange(previousLocation, newLocation);
   }
 
   Future<void> updateAddress() async {
     if (_currentLocation.value == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        content: Text('Cannot update address without location.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
-        backgroundColor: Theme.of(context).colorScheme.errorContainer,
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, 'Cannot update address without location.'));
       return;
     }
 
@@ -245,14 +248,9 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
 
     if (!mounted) return;
     if (newAddress == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        duration: const Duration(seconds: 2),
-        content: Text('Error fetching address.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
-        backgroundColor: Theme.of(context).colorScheme.errorContainer,
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        AppSnackBar.error(context, 'Error fetching address.', duration: const Duration(seconds: 2)),
+      );
       return;
     }
 
@@ -325,13 +323,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
     final DateTime newDateTimeLocal = _selectedDateTimeLocal.copyWith(hour: pickedTime.hour, minute: pickedTime.minute);
     if (newDateTimeLocal == _selectedDateTimeLocal) return;
     if (newDateTimeLocal.isAfter(DateTime.now())) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        content: Text('Date and Time cannot be in the future.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
-        backgroundColor: Theme.of(context).colorScheme.errorContainer,
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, 'Date and Time cannot be in the future.'));
       return;
     }
 
@@ -360,14 +352,9 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
 
   Future<void> updateWeather() async {
     if (_currentLocation.value == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        duration: const Duration(seconds: 2),
-        content: Text('Cannot update weather without location.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
-        backgroundColor: Theme.of(context).colorScheme.errorContainer,
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        AppSnackBar.error(context, 'Cannot update weather without location.', duration: const Duration(seconds: 2)),
+      );
       return;
     }
 
@@ -379,14 +366,9 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
 
     if (!mounted) return;
     if (currentWeather == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        duration: const Duration(seconds: 2),
-        content: Text('Error fetching weather.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
-        backgroundColor: Theme.of(context).colorScheme.errorContainer,
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        AppSnackBar.error(context, 'Error fetching weather.', duration: const Duration(seconds: 2)),
+      );
       return;
     }
 
@@ -398,15 +380,10 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
   void _saveRatingEntry() {
     if (!_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          showCloseIcon: true,
-          closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
+        AppSnackBar.error(
+          context,
+          'Please check all fields for missing or invalid input.',
           duration: const Duration(seconds: 2),
-          content: Text(
-            'Please check all fields for missing or invalid input.',
-            style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer),
-          ),
-          backgroundColor: Theme.of(context).colorScheme.errorContainer,
         ),
       );
       return;
@@ -422,15 +399,10 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
     final setupId = _setupId ?? appRepository.resolveSetupId(bikeId: _bike, atUtc: _selectedDateTimeUtc);
     if (setupId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          showCloseIcon: true,
-          closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
+        AppSnackBar.error(
+          context,
+          'No setup exists before this date/time for the selected bike. Create a setup first.',
           duration: const Duration(seconds: 3),
-          content: Text(
-            'No setup exists before this date/time for the selected bike. Create a setup first.',
-            style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer),
-          ),
-          backgroundColor: Theme.of(context).colorScheme.errorContainer,
         ),
       );
       return;
@@ -580,9 +552,10 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
                       final result = await showSetLocationPlaceSheet(context: context, locationService: _locationService, currentLocation: _currentLocation.value, addressService: _addressService, currentPlace: _currentPlace.value);
                       if (result == null) return;
 
-                      final requestWeatherUpdate = !ContextPosition.equal(result.location, _currentLocation.value) &&
-                          result.location?.latitude != null &&
-                          result.location?.latitude != null;
+                      final requestWeatherUpdate = ContextPosition.hasValidCoordinateChange(
+                        _currentLocation.value,
+                        result.location,
+                      );
 
                       if (result.location != null) {
                         _locationService.setStatus(LocationStatus.success);
@@ -610,7 +583,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
                 LocationStatus.searching => switch (_addressService.status) {
                   _ => const Icon(Icons.location_searching),
                 },
-                LocationStatus.noPermission || LocationStatus.noService || LocationStatus.error => switch (_addressService.status) {
+                LocationStatus.noPermission || LocationStatus.permissionDeniedForever || LocationStatus.noService || LocationStatus.timeout || LocationStatus.error => switch (_addressService.status) {
                   _ => Icon(Icons.location_disabled, color: Theme.of(context).colorScheme.error)
                 },
               },
@@ -633,11 +606,17 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
                       ? Text("${_currentPlace.value?.locality}, ${_currentPlace.value?.isoCountryCode}")
                       : const Text("No GPS Service"),
                 },
-                LocationStatus.noPermission => switch (_addressService.status) {
+                LocationStatus.noPermission || LocationStatus.permissionDeniedForever => switch (_addressService.status) {
                   AddressStatus.searching => _loadingIndicator(),
                   AddressStatus.idle || AddressStatus.success || AddressStatus.error => _currentPlace.value != null
                       ? Text("${_currentPlace.value?.locality}, ${_currentPlace.value?.isoCountryCode}")
                       : const Text("No GPS Permission"),
+                },
+                LocationStatus.timeout => switch (_addressService.status) {
+                  AddressStatus.searching => _loadingIndicator(),
+                  AddressStatus.idle || AddressStatus.success || AddressStatus.error => _currentPlace.value != null
+                      ? Text("${_currentPlace.value?.locality}, ${_currentPlace.value?.isoCountryCode}")
+                      : const Text("GPS Timeout"),
                 },
                 LocationStatus.error => switch (_addressService.status) {
                   AddressStatus.searching => _loadingIndicator(),

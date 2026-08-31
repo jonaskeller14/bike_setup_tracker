@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../../repositories/app_repository.dart';
 import '../../utils/task_actions.dart';
+import '../../widgets/animated_app_bar_switcher.dart';
 import '../../widgets/empty_state_placeholder.dart';
 import '../../widgets/flash_highlight.dart';
 import '../../widgets/items/task_entry_list_item.dart';
@@ -65,35 +66,39 @@ class _TaskRuleDetailsPageState extends State<TaskRuleDetailsPage> {
         if (!didPop) _clearTaskEntrySelection();
       },
       child: Scaffold(
-        appBar: _isSelectionMode
-            ? AppBar(
-                leading: IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: _clearTaskEntrySelection,
+        appBar: AnimatedAppBarSwitcher(
+          child: _isSelectionMode
+              ? AppBar(
+                  key: const ValueKey('task-entry-selection-app-bar'),
+                  leading: IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: _clearTaskEntrySelection,
+                  ),
+                  title: Text('${_selectedTaskEntries.length} selected'),
+                  actions: [
+                    IconButton(
+                      onPressed: _isDeleting ? null : _deleteSelectedTaskEntries,
+                      icon: const Icon(Icons.delete),
+                      tooltip: 'Delete selected',
+                    ),
+                  ],
+                )
+              : AppBar(
+                  key: const ValueKey('task-details-app-bar'),
+                  title: const Text("Task"),
+                  actions: [
+                    IconButton(
+                      onPressed: () async {
+                        final appRepository = context.read<AppRepository>();
+                        final taskRule = appRepository.taskRules[widget.taskRuleId];
+                        if (taskRule == null) return;
+                        await TaskActions.editTaskRule(context, taskRule: taskRule);
+                      },
+                      icon: const Icon(Icons.edit),
+                    ),
+                  ],
                 ),
-                title: Text('${_selectedTaskEntries.length} selected'),
-                actions: [
-                  IconButton(
-                    onPressed: _isDeleting ? null : _deleteSelectedTaskEntries,
-                    icon: const Icon(Icons.delete),
-                    tooltip: 'Delete selected',
-                  ),
-                ],
-              )
-            : AppBar(
-                title: const Text("Task"),
-                actions: [
-                  IconButton(
-                    onPressed: () async {
-                      final appRepository = context.read<AppRepository>();
-                      final taskRule = appRepository.taskRules[widget.taskRuleId];
-                      if (taskRule == null) return;
-                      await TaskActions.editTaskRule(context, taskRule: taskRule);
-                    },
-                    icon: const Icon(Icons.edit),
-                  ),
-                ],
-              ),
+        ),
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.only(top: 16),

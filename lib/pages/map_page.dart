@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -10,16 +9,19 @@ import '../env/env.dart';
 import '../models/app_settings.dart';
 import '../models/strava/strava_activity.dart';
 import '../repositories/app_repository.dart';
+import '../services/location_service.dart';
 import '../services/subscription_service.dart';
+import '../widgets/app_snackbar.dart';
 import '../widgets/chips/map_filter_widget.dart';
 import '../widgets/map_pins.dart';
 import '../widgets/sheets/rating_entry_details.dart';
 import '../widgets/sheets/setup_details.dart';
 import '../widgets/sheets/strava_activity.dart';
 
-
 class MapPage extends StatefulWidget {
-  const MapPage({super.key});
+  final LocationService? locationService;
+
+  const MapPage({super.key, this.locationService});
 
   @override
   State<MapPage> createState() => _MapPageState();
@@ -27,7 +29,31 @@ class MapPage extends StatefulWidget {
 
 class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
   final MapController _mapController = MapController();
+  late final LocationService _locationService;
+  late final bool _ownsLocationService;
+  AnimationController? _mapMoveController;
   LatLng? _userLocation;
+
+  @override
+  void initState() {
+    super.initState();
+    _ownsLocationService = widget.locationService == null;
+    _locationService = widget.locationService ?? LocationService();
+    _locationService.addListener(_locationStatusChanged);
+  }
+
+  void _locationStatusChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _locationService.removeListener(_locationStatusChanged);
+    if (_ownsLocationService) _locationService.dispose();
+    _mapMoveController?.dispose();
+    _mapController.dispose();
+    super.dispose();
+  }
 
   Future<void> _animatedMapMove(LatLng destLocation, double destZoom) async {
     final camera = _mapController.camera;
@@ -35,7 +61,9 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
     final lngTween = Tween<double>(begin: camera.center.longitude, end: destLocation.longitude);
     final zoomTween = Tween<double>(begin: camera.zoom, end: destZoom);
 
+    _mapMoveController?.dispose();
     final controller = AnimationController(duration: const Duration(milliseconds: 500), vsync: this);
+    _mapMoveController = controller;
     final Animation<double> animation = CurvedAnimation(parent: controller, curve: Curves.fastOutSlowIn);
 
     controller.addListener(() {
@@ -46,46 +74,69 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
     });
 
     animation.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
+      if (status == AnimationStatus.completed || status == AnimationStatus.dismissed) {
         controller.dispose();
-      } else if (status == AnimationStatus.dismissed) {
-        controller.dispose();
+        if (identical(_mapMoveController, controller)) _mapMoveController = null;
       }
     });
 
-    await controller.forward();
+    try {
+      await controller.forward().orCancel;
+    } on TickerCanceled {
+      // The page was disposed while the map was moving.
+    }
   }
 
   Future<void> _locateMe() async {
-    final location = Location();
-    bool serviceEnabled;
-    PermissionStatus permissionGranted;
-    LocationData locationData;
+    if (_locationService.status == LocationStatus.searching) return;
 
-    serviceEnabled = await location.serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await location.requestService();
-      if (!serviceEnabled) return;
+    final position = await _locationService.fetchLocation();
+    if (!mounted) return;
+
+    final latitude = position?.latitude;
+    final longitude = position?.longitude;
+    if (latitude != null &&
+        longitude != null &&
+        latitude.isFinite &&
+        longitude.isFinite &&
+        latitude >= -90 &&
+        latitude <= 90 &&
+        longitude >= -180 &&
+        longitude <= 180) {
+      final userLocation = LatLng(latitude, longitude);
+      setState(() => _userLocation = userLocation);
+      await _animatedMapMove(userLocation, 15);
+      return;
     }
 
-    permissionGranted = await location.hasPermission();
-    if (permissionGranted == PermissionStatus.denied) {
-      permissionGranted = await location.requestPermission();
-      if (permissionGranted != PermissionStatus.granted) return;
-    }
-
-    locationData = await location.getLocation();
-    if (locationData.latitude != null && locationData.longitude != null) {
-      setState(() {
-        _userLocation = LatLng(locationData.latitude!, locationData.longitude!);
-      });
-      await _animatedMapMove(_userLocation!, 15);
-    }
+    final message = switch (_locationService.status) {
+      LocationStatus.noService => 'Location services are disabled.',
+      LocationStatus.noPermission => 'Location permission was not granted.',
+      LocationStatus.permissionDeniedForever => 'Location permission is permanently denied.',
+      LocationStatus.timeout => 'Location request timed out. Try again.',
+      LocationStatus.error => 'Unable to determine your location.',
+      _ => 'No valid location was returned.',
+    };
+    final AppSnackBarAction? action = switch (_locationService.status) {
+      LocationStatus.noService => AppSnackBarAction(
+        label: 'Settings',
+        onPressed: _locationService.openLocationSettings,
+      ),
+      LocationStatus.permissionDeniedForever => AppSnackBarAction(
+        label: 'Settings',
+        onPressed: _locationService.openAppSettings,
+      ),
+      _ => null,
+    };
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(AppSnackBar.error(context, message, action: action));
   }
 
-  Widget _mapControlButton({required Widget icon, required VoidCallback onPressed}) {
+  Widget _mapControlButton({Key? key, required Widget icon, required VoidCallback? onPressed}) {
     final scheme = Theme.of(context).colorScheme;
     return IconButton(
+      key: key,
       iconSize: 20,
       style: IconButton.styleFrom(
         backgroundColor: scheme.surface,
@@ -112,7 +163,7 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
       future: appRepository.getFilteredStravaActivitiesWithPosition(),
       builder: (context, snapshot) {
         final stravaActivities = snapshot.data ?? [];
-        
+
         final Marker? userLocationMarker = _userLocation == null
             ? null
             : Marker(
@@ -120,6 +171,7 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                 width: 20,
                 height: 20,
                 child: Container(
+                  key: const Key('map-user-location-marker'),
                   decoration: BoxDecoration(
                     color: Colors.blue,
                     shape: BoxShape.circle,
@@ -154,39 +206,39 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
             ...stravaActivities
                 .where((a) => (a.startLat?.isFinite ?? false) && (a.startLon?.isFinite ?? false))
                 .map(
-              (activity) => Marker(
-                point: LatLng(activity.startLat!, activity.startLon!),
-                width: 40,
-                height: 40,
-                child: GestureDetector(
-                  onTap: () async {
-                    await showStravaActivitySheet(
-                      context: context,
-                      stravaActivity: activity,
-                    );
-                  },
-                  child: StravaActivityMapPin(workoutType: activity.workout),
+                  (activity) => Marker(
+                    point: LatLng(activity.startLat!, activity.startLon!),
+                    width: 40,
+                    height: 40,
+                    child: GestureDetector(
+                      onTap: () async {
+                        await showStravaActivitySheet(
+                          context: context,
+                          stravaActivity: activity,
+                        );
+                      },
+                      child: StravaActivityMapPin(workoutType: activity.workout),
+                    ),
+                  ),
                 ),
-              ),
-            ),
           if (appSettings.enableRating && appSettings.displayShowRatingEntries)
             ...appRepository.filteredRatingEntries.values
                 .where(
                   (re) => (re.position?.latitude?.isFinite ?? false) && (re.position?.longitude?.isFinite ?? false),
                 )
                 .map(
-              (ratingEntry) => Marker(
-                point: LatLng(ratingEntry.position!.latitude!, ratingEntry.position!.longitude!),
-                width: 40,
-                height: 40,
-                child: GestureDetector(
-                  onTap: () async {
-                    await showRatingEntryDetailsSheet(context: context, ratingEntry: ratingEntry);
-                  },
-                  child: const RatingEntryMapPin(),
+                  (ratingEntry) => Marker(
+                    point: LatLng(ratingEntry.position!.latitude!, ratingEntry.position!.longitude!),
+                    width: 40,
+                    height: 40,
+                    child: GestureDetector(
+                      onTap: () async {
+                        await showRatingEntryDetailsSheet(context: context, ratingEntry: ratingEntry);
+                      },
+                      child: const RatingEntryMapPin(),
+                    ),
+                  ),
                 ),
-              ),
-            ),
         ];
 
         final List<Marker> markers = [
@@ -406,8 +458,9 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                 },
               ),
               _mapControlButton(
+                key: const Key('map-locate-me'),
                 icon: const Icon(Icons.my_location),
-                onPressed: _locateMe,
+                onPressed: _locationService.status == LocationStatus.searching ? null : _locateMe,
               ),
               if (markers.isNotEmpty)
                 _mapControlButton(

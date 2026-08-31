@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 
 import '../models/adjustment/adjustment.dart';
@@ -20,11 +19,13 @@ import '../models/setup.dart';
 import '../models/strava/strava_activity.dart';
 import '../repositories/app_repository.dart';
 import '../services/address_service.dart';
+import '../services/elevation_service.dart';
 import '../services/image_storage_service.dart';
 import '../services/location_service.dart';
 import '../services/setup_resolution_service.dart';
 import '../services/weather_service.dart';
 import '../theme.dart';
+import '../widgets/app_snackbar.dart';
 import '../widgets/dialogs/confirmation.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/image_strip.dart';
@@ -57,7 +58,17 @@ class SetupPage extends StatefulWidget {
     this.initialBike,
   });
 
-  factory SetupPage.add({Key? key}) => SetupPage._(key: key, mode: SetupPageMode.add);
+  factory SetupPage.add({
+    Key? key,
+    DateTime? initialDateTimeUtc,
+    DateTime? initialDateTimeLocal,
+  }) =>
+      SetupPage._(
+        key: key,
+        mode: SetupPageMode.add,
+        initialDateTimeUtc: initialDateTimeUtc,
+        initialDateTimeLocal: initialDateTimeLocal,
+      );
 
   factory SetupPage.addFromStravaActivity({
     Key? key, 
@@ -119,7 +130,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   final Map<String, dynamic> _danglingPersonAdjustmentValues = {};
 
   final LocationService _locationService = LocationService();
-  final ValueNotifier<LocationData?> _currentLocation = ValueNotifier<LocationData?>(null);
+  final ElevationService _elevationService = ElevationService();
+  final ValueNotifier<ContextPosition?> _currentLocation = ValueNotifier<ContextPosition?>(null);
 
   final AddressService _addressService = AddressService();
   final ValueNotifier<geo.Placemark?> _currentPlace = ValueNotifier<geo.Placemark?>(null);
@@ -292,43 +304,44 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   }
 
   Future<void> fetchLocationAddressWeather() async {
-    await updateLocation();
-    if (_currentLocation.value == null) return;
+    final coordinatesChanged = await updateLocation();
+    if (!coordinatesChanged) return;
 
     unawaited(updateWeather());
     unawaited(updateAddress());
   }
 
-  Future<void> updateLocation() async {
-    final newLocation = await _locationService.fetchLocation();
+  Future<bool> updateLocation() async {
+    final previousLocation = _currentLocation.value;
+    final fetchedLocation = await _locationService.fetchLocation();
+    final newLocation = fetchedLocation == null
+        ? null
+        : await _elevationService.addMissingElevation(fetchedLocation);
     
-    if (!mounted) return;
+    if (!mounted) return false;
     if (newLocation == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        duration: const Duration(seconds: 2),
-        content: Text('Error fetching location.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
-        backgroundColor: Theme.of(context).colorScheme.errorContainer,
-      ));
-      return;
+      final message = switch (_locationService.status) {
+        LocationStatus.noService => 'Location services are disabled.',
+        LocationStatus.noPermission => 'Location permission was not granted.',
+        LocationStatus.permissionDeniedForever => 'Location permission is permanently denied.',
+        LocationStatus.timeout => 'Location request timed out.',
+        _ => 'Error fetching location.',
+      };
+      ScaffoldMessenger.of(context).showSnackBar(
+        AppSnackBar.error(context, message, duration: const Duration(seconds: 2)),
+      );
+      return false;
     }
 
-    if (!mounted) return;
+    if (!mounted) return false;
     _currentLocation.value = newLocation;
     _changeListener();
+    return ContextPosition.hasValidCoordinateChange(previousLocation, newLocation);
   }
 
   Future<void> updateAddress() async {
     if (_currentLocation.value == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        content: Text('Cannot update address without location.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
-        backgroundColor: Theme.of(context).colorScheme.errorContainer
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, 'Cannot update address without location.'));
       
       return;
     }
@@ -340,14 +353,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
     if (!mounted) return;
     if (newAddress == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        duration: const Duration(seconds: 2),
-        content: Text('Error fetching address.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
-        backgroundColor: Theme.of(context).colorScheme.errorContainer
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        AppSnackBar.error(context, 'Error fetching address.', duration: const Duration(seconds: 2)),
+      );
       return;
     }
 
@@ -520,13 +528,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     final DateTime newDateTimeLocal = _selectedDateTimeLocal.copyWith(hour: pickedTime.hour, minute: pickedTime.minute);
     if (newDateTimeLocal == _selectedDateTimeLocal) return;
     if (newDateTimeLocal.isAfter(DateTime.now())) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        content: Text('Date and Time cannot be in the future.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
-        backgroundColor: Theme.of(context).colorScheme.errorContainer
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, 'Date and Time cannot be in the future.'));
       return;
     }
 
@@ -563,14 +565,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
   Future<void> updateWeather() async {
     if (_currentLocation.value == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        duration: const Duration(seconds: 2),
-        content: Text('Cannot update weather without location.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
-        backgroundColor: Theme.of(context).colorScheme.errorContainer
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        AppSnackBar.error(context, 'Cannot update weather without location.', duration: const Duration(seconds: 2)),
+      );
       return;
     }
 
@@ -583,14 +580,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     if (!mounted) return;
     if (currentWeather == null) {
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        duration: const Duration(seconds: 2),
-        content: Text('Error fetching weather.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
-        backgroundColor: Theme.of(context).colorScheme.errorContainer
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        AppSnackBar.error(context, 'Error fetching weather.', duration: const Duration(seconds: 2)),
+      );
       return;
     }
     
@@ -602,15 +594,10 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   void _saveSetup() {
     if (!_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          showCloseIcon: true,
-          closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
+        AppSnackBar.error(
+          context,
+          'Please check all fields for missing or invalid input.',
           duration: const Duration(seconds: 2),
-          content: Text(
-            'Please check all fields for missing or invalid input.', 
-            style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)
-          ),
-          backgroundColor: Theme.of(context).colorScheme.errorContainer,
         ),
       );
       return;
@@ -791,9 +778,10 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                       final result = await showSetLocationPlaceSheet(context: context, locationService: _locationService, currentLocation: _currentLocation.value, addressService: _addressService, currentPlace: _currentPlace.value);
                       if (result == null) return;
 
-                      final requestWeatherUpdate = !ContextPosition.equal(result.location, _currentLocation.value) && 
-                          result.location?.latitude != null && 
-                          result.location?.latitude != null;
+                      final requestWeatherUpdate = ContextPosition.hasValidCoordinateChange(
+                        _currentLocation.value,
+                        result.location,
+                      );
 
                       if (result.location != null) {
                         _locationService.setStatus(LocationStatus.success);
@@ -821,7 +809,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                 LocationStatus.searching => switch (_addressService.status) {
                   _ => const Icon(Icons.location_searching),
                 },
-                LocationStatus.noPermission || LocationStatus.noService || LocationStatus.error => switch (_addressService.status) {
+                LocationStatus.noPermission || LocationStatus.permissionDeniedForever || LocationStatus.noService || LocationStatus.timeout || LocationStatus.error => switch (_addressService.status) {
                   _ => Icon(Icons.location_disabled, color: Theme.of(context).colorScheme.error)
                 },
               },
@@ -844,11 +832,17 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                       ? Text("${_currentPlace.value?.locality}, ${_currentPlace.value?.isoCountryCode}") 
                       : const Text("No GPS Service"),
                 },
-                LocationStatus.noPermission => switch (_addressService.status) {
+                LocationStatus.noPermission || LocationStatus.permissionDeniedForever => switch (_addressService.status) {
                   AddressStatus.searching => _loadingIndicator(),
                   AddressStatus.idle || AddressStatus.success || AddressStatus.error => _currentPlace.value != null
                       ? Text("${_currentPlace.value?.locality}, ${_currentPlace.value?.isoCountryCode}") 
                       : const Text("No GPS Permission"),
+                },
+                LocationStatus.timeout => switch (_addressService.status) {
+                  AddressStatus.searching => _loadingIndicator(),
+                  AddressStatus.idle || AddressStatus.success || AddressStatus.error => _currentPlace.value != null
+                      ? Text("${_currentPlace.value?.locality}, ${_currentPlace.value?.isoCountryCode}")
+                      : const Text("GPS Timeout"),
                 },
                 LocationStatus.error => switch (_addressService.status) {
                   AddressStatus.searching => _loadingIndicator(),

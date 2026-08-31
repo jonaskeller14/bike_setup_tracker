@@ -1,6 +1,5 @@
 import 'dart:math' as math;
 import 'package:flutter/rendering.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 
 /// Lays out [header] above [content] like a column, but while the section
@@ -38,14 +37,12 @@ class RenderStickySection extends RenderBox
         RenderBoxContainerDefaultsMixin<RenderBox, _StickySectionParentData> {
   RenderStickySection(this._scrollPosition);
 
-  bool _followUpLayoutScheduled = false;
-
   ScrollPosition _scrollPosition;
   set scrollPosition(ScrollPosition value) {
     if (identical(_scrollPosition, value)) return;
-    if (attached) _scrollPosition.removeListener(markNeedsLayout);
+    if (attached) _scrollPosition.removeListener(markNeedsPaint);
     _scrollPosition = value;
-    if (attached) _scrollPosition.addListener(markNeedsLayout);
+    if (attached) _scrollPosition.addListener(markNeedsPaint);
   }
 
   RenderBox get _content => firstChild!;
@@ -61,12 +58,12 @@ class RenderStickySection extends RenderBox
   @override
   void attach(PipelineOwner owner) {
     super.attach(owner);
-    _scrollPosition.addListener(markNeedsLayout);
+    _scrollPosition.addListener(markNeedsPaint);
   }
 
   @override
   void detach() {
-    _scrollPosition.removeListener(markNeedsLayout);
+    _scrollPosition.removeListener(markNeedsPaint);
     super.detach();
   }
 
@@ -87,7 +84,6 @@ class RenderStickySection extends RenderBox
 
   @override
   void performLayout() {
-    final previousSize = hasSize ? size : null;
     final childConstraints = constraints.widthConstraints();
     _header.layout(childConstraints, parentUsesSize: true);
     _content.layout(childConstraints, parentUsesSize: true);
@@ -99,23 +95,7 @@ class RenderStickySection extends RenderBox
 
     (_content.parentData! as _StickySectionParentData).offset =
         Offset(0, headerHeight);
-    final maxOffset = math.max(0.0, size.height - headerHeight);
-    (_header.parentData! as _StickySectionParentData).offset =
-        Offset(0, _stuckOffset().clamp(0.0, maxOffset));
-
-    // The viewport finalizes its new scroll extent after laying out this box.
-    // If changing content height clamps the scroll position, the sticky offset
-    // above was calculated against the previous extent. Recalculate it once
-    // the viewport has applied its content dimensions.
-    if (previousSize != null &&
-        previousSize != size &&
-        !_followUpLayoutScheduled) {
-      _followUpLayoutScheduled = true;
-      SchedulerBinding.instance.addPostFrameCallback((_) {
-        _followUpLayoutScheduled = false;
-        if (attached) markNeedsLayout();
-      });
-    }
+    (_header.parentData! as _StickySectionParentData).offset = Offset.zero;
   }
 
   @override
@@ -130,8 +110,14 @@ class RenderStickySection extends RenderBox
   }
 
   @override
-  void paint(PaintingContext context, Offset offset) =>
-      defaultPaint(context, offset);
+  void paint(PaintingContext context, Offset offset) {
+    // Paint runs after the viewport has applied its content dimensions, so a
+    // size change and any resulting scroll clamp are reflected immediately.
+    final maxOffset = math.max(0.0, size.height - _header.size.height);
+    (_header.parentData! as _StickySectionParentData).offset =
+        Offset(0, _stuckOffset().clamp(0.0, maxOffset));
+    defaultPaint(context, offset);
+  }
 
   @override
   bool hitTestChildren(BoxHitTestResult result, {required Offset position}) =>

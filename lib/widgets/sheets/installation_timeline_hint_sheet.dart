@@ -120,7 +120,7 @@ class _InstallationTimelineHintSheet extends StatelessWidget {
               children: [
                 FilledButton.icon(
                   onPressed: () => Navigator.pop(context, true),
-                  icon: const Icon(Icons.format_list_bulleted),
+                  icon: const Icon(Icons.arrow_forward),
                   label: const Text('Activate now'),
                 ),
                 TextButton(

@@ -328,13 +328,7 @@ class _TaskFilterHeaderDelegate extends SliverPersistentHeaderDelegate {
     return Material(
       color: backgroundColor,
       elevation: overlapsContent ? 2 : 0,
-      child: const Padding(
-        padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
-        child: Align(
-          alignment: Alignment.centerLeft,
-          child: TaskListFilterWidget(),
-        ),
-      ),
+      child: const TaskListFilterWidget(),
     );
   }
 

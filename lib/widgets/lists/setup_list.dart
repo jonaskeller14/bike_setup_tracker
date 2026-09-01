@@ -45,10 +45,7 @@ class SetupList extends StatelessWidget {
             padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
           ),
         ),
-        const SliverPadding(
-          padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-          sliver: SliverToBoxAdapter(child: SetupListFilterWidget()),
-        ),
+        const SliverToBoxAdapter(child: SetupListFilterWidget()),
         SliverFillRemaining(
           hasScrollBody: false,
           child: Padding(
@@ -501,10 +498,7 @@ class _SetupFilterHeaderDelegate extends SliverPersistentHeaderDelegate {
     return Material(
       color: backgroundColor,
       elevation: overlapsContent ? 2 : 0,
-      child: const Padding(
-        padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
-        child: SetupListFilterWidget(),
-      ),
+      child: const SetupListFilterWidget(),
     );
   }
 

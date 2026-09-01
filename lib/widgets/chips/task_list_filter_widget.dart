@@ -8,7 +8,7 @@ class TaskListFilterWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const SingleChildScrollView(
-      padding: EdgeInsets.only(bottom: 8),
+      padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       scrollDirection: Axis.horizontal,
       child: Row(
         spacing: 6,

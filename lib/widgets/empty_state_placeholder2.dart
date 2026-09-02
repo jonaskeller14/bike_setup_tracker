@@ -8,7 +8,7 @@ class EmptyStatePlaceholder2 extends StatelessWidget {
   final String? subtitle;
   final String? errorTitle;
   final String? errorSubtitle;
-  final void Function()? onTap;
+  final VoidCallback? onTap;
 
   const EmptyStatePlaceholder2({
     super.key,

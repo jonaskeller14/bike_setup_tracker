@@ -215,12 +215,7 @@ class _TaskListState extends State<TaskList> {
           key: const PageStorageKey('task-list-scroll'),
           controller: _controller.scrollController,
           slivers: [
-            SliverPersistentHeader(
-              floating: true,
-              delegate: _TaskFilterHeaderDelegate(
-                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-              ),
-            ),
+            const SliverToBoxAdapter(child: TaskListFilterWidget()),
             SliverList.list(
               children: [
                 _section(
@@ -305,35 +300,5 @@ class _TaskListState extends State<TaskList> {
         );
       },
     );
-  }
-}
-
-class _TaskFilterHeaderDelegate extends SliverPersistentHeaderDelegate {
-  final Color backgroundColor;
-
-  const _TaskFilterHeaderDelegate({required this.backgroundColor});
-
-  @override
-  double get minExtent => _TaskListState._filterHeight;
-
-  @override
-  double get maxExtent => _TaskListState._filterHeight;
-
-  @override
-  Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
-  ) {
-    return Material(
-      color: backgroundColor,
-      elevation: overlapsContent ? 2 : 0,
-      child: const TaskListFilterWidget(),
-    );
-  }
-
-  @override
-  bool shouldRebuild(covariant _TaskFilterHeaderDelegate oldDelegate) {
-    return backgroundColor != oldDelegate.backgroundColor;
   }
 }

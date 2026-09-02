@@ -316,12 +316,7 @@ class SetupList extends StatelessWidget {
             padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
           ),
         ),
-        SliverPersistentHeader(
-          floating: true,
-          delegate: _SetupFilterHeaderDelegate(
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          ),
-        ),
+        const SliverToBoxAdapter(child: SetupListFilterWidget()),
         ..._buildRowSlivers(
           context,
           rows,
@@ -473,37 +468,5 @@ class SetupList extends StatelessWidget {
         },
       ),
     );
-  }
-}
-
-class _SetupFilterHeaderDelegate extends SliverPersistentHeaderDelegate {
-  static const double _height = 64;
-
-  final Color backgroundColor;
-
-  const _SetupFilterHeaderDelegate({required this.backgroundColor});
-
-  @override
-  double get minExtent => _height;
-
-  @override
-  double get maxExtent => _height;
-
-  @override
-  Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
-  ) {
-    return Material(
-      color: backgroundColor,
-      elevation: overlapsContent ? 2 : 0,
-      child: const SetupListFilterWidget(),
-    );
-  }
-
-  @override
-  bool shouldRebuild(covariant _SetupFilterHeaderDelegate oldDelegate) {
-    return backgroundColor != oldDelegate.backgroundColor;
   }
 }

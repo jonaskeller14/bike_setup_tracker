@@ -5,6 +5,7 @@ import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/models/task/task_threshold.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/theme.dart';
+import 'package:bike_setup_tracker/widgets/chips/task_list_filter_widget.dart';
 import 'package:bike_setup_tracker/widgets/lists/task_list.dart';
 import 'package:bike_setup_tracker/widgets/sticky_section.dart';
 import 'package:flutter/material.dart';
@@ -256,16 +257,13 @@ void main() {
     expect(find.text('Upcoming task 1').hitTestable(), findsNothing);
   });
 
-  testWidgets('filter uses the same floating sliver behavior as SetupList', (tester) async {
+  testWidgets('filter scrolls with the task list', (tester) async {
     await seedUpcoming(tester);
     await tester.pumpWidget(buildSubject());
     await tester.pumpAndSettle();
 
-    final filterHeader = tester.widget<SliverPersistentHeader>(
-      find.byType(SliverPersistentHeader),
-    );
-    expect(filterHeader.floating, isTrue);
-    expect(filterHeader.pinned, isFalse);
+    expect(find.byType(SliverPersistentHeader), findsNothing);
+    expect(find.byType(TaskListFilterWidget), findsOneWidget);
   });
 
   testWidgets('show all and show less relayout the native section', (tester) async {

@@ -1,19 +1,29 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../icons/bike_icons.dart';
 import '../../models/bike.dart';
+import 'onboarding_shared_element.dart';
 import 'onboarding_slide_utils.dart';
 
 class OnboardingSlide2 extends StatelessWidget {
-  const OnboardingSlide2({super.key});
+  const OnboardingSlide2({super.key, this.forkKey, this.forkHidden});
 
-  Widget _smallComponentIconCard(IconData icon) {
+  /// Source endpoint of the fork's flight into slide 3's component card.
+  final GlobalKey? forkKey;
+  final ValueListenable<bool>? forkHidden;
+
+  Widget _smallComponentIconCard(IconData icon, {GlobalKey? endpointKey, ValueListenable<bool>? hidden}) {
     return Card.outlined(
       child: Padding(
         padding: const EdgeInsets.all(12),
-        child: Icon(icon, size: 40),
+        child: SharedElementEndpoint(
+          endpointKey: endpointKey,
+          hidden: hidden,
+          child: Icon(icon, size: 40),
+        ),
       ),
-    ); 
+    );
   }
 
   @override
@@ -39,7 +49,11 @@ class OnboardingSlide2 extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     spacing: 12,
                     children: [
-                      DelayedFade(delay: 400, keyId: "onboarding_icon_fork", child: _smallComponentIconCard(BikeIcons.fork)),
+                      DelayedFade(
+                        delay: 400,
+                        keyId: "onboarding_icon_fork",
+                        child: _smallComponentIconCard(BikeIcons.fork, endpointKey: forkKey, hidden: forkHidden),
+                      ),
                       DelayedFade(delay: 700, keyId: "onboarding_icon_shock", child: _smallComponentIconCard(BikeIcons.shock)),
                       DelayedFade(delay: 1000, keyId: "onboarding_icon_wheelFront", child: _smallComponentIconCard(BikeIcons.wheelFront)),
                       DelayedFade(delay: 1300, keyId: "onboarding_icon_wheelRear", child: _smallComponentIconCard(BikeIcons.wheelRear)),

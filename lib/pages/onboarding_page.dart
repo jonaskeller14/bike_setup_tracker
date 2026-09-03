@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../icons/bike_icons.dart';
 import '../models/app_settings.dart';
+import '../widgets/onboarding/onboarding_shared_element.dart';
 import '../widgets/onboarding/onboarding_slide_1.dart';
 import '../widgets/onboarding/onboarding_slide_2.dart';
 import '../widgets/onboarding/onboarding_slide_3.dart';
@@ -19,15 +21,26 @@ class _OnboardingPageState extends State<OnboardingPage> {
   int _currentPage = 0;
   late List<Widget Function()> _pages;
 
+  final GlobalKey _forkSourceKey = GlobalKey(debugLabel: 'onboarding_fork_source');
+  final GlobalKey _forkTargetKey = GlobalKey(debugLabel: 'onboarding_fork_target');
+  final ValueNotifier<bool> _forkInFlight = ValueNotifier<bool>(false);
+
   @override
   void initState() {
     super.initState();
     _pages = [
       () => const OnboardingSlide1(),
-      () => const OnboardingSlide2(),
-      () => const OnboardingSlide3(),
+      () => OnboardingSlide2(forkKey: _forkSourceKey, forkHidden: _forkInFlight),
+      () => OnboardingSlide3(forkKey: _forkTargetKey, forkHidden: _forkInFlight),
       () => const OnboardingSlide4(),
     ];
+  }
+
+  @override
+  void dispose() {
+    _forkInFlight.dispose();
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -74,11 +87,20 @@ class _OnboardingPageState extends State<OnboardingPage> {
             : Icons.arrow_forward),
       ),
       body: SafeArea(
-        child: PageView.builder(
+        child: OnboardingSharedElementFlight(
           controller: _controller,
-          onPageChanged: (index) => setState(() => _currentPage = index),
-          itemCount: _pages.length,
-          itemBuilder: (context, index) => _pages[index](),
+          fromPage: 1,
+          toPage: 2,
+          sourceKey: _forkSourceKey,
+          targetKey: _forkTargetKey,
+          hidden: _forkInFlight,
+          flight: const Icon(BikeIcons.fork, size: 40),
+          child: PageView.builder(
+            controller: _controller,
+            onPageChanged: (index) => setState(() => _currentPage = index),
+            itemCount: _pages.length,
+            itemBuilder: (context, index) => _pages[index](),
+          ),
         ),
       ),
     );

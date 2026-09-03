@@ -1,11 +1,17 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../icons/bike_icons.dart';
 import '../../models/adjustment/adjustment.dart';
+import 'onboarding_shared_element.dart';
 import 'onboarding_slide_utils.dart';
 
 class OnboardingSlide3 extends StatelessWidget {
-  const OnboardingSlide3({super.key});
+  const OnboardingSlide3({super.key, this.forkKey, this.forkHidden});
+
+  /// Target endpoint of the fork's flight from slide 2's component row.
+  final GlobalKey? forkKey;
+  final ValueListenable<bool>? forkHidden;
 
   Widget _adjustmentPreview({
     required BuildContext context,
@@ -59,7 +65,11 @@ class OnboardingSlide3 extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(BikeIcons.fork, size: 40),
+                            SharedElementEndpoint(
+                              endpointKey: forkKey,
+                              hidden: forkHidden,
+                              child: const Icon(BikeIcons.fork, size: 40),
+                            ),
                             const SizedBox(width: 12),
                             Text("Suspension Fork", style: Theme.of(context).textTheme.titleLarge),
                           ],

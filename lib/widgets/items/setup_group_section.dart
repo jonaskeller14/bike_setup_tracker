@@ -55,7 +55,7 @@ class SetupGroupSection extends StatelessWidget {
         onTap: onTapSetup == null ? null : () => onTapSetup!(setups.first),
         displayBikeAdjustmentValues: displayBikeAdjustmentValues,
         displayPersonAdjustmentValues: displayPersonAdjustmentValues,
-        showDate: !appSettings.enableTimelineDayHeaders,
+        showDate: false,
       );
     }
 
@@ -89,12 +89,7 @@ class SetupGroupSection extends StatelessWidget {
     final timeFormat = DateFormat(appSettings.timeFormat);
     final startText = timeFormat.format(earliest);
     final endText = timeFormat.format(latest);
-    final timeText = startText == endText ? startText : "$startText – $endText";
-    // Members share a local day, so one date covers the group. The day header
-    // states it when enabled.
-    final dateTimeText = appSettings.enableTimelineDayHeaders
-        ? timeText
-        : "${DateFormat(appSettings.dateFormat).format(earliest)} • $timeText";
+    final dateTimeText = startText == endText ? startText : "$startText – $endText";
 
     final metadataRows = <Widget>[
       if (sharedPlace != null)

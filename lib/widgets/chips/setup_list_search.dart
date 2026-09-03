@@ -139,15 +139,12 @@ class SetupListSearch extends StatelessWidget {
           return sortAscending ? a.date.compareTo(b.date) : b.date.compareTo(a.date);
         });
 
-        final showDayHeaders = appSettings.enableTimelineDayHeaders;
-        final showDate = !showDayHeaders;
-
         Widget entryWidget(TimelineEntry entry, {EdgeInsets edgeInset = EdgeInsets.zero}) {
           switch (entry) {
             case SetupEntry():
               return SetupListTile(
                 setupId: entry.setup.id,
-                showDate: showDate,
+                showDate: false,
                 onTap: () async {
                   await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => SetupDetailsPage(
                     setupIds: matchingEntries.whereType<SetupEntry>().map((e) => e.setup.id).toList(),
@@ -159,11 +156,11 @@ class SetupListSearch extends StatelessWidget {
                 edgeInset: edgeInset,
               );
             case StravaEntry():
-              return StravaListTile(stravaActivity: entry.activity, showDate: showDate);
+              return StravaListTile(stravaActivity: entry.activity, showDate: false);
             case TaskTimeLineEntry():
               return TaskEntryListItem(
                 taskEntryId: entry.taskEntry.id,
-                showDate: showDate,
+                showDate: false,
                 onTap: () => showTaskRuleSheet(
                   context,
                   taskRuleId: entry.taskEntry.taskRule,
@@ -173,7 +170,7 @@ class SetupListSearch extends StatelessWidget {
             case InstallationEntry():
               return InstallationListTile(
                 componentInstallation: entry.componentInstallation,
-                showDate: showDate,
+                showDate: false,
                 onTap: () async {
                   await showEditInstallationSheet(
                     context,
@@ -183,7 +180,7 @@ class SetupListSearch extends StatelessWidget {
                 },
               );
             case RatingEntryTimelineEntry():
-              return RatingEntryListTile(ratingEntry: entry.ratingEntry, showDate: showDate);
+              return RatingEntryListTile(ratingEntry: entry.ratingEntry, showDate: false);
           }
         }
 
@@ -197,27 +194,24 @@ class SetupListSearch extends StatelessWidget {
         TimelineEntry? previous;
         for (var i = 0; i < matchingEntries.length; i++) {
           final entry = matchingEntries[i];
-          EdgeInsets edgeInset = EdgeInsets.zero;
-          if (showDayHeaders) {
-            final day = entryDay(entry);
-            if (day != currentDay) {
-              widgets.add(
-                TimelineDayHeader(
-                  day: day,
-                  margin: EdgeInsets.zero,
-                  onContainerSurface: true,
-                ),
-              );
-              currentDay = day;
-              previous = null; // no divider right after a header
-            }
-            final isFirstOfDay = previous == null;
-            final isLastOfDay = i == matchingEntries.length - 1 || entryDay(matchingEntries[i + 1]) != day;
-            edgeInset = EdgeInsets.only(
-              top: isFirstOfDay ? 8 : 0,
-              bottom: isLastOfDay ? 8 : 0,
+          final day = entryDay(entry);
+          if (day != currentDay) {
+            widgets.add(
+              TimelineDayHeader(
+                day: day,
+                margin: EdgeInsets.zero,
+                onContainerSurface: true,
+              ),
             );
+            currentDay = day;
+            previous = null; // no divider right after a header
           }
+          final isFirstOfDay = previous == null;
+          final isLastOfDay = i == matchingEntries.length - 1 || entryDay(matchingEntries[i + 1]) != day;
+          final edgeInset = EdgeInsets.only(
+            top: isFirstOfDay ? 8 : 0,
+            bottom: isLastOfDay ? 8 : 0,
+          );
           if (previous != null) widgets.add(const Divider(height: 1));
           final child = entryWidget(entry, edgeInset: edgeInset);
           // Setup tiles absorb the inset so their current highlight paints over

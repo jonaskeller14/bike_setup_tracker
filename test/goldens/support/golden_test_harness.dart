@@ -80,7 +80,6 @@ class GoldenTestHarness {
 
     final settings = AppSettings()
       ..showOnboarding = false
-      ..enableTimelineDayHeaders = false
       ..enableRating = false
       ..enablePerson = false;
 

@@ -458,8 +458,6 @@ List<TimelineRow> buildTimelineRows(
     }
   }
 
-  if (!appSettings.enableTimelineDayHeaders) return List<TimelineRow>.from(rows);
-
   final result = <TimelineRow>[];
   DateTime? currentDay;
   for (final row in rows) {

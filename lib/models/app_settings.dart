@@ -38,7 +38,6 @@ class AppSettings extends ChangeNotifier {
   bool _enableSetupComparison = true;
   bool _enableComponentPresets = false;
   // Setup timeline grouping passes (debug-only, see FeaturesPage)
-  bool _enableTimelineDayHeaders = true;
   bool _enableTimelineSetupGrouping = false;
   bool _enableTimelineReplacementDetection = true;
   bool _enableTimelineStravaContext = false;
@@ -83,7 +82,6 @@ class AppSettings extends ChangeNotifier {
   bool get enableSetupImages => _enableSetupImages;
   bool get enableSetupComparison => _enableSetupComparison;
   bool get enableComponentPresets => _enableComponentPresets;
-  bool get enableTimelineDayHeaders => _enableTimelineDayHeaders;
   bool get enableTimelineSetupGrouping => _enableTimelineSetupGrouping;
   bool get enableTimelineReplacementDetection => _enableTimelineReplacementDetection;
   bool get enableTimelineStravaContext => _enableTimelineStravaContext;
@@ -301,13 +299,6 @@ class AppSettings extends ChangeNotifier {
     _persistBool('enableComponentPresets', newValue);
   }
 
-  set enableTimelineDayHeaders(bool newValue) {
-    if (newValue == _enableTimelineDayHeaders) return;
-    _enableTimelineDayHeaders = newValue;
-    notifyListeners();
-    _persistBool('enableTimelineDayHeaders', newValue);
-  }
-
   set enableTimelineSetupGrouping(bool newValue) {
     if (newValue == _enableTimelineSetupGrouping) return;
     _enableTimelineSetupGrouping = newValue;
@@ -435,7 +426,6 @@ class AppSettings extends ChangeNotifier {
       _enableSetupImages = prefs.getBool('${_kPrefix}enableSetupImages') ?? _enableSetupImages;
       _enableSetupComparison = prefs.getBool('${_kPrefix}enableSetupComparison') ?? _enableSetupComparison;
       _enableComponentPresets = prefs.getBool('${_kPrefix}enableComponentPresets') ?? _enableComponentPresets;
-      _enableTimelineDayHeaders = prefs.getBool('${_kPrefix}enableTimelineDayHeaders') ?? _enableTimelineDayHeaders;
       _enableTimelineSetupGrouping =
           prefs.getBool('${_kPrefix}enableTimelineSetupGrouping') ?? _enableTimelineSetupGrouping;
       _enableTimelineReplacementDetection =

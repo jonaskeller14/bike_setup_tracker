@@ -22,7 +22,6 @@ class FeaturesPage extends StatelessWidget {
 
   static String _timelineGroupingSummary(AppSettings settings) {
     final enabled = [
-      if (settings.enableTimelineDayHeaders) 'Day Headers',
       if (settings.enableTimelineSetupGrouping) 'Setup Grouping',
       if (settings.enableTimelineReplacementDetection) 'Replacement Detection',
       if (kDebugMode && settings.enableTimelineStravaContext) 'Strava Context',
@@ -206,12 +205,6 @@ class FeaturesPage extends StatelessWidget {
                       'Controls how the Setup History timeline condenses '
                       'related entries. Each pass can be toggled on its own.',
                   options: [
-                    AppSettingsCheckboxOption(
-                      title: 'Day Headers',
-                      subtitle: 'Group entries under a header per day.',
-                      value: () => appSettings.enableTimelineDayHeaders,
-                      onChanged: (v) => appSettings.enableTimelineDayHeaders = v,
-                    ),
                     AppSettingsCheckboxOption(
                       title: 'Setup Grouping',
                       subtitle: 'Merge setups of the same bike recorded close together.',

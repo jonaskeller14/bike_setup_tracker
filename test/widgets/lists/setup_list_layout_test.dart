@@ -27,8 +27,7 @@ void main() {
 
   tearDown(() => harness.dispose());
 
-  Future<void> pumpTimeline(WidgetTester tester, {required bool dayHeaders}) async {
-    harness.settings.enableTimelineDayHeaders = dayHeaders;
+  Future<void> pumpTimeline(WidgetTester tester) async {
     await harness.addSetups(tester, [
       harness.buildSetup(
         name: 'Timeline Setup',
@@ -42,37 +41,35 @@ void main() {
     await settle(tester);
   }
 
-  for (final dayHeaders in [false, true]) {
-    testWidgets('rows share one 16px inset (day headers: $dayHeaders)', (tester) async {
-      await pumpTimeline(tester, dayHeaders: dayHeaders);
+  testWidgets('rows share one 16px inset', (tester) async {
+    await pumpTimeline(tester);
 
-      expect(find.byType(SetupListTile), findsOneWidget);
-      expect(find.byType(InstallationListTile), findsOneWidget);
+    expect(find.byType(SetupListTile), findsOneWidget);
+    expect(find.byType(InstallationListTile), findsOneWidget);
 
-      final setupIcon = find.descendant(
-        of: find.byType(SetupListTile),
-        matching: find.byIcon(Setup.iconData),
-      );
-      // The glyph itself is Transform.scale'd, which shifts its painted box —
-      // measure the leading slot that holds it.
-      final installationLeading = find
-          .ancestor(
-            of: find.descendant(
-              of: find.byType(InstallationListTile),
-              matching: find.byIcon(Icons.arrow_right_alt),
-            ),
-            matching: find.byType(Padding),
-          )
-          .first;
+    final setupIcon = find.descendant(
+      of: find.byType(SetupListTile),
+      matching: find.byIcon(Setup.iconData),
+    );
+    // The glyph itself is Transform.scale'd, which shifts its painted box —
+    // measure the leading slot that holds it.
+    final installationLeading = find
+        .ancestor(
+          of: find.descendant(
+            of: find.byType(InstallationListTile),
+            matching: find.byIcon(Icons.arrow_right_alt),
+          ),
+          matching: find.byType(Padding),
+        )
+        .first;
 
-      expect(tester.getTopLeft(setupIcon).dx, 16);
-      expect(tester.getTopLeft(installationLeading).dx, 16);
-    });
+    expect(tester.getTopLeft(setupIcon).dx, 16);
+    expect(tester.getTopLeft(installationLeading).dx, 16);
+  });
 
-    testWidgets('adjacent rows are divided (day headers: $dayHeaders)', (tester) async {
-      await pumpTimeline(tester, dayHeaders: dayHeaders);
+  testWidgets('adjacent rows are divided', (tester) async {
+    await pumpTimeline(tester);
 
-      expect(find.byType(Divider), findsWidgets);
-    });
-  }
+    expect(find.byType(Divider), findsWidgets);
+  });
 }

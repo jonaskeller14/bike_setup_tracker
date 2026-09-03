@@ -10,10 +10,13 @@ import '../../models/app_settings.dart';
 import '../../models/context/context_weather.dart';
 import '../../models/setup.dart';
 import '../set_adjustment/set_step_adjustment.dart';
+import 'onboarding_slide_scaffold.dart';
 import 'onboarding_slide_utils.dart';
 
 class OnboardingSlide4 extends StatefulWidget {
-  const OnboardingSlide4({super.key});
+  const OnboardingSlide4({super.key, required this.onFinish});
+
+  final VoidCallback onFinish;
 
   @override
   State<OnboardingSlide4> createState() => _OnboardingSlide4State();
@@ -83,101 +86,107 @@ class _OnboardingSlide4State extends State<OnboardingSlide4> {
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
-    
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(40),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: constraints.maxHeight - 80),
+
+    return OnboardingSlideScaffold(
+      onNext: widget.onFinish,
+      nextLabel: "Finish",
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Card(
+            //TODO Import this layout or the components like Rows to prevent duplicate code
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Card( //TODO Import this layout or the components like Rows to prevent duplicate code
-                  child: Column(
+                ListTile(
+                  leading: const Icon(Setup.iconData),
+                  title: const Text("My new Setup", style: TextStyle(fontWeight: FontWeight.bold)),
+                  subtitle: Wrap(
+                    alignment: WrapAlignment.start,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 4,
                     children: [
-                      ListTile(
-                        leading: const Icon(Setup.iconData),
-                        title: const Text("My new Setup", style: TextStyle(fontWeight: FontWeight.bold)),
-                        subtitle: Wrap(
-                          alignment: WrapAlignment.start,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          spacing: 4,
-                          children: [
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Icon(Icons.calendar_month, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                                const SizedBox(width: 2),
-                                Text(
-                                  DateFormat(appSettings.dateFormat).format(DateTime.now()),
-                                  style: TextStyle(
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                                    fontSize: 13,
-                                  ),
-                                ),
-                              ],
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Icon(Icons.calendar_month, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                          const SizedBox(width: 2),
+                          Text(
+                            DateFormat(appSettings.dateFormat).format(DateTime.now()),
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                              fontSize: 13,
                             ),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Icon(Icons.access_time, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                                const SizedBox(width: 2),
-                                Text(
-                                  DateFormat(appSettings.timeFormat).format(DateTime.now()),
-                                  style: TextStyle(
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                                    fontSize: 13,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              spacing: 2,
-                              children: [
-                                Icon(Condition.dry.iconData, size: 13, color: Condition.dry.color),
-                                Text("Dry", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-                                ),
-                              ],
-                            )
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                      _setStepAdjustmentWidgetAnimation(),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Icon(Icons.access_time, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                          const SizedBox(width: 2),
+                          Text(
+                            DateFormat(appSettings.timeFormat).format(DateTime.now()),
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        spacing: 2,
+                        children: [
+                          Icon(Condition.dry.iconData, size: 13, color: Condition.dry.color),
+                          Text(
+                            "Dry",
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 60),
-                stepWidget(context: context, step: 3),
-                const SizedBox(height: 12),
-                Text(
-                  'Your Setup Diary',
-                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  textAlign: TextAlign.center,
+                _setStepAdjustmentWidgetAnimation(),
+              ],
+            ),
+          ),
+          const SizedBox(height: 60),
+          stepWidget(context: context, step: 3),
+          const SizedBox(height: 12),
+          Text(
+            'Your Setup Diary',
+            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 12),
+          Text.rich(
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyLarge,
+            const TextSpan(
+              children: [
+                TextSpan(text: "A "),
+                TextSpan(
+                  text: "Setup",
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 12),
-                Text.rich(
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyLarge,
-                  const TextSpan(
-                    children: [
-                      TextSpan(text: "A "),
-                      TextSpan(text: "Setup", style: TextStyle(fontWeight: FontWeight.bold)),
-                      TextSpan(text: " is a current snapshot of all components of one bike. It captures the specific values of your adjustments and automatically adds context (e.g. location, weather, trail conditions)."),
-                    ]
-                  )
+                TextSpan(
+                  text:
+                      " is a current snapshot of all components of one bike. It captures the specific values of your adjustments and automatically adds context (e.g. location, weather, trail conditions).",
                 ),
               ],
             ),
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 }

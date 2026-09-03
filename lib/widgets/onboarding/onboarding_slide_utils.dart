@@ -1,4 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+
+import 'onboarding_motion.dart';
 
 Widget stepWidget({required BuildContext context, required int step}) {
   return Container(
@@ -29,35 +33,42 @@ class DelayedFade extends StatefulWidget {
 }
 
 class _DelayedFadeState extends State<DelayedFade> {
-  late final Future<void> _delayFuture;
+  Timer? _timer;
+  bool _visible = false;
 
   @override
   void initState() {
     super.initState();
-    _delayFuture = Future.delayed(Duration(milliseconds: widget.delay));
+    // A cancellable timer, so leaving the slide early does not leave one running.
+    _timer = Timer(Duration(milliseconds: widget.delay), () {
+      if (mounted) setState(() => _visible = true);
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (reduceMotion(context)) return widget.child;
+
     return TweenAnimationBuilder<double>(
       key: ValueKey(widget.keyId),
       tween: Tween(begin: 0.0, end: 1.0),
-      duration: const Duration(milliseconds: 600),
-      curve: Curves.easeOutBack,
+      duration: kOnboardingEntranceDuration,
+      curve: kOnboardingEntranceCurve,
       builder: (context, size, child) {
         return Transform.scale(
           scale: size,
           child: child,
         );
       },
-      child: FutureBuilder(
-        future: _delayFuture,
-        builder: (context, snapshot) {
-          return snapshot.connectionState == ConnectionState.done 
-              ? widget.child 
-              : const Opacity(opacity: 0);
-        },
-      ),
+      // The slot is held from the start so the staged row does not resize as
+      // each card lands, and so a shared element can measure its endpoint.
+      child: Visibility.maintain(visible: _visible, child: widget.child),
     );
   }
 }

@@ -1,8 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../icons/bike_icons.dart';
 import '../models/app_settings.dart';
+import '../widgets/onboarding/onboarding_component_card.dart';
 import '../widgets/onboarding/onboarding_shared_element.dart';
 import '../widgets/onboarding/onboarding_slide_1.dart';
 import '../widgets/onboarding/onboarding_slide_2.dart';
@@ -16,10 +18,16 @@ class OnboardingPage extends StatefulWidget {
   State<OnboardingPage> createState() => _OnboardingPageState();
 }
 
+/// One slide plus the secondary action the app bar offers while it is shown.
+typedef _OnboardingSlide = ({Widget Function() build, String? secondaryLabel, VoidCallback? onSecondary});
+
 class _OnboardingPageState extends State<OnboardingPage> {
+  static const int _componentSlideIndex = 1;
+  static const int _adjustmentSlideIndex = 2;
+
   final PageController _controller = PageController();
   int _currentPage = 0;
-  late List<Widget Function()> _pages;
+  late List<_OnboardingSlide> _slides;
 
   final GlobalKey _forkSourceKey = GlobalKey(debugLabel: 'onboarding_fork_source');
   final GlobalKey _forkTargetKey = GlobalKey(debugLabel: 'onboarding_fork_target');
@@ -28,13 +36,47 @@ class _OnboardingPageState extends State<OnboardingPage> {
   @override
   void initState() {
     super.initState();
-    _pages = [
-      () => const OnboardingSlide1(),
-      () => OnboardingSlide2(forkKey: _forkSourceKey, forkHidden: _forkInFlight),
-      () => OnboardingSlide3(forkKey: _forkTargetKey, forkHidden: _forkInFlight),
-      () => const OnboardingSlide4(),
+    _slides = [
+      (
+        build: () => OnboardingSlide1(onNext: _next),
+        secondaryLabel: "Skip",
+        onSecondary: _complete,
+      ),
+      (
+        build: () => OnboardingSlide2(onNext: _next, forkKey: _forkSourceKey, forkHidden: _forkInFlight),
+        secondaryLabel: "Skip",
+        onSecondary: _complete,
+      ),
+      (
+        build: () => OnboardingSlide3(
+          onNext: _next,
+          // The card has landed once the flight has handed it back and this is
+          // the settled page; only then do the adjustment rows fill in.
+          showAdjustments: _currentPage == _adjustmentSlideIndex && !_forkInFlight.value,
+          forkKey: _forkTargetKey,
+          forkHidden: _forkInFlight,
+        ),
+        secondaryLabel: "Skip",
+        onSecondary: _complete,
+      ),
+      (
+        build: () => OnboardingSlide4(onFinish: _complete),
+        secondaryLabel: null,
+        onSecondary: null,
+      ),
     ];
   }
+
+  void _next() {
+    unawaited(
+      _controller.nextPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      ),
+    );
+  }
+
+  void _complete() => context.read<AppSettings>().showOnboarding = false;
 
   @override
   void dispose() {
@@ -61,45 +103,33 @@ class _OnboardingPageState extends State<OnboardingPage> {
         centerTitle: true,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(_pages.length, (index) => _builProgressIndicatorDot(index)),
+          children: List.generate(_slides.length, (index) => _builProgressIndicatorDot(index)),
         ),
         actions: [
-          TextButton(
-            onPressed: () => context.read<AppSettings>().showOnboarding = false,
-            child: const Text("Skip"),
-          ),
+          if (_slides[_currentPage].secondaryLabel case final label?)
+            TextButton(onPressed: _slides[_currentPage].onSecondary, child: Text(label)),
         ],
-      ),
-      floatingActionButton: ElevatedButton.icon(
-        onPressed: () async {
-          if (_currentPage == _pages.length - 1) {
-            context.read<AppSettings>().showOnboarding = false;
-          } else {
-            await _controller.nextPage(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-            );
-          }
-        },
-        label: Text(_currentPage == _pages.length - 1 ? "Finish" : "Next"),
-        icon: Icon(_currentPage == _pages.length - 1 
-            ? Icons.check 
-            : Icons.arrow_forward),
       ),
       body: SafeArea(
         child: OnboardingSharedElementFlight(
           controller: _controller,
-          fromPage: 1,
-          toPage: 2,
+          fromPage: _componentSlideIndex,
+          toPage: _adjustmentSlideIndex,
           sourceKey: _forkSourceKey,
           targetKey: _forkTargetKey,
           hidden: _forkInFlight,
-          flight: const Icon(BikeIcons.fork, size: 40),
-          child: PageView.builder(
-            controller: _controller,
-            onPageChanged: (index) => setState(() => _currentPage = index),
-            itemCount: _pages.length,
-            itemBuilder: (context, index) => _pages[index](),
+          flightBuilder: (BuildContext context, double progress, Size targetSize) =>
+              OnboardingComponentCardFlight(progress: progress, targetSize: targetSize),
+          // Rebuilds the slides when the flight takes or hands back the card,
+          // so slide 3 knows when to fill in its adjustment rows.
+          child: ValueListenableBuilder<bool>(
+            valueListenable: _forkInFlight,
+            builder: (context, _, _) => PageView.builder(
+              controller: _controller,
+              onPageChanged: (index) => setState(() => _currentPage = index),
+              itemCount: _slides.length,
+              itemBuilder: (context, index) => _slides[index].build(),
+            ),
           ),
         ),
       ),
@@ -118,48 +148,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
             ? Theme.of(context).colorScheme.primary
             : Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(5),
-      ),
-    );
-  }
-}
-
-class _DelayedFade extends StatefulWidget {
-  final int delay;
-  final String keyId;
-  final Widget child;
-
-  const _DelayedFade({required this.delay, required this.keyId, required this.child});
-
-  @override
-  State<_DelayedFade> createState() => _DelayedFadeState();
-}
-
-class _DelayedFadeState extends State<_DelayedFade> {
-  late final Future<void> _delayFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _delayFuture = Future.delayed(Duration(milliseconds: widget.delay));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return TweenAnimationBuilder<double>(
-      key: ValueKey(widget.keyId),
-      tween: Tween(begin: 0.0, end: 1.0),
-      duration: const Duration(milliseconds: 600),
-      curve: Curves.easeOutBack,
-      builder: (context, size, child) {
-        return Transform.scale(scale: size, child: child);
-      },
-      child: FutureBuilder(
-        future: _delayFuture,
-        builder: (context, snapshot) {
-          return snapshot.connectionState == ConnectionState.done
-              ? widget.child
-              : const Opacity(opacity: 0);
-        },
       ),
     );
   }

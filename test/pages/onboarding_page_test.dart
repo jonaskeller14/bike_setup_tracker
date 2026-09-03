@@ -3,6 +3,7 @@ import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/pages/onboarding_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/theme.dart';
+import 'package:bike_setup_tracker/widgets/onboarding/onboarding_slide_1.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -80,7 +81,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text("STEP 3"), findsOneWidget);
-    expect(find.text("Skip"), findsOneWidget);
+    // The last slide finishes instead of skipping.
+    expect(find.text("Skip"), findsNothing);
 
     // Slide 4 -> Finish
     await tester.tap(find.text("Finish"));
@@ -99,5 +101,45 @@ void main() {
     expect(find.byType(MaterialApp), findsOneWidget);
     expect(find.text("Ready to Dial It In?"), findsNothing);
     expect(find.text("Home Page Proxy"), findsOneWidget);
+  });
+
+  testWidgets('Primary action lives in the slide, not in a floating button', (WidgetTester tester) async {
+    await tester.pumpWidget(buildTestApp());
+    await tester.pumpAndSettle();
+
+    final scaffold = tester.widget<Scaffold>(find.byType(Scaffold).last);
+    expect(scaffold.floatingActionButton, isNull);
+
+    // One full-width primary action per slide, inside the slide itself.
+    final button = find.widgetWithText(FilledButton, "Next");
+    expect(button, findsOneWidget);
+    expect(find.descendant(of: find.byType(OnboardingSlide1), matching: button), findsOneWidget);
+    expect(tester.getSize(button).width, greaterThan(tester.getSize(find.byType(PageView)).width / 2));
+  });
+
+  testWidgets('Progress dots follow the slide count', (WidgetTester tester) async {
+    await tester.pumpWidget(buildTestApp());
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byWidgetPredicate((widget) => widget.key is ValueKey<String> &&
+          (widget.key! as ValueKey<String>).value.startsWith("onboarding_dot_")),
+      findsNWidgets(4),
+    );
+  });
+
+  testWidgets('Skip completes onboarding from a teaching slide', (WidgetTester tester) async {
+    await tester.pumpWidget(buildTestApp());
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text("Next"));
+    await tester.pumpAndSettle();
+    expect(find.text("STEP 1"), findsOneWidget);
+
+    await tester.tap(find.text("Skip"));
+    await tester.pumpAndSettle();
+
+    expect(find.text("Home Page Proxy"), findsOneWidget);
+    expect(appSettings.showOnboarding, isFalse);
   });
 }

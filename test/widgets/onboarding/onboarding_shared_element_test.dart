@@ -2,6 +2,7 @@ import 'package:bike_setup_tracker/icons/bike_icons.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/pages/onboarding_page.dart';
 import 'package:bike_setup_tracker/theme.dart';
+import 'package:bike_setup_tracker/widgets/onboarding/onboarding_component_card.dart';
 import 'package:bike_setup_tracker/widgets/onboarding/onboarding_shared_element.dart';
 import 'package:bike_setup_tracker/widgets/onboarding/onboarding_slide_2.dart';
 import 'package:bike_setup_tracker/widgets/onboarding/onboarding_slide_3.dart';
@@ -73,12 +74,19 @@ void main() {
     expect(forkVisible(tester, find.byType(OnboardingSlide2)), isFalse);
     expect(forkVisible(tester, find.byType(OnboardingSlide3)), isFalse);
 
-    // The element keeps the endpoints' size and stays on screen instead of
+    // The card grows between the two endpoints and stays on screen instead of
     // drifting sideways with the page scroll.
+    final screenWidth = tester.view.physicalSize.width / tester.view.devicePixelRatio;
     final flightRect = tester.getRect(flightFinder);
-    expect(flightRect.size, const Size(40, 40));
+    expect(flightRect.width, greaterThan(OnboardingComponentCard.iconSize));
     expect(flightRect.left, greaterThanOrEqualTo(0));
-    expect(flightRect.right, lessThanOrEqualTo(tester.view.physicalSize.width / tester.view.devicePixelRatio));
+    expect(flightRect.right, lessThanOrEqualTo(screenWidth));
+
+    // It carries the destination card's content, not a bare icon, and leaves
+    // the adjustment rows to the landed slide.
+    final flightCard = find.descendant(of: flightFinder, matching: find.byType(OnboardingComponentCard));
+    expect(flightCard, findsOneWidget);
+    expect(tester.widget<OnboardingComponentCard>(flightCard).adjustments, 0);
 
     await gesture.moveBy(const Offset(-200, 0));
     await tester.pump();
@@ -120,5 +128,62 @@ void main() {
 
     expect(flightFinder, findsNothing);
     expect(forkVisible(tester, find.byType(OnboardingSlide3)), isTrue);
+  });
+
+  /// How far slide 3's adjustment rows have filled in, 0..1.
+  double adjustments(WidgetTester tester) {
+    final card = find.descendant(
+      of: find.byType(OnboardingSlide3),
+      matching: find.byType(OnboardingComponentCard),
+    );
+    return tester.widget<OnboardingComponentCard>(card).adjustments;
+  }
+
+  testWidgets('adjustment rows fill in after the card lands', (WidgetTester tester) async {
+    final gesture = await swipeFromSlide2(tester);
+    await gesture.moveBy(const Offset(-200, 0));
+    await tester.pump();
+    await gesture.up();
+
+    // Let the page settle, but stop short of settling the reveal it triggers.
+    await tester.pump();
+    for (var frame = 0; frame < 60 && flightFinder.evaluate().isNotEmpty; frame++) {
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    expect(flightFinder, findsNothing);
+    expect(adjustments(tester), 0);
+
+    // The rows fill in over their own animation rather than snapping in.
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(adjustments(tester), greaterThan(0));
+    expect(adjustments(tester), lessThan(1));
+
+    await tester.pumpAndSettle();
+    expect(adjustments(tester), 1.0);
+  });
+
+  testWidgets('dragging back towards slide 2 empties the rows again', (WidgetTester tester) async {
+    final gesture = await swipeFromSlide2(tester);
+    await gesture.moveBy(const Offset(-200, 0));
+    await tester.pump();
+    await gesture.up();
+    await tester.pumpAndSettle();
+    expect(adjustments(tester), 1.0);
+
+    // Starting back towards slide 2 hands the card to the flight again.
+    final back = await tester.startGesture(tester.getCenter(find.byType(PageView)));
+    await back.moveBy(const Offset(120, 0));
+    await tester.pump();
+    await back.moveBy(const Offset(120, 0));
+    await tester.pump();
+    await tester.pump();
+
+    expect(flightFinder, findsOneWidget);
+
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(adjustments(tester), lessThan(1));
+
+    await back.up();
+    await tester.pumpAndSettle();
   });
 }

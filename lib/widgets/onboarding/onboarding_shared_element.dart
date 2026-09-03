@@ -61,7 +61,7 @@ class OnboardingSharedElementFlight extends StatefulWidget {
     required this.sourceKey,
     required this.targetKey,
     required this.hidden,
-    required this.flight,
+    required this.flightBuilder,
     required this.child,
   });
 
@@ -77,8 +77,10 @@ class OnboardingSharedElementFlight extends StatefulWidget {
   /// Set while the flight owns the visual, so both endpoints hide themselves.
   final ValueNotifier<bool> hidden;
 
-  /// What is painted in flight. Scaled to fit the interpolated bounds.
-  final Widget flight;
+  /// Builds what is painted in flight, from the transition's 0..1 progress and
+  /// the target endpoint's size. The result is laid out at the interpolated
+  /// bounds, so it is responsible for handling sizes between the two endpoints.
+  final Widget Function(BuildContext context, double progress, Size targetSize) flightBuilder;
 
   final Widget child;
 
@@ -89,7 +91,7 @@ class OnboardingSharedElementFlight extends StatefulWidget {
 }
 
 class _OnboardingSharedElementFlightState extends State<OnboardingSharedElementFlight> {
-  Rect? _rect;
+  ({Rect rect, double progress, Size targetSize})? _flight;
   bool _reduceMotion = false;
   bool _retryScheduled = false;
 
@@ -125,7 +127,7 @@ class _OnboardingSharedElementFlightState extends State<OnboardingSharedElementF
   /// Hands the element back to its endpoints and stops painting it.
   void _land() {
     widget.hidden.value = false;
-    if (_rect != null) setState(() => _rect = null);
+    if (_flight != null) setState(() => _flight = null);
   }
 
   void _update() {
@@ -150,7 +152,13 @@ class _OnboardingSharedElementFlightState extends State<OnboardingSharedElementF
     }
 
     widget.hidden.value = true;
-    setState(() => _rect = Rect.lerp(source, target, progress));
+    setState(() {
+      _flight = (
+        rect: Rect.lerp(source, target, progress)!,
+        progress: progress,
+        targetSize: target.size,
+      );
+    });
   }
 
   void _retryAfterFrame() {
@@ -182,20 +190,19 @@ class _OnboardingSharedElementFlightState extends State<OnboardingSharedElementF
 
   @override
   Widget build(BuildContext context) {
-    final rect = _rect;
+    final flight = _flight;
 
     return Stack(
       fit: StackFit.expand,
       children: [
         widget.child,
-        if (rect != null)
+        if (flight != null)
           Positioned.fromRect(
-            rect: rect,
+            rect: flight.rect,
             child: IgnorePointer(
-              child: FittedBox(
+              child: KeyedSubtree(
                 key: OnboardingSharedElementFlight.flightKey,
-                fit: BoxFit.fill,
-                child: widget.flight,
+                child: widget.flightBuilder(context, flight.progress, flight.targetSize),
               ),
             ),
           ),

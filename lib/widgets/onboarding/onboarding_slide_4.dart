@@ -71,8 +71,6 @@ class _OnboardingSlide4State extends State<OnboardingSlide4> with SingleTickerPr
   late final OnboardingSnapshot _recorded = OnboardingSetupExample.newSetup(_now);
   late final List<OnboardingSnapshot> _older = OnboardingSetupExample.olderSnapshots(_now);
 
-  bool _started = false;
-
   /// Set on the first touch: the values are the user's from then on and the
   /// script stops driving them.
   bool _userInControl = false;
@@ -83,13 +81,13 @@ class _OnboardingSlide4State extends State<OnboardingSlide4> with SingleTickerPr
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _maybeStart();
+    _syncScript();
   }
 
   @override
   void didUpdateWidget(covariant OnboardingSlide4 oldWidget) {
     super.didUpdateWidget(oldWidget);
-    _maybeStart();
+    _syncScript();
   }
 
   @override
@@ -98,9 +96,21 @@ class _OnboardingSlide4State extends State<OnboardingSlide4> with SingleTickerPr
     super.dispose();
   }
 
-  void _maybeStart() {
-    if (_started || !widget.active) return;
-    _started = true;
+  /// Runs the script only while this is the settled page: swiping away pauses
+  /// it rather than letting it perform to nobody, and coming back resumes where
+  /// it stopped instead of replaying from the start.
+  void _syncScript() {
+    if (!widget.active) {
+      // Once the user has taken over, the settled state is theirs to return to;
+      // pausing the hand-over would strand the diary half dropped.
+      if (_userInControl) {
+        _script.value = 1;
+      } else {
+        _script.stop();
+      }
+      return;
+    }
+    if (_script.isCompleted) return;
 
     if (reduceMotion(context)) {
       _script.value = 1;

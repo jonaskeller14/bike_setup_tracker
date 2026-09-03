@@ -48,6 +48,16 @@ class _DelayedFadeState extends State<DelayedFade> with SingleTickerProviderStat
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Reduced motion has nothing to stage: drop the pending entrance instead
+    // of running an animation the build below never reads.
+    if (!reduceMotion(context)) return;
+    _timer?.cancel();
+    _controller.value = 1;
+  }
+
+  @override
   void dispose() {
     _timer?.cancel();
     _controller.dispose();

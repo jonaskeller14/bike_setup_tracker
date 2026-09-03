@@ -14,6 +14,13 @@ const double _kEntranceScale = 0.85;
 
 /// True when the platform asks for reduced motion. Slides then render their
 /// settled state immediately instead of animating into it.
+///
+/// `accessibleNavigation` isn't screen-reader-specific: on Android it mirrors
+/// `AccessibilityManager.isTouchExplorationEnabled()`, which goes true for
+/// *any* enabled accessibility service that requests touch exploration — habit
+/// blockers like "One Sec" included, not just TalkBack. Don't read a report of
+/// missing animations as a Flutter/device misconfiguration without checking
+/// Settings → Accessibility → Installed apps first.
 bool reduceMotion(BuildContext context) {
   final mediaQuery = MediaQuery.of(context);
   return mediaQuery.disableAnimations || mediaQuery.accessibleNavigation;

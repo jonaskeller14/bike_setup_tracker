@@ -41,8 +41,7 @@ GitHub issue**. Do not create a plan file under `doc/`. This is still a planning
   phase is independently mergeable where possible.
 
 ## 4. Hand back
-- Print the issue URL and the phase list. Point the user at `/handoff <issue> <phase>` to
-  execute a single phase in a fresh context window.
+- Print the issue URL and the phase list. 
 
 ## Constraints
 - No app code — this step only updates issue planning.

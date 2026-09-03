@@ -138,8 +138,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
       ),
       (
         build: () => OnboardingSlide6(onFinish: _complete),
-        secondaryLabel: null,
-        onSecondary: null,
+        secondaryLabel: "Skip",
+        onSecondary: _complete,
       ),
     ];
   }
@@ -177,12 +177,19 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   );
                 },
                 icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.primary),
+                tooltip: MaterialLocalizations.of(context).backButtonTooltip,
               )
             : const SizedBox.shrink(),
         centerTitle: true,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(_slides.length, (index) => _builProgressIndicatorDot(index)),
+        title: Semantics(
+          container: true,
+          label: "Step ${_currentPage + 1} of ${_slides.length}",
+          child: ExcludeSemantics(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(_slides.length, (index) => _builProgressIndicatorDot(index)),
+            ),
+          ),
         ),
         actions: [
           if (_slides[_currentPage].secondaryLabel case final label?)

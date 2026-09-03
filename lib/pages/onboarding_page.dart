@@ -10,6 +10,8 @@ import '../widgets/onboarding/onboarding_slide_1.dart';
 import '../widgets/onboarding/onboarding_slide_2.dart';
 import '../widgets/onboarding/onboarding_slide_3.dart';
 import '../widgets/onboarding/onboarding_slide_4.dart';
+import '../widgets/onboarding/onboarding_slide_5.dart';
+import '../widgets/onboarding/onboarding_slide_6.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
@@ -28,9 +30,18 @@ class OnboardingPage extends StatefulWidget {
 typedef _OnboardingSlide = ({Widget Function() build, String? secondaryLabel, VoidCallback? onSecondary});
 
 class _OnboardingPageState extends State<OnboardingPage> {
-  static const int _componentSlideIndex = 1;
-  static const int _adjustmentSlideIndex = 2;
-  static const int _setupSlideIndex = 3;
+  /// The rider slide exists only where the Person feature does; the rest of
+  /// that feature is unfinished and must not ship just because onboarding can
+  /// create a record.
+  late final bool _showRiderSlide = context.read<AppSettings>().enablePerson;
+
+  /// The rider comes right after the promise, so the teaching slides run
+  /// uninterrupted into the closing one. It pushes them — and the flights
+  /// between them — one page along.
+  static const int _riderSlideIndex = 1;
+  int get _componentSlideIndex => _showRiderSlide ? 2 : 1;
+  int get _adjustmentSlideIndex => _componentSlideIndex + 1;
+  int get _setupSlideIndex => _componentSlideIndex + 2;
 
   final PageController _controller = PageController();
   int _currentPage = 0;
@@ -43,6 +54,11 @@ class _OnboardingPageState extends State<OnboardingPage> {
   final GlobalKey _rowsSourceKey = GlobalKey(debugLabel: 'onboarding_rows_source');
   final GlobalKey _rowsTargetKey = GlobalKey(debugLabel: 'onboarding_rows_target');
   final ValueNotifier<bool> _rowsInFlight = ValueNotifier<bool>(false);
+
+  /// Owned by the page so the typed rider name — and the rider once created —
+  /// survive a swipe or a Back within the session.
+  final TextEditingController _riderNameController = TextEditingController();
+  String? _savedRiderName;
 
   late final Listenable _flightsChanged = Listenable.merge([_forkInFlight, _rowsInFlight]);
 
@@ -78,6 +94,18 @@ class _OnboardingPageState extends State<OnboardingPage> {
         secondaryLabel: "Skip",
         onSecondary: _complete,
       ),
+      if (_showRiderSlide)
+        (
+          build: () => OnboardingSlide5(
+            onNext: _next,
+            active: _currentPage == _riderSlideIndex,
+            controller: _riderNameController,
+            savedName: _savedRiderName,
+            onSaved: (name) => setState(() => _savedRiderName = name),
+          ),
+          secondaryLabel: "Not now",
+          onSecondary: _next,
+        ),
       (
         build: () => OnboardingSlide2(onNext: _next, forkKey: _forkSourceKey, forkHidden: _forkInFlight),
         secondaryLabel: "Skip",
@@ -100,11 +128,16 @@ class _OnboardingPageState extends State<OnboardingPage> {
       ),
       (
         build: () => OnboardingSlide4(
-          onFinish: _complete,
+          onNext: _next,
           active: _currentPage == _setupSlideIndex && !_rowsInFlight.value,
           rowsKey: _rowsTargetKey,
           rowsHidden: _rowsInFlight,
         ),
+        secondaryLabel: "Skip",
+        onSecondary: _complete,
+      ),
+      (
+        build: () => OnboardingSlide6(onFinish: _complete),
         secondaryLabel: null,
         onSecondary: null,
       ),
@@ -124,6 +157,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   @override
   void dispose() {
+    _riderNameController.dispose();
     _forkInFlight.dispose();
     _rowsInFlight.dispose();
     _controller.dispose();

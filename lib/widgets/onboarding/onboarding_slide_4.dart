@@ -20,13 +20,13 @@ const Duration kOnboardingSetupHandover = Duration(milliseconds: 350);
 class OnboardingSlide4 extends StatefulWidget {
   const OnboardingSlide4({
     super.key,
-    required this.onFinish,
+    required this.onNext,
     required this.active,
     this.rowsKey,
     this.rowsHidden,
   });
 
-  final VoidCallback onFinish;
+  final VoidCallback onNext;
 
   /// True once this is the settled page. The scripted sequence starts then, and
   /// only ever once — coming back to the slide does not replay it.
@@ -270,8 +270,8 @@ class _OnboardingSlide4State extends State<OnboardingSlide4> with SingleTickerPr
   @override
   Widget build(BuildContext context) {
     return OnboardingSlideScaffold(
-      onNext: widget.onFinish,
-      nextLabel: "Finish",
+      onNext: widget.onNext,
+      nextLabel: "Next",
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

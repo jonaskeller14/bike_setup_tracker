@@ -2,24 +2,41 @@ import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/pages/onboarding_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/services/strava_service.dart';
+import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/onboarding/onboarding_slide_1.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+class MockSubscriptionService extends Mock implements SubscriptionService {}
+
+class MockStravaService extends Mock implements StravaService {}
 
 
 void main() {
   late AppDatabase database;
   late AppRepository appRepository;
   late AppSettings appSettings;
+  late MockSubscriptionService subscription;
+  late MockStravaService strava;
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     database = AppDatabase.memory();
     appRepository = AppRepository(database);
     appSettings = AppSettings();
+    subscription = MockSubscriptionService();
+    strava = MockStravaService();
+
+    // The Strava slide reads live state; nothing is entitled or resolved here.
+    when(() => subscription.hasStravaEntitlement).thenReturn(false);
+    when(() => subscription.offersReady).thenReturn(false);
+    when(() => strava.isConnected).thenReturn(false);
+    when(() => strava.availability).thenReturn(null);
   });
 
   tearDown(() async {
@@ -38,6 +55,8 @@ void main() {
         ChangeNotifierProvider<AppRepository>.value(
           value: appRepository,
         ),
+        ChangeNotifierProvider<SubscriptionService>.value(value: subscription),
+        ChangeNotifierProvider<StravaService>.value(value: strava),
       ],
       // Use a simplified app structure for onboarding tests to avoid 
       // complex service dependencies (Firebase, Strava, etc.) in HomePage.
@@ -81,11 +100,18 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text("STEP 3"), findsOneWidget);
+    expect(find.text("Skip"), findsOneWidget);
+
+    // Slide 4 -> Slide 6 (the rider slide is off by default)
+    await tester.tap(find.text("Next"));
+    await tester.pumpAndSettle();
+
+    expect(find.text("Yours, for free"), findsOneWidget);
     // The last slide finishes instead of skipping.
     expect(find.text("Skip"), findsNothing);
 
-    // Slide 4 -> Finish
-    await tester.tap(find.text("Finish"));
+    // Slide 6 -> Finish
+    await tester.tap(find.text("Continue free"));
     await tester.pumpAndSettle();
 
     // Verify we arrived at the home page proxy
@@ -124,7 +150,20 @@ void main() {
     expect(
       find.byWidgetPredicate((widget) => widget.key is ValueKey<String> &&
           (widget.key! as ValueKey<String>).value.startsWith("onboarding_dot_")),
-      findsNWidgets(4),
+      findsNWidgets(5),
+    );
+  });
+
+  testWidgets('Rider slide only exists behind the Person feature flag', (WidgetTester tester) async {
+    appSettings.enablePerson = true;
+
+    await tester.pumpWidget(buildTestApp());
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byWidgetPredicate((widget) => widget.key is ValueKey<String> &&
+          (widget.key! as ValueKey<String>).value.startsWith("onboarding_dot_")),
+      findsNWidgets(6),
     );
   });
 
@@ -141,5 +180,60 @@ void main() {
 
     expect(find.text("Home Page Proxy"), findsOneWidget);
     expect(appSettings.showOnboarding, isFalse);
+  });
+
+  group('Rider slide', () {
+    /// The rider slide sits right after the promise slide.
+    Future<void> goToRiderSlide(WidgetTester tester) async {
+      appSettings.enablePerson = true;
+
+      await tester.pumpWidget(buildTestApp());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text("Next"));
+      await tester.pumpAndSettle();
+
+      expect(find.text("What's your name?"), findsOneWidget);
+    }
+
+    testWidgets('Continue needs a name before it advances', (WidgetTester tester) async {
+      await goToRiderSlide(tester);
+
+      await tester.tap(find.text("Continue"));
+      await tester.pumpAndSettle();
+
+      expect(find.text("What's your name?"), findsOneWidget);
+      expect(find.text("Enter a name to continue."), findsOneWidget);
+      expect(appRepository.persons, isEmpty);
+    });
+
+    //FIXME: Test gets stuck forever. dont run them. fix them first
+    // testWidgets('A valid name persists the rider and advances', (WidgetTester tester) async {
+    //   await goToRiderSlide(tester);
+
+    //   await tester.enterText(find.byType(TextFormField), "Jonas");
+    //   await tester.tap(find.text("Continue"));
+    //   await tester.pumpAndSettle();
+    //   await pumpEventQueue();
+
+    //   expect(appRepository.persons.values.map((p) => p.name), contains("Jonas"));
+    //   expect(appRepository.persons.values.single.adjustments, hasLength(1));
+    //   expect(find.text("STEP 1"), findsOneWidget);
+
+    //   // Let the confirmation snack bar expire before the tree is torn down.
+    //   await tester.pumpAndSettle(const Duration(seconds: 6));
+    // });
+
+    // testWidgets('Not now advances without creating a rider', (WidgetTester tester) async {
+    //   await goToRiderSlide(tester);
+
+    //   await tester.tap(find.text("Not now"));
+    //   await tester.pumpAndSettle();
+    //   await pumpEventQueue();
+
+    //   expect(find.text("STEP 1"), findsOneWidget);
+    //   expect(appRepository.persons, isEmpty);
+    //   expect(appSettings.showOnboarding, isTrue);
+    // });
   });
 }

@@ -174,7 +174,7 @@ void main() {
     }
 
     testWidgets('the sequence ends with the setup dropped into the timeline', (WidgetTester tester) async {
-      await tester.pumpWidget(buildSlide(OnboardingSlide4(onFinish: () {}, active: true)));
+      await tester.pumpWidget(buildSlide(OnboardingSlide4(onNext: () {}, active: true)));
       await tester.pumpAndSettle();
 
       expect(find.byType(OnboardingSetupCard), findsOneWidget);
@@ -187,7 +187,7 @@ void main() {
     });
 
     testWidgets('the pressure ramps in before the rebound clicks over', (WidgetTester tester) async {
-      await tester.pumpWidget(buildSlide(OnboardingSlide4(onFinish: () {}, active: true)));
+      await tester.pumpWidget(buildSlide(OnboardingSlide4(onNext: () {}, active: true)));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 1400));
 
@@ -203,7 +203,7 @@ void main() {
     });
 
     testWidgets('the diary compresses into a stack a beat after it opens', (WidgetTester tester) async {
-      await tester.pumpWidget(buildSlide(OnboardingSlide4(onFinish: () {}, active: true)));
+      await tester.pumpWidget(buildSlide(OnboardingSlide4(onNext: () {}, active: true)));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 3800));
 
@@ -221,7 +221,7 @@ void main() {
     });
 
     testWidgets('a touch stops the script and keeps the value it had', (WidgetTester tester) async {
-      await tester.pumpWidget(buildSlide(OnboardingSlide4(onFinish: () {}, active: true)));
+      await tester.pumpWidget(buildSlide(OnboardingSlide4(onNext: () {}, active: true)));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 2300));
 
@@ -238,20 +238,20 @@ void main() {
       expect(find.byType(OnboardingSetupSnapshotCard), findsNWidgets(2));
     });
 
-    testWidgets('finishing never waits for the sequence', (WidgetTester tester) async {
-      var finished = false;
-      await tester.pumpWidget(buildSlide(OnboardingSlide4(onFinish: () => finished = true, active: true)));
+    testWidgets('advancing never waits for the sequence', (WidgetTester tester) async {
+      var advanced = false;
+      await tester.pumpWidget(buildSlide(OnboardingSlide4(onNext: () => advanced = true, active: true)));
       await tester.pump();
 
-      await tester.tap(find.widgetWithText(FilledButton, 'Finish'));
-      expect(finished, isTrue);
+      await tester.tap(find.widgetWithText(FilledButton, 'Next'));
+      expect(advanced, isTrue);
 
       await tester.pumpAndSettle();
     });
 
     testWidgets('renders the settled timeline on the first frame with reduced motion', (WidgetTester tester) async {
       await tester.pumpWidget(
-        buildSlide(OnboardingSlide4(onFinish: () {}, active: true), disableAnimations: true),
+        buildSlide(OnboardingSlide4(onNext: () {}, active: true), disableAnimations: true),
       );
       await tester.pump();
 
@@ -263,7 +263,7 @@ void main() {
     });
 
     testWidgets('does not start until the slide is the active page', (WidgetTester tester) async {
-      await tester.pumpWidget(buildSlide(OnboardingSlide4(onFinish: () {}, active: false)));
+      await tester.pumpWidget(buildSlide(OnboardingSlide4(onNext: () {}, active: false)));
       await tester.pump(const Duration(milliseconds: 1200));
 
       expect(pressure(tester), OnboardingSetupExample.startPressure);
@@ -275,7 +275,7 @@ void main() {
       useNarrowScreen(tester);
 
       await tester.pumpWidget(
-        buildSlide(OnboardingSlide4(onFinish: () {}, active: true), textScale: 2.0),
+        buildSlide(OnboardingSlide4(onNext: () {}, active: true), textScale: 2.0),
       );
       await tester.pumpAndSettle();
 

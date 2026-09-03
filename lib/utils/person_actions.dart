@@ -8,6 +8,7 @@ import '../models/rating_association.dart';
 import '../pages/person_page.dart';
 import '../repositories/app_repository.dart';
 import '../widgets/app_snackbar.dart';
+import '../widgets/sheets/person_add_adjustment.dart';
 
 class PersonActions {
   static Future<void> addPerson(BuildContext context) async {
@@ -20,6 +21,15 @@ class PersonActions {
     if (person == null) return;
 
     await appRepository.addPerson(person);
+  }
+
+  static Future<Person?> createOnboardingRider(BuildContext context, {required String name}) async {
+    final trimmed = name.trim();
+    if (trimmed.isEmpty) return null;
+
+    final person = Person(name: trimmed, adjustments: [ridingWeightPreset.deepCopy()]);
+    await context.read<AppRepository>().addPerson(person);
+    return person;
   }
 
   static Future<void> editPerson(BuildContext context, {required Person person}) async {

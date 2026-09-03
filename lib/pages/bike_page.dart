@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -61,7 +62,14 @@ class _BikePageState extends State<BikePage> {
     _notesController = TextEditingController(text: widget.bike?.notes);
     _notesController.addListener(_changeListener);
     
-    _initialPerson = widget.bike?.person;
+    final String? preselectedPerson;
+    if (widget.mode == BikePageMode.add) {
+      final appRepository = context.read<AppRepository>();
+      preselectedPerson = appRepository.persons.values.firstOrNull?.id;
+    } else {
+      preselectedPerson = null;
+    }
+    _initialPerson = widget.bike?.person ?? preselectedPerson;
     _person = _initialPerson;
 
     _initialStravaGear = widget.bike?.stravaGear;

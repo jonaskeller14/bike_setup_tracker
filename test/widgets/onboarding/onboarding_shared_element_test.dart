@@ -55,14 +55,14 @@ void main() {
     await tester.tap(find.text("Next"));
     await tester.pumpAndSettle();
 
-    // The first move is absorbed by touch slop and the gesture arena; the
-    // second scrolls far enough for slide 3 to be built and laid out.
+    // A step per frame, the way a real drag arrives: the flight reads the
+    // geometry the previous frame laid out, so a swipe made of a few huge jumps
+    // would leave it interpolating pages that have since moved on.
     final gesture = await tester.startGesture(tester.getCenter(find.byType(PageView)));
-    await gesture.moveBy(const Offset(-120, 0));
-    await tester.pump();
-    await gesture.moveBy(const Offset(-280, 0));
-    await tester.pump();
-    await tester.pump();
+    for (var step = 0; step < 8; step++) {
+      await gesture.moveBy(const Offset(-50, 0));
+      await tester.pump();
+    }
     return gesture;
   }
 

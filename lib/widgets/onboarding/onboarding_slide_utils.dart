@@ -21,33 +21,36 @@ Widget stepWidget({required BuildContext context, required int step}) {
   );
 }
 
+/// Runs the shared onboarding entrance on one slide element, [delay] after the
+/// slide is built, so a group of them can be staged.
 class DelayedFade extends StatefulWidget {
-  final int delay;
-  final String keyId;
+  final Duration delay;
   final Widget child;
 
-  const DelayedFade({super.key, required this.delay, required this.keyId, required this.child});
+  const DelayedFade({super.key, required this.delay, required this.child});
 
   @override
   State<DelayedFade> createState() => _DelayedFadeState();
 }
 
-class _DelayedFadeState extends State<DelayedFade> {
+class _DelayedFadeState extends State<DelayedFade> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: kOnboardingEntranceDuration,
+  );
   Timer? _timer;
-  bool _visible = false;
 
   @override
   void initState() {
     super.initState();
     // A cancellable timer, so leaving the slide early does not leave one running.
-    _timer = Timer(Duration(milliseconds: widget.delay), () {
-      if (mounted) setState(() => _visible = true);
-    });
+    _timer = Timer(widget.delay, () => unawaited(_controller.forward()));
   }
 
   @override
   void dispose() {
     _timer?.cancel();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -55,20 +58,12 @@ class _DelayedFadeState extends State<DelayedFade> {
   Widget build(BuildContext context) {
     if (reduceMotion(context)) return widget.child;
 
-    return TweenAnimationBuilder<double>(
-      key: ValueKey(widget.keyId),
-      tween: Tween(begin: 0.0, end: 1.0),
-      duration: kOnboardingEntranceDuration,
-      curve: kOnboardingEntranceCurve,
-      builder: (context, size, child) {
-        return Transform.scale(
-          scale: size,
-          child: child,
-        );
-      },
-      // The slot is held from the start so the staged row does not resize as
-      // each card lands, and so a shared element can measure its endpoint.
-      child: Visibility.maintain(visible: _visible, child: widget.child),
+    return AnimatedBuilder(
+      animation: _controller,
+      // The slot is held from the first frame so the staged row does not resize
+      // as each item lands, and so a shared element can measure its endpoint.
+      child: widget.child,
+      builder: (context, child) => onboardingEntrance(progress: _controller.value, child: child!),
     );
   }
 }

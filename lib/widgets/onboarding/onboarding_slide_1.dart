@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'onboarding_slide_scaffold.dart';
+import 'onboarding_slide_utils.dart';
 
 class OnboardingSlide1 extends StatelessWidget {
   const OnboardingSlide1({super.key, required this.onNext});
@@ -15,18 +16,8 @@ class OnboardingSlide1 extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          TweenAnimationBuilder<double>(
-            key: const ValueKey("onboarding_logo_anim"),
-            tween: Tween(begin: 0, end: 10),
-            duration: const Duration(seconds: 2),
-            curve: Curves.easeInOut,
-            builder: (context, value, child) {
-              return Transform.translate(
-                offset: Offset(0, value),
-                child: child,
-              );
-            },
-            onEnd: () {},
+          DelayedFade(
+            delay: Duration.zero,
             child: Container(
               constraints: const BoxConstraints(maxHeight: 250),
               child: Image.asset('assets/icons/logo_1024.png', fit: BoxFit.contain),

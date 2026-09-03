@@ -16,6 +16,8 @@ class OnboardingSlide3 extends StatefulWidget {
     required this.showAdjustments,
     this.forkKey,
     this.forkHidden,
+    this.rowsKey,
+    this.rowsHidden,
   });
 
   final VoidCallback onNext;
@@ -27,6 +29,10 @@ class OnboardingSlide3 extends StatefulWidget {
   /// Target endpoint of the fork card's flight from slide 2.
   final GlobalKey? forkKey;
   final ValueListenable<bool>? forkHidden;
+
+  /// Source endpoint of the adjustment rows' flight into slide 4.
+  final GlobalKey? rowsKey;
+  final ValueListenable<bool>? rowsHidden;
 
   @override
   State<OnboardingSlide3> createState() => _OnboardingSlide3State();
@@ -76,7 +82,11 @@ class _OnboardingSlide3State extends State<OnboardingSlide3> with SingleTickerPr
               margin: EdgeInsets.zero,
               child: AnimatedBuilder(
                 animation: _adjustments,
-                builder: (context, child) => OnboardingComponentCard(adjustments: _adjustments.value),
+                builder: (context, child) => OnboardingComponentCard(
+                  adjustments: _adjustments.value,
+                  rowsKey: widget.rowsKey,
+                  rowsHidden: widget.rowsHidden,
+                ),
               ),
             ),
           ),

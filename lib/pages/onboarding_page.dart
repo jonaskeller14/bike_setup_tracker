@@ -14,6 +14,12 @@ import '../widgets/onboarding/onboarding_slide_4.dart';
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
 
+  /// The component card travelling from slide 2 into slide 3.
+  static const Key componentCardFlightKey = ValueKey('onboarding_component_card_flight');
+
+  /// The adjustment rows travelling from slide 3 into slide 4's setup card.
+  static const Key adjustmentRowsFlightKey = ValueKey('onboarding_adjustment_rows_flight');
+
   @override
   State<OnboardingPage> createState() => _OnboardingPageState();
 }
@@ -24,6 +30,7 @@ typedef _OnboardingSlide = ({Widget Function() build, String? secondaryLabel, Vo
 class _OnboardingPageState extends State<OnboardingPage> {
   static const int _componentSlideIndex = 1;
   static const int _adjustmentSlideIndex = 2;
+  static const int _setupSlideIndex = 3;
 
   final PageController _controller = PageController();
   int _currentPage = 0;
@@ -32,6 +39,35 @@ class _OnboardingPageState extends State<OnboardingPage> {
   final GlobalKey _forkSourceKey = GlobalKey(debugLabel: 'onboarding_fork_source');
   final GlobalKey _forkTargetKey = GlobalKey(debugLabel: 'onboarding_fork_target');
   final ValueNotifier<bool> _forkInFlight = ValueNotifier<bool>(false);
+
+  final GlobalKey _rowsSourceKey = GlobalKey(debugLabel: 'onboarding_rows_source');
+  final GlobalKey _rowsTargetKey = GlobalKey(debugLabel: 'onboarding_rows_target');
+  final ValueNotifier<bool> _rowsInFlight = ValueNotifier<bool>(false);
+
+  late final Listenable _flightsChanged = Listenable.merge([_forkInFlight, _rowsInFlight]);
+
+  late final List<OnboardingSharedElement> _sharedElements = [
+    OnboardingSharedElement(
+      flightKey: OnboardingPage.componentCardFlightKey,
+      fromPage: _componentSlideIndex,
+      toPage: _adjustmentSlideIndex,
+      sourceKey: _forkSourceKey,
+      targetKey: _forkTargetKey,
+      hidden: _forkInFlight,
+      builder: (BuildContext context, double progress, Size targetSize) =>
+          OnboardingComponentCardFlight(progress: progress, targetSize: targetSize),
+    ),
+    OnboardingSharedElement(
+      flightKey: OnboardingPage.adjustmentRowsFlightKey,
+      fromPage: _adjustmentSlideIndex,
+      toPage: _setupSlideIndex,
+      sourceKey: _rowsSourceKey,
+      targetKey: _rowsTargetKey,
+      hidden: _rowsInFlight,
+      builder: (BuildContext context, double progress, Size targetSize) =>
+          OnboardingAdjustmentRowsFlight(progress: progress, targetSize: targetSize),
+    ),
+  ];
 
   @override
   void initState() {
@@ -51,16 +87,24 @@ class _OnboardingPageState extends State<OnboardingPage> {
         build: () => OnboardingSlide3(
           onNext: _next,
           // The card has landed once the flight has handed it back and this is
-          // the settled page; only then do the adjustment rows fill in.
-          showAdjustments: _currentPage == _adjustmentSlideIndex && !_forkInFlight.value,
+          // at least the settled page; the rows stay filled beyond it so the
+          // flight into slide 4 has something to carry.
+          showAdjustments: _currentPage >= _adjustmentSlideIndex && !_forkInFlight.value,
           forkKey: _forkTargetKey,
           forkHidden: _forkInFlight,
+          rowsKey: _rowsSourceKey,
+          rowsHidden: _rowsInFlight,
         ),
         secondaryLabel: "Skip",
         onSecondary: _complete,
       ),
       (
-        build: () => OnboardingSlide4(onFinish: _complete),
+        build: () => OnboardingSlide4(
+          onFinish: _complete,
+          active: _currentPage == _setupSlideIndex && !_rowsInFlight.value,
+          rowsKey: _rowsTargetKey,
+          rowsHidden: _rowsInFlight,
+        ),
         secondaryLabel: null,
         onSecondary: null,
       ),
@@ -70,7 +114,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   void _next() {
     unawaited(
       _controller.nextPage(
-        duration: const Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 500),
         curve: Curves.easeInOut,
       ),
     );
@@ -81,6 +125,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   @override
   void dispose() {
     _forkInFlight.dispose();
+    _rowsInFlight.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -113,18 +158,12 @@ class _OnboardingPageState extends State<OnboardingPage> {
       body: SafeArea(
         child: OnboardingSharedElementFlight(
           controller: _controller,
-          fromPage: _componentSlideIndex,
-          toPage: _adjustmentSlideIndex,
-          sourceKey: _forkSourceKey,
-          targetKey: _forkTargetKey,
-          hidden: _forkInFlight,
-          flightBuilder: (BuildContext context, double progress, Size targetSize) =>
-              OnboardingComponentCardFlight(progress: progress, targetSize: targetSize),
-          // Rebuilds the slides when the flight takes or hands back the card,
-          // so slide 3 knows when to fill in its adjustment rows.
-          child: ValueListenableBuilder<bool>(
-            valueListenable: _forkInFlight,
-            builder: (context, _, _) => PageView.builder(
+          elements: _sharedElements,
+          // Rebuilds the slides when a flight takes or hands back its element,
+          // so the slides know when to fill their rows in and when to start.
+          child: ListenableBuilder(
+            listenable: _flightsChanged,
+            builder: (context, _) => PageView.builder(
               controller: _controller,
               onPageChanged: (index) => setState(() => _currentPage = index),
               itemCount: _slides.length,

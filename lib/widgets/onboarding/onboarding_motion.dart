@@ -49,3 +49,25 @@ Widget onboardingEntrance({required double progress, required Widget child}) {
 /// Staging by progress rather than by timers is what lets an interactive swipe
 /// be scrubbed backwards: the reveal follows the finger in both directions.
 double stageProgress(double progress, double start, double end) => ((progress - start) / (end - start)).clamp(0.0, 1.0);
+
+/// Reveals [child] by growing its slot and fading it in, from [progress] alone.
+///
+/// Timer-free like [stageProgress]: a reveal driven this way can be scrubbed,
+/// fast-forwarded or rendered settled without ever desynchronising from what
+/// the user sees.
+Widget onboardingReveal({
+  required double progress,
+  required Widget child,
+  Alignment alignment = Alignment.bottomCenter,
+}) {
+  if (progress >= 1) return child;
+  if (progress <= 0) return const SizedBox.shrink();
+
+  return ClipRect(
+    child: Align(
+      alignment: alignment,
+      heightFactor: progress,
+      child: Opacity(opacity: progress, child: child),
+    ),
+  );
+}

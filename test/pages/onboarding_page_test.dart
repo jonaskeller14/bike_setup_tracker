@@ -59,7 +59,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(MaterialApp), findsOneWidget);
-    expect(find.text("Dial in your ride"), findsOneWidget);
+    expect(find.text("Ready to Dial It In?"), findsOneWidget);
     expect(find.text("Skip"), findsOneWidget);
 
     // Slide 1 -> Slide 2
@@ -99,7 +99,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(MaterialApp), findsOneWidget);
-    expect(find.text("Dial in your ride"), findsNothing);
+    expect(find.text("Ready to Dial It In?"), findsNothing);
     expect(find.text("Home Page Proxy"), findsOneWidget);
   });
 

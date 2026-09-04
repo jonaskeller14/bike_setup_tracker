@@ -170,18 +170,29 @@ class _BikePageState extends State<BikePage> {
         if (!persons.containsKey(newPerson)) return "Please select valid person";
         return null;
       },
-      items: persons.values.map((p) {
-        return DropdownMenuItem<String>(
-          value: p.id,
+      items: [
+        const DropdownMenuItem<String?>(
+          value: null,
           child: Row(
             spacing: 8,
             children: [
-              const Icon(Icons.person),
-              Expanded(child: Text(p.name, overflow: TextOverflow.ellipsis))
+              Icon(Icons.person_off),
+              Expanded(child: Text("NO OWNER", overflow: TextOverflow.ellipsis))
             ],
           ),
-        );
-      }).toList() + [
+        ),
+        ...persons.values.map((p) {
+          return DropdownMenuItem<String>(
+            value: p.id,
+            child: Row(
+              spacing: 8,
+              children: [
+                const Icon(Icons.person),
+                Expanded(child: Text(p.name, overflow: TextOverflow.ellipsis))
+              ],
+            ),
+          );
+        }),
         if (_person != null && !persons.containsKey(_person))
           DropdownMenuItem<String>(
           value: _person,

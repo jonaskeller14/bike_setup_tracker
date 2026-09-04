@@ -102,6 +102,8 @@ class SetupPage extends StatefulWidget {
     
 class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
+  final _bikeTabKey = GlobalKey();
+  final _personTabKey = GlobalKey();
   bool _formHasChanges = false;
   late TextEditingController _nameController;
   late TextEditingController _notesController;
@@ -606,8 +608,68 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     _changeListener();
   }
 
+  /// First [FormField] below [root] that is currently showing a validation
+  /// error, in build order (which mirrors visual order here).
+  BuildContext? _firstInvalidField(BuildContext root) {
+    BuildContext? found;
+    void visit(Element element) {
+      if (found != null) return;
+      final state = element is StatefulElement ? element.state : null;
+      if (state is FormFieldState && state.hasError) {
+        found = element;
+        return;
+      }
+      element.visitChildren(visit);
+    }
+
+    root.visitChildElements(visit);
+    return found;
+  }
+
+  /// Tab owning [fieldContext], or the current tab for fields above the tabs.
+  int _tabIndexOf(BuildContext fieldContext) {
+    int index = _tabIndex;
+    fieldContext.visitAncestorElements((element) {
+      if (element.widget.key == _bikeTabKey) {
+        index = 0;
+        return false;
+      }
+      if (element.widget.key == _personTabKey) {
+        index = 1;
+        return false;
+      }
+      return true;
+    });
+    return index;
+  }
+
+  void _revealFirstInvalidField() {
+    final formContext = _formKey.currentContext;
+    if (formContext == null) return;
+    final invalidField = _firstInvalidField(formContext);
+    if (invalidField == null) return;
+
+    const duration = Duration(milliseconds: 250);
+    final targetTab = _tabIndexOf(invalidField);
+    if (targetTab == _tabIndex) {
+      unawaited(Scrollable.ensureVisible(invalidField, alignment: 0.3, duration: duration));
+      return;
+    }
+
+    _tabController.animateTo(targetTab);
+    // The inactive tab is offstage and therefore unpositioned, so it can only
+    // be scrolled to once the switched-in tab has been laid out and the tab
+    // switch has finished resizing the section (see [AnimatedSize] below) —
+    // scrolling into a still-shrinking extent lands short.
+    unawaited(Future.delayed(kTabScrollDuration, () {
+      if (!mounted || !invalidField.mounted) return;
+      unawaited(Scrollable.ensureVisible(invalidField, alignment: 0.3, duration: duration));
+    }));
+  }
+
   void _saveSetup() {
     if (!_formKey.currentState!.validate()) {
+      _revealFirstInvalidField();
       ScaffoldMessenger.of(context).showSnackBar(
         AppSnackBar.error(
           context,
@@ -1118,20 +1180,29 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                       // state; the inactive one takes no space.
                       ? StickySection(
                           header: _tabBar(),
-                          content: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Visibility(
-                                visible: _tabIndex == 0,
-                                maintainState: true,
-                                child: _bikeTab(appRepository, bikeComponents),
-                              ),
-                              Visibility(
-                                visible: _tabIndex == 1,
-                                maintainState: true,
-                                child: _personTab(appRepository),
-                              ),
-                            ],
+                          // Tabs of differing height change the scroll extent,
+                          // which the viewport corrects by clamping the offset
+                          // in one frame. Animating the size spreads that
+                          // correction over the switch instead of snapping.
+                          content: AnimatedSize(
+                            duration: kTabScrollDuration,
+                            curve: Curves.easeInOut,
+                            alignment: Alignment.topCenter,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Visibility(
+                                  visible: _tabIndex == 0,
+                                  maintainState: true,
+                                  child: KeyedSubtree(key: _bikeTabKey, child: _bikeTab(appRepository, bikeComponents)),
+                                ),
+                                Visibility(
+                                  visible: _tabIndex == 1,
+                                  maintainState: true,
+                                  child: KeyedSubtree(key: _personTabKey, child: _personTab(appRepository)),
+                                ),
+                              ],
+                            ),
                           ),
                         )
                       : _bikeTab(appRepository, bikeComponents),

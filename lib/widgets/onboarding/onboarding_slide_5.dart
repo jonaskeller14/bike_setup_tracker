@@ -112,7 +112,7 @@ class _OnboardingSlide5State extends State<OnboardingSlide5> {
           ),
           const SizedBox(height: 12),
           Text(
-            "So we know whose setups these are. You can change it any time.",
+            "You can change it any time.",
             style: Theme.of(context).textTheme.bodyLarge,
             textAlign: TextAlign.center,
           ),

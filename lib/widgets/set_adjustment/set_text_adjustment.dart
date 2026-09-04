@@ -11,6 +11,10 @@ class SetTextAdjustmentWidget extends StatefulWidget {
   final ValueChanged<String> onChanged;
   final bool highlighting;
 
+  /// The field is not pre-filled with [initialValue], so it may be left empty
+  /// and its reset button clears it instead of restoring [initialValue].
+  final bool optional;
+
   const SetTextAdjustmentWidget({
     required super.key,
     required this.adjustment,
@@ -18,6 +22,7 @@ class SetTextAdjustmentWidget extends StatefulWidget {
     required this.value,
     required this.onChanged,
     this.highlighting = true,
+    this.optional = false,
   });
 
   @override
@@ -62,7 +67,7 @@ class _SetTextAdjustmentWidgetState extends State<SetTextAdjustmentWidget> {
     late Color? highlightColor;
     final highlights = Theme.of(context).extension<ValueHighlightColors>();
     if (widget.highlighting) {
-      isChanged = widget.initialValue != parsedValue;
+      isChanged = parsedValue == null ? false : widget.initialValue != parsedValue;
       isInitial = widget.initialValue == null;
       highlightColor = isChanged ? (isInitial ? highlights?.initial ?? Colors.green : highlights?.changed ?? Colors.orange) : null;
     } else {
@@ -105,7 +110,7 @@ class _SetTextAdjustmentWidgetState extends State<SetTextAdjustmentWidget> {
                 suffixText: widget.adjustment.unit != null ? widget.adjustment.unitSuffix() : null,
                 suffixIcon: IconButton(
                   onPressed: () {
-                    _controller.text = widget.initialValue ?? '';
+                    _controller.text = widget.optional ? '' : widget.initialValue ?? '';
                     widget.onChanged(_controller.text.trim());
                   }, 
                   icon: const Icon(Icons.replay),
@@ -113,7 +118,7 @@ class _SetTextAdjustmentWidgetState extends State<SetTextAdjustmentWidget> {
                 ),
               ),
               validator: (String? newValue) {
-                if ((newValue == null || newValue.trim().isEmpty) && widget.initialValue != null) {
+                if ((newValue == null || newValue.trim().isEmpty) && !widget.optional && widget.initialValue != null) {
                   return 'Please enter a value';
                 }
                 if (DurationAdjustment.tryParseDurationString(newValue) != null) {

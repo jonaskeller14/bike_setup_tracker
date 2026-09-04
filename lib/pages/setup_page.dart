@@ -31,7 +31,8 @@ import '../widgets/chips/utils.dart';
 import '../widgets/dialogs/confirmation.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/image_strip.dart';
-import '../widgets/setup_page_tabs.dart';
+import '../widgets/setup_page_tab_bike.dart';
+import '../widgets/setup_page_tab_person.dart';
 import '../widgets/sheets/pick_image_source.dart';
 import '../widgets/sheets/set_condition.dart';
 import '../widgets/sheets/set_location_place.dart';
@@ -114,8 +115,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   Set<String> _initialTags = {};
   late String _bike;
   late String _initialBike;
-  late String? _person;
+  String? get _person => context.read<AppRepository>().bikes[_bike]?.person;
   late String? _initialPerson;
+  String? _linkedPerson;
     
   List<String> _images = [];
   List<String> _initialImages = [];
@@ -201,6 +203,14 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         length: newLength,
         vsync: this,
       )..addListener(_onTabIndexChanged);
+    }
+
+    // The bike's rider can change while this page is open
+    if (_linkedPerson != _person) {
+      _linkedPerson = _person;
+      _setPreviousAdjustmentValues();
+      _setDanglingAdjustmentValues();
+      _changeListener();
     }
   }
 
@@ -305,7 +315,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
     setState(() {
       _bike = newBike;
-      _person = bikes[_bike]?.person;
+      _linkedPerson = bikes[_bike]?.person;
       _setPreviousAdjustmentValues();
       _setInitialAdjustmentValues();
       _setAdjustmentValuesFromPreviousAndInitialAdjustmentValues();
@@ -1102,6 +1112,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
   Widget _personTab(AppRepository appRepository) {
     return SetupPersonTab(
+      bike: _bike,
       personId: _person,
       persons: appRepository.persons,
       personAdjustmentValues: _personAdjustmentValues,

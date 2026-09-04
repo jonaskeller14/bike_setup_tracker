@@ -12,6 +12,10 @@ class SetDurationAdjustmentWidget extends StatelessWidget {
   final ValueChanged<Duration?> onChanged;
   final bool highlighting;
 
+  /// The value is not pre-filled from [initialValue], so it may be left unset
+  /// and stays clearable even when a previous value exists.
+  final bool optional;
+
   const SetDurationAdjustmentWidget({
     required super.key,
     required this.adjustment,
@@ -19,6 +23,7 @@ class SetDurationAdjustmentWidget extends StatelessWidget {
     required this.value,
     required this.onChanged,
     this.highlighting = true,
+    this.optional = false,
   });
 
   @override
@@ -90,7 +95,7 @@ class SetDurationAdjustmentWidget extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (isInitial)
+                if (isInitial || optional)
                   IconButton(
                     onPressed: () => onChanged(null), 
                     icon: const Icon(Icons.replay),

@@ -11,6 +11,10 @@ class SetBooleanAdjustmentWidget extends StatelessWidget {
   final ValueChanged<bool?> onChanged;
   final bool highlighting;
 
+  /// The value is not pre-filled from [initialValue], so it may be left unset
+  /// and stays clearable even when a previous value exists.
+  final bool optional;
+
   const SetBooleanAdjustmentWidget({
     required super.key,
     required this.adjustment,
@@ -18,6 +22,7 @@ class SetBooleanAdjustmentWidget extends StatelessWidget {
     required this.value,
     required this.onChanged,
     this.highlighting = true,
+    this.optional = false,
   });
 
   @override
@@ -27,7 +32,7 @@ class SetBooleanAdjustmentWidget extends StatelessWidget {
     Color? highlightColor;
     final highlights = Theme.of(context).extension<ValueHighlightColors>();
     if (highlighting) {
-      isChanged = initialValue != value;
+      isChanged = value == null ? false : initialValue != value;
       isInitial = initialValue == null;
       highlightColor = isChanged ? (isInitial ? highlights?.initial ?? Colors.green : highlights?.changed ?? Colors.orange) : null;
     }
@@ -62,7 +67,7 @@ class SetBooleanAdjustmentWidget extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Switch(value: value!, onChanged: onChanged),
-                        if (isInitial)
+                        if (isInitial || optional)
                           IconButton(
                             onPressed: () => onChanged(null), 
                             icon: const Icon(Icons.replay),

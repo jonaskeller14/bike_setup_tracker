@@ -13,6 +13,7 @@ class SetSagAdjustmentWidget extends StatelessWidget {
   final String? value;
   final ValueChanged<String> onChanged;
   final bool highlighting;
+  final bool optional;
 
   const SetSagAdjustmentWidget({
     required super.key,
@@ -21,6 +22,7 @@ class SetSagAdjustmentWidget extends StatelessWidget {
     required this.value,
     required this.onChanged,
     this.highlighting = true,
+    this.optional = false,
   });
 
   @override
@@ -32,6 +34,7 @@ class SetSagAdjustmentWidget extends StatelessWidget {
       value: value,
       onChanged: onChanged,
       highlighting: highlighting,
+      optional: optional,
       cycle: sagUnitCycle(adjustment),
     );
   }

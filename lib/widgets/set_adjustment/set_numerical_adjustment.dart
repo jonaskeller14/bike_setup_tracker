@@ -15,6 +15,10 @@ class SetNumericalAdjustmentWidget extends StatefulWidget {
   final ValueChanged<String> onChanged;
   final bool highlighting;
 
+  /// The field is not pre-filled with [initialValue], so it may be left empty
+  /// and its reset button clears it instead of restoring [initialValue].
+  final bool optional;
+
   final List<UnitCycleEntry>? cycle;
 
   const SetNumericalAdjustmentWidget({
@@ -24,6 +28,7 @@ class SetNumericalAdjustmentWidget extends StatefulWidget {
     required this.value,
     required this.onChanged,
     this.highlighting = true,
+    this.optional = false,
     this.cycle,
   });
 
@@ -114,7 +119,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
   }
 
   void _reset() {
-    final storageInit = widget.initialValue;
+    final storageInit = widget.optional ? null : widget.initialValue;
     _setText(storageInit == null ? '' : _displayTextForStorage(storageInit.toString()));
     // Report the exact stored initial value (not a round-tripped conversion) to
     // avoid float drift.
@@ -223,7 +228,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
                 suffixIconConstraints: const BoxConstraints(minHeight: 48, minWidth: 0),
               ),
               validator: (String? newValue) {
-                if ((newValue == null || newValue.trim().isEmpty) && widget.initialValue != null) {
+                if ((newValue == null || newValue.trim().isEmpty) && !widget.optional && widget.initialValue != null) {
                   return 'Please enter a value';
                 }
                 if (newValue != null && newValue.trim().isNotEmpty) {

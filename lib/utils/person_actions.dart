@@ -23,6 +23,38 @@ class PersonActions {
     await appRepository.addPerson(person);
   }
 
+  static Future<void> addPersonForBike(BuildContext context, {required String bikeId}) async {
+    final appRepository = context.read<AppRepository>();
+
+    final person = await Navigator.push<Person>(
+      context,
+      MaterialPageRoute(builder: (context) => PersonPage.add()),
+    );
+    if (person == null) return;
+
+    await appRepository.addPerson(person);
+    if (!context.mounted) return;
+    await linkPersonToBike(context, bikeId: bikeId, person: person);
+  }
+
+  static Future<void> linkPersonToBike(BuildContext context, {required String bikeId, required Person person}) async {
+    final appRepository = context.read<AppRepository>();
+    final messenger = ScaffoldMessenger.of(context);
+
+    final bike = appRepository.bikes[bikeId];
+    if (bike == null) {
+      messenger.showSnackBar(AppSnackBar.error(context, 'Bike not found.'));
+      return;
+    }
+
+    await appRepository.editBike(bike.copyWith(person: person.id));
+
+    if (!context.mounted) return;
+    messenger.showSnackBar(
+      AppSnackBar.success(context, "'${person.name}' is now the owner of '${bike.name}'."),
+    );
+  }
+
   static Future<Person?> createOnboardingRider(BuildContext context, {required String name}) async {
     final trimmed = name.trim();
     if (trimmed.isEmpty) return null;

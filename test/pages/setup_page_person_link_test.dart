@@ -34,28 +34,34 @@ void main() {
     addTearDown(harness.dispose);
 
     await tester.pumpWidget(harness.wrap(SetupPage.add()));
-    await tester.pumpAndSettle();
+    await _settle(tester);
 
     await tester.tap(find.descendant(of: find.byType(TabBar), matching: find.byIcon(Person.iconData)));
-    await tester.pumpAndSettle();
+    await _settle(tester);
 
     expect(find.text('No person linked'), findsOneWidget);
 
-    await tester.tap(find.widgetWithText(FilledButton, 'Link Person'));
-    await tester.pumpAndSettle();
+    await tester.tap(find.text('Link Person'));
+    await _settle(tester);
 
-    await tester.runAsync(() async {
-      await tester.tap(find.text("Link 'Rider'"));
-      await tester.pump();
-      await Future<void>.delayed(const Duration(milliseconds: 200));
-    });
-    await tester.pumpAndSettle();
+    await tester.tap(find.text("Link 'Rider'"));
+    await tester.pump();
+    // The link is persisted through the database, which only progresses in real time.
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 200)));
+    await _settle(tester);
 
     expect(harness.repository.bikes[_PersonLinkHarness.bikeId]!.person, _PersonLinkHarness.personId);
     expect(find.text('No person linked'), findsNothing);
     expect(find.text('Rider'), findsOneWidget);
-    expect(find.text('Riding Weight'), findsOneWidget);
+    expect(find.text('1 attribute'), findsOneWidget);
   });
+}
+
+/// [SetupPage.add] fetches the location on open, leaving the location chip
+/// spinning for the whole test, so the page never settles.
+Future<void> _settle(WidgetTester tester) async {
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 500));
 }
 
 class _PersonLinkHarness {

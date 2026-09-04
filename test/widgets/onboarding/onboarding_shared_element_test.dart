@@ -1,6 +1,8 @@
+import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/icons/bike_icons.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/pages/onboarding_page.dart';
+import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/onboarding/onboarding_component_card.dart';
 import 'package:bike_setup_tracker/widgets/onboarding/onboarding_setup_card.dart';
@@ -14,18 +16,29 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  late AppDatabase database;
+  late AppRepository appRepository;
   late AppSettings appSettings;
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+    database = AppDatabase.memory();
+    appRepository = AppRepository(database);
     appSettings = AppSettings();
   });
 
-  tearDown(() => appSettings.dispose());
+  tearDown(() async {
+    appRepository.dispose();
+    appSettings.dispose();
+    await database.close();
+  });
 
   Widget buildTestApp({bool disableAnimations = false}) {
-    return ChangeNotifierProvider<AppSettings>.value(
-      value: appSettings,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<AppSettings>.value(value: appSettings),
+        ChangeNotifierProvider<AppRepository>.value(value: appRepository),
+      ],
       child: MaterialApp(
         theme: materialAppTheme,
         builder: (context, child) => MediaQuery(

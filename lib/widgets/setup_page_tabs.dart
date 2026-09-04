@@ -136,58 +136,28 @@ Widget _danglingValuesCard(BuildContext context, {
   );
 }
 
-class TabContentWrapper extends StatefulWidget {
-  final Widget child;
-  const TabContentWrapper({super.key, required this.child});
-
-  @override
-  State<TabContentWrapper> createState() => _TabContentWrapperState();
-}
-
-class _TabContentWrapperState extends State<TabContentWrapper> 
-    with AutomaticKeepAliveClientMixin {
-  
-  @override
-  bool get wantKeepAlive => true; 
-
-  @override
-  Widget build(BuildContext context) {
-    super.build(context);
-    return widget.child;
-  }
-}
-
-/// A shared scaffold for all setup page tabs to ensure consistent layout and behavior.
+/// A shared scaffold for all setup page tabs to ensure consistent layout and
+/// behavior. The tabs are laid out inside the setup page's single scroll view,
+/// so they must not scroll themselves.
 class _SetupTabScaffold extends StatelessWidget {
-  final String scrollKey;
   final List<Widget> children;
   final bool showLegend;
 
   const _SetupTabScaffold({
-    required this.scrollKey,
     required this.children,
     this.showLegend = true,
   });
 
   @override
   Widget build(BuildContext context) {
-    return TabContentWrapper(
-      child: CustomScrollView(
-        key: PageStorageKey<String>(scrollKey),
-        slivers: [
-          SliverPadding(
-            padding: const EdgeInsets.all(16.0),
-            sliver: SliverToBoxAdapter(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ...children,
-                  if (showLegend) const InitialChangedValueLegend(),
-                ],
-              ),
-            ),
-          ),
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ...children,
+          if (showLegend) const InitialChangedValueLegend(),
         ],
       ),
     );
@@ -278,7 +248,6 @@ class _SetupBikeTabState extends State<SetupBikeTab> {
     );
 
     return _SetupTabScaffold(
-      scrollKey: 'tab1_bike',
       showLegend: widget.bikeComponents.isNotEmpty || widget.danglingBikeAdjustmentValues.isNotEmpty,
       children: [
         if (widget.bikeComponents.isEmpty) ...[
@@ -397,7 +366,6 @@ class SetupPersonTab extends StatelessWidget {
     );
 
     return _SetupTabScaffold(
-      scrollKey: 'tab2_person',
       showLegend: person != null || danglingPersonAdjustmentValues.isNotEmpty,
       children: [
         if (person == null)

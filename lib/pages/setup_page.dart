@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
+import '../models/component.dart';
 import '../models/context/context_place.dart';
 import '../models/context/context_position.dart';
 import '../models/context/context_weather.dart';
@@ -26,6 +27,7 @@ import '../services/setup_resolution_service.dart';
 import '../services/weather_service.dart';
 import '../theme.dart';
 import '../widgets/app_snackbar.dart';
+import '../widgets/chips/utils.dart';
 import '../widgets/dialogs/confirmation.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/image_strip.dart';
@@ -35,6 +37,7 @@ import '../widgets/sheets/set_condition.dart';
 import '../widgets/sheets/set_location_place.dart';
 import '../widgets/sheets/set_setup_tags.dart';
 import '../widgets/sheets/set_weather.dart';
+import '../widgets/sticky_section.dart';
 
 enum SetupPageMode {
   add,
@@ -104,6 +107,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   late TextEditingController _notesController;
   late TabController _tabController;
   int? _tabControllerLength;
+  int _tabIndex = 0;
   Set<String> _tags = {};
   Set<String> _initialTags = {};
   late String _bike;
@@ -184,12 +188,17 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     super.didChangeDependencies();
     final int newLength = 1 + (context.read<AppSettings>().enablePerson ? 1 : 0);
     if (_tabControllerLength == null || _tabControllerLength != newLength) {
+      if (_tabControllerLength != null) {
+        _tabController.removeListener(_onTabIndexChanged);
+        _tabController.dispose();
+      }
       _tabControllerLength = newLength;
+      _tabIndex = 0;
       _tabController = TabController(
         initialIndex: 0,
         length: newLength,
         vsync: this,
-      );
+      )..addListener(_onTabIndexChanged);
     }
   }
 
@@ -435,8 +444,14 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     }
   }
 
+  void _onTabIndexChanged() {
+    if (_tabIndex == _tabController.index) return;
+    setState(() => _tabIndex = _tabController.index);
+  }
+
   @override
   void dispose() {
+    _tabController.removeListener(_onTabIndexChanged);
     _tabController.dispose();
     _nameController.removeListener(_changeListener);
     _nameController.dispose();
@@ -681,21 +696,6 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     Navigator.of(context).pop(null);
   }
 
-  Widget _loadingIndicator() {
-    return Builder(
-      builder: (BuildContext context) {
-        final double indicatorSize = DefaultTextStyle.of(context).style.fontSize ?? 15;
-        return SizedBox(
-          width: indicatorSize,
-          height: indicatorSize,
-          child: CircularProgressIndicator(
-            strokeWidth: indicatorSize / 6, 
-          ),
-        );
-      },
-    );
-  }
-
   TextFormField _nameTextFormField() {
     return TextFormField(
       controller: _nameController,
@@ -815,7 +815,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
               },
               label: switch (_locationService.status) {
                 LocationStatus.idle || LocationStatus.success => switch (_addressService.status) {
-                  AddressStatus.searching => _loadingIndicator(),
+                  AddressStatus.searching => const ChipLoadingIndicator(),
                   AddressStatus.idle || AddressStatus.success => _currentPlace.value != null
                       ? Text("${_currentPlace.value?.locality}, ${_currentPlace.value?.isoCountryCode}") 
                       : const Text("-"),
@@ -824,28 +824,28 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                       : const Text("Address Error"),
                 },
                 LocationStatus.searching => switch (_addressService.status) {
-                  _ => _loadingIndicator(),
+                  _ => const ChipLoadingIndicator(),
                 },
                 LocationStatus.noService => switch (_addressService.status) {
-                  AddressStatus.searching => _loadingIndicator(),
+                  AddressStatus.searching => const ChipLoadingIndicator(),
                   AddressStatus.idle || AddressStatus.success || AddressStatus.error => _currentPlace.value != null
                       ? Text("${_currentPlace.value?.locality}, ${_currentPlace.value?.isoCountryCode}") 
                       : const Text("No GPS Service"),
                 },
                 LocationStatus.noPermission || LocationStatus.permissionDeniedForever => switch (_addressService.status) {
-                  AddressStatus.searching => _loadingIndicator(),
+                  AddressStatus.searching => const ChipLoadingIndicator(),
                   AddressStatus.idle || AddressStatus.success || AddressStatus.error => _currentPlace.value != null
                       ? Text("${_currentPlace.value?.locality}, ${_currentPlace.value?.isoCountryCode}") 
                       : const Text("No GPS Permission"),
                 },
                 LocationStatus.timeout => switch (_addressService.status) {
-                  AddressStatus.searching => _loadingIndicator(),
+                  AddressStatus.searching => const ChipLoadingIndicator(),
                   AddressStatus.idle || AddressStatus.success || AddressStatus.error => _currentPlace.value != null
                       ? Text("${_currentPlace.value?.locality}, ${_currentPlace.value?.isoCountryCode}")
                       : const Text("GPS Timeout"),
                 },
                 LocationStatus.error => switch (_addressService.status) {
-                  AddressStatus.searching => _loadingIndicator(),
+                  AddressStatus.searching => const ChipLoadingIndicator(),
                   AddressStatus.idle || AddressStatus.success || AddressStatus.error => _currentPlace.value != null
                       ? Text("${_currentPlace.value?.locality}, ${_currentPlace.value?.isoCountryCode}") 
                       : const Text("Location Error"),
@@ -861,7 +861,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
               },
               label: switch (_weatherService.status) {
                 WeatherIdle() => Text(_currentWeather.value?.getWeatherCodeLabel() ?? "-"),
-                WeatherSearching() => _loadingIndicator(),
+                WeatherSearching() => const ChipLoadingIndicator(),
                 WeatherSuccess() => Text(_currentWeather.value?.getWeatherCodeLabel() ?? "-"),
                 WeatherError() => const Text("Weather Error"),
               },
@@ -888,7 +888,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
             ActionChip(
               avatar: Icon(_currentWeather.value?.condition?.iconData ?? Icons.edit_road, color: _currentWeather.value?.condition?.color),
               label: _weatherService.status is WeatherSearching
-                ? _loadingIndicator()
+                ? const ChipLoadingIndicator()
                 : Text(_currentWeather.value?.condition?.value ?? "-"),
               backgroundColor: widget.mode == SetupPageMode.edit && _currentWeather.value?.condition != widget.setup?.weather?.condition
                   ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
@@ -1003,6 +1003,63 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     );
   }
 
+  Widget _tabBar() {
+    return ColoredBox(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      child: TabBar.secondary(
+        controller: _tabController,
+        tabs: const <Widget>[
+          Tab(icon: Icon(Bike.iconData)),
+          Tab(icon: Icon(Person.iconData)),
+        ],
+      ),
+    );
+  }
+
+  Widget _bikeTab(AppRepository appRepository, List<Component> bikeComponents) {
+    return SetupBikeTab(
+      bike: _bike,
+      bikeComponents: bikeComponents,
+      allComponents: appRepository.components,
+      bikeAdjustmentValues: _bikeAdjustmentValues,
+      previousBikeAdjustmentValues: _previousBikeAdjustmentValues,
+      initialBikeAdjustmentValues: _initialBikeAdjustmentValues,
+      danglingBikeAdjustmentValues: _danglingBikeAdjustmentValues,
+      onAdjustmentValueChanged: _onBikeAdjustmentValueChanged,
+      onRemoveFromAdjustmentValues: _removeFromBikeAdjustmentValues,
+      onAddCategoricalOption: _onAddBikeCategoricalOption,
+      onDanglingRemove: (id) {
+        setState(() {
+          _danglingBikeAdjustmentValues.remove(id);
+          _bikeAdjustmentValues.remove(id);
+        });
+        _changeListener();
+      },
+    );
+  }
+
+  Widget _personTab(AppRepository appRepository) {
+    return SetupPersonTab(
+      personId: _person,
+      persons: appRepository.persons,
+      personAdjustmentValues: _personAdjustmentValues,
+      previousPersonAdjustmentValues: _previousPersonAdjustmentValues,
+      initialPersonAdjustmentValues: _initialPersonAdjustmentValues,
+      danglingPersonAdjustmentValues: _danglingPersonAdjustmentValues,
+      onAdjustmentValueChanged: _onPersonAdjustmentValueChanged,
+      onRemoveFromAdjustmentValues: _removeFromPersonAdjustmentValues,
+      onAddCategoricalOption: _onAddPersonCategoricalOption,
+      changeListener: _changeListener,
+      onDanglingRemove: (id) {
+        setState(() {
+          _danglingPersonAdjustmentValues.remove(id);
+          _personAdjustmentValues.remove(id);
+        });
+        _changeListener();
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
@@ -1025,92 +1082,61 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         body: SafeArea(
           child: Form(
             key: _formKey,
-            child: NestedScrollView(
-              headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-                return <Widget>[
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _nameTextFormField(),
+            child: CustomScrollView(
+              slivers: <Widget>[
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _nameTextFormField(),
+                        const SizedBox(height: 12),
+                        _notesTextFormField(),
+                        const SizedBox(height: 12),
+                        _wrap(),
+                        if (context.read<AppSettings>().enableSetupImages && _imagesDirPath != null && _images.isNotEmpty) ...[
                           const SizedBox(height: 12),
-                          _notesTextFormField(),
-                          const SizedBox(height: 12),
-                          _wrap(),
-                          if (context.read<AppSettings>().enableSetupImages && _imagesDirPath != null && _images.isNotEmpty) ...[
-                            const SizedBox(height: 12),
-                            ImageStrip(
-                              images: _images,
-                              imagesDir: _imagesDirPath!,
-                              mode: ImageStripMode.edit,
-                              onRemove: _onImageRemoved,
-                              onReorder: _onImageReorder,
-                            ),
-                          ],
-                          const SizedBox(height: 12),
-                          _bikeField(bikes: bikes),
-                          const SizedBox(height: 12),
-                          if (context.read<AppSettings>().enablePerson)
-                            TabBar.secondary(
-                              controller: _tabController,
-                              tabs: <Widget>[
-                                const Tab(icon: Icon(Bike.iconData)),
-                                if (context.read<AppSettings>().enablePerson)
-                                  const Tab(icon: Icon(Person.iconData)),
-                              ],
-                            ),
+                          ImageStrip(
+                            images: _images,
+                            imagesDir: _imagesDirPath!,
+                            mode: ImageStripMode.edit,
+                            onRemove: _onImageRemoved,
+                            onReorder: _onImageReorder,
+                          ),
                         ],
-                      ),
+                        const SizedBox(height: 12),
+                        _bikeField(bikes: bikes),
+                        const SizedBox(height: 12),
+                      ],
                     ),
                   ),
-                ];
-              },
-              body: TabBarView(
-                controller: _tabController,
-                children: <Widget>[
-                  SetupBikeTab(
-                    bike: _bike,
-                    bikeComponents: bikeComponents,
-                    allComponents: appRepository.components,
-                    bikeAdjustmentValues: _bikeAdjustmentValues,
-                    previousBikeAdjustmentValues: _previousBikeAdjustmentValues,
-                    initialBikeAdjustmentValues: _initialBikeAdjustmentValues,
-                    danglingBikeAdjustmentValues: _danglingBikeAdjustmentValues,
-                    onAdjustmentValueChanged: _onBikeAdjustmentValueChanged,
-                    onRemoveFromAdjustmentValues: _removeFromBikeAdjustmentValues,
-                    onAddCategoricalOption: _onAddBikeCategoricalOption,
-                    onDanglingRemove: (id) {
-                      setState(() {
-                        _danglingBikeAdjustmentValues.remove(id);
-                        _bikeAdjustmentValues.remove(id);
-                      });
-                      _changeListener();
-                    },
-                  ),
-                  if (context.read<AppSettings>().enablePerson)
-                    SetupPersonTab(
-                      personId: _person,
-                      persons: appRepository.persons,
-                      personAdjustmentValues: _personAdjustmentValues,
-                      previousPersonAdjustmentValues: _previousPersonAdjustmentValues,
-                      initialPersonAdjustmentValues: _initialPersonAdjustmentValues,
-                      danglingPersonAdjustmentValues: _danglingPersonAdjustmentValues,
-                      onAdjustmentValueChanged: _onPersonAdjustmentValueChanged,
-                      onRemoveFromAdjustmentValues: _removeFromPersonAdjustmentValues,
-                      onAddCategoricalOption: _onAddPersonCategoricalOption,
-                      changeListener: _changeListener,
-                      onDanglingRemove: (id) {
-                        setState(() {
-                          _danglingPersonAdjustmentValues.remove(id);
-                          _personAdjustmentValues.remove(id);
-                        });
-                        _changeListener();
-                      },
-                    ),
-                ],
-              ),
+                ),
+                SliverToBoxAdapter(
+                  child: context.read<AppSettings>().enablePerson
+                      // Both tabs stay in the tree so their fields keep their
+                      // state; the inactive one takes no space.
+                      ? StickySection(
+                          header: _tabBar(),
+                          content: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Visibility(
+                                visible: _tabIndex == 0,
+                                maintainState: true,
+                                child: _bikeTab(appRepository, bikeComponents),
+                              ),
+                              Visibility(
+                                visible: _tabIndex == 1,
+                                maintainState: true,
+                                child: _personTab(appRepository),
+                              ),
+                            ],
+                          ),
+                        )
+                      : _bikeTab(appRepository, bikeComponents),
+                ),
+              ],
             ),
           ),
         ),

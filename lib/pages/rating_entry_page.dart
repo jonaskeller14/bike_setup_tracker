@@ -26,6 +26,7 @@ import '../services/rating_score_service.dart';
 import '../services/weather_service.dart';
 import '../theme.dart';
 import '../widgets/app_snackbar.dart';
+import '../widgets/chips/utils.dart';
 import '../widgets/dialogs/confirmation.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/items/card_header_tile.dart';
@@ -468,21 +469,6 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
     Navigator.of(context).pop(null);
   }
 
-  Widget _loadingIndicator() {
-    return Builder(
-      builder: (BuildContext context) {
-        final double indicatorSize = DefaultTextStyle.of(context).style.fontSize ?? 15;
-        return SizedBox(
-          width: indicatorSize,
-          height: indicatorSize,
-          child: CircularProgressIndicator(
-            strokeWidth: indicatorSize / 6,
-          ),
-        );
-      },
-    );
-  }
-
   TextFormField _nameTextFormField() {
     return TextFormField(
       controller: _nameController,
@@ -589,7 +575,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
               },
               label: switch (_locationService.status) {
                 LocationStatus.idle || LocationStatus.success => switch (_addressService.status) {
-                  AddressStatus.searching => _loadingIndicator(),
+                  AddressStatus.searching => const ChipLoadingIndicator(),
                   AddressStatus.idle || AddressStatus.success => _currentPlace.value != null
                       ? Text("${_currentPlace.value?.locality}, ${_currentPlace.value?.isoCountryCode}")
                       : const Text("-"),
@@ -598,28 +584,28 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
                       : const Text("Address Error"),
                 },
                 LocationStatus.searching => switch (_addressService.status) {
-                  _ => _loadingIndicator(),
+                  _ => const ChipLoadingIndicator(),
                 },
                 LocationStatus.noService => switch (_addressService.status) {
-                  AddressStatus.searching => _loadingIndicator(),
+                  AddressStatus.searching => const ChipLoadingIndicator(),
                   AddressStatus.idle || AddressStatus.success || AddressStatus.error => _currentPlace.value != null
                       ? Text("${_currentPlace.value?.locality}, ${_currentPlace.value?.isoCountryCode}")
                       : const Text("No GPS Service"),
                 },
                 LocationStatus.noPermission || LocationStatus.permissionDeniedForever => switch (_addressService.status) {
-                  AddressStatus.searching => _loadingIndicator(),
+                  AddressStatus.searching => const ChipLoadingIndicator(),
                   AddressStatus.idle || AddressStatus.success || AddressStatus.error => _currentPlace.value != null
                       ? Text("${_currentPlace.value?.locality}, ${_currentPlace.value?.isoCountryCode}")
                       : const Text("No GPS Permission"),
                 },
                 LocationStatus.timeout => switch (_addressService.status) {
-                  AddressStatus.searching => _loadingIndicator(),
+                  AddressStatus.searching => const ChipLoadingIndicator(),
                   AddressStatus.idle || AddressStatus.success || AddressStatus.error => _currentPlace.value != null
                       ? Text("${_currentPlace.value?.locality}, ${_currentPlace.value?.isoCountryCode}")
                       : const Text("GPS Timeout"),
                 },
                 LocationStatus.error => switch (_addressService.status) {
-                  AddressStatus.searching => _loadingIndicator(),
+                  AddressStatus.searching => const ChipLoadingIndicator(),
                   AddressStatus.idle || AddressStatus.success || AddressStatus.error => _currentPlace.value != null
                       ? Text("${_currentPlace.value?.locality}, ${_currentPlace.value?.isoCountryCode}")
                       : const Text("Location Error"),
@@ -635,7 +621,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
               },
               label: switch (_weatherService.status) {
                 WeatherIdle() => Text(_currentWeather.value?.getWeatherCodeLabel() ?? "-"),
-                WeatherSearching() => _loadingIndicator(),
+                WeatherSearching() => const ChipLoadingIndicator(),
                 WeatherSuccess() => Text(_currentWeather.value?.getWeatherCodeLabel() ?? "-"),
                 WeatherError() => const Text("Weather Error"),
               },
@@ -660,7 +646,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
             ActionChip(
               avatar: Icon(_currentWeather.value?.condition?.iconData ?? Icons.edit_road, color: _currentWeather.value?.condition?.color),
               label: _weatherService.status is WeatherSearching
-                  ? _loadingIndicator()
+                  ? const ChipLoadingIndicator()
                   : Text(_currentWeather.value?.condition?.value ?? "-"),
               backgroundColor: widget.mode == RatingEntryPageMode.edit && _currentWeather.value?.condition != widget.ratingEntry?.weather?.condition ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
               onPressed: _locationService.status == LocationStatus.searching || _weatherService.status is WeatherSearching

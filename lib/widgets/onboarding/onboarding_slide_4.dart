@@ -323,9 +323,15 @@ class _OnboardingSlide4State extends State<OnboardingSlide4> with SingleTickerPr
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 TextSpan(
-                  text:
-                      " is a current snapshot of all components of one bike. It captures the specific values of your adjustments and automatically adds context (e.g. location, weather, trail conditions).",
+                  text: " is a current snapshot of all components of one bike. It captures the specific ",
                 ),
+                TextSpan(
+                  text: "values",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                  text: " of your adjustments and automatically adds context (e.g. location, weather, trail conditions).",
+                )
               ],
             ),
           ),

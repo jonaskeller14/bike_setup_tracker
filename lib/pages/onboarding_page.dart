@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/app_settings.dart';
+import '../repositories/app_repository.dart';
 import '../widgets/onboarding/onboarding_component_card.dart';
 import '../widgets/onboarding/onboarding_shared_element.dart';
 import '../widgets/onboarding/onboarding_slide_1.dart';
@@ -88,6 +89,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
   @override
   void initState() {
     super.initState();
+    final existingRiders = context.read<AppRepository>().persons.values;
+    if (existingRiders.isNotEmpty) {
+      _savedRiderName = existingRiders.first.name;
+    }
     _slides = [
       (
         build: () => OnboardingSlide1(onNext: _next),
@@ -147,6 +152,17 @@ class _OnboardingPageState extends State<OnboardingPage> {
   void _next() {
     unawaited(
       _controller.nextPage(
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      ),
+    );
+  }
+
+  void _goTo(int index) {
+    if (index == _currentPage) return;
+    unawaited(
+      _controller.animateToPage(
+        index,
         duration: const Duration(milliseconds: 500),
         curve: Curves.easeInOut,
       ),
@@ -217,7 +233,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   Widget _builProgressIndicatorDot(int index) {
-    return AnimatedContainer(
+    final dot = AnimatedContainer(
       key: ValueKey("onboarding_dot_$index"),
       duration: const Duration(milliseconds: 200),
       margin: const EdgeInsets.only(right: 8),
@@ -228,6 +244,14 @@ class _OnboardingPageState extends State<OnboardingPage> {
             ? Theme.of(context).colorScheme.primary
             : Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(5),
+      ),
+    );
+    return GestureDetector(
+      onTap: () => _goTo(index),
+      // Padding for larger tap target
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: dot,
       ),
     );
   }

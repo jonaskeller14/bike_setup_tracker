@@ -102,7 +102,7 @@ void main() {
       await tester.pumpWidget(buildSlide(OnboardingSlide2(onNext: () {})));
       await tester.pumpAndSettle();
 
-      expect(find.text('Build your Bike'), findsOneWidget);
+      expect(find.text('Build Your Bike'), findsOneWidget);
       expect(find.textContaining('digital twin', findRichText: true), findsOneWidget);
       expect(find.widgetWithText(FilledButton, 'Next'), findsOneWidget);
     });

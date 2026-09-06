@@ -106,7 +106,7 @@ void main() {
     await tester.tap(find.text("Next"));
     await tester.pumpAndSettle();
 
-    expect(find.text("Yours, for free"), findsOneWidget);
+    expect(find.text("Free by default"), findsOneWidget);
     // The last slide finishes instead of skipping.
     expect(find.text("Skip"), findsOneWidget);
 

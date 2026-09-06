@@ -123,7 +123,8 @@ class _SetTextAdjustmentWidgetState extends State<SetTextAdjustmentWidget> {
                         icon: const Icon(Icons.replay),
                         visualDensity: VisualDensity.compact,
                       )
-                    : null,
+                    : const SizedBox.shrink(),
+                suffixIconConstraints: const BoxConstraints(minHeight: 48, minWidth: 0),
               ),
               validator: (String? newValue) {
                 if ((newValue == null || newValue.trim().isEmpty) && !widget.optional && widget.initialValue != null) {

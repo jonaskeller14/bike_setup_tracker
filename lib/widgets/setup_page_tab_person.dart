@@ -74,6 +74,10 @@ class SetupPersonTab extends StatelessWidget {
                     )),
                     leading: const Icon(Person.iconData),
                     enabled: person.adjustments.isNotEmpty,
+                    trailing: IconButton(
+                      onPressed: () => PersonActions.addAdjustmentForPerson(context, person: person),
+                      icon: const Icon(Icons.add),
+                    ),
                   ),
                 ),
                 AdjustmentSetList(

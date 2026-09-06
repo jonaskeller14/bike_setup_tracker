@@ -165,12 +165,12 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
                   borderRadius: BorderRadius.circular(4),
                   onTap: _cycleUnit,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                    padding: EdgeInsets.only(left: 4, right: _resetWouldChange ? 4 : 12, top: 4, bottom: 4),
                     child: Text(label, style: TextStyle(color: suffixColor)),
                   ),
                 )
               : Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  padding: EdgeInsets.only(left: 4, right: _resetWouldChange ? 4 : 12),
                   child: Text(label, style: TextStyle(color: suffixColor)),
                 ),
         if (_resetWouldChange)

@@ -5,6 +5,13 @@ import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
 import '../models/person.dart';
 import '../models/rating_association.dart';
+import '../pages/adjustment/boolean_adjustment_page.dart';
+import '../pages/adjustment/categorical_adjustment_page.dart';
+import '../pages/adjustment/duration_adjustment_page.dart';
+import '../pages/adjustment/numerical_adjustment_page.dart';
+import '../pages/adjustment/sag_adjustment_page.dart';
+import '../pages/adjustment/step_adjustment_page.dart';
+import '../pages/adjustment/text_adjustment_page.dart';
 import '../pages/person_page.dart';
 import '../repositories/app_repository.dart';
 import '../widgets/app_snackbar.dart';
@@ -148,6 +155,50 @@ class PersonActions {
       oldIndex: oldIndex,
       newIndex: newIndex,
       filteredPersonsList: appRepository.filteredPersons.values.toList(),
+    );
+  }
+
+  static Future<void> addAdjustmentForPerson(BuildContext context, {required Person person}) async {
+    showPersonAddAdjustmentBottomSheet(
+      context: context,
+      addAdjustmentFromPreset: (Adjustment adjustment) async {
+        final appRepository = context.read<AppRepository>();
+        final newAdjustment = await Navigator.push<Adjustment>(
+          context,
+          MaterialPageRoute(
+            builder: (context) => switch (adjustment.deepCopy()) {
+              final BooleanAdjustment a => BooleanAdjustmentPage.template(adjustment: a),
+              final CategoricalAdjustment a => CategoricalAdjustmentPage.template(adjustment: a),
+              final StepAdjustment a => StepAdjustmentPage.template(adjustment: a),
+              final SagAdjustment a => SagAdjustmentPage.template(adjustment: a),
+              final NumericalAdjustment a => NumericalAdjustmentPage.template(adjustment: a),
+              final TextAdjustment a => TextAdjustmentPage.template(adjustment: a),
+              final DurationAdjustment a => DurationAdjustmentPage.template(adjustment: a),
+            },
+          ),
+        );
+        if (newAdjustment == null) return;
+        await appRepository.editPerson(person.copyWith(adjustments: [...person.adjustments, newAdjustment]));
+      },
+      addAdjustment: <T extends Adjustment>() async {
+        final appRepository = context.read<AppRepository>();
+        final newAdjustment = await Navigator.push<T>(
+          context,
+          MaterialPageRoute(
+            builder: (context) => switch (T) {
+              const (BooleanAdjustment) => BooleanAdjustmentPage.add(),
+              const (CategoricalAdjustment) => CategoricalAdjustmentPage.add(),
+              const (StepAdjustment) => StepAdjustmentPage.add(),
+              const (NumericalAdjustment) => NumericalAdjustmentPage.add(),
+              const (TextAdjustment) => TextAdjustmentPage.add(),
+              const (DurationAdjustment) => DurationAdjustmentPage.add(),
+              Type() => throw UnimplementedError(),
+            },
+          ),
+        );
+        if (newAdjustment == null) return;
+        await appRepository.editPerson(person.copyWith(adjustments: [...person.adjustments, newAdjustment]));
+      },
     );
   }
 }

@@ -177,7 +177,7 @@ class _BikePageState extends State<BikePage> {
             spacing: 8,
             children: [
               Icon(Icons.person_off),
-              Expanded(child: Text("NO OWNER", overflow: TextOverflow.ellipsis))
+              Expanded(child: Text("No Owner", overflow: TextOverflow.ellipsis))
             ],
           ),
         ),

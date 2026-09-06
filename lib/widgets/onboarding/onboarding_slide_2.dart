@@ -72,7 +72,7 @@ class OnboardingSlide2 extends StatelessWidget {
           stepWidget(context: context, step: 1),
           const SizedBox(height: 12),
           Text(
-            'Build your Bike',
+            'Build Your Bike',
             style: Theme.of(context).textTheme.headlineLarge?.copyWith(
               color: Theme.of(context).colorScheme.primary,
             ),

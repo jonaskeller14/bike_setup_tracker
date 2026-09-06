@@ -249,7 +249,7 @@ class StravaActivitiyPageContent extends StatelessWidget {
                   collapsedShape: const Border(),
                   leading: const Icon(Icons.pedal_bike),
                   title: Text(
-                    linkedBike?.name ?? "No bike linked to this Strava gear",
+                    linkedBike?.name ?? "No Bike linked to this Strava gear",
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),

@@ -126,6 +126,19 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
     _report(storageInit?.toString() ?? '');
   }
 
+  // Compares by parsed value (not raw text) so "10" vs "10.0" doesn't falsely
+  // show the reset button as having an effect.
+  bool get _resetWouldChange {
+    final storageInit = widget.optional ? null : widget.initialValue;
+    final targetText = storageInit?.toString() ?? '';
+    final currentText = widget.value ?? '';
+    if (targetText.isEmpty || currentText.isEmpty) return targetText != currentText;
+    final targetVal = double.tryParse(targetText);
+    final currentVal = double.tryParse(currentText);
+    if (targetVal != null && currentVal != null) return targetVal != currentVal;
+    return targetText != currentText;
+  }
+
   void _cycleUnit() {
     if (!_toggleEnabled) return;
     final active = _cycle[_activeIndex];
@@ -160,11 +173,12 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: Text(label, style: TextStyle(color: suffixColor)),
                 ),
-        IconButton(
-          onPressed: _reset,
-          icon: const Icon(Icons.replay),
-          visualDensity: VisualDensity.compact,
-        ),
+        if (_resetWouldChange)
+          IconButton(
+            onPressed: _reset,
+            icon: const Icon(Icons.replay),
+            visualDensity: VisualDensity.compact,
+          ),
       ],
     );
   }

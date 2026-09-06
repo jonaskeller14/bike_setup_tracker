@@ -198,4 +198,53 @@ void main() {
       expect(double.parse(reported!), closeTo(65, 0.0001));
     });
   });
+
+  group("SetNumericalAdjustmentWidget reset button visibility", () {
+    Widget buildWidget({required double? initialValue, required String? value, bool optional = false}) {
+      return MaterialApp(
+        theme: materialAppTheme,
+        home: Scaffold(
+          body: SetNumericalAdjustmentWidget(
+            key: const ValueKey("NumericalAdjustment #1"),
+            initialValue: initialValue,
+            value: value,
+            onChanged: (_) {},
+            optional: optional,
+            adjustment: NumericalAdjustment(
+              name: "NumericalAdjustment #1",
+              notes: null,
+              unit: null,
+              min: -10,
+              max: 10,
+            ),
+          ),
+        ),
+      );
+    }
+
+    testWidgets("hidden when current value equals initial value", (tester) async {
+      await tester.pumpWidget(buildWidget(initialValue: 5, value: '5'));
+      expect(find.byIcon(Icons.replay), findsNothing);
+    });
+
+    testWidgets("hidden when '5' vs '5.0' (equal parsed value, different text)", (tester) async {
+      await tester.pumpWidget(buildWidget(initialValue: 5, value: '5.0'));
+      expect(find.byIcon(Icons.replay), findsNothing);
+    });
+
+    testWidgets("shown when current value differs from initial value", (tester) async {
+      await tester.pumpWidget(buildWidget(initialValue: 5, value: '6'));
+      expect(find.byIcon(Icons.replay), findsOneWidget);
+    });
+
+    testWidgets("hidden for an optional field left empty", (tester) async {
+      await tester.pumpWidget(buildWidget(initialValue: 5, value: '', optional: true));
+      expect(find.byIcon(Icons.replay), findsNothing);
+    });
+
+    testWidgets("shown for an optional field with a value entered", (tester) async {
+      await tester.pumpWidget(buildWidget(initialValue: 5, value: '6', optional: true));
+      expect(find.byIcon(Icons.replay), findsOneWidget);
+    });
+  });
 }

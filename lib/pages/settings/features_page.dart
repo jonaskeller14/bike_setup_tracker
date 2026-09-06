@@ -227,24 +227,6 @@ class FeaturesPage extends StatelessWidget {
                     ],
                   ),
                 ),
-              ListTile(
-                leading: const Icon(Icons.compare),
-                title: const Text("Setup Comparison"),
-                subtitle: _offOnOptionWidgets[appSettings.enableSetupComparison] ?? const Text("-"),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => appSettingsRadioGroupSheet<bool>(
-                  context: context,
-                  title: "Setup Comparison",
-                  value: appSettings.enableSetupComparison,
-                  optionWidgets: _offOnOptionWidgets,
-                  onChanged: (bool? newValue) {
-                    if (newValue == null) return;
-                    appSettings.enableSetupComparison = newValue;
-                    Navigator.pop(context);
-                  },
-                  infoText: 'Exposes experimental comparison of a historical setup against the current setup.',
-                ),
-              ),
               const Divider(),
               const SectionTitle(title: 'Tasks'),
               ListTile(

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
+import '../../models/component.dart';
 import '../../models/setup.dart';
 import '../../models/strava/strava_activity.dart';
 import '../../repositories/app_repository.dart';
@@ -306,7 +307,7 @@ class StravaActivitiyPageContent extends StatelessWidget {
                       ),
                     ] else if (installedComponents.isEmpty) ...[
                       EmptyStatePlaceholder2(
-                        iconData: Icons.settings_outlined,
+                        iconData: Component.iconData,
                         title: 'No components yet',
                         subtitle: 'Add a component to this bike',
                         onTap: () => ComponentActions.addComponent(context, initialBike: linkedBike.id)

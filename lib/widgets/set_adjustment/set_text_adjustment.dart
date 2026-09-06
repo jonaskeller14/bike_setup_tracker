@@ -59,6 +59,12 @@ class _SetTextAdjustmentWidgetState extends State<SetTextAdjustmentWidget> {
     super.dispose();
   }
 
+  bool get _resetWouldChange {
+    final target = widget.optional ? '' : (widget.initialValue ?? '');
+    final current = widget.value ?? '';
+    return current.trim() != target.trim();
+  }
+
   @override
   Widget build(BuildContext context) {
     final String? parsedValue = _controller.text.trim().isEmpty ? null : _controller.text.trim();
@@ -108,14 +114,16 @@ class _SetTextAdjustmentWidgetState extends State<SetTextAdjustmentWidget> {
                   fontWeight: FontWeight.normal,
                 ),
                 suffixText: widget.adjustment.unit != null ? widget.adjustment.unitSuffix() : null,
-                suffixIcon: IconButton(
-                  onPressed: () {
-                    _controller.text = widget.optional ? '' : widget.initialValue ?? '';
-                    widget.onChanged(_controller.text.trim());
-                  }, 
-                  icon: const Icon(Icons.replay),
-                  visualDensity: VisualDensity.compact,
-                ),
+                suffixIcon: _resetWouldChange
+                    ? IconButton(
+                        onPressed: () {
+                          _controller.text = widget.optional ? '' : widget.initialValue ?? '';
+                          widget.onChanged(_controller.text.trim());
+                        },
+                        icon: const Icon(Icons.replay),
+                        visualDensity: VisualDensity.compact,
+                      )
+                    : null,
               ),
               validator: (String? newValue) {
                 if ((newValue == null || newValue.trim().isEmpty) && !widget.optional && widget.initialValue != null) {

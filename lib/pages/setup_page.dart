@@ -680,13 +680,6 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   void _saveSetup() {
     if (!_formKey.currentState!.validate()) {
       _revealFirstInvalidField();
-      ScaffoldMessenger.of(context).showSnackBar(
-        AppSnackBar.error(
-          context,
-          'Please check all fields for missing or invalid input.',
-          duration: const Duration(seconds: 2),
-        ),
-      );
       return;
     }
     final nameText = _nameController.text.trim();

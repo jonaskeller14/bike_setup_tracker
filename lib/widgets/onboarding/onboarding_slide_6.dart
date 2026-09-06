@@ -62,7 +62,7 @@ class OnboardingSlide6 extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'Yours, for free',
+            'Free by default',
             style: Theme.of(context).textTheme.headlineLarge?.copyWith(
               color: Theme.of(context).colorScheme.primary,
             ),
@@ -70,7 +70,7 @@ class OnboardingSlide6 extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            "Strava Sync is the only paid extra — everything else stays free.",
+            "One optional add-on. Everything else is included, permanently.",
             style: Theme.of(context).textTheme.bodyLarge,
             textAlign: TextAlign.center,
           ),
@@ -87,7 +87,7 @@ class OnboardingSlide6 extends StatelessWidget {
           DelayedFade(
             delay: kOnboardingStageDelay * 2,
             child: _Section(
-              label: 'OPTIONAL ADD-ON',
+              label: 'OPTIONAL: STRAVA SYNC',
               icon: const Icon(SimpleIcons.strava, color: Color(0xFFFC4C02)),
               features: _stravaFeatures,
               action: FilledButton.tonal(

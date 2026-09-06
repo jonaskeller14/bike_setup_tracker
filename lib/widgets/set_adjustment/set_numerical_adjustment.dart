@@ -15,6 +15,10 @@ class SetNumericalAdjustmentWidget extends StatefulWidget {
   final ValueChanged<String> onChanged;
   final bool highlighting;
 
+  /// The field is not pre-filled with [initialValue], so it may be left empty
+  /// and its reset button clears it instead of restoring [initialValue].
+  final bool optional;
+
   final List<UnitCycleEntry>? cycle;
 
   const SetNumericalAdjustmentWidget({
@@ -24,6 +28,7 @@ class SetNumericalAdjustmentWidget extends StatefulWidget {
     required this.value,
     required this.onChanged,
     this.highlighting = true,
+    this.optional = false,
     this.cycle,
   });
 
@@ -114,11 +119,24 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
   }
 
   void _reset() {
-    final storageInit = widget.initialValue;
+    final storageInit = widget.optional ? null : widget.initialValue;
     _setText(storageInit == null ? '' : _displayTextForStorage(storageInit.toString()));
     // Report the exact stored initial value (not a round-tripped conversion) to
     // avoid float drift.
     _report(storageInit?.toString() ?? '');
+  }
+
+  // Compares by parsed value (not raw text) so "10" vs "10.0" doesn't falsely
+  // show the reset button as having an effect.
+  bool get _resetWouldChange {
+    final storageInit = widget.optional ? null : widget.initialValue;
+    final targetText = storageInit?.toString() ?? '';
+    final currentText = widget.value ?? '';
+    if (targetText.isEmpty || currentText.isEmpty) return targetText != currentText;
+    final targetVal = double.tryParse(targetText);
+    final currentVal = double.tryParse(currentText);
+    if (targetVal != null && currentVal != null) return targetVal != currentVal;
+    return targetText != currentText;
   }
 
   void _cycleUnit() {
@@ -147,19 +165,20 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
                   borderRadius: BorderRadius.circular(4),
                   onTap: _cycleUnit,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                    padding: EdgeInsets.only(left: 4, right: _resetWouldChange ? 4 : 12, top: 4, bottom: 4),
                     child: Text(label, style: TextStyle(color: suffixColor)),
                   ),
                 )
               : Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  padding: EdgeInsets.only(left: 4, right: _resetWouldChange ? 4 : 12),
                   child: Text(label, style: TextStyle(color: suffixColor)),
                 ),
-        IconButton(
-          onPressed: _reset,
-          icon: const Icon(Icons.replay),
-          visualDensity: VisualDensity.compact,
-        ),
+        if (_resetWouldChange)
+          IconButton(
+            onPressed: _reset,
+            icon: const Icon(Icons.replay),
+            visualDensity: VisualDensity.compact,
+          ),
       ],
     );
   }
@@ -223,7 +242,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
                 suffixIconConstraints: const BoxConstraints(minHeight: 48, minWidth: 0),
               ),
               validator: (String? newValue) {
-                if ((newValue == null || newValue.trim().isEmpty) && widget.initialValue != null) {
+                if ((newValue == null || newValue.trim().isEmpty) && !widget.optional && widget.initialValue != null) {
                   return 'Please enter a value';
                 }
                 if (newValue != null && newValue.trim().isNotEmpty) {

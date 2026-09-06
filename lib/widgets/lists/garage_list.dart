@@ -211,10 +211,7 @@ class _GarageListState extends State<GarageList> {
             padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
           ),
         ),
-        const SliverPadding(
-          padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-          sliver: SliverToBoxAdapter(child: BikeListFilterWidget()),
-        ),
+        const SliverToBoxAdapter(child: BikeListFilterWidget()),
         SliverFillRemaining(
           hasScrollBody: false,
           child: Padding(
@@ -252,15 +249,18 @@ class _GarageListState extends State<GarageList> {
           final double scale = lerpDouble(1, 1.03, animValue)!;
           return Transform.scale(
             scale: scale,
-            child: GarageBikeCard(
-              bike: bikesList[index],
-              index: index,
-              elevation: elevation,
-              componentToShowDetails: _componentToShowDetails,
-              onPressedComponent: _onPressedComponent,
-              onAcceptWithDetails: _onAcceptWithDetails,
-              setDraggedComponent: (Component? c) => _draggedComponentNotifier.value = c,
-              draggedComponentNotifier: _draggedComponentNotifier,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: GarageBikeCard(
+                bike: bikesList[index],
+                index: index,
+                elevation: elevation,
+                componentToShowDetails: _componentToShowDetails,
+                onPressedComponent: _onPressedComponent,
+                onAcceptWithDetails: _onAcceptWithDetails,
+                setDraggedComponent: (Component? c) => _draggedComponentNotifier.value = c,
+                draggedComponentNotifier: _draggedComponentNotifier,
+              ),
             ),
           );
         },
@@ -277,35 +277,33 @@ class _GarageListState extends State<GarageList> {
             child: ReorderableListView.builder(
               scrollController: widget.controller.scrollController,
               itemCount: bikesList.length,
-              padding: const EdgeInsets.only(
-                left: 16,
-                top: 8,
-                right: 16,
-                bottom: 16 + 100,
-              ),
+              padding: const EdgeInsets.only(bottom: 16 + 100),
               header: const Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   AppHintSlot(
                     placement: AppHintPlacement.garageHeader,
-                    padding: EdgeInsetsGeometry.only(bottom: 8)),
+                    padding: EdgeInsets.fromLTRB(16, 8, 16, 0)),
                   BikeListFilterWidget(),
                 ],
               ),
-              footer: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Divider(height: 50),
-                  GarageUninstalledCard(
-                    componentToShowDetails: _componentToShowDetails,
-                    onPressedComponent: _onPressedComponent,
-                    onAcceptWithDetails: _onAcceptWithDetails,
-                    onArchiveAccept: _onArchiveAccept,
-                    setDraggedComponent: (Component? c) => _draggedComponentNotifier.value = c,
-                    draggedComponentNotifier: _draggedComponentNotifier,
-                  ),
-                ],
+              footer: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Divider(height: 50),
+                    GarageUninstalledCard(
+                      componentToShowDetails: _componentToShowDetails,
+                      onPressedComponent: _onPressedComponent,
+                      onAcceptWithDetails: _onAcceptWithDetails,
+                      onArchiveAccept: _onArchiveAccept,
+                      setDraggedComponent: (Component? c) => _draggedComponentNotifier.value = c,
+                      draggedComponentNotifier: _draggedComponentNotifier,
+                    ),
+                  ],
+                ),
               ),
               proxyDecorator: proxyDecorator,
               onReorderStart: (_) => unawaited(HapticFeedback.lightImpact()),
@@ -313,15 +311,18 @@ class _GarageListState extends State<GarageList> {
                   BikeActions.onReorderBikes(context, oldIndex: oldIndex, newIndex: newIndex),
               itemBuilder: (context, index) {
                 final bike = bikesList[index];
-                return GarageBikeCard(
+                return Padding(
                   key: ValueKey(bike.id),
-                  bike: bike,
-                  index: index,
-                  componentToShowDetails: _componentToShowDetails,
-                  onPressedComponent: _onPressedComponent,
-                  onAcceptWithDetails: _onAcceptWithDetails,
-                  setDraggedComponent: (Component? c) => _draggedComponentNotifier.value = c,
-                  draggedComponentNotifier: _draggedComponentNotifier,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: GarageBikeCard(
+                    bike: bike,
+                    index: index,
+                    componentToShowDetails: _componentToShowDetails,
+                    onPressedComponent: _onPressedComponent,
+                    onAcceptWithDetails: _onAcceptWithDetails,
+                    setDraggedComponent: (Component? c) => _draggedComponentNotifier.value = c,
+                    draggedComponentNotifier: _draggedComponentNotifier,
+                  ),
                 );
               },
             ),

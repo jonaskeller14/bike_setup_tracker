@@ -18,10 +18,7 @@ class PersonList extends StatelessWidget {
   Widget _emptyPlaceholder(BuildContext context) {
     return CustomScrollView(
       slivers: [
-        const SliverPadding(
-          padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-          sliver: SliverToBoxAdapter(child: PersonListFilterWidget()),
-        ),
+        const SliverToBoxAdapter(child: PersonListFilterWidget()),
         SliverFillRemaining(
           hasScrollBody: false,
           child: Padding(
@@ -53,10 +50,13 @@ class PersonList extends StatelessWidget {
           final double scale = lerpDouble(1, 1.03, animValue)!;
           return Transform.scale(
             scale: scale,
-            child: PersonListCard(
-              person: personsList[index],
-              index: index,
-              elevation: elevation,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: PersonListCard(
+                person: personsList[index],
+                index: index,
+                elevation: elevation,
+              ),
             ),
           );
         },
@@ -68,17 +68,20 @@ class PersonList extends StatelessWidget {
         ? _emptyPlaceholder(context)
         : ReorderableListView.builder(
             itemCount: personsList.length,
-            padding: const EdgeInsets.only(left: 16, top: 8, right: 16, bottom: 16+100),
+            padding: const EdgeInsets.only(bottom: 16+100),
             header: const PersonListFilterWidget(),
             proxyDecorator: proxyDecorator,
             onReorderStart: (_) => unawaited(HapticFeedback.lightImpact()),
             onReorderItem: (int oldIndex, int newIndex) => PersonActions.onReorderPerson(context, oldIndex: oldIndex, newIndex: newIndex),
             itemBuilder: (context, index) {
               final person = personsList[index];
-              return PersonListCard(
+              return Padding(
                 key: ValueKey(person.id),
-                person: person,
-                index: index,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: PersonListCard(
+                  person: person,
+                  index: index,
+                ),
               );
             },
           );

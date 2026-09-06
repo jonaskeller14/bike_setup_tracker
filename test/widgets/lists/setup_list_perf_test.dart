@@ -122,7 +122,6 @@ Future<void> _runDeepWindowLazinessTest(WidgetTester tester) async {
 
   final appSettings = AppSettings();
   appSettings.showOnboarding = false;
-  appSettings.enableTimelineDayHeaders = true;
 
   final appRepository = AppRepository(database);
   addTearDown(appRepository.dispose);

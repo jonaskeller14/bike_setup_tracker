@@ -11,6 +11,7 @@ class DisplayNumericalAdjustmentWidget extends StatelessWidget {
   final num? value;
   final bool highlighting;
   final bool isError;
+  final bool showFill;
   final VoidCallback? onRemove;
 
   const DisplayNumericalAdjustmentWidget({
@@ -20,6 +21,7 @@ class DisplayNumericalAdjustmentWidget extends StatelessWidget {
     required this.value,
     this.highlighting = true,
     this.isError = false,
+    this.showFill = false,
     this.onRemove,
   });
 
@@ -42,6 +44,11 @@ class DisplayNumericalAdjustmentWidget extends StatelessWidget {
     
     return Container(
       padding: const EdgeInsets.all(16),
+      decoration: showFill
+          ? BoxDecoration(
+              color: isChanged ? (isInitial ? highlights?.initialFill ?? Colors.green.withValues(alpha: 0.08) : highlights?.changedFill ?? Colors.orange.withValues(alpha: 0.08)) : null,
+            )
+          : null,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         spacing: 20,

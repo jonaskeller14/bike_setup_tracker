@@ -5,6 +5,7 @@ import '../../models/app_settings.dart';
 import '../../models/rating_entry.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/setup_comparison_service.dart';
 import '../../utils/setup_actions.dart';
 import '../sheets/compare_setups.dart';
 
@@ -48,12 +49,7 @@ class SetupOptionsMenu extends StatelessWidget {
     return switch (option) {
       _SetupOption.edit || _SetupOption.share || _SetupOption.restore || _SetupOption.remove => true,
       _SetupOption.addRating => appSettings.enableRating,
-      _SetupOption.compare => appSettings.enableSetupComparison &&
-          !setup.isCurrent &&
-          setups.any(
-            (candidate) => candidate.id != setup.id && candidate.bike == setup.bike && candidate.isCurrent,
-          ),
-      
+      _SetupOption.compare => SetupComparisonService.resolveTargets(setupB: setup, setups: setups) is SetupComparisonTargets,
     };
   }
 

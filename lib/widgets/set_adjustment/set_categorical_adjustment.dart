@@ -11,6 +11,11 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
   final List<String>? value;
   final ValueChanged<List<String>?> onChanged;
   final bool highlighting;
+
+  /// The selection is not pre-filled from [initialValue], so it may be left
+  /// unset and its reset button clears it instead of restoring [initialValue].
+  final bool optional;
+
   final Future<void> Function(String option)? onAddOption;
 
   const SetCategoricalAdjustmentWidget({
@@ -20,6 +25,7 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
     required this.value,
     required this.onChanged,
     this.highlighting = true,
+    this.optional = false,
     this.onAddOption,
   });
 
@@ -38,6 +44,10 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
       isInitial = false;
       highlightColor = null;
     }
+
+    // An optional selection is revertible to "unset" as soon as it holds a
+    // value, even when that value happens to match the previous setup's.
+    final bool canReset = optional ? value != null : isChanged;
 
     // Only options that still exist are shown in the field; any dangling values
     // are surfaced (and removable) inside the sheet.
@@ -105,14 +115,15 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Padding(
-                            padding: EdgeInsets.only(right: isChanged ? 0 : 8),
+                            padding: EdgeInsets.only(right: canReset ? 0 : 8),
                             child: Icon(Icons.arrow_drop_down, color: highlightColor),
                           ),
-                          if (isChanged)
+                          if (canReset)
                             IconButton(
                               onPressed: () {
-                                field.didChange(initialValue);
-                                onChanged(initialValue);
+                                final resetValue = optional ? null : initialValue;
+                                field.didChange(resetValue);
+                                onChanged(resetValue);
                               },
                               icon: const Icon(Icons.replay),
                               visualDensity: VisualDensity.compact,

@@ -142,13 +142,11 @@ List<TimelineEntry> sorted(List<TimelineEntry> entries, {required bool ascending
 /// Tests exercise one pass at a time by *disabling* the one under test, so
 /// every pass is on unless a test says otherwise (the app defaults are off).
 AppSettings groupingSettings({
-  bool dayHeaders = true,
   bool setupGrouping = true,
   bool replacementDetection = true,
   bool stravaContext = true,
 }) {
   return AppSettings()
-    ..enableTimelineDayHeaders = dayHeaders
     ..enableTimelineSetupGrouping = setupGrouping
     ..enableTimelineReplacementDetection = replacementDetection
     ..enableTimelineStravaContext = stravaContext;
@@ -199,15 +197,6 @@ void main() {
       expect(rows.whereType<DayHeaderRow>(), hasLength(1));
     });
 
-    test('can be disabled via settings', () {
-      final rows = build(
-        [s1, s2],
-        ascending: false,
-        settings: groupingSettings(dayHeaders: false),
-      );
-      expect(rows.whereType<DayHeaderRow>(), isEmpty);
-      expect(rows, hasLength(2));
-    });
   });
 
   group('setup grouping', () {
@@ -760,7 +749,7 @@ void main() {
           ['s1', 's2']);
     });
 
-    test('all passes off yields only single rows', () {
+    test('grouping passes off yields only single rows', () {
       final s1 = setupEntry(id: 's1', utc: DateTime.utc(2026, 7, 1, 10));
       final s2 = setupEntry(id: 's2', utc: DateTime.utc(2026, 7, 1, 11));
       final removed = deinstallEntry(
@@ -776,7 +765,6 @@ void main() {
       final rows = collapse(
         [s1, s2, removed, installed],
         settings: groupingSettings(
-          dayHeaders: false,
           setupGrouping: false,
           replacementDetection: false,
           stravaContext: false,

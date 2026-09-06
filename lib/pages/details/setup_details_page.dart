@@ -172,10 +172,19 @@ class _SetupDetailsPageState extends State<SetupDetailsPage> {
 
 class SetupDetailsPageContent extends StatelessWidget {
   final Setup setup;
+  final bool showCompareAction;
   final bool showSheetActions;
   final bool showCloseButton;
 
-  const SetupDetailsPageContent({super.key, required this.setup, this.showSheetActions = false, this.showCloseButton = false});
+  const SetupDetailsPageContent._({super.key, required this.setup, this.showSheetActions = false, this.showCloseButton = false, this.showCompareAction = false});
+
+  factory SetupDetailsPageContent({Key? key, required Setup setup}) {
+    return SetupDetailsPageContent._(key: key, setup: setup, showSheetActions: false, showCloseButton: false, showCompareAction: true);
+  }
+
+  factory SetupDetailsPageContent.sheet({Key? key, required Setup setup}) {
+    return SetupDetailsPageContent._(key: key, setup: setup, showSheetActions: true, showCloseButton: true, showCompareAction: false);
+  }
 
   Future<void> _onSheetAction(BuildContext context, _SetupDetailsAction action) async {
     switch (action) {
@@ -189,11 +198,28 @@ class SetupDetailsPageContent extends StatelessWidget {
     }
   }
 
-  Widget _sheetActions(BuildContext context) {
-    final settings = context.watch<AppSettings>();
+  Widget? _sheetCompareAction(BuildContext context) {
     final setups = context.read<AppRepository>().setups.values;
-    final canCompare = settings.enableSetupComparison &&
-        SetupComparisonService.resolveTargets(setupB: setup, setups: setups) is SetupComparisonTargets;
+    final canCompare = SetupComparisonService.resolveTargets(setupB: setup, setups: setups) is SetupComparisonTargets;
+    if (!canCompare) return null;
+    return IconButton.filled(
+      iconSize: 20,
+      tooltip: _SetupDetailsAction.compare.label,
+      style: IconButton.styleFrom(
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      onPressed: () async {
+        await _onSheetAction(context, _SetupDetailsAction.compare);
+      },
+      icon: Icon(_SetupDetailsAction.compare.icon),
+    );
+  }
+
+  Widget _sheetActions(BuildContext context) {
+    final setups = context.read<AppRepository>().setups.values;
+    final canCompare = SetupComparisonService.resolveTargets(setupB: setup, setups: setups) is SetupComparisonTargets;
     final actions = <_SetupDetailsAction>[
       _SetupDetailsAction.edit,
       //TODO: add "add rating" and "remove" ?
@@ -231,6 +257,7 @@ class SetupDetailsPageContent extends StatelessWidget {
     final Color background = setup.isCurrent
         ? CurrentSetupHighlight.opaqueFill(colorScheme)
         : colorScheme.surface;
+    final Widget? compareAction = showCompareAction ? _sheetCompareAction(context) : null;
 
     return SliverAppBar(
       pinned: true,
@@ -272,8 +299,9 @@ class SetupDetailsPageContent extends StatelessWidget {
               ],
             ),
           ),
-          if (showSheetActions || showCloseButton)
+          if (compareAction != null || showSheetActions || showCloseButton)
             const SizedBox(width: 12),
+          ?compareAction,
           if (showSheetActions) _sheetActions(context),
           if (showCloseButton)
             sheetCloseButton(context),

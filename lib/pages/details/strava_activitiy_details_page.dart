@@ -3,11 +3,14 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
+import '../../models/bike.dart';
+import '../../models/component.dart';
 import '../../models/setup.dart';
 import '../../models/strava/strava_activity.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/strava_service.dart';
 import '../../utils/component_actions.dart';
+import '../../widgets/empty_state_placeholder2.dart';
 import '../../widgets/items/component_list_card.dart';
 import '../../widgets/items/setup_list_tile.dart';
 import '../../widgets/sheets/sheet.dart';
@@ -240,46 +243,96 @@ class StravaActivitiyPageContent extends StatelessWidget {
                 final installedComponents = appRepository.components.values
                     .where((c) => linkedBike != null && c.bikeAt(activityTimeUtc) == linkedBike.id)
                     .toList();
-                final bool enabled = linkedBike != null;
-                final Color disabledColor = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38);
+                final unlinkedBikes = appRepository.bikes.values.where((bike) => bike.stravaGear == null).toList();
                 return ExpansionTile(
                   shape: const Border(),
                   collapsedShape: const Border(),
-                  leading: Icon(Icons.pedal_bike, color: enabled ? null : disabledColor),
+                  leading: const Icon(Icons.pedal_bike),
                   title: Text(
-                    linkedBike?.name ?? "No bike linked to this Strava gear",
+                    linkedBike?.name ?? "No Bike linked to this Strava gear",
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: enabled ? null : disabledColor,
                     ),
                   ),
                   subtitle: Text(
                     stravaGear.name,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: enabled
-                          ? Theme.of(context).colorScheme.onSurfaceVariant
-                          : disabledColor,
-                    ),
                   ),
                   childrenPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
-                  enabled: enabled,
                   children: [
-                    ...installedComponents.map(
-                          (c) => ComponentListCard(
-                            component: c,
-                            showCurrentAdjustmentValues: false,
-                          ),
-                        ),
-                    if (linkedBike != null) ...[
+                    if (linkedBike == null) ...[
+                      EmptyStatePlaceholder2(
+                        iconData: Icons.pedal_bike,
+                        title: 'No Bike linked to this Strava gear',
+                        subtitle: unlinkedBikes.isEmpty
+                            ? 'Add a new bike to link this gear automatically'
+                            : 'Link an existing bike or add a new bike for this gear',
+                      ),
                       const SizedBox(height: 8),
+                      Row(
+                        spacing: 8,
+                        children: [
+                          if (unlinkedBikes.isNotEmpty)
+                            Expanded(
+                              child: MenuAnchor(
+                                menuChildren: unlinkedBikes
+                                    .map(
+                                      (bike) => MenuItemButton(
+                                        onPressed: () => appRepository.editBike(
+                                          bike.copyWith(stravaGear: stravaGear.id),
+                                        ),
+                                        child: Text(
+                                          bike.name,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    )
+                                    .toList(),
+                                builder: (context, controller, child) => FilledButton.icon(
+                                  onPressed: controller.open,
+                                  icon: const Icon(Icons.link),
+                                  label: const Text('Link Bike'),
+                                ),
+                              ),
+                            ),
+                          Expanded(
+                            child: FilledButton.icon(
+                              onPressed: () => appRepository.addBike(
+                                Bike(name: stravaGear.name, person: null, stravaGear: stravaGear.id),
+                              ),
+                              icon: const Icon(Icons.add),
+                              label: const Text('Add New'),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ] else if (installedComponents.isEmpty) ...[
+                      EmptyStatePlaceholder2(
+                        iconData: Component.iconData,
+                        title: 'No components yet',
+                        subtitle: 'Add a component to this bike',
+                        onTap: () => ComponentActions.addComponent(context, initialBike: linkedBike.id)
+                      ),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton.icon(
+                          onPressed: () => ComponentActions.addComponent(context, initialBike: linkedBike.id),
+                          icon: const Icon(Icons.add),
+                          label: const Text('Add Component'),
+                        ),
+                      ),
+                    ] else ...[
+                      ...installedComponents.map(
+                        (c) => ComponentListCard(
+                          component: c,
+                          showCurrentAdjustmentValues: false,
+                        ),
+                      ),
                       Center(
                         child: TextButton.icon(
-                          onPressed: () => ComponentActions.addComponent(
-                            context,
-                            initialBike: linkedBike.id,
-                          ),
+                          onPressed: () => ComponentActions.addComponent(context, initialBike: linkedBike.id),
                           icon: const Icon(Icons.add),
-                          label: const Text("Add Component"),
+                          label: const Text('Add Component'),
                         ),
                       ),
                     ],
@@ -337,40 +390,50 @@ class StravaActivitiyPageContent extends StatelessWidget {
                   ),
                   childrenPadding: const EdgeInsets.symmetric(vertical: 8),
                   children: [
-                    ...uniqueSetups.map((setup) {
-                      return Card(
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                        // Rounds the InkWell and the current-setup bar.
-                        clipBehavior: Clip.antiAlias,
-                        child: SetupListTile(
-                          setupId: setup.id,
-                          displayBikeAdjustmentValues: true,
-                          displayPersonAdjustmentValues: true,
-                          onTap: null,
+                    if (uniqueSetups.isEmpty) ...[
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: EmptyStatePlaceholder2(
+                          iconData: Setup.iconData,
+                          title: 'No setups for this activity',
+                          subtitle: 'Add a setup to record your bike configuration',
+                          onTap:() => _addSetup(context, appRepository)
                         ),
-                      );
-                    }),
-                    const SizedBox(height: 8),
-                    Center(
-                      child: TextButton.icon(
-                        onPressed: () async {
-                          final result = await Navigator.push<Setup>(
-                            context,
-                            MaterialPageRoute<Setup>(
-                              builder: (context) => SetupPage.addFromStravaActivity(
-                                context: context,
-                                stravaActivity: stravaActivity,
-                              ),
-                            ),
-                          );
-                          if (result is Setup) {
-                            await appRepository.addSetup(result);
-                          }
-                        },
-                        icon: const Icon(Icons.add),
-                        label: const Text("Add Setup"),
                       ),
-                    ),
+                      const SizedBox(height: 8),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: FilledButton.icon(
+                            onPressed: () => _addSetup(context, appRepository),
+                            icon: const Icon(Icons.add),
+                            label: const Text('Add Setup'),
+                          ),
+                        ),
+                      ),
+                    ] else ...[
+                      ...uniqueSetups.map((setup) {
+                        return Card(
+                          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                          // Rounds the InkWell and the current-setup bar.
+                          clipBehavior: Clip.antiAlias,
+                          child: SetupListTile(
+                            setupId: setup.id,
+                            displayBikeAdjustmentValues: true,
+                            displayPersonAdjustmentValues: true,
+                            onTap: null,
+                          ),
+                        );
+                      }),
+                      Center(
+                        child: TextButton.icon(
+                          onPressed: () => _addSetup(context, appRepository),
+                          icon: const Icon(Icons.add),
+                          label: const Text('Add Setup'),
+                        ),
+                      ),
+                    ],
                   ],
                 );
               },
@@ -407,5 +470,20 @@ class StravaActivitiyPageContent extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _addSetup(BuildContext context, AppRepository appRepository) async {
+    final result = await Navigator.push<Setup>(
+      context,
+      MaterialPageRoute<Setup>(
+        builder: (context) => SetupPage.addFromStravaActivity(
+          context: context,
+          stravaActivity: stravaActivity,
+        ),
+      ),
+    );
+    if (result is Setup) {
+      await appRepository.addSetup(result);
+    }
   }
 }

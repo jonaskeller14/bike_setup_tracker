@@ -11,7 +11,9 @@ import '../../models/person.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/bike_actions.dart';
+import '../../utils/component_actions.dart';
 import '../../widgets/display_data/component_stats_card.dart';
+import '../../widgets/empty_state_placeholder2.dart';
 import '../../widgets/installation_timeline_table.dart';
 import '../../widgets/items/component_list_card.dart';
 import '../../widgets/notes_text.dart';
@@ -88,6 +90,7 @@ class BikeDetailsPage extends StatelessWidget {
                   dense: true,
                 ),
               
+
               if (appSettings.enableStrava && subscriptionService.hasStravaEntitlement)
                 ListTile(
                   leading: Badge(
@@ -132,15 +135,42 @@ class BikeDetailsPage extends StatelessWidget {
                   "Components (${components.length})",
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: components.isNotEmpty ? null : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                   ),
                 ),
                 childrenPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
-                enabled: components.isNotEmpty,
-                children: components.map((component) => ComponentListCard(
-                  component: component,
-                  showCurrentAdjustmentValues: false,
-                )).toList(),
+                children: [
+                  if (components.isEmpty) ...[
+                    EmptyStatePlaceholder2(
+                      iconData: Component.iconData,
+                      title: 'No components yet',
+                      subtitle: 'Add a component to this bike',
+                      onTap: () => ComponentActions.addComponent(context, initialBike: bikeId),
+                    ),
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.icon(
+                        onPressed: () => ComponentActions.addComponent(context, initialBike: bikeId),
+                        icon: const Icon(Icons.add),
+                        label: const Text('Add Component'),
+                      ),
+                    ),
+                  ] else ...[
+                    ...components.map(
+                      (component) => ComponentListCard(
+                        component: component,
+                        showCurrentAdjustmentValues: false,
+                      ),
+                    ),
+                    Center(
+                      child: TextButton.icon(
+                        onPressed: () => ComponentActions.addComponent(context, initialBike: bikeId),
+                        icon: const Icon(Icons.add),
+                        label: const Text('Add Component'),
+                      ),
+                    ),
+                  ],
+                ],
               ),
               const Divider(height: 1),
               if (kDebugMode) _installationOverview(context)

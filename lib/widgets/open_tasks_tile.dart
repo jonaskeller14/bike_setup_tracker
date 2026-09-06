@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/task/task_rule.dart';
 import '../pages/task_rule_page.dart';
 import '../repositories/app_repository.dart';
+import 'empty_state_placeholder2.dart';
 import 'items/task_rule_list_card.dart';
 
 sealed class _OTTAssociation {
@@ -33,6 +34,7 @@ class OpenTasksTile extends StatelessWidget {
   factory OpenTasksTile.component({Key? key, required String componentId}) =>
     OpenTasksTile._(key: key, association: _OTTComponentAssociation(id: componentId));
   
+
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
@@ -44,10 +46,7 @@ class OpenTasksTile extends StatelessWidget {
     
     final count = openTasks.length;
     final aggregatedStatus = appRepository.getAggregatedTaskStatus(openTasks.map((t) => t.rule));
-    final isEnabled = count > 0;
-
     return ExpansionTile(
-      enabled: isEnabled,
       shape: const Border(),
       collapsedShape: const Border(),
       leading: Badge.count(
@@ -60,38 +59,56 @@ class OpenTasksTile extends StatelessWidget {
         "Open Tasks",
         style: Theme.of(context).textTheme.titleSmall?.copyWith(
           fontWeight: FontWeight.bold,
-          color: isEnabled ? null : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
         ),
       ),
       childrenPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
       children: [
-        ...openTasks.map(
-          (t) => TaskRuleListCard(
-            taskRuleId: t.rule.id,
-            heroTag: 'open-task-card-${t.rule.id}',
+        if (openTasks.isEmpty) ...[
+          EmptyStatePlaceholder2(
+            iconData: Icons.checklist,
+            title: 'No open tasks',
+            subtitle: 'Add a task to keep track of maintenance',
+            onTap: () => _addTaskRule(context, appRepository),
           ),
-        ),
-        // const SizedBox(height: 8),
-        Center(
-          child: TextButton.icon(
-            onPressed: () async {
-              final newTaskRule = await Navigator.push<TaskRule>(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => switch (_association) {
-                    _OTTBikeAssociation(:final id) => TaskRulePage.addForBike(bikeId: id),
-                    _OTTComponentAssociation(:final id) => TaskRulePage.addForComponent(componentId: id),
-                  },
-                ),
-              );
-              if (newTaskRule == null) return;
-              await appRepository.addTaskRule(newTaskRule);
-            },
-            icon: const Icon(Icons.add),
-            label: const Text("Add Task"),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: () => _addTaskRule(context, appRepository),
+              icon: const Icon(Icons.add),
+              label: const Text('Add Task'),
+            ),
           ),
-        ),
+        ] else ...[
+          ...openTasks.map(
+            (t) => TaskRuleListCard(
+              taskRuleId: t.rule.id,
+              heroTag: 'open-task-card-${t.rule.id}',
+            ),
+          ),
+          Center(
+            child: TextButton.icon(
+              onPressed: () => _addTaskRule(context, appRepository),
+              icon: const Icon(Icons.add),
+              label: const Text('Add Task'),
+            ),
+          ),
+        ],
       ],
     );
+  }
+
+  Future<void> _addTaskRule(BuildContext context, AppRepository appRepository) async {
+    final newTaskRule = await Navigator.push<TaskRule>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => switch (_association) {
+          _OTTBikeAssociation(:final id) => TaskRulePage.addForBike(bikeId: id),
+          _OTTComponentAssociation(:final id) => TaskRulePage.addForComponent(componentId: id),
+        },
+      ),
+    );
+    if (newTaskRule == null) return;
+    await appRepository.addTaskRule(newTaskRule);
   }
 }

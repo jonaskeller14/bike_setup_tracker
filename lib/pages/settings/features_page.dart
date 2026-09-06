@@ -22,7 +22,6 @@ class FeaturesPage extends StatelessWidget {
 
   static String _timelineGroupingSummary(AppSettings settings) {
     final enabled = [
-      if (settings.enableTimelineDayHeaders) 'Day Headers',
       if (settings.enableTimelineSetupGrouping) 'Setup Grouping',
       if (settings.enableTimelineReplacementDetection) 'Replacement Detection',
       if (kDebugMode && settings.enableTimelineStravaContext) 'Strava Context',
@@ -207,12 +206,6 @@ class FeaturesPage extends StatelessWidget {
                       'related entries. Each pass can be toggled on its own.',
                   options: [
                     AppSettingsCheckboxOption(
-                      title: 'Day Headers',
-                      subtitle: 'Group entries under a header per day.',
-                      value: () => appSettings.enableTimelineDayHeaders,
-                      onChanged: (v) => appSettings.enableTimelineDayHeaders = v,
-                    ),
-                    AppSettingsCheckboxOption(
                       title: 'Setup Grouping',
                       subtitle: 'Merge setups of the same bike recorded close together.',
                       value: () => appSettings.enableTimelineSetupGrouping,
@@ -234,24 +227,6 @@ class FeaturesPage extends StatelessWidget {
                     ],
                   ),
                 ),
-              ListTile(
-                leading: const Icon(Icons.compare),
-                title: const Text("Setup Comparison"),
-                subtitle: _offOnOptionWidgets[appSettings.enableSetupComparison] ?? const Text("-"),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => appSettingsRadioGroupSheet<bool>(
-                  context: context,
-                  title: "Setup Comparison",
-                  value: appSettings.enableSetupComparison,
-                  optionWidgets: _offOnOptionWidgets,
-                  onChanged: (bool? newValue) {
-                    if (newValue == null) return;
-                    appSettings.enableSetupComparison = newValue;
-                    Navigator.pop(context);
-                  },
-                  infoText: 'Exposes experimental comparison of a historical setup against the current setup.',
-                ),
-              ),
               const Divider(),
               const SectionTitle(title: 'Tasks'),
               ListTile(

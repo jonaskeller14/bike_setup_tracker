@@ -45,10 +45,7 @@ class SetupList extends StatelessWidget {
             padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
           ),
         ),
-        const SliverPadding(
-          padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-          sliver: SliverToBoxAdapter(child: SetupListFilterWidget()),
-        ),
+        const SliverToBoxAdapter(child: SetupListFilterWidget()),
         SliverFillRemaining(
           hasScrollBody: false,
           child: Padding(
@@ -124,8 +121,6 @@ class SetupList extends StatelessWidget {
     required double currentBarLeft,
     required EdgeInsets edgeInset,
   }) {
-    final showDate = !appSettings.enableTimelineDayHeaders;
-
     switch (entry) {
       case StravaEntry():
         _maybeTriggerStravaLazyLoad(
@@ -133,7 +128,7 @@ class SetupList extends StatelessWidget {
           lazyLoadTriggerIds,
           entry.activity,
         );
-        return StravaListTile(stravaActivity: entry.activity, showDate: showDate);
+        return StravaListTile(stravaActivity: entry.activity, showDate: false);
       case SetupEntry():
         final setup = entry.setup;
         return SetupListTile(
@@ -141,14 +136,14 @@ class SetupList extends StatelessWidget {
           onTap: () => _openSetupDetails(context, setupsList, setup),
           displayBikeAdjustmentValues: appSettings.setupListBikeAdjustmentValues,
           displayPersonAdjustmentValues: appSettings.setupListPersonAdjustmentValues,
-          showDate: showDate,
+          showDate: false,
           currentBarLeft: currentBarLeft,
           edgeInset: edgeInset,
         );
       case TaskTimeLineEntry():
         return TaskEntryListItem(
           taskEntryId: entry.taskEntry.id,
-          showDate: showDate,
+          showDate: false,
           onTap: () => showTaskRuleSheet(
             context,
             taskRuleId: entry.taskEntry.taskRule,
@@ -158,7 +153,7 @@ class SetupList extends StatelessWidget {
       case InstallationEntry():
         return InstallationListTile(
           componentInstallation: entry.componentInstallation,
-          showDate: showDate,
+          showDate: false,
           onTap: () async {
             await showEditInstallationSheet(
               context,
@@ -170,7 +165,7 @@ class SetupList extends StatelessWidget {
       case RatingEntryTimelineEntry():
         return RatingEntryListTile(
           ratingEntry: entry.ratingEntry,
-          showDate: showDate,
+          showDate: false,
         );
     }
   }
@@ -212,7 +207,7 @@ class SetupList extends StatelessWidget {
       ),
       ReplacementRow() => ReplacementListTile(
         row: row,
-        showDate: !appSettings.enableTimelineDayHeaders,
+        showDate: false,
         onTap: () async {
           await showReplacementSheet(
             context,
@@ -319,12 +314,7 @@ class SetupList extends StatelessWidget {
             padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
           ),
         ),
-        SliverPersistentHeader(
-          floating: true,
-          delegate: _SetupFilterHeaderDelegate(
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          ),
-        ),
+        const SliverToBoxAdapter(child: SetupListFilterWidget()),
         ..._buildRowSlivers(
           context,
           rows,
@@ -355,19 +345,6 @@ class SetupList extends StatelessWidget {
     required Set<int> lazyLoadTriggerIds,
     required Iterable<Setup> setupsList,
   }) {
-    if (!appSettings.enableTimelineDayHeaders) {
-      return [
-        _daySliverList(
-          context,
-          rows,
-          appSettings: appSettings,
-          appRepository: appRepository,
-          lazyLoadTriggerIds: lazyLoadTriggerIds,
-          setupsList: setupsList,
-        ),
-      ];
-    }
-
     // One box child per day so a single SliverList can build sections lazily
     // (a sliver group per day is inflated eagerly and made deep windows take
     // seconds to build). The pinning happens inside each section, see
@@ -442,74 +419,5 @@ class SetupList extends StatelessWidget {
         children: children,
       ),
     );
-  }
-
-  Widget _daySliverList(
-    BuildContext context,
-    List<TimelineRow> group, {
-    required AppSettings appSettings,
-    required AppRepository appRepository,
-    required Set<int> lazyLoadTriggerIds,
-    required Iterable<Setup> setupsList,
-  }) {
-    return SliverPadding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      sliver: SliverList.separated(
-        itemCount: group.length,
-        separatorBuilder: (context, index) => const Divider(height: 1),
-        itemBuilder: (context, index) {
-          final row = group[index];
-          // Key each row to its stable entry identity so element state (card
-          // expansion, Strava context wrapper) tracks the logical entry across
-          // the reordering an edit can cause.
-          return KeyedSubtree(
-            key: row.key,
-            child: _buildRow(
-              context,
-              row,
-              appSettings: appSettings,
-              appRepository: appRepository,
-              lazyLoadTriggerIds: lazyLoadTriggerIds,
-              setupsList: setupsList,
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _SetupFilterHeaderDelegate extends SliverPersistentHeaderDelegate {
-  static const double _height = 64;
-
-  final Color backgroundColor;
-
-  const _SetupFilterHeaderDelegate({required this.backgroundColor});
-
-  @override
-  double get minExtent => _height;
-
-  @override
-  double get maxExtent => _height;
-
-  @override
-  Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
-  ) {
-    return Material(
-      color: backgroundColor,
-      elevation: overlapsContent ? 2 : 0,
-      child: const Padding(
-        padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
-        child: SetupListFilterWidget(),
-      ),
-    );
-  }
-
-  @override
-  bool shouldRebuild(covariant _SetupFilterHeaderDelegate oldDelegate) {
-    return backgroundColor != oldDelegate.backgroundColor;
   }
 }

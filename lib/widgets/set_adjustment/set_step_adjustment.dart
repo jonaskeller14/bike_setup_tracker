@@ -17,6 +17,10 @@ class SetStepAdjustmentWidget extends StatelessWidget {
   final ValueChanged<double?> onChangedEnd;
   final bool highlighting;
 
+  /// The value is not pre-filled from [initialValue], so it may be left unset
+  /// and stays clearable even when a previous value exists.
+  final bool optional;
+
   const SetStepAdjustmentWidget({
     required super.key,
     required this.adjustment,
@@ -25,6 +29,7 @@ class SetStepAdjustmentWidget extends StatelessWidget {
     required this.onChanged,
     required this.onChangedEnd,
     this.highlighting = true,
+    this.optional = false,
   });
 
   void onPressedMinusButton() {
@@ -57,7 +62,7 @@ class SetStepAdjustmentWidget extends StatelessWidget {
     Color? highlightColor;
     final highlights = Theme.of(context).extension<ValueHighlightColors>();
     if (highlighting) {
-      isChanged = initialValue != value;
+      isChanged = value == null ? false : initialValue != value;
       isInitial = initialValue == null;
       highlightColor = isChanged ? (isInitial ? highlights?.initial ?? Colors.green : highlights?.changed ?? Colors.orange) : null;
     }
@@ -151,7 +156,7 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                         primaryColor: Theme.of(context).colorScheme.primary,
                         onPrimaryColor: Theme.of(context).colorScheme.onPrimary,
                       ),
-                    if (isInitial)
+                    if (isInitial || optional)
                       IconButton(
                         onPressed: () {onChanged(null); onChangedEnd(null);},
                         icon: const Icon(Icons.replay),
@@ -193,7 +198,7 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                       ),
                       child: Text("+ ${adjustment.step}"),
                     ),
-                    if (isInitial)
+                    if (isInitial || optional)
                       IconButton(
                         onPressed: () {onChanged(null); onChangedEnd(null);},
                         icon: const Icon(Icons.replay),
@@ -242,7 +247,7 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                         primaryColor: Theme.of(context).colorScheme.primary,
                         onPrimaryColor: Theme.of(context).colorScheme.onPrimary,
                       ),
-                      if (isInitial)
+                      if (isInitial || optional)
                         IconButton(
                           onPressed: () {onChanged(null); onChangedEnd(null);},
                           icon: const Icon(Icons.replay),

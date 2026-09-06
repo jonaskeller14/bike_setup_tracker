@@ -1,4 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+
+import 'onboarding_motion.dart';
 
 Widget stepWidget({required BuildContext context, required int step}) {
   return Container(
@@ -17,47 +21,59 @@ Widget stepWidget({required BuildContext context, required int step}) {
   );
 }
 
+/// Runs the shared onboarding entrance on one slide element, [delay] after the
+/// slide is built, so a group of them can be staged.
 class DelayedFade extends StatefulWidget {
-  final int delay;
-  final String keyId;
+  final Duration delay;
   final Widget child;
 
-  const DelayedFade({super.key, required this.delay, required this.keyId, required this.child});
+  const DelayedFade({super.key, required this.delay, required this.child});
 
   @override
   State<DelayedFade> createState() => _DelayedFadeState();
 }
 
-class _DelayedFadeState extends State<DelayedFade> {
-  late final Future<void> _delayFuture;
+class _DelayedFadeState extends State<DelayedFade> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: kOnboardingEntranceDuration,
+  );
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    _delayFuture = Future.delayed(Duration(milliseconds: widget.delay));
+    // A cancellable timer, so leaving the slide early does not leave one running.
+    _timer = Timer(widget.delay, () => unawaited(_controller.forward()));
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Reduced motion has nothing to stage: drop the pending entrance instead
+    // of running an animation the build below never reads.
+    if (!reduceMotion(context)) return;
+    _timer?.cancel();
+    _controller.value = 1;
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return TweenAnimationBuilder<double>(
-      key: ValueKey(widget.keyId),
-      tween: Tween(begin: 0.0, end: 1.0),
-      duration: const Duration(milliseconds: 600),
-      curve: Curves.easeOutBack,
-      builder: (context, size, child) {
-        return Transform.scale(
-          scale: size,
-          child: child,
-        );
-      },
-      child: FutureBuilder(
-        future: _delayFuture,
-        builder: (context, snapshot) {
-          return snapshot.connectionState == ConnectionState.done 
-              ? widget.child 
-              : const Opacity(opacity: 0);
-        },
-      ),
+    if (reduceMotion(context)) return widget.child;
+
+    return AnimatedBuilder(
+      animation: _controller,
+      // The slot is held from the first frame so the staged row does not resize
+      // as each item lands, and so a shared element can measure its endpoint.
+      child: widget.child,
+      builder: (context, child) => onboardingEntrance(progress: _controller.value, child: child!),
     );
   }
 }

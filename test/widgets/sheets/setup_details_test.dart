@@ -19,10 +19,8 @@ void main() {
   Future<void> pumpDetails(WidgetTester tester, String setupId) async {
     await tester.pumpWidget(
       harness.wrap(
-        SetupDetailsPageContent(
+        SetupDetailsPageContent.sheet(
           setup: harness.repository.setups[setupId]!,
-          showSheetActions: true,
-          showCloseButton: true,
         ),
       ),
     );
@@ -49,7 +47,6 @@ void main() {
     final current = harness.setup(id: 'current', name: 'Current', local: DateTime(2026, 8, 2, 10));
     await harness.addSetups(tester, [historical, current]);
     await harness.reload(tester);
-    harness.settings.enableSetupComparison = true;
     await pumpDetails(tester, historical.id);
 
     await tester.tap(find.byTooltip('Setup actions'));

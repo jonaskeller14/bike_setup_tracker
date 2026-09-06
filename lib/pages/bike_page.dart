@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -61,7 +62,14 @@ class _BikePageState extends State<BikePage> {
     _notesController = TextEditingController(text: widget.bike?.notes);
     _notesController.addListener(_changeListener);
     
-    _initialPerson = widget.bike?.person;
+    final String? preselectedPerson;
+    if (widget.mode == BikePageMode.add) {
+      final appRepository = context.read<AppRepository>();
+      preselectedPerson = appRepository.persons.values.firstOrNull?.id;
+    } else {
+      preselectedPerson = null;
+    }
+    _initialPerson = widget.bike?.person ?? preselectedPerson;
     _person = _initialPerson;
 
     _initialStravaGear = widget.bike?.stravaGear;
@@ -162,18 +170,29 @@ class _BikePageState extends State<BikePage> {
         if (!persons.containsKey(newPerson)) return "Please select valid person";
         return null;
       },
-      items: persons.values.map((p) {
-        return DropdownMenuItem<String>(
-          value: p.id,
+      items: [
+        const DropdownMenuItem<String?>(
+          value: null,
           child: Row(
             spacing: 8,
             children: [
-              const Icon(Icons.person),
-              Expanded(child: Text(p.name, overflow: TextOverflow.ellipsis))
+              Icon(Icons.person_off),
+              Expanded(child: Text("No Owner", overflow: TextOverflow.ellipsis))
             ],
           ),
-        );
-      }).toList() + [
+        ),
+        ...persons.values.map((p) {
+          return DropdownMenuItem<String>(
+            value: p.id,
+            child: Row(
+              spacing: 8,
+              children: [
+                const Icon(Icons.person),
+                Expanded(child: Text(p.name, overflow: TextOverflow.ellipsis))
+              ],
+            ),
+          );
+        }),
         if (_person != null && !persons.containsKey(_person))
           DropdownMenuItem<String>(
           value: _person,

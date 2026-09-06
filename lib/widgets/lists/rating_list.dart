@@ -18,10 +18,7 @@ class RatingList extends StatelessWidget {
   Widget _emptyPlaceholder(BuildContext context) {
     return CustomScrollView(
       slivers: [
-        const SliverPadding(
-          padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-          sliver: SliverToBoxAdapter(child: RatingListFilterWidget()),
-        ),
+        const SliverToBoxAdapter(child: RatingListFilterWidget()),
         SliverFillRemaining(
           hasScrollBody: false,
           child: Padding(
@@ -53,10 +50,13 @@ class RatingList extends StatelessWidget {
           final double scale = lerpDouble(1, 1.03, animValue)!;
           return Transform.scale(
             scale: scale,
-            child: RatingListCard(
-              rating: ratingsList[index],
-              index: index,
-              elevation: elevation,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: RatingListCard(
+                rating: ratingsList[index],
+                index: index,
+                elevation: elevation,
+              ),
             ),
           );
         },
@@ -68,17 +68,20 @@ class RatingList extends StatelessWidget {
         ? _emptyPlaceholder(context)
         : ReorderableListView.builder(
             itemCount: ratingsList.length,
-            padding: const EdgeInsets.only(left: 16, top: 8, right: 16, bottom: 16+100),
+            padding: const EdgeInsets.only(bottom: 16+100),
             header: const RatingListFilterWidget(),
             proxyDecorator: proxyDecorator,
             onReorderStart: (_) => unawaited(HapticFeedback.lightImpact()),
             onReorderItem: (int oldIndex, int newIndex) => RatingActions.onReorderRating(context, oldIndex: oldIndex, newIndex: newIndex),
             itemBuilder: (context, index) {
               final rating = ratingsList[index];
-              return RatingListCard(
+              return Padding(
                 key: ValueKey(rating.id),
-                rating: rating,
-                index: index,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: RatingListCard(
+                  rating: rating,
+                  index: index,
+                ),
               );
             },
           );

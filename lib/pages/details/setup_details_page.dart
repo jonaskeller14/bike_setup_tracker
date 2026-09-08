@@ -258,6 +258,7 @@ class SetupDetailsPageContent extends StatelessWidget {
         ? CurrentSetupHighlight.opaqueFill(colorScheme)
         : colorScheme.surface;
     final Widget? compareAction = showCompareAction ? _sheetCompareAction(context) : null;
+    final bool showBookmarkAction = appSettings.enableSetupBookmark;
 
     return SliverAppBar(
       pinned: true,
@@ -299,9 +300,10 @@ class SetupDetailsPageContent extends StatelessWidget {
               ],
             ),
           ),
-          if (compareAction != null || showSheetActions || showCloseButton)
+          if (compareAction != null || showBookmarkAction || showSheetActions || showCloseButton)
             const SizedBox(width: 12),
           ?compareAction,
+          if (showBookmarkAction) _SetupBookmarkAction(setupId: setup.id),
           if (showSheetActions) _sheetActions(context),
           if (showCloseButton)
             sheetCloseButton(context),
@@ -340,7 +342,15 @@ class SetupDetailsPageContent extends StatelessWidget {
               tags: appSettings.enableSetupTags ? setup.tags : const {},
               images: appSettings.enableSetupImages ? setup.images : const [],
             ),
-            ContextLocationCard(position: setup.position, place: setup.place, displayName: setup.displayName, mapPin: SetupMapPin.icon(isCurrent: setup.isCurrent)),
+            ContextLocationCard(
+              position: setup.position,
+              place: setup.place,
+              displayName: setup.displayName,
+              mapPin: SetupMapPin.icon(
+                isCurrent: setup.isCurrent,
+                isBookmarked: appSettings.enableSetupBookmark && setup.isBookmarked,
+              ),
+            ),
             ContextWeatherCard(weather: setup.weather),
             ContextBikePersonCard(
               bike: bike,
@@ -523,6 +533,9 @@ class SetupDetailsPageContent extends StatelessWidget {
                   ),
                 );
               }),
+
+            if (danglingComponentGroups.isNotEmpty || danglingDeletedBikeAdjustmentValues.isNotEmpty)
+              const SizedBox(height: 12),
             ...danglingComponentGroups.map((group) => _danglingComponentCard(context, setup: setup, group: group)),
             if (danglingDeletedBikeAdjustmentValues.isNotEmpty)
               _danglingValuesCard(
@@ -530,9 +543,11 @@ class SetupDetailsPageContent extends StatelessWidget {
                 values: danglingDeletedBikeAdjustmentValues,
                 title: "Dangling Adjustment Values",
                 cause: "Component with adjustment was deleted",
-              ),
+              ),            
+
             if (appSettings.enablePerson) ...[
-              if (person != null)
+              if (person != null) ... [
+                const SizedBox(height: 12),
                 Card.outlined(
                   margin: const EdgeInsets.symmetric(vertical: 4),
                   clipBehavior: Clip.antiAlias,
@@ -561,6 +576,10 @@ class SetupDetailsPageContent extends StatelessWidget {
                     ],
                   ),
                 ),
+              ],
+
+              if (danglingPersonGroups.isNotEmpty || danglingDeletedPersonAdjustmentValues.isNotEmpty)
+                const SizedBox(height: 12),
               ...danglingPersonGroups.map((group) => _danglingPersonCard(context, setup: setup, group: group)),
               if (danglingDeletedPersonAdjustmentValues.isNotEmpty)
                 _danglingValuesCard(
@@ -660,6 +679,32 @@ class SetupDetailsPageContent extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _SetupBookmarkAction extends StatelessWidget {
+  final String setupId;
+
+  const _SetupBookmarkAction({required this.setupId});
+
+  @override
+  Widget build(BuildContext context) {
+    final setup = context.select<AppRepository, Setup?>((r) => r.setups[setupId]);
+    if (setup == null) return const SizedBox.shrink();
+
+    return IconButton.filled(
+      iconSize: 20,
+      tooltip: setup.isBookmarked ? 'Remove Bookmark' : 'Bookmark',
+      style: IconButton.styleFrom(
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+        foregroundColor: setup.isBookmarked
+            ? Theme.of(context).colorScheme.primary
+            : Theme.of(context).colorScheme.onSurface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      onPressed: () => SetupActions.toggleBookmark(context, setup: setup),
+      icon: Icon(setup.isBookmarked ? Icons.bookmark : Icons.bookmark_border),
     );
   }
 }

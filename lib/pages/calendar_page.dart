@@ -80,8 +80,14 @@ List<EntryRow> buildCalendarRows(List<TimelineEntry> entries, AppSettings settin
   return rows;
 }
 
-IconData calendarIconFor(TimelineEntry entry) => switch (entry) {
-      SetupEntry() => Setup.iconData,
+IconData setupCalendarIcon(Setup setup, {required bool showSetupBookmark}) {
+  if (setup.isCurrent) return Icons.flag;
+  if (showSetupBookmark && setup.isBookmarked) return Icons.bookmark;
+  return Setup.iconData;
+}
+
+IconData calendarIconFor(TimelineEntry entry, {bool showSetupBookmark = false}) => switch (entry) {
+      SetupEntry() => setupCalendarIcon(entry.setup, showSetupBookmark: showSetupBookmark),
       StravaEntry() => entry.activity.workout.isNotable
           ? entry.activity.workout.icon
           : SimpleIcons.strava,
@@ -114,8 +120,8 @@ String calendarSubjectFor(TimelineEntry entry) => switch (entry) {
       RatingEntryTimelineEntry() => entry.ratingEntry.displayName,
     };
 
-IconData calendarIconForRow(EntryRow row) => switch (row) {
-      SingleEntryRow(:final entry) => calendarIconFor(entry),
+IconData calendarIconForRow(EntryRow row, {bool showSetupBookmark = false}) => switch (row) {
+      SingleEntryRow(:final entry) => calendarIconFor(entry, showSetupBookmark: showSetupBookmark),
       ReplacementRow() => Icons.swap_horiz,
       SetupGroupRow() => Setup.iconData,
     };
@@ -783,6 +789,7 @@ class _CalendarPageState extends State<CalendarPage> {
     }
     if (row is! EntryRow) return const SizedBox.shrink();
     final cs = Theme.of(context).colorScheme;
+    final showSetupBookmark = context.read<AppSettings>().enableSetupBookmark;
     final color = calendarColorForRow(row, cs);
     final onColor = calendarOnColorForRow(row, cs);
     final height = details.bounds.height;
@@ -822,7 +829,11 @@ class _CalendarPageState extends State<CalendarPage> {
           : Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(calendarIconForRow(row), size: iconSize, color: onColor),
+                Icon(
+                  calendarIconForRow(row, showSetupBookmark: showSetupBookmark),
+                  size: iconSize,
+                  color: onColor,
+                ),
                 if (showText) ...[
                   const SizedBox(width: 4),
                   Expanded(

@@ -13,6 +13,7 @@ class Setup {
   final bool isDeleted;
   final DateTime lastModified;
   final String? name;
+  final bool isBookmarked;
   final DateTime datetime;  // UTC
   final DateTime datetimeLocal;
   final String? notes;
@@ -41,6 +42,7 @@ class Setup {
     bool? isDeleted,
     DateTime? lastModified,
     this.name,
+    bool? isBookmarked,
     required DateTime datetime,
     required this.datetimeLocal,
     this.notes,
@@ -56,15 +58,17 @@ class Setup {
   }) : id = id ?? const Uuid().v4(),
        images = images ?? const [],
        isDeleted = isDeleted ?? false,
+       isBookmarked = isBookmarked ?? false,
        datetime = datetime.toUtc(),
        lastModified = lastModified?.toUtc() ?? DateTime.now().toUtc();
 
   Map<String, dynamic> toJson() => {
-    'version': 6,
+    'version': 7,
     'id': id,
     "isDeleted": isDeleted,
     "lastModified": lastModified.toUtc().toIso8601String(),
     'name': name,
+    'isBookmarked': isBookmarked,
     'datetime': datetime.toUtc().toIso8601String(),
     'datetimeLocal': datetimeLocal.toIso8601String(),
     'notes': notes,
@@ -82,12 +86,13 @@ class Setup {
   factory Setup.fromJson({required Map<String, dynamic> json}) {
     final int? version = json["version"] as int?;
     switch (version) {
-      case null || 1 || 2 || 3 || 4 || 5 || 6:
+      case null || 1 || 2 || 3 || 4 || 5 || 6 || 7:
         return Setup(
           id: json['id'] as String?,
           isDeleted: json["isDeleted"] as bool?,
           lastModified: DateTime.tryParse(json["lastModified"] as String? ?? ""),
           name: json['name'] as String?,
+          isBookmarked: json['isBookmarked'] as bool?,
           datetime: DateTime.parse(json['datetime'] as String).toUtc(),
           datetimeLocal: (DateTime.tryParse(json['datetimeLocal'] as String? ?? '') ?? DateTime.parse(json['datetime'] as String)).copyWith(isUtc: false),
           notes: json['notes'] != null ? json['notes'] as String : null,
@@ -164,6 +169,7 @@ class Setup {
     Object? isDeleted= const _Sentinel(),
     Object? lastModified = const _Sentinel(),
     Object? name = const _Sentinel(),
+    Object? isBookmarked = const _Sentinel(),
     Object? notes = const _Sentinel(),
     Object? datetime = const _Sentinel(),
     Object? datetimeLocal = const _Sentinel(),
@@ -193,6 +199,9 @@ class Setup {
       name: name is _Sentinel
           ? this.name
           : (name as String?),
+      isBookmarked: isBookmarked is _Sentinel
+          ? this.isBookmarked
+          : (isBookmarked as bool?),
       notes: notes is _Sentinel
           ? this.notes
           : (notes as String?),
@@ -249,6 +258,7 @@ class Setup {
         isDeleted == other.isDeleted &&
         lastModified == other.lastModified &&
         name == other.name &&
+        isBookmarked == other.isBookmarked &&
         datetime == other.datetime &&
         datetimeLocal == other.datetimeLocal &&
         notes == other.notes &&
@@ -270,6 +280,7 @@ class Setup {
       isDeleted,
       lastModified,
       name,
+      isBookmarked,
       datetime,
       datetimeLocal,
       notes,

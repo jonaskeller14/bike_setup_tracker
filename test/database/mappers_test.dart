@@ -152,6 +152,7 @@ void main() {
         isDeleted: false,
         lastModified: DateTime(2023, 1, 1).toUtc(),
         images: const [],
+        isBookmarked: false,
       );
       
       final model = data.toModel();
@@ -172,6 +173,7 @@ void main() {
         datetimeLocal: DateTime.now(),
         tags: {},
         images: const [],
+        isBookmarked: false,
       );
 
       final stepAdj = const AdjustmentDb(

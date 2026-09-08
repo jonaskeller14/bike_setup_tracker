@@ -112,10 +112,12 @@ void _appendSetupText(
   final bikeName = bikes[setup.bike]?.name ?? '-';
   final personName = persons[setup.person]?.name ?? '-';
 
+  final bookmark = settings.enableSetupBookmark && setup.isBookmarked ? ' 🔖' : '';
+
   if (settings.enablePerson) {
-    buffer.writeln("🎛️ $dateString $timeString - ${setup.displayName} ($bikeName | $personName)${setup.isDeleted ? ' [DELETED]' : ''}");
+    buffer.writeln("🎛️ $dateString $timeString - ${setup.displayName}$bookmark ($bikeName | $personName)${setup.isDeleted ? ' [DELETED]' : ''}");
   } else {
-    buffer.writeln("🎛️ $dateString $timeString - ${setup.displayName} ($bikeName)${setup.isDeleted ? ' [DELETED]' : ''}");
+    buffer.writeln("🎛️ $dateString $timeString - ${setup.displayName}$bookmark ($bikeName)${setup.isDeleted ? ' [DELETED]' : ''}");
   }
 
   // Location & Weather Context compact oneliner

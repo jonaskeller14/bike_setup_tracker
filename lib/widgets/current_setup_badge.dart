@@ -15,13 +15,20 @@ class CurrentSetupBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(compact ? 6 : 8),
       ),
       padding: EdgeInsets.symmetric(horizontal: compact ? 6 : 10, vertical: compact ? 1 : 2),
-      child: Text(
-        'Current',
-        style: TextStyle(
-          color: scheme.onPrimary,
-          fontWeight: FontWeight.w600,
-          fontSize: compact ? 10 : 12,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.flag, size: compact ? 10 : 12, color: scheme.onPrimary),
+          SizedBox(width: compact ? 3 : 4),
+          Text(
+            'Current',
+            style: TextStyle(
+              color: scheme.onPrimary,
+              fontWeight: FontWeight.w600,
+              fontSize: compact ? 10 : 12,
+            ),
+          ),
+        ],
       ),
     );
   }

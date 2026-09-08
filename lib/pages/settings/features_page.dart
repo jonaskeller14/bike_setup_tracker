@@ -193,6 +193,28 @@ class FeaturesPage extends StatelessWidget {
                         'to a new device.',
                   ),
                 ),
+              if (kDebugMode)
+                ListTile(
+                  leading: const Icon(Icons.bookmark_border),
+                  title: const Text("Setup Bookmarks"),
+                  subtitle: _offOnOptionWidgets[appSettings.enableSetupBookmark] ?? const Text("-"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () => appSettingsRadioGroupSheet<bool>(
+                    context: context,
+                    title: "Setup Bookmarks",
+                    value: appSettings.enableSetupBookmark,
+                    optionWidgets: _offOnOptionWidgets,
+                    onChanged: (bool? newValue) {
+                      if (newValue == null) return;
+                      appSettings.enableSetupBookmark = newValue;
+                      Navigator.pop(context);
+                    },
+                    infoText:
+                        'Mark good setups with a bookmark so they stand out among all the '
+                        'setups you record. Bookmarks are stored with the setup and are '
+                        'included in backups and exports.',
+                  ),
+                ),
               ListTile(
                 leading: const Icon(Icons.view_agenda_outlined),
                 title: const Text("Timeline Grouping"),

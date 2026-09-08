@@ -61,6 +61,7 @@ void main() {
         datetimeLocal: localTime,
         tags: {},
         images: const [],
+        isBookmarked: false,
       );
 
       final model = setupDb.toModel();

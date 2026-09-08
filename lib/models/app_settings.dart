@@ -35,6 +35,7 @@ class AppSettings extends ChangeNotifier {
   bool _useMapBoxTiles = false;
   bool _enableCalendar = false;
   bool _enableSetupImages = false;
+  bool _enableSetupBookmark = false;
   bool _enableComponentPresets = false;
   // Setup timeline grouping passes (debug-only, see FeaturesPage)
   bool _enableTimelineSetupGrouping = false;
@@ -79,6 +80,7 @@ class AppSettings extends ChangeNotifier {
   bool get useMapBoxTiles => _useMapBoxTiles;
   bool get enableCalendar => _enableCalendar;
   bool get enableSetupImages => _enableSetupImages;
+  bool get enableSetupBookmark => _enableSetupBookmark;
   bool get enableComponentPresets => _enableComponentPresets;
   bool get enableTimelineSetupGrouping => _enableTimelineSetupGrouping;
   bool get enableTimelineReplacementDetection => _enableTimelineReplacementDetection;
@@ -283,6 +285,13 @@ class AppSettings extends ChangeNotifier {
     _persistBool('enableSetupImages', newValue);
   }
 
+  set enableSetupBookmark(bool newValue) {
+    if (newValue == _enableSetupBookmark) return;
+    _enableSetupBookmark = newValue;
+    notifyListeners();
+    _persistBool('enableSetupBookmark', newValue);
+  }
+
   set enableComponentPresets(bool newValue) {
     if (newValue == _enableComponentPresets) return;
     _enableComponentPresets = newValue;
@@ -415,6 +424,7 @@ class AppSettings extends ChangeNotifier {
       _useMapBoxTiles = prefs.getBool('${_kPrefix}useMapBoxTiles') ?? _useMapBoxTiles;
       _enableCalendar = prefs.getBool('${_kPrefix}enableCalendar') ?? _enableCalendar;
       _enableSetupImages = prefs.getBool('${_kPrefix}enableSetupImages') ?? _enableSetupImages;
+      _enableSetupBookmark = prefs.getBool('${_kPrefix}enableSetupBookmark') ?? _enableSetupBookmark;
       _enableComponentPresets = prefs.getBool('${_kPrefix}enableComponentPresets') ?? _enableComponentPresets;
       _enableTimelineSetupGrouping =
           prefs.getBool('${_kPrefix}enableTimelineSetupGrouping') ?? _enableTimelineSetupGrouping;

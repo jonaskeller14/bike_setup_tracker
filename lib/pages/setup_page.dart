@@ -113,6 +113,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   int _tabIndex = 0;
   Set<String> _tags = {};
   Set<String> _initialTags = {};
+  late bool _isBookmarked;
+  late bool _initialIsBookmarked;
   late String _bike;
   late String _initialBike;
   String? get _person => context.read<AppRepository>().bikes[_bike]?.person;
@@ -172,6 +174,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     final appRepository = context.read<AppRepository>();
     _tags.addAll(widget.setup?.tags ?? appRepository.selectedSetupTags);
     _initialTags = _tags;
+
+    _isBookmarked = widget.setup?.isBookmarked ?? false;
+    _initialIsBookmarked = _isBookmarked;
 
     _images = List.from(widget.setup?.images ?? []);
     _initialImages = List.from(_images);
@@ -441,6 +446,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         !ContextPlace.equal(_currentPlace.value, widget.setup?.place) ||
         _currentWeather.value != widget.setup?.weather || 
         !setEquals(_tags, _initialTags) ||
+        _isBookmarked != _initialIsBookmarked ||
         
         _bike != _initialBike || 
         _person != _initialPerson ||
@@ -700,6 +706,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         datetimeLocal: _selectedDateTimeLocal,
         notes: notes,
         tags: _tags,
+        isBookmarked: _isBookmarked,
         bike: _bike,
         person: _person,
         bikeAdjustmentValues: _bikeAdjustmentValues,
@@ -1014,6 +1021,21 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                 avatar: const Icon(Icons.add_photo_alternate_outlined),
                 label: const Text('Image'),
                 onPressed: _addImages,
+              ),
+            if (appSettings.enableSetupBookmark)
+              FilterChip(
+                label: const Text("Bookmark"),
+                avatar: Icon(_isBookmarked ? Icons.bookmark : Icons.bookmark_border),
+                tooltip: _isBookmarked ? 'Remove Bookmark' : 'Bookmark',
+                showCheckmark: false,
+                selected: _isBookmarked,
+                backgroundColor: widget.mode == SetupPageMode.edit && _isBookmarked != _initialIsBookmarked
+                    ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
+                    : null,
+                onSelected: (bool selected) {
+                  setState(() => _isBookmarked = selected);
+                  _changeListener();
+                },
               ),
           ],
         );

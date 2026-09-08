@@ -6,12 +6,13 @@ import '../models/strava/strava_activity.dart';
 
 class SetupMapPin extends StatelessWidget {
   final bool isCurrent;
+  final bool isBookmarked;
   final String? label;
 
-  const SetupMapPin._({super.key, this.isCurrent = false, this.label});
+  const SetupMapPin._({super.key, this.isCurrent = false, this.isBookmarked = false, this.label});
 
-  factory SetupMapPin.icon({Key? key, bool isCurrent = false}) =>
-    SetupMapPin._(key: key, isCurrent: isCurrent);
+  factory SetupMapPin.icon({Key? key, bool isCurrent = false, bool isBookmarked = false}) =>
+    SetupMapPin._(key: key, isCurrent: isCurrent, isBookmarked: isBookmarked);
 
   factory SetupMapPin.label({Key? key, required String label}) =>
     SetupMapPin._(key: key, label: label);
@@ -30,7 +31,7 @@ class SetupMapPin extends StatelessWidget {
           size: 40,
           color: Theme.of(context).colorScheme.primary,
         ),
-        if (isCurrent)
+        if (isCurrent || isBookmarked)
           Align(
             alignment: const Alignment(0, -0.4),
             child: Container(
@@ -42,7 +43,7 @@ class SetupMapPin extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                Icons.flag,
+                isCurrent ? Icons.flag : Icons.bookmark,
                 size: 12,
                 color: Theme.of(context).colorScheme.primary,
               ),

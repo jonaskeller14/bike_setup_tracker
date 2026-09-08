@@ -184,6 +184,13 @@ class _ComponentDetailsPageTableState extends State<ComponentDetailsPageTable> {
             ),
           ),
           "Bike" => _scrollableTextCell(widget.bikes[setup.bike]?.name ?? '-'),
+          "Bookmarked" => DataCell(
+            Center(
+              child: setup.isBookmarked
+                  ? Icon(Icons.bookmark, size: 16, color: Theme.of(context).colorScheme.primary)
+                  : const Text('-'),
+            ),
+          ),
           "Activities" => DataCell(
             Center(
               child: Text(

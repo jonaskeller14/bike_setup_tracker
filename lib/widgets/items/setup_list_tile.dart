@@ -9,6 +9,7 @@ import '../../models/rating_entry.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/dangling_adjustment_service.dart';
+import '../bookmark_ribbon.dart';
 import '../current_setup_badge.dart';
 import '../current_setup_highlight.dart';
 import '../lists/adjustment_compact_display_list.dart';
@@ -171,6 +172,19 @@ class _SetupListTileState extends State<SetupListTile> {
                         text: bikes[setup.bike]?.name ?? "BIKE NOT FOUND",
                         isError: !bikes.containsKey(setup.bike),
                       ),
+              ),
+            ),
+          ),
+          Positioned(
+            top: 0,
+            right: kMinInteractiveDimension + 8 - BookmarkRibbon.width,
+            child: ClipRect(
+              child: AnimatedAlign(
+                duration: const Duration(milliseconds: 400),
+                curve: Curves.easeInOut,
+                alignment: Alignment.topCenter,
+                heightFactor: appSettings.enableSetupBookmark && setup.isBookmarked ? 1 : 0,
+                child: const BookmarkRibbon(),
               ),
             ),
           ),

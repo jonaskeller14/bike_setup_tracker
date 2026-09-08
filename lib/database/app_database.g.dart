@@ -4214,6 +4214,21 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _isBookmarkedMeta = const VerificationMeta(
+    'isBookmarked',
+  );
+  @override
+  late final GeneratedColumn<bool> isBookmarked = GeneratedColumn<bool>(
+    'is_bookmarked',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_bookmarked" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   @override
   late final GeneratedColumnWithTypeConverter<DateTime, DateTime> datetime =
       GeneratedColumn<DateTime>(
@@ -4295,6 +4310,7 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
     isDeleted,
     lastModified,
     name,
+    isBookmarked,
     datetime,
     datetimeLocal,
     notes,
@@ -4347,6 +4363,15 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
         name.isAcceptableOrUnknown(data['name']!, _nameMeta),
       );
     }
+    if (data.containsKey('is_bookmarked')) {
+      context.handle(
+        _isBookmarkedMeta,
+        isBookmarked.isAcceptableOrUnknown(
+          data['is_bookmarked']!,
+          _isBookmarkedMeta,
+        ),
+      );
+    }
     if (data.containsKey('notes')) {
       context.handle(
         _notesMeta,
@@ -4388,6 +4413,10 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
         DriftSqlType.string,
         data['${effectivePrefix}name'],
       ),
+      isBookmarked: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_bookmarked'],
+      )!,
       datetime: $SetupsTable.$converterdatetime.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.dateTime,
@@ -4473,6 +4502,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
   final bool isDeleted;
   final DateTime lastModified;
   final String? name;
+  final bool isBookmarked;
   final DateTime datetime;
   final DateTime datetimeLocal;
   final String? notes;
@@ -4488,6 +4518,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
     required this.isDeleted,
     required this.lastModified,
     this.name,
+    required this.isBookmarked,
     required this.datetime,
     required this.datetimeLocal,
     this.notes,
@@ -4514,6 +4545,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
     if (!nullToAbsent || name != null) {
       map['name'] = Variable<String>(name);
     }
+    map['is_bookmarked'] = Variable<bool>(isBookmarked);
     {
       map['datetime'] = Variable<DateTime>(
         $SetupsTable.$converterdatetime.toSql(datetime),
@@ -4563,6 +4595,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
       isDeleted: Value(isDeleted),
       lastModified: Value(lastModified),
       name: name == null && nullToAbsent ? const Value.absent() : Value(name),
+      isBookmarked: Value(isBookmarked),
       datetime: Value(datetime),
       datetimeLocal: Value(datetimeLocal),
       notes: notes == null && nullToAbsent
@@ -4594,6 +4627,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
       isDeleted: serializer.fromJson<bool>(json['isDeleted']),
       lastModified: serializer.fromJson<DateTime>(json['lastModified']),
       name: serializer.fromJson<String?>(json['name']),
+      isBookmarked: serializer.fromJson<bool>(json['isBookmarked']),
       datetime: serializer.fromJson<DateTime>(json['datetime']),
       datetimeLocal: serializer.fromJson<DateTime>(json['datetimeLocal']),
       notes: serializer.fromJson<String?>(json['notes']),
@@ -4614,6 +4648,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
       'isDeleted': serializer.toJson<bool>(isDeleted),
       'lastModified': serializer.toJson<DateTime>(lastModified),
       'name': serializer.toJson<String?>(name),
+      'isBookmarked': serializer.toJson<bool>(isBookmarked),
       'datetime': serializer.toJson<DateTime>(datetime),
       'datetimeLocal': serializer.toJson<DateTime>(datetimeLocal),
       'notes': serializer.toJson<String?>(notes),
@@ -4632,6 +4667,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
     bool? isDeleted,
     DateTime? lastModified,
     Value<String?> name = const Value.absent(),
+    bool? isBookmarked,
     DateTime? datetime,
     DateTime? datetimeLocal,
     Value<String?> notes = const Value.absent(),
@@ -4647,6 +4683,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
     isDeleted: isDeleted ?? this.isDeleted,
     lastModified: lastModified ?? this.lastModified,
     name: name.present ? name.value : this.name,
+    isBookmarked: isBookmarked ?? this.isBookmarked,
     datetime: datetime ?? this.datetime,
     datetimeLocal: datetimeLocal ?? this.datetimeLocal,
     notes: notes.present ? notes.value : this.notes,
@@ -4666,6 +4703,9 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
           ? data.lastModified.value
           : this.lastModified,
       name: data.name.present ? data.name.value : this.name,
+      isBookmarked: data.isBookmarked.present
+          ? data.isBookmarked.value
+          : this.isBookmarked,
       datetime: data.datetime.present ? data.datetime.value : this.datetime,
       datetimeLocal: data.datetimeLocal.present
           ? data.datetimeLocal.value
@@ -4688,6 +4728,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
           ..write('isDeleted: $isDeleted, ')
           ..write('lastModified: $lastModified, ')
           ..write('name: $name, ')
+          ..write('isBookmarked: $isBookmarked, ')
           ..write('datetime: $datetime, ')
           ..write('datetimeLocal: $datetimeLocal, ')
           ..write('notes: $notes, ')
@@ -4708,6 +4749,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
     isDeleted,
     lastModified,
     name,
+    isBookmarked,
     datetime,
     datetimeLocal,
     notes,
@@ -4727,6 +4769,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
           other.isDeleted == this.isDeleted &&
           other.lastModified == this.lastModified &&
           other.name == this.name &&
+          other.isBookmarked == this.isBookmarked &&
           other.datetime == this.datetime &&
           other.datetimeLocal == this.datetimeLocal &&
           other.notes == this.notes &&
@@ -4744,6 +4787,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
   final Value<bool> isDeleted;
   final Value<DateTime> lastModified;
   final Value<String?> name;
+  final Value<bool> isBookmarked;
   final Value<DateTime> datetime;
   final Value<DateTime> datetimeLocal;
   final Value<String?> notes;
@@ -4760,6 +4804,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
     this.isDeleted = const Value.absent(),
     this.lastModified = const Value.absent(),
     this.name = const Value.absent(),
+    this.isBookmarked = const Value.absent(),
     this.datetime = const Value.absent(),
     this.datetimeLocal = const Value.absent(),
     this.notes = const Value.absent(),
@@ -4777,6 +4822,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
     this.isDeleted = const Value.absent(),
     required DateTime lastModified,
     this.name = const Value.absent(),
+    this.isBookmarked = const Value.absent(),
     required DateTime datetime,
     required DateTime datetimeLocal,
     this.notes = const Value.absent(),
@@ -4799,6 +4845,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
     Expression<bool>? isDeleted,
     Expression<DateTime>? lastModified,
     Expression<String>? name,
+    Expression<bool>? isBookmarked,
     Expression<DateTime>? datetime,
     Expression<DateTime>? datetimeLocal,
     Expression<String>? notes,
@@ -4816,6 +4863,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
       if (isDeleted != null) 'is_deleted': isDeleted,
       if (lastModified != null) 'last_modified': lastModified,
       if (name != null) 'name': name,
+      if (isBookmarked != null) 'is_bookmarked': isBookmarked,
       if (datetime != null) 'datetime': datetime,
       if (datetimeLocal != null) 'datetime_local': datetimeLocal,
       if (notes != null) 'notes': notes,
@@ -4835,6 +4883,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
     Value<bool>? isDeleted,
     Value<DateTime>? lastModified,
     Value<String?>? name,
+    Value<bool>? isBookmarked,
     Value<DateTime>? datetime,
     Value<DateTime>? datetimeLocal,
     Value<String?>? notes,
@@ -4852,6 +4901,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
       isDeleted: isDeleted ?? this.isDeleted,
       lastModified: lastModified ?? this.lastModified,
       name: name ?? this.name,
+      isBookmarked: isBookmarked ?? this.isBookmarked,
       datetime: datetime ?? this.datetime,
       datetimeLocal: datetimeLocal ?? this.datetimeLocal,
       notes: notes ?? this.notes,
@@ -4886,6 +4936,9 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
+    }
+    if (isBookmarked.present) {
+      map['is_bookmarked'] = Variable<bool>(isBookmarked.value);
     }
     if (datetime.present) {
       map['datetime'] = Variable<DateTime>(
@@ -4940,6 +4993,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
           ..write('isDeleted: $isDeleted, ')
           ..write('lastModified: $lastModified, ')
           ..write('name: $name, ')
+          ..write('isBookmarked: $isBookmarked, ')
           ..write('datetime: $datetime, ')
           ..write('datetimeLocal: $datetimeLocal, ')
           ..write('notes: $notes, ')
@@ -13070,6 +13124,7 @@ typedef $$SetupsTableCreateCompanionBuilder =
       Value<bool> isDeleted,
       required DateTime lastModified,
       Value<String?> name,
+      Value<bool> isBookmarked,
       required DateTime datetime,
       required DateTime datetimeLocal,
       Value<String?> notes,
@@ -13088,6 +13143,7 @@ typedef $$SetupsTableUpdateCompanionBuilder =
       Value<bool> isDeleted,
       Value<DateTime> lastModified,
       Value<String?> name,
+      Value<bool> isBookmarked,
       Value<DateTime> datetime,
       Value<DateTime> datetimeLocal,
       Value<String?> notes,
@@ -13208,6 +13264,11 @@ class $$SetupsTableFilterComposer
 
   ColumnFilters<String> get name => $composableBuilder(
     column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isBookmarked => $composableBuilder(
+    column: $table.isBookmarked,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -13385,6 +13446,11 @@ class $$SetupsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get isBookmarked => $composableBuilder(
+    column: $table.isBookmarked,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get datetime => $composableBuilder(
     column: $table.datetime,
     builder: (column) => ColumnOrderings(column),
@@ -13495,6 +13561,11 @@ class $$SetupsTableAnnotationComposer
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<bool> get isBookmarked => $composableBuilder(
+    column: $table.isBookmarked,
+    builder: (column) => column,
+  );
 
   GeneratedColumnWithTypeConverter<DateTime, DateTime> get datetime =>
       $composableBuilder(column: $table.datetime, builder: (column) => column);
@@ -13660,6 +13731,7 @@ class $$SetupsTableTableManager
                 Value<bool> isDeleted = const Value.absent(),
                 Value<DateTime> lastModified = const Value.absent(),
                 Value<String?> name = const Value.absent(),
+                Value<bool> isBookmarked = const Value.absent(),
                 Value<DateTime> datetime = const Value.absent(),
                 Value<DateTime> datetimeLocal = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
@@ -13676,6 +13748,7 @@ class $$SetupsTableTableManager
                 isDeleted: isDeleted,
                 lastModified: lastModified,
                 name: name,
+                isBookmarked: isBookmarked,
                 datetime: datetime,
                 datetimeLocal: datetimeLocal,
                 notes: notes,
@@ -13694,6 +13767,7 @@ class $$SetupsTableTableManager
                 Value<bool> isDeleted = const Value.absent(),
                 required DateTime lastModified,
                 Value<String?> name = const Value.absent(),
+                Value<bool> isBookmarked = const Value.absent(),
                 required DateTime datetime,
                 required DateTime datetimeLocal,
                 Value<String?> notes = const Value.absent(),
@@ -13710,6 +13784,7 @@ class $$SetupsTableTableManager
                 isDeleted: isDeleted,
                 lastModified: lastModified,
                 name: name,
+                isBookmarked: isBookmarked,
                 datetime: datetime,
                 datetimeLocal: datetimeLocal,
                 notes: notes,

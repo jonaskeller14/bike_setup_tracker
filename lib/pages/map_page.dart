@@ -198,7 +198,10 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                   onTap: () async {
                     await showSetupDetailsSheet(context: context, setup: setup);
                   },
-                  child: SetupMapPin.icon(isCurrent: setup.isCurrent),
+                  child: SetupMapPin.icon(
+                    isCurrent: setup.isCurrent,
+                    isBookmarked: appSettings.enableSetupBookmark && setup.isBookmarked,
+                  ),
                 ),
               ),
             ),

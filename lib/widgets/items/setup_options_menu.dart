@@ -32,7 +32,7 @@ class SetupOptionsMenu extends StatelessWidget {
               child: Row(
                 spacing: 10,
                 children: [
-                  Icon(option.iconData, size: 20),
+                  Icon(_iconData(option), size: 20),
                   Text(option.label),
                 ],
               ),
@@ -41,6 +41,9 @@ class SetupOptionsMenu extends StatelessWidget {
     );
   }
 
+  IconData _iconData(_SetupOption option) =>
+      option == _SetupOption.bookmark && setup.isBookmarked ? Icons.bookmark_remove : option.iconData;
+
   bool _isVisible(
     _SetupOption option,
     Iterable<Setup> setups,
@@ -48,6 +51,7 @@ class SetupOptionsMenu extends StatelessWidget {
   ) {
     return switch (option) {
       _SetupOption.edit || _SetupOption.share || _SetupOption.restore || _SetupOption.remove => true,
+      _SetupOption.bookmark => appSettings.enableSetupBookmark,
       _SetupOption.addRating => appSettings.enableRating,
       _SetupOption.compare => SetupComparisonService.resolveTargets(setupB: setup, setups: setups) is SetupComparisonTargets,
     };
@@ -60,6 +64,8 @@ class SetupOptionsMenu extends StatelessWidget {
     switch (option) {
       case _SetupOption.edit:
         await SetupActions.editSetup(context, setup: setup);
+      case _SetupOption.bookmark:
+        await SetupActions.toggleBookmark(context, setup: setup);
       case _SetupOption.share:
         await SetupActions.shareSetup(context, setup: setup);
       case _SetupOption.restore:
@@ -76,6 +82,7 @@ class SetupOptionsMenu extends StatelessWidget {
 
 enum _SetupOption {
   edit('Edit', Icons.edit),
+  bookmark('Bookmark', Icons.bookmark_add_outlined),
   share('Share', Icons.share),
   restore('Restore', Icons.restore),
   compare('Compare', Icons.compare),

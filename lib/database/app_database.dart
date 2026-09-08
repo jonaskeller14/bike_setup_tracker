@@ -91,7 +91,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 12;
+  int get schemaVersion => 13;
 
   @override
   MigrationStrategy get migration {
@@ -114,10 +114,13 @@ class AppDatabase extends _$AppDatabase {
           // those setups fall back to the (localizable) UI placeholder instead.
           //
           // This recreation rebuilds setups from the *current* schema, which
-          // now includes `images` (added in v8). Pre-v4 rows have no such
-          // column, so flag it as a new column — Drift fills it from its
-          // default instead of trying to copy it out of the old table.
-          await m.alterTable(TableMigration(setups, newColumns: [setups.images]));
+          // now includes `images` (added in v8) and `isBookmarked` (v13).
+          // Pre-v4 rows have no such columns, so flag them as new columns —
+          // Drift fills them from their defaults instead of trying to copy
+          // them out of the old table.
+          await m.alterTable(
+            TableMigration(setups, newColumns: [setups.images, setups.isBookmarked]),
+          );
           await customStatement("UPDATE setups SET name = NULL WHERE name = 'Unnamed Setup'");
         }
         if (from < 5) {
@@ -183,6 +186,15 @@ class AppDatabase extends _$AppDatabase {
           // alias table once; unmatched spellings become a `CustomUnit`
           // (data-only, no schema change).
           await migrateAdjustmentUnits(this);
+        }
+        if (from < 13) {
+          // Setups gain `isBookmarked` so a good setup can be marked and found
+          // again among the many recorded ones. Existing rows default to false.
+          // Upgrades that crossed the v4 boundary already gained the column
+          // when the setups table was recreated above.
+          if (!await _columnExists('setups', 'is_bookmarked')) {
+            await m.addColumn(setups, setups.isBookmarked);
+          }
         }
       },
     );

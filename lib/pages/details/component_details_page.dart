@@ -92,6 +92,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     TableColumn(section: TableColumnSection.generalContext, label: "Place", active: false),
     TableColumn(section: TableColumnSection.generalContext, label: "Altitude", active: false),
     TableColumn(section: TableColumnSection.generalContext, label: "Bike", active: false),
+    TableColumn(section: TableColumnSection.generalContext, label: "Bookmarked", active: false),
 
     TableColumn(section: TableColumnSection.weatherContext, label: "Weather Code", active: false),
     TableColumn(section: TableColumnSection.weatherContext, label: "Temperature", active: false),
@@ -162,6 +163,11 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
             _sortAscending
                 ? setups.sort((a, b) => (bikes[a.bike]?.name ?? '').compareTo(bikes[b.bike]?.name ?? ''))
                 : setups.sort((a, b) => (bikes[b.bike]?.name ?? '').compareTo(bikes[a.bike]?.name ?? ''));
+          case "Bookmarked":
+            int bookmarked(Setup setup) => setup.isBookmarked ? 1 : 0;
+            _sortAscending
+                ? setups.sort((a, b) => bookmarked(a).compareTo(bookmarked(b)))
+                : setups.sort((a, b) => bookmarked(b).compareTo(bookmarked(a)));
           case "Activities":
             int count(Setup setup) => setupActivityCounts[setup.id] ?? 0;
             _sortAscending
@@ -351,6 +357,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
       switch (column.section) {
         case TableColumnSection.generalContext:
           if (column.label == "Tags" && !appSettings.enableSetupTags) _columns.remove(column);
+          if (column.label == "Bookmarked" && !appSettings.enableSetupBookmark) _columns.remove(column);
           if (column.label == "Activities" && !hasAnyActivity) _columns.remove(column);
         case TableColumnSection.componentAdjustments:
           if (!componentAdjustments.any((a) => a.id == column.label)) _columns.remove(column);
@@ -374,6 +381,9 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     // Add missing columns
     if (appSettings.enableSetupTags) {
       _columns.add(TableColumn(section: TableColumnSection.generalContext, label: "Tags", active: false));
+    }
+    if (appSettings.enableSetupBookmark) {
+      _columns.add(TableColumn(section: TableColumnSection.generalContext, label: "Bookmarked", active: false));
     }
     if (hasAnyActivity) {
       _columns.add(TableColumn(section: TableColumnSection.generalContext, label: "Activities", active: false));

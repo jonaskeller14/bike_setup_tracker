@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../models/app_settings.dart';
 import '../../models/task/task_rule.dart';
-import '../../models/task/task_threshold.dart';
+import '../../models/task/task_threshold/task_threshold.dart';
 import '../../theme.dart';
 import '../items/task_rule_display_card.dart';
 import 'sheet_header.dart';

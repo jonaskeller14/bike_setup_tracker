@@ -13,7 +13,7 @@ import 'package:bike_setup_tracker/models/rating_metric.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/task/task_entry.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
-import 'package:bike_setup_tracker/models/task/task_threshold.dart';
+import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/data_export_service.dart';
 

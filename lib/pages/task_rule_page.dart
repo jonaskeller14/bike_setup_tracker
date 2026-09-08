@@ -11,7 +11,7 @@ import '../models/component.dart';
 import '../models/installation.dart';
 import '../models/task/task_association.dart';
 import '../models/task/task_rule.dart';
-import '../models/task/task_threshold.dart';
+import '../models/task/task_threshold/task_threshold.dart';
 import '../repositories/app_repository.dart';
 import '../services/subscription_service.dart';
 import '../theme.dart';

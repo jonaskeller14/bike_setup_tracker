@@ -22,7 +22,7 @@ import '../models/strava/strava_athlete.dart';
 import '../models/strava/strava_gear.dart';
 import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
-import '../models/task/task_threshold.dart';
+import '../models/task/task_threshold/task_threshold.dart';
 import 'adjustment_value_codec.dart';
 import 'app_database.dart';
 import 'daos/rating_entries_dao.dart';

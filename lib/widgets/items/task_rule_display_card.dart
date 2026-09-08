@@ -10,7 +10,7 @@ import '../../models/bike.dart';
 import '../../models/component.dart';
 import '../../models/installation.dart';
 import '../../models/task/task_rule.dart';
-import '../../models/task/task_threshold.dart';
+import '../../models/task/task_threshold/task_threshold.dart';
 import '../../repositories/app_repository.dart';
 import '../../theme.dart';
 import '../../utils/task_actions.dart';

@@ -29,6 +29,7 @@ import '../models/task/task_rule.dart';
 import '../services/backup_service.dart';
 import '../services/rating_score_service.dart';
 import '../services/setup_resolution_service.dart';
+import '../services/task_status_service.dart';
 import '../utils/unit_conversion.dart';
   
 class AppRepository extends ChangeNotifier {
@@ -993,7 +994,8 @@ class AppRepository extends ChangeNotifier {
         ? (_componentStats[rule.componentId] ?? ComponentStats.zero())
         : (rule.bikeId != null ? (_bikeStats[rule.bikeId] ?? ComponentStats.zero()) : ComponentStats.zero());
 
-    return rule.calculateStatus(
+    return TaskStatusService.calculate(
+      rule: rule,
       currentStats: stats,
       now: DateTime.now().toUtc(),
       lastEntry: lastEntry,

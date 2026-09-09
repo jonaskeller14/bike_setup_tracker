@@ -3,8 +3,6 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
-import '../../models/bike.dart';
-import '../../models/context/context_weather.dart';
 import '../../models/rating_entry.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
@@ -19,7 +17,7 @@ import 'tile_meta_row.dart';
 
 class SetupTileEmbedded extends StatefulWidget {
   final String setupId;
-  final void Function()? onTap;
+  final VoidCallback? onTap;
   final bool displayBikeAdjustmentValues;
   final bool displayPersonAdjustmentValues;
   final bool showDate;
@@ -194,8 +192,6 @@ class _SetupTileEmbeddedState extends State<SetupTileEmbedded> {
     AdjustmentCompactSummary summary,
     AdjustmentCompactDisplayList adjustmentList,
   ) {
-    final bool expanded = !_displayOnlyChanges;
-
     return InkWell(
       onTap: widget.onTap,
       child: Stack(
@@ -214,15 +210,15 @@ class _SetupTileEmbeddedState extends State<SetupTileEmbedded> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (expanded) _setupListTile(context, setup, summary),
+                  if (!_displayOnlyChanges) _setupListTile(context, setup, summary),
                   Padding(
                     padding: EdgeInsets.only(
-                      top: expanded ? 0 : 8,
+                      top: _displayOnlyChanges ? 8 : 0,
                       bottom: 8,
                       // Keep the last value row clear of the chevron.
                       right: kMinInteractiveDimension,
                     ),
-                    child: !expanded && !summary.collapsedHasContent ? _noChangesHint(context) : adjustmentList,
+                    child: _displayOnlyChanges && !summary.collapsedHasContent ? _noChangesHint(context) : adjustmentList,
                   ),
                 ],
               ),
@@ -231,12 +227,12 @@ class _SetupTileEmbeddedState extends State<SetupTileEmbedded> {
           // Keep the chevron at the top of the row. Once expanded, move it one
           // touch target down so it sits directly below the popup menu.
           Positioned(
-            top: expanded
+            top: !_displayOnlyChanges
                 ? kMinInteractiveDimension
                 : _collapsedChevronTop,
             right: 4,
             child: ExpandIcon(
-              isExpanded: expanded,
+              isExpanded: !_displayOnlyChanges,
               color: PopupMenuTheme.of(context).iconColor ?? IconTheme.of(context).color,
               expandedColor: Theme.of(context).colorScheme.primary,
               onPressed: (bool expanded) {

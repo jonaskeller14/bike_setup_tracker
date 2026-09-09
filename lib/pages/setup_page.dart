@@ -175,7 +175,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     _tags.addAll(widget.setup?.tags ?? appRepository.selectedSetupTags);
     _initialTags = _tags;
 
-    _isBookmarked = widget.setup?.isBookmarked ?? false;
+    _isBookmarked = widget.setup?.isBookmarked ?? appRepository.showBookmarkedSetupsOnly;
     _initialIsBookmarked = _isBookmarked;
 
     _images = List.from(widget.setup?.images ?? []);

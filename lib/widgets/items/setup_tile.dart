@@ -19,7 +19,7 @@ import 'tile_meta_row.dart';
 
 class SetupTile extends StatefulWidget {
   final String setupId;
-  final void Function()? onTap;
+  final VoidCallback? onTap;
   final bool showDate;
   final bool hidePlace;
 

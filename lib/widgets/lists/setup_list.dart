@@ -134,8 +134,6 @@ class SetupList extends StatelessWidget {
         return SetupListTile(
           setupId: setup.id,
           onTap: () => _openSetupDetails(context, setupsList, setup),
-          displayBikeAdjustmentValues: appSettings.setupListBikeAdjustmentValues,
-          displayPersonAdjustmentValues: appSettings.setupListPersonAdjustmentValues,
           showDate: false,
           currentBarLeft: currentBarLeft,
           edgeInset: edgeInset,
@@ -202,8 +200,6 @@ class SetupList extends StatelessWidget {
       SetupGroupRow() => SetupGroupSection(
         setupIds: row.setups.map((e) => e.setup.id).toList(),
         onTapSetup: (setup) => _openSetupDetails(context, setupsList, setup),
-        displayBikeAdjustmentValues: appSettings.setupListBikeAdjustmentValues,
-        displayPersonAdjustmentValues: appSettings.setupListPersonAdjustmentValues,
       ),
       ReplacementRow() => ReplacementListTile(
         row: row,

@@ -600,13 +600,10 @@ class _CalendarPageState extends State<CalendarPage> {
         titleSpacing: 8,
         title: Row(
           children: [
-            Expanded(
+            const Expanded(
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: FilterSheetChip(
-                  enableSetupTagFilter: appSettings.enableSetupTags,
-                  showTimelineVisibility: true,
-                ),
+                child: FilterSheetChip.calendar,
               ),
             ),
             const SizedBox(width: 8),

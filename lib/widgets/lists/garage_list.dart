@@ -14,7 +14,7 @@ import '../../repositories/app_repository.dart';
 import '../../services/app_hint_service.dart';
 import '../../utils/bike_actions.dart';
 import '../../utils/installation_timeline_validation.dart';
-import '../chips/bike_list_filter_widget.dart';
+import '../chips/garage_list_filter_widget.dart';
 import '../empty_state_placeholder.dart';
 import '../hints/app_hint_slot.dart';
 import '../items/garage_bike_card.dart';
@@ -211,7 +211,7 @@ class _GarageListState extends State<GarageList> {
             padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
           ),
         ),
-        const SliverToBoxAdapter(child: BikeListFilterWidget()),
+        const SliverToBoxAdapter(child: GarageListFilterWidget()),
         SliverFillRemaining(
           hasScrollBody: false,
           child: Padding(
@@ -285,7 +285,7 @@ class _GarageListState extends State<GarageList> {
                   AppHintSlot(
                     placement: AppHintPlacement.garageHeader,
                     padding: EdgeInsets.fromLTRB(16, 8, 16, 0)),
-                  BikeListFilterWidget(),
+                  GarageListFilterWidget(),
                 ],
               ),
               footer: Padding(

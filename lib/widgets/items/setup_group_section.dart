@@ -15,15 +15,11 @@ import 'tile_meta_row.dart';
 class SetupGroupSection extends StatelessWidget {
   final List<String> setupIds;
   final void Function(Setup setup)? onTapSetup;
-  final bool displayBikeAdjustmentValues;
-  final bool displayPersonAdjustmentValues;
 
   const SetupGroupSection({
     super.key,
     required this.setupIds,
     required this.onTapSetup,
-    required this.displayBikeAdjustmentValues,
-    required this.displayPersonAdjustmentValues,
   });
 
   Widget _member(BuildContext context, Setup setup, {required bool hidePlace}) {
@@ -31,8 +27,6 @@ class SetupGroupSection extends StatelessWidget {
       key: ValueKey(setup.id),
       setupId: setup.id,
       onTap: onTapSetup == null ? null : () => onTapSetup!(setup),
-      displayBikeAdjustmentValues: displayBikeAdjustmentValues,
-      displayPersonAdjustmentValues: displayPersonAdjustmentValues,
       showDate: false,
       embedded: true,
       hidePlace: hidePlace,
@@ -53,8 +47,6 @@ class SetupGroupSection extends StatelessWidget {
       return SetupListTile(
         setupId: setups.first.id,
         onTap: onTapSetup == null ? null : () => onTapSetup!(setups.first),
-        displayBikeAdjustmentValues: displayBikeAdjustmentValues,
-        displayPersonAdjustmentValues: displayPersonAdjustmentValues,
         showDate: false,
       );
     }

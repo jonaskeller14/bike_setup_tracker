@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/context/context_position.dart';
+import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/pages/map_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/location_provider.dart';
@@ -26,6 +27,8 @@ void main() {
     when(() => repository.bikes).thenReturn(<String, Bike>{});
     when(() => repository.selectedBike).thenReturn(null);
     when(() => repository.selectedSetupTags).thenReturn(<String>{});
+    when(() => repository.selectedTaskRuleTags).thenReturn(<String>{});
+    when(() => repository.selectedTaskPriorities).thenReturn(TaskPriority.values.toSet());
     when(() => repository.filteredSetups).thenReturn({});
     when(() => repository.filteredRatingEntries).thenReturn({});
     when(() => repository.getFilteredStravaActivitiesWithPosition()).thenAnswer((_) async => []);

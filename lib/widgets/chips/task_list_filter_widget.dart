@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'bike_and_priority_filter.dart';
+import 'filter_sheet_chip.dart';
 
 class TaskListFilterWidget extends StatelessWidget {
   const TaskListFilterWidget({super.key});
@@ -13,7 +13,7 @@ class TaskListFilterWidget extends StatelessWidget {
       child: Row(
         spacing: 6,
         children: [
-          BikeAndPriorityFilterChip(),
+          FilterSheetChip.taskList,
         ],
       ),
     );

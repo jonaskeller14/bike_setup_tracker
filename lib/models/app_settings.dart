@@ -44,8 +44,6 @@ class AppSettings extends ChangeNotifier {
   int _firstDayOfWeek = DateTime.monday; // 1 = Monday … 7 = Sunday
 
   // Temporary Settings (in-memory only, never persisted)
-  bool _setupListBikeAdjustmentValues = true;
-  bool _setupListPersonAdjustmentValues = true;
   bool _displayShowSetups = true;
   bool _displayShowActivities = true;
   bool _displayShowInstallations = true;
@@ -88,8 +86,6 @@ class AppSettings extends ChangeNotifier {
   int get firstDayOfWeek => _firstDayOfWeek;
 
   // Temporary Settings
-  bool get setupListBikeAdjustmentValues => _setupListBikeAdjustmentValues;
-  bool get setupListPersonAdjustmentValues => _setupListPersonAdjustmentValues;
   bool get displayShowSetups => _displayShowSetups;
   bool get displayShowActivities => _displayShowActivities;
   bool get displayShowInstallations => _displayShowInstallations;
@@ -325,18 +321,6 @@ class AppSettings extends ChangeNotifier {
     _firstDayOfWeek = newValue;
     notifyListeners();
     _persistInt('firstDayOfWeek', newValue);
-  }
-
-  set setupListBikeAdjustmentValues(bool newValue) {
-    if (newValue == _setupListBikeAdjustmentValues) return;
-    _setupListBikeAdjustmentValues = newValue;
-    notifyListeners();
-  }
-
-  set setupListPersonAdjustmentValues(bool newValue) {
-    if (newValue == _setupListPersonAdjustmentValues) return;
-    _setupListPersonAdjustmentValues = newValue;
-    notifyListeners();
   }
 
   set displayShowSetups(bool newValue) {

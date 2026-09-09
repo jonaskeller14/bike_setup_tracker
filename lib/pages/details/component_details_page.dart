@@ -530,7 +530,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                         );
                       },
                     ),
-                    FilterSheetChip(enableSetupTagFilter: appSettings.enableSetupTags),
+                    FilterSheetChip.componentDetailsPage,
                   ],
                 ),
               ),

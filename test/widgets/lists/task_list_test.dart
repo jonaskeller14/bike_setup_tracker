@@ -4,6 +4,7 @@ import 'package:bike_setup_tracker/models/task/task_entry.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/chips/task_list_filter_widget.dart';
 import 'package:bike_setup_tracker/widgets/lists/task_list.dart';
@@ -11,17 +12,23 @@ import 'package:bike_setup_tracker/widgets/sticky_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
+
+class MockSubscriptionService extends Mock implements SubscriptionService {}
 
 void main() {
   late AppDatabase database;
   late AppRepository repository;
   late AppSettings settings;
+  late MockSubscriptionService subscription;
 
   setUp(() {
     database = AppDatabase.memory();
     repository = AppRepository(database);
     settings = AppSettings();
+    subscription = MockSubscriptionService();
+    when(() => subscription.hasStravaEntitlement).thenReturn(false);
   });
 
   tearDown(() async {
@@ -38,6 +45,7 @@ void main() {
       providers: [
         ChangeNotifierProvider<AppRepository>.value(value: repository),
         ChangeNotifierProvider<AppSettings>.value(value: settings),
+        ChangeNotifierProvider<SubscriptionService>.value(value: subscription),
       ],
       child: MaterialApp(
         theme: materialAppTheme,

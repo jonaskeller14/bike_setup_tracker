@@ -47,8 +47,6 @@ void main() {
         SetupGroupSection(
           setupIds: setups.map((s) => s.id).toList(),
           onTapSetup: null,
-          displayBikeAdjustmentValues: true,
-          displayPersonAdjustmentValues: true,
         ),
       ),
     );

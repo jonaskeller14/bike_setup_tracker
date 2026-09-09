@@ -420,8 +420,6 @@ class StravaActivitiyPageContent extends StatelessWidget {
                           clipBehavior: Clip.antiAlias,
                           child: SetupListTile(
                             setupId: setup.id,
-                            displayBikeAdjustmentValues: true,
-                            displayPersonAdjustmentValues: true,
                             onTap: null,
                           ),
                         );

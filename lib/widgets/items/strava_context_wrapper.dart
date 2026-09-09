@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../utils/timeline_grouping.dart';
+import '../../models/timeline_row.dart';
 
 class StravaContextWrapper extends StatelessWidget {
   static const Color stravaOrange = Color(0xFFFC5200);

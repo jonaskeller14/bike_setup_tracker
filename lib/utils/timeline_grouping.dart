@@ -1,123 +1,15 @@
-import 'package:flutter/foundation.dart';
-
 import '../models/app_settings.dart';
 import '../models/component_installation.dart';
 import '../models/installation.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/timeline_entry.dart';
+import '../models/timeline_row.dart';
 
 const Duration kReplacementWindow = Duration(minutes: 5);
 const Duration kSetupGroupWindow = Duration(hours: 2);
 
-class StravaContext {
-  final StravaActivity activity;
-  final bool isFirst;
-  final bool isLast;
-
-  const StravaContext({
-    required this.activity,
-    this.isFirst = false,
-    this.isLast = false,
-  });
-}
-
-sealed class TimelineRow {
-  /// Stable identity used to key the display widget, so element/State (e.g. a
-  /// card's expand state, a Strava context wrapper) tracks the logical entry
-  /// across the reordering an edit can cause — not the list index.
-  Key get key;
-}
-
-class DayHeaderRow extends TimelineRow {
-  final DateTime day;
-  DayHeaderRow(this.day);
-
-  @override
-  Key get key => ValueKey('day:${day.millisecondsSinceEpoch}');
-}
-
-/// Base for rows that render timeline content (everything except headers).
-sealed class EntryRow extends TimelineRow {
-  /// Set by the annotation pass in [buildTimelineRows]; null when the row is
-  /// not inside any loaded Strava activity's window.
-  StravaContext? stravaContext;
-
-  /// Local datetime used for day-header insertion. Grouped/replacement rows
-  /// anchor to one representative event so they get exactly one header even
-  /// when they straddle midnight.
-  DateTime get anchorDateLocal;
-}
-
-class SingleEntryRow extends EntryRow {
-  final TimelineEntry entry;
-  SingleEntryRow(this.entry);
-
-  @override
-  Key get key => ValueKey('single:${timelineEntryId(entry)}');
-
-  @override
-  DateTime get anchorDateLocal => timelineEntryLocalDate(entry);
-}
-
-/// A run of adjacent same-bike setups recorded close together. [setups] keeps
-/// display order (matching the surrounding sort direction).
-class SetupGroupRow extends EntryRow {
-  final List<SetupEntry> setups;
-  SetupGroupRow(this.setups);
-
-  @override
-  Key get key => ValueKey('group:${setups.map((e) => e.setup.id).join('|')}');
-
-  @override
-  DateTime get anchorDateLocal => setups.first.setup.datetimeLocal;
-}
-
-/// A component replacement: [removed] (a [Uninstallation] or [Archival] that
-/// came off the bike) and [installed] (a [BikeInstallation]) of the same
-/// component type on the same bike within the replacement window.
-class ReplacementRow extends EntryRow {
-  final ComponentInstallation removed;
-  final ComponentInstallation installed;
-  ReplacementRow({required this.removed, required this.installed});
-
-  @override
-  Key get key =>
-      ValueKey('repl:${removed.installation.id}:${installed.installation.id}');
-
-  /// The earlier of the two events (matches the row's slot in the timeline).
-  Installation get anchorInstallation =>
-      removed.installation.dateTimeUTC.isAfter(
-        installed.installation.dateTimeUTC,
-      )
-      ? installed.installation
-      : removed.installation;
-
-  @override
-  DateTime get anchorDateLocal => anchorInstallation.dateTimeLocal;
-}
-
 bool _sameLocalDay(DateTime a, DateTime b) =>
     a.year == b.year && a.month == b.month && a.day == b.day;
-
-/// Stable identity of a timeline entry, used to key its display row.
-String timelineEntryId(TimelineEntry entry) => switch (entry) {
-  SetupEntry(:final setup) => 'setup:${setup.id}',
-  StravaEntry(:final activity) => 'strava:${activity.id}',
-  TaskTimeLineEntry(:final taskEntry) => 'task:${taskEntry.id}',
-  InstallationEntry(:final componentInstallation) =>
-    'inst:${componentInstallation.installation.id}',
-  RatingEntryTimelineEntry(:final ratingEntry) => 'rating:${ratingEntry.id}',
-};
-
-/// Local datetime of a timeline entry (for day grouping; sorting stays UTC).
-DateTime timelineEntryLocalDate(TimelineEntry entry) => switch (entry) {
-  SetupEntry(:final setup) => setup.datetimeLocal,
-  StravaEntry(:final activity) => activity.startDateLocal,
-  TaskTimeLineEntry(:final taskEntry) => taskEntry.dateTimeLocal,
-  InstallationEntry(:final componentInstallation) =>
-    componentInstallation.installation.dateTimeLocal,
-  RatingEntryTimelineEntry(:final ratingEntry) => ratingEntry.dateTimeLocal,
-};
 
 /// Sorted index answering "which activity's window contains this instant" in
 /// O(log n) instead of a scan over every loaded activity — the lookup runs per
@@ -283,7 +175,7 @@ StravaActivityIndex _contextIndex(List<TimelineEntry> entries) =>
 StravaActivity? _contextOf(
   StravaActivityIndex activities,
   TimelineEntry entry,
-) => entry is StravaEntry ? null : activities.containing(entry.date);
+) => entry is StravaEntry ? null : activities.containing(entry.dateUTC);
 
 /// The activity a built row sits inside, mirroring how the row was formed.
 /// A [ReplacementRow] only counts as during a ride when both of its halves
@@ -362,7 +254,7 @@ List<EntryRow> collapseIntoRows(
         final nextContext = contextOf(next);
         if (nextContext != previousContext) break;
         if (nextContext == null &&
-            next.date.difference(run.last.date).abs() > kSetupGroupWindow) {
+            next.dateUTC.difference(run.last.dateUTC).abs() > kSetupGroupWindow) {
           break;
         }
         run.add(next);

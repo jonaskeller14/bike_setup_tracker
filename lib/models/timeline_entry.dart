@@ -5,40 +5,62 @@ import 'strava/strava_activity.dart';
 import 'task/task_entry.dart';
 
 sealed class TimelineEntry {
-  DateTime get date;
+  String get id;
+  DateTime get dateUTC;
+  DateTime get dateLocal;
 }
 
 class SetupEntry extends TimelineEntry {
   final Setup setup;
   SetupEntry(this.setup);
   @override
-  DateTime get date => setup.datetime;
+  String get id => 'setup:${setup.id}';
+  @override
+  DateTime get dateUTC => setup.datetime;
+  @override
+  DateTime get dateLocal => setup.datetimeLocal;
 }
 
 class StravaEntry extends TimelineEntry {
   final StravaActivity activity;
   StravaEntry(this.activity);
   @override
-  DateTime get date => activity.startDate;
+  String get id => 'strava:${activity.id}';
+  @override
+  DateTime get dateUTC => activity.startDate;
+  @override
+  DateTime get dateLocal => activity.startDateLocal;
 }
 
 class TaskTimeLineEntry extends TimelineEntry {
   final TaskEntry taskEntry;
   TaskTimeLineEntry(this.taskEntry);
   @override
-  DateTime get date => taskEntry.dateTimeUTC;
+  String get id => 'task:${taskEntry.id}';
+  @override
+  DateTime get dateUTC => taskEntry.dateTimeUTC;
+  @override
+  DateTime get dateLocal => taskEntry.dateTimeLocal;
 }
 
 class InstallationEntry extends TimelineEntry {
   final ComponentInstallation componentInstallation;
   InstallationEntry(this.componentInstallation);
   @override
-  DateTime get date => componentInstallation.installation.dateTimeUTC;
+  String get id => 'inst:${componentInstallation.installation.id}';
+  @override
+  DateTime get dateUTC => componentInstallation.installation.dateTimeUTC;
+  @override
+  DateTime get dateLocal => componentInstallation.installation.dateTimeLocal;
 }
 
 class RatingEntryTimelineEntry extends TimelineEntry {
   final RatingEntry ratingEntry;
   RatingEntryTimelineEntry(this.ratingEntry);
   @override
-  DateTime get date => ratingEntry.dateTimeUTC;
+  String get id => 'rating:${ratingEntry.id}';
+  @override
+  DateTime get dateUTC => ratingEntry.dateTimeUTC;
+  @override
+  DateTime get dateLocal => ratingEntry.dateTimeLocal;
 }

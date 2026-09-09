@@ -14,6 +14,7 @@ import '../models/installation.dart';
 import '../models/rating_entry.dart';
 import '../models/setup.dart';
 import '../models/timeline_entry.dart';
+import '../models/timeline_row.dart';
 import '../repositories/app_repository.dart';
 import '../services/subscription_service.dart';
 import '../utils/installation_timeline_validation.dart';
@@ -78,7 +79,7 @@ DateTime calendarDisplayDateForDay(DateTime day, List<TimelineEntry> entries) {
   final target = DateUtils.dateOnly(day);
   DateTime? earliest;
   for (final entry in entries) {
-    final local = entry.date.toLocal();
+    final local = entry.dateUTC.toLocal();
     if (!DateUtils.isSameDay(local, target)) continue;
     if (earliest == null || local.isBefore(earliest)) earliest = local;
   }
@@ -87,7 +88,7 @@ DateTime calendarDisplayDateForDay(DateTime day, List<TimelineEntry> entries) {
 }
 
 List<EntryRow> buildCalendarRows(List<TimelineEntry> entries, AppSettings settings) {
-  final sortedEntries = [...entries]..sort((a, b) => a.date.compareTo(b.date));
+  final sortedEntries = [...entries]..sort((a, b) => a.dateUTC.compareTo(b.dateUTC));
   final rows = <EntryRow>[];
   for (final row in collapseIntoRows(sortedEntries, appSettings: settings)) {
     if (row is SetupGroupRow) {
@@ -560,7 +561,7 @@ class _CalendarPageState extends State<CalendarPage> {
 
   Future<void> _moveEntry(TimelineEntry entry, DateTime newLocal) async {
     final newUtc = newLocal.toUtc();
-    final oldLocal = entry.date.toLocal();
+    final oldLocal = entry.dateUTC.toLocal();
     final appRepository = context.read<AppRepository>();
 
     switch (entry) {

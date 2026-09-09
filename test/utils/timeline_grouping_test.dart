@@ -5,6 +5,7 @@ import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:bike_setup_tracker/models/timeline_entry.dart';
+import 'package:bike_setup_tracker/models/timeline_row.dart';
 import 'package:bike_setup_tracker/utils/timeline_grouping.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -135,7 +136,7 @@ InstallationEntry archivalEntry({
 List<TimelineEntry> sorted(List<TimelineEntry> entries, {required bool ascending}) {
   final copy = List<TimelineEntry>.from(entries);
   copy.sort((a, b) =>
-      ascending ? a.date.compareTo(b.date) : b.date.compareTo(a.date));
+      ascending ? a.dateUTC.compareTo(b.dateUTC) : b.dateUTC.compareTo(a.dateUTC));
   return copy;
 }
 

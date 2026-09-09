@@ -10,7 +10,6 @@ import '../../pages/details/setup_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/text_search.dart';
-import '../../utils/timeline_grouping.dart';
 import '../items/installation_list_tile.dart';
 import '../items/rating_entry_list_tile.dart';
 import '../items/setup_list_tile.dart';
@@ -31,16 +30,13 @@ class SetupListSearch extends StatelessWidget {
       builder:(context, controller) {
         return FilterChip(
           materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          // label: Text(controller.text),
           label: const SizedBox.shrink(),
           labelPadding: const EdgeInsets.symmetric(vertical: 2),
           padding: EdgeInsets.zero,
           avatar: const Icon(Icons.search),
           showCheckmark: false,
-          // selected: controller.text.isNotEmpty,
           selected: false,
           onSelected: (bool newValue) {controller.text = ""; controller.openView();},
-          // onDeleted: controller.text.isEmpty ? null : () => setState(() => controller.text = ""),
         );
       },
       viewBuilder: (Iterable<Widget> suggestions) {
@@ -53,10 +49,14 @@ class SetupListSearch extends StatelessWidget {
           builder: (context) {
             final mediaQuery = MediaQuery.of(context);
             final bottomInset = math.max(mediaQuery.viewPadding.bottom, mediaQuery.viewInsets.bottom);
-            return ListView.builder(
-              padding: EdgeInsets.only(bottom: bottomInset),
-              itemCount: suggestions.length,
-              itemBuilder: (context, index) => suggestions.elementAt(index),
+            return SafeArea(
+              bottom: false,
+              top: false,
+              child: ListView.builder(
+                padding: EdgeInsets.only(bottom: bottomInset),
+                itemCount: suggestions.length,
+                itemBuilder: (context, index) => suggestions.elementAt(index),
+              ),
             );
           },
         );
@@ -136,7 +136,7 @@ class SetupListSearch extends StatelessWidget {
         }
 
         matchingEntries.sort((a, b) {
-          return sortAscending ? a.date.compareTo(b.date) : b.date.compareTo(a.date);
+          return sortAscending ? a.dateUTC.compareTo(b.dateUTC) : b.dateUTC.compareTo(a.dateUTC);
         });
 
         Widget entryWidget(TimelineEntry entry, {EdgeInsets edgeInset = EdgeInsets.zero}) {
@@ -183,7 +183,7 @@ class SetupListSearch extends StatelessWidget {
         }
 
         DateTime entryDay(TimelineEntry entry) {
-          final local = timelineEntryLocalDate(entry);
+          final local = entry.dateLocal;
           return DateTime(local.year, local.month, local.day);
         }
 

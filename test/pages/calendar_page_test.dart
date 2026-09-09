@@ -5,8 +5,8 @@ import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:bike_setup_tracker/models/timeline_entry.dart';
+import 'package:bike_setup_tracker/models/timeline_row.dart';
 import 'package:bike_setup_tracker/pages/calendar_page.dart';
-import 'package:bike_setup_tracker/utils/timeline_grouping.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -64,11 +64,11 @@ void main() {
     test('uses the earliest entry on the selected local day with a lead-in', () {
       final earlier = setupEntry(id: 'earlier', utc: DateTime.utc(2026, 7, 4, 10));
       final later = setupEntry(id: 'later', utc: DateTime.utc(2026, 7, 4, 12));
-      final day = earlier.date.toLocal();
+      final day = earlier.dateUTC.toLocal();
 
       expect(
         calendarDisplayDateForDay(day, [later, earlier]),
-        earlier.date.toLocal().subtract(kCalendarScrollLeadIn),
+        earlier.dateUTC.toLocal().subtract(kCalendarScrollLeadIn),
       );
     });
 

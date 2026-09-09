@@ -62,7 +62,8 @@ class StravaGearLinkHint extends StatelessWidget {
                       ),
                       const SizedBox(height: 3),
                       Text(
-                        'Tap a gear below to connect it to one of your bikes.',
+                        'Choose a bike for each gear. Your setups are then matched with the '
+                        'right Strava activities.',
                         style: textTheme.bodySmall?.copyWith(
                           color: colors.onSurfaceVariant,
                         ),

@@ -59,8 +59,21 @@ class SetupListTile extends StatefulWidget {
 class _SetupListTileState extends State<SetupListTile> {
   static const double _embeddedContentInset = 16;
   static const double _collapsedChevronTop = 4;
+  static const double _bookmarkRight = kMinInteractiveDimension + 8 - BookmarkRibbon.width;
 
   bool _displayOnlyChanges = true;
+
+  Widget _bookmarkRibbon({required bool visible}) {
+    return ClipRect(
+      child: AnimatedAlign(
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+        alignment: Alignment.topCenter,
+        heightFactor: visible ? 1 : 0,
+        child: const BookmarkRibbon(),
+      ),
+    );
+  }
 
   Widget _scoreBadge(BuildContext context, double score) {
     return Container(
@@ -175,19 +188,14 @@ class _SetupListTileState extends State<SetupListTile> {
               ),
             ),
           ),
-          Positioned(
-            top: 0,
-            right: kMinInteractiveDimension + 8 - BookmarkRibbon.width,
-            child: ClipRect(
-              child: AnimatedAlign(
-                duration: const Duration(milliseconds: 400),
-                curve: Curves.easeInOut,
-                alignment: Alignment.topCenter,
-                heightFactor: appSettings.enableSetupBookmark && setup.isBookmarked ? 1 : 0,
-                child: const BookmarkRibbon(),
+          if (widget.embedded)
+            Positioned(
+              top: 0,
+              right: _bookmarkRight,
+              child: _bookmarkRibbon(
+                visible: appSettings.enableSetupBookmark && setup.isBookmarked,
               ),
             ),
-          ),
           Positioned(
             top: 0,
             right: 0,
@@ -374,13 +382,27 @@ class _SetupListTileState extends State<SetupListTile> {
             ),
           );
 
-    if (!setup.isCurrent) {
-      return Padding(padding: widget.edgeInset, child: content);
-    }
-    return CurrentSetupHighlight(
-      barLeft: widget.currentBarLeft,
-      padding: widget.edgeInset,
-      child: content,
+    final Widget row = setup.isCurrent
+        ? CurrentSetupHighlight(
+            barLeft: widget.currentBarLeft,
+            padding: widget.edgeInset,
+            child: content,
+          )
+        : Padding(padding: widget.edgeInset, child: content);
+
+    if (widget.embedded) return row;
+
+    return Stack(
+      children: [
+        row,
+        Positioned(
+          top: 0,
+          right: widget.edgeInset.right + 16 + _bookmarkRight,
+          child: _bookmarkRibbon(
+            visible: appSettings.enableSetupBookmark && setup.isBookmarked,
+          ),
+        ),
+      ],
     );
   }
 }

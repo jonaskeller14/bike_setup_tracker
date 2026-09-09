@@ -6,11 +6,11 @@ import 'sheet_header.dart';
 
 Future<void> showColumnFilterSheet({
   required BuildContext context,
-  required List<TableColumn> sortedColumns,
+  required List<TableColumn> columns,
   required String Function(TableColumn column) columnLabel,
   required VoidCallback onColumnStatusChanged,
 }) async {
-  final sortedColumnsCopy = sortedColumns.toList();
+  final columnsCopy = columns.toList();
   return showModalBottomSheet<void>(
     useSafeArea: true,
     isScrollControlled: true,
@@ -33,8 +33,8 @@ Future<void> showColumnFilterSheet({
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         ...TableColumnSection.values.map((tcs) {
-                          final columns = sortedColumnsCopy.where((c) => c.section == tcs);
-                          if (columns.isEmpty) return const SizedBox.shrink();
+                          final sectionColumns = columnsCopy.where((c) => c.section == tcs);
+                          if (sectionColumns.isEmpty) return const SizedBox.shrink();
 
                           return Column(
                             mainAxisSize: MainAxisSize.min,
@@ -43,7 +43,7 @@ Future<void> showColumnFilterSheet({
                               SheetSectionTitle(title: tcs.label),
                               Wrap(
                                 spacing: 6,
-                                children: columns.map((column) {
+                                children: sectionColumns.map((column) {
                                   return FilterChip(
                                     label: Text(columnLabel(column), overflow: TextOverflow.ellipsis),
                                     selected: column.active,

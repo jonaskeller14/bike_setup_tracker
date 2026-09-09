@@ -165,16 +165,16 @@ class _ComponentDetailsPageTableState extends State<ComponentDetailsPageTable> {
     TableColumn column,
     AppSettings appSettings,
   ) {
-    switch (column.section) {
-      case TableColumnSection.generalContext:
-        return switch (column.label) {
-          "Name" => _scrollableTextCell(setup.displayName),
-          "Notes" => _scrollableTextCell(setup.notes ?? '-', maxWidth: 300),
-          "Tags" => _scrollableTextCell(setup.tags.isEmpty ? '-' : setup.tags.join('; '), maxWidth: 300),
-          "Date" => DataCell(Text(DateFormat(appSettings.dateFormat).format(setup.datetimeLocal))),
-          "Time" => DataCell(Text(DateFormat(appSettings.timeFormat).format(setup.datetimeLocal))),
-          "Place" => _scrollableTextCell(setup.place?.locality ?? '-'),
-          "Altitude" => DataCell(
+    switch (column) {
+      case SetupTableColumn(column: final setupColumn):
+        return switch (setupColumn) {
+          SetupColumn.name => _scrollableTextCell(setup.displayName),
+          SetupColumn.notes => _scrollableTextCell(setup.notes ?? '-', maxWidth: 300),
+          SetupColumn.tags => _scrollableTextCell(setup.tags.isEmpty ? '-' : setup.tags.join('; '), maxWidth: 300),
+          SetupColumn.date => DataCell(Text(DateFormat(appSettings.dateFormat).format(setup.datetimeLocal))),
+          SetupColumn.time => DataCell(Text(DateFormat(appSettings.timeFormat).format(setup.datetimeLocal))),
+          SetupColumn.place => _scrollableTextCell(setup.place?.locality ?? '-'),
+          SetupColumn.altitude => DataCell(
             Center(
               child: Text(
                 setup.position?.altitude == null
@@ -183,15 +183,15 @@ class _ComponentDetailsPageTableState extends State<ComponentDetailsPageTable> {
               ),
             ),
           ),
-          "Bike" => _scrollableTextCell(widget.bikes[setup.bike]?.name ?? '-'),
-          "Bookmarked" => DataCell(
+          SetupColumn.bike => _scrollableTextCell(widget.bikes[setup.bike]?.name ?? '-'),
+          SetupColumn.bookmarked => DataCell(
             Center(
               child: setup.isBookmarked
                   ? Icon(Icons.bookmark, size: 16, color: Theme.of(context).colorScheme.primary)
                   : const Text('-'),
             ),
           ),
-          "Activities" => DataCell(
+          SetupColumn.activities => DataCell(
             Center(
               child: Text(
                 '${widget.setupActivityCounts[setup.id] ?? 0}',
@@ -199,12 +199,8 @@ class _ComponentDetailsPageTableState extends State<ComponentDetailsPageTable> {
               ),
             ),
           ),
-          _ => const DataCell(Text("ERROR")),
-        };
-      case TableColumnSection.weatherContext:
-        return switch (column.label) {
-          "Weather Code" => DataCell(Center(child: Text(setup.weather?.getWeatherCodeLabel() ?? "-"))),
-          "Temperature" => DataCell(
+          SetupColumn.weatherCode => DataCell(Center(child: Text(setup.weather?.getWeatherCodeLabel() ?? "-"))),
+          SetupColumn.temperature => DataCell(
             Center(
               child: Text(
                 setup.weather?.currentTemperature == null
@@ -213,7 +209,7 @@ class _ComponentDetailsPageTableState extends State<ComponentDetailsPageTable> {
               ),
             ),
           ),
-          "Precipitation" => DataCell(
+          SetupColumn.precipitation => DataCell(
             Center(
               child: Text(
                 setup.weather?.dayAccumulatedPrecipitation == null
@@ -222,14 +218,14 @@ class _ComponentDetailsPageTableState extends State<ComponentDetailsPageTable> {
               ),
             ),
           ),
-          "Humidity" => DataCell(
+          SetupColumn.humidity => DataCell(
             Center(
               child: Text(
                 setup.weather?.currentHumidity == null ? '-' : "${setup.weather!.currentHumidity!.round()} %",
               ),
             ),
           ),
-          "Windspeed" => DataCell(
+          SetupColumn.windSpeed => DataCell(
             Center(
               child: Text(
                 setup.weather?.currentWindSpeed == null
@@ -238,7 +234,7 @@ class _ComponentDetailsPageTableState extends State<ComponentDetailsPageTable> {
               ),
             ),
           ),
-          "Soil Moisture" => DataCell(
+          SetupColumn.soilMoisture => DataCell(
             Center(
               child: Text(
                 setup.weather?.currentSoilMoisture0to7cm == null
@@ -247,43 +243,43 @@ class _ComponentDetailsPageTableState extends State<ComponentDetailsPageTable> {
               ),
             ),
           ),
-          "Condition" => DataCell(
+          SetupColumn.condition => DataCell(
             Center(child: Text(setup.weather?.condition?.value ?? "-")),
           ),
-          _ => const DataCell(Text("ERROR")),
         };
-      case TableColumnSection.componentAdjustments || TableColumnSection.personAttributes:
-        final value = widget.valueFor(setup, column);
-        final initialValue = switch (column.section) {
-          TableColumnSection.componentAdjustments => setup.previousBikeAdjustmentValues[column.label],
-          TableColumnSection.personAttributes => setup.previousPersonAdjustmentValues[column.label],
-          _ => null,
-        };
-        final bool isChanged = value != null && initialValue != value;
-        final bool isInitial = initialValue == null;
-        final highlights = Theme.of(context).extension<ValueHighlightColors>();
-        final highlightColor = isChanged
-            ? (isInitial ? highlights?.initial ?? Colors.green : highlights?.changed ?? Colors.orange)
-            : null;
-
-        return DataCell(
-          Center(
-            child: Text(
-              Adjustment.formatValue(value),
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: highlightColor,
-                fontWeight: highlightColor != null ? FontWeight.bold : null,
-              ),
-            ),
-          ),
-        );
-      case TableColumnSection.ratingScore || TableColumnSection.ratingMetrics:
+      case ComponentAdjustmentColumn(:final adjustmentId):
+        return _adjustmentCell(context, setup, column, setup.previousBikeAdjustmentValues[adjustmentId]);
+      case PersonAttributeColumn(:final adjustmentId):
+        return _adjustmentCell(context, setup, column, setup.previousPersonAdjustmentValues[adjustmentId]);
+      case RatingScoreColumn() || RatingMetricColumn():
         final score = widget.valueFor(setup, column) as double?;
         return DataCell(
           Center(child: Text(score == null ? '-' : "${score.toStringAsFixed(1)} / 10")),
         );
     }
+  }
+
+  DataCell _adjustmentCell(BuildContext context, Setup setup, TableColumn column, dynamic previousValue) {
+    final value = widget.valueFor(setup, column);
+    final bool isChanged = value != null && previousValue != value;
+    final bool isInitial = previousValue == null;
+    final highlights = Theme.of(context).extension<ValueHighlightColors>();
+    final highlightColor = isChanged
+        ? (isInitial ? highlights?.initial ?? Colors.green : highlights?.changed ?? Colors.orange)
+        : null;
+
+    return DataCell(
+      Center(
+        child: Text(
+          Adjustment.formatValue(value),
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: highlightColor,
+            fontWeight: highlightColor != null ? FontWeight.bold : null,
+          ),
+        ),
+      ),
+    );
   }
 
   DataRow _dataRow(BuildContext context, Setup setup, AppSettings appSettings) {

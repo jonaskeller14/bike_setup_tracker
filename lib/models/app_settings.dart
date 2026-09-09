@@ -30,6 +30,7 @@ class AppSettings extends ChangeNotifier {
   bool _enableTaskPriority = true;
   bool _enableTaskInterval = true;
   bool _enableTaskDelay = false;
+  bool _enableTaskDuePrediction = false;
   bool _enableGarageTaskIndicator = true;
   bool _enableInstallationTimeline = false;
   bool _useMapBoxTiles = false;
@@ -73,6 +74,7 @@ class AppSettings extends ChangeNotifier {
   bool get enableTaskPriority => _enableTaskPriority;
   bool get enableTaskInterval => _enableTaskInterval;
   bool get enableTaskDelay => _enableTaskDelay;
+  bool get enableTaskDuePrediction => _enableTaskDuePrediction;
   bool get enableGarageTaskIndicator => _enableGarageTaskIndicator;
   bool get enableInstallationTimeline => _enableInstallationTimeline;
   bool get useMapBoxTiles => _useMapBoxTiles;
@@ -253,6 +255,13 @@ class AppSettings extends ChangeNotifier {
     _persistBool('enableTaskDelay', newValue);
   }
 
+  set enableTaskDuePrediction(bool newValue) {
+    if (newValue == _enableTaskDuePrediction) return;
+    _enableTaskDuePrediction = newValue;
+    notifyListeners();
+    _persistBool('enableTaskDuePrediction', newValue);
+  }
+
   set enableGarageTaskIndicator(bool newValue) {
     if (newValue == _enableGarageTaskIndicator) return;
     _enableGarageTaskIndicator = newValue;
@@ -402,6 +411,8 @@ class AppSettings extends ChangeNotifier {
       _enableTaskPriority = prefs.getBool('${_kPrefix}enableTaskPriority') ?? _enableTaskPriority;
       _enableTaskInterval = prefs.getBool('${_kPrefix}enableTaskInterval') ?? _enableTaskInterval;
       _enableTaskDelay = prefs.getBool('${_kPrefix}enableTaskDelay') ?? _enableTaskDelay;
+      _enableTaskDuePrediction =
+          prefs.getBool('${_kPrefix}enableTaskDuePrediction') ?? _enableTaskDuePrediction;
       _enableGarageTaskIndicator = prefs.getBool('${_kPrefix}enableGarageTaskIndicator') ?? _enableGarageTaskIndicator;
       _enableInstallationTimeline =
           prefs.getBool('${_kPrefix}enableInstallationTimeline') ?? _enableInstallationTimeline;

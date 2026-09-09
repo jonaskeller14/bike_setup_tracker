@@ -12,8 +12,21 @@ import '../../models/installation.dart';
 import '../../models/task/task_rule.dart';
 import '../../models/task/task_threshold/task_threshold.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/subscription_service.dart';
 import '../../theme.dart';
 import '../../utils/task_actions.dart';
+
+String taskForecastDueLabel(DateTime dueLocal, DateTime nowLocal, String dateFormat) {
+  final days = DateUtils.dateOnly(dueLocal).difference(DateUtils.dateOnly(nowLocal)).inDays;
+  if (days <= 0) return 'today';
+  if (days == 1) return 'tomorrow';
+  if (days < 14) return 'in $days days';
+  if (days < 56) {
+    final weeks = days ~/ 7;
+    return 'in $weeks weeks';
+  }
+  return DateFormat(dateFormat).format(dueLocal);
+}
 
 class TaskRuleDisplayCard extends StatelessWidget {
   final TaskRule taskRule;
@@ -178,6 +191,27 @@ class TaskRuleDisplayCard extends StatelessWidget {
     );
   }
 
+  /// The estimate to append to the detail row, or `null` when the prediction is
+  /// switched off, unavailable, or would only restate what the row already says.
+  ///
+  /// A forecast without a rate sample was never extrapolated: time-based
+  /// intervals count down in the very unit the detail row already shows, so
+  /// "in 3 days" would only echo "3 days remaining".
+  String? _forecastLabel(
+    BuildContext context,
+    AppRepository appRepository,
+    TaskStatus status,
+    String dateFormat,
+  ) {
+    if (taskRule.interval == null || status.isDue) return null;
+    if (!context.select<SubscriptionService, bool>((s) => s.hasStravaEntitlement)) return null;
+    final forecast = appRepository.getTaskRuleForecast(taskRule);
+    if (forecast?.sample == null) return null;
+    final now = DateTime.now();
+    final due = forecast!.dueDate.toLocal();
+    return due.isAfter(now) ? taskForecastDueLabel(due, now, dateFormat) : null;
+  }
+
   Widget _tagsWidget(BuildContext context) {
     return Wrap(
       alignment: WrapAlignment.start,
@@ -213,6 +247,9 @@ class TaskRuleDisplayCard extends StatelessWidget {
 
     final component = taskRule.componentId != null ? appRepository.components[taskRule.componentId] : null;
     final statusColor = status.type.getStatusColor(context);
+    final forecastLabel = showStatus && !isCompleted && appSettings.enableTaskDuePrediction
+        ? _forecastLabel(context, appRepository, status, appSettings.dateFormat)
+        : null;
 
     final card = Opacity(
       opacity: isCompleted ? 0.5 : 1,
@@ -296,7 +333,7 @@ class TaskRuleDisplayCard extends StatelessWidget {
                   ),
                   if (showStatus && !isCompleted && taskRule.interval != null)
                     Flexible(
-                      child: _buildThresholdDetailRow(context, taskRule.interval!, taskRule.delay, status, statusColor, appSettings.distanceUnit, appSettings.altitudeUnit),
+                      child: _buildThresholdDetailRow(context, taskRule.interval!, taskRule.delay, status, statusColor, appSettings.distanceUnit, appSettings.altitudeUnit, forecastLabel: forecastLabel),
                     ),
                 ],
               ),
@@ -319,7 +356,7 @@ class TaskRuleDisplayCard extends StatelessWidget {
     return heroTag == null ? card : Hero(tag: heroTag!, child: card);
   }
 
-  Widget _buildThresholdDetailRow(BuildContext context, TaskThreshold interval, TaskThreshold? delay, TaskStatus status, Color statusColor, String distanceUnit, String altitudeUnit) {
+  Widget _buildThresholdDetailRow(BuildContext context, TaskThreshold interval, TaskThreshold? delay, TaskStatus status, Color statusColor, String distanceUnit, String altitudeUnit, {String? forecastLabel}) {
     final detail = _thresholdDetail(interval, delay, status.progress, distanceUnit, altitudeUnit);
     if (detail == null) return const SizedBox.shrink();
     final isExceeded = status.isDue;
@@ -330,8 +367,21 @@ class TaskRuleDisplayCard extends StatelessWidget {
       children: [
         Icon(isExceeded ? Icons.warning_amber_rounded : Icons.arrow_forward, size: 13, color: statusColor),
         Flexible(
-          child: Text(
-            detail,
+          child: Text.rich(
+            TextSpan(
+              text: detail,
+              children: [
+                // Appended rather than given a row of its own, and last so the
+                // guess is the half that ellipsizes when the card gets narrow.
+                if (forecastLabel != null)
+                  TextSpan(
+                    text: ' · ≈ $forecastLabel',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                    ),
+                  ),
+              ],
+            ),
             style: TextStyle(color: statusColor, fontSize: 13),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,

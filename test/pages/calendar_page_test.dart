@@ -158,6 +158,25 @@ void main() {
       expect(source.getSubject(0), 'Add setup');
     });
 
+    test('renders a predicted task as a faded 30-minute ghost', () {
+      const cs = ColorScheme.light();
+      final date = DateTime(2026, 8, 28, 14, 30);
+      final source = CalendarTimelineDataSource(
+        <Object>[
+          CalendarPredictedTask(taskRuleId: 'rule', name: 'Wax chain', date: date),
+        ],
+        cs,
+      );
+
+      expect(source.getStartTime(0), date);
+      expect(source.getEndTime(0), date.add(kCalendarZeroDuration));
+      expect(source.getSubject(0), 'Wax chain');
+      // Month cells below the appointment threshold paint indicator dots from
+      // getColor, so the ghost has to be faded here and not only in the builder.
+      expect(source.getColor(0), cs.tertiary.withValues(alpha: kCalendarGhostAlpha));
+      expect(source.getColor(0), isNot(cs.tertiary));
+    });
+
     test('uses a Strava entry local anchor and elapsed duration', () {
       final entry = stravaEntry(
         utc: DateTime.utc(2026, 7, 4, 10),

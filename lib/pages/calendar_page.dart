@@ -34,6 +34,9 @@ const Color kCalendarStravaColor = Color(0xFFFC4C02); // Strava brand orange
 const Color kCalendarRatingColor = Color(0xFFF9A825);
 const Duration kCalendarScrollLeadIn = Duration(minutes: 30);
 const int kCalendarFallbackHour = 6;
+const Duration kCalendarFutureWindow = Duration(days: 365);
+const double kCalendarGhostAlpha = 0.4;
+const IconData kCalendarPredictedTaskIcon = Icons.insights;
 
 const double kCalendarHeaderHeight = 48;
 /// Approximate height of the weekday-label row above the month grid.
@@ -52,6 +55,22 @@ DateTime calendarSlotStart(DateTime date) => date.copyWith(
 class CalendarAddSetupSlot {
   const CalendarAddSetupSlot(this.date);
 
+  final DateTime date;
+}
+
+/// A task rule's predicted due date, drawn as a read-only ghost. Calendar-only
+/// by design: nothing about it is recorded, so it is not a [TimelineEntry].
+class CalendarPredictedTask {
+  const CalendarPredictedTask({
+    required this.taskRuleId,
+    required this.name,
+    required this.date,
+  });
+
+  final String taskRuleId;
+  final String name;
+
+  /// Local time the rule is expected to come due.
   final DateTime date;
 }
 
@@ -247,6 +266,29 @@ class _CalendarPageState extends State<CalendarPage> {
     ];
   }
 
+  /// Predicted due dates for the open, not-yet-due rules currently in scope.
+  /// Empty unless the feature is on, tasks are shown, and the rate data the
+  /// forecast needs is actually available to this user.
+  List<CalendarPredictedTask> _buildPredictedTasks(
+    AppRepository repo,
+    AppSettings settings,
+    SubscriptionService sub,
+  ) {
+    if (!settings.enableTaskDuePrediction ||
+        !settings.displayShowTasks ||
+        !sub.hasStravaEntitlement) {
+      return const [];
+    }
+    final now = DateTime.now();
+    return [
+      for (final open in repo.openTaskRules)
+        if (!open.status.isDue)
+          if (repo.getTaskRuleForecast(open.rule)?.dueDate.toLocal() case final due?
+              when due.isAfter(now))
+            CalendarPredictedTask(taskRuleId: open.rule.id, name: open.rule.name, date: due),
+    ];
+  }
+
   /// Collapses the built entries into display rows shared with the timeline
   /// list. Setup grouping stays off for the calendar in v1: rather than
   /// threading an override through the shared core, any [SetupGroupRow] it
@@ -265,7 +307,11 @@ class _CalendarPageState extends State<CalendarPage> {
     if (!repo.hasMoreStrava) return;
 
     final visibleStart = visibleDates.first;
-    final visibleEnd = visibleDates.last;
+    // Paging walks *older*, so a visible range reaching into the future can
+    // never be covered by it: clamp it to now, or navigating forward would
+    // page the whole history looking for activities that cannot exist.
+    final now = DateTime.now();
+    final visibleEnd = visibleDates.last.isAfter(now) ? now : visibleDates.last;
 
     bool needsMore() {
       if (!repo.hasMoreStrava) return false;
@@ -328,6 +374,12 @@ class _CalendarPageState extends State<CalendarPage> {
           return;
         }
         final slotStart = calendarSlotStart(date);
+        // The calendar reaches into the future so predictions have somewhere to
+        // render, but nothing may be written there.
+        if (slotStart.isAfter(DateTime.now())) {
+          _clearPendingSetup();
+          return;
+        }
         if (_pendingSetupDate == slotStart) {
           await _addSetupAtPendingDate();
           return;
@@ -342,6 +394,10 @@ class _CalendarPageState extends State<CalendarPage> {
         final row = appointments.first;
         if (row is CalendarAddSetupSlot) {
           await _addSetupAtDate(row.date);
+          return;
+        }
+        if (row is CalendarPredictedTask) {
+          await showTaskRuleSheet(context, taskRuleId: row.taskRuleId);
           return;
         }
         if (row is! EntryRow) return;
@@ -419,6 +475,20 @@ class _CalendarPageState extends State<CalendarPage> {
     final row = details.appointment;
     final newLocal = details.droppingTime;
     if (newLocal == null) return;
+    if (row is CalendarPredictedTask) {
+      // A prediction is derived, not stored: there is nothing to move. Rebuild
+      // so it snaps back to its forecast date.
+      setState(() {});
+      return;
+    }
+    // `maxDate` used to make the future unreachable, which implicitly kept
+    // drops out of it. Now that it is navigable, the guard has to be explicit.
+    if (newLocal.isAfter(DateTime.now())) {
+      _rejectMove(row is CalendarAddSetupSlot
+          ? "Can't add a setup in the future."
+          : "Can't move this into the future.");
+      return;
+    }
     if (row is CalendarAddSetupSlot) {
       await HapticFeedback.lightImpact();
       if (!mounted) return;
@@ -582,6 +652,7 @@ class _CalendarPageState extends State<CalendarPage> {
     final rows = buildCalendarRows(entries, appSettings);
     final calendarItems = <Object>[
       ...rows,
+      ..._buildPredictedTasks(appRepository, appSettings, subscriptionService),
       if (_pendingSetupDate case final date?) CalendarAddSetupSlot(date),
     ];
     final cs = Theme.of(context).colorScheme;
@@ -669,7 +740,7 @@ class _CalendarPageState extends State<CalendarPage> {
                     controller: _controller,
                     view: _defaultView.view,
                     firstDayOfWeek: appSettings.firstDayOfWeek,
-                    maxDate: DateTime.now().add(kCalendarZeroDuration),
+                    maxDate: DateTime.now().add(kCalendarFutureWindow),
                     cellEndPadding: 0,
                     dataSource: CalendarTimelineDataSource(calendarItems, cs),
                     allowDragAndDrop: true,
@@ -784,11 +855,38 @@ class _CalendarPageState extends State<CalendarPage> {
     if (row is CalendarAddSetupSlot) {
       return _addSetupAppointment(context, details, row);
     }
-    if (row is! EntryRow) return const SizedBox.shrink();
     final cs = Theme.of(context).colorScheme;
+    if (row is CalendarPredictedTask) {
+      return _entryAppointment(
+        details,
+        icon: kCalendarPredictedTaskIcon,
+        subject: row.name,
+        color: cs.tertiary,
+        contentColor: cs.tertiary,
+        ghost: true,
+      );
+    }
+    if (row is! EntryRow) return const SizedBox.shrink();
     final showSetupBookmark = context.read<AppSettings>().enableSetupBookmark;
-    final color = calendarColorForRow(row, cs);
-    final onColor = calendarOnColorForRow(row, cs);
+    return _entryAppointment(
+      details,
+      icon: calendarIconForRow(row, showSetupBookmark: showSetupBookmark),
+      subject: calendarSubjectForRow(row),
+      color: calendarColorForRow(row, cs),
+      contentColor: calendarOnColorForRow(row, cs),
+    );
+  }
+
+  /// The shared appointment body: it decides what still fits as the slot shrinks
+  /// and paints it either solid (a record) or as an outline (a [ghost] guess).
+  Widget _entryAppointment(
+    CalendarAppointmentDetails details, {
+    required IconData icon,
+    required String subject,
+    required Color color,
+    required Color contentColor,
+    bool ghost = false,
+  }) {
     final height = details.bounds.height;
     final width = details.bounds.width;
     // Decide what fits so a narrow column (many concurrent events) never
@@ -813,7 +911,8 @@ class _CalendarPageState extends State<CalendarPage> {
     return Container(
       clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
-        color: color,
+        color: ghost ? Colors.transparent : color,
+        border: ghost ? Border.all(color: color) : null,
         borderRadius: BorderRadius.circular(4),
       ),
       padding: EdgeInsets.symmetric(
@@ -826,20 +925,16 @@ class _CalendarPageState extends State<CalendarPage> {
           : Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(
-                  calendarIconForRow(row, showSetupBookmark: showSetupBookmark),
-                  size: iconSize,
-                  color: onColor,
-                ),
+                Icon(icon, size: iconSize, color: contentColor),
                 if (showText) ...[
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(
-                      calendarSubjectForRow(row),
+                      subject,
                       maxLines: maxLines,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: onColor,
+                        color: contentColor,
                         fontSize: fontSize,
                         height: 1.15,
                       ),
@@ -911,6 +1006,7 @@ class CalendarTimelineDataSource extends CalendarDataSource<Object> {
   DateTime getStartTime(int index) => switch (_item(index)) {
         EntryRow(:final anchorDateLocal) => anchorDateLocal,
         CalendarAddSetupSlot(:final date) => date,
+        CalendarPredictedTask(:final date) => date,
         _ => throw StateError('Unsupported calendar item'),
       };
 
@@ -918,6 +1014,9 @@ class CalendarTimelineDataSource extends CalendarDataSource<Object> {
   DateTime getEndTime(int index) {
     final item = _item(index);
     if (item case CalendarAddSetupSlot(:final date)) {
+      return date.add(kCalendarZeroDuration);
+    }
+    if (item case CalendarPredictedTask(:final date)) {
       return date.add(kCalendarZeroDuration);
     }
     final row = item as EntryRow;
@@ -950,6 +1049,7 @@ class CalendarTimelineDataSource extends CalendarDataSource<Object> {
   String getSubject(int index) => switch (_item(index)) {
         final EntryRow row => calendarSubjectForRow(row),
         CalendarAddSetupSlot() => 'Add setup',
+        CalendarPredictedTask(:final name) => name,
         _ => '',
       };
 
@@ -957,6 +1057,9 @@ class CalendarTimelineDataSource extends CalendarDataSource<Object> {
   Color getColor(int index) => switch (_item(index)) {
         final EntryRow row => calendarColorForRow(row, _cs),
         CalendarAddSetupSlot() => _cs.primaryContainer,
+        // Faded here too: month cells fall back to indicator dots painted from
+        // this colour, which never reach [_appointmentBuilder]'s outline.
+        CalendarPredictedTask() => _cs.tertiary.withValues(alpha: kCalendarGhostAlpha),
         _ => Colors.transparent,
       };
 

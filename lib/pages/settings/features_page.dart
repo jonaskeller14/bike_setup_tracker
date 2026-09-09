@@ -351,6 +351,29 @@ class FeaturesPage extends StatelessWidget {
                       'A delay only applies once: completing the task clears it automatically.',
                 ),
               ),
+              if (kDebugMode)
+                ListTile(
+                  enabled: appSettings.enableTask,
+                  leading: const Icon(Icons.insights),
+                  title: const Text("Task Due Prediction"),
+                  subtitle: _offOnOptionWidgets[appSettings.enableTaskDuePrediction] ?? const Text("-"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () => appSettingsRadioGroupSheet<bool>(
+                    context: context,
+                    title: "Task Due Prediction",
+                    value: appSettings.enableTaskDuePrediction,
+                    optionWidgets: _offOnOptionWidgets,
+                    onChanged: (bool? newValue) {
+                      if (newValue == null) return;
+                      appSettings.enableTaskDuePrediction = newValue;
+                      Navigator.pop(context);
+                    },
+                    infoText:
+                        'Estimates when a task will come due by extrapolating how much the bike '
+                        'has been ridden recently. Needs a connected Strava subscription, and only '
+                        'shows for tasks that are not due yet.',
+                  ),
+                ),
               ListTile(
                 enabled: appSettings.enableTask,
                 leading: const Icon(Icons.adjust),

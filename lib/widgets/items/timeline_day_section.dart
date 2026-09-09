@@ -135,8 +135,14 @@ class TimelineDaySection extends StatelessWidget{
     required AppRepository appRepository,
     required Set<int> lazyLoadTriggerIds,
     required Iterable<Setup> setupsList,
-    EdgeInsets edgeInset = EdgeInsets.zero,
+    bool isFirstInSection = false,
+    bool isLastInSection = false,
   }) {
+    final edgeInset = EdgeInsets.only(
+      top: isFirstInSection ? 8 : 0,
+      bottom: isLastInSection ? 8 : 0,
+    );
+
     final bool hasStravaContext = row is EntryRow && row.stravaContext != null;
 
     final Widget child = switch (row) {
@@ -168,16 +174,23 @@ class TimelineDaySection extends StatelessWidget{
       ),
     };
 
+    // A setup tile takes the inset itself so its current-setup highlight paints
+    // over it; every other row takes it as plain outer padding.
+    final bool isSetupEntry = row is SingleEntryRow && row.entry is SetupEntry;
+    final bool isCurrentSeteup = isSetupEntry && (row.entry as SetupEntry).setup.isCurrent;
+
     // Every row is full-bleed and owns its own 16 px content inset; the Strava
     // bar is painted into that gutter rather than insetting the row further.
     final Widget wrapped = hasStravaContext
-        ? StravaContextWrapper(stravaContext: row.stravaContext!, child: child)
+        ? StravaContextWrapper(
+            stravaContext: row.stravaContext!,
+            isFirstAndCurrentSetupInSection: isFirstInSection && isCurrentSeteup,
+            isLastAndCurrentSetupInSection: isLastInSection && isCurrentSeteup,
+            child: child,
+          )
         : child;
     
-    // A setup tile takes the inset itself so its current-setup highlight paints
-    // over it; every other row takes it as plain outer padding.
-    final bool absorbsEdgeInset = row is SingleEntryRow && row.entry is SetupEntry;
-    
+    final absorbsEdgeInset = isSetupEntry;
     return absorbsEdgeInset ? wrapped : Padding(padding: edgeInset, child: wrapped);
   }
 
@@ -198,10 +211,8 @@ class TimelineDaySection extends StatelessWidget{
                 appRepository: appRepository,
                 lazyLoadTriggerIds: lazyLoadTriggerIds,
                 setupsList: setupsList,
-                edgeInset: EdgeInsets.only(
-                  top: i == 0 ? 8 : 0,
-                  bottom: i == rows.length - 1 ? 8 : 0,
-                ),
+                isFirstInSection: i == 0,
+                isLastInSection: i == rows.length - 1,
               ),
             ),
             if (i < rows.length - 1) const Divider(height: 1),

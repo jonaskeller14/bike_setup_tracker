@@ -9,11 +9,15 @@ class StravaContextWrapper extends StatelessWidget {
 
   final StravaContext stravaContext;
   final Widget child;
+  final bool isFirstAndCurrentSetupInSection;
+  final bool isLastAndCurrentSetupInSection;
 
   const StravaContextWrapper({
     super.key,
     required this.stravaContext,
     required this.child,
+    this.isFirstAndCurrentSetupInSection = false,
+    this.isLastAndCurrentSetupInSection = false,
   });
 
   @override
@@ -23,15 +27,19 @@ class StravaContextWrapper extends StatelessWidget {
         child,
         Positioned(
           left: 0,
-          top: stravaContext.isFirst ? endInset : 0,
-          bottom: stravaContext.isLast ? endInset : 0,
+          top: stravaContext.isFirst && !isFirstAndCurrentSetupInSection ? endInset : 0,
+          bottom: stravaContext.isLast && !isLastAndCurrentSetupInSection ? endInset : 0,
           width: barWidth,
           child: DecoratedBox(
             decoration: BoxDecoration(
               color: stravaOrange,
               borderRadius: BorderRadius.vertical(
-                top: stravaContext.isFirst ? const Radius.circular(barWidth / 2) : Radius.zero,
-                bottom: stravaContext.isLast ? const Radius.circular(barWidth / 2) : Radius.zero,
+                top: stravaContext.isFirst && !isFirstAndCurrentSetupInSection
+                    ? const Radius.circular(barWidth / 2)
+                    : Radius.zero,
+                bottom: stravaContext.isLast && !isLastAndCurrentSetupInSection
+                    ? const Radius.circular(barWidth / 2)
+                    : Radius.zero,
               ),
             ),
           ),

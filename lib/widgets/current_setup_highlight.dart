@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 class CurrentSetupHighlight extends StatelessWidget {
   static const double barWidth = 4;
-
   static const double fillAlpha = 0.08;
 
   static Color opaqueFill(ColorScheme scheme) =>

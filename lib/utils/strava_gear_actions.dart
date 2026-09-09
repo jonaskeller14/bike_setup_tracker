@@ -55,14 +55,14 @@ class StravaGearActions {
     );
 
     unawaited(HapticFeedback.selectionClick());
-    await appRepository.addBike(newBike);
+    await appRepository.addBikes([newBike]);
 
     if (!context.mounted) return;
     messenger.showSnackBar(
       AppSnackBar.success(
         context,
         "Added bike '${newBike.name}' and linked it to '${gear.name}'.",
-        action: AppSnackBarAction(label: 'UNDO', onPressed: () => unawaited(appRepository.removeBike(newBike))),
+        action: AppSnackBarAction(label: 'UNDO', onPressed: () => unawaited(appRepository.removeBikes([newBike]))),
       ),
     );
   }

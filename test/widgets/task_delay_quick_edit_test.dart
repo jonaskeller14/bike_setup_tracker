@@ -138,8 +138,8 @@ void main() {
 
     Future<void> pumpCardMenu(WidgetTester tester, TaskRule rule) async {
       await tester.runAsync(() async {
-        await appRepository.addBike(bike);
-        await appRepository.addTaskRule(rule);
+        await appRepository.addBikes([bike]);
+        await appRepository.addTaskRules([rule]);
         await pumpEventQueue();
       });
       await tester.pumpWidget(wrap(Scaffold(body: TaskRuleListCard(taskRuleId: rule.id))));
@@ -324,8 +324,8 @@ void main() {
         interval: const DurationThreshold(Duration(days: 30)),
         delay: const DurationThreshold(Duration(days: 5)),
       );
-      await appRepository.addBike(bike);
-      await appRepository.addTaskRule(rule);
+      await appRepository.addBikes([bike]);
+      await appRepository.addTaskRules([rule]);
       await pumpEventQueue();
 
       expect(appRepository.taskRules[rule.id]?.delay, isNotNull);
@@ -346,8 +346,8 @@ void main() {
 
     test('leaves a rule without a delay untouched', () async {
       final rule = ruleWith(interval: const DurationThreshold(Duration(days: 30)));
-      await appRepository.addBike(bike);
-      await appRepository.addTaskRule(rule);
+      await appRepository.addBikes([bike]);
+      await appRepository.addTaskRules([rule]);
       await pumpEventQueue();
 
       final before = appRepository.taskRules[rule.id]!.lastModified;
@@ -371,8 +371,8 @@ void main() {
         delay: const DurationThreshold(Duration(days: 5)),
       );
       await tester.runAsync(() async {
-        await appRepository.addBike(bike);
-        await appRepository.addTaskRule(rule);
+        await appRepository.addBikes([bike]);
+        await appRepository.addTaskRules([rule]);
         await pumpEventQueue();
       });
       await tester.pumpWidget(wrap(Scaffold(body: TaskRuleListCard(taskRuleId: rule.id))));
@@ -403,7 +403,7 @@ void main() {
     Future<void> openEditPage(WidgetTester tester, TaskRule rule) async {
       popped = null;
       await tester.runAsync(() async {
-        await appRepository.addBike(bike);
+        await appRepository.addBikes([bike]);
         await pumpEventQueue();
       });
 

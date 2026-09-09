@@ -21,7 +21,7 @@ class BikeActions {
     );
     if (bike == null) return;
 
-    await appRepository.addBike(bike);
+    await appRepository.addBikes([bike]);
   }
 
   static Future<void> editBike(BuildContext context, {required Bike bike}) async {
@@ -49,7 +49,7 @@ class BikeActions {
     );
     if (newBike == null) return;
 
-    await appRepository.addBike(newBike);
+    await appRepository.addBikes([newBike]);
   }
 
   static Future<void> duplicateBikeWithComponents(BuildContext context, {required Bike bike}) async {
@@ -64,9 +64,9 @@ class BikeActions {
     );
     if (newBike == null) return;
 
-    await appRepository.addBike(newBike);
-    await Future.wait(
-      bikeComponents.map((c) => appRepository.addComponent(c.deepCopy().copyWithNewInstallation(newBike.id))),
+    await appRepository.addBikes([newBike]);
+    await appRepository.addComponents(
+      bikeComponents.map((c) => c.deepCopy().copyWithNewInstallation(newBike.id)),
     );
   }
 
@@ -92,7 +92,7 @@ class BikeActions {
         .where((entry) => selectedRuleIds.contains(entry.taskRule))
         .toList();
 
-    await appRepository.removeBike(bike);
+    await appRepository.removeBikes([bike]);
     await appRepository.removeComponents(obsoleteComponents);
     await appRepository.removeSetups(obsoleteSetups);
     await appRepository.removeRatings(obsoleteRatings);
@@ -131,7 +131,7 @@ class BikeActions {
         action: AppSnackBarAction(
           label: 'UNDO',
           onPressed: () async {
-            await appRepository.restoreBike(bike);
+            await appRepository.restoreBikes([bike]);
             await appRepository.restoreComponents(obsoleteComponents);
             await appRepository.restoreSetups(obsoleteSetups);
             await appRepository.restoreRatings(obsoleteRatings);
@@ -147,7 +147,7 @@ class BikeActions {
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);
 
-    await appRepository.restoreBike(bike);
+    await appRepository.restoreBikes([bike]);
 
     if (!context.mounted) return;
     messenger.showSnackBar(
@@ -158,7 +158,7 @@ class BikeActions {
         action: AppSnackBarAction(
           label: 'UNDO',
           onPressed: () async {
-            await appRepository.removeBike(bike);
+            await appRepository.removeBikes([bike]);
           },
         ),
       ),

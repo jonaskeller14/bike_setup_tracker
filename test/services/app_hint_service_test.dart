@@ -152,8 +152,7 @@ void main() {
 
     final firstBike = Bike(name: 'First', person: null);
     final secondBike = Bike(name: 'Second', person: null);
-    await repository.addBike(firstBike);
-    await repository.addBike(secondBike);
+    await repository.addBikes([firstBike, secondBike]);
     await pumpEventQueue();
     service.update(appRepository: repository, appSettings: settings);
     expect(
@@ -161,15 +160,15 @@ void main() {
       AppHint.gettingStartedV1,
     );
 
-    await repository.addComponent(
+    await repository.addComponents([
       Component(
         name: 'Chain',
         componentType: ComponentType.chain,
         installations: [Installation.sinceBeginning(parent: firstBike.id)],
       ),
-    );
+    ]);
     final now = DateTime.now();
-    await repository.addSetup(
+    await repository.addSetups([
       Setup(
         datetime: now.toUtc(),
         datetimeLocal: now,
@@ -179,7 +178,7 @@ void main() {
         bikeAdjustmentValues: const {},
         personAdjustmentValues: const {},
       ),
-    );
+    ]);
     await pumpEventQueue();
     service.update(appRepository: repository, appSettings: settings);
     expect(
@@ -203,17 +202,16 @@ void main() {
 
   test('a recreated service starts a new session', () async {
     final firstBike = Bike(name: 'First', person: null);
-    await repository.addBike(firstBike);
-    await repository.addBike(Bike(name: 'Second', person: null));
-    await repository.addComponent(
+    await repository.addBikes([firstBike, Bike(name: 'Second', person: null)]);
+    await repository.addComponents([
       Component(
         name: 'Chain',
         componentType: ComponentType.chain,
         installations: [Installation.sinceBeginning(parent: firstBike.id)],
       ),
-    );
+    ]);
     final now = DateTime.now();
-    await repository.addSetup(
+    await repository.addSetups([
       Setup(
         datetime: now.toUtc(),
         datetimeLocal: now,
@@ -223,7 +221,7 @@ void main() {
         bikeAdjustmentValues: const {},
         personAdjustmentValues: const {},
       ),
-    );
+    ]);
     await pumpEventQueue();
 
     final service = createService();
@@ -252,17 +250,17 @@ void main() {
 
   test('Task takes priority over Calendar after First Steps are complete', () async {
     final firstBike = Bike(name: 'First', person: null);
-    await repository.addBike(firstBike);
-    await repository.addComponent(
+    await repository.addBikes([firstBike]);
+    await repository.addComponents([
       Component(
         name: 'Chain',
         componentType: ComponentType.chain,
         installations: [Installation.sinceBeginning(parent: firstBike.id)],
       ),
-    );
+    ]);
     final now = DateTime.now();
     for (var index = 0; index < 2; index++) {
-      await repository.addSetup(
+      await repository.addSetups([
         Setup(
           datetime: now.add(Duration(minutes: index)).toUtc(),
           datetimeLocal: now.add(Duration(minutes: index)),
@@ -272,7 +270,7 @@ void main() {
           bikeAdjustmentValues: const {},
           personAdjustmentValues: const {},
         ),
-      );
+      ]);
     }
     await pumpEventQueue();
 
@@ -304,7 +302,7 @@ void main() {
     service.update(appRepository: repository, appSettings: settings);
     expect(service.activeHintFor(AppHintPlacement.stravaDashboardGear), AppHint.stravaLinkGearV1);
 
-    await repository.addBike(Bike(name: 'Road bike', person: null, stravaGear: 'gear-1'));
+    await repository.addBikes([Bike(name: 'Road bike', person: null, stravaGear: 'gear-1')]);
     await pumpEventQueue();
     service.update(appRepository: repository, appSettings: settings);
     expect(service.activeHintFor(AppHintPlacement.stravaDashboardGear), isNull);

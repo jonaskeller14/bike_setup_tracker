@@ -28,7 +28,7 @@ class RatingEntryActions {
     );
     if (newRatingEntry == null) return;
 
-    await appRepository.addRatingEntry(newRatingEntry);
+    await appRepository.addRatingEntries([newRatingEntry]);
   }
 
   static Future<void> removeRatingEntry(BuildContext context, {required RatingEntry ratingEntry}) async {

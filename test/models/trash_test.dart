@@ -61,32 +61,32 @@ void main() {
     });
 
     test("deleted bike appears in deletedBikes, not in bikes", () async {
-      await data.addBike(bike1);
+      await data.addBikes([bike1]);
       await pumpEventQueue();
       expect(appRepository.bikes.containsKey(bike1.id), true);
       expect(appRepository.deletedBikes.any((b) => b.id == bike1.id), false);
 
-      await data.removeBike(bike1);
+      await data.removeBikes([bike1]);
       await pumpEventQueue();
       expect(appRepository.bikes.containsKey(bike1.id), false);
       expect(appRepository.deletedBikes.any((b) => b.id == bike1.id), true);
     });
 
     test("deleted person appears in deletedPersons, not in persons", () async {
-      await data.addPerson(person1);
+      await data.addPersons([person1]);
       await pumpEventQueue();
       expect(appRepository.persons.containsKey(person1.id), true);
       expect(appRepository.deletedPersons.any((p) => p.id == person1.id), false);
 
-      await data.removePerson(person1);
+      await data.removePersons([person1]);
       await pumpEventQueue();
       expect(appRepository.persons.containsKey(person1.id), false);
       expect(appRepository.deletedPersons.any((p) => p.id == person1.id), true);
     });
 
     test("deleted component appears in deletedComponents, not in components", () async {
-      await data.addBike(bike1);
-      await data.addComponent(component1);
+      await data.addBikes([bike1]);
+      await data.addComponents([component1]);
       await pumpEventQueue();
       expect(appRepository.components.containsKey(component1.id), true);
       expect(appRepository.deletedComponents.any((c) => c.id == component1.id), false);
@@ -98,7 +98,7 @@ void main() {
     });
 
     test("deleted rating appears in deletedRatings, not in ratings", () async {
-      await data.addRating(rating1);
+      await data.addRatings([rating1]);
       await pumpEventQueue();
       expect(appRepository.ratings.containsKey(rating1.id), true);
       expect(appRepository.deletedRatings.any((r) => r.id == rating1.id), false);
@@ -110,8 +110,8 @@ void main() {
     });
 
     test("deleted setup appears in deletedSetups, not in setups", () async {
-      await data.addBike(bike1);
-      await data.addSetup(setup1);
+      await data.addBikes([bike1]);
+      await data.addSetups([setup1]);
       await pumpEventQueue();
       expect(appRepository.setups.containsKey(setup1.id), true);
       expect(appRepository.deletedSetups.any((s) => s.id == setup1.id), false);
@@ -123,8 +123,8 @@ void main() {
     });
 
     test("deleted rating entry appears in deletedRatingEntries, not in ratingEntries", () async {
-      await data.addBike(bike1);
-      await data.addRatingEntry(ratingEntry1);
+      await data.addBikes([bike1]);
+      await data.addRatingEntries([ratingEntry1]);
       await pumpEventQueue();
       expect(appRepository.ratingEntries.containsKey(ratingEntry1.id), true);
       expect(appRepository.deletedRatingEntries.any((e) => e.id == ratingEntry1.id), false);
@@ -136,13 +136,13 @@ void main() {
     });
 
     test("restored item moves back from deleted to active", () async {
-      await data.addBike(bike1);
-      await data.removeBike(bike1);
+      await data.addBikes([bike1]);
+      await data.removeBikes([bike1]);
       await pumpEventQueue();
       expect(appRepository.deletedBikes.any((b) => b.id == bike1.id), true);
       expect(appRepository.bikes.containsKey(bike1.id), false);
 
-      await data.restoreBike(bike1);
+      await data.restoreBikes([bike1]);
       await pumpEventQueue();
       expect(appRepository.deletedBikes.any((b) => b.id == bike1.id), false);
       expect(appRepository.bikes.containsKey(bike1.id), true);

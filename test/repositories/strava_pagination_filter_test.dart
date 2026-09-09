@@ -47,8 +47,7 @@ void main() {
       // of bikeNew's newer activities under a descending global ordering.
       repository.debugSetStravaLimit(2);
 
-      await repository.addBike(bikeOld);
-      await repository.addBike(bikeNew);
+      await repository.addBikes([bikeOld, bikeNew]);
 
       // bikeOld owns one OLD activity; bikeNew owns several NEWER ones.
       await repository.setStravaActivities([

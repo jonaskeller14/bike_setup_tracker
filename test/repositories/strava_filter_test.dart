@@ -68,9 +68,7 @@ void main() {
       repository = AppRepository(database);
       
       // Load data into DB
-      await repository.addBike(bikeLinked);
-      await repository.addBike(bikeUnlinked);
-      await repository.addBike(bikeOtherUnlinked);
+      await repository.addBikes([bikeLinked, bikeUnlinked, bikeOtherUnlinked]);
       await repository.setStravaActivities([activityLinked, activityUnlinked, activityUnknownGear]);
       
       await pumpEventQueue();

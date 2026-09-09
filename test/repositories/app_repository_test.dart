@@ -39,41 +39,41 @@ void main() {
     });
 
     test("addBike", () async {
-      await repository.addBike(bike1);
+      await repository.addBikes([bike1]);
       await pumpEventQueue();
       
       expect(repository.bikes.containsKey(bike1.id), true);
     });
 
     test("removeBike (unselected)", () async {
-      await repository.addBike(bike1);
+      await repository.addBikes([bike1]);
       await pumpEventQueue();
-      await repository.removeBike(bike1);
+      await repository.removeBikes([bike1]);
       await pumpEventQueue();
 
       expect(repository.bikes.containsKey(bike1.id), false);
     });
 
     test("restoreBike", () async {
-      await repository.addBike(bike1);
+      await repository.addBikes([bike1]);
       await pumpEventQueue();
-      await repository.removeBike(bike1);
+      await repository.removeBikes([bike1]);
       await pumpEventQueue();
-      await repository.restoreBike(bike1);
+      await repository.restoreBikes([bike1]);
       await pumpEventQueue();
 
       expect(repository.bikes.containsKey(bike1.id), true);
     });
 
     test("removeBike (selected)", () async {
-      await repository.addBike(bike1);
+      await repository.addBikes([bike1]);
       await pumpEventQueue();
       repository.onBikeTap(bike1.id);
       await pumpEventQueue();
 
       expect(repository.selectedBike == bike1.id, true);
 
-      await repository.removeBike(bike1);
+      await repository.removeBikes([bike1]);
       await pumpEventQueue();
 
       expect(repository.selectedBike == null, true);
@@ -104,16 +104,16 @@ void main() {
     });
 
     test("addComponent", () async {
-      await repository.addBike(bike1);
-      await repository.addComponent(component1);
+      await repository.addBikes([bike1]);
+      await repository.addComponents([component1]);
       await pumpEventQueue();
       
       expect(repository.components.containsKey(component1.id), true);
     });
 
     test("removeComponents", () async {
-      await repository.addBike(bike1);
-      await repository.addComponent(component1);
+      await repository.addBikes([bike1]);
+      await repository.addComponents([component1]);
       await pumpEventQueue();
       await repository.removeComponents([component1]);
       await pumpEventQueue();
@@ -128,9 +128,8 @@ void main() {
         componentType: ComponentType.fork,
         adjustments: [],
       );
-      await repository.addBike(bike1);
-      await repository.addComponent(component1);
-      await repository.addComponent(spare);
+      await repository.addBikes([bike1]);
+      await repository.addComponents([component1, spare]);
       await pumpEventQueue();
 
       final at = DateTime.utc(2024, 6, 1);
@@ -178,8 +177,8 @@ void main() {
     });
 
     test("addSetup", () async {
-      await repository.addBike(bike1);
-      await repository.addSetup(setup1);
+      await repository.addBikes([bike1]);
+      await repository.addSetups([setup1]);
       await pumpEventQueue();
       
       expect(repository.setups.containsKey(setup1.id), true);
@@ -204,9 +203,9 @@ void main() {
         bikeAdjustmentValues: {adjustment.id: 100.0},
       );
 
-      await repository.addBike(bikeWithAdj);
-      await repository.addComponent(component);
-      await repository.addSetup(setupWithVals);
+      await repository.addBikes([bikeWithAdj]);
+      await repository.addComponents([component]);
+      await repository.addSetups([setupWithVals]);
       await pumpEventQueue();
 
       expect(repository.setups[setupWithVals.id]?.bikeAdjustmentValues[adjustment.id], 100.0);
@@ -215,7 +214,7 @@ void main() {
       final obsoleteComponents = repository.components.values.where((c) => c.bike == bikeWithAdj.id).toList();
       final obsoleteSetups = repository.setups.values.where((s) => s.bike == bikeWithAdj.id).toList();
 
-      await repository.removeBike(bikeWithAdj);
+      await repository.removeBikes([bikeWithAdj]);
       await repository.removeComponents(obsoleteComponents);
       await repository.removeSetups(obsoleteSetups);
       await pumpEventQueue();
@@ -227,7 +226,7 @@ void main() {
       expect(deletedSetup.bikeAdjustmentValues.isEmpty, true); // This is the bug: it should NOT be empty but it IS
 
       // Restore using the object from the repository's deleted list (simulating TrashPage)
-      await repository.restoreBike(bikeWithAdj);
+      await repository.restoreBikes([bikeWithAdj]);
       await repository.restoreComponents(obsoleteComponents);
       await repository.restoreSetups([deletedSetup]);
       await pumpEventQueue();
@@ -254,8 +253,8 @@ void main() {
         ],
       );
 
-      await repository.addBike(bikeWithComp);
-      await repository.addComponent(component);
+      await repository.addBikes([bikeWithComp]);
+      await repository.addComponents([component]);
       await pumpEventQueue();
 
       expect(repository.components[component.id]?.installations.length, 2);
@@ -297,7 +296,7 @@ void main() {
     });
 
     test("addPerson", () async {
-      await repository.addPerson(person1);
+      await repository.addPersons([person1]);
       await pumpEventQueue();
       
       expect(repository.persons.containsKey(person1.id), true);
@@ -311,13 +310,13 @@ void main() {
       );
       final personWithAdj = person1.copyWith(id: person1.id, adjustments: [adjustment]);
 
-      await repository.addPerson(personWithAdj);
+      await repository.addPersons([personWithAdj]);
       await pumpEventQueue();
 
       expect(repository.persons[personWithAdj.id]?.adjustments.length, 1);
 
       // Remove
-      await repository.removePerson(personWithAdj);
+      await repository.removePersons([personWithAdj]);
       await pumpEventQueue();
 
       expect(repository.persons.containsKey(personWithAdj.id), false);
@@ -325,7 +324,7 @@ void main() {
       expect(deletedPerson.adjustments.isEmpty, true);
 
       // Restore
-      await repository.restorePerson(deletedPerson);
+      await repository.restorePersons([deletedPerson]);
       await pumpEventQueue();
 
       expect(repository.persons.containsKey(personWithAdj.id), true);
@@ -349,7 +348,7 @@ void main() {
     });
 
     test("addRating", () async {
-      await repository.addRating(rating1);
+      await repository.addRatings([rating1]);
       await pumpEventQueue();
       
       expect(repository.ratings.containsKey(rating1.id), true);
@@ -363,7 +362,7 @@ void main() {
       );
       final ratingWithAdj = rating1.copyWith(id: rating1.id, metrics: [RatingMetric(adjustment: adjustment)]);
 
-      await repository.addRating(ratingWithAdj);
+      await repository.addRatings([ratingWithAdj]);
       await pumpEventQueue();
 
       expect(repository.ratings[ratingWithAdj.id]?.metrics.length, 1);
@@ -425,9 +424,9 @@ void main() {
       );
       final setup = buildSetup(bike.id, bikeValues: {adj.id: 65.0});
 
-      await repository.addBike(bike);
-      await repository.addComponent(component);
-      await repository.addSetup(setup);
+      await repository.addBikes([bike]);
+      await repository.addComponents([component]);
+      await repository.addSetups([setup]);
       await pumpEventQueue();
 
       // Age the setup so the lastModified bump is unambiguous despite
@@ -461,9 +460,9 @@ void main() {
       );
       final setup = buildSetup(bike.id, bikeValues: {adj.id: 65.0});
 
-      await repository.addBike(bike);
-      await repository.addComponent(component);
-      await repository.addSetup(setup);
+      await repository.addBikes([bike]);
+      await repository.addComponents([component]);
+      await repository.addSetups([setup]);
       await pumpEventQueue();
 
       final before = repository.setups[setup.id]!.lastModified;
@@ -482,9 +481,9 @@ void main() {
       final person = Person(name: "P", adjustments: [padj]);
       final setup = buildSetup(bike.id, personId: person.id, personValues: {padj.id: 70.0});
 
-      await repository.addBike(bike);
-      await repository.addPerson(person);
-      await repository.addSetup(setup);
+      await repository.addBikes([bike]);
+      await repository.addPersons([person]);
+      await repository.addSetups([setup]);
       await pumpEventQueue();
 
       await repository.editPerson(
@@ -513,8 +512,8 @@ void main() {
         metricValues: {metricAdj.id: 65.0},
       );
 
-      await repository.addRating(rating);
-      await repository.addRatingEntry(entry);
+      await repository.addRatings([rating]);
+      await repository.addRatingEntries([entry]);
       await pumpEventQueue();
 
       // Age the entry so the lastModified bump is unambiguous despite
@@ -592,8 +591,8 @@ void main() {
         componentType: ComponentType.fork,
       );
 
-      await repository.addBike(bike1);
-      await repository.addComponent(component);
+      await repository.addBikes([bike1]);
+      await repository.addComponents([component]);
       await pumpEventQueue();
 
       expect(repository.filteredInstallations.length, 1);
@@ -616,10 +615,8 @@ void main() {
         componentType: ComponentType.fork,
       );
 
-      await repository.addBike(bike1);
-      await repository.addBike(bike2);
-      await repository.addComponent(component1);
-      await repository.addComponent(component2);
+      await repository.addBikes([bike1, bike2]);
+      await repository.addComponents([component1, component2]);
       await pumpEventQueue();
 
       expect(repository.filteredInstallations.length, 2);
@@ -644,9 +641,8 @@ void main() {
         componentType: ComponentType.fork,
       );
 
-      await repository.addBike(bike1);
-      await repository.addBike(bike2);
-      await repository.addComponent(component);
+      await repository.addBikes([bike1, bike2]);
+      await repository.addComponents([component]);
       await pumpEventQueue();
 
       // Without filter: 2 events (sinceBeginning is excluded)
@@ -693,9 +689,9 @@ void main() {
     });
 
     test("openTaskCount updates when adding rule and entry", () async {
-      await repository.addBike(bike1);
-      await repository.addComponent(component1);
-      await repository.addTaskRule(rule1);
+      await repository.addBikes([bike1]);
+      await repository.addComponents([component1]);
+      await repository.addTaskRules([rule1]);
       await pumpEventQueue();
 
       // Rule added, no entry -> open count should be 1
@@ -719,7 +715,7 @@ void main() {
     });
 
     test("addTaskEntries rolls back the batch when one insert fails", () async {
-      await repository.addTaskRule(rule1);
+      await repository.addTaskRules([rule1]);
       await pumpEventQueue();
 
       final entry = TaskEntry(
@@ -749,12 +745,9 @@ void main() {
       );
       final rule2 = TaskRule(name: "Rule 2", componentId: component2.id, tags: const {});
 
-      await repository.addBike(bike1);
-      await repository.addBike(bike2);
-      await repository.addComponent(component1);
-      await repository.addComponent(component2);
-      await repository.addTaskRule(rule1);
-      await repository.addTaskRule(rule2);
+      await repository.addBikes([bike1, bike2]);
+      await repository.addComponents([component1, component2]);
+      await repository.addTaskRules([rule1, rule2]);
       await pumpEventQueue();
 
       expect(repository.filteredOpenTaskRulesCount, 2);
@@ -774,10 +767,7 @@ void main() {
       final ruleMedium = TaskRule(name: "Medium", priority: TaskPriority.medium, tags: const {});
       final ruleCritical = TaskRule(name: "Critical", priority: TaskPriority.critical, tags: const {});
 
-      await repository.addTaskRule(ruleLow);
-      await repository.addTaskRule(ruleHigh);
-      await repository.addTaskRule(ruleMedium);
-      await repository.addTaskRule(ruleCritical);
+      await repository.addTaskRules([ruleLow, ruleHigh, ruleMedium, ruleCritical]);
       await pumpEventQueue();
 
       final toDo = repository.openTaskRules;
@@ -806,8 +796,7 @@ void main() {
         interval: DateTimeThreshold(DateTime.now().subtract(const Duration(hours: 1))),
       );
 
-      await repository.addTaskRule(ruleCriticalNoTrigger);
-      await repository.addTaskRule(ruleLowDue);
+      await repository.addTaskRules([ruleCriticalNoTrigger, ruleLowDue]);
       await pumpEventQueue();
 
       final toDo = repository.openTaskRules;
@@ -832,7 +821,7 @@ void main() {
         tags: const {},
         interval: const DurationThreshold(Duration(days: 30000)), // ~82 years
       );
-      await repository.addTaskRule(upcomingRule);
+      await repository.addTaskRules([upcomingRule]);
       await pumpEventQueue();
       expect(repository.openTaskRulesStatusType, TaskStatusType.upcoming);
 
@@ -841,7 +830,7 @@ void main() {
         name: "Due",
         tags: const {},
       );
-      await repository.addTaskRule(dueRule);
+      await repository.addTaskRules([dueRule]);
       await pumpEventQueue();
       expect(repository.openTaskRulesStatusType, TaskStatusType.due);
 
@@ -851,7 +840,7 @@ void main() {
         tags: const {},
         interval: const DurationThreshold(Duration(days: 10)),
       );
-      await repository.addTaskRule(overdueRule);
+      await repository.addTaskRules([overdueRule]);
       await pumpEventQueue();
       expect(repository.openTaskRulesStatusType, TaskStatusType.overdue);
 
@@ -959,8 +948,7 @@ void main() {
       );
       final bike2Rule = TaskRule(name: "Bike 2 due", bikeId: bike2.id, tags: const {"other"});
 
-      await repository.addBike(bike1);
-      await repository.addBike(bike2);
+      await repository.addBikes([bike1, bike2]);
       await repository.addTaskRules([bike1Rule, bike2Rule]);
       await pumpEventQueue();
       repository.onBikeTap(bike1.id);
@@ -1012,8 +1000,8 @@ void main() {
     });
 
     test("archiveComponent removes from filteredComponents and adds to archivedComponents", () async {
-      await repository.addBike(bike1);
-      await repository.addComponent(component1);
+      await repository.addBikes([bike1]);
+      await repository.addComponents([component1]);
       await pumpEventQueue();
 
       expect(repository.filteredComponents.containsKey(component1.id), isTrue);
@@ -1029,8 +1017,8 @@ void main() {
     });
 
     test("unarchiveComponent removes the Archival event and restores prior state", () async {
-      await repository.addBike(bike1);
-      await repository.addComponent(component1);
+      await repository.addBikes([bike1]);
+      await repository.addComponents([component1]);
       await pumpEventQueue();
 
       final comp = repository.components[component1.id]!;
@@ -1062,9 +1050,9 @@ void main() {
         tags: const {},
       );
 
-      await repository.addBike(bike1);
-      await repository.addComponent(component1);
-      await repository.addTaskRule(rule);
+      await repository.addBikes([bike1]);
+      await repository.addComponents([component1]);
+      await repository.addTaskRules([rule]);
       await pumpEventQueue();
 
       expect(repository.filteredOpenTaskRules.containsKey(rule.id), isTrue);
@@ -1109,7 +1097,7 @@ void main() {
     );
 
     test("returns null when the bike has no setups", () async {
-      await repository.addBike(bike1);
+      await repository.addBikes([bike1]);
       await pumpEventQueue();
 
       expect(repository.resolveSetupId(bikeId: bike1.id, atUtc: DateTime(2025).toUtc()), isNull);
@@ -1117,8 +1105,8 @@ void main() {
 
     test("returns null when atUtc precedes every setup", () async {
       final setup = buildSetup(bike1.id, DateTime(2025, 6, 1));
-      await repository.addBike(bike1);
-      await repository.addSetup(setup);
+      await repository.addBikes([bike1]);
+      await repository.addSetups([setup]);
       await pumpEventQueue();
 
       expect(repository.resolveSetupId(bikeId: bike1.id, atUtc: DateTime(2025, 1, 1).toUtc()), isNull);
@@ -1126,8 +1114,8 @@ void main() {
 
     test("returns the setup on an exact timestamp match", () async {
       final setup = buildSetup(bike1.id, DateTime(2025, 6, 1));
-      await repository.addBike(bike1);
-      await repository.addSetup(setup);
+      await repository.addBikes([bike1]);
+      await repository.addSetups([setup]);
       await pumpEventQueue();
 
       expect(repository.resolveSetupId(bikeId: bike1.id, atUtc: DateTime(2025, 6, 1).toUtc()), setup.id);
@@ -1137,10 +1125,8 @@ void main() {
       final early = buildSetup(bike1.id, DateTime(2025, 1, 1));
       final middle = buildSetup(bike1.id, DateTime(2025, 6, 1));
       final late_ = buildSetup(bike1.id, DateTime(2025, 12, 1));
-      await repository.addBike(bike1);
-      await repository.addSetup(late_);
-      await repository.addSetup(early);
-      await repository.addSetup(middle);
+      await repository.addBikes([bike1]);
+      await repository.addSetups([late_, early, middle]);
       await pumpEventQueue();
 
       // Between middle and late_ -> middle.
@@ -1154,10 +1140,8 @@ void main() {
     test("resolves independently per bike", () async {
       final setup1 = buildSetup(bike1.id, DateTime(2025, 1, 1));
       final setup2 = buildSetup(bike2.id, DateTime(2025, 6, 1));
-      await repository.addBike(bike1);
-      await repository.addBike(bike2);
-      await repository.addSetup(setup1);
-      await repository.addSetup(setup2);
+      await repository.addBikes([bike1, bike2]);
+      await repository.addSetups([setup1, setup2]);
       await pumpEventQueue();
 
       final at = DateTime(2025, 12, 1).toUtc();
@@ -1171,9 +1155,8 @@ void main() {
       final at = DateTime(2025, 6, 1);
       final a = buildSetup(bike1.id, at);
       final b = buildSetup(bike1.id, at);
-      await repository.addBike(bike1);
-      await repository.addSetup(a);
-      await repository.addSetup(b);
+      await repository.addBikes([bike1]);
+      await repository.addSetups([a, b]);
       await pumpEventQueue();
 
       // Tie-break is unspecified, but it must land on an exact match, not null.

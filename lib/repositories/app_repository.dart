@@ -1057,13 +1057,23 @@ class AppRepository extends ChangeNotifier {
     );
   }
 
-  Future<void> removeBike(Bike bike) async {
-    await database.bikesDao.deleteBike(bike.id);
+  Future<void> removeBikes(Iterable<Bike> bikes) async {
+    if (bikes.isEmpty) return;
+    await database.transaction(() async {
+      for (var bike in bikes) {
+        await database.bikesDao.deleteBike(bike.id);
+      }
+    });
   }
 
-  Future<void> restoreBike(Bike bike) async {
-    final updated = bike.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
-    await database.bikesDao.updateBike(updated.toCompanion());
+  Future<void> restoreBikes(Iterable<Bike> bikes) async {
+    if (bikes.isEmpty) return;
+    await database.transaction(() async {
+      for (var bike in bikes) {
+        final updated = bike.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
+        await database.bikesDao.updateBike(updated.toCompanion());
+      }
+    });
   }
 
   Future<void> removeComponents(Iterable<Component> components) async {
@@ -1104,13 +1114,23 @@ class AppRepository extends ChangeNotifier {
     });
   }
 
-  Future<void> removePerson(Person person) async {
-    await database.personsDao.deletePerson(person.id);
+  Future<void> removePersons(Iterable<Person> persons) async {
+    if (persons.isEmpty) return;
+    await database.transaction(() async {
+      for (var person in persons) {
+        await database.personsDao.deletePerson(person.id);
+      }
+    });
   }
 
-  Future<void> restorePerson(Person person) async {
-    final updated = person.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
-    await database.personsDao.updatePerson(updated.toCompanion());
+  Future<void> restorePersons(Iterable<Person> persons) async {
+    if (persons.isEmpty) return;
+    await database.transaction(() async {
+      for (var person in persons) {
+        final updated = person.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
+        await database.personsDao.updatePerson(updated.toCompanion());
+      }
+    });
   }
 
   Future<void> removeRatings(Iterable<Rating> ratings) async {
@@ -1132,12 +1152,18 @@ class AppRepository extends ChangeNotifier {
     });
   }
 
-  Future<void> addRatingEntry(RatingEntry entry) async {
-    final updated = entry.copyWith(lastModified: DateTime.now().toUtc());
-    await database.ratingEntriesDao.insertRatingEntryWithValues(
-      entry: updated.toCompanion(),
-      values: updated.metricValues,
-    );
+Future<void> addRatingEntries(Iterable<RatingEntry> entries) async {
+    if (entries.isEmpty) return;
+    final now = DateTime.now().toUtc();
+    await database.transaction(() async {
+      for (final entry in entries) {
+        final updated = entry.copyWith(lastModified: now);
+        await database.ratingEntriesDao.insertRatingEntryWithValues(
+          entry: updated.toCompanion(),
+          values: updated.metricValues,
+        );
+      }
+    });
   }
 
   Future<void> editRatingEntry(RatingEntry entry) async {
@@ -1313,34 +1339,46 @@ class AppRepository extends ChangeNotifier {
     });
   }
 
-  Future<void> addBike(Bike bike) async {
-    final updated = bike.copyWith(lastModified: DateTime.now().toUtc());
-    await database.bikesDao.insertBike(updated.toCompanion());
+  Future<void> addBikes(Iterable<Bike> bikes) async {
+    final now = DateTime.now().toUtc();
+    await database.transaction(() async {
+      for (final bike in bikes) {
+        final updated = bike.copyWith(lastModified: now);
+        await database.bikesDao.insertBike(updated.toCompanion());
+      }
+    });
   }
 
-  Future<void> addPerson(Person person) async {
-    final updated = person.copyWith(lastModified: DateTime.now().toUtc());
-    await database.personsDao.insertPersonWithData(
-      person: updated.toCompanion(),
-      adjustmentsList: updated.adjustments.asMap().entries.map((entry) => 
-        entry.value.toCompanion(personId: updated.id, orderIndex: entry.key)
-      ).toList(),
-    );
+Future<void> addPersons(Iterable<Person> persons) async {
+    if (persons.isEmpty) return;
+    final now = DateTime.now().toUtc();
+    await database.transaction(() async {
+      for (final person in persons) {
+        final updated = person.copyWith(lastModified: now);
+        await database.personsDao.insertPersonWithData(
+          person: updated.toCompanion(),
+          adjustmentsList: updated.adjustments.asMap().entries.map((entry) =>
+            entry.value.toCompanion(personId: updated.id, orderIndex: entry.key)
+          ).toList(),
+        );
+      }
+    });
   }
 
-  Future<void> addRating(Rating rating) async {
-    final updated = rating.copyWith(lastModified: DateTime.now().toUtc());
-    await database.ratingsDao.insertRatingWithData(
-      rating: updated.toCompanion(),
-      metricsList: updated.metrics.asMap().entries.map((entry) =>
-        entry.value.toCompanion(ratingId: updated.id, orderIndex: entry.key)
-      ).toList(),
-    );
-  }
-
-  Future<void> addTaskRule(TaskRule rule) async {
-    final updated = rule.copyWith(lastModified: DateTime.now().toUtc());
-    await database.taskDao.insertRule(updated.toCompanion());
+Future<void> addRatings(Iterable<Rating> ratings) async {
+    if (ratings.isEmpty) return;
+    final now = DateTime.now().toUtc();
+    await database.transaction(() async {
+      for (final rating in ratings) {
+        final updated = rating.copyWith(lastModified: now);
+        await database.ratingsDao.insertRatingWithData(
+          rating: updated.toCompanion(),
+          metricsList: updated.metrics.asMap().entries.map((entry) =>
+            entry.value.toCompanion(ratingId: updated.id, orderIndex: entry.key)
+          ).toList(),
+        );
+      }
+    });
   }
 
   Future<void> addTaskRules(Iterable<TaskRule> rules) async {
@@ -1394,19 +1432,23 @@ class AppRepository extends ChangeNotifier {
     });
   }
 
-  Future<void> addComponent(Component component) async {
-    final updated = component.copyWith(lastModified: DateTime.now().toUtc());
-    await database.componentsDao.insertComponentWithData(
-      component: updated.toCompanion(),
-      adjustmentsList: updated.adjustments.asMap().entries.map((entry) => 
-        entry.value.toCompanion(componentId: updated.id, orderIndex: entry.key)
-      ).toList(),
-      installationsList: updated.installations.map((inst) =>
-        // A brand-new component: every installation is a new row, so assign
-        // fresh stable ids (avoids PK collisions when duplicating components).
-        inst.copyWith(id: const Uuid().v4(), componentId: updated.id).toCompanion()
-      ).toList(),
-    );
+Future<void> addComponents(Iterable<Component> components) async {
+    if (components.isEmpty) return;
+    final now = DateTime.now().toUtc();
+    await database.transaction(() async {
+      for (final component in components) {
+        final updated = component.copyWith(lastModified: now);
+        await database.componentsDao.insertComponentWithData(
+          component: updated.toCompanion(),
+          adjustmentsList: updated.adjustments.asMap().entries.map((entry) =>
+            entry.value.toCompanion(componentId: updated.id, orderIndex: entry.key)
+          ).toList(),
+          installationsList: updated.installations.map((inst) =>
+            inst.copyWith(id: const Uuid().v4(), componentId: updated.id).toCompanion()
+          ).toList(),
+        );
+      }
+    });
   }
 
   Future<void> editPerson(Person person, {List<ValueUnitConversion> conversions = const []}) async {
@@ -1541,13 +1583,19 @@ class AppRepository extends ChangeNotifier {
     });
   }
 
-  Future<void> addSetup(Setup setup) async {
-    final updated = setup.copyWith(lastModified: DateTime.now().toUtc());
-    await database.setupsDao.insertSetupWithValues(
-      setup: updated.toCompanion(),
-      bikeValues: updated.bikeAdjustmentValues,
-      personValues: updated.personAdjustmentValues,
-    );
+  Future<void> addSetups(Iterable<Setup> setups) async {
+    if (setups.isEmpty) return;
+    final now = DateTime.now().toUtc();
+    await database.transaction(() async {
+      for (final setup in setups) {
+        final updated = setup.copyWith(lastModified: now);
+        await database.setupsDao.insertSetupWithValues(
+          setup: updated.toCompanion(),
+          bikeValues: updated.bikeAdjustmentValues,
+          personValues: updated.personAdjustmentValues,
+        );
+      }
+    });
   }
 
   Future<void> editSetup(Setup setup) async {

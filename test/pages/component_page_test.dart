@@ -82,7 +82,7 @@ void main() {
     testWidgets('renders in Edit mode with component data', (WidgetTester tester) async {
       final bike = Bike(name: 'My Bike', person: 'Me');
       await tester.runAsync(() async {
-        await appRepository.addBike(bike);
+        await appRepository.addBikes([bike]);
       });
       
       final component = Component(
@@ -173,9 +173,11 @@ void main() {
 
       final component = archivedTire('c1');
       await tester.runAsync(() async {
-        await appRepository.addComponent(component);
-        await appRepository.addComponent(archivedTire('c2'));
-        await appRepository.addComponent(archivedTire('c3'));
+        await appRepository.addComponents([
+          component,
+          archivedTire('c2'),
+          archivedTire('c3'),
+        ]);
       });
       await _waitForRepositoryUpdate(tester, appRepository);
 

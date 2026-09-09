@@ -88,15 +88,15 @@ void main() {
   testWidgets('opens Setup History by default when bikes and components exist', (tester) async {
     final bike = Bike(name: 'Test bike', person: null);
     await tester.runAsync(() async {
-      await appRepository.addBike(bike);
-      await appRepository.addComponent(
+      await appRepository.addBikes([bike]);
+      await appRepository.addComponents([
         Component(
           name: 'Test component',
           componentType: ComponentType.frame,
           adjustments: const [],
           installations: [Installation.sinceBeginning(parent: bike.id)],
         ),
-      );
+      ]);
     });
 
     await tester.pumpWidget(createWidgetUnderTest());
@@ -118,8 +118,7 @@ void main() {
     final activeBike = Bike(name: 'Active bike', person: null);
     final deletedBike = Bike(name: 'Deleted bike', person: null, isDeleted: true);
     await tester.runAsync(() async {
-      await appRepository.addBike(activeBike);
-      await appRepository.addBike(deletedBike);
+      await appRepository.addBikes([activeBike, deletedBike]);
     });
 
     await tester.pumpWidget(createWidgetUnderTest());
@@ -226,15 +225,15 @@ void main() {
 
     final bike = Bike(name: 'Test bike', person: null);
     await tester.runAsync(() async {
-      await appRepository.addBike(bike);
-      await appRepository.addComponent(
+      await appRepository.addBikes([bike]);
+      await appRepository.addComponents([
         Component(
           name: 'Test component',
           componentType: ComponentType.other,
           adjustments: const [],
           installations: [Installation.sinceBeginning(parent: bike.id)],
         ),
-      );
+      ]);
     });
     await _waitForRepositoryUpdate(
       tester,
@@ -282,7 +281,7 @@ void main() {
       tags: const {},
       interval: DateTimeThreshold(DateTime.now().add(const Duration(days: 1))),
     );
-    await tester.runAsync(() => appRepository.addTaskRule(upcoming));
+    await tester.runAsync(() => appRepository.addTaskRules([upcoming]));
     await _waitForRepositoryUpdate(
       tester,
       until: (repository) => repository.taskRules.containsKey(upcoming.id),
@@ -294,7 +293,7 @@ void main() {
   testWidgets('Tasks badge shows the actionable count and due color', (tester) async {
     appSettings.enableTask = true;
     final due = TaskRule(name: 'Due', tags: const {});
-    await tester.runAsync(() => appRepository.addTaskRule(due));
+    await tester.runAsync(() => appRepository.addTaskRules([due]));
 
     await tester.pumpWidget(createWidgetUnderTest());
     await _waitForRepositoryUpdate(
@@ -417,8 +416,8 @@ Future<void> _seedGarageComponent(
 ) async {
   await tester.runAsync(() async {
     final bike = Bike(name: 'Test bike', person: null);
-    await appRepository.addBike(bike);
-    await appRepository.addComponent(
+    await appRepository.addBikes([bike]);
+    await appRepository.addComponents([
       Component(
         name: 'Test component',
         componentType: ComponentType.fork,
@@ -427,7 +426,7 @@ Future<void> _seedGarageComponent(
         ],
         installations: [Installation.sinceBeginning(parent: bike.id)],
       ),
-    );
+    ]);
   });
 }
 

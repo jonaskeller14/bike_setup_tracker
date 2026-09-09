@@ -61,7 +61,7 @@ class SetupActions {
     );
     if (newSetup == null) return;
 
-    await appRepository.addSetup(newSetup);
+    await appRepository.addSetups([newSetup]);
   }
 
   static Future<void> editSetup(BuildContext context, {required Setup setup}) async {
@@ -107,7 +107,7 @@ class SetupActions {
       return null;
     }
 
-    await appRepository.addSetup(newSetup);
+    await appRepository.addSetups([newSetup]);
     return newSetup;
   }
 
@@ -185,6 +185,6 @@ class SetupActions {
     );
     if (newRatingEntry == null) return;
 
-    await appRepository.addRatingEntry(newRatingEntry);
+    await appRepository.addRatingEntries([newRatingEntry]);
   }
 }

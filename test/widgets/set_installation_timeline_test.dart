@@ -59,7 +59,7 @@ void main() {
       final bike = Bike(id: 'bike1', name: 'Mountain Bike', person: 'Me');
       
       await tester.runAsync(() async {
-        await appRepository.addBike(bike);
+        await appRepository.addBikes([bike]);
         // Wait for repository cache to pick up the change from the stream
         // to avoid DropdownButton assertion errors
         int attempts = 0;
@@ -88,7 +88,7 @@ void main() {
 
     testWidgets('disables delete button if only one entry', (WidgetTester tester) async {
       await tester.runAsync(() async {
-        await appRepository.addBike(Bike(id: 'bike1', name: 'Bike 1', person: 'Me'));
+        await appRepository.addBikes([Bike(id: 'bike1', name: 'Bike 1', person: 'Me')]);
         int attempts = 0;
         while (appRepository.bikes.isEmpty && attempts < 100) {
           await Future<void>.delayed(const Duration(milliseconds: 10));
@@ -130,7 +130,7 @@ void main() {
     testWidgets('validation: prevents consecutive installations on same bike', (WidgetTester tester) async {
       final bike = Bike(id: 'bike1', name: 'Bike A', person: 'Me');
       await tester.runAsync(() async {
-        await appRepository.addBike(bike);
+        await appRepository.addBikes([bike]);
         int attempts = 0;
         while (appRepository.bikes.isEmpty && attempts < 100) {
           await Future<void>.delayed(const Duration(milliseconds: 10));
@@ -159,8 +159,10 @@ void main() {
 
     testWidgets('validation: prevents multiple from beginning entries', (WidgetTester tester) async {
       await tester.runAsync(() async {
-        await appRepository.addBike(Bike(id: 'bike1', name: 'Bike 1', person: 'Me'));
-        await appRepository.addBike(Bike(id: 'bike2', name: 'Bike 2', person: 'Me'));
+        await appRepository.addBikes([
+          Bike(id: 'bike1', name: 'Bike 1', person: 'Me'),
+          Bike(id: 'bike2', name: 'Bike 2', person: 'Me'),
+        ]);
         int attempts = 0;
         while (appRepository.bikes.length < 2 && attempts < 100) {
           await Future<void>.delayed(const Duration(milliseconds: 10));
@@ -188,7 +190,7 @@ void main() {
 
     testWidgets('popup menu disables "From beginning" if another entry has it', (WidgetTester tester) async {
       await tester.runAsync(() async {
-        await appRepository.addBike(Bike(id: 'bike1', name: 'Bike 1', person: 'Me'));
+        await appRepository.addBikes([Bike(id: 'bike1', name: 'Bike 1', person: 'Me')]);
         int attempts = 0;
         while (appRepository.bikes.isEmpty && attempts < 100) {
           await Future<void>.delayed(const Duration(milliseconds: 10));

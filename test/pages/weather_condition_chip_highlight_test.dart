@@ -67,7 +67,7 @@ void main() {
 
   Future<Bike> seedBike(WidgetTester tester) async {
     final bike = Bike(name: 'Test Bike', person: null);
-    await tester.runAsync(() => appRepository.addBike(bike));
+    await tester.runAsync(() => appRepository.addBikes([bike]));
     await _waitForRepositoryUpdate(tester, appRepository);
     return bike;
   }

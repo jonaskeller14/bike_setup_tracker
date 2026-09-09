@@ -84,9 +84,8 @@ void main() {
 
   testWidgets('replaceComponent installs the picked component and retires the current one', (tester) async {
     await tester.runAsync(() async {
-      await appRepository.addBike(bike);
-      await appRepository.addComponent(current);
-      await appRepository.addComponent(spare);
+      await appRepository.addBikes([bike]);
+      await appRepository.addComponents([current, spare]);
     });
     appRepository.dispose();
     appRepository = AppRepository(database);

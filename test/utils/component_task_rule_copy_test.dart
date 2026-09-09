@@ -27,7 +27,7 @@ void main() {
       repository = AppRepository(database);
 
       bike = Bike(name: "Enduro", person: null);
-      await repository.addBike(bike);
+      await repository.addBikes([bike]);
 
       source = Component(
         name: "Fox 36",
@@ -39,8 +39,7 @@ void main() {
         componentType: ComponentType.fork,
         installations: [Installation.sinceBeginning(parent: bike.id)],
       );
-      await repository.addComponent(source);
-      await repository.addComponent(target);
+      await repository.addComponents([source, target]);
       await pumpEventQueue();
     });
 
@@ -149,8 +148,10 @@ void main() {
     });
 
     test("bike-linked rules are not picked up by the component filter", () async {
-      await repository.addTaskRule(TaskRule(name: "Wash bike", tags: const {}, bikeId: bike.id));
-      await repository.addTaskRule(TaskRule(name: "Check torque", tags: const {}, componentId: source.id));
+      await repository.addTaskRules([
+        TaskRule(name: "Wash bike", tags: const {}, bikeId: bike.id),
+        TaskRule(name: "Check torque", tags: const {}, componentId: source.id),
+      ]);
       await pumpEventQueue();
 
       final offered = repository.taskRules.values.where((rule) => rule.componentId == source.id).toList();

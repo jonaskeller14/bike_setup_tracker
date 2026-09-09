@@ -296,8 +296,8 @@ class StravaActivitiyPageContent extends StatelessWidget {
                             ),
                           Expanded(
                             child: FilledButton.icon(
-                              onPressed: () => appRepository.addBike(
-                                Bike(name: stravaGear.name, person: null, stravaGear: stravaGear.id),
+                              onPressed: () => appRepository.addBikes(
+                                [Bike(name: stravaGear.name, person: appRepository.persons.values.firstOrNull?.id, stravaGear: stravaGear.id)],
                               ),
                               icon: const Icon(Icons.add),
                               label: const Text('Add New'),
@@ -481,7 +481,7 @@ class StravaActivitiyPageContent extends StatelessWidget {
       ),
     );
     if (result is Setup) {
-      await appRepository.addSetup(result);
+      await appRepository.addSetups([result]);
     }
   }
 }

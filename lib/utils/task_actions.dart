@@ -20,7 +20,7 @@ class TaskActions {
     );
     if (newRule == null) return;
 
-    await appRepository.addTaskRule(newRule);
+    await appRepository.addTaskRules([newRule]);
   }
 
   static Future<void> editTaskRule(BuildContext context, {required TaskRule taskRule}) async {
@@ -87,7 +87,7 @@ class TaskActions {
     );
     if (newRule == null) return;
 
-    await appRepository.addTaskRule(newRule);
+    await appRepository.addTaskRules([newRule]);
   }
 
   static Future<void> removeTaskRules(BuildContext context, {required Iterable<String> taskRuleIds}) async {

@@ -457,7 +457,7 @@ void main() {
     tester,
   ) async {
     await tester.runAsync(
-      () => harness.repository.addComponent(
+      () => harness.repository.addComponents([
         Component(
           id: 'replacement-fork',
           name: 'Front Fork 38 2026',
@@ -474,7 +474,7 @@ void main() {
             ),
           ],
         ),
-      ),
+      ]),
     );
     final setupA = harness.setup(
       id: 'replacement-a',
@@ -532,7 +532,7 @@ void main() {
 
   testWidgets('shows an adjustmentless one-sided component only in All', (tester) async {
     await tester.runAsync(
-      () => harness.repository.addComponent(
+      () => harness.repository.addComponents([
         Component(
           id: 'frame',
           name: 'Frame',
@@ -540,7 +540,7 @@ void main() {
           installations: [Installation.sinceBeginning(parent: CompareSetupsHarness.bikeId)],
           adjustments: const [],
         ),
-      ),
+      ]),
     );
     final setupA = harness.setup(
       id: 'bike-a-setup',

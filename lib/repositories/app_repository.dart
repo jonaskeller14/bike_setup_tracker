@@ -8,6 +8,7 @@ import 'package:uuid/uuid.dart';
 
 import '../database/app_database.dart';
 import '../database/mappers.dart';
+import '../models/activity_rate_window.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/bike.dart';
 import '../models/component.dart';
@@ -29,6 +30,7 @@ import '../models/task/task_rule.dart';
 import '../services/backup_service.dart';
 import '../services/rating_score_service.dart';
 import '../services/setup_resolution_service.dart';
+import '../services/task_forecast_service.dart';
 import '../services/task_status_service.dart';
 import '../utils/unit_conversion.dart';
   
@@ -86,7 +88,12 @@ class AppRepository extends ChangeNotifier {
   Map<String, StravaGear> _stravaGears = {};
   Map<String, ComponentStats> _componentStats = {};
   Map<String, ComponentStats> _bikeStats = {};
+  Map<String, ActivityRateWindow> _bikeActivityRates = {};
   Map<String, dynamic> _currentAdjustmentValues = {};
+
+  /// Day-quantised memo behind [getTaskRuleForecast].
+  final Map<String, TaskForecast?> _taskForecastCache = {};
+  DateTime? _taskForecastDay;
 
   int _stravaOffset = 0;
   int _stravaLimit = 50;
@@ -171,6 +178,7 @@ class AppRepository extends ChangeNotifier {
   Map<String, StravaGear> get stravaGears => _stravaGears;
   Map<String, ComponentStats> get componentStats => _componentStats;
   Map<String, ComponentStats> get bikeStats => _bikeStats;
+  Map<String, ActivityRateWindow> get bikeActivityRates => _bikeActivityRates;
   Map<String, dynamic> get currentAdjustmentValues => _currentAdjustmentValues;
 
   DateTime get lastModified {
@@ -474,6 +482,16 @@ class AppRepository extends ChangeNotifier {
       _bikeStats = map;
       _dataChanged();
     }));
+
+    _subscriptions.add(database.stravaDao
+        .watchBikeActivityRates(
+          sampleSize: TaskForecastService.sampleSize,
+          maxLookback: TaskForecastService.maxLookback,
+        )
+        .listen((map) {
+      _bikeActivityRates = map;
+      _dataChanged();
+    }));
     
     _subscriptions.add(database.setupsDao.watchAllSetupsWithValues().listen((list) {
       _setups = {for (var s in list) s.setup.id: s.setup.toModel(values: s.values)};
@@ -529,6 +547,7 @@ class AppRepository extends ChangeNotifier {
 
   void _dataChanged() {
     if (_isDisposed) return;
+    _taskForecastCache.clear();
     if (_pendingDataChange) return;
     _pendingDataChange = true;
     unawaited(Future.microtask(() {
@@ -970,12 +989,13 @@ class AppRepository extends ChangeNotifier {
     });
   }
 
-  TaskStatus getTaskRuleStatus(TaskRule rule) {
+  /// What a rule is measured against: its most recent entry, when its component
+  /// went on its current bike, and the stats the interval counts.
+  ({TaskEntry? lastEntry, DateTime? installationDate, ComponentStats stats}) _taskRuleInputs(TaskRule rule) {
     final entries = _taskEntries.values
         .where((te) => te.taskRule == rule.id)
         .toList()
       ..sort((a, b) => b.dateTimeUTC.compareTo(a.dateTimeUTC));
-    final lastEntry = entries.isNotEmpty ? entries.first : null;
 
     DateTime? installationDate;
     if (rule.componentId != null) {
@@ -994,12 +1014,46 @@ class AppRepository extends ChangeNotifier {
         ? (_componentStats[rule.componentId] ?? ComponentStats.zero())
         : (rule.bikeId != null ? (_bikeStats[rule.bikeId] ?? ComponentStats.zero()) : ComponentStats.zero());
 
+    return (
+      lastEntry: entries.isNotEmpty ? entries.first : null,
+      installationDate: installationDate,
+      stats: stats,
+    );
+  }
+
+  TaskStatus getTaskRuleStatus(TaskRule rule) {
+    final inputs = _taskRuleInputs(rule);
+
     return TaskStatusService.calculate(
       rule: rule,
-      currentStats: stats,
+      currentStats: inputs.stats,
       now: DateTime.now().toUtc(),
-      lastEntry: lastEntry,
-      componentInstallationDate: installationDate,
+      lastEntry: inputs.lastEntry,
+      componentInstallationDate: inputs.installationDate,
+    );
+  }
+
+  /// Memoised per rule until the data changes or the day rolls over — the only
+  /// two things that can move a forecast — so the cards may ask on every build.
+  TaskForecast? getTaskRuleForecast(TaskRule rule) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    if (_taskForecastDay != today) {
+      _taskForecastCache.clear();
+      _taskForecastDay = today;
+    }
+    if (_taskForecastCache.containsKey(rule.id)) return _taskForecastCache[rule.id];
+
+    final inputs = _taskRuleInputs(rule);
+
+    return _taskForecastCache[rule.id] = TaskForecastService.predict(
+      rule: rule,
+      currentStats: inputs.stats,
+      now: now.toUtc(),
+      bikeRates: _bikeActivityRates,
+      component: rule.componentId != null ? _components[rule.componentId] : null,
+      lastEntry: inputs.lastEntry,
+      componentInstallationDate: inputs.installationDate,
     );
   }
 

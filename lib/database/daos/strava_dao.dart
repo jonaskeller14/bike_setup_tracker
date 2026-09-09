@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import '../../models/activity_rate_window.dart';
 import '../../models/component_stats.dart';
 import '../../utils/text_search.dart';
 import '../app_database.dart';
@@ -260,6 +261,70 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
           movingTime: Duration(seconds: row.read<int>('moving_time')),
           elapsedTime: Duration(seconds: row.read<int>('elapsed_time')),
           activityCount: row.read<int>('activity_count'),
+        );
+      }
+      return result;
+    });
+  }
+
+  /// Per bike, the last [sampleSize] activities that started within
+  /// [maxLookback], summed together with the span they cover.
+  Stream<Map<String, ActivityRateWindow>> watchBikeActivityRates({
+    required int sampleSize,
+    required Duration maxLookback,
+  }) {
+    final query = customSelect(
+      '''
+      SELECT
+        bike_id,
+        COALESCE(SUM(distance), 0) as distance,
+        COALESCE(SUM(total_elevation_gain), 0) as elevation,
+        COALESCE(SUM(moving_time), 0) as moving_time,
+        COALESCE(SUM(elapsed_time), 0) as elapsed_time,
+        COUNT(*) as activity_count,
+        MIN(start_date) as first_start,
+        MAX(start_date) as last_start
+      FROM (
+        SELECT
+          b.id as bike_id,
+          a.distance,
+          a.total_elevation_gain,
+          a.moving_time,
+          a.elapsed_time,
+          a.start_date,
+          ROW_NUMBER() OVER (
+            PARTITION BY b.id
+            ORDER BY a.start_date DESC, a.id DESC
+          ) as rn
+        FROM bikes b
+        JOIN strava_activities a ON a.gear_id = b.strava_gear
+        WHERE b.is_deleted = 0
+        AND a.start_date >= :cutoff
+      ) recent
+      WHERE rn <= :sampleSize
+      GROUP BY bike_id
+      ''',
+      readsFrom: {stravaActivities, db.bikes},
+      variables: [
+        Variable<DateTime>(DateTime.now().toUtc().subtract(maxLookback)),
+        Variable<int>(sampleSize),
+      ],
+    );
+
+    return query.watch().map((rows) {
+      final Map<String, ActivityRateWindow> result = {};
+      for (final row in rows) {
+        result[row.read<String>('bike_id')] = ActivityRateWindow(
+          sum: ComponentStats(
+            distance: row.read<double>('distance'),
+            elevationGain: row.read<double>('elevation'),
+            movingTime: Duration(seconds: row.read<int>('moving_time')),
+            elapsedTime: Duration(seconds: row.read<int>('elapsed_time')),
+            activityCount: row.read<int>('activity_count'),
+          ),
+          firstStart: row.read<DateTime>('first_start').toUtc(),
+          lastStart: row.read<DateTime>('last_start').toUtc(),
+          count: row.read<int>('activity_count'),
         );
       }
       return result;

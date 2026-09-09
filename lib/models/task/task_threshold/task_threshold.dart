@@ -60,10 +60,12 @@ sealed class AccumulatingThreshold extends TaskThreshold {
 
   @override
   double progress(TaskProgressContext context, {TaskThreshold? delay}) {
-    final total = target + _delayTarget(delay);
+    final total = totalTarget(delay);
     if (total <= 0) return 1.0;
     return accumulated(context) / total;
   }
+
+  double totalTarget(TaskThreshold? delay) => target + _delayTarget(delay);
 
   /// Only a delay of the very same kind extends the target; anything else is ignored.
   double _delayTarget(TaskThreshold? delay) =>

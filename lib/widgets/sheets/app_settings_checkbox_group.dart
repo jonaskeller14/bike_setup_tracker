@@ -51,13 +51,14 @@ Future<void> appSettingsCheckboxGroupSheet({
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: options
-                          .map((option) => CheckboxListTile.adaptive(
+                          .map((option) => CheckboxListTile(
                                 value: option.value(),
                                 title: Text(option.title),
                                 subtitle: option.subtitle != null
                                     ? Text(option.subtitle!)
                                     : null,
                                 enabled: option.enabled,
+                                controlAffinity: ListTileControlAffinity.leading,
                                 onChanged: (bool? newValue) {
                                   if (newValue == null) return;
                                   option.onChanged(newValue);

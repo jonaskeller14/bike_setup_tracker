@@ -40,7 +40,7 @@ Future<void> appSettingsRadioGroupSheet<T>({
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         ?contentWidget,
-                        ...optionWidgets.entries.map((e) => RadioListTile.adaptive(
+                        ...optionWidgets.entries.map((e) => RadioListTile(
                           value: e.key,
                           title: e.value,
                         )),

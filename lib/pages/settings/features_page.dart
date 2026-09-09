@@ -207,6 +207,7 @@ class FeaturesPage extends StatelessWidget {
                     onChanged: (bool? newValue) {
                       if (newValue == null) return;
                       appSettings.enableSetupBookmark = newValue;
+                      if (!newValue) context.read<AppRepository>().setShowBookmarkedSetupsOnly(false);
                       Navigator.pop(context);
                     },
                     infoText:

@@ -278,6 +278,32 @@ void main() {
       // This should ALREADY pass because restoreComponents uses updateComponent (root only)
       expect(repository.components[component.id]?.installations.length, 2);
     });
+
+    test("bookmark filter narrows filteredSetups to bookmarked setups", () async {
+      final bookmarked = setup1.copyWith(isBookmarked: true);
+      final plain = Setup(
+        name: "Setup #2",
+        tags: {},
+        datetime: DateTime(2001).toUtc(),
+        datetimeLocal: DateTime(2001).toLocal(),
+        bike: bike1.id,
+        person: null,
+        bikeAdjustmentValues: {},
+        personAdjustmentValues: {},
+      );
+
+      await repository.addBikes([bike1]);
+      await repository.addSetups([bookmarked, plain]);
+      await pumpEventQueue();
+
+      expect(repository.filteredSetups.keys.toSet(), {bookmarked.id, plain.id});
+
+      repository.setShowBookmarkedSetupsOnly(true);
+      expect(repository.filteredSetups.keys.toSet(), {bookmarked.id});
+
+      repository.setShowBookmarkedSetupsOnly(false);
+      expect(repository.filteredSetups.keys.toSet(), {bookmarked.id, plain.id});
+    });
   });
 
   group("AppRepository - Persons", () {

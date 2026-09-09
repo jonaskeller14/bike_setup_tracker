@@ -202,6 +202,7 @@ class AppRepository extends ChangeNotifier {
   // ---------------------------------------------------------------------------
   String? _selectedBike;
   final Set<String> _selectedSetupTags = {};
+  bool _showBookmarkedSetupsOnly = false;
   final Set<TaskPriority> _selectedTaskPriorities = TaskPriority.values.toSet();
   final Set<String> _selectedTaskRuleTags = {};
   Set<String> _setupTags = {};
@@ -209,6 +210,7 @@ class AppRepository extends ChangeNotifier {
 
   String? get selectedBike => _selectedBike;
   Set<String> get selectedSetupTags => _selectedSetupTags;
+  bool get showBookmarkedSetupsOnly => _showBookmarkedSetupsOnly;
   Set<TaskPriority> get selectedTaskPriorities => _selectedTaskPriorities;
   Set<String> get selectedTaskRuleTags => _selectedTaskRuleTags;
   Set<String> get setupTags => _setupTags;
@@ -640,7 +642,8 @@ class AppRepository extends ChangeNotifier {
   void _filterSetups() {
     _filteredSetups = Map.fromEntries(setups.entries.where((entry) =>
       (selectedBike == null ? true : entry.value.bike == selectedBike) &&
-      (selectedSetupTags.isEmpty ? true : entry.value.tags.containsAll(selectedSetupTags))
+      (selectedSetupTags.isEmpty ? true : entry.value.tags.containsAll(selectedSetupTags)) &&
+      (_showBookmarkedSetupsOnly ? entry.value.isBookmarked : true)
     ));
   }
 
@@ -885,6 +888,13 @@ class AppRepository extends ChangeNotifier {
 
   void deselectAllSetupTags() {
     _selectedSetupTags.clear();
+    _filterSetups();
+    notifyListeners();
+  }
+
+  void setShowBookmarkedSetupsOnly(bool newValue) {
+    if (_showBookmarkedSetupsOnly == newValue) return;
+    _showBookmarkedSetupsOnly = newValue;
     _filterSetups();
     notifyListeners();
   }

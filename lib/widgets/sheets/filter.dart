@@ -17,6 +17,7 @@ Future<void> showFilterSheet({
   required BuildContext context,
   required bool showBikes,
   required bool showSetupTags,
+  required bool showSetupBookmark,
   required bool showTaskPriority,
   required bool showTaskTags,
   required bool showMapVisibility,
@@ -73,17 +74,27 @@ Future<void> showFilterSheet({
                               )).toList(),
                             ),
                     ],
-                    if (showSetupTags) ...[
-                      const SheetSectionTitle(title: "Setup Tags"),
-                      appRepository.setupTags.isEmpty
-                          ? const SheetFilterEmptyHint(
-                              icon: Icons.tag,
-                              title: "No setup tags yet",
-                              hint: "Add/Edit a Setup to add tags.",
-                            )
-                          : Wrap(
-                              spacing: 6,
-                              children: appRepository.setupTags.map((tag) {
+                    if (showSetupBookmark || showSetupTags) ...[
+                      SheetSectionTitle(title: showSetupBookmark ? "Setups" : "Setup Tags"),
+                      if (showSetupBookmark || appRepository.setupTags.isNotEmpty)
+                        Wrap(
+                          spacing: 6,
+                          children: [
+                            if (showSetupBookmark)
+                              FilterChip(
+                                avatar: Icon(appRepository.showBookmarkedSetupsOnly
+                                    ? Icons.bookmark
+                                    : Icons.bookmark_border),
+                                label: const Text("Bookmarked"),
+                                selected: appRepository.showBookmarkedSetupsOnly,
+                                showCheckmark: false,
+                                onSelected: (bool newValue) => appRepository.setShowBookmarkedSetupsOnly(newValue),
+                                onDeleted: appRepository.showBookmarkedSetupsOnly
+                                    ? () => appRepository.setShowBookmarkedSetupsOnly(false)
+                                    : null,
+                              ),
+                            if (showSetupTags)
+                              ...appRepository.setupTags.map((tag) {
                                 return FilterChip(
                                   avatar: const Icon(Icons.tag),
                                   label: Text(tag),
@@ -99,8 +110,15 @@ Future<void> showFilterSheet({
                                       ? () => appRepository.deselectSetupTag(tag)
                                       : null,
                                 );
-                              }).toList(),
-                            ),
+                              }),
+                          ],
+                        ),
+                      if (showSetupTags && appRepository.setupTags.isEmpty)
+                        const SheetFilterEmptyHint(
+                          icon: Icons.tag,
+                          title: "No setup tags yet",
+                          hint: "Add/Edit a Setup to add tags.",
+                        ),
                     ],
                     if (showTaskPriority) ...[
                       const SheetSectionTitle(title: "Task Priority"),

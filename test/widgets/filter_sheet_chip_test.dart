@@ -31,6 +31,7 @@ void main() {
     // Defaults: no bike selected, no tags. Individual tests override as needed.
     when(() => mockRepository.selectedBike).thenReturn(null);
     when(() => mockRepository.selectedSetupTags).thenReturn(<String>{});
+    when(() => mockRepository.showBookmarkedSetupsOnly).thenReturn(false);
     when(() => mockRepository.selectedTaskRuleTags).thenReturn(<String>{});
     when(() => mockRepository.selectedTaskPriorities).thenReturn(TaskPriority.values.toSet());
     when(() => mockRepository.bikes).thenReturn({'b1': bike1});
@@ -141,6 +142,41 @@ void main() {
       await tester.pumpWidget(createWidgetUnderTest(tagChip));
 
       expect(find.text('Bike 1'), findsOneWidget);
+    });
+  });
+
+  group('FilterSheetChip label — setup bookmark filter', () {
+    const bookmarkChip = FilterSheetChip.componentDetailsPage;
+    setUp(() => appSettings.enableSetupBookmark = true);
+
+    void filterBookmarked() {
+      when(() => mockRepository.showBookmarkedSetupsOnly).thenReturn(true);
+    }
+
+    testWidgets('shows "Bookmarked" when only bookmarked setups are shown', (tester) async {
+      filterBookmarked();
+      await tester.pumpWidget(createWidgetUnderTest(bookmarkChip));
+
+      expect(find.text('Bookmarked'), findsOneWidget);
+    });
+
+    testWidgets('combines bike name, bookmark and tag count', (tester) async {
+      appSettings.enableSetupTags = true;
+      selectBike();
+      selectTags({'t1'});
+      filterBookmarked();
+      await tester.pumpWidget(createWidgetUnderTest(bookmarkChip));
+
+      expect(find.text('Bike 1 + Bookmarked + 1 Tag'), findsOneWidget);
+    });
+
+    testWidgets('ignores the bookmark filter while the feature is off', (tester) async {
+      appSettings.enableSetupBookmark = false;
+      filterBookmarked();
+      await tester.pumpWidget(createWidgetUnderTest(bookmarkChip));
+
+      expect(find.text('All Bikes'), findsOneWidget);
+      expect(find.text('Bookmarked'), findsNothing);
     });
   });
 }

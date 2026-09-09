@@ -9,16 +9,17 @@ import '../sheets/filter.dart';
 
 class FilterSheetChip extends StatelessWidget {
   static const garageList = FilterSheetChip._(showBikes: true);
-  static const setupList = FilterSheetChip._(showBikes: true, showSetupTags: true, showTimelineVisibility: true);
+  static const setupList = FilterSheetChip._(showBikes: true, showSetupTags: true, showSetupBookmark: true, showTimelineVisibility: true);
   static const personList = FilterSheetChip._(showBikes: true);
   static const ratingList = FilterSheetChip._(showBikes: true);
   static const taskList = FilterSheetChip._(showBikes: true, showTaskPriority: true, showTaskTags: true);
-  static const map = FilterSheetChip._(showBikes: true, showSetupTags: true, showMapVisibility: true);
-  static const calendar = FilterSheetChip._(showBikes: true, showSetupTags: true, showTimelineVisibility: true);
-  static const componentDetailsPage = FilterSheetChip._(showBikes: true, showSetupTags: true);
+  static const map = FilterSheetChip._(showBikes: true, showSetupTags: true, showSetupBookmark: true, showMapVisibility: true);
+  static const calendar = FilterSheetChip._(showBikes: true, showSetupTags: true, showSetupBookmark: true, showTimelineVisibility: true);
+  static const componentDetailsPage = FilterSheetChip._(showBikes: true, showSetupTags: true, showSetupBookmark: true);
 
   final bool showBikes;
   final bool showSetupTags;
+  final bool showSetupBookmark;
   final bool showTaskPriority;
   final bool showTaskTags;
   final bool showMapVisibility;
@@ -27,6 +28,7 @@ class FilterSheetChip extends StatelessWidget {
   const FilterSheetChip._({
     this.showBikes = false,
     this.showSetupTags = false,
+    this.showSetupBookmark = false,
     this.showTaskPriority = false,
     this.showTaskTags = false,
     this.showMapVisibility = false,
@@ -41,15 +43,17 @@ class FilterSheetChip extends StatelessWidget {
         context.watch<SubscriptionService>().hasStravaEntitlement;
 
     final showSetupTags2 = showSetupTags && appSettings.enableSetupTags;
+    final showSetupBookmark2 = showSetupBookmark && appSettings.enableSetupBookmark;
     final showTaskTags2 = showTaskTags && appSettings.enableTaskTags;
     final showTaskPriority2 = showTaskPriority && appSettings.enableTaskPriority;
     final showMapVisibility2 = showMapVisibility && (appSettings.enableRating || stravaActive);
     final showTimelineVisibility2 = showTimelineVisibility && (appSettings.enableRating || stravaActive || appSettings.enableInstallationTimeline || appSettings.enableTask);
 
-    final showBikeOnly = showBikes && !showSetupTags2 && !showTaskPriority2 && !showTaskTags2 && !showMapVisibility2 && !showTimelineVisibility2;
+    final showBikeOnly = showBikes && !showSetupTags2 && !showSetupBookmark2 && !showTaskPriority2 && !showTaskTags2 && !showMapVisibility2 && !showTimelineVisibility2;
 
     final bikeSelected = showBikes && appRepository.selectedBike != null;
     final setupTagsSelected = showSetupTags2 && appRepository.selectedSetupTags.isNotEmpty;
+    final bookmarkSelected = showSetupBookmark2 && appRepository.showBookmarkedSetupsOnly;
     final taskPrioritySelected = showTaskPriority2 && appRepository.hasActiveTaskPriorityFilter;
     final taskTagsSelected = showTaskTags2 && appRepository.selectedTaskRuleTags.isNotEmpty;
     final mapVisibilitySelected = showMapVisibility2 &&
@@ -62,11 +66,12 @@ class FilterSheetChip extends StatelessWidget {
             (appSettings.enableTask && !appSettings.displayShowTasks) ||
             (appSettings.enableInstallationTimeline && !appSettings.displayShowInstallations) ||
             (appSettings.enableRating && !appSettings.displayShowRatingEntries));
-    final selected = bikeSelected || setupTagsSelected || taskPrioritySelected || taskTagsSelected || mapVisibilitySelected || timelineVisibilitySelected;
+    final selected = bikeSelected || setupTagsSelected || bookmarkSelected || taskPrioritySelected || taskTagsSelected || mapVisibilitySelected || timelineVisibilitySelected;
 
     void resetDisplay() {
       if (showBikes) appRepository.onBikeTap(null);
       if (showSetupTags2) appRepository.deselectAllSetupTags();
+      if (showSetupBookmark2) appRepository.setShowBookmarkedSetupsOnly(false);
       if (showTaskPriority2) appRepository.selectAllTaskPriorities();
       if (showTaskTags2) appRepository.deselectAllTaskRuleTags();
 
@@ -98,6 +103,7 @@ class FilterSheetChip extends StatelessWidget {
     if (selected) {
       final labels = [
         if (bikeSelected) bikeName,
+        if (bookmarkSelected) "Bookmarked",
         if (tagCount > 0) tagLabel,
         if (taskPrioritySelected) priorityCountLabel,
         if (extraCount > 0) extraCountLabel,
@@ -127,6 +133,7 @@ class FilterSheetChip extends StatelessWidget {
           context: context,
           showBikes: showBikes,
           showSetupTags: showSetupTags2,
+          showSetupBookmark: showSetupBookmark2,
           showTaskPriority: showTaskPriority2,
           showTaskTags: showTaskTags2,
           showMapVisibility: showMapVisibility2,

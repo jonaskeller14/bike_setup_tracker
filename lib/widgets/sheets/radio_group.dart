@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'sheet_header.dart';
 
-Future<void> appSettingsRadioGroupSheet<T>({
+Future<void> radioGroupSheet<T>({
   required BuildContext context,
   required String title,
   required T value,

@@ -16,7 +16,7 @@ import '../repositories/app_repository.dart';
 import '../services/subscription_service.dart';
 import '../theme.dart';
 import '../widgets/dialogs/discard_changes.dart';
-import '../widgets/sheets/app_settings_radio_group.dart';
+import '../widgets/sheets/radio_group.dart';
 import '../widgets/sheets/set_task_rule_tags.dart';
 import '../widgets/sheets/strava.dart';
 import '../widgets/sheets/task_association_picker.dart';
@@ -615,7 +615,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
             avatar: const Icon(Icons.traffic),
             label: Text(_priority.label),
             backgroundColor: widget.mode == TaskRulePageMode.edit && _priority != widget.taskRule?.priority ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
-            onPressed: () => appSettingsRadioGroupSheet<TaskPriority>(
+            onPressed: () => radioGroupSheet<TaskPriority>(
               context: context,
               title: "Task Priority",
               value: _priority,

@@ -8,8 +8,8 @@ import '../../icons/simple_icons.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../repositories/app_repository.dart';
-import '../../widgets/sheets/app_settings_checkbox_group.dart';
-import '../../widgets/sheets/app_settings_radio_group.dart';
+import '../../widgets/sheets/checkbox_group.dart';
+import '../../widgets/sheets/radio_group.dart';
 import '../../widgets/text/section_title.dart';
 
 class FeaturesPage extends StatelessWidget {
@@ -53,7 +53,7 @@ class FeaturesPage extends StatelessWidget {
                 title: const Text("Installation Timeline"),
                 subtitle: _offOnOptionWidgets[appSettings.enableInstallationTimeline] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => appSettingsRadioGroupSheet<bool>(
+                onTap: () => radioGroupSheet<bool>(
                   context: context,
                   title: "Installation Timeline",
                   value: appSettings.enableInstallationTimeline,
@@ -75,7 +75,7 @@ class FeaturesPage extends StatelessWidget {
                   title: const Text("Component Presets"),
                   subtitle: _offOnOptionWidgets[appSettings.enableComponentPresets] ?? const Text("-"),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                  onTap: () => appSettingsRadioGroupSheet<bool>(
+                  onTap: () => radioGroupSheet<bool>(
                     context: context,
                     title: "Component Presets",
                     value: appSettings.enableComponentPresets,
@@ -98,7 +98,7 @@ class FeaturesPage extends StatelessWidget {
                 title: const Text("Text Adjustment"),
                 subtitle: _offOnOptionWidgets[appSettings.enableTextAdjustment] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => appSettingsRadioGroupSheet<bool>(
+                onTap: () => radioGroupSheet<bool>(
                   context: context,
                   title: "Text Adjustment",
                   value: appSettings.enableTextAdjustment,
@@ -116,7 +116,7 @@ class FeaturesPage extends StatelessWidget {
                 title: const Text("Categorical Adjustment: Multi-select"),
                 subtitle: _offOnOptionWidgets[appSettings.enableMultiSelect] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => appSettingsRadioGroupSheet<bool>(
+                onTap: () => radioGroupSheet<bool>(
                   context: context,
                   title: "Categorical Adjustment: Multi-select",
                   value: appSettings.enableMultiSelect,
@@ -136,7 +136,7 @@ class FeaturesPage extends StatelessWidget {
                 title: const Text("Categorical Adjustment: Count occurrences"),
                 subtitle: _offOnOptionWidgets[appSettings.enableCountedSelect] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => appSettingsRadioGroupSheet<bool>(
+                onTap: () => radioGroupSheet<bool>(
                   context: context,
                   title: "Categorical Adjustment: Count occurrences",
                   value: appSettings.enableCountedSelect,
@@ -156,7 +156,7 @@ class FeaturesPage extends StatelessWidget {
                 title: const Text("Setup Tags"),
                 subtitle: _offOnOptionWidgets[appSettings.enableSetupTags] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => appSettingsRadioGroupSheet<bool>(
+                onTap: () => radioGroupSheet<bool>(
                   context: context,
                   title: "Setup Tags",
                   value: appSettings.enableSetupTags,
@@ -176,7 +176,7 @@ class FeaturesPage extends StatelessWidget {
                   title: const Text("Setup Images"),
                   subtitle: _offOnOptionWidgets[appSettings.enableSetupImages] ?? const Text("-"),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                  onTap: () => appSettingsRadioGroupSheet<bool>(
+                  onTap: () => radioGroupSheet<bool>(
                     context: context,
                     title: "Setup Images",
                     value: appSettings.enableSetupImages,
@@ -199,7 +199,7 @@ class FeaturesPage extends StatelessWidget {
                   title: const Text("Setup Bookmarks"),
                   subtitle: _offOnOptionWidgets[appSettings.enableSetupBookmark] ?? const Text("-"),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                  onTap: () => appSettingsRadioGroupSheet<bool>(
+                  onTap: () => radioGroupSheet<bool>(
                     context: context,
                     title: "Setup Bookmarks",
                     value: appSettings.enableSetupBookmark,
@@ -221,27 +221,27 @@ class FeaturesPage extends StatelessWidget {
                 title: const Text("Timeline Grouping"),
                 subtitle: Text(_timelineGroupingSummary(appSettings)),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => appSettingsCheckboxGroupSheet(
+                onTap: () => checkboxGroupSheet(
                   context: context,
                   title: "Timeline Grouping",
                   infoText:
                       'Controls how the Setup History timeline condenses '
                       'related entries. Each pass can be toggled on its own.',
                   options: [
-                    AppSettingsCheckboxOption(
+                    CheckboxGroupSheetOption(
                       title: 'Setup Grouping',
                       subtitle: 'Merge setups of the same bike recorded close together.',
                       value: () => appSettings.enableTimelineSetupGrouping,
                       onChanged: (v) => appSettings.enableTimelineSetupGrouping = v,
                     ),
-                    AppSettingsCheckboxOption(
+                    CheckboxGroupSheetOption(
                       title: 'Replacement Detection',
                       subtitle: 'Show a removal and the install replacing it as one entry.',
                       value: () => appSettings.enableTimelineReplacementDetection,
                       onChanged: (v) => appSettings.enableTimelineReplacementDetection = v,
                     ),
                     if (kDebugMode)
-                      AppSettingsCheckboxOption(
+                      CheckboxGroupSheetOption(
                         title: 'Strava Context',
                         subtitle: 'Mark entries recorded during a ride as part of that activity.',
                         value: () => appSettings.enableTimelineStravaContext,
@@ -257,7 +257,7 @@ class FeaturesPage extends StatelessWidget {
                 title: const Text("Tasks"),
                 subtitle: _offOnOptionWidgets[appSettings.enableTask] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => appSettingsRadioGroupSheet<bool>(
+                onTap: () => radioGroupSheet<bool>(
                   context: context,
                   title: "Tasks",
                   infoText:
@@ -277,7 +277,7 @@ class FeaturesPage extends StatelessWidget {
                 title: const Text("Task Tags"),
                 subtitle: _offOnOptionWidgets[appSettings.enableTaskTags] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => appSettingsRadioGroupSheet<bool>(
+                onTap: () => radioGroupSheet<bool>(
                   context: context,
                   title: "Task Tags",
                   value: appSettings.enableTaskTags,
@@ -297,7 +297,7 @@ class FeaturesPage extends StatelessWidget {
                 title: const Text("Task Priority"),
                 subtitle: _offOnOptionWidgets[appSettings.enableTaskPriority] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => appSettingsRadioGroupSheet<bool>(
+                onTap: () => radioGroupSheet<bool>(
                   context: context,
                   title: "Task Priority",
                   value: appSettings.enableTaskPriority,
@@ -317,7 +317,7 @@ class FeaturesPage extends StatelessWidget {
                 title: const Text("Task Interval"),
                 subtitle: _offOnOptionWidgets[appSettings.enableTaskInterval] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => appSettingsRadioGroupSheet<bool>(
+                onTap: () => radioGroupSheet<bool>(
                   context: context,
                   title: "Task Interval",
                   value: appSettings.enableTaskInterval,
@@ -337,7 +337,7 @@ class FeaturesPage extends StatelessWidget {
                 title: const Text("Task Delay"),
                 subtitle: _offOnOptionWidgets[appSettings.enableTaskDelay] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => appSettingsRadioGroupSheet<bool>(
+                onTap: () => radioGroupSheet<bool>(
                   context: context,
                   title: "Task Delay",
                   value: appSettings.enableTaskDelay,
@@ -359,7 +359,7 @@ class FeaturesPage extends StatelessWidget {
                   title: const Text("Task Due Prediction"),
                   subtitle: _offOnOptionWidgets[appSettings.enableTaskDuePrediction] ?? const Text("-"),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                  onTap: () => appSettingsRadioGroupSheet<bool>(
+                  onTap: () => radioGroupSheet<bool>(
                     context: context,
                     title: "Task Due Prediction",
                     value: appSettings.enableTaskDuePrediction,
@@ -381,7 +381,7 @@ class FeaturesPage extends StatelessWidget {
                 title: const Text("Garage Task Indicator"),
                 subtitle: _offOnOptionWidgets[appSettings.enableGarageTaskIndicator] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => appSettingsRadioGroupSheet<bool>(
+                onTap: () => radioGroupSheet<bool>(
                   context: context,
                   title: "Garage Task Indicator",
                   value: appSettings.enableGarageTaskIndicator,
@@ -402,7 +402,7 @@ class FeaturesPage extends StatelessWidget {
                   title: const Text("Google Drive Sync"),
                   subtitle: _offOnOptionWidgets[appSettings.enableGoogleDrive] ?? const Text("-"),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                  onTap: () => appSettingsRadioGroupSheet<bool>(
+                  onTap: () => radioGroupSheet<bool>(
                     context: context,
                     title: "Google Drive Sync",
                     value: appSettings.enableGoogleDrive,
@@ -421,7 +421,7 @@ class FeaturesPage extends StatelessWidget {
                 title: const Text("Calendar"),
                 subtitle: _offOnOptionWidgets[appSettings.enableCalendar] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => appSettingsRadioGroupSheet<bool>(
+                onTap: () => radioGroupSheet<bool>(
                   context: context,
                   title: "Calendar",
                   value: appSettings.enableCalendar,
@@ -441,7 +441,7 @@ class FeaturesPage extends StatelessWidget {
                   title: const Text("Profile"),
                   subtitle: _offOnOptionWidgets[appSettings.enablePerson] ?? const Text("-"),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                  onTap: () => appSettingsRadioGroupSheet<bool>(
+                  onTap: () => radioGroupSheet<bool>(
                     context: context,
                     title: "Profile",
                     value: appSettings.enablePerson,
@@ -459,7 +459,7 @@ class FeaturesPage extends StatelessWidget {
                   title: const Text("Rating"),
                   subtitle: _offOnOptionWidgets[appSettings.enableRating] ?? const Text("-"),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                  onTap: () => appSettingsRadioGroupSheet<bool>(
+                  onTap: () => radioGroupSheet<bool>(
                     context: context,
                     title: "Rating",
                     value: appSettings.enableRating,
@@ -477,7 +477,7 @@ class FeaturesPage extends StatelessWidget {
                   title: const Text("MapBox Tiles"),
                   subtitle: _offOnOptionWidgets[appSettings.useMapBoxTiles] ?? const Text("-"),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                  onTap: () => appSettingsRadioGroupSheet<bool>(
+                  onTap: () => radioGroupSheet<bool>(
                     context: context,
                     title: "MapBox Tiles",
                     value: appSettings.useMapBoxTiles,

@@ -10,7 +10,7 @@ import '../../services/strava_service.dart';
 import '../../utils/url.dart';
 import '../../widgets/dialogs/strava_disconnect.dart';
 import '../../widgets/items/strava_subscription_card.dart';
-import '../../widgets/sheets/app_settings_radio_group.dart';
+import '../../widgets/sheets/radio_group.dart';
 import 'about_page.dart';
 import 'features_page.dart';
 import 'help_page.dart';
@@ -74,7 +74,7 @@ class AppSettingsPage extends StatelessWidget {
                     title: const Text("Strava Notifications"),
                     subtitle: _offOnOptionWidgets[appSettings.enableStravaNotifications] ?? const Text("-"),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                    onTap: () => appSettingsRadioGroupSheet<bool>(
+                    onTap: () => radioGroupSheet<bool>(
                       context: context,
                       title: "Strava Notifications",
                       value: appSettings.enableStravaNotifications,

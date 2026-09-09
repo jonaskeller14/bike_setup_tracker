@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
 import '../../models/context/context_weather.dart';
-import '../../widgets/sheets/app_settings_radio_group.dart';
+import '../../widgets/sheets/radio_group.dart';
 import '../../widgets/text/section_title.dart';
 
 class PreferencesPage extends StatelessWidget {
@@ -87,7 +87,7 @@ class PreferencesPage extends StatelessWidget {
                 title: const Text("App Theme Mode"),
                 subtitle: _themeModeOptionWidgets[appSettings.themeMode]?.children[1] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => appSettingsRadioGroupSheet<ThemeMode>(
+                onTap: () => radioGroupSheet<ThemeMode>(
                   context: context,
                   title: "App Theme Mode",
                   value: appSettings.themeMode,
@@ -106,7 +106,7 @@ class PreferencesPage extends StatelessWidget {
                 title: const Text("Date Format"),
                 subtitle: _dateFormatOptionWidgets[appSettings.dateFormat] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => appSettingsRadioGroupSheet<String>(
+                onTap: () => radioGroupSheet<String>(
                   context: context,
                   title: "Date Format",
                   value: appSettings.dateFormat,
@@ -123,7 +123,7 @@ class PreferencesPage extends StatelessWidget {
                 title: const Text("Time Format"),
                 subtitle: _timeFormatOptionWidgets[appSettings.timeFormat] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => appSettingsRadioGroupSheet<String>(
+                onTap: () => radioGroupSheet<String>(
                   context: context,
                   title: "Time Format",
                   value: appSettings.timeFormat,
@@ -141,7 +141,7 @@ class PreferencesPage extends StatelessWidget {
                   title: const Text("First Day of Week"),
                   subtitle: _firstDayOfWeekOptionWidgets[appSettings.firstDayOfWeek] ?? const Text("-"),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                  onTap: () => appSettingsRadioGroupSheet<int>(
+                  onTap: () => radioGroupSheet<int>(
                     context: context,
                     title: "First Day of Week",
                     value: appSettings.firstDayOfWeek,
@@ -160,7 +160,7 @@ class PreferencesPage extends StatelessWidget {
                 title: const Text("Distance Unit"),
                 subtitle: _distanceUnitOptionWidgets[appSettings.distanceUnit] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => appSettingsRadioGroupSheet<String>(
+                onTap: () => radioGroupSheet<String>(
                   context: context,
                   title: "Distance Unit",
                   value: appSettings.distanceUnit,
@@ -177,7 +177,7 @@ class PreferencesPage extends StatelessWidget {
                 title: const Text("Altitude Unit"),
                 subtitle: _altitudeUnitOptionWidgets[appSettings.altitudeUnit] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => appSettingsRadioGroupSheet<String>(
+                onTap: () => radioGroupSheet<String>(
                   context: context,
                   title: "Altitude Unit",
                   value: appSettings.altitudeUnit,
@@ -194,7 +194,7 @@ class PreferencesPage extends StatelessWidget {
                 title: const Text("Temperature Unit"),
                 subtitle: _tempUnitOptionWidgets[appSettings.temperatureUnit] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => appSettingsRadioGroupSheet<String>(
+                onTap: () => radioGroupSheet<String>(
                   context: context,
                   title: "Temperature Unit",
                   value: appSettings.temperatureUnit,
@@ -211,7 +211,7 @@ class PreferencesPage extends StatelessWidget {
                 title: const Text("Wind Speed Unit"),
                 subtitle: _windSpeedUnitOptionWidgets[appSettings.windSpeedUnit] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => appSettingsRadioGroupSheet<String>(
+                onTap: () => radioGroupSheet<String>(
                   context: context,
                   title: "Wind Speed Unit",
                   value: appSettings.windSpeedUnit,
@@ -228,7 +228,7 @@ class PreferencesPage extends StatelessWidget {
                 title: const Text("Precipitation Unit"),
                 subtitle: _precipitationUnitOptionWidgets[appSettings.precipitationUnit] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => appSettingsRadioGroupSheet<String>(
+                onTap: () => radioGroupSheet<String>(
                   context: context,
                   title: "Precipitation Unit",
                   value: appSettings.precipitationUnit,

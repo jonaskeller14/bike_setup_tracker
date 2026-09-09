@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/context/context_weather.dart';
 import '../soil_moisture_legend_table.dart';
-import 'app_settings_radio_group.dart';
+import 'radio_group.dart';
 
 /// Callers should mark the resulting weather as manually set (e.g. via
 /// `ContextWeather.copyWith(condition: value, conditionManuallySet: true)`).
@@ -11,7 +11,7 @@ Future<void> showSetConditionSheet({
   required Condition? currentCondition,
   required ValueChanged<Condition> onSelected,
 }) {
-  return appSettingsRadioGroupSheet<Condition?>(
+  return radioGroupSheet<Condition?>(
     context: context,
     title: "Select Trail Condition",
     infoText: "Conditions are automatically calculated based on soil moisture (see weather data). You can manually adjust the trail condition here:",

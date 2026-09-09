@@ -123,6 +123,10 @@ class CompareSetupsHarness {
       for (final setup in setups) {
         await repository.addSetups([setup]);
       }
+      // A batched insert dispatches its drift table updates only once the
+      // transaction unwinds. Yield so the query streams refetch here, before
+      // [reload] drops the pending refetch along with the old subscription.
+      await Future<void>.delayed(Duration.zero);
     });
   }
 

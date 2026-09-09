@@ -32,6 +32,20 @@ class MockSubscriptionService extends Mock implements SubscriptionService {
 
 class MockSetupActivityAnalysisService extends Mock implements SetupActivityAnalysisService {}
 
+/// Runs [writes] against the repository and waits for drift to deliver them.
+///
+/// A batched insert runs inside a single transaction, and drift dispatches its
+/// table updates only once that transaction unwinds. Yielding one event loop
+/// turn lets the query streams refetch first; otherwise the pending refetch is
+/// dropped along with the old subscription when the repository is replaced, and
+/// the seeded rows never reach its caches.
+Future<void> seedRepository(WidgetTester tester, Future<void> Function() writes) {
+  return tester.runAsync(() async {
+    await writes();
+    await Future<void>.delayed(Duration.zero);
+  });
+}
+
 void main() {
   late AppDatabase database;
   late AppRepository appRepository;
@@ -214,7 +228,7 @@ void main() {
         ),
       ],
     );
-    await tester.runAsync(() async {
+    await seedRepository(tester, () async {
       await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null)]);
       await appRepository.addComponents([component]);
     });
@@ -253,7 +267,7 @@ void main() {
       ],
       componentType: ComponentType.fork,
     );
-    await tester.runAsync(() async {
+    await seedRepository(tester, () async {
       await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null)]);
       await appRepository.addComponents([component]);
     });
@@ -277,7 +291,7 @@ void main() {
       componentType: ComponentType.fork,
       adjustments: [],
     );
-    await tester.runAsync(() async {
+    await seedRepository(tester, () async {
       await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null)]);
       await appRepository.addComponents([component]);
     });
@@ -310,7 +324,7 @@ void main() {
       componentType: ComponentType.fork,
       adjustments: [adjustment],
     );
-    await tester.runAsync(() async {
+    await seedRepository(tester, () async {
       await appRepository.addComponents([component]);
 
       final setup = Setup(
@@ -373,7 +387,7 @@ void main() {
       componentType: ComponentType.fork,
       adjustments: [adjustment],
     );
-    await tester.runAsync(() async {
+    await seedRepository(tester, () async {
       await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null)]);
       await appRepository.addComponents([component]);
       await appRepository.addSetups([
@@ -438,7 +452,7 @@ void main() {
       componentType: ComponentType.fork,
       adjustments: [adjustment1, adjustment2],
     );
-    await tester.runAsync(() async {
+    await seedRepository(tester, () async {
       await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null)]);
       await appRepository.addComponents([component]);
       await appRepository.addSetups([Setup(name: 'Setup 1', datetime: DateTime.now().toUtc(), datetimeLocal: DateTime.now(), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5, 'adj2': 5}, personAdjustmentValues: {})]);
@@ -484,7 +498,7 @@ void main() {
       componentType: ComponentType.fork,
       adjustments: [adjustmentOld],
     );
-    await tester.runAsync(() async {
+    await seedRepository(tester, () async {
       await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null)]);
       await appRepository.addComponents([component]);
       await appRepository.addSetups([Setup(name: 'Setup 1', datetime: DateTime.now().toUtc(), datetimeLocal: DateTime.now(), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5}, personAdjustmentValues: {})]);
@@ -577,7 +591,7 @@ void main() {
       visualization: StepAdjustmentVisualization.slider,
     );
     final setupTime = DateTime.utc(2024, 1, 1);
-    await tester.runAsync(() async {
+    await seedRepository(tester, () async {
       await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null, stravaGear: 'gear')]);
       await appRepository.addComponents([Component(
         id: 'comp1',
@@ -655,7 +669,7 @@ void main() {
       visualization: StepAdjustmentVisualization.slider,
     );
     final baseTime = DateTime.utc(2024, 1, 1);
-    await tester.runAsync(() async {
+    await seedRepository(tester, () async {
       await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null, stravaGear: 'gear')]);
       await appRepository.addComponents([Component(
         id: 'comp1',
@@ -727,7 +741,7 @@ void main() {
       visualization: StepAdjustmentVisualization.slider,
     );
     final baseTime = DateTime.utc(2024, 1, 1);
-    await tester.runAsync(() async {
+    await seedRepository(tester, () async {
       await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null, stravaGear: 'gear')]);
       await appRepository.addComponents([Component(
         id: 'comp1',
@@ -795,7 +809,7 @@ void main() {
       visualization: StepAdjustmentVisualization.slider,
     );
     final baseTime = DateTime.utc(2024, 1, 1);
-    await tester.runAsync(() async {
+    await seedRepository(tester, () async {
       await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null, stravaGear: 'gear')]);
       await appRepository.addComponents([Component(
         id: 'comp1',
@@ -844,7 +858,7 @@ void main() {
 
   testWidgets('initially selects the 3 most recent setups and labels chart endpoints', (WidgetTester tester) async {
     final adjustment = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
-    await tester.runAsync(() async {
+    await seedRepository(tester, () async {
       await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null)]);
       await appRepository.addComponents([Component(
         id: 'comp1', name: 'Test Fork',
@@ -929,7 +943,7 @@ void main() {
 
   testWidgets('header checkbox shows and controls selection across all pages', (WidgetTester tester) async {
     final adjustment = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
-    await tester.runAsync(() async {
+    await seedRepository(tester, () async {
       await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null)]);
       await appRepository.addComponents([Component(
         id: 'comp1', name: 'Test Fork',
@@ -987,7 +1001,7 @@ void main() {
 
   testWidgets('tapping a selected row deselects it', (WidgetTester tester) async {
     final adjustment = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
-    await tester.runAsync(() async {
+    await seedRepository(tester, () async {
       await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null)]);
       await appRepository.addComponents([Component(
         id: 'comp1', name: 'Test Fork',
@@ -1029,7 +1043,7 @@ void main() {
 
   testWidgets('tapping an unselected row selects it', (WidgetTester tester) async {
     final adjustment = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
-    await tester.runAsync(() async {
+    await seedRepository(tester, () async {
       await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null)]);
       await appRepository.addComponents([Component(
         id: 'comp1', name: 'Test Fork',
@@ -1080,7 +1094,7 @@ void main() {
       StepAdjustment(id: 'adj2', name: 'Compression', notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider),
       StepAdjustment(id: 'adj3', name: 'Volume Spacers', notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider),
     ];
-    await tester.runAsync(() async {
+    await seedRepository(tester, () async {
       await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null)]);
       await appRepository.addComponents([Component(
         id: 'comp1', name: 'Test Fork',
@@ -1127,7 +1141,7 @@ void main() {
       StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider),
       StepAdjustment(id: 'adj2', name: 'Compression', notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider),
     ];
-    await tester.runAsync(() async {
+    await seedRepository(tester, () async {
       await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null)]);
       await appRepository.addComponents([Component(
         id: 'comp1', name: 'Test Fork',
@@ -1178,7 +1192,7 @@ void main() {
 
   testWidgets('line and radar charts show placeholder when no numerical columns are active', (WidgetTester tester) async {
     final adjustment = CategoricalAdjustment(id: 'adj1', name: 'Tire Brand', notes: '', unit: null, options: {'Brand A', 'Brand B'});
-    await tester.runAsync(() async {
+    await seedRepository(tester, () async {
       await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null)]);
       await appRepository.addComponents([Component(
         id: 'comp1', name: 'Test Fork',
@@ -1206,7 +1220,7 @@ void main() {
 
   testWidgets('line and radar charts show placeholder when no setups are selected', (WidgetTester tester) async {
     final adjustment = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
-    await tester.runAsync(() async {
+    await seedRepository(tester, () async {
       await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null)]);
       await appRepository.addComponents([Component(
         id: 'comp1', name: 'Test Fork',
@@ -1242,7 +1256,7 @@ void main() {
 
   testWidgets('line chart shows placeholder when fewer than 2 setups are selected', (WidgetTester tester) async {
     final adjustment = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
-    await tester.runAsync(() async {
+    await seedRepository(tester, () async {
       await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null)]);
       await appRepository.addComponents([Component(
         id: 'comp1', name: 'Test Fork',
@@ -1278,7 +1292,7 @@ void main() {
     // 2 numerical columns < 3 required for a radar chart
     final adj1 = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
     final adj2 = StepAdjustment(id: 'adj2', name: 'Compression', notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
-    await tester.runAsync(() async {
+    await seedRepository(tester, () async {
       await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null)]);
       await appRepository.addComponents([Component(
         id: 'comp1', name: 'Test Fork',

@@ -86,6 +86,10 @@ void main() {
     await tester.runAsync(() async {
       await appRepository.addBikes([bike]);
       await appRepository.addComponents([current, spare]);
+      // A batched insert dispatches its drift table updates only once the
+      // transaction unwinds. Yield so the query streams refetch here, before
+      // the pending refetch is dropped along with the replaced repository.
+      await Future<void>.delayed(Duration.zero);
     });
     appRepository.dispose();
     appRepository = AppRepository(database);

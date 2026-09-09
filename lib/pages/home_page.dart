@@ -93,6 +93,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final visibleTaskRules = context.read<AppRepository>().filteredTaskRules;
+    _selectedTaskRules.removeWhere((id) => !visibleTaskRules.containsKey(id));
+  }
+
+  @override
   void dispose() {
     _garageListController.dispose();
     _setupListController.dispose();

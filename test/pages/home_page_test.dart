@@ -370,6 +370,33 @@ void main() {
     await tester.pumpAndSettle();
     expect(taskScrollController.offset, 0);
   });
+
+  testWidgets('applying a filter deselects the task rules it hides', (tester) async {
+    appSettings.enableTask = true;
+    appSettings.enableTaskTags = true;
+    final plain = TaskRule(name: 'Plain', tags: const {});
+    final tagged = TaskRule(name: 'Tagged', tags: const {'service'});
+    await tester.runAsync(() => appRepository.addTaskRules([plain, tagged]));
+
+    await tester.pumpWidget(createWidgetUnderTest());
+    await _waitForRepositoryUpdate(
+      tester,
+      until: (repository) => repository.taskRules.length == 2,
+    );
+
+    await tester.tap(_navigationDestination('Tasks'));
+    await tester.pumpAndSettle();
+
+    await tester.longPress(find.text('Plain'));
+    await tester.pumpAndSettle();
+    expect(_appBarTitle(tester), '1 selected');
+
+    appRepository.selectTaskRuleTag('service');
+    await tester.pumpAndSettle();
+
+    expect(find.text('Plain'), findsNothing);
+    expect(_appBarTitle(tester), 'Tasks');
+  });
 }
 
 Finder _navigationDestination(String label) => find.descendant(

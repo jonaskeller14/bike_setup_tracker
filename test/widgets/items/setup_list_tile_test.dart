@@ -1,7 +1,7 @@
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/widgets/current_setup_badge.dart';
 import 'package:bike_setup_tracker/widgets/current_setup_highlight.dart';
-import 'package:bike_setup_tracker/widgets/items/setup_list_tile.dart';
+import 'package:bike_setup_tracker/widgets/items/setup_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -29,11 +29,9 @@ void main() {
   }) async {
     await tester.pumpWidget(
       harness.wrap(
-        SetupListTile(
+        SetupTile(
           setupId: setup.id,
           onTap: null,
-          displayBikeAdjustmentValues: true,
-          displayPersonAdjustmentValues: true,
           showCurrentBadge: showCurrentBadge,
         ),
         width: width,
@@ -66,9 +64,9 @@ void main() {
     await harness.reload(tester);
     await pumpTile(tester, setup);
 
-    expect(find.byType(SetupListTile), findsOneWidget);
+    expect(find.byType(SetupTile), findsOneWidget);
     expect(
-      find.descendant(of: find.byType(SetupListTile), matching: find.byType(Card)),
+      find.descendant(of: find.byType(SetupTile), matching: find.byType(Card)),
       findsNothing,
     );
   });

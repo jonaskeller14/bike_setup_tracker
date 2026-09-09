@@ -17,17 +17,10 @@ import 'setup_options_menu.dart';
 import 'setup_tile_header.dart';
 import 'tile_meta_row.dart';
 
-class SetupListTile extends StatefulWidget {
+class SetupTile extends StatefulWidget {
   final String setupId;
   final void Function()? onTap;
-  final bool displayBikeAdjustmentValues;
-  final bool displayPersonAdjustmentValues;
   final bool showDate;
-
-  /// Rendered as a member of a SetupGroupSection: collapsed to just the changed
-  /// adjustment values. The always-visible expand chevron reveals title, time,
-  /// metadata, the editing menu and the full value list.
-  final bool embedded;
   final bool hidePlace;
 
   final double currentBarLeft;
@@ -38,14 +31,11 @@ class SetupListTile extends StatefulWidget {
   final EdgeInsets edgeInset;
   final bool showCurrentBadge;
 
-  const SetupListTile({
+  const SetupTile({
     super.key,
     required this.setupId,
     required this.onTap,
-    this.displayBikeAdjustmentValues = true,
-    this.displayPersonAdjustmentValues = true,
     this.showDate = true,
-    this.embedded = false,
     this.hidePlace = false,
     this.currentBarLeft = 0,
     this.edgeInset = EdgeInsets.zero,
@@ -53,12 +43,10 @@ class SetupListTile extends StatefulWidget {
   });
 
   @override
-  State<SetupListTile> createState() => _SetupListTileState();
+  State<SetupTile> createState() => _SetupTileState();
 }
 
-class _SetupListTileState extends State<SetupListTile> {
-  static const double _embeddedContentInset = 16;
-  static const double _collapsedChevronTop = 4;
+class _SetupTileState extends State<SetupTile> {
   static const double _bookmarkRight = kMinInteractiveDimension + 8 - BookmarkRibbon.width;
 
   bool _displayOnlyChanges = true;
@@ -101,8 +89,7 @@ class _SetupListTileState extends State<SetupListTile> {
     final appRepository = context.watch<AppRepository>();
     final bikes = appRepository.bikes;
     final double? score = appSettings.enableRating ? appRepository.scoreForSetup(setup.id) : null;
-    // Embedded members get their chevron from the embedded wrapper instead.
-    final bool showInlineExpandIcon = !widget.embedded && summary.collapsedHidesSomething;
+    final bool showInlineExpandIcon = summary.collapsedHidesSomething;
 
     final dateText = DateFormat(appSettings.dateFormat).format(setup.datetimeLocal);
     final timeText = DateFormat(appSettings.timeFormat).format(setup.datetimeLocal);
@@ -114,14 +101,14 @@ class _SetupListTileState extends State<SetupListTile> {
           text: "${setup.place?.locality}, ${setup.place?.isoCountryCode}",
           muted: true,
         ),
-      if (!widget.embedded && setup.weather?.currentTemperature != null)
+      if (setup.weather?.currentTemperature != null)
         TileMetaRow(
           icon: ContextWeather.currentTemperatureIconData,
           text:
               "${ContextWeather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, appSettings.temperatureUnit)?.round()} ${appSettings.temperatureUnit}",
           muted: true,
         ),
-      if (!widget.embedded && setup.weather?.condition != null)
+      if (setup.weather?.condition != null)
         TileMetaRow(
           icon: setup.weather?.condition?.iconData ?? Icons.question_mark,
           text: setup.weather?.condition?.value ?? "-",
@@ -151,12 +138,7 @@ class _SetupListTileState extends State<SetupListTile> {
       // apart, opening dead space above the values. The content carries its own
       // vertical inset instead.
       //
-      padding: widget.embedded
-          ? const EdgeInsets.only(
-              left: _embeddedContentInset,
-              right: 4,
-            )
-          : const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Stack(
         children: [
           ConstrainedBox(
@@ -177,25 +159,15 @@ class _SetupListTileState extends State<SetupListTile> {
                     : timeText,
                 metadata: metadataRows,
                 badge: badge,
-                showSetupIcon: !widget.embedded,
-                secondaryMetadata: widget.embedded
-                    ? null
-                    : TileMetaRow(
-                        icon: Bike.iconData,
-                        text: bikes[setup.bike]?.name ?? "BIKE NOT FOUND",
-                        isError: !bikes.containsKey(setup.bike),
-                      ),
+                showSetupIcon: true,
+                secondaryMetadata: TileMetaRow(
+                  icon: Bike.iconData,
+                  text: bikes[setup.bike]?.name ?? "BIKE NOT FOUND",
+                  isError: !bikes.containsKey(setup.bike),
+                ),
               ),
             ),
           ),
-          if (widget.embedded)
-            Positioned(
-              top: 0,
-              right: _bookmarkRight,
-              child: _bookmarkRibbon(
-                visible: appSettings.enableSetupBookmark && setup.isBookmarked,
-              ),
-            ),
           Positioned(
             top: 0,
             right: 0,
@@ -216,91 +188,6 @@ class _SetupListTileState extends State<SetupListTile> {
                 },
               ),
             ),
-        ],
-      ),
-    );
-  }
-
-  /// Embedded-only: lines up with the member's value rows.
-  Widget _noChangesHint(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        _embeddedContentInset,
-        6,
-        0,
-        6,
-      ),
-      child: Text(
-        'No changes',
-        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-          color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-          fontStyle: FontStyle.italic,
-        ),
-      ),
-    );
-  }
-
-  /// Group-member layout: collapsed it is just the changed adjustment values;
-  /// the chevron expands to the full content (title, time, metadata, menu,
-  /// all values).
-  Widget _buildEmbedded(
-    BuildContext context,
-    Setup setup,
-    AdjustmentCompactSummary summary,
-    AdjustmentCompactDisplayList adjustmentList,
-  ) {
-    final bool expanded = !_displayOnlyChanges;
-
-    return InkWell(
-      onTap: widget.onTap,
-      child: Stack(
-        children: [
-          // Force the stack to the full row width so the right-anchored
-          // chevron lands at the row edge and aligns across members,
-          // regardless of how wide each member's value list is.
-          const SizedBox(width: double.infinity),
-          ConstrainedBox(
-            // Keep room for the chevron even when the value list is short.
-            constraints: const BoxConstraints(minHeight: kMinInteractiveDimension),
-            child: AnimatedSize(
-              duration: const Duration(milliseconds: 400),
-              curve: Curves.easeInOut,
-              alignment: Alignment.topCenter,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (expanded) _setupListTile(context, setup, summary),
-                  Padding(
-                    padding: EdgeInsets.only(
-                      top: expanded ? 0 : 8,
-                      bottom: 8,
-                      // Keep the last value row clear of the chevron.
-                      right: kMinInteractiveDimension,
-                    ),
-                    child: !expanded && !summary.collapsedHasContent ? _noChangesHint(context) : adjustmentList,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          // Keep the chevron at the top of the row. Once expanded, move it one
-          // touch target down so it sits directly below the popup menu.
-          Positioned(
-            top: expanded
-                ? kMinInteractiveDimension
-                : _collapsedChevronTop,
-            right: 4,
-            child: ExpandIcon(
-              isExpanded: expanded,
-              color: PopupMenuTheme.of(context).iconColor ?? IconTheme.of(context).color,
-              expandedColor: Theme.of(context).colorScheme.primary,
-              onPressed: (bool expanded) {
-                setState(() {
-                  _displayOnlyChanges = expanded;
-                });
-              },
-            ),
-          ),
         ],
       ),
     );
@@ -327,7 +214,6 @@ class _SetupListTileState extends State<SetupListTile> {
       ...setup.previousBikeAdjustmentValues,
       ...setup.previousPersonAdjustmentValues,
     };
-    final displayPerson = widget.displayPersonAdjustmentValues && appSettings.enablePerson;
 
     final summary = AdjustmentCompactDisplayList.summarize(
       components: breakdown.components,
@@ -336,8 +222,7 @@ class _SetupListTileState extends State<SetupListTile> {
       danglingPersons: breakdown.danglingPersons,
       adjustmentValues: adjustmentValues,
       previousAdjustmentValues: previousAdjustmentValues,
-      displayBikeAdjustmentValues: widget.displayBikeAdjustmentValues,
-      displayPersonAdjustmentValues: displayPerson,
+      displayPersonAdjustmentValues: appSettings.enablePerson,
     );
 
     final adjustmentList = AdjustmentCompactDisplayList(
@@ -350,37 +235,34 @@ class _SetupListTileState extends State<SetupListTile> {
       showRowIcons: true,
       highlightInitialValues: true,
       displayOnlyChanges: _displayOnlyChanges,
-      displayBikeAdjustmentValues: widget.displayBikeAdjustmentValues,
-      displayPersonAdjustmentValues: displayPerson,
-      contentInset: widget.embedded ? _embeddedContentInset : null,
+      displayPersonAdjustmentValues: appSettings.enablePerson,
+      contentInset: null,
     );
 
     // Whether the list renders anything in its current state — its padding
     // would otherwise add height to a row with no values.
     final bool hasValues = _displayOnlyChanges ? summary.collapsedHasContent : summary.hasContent;
 
-    final Widget content = widget.embedded
-        ? _buildEmbedded(context, setup, summary, adjustmentList)
-        : InkWell(
-            onTap: widget.onTap,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _setupListTile(context, setup, summary),
-                AnimatedSize(
-                  duration: const Duration(milliseconds: 400),
-                  curve: Curves.easeInOut,
-                  alignment: Alignment.topCenter,
-                  child: hasValues
-                      ? Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: adjustmentList,
-                        )
-                      : const SizedBox.shrink(),
-                ),
-              ],
-            ),
-          );
+    final Widget content = InkWell(
+      onTap: widget.onTap,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _setupListTile(context, setup, summary),
+          AnimatedSize(
+            duration: const Duration(milliseconds: 400),
+            curve: Curves.easeInOut,
+            alignment: Alignment.topCenter,
+            child: hasValues
+                ? Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: adjustmentList,
+                  )
+                : const SizedBox.shrink(),
+          ),
+        ],
+      ),
+    );
 
     final Widget row = setup.isCurrent
         ? CurrentSetupHighlight(
@@ -389,8 +271,6 @@ class _SetupListTileState extends State<SetupListTile> {
             child: content,
           )
         : Padding(padding: widget.edgeInset, child: content);
-
-    if (widget.embedded) return row;
 
     return Stack(
       children: [

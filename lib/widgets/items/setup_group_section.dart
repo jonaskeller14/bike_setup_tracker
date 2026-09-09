@@ -9,7 +9,8 @@ import '../../models/context/context_weather.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import 'setup_group_header.dart';
-import 'setup_list_tile.dart';
+import 'setup_tile.dart';
+import 'setup_tile_embedded.dart';
 import 'tile_meta_row.dart';
 
 class SetupGroupSection extends StatelessWidget {
@@ -23,12 +24,11 @@ class SetupGroupSection extends StatelessWidget {
   });
 
   Widget _member(BuildContext context, Setup setup, {required bool hidePlace}) {
-    return SetupListTile(
+    return SetupTileEmbedded(
       key: ValueKey(setup.id),
       setupId: setup.id,
       onTap: onTapSetup == null ? null : () => onTapSetup!(setup),
       showDate: false,
-      embedded: true,
       hidePlace: hidePlace,
     );
   }
@@ -44,7 +44,7 @@ class SetupGroupSection extends StatelessWidget {
 
     if (setups.isEmpty) return const SizedBox.shrink();
     if (setups.length == 1) {
-      return SetupListTile(
+      return SetupTile(
         setupId: setups.first.id,
         onTap: onTapSetup == null ? null : () => onTapSetup!(setups.first),
         showDate: false,
@@ -117,8 +117,6 @@ class SetupGroupSection extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
           child: Container(
-            // One outlined container binds the whole group; the members sit
-            // inside it, separated by hairlines.
             clipBehavior: Clip.antiAlias,
             decoration: BoxDecoration(
               border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),

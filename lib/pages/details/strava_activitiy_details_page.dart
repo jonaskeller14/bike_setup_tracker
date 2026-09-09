@@ -12,7 +12,7 @@ import '../../services/strava_service.dart';
 import '../../utils/component_actions.dart';
 import '../../widgets/empty_state_placeholder2.dart';
 import '../../widgets/items/component_list_card.dart';
-import '../../widgets/items/setup_list_tile.dart';
+import '../../widgets/items/setup_tile.dart';
 import '../../widgets/sheets/sheet.dart';
 import '../setup_page.dart';
 
@@ -418,7 +418,7 @@ class StravaActivitiyPageContent extends StatelessWidget {
                           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                           // Rounds the InkWell and the current-setup bar.
                           clipBehavior: Clip.antiAlias,
-                          child: SetupListTile(
+                          child: SetupTile(
                             setupId: setup.id,
                             onTap: null,
                           ),

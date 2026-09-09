@@ -12,7 +12,7 @@ import '../../services/subscription_service.dart';
 import '../../utils/text_search.dart';
 import '../items/installation_list_tile.dart';
 import '../items/rating_entry_list_tile.dart';
-import '../items/setup_list_tile.dart';
+import '../items/setup_tile.dart';
 import '../items/strava_list_tile.dart';
 import '../items/task_entry_list_item.dart';
 import '../sheets/installation_sheet.dart';
@@ -142,7 +142,7 @@ class SetupListSearch extends StatelessWidget {
         Widget entryWidget(TimelineEntry entry, {EdgeInsets edgeInset = EdgeInsets.zero}) {
           switch (entry) {
             case SetupEntry():
-              return SetupListTile(
+              return SetupTile(
                 setupId: entry.setup.id,
                 showDate: false,
                 onTap: () async {

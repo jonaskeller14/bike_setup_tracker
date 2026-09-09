@@ -11,7 +11,7 @@ import '../../pages/details/setup_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../items/installation_list_tile.dart';
 import '../items/rating_entry_list_tile.dart';
-import '../items/setup_list_tile.dart';
+import 'setup_tile.dart';
 import '../items/strava_list_tile.dart';
 import '../items/task_entry_list_item.dart';
 import '../sheets/installation_sheet.dart';
@@ -91,7 +91,7 @@ class TimelineDaySection extends StatelessWidget{
         return StravaListTile(stravaActivity: entry.activity, showDate: false);
       case SetupEntry():
         final setup = entry.setup;
-        return SetupListTile(
+        return SetupTile(
           setupId: setup.id,
           onTap: () => _openSetupDetails(context, setupsList, setup),
           showDate: false,

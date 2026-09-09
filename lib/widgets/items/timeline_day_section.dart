@@ -148,7 +148,7 @@ class TimelineDaySection extends StatelessWidget{
         appRepository: appRepository,
         lazyLoadTriggerIds: lazyLoadTriggerIds,
         setupsList: setupsList,
-        currentBarLeft: hasStravaContext ? 6 : 0,
+        currentBarLeft: hasStravaContext ? StravaContextWrapper.barWidth : 0,
         edgeInset: edgeInset,
       ),
       SetupGroupRow() => SetupGroupSection(

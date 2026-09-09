@@ -266,27 +266,31 @@ class _CalendarPageState extends State<CalendarPage> {
     ];
   }
 
-  /// Predicted due dates for the open, not-yet-due rules currently in scope.
-  /// Empty unless the feature is on, tasks are shown, and the rate data the
-  /// forecast needs is actually available to this user.
+  /// Future due dates for the open, not-yet-due rules currently in scope.
+  ///
+  /// A forecast carrying a rate sample was extrapolated from riding, so it
+  /// needs the Strava entitlement behind it. One without a sample is a date or
+  /// duration trigger — a date the user set — and shows regardless.
   List<CalendarPredictedTask> _buildPredictedTasks(
     AppRepository repo,
     AppSettings settings,
     SubscriptionService sub,
   ) {
-    if (!settings.enableTaskDuePrediction ||
-        !settings.displayShowTasks ||
-        !sub.hasStravaEntitlement) {
-      return const [];
-    }
+    if (!settings.enableTaskDuePrediction || !settings.displayShowTasks) return const [];
     final now = DateTime.now();
-    return [
-      for (final open in repo.openTaskRules)
-        if (!open.status.isDue)
-          if (repo.getTaskRuleForecast(open.rule)?.dueDate.toLocal() case final due?
-              when due.isAfter(now))
-            CalendarPredictedTask(taskRuleId: open.rule.id, name: open.rule.name, date: due),
-    ];
+    final predicted = <CalendarPredictedTask>[];
+    for (final open in repo.openTaskRules) {
+      if (open.status.isDue) continue;
+      final forecast = repo.getTaskRuleForecast(open.rule);
+      if (forecast == null) continue;
+      if (forecast.sample != null && !sub.hasStravaEntitlement) continue;
+      final due = forecast.dueDate.toLocal();
+      if (!due.isAfter(now)) continue;
+      predicted.add(
+        CalendarPredictedTask(taskRuleId: open.rule.id, name: open.rule.name, date: due),
+      );
+    }
+    return predicted;
   }
 
   /// Collapses the built entries into display rows shared with the timeline
@@ -858,6 +862,7 @@ class _CalendarPageState extends State<CalendarPage> {
     final cs = Theme.of(context).colorScheme;
     if (row is CalendarPredictedTask) {
       return _entryAppointment(
+        context,
         details,
         icon: kCalendarPredictedTaskIcon,
         subject: row.name,
@@ -869,6 +874,7 @@ class _CalendarPageState extends State<CalendarPage> {
     if (row is! EntryRow) return const SizedBox.shrink();
     final showSetupBookmark = context.read<AppSettings>().enableSetupBookmark;
     return _entryAppointment(
+      context,
       details,
       icon: calendarIconForRow(row, showSetupBookmark: showSetupBookmark),
       subject: calendarSubjectForRow(row),
@@ -880,6 +886,7 @@ class _CalendarPageState extends State<CalendarPage> {
   /// The shared appointment body: it decides what still fits as the slot shrinks
   /// and paints it either solid (a record) or as an outline (a [ghost] guess).
   Widget _entryAppointment(
+    BuildContext context,
     CalendarAppointmentDetails details, {
     required IconData icon,
     required String subject,
@@ -911,7 +918,7 @@ class _CalendarPageState extends State<CalendarPage> {
     return Container(
       clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
-        color: ghost ? Colors.transparent : color,
+        color: ghost ? Theme.of(context).colorScheme.surface : color,
         border: ghost ? Border.all(color: color) : null,
         borderRadius: BorderRadius.circular(4),
       ),

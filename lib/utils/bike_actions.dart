@@ -70,19 +70,26 @@ class BikeActions {
     );
   }
 
-  static Future<void> removeBike(BuildContext context, {required Bike bike}) async {
+  static Future<void> removeBike(BuildContext context, {required Bike bike}) =>
+      removeBikes(context, bikes: [bike]);
+
+  static Future<void> removeBikes(BuildContext context, {required Iterable<Bike> bikes}) async {
+    final bikeList = bikes.toList();
+    if (bikeList.isEmpty) return;
+
     final appRepository = context.read<AppRepository>();
     final appSettings = context.read<AppSettings>();
     final messenger = ScaffoldMessenger.of(context);
 
-    final obsoleteComponents = appRepository.components.values.where((c) => c.bike == bike.id).toList();
-    final obsoleteSetups = appRepository.setups.values.where((s) => s.bike == bike.id).toList();
+    final bikeIds = bikeList.map((bike) => bike.id).toSet();
+    final obsoleteComponents = appRepository.components.values.where((c) => bikeIds.contains(c.bike)).toList();
+    final obsoleteSetups = appRepository.setups.values.where((s) => bikeIds.contains(s.bike)).toList();
     final obsoleteRatings = appRepository.ratings.values
-        .where((r) => r.filterType == FilterType.bike && r.filter == bike.id)
+        .where((r) => r.filterType == FilterType.bike && bikeIds.contains(r.filter))
         .toList();
     final obsoleteComponentIds = obsoleteComponents.map((component) => component.id).toSet();
     final relatedTaskRules = appRepository.taskRules.values
-        .where((rule) => rule.bikeId == bike.id || obsoleteComponentIds.contains(rule.componentId))
+        .where((rule) => bikeIds.contains(rule.bikeId) || obsoleteComponentIds.contains(rule.componentId))
         .toList();
     final selectedTaskRules = relatedTaskRules.isEmpty
         ? const <TaskRule>[]
@@ -92,7 +99,7 @@ class BikeActions {
         .where((entry) => selectedRuleIds.contains(entry.taskRule))
         .toList();
 
-    await appRepository.removeBikes([bike]);
+    await appRepository.removeBikes(bikeList);
     await appRepository.removeComponents(obsoleteComponents);
     await appRepository.removeSetups(obsoleteSetups);
     await appRepository.removeRatings(obsoleteRatings);
@@ -113,7 +120,11 @@ class BikeActions {
           other: '${selectedTaskRules.length} tasks and their entries',
         ),
     ];
-    String message = "Bike '${bike.name}' moved to trash.";
+    String message = Intl.plural(
+      bikeList.length,
+      one: "Bike '${bikeList.first.name}' moved to trash.",
+      other: '${bikeList.length} bikes moved to trash.',
+    );
     if (deletedItems.isNotEmpty) {
       final summary = switch (deletedItems.length) {
         1 => deletedItems.single,
@@ -131,7 +142,7 @@ class BikeActions {
         action: AppSnackBarAction(
           label: 'UNDO',
           onPressed: () async {
-            await appRepository.restoreBikes([bike]);
+            await appRepository.restoreBikes(bikeList);
             await appRepository.restoreComponents(obsoleteComponents);
             await appRepository.restoreSetups(obsoleteSetups);
             await appRepository.restoreRatings(obsoleteRatings);

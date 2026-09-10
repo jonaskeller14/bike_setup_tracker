@@ -16,9 +16,11 @@ import 'package:bike_setup_tracker/services/strava_service.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/widgets/items/adjustment_list_card.dart';
 import 'package:bike_setup_tracker/widgets/items/component_list_card.dart';
+import 'package:bike_setup_tracker/widgets/items/garage_bike_card.dart';
 import 'package:bike_setup_tracker/widgets/items/garage_component_icon_card.dart';
 import 'package:bike_setup_tracker/widgets/lists/garage_list.dart';
 import 'package:bike_setup_tracker/widgets/lists/task_list.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -396,6 +398,83 @@ void main() {
     expect(find.text('Plain'), findsNothing);
     expect(_appBarTitle(tester), 'Tasks');
   });
+
+  group('Garage multi-select', () {
+    Future<void> seedBikes(WidgetTester tester) async {
+      await tester.runAsync(() async {
+        await appRepository.addBikes([
+          Bike(name: 'First bike', person: null),
+          Bike(name: 'Second bike', person: null),
+        ]);
+      });
+      await tester.pumpWidget(createWidgetUnderTest());
+      await _waitForRepositoryUpdate(
+        tester,
+        until: (repository) => repository.bikes.length == 2,
+      );
+      await tester.tap(_navigationDestination('Bikes'));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('lifting a bike card and dropping it in place selects it', (tester) async {
+      await seedBikes(tester);
+
+      await _liftAndDrop(tester, _bikeCardTitle('First bike'));
+
+      expect(_appBarTitle(tester), '1 selected');
+
+      await tester.ensureVisible(_bikeCardTitle('Second bike'));
+      await tester.pumpAndSettle();
+      await tester.tap(_bikeCardTitle('Second bike'));
+      await tester.pumpAndSettle();
+
+      expect(_appBarTitle(tester), '2 selected');
+    });
+
+    testWidgets('dropping a bike card at a new position reorders without selecting', (tester) async {
+      await seedBikes(tester);
+
+      final firstCardHeight = tester.getSize(find.byType(GarageBikeCard).first).height;
+      await _liftAndDrop(tester, _bikeCardTitle('First bike'), moveBy: Offset(0, firstCardHeight));
+
+      expect(_appBarTitle(tester), 'Bikes');
+      expect(
+        appRepository.filteredBikes.values.map((bike) => bike.name).toList(),
+        ['Second bike', 'First bike'],
+      );
+    });
+
+    testWidgets('filtering to another bike deselects the hidden bike', (tester) async {
+      await seedBikes(tester);
+
+      await _liftAndDrop(tester, _bikeCardTitle('First bike'));
+      expect(_appBarTitle(tester), '1 selected');
+
+      final secondBike = appRepository.bikes.values.firstWhere((bike) => bike.name == 'Second bike');
+      appRepository.onBikeTap(secondBike.id);
+      await tester.pumpAndSettle();
+
+      expect(find.text('First bike'), findsNothing);
+      expect(_appBarTitle(tester), 'Bikes');
+    });
+  });
+}
+
+Finder _bikeCardTitle(String name) => find.descendant(
+  of: find.byType(GarageBikeCard),
+  matching: find.text(name),
+);
+
+/// Starts a reorder drag on [finder] and drops it, optionally after [moveBy].
+Future<void> _liftAndDrop(WidgetTester tester, Finder finder, {Offset? moveBy}) async {
+  final gesture = await tester.startGesture(tester.getCenter(finder));
+  await tester.pump(kLongPressTimeout + const Duration(milliseconds: 100));
+  if (moveBy != null) {
+    await gesture.moveBy(moveBy);
+    await tester.pumpAndSettle();
+  }
+  await gesture.up();
+  await tester.pumpAndSettle();
 }
 
 Finder _navigationDestination(String label) => find.descendant(

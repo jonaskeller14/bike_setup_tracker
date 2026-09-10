@@ -44,14 +44,41 @@ class _HomePageState extends State<HomePage> {
   final ListScrollController _setupListController = ListScrollController();
   final ListScrollController _taskListController = ListScrollController();
   final Set<String> _selectedTaskRules = {};
+  final Set<String> _selectedBikes = {};
   bool _isDeletingTaskRules = false;
   bool _isCompletingTaskRules = false;
   bool _isSettingTaskRulePriority = false;
+  bool _isDeletingBikes = false;
 
   bool get _isTaskSelectionMode => _selectedTaskRules.isNotEmpty;
+  bool get _isBikeSelectionMode => _selectedBikes.isNotEmpty;
 
-  void _clearTaskRuleSelection() {
-    setState(() => _selectedTaskRules.clear());
+  void _clearBikeSelection() => setState(() => _selectedBikes.clear());
+  void _clearTaskRuleSelection() => setState(() => _selectedTaskRules.clear());
+
+  void _toggleBikeSelection(String bikeId) {
+    unawaited(HapticFeedback.selectionClick());
+    setState(() {
+      if (!_selectedBikes.remove(bikeId)) {
+        _selectedBikes.add(bikeId);
+      }
+    });
+  }
+
+  Future<void> _deleteSelectedBikes() async {
+    if (_isDeletingBikes) return;
+
+    final appRepository = context.read<AppRepository>();
+    final selectedBikes = _selectedBikes.map((id) => appRepository.bikes[id]).whereType<Bike>().toList();
+    setState(() => _isDeletingBikes = true);
+
+    try {
+      await BikeActions.removeBikes(context, bikes: selectedBikes);
+      if (!mounted) return;
+      setState(() => _selectedBikes.clear());
+    } finally {
+      if (mounted) setState(() => _isDeletingBikes = false);
+    }
   }
 
   void _toggleTaskRuleSelection(String taskRuleId) {
@@ -111,8 +138,10 @@ class _HomePageState extends State<HomePage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final visibleTaskRules = context.read<AppRepository>().filteredTaskRules;
+    final appRepository = context.read<AppRepository>();
+    final visibleTaskRules = appRepository.filteredTaskRules;
     _selectedTaskRules.removeWhere((id) => !visibleTaskRules.containsKey(id));
+    _selectedBikes.removeWhere((id) => !appRepository.filteredBikes.containsKey(id));
   }
 
   @override
@@ -136,15 +165,34 @@ class _HomePageState extends State<HomePage> {
     );
     final taskPageIndex = 2 + (appSettings.enablePerson ? 1 : 0) + (appSettings.enableRating ? 1 : 0);
     final showTaskSelectionAppBar = appSettings.enableTask && pageIndex == taskPageIndex && _isTaskSelectionMode;
+    final showBikeSelectionAppBar = pageIndex == 0 && _isBikeSelectionMode;
 
     return PopScope(
-      canPop: !showTaskSelectionAppBar,
+      canPop: !showTaskSelectionAppBar && !showBikeSelectionAppBar,
       onPopInvokedWithResult: (didPop, result) {
-        if (!didPop) _clearTaskRuleSelection();
+        if (didPop) return;
+        if (showBikeSelectionAppBar) _clearBikeSelection();
+        if (showTaskSelectionAppBar) _clearTaskRuleSelection();
       },
       child: Scaffold(
       appBar: AnimatedAppBarSwitcher(
-        child: showTaskSelectionAppBar
+        child: showBikeSelectionAppBar
+            ? AppBar(
+                key: const ValueKey('bike-selection-app-bar'),
+                leading: IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: _clearBikeSelection,
+                ),
+                title: Text('${_selectedBikes.length} selected'),
+                actions: [
+                  IconButton(
+                    onPressed: _isDeletingBikes ? null : _deleteSelectedBikes,
+                    icon: const Icon(Icons.delete),
+                    tooltip: 'Delete selected',
+                  ),
+                ],
+              )
+            : showTaskSelectionAppBar
             ? AppBar(
                 key: const ValueKey('task-selection-app-bar'),
                 leading: IconButton(
@@ -246,7 +294,10 @@ class _HomePageState extends State<HomePage> {
           }
           setState(() {
             _currentPageIndex = index;
-            if (index != pageIndex) _selectedTaskRules.clear();
+            if (index != pageIndex) {
+              _selectedTaskRules.clear();
+              _selectedBikes.clear();
+            }
           });
         },
         destinations: <Widget>[
@@ -278,7 +329,11 @@ class _HomePageState extends State<HomePage> {
         child: IndexedStack(
           index: pageIndex,
           children: <Widget>[
-            GarageList(controller: _garageListController),
+            GarageList(
+              controller: _garageListController,
+              selectedBikes: _selectedBikes,
+              onBikeSelectionChanged: _isDeletingBikes ? null : _toggleBikeSelection,
+            ),
             SetupList(controller: _setupListController),
             if (appSettings.enablePerson) const PersonList(),
             if (appSettings.enableRating) const RatingList(),

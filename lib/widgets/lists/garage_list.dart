@@ -25,8 +25,15 @@ import 'list_scroll_controller.dart';
 
 class GarageList extends StatefulWidget {
   final ListScrollController controller;
+  final Set<String> selectedBikes;
+  final ValueChanged<String>? onBikeSelectionChanged;
 
-  const GarageList({super.key, required this.controller});
+  const GarageList({
+    super.key,
+    required this.controller,
+    this.selectedBikes = const {},
+    this.onBikeSelectionChanged,
+  });
 
   @override
   State<GarageList> createState() => _GarageListState();
@@ -37,6 +44,8 @@ class _GarageListState extends State<GarageList> {
   final ValueNotifier<Component?> _draggedComponentNotifier = ValueNotifier<Component?>(null);
   Timer? _scrollTimer;
   double _scrollDelta = 0;
+  int? _dragStartIndex;
+  String? _dragStartBikeId;
 
   static const double _edgeZone = 100.0;
   static const double _maxScrollSpeed = 18.0;
@@ -266,6 +275,11 @@ class _GarageListState extends State<GarageList> {
                 index: index,
                 elevation: elevation,
                 componentToShowDetails: _componentToShowDetails,
+                selectionMode: widget.selectedBikes.isNotEmpty,
+                selected: widget.selectedBikes.contains(bikesList[index].id),
+                onSelectionChanged: widget.onBikeSelectionChanged == null
+                    ? null
+                    : () => widget.onBikeSelectionChanged!(bikesList[index].id),
                 onPressedComponent: _onPressedComponent,
                 onAcceptWithDetails: _onAcceptWithDetails,
                 setDraggedComponent: (Component? c) => _draggedComponentNotifier.value = c,
@@ -316,7 +330,23 @@ class _GarageListState extends State<GarageList> {
                 ),
               ),
               proxyDecorator: proxyDecorator,
-              onReorderStart: (_) => unawaited(HapticFeedback.lightImpact()),
+              onReorderStart: (int index) {
+                unawaited(HapticFeedback.lightImpact());
+                _dragStartIndex = index;
+                _dragStartBikeId = bikesList[index].id;
+              },
+              onReorderEnd: (int index) {
+                final startIndex = _dragStartIndex;
+                final bikeId = _dragStartBikeId;
+                _dragStartIndex = null;
+                _dragStartBikeId = null;
+                if (startIndex == null || bikeId == null) return;
+                // The insert index is computed with the dragged item still in place, so
+                // dropping back onto the original slot reports startIndex or startIndex + 1.
+                if (index == startIndex || index == startIndex + 1) {
+                  widget.onBikeSelectionChanged?.call(bikeId);
+                }
+              },
               onReorderItem: (int oldIndex, int newIndex) =>
                   BikeActions.onReorderBikes(context, oldIndex: oldIndex, newIndex: newIndex),
               itemBuilder: (context, index) {
@@ -328,6 +358,11 @@ class _GarageListState extends State<GarageList> {
                     bike: bike,
                     index: index,
                     componentToShowDetails: _componentToShowDetails,
+                    selectionMode: widget.selectedBikes.isNotEmpty,
+                    selected: widget.selectedBikes.contains(bike.id),
+                    onSelectionChanged: widget.onBikeSelectionChanged == null
+                        ? null
+                        : () => widget.onBikeSelectionChanged!(bike.id),
                     onPressedComponent: _onPressedComponent,
                     onAcceptWithDetails: _onAcceptWithDetails,
                     setDraggedComponent: (Component? c) => _draggedComponentNotifier.value = c,

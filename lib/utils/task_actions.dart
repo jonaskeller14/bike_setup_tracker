@@ -8,6 +8,7 @@ import '../pages/task_entry_page.dart';
 import '../pages/task_rule_page.dart';
 import '../repositories/app_repository.dart';
 import '../widgets/app_snackbar.dart';
+import '../widgets/sheets/radio_group.dart';
 import '../widgets/sheets/set_task_delay.dart';
 
 class TaskActions {
@@ -33,7 +34,7 @@ class TaskActions {
     );
     if (editedRule == null) return;
 
-    await appRepository.editTaskRule(editedRule);
+    await appRepository.editTaskRules([editedRule]);
 
     if (editedRule.name == taskRule.name) return;
 
@@ -75,7 +76,65 @@ class TaskActions {
     final updatedRule = await showSetTaskDelaySheet(context: context, taskRule: taskRule);
     if (updatedRule == null) return;
 
-    await appRepository.editTaskRule(updatedRule);
+    await appRepository.editTaskRules([updatedRule]);
+  }
+
+  /// Opens a priority picker and applies the chosen priority to all [taskRuleIds].
+  ///
+  /// Returns whether the user picked a priority (as opposed to dismissing the
+  /// sheet), so callers can decide whether to exit selection mode.
+  static Future<bool> setTaskRulesPriority(BuildContext context, {required Iterable<String> taskRuleIds}) async {
+    final appRepository = context.read<AppRepository>();
+    final messenger = ScaffoldMessenger.of(context);
+
+    final taskRules = taskRuleIds.map((id) => appRepository.taskRules[id]).whereType<TaskRule>().toList();
+    if (taskRules.isEmpty) return false;
+
+    final distinctPriorities = taskRules.map((rule) => rule.priority).toSet();
+    final initialPriority = distinctPriorities.length == 1 ? distinctPriorities.first : TaskPriority.medium;
+
+    TaskPriority? newPriority;
+    await radioGroupSheet<TaskPriority>(
+      context: context,
+      title: 'Task Priority',
+      value: initialPriority,
+      onChanged: (value) {
+        if (value == null) return;
+        newPriority = value;
+        Navigator.pop(context);
+      },
+      optionWidgets: Map.fromEntries(TaskPriority.values.map((priority) {
+        return MapEntry(priority, Text(priority.label));
+      })),
+    );
+    final selectedPriority = newPriority;
+    if (selectedPriority == null) return false;
+
+    final rulesToUpdate = taskRules.where((rule) => rule.priority != selectedPriority).toList();
+    if (rulesToUpdate.isEmpty) return true;
+
+    final originalRules = List<TaskRule>.of(rulesToUpdate);
+    final updatedRules = rulesToUpdate.map((rule) => rule.copyWith(priority: selectedPriority)).toList();
+
+    await appRepository.editTaskRules(updatedRules);
+
+    if (!context.mounted) return true;
+    messenger.showSnackBar(
+      AppSnackBar.success(
+        context,
+        Intl.plural(
+          updatedRules.length,
+          one: "Priority set to '${selectedPriority.label}' for 1 Task.",
+          other: "Priority set to '${selectedPriority.label}' for ${updatedRules.length} Tasks.",
+        ),
+        duration: const Duration(seconds: 5),
+        action: AppSnackBarAction(
+          label: 'UNDO',
+          onPressed: () async => appRepository.editTaskRules(originalRules),
+        ),
+      ),
+    );
+    return true;
   }
 
   static Future<void> duplicateTaskRule(BuildContext context, {required TaskRule taskRule}) async {

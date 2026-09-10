@@ -13,8 +13,8 @@ import '../../models/task/task_rule.dart';
 import '../../models/task/task_threshold/task_threshold.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
-import '../../theme.dart';
 import '../../utils/task_actions.dart';
+import 'task_rule_list_card.dart';
 
 String taskForecastDueLabel(DateTime dueLocal, DateTime nowLocal, String dateFormat) {
   final days = DateUtils.dateOnly(dueLocal).difference(DateUtils.dateOnly(nowLocal)).inDays;
@@ -298,39 +298,12 @@ class TaskRuleDisplayCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 spacing: 8,
                 children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    spacing: 8,
-                    children: [
-                      if (taskRule.interval != null)
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          spacing: 2,
-                          children: [
-                            Icon(taskRule.interval!.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                            Text(
-                              '${taskRule.repeat ? "Every " : "After "}${taskRule.interval!.toDisplayValue(distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit, dateFormat: appSettings.dateFormat)}',
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                                fontSize: 13,
-                              ),
-                            ),
-                          ],
-                        ),
-                      if (taskRule.delay != null && taskRule.delay!.isPositive)
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          spacing: 2,
-                          children: [
-                            Icon(Icons.history, size: 13, color: Theme.of(context).extension<ValueHighlightColors>()!.changed),
-                            Text(
-                              '+${taskRule.delay!.toDisplayValue(distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit, dateFormat: appSettings.dateFormat)}',
-                              style: TextStyle(color: Theme.of(context).extension<ValueHighlightColors>()!.changed, fontSize: 13),
-                            ),
-                          ],
-                        ),
-                    ],
-                  ),
+                  if (taskRule.interval != null)
+                    TaskIntervalText(
+                      interval: taskRule.interval!,
+                      delay: taskRule.delay,
+                      repeat: taskRule.repeat,
+                    ),
                   if (showStatus && !isCompleted && taskRule.interval != null)
                     Flexible(
                       child: _buildThresholdDetailRow(context, taskRule.interval!, taskRule.delay, status, statusColor, appSettings.distanceUnit, appSettings.altitudeUnit, forecastLabel: forecastLabel),

@@ -46,6 +46,7 @@ class _HomePageState extends State<HomePage> {
   final Set<String> _selectedTaskRules = {};
   bool _isDeletingTaskRules = false;
   bool _isCompletingTaskRules = false;
+  bool _isSettingTaskRulePriority = false;
 
   bool get _isTaskSelectionMode => _selectedTaskRules.isNotEmpty;
 
@@ -74,6 +75,21 @@ class _HomePageState extends State<HomePage> {
       setState(() => _selectedTaskRules.clear());
     } finally {
       if (mounted) setState(() => _isDeletingTaskRules = false);
+    }
+  }
+
+  Future<void> _setPriorityForSelectedTaskRules() async {
+    if (_isSettingTaskRulePriority) return;
+
+    final selectedTaskRules = Set<String>.of(_selectedTaskRules);
+    setState(() => _isSettingTaskRulePriority = true);
+
+    try {
+      final applied = await TaskActions.setTaskRulesPriority(context, taskRuleIds: selectedTaskRules);
+      if (!mounted || !applied) return;
+      setState(() => _selectedTaskRules.clear());
+    } finally {
+      if (mounted) setState(() => _isSettingTaskRulePriority = false);
     }
   }
 
@@ -138,7 +154,16 @@ class _HomePageState extends State<HomePage> {
                 title: Text('${_selectedTaskRules.length} selected'),
                 actions: [
                   IconButton(
-                    onPressed: _isDeletingTaskRules || _isCompletingTaskRules ? null : _deleteSelectedTaskRules,
+                    onPressed: _isDeletingTaskRules || _isCompletingTaskRules || _isSettingTaskRulePriority
+                        ? null
+                        : _setPriorityForSelectedTaskRules,
+                    icon: const Icon(Icons.traffic),
+                    tooltip: 'Set priority',
+                  ),
+                  IconButton(
+                    onPressed: _isDeletingTaskRules || _isCompletingTaskRules || _isSettingTaskRulePriority
+                        ? null
+                        : _deleteSelectedTaskRules,
                     icon: const Icon(Icons.delete),
                     tooltip: 'Delete selected',
                   ),
@@ -261,8 +286,10 @@ class _HomePageState extends State<HomePage> {
               TaskList(
                 controller: _taskListController,
                 selectedTaskRules: _selectedTaskRules,
-                onTaskRuleSelectionChanged: _isCompletingTaskRules ? null : _toggleTaskRuleSelection,
-                onSelectedTaskRulesCompleted: _isCompletingTaskRules ? null : _completeSelectedTaskRules,
+                onTaskRuleSelectionChanged:
+                    _isCompletingTaskRules || _isSettingTaskRulePriority ? null : _toggleTaskRuleSelection,
+                onSelectedTaskRulesCompleted:
+                    _isCompletingTaskRules || _isSettingTaskRulePriority ? null : _completeSelectedTaskRules,
               ),
           ],
         ),

@@ -1398,9 +1398,16 @@ Future<void> addRatings(Iterable<Rating> ratings) async {
     });
   }
 
-  Future<void> editTaskRule(TaskRule rule) async {
-    final updated = rule.copyWith(lastModified: DateTime.now().toUtc());
-    await database.taskDao.updateRule(updated.toCompanion());
+  Future<void> editTaskRules(Iterable<TaskRule> rules) async {
+    final ruleList = rules.toList();
+    if (ruleList.isEmpty) return;
+    final now = DateTime.now().toUtc();
+
+    await database.transaction(() async {
+      for (final rule in ruleList) {
+        await database.taskDao.updateRule(rule.copyWith(lastModified: now).toCompanion());
+      }
+    });
   }
 
   Future<void> addTaskEntries(Iterable<TaskEntry> entries) async {
@@ -1422,7 +1429,7 @@ Future<void> addRatings(Iterable<Rating> ratings) async {
   Future<void> _consumeTaskRuleDelay(String taskRuleId) async {
     final rule = _taskRules[taskRuleId];
     if (rule == null || rule.delay == null) return;
-    await editTaskRule(rule.copyWith(delay: null));
+    await editTaskRules([rule.copyWith(delay: null)]);
   }
 
   Future<void> editTaskEntry(Iterable<TaskEntry> entries) async {

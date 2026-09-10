@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
+import '../../models/context/context_position.dart';
 import '../../models/task/task_rule.dart';
 import '../../models/task/task_threshold/task_threshold.dart';
 import '../../theme.dart';
@@ -32,10 +34,10 @@ bool canQuickEditTaskDelay(TaskRule taskRule, AppSettings appSettings) {
   return delay == null || delay.runtimeType == interval.runtimeType;
 }
 
-String _delaySuffix(TaskThreshold interval) {
+String _delaySuffix(TaskThreshold interval, AppSettings appSettings) {
   return switch (interval) {
-    DistanceThreshold() => 'km',
-    ElevationThreshold() => 'm',
+    DistanceThreshold() => appSettings.distanceUnit,
+    ElevationThreshold() => appSettings.altitudeUnit,
     MovingTimeThreshold() || ElapsedTimeThreshold() => 'h',
     DurationThreshold() => 'days',
     ActivityCountThreshold() => 'rides',
@@ -47,11 +49,13 @@ String _delaySuffix(TaskThreshold interval) {
 bool _acceptsDecimals(TaskThreshold interval) =>
     interval is DistanceThreshold || interval is ElevationThreshold || interval is KilojoulesThreshold;
 
-String _delayValueString(TaskThreshold? delay) {
+String _delayValueString(TaskThreshold? delay, AppSettings appSettings) {
   return switch (delay) {
     null => '',
-    DistanceThreshold() => NumberFormat('0.#####', 'en_US').format(delay.meters / 1000),
-    ElevationThreshold() => NumberFormat('0.#####', 'en_US').format(delay.meters),
+    DistanceThreshold() => NumberFormat('0.#####', 'en_US')
+        .format(AppSettings.convertDistanceFromMeters(delay.meters, appSettings.distanceUnit)!),
+    ElevationThreshold() => NumberFormat('0.#####', 'en_US')
+        .format(AppSettings.convertElevationFromMeters(delay.meters, appSettings.altitudeUnit)!),
     MovingTimeThreshold() => delay.hours.inHours.toString(),
     ElapsedTimeThreshold() => delay.hours.inHours.toString(),
     DurationThreshold() => delay.days.inDays.toString(),
@@ -63,7 +67,7 @@ String _delayValueString(TaskThreshold? delay) {
 
 /// Builds a delay of the same type as [interval], or null when [rawValue] is
 /// empty or unparsable.
-TaskThreshold? _buildDelay(TaskThreshold interval, String rawValue) {
+TaskThreshold? _buildDelay(TaskThreshold interval, String rawValue, AppSettings appSettings) {
   final value = rawValue.trim();
   if (value.isEmpty) return null;
 
@@ -71,9 +75,10 @@ TaskThreshold? _buildDelay(TaskThreshold interval, String rawValue) {
     final parsed = double.tryParse(value);
     if (parsed == null || parsed <= 0) return null;
     return switch (interval) {
-      DistanceThreshold() => DistanceThreshold(parsed * 1000),
+      DistanceThreshold() =>
+        DistanceThreshold(AppSettings.convertDistanceToMeters(parsed, appSettings.distanceUnit)!),
       KilojoulesThreshold() => KilojoulesThreshold(parsed),
-      _ => ElevationThreshold(parsed),
+      _ => ElevationThreshold(ContextPosition.convertAltitudeToMeters(parsed, appSettings.altitudeUnit)!),
     };
   }
 
@@ -118,7 +123,7 @@ class _SetTaskDelaySheetState extends State<_SetTaskDelaySheet> {
   void initState() {
     super.initState();
     _interval = widget.taskRule.interval!;
-    _initialValue = _delayValueString(widget.taskRule.delay);
+    _initialValue = _delayValueString(widget.taskRule.delay, context.read<AppSettings>());
     _valueController = TextEditingController(text: _initialValue)
       // Preselect so typing replaces the existing delay instead of appending.
       ..selection = TextSelection(baseOffset: 0, extentOffset: _initialValue.length);
@@ -135,7 +140,7 @@ class _SetTaskDelaySheetState extends State<_SetTaskDelaySheet> {
   bool get _valueChanged =>
       double.tryParse(_valueController.text.trim()) != double.tryParse(_initialValue);
 
-  TaskThreshold? get _delay => _buildDelay(_interval, _valueController.text);
+  TaskThreshold? get _delay => _buildDelay(_interval, _valueController.text, context.read<AppSettings>());
 
   String? _validate(String? rawValue) {
     // An empty field clears the delay, so it stays valid.
@@ -161,6 +166,7 @@ class _SetTaskDelaySheetState extends State<_SetTaskDelaySheet> {
 
   @override
   Widget build(BuildContext context) {
+    final appSettings = context.watch<AppSettings>();
     return Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
       child: SafeArea(
@@ -207,7 +213,7 @@ class _SetTaskDelaySheetState extends State<_SetTaskDelaySheet> {
                                 validator: _validate,
                                 decoration: InputDecoration(
                                   labelText: 'Delay Value',
-                                  suffixText: _delaySuffix(_interval),
+                                  suffixText: _delaySuffix(_interval, appSettings),
                                   suffixIcon: _valueController.text.isEmpty
                                       ? null
                                       : IconButton(

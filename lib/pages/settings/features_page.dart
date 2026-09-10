@@ -8,6 +8,7 @@ import '../../icons/simple_icons.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/subscription_service.dart';
 import '../../widgets/sheets/checkbox_group.dart';
 import '../../widgets/sheets/radio_group.dart';
 import '../../widgets/text/section_title.dart';
@@ -24,7 +25,36 @@ class FeaturesPage extends StatelessWidget {
     final enabled = [
       if (settings.enableTimelineSetupGrouping) 'Setup Grouping',
       if (settings.enableTimelineReplacementDetection) 'Replacement Detection',
-      if (kDebugMode && settings.enableTimelineStravaContext) 'Strava Context',
+      if (settings.enableTimelineStravaContext) 'Strava Context',
+    ];
+    return enabled.isEmpty ? 'Off' : enabled.join(', ');
+  }
+
+  static String _categoricalAdjustmentSummary(AppSettings settings) {
+    final enabled = [
+      if (settings.enableMultiSelect) 'Multi-select',
+      if (settings.enableCountedSelect) 'Count occurrences',
+    ];
+    return enabled.isEmpty ? 'Off' : enabled.join(', ');
+  }
+
+  static const String _setupExtrasTitle = kDebugMode ? "Setup Tags, Images & Bookmarks" : "Setup Tags";
+
+  static String _setupExtrasSummary(AppSettings settings) {
+    final enabled = [
+      if (settings.enableSetupTags) 'Tags',
+      if (kDebugMode && settings.enableSetupImages) 'Images',
+      if (kDebugMode && settings.enableSetupBookmark) 'Bookmarks',
+    ];
+    return enabled.isEmpty ? 'Off' : enabled.join(', ');
+  }
+
+  static String _taskOptionsSummary(AppSettings settings) {
+    final enabled = [
+      if (settings.enableTaskTags) 'Tags',
+      if (settings.enableTaskPriority) 'Priority',
+      if (settings.enableTaskInterval) 'Interval',
+      if (settings.enableTaskDelay) 'Delay',
     ];
     return enabled.isEmpty ? 'Off' : enabled.join(', ');
   }
@@ -32,6 +62,7 @@ class FeaturesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
+    final subscriptionService = context.watch<SubscriptionService>();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Features')),
@@ -113,109 +144,75 @@ class FeaturesPage extends StatelessWidget {
               ),
               ListTile(
                 leading: const Icon(Icons.checklist_rtl),
-                title: const Text("Categorical Adjustment: Multi-select"),
-                subtitle: _offOnOptionWidgets[appSettings.enableMultiSelect] ?? const Text("-"),
+                title: const Text("Categorical Adjustment"),
+                subtitle: Text(_categoricalAdjustmentSummary(appSettings)),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => radioGroupSheet<bool>(
+                onTap: () => checkboxGroupSheet(
                   context: context,
-                  title: "Categorical Adjustment: Multi-select",
-                  value: appSettings.enableMultiSelect,
-                  optionWidgets: _offOnOptionWidgets,
-                  onChanged: (bool? newValue) {
-                    if (newValue == null) return;
-                    appSettings.enableMultiSelect = newValue;
-                    Navigator.pop(context);
-                  },
-                  infoText:
-                      'Adds a Multi-select option to Categorical Adjustments. '
-                      'Enable it for an adjustment to allow selecting multiple categories instead of only one.',
-                ),
-              ),
-              ListTile(
-                leading: const Icon(Icons.exposure_plus_1),
-                title: const Text("Categorical Adjustment: Count occurrences"),
-                subtitle: _offOnOptionWidgets[appSettings.enableCountedSelect] ?? const Text("-"),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => radioGroupSheet<bool>(
-                  context: context,
-                  title: "Categorical Adjustment: Count occurrences",
-                  value: appSettings.enableCountedSelect,
-                  optionWidgets: _offOnOptionWidgets,
-                  onChanged: (bool? newValue) {
-                    if (newValue == null) return;
-                    appSettings.enableCountedSelect = newValue;
-                    Navigator.pop(context);
-                  },
-                  infoText:
-                      'Adds a Count occurrences option to Categorical Adjustments. '
-                      'Enable it for an adjustment to record how many times each category is selected.',
+                  title: "Categorical Adjustment",
+                  infoText: 'Extra options for Categorical Adjustments. Each can be toggled on its own.',
+                  options: [
+                    CheckboxGroupSheetOption(
+                      title: 'Multi-select',
+                      subtitle: 'Allow selecting multiple categories instead of only one.',
+                      value: () => appSettings.enableMultiSelect,
+                      onChanged: (v) => appSettings.enableMultiSelect = v,
+                    ),
+                    CheckboxGroupSheetOption(
+                      title: 'Count occurrences',
+                      subtitle: 'Record how many times each category is selected.',
+                      value: () => appSettings.enableCountedSelect,
+                      onChanged: (v) => appSettings.enableCountedSelect = v,
+                    ),
+                  ],
                 ),
               ),
               ListTile(
                 leading: const Icon(Icons.tag),
-                title: const Text("Setup Tags"),
-                subtitle: _offOnOptionWidgets[appSettings.enableSetupTags] ?? const Text("-"),
+                title: const Text(_setupExtrasTitle),
+                subtitle: Text(_setupExtrasSummary(appSettings)),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => radioGroupSheet<bool>(
+                onTap: () => checkboxGroupSheet(
                   context: context,
-                  title: "Setup Tags",
-                  value: appSettings.enableSetupTags,
-                  optionWidgets: _offOnOptionWidgets,
-                  onChanged: (bool? newValue) {
-                    if (newValue == null) return;
-                    appSettings.enableSetupTags = newValue;
-                    if (!newValue) context.read<AppRepository>().deselectAllSetupTags();
-                    Navigator.pop(context);
-                  },
-                  infoText: 'Adds the option to add tags to Setups',
+                  title: _setupExtrasTitle,
+                  infoText: 'Extra ways to organize and annotate Setups. Each can be toggled on its own.',
+                  options: [
+                    CheckboxGroupSheetOption(
+                      title: 'Setup Tags',
+                      subtitle: 'Adds the option to add tags to Setups.',
+                      value: () => appSettings.enableSetupTags,
+                      onChanged: (v) {
+                        appSettings.enableSetupTags = v;
+                        if (!v) context.read<AppRepository>().deselectAllSetupTags();
+                      },
+                    ),
+                    if (kDebugMode)
+                      CheckboxGroupSheetOption(
+                        title: 'Setup Images',
+                        subtitle:
+                            'Attach images to setups. WARNING: images are stored only on this '
+                            'device. They are NOT included in cloud/Drive backups and will be lost on '
+                            'reinstall or when restoring from a backup. Use "Export Images" to move them '
+                            'to a new device.',
+                        value: () => appSettings.enableSetupImages,
+                        onChanged: (v) => appSettings.enableSetupImages = v,
+                      ),
+                    if (kDebugMode)
+                      CheckboxGroupSheetOption(
+                        title: 'Setup Bookmarks',
+                        subtitle:
+                            'Mark good setups with a bookmark so they stand out among all the '
+                            'setups you record. Bookmarks are stored with the setup and are '
+                            'included in backups and exports.',
+                        value: () => appSettings.enableSetupBookmark,
+                        onChanged: (v) {
+                          appSettings.enableSetupBookmark = v;
+                          if (!v) context.read<AppRepository>().setShowBookmarkedSetupsOnly(false);
+                        },
+                      ),
+                  ],
                 ),
               ),
-              if (kDebugMode)
-                ListTile(
-                  leading: const Icon(Icons.photo_library_outlined),
-                  title: const Text("Setup Images"),
-                  subtitle: _offOnOptionWidgets[appSettings.enableSetupImages] ?? const Text("-"),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                  onTap: () => radioGroupSheet<bool>(
-                    context: context,
-                    title: "Setup Images",
-                    value: appSettings.enableSetupImages,
-                    optionWidgets: _offOnOptionWidgets,
-                    onChanged: (bool? newValue) {
-                      if (newValue == null) return;
-                      appSettings.enableSetupImages = newValue;
-                      Navigator.pop(context);
-                    },
-                    infoText:
-                        'Attach images to setups. WARNING: images are stored only on this '
-                        'device. They are NOT included in cloud/Drive backups and will be lost on '
-                        'reinstall or when restoring from a backup. Use "Export Images" to move them '
-                        'to a new device.',
-                  ),
-                ),
-              if (kDebugMode)
-                ListTile(
-                  leading: const Icon(Icons.bookmark_border),
-                  title: const Text("Setup Bookmarks"),
-                  subtitle: _offOnOptionWidgets[appSettings.enableSetupBookmark] ?? const Text("-"),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                  onTap: () => radioGroupSheet<bool>(
-                    context: context,
-                    title: "Setup Bookmarks",
-                    value: appSettings.enableSetupBookmark,
-                    optionWidgets: _offOnOptionWidgets,
-                    onChanged: (bool? newValue) {
-                      if (newValue == null) return;
-                      appSettings.enableSetupBookmark = newValue;
-                      if (!newValue) context.read<AppRepository>().setShowBookmarkedSetupsOnly(false);
-                      Navigator.pop(context);
-                    },
-                    infoText:
-                        'Mark good setups with a bookmark so they stand out among all the '
-                        'setups you record. Bookmarks are stored with the setup and are '
-                        'included in backups and exports.',
-                  ),
-                ),
               ListTile(
                 leading: const Icon(Icons.view_agenda_outlined),
                 title: const Text("Timeline Grouping"),
@@ -240,16 +237,18 @@ class FeaturesPage extends StatelessWidget {
                       value: () => appSettings.enableTimelineReplacementDetection,
                       onChanged: (v) => appSettings.enableTimelineReplacementDetection = v,
                     ),
-                    if (kDebugMode)
-                      CheckboxGroupSheetOption(
-                        title: 'Strava Context',
-                        subtitle: 'Mark entries recorded during a ride as part of that activity.',
-                        value: () => appSettings.enableTimelineStravaContext,
-                        onChanged: (v) => appSettings.enableTimelineStravaContext = v,
-                      ),
-                    ],
-                  ),
+                    CheckboxGroupSheetOption(
+                      title: 'Strava Context',
+                      subtitle: subscriptionService.hasStravaEntitlement
+                          ? 'Mark entries recorded during a ride as part of that activity.'
+                          : 'Mark entries recorded during a ride as part of that activity. Needs a connected Strava subscription.',
+                      value: () => appSettings.enableTimelineStravaContext,
+                      onChanged: (v) => appSettings.enableTimelineStravaContext = v,
+                      enabled: appSettings.enableStrava && subscriptionService.hasStravaEntitlement,
+                    ),
+                  ],
                 ),
+              ),
               const Divider(),
               const SectionTitle(title: 'Tasks'),
               ListTile(
@@ -273,83 +272,50 @@ class FeaturesPage extends StatelessWidget {
               ),
               ListTile(
                 enabled: appSettings.enableTask,
-                leading: const Icon(Icons.tag),
-                title: const Text("Task Tags"),
-                subtitle: _offOnOptionWidgets[appSettings.enableTaskTags] ?? const Text("-"),
+                leading: const Icon(Icons.rule),
+                title: const Text("Task Tags, Priority, Interval & Delay"),
+                subtitle: Text(_taskOptionsSummary(appSettings)),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => radioGroupSheet<bool>(
+                onTap: () => checkboxGroupSheet(
                   context: context,
-                  title: "Task Tags",
-                  value: appSettings.enableTaskTags,
-                  optionWidgets: _offOnOptionWidgets,
-                  onChanged: (bool? newValue) {
-                    if (newValue == null) return;
-                    appSettings.enableTaskTags = newValue;
-                    if (!newValue) context.read<AppRepository>().deselectAllTaskRuleTags();
-                    Navigator.pop(context);
-                  },
-                  infoText: 'Adds the option to add tags to Task Rules',
-                ),
-              ),
-              ListTile(
-                enabled: appSettings.enableTask,
-                leading: const Icon(Icons.traffic),
-                title: const Text("Task Priority"),
-                subtitle: _offOnOptionWidgets[appSettings.enableTaskPriority] ?? const Text("-"),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => radioGroupSheet<bool>(
-                  context: context,
-                  title: "Task Priority",
-                  value: appSettings.enableTaskPriority,
-                  optionWidgets: _offOnOptionWidgets,
-                  onChanged: (bool? newValue) {
-                    if (newValue == null) return;
-                    appSettings.enableTaskPriority = newValue;
-                    if (!newValue) context.read<AppRepository>().selectAllTaskPriorities();
-                    Navigator.pop(context);
-                  },
-                  infoText: 'Shows the Priority field on tasks. Disable to simplify the task interface.',
-                ),
-              ),
-              ListTile(
-                enabled: appSettings.enableTask,
-                leading: const Icon(Icons.timer),
-                title: const Text("Task Interval"),
-                subtitle: _offOnOptionWidgets[appSettings.enableTaskInterval] ?? const Text("-"),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => radioGroupSheet<bool>(
-                  context: context,
-                  title: "Task Interval",
-                  value: appSettings.enableTaskInterval,
-                  optionWidgets: _offOnOptionWidgets,
-                  onChanged: (bool? newValue) {
-                    if (newValue == null) return;
-                    appSettings.enableTaskInterval = newValue;
-                    Navigator.pop(context);
-                  },
-                  infoText:
-                      "Adds an optional trigger to tasks with a progress bar based on time or, with Strava connected, activity stats like distance, elevation and ride time.",
-                ),
-              ),
-              ListTile(
-                enabled: appSettings.enableTask,
-                leading: const Icon(Icons.more_time_rounded),
-                title: const Text("Task Delay"),
-                subtitle: _offOnOptionWidgets[appSettings.enableTaskDelay] ?? const Text("-"),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => radioGroupSheet<bool>(
-                  context: context,
-                  title: "Task Delay",
-                  value: appSettings.enableTaskDelay,
-                  optionWidgets: _offOnOptionWidgets,
-                  onChanged: (bool? newValue) {
-                    if (newValue == null) return;
-                    appSettings.enableTaskDelay = newValue;
-                    Navigator.pop(context);
-                  },
-                  infoText:
-                      'Lets you postpone when a task becomes due, without changing its interval. '
-                      'A delay only applies once: completing the task clears it automatically.',
+                  title: "Task Tags, Priority, Interval & Delay",
+                  infoText: 'Extra fields and behaviors for Tasks. Each can be toggled on its own.',
+                  options: [
+                    CheckboxGroupSheetOption(
+                      title: 'Task Tags',
+                      subtitle: 'Adds the option to add tags to Task Rules.',
+                      value: () => appSettings.enableTaskTags,
+                      onChanged: (v) {
+                        appSettings.enableTaskTags = v;
+                        if (!v) context.read<AppRepository>().deselectAllTaskRuleTags();
+                      },
+                    ),
+                    CheckboxGroupSheetOption(
+                      title: 'Task Priority',
+                      subtitle: 'Shows the Priority field on tasks. Disable to simplify the task interface.',
+                      value: () => appSettings.enableTaskPriority,
+                      onChanged: (v) {
+                        appSettings.enableTaskPriority = v;
+                        if (!v) context.read<AppRepository>().selectAllTaskPriorities();
+                      },
+                    ),
+                    CheckboxGroupSheetOption(
+                      title: 'Task Interval',
+                      subtitle:
+                          "Adds an optional trigger to tasks with a progress bar based on time or, with "
+                          "Strava connected, activity stats like distance, elevation and ride time.",
+                      value: () => appSettings.enableTaskInterval,
+                      onChanged: (v) => appSettings.enableTaskInterval = v,
+                    ),
+                    CheckboxGroupSheetOption(
+                      title: 'Task Delay',
+                      subtitle:
+                          'Lets you postpone when a task becomes due, without changing its interval. '
+                          'A delay only applies once: completing the task clears it automatically.',
+                      value: () => appSettings.enableTaskDelay,
+                      onChanged: (v) => appSettings.enableTaskDelay = v,
+                    ),
+                  ],
                 ),
               ),
               if (kDebugMode)

@@ -172,9 +172,9 @@ class _SetupTileEmbeddedState extends State<SetupTileEmbedded> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         _embeddedContentInset,
-        6,
+        12,
         0,
-        6,
+        12,
       ),
       child: Text(
         'No changes',

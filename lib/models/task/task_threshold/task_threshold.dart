@@ -9,6 +9,7 @@ part 'elevation_threshold.dart';
 part 'moving_time_threshold.dart';
 part 'activity_count_threshold.dart';
 part 'datetime_threshold.dart';
+part 'kilojoules_threshold.dart';
 
 sealed class TaskThreshold {
   const TaskThreshold();
@@ -43,6 +44,7 @@ sealed class TaskThreshold {
       'dateTime' => DateTimeThreshold.fromJson(json),
       'count' => ActivityCountThreshold.fromJson(json),
       'elevation' => ElevationThreshold.fromJson(json),
+      'kilojoules' => KilojoulesThreshold.fromJson(json),
       _ => throw ArgumentError('Unknown TaskThreshold type: $type'),
     };
   }

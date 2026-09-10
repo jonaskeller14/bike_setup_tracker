@@ -514,6 +514,7 @@ extension StravaActivityDbMapper on StravaActivityDb {
       movingTime: Duration(seconds: movingTime),
       elapsedTime: Duration(seconds: elapsedTime),
       workoutType: workoutType,
+      averageWatts: averageWatts,
     );
   }
 }
@@ -559,6 +560,7 @@ extension StravaActivityMapper on StravaActivity {
       movingTime: Value<int>(movingTime.inSeconds),
       elapsedTime: Value<int>(elapsedTime.inSeconds),
       workoutType: Value<int?>(workoutType),
+      averageWatts: Value<double?>(averageWatts),
     );
   }
 }

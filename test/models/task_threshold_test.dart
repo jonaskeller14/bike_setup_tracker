@@ -73,6 +73,60 @@ void main() {
     });
   });
 
+  group('KilojoulesThreshold', () {
+    final context = contextWith(const ComponentStats(
+      distance: 5000,
+      elevationGain: 350,
+      movingTime: Duration(hours: 5),
+      elapsedTime: Duration(hours: 6),
+      activityCount: 5,
+      kilojoules: 350, // Diff: 350 kJ
+    ));
+
+    test('isMet returns true when kilojoules exceeds threshold', () {
+      const threshold = KilojoulesThreshold(300);
+      expect(threshold.isMet(context), isTrue);
+    });
+
+    test('isMet returns false when kilojoules is below threshold', () {
+      const threshold = KilojoulesThreshold(400);
+      expect(threshold.isMet(context), isFalse);
+    });
+
+    test('progress returns correct ratio', () {
+      const threshold = KilojoulesThreshold(700);
+      // Diff is 350 kJ. Ratio = 350 / 700 = 0.5
+      expect(threshold.progress(context), 0.5);
+    });
+
+    test('toJson and fromJson work correctly', () {
+      const threshold = KilojoulesThreshold(350);
+      final json = threshold.toJson();
+      expect(json['type'], 'kilojoules');
+      expect(json['kilojoules'], 350);
+
+      final parsed = TaskThreshold.fromJson(json) as KilojoulesThreshold;
+      expect(parsed.kilojoules, 350);
+      expect(parsed.iconData, Icons.bolt);
+      expect(parsed.toDisplayValue(), '350 kJ');
+      expect(parsed.isPositive, isTrue);
+      expect(parsed, threshold);
+    });
+
+    test('isMet handles delay correctly', () {
+      const threshold = KilojoulesThreshold(300);
+      const delay = KilojoulesThreshold(100);
+      // Total needed = 400 kJ. Diff = 350 kJ.
+      expect(threshold.isMet(context, delay: delay), isFalse);
+    });
+
+    test('delay of another kind is ignored', () {
+      const threshold = KilojoulesThreshold(300);
+      // A distance delay says nothing about kilojoules, so the 350 kJ still count.
+      expect(threshold.isMet(context, delay: const DistanceThreshold(100000)), isTrue);
+    });
+  });
+
   group('ElapsedTimeThreshold', () {
     final context = contextWith(const ComponentStats(
       distance: 5000,
@@ -136,6 +190,7 @@ void main() {
       expect(const MovingTimeThreshold(Duration(hours: 1)).requiresActivityData, isTrue);
       expect(const ElapsedTimeThreshold(Duration(hours: 1)).requiresActivityData, isTrue);
       expect(const ActivityCountThreshold(5).requiresActivityData, isTrue);
+      expect(const KilojoulesThreshold(100).requiresActivityData, isTrue);
     });
 
     test('is false for calendar thresholds', () {

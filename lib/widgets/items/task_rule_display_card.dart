@@ -449,6 +449,15 @@ class TaskRuleDisplayCard extends StatelessWidget {
         final rides = progress < 1.0 ? total - accumulated : accumulated - total;
         return '$rides ${_plural(rides, 'ride')} ${progress < 1.0 ? 'remaining' : 'exceeded'}';
 
+      case KilojoulesThreshold(:final kilojoules):
+        final total = kilojoules + (delay is KilojoulesThreshold ? delay.kilojoules : 0.0);
+        if (total <= 0) return null;
+        final diff = (total - progress * total).abs();
+        final fmt = NumberFormat.decimalPattern();
+        return progress < 1.0
+            ? '${fmt.format(diff.round())} kJ remaining'
+            : '${fmt.format(diff.round())} kJ exceeded';
+
       case DateTimeThreshold(:final deadline):
         final effectiveDeadline = deadline.add(delay is DurationThreshold ? delay.days : Duration.zero);
         final now = DateTime.now().toUtc();

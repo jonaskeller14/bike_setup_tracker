@@ -16,7 +16,8 @@ bool _intervalSupportsDelay(TaskThreshold interval) {
     MovingTimeThreshold() ||
     ElapsedTimeThreshold() ||
     DurationThreshold() ||
-    ActivityCountThreshold() => true,
+    ActivityCountThreshold() ||
+    KilojoulesThreshold() => true,
     DateTimeThreshold() => false,
   };
 }
@@ -38,12 +39,13 @@ String _delaySuffix(TaskThreshold interval) {
     MovingTimeThreshold() || ElapsedTimeThreshold() => 'h',
     DurationThreshold() => 'days',
     ActivityCountThreshold() => 'rides',
+    KilojoulesThreshold() => 'kJ',
     DateTimeThreshold() => '',
   };
 }
 
 bool _acceptsDecimals(TaskThreshold interval) =>
-    interval is DistanceThreshold || interval is ElevationThreshold;
+    interval is DistanceThreshold || interval is ElevationThreshold || interval is KilojoulesThreshold;
 
 String _delayValueString(TaskThreshold? delay) {
   return switch (delay) {
@@ -54,6 +56,7 @@ String _delayValueString(TaskThreshold? delay) {
     ElapsedTimeThreshold() => delay.hours.inHours.toString(),
     DurationThreshold() => delay.days.inDays.toString(),
     ActivityCountThreshold() => delay.count.toString(),
+    KilojoulesThreshold() => NumberFormat('0.#####', 'en_US').format(delay.kilojoules),
     DateTimeThreshold() => '',
   };
 }
@@ -69,6 +72,7 @@ TaskThreshold? _buildDelay(TaskThreshold interval, String rawValue) {
     if (parsed == null || parsed <= 0) return null;
     return switch (interval) {
       DistanceThreshold() => DistanceThreshold(parsed * 1000),
+      KilojoulesThreshold() => KilojoulesThreshold(parsed),
       _ => ElevationThreshold(parsed),
     };
   }

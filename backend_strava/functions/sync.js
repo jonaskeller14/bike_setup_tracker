@@ -192,6 +192,7 @@ async function syncFullHistory(athleteId) {
           movingTime: activity.moving_time,
           elapsedTime: activity.elapsed_time,
           workoutType: activity.workout_type ?? null,
+          averageWatts: activity.average_watts ?? null,
         });
 
         allActivitiesSaved++;

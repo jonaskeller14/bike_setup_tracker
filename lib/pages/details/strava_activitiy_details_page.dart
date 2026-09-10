@@ -71,6 +71,11 @@ class StravaActivitiyPageContent extends StatelessWidget {
     return "${(dist / hours).toStringAsFixed(1)} ${AppSettings.speedUnitForDistance(distanceUnit)}";
   }
 
+  String _formatPower(double? watts) {
+    if (watts == null) return "-";
+    return "${watts.round()} W";
+  }
+
   String _formatDuration(Duration duration) {
     String twoDigits(int n) => n.toString().padLeft(2, "0");
     final String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
@@ -229,7 +234,7 @@ class StravaActivitiyPageContent extends StatelessWidget {
               children: [
                 _statWidget(context, "Moving Time", _formatDuration(stravaActivity.movingTime)),
                 _statWidget(context, "Elapsed Time", _formatDuration(stravaActivity.elapsedTime)),
-                const Expanded(child: SizedBox()), // Placeholder for alignment
+                _statWidget(context, "Avg Power", _formatPower(stravaActivity.averageWatts)),
               ],
             ),
           ),

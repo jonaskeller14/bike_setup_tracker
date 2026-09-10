@@ -62,6 +62,7 @@ enum _ThresholdType {
   elapsedTime('Elapsed Time'),
   duration('Duration'),
   activityCount('Activity Count'),
+  kilojoules('Kilojoules (Accumulated Watts)'),
   dateTime('Date');
 
   final String label;
@@ -142,6 +143,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
     _ThresholdType.elapsedTime,
     _ThresholdType.duration,
     _ThresholdType.activityCount,
+    _ThresholdType.kilojoules,
   };
 
   /// An unset delay follows the trigger type, so the only thing left to do is
@@ -173,6 +175,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
       case ElapsedTimeThreshold(): return _ThresholdType.elapsedTime;
       case DurationThreshold(): return _ThresholdType.duration;
       case ActivityCountThreshold(): return _ThresholdType.activityCount;
+      case KilojoulesThreshold(): return _ThresholdType.kilojoules;
       case DateTimeThreshold(): return _ThresholdType.dateTime;
     }
   }
@@ -186,6 +189,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
       case MovingTimeThreshold(): return threshold.hours.inHours.toString();
       case ElapsedTimeThreshold(): return threshold.hours.inHours.toString();
       case DurationThreshold(): return threshold.days.inDays.toString();
+      case KilojoulesThreshold(): return NumberFormat('0.#####', 'en_US').format(threshold.kilojoules);
       case DateTimeThreshold(): return '';
     }
   }
@@ -259,6 +263,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
     _ThresholdType.movingTime,
     _ThresholdType.elapsedTime,
     _ThresholdType.activityCount,
+    _ThresholdType.kilojoules,
   };
 
   List<DropdownMenuItem<_ThresholdType?>> _intervalTypeItems(bool hasStravaEntitlement) {
@@ -305,6 +310,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
       typeItem(_ThresholdType.movingTime),
       typeItem(_ThresholdType.elapsedTime),
       typeItem(_ThresholdType.activityCount),
+      typeItem(_ThresholdType.kilojoules),
     ];
   }
 
@@ -350,6 +356,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
       case _ThresholdType.movingTime:
       case _ThresholdType.elapsedTime:
       case _ThresholdType.activityCount:
+      case _ThresholdType.kilojoules:
         return true;
       case _ThresholdType.none:
       case _ThresholdType.duration:
@@ -364,7 +371,8 @@ class _TaskRulePageState extends State<TaskRulePage> {
   List<TextInputFormatter>? _valueInputFormatters(_ThresholdType type) {
     return switch (type) {
       _ThresholdType.distance ||
-      _ThresholdType.elevation => [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$'))],
+      _ThresholdType.elevation ||
+      _ThresholdType.kilojoules => [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$'))],
       _ThresholdType.movingTime ||
       _ThresholdType.elapsedTime ||
       _ThresholdType.duration ||
@@ -382,6 +390,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
       _ThresholdType.activityCount => true,
       _ThresholdType.distance ||
       _ThresholdType.elevation ||
+      _ThresholdType.kilojoules ||
       _ThresholdType.dateTime ||
       _ThresholdType.none => false,
     };
@@ -439,6 +448,8 @@ class _TaskRulePageState extends State<TaskRulePage> {
         return DurationThreshold(Duration(days: intVal));
       case _ThresholdType.activityCount:
         return ActivityCountThreshold(intVal);
+      case _ThresholdType.kilojoules:
+        return KilojoulesThreshold(doubleVal);
       case _ThresholdType.dateTime:
         return date != null ? DateTimeThreshold(date) : null;
       case _ThresholdType.none:
@@ -853,14 +864,15 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                 _ThresholdType.elevation ||
                                 _ThresholdType.movingTime ||
                                 _ThresholdType.elapsedTime ||
-                                _ThresholdType.duration => Expanded(
+                                _ThresholdType.duration ||
+                                _ThresholdType.kilojoules => Expanded(
                                   child: TextFormField(
                                     key: const Key('taskRuleIntervalValue'),
                                     controller: _intervalValueController,
                                     focusNode: _intervalValueFocusNode,
                                     autovalidateMode: AutovalidateMode.onUserInteraction,
                                     keyboardType: TextInputType.numberWithOptions(
-                                      decimal: _intervalType == _ThresholdType.distance || _intervalType == _ThresholdType.elevation,
+                                      decimal: _intervalType == _ThresholdType.distance || _intervalType == _ThresholdType.elevation || _intervalType == _ThresholdType.kilojoules,
                                       signed: false,
                                     ),
                                     inputFormatters: _valueInputFormatters(_intervalType),
@@ -875,6 +887,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                         _ThresholdType.elapsedTime => 'h',
                                         _ThresholdType.duration => 'days',
                                         _ThresholdType.activityCount => 'rides',
+                                        _ThresholdType.kilojoules => 'kJ',
                                         _ => '',
                                       },
                                       border: const OutlineInputBorder(),
@@ -949,7 +962,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                         focusNode: _delayValueFocusNode,
                                         autovalidateMode: AutovalidateMode.onUserInteraction,
                                         keyboardType: TextInputType.numberWithOptions(
-                                          decimal: _delayType == _ThresholdType.distance || _delayType == _ThresholdType.elevation,
+                                          decimal: _delayType == _ThresholdType.distance || _delayType == _ThresholdType.elevation || _delayType == _ThresholdType.kilojoules,
                                           signed: false,
                                         ),
                                         inputFormatters: _valueInputFormatters(_delayType),
@@ -963,6 +976,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                             _ThresholdType.elapsedTime => 'h',
                                             _ThresholdType.duration => 'days',
                                             _ThresholdType.activityCount => 'rides',
+                                            _ThresholdType.kilojoules => 'kJ',
                                             _ => '',
                                           },
                                           suffixIcon: _delayValueController.text.isEmpty

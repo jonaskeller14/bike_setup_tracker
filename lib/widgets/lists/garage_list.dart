@@ -201,7 +201,8 @@ class _GarageListState extends State<GarageList> {
     });
   }
 
-  Widget _emptyPlaceholder(BuildContext context) {
+  Widget _emptyPlaceholder(BuildContext context, AppRepository appRepository) {
+    final filtered = appRepository.selectedBike != null && appRepository.bikes.isNotEmpty;
     return CustomScrollView(
       controller: widget.controller.scrollController,
       slivers: [
@@ -216,13 +217,22 @@ class _GarageListState extends State<GarageList> {
           hasScrollBody: false,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: EmptyStatePlaceholder(
-              icon: Bike.iconData,
-              title: 'No bikes yet',
-              subtitle: 'Add your first bike to get started.',
-              actionLabel: 'Add a bike',
-              onAction: () => BikeActions.addBike(context),
-            ),
+            child: filtered
+                ? EmptyStatePlaceholder(
+                    icon: Icons.filter_alt_off,
+                    title: 'No bikes match this filter',
+                    subtitle: 'The bike filter is hiding all bikes.',
+                    actionLabel: 'Clear filters',
+                    actionIcon: Icons.filter_alt_off,
+                    onAction: () => appRepository.onBikeTap(null),
+                  )
+                : EmptyStatePlaceholder(
+                    icon: Bike.iconData,
+                    title: 'No bikes yet',
+                    subtitle: 'Add your first bike to get started.',
+                    actionLabel: 'Add a bike',
+                    onAction: () => BikeActions.addBike(context),
+                  ),
           ),
         ),
       ],
@@ -269,7 +279,7 @@ class _GarageListState extends State<GarageList> {
     }
 
     return bikesList.isEmpty
-        ? _emptyPlaceholder(context)
+        ? _emptyPlaceholder(context, appRepository)
         : Listener(
             onPointerMove: _onPointerMove,
             onPointerUp: (_) => _stopEdgeScroll(),

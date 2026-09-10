@@ -23,7 +23,37 @@ class SetupList extends StatelessWidget {
 
   const SetupList({super.key, this.controller});
 
-  Widget _emptyPlaceholder(BuildContext context) {
+  bool _hasActiveFilters(AppRepository appRepository, AppSettings appSettings) {
+    return appRepository.selectedBike != null ||
+        appRepository.selectedSetupTags.isNotEmpty ||
+        appRepository.showBookmarkedSetupsOnly ||
+        !appSettings.displayShowSetups ||
+        !appSettings.displayShowActivities ||
+        !appSettings.displayShowTasks ||
+        !appSettings.displayShowInstallations ||
+        !appSettings.displayShowRatingEntries;
+  }
+
+  bool _hasAnyContent(AppRepository appRepository) {
+    return appRepository.setups.isNotEmpty ||
+        appRepository.taskEntries.isNotEmpty ||
+        appRepository.ratingEntries.isNotEmpty ||
+        appRepository.components.values.any((c) => c.installations.isNotEmpty);
+  }
+
+  void _clearFilters(AppRepository appRepository, AppSettings appSettings) {
+    appRepository.onBikeTap(null);
+    appRepository.deselectAllSetupTags();
+    appRepository.setShowBookmarkedSetupsOnly(false);
+    appSettings.displayShowSetups = true;
+    appSettings.displayShowActivities = true;
+    appSettings.displayShowTasks = true;
+    appSettings.displayShowInstallations = true;
+    appSettings.displayShowRatingEntries = true;
+  }
+
+  Widget _emptyPlaceholder(BuildContext context, AppRepository appRepository, AppSettings appSettings) {
+    final filtered = _hasActiveFilters(appRepository, appSettings) && _hasAnyContent(appRepository);
     return CustomScrollView(
       slivers: [
         const SliverToBoxAdapter(
@@ -37,13 +67,22 @@ class SetupList extends StatelessWidget {
           hasScrollBody: false,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: EmptyStatePlaceholder(
-              icon: Setup.iconData,
-              title: 'No entries yet',
-              subtitle: 'Record your first setup to start tracking your adjustments.',
-              actionLabel: 'Record a setup',
-              onAction: () => SetupActions.addSetup(context),
-            ),
+            child: filtered
+                ? EmptyStatePlaceholder(
+                    icon: Icons.filter_alt_off,
+                    title: 'Nothing matches this filter',
+                    subtitle: 'Your filters are hiding all entries.',
+                    actionLabel: 'Clear filters',
+                    actionIcon: Icons.filter_alt_off,
+                    onAction: () => _clearFilters(appRepository, appSettings),
+                  )
+                : EmptyStatePlaceholder(
+                    icon: Setup.iconData,
+                    title: 'No entries yet',
+                    subtitle: 'Record your first setup to start tracking your adjustments.',
+                    actionLabel: 'Record a setup',
+                    onAction: () => SetupActions.addSetup(context),
+                  ),
           ),
         ),
       ],
@@ -144,7 +183,7 @@ class SetupList extends StatelessWidget {
     );
 
     if (entries.isEmpty && !appRepository.isLoadingMoreStrava) {
-      return _emptyPlaceholder(context);
+      return _emptyPlaceholder(context, appRepository, appSettings);
     }
 
     final sections = <({DayHeaderRow header, List<TimelineRow> rows})>[];

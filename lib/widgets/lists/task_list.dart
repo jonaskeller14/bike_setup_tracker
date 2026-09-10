@@ -98,6 +98,7 @@ class _TaskListState extends State<TaskList> {
         title: 'Nothing due in this view',
         subtitle: 'Priority or tag filters are hiding tasks that need attention.',
         actionLabel: 'Clear filters',
+        actionIcon: Icons.filter_alt_off,
         onAction: () {
           repository.selectAllTaskPriorities();
           repository.deselectAllTaskRuleTags();

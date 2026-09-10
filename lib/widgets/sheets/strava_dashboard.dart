@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -163,25 +164,26 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
                     flex: 2,
                     child: _StravaSyncButton(stravaService: stravaService),
                   ),
-                  // Expanded(
-                  //   flex: 2,
-                  //   child: SizedBox(
-                  //     width: double.infinity,
-                  //     child: FilledButton.icon(
-                  //       onPressed: stravaService.isBusy
-                  //           ? null
-                  //           : () => stravaService.triggerFullHistorySync(),
-                  //       icon: stravaService.isBusy
-                  //           ? const SizedBox(
-                  //               height: 16,
-                  //               width: 16,
-                  //               child: CircularProgressIndicator(strokeWidth: 2),
-                  //             )
-                  //           : const Icon(Icons.sync),
-                  //       label: const Text("Full Sync"),
-                  //     ),
-                  //   ),
-                  // ),
+                  if (kDebugMode)
+                    Expanded(
+                      flex: 2,
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: FilledButton.icon(
+                          onPressed: stravaService.isBusy
+                              ? null
+                              : () => stravaService.triggerFullHistorySync(),
+                          icon: stravaService.isBusy
+                              ? const SizedBox(
+                                  height: 16,
+                                  width: 16,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                )
+                              : const Icon(Icons.sync),
+                          label: const Text("Full Sync"),
+                        ),
+                      ),
+                    ),
                 ] else ...[
                   Expanded(
                     child: SizedBox(

@@ -11,7 +11,6 @@ import '../../pages/details/setup_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../items/installation_list_tile.dart';
 import '../items/rating_entry_list_tile.dart';
-import 'setup_tile.dart';
 import '../items/strava_list_tile.dart';
 import '../items/task_entry_list_item.dart';
 import '../sheets/installation_sheet.dart';
@@ -21,6 +20,7 @@ import '../sticky_section.dart';
 import '../timeline_day_header.dart';
 import 'replacement_list_tile.dart';
 import 'setup_group_section.dart';
+import 'setup_tile.dart';
 import 'strava_context_wrapper.dart';
 
 class TimelineDaySection extends StatelessWidget{

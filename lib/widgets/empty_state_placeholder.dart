@@ -7,6 +7,7 @@ class EmptyStatePlaceholder extends StatelessWidget {
   final String? subtitle;
   final String? actionLabel;
   final VoidCallback? onAction;
+  final IconData actionIcon;
   final bool compact;
 
   const EmptyStatePlaceholder({
@@ -17,6 +18,7 @@ class EmptyStatePlaceholder extends StatelessWidget {
     this.subtitle,
     this.actionLabel,
     this.onAction,
+    this.actionIcon = Icons.add,
     this.compact = false,
   });
 
@@ -62,7 +64,7 @@ class EmptyStatePlaceholder extends StatelessWidget {
               SizedBox(height: compact ? 12 : 20),
               FilledButton.icon(
                 onPressed: onAction,
-                icon: const Icon(Icons.add),
+                icon: Icon(actionIcon),
                 label: Text(actionLabel!),
               ),
             ],

@@ -15,7 +15,8 @@ import '../items/rating_list_card.dart';
 class RatingList extends StatelessWidget {
   const RatingList({super.key});
 
-  Widget _emptyPlaceholder(BuildContext context) {
+  Widget _emptyPlaceholder(BuildContext context, AppRepository appRepository) {
+    final filtered = appRepository.selectedBike != null && appRepository.ratings.isNotEmpty;
     return CustomScrollView(
       slivers: [
         const SliverToBoxAdapter(child: RatingListFilterWidget()),
@@ -23,13 +24,22 @@ class RatingList extends StatelessWidget {
           hasScrollBody: false,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: EmptyStatePlaceholder(
-              icon: Rating.iconData,
-              title: 'No ratings yet',
-              subtitle: 'Create a rating template to evaluate your setups.',
-              actionLabel: 'Add a rating',
-              onAction: () => RatingActions.addRating(context),
-            ),
+            child: filtered
+                ? EmptyStatePlaceholder(
+                    icon: Icons.filter_alt_off,
+                    title: 'No ratings match this filter',
+                    subtitle: 'The bike filter is hiding all ratings.',
+                    actionLabel: 'Clear filters',
+                    actionIcon: Icons.filter_alt_off,
+                    onAction: () => appRepository.onBikeTap(null),
+                  )
+                : EmptyStatePlaceholder(
+                    icon: Rating.iconData,
+                    title: 'No ratings yet',
+                    subtitle: 'Create a rating template to evaluate your setups.',
+                    actionLabel: 'Add a rating',
+                    onAction: () => RatingActions.addRating(context),
+                  ),
           ),
         ),
       ],
@@ -65,7 +75,7 @@ class RatingList extends StatelessWidget {
     }
 
     return ratingsList.isEmpty
-        ? _emptyPlaceholder(context)
+        ? _emptyPlaceholder(context, appRepository)
         : ReorderableListView.builder(
             itemCount: ratingsList.length,
             padding: const EdgeInsets.only(bottom: 16+100),

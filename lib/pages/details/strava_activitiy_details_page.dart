@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -69,11 +72,6 @@ class StravaActivitiyPageContent extends StatelessWidget {
     final dist = AppSettings.convertDistanceFromMeters(meters, distanceUnit)!;
     final hours = duration.inSeconds / 3600;
     return "${(dist / hours).toStringAsFixed(1)} ${AppSettings.speedUnitForDistance(distanceUnit)}";
-  }
-
-  String _formatPower(double? watts) {
-    if (watts == null) return "-";
-    return "${watts.round()} W";
   }
 
   String _formatDuration(Duration duration) {
@@ -234,7 +232,7 @@ class StravaActivitiyPageContent extends StatelessWidget {
               children: [
                 _statWidget(context, "Moving Time", _formatDuration(stravaActivity.movingTime)),
                 _statWidget(context, "Elapsed Time", _formatDuration(stravaActivity.elapsedTime)),
-                _statWidget(context, "Avg Power", _formatPower(stravaActivity.averageWatts)),
+                _PowerStatTile(averageWatts: stravaActivity.averageWatts, kilojoules: stravaActivity.kilojoules),
               ],
             ),
           ),
@@ -488,5 +486,62 @@ class StravaActivitiyPageContent extends StatelessWidget {
     if (result is Setup) {
       await appRepository.addSetups([result]);
     }
+  }
+}
+
+class _PowerStatTile extends StatefulWidget {
+  final double? averageWatts;
+  final double? kilojoules;
+
+  const _PowerStatTile({required this.averageWatts, required this.kilojoules});
+
+  @override
+  State<_PowerStatTile> createState() => _PowerStatTileState();
+}
+
+class _PowerStatTileState extends State<_PowerStatTile> {
+  bool _showKilojoules = false;
+
+  String _formatPower(double? watts) {
+    if (watts == null) return "-";
+    return "${watts.round()} W";
+  }
+
+  String _formatKilojoules(double? kilojoules) {
+    if (kilojoules == null) return "-";
+    return "${kilojoules.round()} kJ";
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: InkWell(
+        onTap: () {
+          unawaited(HapticFeedback.selectionClick());
+          setState(() => _showKilojoules = !_showKilojoules);
+        },
+        borderRadius: BorderRadius.circular(8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              _showKilojoules ? "Energy" : "Avg Power",
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                letterSpacing: 0.5,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              _showKilojoules ? _formatKilojoules(widget.kilojoules) : _formatPower(widget.averageWatts),
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w400,
+                fontSize: 22,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

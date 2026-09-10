@@ -143,7 +143,7 @@ class FeaturesPage extends StatelessWidget {
                 ),
               ),
               ListTile(
-                leading: const Icon(Icons.checklist_rtl),
+                leading: const Icon(CategoricalAdjustment.iconData),
                 title: const Text("Categorical Adjustment"),
                 subtitle: Text(_categoricalAdjustmentSummary(appSettings)),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
@@ -272,7 +272,7 @@ class FeaturesPage extends StatelessWidget {
               ),
               ListTile(
                 enabled: appSettings.enableTask,
-                leading: const Icon(Icons.rule),
+                leading: const Icon(Icons.tag),
                 title: const Text("Task Tags, Priority, Interval & Delay"),
                 subtitle: Text(_taskOptionsSummary(appSettings)),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),

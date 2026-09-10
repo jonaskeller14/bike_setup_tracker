@@ -136,6 +136,19 @@ class $ComponentsTable extends Components
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
+  static const VerificationMeta _initialKilojoulesMeta = const VerificationMeta(
+    'initialKilojoules',
+  );
+  @override
+  late final GeneratedColumn<double> initialKilojoules =
+      GeneratedColumn<double>(
+        'initial_kilojoules',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(0.0),
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -150,6 +163,7 @@ class $ComponentsTable extends Components
     initialMovingTime,
     initialElapsedTime,
     initialActivityCount,
+    initialKilojoules,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -221,6 +235,15 @@ class $ComponentsTable extends Components
         ),
       );
     }
+    if (data.containsKey('initial_kilojoules')) {
+      context.handle(
+        _initialKilojoulesMeta,
+        initialKilojoules.isAcceptableOrUnknown(
+          data['initial_kilojoules']!,
+          _initialKilojoulesMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -286,6 +309,10 @@ class $ComponentsTable extends Components
         DriftSqlType.int,
         data['${effectivePrefix}initial_activity_count'],
       )!,
+      initialKilojoules: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}initial_kilojoules'],
+      )!,
     );
   }
 
@@ -317,6 +344,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
   final Duration initialMovingTime;
   final Duration initialElapsedTime;
   final int initialActivityCount;
+  final double initialKilojoules;
   const ComponentDb({
     required this.id,
     required this.isDeleted,
@@ -330,6 +358,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     required this.initialMovingTime,
     required this.initialElapsedTime,
     required this.initialActivityCount,
+    required this.initialKilojoules,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -364,6 +393,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
       );
     }
     map['initial_activity_count'] = Variable<int>(initialActivityCount);
+    map['initial_kilojoules'] = Variable<double>(initialKilojoules);
     return map;
   }
 
@@ -383,6 +413,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
       initialMovingTime: Value(initialMovingTime),
       initialElapsedTime: Value(initialElapsedTime),
       initialActivityCount: Value(initialActivityCount),
+      initialKilojoules: Value(initialKilojoules),
     );
   }
 
@@ -414,6 +445,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
       initialActivityCount: serializer.fromJson<int>(
         json['initialActivityCount'],
       ),
+      initialKilojoules: serializer.fromJson<double>(json['initialKilojoules']),
     );
   }
   @override
@@ -434,6 +466,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
       'initialMovingTime': serializer.toJson<Duration>(initialMovingTime),
       'initialElapsedTime': serializer.toJson<Duration>(initialElapsedTime),
       'initialActivityCount': serializer.toJson<int>(initialActivityCount),
+      'initialKilojoules': serializer.toJson<double>(initialKilojoules),
     };
   }
 
@@ -450,6 +483,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     Duration? initialMovingTime,
     Duration? initialElapsedTime,
     int? initialActivityCount,
+    double? initialKilojoules,
   }) => ComponentDb(
     id: id ?? this.id,
     isDeleted: isDeleted ?? this.isDeleted,
@@ -463,6 +497,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     initialMovingTime: initialMovingTime ?? this.initialMovingTime,
     initialElapsedTime: initialElapsedTime ?? this.initialElapsedTime,
     initialActivityCount: initialActivityCount ?? this.initialActivityCount,
+    initialKilojoules: initialKilojoules ?? this.initialKilojoules,
   );
   ComponentDb copyWithCompanion(ComponentsCompanion data) {
     return ComponentDb(
@@ -494,6 +529,9 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
       initialActivityCount: data.initialActivityCount.present
           ? data.initialActivityCount.value
           : this.initialActivityCount,
+      initialKilojoules: data.initialKilojoules.present
+          ? data.initialKilojoules.value
+          : this.initialKilojoules,
     );
   }
 
@@ -511,7 +549,8 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
           ..write('initialElevationGain: $initialElevationGain, ')
           ..write('initialMovingTime: $initialMovingTime, ')
           ..write('initialElapsedTime: $initialElapsedTime, ')
-          ..write('initialActivityCount: $initialActivityCount')
+          ..write('initialActivityCount: $initialActivityCount, ')
+          ..write('initialKilojoules: $initialKilojoules')
           ..write(')'))
         .toString();
   }
@@ -530,6 +569,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     initialMovingTime,
     initialElapsedTime,
     initialActivityCount,
+    initialKilojoules,
   );
   @override
   bool operator ==(Object other) =>
@@ -546,7 +586,8 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
           other.initialElevationGain == this.initialElevationGain &&
           other.initialMovingTime == this.initialMovingTime &&
           other.initialElapsedTime == this.initialElapsedTime &&
-          other.initialActivityCount == this.initialActivityCount);
+          other.initialActivityCount == this.initialActivityCount &&
+          other.initialKilojoules == this.initialKilojoules);
 }
 
 class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
@@ -562,6 +603,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
   final Value<Duration> initialMovingTime;
   final Value<Duration> initialElapsedTime;
   final Value<int> initialActivityCount;
+  final Value<double> initialKilojoules;
   final Value<int> rowid;
   const ComponentsCompanion({
     this.id = const Value.absent(),
@@ -576,6 +618,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     this.initialMovingTime = const Value.absent(),
     this.initialElapsedTime = const Value.absent(),
     this.initialActivityCount = const Value.absent(),
+    this.initialKilojoules = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ComponentsCompanion.insert({
@@ -591,6 +634,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     this.initialMovingTime = const Value.absent(),
     this.initialElapsedTime = const Value.absent(),
     this.initialActivityCount = const Value.absent(),
+    this.initialKilojoules = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        lastModified = Value(lastModified),
@@ -609,6 +653,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     Expression<int>? initialMovingTime,
     Expression<int>? initialElapsedTime,
     Expression<int>? initialActivityCount,
+    Expression<double>? initialKilojoules,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -627,6 +672,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
         'initial_elapsed_time': initialElapsedTime,
       if (initialActivityCount != null)
         'initial_activity_count': initialActivityCount,
+      if (initialKilojoules != null) 'initial_kilojoules': initialKilojoules,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -644,6 +690,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     Value<Duration>? initialMovingTime,
     Value<Duration>? initialElapsedTime,
     Value<int>? initialActivityCount,
+    Value<double>? initialKilojoules,
     Value<int>? rowid,
   }) {
     return ComponentsCompanion(
@@ -659,6 +706,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
       initialMovingTime: initialMovingTime ?? this.initialMovingTime,
       initialElapsedTime: initialElapsedTime ?? this.initialElapsedTime,
       initialActivityCount: initialActivityCount ?? this.initialActivityCount,
+      initialKilojoules: initialKilojoules ?? this.initialKilojoules,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -716,6 +764,9 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     if (initialActivityCount.present) {
       map['initial_activity_count'] = Variable<int>(initialActivityCount.value);
     }
+    if (initialKilojoules.present) {
+      map['initial_kilojoules'] = Variable<double>(initialKilojoules.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -737,6 +788,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
           ..write('initialMovingTime: $initialMovingTime, ')
           ..write('initialElapsedTime: $initialElapsedTime, ')
           ..write('initialActivityCount: $initialActivityCount, ')
+          ..write('initialKilojoules: $initialKilojoules, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -9124,6 +9176,7 @@ typedef $$ComponentsTableCreateCompanionBuilder =
       Value<Duration> initialMovingTime,
       Value<Duration> initialElapsedTime,
       Value<int> initialActivityCount,
+      Value<double> initialKilojoules,
       Value<int> rowid,
     });
 typedef $$ComponentsTableUpdateCompanionBuilder =
@@ -9140,6 +9193,7 @@ typedef $$ComponentsTableUpdateCompanionBuilder =
       Value<Duration> initialMovingTime,
       Value<Duration> initialElapsedTime,
       Value<int> initialActivityCount,
+      Value<double> initialKilojoules,
       Value<int> rowid,
     });
 
@@ -9290,6 +9344,11 @@ class $$ComponentsTableFilterComposer
 
   ColumnFilters<int> get initialActivityCount => $composableBuilder(
     column: $table.initialActivityCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get initialKilojoules => $composableBuilder(
+    column: $table.initialKilojoules,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -9462,6 +9521,11 @@ class $$ComponentsTableOrderingComposer
     column: $table.initialActivityCount,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<double> get initialKilojoules => $composableBuilder(
+    column: $table.initialKilojoules,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ComponentsTableAnnotationComposer
@@ -9526,6 +9590,11 @@ class $$ComponentsTableAnnotationComposer
 
   GeneratedColumn<int> get initialActivityCount => $composableBuilder(
     column: $table.initialActivityCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get initialKilojoules => $composableBuilder(
+    column: $table.initialKilojoules,
     builder: (column) => column,
   );
 
@@ -9675,6 +9744,7 @@ class $$ComponentsTableTableManager
                 Value<Duration> initialMovingTime = const Value.absent(),
                 Value<Duration> initialElapsedTime = const Value.absent(),
                 Value<int> initialActivityCount = const Value.absent(),
+                Value<double> initialKilojoules = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ComponentsCompanion(
                 id: id,
@@ -9689,6 +9759,7 @@ class $$ComponentsTableTableManager
                 initialMovingTime: initialMovingTime,
                 initialElapsedTime: initialElapsedTime,
                 initialActivityCount: initialActivityCount,
+                initialKilojoules: initialKilojoules,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -9705,6 +9776,7 @@ class $$ComponentsTableTableManager
                 Value<Duration> initialMovingTime = const Value.absent(),
                 Value<Duration> initialElapsedTime = const Value.absent(),
                 Value<int> initialActivityCount = const Value.absent(),
+                Value<double> initialKilojoules = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ComponentsCompanion.insert(
                 id: id,
@@ -9719,6 +9791,7 @@ class $$ComponentsTableTableManager
                 initialMovingTime: initialMovingTime,
                 initialElapsedTime: initialElapsedTime,
                 initialActivityCount: initialActivityCount,
+                initialKilojoules: initialKilojoules,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

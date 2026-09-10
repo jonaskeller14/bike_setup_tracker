@@ -58,11 +58,14 @@ extension ComponentDbMapper on ComponentDb {
       adjustments: adjustments,
       installations: installations,
       orderIndex: orderIndex,
-      initialDistance: initialDistance,
-      initialElevationGain: initialElevationGain,
-      initialMovingTime: initialMovingTime,
-      initialElapsedTime: initialElapsedTime,
-      initialActivityCount: initialActivityCount,
+      initialStats: ComponentStats(
+        distance: initialDistance,
+        elevationGain: initialElevationGain,
+        movingTime: initialMovingTime,
+        elapsedTime: initialElapsedTime,
+        activityCount: initialActivityCount,
+        kilojoules: initialKilojoules,
+      ),
     );
   }
 }
@@ -210,11 +213,12 @@ extension ComponentMapper on Component {
       notes: Value<String?>(notes),
       componentType: Value<ComponentType>(componentType),
       orderIndex: Value<int>(orderIndex),
-      initialDistance: Value<double>(initialDistance),
-      initialElevationGain: Value<double>(initialElevationGain),
-      initialMovingTime: Value<Duration>(initialMovingTime),
-      initialElapsedTime: Value<Duration>(initialElapsedTime),
-      initialActivityCount: Value<int>(initialActivityCount),
+      initialDistance: Value<double>(initialStats.distance),
+      initialElevationGain: Value<double>(initialStats.elevationGain),
+      initialMovingTime: Value<Duration>(initialStats.movingTime),
+      initialElapsedTime: Value<Duration>(initialStats.elapsedTime),
+      initialActivityCount: Value<int>(initialStats.activityCount),
+      initialKilojoules: Value<double>(initialStats.kilojoules),
     );
   }
 }

@@ -108,6 +108,7 @@ void main() {
         initialMovingTime: Duration.zero,
         initialElapsedTime: Duration.zero,
         initialActivityCount: 0,
+        initialKilojoules: 0.0,
       );
       final model = data.toModel(
         adjustments: [

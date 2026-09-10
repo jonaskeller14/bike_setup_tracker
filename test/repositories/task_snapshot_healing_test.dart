@@ -448,7 +448,7 @@ void main() {
         name: "Chain",
         componentType: ComponentType.chain,
         installations: [Installation.sinceBeginning(parent: bike.id)],
-        initialDistance: 0.0,
+        initialStats: ComponentStats.zero(),
       );
       await repository.addComponents([component]);
 
@@ -471,7 +471,9 @@ void main() {
 
       // Bump the component's initial distance (e.g. a used part). The snapshot,
       // which includes initial stats, must reflect the new baseline.
-      await repository.editComponent(component.copyWith(initialDistance: 25000.0));
+      await repository.editComponent(component.copyWith(
+        initialStats: const ComponentStats(distance: 25000.0),
+      ));
       await pumpEventQueue();
 
       expect(repository.taskEntries[entry.id]?.snapshot?.distance, 25000.0);
@@ -817,7 +819,9 @@ void main() {
       await database.taskDao.insertEntry(unrelatedEntry.toCompanion());
       await database.taskDao.insertEntry(bikeOnlyEntry.toCompanion());
 
-      await repository.editComponent(target.copyWith(initialDistance: 1000.0));
+      await repository.editComponent(target.copyWith(
+        initialStats: const ComponentStats(distance: 1000.0),
+      ));
 
       final entries = {
         for (final entry in await database.taskDao.getAllEntriesBypass()) entry.id: entry.toModel(),

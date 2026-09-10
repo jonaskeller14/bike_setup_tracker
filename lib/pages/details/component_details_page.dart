@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
-import '../../models/component_stats.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/setup_activity_analysis_service.dart';
@@ -220,15 +219,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (appSettings.enableStrava && subscriptionService.hasStravaEntitlement) ...[
-                ComponentStatsCard(
-                  componentStats: ComponentStats(
-                    distance: component.totalDistance,
-                    elevationGain: component.totalElevationGain,
-                    movingTime: component.totalMovingTime,
-                    elapsedTime: component.totalElapsedTime,
-                    activityCount: component.totalActivityCount,
-                  ),
-                ),
+                ComponentStatsCard(componentStats: component.totalStats),
                 const Divider(height: 1),
               ],
 

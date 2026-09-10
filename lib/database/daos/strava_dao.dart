@@ -185,7 +185,7 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
         c.initial_moving_time + COALESCE(s.moving_time, 0) as moving_time,
         c.initial_elapsed_time + COALESCE(s.elapsed_time, 0) as elapsed_time,
         c.initial_activity_count + COALESCE(s.activity_count, 0) as activity_count,
-        COALESCE(s.kilojoules, 0) as kilojoules
+        c.initial_kilojoules + COALESCE(s.kilojoules, 0) as kilojoules
       FROM components c
       LEFT JOIN (
         SELECT
@@ -348,7 +348,7 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
         c.initial_moving_time + COALESCE(s.moving_time, 0) as moving_time,
         c.initial_elapsed_time + COALESCE(s.elapsed_time, 0) as elapsed_time,
         c.initial_activity_count + COALESCE(s.activity_count, 0) as activity_count,
-        COALESCE(s.kilojoules, 0) as kilojoules
+        c.initial_kilojoules + COALESCE(s.kilojoules, 0) as kilojoules
       FROM components c
       LEFT JOIN (
         SELECT

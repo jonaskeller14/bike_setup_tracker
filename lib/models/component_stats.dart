@@ -7,11 +7,11 @@ class ComponentStats {
   final double kilojoules;
 
   const ComponentStats({
-    required this.distance,
-    required this.elevationGain,
-    required this.movingTime,
-    required this.elapsedTime,
-    required this.activityCount,
+    this.distance = 0,
+    this.elevationGain = 0,
+    this.movingTime = Duration.zero,
+    this.elapsedTime = Duration.zero,
+    this.activityCount = 0,
     this.kilojoules = 0,
   });
 

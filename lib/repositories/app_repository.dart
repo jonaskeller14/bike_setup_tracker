@@ -590,11 +590,7 @@ class AppRepository extends ChangeNotifier {
     _components = {
       for (var entry in _components.entries)
         entry.key: entry.value.copyWith(
-          totalDistance: _componentStats[entry.key]?.distance ?? entry.value.initialDistance,
-          totalElevationGain: _componentStats[entry.key]?.elevationGain ?? entry.value.initialElevationGain,
-          totalMovingTime: _componentStats[entry.key]?.movingTime ?? entry.value.initialMovingTime,
-          totalElapsedTime: _componentStats[entry.key]?.elapsedTime ?? entry.value.initialElapsedTime,
-          totalActivityCount: _componentStats[entry.key]?.activityCount ?? entry.value.initialActivityCount,
+          totalStats: _componentStats[entry.key] ?? entry.value.initialStats,
         )
     };
 
@@ -1534,11 +1530,7 @@ Future<void> addComponents(Iterable<Component> components) async {
     final old = _components[component.id];
     return old == null ||
         !listEquals(old.installations, component.installations) ||
-        old.initialDistance != component.initialDistance ||
-        old.initialElevationGain != component.initialElevationGain ||
-        old.initialMovingTime != component.initialMovingTime ||
-        old.initialElapsedTime != component.initialElapsedTime ||
-        old.initialActivityCount != component.initialActivityCount;
+        old.initialStats != component.initialStats;
   }
 
   Future<void> _writeComponentWithData(Component updated) {

@@ -91,7 +91,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 14;
+  int get schemaVersion => 15;
 
   @override
   MigrationStrategy get migration {
@@ -200,6 +200,12 @@ class AppDatabase extends _$AppDatabase {
           // Strava activities gain `averageWatts`
           if (!await _columnExists('strava_activities', 'average_watts')) {
             await m.addColumn(stravaActivities, stravaActivities.averageWatts);
+          }
+        }
+        if (from < 15) {
+          // Components gain `initialKilojoules`
+          if (!await _columnExists('components', 'initial_kilojoules')) {
+            await m.addColumn(components, components.initialKilojoules);
           }
         }
       },

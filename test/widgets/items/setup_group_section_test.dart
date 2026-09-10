@@ -2,6 +2,7 @@ import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/widgets/current_setup_highlight.dart';
 import 'package:bike_setup_tracker/widgets/items/setup_group_section.dart';
 import 'package:bike_setup_tracker/widgets/items/setup_tile.dart';
+import 'package:bike_setup_tracker/widgets/items/setup_tile_embedded.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -57,7 +58,7 @@ void main() {
     await pumpGroup(tester);
 
     expect(find.text('3 Setups'), findsOneWidget);
-    expect(find.byType(SetupTile), findsNWidgets(3));
+    expect(find.byType(SetupTileEmbedded), findsNWidgets(3));
     expect(
       find.descendant(of: find.byType(SetupGroupSection), matching: find.byType(Card)),
       findsNothing,
@@ -73,7 +74,7 @@ void main() {
   testWidgets('one container binds every member', (tester) async {
     await pumpGroup(tester);
 
-    final tiles = find.byType(SetupTile);
+    final tiles = find.byType(SetupTileEmbedded);
     for (var i = 0; i < 3; i++) {
       expect(
         find.ancestor(of: tiles.at(i), matching: borderedContainer()),
@@ -90,10 +91,10 @@ void main() {
 
     expect(find.byType(CurrentSetupHighlight), findsOneWidget);
 
-    final highlighted = tester.widget<SetupTile>(
+    final highlighted = tester.widget<SetupTileEmbedded>(
       find.ancestor(
         of: find.byType(CurrentSetupHighlight),
-        matching: find.byType(SetupTile),
+        matching: find.byType(SetupTileEmbedded),
       ),
     );
     final currentId =

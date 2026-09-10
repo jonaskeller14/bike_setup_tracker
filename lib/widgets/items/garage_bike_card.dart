@@ -289,10 +289,11 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    ReorderableDragStartListener(
-                      index: widget.index,
-                      child: const Icon(Icons.drag_handle),
-                    ),
+                    if (!widget.selectionMode)
+                      ReorderableDragStartListener(
+                        index: widget.index,
+                        child: const Icon(Icons.drag_handle),
+                      ),
                     if (!widget.selectionMode)
                       PopupMenuButton<_BikeOptions>(
                         onSelected: (value) async {

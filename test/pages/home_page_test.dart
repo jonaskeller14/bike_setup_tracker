@@ -422,6 +422,7 @@ void main() {
       await _liftAndDrop(tester, _bikeCardTitle('First bike'));
 
       expect(_appBarTitle(tester), '1 selected');
+      expect(find.byIcon(Icons.drag_handle), findsNothing);
 
       await tester.ensureVisible(_bikeCardTitle('Second bike'));
       await tester.pumpAndSettle();

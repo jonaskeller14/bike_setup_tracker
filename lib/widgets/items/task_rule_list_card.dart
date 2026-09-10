@@ -341,12 +341,11 @@ class TaskRuleListCard extends StatelessWidget {
                 ),
               if (!isCompleted && taskRule.interval != null) ...[
                 const SizedBox(height: 8),
-                LinearProgressIndicator(
-                  value: status.progress.clamp(0.0, 1.0),
-                  backgroundColor: statusColor.withValues(alpha: 0.1),
-                  color: statusColor,
-                  minHeight: 4,
-                  borderRadius: BorderRadius.circular(2),
+                TaskProgressBar(
+                  interval: taskRule.interval!,
+                  delay: taskRule.delay,
+                  progress: status.progress,
+                  statusColor: statusColor,
                 ),
               ],
             ],
@@ -451,14 +450,32 @@ class TaskRuleListCard extends StatelessWidget {
   }
 }
 
-/// Whether the unit reads as plural, judged on the interval and its delay
-/// together: a delayed "1 ride" interval shows as "Every 1+1 rides".
-bool _isPlural(TaskThreshold interval, TaskThreshold? delay) => switch (interval) {
-  DurationThreshold(:final days) =>
-    days.inDays + (delay is DurationThreshold ? delay.days.inDays : 0) != 1,
-  ActivityCountThreshold(:final count) =>
-    count + (delay is ActivityCountThreshold ? delay.count : 0) != 1,
+/// Whether the unit reads as plural for the value actually shown.
+bool _isPlural(TaskThreshold threshold) => switch (threshold) {
+  DurationThreshold(:final days) => days.inDays != 1,
+  ActivityCountThreshold(:final count) => count != 1,
   _ => true,
+};
+
+/// The interval and its delay added up: the target this cycle really runs to,
+/// and the one the progress bar measures against. Null when the two cannot be
+/// added — a deadline, or a delay of another kind.
+TaskThreshold? _combined(TaskThreshold interval, TaskThreshold delay) => switch ((interval, delay)) {
+  (DistanceThreshold(:final meters), DistanceThreshold(meters: final extra)) =>
+    DistanceThreshold(meters + extra),
+  (ElevationThreshold(:final meters), ElevationThreshold(meters: final extra)) =>
+    ElevationThreshold(meters + extra),
+  (MovingTimeThreshold(:final hours), MovingTimeThreshold(hours: final extra)) =>
+    MovingTimeThreshold(hours + extra),
+  (ElapsedTimeThreshold(:final hours), ElapsedTimeThreshold(hours: final extra)) =>
+    ElapsedTimeThreshold(hours + extra),
+  (DurationThreshold(:final days), DurationThreshold(days: final extra)) =>
+    DurationThreshold(days + extra),
+  (ActivityCountThreshold(:final count), ActivityCountThreshold(count: final extra)) =>
+    ActivityCountThreshold(count + extra),
+  (KilojoulesThreshold(:final kilojoules), KilojoulesThreshold(kilojoules: final extra)) =>
+    KilojoulesThreshold(kilojoules + extra),
+  _ => null,
 };
 
 /// A threshold's display value split into its number and its unit, so an
@@ -489,13 +506,14 @@ bool _isPlural(TaskThreshold interval, TaskThreshold? delay) => switch (interval
   };
 }
 
-/// The interval a task rule runs on, with a delay of the same kind folded into
-/// the number — "Every 10+1 rides" — so the two share one unit and one row. The
-/// delay keeps its own colour because it is spent on the next completion rather
-/// than being a permanent part of the interval.
+/// The interval a task rule runs on. A delay of the same kind supersedes it —
+/// "Every 1̶0̶ 22 rides" — so the number that governs this cycle is the one that
+/// stands out, and it is the very number the progress bar measures against.
+/// The struck-through original stays readable, and matches the card title's own
+/// line-through for a rule that no longer applies.
 ///
-/// A delay that cannot be folded — a deadline interval, or a delay of another
-/// kind, both only reachable from legacy data — keeps a chip of its own.
+/// A delay that cannot be added to the interval — a deadline, or a delay of
+/// another kind, both only reachable from legacy data — keeps a chip of its own.
 class TaskIntervalText extends StatelessWidget {
   final TaskThreshold interval;
   final TaskThreshold? delay;
@@ -527,23 +545,30 @@ class TaskIntervalText extends StatelessWidget {
     final prefix = repeat ? 'Every ' : 'After ';
     final activeDelay = delay != null && delay!.isPositive ? delay : null;
 
-    final plural = _isPlural(interval, activeDelay);
-    final intervalParts = _thresholdParts(interval, appSettings, plural: plural);
-    final delayParts = activeDelay != null && activeDelay.runtimeType == interval.runtimeType
-        ? _thresholdParts(activeDelay, appSettings, plural: plural)
-        : null;
+    final combined = activeDelay == null ? null : _combined(interval, activeDelay);
+    final plural = _isPlural(combined ?? interval);
+    final originalParts = combined == null ? null : _thresholdParts(interval, appSettings, plural: plural);
+    final combinedParts = combined == null ? null : _thresholdParts(combined, appSettings, plural: plural);
 
-    if (intervalParts != null && delayParts != null) {
+    if (originalParts != null && combinedParts != null) {
       return _chip(
         context,
         icon: interval.iconData,
         iconColor: Theme.of(context).colorScheme.onSurfaceVariant,
         label: Text.rich(
           TextSpan(
-            text: '$prefix${intervalParts.number}',
+            text: prefix,
             children: [
-              TextSpan(text: '+${delayParts.number}', style: TextStyle(color: delayColor)),
-              TextSpan(text: ' ${intervalParts.unit}'),
+              TextSpan(
+                text: originalParts.number,
+                style: TextStyle(
+                  decoration: TextDecoration.lineThrough,
+                  decorationColor: mutedColor,
+                  decorationThickness: 1.5,
+                ),
+              ),
+              TextSpan(text: ' ${combinedParts.number}', style: TextStyle(color: delayColor)),
+              TextSpan(text: ' ${combinedParts.unit}'),
             ],
           ),
           style: TextStyle(color: mutedColor, fontSize: 13),
@@ -581,6 +606,82 @@ class TaskIntervalText extends StatelessWidget {
               style: TextStyle(color: delayColor, fontSize: 13),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Where the target sat before a delay pushed it out, as a fraction of the
+/// track. Null when there is nothing to mark: no delay, a delay of another kind
+/// (which never moves the target), or a deadline, whose track is a fixed lead
+/// window rather than a distance to the target.
+double? _originalTargetFraction(TaskThreshold interval, TaskThreshold? delay) {
+  if (delay == null || !delay.isPositive || interval is! AccumulatingThreshold) return null;
+  final total = interval.totalTarget(delay);
+  if (total <= 0) return null;
+  final fraction = interval.target / total;
+  return fraction > 0 && fraction < 1 ? fraction : null;
+}
+
+/// A task's progress, notched where the target sat before a delay moved it, so
+/// that crossing the notch reads as running on borrowed distance.
+///
+/// The notch is a cut rather than a second colour on purpose: the Due status
+/// colour is the very same orange as [ValueHighlightColors.changed], so a
+/// delay-tinted segment would disappear on the tasks most likely to carry a
+/// delay.
+class TaskProgressBar extends StatelessWidget {
+  static const double _height = 4;
+
+  /// Marks [_originalTargetFraction] for tests.
+  static const Key originalTargetKey = ValueKey('task-progress-original-target');
+
+  final TaskThreshold interval;
+  final TaskThreshold? delay;
+  final double progress;
+  final Color statusColor;
+
+  const TaskProgressBar({
+    super.key,
+    required this.interval,
+    required this.delay,
+    required this.progress,
+    required this.statusColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final bar = LinearProgressIndicator(
+      value: progress.clamp(0.0, 1.0),
+      backgroundColor: statusColor.withValues(alpha: 0.1),
+      color: statusColor,
+      minHeight: _height,
+      borderRadius: BorderRadius.circular(2),
+    );
+
+    final originalTarget = _originalTargetFraction(interval, delay);
+    if (originalTarget == null) return bar;
+
+    return Stack(
+      children: [
+        bar,
+        Positioned.fill(
+          child: Align(
+            alignment: Alignment(originalTarget * 2 - 1, 0),
+            child: SizedBox(
+              key: originalTargetKey,
+              width: 2,
+              height: _height,
+              // Reached, the notch cuts the filled bar; still ahead, it has only
+              // the faint track to stand out from and has to darken instead.
+              child: ColoredBox(
+                color: progress >= originalTarget
+                    ? Theme.of(context).colorScheme.surface
+                    : statusColor.withValues(alpha: 0.35),
+              ),
             ),
           ),
         ),

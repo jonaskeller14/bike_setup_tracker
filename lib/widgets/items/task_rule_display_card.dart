@@ -312,12 +312,11 @@ class TaskRuleDisplayCard extends StatelessWidget {
               ),
               if (showStatus && !isCompleted && taskRule.interval != null) ...[
                 const SizedBox(height: 8),
-                LinearProgressIndicator(
-                  value: status.progress.clamp(0.0, 1.0),
-                  backgroundColor: statusColor.withValues(alpha: 0.1),
-                  color: statusColor,
-                  minHeight: 4,
-                  borderRadius: BorderRadius.circular(2),
+                TaskProgressBar(
+                  interval: taskRule.interval!,
+                  delay: taskRule.delay,
+                  progress: status.progress,
+                  statusColor: statusColor,
                 ),
               ],
             ],

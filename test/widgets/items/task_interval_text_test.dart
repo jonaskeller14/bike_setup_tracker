@@ -7,9 +7,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// A delay is spent on the next completion, so it is folded into the interval
-/// number ("Every 10+1 rides") but keeps its own colour. Only a delay of the
-/// interval's own kind can be folded — anything else falls back to a chip.
+/// A delay supersedes the interval for one cycle, so the interval is struck
+/// through and the combined target — the number the progress bar measures
+/// against — is shown in its place. Only a delay of the interval's own kind can
+/// be added; anything else falls back to a chip.
 void main() {
   late AppSettings appSettings;
 
@@ -44,27 +45,34 @@ void main() {
     );
   }
 
-  /// The colour the '+1' span is painted in, or null when no such span exists.
-  Color? delaySpanColor(WidgetTester tester, String delayText) {
-    Color? found;
+  /// The style of the span carrying [text], or null when no such span exists.
+  TextStyle? spanStyle(WidgetTester tester, String text) {
+    TextStyle? found;
     tester.widget<Text>(find.byType(Text)).textSpan!.visitChildren((span) {
-      if (span is TextSpan && span.text == delayText) found = span.style?.color;
+      if (span is TextSpan && span.text == text) found = span.style;
       return true;
     });
     return found;
   }
 
-  testWidgets('folds a same-typed delay into the interval and colours it', (tester) async {
-    await tester.pumpWidget(wrap(const ActivityCountThreshold(10), delay: const ActivityCountThreshold(1)));
+  testWidgets('strikes the interval and colours the combined target', (tester) async {
+    await tester.pumpWidget(wrap(const ActivityCountThreshold(10), delay: const ActivityCountThreshold(12)));
 
-    expect(find.text('Every 10+1 rides', findRichText: true), findsOneWidget);
+    expect(find.text('Every 10 22 rides', findRichText: true), findsOneWidget);
     expect(find.byIcon(Icons.history), findsNothing);
-    expect(delaySpanColor(tester, '+1'), ValueHighlightColors.light.changed);
+    expect(spanStyle(tester, '10')?.decoration, TextDecoration.lineThrough);
+    // The line has to be told its colour; left unset it is the engine's call.
+    expect(
+      spanStyle(tester, '10')?.decorationColor,
+      tester.widget<Text>(find.byType(Text)).style?.color,
+    );
+    expect(spanStyle(tester, ' 22')?.color, ValueHighlightColors.light.changed);
+    expect(spanStyle(tester, ' 22')?.decoration, isNull);
   });
 
   testWidgets('pluralises on interval and delay combined', (tester) async {
     await tester.pumpWidget(wrap(const ActivityCountThreshold(1), delay: const ActivityCountThreshold(1)));
-    expect(find.text('Every 1+1 rides', findRichText: true), findsOneWidget);
+    expect(find.text('Every 1 2 rides', findRichText: true), findsOneWidget);
 
     await tester.pumpWidget(wrap(const ActivityCountThreshold(1)));
     expect(find.text('Every 1 ride'), findsOneWidget);
@@ -77,14 +85,14 @@ void main() {
       repeat: false,
     ));
 
-    expect(find.text('After 30+1 days', findRichText: true), findsOneWidget);
+    expect(find.text('After 30 31 days', findRichText: true), findsOneWidget);
   });
 
   testWidgets('prints the shared unit once, in the configured unit', (tester) async {
     appSettings.distanceUnit = 'mi';
     await tester.pumpWidget(wrap(const DistanceThreshold(1609.344), delay: const DistanceThreshold(1609.344)));
 
-    expect(find.text('Every 1+1 mi', findRichText: true), findsOneWidget);
+    expect(find.text('Every 1 2 mi', findRichText: true), findsOneWidget);
   });
 
   testWidgets('ignores a delay of zero', (tester) async {

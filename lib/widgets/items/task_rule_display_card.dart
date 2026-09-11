@@ -119,8 +119,6 @@ class TaskRuleDisplayCard extends StatelessWidget {
               decoration: isCompleted ? TextDecoration.lineThrough: null,
               decorationThickness: 2,
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
           ),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

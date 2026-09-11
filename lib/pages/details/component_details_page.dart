@@ -117,7 +117,17 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     }
 
     final component = appRepository.components[widget.componentId];
-    if (component == null) return const SizedBox.shrink();
+    if (component == null) {
+      return Scaffold(
+        appBar: AppBar(),
+        body: const SafeArea(
+          child: EmptyStatePlaceholder.error(
+            title: "Component not found",
+            subtitle: "This component was deleted or is no longer available.",
+          ),
+        ),
+      );
+    }
     final componentAdjustments = component.adjustments;
 
     final bikes = appRepository.bikes;

@@ -196,7 +196,7 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                 height: 40,
                 child: GestureDetector(
                   onTap: () async {
-                    await showSetupDetailsSheet(context: context, setup: setup);
+                    await showSetupDetailsSheet(context: context, setupId: setup.id);
                   },
                   child: SetupMapPin.icon(
                     isCurrent: setup.isCurrent,

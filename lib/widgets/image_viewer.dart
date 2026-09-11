@@ -1,14 +1,18 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+import '../models/setup.dart';
 import '../services/share_service.dart';
+import 'sheets/setup_details.dart';
 
 class ImageViewer extends StatefulWidget {
   final List<String> images;
   final String imagesDir;
   final int initialIndex;
   final void Function(int index)? onDelete;
+  final String? Function(String filename)? setupIdForImage;
 
   const ImageViewer({
     super.key,
@@ -16,6 +20,7 @@ class ImageViewer extends StatefulWidget {
     required this.imagesDir,
     this.initialIndex = 0,
     this.onDelete,
+    this.setupIdForImage,
   });
 
   @override
@@ -68,6 +73,8 @@ class _ImageViewerState extends State<ImageViewer> {
 
   @override
   Widget build(BuildContext context) {
+    final setupId = widget.setupIdForImage?.call(_images[_currentIndex]);
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -77,6 +84,12 @@ class _ImageViewerState extends State<ImageViewer> {
             ? Text('${_currentIndex + 1} / ${_images.length}')
             : null,
         actions: [
+          if (setupId != null)
+            IconButton(
+              tooltip: 'Show Setup',
+              icon: const Icon(Setup.iconData),
+              onPressed: () => unawaited(showSetupDetailsSheet(context: context, setupId: setupId)),
+            ),
           if (widget.onDelete != null)
             IconButton(
               icon: const Icon(Icons.delete_outline),

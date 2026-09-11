@@ -15,6 +15,7 @@ import '../../widgets/current_setup_badge.dart';
 import '../../widgets/current_setup_highlight.dart';
 import '../../widgets/display_adjustment/display_adjustment_list.dart';
 import '../../widgets/display_adjustment/display_dangling_adjustment.dart';
+import '../../widgets/empty_state_placeholder.dart';
 import '../../widgets/empty_state_placeholder2.dart';
 import '../../widgets/initial_changed_value_legend.dart';
 import '../../widgets/items/card_header_tile.dart';
@@ -159,34 +160,29 @@ class _SetupDetailsPageState extends State<SetupDetailsPage> {
         controller: _pageController,
         onPageChanged: (index) => setState(() => _currentPageIndex = index),
         itemCount: setups.length,
-        itemBuilder: (context, index) {
-          final Setup? setup = setups[index];
-          if (setup == null) return const Expanded(child: Center(child: Text("Setup not found.")));
-
-          return SetupDetailsPageContent(setup: setup);
-        },
+        itemBuilder: (context, index) => SetupDetailsPageContent(setupId: widget.setupIds[index]),
       )
     );
   }
 }
 
 class SetupDetailsPageContent extends StatelessWidget {
-  final Setup setup;
+  final String setupId;
   final bool showCompareAction;
   final bool showSheetActions;
   final bool showCloseButton;
 
-  const SetupDetailsPageContent._({super.key, required this.setup, this.showSheetActions = false, this.showCloseButton = false, this.showCompareAction = false});
+  const SetupDetailsPageContent._({super.key, required this.setupId, this.showSheetActions = false, this.showCloseButton = false, this.showCompareAction = false});
 
-  factory SetupDetailsPageContent({Key? key, required Setup setup}) {
-    return SetupDetailsPageContent._(key: key, setup: setup, showSheetActions: false, showCloseButton: false, showCompareAction: true);
+  factory SetupDetailsPageContent({Key? key, required String setupId}) {
+    return SetupDetailsPageContent._(key: key, setupId: setupId, showSheetActions: false, showCloseButton: false, showCompareAction: true);
   }
 
-  factory SetupDetailsPageContent.sheet({Key? key, required Setup setup}) {
-    return SetupDetailsPageContent._(key: key, setup: setup, showSheetActions: true, showCloseButton: true, showCompareAction: false);
+  factory SetupDetailsPageContent.sheet({Key? key, required String setupId}) {
+    return SetupDetailsPageContent._(key: key, setupId: setupId, showSheetActions: true, showCloseButton: true, showCompareAction: false);
   }
 
-  Future<void> _onSheetAction(BuildContext context, _SetupDetailsAction action) async {
+  Future<void> _onSheetAction(BuildContext context, _SetupDetailsAction action, {required Setup setup}) async {
     switch (action) {
       case _SetupDetailsAction.edit:
         await SetupActions.editSetup(context, setup: setup);
@@ -198,7 +194,7 @@ class SetupDetailsPageContent extends StatelessWidget {
     }
   }
 
-  Widget? _sheetCompareAction(BuildContext context) {
+  Widget? _sheetCompareAction(BuildContext context, {required Setup setup}) {
     final setups = context.read<AppRepository>().setups.values;
     final canCompare = SetupComparisonService.resolveTargets(setupB: setup, setups: setups) is SetupComparisonTargets;
     if (!canCompare) return null;
@@ -211,13 +207,13 @@ class SetupDetailsPageContent extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       onPressed: () async {
-        await _onSheetAction(context, _SetupDetailsAction.compare);
+        await _onSheetAction(context, _SetupDetailsAction.compare, setup: setup);
       },
       icon: Icon(_SetupDetailsAction.compare.icon),
     );
   }
 
-  Widget _sheetActions(BuildContext context) {
+  Widget _sheetActions(BuildContext context, {required Setup setup}) {
     final setups = context.read<AppRepository>().setups.values;
     final canCompare = SetupComparisonService.resolveTargets(setupB: setup, setups: setups) is SetupComparisonTargets;
     final actions = <_SetupDetailsAction>[
@@ -228,7 +224,7 @@ class SetupDetailsPageContent extends StatelessWidget {
     ];
     return PopupMenuButton<_SetupDetailsAction>(
       tooltip: 'Setup actions',
-      onSelected: (action) => _onSheetAction(context, action),
+      onSelected: (action) => _onSheetAction(context, action, setup: setup),
       itemBuilder: (context) => [
         for (final action in actions)
           PopupMenuItem(
@@ -257,7 +253,7 @@ class SetupDetailsPageContent extends StatelessWidget {
     final Color background = setup.isCurrent
         ? CurrentSetupHighlight.opaqueFill(colorScheme)
         : colorScheme.surface;
-    final Widget? compareAction = showCompareAction ? _sheetCompareAction(context) : null;
+    final Widget? compareAction = showCompareAction ? _sheetCompareAction(context, setup: setup) : null;
     final bool showBookmarkAction = appSettings.enableSetupBookmark;
 
     return SliverAppBar(
@@ -304,7 +300,7 @@ class SetupDetailsPageContent extends StatelessWidget {
             const SizedBox(width: 12),
           ?compareAction,
           if (showBookmarkAction) _SetupBookmarkAction(setupId: setup.id),
-          if (showSheetActions) _sheetActions(context),
+          if (showSheetActions) _sheetActions(context, setup: setup),
           if (showCloseButton)
             sheetCloseButton(context),
         ],
@@ -316,7 +312,7 @@ class SetupDetailsPageContent extends StatelessWidget {
     );
   }
 
-  PinnedHeaderSliver _sectionTitle(BuildContext context, {required String title}) {
+  PinnedHeaderSliver _sectionTitle(BuildContext context, {required Setup setup, required String title}) {
     final colorScheme = Theme.of(context).colorScheme;
 
     return PinnedHeaderSliver(
@@ -616,6 +612,15 @@ class SetupDetailsPageContent extends StatelessWidget {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
     final colorScheme = Theme.of(context).colorScheme;
+
+    final Setup? setup = appRepository.setups[setupId];
+    if (setup == null) {
+      return const EmptyStatePlaceholder.error(
+        title: "Setup not found",
+        subtitle: "This setup was deleted or is no longer available.",
+      );
+    }
+
     final bikes = appRepository.bikes;
     final persons = appRepository.persons;
     final components = appRepository.components;
@@ -645,14 +650,14 @@ class SetupDetailsPageContent extends StatelessWidget {
               slivers: [
                 SliverMainAxisGroup(
                   slivers: [
-                    _sectionTitle(context, title: "Context"),
+                    _sectionTitle(context, setup: setup, title: "Context"),
                     _contextSection(context, setup: setup, bike: bike, person: person),
                   ],
                 ),
                 SliverMainAxisGroup(
                   slivers: [
                     const SliverToBoxAdapter(child: Divider(height: 8)),
-                    _sectionTitle(context, title: "Values"),
+                    _sectionTitle(context, setup: setup, title: "Values"),
                     _valueSection(
                       context,
                       setup: setup,
@@ -670,7 +675,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                   SliverMainAxisGroup(
                     slivers: [
                       const SliverToBoxAdapter(child: Divider(height: 8)),
-                      _sectionTitle(context, title: "Ratings"),
+                      _sectionTitle(context, setup: setup, title: "Ratings"),
                       _ratingEntriesSection(context, setup: setup),
                     ],
                   ),

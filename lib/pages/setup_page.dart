@@ -407,7 +407,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     if (source == null) return;
     final service = ImageStorageService();
     if (source == ImageSource.camera) {
-      final picked = await picker.pickImage(source: ImageSource.camera);
+      final picked = await picker.pickImage(source: ImageSource.camera, preferredCameraDevice: CameraDevice.rear);
       if (picked == null) return;
       _onImagesAdded([await service.importImage(picked)]);
     } else {

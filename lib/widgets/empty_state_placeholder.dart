@@ -9,6 +9,7 @@ class EmptyStatePlaceholder extends StatelessWidget {
   final VoidCallback? onAction;
   final IconData actionIcon;
   final bool compact;
+  final bool isError;
 
   const EmptyStatePlaceholder({
     super.key,
@@ -20,12 +21,29 @@ class EmptyStatePlaceholder extends StatelessWidget {
     this.onAction,
     this.actionIcon = Icons.add,
     this.compact = false,
-  });
+  }) : isError = false;
+
+  const EmptyStatePlaceholder.error({
+    super.key,
+    this.icon = Icons.error_outline,
+    this.iconWidget,
+    required this.title,
+    this.subtitle,
+    this.actionLabel,
+    this.onAction,
+    this.actionIcon = Icons.refresh,
+    this.compact = false,
+  }) : isError = true;
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final Color iconColor = isError ? colors.error : colors.onSurfaceVariant.withValues(alpha: 0.35);
+    final Color titleColor = isError ? colors.error : colors.onSurfaceVariant.withValues(alpha: 0.7);
+    final Color subtitleColor = isError
+        ? colors.error.withValues(alpha: 0.7)
+        : colors.onSurfaceVariant.withValues(alpha: 0.5);
     return Center(
       child: Padding(
         padding: EdgeInsets.symmetric(
@@ -39,13 +57,13 @@ class EmptyStatePlaceholder extends StatelessWidget {
                 Icon(
                   icon,
                   size: compact ? 24 : 40,
-                  color: colors.onSurfaceVariant.withValues(alpha: 0.35),
+                  color: iconColor,
                 ),
             SizedBox(height: compact ? 8 : 16),
             Text(
               title,
               style: (compact ? textTheme.bodyMedium : textTheme.titleMedium)?.copyWith(
-                color: colors.onSurfaceVariant.withValues(alpha: 0.7),
+                color: titleColor,
                 fontWeight: FontWeight.w600,
               ),
               textAlign: TextAlign.center,
@@ -55,7 +73,7 @@ class EmptyStatePlaceholder extends StatelessWidget {
               Text(
                 subtitle!,
                 style: textTheme.bodySmall?.copyWith(
-                  color: colors.onSurfaceVariant.withValues(alpha: 0.5),
+                  color: subtitleColor,
                 ),
                 textAlign: TextAlign.center,
               ),

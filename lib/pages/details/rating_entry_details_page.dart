@@ -9,6 +9,7 @@ import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/rating_score_service.dart';
 import '../../utils/rating_entry_actions.dart';
+import '../../widgets/empty_state_placeholder.dart';
 import '../../widgets/items/context_location_card.dart';
 import '../../widgets/items/context_meta_card.dart';
 import '../../widgets/items/context_weather_card.dart';
@@ -51,9 +52,9 @@ class RatingEntryDetailsContent extends StatelessWidget {
     final ratingEntry = appRepository.ratingEntries[ratingEntryId];
 
     if (ratingEntry == null) {
-      return const Center(
-        heightFactor: 4,
-        child: Text("Rating not found."),
+      return const EmptyStatePlaceholder.error(
+        title: "Rating not found",
+        subtitle: "This rating was deleted or is no longer available.",
       );
     }
 
@@ -282,7 +283,7 @@ class RatingEntryDetailsContent extends StatelessWidget {
     await route?.popped;
     if (!navigator.mounted) return;
 
-    await showSetupDetailsSheet(context: navigator.context, setup: setup);
+    await showSetupDetailsSheet(context: navigator.context, setupId: setup.id);
   }
 
   List<Widget> _contextSection(BuildContext context, {required RatingEntry entry}) {

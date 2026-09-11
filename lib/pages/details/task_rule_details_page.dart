@@ -166,7 +166,12 @@ class _TaskRuleDetailsPageContentState extends State<TaskRuleDetailsPageContent>
     final appRepository = context.watch<AppRepository>();
 
     final taskRule = appRepository.taskRules[widget.taskRuleId];
-    if (taskRule == null) return const SizedBox.shrink();
+    if (taskRule == null) {
+      return const EmptyStatePlaceholder.error(
+        title: "Task not found",
+        subtitle: "This task was deleted or is no longer available.",
+      );
+    }
 
     final taskEntries = appRepository.taskEntries.values
         .where((te) => te.taskRule == taskRule.id)

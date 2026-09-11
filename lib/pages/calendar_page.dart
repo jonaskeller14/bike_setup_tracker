@@ -452,7 +452,7 @@ class _CalendarPageState extends State<CalendarPage> {
   Future<void> _openEntry(TimelineEntry entry) async {
     switch (entry) {
       case SetupEntry():
-        await showSetupDetailsSheet(context: context, setup: entry.setup);
+        await showSetupDetailsSheet(context: context, setupId: entry.setup.id);
       case StravaEntry():
         await showStravaActivitySheet(context: context, stravaActivity: entry.activity);
       case TaskTimeLineEntry():

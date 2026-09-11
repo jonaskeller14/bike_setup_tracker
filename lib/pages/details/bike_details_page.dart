@@ -13,6 +13,7 @@ import '../../services/subscription_service.dart';
 import '../../utils/bike_actions.dart';
 import '../../utils/component_actions.dart';
 import '../../widgets/display_data/component_stats_card.dart';
+import '../../widgets/empty_state_placeholder.dart';
 import '../../widgets/empty_state_placeholder2.dart';
 import '../../widgets/installation_timeline_table.dart';
 import '../../widgets/items/component_list_card.dart';
@@ -39,7 +40,17 @@ class BikeDetailsPage extends StatelessWidget {
     final subscriptionService = context.watch<SubscriptionService>();
 
     final bike = appRepository.bikes[bikeId];
-    if (bike == null) return const SizedBox.shrink();
+    if (bike == null) {
+      return Scaffold(
+        appBar: AppBar(),
+        body: const SafeArea(
+          child: EmptyStatePlaceholder.error(
+            title: "Bike not found",
+            subtitle: "This bike was deleted or is no longer available.",
+          ),
+        ),
+      );
+    }
 
     final person = appRepository.persons[bike.person];
     final stravaGear = appRepository.stravaGears[bike.stravaGear];

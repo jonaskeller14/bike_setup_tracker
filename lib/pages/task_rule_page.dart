@@ -70,6 +70,7 @@ enum _ThresholdType {
 }
 
 class _TaskRulePageState extends State<TaskRulePage> {
+  static const enableKiloJoules = false;
   late TextEditingController _nameController;
   late TextEditingController _notesController;
   late TextEditingController _intervalValueController;
@@ -310,7 +311,8 @@ class _TaskRulePageState extends State<TaskRulePage> {
       typeItem(_ThresholdType.movingTime),
       typeItem(_ThresholdType.elapsedTime),
       typeItem(_ThresholdType.activityCount),
-      typeItem(_ThresholdType.kilojoules),
+      if ((enableKiloJoules || kDebugMode) || widget.taskRule?.interval is KilojoulesThreshold)
+        typeItem(_ThresholdType.kilojoules),
     ];
   }
 

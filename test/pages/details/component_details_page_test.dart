@@ -15,7 +15,7 @@ import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/display_data/component_details_page_line_chart.dart';
 import 'package:bike_setup_tracker/widgets/display_data/component_details_page_radial_chart.dart';
-import 'package:bike_setup_tracker/widgets/display_data/component_details_page_table.dart';
+import 'package:bike_setup_tracker/widgets/display_data/setup_table.dart';
 import 'package:bike_setup_tracker/widgets/display_installation_timeline.dart';
 import 'package:bike_setup_tracker/widgets/lists/adjustment_edit_list.dart';
 import 'package:drift/drift.dart' show Value;
@@ -107,7 +107,7 @@ void main() {
       child: MaterialApp(
         theme: materialAppTheme,
         home: Scaffold(
-          body: ComponentDetailsPageTable(
+          body: SetupTable(
             key: ValueKey(setupCount),
             activeColumns: const [],
             setups: setups,
@@ -249,7 +249,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('No setups yet'), findsOneWidget);
-    expect(find.byType(ComponentDetailsPageTable), findsNothing);
+    expect(find.byType(SetupTable), findsNothing);
   });
 
   testWidgets('shows installation history for complex data when feature is disabled', (WidgetTester tester) async {
@@ -312,7 +312,7 @@ void main() {
 
     expect(find.text('No adjustments'), findsOneWidget);
     expect(find.text('No adjustments are defined for this component'), findsOneWidget);
-    expect(find.byType(ComponentDetailsPageTable), findsNothing);
+    expect(find.byType(SetupTable), findsNothing);
   });
 
   testWidgets('show placeholder when no columns are selected', (WidgetTester tester) async {
@@ -572,7 +572,7 @@ void main() {
     expect(find.text('New Fork Name'), findsOneWidget);
     expect(find.text('Rebound'), findsNothing);
     expect(find.text('No setups yet'), findsOneWidget);
-    expect(find.byType(ComponentDetailsPageTable), findsNothing);
+    expect(find.byType(SetupTable), findsNothing);
   });
 
   // ── Setup activity counts ─────────────────────────────────────────────────

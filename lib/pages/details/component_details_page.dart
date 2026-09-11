@@ -18,8 +18,8 @@ import '../../utils/table_column_comparator.dart';
 import '../../widgets/chips/filter_sheet_chip.dart';
 import '../../widgets/display_data/component_details_page_line_chart.dart';
 import '../../widgets/display_data/component_details_page_radial_chart.dart';
-import '../../widgets/display_data/component_details_page_table.dart';
 import '../../widgets/display_data/component_stats_card.dart';
+import '../../widgets/display_data/setup_table.dart';
 import '../../widgets/display_installation_timeline.dart';
 import '../../widgets/empty_state_placeholder.dart';
 import '../../widgets/initial_changed_value_legend.dart';
@@ -307,7 +307,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                 ),
               ),
               if (setups.isNotEmpty && activeColumns.isNotEmpty)
-                ComponentDetailsPageTable(
+                SetupTable(
                   activeColumns: activeColumns,
                   setups: setups,
                   selectedSetupIds: _selectedSetupIds!,

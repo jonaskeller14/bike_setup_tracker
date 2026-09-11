@@ -30,12 +30,14 @@ class TaskRuleDisplayCard extends StatelessWidget {
   final TaskRule taskRule;
   final bool showStatus;
   final String? heroTag;
+  final bool showForcast;
 
   const TaskRuleDisplayCard({
     super.key,
     required this.taskRule,
     required this.showStatus,
     this.heroTag,
+    this.showForcast = true,
   });
 
   /// A forecast carrying a rate sample was extrapolated from riding, so it
@@ -148,7 +150,7 @@ class TaskRuleDisplayCard extends StatelessWidget {
                         spacing: 8,
                         children: [
                           _buildThresholdDetailRow(context, taskRule.interval!, taskRule.delay, status, statusColor, appSettings.distanceUnit, appSettings.altitudeUnit),
-                          if (forecastLabel != null) _forecastWidget(context, forecastLabel, statusColor),
+                          if (showForcast && forecastLabel != null) _forecastWidget(context, forecastLabel, statusColor),
                         ],
                       ),
                     ),

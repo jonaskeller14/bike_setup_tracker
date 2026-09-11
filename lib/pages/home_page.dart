@@ -48,9 +48,12 @@ class _HomePageState extends State<HomePage> {
   bool _isDeletingTaskRules = false;
   bool _isCompletingTaskRules = false;
   bool _isSettingTaskRulePriority = false;
+  bool _isSettingTaskRuleTags = false;
   bool _isDeletingBikes = false;
 
   bool get _isTaskSelectionMode => _selectedTaskRules.isNotEmpty;
+  bool get _isTaskRuleActionRunning =>
+      _isDeletingTaskRules || _isCompletingTaskRules || _isSettingTaskRulePriority || _isSettingTaskRuleTags;
   bool get _isBikeSelectionMode => _selectedBikes.isNotEmpty;
 
   void _clearBikeSelection() => setState(() => _selectedBikes.clear());
@@ -117,6 +120,21 @@ class _HomePageState extends State<HomePage> {
       setState(() => _selectedTaskRules.clear());
     } finally {
       if (mounted) setState(() => _isSettingTaskRulePriority = false);
+    }
+  }
+
+  Future<void> _setTagsForSelectedTaskRules() async {
+    if (_isSettingTaskRuleTags) return;
+
+    final selectedTaskRules = Set<String>.of(_selectedTaskRules);
+    setState(() => _isSettingTaskRuleTags = true);
+
+    try {
+      final applied = await TaskActions.setTaskRulesTags(context, taskRuleIds: selectedTaskRules);
+      if (!mounted || !applied) return;
+      setState(() => _selectedTaskRules.clear());
+    } finally {
+      if (mounted) setState(() => _isSettingTaskRuleTags = false);
     }
   }
 
@@ -202,16 +220,18 @@ class _HomePageState extends State<HomePage> {
                 title: Text('${_selectedTaskRules.length} selected'),
                 actions: [
                   IconButton(
-                    onPressed: _isDeletingTaskRules || _isCompletingTaskRules || _isSettingTaskRulePriority
-                        ? null
-                        : _setPriorityForSelectedTaskRules,
+                    onPressed: _isTaskRuleActionRunning ? null : _setPriorityForSelectedTaskRules,
                     icon: const Icon(Icons.traffic),
                     tooltip: 'Set priority',
                   ),
+                  if (appSettings.enableTaskTags)
+                    IconButton(
+                      onPressed: _isTaskRuleActionRunning ? null : _setTagsForSelectedTaskRules,
+                      icon: const Icon(Icons.tag),
+                      tooltip: 'Set tags',
+                    ),
                   IconButton(
-                    onPressed: _isDeletingTaskRules || _isCompletingTaskRules || _isSettingTaskRulePriority
-                        ? null
-                        : _deleteSelectedTaskRules,
+                    onPressed: _isTaskRuleActionRunning ? null : _deleteSelectedTaskRules,
                     icon: const Icon(Icons.delete),
                     tooltip: 'Delete selected',
                   ),
@@ -342,9 +362,13 @@ class _HomePageState extends State<HomePage> {
                 controller: _taskListController,
                 selectedTaskRules: _selectedTaskRules,
                 onTaskRuleSelectionChanged:
-                    _isCompletingTaskRules || _isSettingTaskRulePriority ? null : _toggleTaskRuleSelection,
+                    _isCompletingTaskRules || _isSettingTaskRulePriority || _isSettingTaskRuleTags
+                    ? null
+                    : _toggleTaskRuleSelection,
                 onSelectedTaskRulesCompleted:
-                    _isCompletingTaskRules || _isSettingTaskRulePriority ? null : _completeSelectedTaskRules,
+                    _isCompletingTaskRules || _isSettingTaskRulePriority || _isSettingTaskRuleTags
+                    ? null
+                    : _completeSelectedTaskRules,
               ),
           ],
         ),

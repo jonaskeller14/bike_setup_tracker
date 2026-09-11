@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -9,6 +10,7 @@ import '../pages/task_rule_page.dart';
 import '../repositories/app_repository.dart';
 import '../widgets/app_snackbar.dart';
 import '../widgets/sheets/radio_group.dart';
+import '../widgets/sheets/set_tags_bulk.dart';
 import '../widgets/sheets/set_task_delay.dart';
 
 class TaskActions {
@@ -126,6 +128,58 @@ class TaskActions {
           updatedRules.length,
           one: "Priority set to '${selectedPriority.label}' for 1 Task.",
           other: "Priority set to '${selectedPriority.label}' for ${updatedRules.length} Tasks.",
+        ),
+        duration: const Duration(seconds: 5),
+        action: AppSnackBarAction(
+          label: 'UNDO',
+          onPressed: () async => appRepository.editTaskRules(originalRules),
+        ),
+      ),
+    );
+    return true;
+  }
+
+  static Future<bool> setTaskRulesTags(BuildContext context, {required Iterable<String> taskRuleIds}) async {
+    final appRepository = context.read<AppRepository>();
+    final messenger = ScaffoldMessenger.of(context);
+
+    final taskRules = taskRuleIds.map((id) => appRepository.taskRules[id]).whereType<TaskRule>().toList();
+    if (taskRules.isEmpty) return false;
+
+    final changes = await showSetTagsBulkSheet(
+      context: context,
+      itemTags: taskRules.map((rule) => rule.tags).toList(),
+      availableTags: appRepository.taskRuleTags,
+      title: 'Set Tags',
+      subtitle: 'Use tags to group and organize your tasks (e.g. maintenance, order list, setup test, ...)',
+      applyLabel: Intl.plural(
+        taskRules.length,
+        one: 'Apply to 1 Task',
+        other: 'Apply to ${taskRules.length} Tasks',
+      ),
+    );
+    if (changes == null) return false;
+
+    final originalRules = <TaskRule>[];
+    final updatedRules = <TaskRule>[];
+    for (final rule in taskRules) {
+      final newTags = changes.apply(rule.tags);
+      if (setEquals(newTags, rule.tags)) continue;
+      originalRules.add(rule);
+      updatedRules.add(rule.copyWith(tags: newTags));
+    }
+    if (updatedRules.isEmpty) return true;
+
+    await appRepository.editTaskRules(updatedRules);
+
+    if (!context.mounted) return true;
+    messenger.showSnackBar(
+      AppSnackBar.success(
+        context,
+        Intl.plural(
+          updatedRules.length,
+          one: 'Tags updated for 1 Task.',
+          other: 'Tags updated for ${updatedRules.length} Tasks.',
         ),
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(

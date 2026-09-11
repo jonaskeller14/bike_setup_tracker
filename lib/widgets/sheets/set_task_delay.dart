@@ -187,6 +187,7 @@ class _SetTaskDelaySheetState extends State<_SetTaskDelaySheet> {
                       TaskRuleDisplayCard(
                         taskRule: widget.taskRule.copyWith(delay: _delay),
                         showStatus: true,
+                        showForcast: false,
                       ),
                       const SizedBox(height: 16),
                       Form(

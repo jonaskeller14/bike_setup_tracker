@@ -21,6 +21,8 @@ import '../utils/installation_timeline_validation.dart';
 import '../utils/setup_actions.dart';
 import '../utils/timeline_grouping.dart';
 import '../widgets/app_snackbar.dart';
+import '../widgets/calendar_add_setup_appointment.dart';
+import '../widgets/calendar_entry_appointment.dart';
 import '../widgets/chips/filter_sheet_chip.dart';
 import '../widgets/sheets/installation_sheet.dart';
 import '../widgets/sheets/rating_entry_details.dart';
@@ -52,12 +54,6 @@ DateTime calendarSlotStart(DateTime date) => date.copyWith(
       millisecond: 0,
       microsecond: 0,
     );
-
-class CalendarAddSetupSlot {
-  const CalendarAddSetupSlot(this.date);
-
-  final DateTime date;
-}
 
 /// A task rule's predicted due date, drawn as a read-only ghost. Calendar-only
 /// by design: nothing about it is recorded, so it is not a [TimelineEntry].
@@ -858,13 +854,12 @@ class _CalendarPageState extends State<CalendarPage> {
 
     final row = details.appointments.first;
     if (row is CalendarAddSetupSlot) {
-      return _addSetupAppointment(context, details, row);
+      return CalendarAddSetupAppointment(details: details, slot: row, addSetupAtDate: _addSetupAtDate);
     }
     final cs = Theme.of(context).colorScheme;
     if (row is CalendarPredictedTask) {
-      return _entryAppointment(
-        context,
-        details,
+      return CalendarEntryAppointment(
+        details: details,
         icon: kCalendarPredictedTaskIcon,
         subject: row.name,
         color: cs.tertiary,
@@ -874,129 +869,12 @@ class _CalendarPageState extends State<CalendarPage> {
     }
     if (row is! EntryRow) return const SizedBox.shrink();
     final showSetupBookmark = context.read<AppSettings>().enableSetupBookmark;
-    return _entryAppointment(
-      context,
-      details,
+    return CalendarEntryAppointment(
+      details: details,
       icon: calendarIconForRow(row, showSetupBookmark: showSetupBookmark),
       subject: calendarSubjectForRow(row),
       color: calendarColorForRow(row, cs),
       contentColor: calendarOnColorForRow(row, cs),
-    );
-  }
-
-  /// The shared appointment body: it decides what still fits as the slot shrinks
-  /// and paints it either solid (a record) or as an outline (a [ghost] guess).
-  Widget _entryAppointment(
-    BuildContext context,
-    CalendarAppointmentDetails details, {
-    required IconData icon,
-    required String subject,
-    required Color color,
-    required Color contentColor,
-    bool ghost = false,
-  }) {
-    final height = details.bounds.height;
-    final width = details.bounds.width;
-    // Decide what fits so a narrow column (many concurrent events) never
-    // overflows: drop the label, then the icon, as space runs out. The label is
-    // gated mainly on width, so it still shows in the short-but-wide month rows.
-    final bool showIcon = width >= 16 && height >= 8;
-    final bool showText = width >= 40 && height >= 9;
-    final double baseIconSize = height < 16 ? 9 : (height < 20 ? 11 : 14);
-    final double fontSize = height < 18 ? 9 : (height < 28 ? 10 : 12);
-    // Slim parallel events (week view) can be narrow but tall: cap the icon to
-    // the width left after padding — and the icon/label gap when text shows —
-    // so a height-sized icon never spills past a thin column.
-    final double iconBudget = showText ? width - 12 : width - 4;
-    final double iconSize = iconBudget <= 0 ? 0 : (baseIconSize < iconBudget ? baseIconSize : iconBudget);
-
-    // Calculate how many full text lines can physically fit.
-    final double verticalPadding = height < 20 ? 0.0 : 4.0;
-    final double availableHeight = height - verticalPadding;
-    final double fontLineHeight = fontSize * 1.15;
-    final int maxLines = (availableHeight / fontLineHeight).floor().clamp(1, 100);
-
-    return Container(
-      clipBehavior: Clip.hardEdge,
-      decoration: BoxDecoration(
-        color: ghost ? Theme.of(context).colorScheme.surface : color,
-        border: ghost ? Border.all(color: color) : null,
-        borderRadius: BorderRadius.circular(4),
-      ),
-      padding: EdgeInsets.symmetric(
-        horizontal: showText ? 4 : 2,
-        vertical: verticalPadding / 2,
-      ),
-      alignment: Alignment.centerLeft,
-      child: !showIcon
-          ? const SizedBox.shrink()
-          : Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(icon, size: iconSize, color: contentColor),
-                if (showText) ...[
-                  const SizedBox(width: 4),
-                  Expanded(
-                    child: Text(
-                      subject,
-                      maxLines: maxLines,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: contentColor,
-                        fontSize: fontSize,
-                        height: 1.15,
-                      ),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-    );
-  }
-
-  Widget _addSetupAppointment(
-    BuildContext context,
-    CalendarAppointmentDetails details,
-    CalendarAddSetupSlot slot,
-  ) {
-    final cs = Theme.of(context).colorScheme;
-    final showIcon = details.bounds.width >= 24 && details.bounds.height >= 18;
-    final showLabel = showIcon && details.bounds.width >= 88;
-    return Material(
-      color: cs.primaryContainer,
-      shape: RoundedRectangleBorder(
-        side: BorderSide(color: cs.primary),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () => _addSetupAtDate(slot.date),
-        child: !showIcon
-            ? const SizedBox.expand()
-            : Center(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.add, size: 18, color: cs.onPrimaryContainer),
-                    if (showLabel) ...[
-                      const SizedBox(width: 2),
-                      Flexible(
-                        child: Text(
-                          'Add setup',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: cs.onPrimaryContainer,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-      ),
     );
   }
 }

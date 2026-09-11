@@ -46,21 +46,33 @@ class _TaskListState extends State<TaskList> {
     super.initState();
     _ownsController = widget.controller == null;
     _controller = widget.controller ?? ListScrollController();
+    _controller.addScrollToTopListener(_collapseSections);
   }
 
   @override
   void didUpdateWidget(covariant TaskList oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.controller == oldWidget.controller) return;
+    _controller.removeScrollToTopListener(_collapseSections);
     if (_ownsController) _controller.dispose();
     _ownsController = widget.controller == null;
     _controller = widget.controller ?? ListScrollController();
+    _controller.addScrollToTopListener(_collapseSections);
   }
 
   @override
   void dispose() {
+    _controller.removeScrollToTopListener(_collapseSections);
     if (_ownsController) _controller.dispose();
     super.dispose();
+  }
+
+  void _collapseSections() {
+    if (!_showAllUpcoming && !_showAllCompleted) return;
+    setState(() {
+      _showAllUpcoming = false;
+      _showAllCompleted = false;
+    });
   }
 
   Widget _taskRuleCard(String taskRuleId) {

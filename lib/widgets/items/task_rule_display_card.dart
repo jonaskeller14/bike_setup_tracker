@@ -191,8 +191,9 @@ class TaskRuleDisplayCard extends StatelessWidget {
     );
   }
 
-  /// The estimate to append to the detail row, or `null` when the prediction is
-  /// switched off, unavailable, or would only restate what the row already says.
+  /// The due-date estimate shown below the progress bar, or `null` when the
+  /// prediction is switched off, unavailable, or would only restate what the
+  /// detail row already says.
   ///
   /// A forecast without a rate sample was never extrapolated: time-based
   /// intervals count down in the very unit the detail row already shows, so
@@ -210,6 +211,24 @@ class TaskRuleDisplayCard extends StatelessWidget {
     final now = DateTime.now();
     final due = forecast!.dueDate.toLocal();
     return due.isAfter(now) ? taskForecastDueLabel(due, now, dateFormat) : null;
+  }
+
+  Widget _forecastWidget(BuildContext context, String forecastLabel) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      spacing: 2,
+      children: [
+        Icon(Icons.insights, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+        Text(
+          '≈ $forecastLabel',
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+            fontSize: 13,
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _tagsWidget(BuildContext context) {
@@ -306,7 +325,7 @@ class TaskRuleDisplayCard extends StatelessWidget {
                     ),
                   if (showStatus && !isCompleted && taskRule.interval != null)
                     Flexible(
-                      child: _buildThresholdDetailRow(context, taskRule.interval!, taskRule.delay, status, statusColor, appSettings.distanceUnit, appSettings.altitudeUnit, forecastLabel: forecastLabel),
+                      child: _buildThresholdDetailRow(context, taskRule.interval!, taskRule.delay, status, statusColor, appSettings.distanceUnit, appSettings.altitudeUnit),
                     ),
                 ],
               ),
@@ -318,6 +337,13 @@ class TaskRuleDisplayCard extends StatelessWidget {
                   progress: status.progress,
                   statusColor: statusColor,
                 ),
+                if (forecastLabel != null) ...[
+                  const SizedBox(height: 4),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: _forecastWidget(context, forecastLabel),
+                  ),
+                ],
               ],
             ],
           ),
@@ -328,7 +354,7 @@ class TaskRuleDisplayCard extends StatelessWidget {
     return heroTag == null ? card : Hero(tag: heroTag!, child: card);
   }
 
-  Widget _buildThresholdDetailRow(BuildContext context, TaskThreshold interval, TaskThreshold? delay, TaskStatus status, Color statusColor, String distanceUnit, String altitudeUnit, {String? forecastLabel}) {
+  Widget _buildThresholdDetailRow(BuildContext context, TaskThreshold interval, TaskThreshold? delay, TaskStatus status, Color statusColor, String distanceUnit, String altitudeUnit) {
     final detail = _thresholdDetail(interval, delay, status.progress, distanceUnit, altitudeUnit);
     if (detail == null) return const SizedBox.shrink();
     final isExceeded = status.isDue;
@@ -339,21 +365,8 @@ class TaskRuleDisplayCard extends StatelessWidget {
       children: [
         Icon(isExceeded ? Icons.warning_amber_rounded : Icons.arrow_forward, size: 13, color: statusColor),
         Flexible(
-          child: Text.rich(
-            TextSpan(
-              text: detail,
-              children: [
-                // Appended rather than given a row of its own, and last so the
-                // guess is the half that ellipsizes when the card gets narrow.
-                if (forecastLabel != null)
-                  TextSpan(
-                    text: ' · ≈ $forecastLabel',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                    ),
-                  ),
-              ],
-            ),
+          child: Text(
+            detail,
             style: TextStyle(color: statusColor, fontSize: 13),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,

@@ -107,48 +107,53 @@ class TaskRuleListCard extends StatelessWidget {
             ),
           ),
         ] else if (taskRule.bikeId != null) ...[
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            spacing: 2,
-            children: [
-              Icon(
-                Bike.iconData, 
-                size: 13,
-                color: bikes.containsKey(taskRule.bikeId) ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.error,
-              ),
-              Flexible(
-                child: Text(
-                  bikes[taskRule.bikeId]?.name ?? "BIKE NOT FOUND",
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: bikes.containsKey(taskRule.bikeId) ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8) : Theme.of(context).colorScheme.error,
-                    fontSize: 13,
+          Flexible(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              spacing: 2,
+              children: [
+                Icon(
+                  Bike.iconData, 
+                  size: 13,
+                  color: bikes.containsKey(taskRule.bikeId) ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.error,
+                ),
+                Flexible(
+                  child: Text(
+                    bikes[taskRule.bikeId]?.name ?? "BIKE NOT FOUND",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: bikes.containsKey(taskRule.bikeId) ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8) : Theme.of(context).colorScheme.error,
+                      fontSize: 13,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ] else ...[
-          Row(
-            spacing: 2,
-            children: [
-              Icon(
-                Icons.circle_outlined, 
-                size: 13, 
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-              Flexible(
-                child: Text(
-                  "General Task",
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                    fontSize: 13,
+          Flexible(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              spacing: 2,
+              children: [
+                Icon(
+                  Icons.circle_outlined, 
+                  size: 13, 
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+                Flexible(
+                  child: Text(
+                    "General Task",
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                      fontSize: 13,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ],

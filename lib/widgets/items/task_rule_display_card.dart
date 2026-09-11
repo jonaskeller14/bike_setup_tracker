@@ -38,13 +38,10 @@ class TaskRuleDisplayCard extends StatelessWidget {
     this.heroTag,
   });
 
-  /// The due-date estimate shown below the progress bar, or `null` when the
-  /// prediction is switched off, unavailable, or would only restate what the
-  /// detail row already says.
-  ///
-  /// A forecast without a rate sample was never extrapolated: time-based
-  /// intervals count down in the very unit the detail row already shows, so
-  /// "in 3 days" would only echo "3 days remaining".
+  /// A forecast carrying a rate sample was extrapolated from riding, so it
+  /// needs the Strava entitlement behind it and reads as a rough countdown.
+  /// One without a sample is exact — a date or duration trigger — so it names
+  /// the day rather than restating the countdown the detail row already shows.
   String? _forecastLabel(
     BuildContext context,
     AppRepository appRepository,
@@ -52,12 +49,14 @@ class TaskRuleDisplayCard extends StatelessWidget {
     String dateFormat,
   ) {
     if (taskRule.interval == null || status.isDue) return null;
-    if (!context.select<SubscriptionService, bool>((s) => s.hasStravaEntitlement)) return null;
     final forecast = appRepository.getTaskRuleForecast(taskRule);
-    if (forecast?.sample == null) return null;
+    if (forecast == null) return null;
     final now = DateTime.now();
-    final due = forecast!.dueDate.toLocal();
-    return due.isAfter(now) ? taskForecastDueLabel(due, now, dateFormat) : null;
+    final due = forecast.dueDate.toLocal();
+    if (!due.isAfter(now)) return null;
+    if (forecast.sample == null) return DateFormat(dateFormat).format(due);
+    if (!context.select<SubscriptionService, bool>((s) => s.hasStravaEntitlement)) return null;
+    return taskForecastDueLabel(due, now, dateFormat);
   }
 
   Widget _forecastWidget(BuildContext context, String forecastLabel, Color statusColor) {

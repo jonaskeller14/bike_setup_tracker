@@ -51,14 +51,6 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
   // ratingMetricId -> display name, for the per-metric rating columns.
   Map<String, String> _ratingMetricNames = {};
 
-  Widget _installationOverview(BuildContext context) {
-    final appRepository = context.watch<AppRepository>();
-    return InstallationTimelineTable(
-      bikeId: widget.bikeId,
-      allComponents: appRepository.components.values.toList(),
-    );
-  }
-
   // Setup columns are rendered by the table itself; only data-driven columns resolve to a value here.
   dynamic _rawValue(Setup setup, TableColumn column) => switch (column) {
     PersonAttributeColumn(:final adjustmentId) => setup.personAdjustmentValues[adjustmentId],
@@ -398,7 +390,10 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
               _setupHistory(context, appSettings, appRepository, person),
               if (kDebugMode) ...[
                 const Divider(height: 1),
-                _installationOverview(context),
+                InstallationTimelineTable(
+                  bikeId: widget.bikeId,
+                  allComponents: appRepository.components.values.toList(),
+                ),
               ]
             ],
           ),

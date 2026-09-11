@@ -86,7 +86,13 @@ class ComponentPresetVariant {
 
   /// Stable, computed catalog identity — never persisted (see provenance
   /// decision). Used as an index key and for the CI duplicate check.
-  String get presetKey => '${componentType.name}/$brand/$model/$trim';
+  /// Generations of one model share brand/model/trim and are told apart only by
+  /// [yearRange], so it is part of the key.
+  String get presetKey {
+    final years = yearRange;
+    return '${componentType.name}/$brand/$model/$trim'
+        '${years == null || years.isEmpty ? '' : '/$years'}';
+  }
 
   /// Compact travel/stroke label for subtitles: `160 mm`, `140–170 mm` for
   /// forks, the stroke options joined for shocks; `null` when unknown.

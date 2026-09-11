@@ -25,11 +25,31 @@ sources:
   - https://ridefox.com/pages/fox-32-taper-cast
   - https://ridefox.com/products/podium
   - https://ridefox.com/pages/fox-awl
-updated: 2026-07-05
-# All click ranges below were taken from the per-model spec tables on the
+  # Archived spec sheets + owner's manuals (tech.ridefox.com) — the source for
+  # every Volume Spacers maximum, the AWL travel options and the legacy dampers.
+  - https://tech.ridefox.com/bike/list/spec-sheets
+  - https://tech.ridefox.com/bike/list/owners-manuals
+  - https://tech.ridefox.com/bike/owners-manuals/3104/fork--2026-32mm--or-34mm-(including-32-step-cast-and-32-taper-cast)
+  - https://tech.ridefox.com/bike/owners-manuals/3087/fork--2026-34sl
+  - https://tech.ridefox.com/bike/owners-manuals/3089/fork--2026-36mm
+  - https://tech.ridefox.com/bike/owners-manuals/3088/fork--2026-36sl
+  - https://tech.ridefox.com/bike/owners-manuals/3103/fork--2026-38mm
+  - https://tech.ridefox.com/bike/owners-manuals/3102/fork--2026-40mm
+  - https://tech.ridefox.com/bike/owners-manuals/3101/fork--2026-awl-or-awl-sport-and-awl-hd-or-awl-hd-sport
+  - https://tech.ridefox.com/bike/owners-manuals/3108/fork--2026-podium-
+  - https://tech.ridefox.com/bike/owners-manuals/1040/fork--2020-36mm
+  - https://tech.ridefox.com/bike/owners-manuals/1082/fork--2021-36mm-or-38mm
+  - https://tech.ridefox.com/bike/owners-manuals/2930/fork--2024-36mm-or-38mm
+updated: 2026-09-10
+# Current-lineup click ranges were taken from the per-model spec tables on the
 # official FOX product pages (ridefox.com/pages/fox-<model>). Clicks are counted
 # from fully closed (firmest); an adjuster with "18 clicks" has range 0..18
 # (the default `dial_ccw` visualization).
+#
+# Volume Spacers maximums come from the "Volume Spacer Configurations" tables in
+# the FOX owner's manuals listed above — they are published PER TRAVEL, so each
+# trim's `max` is the highest figure across the travels that trim offers and the
+# per-travel breakdown is spelled out in the adjustment's `notes`.
 
 # --------------------------------------------------------------------------
 # Dampers — click ranges shared across every fork that ships with the damper.
@@ -44,6 +64,7 @@ dampers:
       - { name: HSR, type: step, max: 8, notes: High-Speed Rebound }
       - { name: LSR, type: step, max: 16, notes: Low-Speed Rebound }
     valves: 23
+    source: https://ridefox.com/pages/fox-36
 
   grip_x:
     name: GRIP X
@@ -53,6 +74,7 @@ dampers:
       - { name: LSC, type: step, max: 16, notes: Low-Speed Compression }
       - { name: Rebound, type: step, max: 17, notes: FOX labels this "low-speed rebound"; single rebound knob }
     firm_mode: at final HSC click
+    source: https://ridefox.com/pages/fox-34
 
   grip_sl:
     name: GRIP SL
@@ -61,6 +83,7 @@ dampers:
       - { name: Rebound, type: step, max: 17, notes: FOX labels this "low-speed rebound"; single rebound knob }
       - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm] }
     remote: 2-position
+    source: https://ridefox.com/pages/fox-34-sl
 
   grip:
     name: GRIP
@@ -68,6 +91,7 @@ dampers:
     adjustments:
       - { name: Rebound, type: step, max: 10 }
       - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm] }
+    source: https://ridefox.com/pages/fox-34
 
   rail:
     name: RAIL
@@ -75,16 +99,97 @@ dampers:
     adjustments:
       - { name: Rebound, type: step, max: 9 }
       - { name: Compression Mode, type: categorical, options: ["1", "2"], notes: 2-position SWEEP ADJUST compression }
+    source: https://ridefox.com/pages/fox-awl
+
+  # ------------------------------------------------------------------------
+  # Legacy dampers. FOX's owner's manuals for these years publish the usable
+  # GRIP2 high-speed compression range and the FIT4 open-mode adjust range, but
+  # give rebound and low-speed compression only as rider-weight starting-point
+  # tables — those are recommendations, not ranges, so no total is recorded.
+  # Each generation keeps its own key even where the badge did not change.
+  # ------------------------------------------------------------------------
+  grip2_2018:
+    name: GRIP2 (2018-2020)
+    description: |-
+      - Four-way descent damper: high- and low-speed compression and rebound
+      - Only the 16 high-speed compression clicks nearest fully closed change damping
+      - Adjustments incomplete: please add LSC, HSR and LSR yourself.
+    adjustments:
+      - { name: HSC, type: step, max: 16, notes: "High-Speed Compression; clicks past 16 out from fully closed have no damping effect" }
+    source: https://tech.ridefox.com/bike/owners-manuals/1040/fork--2020-36mm
+    note: >-
+      "Factory and Performance-Elite Series GRIP2 Compression Adjusters" section
+      states the 16 usable HSC clicks. LSC/HSR/LSR totals are not stated
+      anywhere in the 2018-2020 manuals — only a suggested-settings table.
+
+  grip2_vvc_2021:
+    name: GRIP2 VVC (2021-2024)
+    description: |-
+      - Four-way descent damper with Variable Valve Control high-speed circuits
+      - Only the 16 high-speed compression clicks nearest fully closed change damping
+      - Adjustments incomplete: please add LSC, HSR and LSR yourself.
+    adjustments:
+      - { name: HSC, type: step, max: 16, notes: "High-Speed Compression; clicks past 16 out from fully closed have no damping effect" }
+    source:
+      - https://tech.ridefox.com/bike/owners-manuals/1082/fork--2021-36mm-or-38mm
+      - https://tech.ridefox.com/bike/owners-manuals/2930/fork--2024-36mm-or-38mm
+    note: >-
+      Same 16-usable-HSC-click wording as the 2018-2020 manuals; LSC/HSR/LSR
+      totals still unstated across the 2021 and 2024 manuals.
+
+  fit4_2018:
+    name: FIT4 (2018-2020)
+    description: |-
+      - Three-position compression lever: Open, Medium, Firm
+      - Open mode carries 22 extra clicks of low-speed fine tuning (22 plushest, 1 firmest)
+      - Adjustments incomplete: please add Rebound yourself.
+    adjustments:
+      - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm] }
+      - { name: Open Mode Adjust, type: step, max: 22, notes: "Low-Speed Compression in Open mode; Factory and Performance Elite forks only" }
+    source: https://tech.ridefox.com/bike/owners-manuals/1040/fork--2020-36mm
+    note: >-
+      "OPEN mode adjust provides 22 additional fine tuning adjustments for the
+      OPEN mode." Rebound total is not stated — the manual gives only a
+      pressure-vs-clicks starting-point table.
+
+  fit4_2021:
+    name: FIT4 (2021-2024)
+    description: |-
+      - Three-position compression lever: Open, Medium, Firm
+      - Open mode carries 22 extra clicks of low-speed fine tuning (22 plushest, 1 firmest)
+      - Adjustments incomplete: please add Rebound yourself.
+    adjustments:
+      - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm] }
+      - { name: Open Mode Adjust, type: step, max: 22, notes: "Low-Speed Compression in Open mode; Factory and Performance Elite forks only" }
+    source:
+      - https://tech.ridefox.com/bike/owners-manuals/1082/fork--2021-36mm-or-38mm
+      - https://tech.ridefox.com/bike/owners-manuals/2930/fork--2024-36mm-or-38mm
+    note: Separate key from fit4_2018 per SCHEMA.md; the published 22-position open-mode range is identical.
+
+  grip_2018:
+    name: GRIP (2018-2024)
+    description: |-
+      - Three-position compression lever: Open, Medium, Firm
+      - The detents between the three modes are usable for fine tuning
+      - Adjustments incomplete: please add Rebound yourself.
+    adjustments:
+      - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm] }
+    source:
+      - https://tech.ridefox.com/bike/owners-manuals/1040/fork--2020-36mm
+      - https://tech.ridefox.com/bike/owners-manuals/2930/fork--2024-36mm-or-38mm
+    note: >-
+      Rebound total unstated for this cartridge generation; the current GRIP
+      (10 clicks) figure comes from a 2025+ product page and must not be
+      carried backwards.
 
 # --------------------------------------------------------------------------
-# Forks — current (2025/2026) FOX lineup.
+# Forks — current (2025/2026) FOX lineup, then legacy generations.
 # `trims` are the user-facing sub-models; the damper (and therefore the click
 # ranges) can differ per trim. Where a trim offers a choice of damper, list all.
 #
-# Every current FOX fork is air-sprung, so trims share the `&air_spring` anchor
-# (Pressure only). Volume-spacer counts are not published per model on the FOX
-# pages, so spacers are intentionally omitted rather than guessed — see the
-# follow-ups footer.
+# Every FOX fork here is air-sprung; the `&pressure` anchor is the shared
+# Pressure entry, and each trim adds its own Volume Spacers maximum where FOX
+# publishes one for that chassis.
 # --------------------------------------------------------------------------
 forks:
   - model: "32 Taper-Cast"
@@ -98,14 +203,17 @@ forks:
         stanchion: Kashima
         spring: Air
         dampers: [grip_sl]
-        adjustments: &air_spring
-          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+        adjustments:
+          - &pressure { name: Pressure, type: numerical, unit: psi, min: 0 }
+          - { name: Volume Spacers, type: step, max: 4, visualization: stepper, notes: "Maximum 4 at both 40mm and 50mm travel" }
       - trim: Performance
         travel_mm: [40]
         stanchion: 7000-series alloy, black anodized
         spring: Air
         dampers: [grip]
-        adjustments: *air_spring
+        adjustments:
+          - *pressure
+          - { name: Volume Spacers, type: step, max: 4, visualization: stepper }
     note: 12x100 Kabolt thru-axle, integrated fender mounts
 
   - model: "32 Step-Cast"
@@ -119,13 +227,17 @@ forks:
         stanchion: Kashima
         spring: Air
         dampers: [grip_sl]
-        adjustments: *air_spring
+        adjustments:
+          - *pressure
+          - { name: Volume Spacers, type: step, max: 4, visualization: stepper, notes: "Maximum 4 at 100mm travel" }
       - trim: Performance
         travel_mm: [100]
         stanchion: 7000-series alloy, black anodized
         spring: Air
         dampers: [grip]
-        adjustments: *air_spring
+        adjustments:
+          - *pressure
+          - { name: Volume Spacers, type: step, max: 4, visualization: stepper, notes: "Maximum 4 at 100mm travel" }
 
   - model: "34 SL"
     category: Downcountry
@@ -138,19 +250,25 @@ forks:
         stanchion: Kashima
         spring: Air
         dampers: [grip_sl]
-        adjustments: *air_spring
+        adjustments:
+          - *pressure
+          - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Max per travel: 5 at 120mm, 4 at 130mm" }
       - trim: Performance Elite
         travel_mm: [120]
         stanchion: 7000-series alloy, black anodized
         spring: Air
         dampers: [grip_sl]
-        adjustments: *air_spring
+        adjustments:
+          - *pressure
+          - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Maximum 5 at 120mm travel" }
       - trim: Performance
         travel_mm: [120]
         stanchion: 7000-series alloy, black anodized
         spring: Air
         dampers: [grip]
-        adjustments: *air_spring
+        adjustments:
+          - *pressure
+          - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Maximum 5 at 120mm travel" }
 
   - model: "34"
     category: Trail
@@ -163,25 +281,33 @@ forks:
         stanchion: Kashima
         spring: Air
         dampers: [grip_x]
-        adjustments: *air_spring
+        adjustments:
+          - *pressure
+          - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Max per travel: 5 at 130mm and 140mm, 6 at 120mm" }
       - trim: Performance Elite
         travel_mm: [130]
         stanchion: 7000-series alloy, black anodized
         spring: Air
         dampers: [grip_x]
-        adjustments: *air_spring
+        adjustments:
+          - *pressure
+          - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Maximum 5 at 130mm travel" }
       - trim: Performance
         travel_mm: [130]
         stanchion: 7000-series alloy, black anodized
         spring: Air
         dampers: [grip]
-        adjustments: *air_spring
+        adjustments:
+          - *pressure
+          - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Maximum 5 at 130mm travel" }
       - trim: Rhythm
         travel_mm: [130, 150]
         stanchion: 6000-series alloy, black anodized
         spring: Air
         dampers: [grip]
-        adjustments: *air_spring
+        adjustments:
+          - *pressure
+          - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Max per travel: 5 at 130mm, 4 at 140mm and 150mm" }
         note: OEM complete bikes only
 
   - model: "36 SL"
@@ -195,19 +321,25 @@ forks:
         stanchion: Kashima
         spring: Air
         dampers: [grip_x]
-        adjustments: *air_spring
+        adjustments:
+          - *pressure
+          - { name: Volume Spacers, type: step, max: 7, visualization: stepper, notes: "Max per travel: 8 at 120mm, 7 at 130mm, 6 at 140mm" }
       - trim: Performance Elite
         travel_mm: [140]
         stanchion: 7000-series alloy, black anodized
         spring: Air
         dampers: [grip_x]
-        adjustments: *air_spring
+        adjustments:
+          - *pressure
+          - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Maximum 6 at 140mm travel" }
       - trim: Performance
         travel_mm: [140]
         stanchion: 7000-series alloy, black anodized
         spring: Air
         dampers: [grip]
-        adjustments: *air_spring
+        adjustments:
+          - *pressure
+          - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Maximum 6 at 140mm travel" }
 
   - model: "36"
     category: All-Mountain
@@ -220,25 +352,34 @@ forks:
         stanchion: Kashima
         spring: Air
         dampers: [grip_x2, grip_x]   # buyer-selectable damper
-        adjustments: *air_spring
+        adjustments:
+          - *pressure
+          - { name: Volume Spacers, type: step, max: 7, visualization: stepper, notes: "Max per travel: 8 at 140mm, 7 at 150mm, 6 at 160mm" }
       - trim: Performance Elite
         travel_mm: [160]
         stanchion: 7000-series alloy, black anodized
         spring: Air
         dampers: [grip_x]
-        adjustments: *air_spring
+        adjustments:
+          - *pressure
+          - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Maximum 6 at 160mm travel" }
       - trim: Performance
         travel_mm: [160]
         stanchion: 7000-series alloy, black anodized
         spring: Air
         dampers: [grip]
-        adjustments: *air_spring
+        adjustments:
+          - *pressure
+          - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Maximum 6 at 160mm travel" }
       - trim: Rhythm
         travel_mm: [150, 160]
         stanchion: 6000-series alloy, black anodized
         spring: Air
         dampers: [grip]
-        adjustments: *air_spring
+        # The 2026 36mm manual tabulates 36mm and 36mm E-Bike+ only — no 36
+        # Rhythm spacer table for this generation, so no Volume Spacers entry.
+        adjustments:
+          - *pressure
         note: OEM complete bikes only
 
   - model: "38"
@@ -252,19 +393,25 @@ forks:
         stanchion: Kashima
         spring: Air
         dampers: [grip_x2]
-        adjustments: *air_spring
+        adjustments:
+          - *pressure
+          - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Max per travel: 6 at 150mm and 160mm, 5 at 170mm, 4 at 180mm" }
       - trim: Performance Elite
         travel_mm: [170]
         stanchion: 7000-series alloy, black anodized
         spring: Air
         dampers: [grip_x2]
-        adjustments: *air_spring
+        adjustments:
+          - *pressure
+          - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Maximum 5 at 170mm travel" }
       - trim: Rhythm
         travel_mm: [160, 170, 180]
         stanchion: 6000-series alloy, black anodized
         spring: Air
         dampers: [grip]
-        adjustments: *air_spring
+        adjustments:
+          - *pressure
+          - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Max per travel: 7 at 150mm, 6 at 160mm, 5 at 170mm, 4 at 180mm" }
         note: OEM complete bikes only
 
   - model: "40"
@@ -278,57 +425,201 @@ forks:
         stanchion: Kashima
         spring: Air
         dampers: [grip_x2]
-        adjustments: *air_spring
+        adjustments:
+          - *pressure
+          - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Max per travel: 5 at 203mm, 7 at 190mm" }
 
   - model: "Podium"
     category: Enduro
     year_range: "2026"
     url: https://ridefox.com/products/podium
+    # travel options + spacer maximums: tech.ridefox.com owner's manual 3108
     wheel_size: [29]
     trims:
       - trim: Factory
-        travel_mm: [160, 170]
+        travel_mm: [150, 160, 170]
         stanchion: Kashima
         spring: Air
         dampers: [grip_x2]
-        adjustments: *air_spring
-        note: >
-          Inverted (USD) single-crown chassis. Crown heights 58HT/68HT,
-          44mm offset, custom steel 20mm axle, Float EVOL GlideCore air spring.
-          GRIP X2 internal tune revised for the USD layout; external click
-          counts match the standard GRIP X2 (confirmed by Flow MTB first-ride
-          review). First model year 2026.
+        adjustments:
+          - *pressure
+          - { name: Volume Spacers, type: step, max: 8, visualization: stepper, notes: "Maximum 8 at 150mm, 160mm and 170mm travel" }
+        note: |-
+          - Inverted (USD) single-crown chassis, 44mm offset
+          - Crown heights 58HT / 68HT, custom steel 20mm axle
+          - Float EVOL GlideCore air spring, 130 psi maximum
+          - GRIP X2 damper with an internal tune specific to the USD layout
 
   - model: "AWL"
     category: Adventure / eMTB
     year_range: "2025-2026"
     url: https://ridefox.com/pages/fox-awl
+    # travel options + spacer maximums: tech.ridefox.com owner's manual 3101
     wheel_size: [29, 27.5]
     trims:
       - trim: Standard
-        travel_mm: [100, 120, 130, 140, 150, 160, 170, 180, 203]
+        travel_mm: [100, 110, 120, 130, 140, 150]
         stanchion: 34mm
         spring: Air
         dampers: [rail]
-        adjustments: *air_spring
+        adjustments:
+          - *pressure
+          - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Max per travel: 6 at 100mm and 110mm, 5 at 120mm and 130mm, 4 at 140mm and 150mm" }
         note: Rated to 169kg system weight; fender/rack/light/ABS mounts.
       - trim: HD
-        travel_mm: [100, 120, 130, 140, 150, 160, 170, 180, 203]
+        travel_mm: [130, 140, 150, 160]
         stanchion: 36mm
         spring: Air
         dampers: [rail]
-        adjustments: *air_spring
+        adjustments:
+          - *pressure
+          - { name: Volume Spacers, type: step, max: 9, visualization: stepper, notes: "Max per travel: 9 at 130mm, 8 at 140mm, 7 at 150mm, 6 at 160mm" }
         note: 29in only; higher-load chassis for e-bikes.
+
+  # ------------------------------------------------------------------------
+  # Legacy generations. They repeat the current model name and are told apart
+  # by `year_range`, so the picker merges them into one model row. Keep them
+  # below the current generation — the trim list follows file order. All are
+  # `complete: false` because FOX never published the rebound (and, on GRIP2,
+  # the LSC/HSR/LSR) click totals for these cartridges.
+  # ------------------------------------------------------------------------
+  - model: "36"
+    complete: false
+    category: All-Mountain
+    year_range: "2018-2020"
+    url: https://tech.ridefox.com/bike/owners-manuals/1040/fork--2020-36mm
+    wheel_size: [29, 27.5]
+    trims:
+      - trim: Factory
+        travel_mm: [140, 150, 160, 170, 180]
+        stanchion: Kashima
+        spring: Air
+        dampers: [grip2_2018, fit4_2018]   # buyer-selectable damper
+        adjustments:
+          - *pressure
+          - { name: Volume Spacers, type: step, max: 8, visualization: stepper, notes: "Max per travel: 8 at 140mm, 7 at 150mm, 6 at 160mm, 5 at 170mm, 4 at 180mm" }
+        note: First FOX 36 generation with the NA2 air spring and the EVOL-era chassis.
+      - trim: Performance Elite
+        travel_mm: [140, 150, 160, 170, 180]
+        stanchion: 7000-series alloy, black anodized
+        spring: Air
+        dampers: [grip2_2018, fit4_2018]
+        adjustments:
+          - *pressure
+          - { name: Volume Spacers, type: step, max: 8, visualization: stepper, notes: "Max per travel: 8 at 140mm, 7 at 150mm, 6 at 160mm, 5 at 170mm, 4 at 180mm" }
+      - trim: Performance
+        travel_mm: [140, 150, 160, 170, 180]
+        stanchion: 7000-series alloy, black anodized
+        spring: Air
+        dampers: [grip_2018]
+        adjustments:
+          - *pressure
+          - { name: Volume Spacers, type: step, max: 8, visualization: stepper, notes: "Max per travel: 8 at 140mm, 7 at 150mm, 6 at 160mm, 5 at 170mm, 4 at 180mm" }
+
+  - model: "36"
+    complete: false
+    category: All-Mountain
+    year_range: "2021-2024"
+    url: https://tech.ridefox.com/bike/owners-manuals/1082/fork--2021-36mm-or-38mm
+    wheel_size: [29, 27.5]
+    trims:
+      - trim: Factory
+        travel_mm: [130, 140, 150, 160, 170]
+        stanchion: Kashima
+        spring: Air
+        dampers: [grip2_vvc_2021, fit4_2021]   # buyer-selectable damper
+        adjustments:
+          - *pressure
+          - { name: Volume Spacers, type: step, max: 9, visualization: stepper, notes: "Max per travel: 9 at 130mm, 8 at 140mm, 7 at 150mm, 6 at 160mm, 5 at 170mm" }
+        note: Chassis with the floating axle and bleed buttons; GRIP2 gained Variable Valve Control in 2021.
+      - trim: Performance Elite
+        travel_mm: [130, 140, 150, 160, 170]
+        stanchion: 7000-series alloy, black anodized
+        spring: Air
+        dampers: [grip2_vvc_2021, fit4_2021]
+        adjustments:
+          - *pressure
+          - { name: Volume Spacers, type: step, max: 9, visualization: stepper, notes: "Max per travel: 9 at 130mm, 8 at 140mm, 7 at 150mm, 6 at 160mm, 5 at 170mm" }
+      - trim: Performance
+        travel_mm: [130, 140, 150, 160, 170]
+        stanchion: 7000-series alloy, black anodized
+        spring: Air
+        dampers: [grip_2018]
+        adjustments:
+          - *pressure
+          - { name: Volume Spacers, type: step, max: 9, visualization: stepper, notes: "Max per travel: 9 at 130mm, 8 at 140mm, 7 at 150mm, 6 at 160mm, 5 at 170mm" }
+      - trim: Rhythm
+        travel_mm: [130, 140, 150, 160, 170]
+        stanchion: 6000-series alloy, black anodized
+        spring: Air
+        dampers: [grip_2018]
+        adjustments:
+          - *pressure
+          - { name: Volume Spacers, type: step, max: 8, visualization: stepper, notes: "Max per travel: 8 at 130mm and 140mm, 7 at 150mm, 6 at 160mm and 170mm" }
+        note: OEM complete bikes only
+
+  - model: "38"
+    complete: false
+    category: Enduro
+    year_range: "2021-2024"
+    url: https://tech.ridefox.com/bike/owners-manuals/1082/fork--2021-36mm-or-38mm
+    wheel_size: [29, 27.5]
+    trims:
+      - trim: Factory
+        travel_mm: [150, 160, 170, 180]
+        stanchion: Kashima
+        spring: Air
+        dampers: [grip2_vvc_2021]
+        adjustments:
+          - *pressure
+          - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Max per travel: 6 at 150mm and 160mm, 5 at 170mm, 4 at 180mm" }
+        note: First 38mm-stanchion FOX enduro chassis, launched for 2021.
+      - trim: Performance Elite
+        travel_mm: [150, 160, 170, 180]
+        stanchion: 7000-series alloy, black anodized
+        spring: Air
+        dampers: [grip2_vvc_2021]
+        adjustments:
+          - *pressure
+          - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Max per travel: 6 at 150mm and 160mm, 5 at 170mm, 4 at 180mm" }
+      - trim: Performance
+        travel_mm: [150, 160, 170, 180]
+        stanchion: 7000-series alloy, black anodized
+        spring: Air
+        dampers: [grip_2018]
+        adjustments:
+          - *pressure
+          - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Max per travel: 6 at 150mm and 160mm, 5 at 170mm, 4 at 180mm" }
+      - trim: Rhythm
+        travel_mm: [150, 160, 170, 180]
+        stanchion: 6000-series alloy, black anodized
+        spring: Air
+        dampers: [grip_2018]
+        adjustments:
+          - *pressure
+          - { name: Volume Spacers, type: step, max: 7, visualization: stepper, notes: "Max per travel: 7 at 150mm, 6 at 160mm, 5 at 170mm, 4 at 180mm" }
+        note: OEM complete bikes only
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):
-#   - Volume-spacer counts (per model) are not published on the FOX pages, so
-#     no Volume Spacers adjustment is generated. Add one (with the published
-#     `max`) per trim once a spec table lists it.
-#   - Older model years (pre-2025) used FIT4 and GRIP2 dampers with different
-#     click counts. Add a dated `dampers` entry + `year_range` per fork when
-#     pulling those from archived FOX spec sheets (tech.ridefox.com/bike/list/spec-sheets).
-#   - AWL travel_mm above is the full range advertised across the AWL line
-#     (spans the 32/34/36/38/40-equivalent chassis sizes); confirm exact
-#     per-chassis travel options once a per-model AWL spec table is found.
+#   - Legacy rebound totals. The 2018-2024 owner's manuals give rebound (and
+#     GRIP2 LSC/HSR/LSR) only as pressure-vs-clicks starting-point tables, never
+#     as a range, so grip2_2018 / grip2_vvc_2021 / fit4_2018 / fit4_2021 /
+#     grip_2018 stay partial and every legacy model is `complete: false`. A FOX
+#     service manual or a staff-written magazine bench test that states the
+#     totals outright would close this.
+#   - 36 Rhythm (2025-2026) has no Volume Spacer Configurations table in the
+#     2026 36mm manual (it tabulates 36mm and 36mm E-Bike+ only), so that trim
+#     carries Pressure alone. The 2024-2027 36mm Rhythm spec sheet is published
+#     as images only and could not be read.
+#   - E-Bike+ / E-Optimized chassis variants have their own factory-installed
+#     and maximum spacer counts. They are not modelled as separate trims yet;
+#     the maximums recorded here are the non-e figures.
+#   - AWL Sport and AWL HD Sport are separate FOX SKUs (34mm and 36mm). They
+#     share the AWL/AWL HD spacer tables but their damper spec was not found,
+#     so only the Standard and HD trims are listed.
+#   - Pre-2018 generations (32/34/36/40 with FIT4, RC2, CTD) are not covered:
+#     the 2014-2017 archived material on tech.ridefox.com is spec DRAWINGS
+#     (geometry only) plus manuals that again publish starting-point tables
+#     rather than click ranges.
 # --------------------------------------------------------------------------

@@ -36,7 +36,7 @@ import '../widgets/setup_page_tab_person.dart';
 import '../widgets/sheets/pick_image_source.dart';
 import '../widgets/sheets/set_condition.dart';
 import '../widgets/sheets/set_location_place.dart';
-import '../widgets/sheets/set_setup_tags.dart';
+import '../widgets/sheets/set_tags.dart';
 import '../widgets/sheets/set_weather.dart';
 import '../widgets/sticky_section.dart';
 
@@ -1005,9 +1005,11 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                 avatar: const Icon(Icons.add),
                 label: const Text("Tags"),
                 onPressed: () async {
-                  await showSetSetupTagsSheet(
+                  await showSetTagsSheet(
                     context: context, 
                     tags: _tags,
+                    title: 'Add Tags',
+                    subtile: "Use tags to group and organize your setups. For example, to categorize by specific test sessions, tracks, or terrains.",
                     onChanged: (Set<String> newTags) {
                       setState(() => _tags = newTags);
                       _changeListener();

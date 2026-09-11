@@ -4,44 +4,51 @@ import 'package:provider/provider.dart';
 import '../../repositories/app_repository.dart';
 import 'sheet_header.dart';
 
-Future<void> showSetSetupTagsSheet({
+Future<void> showSetTagsSheet({
   required BuildContext context, 
   required Set<String> tags,
   required ValueChanged<Set<String>> onChanged,
+  required String title,
+  required String subtile,
 }) {
   return showModalBottomSheet(
     useSafeArea: true,
     isScrollControlled: true,
     context: context, 
     builder: (context) {
-      return SetSetupTagsSheetContent(
+      return SetTagsSheetContent(
         setupTags: tags.toSet(),
         onChanged: onChanged,
+        title: title,
+        subtitle: subtile,
       );
     },
   );
 }
 
-class SetSetupTagsSheetContent extends StatefulWidget {
+class SetTagsSheetContent extends StatefulWidget {
   final Set<String> setupTags;
   final ValueChanged<Set<String>> onChanged;
+  final String title;
+  final String subtitle;
 
-  const SetSetupTagsSheetContent({
+  const SetTagsSheetContent({
     super.key, 
     required this.setupTags,
     required this.onChanged,
+    required this.title,
+    required this.subtitle,
   });
 
   @override
-  State<StatefulWidget> createState() => _SetSetupTagsSheetContentState();
+  State<StatefulWidget> createState() => _SetTagsSheetContentState();
 }
 
-class _SetSetupTagsSheetContentState extends State<SetSetupTagsSheetContent> {
+class _SetTagsSheetContentState extends State<SetTagsSheetContent> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _controller = TextEditingController();
   late Set<String> _selectedTags;
   late Set<String> _availableTags;
-  
   
   @override 
   void initState() {
@@ -81,10 +88,10 @@ class _SetSetupTagsSheetContentState extends State<SetSetupTagsSheetContent> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SheetHeader(title: 'Add Tags'),
-          const ListTile(
-            leading: Icon(Icons.info_outline),
-            title: Text("Use tags to group and organize your setups. For example, to categorize by specific test sessions, tracks, or terrains."),
+          SheetHeader(title: widget.title),
+          ListTile(
+            leading: const Icon(Icons.info_outline),
+            title: Text(widget.subtitle),
             dense: true,
           ),
           const SizedBox(height: 12),

@@ -6,14 +6,12 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
-import '../../models/bike.dart';
-import '../../models/component.dart';
-import '../../models/installation.dart';
 import '../../models/task/task_rule.dart';
 import '../../models/task/task_threshold/task_threshold.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/task_actions.dart';
+import '../task_rule_progress_bar.dart';
 import 'task_rule_list_card.dart';
 
 String taskForecastDueLabel(DateTime dueLocal, DateTime nowLocal, String dateFormat) {
@@ -40,157 +38,6 @@ class TaskRuleDisplayCard extends StatelessWidget {
     this.heroTag,
   });
 
-  Widget _filterWidget(BuildContext context, {required Component? component, required Map<String, Bike> bikes}) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      spacing: 2,
-      children: [
-        if (taskRule.componentId != null) ...[
-          Flexible(
-            fit: FlexFit.tight,
-            child: Row(
-              spacing: 2,
-              children: [
-                Icon(
-                  component?.componentType.getIconData() ?? Icons.grid_view_sharp,
-                  size: 13,
-                  color: component != null ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.error,
-                ),
-                Expanded(
-                  child: Text(
-                    component?.name ?? "COMPONENT NOT FOUND",
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: component != null ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8) : Theme.of(context).colorScheme.error,
-                      fontSize: 13,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Flexible(
-            fit: FlexFit.tight,
-            child: Row(
-              spacing: 2,
-              children: [
-                Icon(
-                  switch (component?.latestInstallation) {
-                    Archival() => Icons.inventory_2_outlined,
-                    BikeInstallation() => Bike.iconData,
-                    Uninstallation() || null => Icons.shelves,
-                  },
-                  size: 13,
-                  color: switch (component?.latestInstallation) {
-                    BikeInstallation(:final bikeId) when !bikes.containsKey(bikeId) => Theme.of(context).colorScheme.error,
-                    _ => Theme.of(context).colorScheme.onSurfaceVariant,
-                  },
-                ),
-                Expanded(
-                  child: Text(
-                    switch (component?.latestInstallation) {
-                      Archival() => 'Archived',
-                      BikeInstallation(:final bikeId) => bikes[bikeId]?.name ?? 'BIKE NOT FOUND',
-                      Uninstallation() || null => 'Not installed',
-                    },
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: switch (component?.latestInstallation) {
-                        BikeInstallation(:final bikeId) when !bikes.containsKey(bikeId) => Theme.of(context).colorScheme.error,
-                        _ => Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                      },
-                      fontSize: 13,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ] else if (taskRule.bikeId != null) ...[
-          Icon(
-            Bike.iconData, 
-            size: 13,
-            color: bikes.containsKey(taskRule.bikeId) ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.error,
-          ),
-          Flexible(
-            child: Text(
-              bikes[taskRule.bikeId]?.name ?? "BIKE NOT FOUND",
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: bikes.containsKey(taskRule.bikeId) ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8) : Theme.of(context).colorScheme.error,
-                fontSize: 13,
-              ),
-            ),
-          ),
-        ] else ...[
-          Icon(
-            Icons.circle_outlined, 
-            size: 13, 
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-          Flexible(
-            child: Text(
-              "General Task",
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                fontSize: 13,
-              ),
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-
-  Widget _priorityWidget(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      spacing: 2,
-      children: [
-        Icon(Icons.traffic, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-        Text(
-          taskRule.priority.label,
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-            fontSize: 13,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _notesWidget(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: 2,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 3), // tweak to match font size
-          child: Icon(
-            Icons.notes,
-            size: 13,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-        ),
-        Expanded(
-          child: Text(
-            taskRule.notes!,
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-              fontSize: 13,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   /// The due-date estimate shown below the progress bar, or `null` when the
   /// prediction is switched off, unavailable, or would only restate what the
   /// detail row already says.
@@ -213,47 +60,21 @@ class TaskRuleDisplayCard extends StatelessWidget {
     return due.isAfter(now) ? taskForecastDueLabel(due, now, dateFormat) : null;
   }
 
-  Widget _forecastWidget(BuildContext context, String forecastLabel) {
+  Widget _forecastWidget(BuildContext context, String forecastLabel, Color statusColor) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
       spacing: 2,
       children: [
-        Icon(Icons.insights, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+        Icon(Icons.insights, size: 13, color: statusColor.withValues(alpha: 0.5)),
         Text(
-          '≈ $forecastLabel',
+          forecastLabel,
           style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+            color: statusColor.withValues(alpha: 0.5),
             fontSize: 13,
           ),
         ),
       ],
-    );
-  }
-
-  Widget _tagsWidget(BuildContext context) {
-    return Wrap(
-      alignment: WrapAlignment.start,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      spacing: 4,
-      children: taskRule.tags.map((tag) {
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          spacing: 2,
-          children: [
-            Icon(Icons.tag, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-            Flexible(
-              child: Text(
-                tag,
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        );
-      }).toList(),
     );
   }
 
@@ -305,15 +126,15 @@ class TaskRuleDisplayCard extends StatelessWidget {
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _filterWidget(context, component: component, bikes: appRepository.bikes),
+              TaskRuleListCard.filterWidget(context, taskRule: taskRule, component: component, bikes: appRepository.bikes),
               if (appSettings.enableTaskPriority)
-                _priorityWidget(context),
+                TaskRuleListCard.priorityWidget(context, priority: taskRule.priority),
               if (appSettings.enableTaskTags && taskRule.tags.isNotEmpty)
-                _tagsWidget(context),
+                TaskRuleListCard.tagsWidget(context, tags: taskRule.tags),
               if (taskRule.notes != null && taskRule.notes!.isNotEmpty)
-                _notesWidget(context),
+                TaskRuleListCard.notesWidget(context, notes: taskRule.notes!),
               Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 spacing: 8,
                 children: [
@@ -325,25 +146,25 @@ class TaskRuleDisplayCard extends StatelessWidget {
                     ),
                   if (showStatus && !isCompleted && taskRule.interval != null)
                     Flexible(
-                      child: _buildThresholdDetailRow(context, taskRule.interval!, taskRule.delay, status, statusColor, appSettings.distanceUnit, appSettings.altitudeUnit),
+                      child: Wrap(
+                        alignment: WrapAlignment.end,
+                        spacing: 8,
+                        children: [
+                          _buildThresholdDetailRow(context, taskRule.interval!, taskRule.delay, status, statusColor, appSettings.distanceUnit, appSettings.altitudeUnit),
+                          if (forecastLabel != null) _forecastWidget(context, forecastLabel, statusColor),
+                        ],
+                      ),
                     ),
                 ],
               ),
               if (showStatus && !isCompleted && taskRule.interval != null) ...[
                 const SizedBox(height: 8),
-                TaskProgressBar(
+                TaskRuleProgressBar(
                   interval: taskRule.interval!,
                   delay: taskRule.delay,
                   progress: status.progress,
                   statusColor: statusColor,
                 ),
-                if (forecastLabel != null) ...[
-                  const SizedBox(height: 4),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: _forecastWidget(context, forecastLabel),
-                  ),
-                ],
               ],
             ],
           ),

@@ -17,7 +17,7 @@ import '../services/subscription_service.dart';
 import '../theme.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/sheets/radio_group.dart';
-import '../widgets/sheets/set_task_rule_tags.dart';
+import '../widgets/sheets/set_tags.dart';
 import '../widgets/sheets/strava.dart';
 import '../widgets/sheets/task_association_picker.dart';
 import '../widgets/text/section_title.dart';
@@ -666,9 +666,11 @@ class _TaskRulePageState extends State<TaskRulePage> {
             avatar: const Icon(Icons.add),
             label: const Text("Tags"),
             onPressed: () async {
-              await showSetTaskRuleTagsSheet(
+              await showSetTagsSheet(
                 context: context,
                 tags: _tags,
+                title: 'Add Tags',
+                subtile: "Use tags to group and organize your tasks (e.g. maintenance, order list, setup test, ...)",
                 onChanged: (Set<String> newTags) {
                   setState(() => _tags = newTags);
                   _changeListener();

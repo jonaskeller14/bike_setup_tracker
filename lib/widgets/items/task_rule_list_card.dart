@@ -17,6 +17,7 @@ import '../../theme.dart';
 import '../../utils/task_actions.dart';
 import '../notes_text.dart';
 import '../sheets/set_task_delay.dart';
+import '../task_rule_progress_bar.dart';
 
 class TaskRuleListCard extends StatelessWidget {
   final String taskRuleId;
@@ -36,24 +37,24 @@ class TaskRuleListCard extends StatelessWidget {
     this.onSelectedTaskRulesCompleted,
   });
 
-  Widget _filterWidget(BuildContext context, {required TaskRule taskRule, required Component? component, required Map<String, Bike> bikes}) {
+  static Widget filterWidget(BuildContext context, {required TaskRule taskRule, required Component? component, required Map<String, Bike> bikes}) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
-      spacing: 2,
+      spacing: 8,
       children: [
         if (taskRule.componentId != null) ...[
           Flexible(
-            fit: FlexFit.tight,
             child: Row(
               spacing: 2,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
                   component?.componentType.getIconData() ?? Icons.grid_view_sharp,
                   size: 13,
                   color: component != null ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.error,
                 ),
-                Expanded(
+                Flexible(
                   child: Text(
                     component?.name ?? "COMPONENT NOT FOUND",
                     maxLines: 1,
@@ -68,9 +69,9 @@ class TaskRuleListCard extends StatelessWidget {
             ),
           ),
           Flexible(
-            fit: FlexFit.tight,
             child: Row(
               spacing: 2,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
                   switch (component?.latestInstallation) {
@@ -84,7 +85,7 @@ class TaskRuleListCard extends StatelessWidget {
                     _ => Theme.of(context).colorScheme.onSurfaceVariant,
                   },
                 ),
-                Expanded(
+                Flexible(
                   child: Text(
                     switch (component?.latestInstallation) {
                       Archival() => 'Archived',
@@ -106,44 +107,55 @@ class TaskRuleListCard extends StatelessWidget {
             ),
           ),
         ] else if (taskRule.bikeId != null) ...[
-          Icon(
-            Bike.iconData, 
-            size: 13,
-            color: bikes.containsKey(taskRule.bikeId) ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.error,
-          ),
-          Flexible(
-            child: Text(
-              bikes[taskRule.bikeId]?.name ?? "BIKE NOT FOUND",
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: bikes.containsKey(taskRule.bikeId) ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8) : Theme.of(context).colorScheme.error,
-                fontSize: 13,
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 2,
+            children: [
+              Icon(
+                Bike.iconData, 
+                size: 13,
+                color: bikes.containsKey(taskRule.bikeId) ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.error,
               ),
-            ),
+              Flexible(
+                child: Text(
+                  bikes[taskRule.bikeId]?.name ?? "BIKE NOT FOUND",
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: bikes.containsKey(taskRule.bikeId) ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8) : Theme.of(context).colorScheme.error,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+            ],
           ),
         ] else ...[
-          Icon(
-            Icons.circle_outlined, 
-            size: 13, 
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-          Flexible(
-            child: Text(
-              "General Task",
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                fontSize: 13,
+          Row(
+            spacing: 2,
+            children: [
+              Icon(
+                Icons.circle_outlined, 
+                size: 13, 
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
-            ),
+              Flexible(
+                child: Text(
+                  "General Task",
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ],
     );
   }
 
-  Widget _priorityWidget(BuildContext context, {required TaskRule taskRule}) {
+  static Widget priorityWidget(BuildContext context, {required TaskPriority priority}) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -151,7 +163,7 @@ class TaskRuleListCard extends StatelessWidget {
       children: [
         Icon(Icons.traffic, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
         Text(
-          taskRule.priority.label,
+          priority.label,
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
             fontSize: 13,
@@ -161,7 +173,7 @@ class TaskRuleListCard extends StatelessWidget {
     );
   }
 
-  Widget _notesWidget(BuildContext context, {required TaskRule taskRule}) {
+  static Widget notesWidget(BuildContext context, {required String notes}) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 2,
@@ -176,7 +188,7 @@ class TaskRuleListCard extends StatelessWidget {
         ),
         Expanded(
           child: NotesText(
-            taskRule.notes!,
+            notes,
             fontSize: 13,
             color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
           ),
@@ -185,12 +197,12 @@ class TaskRuleListCard extends StatelessWidget {
     );
   }
 
-  Widget _tagsWidget(BuildContext context, {required TaskRule taskRule}) {
+  static Widget tagsWidget(BuildContext context, {required Set<String> tags}) {
     return Wrap(
       alignment: WrapAlignment.start,
       crossAxisAlignment: WrapCrossAlignment.center,
       spacing: 4,
-      children: taskRule.tags.map((tag) {
+      children: tags.map((tag) {
         return Row(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -321,18 +333,18 @@ class TaskRuleListCard extends StatelessWidget {
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _filterWidget(
+              filterWidget(
                 context,
                 taskRule: taskRule,
                 component: component,
                 bikes: appRepository.bikes,
               ),
               if (appSettings.enableTaskPriority)
-                _priorityWidget(context, taskRule: taskRule),
+                priorityWidget(context, priority: taskRule.priority),
               if (appSettings.enableTaskTags && taskRule.tags.isNotEmpty)
-                _tagsWidget(context, taskRule: taskRule),
+                tagsWidget(context, tags: taskRule.tags),
               if (taskRule.notes != null && taskRule.notes!.isNotEmpty)
-                _notesWidget(context, taskRule: taskRule),
+                notesWidget(context, notes: taskRule.notes!),
               if (taskRule.interval != null)
                 TaskIntervalText(
                   interval: taskRule.interval!,
@@ -341,7 +353,7 @@ class TaskRuleListCard extends StatelessWidget {
                 ),
               if (!isCompleted && taskRule.interval != null) ...[
                 const SizedBox(height: 8),
-                TaskProgressBar(
+                TaskRuleProgressBar(
                   interval: taskRule.interval!,
                   delay: taskRule.delay,
                   progress: status.progress,
@@ -606,82 +618,6 @@ class TaskIntervalText extends StatelessWidget {
               style: TextStyle(color: delayColor, fontSize: 13),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/// Where the target sat before a delay pushed it out, as a fraction of the
-/// track. Null when there is nothing to mark: no delay, a delay of another kind
-/// (which never moves the target), or a deadline, whose track is a fixed lead
-/// window rather than a distance to the target.
-double? _originalTargetFraction(TaskThreshold interval, TaskThreshold? delay) {
-  if (delay == null || !delay.isPositive || interval is! AccumulatingThreshold) return null;
-  final total = interval.totalTarget(delay);
-  if (total <= 0) return null;
-  final fraction = interval.target / total;
-  return fraction > 0 && fraction < 1 ? fraction : null;
-}
-
-/// A task's progress, notched where the target sat before a delay moved it, so
-/// that crossing the notch reads as running on borrowed distance.
-///
-/// The notch is a cut rather than a second colour on purpose: the Due status
-/// colour is the very same orange as [ValueHighlightColors.changed], so a
-/// delay-tinted segment would disappear on the tasks most likely to carry a
-/// delay.
-class TaskProgressBar extends StatelessWidget {
-  static const double _height = 4;
-
-  /// Marks [_originalTargetFraction] for tests.
-  static const Key originalTargetKey = ValueKey('task-progress-original-target');
-
-  final TaskThreshold interval;
-  final TaskThreshold? delay;
-  final double progress;
-  final Color statusColor;
-
-  const TaskProgressBar({
-    super.key,
-    required this.interval,
-    required this.delay,
-    required this.progress,
-    required this.statusColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final bar = LinearProgressIndicator(
-      value: progress.clamp(0.0, 1.0),
-      backgroundColor: statusColor.withValues(alpha: 0.1),
-      color: statusColor,
-      minHeight: _height,
-      borderRadius: BorderRadius.circular(2),
-    );
-
-    final originalTarget = _originalTargetFraction(interval, delay);
-    if (originalTarget == null) return bar;
-
-    return Stack(
-      children: [
-        bar,
-        Positioned.fill(
-          child: Align(
-            alignment: Alignment(originalTarget * 2 - 1, 0),
-            child: SizedBox(
-              key: originalTargetKey,
-              width: 2,
-              height: _height,
-              // Reached, the notch cuts the filled bar; still ahead, it has only
-              // the faint track to stand out from and has to darken instead.
-              child: ColoredBox(
-                color: progress >= originalTarget
-                    ? Theme.of(context).colorScheme.surface
-                    : statusColor.withValues(alpha: 0.35),
-              ),
             ),
           ),
         ),

@@ -1,6 +1,6 @@
 import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
 import 'package:bike_setup_tracker/theme.dart';
-import 'package:bike_setup_tracker/widgets/items/task_rule_list_card.dart';
+import 'package:bike_setup_tracker/widgets/task_rule_progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -22,7 +22,7 @@ void main() {
         body: Center(
           child: SizedBox(
             width: width,
-            child: TaskProgressBar(
+            child: TaskRuleProgressBar(
               interval: interval,
               delay: delay,
               progress: progress,
@@ -40,18 +40,18 @@ void main() {
       delay: const DistanceThreshold(300000),
     ));
 
-    final notch = find.byKey(TaskProgressBar.originalTargetKey);
+    final notch = find.byKey(TaskRuleProgressBar.originalTargetKey);
     expect(notch, findsOneWidget);
     // 700 of the 1000 km total, so 70% along a 200px track.
-    expect(tester.getCenter(notch).dx - tester.getTopLeft(find.byType(TaskProgressBar)).dx, closeTo(140, 1.5));
+    expect(tester.getCenter(notch).dx - tester.getTopLeft(find.byType(TaskRuleProgressBar)).dx, closeTo(140, 1.5));
   });
 
   testWidgets('stays out of the way when nothing moved the target', (tester) async {
     await tester.pumpWidget(wrap(const DistanceThreshold(700000)));
-    expect(find.byKey(TaskProgressBar.originalTargetKey), findsNothing);
+    expect(find.byKey(TaskRuleProgressBar.originalTargetKey), findsNothing);
 
     await tester.pumpWidget(wrap(const DistanceThreshold(700000), delay: const DistanceThreshold(0)));
-    expect(find.byKey(TaskProgressBar.originalTargetKey), findsNothing);
+    expect(find.byKey(TaskRuleProgressBar.originalTargetKey), findsNothing);
   });
 
   testWidgets('ignores a delay that never moved the target', (tester) async {
@@ -62,7 +62,7 @@ void main() {
       delay: const ActivityCountThreshold(5),
     ));
 
-    expect(find.byKey(TaskProgressBar.originalTargetKey), findsNothing);
+    expect(find.byKey(TaskRuleProgressBar.originalTargetKey), findsNothing);
   });
 
   testWidgets('leaves a deadline track unmarked', (tester) async {
@@ -73,7 +73,7 @@ void main() {
       delay: const DurationThreshold(Duration(days: 3)),
     ));
 
-    expect(find.byKey(TaskProgressBar.originalTargetKey), findsNothing);
+    expect(find.byKey(TaskRuleProgressBar.originalTargetKey), findsNothing);
   });
 
   testWidgets('renders overdue and light/dark without overflowing', (tester) async {
@@ -86,7 +86,7 @@ void main() {
       ));
       await tester.pump();
       expect(tester.takeException(), isNull);
-      expect(find.byKey(TaskProgressBar.originalTargetKey), findsOneWidget);
+      expect(find.byKey(TaskRuleProgressBar.originalTargetKey), findsOneWidget);
     }
   });
 }

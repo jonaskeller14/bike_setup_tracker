@@ -7,6 +7,7 @@ import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:bike_setup_tracker/models/timeline_entry.dart';
 import 'package:bike_setup_tracker/models/timeline_row.dart';
 import 'package:bike_setup_tracker/pages/calendar_page.dart';
+import 'package:bike_setup_tracker/widgets/calendar_add_setup_appointment.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';

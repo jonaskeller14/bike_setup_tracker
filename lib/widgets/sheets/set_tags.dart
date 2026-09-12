@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../repositories/app_repository.dart';
+import 'add_tag_chip.dart';
 import 'sheet_header.dart';
 
 Future<void> showSetTagsSheet({
@@ -45,40 +46,28 @@ class SetTagsSheetContent extends StatefulWidget {
 }
 
 class _SetTagsSheetContentState extends State<SetTagsSheetContent> {
-  final _formKey = GlobalKey<FormState>();
-  final TextEditingController _controller = TextEditingController();
   late Set<String> _selectedTags;
   late Set<String> _availableTags;
-  
+  late bool _addingTag;
+
   @override 
   void initState() {
     super.initState();
     _selectedTags = widget.setupTags;
     _availableTags = {..._selectedTags, ...context.read<AppRepository>().setupTags};
+    // With nothing to pick from, the sheet opens straight into the new-tag field.
+    _addingTag = _availableTags.isEmpty;
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    _controller.dispose();
-  }
-
-  void _addTag() {
-    if (!_formKey.currentState!.validate()) return;
-
-    final newTag = _controller.text.trim();
-
-    FocusScope.of(context).unfocus();
+  String? _addTag(String newTag) {
+    if (_availableTags.contains(newTag)) return "Tag already exists";
 
     setState(() {
       _availableTags.add(newTag);
       _selectedTags.add(newTag);
-
-      _controller.clear();
-      _formKey.currentState!.reset();
-      _controller.text = "";
     });
     widget.onChanged(_selectedTags);
+    return null;
   }
 
   @override
@@ -103,65 +92,47 @@ class _SetTagsSheetContentState extends State<SetTagsSheetContent> {
                 mainAxisSize: MainAxisSize.min,
                 children: [                  
                   const SizedBox(height: 16),
-                  Form(
-                    key: _formKey,
-                    child: TextFormField(
-                      textInputAction: TextInputAction.done,
-                      controller: _controller,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      maxLines: 1,
-                      decoration: InputDecoration(
-                        border: const OutlineInputBorder(),
-                        isDense: true,
-                        labelText: "Add new tag",
-                        hintText: 'New Tag',
-                        contentPadding: const EdgeInsets.all(8),
-                        icon: const Icon(Icons.tag),
-                        suffixIcon: IconButton(
-                          onPressed: _addTag,
-                          icon: Icon(Icons.add, color: Theme.of(context).colorScheme.primary),
-                        ),
+                  if (_availableTags.isEmpty && !_addingTag)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 32),
+                      child: Center(
+                        child: Text("No tags yet", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5))),
                       ),
-                      validator: (String? newValue) {
-                        if (newValue == null || newValue.trim().isEmpty) return "Empty tag is not allowed";
-                        if (_availableTags.contains(newValue.trim())) return "Tag already exists";
-                        return null;
-                      },
-                      onFieldSubmitted: (_) => _addTag(),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  _availableTags.isEmpty
-                      ? Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 32),
-                          child: Center(
-                            child: Text("No tags yet", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5))),
-                          ),
-                        )
-                      : Wrap(
-                          spacing: 6,
-                          children: _availableTags.map((tag) {
-                            return FilterChip(
-                              avatar: const Icon(Icons.tag),
-                              label: Text(tag),
-                              selected: _selectedTags.contains(tag),
-                              showCheckmark: false,
-                                onSelected: (bool newValue) {
-                                  switch (newValue) {
-                                    case true: setState(() => _selectedTags.add(tag));
-                                    case false: setState(() => _selectedTags.remove(tag));
-                                  }
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 8,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      ..._availableTags.map((tag) {
+                        return FilterChip(
+                          avatar: const Icon(Icons.tag),
+                          label: Text(tag),
+                          selected: _selectedTags.contains(tag),
+                          showCheckmark: false,
+                          onSelected: (bool newValue) {
+                            switch (newValue) {
+                              case true: setState(() => _selectedTags.add(tag));
+                              case false: setState(() => _selectedTags.remove(tag));
+                            }
+                            widget.onChanged(_selectedTags);
+                          },
+                          onDeleted: _selectedTags.contains(tag)
+                              ? () {
+                                  setState(() => _selectedTags.remove(tag));
                                   widget.onChanged(_selectedTags);
-                                },
-                                onDeleted: _selectedTags.contains(tag)
-                                    ? () {
-                                        setState(() => _selectedTags.remove(tag));
-                                        widget.onChanged(_selectedTags);
-                                      }
-                                    : null,
-                            );
-                          }).toList(),
-                        ),
+                                }
+                              : null,
+                        );
+                      }),
+                      AddTagChip(
+                        autofocus: _availableTags.isEmpty,
+                        prominent: _availableTags.isEmpty,
+                        onEditingChanged: (editing) => setState(() => _addingTag = editing),
+                        onSubmit: _addTag,
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),

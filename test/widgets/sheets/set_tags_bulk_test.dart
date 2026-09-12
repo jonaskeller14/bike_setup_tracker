@@ -82,7 +82,8 @@ void main() {
     expect(isPartial(tester, 'service'), isTrue);
     expect(isPartial(tester, 'winter'), isTrue);
     expect(chipFor(tester, 'service').selected, isFalse);
-    expect(find.byIcon(Icons.tag), findsNWidgets(3)); // two chips plus the text field
+    expect(find.byIcon(Icons.tag), findsNWidgets(2)); // one per chip
+    expect(find.byTooltip('Add tag'), findsOneWidget);
     expect(applyEnabled(tester), isFalse);
   });
 
@@ -234,15 +235,74 @@ void main() {
     await tester.pumpWidget(harness(mixedSelection));
     await open(tester);
 
-    await tester.enterText(find.byType(TextFormField), 'tubeless');
+    await tester.tap(find.byTooltip('Add tag'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'tubeless');
     await tester.testTextInput.receiveAction(TextInputAction.done);
     await tester.pumpAndSettle();
 
     expect(chipFor(tester, 'tubeless').selected, isTrue);
+    // The field collapses back to the bare add button after a successful add.
+    expect(find.byType(TextField), findsNothing);
 
     await apply(tester);
     expect(result?.added, {'tubeless'});
     expect(result?.removed, isEmpty);
+  });
+
+  testWidgets('grows the new-tag field with the typed text, then caps it at the sheet width',
+      (tester) async {
+    await tester.pumpWidget(harness(mixedSelection));
+    await open(tester);
+
+    await tester.tap(find.byTooltip('Add tag'));
+    await tester.pumpAndSettle();
+    final double hintWidth = tester.getSize(find.byType(TextField)).width;
+
+    await tester.enterText(find.byType(TextField), 'a fairly long tag name');
+    await tester.pumpAndSettle();
+    final double grownWidth = tester.getSize(find.byType(TextField)).width;
+    expect(grownWidth, greaterThan(hintWidth));
+
+    await tester.enterText(find.byType(TextField), 'x' * 400);
+    await tester.pumpAndSettle();
+    final double cappedWidth = tester.getSize(find.byType(TextField)).width;
+    final double availableWidth = tester
+        .getSize(find.ancestor(of: find.byType(TextField), matching: find.byType(Wrap)))
+        .width;
+    expect(cappedWidth, greaterThan(grownWidth));
+    expect(cappedWidth, availableWidth, reason: 'the field stops growing once it fills the row');
+  });
+
+  testWidgets('rejects a duplicate tag inline', (tester) async {
+    await tester.pumpWidget(harness(mixedSelection));
+    await open(tester);
+
+    await tester.tap(find.byTooltip('Add tag'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'service');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Tag already exists'), findsOneWidget);
+    expect(applyEnabled(tester), isFalse);
+  });
+
+  testWidgets('opens the new-tag field instead of the empty placeholder when there are no tags',
+      (tester) async {
+    await tester.pumpWidget(harness(const [<String>{}, <String>{}, <String>{}]));
+    await open(tester);
+
+    expect(find.byType(TextField), findsOneWidget);
+    expect(find.text('No tags yet'), findsNothing);
+
+    await tester.enterText(find.byType(TextField), 'tubeless');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+
+    expect(chipFor(tester, 'tubeless').selected, isTrue);
+    await apply(tester);
+    expect(result?.added, {'tubeless'});
   });
 
   testWidgets('returns null when the sheet is dismissed', (tester) async {

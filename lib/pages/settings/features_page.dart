@@ -335,9 +335,11 @@ class FeaturesPage extends StatelessWidget {
                     Navigator.pop(context);
                   },
                   infoText:
-                      'Estimates when a task will come due by extrapolating how much the bike '
-                      'has been ridden recently. Needs a connected Strava subscription, and only '
-                      'shows for tasks that are not due yet.',
+                      'Estimates when a task will come due. For date and duration intervals, '
+                      'this is calculated directly from the last completion, no Strava needed. '
+                      'For other intervals (distance, elevation, ride time, ...), it extrapolates '
+                      'from how much the bike has been ridden recently and needs a connected '
+                      'Strava subscription. Only shows for tasks that are not due yet.',
                 ),
               ),
               ListTile(

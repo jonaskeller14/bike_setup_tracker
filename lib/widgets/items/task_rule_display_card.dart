@@ -62,20 +62,25 @@ class TaskRuleDisplayCard extends StatelessWidget {
   }
 
   Widget _forecastWidget(BuildContext context, String forecastLabel, Color statusColor) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      spacing: 2,
-      children: [
-        Icon(Icons.insights, size: 13, color: statusColor.withValues(alpha: 0.5)),
-        Text(
-          forecastLabel,
-          style: TextStyle(
-            color: statusColor.withValues(alpha: 0.5),
-            fontSize: 13,
+    return Tooltip(
+      message: 'Forecast for when this task will become due. Exact for date and duration '
+          'intervals; for other intervals it is estimated from recent riding activity and '
+          'needs a connected Strava subscription.',
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        spacing: 2,
+        children: [
+          Icon(Icons.insights, size: 13, color: statusColor.withValues(alpha: 0.5)),
+          Text(
+            forecastLabel,
+            style: TextStyle(
+              color: statusColor.withValues(alpha: 0.5),
+              fontSize: 13,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

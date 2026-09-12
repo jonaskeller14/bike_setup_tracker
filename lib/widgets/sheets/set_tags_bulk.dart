@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'add_tag_chip.dart';
 import 'sheet_header.dart';
 
 class BulkTagChanges {
@@ -62,12 +63,11 @@ class SetTagsBulkSheetContent extends StatefulWidget {
 }
 
 class _SetTagsBulkSheetContentState extends State<SetTagsBulkSheetContent> {
-  final _formKey = GlobalKey<FormState>();
-  final TextEditingController _controller = TextEditingController();
   final Map<String, int> _counts = {};
   final Map<String, _TagState> _initialStates = {};
   final Map<String, _TagState> _states = {};
   late final List<String> _availableTags;
+  late bool _addingTag;
 
   @override
   void initState() {
@@ -81,12 +81,8 @@ class _SetTagsBulkSheetContentState extends State<SetTagsBulkSheetContent> {
     for (final tag in _availableTags) {
       _initialStates[tag] = _stateForCount(_counts[tag] ?? 0);
     }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
+    // With nothing to pick from, the sheet opens straight into the new-tag field.
+    _addingTag = _availableTags.isEmpty;
   }
 
   _TagState _stateForCount(int count) {
@@ -118,22 +114,15 @@ class _SetTagsBulkSheetContentState extends State<SetTagsBulkSheetContent> {
     setState(() => _states[tag] = next);
   }
 
-  void _addTag() {
-    if (!_formKey.currentState!.validate()) return;
-
-    final newTag = _controller.text.trim();
-
-    FocusScope.of(context).unfocus();
+  String? _addTag(String newTag) {
+    if (_availableTags.contains(newTag)) return "Tag already exists";
 
     setState(() {
       _availableTags.add(newTag);
       _initialStates[newTag] = _TagState.none;
       _states[newTag] = _TagState.all;
-
-      _controller.clear();
-      _formKey.currentState!.reset();
-      _controller.text = "";
     });
+    return null;
   }
 
   Widget _partialTagSwatch() {
@@ -226,52 +215,33 @@ class _SetTagsBulkSheetContentState extends State<SetTagsBulkSheetContent> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const SizedBox(height: 16),
-                  Form(
-                    key: _formKey,
-                    child: TextFormField(
-                      textInputAction: TextInputAction.done,
-                      controller: _controller,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      maxLines: 1,
-                      decoration: InputDecoration(
-                        border: const OutlineInputBorder(),
-                        isDense: true,
-                        labelText: "Add new tag",
-                        hintText: 'New Tag',
-                        contentPadding: const EdgeInsets.all(8),
-                        icon: const Icon(Icons.tag),
-                        suffixIcon: IconButton(
-                          onPressed: _addTag,
-                          icon: Icon(Icons.add, color: Theme.of(context).colorScheme.primary),
+                  if (_availableTags.isEmpty && !_addingTag)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 32),
+                      child: Center(
+                        child: Text(
+                          "No tags yet",
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                          ),
                         ),
                       ),
-                      validator: (String? newValue) {
-                        if (newValue == null || newValue.trim().isEmpty) return "Empty tag is not allowed";
-                        if (_availableTags.contains(newValue.trim())) return "Tag already exists";
-                        return null;
-                      },
-                      onFieldSubmitted: (_) => _addTag(),
                     ),
+                  Wrap(
+                    spacing: 6,
+                    // Replaces the run spacing the chips' tap-target padding would add.
+                    runSpacing: 8,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      ..._availableTags.map((tag) => _tagChip(tag, maxLabelWidth)),
+                      AddTagChip(
+                        autofocus: _availableTags.isEmpty,
+                        prominent: _availableTags.isEmpty,
+                        onEditingChanged: (editing) => setState(() => _addingTag = editing),
+                        onSubmit: _addTag,
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 12),
-                  _availableTags.isEmpty
-                      ? Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 32),
-                          child: Center(
-                            child: Text(
-                              "No tags yet",
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
-                              ),
-                            ),
-                          ),
-                        )
-                      : Wrap(
-                          spacing: 6,
-                          // Replaces the run spacing the chips' tap-target padding would add.
-                          runSpacing: 8,
-                          children: _availableTags.map((tag) => _tagChip(tag, maxLabelWidth)).toList(),
-                        ),
                 ],
               ),
             ),

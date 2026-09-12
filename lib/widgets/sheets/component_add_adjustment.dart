@@ -22,6 +22,10 @@ final Map<ComponentType, List<Adjustment>> _adjustmentPresets = {
     SagAdjustment(name: "SAG", notes: kForkSagNotes),
     StepAdjustment(name: "Rebound", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Rebound clicks"),
     StepAdjustment(name: "Compression", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Compression clicks"),
+    StepAdjustment(name: "LSR", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Low Speed Rebound clicks"),
+    StepAdjustment(name: "HSR", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "High Speed Rebound clicks"),
+    StepAdjustment(name: "LSC", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Low Speed Compression clicks"),
+    StepAdjustment(name: "HSC", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "High Speed Compression clicks"),
     StepAdjustment(name: "Volume Spacers", unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.minusButtonValuePlusButton, notes: "Number of volume spacers installed in the air spring"),
   ],
   ComponentType.shock: [
@@ -31,6 +35,10 @@ final Map<ComponentType, List<Adjustment>> _adjustmentPresets = {
     SagAdjustment(name: "SAG", notes: kShockSagNotes),
     StepAdjustment(name: "Rebound", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Rebound clicks"),
     StepAdjustment(name: "Compression", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Compression clicks"),
+    StepAdjustment(name: "LSR", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Low Speed Rebound clicks"),
+    StepAdjustment(name: "HSR", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "High Speed Rebound clicks"),
+    StepAdjustment(name: "LSC", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Low Speed Compression clicks"),
+    StepAdjustment(name: "HSC", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "High Speed Compression clicks"),
     StepAdjustment(name: "Volume Spacers", unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.minusButtonValuePlusButton, notes: "Number of volume spacers installed in the air spring"),
   ],
   ComponentType.cockpit: [

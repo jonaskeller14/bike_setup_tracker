@@ -142,6 +142,28 @@ class FeaturesPage extends StatelessWidget {
                   infoText: 'Adds a Text Adjustment type that provides a free-form text field.',
                 ),
               ),
+              if (kDebugMode)
+                ListTile(
+                  leading: const Icon(Icons.donut_large),
+                  title: const Text("Step Adjustment Dial Color & Size"),
+                  subtitle: _offOnOptionWidgets[appSettings.enableStepDialColorSize] ?? const Text("-"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () => radioGroupSheet<bool>(
+                    context: context,
+                    title: "Step Adjustment Dial Color & Size",
+                    value: appSettings.enableStepDialColorSize,
+                    optionWidgets: _offOnOptionWidgets,
+                    onChanged: (bool? newValue) {
+                      if (newValue == null) return;
+                      appSettings.enableStepDialColorSize = newValue;
+                      Navigator.pop(context);
+                    },
+                    infoText:
+                        'When a Step Adjustment uses a dial visualization, lets you tap the dial '
+                        'preview to cycle through its color and size. When disabled, only the '
+                        'visualization dropdown is shown.',
+                  ),
+                ),
               ListTile(
                 leading: const Icon(CategoricalAdjustment.iconData),
                 title: const Text("Categorical Adjustment"),

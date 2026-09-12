@@ -1,13 +1,8 @@
-/// App-wide identity, contact, store and legal links.
-///
-/// Previously these were static fields on `AboutPage`. They were lifted out
-/// when About was merged into Settings so they no longer depend on a page
-/// widget and can be referenced from anywhere (paywall, error page, …).
 class AppInfo {
   AppInfo._();
 
   static const String appVersion = '1.4.2';
-  static const String buildNumber = '39';
+  static const int buildNumber = 39;
   static const String releaseDate = 'September 2026';
 
   static const String supportEmail = 'jonaskeller14.app+support@gmail.com';

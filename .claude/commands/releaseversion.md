@@ -59,7 +59,7 @@ been approved.
 - Edit `pubspec.yaml`: replace the version in the `version:` line. Keep the trailing
   `# TODO: Update AppInfo …` comment intact.
 - Edit `lib/utils/app_info.dart`: set `appVersion` = new `X.Y.Z`, `buildNumber` = new `B`
-  (as a string), and `releaseDate` = the current month and year in `"Month YYYY"` form
+  (as an int), and `releaseDate` = the current month and year in `"Month YYYY"` form
   (e.g. `July 2026`).
 
 ## 5. Prepare the release commit and tag

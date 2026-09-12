@@ -5,11 +5,14 @@ import '../models/app_hint.dart';
 import '../models/app_settings.dart';
 import '../models/installation.dart';
 import '../repositories/app_repository.dart';
+import '../utils/app_info.dart';
 import '../utils/installation_timeline_validation.dart';
 
 class AppHintService extends ChangeNotifier {
   static const _preferencePrefix = 'app_hint.';
   static const _legacyPreferencePrefix = 'app_settings.';
+  static const _releaseBaselineKey = '${_preferencePrefix}releaseBaselineBuild';
+  static const _replayBaselineBuild = 0;  // Baseline written by [resetAll]
   static const _legacyHints = {
     AppHint.garageGesturesV1: 'showGarageListHint',
     AppHint.gettingStartedV1: 'showGettingStartedGuideHint',
@@ -20,16 +23,23 @@ class AppHintService extends ChangeNotifier {
 
   AppRepository _appRepository;
   AppSettings _appSettings;
+
+  final Map<AppHint, int> _releaseBuilds;
+  final int _currentBuild;
+
   final Map<AppHint, AppHintStatus> _statuses = {};
   final Map<AppHintPlacement, AppHint?> _activeHints = {};
   bool _hintHandledThisSession = false;
+  int? _releaseBaselineBuild;
 
   factory AppHintService({
     required AppRepository appRepository,
     required AppSettings appSettings,
-  }) => AppHintService._(appRepository, appSettings);
+    Map<AppHint, int> releaseBuilds = releaseHintBuilds,
+    int currentBuild = AppInfo.buildNumber,
+  }) => AppHintService._(appRepository, appSettings, releaseBuilds, currentBuild);
 
-  AppHintService._(this._appRepository, this._appSettings);
+  AppHintService._(this._appRepository, this._appSettings, this._releaseBuilds, this._currentBuild);
 
   Future<void> load() async {
     final preferences = await SharedPreferences.getInstance();
@@ -42,6 +52,7 @@ class AppHintService extends ChangeNotifier {
       );
       if (status != AppHintStatus.unseen) _statuses[hint] = status;
     }
+    await _resolveReleaseBaseline(preferences);
   }
 
   AppHintStatus statusOf(AppHint hint) => _statuses[hint] ?? AppHintStatus.unseen;
@@ -66,8 +77,8 @@ class AppHintService extends ChangeNotifier {
     if (_hintHandledThisSession) return null;
 
     return switch (placement) {
-      AppHintPlacement.garageHeader => _gettingStartedHint() ?? _garageGesturesHint(),
-      AppHintPlacement.setupHeader => _gettingStartedHint() ?? _setupTaskHint() ?? _setupCalendarHint(),
+      AppHintPlacement.garageHeader => _gettingStartedHint() ?? _releaseHint() ?? _garageGesturesHint(),
+      AppHintPlacement.setupHeader => _gettingStartedHint() ?? _releaseHint() ?? _setupTaskHint() ?? _setupCalendarHint(),
       AppHintPlacement.setupComparison => _setupComparisonHint(),
       AppHintPlacement.stravaDashboardGear => _stravaLinkGearHint(),
     };
@@ -77,14 +88,35 @@ class AppHintService extends ChangeNotifier {
   Future<void> complete(AppHint hint) => _setStatus(hint, AppHintStatus.completed);
 
   Future<void> resetAll() async {
-    final changed = _statuses.isNotEmpty || _hintHandledThisSession;
+    final changed = _statuses.isNotEmpty || _hintHandledThisSession || _releaseBaselineBuild != _replayBaselineBuild;
     if (!changed) return;
 
     _statuses.clear();
     _hintHandledThisSession = false;
+    _releaseBaselineBuild = _replayBaselineBuild;
     await _removePersistedStatuses();
+    await _persistReleaseBaseline(_replayBaselineBuild);
     _cacheActiveHints();
     notifyListeners();
+  }
+
+  /// The oldest "What's new" announcement the user has not handled yet.
+  AppHint? _releaseHint() {
+    final baseline = _releaseBaselineBuild;
+    if (baseline == null) return null;
+
+    AppHint? oldest;
+    var oldestBuild = 0;
+    for (final entry in _releaseBuilds.entries) {
+      final eligible =
+          entry.value > baseline && entry.value <= _currentBuild && statusOf(entry.key) == AppHintStatus.unseen;
+      if (!eligible) continue;
+      if (oldest == null || entry.value < oldestBuild) {
+        oldest = entry.key;
+        oldestBuild = entry.value;
+      }
+    }
+    return oldest;
   }
 
   AppHint? _garageGesturesHint() {
@@ -160,6 +192,22 @@ class AppHintService extends ChangeNotifier {
   Future<void> _persistStatus(AppHint hint, AppHintStatus status) async {
     final preferences = await SharedPreferences.getInstance();
     await preferences.setString(_keyFor(hint), status.name);
+  }
+
+  Future<void> _persistReleaseBaseline(int build) async {
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.setInt(_releaseBaselineKey, build);
+  }
+
+  Future<void> _resolveReleaseBaseline(SharedPreferences preferences) async {
+    final storedBaseline = preferences.getInt(_releaseBaselineKey);
+    if (storedBaseline != null) {
+      _releaseBaselineBuild = storedBaseline;
+      return;
+    }
+
+    _releaseBaselineBuild = _currentBuild - 1;
+    await _persistReleaseBaseline(_releaseBaselineBuild!);
   }
 
   Future<void> _removePersistedStatuses() async {

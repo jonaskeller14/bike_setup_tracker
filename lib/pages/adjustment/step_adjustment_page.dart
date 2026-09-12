@@ -7,11 +7,15 @@ import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/set_adjustment/set_step_adjustment.dart';
+import '../../widgets/set_adjustment/set_step_adjustment_dial.dart';
 import 'adjustment_page.dart';
 
 const int _defaultStep = 1;
 const int _defaultMin = 0;
 const StepAdjustmentVisualization _defaultVisualization = StepAdjustmentVisualization.slider;
+
+/// 50px knob plus the decorator's horizontal content padding and border.
+const double _dialFieldWidth = 68;
 
 class StepAdjustmentPage extends StatefulWidget {
   final StepAdjustment? adjustment;
@@ -49,6 +53,8 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
   late TextEditingController _minController;
   late TextEditingController _maxController;
   late StepAdjustmentVisualization visualization;
+  late StepAdjustmentDialColor dialColor;
+  late StepAdjustmentDialSize dialSize;
 
   late double _previewValue;
   late StepAdjustment _previewAdjustment;
@@ -67,6 +73,8 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
     _maxController = TextEditingController(text: widget.adjustment?.max.toString());
     _maxController.addListener(_changeListener);
     visualization = widget.adjustment?.visualization ?? _defaultVisualization;
+    dialColor = widget.adjustment?.dialColor ?? StepAdjustmentDialColor.primary;
+    dialSize = widget.adjustment?.dialSize ?? StepAdjustmentDialSize.normal;
 
     _previewAdjustment = widget.adjustment ?? StepAdjustment(
       name: '',
@@ -87,7 +95,9 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
         int.tryParse(_stepController.text.trim()) != (widget.adjustment?.step ?? _defaultStep) ||
         int.tryParse(_minController.text.trim()) != (widget.adjustment?.min ?? _defaultMin) ||
         int.tryParse(_maxController.text.trim()) != widget.adjustment?.max ||
-        visualization != (widget.adjustment?.visualization ?? _defaultVisualization);
+        visualization != (widget.adjustment?.visualization ?? _defaultVisualization) ||
+        dialColor != (widget.adjustment?.dialColor ?? StepAdjustmentDialColor.primary) ||
+        dialSize != (widget.adjustment?.dialSize ?? StepAdjustmentDialSize.normal);
 
     if (_formHasChanges != hasChanges) {
       setState(() {
@@ -133,6 +143,8 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
       min: min,
       max: max,
       visualization: visualization,
+      dialColor: dialColor,
+      dialSize: dialSize,
     ));
   }
 
@@ -191,6 +203,8 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
       min: min,
       max: max,
       visualization: visualization,
+      dialColor: dialColor,
+      dialSize: dialSize,
     );
   }
 
@@ -202,6 +216,62 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
       _previewAdjustment = _composePreview();
       if (resetValue) _previewValue = _previewAdjustment.min.toDouble();
     });
+  }
+
+  /// Cycles the dial through every palette color; wrapping back to the first
+  /// color flips the size, so repeated taps walk all color/size combinations.
+  void _cycleDialStyle() {
+    unawaited(HapticFeedback.selectionClick());
+    final nextIndex = (dialColor.index + 1) % StepAdjustmentDialColor.values.length;
+    dialColor = StepAdjustmentDialColor.values[nextIndex];
+    if (nextIndex == 0) {
+      dialSize = dialSize == StepAdjustmentDialSize.normal
+          ? StepAdjustmentDialSize.small
+          : StepAdjustmentDialSize.normal;
+    }
+    _updatePreview();
+    _changeListener();
+  }
+
+  Widget _buildDialStyleButton(BuildContext context) {
+    final divisions = ((_previewAdjustment.max - _previewAdjustment.min) / _previewAdjustment.step).floor();
+    final knobMax = (_previewAdjustment.min + divisions * _previewAdjustment.step).toDouble();
+    final showStepTicks = divisions <= SetStepAdjustmentWidget.maxRenderedTicks;
+    final color = resolveDialColor(context, dialColor);
+
+    return Tooltip(
+      message: 'Tap to change dial color and size',
+      child: InkWell(
+        onTap: _cycleDialStyle,
+        borderRadius: BorderRadius.circular(4),
+        // The decorator lays out against its incoming width, which is unbounded
+        // inside the Row, so the knob's own width has to be handed to it.
+        child: SizedBox(
+          width: _dialFieldWidth,
+          child: InputDecorator(
+            decoration: const InputDecoration(
+              labelText: 'Dial',
+              border: OutlineInputBorder(),
+              contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            ),
+            child: RotaryKnob(
+              key: const ValueKey('DialStyle'),
+              value: _previewValue.clamp(_previewAdjustment.min.toDouble(), knobMax),
+              initialValue: null,
+              min: _previewAdjustment.min.toDouble(),
+              max: knobMax,
+              numberOfTicks: showStepTicks ? divisions + 1 : SetStepAdjustmentWidget.maxRenderedTicks + 1,
+              showAllTicks: showStepTicks,
+              clockwise: visualization.isClockwiseDial,
+              primaryColor: color,
+              onPrimaryColor: resolveDialOnColor(context, color),
+              tickColor: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
+              small: dialSize == StepAdjustmentDialSize.small,
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -322,63 +392,74 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                             maintainState: true,
                             child: Column(
                               children: [
-                                DropdownButtonFormField<StepAdjustmentVisualization>(
-                                  initialValue: visualization,
-                                  isExpanded: true,
-                                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                                  hint: const Text("Please select visualization"),
-                                  decoration: InputDecoration(
-                                    labelText: 'Visualization',
-                                    border: const OutlineInputBorder(),
-                                    hintText: "Choose a visualization for this adjustment",
-                                    fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
-                                    filled: widget.mode == AdjustmentPageMode.edit && visualization != widget.adjustment?.visualization,
-                                  ),
-                                  items: StepAdjustmentVisualization.values.map((v) {
-                                    return DropdownMenuItem<StepAdjustmentVisualization>(
-                                      value: v,
-                                      child: Row(
-                                        crossAxisAlignment: CrossAxisAlignment.center,
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        children: [
-                                          if (v == StepAdjustmentVisualization.slider)
-                                            const Icon(Icons.linear_scale),
-                                          if (v == StepAdjustmentVisualization.sliderWithClockwiseDial) ...[
-                                            const Icon(Icons.linear_scale),
-                                            const Icon(Icons.rotate_right),
-                                          ],
-                                          if (v == StepAdjustmentVisualization.sliderWithCounterclockwiseDial) ...[
-                                            const Icon(Icons.linear_scale),
-                                            const Icon(Icons.rotate_left),
-                                          ],
-                                          if (v == StepAdjustmentVisualization.minusButtonValuePlusButton)
-                                            const Icon(Icons.exposure_plus_1),
-                                          if (v == StepAdjustmentVisualization.minusButtonValuePlusButtonClockwiseDial) ...[
-                                            const Icon(Icons.exposure_plus_1),
-                                            const Icon(Icons.rotate_right),
-                                          ],
-                                          if (v == StepAdjustmentVisualization.minusButtonValuePlusButtonCounterclockwiseDial) ...[
-                                            const Icon(Icons.exposure_plus_1),
-                                            const Icon(Icons.rotate_left),
-                                          ],
-                                          const SizedBox(width: 8),
-                                          Expanded(child: Text(v.value)),
-                                        ],
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Expanded(
+                                      child: DropdownButtonFormField<StepAdjustmentVisualization>(
+                                        initialValue: visualization,
+                                        isExpanded: true,
+                                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                                        hint: const Text("Please select visualization"),
+                                        decoration: InputDecoration(
+                                          labelText: 'Visualization',
+                                          border: const OutlineInputBorder(),
+                                          hintText: "Choose a visualization for this adjustment",
+                                          fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
+                                          filled: widget.mode == AdjustmentPageMode.edit && visualization != widget.adjustment?.visualization,
+                                        ),
+                                        items: StepAdjustmentVisualization.values.map((v) {
+                                          return DropdownMenuItem<StepAdjustmentVisualization>(
+                                            value: v,
+                                            child: Row(
+                                              crossAxisAlignment: CrossAxisAlignment.center,
+                                              mainAxisAlignment: MainAxisAlignment.start,
+                                              children: [
+                                                if (v == StepAdjustmentVisualization.slider)
+                                                  const Icon(Icons.linear_scale),
+                                                if (v == StepAdjustmentVisualization.sliderWithClockwiseDial) ...[
+                                                  const Icon(Icons.linear_scale),
+                                                  const Icon(Icons.rotate_right),
+                                                ],
+                                                if (v == StepAdjustmentVisualization.sliderWithCounterclockwiseDial) ...[
+                                                  const Icon(Icons.linear_scale),
+                                                  const Icon(Icons.rotate_left),
+                                                ],
+                                                if (v == StepAdjustmentVisualization.minusButtonValuePlusButton)
+                                                  const Icon(Icons.exposure_plus_1),
+                                                if (v == StepAdjustmentVisualization.minusButtonValuePlusButtonClockwiseDial) ...[
+                                                  const Icon(Icons.exposure_plus_1),
+                                                  const Icon(Icons.rotate_right),
+                                                ],
+                                                if (v == StepAdjustmentVisualization.minusButtonValuePlusButtonCounterclockwiseDial) ...[
+                                                  const Icon(Icons.exposure_plus_1),
+                                                  const Icon(Icons.rotate_left),
+                                                ],
+                                                const SizedBox(width: 8),
+                                                Expanded(child: Text(v.value)),
+                                              ],
+                                            ),
+                                          );
+                                        }).toList(),
+                                        onChanged: (StepAdjustmentVisualization? newVisualization) {
+                                          if (newVisualization == null) return;
+                                          visualization = newVisualization;
+                                          _updatePreview();
+                                          _changeListener();
+                                        },
+                                        validator: (value) {
+                                          if (value == null) {
+                                            return 'Component type cannot be empty';
+                                          }
+                                          return null;
+                                        },
                                       ),
-                                    );
-                                  }).toList(),
-                                  onChanged: (StepAdjustmentVisualization? newVisualization) {
-                                    if (newVisualization == null) return;
-                                    visualization = newVisualization;
-                                    _updatePreview();
-                                    _changeListener();
-                                  },
-                                  validator: (value) {
-                                    if (value == null) {
-                                      return 'Component type cannot be empty';
-                                    }
-                                    return null;
-                                  },
+                                    ),
+                                    if (visualization.hasDial) ...[
+                                      const SizedBox(width: 8),
+                                      _buildDialStyleButton(context),
+                                    ],
+                                  ],
                                 ),
                                 const SizedBox(height: 12),
                                 TextFormField(

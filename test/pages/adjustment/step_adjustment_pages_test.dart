@@ -225,4 +225,78 @@ void main() {
     expect(result!.min, 50);
     expect(result!.max, 200);
   });
+
+  testWidgets('Dial visualization renders the dial field and taps cycle its style', (WidgetTester tester) async {
+    final initial = StepAdjustment(
+      id: 'test-id',
+      name: 'Rebound',
+      notes: null,
+      unit: null,
+      step: 1,
+      min: 0,
+      max: 20,
+      visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial,
+    );
+
+    StepAdjustment? result;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: materialAppTheme,
+        home: Builder(
+          builder: (context) => ElevatedButton(
+            onPressed: () async {
+              result = await Navigator.push<StepAdjustment>(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => StepAdjustmentPage.edit(adjustment: initial),
+                ),
+              );
+            },
+            child: const Text('Open Page'),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open Page'));
+    await tester.pumpAndSettle();
+
+    final dial = find.byKey(const ValueKey('DialStyle'));
+    expect(dial, findsOneWidget);
+    expect(tester.takeException(), isNull);
+
+    await tester.tap(dial);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.check));
+    await tester.pumpAndSettle();
+
+    expect(result, isNotNull);
+    expect(result!.dialColor, StepAdjustmentDialColor.accent1);
+    expect(result!.dialSize, StepAdjustmentDialSize.normal);
+  });
+
+  testWidgets('Dial field is hidden for visualizations without a dial', (WidgetTester tester) async {
+    final initial = StepAdjustment(
+      id: 'test-id',
+      name: 'Rebound',
+      notes: null,
+      unit: null,
+      step: 1,
+      min: 0,
+      max: 20,
+      visualization: StepAdjustmentVisualization.slider,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: materialAppTheme,
+        home: StepAdjustmentPage.edit(adjustment: initial),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const ValueKey('DialStyle')), findsNothing);
+  });
 }

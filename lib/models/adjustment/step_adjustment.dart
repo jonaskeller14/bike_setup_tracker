@@ -10,13 +10,36 @@ enum StepAdjustmentVisualization {
   
   final String value;
   const StepAdjustmentVisualization(this.value);
+
+  bool get hasDial =>
+      this != StepAdjustmentVisualization.slider &&
+      this != StepAdjustmentVisualization.minusButtonValuePlusButton;
+
+  bool get isClockwiseDial =>
+      this == StepAdjustmentVisualization.sliderWithClockwiseDial ||
+      this == StepAdjustmentVisualization.minusButtonValuePlusButtonClockwiseDial;
 }
+
+/// Dial tint, stored as an index into the theme-derived chart palette
+/// (`chartColors`), so it follows the primary color of the active theme.
+enum StepAdjustmentDialColor {
+  primary,
+  accent1,
+  accent2,
+  accent3,
+  accent4,
+  accent5;
+}
+
+enum StepAdjustmentDialSize { normal, small }
 
 class StepAdjustment extends Adjustment {
   final int step;
   final int min;
   final int max;
   final StepAdjustmentVisualization visualization;
+  final StepAdjustmentDialColor dialColor;
+  final StepAdjustmentDialSize dialSize;
 
   static const IconData iconData = Icons.stairs_outlined;
 
@@ -29,6 +52,8 @@ class StepAdjustment extends Adjustment {
     required this.min,
     required this.max,
     required this.visualization,
+    this.dialColor = StepAdjustmentDialColor.primary,
+    this.dialSize = StepAdjustmentDialSize.normal,
   });
 
   @override
@@ -41,6 +66,8 @@ class StepAdjustment extends Adjustment {
       min: min,
       max: max,
       visualization: visualization,
+      dialColor: dialColor,
+      dialSize: dialSize,
     );
   }
 
@@ -51,7 +78,7 @@ class StepAdjustment extends Adjustment {
 
   @override
   Map<String, dynamic> toJson() => {
-    'version': 1,
+    'version': 2,
     'id': id,
     'name': name,
     'notes': notes,
@@ -61,12 +88,14 @@ class StepAdjustment extends Adjustment {
     'max': max,
     'step': step,
     'visualization': visualization.toString(),
+    'dialColor': dialColor.name,
+    'dialSize': dialSize.name,
   };
 
   factory StepAdjustment.fromJson(Map<String, dynamic> json) {
     final int? version = json["version"] as int?;
     switch (version) {
-      case null || 1:
+      case null || 1 || 2:
         return StepAdjustment(
           id: json["id"] as String?,
           name: json['name'] as String,
@@ -78,6 +107,14 @@ class StepAdjustment extends Adjustment {
           visualization: StepAdjustmentVisualization.values.firstWhere(
             (e) => e.toString() == json['visualization'] as String?,
             orElse: () => StepAdjustmentVisualization.slider,
+          ),
+          dialColor: StepAdjustmentDialColor.values.firstWhere(
+            (e) => e.name == json['dialColor'] as String?,
+            orElse: () => StepAdjustmentDialColor.primary,
+          ),
+          dialSize: StepAdjustmentDialSize.values.firstWhere(
+            (e) => e.name == json['dialSize'] as String?,
+            orElse: () => StepAdjustmentDialSize.normal,
           ),
         );
       default: throw Exception("Json Version $version of StepAdjustment incompatible.");
@@ -134,11 +171,13 @@ class StepAdjustment extends Adjustment {
         step == other.step &&
         min == other.min &&
         max == other.max &&
-        visualization == other.visualization;
+        visualization == other.visualization &&
+        dialColor == other.dialColor &&
+        dialSize == other.dialSize;
   }
 
   @override
   int get hashCode {
-    return Object.hash(id, name, notes, unit, step, min, max, visualization);
+    return Object.hash(id, name, notes, unit, step, min, max, visualization, dialColor, dialSize);
   }
 }

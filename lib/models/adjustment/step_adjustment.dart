@@ -48,6 +48,7 @@ class StepAdjustment extends Adjustment {
     required super.name,
     required super.notes,
     required super.unit,
+    super.presetKey,
     required this.step,
     required this.min,
     required this.max,
@@ -62,12 +63,41 @@ class StepAdjustment extends Adjustment {
       name: name,
       notes: notes,
       unit: unit,
+      presetKey: presetKey,
       step: step,
       min: min,
       max: max,
       visualization: visualization,
       dialColor: dialColor,
       dialSize: dialSize,
+    );
+  }
+
+  StepAdjustment copyWith({
+    Object? id = const _Sentinel(),
+    Object? name = const _Sentinel(),
+    Object? notes = const _Sentinel(),
+    Object? unit = const _Sentinel(),
+    Object? presetKey = const _Sentinel(),
+    Object? step = const _Sentinel(),
+    Object? min = const _Sentinel(),
+    Object? max = const _Sentinel(),
+    Object? visualization = const _Sentinel(),
+    Object? dialColor = const _Sentinel(),
+    Object? dialSize = const _Sentinel(),
+  }) {
+    return StepAdjustment(
+      id: id is _Sentinel ? this.id : (id as String),
+      name: name is _Sentinel ? this.name : (name as String),
+      notes: notes is _Sentinel ? this.notes : (notes as String?),
+      unit: unit is _Sentinel ? this.unit : (unit as AdjustmentUnit?),
+      presetKey: presetKey is _Sentinel ? this.presetKey : (presetKey as String?),
+      step: step is _Sentinel ? this.step : (step as int),
+      min: min is _Sentinel ? this.min : (min as int),
+      max: max is _Sentinel ? this.max : (max as int),
+      visualization: visualization is _Sentinel ? this.visualization : (visualization as StepAdjustmentVisualization),
+      dialColor: dialColor is _Sentinel ? this.dialColor : (dialColor as StepAdjustmentDialColor),
+      dialSize: dialSize is _Sentinel ? this.dialSize : (dialSize as StepAdjustmentDialSize),
     );
   }
 
@@ -84,6 +114,7 @@ class StepAdjustment extends Adjustment {
     'notes': notes,
     'type': AdjustmentType.step.name,
     'unit': unit?.encode(),
+    'presetKey': presetKey,
     'min': min,
     'max': max,
     'step': step,
@@ -101,6 +132,7 @@ class StepAdjustment extends Adjustment {
           name: json['name'] as String,
           notes: json['notes'] as String?,
           unit: AdjustmentUnit.decode(json['unit'] as String?),
+          presetKey: json['presetKey'] as String?,
           step: (json['step'] as num).toInt(),
           min: (json['min'] as num).toInt(),
           max: (json['max'] as num).toInt(),
@@ -168,6 +200,7 @@ class StepAdjustment extends Adjustment {
         name == other.name &&
         notes == other.notes &&
         unit == other.unit &&
+        presetKey == other.presetKey &&
         step == other.step &&
         min == other.min &&
         max == other.max &&
@@ -178,6 +211,6 @@ class StepAdjustment extends Adjustment {
 
   @override
   int get hashCode {
-    return Object.hash(id, name, notes, unit, step, min, max, visualization, dialColor, dialSize);
+    return Object.hash(id, name, notes, unit, presetKey, step, min, max, visualization, dialColor, dialSize);
   }
 }

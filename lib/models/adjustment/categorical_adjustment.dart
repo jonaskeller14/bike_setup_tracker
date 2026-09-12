@@ -12,6 +12,7 @@ class CategoricalAdjustment extends Adjustment {
     required super.name,
     required super.notes,
     required super.unit,
+    super.presetKey,
     required this.options,
     this.multiSelect = false,
     this.counted = false,
@@ -23,6 +24,7 @@ class CategoricalAdjustment extends Adjustment {
       name: name,
       notes: notes,
       unit: unit,
+      presetKey: presetKey,
       options: options,
       multiSelect: multiSelect,
       counted: counted,
@@ -49,6 +51,7 @@ class CategoricalAdjustment extends Adjustment {
     'notes': notes,
     'type': AdjustmentType.categorical.name,
     'unit': unit?.encode(),
+    'presetKey': presetKey,
     'options': options.toList(),
     'multiSelect': multiSelect,
     'counted': counted,
@@ -63,6 +66,7 @@ class CategoricalAdjustment extends Adjustment {
           name: json['name'] as String,
           notes: json['notes'] as String?,
           unit: AdjustmentUnit.decode(json['unit'] as String?),
+          presetKey: json['presetKey'] as String?,
           options: Set<String>.from(json['options'] as Iterable<dynamic>),
           multiSelect: json['multiSelect'] as bool? ?? false,
           counted: json['counted'] as bool? ?? false,
@@ -92,6 +96,7 @@ class CategoricalAdjustment extends Adjustment {
     Object? name = const _Sentinel(),
     Object? notes = const _Sentinel(),
     Object? unit = const _Sentinel(),
+    Object? presetKey = const _Sentinel(),
     Object? options = const _Sentinel(),
     Object? multiSelect = const _Sentinel(),
     Object? counted = const _Sentinel(),
@@ -101,6 +106,7 @@ class CategoricalAdjustment extends Adjustment {
       name: name is _Sentinel ? this.name : (name as String),
       notes: notes is _Sentinel ? this.notes : (notes as String?),
       unit: unit is _Sentinel ? this.unit : (unit as AdjustmentUnit?),
+      presetKey: presetKey is _Sentinel ? this.presetKey : (presetKey as String?),
       options: options is _Sentinel ? this.options : (options as Set<String>),
       multiSelect: multiSelect is _Sentinel ? this.multiSelect : (multiSelect as bool),
       counted: counted is _Sentinel ? this.counted : (counted as bool),
@@ -119,6 +125,7 @@ class CategoricalAdjustment extends Adjustment {
         name == other.name &&
         notes == other.notes &&
         unit == other.unit &&
+        presetKey == other.presetKey &&
         multiSelect == other.multiSelect &&
         counted == other.counted &&
         setEquals(options, other.options);
@@ -126,6 +133,6 @@ class CategoricalAdjustment extends Adjustment {
 
   @override
   int get hashCode {
-    return Object.hash(id, name, notes, unit, multiSelect, counted, Object.hashAllUnordered(options));
+    return Object.hash(id, name, notes, unit, presetKey, multiSelect, counted, Object.hashAllUnordered(options));
   }
 }

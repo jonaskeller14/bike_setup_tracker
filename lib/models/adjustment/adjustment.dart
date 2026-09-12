@@ -31,12 +31,14 @@ sealed class Adjustment {
   final String name;
   final String? notes;
   final AdjustmentUnit? unit;
+  final String? presetKey;
 
   Adjustment({
     String? id,
     required this.name,
     required this.notes,
     required this.unit,
+    this.presetKey,
   }) : id = id ?? const Uuid().v4();
 
   Adjustment deepCopy();

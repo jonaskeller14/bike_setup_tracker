@@ -11,6 +11,7 @@ class DurationAdjustment extends Adjustment {
     required super.name,
     required super.notes,
     required super.unit,
+    super.presetKey,
     this.min,
     this.max,
   });
@@ -21,6 +22,7 @@ class DurationAdjustment extends Adjustment {
       name: name,
       notes: notes,
       unit: unit,
+      presetKey: presetKey,
       min: min,
       max: max,
     );
@@ -31,6 +33,7 @@ class DurationAdjustment extends Adjustment {
     Object? name = const _Sentinel(),
     Object? notes = const _Sentinel(),
     Object? unit = const _Sentinel(),
+    Object? presetKey = const _Sentinel(),
     Object? min = const _Sentinel(),
     Object? max = const _Sentinel(),
   }) {
@@ -39,6 +42,7 @@ class DurationAdjustment extends Adjustment {
       name: name is _Sentinel ? this.name : (name as String),
       notes: notes is _Sentinel ? this.notes : (notes as String?),
       unit: unit is _Sentinel ? this.unit : (unit as AdjustmentUnit?),
+      presetKey: presetKey is _Sentinel ? this.presetKey : (presetKey as String?),
       min: min is _Sentinel ? this.min : (min as Duration?),
       max: max is _Sentinel ? this.max : (max as Duration?),
     );
@@ -57,6 +61,7 @@ class DurationAdjustment extends Adjustment {
     'notes': notes,
     'type': AdjustmentType.duration.name,
     'unit': unit?.encode(),
+    'presetKey': presetKey,
     'min': min?.toString(),
     'max': max?.toString(),
   };
@@ -70,6 +75,7 @@ class DurationAdjustment extends Adjustment {
           name: json['name'] as String,
           notes: json['notes'] as String?,
           unit: AdjustmentUnit.decode(json['unit'] as String?),
+          presetKey: json['presetKey'] as String?,
           min: DurationAdjustment.tryParseDurationString(json["min"] as String?),
           max: DurationAdjustment.tryParseDurationString(json["max"] as String?),
         );
@@ -89,13 +95,14 @@ class DurationAdjustment extends Adjustment {
         name == other.name &&
         notes == other.notes &&
         unit == other.unit &&
+        presetKey == other.presetKey &&
         min == other.min &&
         max == other.max;
   }
 
   @override
   int get hashCode {
-    return Object.hash(id, name, notes, unit, min, max);
+    return Object.hash(id, name, notes, unit, presetKey, min, max);
   }
 
   static Duration? tryParseDurationString(String? durationString) {

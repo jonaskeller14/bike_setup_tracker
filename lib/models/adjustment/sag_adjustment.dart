@@ -18,6 +18,7 @@ class SagAdjustment extends NumericalAdjustment {
     super.id,
     required super.name,
     required super.notes,
+    super.presetKey,
     this.referenceTravelMm,
   }) : super(unit: percentUnit, min: minPercent, max: maxPercent);
 
@@ -26,6 +27,7 @@ class SagAdjustment extends NumericalAdjustment {
     return SagAdjustment(
       name: name,
       notes: notes,
+      presetKey: presetKey,
       referenceTravelMm: referenceTravelMm,
     );
   }
@@ -37,6 +39,7 @@ class SagAdjustment extends NumericalAdjustment {
     Object? name = const _Sentinel(),
     Object? notes = const _Sentinel(),
     Object? unit = const _Sentinel(),
+    Object? presetKey = const _Sentinel(),
     Object? min = const _Sentinel(),
     Object? max = const _Sentinel(),
     Object? referenceTravelMm = const _Sentinel(),
@@ -47,6 +50,7 @@ class SagAdjustment extends NumericalAdjustment {
       id: id is _Sentinel ? this.id : (id as String),
       name: name is _Sentinel ? this.name : (name as String),
       notes: notes is _Sentinel ? this.notes : (notes as String?),
+      presetKey: presetKey is _Sentinel ? this.presetKey : (presetKey as String?),
       referenceTravelMm: referenceTravelMm is _Sentinel
           ? this.referenceTravelMm
           : (referenceTravelMm as double?),
@@ -83,6 +87,7 @@ class SagAdjustment extends NumericalAdjustment {
           id: json["id"] as String?,
           name: json['name'] as String,
           notes: json['notes'] as String?,
+          presetKey: json['presetKey'] as String?,
           referenceTravelMm: (json['referenceTravelMm'] as num?)?.toDouble(),
         );
       default: throw Exception("Json Version $version of SagAdjustment incompatible.");
@@ -100,11 +105,12 @@ class SagAdjustment extends NumericalAdjustment {
         id == other.id &&
         name == other.name &&
         notes == other.notes &&
+        presetKey == other.presetKey &&
         referenceTravelMm == other.referenceTravelMm;
   }
 
   @override
   int get hashCode {
-    return Object.hash(id, name, notes, referenceTravelMm);
+    return Object.hash(id, name, notes, presetKey, referenceTravelMm);
   }
 }

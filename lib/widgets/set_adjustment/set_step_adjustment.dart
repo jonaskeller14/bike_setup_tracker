@@ -73,7 +73,10 @@ class SetStepAdjustmentWidget extends StatelessWidget {
     // Cap the rendered ticks
     final bool showStepTicks = sliderDivisions <= maxRenderedTicks;
     final int knobTicks = showStepTicks ? sliderDivisions + 1 : maxRenderedTicks + 1;
-    final dialColor = resolveDialColor(context, adjustment.dialColor);
+    final accentColor = adjustment.visualization.hasDial
+        ? resolveDialColor(context, adjustment.dialColor)
+        : Theme.of(context).colorScheme.primary;
+    final onAccentColor = resolveDialOnColor(context, accentColor);
     
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -114,18 +117,20 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                   children: [
                     Expanded(
                       child: SfSliderTheme(
-                        data: const SfSliderThemeData(
+                        data: SfSliderThemeData(
                           thumbRadius: 15,
                           overlayRadius: 0,
-                          tooltipTextStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 14,)
+                          activeTrackColor: accentColor,
+                          tooltipBackgroundColor: accentColor,
+                          tooltipTextStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: onAccentColor,)
                         ),
                         child: SfSlider(
                           min: adjustment.min.toDouble(),
                           max: sliderMax,
                           value: value,
                           thumbShape: CustomValueThumbShape(
-                            primaryColor: Theme.of(context).colorScheme.primary,
-                            onPrimaryColor: Theme.of(context).colorScheme.onPrimary,
+                            primaryColor: accentColor,
+                            onPrimaryColor: onAccentColor,
                           ),
                           showLabels: true,
                           interval: sliderInterval.toDouble(),
@@ -153,8 +158,8 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                         numberOfTicks: knobTicks,
                         showAllTicks: showStepTicks,
                         clockwise: adjustment.visualization == StepAdjustmentVisualization.sliderWithClockwiseDial,
-                        primaryColor: dialColor,
-                        onPrimaryColor: resolveDialOnColor(context, dialColor),
+                        primaryColor: accentColor,
+                        onPrimaryColor: onAccentColor,
                         tickColor: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
                         small: adjustment.dialSize == StepAdjustmentDialSize.small,
                       ),
@@ -174,6 +179,8 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                       onPressed: value! - adjustment.step >= adjustment.min ? onPressedMinusButton : null,
                       onLongPress: value! - adjustment.step >= adjustment.min ? onLongPressedMinusButton : null,
                       style: FilledButton.styleFrom(
+                        backgroundColor: accentColor,
+                        foregroundColor: onAccentColor,
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
                         minimumSize: const Size(48, 36),
                       ),
@@ -195,6 +202,8 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                       onPressed: value! + adjustment.step <= adjustment.max ? onPressedPlusButton : null,
                       onLongPress: value! + adjustment.step <= adjustment.max ? onLongPressedPlusButton : null,
                       style: FilledButton.styleFrom(
+                        backgroundColor: accentColor,
+                        foregroundColor: onAccentColor,
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
                         minimumSize: const Size(48, 36),
                       ),
@@ -219,6 +228,8 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                         onPressed: value! - adjustment.step >= adjustment.min ? onPressedMinusButton : null,
                         onLongPress: value! - adjustment.step >= adjustment.min ? onLongPressedMinusButton : null,
                         style: FilledButton.styleFrom(
+                          backgroundColor: accentColor,
+                          foregroundColor: onAccentColor,
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
                           minimumSize: const Size(48, 36),
                         ),
@@ -231,6 +242,8 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                         onPressed: value! + adjustment.step <= adjustment.max ? onPressedPlusButton : null,
                         onLongPress: value! + adjustment.step <= adjustment.max ? onLongPressedPlusButton : null,
                         style: FilledButton.styleFrom(
+                          backgroundColor: accentColor,
+                          foregroundColor: onAccentColor,
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
                           minimumSize: const Size(48, 36),
                         ),
@@ -246,8 +259,8 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                         numberOfTicks: knobTicks,
                         showAllTicks: showStepTicks,
                         clockwise: adjustment.visualization == StepAdjustmentVisualization.minusButtonValuePlusButtonClockwiseDial,
-                        primaryColor: dialColor,
-                        onPrimaryColor: resolveDialOnColor(context, dialColor),
+                        primaryColor: accentColor,
+                        onPrimaryColor: onAccentColor,
                         tickColor: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
                         small: adjustment.dialSize == StepAdjustmentDialSize.small,
                       ),

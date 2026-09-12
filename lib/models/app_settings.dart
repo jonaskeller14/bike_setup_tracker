@@ -471,7 +471,27 @@ class AppSettings extends ChangeNotifier {
     await prefs.remove(_kLegacyBlobKey);
   }
 
-  static const _deprecatedPreferenceKeys = ['enableGarage'];
+  static const _deprecatedPreferenceKeys = [
+    'enableGarage',
+    'enableSetupComparison',
+    'enableStrava',
+    'enableTimelineDayHeaders',
+    'enableTodo',
+    'displayShowTodos',
+    'hintShownThisSession',
+    'setupListBikeAdjustmentValues',
+    'setupListOnlyChanges',
+    'setupListPersonAdjustmentValues',
+    'setupListRatingAdjustmentValues',
+    'setupListSortAscending',
+    'stravaGearHintDismissed',
+    // TODO: delete after grace period (when all users have migrated hints via AppHintService._migrateLegacyStatuses)
+    // 'showGarageListHint',
+    // 'showGettingStartedGuideHint',
+    // 'showSetupCalendarHint',
+    // 'showSetupTaskHint',
+    // 'showStravaLinkGearHint',
+  ];
 
   Future<void> _removeDeprecatedPreferences(SharedPreferences prefs) async {
     for (final key in _deprecatedPreferenceKeys) {

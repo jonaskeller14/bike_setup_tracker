@@ -12,6 +12,25 @@ String? validateAdjustmentName(String? value) {
   return null;
 }
 
+const int kAdjustmentNameWarningLength = 10;
+
+Widget? adjustmentNameLengthWarning(BuildContext context, String name) {
+  if (name.trim().length <= kAdjustmentNameWarningLength) return null;
+  final helperColor = Theme.of(context).colorScheme.onSurfaceVariant;
+  return Row(
+    children: [
+      Icon(Icons.warning, size: 14, color: helperColor),
+      const SizedBox(width: 4),
+      Expanded(
+        child: Text(
+          'Short names display better in other views.',
+          style: TextStyle(color: helperColor, fontSize: 12),
+        ),
+      ),
+    ],
+  );
+}
+
 class CollapsibleAdjustmentPreview extends StatefulWidget {
   final Widget child;
 

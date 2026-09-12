@@ -232,6 +232,7 @@ class _SagAdjustmentPageState extends State<SagAdjustmentPage> {
                             decoration: InputDecoration(
                               labelText: 'Adjustment Name',
                               hintText: 'Enter Adjustment Name',
+                              helper: adjustmentNameLengthWarning(context, _nameController.text),
                               border: const OutlineInputBorder(),
                               fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                               filled: widget.mode == AdjustmentPageMode.edit && _nameController.text.trim() != widget.adjustment?.name,

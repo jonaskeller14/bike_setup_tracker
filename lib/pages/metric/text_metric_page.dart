@@ -170,6 +170,7 @@ class _TextMetricPageState extends State<TextMetricPage> {
                                   labelText: 'Metric Name',
                                   hintText: 'Enter Metric Name',
                                   border: const OutlineInputBorder(),
+                                  helper: metricNameLengthWarning(context, _nameController.text),
                                   fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                   filled: widget.mode == MetricPageMode.edit && _nameController.text.trim() != _initialAdj?.name,
                                 ),

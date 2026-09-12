@@ -244,6 +244,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                               labelText: 'Adjustment Name',
                               hintText: 'Enter Adjustment Name',
                               border: const OutlineInputBorder(),
+                              helper: adjustmentNameLengthWarning(context, _nameController.text),
                               fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                               filled: widget.mode == AdjustmentPageMode.edit && _nameController.text.trim() != widget.adjustment?.name,
                             ),

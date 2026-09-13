@@ -88,7 +88,7 @@ class _SetupTileEmbeddedState extends State<SetupTileEmbedded> {
     );
   }
 
-  Widget _setupListTile(BuildContext context, Setup setup, AdjustmentCompactSummary summary) {
+  Widget _setupHeader(BuildContext context, Setup setup) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
     final double? score = appSettings.enableRating ? appRepository.scoreForSetup(setup.id) : null;
@@ -120,55 +120,23 @@ class _SetupTileEmbeddedState extends State<SetupTileEmbedded> {
         : null;
 
     return Padding(
-      // Horizontal only. The popup menu and chevron need the row's full height
-      // for their touch targets, so a vertical inset here would just push the
-      // stacked buttons — and with them the row's minimum height — further
-      // apart, opening dead space above the values. The content carries its own
-      // vertical inset instead.
-      //
-      padding: const EdgeInsets.only(left: _embeddedContentInset, right: 4),
-      child: Stack(
-        children: [
-          ConstrainedBox(
-            // Content must be at least as tall as the trailing buttons,
-            constraints: const BoxConstraints(minHeight: kMinInteractiveDimension),
-            child: Padding(
-              padding: const EdgeInsets.only(
-                top: 8,
-                bottom: 8,
-                right: kMinInteractiveDimension + 8,
-              ),
-              child: SetupTileHeader(
-                setup: setup,
-                dateTimeText: widget.showDate
-                    ? "$dateText • $timeText"
-                    : timeText,
-                metadata: metadataRows,
-                badge: badge,
-                showSetupIcon: false,
-                secondaryMetadata: null,
-              ),
-            ),
-          ),
-          Positioned(
-            top: 0,
-            right: _bookmarkRight,
-            child: _bookmarkRibbon(
-              visible: appSettings.enableSetupBookmark && setup.isBookmarked,
-            ),
-          ),
-          Positioned(
-            top: 0,
-            right: 0,
-            child: SetupOptionsMenu(setup: setup),
-          ),
-        ],
+      // Right inset keeps the header text clear of the trailing buttons.
+      padding: const EdgeInsets.fromLTRB(_embeddedContentInset, 8, 8, 8),
+      child: SetupTileHeader(
+        setup: setup,
+        dateTimeText: widget.showDate
+            ? "$dateText • $timeText"
+            : timeText,
+        metadata: metadataRows,
+        badge: badge,
+        showSetupIcon: false,
+        secondaryMetadata: null,
       ),
     );
   }
 
   /// Embedded-only: lines up with the member's value rows.
-  Widget _noChangesHint(BuildContext context) {
+  Widget _noValuesHint(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         _embeddedContentInset,
@@ -177,7 +145,7 @@ class _SetupTileEmbeddedState extends State<SetupTileEmbedded> {
         12,
       ),
       child: Text(
-        'No changes',
+        _displayOnlyChanges ? 'No changes' : 'No values',
         style: Theme.of(context).textTheme.bodySmall?.copyWith(
           color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
           fontStyle: FontStyle.italic,
@@ -192,57 +160,65 @@ class _SetupTileEmbeddedState extends State<SetupTileEmbedded> {
     AdjustmentCompactSummary summary,
     AdjustmentCompactDisplayList adjustmentList,
   ) {
+    final appSettings = context.watch<AppSettings>();
+    final bool hasValues = !_displayOnlyChanges ? summary.hasContent : summary.collapsedHasContent;
+
     return InkWell(
       onTap: widget.onTap,
-      child: Stack(
-        children: [
-          // Force the stack to the full row width so the right-anchored
-          // chevron lands at the row edge and aligns across members,
-          // regardless of how wide each member's value list is.
-          const SizedBox(width: double.infinity),
-          ConstrainedBox(
-            // Keep room for the chevron even when the value list is short.
-            constraints: const BoxConstraints(minHeight: kMinInteractiveDimension),
-            child: AnimatedSize(
+      child: Padding(
+        padding: const EdgeInsets.only(right: 4),
+        child: Stack(
+          children: [
+            AnimatedSize(
               duration: const Duration(milliseconds: 400),
               curve: Curves.easeInOut,
               alignment: Alignment.topCenter,
-              child: Column(
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (!_displayOnlyChanges) _setupListTile(context, setup, summary),
-                  Padding(
-                    padding: EdgeInsets.only(
-                      top: _displayOnlyChanges ? 8 : 0,
-                      bottom: 8,
-                      // Keep the last value row clear of the chevron.
-                      right: kMinInteractiveDimension,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (!_displayOnlyChanges) _setupHeader(context, setup),
+                        Padding(
+                          padding: EdgeInsets.only(top: !_displayOnlyChanges ? 0 : 8, bottom: 8),
+                          child: hasValues ? adjustmentList : _noValuesHint(context),
+                        ),
+                      ],
                     ),
-                    child: _displayOnlyChanges && !summary.collapsedHasContent ? _noChangesHint(context) : adjustmentList,
+                  ),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (!_displayOnlyChanges) SetupOptionsMenu(setup: setup),
+                      Padding(
+                        padding: EdgeInsets.only(top: !_displayOnlyChanges ? 0 : _collapsedChevronTop),
+                        child: ExpandIcon(
+                          isExpanded: !_displayOnlyChanges,
+                          color: PopupMenuTheme.of(context).iconColor ?? IconTheme.of(context).color,
+                          expandedColor: Theme.of(context).colorScheme.primary,
+                          onPressed: (bool isExpanded) {
+                            setState(() {
+                              _displayOnlyChanges = isExpanded;
+                            });
+                          },
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-          ),
-          // Keep the chevron at the top of the row. Once expanded, move it one
-          // touch target down so it sits directly below the popup menu.
-          Positioned(
-            top: !_displayOnlyChanges
-                ? kMinInteractiveDimension
-                : _collapsedChevronTop,
-            right: 4,
-            child: ExpandIcon(
-              isExpanded: !_displayOnlyChanges,
-              color: PopupMenuTheme.of(context).iconColor ?? IconTheme.of(context).color,
-              expandedColor: Theme.of(context).colorScheme.primary,
-              onPressed: (bool expanded) {
-                setState(() {
-                  _displayOnlyChanges = expanded;
-                });
-              },
+            Positioned(
+              top: 0,
+              right: _bookmarkRight,
+              child: _bookmarkRibbon(
+                visible: !_displayOnlyChanges && appSettings.enableSetupBookmark && setup.isBookmarked,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

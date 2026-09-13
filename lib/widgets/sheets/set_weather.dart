@@ -8,6 +8,7 @@ import '../../models/context/context_weather.dart';
 import '../../services/location_service.dart';
 import '../../services/weather_service.dart';
 import '../../theme.dart';
+import '../../utils/number_input_formatters.dart';
 import '../../utils/url.dart';
 import '../dialogs/discard_changes.dart';
 import 'sheet_header.dart';
@@ -211,7 +212,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                             TextFormField(
                               enabled: enableFields,
                               keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-                              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),],
+                              inputFormatters: const [SignedDecimalInputFormatter()],
                               controller: _currentTemperatureController,
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../../models/adjustment/adjustment.dart';
 import '../../models/rating_metric.dart';
 import '../../theme.dart';
+import '../../utils/number_input_formatters.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/dialogs/unit_conversion_dialog.dart';
 import '../../widgets/metric_weight_field.dart';
@@ -321,9 +321,7 @@ class _NumericalMetricPageState extends State<NumericalMetricPage> {
                                 textInputAction: TextInputAction.next,
                                 autovalidateMode: AutovalidateMode.onUserInteraction,
                                 keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
-                                ],
+                                inputFormatters: const [SignedDecimalInputFormatter()],
                                 decoration: InputDecoration(
                                   labelText: 'Min Value',
                                   hintText: 'Enter minimum value',
@@ -341,9 +339,7 @@ class _NumericalMetricPageState extends State<NumericalMetricPage> {
                                 textInputAction: TextInputAction.next,
                                 autovalidateMode: AutovalidateMode.onUserInteraction,
                                 keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
-                                ],
+                                inputFormatters: const [SignedDecimalInputFormatter()],
                                 decoration: InputDecoration(
                                   labelText: 'Max Value',
                                   hintText: 'Enter maximum value',

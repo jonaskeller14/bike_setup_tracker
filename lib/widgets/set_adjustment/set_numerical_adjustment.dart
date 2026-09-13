@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
+import '../../utils/number_input_formatters.dart';
 import '../../utils/unit_conversion.dart';
 import '../display_adjustment/adjustment_icon_name_notes.dart';
 
@@ -225,7 +226,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
             flex: 3,
             child: TextFormField(
               keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),],
+              inputFormatters: const [SignedDecimalInputFormatter()],
               controller: _controller,
               textInputAction: TextInputAction.next,
               autovalidateMode: AutovalidateMode.onUserInteraction,

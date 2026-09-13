@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 /// still load, falling back to the defaults the dial has always been drawn in.
 void main() {
   StepAdjustment build({
-    StepAdjustmentDialColor dialColor = StepAdjustmentDialColor.primary,
+    StepAdjustmentDialColor dialColor = StepAdjustmentDialColor.blue,
     StepAdjustmentDialSize dialSize = StepAdjustmentDialSize.normal,
   }) =>
       StepAdjustment(
@@ -24,24 +24,24 @@ void main() {
       );
 
   group('StepAdjustment dial style', () {
-    test('defaults to the primary color at normal size', () {
+    test('defaults to blue at normal size', () {
       final adjustment = build();
-      expect(adjustment.dialColor, StepAdjustmentDialColor.primary);
+      expect(adjustment.dialColor, StepAdjustmentDialColor.blue);
       expect(adjustment.dialSize, StepAdjustmentDialSize.normal);
     });
 
     test('toJson writes the enum names', () {
       final json = build(
-        dialColor: StepAdjustmentDialColor.accent3,
+        dialColor: StepAdjustmentDialColor.green,
         dialSize: StepAdjustmentDialSize.small,
       ).toJson();
-      expect(json['dialColor'], 'accent3');
+      expect(json['dialColor'], 'green');
       expect(json['dialSize'], 'small');
     });
 
     test('round-trips through toJson/fromJson', () {
       final original = build(
-        dialColor: StepAdjustmentDialColor.accent5,
+        dialColor: StepAdjustmentDialColor.grey,
         dialSize: StepAdjustmentDialSize.small,
       );
       expect(StepAdjustment.fromJson(original.toJson()), equals(original));
@@ -49,10 +49,10 @@ void main() {
 
     test('deepCopy keeps the dial style', () {
       final copy = build(
-        dialColor: StepAdjustmentDialColor.accent2,
+        dialColor: StepAdjustmentDialColor.brown,
         dialSize: StepAdjustmentDialSize.small,
       ).deepCopy();
-      expect(copy.dialColor, StepAdjustmentDialColor.accent2);
+      expect(copy.dialColor, StepAdjustmentDialColor.brown);
       expect(copy.dialSize, StepAdjustmentDialSize.small);
     });
 
@@ -69,13 +69,13 @@ void main() {
         'step': 1,
         'visualization': StepAdjustmentVisualization.slider.toString(),
       });
-      expect(restored.dialColor, StepAdjustmentDialColor.primary);
+      expect(restored.dialColor, StepAdjustmentDialColor.blue);
       expect(restored.dialSize, StepAdjustmentDialSize.normal);
     });
 
-    test('an unknown dial color falls back to primary', () {
-      final json = build().toJson()..['dialColor'] = 'accent42';
-      expect(StepAdjustment.fromJson(json).dialColor, StepAdjustmentDialColor.primary);
+    test('an unknown dial color falls back to blue', () {
+      final json = build().toJson()..['dialColor'] = 'turquoise';
+      expect(StepAdjustment.fromJson(json).dialColor, StepAdjustmentDialColor.blue);
     });
   });
 

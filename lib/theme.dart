@@ -119,6 +119,83 @@ class SnackBarColors extends ThemeExtension<SnackBarColors> {
   }
 }
 
+class DialColors extends ThemeExtension<DialColors> {
+  final Color blue;
+  final Color red;
+  final Color green;
+  final Color brown;
+  final Color orange;
+  final Color purple;
+  final Color grey;
+
+  const DialColors({
+    required this.blue,
+    required this.red,
+    required this.green,
+    required this.brown,
+    required this.orange,
+    required this.purple,
+    required this.grey,
+  });
+
+  static const light = DialColors(
+    blue: Color(0xFF106681), // matches the light primary at the time of writing
+    red: Color(0xFFC62828), // red 800
+    green: Color(0xFF2E7D32), // green 800
+    brown: Color(0xFF5D4037), // brown 700
+    orange: _ohlinsGold,
+    purple: Color(0xFF6A1B9A), // purple 800
+    grey: Color(0xFF424242), // grey 800 — for the near-black dials
+  );
+
+  static const dark = DialColors(
+    blue: Color(0xFF8AD0EF), // matches the dark primary at the time of writing
+    red: Color(0xFFE57373), // red 300
+    green: Color(0xFF81C784), // green 300
+    brown: Color(0xFFA1887F), // brown 300
+    orange: _ohlinsGold,
+    purple: Color(0xFFBA68C8), // purple 300
+    grey: Color(0xFF9E9E9E), // grey 500 — a black dial still has to be visible
+  );
+
+  static const _ohlinsGold = Color(0xFFF5A800);
+
+  @override
+  DialColors copyWith({
+    Color? blue,
+    Color? red,
+    Color? green,
+    Color? brown,
+    Color? orange,
+    Color? purple,
+    Color? grey,
+  }) {
+    return DialColors(
+      blue: blue ?? this.blue,
+      red: red ?? this.red,
+      green: green ?? this.green,
+      brown: brown ?? this.brown,
+      orange: orange ?? this.orange,
+      purple: purple ?? this.purple,
+      grey: grey ?? this.grey,
+    );
+  }
+
+  @override
+  DialColors lerp(DialColors? other, double t) {
+    if (other == null) return this;
+    return DialColors(
+      blue: Color.lerp(blue, other.blue, t)!,
+      red: Color.lerp(red, other.red, t)!,
+      green: Color.lerp(green, other.green, t)!,
+      brown: Color.lerp(brown, other.brown, t)!,
+      orange: Color.lerp(orange, other.orange, t)!,
+      purple: Color.lerp(purple, other.purple, t)!,
+      grey: Color.lerp(grey, other.grey, t)!,
+    );
+  }
+}
+
 final _lightColorScheme = ColorScheme.fromSeed(
   seedColor: Colors.blueGrey.shade700,
   brightness: Brightness.light,
@@ -135,7 +212,7 @@ final materialAppTheme = ThemeData(
     headlineLarge: TextStyle(fontWeight: FontWeight.bold),
     titleLarge: TextStyle(fontWeight: FontWeight.bold),
   ),
-  extensions: const [ValueHighlightColors.light, TaskStatusColors.light, SnackBarColors.light],
+  extensions: const [ValueHighlightColors.light, TaskStatusColors.light, SnackBarColors.light, DialColors.light],
 );
 
 final _darkColorScheme = ColorScheme.fromSeed(
@@ -154,7 +231,7 @@ final materialAppDarkTheme = ThemeData(
     headlineLarge: TextStyle(fontWeight: FontWeight.bold),
     titleLarge: TextStyle(fontWeight: FontWeight.bold),
   ),
-  extensions: const [ValueHighlightColors.dark, TaskStatusColors.dark, SnackBarColors.dark],
+  extensions: const [ValueHighlightColors.dark, TaskStatusColors.dark, SnackBarColors.dark, DialColors.dark],
 );
 
 List<Color> chartColors(Color primary, int count, {int hueStep = 137}) {

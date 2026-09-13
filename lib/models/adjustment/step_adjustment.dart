@@ -20,15 +20,14 @@ enum StepAdjustmentVisualization {
       this == StepAdjustmentVisualization.minusButtonValuePlusButtonClockwiseDial;
 }
 
-/// Dial tint, stored as an index into the theme-derived chart palette
-/// (`chartColors`), so it follows the primary color of the active theme.
 enum StepAdjustmentDialColor {
-  primary,
-  accent1,
-  accent2,
-  accent3,
-  accent4,
-  accent5;
+  blue,
+  red,
+  green,
+  brown,
+  orange,
+  purple,
+  grey;
 }
 
 enum StepAdjustmentDialSize { normal, small }
@@ -53,7 +52,7 @@ class StepAdjustment extends Adjustment {
     required this.min,
     required this.max,
     required this.visualization,
-    this.dialColor = StepAdjustmentDialColor.primary,
+    this.dialColor = StepAdjustmentDialColor.blue,
     this.dialSize = StepAdjustmentDialSize.normal,
   });
 
@@ -142,7 +141,7 @@ class StepAdjustment extends Adjustment {
           ),
           dialColor: StepAdjustmentDialColor.values.firstWhere(
             (e) => e.name == json['dialColor'] as String?,
-            orElse: () => StepAdjustmentDialColor.primary,
+            orElse: () => StepAdjustmentDialColor.blue,
           ),
           dialSize: StepAdjustmentDialSize.values.firstWhere(
             (e) => e.name == json['dialSize'] as String?,

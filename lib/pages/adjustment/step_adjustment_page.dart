@@ -75,7 +75,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
     _maxController = TextEditingController(text: widget.adjustment?.max.toString());
     _maxController.addListener(_changeListener);
     visualization = widget.adjustment?.visualization ?? _defaultVisualization;
-    dialColor = widget.adjustment?.dialColor ?? StepAdjustmentDialColor.primary;
+    dialColor = widget.adjustment?.dialColor ?? StepAdjustmentDialColor.blue;
     dialSize = widget.adjustment?.dialSize ?? StepAdjustmentDialSize.normal;
 
     _previewAdjustment = widget.adjustment ?? StepAdjustment(
@@ -98,7 +98,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
         int.tryParse(_minController.text.trim()) != (widget.adjustment?.min ?? _defaultMin) ||
         int.tryParse(_maxController.text.trim()) != widget.adjustment?.max ||
         visualization != (widget.adjustment?.visualization ?? _defaultVisualization) ||
-        dialColor != (widget.adjustment?.dialColor ?? StepAdjustmentDialColor.primary) ||
+        dialColor != (widget.adjustment?.dialColor ?? StepAdjustmentDialColor.blue) ||
         dialSize != (widget.adjustment?.dialSize ?? StepAdjustmentDialSize.normal);
 
     if (_formHasChanges != hasChanges) {

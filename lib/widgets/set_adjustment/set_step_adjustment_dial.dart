@@ -6,11 +6,21 @@ import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 
 Color resolveDialColor(BuildContext context, StepAdjustmentDialColor color) {
-  final primary = Theme.of(context).colorScheme.primary;
-  if (color == StepAdjustmentDialColor.primary) return primary;
-  return chartColors(primary, StepAdjustmentDialColor.values.length)[color.index];
+  final theme = Theme.of(context);
+  final palette = theme.extension<DialColors>() ??
+      (theme.brightness == Brightness.dark ? DialColors.dark : DialColors.light);
+  return switch (color) {
+    StepAdjustmentDialColor.blue => palette.blue,
+    StepAdjustmentDialColor.red => palette.red,
+    StepAdjustmentDialColor.green => palette.green,
+    StepAdjustmentDialColor.brown => palette.brown,
+    StepAdjustmentDialColor.orange => palette.orange,
+    StepAdjustmentDialColor.purple => palette.purple,
+    StepAdjustmentDialColor.grey => palette.grey,
+  };
 }
 
+/// Contrasting color for whatever sits on top of [dialColor].
 Color resolveDialOnColor(BuildContext context, Color dialColor) {
   final colorScheme = Theme.of(context).colorScheme;
   if (dialColor == colorScheme.primary) return colorScheme.onPrimary;

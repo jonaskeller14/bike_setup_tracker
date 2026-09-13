@@ -103,11 +103,11 @@ void main() {
     testWidgets('buttons take the dial color when the visualization has a dial', (WidgetTester tester) async {
       await tester.pumpWidget(buildTinted(
         visualization: StepAdjustmentVisualization.minusButtonValuePlusButtonClockwiseDial,
-        dialColor: StepAdjustmentDialColor.accent3,
+        dialColor: StepAdjustmentDialColor.orange,
       ));
 
       final context = tester.element(find.byType(SetStepAdjustmentWidget));
-      final expected = resolveDialColor(context, StepAdjustmentDialColor.accent3);
+      final expected = resolveDialColor(context, StepAdjustmentDialColor.orange);
       expect(expected, isNot(primaryOf(tester)));
       expect(buttonBackground(tester), expected);
     });
@@ -115,7 +115,7 @@ void main() {
     testWidgets('buttons stay primary when the visualization has no dial', (WidgetTester tester) async {
       await tester.pumpWidget(buildTinted(
         visualization: StepAdjustmentVisualization.minusButtonValuePlusButton,
-        dialColor: StepAdjustmentDialColor.accent3,
+        dialColor: StepAdjustmentDialColor.orange,
       ));
 
       expect(buttonBackground(tester), primaryOf(tester));
@@ -124,11 +124,11 @@ void main() {
     testWidgets('the slider thumb and track take the dial color only with a dial', (WidgetTester tester) async {
       await tester.pumpWidget(buildTinted(
         visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial,
-        dialColor: StepAdjustmentDialColor.accent2,
+        dialColor: StepAdjustmentDialColor.green,
       ));
 
       final context = tester.element(find.byType(SetStepAdjustmentWidget));
-      final dialTint = resolveDialColor(context, StepAdjustmentDialColor.accent2);
+      final dialTint = resolveDialColor(context, StepAdjustmentDialColor.green);
       final withDial = tester.widget<SfSliderTheme>(find.byType(SfSliderTheme));
       expect(withDial.data.activeTrackColor, dialTint);
       expect(
@@ -138,7 +138,7 @@ void main() {
 
       await tester.pumpWidget(buildTinted(
         visualization: StepAdjustmentVisualization.slider,
-        dialColor: StepAdjustmentDialColor.accent2,
+        dialColor: StepAdjustmentDialColor.green,
       ));
 
       final withoutDial = tester.widget<SfSliderTheme>(find.byType(SfSliderTheme));

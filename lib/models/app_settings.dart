@@ -18,7 +18,7 @@ class AppSettings extends ChangeNotifier {
   String _distanceUnit = 'km';
   bool _enableGoogleDrive = false; // False is default, can only be activated on Android (see AppSettingsPage)
   bool _enableTextAdjustment = false;
-  bool _enableStepDialColorSize = false;
+  bool _enableStepDialColorSize = true;
   bool _enableMultiSelect = false;
   bool _enableCountedSelect = false;
   bool _enablePerson = false;

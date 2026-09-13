@@ -167,7 +167,14 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
                   onTap: _cycleUnit,
                   child: Padding(
                     padding: EdgeInsets.only(left: 4, right: _resetWouldChange ? 4 : 12, top: 4, bottom: 4),
-                    child: Text(label, style: TextStyle(color: suffixColor)),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      spacing: 2,
+                      children: [
+                        Text(label, style: TextStyle(color: suffixColor)),
+                        // Icon(Icons.unfold_more, size: 16, color: suffixColor),
+                      ],
+                    ),
                   ),
                 )
               : Padding(

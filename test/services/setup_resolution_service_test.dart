@@ -421,4 +421,108 @@ void main() {
       expect(history, isEmpty);
     });
   });
+
+  group('SetupResolutionService Provenance Resolution', () {
+    late TextAdjustment pressureAdj;
+    late TextAdjustment reboundAdj;
+    late Bike myBike;
+    late Person me;
+
+    final t1 = DateTime(2025, 1, 1).toUtc();
+    final t2 = DateTime(2025, 1, 2).toUtc();
+    final t3 = DateTime(2025, 1, 3).toUtc();
+
+    Setup setupAt(DateTime datetime, String id, Map<String, dynamic> bikeAdjustmentValues) {
+      return Setup(
+        id: id,
+        datetime: datetime,
+        datetimeLocal: datetime.toLocal(),
+        bike: myBike.id,
+        person: me.id,
+        tags: {},
+        personAdjustmentValues: {},
+        bikeAdjustmentValues: bikeAdjustmentValues,
+      );
+    }
+
+    setUp(() {
+      pressureAdj = TextAdjustment(
+        id: 'adj_pressure',
+        name: 'Pressure',
+        notes: null,
+        unit: AdjustmentUnit.fromLegacy('psi'),
+      );
+      reboundAdj = TextAdjustment(
+        id: 'adj_rebound',
+        name: 'Rebound',
+        notes: null,
+        unit: AdjustmentUnit.fromLegacy('clicks'),
+      );
+      myBike = Bike(id: 'bike_1', name: 'My Enduro', person: 'person_1');
+      me = Person(id: 'person_1', name: 'Me', adjustments: []);
+    });
+
+    test('a repeated value still points at the setup that introduced it', () {
+      // Intention: Setups carry pre-filled values forward unchanged, so recording
+      // the same value again is not a modification.
+      // Desired outcome: The value resolves to the earlier setup that changed it.
+      // Not desired outcome: The most recent setup claiming a value it only echoed.
+      final provenance = SetupResolutionService.resolveHistoricalProvenanceAt(
+        datetime: t3.add(const Duration(seconds: 1)),
+        setups: [
+          setupAt(t1, 's1', {pressureAdj.id: '80'}),
+          setupAt(t2, 's2', {pressureAdj.id: '80'}),
+          setupAt(t3, 's3', {pressureAdj.id: '80'}),
+        ],
+      );
+
+      expect(provenance[pressureAdj.id]?.value, '80');
+      expect(provenance[pressureAdj.id]?.setup.id, 's1');
+    });
+
+    test('a changed value moves to the setup that changed it', () {
+      final provenance = SetupResolutionService.resolveHistoricalProvenanceAt(
+        datetime: t3.add(const Duration(seconds: 1)),
+        setups: [
+          setupAt(t1, 's1', {pressureAdj.id: '80'}),
+          setupAt(t2, 's2', {pressureAdj.id: '80'}),
+          setupAt(t3, 's3', {pressureAdj.id: '85'}),
+        ],
+      );
+
+      expect(provenance[pressureAdj.id]?.value, '85');
+      expect(provenance[pressureAdj.id]?.setup.id, 's3');
+    });
+
+    test('adjustments resolve to different setups independently', () {
+      // Intention: Two values last changed at different times must not share one
+      // source setup — the whole point of resolving provenance per adjustment.
+      // Desired outcome: Pressure points at s1, rebound at s3.
+      final provenance = SetupResolutionService.resolveHistoricalProvenanceAt(
+        datetime: t3.add(const Duration(seconds: 1)),
+        setups: [
+          setupAt(t1, 's1', {pressureAdj.id: '80', reboundAdj.id: '5'}),
+          setupAt(t2, 's2', {pressureAdj.id: '80', reboundAdj.id: '5'}),
+          setupAt(t3, 's3', {pressureAdj.id: '80', reboundAdj.id: '7'}),
+        ],
+      );
+
+      expect(provenance[pressureAdj.id]?.setup.id, 's1');
+      expect(provenance[reboundAdj.id]?.setup.id, 's3');
+    });
+
+    test('setups at or after the target time, and the excluded one, are ignored', () {
+      final provenance = SetupResolutionService.resolveHistoricalProvenanceAt(
+        datetime: t2,
+        setups: [
+          setupAt(t1, 's1', {pressureAdj.id: '80'}),
+          setupAt(t2, 's2', {pressureAdj.id: '85'}),
+          setupAt(t3, 's3', {reboundAdj.id: '7'}),
+        ],
+        excludedSetupId: 's1',
+      );
+
+      expect(provenance, isEmpty);
+    });
+  });
 }

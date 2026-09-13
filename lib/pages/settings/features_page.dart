@@ -164,6 +164,30 @@ class FeaturesPage extends StatelessWidget {
                         'visualization dropdown is shown.',
                   ),
                 ),
+              if (kDebugMode)
+                ListTile(
+                  leading: const Icon(Icons.compress),
+                  title: const Text("Pressure Check"),
+                  subtitle: _offOnOptionWidgets[appSettings.enablePressureAssistant] ?? const Text("-"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () => radioGroupSheet<bool>(
+                    context: context,
+                    title: "Pressure Check",
+                    value: appSettings.enablePressureAssistant,
+                    optionWidgets: _offOnOptionWidgets,
+                    onChanged: (bool? newValue) {
+                      if (newValue == null) return;
+                      appSettings.enablePressureAssistant = newValue;
+                      Navigator.pop(context);
+                    },
+                    infoText:
+                        'When adding a setup, compares each pressure adjustment against the '
+                        'temperature and altitude of the setup that last changed it. A pump '
+                        'measures against the surrounding air, so colder or thinner air makes '
+                        'the same sealed chamber read differently — this tells you what your '
+                        'pump would read now, and whether the difference is worth correcting.',
+                  ),
+                ),
               ListTile(
                 leading: const Icon(CategoricalAdjustment.iconData),
                 title: const Text("Categorical Adjustment"),

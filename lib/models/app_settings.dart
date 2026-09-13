@@ -39,6 +39,7 @@ class AppSettings extends ChangeNotifier {
   bool _enableSetupImages = false;
   bool _enableSetupBookmark = false;
   bool _enableComponentPresets = false;
+  bool _enablePressureAssistant = false;
   // Setup timeline grouping passes (debug-only, see FeaturesPage)
   bool _enableTimelineSetupGrouping = false;
   bool _enableTimelineReplacementDetection = true;
@@ -84,6 +85,7 @@ class AppSettings extends ChangeNotifier {
   bool get enableSetupImages => _enableSetupImages;
   bool get enableSetupBookmark => _enableSetupBookmark;
   bool get enableComponentPresets => _enableComponentPresets;
+  bool get enablePressureAssistant => _enablePressureAssistant;
   bool get enableTimelineSetupGrouping => _enableTimelineSetupGrouping;
   bool get enableTimelineReplacementDetection => _enableTimelineReplacementDetection;
   bool get enableTimelineStravaContext => _enableTimelineStravaContext;
@@ -313,6 +315,13 @@ class AppSettings extends ChangeNotifier {
     _persistBool('enableComponentPresets', newValue);
   }
 
+  set enablePressureAssistant(bool newValue) {
+    if (newValue == _enablePressureAssistant) return;
+    _enablePressureAssistant = newValue;
+    notifyListeners();
+    _persistBool('enablePressureAssistant', newValue);
+  }
+
   set enableTimelineSetupGrouping(bool newValue) {
     if (newValue == _enableTimelineSetupGrouping) return;
     _enableTimelineSetupGrouping = newValue;
@@ -431,6 +440,7 @@ class AppSettings extends ChangeNotifier {
       _enableSetupImages = prefs.getBool('${_kPrefix}enableSetupImages') ?? _enableSetupImages;
       _enableSetupBookmark = prefs.getBool('${_kPrefix}enableSetupBookmark') ?? _enableSetupBookmark;
       _enableComponentPresets = prefs.getBool('${_kPrefix}enableComponentPresets') ?? _enableComponentPresets;
+      _enablePressureAssistant = prefs.getBool('${_kPrefix}enablePressureAssistant') ?? _enablePressureAssistant;
       _enableTimelineSetupGrouping =
           prefs.getBool('${_kPrefix}enableTimelineSetupGrouping') ?? _enableTimelineSetupGrouping;
       _enableTimelineReplacementDetection =

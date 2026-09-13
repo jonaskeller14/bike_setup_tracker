@@ -23,6 +23,7 @@ import '../services/address_service.dart';
 import '../services/elevation_service.dart';
 import '../services/image_storage_service.dart';
 import '../services/location_service.dart';
+import '../services/pressure_drift_service.dart';
 import '../services/setup_resolution_service.dart';
 import '../services/weather_service.dart';
 import '../theme.dart';
@@ -31,6 +32,7 @@ import '../widgets/chips/utils.dart';
 import '../widgets/dialogs/confirmation.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/image_strip.dart';
+import '../widgets/pressure_drift_card.dart';
 import '../widgets/setup_page_tab_bike.dart';
 import '../widgets/setup_page_tab_person.dart';
 import '../widgets/sheets/pick_image_source.dart';
@@ -139,6 +141,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   final Map<String, dynamic> _danglingBikeAdjustmentValues = {};
   final Map<String, dynamic> _danglingPersonAdjustmentValues = {};
 
+  Map<String, AdjustmentProvenance>? _pressureDriftProvenance;
+
   final LocationService _locationService = LocationService();
   final ElevationService _elevationService = ElevationService();
   final ValueNotifier<ContextPosition?> _currentLocation = ValueNotifier<ContextPosition?>(null);
@@ -236,6 +240,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   }
 
   void _setPreviousAdjustmentValues() {
+    _setPressureDriftProvenance();
     _previousBikeAdjustmentValues.clear();
     _previousPersonAdjustmentValues.clear();
 
@@ -272,6 +277,17 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         }
       }
     }
+  }
+
+  void _setPressureDriftProvenance() {
+    if (widget.mode != SetupPageMode.add || !context.read<AppSettings>().enablePressureAssistant) {
+      _pressureDriftProvenance = null;
+      return;
+    }
+    _pressureDriftProvenance = SetupResolutionService.resolveHistoricalProvenanceAt(
+      datetime: _selectedDateTimeUtc,
+      setups: context.read<AppRepository>().setups.values,
+    );
   }
 
   void _setInitialAdjustmentValues() {
@@ -1105,9 +1121,27 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     );
   }
 
+  Widget? _pressureCheck(List<Component> bikeComponents) {
+    final provenance = _pressureDriftProvenance;
+    if (provenance == null) return null;
+
+    return ListenableBuilder(
+      listenable: Listenable.merge([_currentLocation, _currentWeather]),
+      builder: (context, child) => PressureDriftCard(
+        entries: PressureDriftService.compute(
+          components: bikeComponents,
+          provenance: provenance,
+          currentWeather: _currentWeather.value,
+          currentPosition: _currentLocation.value,
+        ),
+      ),
+    );
+  }
+
   Widget _bikeTab(AppRepository appRepository, List<Component> bikeComponents) {
     return SetupBikeTab(
       bike: _bike,
+      header: _pressureCheck(bikeComponents),
       bikeComponents: bikeComponents,
       allComponents: appRepository.components,
       bikeAdjustmentValues: _bikeAdjustmentValues,

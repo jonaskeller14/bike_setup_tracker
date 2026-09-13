@@ -32,6 +32,16 @@ When implementing an issue, read the issue body and its comments first, update t
 
 - When using the GitHub CLI to write Markdown, use actual multiline input (for example, a PowerShell here-string), never literal `\n` escapes.
 
+## Agent skills
+
+### Issue tracker
+
+Issues live in this repo's GitHub Issues (`jonaskeller14/bike_setup_tracker`), using the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Domain docs
+
+Single-context layout (`CONTEXT.md` + `docs/adr/` at the repo root, created lazily). See `docs/agents/domain.md`.
+
 ## Architecture
 
 ### State Management

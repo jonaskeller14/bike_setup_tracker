@@ -1,5 +1,5 @@
 ---
-name: plan
+name: issueplan
 description: Turn decided feature work into a phased GitHub issue plan (no code)
 allowed-tools: Read, Grep, Glob, Bash(date:*), Bash(ls:*), Write
 ---
@@ -41,8 +41,8 @@ issue**. Do not create a plan file under `doc/`. This is still a planning step:
   phase is independently mergeable where possible.
 
 ## 4. Hand back
-- Print the issue URL and the phase list. Point the user at `/handoff <issue> <phase>` to
-  execute a single phase in a fresh context window.
+- Print the issue URL and the phase list. To execute a phase, start a fresh context window
+  and say "Implement Phase <N> of Issue #<n>".
 
 ## Constraints
 - No app code — this step only updates issue planning.

@@ -30,7 +30,7 @@ class AppSettings extends ChangeNotifier {
   bool _enableTask = false;
   bool _enableTaskPriority = true;
   bool _enableTaskInterval = true;
-  bool _enableTaskDelay = false;
+  bool _enableTaskDelay = true;
   bool _enableTaskDuePrediction = false;
   bool _enableGarageTaskIndicator = true;
   bool _enableInstallationTimeline = false;

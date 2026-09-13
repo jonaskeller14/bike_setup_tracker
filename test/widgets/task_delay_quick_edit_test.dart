@@ -88,6 +88,44 @@ void main() {
         delay: delay,
       );
 
+  TaskRule? popped;
+
+  Future<void> openEditPage(WidgetTester tester, TaskRule rule) async {
+    popped = null;
+    await tester.runAsync(() async {
+      await appRepository.addBikes([bike]);
+      await pumpEventQueue();
+    });
+
+    await tester.pumpWidget(wrap(
+      Builder(
+        builder: (context) => Scaffold(
+          body: Center(
+            child: ElevatedButton(
+              onPressed: () async {
+                popped = await Navigator.push<TaskRule>(
+                  context,
+                  MaterialPageRoute(builder: (_) => TaskRulePage.edit(taskRule: rule)),
+                );
+              },
+              child: const Text('open'),
+            ),
+          ),
+        ),
+      ),
+    ));
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+  }
+
+  /// The trigger rows sit below the fold of the 800x600 test viewport.
+  Future<void> tapUnit(WidgetTester tester, Finder unit) async {
+    await tester.ensureVisible(unit);
+    await tester.pumpAndSettle();
+    await tester.tap(unit);
+    await tester.pumpAndSettle();
+  }
+
   group('canQuickEditTaskDelay', () {
     test('allows a rule whose trigger supports a delay and has none yet', () {
       final rule = ruleWith(interval: const DurationThreshold(Duration(days: 30)));
@@ -397,78 +435,30 @@ void main() {
     });
   });
 
-  group('TaskRulePage delay type follows the trigger type', () {
-    late TaskRule? popped;
+  group('TaskRulePage delay follows the trigger type', () {
+    Finder delayValueField() => find.byKey(const Key('taskRuleDelayValue'));
 
-    Future<void> openEditPage(WidgetTester tester, TaskRule rule) async {
-      popped = null;
-      await tester.runAsync(() async {
-        await appRepository.addBikes([bike]);
-        await pumpEventQueue();
-      });
+    testWidgets('offers a bare value field carrying the trigger unit', (tester) async {
+      await openEditPage(tester, ruleWith(interval: const ElevationThreshold(1000)));
 
-      await tester.pumpWidget(wrap(
-        Builder(
-          builder: (context) => Scaffold(
-            body: Center(
-              child: ElevatedButton(
-                onPressed: () async {
-                  popped = await Navigator.push<TaskRule>(
-                    context,
-                    MaterialPageRoute(builder: (_) => TaskRulePage.edit(taskRule: rule)),
-                  );
-                },
-                child: const Text('open'),
-              ),
-            ),
-          ),
-        ),
-      ));
-      await tester.tap(find.text('open'));
-      await tester.pumpAndSettle();
-    }
+      // Nothing left to pick: a delay can only ever be of the trigger's type.
+      expect(find.byKey(const Key('taskRuleDelayType')), findsNothing);
+      expect(find.text('m'), findsNWidgets(2)); // trigger value + delay value
 
-    Future<void> selectDelayTypeAndExpectSelection(
-      WidgetTester tester,
-      TaskRule rule,
-      String expectedValue,
-    ) async {
-      await openEditPage(tester, rule);
-
-      final typeDropdown = find.byKey(const Key('taskRuleDelayType'));
-      await tester.ensureVisible(typeDropdown);
-      await tester.pumpAndSettle();
-      await tester.tap(typeDropdown);
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Duration').last);
+      await tester.enterText(delayValueField(), '200');
+      await tester.pump();
+      await tester.tap(find.byIcon(Icons.check));
       await tester.pumpAndSettle();
 
-      final valueField = find.byKey(const Key('taskRuleDelayValue'));
-      final editableText = tester.widget<EditableText>(
-        find.descendant(of: valueField, matching: find.byType(EditableText)),
-      );
-
-      expect(editableText.focusNode.hasFocus, isTrue);
-      expect(editableText.controller.text, expectedValue);
-      expect(
-        editableText.controller.selection,
-        TextSelection(baseOffset: 0, extentOffset: expectedValue.length),
-      );
-    }
-
-    testWidgets('preselects the trigger type so only a value is missing', (tester) async {
-      await openEditPage(tester, ruleWith(interval: const DurationThreshold(Duration(days: 30))));
-
-      // The value field only renders once a delay type is selected, and its
-      // unit proves the preselection followed the trigger.
-      expect(find.text('Delay Value'), findsOneWidget);
-      expect(find.text('days'), findsNWidgets(2)); // trigger value + delay value
+      expect(popped, isNotNull);
+      expect(popped!.delay, isA<ElevationThreshold>());
+      expect((popped!.delay as ElevationThreshold).meters, 200);
     });
 
     testWidgets('an empty delay value neither blocks saving nor becomes zero', (tester) async {
       await openEditPage(tester, ruleWith(interval: const DurationThreshold(Duration(days: 30))));
 
-      expect(find.text('Delay Value'), findsOneWidget);
+      expect(delayValueField(), findsOneWidget);
       await tester.tap(find.byIcon(Icons.check));
       await tester.pumpAndSettle();
 
@@ -477,13 +467,10 @@ void main() {
       expect(popped!.delay, isNull);
     });
 
-    testWidgets('saves a delay typed into the preselected type', (tester) async {
+    testWidgets('saves a delay typed into the trigger type', (tester) async {
       await openEditPage(tester, ruleWith(interval: const DurationThreshold(Duration(days: 30))));
 
-      await tester.enterText(
-        find.ancestor(of: find.text('Delay Value'), matching: find.byType(TextFormField)),
-        '7',
-      );
+      await tester.enterText(delayValueField(), '7');
       await tester.pump();
       await tester.tap(find.byIcon(Icons.check));
       await tester.pumpAndSettle();
@@ -509,10 +496,7 @@ void main() {
     testWidgets('rejects a zero when adding a delay', (tester) async {
       await openEditPage(tester, ruleWith(interval: const DurationThreshold(Duration(days: 30))));
 
-      await tester.enterText(
-        find.ancestor(of: find.text('Delay Value'), matching: find.byType(TextFormField)),
-        '0',
-      );
+      await tester.enterText(delayValueField(), '0');
       await tester.pump();
       await tester.tap(find.byIcon(Icons.check));
       await tester.pumpAndSettle();
@@ -527,10 +511,7 @@ void main() {
         delay: const DurationThreshold(Duration(days: 5)),
       ));
 
-      await tester.enterText(
-        find.ancestor(of: find.text('Delay Value'), matching: find.byType(TextFormField)),
-        '0',
-      );
+      await tester.enterText(delayValueField(), '0');
       await tester.pump();
       expect(find.text('Must be greater than 0'), findsNothing);
 
@@ -541,44 +522,76 @@ void main() {
       expect(popped!.delay, isNull);
     });
 
-    testWidgets('clears the value through the suffix icon', (tester) async {
-      await openEditPage(tester, ruleWith(
-        interval: const DurationThreshold(Duration(days: 30)),
-        delay: const DurationThreshold(Duration(days: 5)),
-      ));
+    testWidgets('carries a unit of its own, independent of the trigger', (tester) async {
+      await openEditPage(tester, ruleWith(interval: const DurationThreshold(Duration(days: 365))));
 
-      expect(find.byIcon(Icons.clear), findsOneWidget);
-      // The delay row sits below the fold of the 800x600 test viewport.
-      await tester.ensureVisible(find.byIcon(Icons.clear));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byIcon(Icons.clear));
-      await tester.pumpAndSettle();
+      await tester.enterText(delayValueField(), '2');
+      await tester.pump();
+      await tapUnit(tester, find.descendant(of: delayValueField(), matching: find.text('days')));
 
-      expect(find.byIcon(Icons.clear), findsNothing);
+      // The trigger keeps its own unit while the delay moves on to weeks.
+      expect(find.descendant(of: delayValueField(), matching: find.text('weeks')), findsOneWidget);
       await tester.tap(find.byIcon(Icons.check));
       await tester.pumpAndSettle();
 
       expect(popped, isNotNull);
-      expect(popped!.delay, isNull);
+      expect((popped!.interval as DurationThreshold).days, const Duration(days: 365));
+      expect((popped!.delay as DurationThreshold).days, const Duration(days: 14));
+    });
+  });
+
+  group('TaskRulePage duration unit', () {
+    Finder intervalValueField() => find.byKey(const Key('taskRuleIntervalValue'));
+
+    Finder unitButton(String label) =>
+        find.descendant(of: intervalValueField(), matching: find.text(label));
+
+    testWidgets('opens a saved duration in the largest unit it divides into', (tester) async {
+      await openEditPage(tester, ruleWith(interval: const DurationThreshold(Duration(days: 90))));
+
+      expect(unitButton('months'), findsOneWidget);
+      final editableText = tester.widget<EditableText>(
+        find.descendant(of: intervalValueField(), matching: find.byType(EditableText)),
+      );
+      expect(editableText.controller.text, '3');
     });
 
-    testWidgets('focuses an empty value after selecting a delay type', (tester) async {
-      await selectDelayTypeAndExpectSelection(
-        tester,
-        ruleWith(interval: const DurationThreshold(Duration(days: 30))),
-        '',
-      );
+    testWidgets('cycles days → weeks → months → years on tap', (tester) async {
+      await openEditPage(tester, ruleWith(interval: const DurationThreshold(Duration(days: 100))));
+
+      var current = 'days';
+      for (final next in ['weeks', 'months', 'years', 'days']) {
+        await tapUnit(tester, unitButton(current));
+        expect(unitButton(next), findsOneWidget);
+        current = next;
+      }
     });
 
-    testWidgets('selects an existing value after selecting a delay type', (tester) async {
-      await selectDelayTypeAndExpectSelection(
-        tester,
-        ruleWith(
-          interval: const DurationThreshold(Duration(days: 30)),
-          delay: const DurationThreshold(Duration(days: 5)),
-        ),
-        '5',
+    testWidgets('keeps the typed number and saves it in the picked unit', (tester) async {
+      await openEditPage(tester, ruleWith(interval: const DurationThreshold(Duration(days: 100))));
+
+      await tester.enterText(intervalValueField(), '3');
+      await tester.pump();
+      await tapUnit(tester, unitButton('days'));
+
+      // The number stays as typed: "3 days" becomes "3 weeks", not "0.4 weeks".
+      expect(unitButton('weeks'), findsOneWidget);
+      final editableText = tester.widget<EditableText>(
+        find.descendant(of: intervalValueField(), matching: find.byType(EditableText)),
       );
+      expect(editableText.controller.text, '3');
+
+      await tester.tap(find.byIcon(Icons.check));
+      await tester.pumpAndSettle();
+
+      expect(popped, isNotNull);
+      expect((popped!.interval as DurationThreshold).days, const Duration(days: 21));
+    });
+
+    testWidgets('labels a single unit in the singular', (tester) async {
+      await openEditPage(tester, ruleWith(interval: const DurationThreshold(Duration(days: 7))));
+
+      expect(unitButton('week'), findsOneWidget);
     });
   });
 
@@ -616,14 +629,15 @@ void main() {
       await selectDurationAndExpectSelection(tester, TaskRulePage.add(), '');
     });
 
+    // 100 days divides into no larger unit, so the field stays in days.
     testWidgets('selects the existing value in edit mode', (tester) async {
-      final rule = ruleWith(interval: const DurationThreshold(Duration(days: 30)));
-      await selectDurationAndExpectSelection(tester, TaskRulePage.edit(taskRule: rule), '30');
+      final rule = ruleWith(interval: const DurationThreshold(Duration(days: 100)));
+      await selectDurationAndExpectSelection(tester, TaskRulePage.edit(taskRule: rule), '100');
     });
 
     testWidgets('selects the existing value in duplicate mode', (tester) async {
-      final rule = ruleWith(interval: const DurationThreshold(Duration(days: 30)));
-      await selectDurationAndExpectSelection(tester, TaskRulePage.duplicate(taskRule: rule), '30');
+      final rule = ruleWith(interval: const DurationThreshold(Duration(days: 100)));
+      await selectDurationAndExpectSelection(tester, TaskRulePage.duplicate(taskRule: rule), '100');
     });
   });
 }

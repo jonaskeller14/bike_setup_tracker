@@ -33,21 +33,21 @@ void main() {
     test("strava sync old activities should update task entry snapshot", () async {
       // 1. Setup: Bike, Component, and Task Rule
       final bike = Bike(name: "Test Bike", person: null, stravaGear: "g123");
-      await repository.addBike(bike);
+      await repository.addBikes([bike]);
       
       final component = Component(
         name: "Chain",
         componentType: ComponentType.chain,
         installations: [Installation.sinceBeginning(parent: bike.id)],
       );
-      await repository.addComponent(component);
+      await repository.addComponents([component]);
 
       final rule = TaskRule(
         name: "Chain Wax",
         componentId: component.id,
         tags: const {},
       );
-      await repository.addTaskRule(rule);
+      await repository.addTaskRules([rule]);
       await pumpEventQueue();
 
       // 2. Add a recent activity (Activity A)
@@ -125,8 +125,7 @@ void main() {
       // 1. Setup: Two bikes and one component
       final bikeA = Bike(name: "Bike A", person: null, stravaGear: "gear_a");
       final bikeB = Bike(name: "Bike B", person: null, stravaGear: "gear_b");
-      await repository.addBike(bikeA);
-      await repository.addBike(bikeB);
+      await repository.addBikes([bikeA, bikeB]);
 
       // Component initially installed on Bike A
       final component = Component(
@@ -137,7 +136,7 @@ void main() {
           Installation.sinceBeginning(parent: bikeA.id),
         ],
       );
-      await repository.addComponent(component);
+      await repository.addComponents([component]);
       await pumpEventQueue();
 
       // 2. Activity on Bike A (Jan 1st)
@@ -247,17 +246,17 @@ void main() {
     test("linking Strava gear to a bike recomputes task entry snapshots", () async {
       // 1. Bike with NO gear linked yet, plus a component and task rule.
       final bike = Bike(name: "Test Bike", person: null, stravaGear: null);
-      await repository.addBike(bike);
+      await repository.addBikes([bike]);
 
       final component = Component(
         name: "Chain",
         componentType: ComponentType.chain,
         installations: [Installation.sinceBeginning(parent: bike.id)],
       );
-      await repository.addComponent(component);
+      await repository.addComponents([component]);
 
       final rule = TaskRule(name: "Chain Wax", componentId: component.id, tags: const {});
-      await repository.addTaskRule(rule);
+      await repository.addTaskRules([rule]);
       await pumpEventQueue();
 
       // 2. A Strava activity exists for gear "g123" (not yet linked to any bike).
@@ -309,17 +308,17 @@ void main() {
     test("unlinking Strava gear from a bike recomputes task entry snapshots", () async {
       // 1. Bike already linked to gear "g123", with a component and task rule.
       final bike = Bike(name: "Test Bike", person: null, stravaGear: "g123");
-      await repository.addBike(bike);
+      await repository.addBikes([bike]);
 
       final component = Component(
         name: "Chain",
         componentType: ComponentType.chain,
         installations: [Installation.sinceBeginning(parent: bike.id)],
       );
-      await repository.addComponent(component);
+      await repository.addComponents([component]);
 
       final rule = TaskRule(name: "Chain Wax", componentId: component.id, tags: const {});
-      await repository.addTaskRule(rule);
+      await repository.addTaskRules([rule]);
 
       final activity = StravaActivity(
         id: 1,
@@ -384,8 +383,7 @@ void main() {
       // Two bikes: one linked to a gear with activities, one with no gear.
       final bikeWithGear = Bike(name: "Bike A", person: null, stravaGear: "g123");
       final bikeNoGear = Bike(name: "Bike B", person: null, stravaGear: null);
-      await repository.addBike(bikeWithGear);
-      await repository.addBike(bikeNoGear);
+      await repository.addBikes([bikeWithGear, bikeNoGear]);
 
       // Component starts on the gear-less bike.
       final component = Component(
@@ -393,10 +391,10 @@ void main() {
         componentType: ComponentType.chain,
         installations: [Installation.sinceBeginning(parent: bikeNoGear.id)],
       );
-      await repository.addComponent(component);
+      await repository.addComponents([component]);
 
       final rule = TaskRule(name: "Chain Wax", componentId: component.id, tags: const {});
-      await repository.addTaskRule(rule);
+      await repository.addTaskRules([rule]);
 
       final activity = StravaActivity(
         id: 1,
@@ -444,18 +442,18 @@ void main() {
 
     test("editing a component's initial stats recomputes task entry snapshots", () async {
       final bike = Bike(name: "Test Bike", person: null, stravaGear: null);
-      await repository.addBike(bike);
+      await repository.addBikes([bike]);
 
       final component = Component(
         name: "Chain",
         componentType: ComponentType.chain,
         installations: [Installation.sinceBeginning(parent: bike.id)],
-        initialDistance: 0.0,
+        initialStats: ComponentStats.zero(),
       );
-      await repository.addComponent(component);
+      await repository.addComponents([component]);
 
       final rule = TaskRule(name: "Chain Wax", componentId: component.id, tags: const {});
-      await repository.addTaskRule(rule);
+      await repository.addTaskRules([rule]);
       await pumpEventQueue();
 
       final entryDate = DateTime.utc(2024, 1, 2);
@@ -473,7 +471,9 @@ void main() {
 
       // Bump the component's initial distance (e.g. a used part). The snapshot,
       // which includes initial stats, must reflect the new baseline.
-      await repository.editComponent(component.copyWith(initialDistance: 25000.0));
+      await repository.editComponent(component.copyWith(
+        initialStats: const ComponentStats(distance: 25000.0),
+      ));
       await pumpEventQueue();
 
       expect(repository.taskEntries[entry.id]?.snapshot?.distance, 25000.0);
@@ -496,17 +496,17 @@ void main() {
 
     test("clearing Strava data resets task entry snapshots to initial stats", () async {
       final bike = Bike(name: "Test Bike", person: null, stravaGear: "g123");
-      await repository.addBike(bike);
+      await repository.addBikes([bike]);
 
       final component = Component(
         name: "Chain",
         componentType: ComponentType.chain,
         installations: [Installation.sinceBeginning(parent: bike.id)],
       );
-      await repository.addComponent(component);
+      await repository.addComponents([component]);
 
       final rule = TaskRule(name: "Chain Wax", componentId: component.id, tags: const {});
-      await repository.addTaskRule(rule);
+      await repository.addTaskRules([rule]);
 
       final activity = StravaActivity(
         id: 1,
@@ -586,9 +586,9 @@ void main() {
     test("linking and unlinking gear recomputes a bike-linked entry snapshot", () async {
       // Bike with no gear yet + a bike-linked task rule.
       final bike = Bike(name: "Test Bike", person: null, stravaGear: null);
-      await repository.addBike(bike);
+      await repository.addBikes([bike]);
       final rule = TaskRule(name: "Bike Service", bikeId: bike.id, tags: const {});
-      await repository.addTaskRule(rule);
+      await repository.addTaskRules([rule]);
 
       // An activity exists for gear "g123" (not linked to any bike yet).
       await repository.setStravaActivities([rideForGear("g123")]);
@@ -623,9 +623,9 @@ void main() {
 
     test("clearing Strava data resets a bike-linked entry snapshot", () async {
       final bike = Bike(name: "Test Bike", person: null, stravaGear: "g123");
-      await repository.addBike(bike);
+      await repository.addBikes([bike]);
       final rule = TaskRule(name: "Bike Service", bikeId: bike.id, tags: const {});
-      await repository.addTaskRule(rule);
+      await repository.addTaskRules([rule]);
 
       await repository.setStravaActivities([rideForGear("g123")]);
       await pumpEventQueue();
@@ -739,15 +739,15 @@ void main() {
 
     test("trashed entries are healed too, and stay trashed", () async {
       final bike = Bike(name: "Test Bike", person: null, stravaGear: "g123");
-      await repository.addBike(bike);
+      await repository.addBikes([bike]);
       final component = Component(
         name: "Chain",
         componentType: ComponentType.chain,
         installations: [Installation.sinceBeginning(parent: bike.id)],
       );
-      await repository.addComponent(component);
+      await repository.addComponents([component]);
       final rule = TaskRule(name: "Chain Wax", componentId: component.id, tags: const {});
-      await repository.addTaskRule(rule);
+      await repository.addTaskRules([rule]);
 
       final activity = StravaActivity(
         id: 1,
@@ -800,8 +800,7 @@ void main() {
     test("component edits refresh only that component's active and trashed entries", () async {
       final target = Component(name: "Target Chain", componentType: ComponentType.chain, installations: []);
       final unrelated = Component(name: "Unrelated Chain", componentType: ComponentType.chain, installations: []);
-      await repository.addComponent(target);
-      await repository.addComponent(unrelated);
+      await repository.addComponents([target, unrelated]);
 
       final entryDate = DateTime.utc(2024, 1, 2);
       final staleSnapshot = const ComponentStats(
@@ -820,7 +819,9 @@ void main() {
       await database.taskDao.insertEntry(unrelatedEntry.toCompanion());
       await database.taskDao.insertEntry(bikeOnlyEntry.toCompanion());
 
-      await repository.editComponent(target.copyWith(initialDistance: 1000.0));
+      await repository.editComponent(target.copyWith(
+        initialStats: const ComponentStats(distance: 1000.0),
+      ));
 
       final entries = {
         for (final entry in await database.taskDao.getAllEntriesBypass()) entry.id: entry.toModel(),
@@ -913,16 +914,14 @@ void main() {
       await pumpEventQueue();
 
       final bike = Bike(name: "Test Bike", person: null, stravaGear: "g123");
-      await repository.addBike(bike);
+      await repository.addBikes([bike]);
       final outgoing = Component(
         name: "Old Chain",
         componentType: ComponentType.chain,
         installations: [Installation.sinceBeginning(parent: bike.id)],
       );
       final incoming = Component(name: "New Chain", componentType: ComponentType.chain, installations: []);
-      await repository.addComponent(outgoing);
-      await repository.addComponent(incoming);
-
+      await repository.addComponents([outgoing, incoming]);
       await repository.setStravaActivities([
         activity(1, DateTime.utc(2024, 1, 1, 12), 100000.0),
         activity(2, DateTime.utc(2024, 4, 1, 12), 50000.0),

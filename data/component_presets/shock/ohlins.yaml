@@ -3,184 +3,310 @@
 # Same design as shock/fox.yaml: click ranges belong to the DAMPER, defined
 # once under `dampers:` and referenced by key from each shock's trims.
 # See SCHEMA.md in this folder.
+#
+# Öhlins revises these dampers under an "m.2" badge with genuinely different
+# click tables — the TTX1Air goes 12/10/3 in its first generation and 7/16/3 in
+# the m.2, and the TTX2Air goes 12/10/3 then 3/12/3. Every generation therefore
+# has its own damper key, read off that generation's own listing.
 
 brand: Öhlins
 component_type: shock
 sources:
   - https://www.ohlins.eu/de/products/mountainbike/air-shocks/
-  - https://www.ohlins.eu/de/products/mountainbike/coil-shocks/
-  - https://www.ohlins.eu/de/products/mountainbike/ttx1air-m2-universal--7749/
-  - https://www.ohlins.eu/de/products/mountainbike/ttx2air-m2-universal--7750/
-  - https://www.ohlins.eu/de/products/mountainbike/txc1air-universal--7691/
-  - https://www.ohlins.eu/de/products/mountainbike/txc2air-universal--7593/
-  - https://www.ohlins.eu/de/products/mountainbike/ttx22-m2-piggyback-105x35-267x89mm--5708/
-updated: 2026-07-05
-# Click ranges taken from the individual product pages at ohlins.eu (German
-# site). Clicks counted from fully closed (firmest) → default `dial_ccw`.
+  - https://www.ohlins.eu/en/products/mountainbike/coil-shocks/
+  - https://www.ohlins.eu/en/products/mountainbike/ttx1air-universal--7689/
+  - https://www.ohlins.eu/en/products/mountainbike/ttx1air-m2-universal--7749/
+  - https://www.ohlins.eu/en/products/mountainbike/ttx2-air-universal--7690/
+  - https://www.ohlins.eu/en/products/mountainbike/ttx2air-m2-universal--7750/
+  - https://www.ohlins.eu/en/products/mountainbike/txc1air-universal--7691/
+  - https://www.ohlins.eu/en/products/mountainbike/txc2air-universal--7593/
+  - https://www.ohlins.eu/en/products/mountainbike/ttx22-m2-piggyback-105x35-267x89mm--5708/
+  - https://www.ohlins.eu/en/products/mountainbike/ttx22-m2-side-by-side--7681/
+  - https://www.ohlins.eu/en/products/mountainbike/ttx22-m2-trunnion-piggyback-mtbm--7680/
+  - https://www.ohlins.eu/en/products/mountainbike/ttx22-m2-trunnion-side-by--7679/
+  # Editorial, used only for the TXC2Air's three lever mode names
+  - https://nsmb.com/articles/ohlins-txc2air-and-rxc34-m1-suspension/
+updated: 2026-09-10
+# Click ranges taken from each model's own listing at ohlins.eu. Clicks are
+# counted from fully closed (firmest) → default `dial_ccw`.
 
 # --------------------------------------------------------------------------
 # Dampers
 # --------------------------------------------------------------------------
 dampers:
+  ttx1air_m1:
+    name: TTX1Air (first generation)
+    description: |-
+      - Twin-tube air shock with a nitrogen-charged piggyback reservoir
+      - Twin-tube flow keeps damping steady as shaft speed rises
+      - High-speed compression is a four-position dial whose firmest step is Pedal mode
+    adjustments:
+      - { name: HSC, type: step, max: 3, notes: "High-Speed Compression; the firmest position is Pedal mode" }
+      - { name: LSC, type: step, max: 10, notes: Low-Speed Compression }
+      - { name: Rebound, type: step, max: 12, notes: Low-Speed Rebound }
+    source: https://www.ohlins.eu/en/products/mountainbike/ttx1air-universal--7689/
+    note: >-
+      TTX1Air listing: "12-fach verstellbare Low-Speed-Zugstufendämpfung",
+      "10-fach verstellbare Low-Speed Druckstufendämpfung", "3-fach
+      verstellbare High-Speed Druckstufendämpfung inkl. Pedal-Mode". This is
+      NOT the m.2 table (7/16/3) — the two generations differ on every circuit.
+
   ttx1air_m2:
     name: TTX1Air m.2
-    description: Twin-tube air shock.
+    description: |-
+      - Twin-tube air shock, m.2 generation, with a volume-spacer air can
+      - Far finer low-speed compression than the first generation, but coarser rebound
+      - High-speed compression is a four-position dial whose firmest step is Pedal mode
     adjustments:
-      - { name: HSC, type: step, max: 3, notes: High-Speed Compression }
+      - { name: HSC, type: step, max: 3, notes: "High-Speed Compression; the firmest position is Pedal mode" }
       - { name: LSC, type: step, max: 16, notes: Low-Speed Compression }
-      - { name: Rebound, type: step, max: 7 }
+      - { name: Rebound, type: step, max: 7, notes: Low-Speed Rebound }
+    source: https://www.ohlins.eu/en/products/mountainbike/ttx1air-m2-universal--7749/
+    note: >-
+      TTX1Air m.2 listing: "7-fach verstellbare Low-Speed-Zugstufendämpfung",
+      "16-fach verstellbare Low-Speed Druckstufendämpfung", "3-fach
+      verstellbare High-Speed Druckstufendämpfung inkl. Pedal-Mode".
+
+  ttx2air_m1:
+    name: TTX2Air (first generation)
+    description: |-
+      - Twin-tube air shock built around a larger-volume can than the TTX1Air
+      - Twin-tube flow keeps damping steady as shaft speed rises
+      - High-speed compression is a four-position dial whose firmest step is Pedal mode
+    adjustments:
+      - { name: HSC, type: step, max: 3, notes: "High-Speed Compression; the firmest position is Pedal mode" }
+      - { name: LSC, type: step, max: 10, notes: Low-Speed Compression }
+      - { name: Rebound, type: step, max: 12, notes: Low-Speed Rebound }
+    source: https://www.ohlins.eu/en/products/mountainbike/ttx2-air-universal--7690/
+    note: >-
+      TTX2Air listing: "12-fach verstellbare Low-Speed-Zugstufendämpfung",
+      "10-fach verstellbare Low-Speed Druckstufendämpfung", "3-fach
+      verstellbare High-Speed Druckstufendämpfung inkl. Pedal-Mode". Read off
+      the TTX2Air's own listing, not carried over from the TTX1Air.
 
   ttx2air_m2:
     name: TTX2Air m.2
-    description: Twin-tube air shock; coarser external adjustment range than TTX1Air.
+    description: |-
+      - Twin-tube air shock, m.2 generation, with a double-can high-volume air spring
+      - Rebound is a coarse four-position dial rather than a fine click range
+      - High-speed compression is a four-position dial whose firmest step is Climb mode
     adjustments:
-      - { name: HSC, type: step, max: 3, notes: High-Speed Compression }
+      - { name: HSC, type: step, max: 3, notes: "High-Speed Compression; the firmest position is Climb mode" }
       - { name: LSC, type: step, max: 12, notes: Low-Speed Compression }
-      - { name: Rebound, type: step, max: 3 }
+      - { name: Rebound, type: step, max: 3, notes: Low-Speed Rebound }
+    source: https://www.ohlins.eu/en/products/mountainbike/ttx2air-m2-universal--7750/
+    note: >-
+      TTX2Air m.2 listing: "3-fach einstellbare Low-Speed-Zugstufendämpfung",
+      "12-fach einstellbare Low-Speed Druckstufendämpfung", "3-fach einstellbare
+      High-Speed Druckstufendämpfung inkl. Climb-Mode", "Maximaler Luftdruck
+      bis zu 325 psi".
 
   txc1air:
     name: TXC1Air
-    description: >
-      Cross-country air shock (pairs with RXC34 fork). Rebound is externally
-      adjustable; compression click count was not separately specified on the
-      product page — verify before relying on it.
+    description: |-
+      - Cross-country air shock, the rear half of the RXC34 package
+      - A three-position lever steps between Open, Pedal and Lockout
+      - Rebound is the only click adjuster; compression is set by the lever alone
     adjustments:
-      - { name: Rebound, type: step, max: 12 }
+      - { name: Rebound, type: step, max: 12, notes: Low-Speed Rebound }
+      - { name: Ride Mode, type: categorical, options: [Open, Pedal, Lockout], notes: "Bar remote at 7.5mm cable pull per click, 5.5mm/click adapter available" }
+    source: https://www.ohlins.eu/en/products/mountainbike/txc1air-universal--7691/
+    note: >-
+      TXC1Air listing gives "12 Klicks Zugstufendämpfung" and "drei
+      hochdynamische Fahrmodi: Offen, Pedal und Lockout", and no compression
+      click range at all. Its sibling TXC2Air is marketed as adding
+      "Zusätzliche 16 Klick Low-Speed Druckstufendämpfung" over this shock,
+      which is consistent with the TXC1Air having no compression clicks. No
+      compression step is invented here.
 
   txc2air:
     name: TXC2Air
-    description: Cross-country air shock, newer generation. Three riding modes via manual lever.
+    description: |-
+      - Cross-country air shock from 255g, with a three-position lever
+      - Open, Pedal and Lockout are selectable at the shock or by bar remote
+      - The 16-click low-speed compression range works within Open mode
     adjustments:
-      - { name: Compression, type: step, max: 16, notes: "Low-Speed Compression; In Open mode" }
-      - { name: Rebound, type: step, max: 12 }
-      - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm], notes: Three riding modes via manual lever }
+      - { name: Compression, type: step, max: 16, notes: "Low-Speed Compression; operates within Open mode" }
+      - { name: Rebound, type: step, max: 12, notes: Low-Speed Rebound }
+      - { name: Ride Mode, type: categorical, options: [Open, Pedal, Lockout], notes: "Lever at the shock or a three-position bar remote; 5.5mm/click cable-pull adapter available" }
+    source:
+      - https://www.ohlins.eu/en/products/mountainbike/txc2air-universal--7593/
+      - https://nsmb.com/articles/ohlins-txc2air-and-rxc34-m1-suspension/
+    note: >-
+      Click counts from the Öhlins listing ("12 Klicks Zugstufendämpfung",
+      "Zusätzliche 16 Klick Low-Speed Druckstufendämpfung", "manuellen Hebel mit
+      drei Fahrmodi"). Öhlins names the three modes only on the TXC1Air page;
+      the NSMB article body names the TXC2Air's own three as "open, pedal, and
+      lock" — the one secondary citation in this file.
 
   ttx22_m2:
     name: TTX22 m.2
-    description: Twin-tube coil shock. Same cartridge across Piggyback/Side-by-side/Trunnion mount variants.
+    description: |-
+      - Twin-tube coil shock for gravity riding, with a nitrogen bladder reservoir
+      - The same cartridge sits in every Piggyback, Side-by-side and Trunnion variant
+      - Threaded preload collar sets spring preload independently of the clicks
     adjustments:
       - { name: HSC, type: step, max: 3, notes: High-Speed Compression }
       - { name: LSC, type: step, max: 16, notes: Low-Speed Compression }
-      - { name: Rebound, type: step, max: 7 }
+      - { name: Rebound, type: step, max: 7, notes: Low-Speed Rebound }
+    source:
+      - https://www.ohlins.eu/en/products/mountainbike/ttx22-m2-piggyback-105x35-267x89mm--5708/
+      - https://www.ohlins.eu/en/products/mountainbike/ttx22-m2-side-by-side--7681/
+      - https://www.ohlins.eu/en/products/mountainbike/ttx22-m2-trunnion-piggyback-mtbm--7680/
+      - https://www.ohlins.eu/en/products/mountainbike/ttx22-m2-trunnion-side-by--7679/
+    note: >-
+      All four TTX22 m.2 variant listings independently state "3-fach
+      verstellbare High-Speed Druckstufendämpfung", "16-fach verstellbare
+      Low-Speed Druckstufendämpfung" and "7-fach verstellbare
+      Zugstufendämpfung", so the shared-cartridge claim is stated by Öhlins
+      rather than inferred.
 
 # --------------------------------------------------------------------------
-# Shocks — current Öhlins MTB lineup.
-# Shocks are sold by eye-to-eye/stroke length to match a given frame, not by a
-# fixed "travel" like forks — `stroke_mm` lists the eye-to-eye × stroke sizes
-# published on the product page.
+# Shocks — current Öhlins MTB lineup, both generations of each air shock.
+# Shocks are sold by eye-to-eye × stroke length to match a given frame, not by
+# a fixed "travel" like forks — `stroke_mm` lists the eye-to-eye × stroke sizes
+# published for that model.
 #
-# Air models share the `&air_spring` anchor (Pressure); the coil TTX22 m.2 lists
-# a Spring Rate.
+# Air models share the `&air_spring` anchor (Pressure); coil TTX22 m.2 trims
+# list a Spring Rate in N/mm, the unit Öhlins stamps on its shock springs.
 # --------------------------------------------------------------------------
 shocks:
   - model: "TTX1Air"
     category: Trail / Enduro
     spring: Air
     year_range: "2025-2026"
-    url: https://www.ohlins.eu/de/products/mountainbike/ttx1air-universal--7689/
+    url: https://www.ohlins.eu/en/products/mountainbike/ttx1air-universal--7689/
     trims:
       - trim: Universal
-        dampers: [ttx1air_m2]
+        mount: [Standard eyelet, Trunnion]
+        stroke_mm: ["190x40/42.5/45", "210x50/52.5/55", "230x60/62.5/65", "165x40/42.5/45 (Trunnion)", "185x50/52.5/55 (Trunnion)", "205x60/62.5/65 (Trunnion)"]
+        dampers: [ttx1air_m1]
         adjustments: &air_spring
           - { name: Pressure, type: numerical, unit: psi, min: 0 }
+        note: First-generation TTX1Air, from 390g. Its click table differs from the m.2 on every circuit.
 
   - model: "TTX1Air m.2"
     category: Trail / Enduro
     spring: Air
     year_range: "2025-2026"
-    url: https://www.ohlins.eu/de/products/mountainbike/ttx1air-m2-universal--7749/
+    url: https://www.ohlins.eu/en/products/mountainbike/ttx1air-m2-universal--7749/
     trims:
       - trim: Universal
         mount: [Trunnion, Standard eyelet]
         stroke_mm: ["165x45/42.5/40/37.5 (Trunnion)", "185x55/52.5/50/47.5 (Trunnion)", "190x45/42.5/40/37.5", "210x55/52.5/50/47.5"]
         dampers: [ttx1air_m2]
         adjustments: *air_spring
+        note: |-
+          - Air-spring progression is tuned with volume spacers, supplied with the shock
+          - From 390g in 190x45
 
   - model: "TTX2Air"
     category: Trail / Enduro
     spring: Air
     year_range: "2025-2026"
-    url: https://www.ohlins.eu/de/products/mountainbike/ttx2-air-universal--7690/
+    url: https://www.ohlins.eu/en/products/mountainbike/ttx2-air-universal--7690/
     trims:
       - trim: Universal
-        dampers: [ttx2air_m2]
+        mount: ["Standard eyelet (15 x 12.7mm)", Trunnion]
+        stroke_mm: ["190x40/42.5/45", "185x50/52.5/55 (Trunnion)", "205x60/62.5/65 (Trunnion)"]
+        dampers: [ttx2air_m1]
         adjustments: *air_spring
+        note: First-generation TTX2Air, from 390g. Its click table differs from the m.2 on every circuit.
 
   - model: "TTX2Air m.2"
     category: Trail / Enduro
     spring: Air
     year_range: "2025-2026"
-    url: https://www.ohlins.eu/de/products/mountainbike/ttx2air-m2-universal--7750/
+    url: https://www.ohlins.eu/en/products/mountainbike/ttx2air-m2-universal--7750/
     trims:
       - trim: Universal
         mount: [Trunnion, Metric]
         stroke_mm: ["185x55/52.5/50/47.5 (Trunnion)", "205x65/62.5/60/57.5 (Trunnion)", "210x55/52.5/50/47.5 (Metric)", "230x65/62.5/60/57.5 (Metric)"]
         dampers: [ttx2air_m2]
         adjustments: *air_spring
-        note: air pressure adjustable up to 325psi; volume-spacer chamber system
+        note: |-
+          - Double-can air spring with more volume in both chambers
+          - Takes up to 325 psi, and ships with volume spacers for progression
 
   - model: "TXC1Air"
     category: XC
     spring: Air
     year_range: "2025-2026"
-    url: https://www.ohlins.eu/de/products/mountainbike/txc1air-universal--7691/
+    url: https://www.ohlins.eu/en/products/mountainbike/txc1air-universal--7691/
     trims:
       - trim: Universal
         mount: [Trunnion Remote, Remote]
         stroke_mm: ["165x37.5/40 (Trunnion Remote)", "185x47.5/50 (Trunnion Remote)", "190x37.5/40 (Remote)", "210x47.5/50 (Remote)"]
         dampers: [txc1air]
         adjustments: *air_spring
-        note: X-Country-tuned hydraulics; pairs with RXC34 fork
+        note: |-
+          - Cross-country tune, from 245g, and the rear half of the RXC34 package
+          - Volume spacers tune air-spring progression; travel is adjustable
 
   - model: "TXC2Air"
     category: XC
     spring: Air
     year_range: "2025-2026"
-    url: https://www.ohlins.eu/de/products/mountainbike/txc2air-universal--7593/
+    url: https://www.ohlins.eu/en/products/mountainbike/txc2air-universal--7593/
     trims:
       - trim: Universal
-        mount: [Standard eyelet, Remote (5.5mm cable pull adapter)]
+        mount: [Standard eyelet, "Remote (5.5mm cable pull adapter)"]
         stroke_mm: ["165x37.5/40/42.5/45", "185x47.5/50/52.5/55", "190x37.5/40/42.5/45", "210x47.5/50/52.5/55"]
         dampers: [txc2air]
         adjustments: *air_spring
-        note: X-Country-tuned hydraulics; weighs from 255g
+        note: Cross-country tune from 255g, with low-speed compression clicks on top of the three-mode lever.
 
   - model: "TTX22 m.2"
     category: Enduro / Downhill
     spring: Coil
     year_range: "2025-2026"
-    url: https://www.ohlins.eu/de/products/mountainbike/ttx22-m2-piggyback-105x35-267x89mm--5708/
+    url: https://www.ohlins.eu/en/products/mountainbike/ttx22-m2-piggyback-105x35-267x89mm--5708/
     trims:
       - trim: Piggyback
-        stroke_mm: ["51 (267 eye-to-eye)"]
+        stroke_mm: ["267x89 (10.5x3.5in)"]
         dampers: [ttx22_m2]
         adjustments: &coil_spring
-          - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
+          - { name: Spring Rate, type: numerical, unit: N/mm, min: 0 }
+          - { name: Preload, type: numerical, unit: turns, min: 0 }
+        note: 425-460g without the spring.
       - trim: Side-by-side
-        url: https://www.ohlins.eu/de/products/mountainbike/ttx22-m2-side-by-side--7681/
+        url: https://www.ohlins.eu/en/products/mountainbike/ttx22-m2-side-by-side--7681/
         mount: MTBM 220x series
+        stroke_mm: ["210x55 (MTBM 2204)", "230x65 (MTBM 2208)", "250x75 (MTBM 2212)"]
         dampers: [ttx22_m2]
         adjustments: *coil_spring
       - trim: Trunnion Piggyback
-        url: https://www.ohlins.eu/de/products/mountainbike/ttx22-m2-trunnion-piggyback-mtbm--7680/
+        url: https://www.ohlins.eu/en/products/mountainbike/ttx22-m2-trunnion-piggyback-mtbm--7680/
         mount: MTBM 224x series
+        stroke_mm: ["185x55 (MTBM 2244)", "205x65 (MTBM 2248)", "225x75 (MTBM 2252)"]
         dampers: [ttx22_m2]
         adjustments: *coil_spring
       - trim: Trunnion Side-by-side
-        url: https://www.ohlins.eu/de/products/mountainbike/ttx22-m2-trunnion-side-by--7679/
+        url: https://www.ohlins.eu/en/products/mountainbike/ttx22-m2-trunnion-side-by--7679/
         mount: MTBM 222x series
+        stroke_mm: ["185x55 (MTBM 2224)", "205x65 (MTBM 2228)", "225x75 (MTBM 2232)"]
         dampers: [ttx22_m2]
         adjustments: *coil_spring
-    note: Coil spring sold separately (Öhlins 18065-series).
+    note: |-
+      - The coil spring is bought separately, from the Öhlins 18075 series
+      - Sixteen rates run 64 to 136 N/mm, one series covering every shock size
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):
-#   - Volume-spacer chamber counts (TTX2Air m.2 and others) — not published as
-#     a max; add a Volume Spacers adjustment once a spec lists it.
-#   - TXC1Air's compression click count wasn't separately specified on its
-#     product page (unlike TXC2Air's confirmed 16 clicks) — verify before
-#     relying on it.
-#   - Exact per-size stroke/eye-to-eye tables for the Side-by-side/Trunnion
-#     TTX22 m.2 variants (MTBM 220x/222x/224x series) weren't fetched —
-#     only the Piggyback 10.5x3.5" variant's dimensions were confirmed.
+#   - Volume-spacer counts: the TTX1Air m.2, TTX2Air m.2 and both TXC shocks
+#     ship with an air-volume spacer system, but Öhlins never states how many
+#     spacers a can accepts. No Volume Spacers adjustment is generated until a
+#     maximum is stated somewhere.
+#   - TTX22 m.2 preload: the threaded collar has no stated total travel or
+#     turn count, so Preload is an open-ended numerical rather than a step.
+#   - TXC1Air compression: Öhlins gives this shock a rebound click count and a
+#     three-mode lever and nothing else. The reading that it has no separate
+#     compression click range rests on the TXC2Air being marketed as ADDING 16
+#     low-speed compression clicks; an explicit Öhlins statement would settle it.
+#   - TXC2Air mode names come from the NSMB article body, the only secondary
+#     citation here; Öhlins names the three modes only on the TXC1Air page.
+#   - Older coil generations (TTX22M and TTX22M.2 metric-mount, STX22) and the
+#     original TTX Air shocks are still missing. Their click tables are on no
+#     current Öhlins page and no archived Öhlins manual for them has been
+#     located, so they are left out rather than filled in from the TTX22 m.2.
 # --------------------------------------------------------------------------

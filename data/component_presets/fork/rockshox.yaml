@@ -9,73 +9,232 @@ component_type: fork
 sources:
   - https://www.sram.com/en/rockshox/products/forks
   - https://www.sram.com/en/rockshox/learn/charger-3-setup
+  # Primary — SRAM service manuals / technical specifications (PDF)
+  - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-zeb-lyrik-pike-service-manual.pdf
+  - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-front-suspension-oil-air-coil-token-specifications-english.pdf
+  - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2021-2023-sid-and-sid-sl-service-manual.pdf
+  - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/bottomless-tokens-english.pdf
+  # Primary — RockShox rider-support knowledge base
+  - https://support.rockshox.com/hc/en-us/articles/5910471591579-What-is-the-range-of-adjustability-on-Charger-3
+  - https://support.rockshox.com/hc/en-us/articles/26413299077659-How-did-the-adjustment-range-of-Low-Speed-Compression-and-High-Speed-Compression-change-on-RockShox-Charger-3-1
+  - https://support.rockshox.com/hc/en-us/articles/26413313637531-Does-the-RockShox-Charger-3-1-damper-offer-more-clicks-of-adjustment
+  - https://support.rockshox.com/hc/en-us/articles/46637226489755-What-are-the-differences-between-Charger-3-Charger-3-1-and-Charger-3-2
+  - https://support.rockshox.com/hc/en-us/articles/46638364341531-Which-damper-upgrades-are-available-for-the-BoXXer-D2
+  - https://support.rockshox.com/hc/en-us/articles/5930461078683-What-RockShox-forks-come-with-Charger-3-dampers
+  - https://support.rockshox.com/hc/en-us/articles/24895607833499-What-is-the-range-of-adjustability-on-the-Isolator-Damper
+  - https://support.rockshox.com/hc/en-us/articles/24895680722331-What-RockShox-forks-is-the-Isolator-damper-compatible-with
+  - https://support.rockshox.com/hc/en-us/articles/24894984507035-What-is-the-difference-between-the-RockShox-Domain-and-Psylo-forks
+  - https://support.rockshox.com/hc/en-us/articles/17232924126235-What-are-the-travel-options-for-BoXXer
+  - https://support.rockshox.com/hc/en-us/articles/17233262282011-Why-change-BoXXer-s-offset-options-to-44mm-48mm-and-52mm
+  - https://support.rockshox.com/hc/en-us/articles/47697676072475-Can-I-change-the-travel-of-the-2024-Boxxer-D1
+  - https://support.rockshox.com/hc/en-us/articles/45761068389403-Can-I-change-the-travel-of-the-2020-2023-Boxxer-C2
+  - https://support.rockshox.com/hc/en-us/articles/24894559854747-What-is-the-difference-between-the-Race-Day-and-Race-Day-2-damper
+  - https://support.rockshox.com/hc/en-us/articles/17383057951259-How-do-the-Charger-XC-and-Rush-XC-differ-from-Charger-Race-Day-2
+  # Secondary — editorial, used for context only, no numbers taken from them
   - https://flowmountainbike.com/tests/2025-rockshox-zeb-lyrik-pike-fork-review/
   - https://enduro-mtb.com/en/rockshox-2025-fork-charger-review/
-  - https://support.rockshox.com/hc/en-us/articles/26413299077659-How-did-the-adjustment-range-of-Low-Speed-Compression-and-High-Speed-Compression-change-on-RockShox-Charger-3-1/
-updated: 2026-07-05
-# Click ranges from SRAM/RockShox support documentation and official product
-# pages (sram.com). Charger 3/3.1 compression is counted from the MIDDLE detent
-# (HSC -2..+2, LSC -7..+7) and stored with those literal ranges plus
-# `visualization: dial_cw` (increasing value = clockwise; -2 lies
-# counterclockwise of the 0 detent). Rebound is 0-18, counted from fully OPEN.
+updated: 2026-09-10
+# Counting conventions, verified per damper against SRAM material:
+#   * Charger 3 / 3.1 / 3.2 compression counts from the MIDDLE detent — HSC has
+#     5 positions (-2..+2), LSC has 15 positions (-7..+7). Stored with those
+#     literal ranges plus `visualization: dial_cw` (increasing value = clockwise;
+#     -2 lies counterclockwise of the 0 detent).
+#   * Rebound on every RockShox fork damper is counted from fully OPEN (fastest),
+#     so `min: 0` with the default `dial_ccw`.
+# Damper-per-trim assignments come from the exploded views in the 2023-2027
+# ZEB/Lyrik/Pike service manual (pp. 12-31), not from marketing copy.
 
 # --------------------------------------------------------------------------
 # Dampers
 # --------------------------------------------------------------------------
 dampers:
-  charger_3_1:
-    name: Charger 3.1
-    description: >
-      Updated Charger damper for 2025 Pike, Lyrik, ZEB. Same click counts as
-      Charger 3 but improved damping curve, especially in LSC open positions
-      (68% more oil flow) and overall reduced damping baseline. RC2 variant
-      adds remote control.
+  charger_3:
+    name: Charger 3 RC2
+    description: |-
+      - Independent high- and low-speed compression circuits, both counted from a centre detent
+      - HSC is a 5-position dial, LSC a 15-position dial, rebound 18 clicks
+      - Fitted to 2023-2024 Pike, Lyrik and ZEB Ultimate / Select+
     adjustments:
       - { name: HSC, type: step, min: -2, max: 2, visualization: dial_cw, notes: "High-Speed Compression; Counted from the middle detent" }
       - { name: LSC, type: step, min: -7, max: 7, visualization: dial_cw, notes: "Low-Speed Compression; Counted from the middle detent" }
       - { name: Rebound, type: step, max: 18, notes: Counted from fully open (fastest) }
-    note: >
-      The +/- symbol on each compression dial indicates direction relative to
-      the white etched indicator line.
+    source:
+      - https://support.rockshox.com/hc/en-us/articles/5910471591579-What-is-the-range-of-adjustability-on-Charger-3
+      - https://support.rockshox.com/hc/en-us/articles/5930461078683-What-RockShox-forks-come-with-Charger-3-dampers
+    note: >-
+      RockShox states "15 clicks of Low Speed Compression, 5 clicks of High Speed
+      Compression, and 18 clicks of Rebound". The 15/5 compression dials are the
+      centre-detent -7..+7 and -2..+2 ranges.
+
+  charger_3_1:
+    name: Charger 3.1 RC2
+    description: |-
+      - Same adjuster layout and click count as Charger 3, with a wider useful range per click
+      - More open LSC at the open end and firmer HSC at the closed end
+      - Fitted to 2025-2027 Pike, Lyrik and ZEB Ultimate / Select+
+    adjustments:
+      - { name: HSC, type: step, min: -2, max: 2, visualization: dial_cw, notes: "High-Speed Compression; Counted from the middle detent" }
+      - { name: LSC, type: step, min: -7, max: 7, visualization: dial_cw, notes: "Low-Speed Compression; Counted from the middle detent" }
+      - { name: Rebound, type: step, max: 18, notes: Counted from fully open (fastest) }
+    source:
+      - https://support.rockshox.com/hc/en-us/articles/26413313637531-Does-the-RockShox-Charger-3-1-damper-offer-more-clicks-of-adjustment
+      - https://support.rockshox.com/hc/en-us/articles/26413299077659-How-did-the-adjustment-range-of-Low-Speed-Compression-and-High-Speed-Compression-change-on-RockShox-Charger-3-1
+    note: >-
+      RockShox: "Charger 3.1 offers the same number of adjustment clicks as
+      Charger 3, but with a broader range of adjustment." Counts therefore carried
+      over from the Charger 3 range-of-adjustability article, not inferred.
+    dial_marking: >-
+      The +/- symbol on each compression dial shows direction relative to the
+      white etched indicator line.
 
   charger_3_2:
-    name: Charger 3.2
-    description: >
-      Charger for 2027+ Pike, Lyrik, ZEB, BoXXer. Likely same click counts as
-      Charger 3.1 but with further refinements; exact damping internals not
-      independently confirmed for 3.2 generation.
-    adjustments:
-      - { name: HSC, type: step, min: -2, max: 2, visualization: dial_cw, notes: "High-Speed Compression; Counted from the middle detent" }
-      - { name: LSC, type: step, min: -7, max: 7, visualization: dial_cw, notes: "Low-Speed Compression; Counted from the middle detent" }
-      - { name: Rebound, type: step, max: 18, notes: Counted from fully open (fastest) }
-    note: Same counting method as Charger 3.1.
+    name: Charger 3.2 RC2
+    description: >-
+      Highest-damping Charger, built to match the Linear XL air spring and the
+      2027 chassis. Adjustments incomplete: please add HSC, LSC and Rebound
+      yourself.
+    adjustments: []
+    source:
+      - https://support.rockshox.com/hc/en-us/articles/46637226489755-What-are-the-differences-between-Charger-3-Charger-3-1-and-Charger-3-2
+      - https://support.rockshox.com/hc/en-us/articles/46638364341531-Which-damper-upgrades-are-available-for-the-BoXXer-D2
+    note: >-
+      SRAM confirms the damper exists and pairs with Linear XL (Charger 3/3.1
+      pairs with DebonAir+), and that BoXXer D2 Ultimate ships with it — but
+      publishes no click counts for 3.2. Do not copy the Charger 3/3.1 numbers
+      across: SRAM describes 3.2 as a different tune and range.
+
+  charger_2_1_rc2:
+    name: Charger 2.1 RC2
+    description: >-
+      Gravity damper of the 2019-2023 BoXXer, with separate high- and low-speed
+      compression dials. Adjustments incomplete: please add HSC, LSC and Rebound
+      yourself.
+    adjustments: []
+    source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-front-suspension-oil-air-coil-token-specifications-english.pdf
+    note: >-
+      Damper-to-model assignment from the 2023 Front Suspension Specifications
+      (BoXXer Ultimate FS-BXR-ULT-C2). SRAM publishes no click counts for
+      Charger 2.1 RC2, so none are recorded here.
+
+  charger_race_day:
+    name: Charger Race Day
+    description: >-
+      Featherweight XC damper with a rebound dial and a compression lever that
+      firms the fork for climbs. Adjustments incomplete: please add Rebound and
+      Compression yourself.
+    adjustments: []
+    source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2021-2023-sid-and-sid-sl-service-manual.pdf
+    note: >-
+      Fitted to 2021-2023 SID / SID SL Ultimate and Rudy XPLR Ultimate. The
+      service manual documents the rebound adjuster only as "counter-clockwise
+      until it stops" and gives no click count.
 
   charger_race_day_2:
     name: Charger Race Day 2
-    description: >
-      Lightweight XC damper (SID SL, SID, Reba Ultimate, Rudy XPLR/XL).
-      Simpler tuning range than Charger 3.x aimed at marathon/XC racing.
-      Exact click counts not confirmed; flagged as follow-up.
+    description: >-
+      Featherweight XC damper for marathon and cross-country racing, with a
+      rebound dial and a 2- or 3-position compression lever. Adjustments
+      incomplete: please add Rebound and Compression yourself.
     adjustments: []
-    note: "Click counts unconfirmed — verify against SRAM official docs"
+    source:
+      - https://support.rockshox.com/hc/en-us/articles/24894559854747-What-is-the-difference-between-the-Race-Day-and-Race-Day-2-damper
+      - https://support.rockshox.com/hc/en-us/articles/17383057951259-How-do-the-Charger-XC-and-Rush-XC-differ-from-Charger-Race-Day-2
+    note: >-
+      SRAM sells the cartridge as 2P (Open / Lock) and 3P (Open / Pedal / Lock),
+      so the compression mode options depend on the individual fork. No rebound
+      click count is published; nothing inferred from the Race Day 1 damper.
 
-  motion_control:
-    name: Motion Control
-    description: Simplified trail damper (Reba, Psylo). Entry-level tuning.
+  charger_2_rl:
+    name: Charger 2 RL
+    description: >-
+      Cross-country damper with a rebound dial and a lockout lever. Adjustments
+      incomplete: please add Rebound and Compression yourself.
     adjustments: []
-    note: "Click counts unconfirmed"
+    source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2021-2023-sid-and-sid-sl-service-manual.pdf
+    note: Fitted to 2021-2023 SID / SID SL Select+. No click counts published.
 
-  isolator_rl:
-    name: Isolator RL
-    description: Remote lockout trail damper. Click counts unconfirmed.
+  charger_rl:
+    name: Charger RL
+    description: >-
+      Sealed-bladder trail damper with a rebound dial and a lockout lever.
+      Adjustments incomplete: please add Rebound and Compression yourself.
     adjustments: []
-    note: "Click counts unconfirmed"
+    source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2021-2023-sid-and-sid-sl-service-manual.pdf
+    note: Fitted to 2021-2023 SID / SID SL Select. No click counts published.
+
+  rush_rc:
+    name: Rush RC
+    description: |-
+      - Cost-focused trail damper for Base-trim Pike, Lyrik and ZEB
+      - Rebound dial with 16 clicks, counted from fully open
+      - Low-speed compression knob on top of the damper leg
+    adjustments:
+      - { name: Rebound, type: step, max: 16, notes: Counted from fully open (fastest) }
+    source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-zeb-lyrik-pike-service-manual.pdf
+    note: >-
+      Rebound count from "Damper Assembly - Rush RC" (p. 172): "rotate it
+      counterclockwise 16 clicks from the closed position. This is the full open
+      position." The LSC knob appears in the exploded views (p. 31) but its click
+      count is not published, so it is deliberately omitted.
+
+  rush_rl:
+    name: Rush RL
+    description: |-
+      - Entry-level cross-country damper for Base-trim SID and SID SL
+      - Rebound dial with 16 clicks, counted from fully open
+      - Compression lockout lever, available with a bar remote
+    adjustments:
+      - { name: Rebound, type: step, max: 16, notes: Counted from fully open (fastest) }
+    source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2021-2023-sid-and-sid-sl-service-manual.pdf
+    note: >-
+      Rebound count from the Rush Damper RL "Damper Assembly" step (p. 74):
+      "rotate it counter-clockwise 16 clicks from the closed position."
+
+  isolator:
+    name: Isolator
+    description: |-
+      - Trail damper of the Psylo Gold RC and Domain Gold RC
+      - 16 clicks of rebound, counted from fully open
+      - Three-position compression lever: Open, Pedal and Firm
+    adjustments:
+      - { name: Rebound, type: step, max: 16, notes: Counted from fully open (fastest) }
+      - { name: Compression Mode, type: categorical, options: [Open, Pedal, Firm] }
+    source:
+      - https://support.rockshox.com/hc/en-us/articles/24895607833499-What-is-the-range-of-adjustability-on-the-Isolator-Damper
+      - https://support.rockshox.com/hc/en-us/articles/24895680722331-What-RockShox-forks-is-the-Isolator-damper-compatible-with
+    note: >-
+      RockShox: "The Isolator Damper has 16 clicks of Rebound adjustment and a
+      three-position Compression adjustment with Open, Pedal, and Firm settings."
+
+  motion_control_rc:
+    name: Motion Control RC
+    description: >-
+      Long-travel trail damper with a rebound dial and a compression dial that
+      sweeps from open to a firm pedalling platform. Adjustments incomplete:
+      please add Rebound and Compression yourself.
+    adjustments: []
+    source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-front-suspension-oil-air-coil-token-specifications-english.pdf
+    note: >-
+      Fitted to Yari, Revelation and Domain per the 2023 Front Suspension
+      Specifications damper column. No click counts published by SRAM.
+
+  motion_control_rl:
+    name: Motion Control RL
+    description: >-
+      Cross-country damper with a rebound dial and a lockout lever, offered with
+      a bar remote. Adjustments incomplete: please add Rebound and Compression
+      yourself.
+    adjustments: []
+    source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-front-suspension-oil-air-coil-token-specifications-english.pdf
+    note: >-
+      Fitted to Reba, Recon Gold and 35 Gold per the 2023 Front Suspension
+      Specifications damper column. No click counts published by SRAM.
 
 # --------------------------------------------------------------------------
-# Forks — current (2025/2026/2027) RockShox lineup.
-# Every current RockShox fork is air-sprung, so trims share the `&air_spring`
-# anchor (Pressure only; Bottomless Token counts are not published per model,
-# so no Volume Spacers adjustment is generated — see follow-ups).
+# Forks — current lineup first, then earlier generations.
+# Every fork here is air-sprung, so trims share the `&air_spring` anchor
+# (Pressure only). Trims whose Bottomless Token maximum IS published carry their
+# own literal list with a Volume Spacers entry instead of the alias.
 # --------------------------------------------------------------------------
 forks:
   - model: "SID SL"
@@ -124,27 +283,31 @@ forks:
   - model: "Reba"
     complete: false
     category: XC / Trail
-    year_range: "2025-2026"
+    year_range: "2018-2024"
     url: https://www.sram.com/en/rockshox/series/reba
-    wheel_size: [29]
+    wheel_size: [29, 27.5]
     trims:
-      - trim: Ultimate
-        travel_mm: [100, 120, 130]
-        stanchion: 35mm
+      - trim: RL
+        travel_mm: [100, 110, 120]
+        stanchion: 32mm
         spring: Air
-        dampers: [charger_race_day_2, isolator_rl]
-        adjustments: *air_spring
-      - trim: Select+
-        travel_mm: [100, 120, 130]
-        stanchion: 35mm
+        dampers: [motion_control_rl]
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+          - { name: Volume Spacers, type: step, max: 4, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 3 maximum at 100mm travel" }
+      - trim: Gold RL
+        travel_mm: [100, 110, 120]
+        stanchion: 32mm
         spring: Air
-        dampers: [charger_race_day_2]
-        adjustments: *air_spring
+        dampers: [motion_control_rl]
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+          - { name: Volume Spacers, type: step, max: 4, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 3 maximum at 100mm travel" }
         note: OEM only
 
   - model: "Pike"
     category: Trail
-    year_range: "2025-2026"
+    year_range: "2025-2027"
     url: https://www.sram.com/en/rockshox/series/pike
     wheel_size: [29, 27.5]
     trims:
@@ -153,33 +316,28 @@ forks:
         stanchion: 35mm
         spring: Air
         dampers: [charger_3_1]
-        adjustments: *air_spring
+        adjustments: &pike_air_spring
+          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+          - { name: Volume Spacers, type: step, max: 6, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 6 maximum at 120-130mm travel, 5 at 140mm" }
       - trim: Ultimate Flight Attendant
         travel_mm: [120, 130, 140]
         stanchion: 35mm
         spring: Air
         dampers: [charger_3_1]
-        adjustments: *air_spring
-        note: Electronic damper adjustment
+        adjustments: *pike_air_spring
+        note: Compression is set electronically by Flight Attendant; the rebound dial stays manual
       - trim: Select+
         travel_mm: [120, 130, 140]
         stanchion: 35mm
         spring: Air
         dampers: [charger_3_1]
-        adjustments: *air_spring
-      - trim: Select
-        travel_mm: [130]
-        stanchion: 35mm
-        spring: Air
-        dampers: [charger_3_1]
-        adjustments: *air_spring
-        note: OEM only
+        adjustments: *pike_air_spring
       - trim: Base
-        travel_mm: [130]
+        travel_mm: [120, 130, 140]
         stanchion: 35mm
         spring: Air
-        dampers: [charger_3_1]
-        adjustments: *air_spring
+        dampers: [rush_rc]
+        adjustments: *pike_air_spring
         note: OEM only
 
   - model: "Lyrik"
@@ -189,23 +347,32 @@ forks:
     wheel_size: [29, 27.5]
     trims:
       - trim: Ultimate
-        travel_mm: [140, 150, 160, 170]
+        travel_mm: [140, 150, 160]
         stanchion: 35mm
         spring: Air
         dampers: [charger_3_1]
-        adjustments: *air_spring
+        adjustments: &lyrik_air_spring
+          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+          - { name: Volume Spacers, type: step, max: 5, unit: tokens, visualization: stepper, notes: Bottomless Tokens }
+      - trim: Ultimate Flight Attendant
+        travel_mm: [140, 150, 160]
+        stanchion: 35mm
+        spring: Air
+        dampers: [charger_3_1]
+        adjustments: *lyrik_air_spring
+        note: Compression is set electronically by Flight Attendant; the rebound dial stays manual
       - trim: Select+
-        travel_mm: [140, 150, 160, 170]
+        travel_mm: [140, 150, 160]
         stanchion: 35mm
         spring: Air
         dampers: [charger_3_1]
-        adjustments: *air_spring
-      - trim: Select
-        travel_mm: [140, 160]
+        adjustments: *lyrik_air_spring
+      - trim: Base
+        travel_mm: [140, 150, 160]
         stanchion: 35mm
         spring: Air
-        dampers: [charger_3_1]
-        adjustments: *air_spring
+        dampers: [rush_rc]
+        adjustments: *lyrik_air_spring
         note: OEM only
 
   - model: "ZEB"
@@ -215,56 +382,127 @@ forks:
     wheel_size: [29, 27.5]
     trims:
       - trim: Ultimate
-        travel_mm: [150, 160, 170, 180]   # 10mm increments
+        travel_mm: [150, 160, 170, 180, 190]
         stanchion: 38mm
         spring: Air
         dampers: [charger_3_1]
-        adjustments: *air_spring
+        adjustments: &zeb_air_spring
+          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+          - { name: Volume Spacers, type: step, max: 5, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 5 maximum at 150-160mm travel, 4 at 170-190mm" }
+      - trim: Ultimate Flight Attendant
+        travel_mm: [150, 160, 170, 180, 190]
+        stanchion: 38mm
+        spring: Air
+        dampers: [charger_3_1]
+        adjustments: *zeb_air_spring
+        note: Compression is set electronically by Flight Attendant; the rebound dial stays manual
       - trim: Select+
-        travel_mm: [160, 170, 180]
+        travel_mm: [150, 160, 170, 180, 190]
         stanchion: 38mm
         spring: Air
         dampers: [charger_3_1]
-        adjustments: *air_spring
-      - trim: Select
-        travel_mm: [160, 170]
+        adjustments: *zeb_air_spring
+      - trim: Base
+        travel_mm: [150, 160, 170, 180, 190]
         stanchion: 38mm
         spring: Air
-        dampers: [charger_3_1]
-        adjustments: *air_spring
+        dampers: [rush_rc]
+        adjustments: *zeb_air_spring
         note: OEM only
+
+  - model: "Psylo"
+    category: Trail
+    year_range: "2025-2026"
+    url: https://www.sram.com/en/rockshox/series/psylo
+    wheel_size: [29, 27.5]
+    trims:
+      - trim: Gold RC
+        travel_mm: [130, 140, 150, 160]
+        stanchion: 35mm
+        spring: Air
+        dampers: [isolator]
+        adjustments: *air_spring
+        note: DebonAir air spring
+
+  - model: "Domain"
+    category: Enduro
+    year_range: "2025-2026"
+    url: https://www.sram.com/en/rockshox/series/domain
+    wheel_size: [29, 27.5]
+    trims:
+      - trim: Gold RC
+        travel_mm: [150, 160, 170, 180]
+        stanchion: 38mm
+        spring: Air
+        dampers: [isolator]
+        adjustments: *air_spring
+        note: DebonAir air spring in a 38mm chassis
 
   - model: "BoXXer"
     category: Downhill
-    year_range: "2025-2026"
+    year_range: "2024-2026"
     url: https://www.sram.com/en/rockshox/series/boxxer
     wheel_size: [29, 27.5]
     trims:
       - trim: Ultimate
+        travel_mm: [180, 190, 200]
         stanchion: 38mm (dual-crown)
         spring: Air
-        dampers: [charger_3_1]   # or RC2 variant
+        dampers: [charger_3_1, charger_3]
         adjustments: *air_spring
-      - trim: Select+
+        offset_mm: [44, 48, 52]
+        note: |-
+          - Dual-crown chassis, 38mm stanchions, 180/190/200mm travel
+          - Crown offsets of 44, 48 and 52mm
+          - DebonAir+ air spring with a ButterCup on the damper shaft
+      - trim: Select
+        travel_mm: [180, 190, 200]
         stanchion: 38mm (dual-crown)
         spring: Air
-        dampers: [charger_3_1]
+        dampers: [charger_3_1, charger_3]
         adjustments: *air_spring
+        offset_mm: [44, 48, 52]
+        note: OEM only
+
+  - model: "BoXXer"
+    complete: false
+    category: Downhill
+    year_range: "2027"
+    url: https://www.sram.com/en/rockshox/series/boxxer
+    wheel_size: [29, 27.5]
+    trims:
+      - trim: Ultimate
+        travel_mm: [180, 190, 200]
+        stanchion: 38mm (dual-crown)
+        spring: Air
+        dampers: [charger_3_2]
+        adjustments: *air_spring
+        offset_mm: [44, 48, 52]
+        note: Linear XL air spring paired with the higher-damping Charger 3.2
+      - trim: Select
+        travel_mm: [180, 190, 200]
+        stanchion: 38mm (dual-crown)
+        spring: Air
+        dampers: [charger_3_2]
+        adjustments: *air_spring
+        offset_mm: [44, 48, 52]
         note: OEM only
 
   - model: "Rudy XPLR"
     complete: false
     category: Gravel / Bikepacking
-    year_range: "2025-2026"
+    year_range: "2022-2026"
     url: https://www.sram.com/en/rockshox/series/rudy-xplr
     wheel_size: ["700c"]
     trims:
       - trim: Ultimate
-        travel_mm: [40]
+        travel_mm: [30, 40]
         stanchion: 30mm
         spring: Air
-        dampers: [charger_race_day_2]
+        dampers: [charger_race_day_2, charger_race_day]
         adjustments: *air_spring
+        offset_mm: [45, 51]
+        note: Solo Air spring; no Bottomless Tokens are offered for this chassis
 
   - model: "Rudy XL"
     complete: false
@@ -282,18 +520,261 @@ forks:
     note: Fits 29x2.2" tires max
 
 # --------------------------------------------------------------------------
+# Earlier generations. They repeat the current model name and are told apart by
+# `year_range`, so the picker merges them into one model row. Keep them below
+# the current generation — the trim list follows file order. Each generation
+# gets its own damper key — SRAM revises internals under an unchanged badge.
+# --------------------------------------------------------------------------
+  - model: "Pike"
+    category: Trail
+    year_range: "2023-2024"
+    url: https://www.sram.com/en/rockshox/series/pike
+    wheel_size: [29, 27.5]
+    trims:
+      - trim: Ultimate
+        travel_mm: [120, 130, 140]
+        stanchion: 35mm
+        spring: Air
+        dampers: [charger_3]
+        adjustments: *pike_air_spring
+      - trim: Select+
+        travel_mm: [120, 130, 140]
+        stanchion: 35mm
+        spring: Air
+        dampers: [charger_3]
+        adjustments: *pike_air_spring
+      - trim: Base
+        travel_mm: [120, 130, 140]
+        stanchion: 35mm
+        spring: Air
+        dampers: [rush_rc]
+        adjustments: *pike_air_spring
+        note: OEM only
+
+  - model: "Lyrik"
+    category: Trail / All-Mountain
+    year_range: "2023-2024"
+    url: https://www.sram.com/en/rockshox/series/lyrik
+    wheel_size: [29, 27.5]
+    trims:
+      - trim: Ultimate
+        travel_mm: [140, 150, 160]
+        stanchion: 35mm
+        spring: Air
+        dampers: [charger_3]
+        adjustments: *lyrik_air_spring
+      - trim: Select+
+        travel_mm: [140, 150, 160]
+        stanchion: 35mm
+        spring: Air
+        dampers: [charger_3]
+        adjustments: *lyrik_air_spring
+      - trim: Base
+        travel_mm: [140, 150, 160]
+        stanchion: 35mm
+        spring: Air
+        dampers: [rush_rc]
+        adjustments: *lyrik_air_spring
+        note: OEM only
+
+  - model: "ZEB"
+    category: Enduro
+    year_range: "2023-2024"
+    url: https://www.sram.com/en/rockshox/series/zeb
+    wheel_size: [29, 27.5]
+    trims:
+      - trim: Ultimate
+        travel_mm: [150, 160, 170, 180, 190]
+        stanchion: 38mm
+        spring: Air
+        dampers: [charger_3]
+        adjustments: *zeb_air_spring
+      - trim: Select+
+        travel_mm: [150, 160, 170, 180, 190]
+        stanchion: 38mm
+        spring: Air
+        dampers: [charger_3]
+        adjustments: *zeb_air_spring
+      - trim: Base
+        travel_mm: [150, 160, 170, 180, 190]
+        stanchion: 38mm
+        spring: Air
+        dampers: [rush_rc]
+        adjustments: *zeb_air_spring
+        note: OEM only
+
+  - model: "BoXXer"
+    complete: false
+    category: Downhill
+    year_range: "2019-2023"
+    url: https://www.sram.com/en/rockshox/series/boxxer
+    wheel_size: [29, 27.5]
+    trims:
+      - trim: Ultimate
+        travel_mm: [180, 190, 200]
+        stanchion: 35mm (dual-crown)
+        spring: Air
+        dampers: [charger_2_1_rc2]
+        adjustments: &boxxer_c2_air_spring
+          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+          - { name: Volume Spacers, type: step, max: 6, unit: tokens, visualization: stepper, notes: Bottomless Tokens }
+        offset_mm: [36, 46, 56]
+        note: |-
+          - Dual-crown chassis, 35mm stanchions, 180/190/200mm travel
+          - Crown offsets of 36 and 46mm (27.5") or 46 and 56mm (29")
+          - DebonAir air spring
+      - trim: Select
+        travel_mm: [180, 190, 200]
+        stanchion: 35mm (dual-crown)
+        spring: Air
+        dampers: [charger_2_1_rc2]
+        adjustments: *boxxer_c2_air_spring
+        offset_mm: [36, 46, 56]
+        note: OEM only
+
+  - model: "SID"
+    complete: false
+    category: XC
+    year_range: "2021-2023"
+    url: https://www.sram.com/en/rockshox/series/sid
+    wheel_size: [29]
+    trims:
+      - trim: Ultimate
+        travel_mm: [110, 120]
+        stanchion: 35mm
+        spring: Air
+        dampers: [charger_race_day]
+        adjustments: &sid_c1_air_spring
+          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+          - { name: Volume Spacers, type: step, max: 3, unit: tokens, visualization: stepper, notes: Bottomless Tokens }
+      - trim: Select+
+        travel_mm: [110, 120]
+        stanchion: 35mm
+        spring: Air
+        dampers: [charger_2_rl]
+        adjustments: *sid_c1_air_spring
+      - trim: Select
+        travel_mm: [110, 120]
+        stanchion: 35mm
+        spring: Air
+        dampers: [charger_rl]
+        adjustments: *sid_c1_air_spring
+      - trim: Base
+        travel_mm: [110, 120]
+        stanchion: 35mm
+        spring: Air
+        dampers: [rush_rl]
+        adjustments: *sid_c1_air_spring
+        note: OEM only
+
+  - model: "SID SL"
+    complete: false
+    category: XC
+    year_range: "2021-2023"
+    url: https://www.sram.com/en/rockshox/series/sid-sl
+    wheel_size: [29]
+    trims:
+      - trim: Ultimate
+        travel_mm: [100]
+        stanchion: 32mm
+        spring: Air
+        dampers: [charger_race_day]
+        adjustments: *sid_c1_air_spring
+      - trim: Select+
+        travel_mm: [100]
+        stanchion: 32mm
+        spring: Air
+        dampers: [charger_2_rl]
+        adjustments: *sid_c1_air_spring
+      - trim: Select
+        travel_mm: [100]
+        stanchion: 32mm
+        spring: Air
+        dampers: [charger_rl]
+        adjustments: *sid_c1_air_spring
+      - trim: Base
+        travel_mm: [100]
+        stanchion: 32mm
+        spring: Air
+        dampers: [rush_rl]
+        adjustments: *sid_c1_air_spring
+        note: OEM only
+
+  - model: "Yari"
+    complete: false
+    category: Enduro
+    year_range: "2016-2023"
+    url: https://www.sram.com/en/rockshox/series/yari
+    wheel_size: [29, 27.5]
+    trims:
+      - trim: RC
+        travel_mm: [150, 160, 170, 180]
+        stanchion: 35mm
+        spring: Air
+        dampers: [motion_control_rc]
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+          - { name: Volume Spacers, type: step, max: 5, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 5 maximum at 150-160mm travel, 4 at 170-180mm" }
+        offset_mm: [37, 42, 44, 46, 51]
+        note: Burly Lyrik chassis with a simpler damper; DebonAir or Dual Position Air spring
+
+  - model: "Revelation"
+    complete: false
+    category: Trail
+    year_range: "2018-2023"
+    url: https://www.sram.com/en/rockshox/series/revelation
+    wheel_size: [29, 27.5]
+    trims:
+      - trim: RC
+        travel_mm: [120, 130, 140, 150, 160]
+        stanchion: 35mm
+        spring: Air
+        dampers: [motion_control_rc]
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+          - { name: Volume Spacers, type: step, max: 6, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 6 maximum at 120-130mm travel, 5 at 140mm, 4 at 150-160mm" }
+        offset_mm: [37, 42, 46, 51]
+        note: DebonAir air spring in a 35mm trail chassis
+
+  - model: "Recon Gold"
+    complete: false
+    category: XC / Trail
+    year_range: "2018-2024"
+    url: https://www.sram.com/en/rockshox/series/recon
+    wheel_size: [29, 27.5]
+    trims:
+      - trim: Gold RL
+        travel_mm: [80, 100, 120, 130, 140, 150]
+        stanchion: 32mm
+        spring: Air
+        dampers: [motion_control_rl]
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+          - { name: Volume Spacers, type: step, max: 2, unit: tokens, visualization: stepper, notes: Bottomless Tokens }
+        offset_mm: [37, 42, 46, 51]
+        note: DebonAir air spring; remote lockout compatible
+
+# --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):
-#   - Bottomless Token (volume spacer) max counts per model — not published on
-#     the product pages fetched; add a Volume Spacers adjustment (with the
-#     published `max`) per trim once a spec table lists it.
-#   - Charger Race Day 2 exact click counts (SID/Reba/Rudy) — not published
-#     on the official product pages fetched; verify against SRAM service
-#     manuals or TrailHead app before relying on them.
-#   - BoXXer travel/offset options and complete trim lineup — search results
-#     only mentioned "Ultimate" and "Select+" but didn't list specific specs.
-#   - Pike/Lyrik/ZEB 2027+ model year specs: assumed to inherit from 2025/26
-#     but Charger 3.2 internals and generation-specific click count changes
-#     weren't independently confirmed; verify against 2027 official docs when
-#     available.
-#   - Isolator/Motion Control damper click counts.
+#   - Charger RC (Pike/Lyrik/ZEB Select, 2023-2027) and Delta RC (2027 Base):
+#     SRAM's service manual shows an LSC knob and a rebound knob on both but
+#     publishes no click counts, so the Select trim is intentionally not listed
+#     on those models. Add it once a count is published.
+#   - Rush RC / Rush RL low-speed compression click count — the rebound count
+#     (16) is published in the service manuals, the LSC count is not.
+#   - Charger 3.2 RC2 click counts — SRAM confirms a different tune and range
+#     from Charger 3/3.1 but publishes no numbers. BoXXer (2027) stays
+#     `complete: false` until they do.
+#   - Charger Race Day / Race Day 2 rebound click counts (SID, SID SL, Reba,
+#     Rudy) — not published; the 2P/3P compression lever positions are known but
+#     which fork gets which is not documented per trim.
+#   - Charger 2.1 RC2 (BoXXer 2019-2023) and Motion Control RC / RL (Yari,
+#     Revelation, Recon, Reba) click counts — not published by SRAM.
+#   - Bottomless Token maxima are recorded per model from the 2023 Front
+#     Suspension Specifications and the 2023-2027 ZEB/Lyrik/Pike service manual.
+#     Still missing: BoXXer D1/D2 (38mm), Psylo, Domain C1, current SID/SID SL
+#     (D1/E1) and the SIDLuxe-style Linear XL forks.
+#   - Pre-2016 Pike/Lyrik generations (Charger 1, Dual Position Air, Solo Air)
+#     are not covered — needs the matching year's Front Suspension
+#     Specifications PDF.
 # --------------------------------------------------------------------------

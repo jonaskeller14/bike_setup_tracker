@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../icons/simple_icons.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
-import '../../models/person.dart';
+import '../../models/rating.dart';
+import '../../models/setup.dart';
 import '../../models/task/task_rule.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
@@ -13,17 +15,18 @@ import 'sheet_header.dart';
 
 Future<void> showFilterSheet({
   required BuildContext context,
-  required bool enableSetupTagFilter,
-  bool enableTaskRuleTagFilter = false,
-  required bool enableTaskPriorityFilter,
-  bool showMapVisibility = false,
-  bool showTimelineVisibility = false,
-  bool showByCategorySection = false,
+  required bool showBikes,
+  required bool showSetupTags,
+  required bool showSetupBookmark,
+  required bool showTaskPriority,
+  required bool showTaskTags,
+  required bool showMapVisibility,
+  required bool showTimelineVisibility,
 }) async {
   return showModalBottomSheet<void>(
     useSafeArea: true,
     isScrollControlled: true,
-    context: context, 
+    context: context,
     builder: (context) {
       final appRepository = context.watch<AppRepository>();
       final appSettings = context.watch<AppSettings>();
@@ -44,42 +47,54 @@ Future<void> showFilterSheet({
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const SheetSectionTitle(title: "Bike"),
-                    appRepository.bikes.isEmpty
-                        ? const SheetFilterEmptyHint(
-                            icon: Bike.iconData,
-                            title: "No bikes yet",
-                            hint: "Add a bike to filter this list by bike.",
-                          )
-                        : Wrap(
-                            spacing: 6,
-                            children: appRepository.bikes.values.map((bike) => FilterChip(
-                              avatar: const Icon(Bike.iconData),
-                              label: Text(bike.name),
-                              selected: bike.id == appRepository.selectedBike,
-                              showCheckmark: false,
-                              onSelected: (bool newValue) {
-                                switch (newValue) {
-                                  case true: appRepository.onBikeTap(bike.id);
-                                  case false: appRepository.onBikeTap(bike.id);
-                                }
-                              },
-                              onDeleted: appRepository.selectedBike != null && appRepository.selectedBike == bike.id 
-                                  ? () => appRepository.onBikeTap(bike.id)
-                                  : null,
-                            )).toList(),
-                          ),
-                    if (enableSetupTagFilter) ...[
-                      const SheetSectionTitle(title: "Setup Tags"),
-                      appRepository.setupTags.isEmpty
+                    if (showBikes) ...[
+                      const SheetSectionTitle(title: "Bike"),
+                      appRepository.bikes.isEmpty
                           ? const SheetFilterEmptyHint(
-                              icon: Icons.tag,
-                              title: "No setup tags yet",
-                              hint: "Add/Edit a Setup to add tags.",
+                              icon: Bike.iconData,
+                              title: "No bikes yet",
+                              hint: "Add a bike to filter this list by bike.",
                             )
                           : Wrap(
                               spacing: 6,
-                              children: appRepository.setupTags.map((tag) {
+                              children: appRepository.bikes.values.map((bike) => FilterChip(
+                                avatar: const Icon(Bike.iconData),
+                                label: Text(bike.name),
+                                selected: bike.id == appRepository.selectedBike,
+                                showCheckmark: false,
+                                onSelected: (bool newValue) {
+                                  switch (newValue) {
+                                    case true: appRepository.onBikeTap(bike.id);
+                                    case false: appRepository.onBikeTap(bike.id);
+                                  }
+                                },
+                                onDeleted: appRepository.selectedBike != null && appRepository.selectedBike == bike.id
+                                    ? () => appRepository.onBikeTap(bike.id)
+                                    : null,
+                              )).toList(),
+                            ),
+                    ],
+                    if (showSetupBookmark || showSetupTags) ...[
+                      SheetSectionTitle(title: showSetupBookmark ? "Setups" : "Setup Tags"),
+                      if (showSetupBookmark || appRepository.setupTags.isNotEmpty)
+                        Wrap(
+                          spacing: 6,
+                          children: [
+                            if (showSetupBookmark)
+                              FilterChip(
+                                avatar: Icon(appRepository.showBookmarkedSetupsOnly
+                                    ? Icons.bookmark
+                                    : Icons.bookmark_border),
+                                label: const Text("Bookmarked"),
+                                selected: appRepository.showBookmarkedSetupsOnly,
+                                showCheckmark: false,
+                                onSelected: (bool newValue) => appRepository.setShowBookmarkedSetupsOnly(newValue),
+                                onDeleted: appRepository.showBookmarkedSetupsOnly
+                                    ? () => appRepository.setShowBookmarkedSetupsOnly(false)
+                                    : null,
+                              ),
+                            if (showSetupTags)
+                              ...appRepository.setupTags.map((tag) {
                                 return FilterChip(
                                   avatar: const Icon(Icons.tag),
                                   label: Text(tag),
@@ -95,10 +110,17 @@ Future<void> showFilterSheet({
                                       ? () => appRepository.deselectSetupTag(tag)
                                       : null,
                                 );
-                              }).toList(),
-                            ),
+                              }),
+                          ],
+                        ),
+                      if (showSetupTags && appRepository.setupTags.isEmpty)
+                        const SheetFilterEmptyHint(
+                          icon: Icons.tag,
+                          title: "No setup tags yet",
+                          hint: "Add/Edit a Setup to add tags.",
+                        ),
                     ],
-                    if (enableTaskPriorityFilter) ...[
+                    if (showTaskPriority) ...[
                       const SheetSectionTitle(title: "Task Priority"),
                       Wrap(
                         spacing: 6,
@@ -120,7 +142,7 @@ Future<void> showFilterSheet({
                         }).toList(),
                       )
                     ],
-                    if (enableTaskRuleTagFilter) ...[
+                    if (showTaskTags) ...[
                       const SheetSectionTitle(title: "Task Tags"),
                       appRepository.taskRuleTags.isEmpty
                           ? const SheetFilterEmptyHint(
@@ -149,14 +171,13 @@ Future<void> showFilterSheet({
                               }).toList(),
                             ),
                     ],
-                    // ---- Display options (folded-in "Display" chip) ----
-                    // Map visibility: only geo-located entry types.
                     if (showMapVisibility) ...[
                       const SheetSectionTitle(title: "Visibility"),
                       Wrap(
                         spacing: 6,
                         children: [
                           FilterChip(
+                            avatar: const Icon(Setup.iconData),
                             label: const Text("Setups"),
                             showCheckmark: false,
                             selected: appSettings.displayShowSetups,
@@ -167,6 +188,7 @@ Future<void> showFilterSheet({
                           ),
                           if (stravaActive)
                             FilterChip(
+                              avatar: const Icon(SimpleIcons.strava),
                               label: const Text("Strava Activities"),
                               showCheckmark: false,
                               selected: appSettings.displayShowActivities,
@@ -177,6 +199,7 @@ Future<void> showFilterSheet({
                             ),
                           if (appSettings.enableRating)
                             FilterChip(
+                              avatar: const Icon(Rating.iconData),
                               label: const Text("Ratings"),
                               showCheckmark: false,
                               selected: appSettings.displayShowRatingEntries,
@@ -188,13 +211,13 @@ Future<void> showFilterSheet({
                         ],
                       ),
                     ],
-                    // Timeline visibility: all entry types shown in the list.
                     if (showTimelineVisibility) ...[
                       const SheetSectionTitle(title: "Visibility"),
                       Wrap(
                         spacing: 6,
                         children: [
                           FilterChip(
+                            avatar: const Icon(Setup.iconData),
                             label: const Text("Setups"),
                             showCheckmark: false,
                             selected: appSettings.displayShowSetups,
@@ -205,7 +228,8 @@ Future<void> showFilterSheet({
                           ),
                           if (stravaActive)
                             FilterChip(
-                              label: const Text("Strava Activities"),
+                              avatar: const Icon(SimpleIcons.strava),
+                              label: const Text("Activities"),
                               showCheckmark: false,
                               selected: appSettings.displayShowActivities,
                               onSelected: (bool selected) => appSettings.displayShowActivities = selected,
@@ -215,6 +239,7 @@ Future<void> showFilterSheet({
                             ),
                           if (appSettings.enableTask)
                             FilterChip(
+                              avatar: const Icon(Icons.check_box_outlined),
                               label: const Text("Tasks"),
                               showCheckmark: false,
                               selected: appSettings.displayShowTasks,
@@ -225,6 +250,7 @@ Future<void> showFilterSheet({
                             ),
                           if (appSettings.enableInstallationTimeline)
                             FilterChip(
+                              avatar: const Icon(Icons.swap_horiz),
                               label: const Text("Installations"),
                               showCheckmark: false,
                               selected: appSettings.displayShowInstallations,
@@ -235,43 +261,13 @@ Future<void> showFilterSheet({
                             ),
                           if (appSettings.enableRating)
                             FilterChip(
+                              avatar: const Icon(Rating.iconData),
                               label: const Text("Ratings"),
                               showCheckmark: false,
                               selected: appSettings.displayShowRatingEntries,
                               onSelected: (bool selected) => appSettings.displayShowRatingEntries = selected,
                               onDeleted: appSettings.displayShowRatingEntries
                                   ? () => appSettings.displayShowRatingEntries = false
-                                  : null,
-                            ),
-                        ],
-                      ),
-                    ],
-                    if (showByCategorySection && (appSettings.enablePerson || appSettings.enableRating)) ...[
-                      const SheetSectionTitle(title: "By Category"),
-                      Wrap(
-                        spacing: 6,
-                        children: [
-                          FilterChip(
-                            avatar: const Icon(Bike.iconData, size: 20),
-                            showCheckmark: false,
-                            label: const Text("Bike Values"),
-                            selected: appSettings.setupListBikeAdjustmentValues,
-                            onSelected: (bool selected) => appSettings.setupListBikeAdjustmentValues = selected,
-                            tooltip: "Show bike/component related values",
-                            onDeleted: appSettings.setupListBikeAdjustmentValues
-                                ? () => appSettings.setupListBikeAdjustmentValues = false
-                                : null,
-                          ),
-                          if (appSettings.enablePerson)
-                            FilterChip(
-                              avatar: const Icon(Person.iconData, size: 20),
-                              showCheckmark: false,
-                              label: const Text("Person Values"),
-                              selected: appSettings.setupListPersonAdjustmentValues,
-                              onSelected: (bool selected) => appSettings.setupListPersonAdjustmentValues = selected,
-                              tooltip: "Show person related values",
-                              onDeleted: appSettings.setupListPersonAdjustmentValues
-                                  ? () => appSettings.setupListPersonAdjustmentValues = false
                                   : null,
                             ),
                         ],

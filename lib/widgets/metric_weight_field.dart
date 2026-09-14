@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../utils/number_input_formatters.dart';
+
 class MetricWeightField extends StatefulWidget {
   final TextEditingController? controller;
   final bool scored;
@@ -96,7 +98,7 @@ class _MetricWeightFieldState extends State<MetricWeightField> {
                 focusNode: _focus,
                 textAlign: TextAlign.center,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$'))],
+                inputFormatters: const [SignedDecimalInputFormatter()],
                 onTap: () {
                   final c = widget.controller;
                   if (c != null) {

@@ -27,16 +27,48 @@ in one place, every model that uses it gets it.
 
 ### Sourcing policy
 
-Prefer the manufacturer's own site (product pages, spec sheets, official PDF
-manuals) for every number. When a brand simply doesn't publish a click-count
-total anywhere official — common for boutique brands whose marketing copy only
-gives a recommended starting position — a **pinkbike.com review article's own
-body text** (the written review itself, not the reader comments below it) is
-an allowed fallback source for that one number. Cite the article URL in
-`sources:` same as any other source, and note in the damper's `description`
-that the figure comes from a Pinkbike review rather than the manufacturer.
-Other outlets (Vital MTB, Bikeradar, forums, YouTube, etc.) are still out of
-scope — this exception is Pinkbike-body-text only.
+Every number in this catalog must be traceable to a named source. Two tiers:
+
+1. **Primary — the manufacturer.** Product pages, spec tables, official PDF
+   owner's/tuning manuals, service manuals, archived spec sheets
+   (e.g. `tech.ridefox.com/bike/list/spec-sheets`, `sram.com` service manuals,
+   `service.ohlins.com`). Always prefer these.
+2. **Secondary — serious editorial reviews**, when the manufacturer publishes
+   no number at all. Allowed outlets: Pinkbike, Vital MTB, BikeRadar, MBR,
+   Enduro-MTB, Flow Mountain Bike, Bike Magazine, NSMB, Singletracks and
+   comparable staff-written publications. Only the **article's own body text**
+   counts — never reader comments, forum posts, YouTube, retailer listings,
+   or AI summaries.
+
+Both tiers must be cited (see [Citing a source](#citing-a-source)). Never
+guess, interpolate, or infer a click count from a setup-recommendation chart's
+column count — an omitted number plus a follow-up note is always better than a
+wrong one.
+
+### Citing a source
+
+- Put every URL you used in the file's top-level `sources:` list.
+- Attach the specific source to the specific number:
+  - **Dampers** take a freeform `source:` key (string or list of URLs). It
+    lands in the damper's `info` map — human-readable, never shown in the app.
+  - **Models/trims** already carry `url:`; when a spec came from a different
+    page than the product page (a tuning-guide PDF, say), add a `#` comment on
+    the line or a `source:` key alongside `url:`.
+- When a figure comes from a secondary (magazine) source rather than the
+  manufacturer, say so in the damper's `source:`/`note:` — **not** in its
+  `description`, which is user-facing (see below).
+
+```yaml
+grip2_2019:
+  name: GRIP2 (2019-2024)
+  description: Four-way adjustable descent damper with VVC high-speed circuits.
+  adjustments:
+    - { name: HSC, type: step, max: 8, notes: High-Speed Compression }
+    # ...
+  source:
+    - https://www.ridefox.com/dl/bike/2020-FOX-Tuning-Guide.pdf
+  note: Click counts read off the 2020 FOX Tuning Guide, p. 12.
+```
 
 ## Top-level example
 
@@ -124,6 +156,92 @@ Anchors are sugar for **identical** lists only; YAML cannot extend an aliased
 list. A trim that deviates in any way (extra chamber, published spacer count,
 different max) simply writes its own literal list instead of the alias.
 
+## User-facing text: `description` and `note`
+
+Two fields in this catalog are copied verbatim into the notes of the component
+the user ends up with (see `_buildNotes` in
+`lib/utils/component_preset_application.dart`):
+
+| Field | Where |
+|---|---|
+| damper `description` | rendered as `Damper: <name> — <description>` |
+| model/trim `note` | rendered on its own line |
+
+Write them **for the rider, not for the next data editor.** They describe the
+part: what the damper does, how its adjusters behave, what makes the chassis
+distinctive. Keep them short — one to three facts.
+
+**Never** put research meta in them:
+
+| ❌ Don't write | ✅ Where it belongs instead |
+|---|---|
+| "confirmed by a Flow MTB first-ride review" | damper `source:` / `note:` |
+| "not published on the product page" | Follow-ups footer |
+| "verify before relying on it", "flagged as follow-up" | Follow-ups footer |
+| "exact internals not independently confirmed" | Follow-ups footer |
+| "search results only mentioned Ultimate and Select+" | Follow-ups footer |
+
+The one exception is a short, actionable heads-up when adjusters are missing
+from the data — the rider needs to know they have to add them by hand:
+
+```yaml
+    description: >-
+      Lightweight XC damper for marathon racing. Adjustments incomplete:
+      please add Rebound and Compression yourself.
+```
+
+Everything meta stays in `#` comments, in the damper's freeform `note:`/
+`source:` keys (collected into `info`, never displayed), or in the file's
+Follow-ups footer.
+
+### Bullet points
+
+When a description or note carries more than about two distinct facts, write
+it as a dash list — it reads far better in the app's notes field than one long
+paragraph:
+
+```yaml
+    note: |-
+      - Inverted (USD) single-crown chassis, 44mm offset
+      - Crown heights 58HT / 68HT
+      - Custom steel 20mm axle
+      - Float EVOL GlideCore air spring
+```
+
+Use the **literal** block scalar `|-` for bullet lists: the folded scalar `>`
+collapses newlines into spaces and would run the bullets together on one line.
+Use `>-` (or a plain scalar) only for flowing prose that is meant to be a
+single paragraph.
+
+## Legacy / older model years
+
+Older generations are wanted — riders keep forks for a decade — but a
+generation is only worth adding when its numbers can actually be sourced.
+
+- **One block per generation, all sharing the model name.** Never suffix
+  `model:` with years — every FOX 36 generation is `model: "36"`. The picker
+  groups by brand + model, so the blocks merge into a single `36` row whose
+  trim list holds all of them, each trim badged with its own years
+  (`FOX › 36 › Factory (2021-2024)`).
+- **`year_range:` is required on any block that shares its name.** `presetKey`
+  is `type/brand/model/trim/year_range`, so the years are the only thing
+  keeping two generations of `Factory` apart. The model row shows the span
+  across generations (`2018–2026`) as its subtitle.
+- **Author newest generation first.** The merged trim list follows file order;
+  put older generations below the current one, under a comment footer (see
+  `fork/rockshox.yaml`).
+- **Generation-level fields stay on their own block.** `url`, `wheel_size`,
+  `complete` and `note` describe one generation and are not shared — so
+  `complete: false` hides just that generation's trims, and the rest of the
+  model stays in the picker. `category:` is the exception: it labels the merged
+  row, so same-named blocks must agree on it (CI checks this).
+- **Give each generation its own damper key** (`fit4_2016`, `grip2_2019`,
+  `charger_2_1`, `ttx18_m2`) even when the cartridge kept its name — brands
+  revise internals and click counts under an unchanged badge.
+- **Don't inherit numbers across generations.** If the older damper's counts
+  aren't published, define it with `adjustments: []`, mark the models that use
+  it `complete: false`, and record the gap in the Follow-ups footer.
+
 ## Damper definition
 
 ```yaml
@@ -188,7 +306,7 @@ adjustments.
 - model: "36"                 # model name
   complete: true              # optional; omit or set to true if all click counts published
   category: All-Mountain      # discipline (informational/grouping)
-  year_range: "2025-2026"     # model years these specs apply to
+  year_range: "2025-2026"     # model years this generation's specs apply to
   url: https://ridefox.com/pages/fox-36   # source page for this model
   wheel_size: [29, 27.5]
   trims:                      # user-facing sub-models
@@ -256,6 +374,10 @@ all publish specs the same way:
 - **Per-trim `url` override**: if a trim/variant has its own product page
   (e.g. a "Coil" version sold separately from the "Air" version), give it its
   own `url:` inside that trim instead of relying on the model-level one.
+- **Per-trim `year_range` override**: only for the rare model where one trim
+  ran different years than its siblings. The normal way to express a
+  generation is a separate model block (see [Legacy / older model
+  years](#legacy--older-model-years)).
 - **`adjustments: []`**: leave empty (or omit specific entries) when a damper is
   externally adjustable but the exact click count wasn't published — note
   this in a `description` and/or the file's "Follow-ups" footer instead of

@@ -30,8 +30,6 @@ void main() {
   });
 
   Widget createWidgetUnderTest(Widget home) {
-    appRepository.dispose();
-    appRepository = AppRepository(database);
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: appSettings),

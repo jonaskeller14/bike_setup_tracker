@@ -136,6 +136,19 @@ class $ComponentsTable extends Components
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
+  static const VerificationMeta _initialKilojoulesMeta = const VerificationMeta(
+    'initialKilojoules',
+  );
+  @override
+  late final GeneratedColumn<double> initialKilojoules =
+      GeneratedColumn<double>(
+        'initial_kilojoules',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(0.0),
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -150,6 +163,7 @@ class $ComponentsTable extends Components
     initialMovingTime,
     initialElapsedTime,
     initialActivityCount,
+    initialKilojoules,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -221,6 +235,15 @@ class $ComponentsTable extends Components
         ),
       );
     }
+    if (data.containsKey('initial_kilojoules')) {
+      context.handle(
+        _initialKilojoulesMeta,
+        initialKilojoules.isAcceptableOrUnknown(
+          data['initial_kilojoules']!,
+          _initialKilojoulesMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -286,6 +309,10 @@ class $ComponentsTable extends Components
         DriftSqlType.int,
         data['${effectivePrefix}initial_activity_count'],
       )!,
+      initialKilojoules: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}initial_kilojoules'],
+      )!,
     );
   }
 
@@ -317,6 +344,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
   final Duration initialMovingTime;
   final Duration initialElapsedTime;
   final int initialActivityCount;
+  final double initialKilojoules;
   const ComponentDb({
     required this.id,
     required this.isDeleted,
@@ -330,6 +358,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     required this.initialMovingTime,
     required this.initialElapsedTime,
     required this.initialActivityCount,
+    required this.initialKilojoules,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -364,6 +393,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
       );
     }
     map['initial_activity_count'] = Variable<int>(initialActivityCount);
+    map['initial_kilojoules'] = Variable<double>(initialKilojoules);
     return map;
   }
 
@@ -383,6 +413,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
       initialMovingTime: Value(initialMovingTime),
       initialElapsedTime: Value(initialElapsedTime),
       initialActivityCount: Value(initialActivityCount),
+      initialKilojoules: Value(initialKilojoules),
     );
   }
 
@@ -414,6 +445,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
       initialActivityCount: serializer.fromJson<int>(
         json['initialActivityCount'],
       ),
+      initialKilojoules: serializer.fromJson<double>(json['initialKilojoules']),
     );
   }
   @override
@@ -434,6 +466,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
       'initialMovingTime': serializer.toJson<Duration>(initialMovingTime),
       'initialElapsedTime': serializer.toJson<Duration>(initialElapsedTime),
       'initialActivityCount': serializer.toJson<int>(initialActivityCount),
+      'initialKilojoules': serializer.toJson<double>(initialKilojoules),
     };
   }
 
@@ -450,6 +483,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     Duration? initialMovingTime,
     Duration? initialElapsedTime,
     int? initialActivityCount,
+    double? initialKilojoules,
   }) => ComponentDb(
     id: id ?? this.id,
     isDeleted: isDeleted ?? this.isDeleted,
@@ -463,6 +497,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     initialMovingTime: initialMovingTime ?? this.initialMovingTime,
     initialElapsedTime: initialElapsedTime ?? this.initialElapsedTime,
     initialActivityCount: initialActivityCount ?? this.initialActivityCount,
+    initialKilojoules: initialKilojoules ?? this.initialKilojoules,
   );
   ComponentDb copyWithCompanion(ComponentsCompanion data) {
     return ComponentDb(
@@ -494,6 +529,9 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
       initialActivityCount: data.initialActivityCount.present
           ? data.initialActivityCount.value
           : this.initialActivityCount,
+      initialKilojoules: data.initialKilojoules.present
+          ? data.initialKilojoules.value
+          : this.initialKilojoules,
     );
   }
 
@@ -511,7 +549,8 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
           ..write('initialElevationGain: $initialElevationGain, ')
           ..write('initialMovingTime: $initialMovingTime, ')
           ..write('initialElapsedTime: $initialElapsedTime, ')
-          ..write('initialActivityCount: $initialActivityCount')
+          ..write('initialActivityCount: $initialActivityCount, ')
+          ..write('initialKilojoules: $initialKilojoules')
           ..write(')'))
         .toString();
   }
@@ -530,6 +569,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     initialMovingTime,
     initialElapsedTime,
     initialActivityCount,
+    initialKilojoules,
   );
   @override
   bool operator ==(Object other) =>
@@ -546,7 +586,8 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
           other.initialElevationGain == this.initialElevationGain &&
           other.initialMovingTime == this.initialMovingTime &&
           other.initialElapsedTime == this.initialElapsedTime &&
-          other.initialActivityCount == this.initialActivityCount);
+          other.initialActivityCount == this.initialActivityCount &&
+          other.initialKilojoules == this.initialKilojoules);
 }
 
 class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
@@ -562,6 +603,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
   final Value<Duration> initialMovingTime;
   final Value<Duration> initialElapsedTime;
   final Value<int> initialActivityCount;
+  final Value<double> initialKilojoules;
   final Value<int> rowid;
   const ComponentsCompanion({
     this.id = const Value.absent(),
@@ -576,6 +618,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     this.initialMovingTime = const Value.absent(),
     this.initialElapsedTime = const Value.absent(),
     this.initialActivityCount = const Value.absent(),
+    this.initialKilojoules = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ComponentsCompanion.insert({
@@ -591,6 +634,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     this.initialMovingTime = const Value.absent(),
     this.initialElapsedTime = const Value.absent(),
     this.initialActivityCount = const Value.absent(),
+    this.initialKilojoules = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        lastModified = Value(lastModified),
@@ -609,6 +653,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     Expression<int>? initialMovingTime,
     Expression<int>? initialElapsedTime,
     Expression<int>? initialActivityCount,
+    Expression<double>? initialKilojoules,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -627,6 +672,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
         'initial_elapsed_time': initialElapsedTime,
       if (initialActivityCount != null)
         'initial_activity_count': initialActivityCount,
+      if (initialKilojoules != null) 'initial_kilojoules': initialKilojoules,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -644,6 +690,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     Value<Duration>? initialMovingTime,
     Value<Duration>? initialElapsedTime,
     Value<int>? initialActivityCount,
+    Value<double>? initialKilojoules,
     Value<int>? rowid,
   }) {
     return ComponentsCompanion(
@@ -659,6 +706,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
       initialMovingTime: initialMovingTime ?? this.initialMovingTime,
       initialElapsedTime: initialElapsedTime ?? this.initialElapsedTime,
       initialActivityCount: initialActivityCount ?? this.initialActivityCount,
+      initialKilojoules: initialKilojoules ?? this.initialKilojoules,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -716,6 +764,9 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     if (initialActivityCount.present) {
       map['initial_activity_count'] = Variable<int>(initialActivityCount.value);
     }
+    if (initialKilojoules.present) {
+      map['initial_kilojoules'] = Variable<double>(initialKilojoules.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -737,6 +788,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
           ..write('initialMovingTime: $initialMovingTime, ')
           ..write('initialElapsedTime: $initialElapsedTime, ')
           ..write('initialActivityCount: $initialActivityCount, ')
+          ..write('initialKilojoules: $initialKilojoules, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -4214,6 +4266,21 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _isBookmarkedMeta = const VerificationMeta(
+    'isBookmarked',
+  );
+  @override
+  late final GeneratedColumn<bool> isBookmarked = GeneratedColumn<bool>(
+    'is_bookmarked',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_bookmarked" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   @override
   late final GeneratedColumnWithTypeConverter<DateTime, DateTime> datetime =
       GeneratedColumn<DateTime>(
@@ -4295,6 +4362,7 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
     isDeleted,
     lastModified,
     name,
+    isBookmarked,
     datetime,
     datetimeLocal,
     notes,
@@ -4347,6 +4415,15 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
         name.isAcceptableOrUnknown(data['name']!, _nameMeta),
       );
     }
+    if (data.containsKey('is_bookmarked')) {
+      context.handle(
+        _isBookmarkedMeta,
+        isBookmarked.isAcceptableOrUnknown(
+          data['is_bookmarked']!,
+          _isBookmarkedMeta,
+        ),
+      );
+    }
     if (data.containsKey('notes')) {
       context.handle(
         _notesMeta,
@@ -4388,6 +4465,10 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
         DriftSqlType.string,
         data['${effectivePrefix}name'],
       ),
+      isBookmarked: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_bookmarked'],
+      )!,
       datetime: $SetupsTable.$converterdatetime.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.dateTime,
@@ -4473,6 +4554,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
   final bool isDeleted;
   final DateTime lastModified;
   final String? name;
+  final bool isBookmarked;
   final DateTime datetime;
   final DateTime datetimeLocal;
   final String? notes;
@@ -4488,6 +4570,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
     required this.isDeleted,
     required this.lastModified,
     this.name,
+    required this.isBookmarked,
     required this.datetime,
     required this.datetimeLocal,
     this.notes,
@@ -4514,6 +4597,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
     if (!nullToAbsent || name != null) {
       map['name'] = Variable<String>(name);
     }
+    map['is_bookmarked'] = Variable<bool>(isBookmarked);
     {
       map['datetime'] = Variable<DateTime>(
         $SetupsTable.$converterdatetime.toSql(datetime),
@@ -4563,6 +4647,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
       isDeleted: Value(isDeleted),
       lastModified: Value(lastModified),
       name: name == null && nullToAbsent ? const Value.absent() : Value(name),
+      isBookmarked: Value(isBookmarked),
       datetime: Value(datetime),
       datetimeLocal: Value(datetimeLocal),
       notes: notes == null && nullToAbsent
@@ -4594,6 +4679,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
       isDeleted: serializer.fromJson<bool>(json['isDeleted']),
       lastModified: serializer.fromJson<DateTime>(json['lastModified']),
       name: serializer.fromJson<String?>(json['name']),
+      isBookmarked: serializer.fromJson<bool>(json['isBookmarked']),
       datetime: serializer.fromJson<DateTime>(json['datetime']),
       datetimeLocal: serializer.fromJson<DateTime>(json['datetimeLocal']),
       notes: serializer.fromJson<String?>(json['notes']),
@@ -4614,6 +4700,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
       'isDeleted': serializer.toJson<bool>(isDeleted),
       'lastModified': serializer.toJson<DateTime>(lastModified),
       'name': serializer.toJson<String?>(name),
+      'isBookmarked': serializer.toJson<bool>(isBookmarked),
       'datetime': serializer.toJson<DateTime>(datetime),
       'datetimeLocal': serializer.toJson<DateTime>(datetimeLocal),
       'notes': serializer.toJson<String?>(notes),
@@ -4632,6 +4719,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
     bool? isDeleted,
     DateTime? lastModified,
     Value<String?> name = const Value.absent(),
+    bool? isBookmarked,
     DateTime? datetime,
     DateTime? datetimeLocal,
     Value<String?> notes = const Value.absent(),
@@ -4647,6 +4735,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
     isDeleted: isDeleted ?? this.isDeleted,
     lastModified: lastModified ?? this.lastModified,
     name: name.present ? name.value : this.name,
+    isBookmarked: isBookmarked ?? this.isBookmarked,
     datetime: datetime ?? this.datetime,
     datetimeLocal: datetimeLocal ?? this.datetimeLocal,
     notes: notes.present ? notes.value : this.notes,
@@ -4666,6 +4755,9 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
           ? data.lastModified.value
           : this.lastModified,
       name: data.name.present ? data.name.value : this.name,
+      isBookmarked: data.isBookmarked.present
+          ? data.isBookmarked.value
+          : this.isBookmarked,
       datetime: data.datetime.present ? data.datetime.value : this.datetime,
       datetimeLocal: data.datetimeLocal.present
           ? data.datetimeLocal.value
@@ -4688,6 +4780,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
           ..write('isDeleted: $isDeleted, ')
           ..write('lastModified: $lastModified, ')
           ..write('name: $name, ')
+          ..write('isBookmarked: $isBookmarked, ')
           ..write('datetime: $datetime, ')
           ..write('datetimeLocal: $datetimeLocal, ')
           ..write('notes: $notes, ')
@@ -4708,6 +4801,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
     isDeleted,
     lastModified,
     name,
+    isBookmarked,
     datetime,
     datetimeLocal,
     notes,
@@ -4727,6 +4821,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
           other.isDeleted == this.isDeleted &&
           other.lastModified == this.lastModified &&
           other.name == this.name &&
+          other.isBookmarked == this.isBookmarked &&
           other.datetime == this.datetime &&
           other.datetimeLocal == this.datetimeLocal &&
           other.notes == this.notes &&
@@ -4744,6 +4839,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
   final Value<bool> isDeleted;
   final Value<DateTime> lastModified;
   final Value<String?> name;
+  final Value<bool> isBookmarked;
   final Value<DateTime> datetime;
   final Value<DateTime> datetimeLocal;
   final Value<String?> notes;
@@ -4760,6 +4856,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
     this.isDeleted = const Value.absent(),
     this.lastModified = const Value.absent(),
     this.name = const Value.absent(),
+    this.isBookmarked = const Value.absent(),
     this.datetime = const Value.absent(),
     this.datetimeLocal = const Value.absent(),
     this.notes = const Value.absent(),
@@ -4777,6 +4874,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
     this.isDeleted = const Value.absent(),
     required DateTime lastModified,
     this.name = const Value.absent(),
+    this.isBookmarked = const Value.absent(),
     required DateTime datetime,
     required DateTime datetimeLocal,
     this.notes = const Value.absent(),
@@ -4799,6 +4897,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
     Expression<bool>? isDeleted,
     Expression<DateTime>? lastModified,
     Expression<String>? name,
+    Expression<bool>? isBookmarked,
     Expression<DateTime>? datetime,
     Expression<DateTime>? datetimeLocal,
     Expression<String>? notes,
@@ -4816,6 +4915,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
       if (isDeleted != null) 'is_deleted': isDeleted,
       if (lastModified != null) 'last_modified': lastModified,
       if (name != null) 'name': name,
+      if (isBookmarked != null) 'is_bookmarked': isBookmarked,
       if (datetime != null) 'datetime': datetime,
       if (datetimeLocal != null) 'datetime_local': datetimeLocal,
       if (notes != null) 'notes': notes,
@@ -4835,6 +4935,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
     Value<bool>? isDeleted,
     Value<DateTime>? lastModified,
     Value<String?>? name,
+    Value<bool>? isBookmarked,
     Value<DateTime>? datetime,
     Value<DateTime>? datetimeLocal,
     Value<String?>? notes,
@@ -4852,6 +4953,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
       isDeleted: isDeleted ?? this.isDeleted,
       lastModified: lastModified ?? this.lastModified,
       name: name ?? this.name,
+      isBookmarked: isBookmarked ?? this.isBookmarked,
       datetime: datetime ?? this.datetime,
       datetimeLocal: datetimeLocal ?? this.datetimeLocal,
       notes: notes ?? this.notes,
@@ -4886,6 +4988,9 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
+    }
+    if (isBookmarked.present) {
+      map['is_bookmarked'] = Variable<bool>(isBookmarked.value);
     }
     if (datetime.present) {
       map['datetime'] = Variable<DateTime>(
@@ -4940,6 +5045,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
           ..write('isDeleted: $isDeleted, ')
           ..write('lastModified: $lastModified, ')
           ..write('name: $name, ')
+          ..write('isBookmarked: $isBookmarked, ')
           ..write('datetime: $datetime, ')
           ..write('datetimeLocal: $datetimeLocal, ')
           ..write('notes: $notes, ')
@@ -7481,6 +7587,17 @@ class $StravaActivitiesTable extends StravaActivities
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _averageWattsMeta = const VerificationMeta(
+    'averageWatts',
+  );
+  @override
+  late final GeneratedColumn<double> averageWatts = GeneratedColumn<double>(
+    'average_watts',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -7498,6 +7615,7 @@ class $StravaActivitiesTable extends StravaActivities
     movingTime,
     elapsedTime,
     workoutType,
+    averageWatts,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -7591,6 +7709,15 @@ class $StravaActivitiesTable extends StravaActivities
         ),
       );
     }
+    if (data.containsKey('average_watts')) {
+      context.handle(
+        _averageWattsMeta,
+        averageWatts.isAcceptableOrUnknown(
+          data['average_watts']!,
+          _averageWattsMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -7668,6 +7795,10 @@ class $StravaActivitiesTable extends StravaActivities
         DriftSqlType.int,
         data['${effectivePrefix}workout_type'],
       ),
+      averageWatts: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}average_watts'],
+      ),
     );
   }
 
@@ -7703,6 +7834,7 @@ class StravaActivityDb extends DataClass
   final int movingTime;
   final int elapsedTime;
   final int? workoutType;
+  final double? averageWatts;
   const StravaActivityDb({
     required this.id,
     required this.lastModified,
@@ -7719,6 +7851,7 @@ class StravaActivityDb extends DataClass
     required this.movingTime,
     required this.elapsedTime,
     this.workoutType,
+    this.averageWatts,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -7766,6 +7899,9 @@ class StravaActivityDb extends DataClass
     if (!nullToAbsent || workoutType != null) {
       map['workout_type'] = Variable<int>(workoutType);
     }
+    if (!nullToAbsent || averageWatts != null) {
+      map['average_watts'] = Variable<double>(averageWatts);
+    }
     return map;
   }
 
@@ -7798,6 +7934,9 @@ class StravaActivityDb extends DataClass
       workoutType: workoutType == null && nullToAbsent
           ? const Value.absent()
           : Value(workoutType),
+      averageWatts: averageWatts == null && nullToAbsent
+          ? const Value.absent()
+          : Value(averageWatts),
     );
   }
 
@@ -7826,6 +7965,7 @@ class StravaActivityDb extends DataClass
       movingTime: serializer.fromJson<int>(json['movingTime']),
       elapsedTime: serializer.fromJson<int>(json['elapsedTime']),
       workoutType: serializer.fromJson<int?>(json['workoutType']),
+      averageWatts: serializer.fromJson<double?>(json['averageWatts']),
     );
   }
   @override
@@ -7849,6 +7989,7 @@ class StravaActivityDb extends DataClass
       'movingTime': serializer.toJson<int>(movingTime),
       'elapsedTime': serializer.toJson<int>(elapsedTime),
       'workoutType': serializer.toJson<int?>(workoutType),
+      'averageWatts': serializer.toJson<double?>(averageWatts),
     };
   }
 
@@ -7868,6 +8009,7 @@ class StravaActivityDb extends DataClass
     int? movingTime,
     int? elapsedTime,
     Value<int?> workoutType = const Value.absent(),
+    Value<double?> averageWatts = const Value.absent(),
   }) => StravaActivityDb(
     id: id ?? this.id,
     lastModified: lastModified ?? this.lastModified,
@@ -7886,6 +8028,7 @@ class StravaActivityDb extends DataClass
     movingTime: movingTime ?? this.movingTime,
     elapsedTime: elapsedTime ?? this.elapsedTime,
     workoutType: workoutType.present ? workoutType.value : this.workoutType,
+    averageWatts: averageWatts.present ? averageWatts.value : this.averageWatts,
   );
   StravaActivityDb copyWithCompanion(StravaActivitiesCompanion data) {
     return StravaActivityDb(
@@ -7916,6 +8059,9 @@ class StravaActivityDb extends DataClass
       workoutType: data.workoutType.present
           ? data.workoutType.value
           : this.workoutType,
+      averageWatts: data.averageWatts.present
+          ? data.averageWatts.value
+          : this.averageWatts,
     );
   }
 
@@ -7936,7 +8082,8 @@ class StravaActivityDb extends DataClass
           ..write('totalElevationGain: $totalElevationGain, ')
           ..write('movingTime: $movingTime, ')
           ..write('elapsedTime: $elapsedTime, ')
-          ..write('workoutType: $workoutType')
+          ..write('workoutType: $workoutType, ')
+          ..write('averageWatts: $averageWatts')
           ..write(')'))
         .toString();
   }
@@ -7958,6 +8105,7 @@ class StravaActivityDb extends DataClass
     movingTime,
     elapsedTime,
     workoutType,
+    averageWatts,
   );
   @override
   bool operator ==(Object other) =>
@@ -7977,7 +8125,8 @@ class StravaActivityDb extends DataClass
           other.totalElevationGain == this.totalElevationGain &&
           other.movingTime == this.movingTime &&
           other.elapsedTime == this.elapsedTime &&
-          other.workoutType == this.workoutType);
+          other.workoutType == this.workoutType &&
+          other.averageWatts == this.averageWatts);
 }
 
 class StravaActivitiesCompanion extends UpdateCompanion<StravaActivityDb> {
@@ -7996,6 +8145,7 @@ class StravaActivitiesCompanion extends UpdateCompanion<StravaActivityDb> {
   final Value<int> movingTime;
   final Value<int> elapsedTime;
   final Value<int?> workoutType;
+  final Value<double?> averageWatts;
   const StravaActivitiesCompanion({
     this.id = const Value.absent(),
     this.lastModified = const Value.absent(),
@@ -8012,6 +8162,7 @@ class StravaActivitiesCompanion extends UpdateCompanion<StravaActivityDb> {
     this.movingTime = const Value.absent(),
     this.elapsedTime = const Value.absent(),
     this.workoutType = const Value.absent(),
+    this.averageWatts = const Value.absent(),
   });
   StravaActivitiesCompanion.insert({
     this.id = const Value.absent(),
@@ -8029,6 +8180,7 @@ class StravaActivitiesCompanion extends UpdateCompanion<StravaActivityDb> {
     required int movingTime,
     required int elapsedTime,
     this.workoutType = const Value.absent(),
+    this.averageWatts = const Value.absent(),
   }) : lastModified = Value(lastModified),
        name = Value(name),
        athlete = Value(athlete),
@@ -8053,6 +8205,7 @@ class StravaActivitiesCompanion extends UpdateCompanion<StravaActivityDb> {
     Expression<int>? movingTime,
     Expression<int>? elapsedTime,
     Expression<int>? workoutType,
+    Expression<double>? averageWatts,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -8071,6 +8224,7 @@ class StravaActivitiesCompanion extends UpdateCompanion<StravaActivityDb> {
       if (movingTime != null) 'moving_time': movingTime,
       if (elapsedTime != null) 'elapsed_time': elapsedTime,
       if (workoutType != null) 'workout_type': workoutType,
+      if (averageWatts != null) 'average_watts': averageWatts,
     });
   }
 
@@ -8090,6 +8244,7 @@ class StravaActivitiesCompanion extends UpdateCompanion<StravaActivityDb> {
     Value<int>? movingTime,
     Value<int>? elapsedTime,
     Value<int?>? workoutType,
+    Value<double?>? averageWatts,
   }) {
     return StravaActivitiesCompanion(
       id: id ?? this.id,
@@ -8107,6 +8262,7 @@ class StravaActivitiesCompanion extends UpdateCompanion<StravaActivityDb> {
       movingTime: movingTime ?? this.movingTime,
       elapsedTime: elapsedTime ?? this.elapsedTime,
       workoutType: workoutType ?? this.workoutType,
+      averageWatts: averageWatts ?? this.averageWatts,
     );
   }
 
@@ -8168,6 +8324,9 @@ class StravaActivitiesCompanion extends UpdateCompanion<StravaActivityDb> {
     if (workoutType.present) {
       map['workout_type'] = Variable<int>(workoutType.value);
     }
+    if (averageWatts.present) {
+      map['average_watts'] = Variable<double>(averageWatts.value);
+    }
     return map;
   }
 
@@ -8188,7 +8347,8 @@ class StravaActivitiesCompanion extends UpdateCompanion<StravaActivityDb> {
           ..write('totalElevationGain: $totalElevationGain, ')
           ..write('movingTime: $movingTime, ')
           ..write('elapsedTime: $elapsedTime, ')
-          ..write('workoutType: $workoutType')
+          ..write('workoutType: $workoutType, ')
+          ..write('averageWatts: $averageWatts')
           ..write(')'))
         .toString();
   }
@@ -9016,6 +9176,7 @@ typedef $$ComponentsTableCreateCompanionBuilder =
       Value<Duration> initialMovingTime,
       Value<Duration> initialElapsedTime,
       Value<int> initialActivityCount,
+      Value<double> initialKilojoules,
       Value<int> rowid,
     });
 typedef $$ComponentsTableUpdateCompanionBuilder =
@@ -9032,6 +9193,7 @@ typedef $$ComponentsTableUpdateCompanionBuilder =
       Value<Duration> initialMovingTime,
       Value<Duration> initialElapsedTime,
       Value<int> initialActivityCount,
+      Value<double> initialKilojoules,
       Value<int> rowid,
     });
 
@@ -9182,6 +9344,11 @@ class $$ComponentsTableFilterComposer
 
   ColumnFilters<int> get initialActivityCount => $composableBuilder(
     column: $table.initialActivityCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get initialKilojoules => $composableBuilder(
+    column: $table.initialKilojoules,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -9354,6 +9521,11 @@ class $$ComponentsTableOrderingComposer
     column: $table.initialActivityCount,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<double> get initialKilojoules => $composableBuilder(
+    column: $table.initialKilojoules,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ComponentsTableAnnotationComposer
@@ -9418,6 +9590,11 @@ class $$ComponentsTableAnnotationComposer
 
   GeneratedColumn<int> get initialActivityCount => $composableBuilder(
     column: $table.initialActivityCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get initialKilojoules => $composableBuilder(
+    column: $table.initialKilojoules,
     builder: (column) => column,
   );
 
@@ -9567,6 +9744,7 @@ class $$ComponentsTableTableManager
                 Value<Duration> initialMovingTime = const Value.absent(),
                 Value<Duration> initialElapsedTime = const Value.absent(),
                 Value<int> initialActivityCount = const Value.absent(),
+                Value<double> initialKilojoules = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ComponentsCompanion(
                 id: id,
@@ -9581,6 +9759,7 @@ class $$ComponentsTableTableManager
                 initialMovingTime: initialMovingTime,
                 initialElapsedTime: initialElapsedTime,
                 initialActivityCount: initialActivityCount,
+                initialKilojoules: initialKilojoules,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -9597,6 +9776,7 @@ class $$ComponentsTableTableManager
                 Value<Duration> initialMovingTime = const Value.absent(),
                 Value<Duration> initialElapsedTime = const Value.absent(),
                 Value<int> initialActivityCount = const Value.absent(),
+                Value<double> initialKilojoules = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ComponentsCompanion.insert(
                 id: id,
@@ -9611,6 +9791,7 @@ class $$ComponentsTableTableManager
                 initialMovingTime: initialMovingTime,
                 initialElapsedTime: initialElapsedTime,
                 initialActivityCount: initialActivityCount,
+                initialKilojoules: initialKilojoules,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -13070,6 +13251,7 @@ typedef $$SetupsTableCreateCompanionBuilder =
       Value<bool> isDeleted,
       required DateTime lastModified,
       Value<String?> name,
+      Value<bool> isBookmarked,
       required DateTime datetime,
       required DateTime datetimeLocal,
       Value<String?> notes,
@@ -13088,6 +13270,7 @@ typedef $$SetupsTableUpdateCompanionBuilder =
       Value<bool> isDeleted,
       Value<DateTime> lastModified,
       Value<String?> name,
+      Value<bool> isBookmarked,
       Value<DateTime> datetime,
       Value<DateTime> datetimeLocal,
       Value<String?> notes,
@@ -13208,6 +13391,11 @@ class $$SetupsTableFilterComposer
 
   ColumnFilters<String> get name => $composableBuilder(
     column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isBookmarked => $composableBuilder(
+    column: $table.isBookmarked,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -13385,6 +13573,11 @@ class $$SetupsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get isBookmarked => $composableBuilder(
+    column: $table.isBookmarked,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get datetime => $composableBuilder(
     column: $table.datetime,
     builder: (column) => ColumnOrderings(column),
@@ -13495,6 +13688,11 @@ class $$SetupsTableAnnotationComposer
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<bool> get isBookmarked => $composableBuilder(
+    column: $table.isBookmarked,
+    builder: (column) => column,
+  );
 
   GeneratedColumnWithTypeConverter<DateTime, DateTime> get datetime =>
       $composableBuilder(column: $table.datetime, builder: (column) => column);
@@ -13660,6 +13858,7 @@ class $$SetupsTableTableManager
                 Value<bool> isDeleted = const Value.absent(),
                 Value<DateTime> lastModified = const Value.absent(),
                 Value<String?> name = const Value.absent(),
+                Value<bool> isBookmarked = const Value.absent(),
                 Value<DateTime> datetime = const Value.absent(),
                 Value<DateTime> datetimeLocal = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
@@ -13676,6 +13875,7 @@ class $$SetupsTableTableManager
                 isDeleted: isDeleted,
                 lastModified: lastModified,
                 name: name,
+                isBookmarked: isBookmarked,
                 datetime: datetime,
                 datetimeLocal: datetimeLocal,
                 notes: notes,
@@ -13694,6 +13894,7 @@ class $$SetupsTableTableManager
                 Value<bool> isDeleted = const Value.absent(),
                 required DateTime lastModified,
                 Value<String?> name = const Value.absent(),
+                Value<bool> isBookmarked = const Value.absent(),
                 required DateTime datetime,
                 required DateTime datetimeLocal,
                 Value<String?> notes = const Value.absent(),
@@ -13710,6 +13911,7 @@ class $$SetupsTableTableManager
                 isDeleted: isDeleted,
                 lastModified: lastModified,
                 name: name,
+                isBookmarked: isBookmarked,
                 datetime: datetime,
                 datetimeLocal: datetimeLocal,
                 notes: notes,
@@ -16186,6 +16388,7 @@ typedef $$StravaActivitiesTableCreateCompanionBuilder =
       required int movingTime,
       required int elapsedTime,
       Value<int?> workoutType,
+      Value<double?> averageWatts,
     });
 typedef $$StravaActivitiesTableUpdateCompanionBuilder =
     StravaActivitiesCompanion Function({
@@ -16204,6 +16407,7 @@ typedef $$StravaActivitiesTableUpdateCompanionBuilder =
       Value<int> movingTime,
       Value<int> elapsedTime,
       Value<int?> workoutType,
+      Value<double?> averageWatts,
     });
 
 class $$StravaActivitiesTableFilterComposer
@@ -16293,6 +16497,11 @@ class $$StravaActivitiesTableFilterComposer
     column: $table.workoutType,
     builder: (column) => ColumnFilters(column),
   );
+
+  ColumnFilters<double> get averageWatts => $composableBuilder(
+    column: $table.averageWatts,
+    builder: (column) => ColumnFilters(column),
+  );
 }
 
 class $$StravaActivitiesTableOrderingComposer
@@ -16378,6 +16587,11 @@ class $$StravaActivitiesTableOrderingComposer
     column: $table.workoutType,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<double> get averageWatts => $composableBuilder(
+    column: $table.averageWatts,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$StravaActivitiesTableAnnotationComposer
@@ -16447,6 +16661,11 @@ class $$StravaActivitiesTableAnnotationComposer
     column: $table.workoutType,
     builder: (column) => column,
   );
+
+  GeneratedColumn<double> get averageWatts => $composableBuilder(
+    column: $table.averageWatts,
+    builder: (column) => column,
+  );
 }
 
 class $$StravaActivitiesTableTableManager
@@ -16501,6 +16720,7 @@ class $$StravaActivitiesTableTableManager
                 Value<int> movingTime = const Value.absent(),
                 Value<int> elapsedTime = const Value.absent(),
                 Value<int?> workoutType = const Value.absent(),
+                Value<double?> averageWatts = const Value.absent(),
               }) => StravaActivitiesCompanion(
                 id: id,
                 lastModified: lastModified,
@@ -16517,6 +16737,7 @@ class $$StravaActivitiesTableTableManager
                 movingTime: movingTime,
                 elapsedTime: elapsedTime,
                 workoutType: workoutType,
+                averageWatts: averageWatts,
               ),
           createCompanionCallback:
               ({
@@ -16535,6 +16756,7 @@ class $$StravaActivitiesTableTableManager
                 required int movingTime,
                 required int elapsedTime,
                 Value<int?> workoutType = const Value.absent(),
+                Value<double?> averageWatts = const Value.absent(),
               }) => StravaActivitiesCompanion.insert(
                 id: id,
                 lastModified: lastModified,
@@ -16551,6 +16773,7 @@ class $$StravaActivitiesTableTableManager
                 movingTime: movingTime,
                 elapsedTime: elapsedTime,
                 workoutType: workoutType,
+                averageWatts: averageWatts,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

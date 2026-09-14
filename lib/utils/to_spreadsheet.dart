@@ -98,8 +98,8 @@ class SpreadsheetExport {
   }
 
   static _HeaderData _generateHeader(SelectedData data, AppSettings settings, {String? bikeId, bool includeBikeColumn = false}) {
-    final List<String> row1 = ['General', '', '', '', '', ''];
-    final List<String> row2 = ['Name', 'DateTime', 'Tags', 'Notes', 'Place', 'Altitude [${settings.altitudeUnit}]'];
+    final List<String> row1 = ['General', '', '', '', '', '', ''];
+    final List<String> row2 = ['Name', 'DateTime', 'Tags', 'Notes', 'Place', 'Altitude [${settings.altitudeUnit}]', 'Bookmarked'];
     final Map<String, int> columnMap = {
       'name': 0,
       'datetime': 1,
@@ -107,15 +107,16 @@ class SpreadsheetExport {
       'notes': 3,
       'place': 4,
       'altitude': 5,
+      'bookmarked': 6,
     };
 
     if (includeBikeColumn) {
       row1.add('');
       row2.add('Bike');
-      columnMap['bike'] = 6;
+      columnMap['bike'] = 7;
     }
 
-    int colIndex = includeBikeColumn ? 7 : 6;
+    int colIndex = includeBikeColumn ? 8 : 7;
     final List<_MergeInfo> merges = [
       _MergeInfo(0, colIndex - 1, 'General'),
     ];
@@ -210,6 +211,8 @@ class SpreadsheetExport {
       row[columnMap['altitude']!] = DoubleCellValue(ContextPosition.convertAltitudeFromMeters(alt, settings.altitudeUnit) ?? alt);
     }
 
+    row[columnMap['bookmarked']!] = BoolCellValue(setup.isBookmarked);
+
     // Weather
     final w = setup.weather;
     if (w != null) {
@@ -271,6 +274,8 @@ class SpreadsheetExport {
     if (alt != null) {
       row[columnMap['altitude']!] = (ContextPosition.convertAltitudeFromMeters(alt, settings.altitudeUnit) ?? alt).round().toString();
     }
+
+    row[columnMap['bookmarked']!] = setup.isBookmarked ? 'Yes' : '';
 
     if (includeBikeColumn) {
       final bike = data.bikes[setup.bike];

@@ -19,7 +19,7 @@ class RatingActions {
     );
     if (newRating == null) return;
 
-    await appRepository.addRating(newRating);
+    await appRepository.addRatings([newRating]);
   }
 
   static Future<void> editRating(BuildContext context, {required Rating rating}) async {
@@ -47,7 +47,7 @@ class RatingActions {
     );
     if (newRating == null) return;
 
-    await appRepository.addRating(newRating);
+    await appRepository.addRatings([newRating]);
   }
 
   static Future<void> removeRating(BuildContext context, {required Rating rating}) async {

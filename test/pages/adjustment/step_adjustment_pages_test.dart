@@ -1,10 +1,20 @@
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
+import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/pages/adjustment/step_adjustment_page.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
 
 void main() {
+  Widget wrap(Widget child, [AppSettings? appSettings]) {
+    return appSettings == null
+        ? ChangeNotifierProvider<AppSettings>(create: (_) => AppSettings(), child: child)
+        : ChangeNotifierProvider<AppSettings>.value(value: appSettings, child: child);
+  }
+
+  AppSettings settingsWithDialStyle() => AppSettings()..enableStepDialColorSize = true;
+
   testWidgets('StepAdjustmentPage edit returns equal adjustment when unchanged', (WidgetTester tester) async {
     final initial = StepAdjustment(
       id: 'test-id',
@@ -19,7 +29,7 @@ void main() {
 
     StepAdjustment? result;
 
-    await tester.pumpWidget(
+    await tester.pumpWidget(wrap(
       MaterialApp(
         theme: materialAppTheme,
         home: Builder(
@@ -36,7 +46,7 @@ void main() {
           ),
         ),
       ),
-    );
+    ));
 
     await tester.tap(find.text('Open Page'));
     await tester.pumpAndSettle();
@@ -51,7 +61,7 @@ void main() {
   testWidgets('Can create valid step adjustment', (WidgetTester tester) async {
     StepAdjustment? result;
 
-    await tester.pumpWidget(
+    await tester.pumpWidget(wrap(
       MaterialApp(
         theme: materialAppTheme,
         home: Builder(
@@ -68,7 +78,7 @@ void main() {
           ),
         ),
       ),
-    );
+    ));
 
     await tester.tap(find.text('Open Page'));
     await tester.pumpAndSettle();
@@ -94,7 +104,7 @@ void main() {
   testWidgets('Negative min values work', (WidgetTester tester) async {
     StepAdjustment? result;
 
-    await tester.pumpWidget(
+    await tester.pumpWidget(wrap(
       MaterialApp(
         theme: materialAppTheme,
         home: Builder(
@@ -111,7 +121,7 @@ void main() {
           ),
         ),
       ),
-    );
+    ));
 
     await tester.tap(find.text('Open Page'));
     await tester.pumpAndSettle();
@@ -146,7 +156,7 @@ void main() {
 
     StepAdjustment? result;
 
-    await tester.pumpWidget(
+    await tester.pumpWidget(wrap(
       MaterialApp(
         theme: materialAppTheme,
         home: Builder(
@@ -163,7 +173,7 @@ void main() {
           ),
         ),
       ),
-    );
+    ));
 
     await tester.tap(find.text('Open Page'));
     await tester.pumpAndSettle();
@@ -186,7 +196,7 @@ void main() {
   testWidgets('Preview equals input when all fields valid', (WidgetTester tester) async {
     StepAdjustment? result;
 
-    await tester.pumpWidget(
+    await tester.pumpWidget(wrap(
       MaterialApp(
         theme: materialAppTheme,
         home: Builder(
@@ -203,7 +213,7 @@ void main() {
           ),
         ),
       ),
-    );
+    ));
 
     await tester.tap(find.text('Open Page'));
     await tester.pumpAndSettle();
@@ -224,5 +234,107 @@ void main() {
     expect(result!.step, 3);
     expect(result!.min, 50);
     expect(result!.max, 200);
+  });
+
+  testWidgets('Dial visualization renders the dial field and taps cycle its style', (WidgetTester tester) async {
+    final appSettings = settingsWithDialStyle();
+    final initial = StepAdjustment(
+      id: 'test-id',
+      name: 'Rebound',
+      notes: null,
+      unit: null,
+      step: 1,
+      min: 0,
+      max: 20,
+      visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial,
+    );
+
+    StepAdjustment? result;
+
+    await tester.pumpWidget(wrap(
+      MaterialApp(
+        theme: materialAppTheme,
+        home: Builder(
+          builder: (context) => ElevatedButton(
+            onPressed: () async {
+              result = await Navigator.push<StepAdjustment>(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => StepAdjustmentPage.edit(adjustment: initial),
+                ),
+              );
+            },
+            child: const Text('Open Page'),
+          ),
+        ),
+      ),
+      appSettings,
+    ));
+
+    await tester.tap(find.text('Open Page'));
+    await tester.pumpAndSettle();
+
+    final dial = find.byKey(const ValueKey('DialStyle'));
+    expect(dial, findsOneWidget);
+    expect(tester.takeException(), isNull);
+
+    await tester.tap(dial);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.check));
+    await tester.pumpAndSettle();
+
+    expect(result, isNotNull);
+    expect(result!.dialColor, StepAdjustmentDialColor.red);
+    expect(result!.dialSize, StepAdjustmentDialSize.normal);
+  });
+
+  testWidgets('Dial field is hidden for visualizations without a dial', (WidgetTester tester) async {
+    final appSettings = settingsWithDialStyle();
+    final initial = StepAdjustment(
+      id: 'test-id',
+      name: 'Rebound',
+      notes: null,
+      unit: null,
+      step: 1,
+      min: 0,
+      max: 20,
+      visualization: StepAdjustmentVisualization.slider,
+    );
+
+    await tester.pumpWidget(wrap(
+      MaterialApp(
+        theme: materialAppTheme,
+        home: StepAdjustmentPage.edit(adjustment: initial),
+      ),
+      appSettings,
+    ));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const ValueKey('DialStyle')), findsNothing);
+  });
+
+  testWidgets('Dial field is hidden while the feature flag is off', (WidgetTester tester) async {
+    final initial = StepAdjustment(
+      id: 'test-id',
+      name: 'Rebound',
+      notes: null,
+      unit: null,
+      step: 1,
+      min: 0,
+      max: 20,
+      visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial,
+    );
+
+    await tester.pumpWidget(wrap(
+      MaterialApp(
+        theme: materialAppTheme,
+        home: StepAdjustmentPage.edit(adjustment: initial),
+      ),
+      AppSettings()..enableStepDialColorSize = false,
+    ));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const ValueKey('DialStyle')), findsNothing);
   });
 }

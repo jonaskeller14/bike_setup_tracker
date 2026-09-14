@@ -46,8 +46,8 @@ class SetupTileHarness {
     final database = AppDatabase.memory();
     final repository = AppRepository(database);
 
-    await repository.addBike(Bike(id: bikeId, name: 'Test Bike', person: null));
-    await repository.addComponent(
+    await repository.addBikes([Bike(id: bikeId, name: 'Test Bike', person: null)]);
+    await repository.addComponents([
       Component(
         id: forkId,
         name: 'Test Fork',
@@ -84,7 +84,7 @@ class SetupTileHarness {
           ),
         ],
       ),
-    );
+    ]);
 
     final settings = AppSettings();
     final hintService = AppHintService(appRepository: repository, appSettings: settings);
@@ -114,7 +114,7 @@ class SetupTileHarness {
   Future<void> addSetups(WidgetTester tester, List<Setup> setups) async {
     await tester.runAsync(() async {
       for (final setup in setups) {
-        await repository.addSetup(setup);
+        await repository.addSetups([setup]);
       }
     });
   }

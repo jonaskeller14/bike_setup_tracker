@@ -5,6 +5,12 @@ const TTL_DAYS = 365;
 const getTTLTimestamp = () => admin.firestore.Timestamp.fromDate(new Date(Date.now() + TTL_DAYS * 24 * 60 * 60 * 1000));
 const ENTITLEMENT_RENEWAL_BUFFER_MS = 4 * 60 * 60 * 1000;
 
+// Max activities packed into a single activity_batches document. Bounded by
+// Firestore's 1 MiB per-document limit — at ~400 bytes/activity this stays
+// around 200 KB, with room to spare. Also keeps write counts (not read/write
+// ops on a single doc) well under the free-tier daily write quota.
+const ACTIVITY_BATCH_SIZE = 500;
+
 /**
  * Evaluates the server-written Strava entitlement. Canceled subscriptions stay
  * active until expiresAt, while auto-renewing subscriptions receive a small
@@ -260,6 +266,7 @@ async function saveActivityToBatch(activity, athleteId, batch = null) {
       movingTime: activity.moving_time,
       elapsedTime: activity.elapsed_time,
       workoutType: activity.workout_type ?? null,
+      averageWatts: activity.average_watts ?? null,
     };
   }
 
@@ -310,7 +317,7 @@ async function saveActivityToBatch(activity, athleteId, batch = null) {
     ? latestBatchQuery.docs[0]
     : null;
 
-  if (targetBatchDoc && targetBatchDoc.data().activityIds.length < 500) {
+  if (targetBatchDoc && targetBatchDoc.data().activityIds.length < ACTIVITY_BATCH_SIZE) {
     const updateData = {
       lastModified: admin.firestore.FieldValue.serverTimestamp(),
       [`activities.${activityId}`]: cleanActivity,
@@ -392,6 +399,7 @@ async function athleteHasActiveEntitlement(athleteId) {
 }
 
 module.exports = {
+  ACTIVITY_BATCH_SIZE,
   StravaRateLimitError,
   checkStravaResponse,
   getValidAccessToken,

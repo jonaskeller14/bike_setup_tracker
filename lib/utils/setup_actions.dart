@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../models/rating_entry.dart';
@@ -58,7 +61,7 @@ class SetupActions {
     );
     if (newSetup == null) return;
 
-    await appRepository.addSetup(newSetup);
+    await appRepository.addSetups([newSetup]);
   }
 
   static Future<void> editSetup(BuildContext context, {required Setup setup}) async {
@@ -104,8 +107,15 @@ class SetupActions {
       return null;
     }
 
-    await appRepository.addSetup(newSetup);
+    await appRepository.addSetups([newSetup]);
     return newSetup;
+  }
+
+  static Future<void> toggleBookmark(BuildContext context, {required Setup setup}) async {
+    final appRepository = context.read<AppRepository>();
+
+    unawaited(HapticFeedback.selectionClick());
+    await appRepository.editSetup(setup.copyWith(isBookmarked: !setup.isBookmarked));
   }
 
   static Future<void> removeSetup(BuildContext context, {required Setup setup}) async {
@@ -175,6 +185,6 @@ class SetupActions {
     );
     if (newRatingEntry == null) return;
 
-    await appRepository.addRatingEntry(newRatingEntry);
+    await appRepository.addRatingEntries([newRatingEntry]);
   }
 }

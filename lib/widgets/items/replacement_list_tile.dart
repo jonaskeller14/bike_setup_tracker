@@ -6,8 +6,8 @@ import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/component_installation.dart';
 import '../../models/installation.dart';
+import '../../models/timeline_row.dart';
 import '../../repositories/app_repository.dart';
-import '../../utils/timeline_grouping.dart';
 import 'tile_meta_row.dart';
 
 class ReplacementListTile extends StatelessWidget {

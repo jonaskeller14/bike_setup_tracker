@@ -152,8 +152,7 @@ void main() {
 
     final firstBike = Bike(name: 'First', person: null);
     final secondBike = Bike(name: 'Second', person: null);
-    await repository.addBike(firstBike);
-    await repository.addBike(secondBike);
+    await repository.addBikes([firstBike, secondBike]);
     await pumpEventQueue();
     service.update(appRepository: repository, appSettings: settings);
     expect(
@@ -161,15 +160,15 @@ void main() {
       AppHint.gettingStartedV1,
     );
 
-    await repository.addComponent(
+    await repository.addComponents([
       Component(
         name: 'Chain',
         componentType: ComponentType.chain,
         installations: [Installation.sinceBeginning(parent: firstBike.id)],
       ),
-    );
+    ]);
     final now = DateTime.now();
-    await repository.addSetup(
+    await repository.addSetups([
       Setup(
         datetime: now.toUtc(),
         datetimeLocal: now,
@@ -179,7 +178,7 @@ void main() {
         bikeAdjustmentValues: const {},
         personAdjustmentValues: const {},
       ),
-    );
+    ]);
     await pumpEventQueue();
     service.update(appRepository: repository, appSettings: settings);
     expect(
@@ -203,17 +202,16 @@ void main() {
 
   test('a recreated service starts a new session', () async {
     final firstBike = Bike(name: 'First', person: null);
-    await repository.addBike(firstBike);
-    await repository.addBike(Bike(name: 'Second', person: null));
-    await repository.addComponent(
+    await repository.addBikes([firstBike, Bike(name: 'Second', person: null)]);
+    await repository.addComponents([
       Component(
         name: 'Chain',
         componentType: ComponentType.chain,
         installations: [Installation.sinceBeginning(parent: firstBike.id)],
       ),
-    );
+    ]);
     final now = DateTime.now();
-    await repository.addSetup(
+    await repository.addSetups([
       Setup(
         datetime: now.toUtc(),
         datetimeLocal: now,
@@ -223,7 +221,7 @@ void main() {
         bikeAdjustmentValues: const {},
         personAdjustmentValues: const {},
       ),
-    );
+    ]);
     await pumpEventQueue();
 
     final service = createService();
@@ -252,17 +250,17 @@ void main() {
 
   test('Task takes priority over Calendar after First Steps are complete', () async {
     final firstBike = Bike(name: 'First', person: null);
-    await repository.addBike(firstBike);
-    await repository.addComponent(
+    await repository.addBikes([firstBike]);
+    await repository.addComponents([
       Component(
         name: 'Chain',
         componentType: ComponentType.chain,
         installations: [Installation.sinceBeginning(parent: firstBike.id)],
       ),
-    );
+    ]);
     final now = DateTime.now();
     for (var index = 0; index < 2; index++) {
-      await repository.addSetup(
+      await repository.addSetups([
         Setup(
           datetime: now.add(Duration(minutes: index)).toUtc(),
           datetimeLocal: now.add(Duration(minutes: index)),
@@ -272,7 +270,7 @@ void main() {
           bikeAdjustmentValues: const {},
           personAdjustmentValues: const {},
         ),
-      );
+      ]);
     }
     await pumpEventQueue();
 
@@ -304,7 +302,7 @@ void main() {
     service.update(appRepository: repository, appSettings: settings);
     expect(service.activeHintFor(AppHintPlacement.stravaDashboardGear), AppHint.stravaLinkGearV1);
 
-    await repository.addBike(Bike(name: 'Road bike', person: null, stravaGear: 'gear-1'));
+    await repository.addBikes([Bike(name: 'Road bike', person: null, stravaGear: 'gear-1')]);
     await pumpEventQueue();
     service.update(appRepository: repository, appSettings: settings);
     expect(service.activeHintFor(AppHintPlacement.stravaDashboardGear), isNull);
@@ -317,5 +315,136 @@ void main() {
 
     await service.dismiss(AppHint.setupComparisonV1);
     expect(service.activeHintFor(AppHintPlacement.setupComparison), isNull);
+  });
+
+  group('release hints', () {
+    // Stand-ins for real announcements: hints that no other eligibility rule
+    // offers in the Garage or Setup header, so only the release rule can.
+    const oldFeature = AppHint.installationTimelineV1;
+    const recentFeature = AppHint.stravaLinkGearV1;
+    const currentFeature = AppHint.setupComparisonV1;
+    const releaseBuilds = {oldFeature: 40, recentFeature: 41, currentFeature: 42};
+
+    AppHintService createReleaseService({int currentBuild = 42}) => AppHintService(
+      appRepository: repository,
+      appSettings: settings,
+      releaseBuilds: releaseBuilds,
+      currentBuild: currentBuild,
+    );
+
+    /// The Getting Started hint outranks release hints, so a repository with
+    /// content is a precondition for every case but the priority one.
+    Future<void> seedContent() async {
+      final bike = Bike(name: 'First', person: null);
+      await repository.addBikes([bike]);
+      await repository.addComponents([
+        Component(
+          name: 'Chain',
+          componentType: ComponentType.chain,
+          installations: [Installation.sinceBeginning(parent: bike.id)],
+        ),
+      ]);
+      final now = DateTime.now();
+      await repository.addSetups([
+        Setup(
+          datetime: now.toUtc(),
+          datetimeLocal: now,
+          tags: const {},
+          bike: bike.id,
+          person: null,
+          bikeAdjustmentValues: const {},
+          personAdjustmentValues: const {},
+        ),
+      ]);
+      await pumpEventQueue();
+    }
+
+    test('a first run announces the installed build only', () async {
+      await seedContent();
+      final service = createReleaseService();
+      await service.load();
+      service.update(appRepository: repository, appSettings: settings);
+
+      final preferences = await SharedPreferences.getInstance();
+      expect(preferences.getInt('app_hint.releaseBaselineBuild'), 41);
+      // Older features count as seen — nobody gets a backlog on the first run.
+      expect(service.activeHintFor(AppHintPlacement.garageHeader), currentFeature);
+    });
+
+    test('the same hint shows in Garage and Setups until it is dismissed', () async {
+      SharedPreferences.setMockInitialValues({'app_hint.releaseBaselineBuild': 39});
+      await seedContent();
+      final service = createReleaseService();
+      await service.load();
+      service.update(appRepository: repository, appSettings: settings);
+
+      // Oldest first, in both lists at once.
+      expect(service.activeHintFor(AppHintPlacement.garageHeader), oldFeature);
+      expect(service.activeHintFor(AppHintPlacement.setupHeader), oldFeature);
+
+      await service.dismiss(oldFeature);
+      expect(service.activeHintFor(AppHintPlacement.garageHeader), isNull);
+      expect(service.activeHintFor(AppHintPlacement.setupHeader), isNull);
+
+      // A skipped release is caught up one feature per app start.
+      final reloaded = createReleaseService();
+      await reloaded.load();
+      reloaded.update(appRepository: repository, appSettings: settings);
+
+      expect(reloaded.statusOf(oldFeature), AppHintStatus.dismissed);
+      expect(reloaded.activeHintFor(AppHintPlacement.garageHeader), recentFeature);
+    });
+
+    test('the baseline is pinned once, so an ignored hint survives an update', () async {
+      await seedContent();
+      final service = createReleaseService();
+      await service.load();
+
+      // Closing the app without acting on the hint, then updating again.
+      final reloaded = createReleaseService(currentBuild: 43);
+      await reloaded.load();
+      reloaded.update(appRepository: repository, appSettings: settings);
+
+      final preferences = await SharedPreferences.getInstance();
+      expect(preferences.getInt('app_hint.releaseBaselineBuild'), 41);
+      expect(reloaded.activeHintFor(AppHintPlacement.garageHeader), currentFeature);
+    });
+
+    test('an unreleased hint is never announced', () async {
+      SharedPreferences.setMockInitialValues({'app_hint.releaseBaselineBuild': 39});
+      await seedContent();
+      final service = createReleaseService(currentBuild: 40);
+      await service.load();
+      service.update(appRepository: repository, appSettings: settings);
+
+      expect(service.activeHintFor(AppHintPlacement.garageHeader), oldFeature);
+      await service.dismiss(oldFeature);
+
+      final reloaded = createReleaseService(currentBuild: 40);
+      await reloaded.load();
+      reloaded.update(appRepository: repository, appSettings: settings);
+      expect(reloaded.activeHintFor(AppHintPlacement.garageHeader), isNull);
+    });
+
+    test('Getting Started outranks a pending release hint', () async {
+      SharedPreferences.setMockInitialValues({'app_hint.releaseBaselineBuild': 39});
+      final service = createReleaseService();
+      await service.load();
+
+      expect(service.activeHintFor(AppHintPlacement.garageHeader), AppHint.gettingStartedV1);
+    });
+
+    test('resetAll replays every release hint', () async {
+      await seedContent();
+      final service = createReleaseService();
+      await service.load();
+      await service.dismiss(currentFeature);
+      await service.resetAll();
+      service.update(appRepository: repository, appSettings: settings);
+
+      final preferences = await SharedPreferences.getInstance();
+      expect(preferences.getInt('app_hint.releaseBaselineBuild'), 0);
+      expect(service.activeHintFor(AppHintPlacement.garageHeader), oldFeature);
+    });
   });
 }

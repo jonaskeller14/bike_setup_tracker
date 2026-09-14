@@ -8,6 +8,7 @@ import '../models/app_settings.dart';
 import '../models/component.dart';
 import '../models/installation.dart';
 import '../pages/details/component_details_page.dart';
+import 'empty_state_placeholder.dart';
 import 'sheets/component_type_filter.dart';
 import 'text/section_title.dart';
 
@@ -32,7 +33,10 @@ class InstallationTimelineTable extends StatefulWidget {
 }
 
 class _InstallationTimelineTableState extends State<InstallationTimelineTable> {
+  static const int _defaultVisibleComponentTypeCount = 3;
+
   final Set<ComponentType> _hiddenComponentTypes = {};
+  bool _hiddenComponentTypesInitialized = false;
 
   List<({DateTime start, DateTime? end})> _getComponentActiveIntervals(Component comp) {
     final List<({DateTime start, DateTime? end})> res = [];
@@ -118,15 +122,18 @@ class _InstallationTimelineTableState extends State<InstallationTimelineTable> {
       return c.installations.any((i) => i.parent == widget.bikeId);
     }).toList();
 
-    if (installedComponents.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
     final activeComponentTypes = installedComponents
         .map((c) => c.componentType)
         .toSet()
         .toList()
       ..sort((a, b) => a.index.compareTo(b.index));
+
+    if (!_hiddenComponentTypesInitialized) {
+      _hiddenComponentTypesInitialized = true;
+      if (activeComponentTypes.length > _defaultVisibleComponentTypeCount) {
+        _hiddenComponentTypes.addAll(activeComponentTypes.skip(_defaultVisibleComponentTypeCount));
+      }
+    }
 
     final Map<ComponentType, List<Component>> componentsByType = {};
     for (final component in installedComponents) {
@@ -136,8 +143,16 @@ class _InstallationTimelineTableState extends State<InstallationTimelineTable> {
       list.sort((a, b) => a.id.compareTo(b.id));
     }
 
+    final visibleComponentTypes = activeComponentTypes
+        .where((type) => !_hiddenComponentTypes.contains(type))
+        .toList();
+
+    final visibleInstalledComponents = installedComponents
+        .where((c) => visibleComponentTypes.contains(c.componentType))
+        .toList();
+
     final uniqueDatetimesSet = <DateTime>{};
-    for (final component in installedComponents) {
+    for (final component in visibleInstalledComponents) {
       final sortedInsts = List<Installation>.from(component.installations)
         ..sort((a, b) => a.dateTimeUTC.compareTo(b.dateTimeUTC));
 
@@ -153,19 +168,13 @@ class _InstallationTimelineTableState extends State<InstallationTimelineTable> {
     }
     final sortedDatetimes = uniqueDatetimesSet.toList()..sort();
 
-    if (sortedDatetimes.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
     final List<MapEntry<DateTime, DateTime?>> intervals = [];
     for (int j = 0; j < sortedDatetimes.length - 1; j++) {
       intervals.add(MapEntry(sortedDatetimes[j], sortedDatetimes[j + 1]));
     }
-    intervals.add(MapEntry(sortedDatetimes.last, null));
-
-    final visibleComponentTypes = activeComponentTypes
-        .where((type) => !_hiddenComponentTypes.contains(type))
-        .toList();
+    if (sortedDatetimes.isNotEmpty) {
+      intervals.add(MapEntry(sortedDatetimes.last, null));
+    }
 
     const double rowHeight = 70.0;
     const double headerHeight = 60.0;
@@ -481,8 +490,18 @@ class _InstallationTimelineTableState extends State<InstallationTimelineTable> {
           ),
         ),
         const SizedBox(height: 8),
-        if (visibleComponentTypes.isEmpty)
-          _noComponentTypesPlaceholder(context)
+        if (installedComponents.isEmpty)
+          const EmptyStatePlaceholder(
+            icon: Icons.history_rounded,
+            title: "No installation history",
+            subtitle: "Install components on this bike to see the timeline",
+          )
+        else if (visibleComponentTypes.isEmpty)
+          const EmptyStatePlaceholder(
+            icon: Icons.view_column_outlined,
+            title: "No component types selected",
+            subtitle: "Select a component type to display the table",
+          )
         else
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -494,33 +513,6 @@ class _InstallationTimelineTableState extends State<InstallationTimelineTable> {
             ),
           ),
       ],
-    );
-  }
-
-  Widget _noComponentTypesPlaceholder(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          spacing: 12,
-          children: [
-            Icon(
-              Icons.view_column_outlined,
-              size: 64,
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-            ),
-            Text(
-              'Select a component type to display the table',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
-                height: 1.5,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

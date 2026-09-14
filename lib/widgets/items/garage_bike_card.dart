@@ -26,6 +26,9 @@ class GarageBikeCard extends StatefulWidget {
   final int index;
   final double? elevation;
   final String? componentToShowDetails;
+  final bool selectionMode;
+  final bool selected;
+  final VoidCallback? onSelectionChanged;
   final void Function(Component) onPressedComponent;
   final void Function({required String? newBike}) onAcceptWithDetails;
   final ValueChanged<Component?> setDraggedComponent;
@@ -37,6 +40,9 @@ class GarageBikeCard extends StatefulWidget {
     required this.index,
     this.elevation,
     required this.componentToShowDetails,
+    this.selectionMode = false,
+    this.selected = false,
+    this.onSelectionChanged,
     required this.onPressedComponent,
     required this.onAcceptWithDetails,
     required this.setDraggedComponent,
@@ -171,18 +177,21 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
       builder: (context, candidateData, rejectedData) => Card(
         key: ValueKey(widget.bike.id),
         elevation: widget.elevation,
+        color: widget.selected ? Theme.of(context).colorScheme.primaryContainer : null,
         margin: const EdgeInsets.symmetric(vertical: 4.0),
         clipBehavior: Clip.antiAlias, // Borderradius for InkWell
         child: InkWell(
-          onTap: () async {
-            await Navigator.push<void>(
-              context,
-              MaterialPageRoute(
-                builder: (context) => BikeDetailsPage(bikeId: widget.bike.id),
-              ),
-            );
-          },
-          onDoubleTap: () => appRepository.onBikeTap(widget.bike.id),
+          onTap: widget.selectionMode
+              ? widget.onSelectionChanged
+              : () async {
+                  await Navigator.push<void>(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BikeDetailsPage(bikeId: widget.bike.id),
+                    ),
+                  );
+                },
+          onDoubleTap: widget.selectionMode ? null : () => appRepository.onBikeTap(widget.bike.id),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -280,34 +289,36 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    ReorderableDragStartListener(
-                      index: widget.index,
-                      child: const Icon(Icons.drag_handle),
-                    ),
-                    PopupMenuButton<_BikeOptions>(
-                      onSelected: (value) async {
-                        switch (value) {
-                          case _BikeOptions.edit:
-                            await BikeActions.editBike(context, bike: widget.bike);
-                          case _BikeOptions.duplicate:
-                            await BikeActions.duplicateBikeWithComponents(context, bike: widget.bike);
-                          case _BikeOptions.remove:
-                            await BikeActions.removeBike(context, bike: widget.bike);
-                        }
-                      },
-                      itemBuilder: (BuildContext context) => _BikeOptions.values.map((option) {
-                        return PopupMenuItem<_BikeOptions>(
-                          value: option,
-                          child: Row(
-                            spacing: 10,
-                            children: [
-                              Icon(option.iconData, size: 20),
-                              Text(option.label),
-                            ],
-                          ),
-                        );
-                      }).toList(),
-                    ),
+                    if (!widget.selectionMode)
+                      ReorderableDragStartListener(
+                        index: widget.index,
+                        child: const Icon(Icons.drag_handle),
+                      ),
+                    if (!widget.selectionMode)
+                      PopupMenuButton<_BikeOptions>(
+                        onSelected: (value) async {
+                          switch (value) {
+                            case _BikeOptions.edit:
+                              await BikeActions.editBike(context, bike: widget.bike);
+                            case _BikeOptions.duplicate:
+                              await BikeActions.duplicateBikeWithComponents(context, bike: widget.bike);
+                            case _BikeOptions.remove:
+                              await BikeActions.removeBike(context, bike: widget.bike);
+                          }
+                        },
+                        itemBuilder: (BuildContext context) => _BikeOptions.values.map((option) {
+                          return PopupMenuItem<_BikeOptions>(
+                            value: option,
+                            child: Row(
+                              spacing: 10,
+                              children: [
+                                Icon(option.iconData, size: 20),
+                                Text(option.label),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                      ),
                   ],
                 ),
               ),
@@ -334,7 +345,7 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                         Opacity(
                           opacity: (showDropZone || isPassiveDropZone) ? 0.0 : 1.0,
                           child: IgnorePointer(
-                            ignoring: showDropZone || isPassiveDropZone,
+                            ignoring: showDropZone || isPassiveDropZone || widget.selectionMode,
                             child: LayoutBuilder(
                               builder: (context, constraints) {
                                 const spacing = 8.0;
@@ -424,7 +435,8 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                   );
                 },
               ),
-              if (widget.componentToShowDetails != null &&
+              if (!widget.selectionMode &&
+                  widget.componentToShowDetails != null &&
                   bikeComponents.keys.contains(widget.componentToShowDetails))
                 Padding(
                   padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
@@ -457,7 +469,7 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
       ),
       onWillAcceptWithDetails: (details) {
         final draggedComp = widget.draggedComponentNotifier.value;
-        final willAccept = draggedComp != null && draggedComp.bike != widget.bike.id;
+        final willAccept = !widget.selectionMode && draggedComp != null && draggedComp.bike != widget.bike.id;
         if (willAccept) unawaited(HapticFeedback.lightImpact());
         return willAccept;
       },

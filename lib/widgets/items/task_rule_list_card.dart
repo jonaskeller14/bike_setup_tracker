@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
@@ -9,12 +10,14 @@ import '../../models/bike.dart';
 import '../../models/component.dart';
 import '../../models/installation.dart';
 import '../../models/task/task_rule.dart';
+import '../../models/task/task_threshold/task_threshold.dart';
 import '../../pages/details/task_rule_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../theme.dart';
 import '../../utils/task_actions.dart';
 import '../notes_text.dart';
 import '../sheets/set_task_delay.dart';
+import '../task_rule_progress_bar.dart';
 
 class TaskRuleListCard extends StatelessWidget {
   final String taskRuleId;
@@ -34,24 +37,24 @@ class TaskRuleListCard extends StatelessWidget {
     this.onSelectedTaskRulesCompleted,
   });
 
-  Widget _filterWidget(BuildContext context, {required TaskRule taskRule, required Component? component, required Map<String, Bike> bikes}) {
+  static Widget filterWidget(BuildContext context, {required TaskRule taskRule, required Component? component, required Map<String, Bike> bikes}) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
-      spacing: 2,
+      spacing: 8,
       children: [
         if (taskRule.componentId != null) ...[
           Flexible(
-            fit: FlexFit.tight,
             child: Row(
               spacing: 2,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
                   component?.componentType.getIconData() ?? Icons.grid_view_sharp,
                   size: 13,
                   color: component != null ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.error,
                 ),
-                Expanded(
+                Flexible(
                   child: Text(
                     component?.name ?? "COMPONENT NOT FOUND",
                     maxLines: 1,
@@ -66,9 +69,9 @@ class TaskRuleListCard extends StatelessWidget {
             ),
           ),
           Flexible(
-            fit: FlexFit.tight,
             child: Row(
               spacing: 2,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
                   switch (component?.latestInstallation) {
@@ -82,7 +85,7 @@ class TaskRuleListCard extends StatelessWidget {
                     _ => Theme.of(context).colorScheme.onSurfaceVariant,
                   },
                 ),
-                Expanded(
+                Flexible(
                   child: Text(
                     switch (component?.latestInstallation) {
                       Archival() => 'Archived',
@@ -104,36 +107,52 @@ class TaskRuleListCard extends StatelessWidget {
             ),
           ),
         ] else if (taskRule.bikeId != null) ...[
-          Icon(
-            Bike.iconData, 
-            size: 13,
-            color: bikes.containsKey(taskRule.bikeId) ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.error,
-          ),
           Flexible(
-            child: Text(
-              bikes[taskRule.bikeId]?.name ?? "BIKE NOT FOUND",
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: bikes.containsKey(taskRule.bikeId) ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8) : Theme.of(context).colorScheme.error,
-                fontSize: 13,
-              ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              spacing: 2,
+              children: [
+                Icon(
+                  Bike.iconData, 
+                  size: 13,
+                  color: bikes.containsKey(taskRule.bikeId) ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.error,
+                ),
+                Flexible(
+                  child: Text(
+                    bikes[taskRule.bikeId]?.name ?? "BIKE NOT FOUND",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: bikes.containsKey(taskRule.bikeId) ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8) : Theme.of(context).colorScheme.error,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ] else ...[
-          Icon(
-            Icons.circle_outlined, 
-            size: 13, 
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
           Flexible(
-            child: Text(
-              "General Task",
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                fontSize: 13,
-              ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              spacing: 2,
+              children: [
+                Icon(
+                  Icons.circle_outlined, 
+                  size: 13, 
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+                Flexible(
+                  child: Text(
+                    "General Task",
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -141,7 +160,7 @@ class TaskRuleListCard extends StatelessWidget {
     );
   }
 
-  Widget _priorityWidget(BuildContext context, {required TaskRule taskRule}) {
+  static Widget priorityWidget(BuildContext context, {required TaskPriority priority}) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -149,7 +168,7 @@ class TaskRuleListCard extends StatelessWidget {
       children: [
         Icon(Icons.traffic, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
         Text(
-          taskRule.priority.label,
+          priority.label,
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
             fontSize: 13,
@@ -159,7 +178,7 @@ class TaskRuleListCard extends StatelessWidget {
     );
   }
 
-  Widget _notesWidget(BuildContext context, {required TaskRule taskRule}) {
+  static Widget notesWidget(BuildContext context, {required String notes}) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 2,
@@ -174,7 +193,7 @@ class TaskRuleListCard extends StatelessWidget {
         ),
         Expanded(
           child: NotesText(
-            taskRule.notes!,
+            notes,
             fontSize: 13,
             color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
           ),
@@ -183,12 +202,12 @@ class TaskRuleListCard extends StatelessWidget {
     );
   }
 
-  Widget _tagsWidget(BuildContext context, {required TaskRule taskRule}) {
+  static Widget tagsWidget(BuildContext context, {required Set<String> tags}) {
     return Wrap(
       alignment: WrapAlignment.start,
       crossAxisAlignment: WrapCrossAlignment.center,
       spacing: 4,
-      children: taskRule.tags.map((tag) {
+      children: tags.map((tag) {
         return Row(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -319,82 +338,31 @@ class TaskRuleListCard extends StatelessWidget {
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _filterWidget(
+              filterWidget(
                 context,
                 taskRule: taskRule,
                 component: component,
                 bikes: appRepository.bikes,
               ),
               if (appSettings.enableTaskPriority)
-                _priorityWidget(context, taskRule: taskRule),
+                priorityWidget(context, priority: taskRule.priority),
               if (appSettings.enableTaskTags && taskRule.tags.isNotEmpty)
-                _tagsWidget(context, taskRule: taskRule),
+                tagsWidget(context, tags: taskRule.tags),
               if (taskRule.notes != null && taskRule.notes!.isNotEmpty)
-                _notesWidget(context, taskRule: taskRule),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                spacing: 8,
-                children: [
-                  if (taskRule.interval != null)
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      spacing: 2,
-                      children: [
-                        Icon(
-                          taskRule.interval!.iconData,
-                          size: 13,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                        Text(
-                          '${taskRule.repeat ? "Every " : "After "}${taskRule.interval!.toDisplayValue(distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit, dateFormat: appSettings.dateFormat)}',
-                          style: TextStyle(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurfaceVariant
-                                .withValues(alpha: 0.8),
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
-                    ),
-                  if (taskRule.delay != null && taskRule.delay!.isPositive)
-                    Flexible(
-                      child: Row(
-                        spacing: 2,
-                        children: [
-                          Icon(
-                            Icons.history,
-                            size: 13,
-                            color: Theme.of(
-                              context,
-                            ).extension<ValueHighlightColors>()!.changed,
-                          ),
-                          Expanded(
-                            child: Text(
-                              '+${taskRule.delay!.toDisplayValue(distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit, dateFormat: appSettings.dateFormat)}',
-                              style: TextStyle(
-                                color: Theme.of(
-                                  context,
-                                ).extension<ValueHighlightColors>()!.changed,
-                                fontSize: 13,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                ],
-              ),
+                notesWidget(context, notes: taskRule.notes!),
+              if (taskRule.interval != null)
+                TaskIntervalText(
+                  interval: taskRule.interval!,
+                  delay: taskRule.delay,
+                  repeat: taskRule.repeat,
+                ),
               if (!isCompleted && taskRule.interval != null) ...[
                 const SizedBox(height: 8),
-                LinearProgressIndicator(
-                  value: status.progress.clamp(0.0, 1.0),
-                  backgroundColor: statusColor.withValues(alpha: 0.1),
-                  color: statusColor,
-                  minHeight: 4,
-                  borderRadius: BorderRadius.circular(2),
+                TaskRuleProgressBar(
+                  interval: taskRule.interval!,
+                  delay: taskRule.delay,
+                  progress: status.progress,
+                  statusColor: statusColor,
                 ),
               ],
             ],
@@ -495,6 +463,170 @@ class TaskRuleListCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Whether the unit reads as plural for the value actually shown.
+bool _isPlural(TaskThreshold threshold) => switch (threshold) {
+  DurationThreshold(:final days) => days.inDays != 1,
+  ActivityCountThreshold(:final count) => count != 1,
+  _ => true,
+};
+
+/// The interval and its delay added up: the target this cycle really runs to,
+/// and the one the progress bar measures against. Null when the two cannot be
+/// added — a deadline, or a delay of another kind.
+TaskThreshold? _combined(TaskThreshold interval, TaskThreshold delay) => switch ((interval, delay)) {
+  (DistanceThreshold(:final meters), DistanceThreshold(meters: final extra)) =>
+    DistanceThreshold(meters + extra),
+  (ElevationThreshold(:final meters), ElevationThreshold(meters: final extra)) =>
+    ElevationThreshold(meters + extra),
+  (MovingTimeThreshold(:final hours), MovingTimeThreshold(hours: final extra)) =>
+    MovingTimeThreshold(hours + extra),
+  (ElapsedTimeThreshold(:final hours), ElapsedTimeThreshold(hours: final extra)) =>
+    ElapsedTimeThreshold(hours + extra),
+  (DurationThreshold(:final days), DurationThreshold(days: final extra)) =>
+    DurationThreshold(days + extra),
+  (ActivityCountThreshold(:final count), ActivityCountThreshold(count: final extra)) =>
+    ActivityCountThreshold(count + extra),
+  (KilojoulesThreshold(:final kilojoules), KilojoulesThreshold(kilojoules: final extra)) =>
+    KilojoulesThreshold(kilojoules + extra),
+  _ => null,
+};
+
+/// A threshold's display value split into its number and its unit, so an
+/// interval and a delay of the same kind can share a single unit. Null for a
+/// threshold whose value is not a plain number, i.e. a deadline.
+({String number, String unit})? _thresholdParts(
+  TaskThreshold threshold,
+  AppSettings appSettings, {
+  required bool plural,
+}) {
+  final fmt = NumberFormat.decimalPattern();
+  return switch (threshold) {
+    DistanceThreshold(:final meters) => (
+      number: NumberFormat('#,##0.#')
+          .format(AppSettings.convertDistanceFromMeters(meters, appSettings.distanceUnit)!),
+      unit: appSettings.distanceUnit,
+    ),
+    ElevationThreshold(:final meters) => (
+      number: fmt.format(AppSettings.convertElevationFromMeters(meters, appSettings.altitudeUnit)!.round()),
+      unit: appSettings.altitudeUnit,
+    ),
+    MovingTimeThreshold(:final hours) ||
+    ElapsedTimeThreshold(:final hours) => (number: fmt.format(hours.inHours), unit: 'h'),
+    DurationThreshold(:final days) => (number: fmt.format(days.inDays), unit: plural ? 'days' : 'day'),
+    ActivityCountThreshold(:final count) => (number: fmt.format(count), unit: plural ? 'rides' : 'ride'),
+    KilojoulesThreshold(:final kilojoules) => (number: fmt.format(kilojoules.round()), unit: 'kJ'),
+    DateTimeThreshold() => null,
+  };
+}
+
+/// The interval a task rule runs on. A delay of the same kind supersedes it —
+/// "Every 1̶0̶ 22 rides" — so the number that governs this cycle is the one that
+/// stands out, and it is the very number the progress bar measures against.
+/// The struck-through original stays readable, and matches the card title's own
+/// line-through for a rule that no longer applies.
+///
+/// A delay that cannot be added to the interval — a deadline, or a delay of
+/// another kind, both only reachable from legacy data — keeps a chip of its own.
+class TaskIntervalText extends StatelessWidget {
+  final TaskThreshold interval;
+  final TaskThreshold? delay;
+  final bool repeat;
+
+  const TaskIntervalText({
+    super.key,
+    required this.interval,
+    required this.delay,
+    required this.repeat,
+  });
+
+  Widget _chip(BuildContext context, {required IconData icon, required Color iconColor, required Widget label}) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      spacing: 2,
+      children: [
+        Icon(icon, size: 13, color: iconColor),
+        Flexible(child: label),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final appSettings = context.watch<AppSettings>();
+    final mutedColor = Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8);
+    final delayColor = Theme.of(context).extension<ValueHighlightColors>()!.changed;
+    final prefix = repeat ? 'Every ' : 'After ';
+    final activeDelay = delay != null && delay!.isPositive ? delay : null;
+
+    final combined = activeDelay == null ? null : _combined(interval, activeDelay);
+    final plural = _isPlural(combined ?? interval);
+    final originalParts = combined == null ? null : _thresholdParts(interval, appSettings, plural: plural);
+    final combinedParts = combined == null ? null : _thresholdParts(combined, appSettings, plural: plural);
+
+    if (originalParts != null && combinedParts != null) {
+      return _chip(
+        context,
+        icon: interval.iconData,
+        iconColor: Theme.of(context).colorScheme.onSurfaceVariant,
+        label: Text.rich(
+          TextSpan(
+            text: prefix,
+            children: [
+              TextSpan(
+                text: originalParts.number,
+                style: TextStyle(
+                  decoration: TextDecoration.lineThrough,
+                  decorationColor: mutedColor,
+                  decorationThickness: 1.5,
+                ),
+              ),
+              TextSpan(text: ' ${combinedParts.number}', style: TextStyle(color: delayColor)),
+              TextSpan(text: ' ${combinedParts.unit}'),
+            ],
+          ),
+          style: TextStyle(color: mutedColor, fontSize: 13),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      );
+    }
+
+    final intervalChip = _chip(
+      context,
+      icon: interval.iconData,
+      iconColor: Theme.of(context).colorScheme.onSurfaceVariant,
+      label: Text(
+        '$prefix${interval.toDisplayValue(distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit, dateFormat: appSettings.dateFormat)}',
+        style: TextStyle(color: mutedColor, fontSize: 13),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
+    if (activeDelay == null) return intervalChip;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      spacing: 8,
+      children: [
+        Flexible(child: intervalChip),
+        Flexible(
+          child: _chip(
+            context,
+            icon: Icons.history,
+            iconColor: delayColor,
+            label: Text(
+              '+${activeDelay.toDisplayValue(distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit, dateFormat: appSettings.dateFormat)}',
+              style: TextStyle(color: delayColor, fontSize: 13),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

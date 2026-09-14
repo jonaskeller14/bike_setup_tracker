@@ -6,7 +6,7 @@ import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
-import 'package:bike_setup_tracker/models/task/task_threshold.dart';
+import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
 import 'package:bike_setup_tracker/pages/onboarding_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/app_hint_service.dart';
@@ -16,9 +16,11 @@ import 'package:bike_setup_tracker/services/strava_service.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/widgets/items/adjustment_list_card.dart';
 import 'package:bike_setup_tracker/widgets/items/component_list_card.dart';
+import 'package:bike_setup_tracker/widgets/items/garage_bike_card.dart';
 import 'package:bike_setup_tracker/widgets/items/garage_component_icon_card.dart';
 import 'package:bike_setup_tracker/widgets/lists/garage_list.dart';
 import 'package:bike_setup_tracker/widgets/lists/task_list.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -88,15 +90,15 @@ void main() {
   testWidgets('opens Setup History by default when bikes and components exist', (tester) async {
     final bike = Bike(name: 'Test bike', person: null);
     await tester.runAsync(() async {
-      await appRepository.addBike(bike);
-      await appRepository.addComponent(
+      await appRepository.addBikes([bike]);
+      await appRepository.addComponents([
         Component(
           name: 'Test component',
           componentType: ComponentType.frame,
           adjustments: const [],
           installations: [Installation.sinceBeginning(parent: bike.id)],
         ),
-      );
+      ]);
     });
 
     await tester.pumpWidget(createWidgetUnderTest());
@@ -118,8 +120,7 @@ void main() {
     final activeBike = Bike(name: 'Active bike', person: null);
     final deletedBike = Bike(name: 'Deleted bike', person: null, isDeleted: true);
     await tester.runAsync(() async {
-      await appRepository.addBike(activeBike);
-      await appRepository.addBike(deletedBike);
+      await appRepository.addBikes([activeBike, deletedBike]);
     });
 
     await tester.pumpWidget(createWidgetUnderTest());
@@ -226,15 +227,15 @@ void main() {
 
     final bike = Bike(name: 'Test bike', person: null);
     await tester.runAsync(() async {
-      await appRepository.addBike(bike);
-      await appRepository.addComponent(
+      await appRepository.addBikes([bike]);
+      await appRepository.addComponents([
         Component(
           name: 'Test component',
           componentType: ComponentType.other,
           adjustments: const [],
           installations: [Installation.sinceBeginning(parent: bike.id)],
         ),
-      );
+      ]);
     });
     await _waitForRepositoryUpdate(
       tester,
@@ -282,7 +283,7 @@ void main() {
       tags: const {},
       interval: DateTimeThreshold(DateTime.now().add(const Duration(days: 1))),
     );
-    await tester.runAsync(() => appRepository.addTaskRule(upcoming));
+    await tester.runAsync(() => appRepository.addTaskRules([upcoming]));
     await _waitForRepositoryUpdate(
       tester,
       until: (repository) => repository.taskRules.containsKey(upcoming.id),
@@ -294,7 +295,7 @@ void main() {
   testWidgets('Tasks badge shows the actionable count and due color', (tester) async {
     appSettings.enableTask = true;
     final due = TaskRule(name: 'Due', tags: const {});
-    await tester.runAsync(() => appRepository.addTaskRule(due));
+    await tester.runAsync(() => appRepository.addTaskRules([due]));
 
     await tester.pumpWidget(createWidgetUnderTest());
     await _waitForRepositoryUpdate(
@@ -370,6 +371,111 @@ void main() {
     await tester.pumpAndSettle();
     expect(taskScrollController.offset, 0);
   });
+
+  testWidgets('applying a filter deselects the task rules it hides', (tester) async {
+    appSettings.enableTask = true;
+    appSettings.enableTaskTags = true;
+    final plain = TaskRule(name: 'Plain', tags: const {});
+    final tagged = TaskRule(name: 'Tagged', tags: const {'service'});
+    await tester.runAsync(() => appRepository.addTaskRules([plain, tagged]));
+
+    await tester.pumpWidget(createWidgetUnderTest());
+    await _waitForRepositoryUpdate(
+      tester,
+      until: (repository) => repository.taskRules.length == 2,
+    );
+
+    await tester.tap(_navigationDestination('Tasks'));
+    await tester.pumpAndSettle();
+
+    await tester.longPress(find.text('Plain'));
+    await tester.pumpAndSettle();
+    expect(_appBarTitle(tester), '1 selected');
+
+    appRepository.selectTaskRuleTag('service');
+    await tester.pumpAndSettle();
+
+    expect(find.text('Plain'), findsNothing);
+    expect(_appBarTitle(tester), 'Tasks');
+  });
+
+  group('Garage multi-select', () {
+    Future<void> seedBikes(WidgetTester tester) async {
+      await tester.runAsync(() async {
+        await appRepository.addBikes([
+          Bike(name: 'First bike', person: null),
+          Bike(name: 'Second bike', person: null),
+        ]);
+      });
+      await tester.pumpWidget(createWidgetUnderTest());
+      await _waitForRepositoryUpdate(
+        tester,
+        until: (repository) => repository.bikes.length == 2,
+      );
+      await tester.tap(_navigationDestination('Bikes'));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('lifting a bike card and dropping it in place selects it', (tester) async {
+      await seedBikes(tester);
+
+      await _liftAndDrop(tester, _bikeCardTitle('First bike'));
+
+      expect(_appBarTitle(tester), '1 selected');
+      expect(find.byIcon(Icons.drag_handle), findsNothing);
+
+      await tester.ensureVisible(_bikeCardTitle('Second bike'));
+      await tester.pumpAndSettle();
+      await tester.tap(_bikeCardTitle('Second bike'));
+      await tester.pumpAndSettle();
+
+      expect(_appBarTitle(tester), '2 selected');
+    });
+
+    testWidgets('dropping a bike card at a new position reorders without selecting', (tester) async {
+      await seedBikes(tester);
+
+      final firstCardHeight = tester.getSize(find.byType(GarageBikeCard).first).height;
+      await _liftAndDrop(tester, _bikeCardTitle('First bike'), moveBy: Offset(0, firstCardHeight));
+
+      expect(_appBarTitle(tester), 'Bikes');
+      expect(
+        appRepository.filteredBikes.values.map((bike) => bike.name).toList(),
+        ['Second bike', 'First bike'],
+      );
+    });
+
+    testWidgets('filtering to another bike deselects the hidden bike', (tester) async {
+      await seedBikes(tester);
+
+      await _liftAndDrop(tester, _bikeCardTitle('First bike'));
+      expect(_appBarTitle(tester), '1 selected');
+
+      final secondBike = appRepository.bikes.values.firstWhere((bike) => bike.name == 'Second bike');
+      appRepository.onBikeTap(secondBike.id);
+      await tester.pumpAndSettle();
+
+      expect(find.text('First bike'), findsNothing);
+      expect(_appBarTitle(tester), 'Bikes');
+    });
+  });
+}
+
+Finder _bikeCardTitle(String name) => find.descendant(
+  of: find.byType(GarageBikeCard),
+  matching: find.text(name),
+);
+
+/// Starts a reorder drag on [finder] and drops it, optionally after [moveBy].
+Future<void> _liftAndDrop(WidgetTester tester, Finder finder, {Offset? moveBy}) async {
+  final gesture = await tester.startGesture(tester.getCenter(finder));
+  await tester.pump(kLongPressTimeout + const Duration(milliseconds: 100));
+  if (moveBy != null) {
+    await gesture.moveBy(moveBy);
+    await tester.pumpAndSettle();
+  }
+  await gesture.up();
+  await tester.pumpAndSettle();
 }
 
 Finder _navigationDestination(String label) => find.descendant(
@@ -390,8 +496,8 @@ Future<void> _seedGarageComponent(
 ) async {
   await tester.runAsync(() async {
     final bike = Bike(name: 'Test bike', person: null);
-    await appRepository.addBike(bike);
-    await appRepository.addComponent(
+    await appRepository.addBikes([bike]);
+    await appRepository.addComponents([
       Component(
         name: 'Test component',
         componentType: ComponentType.fork,
@@ -400,7 +506,7 @@ Future<void> _seedGarageComponent(
         ],
         installations: [Installation.sinceBeginning(parent: bike.id)],
       ),
-    );
+    ]);
   });
 }
 

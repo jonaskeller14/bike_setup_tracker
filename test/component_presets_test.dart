@@ -78,6 +78,25 @@ void main() {
         }
       });
 
+      test('same-named models are consistent generations', () {
+        final byModel = <String, List<ComponentPresetVariant>>{};
+        for (final v in variants) {
+          byModel.putIfAbsent(v.model, () => []).add(v);
+        }
+        for (final MapEntry(key: model, value: group) in byModel.entries) {
+          final generations = group.map((v) => v.yearRange).toSet();
+          if (generations.length == 1) continue;
+          // The picker merges same-named models into one row, so the years are
+          // all that tells the generations apart, and the category labels the
+          // shared row rather than any single block.
+          expect(generations, isNot(contains(null)),
+              reason: '$relative: "$model" spans generations, so every block '
+                  'needs a year_range');
+          expect(group.map((v) => v.category).toSet(), hasLength(1),
+              reason: '$relative: generations of "$model" disagree on category');
+        }
+      });
+
       test('presetKeys are globally unique', () {
         for (final v in variants) {
           final existing = allPresetKeys[v.presetKey];

@@ -8,6 +8,7 @@ import '../../models/rating.dart';
 import '../../models/rating_association.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/rating_actions.dart';
+import '../../widgets/empty_state_placeholder.dart';
 import '../../widgets/notes_text.dart';
 
 class RatingDetailsPage extends StatelessWidget {
@@ -23,7 +24,17 @@ class RatingDetailsPage extends StatelessWidget {
     final components = appRepository.components;
 
     final rating = appRepository.ratings[ratingId];
-    if (rating == null) return const SizedBox.shrink();
+    if (rating == null) {
+      return Scaffold(
+        appBar: AppBar(),
+        body: const SafeArea(
+          child: EmptyStatePlaceholder.error(
+            title: "Rating not found",
+            subtitle: "This rating was deleted or is no longer available.",
+          ),
+        ),
+      );
+    }
     
     return Scaffold(
       appBar: AppBar(

@@ -54,7 +54,7 @@ class ComponentActions {
     }
 
     if (component == null) return;
-    await appRepository.addComponent(component);
+    await appRepository.addComponents([component]);
   }
 
   static Future<void> editComponent(BuildContext context, {required Component component}) async {
@@ -81,7 +81,7 @@ class ComponentActions {
     );
     if (newComponent == null) return;
 
-    await appRepository.addComponent(newComponent);
+    await appRepository.addComponents([newComponent]);
 
     if (!context.mounted) return;
     await _copyTaskRulesTo(context, source: component, target: newComponent);
@@ -180,7 +180,7 @@ class ComponentActions {
         );
         if (newComponent == null) return;
 
-        await appRepository.addComponent(newComponent);
+        await appRepository.addComponents([newComponent]);
         await appRepository.editComponent(
           component.copyWith(
             installations: [

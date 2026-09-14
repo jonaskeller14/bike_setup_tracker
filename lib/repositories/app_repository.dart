@@ -8,6 +8,7 @@ import 'package:uuid/uuid.dart';
 
 import '../database/app_database.dart';
 import '../database/mappers.dart';
+import '../models/activity_rate_window.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/bike.dart';
 import '../models/component.dart';
@@ -29,6 +30,8 @@ import '../models/task/task_rule.dart';
 import '../services/backup_service.dart';
 import '../services/rating_score_service.dart';
 import '../services/setup_resolution_service.dart';
+import '../services/task_forecast_service.dart';
+import '../services/task_status_service.dart';
 import '../utils/unit_conversion.dart';
   
 class AppRepository extends ChangeNotifier {
@@ -85,7 +88,12 @@ class AppRepository extends ChangeNotifier {
   Map<String, StravaGear> _stravaGears = {};
   Map<String, ComponentStats> _componentStats = {};
   Map<String, ComponentStats> _bikeStats = {};
+  Map<String, ActivityRateWindow> _bikeActivityRates = {};
   Map<String, dynamic> _currentAdjustmentValues = {};
+
+  /// Day-quantised memo behind [getTaskRuleForecast].
+  final Map<String, TaskForecast?> _taskForecastCache = {};
+  DateTime? _taskForecastDay;
 
   int _stravaOffset = 0;
   int _stravaLimit = 50;
@@ -170,6 +178,7 @@ class AppRepository extends ChangeNotifier {
   Map<String, StravaGear> get stravaGears => _stravaGears;
   Map<String, ComponentStats> get componentStats => _componentStats;
   Map<String, ComponentStats> get bikeStats => _bikeStats;
+  Map<String, ActivityRateWindow> get bikeActivityRates => _bikeActivityRates;
   Map<String, dynamic> get currentAdjustmentValues => _currentAdjustmentValues;
 
   DateTime get lastModified {
@@ -193,6 +202,7 @@ class AppRepository extends ChangeNotifier {
   // ---------------------------------------------------------------------------
   String? _selectedBike;
   final Set<String> _selectedSetupTags = {};
+  bool _showBookmarkedSetupsOnly = false;
   final Set<TaskPriority> _selectedTaskPriorities = TaskPriority.values.toSet();
   final Set<String> _selectedTaskRuleTags = {};
   Set<String> _setupTags = {};
@@ -200,6 +210,7 @@ class AppRepository extends ChangeNotifier {
 
   String? get selectedBike => _selectedBike;
   Set<String> get selectedSetupTags => _selectedSetupTags;
+  bool get showBookmarkedSetupsOnly => _showBookmarkedSetupsOnly;
   Set<TaskPriority> get selectedTaskPriorities => _selectedTaskPriorities;
   Set<String> get selectedTaskRuleTags => _selectedTaskRuleTags;
   Set<String> get setupTags => _setupTags;
@@ -473,6 +484,16 @@ class AppRepository extends ChangeNotifier {
       _bikeStats = map;
       _dataChanged();
     }));
+
+    _subscriptions.add(database.stravaDao
+        .watchBikeActivityRates(
+          sampleSize: TaskForecastService.sampleSize,
+          maxLookback: TaskForecastService.maxLookback,
+        )
+        .listen((map) {
+      _bikeActivityRates = map;
+      _dataChanged();
+    }));
     
     _subscriptions.add(database.setupsDao.watchAllSetupsWithValues().listen((list) {
       _setups = {for (var s in list) s.setup.id: s.setup.toModel(values: s.values)};
@@ -528,6 +549,7 @@ class AppRepository extends ChangeNotifier {
 
   void _dataChanged() {
     if (_isDisposed) return;
+    _taskForecastCache.clear();
     if (_pendingDataChange) return;
     _pendingDataChange = true;
     unawaited(Future.microtask(() {
@@ -568,11 +590,7 @@ class AppRepository extends ChangeNotifier {
     _components = {
       for (var entry in _components.entries)
         entry.key: entry.value.copyWith(
-          totalDistance: _componentStats[entry.key]?.distance ?? entry.value.initialDistance,
-          totalElevationGain: _componentStats[entry.key]?.elevationGain ?? entry.value.initialElevationGain,
-          totalMovingTime: _componentStats[entry.key]?.movingTime ?? entry.value.initialMovingTime,
-          totalElapsedTime: _componentStats[entry.key]?.elapsedTime ?? entry.value.initialElapsedTime,
-          totalActivityCount: _componentStats[entry.key]?.activityCount ?? entry.value.initialActivityCount,
+          totalStats: _componentStats[entry.key] ?? entry.value.initialStats,
         )
     };
 
@@ -620,7 +638,8 @@ class AppRepository extends ChangeNotifier {
   void _filterSetups() {
     _filteredSetups = Map.fromEntries(setups.entries.where((entry) =>
       (selectedBike == null ? true : entry.value.bike == selectedBike) &&
-      (selectedSetupTags.isEmpty ? true : entry.value.tags.containsAll(selectedSetupTags))
+      (selectedSetupTags.isEmpty ? true : entry.value.tags.containsAll(selectedSetupTags)) &&
+      (_showBookmarkedSetupsOnly ? entry.value.isBookmarked : true)
     ));
   }
 
@@ -869,6 +888,13 @@ class AppRepository extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setShowBookmarkedSetupsOnly(bool newValue) {
+    if (_showBookmarkedSetupsOnly == newValue) return;
+    _showBookmarkedSetupsOnly = newValue;
+    _filterSetups();
+    notifyListeners();
+  }
+
     void selectTaskRuleTag(String newTag) {
     if (!taskRuleTags.contains(newTag)) return;
     _selectedTaskRuleTags.add(newTag);
@@ -969,12 +995,13 @@ class AppRepository extends ChangeNotifier {
     });
   }
 
-  TaskStatus getTaskRuleStatus(TaskRule rule) {
+  /// What a rule is measured against: its most recent entry, when its component
+  /// went on its current bike, and the stats the interval counts.
+  ({TaskEntry? lastEntry, DateTime? installationDate, ComponentStats stats}) _taskRuleInputs(TaskRule rule) {
     final entries = _taskEntries.values
         .where((te) => te.taskRule == rule.id)
         .toList()
       ..sort((a, b) => b.dateTimeUTC.compareTo(a.dateTimeUTC));
-    final lastEntry = entries.isNotEmpty ? entries.first : null;
 
     DateTime? installationDate;
     if (rule.componentId != null) {
@@ -993,21 +1020,66 @@ class AppRepository extends ChangeNotifier {
         ? (_componentStats[rule.componentId] ?? ComponentStats.zero())
         : (rule.bikeId != null ? (_bikeStats[rule.bikeId] ?? ComponentStats.zero()) : ComponentStats.zero());
 
-    return rule.calculateStatus(
-      currentStats: stats,
-      now: DateTime.now().toUtc(),
-      lastEntry: lastEntry,
-      componentInstallationDate: installationDate,
+    return (
+      lastEntry: entries.isNotEmpty ? entries.first : null,
+      installationDate: installationDate,
+      stats: stats,
     );
   }
 
-  Future<void> removeBike(Bike bike) async {
-    await database.bikesDao.deleteBike(bike.id);
+  TaskStatus getTaskRuleStatus(TaskRule rule) {
+    final inputs = _taskRuleInputs(rule);
+
+    return TaskStatusService.calculate(
+      rule: rule,
+      currentStats: inputs.stats,
+      now: DateTime.now().toUtc(),
+      lastEntry: inputs.lastEntry,
+      componentInstallationDate: inputs.installationDate,
+    );
   }
 
-  Future<void> restoreBike(Bike bike) async {
-    final updated = bike.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
-    await database.bikesDao.updateBike(updated.toCompanion());
+  /// Memoised per rule until the data changes or the day rolls over — the only
+  /// two things that can move a forecast — so the cards may ask on every build.
+  TaskForecast? getTaskRuleForecast(TaskRule rule) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    if (_taskForecastDay != today) {
+      _taskForecastCache.clear();
+      _taskForecastDay = today;
+    }
+    if (_taskForecastCache.containsKey(rule.id)) return _taskForecastCache[rule.id];
+
+    final inputs = _taskRuleInputs(rule);
+
+    return _taskForecastCache[rule.id] = TaskForecastService.predict(
+      rule: rule,
+      currentStats: inputs.stats,
+      now: now.toUtc(),
+      bikeRates: _bikeActivityRates,
+      component: rule.componentId != null ? _components[rule.componentId] : null,
+      lastEntry: inputs.lastEntry,
+      componentInstallationDate: inputs.installationDate,
+    );
+  }
+
+  Future<void> removeBikes(Iterable<Bike> bikes) async {
+    if (bikes.isEmpty) return;
+    await database.transaction(() async {
+      for (var bike in bikes) {
+        await database.bikesDao.deleteBike(bike.id);
+      }
+    });
+  }
+
+  Future<void> restoreBikes(Iterable<Bike> bikes) async {
+    if (bikes.isEmpty) return;
+    await database.transaction(() async {
+      for (var bike in bikes) {
+        final updated = bike.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
+        await database.bikesDao.updateBike(updated.toCompanion());
+      }
+    });
   }
 
   Future<void> removeComponents(Iterable<Component> components) async {
@@ -1048,13 +1120,23 @@ class AppRepository extends ChangeNotifier {
     });
   }
 
-  Future<void> removePerson(Person person) async {
-    await database.personsDao.deletePerson(person.id);
+  Future<void> removePersons(Iterable<Person> persons) async {
+    if (persons.isEmpty) return;
+    await database.transaction(() async {
+      for (var person in persons) {
+        await database.personsDao.deletePerson(person.id);
+      }
+    });
   }
 
-  Future<void> restorePerson(Person person) async {
-    final updated = person.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
-    await database.personsDao.updatePerson(updated.toCompanion());
+  Future<void> restorePersons(Iterable<Person> persons) async {
+    if (persons.isEmpty) return;
+    await database.transaction(() async {
+      for (var person in persons) {
+        final updated = person.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
+        await database.personsDao.updatePerson(updated.toCompanion());
+      }
+    });
   }
 
   Future<void> removeRatings(Iterable<Rating> ratings) async {
@@ -1076,12 +1158,18 @@ class AppRepository extends ChangeNotifier {
     });
   }
 
-  Future<void> addRatingEntry(RatingEntry entry) async {
-    final updated = entry.copyWith(lastModified: DateTime.now().toUtc());
-    await database.ratingEntriesDao.insertRatingEntryWithValues(
-      entry: updated.toCompanion(),
-      values: updated.metricValues,
-    );
+Future<void> addRatingEntries(Iterable<RatingEntry> entries) async {
+    if (entries.isEmpty) return;
+    final now = DateTime.now().toUtc();
+    await database.transaction(() async {
+      for (final entry in entries) {
+        final updated = entry.copyWith(lastModified: now);
+        await database.ratingEntriesDao.insertRatingEntryWithValues(
+          entry: updated.toCompanion(),
+          values: updated.metricValues,
+        );
+      }
+    });
   }
 
   Future<void> editRatingEntry(RatingEntry entry) async {
@@ -1257,34 +1345,46 @@ class AppRepository extends ChangeNotifier {
     });
   }
 
-  Future<void> addBike(Bike bike) async {
-    final updated = bike.copyWith(lastModified: DateTime.now().toUtc());
-    await database.bikesDao.insertBike(updated.toCompanion());
+  Future<void> addBikes(Iterable<Bike> bikes) async {
+    final now = DateTime.now().toUtc();
+    await database.transaction(() async {
+      for (final bike in bikes) {
+        final updated = bike.copyWith(lastModified: now);
+        await database.bikesDao.insertBike(updated.toCompanion());
+      }
+    });
   }
 
-  Future<void> addPerson(Person person) async {
-    final updated = person.copyWith(lastModified: DateTime.now().toUtc());
-    await database.personsDao.insertPersonWithData(
-      person: updated.toCompanion(),
-      adjustmentsList: updated.adjustments.asMap().entries.map((entry) => 
-        entry.value.toCompanion(personId: updated.id, orderIndex: entry.key)
-      ).toList(),
-    );
+Future<void> addPersons(Iterable<Person> persons) async {
+    if (persons.isEmpty) return;
+    final now = DateTime.now().toUtc();
+    await database.transaction(() async {
+      for (final person in persons) {
+        final updated = person.copyWith(lastModified: now);
+        await database.personsDao.insertPersonWithData(
+          person: updated.toCompanion(),
+          adjustmentsList: updated.adjustments.asMap().entries.map((entry) =>
+            entry.value.toCompanion(personId: updated.id, orderIndex: entry.key)
+          ).toList(),
+        );
+      }
+    });
   }
 
-  Future<void> addRating(Rating rating) async {
-    final updated = rating.copyWith(lastModified: DateTime.now().toUtc());
-    await database.ratingsDao.insertRatingWithData(
-      rating: updated.toCompanion(),
-      metricsList: updated.metrics.asMap().entries.map((entry) =>
-        entry.value.toCompanion(ratingId: updated.id, orderIndex: entry.key)
-      ).toList(),
-    );
-  }
-
-  Future<void> addTaskRule(TaskRule rule) async {
-    final updated = rule.copyWith(lastModified: DateTime.now().toUtc());
-    await database.taskDao.insertRule(updated.toCompanion());
+Future<void> addRatings(Iterable<Rating> ratings) async {
+    if (ratings.isEmpty) return;
+    final now = DateTime.now().toUtc();
+    await database.transaction(() async {
+      for (final rating in ratings) {
+        final updated = rating.copyWith(lastModified: now);
+        await database.ratingsDao.insertRatingWithData(
+          rating: updated.toCompanion(),
+          metricsList: updated.metrics.asMap().entries.map((entry) =>
+            entry.value.toCompanion(ratingId: updated.id, orderIndex: entry.key)
+          ).toList(),
+        );
+      }
+    });
   }
 
   Future<void> addTaskRules(Iterable<TaskRule> rules) async {
@@ -1298,9 +1398,16 @@ class AppRepository extends ChangeNotifier {
     });
   }
 
-  Future<void> editTaskRule(TaskRule rule) async {
-    final updated = rule.copyWith(lastModified: DateTime.now().toUtc());
-    await database.taskDao.updateRule(updated.toCompanion());
+  Future<void> editTaskRules(Iterable<TaskRule> rules) async {
+    final ruleList = rules.toList();
+    if (ruleList.isEmpty) return;
+    final now = DateTime.now().toUtc();
+
+    await database.transaction(() async {
+      for (final rule in ruleList) {
+        await database.taskDao.updateRule(rule.copyWith(lastModified: now).toCompanion());
+      }
+    });
   }
 
   Future<void> addTaskEntries(Iterable<TaskEntry> entries) async {
@@ -1322,7 +1429,7 @@ class AppRepository extends ChangeNotifier {
   Future<void> _consumeTaskRuleDelay(String taskRuleId) async {
     final rule = _taskRules[taskRuleId];
     if (rule == null || rule.delay == null) return;
-    await editTaskRule(rule.copyWith(delay: null));
+    await editTaskRules([rule.copyWith(delay: null)]);
   }
 
   Future<void> editTaskEntry(Iterable<TaskEntry> entries) async {
@@ -1338,19 +1445,23 @@ class AppRepository extends ChangeNotifier {
     });
   }
 
-  Future<void> addComponent(Component component) async {
-    final updated = component.copyWith(lastModified: DateTime.now().toUtc());
-    await database.componentsDao.insertComponentWithData(
-      component: updated.toCompanion(),
-      adjustmentsList: updated.adjustments.asMap().entries.map((entry) => 
-        entry.value.toCompanion(componentId: updated.id, orderIndex: entry.key)
-      ).toList(),
-      installationsList: updated.installations.map((inst) =>
-        // A brand-new component: every installation is a new row, so assign
-        // fresh stable ids (avoids PK collisions when duplicating components).
-        inst.copyWith(id: const Uuid().v4(), componentId: updated.id).toCompanion()
-      ).toList(),
-    );
+Future<void> addComponents(Iterable<Component> components) async {
+    if (components.isEmpty) return;
+    final now = DateTime.now().toUtc();
+    await database.transaction(() async {
+      for (final component in components) {
+        final updated = component.copyWith(lastModified: now);
+        await database.componentsDao.insertComponentWithData(
+          component: updated.toCompanion(),
+          adjustmentsList: updated.adjustments.asMap().entries.map((entry) =>
+            entry.value.toCompanion(componentId: updated.id, orderIndex: entry.key)
+          ).toList(),
+          installationsList: updated.installations.map((inst) =>
+            inst.copyWith(id: const Uuid().v4(), componentId: updated.id).toCompanion()
+          ).toList(),
+        );
+      }
+    });
   }
 
   Future<void> editPerson(Person person, {List<ValueUnitConversion> conversions = const []}) async {
@@ -1426,11 +1537,7 @@ class AppRepository extends ChangeNotifier {
     final old = _components[component.id];
     return old == null ||
         !listEquals(old.installations, component.installations) ||
-        old.initialDistance != component.initialDistance ||
-        old.initialElevationGain != component.initialElevationGain ||
-        old.initialMovingTime != component.initialMovingTime ||
-        old.initialElapsedTime != component.initialElapsedTime ||
-        old.initialActivityCount != component.initialActivityCount;
+        old.initialStats != component.initialStats;
   }
 
   Future<void> _writeComponentWithData(Component updated) {
@@ -1485,13 +1592,19 @@ class AppRepository extends ChangeNotifier {
     });
   }
 
-  Future<void> addSetup(Setup setup) async {
-    final updated = setup.copyWith(lastModified: DateTime.now().toUtc());
-    await database.setupsDao.insertSetupWithValues(
-      setup: updated.toCompanion(),
-      bikeValues: updated.bikeAdjustmentValues,
-      personValues: updated.personAdjustmentValues,
-    );
+  Future<void> addSetups(Iterable<Setup> setups) async {
+    if (setups.isEmpty) return;
+    final now = DateTime.now().toUtc();
+    await database.transaction(() async {
+      for (final setup in setups) {
+        final updated = setup.copyWith(lastModified: now);
+        await database.setupsDao.insertSetupWithValues(
+          setup: updated.toCompanion(),
+          bikeValues: updated.bikeAdjustmentValues,
+          personValues: updated.personAdjustmentValues,
+        );
+      }
+    });
   }
 
   Future<void> editSetup(Setup setup) async {

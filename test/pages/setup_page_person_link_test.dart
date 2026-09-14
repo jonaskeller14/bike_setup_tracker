@@ -83,8 +83,8 @@ class _PersonLinkHarness {
   static Future<_PersonLinkHarness> create() async {
     final database = AppDatabase.memory();
     final seedRepository = AppRepository(database);
-    await seedRepository.addBike(Bike(id: bikeId, name: 'Test Bike', person: null));
-    await seedRepository.addPerson(
+    await seedRepository.addBikes([Bike(id: bikeId, name: 'Test Bike', person: null)]);
+    await seedRepository.addPersons([
       Person(
         id: personId,
         name: 'Rider',
@@ -97,7 +97,7 @@ class _PersonLinkHarness {
           ),
         ],
       ),
-    );
+    ]);
     seedRepository.dispose();
 
     final repository = AppRepository(database);

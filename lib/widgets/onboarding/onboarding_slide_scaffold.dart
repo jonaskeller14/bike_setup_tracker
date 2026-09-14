@@ -15,6 +15,8 @@ class OnboardingSlideScaffold extends StatelessWidget {
     required this.child,
   });
 
+  static const double _maxContentWidth = 520;
+
   final VoidCallback onNext;
   final String nextLabel;
 
@@ -29,9 +31,14 @@ class OnboardingSlideScaffold extends StatelessWidget {
             builder: (context, constraints) {
               return SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(40, 40, 40, 8),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: (constraints.maxHeight - 48).clamp(0, double.infinity)),
-                  child: Center(child: child),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: (constraints.maxHeight - 48).clamp(0, double.infinity),
+                      maxWidth: _maxContentWidth,
+                    ),
+                    child: Center(child: child),
+                  ),
                 ),
               );
             },
@@ -39,10 +46,18 @@ class OnboardingSlideScaffold extends StatelessWidget {
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(40, 8, 40, 24),
-          child: FilledButton(
-            onPressed: onNext,
-            style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
-            child: Text(nextLabel, overflow: TextOverflow.ellipsis),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: _maxContentWidth),
+              child: SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: onNext,
+                  style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+                  child: Text(nextLabel, overflow: TextOverflow.ellipsis),
+                ),
+              ),
+            ),
           ),
         ),
       ],

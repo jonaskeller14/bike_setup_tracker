@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../theme.dart';
-import '../component_stats.dart';
-import 'task_entry.dart';
-import 'task_threshold.dart';
+import 'task_threshold/task_threshold.dart';
 
 part 'task_priority.dart';
 part 'task_status.dart';
@@ -40,55 +38,11 @@ class TaskRule {
   }) : id = id ?? const Uuid().v4(),
       isDeleted = isDeleted ?? false,
       lastModified = lastModified?.toUtc() ?? DateTime.now().toUtc() {
-    // Distance/MovingTime thresholds require a component or bike.
-    if (interval is DistanceThreshold || interval is MovingTimeThreshold || interval is ElapsedTimeThreshold || interval is ActivityCountThreshold) {
-      assert(componentId != null || bikeId != null,
-        'Distance/MovingTime/ElapsedTime/ActivityCount thresholds require at least a componentId or a bikeId');
-    }
+    assert(interval?.requiresActivityData != true || componentId != null || bikeId != null,
+      'Ride-based intervals require at least a componentId or a bikeId to measure against');
     assert(componentId == null || bikeId == null, 'Cannot link to both a component and a bike');
   }
 
-  TaskStatus calculateStatus({
-    required ComponentStats currentStats,
-    required DateTime now,
-    TaskEntry? lastEntry,
-    DateTime? componentInstallationDate,
-  }) {
-    if (!repeat && lastEntry != null) {
-      return const TaskStatus(type: TaskStatusType.completed, progress: 1.0);
-    }
-
-    if (interval == null) {
-      // Simple todo with no threshold
-      if (lastEntry != null) {
-        return const TaskStatus(type: TaskStatusType.completed, progress: 1.0);
-      }
-      return const TaskStatus(type: TaskStatusType.due, progress: 0.0);
-    }
-
-    final baselineStats = lastEntry?.snapshot ?? ComponentStats.zero();
-    final baselineDate = lastEntry?.dateTimeUTC ?? componentInstallationDate ?? DateTime.fromMillisecondsSinceEpoch(0);
-
-    final progress = interval!.getProgress(
-      currentStats,
-      baselineStats,
-      now,
-      baselineDate,
-      delay: delay,
-    );
-
-    TaskStatusType type;
-    if (progress >= 1.1) {
-      type = TaskStatusType.overdue;
-    } else if (progress >= 1.0) {
-      type = TaskStatusType.due;
-    } else {
-      type = TaskStatusType.upcoming;
-    }
-
-    return TaskStatus(type: type, progress: progress);
-  }
-  
   Map<String, dynamic> toJson() => {
     'version': 1,
     'id': id,

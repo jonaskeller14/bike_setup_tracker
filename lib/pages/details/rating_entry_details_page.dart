@@ -5,13 +5,16 @@ import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/rating_entry.dart';
+import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/rating_score_service.dart';
 import '../../utils/rating_entry_actions.dart';
+import '../../widgets/empty_state_placeholder.dart';
 import '../../widgets/items/context_location_card.dart';
 import '../../widgets/items/context_meta_card.dart';
 import '../../widgets/items/context_weather_card.dart';
 import '../../widgets/map_pins.dart';
+import '../../widgets/sheets/setup_details.dart';
 import '../../widgets/sheets/sheet.dart';
 
 class RatingEntryDetailsPage extends StatelessWidget {
@@ -49,9 +52,9 @@ class RatingEntryDetailsContent extends StatelessWidget {
     final ratingEntry = appRepository.ratingEntries[ratingEntryId];
 
     if (ratingEntry == null) {
-      return const Center(
-        heightFactor: 4,
-        child: Text("Rating not found."),
+      return const EmptyStatePlaceholder.error(
+        title: "Rating not found",
+        subtitle: "This rating was deleted or is no longer available.",
       );
     }
 
@@ -272,6 +275,17 @@ class RatingEntryDetailsContent extends StatelessWidget {
     );
   }
 
+  Future<void> _openSetup(BuildContext context, Setup setup) async {
+    final navigator = Navigator.of(context);
+    final route = ModalRoute.of(context);
+
+    navigator.pop();
+    await route?.popped;
+    if (!navigator.mounted) return;
+
+    await showSetupDetailsSheet(context: navigator.context, setupId: setup.id);
+  }
+
   List<Widget> _contextSection(BuildContext context, {required RatingEntry entry}) {
     final appRepository = context.watch<AppRepository>();
     final colorScheme = Theme.of(context).colorScheme;
@@ -292,6 +306,7 @@ class RatingEntryDetailsContent extends StatelessWidget {
       ContextWeatherCard(weather: entry.weather),
       Card.outlined(
         margin: const EdgeInsets.symmetric(vertical: 4),
+        clipBehavior: Clip.antiAlias,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -316,6 +331,8 @@ class RatingEntryDetailsContent extends StatelessWidget {
                       style: TextStyle(color: colorScheme.error),
                     )
                   : null,
+              trailing: resolvedSetup == null ? null : const Icon(Icons.chevron_right),
+              onTap: resolvedSetup == null ? null : () => _openSetup(context, resolvedSetup),
             ),
           ],
         ),

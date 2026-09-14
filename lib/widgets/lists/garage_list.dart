@@ -14,7 +14,7 @@ import '../../repositories/app_repository.dart';
 import '../../services/app_hint_service.dart';
 import '../../utils/bike_actions.dart';
 import '../../utils/installation_timeline_validation.dart';
-import '../chips/bike_list_filter_widget.dart';
+import '../chips/garage_list_filter_widget.dart';
 import '../empty_state_placeholder.dart';
 import '../hints/app_hint_slot.dart';
 import '../items/garage_bike_card.dart';
@@ -25,8 +25,15 @@ import 'list_scroll_controller.dart';
 
 class GarageList extends StatefulWidget {
   final ListScrollController controller;
+  final Set<String> selectedBikes;
+  final ValueChanged<String>? onBikeSelectionChanged;
 
-  const GarageList({super.key, required this.controller});
+  const GarageList({
+    super.key,
+    required this.controller,
+    this.selectedBikes = const {},
+    this.onBikeSelectionChanged,
+  });
 
   @override
   State<GarageList> createState() => _GarageListState();
@@ -37,6 +44,8 @@ class _GarageListState extends State<GarageList> {
   final ValueNotifier<Component?> _draggedComponentNotifier = ValueNotifier<Component?>(null);
   Timer? _scrollTimer;
   double _scrollDelta = 0;
+  int? _dragStartIndex;
+  String? _dragStartBikeId;
 
   static const double _edgeZone = 100.0;
   static const double _maxScrollSpeed = 18.0;
@@ -201,7 +210,8 @@ class _GarageListState extends State<GarageList> {
     });
   }
 
-  Widget _emptyPlaceholder(BuildContext context) {
+  Widget _emptyPlaceholder(BuildContext context, AppRepository appRepository) {
+    final filtered = appRepository.selectedBike != null && appRepository.bikes.isNotEmpty;
     return CustomScrollView(
       controller: widget.controller.scrollController,
       slivers: [
@@ -211,18 +221,27 @@ class _GarageListState extends State<GarageList> {
             padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
           ),
         ),
-        const SliverToBoxAdapter(child: BikeListFilterWidget()),
+        const SliverToBoxAdapter(child: GarageListFilterWidget()),
         SliverFillRemaining(
           hasScrollBody: false,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: EmptyStatePlaceholder(
-              icon: Bike.iconData,
-              title: 'No bikes yet',
-              subtitle: 'Add your first bike to get started.',
-              actionLabel: 'Add a bike',
-              onAction: () => BikeActions.addBike(context),
-            ),
+            child: filtered
+                ? EmptyStatePlaceholder(
+                    icon: Icons.filter_alt_off,
+                    title: 'No bikes match this filter',
+                    subtitle: 'The bike filter is hiding all bikes.',
+                    actionLabel: 'Clear filters',
+                    actionIcon: Icons.filter_alt_off,
+                    onAction: () => appRepository.onBikeTap(null),
+                  )
+                : EmptyStatePlaceholder(
+                    icon: Bike.iconData,
+                    title: 'No bikes yet',
+                    subtitle: 'Add your first bike to get started.',
+                    actionLabel: 'Add a bike',
+                    onAction: () => BikeActions.addBike(context),
+                  ),
           ),
         ),
       ],
@@ -256,6 +275,11 @@ class _GarageListState extends State<GarageList> {
                 index: index,
                 elevation: elevation,
                 componentToShowDetails: _componentToShowDetails,
+                selectionMode: widget.selectedBikes.isNotEmpty,
+                selected: widget.selectedBikes.contains(bikesList[index].id),
+                onSelectionChanged: widget.onBikeSelectionChanged == null
+                    ? null
+                    : () => widget.onBikeSelectionChanged!(bikesList[index].id),
                 onPressedComponent: _onPressedComponent,
                 onAcceptWithDetails: _onAcceptWithDetails,
                 setDraggedComponent: (Component? c) => _draggedComponentNotifier.value = c,
@@ -269,7 +293,7 @@ class _GarageListState extends State<GarageList> {
     }
 
     return bikesList.isEmpty
-        ? _emptyPlaceholder(context)
+        ? _emptyPlaceholder(context, appRepository)
         : Listener(
             onPointerMove: _onPointerMove,
             onPointerUp: (_) => _stopEdgeScroll(),
@@ -285,7 +309,7 @@ class _GarageListState extends State<GarageList> {
                   AppHintSlot(
                     placement: AppHintPlacement.garageHeader,
                     padding: EdgeInsets.fromLTRB(16, 8, 16, 0)),
-                  BikeListFilterWidget(),
+                  GarageListFilterWidget(),
                 ],
               ),
               footer: Padding(
@@ -306,7 +330,23 @@ class _GarageListState extends State<GarageList> {
                 ),
               ),
               proxyDecorator: proxyDecorator,
-              onReorderStart: (_) => unawaited(HapticFeedback.lightImpact()),
+              onReorderStart: (int index) {
+                unawaited(HapticFeedback.lightImpact());
+                _dragStartIndex = index;
+                _dragStartBikeId = bikesList[index].id;
+              },
+              onReorderEnd: (int index) {
+                final startIndex = _dragStartIndex;
+                final bikeId = _dragStartBikeId;
+                _dragStartIndex = null;
+                _dragStartBikeId = null;
+                if (startIndex == null || bikeId == null) return;
+                // The insert index is computed with the dragged item still in place, so
+                // dropping back onto the original slot reports startIndex or startIndex + 1.
+                if (index == startIndex || index == startIndex + 1) {
+                  widget.onBikeSelectionChanged?.call(bikeId);
+                }
+              },
               onReorderItem: (int oldIndex, int newIndex) =>
                   BikeActions.onReorderBikes(context, oldIndex: oldIndex, newIndex: newIndex),
               itemBuilder: (context, index) {
@@ -318,6 +358,11 @@ class _GarageListState extends State<GarageList> {
                     bike: bike,
                     index: index,
                     componentToShowDetails: _componentToShowDetails,
+                    selectionMode: widget.selectedBikes.isNotEmpty,
+                    selected: widget.selectedBikes.contains(bike.id),
+                    onSelectionChanged: widget.onBikeSelectionChanged == null
+                        ? null
+                        : () => widget.onBikeSelectionChanged!(bike.id),
                     onPressedComponent: _onPressedComponent,
                     onAcceptWithDetails: _onAcceptWithDetails,
                     setDraggedComponent: (Component? c) => _draggedComponentNotifier.value = c,

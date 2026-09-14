@@ -12,6 +12,7 @@ import '../../services/address_service.dart';
 import '../../services/elevation_service.dart';
 import '../../services/location_service.dart';
 import '../../theme.dart';
+import '../../utils/number_input_formatters.dart';
 import '../dialogs/discard_changes.dart';
 import 'sheet_header.dart';
 
@@ -357,9 +358,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                             TextFormField(
                               enabled: enableFields,
                               keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-                              inputFormatters: [
-                                FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
-                              ],
+                              inputFormatters: const [SignedDecimalInputFormatter()],
                               controller: _latitudeController,
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(
@@ -391,9 +390,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                             TextFormField(
                               enabled: enableFields,
                               keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-                              inputFormatters: [
-                                FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
-                              ],
+                              inputFormatters: const [SignedDecimalInputFormatter()],
                               controller: _longitudeController,
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(
@@ -425,9 +422,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                             TextFormField(
                               enabled: enableFields,
                               keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-                              inputFormatters: [
-                                FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
-                              ],
+                              inputFormatters: const [SignedDecimalInputFormatter()],
                               controller: _altitudeController,
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(

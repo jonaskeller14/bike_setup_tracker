@@ -30,17 +30,16 @@ void main() {
     await settings.loadAppSettings();
 
     final firstBike = Bike(name: 'First', person: null);
-    await repository.addBike(firstBike);
-    await repository.addBike(Bike(name: 'Second', person: null));
-    await repository.addComponent(
+    await repository.addBikes([firstBike, Bike(name: 'Second', person: null)]);
+    await repository.addComponents([
       Component(
         name: 'Chain',
         componentType: ComponentType.chain,
         installations: [Installation.sinceBeginning(parent: firstBike.id)],
       ),
-    );
+    ]);
     final now = DateTime.now();
-    await repository.addSetup(
+    await repository.addSetups([
       Setup(
         datetime: now.toUtc(),
         datetimeLocal: now,
@@ -50,7 +49,7 @@ void main() {
         bikeAdjustmentValues: const {},
         personAdjustmentValues: const {},
       ),
-    );
+    ]);
 
     service = AppHintService(appRepository: repository, appSettings: settings);
     await service.load();

@@ -6,6 +6,7 @@ String presetSearchHaystack(ComponentPresetVariant variant) {
     variant.brand,
     variant.model,
     variant.trim,
+    ?variant.yearRange,
     for (final damper in variant.dampers) damper.name,
   ];
   return parts.join(' ').toLowerCase();

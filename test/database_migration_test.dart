@@ -3,7 +3,7 @@ import 'package:bike_setup_tracker/models/component_stats.dart';
 import 'package:bike_setup_tracker/models/selected_data.dart';
 import 'package:bike_setup_tracker/models/task/task_entry.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
-import 'package:bike_setup_tracker/models/task/task_threshold.dart';
+import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
 import 'package:bike_setup_tracker/services/data_export_service.dart';
 import 'package:bike_setup_tracker/services/database_migration_service.dart';
 import 'package:flutter_test/flutter_test.dart';

@@ -1,11 +1,12 @@
 import 'package:bike_setup_tracker/models/component_stats.dart';
 import 'package:bike_setup_tracker/models/task/task_entry.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
-import 'package:bike_setup_tracker/models/task/task_threshold.dart';
+import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
+import 'package:bike_setup_tracker/services/task_status_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('TaskRule.calculateStatus', () {
+  group('TaskStatusService.calculate', () {
     final now = DateTime.utc(2024, 1, 1);
     final componentId = 'comp-1';
 
@@ -19,7 +20,8 @@ void main() {
       );
 
       // No entries, 0m -> upcoming (0%)
-      var status = rule.calculateStatus(
+      var status = TaskStatusService.calculate(
+        rule: rule,
         currentStats: ComponentStats.zero(),
         now: now,
       );
@@ -27,7 +29,8 @@ void main() {
       expect(status.progress, 0.0);
 
       // 150km -> upcoming (50%)
-      status = rule.calculateStatus(
+      status = TaskStatusService.calculate(
+        rule: rule,
         currentStats: ComponentStats.zero().copyWith(distance: 150000),
         now: now,
       );
@@ -35,7 +38,8 @@ void main() {
       expect(status.progress, 0.5);
 
       // 300km -> due (100%)
-      status = rule.calculateStatus(
+      status = TaskStatusService.calculate(
+        rule: rule,
         currentStats: ComponentStats.zero().copyWith(distance: 300000),
         now: now,
       );
@@ -43,7 +47,8 @@ void main() {
       expect(status.progress, 1.0);
 
       // 350km -> overdue (>110%)
-      status = rule.calculateStatus(
+      status = TaskStatusService.calculate(
+        rule: rule,
         currentStats: ComponentStats.zero().copyWith(distance: 350000),
         now: now,
       );
@@ -62,7 +67,8 @@ void main() {
       );
 
       // 300km -> upcoming (because of 50km delay, total is 350km)
-      var status = rule.calculateStatus(
+      var status = TaskStatusService.calculate(
+        rule: rule,
         currentStats: ComponentStats.zero().copyWith(distance: 300000),
         now: now,
       );
@@ -70,7 +76,8 @@ void main() {
       expect(status.progress, closeTo(300 / 350, 0.01));
 
       // 350km -> due
-      status = rule.calculateStatus(
+      status = TaskStatusService.calculate(
+        rule: rule,
         currentStats: ComponentStats.zero().copyWith(distance: 350000),
         now: now,
       );
@@ -88,7 +95,8 @@ void main() {
       );
 
       // No entries, 50km -> upcoming
-      var status = rule.calculateStatus(
+      var status = TaskStatusService.calculate(
+        rule: rule,
         currentStats: ComponentStats.zero().copyWith(distance: 50000),
         now: now,
       );
@@ -104,7 +112,8 @@ void main() {
         snapshot: ComponentStats.zero().copyWith(distance: 100000),
       );
 
-      status = rule.calculateStatus(
+      status = TaskStatusService.calculate(
+        rule: rule,
         currentStats: ComponentStats.zero().copyWith(distance: 150000),
         now: now.add(const Duration(days: 1)),
         lastEntry: entry,
@@ -124,7 +133,8 @@ void main() {
       final installationDate = now.subtract(const Duration(days: 45));
 
       // No entry, 45 days since installation -> overdue (1.5x)
-      var status = rule.calculateStatus(
+      var status = TaskStatusService.calculate(
+        rule: rule,
         currentStats: ComponentStats.zero(),
         now: now,
         componentInstallationDate: installationDate,
@@ -142,7 +152,8 @@ void main() {
         snapshot: ComponentStats.zero(),
       );
 
-      status = rule.calculateStatus(
+      status = TaskStatusService.calculate(
+        rule: rule,
         currentStats: ComponentStats.zero(),
         now: now,
         lastEntry: entry,
@@ -161,7 +172,8 @@ void main() {
       );
 
       // 8 days passed -> overdue
-      final status = rule.calculateStatus(
+      final status = TaskStatusService.calculate(
+        rule: rule,
         currentStats: ComponentStats.zero(),
         now: now,
         componentInstallationDate: now.subtract(const Duration(days: 8)),
@@ -198,7 +210,8 @@ void main() {
       );
 
       // No entry -> due
-      var status = rule.calculateStatus(
+      var status = TaskStatusService.calculate(
+        rule: rule,
         currentStats: ComponentStats.zero(),
         now: now,
       );
@@ -213,7 +226,8 @@ void main() {
         snapshot: ComponentStats.zero(),
       );
 
-      status = rule.calculateStatus(
+      status = TaskStatusService.calculate(
+        rule: rule,
         currentStats: ComponentStats.zero(),
         now: now.add(const Duration(hours: 1)),
         lastEntry: entry,

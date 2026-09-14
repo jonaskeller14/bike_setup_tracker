@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../../models/adjustment/adjustment.dart';
 import '../../models/component.dart';
 import '../../theme.dart';
+import '../../utils/number_input_formatters.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/dialogs/unit_conversion_dialog.dart';
 import '../../widgets/set_adjustment/set_numerical_adjustment.dart';
@@ -375,6 +375,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                               labelText: 'Adjustment Name',
                               hintText: 'Enter Adjustment Name',
                               border: const OutlineInputBorder(),
+                              helper: adjustmentNameLengthWarning(context, _nameController.text),
                               fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                               filled: widget.mode == AdjustmentPageMode.edit && _nameController.text.trim() != widget.adjustment?.name,
                             ),
@@ -433,9 +434,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                                   textInputAction: TextInputAction.next,
                                   autovalidateMode: AutovalidateMode.onUserInteraction,
                                   keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
-                                  ],
+                                  inputFormatters: const [SignedDecimalInputFormatter()],
                                   decoration: InputDecoration(
                                     labelText: 'Min Value (optional)',
                                     hintText: 'Enter minimum value',
@@ -462,9 +461,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                                   onFieldSubmitted: (_) => _saveNumericalAdjustment(),
                                   autovalidateMode: AutovalidateMode.onUserInteraction,
                                   keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
-                                  ],
+                                  inputFormatters: const [SignedDecimalInputFormatter()],
                                   decoration: InputDecoration(
                                     labelText: 'Max Value (optional)',
                                     hintText: 'Enter maximum value',

@@ -27,7 +27,7 @@ class PersonActions {
     );
     if (person == null) return;
 
-    await appRepository.addPerson(person);
+    await appRepository.addPersons([person]);
   }
 
   static Future<void> addPersonForBike(BuildContext context, {required String bikeId}) async {
@@ -39,7 +39,7 @@ class PersonActions {
     );
     if (person == null) return;
 
-    await appRepository.addPerson(person);
+    await appRepository.addPersons([person]);
     if (!context.mounted) return;
     await linkPersonToBike(context, bikeId: bikeId, person: person);
   }
@@ -67,7 +67,7 @@ class PersonActions {
     if (trimmed.isEmpty) return null;
 
     final person = Person(name: trimmed, adjustments: [ridingWeightPreset.deepCopy()]);
-    await context.read<AppRepository>().addPerson(person);
+    await context.read<AppRepository>().addPersons([person]);
     return person;
   }
 
@@ -96,7 +96,7 @@ class PersonActions {
     );
     if (newPerson == null) return;
 
-    await appRepository.addPerson(newPerson);
+    await appRepository.addPersons([newPerson]);
   }
 
   static Future<void> removePerson(BuildContext context, {required Person person}) async {
@@ -108,7 +108,7 @@ class PersonActions {
         .where((r) => r.filterType == FilterType.person && r.filter == person.id)
         .toList();
 
-    await appRepository.removePerson(person);
+    await appRepository.removePersons([person]);
     await appRepository.removeRatings(obsoleteRatings);
 
     String message = "Person '${person.name}' moved to trash.";
@@ -123,7 +123,7 @@ class PersonActions {
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
           label: 'UNDO',
-          onPressed: () async => appRepository.restorePerson(person),
+          onPressed: () async => appRepository.restorePersons([person]),
         ),
       ),
     );
@@ -133,7 +133,7 @@ class PersonActions {
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);
 
-    await appRepository.restorePerson(person);
+    await appRepository.restorePersons([person]);
 
     if (!context.mounted) return;
     messenger.showSnackBar(
@@ -143,7 +143,7 @@ class PersonActions {
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
           label: 'UNDO',
-          onPressed: () async => appRepository.removePerson(person),
+          onPressed: () async => appRepository.removePersons([person]),
         ),
       ),
     );

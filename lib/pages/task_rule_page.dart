@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,13 +13,13 @@ import '../models/component.dart';
 import '../models/installation.dart';
 import '../models/task/task_association.dart';
 import '../models/task/task_rule.dart';
-import '../models/task/task_threshold.dart';
+import '../models/task/task_threshold/task_threshold.dart';
 import '../repositories/app_repository.dart';
 import '../services/subscription_service.dart';
 import '../theme.dart';
 import '../widgets/dialogs/discard_changes.dart';
-import '../widgets/sheets/app_settings_radio_group.dart';
-import '../widgets/sheets/set_task_rule_tags.dart';
+import '../widgets/sheets/radio_group.dart';
+import '../widgets/sheets/set_tags.dart';
 import '../widgets/sheets/strava.dart';
 import '../widgets/sheets/task_association_picker.dart';
 import '../widgets/text/section_title.dart';
@@ -62,19 +64,43 @@ enum _ThresholdType {
   elapsedTime('Elapsed Time'),
   duration('Duration'),
   activityCount('Activity Count'),
+  kilojoules('Kilojoules (Accumulated Watts)'),
   dateTime('Date');
 
   final String label;
   const _ThresholdType(this.label);
 }
 
+enum _DurationUnit {
+  days(1, 'day', 'days'),
+  weeks(7, 'week', 'weeks'),
+  months(30, 'month', 'months'),
+  years(365, 'year', 'years');
+
+  final int dayCount;
+  final String singular;
+  final String plural;
+  const _DurationUnit(this.dayCount, this.singular, this.plural);
+
+  _DurationUnit get next => _DurationUnit.values[(index + 1) % _DurationUnit.values.length];
+
+  String labelFor(String rawValue) => double.tryParse(rawValue.trim()) == 1 ? singular : plural;
+
+  /// The largest unit [duration] divides into evenly, so a saved "30 days"
+  /// reopens as "1 month" instead of a number the user has to convert.
+  static _DurationUnit forDuration(Duration duration) {
+    if (duration.inDays <= 0) return _DurationUnit.days;
+    return _DurationUnit.values.lastWhere((unit) => duration.inDays % unit.dayCount == 0);
+  }
+}
+
 class _TaskRulePageState extends State<TaskRulePage> {
+  static const enableKilojoules = false;
   late TextEditingController _nameController;
   late TextEditingController _notesController;
   late TextEditingController _intervalValueController;
   late TextEditingController _delayValueController;
   final FocusNode _intervalValueFocusNode = FocusNode();
-  final FocusNode _delayValueFocusNode = FocusNode();
   
   TaskPriority _priority = TaskPriority.medium;
   Set<String> _tags = {};
@@ -83,9 +109,10 @@ class _TaskRulePageState extends State<TaskRulePage> {
   late TaskAssociation _initialAssociation;
   
   _ThresholdType _intervalType = _ThresholdType.none;
-  _ThresholdType _delayType = _ThresholdType.none;
   bool _repeat = true;
   DateTime? _intervalDate;
+  _DurationUnit _intervalDurationUnit = _DurationUnit.days;
+  _DurationUnit _delayDurationUnit = _DurationUnit.days;
 
   final _formKey = GlobalKey<FormState>();
   bool _formHasChanges = false;
@@ -114,16 +141,25 @@ class _TaskRulePageState extends State<TaskRulePage> {
       _repeat = widget.taskRule!.repeat;
       
       _intervalType = _getThresholdType(widget.taskRule!.interval);
-      _intervalValueController = TextEditingController(text: _getThresholdValueString(widget.taskRule!.interval));
+      if (widget.taskRule!.interval case DurationThreshold(:final days)) {
+        _intervalDurationUnit = _DurationUnit.forDuration(days);
+      }
+      _intervalValueController = TextEditingController(text: _getThresholdValueString(widget.taskRule!.interval, _intervalDurationUnit));
       if (widget.taskRule!.interval is DateTimeThreshold) {
         _intervalDate = (widget.taskRule!.interval as DateTimeThreshold).deadline;
       }
 
-      _delayType = _getThresholdType(widget.taskRule!.delay);
-      _delayValueController = TextEditingController(text: _getThresholdValueString(widget.taskRule!.delay));
-      if (_delayType == _ThresholdType.none) {
-        _delayType = _delayTypeForInterval(_intervalType);
+      final savedDelay = widget.taskRule!.delay;
+      if (savedDelay case DurationThreshold(:final days)) {
+        _delayDurationUnit = _DurationUnit.forDuration(days);
       }
+      // A delay of a foreign type can only stem from legacy data. There is no
+      // field left to show it in, so it starts empty and is dropped on save.
+      _delayValueController = TextEditingController(
+        text: _getThresholdType(savedDelay) == _intervalType
+            ? _getThresholdValueString(savedDelay, _delayDurationUnit)
+            : '',
+      );
     } else {
       _intervalValueController = TextEditingController();
       _delayValueController = TextEditingController();
@@ -142,12 +178,13 @@ class _TaskRulePageState extends State<TaskRulePage> {
     _ThresholdType.elapsedTime,
     _ThresholdType.duration,
     _ThresholdType.activityCount,
+    _ThresholdType.kilojoules,
   };
 
-  /// An unset delay follows the trigger type, so the only thing left to do is
-  /// type a value.
-  _ThresholdType _delayTypeForInterval(_ThresholdType intervalType) =>
-      _delayThresholdTypes.contains(intervalType) ? intervalType : _ThresholdType.none;
+  /// A delay always carries the trigger's type, so there is nothing to pick —
+  /// the only thing left to do is type a value.
+  _ThresholdType get _delayType =>
+      _delayThresholdTypes.contains(_intervalType) ? _intervalType : _ThresholdType.none;
 
   bool get _hasSavedDelay => widget.taskRule?.delay != null;
 
@@ -173,11 +210,12 @@ class _TaskRulePageState extends State<TaskRulePage> {
       case ElapsedTimeThreshold(): return _ThresholdType.elapsedTime;
       case DurationThreshold(): return _ThresholdType.duration;
       case ActivityCountThreshold(): return _ThresholdType.activityCount;
+      case KilojoulesThreshold(): return _ThresholdType.kilojoules;
       case DateTimeThreshold(): return _ThresholdType.dateTime;
     }
   }
 
-  String _getThresholdValueString(TaskThreshold? threshold) {
+  String _getThresholdValueString(TaskThreshold? threshold, _DurationUnit durationUnit) {
     switch (threshold) {
       case null: return "";
       case DistanceThreshold(): return NumberFormat('0.#####', 'en_US').format(threshold.meters / 1000);
@@ -185,13 +223,14 @@ class _TaskRulePageState extends State<TaskRulePage> {
       case ActivityCountThreshold(): return threshold.count.toString();
       case MovingTimeThreshold(): return threshold.hours.inHours.toString();
       case ElapsedTimeThreshold(): return threshold.hours.inHours.toString();
-      case DurationThreshold(): return threshold.days.inDays.toString();
+      case DurationThreshold(): return NumberFormat('0.#####', 'en_US').format(threshold.days.inDays / durationUnit.dayCount);
+      case KilojoulesThreshold(): return NumberFormat('0.#####', 'en_US').format(threshold.kilojoules);
       case DateTimeThreshold(): return '';
     }
   }
 
-  bool _valueChanged(TextEditingController controller, TaskThreshold? saved) {
-    return double.tryParse(controller.text.trim()) != double.tryParse(_getThresholdValueString(saved));
+  bool _valueChanged(TextEditingController controller, TaskThreshold? saved, _DurationUnit durationUnit) {
+    return double.tryParse(controller.text.trim()) != double.tryParse(_getThresholdValueString(saved, durationUnit));
   }
 
   void _changeListener() {
@@ -203,10 +242,10 @@ class _TaskRulePageState extends State<TaskRulePage> {
         _association != _initialAssociation ||
         _repeat != (widget.taskRule?.repeat ?? true) ||
         _intervalType != _getThresholdType(widget.taskRule?.interval) ||
-        _valueChanged(_intervalValueController, widget.taskRule?.interval) ||
+        _valueChanged(_intervalValueController, widget.taskRule?.interval, _intervalDurationUnit) ||
         (_intervalType == _ThresholdType.dateTime && _intervalDate != (widget.taskRule?.interval is DateTimeThreshold ? (widget.taskRule!.interval as DateTimeThreshold).deadline : null)) ||
         _effectiveDelayType != _getThresholdType(widget.taskRule?.delay) ||
-        _valueChanged(_delayValueController, widget.taskRule?.delay);
+        _valueChanged(_delayValueController, widget.taskRule?.delay, _delayDurationUnit);
 
     if (_formHasChanges != hasChanges) {
       setState(() {
@@ -226,17 +265,6 @@ class _TaskRulePageState extends State<TaskRulePage> {
     });
   }
 
-  void _focusAndSelectDelayValue() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      _delayValueFocusNode.requestFocus();
-      _delayValueController.selection = TextSelection(
-        baseOffset: 0,
-        extentOffset: _delayValueController.text.length,
-      );
-    });
-  }
-
   @override
   void dispose() {
     _nameController.removeListener(_changeListener);
@@ -248,7 +276,6 @@ class _TaskRulePageState extends State<TaskRulePage> {
     _intervalValueFocusNode.dispose();
     _delayValueController.removeListener(_changeListener);
     _delayValueController.dispose();
-    _delayValueFocusNode.dispose();
 
     super.dispose();
   }
@@ -259,6 +286,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
     _ThresholdType.movingTime,
     _ThresholdType.elapsedTime,
     _ThresholdType.activityCount,
+    _ThresholdType.kilojoules,
   };
 
   List<DropdownMenuItem<_ThresholdType?>> _intervalTypeItems(bool hasStravaEntitlement) {
@@ -305,6 +333,8 @@ class _TaskRulePageState extends State<TaskRulePage> {
       typeItem(_ThresholdType.movingTime),
       typeItem(_ThresholdType.elapsedTime),
       typeItem(_ThresholdType.activityCount),
+      if ((enableKilojoules || kDebugMode) || widget.taskRule?.interval is KilojoulesThreshold)
+        typeItem(_ThresholdType.kilojoules),
     ];
   }
 
@@ -350,6 +380,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
       case _ThresholdType.movingTime:
       case _ThresholdType.elapsedTime:
       case _ThresholdType.activityCount:
+      case _ThresholdType.kilojoules:
         return true;
       case _ThresholdType.none:
       case _ThresholdType.duration:
@@ -364,7 +395,8 @@ class _TaskRulePageState extends State<TaskRulePage> {
   List<TextInputFormatter>? _valueInputFormatters(_ThresholdType type) {
     return switch (type) {
       _ThresholdType.distance ||
-      _ThresholdType.elevation => [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$'))],
+      _ThresholdType.elevation ||
+      _ThresholdType.kilojoules => [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$'))],
       _ThresholdType.movingTime ||
       _ThresholdType.elapsedTime ||
       _ThresholdType.duration ||
@@ -382,6 +414,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
       _ThresholdType.activityCount => true,
       _ThresholdType.distance ||
       _ThresholdType.elevation ||
+      _ThresholdType.kilojoules ||
       _ThresholdType.dateTime ||
       _ThresholdType.none => false,
     };
@@ -411,8 +444,8 @@ class _TaskRulePageState extends State<TaskRulePage> {
   String? _validateIntervalValue(String? value) => _validateThresholdValue(_intervalType, value);
 
   String? _validateDelayValue(String? value) {
-    // The type is only a preselection until a value is typed, so an empty
-    // field is valid and simply means "no delay".
+    // A delay only comes into being once a value is typed, so an empty field is
+    // valid and simply means "no delay".
     final raw = value?.trim() ?? '';
     if (raw.isEmpty) return null;
     // Zero reads as "drop the delay", which only makes sense for a delay that
@@ -421,7 +454,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
     return _validateThresholdValue(_delayType, value);
   }
 
-  TaskThreshold? _createThreshold(_ThresholdType type, String value, DateTime? date) {
+  TaskThreshold? _createThreshold(_ThresholdType type, String value, DateTime? date, _DurationUnit durationUnit) {
     if (type == _ThresholdType.none) return null;
     final doubleVal = double.tryParse(value) ?? 0;
     final intVal = int.tryParse(value) ?? 0;
@@ -436,9 +469,11 @@ class _TaskRulePageState extends State<TaskRulePage> {
       case _ThresholdType.elapsedTime:
         return ElapsedTimeThreshold(Duration(hours: intVal));
       case _ThresholdType.duration:
-        return DurationThreshold(Duration(days: intVal));
+        return DurationThreshold(Duration(days: intVal * durationUnit.dayCount));
       case _ThresholdType.activityCount:
         return ActivityCountThreshold(intVal);
+      case _ThresholdType.kilojoules:
+        return KilojoulesThreshold(doubleVal);
       case _ThresholdType.dateTime:
         return date != null ? DateTimeThreshold(date) : null;
       case _ThresholdType.none:
@@ -452,10 +487,10 @@ class _TaskRulePageState extends State<TaskRulePage> {
     final name = _nameController.text.trim();
     final notes = _notesController.text.trim();
     
-    final interval = _createThreshold(_intervalType, _intervalValueController.text, _intervalDate);
-    final delay = (_intervalType == _ThresholdType.dateTime || !_hasDelayValue)
-        ? null
-        : _createThreshold(_delayType, _delayValueController.text, null);
+    final interval = _createThreshold(_intervalType, _intervalValueController.text, _intervalDate, _intervalDurationUnit);
+    final delay = _hasDelayValue
+        ? _createThreshold(_delayType, _delayValueController.text, null, _delayDurationUnit)
+        : null;
 
     _formHasChanges = false;
 
@@ -567,6 +602,151 @@ class _TaskRulePageState extends State<TaskRulePage> {
     );
   }
 
+  String _unitLabel(_ThresholdType type, _DurationUnit durationUnit, String rawValue) {
+    return switch (type) {
+      _ThresholdType.distance => 'km',
+      _ThresholdType.elevation => 'm',
+      _ThresholdType.movingTime || _ThresholdType.elapsedTime => 'h',
+      _ThresholdType.duration => durationUnit.labelFor(rawValue),
+      _ThresholdType.activityCount => 'rides',
+      _ThresholdType.kilojoules => 'kJ',
+      _ThresholdType.dateTime || _ThresholdType.none => '',
+    };
+  }
+
+  /// Unit of a duration value, tapped to cycle days → weeks → months → years.
+  /// The typed number stays put — only the unit it is read in changes.
+  Widget _durationUnitButton({
+    required _DurationUnit unit,
+    required TextEditingController controller,
+    required ValueChanged<_DurationUnit> onChanged,
+  }) {
+    // Same style the decorator gives [InputDecoration.suffixText], so a
+    // tappable unit does not read louder than a fixed one.
+    final style = Theme.of(context).textTheme.bodyLarge?.copyWith(
+      color: Theme.of(context).colorScheme.onSurfaceVariant,
+    );
+    return Tooltip(
+      message: 'Change unit',
+      child: InkWell(
+        // The value field keeps the focus, so the keyboard stays up while cycling.
+        canRequestFocus: false,
+        borderRadius: BorderRadius.circular(8),
+        onTap: () {
+          unawaited(HapticFeedback.selectionClick());
+          onChanged(unit.next);
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 2,
+            children: [
+              Flexible(
+                child: Text(
+                  unit.labelFor(controller.text),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: style,
+                ),
+              ),
+              Icon(Icons.unfold_more, size: 16, color: style?.color),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _delayRow() {
+    final delayType = _delayType;
+    final theme = Theme.of(context);
+    final highlight = theme.extension<ValueHighlightColors>()!.changedFill;
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Row(
+        spacing: 8,
+        children: [
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(left: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    spacing: 6,
+                    children: [
+                      // Same styles ListTile applies above, so the two rows read
+                      // as one list.
+                      Flexible(
+                        child: Text(
+                          "Delay",
+                          style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurface),
+                        ),
+                      ),
+                      Tooltip(
+                        message: "A delay postpones when this task becomes due, without changing its interval. "
+                            "It only applies once: completing the task clears the delay automatically.",
+                        triggerMode: TooltipTriggerMode.tap,
+                        padding: const EdgeInsets.all(12),
+                        margin: const EdgeInsets.symmetric(horizontal: 24),
+                        showDuration: const Duration(seconds: 5),
+                        child: Icon(
+                          Icons.info_outline_rounded,
+                          size: 16,
+                          color: theme.colorScheme.outline.withValues(alpha: 0.7),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    "Postpone the next due date once",
+                    style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Expanded(
+            child: TextFormField(
+              key: const Key('taskRuleDelayValue'),
+              controller: _delayValueController,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              keyboardType: TextInputType.numberWithOptions(
+                decimal: delayType == _ThresholdType.distance || delayType == _ThresholdType.elevation || delayType == _ThresholdType.kilojoules,
+                signed: false,
+              ),
+              inputFormatters: _valueInputFormatters(delayType),
+              validator: _validateDelayValue,
+              onChanged: (value) => setState(() {}),
+              decoration: InputDecoration(
+                labelText: "Value",
+                suffixText: delayType == _ThresholdType.duration
+                    ? null
+                    : _unitLabel(delayType, _delayDurationUnit, _delayValueController.text),
+                suffixIcon: delayType != _ThresholdType.duration
+                    ? null
+                    : _durationUnitButton(
+                        unit: _delayDurationUnit,
+                        controller: _delayValueController,
+                        onChanged: (unit) {
+                          setState(() => _delayDurationUnit = unit);
+                          _changeListener();
+                        },
+                      ),
+                suffixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
+                border: const OutlineInputBorder(),
+                fillColor: highlight,
+                filled: _valueChanged(_delayValueController, widget.taskRule?.delay, _delayDurationUnit),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   TextFormField _nameTextFormField() {
     return TextFormField(
       controller: _nameController,
@@ -615,7 +795,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
             avatar: const Icon(Icons.traffic),
             label: Text(_priority.label),
             backgroundColor: widget.mode == TaskRulePageMode.edit && _priority != widget.taskRule?.priority ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
-            onPressed: () => appSettingsRadioGroupSheet<TaskPriority>(
+            onPressed: () => radioGroupSheet<TaskPriority>(
               context: context,
               title: "Task Priority",
               value: _priority,
@@ -655,9 +835,11 @@ class _TaskRulePageState extends State<TaskRulePage> {
             avatar: const Icon(Icons.add),
             label: const Text("Tags"),
             onPressed: () async {
-              await showSetTaskRuleTagsSheet(
+              await showSetTagsSheet(
                 context: context,
                 tags: _tags,
+                title: 'Add Tags',
+                subtitle: "Use tags to group and organize your tasks (e.g. maintenance, order list, setup test, ...)",
                 onChanged: (Set<String> newTags) {
                   setState(() => _tags = newTags);
                   _changeListener();
@@ -763,7 +945,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                   if (appSettings.enableTaskInterval) ...[
                     const SizedBox(height: 16),
                     const Divider(height: 1),
-                    const SectionTitle(title: "Task Trigger", infoText: "(Optional) Set a task trigger to display a progress bar that updates automatically based on activity stats or time."),
+                    const SectionTitle(title: "Task Trigger", infoText: "(Optional) Set a trigger to display a progress bar that updates automatically based on activity stats or time."),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                       child: Column(
@@ -789,15 +971,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                   items: _intervalTypeItems(hasStravaEntitlement),
                                   onChanged: (v) {
                                     if (v != null) {
-                                      setState(() {
-                                        _intervalType = v;
-                                        // Keep an unset delay pointed at the new
-                                        // trigger; a typed one keeps its type so
-                                        // the mismatch stays visible.
-                                        if (!_hasDelayValue) {
-                                          _delayType = _delayTypeForInterval(v);
-                                        }
-                                      });
+                                      setState(() => _intervalType = v);
                                       _changeListener();
                                       if (v != _ThresholdType.none && v != _ThresholdType.dateTime) {
                                         _focusAndSelectIntervalValue();
@@ -853,14 +1027,15 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                 _ThresholdType.elevation ||
                                 _ThresholdType.movingTime ||
                                 _ThresholdType.elapsedTime ||
-                                _ThresholdType.duration => Expanded(
+                                _ThresholdType.duration ||
+                                _ThresholdType.kilojoules => Expanded(
                                   child: TextFormField(
                                     key: const Key('taskRuleIntervalValue'),
                                     controller: _intervalValueController,
                                     focusNode: _intervalValueFocusNode,
                                     autovalidateMode: AutovalidateMode.onUserInteraction,
                                     keyboardType: TextInputType.numberWithOptions(
-                                      decimal: _intervalType == _ThresholdType.distance || _intervalType == _ThresholdType.elevation,
+                                      decimal: _intervalType == _ThresholdType.distance || _intervalType == _ThresholdType.elevation || _intervalType == _ThresholdType.kilojoules,
                                       signed: false,
                                     ),
                                     inputFormatters: _valueInputFormatters(_intervalType),
@@ -868,18 +1043,23 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                     validator: _validateIntervalValue,
                                     decoration: InputDecoration(
                                       labelText: "Value",
-                                      suffixText: switch (_intervalType) {
-                                        _ThresholdType.distance => 'km',
-                                        _ThresholdType.elevation => 'm',
-                                        _ThresholdType.movingTime => 'h',
-                                        _ThresholdType.elapsedTime => 'h',
-                                        _ThresholdType.duration => 'days',
-                                        _ThresholdType.activityCount => 'rides',
-                                        _ => '',
-                                      },
+                                      suffixText: _intervalType == _ThresholdType.duration
+                                          ? null
+                                          : _unitLabel(_intervalType, _intervalDurationUnit, _intervalValueController.text),
+                                      suffixIcon: _intervalType != _ThresholdType.duration
+                                          ? null
+                                          : _durationUnitButton(
+                                              unit: _intervalDurationUnit,
+                                              controller: _intervalValueController,
+                                              onChanged: (unit) {
+                                                setState(() => _intervalDurationUnit = unit);
+                                                _changeListener();
+                                              },
+                                            ),
+                                      suffixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
                                       border: const OutlineInputBorder(),
                                       fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
-                                      filled: widget.mode == TaskRulePageMode.edit && _valueChanged(_intervalValueController, widget.taskRule?.interval),
+                                      filled: widget.mode == TaskRulePageMode.edit && _valueChanged(_intervalValueController, widget.taskRule?.interval, _intervalDurationUnit),
                                     ),
                                   ),
                                 ),
@@ -888,13 +1068,14 @@ class _TaskRulePageState extends State<TaskRulePage> {
                           ),
                           if (!hasStravaEntitlement) _stravaTriggerBanner(context),
                           if (_intervalType != _ThresholdType.none && _intervalType != _ThresholdType.dateTime) ...[
+                            const SizedBox(height: 8),
                             ListTile(
                               tileColor: widget.mode == TaskRulePageMode.edit && _repeat != (widget.taskRule?.repeat ?? true)
                                   ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
                                   : null,
-                              contentPadding: const EdgeInsets.all(12),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                               title: const Text("Repeat Interval"),
-                              subtitle: const Text("Restart interval after each entry"),
+                              subtitle: const Text("Start the interval over after each entry"),
                               trailing: Switch(
                                 value: _repeat,
                                 onChanged: (v) {
@@ -903,97 +1084,8 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                 },
                               ),
                             ),
-                            if (widget.mode == TaskRulePageMode.edit && appSettings.enableTaskDelay) ...[
-                              const SizedBox(height: 36),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                spacing: 8,
-                                children: [
-                                  Expanded(
-                                    child: DropdownButtonFormField<_ThresholdType>(
-                                      key: const Key('taskRuleDelayType'),
-                                      initialValue: _delayType,
-                                      isExpanded: true,
-                                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                                      decoration: InputDecoration(
-                                        labelText: "Delay Type (Optional)",
-                                        border: const OutlineInputBorder(),
-                                        fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
-                                        filled: widget.mode == TaskRulePageMode.edit && _effectiveDelayType != _getThresholdType(widget.taskRule?.delay),
-                                      ),
-                                      items: [_ThresholdType.none, ..._delayThresholdTypes]
-                                          .map((t) => DropdownMenuItem(value: t, child: Text(t.label)))
-                                          .toList(),
-                                      onChanged: (v) {
-                                        if (v != null) {
-                                          setState(() => _delayType = v);
-                                          _changeListener();
-                                          if (v != _ThresholdType.none) {
-                                            _focusAndSelectDelayValue();
-                                          }
-                                        }
-                                      },
-                                      validator: (v) {
-                                        if (_hasDelayValue && v != null && v != _ThresholdType.none && v != _intervalType) {
-                                          return 'Must match trigger type';
-                                        }
-                                        return null;
-                                      },
-                                    ),
-                                  ),
-                                  if (_delayType != _ThresholdType.none)
-                                    Expanded(
-                                      child: TextFormField(
-                                        key: const Key('taskRuleDelayValue'),
-                                        controller: _delayValueController,
-                                        focusNode: _delayValueFocusNode,
-                                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                                        keyboardType: TextInputType.numberWithOptions(
-                                          decimal: _delayType == _ThresholdType.distance || _delayType == _ThresholdType.elevation,
-                                          signed: false,
-                                        ),
-                                        inputFormatters: _valueInputFormatters(_delayType),
-                                        validator: _validateDelayValue,
-                                        decoration: InputDecoration(
-                                          labelText: "Delay Value",
-                                          suffixText: switch (_delayType) {
-                                            _ThresholdType.distance => 'km',
-                                            _ThresholdType.elevation => 'm',
-                                            _ThresholdType.movingTime => 'h',
-                                            _ThresholdType.elapsedTime => 'h',
-                                            _ThresholdType.duration => 'days',
-                                            _ThresholdType.activityCount => 'rides',
-                                            _ => '',
-                                          },
-                                          suffixIcon: _delayValueController.text.isEmpty
-                                              ? null
-                                              : IconButton(
-                                                  icon: const Icon(Icons.clear, size: 20),
-                                                  tooltip: 'Clear',
-                                                  onPressed: () {
-                                                    _delayValueController.clear();
-                                                    setState(() {});
-                                                  },
-                                                ),
-                                          border: const OutlineInputBorder(),
-                                          fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
-                                          filled: widget.mode == TaskRulePageMode.edit && _valueChanged(_delayValueController, widget.taskRule?.delay),
-                                        ),
-                                        onChanged: (value) => setState(() {}),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(12, 6, 12, 0),
-                                child: Text(
-                                  "A delay postpones when this task becomes due, without changing its interval. It only applies once: completing the task clears the delay automatically.",
-                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Theme.of(context).hintColor,
-                                  ),
-                                ),
-                              ),
-                            ],
+                            if (widget.mode == TaskRulePageMode.edit && appSettings.enableTaskDelay)
+                              _delayRow(),
                           ],
                         ],
                       ),

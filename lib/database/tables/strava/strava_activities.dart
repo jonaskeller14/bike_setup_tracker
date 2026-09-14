@@ -21,6 +21,7 @@ class StravaActivities extends Table {
   IntColumn get movingTime => integer()();
   IntColumn get elapsedTime => integer()();
   IntColumn get workoutType => integer().nullable()();
+  RealColumn get averageWatts => real().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};

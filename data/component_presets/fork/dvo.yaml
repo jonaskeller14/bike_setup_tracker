@@ -7,11 +7,22 @@
 # DVO organizes its dampers into tiers shared across models: D1/E1 (top,
 # externally adjustable OTT + full-range HSC + "Quick Range" LSC), D2/E2 (mid,
 # internally adjustable 3-position OTT + fewer-click "Quick Range" LSC, no
-# HSC), D3/E3 (base, continuous/turn-based LSC only, no OTT, no HSC). "E"
+# HSC), D3/E3 (base, full-range turn-based LSC only, no OTT, no HSC). "E"
 # variants are e-bike-tuned valving of the same tier. Exact click counts within
-# a tier are NOT identical across fork models (confirmed: Diamond's D1/E1 LSC
-# is 6 clicks while Onyx 38's D1/E1 LSC is 5 clicks) — each fork model gets its
-# own damper key rather than assuming numbers carry over between chassis.
+# a tier are NOT identical across fork models (Diamond's D1/E1 LSC is 6 clicks
+# while Onyx 38's D1/E1 LSC is 5 clicks) — each fork model gets its own damper
+# key rather than assuming numbers carry over between chassis.
+#
+# Two DVO documentation habits matter when reading numbers out of their docs:
+#   1. HSC and OTT are adjusted in FULL ROTATIONS, not clicks. DVO publishes a
+#      rotation total for some models (Diamond 14, Emerald 15) and none at all
+#      for others (Onyx 38) — where none exists the adjuster is modelled as an
+#      unbounded `numerical` in `turns` rather than inventing a maximum.
+#   2. The "base setting chart" columns in DVO's guides are NOT the adjuster's
+#      range. Proof from DVO's own docs: the 2020 Fork Set-Up Guide's Diamond
+#      rebound chart runs out to column 22, while tech.dvosuspension.com states
+#      the Diamond's real rebound range is 20 clicks total. Chart columns are
+#      therefore never used as a total anywhere in this file.
 
 brand: DVO
 component_type: fork
@@ -24,118 +35,190 @@ sources:
   - https://dvosuspension.com/product/diamond-36-core/
   - https://dvosuspension.com/product/diamond-d1-2024/
   - https://dvosuspension.com/product/diamond-d3/
+  - https://tech.dvosuspension.com/setup/
   - https://tech.dvosuspension.com/setup/diamond/
+  - https://tech.dvosuspension.com/setup/emerald/
   - https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
+  - https://tech.dvosuspension.com/wp-content/uploads/2018/06/DVO-Fork-OwnersManual.pdf
   - https://tech.dvosuspension.com/setup/onyx-sc/
   - https://tech.dvosuspension.com/setup/sapphire-series/
   - https://tech.dvosuspension.com/setup/onyx-dc-set-up/
-updated: 2026-07-18
+  # Emerald chassis specs (travel / stanchion / wheel size / offset) — DVO's own
+  # Emerald page serves an empty cart page, so these come from staff-written
+  # editorial coverage, which SCHEMA.md allows as a secondary tier.
+  - https://www.bikeradar.com/reviews/components/forks/suspension-forks/dvo-emerald-inverted-downhill-fork-review
+  - https://www.pinkbike.com/news/dvo-emerald-review-2014.html
+updated: 2026-09-10
 
 # --------------------------------------------------------------------------
 # Dampers
 # --------------------------------------------------------------------------
 dampers:
   # Shared "D1/E1" and "D2/E2" tier dampers for the 2020-generation chassis
-  # (Sapphire, Onyx SC, Onyx DC). DVO's general Fork Set-Up Guide (2020)
-  # confirms only the Low Speed Compression click count generically across
-  # "our suspension forks" for these tiers; High Speed Compression and Rebound
-  # totals are published only for the Diamond (see diamond_d1e1 below) and were
-  # not independently confirmed for Sapphire/Onyx SC/Onyx DC specifically.
+  # (Sapphire, Onyx SC, Onyx DC). DVO's Fork Set-Up Guide (2020 v4, p.14)
+  # states the LSC click count generically for "our suspension forks" at each
+  # tier; it expresses HSC in rotations with no total, and gives rebound only
+  # as a base-setting chart. Rebound/HSC totals are published per-model on
+  # tech.dvosuspension.com for the Diamond and Emerald only.
   quick_range_d1e1:
     name: Quick Range D1/E1
-    description: >
-      Top-tier damper shared by the 2020-generation Sapphire, Onyx SC and Onyx
-      DC forks (pre-Onyx-38 chassis). Confirmed 6-click "Quick Range" Low Speed
-      Compression. Also includes a full-range High Speed Compression adjuster
-      (adjusted in full rotations, not clicks) and an externally adjustable OTT
-      negative-spring preload (5mm allen key, full rotations only) — neither's
-      total click/rotation count is published for this tier outside the
-      Diamond, so both are omitted here rather than guessed.
+    description: |-
+      - Low Speed Compression "Quick Range", 6 clicks: 1 wide open to descend, 6 the firmest pedalling platform
+      - Full-range High Speed Compression on a second dial, moved in full 1-2 rotations rather than clicks
+      - Adjustments incomplete: please add Rebound yourself.
     adjustments:
-      - { name: Compression, type: step, max: 6, notes: "Low-Speed Compression; DVO 'Quick Range' adjuster; position 1 = fully open (softest), 6 = firmest" }
-    note: "HSC total and Rebound total unconfirmed for this tier outside the Diamond — see follow-ups"
+      - { name: LSC, type: step, max: 6, notes: "Low-Speed Compression; DVO 'Quick Range' adjuster; position 1 = fully open (softest), 6 = firmest" }
+      - { name: HSC, type: numerical, unit: turns, min: 0, notes: "High-Speed Compression; Start fully open (counter-clockwise) and adjust 1-2 full rotations at a time; clockwise = firmer. DVO publishes no total rotation count for these chassis" }
+    source:
+      - https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
+    note: >-
+      LSC 6 clicks from the DVO Fork Set-Up Guide 2020 v4, p.14: "Our suspension forks come
+      with a 'Quick Range' low speed compression adjuster that has 6 clicks of adjustment.
+      Setting '1' is wide open ... you can switch the LSC to '6'". HSC on p.12 of the same
+      guide is a "full range" adjuster with a rotations-based base chart (0-5) and no stated
+      total. Rebound appears only as a base-setting chart (2-22 in 2-click steps) for
+      Sapphire 34 D1 / Onyx SC / Onyx DC, so no rebound total is claimed for this tier.
 
   quick_range_d2e2:
     name: Quick Range D2/E2 (BERYL)
-    description: >
-      Mid-tier BERYL damper — 4-click "Quick Range" Low Speed Compression and
-      an internally adjustable 3-position OTT (Open/Middle/Max, selected by
-      rider weight; requires disassembly to change, not a quick trailside
-      adjustment). No externally adjustable High Speed Compression at this
-      tier.
+    description: |-
+      - Mid-tier BERYL damper with a 4-click "Quick Range" Low Speed Compression dial, soft through firm
+      - OTT is set internally to one of three positions for your body weight, so it is not a trailside adjustment
+      - Adjustments incomplete: please add Rebound yourself.
     adjustments:
       - { name: Compression, type: step, max: 4, notes: "Low-Speed Compression; Soft → Medium → Firm dial; counted from fully open (soft)" }
-    note: "Rebound total unconfirmed for this tier — see follow-ups"
+    source:
+      - https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
+    note: >-
+      LSC 4 clicks from the DVO Fork Set-Up Guide 2020 v4, p.14: "The BERYL 'D2 damper' comes
+      with a 'Quick Range' low speed compression adjuster that has 4 clicks of adjustment."
+      Internal 3-position OTT (Open / Middle / Max by rider weight) from p.5 of the same
+      guide. No HSC at this tier; no rebound total published.
 
   diamond_d1e1:
     name: D1/E1 (Diamond)
-    description: >
-      Top-tier Diamond damper. Full-range High Speed Compression (29 detents
-      total, but DVO instructs adjusting in full 1-2 rotations rather than
-      single clicks), 6-click Low Speed Compression "Quick Range", and 20-click
-      Rebound (shared range with the D2/E2 tier per DVO's fork guide). Also has
-      an externally adjustable OTT negative-spring preload (5mm allen key), 14
-      full rotations total (6 clicks per rotation).
+    description: |-
+      - High Speed Compression, 29 clicks; adjust in full 1-2 rotations rather than single clicks
+      - Low Speed Compression "Quick Range", 6 clicks: 1 wide open, 6 the firmest pedalling platform
+      - Rebound, 20 clicks counted out from fully closed
     adjustments:
       - { name: HSC, type: step, max: 29, notes: "High-Speed Compression; Adjust in full 1-2 rotations rather than single clicks; counted from fully open (softest); clockwise = firmer" }
       - { name: LSC, type: step, max: 6, notes: "Low-Speed Compression; DVO 'Quick Range' adjuster; position 1 = fully open (softest), 6 = firmest" }
       - { name: Rebound, type: step, max: 20, notes: "Counted from fully closed (slowest); opening (counterclockwise) increases speed" }
+    source:
+      - https://tech.dvosuspension.com/setup/diamond/
+      - https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
+    note: >-
+      All four figures are stated outright on tech.dvosuspension.com/setup/diamond: "High
+      Speed Compression (HSC) Range: 29 clicks total", "Low Speed Compression (LSC) Range:
+      6 clicks total", "Rebound Range: 20 clicks total" and "OTT Range: 14 full rotations
+      total (6 clicks per rotation)". The 14-rotation OTT figure is recorded here rather
+      than as a trim adjustment because no Diamond trim in this file is confirmed to carry
+      the external OTT adjuster (the 36 D1 SL uses the Super-Light dual air spring).
 
   diamond_d3e3:
     name: D3/E3 (Diamond)
-    description: >
-      Base-tier Diamond damper — continuously (turn-based) adjustable Low
-      Speed Compression with no published click count, and a Rebound adjuster
-      whose total click count is not stated in DVO's official documentation
-      (a separate recommendation chart exists but without an explicit total —
-      omitted rather than guessed). No High Speed Compression or OTT feature.
-    adjustments: []
-    note: "Click counts unconfirmed — see follow-ups"
+    description: |-
+      - Base-tier closed-cartridge damper with a full-range Low Speed Compression dial
+      - LSC is not click-indexed: start fully open and add support a full turn at a time
+      - Adjustments incomplete: please add Rebound yourself.
+    adjustments:
+      - { name: Compression, type: numerical, unit: turns, min: 0, notes: "Low-Speed Compression; Full-range adjuster with no detents — start fully open (counter-clockwise) and make full-turn adjustments; clockwise = firmer" }
+    source:
+      - https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
+    note: >-
+      DVO Fork Set-Up Guide 2020 v4, p.14: "The D3/E3 Model forks come with a full range low
+      speed compression ... Start from full open, (counter-clockwise) then make full turn
+      adjustments at a time." There is therefore no LSC click total to find — the adjuster
+      is continuous. Rebound exists (base-setting chart on p.10) but DVO states no total.
+      No HSC and no OTT at this tier (p.4: "D3 / E3 Models: No OTT Feature").
 
   diamond_core:
     name: CORE (Diamond 36 CORE)
-    description: >
-      All-new damper introduced on the Diamond 36 CORE. DVO's product page
-      advertises "Full Range Low Speed Compression" and "Rebound" adjustment
-      but does not publish click counts for either — omitted rather than
-      guessed.
+    description: >-
+      All-new damper for the Diamond 36 CORE, with full-range Low Speed Compression and
+      Rebound dials. Adjustments incomplete: please add Rebound and Compression yourself.
     adjustments: []
-    note: "Click counts unconfirmed — see follow-ups"
+    source:
+      - https://dvosuspension.com/product/diamond-36-core/
+    note: >-
+      DVO advertises "Full Range Low Speed Compression" and a Rebound adjuster for the CORE
+      but states no click or rotation total for either, and no CORE-specific set-up guide or
+      tech page exists yet (tech.dvosuspension.com/setup/ lists none as of 2026-09-10).
 
   onyx38_d1e1:
     name: D1/E1 (Onyx 38)
-    description: >
-      Top-tier Onyx 38 damper (Onyx 38 D1 and D1 SL trims) — confirmed 5-click
-      Low Speed Compression "Quick Range" and 25-click Rebound (shared scale
-      across all Onyx 38 models per DVO's Onyx 38 Set-Up Guide). Also has a
-      full-range High Speed Compression adjuster (rotation-based; no published
-      total — omitted).
+    description: |-
+      - Low Speed Compression, 5 settings: fully counter-clockwise is open, each click clockwise adds support
+      - Rebound, 25 clicks counted out from fully closed — the same scale on every Onyx 38
+      - Full-range High Speed Compression on the green dial, moved a half to a full turn at a time
     adjustments:
-      - { name: Compression, type: step, max: 5, notes: "Low-Speed Compression; Counted from fully open (softest); clockwise click = firmer" }
+      - { name: LSC, type: step, max: 5, notes: "Low-Speed Compression; Counted from fully open (softest); clockwise click = firmer" }
       - { name: Rebound, type: step, max: 25, notes: "Counted from fully closed (slowest); shared scale across all Onyx 38 models" }
-    note: "HSC total rotations unconfirmed — see follow-ups"
+      - { name: HSC, type: numerical, unit: turns, min: 0, notes: "High-Speed Compression; Start fully open (counter-clockwise) and adjust a half to a full turn at a time; clockwise = firmer. DVO publishes no total rotation count" }
+    source:
+      - https://dvosuspension.com/wp-content/uploads/2023/09/onyx38setupguide-v1.pdf
+    note: >-
+      Onyx 38 Set-Up Guide v1.0. LSC from p.14: "The D1/E1 models have an adjustable low
+      speed compression with 5 settings." Rebound 25 from the numbered scale strip on p.10
+      ("Open | 25 24 23 ... 2 1 | Closed", captioned Fastest/Slowest Rebound Setting) — an
+      explicit full scale, not a chart column count; the p.10 chart is labelled "for all
+      onyx 38 models". HSC on p.12 is a "Full Rotations (NOT Clicks)" adjuster with a 0-5
+      base chart and no stated total.
 
   onyx38_d2e2:
     name: D2/E2 (Onyx 38)
-    description: >
-      Mid-tier Onyx 38 damper — confirmed 3-click Low Speed Compression Quick
-      Range. No High Speed Compression adjuster.
+    description: |-
+      - Low Speed Compression, 3 settings: fully counter-clockwise is open, each click clockwise adds support
+      - Rebound, 25 clicks counted out from fully closed — the same scale on every Onyx 38
+      - No High Speed Compression dial at this tier
     adjustments:
       - { name: Compression, type: step, max: 3, notes: "Low-Speed Compression; Counted from fully open (softest); clockwise click = firmer" }
       - { name: Rebound, type: step, max: 25, notes: "Counted from fully closed (slowest); shared scale across all Onyx 38 models" }
+    source:
+      - https://dvosuspension.com/wp-content/uploads/2023/09/onyx38setupguide-v1.pdf
+    note: >-
+      Onyx 38 Set-Up Guide v1.0, p.14: "The D2/E2 models have an adjustable low speed
+      compression with three settings." Rebound 25 from the numbered scale strip on p.10.
 
   onyx38_d3e3:
     name: D3/E3 (Onyx 38)
-    description: >
-      Base-tier Onyx 38 damper — continuously (turn-based) adjustable Low
-      Speed Compression with no published click count. No High Speed
-      Compression.
+    description: |-
+      - Full-range Low Speed Compression: not click-indexed, so start fully open and add support a full turn at a time
+      - Rebound, 25 clicks counted out from fully closed — the same scale on every Onyx 38
+      - No High Speed Compression dial at this tier
     adjustments:
+      - { name: Compression, type: numerical, unit: turns, min: 0, notes: "Low-Speed Compression; Full-range adjuster with no detents — start fully open (counter-clockwise) and make full-turn adjustments; clockwise = firmer" }
       - { name: Rebound, type: step, max: 25, notes: "Counted from fully closed (slowest); shared scale across all Onyx 38 models" }
-    note: "LSC click count not applicable — full range / turn-based, no published count"
+    source:
+      - https://dvosuspension.com/wp-content/uploads/2023/09/onyx38setupguide-v1.pdf
+    note: >-
+      Onyx 38 Set-Up Guide v1.0, p.14: "The D3/E3 Model forks come with a full range low
+      speed compression ... Start from full open, (counter-clockwise) then make full turn
+      adjustments at a time." Rebound 25 from the numbered scale strip on p.10.
+
+  emerald_damper:
+    name: Emerald
+    description: |-
+      - Twin-tube open-bath damper with both compression dials at the bottom of the right leg
+      - High Speed Compression, 33 clicks, and Low Speed Compression, 27 clicks, counted in from wide open
+      - Rebound, 40 clicks, set from the top of the leg
+    adjustments:
+      - { name: HSC, type: step, max: 33, notes: "High-Speed Compression; Adjuster at the bottom of the right leg; counted clockwise (firmer) from wide open" }
+      - { name: LSC, type: step, max: 27, notes: "Low-Speed Compression; Adjuster at the bottom of the right leg; counted clockwise (firmer) from wide open" }
+      - { name: Rebound, type: step, max: 40, notes: "Adjuster at the top of the leg; counted clockwise (slower) from wide open" }
+    source:
+      - https://tech.dvosuspension.com/setup/emerald/
+    note: >-
+      tech.dvosuspension.com/setup/emerald states each total outright: "High Speed
+      Compression (HSC) Range: 33 clicks total", "Low Speed Compression (LSC) Range: 27
+      clicks total", "Rebound Range: 40 clicks total", "OTT Range: 6 clicks = 1 full
+      rotation. 15 full rotations total." and "Air Pressure Range: 60-100psi". The same page
+      gives the base-tune convention: "each adjustment below refers to making adjustments
+      clockwise from the Wide-Open setting".
 
 # --------------------------------------------------------------------------
-# Forks — current DVO lineup.
+# Forks — current DVO lineup, then legacy models.
 # --------------------------------------------------------------------------
 forks:
   - model: "38"
@@ -143,6 +226,11 @@ forks:
     year_range: "2024-2026"
     url: https://dvosuspension.com/product/onyx-d1-38/
     wheel_size: [29]
+    # Air-pressure max (100 PSI), volume-spacer max (4) and travel options all
+    # from the Onyx 38 Set-Up Guide v1.0: p.8 "DO NOT exceed maximum air
+    # pressure of 100PSI"; p.18 "A maximum of 4 volume spacers can be used";
+    # p.20 table "Travel 160-180mm / Factory Installed 0 / Max Volume Spacers 4".
+    source: https://dvosuspension.com/wp-content/uploads/2023/09/onyx38setupguide-v1.pdf
     trims:
       - trim: D1
         travel_mm: [160, 170, 180]
@@ -152,12 +240,12 @@ forks:
         adjustments:
           - { name: Pressure, type: numerical, unit: psi, min: 0, max: 100 }
           - { name: Volume Spacers, type: step, max: 4, visualization: stepper }
-          - { name: OTT, type: step, max: 12, unit: turns, visualization: dial_cw, notes: "Externally adjustable (5mm allen key); full rotations only, not individual clicks; clockwise = softer/more sensitive. Let air out of fork before adjusting." }
-        note: >
-          Only Onyx 38 trim with the externally adjustable OTT feature per
-          DVO's Onyx 38 Set-Up Guide (D1 SL / D2 / D3 do not have it). OTT
-          rotation total (12) is read off the guide's recommendation chart,
-          not an explicit "X rotations total" statement — see follow-ups.
+          - { name: OTT, type: numerical, unit: turns, min: 0, notes: "Off The Top negative-spring preload; 5mm allen key under the left leg, full rotations only; more OTT = plusher off the top. Let the air out of the fork before adjusting. DVO publishes no total rotation count for the Onyx 38" }
+        note: |-
+          - OTT (Off The Top) preloads the negative coil spring inside the air cartridge
+          - More OTT softens roughly the first 30mm of travel without softening mid-stroke
+          - 5mm allen key under the left leg, turned in full rotations; let the air out first
+          - The only Onyx 38 trim with the external OTT adjuster
       - trim: D1 SL
         travel_mm: [160, 170, 180]
         stanchion: 38mm Tapered Alloy
@@ -166,25 +254,24 @@ forks:
         adjustments: &onyx38_air_spring
           - { name: Pressure, type: numerical, unit: psi, min: 0, max: 100 }
           - { name: Volume Spacers, type: step, max: 4, visualization: stepper }
-        note: Super-Light dual air system; no OTT feature.
+        note: Super-Light dual air system; no OTT adjuster on this trim.
       - trim: D2
         travel_mm: [160, 170, 180]
         stanchion: 38mm Tapered Alloy
         spring: Air
         dampers: [onyx38_d2e2]
         adjustments: *onyx38_air_spring
-        note: OEM only.
+        note: OEM only. No OTT adjuster on this trim.
       - trim: D3
         travel_mm: [160, 170, 180]
         stanchion: 38mm Tapered Alloy
         spring: Air
         dampers: [onyx38_d3e3]
         adjustments: *onyx38_air_spring
-        note: OEM only.
-    note: >
-      DVO also lists co-branded "D1 x RENEN" and "SL x WP" editions of this
-      fork; their graphics/parts partnerships are not modeled separately here
-      — see follow-ups.
+        note: OEM only. No OTT adjuster on this trim.
+    note: >-
+      Also sold as co-branded "D1 x RENEN" and "SL x WP" editions, which share this
+      chassis and its adjusters.
 
   - model: Diamond 36
     complete: false
@@ -200,10 +287,10 @@ forks:
         dampers: [diamond_core]
         adjustments:
           - { name: Pressure, type: numerical, unit: psi, min: 0 }
-        note: >
-          All-new "CORE" damper (2026). Ships with a 6× 5cc air volume reducer
-          kit but DVO's product page does not state a maximum usable spacer
-          count — omitted rather than guessed; see follow-ups.
+        # Ships with a 6x 5cc air volume reducer kit, but DVO states no maximum
+        # usable spacer count (unlike the Onyx 38's explicit "maximum of 4"),
+        # so no Volume Spacers adjustment is declared here.
+        note: All-new CORE damper. Ships with a 6x 5cc air volume reducer kit.
       - trim: D1 SL
         url: https://dvosuspension.com/product/diamond-d1-2024/
         travel_mm: [140, 150, 160]
@@ -212,70 +299,76 @@ forks:
         dampers: [diamond_d1e1]
         adjustments:
           - { name: Pressure, type: numerical, unit: psi, min: 0 }
-        note: >
-          Super-Light dual air system; Remastered D1 damper. Ships with a 6×
-          5cc air volume reducer kit but DVO's product page does not state a
-          maximum usable spacer count — omitted rather than guessed.
+        note: |-
+          - Super-Light dual air system with the Remastered D1 damper
+          - Ships with a 6x 5cc air volume reducer kit
 
   - model: Diamond
-    complete: false
     category: Trail / Enduro
     year_range: "2024-2026"
     url: https://dvosuspension.com/product/diamond-d3/
     wheel_size: [27.5, 29]
+    # Max air pressure 150 PSI for D3/E3 from the DVO Fork Set-Up Guide 2020 v4,
+    # p.6: "Do Not Exceed Maximum Air Pressure! ... Diamond D3-E3: 150 PSI".
+    source: https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
     trims:
       - trim: D3
         stanchion: 35mm Tapered Alloy
         spring: Air
         dampers: [diamond_d3e3]
         adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0 }
-        note: OEM only. Closed-cartridge damper design.
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 150 }
+        note: OEM only. Closed-cartridge damper, no OTT adjuster.
       - trim: E3
         stanchion: 35mm Tapered Alloy
         spring: Air
         dampers: [diamond_d3e3]
         adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0 }
-        note: >
-          OEM only, e-bike-tuned valving of D3. Detailed specs not
-          independently confirmed on DVO's site — see follow-ups.
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 150 }
+        note: OEM only. E-bike-tuned valving of the D3, no OTT adjuster.
 
   - model: Sapphire 34
     category: Trail
     year_range: "2019-2026"
-    url: https://dvosuspension.com/product-category/suspension/fork/
+    url: https://tech.dvosuspension.com/setup/sapphire-series/
+    # Max air pressure 150 PSI from the DVO Fork Set-Up Guide 2020 v4, p.6:
+    # "Sapphire 34 D1: 150 PSI". Travel / wheel size / offset are not stated in
+    # that guide and DVO's Sapphire product pages serve an empty cart page.
+    source: https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
     trims:
       - trim: D1
+        stanchion: 34mm Tapered Alloy
         spring: Air
         dampers: [quick_range_d1e1]
         adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0 }
-        note: >
-          34mm-stanchion trail fork. DVO's dedicated Sapphire 34 D1 product
-          page could not be retrieved to confirm travel/wheel-size/offset —
-          omitted rather than guessed; see follow-ups.
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 150 }
+          - { name: OTT, type: numerical, unit: turns, min: 0, notes: "Off The Top negative-spring preload; 5mm allen key under the left leg, full rotations only; more OTT = plusher off the top. Let the air out of the fork before adjusting. DVO publishes no total rotation count for this chassis" }
+        note: |-
+          - 34mm-stanchion trail fork with the D1 damper and external OTT
+          - OTT preloads the negative coil spring to soften the top of the travel
+          - Its "Quick Range" LSC doubles as a pedalling platform: click 6 is firmest
 
   - model: Sapphire 32
     category: XC
     year_range: "2019-2026"
-    url: https://dvosuspension.com/product-category/suspension/fork/
+    url: https://tech.dvosuspension.com/setup/sapphire-series/
     trims:
       - trim: D1
+        stanchion: 32mm Tapered Alloy
         spring: Air
         dampers: [quick_range_d1e1]
         adjustments:
           - { name: Pressure, type: numerical, unit: psi, min: 0 }
-        note: >
-          32mm-stanchion XC fork. DVO's dedicated Sapphire 32 product page
-          could not be retrieved to confirm travel/wheel-size/offset —
-          omitted rather than guessed; see follow-ups.
+        note: 32mm-stanchion XC fork with the D1 damper and its 6-click Quick Range LSC.
 
   - model: Onyx SC
     category: Enduro
     year_range: "2020-2026"
     url: https://dvosuspension.com/product/onyx-sc-d2/
     wheel_size: [29]
+    # Max air pressure 130 PSI from the DVO Fork Set-Up Guide 2020 v4, p.6:
+    # "Onyx SC D1-D2-E1-E2: 130 PSI".
+    source: https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
     trims:
       - trim: D2
         travel_mm: [160, 170, 180]
@@ -283,14 +376,17 @@ forks:
         spring: Air
         dampers: [quick_range_d2e2]
         adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0 }
-        note: OEM only.
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 130 }
+        note: OEM only. OTT is set internally for your body weight, not from outside.
 
   - model: Onyx DC
     category: Downhill
     year_range: "2020-2026"
     url: https://dvosuspension.com/product/onyx-dc-d1/
     wheel_size: [27.5, 29]
+    # Max air pressure 140 PSI from the DVO Fork Set-Up Guide 2020 v4, p.6:
+    # "Onyx DC: 140 PSI".
+    source: https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
     trims:
       - trim: D1
         travel_mm: [203]
@@ -298,35 +394,85 @@ forks:
         spring: Air
         dampers: [quick_range_d1e1]
         adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0 }
-        note: OEM only. Air spring with coil negative spring (OTT).
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 140 }
+          - { name: OTT, type: numerical, unit: turns, min: 0, notes: "Off The Top negative-spring preload; 5mm allen key under the left leg, full rotations only; more OTT = plusher off the top. Let the air out of the fork before adjusting. DVO publishes no total rotation count for this chassis" }
+        note: |-
+          - OEM only. Dual-crown air fork with a coil negative spring
+          - That negative coil is what OTT preloads, softening the top of the travel
+          - Set OTT with a 5mm allen key in full rotations; let the air out first
+
+  # ---------------- Legacy ----------------
+  - model: Emerald (Inverted)
+    category: Downhill
+    year_range: "2014-2019"
+    url: https://tech.dvosuspension.com/setup/emerald/
+    wheel_size: [26, 27.5]
+    # Click totals and the 60-100psi air range: tech.dvosuspension.com/setup/emerald.
+    # Travel 203mm, 36mm inverted stanchions, 42mm uppers, carbon torsion arch,
+    # 44mm offset (26in) / 49.92mm offset (650b): BikeRadar's and Pinkbike's
+    # Emerald reviews — DVO's own Emerald page serves an empty cart page.
+    source:
+      - https://tech.dvosuspension.com/setup/emerald/
+      - https://www.bikeradar.com/reviews/components/forks/suspension-forks/dvo-emerald-inverted-downhill-fork-review
+      - https://www.pinkbike.com/news/dvo-emerald-review-2014.html
+    trims:
+      - trim: Standard
+        travel_mm: [203]
+        stanchion: 36mm Inverted
+        spring: Air
+        dampers: [emerald_damper]
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 60, max: 100 }
+          - { name: OTT, type: step, max: 15, unit: turns, notes: "Off The Top negative-spring preload; 15 full rotations total, 6 clicks per rotation; more OTT = plusher off the top. Let the air out of the fork before adjusting" }
+        note: |-
+          - Inverted (upside-down) dual-crown chassis joined by a carbon torsion arch
+          - The air spring runs 60-100psi, far lower than an upright fork
+          - Wide-open is the reference point: every dial is counted in from there
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):
-#   - Onyx 38 D1's HSC total rotation count and OTT total rotation count: only
-#     recommendation charts (0-5 rotations for HSC, 1-12 for OTT) were found,
-#     not an explicit "X total" statement like the Diamond's — the OTT max:12
-#     used above is a chart-derived approximation, verify against an updated
-#     Onyx 38 manual.
-#   - Sapphire 34/32, Onyx SC D2, Onyx DC D1: exact HSC/Rebound click totals
-#     unconfirmed (only the shared "6/4-click LSC Quick Range" statement in
-#     DVO's 2020 Fork Set-Up Guide was generic enough to apply confidently).
-#   - Sapphire 34/32: dedicated dvosuspension.com product pages
-#     (fork/sapphire-d1/, fork/sapphire-32/) returned an empty cart page on
-#     every fetch attempt rather than product content — travel, wheel size,
-#     and offset could not be confirmed from an official source (retailer
-#     listings exist but are excluded per research rules). Re-check once the
-#     site issue resolves.
-#   - Diamond 36 CORE / 36 D1 SL: volume spacer kits ship with 6× 5cc spacers,
-#     but DVO's product pages don't state a maximum usable count (unlike the
-#     Onyx 38's explicit "max 4") — verify before adding a Volume Spacers
-#     adjustment.
-#   - Diamond E3: OEM e-bike variant of D3; no dedicated product page found to
-#     confirm stanchion/travel independently of the D3 model.
-#   - Onyx 38 "D1 x RENEN" and "SL x WP" co-branded editions not modeled
-#     separately; assumed to share the base D1/D1 SL damper specs.
-#   - Diamond D3/E3 and Onyx 38 D3/E3 Rebound and LSC click totals: DVO
-#     publishes recommendation charts for these but never an explicit stated
-#     total the way it does for the D1/E1 tier — left out of the damper
-#     definitions above rather than inferred from chart column counts.
+#   - Onyx 38 HSC total rotations: the Onyx 38 Set-Up Guide v1.0 (p.12) gives
+#     only a 0-5 "Full Rotations (NOT Clicks)" base chart. Modelled as an
+#     unbounded numerical in turns. RESOLVED-AS-REMOVED: the previous
+#     `OTT max: 12` on the 38 D1 was read off the guide's 1-12 OTT base chart,
+#     which is not a range statement — DVO's own docs prove chart columns
+#     overshoot the real total (Diamond rebound chart 22 vs. stated 20 clicks).
+#     It is now an unbounded numerical too. Needs an Onyx 38 owner's manual or
+#     a DVO statement to pin down either total.
+#   - Sapphire 34 / Sapphire 32 / Onyx SC / Onyx DC rebound and HSC totals:
+#     these four chassis have no per-model page on tech.dvosuspension.com/setup
+#     (each links only to the shared 2020 Fork Set-Up Guide and the 2018 DVO
+#     Fork Owner's Manual, which is installation-only). The guide gives LSC
+#     clicks per tier but rebound only as a base chart, so no rebound total is
+#     recorded. tech.dvosuspension.com publishes "Range: N clicks total" blocks
+#     for the Diamond, Emerald and Jade only — ask DVO for the equivalent.
+#   - Sapphire 34 / 32 travel, wheel size and offset: dvosuspension.com's
+#     Sapphire pages still serve an empty cart page instead of product content
+#     (re-checked 2026-09-10), and the 2020 guide lists no chassis specs.
+#     Stanchion diameters are from the model names themselves.
+#   - Sapphire 32 max air pressure: the 2020 guide's pressure table covers
+#     "Sapphire 34 D1" only, so no maximum is set for the 32.
+#   - Whether the Diamond 36 D1 SL's Super-Light dual air spring carries the
+#     external OTT adjuster: the Onyx 38's guide shows its D1 SL does NOT have
+#     it, so the Diamond's 14-rotation OTT figure is deliberately not attached
+#     to that trim. Needs a Diamond 36 set-up guide.
+#   - Diamond 36 CORE / 36 D1 SL volume-spacer maximum: both ship a 6x 5cc
+#     reducer kit, but DVO states no maximum usable count the way the Onyx 38
+#     does ("A maximum of 4 volume spacers can be used"). No Volume Spacers
+#     adjustment declared for either.
+#   - Diamond 36 CORE damper: no click or rotation totals anywhere, and no CORE
+#     set-up guide or tech page exists yet. Model stays `complete: false`.
+#   - Diamond D3/E3 rebound total: rebound appears only as a base chart in the
+#     2020 guide. Its LSC needs no number — DVO documents it as a continuous
+#     full-range adjuster, so it is modelled in turns.
+#   - Diamond E3 chassis specs: still no dedicated page; stanchion and travel
+#     are carried from the D3 it is valved from, and travel is left unset.
+#   - Emerald production years: "2014-2019" brackets the reviews found (2014)
+#     and the model's disappearance from DVO's line; DVO publishes no start/end
+#     year. Emerald bladder pressure and volume-spacer counts are not published.
+#   - Earlier Diamond (D1/D2, 35mm, 2016-2019) and earlier Onyx SC / Onyx DC
+#     generations are deliberately NOT added: tech.dvosuspension.com/setup
+#     carries one un-generationed page per model, so there is no way to tell
+#     which numbers belong to which generation, and SCHEMA.md forbids
+#     inheriting counts across generations.
 # --------------------------------------------------------------------------

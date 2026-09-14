@@ -102,8 +102,8 @@ class _SetupPageHarness {
   }) async {
     final database = AppDatabase.memory();
     final seedRepository = AppRepository(database);
-    await seedRepository.addBike(Bike(id: _bikeId, name: 'Test Bike', person: null));
-    await seedRepository.addComponent(
+    await seedRepository.addBikes([Bike(id: _bikeId, name: 'Test Bike', person: null)]);
+    await seedRepository.addComponents([
       Component(
         id: _componentId,
         name: 'Fork',
@@ -118,10 +118,10 @@ class _SetupPageHarness {
         ],
         installations: [Installation.sinceBeginning(parent: _bikeId)],
       ),
-    );
+    ]);
 
     final editedLocal = DateTime(2025, 1, 1, 11, editedMinute);
-    await seedRepository.addSetup(
+    await seedRepository.addSetups([
       Setup(
         id: _editedSetupId,
         name: 'Edited Setup',
@@ -133,11 +133,11 @@ class _SetupPageHarness {
         bikeAdjustmentValues: const {_adjustmentId: '80'},
         personAdjustmentValues: const {},
       ),
-    );
+    ]);
 
     if (crossingMinute != null) {
       final crossingLocal = DateTime(2025, 1, 1, 11, crossingMinute);
-      await seedRepository.addSetup(
+      await seedRepository.addSetups([
         Setup(
           id: 'crossing_setup',
           name: 'Crossing Setup',
@@ -149,7 +149,7 @@ class _SetupPageHarness {
           bikeAdjustmentValues: const {_adjustmentId: '85'},
           personAdjustmentValues: const {},
         ),
-      );
+      ]);
     }
     seedRepository.dispose();
 

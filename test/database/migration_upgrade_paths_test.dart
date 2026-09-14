@@ -28,13 +28,18 @@ void main() {
     if (tempDir.existsSync()) await tempDir.delete(recursive: true);
   });
 
-  // Reshapes a freshly-created (v10) database back to [version] by undoing every
-  // structural change introduced after it, newest-first. This lets us drive the
-  // real `onUpgrade` from any historical version without hand-writing each full
-  // schema. v4 (setups.name NOT NULL -> nullable), v6 (rating_entries reshape)
-  // and v2 (data-only) need no structural undo — their steps rewrite/recreate
-  // the affected tables regardless of the starting column shape.
+  // Reshapes a freshly-created (current-schema) database back to [version] by
+  // undoing every structural change introduced after it, newest-first. This lets
+  // us drive the real `onUpgrade` from any historical version without
+  // hand-writing each full schema. v4 (setups.name NOT NULL -> nullable), v6
+  // (rating_entries reshape) and the data-only steps (v2, v11, v12) need no
+  // structural undo — their steps rewrite/recreate the affected tables
+  // regardless of the starting column shape.
   Future<void> reshapeToVersion(AppDatabase db, int version) async {
+    if (version < 13) {
+      // v13 added setups.is_bookmarked.
+      await db.customStatement('ALTER TABLE setups DROP COLUMN is_bookmarked');
+    }
     if (version < 10) {
       // v10 added strava_activities.workout_type.
       await db.customStatement('ALTER TABLE strava_activities DROP COLUMN workout_type');
@@ -68,8 +73,8 @@ void main() {
   }
 
   // Seeds a single setup row via raw SQL — the typed API can't be used here
-  // because the reshaped schema predates the `images` column. `name` is the
-  // legacy placeholder the v4 step is expected to clear.
+  // because the reshaped schema predates the `images` and `is_bookmarked`
+  // columns. `name` is the legacy placeholder the v4 step is expected to clear.
   Future<void> seedSetup(AppDatabase db) async {
     const epochSeconds = 1700000000; // 2023-11-14, arbitrary but valid.
     await db.customStatement(
@@ -119,9 +124,9 @@ void main() {
   }
 
   group('onUpgrade from every prior version to the current schema', () {
-    // Covers the full range of jump sizes: the v9 case is a single step, the
+    // Covers the full range of jump sizes: the v12 case is a single step, the
     // v1 case crosses every TableMigration in the strategy.
-    for (final startVersion in [1, 2, 3, 4, 5, 6, 7, 8, 9]) {
+    for (final startVersion in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]) {
       test('v$startVersion -> current completes and preserves seed rows', () async {
         final db = await migrateFrom(startVersion);
         addTearDown(db.close);
@@ -147,6 +152,14 @@ void main() {
           reason: 'workout_type column missing after v$startVersion upgrade',
         );
 
+        // The setups table ends up with the v13 `is_bookmarked` column —
+        // whether it was added by the v13 step or by the v4 recreation.
+        expect(
+          await columnNames(db, 'setups'),
+          contains('is_bookmarked'),
+          reason: 'is_bookmarked column missing after v$startVersion upgrade',
+        );
+
         // The seeded installation row (parent='b1') got the 'bike' default.
         final instRows = await db.customSelect(
           "SELECT parent_type FROM installations WHERE id = 'i1'",
@@ -155,7 +168,7 @@ void main() {
         expect(instRows.single.read<String>('parent_type'), 'bike');
 
         // The seeded row survived the migration.
-        final rows = await db.customSelect('SELECT id, name, images FROM setups').get();
+        final rows = await db.customSelect('SELECT id, name, images, is_bookmarked FROM setups').get();
         expect(rows, hasLength(1));
         final row = rows.single;
         expect(row.read<String>('id'), 's1');
@@ -164,6 +177,9 @@ void main() {
         expect(row.read<String>('images'), '[]');
         final typed = await (db.select(db.setups)..where((t) => t.id.equals('s1'))).getSingle();
         expect(typed.images, isEmpty);
+
+        // Setups recorded before bookmarks existed come back unbookmarked.
+        expect(typed.isBookmarked, isFalse);
 
         // The v4 step clears the legacy 'Unnamed Setup' placeholder, but only on
         // upgrades that start before v4.

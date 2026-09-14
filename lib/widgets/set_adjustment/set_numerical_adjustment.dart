@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
+import '../../utils/number_input_formatters.dart';
 import '../../utils/unit_conversion.dart';
 import '../display_adjustment/adjustment_icon_name_notes.dart';
 
@@ -166,7 +167,14 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
                   onTap: _cycleUnit,
                   child: Padding(
                     padding: EdgeInsets.only(left: 4, right: _resetWouldChange ? 4 : 12, top: 4, bottom: 4),
-                    child: Text(label, style: TextStyle(color: suffixColor)),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      spacing: 2,
+                      children: [
+                        Text(label, style: TextStyle(color: suffixColor)),
+                        // Icon(Icons.unfold_more, size: 16, color: suffixColor),
+                      ],
+                    ),
                   ),
                 )
               : Padding(
@@ -225,7 +233,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
             flex: 3,
             child: TextFormField(
               keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),],
+              inputFormatters: const [SignedDecimalInputFormatter()],
               controller: _controller,
               textInputAction: TextInputAction.next,
               autovalidateMode: AutovalidateMode.onUserInteraction,

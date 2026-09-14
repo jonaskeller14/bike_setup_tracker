@@ -84,9 +84,12 @@ void main() {
 
   testWidgets('replaceComponent installs the picked component and retires the current one', (tester) async {
     await tester.runAsync(() async {
-      await appRepository.addBike(bike);
-      await appRepository.addComponent(current);
-      await appRepository.addComponent(spare);
+      await appRepository.addBikes([bike]);
+      await appRepository.addComponents([current, spare]);
+      // A batched insert dispatches its drift table updates only once the
+      // transaction unwinds. Yield so the query streams refetch here, before
+      // the pending refetch is dropped along with the replaced repository.
+      await Future<void>.delayed(Duration.zero);
     });
     appRepository.dispose();
     appRepository = AppRepository(database);

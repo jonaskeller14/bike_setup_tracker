@@ -46,21 +46,33 @@ class _TaskListState extends State<TaskList> {
     super.initState();
     _ownsController = widget.controller == null;
     _controller = widget.controller ?? ListScrollController();
+    _controller.addScrollToTopListener(_collapseSections);
   }
 
   @override
   void didUpdateWidget(covariant TaskList oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.controller == oldWidget.controller) return;
+    _controller.removeScrollToTopListener(_collapseSections);
     if (_ownsController) _controller.dispose();
     _ownsController = widget.controller == null;
     _controller = widget.controller ?? ListScrollController();
+    _controller.addScrollToTopListener(_collapseSections);
   }
 
   @override
   void dispose() {
+    _controller.removeScrollToTopListener(_collapseSections);
     if (_ownsController) _controller.dispose();
     super.dispose();
+  }
+
+  void _collapseSections() {
+    if (!_showAllUpcoming && !_showAllCompleted) return;
+    setState(() {
+      _showAllUpcoming = false;
+      _showAllCompleted = false;
+    });
   }
 
   Widget _taskRuleCard(String taskRuleId) {
@@ -98,6 +110,7 @@ class _TaskListState extends State<TaskList> {
         title: 'Nothing due in this view',
         subtitle: 'Priority or tag filters are hiding tasks that need attention.',
         actionLabel: 'Clear filters',
+        actionIcon: Icons.filter_alt_off,
         onAction: () {
           repository.selectAllTaskPriorities();
           repository.deselectAllTaskRuleTags();
@@ -186,10 +199,28 @@ class _TaskListState extends State<TaskList> {
       switchInCurve: Curves.easeOut,
       switchOutCurve: Curves.easeIn,
       transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
+      layoutBuilder: _sectionLayoutBuilder,
       child: KeyedSubtree(
         key: ValueKey(membershipKey),
         child: child,
       ),
+    );
+  }
+
+  /// [AnimatedSwitcher.defaultLayoutBuilder] with the outgoing copy hidden from
+  /// the hero machinery: a card that changes section exists in both copies, and
+  /// a covering route freezes the crossfade (its ticker is muted), so the tag
+  /// would still be duplicated when that route pops and flies its hero.
+  static Widget _sectionLayoutBuilder(Widget? currentChild, List<Widget> previousChildren) {
+    Widget heroGate(Widget child, {required bool enabled}) =>
+        HeroMode(key: child.key, enabled: enabled, child: child);
+
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        for (final child in previousChildren) heroGate(child, enabled: false),
+        if (currentChild != null) heroGate(currentChild, enabled: true),
+      ],
     );
   }
 

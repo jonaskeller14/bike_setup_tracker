@@ -7,6 +7,7 @@ class ListScrollController extends ChangeNotifier {
   final ScrollController scrollController = ScrollController();
 
   bool _showBackToTop = false;
+  final List<VoidCallback> _scrollToTopListeners = [];
 
   ListScrollController() {
     scrollController.addListener(_updateBackToTopVisibility);
@@ -23,8 +24,19 @@ class ListScrollController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void addScrollToTopListener(VoidCallback listener) {
+    _scrollToTopListeners.add(listener);
+  }
+
+  void removeScrollToTopListener(VoidCallback listener) {
+    _scrollToTopListeners.remove(listener);
+  }
+
   Future<void> scrollBackToTop() async {
     unawaited(HapticFeedback.lightImpact());
+    for (final listener in List<VoidCallback>.of(_scrollToTopListeners)) {
+      listener();
+    }
     if (!scrollController.hasClients) return;
     await scrollController.animateTo(
       scrollController.position.minScrollExtent,

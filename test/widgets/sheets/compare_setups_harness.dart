@@ -38,9 +38,11 @@ class CompareSetupsHarness {
   static Future<CompareSetupsHarness> create({int extraAdjustments = 0}) async {
     final database = AppDatabase.memory();
     final repository = AppRepository(database);
-    await repository.addBike(Bike(id: bikeId, name: 'Bike A', person: null));
-    await repository.addBike(Bike(id: secondBikeId, name: 'Bike B', person: null));
-    await repository.addComponent(
+    await repository.addBikes([
+      Bike(id: bikeId, name: 'Bike A', person: null),
+      Bike(id: secondBikeId, name: 'Bike B', person: null),
+    ]);
+    await repository.addComponents([
       Component(
         id: componentId,
         name: 'Fork',
@@ -52,7 +54,7 @@ class CompareSetupsHarness {
           for (var index = 0; index < extraAdjustments; index++) _adjustment('extra-$index', 'Adjustment $index'),
         ],
       ),
-    );
+    ]);
     final settings = AppSettings();
     final hintService = AppHintService(appRepository: repository, appSettings: settings);
     await hintService.load();
@@ -75,7 +77,7 @@ class CompareSetupsHarness {
 
   Future<void> addExtraAdjustments(WidgetTester tester, {int count = 12}) async {
     await tester.runAsync(
-      () => repository.addComponent(
+      () => repository.addComponents([
         Component(
           id: extraComponentId,
           name: 'Shock',
@@ -85,7 +87,7 @@ class CompareSetupsHarness {
             for (var index = 0; index < count; index++) _adjustment('extra-$index', 'Adjustment $index'),
           ],
         ),
-      ),
+      ]),
     );
   }
 
@@ -119,8 +121,12 @@ class CompareSetupsHarness {
   Future<void> addSetups(WidgetTester tester, Iterable<Setup> setups) async {
     await tester.runAsync(() async {
       for (final setup in setups) {
-        await repository.addSetup(setup);
+        await repository.addSetups([setup]);
       }
+      // A batched insert dispatches its drift table updates only once the
+      // transaction unwinds. Yield so the query streams refetch here, before
+      // [reload] drops the pending refetch along with the old subscription.
+      await Future<void>.delayed(Duration.zero);
     });
   }
 

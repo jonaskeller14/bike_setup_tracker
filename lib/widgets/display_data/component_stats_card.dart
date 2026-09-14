@@ -95,6 +95,12 @@ class _ComponentStatsCardState extends State<ComponentStatsCard> {
                       label: "Activities",
                       value: '${widget.componentStats.activityCount}',
                     ),
+                    _buildStatItem(
+                      context,
+                      icon: Icons.bolt,
+                      label: "Kilojoules",
+                      value: NumberFormat.decimalPattern().format(widget.componentStats.kilojoules.round()),
+                    ),
                   ],
                 ),
               ],

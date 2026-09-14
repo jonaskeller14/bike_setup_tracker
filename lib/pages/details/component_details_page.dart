@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
-import '../../models/component_stats.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/setup_activity_analysis_service.dart';
@@ -15,11 +14,12 @@ import '../../services/subscription_service.dart';
 import '../../utils/component_actions.dart';
 import '../../utils/installation_timeline_validation.dart';
 import '../../utils/table_column.dart';
+import '../../utils/table_column_comparator.dart';
 import '../../widgets/chips/filter_sheet_chip.dart';
 import '../../widgets/display_data/component_details_page_line_chart.dart';
 import '../../widgets/display_data/component_details_page_radial_chart.dart';
-import '../../widgets/display_data/component_details_page_table.dart';
 import '../../widgets/display_data/component_stats_card.dart';
+import '../../widgets/display_data/setup_table.dart';
 import '../../widgets/display_installation_timeline.dart';
 import '../../widgets/empty_state_placeholder.dart';
 import '../../widgets/initial_changed_value_legend.dart';
@@ -50,22 +50,13 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
   // ratingMetricId → display name, for the per-metric rating columns.
   Map<String, String> _ratingMetricNames = {};
 
-  dynamic _rawValue(Setup setup, TableColumn column) => switch (column.section) {
-    TableColumnSection.componentAdjustments => setup.bikeAdjustmentValues[column.label],
-    TableColumnSection.ratingMetrics => _metricScores[setup.id]?[column.label],
-    TableColumnSection.ratingScore => _ratingScores[setup.id],
-    TableColumnSection.personAttributes => setup.personAdjustmentValues[column.label],
-    _ => null,
-  };
-
-  static Adjustment? _findAdjustment(
-    TableColumn column,
-    Iterable<Adjustment> componentAdjustments,
-    Iterable<Adjustment> personAdjustments,
-  ) => switch (column.section) {
-    TableColumnSection.componentAdjustments => componentAdjustments.firstWhereOrNull((a) => a.id == column.label),
-    TableColumnSection.personAttributes => personAdjustments.firstWhereOrNull((a) => a.id == column.label),
-    _ => null,
+  // Setup columns are rendered by the table itself; only data-driven columns resolve to a value here.
+  dynamic _rawValue(Setup setup, TableColumn column) => switch (column) {
+    ComponentAdjustmentColumn(:final adjustmentId) => setup.bikeAdjustmentValues[adjustmentId],
+    PersonAttributeColumn(:final adjustmentId) => setup.personAdjustmentValues[adjustmentId],
+    RatingMetricColumn(:final metricId) => _metricScores[setup.id]?[metricId],
+    RatingScoreColumn() => _ratingScores[setup.id],
+    SetupTableColumn() => null,
   };
 
   String _columnLabel(
@@ -73,34 +64,18 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     Iterable<Adjustment> componentAdjustments,
     Iterable<Adjustment> personAdjustments,
   ) {
-    return switch (column.section) {
-      TableColumnSection.generalContext ||
-      TableColumnSection.weatherContext ||
-      TableColumnSection.ratingScore => column.label,
-      TableColumnSection.ratingMetrics => _ratingMetricNames[column.label] ?? column.label,
-      TableColumnSection.componentAdjustments => componentAdjustments.firstWhereOrNull((a) => a.id == column.label)?.name ?? column.label,
-      TableColumnSection.personAttributes => personAdjustments.firstWhereOrNull((a) => a.id == column.label)?.name ?? column.label,
+    return switch (column) {
+      SetupTableColumn(column: final setupColumn) => setupColumn.label,
+      RatingScoreColumn() => "Rating Score",
+      RatingMetricColumn(:final metricId) => _ratingMetricNames[metricId] ?? metricId,
+      ComponentAdjustmentColumn(:final adjustmentId) =>
+        componentAdjustments.firstWhereOrNull((a) => a.id == adjustmentId)?.name ?? adjustmentId,
+      PersonAttributeColumn(:final adjustmentId) =>
+        personAdjustments.firstWhereOrNull((a) => a.id == adjustmentId)?.name ?? adjustmentId,
     };
   }
 
-  final Set<TableColumn> _columns = {
-    TableColumn(section: TableColumnSection.generalContext, label: "Name", active: true),
-    TableColumn(section: TableColumnSection.generalContext, label: "Notes", active: false),
-    TableColumn(section: TableColumnSection.generalContext, label: "Tags", active: false),
-    TableColumn(section: TableColumnSection.generalContext, label: "Date", active: true),
-    TableColumn(section: TableColumnSection.generalContext, label: "Time", active: false),
-    TableColumn(section: TableColumnSection.generalContext, label: "Place", active: false),
-    TableColumn(section: TableColumnSection.generalContext, label: "Altitude", active: false),
-    TableColumn(section: TableColumnSection.generalContext, label: "Bike", active: false),
-
-    TableColumn(section: TableColumnSection.weatherContext, label: "Weather Code", active: false),
-    TableColumn(section: TableColumnSection.weatherContext, label: "Temperature", active: false),
-    TableColumn(section: TableColumnSection.weatherContext, label: "Precipitation", active: false),
-    TableColumn(section: TableColumnSection.weatherContext, label: "Humidity", active: false),
-    TableColumn(section: TableColumnSection.weatherContext, label: "Windspeed", active: false),
-    TableColumn(section: TableColumnSection.weatherContext, label: "Soil Moisture", active: false),
-    TableColumn(section: TableColumnSection.weatherContext, label: "Condition", active: false),
-  };
+  Set<TableColumn> _columns = {};
 
   List<Setup> sortSetupsByColumn({
     required List<Setup> setups,
@@ -109,195 +84,20 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     required Map<String, Bike> bikes,
     required Map<String, int> setupActivityCounts,
   }) {
-    if (_sortColumn == null) return setups;
+    final sortColumn = _sortColumn;
+    if (sortColumn == null) return setups;
 
-    switch (_sortColumn!.section) {
-      case TableColumnSection.generalContext || TableColumnSection.weatherContext:
-        switch (_sortColumn!.label) {
-          case "Name":
-            _sortAscending
-                ? setups.sort((a, b) => a.displayName.compareTo(b.displayName))
-                : setups.sort((a, b) => b.displayName.compareTo(a.displayName));
-          case "Notes":
-            _sortAscending
-                ? setups.sort((a, b) => (a.notes ?? '').compareTo(b.notes ?? ''))
-                : setups.sort((a, b) => (b.notes ?? '').compareTo(a.notes ?? ''));
-          case "Tags":
-            _sortAscending
-                ? setups.sort((a, b) => a.tags.join('; ').compareTo(b.tags.join('; ')))
-                : setups.sort((a, b) => b.tags.join('; ').compareTo(a.tags.join('; ')));
-          case "Date":
-            _sortAscending
-                ? setups.sort((a, b) => a.datetime.compareTo(b.datetime))
-                : setups.sort((a, b) => b.datetime.compareTo(a.datetime));
-          case "Time":
-            _sortAscending
-                ? setups.sort(
-                    (a, b) => a.datetime
-                        .copyWith(year: 0, month: 0, day: 0)
-                        .compareTo(b.datetime.copyWith(year: 0, month: 0, day: 0)),
-                  )
-                : setups.sort(
-                    (a, b) => b.datetime
-                        .copyWith(year: 0, month: 0, day: 0)
-                        .compareTo(a.datetime.copyWith(year: 0, month: 0, day: 0)),
-                  );
-          case "Place":
-            _sortAscending
-                ? setups.sort((a, b) => (a.place?.locality ?? '').compareTo(b.place?.locality ?? ''))
-                : setups.sort((a, b) => (b.place?.locality ?? '').compareTo(a.place?.locality ?? ''));
-          case "Altitude":
-            _sortAscending
-                ? setups.sort(
-                    (a, b) => (a.position?.altitude ?? double.negativeInfinity).compareTo(
-                      b.position?.altitude ?? double.negativeInfinity,
-                    ),
-                  )
-                : setups.sort(
-                    (a, b) => (b.position?.altitude ?? double.negativeInfinity).compareTo(
-                      a.position?.altitude ?? double.negativeInfinity,
-                    ),
-                  );
-          case "Bike":
-            _sortAscending
-                ? setups.sort((a, b) => (bikes[a.bike]?.name ?? '').compareTo(bikes[b.bike]?.name ?? ''))
-                : setups.sort((a, b) => (bikes[b.bike]?.name ?? '').compareTo(bikes[a.bike]?.name ?? ''));
-          case "Activities":
-            int count(Setup setup) => setupActivityCounts[setup.id] ?? 0;
-            _sortAscending
-                ? setups.sort((a, b) => count(a).compareTo(count(b)))
-                : setups.sort((a, b) => count(b).compareTo(count(a)));
-          case "Weather Code":
-            _sortAscending
-                ? setups.sort(
-                    (a, b) =>
-                        (a.weather?.getWeatherCodeLabel() ?? '').compareTo(b.weather?.getWeatherCodeLabel() ?? ''),
-                  )
-                : setups.sort(
-                    (a, b) =>
-                        (b.weather?.getWeatherCodeLabel() ?? '').compareTo(a.weather?.getWeatherCodeLabel() ?? ''),
-                  );
-          case "Temperature":
-            _sortAscending
-                ? setups.sort(
-                    (a, b) => (a.weather?.currentTemperature ?? double.negativeInfinity).compareTo(
-                      b.weather?.currentTemperature ?? double.negativeInfinity,
-                    ),
-                  )
-                : setups.sort(
-                    (a, b) => (b.weather?.currentTemperature ?? double.negativeInfinity).compareTo(
-                      a.weather?.currentTemperature ?? double.negativeInfinity,
-                    ),
-                  );
-          case "Precipitation":
-            _sortAscending
-                ? setups.sort(
-                    (a, b) => (a.weather?.currentTemperature ?? double.negativeInfinity).compareTo(
-                      b.weather?.currentTemperature ?? double.negativeInfinity,
-                    ),
-                  )
-                : setups.sort(
-                    (a, b) => (b.weather?.currentTemperature ?? double.negativeInfinity).compareTo(
-                      a.weather?.currentTemperature ?? double.negativeInfinity,
-                    ),
-                  );
-          case "Humidity":
-            _sortAscending
-                ? setups.sort(
-                    (a, b) => (a.weather?.currentTemperature ?? double.negativeInfinity).compareTo(
-                      b.weather?.currentTemperature ?? double.negativeInfinity,
-                    ),
-                  )
-                : setups.sort(
-                    (a, b) => (b.weather?.currentTemperature ?? double.negativeInfinity).compareTo(
-                      a.weather?.currentTemperature ?? double.negativeInfinity,
-                    ),
-                  );
-          case "Windspeed":
-            _sortAscending
-                ? setups.sort(
-                    (a, b) => (a.weather?.currentTemperature ?? double.negativeInfinity).compareTo(
-                      b.weather?.currentTemperature ?? double.negativeInfinity,
-                    ),
-                  )
-                : setups.sort(
-                    (a, b) => (b.weather?.currentTemperature ?? double.negativeInfinity).compareTo(
-                      a.weather?.currentTemperature ?? double.negativeInfinity,
-                    ),
-                  );
-          case "Soil Moisture":
-            _sortAscending
-                ? setups.sort(
-                    (a, b) => (a.weather?.currentTemperature ?? double.negativeInfinity).compareTo(
-                      b.weather?.currentTemperature ?? double.negativeInfinity,
-                    ),
-                  )
-                : setups.sort(
-                    (a, b) => (b.weather?.currentTemperature ?? double.negativeInfinity).compareTo(
-                      a.weather?.currentTemperature ?? double.negativeInfinity,
-                    ),
-                  );
-          case "Condition":
-            _sortAscending
-                ? setups.sort(
-                    (a, b) => (a.weather?.condition?.value ?? '').compareTo(b.weather?.condition?.value ?? ''),
-                  )
-                : setups.sort(
-                    (a, b) => (b.weather?.condition?.value ?? '').compareTo(a.weather?.condition?.value ?? ''),
-                  );
-        }
-      case TableColumnSection.ratingScore || TableColumnSection.ratingMetrics:
-        double rs(Setup s) => (_rawValue(s, _sortColumn!) as double?) ?? double.negativeInfinity;
-        _sortAscending ? setups.sort((a, b) => rs(a).compareTo(rs(b))) : setups.sort((a, b) => rs(b).compareTo(rs(a)));
-      case TableColumnSection.componentAdjustments || TableColumnSection.personAttributes:
-        final Adjustment? adjustment = _findAdjustment(_sortColumn!, componentAdjustments, personAdjustments);
-        if (adjustment == null) return setups;
+    final comparator = tableColumnComparator(
+      sortColumn,
+      valueFor: _rawValue,
+      componentAdjustments: componentAdjustments,
+      personAdjustments: personAdjustments,
+      bikes: bikes,
+      setupActivityCounts: setupActivityCounts,
+    );
+    if (comparator == null) return setups;
 
-        dynamic v(Setup s) => _rawValue(s, _sortColumn!);
-
-        switch (adjustment) {
-          case BooleanAdjustment():
-            _sortAscending
-                ? setups.sort((a, b) => ((v(a) as bool? ?? false) ? 1 : 0).compareTo((v(b) as bool? ?? false) ? 1 : 0))
-                : setups.sort((a, b) => ((v(b) as bool? ?? false) ? 1 : 0).compareTo((v(a) as bool? ?? false) ? 1 : 0));
-          case StepAdjustment():
-            _sortAscending
-                ? setups.sort((a, b) => ((v(a) ?? 0) as int).compareTo((v(b) ?? 0) as int))
-                : setups.sort((a, b) => ((v(b) ?? 0) as int).compareTo((v(a) ?? 0) as int));
-          case NumericalAdjustment():
-            _sortAscending
-                ? setups.sort(
-                    (a, b) => ((v(a) ?? double.negativeInfinity) as double).compareTo(
-                      (v(b) ?? double.negativeInfinity) as double,
-                    ),
-                  )
-                : setups.sort(
-                    (a, b) => ((v(b) ?? double.negativeInfinity) as double).compareTo(
-                      (v(a) ?? double.negativeInfinity) as double,
-                    ),
-                  );
-          case CategoricalAdjustment():
-            _sortAscending
-                ? setups.sort(
-                    (a, b) => Adjustment.formatValue(v(a) ?? '').compareTo(Adjustment.formatValue(v(b) ?? '')),
-                  )
-                : setups.sort(
-                    (a, b) => Adjustment.formatValue(v(b) ?? '').compareTo(Adjustment.formatValue(v(a) ?? '')),
-                  );
-          case TextAdjustment():
-            _sortAscending
-                ? setups.sort((a, b) => ((v(a) ?? '') as String).compareTo((v(b) ?? '') as String))
-                : setups.sort((a, b) => ((v(b) ?? '') as String).compareTo((v(a) ?? '') as String));
-          case DurationAdjustment():
-            _sortAscending
-                ? setups.sort(
-                    (a, b) => ((v(a) ?? Duration.zero) as Duration).compareTo((v(b) ?? Duration.zero) as Duration),
-                  )
-                : setups.sort(
-                    (a, b) => ((v(b) ?? Duration.zero) as Duration).compareTo((v(a) ?? Duration.zero) as Duration),
-                  );
-        }
-    }
+    setups.sort(_sortAscending ? comparator : (a, b) => comparator(b, a));
     return setups;
   }
 
@@ -317,7 +117,17 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     }
 
     final component = appRepository.components[widget.componentId];
-    if (component == null) return const SizedBox.shrink();
+    if (component == null) {
+      return Scaffold(
+        appBar: AppBar(),
+        body: const SafeArea(
+          child: EmptyStatePlaceholder.error(
+            title: "Component not found",
+            subtitle: "This component was deleted or is no longer available.",
+          ),
+        ),
+      );
+    }
     final componentAdjustments = component.adjustments;
 
     final bikes = appRepository.bikes;
@@ -346,59 +156,39 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
       for (final id in ratingMetricIds) id: allRatingMetrics[id]?.adjustment.name ?? id,
     };
 
-    // Remove only invalid columns (to keep prior modifications to 'active')
-    for (final column in _columns.toSet()) {
-      switch (column.section) {
-        case TableColumnSection.generalContext:
-          if (column.label == "Tags" && !appSettings.enableSetupTags) _columns.remove(column);
-          if (column.label == "Activities" && !hasAnyActivity) _columns.remove(column);
-        case TableColumnSection.componentAdjustments:
-          if (!componentAdjustments.any((a) => a.id == column.label)) _columns.remove(column);
-        case TableColumnSection.personAttributes:
-          if (!appSettings.enablePerson || person == null) {
-            _columns.remove(column);
-            continue;
-          } else if (!personAdjustments.any((pa) => pa.id == column.label)) {
-            _columns.remove(column);
-            continue;
-          }
-        case TableColumnSection.ratingMetrics:
-          if (!appSettings.enableRating || !ratingMetricIds.contains(column.label)) _columns.remove(column);
-        case TableColumnSection.ratingScore:
-          if (!appSettings.enableRating) _columns.remove(column);
-        case TableColumnSection.weatherContext:
-          continue;
-      }
-    }
+    // Built-in columns available under the current feature flags.
+    final availableSetupColumns = SetupColumn.values.where(
+      (column) => switch (column) {
+        SetupColumn.tags => appSettings.enableSetupTags,
+        SetupColumn.bookmarked => appSettings.enableSetupBookmark,
+        SetupColumn.activities => hasAnyActivity,
+        _ => true,
+      },
+    );
 
-    // Add missing columns
-    if (appSettings.enableSetupTags) {
-      _columns.add(TableColumn(section: TableColumnSection.generalContext, label: "Tags", active: false));
-    }
-    if (hasAnyActivity) {
-      _columns.add(TableColumn(section: TableColumnSection.generalContext, label: "Activities", active: false));
-    }
+    // Rebuilt every frame so columns always appear in canonical order; lookup()
+    // carries over the 'active' state of the columns that already existed.
+    final previousColumns = _columns;
+    T retained<T extends TableColumn>(T column) => previousColumns.lookup(column) as T? ?? column;
 
-    for (final adjustment in component.adjustments) {
-      _columns.add(TableColumn(section: TableColumnSection.componentAdjustments, label: adjustment.id, active: true));
-    }
-    if (appSettings.enablePerson) {
-      _columns.addAll(
-        personAdjustments.map(
-          (a) => TableColumn(section: TableColumnSection.personAttributes, label: a.id, active: false),
-        ),
-      );
-    }
-    if (appSettings.enableRating) {
-      _columns.add(TableColumn(section: TableColumnSection.ratingScore, label: "Rating Score", active: false));
-      for (final id in ratingMetricIds) {
-        _columns.add(TableColumn(section: TableColumnSection.ratingMetrics, label: id, active: false));
-      }
-    }
+    _columns = {
+      for (final column in availableSetupColumns) retained(SetupTableColumn(column, active: column.defaultActive)),
+      for (final adjustment in componentAdjustments) retained(ComponentAdjustmentColumn(adjustment.id, active: true)),
+      if (appSettings.enablePerson && person != null)
+        for (final adjustment in personAdjustments) retained(PersonAttributeColumn(adjustment.id, active: false)),
+      if (appSettings.enableRating) ...[
+        for (final id in ratingMetricIds) retained(RatingMetricColumn(id, active: false)),
+        retained(RatingScoreColumn(active: false)),
+      ],
+    };
 
-    final sortedColumns = _columns.sorted((a, b) => a.section.index.compareTo(b.section.index)); // sort by enum index
-    final activeColumns = sortedColumns.where((c) => c.active).toList();
+    final orderedColumns = _columns.toList();
+    final activeColumns = orderedColumns.where((c) => c.active).toList();
     if (!activeColumns.contains(_sortColumn)) _sortColumn = null;
+
+    final sortColumn = _sortColumn;
+    final showDateAxisLabels =
+        sortColumn == null || (sortColumn is SetupTableColumn && sortColumn.column == SetupColumn.date);
 
     final setups = sortSetupsByColumn(
       setups: setupsUnsorted,
@@ -439,15 +229,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (appSettings.enableStrava && subscriptionService.hasStravaEntitlement) ...[
-                ComponentStatsCard(
-                  componentStats: ComponentStats(
-                    distance: component.totalDistance,
-                    elevationGain: component.totalElevationGain,
-                    movingTime: component.totalMovingTime,
-                    elapsedTime: component.totalElapsedTime,
-                    activityCount: component.totalActivityCount,
-                  ),
-                ),
+                ComponentStatsCard(componentStats: component.totalStats),
                 const Divider(height: 1),
               ],
 
@@ -514,18 +296,18 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                       onSelected: (bool newValue) async {
                         await showColumnFilterSheet(
                           context: context,
-                          sortedColumns: sortedColumns,
+                          columns: orderedColumns,
                           columnLabel: (TableColumn c) => _columnLabel(c, componentAdjustments, personAdjustments),
                           onColumnStatusChanged: () => setState(() {}), // TableColumn.active is changed
                         );
                       },
                     ),
-                    FilterSheetChip(enableSetupTagFilter: appSettings.enableSetupTags),
+                    FilterSheetChip.componentDetailsPage,
                   ],
                 ),
               ),
               if (setups.isNotEmpty && activeColumns.isNotEmpty)
-                ComponentDetailsPageTable(
+                SetupTable(
                   activeColumns: activeColumns,
                   setups: setups,
                   selectedSetupIds: _selectedSetupIds!,
@@ -601,12 +383,10 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                 activeColumns: activeColumns,
                 setups: setups,
                 selectedSetups: selectedSetups,
-                showDateAxisLabels:
-                    _sortColumn == null ||
-                    (_sortColumn!.section == TableColumnSection.generalContext && _sortColumn!.label == "Date"),
+                showDateAxisLabels: showDateAxisLabels,
                 selectedLineChartColumn: _selectedLineChartColumn,
                 valueFor: _rawValue,
-                adjustmentFor: (column) => _findAdjustment(
+                adjustmentFor: (column) => adjustmentForColumn(
                   column,
                   componentAdjustments,
                   personAdjustments,
@@ -643,7 +423,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                 setups: setups,
                 selectedSetups: selectedSetups,
                 valueFor: _rawValue,
-                adjustmentFor: (column) => _findAdjustment(
+                adjustmentFor: (column) => adjustmentForColumn(
                   column,
                   componentAdjustments,
                   personAdjustments,

@@ -24,6 +24,7 @@ class SetupBikeTab extends StatefulWidget {
   final void Function({required Adjustment adjustment}) onRemoveFromAdjustmentValues;
   final void Function(String) onDanglingRemove;
   final Future<void> Function({required CategoricalAdjustment adjustment, required String option})? onAddCategoricalOption;
+  final Widget? header;
 
   const SetupBikeTab({
     super.key,
@@ -38,6 +39,7 @@ class SetupBikeTab extends StatefulWidget {
     required this.onRemoveFromAdjustmentValues,
     required this.onDanglingRemove,
     this.onAddCategoricalOption,
+    this.header,
   });
 
   @override
@@ -98,6 +100,7 @@ class _SetupBikeTabState extends State<SetupBikeTab> {
     return SetupTabScaffold(
       showLegend: widget.bikeComponents.isNotEmpty || widget.danglingBikeAdjustmentValues.isNotEmpty,
       children: [
+        if (widget.header != null) widget.header!,
         if (widget.bikeComponents.isEmpty) ...[
           _buildEmptyComponentsPlaceholder(context, widget.bike),
         ] else ...[

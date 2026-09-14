@@ -13,7 +13,7 @@ class RatingListFilterWidget extends StatelessWidget {
       child: Row(
         spacing: 6,
         children: [
-          FilterSheetChip(enableSetupTagFilter: false),
+          FilterSheetChip.ratingList,
         ],
       ),
     );

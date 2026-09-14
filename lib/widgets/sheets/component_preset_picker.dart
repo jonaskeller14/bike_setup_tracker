@@ -370,11 +370,7 @@ class _Catalog {
         modelsByBrand
             .putIfAbsent(variant.brand, () => {})
             .putIfAbsent(variant.category ?? _uncategorised, () => [])
-            .add(_ModelEntry(
-              name: variant.model,
-              yearRange: variant.yearRange,
-              trims: trims,
-            ));
+            .add(_ModelEntry(name: variant.model, trims: trims));
       }
     }
 
@@ -443,17 +439,13 @@ class _CategoryRow extends _ModelRow {
 }
 
 class _ModelEntry extends _ModelRow {
-  const _ModelEntry({
-    required this.name,
-    required this.yearRange,
-    required this.trims,
-  });
+  const _ModelEntry({required this.name, required this.trims});
 
   final String name;
-  final String? yearRange;
 
   /// Live reference to the model's list in [_Catalog._trimsByModel]; it is still
-  /// being filled when the entry is created.
+  /// being filled when the entry is created, so the row's year span and trim
+  /// count have to be read off it at build time.
   final List<ComponentPresetVariant> trims;
 }
 
@@ -516,12 +508,27 @@ class _ModelList extends StatelessWidget {
 }
 
 String _modelSubtitle(_ModelEntry model) {
-  final parts = <String>[];
-  final years = model.yearRange;
-  if (years != null && years.isNotEmpty) parts.add(years);
-  parts.add(model.trims.length == 1 ? '1 trim' : '${model.trims.length} trims');
-  return parts.join(' · ');
+  return [
+    ?presetYearSpan(model.trims),
+    model.trims.length == 1 ? '1 trim' : '${model.trims.length} trims',
+  ].join(' · ');
 }
+
+/// The years a model row covers. Generations of one model are separate catalog
+/// entries merged under a single row, so when they disagree the row shows the
+/// whole span (`2018–2026`) and the per-generation years stay on the trim rows.
+String? presetYearSpan(List<ComponentPresetVariant> trims) {
+  final ranges = {for (final trim in trims) ?trim.yearRange}..remove('');
+  if (ranges.isEmpty) return null;
+  if (ranges.length == 1) return ranges.first;
+  final years = [
+    for (final range in ranges)
+      for (final match in _yearPattern.allMatches(range)) match[0]!,
+  ]..sort();
+  return years.isEmpty ? null : '${years.first}–${years.last}';
+}
+
+final RegExp _yearPattern = RegExp(r'\d{4}');
 
 // --- stage 3: trims, and the flat search results -----------------------------
 

@@ -12,10 +12,30 @@ sources:
   - https://ridefox.com/pages/fox-float-x
   - https://ridefox.com/pages/fox-float
   - https://ridefox.com/pages/fox-float-sl
-updated: 2026-07-05
+  - https://ridefox.com/products/fox-dhx-factory
+  # Archived spec sheets + owner's manuals (tech.ridefox.com) — the source for
+  # the open-mode adjust positions and every legacy damper below.
+  - https://tech.ridefox.com/bike/list/spec-sheets
+  - https://tech.ridefox.com/bike/list/owners-manuals
+  - https://tech.ridefox.com/bike/owners-manuals/3099/shock--2026-float
+  - https://tech.ridefox.com/bike/owners-manuals/3098/shock--2026-float-sl-and-float-x
+  - https://tech.ridefox.com/bike/owners-manuals/3023/shock--2026-float-x2
+  - https://tech.ridefox.com/bike/owners-manuals/3090/shock--2026-dhx2
+  - https://tech.ridefox.com/bike/owners-manuals/3100/shock--2026-dhx-
+  - https://tech.ridefox.com/bike/owners-manuals/1079/shock--2021-float-dps-and-dpx2
+  - https://tech.ridefox.com/bike/owners-manuals/1036/shock--2020-float-x2
+  - https://tech.ridefox.com/bike/owners-manuals/1078/shock--2021-float-x2
+  - https://tech.ridefox.com/bike/owners-manuals/1038/shock--2020-all-coil-shocks-(dhx2-and-van-models)
+updated: 2026-09-10
 # Click ranges taken from the per-model spec tables on the official FOX
 # product pages (ridefox.com/pages/fox-<model>). Clicks counted from fully
 # closed (firmest) → default `dial_ccw`; an adjuster with "16 clicks" is 0..16.
+#
+# The FOX owner's manuals never state a total click range for a shock adjuster —
+# they publish a pressure-vs-clicks starting-point table, which is a
+# recommendation and must not be read as a range. So the legacy dampers below
+# carry only the adjusters FOX describes in words (lever positions, open-mode
+# detents) and their models are `complete: false`.
 
 # --------------------------------------------------------------------------
 # Dampers
@@ -23,16 +43,19 @@ updated: 2026-07-05
 dampers:
   vvc2:
     name: VVC2 (4-Way Adjust)
-    description: >
-      Shared gravity damper platform in FLOAT X2 and DHX2. Variable Valve
-      Control on both high-speed circuits. Optional 2-position independent
-      Firm Mode lever on Factory/Performance Elite.
+    description: |-
+      - Gravity damper shared by FLOAT X2 and DHX2
+      - Variable Valve Control on both high-speed circuits
+      - Factory and Performance Elite add a 2-position Firm Mode lever
     adjustments:
       - { name: HSC, type: step, max: 8, notes: High-Speed Compression }
       - { name: LSC, type: step, max: 16, notes: Low-Speed Compression }
       - { name: HSR, type: step, max: 8, notes: High-Speed Rebound }
       - { name: LSR, type: step, max: 16, notes: Low-Speed Rebound }
     firm_mode: optional 2-position independent lever
+    source:
+      - https://ridefox.com/pages/fox-float-x2
+      - https://ridefox.com/pages/fox-dhx2
 
   float_x:
     name: FLOAT X damper
@@ -41,24 +64,33 @@ dampers:
       - { name: Compression, type: step, max: 11, notes: Low-Speed Compression }
       - { name: Rebound, type: step, max: 16, notes: Low-Speed Rebound }
       - { name: Compression Mode, type: categorical, options: [Open, Firm] }
+    source: https://ridefox.com/pages/fox-float-x
 
   float:
     name: FLOAT damper
-    description: XC/Trail air shock damper. 2-position lever with 3-position micro-adjust in Open mode.
+    description: XC/Trail air shock damper. 2-position lever (Open/Firm) plus a 3-position open-mode adjust (1 plush, 3 firm).
     adjustments:
       - { name: Rebound, type: step, max: 12 }
       - { name: Compression Mode, type: categorical, options: [Open, Firm] }
+      - { name: Open Mode Adjust, type: categorical, options: ["1", "2", "3"], notes: "Low-Speed Compression in Open mode; 1 is plushest, 3 firmest" }
     open_mode_micro_adjust: 3-position
+    source:
+      - https://ridefox.com/pages/fox-float
+      - https://tech.ridefox.com/bike/owners-manuals/3099/shock--2026-float
 
   float_sl:
     name: FLOAT SL damper
-    description: >
-      Lightest XC race damper. 3-position lever (Open/Medium/Firm) with
-      3-position micro-adjust in Open mode; remote variants available in
-      2-position or 3-position handlebar remote.
+    description: |-
+      - Lightest XC race damper
+      - 3-position lever (Open/Medium/Firm) plus a 3-position open-mode adjust
+      - 2-position and 3-position handlebar remotes available
     adjustments:
       - { name: Rebound, type: step, max: 12 }
       - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm] }
+      - { name: Open Mode Adjust, type: categorical, options: ["1", "2", "3"], notes: "Low-Speed Compression in Open mode; 1 is plushest, 3 firmest" }
+    source:
+      - https://ridefox.com/pages/fox-float-sl
+      - https://tech.ridefox.com/bike/owners-manuals/3098/shock--2026-float-sl-and-float-x
 
   dhx_coil:
     name: DHX damper (coil)
@@ -67,17 +99,69 @@ dampers:
       - { name: Compression, type: step, max: 11, notes: Low-Speed Compression }
       - { name: Rebound, type: step, max: 16, notes: Low-Speed Rebound }
       - { name: Compression Mode, type: categorical, options: [Open, Firm] }
+    source: https://ridefox.com/products/fox-dhx-factory
+
+  # ------------------------------------------------------------------------
+  # Legacy dampers — one key per cartridge generation, never reusing a current
+  # key. Click totals are absent from FOX's material for all of these.
+  # ------------------------------------------------------------------------
+  x2_2016:
+    name: X2 4-Way (2016-2020)
+    description: |-
+      - Four-way gravity damper shared by FLOAT X2 and DHX2 of these years
+      - Hex-key adjusters: 6mm for the high-speed circuits, 3mm for the low-speed
+      - Adjustments incomplete: please add HSC, LSC, HSR and LSR yourself.
+    adjustments: []
+    source:
+      - https://tech.ridefox.com/bike/owners-manuals/1036/shock--2020-float-x2
+      - https://tech.ridefox.com/bike/owners-manuals/1038/shock--2020-all-coil-shocks-(dhx2-and-van-models)
+    note: >-
+      The 2020 manuals describe each adjuster and its hex size but publish only
+      a pressure-vs-clicks starting-point table, so no total range is recorded.
+
+  x2_vvc_2021:
+    name: X2 VVC 4-Way (2021-2024)
+    description: |-
+      - Four-way gravity damper with Variable Valve Control high-speed circuits
+      - Shared by FLOAT X2 and DHX2 of these years
+      - Adjustments incomplete: please add HSC, LSC, HSR and LSR yourself.
+    adjustments: []
+    source: https://tech.ridefox.com/bike/owners-manuals/1078/shock--2021-float-x2
+    note: Same gap as x2_2016 — starting-point tables only, no stated click range.
+
+  dps_2016:
+    name: DPS (2016-2023)
+    description: |-
+      - Dual Piston System trail damper with an EVOL negative air sleeve
+      - 3-position lever (Open/Medium/Firm) plus a 3-position open-mode adjust
+      - Adjustments incomplete: please add Rebound yourself.
+    adjustments:
+      - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm] }
+      - { name: Open Mode Adjust, type: categorical, options: ["1", "2", "3"], notes: "Low-Speed Compression in Open mode; Factory and Performance Elite non-remote shocks only" }
+    source: https://tech.ridefox.com/bike/owners-manuals/1079/shock--2021-float-dps-and-dpx2
+    note: Open-mode adjust described as "3 additional fine tuning adjustments"; rebound total never stated.
+
+  dpx2_2018:
+    name: DPX2 (2018-2021)
+    description: |-
+      - Larger-bodied trail/enduro version of the DPS damper
+      - 3-position lever (Open/Medium/Firm) plus a Comp Adj knob for overall compression
+      - Adjustments incomplete: please add Rebound and Compression yourself.
+    adjustments:
+      - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm] }
+    source: https://tech.ridefox.com/bike/owners-manuals/1079/shock--2021-float-dps-and-dpx2
+    note: Neither the Comp Adj knob's detent count nor the rebound total is stated in the 2018-2021 manuals.
 
 # --------------------------------------------------------------------------
-# Shocks — current (2025/2026) FOX lineup.
+# Shocks — current (2025/2026) FOX lineup, then legacy generations.
 # Shocks are sold by eye-to-eye/stroke length to match a given frame, not by a
 # fixed "travel" like forks — `stroke_mm` lists commonly offered strokes
 # rather than an exhaustive per-frame spec.
 #
 # The model-level `spring:` decides the spring adjustment: air shocks share the
-# `&air_spring` anchor (Pressure), coil shocks list a Spring Rate. Volume-spacer
-# counts are not published per model, so no Volume Spacers adjustment is
-# generated — see follow-ups.
+# `&air_spring` anchor (Pressure), coil shocks list a Spring Rate. FOX ships
+# rear-shock volume spacers as tuning kits rather than a per-model maximum
+# table, so no Volume Spacers adjustment is generated — see follow-ups.
 # --------------------------------------------------------------------------
 shocks:
   - model: "FLOAT SL"
@@ -138,7 +222,6 @@ shocks:
         stanchion: 7000-series alloy, black anodized
         dampers: [float_x]
         adjustments: *air_spring
-        note: simplified/fixed LSC on some builds; LSR remains 16 clicks
 
   - model: "FLOAT X2"
     category: Enduro / Gravity
@@ -158,7 +241,7 @@ shocks:
         stanchion: 7000-series alloy, black anodized
         dampers: [vvc2]
         adjustments: *air_spring
-        note: OEM complete bikes only; simplified external adjustments
+        note: OEM complete bikes only
 
   - model: "DHX"
     category: Trail / Enduro
@@ -193,21 +276,149 @@ shocks:
         stanchion: 7000-series alloy, black anodized
         dampers: [vvc2]
         adjustments: *coil_spring
-        note: OEM complete bikes only; simplified external adjustments
+        note: OEM complete bikes only
+
+  # ------------------------------------------------------------------------
+  # Legacy generations. They repeat the current model name and are told apart
+  # by `year_range`, so the picker merges them into one model row. Keep them
+  # below the current generation — the trim list follows file order. All are
+  # `complete: false` — FOX publishes no click totals for these dampers, only
+  # rider-pressure starting-point tables.
+  # ------------------------------------------------------------------------
+  - model: "FLOAT DPS"
+    complete: false
+    category: XC / Trail
+    spring: Air
+    year_range: "2016-2023"
+    url: https://tech.ridefox.com/bike/owners-manuals/1079/shock--2021-float-dps-and-dpx2
+    trims:
+      - trim: Factory
+        stanchion: Kashima
+        dampers: [dps_2016]
+        adjustments: *air_spring
+        note: EVOL air sleeve, 350 psi maximum. Sold with a 9mm damper shaft.
+      - trim: Performance Elite
+        stanchion: 7000-series alloy, black anodized
+        dampers: [dps_2016]
+        adjustments: *air_spring
+      - trim: Performance
+        stanchion: 7000-series alloy, black anodized
+        dampers: [dps_2016]
+        adjustments: *air_spring
+
+  - model: "FLOAT DPX2"
+    complete: false
+    category: Trail / Enduro
+    spring: Air
+    year_range: "2018-2021"
+    url: https://tech.ridefox.com/bike/owners-manuals/1079/shock--2021-float-dps-and-dpx2
+    trims:
+      - trim: Factory
+        stanchion: Kashima
+        dampers: [dpx2_2018]
+        adjustments: *air_spring
+        note: EVOL air sleeve, 350 psi maximum. Larger 1/2in damper shaft than the DPS.
+      - trim: Performance Elite
+        stanchion: 7000-series alloy, black anodized
+        dampers: [dpx2_2018]
+        adjustments: *air_spring
+      - trim: Performance
+        stanchion: 7000-series alloy, black anodized
+        dampers: [dpx2_2018]
+        adjustments: *air_spring
+
+  - model: "FLOAT X2"
+    complete: false
+    category: Enduro / Gravity
+    spring: Air
+    year_range: "2016-2020"
+    url: https://tech.ridefox.com/bike/owners-manuals/1036/shock--2020-float-x2
+    trims:
+      - trim: Factory
+        stanchion: Kashima
+        dampers: [x2_2016]
+        adjustments: *air_spring
+        note: |-
+          - Four-way adjustable; a 2-position Firm lever was offered on some shocks
+          - High-speed compression and rebound are Factory Series only
+      - trim: Performance Elite
+        stanchion: 7000-series alloy, black anodized
+        dampers: [x2_2016]
+        adjustments: *air_spring
+        note: Low-speed compression and rebound only — no high-speed adjusters.
+
+  - model: "FLOAT X2"
+    complete: false
+    category: Enduro / Gravity
+    spring: Air
+    year_range: "2021-2024"
+    url: https://tech.ridefox.com/bike/owners-manuals/1078/shock--2021-float-x2
+    trims:
+      - trim: Factory
+        stanchion: Kashima
+        dampers: [x2_vvc_2021]
+        adjustments: *air_spring
+      - trim: Performance Elite
+        stanchion: 7000-series alloy, black anodized
+        dampers: [x2_vvc_2021]
+        adjustments: *air_spring
+
+  - model: "DHX2"
+    complete: false
+    category: Downhill / Enduro
+    spring: Coil
+    year_range: "2016-2020"
+    url: https://tech.ridefox.com/bike/owners-manuals/1038/shock--2020-all-coil-shocks-(dhx2-and-van-models)
+    trims:
+      - trim: Factory
+        stanchion: Kashima
+        dampers: [x2_2016]
+        adjustments: *coil_spring
+        note: Coil spring sold separately. Shares the four-way X2 damper with the air FLOAT X2.
+      - trim: Performance Elite
+        stanchion: 7000-series alloy, black anodized
+        dampers: [x2_2016]
+        adjustments: *coil_spring
+
+  - model: "DHX2"
+    complete: false
+    category: Downhill / Enduro
+    spring: Coil
+    year_range: "2021-2024"
+    url: https://tech.ridefox.com/bike/owners-manuals/1078/shock--2021-float-x2
+    trims:
+      - trim: Factory
+        stanchion: Kashima
+        dampers: [x2_vvc_2021]
+        adjustments: *coil_spring
+        note: Coil spring sold separately.
+      - trim: Performance Elite
+        stanchion: 7000-series alloy, black anodized
+        dampers: [x2_vvc_2021]
+        adjustments: *coil_spring
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):
-#   - Volume-spacer counts per model are not published in the FOX spec tables,
-#     so no Volume Spacers adjustment is generated. Add one (with the published
-#     `max`) per air trim once a spec table lists it.
+#   - Legacy click totals. FOX's shock owner's manuals (2016-2024) describe each
+#     adjuster but publish only pressure-vs-clicks starting-point tables, so
+#     x2_2016, x2_vvc_2021, dps_2016 and dpx2_2018 have no ranges and every
+#     legacy model is `complete: false`. A FOX service manual or a staff-written
+#     magazine bench test stating the totals outright would close this.
+#   - Rear-shock volume spacers are sold as per-shaft tuning kits (FLOAT DPS
+#     9mm PN 803-01-250, FLOAT DPX2 1/2in PN 803-01-251) with no published
+#     per-model maximum, unlike the fork tables. Add a Volume Spacers
+#     adjustment per air trim if FOX ever tabulates a maximum.
 #   - Live Valve Neo variants (FLOAT X Live Valve Neo, FLOAT X2 Live Valve
 #     Neo, DHX Live Valve Neo) are electronically controlled — no manual
 #     click-based adjustment model. Would need modes/profiles (categorical
 #     entries) instead of click counts if added.
 #   - Exact stroke/eye-to-eye options for FLOAT/FLOAT X/FLOAT X2/FLOAT SL are
-#     frame-dependent and not listed in per-model spec tables; only DHX's
-#     common sizes were published on its product page.
-#   - FLOAT X "Performance" trim's low-speed compression click count wasn't
-#     explicitly confirmed (page only confirmed it for Factory/Performance
-#     Elite) — verify before relying on it for that specific trim.
+#     frame-dependent. The tech.ridefox.com spec sheets that would list them are
+#     published as images only; DHX's common sizes came from its product page.
+#   - FLOAT X "Performance": whether that trim keeps the 11-click low-speed
+#     compression dial or ships with a fixed setting is still unresolved, so its
+#     trim note was removed rather than left as an unverified claim.
+#   - Pre-2016 CTD-era shocks (FLOAT CTD, FLOAT X CTD, DHX RC4, VAN R/RC) are
+#     not covered: the 2014-2015 archived material is spec drawings plus
+#     manuals with no click ranges.
 # --------------------------------------------------------------------------

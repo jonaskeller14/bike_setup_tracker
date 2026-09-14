@@ -25,6 +25,7 @@ class Setups extends Table {
   DateTimeColumn get lastModified => dateTime().map(const UtcDateTimeConverter())();
 
   TextColumn get name => text().nullable()();
+  BoolColumn get isBookmarked => boolean().withDefault(const Constant(false))();
   DateTimeColumn get datetime => dateTime().map(const UtcDateTimeConverter())(); // UTC
   DateTimeColumn get datetimeLocal => dateTime().map(const LocalFloatingDateTimeConverter())();
   TextColumn get notes => text().nullable()();

@@ -29,9 +29,7 @@ void main() {
       final bike2 = Bike(id: "2", name: "Bike 2", person: null);
       final bike3 = Bike(id: "3", name: "Bike 3", person: null);
 
-      await repository.addBike(bike1);
-      await repository.addBike(bike2);
-      await repository.addBike(bike3);
+      await repository.addBikes([bike1, bike2, bike3]);
       await pumpEventQueue();
 
       // Initial order should be 1, 2, 3 (orderIndex defaults to 0, but inserted in this order)
@@ -54,9 +52,7 @@ void main() {
       final comp2 = Component(id: "c2", name: "C2", installations: [], componentType: ComponentType.other);
       final comp3 = Component(id: "c3", name: "C3", installations: [], componentType: ComponentType.other);
 
-      await repository.addComponent(comp1);
-      await repository.addComponent(comp2);
-      await repository.addComponent(comp3);
+      await repository.addComponents([comp1, comp2, comp3]);
       await pumpEventQueue();
 
       final comps = repository.components.values.toList();
@@ -74,9 +70,7 @@ void main() {
       final p2 = Person(id: "p2", name: "P2");
       final p3 = Person(id: "p3", name: "P3");
 
-      await repository.addPerson(p1);
-      await repository.addPerson(p2);
-      await repository.addPerson(p3);
+      await repository.addPersons([p1, p2, p3]);
       await pumpEventQueue();
 
       final persons = repository.persons.values.toList();
@@ -94,9 +88,7 @@ void main() {
       final r2 = Rating(id: "r2", name: "R2", filter: null, filterType: FilterType.global);
       final r3 = Rating(id: "r3", name: "R3", filter: null, filterType: FilterType.global);
 
-      await repository.addRating(r1);
-      await repository.addRating(r2);
-      await repository.addRating(r3);
+      await repository.addRatings([r1, r2, r3]);
       await pumpEventQueue();
 
       final ratings = repository.ratings.values.toList();
@@ -112,9 +104,11 @@ void main() {
 
   group("ReorderableWrap reorder", () {
     Future<void> setupComponents() async {
-      await repository.addComponent(Component(id: "c1", name: "C1", installations: [], componentType: ComponentType.other));
-      await repository.addComponent(Component(id: "c2", name: "C2", installations: [], componentType: ComponentType.other));
-      await repository.addComponent(Component(id: "c3", name: "C3", installations: [], componentType: ComponentType.other));
+      await repository.addComponents([
+        Component(id: "c1", name: "C1", installations: [], componentType: ComponentType.other),
+        Component(id: "c2", name: "C2", installations: [], componentType: ComponentType.other),
+        Component(id: "c3", name: "C3", installations: [], componentType: ComponentType.other),
+      ]);
       await pumpEventQueue();
     }
 

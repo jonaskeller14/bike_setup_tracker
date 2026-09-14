@@ -7,6 +7,8 @@ import '../models/rating.dart';
 import '../models/setup.dart';
 import '../utils/file_import.dart';
 
+typedef AdjustmentProvenance = ({dynamic value, Setup setup});
+
 class SetupResolutionService {
   /// Sorts setups chronologically and calculates inherited adjustment values.
   static ({Map<String, Setup> setups, Map<String, dynamic> globalState}) resolveSetups({
@@ -108,5 +110,35 @@ class SetupResolutionService {
     }
 
     return globalState;
+  }
+
+  /// Like [resolveHistoricalStateAt], but also reports *which* setup last
+  /// changed each value.
+  ///
+  /// Setups carry pre-filled values forward unchanged, so a repeated value is
+  /// not a modification: a value keeps pointing at the earlier setup that
+  /// introduced it until a setup records a different one. Different adjustments
+  /// therefore commonly resolve to different setups.
+  static Map<String, AdjustmentProvenance> resolveHistoricalProvenanceAt({
+    required DateTime datetime,
+    required Iterable<Setup> setups,
+    String? excludedSetupId,
+  }) {
+    const equality = DeepCollectionEquality();
+    final Map<String, AdjustmentProvenance> provenance = {};
+
+    final sortedSetups = setups
+        .where((s) => s.id != excludedSetupId && s.datetime.isBefore(datetime))
+        .sortedBy((s) => s.datetime);
+
+    for (final setup in sortedSetups) {
+      for (final entry in {...setup.bikeAdjustmentValues, ...setup.personAdjustmentValues}.entries) {
+        final known = provenance[entry.key];
+        if (known != null && equality.equals(known.value, entry.value)) continue;
+        provenance[entry.key] = (value: entry.value, setup: setup);
+      }
+    }
+
+    return provenance;
   }
 }

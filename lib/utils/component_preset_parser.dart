@@ -49,7 +49,7 @@ List<ComponentPresetVariant> parseBrandFile(String yamlSource) {
     final model = _requireString(rawModel, 'model');
     final complete = _boolOrTrue(rawModel['complete']);
     final category = rawModel['category']?.toString();
-    final yearRange = rawModel['year_range']?.toString();
+    final modelYearRange = rawModel['year_range']?.toString();
     final modelUrl = rawModel['url']?.toString();
     final modelSpring = rawModel['spring']?.toString();
     final wheelSizes = _stringList(rawModel['wheel_size']);
@@ -80,7 +80,7 @@ List<ComponentPresetVariant> parseBrandFile(String yamlSource) {
         trim: trim,
         componentType: componentType,
         category: category,
-        yearRange: yearRange,
+        yearRange: rawTrim['year_range']?.toString() ?? modelYearRange,
         url: rawTrim['url']?.toString() ?? modelUrl,
         wheelSizes: wheelSizes,
         travelOptions: _numList(rawTrim['travel_mm']),

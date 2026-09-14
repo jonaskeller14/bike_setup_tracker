@@ -106,15 +106,13 @@ class _TaskRuleDetailsPageState extends State<TaskRuleDetailsPage> {
                 ),
         ),
         body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.only(top: 16),
-            child: TaskRuleDetailsPageContent(
-              taskRuleId: widget.taskRuleId,
-              highlightTaskEntryId: widget.highlightTaskEntryId,
-              heroTag: widget.heroTag ?? 'task-rule-card-${widget.taskRuleId}',
-              selectedTaskEntries: _selectedTaskEntries,
-              onTaskEntrySelectionChanged: _toggleTaskEntrySelection,
-            ),
+          child: TaskRuleDetailsPageContent(
+            taskRuleId: widget.taskRuleId,
+            highlightTaskEntryId: widget.highlightTaskEntryId,
+            heroTag: widget.heroTag ?? 'task-rule-card-${widget.taskRuleId}',
+            selectedTaskEntries: _selectedTaskEntries,
+            onTaskEntrySelectionChanged: _toggleTaskEntrySelection,
+            padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
           ),
         ),
       ),
@@ -128,6 +126,7 @@ class TaskRuleDetailsPageContent extends StatefulWidget {
   final String? heroTag;
   final Set<String> selectedTaskEntries;
   final ValueChanged<String>? onTaskEntrySelectionChanged;
+  final EdgeInsets padding;
 
   const TaskRuleDetailsPageContent({
     super.key,
@@ -136,6 +135,7 @@ class TaskRuleDetailsPageContent extends StatefulWidget {
     this.heroTag,
     this.selectedTaskEntries = const {},
     this.onTaskEntrySelectionChanged,
+    this.padding = const EdgeInsets.symmetric(horizontal: 16),
   });
 
   @override
@@ -166,7 +166,12 @@ class _TaskRuleDetailsPageContentState extends State<TaskRuleDetailsPageContent>
     final appRepository = context.watch<AppRepository>();
 
     final taskRule = appRepository.taskRules[widget.taskRuleId];
-    if (taskRule == null) return const SizedBox.shrink();
+    if (taskRule == null) {
+      return const EmptyStatePlaceholder.error(
+        title: "Task not found",
+        subtitle: "This task was deleted or is no longer available.",
+      );
+    }
 
     final taskEntries = appRepository.taskEntries.values
         .where((te) => te.taskRule == taskRule.id)
@@ -183,7 +188,7 @@ class _TaskRuleDetailsPageContentState extends State<TaskRuleDetailsPageContent>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: widget.padding,
             child: TaskRuleDisplayCard(
               taskRule: taskRule,
               showStatus: true,

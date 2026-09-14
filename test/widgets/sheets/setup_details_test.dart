@@ -19,9 +19,7 @@ void main() {
   Future<void> pumpDetails(WidgetTester tester, String setupId) async {
     await tester.pumpWidget(
       harness.wrap(
-        SetupDetailsPageContent.sheet(
-          setup: harness.repository.setups[setupId]!,
-        ),
+        SetupDetailsPageContent.sheet(setupId: setupId),
       ),
     );
     await settle(tester);

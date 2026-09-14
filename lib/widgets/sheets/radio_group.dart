@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'sheet_header.dart';
 
-Future<void> appSettingsRadioGroupSheet<T>({
+Future<void> radioGroupSheet<T>({
   required BuildContext context,
   required String title,
   required T value,
@@ -40,7 +40,7 @@ Future<void> appSettingsRadioGroupSheet<T>({
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         ?contentWidget,
-                        ...optionWidgets.entries.map((e) => RadioListTile.adaptive(
+                        ...optionWidgets.entries.map((e) => RadioListTile(
                           value: e.key,
                           title: e.value,
                         )),

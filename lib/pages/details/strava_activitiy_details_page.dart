@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -12,7 +15,7 @@ import '../../services/strava_service.dart';
 import '../../utils/component_actions.dart';
 import '../../widgets/empty_state_placeholder2.dart';
 import '../../widgets/items/component_list_card.dart';
-import '../../widgets/items/setup_list_tile.dart';
+import '../../widgets/items/setup_tile.dart';
 import '../../widgets/sheets/sheet.dart';
 import '../setup_page.dart';
 
@@ -229,7 +232,7 @@ class StravaActivitiyPageContent extends StatelessWidget {
               children: [
                 _statWidget(context, "Moving Time", _formatDuration(stravaActivity.movingTime)),
                 _statWidget(context, "Elapsed Time", _formatDuration(stravaActivity.elapsedTime)),
-                const Expanded(child: SizedBox()), // Placeholder for alignment
+                _PowerStatTile(averageWatts: stravaActivity.averageWatts, kilojoules: stravaActivity.kilojoules),
               ],
             ),
           ),
@@ -296,8 +299,8 @@ class StravaActivitiyPageContent extends StatelessWidget {
                             ),
                           Expanded(
                             child: FilledButton.icon(
-                              onPressed: () => appRepository.addBike(
-                                Bike(name: stravaGear.name, person: null, stravaGear: stravaGear.id),
+                              onPressed: () => appRepository.addBikes(
+                                [Bike(name: stravaGear.name, person: appRepository.persons.values.firstOrNull?.id, stravaGear: stravaGear.id)],
                               ),
                               icon: const Icon(Icons.add),
                               label: const Text('Add New'),
@@ -418,10 +421,8 @@ class StravaActivitiyPageContent extends StatelessWidget {
                           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                           // Rounds the InkWell and the current-setup bar.
                           clipBehavior: Clip.antiAlias,
-                          child: SetupListTile(
+                          child: SetupTile(
                             setupId: setup.id,
-                            displayBikeAdjustmentValues: true,
-                            displayPersonAdjustmentValues: true,
                             onTap: null,
                           ),
                         );
@@ -483,7 +484,64 @@ class StravaActivitiyPageContent extends StatelessWidget {
       ),
     );
     if (result is Setup) {
-      await appRepository.addSetup(result);
+      await appRepository.addSetups([result]);
     }
+  }
+}
+
+class _PowerStatTile extends StatefulWidget {
+  final double? averageWatts;
+  final double? kilojoules;
+
+  const _PowerStatTile({required this.averageWatts, required this.kilojoules});
+
+  @override
+  State<_PowerStatTile> createState() => _PowerStatTileState();
+}
+
+class _PowerStatTileState extends State<_PowerStatTile> {
+  bool _showKilojoules = false;
+
+  String _formatPower(double? watts) {
+    if (watts == null) return "-";
+    return "${watts.round()} W";
+  }
+
+  String _formatKilojoules(double? kilojoules) {
+    if (kilojoules == null) return "-";
+    return "${kilojoules.round()} kJ";
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: InkWell(
+        onTap: () {
+          unawaited(HapticFeedback.selectionClick());
+          setState(() => _showKilojoules = !_showKilojoules);
+        },
+        borderRadius: BorderRadius.circular(8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              _showKilojoules ? "Energy" : "Avg Power",
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                letterSpacing: 0.5,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              _showKilojoules ? _formatKilojoules(widget.kilojoules) : _formatPower(widget.averageWatts),
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w400,
+                fontSize: 22,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

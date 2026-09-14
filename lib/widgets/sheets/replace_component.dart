@@ -144,7 +144,7 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
                   children: [
                     Icon(Icons.route, size: 11, color: cs.onSurfaceVariant),
                     Text(
-                      '${NumberFormat.decimalPattern().format(AppSettings.convertDistanceFromMeters(component.totalDistance, appSettings.distanceUnit)!.round())} ${appSettings.distanceUnit}',
+                      '${NumberFormat.decimalPattern().format(AppSettings.convertDistanceFromMeters(component.totalStats.distance, appSettings.distanceUnit)!.round())} ${appSettings.distanceUnit}',
                       style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
                     ),
                   ],
@@ -154,7 +154,7 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
                   children: [
                     Icon(Icons.timer_outlined, size: 11, color: cs.onSurfaceVariant),
                     Text(
-                      '${component.totalMovingTime.inHours}h ${component.totalMovingTime.inMinutes.remainder(60)}m',
+                      '${component.totalStats.movingTime.inHours}h ${component.totalStats.movingTime.inMinutes.remainder(60)}m',
                       style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
                     ),
                   ],

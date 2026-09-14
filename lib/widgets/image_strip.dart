@@ -139,7 +139,7 @@ class _ImageStripState extends State<ImageStrip> with TickerProviderStateMixin {
 
     final service = ImageStorageService();
     if (source == ImageSource.camera) {
-      final picked = await picker.pickImage(source: ImageSource.camera);
+      final picked = await picker.pickImage(source: ImageSource.camera, preferredCameraDevice: CameraDevice.rear);
       if (picked == null) return;
       final filename = await service.importImage(picked);
       widget.onAdd?.call([filename]);

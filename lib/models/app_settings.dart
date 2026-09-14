@@ -18,6 +18,7 @@ class AppSettings extends ChangeNotifier {
   String _distanceUnit = 'km';
   bool _enableGoogleDrive = false; // False is default, can only be activated on Android (see AppSettingsPage)
   bool _enableTextAdjustment = false;
+  bool _enableStepDialColorSize = true;
   bool _enableMultiSelect = false;
   bool _enableCountedSelect = false;
   bool _enablePerson = false;
@@ -29,13 +30,16 @@ class AppSettings extends ChangeNotifier {
   bool _enableTask = false;
   bool _enableTaskPriority = true;
   bool _enableTaskInterval = true;
-  bool _enableTaskDelay = false;
+  bool _enableTaskDelay = true;
+  bool _enableTaskDuePrediction = false;
   bool _enableGarageTaskIndicator = true;
   bool _enableInstallationTimeline = false;
   bool _useMapBoxTiles = false;
   bool _enableCalendar = false;
   bool _enableSetupImages = false;
+  bool _enableSetupBookmark = false;
   bool _enableComponentPresets = false;
+  bool _enablePressureAssistant = false;
   // Setup timeline grouping passes (debug-only, see FeaturesPage)
   bool _enableTimelineSetupGrouping = false;
   bool _enableTimelineReplacementDetection = true;
@@ -43,8 +47,6 @@ class AppSettings extends ChangeNotifier {
   int _firstDayOfWeek = DateTime.monday; // 1 = Monday … 7 = Sunday
 
   // Temporary Settings (in-memory only, never persisted)
-  bool _setupListBikeAdjustmentValues = true;
-  bool _setupListPersonAdjustmentValues = true;
   bool _displayShowSetups = true;
   bool _displayShowActivities = true;
   bool _displayShowInstallations = true;
@@ -62,6 +64,7 @@ class AppSettings extends ChangeNotifier {
   String get distanceUnit => _distanceUnit;
   bool get enableGoogleDrive => _enableGoogleDrive;
   bool get enableTextAdjustment => _enableTextAdjustment;
+  bool get enableStepDialColorSize => _enableStepDialColorSize;
   bool get enableMultiSelect => _enableMultiSelect;
   bool get enableCountedSelect => _enableCountedSelect;
   bool get enablePerson => _enablePerson;
@@ -74,20 +77,21 @@ class AppSettings extends ChangeNotifier {
   bool get enableTaskPriority => _enableTaskPriority;
   bool get enableTaskInterval => _enableTaskInterval;
   bool get enableTaskDelay => _enableTaskDelay;
+  bool get enableTaskDuePrediction => _enableTaskDuePrediction;
   bool get enableGarageTaskIndicator => _enableGarageTaskIndicator;
   bool get enableInstallationTimeline => _enableInstallationTimeline;
   bool get useMapBoxTiles => _useMapBoxTiles;
   bool get enableCalendar => _enableCalendar;
   bool get enableSetupImages => _enableSetupImages;
+  bool get enableSetupBookmark => _enableSetupBookmark;
   bool get enableComponentPresets => _enableComponentPresets;
+  bool get enablePressureAssistant => _enablePressureAssistant;
   bool get enableTimelineSetupGrouping => _enableTimelineSetupGrouping;
   bool get enableTimelineReplacementDetection => _enableTimelineReplacementDetection;
   bool get enableTimelineStravaContext => _enableTimelineStravaContext;
   int get firstDayOfWeek => _firstDayOfWeek;
 
   // Temporary Settings
-  bool get setupListBikeAdjustmentValues => _setupListBikeAdjustmentValues;
-  bool get setupListPersonAdjustmentValues => _setupListPersonAdjustmentValues;
   bool get displayShowSetups => _displayShowSetups;
   bool get displayShowActivities => _displayShowActivities;
   bool get displayShowInstallations => _displayShowInstallations;
@@ -169,6 +173,13 @@ class AppSettings extends ChangeNotifier {
     _enableTextAdjustment = newValue;
     notifyListeners();
     _persistBool('enableTextAdjustment', newValue);
+  }
+
+  set enableStepDialColorSize(bool newValue) {
+    if (newValue == _enableStepDialColorSize) return;
+    _enableStepDialColorSize = newValue;
+    notifyListeners();
+    _persistBool('enableStepDialColorSize', newValue);
   }
 
   set enableMultiSelect(bool newValue) {
@@ -255,6 +266,13 @@ class AppSettings extends ChangeNotifier {
     _persistBool('enableTaskDelay', newValue);
   }
 
+  set enableTaskDuePrediction(bool newValue) {
+    if (newValue == _enableTaskDuePrediction) return;
+    _enableTaskDuePrediction = newValue;
+    notifyListeners();
+    _persistBool('enableTaskDuePrediction', newValue);
+  }
+
   set enableGarageTaskIndicator(bool newValue) {
     if (newValue == _enableGarageTaskIndicator) return;
     _enableGarageTaskIndicator = newValue;
@@ -283,11 +301,25 @@ class AppSettings extends ChangeNotifier {
     _persistBool('enableSetupImages', newValue);
   }
 
+  set enableSetupBookmark(bool newValue) {
+    if (newValue == _enableSetupBookmark) return;
+    _enableSetupBookmark = newValue;
+    notifyListeners();
+    _persistBool('enableSetupBookmark', newValue);
+  }
+
   set enableComponentPresets(bool newValue) {
     if (newValue == _enableComponentPresets) return;
     _enableComponentPresets = newValue;
     notifyListeners();
     _persistBool('enableComponentPresets', newValue);
+  }
+
+  set enablePressureAssistant(bool newValue) {
+    if (newValue == _enablePressureAssistant) return;
+    _enablePressureAssistant = newValue;
+    notifyListeners();
+    _persistBool('enablePressureAssistant', newValue);
   }
 
   set enableTimelineSetupGrouping(bool newValue) {
@@ -316,18 +348,6 @@ class AppSettings extends ChangeNotifier {
     _firstDayOfWeek = newValue;
     notifyListeners();
     _persistInt('firstDayOfWeek', newValue);
-  }
-
-  set setupListBikeAdjustmentValues(bool newValue) {
-    if (newValue == _setupListBikeAdjustmentValues) return;
-    _setupListBikeAdjustmentValues = newValue;
-    notifyListeners();
-  }
-
-  set setupListPersonAdjustmentValues(bool newValue) {
-    if (newValue == _setupListPersonAdjustmentValues) return;
-    _setupListPersonAdjustmentValues = newValue;
-    notifyListeners();
   }
 
   set displayShowSetups(bool newValue) {
@@ -397,6 +417,7 @@ class AppSettings extends ChangeNotifier {
       _distanceUnit = prefs.getString('${_kPrefix}distanceUnit') ?? _distanceUnit;
       _enableGoogleDrive = prefs.getBool('${_kPrefix}enableGoogleDrive') ?? _enableGoogleDrive;
       _enableTextAdjustment = prefs.getBool('${_kPrefix}enableTextAdjustment') ?? _enableTextAdjustment;
+      _enableStepDialColorSize = prefs.getBool('${_kPrefix}enableStepDialColorSize') ?? _enableStepDialColorSize;
       _enableMultiSelect = prefs.getBool('${_kPrefix}enableMultiSelect') ?? _enableMultiSelect;
       _enableCountedSelect = prefs.getBool('${_kPrefix}enableCountedSelect') ?? _enableCountedSelect;
       _enablePerson = prefs.getBool('${_kPrefix}enablePerson') ?? _enablePerson;
@@ -409,13 +430,17 @@ class AppSettings extends ChangeNotifier {
       _enableTaskPriority = prefs.getBool('${_kPrefix}enableTaskPriority') ?? _enableTaskPriority;
       _enableTaskInterval = prefs.getBool('${_kPrefix}enableTaskInterval') ?? _enableTaskInterval;
       _enableTaskDelay = prefs.getBool('${_kPrefix}enableTaskDelay') ?? _enableTaskDelay;
+      _enableTaskDuePrediction =
+          prefs.getBool('${_kPrefix}enableTaskDuePrediction') ?? _enableTaskDuePrediction;
       _enableGarageTaskIndicator = prefs.getBool('${_kPrefix}enableGarageTaskIndicator') ?? _enableGarageTaskIndicator;
       _enableInstallationTimeline =
           prefs.getBool('${_kPrefix}enableInstallationTimeline') ?? _enableInstallationTimeline;
       _useMapBoxTiles = prefs.getBool('${_kPrefix}useMapBoxTiles') ?? _useMapBoxTiles;
       _enableCalendar = prefs.getBool('${_kPrefix}enableCalendar') ?? _enableCalendar;
       _enableSetupImages = prefs.getBool('${_kPrefix}enableSetupImages') ?? _enableSetupImages;
+      _enableSetupBookmark = prefs.getBool('${_kPrefix}enableSetupBookmark') ?? _enableSetupBookmark;
       _enableComponentPresets = prefs.getBool('${_kPrefix}enableComponentPresets') ?? _enableComponentPresets;
+      _enablePressureAssistant = prefs.getBool('${_kPrefix}enablePressureAssistant') ?? _enablePressureAssistant;
       _enableTimelineSetupGrouping =
           prefs.getBool('${_kPrefix}enableTimelineSetupGrouping') ?? _enableTimelineSetupGrouping;
       _enableTimelineReplacementDetection =
@@ -456,7 +481,27 @@ class AppSettings extends ChangeNotifier {
     await prefs.remove(_kLegacyBlobKey);
   }
 
-  static const _deprecatedPreferenceKeys = ['enableGarage'];
+  static const _deprecatedPreferenceKeys = [
+    'enableGarage',
+    'enableSetupComparison',
+    'enableStrava',
+    'enableTimelineDayHeaders',
+    'enableTodo',
+    'displayShowTodos',
+    'hintShownThisSession',
+    'setupListBikeAdjustmentValues',
+    'setupListOnlyChanges',
+    'setupListPersonAdjustmentValues',
+    'setupListRatingAdjustmentValues',
+    'setupListSortAscending',
+    'stravaGearHintDismissed',
+    // TODO: delete after grace period (when all users have migrated hints via AppHintService._migrateLegacyStatuses)
+    // 'showGarageListHint',
+    // 'showGettingStartedGuideHint',
+    // 'showSetupCalendarHint',
+    // 'showSetupTaskHint',
+    // 'showStravaLinkGearHint',
+  ];
 
   Future<void> _removeDeprecatedPreferences(SharedPreferences prefs) async {
     for (final key in _deprecatedPreferenceKeys) {

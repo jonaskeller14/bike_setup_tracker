@@ -22,7 +22,7 @@ import '../models/strava/strava_athlete.dart';
 import '../models/strava/strava_gear.dart';
 import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
-import '../models/task/task_threshold.dart';
+import '../models/task/task_threshold/task_threshold.dart';
 import 'adjustment_value_codec.dart';
 import 'app_database.dart';
 import 'daos/rating_entries_dao.dart';
@@ -58,11 +58,14 @@ extension ComponentDbMapper on ComponentDb {
       adjustments: adjustments,
       installations: installations,
       orderIndex: orderIndex,
-      initialDistance: initialDistance,
-      initialElevationGain: initialElevationGain,
-      initialMovingTime: initialMovingTime,
-      initialElapsedTime: initialElapsedTime,
-      initialActivityCount: initialActivityCount,
+      initialStats: ComponentStats(
+        distance: initialDistance,
+        elevationGain: initialElevationGain,
+        movingTime: initialMovingTime,
+        elapsedTime: initialElapsedTime,
+        activityCount: initialActivityCount,
+        kilojoules: initialKilojoules,
+      ),
     );
   }
 }
@@ -210,11 +213,12 @@ extension ComponentMapper on Component {
       notes: Value<String?>(notes),
       componentType: Value<ComponentType>(componentType),
       orderIndex: Value<int>(orderIndex),
-      initialDistance: Value<double>(initialDistance),
-      initialElevationGain: Value<double>(initialElevationGain),
-      initialMovingTime: Value<Duration>(initialMovingTime),
-      initialElapsedTime: Value<Duration>(initialElapsedTime),
-      initialActivityCount: Value<int>(initialActivityCount),
+      initialDistance: Value<double>(initialStats.distance),
+      initialElevationGain: Value<double>(initialStats.elevationGain),
+      initialMovingTime: Value<Duration>(initialStats.movingTime),
+      initialElapsedTime: Value<Duration>(initialStats.elapsedTime),
+      initialActivityCount: Value<int>(initialStats.activityCount),
+      initialKilojoules: Value<double>(initialStats.kilojoules),
     );
   }
 }
@@ -358,6 +362,7 @@ extension SetupMapper on Setup {
       isDeleted: Value<bool>(isDeleted),
       lastModified: Value<DateTime>(lastModified),
       name: Value<String?>(name),
+      isBookmarked: Value<bool>(isBookmarked),
       datetime: Value<DateTime>(datetime),
       datetimeLocal: Value<DateTime>(datetimeLocal),
       notes: Value<String?>(notes),
@@ -410,6 +415,7 @@ extension SetupDbMapper on SetupDb {
       isDeleted: isDeleted,
       lastModified: _toUtcSafe(lastModified, 'Setup.lastModified'),
       name: name,
+      isBookmarked: isBookmarked,
       datetime: _toUtcSafe(datetime, 'Setup.datetime'),
       datetimeLocal: datetimeLocal,
       notes: notes,
@@ -512,6 +518,7 @@ extension StravaActivityDbMapper on StravaActivityDb {
       movingTime: Duration(seconds: movingTime),
       elapsedTime: Duration(seconds: elapsedTime),
       workoutType: workoutType,
+      averageWatts: averageWatts,
     );
   }
 }
@@ -557,6 +564,7 @@ extension StravaActivityMapper on StravaActivity {
       movingTime: Value<int>(movingTime.inSeconds),
       elapsedTime: Value<int>(elapsedTime.inSeconds),
       workoutType: Value<int?>(workoutType),
+      averageWatts: Value<double?>(averageWatts),
     );
   }
 }

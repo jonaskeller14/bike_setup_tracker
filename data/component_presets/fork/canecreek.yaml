@@ -21,43 +21,82 @@ sources:
   - https://www.canecreek.com/products/helm-dj
   - https://www.canecreek.com/blogs/journal/helm-yeah
   - https://support.canecreek.com/support/solutions/articles/62000210355-helm-mkii-air-volume-adjustment
-updated: 2026-07-17
-# Click ranges below were taken from the per-model spec sections on the
-# official canecreek.com product pages. Clicks are counted from fully closed
-# (firmest); the default `dial_ccw` visualization applies unless noted.
+  - https://www.canecreek.com/pages/forks-product-support
+  - https://www.canecreek.com/pages/legacy-products-product-support
+  # Official PDF instruction manuals (linked from the two support pages above)
+  - https://cdn.shopify.com/s/files/1/0579/5987/4639/files/HelmMKII_UserManual_04_03_2025.pdf
+  - https://cdn.shopify.com/s/files/1/0579/5987/4639/files/Helm_UserManual_1_12_18_FINAL_4a8c4476-2bc0-4f03-ae32-0ced7f5f3137.pdf
+  - https://www.pinkbike.com/news/cane-creek-helm-fork-review-2017.html
+updated: 2026-09-10
+# Click ranges below come from the "Damping Adjustments" table in each
+# generation's official Cane Creek instruction manual (see each damper's
+# `source:`). Clicks are counted from fully closed (firmest); the default
+# `dial_ccw` visualization applies unless noted. Both Helm manuals footnote
+# that "count of adjuster positions may vary with some fork builds. The range
+# of adjustment will remain the same."
 
 # --------------------------------------------------------------------------
-# Dampers — shared across the forks that ship with them.
+# Dampers — shared across the forks that ship with them. One key per
+# generation: the MK1 and MKII cartridges do NOT share click counts.
 # --------------------------------------------------------------------------
 dampers:
-  helm_damper:
-    name: Helm Damper
-    description: >
-      Independent, externally-adjustable High-Speed Compression, Low-Speed
-      Compression and Low-Speed Rebound circuits. Same cartridge tune across
-      the Helm MKII (Air & Coil) and Helm Works Series chassis — the Helm
-      MKII Coil and Works Series spec pages independently list identical
-      10/17/10 position counts.
+  helm_mkii_damper:
+    name: Helm MKII Damper
+    description: |-
+      - Independent High-Speed Compression, Low-Speed Compression and rebound circuits, all externally adjustable
+      - 10 positions per adjuster, counted from fully closed
+      - Clockwise adds damping, counter-clockwise takes it away
+    adjustments:
+      - { name: HSC, type: step, max: 10, notes: High-Speed Compression }
+      - { name: LSC, type: step, max: 10, notes: Low-Speed Compression }
+      - { name: Rebound, type: step, max: 10, notes: "Low-Speed Rebound; Cane Creek labels this the fork's single rebound circuit (no separate high-speed rebound adjuster)" }
+    source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/HelmMKII_UserManual_04_03_2025.pdf
+    note: >-
+      Helm MKII instruction manual (rev. 04/03/2025), "Fork Features Overview
+      → Damping Adjustments", p. 6: Compression Low Speed 10 Positions,
+      Compression High Speed 10 Positions, Rebound Low Speed 10 Positions.
+      This replaces the earlier 10/17/10 figure in this file — LSC 17 is the
+      first-generation Helm number (see helm_mk1_damper), not the MKII's.
+      Same cartridge spec covers Helm MKII Air, Helm MKII Coil and the Helm
+      Works Series, which are all documented by this one manual.
+
+  helm_mk1_damper:
+    name: Helm Damper (MK1)
+    description: |-
+      - First-generation Helm cartridge: separate High-Speed and Low-Speed Compression plus a single rebound circuit
+      - 17 positions of Low-Speed Compression, 10 each of High-Speed Compression and rebound
+      - Clockwise adds damping, counter-clockwise takes it away
     adjustments:
       - { name: HSC, type: step, max: 10, notes: High-Speed Compression }
       - { name: LSC, type: step, max: 17, notes: Low-Speed Compression }
       - { name: Rebound, type: step, max: 10, notes: "Low-Speed Rebound; Cane Creek labels this the fork's single rebound circuit (no separate high-speed rebound adjuster)" }
+    source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/Helm_UserManual_1_12_18_FINAL_4a8c4476-2bc0-4f03-ae32-0ced7f5f3137.pdf
+    note: >-
+      Helm (original) instruction manual, rev. 01/12/2018, "Damping
+      Adjustments" table, p. 5: Compression Low Speed 17 Clicks, Compression
+      High Speed 10 Clicks, Rebound Low Speed 10 Clicks. Distinct from the
+      MKII cartridge, which the 2025 MKII manual lists as 10/10/10.
 
   helm_dj_damper:
     name: Helm DJ Damper
-    description: >
-      The official Helm DJ product page documents only a recommended rebound
-      dial-in window (5-10 clicks from fully closed, at 95-125psi air
-      pressure) — it does not publish the adjuster's total click range, and
-      does not list any external compression adjustment at all (unlike the
-      Helm MKII/Works Series chassis it's otherwise based on). No numeric
-      adjustment is generated here — see Follow-ups.
+    description: >-
+      Dirt-jump tune of the Helm cartridge, set up firm for repeated hard
+      landings. Adjustments incomplete: please add Rebound and any
+      compression adjusters your fork has yourself.
     adjustments: []
+    source: https://www.canecreek.com/products/helm-dj
+    note: >-
+      canecreek.com/products/helm-dj documents only a recommended rebound
+      dial-in window (5-10 clicks from fully closed at 95-125 psi) and names
+      no compression adjuster; no total click range is given anywhere on the
+      page. The Helm DJ has no entry on canecreek.com/pages/forks-product-
+      support, so there is no manual to read the range out of. Left empty
+      rather than inheriting the MKII's 10/10/10 — see Follow-ups.
 
 # --------------------------------------------------------------------------
-# Forks — current (2025/2026) Cane Creek lineup. Cane Creek's carbon "Invert"
-# gravel fork is out of scope (drop-bar gravel, not a mountain-bike suspension
-# fork).
+# Forks — current (2025/2026) lineup plus the first-generation Helm. Cane
+# Creek's carbon "Invert" gravel fork is out of scope (drop-bar gravel, not a
+# mountain-bike suspension fork).
 # --------------------------------------------------------------------------
 forks:
   - model: "Helm MKII"
@@ -70,9 +109,9 @@ forks:
         travel_mm: [120, 130, 140, 150, 160, 170]
         stanchion: 35mm
         spring: Air
-        dampers: [helm_damper]
+        dampers: [helm_mkii_damper]
         adjustments: &helm_air_spring
-          - { name: Pressure, type: numerical, unit: psi, min: 0, notes: 30 psi minimum operating pressure per Cane Creek }
+          - { name: Pressure, type: numerical, unit: psi, min: 30, max: 150, notes: "30 psi minimum, 150 psi maximum; Cane Creek recommends 15-25% sag" }
           - { name: Volume Adjustment, type: step, max: 8, visualization: stepper, notes: Indexed rod/piston (not stackable spacers) — higher notch count = more progressive. Factory default is 2 of 8 notches down. }
         note: 29in offered in 120-160mm; 27.5in offered in 130-170mm (10mm internal increments, no extra parts required).
       - trim: Coil
@@ -80,9 +119,9 @@ forks:
         travel_mm: [120, 130, 140, 150, 160, 170]
         stanchion: 35mm
         spring: Coil
-        dampers: [helm_damper]
-        adjustments:
-          - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0, notes: "Published rates: 35 (90-120lb rider), 45 (120-160lb), 55 (160-200lb, factory default), 65 (200-240lb)" }
+        dampers: [helm_mkii_damper]
+        adjustments: &helm_coil_spring
+          - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0, notes: "Published rates: 35 extra-soft (red), 45 soft (black), 55 medium (green), 65 firm (blue)" }
         note: 29in offered in 120-160mm; 27.5in offered in 130-170mm.
 
   - model: "Helm Works Series"
@@ -95,15 +134,12 @@ forks:
         travel_mm: [100, 110, 120, 130]
         stanchion: 35mm
         spring: Air
-        dampers: [helm_damper]
+        dampers: [helm_mkii_damper]
         adjustments: *helm_air_spring
-        note: >
-          Limited-run special edition (hollow-anodized shorter-offset crown,
-          bolt-on D-Loc axle, ~100g lighter than Helm MKII); official page
-          shows it sold out at time of writing but still live. 27.5in+
-          compatibility not reconfirmed for this current SKU range (only the
-          discontinued, single-travel "Works Series 130" predecessor
-          explicitly listed 27.5in+).
+        note: |-
+          - Limited-run special edition of the Helm MKII, 29in only
+          - Hollow-anodized shorter-offset crown and bolt-on D-Loc axle
+          - Around 100g lighter than a standard Helm MKII
 
   - model: "Helm DJ"
     complete: false
@@ -119,28 +155,64 @@ forks:
         dampers: [helm_dj_damper]
         adjustments:
           - { name: Pressure, type: numerical, unit: psi, min: 0, notes: Cane Creek recommends 95-125 psi based on rider weight and sag/ride-height preference }
-        note: >
-          27.5in-crown chassis built to fit a 26in wheel (dirt jump/dual
-          slalom/street). Travel is fixed at 90mm via an internal spacer
-          stack (5 large + 3 standard spacers), not user-adjustable.
+        note: |-
+          - 27.5in-crown chassis built around a 26in wheel for dirt jump, dual slalom and street
+          - Travel fixed at 90mm by an internal spacer stack (5 large + 3 standard), not rider-adjustable
+
+  # Legacy — first-generation Helm. Its own manual, its own damper key: the
+  # MK1 runs 17 clicks of LSC where the MKII runs 10.
+  - model: "Helm MK1"
+    category: Trail / Enduro
+    year_range: "2017-2019"
+    url: https://www.canecreek.com/pages/legacy-products-product-support
+    # Manual: cdn.shopify.com/.../Helm_UserManual_1_12_18_FINAL_...pdf
+    # 2017 launch year per Pinkbike's Helm fork review; superseded by the
+    # Helm MKII in 2020.
+    wheel_size: [29, 27.5]
+    trims:
+      - trim: Air
+        travel_mm: [100, 110, 120, 130, 140, 150, 160, 170]
+        stanchion: 35mm
+        spring: Air
+        dampers: [helm_mk1_damper]
+        adjustments: *helm_air_spring
+        note: |-
+          - 27.5in runs 100-170mm, 29in/27.5+ runs 100-160mm, set with 10mm internal travel reducers
+          - Air volume is set by a static piston on an indexed rod, 8 positions
+      - trim: Coil
+        travel_mm: [130, 140, 150, 160]
+        stanchion: 35mm
+        spring: Coil
+        dampers: [helm_mk1_damper]
+        adjustments: *helm_coil_spring
+        note: Travel adjusts between 130mm and 160mm in 10mm increments on the compression rod, no extra parts needed.
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):
-#   - Helm MKII Air's HSC/LSC/LSR click counts weren't listed on the Air-
-#     specific spec block of canecreek.com/products/helm-mkii (that page's
-#     "Air" section only names the three adjusters, no numbers); the 10/17/10
-#     figures used here come from the same page's Coil spec block and are
-#     independently corroborated by the Works Series spec page (same three
-#     adjusters, same counts) — high confidence the cartridge is shared, but
-#     worth reconfirming against the printed Helm MKII manual once accessible
-#     (the wp-content-hosted PDF returned 404 during this research session).
-#   - Helm DJ: total click range for Rebound and whether HSC/LSC exist at all
-#     externally are not documented on the official product page — only a
-#     recommended dial-in window is published. Do not add numbers without a
-#     manual/spec-sheet confirmation.
-#   - Volume Adjustment's "8 possible positions" is sourced from the official
-#     canecreek.com/blogs/journal/helm-yeah post rather than the primary spec
-#     table — worth reconfirming against the printed manual.
-#   - Helm Works Series' 27.5in+ availability for the current 100-130mm SKU
-#     range is unconfirmed (see note above).
+#   - Helm DJ: no total click range for Rebound, and no confirmation that
+#     HSC/LSC exist as external adjusters at all. The product page publishes
+#     only a recommended dial-in window (5-10 clicks from closed) and the fork
+#     has no manual on canecreek.com/pages/forks-product-support. The Helm DJ
+#     is a 27.5in Helm chassis, but Cane Creek nowhere states the DJ cartridge
+#     is the MKII cartridge, so its counts were NOT inherited. Revisit when a
+#     Helm DJ manual is published.
+#   - Helm Works Series 27.5in+ availability for the current 100-130mm SKU
+#     range is still not stated anywhere on canecreek.com; only the
+#     discontinued single-travel "Works Series 130" predecessor listed
+#     27.5in+. Modelled as 29in-only until Cane Creek says otherwise.
+#   - Helm MK1 Coil: the 2018 manual's spec table covers Air and Coil
+#     together, so the coil travel options listed here come from its "Coil
+#     Internal Travel Adjustment" section (160-130mm on the compression rod)
+#     rather than a per-SKU offering table. The exact year the Helm Coil
+#     joined the MK1 range is not stated by Cane Creek.
+#   - Helm MK1 volume/travel: the MK1 and MKII manuals list identical air
+#     volume (8 indexed positions) and travel-reducer systems; kept separate
+#     anyway, so a future correction to one generation cannot leak into the
+#     other.
+#
+# Resolved 2026-09-10:
+#   - Helm MKII HSC/LSC/Rebound reconfirmed against the printed manual
+#     (HelmMKII_UserManual_04_03_2025.pdf, p. 6): 10/10/10, not 10/17/10.
+#   - Volume Adjustment's 8 positions now come from that same manual's
+#     "Internal Adjustments" table, not the canecreek.com blog post.
 # --------------------------------------------------------------------------

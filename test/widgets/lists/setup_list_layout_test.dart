@@ -1,7 +1,7 @@
 import 'package:bike_setup_tracker/models/app_hint.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/widgets/items/installation_list_tile.dart';
-import 'package:bike_setup_tracker/widgets/items/setup_list_tile.dart';
+import 'package:bike_setup_tracker/widgets/items/setup_tile.dart';
 import 'package:bike_setup_tracker/widgets/lists/setup_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -44,11 +44,11 @@ void main() {
   testWidgets('rows share one 16px inset', (tester) async {
     await pumpTimeline(tester);
 
-    expect(find.byType(SetupListTile), findsOneWidget);
+    expect(find.byType(SetupTile), findsOneWidget);
     expect(find.byType(InstallationListTile), findsOneWidget);
 
     final setupIcon = find.descendant(
-      of: find.byType(SetupListTile),
+      of: find.byType(SetupTile),
       matching: find.byIcon(Setup.iconData),
     );
     // The glyph itself is Transform.scale'd, which shifts its painted box —

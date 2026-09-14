@@ -109,6 +109,6 @@ class OpenTasksTile extends StatelessWidget {
       ),
     );
     if (newTaskRule == null) return;
-    await appRepository.addTaskRule(newTaskRule);
+    await appRepository.addTaskRules([newTaskRule]);
   }
 }

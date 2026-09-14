@@ -1,5 +1,6 @@
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
+import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
@@ -30,6 +31,9 @@ void main() {
     // Defaults: no bike selected, no tags. Individual tests override as needed.
     when(() => mockRepository.selectedBike).thenReturn(null);
     when(() => mockRepository.selectedSetupTags).thenReturn(<String>{});
+    when(() => mockRepository.showBookmarkedSetupsOnly).thenReturn(false);
+    when(() => mockRepository.selectedTaskRuleTags).thenReturn(<String>{});
+    when(() => mockRepository.selectedTaskPriorities).thenReturn(TaskPriority.values.toSet());
     when(() => mockRepository.bikes).thenReturn({'b1': bike1});
     when(() => mockSubscription.hasStravaEntitlement).thenReturn(false);
   });
@@ -58,7 +62,7 @@ void main() {
 
   group('FilterSheetChip label — bike-only sheet', () {
     // A pure bike picker: no tag filter and no folded-in display sections.
-    const bikeOnlyChip = FilterSheetChip(enableSetupTagFilter: false);
+    const bikeOnlyChip = FilterSheetChip.garageList;
 
     testWidgets('shows "All Bikes" when no bike is selected', (tester) async {
       await tester.pumpWidget(createWidgetUnderTest(bikeOnlyChip));
@@ -78,12 +82,8 @@ void main() {
   });
 
   group('FilterSheetChip label — sheet with extra sections (map case)', () {
-    // showMapVisibility folds activity/setup visibility toggles into the sheet,
-    // so it is no longer a pure bike picker → must NOT say "All Bikes".
-    const mapChip = FilterSheetChip(
-      enableSetupTagFilter: false,
-      showMapVisibility: true,
-    );
+    const mapChip = FilterSheetChip.map;
+    setUp(() => appSettings.enableRating = true);
 
     testWidgets('shows "Filter" instead of "All Bikes" when no bike selected', (tester) async {
       await tester.pumpWidget(createWidgetUnderTest(mapChip));
@@ -104,7 +104,8 @@ void main() {
   });
 
   group('FilterSheetChip label — setup tag filter', () {
-    const tagChip = FilterSheetChip(enableSetupTagFilter: true);
+    const tagChip = FilterSheetChip.componentDetailsPage;
+    setUp(() => appSettings.enableSetupTags = true);
 
     testWidgets('shows "Filter" when nothing is selected', (tester) async {
       await tester.pumpWidget(createWidgetUnderTest(tagChip));
@@ -141,6 +142,41 @@ void main() {
       await tester.pumpWidget(createWidgetUnderTest(tagChip));
 
       expect(find.text('Bike 1'), findsOneWidget);
+    });
+  });
+
+  group('FilterSheetChip label — setup bookmark filter', () {
+    const bookmarkChip = FilterSheetChip.componentDetailsPage;
+    setUp(() => appSettings.enableSetupBookmark = true);
+
+    void filterBookmarked() {
+      when(() => mockRepository.showBookmarkedSetupsOnly).thenReturn(true);
+    }
+
+    testWidgets('shows "Bookmarked" when only bookmarked setups are shown', (tester) async {
+      filterBookmarked();
+      await tester.pumpWidget(createWidgetUnderTest(bookmarkChip));
+
+      expect(find.text('Bookmarked'), findsOneWidget);
+    });
+
+    testWidgets('combines bike name, bookmark and tag count', (tester) async {
+      appSettings.enableSetupTags = true;
+      selectBike();
+      selectTags({'t1'});
+      filterBookmarked();
+      await tester.pumpWidget(createWidgetUnderTest(bookmarkChip));
+
+      expect(find.text('Bike 1 + Bookmarked + 1 Tag'), findsOneWidget);
+    });
+
+    testWidgets('ignores the bookmark filter while the feature is off', (tester) async {
+      appSettings.enableSetupBookmark = false;
+      filterBookmarked();
+      await tester.pumpWidget(createWidgetUnderTest(bookmarkChip));
+
+      expect(find.text('All Bikes'), findsOneWidget);
+      expect(find.text('Bookmarked'), findsNothing);
     });
   });
 }

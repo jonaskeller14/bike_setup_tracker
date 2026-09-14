@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import '../../models/activity_rate_window.dart';
 import '../../models/component_stats.dart';
 import '../../utils/text_search.dart';
 import '../app_database.dart';
@@ -177,37 +178,39 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
     // It is optimized for large datasets and handles components moving between bikes.
     final query = customSelect(
       '''
-      SELECT 
+      SELECT
         c.id as component_id,
         c.initial_distance + COALESCE(s.distance, 0) as distance,
         c.initial_elevation_gain + COALESCE(s.elevation, 0) as elevation,
         c.initial_moving_time + COALESCE(s.moving_time, 0) as moving_time,
         c.initial_elapsed_time + COALESCE(s.elapsed_time, 0) as elapsed_time,
-        c.initial_activity_count + COALESCE(s.activity_count, 0) as activity_count
+        c.initial_activity_count + COALESCE(s.activity_count, 0) as activity_count,
+        c.initial_kilojoules + COALESCE(s.kilojoules, 0) as kilojoules
       FROM components c
       LEFT JOIN (
-        SELECT 
+        SELECT
           i.component_id,
           SUM(a.distance) as distance,
           SUM(a.total_elevation_gain) as elevation,
           SUM(a.moving_time) as moving_time,
           SUM(a.elapsed_time) as elapsed_time,
-          COUNT(a.id) as activity_count
+          COUNT(a.id) as activity_count,
+          SUM(COALESCE(a.average_watts, 0) * a.moving_time) / 1000.0 as kilojoules
         FROM strava_activities a
         JOIN bikes b ON a.gear_id = b.strava_gear
         JOIN installations i ON b.id = i.parent
         WHERE a.start_date >= i.date_time_u_t_c
         AND (
           a.start_date < (
-            SELECT MIN(next_i.date_time_u_t_c) 
-            FROM installations next_i 
-            WHERE next_i.component_id = i.component_id 
+            SELECT MIN(next_i.date_time_u_t_c)
+            FROM installations next_i
+            WHERE next_i.component_id = i.component_id
             AND next_i.date_time_u_t_c > i.date_time_u_t_c
           )
           OR NOT EXISTS (
-            SELECT 1 
-            FROM installations next_i 
-            WHERE next_i.component_id = i.component_id 
+            SELECT 1
+            FROM installations next_i
+            WHERE next_i.component_id = i.component_id
             AND next_i.date_time_u_t_c > i.date_time_u_t_c
           )
         )
@@ -227,6 +230,7 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
           movingTime: Duration(seconds: row.read<int>('moving_time')),
           elapsedTime: Duration(seconds: row.read<int>('elapsed_time')),
           activityCount: row.read<int>('activity_count'),
+          kilojoules: row.read<double>('kilojoules'),
         );
       }
       return result;
@@ -236,13 +240,14 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
   Stream<Map<String, ComponentStats>> watchBikeStats() {
     final query = customSelect(
       '''
-      SELECT 
+      SELECT
         b.id as bike_id,
         COALESCE(SUM(a.distance), 0) as distance,
         COALESCE(SUM(a.total_elevation_gain), 0) as elevation,
         COALESCE(SUM(a.moving_time), 0) as moving_time,
         COALESCE(SUM(a.elapsed_time), 0) as elapsed_time,
-        COALESCE(COUNT(a.id), 0) as activity_count
+        COALESCE(COUNT(a.id), 0) as activity_count,
+        COALESCE(SUM(COALESCE(a.average_watts, 0) * a.moving_time) / 1000.0, 0) as kilojoules
       FROM bikes b
       LEFT JOIN strava_activities a ON b.strava_gear = a.gear_id
       WHERE b.is_deleted = 0
@@ -260,6 +265,74 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
           movingTime: Duration(seconds: row.read<int>('moving_time')),
           elapsedTime: Duration(seconds: row.read<int>('elapsed_time')),
           activityCount: row.read<int>('activity_count'),
+          kilojoules: row.read<double>('kilojoules'),
+        );
+      }
+      return result;
+    });
+  }
+
+  /// Per bike, the last [sampleSize] activities that started within
+  /// [maxLookback], summed together with the span they cover.
+  Stream<Map<String, ActivityRateWindow>> watchBikeActivityRates({
+    required int sampleSize,
+    required Duration maxLookback,
+  }) {
+    final query = customSelect(
+      '''
+      SELECT
+        bike_id,
+        COALESCE(SUM(distance), 0) as distance,
+        COALESCE(SUM(total_elevation_gain), 0) as elevation,
+        COALESCE(SUM(moving_time), 0) as moving_time,
+        COALESCE(SUM(elapsed_time), 0) as elapsed_time,
+        COUNT(*) as activity_count,
+        COALESCE(SUM(COALESCE(average_watts, 0) * moving_time) / 1000.0, 0) as kilojoules,
+        MIN(start_date) as first_start,
+        MAX(start_date) as last_start
+      FROM (
+        SELECT
+          b.id as bike_id,
+          a.distance,
+          a.total_elevation_gain,
+          a.moving_time,
+          a.elapsed_time,
+          a.average_watts,
+          a.start_date,
+          ROW_NUMBER() OVER (
+            PARTITION BY b.id
+            ORDER BY a.start_date DESC, a.id DESC
+          ) as rn
+        FROM bikes b
+        JOIN strava_activities a ON a.gear_id = b.strava_gear
+        WHERE b.is_deleted = 0
+        AND a.start_date >= :cutoff
+      ) recent
+      WHERE rn <= :sampleSize
+      GROUP BY bike_id
+      ''',
+      readsFrom: {stravaActivities, db.bikes},
+      variables: [
+        Variable<DateTime>(DateTime.now().toUtc().subtract(maxLookback)),
+        Variable<int>(sampleSize),
+      ],
+    );
+
+    return query.watch().map((rows) {
+      final Map<String, ActivityRateWindow> result = {};
+      for (final row in rows) {
+        result[row.read<String>('bike_id')] = ActivityRateWindow(
+          sum: ComponentStats(
+            distance: row.read<double>('distance'),
+            elevationGain: row.read<double>('elevation'),
+            movingTime: Duration(seconds: row.read<int>('moving_time')),
+            elapsedTime: Duration(seconds: row.read<int>('elapsed_time')),
+            activityCount: row.read<int>('activity_count'),
+            kilojoules: row.read<double>('kilojoules'),
+          ),
+          firstStart: row.read<DateTime>('first_start').toUtc(),
+          lastStart: row.read<DateTime>('last_start').toUtc(),
+          count: row.read<int>('activity_count'),
         );
       }
       return result;
@@ -269,21 +342,23 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
   Future<ComponentStats> getComponentStatsAt(String componentId, DateTime date) async {
     final query = customSelect(
       '''
-      SELECT 
+      SELECT
         c.initial_distance + COALESCE(s.distance, 0) as distance,
         c.initial_elevation_gain + COALESCE(s.elevation, 0) as elevation,
         c.initial_moving_time + COALESCE(s.moving_time, 0) as moving_time,
         c.initial_elapsed_time + COALESCE(s.elapsed_time, 0) as elapsed_time,
-        c.initial_activity_count + COALESCE(s.activity_count, 0) as activity_count
+        c.initial_activity_count + COALESCE(s.activity_count, 0) as activity_count,
+        c.initial_kilojoules + COALESCE(s.kilojoules, 0) as kilojoules
       FROM components c
       LEFT JOIN (
-        SELECT 
+        SELECT
           i.component_id,
           SUM(a.distance) as distance,
           SUM(a.total_elevation_gain) as elevation,
           SUM(a.moving_time) as moving_time,
           SUM(a.elapsed_time) as elapsed_time,
-          COUNT(a.id) as activity_count
+          COUNT(a.id) as activity_count,
+          SUM(COALESCE(a.average_watts, 0) * a.moving_time) / 1000.0 as kilojoules
         FROM strava_activities a
         JOIN bikes b ON a.gear_id = b.strava_gear
         JOIN installations i ON b.id = i.parent
@@ -291,15 +366,15 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
         AND a.start_date <= :selectedDate
         AND (
           a.start_date < (
-            SELECT MIN(next_i.date_time_u_t_c) 
-            FROM installations next_i 
-            WHERE next_i.component_id = i.component_id 
+            SELECT MIN(next_i.date_time_u_t_c)
+            FROM installations next_i
+            WHERE next_i.component_id = i.component_id
             AND next_i.date_time_u_t_c > i.date_time_u_t_c
           )
           OR NOT EXISTS (
-            SELECT 1 
-            FROM installations next_i 
-            WHERE next_i.component_id = i.component_id 
+            SELECT 1
+            FROM installations next_i
+            WHERE next_i.component_id = i.component_id
             AND next_i.date_time_u_t_c > i.date_time_u_t_c
           )
         )
@@ -316,25 +391,27 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
 
     final row = await query.getSingleOrNull();
     if (row == null) return ComponentStats.zero();
-    
+
     return ComponentStats(
       distance: row.read<double>('distance'),
       elevationGain: row.read<double>('elevation'),
       movingTime: Duration(seconds: row.read<int>('moving_time')),
       elapsedTime: Duration(seconds: row.read<int>('elapsed_time')),
       activityCount: row.read<int>('activity_count'),
+      kilojoules: row.read<double>('kilojoules'),
     );
   }
 
   Future<ComponentStats> getBikeStatsAt(String bikeId, DateTime date) async {
     final query = customSelect(
       '''
-      SELECT 
+      SELECT
         COALESCE(SUM(a.distance), 0) as distance,
         COALESCE(SUM(a.total_elevation_gain), 0) as elevation,
         COALESCE(SUM(a.moving_time), 0) as moving_time,
         COALESCE(SUM(a.elapsed_time), 0) as elapsed_time,
-        COALESCE(COUNT(a.id), 0) as activity_count
+        COALESCE(COUNT(a.id), 0) as activity_count,
+        COALESCE(SUM(COALESCE(a.average_watts, 0) * a.moving_time) / 1000.0, 0) as kilojoules
       FROM bikes b
       LEFT JOIN strava_activities a ON b.strava_gear = a.gear_id
       WHERE b.id = :bikeId
@@ -357,6 +434,7 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
       movingTime: Duration(seconds: row.read<int>('moving_time')),
       elapsedTime: Duration(seconds: row.read<int>('elapsed_time')),
       activityCount: row.read<int>('activity_count'),
+      kilojoules: row.read<double>('kilojoules'),
     );
   }
 }

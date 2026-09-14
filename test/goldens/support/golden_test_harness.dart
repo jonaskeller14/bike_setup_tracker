@@ -104,7 +104,7 @@ class GoldenTestHarness {
   }
 
   static Future<void> _seed(AppRepository repository) async {
-    await repository.addBike(
+    await repository.addBikes([
       Bike(
         id: trailBikeId,
         name: 'Trail Bike',
@@ -112,8 +112,6 @@ class GoldenTestHarness {
         person: null,
         orderIndex: 0,
       ),
-    );
-    await repository.addBike(
       Bike(
         id: gravelBikeId,
         name: 'Gravel Bike',
@@ -121,9 +119,9 @@ class GoldenTestHarness {
         person: null,
         orderIndex: 1,
       ),
-    );
+    ]);
 
-    await repository.addComponent(
+    await repository.addComponents([
       Component(
         id: forkId,
         name: 'Factory Fork',
@@ -170,8 +168,6 @@ class GoldenTestHarness {
           ),
         ],
       ),
-    );
-    await repository.addComponent(
       Component(
         id: gravelWheelId,
         name: 'Carbon Wheelset',
@@ -185,8 +181,6 @@ class GoldenTestHarness {
           ),
         ],
       ),
-    );
-    await repository.addComponent(
       Component(
         id: spareWheelId,
         name: 'Spare Alloy Wheel',
@@ -199,9 +193,9 @@ class GoldenTestHarness {
           ),
         ],
       ),
-    );
+    ]);
 
-    await repository.addSetup(
+    await repository.addSetups([
       Setup(
         id: oldestSetupId,
         name: 'First ride setup',
@@ -219,8 +213,6 @@ class GoldenTestHarness {
         },
         personAdjustmentValues: const {},
       ),
-    );
-    await repository.addSetup(
       Setup(
         id: olderSetupId,
         name: 'Rocky baseline',
@@ -238,8 +230,6 @@ class GoldenTestHarness {
         },
         personAdjustmentValues: const {},
       ),
-    );
-    await repository.addSetup(
       Setup(
         id: newerSetupId,
         name: 'Race day setup',
@@ -257,7 +247,7 @@ class GoldenTestHarness {
         },
         personAdjustmentValues: const {},
       ),
-    );
+    ]);
   }
 
   static Future<void> _waitForSeed(AppRepository repository) async {

@@ -12,6 +12,25 @@ String? validateMetricName(String? value) {
   return null;
 }
 
+const int kMetricNameWarningLength = 10;
+
+Widget? metricNameLengthWarning(BuildContext context, String name) {
+  if (name.trim().length <= kMetricNameWarningLength) return null;
+  final helperColor = Theme.of(context).colorScheme.onSurfaceVariant;
+  return Row(
+    children: [
+      Icon(Icons.warning, size: 14, color: helperColor),
+      const SizedBox(width: 4),
+      Expanded(
+        child: Text(
+          'Short names display better in other views.',
+          style: TextStyle(color: helperColor, fontSize: 12),
+        ),
+      ),
+    ],
+  );
+}
+
 class CollapsibleMetricPreview extends StatefulWidget {
   final Widget child;
 

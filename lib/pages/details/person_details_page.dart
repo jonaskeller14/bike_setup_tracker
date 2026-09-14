@@ -8,6 +8,7 @@ import '../../models/person.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/person_actions.dart';
+import '../../widgets/empty_state_placeholder.dart';
 import '../../widgets/notes_text.dart';
 
 class PersonDetailsPage extends StatelessWidget {
@@ -22,7 +23,17 @@ class PersonDetailsPage extends StatelessWidget {
     final subscriptionService = context.watch<SubscriptionService>();
 
     final person = appRepository.persons[personId];
-    if (person == null) return const SizedBox.shrink();
+    if (person == null) {
+      return Scaffold(
+        appBar: AppBar(),
+        body: const SafeArea(
+          child: EmptyStatePlaceholder.error(
+            title: "Person not found",
+            subtitle: "This person was deleted or is no longer available.",
+          ),
+        ),
+      );
+    }
 
     final stravaAthlete = appRepository.stravaAthletes[person.stravaAthlete];
     final linkedBikes = appRepository.bikes.values.where((b) => b.person == person.id).toList();

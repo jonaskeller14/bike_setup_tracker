@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 
 import 'sheet_header.dart';
 
-class AppSettingsCheckboxOption {
+class CheckboxGroupSheetOption {
   final String title;
   final String? subtitle;
   final ValueGetter<bool> value;
   final ValueChanged<bool> onChanged;
   final bool enabled;
 
-  const AppSettingsCheckboxOption({
+  const CheckboxGroupSheetOption({
     required this.title,
     required this.value,
     required this.onChanged,
@@ -18,10 +18,10 @@ class AppSettingsCheckboxOption {
   });
 }
 
-Future<void> appSettingsCheckboxGroupSheet({
+Future<void> checkboxGroupSheet({
   required BuildContext context,
   required String title,
-  required List<AppSettingsCheckboxOption> options,
+  required List<CheckboxGroupSheetOption> options,
   String? infoText,
 }) {
   return showModalBottomSheet<void>(
@@ -51,7 +51,7 @@ Future<void> appSettingsCheckboxGroupSheet({
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: options
-                          .map((option) => CheckboxListTile.adaptive(
+                          .map((option) => CheckboxListTile(
                                 value: option.value(),
                                 title: Text(option.title),
                                 subtitle: option.subtitle != null

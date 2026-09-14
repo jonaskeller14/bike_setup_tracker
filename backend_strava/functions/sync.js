@@ -1,6 +1,7 @@
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { db, logger, admin } = require("./firebase");
 const {
+  ACTIVITY_BATCH_SIZE,
   getValidAccessToken,
   saveAthleteAndGear,
   saveActivityToBatch,
@@ -192,12 +193,13 @@ async function syncFullHistory(athleteId) {
           movingTime: activity.moving_time,
           elapsedTime: activity.elapsed_time,
           workoutType: activity.workout_type ?? null,
+          averageWatts: activity.average_watts ?? null,
         });
 
         allActivitiesSaved++;
 
-        // When we have 500, write a batch doc
-        if (currentBatchActivities.length >= 500) {
+        // When we have a full batch, write a batch doc
+        if (currentBatchActivities.length >= ACTIVITY_BATCH_SIZE) {
           await writeBatchDoc(athleteId, currentBatchActivities, allActivitiesSaved);
           currentBatchActivities = [];
         }
@@ -238,7 +240,7 @@ async function syncFullHistory(athleteId) {
 }
 
 async function writeBatchDoc(athleteId, activitiesRaw, totalCountSoFar) {
-  const batchNum = Math.ceil(totalCountSoFar / 500);
+  const batchNum = Math.ceil(totalCountSoFar / ACTIVITY_BATCH_SIZE);
   const batchId = `batch_${String(batchNum).padStart(3, "0")}`;
 
   const activityIds = activitiesRaw.map((a) => a.id);

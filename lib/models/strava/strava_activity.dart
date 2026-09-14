@@ -21,6 +21,7 @@ class StravaActivity {
   final Duration movingTime;
   final Duration elapsedTime;
   final int? workoutType;  // 10=None, 11=Race, 12=Workout
+  final double? averageWatts;
 
   StravaActivity({
     required this.id,
@@ -38,10 +39,13 @@ class StravaActivity {
     required this.movingTime,
     required this.elapsedTime,
     this.workoutType,
+    this.averageWatts,
   }): lastModified = lastModified?.toUtc() ?? DateTime.now().toUtc(),
       startDate = startDate.toUtc();
 
   StravaWorkoutType get workout => StravaWorkoutType.fromRaw(workoutType);
+
+  double? get kilojoules => averageWatts != null ? averageWatts! * movingTime.inSeconds / 1000 : null;
 
   Map<String, dynamic> toJson() => {
     'id': id,
@@ -59,6 +63,7 @@ class StravaActivity {
     'movingTime': movingTime.inSeconds,
     'elapsedTime': elapsedTime.inSeconds,
     'workoutType': workoutType,
+    'averageWatts': averageWatts,
   };
 
   factory StravaActivity.fromJson(Map<String, dynamic> json) {
@@ -81,6 +86,7 @@ class StravaActivity {
           movingTime: Duration(seconds: json['movingTime'] as int),
           elapsedTime: Duration(seconds: json['elapsedTime'] as int),
           workoutType: (json['workoutType'] as num?)?.toInt(),
+          averageWatts: (json['averageWatts'] as num?)?.toDouble(),
         );
       default: throw Exception("Json Version $version of StravaActivitiy incompatible.");
     }
@@ -106,6 +112,7 @@ class StravaActivity {
           movingTime: Duration(seconds: json['movingTime'] as int),
           elapsedTime: Duration(seconds: json['elapsedTime'] as int),
           workoutType: (json['workoutType'] as num?)?.toInt(),
+          averageWatts: (json['averageWatts'] as num?)?.toDouble(),
         );
       default: throw Exception("Json Version $version of StravaActivitiy incompatible.");
     }
@@ -130,7 +137,8 @@ class StravaActivity {
         totalElevationGain == other.totalElevationGain &&
         movingTime == other.movingTime &&
         elapsedTime == other.elapsedTime &&
-        workoutType == other.workoutType;
+        workoutType == other.workoutType &&
+        averageWatts == other.averageWatts;
   }
 
   @override
@@ -151,6 +159,7 @@ class StravaActivity {
       movingTime,
       elapsedTime,
       workoutType,
+      averageWatts,
     );
   }
 }

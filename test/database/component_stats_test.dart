@@ -31,6 +31,7 @@ void main() {
     double initialElevationGain = 0,
     Duration initialMovingTime = Duration.zero,
     Duration initialElapsedTime = Duration.zero,
+    double initialKilojoules = 0,
   }) async {
     await db.into(db.components).insert(ComponentsCompanion.insert(
           id: id,
@@ -41,6 +42,7 @@ void main() {
           initialElevationGain: Value(initialElevationGain),
           initialMovingTime: Value(initialMovingTime),
           initialElapsedTime: Value(initialElapsedTime),
+          initialKilojoules: Value(initialKilojoules),
         ));
   }
 
@@ -54,7 +56,7 @@ void main() {
         ));
   }
 
-  Future<void> insertActivity(int id, String gearId, DateTime startDate, double distance) async {
+  Future<void> insertActivity(int id, String gearId, DateTime startDate, double distance, {double? averageWatts}) async {
     await db.into(db.stravaActivities).insert(StravaActivitiesCompanion.insert(
           id: Value(id),
           lastModified: DateTime.now().toUtc(),
@@ -68,6 +70,7 @@ void main() {
           totalElevationGain: Value(distance / 10), // dummy
           movingTime: (distance / 5).toInt(), // dummy
           elapsedTime: (distance / 4).toInt(), // dummy
+          averageWatts: Value(averageWatts),
         ));
   }
 
@@ -155,12 +158,42 @@ void main() {
       await insertBike('b1', 'gear1');
       await insertComponent('c1', initialDistance: 1000.0);
       final now = DateTime.now().toUtc();
-      
+
       await installComponent('c1', 'b1', now.subtract(const Duration(days: 10)));
       await insertActivity(1, 'gear1', now.subtract(const Duration(days: 5)), 50.0);
-      
+
       final statsMap = await db.stravaDao.watchComponentStats().first;
       expect(statsMap['c1']!.distance, 1050.0);
+    });
+
+    test('Kilojoules are summed from average watts and moving time', () async {
+      await insertBike('b1', 'gear1');
+      await insertComponent('c1');
+      final now = DateTime.now().toUtc();
+
+      await installComponent('c1', 'b1', now.subtract(const Duration(days: 10)));
+      // distance 100 -> movingTime 20s @ 200W = 4 kJ
+      await insertActivity(1, 'gear1', now.subtract(const Duration(days: 5)), 100.0, averageWatts: 200);
+      // distance 200 -> movingTime 40s @ 150W = 6 kJ
+      await insertActivity(2, 'gear1', now.subtract(const Duration(days: 2)), 200.0, averageWatts: 150);
+      // No power meter on this ride — contributes 0 kJ, not null.
+      await insertActivity(3, 'gear1', now.subtract(const Duration(days: 1)), 30.0);
+
+      final statsMap = await db.stravaDao.watchComponentStats().first;
+      expect(statsMap['c1']!.kilojoules, closeTo(10.0, 0.001));
+    });
+
+    test('Initial kilojoules are added to activity kilojoules', () async {
+      await insertBike('b1', 'gear1');
+      await insertComponent('c1', initialKilojoules: 500.0);
+      final now = DateTime.now().toUtc();
+
+      await installComponent('c1', 'b1', now.subtract(const Duration(days: 10)));
+      // distance 100 -> movingTime 20s @ 200W = 4 kJ
+      await insertActivity(1, 'gear1', now.subtract(const Duration(days: 5)), 100.0, averageWatts: 200);
+
+      final statsMap = await db.stravaDao.watchComponentStats().first;
+      expect(statsMap['c1']!.kilojoules, closeTo(504.0, 0.001));
     });
   });
 }

@@ -175,19 +175,19 @@ class ComponentListCard extends StatelessWidget{
                       children: [
                         _StatItem(
                           icon: Icons.route,
-                          label: '${NumberFormat.decimalPattern().format(AppSettings.convertDistanceFromMeters(component.totalDistance, appSettings.distanceUnit)!.round())} ${appSettings.distanceUnit}',
+                          label: '${NumberFormat.decimalPattern().format(AppSettings.convertDistanceFromMeters(component.totalStats.distance, appSettings.distanceUnit)!.round())} ${appSettings.distanceUnit}',
                         ),
                         _StatItem(
                           icon: Icons.terrain,
-                          label: '${NumberFormat.decimalPattern().format(AppSettings.convertElevationFromMeters(component.totalElevationGain, appSettings.altitudeUnit)!.round())} ${appSettings.altitudeUnit}',
+                          label: '${NumberFormat.decimalPattern().format(AppSettings.convertElevationFromMeters(component.totalStats.elevationGain, appSettings.altitudeUnit)!.round())} ${appSettings.altitudeUnit}',
                         ),
                         _StatItem(
                           icon: Icons.timer_outlined,
-                          label: '${NumberFormat.decimalPattern().format(component.totalMovingTime.inHours)}h ${component.totalMovingTime.inMinutes.remainder(60)}m',
+                          label: '${NumberFormat.decimalPattern().format(component.totalStats.movingTime.inHours)}h ${component.totalStats.movingTime.inMinutes.remainder(60)}m',
                         ),
                         _StatItem(
                           icon: Icons.repeat,
-                          label: '${component.totalActivityCount}',
+                          label: '${component.totalStats.activityCount}',
                         ),
                       ],
                     ),

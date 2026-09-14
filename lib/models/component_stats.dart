@@ -4,13 +4,15 @@ class ComponentStats {
   final Duration movingTime;
   final Duration elapsedTime;
   final int activityCount;
+  final double kilojoules;
 
   const ComponentStats({
-    required this.distance,
-    required this.elevationGain,
-    required this.movingTime,
-    required this.elapsedTime,
-    required this.activityCount,
+    this.distance = 0,
+    this.elevationGain = 0,
+    this.movingTime = Duration.zero,
+    this.elapsedTime = Duration.zero,
+    this.activityCount = 0,
+    this.kilojoules = 0,
   });
 
   factory ComponentStats.zero() => const ComponentStats(
@@ -19,6 +21,7 @@ class ComponentStats {
         movingTime: Duration.zero,
         elapsedTime: Duration.zero,
         activityCount: 0,
+        kilojoules: 0,
       );
 
   Map<String, dynamic> toJson() => {
@@ -27,6 +30,7 @@ class ComponentStats {
         'movingTime': movingTime.inMicroseconds,
         'elapsedTime': elapsedTime.inMicroseconds,
         'activityCount': activityCount,
+        'kilojoules': kilojoules,
       };
 
   factory ComponentStats.fromJson(Map<String, dynamic> json) {
@@ -36,6 +40,7 @@ class ComponentStats {
       movingTime: Duration(microseconds: json['movingTime'] as int),
       elapsedTime: Duration(microseconds: json['elapsedTime'] as int),
       activityCount: json['activityCount'] as int? ?? 0,
+      kilojoules: (json['kilojoules'] as num?)?.toDouble() ?? 0,
     );
   }
 
@@ -46,6 +51,7 @@ class ComponentStats {
       movingTime: movingTime + other.movingTime,
       elapsedTime: elapsedTime + other.elapsedTime,
       activityCount: activityCount + other.activityCount,
+      kilojoules: kilojoules + other.kilojoules,
     );
   }
 
@@ -56,6 +62,7 @@ class ComponentStats {
       movingTime: movingTime - other.movingTime,
       elapsedTime: elapsedTime - other.elapsedTime,
       activityCount: activityCount - other.activityCount,
+      kilojoules: kilojoules - other.kilojoules,
     );
   }
 
@@ -68,8 +75,9 @@ class ComponentStats {
           elevationGain == other.elevationGain &&
           movingTime == other.movingTime &&
           elapsedTime == other.elapsedTime &&
-          activityCount == other.activityCount;
+          activityCount == other.activityCount &&
+          kilojoules == other.kilojoules;
 
   @override
-  int get hashCode => Object.hash(distance, elevationGain, movingTime, elapsedTime, activityCount);
+  int get hashCode => Object.hash(distance, elevationGain, movingTime, elapsedTime, activityCount, kilojoules);
 }

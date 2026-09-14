@@ -12,6 +12,7 @@ sources:
   - https://bike.marzocchi.com/products/bomber-cr-rear-shock
   - https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-269_REV_A%202022%20Marzocchi%20Bomber%20Air%20Shock%20Owners%20Guide%20Rev%20A_FINAL.pdf
   - https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-205_Marzocchi-BomberCR-Tuning-Guide-white-RevA.pdf
+  - https://flowmountainbike.com/tests/marzocchi-bomber-air-shock-review/
 updated: 2026-07-18
 # Click counts (where known) come from the official owner's/tuning guide
 # PDFs on tech.ridefox.com, not the marketing product pages. Clicks counted
@@ -30,7 +31,7 @@ dampers:
       direction of adjustment only (CW = firmer) and no click count, so no
       Compression adjustment is listed — never guessed.
     adjustments:
-      - { name: Rebound, type: step, max: 10 }
+      - { name: Rebound, type: step, max: 10, dialColor: red }
 
   bomber_cr:
     name: Bomber CR

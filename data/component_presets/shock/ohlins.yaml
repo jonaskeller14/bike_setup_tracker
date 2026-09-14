@@ -26,6 +26,10 @@ sources:
   - https://www.ohlins.eu/en/products/mountainbike/ttx22-m2-trunnion-side-by--7679/
   # Editorial, used only for the TXC2Air's three lever mode names
   - https://nsmb.com/articles/ohlins-txc2air-and-rxc34-m1-suspension/
+  # Editorial, used only for dialColor/dialSize (adjuster knob color/size), never for click counts
+  - https://worldwidecyclery.com/blogs/worldwide-cyclery-blog/ohlins-ttx-22-m-rear-shock-customer-review
+  - https://www.pinkbike.com/news/review-hlins-ttx2air-shock.html
+  - https://www.pinkbike.com/news/first-ride-ohlins-cross-country-suspension.html
 updated: 2026-09-10
 # Click ranges taken from each model's own listing at ohlins.eu. Clicks are
 # counted from fully closed (firmest) → default `dial_ccw`.
@@ -41,9 +45,9 @@ dampers:
       - Twin-tube flow keeps damping steady as shaft speed rises
       - High-speed compression is a four-position dial whose firmest step is Pedal mode
     adjustments:
-      - { name: HSC, type: step, max: 3, notes: "High-Speed Compression; the firmest position is Pedal mode" }
-      - { name: LSC, type: step, max: 10, notes: Low-Speed Compression }
-      - { name: Rebound, type: step, max: 12, notes: Low-Speed Rebound }
+      - { name: HSC, type: step, max: 3, notes: "High-Speed Compression; the firmest position is Pedal mode", dialColor: grey }
+      - { name: LSC, type: step, max: 10, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
+      - { name: Rebound, type: step, max: 12, notes: Low-Speed Rebound, dialColor: orange }
     source: https://www.ohlins.eu/en/products/mountainbike/ttx1air-universal--7689/
     note: >-
       TTX1Air listing: "12-fach verstellbare Low-Speed-Zugstufendämpfung",
@@ -58,9 +62,9 @@ dampers:
       - Far finer low-speed compression than the first generation, but coarser rebound
       - High-speed compression is a four-position dial whose firmest step is Pedal mode
     adjustments:
-      - { name: HSC, type: step, max: 3, notes: "High-Speed Compression; the firmest position is Pedal mode" }
-      - { name: LSC, type: step, max: 16, notes: Low-Speed Compression }
-      - { name: Rebound, type: step, max: 7, notes: Low-Speed Rebound }
+      - { name: HSC, type: step, max: 3, notes: "High-Speed Compression; the firmest position is Pedal mode", dialColor: grey }
+      - { name: LSC, type: step, max: 16, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
+      - { name: Rebound, type: step, max: 7, notes: Low-Speed Rebound, dialColor: orange }
     source: https://www.ohlins.eu/en/products/mountainbike/ttx1air-m2-universal--7749/
     note: >-
       TTX1Air m.2 listing: "7-fach verstellbare Low-Speed-Zugstufendämpfung",
@@ -74,9 +78,9 @@ dampers:
       - Twin-tube flow keeps damping steady as shaft speed rises
       - High-speed compression is a four-position dial whose firmest step is Pedal mode
     adjustments:
-      - { name: HSC, type: step, max: 3, notes: "High-Speed Compression; the firmest position is Pedal mode" }
-      - { name: LSC, type: step, max: 10, notes: Low-Speed Compression }
-      - { name: Rebound, type: step, max: 12, notes: Low-Speed Rebound }
+      - { name: HSC, type: step, max: 3, notes: "High-Speed Compression; the firmest position is Pedal mode", dialColor: grey }
+      - { name: LSC, type: step, max: 10, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
+      - { name: Rebound, type: step, max: 12, notes: Low-Speed Rebound, dialColor: orange }
     source: https://www.ohlins.eu/en/products/mountainbike/ttx2-air-universal--7690/
     note: >-
       TTX2Air listing: "12-fach verstellbare Low-Speed-Zugstufendämpfung",
@@ -91,9 +95,9 @@ dampers:
       - Rebound is a coarse four-position dial rather than a fine click range
       - High-speed compression is a four-position dial whose firmest step is Climb mode
     adjustments:
-      - { name: HSC, type: step, max: 3, notes: "High-Speed Compression; the firmest position is Climb mode" }
-      - { name: LSC, type: step, max: 12, notes: Low-Speed Compression }
-      - { name: Rebound, type: step, max: 3, notes: Low-Speed Rebound }
+      - { name: HSC, type: step, max: 3, notes: "High-Speed Compression; the firmest position is Climb mode", dialColor: grey }
+      - { name: LSC, type: step, max: 12, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
+      - { name: Rebound, type: step, max: 3, notes: Low-Speed Rebound, dialColor: orange }
     source: https://www.ohlins.eu/en/products/mountainbike/ttx2air-m2-universal--7750/
     note: >-
       TTX2Air m.2 listing: "3-fach einstellbare Low-Speed-Zugstufendämpfung",
@@ -126,7 +130,7 @@ dampers:
       - Open, Pedal and Lockout are selectable at the shock or by bar remote
       - The 16-click low-speed compression range works within Open mode
     adjustments:
-      - { name: Compression, type: step, max: 16, notes: "Low-Speed Compression; operates within Open mode" }
+      - { name: Compression, type: step, max: 16, notes: "Low-Speed Compression; operates within Open mode", dialColor: blue }
       - { name: Rebound, type: step, max: 12, notes: Low-Speed Rebound }
       - { name: Ride Mode, type: categorical, options: [Open, Pedal, Lockout], notes: "Lever at the shock or a three-position bar remote; 5.5mm/click cable-pull adapter available" }
     source:
@@ -146,9 +150,9 @@ dampers:
       - The same cartridge sits in every Piggyback, Side-by-side and Trunnion variant
       - Threaded preload collar sets spring preload independently of the clicks
     adjustments:
-      - { name: HSC, type: step, max: 3, notes: High-Speed Compression }
-      - { name: LSC, type: step, max: 16, notes: Low-Speed Compression }
-      - { name: Rebound, type: step, max: 7, notes: Low-Speed Rebound }
+      - { name: HSC, type: step, max: 3, notes: High-Speed Compression, dialColor: grey }
+      - { name: LSC, type: step, max: 16, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
+      - { name: Rebound, type: step, max: 7, notes: Low-Speed Rebound, dialColor: orange }
     source:
       - https://www.ohlins.eu/en/products/mountainbike/ttx22-m2-piggyback-105x35-267x89mm--5708/
       - https://www.ohlins.eu/en/products/mountainbike/ttx22-m2-side-by-side--7681/

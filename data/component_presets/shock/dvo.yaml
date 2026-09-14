@@ -72,8 +72,8 @@ dampers:
       - Low Speed Compression on the black dial behind it, 5 clicks; clockwise adds support
       - Adjustments incomplete: please add Rebound yourself.
     adjustments:
-      - { name: HSC, type: step, max: 10, notes: "High-Speed Compression; Counted from fully open (softest); clockwise = more support" }
-      - { name: LSC, type: step, max: 5, notes: "Low-Speed Compression; Counted from fully open (softest); clockwise = more support" }
+      - { name: HSC, type: step, max: 10, notes: "High-Speed Compression; Counted from fully open (softest); clockwise = more support", dialColor: green }
+      - { name: LSC, type: step, max: 5, notes: "Low-Speed Compression; Counted from fully open (softest); clockwise = more support", dialColor: grey, dialSize: small }
     source:
       - https://dvosuspension.com/wp-content/uploads/2023/11/Jade-X-Setup-Guide-Nov20.pdf
     note: >-
@@ -106,8 +106,8 @@ dampers:
       - Low Speed Compression on the black dial behind it, 5 clicks; clockwise adds support
       - Adjustments incomplete: please add Rebound yourself.
     adjustments:
-      - { name: HSC, type: step, max: 10, notes: "High-Speed Compression; Counted from fully open (softest); clockwise = more support" }
-      - { name: LSC, type: step, max: 5, notes: "Low-Speed Compression; Counted from fully open (softest); clockwise = more support" }
+      - { name: HSC, type: step, max: 10, notes: "High-Speed Compression; Counted from fully open (softest); clockwise = more support", dialColor: green }
+      - { name: LSC, type: step, max: 5, notes: "Low-Speed Compression; Counted from fully open (softest); clockwise = more support", dialColor: grey, dialSize: small }
     source:
       - https://dvosuspension.com/wp-content/uploads/2024/05/DVO-Topaz-Setup-Guide-May9.pdf
     note: >-

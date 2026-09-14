@@ -30,6 +30,8 @@ sources:
   - https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DBKitsuma-Manual_2022_02_25_1_c25c4778-7d40-4977-a021-ac43a3c30070.pdf
   - https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB_owners-manual_2014_v11-web_8703fe9e-d4d7-4766-b7db-3350db90bbfb.pdf
   - https://cdn.shopify.com/s/files/1/0579/5987/4639/files/tfg_english_30a0cfe9-1830-4f4f-8436-09f3bfd14390.pdf
+  - https://singletrackworld.com/2020/09/your-suspension-is-set-up-wrong-cane-creeks-kitsuma-is-here-to-help-that/
+  - https://www.pinkbike.com/news/Cane-Creek-DBair-CS-Tested-2013.html
 updated: 2026-09-10
 # Every click/turn count below is read off the "Damper Adjustments" table in
 # the relevant generation's official Cane Creek instruction manual (each
@@ -54,9 +56,9 @@ dampers:
       - Low-speed adjusters run 25 clicks; the high-speed adjusters are continuous, 4.5 turns end to end
       - Climb Switch lever with a 3mm adjustment tool nested inside it
     adjustments:
-      - { name: LSC, type: step, max: 25, notes: Low-Speed Compression }
+      - { name: LSC, type: step, max: 25, notes: Low-Speed Compression, dialColor: orange, dialSize: small }
       - { name: HSC, type: numerical, unit: turns, min: 0, max: 4.5, notes: "High-Speed Compression; Continuous (no clicks); counted from fully closed" }
-      - { name: LSR, type: step, max: 25, notes: Low-Speed Rebound }
+      - { name: LSR, type: step, max: 25, notes: Low-Speed Rebound, dialColor: orange, dialSize: small }
       - { name: HSR, type: numerical, unit: turns, min: 0, max: 4.5, notes: "High-Speed Rebound; Continuous (no clicks); counted from fully closed" }
       - { name: Climb Switch, type: categorical, options: [Open, Climb] }
     valves: twin-tube; 2 high-speed + 2 low-speed damping circuits
@@ -75,10 +77,10 @@ dampers:
       - 11 positions on each of the four adjusters
       - Three-position Climb Switch: Open, Climb (closes the low-speed circuit) and Firm (closes both)
     adjustments:
-      - { name: LSC, type: step, max: 11, notes: Low-Speed Compression }
-      - { name: HSC, type: step, max: 11, notes: High-Speed Compression }
-      - { name: LSR, type: step, max: 11, notes: Low-Speed Rebound }
-      - { name: HSR, type: step, max: 11, notes: High-Speed Rebound }
+      - { name: LSC, type: step, max: 11, notes: Low-Speed Compression, dialColor: grey }
+      - { name: HSC, type: step, max: 11, notes: High-Speed Compression, dialColor: grey }
+      - { name: LSR, type: step, max: 11, notes: Low-Speed Rebound, dialColor: grey }
+      - { name: HSR, type: step, max: 11, notes: High-Speed Rebound, dialColor: grey }
       - { name: Climb Switch, type: categorical, options: [Open, Climb, Firm] }
     source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/Kitsuma_Manual_2025_04_01.pdf
     note: >-
@@ -96,9 +98,9 @@ dampers:
       - 12 positions of Low-Speed Compression, 15 of rebound, and one full turn of High-Speed Compression
       - Two-position Climb Switch with a 3mm tool nested in the lever
     adjustments:
-      - { name: LSC, type: step, max: 12, notes: Low-Speed Compression }
+      - { name: LSC, type: step, max: 12, notes: Low-Speed Compression, dialColor: orange, dialSize: small }
       - { name: HSC, type: numerical, unit: turns, min: 0, max: 1, notes: "High-Speed Compression; Continuous (no clicks); counted from fully closed" }
-      - { name: Rebound, type: step, max: 15, notes: Low-Speed Rebound }
+      - { name: Rebound, type: step, max: 15, notes: Low-Speed Rebound, dialColor: orange, dialSize: small }
       - { name: Climb Switch, type: categorical, options: [Open, Climb] }
     source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/Tigon_Manual_2025_04_01.pdf
     note: >-
@@ -134,10 +136,10 @@ dampers:
       - 11 positions of low-speed adjustment per circuit, 13 positions of high-speed
       - Three-position Climb Switch: Open, Climb (closes the low-speed circuit) and Firm (closes both)
     adjustments:
-      - { name: LSC, type: step, max: 11, notes: Low-Speed Compression }
-      - { name: HSC, type: step, max: 13, notes: High-Speed Compression }
-      - { name: LSR, type: step, max: 11, notes: Low-Speed Rebound }
-      - { name: HSR, type: step, max: 13, notes: High-Speed Rebound }
+      - { name: LSC, type: step, max: 11, notes: Low-Speed Compression, dialColor: grey }
+      - { name: HSC, type: step, max: 13, notes: High-Speed Compression, dialColor: grey }
+      - { name: LSR, type: step, max: 11, notes: Low-Speed Rebound, dialColor: grey }
+      - { name: HSR, type: step, max: 13, notes: High-Speed Rebound, dialColor: grey }
       - { name: Climb Switch, type: categorical, options: [Open, Climb, Firm] }
     source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DBKitsuma-Manual_2022_02_25_1_c25c4778-7d40-4977-a021-ac43a3c30070.pdf
     note: >-
@@ -153,9 +155,9 @@ dampers:
       - Low-speed compression and rebound run 25 clicks each
       - High-speed compression and rebound are continuous, 4 turns end to end
     adjustments:
-      - { name: LSC, type: step, max: 25, notes: Low-Speed Compression }
+      - { name: LSC, type: step, max: 25, notes: Low-Speed Compression, dialColor: orange }
       - { name: HSC, type: numerical, unit: turns, min: 0, max: 4, notes: "High-Speed Compression; Continuous (no clicks); counted from fully closed" }
-      - { name: LSR, type: step, max: 25, notes: Low-Speed Rebound }
+      - { name: LSR, type: step, max: 25, notes: Low-Speed Rebound, dialColor: orange }
       - { name: HSR, type: numerical, unit: turns, min: 0, max: 4, notes: "High-Speed Rebound; Continuous (no clicks); counted from fully closed" }
     source:
       - https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB_owners-manual_2014_v11-web_8703fe9e-d4d7-4766-b7db-3350db90bbfb.pdf
@@ -173,9 +175,9 @@ dampers:
       - Low-speed compression and rebound run 25 clicks each; high-speed adjusters are continuous, 4 turns end to end
       - Flipping the Climb Switch on firms up the low-speed circuits for climbing
     adjustments:
-      - { name: LSC, type: step, max: 25, notes: Low-Speed Compression }
+      - { name: LSC, type: step, max: 25, notes: Low-Speed Compression, dialColor: grey, dialSize: small }
       - { name: HSC, type: numerical, unit: turns, min: 0, max: 4, notes: "High-Speed Compression; Continuous (no clicks); counted from fully closed" }
-      - { name: LSR, type: step, max: 25, notes: Low-Speed Rebound }
+      - { name: LSR, type: step, max: 25, notes: Low-Speed Rebound, dialColor: grey, dialSize: small }
       - { name: HSR, type: numerical, unit: turns, min: 0, max: 4, notes: "High-Speed Rebound; Continuous (no clicks); counted from fully closed" }
       - { name: Climb Switch, type: categorical, options: ["Off", "On"], notes: "On engages climb mode (firmer low-speed damping)" }
     source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB_owners-manual_2014_v11-web_8703fe9e-d4d7-4766-b7db-3350db90bbfb.pdf

@@ -9,6 +9,7 @@ component_type: fork
 sources:
   - https://www.sram.com/en/rockshox/products/forks
   - https://www.sram.com/en/rockshox/learn/charger-3-setup
+  - https://www.sram.com/en/rockshox/learn/fork-deep-dives/compression-knob-logic
   # Primary — SRAM service manuals / technical specifications (PDF)
   - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-zeb-lyrik-pike-service-manual.pdf
   - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-front-suspension-oil-air-coil-token-specifications-english.pdf
@@ -33,6 +34,7 @@ sources:
   # Secondary — editorial, used for context only, no numbers taken from them
   - https://flowmountainbike.com/tests/2025-rockshox-zeb-lyrik-pike-fork-review/
   - https://enduro-mtb.com/en/rockshox-2025-fork-charger-review/
+  - https://freehub.com/product-reviews/2014-rockshox-pike-rct3-160mm-review
 updated: 2026-09-10
 # Counting conventions, verified per damper against SRAM material:
 #   * Charger 3 / 3.1 / 3.2 compression counts from the MIDDLE detent — HSC has
@@ -56,15 +58,19 @@ dampers:
       - Fitted to 2023-2024 Pike, Lyrik and ZEB Ultimate / Select+
     adjustments:
       - { name: HSC, type: step, min: -2, max: 2, visualization: dial_cw, notes: "High-Speed Compression; Counted from the middle detent" }
-      - { name: LSC, type: step, min: -7, max: 7, visualization: dial_cw, notes: "Low-Speed Compression; Counted from the middle detent" }
-      - { name: Rebound, type: step, max: 18, notes: Counted from fully open (fastest) }
+      - { name: LSC, type: step, min: -7, max: 7, visualization: dial_cw, notes: "Low-Speed Compression; Counted from the middle detent", dialSize: small }
+      - { name: Rebound, type: step, max: 18, notes: Counted from fully open (fastest), dialColor: red }
     source:
       - https://support.rockshox.com/hc/en-us/articles/5910471591579-What-is-the-range-of-adjustability-on-Charger-3
       - https://support.rockshox.com/hc/en-us/articles/5930461078683-What-RockShox-forks-come-with-Charger-3-dampers
+      - https://www.sram.com/en/rockshox/learn/fork-deep-dives/compression-knob-logic
+      - https://freehub.com/product-reviews/2014-rockshox-pike-rct3-160mm-review
     note: >-
       RockShox states "15 clicks of Low Speed Compression, 5 clicks of High Speed
       Compression, and 18 clicks of Rebound". The 15/5 compression dials are the
-      centre-detent -7..+7 and -2..+2 ranges.
+      centre-detent -7..+7 and -2..+2 ranges. Per RockShox's "Compression Knob
+      Logic" page, HSC is the larger of the two knobs and LSC is the smaller one
+      stacked on top of it.
 
   charger_3_1:
     name: Charger 3.1 RC2
@@ -74,11 +80,13 @@ dampers:
       - Fitted to 2025-2027 Pike, Lyrik and ZEB Ultimate / Select+
     adjustments:
       - { name: HSC, type: step, min: -2, max: 2, visualization: dial_cw, notes: "High-Speed Compression; Counted from the middle detent" }
-      - { name: LSC, type: step, min: -7, max: 7, visualization: dial_cw, notes: "Low-Speed Compression; Counted from the middle detent" }
-      - { name: Rebound, type: step, max: 18, notes: Counted from fully open (fastest) }
+      - { name: LSC, type: step, min: -7, max: 7, visualization: dial_cw, notes: "Low-Speed Compression; Counted from the middle detent", dialSize: small }
+      - { name: Rebound, type: step, max: 18, notes: Counted from fully open (fastest), dialColor: red }
     source:
       - https://support.rockshox.com/hc/en-us/articles/26413313637531-Does-the-RockShox-Charger-3-1-damper-offer-more-clicks-of-adjustment
       - https://support.rockshox.com/hc/en-us/articles/26413299077659-How-did-the-adjustment-range-of-Low-Speed-Compression-and-High-Speed-Compression-change-on-RockShox-Charger-3-1
+      - https://www.sram.com/en/rockshox/learn/fork-deep-dives/compression-knob-logic
+      - https://freehub.com/product-reviews/2014-rockshox-pike-rct3-160mm-review
     note: >-
       RockShox: "Charger 3.1 offers the same number of adjustment clicks as
       Charger 3, but with a broader range of adjustment." Counts therefore carried
@@ -169,8 +177,10 @@ dampers:
       - Rebound dial with 16 clicks, counted from fully open
       - Low-speed compression knob on top of the damper leg
     adjustments:
-      - { name: Rebound, type: step, max: 16, notes: Counted from fully open (fastest) }
-    source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-zeb-lyrik-pike-service-manual.pdf
+      - { name: Rebound, type: step, max: 16, notes: Counted from fully open (fastest), dialColor: red }
+    source:
+      - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-zeb-lyrik-pike-service-manual.pdf
+      - https://freehub.com/product-reviews/2014-rockshox-pike-rct3-160mm-review
     note: >-
       Rebound count from "Damper Assembly - Rush RC" (p. 172): "rotate it
       counterclockwise 16 clicks from the closed position. This is the full open
@@ -184,8 +194,10 @@ dampers:
       - Rebound dial with 16 clicks, counted from fully open
       - Compression lockout lever, available with a bar remote
     adjustments:
-      - { name: Rebound, type: step, max: 16, notes: Counted from fully open (fastest) }
-    source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2021-2023-sid-and-sid-sl-service-manual.pdf
+      - { name: Rebound, type: step, max: 16, notes: Counted from fully open (fastest), dialColor: red }
+    source:
+      - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2021-2023-sid-and-sid-sl-service-manual.pdf
+      - https://freehub.com/product-reviews/2014-rockshox-pike-rct3-160mm-review
     note: >-
       Rebound count from the Rush Damper RL "Damper Assembly" step (p. 74):
       "rotate it counter-clockwise 16 clicks from the closed position."
@@ -197,11 +209,12 @@ dampers:
       - 16 clicks of rebound, counted from fully open
       - Three-position compression lever: Open, Pedal and Firm
     adjustments:
-      - { name: Rebound, type: step, max: 16, notes: Counted from fully open (fastest) }
+      - { name: Rebound, type: step, max: 16, notes: Counted from fully open (fastest), dialColor: red }
       - { name: Compression Mode, type: categorical, options: [Open, Pedal, Firm] }
     source:
       - https://support.rockshox.com/hc/en-us/articles/24895607833499-What-is-the-range-of-adjustability-on-the-Isolator-Damper
       - https://support.rockshox.com/hc/en-us/articles/24895680722331-What-RockShox-forks-is-the-Isolator-damper-compatible-with
+      - https://freehub.com/product-reviews/2014-rockshox-pike-rct3-160mm-review
     note: >-
       RockShox: "The Isolator Damper has 16 clicks of Rebound adjustment and a
       three-position Compression adjustment with Open, Pedal, and Firm settings."

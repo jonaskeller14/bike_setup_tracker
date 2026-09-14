@@ -59,10 +59,10 @@ dampers:
     name: GRIP X2
     description: Most tunable, descent-focused damper (enduro/DH). Four external adjusters.
     adjustments:
-      - { name: HSC, type: step, max: 8, notes: High-Speed Compression }
-      - { name: LSC, type: step, max: 18, notes: Low-Speed Compression }
-      - { name: HSR, type: step, max: 8, notes: High-Speed Rebound }
-      - { name: LSR, type: step, max: 16, notes: Low-Speed Rebound }
+      - { name: HSC, type: step, max: 8, notes: High-Speed Compression, dialColor: blue }
+      - { name: LSC, type: step, max: 18, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
+      - { name: HSR, type: step, max: 8, notes: High-Speed Rebound, dialColor: red }
+      - { name: LSR, type: step, max: 16, notes: Low-Speed Rebound, dialColor: red, dialSize: small }
     valves: 23
     source: https://ridefox.com/pages/fox-36
 
@@ -70,9 +70,9 @@ dampers:
     name: GRIP X
     description: Trail-focused damper. HSC dial has a Firm detent at its final click (170° sweep).
     adjustments:
-      - { name: HSC, type: step, max: 15, notes: "High-Speed Compression; Firm mode engaged at the final click" }
-      - { name: LSC, type: step, max: 16, notes: Low-Speed Compression }
-      - { name: Rebound, type: step, max: 17, notes: FOX labels this "low-speed rebound"; single rebound knob }
+      - { name: HSC, type: step, max: 15, notes: "High-Speed Compression; Firm mode engaged at the final click", dialColor: blue }
+      - { name: LSC, type: step, max: 16, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
+      - { name: Rebound, type: step, max: 17, notes: FOX labels this "low-speed rebound"; single rebound knob, dialColor: red }
     firm_mode: at final HSC click
     source: https://ridefox.com/pages/fox-34
 
@@ -80,7 +80,7 @@ dampers:
     name: GRIP SL
     description: Lightweight XC damper. Three on-the-fly compression positions (Open/Medium/Firm), 2-position remote compatible.
     adjustments:
-      - { name: Rebound, type: step, max: 17, notes: FOX labels this "low-speed rebound"; single rebound knob }
+      - { name: Rebound, type: step, max: 17, notes: FOX labels this "low-speed rebound"; single rebound knob, dialColor: red }
       - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm] }
     remote: 2-position
     source: https://ridefox.com/pages/fox-34-sl
@@ -89,7 +89,7 @@ dampers:
     name: GRIP
     description: Updated GRIP cartridge (Performance/Rhythm trims). Three on-the-fly compression positions with micro-adjust detents.
     adjustments:
-      - { name: Rebound, type: step, max: 10 }
+      - { name: Rebound, type: step, max: 10, dialColor: red }
       - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm] }
     source: https://ridefox.com/pages/fox-34
 
@@ -97,7 +97,7 @@ dampers:
     name: RAIL
     description: Adventure/e-bike damper (AWL). Tool-free external adjusters.
     adjustments:
-      - { name: Rebound, type: step, max: 9 }
+      - { name: Rebound, type: step, max: 9, dialColor: red }
       - { name: Compression Mode, type: categorical, options: ["1", "2"], notes: 2-position SWEEP ADJUST compression }
     source: https://ridefox.com/pages/fox-awl
 
@@ -115,7 +115,7 @@ dampers:
       - Only the 16 high-speed compression clicks nearest fully closed change damping
       - Adjustments incomplete: please add LSC, HSR and LSR yourself.
     adjustments:
-      - { name: HSC, type: step, max: 16, notes: "High-Speed Compression; clicks past 16 out from fully closed have no damping effect" }
+      - { name: HSC, type: step, max: 16, notes: "High-Speed Compression; clicks past 16 out from fully closed have no damping effect", dialColor: blue }
     source: https://tech.ridefox.com/bike/owners-manuals/1040/fork--2020-36mm
     note: >-
       "Factory and Performance-Elite Series GRIP2 Compression Adjusters" section
@@ -129,7 +129,7 @@ dampers:
       - Only the 16 high-speed compression clicks nearest fully closed change damping
       - Adjustments incomplete: please add LSC, HSR and LSR yourself.
     adjustments:
-      - { name: HSC, type: step, max: 16, notes: "High-Speed Compression; clicks past 16 out from fully closed have no damping effect" }
+      - { name: HSC, type: step, max: 16, notes: "High-Speed Compression; clicks past 16 out from fully closed have no damping effect", dialColor: blue }
     source:
       - https://tech.ridefox.com/bike/owners-manuals/1082/fork--2021-36mm-or-38mm
       - https://tech.ridefox.com/bike/owners-manuals/2930/fork--2024-36mm-or-38mm
@@ -145,7 +145,7 @@ dampers:
       - Adjustments incomplete: please add Rebound yourself.
     adjustments:
       - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm] }
-      - { name: Open Mode Adjust, type: step, max: 22, notes: "Low-Speed Compression in Open mode; Factory and Performance Elite forks only" }
+      - { name: Open Mode Adjust, type: step, max: 22, notes: "Low-Speed Compression in Open mode; Factory and Performance Elite forks only", dialColor: blue, dialSize: small }
     source: https://tech.ridefox.com/bike/owners-manuals/1040/fork--2020-36mm
     note: >-
       "OPEN mode adjust provides 22 additional fine tuning adjustments for the
@@ -160,7 +160,7 @@ dampers:
       - Adjustments incomplete: please add Rebound yourself.
     adjustments:
       - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm] }
-      - { name: Open Mode Adjust, type: step, max: 22, notes: "Low-Speed Compression in Open mode; Factory and Performance Elite forks only" }
+      - { name: Open Mode Adjust, type: step, max: 22, notes: "Low-Speed Compression in Open mode; Factory and Performance Elite forks only", dialColor: blue, dialSize: small }
     source:
       - https://tech.ridefox.com/bike/owners-manuals/1082/fork--2021-36mm-or-38mm
       - https://tech.ridefox.com/bike/owners-manuals/2930/fork--2024-36mm-or-38mm

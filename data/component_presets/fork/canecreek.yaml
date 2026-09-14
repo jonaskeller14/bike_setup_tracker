@@ -27,6 +27,8 @@ sources:
   - https://cdn.shopify.com/s/files/1/0579/5987/4639/files/HelmMKII_UserManual_04_03_2025.pdf
   - https://cdn.shopify.com/s/files/1/0579/5987/4639/files/Helm_UserManual_1_12_18_FINAL_4a8c4476-2bc0-4f03-ae32-0ced7f5f3137.pdf
   - https://www.pinkbike.com/news/cane-creek-helm-fork-review-2017.html
+  - https://www.singletracks.com/mtb-gear/cane-creeks-sleek-helm-air-fork-is-a-legit-workhorse-on-the-trail-review/
+  - https://www.perpetualdisappointment.co.uk/cane-creek-helm-coil-fork-long-term-review/
 updated: 2026-09-10
 # Click ranges below come from the "Damping Adjustments" table in each
 # generation's official Cane Creek instruction manual (see each damper's
@@ -47,9 +49,9 @@ dampers:
       - 10 positions per adjuster, counted from fully closed
       - Clockwise adds damping, counter-clockwise takes it away
     adjustments:
-      - { name: HSC, type: step, max: 10, notes: High-Speed Compression }
-      - { name: LSC, type: step, max: 10, notes: Low-Speed Compression }
-      - { name: Rebound, type: step, max: 10, notes: "Low-Speed Rebound; Cane Creek labels this the fork's single rebound circuit (no separate high-speed rebound adjuster)" }
+      - { name: HSC, type: step, max: 10, notes: High-Speed Compression, dialColor: grey }
+      - { name: LSC, type: step, max: 10, notes: Low-Speed Compression, dialColor: orange, dialSize: small }
+      - { name: Rebound, type: step, max: 10, notes: "Low-Speed Rebound; Cane Creek labels this the fork's single rebound circuit (no separate high-speed rebound adjuster)", dialColor: orange }
     source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/HelmMKII_UserManual_04_03_2025.pdf
     note: >-
       Helm MKII instruction manual (rev. 04/03/2025), "Fork Features Overview
@@ -67,9 +69,9 @@ dampers:
       - 17 positions of Low-Speed Compression, 10 each of High-Speed Compression and rebound
       - Clockwise adds damping, counter-clockwise takes it away
     adjustments:
-      - { name: HSC, type: step, max: 10, notes: High-Speed Compression }
-      - { name: LSC, type: step, max: 17, notes: Low-Speed Compression }
-      - { name: Rebound, type: step, max: 10, notes: "Low-Speed Rebound; Cane Creek labels this the fork's single rebound circuit (no separate high-speed rebound adjuster)" }
+      - { name: HSC, type: step, max: 10, notes: High-Speed Compression, dialColor: grey }
+      - { name: LSC, type: step, max: 17, notes: Low-Speed Compression, dialColor: orange, dialSize: small }
+      - { name: Rebound, type: step, max: 10, notes: "Low-Speed Rebound; Cane Creek labels this the fork's single rebound circuit (no separate high-speed rebound adjuster)", dialColor: orange }
     source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/Helm_UserManual_1_12_18_FINAL_4a8c4476-2bc0-4f03-ae32-0ced7f5f3137.pdf
     note: >-
       Helm (original) instruction manual, rev. 01/12/2018, "Damping

@@ -20,6 +20,8 @@ sources:
   - https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-256_RevB_DJ-Z1_TuningGuide.pdf
   - https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-237-%20RevA_Z2_TuningGuide.pdf
   - https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-174-58_TuningGuide-revA.pdf
+  - https://www.pinkbike.com/news/marzocchi-bomber-z1-review.html
+  - https://nsmb.com/articles/marzocchi-bomber-z1-reviewed/
 updated: 2026-07-18
 # Rebound/compression numbers below come from the official Marzocchi tuning
 # guides (PDFs hosted on tech.ridefox.com), not the marketing product pages,
@@ -45,7 +47,7 @@ dampers:
       spec sheet — see Follow-ups.
     adjustments: &sweep_2pos
       - { name: Compression Mode, type: categorical, options: [Open, Firm], notes: 2-Position Sweep Adjust lever; continuously variable between the two end positions }
-      - { name: Rebound, type: step, max: 9 }
+      - { name: Rebound, type: step, max: 9, dialColor: red }
 
   grip:
     name: GRIP

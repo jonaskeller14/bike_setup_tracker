@@ -48,10 +48,10 @@ dampers:
       - Variable Valve Control on both high-speed circuits
       - Factory and Performance Elite add a 2-position Firm Mode lever
     adjustments:
-      - { name: HSC, type: step, max: 8, notes: High-Speed Compression }
-      - { name: LSC, type: step, max: 16, notes: Low-Speed Compression }
-      - { name: HSR, type: step, max: 8, notes: High-Speed Rebound }
-      - { name: LSR, type: step, max: 16, notes: Low-Speed Rebound }
+      - { name: HSC, type: step, max: 8, notes: High-Speed Compression, dialColor: blue }
+      - { name: LSC, type: step, max: 16, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
+      - { name: HSR, type: step, max: 8, notes: High-Speed Rebound, dialColor: red }
+      - { name: LSR, type: step, max: 16, notes: Low-Speed Rebound, dialColor: red, dialSize: small }
     firm_mode: optional 2-position independent lever
     source:
       - https://ridefox.com/pages/fox-float-x2
@@ -61,8 +61,8 @@ dampers:
     name: FLOAT X damper
     description: All-mountain air shock damper. Tool-free 2-position lever (Open/Firm).
     adjustments:
-      - { name: Compression, type: step, max: 11, notes: Low-Speed Compression }
-      - { name: Rebound, type: step, max: 16, notes: Low-Speed Rebound }
+      - { name: Compression, type: step, max: 11, notes: Low-Speed Compression, dialColor: blue }
+      - { name: Rebound, type: step, max: 16, notes: Low-Speed Rebound, dialColor: red }
       - { name: Compression Mode, type: categorical, options: [Open, Firm] }
     source: https://ridefox.com/pages/fox-float-x
 
@@ -70,7 +70,7 @@ dampers:
     name: FLOAT damper
     description: XC/Trail air shock damper. 2-position lever (Open/Firm) plus a 3-position open-mode adjust (1 plush, 3 firm).
     adjustments:
-      - { name: Rebound, type: step, max: 12 }
+      - { name: Rebound, type: step, max: 12, dialColor: red }
       - { name: Compression Mode, type: categorical, options: [Open, Firm] }
       - { name: Open Mode Adjust, type: categorical, options: ["1", "2", "3"], notes: "Low-Speed Compression in Open mode; 1 is plushest, 3 firmest" }
     open_mode_micro_adjust: 3-position
@@ -85,7 +85,7 @@ dampers:
       - 3-position lever (Open/Medium/Firm) plus a 3-position open-mode adjust
       - 2-position and 3-position handlebar remotes available
     adjustments:
-      - { name: Rebound, type: step, max: 12 }
+      - { name: Rebound, type: step, max: 12, dialColor: red }
       - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm] }
       - { name: Open Mode Adjust, type: categorical, options: ["1", "2", "3"], notes: "Low-Speed Compression in Open mode; 1 is plushest, 3 firmest" }
     source:
@@ -96,8 +96,8 @@ dampers:
     name: DHX damper (coil)
     description: Coil-sprung trail/enduro damper. Tool-free adjusters, 2-position Firm switch.
     adjustments:
-      - { name: Compression, type: step, max: 11, notes: Low-Speed Compression }
-      - { name: Rebound, type: step, max: 16, notes: Low-Speed Rebound }
+      - { name: Compression, type: step, max: 11, notes: Low-Speed Compression, dialColor: blue }
+      - { name: Rebound, type: step, max: 16, notes: Low-Speed Rebound, dialColor: red }
       - { name: Compression Mode, type: categorical, options: [Open, Firm] }
     source: https://ridefox.com/products/fox-dhx-factory
 

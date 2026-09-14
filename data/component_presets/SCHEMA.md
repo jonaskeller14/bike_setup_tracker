@@ -104,6 +104,8 @@ misspelling `viz:` for `visualization:` fails CI rather than being ignored.
 | `max` | step, numerical | step: **yes** · numerical: no | step: — · numerical: unbounded |
 | `step` | step | no | `1` |
 | `visualization` | step | no | `dial_ccw` |
+| `dialColor` | step | no | `blue` (`blue` \| `red` \| `green` \| `brown` \| `orange` \| `purple` \| `grey`) |
+| `dialSize` | step | no | `normal` (`normal` \| `small`) |
 | `options` | categorical | **yes** (non-empty) | — |
 | `multiSelect` | categorical | no | `false` |
 
@@ -117,6 +119,27 @@ misspelling `viz:` for `visualization:` fails CI rather than being ignored.
 | `dial_cw` | `sliderWithClockwiseDial` | Increasing value turns the dial **clockwise**, e.g. RockShox Charger from-middle adjusters where `-2` lies counterclockwise of the `0` detent. |
 | `stepper` | `minusButtonValuePlusButton` | Discrete counts, no dial — e.g. Volume Spacers. |
 | `slider` | `slider` | Plain slider, no dial. |
+
+### `dialColor` and `dialSize` (step only)
+
+Match the **physical dial knob** on the real damper — the app renders the
+adjustment's dial in that color/size so it looks like the part the rider is
+actually turning. Source these from official product photos, tuning guides or
+manuals; when a knob's color/size isn't confirmed, omit the field (defaults to
+`blue`/`normal`) rather than guessing.
+
+High-speed and low-speed circuits sharing one damper are typically the same
+color (the brand's compression color vs. its rebound color) with the
+high-speed adjuster as the larger primary dial (`normal`) and the low-speed
+adjuster as a smaller nested dial (`small`) — e.g. FOX GRIP X2:
+
+```yaml
+adjustments:
+  - { name: HSC, type: step, max: 8, notes: High-Speed Compression, dialColor: blue }
+  - { name: LSC, type: step, max: 18, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
+  - { name: HSR, type: step, max: 8, notes: High-Speed Rebound, dialColor: red }
+  - { name: LSR, type: step, max: 16, notes: Low-Speed Rebound, dialColor: red, dialSize: small }
+```
 
 ### Click ranges & counting conventions
 

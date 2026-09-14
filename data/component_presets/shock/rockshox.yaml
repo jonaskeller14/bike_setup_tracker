@@ -24,6 +24,8 @@ sources:
   # Secondary — editorial, used for context only, no numbers taken from them
   - https://enduro-mtb.com/en/rockshox_vivid_coil_super_deluxe_shock_review_2025/
   - https://flowmountainbike.com/features/rockshox-shock-setup/
+  - https://www.pinkbike.com/news/first-ride-the-new-rockshox-vivid-ultimate.html
+  - https://freehub.com/product-reviews/2014-rockshox-pike-rct3-160mm-review
 updated: 2026-09-10
 # Counting conventions, verified per damper against SRAM material:
 #   * RC2T compression counts from the MIDDLE — SRAM: "5 positions for both HSC
@@ -48,18 +50,24 @@ dampers:
       - HSC and LSC are 5-position dials, centred on the shock's base tune
       - 15 clicks of rebound; LSC turns by hand, HSC takes a 3mm hex key
     adjustments:
-      - { name: HSC, type: step, min: -2, max: 2, visualization: dial_cw, notes: "High-Speed Compression; Counted from the middle base tune; 3mm hex key" }
-      - { name: LSC, type: step, min: -2, max: 2, visualization: dial_cw, notes: "Low-Speed Compression; Counted from the middle base tune; adjusted by hand" }
-      - { name: Rebound, type: step, max: 15, notes: Counted from fully open (fastest) }
+      - { name: HSC, type: step, min: -2, max: 2, visualization: dial_cw, notes: "High-Speed Compression; Counted from the middle base tune; 3mm hex key", dialColor: blue, dialSize: small }
+      - { name: LSC, type: step, min: -2, max: 2, visualization: dial_cw, notes: "Low-Speed Compression; Counted from the middle base tune; adjusted by hand", dialColor: blue }
+      - { name: Rebound, type: step, max: 15, notes: Counted from fully open (fastest), dialColor: red }
     source:
       - https://support.rockshox.com/hc/en-us/articles/6004026399259-How-far-can-I-adjust-the-High-Speed-Compression-HSC-and-Low-Speed-Compression-LSC-on-Rockshox-RC2T-dampers
       - https://support.rockshox.com/hc/en-us/articles/6004236989083-How-do-I-adjust-Rebound-High-Speed-Compression-HSC-and-Low-Speed-Compression-LSC-on-the-RockShox-RC2T-damper
       - https://support.rockshox.com/hc/en-us/articles/6012267863835-How-many-clicks-of-Rebound-does-the-MY23-RockShox-Super-Deluxe-have
       - https://support.rockshox.com/hc/en-us/articles/48154327224219-How-many-rebound-clicks-does-the-Super-Deluxe-D1-have
+      - https://freehub.com/product-reviews/2014-rockshox-pike-rct3-160mm-review
     note: >-
       Rebound count of 15 is published for both the MY23 Super Deluxe and the
       Super Deluxe D1, so it is carried by the damper rather than the model.
       The letters read as R (Rebound), C2 (dual compression) and T (Threshold).
+      The RC2T FAQ describes the LSC knob as "knurled and blue" (hand-adjusted,
+      the larger primary knob) and the HSC adjustment as "blue and silver",
+      nestled into the top of the reservoir and turned with a 3mm hex wrench —
+      the opposite size relationship from Charger 3's fork damper, where HSC is
+      the larger hand knob and LSC nests smaller on top of it.
 
   rc2:
     name: RC2
@@ -81,21 +89,25 @@ dampers:
       - Twenty clicks of rebound
       - Five positions of adjustable hydraulic bottom-out to control the last of the stroke
     adjustments:
-      - { name: HSC, type: step, min: 1, max: 5, notes: "High-Speed Compression; 5 positions in total" }
+      - { name: HSC, type: step, min: 1, max: 5, notes: "High-Speed Compression; 5 positions in total", dialSize: small }
       - { name: LSC, type: step, min: 1, max: 5, notes: "Low-Speed Compression; 5 positions in total" }
-      - { name: Rebound, type: step, max: 20, notes: Counted from fully open (fastest) }
-      - { name: Hydraulic Bottom Out, type: step, min: 1, max: 5, notes: "Adjustable Hydraulic Bottom Out (AHBO); 5 positions in total" }
+      - { name: Rebound, type: step, max: 20, notes: Counted from fully open (fastest), dialColor: red }
+      - { name: Hydraulic Bottom Out, type: step, min: 1, max: 5, notes: "Adjustable Hydraulic Bottom Out (AHBO); 5 positions in total", dialSize: small }
     source:
       - https://support.rockshox.com/hc/en-us/articles/17939326675867-How-many-positions-of-High-Speed-Compression-HSC-Low-Speed-Compression-LSC-Rebound-and-Adjustable-Hydraulic-Bottom-Out-AHBO-does-Vivid-Ultimate-have
       - https://support.rockshox.com/hc/en-us/articles/46640345306779-How-many-rebound-clicks-does-Vivid-Coil-D1-feature
       - https://support.rockshox.com/hc/en-us/articles/48154956077851-How-many-rebound-clicks-does-the-2027-Vivid-Air-D1-feature
+      - https://www.pinkbike.com/news/first-ride-the-new-rockshox-vivid-ultimate.html
+      - https://freehub.com/product-reviews/2014-rockshox-pike-rct3-160mm-review
     note: >-
       RockShox: "Vivid Ultimate has five positions of HSC, five positions of LSC,
       five positions AHBO, and 20 positions of Rebound." The 20-click rebound is
       separately confirmed for Vivid Coil D1 and for the 2027+ Vivid Air D1, so
       one damper key covers both the air and coil Ultimate shocks. SRAM does not
       state whether the 5-position dials are centred on a base tune the way RC2T
-      is, so no centre detent is asserted here.
+      is, so no centre detent is asserted here. Per Pinkbike's first-ride piece,
+      LSC is a knurled hand knob while the removable rebound knob doubles as a
+      3mm hex key for the small, tucked-away HSC and AHBO adjusters.
 
   rct:
     name: RCT

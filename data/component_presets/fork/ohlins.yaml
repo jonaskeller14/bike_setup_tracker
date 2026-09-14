@@ -28,6 +28,9 @@ sources:
   - https://ohlins.com/storage/9C8C7FB7E305B5CED4AFC6118547113286CF63B94F14ADAB8050C2CFEA78FF38/dcb2294119c04b8da8dd7613ae7db28f/pdf/media/60aa019099bd416e8b0207e44ee4a2ac/OM_07258-09_3_FGxx%2038xx%2021xx.pdf
   - https://ohlins.com/storage/4D81EA83A21214EDFB4A57331844F3692B56F2CCA1ED9BD1BE95A5CDFE6D1B1E/9bd7e6402a3e42ff93f357c6b15e645b/pdf/media/0377e17f271d4af39560e027d515d36d/Owners%20manual%20RXF38%20m.2.pdf
   - https://www.ohlins.com/en-us/document-library
+  # Editorial, used only for dialColor/dialSize (adjuster knob color/size), never for click counts
+  - https://www.bikeperfect.com/reviews/ohlins-rxf34-m2-review
+  - https://www.pinkbike.com/news/review-ohlins-rxf36-m2-trail-fork.html
 updated: 2026-09-10
 # Click ranges taken from the individual product pages at ohlins.eu plus the
 # Öhlins owner's manuals linked above. Clicks are counted from fully closed
@@ -59,9 +62,9 @@ dampers:
       - High-speed compression is a four-position dial, 0 being fully closed
       - Every click is counted from fully closed, opening counter-clockwise
     adjustments:
-      - { name: HSC, type: step, max: 3, notes: High-Speed Compression }
-      - { name: LSC, type: step, max: 15, notes: Low-Speed Compression }
-      - { name: Rebound, type: step, max: 15 }
+      - { name: HSC, type: step, max: 3, notes: High-Speed Compression, dialColor: grey }
+      - { name: LSC, type: step, max: 15, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
+      - { name: Rebound, type: step, max: 15, dialColor: orange }
     source: https://www.ohlins.eu/en/products/mountainbike/rxf34-m2-air-otx18-29--7685/
     note: >-
       RXF34 m.2 page: "3-fach High-Speed Druckstufeneinstellung", "15-fach
@@ -74,9 +77,9 @@ dampers:
       - High-speed compression is a four-position dial; 0 is a firm climb platform
       - Every click is counted from fully closed, opening counter-clockwise
     adjustments:
-      - { name: HSC, type: step, max: 3, notes: "High-Speed Compression; position 0 is the firm climb platform" }
-      - { name: LSC, type: step, max: 15, notes: Low-Speed Compression }
-      - { name: Rebound, type: step, max: 15 }
+      - { name: HSC, type: step, max: 3, notes: "High-Speed Compression; position 0 is the firm climb platform", dialColor: grey }
+      - { name: LSC, type: step, max: 15, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
+      - { name: Rebound, type: step, max: 15, dialColor: orange }
     source:
       - https://www.ohlins.eu/de/products/mountainbike/rxf36-m2-air-ttx18-275--7698/
       - https://www.ohlins.eu/en/products/mountainbike/rxf38-m2-air-ttx18-29--7694/
@@ -92,9 +95,9 @@ dampers:
       - One more click of low-speed compression and rebound than the m.2 cartridge
       - Every click is counted from fully closed, opening counter-clockwise
     adjustments:
-      - { name: HSC, type: step, max: 3, notes: High-Speed Compression }
-      - { name: LSC, type: step, max: 16, notes: Low-Speed Compression }
-      - { name: Rebound, type: step, max: 16 }
+      - { name: HSC, type: step, max: 3, notes: High-Speed Compression, dialColor: grey }
+      - { name: LSC, type: step, max: 16, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
+      - { name: Rebound, type: step, max: 16, dialColor: orange }
     source:
       - https://www.ohlins.eu/en/products/mountainbike/rxf36-m3-air-ttx18-275--7696/
       - https://www.ohlins.eu/en/products/mountainbike/rxf38-m3-air-coil-ttx18--7748/
@@ -111,7 +114,7 @@ dampers:
       - High-speed compression is a four-position dial, shipped fully open at 3
       - Adjustments incomplete: please add Rebound and Low-Speed Compression yourself.
     adjustments:
-      - { name: HSC, type: step, max: 3, notes: "High-Speed Compression; 0 is fully closed, 3 fully open" }
+      - { name: HSC, type: step, max: 3, notes: "High-Speed Compression; 0 is fully closed, 3 fully open", dialColor: grey }
     source: https://ohlins.com/storage/9C8C7FB7E305B5CED4AFC6118547113286CF63B94F14ADAB8050C2CFEA78FF38/dcb2294119c04b8da8dd7613ae7db28f/pdf/media/60aa019099bd416e8b0207e44ee4a2ac/OM_07258-09_3_FGxx%2038xx%2021xx.pdf
     note: >-
       Owner's Manual RXF38 m.1 (part no. OM_07258-09_3), chapter "4 TTX18
@@ -162,9 +165,9 @@ dampers:
       - High-speed compression is a four-position dial
       - Every click is counted from fully closed, opening counter-clockwise
     adjustments:
-      - { name: HSC, type: step, max: 3, notes: High-Speed Compression }
-      - { name: LSC, type: step, max: 15, notes: Low-Speed Compression }
-      - { name: Rebound, type: step, max: 15 }
+      - { name: HSC, type: step, max: 3, notes: High-Speed Compression, dialColor: grey }
+      - { name: LSC, type: step, max: 15, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
+      - { name: Rebound, type: step, max: 15, dialColor: orange }
     source: https://www.ohlins.eu/en/products/mountainbike/dh38-m1-downhill-front-fork--7683/
     note: >-
       Read off the DH38 m.1's own page ("15-fach Zugstufenverstellung",

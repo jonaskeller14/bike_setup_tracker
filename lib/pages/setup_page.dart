@@ -1025,7 +1025,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                     context: context, 
                     tags: _tags,
                     title: 'Add Tags',
-                    subtile: "Use tags to group and organize your setups. For example, to categorize by specific test sessions, tracks, or terrains.",
+                    subtitle: "Use tags to group and organize your setups. For example, to categorize by specific test sessions, tracks, or terrains.",
                     onChanged: (Set<String> newTags) {
                       setState(() => _tags = newTags);
                       _changeListener();

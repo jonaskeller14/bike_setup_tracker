@@ -10,18 +10,18 @@ Future<void> showSetTagsSheet({
   required Set<String> tags,
   required ValueChanged<Set<String>> onChanged,
   required String title,
-  required String subtile,
+  required String subtitle,
 }) {
   return showModalBottomSheet(
     useSafeArea: true,
     isScrollControlled: true,
-    context: context, 
+    context: context,
     builder: (context) {
       return SetTagsSheetContent(
         setupTags: tags.toSet(),
         onChanged: onChanged,
         title: title,
-        subtitle: subtile,
+        subtitle: subtitle,
       );
     },
   );

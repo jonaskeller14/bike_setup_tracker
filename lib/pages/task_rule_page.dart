@@ -95,7 +95,7 @@ enum _DurationUnit {
 }
 
 class _TaskRulePageState extends State<TaskRulePage> {
-  static const enableKiloJoules = false;
+  static const enableKilojoules = false;
   late TextEditingController _nameController;
   late TextEditingController _notesController;
   late TextEditingController _intervalValueController;
@@ -333,7 +333,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
       typeItem(_ThresholdType.movingTime),
       typeItem(_ThresholdType.elapsedTime),
       typeItem(_ThresholdType.activityCount),
-      if ((enableKiloJoules || kDebugMode) || widget.taskRule?.interval is KilojoulesThreshold)
+      if ((enableKilojoules || kDebugMode) || widget.taskRule?.interval is KilojoulesThreshold)
         typeItem(_ThresholdType.kilojoules),
     ];
   }
@@ -839,7 +839,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                 context: context,
                 tags: _tags,
                 title: 'Add Tags',
-                subtile: "Use tags to group and organize your tasks (e.g. maintenance, order list, setup test, ...)",
+                subtitle: "Use tags to group and organize your tasks (e.g. maintenance, order list, setup test, ...)",
                 onChanged: (Set<String> newTags) {
                   setState(() => _tags = newTags);
                   _changeListener();

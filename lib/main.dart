@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -41,6 +43,21 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
+  // Set on every launch: the flag is persisted, so a release build installed
+  // over a debug one would otherwise inherit its disabled state.
+  unawaited(FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(!kDebugMode));
+
+  if (!kDebugMode) {
+    // These replace Flutter's own error printing, which is what surfaces stack
+    // traces in the debug console.
+    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+    PlatformDispatcher.instance.onError = (error, stack) {
+      unawaited(FirebaseCrashlytics.instance.recordError(error, stack, fatal: true));
+      return true;
+    };
+  }
+
   await FirebaseAppCheck.instance.activate(
     providerAndroid: kDebugMode 
         ? const AndroidDebugProvider() 
@@ -82,6 +99,20 @@ void main() async {
   );
 }
 
+typedef BootErrorReporter = void Function(Object error, StackTrace stack, {required String reason});
+
+void _reportBootErrorToCrashlytics(Object error, StackTrace stack, {required String reason}) {
+  unawaited(
+    FirebaseCrashlytics.instance.recordError(error, stack, reason: reason, fatal: false),
+  );
+}
+
+/// Startup failures never reach the global handlers: [LoadingGate] catches them
+/// to show [LoadingErrorPage] or to degrade silently, so they must be reported
+/// explicitly. Overridable so those paths can be tested without Firebase.
+@visibleForTesting
+BootErrorReporter recordBootError = _reportBootErrorToCrashlytics;
+
 class LoadingGate extends StatefulWidget {
   final AppSettings appSettings;
   final AppRepository appRepository;
@@ -104,11 +135,28 @@ class _LoadingGateState extends State<LoadingGate> {
   @override
   void initState() {
     super.initState();
-    _initialization = Future.wait([
-      widget.appSettings.loadAppSettings(),
-      _loadAndMigrate(),
-      widget.appHintService.load(),
-    ]);
+    _initialization = _initialize();
+  }
+
+  Future<void> _initialize() async {
+    try {
+      await Future.wait([
+        // Settings load best-effort: whatever was read before the failure is
+        // kept, the rest stays at its code default.
+        widget.appSettings.loadAppSettings().catchError(
+          (Object e, StackTrace s) => recordBootError(e, s, reason: 'App settings failed to load'),
+        ),
+        _loadAndMigrate(),
+        // Hints are cosmetic — a failure here must not block the app.
+        widget.appHintService.load().catchError(
+          (Object e, StackTrace s) => recordBootError(e, s, reason: 'App hints failed to load'),
+        ),
+      ]);
+    } catch (e, s) {
+      if (!kDebugMode) unawaited(FirebaseAnalytics.instance.logEvent(name: 'app_init_failed'));
+      recordBootError(e, s, reason: 'App initialization failed');
+      rethrow;
+    }
   }
 
   Future<void> _loadAndMigrate() async {
@@ -126,6 +174,15 @@ class _LoadingGateState extends State<LoadingGate> {
 
         // Save a backup of the final JSON state just in case.
         await BackupService.saveBackup(context: null, database: widget.appRepository.database);
+      } else {
+        // Null means the legacy blob failed to parse (an absent one decodes to
+        // empty data). The user boots into an empty database and `dbExists`
+        // suppresses any retry, so this is silent data loss.
+        recordBootError(
+          StateError('Legacy data failed to parse'),
+          StackTrace.current,
+          reason: 'Legacy migration skipped — user booted with an empty database',
+        );
       }
       debugPrint("Database migration completed.");
     }

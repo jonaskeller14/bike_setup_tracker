@@ -450,6 +450,7 @@ class AppSettings extends ChangeNotifier {
       _firstDayOfWeek = prefs.getInt('${_kPrefix}firstDayOfWeek') ?? _firstDayOfWeek;
     } catch (e, st) {
       debugPrint("ERROR loading App Settings: $e\n$st");
+      rethrow;
     }
   }
 
@@ -458,6 +459,7 @@ class AppSettings extends ChangeNotifier {
   /// Only values that *differ* from the original default are migrated: settings
   /// the user never explicitly changed are left unset, so they continue to
   /// track the live code default — matching new-install behaviour.
+  /// // TODO: delete after grace period
   Future<void> _migrateLegacyBlob(SharedPreferences prefs) async {
     final raw = prefs.getString(_kLegacyBlobKey);
     if (raw == null) return;

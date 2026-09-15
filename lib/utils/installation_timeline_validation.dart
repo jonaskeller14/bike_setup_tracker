@@ -10,39 +10,66 @@ bool shouldUseInstallationTimeline({
 }) =>
     featureEnabled || isComplexInstallationTimeline(installations);
 
-String? validateInstallationTimeline(List<Installation> installations) {
+class InstallationTimelineIssue {
+  final String message;
+  final Set<int> dateTimeIndices;
+  final Set<int> parentIndices;
+
+  const InstallationTimelineIssue({
+    required this.message,
+    this.dateTimeIndices = const {},
+    this.parentIndices = const {},
+  });
+}
+
+InstallationTimelineIssue? installationTimelineIssue(List<Installation> installations) {
   if (installations.isEmpty) {
-    return 'At least one entry is required';
+    return const InstallationTimelineIssue(message: 'At least one entry is required');
   }
 
-  final sorted = List<Installation>.from(installations)
-    ..sort((a, b) => a.dateTimeUTC.compareTo(b.dateTimeUTC));
+  final order = List<int>.generate(installations.length, (i) => i)
+    ..sort((a, b) => installations[a].dateTimeUTC.compareTo(installations[b].dateTimeUTC));
 
-  for (int i = 0; i < sorted.length; i++) {
-    final current = sorted[i];
+  for (int i = 0; i < order.length - 1; i++) {
+    final current = installations[order[i]];
+    final next = installations[order[i + 1]];
 
-    if (i < sorted.length - 1) {
-      if (current is Archival) {
-        return 'Archival can only be the last entry in the timeline';
-      }
-      final next = sorted[i + 1];
-      if (current is Uninstallation && next is Uninstallation) {
-        return 'Cannot have consecutive uninstallations';
-      }
-      if (current is BikeInstallation && next is BikeInstallation && current.bikeId == next.bikeId) {
-        return 'Cannot have consecutive installations on the same bike';
-      }
+    if (current is Archival) {
+      return InstallationTimelineIssue(
+        message: 'Archival can only be the last entry in the timeline',
+        parentIndices: {order[i]},
+      );
+    }
+    if (current is Uninstallation && next is Uninstallation) {
+      return InstallationTimelineIssue(
+        message: 'Cannot have consecutive uninstallations',
+        parentIndices: {order[i], order[i + 1]},
+      );
+    }
+    if (current is BikeInstallation && next is BikeInstallation && current.bikeId == next.bikeId) {
+      return InstallationTimelineIssue(
+        message: 'Cannot have consecutive installations on the same bike',
+        parentIndices: {order[i], order[i + 1]},
+      );
     }
   }
 
-  final fromBeginningCount = sorted.where((e) => e.dateTimeUTC.millisecondsSinceEpoch == 0).length;
-  if (fromBeginningCount > 1) {
-    return 'Multiple "From beginning" entries are not allowed';
+  final fromBeginning =
+      order.where((i) => installations[i].dateTimeUTC.millisecondsSinceEpoch == 0).toSet();
+  if (fromBeginning.length > 1) {
+    return InstallationTimelineIssue(
+      message: 'Multiple "From beginning" entries are not allowed',
+      dateTimeIndices: fromBeginning,
+    );
   }
 
-  for (int i = 0; i < sorted.length - 1; i++) {
-    if (sorted[i].dateTimeUTC == sorted[i + 1].dateTimeUTC) {
-      return 'Two entries cannot have the same date & time';
+  for (int i = 0; i < order.length - 1; i++) {
+    final at = installations[order[i]].dateTimeUTC;
+    if (at == installations[order[i + 1]].dateTimeUTC) {
+      return InstallationTimelineIssue(
+        message: 'Two entries cannot have the same date & time',
+        dateTimeIndices: order.where((j) => installations[j].dateTimeUTC == at).toSet(),
+      );
     }
   }
 
@@ -52,7 +79,7 @@ String? validateInstallationTimeline(List<Installation> installations) {
 /// The instant to stamp on a newly recorded event: [now] (default:
 /// `DateTime.now()`) truncated to the minute, pushed forward to the next free
 /// minute when [installations] already occupies it. Entries sharing an instant
-/// are rejected by [validateInstallationTimeline], and a drag-and-drop landing
+/// are rejected by [installationTimelineIssue], and a drag-and-drop landing
 /// in the same minute as the previous event should not open a sheet that is
 /// already invalid.
 ({DateTime utc, DateTime local}) stampInstallationNow(
@@ -79,4 +106,4 @@ String? validateInstallationTimeline(List<Installation> installations) {
 }
 
 bool isValidInstallationTimeline(List<Installation> installations) =>
-    validateInstallationTimeline(installations) == null;
+    installationTimelineIssue(installations) == null;

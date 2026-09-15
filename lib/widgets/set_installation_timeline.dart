@@ -11,6 +11,33 @@ import '../theme.dart';
 import '../utils/installation_timeline_validation.dart';
 import 'text/section_title.dart';
 
+class _ParentOption {
+  final Installation value;
+  final IconData icon;
+  final String label;
+  final Color? color;
+
+  const _ParentOption({
+    required this.value,
+    required this.icon,
+    required this.label,
+    this.color,
+  });
+
+  Widget content({Color? tint}) {
+    final effectiveColor = color ?? tint;
+    return Row(
+      spacing: 8,
+      children: [
+        Icon(icon, size: 20, color: effectiveColor),
+        Expanded(
+          child: Text(label, overflow: TextOverflow.ellipsis, style: TextStyle(color: effectiveColor)),
+        ),
+      ],
+    );
+  }
+}
+
 class SetInstallationTimeline extends StatefulWidget {
   final String title;
   final List<Installation> initialInstallations;
@@ -57,11 +84,11 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
   }
 
   void _addEntry() {
-    final at = stampInstallationNow(_installations);
+    final now = DateTime.now();
     setState(() {
       _installations.add(Uninstallation(
-        dateTimeUTC: at.utc,
-        dateTimeLocal: at.local,
+        dateTimeUTC: now.toUtc(),
+        dateTimeLocal: now,
       ));
     });
     _sortInstallations();
@@ -79,6 +106,50 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
       _installations[index] = newInstallation;
     });
     _sortInstallations();
+  }
+
+  List<_ParentOption> _parentOptions(Installation installation, Map<String, Bike> bikes) {
+    return [
+      _ParentOption(
+        value: Uninstallation(
+          id: installation.id,
+          componentId: installation.componentId,
+          dateTimeUTC: installation.dateTimeUTC,
+          dateTimeLocal: installation.dateTimeLocal,
+        ),
+        icon: Icons.shelves,
+        label: 'UNINSTALLED',
+      ),
+      _ParentOption(
+        value: Archival(
+          id: installation.id,
+          componentId: installation.componentId,
+          dateTimeUTC: installation.dateTimeUTC,
+          dateTimeLocal: installation.dateTimeLocal,
+        ),
+        icon: Icons.inventory_2_outlined,
+        label: 'ARCHIVED',
+      ),
+      for (final bike in bikes.values)
+        _ParentOption(
+          value: BikeInstallation(
+            bikeId: bike.id,
+            id: installation.id,
+            componentId: installation.componentId,
+            dateTimeUTC: installation.dateTimeUTC,
+            dateTimeLocal: installation.dateTimeLocal,
+          ),
+          icon: Bike.iconData,
+          label: bike.name,
+        ),
+      if (installation is BikeInstallation && !bikes.containsKey(installation.parent))
+        _ParentOption(
+          value: installation,
+          icon: Bike.iconData,
+          label: 'BIKE NOT FOUND',
+          color: Theme.of(context).colorScheme.error,
+        ),
+    ];
   }
 
   Future<void> _pickDateTime(int index) async {
@@ -121,8 +192,13 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
 
     return FormField<List<Installation>>(
       initialValue: _installations,
-      validator: (value) => validateInstallationTimeline(_installations),
+      validator: (value) => installationTimelineIssue(_installations)?.message,
       builder: (state) {
+        final issue = state.hasError ? installationTimelineIssue(_installations) : null;
+        final invalidBorder = OutlineInputBorder(
+          borderSide: BorderSide(color: colorScheme.error, width: 1),
+        );
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -143,11 +219,11 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (state.hasError)
+                  if (issue != null)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8.0),
                       child: Text(
-                        state.errorText!,
+                        issue.message,
                         style: TextStyle(color: theme.colorScheme.error, fontSize: 12),
                       ),
                     ),
@@ -187,7 +263,20 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                             (originalInstallation == null || installation.parentType != originalInstallation.parentType || installation.parent != originalInstallation.parent);
                         
                         final bool isEditable = widget.isEntryEditable?.call(installation) ?? true;
-                        
+
+                        final bool dateInvalid = issue?.dateTimeIndices.contains(index) ?? false;
+                        final bool parentInvalid = issue?.parentIndices.contains(index) ?? false;
+
+                        // Null keeps each element's own default color.
+                        final Color? dateColor = dateInvalid
+                            ? colorScheme.error
+                            : (!isEditable ? theme.disabledColor : null);
+                        final Color? parentColor = parentInvalid
+                            ? colorScheme.error
+                            : (!isEditable ? theme.disabledColor : null);
+
+                        final parentOptions = _parentOptions(installation, bikes);
+
                         return Padding(
                           padding: const EdgeInsets.only(left: 12.0, top: 4, bottom: 4),
                           child: Row(
@@ -202,42 +291,46 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                                       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
                                     ),
                                   ),
-                                  child: InputDecorator(
-                                    decoration: InputDecoration(
-                                      border: const OutlineInputBorder(),
-                                      isDense: true,
-                                      filled: dateChanged,
-                                      fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
-                                    ),
-                                    child: PopupMenuButton<String>(
-                                      padding: EdgeInsets.zero,
-                                      onSelected: !isEditable ? null : (value) async {
-                                        if (value == 'beginning') {
-                                          _updateEntry(index, Installation.sinceBeginning(parent: installation.parent));
-                                        } else if (value == 'now') {
-                                          final at = stampInstallationNow(
-                                            _installations.where((e) => e.id != installation.id).toList(),
-                                          );
-                                          _updateEntry(index, installation.copyWith(
-                                            dateTimeUTC: at.utc,
-                                            dateTimeLocal: at.local,
-                                          ));
-                                        } else if (value == 'select') {
-                                          await _pickDateTime(index);
-                                        }
-                                      },
-                                      itemBuilder: (context) {
-                                        final othersHaveIt = _installations.where((e) => e.dateTimeUTC.millisecondsSinceEpoch == 0).isNotEmpty && !isFromBeginning;
-                                        return [
-                                          PopupMenuItem(
-                                            value: 'beginning', 
-                                            enabled: !othersHaveIt,
-                                            child: Text('From beginning', style: TextStyle(color: othersHaveIt ? theme.disabledColor : null)),
-                                          ),
-                                          const PopupMenuItem(value: 'now', child: Text('Now')),
-                                          const PopupMenuItem(value: 'select', child: Text('Select date & time...')),
-                                        ];
-                                      },
+                                  child: PopupMenuButton<String>(
+                                    padding: EdgeInsets.zero,
+                                    enabled: isEditable,
+                                    // Matches OutlineInputBorder's radius so the ink stays inside the field.
+                                    borderRadius: const BorderRadius.all(Radius.circular(4)),
+                                    onSelected: (value) async {
+                                      if (value == 'beginning') {
+                                        _updateEntry(index, Installation.sinceBeginning(parent: installation.parent));
+                                      } else if (value == 'now') {
+                                        final now = DateTime.now();
+                                        _updateEntry(index, installation.copyWith(
+                                          dateTimeUTC: now.toUtc(),
+                                          dateTimeLocal: now,
+                                        ));
+                                      } else if (value == 'select') {
+                                        await _pickDateTime(index);
+                                      }
+                                    },
+                                    itemBuilder: (context) {
+                                      final othersHaveIt = _installations.where((e) => e.dateTimeUTC.millisecondsSinceEpoch == 0).isNotEmpty && !isFromBeginning;
+                                      return [
+                                        PopupMenuItem(
+                                          value: 'beginning',
+                                          enabled: !othersHaveIt,
+                                          child: Text('From beginning', style: TextStyle(color: othersHaveIt ? theme.disabledColor : null)),
+                                        ),
+                                        const PopupMenuItem(value: 'now', child: Text('Now')),
+                                        const PopupMenuItem(value: 'select', child: Text('Select date & time...')),
+                                      ];
+                                    },
+                                    child: InputDecorator(
+                                      decoration: InputDecoration(
+                                        border: const OutlineInputBorder(),
+                                        enabledBorder: dateInvalid ? invalidBorder : null,
+                                        disabledBorder: dateInvalid ? invalidBorder : null,
+                                        focusedBorder: dateInvalid ? invalidBorder : null,
+                                        isDense: true,
+                                        filled: dateChanged,
+                                        fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
+                                      ),
                                       child: Container(
                                         // Fix height to match DropdownButtonFormField
                                         height: 48,
@@ -252,7 +345,7 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                                                   Text(
                                                     dateStr,
                                                     style: theme.textTheme.bodyMedium?.copyWith(
-                                                      color: !isEditable ? theme.disabledColor : null,
+                                                      color: dateColor,
                                                       height: 1.1,
                                                     ),
                                                     maxLines: 1,
@@ -262,7 +355,7 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                                                     Text(
                                                       timeStr,
                                                       style: theme.textTheme.bodySmall?.copyWith(
-                                                        color: !isEditable ? theme.disabledColor : theme.hintColor,
+                                                        color: dateColor ?? theme.hintColor,
                                                         height: 1.1,
                                                       ),
                                                       maxLines: 1,
@@ -271,7 +364,7 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                                                 ],
                                               ),
                                             ),
-                                            Icon(Icons.arrow_drop_down, size: 24, color: !isEditable ? theme.disabledColor : colorScheme.onSurfaceVariant),
+                                            Icon(Icons.arrow_drop_down, size: 24, color: dateColor ?? colorScheme.onSurfaceVariant),
                                           ],
                                         ),
                                       ),
@@ -286,76 +379,29 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                                   initialValue: installation,
                                   hint: const Text('Select Bike'),
                                   isExpanded: true,
+                                  iconEnabledColor: parentColor,
+                                  iconDisabledColor: parentColor,
                                   decoration: InputDecoration(
                                     border: const OutlineInputBorder(),
+                                    enabledBorder: parentInvalid ? invalidBorder : null,
+                                    disabledBorder: parentInvalid ? invalidBorder : null,
+                                    focusedBorder: parentInvalid ? invalidBorder : null,
                                     contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
                                     filled: bikeChanged,
                                     fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                   ),
                                   items: [
-                                    DropdownMenuItem<Installation>(
-                                      value: Uninstallation(
-                                        id: installation.id,
-                                        componentId: installation.componentId,
-                                        dateTimeUTC: installation.dateTimeUTC,
-                                        dateTimeLocal: installation.dateTimeLocal,
-                                      ),
-                                      child: Row(
-                                        spacing: 8,
-                                        children: [
-                                          Icon(Icons.shelves, size: 20, color: !isEditable ? theme.disabledColor : null),
-                                          Expanded(child: Text('UNINSTALLED', overflow: TextOverflow.ellipsis, style: TextStyle(color: !isEditable ? theme.disabledColor : null))),
-                                        ],
-                                      ),
-                                    ),
-                                    DropdownMenuItem<Installation>(
-                                      value: Archival(
-                                        id: installation.id,
-                                        componentId: installation.componentId,
-                                        dateTimeUTC: installation.dateTimeUTC,
-                                        dateTimeLocal: installation.dateTimeLocal,
-                                      ),
-                                      child: Row(
-                                        spacing: 8,
-                                        children: [
-                                          Icon(Icons.inventory_2_outlined, size: 20, color: !isEditable ? theme.disabledColor : null),
-                                          Expanded(child: Text('ARCHIVED', overflow: TextOverflow.ellipsis, style: TextStyle(color: !isEditable ? theme.disabledColor : null))),
-                                        ],
-                                      ),
-                                    ),
-                                    ...bikes.values.map((bike) => DropdownMenuItem<Installation>(
-                                          value: BikeInstallation(
-                                            bikeId: bike.id,
-                                            id: installation.id,
-                                            componentId: installation.componentId,
-                                            dateTimeUTC: installation.dateTimeUTC,
-                                            dateTimeLocal: installation.dateTimeLocal,
-                                          ),
-                                          child: Row(
-                                            spacing: 8,
-                                            children: [
-                                              Icon(Bike.iconData, size: 20, color: !isEditable ? theme.disabledColor : null),
-                                              Expanded(child: Text(bike.name, overflow: TextOverflow.ellipsis, style: TextStyle(color: !isEditable ? theme.disabledColor : null))),
-                                            ],
-                                          ),
-                                        )),
-                                    if (installation is BikeInstallation && !bikes.containsKey(installation.parent))
+                                    for (final option in parentOptions)
                                       DropdownMenuItem<Installation>(
-                                        value: installation,
-                                        child: Row(
-                                          spacing: 8,
-                                          children: [
-                                            Icon(Bike.iconData, size: 20, color: theme.colorScheme.error),
-                                            Expanded(
-                                              child: Text(
-                                                'BIKE NOT FOUND',
-                                                overflow: TextOverflow.ellipsis,
-                                                style: TextStyle(color: theme.colorScheme.error),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
+                                        value: option.value,
+                                        child: option.content(),
                                       ),
+                                  ],
+                                  // The closed field, unlike the menu entries, is tinted when the
+                                  // entry is locked or the validator flagged its parent.
+                                  selectedItemBuilder: (context) => [
+                                    for (final option in parentOptions)
+                                      option.content(tint: parentColor),
                                   ],
                                   onChanged: !isEditable
                                       ? null

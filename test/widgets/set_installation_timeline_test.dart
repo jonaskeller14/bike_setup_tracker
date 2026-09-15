@@ -54,6 +54,17 @@ void main() {
     );
   }
 
+  /// Counts the entry fields painted with the error-colored border: the date
+  /// pickers (`isDense`) or the bike dropdowns.
+  int invalidBorderCount(WidgetTester tester, {required bool dateFields}) {
+    final errorColor = materialAppTheme.colorScheme.error;
+    return tester
+        .widgetList<InputDecorator>(find.byType(InputDecorator))
+        .where((d) => (d.decoration.isDense ?? false) == dateFields)
+        .where((d) => d.decoration.enabledBorder?.borderSide.color == errorColor)
+        .length;
+  }
+
   group('SetInstallationTimeline', () {
     testWidgets('renders initial installations with bike names', (WidgetTester tester) async {
       final bike = Bike(id: 'bike1', name: 'Mountain Bike', person: 'Me');
@@ -186,6 +197,82 @@ void main() {
 
       expect(formFieldState.errorText, contains('Multiple "From beginning"'));
       expect(find.textContaining('Multiple "From beginning"'), findsOneWidget);
+    });
+
+    testWidgets('validation: highlights the date fields of duplicate "From beginning" entries', (WidgetTester tester) async {
+      await tester.runAsync(() async {
+        await appRepository.addBikes([
+          Bike(id: 'bike1', name: 'Bike 1', person: 'Me'),
+          Bike(id: 'bike2', name: 'Bike 2', person: 'Me'),
+        ]);
+        int attempts = 0;
+        while (appRepository.bikes.length < 2 && attempts < 100) {
+          await Future<void>.delayed(const Duration(milliseconds: 10));
+          attempts++;
+        }
+      });
+
+      await tester.pumpWidget(createWidgetUnderTest(
+        initialInstallations: [
+          Installation.sinceBeginning(parent: 'bike1'),
+          Installation.sinceBeginning(parent: 'bike2'),
+        ],
+      ));
+      await tester.pumpAndSettle();
+
+      expect(invalidBorderCount(tester, dateFields: true), 0);
+
+      tester.state<FormFieldState<List<Installation>>>(find.byType(FormField<List<Installation>>)).validate();
+      await tester.pumpAndSettle();
+
+      expect(invalidBorderCount(tester, dateFields: true), 2);
+      expect(invalidBorderCount(tester, dateFields: false), 0);
+
+      final errorColor = materialAppTheme.colorScheme.error;
+      for (final label in tester.widgetList<Text>(find.text('From beginning'))) {
+        expect(label.style?.color, errorColor);
+      }
+    });
+
+    testWidgets('validation: highlights the bike fields of consecutive installations on the same bike', (WidgetTester tester) async {
+      await tester.runAsync(() async {
+        await appRepository.addBikes([Bike(id: 'bike1', name: 'Bike A', person: 'Me')]);
+        int attempts = 0;
+        while (appRepository.bikes.isEmpty && attempts < 100) {
+          await Future<void>.delayed(const Duration(milliseconds: 10));
+          attempts++;
+        }
+      });
+
+      final now = DateTime.now();
+      await tester.pumpWidget(createWidgetUnderTest(
+        initialInstallations: [
+          Installation(parent: 'bike1', dateTimeUTC: now.subtract(const Duration(hours: 1)), dateTimeLocal: now.subtract(const Duration(hours: 1))),
+          Installation(parent: 'bike1', dateTimeUTC: now, dateTimeLocal: now),
+        ],
+      ));
+      await tester.pumpAndSettle();
+
+      tester.state<FormFieldState<List<Installation>>>(find.byType(FormField<List<Installation>>)).validate();
+      await tester.pumpAndSettle();
+
+      expect(invalidBorderCount(tester, dateFields: false), 2);
+      expect(invalidBorderCount(tester, dateFields: true), 0);
+
+      final errorColor = materialAppTheme.colorScheme.error;
+      final closedFieldLabels = tester.widgetList<Text>(find.text('Bike A'));
+      expect(closedFieldLabels, hasLength(2));
+      for (final label in closedFieldLabels) {
+        expect(label.style?.color, errorColor);
+      }
+
+      // The menu offers the fix, so its entries keep their normal color.
+      await tester.tap(find.byType(DropdownButtonFormField<Installation>).first);
+      await tester.pumpAndSettle();
+      expect(
+        tester.widgetList<Text>(find.text('Bike A')).where((t) => t.style?.color == null),
+        isNotEmpty,
+      );
     });
 
     testWidgets('popup menu disables "From beginning" if another entry has it', (WidgetTester tester) async {

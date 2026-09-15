@@ -15,6 +15,9 @@ Uninstallation uninstall(int day) => Uninstallation(
       dateTimeLocal: _utc(day).toLocal(),
     );
 
+String? validate(List<Installation> installations) =>
+    installationTimelineIssue(installations)?.message;
+
 Archival archive(int day) => Archival(
       dateTimeUTC: _utc(day),
       dateTimeLocal: _utc(day).toLocal(),
@@ -71,55 +74,55 @@ void main() {
     });
   });
 
-  group('validateInstallationTimeline', () {
+  group('installationTimelineIssue messages', () {
     test('rejects an empty timeline', () {
-      expect(validateInstallationTimeline([]), 'At least one entry is required');
+      expect(validate([]), 'At least one entry is required');
     });
 
     test('accepts a single entry', () {
-      expect(validateInstallationTimeline([installOn('b1', 1)]), isNull);
-      expect(validateInstallationTimeline([uninstall(1)]), isNull);
-      expect(validateInstallationTimeline([archive(1)]), isNull);
+      expect(validate([installOn('b1', 1)]), isNull);
+      expect(validate([uninstall(1)]), isNull);
+      expect(validate([archive(1)]), isNull);
     });
 
     test('accepts archival as the last entry', () {
       expect(
-        validateInstallationTimeline([installOn('b1', 1), archive(2)]),
+        validate([installOn('b1', 1), archive(2)]),
         isNull,
       );
     });
 
     test('rejects archival before another entry', () {
       expect(
-        validateInstallationTimeline([archive(1), installOn('b1', 2)]),
+        validate([archive(1), installOn('b1', 2)]),
         'Archival can only be the last entry in the timeline',
       );
     });
 
     test('rejects consecutive uninstallations', () {
       expect(
-        validateInstallationTimeline([installOn('b1', 1), uninstall(2), uninstall(3)]),
+        validate([installOn('b1', 1), uninstall(2), uninstall(3)]),
         'Cannot have consecutive uninstallations',
       );
     });
 
     test('rejects consecutive installations on the same bike', () {
       expect(
-        validateInstallationTimeline([installOn('b1', 1), installOn('b1', 2)]),
+        validate([installOn('b1', 1), installOn('b1', 2)]),
         'Cannot have consecutive installations on the same bike',
       );
     });
 
     test('accepts consecutive installations on different bikes', () {
       expect(
-        validateInstallationTimeline([installOn('b1', 1), installOn('b2', 2)]),
+        validate([installOn('b1', 1), installOn('b2', 2)]),
         isNull,
       );
     });
 
     test('rejects multiple from-beginning entries', () {
       expect(
-        validateInstallationTimeline([
+        validate([
           Installation.sinceBeginning(parent: 'b1'),
           Installation.sinceBeginning(),
         ]),
@@ -129,7 +132,7 @@ void main() {
 
     test('accepts a single from-beginning entry', () {
       expect(
-        validateInstallationTimeline([
+        validate([
           Installation.sinceBeginning(parent: 'b1'),
           uninstall(2),
         ]),
@@ -139,7 +142,7 @@ void main() {
 
     test('accepts a valid mixed timeline', () {
       expect(
-        validateInstallationTimeline([
+        validate([
           installOn('b1', 1),
           uninstall(2),
           installOn('b2', 3),
@@ -152,7 +155,7 @@ void main() {
 
     test('sorts before validating: unsorted valid timeline passes', () {
       expect(
-        validateInstallationTimeline([
+        validate([
           archive(5),
           uninstall(2),
           installOn('b2', 3),
@@ -166,7 +169,7 @@ void main() {
     test('rejects two entries in the same minute', () {
       final at = DateTime.utc(2026, 1, 1, 14, 32);
       expect(
-        validateInstallationTimeline([
+        validate([
           BikeInstallation(bikeId: 'b1', dateTimeUTC: at, dateTimeLocal: at.toLocal()),
           BikeInstallation(bikeId: 'b2', dateTimeUTC: at, dateTimeLocal: at.toLocal()),
         ]),
@@ -177,7 +180,7 @@ void main() {
     test('rejects entries that only differ by seconds', () {
       final at = DateTime.utc(2026, 1, 1, 14, 32);
       expect(
-        validateInstallationTimeline([
+        validate([
           BikeInstallation(bikeId: 'b1', dateTimeUTC: at, dateTimeLocal: at.toLocal()),
           BikeInstallation(
             bikeId: 'b2',
@@ -192,7 +195,7 @@ void main() {
 
     test('reports duplicate from-beginning entries with their own message', () {
       expect(
-        validateInstallationTimeline([
+        validate([
           Installation.sinceBeginning(parent: 'b1'),
           Installation.sinceBeginning(parent: 'b2'),
         ]),
@@ -203,7 +206,7 @@ void main() {
     test('sorts before validating: unsorted invalid timeline is rejected', () {
       // Chronologically this is install(b1) → install(b1) → uninstall.
       expect(
-        validateInstallationTimeline([
+        validate([
           uninstall(3),
           installOn('b1', 2),
           installOn('b1', 1),
@@ -258,8 +261,69 @@ void main() {
     });
   });
 
+  group('installationTimelineIssue', () {
+    test('points at both parents of consecutive uninstallations, by input index', () {
+      final issue = installationTimelineIssue([
+        uninstall(3),
+        installOn('b1', 1),
+        uninstall(2),
+      ]);
+
+      expect(issue!.message, 'Cannot have consecutive uninstallations');
+      expect(issue.parentIndices, {0, 2});
+      expect(issue.dateTimeIndices, isEmpty);
+    });
+
+    test('points at both parents of consecutive installations on the same bike', () {
+      final issue = installationTimelineIssue([installOn('b1', 1), installOn('b1', 2)]);
+
+      expect(issue!.parentIndices, {0, 1});
+      expect(issue.dateTimeIndices, isEmpty);
+    });
+
+    test('points at the parent of a non-final archival, by input index', () {
+      final issue = installationTimelineIssue([installOn('b1', 5), archive(1)]);
+
+      expect(issue!.message, 'Archival can only be the last entry in the timeline');
+      expect(issue.parentIndices, {1});
+    });
+
+    test('points at the date & time of every entry sharing an instant', () {
+      final issue = installationTimelineIssue([
+        installOn('b1', 1),
+        installOn('b2', 1),
+        installOn('b3', 1),
+      ]);
+
+      expect(issue!.message, 'Two entries cannot have the same date & time');
+      expect(issue.dateTimeIndices, {0, 1, 2});
+      expect(issue.parentIndices, isEmpty);
+    });
+
+    test('points at the date & time of every "From beginning" entry', () {
+      final issue = installationTimelineIssue([
+        Installation.sinceBeginning(parent: 'b1'),
+        Installation.sinceBeginning(parent: 'b2'),
+      ]);
+
+      expect(issue!.message, 'Multiple "From beginning" entries are not allowed');
+      expect(issue.dateTimeIndices, {0, 1});
+    });
+
+    test('highlights nothing for an empty timeline', () {
+      final issue = installationTimelineIssue([]);
+
+      expect(issue!.dateTimeIndices, isEmpty);
+      expect(issue.parentIndices, isEmpty);
+    });
+
+    test('returns null for a valid timeline', () {
+      expect(installationTimelineIssue([installOn('b1', 1), uninstall(2)]), isNull);
+    });
+  });
+
   group('isValidInstallationTimeline', () {
-    test('mirrors validateInstallationTimeline', () {
+    test('mirrors installationTimelineIssue', () {
       expect(isValidInstallationTimeline([installOn('b1', 1)]), isTrue);
       expect(isValidInstallationTimeline([]), isFalse);
       expect(isValidInstallationTimeline([archive(1), uninstall(2)]), isFalse);

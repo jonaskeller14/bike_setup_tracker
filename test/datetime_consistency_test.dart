@@ -123,5 +123,24 @@ void main() {
 
       expect(installation.dateTimeUTC.isUtc, isTrue);
     });
+
+    test('Installation constructor truncates to whole minutes', () {
+      final messy = DateTime(2026, 1, 1, 14, 32, 47, 123, 456);
+      final installation = Installation(
+        parent: 'parent1',
+        dateTimeUTC: messy.toUtc(),
+        dateTimeLocal: messy,
+      );
+
+      expect(installation.dateTimeLocal, DateTime(2026, 1, 1, 14, 32));
+      expect(installation.dateTimeUTC.second, 0);
+      expect(installation.dateTimeUTC.millisecond, 0);
+      expect(installation.dateTimeUTC.microsecond, 0);
+      expect(installation.dateTimeUTC.isUtc, isTrue);
+    });
+
+    test('Installation.sinceBeginning keeps the epoch-0 sentinel', () {
+      expect(Installation.sinceBeginning(parent: 'b1').isFromBeginning, isTrue);
+    });
   });
 }

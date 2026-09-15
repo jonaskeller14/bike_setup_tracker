@@ -91,7 +91,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 15;
+  int get schemaVersion => 16;
 
   @override
   MigrationStrategy get migration {
@@ -208,8 +208,55 @@ class AppDatabase extends _$AppDatabase {
             await m.addColumn(components, components.initialKilojoules);
           }
         }
+        if (from < 16) {
+          // Installation instants became minute-resolution (the UI only ever
+          // edited minutes; "Now" and drag-and-drop wrote seconds). Round the
+          // stored rows down so they match what is displayed and editable.
+          await migrateInstallationMinutes(this);
+        }
       },
     );
+  }
+
+  /// Rounds every installation instant down to the whole minute.
+  ///
+  /// Rounding can collapse two events onto the same minute, and equal instants
+  /// sort arbitrarily — which for a single component decides what it is
+  /// currently installed on. Collisions within a component are therefore spread
+  /// forward a minute at a time, preserving the order the rows were recorded in.
+  /// The epoch-0 "from beginning" sentinel is left untouched.
+  @visibleForTesting
+  static Future<void> migrateInstallationMinutes(AppDatabase db) async {
+    final rows = await db.customSelect(
+      'SELECT id, component_id, date_time_u_t_c, date_time_local FROM installations '
+      'ORDER BY component_id, date_time_u_t_c',
+    ).get();
+
+    final Map<String, int> lastMinuteByComponent = {};
+    for (final row in rows) {
+      final utc = row.read<int>('date_time_u_t_c');
+      if (utc == 0) continue;
+
+      final local = row.read<int>('date_time_local');
+      final componentId = row.read<String>('component_id');
+
+      final roundedUtc = utc - (utc % 60);
+      final lastMinute = lastMinuteByComponent[componentId];
+      final newUtc = (lastMinute != null && roundedUtc <= lastMinute)
+          ? lastMinute + 60
+          : roundedUtc;
+      lastMinuteByComponent[componentId] = newUtc;
+
+      // `date_time_local` stores a floating face value, so the same shift in
+      // seconds moves the wall clock by the same number of minutes.
+      final newLocal = local - (local % 60) + (newUtc - roundedUtc);
+      if (newUtc == utc && newLocal == local) continue;
+
+      await db.customStatement(
+        'UPDATE installations SET date_time_u_t_c = ?, date_time_local = ? WHERE id = ?',
+        [newUtc, newLocal, row.read<String>('id')],
+      );
+    }
   }
 
   @visibleForTesting

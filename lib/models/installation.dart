@@ -12,10 +12,15 @@ sealed class Installation {
     String? id,
     String? componentId,
     required DateTime dateTimeUTC,
-    required this.dateTimeLocal,
+    required DateTime dateTimeLocal,
   })  : id = id ?? const Uuid().v4(),
         componentId = componentId ?? '',
-        dateTimeUTC = dateTimeUTC.toUtc();
+        dateTimeUTC = truncateToMinute(dateTimeUTC.toUtc()),
+        dateTimeLocal = truncateToMinute(dateTimeLocal);
+
+  /// Drops seconds and below, preserving the `isUtc` flag.
+  static DateTime truncateToMinute(DateTime value) =>
+      value.copyWith(second: 0, millisecond: 0, microsecond: 0);
 
   String? get parent => switch (this) {
         BikeInstallation(:final bikeId) => bikeId,

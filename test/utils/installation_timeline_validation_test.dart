@@ -163,6 +163,43 @@ void main() {
       );
     });
 
+    test('rejects two entries in the same minute', () {
+      final at = DateTime.utc(2026, 1, 1, 14, 32);
+      expect(
+        validateInstallationTimeline([
+          BikeInstallation(bikeId: 'b1', dateTimeUTC: at, dateTimeLocal: at.toLocal()),
+          BikeInstallation(bikeId: 'b2', dateTimeUTC: at, dateTimeLocal: at.toLocal()),
+        ]),
+        'Two entries cannot have the same date & time',
+      );
+    });
+
+    test('rejects entries that only differ by seconds', () {
+      final at = DateTime.utc(2026, 1, 1, 14, 32);
+      expect(
+        validateInstallationTimeline([
+          BikeInstallation(bikeId: 'b1', dateTimeUTC: at, dateTimeLocal: at.toLocal()),
+          BikeInstallation(
+            bikeId: 'b2',
+            dateTimeUTC: at.add(const Duration(seconds: 47)),
+            dateTimeLocal: at.add(const Duration(seconds: 47)).toLocal(),
+          ),
+        ]),
+        'Two entries cannot have the same date & time',
+        reason: 'sub-minute precision is truncated away on construction',
+      );
+    });
+
+    test('reports duplicate from-beginning entries with their own message', () {
+      expect(
+        validateInstallationTimeline([
+          Installation.sinceBeginning(parent: 'b1'),
+          Installation.sinceBeginning(parent: 'b2'),
+        ]),
+        'Multiple "From beginning" entries are not allowed',
+      );
+    });
+
     test('sorts before validating: unsorted invalid timeline is rejected', () {
       // Chronologically this is install(b1) → install(b1) → uninstall.
       expect(
@@ -173,6 +210,51 @@ void main() {
         ]),
         'Cannot have consecutive installations on the same bike',
       );
+    });
+  });
+
+  group('stampInstallationNow', () {
+    final now = DateTime(2026, 1, 1, 14, 32, 47, 123);
+
+    test('truncates to the minute', () {
+      final at = stampInstallationNow([], now: now);
+      expect(at.local, DateTime(2026, 1, 1, 14, 32));
+      expect(at.utc, now.toUtc().copyWith(second: 0, millisecond: 0, microsecond: 0));
+      expect(at.utc.isUtc, isTrue);
+    });
+
+    test('moves to the next free minute when the current one is taken', () {
+      final taken = Uninstallation(dateTimeUTC: now.toUtc(), dateTimeLocal: now);
+      final at = stampInstallationNow([taken], now: now);
+
+      expect(at.local, DateTime(2026, 1, 1, 14, 33));
+      expect(at.utc, taken.dateTimeUTC.add(const Duration(minutes: 1)));
+    });
+
+    test('keeps moving past a run of taken minutes', () {
+      final entries = [
+        Uninstallation(dateTimeUTC: now.toUtc(), dateTimeLocal: now),
+        BikeInstallation(
+          bikeId: 'b1',
+          dateTimeUTC: now.toUtc().add(const Duration(minutes: 1)),
+          dateTimeLocal: now.add(const Duration(minutes: 1)),
+        ),
+      ];
+      final at = stampInstallationNow(entries, now: now);
+
+      expect(at.local, DateTime(2026, 1, 1, 14, 34));
+      expect(isValidInstallationTimeline([
+        ...entries,
+        Uninstallation(dateTimeUTC: at.utc, dateTimeLocal: at.local),
+      ]), isTrue);
+    });
+
+    test('ignores entries in other minutes', () {
+      final other = Uninstallation(
+        dateTimeUTC: now.toUtc().add(const Duration(minutes: 5)),
+        dateTimeLocal: now.add(const Duration(minutes: 5)),
+      );
+      expect(stampInstallationNow([other], now: now).local, DateTime(2026, 1, 1, 14, 32));
     });
   });
 

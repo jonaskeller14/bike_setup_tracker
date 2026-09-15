@@ -57,10 +57,11 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
   }
 
   void _addEntry() {
+    final at = stampInstallationNow(_installations);
     setState(() {
       _installations.add(Uninstallation(
-        dateTimeUTC: DateTime.now().toUtc(),
-        dateTimeLocal: DateTime.now(),
+        dateTimeUTC: at.utc,
+        dateTimeLocal: at.local,
       ));
     });
     _sortInstallations();
@@ -214,10 +215,12 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                                         if (value == 'beginning') {
                                           _updateEntry(index, Installation.sinceBeginning(parent: installation.parent));
                                         } else if (value == 'now') {
-                                          final now = DateTime.now();
+                                          final at = stampInstallationNow(
+                                            _installations.where((e) => e.id != installation.id).toList(),
+                                          );
                                           _updateEntry(index, installation.copyWith(
-                                            dateTimeUTC: now.toUtc(),
-                                            dateTimeLocal: now,
+                                            dateTimeUTC: at.utc,
+                                            dateTimeLocal: at.local,
                                           ));
                                         } else if (value == 'select') {
                                           await _pickDateTime(index);

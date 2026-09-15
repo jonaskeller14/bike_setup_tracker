@@ -40,7 +40,42 @@ String? validateInstallationTimeline(List<Installation> installations) {
     return 'Multiple "From beginning" entries are not allowed';
   }
 
+  for (int i = 0; i < sorted.length - 1; i++) {
+    if (sorted[i].dateTimeUTC == sorted[i + 1].dateTimeUTC) {
+      return 'Two entries cannot have the same date & time';
+    }
+  }
+
   return null;
+}
+
+/// The instant to stamp on a newly recorded event: [now] (default:
+/// `DateTime.now()`) truncated to the minute, pushed forward to the next free
+/// minute when [installations] already occupies it. Entries sharing an instant
+/// are rejected by [validateInstallationTimeline], and a drag-and-drop landing
+/// in the same minute as the previous event should not open a sheet that is
+/// already invalid.
+({DateTime utc, DateTime local}) stampInstallationNow(
+  List<Installation> installations, {
+  DateTime? now,
+}) {
+  final at = now ?? DateTime.now();
+  final utc = Installation.truncateToMinute(at.toUtc());
+  final local = Installation.truncateToMinute(at);
+
+  final taken = installations.map((e) => e.dateTimeUTC).toSet();
+  int offset = 0;
+  while (taken.contains(utc.add(Duration(minutes: offset)))) {
+    offset++;
+  }
+  if (offset == 0) return (utc: utc, local: local);
+
+  return (
+    utc: utc.add(Duration(minutes: offset)),
+    // Shift the floating local face value by the same number of minutes without
+    // going through absolute time, which a DST jump would distort.
+    local: DateTime(local.year, local.month, local.day, local.hour, local.minute + offset),
+  );
 }
 
 bool isValidInstallationTimeline(List<Installation> installations) =>

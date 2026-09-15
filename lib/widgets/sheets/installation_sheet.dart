@@ -7,6 +7,7 @@ import '../../models/component.dart';
 import '../../models/component_installation.dart';
 import '../../models/installation.dart';
 import '../../repositories/app_repository.dart';
+import '../../utils/installation_timeline_validation.dart';
 import '../set_installation_timeline.dart';
 import 'sheet_header.dart';
 
@@ -91,10 +92,10 @@ class _InstallationSheetState extends State<InstallationSheet> {
     if (widget.editEntry != null) {
       _editableInstallation = widget.editEntry!.installation;
     } else {
-      final now = DateTime.now();
+      final at = stampInstallationNow(_installations);
       _editableInstallation = widget.isArchiving
-          ? Archival(dateTimeUTC: now.toUtc(), dateTimeLocal: now)
-          : Installation(parent: widget.targetBikeId, dateTimeUTC: now.toUtc(), dateTimeLocal: now);
+          ? Archival(dateTimeUTC: at.utc, dateTimeLocal: at.local)
+          : Installation(parent: widget.targetBikeId, dateTimeUTC: at.utc, dateTimeLocal: at.local);
       _installations.add(_editableInstallation);
     }
   }

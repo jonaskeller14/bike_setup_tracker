@@ -22,6 +22,7 @@ import '../widgets/sheets/copy_task_rules.dart';
 import '../widgets/sheets/delete_task_rules.dart';
 import '../widgets/sheets/replace_component.dart';
 import 'bike_actions.dart';
+import 'installation_timeline_validation.dart';
 
 class ComponentActions {
   static Future<void> addComponent(BuildContext context, {Object? initialBike = const _Sentinel()}) async {
@@ -128,24 +129,26 @@ class ComponentActions {
     final result = await showReplaceComponentSheet(context, component: component);
     if (result == null) return;
 
+    final removedAt = stampInstallationNow(component.installations, now: result.replacementDate);
     final uninstallation = Installation(
       parent: null,
-      dateTimeUTC: result.replacementDate.toUtc(),
-      dateTimeLocal: result.replacementDate.toLocal(),
+      dateTimeUTC: removedAt.utc,
+      dateTimeLocal: removedAt.local,
     );
 
     switch (result) {
       case ReplaceComponentExistingResult(:final existingComponent, :final replacementDate):
         // Swap in an already uninstalled component: install it on the same bike and
         // retire the current one, both at the replacement date.
+        final installedAt = stampInstallationNow(existingComponent.installations, now: replacementDate);
         await appRepository.editComponents([
           existingComponent.copyWith(
             installations: [
               ...existingComponent.installations,
               Installation(
                 parent: component.bike,
-                dateTimeUTC: replacementDate.toUtc(),
-                dateTimeLocal: replacementDate.toLocal(),
+                dateTimeUTC: installedAt.utc,
+                dateTimeLocal: installedAt.local,
               ),
             ],
           ),

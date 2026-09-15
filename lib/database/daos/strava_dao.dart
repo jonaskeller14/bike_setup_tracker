@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 
 import '../../models/activity_rate_window.dart';
 import '../../models/component_stats.dart';
+import '../../models/strava/strava_scope.dart';
 import '../../utils/text_search.dart';
 import '../app_database.dart';
 import '../tables/bikes.dart';
@@ -97,31 +98,25 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
     );
   }
 
-  /// Paginated activities, optionally filtered by gear so the filter is applied
-  /// in SQL rather than after a global fetch.
-  ///
-  /// - [gearId] non-null: only activities for that gear (a linked bike).
-  /// - [unassignedOnly]: only activities whose gear belongs to no bike — i.e.
-  ///   a null gear or a gear not present in [assignedGears] (an unlinked bike).
-  /// - neither: all activities.
+  /// Paginated activities narrowed to [scope], so the filter is applied in SQL
+  /// rather than after a global fetch.
   Future<List<StravaActivityDb>> getActivitiesPaginated({
     required int limit,
     required int offset,
     OrderingMode mode = OrderingMode.desc,
-    String? gearId,
-    bool unassignedOnly = false,
-    List<String> assignedGears = const [],
+    StravaScope scope = const StravaScope.all(),
   }) {
     final query = select(stravaActivities)
       ..orderBy([(t) => OrderingTerm(expression: t.startDate, mode: mode)]);
 
-    if (gearId != null) {
-      query.where((t) => t.gearId.equals(gearId));
-    } else if (unassignedOnly && assignedGears.isNotEmpty) {
-      // Null gear, or a gear that is not linked to any bike.
-      query.where((t) => t.gearId.isNull() | t.gearId.isNotIn(assignedGears));
+    switch (scope) {
+      case AllStravaActivities():
+        break;
+      case GearStravaActivities(:final gearId):
+        query.where((t) => t.gearId.equals(gearId));
+      case NoStravaActivities():
+        return Future.value(const []);
     }
-    // unassignedOnly with no assigned gears => every activity qualifies (no filter).
 
     query.limit(limit, offset: offset);
     return query.get();

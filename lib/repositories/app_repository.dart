@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:drift/drift.dart' as drift;
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
@@ -25,6 +24,7 @@ import '../models/setup.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/strava/strava_athlete.dart';
 import '../models/strava/strava_gear.dart';
+import '../models/strava/strava_scope.dart';
 import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
 import '../services/backup_service.dart';
@@ -33,6 +33,7 @@ import '../services/setup_resolution_service.dart';
 import '../services/task_forecast_service.dart';
 import '../services/task_status_service.dart';
 import '../utils/unit_conversion.dart';
+import 'strava_paging_controller.dart';
 
 class AppRepository extends ChangeNotifier {
 
@@ -79,9 +80,12 @@ class AppRepository extends ChangeNotifier {
   }
 
   AppRepository(this.database) {
-    // Seed the baseline so the first (no-bike) stream emissions don't spuriously
-    // re-trigger an initial Strava load before/alongside initialize().
-    _lastStravaFilterSignature = _stravaFilterSignature();
+    _strava = StravaPagingController(
+      database: database,
+      scope: _currentStravaScope,
+      onLoadingChanged: notifyListeners,
+      onWindowChanged: _dataChanged,
+    );
     _initStreams();
   }
 
@@ -93,6 +97,7 @@ class AppRepository extends ChangeNotifier {
   @override
   void dispose() {
     _isDisposed = true;
+    _strava.dispose();
     for (final s in _subscriptions) {
       unawaited(s.cancel());
     }
@@ -129,7 +134,7 @@ class AppRepository extends ChangeNotifier {
   Map<int, StravaAthlete> get stravaAthletes => _stravaAthletes;
   // Strava is paginated per active filter, so the loaded window is the filtered
   // set; [stravaActivities] and [filteredStravaActivities] return the same map.
-  Map<int, StravaActivity> get stravaActivities => _filteredStravaActivities;
+  Map<int, StravaActivity> get stravaActivities => _strava.activities;
   Map<String, StravaGear> get stravaGears => _stravaGears;
   Map<String, ComponentStats> get componentStats => _componentStats;
   Map<String, ComponentStats> get bikeStats => _bikeStats;
@@ -284,6 +289,7 @@ class AppRepository extends ChangeNotifier {
   void _dataChanged() {
     if (_isDisposed) return;
     _taskForecastCache.clear();
+    _latestTaskEntryByRuleCache = null;
     if (_pendingDataChange) return;
     _pendingDataChange = true;
     unawaited(Future.microtask(() {
@@ -363,7 +369,6 @@ class AppRepository extends ChangeNotifier {
   Map<String, RatingEntry> _filteredRatingEntries = {};
   Map<String, TaskRule> _filteredTaskRules = {};
   Map<String, TaskEntry> _filteredTaskEntries = {};
-  Map<int, StravaActivity> _filteredStravaActivities = {};
   Map<String, TaskRule> _filteredOpenTaskRules = {};
   List<ComponentInstallation> _filteredInstallations = [];
 
@@ -381,7 +386,7 @@ class AppRepository extends ChangeNotifier {
   Map<String, TaskRule> get filteredOpenTaskRules => _filteredOpenTaskRules;
   int get filteredOpenTaskRulesCount => _filteredOpenTaskRules.length;
   Map<String, TaskEntry> get filteredTaskEntries => _filteredTaskEntries;
-  Map<int, StravaActivity> get filteredStravaActivities => _filteredStravaActivities;
+  Map<int, StravaActivity> get filteredStravaActivities => _strava.activities;
   List<ComponentInstallation> get filteredInstallations => _filteredInstallations;
 
   void filter() {
@@ -404,7 +409,7 @@ class AppRepository extends ChangeNotifier {
     _filterRatings();
     _filterTaskRules();  // after _filterComponents()
     _filterTaskEntries();  // after _filterTaskRules()
-    _maybeReloadStravaForFilter();  // re-pages Strava if the gear filter changed
+    _strava.reloadIfScopeChanged();  // re-pages Strava if the bike scope changed
     _filterInstallations();
   }
 
@@ -602,6 +607,25 @@ class AppRepository extends ChangeNotifier {
   final Map<String, TaskForecast?> _taskForecastCache = {};
   DateTime? _taskForecastDay;
 
+  /// Lazily built index behind [_taskRuleInputs], dropped on every data change.
+  Map<String, TaskEntry>? _latestTaskEntryByRuleCache;
+
+  /// The newest entry per rule. [getTaskRuleStatus] runs inside list-card
+  /// `build()`s, so rescanning every entry per rule made rendering a task or
+  /// garage list O(rules x entries); this makes each lookup a map read.
+  Map<String, TaskEntry> get _latestTaskEntryByRule {
+    final cached = _latestTaskEntryByRuleCache;
+    if (cached != null) return cached;
+    final map = <String, TaskEntry>{};
+    for (final entry in _taskEntries.values) {
+      final newest = map[entry.taskRule];
+      if (newest == null || entry.dateTimeUTC.isAfter(newest.dateTimeUTC)) {
+        map[entry.taskRule] = entry;
+      }
+    }
+    return _latestTaskEntryByRuleCache = map;
+  }
+
   Future<ComponentStats> getStatsAt({String? componentId, String? bikeId, required DateTime date}) async {
     if (componentId != null) {
       return database.stravaDao.getComponentStatsAt(componentId, date);
@@ -650,11 +674,6 @@ class AppRepository extends ChangeNotifier {
   /// What a rule is measured against: its most recent entry, when its component
   /// went on its current bike, and the stats the interval counts.
   ({TaskEntry? lastEntry, DateTime? installationDate, ComponentStats stats}) _taskRuleInputs(TaskRule rule) {
-    final entries = _taskEntries.values
-        .where((te) => te.taskRule == rule.id)
-        .toList()
-      ..sort((a, b) => b.dateTimeUTC.compareTo(a.dateTimeUTC));
-
     DateTime? installationDate;
     if (rule.componentId != null) {
       final component = _components[rule.componentId];
@@ -673,7 +692,7 @@ class AppRepository extends ChangeNotifier {
         : (rule.bikeId != null ? (_bikeStats[rule.bikeId] ?? ComponentStats.zero()) : ComponentStats.zero());
 
     return (
-      lastEntry: entries.isNotEmpty ? entries.first : null,
+      lastEntry: _latestTaskEntryByRule[rule.id],
       installationDate: installationDate,
       stats: stats,
     );
@@ -958,200 +977,29 @@ class AppRepository extends ChangeNotifier {
   // STRAVA: PAGING, QUERIES & SYNC
   // ---------------------------------------------------------------------------
 
-  int _stravaOffset = 0;
-  int _stravaLimit = 50;
-  bool _hasMoreStrava = true;
-  bool _isLoadingMoreStrava = false;
-  bool _stravaSortAscending = false;
+  late final StravaPagingController _strava;
   int _stravaOperationVersion = 0;
-  // Identifies the gear-filter context the current loaded window was paged for.
-  // Strava is paginated per active filter (see [getActivitiesPaginated]); when
-  // this changes we re-page from the top so the bike's activities never get
-  // dropped behind a global pagination boundary.
-  String? _lastStravaFilterSignature;
 
-  bool get hasMoreStrava => _hasMoreStrava;
-  bool get isLoadingMoreStrava => _isLoadingMoreStrava;
-  bool get stravaSortAscending => _stravaSortAscending;
+  bool get hasMoreStrava => _strava.hasMore;
+  bool get isLoadingMoreStrava => _strava.isLoadingMore;
+  bool get stravaSortAscending => _strava.sortAscending;
 
-  Stream<List<StravaActivity>> get stravaActivitiesWithPosition => database.stravaDao.watchActivitiesWithPosition().map((list) => list.map((a) => a.toModel()).toList());
+  Stream<List<StravaActivity>> get stravaActivitiesWithPosition => _strava.activitiesWithPosition;
+  Future<List<StravaActivity>> get latestStravaActivities => _strava.latest;
+  Future<List<StravaActivity>> getFilteredStravaActivitiesWithPosition() => _strava.filteredActivitiesWithPosition();
+  Future<List<StravaActivity>> searchStravaActivities(String query) => _strava.search(query);
+  Future<StravaActivity?> getStravaActivity(int id) => _strava.getActivity(id);
+
+  Future<void> initialStravaLoad() => _strava.initialLoad();
+  Future<void> reloadStravaWindow() => _strava.reloadWindow();
+  Future<void> setStravaSortOrder(bool ascending) => _strava.setSortOrder(ascending);
+  Future<void> loadMoreStravaActivities() => _strava.loadMore();
 
   /// Debug helper to override the pagination chunk size in tests.
-  void debugSetStravaLimit(int limit) {
-    _stravaLimit = limit;
-  }
+  void debugSetStravaLimit(int limit) => _strava.limit = limit;
 
-  Future<List<StravaActivity>> get latestStravaActivities async {
-    final list = await database.stravaDao.getActivitiesPaginated(limit: 3, offset: 0, mode: drift.OrderingMode.desc);
-    return list.map((a) => a.toModel()).toList();
-  }
-
-  Future<List<StravaActivity>> getFilteredStravaActivitiesWithPosition() async {
-    final allWithPos = await database.stravaDao.watchActivitiesWithPosition().first;
-    final activities = allWithPos.map((a) => a.toModel()).toList();
-
-    if (_selectedBike == null) return activities;
-
-    final selectedStravaGear = bikes[_selectedBike]?.stravaGear;
-    if (selectedStravaGear == null) {
-      return activities.where((a) {
-        final stravaGear = a.gearId;
-        return stravaGear == null || !bikes.values.any((b) => b.stravaGear == stravaGear);
-      }).toList();
-    }
-
-    return activities.where((a) => a.gearId == selectedStravaGear).toList();
-  }
-
-  Future<List<StravaActivity>> searchStravaActivities(String query) async {
-    final results = await database.stravaDao.searchActivitiesByName(query);
-    final activities = results.map((a) => a.toModel()).toList();
-
-    if (_selectedBike == null) return activities;
-
-    final selectedStravaGear = bikes[_selectedBike]?.stravaGear;
-    if (selectedStravaGear == null) {
-      return activities.where((a) {
-        final g = a.gearId;
-        return g == null || !bikes.values.any((b) => b.stravaGear == g);
-      }).toList();
-    }
-
-    return activities.where((a) => a.gearId == selectedStravaGear).toList();
-  }
-
-  Future<StravaActivity?> getStravaActivity(int id) async {
-    if (_filteredStravaActivities.containsKey(id)) return _filteredStravaActivities[id];
-    final dbActivity = await database.stravaDao.getActivityById(id);
-    return dbActivity?.toModel();
-  }
-
-  /// The gear filter (matching [StravaDao.getActivitiesPaginated]) for the
-  /// currently selected bike:
-  /// - no bike selected -> all activities
-  /// - bike linked to a gear -> only that gear
-  /// - unlinked bike -> activities whose gear belongs to no bike
-  ({String? gearId, bool unassignedOnly, List<String> assignedGears}) _currentStravaFilter() {
-    if (_selectedBike == null) {
-      return (gearId: null, unassignedOnly: false, assignedGears: const <String>[]);
-    }
-    final gear = bikes[_selectedBike]?.stravaGear;
-    if (gear != null) {
-      return (gearId: gear, unassignedOnly: false, assignedGears: const <String>[]);
-    }
-    final assigned = bikes.values.map((b) => b.stravaGear).whereType<String>().toList();
-    return (gearId: null, unassignedOnly: true, assignedGears: assigned);
-  }
-
-  /// A stable identity for the active gear-filter context. When this changes,
-  /// the loaded Strava window must be re-paged from the top.
-  String _stravaFilterSignature() {
-    final mode = _stravaSortAscending ? 'asc' : 'desc';
-    if (_selectedBike == null) return '$mode|all';
-    final gear = bikes[_selectedBike]?.stravaGear;
-    if (gear != null) return '$mode|gear:$gear';
-    final assigned = bikes.values.map((b) => b.stravaGear).whereType<String>().toList()..sort();
-    return '$mode|unassigned:${assigned.join(",")}';
-  }
-
-  /// Re-pages Strava from the top when the gear-filter context changes (bike
-  /// selection, the selected bike's gear, the assigned-gear pool, or sort).
-  void _maybeReloadStravaForFilter() {
-    if (_stravaFilterSignature() == _lastStravaFilterSignature) return;
-    unawaited(initialStravaLoad());
-  }
-
-  Future<void> initialStravaLoad() async {
-    final sig = _stravaFilterSignature();
-    _lastStravaFilterSignature = sig;
-    final filter = _currentStravaFilter();
-    _stravaOffset = 0;
-    _hasMoreStrava = true;
-    _isLoadingMoreStrava = true;
-    notifyListeners();
-
-    final list = await database.stravaDao.getActivitiesPaginated(
-      limit: _stravaLimit,
-      offset: 0,
-      mode: _stravaSortAscending ? drift.OrderingMode.asc : drift.OrderingMode.desc,
-      gearId: filter.gearId,
-      unassignedOnly: filter.unassignedOnly,
-      assignedGears: filter.assignedGears,
-    );
-    if (_isDisposed) return;
-    // A newer filter took over while we were querying; drop these stale results.
-    if (sig != _lastStravaFilterSignature) return;
-    _filteredStravaActivities = {for (var a in list) a.id: a.toModel()};
-    _stravaOffset = list.length;
-    if (list.length < _stravaLimit) _hasMoreStrava = false;
-    _isLoadingMoreStrava = false;
-    _dataChanged();
-  }
-
-  /// Re-derives the in-memory window from the database (the single source of
-  /// truth) after an out-of-band write such as a webhook sync, without
-  /// collapsing the user's scroll position. Unlike [initialStravaLoad] this
-  /// re-pages the whole currently-loaded window (page 1 .. current offset), so
-  /// activities the user already scrolled in are kept and any new/changed/
-  /// deleted rows are reflected. It runs silently (no loading spinner).
-  Future<void> reloadStravaWindow() async {
-    final sig = _stravaFilterSignature();
-    _lastStravaFilterSignature = sig;
-    final filter = _currentStravaFilter();
-    // Reload at least the first page; if the user paged further, reload the
-    // whole loaded window so scrolled-in activities aren't dropped.
-    final reloadLimit = _stravaOffset > _stravaLimit ? _stravaOffset : _stravaLimit;
-
-    final list = await database.stravaDao.getActivitiesPaginated(
-      limit: reloadLimit,
-      offset: 0,
-      mode: _stravaSortAscending ? drift.OrderingMode.asc : drift.OrderingMode.desc,
-      gearId: filter.gearId,
-      unassignedOnly: filter.unassignedOnly,
-      assignedGears: filter.assignedGears,
-    );
-    if (_isDisposed) return;
-    // A newer filter took over while we were querying; drop these stale results.
-    if (sig != _lastStravaFilterSignature) return;
-    _filteredStravaActivities = {for (var a in list) a.id: a.toModel()};
-    _stravaOffset = list.length;
-    // Only ever narrows: a short page means the window shrank (deletions);
-    // a full page leaves [_hasMoreStrava] as-is so paging keeps working.
-    if (list.length < reloadLimit) _hasMoreStrava = false;
-    _dataChanged();
-  }
-
-  Future<void> setStravaSortOrder(bool ascending) async {
-    if (_stravaSortAscending == ascending) return;
-    _stravaSortAscending = ascending;
-    // initialStravaLoad resets the offset and re-pages for the new ordering.
-    await initialStravaLoad();
-  }
-
-  Future<void> loadMoreStravaActivities() async {
-    if (_isLoadingMoreStrava || !_hasMoreStrava) return;
-    _isLoadingMoreStrava = true;
-    notifyListeners();
-
-    final sig = _lastStravaFilterSignature;
-    final filter = _currentStravaFilter();
-    final list = await database.stravaDao.getActivitiesPaginated(
-      limit: _stravaLimit,
-      offset: _stravaOffset,
-      mode: _stravaSortAscending ? drift.OrderingMode.asc : drift.OrderingMode.desc,
-      gearId: filter.gearId,
-      unassignedOnly: filter.unassignedOnly,
-      assignedGears: filter.assignedGears,
-    );
-    if (_isDisposed) return;
-    // The filter changed mid-load; these belong to a stale window.
-    if (sig != _lastStravaFilterSignature) return;
-    _filteredStravaActivities.addAll({for (var a in list) a.id: a.toModel()});
-    _stravaOffset += list.length;
-    if (list.length < _stravaLimit) _hasMoreStrava = false;
-    _isLoadingMoreStrava = false;
-    _dataChanged();
-  }
+  StravaScope _currentStravaScope() => StravaScope.forBike(bikes[_selectedBike]);
+  bool get selectedBikeHasNoStravaGear => _currentStravaScope() is NoStravaActivities;
 
   Future<void> setStravaActivities(Iterable<StravaActivity> activities, {List<int>? toDelete}) async {
     final versionAtStart = _stravaOperationVersion;
@@ -1199,11 +1047,9 @@ class AppRepository extends ChangeNotifier {
     await database.delete(database.stravaActivities).go();
     await database.delete(database.stravaAthletes).go();
     await database.delete(database.stravaGears).go();
-    _filteredStravaActivities = {};
+    _strava.clear();
     _stravaAthletes = {};
     _stravaGears = {};
-    _stravaOffset = 0;
-    _hasMoreStrava = true;
 
     // Wiping all activities (disconnect/unlink) means task-entry snapshots must
     // fall back to each component/bike's initial-only stats; otherwise they keep

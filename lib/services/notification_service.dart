@@ -56,8 +56,7 @@ class NotificationService {
   }
 
   Future<void> _navigateToStravaActivity(int activityId, {int retryCount = 0}) async {
-    // Check if repository has activities. On fresh launch, it might take a moment to load from DB.
-    final activity = _appRepository.stravaActivities[activityId];
+    final activity = await _appRepository.getStravaActivity(activityId);
 
     if (activity != null) {
       unawaited(

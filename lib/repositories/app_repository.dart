@@ -33,18 +33,23 @@ import '../services/setup_resolution_service.dart';
 import '../services/task_forecast_service.dart';
 import '../services/task_status_service.dart';
 import '../utils/unit_conversion.dart';
-  
+
 class AppRepository extends ChangeNotifier {
+
+  // ---------------------------------------------------------------------------
+  // CORE STATE & LIFECYCLE
+  // ---------------------------------------------------------------------------
+
   final AppDatabase database;
   final List<StreamSubscription<dynamic>> _subscriptions = [];
-    
+
   /// Track if the repository has been disposed.
   /// This is used as a safety guard for asynchronous operations that might
   /// complete after the repository is closed (common in tests), preventing
   /// 'notifyListeners() called after dispose()' crashes.
   bool _isDisposed = false;
   bool _pendingDataChange = false;
-    
+
   /// Streams whose first emission must arrive before the app is considered
   /// ready. Deep-link handlers (e.g. "Add Setup") read these caches
   /// synchronously, so the UI must not mount until they are populated.
@@ -73,9 +78,31 @@ class AppRepository extends ChangeNotifier {
     }
   }
 
+  AppRepository(this.database) {
+    // Seed the baseline so the first (no-bike) stream emissions don't spuriously
+    // re-trigger an initial Strava load before/alongside initialize().
+    _lastStravaFilterSignature = _stravaFilterSignature();
+    _initStreams();
+  }
+
+  Future<void> initialize() async {
+    unawaited(BackupService.deleteOldBackups());
+    unawaited(initialStravaLoad());
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    for (final s in _subscriptions) {
+      unawaited(s.cancel());
+    }
+    super.dispose();
+  }
+
   // ---------------------------------------------------------------------------
-  // RAW STATE FROM DB (Read-Only Cache for immediate access)
+  // RAW STATE FROM DB (read-only cache for immediate access)
   // ---------------------------------------------------------------------------
+
   Map<String, Person> _persons = {};
   Map<String, Bike> _bikes = {};
   Map<String, Setup> _setups = {};
@@ -90,78 +117,6 @@ class AppRepository extends ChangeNotifier {
   Map<String, ComponentStats> _bikeStats = {};
   Map<String, ActivityRateWindow> _bikeActivityRates = {};
   Map<String, dynamic> _currentAdjustmentValues = {};
-
-  /// Day-quantised memo behind [getTaskRuleForecast].
-  final Map<String, TaskForecast?> _taskForecastCache = {};
-  DateTime? _taskForecastDay;
-
-  int _stravaOffset = 0;
-  int _stravaLimit = 50;
-  bool _hasMoreStrava = true;
-  bool _isLoadingMoreStrava = false;
-  bool _stravaSortAscending = false;
-  int _stravaOperationVersion = 0;
-  // Identifies the gear-filter context the current loaded window was paged for.
-  // Strava is paginated per active filter (see [getActivitiesPaginated]); when
-  // this changes we re-page from the top so the bike's activities never get
-  // dropped behind a global pagination boundary.
-  String? _lastStravaFilterSignature;
-
-  bool get hasMoreStrava => _hasMoreStrava;
-  bool get isLoadingMoreStrava => _isLoadingMoreStrava;
-  bool get stravaSortAscending => _stravaSortAscending;
-
-  Stream<List<StravaActivity>> get stravaActivitiesWithPosition => database.stravaDao.watchActivitiesWithPosition().map((list) => list.map((a) => a.toModel()).toList());
-
-  /// Debug helper to override the pagination chunk size in tests.
-  void debugSetStravaLimit(int limit) {
-    _stravaLimit = limit;
-  }
-
-  Future<List<StravaActivity>> get latestStravaActivities async {
-    final list = await database.stravaDao.getActivitiesPaginated(limit: 3, offset: 0, mode: drift.OrderingMode.desc);
-    return list.map((a) => a.toModel()).toList();
-  }
-
-  Future<List<StravaActivity>> getFilteredStravaActivitiesWithPosition() async {
-    final allWithPos = await database.stravaDao.watchActivitiesWithPosition().first;
-    final activities = allWithPos.map((a) => a.toModel()).toList();
-
-    if (_selectedBike == null) return activities;
-
-    final selectedStravaGear = bikes[_selectedBike]?.stravaGear;
-    if (selectedStravaGear == null) {
-      return activities.where((a) {
-        final stravaGear = a.gearId;
-        return stravaGear == null || !bikes.values.any((b) => b.stravaGear == stravaGear);
-      }).toList();
-    }
-
-    return activities.where((a) => a.gearId == selectedStravaGear).toList();
-  }
-
-  Future<List<StravaActivity>> searchStravaActivities(String query) async {
-    final results = await database.stravaDao.searchActivitiesByName(query);
-    final activities = results.map((a) => a.toModel()).toList();
-
-    if (_selectedBike == null) return activities;
-
-    final selectedStravaGear = bikes[_selectedBike]?.stravaGear;
-    if (selectedStravaGear == null) {
-      return activities.where((a) {
-        final g = a.gearId;
-        return g == null || !bikes.values.any((b) => b.stravaGear == g);
-      }).toList();
-    }
-
-    return activities.where((a) => a.gearId == selectedStravaGear).toList();
-  }
-
-  Future<StravaActivity?> getStravaActivity(int id) async {
-    if (_filteredStravaActivities.containsKey(id)) return _filteredStravaActivities[id];
-    final dbActivity = await database.stravaDao.getActivityById(id);
-    return dbActivity?.toModel();
-  }
 
   Map<String, Person> get persons => _persons;
   Map<String, Bike> get bikes => _bikes;
@@ -197,9 +152,190 @@ class AppRepository extends ChangeNotifier {
   }
 
   // ---------------------------------------------------------------------------
+  // DB STREAMS & CHANGE PROPAGATION
+  // ---------------------------------------------------------------------------
 
+  void _initStreams() {
+    _subscriptions.add(database.bikesDao.watchAllBikes().listen((list) {
+      _bikes = {for (var b in list) b.id: b.toModel()};
+      _markInitialStreamFired('bikes');
+      _dataChanged();
+    }));
+
+    _subscriptions.add(database.componentsDao.watchAllComponentsWithData().listen((list) {
+      _components = {for (var c in list) c.component.id: c.component.toModel(
+        adjustments: c.adjustments.map((a) => a.toModel()).toList(),
+        installations: c.installations.map((i) => i.toModel()).toList(),
+      )};
+      _markInitialStreamFired('components');
+      _dataChanged();
+    }));
+
+    _subscriptions.add(database.personsDao.watchAllPersonsWithData().listen((list) {
+      _persons = {for (var p in list) p.person.id: p.person.toModel(
+        adjustments: p.adjustments.map((a) => a.toModel()).toList(),
+      )};
+      _markInitialStreamFired('persons');
+      _dataChanged();
+    }));
+
+    _subscriptions.add(database.ratingsDao.watchAllRatingsWithData().listen((list) {
+      _ratings = {for (var r in list) r.rating.id: r.rating.toModel(
+        metrics: r.metrics.map((m) => m.toModel()).toList(),
+      )};
+      _markInitialStreamFired('ratings');
+      _dataChanged();
+    }));
+
+    _subscriptions.add(database.taskDao.watchAllRules().listen((list) {
+      _taskRules = {for (var r in list) r.id: r.toModel()};
+      _markInitialStreamFired('taskRules');
+      _dataChanged();
+    }));
+
+    _subscriptions.add(database.taskDao.watchAllEntries().listen((list) {
+      _taskEntries = {for (var e in list) e.id: e.toModel()};
+      _markInitialStreamFired('taskEntries');
+      _dataChanged();
+    }));
+
+    _subscriptions.add(database.stravaDao.watchAllAthletes().listen((list) {
+      _stravaAthletes = {for (var a in list) a.id: a.toModel()};
+      _dataChanged();
+    }));
+
+    _subscriptions.add(database.stravaDao.watchAllGears().listen((list) {
+      _stravaGears = {for (var g in list) g.id: g.toModel()};
+      _dataChanged();
+    }));
+
+    _subscriptions.add(database.stravaDao.watchComponentStats().listen((map) {
+      _componentStats = map;
+      _dataChanged();
+    }));
+
+    _subscriptions.add(database.stravaDao.watchBikeStats().listen((map) {
+      _bikeStats = map;
+      _dataChanged();
+    }));
+
+    _subscriptions.add(database.stravaDao
+        .watchBikeActivityRates(
+          sampleSize: TaskForecastService.sampleSize,
+          maxLookback: TaskForecastService.maxLookback,
+        )
+        .listen((map) {
+      _bikeActivityRates = map;
+      _dataChanged();
+    }));
+
+    _subscriptions.add(database.setupsDao.watchAllSetupsWithValues().listen((list) {
+      _setups = {for (var s in list) s.setup.id: s.setup.toModel(values: s.values)};
+      _markInitialStreamFired('setups');
+      _dataChanged();
+    }));
+
+    _subscriptions.add(database.ratingEntriesDao.watchAllRatingEntriesWithValues().listen((list) {
+      _ratingEntries = {for (var e in list) e.entry.id: e.entry.toModel(values: e.values)};
+      _markInitialStreamFired('ratingEntries');
+      _dataChanged();
+    }));
+
+    // Deleted item streams
+    _subscriptions.add(database.bikesDao.watchDeletedBikes().listen((list) {
+      _deletedBikes = list.map((b) => b.toModel()).toList();
+      _notifyIfActive();
+    }));
+    _subscriptions.add(database.componentsDao.watchDeletedComponents().listen((list) {
+      _deletedComponents = list.map((c) => c.toModel(adjustments: [], installations: [])).toList();
+      _notifyIfActive();
+    }));
+    _subscriptions.add(database.setupsDao.watchDeletedSetups().listen((list) {
+      _deletedSetups = list.map((s) => s.toModel(values: [])).toList();
+      _notifyIfActive();
+    }));
+    _subscriptions.add(database.personsDao.watchDeletedPersons().listen((list) {
+      _deletedPersons = list.map((p) => p.toModel(adjustments: [])).toList();
+      _notifyIfActive();
+    }));
+    _subscriptions.add(database.ratingsDao.watchDeletedRatings().listen((list) {
+      _deletedRatings = list.map((r) => r.toModel(metrics: [])).toList();
+      _notifyIfActive();
+    }));
+    _subscriptions.add(database.ratingEntriesDao.watchDeletedRatingEntries().listen((list) {
+      _deletedRatingEntries = list.map((e) => e.toModel()).toList();
+      _notifyIfActive();
+    }));
+    _subscriptions.add(database.taskDao.watchDeletedRules().listen((list) {
+      _deletedTaskRules = list.map((tr) => tr.toModel()).toList();
+      _notifyIfActive();
+    }));
+    _subscriptions.add(database.taskDao.watchDeletedEntries().listen((list) {
+      _deletedTaskEntries = list.map((te) => te.toModel()).toList();
+      _notifyIfActive();
+    }));
+  }
+
+  void _notifyIfActive() {
+    if (_isDisposed || !hasListeners) return;
+    notifyListeners();
+  }
+
+  void _dataChanged() {
+    if (_isDisposed) return;
+    _taskForecastCache.clear();
+    if (_pendingDataChange) return;
+    _pendingDataChange = true;
+    unawaited(Future.microtask(() {
+      if (_isDisposed) return;
+      _pendingDataChange = false;
+      _resolveData();
+      _filter();
+      notifyListeners();
+    }));
+  }
+
+  @override
+  void notifyListeners() {
+    // Safety guard to avoid 'notifyListeners() called after dispose()' crashes
+    // during tests or fast navigational changes.
+    if (_isDisposed) return;
+    super.notifyListeners();
+  }
+
+  void _resolveData() {
+    // Drop the lazily built rating/score lookup caches
+    _setupsByBikeSorted = null;
+    _ratingEntriesBySetup = null;
+    _applicableMetricsByBike = null;
+    _setupScoreCache.clear();
+
+    final result = SetupResolutionService.resolveSetups(
+      setups: _setups,
+      bikes: _bikes,
+      persons: _persons,
+      components: _components,
+      ratings: _ratings,
+    );
+    _setups = result.setups;
+    _currentAdjustmentValues = result.globalState;
+
+    // Apply component stats
+    _components = {
+      for (var entry in _components.entries)
+        entry.key: entry.value.copyWith(
+          totalStats: _componentStats[entry.key] ?? entry.value.initialStats,
+        )
+    };
+
+    _setupTags = SetupResolutionService.extractAllTags(_setups.values);
+    _taskRuleTags = _taskRules.values.map((tr) => tr.tags).expand((tags) => tags).toSet();
+  }
+
+  // ---------------------------------------------------------------------------
   // FILTERING STATE
   // ---------------------------------------------------------------------------
+
   String? _selectedBike;
   final Set<String> _selectedSetupTags = {};
   bool _showBookmarkedSetupsOnly = false;
@@ -230,6 +366,354 @@ class AppRepository extends ChangeNotifier {
   Map<int, StravaActivity> _filteredStravaActivities = {};
   Map<String, TaskRule> _filteredOpenTaskRules = {};
   List<ComponentInstallation> _filteredInstallations = [];
+
+  Map<String, Bike> get filteredBikes => _filteredBikes;
+  Map<String, Person> get filteredPersons => _filteredPersons;
+  Map<String, Rating> get filteredRatings => _filteredRatings;
+  Map<String, Component> get filteredComponents => _filteredComponents;
+  Map<String, Component> get archivedComponents => {
+        for (final entry in _components.entries)
+          if (entry.value.isArchived) entry.key: entry.value
+      };
+  Map<String, Setup> get filteredSetups => _filteredSetups;
+  Map<String, RatingEntry> get filteredRatingEntries => _filteredRatingEntries;
+  Map<String, TaskRule> get filteredTaskRules => _filteredTaskRules;
+  Map<String, TaskRule> get filteredOpenTaskRules => _filteredOpenTaskRules;
+  int get filteredOpenTaskRulesCount => _filteredOpenTaskRules.length;
+  Map<String, TaskEntry> get filteredTaskEntries => _filteredTaskEntries;
+  Map<int, StravaActivity> get filteredStravaActivities => _filteredStravaActivities;
+  List<ComponentInstallation> get filteredInstallations => _filteredInstallations;
+
+  void filter() {
+    _filter();
+    notifyListeners();
+  }
+
+  void _filter() {
+    if (selectedBike != null && !bikes.containsKey(_selectedBike!)) {
+      _selectedBike = null;
+    }
+    _selectedSetupTags.removeWhere((tag) => !setupTags.contains(tag));
+    _selectedTaskRuleTags.removeWhere((tag) => !taskRuleTags.contains(tag));
+
+    _filterBikes();
+    _filterComponents();
+    _filterSetups();
+    _filterRatingEntries();
+    _filterPersons();
+    _filterRatings();
+    _filterTaskRules();  // after _filterComponents()
+    _filterTaskEntries();  // after _filterTaskRules()
+    _maybeReloadStravaForFilter();  // re-pages Strava if the gear filter changed
+    _filterInstallations();
+  }
+
+  void _filterBikes() {
+    _filteredBikes = selectedBike == null
+        ? bikes
+        : Map.fromEntries(bikes.entries.where((entry) => entry.key == selectedBike));
+  }
+
+  void _filterComponents() {
+    _filteredComponents = Map.fromEntries(components.entries.where((entry) {
+      if (entry.value.isArchived) return false;
+      return selectedBike == null || entry.value.bike == selectedBike;
+    }));
+  }
+
+  void _filterSetups() {
+    _filteredSetups = Map.fromEntries(setups.entries.where((entry) =>
+      (selectedBike == null ? true : entry.value.bike == selectedBike) &&
+      (selectedSetupTags.isEmpty ? true : entry.value.tags.containsAll(selectedSetupTags)) &&
+      (_showBookmarkedSetupsOnly ? entry.value.isBookmarked : true)
+    ));
+  }
+
+  void _filterRatingEntries() {
+    _filteredRatingEntries = selectedBike == null
+        ? Map.fromEntries(ratingEntries.entries)
+        : Map.fromEntries(ratingEntries.entries.where((entry) => entry.value.bike == selectedBike));
+  }
+
+  void _filterPersons() {
+    _filteredPersons = _selectedBike == null
+        ? persons
+        : Map.fromEntries(persons.entries.where((entry) => entry.value.id == bikes[_selectedBike]?.person));
+  }
+
+  void _filterRatings() {
+    _filteredRatings = Map.fromEntries(ratings.entries.where((entry) {
+      final rating = entry.value;
+      switch (rating.filterType) {
+        case FilterType.global: return true;
+        case FilterType.person: return true;
+        case FilterType.bike: return _selectedBike == null ? true : rating.filter == _selectedBike;
+        case FilterType.component: return _selectedBike == null ? true : filteredComponents.values.any((c) => c.id == rating.filter);
+        case FilterType.componentType: return _selectedBike == null ? true : filteredComponents.values.any((c) => c.componentType.toString() == rating.filter);
+      }
+    }));
+  }
+
+  void _filterTaskRules() {
+    _filteredTaskRules = Map.fromEntries(
+      taskRules.entries.where((entry) {
+        final rule = entry.value;
+        if (!_selectedTaskPriorities.contains(rule.priority)) return false;
+
+        if (selectedTaskRuleTags.isNotEmpty && !entry.value.tags.containsAll(selectedTaskRuleTags)) return false;
+        return _isTaskRuleInCurrentScope(rule);
+      }),
+    );
+
+    _filteredOpenTaskRules = Map.fromEntries(
+      _filteredTaskRules.entries.where(
+        (entry) => !taskEntries.values.any((te) => te.taskRule == entry.key),
+      ),
+    );
+  }
+
+  bool _isTaskRuleInCurrentScope(TaskRule rule) {
+    if (rule.componentId == null && rule.bikeId == null) return true;
+    if (rule.bikeId != null) return _selectedBike == null || rule.bikeId == _selectedBike;
+
+    final component = _components[rule.componentId];
+    if (component == null || component.isArchived) return false;
+    return _selectedBike == null || component.bike == _selectedBike;
+  }
+
+  void _filterTaskEntries() {
+    _filteredTaskEntries = Map.fromEntries(
+      taskEntries.entries.where(
+        (entry) => _filteredTaskRules.containsKey(entry.value.taskRule),
+      ),
+    );
+  }
+
+  void _filterInstallations() {
+    _filteredInstallations = [];
+    for (final component in components.values) {
+      final sorted = List<Installation>.from(component.installations)
+        ..sort((a, b) => a.dateTimeUTC.compareTo(b.dateTimeUTC));
+
+      for (int i = 0; i < sorted.length; i++) {
+        final installation = sorted[i];
+        if (installation.dateTimeUTC.millisecondsSinceEpoch == 0) continue;
+
+        final previousInstallation = i > 0 ? sorted[i-1] : null;
+        final originParent = previousInstallation?.parent;
+        final isInitial = i == 0;
+
+        final ci = ComponentInstallation(
+          component: component,
+          installation: installation,
+          originParent: originParent,
+          originParentType: previousInstallation?.parentType,
+          isInitial: isInitial,
+        );
+
+        if (selectedBike == null || installation.parent == selectedBike || originParent == selectedBike) {
+          _filteredInstallations.add(ci);
+        }
+      }
+    }
+  }
+
+  void onBikeTap(String? newBike) {
+    if (newBike == null || selectedBike == newBike) {
+      _selectedBike = null;
+    } else {
+      _selectedBike = newBike;
+    }
+    _filter();
+    notifyListeners();
+  }
+
+  void selectSetupTag(String newTag) {
+    if (!setupTags.contains(newTag)) return;
+    _selectedSetupTags.add(newTag);
+    _filterSetups();
+    notifyListeners();
+  }
+
+  void deselectSetupTag(String tag) {
+    _selectedSetupTags.remove(tag);
+    _filterSetups();
+    notifyListeners();
+  }
+
+  void deselectAllSetupTags() {
+    _selectedSetupTags.clear();
+    _filterSetups();
+    notifyListeners();
+  }
+
+  void setShowBookmarkedSetupsOnly(bool newValue) {
+    if (_showBookmarkedSetupsOnly == newValue) return;
+    _showBookmarkedSetupsOnly = newValue;
+    _filterSetups();
+    notifyListeners();
+  }
+
+  void selectTaskRuleTag(String newTag) {
+    if (!taskRuleTags.contains(newTag)) return;
+    _selectedTaskRuleTags.add(newTag);
+    _filterTaskRules();
+    notifyListeners();
+  }
+
+  void deselectTaskRuleTag(String tag) {
+    _selectedTaskRuleTags.remove(tag);
+    _filterTaskRules();
+    notifyListeners();
+  }
+
+  void deselectAllTaskRuleTags() {
+    _selectedTaskRuleTags.clear();
+    _filterTaskRules();
+    notifyListeners();
+  }
+
+  void selectTaskPriority(TaskPriority taskPriority) {
+    _selectedTaskPriorities.add(taskPriority);
+    _filterTaskRules();
+    _filterTaskEntries();
+    notifyListeners();
+  }
+
+  void deselectTaskPriority(TaskPriority taskPriority) {
+    _selectedTaskPriorities.remove(taskPriority);
+    _filterTaskRules();
+    _filterTaskEntries();
+    notifyListeners();
+  }
+
+  void selectAllTaskPriorities() {
+    _selectedTaskPriorities.addAll(TaskPriority.values.toSet());
+    _filterTaskRules();
+    _filterTaskEntries();
+    notifyListeners();
+  }
+
+  // ---------------------------------------------------------------------------
+  // TASKS: SNAPSHOTS, STATUS & DERIVED LISTS
+  // ---------------------------------------------------------------------------
+
+  /// Day-quantised memo behind [getTaskRuleForecast].
+  final Map<String, TaskForecast?> _taskForecastCache = {};
+  DateTime? _taskForecastDay;
+
+  Future<ComponentStats> getStatsAt({String? componentId, String? bikeId, required DateTime date}) async {
+    if (componentId != null) {
+      return database.stravaDao.getComponentStatsAt(componentId, date);
+    } else if (bikeId != null) {
+      return database.stravaDao.getBikeStatsAt(bikeId, date);
+    }
+    return ComponentStats.zero();
+  }
+
+  /// Reads from the DB, not the in-memory `_taskEntries` cache: (1) the cache
+  /// lags bulk writes (Strava sync, import) until the watch-stream propagates,
+  /// and (2) it omits trashed entries, which must be healed too since restore
+  /// does not recompute the snapshot.
+  Future<void> refreshTaskEntrySnapshots({Set<String>? componentIds}) async {
+    final dbEntries = componentIds == null
+        ? await database.taskDao.getAllEntriesBypass()
+        : await database.taskDao.getEntriesForComponentIdsBypass(componentIds);
+    final entries = dbEntries
+        .map((e) => e.toModel())
+        .toList();
+
+    // Issued together rather than one await at a time: each stats query is a
+    // round-trip to the database isolate, and awaiting them serially stalls on
+    // that latency once per entry.
+    final snapshots = await Future.wait(entries.map((entry) => getStatsAt(
+      componentId: entry.componentId,
+      bikeId: entry.bikeId,
+      date: entry.dateTimeUTC,
+    )));
+
+    final changed = [
+      for (var i = 0; i < entries.length; i++)
+        if (snapshots[i] != entries[i].snapshot) entries[i].copyWith(snapshot: snapshots[i]),
+    ];
+    if (changed.isEmpty) return;
+
+    // One transaction: written individually, every upsert re-emits the task
+    // entry stream, which re-resolves all setups on the UI isolate.
+    await database.transaction(() async {
+      for (final entry in changed) {
+        await database.taskDao.upsertEntry(entry.toCompanion());
+      }
+    });
+  }
+
+  /// What a rule is measured against: its most recent entry, when its component
+  /// went on its current bike, and the stats the interval counts.
+  ({TaskEntry? lastEntry, DateTime? installationDate, ComponentStats stats}) _taskRuleInputs(TaskRule rule) {
+    final entries = _taskEntries.values
+        .where((te) => te.taskRule == rule.id)
+        .toList()
+      ..sort((a, b) => b.dateTimeUTC.compareTo(a.dateTimeUTC));
+
+    DateTime? installationDate;
+    if (rule.componentId != null) {
+      final component = _components[rule.componentId];
+      final bike = component?.bike != null ? _bikes[component!.bike] : null;
+      if (component != null && bike != null) {
+        final installation = component.installations.where((i) => i.parent == bike.id).toList()
+            ..sort((a, b) => b.dateTimeUTC.compareTo(a.dateTimeUTC));
+        if (installation.isNotEmpty) {
+          installationDate = installation.first.dateTimeUTC;
+        }
+      }
+    }
+
+    final stats = rule.componentId != null
+        ? (_componentStats[rule.componentId] ?? ComponentStats.zero())
+        : (rule.bikeId != null ? (_bikeStats[rule.bikeId] ?? ComponentStats.zero()) : ComponentStats.zero());
+
+    return (
+      lastEntry: entries.isNotEmpty ? entries.first : null,
+      installationDate: installationDate,
+      stats: stats,
+    );
+  }
+
+  TaskStatus getTaskRuleStatus(TaskRule rule) {
+    final inputs = _taskRuleInputs(rule);
+
+    return TaskStatusService.calculate(
+      rule: rule,
+      currentStats: inputs.stats,
+      now: DateTime.now().toUtc(),
+      lastEntry: inputs.lastEntry,
+      componentInstallationDate: inputs.installationDate,
+    );
+  }
+
+  /// Memoised per rule until the data changes or the day rolls over — the only
+  /// two things that can move a forecast — so the cards may ask on every build.
+  TaskForecast? getTaskRuleForecast(TaskRule rule) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    if (_taskForecastDay != today) {
+      _taskForecastCache.clear();
+      _taskForecastDay = today;
+    }
+    if (_taskForecastCache.containsKey(rule.id)) return _taskForecastCache[rule.id];
+
+    final inputs = _taskRuleInputs(rule);
+
+    return _taskForecastCache[rule.id] = TaskForecastService.predict(
+      rule: rule,
+      currentStats: inputs.stats,
+      now: now.toUtc(),
+      bikeRates: _bikeActivityRates,
+      component: rule.componentId != null ? _components[rule.componentId] : null,
+      lastEntry: inputs.lastEntry,
+      componentInstallationDate: inputs.installationDate,
+    );
+  }
 
   List<TaskRuleWithStatus> _openTaskRulesWithStatus(Iterable<TaskRule> rules) {
     final statusRules = rules.map((rule) => TaskRuleWithStatus(rule: rule, status: getTaskRuleStatus(rule)));
@@ -358,847 +842,10 @@ class AppRepository extends ChangeNotifier {
     return completed;
   }
 
-  Map<String, Bike> get filteredBikes => _filteredBikes;
-  Map<String, Person> get filteredPersons => _filteredPersons;
-  Map<String, Rating> get filteredRatings => _filteredRatings;
-  Map<String, Component> get filteredComponents => _filteredComponents;
-  Map<String, Component> get archivedComponents => {
-        for (final entry in _components.entries)
-          if (entry.value.isArchived) entry.key: entry.value
-      };
-  Map<String, Setup> get filteredSetups => _filteredSetups;
-  Map<String, RatingEntry> get filteredRatingEntries => _filteredRatingEntries;
-  Map<String, TaskRule> get filteredTaskRules => _filteredTaskRules;
-  Map<String, TaskRule> get filteredOpenTaskRules => _filteredOpenTaskRules;
-  int get filteredOpenTaskRulesCount => _filteredOpenTaskRules.length;
-  Map<String, TaskEntry> get filteredTaskEntries => _filteredTaskEntries;
-  Map<int, StravaActivity> get filteredStravaActivities => _filteredStravaActivities;
-  List<ComponentInstallation> get filteredInstallations => _filteredInstallations;
-
   // ---------------------------------------------------------------------------
-  // DELETED ITEMS (for TrashPage)
-  // ---------------------------------------------------------------------------
-  List<Person> _deletedPersons = [];
-  List<Bike> _deletedBikes = [];
-  List<Component> _deletedComponents = [];
-  List<Setup> _deletedSetups = [];
-  List<Rating> _deletedRatings = [];
-  List<RatingEntry> _deletedRatingEntries = [];
-  List<TaskRule> _deletedTaskRules = [];
-  List<TaskEntry> _deletedTaskEntries = [];
-
-  List<Person> get deletedPersons => _deletedPersons;
-  List<Bike> get deletedBikes => _deletedBikes;
-  List<Component> get deletedComponents => _deletedComponents;
-  List<Setup> get deletedSetups => _deletedSetups;
-  List<Rating> get deletedRatings => _deletedRatings;
-  List<RatingEntry> get deletedRatingEntries => _deletedRatingEntries;
-  List<TaskRule> get deletedTaskRules => _deletedTaskRules;
-  List<TaskEntry> get deletedTaskEntries => _deletedTaskEntries;
-
-  // ---------------------------------------------------------------------------
-  // INITIALIZATION AND STREAMS
+  // RATINGS: SCORES & LOOKUPS
   // ---------------------------------------------------------------------------
 
-  AppRepository(this.database) {
-    // Seed the baseline so the first (no-bike) stream emissions don't spuriously
-    // re-trigger an initial Strava load before/alongside initialize().
-    _lastStravaFilterSignature = _stravaFilterSignature();
-    _initStreams();
-  }
-
-  Future<void> initialize() async {
-    unawaited(BackupService.deleteOldBackups());
-    unawaited(initialStravaLoad());
-  }
-
-  @override
-  void dispose() {
-    _isDisposed = true;
-    for (final s in _subscriptions) {
-      unawaited(s.cancel());
-    }
-    super.dispose();
-  }
-
-  void _initStreams() {
-    _subscriptions.add(database.bikesDao.watchAllBikes().listen((list) {
-      _bikes = {for (var b in list) b.id: b.toModel()};
-      _markInitialStreamFired('bikes');
-      _dataChanged();
-    }));
-
-    _subscriptions.add(database.componentsDao.watchAllComponentsWithData().listen((list) {
-      _components = {for (var c in list) c.component.id: c.component.toModel(
-        adjustments: c.adjustments.map((a) => a.toModel()).toList(),
-        installations: c.installations.map((i) => i.toModel()).toList(),
-      )};
-      _markInitialStreamFired('components');
-      _dataChanged();
-    }));
-
-    _subscriptions.add(database.personsDao.watchAllPersonsWithData().listen((list) {
-      _persons = {for (var p in list) p.person.id: p.person.toModel(
-        adjustments: p.adjustments.map((a) => a.toModel()).toList(),
-      )};
-      _markInitialStreamFired('persons');
-      _dataChanged();
-    }));
-
-    _subscriptions.add(database.ratingsDao.watchAllRatingsWithData().listen((list) {
-      _ratings = {for (var r in list) r.rating.id: r.rating.toModel(
-        metrics: r.metrics.map((m) => m.toModel()).toList(),
-      )};
-      _markInitialStreamFired('ratings');
-      _dataChanged();
-    }));
-
-    _subscriptions.add(database.taskDao.watchAllRules().listen((list) {
-      _taskRules = {for (var r in list) r.id: r.toModel()};
-      _markInitialStreamFired('taskRules');
-      _dataChanged();
-    }));
-
-    _subscriptions.add(database.taskDao.watchAllEntries().listen((list) {
-      _taskEntries = {for (var e in list) e.id: e.toModel()};
-      _markInitialStreamFired('taskEntries');
-      _dataChanged();
-    }));
-
-    _subscriptions.add(database.stravaDao.watchAllAthletes().listen((list) {
-      _stravaAthletes = {for (var a in list) a.id: a.toModel()};
-      _dataChanged();
-    }));
-
-    _subscriptions.add(database.stravaDao.watchAllGears().listen((list) {
-      _stravaGears = {for (var g in list) g.id: g.toModel()};
-      _dataChanged();
-    }));
-
-    _subscriptions.add(database.stravaDao.watchComponentStats().listen((map) {
-      _componentStats = map;
-      _dataChanged();
-    }));
-
-    _subscriptions.add(database.stravaDao.watchBikeStats().listen((map) {
-      _bikeStats = map;
-      _dataChanged();
-    }));
-
-    _subscriptions.add(database.stravaDao
-        .watchBikeActivityRates(
-          sampleSize: TaskForecastService.sampleSize,
-          maxLookback: TaskForecastService.maxLookback,
-        )
-        .listen((map) {
-      _bikeActivityRates = map;
-      _dataChanged();
-    }));
-    
-    _subscriptions.add(database.setupsDao.watchAllSetupsWithValues().listen((list) {
-      _setups = {for (var s in list) s.setup.id: s.setup.toModel(values: s.values)};
-      _markInitialStreamFired('setups');
-      _dataChanged();
-    }));
-
-    _subscriptions.add(database.ratingEntriesDao.watchAllRatingEntriesWithValues().listen((list) {
-      _ratingEntries = {for (var e in list) e.entry.id: e.entry.toModel(values: e.values)};
-      _markInitialStreamFired('ratingEntries');
-      _dataChanged();
-    }));
-
-    // Deleted item streams
-    _subscriptions.add(database.bikesDao.watchDeletedBikes().listen((list) {
-      _deletedBikes = list.map((b) => b.toModel()).toList();
-      _notifyIfActive();
-    }));
-    _subscriptions.add(database.componentsDao.watchDeletedComponents().listen((list) {
-      _deletedComponents = list.map((c) => c.toModel(adjustments: [], installations: [])).toList();
-      _notifyIfActive();
-    }));
-    _subscriptions.add(database.setupsDao.watchDeletedSetups().listen((list) {
-      _deletedSetups = list.map((s) => s.toModel(values: [])).toList();
-      _notifyIfActive();
-    }));
-    _subscriptions.add(database.personsDao.watchDeletedPersons().listen((list) {
-      _deletedPersons = list.map((p) => p.toModel(adjustments: [])).toList();
-      _notifyIfActive();
-    }));
-    _subscriptions.add(database.ratingsDao.watchDeletedRatings().listen((list) {
-      _deletedRatings = list.map((r) => r.toModel(metrics: [])).toList();
-      _notifyIfActive();
-    }));
-    _subscriptions.add(database.ratingEntriesDao.watchDeletedRatingEntries().listen((list) {
-      _deletedRatingEntries = list.map((e) => e.toModel()).toList();
-      _notifyIfActive();
-    }));
-    _subscriptions.add(database.taskDao.watchDeletedRules().listen((list) {
-      _deletedTaskRules = list.map((tr) => tr.toModel()).toList();
-      _notifyIfActive();
-    }));
-    _subscriptions.add(database.taskDao.watchDeletedEntries().listen((list) {
-      _deletedTaskEntries = list.map((te) => te.toModel()).toList();
-      _notifyIfActive();
-    }));
-  }
-
-  void _notifyIfActive() {
-    if (_isDisposed || !hasListeners) return;
-    notifyListeners();
-  }
-
-  void _dataChanged() {
-    if (_isDisposed) return;
-    _taskForecastCache.clear();
-    if (_pendingDataChange) return;
-    _pendingDataChange = true;
-    unawaited(Future.microtask(() {
-      if (_isDisposed) return;
-      _pendingDataChange = false;
-      _resolveData();
-      _filter();
-      notifyListeners();
-    }));
-  }
-
-  @override
-  void notifyListeners() {
-    // Safety guard to avoid 'notifyListeners() called after dispose()' crashes
-    // during tests or fast navigational changes.
-    if (_isDisposed) return;
-    super.notifyListeners();
-  }
-
-  void _resolveData() {
-    // Drop the lazily built rating/score lookup caches
-    _setupsByBikeSorted = null;
-    _ratingEntriesBySetup = null;
-    _applicableMetricsByBike = null;
-    _setupScoreCache.clear();
-
-    final result = SetupResolutionService.resolveSetups(
-      setups: _setups,
-      bikes: _bikes,
-      persons: _persons,
-      components: _components,
-      ratings: _ratings,
-    );
-    _setups = result.setups;
-    _currentAdjustmentValues = result.globalState;
-
-    // Apply component stats
-    _components = {
-      for (var entry in _components.entries)
-        entry.key: entry.value.copyWith(
-          totalStats: _componentStats[entry.key] ?? entry.value.initialStats,
-        )
-    };
-
-    _setupTags = SetupResolutionService.extractAllTags(_setups.values);
-    _taskRuleTags = _taskRules.values.map((tr) => tr.tags).expand((tags) => tags).toSet();
-  }
-
-  void filter() {
-    _filter();
-    notifyListeners();
-  }
-
-  void _filter() {
-    if (selectedBike != null && !bikes.containsKey(_selectedBike!)) {
-      _selectedBike = null;
-    }
-    _selectedSetupTags.removeWhere((tag) => !setupTags.contains(tag));
-    _selectedTaskRuleTags.removeWhere((tag) => !taskRuleTags.contains(tag));
-
-    _filterBikes();
-    _filterComponents();
-    _filterSetups();
-    _filterRatingEntries();
-    _filterPersons();
-    _filterRatings();
-    _filterTaskRules();  // after _filterComponents()
-    _filterTaskEntries();  // after _filterTaskRules()
-    _maybeReloadStravaForFilter();  // re-pages Strava if the gear filter changed
-    _filterInstallations();
-  }
-
-  void _filterBikes() {
-    _filteredBikes = selectedBike == null 
-        ? bikes
-        : Map.fromEntries(bikes.entries.where((entry) => entry.key == selectedBike));
-  }
-
-  void _filterComponents() {
-    _filteredComponents = Map.fromEntries(components.entries.where((entry) {
-      if (entry.value.isArchived) return false;
-      return selectedBike == null || entry.value.bike == selectedBike;
-    }));
-  }
-
-  void _filterSetups() {
-    _filteredSetups = Map.fromEntries(setups.entries.where((entry) =>
-      (selectedBike == null ? true : entry.value.bike == selectedBike) &&
-      (selectedSetupTags.isEmpty ? true : entry.value.tags.containsAll(selectedSetupTags)) &&
-      (_showBookmarkedSetupsOnly ? entry.value.isBookmarked : true)
-    ));
-  }
-
-  void _filterRatingEntries() {
-    _filteredRatingEntries = selectedBike == null
-        ? Map.fromEntries(ratingEntries.entries)
-        : Map.fromEntries(ratingEntries.entries.where((entry) => entry.value.bike == selectedBike));
-  }
-
-  void _filterPersons() {
-    _filteredPersons = _selectedBike == null 
-        ? persons
-        : Map.fromEntries(persons.entries.where((entry) => entry.value.id == bikes[_selectedBike]?.person));
-  }
-
-  void _filterRatings() {
-    _filteredRatings = Map.fromEntries(ratings.entries.where((entry) {
-      final rating = entry.value;
-      switch (rating.filterType) {
-        case FilterType.global: return true;
-        case FilterType.person: return true;
-        case FilterType.bike: return _selectedBike == null ? true : rating.filter == _selectedBike;
-        case FilterType.component: return _selectedBike == null ? true : filteredComponents.values.any((c) => c.id == rating.filter);
-        case FilterType.componentType: return _selectedBike == null ? true : filteredComponents.values.any((c) => c.componentType.toString() == rating.filter);
-      }
-    }));
-  }
-
-  void _filterTaskRules() {
-    _filteredTaskRules = Map.fromEntries(
-      taskRules.entries.where((entry) {
-        final rule = entry.value;
-        if (!_selectedTaskPriorities.contains(rule.priority)) return false;
-
-        if (selectedTaskRuleTags.isNotEmpty && !entry.value.tags.containsAll(selectedTaskRuleTags)) return false;
-        return _isTaskRuleInCurrentScope(rule);
-      }),
-    );
-
-    _filteredOpenTaskRules = Map.fromEntries(
-      _filteredTaskRules.entries.where(
-        (entry) => !taskEntries.values.any((te) => te.taskRule == entry.key),
-      ),
-    );
-  }
-
-  bool _isTaskRuleInCurrentScope(TaskRule rule) {
-    if (rule.componentId == null && rule.bikeId == null) return true;
-    if (rule.bikeId != null) return _selectedBike == null || rule.bikeId == _selectedBike;
-
-    final component = _components[rule.componentId];
-    if (component == null || component.isArchived) return false;
-    return _selectedBike == null || component.bike == _selectedBike;
-  }
-
-  void _filterTaskEntries() {
-    _filteredTaskEntries = Map.fromEntries(
-      taskEntries.entries.where(
-        (entry) => _filteredTaskRules.containsKey(entry.value.taskRule),
-      ),
-    );
-  }
-
-  /// The gear filter (matching [StravaDao.getActivitiesPaginated]) for the
-  /// currently selected bike:
-  /// - no bike selected -> all activities
-  /// - bike linked to a gear -> only that gear
-  /// - unlinked bike -> activities whose gear belongs to no bike
-  ({String? gearId, bool unassignedOnly, List<String> assignedGears}) _currentStravaFilter() {
-    if (_selectedBike == null) {
-      return (gearId: null, unassignedOnly: false, assignedGears: const <String>[]);
-    }
-    final gear = bikes[_selectedBike]?.stravaGear;
-    if (gear != null) {
-      return (gearId: gear, unassignedOnly: false, assignedGears: const <String>[]);
-    }
-    final assigned = bikes.values.map((b) => b.stravaGear).whereType<String>().toList();
-    return (gearId: null, unassignedOnly: true, assignedGears: assigned);
-  }
-
-  /// A stable identity for the active gear-filter context. When this changes,
-  /// the loaded Strava window must be re-paged from the top.
-  String _stravaFilterSignature() {
-    final mode = _stravaSortAscending ? 'asc' : 'desc';
-    if (_selectedBike == null) return '$mode|all';
-    final gear = bikes[_selectedBike]?.stravaGear;
-    if (gear != null) return '$mode|gear:$gear';
-    final assigned = bikes.values.map((b) => b.stravaGear).whereType<String>().toList()..sort();
-    return '$mode|unassigned:${assigned.join(",")}';
-  }
-
-  /// Re-pages Strava from the top when the gear-filter context changes (bike
-  /// selection, the selected bike's gear, the assigned-gear pool, or sort).
-  void _maybeReloadStravaForFilter() {
-    if (_stravaFilterSignature() == _lastStravaFilterSignature) return;
-    unawaited(initialStravaLoad());
-  }
-
-  void _filterInstallations() {
-    _filteredInstallations = [];
-    for (final component in components.values) {
-      final sorted = List<Installation>.from(component.installations)
-        ..sort((a, b) => a.dateTimeUTC.compareTo(b.dateTimeUTC));
-
-      for (int i = 0; i < sorted.length; i++) {
-        final installation = sorted[i];
-        if (installation.dateTimeUTC.millisecondsSinceEpoch == 0) continue;
-        
-        final previousInstallation = i > 0 ? sorted[i-1] : null;
-        final originParent = previousInstallation?.parent;
-        final isInitial = i == 0;
-        
-        final ci = ComponentInstallation(
-          component: component,
-          installation: installation,
-          originParent: originParent,
-          originParentType: previousInstallation?.parentType,
-          isInitial: isInitial,
-        );
-
-        if (selectedBike == null || installation.parent == selectedBike || originParent == selectedBike) {
-          _filteredInstallations.add(ci);
-        }
-      }
-    }
-  }
-
-  Future<void> initialStravaLoad() async {
-    final sig = _stravaFilterSignature();
-    _lastStravaFilterSignature = sig;
-    final filter = _currentStravaFilter();
-    _stravaOffset = 0;
-    _hasMoreStrava = true;
-    _isLoadingMoreStrava = true;
-    notifyListeners();
-
-    final list = await database.stravaDao.getActivitiesPaginated(
-      limit: _stravaLimit,
-      offset: 0,
-      mode: _stravaSortAscending ? drift.OrderingMode.asc : drift.OrderingMode.desc,
-      gearId: filter.gearId,
-      unassignedOnly: filter.unassignedOnly,
-      assignedGears: filter.assignedGears,
-    );
-    if (_isDisposed) return;
-    // A newer filter took over while we were querying; drop these stale results.
-    if (sig != _lastStravaFilterSignature) return;
-    _filteredStravaActivities = {for (var a in list) a.id: a.toModel()};
-    _stravaOffset = list.length;
-    if (list.length < _stravaLimit) _hasMoreStrava = false;
-    _isLoadingMoreStrava = false;
-    _dataChanged();
-  }
-
-  /// Re-derives the in-memory window from the database (the single source of
-  /// truth) after an out-of-band write such as a webhook sync, without
-  /// collapsing the user's scroll position. Unlike [initialStravaLoad] this
-  /// re-pages the whole currently-loaded window (page 1 .. current offset), so
-  /// activities the user already scrolled in are kept and any new/changed/
-  /// deleted rows are reflected. It runs silently (no loading spinner).
-  Future<void> reloadStravaWindow() async {
-    final sig = _stravaFilterSignature();
-    _lastStravaFilterSignature = sig;
-    final filter = _currentStravaFilter();
-    // Reload at least the first page; if the user paged further, reload the
-    // whole loaded window so scrolled-in activities aren't dropped.
-    final reloadLimit = _stravaOffset > _stravaLimit ? _stravaOffset : _stravaLimit;
-
-    final list = await database.stravaDao.getActivitiesPaginated(
-      limit: reloadLimit,
-      offset: 0,
-      mode: _stravaSortAscending ? drift.OrderingMode.asc : drift.OrderingMode.desc,
-      gearId: filter.gearId,
-      unassignedOnly: filter.unassignedOnly,
-      assignedGears: filter.assignedGears,
-    );
-    if (_isDisposed) return;
-    // A newer filter took over while we were querying; drop these stale results.
-    if (sig != _lastStravaFilterSignature) return;
-    _filteredStravaActivities = {for (var a in list) a.id: a.toModel()};
-    _stravaOffset = list.length;
-    // Only ever narrows: a short page means the window shrank (deletions);
-    // a full page leaves [_hasMoreStrava] as-is so paging keeps working.
-    if (list.length < reloadLimit) _hasMoreStrava = false;
-    _dataChanged();
-  }
-
-  Future<void> setStravaSortOrder(bool ascending) async {
-    if (_stravaSortAscending == ascending) return;
-    _stravaSortAscending = ascending;
-    // initialStravaLoad resets the offset and re-pages for the new ordering.
-    await initialStravaLoad();
-  }
-
-  Future<void> loadMoreStravaActivities() async {
-    if (_isLoadingMoreStrava || !_hasMoreStrava) return;
-    _isLoadingMoreStrava = true;
-    notifyListeners();
-
-    final sig = _lastStravaFilterSignature;
-    final filter = _currentStravaFilter();
-    final list = await database.stravaDao.getActivitiesPaginated(
-      limit: _stravaLimit,
-      offset: _stravaOffset,
-      mode: _stravaSortAscending ? drift.OrderingMode.asc : drift.OrderingMode.desc,
-      gearId: filter.gearId,
-      unassignedOnly: filter.unassignedOnly,
-      assignedGears: filter.assignedGears,
-    );
-    if (_isDisposed) return;
-    // The filter changed mid-load; these belong to a stale window.
-    if (sig != _lastStravaFilterSignature) return;
-    _filteredStravaActivities.addAll({for (var a in list) a.id: a.toModel()});
-    _stravaOffset += list.length;
-    if (list.length < _stravaLimit) _hasMoreStrava = false;
-    _isLoadingMoreStrava = false;
-    _dataChanged();
-  }
-
-  void onBikeTap(String? newBike) {
-    if (newBike == null || selectedBike == newBike) {
-      _selectedBike = null;
-    } else {
-      _selectedBike = newBike;
-    }
-    _filter();
-    notifyListeners();
-  }
-
-  void selectSetupTag(String newTag) {
-    if (!setupTags.contains(newTag)) return;
-    _selectedSetupTags.add(newTag);
-    _filterSetups();
-    notifyListeners();
-  }
-
-  void deselectSetupTag(String tag) {
-    _selectedSetupTags.remove(tag);
-    _filterSetups();
-    notifyListeners();
-  }
-
-  void deselectAllSetupTags() {
-    _selectedSetupTags.clear();
-    _filterSetups();
-    notifyListeners();
-  }
-
-  void setShowBookmarkedSetupsOnly(bool newValue) {
-    if (_showBookmarkedSetupsOnly == newValue) return;
-    _showBookmarkedSetupsOnly = newValue;
-    _filterSetups();
-    notifyListeners();
-  }
-
-    void selectTaskRuleTag(String newTag) {
-    if (!taskRuleTags.contains(newTag)) return;
-    _selectedTaskRuleTags.add(newTag);
-    _filterTaskRules();
-    notifyListeners();
-  }
-
-  void deselectTaskRuleTag(String tag) {
-    _selectedTaskRuleTags.remove(tag);
-    _filterTaskRules();
-    notifyListeners();
-  }
-
-  void deselectAllTaskRuleTags() {
-    _selectedTaskRuleTags.clear();
-    _filterTaskRules();
-    notifyListeners();
-  }
-
-  void selectTaskPriority(TaskPriority taskPriority) {
-    _selectedTaskPriorities.add(taskPriority);
-    _filterTaskRules();
-    _filterTaskEntries();
-    notifyListeners();
-  }
-
-  void deselectTaskPriority(TaskPriority taskPriority) {
-    _selectedTaskPriorities.remove(taskPriority);
-    _filterTaskRules();
-    _filterTaskEntries();
-    notifyListeners();
-  }
-
-  void selectAllTaskPriorities() {
-    _selectedTaskPriorities.addAll(TaskPriority.values.toSet());
-    _filterTaskRules();
-    _filterTaskEntries();
-    notifyListeners();
-  }
-
-  // ---------------------------------------------------------------------------
-  // WRITE OPERATIONS
-  // ---------------------------------------------------------------------------
-
-  Future<SelectedData?> loadLegacyData() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final jsonString = prefs.getString("data") ?? "{}";
-      final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
-      return SelectedData.fromJson(jsonData);
-    } catch (e) {
-      return null;
-    }
-  }
-
-  Future<ComponentStats> getStatsAt({String? componentId, String? bikeId, required DateTime date}) async {
-    if (componentId != null) {
-      return database.stravaDao.getComponentStatsAt(componentId, date);
-    } else if (bikeId != null) {
-      return database.stravaDao.getBikeStatsAt(bikeId, date);
-    }
-    return ComponentStats.zero();
-  }
-
-  /// Reads from the DB, not the in-memory `_taskEntries` cache: (1) the cache
-  /// lags bulk writes (Strava sync, import) until the watch-stream propagates,
-  /// and (2) it omits trashed entries, which must be healed too since restore
-  /// does not recompute the snapshot.
-  Future<void> refreshTaskEntrySnapshots({Set<String>? componentIds}) async {
-    final dbEntries = componentIds == null
-        ? await database.taskDao.getAllEntriesBypass()
-        : await database.taskDao.getEntriesForComponentIdsBypass(componentIds);
-    final entries = dbEntries
-        .map((e) => e.toModel())
-        .toList();
-
-    // Issued together rather than one await at a time: each stats query is a
-    // round-trip to the database isolate, and awaiting them serially stalls on
-    // that latency once per entry.
-    final snapshots = await Future.wait(entries.map((entry) => getStatsAt(
-      componentId: entry.componentId,
-      bikeId: entry.bikeId,
-      date: entry.dateTimeUTC,
-    )));
-
-    final changed = [
-      for (var i = 0; i < entries.length; i++)
-        if (snapshots[i] != entries[i].snapshot) entries[i].copyWith(snapshot: snapshots[i]),
-    ];
-    if (changed.isEmpty) return;
-
-    // One transaction: written individually, every upsert re-emits the task
-    // entry stream, which re-resolves all setups on the UI isolate.
-    await database.transaction(() async {
-      for (final entry in changed) {
-        await database.taskDao.upsertEntry(entry.toCompanion());
-      }
-    });
-  }
-
-  /// What a rule is measured against: its most recent entry, when its component
-  /// went on its current bike, and the stats the interval counts.
-  ({TaskEntry? lastEntry, DateTime? installationDate, ComponentStats stats}) _taskRuleInputs(TaskRule rule) {
-    final entries = _taskEntries.values
-        .where((te) => te.taskRule == rule.id)
-        .toList()
-      ..sort((a, b) => b.dateTimeUTC.compareTo(a.dateTimeUTC));
-
-    DateTime? installationDate;
-    if (rule.componentId != null) {
-      final component = _components[rule.componentId];
-      final bike = component?.bike != null ? _bikes[component!.bike] : null;
-      if (component != null && bike != null) {
-        final installation = component.installations.where((i) => i.parent == bike.id).toList()
-            ..sort((a, b) => b.dateTimeUTC.compareTo(a.dateTimeUTC));
-        if (installation.isNotEmpty) {
-          installationDate = installation.first.dateTimeUTC;
-        }
-      }
-    }
-
-    final stats = rule.componentId != null
-        ? (_componentStats[rule.componentId] ?? ComponentStats.zero())
-        : (rule.bikeId != null ? (_bikeStats[rule.bikeId] ?? ComponentStats.zero()) : ComponentStats.zero());
-
-    return (
-      lastEntry: entries.isNotEmpty ? entries.first : null,
-      installationDate: installationDate,
-      stats: stats,
-    );
-  }
-
-  TaskStatus getTaskRuleStatus(TaskRule rule) {
-    final inputs = _taskRuleInputs(rule);
-
-    return TaskStatusService.calculate(
-      rule: rule,
-      currentStats: inputs.stats,
-      now: DateTime.now().toUtc(),
-      lastEntry: inputs.lastEntry,
-      componentInstallationDate: inputs.installationDate,
-    );
-  }
-
-  /// Memoised per rule until the data changes or the day rolls over — the only
-  /// two things that can move a forecast — so the cards may ask on every build.
-  TaskForecast? getTaskRuleForecast(TaskRule rule) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    if (_taskForecastDay != today) {
-      _taskForecastCache.clear();
-      _taskForecastDay = today;
-    }
-    if (_taskForecastCache.containsKey(rule.id)) return _taskForecastCache[rule.id];
-
-    final inputs = _taskRuleInputs(rule);
-
-    return _taskForecastCache[rule.id] = TaskForecastService.predict(
-      rule: rule,
-      currentStats: inputs.stats,
-      now: now.toUtc(),
-      bikeRates: _bikeActivityRates,
-      component: rule.componentId != null ? _components[rule.componentId] : null,
-      lastEntry: inputs.lastEntry,
-      componentInstallationDate: inputs.installationDate,
-    );
-  }
-
-  Future<void> removeBikes(Iterable<Bike> bikes) async {
-    if (bikes.isEmpty) return;
-    await database.transaction(() async {
-      for (var bike in bikes) {
-        await database.bikesDao.deleteBike(bike.id);
-      }
-    });
-  }
-
-  Future<void> restoreBikes(Iterable<Bike> bikes) async {
-    if (bikes.isEmpty) return;
-    await database.transaction(() async {
-      for (var bike in bikes) {
-        final updated = bike.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
-        await database.bikesDao.updateBike(updated.toCompanion());
-      }
-    });
-  }
-
-  Future<void> removeComponents(Iterable<Component> components) async {
-    if (components.isEmpty) return;
-    await database.transaction(() async {
-      for (var component in components) {
-        await database.componentsDao.deleteComponent(component.id);
-      }
-    });
-  }
-
-  Future<void> restoreComponents(Iterable<Component> components) async {
-    if (components.isEmpty) return;
-    await database.transaction(() async {
-      for (var component in components) {
-        final updated = component.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
-        await database.componentsDao.updateComponent(updated.toCompanion());
-      }
-    });
-  }
-
-  Future<void> removeSetups(Iterable<Setup> setups) async {
-    if (setups.isEmpty) return;
-    await database.transaction(() async {
-      for (var setup in setups) {
-        await database.setupsDao.deleteSetup(setup.id);
-      }
-    });
-  }
-
-  Future<void> restoreSetups(Iterable<Setup> setups) async {
-    if (setups.isEmpty) return;
-    await database.transaction(() async {
-      for (var setup in setups) {
-        final updated = setup.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
-        await database.setupsDao.updateSetup(updated.toCompanion());
-      }
-    });
-  }
-
-  Future<void> removePersons(Iterable<Person> persons) async {
-    if (persons.isEmpty) return;
-    await database.transaction(() async {
-      for (var person in persons) {
-        await database.personsDao.deletePerson(person.id);
-      }
-    });
-  }
-
-  Future<void> restorePersons(Iterable<Person> persons) async {
-    if (persons.isEmpty) return;
-    await database.transaction(() async {
-      for (var person in persons) {
-        final updated = person.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
-        await database.personsDao.updatePerson(updated.toCompanion());
-      }
-    });
-  }
-
-  Future<void> removeRatings(Iterable<Rating> ratings) async {
-    if (ratings.isEmpty) return;
-    await database.transaction(() async {
-      for (var rating in ratings) {
-        await database.ratingsDao.deleteRating(rating.id);
-      }
-    });
-  }
-
-  Future<void> restoreRatings(Iterable<Rating> ratings) async {
-    if (ratings.isEmpty) return;
-    await database.transaction(() async {
-      for (var rating in ratings) {
-        final updated = rating.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
-        await database.ratingsDao.updateRating(updated.toCompanion());
-      }
-    });
-  }
-
-Future<void> addRatingEntries(Iterable<RatingEntry> entries) async {
-    if (entries.isEmpty) return;
-    final now = DateTime.now().toUtc();
-    await database.transaction(() async {
-      for (final entry in entries) {
-        final updated = entry.copyWith(lastModified: now);
-        await database.ratingEntriesDao.insertRatingEntryWithValues(
-          entry: updated.toCompanion(),
-          values: updated.metricValues,
-        );
-      }
-    });
-  }
-
-  Future<void> editRatingEntry(RatingEntry entry) async {
-    final updated = entry.copyWith(lastModified: DateTime.now().toUtc());
-    await database.ratingEntriesDao.updateRatingEntryWithValues(
-      entry: updated.toCompanion(),
-      values: updated.metricValues,
-    );
-  }
-
-  Future<void> removeRatingEntries(Iterable<RatingEntry> entries) async {
-    if (entries.isEmpty) return;
-    await database.transaction(() async {
-      for (final entry in entries) {
-        await database.ratingEntriesDao.deleteRatingEntry(entry.id);
-      }
-    });
-  }
-
-  Future<void> restoreRatingEntries(Iterable<RatingEntry> entries) async {
-    if (entries.isEmpty) return;
-    await database.transaction(() async {
-      for (final entry in entries) {
-        final updated = entry.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
-        await database.ratingEntriesDao.updateRatingEntry(updated.toCompanion());
-      }
-    });
-  }
-  
   // Lazily built lookup caches for rating/score resolution.
   Map<String, List<Setup>>? _setupsByBikeSorted;
   Map<String, List<RatingEntry>>? _ratingEntriesBySetup;
@@ -1307,6 +954,400 @@ Future<void> addRatingEntries(Iterable<RatingEntry> entries) async {
           for (final metric in rating.metrics) metric.id: metric,
       };
 
+  // ---------------------------------------------------------------------------
+  // STRAVA: PAGING, QUERIES & SYNC
+  // ---------------------------------------------------------------------------
+
+  int _stravaOffset = 0;
+  int _stravaLimit = 50;
+  bool _hasMoreStrava = true;
+  bool _isLoadingMoreStrava = false;
+  bool _stravaSortAscending = false;
+  int _stravaOperationVersion = 0;
+  // Identifies the gear-filter context the current loaded window was paged for.
+  // Strava is paginated per active filter (see [getActivitiesPaginated]); when
+  // this changes we re-page from the top so the bike's activities never get
+  // dropped behind a global pagination boundary.
+  String? _lastStravaFilterSignature;
+
+  bool get hasMoreStrava => _hasMoreStrava;
+  bool get isLoadingMoreStrava => _isLoadingMoreStrava;
+  bool get stravaSortAscending => _stravaSortAscending;
+
+  Stream<List<StravaActivity>> get stravaActivitiesWithPosition => database.stravaDao.watchActivitiesWithPosition().map((list) => list.map((a) => a.toModel()).toList());
+
+  /// Debug helper to override the pagination chunk size in tests.
+  void debugSetStravaLimit(int limit) {
+    _stravaLimit = limit;
+  }
+
+  Future<List<StravaActivity>> get latestStravaActivities async {
+    final list = await database.stravaDao.getActivitiesPaginated(limit: 3, offset: 0, mode: drift.OrderingMode.desc);
+    return list.map((a) => a.toModel()).toList();
+  }
+
+  Future<List<StravaActivity>> getFilteredStravaActivitiesWithPosition() async {
+    final allWithPos = await database.stravaDao.watchActivitiesWithPosition().first;
+    final activities = allWithPos.map((a) => a.toModel()).toList();
+
+    if (_selectedBike == null) return activities;
+
+    final selectedStravaGear = bikes[_selectedBike]?.stravaGear;
+    if (selectedStravaGear == null) {
+      return activities.where((a) {
+        final stravaGear = a.gearId;
+        return stravaGear == null || !bikes.values.any((b) => b.stravaGear == stravaGear);
+      }).toList();
+    }
+
+    return activities.where((a) => a.gearId == selectedStravaGear).toList();
+  }
+
+  Future<List<StravaActivity>> searchStravaActivities(String query) async {
+    final results = await database.stravaDao.searchActivitiesByName(query);
+    final activities = results.map((a) => a.toModel()).toList();
+
+    if (_selectedBike == null) return activities;
+
+    final selectedStravaGear = bikes[_selectedBike]?.stravaGear;
+    if (selectedStravaGear == null) {
+      return activities.where((a) {
+        final g = a.gearId;
+        return g == null || !bikes.values.any((b) => b.stravaGear == g);
+      }).toList();
+    }
+
+    return activities.where((a) => a.gearId == selectedStravaGear).toList();
+  }
+
+  Future<StravaActivity?> getStravaActivity(int id) async {
+    if (_filteredStravaActivities.containsKey(id)) return _filteredStravaActivities[id];
+    final dbActivity = await database.stravaDao.getActivityById(id);
+    return dbActivity?.toModel();
+  }
+
+  /// The gear filter (matching [StravaDao.getActivitiesPaginated]) for the
+  /// currently selected bike:
+  /// - no bike selected -> all activities
+  /// - bike linked to a gear -> only that gear
+  /// - unlinked bike -> activities whose gear belongs to no bike
+  ({String? gearId, bool unassignedOnly, List<String> assignedGears}) _currentStravaFilter() {
+    if (_selectedBike == null) {
+      return (gearId: null, unassignedOnly: false, assignedGears: const <String>[]);
+    }
+    final gear = bikes[_selectedBike]?.stravaGear;
+    if (gear != null) {
+      return (gearId: gear, unassignedOnly: false, assignedGears: const <String>[]);
+    }
+    final assigned = bikes.values.map((b) => b.stravaGear).whereType<String>().toList();
+    return (gearId: null, unassignedOnly: true, assignedGears: assigned);
+  }
+
+  /// A stable identity for the active gear-filter context. When this changes,
+  /// the loaded Strava window must be re-paged from the top.
+  String _stravaFilterSignature() {
+    final mode = _stravaSortAscending ? 'asc' : 'desc';
+    if (_selectedBike == null) return '$mode|all';
+    final gear = bikes[_selectedBike]?.stravaGear;
+    if (gear != null) return '$mode|gear:$gear';
+    final assigned = bikes.values.map((b) => b.stravaGear).whereType<String>().toList()..sort();
+    return '$mode|unassigned:${assigned.join(",")}';
+  }
+
+  /// Re-pages Strava from the top when the gear-filter context changes (bike
+  /// selection, the selected bike's gear, the assigned-gear pool, or sort).
+  void _maybeReloadStravaForFilter() {
+    if (_stravaFilterSignature() == _lastStravaFilterSignature) return;
+    unawaited(initialStravaLoad());
+  }
+
+  Future<void> initialStravaLoad() async {
+    final sig = _stravaFilterSignature();
+    _lastStravaFilterSignature = sig;
+    final filter = _currentStravaFilter();
+    _stravaOffset = 0;
+    _hasMoreStrava = true;
+    _isLoadingMoreStrava = true;
+    notifyListeners();
+
+    final list = await database.stravaDao.getActivitiesPaginated(
+      limit: _stravaLimit,
+      offset: 0,
+      mode: _stravaSortAscending ? drift.OrderingMode.asc : drift.OrderingMode.desc,
+      gearId: filter.gearId,
+      unassignedOnly: filter.unassignedOnly,
+      assignedGears: filter.assignedGears,
+    );
+    if (_isDisposed) return;
+    // A newer filter took over while we were querying; drop these stale results.
+    if (sig != _lastStravaFilterSignature) return;
+    _filteredStravaActivities = {for (var a in list) a.id: a.toModel()};
+    _stravaOffset = list.length;
+    if (list.length < _stravaLimit) _hasMoreStrava = false;
+    _isLoadingMoreStrava = false;
+    _dataChanged();
+  }
+
+  /// Re-derives the in-memory window from the database (the single source of
+  /// truth) after an out-of-band write such as a webhook sync, without
+  /// collapsing the user's scroll position. Unlike [initialStravaLoad] this
+  /// re-pages the whole currently-loaded window (page 1 .. current offset), so
+  /// activities the user already scrolled in are kept and any new/changed/
+  /// deleted rows are reflected. It runs silently (no loading spinner).
+  Future<void> reloadStravaWindow() async {
+    final sig = _stravaFilterSignature();
+    _lastStravaFilterSignature = sig;
+    final filter = _currentStravaFilter();
+    // Reload at least the first page; if the user paged further, reload the
+    // whole loaded window so scrolled-in activities aren't dropped.
+    final reloadLimit = _stravaOffset > _stravaLimit ? _stravaOffset : _stravaLimit;
+
+    final list = await database.stravaDao.getActivitiesPaginated(
+      limit: reloadLimit,
+      offset: 0,
+      mode: _stravaSortAscending ? drift.OrderingMode.asc : drift.OrderingMode.desc,
+      gearId: filter.gearId,
+      unassignedOnly: filter.unassignedOnly,
+      assignedGears: filter.assignedGears,
+    );
+    if (_isDisposed) return;
+    // A newer filter took over while we were querying; drop these stale results.
+    if (sig != _lastStravaFilterSignature) return;
+    _filteredStravaActivities = {for (var a in list) a.id: a.toModel()};
+    _stravaOffset = list.length;
+    // Only ever narrows: a short page means the window shrank (deletions);
+    // a full page leaves [_hasMoreStrava] as-is so paging keeps working.
+    if (list.length < reloadLimit) _hasMoreStrava = false;
+    _dataChanged();
+  }
+
+  Future<void> setStravaSortOrder(bool ascending) async {
+    if (_stravaSortAscending == ascending) return;
+    _stravaSortAscending = ascending;
+    // initialStravaLoad resets the offset and re-pages for the new ordering.
+    await initialStravaLoad();
+  }
+
+  Future<void> loadMoreStravaActivities() async {
+    if (_isLoadingMoreStrava || !_hasMoreStrava) return;
+    _isLoadingMoreStrava = true;
+    notifyListeners();
+
+    final sig = _lastStravaFilterSignature;
+    final filter = _currentStravaFilter();
+    final list = await database.stravaDao.getActivitiesPaginated(
+      limit: _stravaLimit,
+      offset: _stravaOffset,
+      mode: _stravaSortAscending ? drift.OrderingMode.asc : drift.OrderingMode.desc,
+      gearId: filter.gearId,
+      unassignedOnly: filter.unassignedOnly,
+      assignedGears: filter.assignedGears,
+    );
+    if (_isDisposed) return;
+    // The filter changed mid-load; these belong to a stale window.
+    if (sig != _lastStravaFilterSignature) return;
+    _filteredStravaActivities.addAll({for (var a in list) a.id: a.toModel()});
+    _stravaOffset += list.length;
+    if (list.length < _stravaLimit) _hasMoreStrava = false;
+    _isLoadingMoreStrava = false;
+    _dataChanged();
+  }
+
+  Future<void> setStravaActivities(Iterable<StravaActivity> activities, {List<int>? toDelete}) async {
+    final versionAtStart = _stravaOperationVersion;
+
+    // Perform bulk operations in a single transaction for performance and to reduce race conditions
+    await database.transaction(() async {
+      if (toDelete != null && toDelete.isNotEmpty) {
+        await database.stravaDao.deleteActivities(toDelete);
+      }
+      for (var a in activities) {
+        // Check if we were cleared while processing
+        if (versionAtStart != _stravaOperationVersion) return;
+        await database.stravaDao.upsertActivity(a.toCompanion());
+      }
+    });
+
+    if (versionAtStart != _stravaOperationVersion) {
+      return;
+    }
+
+    await refreshTaskEntrySnapshots();
+
+    // Re-derive the in-memory window from the database so new, changed, or
+    // deleted activities show everywhere (list, calendar) and not only in views
+    // that query the DB directly. Reloads the full loaded window to keep scroll.
+    await reloadStravaWindow();
+  }
+
+  Future<void> setStravaAthletes(Iterable<StravaAthlete> athletes) async {
+    if (athletes.isEmpty) return;
+    await database.transaction(() async {
+      for (var a in athletes) {
+        await database.stravaDao.upsertAthlete(a.toCompanion());
+      }
+    });
+  }
+
+  Future<void> setStravaGears(Iterable<StravaGear> gears) async {
+    await database.stravaDao.syncGears(gears.map((g) => g.toCompanion()));
+  }
+
+  Future<void> clearStravaData() async {
+    _stravaOperationVersion++;
+
+    await database.delete(database.stravaActivities).go();
+    await database.delete(database.stravaAthletes).go();
+    await database.delete(database.stravaGears).go();
+    _filteredStravaActivities = {};
+    _stravaAthletes = {};
+    _stravaGears = {};
+    _stravaOffset = 0;
+    _hasMoreStrava = true;
+
+    // Wiping all activities (disconnect/unlink) means task-entry snapshots must
+    // fall back to each component/bike's initial-only stats; otherwise they keep
+    // showing distances from activities that no longer exist.
+    await refreshTaskEntrySnapshots();
+    _dataChanged();
+  }
+
+  // ---------------------------------------------------------------------------
+  // TRASH: SOFT DELETE & RESTORE
+  // ---------------------------------------------------------------------------
+
+  List<Person> _deletedPersons = [];
+  List<Bike> _deletedBikes = [];
+  List<Component> _deletedComponents = [];
+  List<Setup> _deletedSetups = [];
+  List<Rating> _deletedRatings = [];
+  List<RatingEntry> _deletedRatingEntries = [];
+  List<TaskRule> _deletedTaskRules = [];
+  List<TaskEntry> _deletedTaskEntries = [];
+
+  List<Person> get deletedPersons => _deletedPersons;
+  List<Bike> get deletedBikes => _deletedBikes;
+  List<Component> get deletedComponents => _deletedComponents;
+  List<Setup> get deletedSetups => _deletedSetups;
+  List<Rating> get deletedRatings => _deletedRatings;
+  List<RatingEntry> get deletedRatingEntries => _deletedRatingEntries;
+  List<TaskRule> get deletedTaskRules => _deletedTaskRules;
+  List<TaskEntry> get deletedTaskEntries => _deletedTaskEntries;
+
+  Future<void> removeBikes(Iterable<Bike> bikes) async {
+    if (bikes.isEmpty) return;
+    await database.transaction(() async {
+      for (var bike in bikes) {
+        await database.bikesDao.deleteBike(bike.id);
+      }
+    });
+  }
+
+  Future<void> restoreBikes(Iterable<Bike> bikes) async {
+    if (bikes.isEmpty) return;
+    await database.transaction(() async {
+      for (var bike in bikes) {
+        final updated = bike.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
+        await database.bikesDao.updateBike(updated.toCompanion());
+      }
+    });
+  }
+
+  Future<void> removeComponents(Iterable<Component> components) async {
+    if (components.isEmpty) return;
+    await database.transaction(() async {
+      for (var component in components) {
+        await database.componentsDao.deleteComponent(component.id);
+      }
+    });
+  }
+
+  Future<void> restoreComponents(Iterable<Component> components) async {
+    if (components.isEmpty) return;
+    await database.transaction(() async {
+      for (var component in components) {
+        final updated = component.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
+        await database.componentsDao.updateComponent(updated.toCompanion());
+      }
+    });
+  }
+
+  Future<void> removeSetups(Iterable<Setup> setups) async {
+    if (setups.isEmpty) return;
+    await database.transaction(() async {
+      for (var setup in setups) {
+        await database.setupsDao.deleteSetup(setup.id);
+      }
+    });
+  }
+
+  Future<void> restoreSetups(Iterable<Setup> setups) async {
+    if (setups.isEmpty) return;
+    await database.transaction(() async {
+      for (var setup in setups) {
+        final updated = setup.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
+        await database.setupsDao.updateSetup(updated.toCompanion());
+      }
+    });
+  }
+
+  Future<void> removePersons(Iterable<Person> persons) async {
+    if (persons.isEmpty) return;
+    await database.transaction(() async {
+      for (var person in persons) {
+        await database.personsDao.deletePerson(person.id);
+      }
+    });
+  }
+
+  Future<void> restorePersons(Iterable<Person> persons) async {
+    if (persons.isEmpty) return;
+    await database.transaction(() async {
+      for (var person in persons) {
+        final updated = person.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
+        await database.personsDao.updatePerson(updated.toCompanion());
+      }
+    });
+  }
+
+  Future<void> removeRatings(Iterable<Rating> ratings) async {
+    if (ratings.isEmpty) return;
+    await database.transaction(() async {
+      for (var rating in ratings) {
+        await database.ratingsDao.deleteRating(rating.id);
+      }
+    });
+  }
+
+  Future<void> restoreRatings(Iterable<Rating> ratings) async {
+    if (ratings.isEmpty) return;
+    await database.transaction(() async {
+      for (var rating in ratings) {
+        final updated = rating.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
+        await database.ratingsDao.updateRating(updated.toCompanion());
+      }
+    });
+  }
+
+  Future<void> removeRatingEntries(Iterable<RatingEntry> entries) async {
+    if (entries.isEmpty) return;
+    await database.transaction(() async {
+      for (final entry in entries) {
+        await database.ratingEntriesDao.deleteRatingEntry(entry.id);
+      }
+    });
+  }
+
+  Future<void> restoreRatingEntries(Iterable<RatingEntry> entries) async {
+    if (entries.isEmpty) return;
+    await database.transaction(() async {
+      for (final entry in entries) {
+        final updated = entry.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
+        await database.ratingEntriesDao.updateRatingEntry(updated.toCompanion());
+      }
+    });
+  }
+
   Future<void> removeTaskRules(Iterable<TaskRule> rules) async {
     if (rules.isEmpty) return;
     await database.transaction(() async {
@@ -1345,6 +1386,32 @@ Future<void> addRatingEntries(Iterable<RatingEntry> entries) async {
     });
   }
 
+  // ---------------------------------------------------------------------------
+  // WRITE OPERATIONS
+  // ---------------------------------------------------------------------------
+
+  Future<void> addRatingEntries(Iterable<RatingEntry> entries) async {
+    if (entries.isEmpty) return;
+    final now = DateTime.now().toUtc();
+    await database.transaction(() async {
+      for (final entry in entries) {
+        final updated = entry.copyWith(lastModified: now);
+        await database.ratingEntriesDao.insertRatingEntryWithValues(
+          entry: updated.toCompanion(),
+          values: updated.metricValues,
+        );
+      }
+    });
+  }
+
+  Future<void> editRatingEntry(RatingEntry entry) async {
+    final updated = entry.copyWith(lastModified: DateTime.now().toUtc());
+    await database.ratingEntriesDao.updateRatingEntryWithValues(
+      entry: updated.toCompanion(),
+      values: updated.metricValues,
+    );
+  }
+
   Future<void> addBikes(Iterable<Bike> bikes) async {
     final now = DateTime.now().toUtc();
     await database.transaction(() async {
@@ -1355,7 +1422,7 @@ Future<void> addRatingEntries(Iterable<RatingEntry> entries) async {
     });
   }
 
-Future<void> addPersons(Iterable<Person> persons) async {
+  Future<void> addPersons(Iterable<Person> persons) async {
     if (persons.isEmpty) return;
     final now = DateTime.now().toUtc();
     await database.transaction(() async {
@@ -1371,7 +1438,7 @@ Future<void> addPersons(Iterable<Person> persons) async {
     });
   }
 
-Future<void> addRatings(Iterable<Rating> ratings) async {
+  Future<void> addRatings(Iterable<Rating> ratings) async {
     if (ratings.isEmpty) return;
     final now = DateTime.now().toUtc();
     await database.transaction(() async {
@@ -1445,7 +1512,7 @@ Future<void> addRatings(Iterable<Rating> ratings) async {
     });
   }
 
-Future<void> addComponents(Iterable<Component> components) async {
+  Future<void> addComponents(Iterable<Component> components) async {
     if (components.isEmpty) return;
     final now = DateTime.now().toUtc();
     await database.transaction(() async {
@@ -1481,7 +1548,7 @@ Future<void> addComponents(Iterable<Component> components) async {
       }
     });
   }
-    
+
   Future<void> editBike(Bike bike) async {
     final gearChanged = _bikes[bike.id]?.stravaGear != bike.stravaGear;
 
@@ -1670,7 +1737,7 @@ Future<void> addComponents(Iterable<Component> components) async {
     globalList.removeAt(globalOldIndex);
     globalList.insert(globalNewIndex, itemToMove);
 
-    // Optimistic Update: Manually rearrange state and re-filter immediately to prevent 
+    // Optimistic Update: Manually rearrange state and re-filter immediately to prevent
     // the UI from 'snapping back' while we wait for the database round-trip.
     _components = {
       for (int i = 0; i < globalList.length; i++)
@@ -1704,62 +1771,18 @@ Future<void> addComponents(Iterable<Component> components) async {
     await database.bikesDao.reorder(globalList.map((e) => e.id).toList());
   }
 
-  Future<void> setStravaActivities(Iterable<StravaActivity> activities, {List<int>? toDelete}) async {
-    final versionAtStart = _stravaOperationVersion;
+  // ---------------------------------------------------------------------------
+  // LEGACY IMPORT
+  // ---------------------------------------------------------------------------
 
-    // Perform bulk operations in a single transaction for performance and to reduce race conditions
-    await database.transaction(() async {
-      if (toDelete != null && toDelete.isNotEmpty) {
-        await database.stravaDao.deleteActivities(toDelete);
-      }
-      for (var a in activities) {
-        // Check if we were cleared while processing
-        if (versionAtStart != _stravaOperationVersion) return;
-        await database.stravaDao.upsertActivity(a.toCompanion());
-      }
-    });
-
-    if (versionAtStart != _stravaOperationVersion) {
-      return;
+  Future<SelectedData?> loadLegacyData() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final jsonString = prefs.getString("data") ?? "{}";
+      final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
+      return SelectedData.fromJson(jsonData);
+    } catch (e) {
+      return null;
     }
-
-    await refreshTaskEntrySnapshots();
-
-    // Re-derive the in-memory window from the database so new, changed, or
-    // deleted activities show everywhere (list, calendar) and not only in views
-    // that query the DB directly. Reloads the full loaded window to keep scroll.
-    await reloadStravaWindow();
-  }
-
-  Future<void> setStravaAthletes(Iterable<StravaAthlete> athletes) async {
-    if (athletes.isEmpty) return;
-    await database.transaction(() async {
-      for (var a in athletes) {
-        await database.stravaDao.upsertAthlete(a.toCompanion());
-      }
-    });
-  }
-
-  Future<void> setStravaGears(Iterable<StravaGear> gears) async {
-    await database.stravaDao.syncGears(gears.map((g) => g.toCompanion()));
-  }
-
-  Future<void> clearStravaData() async {
-    _stravaOperationVersion++; 
-    
-    await database.delete(database.stravaActivities).go();
-    await database.delete(database.stravaAthletes).go();
-    await database.delete(database.stravaGears).go();
-    _filteredStravaActivities = {};
-    _stravaAthletes = {};
-    _stravaGears = {};
-    _stravaOffset = 0;
-    _hasMoreStrava = true;
-
-    // Wiping all activities (disconnect/unlink) means task-entry snapshots must
-    // fall back to each component/bike's initial-only stats; otherwise they keep
-    // showing distances from activities that no longer exist.
-    await refreshTaskEntrySnapshots();
-    _dataChanged();
   }
 }

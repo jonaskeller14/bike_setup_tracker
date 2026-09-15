@@ -10,6 +10,26 @@ Text sheetTitle(BuildContext context, String title) {
   );
 }
 
+/// Section label for sheet lists. Paints an opaque background so the section's
+/// own rows scroll beneath it while a StickySection keeps it pinned.
+Widget sheetSectionHeader(BuildContext context, String title) {
+  return Container(
+    width: double.infinity,
+    color: Theme.of(context).colorScheme.surface,
+    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+    child: Text(
+      title,
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        fontSize: 11,
+        fontWeight: FontWeight.bold,
+        letterSpacing: 1.2,
+        color: Theme.of(context).colorScheme.primary,
+      ),
+    ),
+  );
+}
+
 IconButton sheetCloseButton(BuildContext context) {
   return IconButton.filled(
     iconSize: 20,

@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../items/adjustment_properties.dart';
+import '../sticky_section.dart';
+import 'sheet.dart';
 import 'sheet_header.dart';
 
 final List<Adjustment> _adjustmentPresets = [
@@ -47,106 +49,97 @@ void showRatingAddAdjustmentBottomSheet({
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (_adjustmentPresets.isNotEmpty) ... [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                        child: Text(
-                          "Pre-filled Templates",
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.2,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
+                    if (_adjustmentPresets.isNotEmpty)
+                      StickySection(
+                        header: sheetSectionHeader(context, "Pre-filled Templates"),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ..._adjustmentPresets.map((adjustmentPreset) => ListTile(
+                              leading: Icon(adjustmentPreset.getIconData()),
+                              title: Text(adjustmentPreset.name),
+                              subtitle: AdjustmentProperties(adjustmentPreset, singleLine: true, compact: true),
+                              trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                              onTap: () async {
+                                Navigator.pop(context);
+                                await addAdjustmentFromPreset(adjustmentPreset);
+                              },
+                            )),
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 8.0),
+                              child: Divider(),
+                            ),
+                          ],
                         ),
                       ),
-                      ..._adjustmentPresets.map((adjustmentPreset) => ListTile(
-                        leading: Icon(adjustmentPreset.getIconData()),
-                        title: Text(adjustmentPreset.name),
-                        subtitle: AdjustmentProperties(adjustmentPreset, singleLine: true, compact: true),
-                        trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                        onTap: () async {
-                          Navigator.pop(context);
-                          await addAdjustmentFromPreset(adjustmentPreset);
-                        },
-                      )),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8.0),
-                        child: Divider(),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                        child: Text(
-                          "Custom Metrics",
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.2,
-                            color: Theme.of(context).colorScheme.primary,
+                    StickySection(
+                      header: sheetSectionHeader(context, "Custom Metrics"),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          ListTile(
+                            leading: Icon(NumericalAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
+                            title: const Text("Numerical Metric"),
+                            subtitle: const Text("How many times did the fork bottom out?", style: TextStyle(fontSize: 12)),
+                            trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                            onTap: () async {
+                              Navigator.pop(context); // Close sheet first
+                              await addAdjustment<NumericalAdjustment>(); // Then execute logic
+                            },
                           ),
-                        ),
+                          ListTile(
+                            leading: Icon(StepAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
+                            title: const Text("Step Metric"),
+                            subtitle: const Text("Rate grip or confidence (on 1-10 scale)", style: TextStyle(fontSize: 12)),
+                            trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                            onTap: () async {
+                              Navigator.pop(context); // Close sheet first
+                              await addAdjustment<StepAdjustment>(); // Then execute logic
+                            },
+                          ),
+                          ListTile(
+                            leading: Icon(CategoricalAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
+                            title: const Text("Categorical Metric"),
+                            subtitle: const Text("Rate based on categories (good/bad/acceptable)", style: TextStyle(fontSize: 12)),
+                            trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                            onTap: () async {
+                              Navigator.pop(context); // Close sheet first
+                              await addAdjustment<CategoricalAdjustment>(); // Then execute logic
+                            },
+                          ),
+                          ListTile(
+                            leading: Icon(BooleanAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
+                            title: const Text("On/Off Metric"),
+                            subtitle: const Text("Did the fork bottom out? (Yes/No)", style: TextStyle(fontSize: 12)),
+                            trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                            onTap: () async {
+                              Navigator.pop(context); // Close sheet first
+                              await addAdjustment<BooleanAdjustment>(); // Then execute logic
+                            },
+                          ),
+                          if (context.read<AppSettings>().enableTextAdjustment)
+                            ListTile(
+                              leading: Icon(TextAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
+                              title: const Text("Text Metric"),
+                              subtitle: const Text("Flexible field for any other metric", style: TextStyle(fontSize: 12)),
+                              trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                              onTap: () async {
+                                Navigator.pop(context); // Close sheet first
+                                await addAdjustment<TextAdjustment>(); // Then execute logic
+                              },
+                            ),
+                          ListTile(
+                            leading: Icon(DurationAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
+                            title: const Text("Duration Metric"),
+                            subtitle: const Text("Perfect for recording laptimes", style: TextStyle(fontSize: 12)),
+                            trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                            onTap: () async {
+                              Navigator.pop(context); // Close sheet first
+                              await addAdjustment<DurationAdjustment>(); // Then execute logic
+                            },
+                          ),
+                        ],
                       ),
-                    ],
-                    ListTile(
-                      leading: Icon(NumericalAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                      title: const Text("Numerical Metric"),
-                      subtitle: const Text("How many times did the fork bottom out?", style: TextStyle(fontSize: 12)),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                      onTap: () async {
-                        Navigator.pop(context); // Close sheet first
-                        await addAdjustment<NumericalAdjustment>(); // Then execute logic
-                      },
-                    ),
-                    ListTile(
-                      leading: Icon(StepAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                      title: const Text("Step Metric"),
-                      subtitle: const Text("Rate grip or confidence (on 1-10 scale)", style: TextStyle(fontSize: 12)),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                      onTap: () async {
-                        Navigator.pop(context); // Close sheet first
-                        await addAdjustment<StepAdjustment>(); // Then execute logic
-                      },
-                    ),
-                    ListTile(
-                      leading: Icon(CategoricalAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                      title: const Text("Categorical Metric"),
-                      subtitle: const Text("Rate based on categories (good/bad/acceptable)", style: TextStyle(fontSize: 12)),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                      onTap: () async {
-                        Navigator.pop(context); // Close sheet first
-                        await addAdjustment<CategoricalAdjustment>(); // Then execute logic
-                      },
-                    ),
-                    ListTile(
-                      leading: Icon(BooleanAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                      title: const Text("On/Off Metric"),
-                      subtitle: const Text("Did the fork bottom out? (Yes/No)", style: TextStyle(fontSize: 12)),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                      onTap: () async {
-                        Navigator.pop(context); // Close sheet first
-                        await addAdjustment<BooleanAdjustment>(); // Then execute logic
-                      },
-                    ),
-                    if (context.read<AppSettings>().enableTextAdjustment)
-                      ListTile(
-                        leading: Icon(TextAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                        title: const Text("Text Metric"),
-                        subtitle: const Text("Flexible field for any other metric", style: TextStyle(fontSize: 12)),
-                        trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                        onTap: () async {
-                          Navigator.pop(context); // Close sheet first
-                          await addAdjustment<TextAdjustment>(); // Then execute logic
-                        },
-                      ),
-                    ListTile(
-                      leading: Icon(DurationAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                      title: const Text("Duration Metric"),
-                      subtitle: const Text("Perfect for recording laptimes", style: TextStyle(fontSize: 12)),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                      onTap: () async {
-                        Navigator.pop(context); // Close sheet first
-                        await addAdjustment<DurationAdjustment>(); // Then execute logic
-                      },
                     ),
                   ],
                 ),

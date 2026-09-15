@@ -9,6 +9,16 @@ import '../current_setup_badge.dart';
 import '../current_setup_highlight.dart';
 import '../sheets/sheet.dart';
 
+/// Horizontal inset of the band's content, matching the comparison cards below it.
+const double _bandInset = 16;
+
+/// Gap between the two identities, matching the paired cards below them.
+const double _bandGap = 8;
+
+/// Gutters left by a setup menu on the side it edits and on the opposite side.
+const double _menuNearGutter = 8;
+const double _menuFarGutter = 32;
+
 class SetupComparisonHeader extends StatelessWidget {
   const SetupComparisonHeader({super.key});
 
@@ -38,6 +48,8 @@ class SetupComparisonIdentities extends StatelessWidget {
   final Map<String, String> bikeNamesById;
   final ValueChanged<Setup>? onSetupAChanged;
   final ValueChanged<Setup>? onSetupBChanged;
+  final VoidCallback? onSwap;
+  final bool animateSwap;
 
   const SetupComparisonIdentities({
     super.key,
@@ -48,56 +60,132 @@ class SetupComparisonIdentities extends StatelessWidget {
     this.bikeNamesById = const {},
     this.onSetupAChanged,
     this.onSetupBChanged,
+    this.onSwap,
+    this.animateSwap = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
+    final scheme = Theme.of(context).colorScheme;
     return PinnedHeaderSliver(
       child: ColoredBox(
         key: const Key('compare-identity-band'),
-        color: Theme.of(context).colorScheme.surface,
+        color: scheme.surfaceContainerHighest,
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Row(
-                spacing: 8,
-                children: [
-                  Expanded(
-                    child: _SetupIdentity(
-                      surfaceKey: const Key('compare-identity-a'),
-                      side: 'A',
-                      setup: setupA,
-                      dateFormat: appSettings.dateFormat,
-                      timeFormat: appSettings.timeFormat,
-                      setups: setups,
-                      showBikeNames: showBikeNames,
-                      bikeNamesById: bikeNamesById,
-                      highlightedSetupId: setupB.id,
-                      onSetupChanged: onSetupAChanged,
-                    ),
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                Positioned.fill(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(child: _CurrentColumn(isCurrent: setupA.isCurrent)),
+                      Expanded(child: _CurrentColumn(isCurrent: setupB.isCurrent, barAtEnd: true)),
+                    ],
                   ),
-                  Expanded(
-                    child: _SetupIdentity(
-                      surfaceKey: const Key('compare-identity-b'),
-                      side: 'B',
-                      setup: setupB,
-                      dateFormat: appSettings.dateFormat,
-                      timeFormat: appSettings.timeFormat,
-                      setups: setups,
-                      showBikeNames: showBikeNames,
-                      bikeNamesById: bikeNamesById,
-                      highlightedSetupId: setupA.id,
-                      onSetupChanged: onSetupBChanged,
-                    ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: _bandInset, vertical: 8),
+                  child: Row(
+                    spacing: _bandGap,
+                    children: [
+                      Expanded(
+                        child: _SetupIdentity(
+                          surfaceKey: const Key('compare-identity-a'),
+                          side: 'A',
+                          setup: setupA,
+                          dateFormat: appSettings.dateFormat,
+                          timeFormat: appSettings.timeFormat,
+                          setups: setups,
+                          showBikeNames: showBikeNames,
+                          bikeNamesById: bikeNamesById,
+                          highlightedSetupId: setupB.id,
+                          onSetupChanged: onSetupAChanged,
+                          animateSwap: animateSwap,
+                        ),
+                      ),
+                      Expanded(
+                        child: _SetupIdentity(
+                          surfaceKey: const Key('compare-identity-b'),
+                          side: 'B',
+                          setup: setupB,
+                          dateFormat: appSettings.dateFormat,
+                          timeFormat: appSettings.timeFormat,
+                          setups: setups,
+                          showBikeNames: showBikeNames,
+                          bikeNamesById: bikeNamesById,
+                          highlightedSetupId: setupA.id,
+                          onSetupChanged: onSetupBChanged,
+                          animateSwap: animateSwap,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                Positioned(
+                  top: 0,
+                  bottom: 0,
+                  width: 1,
+                  child: ColoredBox(color: scheme.outlineVariant),
+                ),
+                if (onSwap case final onSwap?) _SwapSidesButton(onPressed: onSwap),
+              ],
             ),
+            Divider(height: 1, thickness: 1, color: scheme.outlineVariant),
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Marks the half of the band holding the current setup, bleeding to the screen
+/// edge on its outer side and stopping at the seam on its inner side.
+class _CurrentColumn extends StatelessWidget {
+  final bool isCurrent;
+  final bool barAtEnd;
+
+  const _CurrentColumn({required this.isCurrent, this.barAtEnd = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 200),
+      child: isCurrent
+          ? CurrentSetupHighlight(barAtEnd: barAtEnd, child: const SizedBox.expand())
+          : const SizedBox.shrink(),
+    );
+  }
+}
+
+class _SwapSidesButton extends StatelessWidget {
+  static const double size = 32;
+
+  final VoidCallback onPressed;
+
+  const _SwapSidesButton({required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return IconButton.filled(
+      key: const Key('compare-swap-sides'),
+      tooltip: 'Swap A and B',
+      iconSize: 18,
+      padding: EdgeInsets.zero,
+      constraints: const BoxConstraints.tightFor(width: size, height: size),
+      style: IconButton.styleFrom(
+        backgroundColor: scheme.surface,
+        foregroundColor: scheme.onSurface,
+        side: BorderSide(color: scheme.outlineVariant),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      onPressed: onPressed,
+      icon: const Icon(Icons.swap_horiz),
     );
   }
 }
@@ -113,6 +201,7 @@ class _SetupIdentity extends StatelessWidget {
   final Map<String, String> bikeNamesById;
   final String? highlightedSetupId;
   final ValueChanged<Setup>? onSetupChanged;
+  final bool animateSwap;
 
   const _SetupIdentity({
     required this.surfaceKey,
@@ -125,16 +214,19 @@ class _SetupIdentity extends StatelessWidget {
     this.bikeNamesById = const {},
     this.highlightedSetupId,
     this.onSetupChanged,
+    this.animateSwap = false,
   });
+
+  bool get _isLeading => side == 'A';
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final dateTime =
         '${DateFormat(dateFormat).format(setup.datetimeLocal)} • ${DateFormat(timeFormat).format(setup.datetimeLocal)}';
-    final radius = BorderRadius.circular(12);
+    // The swap button straddles the seam, so each side keeps its inner edge clear.
     final content = Padding(
-      padding: const EdgeInsets.all(8),
+      padding: _isLeading ? const EdgeInsets.fromLTRB(8, 8, 16, 8) : const EdgeInsets.fromLTRB(16, 8, 8, 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -169,59 +261,88 @@ class _SetupIdentity extends StatelessWidget {
       ),
     );
     final animatedContent = AnimatedSwitcher(
-      duration: const Duration(milliseconds: 160),
+      duration: Duration(milliseconds: animateSwap ? 220 : 160),
       switchInCurve: Curves.easeOut,
       switchOutCurve: Curves.easeIn,
-      transitionBuilder: (child, animation) => FadeTransition(
-        opacity: animation,
-        child: ScaleTransition(
-          scale: Tween<double>(begin: 0.98, end: 1).animate(animation),
-          child: child,
-        ),
-      ),
+      transitionBuilder: animateSwap
+          ? (_isLeading ? _swapInFromEnd : _swapInFromStart)
+          : _fadeInPlace,
       child: KeyedSubtree(
         key: ValueKey(setup.id),
-        child: setup.isCurrent
-            ? CurrentSetupHighlight(
-                child: content,
-              )
-            : content,
+        child: content,
       ),
     );
     Material surface(Widget child) => Material(
       key: surfaceKey,
-      color: scheme.surfaceContainerHighest,
-      borderRadius: radius,
-      clipBehavior: Clip.antiAlias,
+      color: Colors.transparent,
+      clipBehavior: Clip.hardEdge,
       child: child,
     );
     if (onSetupChanged == null || setups == null) return surface(animatedContent);
 
     final availableSetups = setups!.toList()..sort((a, b) => b.datetime.compareTo(a.datetime));
-    final menuWidth = MediaQuery.sizeOf(context).width - 32;
     return surface(
-      PopupMenuButton<Setup>(
-        tooltip: 'Choose setup $side',
-        enableFeedback: true,
-        constraints: BoxConstraints.tightFor(width: menuWidth),
-        menuPadding: EdgeInsets.zero,
-        initialValue: setup,
-        itemBuilder: (context) => availableSetups
-            .map(
-              (candidate) => _setupMenuItem(
-                context,
-                candidate,
-                showBikeName: showBikeNames,
-                bikeName: bikeNamesById[candidate.bike],
-                selectedSides: {
-                  if (candidate.id == setup.id) side,
-                  if (candidate.id == highlightedSetupId) side == 'A' ? 'B' : 'A',
-                },
-              ),
-            )
-            .toList(growable: false),
-        onSelected: onSetupChanged!,
-        child: animatedContent,
+      // The band, not the screen, anchors the menu: a wide-screen sheet is narrower
+      // than the window, and the menu has to lean towards the side it edits.
+      LayoutBuilder(
+        builder: (context, constraints) {
+          final identityWidth = constraints.maxWidth;
+          final bandWidth = 2 * identityWidth + _bandGap + 2 * _bandInset;
+          return PopupMenuButton<Setup>(
+            tooltip: 'Choose setup $side',
+            enableFeedback: true,
+            constraints: BoxConstraints.tightFor(width: bandWidth - _menuNearGutter - _menuFarGutter),
+            offset: Offset(
+              _isLeading
+                  ? _menuNearGutter - _bandInset
+                  : _menuFarGutter - _bandInset - _bandGap - identityWidth,
+              0,
+            ),
+            menuPadding: EdgeInsets.zero,
+            initialValue: setup,
+            itemBuilder: (context) => availableSetups
+                .map(
+                  (candidate) => _setupMenuItem(
+                    context,
+                    candidate,
+                    showBikeName: showBikeNames,
+                    bikeName: bikeNamesById[candidate.bike],
+                    selectedSides: {
+                      if (candidate.id == setup.id) side,
+                      if (candidate.id == highlightedSetupId) side == 'A' ? 'B' : 'A',
+                    },
+                  ),
+                )
+                .toList(growable: false),
+            onSelected: onSetupChanged!,
+            child: animatedContent,
+          );
+        },
+      ),
+    );
+  }
+
+  // Static so AnimatedSwitcher only rebuilds its transitions when the mode changes.
+  static Widget _fadeInPlace(Widget child, Animation<double> animation) {
+    return FadeTransition(
+      opacity: animation,
+      child: ScaleTransition(
+        scale: Tween<double>(begin: 0.98, end: 1).animate(animation),
+        child: child,
+      ),
+    );
+  }
+
+  static Widget _swapInFromEnd(Widget child, Animation<double> animation) => _swap(child, animation, 1);
+
+  static Widget _swapInFromStart(Widget child, Animation<double> animation) => _swap(child, animation, -1);
+
+  static Widget _swap(Widget child, Animation<double> animation, double dx) {
+    return FadeTransition(
+      opacity: animation,
+      child: SlideTransition(
+        position: Tween<Offset>(begin: Offset(dx, 0), end: Offset.zero).animate(animation),
+        child: child,
       ),
     );
   }

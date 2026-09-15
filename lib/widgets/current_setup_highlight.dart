@@ -10,12 +10,14 @@ class CurrentSetupHighlight extends StatelessWidget {
   final Widget child;
   final double barLeft;
   final EdgeInsets padding;
+  final bool barAtEnd;
 
   const CurrentSetupHighlight({
     super.key,
     required this.child,
     this.barLeft = 0,
     this.padding = EdgeInsets.zero,
+    this.barAtEnd = false,
   });
 
   @override
@@ -28,7 +30,8 @@ class CurrentSetupHighlight extends StatelessWidget {
         ),
         Padding(padding: padding, child: child),
         Positioned(
-          left: barLeft,
+          left: barAtEnd ? null : barLeft,
+          right: barAtEnd ? barLeft : null,
           top: 0,
           bottom: 0,
           width: barWidth,

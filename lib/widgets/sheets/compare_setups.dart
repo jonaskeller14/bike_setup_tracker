@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/app_hint.dart';
@@ -73,6 +76,7 @@ class _CompareSetupsState extends State<CompareSetups> {
   late String _setupAId;
   late String _setupBId;
   String? _comparisonBikeId;
+  bool _lastChangeWasSwap = false;
 
   @override
   void initState() {
@@ -85,6 +89,24 @@ class _CompareSetupsState extends State<CompareSetups> {
     if (setupA != null && setupA.bike == setupB?.bike) {
       _comparisonBikeId = setupA.bike;
     }
+  }
+
+  void _selectSetup({String? setupAId, String? setupBId}) {
+    setState(() {
+      _setupAId = setupAId ?? _setupAId;
+      _setupBId = setupBId ?? _setupBId;
+      _lastChangeWasSwap = false;
+    });
+  }
+
+  void _swapSides() {
+    unawaited(HapticFeedback.selectionClick());
+    setState(() {
+      final previousA = _setupAId;
+      _setupAId = _setupBId;
+      _setupBId = previousA;
+      _lastChangeWasSwap = true;
+    });
   }
 
   PinnedHeaderSliver _sectionTitle(BuildContext context, String title, {Widget? trailing}) {
@@ -171,8 +193,10 @@ class _CompareSetupsState extends State<CompareSetups> {
           setups: selectableSetups,
           showBikeNames: _comparisonBikeId == null,
           bikeNamesById: appRepository.bikes.map((id, bike) => MapEntry(id, bike.name)),
-          onSetupAChanged: (setup) => setState(() => _setupAId = setup.id),
-          onSetupBChanged: (setup) => setState(() => _setupBId = setup.id),
+          onSetupAChanged: (setup) => _selectSetup(setupAId: setup.id),
+          onSetupBChanged: (setup) => _selectSetup(setupBId: setup.id),
+          onSwap: _swapSides,
+          animateSwap: _lastChangeWasSwap,
         ),
         const SliverToBoxAdapter(
           child: AppHintSlot(

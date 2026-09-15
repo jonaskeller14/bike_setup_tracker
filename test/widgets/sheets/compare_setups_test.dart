@@ -656,16 +656,71 @@ void main() {
     expect(find.descendant(of: identityB, matching: find.text('Candidate')), findsOneWidget);
     expect(find.descendant(of: identityB, matching: find.text('2026-08-02 • 10:00')), findsOneWidget);
     expect(find.descendant(of: identityB, matching: find.text('B')), findsOneWidget);
-    expect(find.descendant(of: identityA, matching: find.byType(CurrentSetupHighlight)), findsOneWidget);
-    expect(find.descendant(of: identityB, matching: find.byType(CurrentSetupHighlight)), findsNothing);
+    final band = find.byKey(const Key('compare-identity-band'));
+    final hairline = find.descendant(of: band, matching: find.byType(Divider));
+    final bandRect = tester.getRect(band);
+    expect(hairline, findsOneWidget);
+    expect(bandRect.left, 0);
+    expect(bandRect.width, tester.getRect(find.byType(CustomScrollView)).width);
+    expect(tester.getRect(hairline).bottom, moreOrLessEquals(bandRect.bottom));
     expect(
-      find.descendant(of: find.byKey(const Key('compare-identity-band')), matching: find.byType(CurrentSetupBadge)),
+      find.descendant(of: band, matching: find.byType(CurrentSetupBadge)),
       findsNothing,
     );
+
+    // The current setup owns its whole half of the band: screen edge to seam.
+    final highlight = find.descendant(of: band, matching: find.byType(CurrentSetupHighlight));
+    expect(highlight, findsOneWidget);
+    final highlightRect = tester.getRect(highlight);
+    expect(highlightRect.left, bandRect.left);
+    expect(highlightRect.right, moreOrLessEquals(bandRect.center.dx));
+    expect(highlightRect.top, bandRect.top);
+    expect(highlightRect.left, lessThan(tester.getRect(identityA).left));
+  });
+
+  testWidgets('the swap button sits on the seam and trades both sides', (tester) async {
+    final (setupAId, setupBId) = await seedPair(tester);
+    await pumpComparison(tester, setupAId, setupBId);
+
+    final identityA = find.byKey(const Key('compare-identity-a'));
+    final identityB = find.byKey(const Key('compare-identity-b'));
+    final swap = find.byKey(const Key('compare-swap-sides'));
+    expect(find.descendant(of: identityA, matching: find.text('Baseline')), findsOneWidget);
+    expect(find.descendant(of: identityB, matching: find.text('Candidate')), findsOneWidget);
     expect(
-      find.descendant(of: find.byKey(const Key('compare-identity-band')), matching: find.byType(Divider)),
-      findsNothing,
+      tester.getCenter(swap).dx,
+      moreOrLessEquals(tester.getRect(find.byKey(const Key('compare-identity-band'))).center.dx),
     );
+
+    await tester.tap(swap);
+    await settle(tester);
+
+    expect(find.descendant(of: identityA, matching: find.text('Candidate')), findsOneWidget);
+    expect(find.descendant(of: identityB, matching: find.text('Baseline')), findsOneWidget);
+    expect(find.text('Differences (1)'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('setup menus lean towards the side they change', (tester) async {
+    final (setupAId, setupBId) = await seedPair(tester);
+    await pumpComparison(tester, setupAId, setupBId);
+    final band = tester.getRect(find.byKey(const Key('compare-identity-band')));
+
+    await tester.tap(find.byKey(const Key('compare-identity-a')));
+    await settle(tester);
+    final menuA = tester.getRect(find.byKey(const Key('compare-setup-option-older')));
+    expect(menuA.left - band.left, moreOrLessEquals(8));
+    expect(band.right - menuA.right, moreOrLessEquals(32));
+
+    Navigator.of(tester.element(find.byType(CompareSetups))).pop();
+    await settle(tester);
+
+    await tester.tap(find.byKey(const Key('compare-identity-b')));
+    await settle(tester);
+    final menuB = tester.getRect(find.byKey(const Key('compare-setup-option-older')));
+    expect(band.right - menuB.right, moreOrLessEquals(8));
+    expect(menuB.left - band.left, moreOrLessEquals(32));
+    expect(menuB.width, moreOrLessEquals(menuA.width));
   });
 
   testWidgets('stacks the pinned Values header below identities and keeps its filter operable', (tester) async {

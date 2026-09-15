@@ -273,6 +273,7 @@ class ComponentActions {
     showComponentAddAdjustmentBottomSheet(
       context: context,
       componentType: component.componentType,
+      existingAdjustments: component.adjustments,
       enableDurationAdjustment: false,
       addAdjustmentFromPreset: (Adjustment adjustment) async {
         final appRepository = context.read<AppRepository>();

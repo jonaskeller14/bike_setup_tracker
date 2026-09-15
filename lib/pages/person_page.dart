@@ -430,6 +430,7 @@ class _PersonPageState extends State<PersonPage> {
 
                         void showAddBottomSheet() => showPersonAddAdjustmentBottomSheet(
                           context: context,
+                          existingAdjustments: _adjustments,
                           addAdjustmentFromPreset: (a) => _addAdjustmentFromPreset(a, onChanged: notify),
                           addAdjustment: <T extends Adjustment>() => _addAdjustment<T>(onChanged: notify),
                         );

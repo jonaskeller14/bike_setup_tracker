@@ -648,6 +648,7 @@ class _RatingPageState extends State<RatingPage> {
 
                         void showAddBottomSheet() => showRatingAddAdjustmentBottomSheet(
                           context: context,
+                          existingAdjustments: _metrics.map((m) => m.adjustment).toList(),
                           addAdjustmentFromPreset: (a) => _addMetricFromPreset(a, onChanged: notify),
                           addAdjustment: <T extends Adjustment>() => _addMetric<T>(onChanged: notify),
                         );

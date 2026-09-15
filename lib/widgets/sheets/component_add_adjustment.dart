@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/component.dart';
+import '../../utils/adjustment_preset_consumption.dart';
 import '../../utils/component_preset_application.dart';
 import '../items/adjustment_properties.dart';
 import '../items/adjustment_type_icon.dart';
@@ -115,6 +116,7 @@ final Map<ComponentType, List<Adjustment>> _adjustmentPresets = {
 void showComponentAddAdjustmentBottomSheet({
   required BuildContext context,
   required ComponentType? componentType,
+  List<Adjustment> existingAdjustments = const [],
   bool enableDurationAdjustment = false,
   required Future<void> Function(Adjustment adjustment) addAdjustmentFromPreset,
   required Future<void> Function<T extends Adjustment>() addAdjustment,
@@ -126,6 +128,7 @@ void showComponentAddAdjustmentBottomSheet({
     context: context,
     builder: (_) => _ComponentAddAdjustmentSheet(
       componentType: componentType,
+      existingAdjustments: existingAdjustments,
       enableDurationAdjustment: enableDurationAdjustment,
       addAdjustmentFromPreset: addAdjustmentFromPreset,
       addAdjustment: addAdjustment,
@@ -136,6 +139,7 @@ void showComponentAddAdjustmentBottomSheet({
 
 class _ComponentAddAdjustmentSheet extends StatefulWidget {
   final ComponentType? componentType;
+  final List<Adjustment> existingAdjustments;
   final bool enableDurationAdjustment;
   final Future<void> Function(Adjustment adjustment) addAdjustmentFromPreset;
   final Future<void> Function<T extends Adjustment>() addAdjustment;
@@ -143,6 +147,7 @@ class _ComponentAddAdjustmentSheet extends StatefulWidget {
 
   const _ComponentAddAdjustmentSheet({
     required this.componentType,
+    required this.existingAdjustments,
     required this.enableDurationAdjustment,
     required this.addAdjustmentFromPreset,
     required this.addAdjustment,
@@ -202,16 +207,28 @@ class _ComponentAddAdjustmentSheetState extends State<_ComponentAddAdjustmentShe
                           )
                         else
                           if (_adjustmentPresets[componentType] != null && _adjustmentPresets[componentType]!.isNotEmpty)
-                            ..._adjustmentPresets[componentType]!.map((adjustmentPreset) => ListTile(
-                              leading: AdjustmentTypeIcon(adjustmentPreset),
-                              title: Text(adjustmentPreset.name),
-                              subtitle: AdjustmentProperties(adjustmentPreset, singleLine: true, compact: true),
-                              trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                              onTap: () async {
-                                Navigator.pop(context);
-                                await widget.addAdjustmentFromPreset(adjustmentPreset);
-                              },
-                            ))
+                            ..._adjustmentPresets[componentType]!.map((adjustmentPreset) {
+                              final isConsumed = isAdjustmentPresetConsumed(adjustmentPreset, widget.existingAdjustments);
+                              return Opacity(
+                                // Soft-disable: already-added presets stay tappable for
+                                // a deliberate second copy.
+                                opacity: isConsumed ? 0.5 : 1.0,
+                                child: ListTile(
+                                  leading: AdjustmentTypeIcon(adjustmentPreset),
+                                  title: Text(adjustmentPreset.name),
+                                  subtitle: AdjustmentProperties(adjustmentPreset, singleLine: true, compact: true),
+                                  trailing: Icon(
+                                    isConsumed ? Icons.check : Icons.arrow_forward_ios,
+                                    size: 16.0,
+                                    color: isConsumed ? Theme.of(context).colorScheme.onSurfaceVariant : null,
+                                  ),
+                                  onTap: () async {
+                                    Navigator.pop(context);
+                                    await widget.addAdjustmentFromPreset(adjustmentPreset);
+                                  },
+                                ),
+                              );
+                            })
                           else
                             Text(
                               "No templates available.",

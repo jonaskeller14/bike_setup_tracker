@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
+import '../../utils/adjustment_preset_consumption.dart';
 import '../items/adjustment_properties.dart';
 import '../sticky_section.dart';
 import 'sheet.dart';
@@ -19,6 +20,7 @@ final List<Adjustment> _adjustmentPresets = [
 
 void showPersonAddAdjustmentBottomSheet({
   required BuildContext context,
+  List<Adjustment> existingAdjustments = const [],
   required Future<void> Function(Adjustment adjustment) addAdjustmentFromPreset,
   required Future<void> Function<T extends Adjustment>() addAdjustment,
 }) async {
@@ -44,16 +46,28 @@ void showPersonAddAdjustmentBottomSheet({
                         content: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            ..._adjustmentPresets.map((adjustmentPreset) => ListTile(
-                              leading: Icon(adjustmentPreset.getIconData()),
-                              title: Text(adjustmentPreset.name),
-                              subtitle: AdjustmentProperties(adjustmentPreset, singleLine: true, compact: true),
-                              trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                              onTap: () async {
-                                Navigator.pop(context);
-                                await addAdjustmentFromPreset(adjustmentPreset);
-                              },
-                            )),
+                            ..._adjustmentPresets.map((adjustmentPreset) {
+                              final isConsumed = isAdjustmentPresetConsumed(adjustmentPreset, existingAdjustments);
+                              return Opacity(
+                                // Soft-disable: already-added presets stay tappable for
+                                // a deliberate second copy.
+                                opacity: isConsumed ? 0.5 : 1.0,
+                                child: ListTile(
+                                  leading: Icon(adjustmentPreset.getIconData()),
+                                  title: Text(adjustmentPreset.name),
+                                  subtitle: AdjustmentProperties(adjustmentPreset, singleLine: true, compact: true),
+                                  trailing: Icon(
+                                    isConsumed ? Icons.check : Icons.arrow_forward_ios,
+                                    size: 16.0,
+                                    color: isConsumed ? Theme.of(context).colorScheme.onSurfaceVariant : null,
+                                  ),
+                                  onTap: () async {
+                                    Navigator.pop(context);
+                                    await addAdjustmentFromPreset(adjustmentPreset);
+                                  },
+                                ),
+                              );
+                            }),
                             const Padding(
                               padding: EdgeInsets.symmetric(vertical: 8.0),
                               child: Divider(),

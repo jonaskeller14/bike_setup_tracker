@@ -161,6 +161,7 @@ class PersonActions {
   static Future<void> addAdjustmentForPerson(BuildContext context, {required Person person}) async {
     showPersonAddAdjustmentBottomSheet(
       context: context,
+      existingAdjustments: person.adjustments,
       addAdjustmentFromPreset: (Adjustment adjustment) async {
         final appRepository = context.read<AppRepository>();
         final newAdjustment = await Navigator.push<Adjustment>(

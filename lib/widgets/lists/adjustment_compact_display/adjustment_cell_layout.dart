@@ -2,58 +2,31 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import '../../../models/adjustment/adjustment.dart';
-import 'adjustment_table_shared.dart';
+import 'adjustment_cell.dart';
 
 /// Horizontal padding applied on either side of a cell's content; kept here
-/// so the layout pass and [AdjustmentTableCell] always agree on cell width.
+/// so the layout pass and the cell widget always agree on cell width.
 const double cellHorizontalPadding = 8;
 
 /// Spacing between the value/change/unit segments inside a cell's value row.
 const double cellValueRowSpacing = 4;
 
-/// The text/decoration a cell's value row renders, computed once so both the
-/// real widget (AdjustmentTableCell) and the width-measurement pass
-/// (measureCellNaturalWidth) always use identical content.
-class CellDisplayText {
-  final String value;
-  final String? change;
-  final TextDecoration changeDecoration;
+/// Colour-less text styles of a cell, shared by the cell widget and the width
+/// measurement so both always agree.
+abstract final class CellTextStyles {
+  static TextStyle label(BuildContext context) =>
+      (Theme.of(context).textTheme.labelSmall ?? const TextStyle()).copyWith(fontSize: 10, height: 1.3, letterSpacing: 0);
 
-  const CellDisplayText({required this.value, this.change, this.changeDecoration = TextDecoration.none});
+  static const TextStyle value = TextStyle(
+    fontWeight: FontWeight.bold,
+    fontSize: 13,
+    height: 1.25,
+    fontFeatures: [FontFeature.tabularFigures()],
+  );
 
-  bool get hasChange => change != null;
-}
+  static const TextStyle change = TextStyle(fontSize: 10, height: 1.25, fontFeatures: [FontFeature.tabularFigures()]);
 
-CellDisplayText cellDisplayText(Adjustment adjustment, dynamic value, dynamic previousValue) {
-  final bool valueHasChanged = previousValue == null ? false : !adjustmentValuesEqual(value, previousValue);
-  String normalize(String s) => s.replaceAll(RegExp(r'\n|\r'), ' ');
-
-  final String valueText = normalize(Adjustment.formatValue(value));
-  if (!valueHasChanged) return CellDisplayText(value: valueText);
-
-  String changeText = "";
-  TextDecoration changeDecoration = TextDecoration.none;
-  switch (adjustment) {
-    case BooleanAdjustment():
-    case TextAdjustment():
-    case CategoricalAdjustment():
-      changeDecoration = TextDecoration.lineThrough;
-      changeText = Adjustment.formatValue(previousValue);
-    case NumericalAdjustment():
-    case DurationAdjustment():
-    case StepAdjustment():
-      if ((value is num && previousValue is num) || (value is Duration && previousValue is Duration)) {
-        final dynamic changeValue = value - previousValue;
-        changeText = (changeValue is num ? changeValue > 0 : !(changeValue as Duration).isNegative)
-            ? "+${Adjustment.formatValue(changeValue)}"
-            : Adjustment.formatValue(changeValue);
-      } else {
-        changeDecoration = TextDecoration.lineThrough;
-        changeText = Adjustment.formatValue(previousValue);
-      }
-  }
-  return CellDisplayText(value: valueText, change: normalize(changeText), changeDecoration: changeDecoration);
+  static const TextStyle unit = TextStyle(fontSize: 12, height: 1.25);
 }
 
 // Keyed by content (role + text + scale), not by adjustment identity — an
@@ -67,12 +40,11 @@ TextStyle _resolveTextStyle(BuildContext context, TextStyle? style) {
   return style == null ? ambient : ambient.merge(style);
 }
 
-double measureTextWidth({
+double _measureTextWidth({
   required BuildContext context,
   required String role, // disambiguates e.g. "5" as a label vs. as a value
   required String text,
   required TextStyle style,
-  required TextDirection textDirection,
 }) {
   final scaler = MediaQuery.textScalerOf(context);
   final key = '$role|$text|${scaler.scale(100).toStringAsFixed(2)}';
@@ -81,7 +53,7 @@ double measureTextWidth({
 
   final painter = TextPainter(
     text: TextSpan(text: text, style: style),
-    textDirection: textDirection,
+    textDirection: Directionality.of(context),
     textScaler: scaler,
     maxLines: 1,
   )..layout();
@@ -92,119 +64,110 @@ double measureTextWidth({
   return _textWidthCache[key] = painter.width;
 }
 
-double measureCellNaturalWidth({
-  required BuildContext context,
-  required Adjustment adjustment,
-  required dynamic value,
-  required dynamic previousValue,
-  required TextDirection textDirection,
-}) {
-  final display = cellDisplayText(adjustment, value, previousValue);
+/// The width a cell needs to show its label and value line without scrolling.
+double measureCellNaturalWidth(BuildContext context, AdjustmentCell cell) {
+  final display = cell.displayText;
 
-  final labelStyle = _resolveTextStyle(
-    context, Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 0));
-  final labelWidth = measureTextWidth(
-    context: context, role: 'label', text: adjustment.name, style: labelStyle, textDirection: textDirection);
+  final labelWidth = _measureTextWidth(
+    context: context,
+    role: 'label',
+    text: cell.adjustment.name,
+    style: _resolveTextStyle(context, CellTextStyles.label(context)),
+  );
 
-  final valueStyle = _resolveTextStyle(context,
-    const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, fontFeatures: [FontFeature.tabularFigures()]));
-  var valueRowWidth = measureTextWidth(
-    context: context, role: 'value', text: display.value, style: valueStyle, textDirection: textDirection);
-
+  var valueRowWidth = _measureTextWidth(
+    context: context,
+    role: 'value',
+    text: display.value,
+    style: _resolveTextStyle(context, CellTextStyles.value),
+  );
   if (display.hasChange) {
-    final changeStyle = _resolveTextStyle(context,
-      const TextStyle(fontSize: 12, fontFeatures: [FontFeature.tabularFigures()]));
     valueRowWidth += cellValueRowSpacing +
-      measureTextWidth(context: context, role: 'change', text: display.change!, style: changeStyle, textDirection: textDirection);
+        _measureTextWidth(
+          context: context,
+          role: 'change',
+          text: display.change!,
+          style: _resolveTextStyle(context, CellTextStyles.change),
+        );
   }
-  if (adjustment.unit != null) {
-    final unitStyle = _resolveTextStyle(context, null);
+  final unit = cell.adjustment.unit;
+  if (unit != null) {
     valueRowWidth += cellValueRowSpacing +
-      measureTextWidth(context: context, role: 'unit', text: adjustment.unit!.label, style: unitStyle, textDirection: textDirection);
+        _measureTextWidth(
+          context: context,
+          role: 'unit',
+          text: unit.label,
+          style: _resolveTextStyle(context, CellTextStyles.unit),
+        );
   }
 
   return math.max(labelWidth, valueRowWidth) + 2 * cellHorizontalPadding;
 }
 
-/// One entry positioned within a computed visual line, with its final
-/// render-time maxWidth already resolved.
-class LaidOutCell {
-  final MapEntry<Adjustment, dynamic> entry;
-  final double maxWidth;
-  const LaidOutCell({required this.entry, required this.maxWidth});
-}
+/// The widest a cell may be while packing rows: half a row, so any two cells
+/// can always share one. Rows are stretched afterwards, so a capped cell
+/// regains width whenever its row has room.
+double cellWidthCap({required double rowWidth, required double spacing}) =>
+    math.max(0.0, (rowWidth - spacing) / 2);
 
-/// A small safety margin subtracted from the available row width before
-/// computing the 50% per-cell cap, so cells never render flush against the
-/// row's edge.
-const double _rowWidthSafetyMargin = 2;
-
-/// Packs [entries] into order-preserving visual lines that fit within
-/// [availableWidth], applying the "50% cap, except the last cell in its own
-/// line may use leftover space" rule. Pure & synchronous — safe to call
-/// directly from LayoutBuilder's builder.
-List<List<LaidOutCell>> layoutAdjustmentCells({
-  required BuildContext context,
-  required List<MapEntry<Adjustment, dynamic>> entries,
-  required Map<Adjustment, dynamic> previousAdjustmentValues,
-  required double availableWidth,
+/// Splits cells of the given [widths] into order-preserving rows that fit
+/// [rowWidth]. Uses the fewest rows a greedy wrap would need, then picks the
+/// break points that spread the leftover space most evenly, so a full first
+/// row is never followed by a single lonely cell when a balanced split exists.
+///
+/// Returns the cell indices of each row. A cell wider than [rowWidth] gets a
+/// row of its own.
+List<List<int>> packCellRows({
+  required List<double> widths,
+  required double rowWidth,
+  required double spacing,
 }) {
-  if (entries.isEmpty) return const [];
+  final n = widths.length;
+  if (n == 0) return const [];
 
-  final textDirection = Directionality.of(context);
-  final naturalWidths = [
-    for (final e in entries)
-      measureCellNaturalWidth(
-        context: context,
-        adjustment: e.key,
-        value: e.value,
-        previousValue: previousAdjustmentValues[e.key],
-        textDirection: textDirection,
-      ),
-  ];
+  const epsilon = 0.01;
+  final prefix = List<double>.filled(n + 1, 0);
+  for (var i = 0; i < n; i++) {
+    prefix[i + 1] = prefix[i] + widths[i];
+  }
+  double usedWidth(int start, int end) => prefix[end] - prefix[start] + (end - start - 1) * spacing;
+  bool fits(int start, int end) => end - start == 1 || usedWidth(start, end) <= rowWidth + epsilon;
+  List<int> range(int start, int end) => [for (var i = start; i < end; i++) i];
 
-  // "generally 50%" — a flat cap on the *full row's* available width, not a
-  // per-line 1/N share.
-  final halfCap = math.max(0.0, availableWidth - _rowWidthSafetyMargin) / 2;
-
-  // 1) Greedy, order-preserving line packing using capped provisional widths.
-  final lineIndices = <List<int>>[];
-  var current = <int>[];
-  var currentWidth = 0.0;
-  for (var i = 0; i < entries.length; i++) {
-    final provisional = math.min(naturalWidths[i], halfCap);
-    final extra = current.isEmpty ? provisional : AdjustmentTableDivider.width + provisional;
-    if (current.isNotEmpty && currentWidth + extra > availableWidth) {
-      lineIndices.add(current);
-      current = [i];
-      currentWidth = provisional;
-    } else {
-      current.add(i);
-      currentWidth += extra;
+  var rowCount = 1;
+  for (var start = 0, end = 1; end <= n; end++) {
+    if (!fits(start, end)) {
+      rowCount++;
+      start = end - 1;
     }
   }
-  if (current.isNotEmpty) lineIndices.add(current);
+  if (rowCount == 1) return [range(0, n)];
 
-  // 2) Per-line width assignment: every cell but the line's last gets the
-  //    50% cap; the last cell gets the line's leftover slack, never more
-  //    than it actually needs.
-  return [
-    for (final line in lineIndices)
-      [
-        for (var pos = 0; pos < line.length; pos++)
-          if (pos < line.length - 1)
-            LaidOutCell(entry: entries[line[pos]], maxWidth: math.min(naturalWidths[line[pos]], halfCap))
-          else
-            LaidOutCell(
-              entry: entries[line[pos]],
-              maxWidth: math.max(0.0, math.min(
-                naturalWidths[line[pos]],
-                availableWidth -
-                    [for (var p = 0; p < line.length - 1; p++) math.min(naturalWidths[line[p]], halfCap)]
-                        .fold(0.0, (a, b) => a + b) -
-                    (line.length - 1) * AdjustmentTableDivider.width,
-              )),
-            ),
-      ],
-  ];
+  // cost[r][j]: lowest sum of squared slack when the first j cells fill r rows.
+  final cost = List.generate(rowCount + 1, (_) => List<double>.filled(n + 1, double.infinity));
+  final breakAt = List.generate(rowCount + 1, (_) => List<int>.filled(n + 1, 0));
+  cost[0][0] = 0;
+  for (var r = 1; r <= rowCount; r++) {
+    for (var end = r; end <= n; end++) {
+      for (var start = end - 1; start >= r - 1 && fits(start, end); start--) {
+        if (cost[r - 1][start] == double.infinity) continue;
+        final slack = math.max(0.0, rowWidth - usedWidth(start, end));
+        final candidate = cost[r - 1][start] + slack * slack;
+        // Scanning from the latest start, `<` breaks ties towards fuller
+        // earlier rows, like a regular wrap.
+        if (candidate < cost[r][end] - epsilon) {
+          cost[r][end] = candidate;
+          breakAt[r][end] = start;
+        }
+      }
+    }
+  }
+
+  final rows = <List<int>>[];
+  for (var r = rowCount, end = n; r > 0; r--) {
+    final start = breakAt[r][end];
+    rows.insert(0, range(start, end));
+    end = start;
+  }
+  return rows;
 }

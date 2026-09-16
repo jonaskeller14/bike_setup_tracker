@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// A themed long-press tooltip shared by the compact adjustment table's row
+/// A themed long-press tooltip shared by the compact adjustment view's owner
 /// icon and value cells.
 Tooltip infoTooltip({
   required BuildContext context,
@@ -21,22 +21,4 @@ Tooltip infoTooltip({
     richMessage: WidgetSpan(child: message),
     child: child,
   );
-}
-
-/// The thin separator between adjacent cells in a compact adjustment row.
-class AdjustmentTableDivider extends StatelessWidget {
-  static const double width = 1;
-
-  final Color color;
-
-  const AdjustmentTableDivider({super.key, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: width,
-      height: 28,
-      color: color,
-    );
-  }
 }

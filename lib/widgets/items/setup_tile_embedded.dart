@@ -269,7 +269,6 @@ class _SetupTileEmbeddedState extends State<SetupTileEmbedded> {
       displayOnlyChanges: _displayOnlyChanges,
       displayBikeAdjustmentValues: widget.displayBikeAdjustmentValues,
       displayPersonAdjustmentValues: displayPerson,
-      contentInset: _embeddedContentInset,
     );
 
     final Widget content = _buildEmbedded(context, setup, summary, adjustmentList);

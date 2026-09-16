@@ -1,12 +1,11 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 
 import '../../../models/adjustment/adjustment.dart';
 import '../../../models/component.dart';
 import '../../../models/person.dart';
+import 'adjustment_cell.dart';
 import 'adjustment_display_item.dart';
-import 'adjustment_table_row.dart';
+import 'adjustment_group_card.dart';
 
 class AdjustmentCompactSummary {
   final bool hasContent;
@@ -21,8 +20,8 @@ class AdjustmentCompactSummary {
 }
 
 class AdjustmentCompactDisplayList extends StatelessWidget {
-  static const double _contentInset = 16;
-  static const double _outerPadding = _contentInset - AdjustmentTableRow.rowIndent;
+  static const double _horizontalInset = 16;
+  static const double _groupSpacing = 6;
 
   final Iterable<Component> components;
   final Iterable<Person> persons;
@@ -38,10 +37,6 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
   final bool displayPersonAdjustmentValues;
   final bool missingValuesPlaceholder;
 
-  /// Where the value rows start relative to this widget's own left edge.
-  /// Defaults to [_contentInset].
-  final double? contentInset;
-
   const AdjustmentCompactDisplayList({
     super.key,
     this.components = const [],
@@ -56,10 +51,9 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
     this.displayBikeAdjustmentValues = true,
     this.displayPersonAdjustmentValues = true,
     this.missingValuesPlaceholder = false,
-    this.contentInset,
   });
 
-  static List<_ResolvedItem> _resolveItems({
+  static List<AdjustmentCellGroup> _resolveGroups({
     required Iterable<Component> components,
     required Iterable<Person> persons,
     required Iterable<Component> danglingComponents,
@@ -71,7 +65,7 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
     required bool displayPersonAdjustmentValues,
     required bool missingValuesPlaceholder,
   }) {
-    final items = <AdjustmentDisplayItem>[
+    final owners = <AdjustmentDisplayItem>[
       if (displayBikeAdjustmentValues) ...[
         ...components.map((c) => ComponentDisplayItem(c)),
         ...danglingComponents.map((c) => ComponentDisplayItem(c, isError: true)),
@@ -82,52 +76,37 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
       ],
     ];
 
-    final resolved = <_ResolvedItem>[];
-    for (final item in items) {
-      // Dangling rows only ever appear when everything is shown.
-      if (displayOnlyChanges && item.isError) continue;
+    final groups = <AdjustmentCellGroup>[];
+    for (final owner in owners) {
+      // Dangling owners only ever appear when everything is shown.
+      if (displayOnlyChanges && owner.isError) continue;
 
-      // Values whose adjustment still belongs to this owner. Adjustments of
-      // deleted components/persons never appear here, so their (dangling)
-      // values are dropped rather than shown.
-      final entries = <MapEntry<Adjustment, dynamic>>[];
-      for (final adjustment in item.adjustments) {
+      // Adjustments of deleted components/persons never appear here, so their
+      // (dangling) values are dropped rather than shown.
+      final cells = <AdjustmentCell>[];
+      for (final Adjustment adjustment in owner.adjustments) {
         final bool hasValue = adjustmentValues.containsKey(adjustment.id);
         // Values carried over from earlier setups are shown for owners that are
         // still present (currently-installed components / linked persons), never
         // for dangling ones. They render unchanged (no highlight) as the inherited
         // state; an explicit `[]` in the current setup overrides them as a change.
-        final bool hasPrevious =
-            !item.isError && previousAdjustmentValues.containsKey(adjustment.id);
+        final bool hasPrevious = !owner.isError && previousAdjustmentValues.containsKey(adjustment.id);
         if (!hasValue && !hasPrevious && !missingValuesPlaceholder) continue;
-        final dynamic value = hasValue
-            ? adjustmentValues[adjustment.id]
-            : (hasPrevious ? previousAdjustmentValues[adjustment.id] : null);
-        entries.add(MapEntry(adjustment, value ?? '-'));
+
+        final previousValue = previousAdjustmentValues[adjustment.id];
+        final dynamic value = hasValue ? adjustmentValues[adjustment.id] : (hasPrevious ? previousValue : null);
+        final cell = AdjustmentCell.resolve(
+          adjustment: adjustment,
+          value: value ?? '-',
+          previousValue: previousValue,
+          isError: owner.isError,
+        );
+        if (displayOnlyChanges && !cell.isChange) continue;
+        cells.add(cell);
       }
-      if (entries.isEmpty) continue;
-
-      final visibleEntries = displayOnlyChanges
-          ? entries.where((entry) {
-              final previousValue = previousAdjustmentValues[entry.key.id];
-              return previousValue == null || !adjustmentValuesEqual(entry.value, previousValue);
-            }).toList()
-          : entries;
-      if (visibleEntries.isEmpty) continue;
-
-      final previousValues = <Adjustment, dynamic>{
-        for (final adjustment in item.adjustments)
-          if (previousAdjustmentValues.containsKey(adjustment.id))
-            adjustment: previousAdjustmentValues[adjustment.id],
-      };
-
-      resolved.add(_ResolvedItem(
-        item: item,
-        visibleEntries: visibleEntries,
-        previousValues: previousValues,
-      ));
+      if (cells.isNotEmpty) groups.add(AdjustmentCellGroup(owner: owner, cells: cells));
     }
-    return resolved;
+    return groups;
   }
 
   /// Describes what would be rendered without building any widgets.
@@ -143,7 +122,7 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
     bool missingValuesPlaceholder = false,
   }) {
     int visibleCells(bool displayOnlyChanges) {
-      final resolved = _resolveItems(
+      final groups = _resolveGroups(
         components: components,
         persons: persons,
         danglingComponents: danglingComponents,
@@ -155,7 +134,7 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
         displayPersonAdjustmentValues: displayPersonAdjustmentValues,
         missingValuesPlaceholder: missingValuesPlaceholder,
       );
-      return resolved.fold(0, (count, item) => count + item.visibleEntries.length);
+      return groups.fold(0, (count, group) => count + group.cells.length);
     }
 
     final expandedCells = visibleCells(false);
@@ -169,7 +148,7 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final resolvedItems = _resolveItems(
+    final groups = _resolveGroups(
       components: components,
       persons: persons,
       danglingComponents: danglingComponents,
@@ -181,64 +160,27 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
       displayPersonAdjustmentValues: displayPersonAdjustmentValues,
       missingValuesPlaceholder: missingValuesPlaceholder,
     );
-
-    if (resolvedItems.isEmpty) return const SizedBox.shrink();
-
-    final normalItems = resolvedItems.where((r) => !r.item.isError).toList();
-    final errorItems = resolvedItems.where((r) => r.item.isError).toList();
-
-    Widget buildRow(_ResolvedItem resolved) => AdjustmentTableRow(
-          item: resolved.item,
-          entries: resolved.visibleEntries,
-          previousAdjustmentValues: resolved.previousValues,
-          showRowIcons: showRowIcons,
-          highlightInitialValues: highlightInitialValues,
-        );
+    if (groups.isEmpty) return const SizedBox.shrink();
 
     return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: contentInset == null
-            ? _outerPadding
-            : math.max(0, contentInset! - AdjustmentTableRow.rowIndent),
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: _horizontalInset),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
-        spacing: 3,
+        spacing: _groupSpacing,
         children: [
-          if (normalItems.isNotEmpty)
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (var i = 0; i < normalItems.length; i++) ...[
-                  buildRow(normalItems[i]),
-                  if (i < normalItems.length - 1)
-                    Divider(
-                      height: 1,
-                      thickness: 1.3,
-                      color: Theme.of(context).colorScheme.outlineVariant,
-                    ),
-                ],
-              ],
+          // Dangling owners are listed after all regular ones.
+          for (final group in [
+            ...groups.where((g) => !g.owner.isError),
+            ...groups.where((g) => g.owner.isError),
+          ])
+            AdjustmentGroupCard(
+              group: group,
+              showIcon: showRowIcons,
+              highlightInitialValues: highlightInitialValues,
             ),
-          ...errorItems.map(buildRow),
         ],
       ),
     );
   }
-}
-
-/// A resolved row: the owner plus the value entries that should be shown for it,
-/// already filtered for the requested collapsed/expanded state.
-class _ResolvedItem {
-  final AdjustmentDisplayItem item;
-  final List<MapEntry<Adjustment, dynamic>> visibleEntries;
-  final Map<Adjustment, dynamic> previousValues;
-
-  const _ResolvedItem({
-    required this.item,
-    required this.visibleEntries,
-    required this.previousValues,
-  });
 }

@@ -236,7 +236,6 @@ class _SetupTileState extends State<SetupTile> {
       highlightInitialValues: true,
       displayOnlyChanges: _displayOnlyChanges,
       displayPersonAdjustmentValues: appSettings.enablePerson,
-      contentInset: null,
     );
 
     // Whether the list renders anything in its current state — its padding

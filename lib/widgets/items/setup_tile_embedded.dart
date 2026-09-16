@@ -10,7 +10,7 @@ import '../../services/dangling_adjustment_service.dart';
 import '../bookmark_ribbon.dart';
 import '../current_setup_badge.dart';
 import '../current_setup_highlight.dart';
-import '../lists/adjustment_compact_display_list.dart';
+import '../lists/adjustment_compact_display/adjustment_compact_display_list.dart';
 import 'setup_options_menu.dart';
 import 'setup_tile_header.dart';
 import 'tile_meta_row.dart';

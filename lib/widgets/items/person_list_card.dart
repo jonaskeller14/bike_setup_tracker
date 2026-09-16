@@ -9,7 +9,7 @@ import '../../pages/details/person_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/person_actions.dart';
-import '../lists/adjustment_compact_display_list.dart';
+import '../lists/adjustment_compact_display/adjustment_compact_display_list.dart';
 
 class PersonListCard extends StatelessWidget {
   final Person person;

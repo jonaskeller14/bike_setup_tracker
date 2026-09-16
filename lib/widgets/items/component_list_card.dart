@@ -13,7 +13,7 @@ import '../../pages/details/component_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/component_actions.dart';
-import '../lists/adjustment_compact_display_list.dart';
+import '../lists/adjustment_compact_display/adjustment_compact_display_list.dart';
 import '../notes_text.dart';
 
 class ComponentListCard extends StatelessWidget{

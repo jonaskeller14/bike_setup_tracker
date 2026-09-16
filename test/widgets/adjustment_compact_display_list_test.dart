@@ -7,7 +7,7 @@ import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/services/dangling_adjustment_service.dart';
 import 'package:bike_setup_tracker/services/setup_resolution_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
-import 'package:bike_setup_tracker/widgets/lists/adjustment_compact_display_list.dart';
+import 'package:bike_setup_tracker/widgets/lists/adjustment_compact_display/adjustment_compact_display_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

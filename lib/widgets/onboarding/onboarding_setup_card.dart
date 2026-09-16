@@ -14,7 +14,7 @@ import '../../models/setup.dart';
 import '../display_adjustment/display_numerical_adjustment.dart';
 import '../items/setup_tile_header.dart';
 import '../items/tile_meta_row.dart';
-import '../lists/adjustment_compact_display_list.dart';
+import '../lists/adjustment_compact_display/adjustment_compact_display_list.dart';
 import '../set_adjustment/set_boolean_adjustment.dart';
 import '../set_adjustment/set_step_adjustment.dart';
 import 'onboarding_motion.dart';

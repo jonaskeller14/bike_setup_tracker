@@ -2,11 +2,10 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import '../../notes_text.dart';
+import '../../tooltips/tooltip_style.dart';
 import 'adjustment_cell.dart';
 import 'adjustment_cell_layout.dart';
 import 'adjustment_cell_view.dart';
-import 'adjustment_info_tooltip.dart';
 
 /// A tinted container for one owner (component or person): its icon top left
 /// and its value cells packed into rows that each span the full width.
@@ -26,71 +25,11 @@ class AdjustmentGroupCard extends StatelessWidget {
   });
 
   Widget _ownerIcon(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final colorScheme = Theme.of(context).colorScheme;
     final owner = group.owner;
-    return infoTooltip(
-      context: context,
-      message: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 4,
-        children: [
-          Text(
-            owner.name,
-            style: theme.textTheme.labelMedium?.copyWith(
-              color: colorScheme.onInverseSurface,
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          if (owner.notes != null)
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 3), // tweak to match font size
-                  child: Icon(Icons.notes, size: 13, color: colorScheme.onInverseSurface),
-                ),
-                const SizedBox(width: 2),
-                Flexible(
-                  child: NotesText(
-                    owner.notes!,
-                    fontSize: 13,
-                    color: colorScheme.onInverseSurface,
-                    maxLines: 10,
-                  ),
-                ),
-              ],
-            ),
-          if (owner.errorDescription != null)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: colorScheme.errorContainer,
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 4,
-                children: [
-                  Icon(Icons.error_outline, size: 15, color: colorScheme.onErrorContainer),
-                  Flexible(
-                    child: Text(
-                      owner.errorDescription!,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: colorScheme.onErrorContainer,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-        ],
-      ),
+    return owner.wrapTooltip(
+      context,
+      style: TooltipStyle.inverse(context),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(4, 8, 10, 8),
         child: IconTheme.merge(

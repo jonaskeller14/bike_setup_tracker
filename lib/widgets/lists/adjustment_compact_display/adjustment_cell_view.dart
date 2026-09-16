@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../../models/adjustment/adjustment.dart';
 import '../../../theme.dart';
+import '../../tooltips/info_tooltip.dart';
+import '../../tooltips/tooltip_style.dart';
 import 'adjustment_cell.dart';
 import 'adjustment_cell_layout.dart';
-import 'adjustment_info_tooltip.dart';
 
 class AdjustmentCellView extends StatelessWidget {
   final AdjustmentCell cell;
@@ -132,6 +133,7 @@ class AdjustmentCellView extends StatelessWidget {
 
     return infoTooltip(
       context: context,
+      style: TooltipStyle.inverse(context),
       message: _tooltipMessage(context),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: cellHorizontalPadding, vertical: 3),

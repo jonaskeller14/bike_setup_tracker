@@ -10,6 +10,7 @@ import 'empty_state_placeholder2.dart';
 import 'items/card_header_tile.dart';
 import 'lists/adjustment_set_list.dart';
 import 'setup_page_tab.dart';
+import 'tooltips/person_tooltip.dart';
 
 class SetupPersonTab extends StatelessWidget {
   final String bike;
@@ -72,7 +73,11 @@ class SetupPersonTab extends StatelessWidget {
                       one: "1 attribute",
                       other: '${person.adjustments.length} attributes',
                     )),
-                    leading: const Icon(Person.iconData),
+                    leading: PersonTooltip(
+                      person: person,
+                      triggerMode: TooltipTriggerMode.tap,
+                      child: const Icon(Person.iconData),
+                    ),
                     enabled: person.adjustments.isNotEmpty,
                     trailing: IconButton(
                       onPressed: () => PersonActions.addAdjustmentForPerson(context, person: person),
@@ -132,11 +137,16 @@ Widget _danglingPersonCard(BuildContext context, {
         CardHeaderTile(
           color: scheme.errorContainer,
           child: ListTile(
-            leading: Badge(
-              label: cardErrorBadgeDot(context),
-              backgroundColor: Colors.transparent,
-              largeSize: 20,
-              child: Icon(Person.iconData, color: scheme.error),
+            leading: PersonTooltip(
+              person: group.person,
+              isError: true,
+              triggerMode: TooltipTriggerMode.tap,
+              child: Badge(
+                label: cardErrorBadgeDot(context),
+                backgroundColor: Colors.transparent,
+                largeSize: 20,
+                child: Icon(Person.iconData, color: scheme.error),
+              ),
             ),
             title: Text(group.person.name, style: TextStyle(fontWeight: FontWeight.bold, color: scheme.error)),
             subtitle: Text("Person is not linked to this setup", style: TextStyle(color: scheme.error)),

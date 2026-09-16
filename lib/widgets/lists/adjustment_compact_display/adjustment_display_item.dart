@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import '../../../models/adjustment/adjustment.dart';
 import '../../../models/component.dart';
 import '../../../models/person.dart';
+import '../../tooltips/component_tooltip.dart';
+import '../../tooltips/person_tooltip.dart';
+import '../../tooltips/tooltip_style.dart';
 
 /// One owner (component or person) whose adjustment values are shown in a
 /// compact adjustment row.
@@ -16,6 +19,9 @@ sealed class AdjustmentDisplayItem {
   String? get errorDescription;
 
   Widget buildIcon(BuildContext context);
+
+  /// Wraps [child] in this owner's long-press tooltip (component or person).
+  Widget wrapTooltip(BuildContext context, {required Widget child, TooltipStyle? style});
 }
 
 class ComponentDisplayItem extends AdjustmentDisplayItem {
@@ -38,6 +44,9 @@ class ComponentDisplayItem extends AdjustmentDisplayItem {
       child: icon,
     );
   }
+  @override
+  Widget wrapTooltip(BuildContext context, {required Widget child, TooltipStyle? style}) =>
+      ComponentTooltip(component: _component, isError: isError, style: style, child: child);
   ComponentDisplayItem(this._component, {super.isError});
 }
 
@@ -61,6 +70,9 @@ class PersonDisplayItem extends AdjustmentDisplayItem {
       child: icon,
     );
   }
+  @override
+  Widget wrapTooltip(BuildContext context, {required Widget child, TooltipStyle? style}) =>
+      PersonTooltip(person: _person, isError: isError, style: style, child: child);
   PersonDisplayItem(this._person, {super.isError});
 }
 

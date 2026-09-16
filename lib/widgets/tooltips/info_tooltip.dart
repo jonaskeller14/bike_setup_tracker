@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
 
-/// A themed long-press tooltip shared by the compact adjustment view's owner
-/// icon and value cells.
+import 'tooltip_style.dart';
+
+/// A themed tooltip shared by entity (component/person) tooltips and the
+/// compact adjustment display's value-cell tooltips.
 Tooltip infoTooltip({
   required BuildContext context,
+  required TooltipStyle style,
   required Widget message,
   required Widget child,
+  TooltipTriggerMode triggerMode = TooltipTriggerMode.longPress,
 }) {
   return Tooltip(
-    triggerMode: TooltipTriggerMode.longPress,
+    triggerMode: triggerMode,
     preferBelow: false,
     showDuration: const Duration(seconds: 5),
     enableTapToDismiss: false,
     decoration: BoxDecoration(
-      color: Theme.of(context).colorScheme.inverseSurface,
+      color: style.background,
       borderRadius: BorderRadius.circular(8),
       boxShadow: [BoxShadow(color: Theme.of(context).colorScheme.shadow, blurRadius: 4, offset: const Offset(0, 2))],
     ),

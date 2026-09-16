@@ -28,6 +28,8 @@ import '../../widgets/map_pins.dart';
 import '../../widgets/sheets/compare_setups.dart';
 import '../../widgets/sheets/sheet.dart';
 import '../../widgets/text/section_title.dart';
+import '../../widgets/tooltips/component_tooltip.dart';
+import '../../widgets/tooltips/person_tooltip.dart';
 
 class SetupDetailsPage extends StatefulWidget {
   final List<String> setupIds;
@@ -392,11 +394,16 @@ class SetupDetailsPageContent extends StatelessWidget {
           CardHeaderTile(
             color: scheme.errorContainer,
             child: ListTile(
-              leading: Badge(
-                label: _errorBadgeDot(context),
-                backgroundColor: Colors.transparent,
-                largeSize: 20,
-                child: Icon(group.component.componentType.getIconData(), color: scheme.error),
+              leading: ComponentTooltip(
+                component: group.component,
+                isError: true,
+                triggerMode: TooltipTriggerMode.tap,
+                child: Badge(
+                  label: _errorBadgeDot(context),
+                  backgroundColor: Colors.transparent,
+                  largeSize: 20,
+                  child: Icon(group.component.componentType.getIconData(), color: scheme.error),
+                ),
               ),
               title: Text(group.component.name, style: TextStyle(fontWeight: FontWeight.bold, color: scheme.error)),
               subtitle: Text("Component was not installed at setup time", style: TextStyle(color: scheme.error)),
@@ -424,11 +431,16 @@ class SetupDetailsPageContent extends StatelessWidget {
           CardHeaderTile(
             color: scheme.errorContainer,
             child: ListTile(
-              leading: Badge(
-                label: _errorBadgeDot(context),
-                backgroundColor: Colors.transparent,
-                largeSize: 20,
-                child: Icon(Person.iconData, color: scheme.error),
+              leading: PersonTooltip(
+                person: group.person,
+                isError: true,
+                triggerMode: TooltipTriggerMode.tap,
+                child: Badge(
+                  label: _errorBadgeDot(context),
+                  backgroundColor: Colors.transparent,
+                  largeSize: 20,
+                  child: Icon(Person.iconData, color: scheme.error),
+                ),
               ),
               title: Text(group.person.name, style: TextStyle(fontWeight: FontWeight.bold, color: scheme.error)),
               subtitle: Text("Person is not linked to this setup", style: TextStyle(color: scheme.error)),
@@ -516,7 +528,11 @@ class SetupDetailsPageContent extends StatelessWidget {
                             one: "1 adjustment",
                             other: '${bikeComponent.adjustments.length} adjustments',
                           )),
-                          leading: Icon(bikeComponent.componentType.getIconData()),
+                          leading: ComponentTooltip(
+                            component: bikeComponent,
+                            triggerMode: TooltipTriggerMode.tap,
+                            child: Icon(bikeComponent.componentType.getIconData()),
+                          ),
                           enabled: bikeComponent.adjustments.isNotEmpty,
                         ),
                       ),
@@ -560,7 +576,11 @@ class SetupDetailsPageContent extends StatelessWidget {
                             one: "1 attribute",
                             other: '${person.adjustments.length} attributes',
                           )),
-                          leading: const Icon(Person.iconData),
+                          leading: PersonTooltip(
+                            person: person,
+                            triggerMode: TooltipTriggerMode.tap,
+                            child: const Icon(Person.iconData),
+                          ),
                           enabled: person.adjustments.isNotEmpty,
                         ),
                       ),

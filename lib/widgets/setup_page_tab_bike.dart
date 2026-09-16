@@ -11,6 +11,7 @@ import 'empty_state_placeholder2.dart';
 import 'items/card_header_tile.dart';
 import 'lists/adjustment_set_list.dart';
 import 'setup_page_tab.dart';
+import 'tooltips/component_tooltip.dart';
 
 class SetupBikeTab extends StatefulWidget {
   final String bike;
@@ -121,7 +122,11 @@ class _SetupBikeTabState extends State<SetupBikeTab> {
                         one: "1 adjustment",
                         other: '${bikeComponent.adjustments.length} adjustments',
                       )),
-                      leading: Icon(bikeComponent.componentType.getIconData()),
+                      leading: ComponentTooltip(
+                        component: bikeComponent,
+                        triggerMode: TooltipTriggerMode.tap,
+                        child: Icon(bikeComponent.componentType.getIconData()),
+                      ),
                       enabled: bikeComponent.adjustments.isNotEmpty,
                       trailing: IconButton(
                         onPressed: () => ComponentActions.addAdjustmentForComponent(context, component: bikeComponent),
@@ -195,11 +200,16 @@ Widget _danglingComponentCard(BuildContext context, {
         CardHeaderTile(
           color: scheme.errorContainer,
           child: ListTile(
-            leading: Badge(
-              label: cardErrorBadgeDot(context),
-              backgroundColor: Colors.transparent,
-              largeSize: 20,
-              child: Icon(group.component.componentType.getIconData(), color: scheme.error),
+            leading: ComponentTooltip(
+              component: group.component,
+              isError: true,
+              triggerMode: TooltipTriggerMode.tap,
+              child: Badge(
+                label: cardErrorBadgeDot(context),
+                backgroundColor: Colors.transparent,
+                largeSize: 20,
+                child: Icon(group.component.componentType.getIconData(), color: scheme.error),
+              ),
             ),
             title: Text(group.component.name, style: TextStyle(fontWeight: FontWeight.bold, color: scheme.error)),
             subtitle: Text("Component was not installed at setup time", style: TextStyle(color: scheme.error)),

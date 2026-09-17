@@ -10,9 +10,8 @@ import '../../repositories/app_repository.dart';
 import '../../services/rating_score_service.dart';
 import '../../utils/rating_entry_actions.dart';
 import '../../widgets/empty_state_placeholder.dart';
-import '../../widgets/items/context_location_card.dart';
+import '../../widgets/items/context_location_weather_card.dart';
 import '../../widgets/items/context_meta_card.dart';
-import '../../widgets/items/context_weather_card.dart';
 import '../../widgets/map_pins.dart';
 import '../../widgets/sheets/setup_details.dart';
 import '../../widgets/sheets/sheet.dart';
@@ -302,8 +301,7 @@ class RatingEntryDetailsContent extends StatelessWidget {
         tags: const {},
         images: const [],
       ),
-      ContextLocationCard(position: entry.position, place: entry.place, displayName: entry.displayName, mapPin: const RatingEntryMapPin()),
-      ContextWeatherCard(weather: entry.weather),
+      ContextLocationWeatherCard(position: entry.position, place: entry.place, displayName: entry.displayName, mapPin: const RatingEntryMapPin(), weather: entry.weather),
       Card.outlined(
         margin: const EdgeInsets.symmetric(vertical: 4),
         clipBehavior: Clip.antiAlias,

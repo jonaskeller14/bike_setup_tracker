@@ -18,9 +18,8 @@ import '../compare_setups/setup_comparison_header.dart';
 import '../compare_setups/setup_comparison_owner_card.dart';
 import '../hints/app_hint_slot.dart';
 import '../items/context_bike_person_card_diff.dart';
-import '../items/context_location_card_diff.dart';
+import '../items/context_location_weather_card_diff.dart';
 import '../items/context_meta_card_diff.dart';
-import '../items/context_weather_card_diff.dart';
 import '../items/rating_summary_card_diff.dart';
 import '../text/section_title.dart';
 import 'sheet.dart';
@@ -396,14 +395,12 @@ class _ContextSection extends StatelessWidget {
           tagsB: settings.enableSetupTags ? setupB.tags : const {},
           imagesB: settings.enableSetupImages ? setupB.images : const [],
         ),
-        ContextLocationCardDiff(
+        ContextLocationWeatherCardDiff(
           positionA: setupA.position,
           placeA: setupA.place,
+          weatherA: setupA.weather,
           positionB: setupB.position,
           placeB: setupB.place,
-        ),
-        ContextWeatherCardDiff(
-          weatherA: setupA.weather,
           weatherB: setupB.weather,
         ),
         ContextBikePersonCardDiff(

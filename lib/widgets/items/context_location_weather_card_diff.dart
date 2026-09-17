@@ -7,57 +7,184 @@ import 'package:provider/provider.dart';
 import '../../env/env.dart';
 import '../../models/app_settings.dart';
 import '../../models/context/context_position.dart';
+import '../../models/context/context_weather.dart';
 import '../map_pins.dart';
 
-class ContextLocationCardDiff extends StatelessWidget {
+class ContextLocationWeatherCardDiff extends StatelessWidget {
   final ContextPosition? positionA;
   final geo.Placemark? placeA;
+  final ContextWeather? weatherA;
   final ContextPosition? positionB;
   final geo.Placemark? placeB;
+  final ContextWeather? weatherB;
 
-  const ContextLocationCardDiff({
+  const ContextLocationWeatherCardDiff({
     super.key,
     required this.positionA,
     required this.placeA,
+    required this.weatherA,
     required this.positionB,
     required this.placeB,
+    required this.weatherB,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (positionA == null && placeA == null && positionB == null && placeB == null) {
-      return const SizedBox.shrink();
-    }
+    final hasLocation = positionA != null || placeA != null || positionB != null || placeB != null;
+    final hasWeather = (weatherA?.hasWeatherData ?? false) || (weatherB?.hasWeatherData ?? false);
+    final hasCondition = weatherA?.condition != null || weatherB?.condition != null;
+    if (!hasLocation && !hasWeather && !hasCondition) return const SizedBox.shrink();
 
-    final addressA = _address(placeA);
-    final addressB = _address(placeB);
+    final sections = <Widget>[
+      if (hasLocation) _locationSection(),
+      if (hasWeather) _weatherSection(context),
+      if (hasCondition) _conditionSection(),
+    ];
+
     return Card.outlined(
       margin: const EdgeInsets.symmetric(vertical: 4),
       clipBehavior: Clip.antiAlias,
-      child: ExpansionTile(
-        key: const Key('compare-disclosure-location'),
-        dense: true,
-        shape: const Border(),
-        collapsedShape: const Border(),
-        leading: const Icon(Icons.location_city),
-        title: _ComparisonTextRow(
-          valueA: addressA,
-          valueB: addressB,
-        ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          ListTile(
-            leading: const Icon(Icons.my_location),
-            title: _ComparisonTextRow(
-              valueA: _coordinates(positionA),
-              valueB: _coordinates(positionB),
-            ),
-            dense: true,
-          ),
-          _AltitudeRow(positionA: positionA, positionB: positionB),
-          _ComparisonMap(positionA: positionA, positionB: positionB),
+          for (int i = 0; i < sections.length; i++) ...[
+            if (i > 0) const Divider(height: 1),
+            sections[i],
+          ],
         ],
       ),
     );
+  }
+
+  Widget _locationSection() {
+    return ExpansionTile(
+      key: const Key('compare-disclosure-location'),
+      dense: true,
+      shape: const Border(),
+      collapsedShape: const Border(),
+      leading: const Icon(Icons.location_city),
+      title: _ComparisonTextRow(
+        valueA: _address(placeA),
+        valueB: _address(placeB),
+      ),
+      children: [
+        ListTile(
+          leading: const Icon(Icons.my_location),
+          title: _ComparisonTextRow(
+            valueA: _coordinates(positionA),
+            valueB: _coordinates(positionB),
+          ),
+          dense: true,
+        ),
+        _AltitudeRow(positionA: positionA, positionB: positionB),
+        _ComparisonMap(positionA: positionA, positionB: positionB),
+      ],
+    );
+  }
+
+  Widget _weatherSection(BuildContext context) {
+    final settings = context.watch<AppSettings>();
+    final weatherCodeDiffer = weatherA?.getWeatherCodeLabel() != weatherB?.getWeatherCodeLabel();
+
+    String temperature(ContextWeather? weather) {
+      final value = ContextWeather.convertTemperatureFromCelsius(
+        weather?.currentTemperature,
+        settings.temperatureUnit,
+      );
+      return value == null ? '-' : '${value.round()} ${settings.temperatureUnit}';
+    }
+
+    String precipitation(ContextWeather? weather) {
+      final value = ContextWeather.convertPrecipitationFromMm(
+        weather?.dayAccumulatedPrecipitation,
+        settings.precipitationUnit,
+      );
+      return value == null ? '-' : '${value.round()} ${settings.precipitationUnit}';
+    }
+
+    String humidity(ContextWeather? weather) =>
+        weather?.currentHumidity == null ? '-' : '${weather!.currentHumidity!.round()} %';
+
+    String wind(ContextWeather? weather) {
+      final value = ContextWeather.convertWindSpeedFromKmh(weather?.currentWindSpeed, settings.windSpeedUnit);
+      return value == null ? '-' : '${value.round()} ${settings.windSpeedUnit}';
+    }
+
+    String soilMoisture(ContextWeather? weather) => weather?.currentSoilMoisture0to7cm == null
+        ? '-'
+        : '${weather!.currentSoilMoisture0to7cm!.toStringAsFixed(2)} m³/m³';
+
+    return ExpansionTile(
+      key: const Key('compare-disclosure-conditions'),
+      dense: true,
+      shape: const Border(),
+      collapsedShape: const Border(),
+      leading: _DifferenceLeading(
+        iconA: weatherA?.getIconData() ?? Icons.question_mark_sharp,
+        iconB: weatherB?.getIconData() ?? Icons.question_mark_sharp,
+        different: weatherCodeDiffer,
+      ),
+      title: _ComparisonTextRow(
+        valueA: weatherA?.getWeatherCodeLabel() ?? '-',
+        valueB: weatherB?.getWeatherCodeLabel() ?? '-',
+      ),
+      children: [
+        _WeatherRow(
+          icon: ContextWeather.currentTemperatureIconData,
+          valueA: temperature(weatherA),
+          valueB: temperature(weatherB),
+        ),
+        _WeatherRow(
+          icon: ContextWeather.dayAccumulatedPrecipitationIconData,
+          valueA: precipitation(weatherA),
+          valueB: precipitation(weatherB),
+        ),
+        _WeatherRow(
+          icon: ContextWeather.currentHumidityIconData,
+          valueA: humidity(weatherA),
+          valueB: humidity(weatherB),
+        ),
+        _WeatherRow(
+          icon: ContextWeather.currentWindSpeedIconData,
+          valueA: wind(weatherA),
+          valueB: wind(weatherB),
+        ),
+        _WeatherRow(
+          icon: ContextWeather.currentSoilMoisture0to7cmIconData,
+          valueA: soilMoisture(weatherA),
+          valueB: soilMoisture(weatherB),
+        ),
+      ],
+    );
+  }
+
+  Widget _conditionSection() {
+    return ListTile(
+      leading: _conditionDifferenceLeading(),
+      title: _ComparisonTextRow(
+        valueA: weatherA?.condition?.value ?? '-',
+        valueB: weatherB?.condition?.value ?? '-',
+      ),
+      dense: true,
+    );
+  }
+
+  Widget _conditionDifferenceLeading() {
+    final conditionsDiffer = weatherA?.condition != weatherB?.condition;
+
+    if (conditionsDiffer) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        spacing: 2,
+        children: [
+          Icon(weatherA?.condition?.iconData ?? Icons.question_mark_sharp, size: 18, color: weatherA?.condition?.color),
+          Icon(weatherB?.condition?.iconData ?? Icons.question_mark_sharp, size: 18, color: weatherB?.condition?.color),
+        ],
+      );
+    }
+
+    final condition = weatherA?.condition ?? weatherB?.condition;
+    return Icon(condition?.iconData ?? Icons.question_mark_sharp, color: condition?.color);
   }
 
   static String _address(geo.Placemark? place) {
@@ -99,6 +226,54 @@ class _AltitudeRow extends StatelessWidget {
       ),
       dense: true,
     );
+  }
+}
+
+class _WeatherRow extends StatelessWidget {
+  final IconData icon;
+  final String valueA;
+  final String valueB;
+
+  const _WeatherRow({
+    required this.icon,
+    required this.valueA,
+    required this.valueB,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: Icon(icon),
+      title: _ComparisonTextRow(valueA: valueA, valueB: valueB),
+      dense: true,
+    );
+  }
+}
+
+class _DifferenceLeading extends StatelessWidget {
+  final IconData iconA;
+  final IconData? iconB;
+  final bool different;
+
+  const _DifferenceLeading({
+    required this.iconA,
+    this.iconB,
+    required this.different,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (different && iconB != null) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        spacing: 2,
+        children: [
+          Icon(iconA, size: 18),
+          Icon(iconB, size: 18),
+        ],
+      );
+    }
+    return Icon(iconA);
   }
 }
 

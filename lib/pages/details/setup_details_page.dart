@@ -20,9 +20,8 @@ import '../../widgets/empty_state_placeholder2.dart';
 import '../../widgets/initial_changed_value_legend.dart';
 import '../../widgets/items/card_header_tile.dart';
 import '../../widgets/items/context_bike_person_card.dart';
-import '../../widgets/items/context_location_card.dart';
+import '../../widgets/items/context_location_weather_card.dart';
 import '../../widgets/items/context_meta_card.dart';
-import '../../widgets/items/context_weather_card.dart';
 import '../../widgets/items/rating_summary_card.dart';
 import '../../widgets/map_pins.dart';
 import '../../widgets/sheets/compare_setups.dart';
@@ -340,7 +339,7 @@ class SetupDetailsPageContent extends StatelessWidget {
               tags: appSettings.enableSetupTags ? setup.tags : const {},
               images: appSettings.enableSetupImages ? setup.images : const [],
             ),
-            ContextLocationCard(
+            ContextLocationWeatherCard(
               position: setup.position,
               place: setup.place,
               displayName: setup.displayName,
@@ -348,8 +347,8 @@ class SetupDetailsPageContent extends StatelessWidget {
                 isCurrent: setup.isCurrent,
                 isBookmarked: appSettings.enableSetupBookmark && setup.isBookmarked,
               ),
+              weather: setup.weather,
             ),
-            ContextWeatherCard(weather: setup.weather),
             ContextBikePersonCard(
               bike: bike,
               person: person,

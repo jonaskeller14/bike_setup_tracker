@@ -110,6 +110,14 @@ class ContextWeather {
 
   ContextWeather withoutCondition() => copyWith(condition: Condition.dry, conditionManuallySet: false);
 
+  bool get hasWeatherData =>
+      currentWeatherCode != null ||
+      currentTemperature != null ||
+      dayAccumulatedPrecipitation != null ||
+      currentHumidity != null ||
+      currentWindSpeed != null ||
+      currentSoilMoisture0to7cm != null;
+
   @override
   bool operator ==(Object other) {
     return identical(this, other) || 

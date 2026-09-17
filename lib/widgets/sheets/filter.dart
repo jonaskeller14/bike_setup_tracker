@@ -13,6 +13,48 @@ import '../text/sheet_section_title.dart';
 import 'sheet.dart';
 import 'sheet_header.dart';
 
+class _IsolatableChipOption {
+  const _IsolatableChipOption({
+    required this.icon,
+    required this.label,
+    required this.selected,
+    required this.onChanged,
+  });
+
+  final IconData? icon;
+  final String label;
+  final bool selected;
+  final ValueChanged<bool> onChanged;
+}
+
+Widget _buildIsolatableChips(List<_IsolatableChipOption> options) {
+  return Wrap(
+    spacing: 6,
+    children: List.generate(options.length, (index) {
+      final option = options[index];
+      return GestureDetector(
+        onLongPress: options.length < 2
+            ? null
+            : () {
+                final isIsolated = option.selected &&
+                    options.where((o) => o.selected).length == 1;
+                for (var i = 0; i < options.length; i++) {
+                  options[i].onChanged(isIsolated ? true : i == index);
+                }
+              },
+        child: FilterChip(
+          avatar: option.icon == null ? null : Icon(option.icon),
+          label: Text(option.label),
+          showCheckmark: false,
+          selected: option.selected,
+          onSelected: option.onChanged,
+          onDeleted: option.selected ? () => option.onChanged(false) : null,
+        ),
+      );
+    }),
+  );
+}
+
 Future<void> showFilterSheet({
   required BuildContext context,
   required bool showBikes,
@@ -122,25 +164,19 @@ Future<void> showFilterSheet({
                     ],
                     if (showTaskPriority) ...[
                       const SheetSectionTitle(title: "Task Priority"),
-                      Wrap(
-                        spacing: 6,
-                        children: TaskPriority.values.map((tp) {
-                          return FilterChip(
-                            label: Text(tp.label),
-                            selected: appRepository.selectedTaskPriorities.contains(tp),
-                            showCheckmark: false,
-                            onSelected: (bool newValue) {
-                              switch (newValue) {
-                                case true: appRepository.selectTaskPriority(tp);
-                                case false: appRepository.deselectTaskPriority(tp);
-                              }
-                            },
-                            onDeleted: appRepository.selectedTaskPriorities.contains(tp)
-                                ? () => appRepository.deselectTaskPriority(tp)
-                                : null
-                          );
-                        }).toList(),
-                      )
+                      _buildIsolatableChips(TaskPriority.values.map((tp) {
+                        return _IsolatableChipOption(
+                          icon: null,
+                          label: tp.label,
+                          selected: appRepository.selectedTaskPriorities.contains(tp),
+                          onChanged: (selected) {
+                            switch (selected) {
+                              case true: appRepository.selectTaskPriority(tp);
+                              case false: appRepository.deselectTaskPriority(tp);
+                            }
+                          },
+                        );
+                      }).toList()),
                     ],
                     if (showTaskTags) ...[
                       const SheetSectionTitle(title: "Task Tags"),
@@ -173,105 +209,67 @@ Future<void> showFilterSheet({
                     ],
                     if (showMapVisibility) ...[
                       const SheetSectionTitle(title: "Visibility"),
-                      Wrap(
-                        spacing: 6,
-                        children: [
-                          FilterChip(
-                            avatar: const Icon(Setup.iconData),
-                            label: const Text("Setups"),
-                            showCheckmark: false,
-                            selected: appSettings.displayShowSetups,
-                            onSelected: (bool selected) => appSettings.displayShowSetups = selected,
-                            onDeleted: appSettings.displayShowSetups
-                                ? () => appSettings.displayShowSetups = false
-                                : null,
+                      _buildIsolatableChips([
+                        _IsolatableChipOption(
+                          icon: Setup.iconData,
+                          label: "Setups",
+                          selected: appSettings.displayShowSetups,
+                          onChanged: (selected) => appSettings.displayShowSetups = selected,
+                        ),
+                        if (stravaActive)
+                          _IsolatableChipOption(
+                            icon: SimpleIcons.strava,
+                            label: "Strava Activities",
+                            selected: appSettings.displayShowActivities,
+                            onChanged: (selected) => appSettings.displayShowActivities = selected,
                           ),
-                          if (stravaActive)
-                            FilterChip(
-                              avatar: const Icon(SimpleIcons.strava),
-                              label: const Text("Strava Activities"),
-                              showCheckmark: false,
-                              selected: appSettings.displayShowActivities,
-                              onSelected: (bool selected) => appSettings.displayShowActivities = selected,
-                              onDeleted: appSettings.displayShowActivities
-                                  ? () => appSettings.displayShowActivities = false
-                                  : null,
-                            ),
-                          if (appSettings.enableRating)
-                            FilterChip(
-                              avatar: const Icon(Rating.iconData),
-                              label: const Text("Ratings"),
-                              showCheckmark: false,
-                              selected: appSettings.displayShowRatingEntries,
-                              onSelected: (bool selected) => appSettings.displayShowRatingEntries = selected,
-                              onDeleted: appSettings.displayShowRatingEntries
-                                  ? () => appSettings.displayShowRatingEntries = false
-                                  : null,
-                            ),
-                        ],
-                      ),
+                        if (appSettings.enableRating)
+                          _IsolatableChipOption(
+                            icon: Rating.iconData,
+                            label: "Ratings",
+                            selected: appSettings.displayShowRatingEntries,
+                            onChanged: (selected) => appSettings.displayShowRatingEntries = selected,
+                          ),
+                      ]),
                     ],
                     if (showTimelineVisibility) ...[
                       const SheetSectionTitle(title: "Visibility"),
-                      Wrap(
-                        spacing: 6,
-                        children: [
-                          FilterChip(
-                            avatar: const Icon(Setup.iconData),
-                            label: const Text("Setups"),
-                            showCheckmark: false,
-                            selected: appSettings.displayShowSetups,
-                            onSelected: (bool selected) => appSettings.displayShowSetups = selected,
-                            onDeleted: appSettings.displayShowSetups
-                                ? () => appSettings.displayShowSetups = false
-                                : null,
+                      _buildIsolatableChips([
+                        _IsolatableChipOption(
+                          icon: Setup.iconData,
+                          label: "Setups",
+                          selected: appSettings.displayShowSetups,
+                          onChanged: (selected) => appSettings.displayShowSetups = selected,
+                        ),
+                        if (stravaActive)
+                          _IsolatableChipOption(
+                            icon: SimpleIcons.strava,
+                            label: "Activities",
+                            selected: appSettings.displayShowActivities,
+                            onChanged: (selected) => appSettings.displayShowActivities = selected,
                           ),
-                          if (stravaActive)
-                            FilterChip(
-                              avatar: const Icon(SimpleIcons.strava),
-                              label: const Text("Activities"),
-                              showCheckmark: false,
-                              selected: appSettings.displayShowActivities,
-                              onSelected: (bool selected) => appSettings.displayShowActivities = selected,
-                              onDeleted: appSettings.displayShowActivities
-                                  ? () => appSettings.displayShowActivities = false
-                                  : null,
-                            ),
-                          if (appSettings.enableTask)
-                            FilterChip(
-                              avatar: const Icon(Icons.check_box_outlined),
-                              label: const Text("Tasks"),
-                              showCheckmark: false,
-                              selected: appSettings.displayShowTasks,
-                              onSelected: (bool selected) => appSettings.displayShowTasks = selected,
-                              onDeleted: appSettings.displayShowTasks
-                                  ? () => appSettings.displayShowTasks = false
-                                  : null,
-                            ),
-                          if (appSettings.enableInstallationTimeline)
-                            FilterChip(
-                              avatar: const Icon(Icons.swap_horiz),
-                              label: const Text("Installations"),
-                              showCheckmark: false,
-                              selected: appSettings.displayShowInstallations,
-                              onSelected: (bool selected) => appSettings.displayShowInstallations = selected,
-                              onDeleted: appSettings.displayShowInstallations
-                                  ? () => appSettings.displayShowInstallations = false
-                                  : null,
-                            ),
-                          if (appSettings.enableRating)
-                            FilterChip(
-                              avatar: const Icon(Rating.iconData),
-                              label: const Text("Ratings"),
-                              showCheckmark: false,
-                              selected: appSettings.displayShowRatingEntries,
-                              onSelected: (bool selected) => appSettings.displayShowRatingEntries = selected,
-                              onDeleted: appSettings.displayShowRatingEntries
-                                  ? () => appSettings.displayShowRatingEntries = false
-                                  : null,
-                            ),
-                        ],
-                      ),
+                        if (appSettings.enableTask)
+                          _IsolatableChipOption(
+                            icon: Icons.check_box_outlined,
+                            label: "Tasks",
+                            selected: appSettings.displayShowTasks,
+                            onChanged: (selected) => appSettings.displayShowTasks = selected,
+                          ),
+                        if (appSettings.enableInstallationTimeline)
+                          _IsolatableChipOption(
+                            icon: Icons.swap_horiz,
+                            label: "Installations",
+                            selected: appSettings.displayShowInstallations,
+                            onChanged: (selected) => appSettings.displayShowInstallations = selected,
+                          ),
+                        if (appSettings.enableRating)
+                          _IsolatableChipOption(
+                            icon: Rating.iconData,
+                            label: "Ratings",
+                            selected: appSettings.displayShowRatingEntries,
+                            onChanged: (selected) => appSettings.displayShowRatingEntries = selected,
+                          ),
+                      ]),
                     ],
                   ],
                 ),

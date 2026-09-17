@@ -51,13 +51,16 @@ class SetupAdjustmentBreakdown {
 }
 
 class DanglingAdjustmentService {
+  static bool isInstalledAtSetup(Component component, Setup setup) =>
+      component.bikeAt(setup.datetimeLocal.toUtc()) == setup.bike;
+
   static SetupAdjustmentBreakdown analyzeSetup({
     required Setup setup,
     required Iterable<Component> components,
     required Iterable<Person> persons,
   }) {
     final List<Component> bikeComponents = components
-        .where((c) => c.bikeAt(setup.datetimeLocal.toUtc()) == setup.bike)
+        .where((c) => isInstalledAtSetup(c, setup))
         .toList();
 
     final Map<String, dynamic> danglingBikeValues = Map.from(setup.bikeAdjustmentValues);

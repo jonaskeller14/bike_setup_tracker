@@ -9,6 +9,7 @@ import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/dangling_adjustment_service.dart';
 import '../../services/setup_activity_analysis_service.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/component_actions.dart';
@@ -137,6 +138,12 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     final person = persons[bike?.person];
     final personAdjustments = person?.adjustments ?? [];
 
+    bool isDangling(Setup setup, TableColumn column) => switch (column) {
+      ComponentAdjustmentColumn() => !DanglingAdjustmentService.isInstalledAtSetup(component, setup),
+      PersonAttributeColumn() => setup.person != person?.id,
+      _ => false,
+    };
+
     final setupsUnsorted = appRepository.filteredSetups.values
         .where((s) => component.adjustments.any((adj) => s.bikeAdjustmentValues.containsKey(adj.id)))
         .toList()
@@ -204,6 +211,9 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
         .toSet();
     _selectedSetupIds!.removeWhere((id) => !setups.any((s) => s.id == id));
     final selectedSetups = setups.where((s) => _selectedSetupIds!.contains(s.id)).toList();
+    final hasDanglingValues = activeColumns.any(
+      (column) => setups.any((setup) => _rawValue(setup, column) != null && isDangling(setup, column)),
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -279,7 +289,16 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
               const SectionTitle(
                 title: "Adjustment History",
                 infoText:
-                    "Add or remove columns via the Columns button, or long-press a column header to remove it. Use the filter button to narrow down by bike or tags. Select rows to compare specific setups in the charts below. Green values are new (no prior value), orange values have changed from the previous setup.",
+                    "• Add or remove columns via the Columns button.\n"
+                    "• Long-press a column header to remove it.\n"
+                    "• Tap a column header to sort.\n"
+                    "• Use the filter button to narrow down by bike or tags.\n"
+                    "• Select rows to compare setups in the charts below.\n"
+                    "\n"
+                    "Value colors:\n"
+                    "• Green: new value (no prior value).\n"
+                    "• Orange: changed from the previous setup.\n"
+                    "• Red: dangling value (component not installed or person not linked at setup time).",
               ),
 
               SingleChildScrollView(
@@ -316,6 +335,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                   bikes: bikes,
                   setupActivityCounts: setupActivityCounts,
                   valueFor: _rawValue,
+                  isDangling: isDangling,
                   columnLabel: (column) => _columnLabel(
                     column,
                     componentAdjustments,
@@ -366,7 +386,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                   title: component.adjustments.isEmpty ? 'No adjustments' : 'No setups yet',
                   subtitle: component.adjustments.isEmpty ? 'No adjustments are defined for this component' : null,
                 ),
-              if (activeColumns.isNotEmpty && setups.isNotEmpty) const InitialChangedValueLegend(),
+              if (activeColumns.isNotEmpty && setups.isNotEmpty) InitialChangedValueLegend(showDangling: hasDanglingValues),
               const SizedBox(height: 16),
 
               const Divider(height: 1),

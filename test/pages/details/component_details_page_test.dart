@@ -441,6 +441,46 @@ void main() {
     expect(texts, ['B Setup', 'A Setup']);
   });
 
+  testWidgets('highlights values of setups before the component was installed as dangling', (WidgetTester tester) async {
+    final adjustment = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, min: 0, max: 10, step: 1, visualization: StepAdjustmentVisualization.slider);
+    final component = Component(
+      id: 'comp1',
+      name: 'Test Fork',
+      installations: [Installation(parent: 'bike1', dateTimeUTC: DateTime.utc(2024), dateTimeLocal: DateTime(2024))],
+      componentType: ComponentType.fork,
+      adjustments: [adjustment],
+    );
+    await seedRepository(tester, () async {
+      await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null)]);
+      await appRepository.addComponents([component]);
+      await appRepository.addSetups([
+        Setup(id: 's1', name: 'Before', datetime: DateTime(2023).toUtc(), datetimeLocal: DateTime(2023), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 3}, personAdjustmentValues: {}),
+        Setup(id: 's2', name: 'After', datetime: DateTime(2025).toUtc(), datetimeLocal: DateTime(2025), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 7}, personAdjustmentValues: {}),
+      ]);
+    });
+
+    appRepository.dispose();
+    appRepository = AppRepository(database);
+
+    await tester.pumpWidget(createWidgetUnderTest('comp1'));
+    await tester.runAsync(() async {
+      int attempts = 0;
+      while (appRepository.components['comp1'] == null && attempts < 10) {
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+        attempts++;
+      }
+    });
+    await tester.pumpAndSettle();
+
+    final errorColor = materialAppTheme.colorScheme.error;
+    Color? cellColor(String text) =>
+        tester.widget<Text>(find.descendant(of: find.byType(SetupTable), matching: find.text(text))).style?.color;
+
+    expect(cellColor('3'), errorColor);
+    expect(cellColor('7'), isNot(errorColor));
+    expect(find.text('Dangling Value'), findsOneWidget);
+  });
+
   testWidgets('sortColumn and remove columns so that index >= length', (WidgetTester tester) async {
     final adjustment1 = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
     final adjustment2 = StepAdjustment(id: 'adj2', name: 'Compression', notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);

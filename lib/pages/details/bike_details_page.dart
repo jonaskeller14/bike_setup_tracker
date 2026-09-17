@@ -159,6 +159,11 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
     final activeColumns = orderedColumns.where((c) => c.active).toList();
     if (!activeColumns.contains(_sortColumn)) _sortColumn = null;
 
+    bool isDangling(Setup setup, TableColumn column) => column is PersonAttributeColumn && setup.person != person?.id;
+    final hasDanglingValues = activeColumns.any(
+      (column) => setupsUnsorted.any((setup) => _rawValue(setup, column) != null && isDangling(setup, column)),
+    );
+
     final bikes = appRepository.bikes;
     final setups = _sortSetupsByColumn(
       setups: setupsUnsorted,
@@ -218,6 +223,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
             bikes: bikes,
             setupActivityCounts: setupActivityCounts,
             valueFor: _rawValue,
+            isDangling: isDangling,
             columnLabel: (column) => _columnLabel(column, personAdjustments),
             onSort: (column, ascending) {
               setState(() {
@@ -229,7 +235,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
               setState(() => column.active = false);
             },
           ),
-          if (activeColumns.any((c) => c is PersonAttributeColumn)) const InitialChangedValueLegend(),
+          if (activeColumns.any((c) => c is PersonAttributeColumn)) InitialChangedValueLegend(showDangling: hasDanglingValues),
         ],
         const SizedBox(height: 16),
       ],

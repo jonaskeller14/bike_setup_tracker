@@ -27,34 +27,29 @@ import 'bike_actions.dart';
 import 'installation_timeline_validation.dart';
 
 class ComponentActions {
-  static Future<void> addComponent(BuildContext context, {Object? initialBike = const _Sentinel()}) async {
+  static Future<void> addComponent(BuildContext context, {Object? initialBike = const _Sentinel(), List<Installation>? initialInstallations}) async {
     final appRepository = context.read<AppRepository>();
 
-    late Component? component;
-    if (initialBike is _Sentinel) {
-      if (appRepository.filteredBikes.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          AppSnackBar.error(
-            context,
-            'Add a bike first',
-            action: AppSnackBarAction(
-              label: 'ADD',
-              onPressed: () => BikeActions.addBike(context),
-            ),
+    if (initialInstallations == null && initialBike is _Sentinel && appRepository.filteredBikes.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        AppSnackBar.error(
+          context,
+          'Add a bike first',
+          action: AppSnackBarAction(
+            label: 'ADD',
+            onPressed: () => BikeActions.addBike(context),
           ),
-        );
-        return;
-      }
-      component = await Navigator.push<Component>(
-        context,
-        MaterialPageRoute(builder: (context) => ComponentPage.add()),
+        ),
       );
-    } else {
-      component = await Navigator.push<Component>(
-        context,
-        MaterialPageRoute(builder: (context) => ComponentPage.add(initialBike: initialBike as String?)),
-      );
+      return;
     }
+    final installations = initialInstallations ??
+        (initialBike is _Sentinel ? null : [Installation.sinceBeginning(parent: initialBike as String?)]);
+
+    final component = await Navigator.push<Component>(
+      context,
+      MaterialPageRoute(builder: (context) => ComponentPage.add(initialInstallations: installations)),
+    );
 
     if (component == null) return;
     await appRepository.addComponents([component]);
@@ -141,6 +136,12 @@ class ComponentActions {
     final result = await showReplaceComponentSheet(context, component: component);
     if (result == null) return;
 
+    final currentInstallation = appRepository.componentHierarchy.currentInstallation(component.id);
+    if (currentInstallation == null ||
+        (currentInstallation is! BikeInstallation && currentInstallation is! ComponentInstallation)) {
+      return;
+    }
+
     final removedAt = stampInstallationNow(component.installations, now: result.replacementDate);
     final uninstallation = Installation(
       parent: null,
@@ -150,15 +151,14 @@ class ComponentActions {
 
     switch (result) {
       case ReplaceComponentExistingResult(:final existingComponent, :final replacementDate):
-        // Swap in an already uninstalled component: install it on the same bike and
-        // retire the current one, both at the replacement date.
+        // Swap in an already uninstalled component: install it on the same parent
+        // (bike or component) and retire the current one, both at the replacement date.
         final installedAt = stampInstallationNow(existingComponent.installations, now: replacementDate);
         await appRepository.editComponents([
           existingComponent.copyWith(
             installations: [
               ...existingComponent.installations,
-              Installation(
-                parent: appRepository.componentHierarchy.currentBike(component.id),
+              currentInstallation.samePlacementAt(
                 dateTimeUTC: installedAt.utc,
                 dateTimeLocal: installedAt.local,
               ),

@@ -49,13 +49,13 @@ enum ComponentPageMode {
 class ComponentPage extends StatefulWidget {
   final Component? component;
   final ComponentPageMode mode;
-  final Object? initialBike;
+  final List<Installation>? initialInstallations;
   final DateTime? replacementDate;
 
-  const ComponentPage._({super.key, this.component, required this.mode, this.initialBike, this.replacementDate});
+  const ComponentPage._({super.key, this.component, required this.mode, this.initialInstallations, this.replacementDate});
 
-  factory ComponentPage.add({Key? key, Object? initialBike = const _Sentinel()}) => 
-    ComponentPage._(key: key, mode: ComponentPageMode.add, initialBike: initialBike);
+  factory ComponentPage.add({Key? key, List<Installation>? initialInstallations}) =>
+    ComponentPage._(key: key, mode: ComponentPageMode.add, initialInstallations: initialInstallations);
 
   factory ComponentPage.edit({Key? key, required Component component}) => 
     ComponentPage._(key: key, component: component, mode: ComponentPageMode.edit);
@@ -116,14 +116,21 @@ class _ComponentPageState extends State<ComponentPage> {
     final appRepository = context.read<AppRepository>();
     final initialBike = widget.component != null 
         ? widget.component!.bike 
-        : widget.initialBike is _Sentinel
-            ? appRepository.filteredBikes.keys.firstOrNull
-            : widget.initialBike as String?;
+        : appRepository.filteredBikes.keys.firstOrNull;
 
     if (widget.mode == ComponentPageMode.replace) {
-      _installations = [Installation(parent: initialBike, dateTimeUTC: widget.replacementDate!.toUtc(), dateTimeLocal: widget.replacementDate!.toLocal())];
+      final replacedInstallation = appRepository.componentHierarchy.currentInstallation(widget.component!.id)!;
+      // Keeps the parent type, so a component on a component is replaced on that component.
+      _installations = [
+        replacedInstallation.samePlacementAt(
+          dateTimeUTC: widget.replacementDate!.toUtc(),
+          dateTimeLocal: widget.replacementDate!.toLocal(),
+        ),
+      ];
     } else {
-      _installations = widget.component?.installations ?? [Installation.sinceBeginning(parent: initialBike)];
+      _installations = widget.component?.installations ??
+          (widget.initialInstallations != null ? List.of(widget.initialInstallations!) : null) ??
+          [Installation.sinceBeginning(parent: initialBike)];
     }
     _installations.sort((a, b) => a.dateTimeUTC.compareTo(b.dateTimeUTC));
     _initialInstallations = List.from(_installations);
@@ -1058,10 +1065,6 @@ class _ComponentPageState extends State<ComponentPage> {
       ),
     );
   }
-}
-
-class _Sentinel {
-  const _Sentinel();
 }
 
 /// Small year-range chip for autocomplete suggestion rows (mirrors the picker's

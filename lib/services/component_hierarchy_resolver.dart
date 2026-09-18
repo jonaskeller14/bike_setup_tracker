@@ -198,6 +198,11 @@ class ComponentHierarchyResolver {
     return result;
   }
 
+  Installation? currentInstallation(String componentId) {
+    final component = components[componentId];
+    return component == null ? null : installationAt(component, currentTimeUTC);
+  }
+
   Set<String> descendantsOf(String parentComponentId, {DateTime? atUTC}) {
     final when = (atUTC ?? currentTimeUTC).toUtc();
     final children = _childrenAtCache.putIfAbsent(

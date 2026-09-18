@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
 import '../../models/component.dart';
+import '../../models/component_ancestor.dart';
+import '../../models/installation.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import 'sheet_header.dart';
@@ -174,9 +176,18 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
     final showStrava = appSettings.enableStrava && subscriptionService.hasStravaEntitlement;
 
     final componentHierarchy = appRepository.componentHierarchy;
+    // Ancestors are excluded: installing one on its own descendant would form a loop.
+    final ancestorIds = componentHierarchy.currentAncestors(widget.component.id)
+        .whereType<ParentComponentAncestor>()
+        .map((a) => a.component.id)
+        .toSet();
     final uninstalledComponents = appRepository.components.values
         .where((c) => c.id != widget.component.id &&
-            componentHierarchy.currentBike(c.id) == null &&
+            !ancestorIds.contains(c.id) &&
+            switch (componentHierarchy.currentInstallation(c.id)) {
+              null || Uninstallation() => true,
+              _ => false,
+            } &&
             !componentHierarchy.isEffectivelyArchived(c.id))
         .toList()
       ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));

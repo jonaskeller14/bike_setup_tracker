@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
 import '../../models/component.dart';
+import '../../models/installation.dart';
 import '../../models/task/task_rule.dart';
 import '../../pages/details/component_details_page.dart';
 import '../../repositories/app_repository.dart';
@@ -184,7 +185,8 @@ class ComponentListCard extends StatelessWidget{
                     },
                     itemBuilder: (BuildContext context) => _ComponentOptions.values.where((option) {
                       if (option == _ComponentOptions.replace) {
-                        return appRepository.componentHierarchy.currentBike(component.id) != null &&
+                        final installation = appRepository.componentHierarchy.currentInstallation(component.id);
+                        return (installation is BikeInstallation || installation is ComponentInstallation) &&
                             appSettings.enableInstallationTimeline;
                       }
 

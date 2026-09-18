@@ -5,6 +5,7 @@ import '../services/component_hierarchy_resolver.dart';
 
 bool isComplexInstallationTimeline(List<Installation> installations) =>
     installations.length > 1 ||
+    installations.any((i) => i is ComponentInstallation) ||
     (installations.isNotEmpty && installations.first.dateTimeUTC.millisecondsSinceEpoch > 0);
 
 bool shouldUseInstallationTimeline({

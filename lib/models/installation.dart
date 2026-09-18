@@ -60,6 +60,14 @@ sealed class Installation {
           );
   }
 
+  factory Installation.componentSinceBeginning({required String parentComponentId}) {
+    return ComponentInstallation(
+      parentComponentId: parentComponentId,
+      dateTimeUTC: DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
+      dateTimeLocal: DateTime.fromMillisecondsSinceEpoch(0, isUtc: false),
+    );
+  }
+
   factory Installation.sinceBeginning({
     String? parent,
     String? id,
@@ -73,6 +81,32 @@ sealed class Installation {
       dateTimeLocal: DateTime.fromMillisecondsSinceEpoch(0, isUtc: false),
     );
   }
+
+  /// A new event (fresh id, no component yet) on the same parent as this one.
+  Installation samePlacementAt({
+    required DateTime dateTimeUTC,
+    required DateTime dateTimeLocal,
+  }) =>
+      switch (this) {
+        BikeInstallation(:final bikeId) => BikeInstallation(
+            bikeId: bikeId,
+            dateTimeUTC: dateTimeUTC,
+            dateTimeLocal: dateTimeLocal,
+          ),
+        ComponentInstallation(:final parentComponentId) => ComponentInstallation(
+            parentComponentId: parentComponentId,
+            dateTimeUTC: dateTimeUTC,
+            dateTimeLocal: dateTimeLocal,
+          ),
+        Uninstallation _ => Uninstallation(
+            dateTimeUTC: dateTimeUTC,
+            dateTimeLocal: dateTimeLocal,
+          ),
+        Archival _ => Archival(
+            dateTimeUTC: dateTimeUTC,
+            dateTimeLocal: dateTimeLocal,
+          ),
+      };
 
   Installation copyWith({
     Object? id = const _Sentinel(),

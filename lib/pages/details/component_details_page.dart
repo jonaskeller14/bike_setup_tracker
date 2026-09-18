@@ -7,6 +7,8 @@ import 'package:provider/provider.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
+import '../../models/component.dart';
+import '../../models/installation.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/dangling_adjustment_service.dart';
@@ -23,7 +25,9 @@ import '../../widgets/display_data/component_stats_card.dart';
 import '../../widgets/display_data/setup_table.dart';
 import '../../widgets/display_installation_timeline.dart';
 import '../../widgets/empty_state_placeholder.dart';
+import '../../widgets/empty_state_placeholder2.dart';
 import '../../widgets/initial_changed_value_legend.dart';
+import '../../widgets/items/component_list_card.dart';
 import '../../widgets/notes_text.dart';
 import '../../widgets/open_tasks_tile.dart';
 import '../../widgets/sheets/column_filter.dart';
@@ -130,6 +134,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
       );
     }
     final componentAdjustments = component.adjustments;
+    final descendants = appRepository.affectedDescendants(component.id);
 
     final bikes = appRepository.bikes;
     final bike = bikes[appRepository.componentHierarchy.currentBike(component.id)];
@@ -284,6 +289,64 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
 
               if (appSettings.enableTask) ...[
                 OpenTasksTile.component(componentId: widget.componentId),
+                const Divider(height: 1),
+              ],
+
+              if (appSettings.enableInstallOnComponent) ...[
+                ExpansionTile(
+                  shape: const Border(),
+                  collapsedShape: const Border(),
+                  leading: const Icon(Component.iconData),
+                  title: Text(
+                    "Components (${descendants.length})",
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  childrenPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+                  children: [
+                    if (descendants.isEmpty) ...[
+                      EmptyStatePlaceholder2(
+                        iconData: Component.iconData,
+                        title: 'No components yet',
+                        subtitle: 'Install a component on this component',
+                        onTap: () => ComponentActions.addComponent(
+                            context,
+                            initialInstallations: [Installation.componentSinceBeginning(parentComponentId: component.id)],
+                          ),
+                      ),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton.icon(
+                          onPressed: () => ComponentActions.addComponent(
+                            context,
+                            initialInstallations: [Installation.componentSinceBeginning(parentComponentId: component.id)],
+                          ),
+                          icon: const Icon(Icons.add),
+                          label: const Text('Add Component'),
+                        ),
+                      ),
+                    ] else ...[
+                      ...descendants.map(
+                        (descendant) => ComponentListCard(
+                          component: descendant,
+                          showCurrentAdjustmentValues: false,
+                        ),
+                      ),
+                      Center(
+                        child: TextButton.icon(
+                          onPressed: () => ComponentActions.addComponent(
+                            context,
+                            initialInstallations: [Installation.componentSinceBeginning(parentComponentId: component.id)],
+                          ),
+                          icon: const Icon(Icons.add),
+                          label: const Text('Add Component'),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
                 const Divider(height: 1),
               ],
 

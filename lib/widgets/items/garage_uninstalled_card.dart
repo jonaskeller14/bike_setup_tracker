@@ -285,11 +285,12 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
     super.build(context);
     final appRepository = context.watch<AppRepository>();
 
+    final hierarchy = appRepository.componentHierarchy;
     final uninstalledComponents = Map.fromEntries(
       appRepository.components.entries.where(
         (ce) =>
-            !appRepository.bikes.keys.contains(ce.value.bike) &&
-            !ce.value.isArchived,
+            !appRepository.bikes.keys.contains(hierarchy.currentBike(ce.key)) &&
+            !hierarchy.isEffectivelyArchived(ce.key),
       ),
     );
     final archivedComponents = appRepository.archivedComponents;

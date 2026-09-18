@@ -170,7 +170,8 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
     final appRepository = context.watch<AppRepository>();
     final subscriptionService = context.watch<SubscriptionService>();
     final persons = appRepository.persons;
-    final bikeComponents = Map.fromEntries(appRepository.components.entries.where((ce) => ce.value.bike == widget.bike.id));
+    final hierarchy = appRepository.componentHierarchy;
+    final bikeComponents = Map.fromEntries(appRepository.components.entries.where((ce) => hierarchy.currentBike(ce.key) == widget.bike.id));
 
     return DragTarget<Object>(
       key: ValueKey(widget.bike.id),

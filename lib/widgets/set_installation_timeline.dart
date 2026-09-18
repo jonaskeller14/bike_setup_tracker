@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:timelines_plus/timelines_plus.dart';
@@ -71,11 +72,13 @@ class _ParentOption {
       mainAxisSize: MainAxisSize.min,
       children: [
         // Flutter bakes a fixed 16px horizontal padding into every dropdown
-        // menu item with no public way to opt out; negate it so the divider
-        // spans the full menu width instead of sitting inset like the content.
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: -16),
-          child: Divider(height: 1),
+        LayoutBuilder(
+          builder: (context, constraints) => OverflowBox(
+            maxWidth: constraints.maxWidth + 32,
+            minWidth: constraints.maxWidth + 32,
+            fit: OverflowBoxFit.deferToChild,
+            child: const Divider(height: 1),
+          ),
         ),
         body,
       ],
@@ -162,6 +165,13 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
     Iterable<Component> parentComponentCandidates,
     ComponentHierarchyResolver hierarchy,
   ) {
+    // The chain the component would effectively hang off at this entry's date.
+    // "From beginning" (epoch 0) predates every installation, so show the current chain.
+    final isFromBeginning = installation.dateTimeUTC.millisecondsSinceEpoch == 0;
+    List<ComponentAncestor> ancestorsOf(String componentId) => isFromBeginning
+        ? hierarchy.currentAncestors(componentId)
+        : hierarchy.ancestorsAt(componentId, installation.dateTimeUTC);
+
     return [
       _ParentOption(
         value: Uninstallation(
@@ -214,7 +224,7 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
             ),
             icon: component.componentType.getIconData(),
             label: component.name,
-            ancestors: hierarchy.currentAncestors(component.id),
+            ancestors: ancestorsOf(component.id),
           ),
       if (installation case ComponentInstallation(:final parentComponentId))
         _ParentOption(
@@ -222,7 +232,7 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
           icon: components[parentComponentId]?.componentType.getIconData() ?? Component.iconData,
           label: components[parentComponentId]?.name ?? 'COMPONENT NOT FOUND',
           color: components.containsKey(parentComponentId) ? null : Theme.of(context).colorScheme.error,
-          ancestors: hierarchy.currentAncestors(parentComponentId),
+          ancestors: ancestorsOf(parentComponentId),
         ),
     ];
   }

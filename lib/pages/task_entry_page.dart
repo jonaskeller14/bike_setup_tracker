@@ -6,13 +6,15 @@ import 'package:uuid/uuid.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/component.dart';
-import '../models/installation.dart';
+import '../models/component_ancestor.dart';
 import '../models/task/task_association.dart';
 import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
 import '../repositories/app_repository.dart';
+import '../services/component_hierarchy_resolver.dart';
 import '../theme.dart';
 import '../widgets/app_snackbar.dart';
+import '../widgets/component_ancestor_display.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/items/task_rule_display_card.dart';
 import '../widgets/sheets/task_association_picker.dart';
@@ -224,7 +226,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
     return 'WARNING: Differs from the task rule, which is linked to ${_describeAssociation(ruleAssociation, bikes, components)}.';
   }
 
-  Widget _associationDisplay(Map<String, Bike> bikes, Map<String, Component> components) {
+  Widget _associationDisplay(Map<String, Bike> bikes, Map<String, Component> components, ComponentHierarchyResolver hierarchy) {
     final scheme = Theme.of(context).colorScheme;
 
     IconData icon;
@@ -251,20 +253,11 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
         }
         icon = component.componentType.getIconData();
         primary = component.name;
-        switch (component.latestInstallation) {
-          case Archival():
-            secondary = "Archived";
-          case BikeInstallation(:final bikeId):
-            final bike = bikes[bikeId];
-            secondary = bike == null ? "BIKE NOT FOUND" : "on ${bike.name}";
-            if (bike == null) errorColor = scheme.error;
-          case ComponentInstallation(:final parentComponentId):
-            final parent = components[parentComponentId];
-            secondary = parent == null ? "COMPONENT NOT FOUND" : "on ${parent.name}";
-            if (parent == null) errorColor = scheme.error;
-          case Uninstallation() || null:
-            secondary = "Not installed";
-        }
+        // Resolved at the entry's date: the entry records what happened then,
+        // and the same date drives its stats snapshot.
+        final root = hierarchy.rootAt(component.id, _selectedDateTimeUtc);
+        secondary = root is BikeAncestor && !root.isMissing(bikes) ? "on ${root.label(bikes)}" : root.label(bikes);
+        if (root.isMissing(bikes)) errorColor = scheme.error;
     }
 
     return Row(
@@ -412,7 +405,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
                               helperMaxLines: 3,
                               helperStyle: TextStyle(color: Theme.of(context).colorScheme.error),
                             ),
-                            child: _associationDisplay(bikes, components),
+                            child: _associationDisplay(bikes, components, appRepository.componentHierarchy),
                           ),
                         );
                       },

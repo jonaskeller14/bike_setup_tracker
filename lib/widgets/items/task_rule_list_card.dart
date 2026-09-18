@@ -8,14 +8,16 @@ import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/component.dart';
-import '../../models/installation.dart';
+import '../../models/component_ancestor.dart';
 import '../../models/task/task_association.dart';
 import '../../models/task/task_rule.dart';
 import '../../models/task/task_threshold/task_threshold.dart';
 import '../../pages/details/task_rule_details_page.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/component_hierarchy_resolver.dart';
 import '../../theme.dart';
 import '../../utils/task_actions.dart';
+import '../component_ancestor_display.dart';
 import '../notes_text.dart';
 import '../sheets/set_task_delay.dart';
 import '../task_rule_progress_bar.dart';
@@ -42,8 +44,9 @@ class TaskRuleListCard extends StatelessWidget {
     required TaskRule taskRule,
     required Component? component,
     required Map<String, Bike> bikes,
-    required Map<String, Component> components,
+    required ComponentHierarchyResolver hierarchy,
   }) {
+    final root = component == null ? const UninstalledAncestor() : hierarchy.currentRoot(component.id);
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -80,37 +83,17 @@ class TaskRuleListCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
-                  switch (component?.latestInstallation) {
-                    Archival() => Icons.inventory_2_outlined,
-                    BikeInstallation() => Bike.iconData,
-                    ComponentInstallation(:final parentComponentId) =>
-                      components[parentComponentId]?.componentType.getIconData() ?? Component.iconData,
-                    Uninstallation() || null => Icons.shelves,
-                  },
+                  root.iconData,
                   size: 13,
-                  color: switch (component?.latestInstallation) {
-                    BikeInstallation(:final bikeId) when !bikes.containsKey(bikeId) => Theme.of(context).colorScheme.error,
-                    ComponentInstallation(:final parentComponentId) when !components.containsKey(parentComponentId) => Theme.of(context).colorScheme.error,
-                    _ => Theme.of(context).colorScheme.onSurfaceVariant,
-                  },
+                  color: root.isMissing(bikes) ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 Flexible(
                   child: Text(
-                    switch (component?.latestInstallation) {
-                      Archival() => 'Archived',
-                      BikeInstallation(:final bikeId) => bikes[bikeId]?.name ?? 'BIKE NOT FOUND',
-                      ComponentInstallation(:final parentComponentId) =>
-                        components[parentComponentId]?.name ?? 'COMPONENT NOT FOUND',
-                      Uninstallation() || null => 'Not installed',
-                    },
+                    root.label(bikes),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: switch (component?.latestInstallation) {
-                        BikeInstallation(:final bikeId) when !bikes.containsKey(bikeId) => Theme.of(context).colorScheme.error,
-                        ComponentInstallation(:final parentComponentId) when !components.containsKey(parentComponentId) => Theme.of(context).colorScheme.error,
-                        _ => Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                      },
+                      color: root.isMissing(bikes) ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                       fontSize: 13,
                     ),
                   ),
@@ -353,7 +336,7 @@ class TaskRuleListCard extends StatelessWidget {
                 taskRule: taskRule,
                 component: component,
                 bikes: appRepository.bikes,
-                components: appRepository.components,
+                hierarchy: appRepository.componentHierarchy,
               ),
               if (appSettings.enableTaskPriority)
                 priorityWidget(context, priority: taskRule.priority),

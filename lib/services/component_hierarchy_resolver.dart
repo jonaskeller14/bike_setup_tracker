@@ -1,4 +1,5 @@
 import '../models/component.dart';
+import '../models/component_ancestor.dart';
 import '../models/installation.dart';
 
 class ComponentHierarchyValidationException implements Exception {
@@ -41,33 +42,6 @@ class ComponentPlacement {
         isDangling: isDangling,
         isCyclic: isCyclic,
       );
-}
-
-sealed class ComponentAncestor {
-  const ComponentAncestor();
-}
-
-class ParentComponentAncestor extends ComponentAncestor {
-  final Component component;
-  const ParentComponentAncestor(this.component);
-}
-
-class MissingParentAncestor extends ComponentAncestor {
-  final String componentId;
-  const MissingParentAncestor(this.componentId);
-}
-
-class BikeAncestor extends ComponentAncestor {
-  final String bikeId;
-  const BikeAncestor(this.bikeId);
-}
-
-class ArchivedAncestor extends ComponentAncestor {
-  const ArchivedAncestor();
-}
-
-class UninstalledAncestor extends ComponentAncestor {
-  const UninstalledAncestor();
 }
 
 /// Resolves a component's effective placement through component parents.
@@ -177,6 +151,17 @@ class ComponentHierarchyResolver {
 
   List<ComponentAncestor> currentAncestors(String componentId) =>
       ancestorsAt(componentId, currentTimeUTC);
+
+  /// The top of the hierarchy: the bike, or whatever ends the chain when the
+  /// component is not on one. Never a [ParentComponentAncestor].
+  ComponentAncestor rootAt(String componentId, DateTime atUTC) =>
+      ancestorsAt(componentId, atUTC).lastWhere(
+        (ancestor) => ancestor is! ParentComponentAncestor,
+        orElse: () => const UninstalledAncestor(),
+      );
+
+  ComponentAncestor currentRoot(String componentId) =>
+      rootAt(componentId, currentTimeUTC);
 
   DateTime? effectiveBikeSinceAt(String componentId, DateTime atUTC) =>
       switch (resolveAt(componentId, atUTC)) {

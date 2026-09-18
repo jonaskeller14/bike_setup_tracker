@@ -7,6 +7,7 @@ import 'package:timelines_plus/timelines_plus.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/component.dart';
+import '../models/component_ancestor.dart';
 import '../models/installation.dart';
 import '../repositories/app_repository.dart';
 import '../services/component_hierarchy_resolver.dart';

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../models/bike.dart';
-import '../models/component.dart';
-import '../services/component_hierarchy_resolver.dart';
+import '../models/component_ancestor.dart';
+import 'component_ancestor_display.dart';
 
 class ComponentAncestorsColumn extends StatelessWidget {
   final List<ComponentAncestor> ancestors;
@@ -35,13 +35,16 @@ class ComponentAncestorsColumn extends StatelessWidget {
           Row(
             spacing: spacing,
             children: [
-              Icon(_icon(ancestor), size: iconSize, color: _isMissing(ancestor) ? errorColor : variantColor),
+              Icon(ancestor.iconData, size: iconSize, color: ancestor.isMissing(bikes) ? errorColor : variantColor),
               Flexible(
                 child: Text(
-                  _label(ancestor),
+                  switch (ancestor) {
+                    ArchivedAncestor() || UninstalledAncestor() => ancestor.label(bikes).toUpperCase(),
+                    _ => ancestor.label(bikes),
+                  },
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: _isMissing(ancestor) ? style?.copyWith(color: errorColor) : style,
+                  style: ancestor.isMissing(bikes) ? style?.copyWith(color: errorColor) : style,
                 ),
               ),
             ],
@@ -49,26 +52,4 @@ class ComponentAncestorsColumn extends StatelessWidget {
       ],
     );
   }
-
-  bool _isMissing(ComponentAncestor ancestor) => switch (ancestor) {
-    MissingParentAncestor() => true,
-    BikeAncestor(:final bikeId) => !bikes.containsKey(bikeId),
-    _ => false,
-  };
-
-  IconData _icon(ComponentAncestor ancestor) => switch (ancestor) {
-    ParentComponentAncestor(:final component) => component.componentType.getIconData(),
-    MissingParentAncestor() => Component.iconData,
-    BikeAncestor() => Bike.iconData,
-    ArchivedAncestor() => Icons.inventory_2_outlined,
-    UninstalledAncestor() => Icons.shelves,
-  };
-
-  String _label(ComponentAncestor ancestor) => switch (ancestor) {
-    ParentComponentAncestor(:final component) => component.name,
-    MissingParentAncestor() => 'COMPONENT NOT FOUND',
-    BikeAncestor(:final bikeId) => bikes[bikeId]?.name ?? 'BIKE NOT FOUND',
-    ArchivedAncestor() => 'ARCHIVED',
-    UninstalledAncestor() => 'UNINSTALLED',
-  };
 }

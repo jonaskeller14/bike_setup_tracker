@@ -9,9 +9,10 @@ import '../models/component.dart';
 import '../models/context/context_position.dart';
 import '../models/context/context_weather.dart';
 import '../models/person.dart';
-import '../models/rating.dart';
+import '../models/rating/rating.dart';
 import '../models/selected_data.dart';
 import '../models/setup.dart';
+import '../models/task/task_association.dart';
 import '../models/task/task_entry.dart';
 import '../repositories/app_repository.dart';
 
@@ -170,14 +171,14 @@ void _appendTaskEntryText(
   final dateString = DateFormat(settings.dateFormat).format(entry.dateTimeLocal);
   final timeString = DateFormat(settings.timeFormat).format(entry.dateTimeLocal);
 
-  final entryLink = _taskLinkLabel(entry.componentId, entry.bikeId, data);
+  final entryLink = _taskLinkLabel(entry.association, data);
   final contextString = entryLink != null ? ' ($entryLink)' : '';
 
   buffer.writeln("✅ $dateString $timeString - ${entry.name}$contextString${entry.isDeleted ? ' [DELETED]' : ''}");
 
   final rule = data.taskRules[entry.taskRule];
   if (rule != null) {
-    final ruleLink = _taskLinkLabel(rule.componentId, rule.bikeId, data);
+    final ruleLink = _taskLinkLabel(rule.association, data);
     buffer.writeln("📋 ${rule.name}${ruleLink != null ? ' ($ruleLink)' : ''}");
 
     final metaParts = [
@@ -210,14 +211,12 @@ void _appendTaskEntryText(
   }
 }
 
-String? _taskLinkLabel(String? componentId, String? bikeId, SelectedData data) {
-  if (componentId != null) {
-    return 'Component: ${data.components[componentId]?.name ?? '?'}';
-  }
-  if (bikeId != null) {
-    return 'Bike: ${data.bikes[bikeId]?.name ?? '?'}';
-  }
-  return null;
+String? _taskLinkLabel(TaskAssociation association, SelectedData data) {
+  return switch (association) {
+    ComponentTaskAssociation(:final id) => 'Component: ${data.components[id]?.name ?? '?'}',
+    BikeTaskAssociation(:final id) => 'Bike: ${data.bikes[id]?.name ?? '?'}',
+    GeneralTaskAssociation() => null,
+  };
 }
 
 String _generateContextLine(Setup setup, AppSettings settings) {

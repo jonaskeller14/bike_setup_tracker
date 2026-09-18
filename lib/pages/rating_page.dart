@@ -7,9 +7,9 @@ import '../models/bike.dart';
 import '../models/component.dart';
 import '../models/installation.dart';
 import '../models/person.dart';
-import '../models/rating.dart';
-import '../models/rating_association.dart';
-import '../models/rating_metric.dart';
+import '../models/rating/rating.dart';
+import '../models/rating/rating_association.dart';
+import '../models/rating/rating_metric.dart';
 import '../repositories/app_repository.dart';
 import '../theme.dart';
 import '../widgets/dialogs/discard_changes.dart';
@@ -73,12 +73,7 @@ class _RatingPageState extends State<RatingPage> {
         : List.from(widget.rating!.metrics);
     _initialMetrics = List.from(_metrics);
 
-    _initialRatingAssociation = RatingAssociation.fromIds(
-      componentId: widget.rating?.filterType == FilterType.component ? widget.rating?.filter : null,
-      bikeId: widget.rating?.filterType == FilterType.bike ? widget.rating?.filter : null,
-      personId: widget.rating?.filterType == FilterType.person ? widget.rating?.filter : null,
-      componentTypeStr: widget.rating?.filterType == FilterType.componentType ? widget.rating?.filter : null,
-    );
+    _initialRatingAssociation = widget.rating?.association ?? const GlobalRatingAssociation();
     _ratingAssociation = _initialRatingAssociation;
     _notesController = TextEditingController(text: widget.rating?.notes);
     _notesController.addListener(_changeListener);
@@ -229,8 +224,7 @@ class _RatingPageState extends State<RatingPage> {
       id: widget.mode == RatingPageMode.edit ? widget.rating?.id : null,
       name: name,
       notes: notes.isEmpty ? null : notes,
-      filter: _ratingAssociation.filter,
-      filterType: _ratingAssociation.filterType,
+      association: _ratingAssociation,
       metrics: List.from(_metrics),
       orderIndex: widget.rating?.orderIndex ?? 0,
     );
@@ -595,7 +589,7 @@ class _RatingPageState extends State<RatingPage> {
                             border: const OutlineInputBorder(),
                             hintText: "Choose an object which the filter should be applied for",
                             fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
-                            filled: widget.mode == RatingPageMode.edit && _ratingAssociation.filter != widget.rating?.filter,
+                            filled: widget.mode == RatingPageMode.edit && _ratingAssociation != widget.rating?.association,
                           ),
                           validator: (RatingAssociation? newValue) {
                             if (newValue == null || !filterOptions.contains(newValue)) return "Invalid Filter.";

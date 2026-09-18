@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
-import 'adjustment/adjustment.dart';
+import '../adjustment/adjustment.dart';
 import 'rating_association.dart';
 import 'rating_metric.dart';
 
@@ -12,8 +12,7 @@ class Rating {
   final DateTime lastModified;
   final String name;
   final String? notes;
-  final String? filter; // id of filter object (Bike, Component, Person)
-  final FilterType filterType;
+  final RatingAssociation association;
   final int orderIndex;
   final List<RatingMetric> metrics;
 
@@ -25,35 +24,31 @@ class Rating {
     DateTime? lastModified,
     required this.name,
     this.notes,
-    required this.filter,
-    required this.filterType,
+    required this.association,
     this.orderIndex = 0,
     List<RatingMetric>? metrics,
   }) : metrics = metrics ?? [],
        id = id ?? const Uuid().v4(),
        isDeleted = isDeleted ?? false,
-       lastModified = lastModified ?? DateTime.now().toUtc(),
-       assert ((filter == null && filterType == FilterType.global) || (filter != null && filterType != FilterType.global));
+       lastModified = lastModified ?? DateTime.now().toUtc();
 
   Rating deepCopy() {
     return Rating(
       name: name,
       notes: notes,
-      filter: filter,
-      filterType: filterType,
+      association: association,
       metrics: metrics.map((m) => m.deepCopy()).toList(),
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'version': 3,
+    'version': 4,
     'id': id,
     "isDeleted": isDeleted,
     "lastModified": lastModified.toUtc().toIso8601String(),
     'name': name,
     'notes': notes,
-    "filter": filter,
-    "filterType": filterType.toString(),
+    'association': association.toJson(),
     'orderIndex': orderIndex,
     'metrics': metrics.map((m) => m.toJson()).toList(),
   };
@@ -69,11 +64,7 @@ class Rating {
           lastModified: DateTime.tryParse(json["lastModified"] as String? ?? ""),
           name: json['name'] as String,
           notes: json['notes'] as String?,
-          filter: json["filter"] as String?,
-          filterType: FilterType.values.firstWhere(
-            (e) => e.toString() == json["filterType"] as String?,
-            orElse: () => FilterType.global,
-          ),
+          association: RatingAssociation.fromLegacyJson(json),
           metrics: (json["adjustments"] as List<dynamic>?)
             ?.map((adjustmentJson) => RatingMetric(
                   adjustment: Adjustment.fromJson(adjustmentJson as Map<String, dynamic>),
@@ -89,11 +80,21 @@ class Rating {
           lastModified: DateTime.tryParse(json["lastModified"] as String? ?? ""),
           name: json['name'] as String,
           notes: json['notes'] as String?,
-          filter: json["filter"] as String?,
-          filterType: FilterType.values.firstWhere(
-            (e) => e.toString() == json["filterType"] as String?,
-            orElse: () => FilterType.global,
-          ),
+          association: RatingAssociation.fromLegacyJson(json),
+          metrics: (json["metrics"] as List<dynamic>?)
+            ?.map((metricJson) => RatingMetric.fromJson(metricJson as Map<String, dynamic>))
+            .toList()
+            ?? <RatingMetric>[],
+          orderIndex: json["orderIndex"] as int? ?? 0,
+        );
+      case 4:
+        return Rating(
+          id: json["id"] as String?,
+          isDeleted: json["isDeleted"] as bool?,
+          lastModified: DateTime.tryParse(json["lastModified"] as String? ?? ""),
+          name: json['name'] as String,
+          notes: json['notes'] as String?,
+          association: RatingAssociation.fromJson(json['association'] as Map<String, dynamic>),
           metrics: (json["metrics"] as List<dynamic>?)
             ?.map((metricJson) => RatingMetric.fromJson(metricJson as Map<String, dynamic>))
             .toList()
@@ -113,8 +114,7 @@ class Rating {
         lastModified == other.lastModified &&
         name == other.name &&
         notes == other.notes &&
-        filter == other.filter &&
-        filterType == other.filterType &&
+        association == other.association &&
         listEquals(metrics, other.metrics);
   }
 
@@ -126,8 +126,7 @@ class Rating {
       lastModified,
       name,
       notes,
-      filter,
-      filterType,
+      association,
       Object.hashAll(metrics),
     );
   }
@@ -138,8 +137,7 @@ class Rating {
     Object? lastModified = const _Sentinel(),
     Object? name = const _Sentinel(),
     Object? notes = const _Sentinel(),
-    Object? filter = const _Sentinel(),
-    Object? filterType = const _Sentinel(),
+    Object? association = const _Sentinel(),
     Object? orderIndex = const _Sentinel(),
     Object? metrics = const _Sentinel(),
   }) {
@@ -159,12 +157,9 @@ class Rating {
       notes: notes is _Sentinel
           ? this.notes
           : (notes as String?),
-      filter: filter is _Sentinel
-          ? this.filter
-          : (filter as String?),
-      filterType: filterType is _Sentinel
-          ? this.filterType
-          : (filterType as FilterType),
+      association: association is _Sentinel
+          ? this.association
+          : (association as RatingAssociation),
       orderIndex: orderIndex is _Sentinel
           ? this.orderIndex
           : (orderIndex as int),

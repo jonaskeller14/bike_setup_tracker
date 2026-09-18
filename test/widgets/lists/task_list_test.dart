@@ -116,8 +116,7 @@ void main() {
           dateTimeUTC: now.toUtc(),
           dateTimeLocal: now,
           taskRule: taskRule.id,
-          componentId: taskRule.componentId,
-          bikeId: taskRule.bikeId,
+          association: taskRule.association,
           snapshot: snapshot,
         ),
       ]);

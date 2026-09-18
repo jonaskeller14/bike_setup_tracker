@@ -14,10 +14,10 @@ import '../models/context/context_place.dart';
 import '../models/context/context_position.dart';
 import '../models/context/context_weather.dart';
 import '../models/person.dart';
-import '../models/rating.dart';
-import '../models/rating_association.dart';
-import '../models/rating_entry.dart';
-import '../models/rating_metric.dart';
+import '../models/rating/rating.dart';
+import '../models/rating/rating_association.dart';
+import '../models/rating/rating_entry.dart';
+import '../models/rating/rating_metric.dart';
 import '../repositories/app_repository.dart';
 import '../services/address_service.dart';
 import '../services/elevation_service.dart';
@@ -184,12 +184,12 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
 
     final result = <String, Rating>{};
     for (final rating in appRepository.ratings.values) {
-      final applies = switch (rating.filterType) {
-        FilterType.global => true,
-        FilterType.bike => rating.filter == _bike,
-        FilterType.person => rating.filter != null && rating.filter == person,
-        FilterType.component => componentIds.contains(rating.filter),
-        FilterType.componentType => componentTypes.contains(rating.filter),
+      final applies = switch (rating.association) {
+        GlobalRatingAssociation() => true,
+        BikeRatingAssociation(:final bikeId) => bikeId == _bike,
+        PersonRatingAssociation(:final personId) => personId == person,
+        ComponentRatingAssociation(:final componentId) => componentIds.contains(componentId),
+        ComponentTypeRatingAssociation(:final componentTypeStr) => componentTypes.contains(componentTypeStr),
       };
       if (applies) result[rating.id] = rating;
     }
@@ -899,12 +899,12 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
   }
 
   Widget _ratingFilterIcon(Rating rating, Map<String, Component> components) {
-    return switch (rating.filterType) {
-      FilterType.global => const Icon(Icons.circle_outlined),
-      FilterType.bike => const Icon(Bike.iconData),
-      FilterType.person => const Icon(Person.iconData),
-      FilterType.component => Icon((components[rating.filter]?.componentType ?? ComponentType.other).getIconData()),
-      FilterType.componentType => Icon(ComponentType.fromString(rating.filter ?? '').getIconData()),
+    return switch (rating.association) {
+      GlobalRatingAssociation() => const Icon(Icons.circle_outlined),
+      BikeRatingAssociation() => const Icon(Bike.iconData),
+      PersonRatingAssociation() => const Icon(Person.iconData),
+      ComponentRatingAssociation(:final componentId) => Icon((components[componentId]?.componentType ?? ComponentType.other).getIconData()),
+      ComponentTypeRatingAssociation(:final componentTypeStr) => Icon(ComponentType.fromString(componentTypeStr).getIconData()),
     };
   }
 }

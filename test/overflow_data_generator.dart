@@ -6,11 +6,12 @@ import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/models/person.dart';
-import 'package:bike_setup_tracker/models/rating.dart';
-import 'package:bike_setup_tracker/models/rating_association.dart';
-import 'package:bike_setup_tracker/models/rating_entry.dart';
-import 'package:bike_setup_tracker/models/rating_metric.dart';
+import 'package:bike_setup_tracker/models/rating/rating.dart';
+import 'package:bike_setup_tracker/models/rating/rating_association.dart';
+import 'package:bike_setup_tracker/models/rating/rating_entry.dart';
+import 'package:bike_setup_tracker/models/rating/rating_metric.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
+import 'package:bike_setup_tracker/models/task/task_association.dart';
 import 'package:bike_setup_tracker/models/task/task_entry.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
@@ -146,8 +147,7 @@ void main() async {
     for (final idx in List.generate(100, (idx) => idx))
       Rating(
         name: idx == 0 ? "Rating #0: $loremIpsum" : "Rating #$idx",
-        filterType: FilterType.global,
-        filter: null,
+        association: const GlobalRatingAssociation(),
         metrics: idx == 0
             ? [
                 RatingMetric(
@@ -188,7 +188,7 @@ void main() async {
           : "Check drivetrain #$idx",
       notes: idx == 0 ? loremIpsum : null,
       tags: {},
-      componentId: componentsList[idx].id,
+      association: ComponentTaskAssociation(componentsList[idx].id),
       interval: const DurationThreshold(Duration(days: 30)),
     )]);
   }

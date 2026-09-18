@@ -2,6 +2,7 @@ import 'package:bike_setup_tracker/models/activity_rate_window.dart';
 import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/component_stats.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
+import 'package:bike_setup_tracker/models/task/task_association.dart';
 import 'package:bike_setup_tracker/models/task/task_entry.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
@@ -56,7 +57,7 @@ void main() {
     group('Distance interval', () {
       final rule = TaskRule(
         name: 'Chain Wax',
-        bikeId: bikeId,
+        association: const BikeTaskAssociation(bikeId),
         interval: const DistanceThreshold(300000), // 300 km
         tags: const {},
       );
@@ -139,7 +140,7 @@ void main() {
     group('No prediction', () {
       final rule = TaskRule(
         name: 'Chain Wax',
-        bikeId: bikeId,
+        association: const BikeTaskAssociation(bikeId),
         interval: const DistanceThreshold(300000),
         tags: const {},
       );
@@ -241,7 +242,7 @@ void main() {
     group('Rate source resolution', () {
       final rule = TaskRule(
         name: 'Chain Wax',
-        componentId: componentId,
+        association: const ComponentTaskAssociation(componentId),
         interval: const DistanceThreshold(300000),
         tags: const {},
       );
@@ -313,7 +314,7 @@ void main() {
       test('Duration interval is exact and needs no sample', () {
         final rule = TaskRule(
           name: 'Monthly check',
-          bikeId: bikeId,
+          association: const BikeTaskAssociation(bikeId),
           interval: const DurationThreshold(Duration(days: 30)),
           tags: const {},
         );
@@ -390,7 +391,7 @@ void main() {
         // 5 rides over 10 days = 0.5 rides/day, with 10 rides to go = 20 days.
         final rule = TaskRule(
           name: 'Check bolts',
-          bikeId: bikeId,
+          association: const BikeTaskAssociation(bikeId),
           interval: const ActivityCountThreshold(10),
           tags: const {},
         );
@@ -409,7 +410,7 @@ void main() {
         // 10 h over 10 days = 1 h/day, with 20 h to go = 20 days.
         final rule = TaskRule(
           name: 'Suspension service',
-          bikeId: bikeId,
+          association: const BikeTaskAssociation(bikeId),
           interval: const MovingTimeThreshold(Duration(hours: 20)),
           tags: const {},
         );
@@ -428,7 +429,7 @@ void main() {
         // 10000 m over 10 days = 1000 m/day, with 5000 m to go = 5 days.
         final rule = TaskRule(
           name: 'Brake pads',
-          bikeId: bikeId,
+          association: const BikeTaskAssociation(bikeId),
           interval: const ElevationThreshold(5000),
           tags: const {},
         );

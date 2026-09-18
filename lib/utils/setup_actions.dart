@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import '../models/rating_entry.dart';
+import '../models/rating/rating_entry.dart';
 import '../models/setup.dart';
 import '../pages/rating_entry_page.dart';
 import '../pages/setup_page.dart';

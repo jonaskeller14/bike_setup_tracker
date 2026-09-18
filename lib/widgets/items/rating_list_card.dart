@@ -5,8 +5,8 @@ import 'package:provider/provider.dart';
 import '../../models/bike.dart';
 import '../../models/component.dart';
 import '../../models/person.dart';
-import '../../models/rating.dart';
-import '../../models/rating_association.dart';
+import '../../models/rating/rating.dart';
+import '../../models/rating/rating_association.dart';
 import '../../pages/details/rating_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/rating_actions.dart';
@@ -87,63 +87,63 @@ class RatingListCard extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
-                            switch(rating.filterType) {
-                              FilterType.global => Icons.circle_outlined,
-                              FilterType.bike => Bike.iconData,
-                              FilterType.person => Person.iconData,
-                              FilterType.component => (components[rating.filter]?.componentType ?? ComponentType.other).getIconData(),
-                              FilterType.componentType => (ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter) ?? ComponentType.other).getIconData(),
+                            switch(rating.association) {
+                              GlobalRatingAssociation() => Icons.circle_outlined,
+                              BikeRatingAssociation() => Bike.iconData,
+                              PersonRatingAssociation() => Person.iconData,
+                              ComponentRatingAssociation(:final componentId) => (components[componentId]?.componentType ?? ComponentType.other).getIconData(),
+                              ComponentTypeRatingAssociation(:final componentTypeStr) => (ComponentType.values.firstWhereOrNull((ct) => ct.toString() == componentTypeStr) ?? ComponentType.other).getIconData(),
                             },
                             size: 13, 
-                            color: switch(rating.filterType) {
-                              FilterType.global || FilterType.componentType  => Theme.of(context).colorScheme.onSurfaceVariant,
-                              FilterType.person => persons.containsKey(rating.filter) ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.error,
-                              FilterType.bike => bikes.containsKey(rating.filter) ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.error,
-                              FilterType.component => components.containsKey(rating.filter) ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.error,
+                            color: switch(rating.association) {
+                              GlobalRatingAssociation() || ComponentTypeRatingAssociation() => Theme.of(context).colorScheme.onSurfaceVariant,
+                              PersonRatingAssociation(:final personId) => persons.containsKey(personId) ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.error,
+                              BikeRatingAssociation(:final bikeId) => bikes.containsKey(bikeId) ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.error,
+                              ComponentRatingAssociation(:final componentId) => components.containsKey(componentId) ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.error,
                             },
                           ),
         
                           const SizedBox(width: 2),
                           
                           Flexible(
-                            child: switch(rating.filterType) {
-                              FilterType.global => Text(
+                            child: switch(rating.association) {
+                              GlobalRatingAssociation() => Text(
                                 "Global",
                                 style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
                                 overflow: TextOverflow.ellipsis,
                               ),
-                              FilterType.bike => Text(
-                                bikes[rating.filter]?.name ?? "BIKE NOT FOUND",
+                              BikeRatingAssociation(:final bikeId) => Text(
+                                bikes[bikeId]?.name ?? "BIKE NOT FOUND",
                                 style: TextStyle(
-                                  color: bikes.containsKey(rating.filter) 
+                                  color: bikes.containsKey(bikeId) 
                                       ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8) 
                                       : Theme.of(context).colorScheme.error, 
                                   fontSize: 13
                                 ),
                                 overflow: TextOverflow.ellipsis,
                               ),
-                              FilterType.person => Text(
-                                persons[rating.filter]?.name ?? "PERSON NOT FOUND",
+                              PersonRatingAssociation(:final personId) => Text(
+                                persons[personId]?.name ?? "PERSON NOT FOUND",
                                 style: TextStyle(
-                                  color: persons.containsKey(rating.filter) 
+                                  color: persons.containsKey(personId) 
                                       ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8) 
                                       : Theme.of(context).colorScheme.error,
                                   fontSize: 13,
                                 ),
                                 overflow: TextOverflow.ellipsis,
                               ),
-                              FilterType.component => Text(
-                                components[rating.filter]?.name ?? "COMPONENT NOT FOUND",
+                              ComponentRatingAssociation(:final componentId) => Text(
+                                components[componentId]?.name ?? "COMPONENT NOT FOUND",
                                 style: TextStyle(
-                                  color: components.containsKey(rating.filter) 
+                                  color: components.containsKey(componentId) 
                                       ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8) 
                                       : Theme.of(context).colorScheme.error,
                                   fontSize: 13
                                 ),
                                 overflow: TextOverflow.ellipsis,
                               ),
-                              FilterType.componentType => Text(
-                                ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter)?.label ?? "-",
+                              ComponentTypeRatingAssociation(:final componentTypeStr) => Text(
+                                ComponentType.values.firstWhereOrNull((ct) => ct.toString() == componentTypeStr)?.label ?? "-",
                                 style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
                                 overflow: TextOverflow.ellipsis,
                               ),

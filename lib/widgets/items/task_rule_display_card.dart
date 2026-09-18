@@ -91,7 +91,7 @@ class TaskRuleDisplayCard extends StatelessWidget {
     final status = appRepository.getTaskRuleStatus(taskRule);
     final isCompleted = status.type == TaskStatusType.completed;
 
-    final component = taskRule.componentId != null ? appRepository.components[taskRule.componentId] : null;
+    final component = appRepository.components[taskRule.association.componentId];
     final statusColor = status.type.getStatusColor(context);
     final forecastLabel = showStatus && !isCompleted && appSettings.enableTaskDuePrediction
         ? _forecastLabel(context, appRepository, status, appSettings.dateFormat)

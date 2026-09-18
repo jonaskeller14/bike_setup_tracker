@@ -9,6 +9,7 @@ import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/component.dart';
 import '../../models/installation.dart';
+import '../../models/task/task_association.dart';
 import '../../models/task/task_rule.dart';
 import '../../models/task/task_threshold/task_threshold.dart';
 import '../../pages/details/task_rule_details_page.dart';
@@ -48,7 +49,7 @@ class TaskRuleListCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       spacing: 8,
       children: [
-        if (taskRule.componentId != null) ...[
+        if (taskRule.association is ComponentTaskAssociation) ...[
           Flexible(
             child: Row(
               spacing: 2,
@@ -117,7 +118,7 @@ class TaskRuleListCard extends StatelessWidget {
               ],
             ),
           ),
-        ] else if (taskRule.bikeId != null) ...[
+        ] else if (taskRule.association case BikeTaskAssociation(id: final bikeId)) ...[
           Flexible(
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -126,15 +127,15 @@ class TaskRuleListCard extends StatelessWidget {
                 Icon(
                   Bike.iconData, 
                   size: 13,
-                  color: bikes.containsKey(taskRule.bikeId) ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.error,
+                  color: bikes.containsKey(bikeId) ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.error,
                 ),
                 Flexible(
                   child: Text(
-                    bikes[taskRule.bikeId]?.name ?? "BIKE NOT FOUND",
+                    bikes[bikeId]?.name ?? "BIKE NOT FOUND",
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: bikes.containsKey(taskRule.bikeId) ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8) : Theme.of(context).colorScheme.error,
+                      color: bikes.containsKey(bikeId) ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8) : Theme.of(context).colorScheme.error,
                       fontSize: 13,
                     ),
                   ),
@@ -277,9 +278,7 @@ class TaskRuleListCard extends StatelessWidget {
     final status = appRepository.getTaskRuleStatus(taskRule);
     final isCompleted = status.type == TaskStatusType.completed;
 
-    final component = taskRule.componentId != null
-        ? appRepository.components[taskRule.componentId]
-        : null;
+    final component = appRepository.components[taskRule.association.componentId];
     final statusColor = status.type.getStatusColor(context);
     final defaultCardColor = Theme.of(context).cardTheme.color ?? Theme.of(context).colorScheme.surfaceContainerLow;
 

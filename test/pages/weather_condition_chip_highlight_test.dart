@@ -3,7 +3,7 @@ import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/context/context_weather.dart';
-import 'package:bike_setup_tracker/models/rating_entry.dart';
+import 'package:bike_setup_tracker/models/rating/rating_entry.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/pages/rating_entry_page.dart';
 import 'package:bike_setup_tracker/pages/setup_page.dart';

@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:uuid/uuid.dart';
 
-import 'context/context_place.dart';
-import 'context/context_position.dart';
-import 'context/context_weather.dart';
-import 'setup.dart';
+import '../context/context_place.dart';
+import '../context/context_position.dart';
+import '../context/context_weather.dart';
+import '../setup.dart';
 
 class RatingEntry {
   final String id;

@@ -1,5 +1,5 @@
 import 'component_installation.dart';
-import 'rating_entry.dart';
+import 'rating/rating_entry.dart';
 import 'setup.dart';
 import 'strava/strava_activity.dart';
 import 'task/task_entry.dart';

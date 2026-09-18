@@ -297,8 +297,8 @@ class TaskActions {
     final taskEntries = await Future.wait(
       taskRules.map((taskRule) async {
         final snapshot = await appRepository.getStatsAt(
-          componentId: taskRule.componentId,
-          bikeId: taskRule.bikeId,
+          componentId: taskRule.association.componentId,
+          bikeId: taskRule.association.bikeId,
           date: dateTimeUTC,
         );
         return TaskEntry(
@@ -307,8 +307,7 @@ class TaskActions {
           dateTimeUTC: dateTimeUTC,
           dateTimeLocal: dateTimeLocal,
           taskRule: taskRule.id,
-          componentId: taskRule.componentId,
-          bikeId: taskRule.bikeId,
+          association: taskRule.association,
           snapshot: snapshot,
         );
       }),

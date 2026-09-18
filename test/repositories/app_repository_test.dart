@@ -5,11 +5,12 @@ import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/models/person.dart';
-import 'package:bike_setup_tracker/models/rating.dart';
-import 'package:bike_setup_tracker/models/rating_association.dart';
-import 'package:bike_setup_tracker/models/rating_entry.dart';
-import 'package:bike_setup_tracker/models/rating_metric.dart';
+import 'package:bike_setup_tracker/models/rating/rating.dart';
+import 'package:bike_setup_tracker/models/rating/rating_association.dart';
+import 'package:bike_setup_tracker/models/rating/rating_entry.dart';
+import 'package:bike_setup_tracker/models/rating/rating_metric.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
+import 'package:bike_setup_tracker/models/task/task_association.dart';
 import 'package:bike_setup_tracker/models/task/task_entry.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
@@ -361,7 +362,7 @@ void main() {
   group("AppRepository - Ratings", () {
     late AppDatabase database;
     late AppRepository repository;
-    final rating1 = Rating(name: "Rating #1", filterType: FilterType.global, filter: null, metrics: []);
+    final rating1 = Rating(name: "Rating #1", association: const GlobalRatingAssociation(), metrics: []);
 
     setUp(() async {
       database = AppDatabase.memory();
@@ -526,8 +527,7 @@ void main() {
       final metricAdj = NumericalAdjustment(name: "Pressure", notes: null, unit: psi, min: 0, max: 300);
       final rating = Rating(
         name: "R",
-        filterType: FilterType.global,
-        filter: null,
+        association: const GlobalRatingAssociation(),
         metrics: [RatingMetric(adjustment: metricAdj)],
       );
       final entry = RatingEntry(
@@ -707,7 +707,7 @@ void main() {
         componentType: ComponentType.fork, 
         adjustments: []
       );
-      rule1 = TaskRule(name: "Rule 1", componentId: component1.id, tags: const {});
+      rule1 = TaskRule(name: "Rule 1", association: ComponentTaskAssociation(component1.id), tags: const {});
     });
 
     tearDown(() async {
@@ -729,7 +729,7 @@ void main() {
         dateTimeUTC: DateTime.now().toUtc(),
         dateTimeLocal: DateTime.now().toLocal(),
         taskRule: rule1.id,
-        componentId: component1.id,
+        association: ComponentTaskAssociation(component1.id),
       );
 
       await repository.addTaskEntries([entry1]);
@@ -769,7 +769,7 @@ void main() {
         componentType: ComponentType.fork, 
         adjustments: []
       );
-      final rule2 = TaskRule(name: "Rule 2", componentId: component2.id, tags: const {});
+      final rule2 = TaskRule(name: "Rule 2", association: ComponentTaskAssociation(component2.id), tags: const {});
 
       await repository.addBikes([bike1, bike2]);
       await repository.addComponents([component1, component2]);
@@ -968,11 +968,11 @@ void main() {
       final bike2 = Bike(name: "Bike #2", person: null);
       final bike1Rule = TaskRule(
         name: "Bike 1 due",
-        bikeId: bike1.id,
+        association: BikeTaskAssociation(bike1.id),
         priority: TaskPriority.critical,
         tags: const {"service"},
       );
-      final bike2Rule = TaskRule(name: "Bike 2 due", bikeId: bike2.id, tags: const {"other"});
+      final bike2Rule = TaskRule(name: "Bike 2 due", association: BikeTaskAssociation(bike2.id), tags: const {"other"});
 
       await repository.addBikes([bike1, bike2]);
       await repository.addTaskRules([bike1Rule, bike2Rule]);
@@ -1072,7 +1072,7 @@ void main() {
     test("task rule for archived component is hidden from filteredOpenTaskRules", () async {
       final rule = TaskRule(
         name: "Rule 1",
-        componentId: component1.id,
+        association: ComponentTaskAssociation(component1.id),
         tags: const {},
       );
 

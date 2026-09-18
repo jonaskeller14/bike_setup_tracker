@@ -126,10 +126,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
     _notesController = TextEditingController(text: widget.taskRule?.notes);
     _notesController.addListener(_changeListener);
 
-    _association = TaskAssociation.fromIds(
-      componentId: widget.taskRule?.componentId ?? widget.initialAssociation?.componentId,
-      bikeId: widget.taskRule?.bikeId ?? widget.initialAssociation?.bikeId,
-    );
+    _association = widget.taskRule?.association ?? widget.initialAssociation ?? const GeneralTaskAssociation();
     _initialAssociation = _association;
 
     final appRepository = context.read<AppRepository>();
@@ -504,8 +501,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
         notes: notes.isEmpty ? null : notes,
         priority: _priority,
         tags: _tags,
-        componentId: _association.componentId,
-        bikeId: _association.bikeId,
+        association: _association,
         interval: interval,
         delay: delay,
         repeat: (_intervalType == _ThresholdType.dateTime || _intervalType == _ThresholdType.none) ? false : _repeat,

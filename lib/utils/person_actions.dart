@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
 import '../models/person.dart';
-import '../models/rating_association.dart';
+import '../models/rating/rating_association.dart';
 import '../pages/adjustment/boolean_adjustment_page.dart';
 import '../pages/adjustment/categorical_adjustment_page.dart';
 import '../pages/adjustment/duration_adjustment_page.dart';
@@ -105,7 +105,7 @@ class PersonActions {
     final messenger = ScaffoldMessenger.of(context);
 
     final obsoleteRatings = appRepository.ratings.values
-        .where((r) => r.filterType == FilterType.person && r.filter == person.id)
+        .where((r) => r.association == PersonRatingAssociation(person.id))
         .toList();
 
     await appRepository.removePersons([person]);

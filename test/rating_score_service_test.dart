@@ -1,5 +1,5 @@
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
-import 'package:bike_setup_tracker/models/rating_metric.dart';
+import 'package:bike_setup_tracker/models/rating/rating_metric.dart';
 import 'package:bike_setup_tracker/services/rating_score_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 

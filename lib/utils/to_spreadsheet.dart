@@ -7,6 +7,7 @@ import '../models/context/context_position.dart';
 import '../models/context/context_weather.dart';
 import '../models/selected_data.dart';
 import '../models/setup.dart';
+import '../models/task/task_association.dart';
 import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
 import '../services/component_hierarchy_resolver.dart';
@@ -354,14 +355,12 @@ class SpreadsheetExport {
   /// Describes what a component/bike pair points at: a component, a bike, or
   /// neither ("General"). Shared by task entries and their rules, which each
   /// link to at most one of a component or a bike.
-  static String _linkLabel(String? componentId, String? bikeId, SelectedData data) {
-    if (componentId != null) {
-      return 'Component: ${data.components[componentId]?.name ?? '?'}';
-    }
-    if (bikeId != null) {
-      return 'Bike: ${data.bikes[bikeId]?.name ?? '?'}';
-    }
-    return 'General';
+  static String _linkLabel(TaskAssociation association, SelectedData data) {
+    return switch (association) {
+      ComponentTaskAssociation(:final id) => 'Component: ${data.components[id]?.name ?? '?'}',
+      BikeTaskAssociation(:final id) => 'Bike: ${data.bikes[id]?.name ?? '?'}',
+      GeneralTaskAssociation() => 'General',
+    };
   }
 
   static String _intervalDisplay(TaskRule? taskRule, AppSettings appSettings) {
@@ -394,10 +393,10 @@ class SpreadsheetExport {
       TextCellValue(entry.name),
       TextCellValue(entry.notes ?? ''),
       DateTimeCellValue(year: dt.year, month: dt.month, day: dt.day, hour: dt.hour, minute: dt.minute),
-      TextCellValue(_linkLabel(entry.componentId, entry.bikeId, data)),
+      TextCellValue(_linkLabel(entry.association, data)),
       TextCellValue(rule?.name ?? ''),
       TextCellValue(rule?.notes ?? ''),
-      TextCellValue(rule != null ? _linkLabel(rule.componentId, rule.bikeId, data) : ''),
+      TextCellValue(rule != null ? _linkLabel(rule.association, data) : ''),
     ];
 
     if (settings.enableTaskPriority) row.add(TextCellValue(rule?.priority.label ?? ''));
@@ -428,10 +427,10 @@ class SpreadsheetExport {
       taskEntry.name,
       taskEntry.notes ?? '',
       DateFormat('yyyy-MM-dd HH:mm').format(taskEntry.dateTimeLocal),
-      _linkLabel(taskEntry.componentId, taskEntry.bikeId, data),
+      _linkLabel(taskEntry.association, data),
       taskRule?.name ?? '',
       taskRule?.notes ?? '',
-      taskRule != null ? _linkLabel(taskRule.componentId, taskRule.bikeId, data) : '',
+      taskRule != null ? _linkLabel(taskRule.association, data) : '',
     ];
 
     if (appSettings.enableTaskPriority) row.add(taskRule?.priority.label ?? '');

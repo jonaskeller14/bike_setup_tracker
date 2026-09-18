@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
-import '../../models/rating_entry.dart';
+import '../../models/rating/rating_entry.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/rating_entry_actions.dart';
 import '../notes_text.dart';

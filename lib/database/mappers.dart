@@ -12,14 +12,15 @@ import '../models/context/context_position.dart';
 import '../models/context/context_weather.dart';
 import '../models/installation.dart';
 import '../models/person.dart';
-import '../models/rating.dart';
-import '../models/rating_association.dart';
-import '../models/rating_entry.dart';
-import '../models/rating_metric.dart';
+import '../models/rating/rating.dart';
+import '../models/rating/rating_association.dart';
+import '../models/rating/rating_entry.dart';
+import '../models/rating/rating_metric.dart';
 import '../models/setup.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/strava/strava_athlete.dart';
 import '../models/strava/strava_gear.dart';
+import '../models/task/task_association.dart';
 import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
 import '../models/task/task_threshold/task_threshold.dart';
@@ -127,8 +128,7 @@ extension RatingDbMapper on RatingDb {
       lastModified: _toUtcSafe(lastModified, 'Rating.lastModified'),
       name: name,
       notes: notes,
-      filter: filter,
-      filterType: filterType,
+      association: RatingAssociation.fromFilter(filterType, filter),
       metrics: metrics,
       orderIndex: orderIndex,
     );
@@ -155,8 +155,7 @@ extension RatingMetricDbMapper on RatingMetricDb {
 extension TaskRuleDbMapper on TaskRuleDb {
   TaskRule toModel() {
     return TaskRule(
-      componentId: componentId,
-      bikeId: bikeId,
+      association: TaskAssociation.fromIds(componentId: componentId, bikeId: bikeId),
       id: id,
       isDeleted: isDeleted,
       lastModified: _toUtcSafe(lastModified, 'TaskRule.lastModified'),
@@ -182,8 +181,7 @@ extension TaskEntryDbMapper on TaskEntryDb {
       dateTimeUTC: _toUtcSafe(dateTimeUTC, 'TaskEntry.dateTimeUTC'),
       dateTimeLocal: dateTimeLocal,
       notes: notes,
-      componentId: componentId,
-      bikeId: bikeId,
+      association: TaskAssociation.fromIds(componentId: componentId, bikeId: bikeId),
       snapshot: snapshot != null ? ComponentStats.fromJson(jsonDecode(snapshot!) as Map<String, dynamic>) : null,
     );
   }
@@ -314,8 +312,8 @@ extension RatingMapper on Rating {
       lastModified: Value<DateTime>(lastModified),
       name: Value<String>(name),
       notes: Value<String?>(notes),
-      filter: Value<String?>(filter),
-      filterType: Value<FilterType>(filterType),
+      filter: Value<String?>(association.filter),
+      filterType: Value<FilterType>(association.filterType),
       orderIndex: Value<int>(orderIndex),
     );
   }
@@ -324,8 +322,8 @@ extension RatingMapper on Rating {
 extension TaskRuleMapper on TaskRule {
   TaskRulesCompanion toCompanion() {
     return TaskRulesCompanion(
-      componentId: Value<String?>(componentId),
-      bikeId: Value<String?>(bikeId),
+      componentId: Value<String?>(association.componentId),
+      bikeId: Value<String?>(association.bikeId),
       id: Value<String>(id),
       isDeleted: Value<bool>(isDeleted),
       lastModified: Value<DateTime>(lastModified),
@@ -351,8 +349,8 @@ extension TaskEntryMapper on TaskEntry {
       dateTimeUTC: Value<DateTime>(dateTimeUTC),
       dateTimeLocal: Value<DateTime>(dateTimeLocal),
       taskRule: Value<String>(taskRule),
-      componentId: Value<String?>(componentId),
-      bikeId: Value<String?>(bikeId),
+      componentId: Value<String?>(association.componentId),
+      bikeId: Value<String?>(association.bikeId),
       snapshot: Value<String?>(snapshot != null ? jsonEncode(snapshot!.toJson()) : null),
     );
   }

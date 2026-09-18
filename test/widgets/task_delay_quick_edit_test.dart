@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
+import 'package:bike_setup_tracker/models/task/task_association.dart';
 import 'package:bike_setup_tracker/models/task/task_entry.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
@@ -83,7 +84,7 @@ void main() {
   TaskRule ruleWith({TaskThreshold? interval, TaskThreshold? delay}) => TaskRule(
         name: 'Service Fork',
         tags: const {},
-        bikeId: bike.id,
+        association: BikeTaskAssociation(bike.id),
         interval: interval,
         delay: delay,
       );
@@ -373,7 +374,7 @@ void main() {
         dateTimeUTC: DateTime.now().toUtc(),
         dateTimeLocal: DateTime.now(),
         taskRule: rule.id,
-        bikeId: bike.id,
+        association: BikeTaskAssociation(bike.id),
       )]);
       await pumpEventQueue();
 
@@ -395,7 +396,7 @@ void main() {
         dateTimeUTC: DateTime.now().toUtc(),
         dateTimeLocal: DateTime.now(),
         taskRule: rule.id,
-        bikeId: bike.id,
+        association: BikeTaskAssociation(bike.id),
       )]);
       await pumpEventQueue();
 

@@ -76,10 +76,8 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
     _selectedDateTimeUtc = widget.taskEntry?.dateTimeUTC ?? _selectedDateTimeLocal.toUtc();
     _initialDateTimeUtc = _selectedDateTimeUtc;
 
-    _association = TaskAssociation.fromIds(
-      componentId: widget.taskEntry?.componentId ?? (widget.mode == TaskEntryPageMode.add ? widget.taskRule.componentId : null),
-      bikeId: widget.taskEntry?.bikeId ?? (widget.mode == TaskEntryPageMode.add ? widget.taskRule.bikeId : null),
-    );
+    _association = widget.taskEntry?.association ??
+        (widget.mode == TaskEntryPageMode.add ? widget.taskRule.association : const GeneralTaskAssociation());
     _initialAssociation = _association;
   }
 
@@ -186,8 +184,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
         name: name,
         notes: notes.isEmpty ? null : notes,
         taskRule: widget.taskRule.id,
-        componentId: _association.componentId,
-        bikeId: _association.bikeId,
+        association: _association,
         snapshot: snapshot,
         dateTimeUTC: _selectedDateTimeUtc,
         dateTimeLocal: _selectedDateTimeLocal,
@@ -222,10 +219,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
   }
 
   String? _linkMismatchWarning(Map<String, Bike> bikes, Map<String, Component> components) {
-    final ruleAssociation = TaskAssociation.fromIds(
-      componentId: widget.taskRule.componentId,
-      bikeId: widget.taskRule.bikeId,
-    );
+    final ruleAssociation = widget.taskRule.association;
     if (_association == ruleAssociation) return null;
     return 'WARNING: Differs from the task rule, which is linked to ${_describeAssociation(ruleAssociation, bikes, components)}.';
   }

@@ -256,7 +256,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
               if (shouldUseInstallationTimeline(
                 featureEnabled: appSettings.enableInstallationTimeline,
                 installations: component.installations,
-              ) || appRepository.taskEntries.values.any((te) => te.componentId == widget.componentId)) ...[
+              ) || appRepository.taskEntries.values.any((te) => te.association.componentId == widget.componentId)) ...[
                 ExpansionTile(
                   shape: const Border(),
                   collapsedShape: const Border(),
@@ -274,7 +274,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                       bikes: bikes,
                       components: appRepository.components,
                       taskEntries: appRepository.taskEntries.values.where(
-                        (entry) => entry.componentId == component.id,
+                        (entry) => entry.association.componentId == component.id,
                       ),
                     ),
                   ],

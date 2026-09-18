@@ -13,17 +13,35 @@ sealed class RatingAssociation {
   String? get filter => null;
   FilterType get filterType;
 
-  static RatingAssociation fromIds({
-    String? componentId,
-    String? bikeId,
-    String? personId,
-    String? componentTypeStr,
-  }) {
-    if (componentId != null) return ComponentRatingAssociation(componentId);
-    if (componentTypeStr != null) return ComponentTypeRatingAssociation(componentTypeStr);
-    if (bikeId != null) return BikeRatingAssociation(bikeId);
-    if (personId != null) return PersonRatingAssociation(personId);
-    return const GlobalRatingAssociation();
+  Map<String, dynamic> toJson() => {'type': filterType.name, 'filter': filter};
+
+  static RatingAssociation fromFilter(FilterType filterType, String? filter) {
+    if (filter == null) return const GlobalRatingAssociation();
+    return switch (filterType) {
+      FilterType.global => const GlobalRatingAssociation(),
+      FilterType.bike => BikeRatingAssociation(filter),
+      FilterType.component => ComponentRatingAssociation(filter),
+      FilterType.componentType => ComponentTypeRatingAssociation(filter),
+      FilterType.person => PersonRatingAssociation(filter),
+    };
+  }
+
+  /// Reads the flat `filter`/`filterType` fields written by Rating JSON versions 1-3.
+  static RatingAssociation fromLegacyJson(Map<String, dynamic> json) {
+    final filterType = FilterType.values.firstWhere(
+      (e) => e.toString() == json['filterType'] as String?,
+      orElse: () => FilterType.global,
+    );
+    return RatingAssociation.fromFilter(filterType, json['filter'] as String?);
+  }
+
+  factory RatingAssociation.fromJson(Map<String, dynamic> json) {
+    final type = json['type'] as String?;
+    final filterType = FilterType.values.firstWhere(
+      (e) => e.name == type,
+      orElse: () => throw ArgumentError('Unknown RatingAssociation type: $type'),
+    );
+    return RatingAssociation.fromFilter(filterType, json['filter'] as String?);
   }
 }
 

@@ -11,7 +11,7 @@ import '../icons/simple_icons.dart';
 import '../models/app_settings.dart';
 import '../models/component.dart';
 import '../models/installation.dart';
-import '../models/rating_entry.dart';
+import '../models/rating/rating_entry.dart';
 import '../models/setup.dart';
 import '../models/timeline_entry.dart';
 import '../models/timeline_row.dart';

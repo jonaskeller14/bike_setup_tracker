@@ -1,4 +1,4 @@
-import 'adjustment/adjustment.dart';
+import '../adjustment/adjustment.dart';
 
 class RatingMetric {
   final Adjustment adjustment;

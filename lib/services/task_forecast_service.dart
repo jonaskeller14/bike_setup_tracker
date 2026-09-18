@@ -105,7 +105,7 @@ class TaskForecastService {
     required DateTime now,
     required Map<String, ActivityRateWindow> bikeRates,
   }) {
-    final bikeId = rule.bikeId ?? component?.bikeAt(now);
+    final bikeId = rule.association.bikeId ?? component?.bikeAt(now);
     final window = bikeId != null ? bikeRates[bikeId] : null;
     if (window == null || window.count < _minSamples || window.sampleSpan < _minSpan) return null;
     return window;

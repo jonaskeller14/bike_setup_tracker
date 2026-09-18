@@ -1,6 +1,7 @@
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
+import 'package:bike_setup_tracker/models/task/task_association.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/theme.dart';
@@ -26,8 +27,8 @@ void main() {
       installations: [Installation.sinceBeginning(parent: bike.id)],
     );
     rules = [
-      TaskRule(name: 'Lower leg service', tags: const {}, componentId: component.id),
-      TaskRule(name: 'Check headset', tags: const {}, bikeId: bike.id),
+      TaskRule(name: 'Lower leg service', tags: const {}, association: ComponentTaskAssociation(component.id)),
+      TaskRule(name: 'Check headset', tags: const {}, association: BikeTaskAssociation(bike.id)),
     ];
     when(() => repository.bikes).thenReturn({bike.id: bike});
     when(() => repository.components).thenReturn({component.id: component});

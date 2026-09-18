@@ -3,7 +3,7 @@ import 'package:collection/collection.dart';
 import '../models/bike.dart';
 import '../models/component.dart';
 import '../models/person.dart';
-import '../models/rating.dart';
+import '../models/rating/rating.dart';
 import '../models/setup.dart';
 import '../utils/file_import.dart';
 import 'component_hierarchy_resolver.dart';

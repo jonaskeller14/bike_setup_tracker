@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import '../../models/rating.dart';
+import '../../models/rating/rating.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/rating_actions.dart';
 import '../chips/rating_list_filter_widget.dart';

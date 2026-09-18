@@ -6,6 +6,7 @@ import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
 import '../models/component.dart';
 import '../models/installation.dart';
+import '../models/task/task_association.dart';
 import '../models/task/task_rule.dart';
 import '../pages/adjustment/boolean_adjustment_page.dart';
 import '../pages/adjustment/categorical_adjustment_page.dart';
@@ -109,14 +110,14 @@ class ComponentActions {
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);
 
-    final rules = appRepository.taskRules.values.where((rule) => rule.componentId == source.id).toList();
+    final rules = appRepository.taskRules.values.where((rule) => rule.association.componentId == source.id).toList();
     if (rules.isEmpty) return;
 
     final selected = await showCopyTaskRulesSheet(context, taskRules: rules, componentName: target.name);
     if (selected == null || selected.isEmpty) return;
 
-    // deepCopy() keeps the original componentId, so it has to be re-pointed.
-    final copies = selected.map((rule) => rule.deepCopy().copyWith(componentId: target.id)).toList();
+    // deepCopy() keeps the original association, so it has to be re-pointed.
+    final copies = selected.map((rule) => rule.deepCopy().copyWith(association: ComponentTaskAssociation(target.id))).toList();
     await appRepository.addTaskRules(copies);
 
     if (!context.mounted) return;
@@ -221,7 +222,7 @@ class ComponentActions {
     );
     if (!confirmed || !context.mounted) return;
 
-    final relatedTaskRules = appRepository.taskRules.values.where((rule) => rule.componentId == component.id).toList();
+    final relatedTaskRules = appRepository.taskRules.values.where((rule) => rule.association.componentId == component.id).toList();
     final selectedTaskRules = relatedTaskRules.isEmpty
         ? const <TaskRule>[]
         : await showDeleteTaskRulesSheet(context, taskRules: relatedTaskRules) ?? const <TaskRule>[];

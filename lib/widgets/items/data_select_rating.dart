@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import '../../models/bike.dart';
 import '../../models/component.dart';
 import '../../models/person.dart';
-import '../../models/rating.dart';
-import '../../models/rating_association.dart';
+import '../../models/rating/rating.dart';
+import '../../models/rating/rating_association.dart';
 
 class DataSelectRating extends StatelessWidget {
   final Rating item;
@@ -42,43 +42,43 @@ class DataSelectRating extends StatelessWidget {
           spacing: 2,
           children: [
             Icon(
-              switch (item.filterType) {
-                FilterType.global => Icons.circle_outlined,
-                FilterType.bike => Bike.iconData,
-                FilterType.person => Person.iconData,
-                FilterType.component =>
-                  (components[item.filter]?.componentType ??
+              switch (item.association) {
+                GlobalRatingAssociation() => Icons.circle_outlined,
+                BikeRatingAssociation() => Bike.iconData,
+                PersonRatingAssociation() => Person.iconData,
+                ComponentRatingAssociation(:final componentId) =>
+                  (components[componentId]?.componentType ??
                           ComponentType.other)
                       .getIconData(),
-                FilterType.componentType =>
+                ComponentTypeRatingAssociation(:final componentTypeStr) =>
                   (ComponentType.values.firstWhereOrNull(
-                            (ct) => ct.toString() == item.filter,
+                            (ct) => ct.toString() == componentTypeStr,
                           ) ??
                           ComponentType.other)
                       .getIconData(),
               },
               size: 13,
-              color: switch (item.filterType) {
-                FilterType.global || FilterType.componentType => Theme.of(
+              color: switch (item.association) {
+                GlobalRatingAssociation() || ComponentTypeRatingAssociation() => Theme.of(
                   context,
                 ).colorScheme.onSurfaceVariant,
-                FilterType.person =>
-                  persons.containsKey(item.filter)
+                PersonRatingAssociation(:final personId) =>
+                  persons.containsKey(personId)
                       ? Theme.of(context).colorScheme.onSurfaceVariant
                       : Theme.of(context).colorScheme.error,
-                FilterType.bike =>
-                  bikes.containsKey(item.filter)
+                BikeRatingAssociation(:final bikeId) =>
+                  bikes.containsKey(bikeId)
                       ? Theme.of(context).colorScheme.onSurfaceVariant
                       : Theme.of(context).colorScheme.error,
-                FilterType.component =>
-                  components.containsKey(item.filter)
+                ComponentRatingAssociation(:final componentId) =>
+                  components.containsKey(componentId)
                       ? Theme.of(context).colorScheme.onSurfaceVariant
                       : Theme.of(context).colorScheme.error,
               },
             ),
             Flexible(
-              child: switch (item.filterType) {
-                FilterType.global => Text(
+              child: switch (item.association) {
+                GlobalRatingAssociation() => Text(
                   "Global",
                   style: TextStyle(
                     color: Theme.of(
@@ -89,10 +89,10 @@ class DataSelectRating extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                 ),
-                FilterType.bike => Text(
-                  bikes[item.filter]?.name ?? "BIKE NOT FOUND",
+                BikeRatingAssociation(:final bikeId) => Text(
+                  bikes[bikeId]?.name ?? "BIKE NOT FOUND",
                   style: TextStyle(
-                    color: bikes.containsKey(item.filter)
+                    color: bikes.containsKey(bikeId)
                         ? Theme.of(
                             context,
                           ).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
@@ -102,11 +102,11 @@ class DataSelectRating extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                 ),
-                FilterType.person => Text(
-                  persons[item.filter]?.name ??
+                PersonRatingAssociation(:final personId) => Text(
+                  persons[personId]?.name ??
                       "PERSON NOT FOUND",
                   style: TextStyle(
-                    color: persons.containsKey(item.filter)
+                    color: persons.containsKey(personId)
                         ? Theme.of(
                             context,
                           ).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
@@ -116,11 +116,11 @@ class DataSelectRating extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                 ),
-                FilterType.component => Text(
-                  components[item.filter]?.name ??
+                ComponentRatingAssociation(:final componentId) => Text(
+                  components[componentId]?.name ??
                       "COMPONENT NOT FOUND",
                   style: TextStyle(
-                    color: components.containsKey(item.filter)
+                    color: components.containsKey(componentId)
                         ? Theme.of(
                             context,
                           ).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
@@ -130,10 +130,10 @@ class DataSelectRating extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                 ),
-                FilterType.componentType => Text(
+                ComponentTypeRatingAssociation(:final componentTypeStr) => Text(
                   ComponentType.values
                           .firstWhereOrNull(
-                            (ct) => ct.toString() == item.filter,
+                            (ct) => ct.toString() == componentTypeStr,
                           )
                           ?.label ??
                       "-",

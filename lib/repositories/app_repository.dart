@@ -15,16 +15,17 @@ import '../models/component_installation.dart';
 import '../models/component_stats.dart';
 import '../models/installation.dart';
 import '../models/person.dart';
-import '../models/rating.dart';
-import '../models/rating_association.dart';
-import '../models/rating_entry.dart';
-import '../models/rating_metric.dart';
+import '../models/rating/rating.dart';
+import '../models/rating/rating_association.dart';
+import '../models/rating/rating_entry.dart';
+import '../models/rating/rating_metric.dart';
 import '../models/selected_data.dart';
 import '../models/setup.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/strava/strava_athlete.dart';
 import '../models/strava/strava_gear.dart';
 import '../models/strava/strava_scope.dart';
+import '../models/task/task_association.dart';
 import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
 import '../services/backup_service.dart';
@@ -472,12 +473,12 @@ class AppRepository extends ChangeNotifier {
   void _filterRatings() {
     _filteredRatings = Map.fromEntries(ratings.entries.where((entry) {
       final rating = entry.value;
-      switch (rating.filterType) {
-        case FilterType.global: return true;
-        case FilterType.person: return true;
-        case FilterType.bike: return _selectedBike == null ? true : rating.filter == _selectedBike;
-        case FilterType.component: return _selectedBike == null ? true : filteredComponents.values.any((c) => c.id == rating.filter);
-        case FilterType.componentType: return _selectedBike == null ? true : filteredComponents.values.any((c) => c.componentType.toString() == rating.filter);
+      switch (rating.association) {
+        case GlobalRatingAssociation(): return true;
+        case PersonRatingAssociation(): return true;
+        case BikeRatingAssociation(:final bikeId): return _selectedBike == null ? true : bikeId == _selectedBike;
+        case ComponentRatingAssociation(:final componentId): return _selectedBike == null ? true : filteredComponents.values.any((c) => c.id == componentId);
+        case ComponentTypeRatingAssociation(:final componentTypeStr): return _selectedBike == null ? true : filteredComponents.values.any((c) => c.componentType.toString() == componentTypeStr);
       }
     }));
   }
@@ -501,13 +502,17 @@ class AppRepository extends ChangeNotifier {
   }
 
   bool _isTaskRuleInCurrentScope(TaskRule rule) {
-    if (rule.componentId == null && rule.bikeId == null) return true;
-    if (rule.bikeId != null) return _selectedBike == null || rule.bikeId == _selectedBike;
-
-    if (!_components.containsKey(rule.componentId)) return false;
-    final placement = componentHierarchy.resolveCurrent(rule.componentId!);
-    if (placement.isArchived || placement.isDeleted) return false;
-    return _selectedBike == null || placement.bikeId == _selectedBike;
+    switch (rule.association) {
+      case GeneralTaskAssociation():
+        return true;
+      case BikeTaskAssociation(:final id):
+        return _selectedBike == null || id == _selectedBike;
+      case ComponentTaskAssociation(:final id):
+        if (!_components.containsKey(id)) return false;
+        final placement = componentHierarchy.resolveCurrent(id);
+        if (placement.isArchived || placement.isDeleted) return false;
+        return _selectedBike == null || placement.bikeId == _selectedBike;
+    }
   }
 
   void _filterTaskEntries() {
@@ -679,8 +684,8 @@ class AppRepository extends ChangeNotifier {
     // round-trip to the database isolate, and awaiting them serially stalls on
     // that latency once per entry.
     final snapshots = await Future.wait(entries.map((entry) => getStatsAt(
-      componentId: entry.componentId,
-      bikeId: entry.bikeId,
+      componentId: entry.association.componentId,
+      bikeId: entry.association.bikeId,
       date: entry.dateTimeUTC,
     )));
 
@@ -703,16 +708,18 @@ class AppRepository extends ChangeNotifier {
   /// went on its current bike, and the stats the interval counts.
   ({TaskEntry? lastEntry, DateTime? installationDate, ComponentStats stats}) _taskRuleInputs(TaskRule rule) {
     DateTime? installationDate;
-    if (rule.componentId != null) {
+    if (rule.association case ComponentTaskAssociation(:final id)) {
       installationDate = componentHierarchy.effectiveBikeSinceAt(
-        rule.componentId!,
+        id,
         DateTime.now().toUtc(),
       );
     }
 
-    final stats = rule.componentId != null
-        ? (_componentStats[rule.componentId] ?? ComponentStats.zero())
-        : (rule.bikeId != null ? (_bikeStats[rule.bikeId] ?? ComponentStats.zero()) : ComponentStats.zero());
+    final stats = switch (rule.association) {
+      ComponentTaskAssociation(:final id) => _componentStats[id] ?? ComponentStats.zero(),
+      BikeTaskAssociation(:final id) => _bikeStats[id] ?? ComponentStats.zero(),
+      GeneralTaskAssociation() => ComponentStats.zero(),
+    };
 
     return (
       lastEntry: _latestTaskEntryByRule[rule.id],
@@ -751,7 +758,7 @@ class AppRepository extends ChangeNotifier {
       currentStats: inputs.stats,
       now: now.toUtc(),
       bikeRates: _bikeActivityRates,
-      component: rule.componentId != null ? _components[rule.componentId] : null,
+      component: _components[rule.association.componentId],
       lastEntry: inputs.lastEntry,
       componentInstallationDate: inputs.installationDate,
     );
@@ -827,16 +834,18 @@ class AppRepository extends ChangeNotifier {
   /// Open (non-completed) task rules for a bike, including rules attached to its components.
   List<TaskRuleWithStatus> openTaskRulesForBike(String bikeId) {
     final rules = _taskRules.values.where((rule) {
-      if (rule.bikeId == bikeId) return true;
-      if (rule.componentId != null) return componentHierarchy.currentBike(rule.componentId!) == bikeId;
-      return false;
+      return switch (rule.association) {
+        BikeTaskAssociation(:final id) => id == bikeId,
+        ComponentTaskAssociation(:final id) => componentHierarchy.currentBike(id) == bikeId,
+        GeneralTaskAssociation() => false,
+      };
     });
     return _openTaskRulesWithStatus(rules);
   }
 
   /// Open (non-completed) task rules for a single component.
   List<TaskRuleWithStatus> openTaskRulesForComponent(String componentId) {
-    return _openTaskRulesWithStatus(_taskRules.values.where((rule) => rule.componentId == componentId));
+    return _openTaskRulesWithStatus(_taskRules.values.where((rule) => rule.association.componentId == componentId));
   }
 
   /// Aggregates the worst status across [rules]: any overdue wins, else any due, else any upcoming, else completed.
@@ -954,12 +963,12 @@ class AppRepository extends ChangeNotifier {
 
     final metrics = <RatingMetric>[];
     for (final rating in _ratings.values) {
-      final applies = switch (rating.filterType) {
-        FilterType.global => true,
-        FilterType.bike => rating.filter == bikeId,
-        FilterType.person => rating.filter != null && rating.filter == bikePerson,
-        FilterType.component => componentIds.contains(rating.filter),
-        FilterType.componentType => componentTypes.contains(rating.filter),
+      final applies = switch (rating.association) {
+        GlobalRatingAssociation() => true,
+        BikeRatingAssociation(bikeId: final ratingBikeId) => ratingBikeId == bikeId,
+        PersonRatingAssociation(:final personId) => personId == bikePerson,
+        ComponentRatingAssociation(:final componentId) => componentIds.contains(componentId),
+        ComponentTypeRatingAssociation(:final componentTypeStr) => componentTypes.contains(componentTypeStr),
       };
       if (applies) metrics.addAll(rating.metrics);
     }

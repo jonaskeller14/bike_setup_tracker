@@ -2,8 +2,8 @@ import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/person.dart';
-import 'package:bike_setup_tracker/models/rating.dart';
-import 'package:bike_setup_tracker/models/rating_association.dart';
+import 'package:bike_setup_tracker/models/rating/rating.dart';
+import 'package:bike_setup_tracker/models/rating/rating_association.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -84,9 +84,9 @@ void main() {
     });
 
     test("Reorder Ratings", () async {
-      final r1 = Rating(id: "r1", name: "R1", filter: null, filterType: FilterType.global);
-      final r2 = Rating(id: "r2", name: "R2", filter: null, filterType: FilterType.global);
-      final r3 = Rating(id: "r3", name: "R3", filter: null, filterType: FilterType.global);
+      final r1 = Rating(id: "r1", name: "R1", association: const GlobalRatingAssociation());
+      final r2 = Rating(id: "r2", name: "R2", association: const GlobalRatingAssociation());
+      final r3 = Rating(id: "r3", name: "R3", association: const GlobalRatingAssociation());
 
       await repository.addRatings([r1, r2, r3]);
       await pumpEventQueue();

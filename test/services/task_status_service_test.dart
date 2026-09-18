@@ -1,4 +1,5 @@
 import 'package:bike_setup_tracker/models/component_stats.dart';
+import 'package:bike_setup_tracker/models/task/task_association.dart';
 import 'package:bike_setup_tracker/models/task/task_entry.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
@@ -13,7 +14,7 @@ void main() {
     test('Recurring distance task', () {
       final rule = TaskRule(
         name: 'Chain Wax',
-        componentId: componentId,
+        association: ComponentTaskAssociation(componentId),
         interval: const DistanceThreshold(300000), // 300km
         repeat: true,
         tags: const {},
@@ -59,7 +60,7 @@ void main() {
     test('Distance task with delay', () {
       final rule = TaskRule(
         name: 'Late Chain Wax',
-        componentId: componentId,
+        association: ComponentTaskAssociation(componentId),
         interval: const DistanceThreshold(300000),
         delay: const DistanceThreshold(50000),
         repeat: true,
@@ -88,7 +89,7 @@ void main() {
     test('One-time task completion', () {
       final rule = TaskRule(
         name: 'Break-in service',
-        componentId: componentId,
+        association: ComponentTaskAssociation(componentId),
         interval: const DistanceThreshold(100000),
         repeat: false,
         tags: const {},
@@ -106,7 +107,7 @@ void main() {
       final entry = TaskEntry(
         name: 'Service Done',
         taskRule: rule.id,
-        componentId: componentId,
+        association: ComponentTaskAssociation(componentId),
         dateTimeUTC: now,
         dateTimeLocal: now,
         snapshot: ComponentStats.zero().copyWith(distance: 100000),
@@ -124,7 +125,7 @@ void main() {
     test('Time-based recurring task', () {
       final rule = TaskRule(
         name: 'Monthly Check',
-        componentId: componentId,
+        association: ComponentTaskAssociation(componentId),
         interval: const DurationThreshold(Duration(days: 30)),
         repeat: true,
         tags: const {},
@@ -146,7 +147,7 @@ void main() {
       final entry = TaskEntry(
         name: 'Last Check',
         taskRule: rule.id,
-        componentId: componentId,
+        association: ComponentTaskAssociation(componentId),
         dateTimeUTC: now.subtract(const Duration(days: 15)),
         dateTimeLocal: now.subtract(const Duration(days: 15)),
         snapshot: ComponentStats.zero(),
@@ -165,7 +166,7 @@ void main() {
     test('Component unrelated task (bike task)', () {
       final rule = TaskRule(
         name: 'Wash Bike A',
-        bikeId: 'bike-1',
+        association: const BikeTaskAssociation('bike-1'),
         interval: const DurationThreshold(Duration(days: 7)),
         repeat: true,
         tags: const {},
@@ -194,11 +195,11 @@ void main() {
       test('Bike Distance threshold with bikeId is valid', () {
         final rule = TaskRule(
           name: 'Bike Distance Task',
-          bikeId: 'bike-1',
+          association: const BikeTaskAssociation('bike-1'),
           interval: const DistanceThreshold(100),
           tags: const {},
         );
-        expect(rule.bikeId, 'bike-1');
+        expect(rule.association.bikeId, 'bike-1');
       });
     });
 

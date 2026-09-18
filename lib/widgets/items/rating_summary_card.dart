@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../models/rating_metric.dart';
+import '../../models/rating/rating_metric.dart';
 
 class RatingSummaryCard extends StatelessWidget {
   final int entryCount;

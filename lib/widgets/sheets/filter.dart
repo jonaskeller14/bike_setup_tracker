@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../../icons/simple_icons.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
-import '../../models/rating.dart';
+import '../../models/rating/rating.dart';
 import '../../models/setup.dart';
 import '../../models/task/task_rule.dart';
 import '../../repositories/app_repository.dart';

@@ -2,6 +2,7 @@ import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
+import 'package:bike_setup_tracker/models/task/task_association.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
@@ -12,7 +13,7 @@ Future<void> pumpEventQueue() => Future.delayed(const Duration(milliseconds: 100
 
 /// Mirrors the transform in `ComponentActions._copyTaskRulesTo`.
 TaskRule copyRuleTo(TaskRule rule, String componentId) =>
-    rule.deepCopy().copyWith(componentId: componentId);
+    rule.deepCopy().copyWith(association: ComponentTaskAssociation(componentId));
 
 void main() {
   group("Copy task rules onto a duplicated/replacing component", () {
@@ -53,7 +54,7 @@ void main() {
         notes: "50 h interval",
         priority: TaskPriority.high,
         tags: const {"suspension"},
-        componentId: source.id,
+        association: ComponentTaskAssociation(source.id),
         interval: const DistanceThreshold(500000),
         delay: const DistanceThreshold(100000),
         repeat: false,
@@ -62,8 +63,8 @@ void main() {
       final copy = copyRuleTo(rule, target.id);
 
       expect(copy.id, isNot(rule.id));
-      expect(copy.componentId, target.id);
-      expect(copy.bikeId, isNull);
+      expect(copy.association.componentId, target.id);
+      expect(copy.association.bikeId, isNull);
       expect(copy.isDeleted, isFalse);
       expect(copy.name, rule.name);
       expect(copy.notes, rule.notes);
@@ -76,14 +77,14 @@ void main() {
 
     test("deepCopy alone keeps the source componentId", () {
       // Guards the reason `copyWith(componentId: ...)` is required in the action.
-      final rule = TaskRule(name: "Check torque", tags: const {}, componentId: source.id);
-      expect(rule.deepCopy().componentId, source.id);
+      final rule = TaskRule(name: "Check torque", tags: const {}, association: ComponentTaskAssociation(source.id));
+      expect(rule.deepCopy().association.componentId, source.id);
     });
 
     test("copied rules land on the target while the source keeps its own", () async {
       final rules = [
-        TaskRule(name: "Lower leg service", tags: const {}, componentId: source.id, interval: const DistanceThreshold(500000)),
-        TaskRule(name: "Air spring rebuild", tags: const {}, componentId: source.id),
+        TaskRule(name: "Lower leg service", tags: const {}, association: ComponentTaskAssociation(source.id), interval: const DistanceThreshold(500000)),
+        TaskRule(name: "Air spring rebuild", tags: const {}, association: ComponentTaskAssociation(source.id)),
       ];
       await repository.addTaskRules(rules);
       await pumpEventQueue();
@@ -109,9 +110,9 @@ void main() {
       emissions = 0; // ignore the initial emission
 
       await repository.addTaskRules([
-        TaskRule(name: "A", tags: const {}, componentId: target.id),
-        TaskRule(name: "B", tags: const {}, componentId: target.id),
-        TaskRule(name: "C", tags: const {}, componentId: target.id),
+        TaskRule(name: "A", tags: const {}, association: ComponentTaskAssociation(target.id)),
+        TaskRule(name: "B", tags: const {}, association: ComponentTaskAssociation(target.id)),
+        TaskRule(name: "C", tags: const {}, association: ComponentTaskAssociation(target.id)),
       ]);
       await pumpEventQueue();
 
@@ -121,9 +122,9 @@ void main() {
 
     test("the UNDO path removes and restores in one emission each", () async {
       final rules = [
-        TaskRule(name: "A", tags: const {}, componentId: target.id),
-        TaskRule(name: "B", tags: const {}, componentId: target.id),
-        TaskRule(name: "C", tags: const {}, componentId: target.id),
+        TaskRule(name: "A", tags: const {}, association: ComponentTaskAssociation(target.id)),
+        TaskRule(name: "B", tags: const {}, association: ComponentTaskAssociation(target.id)),
+        TaskRule(name: "C", tags: const {}, association: ComponentTaskAssociation(target.id)),
       ];
       await repository.addTaskRules(rules);
       await pumpEventQueue();
@@ -149,12 +150,12 @@ void main() {
 
     test("bike-linked rules are not picked up by the component filter", () async {
       await repository.addTaskRules([
-        TaskRule(name: "Wash bike", tags: const {}, bikeId: bike.id),
-        TaskRule(name: "Check torque", tags: const {}, componentId: source.id),
+        TaskRule(name: "Wash bike", tags: const {}, association: BikeTaskAssociation(bike.id)),
+        TaskRule(name: "Check torque", tags: const {}, association: ComponentTaskAssociation(source.id)),
       ]);
       await pumpEventQueue();
 
-      final offered = repository.taskRules.values.where((rule) => rule.componentId == source.id).toList();
+      final offered = repository.taskRules.values.where((rule) => rule.association.componentId == source.id).toList();
 
       expect(offered.map((r) => r.name), ["Check torque"]);
     });

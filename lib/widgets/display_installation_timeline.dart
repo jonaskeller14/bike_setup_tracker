@@ -90,11 +90,7 @@ class DisplayInstallationTimeline extends StatelessWidget {
                 backgroundColor: colorScheme.surface,
                 child: switch (item.installation) {
                   BikeInstallation() => null,
-                  ComponentInstallation(:final parentComponentId) => Icon(
-                    components[parentComponentId]?.componentType.getIconData() ?? Component.iconData,
-                    size: 9,
-                    color: colorScheme.secondary,
-                  ),
+                  ComponentInstallation() => null,
                   Uninstallation() => Icon(Icons.close, size: 10, color: colorScheme.secondary),
                   Archival() => Icon(Icons.close, size: 10, color: colorScheme.secondary),
                 },

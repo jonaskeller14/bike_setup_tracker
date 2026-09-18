@@ -8,8 +8,10 @@ import '../models/bike.dart';
 import '../models/component.dart';
 import '../models/installation.dart';
 import '../repositories/app_repository.dart';
+import '../services/component_hierarchy_resolver.dart';
 import '../theme.dart';
 import '../utils/installation_timeline_validation.dart';
+import 'component_ancestors_column.dart';
 import 'text/section_title.dart';
 
 class _ParentOption {
@@ -17,12 +19,14 @@ class _ParentOption {
   final IconData icon;
   final String label;
   final Color? color;
+  final List<ComponentAncestor> ancestors;
 
   const _ParentOption({
     required this.value,
     required this.icon,
     required this.label,
     this.color,
+    this.ancestors = const [],
   });
 
   Widget content({Color? tint}) {
@@ -34,6 +38,46 @@ class _ParentOption {
         Expanded(
           child: Text(label, overflow: TextOverflow.ellipsis, style: TextStyle(color: effectiveColor)),
         ),
+      ],
+    );
+  }
+
+  /// [showDivider] draws a separator above the entry. A standalone divider
+  /// item is not used because dropdown items have a 48px minimum height.
+  Widget menuContent(Map<String, Bike> bikes, {bool showDivider = false}) {
+    final body = ancestors.isEmpty
+        ? content()
+        : Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: Row(
+              spacing: 8,
+              children: [
+                Icon(icon, size: 20, color: color),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: color)),
+                      ComponentAncestorsColumn(ancestors: ancestors, bikes: bikes),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+    if (!showDivider) return body;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Flutter bakes a fixed 16px horizontal padding into every dropdown
+        // menu item with no public way to opt out; negate it so the divider
+        // spans the full menu width instead of sitting inset like the content.
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: -16),
+          child: Divider(height: 1),
+        ),
+        body,
       ],
     );
   }
@@ -116,6 +160,7 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
     Map<String, Bike> bikes,
     Map<String, Component> components,
     Iterable<Component> parentComponentCandidates,
+    ComponentHierarchyResolver hierarchy,
   ) {
     return [
       _ParentOption(
@@ -150,6 +195,13 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
           icon: Bike.iconData,
           label: bike.name,
         ),
+      if (installation is BikeInstallation && !bikes.containsKey(installation.parent))
+        _ParentOption(
+          value: installation,
+          icon: Bike.iconData,
+          label: 'BIKE NOT FOUND',
+          color: Theme.of(context).colorScheme.error,
+        ),
       for (final component in parentComponentCandidates)
         if (installation is! ComponentInstallation || installation.parentComponentId != component.id)
           _ParentOption(
@@ -162,6 +214,7 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
             ),
             icon: component.componentType.getIconData(),
             label: component.name,
+            ancestors: hierarchy.currentAncestors(component.id),
           ),
       if (installation case ComponentInstallation(:final parentComponentId))
         _ParentOption(
@@ -169,13 +222,7 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
           icon: components[parentComponentId]?.componentType.getIconData() ?? Component.iconData,
           label: components[parentComponentId]?.name ?? 'COMPONENT NOT FOUND',
           color: components.containsKey(parentComponentId) ? null : Theme.of(context).colorScheme.error,
-        ),
-      if (installation is BikeInstallation && !bikes.containsKey(installation.parent))
-        _ParentOption(
-          value: installation,
-          icon: Bike.iconData,
-          label: 'BIKE NOT FOUND',
-          color: Theme.of(context).colorScheme.error,
+          ancestors: hierarchy.currentAncestors(parentComponentId),
         ),
     ];
   }
@@ -245,6 +292,7 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
     final appSettings = context.watch<AppSettings>();
     final bikes = appRepository.bikes;
     final parentComponentCandidates = _parentComponentCandidates(appRepository, appSettings).toList();
+    final hierarchy = appRepository.componentHierarchy;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -333,7 +381,8 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                             ? colorScheme.error
                             : (!isEditable ? theme.disabledColor : null);
 
-                        final parentOptions = _parentOptions(installation, bikes, appRepository.components, parentComponentCandidates);
+                        final parentOptions = _parentOptions(installation, bikes, appRepository.components, parentComponentCandidates, hierarchy);
+                        final firstComponentOptionIndex = parentOptions.indexWhere((o) => o.value is ComponentInstallation);
 
                         return Padding(
                           padding: const EdgeInsets.only(left: 12.0, top: 4, bottom: 4),
@@ -437,6 +486,7 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                                   initialValue: installation,
                                   hint: const Text('Select Bike'),
                                   isExpanded: true,
+                                  itemHeight: null,
                                   iconEnabledColor: parentColor,
                                   iconDisabledColor: parentColor,
                                   decoration: InputDecoration(
@@ -449,10 +499,10 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                                     fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                   ),
                                   items: [
-                                    for (final option in parentOptions)
+                                    for (final (i, option) in parentOptions.indexed)
                                       DropdownMenuItem<Installation>(
                                         value: option.value,
-                                        child: option.content(),
+                                        child: option.menuContent(bikes, showDivider: i == firstComponentOptionIndex),
                                       ),
                                   ],
                                   // The closed field, unlike the menu entries, is tinted when the
@@ -488,14 +538,9 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                               borderWidth: 2.5,
                               color: colorScheme.primary,
                             ),
-                          ComponentInstallation(:final parentComponentId) => OutlinedDotIndicator(
+                          ComponentInstallation() => OutlinedDotIndicator(
                               borderWidth: 2.5,
                               color: colorScheme.primary,
-                              child: Icon(
-                                appRepository.components[parentComponentId]?.componentType.getIconData() ?? Component.iconData,
-                                size: 9,
-                                color: colorScheme.primary,
-                              ),
                             ),
                           Uninstallation _ => OutlinedDotIndicator(
                               borderWidth: 2.5,

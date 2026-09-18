@@ -5,14 +5,13 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
-import '../../models/bike.dart';
 import '../../models/component.dart';
-import '../../models/installation.dart';
 import '../../models/task/task_rule.dart';
 import '../../pages/details/component_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/component_actions.dart';
+import '../component_ancestors_column.dart';
 import '../lists/adjustment_compact_display/adjustment_compact_display_list.dart';
 import '../notes_text.dart';
 
@@ -38,7 +37,6 @@ class ComponentListCard extends StatelessWidget{
     final appRepository = context.watch<AppRepository>();
     final subscriptionService = context.watch<SubscriptionService>();
     final bikes = appRepository.bikes;
-    final components = appRepository.components;
 
     TaskStatusType? indicatorStatus;
     if (appSettings.enableTask && appSettings.enableGarageTaskIndicator) {
@@ -106,51 +104,15 @@ class ComponentListCard extends StatelessWidget{
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 2,
                 children: [
-                  Wrap(
-                    spacing: 4,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        spacing: 2,
-                        children: [
-                          Icon(switch (component.latestInstallation) {
-                              Archival() => Icons.inventory_2_outlined,
-                              BikeInstallation() => Bike.iconData,
-                              ComponentInstallation(:final parentComponentId) =>
-                                components[parentComponentId]?.componentType.getIconData() ?? Component.iconData,
-                              Uninstallation() || null => Icons.shelves,
-                            },
-                            size: 13,
-                            color: switch (component.latestInstallation) {
-                              BikeInstallation(:final bikeId) when !bikes.containsKey(bikeId) => Theme.of(context).colorScheme.error,
-                              ComponentInstallation(:final parentComponentId) when !components.containsKey(parentComponentId) => Theme.of(context).colorScheme.error,
-                              _ => Theme.of(context).colorScheme.onSurfaceVariant,
-                            },
-                          ),
-                          Flexible(
-                            child: Text(
-                              switch (component.latestInstallation) {
-                                Archival() => "Archived",
-                                BikeInstallation(:final bikeId) => bikes[bikeId]?.name ?? "BIKE NOT FOUND",
-                                ComponentInstallation(:final parentComponentId) => components[parentComponentId]?.name ?? "COMPONENT NOT FOUND",
-                                Uninstallation() || null => "Not installed",
-                              },
-                              style: TextStyle(
-                                color: switch (component.latestInstallation) {
-                                  BikeInstallation(:final bikeId) when !bikes.containsKey(bikeId) => Theme.of(context).colorScheme.error,
-                                  ComponentInstallation(:final parentComponentId) when !components.containsKey(parentComponentId) => Theme.of(context).colorScheme.error,
-                                  _ => Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                                },
-                                fontSize: 13,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                  ComponentAncestorsColumn(
+                    ancestors: appRepository.componentHierarchy.currentAncestors(component.id),
+                    bikes: bikes,
+                    iconSize: 13,
+                    spacing: 2,
+                    textStyle: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                      fontSize: 13,
+                    ),
                   ),
                   if (component.notes != null && component.notes!.isNotEmpty)
                     Row(

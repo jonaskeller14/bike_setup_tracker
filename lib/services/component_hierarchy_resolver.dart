@@ -43,6 +43,33 @@ class ComponentPlacement {
       );
 }
 
+sealed class ComponentAncestor {
+  const ComponentAncestor();
+}
+
+class ParentComponentAncestor extends ComponentAncestor {
+  final Component component;
+  const ParentComponentAncestor(this.component);
+}
+
+class MissingParentAncestor extends ComponentAncestor {
+  final String componentId;
+  const MissingParentAncestor(this.componentId);
+}
+
+class BikeAncestor extends ComponentAncestor {
+  final String bikeId;
+  const BikeAncestor(this.bikeId);
+}
+
+class ArchivedAncestor extends ComponentAncestor {
+  const ArchivedAncestor();
+}
+
+class UninstalledAncestor extends ComponentAncestor {
+  const UninstalledAncestor();
+}
+
 /// Resolves a component's effective placement through component parents.
 ///
 /// Installation records remain the single source of truth: moving a parent
@@ -123,6 +150,33 @@ class ComponentHierarchyResolver {
       resolveAt(componentId, atUTC).bikeId;
 
   String? currentBike(String componentId) => resolveCurrent(componentId).bikeId;
+
+  List<ComponentAncestor> ancestorsAt(String componentId, DateTime atUTC) {
+    final utc = atUTC.toUtc();
+    final ancestors = <ComponentAncestor>[];
+    final visited = {componentId};
+    var current = components[componentId];
+    while (current != null) {
+      switch (installationAt(current, utc)) {
+        case ComponentInstallation(:final parentComponentId):
+          final parent = deletedComponentIds.contains(parentComponentId) ? null : components[parentComponentId];
+          if (parent == null) return ancestors..add(MissingParentAncestor(parentComponentId));
+          if (!visited.add(parent.id)) return ancestors;
+          ancestors.add(ParentComponentAncestor(parent));
+          current = parent;
+        case BikeInstallation(:final bikeId):
+          return ancestors..add(BikeAncestor(bikeId));
+        case Archival():
+          return ancestors..add(const ArchivedAncestor());
+        case Uninstallation() || null:
+          return ancestors..add(const UninstalledAncestor());
+      }
+    }
+    return ancestors;
+  }
+
+  List<ComponentAncestor> currentAncestors(String componentId) =>
+      ancestorsAt(componentId, currentTimeUTC);
 
   DateTime? effectiveBikeSinceAt(String componentId, DateTime atUTC) =>
       switch (resolveAt(componentId, atUTC)) {

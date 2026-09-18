@@ -55,8 +55,10 @@ void main() {
     });
 
     tearDown(() async {
-      data.dispose();
-      appRepository.dispose();
+      // Closing the database right after dispose() races its fire-and-forget
+      // subscription cancellation and can hang; wait for cancellation first.
+      await data.disposeAndAwaitCancellation();
+      await appRepository.disposeAndAwaitCancellation();
       await database.close();
     });
 

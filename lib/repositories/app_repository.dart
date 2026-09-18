@@ -106,6 +106,16 @@ class AppRepository extends ChangeNotifier {
     super.dispose();
   }
 
+  /// Disposes and waits for every stream subscription to actually cancel.
+  @visibleForTesting
+  Future<void> disposeAndAwaitCancellation() async {
+    _isDisposed = true;
+    _strava.dispose();
+    final cancellations = _subscriptions.map((s) => s.cancel()).toList(growable: false);
+    super.dispose();
+    await Future.wait(cancellations);
+  }
+
   // ---------------------------------------------------------------------------
   // RAW STATE FROM DB (read-only cache for immediate access)
   // ---------------------------------------------------------------------------

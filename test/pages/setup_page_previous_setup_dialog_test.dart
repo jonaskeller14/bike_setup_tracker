@@ -182,7 +182,9 @@ class _SetupPageHarness {
   }
 
   Future<void> dispose() async {
-    repository.dispose();
+    // Closing the database right after dispose() races its fire-and-forget
+    // subscription cancellation and can hang; wait for cancellation first.
+    await repository.disposeAndAwaitCancellation();
     settings.dispose();
     await database.close();
   }

@@ -263,6 +263,20 @@ void main() {
         expect(db.toModel(), isA<Uninstallation>());
       });
 
+      test('parentType=component yields ComponentInstallation', () {
+        final db = InstallationDb(
+          id: 'nested-i',
+          componentId: 'tire',
+          parent: 'wheel',
+          parentType: InstallationParentType.component,
+          dateTimeUTC: utc,
+          dateTimeLocal: local,
+        );
+        final model = db.toModel();
+        expect(model, isA<ComponentInstallation>());
+        expect((model as ComponentInstallation).parentComponentId, 'wheel');
+      });
+
       test('parentType=archived yields Archival', () {
         final db = InstallationDb(
           id: 'i3',
@@ -324,6 +338,24 @@ void main() {
 
         final restored = Installation.fromJson(json);
         expect(restored, isA<Uninstallation>());
+      });
+
+      test('ComponentInstallation round-trips and preserves subtype when copied', () {
+        final original = ComponentInstallation(
+          id: 'nested-i',
+          componentId: 'tire',
+          parentComponentId: 'wheel',
+          dateTimeUTC: utc,
+          dateTimeLocal: local,
+        );
+        final json = original.toJson();
+        expect(json['type'], 'component');
+        expect(json['parent'], 'wheel');
+
+        final restored = Installation.fromJson(json);
+        expect(restored, isA<ComponentInstallation>());
+        expect((restored as ComponentInstallation).parentComponentId, 'wheel');
+        expect(restored.copyWith(componentId: 'new-tire'), isA<ComponentInstallation>());
       });
 
       test('Archival round-trips', () {

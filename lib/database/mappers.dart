@@ -78,6 +78,9 @@ extension InstallationDbMapper on InstallationDb {
       InstallationParentType.bike => parent == null
           ? Uninstallation(id: id, componentId: componentId, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal)
           : BikeInstallation(id: id, componentId: componentId, bikeId: parent!, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal),
+      InstallationParentType.component => parent == null
+          ? Uninstallation(id: id, componentId: componentId, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal)
+          : ComponentInstallation(id: id, componentId: componentId, parentComponentId: parent!, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal),
       InstallationParentType.none =>
         Uninstallation(id: id, componentId: componentId, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal),
       InstallationParentType.archived =>

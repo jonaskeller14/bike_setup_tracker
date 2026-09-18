@@ -10,6 +10,7 @@ import '../database/app_database.dart';
 import '../models/bike.dart';
 import '../models/selected_data.dart';
 import '../models/setup.dart';
+import '../services/component_hierarchy_resolver.dart';
 import '../services/data_export_service.dart';
 import '../services/database_migration_service.dart';
 import '../services/image_storage_service.dart';
@@ -132,6 +133,12 @@ class FileImport {
   }
 
   static Future<void> _importDataToDb(AppDatabase database, SelectedData dataToImport) async {
+    // Reject an unusable component hierarchy before the wipe below: the deletes
+    // are not part of the insert transaction, so failing afterwards would leave
+    // the database empty. Merged data is checked, not just the incoming file —
+    // two individually sound datasets can still merge into a cycle.
+    ComponentHierarchyResolver(dataToImport.components).validate();
+
     await database.transaction(() async {
       await database.delete(database.setupAdjustmentValues).go();
       await database.delete(database.ratingEntryValues).go();

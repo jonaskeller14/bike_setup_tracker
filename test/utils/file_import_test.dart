@@ -2,9 +2,11 @@ import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/database/mappers.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component.dart';
+import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/models/person.dart';
 import 'package:bike_setup_tracker/models/selected_data.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
+import 'package:bike_setup_tracker/services/component_hierarchy_resolver.dart';
 import 'package:bike_setup_tracker/utils/file_import.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -72,6 +74,39 @@ void main() {
   }
 
   group('FileImport Tests', () {
+    test('rejects a cyclic component hierarchy without touching local data', () async {
+      final localPerson = createPerson(id: 'p1', name: 'Local Person');
+      await database.into(database.persons).insert(localPerson.toCompanion());
+
+      Component nested(String id, String parentId) => Component(
+            id: id,
+            name: id,
+            componentType: ComponentType.other,
+            installations: [
+              ComponentInstallation(
+                componentId: id,
+                parentComponentId: parentId,
+                dateTimeUTC: DateTime.utc(2026, 1, 1),
+                dateTimeLocal: DateTime(2026, 1, 1),
+              ),
+            ],
+          );
+
+      final remoteData = SelectedData(
+        components: {'a': nested('a', 'b'), 'b': nested('b', 'a')},
+      );
+
+      await expectLater(
+        FileImport.replace(remoteData: remoteData, database: database),
+        throwsA(isA<ComponentHierarchyValidationException>()),
+      );
+
+      // The wipe runs before the insert, so a late failure would empty the database.
+      final personsInDb = await database.select(database.persons).get();
+      expect(personsInDb, hasLength(1));
+      expect(personsInDb.first.name, 'Local Person');
+    });
+
     test('replace - clears local state and replaces with remote', () async {
       // 1. Setup local data
       final localPerson = createPerson(id: 'p1', name: 'Local Person');

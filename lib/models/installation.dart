@@ -1,6 +1,6 @@
 import 'package:uuid/uuid.dart';
 
-enum InstallationParentType { bike, none, archived }
+enum InstallationParentType { bike, component, none, archived }
 
 sealed class Installation {
   final String id;
@@ -24,11 +24,13 @@ sealed class Installation {
 
   String? get parent => switch (this) {
         BikeInstallation(:final bikeId) => bikeId,
+        ComponentInstallation(:final parentComponentId) => parentComponentId,
         _ => null,
       };
 
   InstallationParentType get parentType => switch (this) {
         BikeInstallation _ => InstallationParentType.bike,
+        ComponentInstallation _ => InstallationParentType.component,
         Uninstallation _ => InstallationParentType.none,
         Archival _ => InstallationParentType.archived,
       };
@@ -72,12 +74,7 @@ sealed class Installation {
     );
   }
 
-  /// When [parent] is provided the event is *retargeted* (subtype chosen by
-  /// null-ness — this intentionally drops [Archival], since giving it a target
-  /// means it is installed/uninstalled again). Otherwise the subtype is
-  /// preserved and only id/componentId/dates change.
   Installation copyWith({
-    Object? parent = const _Sentinel(),
     Object? id = const _Sentinel(),
     Object? componentId = const _Sentinel(),
     Object? dateTimeUTC = const _Sentinel(),
@@ -94,19 +91,16 @@ sealed class Installation {
         ? this.dateTimeLocal
         : dateTimeLocal as DateTime;
 
-    if (parent is! _Sentinel) {
-      return Installation(
-        parent: parent as String?,
-        id: newId,
-        componentId: newComponentId,
-        dateTimeUTC: newDateUtc,
-        dateTimeLocal: newDateLocal,
-      );
-    }
-
     return switch (this) {
       BikeInstallation(:final bikeId) => BikeInstallation(
           bikeId: bikeId,
+          id: newId,
+          componentId: newComponentId,
+          dateTimeUTC: newDateUtc,
+          dateTimeLocal: newDateLocal,
+        ),
+      ComponentInstallation(:final parentComponentId) => ComponentInstallation(
+          parentComponentId: parentComponentId,
           id: newId,
           componentId: newComponentId,
           dateTimeUTC: newDateUtc,
@@ -172,6 +166,13 @@ sealed class Installation {
           dateTimeUTC: dateTimeUTC,
           dateTimeLocal: dateTimeLocal,
         ),
+      InstallationParentType.component => ComponentInstallation(
+          parentComponentId: json['parent'] as String,
+          id: id,
+          componentId: cid,
+          dateTimeUTC: dateTimeUTC,
+          dateTimeLocal: dateTimeLocal,
+        ),
       InstallationParentType.none => Uninstallation(
           id: id,
           componentId: cid,
@@ -208,6 +209,18 @@ class BikeInstallation extends Installation {
 
   BikeInstallation({
     required this.bikeId,
+    super.id,
+    super.componentId,
+    required super.dateTimeUTC,
+    required super.dateTimeLocal,
+  }) : super._();
+}
+
+class ComponentInstallation extends Installation {
+  final String parentComponentId;
+
+  ComponentInstallation({
+    required this.parentComponentId,
     super.id,
     super.componentId,
     required super.dateTimeUTC,

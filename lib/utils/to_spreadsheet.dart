@@ -9,6 +9,7 @@ import '../models/selected_data.dart';
 import '../models/setup.dart';
 import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
+import '../services/component_hierarchy_resolver.dart';
 
 class SpreadsheetExport {
   static List<int>? toExcel(SelectedData data, AppSettings settings) {
@@ -161,8 +162,10 @@ class SpreadsheetExport {
     }
 
     // Component Adjustments
+    final hierarchy = ComponentHierarchyResolver(data.components);
     final components = data.components.values
-        .where((c) => !c.isDeleted && (bikeId == null || c.bike == bikeId))
+        .where((c) => !c.isDeleted &&
+            (bikeId == null || hierarchy.currentBike(c.id) == bikeId))
         .toList();
 
     for (final component in components) {

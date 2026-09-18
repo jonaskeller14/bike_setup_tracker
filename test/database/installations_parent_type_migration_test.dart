@@ -25,6 +25,7 @@ void main() {
       await db.customStatement('PRAGMA foreign_keys = OFF');
 
       // Simulate pre-v9: strip the column that the v9 step adds.
+      await db.customStatement('DROP INDEX installations_parent_lookup_idx');
       await db.customStatement(
         'ALTER TABLE installations DROP COLUMN parent_type',
       );
@@ -84,6 +85,14 @@ void main() {
         "SELECT id, parent_type FROM installations WHERE id = 'i3'",
       ).get();
       expect(rows.single.read<String>('parent_type'), 'archived');
+    });
+
+    test('current schema contains hierarchy lookup indexes', () async {
+      final rows = await db.customSelect("PRAGMA index_list('installations')").get();
+      final names = rows.map((row) => row.read<String>('name')).toSet();
+
+      expect(names, contains('installations_component_date_idx'));
+      expect(names, contains('installations_parent_lookup_idx'));
     });
   });
 }

@@ -2,6 +2,7 @@ import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/services/component_hierarchy_resolver.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/sheets/replace_component.dart';
@@ -63,6 +64,8 @@ void main() {
     };
     // thenAnswer (not thenReturn) so mutating componentsMap is reflected on rebuild.
     when(() => mockRepository.components).thenAnswer((_) => componentsMap);
+    when(() => mockRepository.componentHierarchy)
+        .thenAnswer((_) => ComponentHierarchyResolver(componentsMap));
   });
 
   Widget harness({required ValueChanged<ReplaceComponentResult?> onResult}) {

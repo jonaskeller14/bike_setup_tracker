@@ -102,7 +102,7 @@ void main() {
     final oldComponent = component('old');
     final newComponent = component('new');
     final removed = InstallationEntry(
-      ComponentInstallation(
+      ResolvedComponentInstallation(
         component: oldComponent,
         installation: Uninstallation(
           id: 'remove',
@@ -115,7 +115,7 @@ void main() {
       ),
     );
     final installed = InstallationEntry(
-      ComponentInstallation(
+      ResolvedComponentInstallation(
         component: newComponent,
         installation: BikeInstallation(
           id: 'install',
@@ -197,7 +197,7 @@ void main() {
       final oldComponent = component('old');
       final newComponent = component('new');
       final row = ReplacementRow(
-        removed: ComponentInstallation(
+        removed: ResolvedComponentInstallation(
           component: oldComponent,
           installation: Uninstallation(
             id: 'remove',
@@ -206,7 +206,7 @@ void main() {
             dateTimeLocal: DateTime(2026, 7, 4, 10),
           ),
         ),
-        installed: ComponentInstallation(
+        installed: ResolvedComponentInstallation(
           component: newComponent,
           installation: BikeInstallation(
             id: 'install',

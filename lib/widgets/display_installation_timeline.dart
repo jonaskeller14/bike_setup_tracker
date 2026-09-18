@@ -13,12 +13,14 @@ import 'sheets/task_rule_sheet.dart';
 class DisplayInstallationTimeline extends StatelessWidget {
   final Component component;
   final Map<String, Bike> bikes;
+  final Map<String, Component> components;
   final Iterable<TaskEntry> taskEntries;
 
   const DisplayInstallationTimeline({
     super.key,
     required this.component,
     required this.bikes,
+    required this.components,
     this.taskEntries = const [],
   });
 
@@ -71,6 +73,7 @@ class DisplayInstallationTimeline extends StatelessWidget {
                 installation: item.installation,
                 appSettings: appSettings,
                 bikes: bikes,
+                components: components,
               ),
             _TaskItem() => _TaskEntryContents(
                 entry: item.taskEntry,
@@ -87,6 +90,11 @@ class DisplayInstallationTimeline extends StatelessWidget {
                 backgroundColor: colorScheme.surface,
                 child: switch (item.installation) {
                   BikeInstallation() => null,
+                  ComponentInstallation(:final parentComponentId) => Icon(
+                    components[parentComponentId]?.componentType.getIconData() ?? Component.iconData,
+                    size: 9,
+                    color: colorScheme.secondary,
+                  ),
                   Uninstallation() => Icon(Icons.close, size: 10, color: colorScheme.secondary),
                   Archival() => Icon(Icons.close, size: 10, color: colorScheme.secondary),
                 },
@@ -118,11 +126,13 @@ class _InstallationContents extends StatelessWidget {
   final Installation installation;
   final AppSettings appSettings;
   final Map<String, Bike> bikes;
+  final Map<String, Component> components;
 
   const _InstallationContents({
     required this.installation,
     required this.appSettings,
     required this.bikes,
+    required this.components,
   });
 
   @override
@@ -133,6 +143,8 @@ class _InstallationContents extends StatelessWidget {
 
     final bikeName = switch (installation) {
       BikeInstallation() => bikes[installation.parent]?.name ?? 'BIKE NOT FOUND',
+      ComponentInstallation(:final parentComponentId) =>
+        components[parentComponentId]?.name ?? 'COMPONENT NOT FOUND',
       Uninstallation() => 'Uninstalled',
       Archival() => 'Archived',
     };
@@ -149,11 +161,15 @@ class _InstallationContents extends StatelessWidget {
           Text(
             bikeName,
             style: textTheme.titleMedium?.copyWith(
-              fontWeight: installation is BikeInstallation ? FontWeight.bold : FontWeight.normal,
+              fontWeight: installation.parent != null ? FontWeight.bold : FontWeight.normal,
               color: switch (installation) {
                 BikeInstallation() => bikes[installation.parent]?.name == null
                     ? colorScheme.error
                     : colorScheme.onSurface,
+                ComponentInstallation(:final parentComponentId) =>
+                  components[parentComponentId] == null
+                      ? colorScheme.error
+                      : colorScheme.onSurface,
                 Uninstallation() || Archival() => colorScheme.onSurfaceVariant,
               },
             ),

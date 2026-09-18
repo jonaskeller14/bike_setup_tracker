@@ -176,7 +176,9 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
   Map<String, Rating> _applicableRatings() {
     final appRepository = context.read<AppRepository>();
     final person = appRepository.bikes[_bike]?.person;
-    final bikeComponents = appRepository.components.values.where((c) => c.bike == _bike);
+    final bikeComponents = appRepository.components.values.where(
+      (component) => appRepository.componentHierarchy.currentBike(component.id) == _bike,
+    );
     final componentIds = bikeComponents.map((c) => c.id).toSet();
     final componentTypes = bikeComponents.map((c) => c.componentType.toString()).toSet();
 

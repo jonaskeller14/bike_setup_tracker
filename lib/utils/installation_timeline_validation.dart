@@ -1,4 +1,7 @@
+import '../models/bike.dart';
+import '../models/component.dart';
 import '../models/installation.dart';
+import '../services/component_hierarchy_resolver.dart';
 
 bool isComplexInstallationTimeline(List<Installation> installations) =>
     installations.length > 1 ||
@@ -22,7 +25,12 @@ class InstallationTimelineIssue {
   });
 }
 
-InstallationTimelineIssue? installationTimelineIssue(List<Installation> installations) {
+InstallationTimelineIssue? installationTimelineIssue(
+  List<Installation> installations, {
+  String? componentId,
+  Map<String, Component>? components,
+  Map<String, Bike>? bikes,
+}) {
   if (installations.isEmpty) {
     return const InstallationTimelineIssue(message: 'At least one entry is required');
   }
@@ -52,6 +60,14 @@ InstallationTimelineIssue? installationTimelineIssue(List<Installation> installa
         parentIndices: {order[i], order[i + 1]},
       );
     }
+    if (current is ComponentInstallation &&
+        next is ComponentInstallation &&
+        current.parentComponentId == next.parentComponentId) {
+      return InstallationTimelineIssue(
+        message: 'Cannot have consecutive installations on the same component',
+        parentIndices: {order[i], order[i + 1]},
+      );
+    }
   }
 
   final fromBeginning =
@@ -70,6 +86,68 @@ InstallationTimelineIssue? installationTimelineIssue(List<Installation> installa
         message: 'Two entries cannot have the same date & time',
         dateTimeIndices: order.where((j) => installations[j].dateTimeUTC == at).toSet(),
       );
+    }
+  }
+
+  if (bikes != null) {
+    for (int index = 0; index < installations.length; index++) {
+      final installation = installations[index];
+      if (installation is BikeInstallation && !bikes.containsKey(installation.bikeId)) {
+        return InstallationTimelineIssue(
+          message: 'This entry is installed on a bike that no longer exists',
+          parentIndices: {index},
+        );
+      }
+    }
+  }
+
+  if (componentId != null && components != null) {
+    return _hierarchyIssue(installations, componentId, components);
+  }
+
+  return null;
+}
+
+/// Checks the links that need the other components to resolve.
+///
+/// A component that does not exist yet cannot be anyone's parent, so callers
+/// editing a new component pass no id and skip this entirely.
+InstallationTimelineIssue? _hierarchyIssue(
+  List<Installation> installations,
+  String componentId,
+  Map<String, Component> components,
+) {
+  final resolver = ComponentHierarchyResolver(components);
+
+  for (int index = 0; index < installations.length; index++) {
+    final installation = installations[index];
+    if (installation is! ComponentInstallation) continue;
+
+    if (installation.parentComponentId == componentId) {
+      return InstallationTimelineIssue(
+        message: 'A component cannot be installed on itself',
+        parentIndices: {index},
+      );
+    }
+
+    // Walk the ancestors as they stand at this row's instant; arriving back at
+    // the edited component closes a loop. The visited set also terminates on a
+    // loop further up that this component is not part of.
+    final visited = <String>{};
+    var currentId = installation.parentComponentId;
+    while (visited.add(currentId)) {
+      if (currentId == componentId) {
+        return InstallationTimelineIssue(
+          message: 'This installation creates a loop of components',
+          parentIndices: {index},
+        );
+      }
+      final parent = components[currentId];
+      // An unknown parent is kept as off-bike history, not rejected.
+      if (parent == null) break;
+      final parentInstallation = resolver.installationAt(parent, installation.dateTimeUTC);
+      if (parentInstallation is! ComponentInstallation) break;
+      currentId = parentInstallation.parentComponentId;
     }
   }
 

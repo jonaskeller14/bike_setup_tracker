@@ -6,6 +6,7 @@ import '../models/person.dart';
 import '../models/rating.dart';
 import '../models/setup.dart';
 import '../utils/file_import.dart';
+import 'component_hierarchy_resolver.dart';
 
 typedef AdjustmentProvenance = ({dynamic value, Setup setup});
 
@@ -22,6 +23,7 @@ class SetupResolutionService {
     final sortedSetupEntries = setups.entries.toList();
     sortedSetupEntries.sort((a, b) => a.value.datetime.compareTo(b.value.datetime));
     final sortedSetups = Map.fromEntries(sortedSetupEntries);
+    final hierarchy = ComponentHierarchyResolver(components);
     
     // 2. Determine Current status
     FileImport.determineCurrentSetups(setups: sortedSetups.values.toList(), bikes: bikes);
@@ -41,7 +43,7 @@ class SetupResolutionService {
       if (bike != null) {
         // Optimization: only check components that were ever on this bike
         for (final component in components.values) {
-          if (component.bikeAt(setup.datetime) == setup.bike) {
+          if (hierarchy.bikeAt(component.id, setup.datetime) == setup.bike) {
             for (final adjustment in component.adjustments) {
               bikeAdjustmentIds.add(adjustment.id);
             }

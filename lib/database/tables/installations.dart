@@ -6,6 +6,16 @@ import '../converters/utc_datetime_converter.dart';
 import 'components.dart';
 
 @DataClassName('InstallationDb')
+// Supports the latest event lookup for a component at a historical timestamp.
+@TableIndex(
+  name: 'installations_component_date_idx',
+  columns: {#componentId, #dateTimeUTC},
+)
+// Supports recursive parent-to-child traversal at an activity timestamp.
+@TableIndex(
+  name: 'installations_parent_lookup_idx',
+  columns: {#parentType, #parent, #dateTimeUTC},
+)
 class Installations extends Table {
   TextColumn get id => text()();
 
@@ -13,7 +23,7 @@ class Installations extends Table {
   TextColumn get componentId =>
       text().references(Components, #id, onDelete: KeyAction.cascade)();
 
-  // The entity it is installed on (bike id or null)
+  // The entity it is installed on (bike/component id or null)
   TextColumn get parent => text().nullable()();
 
   // Discriminates the event kind: installed on a bike, uninstalled (parts-bin),

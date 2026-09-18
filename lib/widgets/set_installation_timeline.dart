@@ -5,6 +5,7 @@ import 'package:timelines_plus/timelines_plus.dart';
 
 import '../models/app_settings.dart';
 import '../models/bike.dart';
+import '../models/component.dart';
 import '../models/installation.dart';
 import '../repositories/app_repository.dart';
 import '../theme.dart';
@@ -40,6 +41,7 @@ class _ParentOption {
 
 class SetInstallationTimeline extends StatefulWidget {
   final String title;
+  final String? componentId;  // The component being edited if existing
   final List<Installation> initialInstallations;
   final List<Installation>? originalInstallations;
   final void Function(List<Installation>) onChanged;
@@ -48,6 +50,7 @@ class SetInstallationTimeline extends StatefulWidget {
   const SetInstallationTimeline({
     super.key,
     this.title = 'Installation Timeline',
+    this.componentId,
     required this.initialInstallations,
     this.originalInstallations,
     required this.onChanged,
@@ -108,7 +111,11 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
     _sortInstallations();
   }
 
-  List<_ParentOption> _parentOptions(Installation installation, Map<String, Bike> bikes) {
+  List<_ParentOption> _parentOptions(
+    Installation installation,
+    Map<String, Bike> bikes,
+    Map<String, Component> components,
+  ) {
     return [
       _ParentOption(
         value: Uninstallation(
@@ -142,6 +149,13 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
           icon: Bike.iconData,
           label: bike.name,
         ),
+      if (installation case ComponentInstallation(:final parentComponentId))
+        _ParentOption(
+          value: installation,
+          icon: components[parentComponentId]?.componentType.getIconData() ?? Component.iconData,
+          label: components[parentComponentId]?.name ?? 'COMPONENT NOT FOUND',
+          color: components.containsKey(parentComponentId) ? null : Theme.of(context).colorScheme.error,
+        ),
       if (installation is BikeInstallation && !bikes.containsKey(installation.parent))
         _ParentOption(
           value: installation,
@@ -151,6 +165,14 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
         ),
     ];
   }
+
+  InstallationTimelineIssue? _issue(AppRepository appRepository) =>
+      installationTimelineIssue(
+        _installations,
+        componentId: widget.componentId,
+        components: appRepository.components,
+        bikes: appRepository.bikes,
+      );
 
   Future<void> _pickDateTime(int index) async {
     final current = _installations[index].dateTimeLocal;
@@ -192,9 +214,9 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
 
     return FormField<List<Installation>>(
       initialValue: _installations,
-      validator: (value) => installationTimelineIssue(_installations)?.message,
+      validator: (value) => _issue(appRepository)?.message,
       builder: (state) {
-        final issue = state.hasError ? installationTimelineIssue(_installations) : null;
+        final issue = state.hasError ? _issue(appRepository) : null;
         final invalidBorder = OutlineInputBorder(
           borderSide: BorderSide(color: colorScheme.error, width: 1),
         );
@@ -275,7 +297,7 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                             ? colorScheme.error
                             : (!isEditable ? theme.disabledColor : null);
 
-                        final parentOptions = _parentOptions(installation, bikes);
+                        final parentOptions = _parentOptions(installation, bikes, appRepository.components);
 
                         return Padding(
                           padding: const EdgeInsets.only(left: 12.0, top: 4, bottom: 4),
@@ -430,6 +452,15 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                               borderWidth: 2.5,
                               color: colorScheme.primary,
                             ),
+                          ComponentInstallation(:final parentComponentId) => OutlinedDotIndicator(
+                              borderWidth: 2.5,
+                              color: colorScheme.primary,
+                              child: Icon(
+                                appRepository.components[parentComponentId]?.componentType.getIconData() ?? Component.iconData,
+                                size: 9,
+                                color: colorScheme.primary,
+                              ),
+                            ),
                           Uninstallation _ => OutlinedDotIndicator(
                               borderWidth: 2.5,
                               color: colorScheme.outline,
@@ -446,6 +477,7 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                         final installation = _installations[index];
                         return switch (installation) {
                           BikeInstallation() => SolidLineConnector(color: colorScheme.primary.withValues(alpha: 0.6)),
+                          ComponentInstallation() => SolidLineConnector(color: colorScheme.primary.withValues(alpha: 0.6)),
                           Uninstallation() || Archival() => DashedLineConnector(color: colorScheme.outline),
                         };
                       },

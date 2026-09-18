@@ -130,7 +130,7 @@ class TaskRuleDisplayCard extends StatelessWidget {
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TaskRuleListCard.filterWidget(context, taskRule: taskRule, component: component, bikes: appRepository.bikes),
+              TaskRuleListCard.filterWidget(context, taskRule: taskRule, component: component, bikes: appRepository.bikes, components: appRepository.components),
               if (appSettings.enableTaskPriority)
                 TaskRuleListCard.priorityWidget(context, priority: taskRule.priority),
               if (appSettings.enableTaskTags && taskRule.tags.isNotEmpty)

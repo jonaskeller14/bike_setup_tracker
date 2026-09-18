@@ -60,8 +60,8 @@ class SetupGroupRow extends EntryRow {
 }
 
 class ReplacementRow extends EntryRow {
-  final ComponentInstallation removed;
-  final ComponentInstallation installed;
+  final ResolvedComponentInstallation removed;
+  final ResolvedComponentInstallation installed;
   ReplacementRow({required this.removed, required this.installed});
 
   @override

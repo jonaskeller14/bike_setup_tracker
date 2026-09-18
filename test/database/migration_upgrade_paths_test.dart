@@ -36,6 +36,11 @@ void main() {
   // structural undo — their steps rewrite/recreate the affected tables
   // regardless of the starting column shape.
   Future<void> reshapeToVersion(AppDatabase db, int version) async {
+    if (version < 17) {
+      // v17 added the installation hierarchy lookup indexes.
+      await db.customStatement('DROP INDEX installations_component_date_idx');
+      await db.customStatement('DROP INDEX installations_parent_lookup_idx');
+    }
     if (version < 13) {
       // v13 added setups.is_bookmarked.
       await db.customStatement('ALTER TABLE setups DROP COLUMN is_bookmarked');

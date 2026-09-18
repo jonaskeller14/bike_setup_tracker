@@ -245,7 +245,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     _previousPersonAdjustmentValues.clear();
 
     final appRepository = context.read<AppRepository>();
-    final bikeComponents = appRepository.components.values.where((c) => c.bikeAt(_selectedDateTimeUtc) == _bike).toList();
+    final bikeComponents = appRepository.components.values.where(
+      (component) => appRepository.componentHierarchy.bikeAt(component.id, _selectedDateTimeUtc) == _bike,
+    ).toList();
 
     
     // Use the centralized resolution service to get the cumulative global state up to our current date/time.
@@ -311,7 +313,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     if (widget.setup == null) return;
 
     final appRepository = context.read<AppRepository>();
-    final bikeComponents = appRepository.components.values.where((c) => c.bikeAt(_selectedDateTimeUtc) == _bike).toList();
+    final bikeComponents = appRepository.components.values.where(
+      (component) => appRepository.componentHierarchy.bikeAt(component.id, _selectedDateTimeUtc) == _bike,
+    ).toList();
     
     _danglingBikeAdjustmentValues.clear();
     _danglingBikeAdjustmentValues.addAll(_bikeAdjustmentValues);
@@ -1188,7 +1192,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
     final bikes = appRepository.bikes;
-    final bikeComponents = appRepository.components.values.where((c) => c.bikeAt(_selectedDateTimeUtc) == _bike).toList();
+    final bikeComponents = appRepository.components.values.where(
+      (component) => appRepository.componentHierarchy.bikeAt(component.id, _selectedDateTimeUtc) == _bike,
+    ).toList();
 
     return PopScope(
       canPop: !_formHasChanges,

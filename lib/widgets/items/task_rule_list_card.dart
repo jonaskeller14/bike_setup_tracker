@@ -37,7 +37,12 @@ class TaskRuleListCard extends StatelessWidget {
     this.onSelectedTaskRulesCompleted,
   });
 
-  static Widget filterWidget(BuildContext context, {required TaskRule taskRule, required Component? component, required Map<String, Bike> bikes}) {
+  static Widget filterWidget(BuildContext context, {
+    required TaskRule taskRule,
+    required Component? component,
+    required Map<String, Bike> bikes,
+    required Map<String, Component> components,
+  }) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -77,11 +82,14 @@ class TaskRuleListCard extends StatelessWidget {
                   switch (component?.latestInstallation) {
                     Archival() => Icons.inventory_2_outlined,
                     BikeInstallation() => Bike.iconData,
+                    ComponentInstallation(:final parentComponentId) =>
+                      components[parentComponentId]?.componentType.getIconData() ?? Component.iconData,
                     Uninstallation() || null => Icons.shelves,
                   },
                   size: 13,
                   color: switch (component?.latestInstallation) {
                     BikeInstallation(:final bikeId) when !bikes.containsKey(bikeId) => Theme.of(context).colorScheme.error,
+                    ComponentInstallation(:final parentComponentId) when !components.containsKey(parentComponentId) => Theme.of(context).colorScheme.error,
                     _ => Theme.of(context).colorScheme.onSurfaceVariant,
                   },
                 ),
@@ -90,6 +98,8 @@ class TaskRuleListCard extends StatelessWidget {
                     switch (component?.latestInstallation) {
                       Archival() => 'Archived',
                       BikeInstallation(:final bikeId) => bikes[bikeId]?.name ?? 'BIKE NOT FOUND',
+                      ComponentInstallation(:final parentComponentId) =>
+                        components[parentComponentId]?.name ?? 'COMPONENT NOT FOUND',
                       Uninstallation() || null => 'Not installed',
                     },
                     maxLines: 1,
@@ -97,6 +107,7 @@ class TaskRuleListCard extends StatelessWidget {
                     style: TextStyle(
                       color: switch (component?.latestInstallation) {
                         BikeInstallation(:final bikeId) when !bikes.containsKey(bikeId) => Theme.of(context).colorScheme.error,
+                        ComponentInstallation(:final parentComponentId) when !components.containsKey(parentComponentId) => Theme.of(context).colorScheme.error,
                         _ => Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                       },
                       fontSize: 13,
@@ -343,6 +354,7 @@ class TaskRuleListCard extends StatelessWidget {
                 taskRule: taskRule,
                 component: component,
                 bikes: appRepository.bikes,
+                components: appRepository.components,
               ),
               if (appSettings.enableTaskPriority)
                 priorityWidget(context, priority: taskRule.priority),

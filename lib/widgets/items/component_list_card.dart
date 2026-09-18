@@ -38,6 +38,7 @@ class ComponentListCard extends StatelessWidget{
     final appRepository = context.watch<AppRepository>();
     final subscriptionService = context.watch<SubscriptionService>();
     final bikes = appRepository.bikes;
+    final components = appRepository.components;
 
     TaskStatusType? indicatorStatus;
     if (appSettings.enableTask && appSettings.enableGarageTaskIndicator) {
@@ -116,11 +117,14 @@ class ComponentListCard extends StatelessWidget{
                           Icon(switch (component.latestInstallation) {
                               Archival() => Icons.inventory_2_outlined,
                               BikeInstallation() => Bike.iconData,
+                              ComponentInstallation(:final parentComponentId) =>
+                                components[parentComponentId]?.componentType.getIconData() ?? Component.iconData,
                               Uninstallation() || null => Icons.shelves,
                             },
                             size: 13,
                             color: switch (component.latestInstallation) {
                               BikeInstallation(:final bikeId) when !bikes.containsKey(bikeId) => Theme.of(context).colorScheme.error,
+                              ComponentInstallation(:final parentComponentId) when !components.containsKey(parentComponentId) => Theme.of(context).colorScheme.error,
                               _ => Theme.of(context).colorScheme.onSurfaceVariant,
                             },
                           ),
@@ -129,11 +133,13 @@ class ComponentListCard extends StatelessWidget{
                               switch (component.latestInstallation) {
                                 Archival() => "Archived",
                                 BikeInstallation(:final bikeId) => bikes[bikeId]?.name ?? "BIKE NOT FOUND",
+                                ComponentInstallation(:final parentComponentId) => components[parentComponentId]?.name ?? "COMPONENT NOT FOUND",
                                 Uninstallation() || null => "Not installed",
                               },
                               style: TextStyle(
                                 color: switch (component.latestInstallation) {
                                   BikeInstallation(:final bikeId) when !bikes.containsKey(bikeId) => Theme.of(context).colorScheme.error,
+                                  ComponentInstallation(:final parentComponentId) when !components.containsKey(parentComponentId) => Theme.of(context).colorScheme.error,
                                   _ => Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                                 },
                                 fontSize: 13,
@@ -216,7 +222,8 @@ class ComponentListCard extends StatelessWidget{
                     },
                     itemBuilder: (BuildContext context) => _ComponentOptions.values.where((option) {
                       if (option == _ComponentOptions.replace) {
-                        return component.bike != null && appSettings.enableInstallationTimeline;
+                        return appRepository.componentHierarchy.currentBike(component.id) != null &&
+                            appSettings.enableInstallationTimeline;
                       }
 
                       return true;

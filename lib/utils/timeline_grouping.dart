@@ -66,8 +66,8 @@ class StravaActivityIndex {
 }
 
 class ReplacementPair {
-  final ComponentInstallation removed;
-  final ComponentInstallation installed;
+  final ResolvedComponentInstallation removed;
+  final ResolvedComponentInstallation installed;
   const ReplacementPair({required this.removed, required this.installed});
 }
 
@@ -128,7 +128,7 @@ ReplacementPairing pairReplacements(
       continue;
     }
 
-    ComponentInstallation? best;
+    ResolvedComponentInstallation? best;
     Duration? bestDelta;
     for (final candidate in installations) {
       if (candidate.installation is! BikeInstallation) continue;

@@ -4,13 +4,14 @@ import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
+import '../../models/component.dart';
 import '../../models/component_installation.dart';
 import '../../models/installation.dart';
 import '../../repositories/app_repository.dart';
 import 'tile_meta_row.dart';
 
 class InstallationListTile extends StatelessWidget {
-  final ComponentInstallation componentInstallation;
+  final ResolvedComponentInstallation componentInstallation;
   final VoidCallback? onTap;
   final bool showDate;
 
@@ -21,14 +22,25 @@ class InstallationListTile extends StatelessWidget {
     this.showDate = true,
   });
 
-  static IconData _bikeIcon(InstallationParentType type) => switch (type) {
+  static IconData _parentIcon(
+    InstallationParentType type,
+    String? parentId,
+    AppRepository appRepository,
+  ) => switch (type) {
         InstallationParentType.bike => Bike.iconData,
+        InstallationParentType.component =>
+          appRepository.components[parentId]?.componentType.getIconData() ?? Component.iconData,
         InstallationParentType.none => Icons.shelves,
         InstallationParentType.archived => Icons.inventory_2_outlined,
       };
 
-  static String _bikeLabel(InstallationParentType type, String bikeName) => switch (type) {
-        InstallationParentType.bike => bikeName,
+  static String _parentLabel(
+    InstallationParentType type,
+    String? parentId,
+    AppRepository appRepository,
+  ) => switch (type) {
+        InstallationParentType.bike => appRepository.bikes[parentId]?.name ?? 'BIKE NOT FOUND',
+        InstallationParentType.component => appRepository.components[parentId]?.name ?? 'COMPONENT NOT FOUND',
         InstallationParentType.none => 'Uninstalled',
         InstallationParentType.archived => 'Archive',
       };
@@ -37,22 +49,24 @@ class InstallationListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
-    final bikes = appRepository.bikes;
-
     final originParentType = componentInstallation.originParentType ?? InstallationParentType.none;
     final targetParentType = componentInstallation.installation.parentType;
 
     // Deinstallation/archival: the target ("Uninstalled"/"Archive") is already
     // implied by the title, so show where the component came from instead.
-    final isDeinstallation = targetParentType != InstallationParentType.bike;
+    final isDeinstallation = targetParentType != InstallationParentType.bike &&
+        targetParentType != InstallationParentType.component;
     final showBikeInfo = !isDeinstallation || !componentInstallation.isInitial;
 
     final displayParentType = isDeinstallation ? originParentType : targetParentType;
-    final displayBikeId = isDeinstallation
+    final displayParentId = isDeinstallation
         ? componentInstallation.originParent
         : componentInstallation.installation.parent;
-    final displayBikeName = bikes[displayBikeId]?.name ?? "BIKE NOT FOUND";
-    final isDisplayError = displayBikeId != null && !bikes.containsKey(displayBikeId);
+    final isDisplayError = displayParentId != null && switch (displayParentType) {
+      InstallationParentType.bike => !appRepository.bikes.containsKey(displayParentId),
+      InstallationParentType.component => !appRepository.components.containsKey(displayParentId),
+      InstallationParentType.none || InstallationParentType.archived => false,
+    };
 
     final timeText = DateFormat(appSettings.timeFormat).format(componentInstallation.installation.dateTimeLocal);
     final dateText = DateFormat(appSettings.dateFormat).format(componentInstallation.installation.dateTimeLocal);
@@ -65,7 +79,7 @@ class InstallationListTile extends StatelessWidget {
       leading: Padding(
         padding: EdgeInsets.zero,
         child: Transform.scale(
-          scaleX: targetParentType == InstallationParentType.bike ? 0.7 : -0.7,
+          scaleX: isDeinstallation ? -0.7 : 0.7,
           child: const Icon(Icons.arrow_right_alt, fontWeight: FontWeight.w600),
         ),
       ),
@@ -93,8 +107,8 @@ class InstallationListTile extends StatelessWidget {
               ),
               if (showBikeInfo)
                 TileMetaRow(
-                  icon: _bikeIcon(displayParentType),
-                  text: _bikeLabel(displayParentType, displayBikeName),
+                  icon: _parentIcon(displayParentType, displayParentId, appRepository),
+                  text: _parentLabel(displayParentType, displayParentId, appRepository),
                   isError: isDisplayError,
                 ),
             ],

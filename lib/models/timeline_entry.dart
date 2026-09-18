@@ -44,7 +44,7 @@ class TaskTimeLineEntry extends TimelineEntry {
 }
 
 class InstallationEntry extends TimelineEntry {
-  final ComponentInstallation componentInstallation;
+  final ResolvedComponentInstallation componentInstallation;
   InstallationEntry(this.componentInstallation);
   @override
   String get id => 'inst:${componentInstallation.installation.id}';

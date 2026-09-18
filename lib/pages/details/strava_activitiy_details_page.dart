@@ -244,7 +244,7 @@ class StravaActivitiyPageContent extends StatelessWidget {
                 final linkedBike = appRepository.bikes.values.where((b) => b.stravaGear == stravaGear.id).firstOrNull;
                 final activityTimeUtc = stravaActivity.startDateLocal.toUtc();
                 final installedComponents = appRepository.components.values
-                    .where((c) => linkedBike != null && c.bikeAt(activityTimeUtc) == linkedBike.id)
+                    .where((c) => linkedBike != null && appRepository.componentHierarchy.bikeAt(c.id, activityTimeUtc) == linkedBike.id)
                     .toList();
                 final unlinkedBikes = appRepository.bikes.values.where((bike) => bike.stravaGear == null).toList();
                 return ExpansionTile(

@@ -14,8 +14,8 @@ import 'sheet_header.dart';
 
 Future<void> showReplacementSheet(
   BuildContext context, {
-  required ComponentInstallation removed,
-  required ComponentInstallation installed,
+  required ResolvedComponentInstallation removed,
+  required ResolvedComponentInstallation installed,
 }) async {
   return showModalBottomSheet<void>(
     useSafeArea: true,
@@ -28,8 +28,8 @@ Future<void> showReplacementSheet(
 }
 
 class ReplacementSheet extends StatefulWidget {
-  final ComponentInstallation removed;
-  final ComponentInstallation installed;
+  final ResolvedComponentInstallation removed;
+  final ResolvedComponentInstallation installed;
 
   const ReplacementSheet({
     super.key,
@@ -223,6 +223,7 @@ class _ReplacementSheetState extends State<ReplacementSheet> {
                     const SizedBox(height: 24),
                     SetInstallationTimeline(
                       title: removedTitle,
+                      componentId: widget.removed.component.id,
                       initialInstallations: _removedInstallations,
                       originalInstallations: widget.removed.component.installations,
                       onChanged: (newInstallations) {
@@ -240,6 +241,7 @@ class _ReplacementSheetState extends State<ReplacementSheet> {
                     const SizedBox(height: 8),
                     SetInstallationTimeline(
                       title: installedTitle,
+                      componentId: widget.installed.component.id,
                       initialInstallations: _installedInstallations,
                       originalInstallations: widget.installed.component.installations,
                       onChanged: (newInstallations) {

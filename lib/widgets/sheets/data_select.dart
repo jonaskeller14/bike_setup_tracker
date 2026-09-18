@@ -277,6 +277,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                     children: widget.allData.components.values.map((c) => DataSelectComponent(
                       component: c,
                       bikes: widget.allData.bikes,
+                      components: widget.allData.components,
                       isSelected: selectedComponents.contains(c),
                       onChanged: (checked) {
                         setState(() {

@@ -1,5 +1,6 @@
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/component.dart';
+import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:drift/drift.dart' hide Component, isNotNull;
 import 'package:flutter_test/flutter_test.dart';
@@ -17,12 +18,13 @@ void main() {
     await db.close();
   });
 
-  Future<void> insertBike(String id, String gearId) async {
+  Future<void> insertBike(String id, String gearId, {bool isDeleted = false}) async {
     await db.into(db.bikes).insert(BikesCompanion.insert(
           id: id,
           lastModified: DateTime.now().toUtc(),
           name: 'Bike $id',
           stravaGear: Value(gearId),
+          isDeleted: Value(isDeleted),
         ));
   }
 
@@ -51,6 +53,21 @@ void main() {
           id: uuid.v4(),
           componentId: componentId,
           parent: Value(bikeId),
+          dateTimeUTC: installedAt,
+          dateTimeLocal: installedAt.toLocal(),
+        ));
+  }
+
+  Future<void> installOnComponent(
+    String componentId,
+    String parentComponentId,
+    DateTime installedAt,
+  ) async {
+    await db.into(db.installations).insert(InstallationsCompanion.insert(
+          id: uuid.v4(),
+          componentId: componentId,
+          parent: Value(parentComponentId),
+          parentType: const Value(InstallationParentType.component),
           dateTimeUTC: installedAt,
           dateTimeLocal: installedAt.toLocal(),
         ));
@@ -194,6 +211,84 @@ void main() {
 
       final statsMap = await db.stravaDao.watchComponentStats().first;
       expect(statsMap['c1']!.kilojoules, closeTo(504.0, 0.001));
+    });
+
+    test('a deleted bike stops crediting the components it carried', () async {
+      await insertBike('b1', 'gear1', isDeleted: true);
+      await insertComponent('c1', initialDistance: 7);
+      final now = DateTime.now().toUtc();
+
+      await installComponent('c1', 'b1', now.subtract(const Duration(days: 10)));
+      await insertActivity(1, 'gear1', now.subtract(const Duration(days: 2)), 100.0);
+
+      final stats = await db.stravaDao.watchComponentStats().first;
+      // Only the manually entered initial distance survives.
+      expect(stats['c1']!.distance, 7.0);
+      expect(stats['c1']!.activityCount, 0);
+    });
+
+    test('a deleted bike stops crediting nested components too', () async {
+      await insertBike('b1', 'gear1', isDeleted: true);
+      await insertComponent('wheel');
+      await insertComponent('tire');
+      final now = DateTime.now().toUtc();
+
+      await installComponent('wheel', 'b1', now.subtract(const Duration(days: 10)));
+      await installOnComponent('tire', 'wheel', now.subtract(const Duration(days: 9)));
+      await insertActivity(1, 'gear1', now.subtract(const Duration(days: 2)), 42.0);
+
+      final stats = await db.stravaDao.watchComponentStats().first;
+      expect(stats['wheel']!.distance, 0.0);
+      expect(stats['tire']!.distance, 0.0);
+    });
+
+    test('credits an activity to every component at arbitrary nesting depth', () async {
+      await insertBike('b1', 'gear1');
+      await insertComponent('wheel');
+      await insertComponent('tire');
+      await insertComponent('insert');
+      final now = DateTime.now().toUtc();
+
+      await installComponent('wheel', 'b1', now.subtract(const Duration(days: 10)));
+      await installOnComponent('tire', 'wheel', now.subtract(const Duration(days: 9)));
+      await installOnComponent('insert', 'tire', now.subtract(const Duration(days: 8)));
+      await insertActivity(1, 'gear1', now.subtract(const Duration(days: 2)), 42.0);
+
+      final stats = await db.stravaDao.watchComponentStats().first;
+      expect(stats['wheel']!.distance, 42.0);
+      expect(stats['tire']!.distance, 42.0);
+      expect(stats['insert']!.distance, 42.0);
+    });
+
+    test('parent move and deinstallation implicitly bound child stats', () async {
+      await insertBike('bikeA', 'gearA');
+      await insertBike('bikeB', 'gearB');
+      await insertComponent('wheel');
+      await insertComponent('tire');
+      final now = DateTime.now().toUtc();
+
+      await installComponent('wheel', 'bikeA', now.subtract(const Duration(days: 20)));
+      await installOnComponent('tire', 'wheel', now.subtract(const Duration(days: 19)));
+      await installComponent('wheel', 'bikeB', now.subtract(const Duration(days: 10)));
+      await installComponent('wheel', null, now.subtract(const Duration(days: 3)));
+      await insertActivity(1, 'gearA', now.subtract(const Duration(days: 15)), 10.0);
+      await insertActivity(2, 'gearB', now.subtract(const Duration(days: 5)), 20.0);
+      await insertActivity(3, 'gearB', now.subtract(const Duration(days: 1)), 99.0);
+
+      final stats = await db.stravaDao.watchComponentStats().first;
+      expect(stats['wheel']!.distance, 30.0);
+      expect(stats['tire']!.distance, 30.0);
+    });
+
+    test('dangling component parents receive no activity credit', () async {
+      await insertBike('b1', 'gear1');
+      await insertComponent('tire', initialDistance: 5);
+      final now = DateTime.now().toUtc();
+      await installOnComponent('tire', 'missing-wheel', now.subtract(const Duration(days: 10)));
+      await insertActivity(1, 'gear1', now.subtract(const Duration(days: 2)), 42.0);
+
+      final stats = await db.stravaDao.watchComponentStats().first;
+      expect(stats['tire']!.distance, 5.0);
     });
   });
 }

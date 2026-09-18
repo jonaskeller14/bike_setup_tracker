@@ -263,7 +263,9 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
 
     final person = appRepository.persons[bike.person];
     final stravaGear = appRepository.stravaGears[bike.stravaGear];
-    final components = appRepository.components.values.where((c) => c.bike == bike.id);
+    final components = appRepository.components.values.where(
+      (component) => appRepository.componentHierarchy.currentBike(component.id) == bike.id,
+    );
     final stats = appRepository.bikeStats[widget.bikeId] ?? ComponentStats.zero();
     
     return Scaffold(

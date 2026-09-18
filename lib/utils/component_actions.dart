@@ -17,6 +17,7 @@ import '../pages/adjustment/text_adjustment_page.dart';
 import '../pages/component_page.dart';
 import '../repositories/app_repository.dart';
 import '../widgets/app_snackbar.dart';
+import '../widgets/dialogs/component_descendant_warning.dart';
 import '../widgets/sheets/component_add_adjustment.dart';
 import '../widgets/sheets/copy_task_rules.dart';
 import '../widgets/sheets/delete_task_rules.dart';
@@ -68,6 +69,16 @@ class ComponentActions {
       ),
     );
     if (result == null) return;
+    if (!context.mounted) return;
+    if (!component.isArchived && result.value.isArchived) {
+      final confirmed = await confirmComponentDescendantImpact(
+        context,
+        component: component,
+        descendants: appRepository.affectedDescendants(component.id),
+        action: 'Archive',
+      );
+      if (!confirmed || !context.mounted) return;
+    }
     await appRepository.editComponent(result.value, conversions: result.conversions);
   }
 
@@ -146,7 +157,7 @@ class ComponentActions {
             installations: [
               ...existingComponent.installations,
               Installation(
-                parent: component.bike,
+                parent: appRepository.componentHierarchy.currentBike(component.id),
                 dateTimeUTC: installedAt.utc,
                 dateTimeLocal: installedAt.local,
               ),
@@ -201,6 +212,14 @@ class ComponentActions {
   static Future<void> removeComponent(BuildContext context, {required Component component}) async {
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);
+
+    final confirmed = await confirmComponentDescendantImpact(
+      context,
+      component: component,
+      descendants: appRepository.affectedDescendants(component.id),
+      action: 'Move to trash',
+    );
+    if (!confirmed || !context.mounted) return;
 
     final relatedTaskRules = appRepository.taskRules.values.where((rule) => rule.componentId == component.id).toList();
     final selectedTaskRules = relatedTaskRules.isEmpty

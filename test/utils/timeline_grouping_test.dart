@@ -71,7 +71,7 @@ InstallationEntry deinstallEntry({
   required String installationId,
   String? originBike = 'b1',
 }) {
-  return InstallationEntry(ComponentInstallation(
+  return InstallationEntry(ResolvedComponentInstallation(
     component: component,
     installation: Uninstallation(
       id: installationId,
@@ -94,7 +94,7 @@ InstallationEntry installEntry({
   String bike = 'b1',
   bool isInitial = false,
 }) {
-  return InstallationEntry(ComponentInstallation(
+  return InstallationEntry(ResolvedComponentInstallation(
     component: component,
     installation: BikeInstallation(
       bikeId: bike,
@@ -118,7 +118,7 @@ InstallationEntry archivalEntry({
   required String installationId,
   String? originBike = 'b1',
 }) {
-  return InstallationEntry(ComponentInstallation(
+  return InstallationEntry(ResolvedComponentInstallation(
     component: component,
     installation: Archival(
       id: installationId,

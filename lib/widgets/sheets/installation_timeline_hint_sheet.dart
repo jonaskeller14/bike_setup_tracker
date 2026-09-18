@@ -104,6 +104,7 @@ class _InstallationTimelineHintSheet extends StatelessWidget {
                         DisplayInstallationTimeline(
                           component: exampleComponent,
                           bikes: _exampleBikes,
+                          components: const {},
                         ),
                       ],
                     ),

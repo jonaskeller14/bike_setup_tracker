@@ -54,7 +54,9 @@ class BikeActions {
 
   static Future<void> duplicateBikeWithComponents(BuildContext context, {required Bike bike}) async {
     final appRepository = context.read<AppRepository>();
-    final bikeComponents = appRepository.components.values.where((c) => c.bike == bike.id).toList();
+    final bikeComponents = appRepository.components.values.where(
+      (component) => appRepository.componentHierarchy.currentBike(component.id) == bike.id,
+    ).toList();
 
     final newBike = await Navigator.push<Bike>(
       context,
@@ -82,7 +84,9 @@ class BikeActions {
     final messenger = ScaffoldMessenger.of(context);
 
     final bikeIds = bikeList.map((bike) => bike.id).toSet();
-    final obsoleteComponents = appRepository.components.values.where((c) => bikeIds.contains(c.bike)).toList();
+    final obsoleteComponents = appRepository.components.values.where(
+      (component) => bikeIds.contains(appRepository.componentHierarchy.currentBike(component.id)),
+    ).toList();
     final obsoleteSetups = appRepository.setups.values.where((s) => bikeIds.contains(s.bike)).toList();
     final obsoleteRatings = appRepository.ratings.values
         .where((r) => r.filterType == FilterType.bike && bikeIds.contains(r.filter))

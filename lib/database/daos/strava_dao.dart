@@ -17,6 +17,101 @@ part 'strava_dao.g.dart';
 class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
   StravaDao(super.db);
 
+  /// Authoritative temporal hierarchy query for component activity credit.
+  ///
+  /// Each activity seeds the directly installed components on its bike, then
+  /// follows component-parent edges that were active at the activity start.
+  /// The installation indexes cover both latest-event lookups and recursive
+  /// parent-to-child traversal; the path value is only a defensive cycle guard.
+  String _componentStatsSql({required bool atDate}) =>
+      '''
+      WITH RECURSIVE credited(activity_id, component_id, path) AS (
+        SELECT
+          a.id,
+          i.component_id,
+          ',' || i.component_id || ','
+        FROM strava_activities a
+        JOIN bikes b
+          ON a.gear_id = b.strava_gear
+          AND b.is_deleted = 0
+        JOIN installations i
+          ON i.parent_type = 'bike'
+          AND i.parent = b.id
+        JOIN components root_component
+          ON root_component.id = i.component_id
+          AND root_component.is_deleted = 0
+        WHERE i.date_time_u_t_c <= a.start_date
+        ${atDate ? 'AND a.start_date <= :selectedDate' : ''}
+        AND NOT EXISTS (
+          SELECT 1
+          FROM installations next_i
+          WHERE next_i.component_id = i.component_id
+            AND next_i.date_time_u_t_c <= a.start_date
+            AND (
+              next_i.date_time_u_t_c > i.date_time_u_t_c
+              OR (next_i.date_time_u_t_c = i.date_time_u_t_c AND next_i.id > i.id)
+            )
+        )
+
+        UNION ALL
+
+        SELECT
+          credited.activity_id,
+          child_i.component_id,
+          credited.path || child_i.component_id || ','
+        FROM credited
+        JOIN strava_activities a ON a.id = credited.activity_id
+        JOIN installations child_i
+          ON child_i.parent_type = 'component'
+          AND child_i.parent = credited.component_id
+        JOIN components child_component
+          ON child_component.id = child_i.component_id
+          AND child_component.is_deleted = 0
+        WHERE child_i.date_time_u_t_c <= a.start_date
+          AND instr(credited.path, ',' || child_i.component_id || ',') = 0
+          AND NOT EXISTS (
+            SELECT 1
+            FROM installations next_i
+            WHERE next_i.component_id = child_i.component_id
+              AND next_i.date_time_u_t_c <= a.start_date
+              AND (
+                next_i.date_time_u_t_c > child_i.date_time_u_t_c
+                OR (
+                  next_i.date_time_u_t_c = child_i.date_time_u_t_c
+                  AND next_i.id > child_i.id
+                )
+              )
+          )
+      ),
+      unique_credits AS (
+        SELECT DISTINCT activity_id, component_id FROM credited
+      ),
+      stats AS (
+        SELECT
+          credits.component_id,
+          SUM(a.distance) AS distance,
+          SUM(a.total_elevation_gain) AS elevation,
+          SUM(a.moving_time) AS moving_time,
+          SUM(a.elapsed_time) AS elapsed_time,
+          COUNT(a.id) AS activity_count,
+          SUM(COALESCE(a.average_watts, 0) * a.moving_time) / 1000.0 AS kilojoules
+        FROM unique_credits credits
+        JOIN strava_activities a ON a.id = credits.activity_id
+        GROUP BY credits.component_id
+      )
+      SELECT
+        c.id AS component_id,
+        c.initial_distance + COALESCE(stats.distance, 0) AS distance,
+        c.initial_elevation_gain + COALESCE(stats.elevation, 0) AS elevation,
+        c.initial_moving_time + COALESCE(stats.moving_time, 0) AS moving_time,
+        c.initial_elapsed_time + COALESCE(stats.elapsed_time, 0) AS elapsed_time,
+        c.initial_activity_count + COALESCE(stats.activity_count, 0) AS activity_count,
+        c.initial_kilojoules + COALESCE(stats.kilojoules, 0) AS kilojoules
+      FROM components c
+      LEFT JOIN stats ON stats.component_id = c.id
+      ${atDate ? 'WHERE c.id = :componentId' : 'WHERE c.is_deleted = 0'}
+      ''';
+
   Stream<List<StravaAthleteDb>> watchAllAthletes() => select(stravaAthletes).watch();
   Stream<List<StravaGearDb>> watchAllGears() => select(stravaGears).watch();
   
@@ -59,7 +154,7 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
         si.setup_id,
         COUNT(DISTINCT a.id) AS activity_count
       FROM setup_intervals si
-      JOIN bikes b ON b.id = si.bike_id
+      JOIN bikes b ON b.id = si.bike_id AND b.is_deleted = 0
       LEFT JOIN strava_activities a
         ON a.gear_id = b.strava_gear
         AND (si.interval_end IS NULL OR a.start_date < si.interval_end)
@@ -169,50 +264,8 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
   Future<int> deleteActivities(Iterable<int> ids) => (delete(stravaActivities)..where((t) => t.id.isIn(ids))).go();
 
   Stream<Map<String, ComponentStats>> watchComponentStats() {
-    // This query sums up activities for each component based on its installation history.
-    // It is optimized for large datasets and handles components moving between bikes.
     final query = customSelect(
-      '''
-      SELECT
-        c.id as component_id,
-        c.initial_distance + COALESCE(s.distance, 0) as distance,
-        c.initial_elevation_gain + COALESCE(s.elevation, 0) as elevation,
-        c.initial_moving_time + COALESCE(s.moving_time, 0) as moving_time,
-        c.initial_elapsed_time + COALESCE(s.elapsed_time, 0) as elapsed_time,
-        c.initial_activity_count + COALESCE(s.activity_count, 0) as activity_count,
-        c.initial_kilojoules + COALESCE(s.kilojoules, 0) as kilojoules
-      FROM components c
-      LEFT JOIN (
-        SELECT
-          i.component_id,
-          SUM(a.distance) as distance,
-          SUM(a.total_elevation_gain) as elevation,
-          SUM(a.moving_time) as moving_time,
-          SUM(a.elapsed_time) as elapsed_time,
-          COUNT(a.id) as activity_count,
-          SUM(COALESCE(a.average_watts, 0) * a.moving_time) / 1000.0 as kilojoules
-        FROM strava_activities a
-        JOIN bikes b ON a.gear_id = b.strava_gear
-        JOIN installations i ON b.id = i.parent
-        WHERE a.start_date >= i.date_time_u_t_c
-        AND (
-          a.start_date < (
-            SELECT MIN(next_i.date_time_u_t_c)
-            FROM installations next_i
-            WHERE next_i.component_id = i.component_id
-            AND next_i.date_time_u_t_c > i.date_time_u_t_c
-          )
-          OR NOT EXISTS (
-            SELECT 1
-            FROM installations next_i
-            WHERE next_i.component_id = i.component_id
-            AND next_i.date_time_u_t_c > i.date_time_u_t_c
-          )
-        )
-        GROUP BY i.component_id
-      ) s ON s.component_id = c.id
-      WHERE c.is_deleted = 0
-      ''',
+      _componentStatsSql(atDate: false),
       readsFrom: {stravaActivities, db.bikes, db.installations, db.components},
     );
 
@@ -336,47 +389,7 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
 
   Future<ComponentStats> getComponentStatsAt(String componentId, DateTime date) async {
     final query = customSelect(
-      '''
-      SELECT
-        c.initial_distance + COALESCE(s.distance, 0) as distance,
-        c.initial_elevation_gain + COALESCE(s.elevation, 0) as elevation,
-        c.initial_moving_time + COALESCE(s.moving_time, 0) as moving_time,
-        c.initial_elapsed_time + COALESCE(s.elapsed_time, 0) as elapsed_time,
-        c.initial_activity_count + COALESCE(s.activity_count, 0) as activity_count,
-        c.initial_kilojoules + COALESCE(s.kilojoules, 0) as kilojoules
-      FROM components c
-      LEFT JOIN (
-        SELECT
-          i.component_id,
-          SUM(a.distance) as distance,
-          SUM(a.total_elevation_gain) as elevation,
-          SUM(a.moving_time) as moving_time,
-          SUM(a.elapsed_time) as elapsed_time,
-          COUNT(a.id) as activity_count,
-          SUM(COALESCE(a.average_watts, 0) * a.moving_time) / 1000.0 as kilojoules
-        FROM strava_activities a
-        JOIN bikes b ON a.gear_id = b.strava_gear
-        JOIN installations i ON b.id = i.parent
-        WHERE a.start_date >= i.date_time_u_t_c
-        AND a.start_date <= :selectedDate
-        AND (
-          a.start_date < (
-            SELECT MIN(next_i.date_time_u_t_c)
-            FROM installations next_i
-            WHERE next_i.component_id = i.component_id
-            AND next_i.date_time_u_t_c > i.date_time_u_t_c
-          )
-          OR NOT EXISTS (
-            SELECT 1
-            FROM installations next_i
-            WHERE next_i.component_id = i.component_id
-            AND next_i.date_time_u_t_c > i.date_time_u_t_c
-          )
-        )
-        GROUP BY i.component_id
-      ) s ON s.component_id = c.id
-      WHERE c.id = :componentId
-      ''',
+      _componentStatsSql(atDate: true),
       readsFrom: {stravaActivities, db.bikes, db.installations, db.components},
       variables: [
         Variable<DateTime>(date),
@@ -410,6 +423,7 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
       FROM bikes b
       LEFT JOIN strava_activities a ON b.strava_gear = a.gear_id
       WHERE b.id = :bikeId
+      AND b.is_deleted = 0
       AND a.start_date <= :selectedDate
       GROUP BY b.id
       ''',

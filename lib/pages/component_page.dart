@@ -892,7 +892,7 @@ class _ComponentPageState extends State<ComponentPage> {
         ? 0
         : appRepository.components.values.where((c) =>
             !c.isArchived &&
-            c.bike == currentBike &&
+            appRepository.componentHierarchy.currentBike(c.id) == currentBike &&
             c.componentType == _componentType &&
             widget.component?.id != c.id).length;
 
@@ -975,6 +975,7 @@ class _ComponentPageState extends State<ComponentPage> {
                   if (appSettings.enableInstallationTimeline || _isComplexInstallation) ...[
                     // const Divider(height: 1),
                     SetInstallationTimeline(
+                      componentId: widget.mode == ComponentPageMode.edit ? widget.component?.id : null,
                       initialInstallations: _installations,
                       originalInstallations: widget.mode == ComponentPageMode.edit ? widget.component?.installations : null,
                       onChanged: (newInstallations) {

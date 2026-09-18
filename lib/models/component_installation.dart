@@ -2,7 +2,7 @@ import 'component.dart';
 import 'installation.dart';
 
 
-class ComponentInstallation {
+class ResolvedComponentInstallation {
   // Runtime only helper model (resolved Installation entries)
   final Component component;
   final Installation installation;
@@ -10,7 +10,7 @@ class ComponentInstallation {
   final InstallationParentType? originParentType;
   final bool isInitial;
 
-  ComponentInstallation({
+  ResolvedComponentInstallation({
     required this.component,
     required this.installation,
     this.originParent,
@@ -23,6 +23,7 @@ class ComponentInstallation {
         ? 'Added'
         : switch (installation.parentType) {
             InstallationParentType.bike => 'Installed',
+            InstallationParentType.component => 'Installed',
             InstallationParentType.none => 'Uninstalled',
             InstallationParentType.archived => 'Archived',
           };
@@ -34,6 +35,7 @@ class ComponentInstallation {
         ? '+'
         : switch (installation.parentType) {
             InstallationParentType.bike => '>',
+            InstallationParentType.component => '>',
             InstallationParentType.none => '<',
             InstallationParentType.archived => 'x',
           };

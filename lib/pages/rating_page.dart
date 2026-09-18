@@ -406,10 +406,13 @@ class _RatingPageState extends State<RatingPage> {
                   switch (component.latestInstallation) {
                     Archival() => Icons.inventory_2_outlined,
                     BikeInstallation() => Bike.iconData,
+                    ComponentInstallation(:final parentComponentId) =>
+                      components[parentComponentId]?.componentType.getIconData() ?? Component.iconData,
                     Uninstallation() || null => Icons.shelves,
                   },
                   color: switch (component.latestInstallation) {
                     BikeInstallation(:final bikeId) when !bikes.containsKey(bikeId) => Theme.of(context).colorScheme.error,
+                    ComponentInstallation(:final parentComponentId) when !components.containsKey(parentComponentId) => Theme.of(context).colorScheme.error,
                     _ => null,
                   },
                 ),
@@ -417,10 +420,12 @@ class _RatingPageState extends State<RatingPage> {
                   switch (component.latestInstallation) {
                     Archival() => "Archived",
                     BikeInstallation(:final bikeId) => bikes[bikeId]?.name ?? "BIKE NOT FOUND",
+                    ComponentInstallation(:final parentComponentId) => components[parentComponentId]?.name ?? "COMPONENT NOT FOUND",
                     Uninstallation() || null => "Not installed",
                   },
                   style: switch (component.latestInstallation) {
                     BikeInstallation(:final bikeId) when !bikes.containsKey(bikeId) => TextStyle(color: Theme.of(context).colorScheme.error),
+                    ComponentInstallation(:final parentComponentId) when !components.containsKey(parentComponentId) => TextStyle(color: Theme.of(context).colorScheme.error),
                     _ => null,
                   },
                   overflow: TextOverflow.ellipsis
@@ -541,10 +546,12 @@ class _RatingPageState extends State<RatingPage> {
       ...bikes.values.map((b) => BikeRatingAssociation(b.id)),
       ...ComponentType.values.map((ct) => ComponentTypeRatingAssociation(ct.toString())),
       ...(() {
+        final componentHierarchy = appRepository.componentHierarchy;
         final sortedComponents = components.values
-          .where((c) => !c.isArchived || c.id == preSelectedComponentId)
+          .where((c) => !componentHierarchy.isEffectivelyArchived(c.id) || c.id == preSelectedComponentId)
           .toList()
-          ..sort((a, b) => (a.bike ?? "").compareTo(b.bike ?? ""));
+          ..sort((a, b) => (componentHierarchy.currentBike(a.id) ?? "")
+              .compareTo(componentHierarchy.currentBike(b.id) ?? ""));
         return sortedComponents.map((c) => ComponentRatingAssociation(c.id));
       })(),
       ...persons.values.map((p) => PersonRatingAssociation(p.id)),

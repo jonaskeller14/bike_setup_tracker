@@ -560,6 +560,10 @@ class _TaskRulePageState extends State<TaskRulePage> {
             final bike = bikes[bikeId];
             secondary = bike == null ? "BIKE NOT FOUND" : "on ${bike.name}";
             if (bike == null) errorColor = scheme.error;
+          case ComponentInstallation(:final parentComponentId):
+            final parent = components[parentComponentId];
+            secondary = parent == null ? "COMPONENT NOT FOUND" : "on ${parent.name}";
+            if (parent == null) errorColor = scheme.error;
           case Uninstallation() || null:
             secondary = "Not installed";
         }

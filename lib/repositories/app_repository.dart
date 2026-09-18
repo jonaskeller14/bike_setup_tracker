@@ -28,6 +28,7 @@ import '../models/strava/strava_scope.dart';
 import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
 import '../services/backup_service.dart';
+import '../services/component_hierarchy_resolver.dart';
 import '../services/rating_score_service.dart';
 import '../services/setup_resolution_service.dart';
 import '../services/task_forecast_service.dart';
@@ -112,6 +113,7 @@ class AppRepository extends ChangeNotifier {
   Map<String, Bike> _bikes = {};
   Map<String, Setup> _setups = {};
   Map<String, Component> _components = {};
+  ComponentHierarchyResolver? _componentHierarchyCache;
   Map<String, Rating> _ratings = {};
   Map<String, RatingEntry> _ratingEntries = {};
   Map<String, TaskRule> _taskRules = {};
@@ -141,6 +143,22 @@ class AppRepository extends ChangeNotifier {
   Map<String, ActivityRateWindow> get bikeActivityRates => _bikeActivityRates;
   Map<String, dynamic> get currentAdjustmentValues => _currentAdjustmentValues;
 
+  ComponentHierarchyResolver get componentHierarchy =>
+      _componentHierarchyCache ??= ComponentHierarchyResolver(
+          _components,
+          deletedComponentIds: _deletedComponents.map((component) => component.id).toSet(),
+        );
+
+  Set<String> affectedDescendantIds(String componentId, {DateTime? atUTC}) =>
+      componentHierarchy.descendantsOf(componentId, atUTC: atUTC);
+
+  List<Component> affectedDescendants(String componentId, {DateTime? atUTC}) =>
+      affectedDescendantIds(componentId, atUTC: atUTC)
+          .map<Component?>((id) => _components[id])
+          .whereType<Component>()
+          .toList()
+        ..sort((a, b) => a.name.compareTo(b.name));
+
   DateTime get lastModified {
     final allDates = [
       ..._persons.values.map((p) => p.lastModified),
@@ -168,6 +186,7 @@ class AppRepository extends ChangeNotifier {
     }));
 
     _subscriptions.add(database.componentsDao.watchAllComponentsWithData().listen((list) {
+      _componentHierarchyCache = null;
       _components = {for (var c in list) c.component.id: c.component.toModel(
         adjustments: c.adjustments.map((a) => a.toModel()).toList(),
         installations: c.installations.map((i) => i.toModel()).toList(),
@@ -252,6 +271,7 @@ class AppRepository extends ChangeNotifier {
       _notifyIfActive();
     }));
     _subscriptions.add(database.componentsDao.watchDeletedComponents().listen((list) {
+      _componentHierarchyCache = null;
       _deletedComponents = list.map((c) => c.toModel(adjustments: [], installations: [])).toList();
       _notifyIfActive();
     }));
@@ -310,6 +330,7 @@ class AppRepository extends ChangeNotifier {
   }
 
   void _resolveData() {
+    _componentHierarchyCache = null;
     // Drop the lazily built rating/score lookup caches
     _setupsByBikeSorted = null;
     _ratingEntriesBySetup = null;
@@ -370,7 +391,7 @@ class AppRepository extends ChangeNotifier {
   Map<String, TaskRule> _filteredTaskRules = {};
   Map<String, TaskEntry> _filteredTaskEntries = {};
   Map<String, TaskRule> _filteredOpenTaskRules = {};
-  List<ComponentInstallation> _filteredInstallations = [];
+  List<ResolvedComponentInstallation> _filteredInstallations = [];
 
   Map<String, Bike> get filteredBikes => _filteredBikes;
   Map<String, Person> get filteredPersons => _filteredPersons;
@@ -378,7 +399,7 @@ class AppRepository extends ChangeNotifier {
   Map<String, Component> get filteredComponents => _filteredComponents;
   Map<String, Component> get archivedComponents => {
         for (final entry in _components.entries)
-          if (entry.value.isArchived) entry.key: entry.value
+          if (componentHierarchy.isEffectivelyArchived(entry.key)) entry.key: entry.value
       };
   Map<String, Setup> get filteredSetups => _filteredSetups;
   Map<String, RatingEntry> get filteredRatingEntries => _filteredRatingEntries;
@@ -387,7 +408,7 @@ class AppRepository extends ChangeNotifier {
   int get filteredOpenTaskRulesCount => _filteredOpenTaskRules.length;
   Map<String, TaskEntry> get filteredTaskEntries => _filteredTaskEntries;
   Map<int, StravaActivity> get filteredStravaActivities => _strava.activities;
-  List<ComponentInstallation> get filteredInstallations => _filteredInstallations;
+  List<ResolvedComponentInstallation> get filteredInstallations => _filteredInstallations;
 
   void filter() {
     _filter();
@@ -420,9 +441,11 @@ class AppRepository extends ChangeNotifier {
   }
 
   void _filterComponents() {
+    final hierarchy = componentHierarchy;
     _filteredComponents = Map.fromEntries(components.entries.where((entry) {
-      if (entry.value.isArchived) return false;
-      return selectedBike == null || entry.value.bike == selectedBike;
+      final placement = hierarchy.resolveCurrent(entry.key);
+      if (placement.isArchived || placement.isDeleted) return false;
+      return selectedBike == null || placement.bikeId == selectedBike;
     }));
   }
 
@@ -481,9 +504,10 @@ class AppRepository extends ChangeNotifier {
     if (rule.componentId == null && rule.bikeId == null) return true;
     if (rule.bikeId != null) return _selectedBike == null || rule.bikeId == _selectedBike;
 
-    final component = _components[rule.componentId];
-    if (component == null || component.isArchived) return false;
-    return _selectedBike == null || component.bike == _selectedBike;
+    if (!_components.containsKey(rule.componentId)) return false;
+    final placement = componentHierarchy.resolveCurrent(rule.componentId!);
+    if (placement.isArchived || placement.isDeleted) return false;
+    return _selectedBike == null || placement.bikeId == _selectedBike;
   }
 
   void _filterTaskEntries() {
@@ -496,6 +520,7 @@ class AppRepository extends ChangeNotifier {
 
   void _filterInstallations() {
     _filteredInstallations = [];
+    final hierarchy = componentHierarchy;
     for (final component in components.values) {
       final sorted = List<Installation>.from(component.installations)
         ..sort((a, b) => a.dateTimeUTC.compareTo(b.dateTimeUTC));
@@ -508,7 +533,7 @@ class AppRepository extends ChangeNotifier {
         final originParent = previousInstallation?.parent;
         final isInitial = i == 0;
 
-        final ci = ComponentInstallation(
+        final ci = ResolvedComponentInstallation(
           component: component,
           installation: installation,
           originParent: originParent,
@@ -516,7 +541,10 @@ class AppRepository extends ChangeNotifier {
           isInitial: isInitial,
         );
 
-        if (selectedBike == null || installation.parent == selectedBike || originParent == selectedBike) {
+        final targetBike = hierarchy.bikeAt(component.id, installation.dateTimeUTC);
+        final originTime = installation.dateTimeUTC.subtract(const Duration(microseconds: 1));
+        final originBike = hierarchy.bikeAt(component.id, originTime);
+        if (selectedBike == null || targetBike == selectedBike || originBike == selectedBike) {
           _filteredInstallations.add(ci);
         }
       }
@@ -676,15 +704,10 @@ class AppRepository extends ChangeNotifier {
   ({TaskEntry? lastEntry, DateTime? installationDate, ComponentStats stats}) _taskRuleInputs(TaskRule rule) {
     DateTime? installationDate;
     if (rule.componentId != null) {
-      final component = _components[rule.componentId];
-      final bike = component?.bike != null ? _bikes[component!.bike] : null;
-      if (component != null && bike != null) {
-        final installation = component.installations.where((i) => i.parent == bike.id).toList()
-            ..sort((a, b) => b.dateTimeUTC.compareTo(a.dateTimeUTC));
-        if (installation.isNotEmpty) {
-          installationDate = installation.first.dateTimeUTC;
-        }
-      }
+      installationDate = componentHierarchy.effectiveBikeSinceAt(
+        rule.componentId!,
+        DateTime.now().toUtc(),
+      );
     }
 
     final stats = rule.componentId != null
@@ -805,7 +828,7 @@ class AppRepository extends ChangeNotifier {
   List<TaskRuleWithStatus> openTaskRulesForBike(String bikeId) {
     final rules = _taskRules.values.where((rule) {
       if (rule.bikeId == bikeId) return true;
-      if (rule.componentId != null) return _components[rule.componentId]?.bike == bikeId;
+      if (rule.componentId != null) return componentHierarchy.currentBike(rule.componentId!) == bikeId;
       return false;
     });
     return _openTaskRulesWithStatus(rules);
@@ -922,7 +945,10 @@ class AppRepository extends ChangeNotifier {
 
   List<RatingMetric> _computeApplicableMetricsForBike(String bikeId) {
     final bikePerson = _bikes[bikeId]?.person;
-    final bikeComponents = _components.values.where((c) => c.bike == bikeId);
+    final hierarchy = componentHierarchy;
+    final bikeComponents = _components.values.where(
+      (component) => hierarchy.currentBike(component.id) == bikeId,
+    );
     final componentIds = bikeComponents.map((c) => c.id).toSet();
     final componentTypes = bikeComponents.map((c) => c.componentType.toString()).toSet();
 
@@ -1082,21 +1108,43 @@ class AppRepository extends ChangeNotifier {
 
   Future<void> removeBikes(Iterable<Bike> bikes) async {
     if (bikes.isEmpty) return;
+    final affected = _componentsEverOnBikes(bikes.map((bike) => bike.id).toSet());
     await database.transaction(() async {
       for (var bike in bikes) {
         await database.bikesDao.deleteBike(bike.id);
       }
     });
+    await refreshTaskEntrySnapshots(componentIds: affected);
+  }
+
+  /// Components whose stats move when [bikeIds] are deleted or restored: the
+  /// ones ever installed on such a bike, plus everything ever nested under them
+  /// (a child inherits its parent's bike, so it gains and loses the same credit).
+  Set<String> _componentsEverOnBikes(Set<String> bikeIds) {
+    final hierarchy = componentHierarchy;
+    final affected = <String>{};
+    for (final component in _components.values) {
+      final wasOnBike = component.installations.any(
+        (installation) => installation is BikeInstallation && bikeIds.contains(installation.bikeId),
+      );
+      if (!wasOnBike) continue;
+      affected
+        ..add(component.id)
+        ..addAll(hierarchy.historicalDescendantsOf(component.id));
+    }
+    return affected;
   }
 
   Future<void> restoreBikes(Iterable<Bike> bikes) async {
     if (bikes.isEmpty) return;
+    final affected = _componentsEverOnBikes(bikes.map((bike) => bike.id).toSet());
     await database.transaction(() async {
       for (var bike in bikes) {
         final updated = bike.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
         await database.bikesDao.updateBike(updated.toCompanion());
       }
     });
+    await refreshTaskEntrySnapshots(componentIds: affected);
   }
 
   Future<void> removeComponents(Iterable<Component> components) async {
@@ -1361,16 +1409,20 @@ class AppRepository extends ChangeNotifier {
   Future<void> addComponents(Iterable<Component> components) async {
     if (components.isEmpty) return;
     final now = DateTime.now().toUtc();
+    final updateComponents = components.map((component) => component.copyWith(lastModified: now)).toList();
+    ComponentHierarchyResolver({
+      ..._components,
+      for (final updated in updateComponents) updated.id: updated,
+    }).validate();
     await database.transaction(() async {
-      for (final component in components) {
-        final updated = component.copyWith(lastModified: now);
+      for (final updateComponent in updateComponents) {
         await database.componentsDao.insertComponentWithData(
-          component: updated.toCompanion(),
-          adjustmentsList: updated.adjustments.asMap().entries.map((entry) =>
-            entry.value.toCompanion(componentId: updated.id, orderIndex: entry.key)
+          component: updateComponent.toCompanion(),
+          adjustmentsList: updateComponent.adjustments.asMap().entries.map((entry) =>
+            entry.value.toCompanion(componentId: updateComponent.id, orderIndex: entry.key)
           ).toList(),
-          installationsList: updated.installations.map((inst) =>
-            inst.copyWith(id: const Uuid().v4(), componentId: updated.id).toCompanion()
+          installationsList: updateComponent.installations.map((inst) =>
+            inst.copyWith(id: const Uuid().v4(), componentId: updateComponent.id).toCompanion()
           ).toList(),
         );
       }
@@ -1406,8 +1458,12 @@ class AppRepository extends ChangeNotifier {
 
   Future<void> editComponent(Component component, {List<ValueUnitConversion> conversions = const []}) async {
     final statsInputsChanged = _componentStatsInputsChanged(component);
+    final oldDescendants = componentHierarchy.historicalDescendantsOf(component.id);
 
     final updated = component.copyWith(lastModified: DateTime.now().toUtc());
+    final candidateComponents = {..._components, updated.id: updated};
+    final candidateHierarchy = ComponentHierarchyResolver(candidateComponents);
+    candidateHierarchy.validate();  //FIXME: is error catched here or in parent?
     await database.transaction(() async {
       await _writeComponentWithData(updated);
       for (final c in conversions) {
@@ -1418,7 +1474,13 @@ class AppRepository extends ChangeNotifier {
       }
     });
 
-    if (statsInputsChanged) await refreshTaskEntrySnapshots(componentIds: {component.id});
+    if (statsInputsChanged) {
+      await refreshTaskEntrySnapshots(componentIds: {
+        component.id,
+        ...oldDescendants,
+        ...candidateHierarchy.historicalDescendantsOf(component.id),
+      });
+    }
   }
 
   Future<void> editComponents(Iterable<Component> components) async {
@@ -1430,6 +1492,18 @@ class AppRepository extends ChangeNotifier {
     final updates = componentList
         .map((c) => c.copyWith(lastModified: DateTime.now().toUtc()))
         .toList();
+    final candidateComponents = {..._components};
+    for (final updated in updates) {
+      candidateComponents[updated.id] = updated;
+    }
+    final candidateHierarchy = ComponentHierarchyResolver(candidateComponents);
+    candidateHierarchy.validate();  //FIXME: is error catched here or in parent?
+    final affectedIds = <String>{...changedComponentIds};
+    for (final componentId in changedComponentIds) {
+      affectedIds
+        ..addAll(componentHierarchy.historicalDescendantsOf(componentId))
+        ..addAll(candidateHierarchy.historicalDescendantsOf(componentId));
+    }
 
     await database.transaction(() async {
       for (final updated in updates) {
@@ -1438,7 +1512,7 @@ class AppRepository extends ChangeNotifier {
     });
 
     if (changedComponentIds.isNotEmpty) {
-      await refreshTaskEntrySnapshots(componentIds: changedComponentIds);
+      await refreshTaskEntrySnapshots(componentIds: affectedIds);
     }
   }
 
@@ -1589,6 +1663,7 @@ class AppRepository extends ChangeNotifier {
       for (int i = 0; i < globalList.length; i++)
         globalList[i].id: globalList[i].copyWith(orderIndex: i)
     };
+    _componentHierarchyCache = null;
     _filter();
     notifyListeners();
 

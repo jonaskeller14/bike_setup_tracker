@@ -91,7 +91,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 16;
+  int get schemaVersion => 17;
 
   @override
   MigrationStrategy get migration {
@@ -213,6 +213,19 @@ class AppDatabase extends _$AppDatabase {
           // edited minutes; "Now" and drag-and-drop wrote seconds). Round the
           // stored rows down so they match what is displayed and editable.
           await migrateInstallationMinutes(this);
+        }
+        if (from < 17) {
+          // Component nesting resolves placement by walking installations up the
+          // parent chain; index both lookup directions so the traversal stays
+          // cheap as timelines grow.
+          await customStatement(
+            'CREATE INDEX IF NOT EXISTS installations_component_date_idx '
+            'ON installations (component_id, date_time_u_t_c)',
+          );
+          await customStatement(
+            'CREATE INDEX IF NOT EXISTS installations_parent_lookup_idx '
+            'ON installations (parent_type, parent, date_time_u_t_c)',
+          );
         }
       },
     );

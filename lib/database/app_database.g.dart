@@ -9041,6 +9041,14 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $StravaAthletesTable stravaAthletes = $StravaAthletesTable(this);
   late final $StravaGearsTable stravaGears = $StravaGearsTable(this);
+  late final Index installationsComponentDateIdx = Index(
+    'installations_component_date_idx',
+    'CREATE INDEX installations_component_date_idx ON installations (component_id, date_time_u_t_c)',
+  );
+  late final Index installationsParentLookupIdx = Index(
+    'installations_parent_lookup_idx',
+    'CREATE INDEX installations_parent_lookup_idx ON installations (parent_type, parent, date_time_u_t_c)',
+  );
   late final BikesDao bikesDao = BikesDao(this as AppDatabase);
   late final ComponentsDao componentsDao = ComponentsDao(this as AppDatabase);
   late final SetupsDao setupsDao = SetupsDao(this as AppDatabase);
@@ -9072,6 +9080,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     stravaActivities,
     stravaAthletes,
     stravaGears,
+    installationsComponentDateIdx,
+    installationsParentLookupIdx,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([

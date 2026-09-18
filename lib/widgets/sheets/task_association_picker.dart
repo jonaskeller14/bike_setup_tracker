@@ -8,6 +8,7 @@ import '../../models/bike.dart';
 import '../../models/component.dart';
 import '../../models/task/task_association.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/component_hierarchy_resolver.dart';
 import '../../theme.dart';
 import '../../utils/component_preset_search.dart';
 import 'sheet.dart';
@@ -100,7 +101,7 @@ class _TaskAssociationPickerSheetState extends State<_TaskAssociationPickerSheet
     final bikes = appRepository.bikes;
     final components = appRepository.components;
 
-    final groups = _buildGroups(bikes, components);
+    final groups = _buildGroups(bikes, components, appRepository.componentHierarchy);
     final showGeneral = _matches('general task');
     final dangling = _danglingAssociations(bikes, components);
     final isEmpty = groups.isEmpty && !showGeneral && dangling.isEmpty;
@@ -328,14 +329,18 @@ class _TaskAssociationPickerSheetState extends State<_TaskAssociationPickerSheet
   /// Garage order: bikes in repository order, components by `orderIndex`.
   /// Never sorted by `Component.bike` — that is a UUID, and sorting by it is
   /// what made the old dropdown look randomly ordered.
-  List<_Group> _buildGroups(Map<String, Bike> bikes, Map<String, Component> components) {
+  List<_Group> _buildGroups(
+    Map<String, Bike> bikes,
+    Map<String, Component> components,
+    ComponentHierarchyResolver hierarchy,
+  ) {
     final byBike = <String, List<Component>>{for (final id in bikes.keys) id: []};
     final shelf = <Component>[];
     final orphaned = <Component>[];
     final archived = <Component>[];
 
     for (final component in components.values) {
-      if (component.isArchived) {
+      if (hierarchy.isEffectivelyArchived(component.id)) {
         // The archive stays out of the way; only the component this rule already
         // points at is offered, so an existing link stays visible and editable.
         if (component.id == _selected.componentId || component.id == widget.initial?.componentId) {
@@ -343,7 +348,7 @@ class _TaskAssociationPickerSheetState extends State<_TaskAssociationPickerSheet
         }
         continue;
       }
-      final bikeId = component.bike;
+      final bikeId = hierarchy.currentBike(component.id);
       if (bikeId == null) {
         shelf.add(component);
       } else if (byBike.containsKey(bikeId)) {

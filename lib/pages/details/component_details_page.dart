@@ -132,7 +132,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     final componentAdjustments = component.adjustments;
 
     final bikes = appRepository.bikes;
-    final bike = bikes[component.bike];
+    final bike = bikes[appRepository.componentHierarchy.currentBike(component.id)];
 
     final persons = appRepository.persons;
     final person = persons[bike?.person];
@@ -272,6 +272,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                     DisplayInstallationTimeline(
                       component: component,
                       bikes: bikes,
+                      components: appRepository.components,
                       taskEntries: appRepository.taskEntries.values.where(
                         (entry) => entry.componentId == component.id,
                       ),

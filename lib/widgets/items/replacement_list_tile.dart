@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
+import '../../models/component.dart';
 import '../../models/component_installation.dart';
 import '../../models/installation.dart';
 import '../../models/timeline_row.dart';
@@ -22,10 +23,15 @@ class ReplacementListTile extends StatelessWidget {
     this.showDate = true,
   });
 
-  static IconData _destinationIcon(InstallationParentType type) => switch (type) {
-        InstallationParentType.bike => Bike.iconData,
-        InstallationParentType.none => Icons.shelves,
-        InstallationParentType.archived => Icons.inventory_2_outlined,
+  static IconData _destinationIcon(
+    ResolvedComponentInstallation componentInstallation,
+    AppRepository appRepository,
+  ) => switch (componentInstallation.installation) {
+        BikeInstallation() => Bike.iconData,
+        ComponentInstallation(:final parentComponentId) =>
+          appRepository.components[parentComponentId]?.componentType.getIconData() ?? Component.iconData,
+        Uninstallation() => Icons.shelves,
+        Archival() => Icons.inventory_2_outlined,
       };
 
   /// One half of the swap: `<type icon> <name> ──→ <destination icon>`.
@@ -40,8 +46,9 @@ class ReplacementListTile extends StatelessWidget {
   /// aligns both arrows to the end of the longer name rather than the far edge.
   Widget _componentRow(
     BuildContext context,
-    ComponentInstallation ci, {
+    ResolvedComponentInstallation ci, {
     required bool emphasized,
+    required AppRepository appRepository,
   }) {
     final scheme = Theme.of(context).colorScheme;
     final nameColor =
@@ -64,7 +71,7 @@ class ReplacementListTile extends StatelessWidget {
         const SizedBox(width: 8),
         Icon(Icons.arrow_right_alt, size: 14, color: glyphColor),
         const SizedBox(width: 3),
-        Icon(_destinationIcon(ci.installation.parentType), size: 13, color: glyphColor),
+        Icon(_destinationIcon(ci, appRepository), size: 13, color: glyphColor),
       ],
     );
   }
@@ -73,11 +80,26 @@ class ReplacementListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
-    final bikes = appRepository.bikes;
-
-    final bikeId = row.installed.installation.parent;
-    final bikeName = bikes[bikeId]?.name ?? "BIKE NOT FOUND";
-    final isBikeError = bikeId != null && !bikes.containsKey(bikeId);
+    final targetInstallation = row.installed.installation;
+    final targetParentId = targetInstallation.parent;
+    final targetIcon = switch (targetInstallation) {
+      BikeInstallation() => Bike.iconData,
+      ComponentInstallation(:final parentComponentId) =>
+        appRepository.components[parentComponentId]?.componentType.getIconData() ?? Component.iconData,
+      Uninstallation() => Icons.shelves,
+      Archival() => Icons.inventory_2_outlined,
+    };
+    final targetName = switch (targetInstallation) {
+      BikeInstallation(:final bikeId) => appRepository.bikes[bikeId]?.name ?? 'BIKE NOT FOUND',
+      ComponentInstallation(:final parentComponentId) => appRepository.components[parentComponentId]?.name ?? 'COMPONENT NOT FOUND',
+      Uninstallation() => 'Uninstalled',
+      Archival() => 'Archive',
+    };
+    final isTargetError = targetParentId != null && switch (targetInstallation.parentType) {
+      InstallationParentType.bike => !appRepository.bikes.containsKey(targetParentId),
+      InstallationParentType.component => !appRepository.components.containsKey(targetParentId),
+      InstallationParentType.none || InstallationParentType.archived => false,
+    };
 
     final timeFormat = DateFormat(appSettings.timeFormat);
     final removedTime = timeFormat.format(row.removed.installation.dateTimeLocal);
@@ -130,9 +152,9 @@ class ReplacementListTile extends StatelessWidget {
                       ),
                     ),
                     TileMetaRow(
-                      icon: Bike.iconData,
-                      text: bikeName,
-                      isError: isBikeError,
+                      icon: targetIcon,
+                      text: targetName,
+                      isError: isTargetError,
                     ),
                   ],
                 ),
@@ -149,8 +171,8 @@ class ReplacementListTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _componentRow(context, row.installed, emphasized: false),
-                  _componentRow(context, row.removed, emphasized: false),
+                  _componentRow(context, row.installed, emphasized: false, appRepository: appRepository),
+                  _componentRow(context, row.removed, emphasized: false, appRepository: appRepository),
                 ],
               ),
             ),

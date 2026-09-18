@@ -122,6 +122,28 @@ class FeaturesPage extends StatelessWidget {
                         'air pressure, SAG) automatically. You can still edit everything afterwards.',
                   ),
                 ),
+              if (kDebugMode)
+                ListTile(
+                  leading: const Icon(Icons.account_tree_outlined),
+                  title: const Text("Install on Component"),
+                  subtitle: _offOnOptionWidgets[appSettings.enableInstallOnComponent] ?? const Text("-"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () => radioGroupSheet<bool>(
+                    context: context,
+                    title: "Install on Component",
+                    value: appSettings.enableInstallOnComponent,
+                    optionWidgets: _offOnOptionWidgets,
+                    onChanged: (bool? newValue) {
+                      if (newValue == null) return;
+                      appSettings.enableInstallOnComponent = newValue;
+                      Navigator.pop(context);
+                    },
+                    infoText:
+                        'Lets you install a component on another component in the Installation '
+                        'Timeline, e.g. a tire on a wheel. The nested component follows its parent '
+                        'between bikes and is credited with the same activities.',
+                  ),
+                ),
               const Divider(),
               const SectionTitle(title: 'Setups'),
               ListTile(

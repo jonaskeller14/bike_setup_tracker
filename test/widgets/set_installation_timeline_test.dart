@@ -1,6 +1,7 @@
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
+import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/theme.dart';
@@ -34,6 +35,7 @@ void main() {
     List<Installation> initialInstallations = const [],
     List<Installation>? originalInstallations,
     void Function(List<Installation>)? onChanged,
+    String? componentId,
   }) {
     return MultiProvider(
       providers: [
@@ -46,6 +48,7 @@ void main() {
           // Wrap in SingleChildScrollView to avoid layout overflows in test environment
           body: SingleChildScrollView(
             child: SetInstallationTimeline(
+              componentId: componentId,
               initialInstallations: initialInstallations,
               originalInstallations: originalInstallations,
               onChanged: onChanged ?? (_) {},
@@ -275,6 +278,88 @@ void main() {
         tester.widgetList<Text>(find.text('Bike A')).where((t) => t.style?.color == null),
         isNotEmpty,
       );
+    });
+
+    group('component parents', () {
+      Component component(String id, String name, List<Installation> installations) => Component(
+            id: id,
+            name: name,
+            componentType: ComponentType.wheelFront,
+            installations: installations,
+            adjustments: [],
+          );
+
+      Future<void> seed(WidgetTester tester, List<Component> components) async {
+        await tester.runAsync(() async {
+          await appRepository.addBikes([Bike(id: 'bike1', name: 'Bike 1', person: 'Me')]);
+          await appRepository.addComponents(components);
+          int attempts = 0;
+          while (appRepository.components.length < components.length && attempts < 100) {
+            await Future<void>.delayed(const Duration(milliseconds: 10));
+            attempts++;
+          }
+        });
+      }
+
+      Future<void> openParentMenu(WidgetTester tester) async {
+        await tester.tap(find.byType(DropdownButtonFormField<Installation>).first);
+        await tester.pumpAndSettle();
+      }
+
+      final now = DateTime.now();
+      final nestedComponents = [
+        component('wheel', 'Front Wheel', [Installation.sinceBeginning(parent: 'bike1')]),
+        component('tire', 'Nested Tire', [
+          ComponentInstallation(parentComponentId: 'wheel', dateTimeUTC: now.toUtc(), dateTimeLocal: now),
+        ]),
+        component('old', 'Archived Wheel', [
+          Installation.sinceBeginning(parent: 'bike1'),
+          Archival(dateTimeUTC: now.toUtc(), dateTimeLocal: now),
+        ]),
+      ];
+
+      testWidgets('offers only top-level, non-archived components other than itself', (WidgetTester tester) async {
+        await seed(tester, [...nestedComponents, component('self', 'Self Wheel', [Installation.sinceBeginning(parent: 'bike1')])]);
+        appSettings.enableInstallOnComponent = true;
+
+        await tester.pumpWidget(createWidgetUnderTest(
+          componentId: 'self',
+          initialInstallations: [Installation.sinceBeginning(parent: 'bike1')],
+        ));
+        await tester.pumpAndSettle();
+        await openParentMenu(tester);
+
+        expect(find.text('Front Wheel'), findsOneWidget);
+        expect(find.text('Nested Tire'), findsNothing);
+        expect(find.text('Archived Wheel'), findsNothing);
+        expect(find.text('Self Wheel'), findsNothing);
+      });
+
+      testWidgets('offers no components when the feature is off', (WidgetTester tester) async {
+        await seed(tester, nestedComponents);
+
+        await tester.pumpWidget(createWidgetUnderTest(
+          initialInstallations: [Installation.sinceBeginning(parent: 'bike1')],
+        ));
+        await tester.pumpAndSettle();
+        await openParentMenu(tester);
+
+        expect(find.text('Front Wheel'), findsNothing);
+      });
+
+      testWidgets('offers no components to a component that carries children', (WidgetTester tester) async {
+        await seed(tester, [...nestedComponents, component('rim', 'Rim', [Installation.sinceBeginning(parent: 'bike1')])]);
+        appSettings.enableInstallOnComponent = true;
+
+        await tester.pumpWidget(createWidgetUnderTest(
+          componentId: 'wheel',
+          initialInstallations: [Installation.sinceBeginning(parent: 'bike1')],
+        ));
+        await tester.pumpAndSettle();
+        await openParentMenu(tester);
+
+        expect(find.text('Rim'), findsNothing);
+      });
     });
 
     testWidgets('popup menu disables "From beginning" if another entry has it', (WidgetTester tester) async {

@@ -115,6 +115,7 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
     Installation installation,
     Map<String, Bike> bikes,
     Map<String, Component> components,
+    Iterable<Component> parentComponentCandidates,
   ) {
     return [
       _ParentOption(
@@ -149,6 +150,19 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
           icon: Bike.iconData,
           label: bike.name,
         ),
+      for (final component in parentComponentCandidates)
+        if (installation is! ComponentInstallation || installation.parentComponentId != component.id)
+          _ParentOption(
+            value: ComponentInstallation(
+              parentComponentId: component.id,
+              id: installation.id,
+              componentId: installation.componentId,
+              dateTimeUTC: installation.dateTimeUTC,
+              dateTimeLocal: installation.dateTimeLocal,
+            ),
+            icon: component.componentType.getIconData(),
+            label: component.name,
+          ),
       if (installation case ComponentInstallation(:final parentComponentId))
         _ParentOption(
           value: installation,
@@ -164,6 +178,27 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
           color: Theme.of(context).colorScheme.error,
         ),
     ];
+  }
+
+  /// Nesting depth is capped at one level in this picker:
+  /// `Bike > Component > Component` is allowed,
+  /// `Bike > Component > Component > Component` is not.
+  ///
+  /// Enforced from both ends:
+  /// - a parent must be top-level (its latest installation is not on a component);
+  /// - the edited component must be a leaf (no current descendants), otherwise
+  ///   no component parents are offered at all.
+  ///
+  /// Caveats: both checks use the current state, not the entry's date, so a
+  /// backdated entry can still create a deeper chain in the past. The cap is
+  /// UI-only; the model, validation, import, hierarchy resolver and Strava
+  /// credit all support arbitrary depth, so deeper existing data keeps working.
+  Iterable<Component> _parentComponentCandidates(AppRepository appRepository, AppSettings appSettings) {
+    if (!appSettings.enableInstallOnComponent) return const [];
+    final componentId = widget.componentId;
+    if (componentId != null && appRepository.affectedDescendantIds(componentId).isNotEmpty) return const [];
+    return appRepository.components.values.where((c) =>
+        c.id != componentId && !c.isArchived && c.latestInstallation is! ComponentInstallation);
   }
 
   InstallationTimelineIssue? _issue(AppRepository appRepository) =>
@@ -209,6 +244,7 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
     final appRepository = context.watch<AppRepository>();
     final appSettings = context.watch<AppSettings>();
     final bikes = appRepository.bikes;
+    final parentComponentCandidates = _parentComponentCandidates(appRepository, appSettings).toList();
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -297,7 +333,7 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                             ? colorScheme.error
                             : (!isEditable ? theme.disabledColor : null);
 
-                        final parentOptions = _parentOptions(installation, bikes, appRepository.components);
+                        final parentOptions = _parentOptions(installation, bikes, appRepository.components, parentComponentCandidates);
 
                         return Padding(
                           padding: const EdgeInsets.only(left: 12.0, top: 4, bottom: 4),

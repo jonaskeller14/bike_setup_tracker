@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:units_converter/units_converter.dart';
@@ -453,6 +454,95 @@ class AppSettings extends ChangeNotifier {
       rethrow;
     }
   }
+
+  Future<void> resetToDefaults() async {
+    final prefs = await SharedPreferences.getInstance();
+    final keys = prefs.getKeys().where((key) => key.startsWith(_kPrefix) && key != '${_kPrefix}showOnboarding');
+    for (final key in keys.toList()) {
+      await prefs.remove(key);
+    }
+
+    final defaults = AppSettings();
+    _themeMode = defaults._themeMode;
+    _dateFormat = defaults._dateFormat;
+    _timeFormat = defaults._timeFormat;
+    _temperatureUnit = defaults._temperatureUnit;
+    _windSpeedUnit = defaults._windSpeedUnit;
+    _altitudeUnit = defaults._altitudeUnit;
+    _precipitationUnit = defaults._precipitationUnit;
+    _distanceUnit = defaults._distanceUnit;
+    _enableGoogleDrive = defaults._enableGoogleDrive;
+    _enableTextAdjustment = defaults._enableTextAdjustment;
+    _enableStepDialColorSize = defaults._enableStepDialColorSize;
+    _enableMultiSelect = defaults._enableMultiSelect;
+    _enableCountedSelect = defaults._enableCountedSelect;
+    _enablePerson = defaults._enablePerson;
+    _enableRating = defaults._enableRating;
+    _enableSetupTags = defaults._enableSetupTags;
+    _enableTaskTags = defaults._enableTaskTags;
+    _enableStravaNotifications = defaults._enableStravaNotifications;
+    _enableTask = defaults._enableTask;
+    _enableTaskPriority = defaults._enableTaskPriority;
+    _enableTaskInterval = defaults._enableTaskInterval;
+    _enableTaskDelay = defaults._enableTaskDelay;
+    _enableTaskDuePrediction = defaults._enableTaskDuePrediction;
+    _enableGarageTaskIndicator = defaults._enableGarageTaskIndicator;
+    _enableInstallationTimeline = defaults._enableInstallationTimeline;
+    _useMapBoxTiles = defaults._useMapBoxTiles;
+    _enableCalendar = defaults._enableCalendar;
+    _enableSetupImages = defaults._enableSetupImages;
+    _enableSetupBookmark = defaults._enableSetupBookmark;
+    _enableComponentPresets = defaults._enableComponentPresets;
+    _enablePressureAssistant = defaults._enablePressureAssistant;
+    _enableTimelineSetupGrouping = defaults._enableTimelineSetupGrouping;
+    _enableTimelineReplacementDetection = defaults._enableTimelineReplacementDetection;
+    _enableTimelineStravaContext = defaults._enableTimelineStravaContext;
+    _firstDayOfWeek = defaults._firstDayOfWeek;
+    defaults.dispose();
+    notifyListeners();
+  }
+
+  static final List<Object> _defaultValues = AppSettings()._resettableValues;
+
+  bool get hasDefaultValues => listEquals(_resettableValues, _defaultValues);
+
+  List<Object> get _resettableValues => [
+    _themeMode,
+    _dateFormat,
+    _timeFormat,
+    _temperatureUnit,
+    _windSpeedUnit,
+    _altitudeUnit,
+    _precipitationUnit,
+    _distanceUnit,
+    _enableGoogleDrive,
+    _enableTextAdjustment,
+    _enableStepDialColorSize,
+    _enableMultiSelect,
+    _enableCountedSelect,
+    _enablePerson,
+    _enableRating,
+    _enableSetupTags,
+    _enableTaskTags,
+    _enableStravaNotifications,
+    _enableTask,
+    _enableTaskPriority,
+    _enableTaskInterval,
+    _enableTaskDelay,
+    _enableTaskDuePrediction,
+    _enableGarageTaskIndicator,
+    _enableInstallationTimeline,
+    _useMapBoxTiles,
+    _enableCalendar,
+    _enableSetupImages,
+    _enableSetupBookmark,
+    _enableComponentPresets,
+    _enablePressureAssistant,
+    _enableTimelineSetupGrouping,
+    _enableTimelineReplacementDetection,
+    _enableTimelineStravaContext,
+    _firstDayOfWeek,
+  ];
 
   /// Migrates the pre-existing monolithic `app_settings` JSON blob to per-key
   /// storage, then removes it. Runs at most once (the blob is gone afterwards).

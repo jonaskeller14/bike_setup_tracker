@@ -16,6 +16,7 @@ import 'features_page.dart';
 import 'gallery_page.dart';
 import 'help_page.dart';
 import 'preferences_page.dart';
+import 'reset_page.dart';
 
 class AppSettingsPage extends StatelessWidget {
   const AppSettingsPage({super.key});
@@ -128,6 +129,13 @@ class AppSettingsPage extends StatelessWidget {
                 subtitle: const Text('FAQ, onboarding and contact'),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const HelpPage())),
+              ),
+              ListTile(
+                leading: const Icon(Icons.restart_alt),
+                title: const Text('Reset & Delete'),
+                subtitle: const Text('Reset settings, delete backups or clear data'),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                onTap: () => Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const ResetPage())),
               ),
             ],
           ),

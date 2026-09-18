@@ -74,6 +74,11 @@ class ImageStorageService {
     }
   }
 
+  Future<void> deleteAllImages() async {
+    final dir = Directory(await _imagesPath());
+    if (dir.existsSync()) await dir.delete(recursive: true);
+  }
+
   Future<File> exportBundle(AppDatabase database, {SelectedData? selectedData}) async {
     final exportData = await DataExportService.backupDatabaseToJson(database, subset: selectedData);
     final jsonString = const JsonEncoder.withIndent('  ').convert(exportData);

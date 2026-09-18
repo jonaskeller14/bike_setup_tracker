@@ -98,4 +98,30 @@ class BackupService {
       debugPrint('Error deleting backups: $e\n$st');
     }
   }
+
+  static Future<bool> hasBackups() async {
+    final dir = await getApplicationDocumentsDirectory();
+    final backupDir = Directory('${dir.path}/backup');
+    if (!await backupDir.exists()) return false;
+    return backupDir.list().any((fileEntity) => fileEntity is File);
+  }
+
+  /// Deletes every local backup and resets the backup timestamp so the next
+  /// database change creates a fresh one. Returns the number of deleted files.
+  static Future<int> deleteAllBackups() async {
+    final dir = await getApplicationDocumentsDirectory();
+    final backupDir = Directory('${dir.path}/backup');
+    var count = 0;
+    if (await backupDir.exists()) {
+      await for (final fileEntity in backupDir.list()) {
+        if (fileEntity is File) {
+          await fileEntity.delete();
+          count++;
+        }
+      }
+    }
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_backupSharedPreferencesInstance);
+    return count;
+  }
 }

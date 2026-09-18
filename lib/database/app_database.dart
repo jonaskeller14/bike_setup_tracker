@@ -231,6 +231,42 @@ class AppDatabase extends _$AppDatabase {
     );
   }
 
+  /// Ordered children first so deletes never trip a foreign key.
+  List<TableInfo<Table, dynamic>> get _userDataTables => [
+    setupAdjustmentValues,
+    ratingEntryValues,
+    ratingEntries,
+    setups,
+    adjustments,
+    installations,
+    taskEntries,
+    components,
+    taskRules,
+    ratingMetrics,
+    ratings,
+    bikes,
+    persons,
+  ];
+
+  /// Emits whether any table cleared by [deleteAllUserData] holds a row,
+  /// including soft-deleted ones.
+  Stream<bool> watchHasUserData() {
+    final tables = _userDataTables;
+    final query = tables.map((table) => 'SELECT 1 FROM ${table.actualTableName}').join(' UNION ALL ');
+    return customSelect('SELECT EXISTS($query) AS has_data', readsFrom: tables.toSet())
+        .watchSingle()
+        .map((row) => row.read<bool>('has_data'));
+  }
+
+  /// Hard-deletes all user data. Synced Strava tables are left untouched.
+  Future<void> deleteAllUserData() {
+    return transaction(() async {
+      for (final table in _userDataTables) {
+        await delete(table).go();
+      }
+    });
+  }
+
   /// Rounds every installation instant down to the whole minute.
   ///
   /// Rounding can collapse two events onto the same minute, and equal instants

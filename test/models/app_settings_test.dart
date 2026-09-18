@@ -91,6 +91,53 @@ void main() {
     });
   });
 
+  group('AppSettings — resetToDefaults', () {
+    test('restores defaults, clears stored keys and keeps onboarding state', () async {
+      SharedPreferences.setMockInitialValues({
+        '${_kPrefix}showOnboarding': false,
+        '${_kPrefix}enableCalendar': true,
+        '${_kPrefix}distanceUnit': 'mi',
+        '${_kPrefix}themeMode': ThemeMode.dark.toString(),
+        '${_kPrefix}firstDayOfWeek': DateTime.sunday,
+        'unrelated.key': 'kept',
+      });
+      final settings = AppSettings();
+      await settings.loadAppSettings();
+      var notified = false;
+      settings.addListener(() => notified = true);
+
+      await settings.resetToDefaults();
+
+      expect(settings.enableCalendar, isFalse);
+      expect(settings.distanceUnit, 'km');
+      expect(settings.themeMode, ThemeMode.system);
+      expect(settings.firstDayOfWeek, DateTime.monday);
+      expect(settings.showOnboarding, isFalse);
+      expect(notified, isTrue);
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getKeys(), {'${_kPrefix}showOnboarding', 'unrelated.key'});
+
+      final reloaded = AppSettings();
+      await reloaded.loadAppSettings();
+      expect(reloaded.distanceUnit, 'km');
+      expect(reloaded.showOnboarding, isFalse);
+    });
+
+    test('hasDefaultValues tracks changes and ignores onboarding state', () async {
+      SharedPreferences.setMockInitialValues({'${_kPrefix}showOnboarding': false});
+      final settings = AppSettings();
+      await settings.loadAppSettings();
+      expect(settings.hasDefaultValues, isTrue);
+
+      settings.enableCalendar = true;
+      expect(settings.hasDefaultValues, isFalse);
+
+      await settings.resetToDefaults();
+      expect(settings.hasDefaultValues, isTrue);
+    });
+  });
+
   group('AppSettings — legacy blob migration (Option B)', () {
     test('preserves a value the user changed away from the default', () async {
       SharedPreferences.setMockInitialValues({

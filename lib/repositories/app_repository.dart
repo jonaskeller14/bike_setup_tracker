@@ -726,8 +726,8 @@ class AppRepository extends ChangeNotifier {
     }
 
     final stats = switch (rule.association) {
-      ComponentTaskAssociation(:final id) => _componentStats[id] ?? ComponentStats.zero(),
-      BikeTaskAssociation(:final id) => _bikeStats[id] ?? ComponentStats.zero(),
+      ComponentTaskAssociation(:final id) => _componentStats[id] ?? _components[id]?.initialStats ?? ComponentStats.zero(),
+      BikeTaskAssociation(:final id) => _bikeStats[id] ?? _bikes[id]?.initialStats ?? ComponentStats.zero(),
       GeneralTaskAssociation() => ComponentStats.zero(),
     };
 
@@ -1468,11 +1468,13 @@ class AppRepository extends ChangeNotifier {
 
   Future<void> editBike(Bike bike) async {
     final gearChanged = _bikes[bike.id]?.stravaGear != bike.stravaGear;
+    // Also moves every component inheriting them (installed since beginning).
+    final initialStatsChanged = _bikes[bike.id]?.initialStats != bike.initialStats;
 
     final updated = bike.copyWith(lastModified: DateTime.now().toUtc());
     await database.bikesDao.updateBike(updated.toCompanion());
 
-    if (gearChanged) await refreshTaskEntrySnapshots();
+    if (gearChanged || initialStatsChanged) await refreshTaskEntrySnapshots();
   }
 
   Future<void> editComponent(Component component, {List<ValueUnitConversion> conversions = const []}) async {

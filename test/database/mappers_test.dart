@@ -36,12 +36,22 @@ void main() {
         isDeleted: false,
         lastModified: DateTime(2023, 1, 1).toUtc(),
         orderIndex: 0,
+        initialDistance: 5000,
+        initialElevationGain: 100,
+        initialMovingTime: const Duration(hours: 2),
+        initialElapsedTime: const Duration(hours: 3),
+        initialActivityCount: 4,
+        initialKilojoules: 900,
       );
       final model = data.toModel();
       expect(model.id, 'bike1');
       expect(model.name, 'Road Bike');
       expect(model.person, 'person1');
       expect(model.isDeleted, false);
+      expect(model.initialStats.distance, 5000);
+      expect(model.initialStats.movingTime, const Duration(hours: 2));
+      expect(model.initialStats.activityCount, 4);
+      expect(model.initialStats.kilojoules, 900);
     });
 
     test('Person Mapping', () {

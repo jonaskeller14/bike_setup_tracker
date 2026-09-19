@@ -10,7 +10,6 @@ import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/component.dart';
-import '../../models/component_stats.dart';
 import '../../models/person.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
@@ -266,7 +265,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
     final components = appRepository.components.values.where(
       (component) => appRepository.componentHierarchy.currentBike(component.id) == bike.id,
     );
-    final stats = appRepository.bikeStats[widget.bikeId] ?? ComponentStats.zero();
+    final stats = appRepository.bikeStats[widget.bikeId] ?? bike.initialStats;
     
     return Scaffold(
       appBar: AppBar(

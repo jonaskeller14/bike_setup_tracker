@@ -40,6 +40,14 @@ extension BikeDbMapper on BikeDb {
       person: person,
       stravaGear: stravaGear,
       orderIndex: orderIndex,
+      initialStats: ComponentStats(
+        distance: initialDistance,
+        elevationGain: initialElevationGain,
+        movingTime: initialMovingTime,
+        elapsedTime: initialElapsedTime,
+        activityCount: initialActivityCount,
+        kilojoules: initialKilojoules,
+      ),
     );
   }
 }
@@ -200,6 +208,12 @@ extension BikeMapper on Bike {
       person: Value<String?>(person),
       stravaGear: Value<String?>(stravaGear),
       orderIndex: Value<int>(orderIndex),
+      initialDistance: Value<double>(initialStats.distance),
+      initialElevationGain: Value<double>(initialStats.elevationGain),
+      initialMovingTime: Value<Duration>(initialStats.movingTime),
+      initialElapsedTime: Value<Duration>(initialStats.elapsedTime),
+      initialActivityCount: Value<int>(initialStats.activityCount),
+      initialKilojoules: Value<double>(initialStats.kilojoules),
     );
   }
 }

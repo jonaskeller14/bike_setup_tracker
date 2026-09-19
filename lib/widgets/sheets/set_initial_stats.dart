@@ -27,10 +27,14 @@ String? initialStatsSummary(ComponentStats stats, AppSettings appSettings) {
   return parts.join(" · ");
 }
 
+const _componentDescription =
+    "Usage this component had before it was tracked here, e.g. for a second-hand part. It is added on top of the stats from your activities. Components installed 'Since beginning' also include their bike's initial stats.";
+
 Future<ComponentStats?> showSetInitialStatsSheet({
   required BuildContext context,
   required ComponentStats initialStats,
   ComponentStats? originalStats,
+  String description = _componentDescription,
 }) async {
   return showModalBottomSheet<ComponentStats?>(
     useSafeArea: true,
@@ -40,6 +44,7 @@ Future<ComponentStats?> showSetInitialStatsSheet({
       return SetInitialStatsSheetContent(
         initialStats: initialStats,
         originalStats: originalStats,
+        description: description,
       );
     },
   );
@@ -48,11 +53,13 @@ Future<ComponentStats?> showSetInitialStatsSheet({
 class SetInitialStatsSheetContent extends StatefulWidget {
   final ComponentStats initialStats;
   final ComponentStats? originalStats;
+  final String description;
 
   const SetInitialStatsSheetContent({
     super.key,
     required this.initialStats,
     this.originalStats,
+    this.description = _componentDescription,
   });
 
   @override
@@ -193,7 +200,7 @@ class _SetInitialStatsSheetContentState extends State<SetInitialStatsSheetConten
                       spacing: 12,
                       children: [
                         Text(
-                          "Usage this component had before it was tracked here, e.g. for a second-hand part. It is added on top of the stats from your activities.",
+                          widget.description,
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),

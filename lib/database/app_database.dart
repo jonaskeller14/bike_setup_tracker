@@ -91,7 +91,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 17;
+  int get schemaVersion => 18;
 
   @override
   MigrationStrategy get migration {
@@ -226,6 +226,22 @@ class AppDatabase extends _$AppDatabase {
             'CREATE INDEX IF NOT EXISTS installations_parent_lookup_idx '
             'ON installations (parent_type, parent, date_time_u_t_c)',
           );
+        }
+        if (from < 18) {
+          // Bikes gain initial stats (usage before tracking), mirroring components.
+          final columns = <String, GeneratedColumn>{
+            'initial_distance': bikes.initialDistance,
+            'initial_elevation_gain': bikes.initialElevationGain,
+            'initial_moving_time': bikes.initialMovingTime,
+            'initial_elapsed_time': bikes.initialElapsedTime,
+            'initial_activity_count': bikes.initialActivityCount,
+            'initial_kilojoules': bikes.initialKilojoules,
+          };
+          for (final MapEntry(key: name, value: column) in columns.entries) {
+            if (!await _columnExists('bikes', name)) {
+              await m.addColumn(bikes, column);
+            }
+          }
         }
       },
     );

@@ -36,6 +36,12 @@ void main() {
   // structural undo — their steps rewrite/recreate the affected tables
   // regardless of the starting column shape.
   Future<void> reshapeToVersion(AppDatabase db, int version) async {
+    if (version < 18) {
+      // v18 added the bikes.initial_* stats columns.
+      for (final column in _bikeInitialStatsColumns) {
+        await db.customStatement('ALTER TABLE bikes DROP COLUMN $column');
+      }
+    }
     if (version < 17) {
       // v17 added the installation hierarchy lookup indexes.
       await db.customStatement('DROP INDEX installations_component_date_idx');
@@ -101,6 +107,15 @@ void main() {
     );
   }
 
+  // Seeds a single bike row via raw SQL, without the v18 initial stats columns.
+  Future<void> seedBike(AppDatabase db) async {
+    const epochSeconds = 1700000000;
+    await db.customStatement(
+      'INSERT INTO bikes (id, last_modified, name) '
+      "VALUES ('b1', $epochSeconds, 'Bike')",
+    );
+  }
+
   // Builds a db file seeded at [startVersion] and re-opens it so drift runs the
   // real upgrade to the current schema. Returns the upgraded database.
   Future<AppDatabase> migrateFrom(int startVersion) async {
@@ -114,6 +129,7 @@ void main() {
     await reshapeToVersion(seed, startVersion);
     await seedSetup(seed);
     await seedInstallation(seed);
+    await seedBike(seed);
     await seed.customStatement('PRAGMA user_version = $startVersion');
     await seed.close();
 
@@ -131,7 +147,7 @@ void main() {
   group('onUpgrade from every prior version to the current schema', () {
     // Covers the full range of jump sizes: the v12 case is a single step, the
     // v1 case crosses every TableMigration in the strategy.
-    for (final startVersion in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]) {
+    for (final startVersion in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]) {
       test('v$startVersion -> current completes and preserves seed rows', () async {
         final db = await migrateFrom(startVersion);
         addTearDown(db.close);
@@ -201,7 +217,23 @@ void main() {
         expect(await columnNames(db, 'adjustments'), isNot(contains('rating_id')));
         expect(await columnNames(db, 'rating_metrics'), isNot(contains('category')));
         expect(await columnNames(db, 'task_rules'), contains('tags'));
+
+        // The v18 step adds the bike initial stats, defaulting to zero.
+        expect(await columnNames(db, 'bikes'), containsAll(_bikeInitialStatsColumns));
+        final bike = await (db.select(db.bikes)..where((t) => t.id.equals('b1'))).getSingle();
+        expect(bike.initialDistance, 0.0);
+        expect(bike.initialMovingTime, Duration.zero);
+        expect(bike.initialActivityCount, 0);
       });
     }
   });
 }
+
+const _bikeInitialStatsColumns = [
+  'initial_distance',
+  'initial_elevation_gain',
+  'initial_moving_time',
+  'initial_elapsed_time',
+  'initial_activity_count',
+  'initial_kilojoules',
+];

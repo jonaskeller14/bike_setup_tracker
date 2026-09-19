@@ -5,12 +5,14 @@ import 'package:provider/provider.dart';
 import '../icons/simple_icons.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
+import '../models/component_stats.dart';
 import '../models/person.dart';
 import '../models/strava/strava_gear.dart';
 import '../repositories/app_repository.dart';
 import '../services/subscription_service.dart';
 import '../theme.dart';
 import '../widgets/dialogs/discard_changes.dart';
+import '../widgets/sheets/set_initial_stats.dart';
 
 enum BikePageMode {
   add,
@@ -54,6 +56,8 @@ class _BikePageState extends State<BikePage> {
   String? _initialStravaGear;
   String? _stravaGear;
 
+  late ComponentStats _initialStats;
+
   @override
   void initState() {
     super.initState();
@@ -75,6 +79,8 @@ class _BikePageState extends State<BikePage> {
     _initialStravaGear = widget.bike?.stravaGear;
     _stravaGear = _initialStravaGear;
 
+    _initialStats = widget.bike?.initialStats ?? ComponentStats.zero();
+
     if (widget.mode != BikePageMode.add) _expanded = true;
   }
 
@@ -82,7 +88,8 @@ class _BikePageState extends State<BikePage> {
     final hasChanges = _nameController.text.trim() != (widget.bike?.name ?? '') || 
         _notesController.text.trim() != (widget.bike?.notes ?? '') ||
         _person != _initialPerson || 
-        _stravaGear != _initialStravaGear;
+        _stravaGear != _initialStravaGear ||
+        _initialStats != (widget.bike?.initialStats ?? ComponentStats.zero());
     if (_formHasChanges != hasChanges) {
       setState(() {
         _formHasChanges = hasChanges;
@@ -115,6 +122,7 @@ class _BikePageState extends State<BikePage> {
       person: _person,
       stravaGear: _stravaGear,
       orderIndex: widget.bike?.orderIndex ?? 0,
+      initialStats: _initialStats,
     ));
   }
 
@@ -225,6 +233,37 @@ class _BikePageState extends State<BikePage> {
         fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == BikePageMode.edit && _notesController.text.trim() != (widget.bike?.notes ?? ""),
       ),
+    );
+  }
+
+  Future<void> _editInitialStats() async {
+    final newStats = await showSetInitialStatsSheet(
+      context: context,
+      initialStats: _initialStats,
+      originalStats: widget.mode == BikePageMode.edit ? widget.bike?.initialStats : null,
+      description: "Usage this bike had before it was tracked here, e.g. for a second-hand bike. It is added on top of the stats from your activities. Components installed 'Since beginning' inherit these stats.",
+    );
+    if (newStats == null || !mounted) return;
+    setState(() => _initialStats = newStats);
+    _changeListener();
+  }
+
+  Widget _initialStatsChip() {
+    final appSettings = context.watch<AppSettings>();
+    final summary = initialStatsSummary(_initialStats, appSettings);
+    return FilterChip(
+      avatar: const Icon(Icons.start),
+      showCheckmark: false,
+      selected: widget.mode != BikePageMode.edit && _initialStats != ComponentStats.zero(),
+      label: Text(
+        summary == null ? "Initial Stats" : "Initial: $summary",
+        overflow: TextOverflow.ellipsis,
+      ),
+      tooltip: "Usage before this bike was tracked",
+      backgroundColor: widget.mode == BikePageMode.edit && _initialStats != widget.bike!.initialStats
+          ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
+          : null,
+      onSelected: (_) => _editInitialStats(),
     );
   }
 
@@ -353,6 +392,13 @@ class _BikePageState extends State<BikePage> {
                     child: Column(
                       children: [
                         _notesField(),
+                        if (appSettings.enableStrava && subscriptionService.hasStravaEntitlement) ...[
+                          const SizedBox(height: 12),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: _initialStatsChip(),
+                          ),
+                        ],
                       ],
                     ),
                   ),

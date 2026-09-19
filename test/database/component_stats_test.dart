@@ -18,13 +18,21 @@ void main() {
     await db.close();
   });
 
-  Future<void> insertBike(String id, String gearId, {bool isDeleted = false}) async {
+  Future<void> insertBike(String id, String gearId, {
+    bool isDeleted = false,
+    double initialDistance = 0,
+    int initialActivityCount = 0,
+    double initialKilojoules = 0,
+  }) async {
     await db.into(db.bikes).insert(BikesCompanion.insert(
           id: id,
           lastModified: DateTime.now().toUtc(),
           name: 'Bike $id',
           stravaGear: Value(gearId),
           isDeleted: Value(isDeleted),
+          initialDistance: Value(initialDistance),
+          initialActivityCount: Value(initialActivityCount),
+          initialKilojoules: Value(initialKilojoules),
         ));
   }
 
@@ -289,6 +297,139 @@ void main() {
 
       final stats = await db.stravaDao.watchComponentStats().first;
       expect(stats['tire']!.distance, 5.0);
+    });
+  });
+
+  group('Bike initial stats', () {
+    final sinceBeginning = DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
+
+    test('a bike without activities reports its initial stats', () async {
+      await insertBike('b1', 'gear1', initialDistance: 5000, initialActivityCount: 3, initialKilojoules: 900);
+
+      final stats = (await db.stravaDao.watchBikeStats().first)['b1']!;
+      expect(stats.distance, 5000.0);
+      expect(stats.activityCount, 3);
+      expect(stats.kilojoules, 900.0);
+    });
+
+    test('initial stats are added to the bike activity totals', () async {
+      await insertBike('b1', 'gear1', initialDistance: 5000, initialActivityCount: 3, initialKilojoules: 900);
+      final now = DateTime.now().toUtc();
+      // distance 100 -> movingTime 20s @ 200W = 4 kJ
+      await insertActivity(1, 'gear1', now.subtract(const Duration(days: 5)), 100.0, averageWatts: 200);
+      await insertActivity(2, 'gear1', now.subtract(const Duration(days: 2)), 50.0);
+
+      final stats = (await db.stravaDao.watchBikeStats().first)['b1']!;
+      expect(stats.distance, 5150.0);
+      expect(stats.activityCount, 5);
+      expect(stats.kilojoules, closeTo(904.0, 0.001));
+    });
+
+    test('getBikeStatsAt before the first activity still returns the initial stats', () async {
+      await insertBike('b1', 'gear1', initialDistance: 5000, initialActivityCount: 3);
+      final now = DateTime.now().toUtc();
+      await insertActivity(1, 'gear1', now.subtract(const Duration(days: 2)), 50.0);
+
+      final stats = await db.stravaDao.getBikeStatsAt('b1', now.subtract(const Duration(days: 10)));
+      expect(stats.distance, 5000.0);
+      expect(stats.activityCount, 3);
+    });
+
+    test('getBikeStatsAt counts only activities up to the date on top of the initial stats', () async {
+      await insertBike('b1', 'gear1', initialDistance: 5000);
+      final now = DateTime.now().toUtc();
+      await insertActivity(1, 'gear1', now.subtract(const Duration(days: 5)), 100.0);
+      await insertActivity(2, 'gear1', now.subtract(const Duration(days: 1)), 50.0);
+
+      final stats = await db.stravaDao.getBikeStatsAt('b1', now.subtract(const Duration(days: 3)));
+      expect(stats.distance, 5100.0);
+      expect(stats.activityCount, 1);
+    });
+
+    test('a component installed since beginning inherits the bike initial stats', () async {
+      await insertBike('b1', 'gear1', initialDistance: 5000, initialActivityCount: 3);
+      await insertComponent('c1', initialDistance: 200);
+      final now = DateTime.now().toUtc();
+      await installComponent('c1', 'b1', sinceBeginning);
+      await insertActivity(1, 'gear1', now.subtract(const Duration(days: 2)), 50.0);
+
+      final stats = (await db.stravaDao.watchComponentStats().first)['c1']!;
+      expect(stats.distance, 5250.0);
+      expect(stats.activityCount, 4);
+    });
+
+    test('a component installed at a real date does not inherit', () async {
+      await insertBike('b1', 'gear1', initialDistance: 5000);
+      await insertComponent('c1');
+      final now = DateTime.now().toUtc();
+      await installComponent('c1', 'b1', now.subtract(const Duration(days: 10)));
+
+      final stats = (await db.stravaDao.watchComponentStats().first)['c1']!;
+      expect(stats.distance, 0.0);
+    });
+
+    test('nested components inherit transitively only when since beginning', () async {
+      await insertBike('b1', 'gear1', initialDistance: 5000);
+      await insertComponent('wheel');
+      await insertComponent('tire');
+      await insertComponent('insert');
+      await insertComponent('laterTire');
+      final now = DateTime.now().toUtc();
+      await installComponent('wheel', 'b1', sinceBeginning);
+      await installOnComponent('tire', 'wheel', sinceBeginning);
+      await installOnComponent('insert', 'tire', sinceBeginning);
+      await installOnComponent('laterTire', 'wheel', now.subtract(const Duration(days: 10)));
+
+      final stats = await db.stravaDao.watchComponentStats().first;
+      expect(stats['wheel']!.distance, 5000.0);
+      expect(stats['tire']!.distance, 5000.0);
+      expect(stats['insert']!.distance, 5000.0);
+      expect(stats['laterTire']!.distance, 0.0);
+    });
+
+    test('a component moved to another bike keeps the since-beginning bike initial stats', () async {
+      await insertBike('bikeA', 'gearA', initialDistance: 5000);
+      await insertBike('bikeB', 'gearB', initialDistance: 8000);
+      await insertComponent('c1');
+      final now = DateTime.now().toUtc();
+      await installComponent('c1', 'bikeA', sinceBeginning);
+      await installComponent('c1', 'bikeB', now.subtract(const Duration(days: 10)));
+
+      final stats = (await db.stravaDao.watchComponentStats().first)['c1']!;
+      expect(stats.distance, 5000.0);
+    });
+
+    test('a since-beginning component that is uninstalled first does not inherit', () async {
+      await insertBike('b1', 'gear1', initialDistance: 5000);
+      await insertComponent('c1');
+      final now = DateTime.now().toUtc();
+      await installComponent('c1', null, sinceBeginning);
+      await installComponent('c1', 'b1', now.subtract(const Duration(days: 10)));
+
+      final stats = (await db.stravaDao.watchComponentStats().first)['c1']!;
+      expect(stats.distance, 0.0);
+    });
+
+    test('a deleted bike passes on no initial stats', () async {
+      await insertBike('b1', 'gear1', isDeleted: true, initialDistance: 5000);
+      await insertComponent('c1', initialDistance: 7);
+      await installComponent('c1', 'b1', sinceBeginning);
+
+      final stats = (await db.stravaDao.watchComponentStats().first)['c1']!;
+      expect(stats.distance, 7.0);
+    });
+
+    test('getComponentStatsAt includes the inherited initial stats at any date', () async {
+      await insertBike('b1', 'gear1', initialDistance: 5000);
+      await insertComponent('c1', initialDistance: 200);
+      final now = DateTime.now().toUtc();
+      await installComponent('c1', 'b1', sinceBeginning);
+      await insertActivity(1, 'gear1', now.subtract(const Duration(days: 2)), 50.0);
+
+      final before = await db.stravaDao.getComponentStatsAt('c1', now.subtract(const Duration(days: 10)));
+      final after = await db.stravaDao.getComponentStatsAt('c1', now);
+      expect(before.distance, 5200.0);
+      expect(after.distance, 5250.0);
     });
   });
 }

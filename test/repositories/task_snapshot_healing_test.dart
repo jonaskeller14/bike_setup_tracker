@@ -649,6 +649,54 @@ void main() {
       expect(repository.taskEntries[entry.id]?.snapshot?.distance, 0.0);
       expect(repository.taskEntries[entry.id]?.snapshot?.activityCount, 0);
     });
+
+    test("editing bike initial stats heals bike- and inheriting component-linked entries", () async {
+      final bike = Bike(name: "Test Bike", person: null, stravaGear: "g123");
+      await repository.addBikes([bike]);
+      final component = Component(
+        name: "Chain",
+        componentType: ComponentType.chain,
+        installations: [Installation.sinceBeginning(parent: bike.id)],
+      );
+      await repository.addComponents([component]);
+      final bikeRule = TaskRule(name: "Bike Service", association: BikeTaskAssociation(bike.id), tags: const {});
+      final componentRule = TaskRule(name: "Chain Wax", association: ComponentTaskAssociation(component.id), tags: const {});
+      await repository.addTaskRules([bikeRule, componentRule]);
+
+      await repository.setStravaActivities([rideForGear("g123")]);
+      await pumpEventQueue();
+
+      final entryDate = DateTime.utc(2024, 1, 2);
+      final bikeEntry = TaskEntry(
+        name: "Serviced",
+        taskRule: bikeRule.id,
+        association: BikeTaskAssociation(bike.id),
+        dateTimeUTC: entryDate,
+        dateTimeLocal: entryDate.toLocal(),
+        snapshot: await repository.getStatsAt(bikeId: bike.id, date: entryDate),
+      );
+      final componentEntry = TaskEntry(
+        name: "Waxed",
+        taskRule: componentRule.id,
+        association: ComponentTaskAssociation(component.id),
+        dateTimeUTC: entryDate,
+        dateTimeLocal: entryDate.toLocal(),
+        snapshot: await repository.getStatsAt(componentId: component.id, date: entryDate),
+      );
+      await repository.addTaskEntries([bikeEntry, componentEntry]);
+      await pumpEventQueue();
+      expect(repository.taskEntries[bikeEntry.id]?.snapshot?.distance, 100000.0);
+      expect(repository.taskEntries[componentEntry.id]?.snapshot?.distance, 100000.0);
+
+      await repository.editBike(bike.copyWith(initialStats: const ComponentStats(distance: 500000, activityCount: 10)));
+      await pumpEventQueue();
+
+      expect(repository.taskEntries[bikeEntry.id]?.snapshot?.distance, 600000.0);
+      expect(repository.taskEntries[bikeEntry.id]?.snapshot?.activityCount, 11);
+      expect(repository.taskEntries[componentEntry.id]?.snapshot?.distance, 600000.0);
+      expect(repository.bikeStats[bike.id]?.distance, 600000.0);
+      expect(repository.components[component.id]?.totalStats.distance, 600000.0);
+    });
   });
 
   group("Task Snapshot Healing - Import", () {

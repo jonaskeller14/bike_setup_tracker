@@ -43,7 +43,7 @@ class _ResetPageState extends State<ResetPage> {
     final hasDefaultSettings = context.select<AppSettings, bool>((settings) => settings.hasDefaultValues);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Reset & Delete')),
+      appBar: AppBar(title: const Text('Reset')),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(

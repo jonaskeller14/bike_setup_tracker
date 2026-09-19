@@ -12,6 +12,7 @@ import '../repositories/app_repository.dart';
 import '../services/image_storage_service.dart';
 import '../services/share_service.dart';
 import '../widgets/app_snackbar.dart';
+import '../widgets/dialogs/confirmation.dart';
 import 'bike_actions.dart';
 import 'component_actions.dart';
 import 'to_text.dart';
@@ -79,6 +80,38 @@ class SetupActions {
     // Delete images that the user removed during editing.
     final removedImages = originalImages.where((f) => !editedSetup.images.contains(f));
     await ImageStorageService().deleteImages(removedImages);
+  }
+
+  static Future<bool> deleteImages(BuildContext context, {required Set<String> filenames}) async {
+    final appRepository = context.read<AppRepository>();
+    final messenger = ScaffoldMessenger.of(context);
+
+    final confirmed = await showConfirmationDialog(
+      context,
+      title: filenames.length == 1 ? 'Delete image?' : 'Delete ${filenames.length} images?',
+      content: 'The images are permanently deleted and removed from their setups. This action cannot be undone.',
+      trueText: 'Delete',
+      isDestructive: true,
+    );
+    if (!confirmed) return false;
+    unawaited(HapticFeedback.heavyImpact());
+
+    for (final setup in appRepository.setups.values.toList()) {
+      if (!setup.images.any(filenames.contains)) continue;
+      await appRepository.editSetup(
+        setup.copyWith(images: setup.images.where((f) => !filenames.contains(f)).toList()),
+      );
+    }
+    await ImageStorageService().deleteImages(filenames);
+
+    if (!context.mounted) return true;
+    messenger.showSnackBar(
+      AppSnackBar.info(
+        context,
+        filenames.length == 1 ? 'Image deleted.' : '${filenames.length} images deleted.',
+      ),
+    );
+    return true;
   }
 
   static Future<Setup?> duplicateSetup(BuildContext context, {required Setup setup}) async {

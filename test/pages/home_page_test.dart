@@ -264,7 +264,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Settings'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Help & Support'));
+    await tester.tap(find.text('Help'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Show Onboarding'));
     await tester.pumpAndSettle();

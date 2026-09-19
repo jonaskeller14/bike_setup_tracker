@@ -39,7 +39,7 @@ void main() {
   Widget createWidgetUnderTest({
     Component? component,
     required ComponentPageMode mode,
-    Object? initialBike,
+    List<Installation>? initialInstallations,
   }) {
     return MultiProvider(
       providers: [
@@ -53,7 +53,7 @@ void main() {
           builder: (context) {
             switch (mode) {
               case ComponentPageMode.add:
-                return ComponentPage.add(initialBike: initialBike);
+                return ComponentPage.add(initialInstallations: initialInstallations);
               case ComponentPageMode.edit:
                 return ComponentPage.edit(component: component!);
               case ComponentPageMode.duplicate:
@@ -225,7 +225,7 @@ void main() {
       // Page requested with an ID that doesn't exist in appRepository
       await tester.pumpWidget(createWidgetUnderTest(
         mode: ComponentPageMode.add,
-        initialBike: 'non-existent-id',
+        initialInstallations: [Installation.sinceBeginning(parent: 'non-existent-id')],
       ));
       await tester.pumpAndSettle();
 

@@ -4,6 +4,7 @@ import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/component_installation.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/services/component_hierarchy_resolver.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/set_installation_timeline.dart';
 import 'package:bike_setup_tracker/widgets/sheets/installation_sheet.dart';
@@ -51,6 +52,8 @@ void main() {
 
     when(() => mockRepository.bikes).thenReturn({'b1': bike1, 'b2': bike2});
     when(() => mockRepository.components).thenReturn({component.id: component});
+    when(() => mockRepository.componentHierarchy)
+        .thenAnswer((_) => ComponentHierarchyResolver(mockRepository.components));
     when(() => mockRepository.filteredBikes).thenReturn({'b1': bike1, 'b2': bike2});
     when(() => mockRepository.editComponent(any())).thenAnswer((_) async => {});
   });

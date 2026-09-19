@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -12,7 +11,6 @@ import '../models/bike.dart';
 import '../models/component.dart';
 import '../models/component_preset.dart';
 import '../models/component_stats.dart';
-import '../models/context/context_position.dart';
 import '../models/installation.dart';
 import '../repositories/app_repository.dart';
 import '../repositories/component_preset_repository.dart';
@@ -30,6 +28,7 @@ import '../widgets/set_installation_timeline.dart';
 import '../widgets/sheets/component_add_adjustment.dart';
 import '../widgets/sheets/component_preset_picker.dart';
 import '../widgets/sheets/component_type_picker.dart';
+import '../widgets/sheets/set_initial_stats.dart';
 import '../widgets/text/section_title.dart';
 import 'adjustment/boolean_adjustment_page.dart';
 import 'adjustment/categorical_adjustment_page.dart';
@@ -77,12 +76,6 @@ class _ComponentPageState extends State<ComponentPage> {
   late TextEditingController _nameController;
   final FocusNode _nameFocusNode = FocusNode();
   late TextEditingController _notesController;
-  late TextEditingController _initialDistanceController;
-  late TextEditingController _initialElevationGainController;
-  late TextEditingController _initialMovingTimeController;
-  late TextEditingController _initialElapsedTimeController;
-  late TextEditingController _initialActivityCountController;
-  late TextEditingController _initialKilojoulesController;
   late List<Adjustment> _adjustments;
   late List<Adjustment> _initialAdjustments;
   final Map<String, ValueUnitConversion> _pendingConversions = {};
@@ -142,22 +135,7 @@ class _ComponentPageState extends State<ComponentPage> {
     _notesController.addListener(_changeListener);
 
     final appSettings = context.read<AppSettings>();
-    final initialStats = widget.component?.initialStats;
-    final initialDistance = AppSettings.convertDistanceFromMeters(initialStats?.distance, appSettings.distanceUnit) ?? 0.0;
-    _initialDistanceController = TextEditingController(text: initialDistance.toString());
-    _initialDistanceController.addListener(_changeListener);
-    final initialElevation = AppSettings.convertElevationFromMeters(initialStats?.elevationGain, appSettings.altitudeUnit) ?? 0.0;
-    _initialElevationGainController = TextEditingController(text: initialElevation.toString());
-    _initialElevationGainController.addListener(_changeListener);
-    _initialMovingTimeController = TextEditingController(text: initialStats?.movingTime.inHours.toString() ?? "0");
-    _initialMovingTimeController.addListener(_changeListener);
-    _initialElapsedTimeController = TextEditingController(text: initialStats?.elapsedTime.inHours.toString() ?? "0");
-    _initialElapsedTimeController.addListener(_changeListener);
-    _initialActivityCountController = TextEditingController(text: (initialStats?.activityCount ?? 0).toString());
-    _initialActivityCountController.addListener(_changeListener);
-    _initialKilojoulesController = TextEditingController(text: (initialStats?.kilojoules ?? 0).toString());
-    _initialKilojoulesController.addListener(_changeListener);
-    _initialStats = _readInitialStats(appSettings);
+    _initialStats = widget.component?.initialStats ?? ComponentStats.zero();
 
     if (widget.mode != ComponentPageMode.add) _expanded = true;
 
@@ -182,26 +160,13 @@ class _ComponentPageState extends State<ComponentPage> {
     }
   }
 
-  ComponentStats _readInitialStats(AppSettings appSettings) {
-    final distanceInput = double.tryParse(_initialDistanceController.text.trim()) ?? 0.0;
-    final elevationGainInput = double.tryParse(_initialElevationGainController.text.trim()) ?? 0.0;
-    return ComponentStats(
-      distance: AppSettings.convertDistanceToMeters(distanceInput, appSettings.distanceUnit) ?? 0.0,
-      elevationGain: ContextPosition.convertAltitudeToMeters(elevationGainInput, appSettings.altitudeUnit) ?? 0.0,
-      movingTime: Duration(hours: int.tryParse(_initialMovingTimeController.text.trim()) ?? 0),
-      elapsedTime: Duration(hours: int.tryParse(_initialElapsedTimeController.text.trim()) ?? 0),
-      activityCount: int.tryParse(_initialActivityCountController.text.trim()) ?? 0,
-      kilojoules: double.tryParse(_initialKilojoulesController.text.trim()) ?? 0.0,
-    );
-  }
-
   void _changeListener() {
     final hasChanges = _nameController.text.trim() != (widget.component?.name ?? '') || 
         _notesController.text.trim() != (widget.component?.notes ?? '') ||
         _componentType != _initialComponentType ||
         !listEquals(_installations, _initialInstallations) ||
         !listEquals(_adjustments, _initialAdjustments) ||
-        _readInitialStats(context.read<AppSettings>()) != _initialStats;
+        _initialStats != (widget.component?.initialStats ?? ComponentStats.zero());
 
     if (_formHasChanges != hasChanges) {
       setState(() {
@@ -217,19 +182,6 @@ class _ComponentPageState extends State<ComponentPage> {
     _nameFocusNode.dispose();
     _notesController.removeListener(_changeListener);
     _notesController.dispose();
-
-    _initialDistanceController.removeListener(_changeListener);
-    _initialDistanceController.dispose();
-    _initialElevationGainController.removeListener(_changeListener);
-    _initialElevationGainController.dispose();
-    _initialMovingTimeController.removeListener(_changeListener);
-    _initialMovingTimeController.dispose();
-    _initialElapsedTimeController.removeListener(_changeListener);
-    _initialElapsedTimeController.dispose();
-    _initialActivityCountController.removeListener(_changeListener);
-    _initialActivityCountController.dispose();
-    _initialKilojoulesController.removeListener(_changeListener);
-    _initialKilojoulesController.dispose();
     super.dispose();
   }
 
@@ -394,7 +346,6 @@ class _ComponentPageState extends State<ComponentPage> {
       return;
     }
     
-    final appSettings = context.read<AppSettings>();
     final name = _nameController.text.trim();
     final notes = _notesController.text.trim();
     _formHasChanges = false;
@@ -406,7 +357,7 @@ class _ComponentPageState extends State<ComponentPage> {
       installations: _installations,
       notes: notes.isEmpty ? null : notes,
       adjustments: _adjustments,
-      initialStats: _readInitialStats(appSettings),
+      initialStats: _initialStats,
       orderIndex: widget.component?.orderIndex ?? 0,
     );
     Navigator.pop(
@@ -618,178 +569,33 @@ class _ComponentPageState extends State<ComponentPage> {
     );
   }
 
-  Widget _initialStatsFields() {
+  Future<void> _editInitialStats() async {
+    final newStats = await showSetInitialStatsSheet(
+      context: context,
+      initialStats: _initialStats,
+      originalStats: widget.mode == ComponentPageMode.edit ? widget.component?.initialStats : null,
+    );
+    if (newStats == null || !mounted) return;
+    setState(() => _initialStats = newStats);
+    _changeListener();
+  }
+
+  Widget _initialStatsChip() {
     final appSettings = context.watch<AppSettings>();
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: 12,
-      children: [
-        Row(
-          spacing: 12,
-          children: [
-            Expanded(
-              child: TextFormField(
-                keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: false),
-                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),],
-                controller: _initialDistanceController,
-                textInputAction: TextInputAction.next,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                onChanged: (value) => setState(() {}), // see filled/fillColor
-                decoration: InputDecoration(
-                  labelText: 'Initial Distance (optional)',
-                  hintText: 'Enter Initial Distance',
-                  border: const OutlineInputBorder(),
-                  visualDensity: VisualDensity.compact,
-                  suffixText: appSettings.distanceUnit,
-                  fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
-                  filled: widget.mode == ComponentPageMode.edit && double.tryParse(_initialDistanceController.text.trim()) != AppSettings.convertDistanceFromMeters(widget.component!.initialStats.distance, appSettings.distanceUnit),
-                ),
-                validator: (String? newValue) {
-                  if (newValue == null || newValue.isEmpty || double.tryParse(newValue) == null) {
-                    return "Please enter a valid value";
-                  }
-                  return null;
-                },
-              ),
-            ),
-            Expanded(
-              child: TextFormField(
-                keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: false),
-                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),],
-                controller: _initialElevationGainController,
-                textInputAction: TextInputAction.next,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                onChanged: (value) => setState(() {}), // see filled/fillColor
-                decoration: InputDecoration(
-                  labelText: 'Initial Elevation Gain (optional)',
-                  hintText: 'Enter Initial Elevation Gain',
-                  border: const OutlineInputBorder(),
-                  visualDensity: VisualDensity.compact,
-                  suffixText: appSettings.altitudeUnit,
-                  fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
-                  filled: widget.mode == ComponentPageMode.edit && double.tryParse(_initialElevationGainController.text.trim()) != AppSettings.convertElevationFromMeters(widget.component!.initialStats.elevationGain, appSettings.altitudeUnit),
-                ),
-                validator: (String? newValue) {
-                  if (newValue == null || newValue.isEmpty || double.tryParse(newValue) == null) {
-                    return "Please enter a valid value";
-                  }
-                  return null;
-                },
-              ),
-            ),
-          ],
-        ),
-        Row(
-          spacing: 12,
-          children: [
-            Expanded(
-              child: TextFormField(
-                keyboardType: const TextInputType.numberWithOptions(decimal: false, signed: false),
-                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*$')),],
-                controller: _initialMovingTimeController,
-                textInputAction: TextInputAction.next,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                onChanged: (value) => setState(() {}), // see filled/fillColor
-                decoration: InputDecoration(
-                  labelText: 'Initial Moving Time (optional)',
-                  hintText: 'Enter Initial Moving Time',
-                  border: const OutlineInputBorder(),
-                  visualDensity: VisualDensity.compact,
-                  suffixText: "h",
-                  fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
-                  filled: widget.mode == ComponentPageMode.edit && int.tryParse(_initialMovingTimeController.text.trim()) != widget.component?.initialStats.movingTime.inHours,
-                ),
-                validator: (String? newValue) {
-                  if (newValue == null || newValue.isEmpty || int.tryParse(newValue) == null) {
-                    return "Please enter a valid value";
-                  }
-                  return null;
-                },
-              )
-            ),
-            Expanded(
-              child: TextFormField(
-                keyboardType: const TextInputType.numberWithOptions(decimal: false, signed: false),
-                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*$')),],
-                controller: _initialElapsedTimeController,
-                textInputAction: TextInputAction.next,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                onChanged: (value) => setState(() {}), // see filled/fillColor
-                decoration: InputDecoration(
-                  labelText: 'Initial Elapsed Time (optional)',
-                  hintText: 'Enter Initial Elapsed Time',
-                  border: const OutlineInputBorder(),
-                  visualDensity: VisualDensity.compact,
-                  suffixText: "h",
-                  fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
-                  filled: widget.mode == ComponentPageMode.edit && int.tryParse(_initialElapsedTimeController.text.trim()) != widget.component?.initialStats.elapsedTime.inHours,
-                ),
-                validator: (String? newValue) {
-                  if (newValue == null || newValue.isEmpty || int.tryParse(newValue) == null) {
-                    return "Please enter a valid value";
-                  }
-                  return null;
-                },
-              )
-            ),
-          ],
-        ),
-        Row(
-          spacing: 12,
-          children: [
-            Expanded(
-              child: TextFormField(
-                keyboardType: const TextInputType.numberWithOptions(decimal: false, signed: false),
-                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*$')),],
-                controller: _initialActivityCountController,
-                textInputAction: TextInputAction.next,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                onChanged: (value) => setState(() {}), // see filled/fillColor
-                decoration: InputDecoration(
-                  labelText: 'Initial Activities (optional)',
-                  hintText: 'Enter Initial Activities',
-                  border: const OutlineInputBorder(),
-                  visualDensity: VisualDensity.compact,
-                  fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
-                  filled: widget.mode == ComponentPageMode.edit && int.tryParse(_initialActivityCountController.text.trim()) != widget.component!.initialStats.activityCount,
-                ),
-                validator: (String? newValue) {
-                  if (newValue == null || newValue.isEmpty || int.tryParse(newValue) == null) {
-                    return "Please enter a valid value";
-                  }
-                  return null;
-                },
-              ),
-            ),
-            Expanded(
-              child: TextFormField(
-                keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: false),
-                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),],
-                controller: _initialKilojoulesController,
-                textInputAction: TextInputAction.done,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                onChanged: (value) => setState(() {}), // see filled/fillColor
-                decoration: InputDecoration(
-                  labelText: 'Initial Kilojoules (optional)',
-                  hintText: 'Enter Initial Kilojoules',
-                  border: const OutlineInputBorder(),
-                  visualDensity: VisualDensity.compact,
-                  suffixText: "kJ",
-                  fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
-                  filled: widget.mode == ComponentPageMode.edit && double.tryParse(_initialKilojoulesController.text.trim()) != widget.component!.initialStats.kilojoules,
-                ),
-                validator: (String? newValue) {
-                  if (newValue == null || newValue.isEmpty || double.tryParse(newValue) == null) {
-                    return "Please enter a valid value";
-                  }
-                  return null;
-                },
-              ),
-            ),
-          ],
-        ),
-      ],
+    final summary = initialStatsSummary(_initialStats, appSettings);
+    return FilterChip(
+      avatar: const Icon(Icons.start),
+      showCheckmark: false,
+      selected: widget.mode != ComponentPageMode.edit && _initialStats != ComponentStats.zero(),
+      label: Text(
+        summary == null ? "Initial Stats" : "Initial: $summary",
+        overflow: TextOverflow.ellipsis,
+      ),
+      tooltip: "Usage before this component was tracked",
+      backgroundColor: widget.mode == ComponentPageMode.edit && _initialStats != widget.component!.initialStats
+          ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
+          : null,
+      onSelected: (_) => _editInitialStats(),
     );
   }
 
@@ -966,8 +772,11 @@ class _ComponentPageState extends State<ComponentPage> {
                             children: [
                               _notesField(),
                               if (appSettings.enableStrava && subscriptionService.hasStravaEntitlement) ...[
-                                const SizedBox(height: 24),
-                                _initialStatsFields(),
+                                const SizedBox(height: 12),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: _initialStatsChip(),
+                                ),
                               ]
                             ],
                           ),

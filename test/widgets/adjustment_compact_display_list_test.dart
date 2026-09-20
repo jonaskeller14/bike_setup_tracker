@@ -1,15 +1,23 @@
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component.dart';
+import 'package:bike_setup_tracker/models/component_stats.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/models/person.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
+import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/dangling_adjustment_service.dart';
 import 'package:bike_setup_tracker/services/setup_resolution_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/lists/adjustment_compact_display/adjustment_compact_display_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:provider/provider.dart';
+
+/// The component tooltips read Strava usage stats off the repository; this test
+/// only cares about the rendered values, so the stats stay at zero.
+class MockAppRepository extends Mock implements AppRepository {}
 
 /// A fixed scheme so we can assert against the exact themed error colour.
 final ColorScheme _scheme = ColorScheme.fromSeed(seedColor: Colors.blue);
@@ -35,8 +43,12 @@ void main() {
   late Person me;
   late Component fork; // installed on myBike -> normal
   late Component shock; // installed on otherBike -> dangling for myBike
+  late MockAppRepository repository;
 
   setUp(() {
+    repository = MockAppRepository();
+    when(() => repository.componentStatsOf(any())).thenReturn(ComponentStats.zero);
+
     pressure = TextAdjustment(id: 'adj_pressure', name: 'Pressure', notes: null, unit: AdjustmentUnit.fromLegacy('psi'));
     rebound = TextAdjustment(id: 'adj_rebound', name: 'Rebound', notes: null, unit: AdjustmentUnit.fromLegacy('clicks'));
     compression = TextAdjustment(id: 'adj_compression', name: 'Compression', notes: null, unit: AdjustmentUnit.fromLegacy('clicks'));
@@ -64,17 +76,20 @@ void main() {
   });
 
   // --- Helpers -------------------------------------------------------------
-  Widget harness(Widget child) => MaterialApp(
-        theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: _scheme,
-          textTheme: const TextTheme(
-            headlineLarge: TextStyle(fontWeight: FontWeight.bold),
-            titleLarge: TextStyle(fontWeight: FontWeight.bold),
+  Widget harness(Widget child) => ChangeNotifierProvider<AppRepository>.value(
+        value: repository,
+        child: MaterialApp(
+          theme: ThemeData(
+            useMaterial3: true,
+            colorScheme: _scheme,
+            textTheme: const TextTheme(
+              headlineLarge: TextStyle(fontWeight: FontWeight.bold),
+              titleLarge: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            extensions: const [ValueHighlightColors.light],
           ),
-          extensions: const [ValueHighlightColors.light],
+          home: Scaffold(body: SingleChildScrollView(child: child)),
         ),
-        home: Scaffold(body: SingleChildScrollView(child: child)),
       );
 
   Setup makeSetup({

@@ -1,5 +1,7 @@
 import 'package:bike_setup_tracker/icons/bike_icons.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
+import 'package:bike_setup_tracker/models/component_stats.dart';
+import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/display_adjustment/display_numerical_adjustment.dart';
 import 'package:bike_setup_tracker/widgets/onboarding/onboarding_setup_card.dart';
@@ -9,15 +11,21 @@ import 'package:bike_setup_tracker/widgets/onboarding/onboarding_slide_4.dart';
 import 'package:bike_setup_tracker/widgets/set_adjustment/set_step_adjustment.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+class MockAppRepository extends Mock implements AppRepository {}
+
 void main() {
   late AppSettings appSettings;
+  late MockAppRepository repository;
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     appSettings = AppSettings();
+    repository = MockAppRepository();
+    when(() => repository.componentStatsOf(any())).thenReturn(ComponentStats.zero);
   });
 
   tearDown(() => appSettings.dispose());
@@ -27,8 +35,11 @@ void main() {
     bool disableAnimations = false,
     double textScale = 1.0,
   }) {
-    return ChangeNotifierProvider<AppSettings>.value(
-      value: appSettings,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<AppSettings>.value(value: appSettings),
+        ChangeNotifierProvider<AppRepository>.value(value: repository),
+      ],
       child: MaterialApp(
         theme: materialAppTheme,
         home: Scaffold(

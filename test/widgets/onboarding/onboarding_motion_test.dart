@@ -1,4 +1,6 @@
 import 'package:bike_setup_tracker/models/app_settings.dart';
+import 'package:bike_setup_tracker/models/component_stats.dart';
+import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/strava_service.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
@@ -16,6 +18,8 @@ import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+class MockAppRepository extends Mock implements AppRepository {}
+
 class MockSubscriptionService extends Mock implements SubscriptionService {}
 
 class MockStravaService extends Mock implements StravaService {}
@@ -25,6 +29,7 @@ class MockStravaService extends Mock implements StravaService {}
 /// primary action, and reduced motion skips straight to the settled state.
 void main() {
   late AppSettings appSettings;
+  late MockAppRepository repository;
   late MockSubscriptionService subscription;
   late MockStravaService strava;
   late TextEditingController riderName;
@@ -32,10 +37,12 @@ void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     appSettings = AppSettings();
+    repository = MockAppRepository();
     subscription = MockSubscriptionService();
     strava = MockStravaService();
     riderName = TextEditingController();
 
+    when(() => repository.componentStatsOf(any())).thenReturn(ComponentStats.zero);
     when(() => subscription.hasStravaEntitlement).thenReturn(false);
     when(() => subscription.offersReady).thenReturn(false);
     when(() => strava.isConnected).thenReturn(false);
@@ -55,6 +62,7 @@ void main() {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<AppSettings>.value(value: appSettings),
+        ChangeNotifierProvider<AppRepository>.value(value: repository),
         ChangeNotifierProvider<SubscriptionService>.value(value: subscription),
         ChangeNotifierProvider<StravaService>.value(value: strava),
       ],

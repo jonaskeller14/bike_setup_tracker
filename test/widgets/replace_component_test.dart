@@ -1,5 +1,6 @@
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/component.dart';
+import 'package:bike_setup_tracker/models/component_stats.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/component_hierarchy_resolver.dart';
@@ -66,6 +67,7 @@ void main() {
     when(() => mockRepository.components).thenAnswer((_) => componentsMap);
     when(() => mockRepository.componentHierarchy)
         .thenAnswer((_) => ComponentHierarchyResolver(componentsMap));
+    when(() => mockRepository.componentStatsOf(any())).thenReturn(ComponentStats.zero);
   });
 
   Widget harness({required ValueChanged<ReplaceComponentResult?> onResult}) {

@@ -112,14 +112,14 @@ void main() {
     await tester.tap(find.text('Continue'));
     await tester.pumpAndSettle();
 
-    await settleRepository(tester, () => appRepository.components['c2']?.bike == 'b1');
+    await settleRepository(tester, () => appRepository.components['c2']?.parentId == 'b1');
 
     final installed = appRepository.components['c2']!;
     final retired = appRepository.components['c1']!;
 
     // The spare takes over the bike, the replaced one is left on no bike.
-    expect(installed.bike, 'b1');
-    expect(retired.bike, isNull);
+    expect(installed.parentId, 'b1');
+    expect(retired.parentId, isNull);
 
     // Both sides of the swap are logged at the same replacement date.
     expect(installed.installations.single.parent, 'b1');

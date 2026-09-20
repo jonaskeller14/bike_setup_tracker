@@ -1,7 +1,5 @@
 import 'package:bike_setup_tracker/models/activity_rate_window.dart';
-import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/component_stats.dart';
-import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/models/task/task_association.dart';
 import 'package:bike_setup_tracker/models/task/task_entry.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
@@ -39,20 +37,6 @@ void main() {
         count: count,
       );
     }
-
-    Component component(List<Installation> installations) => Component(
-      id: componentId,
-      name: 'Chain',
-      componentType: ComponentType.other,
-      installations: installations,
-    );
-
-    Installation installedOn(String bike, {required Duration ago}) => BikeInstallation(
-      bikeId: bike,
-      componentId: componentId,
-      dateTimeUTC: now.subtract(ago),
-      dateTimeLocal: now.subtract(ago),
-    );
 
     group('Distance interval', () {
       final rule = TaskRule(
@@ -258,7 +242,7 @@ void main() {
           currentStats: ComponentStats.zero(),
           now: now,
           bikeRates: rates,
-          component: component([installedOn('bike-slow', ago: const Duration(days: 100))]),
+          componentBikeId: 'bike-slow',
         );
 
         expect(forecast!.dueDate, now.add(const Duration(days: 30)));
@@ -270,40 +254,18 @@ void main() {
           currentStats: ComponentStats.zero(),
           now: now,
           bikeRates: rates,
-          component: component([
-            installedOn('bike-slow', ago: const Duration(days: 100)),
-            installedOn('bike-fast', ago: const Duration(days: 1)),
-          ]),
+          componentBikeId: 'bike-fast',
         );
 
         expect(forecast!.dueDate, now.add(const Duration(days: 10)));
       });
 
-      test('An uninstalled component accrues nothing and gets no forecast', () {
+      test('A component that is not on a bike accrues nothing and gets no forecast', () {
         final forecast = TaskForecastService.predict(
           rule: rule,
           currentStats: ComponentStats.zero(),
           now: now,
           bikeRates: rates,
-          component: component([
-            installedOn('bike-fast', ago: const Duration(days: 100)),
-            Uninstallation(componentId: componentId, dateTimeUTC: now, dateTimeLocal: now),
-          ]),
-        );
-
-        expect(forecast, isNull);
-      });
-
-      test('An archived component gets no forecast', () {
-        final forecast = TaskForecastService.predict(
-          rule: rule,
-          currentStats: ComponentStats.zero(),
-          now: now,
-          bikeRates: rates,
-          component: component([
-            installedOn('bike-fast', ago: const Duration(days: 100)),
-            Archival(componentId: componentId, dateTimeUTC: now, dateTimeLocal: now),
-          ]),
         );
 
         expect(forecast, isNull);

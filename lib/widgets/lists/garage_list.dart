@@ -144,7 +144,7 @@ class _GarageListState extends State<GarageList> {
                 ],
               ),
             );
-          } else if (unarchived.bike != null) {
+          } else if (unarchived.parentId != null) {
             // Timeline: was on a bike before archiving — open sheet to confirm uninstall date.
             unawaited(showAddInstallationSheet(context, component: unarchived, targetBikeId: null));
           } else {

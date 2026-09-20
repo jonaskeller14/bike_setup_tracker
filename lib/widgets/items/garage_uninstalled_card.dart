@@ -317,7 +317,7 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
           DragTarget<Object>(
             onWillAcceptWithDetails: (details) {
               final d = widget.draggedComponentNotifier.value;
-              final willAccept = d != null && (d.bike != null || d.isArchived);
+              final willAccept = d != null && (hierarchy.currentBike(d.id) != null || d.isArchived);
               if (willAccept) unawaited(HapticFeedback.lightImpact());
               return willAccept;
             },
@@ -332,7 +332,7 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                   final bool showDropZone =
                       candidateItems.isNotEmpty &&
                       draggedComp != null &&
-                      draggedComp.bike != null &&
+                      hierarchy.currentBike(draggedComp.id) != null &&
                       !draggedComp.isArchived;
                   final bool showUnarchiveZone =
                       candidateItems.isNotEmpty &&
@@ -340,7 +340,7 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                       draggedComp.isArchived;
                   final bool isPassiveUninstallZone =
                       draggedComp != null &&
-                      (draggedComp.bike != null || draggedComp.isArchived) &&
+                      (hierarchy.currentBike(draggedComp.id) != null || draggedComp.isArchived) &&
                       !showDropZone &&
                       !showUnarchiveZone;
 

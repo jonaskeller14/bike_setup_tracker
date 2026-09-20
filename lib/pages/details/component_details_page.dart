@@ -31,6 +31,7 @@ import '../../widgets/items/component_list_card.dart';
 import '../../widgets/notes_text.dart';
 import '../../widgets/open_tasks_tile.dart';
 import '../../widgets/sheets/column_filter.dart';
+import '../../widgets/sheets/set_initial_stats.dart';
 import '../../widgets/text/section_title.dart';
 
 class ComponentDetailsPage extends StatefulWidget {
@@ -135,6 +136,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     }
     final componentAdjustments = component.adjustments;
     final descendants = appRepository.affectedDescendants(component.id);
+    final initialStats = initialStatsSummary(component.initialStats, appSettings);
 
     final bikes = appRepository.bikes;
     final bike = bikes[appRepository.componentHierarchy.currentBike(component.id)];
@@ -144,7 +146,11 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     final personAdjustments = person?.adjustments ?? [];
 
     bool isDangling(Setup setup, TableColumn column) => switch (column) {
-      ComponentAdjustmentColumn() => !DanglingAdjustmentService.isInstalledAtSetup(component, setup),
+      ComponentAdjustmentColumn() => !DanglingAdjustmentService.isInstalledAtSetup(
+        appRepository.componentHierarchy,
+        component,
+        setup,
+      ),
       PersonAttributeColumn() => setup.person != person?.id,
       _ => false,
     };
@@ -248,15 +254,22 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                 const Divider(height: 1),
               ],
 
-              if (component.notes != null) ...[
+              if (component.notes != null)
                 ListTile(
                   leading: const Icon(Icons.notes),
                   titleAlignment: ListTileTitleAlignment.titleHeight,
                   title: NotesText(component.notes!, maxLines: 10),
                   dense: true,
                 ),
-                const Divider(height: 1),
-              ],
+
+              if (initialStats != null)
+                ListTile(
+                  leading: const Icon(Icons.start),
+                  title: Text("Initial: $initialStats"),
+                  dense: true,
+                ),
+
+              if (component.notes != null || initialStats != null) const Divider(height: 1),
 
               if (shouldUseInstallationTimeline(
                 featureEnabled: appSettings.enableInstallationTimeline,
@@ -298,7 +311,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                   collapsedShape: const Border(),
                   leading: const Icon(Component.iconData),
                   title: Text(
-                    "Components (${descendants.length})",
+                    "Subcomponents (${descendants.length})",
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),

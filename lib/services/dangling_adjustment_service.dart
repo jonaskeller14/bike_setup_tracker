@@ -52,8 +52,8 @@ class SetupAdjustmentBreakdown {
 }
 
 class DanglingAdjustmentService {
-  static bool isInstalledAtSetup(Component component, Setup setup) =>
-      component.bikeAt(setup.datetimeLocal.toUtc()) == setup.bike;
+  static bool isInstalledAtSetup(ComponentHierarchyResolver hierarchy, Component component, Setup setup) =>
+      hierarchy.bikeAt(component.id, setup.datetimeLocal.toUtc()) == setup.bike;
 
   static SetupAdjustmentBreakdown analyzeSetup({
     required Setup setup,

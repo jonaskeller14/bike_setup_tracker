@@ -23,9 +23,9 @@ class Component {
   final ComponentStats initialStats;
   final ComponentStats totalStats;
 
-  String? get bike => bikeAt(DateTime.now().toUtc());
+  String? get parentId => parentIdAt(DateTime.now().toUtc());
 
-  String? bikeAt(DateTime timeUTC) {
+  String? parentIdAt(DateTime timeUTC) {
     if (installations.isEmpty) return null;
     
     // Sort installations by dateTimeUTC to ensure chronological order

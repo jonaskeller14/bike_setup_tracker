@@ -10,7 +10,7 @@ void main() {
         componentType: ComponentType.other,
         installations: [],
       );
-      expect(component.bike, isNull);
+      expect(component.parentId, isNull);
     });
 
     test('bike returns correct bike based on current time', () {
@@ -31,7 +31,7 @@ void main() {
           ),
         ],
       );
-      expect(component.bike, 'bike_2');
+      expect(component.parentId, 'bike_2');
     });
 
     test('bikeAt returns correct bike for past timestamps', () {
@@ -57,11 +57,11 @@ void main() {
         ],
       );
 
-      expect(component.bikeAt(now), isNull, reason: 'Before any installation');
-      expect(component.bikeAt(t1), 'bike_1', reason: 'At t1');
-      expect(component.bikeAt(t1.add(const Duration(minutes: 30))), 'bike_1', reason: 'Between t1 and t2');
-      expect(component.bikeAt(t2), 'bike_2', reason: 'At t2');
-      expect(component.bikeAt(t3), 'bike_2', reason: 'After t2');
+      expect(component.parentIdAt(now), isNull, reason: 'Before any installation');
+      expect(component.parentIdAt(t1), 'bike_1', reason: 'At t1');
+      expect(component.parentIdAt(t1.add(const Duration(minutes: 30))), 'bike_1', reason: 'Between t1 and t2');
+      expect(component.parentIdAt(t2), 'bike_2', reason: 'At t2');
+      expect(component.parentIdAt(t3), 'bike_2', reason: 'After t2');
     });
 
     test('isArchived true when latest installation is Archival', () {
@@ -120,9 +120,9 @@ void main() {
         ],
       );
 
-      expect(component.bikeAt(t1), 'bike_1');
+      expect(component.parentIdAt(t1), 'bike_1');
       expect(
-        component.bikeAt(after),
+        component.parentIdAt(after),
         isNull,
         reason: 'Archival has no parent — component is not on a bike after archival',
       );
@@ -149,8 +149,8 @@ void main() {
         ],
       );
 
-      expect(component.bikeAt(t1), 'bike_1');
-      expect(component.bikeAt(t2), 'bike_2');
+      expect(component.parentIdAt(t1), 'bike_1');
+      expect(component.parentIdAt(t2), 'bike_2');
     });
   });
 }

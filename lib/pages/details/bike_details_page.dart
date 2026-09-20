@@ -29,6 +29,7 @@ import '../../widgets/items/component_list_card.dart';
 import '../../widgets/notes_text.dart';
 import '../../widgets/open_tasks_tile.dart';
 import '../../widgets/sheets/column_filter.dart';
+import '../../widgets/sheets/set_initial_stats.dart' as initial_stats;
 import '../../widgets/text/section_title.dart';
 
 class BikeDetailsPage extends StatefulWidget {
@@ -266,7 +267,8 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
       (component) => appRepository.componentHierarchy.currentBike(component.id) == bike.id,
     );
     final stats = appRepository.bikeStats[widget.bikeId] ?? bike.initialStats;
-    
+    final initialStatsSummary = initial_stats.initialStatsSummary(bike.initialStats, appSettings);
+
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -340,7 +342,14 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
                   dense: true,
                 ),
 
-              if ((appSettings.enableStrava && subscriptionService.hasStravaEntitlement) || appSettings.enablePerson || bike.notes != null)
+              if (initialStatsSummary != null)
+                ListTile(
+                  leading: const Icon(Icons.start),
+                  title: Text("Initial: $initialStatsSummary"),
+                  dense: true,
+                ),
+
+              if ((appSettings.enableStrava && subscriptionService.hasStravaEntitlement) || appSettings.enablePerson || bike.notes != null || initialStatsSummary != null)
                 const Divider(height: 1),
 
               if (appSettings.enableTask) ...[

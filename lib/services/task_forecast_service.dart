@@ -1,5 +1,4 @@
 import '../models/activity_rate_window.dart';
-import '../models/component.dart';
 import '../models/component_stats.dart';
 import '../models/task/task_entry.dart';
 import '../models/task/task_progress_context.dart';
@@ -30,7 +29,7 @@ class TaskForecastService {
     required ComponentStats currentStats,
     required DateTime now,
     required Map<String, ActivityRateWindow> bikeRates,
-    Component? component,
+    String? componentBikeId,
     TaskEntry? lastEntry,
     DateTime? componentInstallationDate,
   }) {
@@ -56,7 +55,7 @@ class TaskForecastService {
         ),
         now: now,
         bikeRates: bikeRates,
-        component: component,
+        componentBikeId: componentBikeId,
       ),
     };
   }
@@ -74,7 +73,7 @@ class TaskForecastService {
     required TaskProgressContext context,
     required DateTime now,
     required Map<String, ActivityRateWindow> bikeRates,
-    required Component? component,
+    required String? componentBikeId,
   }) {
     final remaining = interval.totalTarget(rule.delay) - interval.accumulated(context);
     if (remaining <= 0) return null;
@@ -85,7 +84,7 @@ class TaskForecastService {
       return TaskForecast(dueDate: now.add(Duration(microseconds: remaining.round())));
     }
 
-    final window = _sampleFor(rule: rule, component: component, now: now, bikeRates: bikeRates);
+    final window = _sampleFor(rule: rule, componentBikeId: componentBikeId, bikeRates: bikeRates);
     final until = window?.timeToAccumulate(interval, remaining, now: now);
     if (until == null) return null;
 
@@ -95,17 +94,16 @@ class TaskForecastService {
   /// The window to extrapolate from, or `null` when it is too thin to trust.
   ///
   /// A bike rule uses its own bike; a component rule uses the bike it is
-  /// installed on *right now*. Ride attribution is all-or-nothing, so a
+  /// effectively on *right now* ([componentBikeId], resolved through parent components). Ride attribution is all-or-nothing, so a
   /// component's forward rate is definitionally its current bike's rate — its
   /// own history is the same number over a worse sample. An uninstalled or
   /// archived component has no bike and accrues nothing, so it gets no forecast.
   static ActivityRateWindow? _sampleFor({
     required TaskRule rule,
-    required Component? component,
-    required DateTime now,
+    required String? componentBikeId,
     required Map<String, ActivityRateWindow> bikeRates,
   }) {
-    final bikeId = rule.association.bikeId ?? component?.bikeAt(now);
+    final bikeId = rule.association.bikeId ?? componentBikeId;
     final window = bikeId != null ? bikeRates[bikeId] : null;
     if (window == null || window.count < _minSamples || window.sampleSpan < _minSpan) return null;
     return window;

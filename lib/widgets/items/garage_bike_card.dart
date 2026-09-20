@@ -57,7 +57,8 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
   @override
   bool get wantKeepAlive {
     final dragged = widget.draggedComponentNotifier.value;
-    return dragged != null && dragged.bike == widget.bike.id;
+    return dragged != null &&
+        context.read<AppRepository>().componentHierarchy.currentBike(dragged.id) == widget.bike.id;
   }
 
   @override
@@ -332,11 +333,11 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                         (c) =>
                             c == null ||
                             (draggedComp != null &&
-                                draggedComp.bike != widget.bike.id),
+                                hierarchy.currentBike(draggedComp.id) != widget.bike.id),
                       );
                   final bool isPassiveDropZone =
                       draggedComp != null &&
-                      draggedComp.bike != widget.bike.id &&
+                      hierarchy.currentBike(draggedComp.id) != widget.bike.id &&
                       !showDropZone;
 
                   return Padding(
@@ -470,7 +471,7 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
       ),
       onWillAcceptWithDetails: (details) {
         final draggedComp = widget.draggedComponentNotifier.value;
-        final willAccept = !widget.selectionMode && draggedComp != null && draggedComp.bike != widget.bike.id;
+        final willAccept = !widget.selectionMode && draggedComp != null && hierarchy.currentBike(draggedComp.id) != widget.bike.id;
         if (willAccept) unawaited(HapticFeedback.lightImpact());
         return willAccept;
       },

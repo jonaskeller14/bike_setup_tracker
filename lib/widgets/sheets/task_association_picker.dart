@@ -327,7 +327,7 @@ class _TaskAssociationPickerSheetState extends State<_TaskAssociationPickerSheet
   // --- grouping --------------------------------------------------------------
 
   /// Garage order: bikes in repository order, components by `orderIndex`.
-  /// Never sorted by `Component.bike` — that is a UUID, and sorting by it is
+  /// Never sorted by `Component.parentId` — that is a UUID, and sorting by it is
   /// what made the old dropdown look randomly ordered.
   List<_Group> _buildGroups(
     Map<String, Bike> bikes,

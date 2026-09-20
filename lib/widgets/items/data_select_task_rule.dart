@@ -4,6 +4,7 @@ import '../../models/bike.dart';
 import '../../models/component.dart';
 import '../../models/task/task_association.dart';
 import '../../models/task/task_rule.dart';
+import '../../services/component_hierarchy_resolver.dart';
 
 class DataSelectTaskRule extends StatelessWidget {
   final TaskRule item;
@@ -23,11 +24,12 @@ class DataSelectTaskRule extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final component = components[item.association.componentId];
+    final componentId = item.association.componentId;
+    final component = components[componentId];
     final bike = item.association.bikeId != null
         ? bikes[item.association.bikeId]
-        : (component?.bike != null
-              ? bikes[component!.bike]
+        : (componentId != null
+              ? bikes[ComponentHierarchyResolver(components).currentBike(componentId)]
               : null);
 
     return Card(

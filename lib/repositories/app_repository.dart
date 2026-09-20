@@ -768,7 +768,10 @@ class AppRepository extends ChangeNotifier {
       currentStats: inputs.stats,
       now: now.toUtc(),
       bikeRates: _bikeActivityRates,
-      component: _components[rule.association.componentId],
+      componentBikeId: switch (rule.association) {
+        ComponentTaskAssociation(:final id) => componentHierarchy.currentBike(id),
+        _ => null,
+      },
       lastEntry: inputs.lastEntry,
       componentInstallationDate: inputs.installationDate,
     );

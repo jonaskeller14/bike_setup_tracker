@@ -145,8 +145,8 @@ void main() {
       ]);
       await pumpEventQueue();
 
-      expect(repository.components[spare.id]?.bike, bike1.id);
-      expect(repository.components[component1.id]?.bike, null);
+      expect(repository.components[spare.id]?.parentId, bike1.id);
+      expect(repository.components[component1.id]?.parentId, null);
       expect(repository.components[component1.id]?.installations.length, 2);
     });
   });
@@ -212,7 +212,7 @@ void main() {
       expect(repository.setups[setupWithVals.id]?.bikeAdjustmentValues[adjustment.id], 100.0);
 
       // Simulate BikeActions.removeBike logic
-      final obsoleteComponents = repository.components.values.where((c) => c.bike == bikeWithAdj.id).toList();
+      final obsoleteComponents = repository.components.values.where((c) => c.parentId == bikeWithAdj.id).toList();
       final obsoleteSetups = repository.setups.values.where((s) => s.bike == bikeWithAdj.id).toList();
 
       await repository.removeBikes([bikeWithAdj]);
@@ -1066,7 +1066,7 @@ void main() {
       expect(unarchived.installations.whereType<Archival>(), isEmpty);
 
       // component1 started with sinceBeginning(bike1) → restored to on-bike.
-      expect(unarchived.bike, bike1.id);
+      expect(unarchived.parentId, bike1.id);
     });
 
     test("task rule for archived component is hidden from filteredOpenTaskRules", () async {

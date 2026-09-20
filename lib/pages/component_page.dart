@@ -107,8 +107,8 @@ class _ComponentPageState extends State<ComponentPage> {
     _initialAdjustments = List.from(_adjustments);
     
     final appRepository = context.read<AppRepository>();
-    final initialBike = widget.component != null 
-        ? widget.component!.bike 
+    final initialParentId = widget.component != null 
+        ? widget.component!.parentId 
         : appRepository.filteredBikes.keys.firstOrNull;
 
     if (widget.mode == ComponentPageMode.replace) {
@@ -123,7 +123,7 @@ class _ComponentPageState extends State<ComponentPage> {
     } else {
       _installations = widget.component?.installations ??
           (widget.initialInstallations != null ? List.of(widget.initialInstallations!) : null) ??
-          [Installation.sinceBeginning(parent: initialBike)];
+          [Installation.sinceBeginning(parent: initialParentId)];
     }
     _installations.sort((a, b) => a.dateTimeUTC.compareTo(b.dateTimeUTC));
     _initialInstallations = List.from(_installations);

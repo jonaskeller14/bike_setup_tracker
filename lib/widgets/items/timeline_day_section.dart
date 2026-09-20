@@ -7,6 +7,7 @@ import '../../models/setup.dart';
 import '../../models/strava/strava_activity.dart';
 import '../../models/timeline_entry.dart';
 import '../../models/timeline_row.dart';
+import '../../models/timeline_selection.dart';
 import '../../pages/details/setup_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../items/installation_list_tile.dart';
@@ -30,6 +31,8 @@ class TimelineDaySection extends StatelessWidget{
   final Iterable<Setup> setupsList;
   final AppSettings appSettings;
   final AppRepository appRepository;
+  final Set<TimelineSelectionId> selection;
+  final ValueChanged<TimelineSelectionId>? onSelectionChanged;
 
   const TimelineDaySection({
     super.key,
@@ -39,7 +42,14 @@ class TimelineDaySection extends StatelessWidget{
     required this.setupsList,
     required this.appSettings,
     required this.appRepository,
+    this.selection = const {},
+    this.onSelectionChanged,
   });
+
+  bool get _selectionMode => selection.isNotEmpty;
+
+  VoidCallback? _toggleSelection(TimelineSelectionId id) =>
+      onSelectionChanged == null ? null : () => onSelectionChanged!(id);
 
   void _openSetupDetails(
     BuildContext context,
@@ -94,19 +104,28 @@ class TimelineDaySection extends StatelessWidget{
         return SetupTile(
           setupId: setup.id,
           onTap: () => _openSetupDetails(context, setupsList, setup),
+          selectionMode: _selectionMode,
+          selected: selection.contains(setupSelectionId(setup.id)),
+          onSelectionChanged: _toggleSelection(setupSelectionId(setup.id)),
           showDate: false,
           currentBarLeft: currentBarLeft,
           edgeInset: edgeInset,
         );
       case TaskTimeLineEntry():
+        final selectionId = taskEntrySelectionId(entry.taskEntry.id);
         return TaskEntryListItem(
           taskEntryId: entry.taskEntry.id,
           showDate: false,
-          onTap: () => showTaskRuleSheet(
-            context,
-            taskRuleId: entry.taskEntry.taskRule,
-            highlightTaskEntryId: entry.taskEntry.id,
-          ),
+          selectionMode: _selectionMode,
+          selected: selection.contains(selectionId),
+          onLongPress: _toggleSelection(selectionId),
+          onTap: _selectionMode
+              ? _toggleSelection(selectionId)
+              : () => showTaskRuleSheet(
+                  context,
+                  taskRuleId: entry.taskEntry.taskRule,
+                  highlightTaskEntryId: entry.taskEntry.id,
+                ),
         );
       case InstallationEntry():
         return InstallationListTile(
@@ -121,8 +140,12 @@ class TimelineDaySection extends StatelessWidget{
           },
         );
       case RatingEntryTimelineEntry():
+        final selectionId = ratingEntrySelectionId(entry.ratingEntry.id);
         return RatingEntryListTile(
           ratingEntry: entry.ratingEntry,
+          selectionMode: _selectionMode,
+          selected: selection.contains(selectionId),
+          onSelectionChanged: _toggleSelection(selectionId),
           showDate: false,
         );
     }
@@ -160,6 +183,10 @@ class TimelineDaySection extends StatelessWidget{
       SetupGroupRow() => SetupGroupSection(
         setupIds: row.setups.map((e) => e.setup.id).toList(),
         onTapSetup: (setup) => _openSetupDetails(context, setupsList, setup),
+        selectionMode: _selectionMode,
+        selectedSetupIds: selection.idsOf(TimelineSelectionKind.setup),
+        onSetupSelectionChanged:
+            onSelectionChanged == null ? null : (id) => onSelectionChanged!(setupSelectionId(id)),
       ),
       ReplacementRow() => ReplacementListTile(
         row: row,

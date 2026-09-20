@@ -10,6 +10,7 @@ class SetupTileHeader extends StatelessWidget {
   final Widget? badge;
   final Widget? secondaryMetadata;
   final bool showSetupIcon;
+  final bool selected;
 
   const SetupTileHeader({
     super.key,
@@ -19,6 +20,7 @@ class SetupTileHeader extends StatelessWidget {
     required this.showSetupIcon,
     this.badge,
     this.secondaryMetadata,
+    this.selected = false,
   });
 
   @override
@@ -30,6 +32,7 @@ class SetupTileHeader extends StatelessWidget {
       context,
     ).colorScheme.onSurfaceVariant.withValues(alpha: 0.6);
     final hasNotes = setup.notes?.isNotEmpty ?? false;
+    final selectedColor = selected ? Theme.of(context).colorScheme.primary : null;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -38,9 +41,9 @@ class SetupTileHeader extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (showSetupIcon) ...[
-              const Padding(
-                padding: EdgeInsets.only(top: 1),
-                child: Icon(Setup.iconData),
+              Padding(
+                padding: const EdgeInsets.only(top: 1),
+                child: Icon(Setup.iconData, color: selectedColor),
               ),
               const SizedBox(width: 8),
             ],
@@ -55,7 +58,10 @@ class SetupTileHeader extends StatelessWidget {
                       Expanded(
                         child: Text(
                           setup.displayName,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: selectedColor,
+                          ),
                           overflow: TextOverflow.ellipsis,
                           maxLines: 3,
                         ),

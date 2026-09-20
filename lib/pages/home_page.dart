@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../models/app_settings.dart';
@@ -10,16 +9,19 @@ import '../models/person.dart';
 import '../models/rating/rating.dart';
 import '../models/setup.dart';
 import '../models/task/task_rule.dart';
+import '../models/timeline_selection.dart';
 import '../repositories/app_repository.dart';
 import '../utils/bike_actions.dart';
 import '../utils/person_actions.dart';
 import '../utils/rating_actions.dart';
 import '../utils/setup_actions.dart';
 import '../utils/task_actions.dart';
+import '../utils/timeline_actions.dart';
 import '../widgets/animated_app_bar_switcher.dart';
 import '../widgets/google_drive_sync_button.dart';
 import '../widgets/lists/garage_list.dart';
 import '../widgets/lists/list_scroll_controller.dart';
+import '../widgets/lists/list_selection_controller.dart';
 import '../widgets/lists/person_list.dart';
 import '../widgets/lists/rating_list.dart';
 import '../widgets/lists/setup_list.dart';
@@ -43,123 +45,84 @@ class _HomePageState extends State<HomePage> {
   final ListScrollController _garageListController = ListScrollController();
   final ListScrollController _setupListController = ListScrollController();
   final ListScrollController _taskListController = ListScrollController();
-  final Set<String> _selectedTaskRules = {};
-  final Set<String> _selectedBikes = {};
-  bool _isDeletingTaskRules = false;
-  bool _isCompletingTaskRules = false;
-  bool _isSettingTaskRulePriority = false;
-  bool _isSettingTaskRuleTags = false;
-  bool _isDeletingBikes = false;
+  final ListSelectionController<String> _bikeSelection = ListSelectionController<String>();
+  final ListSelectionController<String> _taskRuleSelection = ListSelectionController<String>();
+  final ListSelectionController<TimelineSelectionId> _timelineSelection =
+      ListSelectionController<TimelineSelectionId>();
 
-  bool get _isTaskSelectionMode => _selectedTaskRules.isNotEmpty;
-  bool get _isTaskRuleActionRunning =>
-      _isDeletingTaskRules || _isCompletingTaskRules || _isSettingTaskRulePriority || _isSettingTaskRuleTags;
-  bool get _isBikeSelectionMode => _selectedBikes.isNotEmpty;
+  @override
+  void initState() {
+    super.initState();
+    _bikeSelection.addListener(_selectionChanged);
+    _taskRuleSelection.addListener(_selectionChanged);
+    _timelineSelection.addListener(_selectionChanged);
+  }
 
-  void _clearBikeSelection() => setState(() => _selectedBikes.clear());
-  void _clearTaskRuleSelection() => setState(() => _selectedTaskRules.clear());
+  void _selectionChanged() {
+    if (mounted) setState(() {});
+  }
 
-  void _toggleBikeSelection(String bikeId) {
-    unawaited(HapticFeedback.selectionClick());
-    setState(() {
-      if (!_selectedBikes.remove(bikeId)) {
-        _selectedBikes.add(bikeId);
-      }
+  Future<void> _deleteSelectedBikes() {
+    return _bikeSelection.run((bikeIds) async {
+      final appRepository = context.read<AppRepository>();
+      final bikes = bikeIds.map((id) => appRepository.bikes[id]).whereType<Bike>().toList();
+      await BikeActions.removeBikes(context, bikes: bikes);
     });
   }
 
-  Future<void> _deleteSelectedBikes() async {
-    if (_isDeletingBikes) return;
-
-    final appRepository = context.read<AppRepository>();
-    final selectedBikes = _selectedBikes.map((id) => appRepository.bikes[id]).whereType<Bike>().toList();
-    setState(() => _isDeletingBikes = true);
-
-    try {
-      await BikeActions.removeBikes(context, bikes: selectedBikes);
-      if (!mounted) return;
-      setState(() => _selectedBikes.clear());
-    } finally {
-      if (mounted) setState(() => _isDeletingBikes = false);
-    }
+  Future<void> _deleteSelectedTaskRules() {
+    return _taskRuleSelection.run((ids) => TaskActions.removeTaskRules(context, taskRuleIds: ids));
   }
 
-  void _toggleTaskRuleSelection(String taskRuleId) {
-    unawaited(HapticFeedback.selectionClick());
-    setState(() {
-      if (!_selectedTaskRules.remove(taskRuleId)) {
-        _selectedTaskRules.add(taskRuleId);
-      }
-    });
+  Future<void> _setPriorityForSelectedTaskRules() {
+    return _taskRuleSelection.runIfApplied((ids) => TaskActions.setTaskRulesPriority(context, taskRuleIds: ids));
   }
 
-  Future<void> _deleteSelectedTaskRules() async {
-    if (_isDeletingTaskRules) return;
-
-    final selectedTaskRules = Set<String>.of(_selectedTaskRules);
-    setState(() => _isDeletingTaskRules = true);
-
-    try {
-      await TaskActions.removeTaskRules(context, taskRuleIds: selectedTaskRules);
-      if (!mounted) return;
-      setState(() => _selectedTaskRules.clear());
-    } finally {
-      if (mounted) setState(() => _isDeletingTaskRules = false);
-    }
+  Future<void> _setTagsForSelectedTaskRules() {
+    return _taskRuleSelection.runIfApplied((ids) => TaskActions.setTaskRulesTags(context, taskRuleIds: ids));
   }
 
-  Future<void> _setPriorityForSelectedTaskRules() async {
-    if (_isSettingTaskRulePriority) return;
-
-    final selectedTaskRules = Set<String>.of(_selectedTaskRules);
-    setState(() => _isSettingTaskRulePriority = true);
-
-    try {
-      final applied = await TaskActions.setTaskRulesPriority(context, taskRuleIds: selectedTaskRules);
-      if (!mounted || !applied) return;
-      setState(() => _selectedTaskRules.clear());
-    } finally {
-      if (mounted) setState(() => _isSettingTaskRulePriority = false);
-    }
+  Future<void> _completeSelectedTaskRules() {
+    return _taskRuleSelection.run((ids) => TaskActions.addDefaultTaskEntries(context, taskRuleIds: ids));
   }
 
-  Future<void> _setTagsForSelectedTaskRules() async {
-    if (_isSettingTaskRuleTags) return;
-
-    final selectedTaskRules = Set<String>.of(_selectedTaskRules);
-    setState(() => _isSettingTaskRuleTags = true);
-
-    try {
-      final applied = await TaskActions.setTaskRulesTags(context, taskRuleIds: selectedTaskRules);
-      if (!mounted || !applied) return;
-      setState(() => _selectedTaskRules.clear());
-    } finally {
-      if (mounted) setState(() => _isSettingTaskRuleTags = false);
-    }
+  Future<void> _deleteSelectedTimelineEntries() {
+    return _timelineSelection.run(
+      (selection) => TimelineActions.removeSelection(context, selection: selection),
+    );
   }
 
-  Future<void> _completeSelectedTaskRules() async {
-    if (_isCompletingTaskRules) return;
+  Future<void> _setTagsForSelectedSetups() {
+    return _timelineSelection.runIfApplied(
+      (selection) => SetupActions.setSetupsTags(
+        context,
+        setupIds: selection.idsOf(TimelineSelectionKind.setup),
+      ),
+    );
+  }
 
-    final selectedTaskRules = Set<String>.of(_selectedTaskRules);
-    setState(() => _isCompletingTaskRules = true);
-
-    try {
-      await TaskActions.addDefaultTaskEntries(context, taskRuleIds: selectedTaskRules);
-      if (!mounted) return;
-      setState(() => _selectedTaskRules.clear());
-    } finally {
-      if (mounted) setState(() => _isCompletingTaskRules = false);
-    }
+  Future<void> _toggleBookmarkForSelectedSetups() {
+    return _timelineSelection.run(
+      (selection) => SetupActions.toggleBookmarks(
+        context,
+        setupIds: selection.idsOf(TimelineSelectionKind.setup),
+      ),
+    );
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final appRepository = context.read<AppRepository>();
-    final visibleTaskRules = appRepository.filteredTaskRules;
-    _selectedTaskRules.removeWhere((id) => !visibleTaskRules.containsKey(id));
-    _selectedBikes.removeWhere((id) => !appRepository.filteredBikes.containsKey(id));
+    _taskRuleSelection.retainWhere(appRepository.filteredTaskRules.containsKey);
+    _bikeSelection.retainWhere(appRepository.filteredBikes.containsKey);
+    _timelineSelection.retainWhere(
+      (entry) => switch (entry.kind) {
+        TimelineSelectionKind.setup => appRepository.filteredSetups.containsKey(entry.id),
+        TimelineSelectionKind.taskEntry => appRepository.filteredTaskEntries.containsKey(entry.id),
+        TimelineSelectionKind.ratingEntry => appRepository.filteredRatingEntries.containsKey(entry.id),
+      },
+    );
   }
 
   @override
@@ -167,6 +130,15 @@ class _HomePageState extends State<HomePage> {
     _garageListController.dispose();
     _setupListController.dispose();
     _taskListController.dispose();
+    _bikeSelection
+      ..removeListener(_selectionChanged)
+      ..dispose();
+    _taskRuleSelection
+      ..removeListener(_selectionChanged)
+      ..dispose();
+    _timelineSelection
+      ..removeListener(_selectionChanged)
+      ..dispose();
     super.dispose();
   }
 
@@ -182,15 +154,25 @@ class _HomePageState extends State<HomePage> {
       1 + (appSettings.enablePerson ? 1 : 0) + (appSettings.enableRating ? 1 : 0) + (appSettings.enableTask ? 1 : 0),
     );
     final taskPageIndex = 2 + (appSettings.enablePerson ? 1 : 0) + (appSettings.enableRating ? 1 : 0);
-    final showTaskSelectionAppBar = appSettings.enableTask && pageIndex == taskPageIndex && _isTaskSelectionMode;
-    final showBikeSelectionAppBar = pageIndex == 0 && _isBikeSelectionMode;
+    final showTaskSelectionAppBar =
+        appSettings.enableTask && pageIndex == taskPageIndex && _taskRuleSelection.isSelectionMode;
+    final showBikeSelectionAppBar = pageIndex == 0 && _bikeSelection.isSelectionMode;
+    final showTimelineSelectionAppBar = pageIndex == 1 && _timelineSelection.isSelectionMode;
+
+    final selectedSetupsOnly = _timelineSelection.selected.isSetupsOnly;
+    final selectedSetups = _timelineSelection.selected
+        .idsOf(TimelineSelectionKind.setup)
+        .map((id) => appRepository.setups[id])
+        .whereType<Setup>();
+    final removesBookmarks = selectedSetups.isNotEmpty && selectedSetups.every((setup) => setup.isBookmarked);
 
     return PopScope(
-      canPop: !showTaskSelectionAppBar && !showBikeSelectionAppBar,
+      canPop: !showTaskSelectionAppBar && !showBikeSelectionAppBar && !showTimelineSelectionAppBar,
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
-        if (showBikeSelectionAppBar) _clearBikeSelection();
-        if (showTaskSelectionAppBar) _clearTaskRuleSelection();
+        if (showBikeSelectionAppBar) _bikeSelection.clear();
+        if (showTaskSelectionAppBar) _taskRuleSelection.clear();
+        if (showTimelineSelectionAppBar) _timelineSelection.clear();
       },
       child: Scaffold(
       appBar: AnimatedAppBarSwitcher(
@@ -199,12 +181,40 @@ class _HomePageState extends State<HomePage> {
                 key: const ValueKey('bike-selection-app-bar'),
                 leading: IconButton(
                   icon: const Icon(Icons.close),
-                  onPressed: _clearBikeSelection,
+                  onPressed: _bikeSelection.clear,
                 ),
-                title: Text('${_selectedBikes.length} selected'),
+                title: Text('${_bikeSelection.length} selected'),
                 actions: [
                   IconButton(
-                    onPressed: _isDeletingBikes ? null : _deleteSelectedBikes,
+                    onPressed: _bikeSelection.isBusy ? null : _deleteSelectedBikes,
+                    icon: const Icon(Icons.delete),
+                    tooltip: 'Delete selected',
+                  ),
+                ],
+              )
+            : showTimelineSelectionAppBar
+            ? AppBar(
+                key: const ValueKey('timeline-selection-app-bar'),
+                leading: IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: _timelineSelection.clear,
+                ),
+                title: Text('${_timelineSelection.length} selected'),
+                actions: [
+                  if (appSettings.enableSetupBookmark && selectedSetupsOnly)
+                    IconButton(
+                      onPressed: _timelineSelection.isBusy ? null : _toggleBookmarkForSelectedSetups,
+                      icon: Icon(removesBookmarks ? Icons.bookmark_remove : Icons.bookmark_add_outlined),
+                      tooltip: removesBookmarks ? 'Remove bookmark' : 'Bookmark',
+                    ),
+                  if (appSettings.enableSetupTags && selectedSetupsOnly)
+                    IconButton(
+                      onPressed: _timelineSelection.isBusy ? null : _setTagsForSelectedSetups,
+                      icon: const Icon(Icons.tag),
+                      tooltip: 'Set tags',
+                    ),
+                  IconButton(
+                    onPressed: _timelineSelection.isBusy ? null : _deleteSelectedTimelineEntries,
                     icon: const Icon(Icons.delete),
                     tooltip: 'Delete selected',
                   ),
@@ -215,23 +225,23 @@ class _HomePageState extends State<HomePage> {
                 key: const ValueKey('task-selection-app-bar'),
                 leading: IconButton(
                   icon: const Icon(Icons.close),
-                  onPressed: _clearTaskRuleSelection,
+                  onPressed: _taskRuleSelection.clear,
                 ),
-                title: Text('${_selectedTaskRules.length} selected'),
+                title: Text('${_taskRuleSelection.length} selected'),
                 actions: [
                   IconButton(
-                    onPressed: _isTaskRuleActionRunning ? null : _setPriorityForSelectedTaskRules,
+                    onPressed: _taskRuleSelection.isBusy ? null : _setPriorityForSelectedTaskRules,
                     icon: const Icon(Icons.traffic),
                     tooltip: 'Set priority',
                   ),
                   if (appSettings.enableTaskTags)
                     IconButton(
-                      onPressed: _isTaskRuleActionRunning ? null : _setTagsForSelectedTaskRules,
+                      onPressed: _taskRuleSelection.isBusy ? null : _setTagsForSelectedTaskRules,
                       icon: const Icon(Icons.tag),
                       tooltip: 'Set tags',
                     ),
                   IconButton(
-                    onPressed: _isTaskRuleActionRunning ? null : _deleteSelectedTaskRules,
+                    onPressed: _taskRuleSelection.isBusy ? null : _deleteSelectedTaskRules,
                     icon: const Icon(Icons.delete),
                     tooltip: 'Delete selected',
                   ),
@@ -312,13 +322,12 @@ class _HomePageState extends State<HomePage> {
               return;
             }
           }
-          setState(() {
-            _currentPageIndex = index;
-            if (index != pageIndex) {
-              _selectedTaskRules.clear();
-              _selectedBikes.clear();
-            }
-          });
+          setState(() => _currentPageIndex = index);
+          if (index != pageIndex) {
+            _taskRuleSelection.clear();
+            _bikeSelection.clear();
+            _timelineSelection.clear();
+          }
         },
         destinations: <Widget>[
           NavigationDestination(
@@ -351,24 +360,22 @@ class _HomePageState extends State<HomePage> {
           children: <Widget>[
             GarageList(
               controller: _garageListController,
-              selectedBikes: _selectedBikes,
-              onBikeSelectionChanged: _isDeletingBikes ? null : _toggleBikeSelection,
+              selectedBikes: _bikeSelection.selected,
+              onBikeSelectionChanged: _bikeSelection.isBusy ? null : _bikeSelection.toggle,
             ),
-            SetupList(controller: _setupListController),
+            SetupList(
+              controller: _setupListController,
+              selection: _timelineSelection.selected,
+              onSelectionChanged: _timelineSelection.isBusy ? null : _timelineSelection.toggle,
+            ),
             if (appSettings.enablePerson) const PersonList(),
             if (appSettings.enableRating) const RatingList(),
             if (appSettings.enableTask)
               TaskList(
                 controller: _taskListController,
-                selectedTaskRules: _selectedTaskRules,
-                onTaskRuleSelectionChanged:
-                    _isCompletingTaskRules || _isSettingTaskRulePriority || _isSettingTaskRuleTags
-                    ? null
-                    : _toggleTaskRuleSelection,
-                onSelectedTaskRulesCompleted:
-                    _isCompletingTaskRules || _isSettingTaskRulePriority || _isSettingTaskRuleTags
-                    ? null
-                    : _completeSelectedTaskRules,
+                selectedTaskRules: _taskRuleSelection.selected,
+                onTaskRuleSelectionChanged: _taskRuleSelection.isBusy ? null : _taskRuleSelection.toggle,
+                onSelectedTaskRulesCompleted: _taskRuleSelection.isBusy ? null : _completeSelectedTaskRules,
               ),
           ],
         ),

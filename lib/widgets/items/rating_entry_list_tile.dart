@@ -9,12 +9,23 @@ import '../../repositories/app_repository.dart';
 import '../../utils/rating_entry_actions.dart';
 import '../notes_text.dart';
 import '../sheets/rating_entry_details.dart';
+import 'timeline_selection_fill.dart';
 
 class RatingEntryListTile extends StatelessWidget {
   final RatingEntry ratingEntry;
+  final bool selectionMode;
+  final bool selected;
+  final VoidCallback? onSelectionChanged;
   final bool showDate;
 
-  const RatingEntryListTile({super.key, required this.ratingEntry, this.showDate = true});
+  const RatingEntryListTile({
+    super.key,
+    required this.ratingEntry,
+    this.selectionMode = false,
+    this.selected = false,
+    this.onSelectionChanged,
+    this.showDate = true,
+  });
 
   Widget _buildStatItem(BuildContext context, String iconText, String text, {bool secondary = false}) {
     return Row(
@@ -59,13 +70,17 @@ class RatingEntryListTile extends StatelessWidget {
     final dateText = DateFormat(appSettings.dateFormat).format(ratingEntry.dateTimeLocal);
     final timeText = DateFormat(appSettings.timeFormat).format(ratingEntry.dateTimeLocal);
 
-    return InkWell(
-      onTap: () => showRatingEntryDetailsSheet(context: context, ratingEntry: ratingEntry),
+    final Widget tile = InkWell(
+      onTap: selectionMode
+          ? onSelectionChanged
+          : () => showRatingEntryDetailsSheet(context: context, ratingEntry: ratingEntry),
+      onLongPress: onSelectionChanged,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ListTile(
+            selected: selected,
             dense: true,
             visualDensity: VisualDensity.compact,
             titleAlignment: ListTileTitleAlignment.top,
@@ -128,7 +143,7 @@ class RatingEntryListTile extends StatelessWidget {
                 ),
               ],
             ),
-            trailing: PopupMenuButton<_RatingEntryOption>(
+            trailing: selectionMode ? null : PopupMenuButton<_RatingEntryOption>(
               onSelected: (option) async {
                 switch (option) {
                   case _RatingEntryOption.edit:
@@ -221,6 +236,8 @@ class RatingEntryListTile extends StatelessWidget {
         ],
       ),
     );
+
+    return TimelineSelectionFill(selected: selected, child: tile);
   }
 }
 

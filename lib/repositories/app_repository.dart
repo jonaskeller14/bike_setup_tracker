@@ -1615,13 +1615,20 @@ class AppRepository extends ChangeNotifier {
     });
   }
 
-  Future<void> editSetup(Setup setup) async {
-    final updated = setup.copyWith(lastModified: DateTime.now().toUtc());
-    await database.setupsDao.updateSetupWithValues(
-      setup: updated.toCompanion(),
-      bikeValues: setup.bikeAdjustmentValues,
-      personValues: setup.personAdjustmentValues,
-    );
+  Future<void> editSetups(Iterable<Setup> setups) async {
+    final setupList = setups.toList();
+    if (setupList.isEmpty) return;
+    final now = DateTime.now().toUtc();
+
+    await database.transaction(() async {
+      for (final setup in setupList) {
+        await database.setupsDao.updateSetupWithValues(
+          setup: setup.copyWith(lastModified: now).toCompanion(),
+          bikeValues: setup.bikeAdjustmentValues,
+          personValues: setup.personAdjustmentValues,
+        );
+      }
+    });
   }
 
   Future<void> reorderRating({required int oldIndex, required int newIndex, required List<Rating> filteredRatingsList}) async {

@@ -14,10 +14,14 @@ import '../lists/adjustment_compact_display/adjustment_compact_display_list.dart
 import 'setup_options_menu.dart';
 import 'setup_tile_header.dart';
 import 'tile_meta_row.dart';
+import 'timeline_selection_fill.dart';
 
 class SetupTileEmbedded extends StatefulWidget {
   final String setupId;
   final VoidCallback? onTap;
+  final bool selectionMode;
+  final bool selected;
+  final VoidCallback? onSelectionChanged;
   final bool displayBikeAdjustmentValues;
   final bool displayPersonAdjustmentValues;
   final bool showDate;
@@ -35,6 +39,9 @@ class SetupTileEmbedded extends StatefulWidget {
     super.key,
     required this.setupId,
     required this.onTap,
+    this.selectionMode = false,
+    this.selected = false,
+    this.onSelectionChanged,
     this.displayBikeAdjustmentValues = true,
     this.displayPersonAdjustmentValues = true,
     this.showDate = true,
@@ -130,6 +137,7 @@ class _SetupTileEmbeddedState extends State<SetupTileEmbedded> {
         metadata: metadataRows,
         badge: badge,
         showSetupIcon: false,
+        selected: widget.selected,
         secondaryMetadata: null,
       ),
     );
@@ -164,7 +172,8 @@ class _SetupTileEmbeddedState extends State<SetupTileEmbedded> {
     final bool hasValues = !_displayOnlyChanges ? summary.hasContent : summary.collapsedHasContent;
 
     return InkWell(
-      onTap: widget.onTap,
+      onTap: widget.selectionMode ? widget.onSelectionChanged : widget.onTap,
+      onLongPress: widget.onSelectionChanged,
       child: Padding(
         padding: const EdgeInsets.only(right: 4),
         child: Stack(
@@ -191,7 +200,7 @@ class _SetupTileEmbeddedState extends State<SetupTileEmbedded> {
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      if (!_displayOnlyChanges) SetupOptionsMenu(setup: setup),
+                      if (!_displayOnlyChanges && !widget.selectionMode) SetupOptionsMenu(setup: setup),
                       Padding(
                         padding: EdgeInsets.only(top: !_displayOnlyChanges ? 0 : _collapsedChevronTop),
                         child: ExpandIcon(
@@ -271,7 +280,10 @@ class _SetupTileEmbeddedState extends State<SetupTileEmbedded> {
       displayPersonAdjustmentValues: displayPerson,
     );
 
-    final Widget content = _buildEmbedded(context, setup, summary, adjustmentList);
+    final Widget content = TimelineSelectionFill(
+      selected: widget.selected,
+      child: _buildEmbedded(context, setup, summary, adjustmentList),
+    );
 
     return setup.isCurrent
         ? CurrentSetupHighlight(

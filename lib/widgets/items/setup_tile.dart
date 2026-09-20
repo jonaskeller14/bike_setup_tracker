@@ -16,10 +16,14 @@ import '../lists/adjustment_compact_display/adjustment_compact_display_list.dart
 import 'setup_options_menu.dart';
 import 'setup_tile_header.dart';
 import 'tile_meta_row.dart';
+import 'timeline_selection_fill.dart';
 
 class SetupTile extends StatefulWidget {
   final String setupId;
   final VoidCallback? onTap;
+  final bool selectionMode;
+  final bool selected;
+  final VoidCallback? onSelectionChanged;
   final bool showDate;
   final bool hidePlace;
 
@@ -35,6 +39,9 @@ class SetupTile extends StatefulWidget {
     super.key,
     required this.setupId,
     required this.onTap,
+    this.selectionMode = false,
+    this.selected = false,
+    this.onSelectionChanged,
     this.showDate = true,
     this.hidePlace = false,
     this.currentBarLeft = 0,
@@ -160,6 +167,7 @@ class _SetupTileState extends State<SetupTile> {
                 metadata: metadataRows,
                 badge: badge,
                 showSetupIcon: true,
+                selected: widget.selected,
                 secondaryMetadata: TileMetaRow(
                   icon: Bike.iconData,
                   text: bikes[setup.bike]?.name ?? "BIKE NOT FOUND",
@@ -168,11 +176,12 @@ class _SetupTileState extends State<SetupTile> {
               ),
             ),
           ),
-          Positioned(
-            top: 0,
-            right: 0,
-            child: SetupOptionsMenu(setup: setup),
-          ),
+          if (!widget.selectionMode)
+            Positioned(
+              top: 0,
+              right: 0,
+              child: SetupOptionsMenu(setup: setup),
+            ),
           if (showInlineExpandIcon)
             Positioned(
               bottom: 0,
@@ -243,7 +252,8 @@ class _SetupTileState extends State<SetupTile> {
     final bool hasValues = _displayOnlyChanges ? summary.collapsedHasContent : summary.hasContent;
 
     final Widget content = InkWell(
-      onTap: widget.onTap,
+      onTap: widget.selectionMode ? widget.onSelectionChanged : widget.onTap,
+      onLongPress: widget.onSelectionChanged,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -273,7 +283,7 @@ class _SetupTileState extends State<SetupTile> {
 
     return Stack(
       children: [
-        row,
+        TimelineSelectionFill(selected: widget.selected, child: row),
         Positioned(
           top: 0,
           right: widget.edgeInset.right + 16 + _bookmarkRight,

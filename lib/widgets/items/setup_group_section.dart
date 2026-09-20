@@ -16,11 +16,17 @@ import 'tile_meta_row.dart';
 class SetupGroupSection extends StatelessWidget {
   final List<String> setupIds;
   final void Function(Setup setup)? onTapSetup;
+  final bool selectionMode;
+  final Set<String> selectedSetupIds;
+  final ValueChanged<String>? onSetupSelectionChanged;
 
   const SetupGroupSection({
     super.key,
     required this.setupIds,
     required this.onTapSetup,
+    this.selectionMode = false,
+    this.selectedSetupIds = const {},
+    this.onSetupSelectionChanged,
   });
 
   Widget _member(BuildContext context, Setup setup, {required bool hidePlace}) {
@@ -28,6 +34,9 @@ class SetupGroupSection extends StatelessWidget {
       key: ValueKey(setup.id),
       setupId: setup.id,
       onTap: onTapSetup == null ? null : () => onTapSetup!(setup),
+      selectionMode: selectionMode,
+      selected: selectedSetupIds.contains(setup.id),
+      onSelectionChanged: onSetupSelectionChanged == null ? null : () => onSetupSelectionChanged!(setup.id),
       showDate: false,
       hidePlace: hidePlace,
     );
@@ -47,6 +56,11 @@ class SetupGroupSection extends StatelessWidget {
       return SetupTile(
         setupId: setups.first.id,
         onTap: onTapSetup == null ? null : () => onTapSetup!(setups.first),
+        selectionMode: selectionMode,
+        selected: selectedSetupIds.contains(setups.first.id),
+        onSelectionChanged: onSetupSelectionChanged == null
+            ? null
+            : () => onSetupSelectionChanged!(setups.first.id),
         showDate: false,
       );
     }

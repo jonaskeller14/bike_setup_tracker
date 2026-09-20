@@ -8,6 +8,7 @@ import '../../models/setup.dart';
 import '../../models/strava/strava_activity.dart';
 import '../../models/timeline_entry.dart';
 import '../../models/timeline_row.dart';
+import '../../models/timeline_selection.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/setup_actions.dart';
@@ -20,8 +21,15 @@ import 'list_scroll_controller.dart';
 
 class SetupList extends StatelessWidget {
   final ListScrollController? controller;
+  final Set<TimelineSelectionId> selection;
+  final ValueChanged<TimelineSelectionId>? onSelectionChanged;
 
-  const SetupList({super.key, this.controller});
+  const SetupList({
+    super.key,
+    this.controller,
+    this.selection = const {},
+    this.onSelectionChanged,
+  });
 
   bool _hasActiveFilters(AppRepository appRepository, AppSettings appSettings) {
     return appRepository.selectedBike != null ||
@@ -218,6 +226,8 @@ class SetupList extends StatelessWidget {
                 appRepository: appRepository,
                 lazyLoadTriggerIds: lazyLoadTriggerIds,
                 setupsList: setupsList,
+                selection: selection,
+                onSelectionChanged: onSelectionChanged,
               ),
             );
           },

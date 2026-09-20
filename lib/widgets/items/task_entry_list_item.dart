@@ -12,6 +12,7 @@ import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/task_actions.dart';
 import '../notes_text.dart';
+import 'timeline_selection_fill.dart';
 
 class TaskEntryListItem extends StatefulWidget {
   final String taskEntryId;
@@ -99,12 +100,8 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
         taskEntry.association is! GeneralTaskAssociation;
     final hasBottomBlock = showLinkWarning || hasNotes || resolvedShowStats;
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 180),
-      curve: Curves.easeOut,
-      decoration: BoxDecoration(
-        color: widget.selected ? colorScheme.primaryContainer.withValues(alpha: 0.55) : Colors.transparent,
-      ),
+    return TimelineSelectionFill(
+      selected: widget.selected,
       child: Material(
         color: Colors.transparent,
         child: InkWell(

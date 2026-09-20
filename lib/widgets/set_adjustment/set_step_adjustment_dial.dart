@@ -5,10 +5,20 @@ import 'package:flutter/material.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 
-Color resolveDialColor(BuildContext context, StepAdjustmentDialColor color) {
+/// [surfaceBrightness] overrides the theme brightness for dials drawn on a
+/// surface that inverts it (tooltips), where the themed palette would lose
+/// contrast.
+Color resolveDialColor(
+  BuildContext context,
+  StepAdjustmentDialColor color, {
+  Brightness? surfaceBrightness,
+}) {
   final theme = Theme.of(context);
-  final palette = theme.extension<DialColors>() ??
-      (theme.brightness == Brightness.dark ? DialColors.dark : DialColors.light);
+  final brightness = surfaceBrightness ?? theme.brightness;
+  final fallback = brightness == Brightness.dark ? DialColors.dark : DialColors.light;
+  final palette = brightness == theme.brightness
+      ? theme.extension<DialColors>() ?? fallback
+      : fallback;
   return switch (color) {
     StepAdjustmentDialColor.blue => palette.blue,
     StepAdjustmentDialColor.red => palette.red,

@@ -218,7 +218,15 @@ class AdjustmentProperties extends StatelessWidget {
           Text('', style: TextStyle(color: fgColor, fontSize: _font)),
           RotaryKnob.glyph(
             key: const ValueKey('AdjustmentPropertiesDial'),
-            primaryColor: resolveDialColor(context, dialColor),
+            primaryColor: resolveDialColor(
+              context,
+              dialColor,
+              // These chips also render on inverted surfaces (tooltips), where
+              // only the foreground color reveals how light the backdrop is.
+              surfaceBrightness: ThemeData.estimateBrightnessForColor(fgColor) == Brightness.light
+                  ? Brightness.dark
+                  : Brightness.light,
+            ),
             diameter: _dial,
           ),
         ],

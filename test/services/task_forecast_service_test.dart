@@ -50,7 +50,7 @@ void main() {
         // 200 km over 10 days = 20 km/day, with 200 km still to go.
         final forecast = TaskForecastService.predict(
           rule: rule,
-          currentStats: ComponentStats.zero().copyWith(distance: 100000),
+          currentStats: ComponentStats.zero.copyWith(distance: 100000),
           now: now,
           bikeRates: {bikeId: window(distance: 200000)},
         );
@@ -64,7 +64,7 @@ void main() {
         // 150 km remaining at 20 km/day = 7.5 days.
         final forecast = TaskForecastService.predict(
           rule: rule,
-          currentStats: ComponentStats.zero().copyWith(distance: 150000),
+          currentStats: ComponentStats.zero.copyWith(distance: 150000),
           now: now,
           bikeRates: {bikeId: window(distance: 200000)},
         );
@@ -78,13 +78,13 @@ void main() {
           taskRule: rule.id,
           dateTimeUTC: now.subtract(const Duration(days: 5)),
           dateTimeLocal: now.subtract(const Duration(days: 5)),
-          snapshot: ComponentStats.zero().copyWith(distance: 500000),
+          snapshot: ComponentStats.zero.copyWith(distance: 500000),
         );
 
         // 600 km on the clock, 500 km at the last wax: 100 km done, 200 km to go.
         final forecast = TaskForecastService.predict(
           rule: rule,
-          currentStats: ComponentStats.zero().copyWith(distance: 600000),
+          currentStats: ComponentStats.zero.copyWith(distance: 600000),
           now: now,
           bikeRates: {bikeId: window(distance: 200000)},
           lastEntry: entry,
@@ -98,7 +98,7 @@ void main() {
         // calendar time for the sample, so 10 km/day and 200 km still to go.
         final forecast = TaskForecastService.predict(
           rule: rule,
-          currentStats: ComponentStats.zero().copyWith(distance: 100000),
+          currentStats: ComponentStats.zero.copyWith(distance: 100000),
           now: now,
           bikeRates: {bikeId: window(distance: 200000, idle: const Duration(days: 10))},
         );
@@ -112,7 +112,7 @@ void main() {
         // 350 km target, 100 km done: 250 km at 20 km/day = 12.5 days.
         final forecast = TaskForecastService.predict(
           rule: delayed,
-          currentStats: ComponentStats.zero().copyWith(distance: 100000),
+          currentStats: ComponentStats.zero.copyWith(distance: 100000),
           now: now,
           bikeRates: {bikeId: window(distance: 200000)},
         );
@@ -137,7 +137,7 @@ void main() {
       }) {
         return TaskForecastService.predict(
           rule: rule,
-          currentStats: currentStats ?? ComponentStats.zero(),
+          currentStats: currentStats ?? ComponentStats.zero,
           now: now,
           bikeRates: bikeRates ?? {bikeId: window(distance: 200000)},
           lastEntry: lastEntry,
@@ -154,11 +154,11 @@ void main() {
       });
 
       test('Rule that is already due', () {
-        expect(predictFor(rule: rule, currentStats: ComponentStats.zero().copyWith(distance: 300000)), isNull);
+        expect(predictFor(rule: rule, currentStats: ComponentStats.zero.copyWith(distance: 300000)), isNull);
       });
 
       test('Rule that is overdue', () {
-        expect(predictFor(rule: rule, currentStats: ComponentStats.zero().copyWith(distance: 400000)), isNull);
+        expect(predictFor(rule: rule, currentStats: ComponentStats.zero.copyWith(distance: 400000)), isNull);
       });
 
       test('Completed one-off rule', () {
@@ -167,7 +167,7 @@ void main() {
           taskRule: rule.id,
           dateTimeUTC: now,
           dateTimeLocal: now,
-          snapshot: ComponentStats.zero(),
+          snapshot: ComponentStats.zero,
         );
         expect(predictFor(rule: rule.copyWith(repeat: false), lastEntry: entry), isNull);
       });
@@ -239,7 +239,7 @@ void main() {
       test('A component forecasts at the rate of the bike it is on', () {
         final forecast = TaskForecastService.predict(
           rule: rule,
-          currentStats: ComponentStats.zero(),
+          currentStats: ComponentStats.zero,
           now: now,
           bikeRates: rates,
           componentBikeId: 'bike-slow',
@@ -251,7 +251,7 @@ void main() {
       test('A component just moved to a busier bike forecasts at the new rate', () {
         final forecast = TaskForecastService.predict(
           rule: rule,
-          currentStats: ComponentStats.zero(),
+          currentStats: ComponentStats.zero,
           now: now,
           bikeRates: rates,
           componentBikeId: 'bike-fast',
@@ -263,7 +263,7 @@ void main() {
       test('A component that is not on a bike accrues nothing and gets no forecast', () {
         final forecast = TaskForecastService.predict(
           rule: rule,
-          currentStats: ComponentStats.zero(),
+          currentStats: ComponentStats.zero,
           now: now,
           bikeRates: rates,
         );
@@ -283,7 +283,7 @@ void main() {
 
         final forecast = TaskForecastService.predict(
           rule: rule,
-          currentStats: ComponentStats.zero(),
+          currentStats: ComponentStats.zero,
           now: now,
           bikeRates: const {},
           componentInstallationDate: now.subtract(const Duration(days: 10, hours: 6)),
@@ -303,7 +303,7 @@ void main() {
 
         final forecast = TaskForecastService.predict(
           rule: rule,
-          currentStats: ComponentStats.zero(),
+          currentStats: ComponentStats.zero,
           now: now,
           bikeRates: const {},
         );
@@ -323,7 +323,7 @@ void main() {
 
         final forecast = TaskForecastService.predict(
           rule: rule,
-          currentStats: ComponentStats.zero(),
+          currentStats: ComponentStats.zero,
           now: now,
           bikeRates: const {},
         );
@@ -341,7 +341,7 @@ void main() {
         expect(
           TaskForecastService.predict(
             rule: rule,
-            currentStats: ComponentStats.zero(),
+            currentStats: ComponentStats.zero,
             now: now,
             bikeRates: const {},
           ),
@@ -360,7 +360,7 @@ void main() {
 
         final forecast = TaskForecastService.predict(
           rule: rule,
-          currentStats: ComponentStats.zero(),
+          currentStats: ComponentStats.zero,
           now: now,
           bikeRates: {bikeId: window(count: 5)},
         );
@@ -379,7 +379,7 @@ void main() {
 
         final forecast = TaskForecastService.predict(
           rule: rule,
-          currentStats: ComponentStats.zero(),
+          currentStats: ComponentStats.zero,
           now: now,
           bikeRates: {bikeId: window(movingTime: const Duration(hours: 10))},
         );
@@ -398,7 +398,7 @@ void main() {
 
         final forecast = TaskForecastService.predict(
           rule: rule,
-          currentStats: ComponentStats.zero(),
+          currentStats: ComponentStats.zero,
           now: now,
           bikeRates: {bikeId: window(elevationGain: 10000)},
         );

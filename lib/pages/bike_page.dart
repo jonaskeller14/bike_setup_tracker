@@ -79,7 +79,7 @@ class _BikePageState extends State<BikePage> {
     _initialStravaGear = widget.bike?.stravaGear;
     _stravaGear = _initialStravaGear;
 
-    _initialStats = widget.bike?.initialStats ?? ComponentStats.zero();
+    _initialStats = widget.bike?.initialStats ?? ComponentStats.zero;
 
     if (widget.mode != BikePageMode.add) _expanded = true;
   }
@@ -89,7 +89,7 @@ class _BikePageState extends State<BikePage> {
         _notesController.text.trim() != (widget.bike?.notes ?? '') ||
         _person != _initialPerson || 
         _stravaGear != _initialStravaGear ||
-        _initialStats != (widget.bike?.initialStats ?? ComponentStats.zero());
+        _initialStats != (widget.bike?.initialStats ?? ComponentStats.zero);
     if (_formHasChanges != hasChanges) {
       setState(() {
         _formHasChanges = hasChanges;
@@ -254,7 +254,7 @@ class _BikePageState extends State<BikePage> {
     return FilterChip(
       avatar: const Icon(Icons.start),
       showCheckmark: false,
-      selected: widget.mode != BikePageMode.edit && _initialStats != ComponentStats.zero(),
+      selected: widget.mode != BikePageMode.edit && _initialStats != ComponentStats.zero,
       label: Text(
         summary == null ? "Initial Stats" : "Initial: $summary",
         overflow: TextOverflow.ellipsis,

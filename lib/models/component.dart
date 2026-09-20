@@ -67,11 +67,9 @@ class Component {
     this.presetKey,
     this.presetDamperKey,
     List<Adjustment>? adjustments,
-    ComponentStats? initialStats,
-    ComponentStats? totalStats,
+    this.initialStats = ComponentStats.zero,
+    this.totalStats = ComponentStats.zero,
   }) : adjustments = adjustments ?? [],
-       initialStats = initialStats ?? ComponentStats.zero(),
-       totalStats = totalStats ?? ComponentStats.zero(),
        id = id ?? const Uuid().v4(),
        isDeleted = isDeleted ?? false,
        lastModified = lastModified?.toUtc() ?? DateTime.now().toUtc();

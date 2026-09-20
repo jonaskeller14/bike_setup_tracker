@@ -38,7 +38,7 @@ void main() {
         "lastModified": "2025-12-10T22:03:34.833974",
         "name": "Raaw Madonna V2.2",
       });
-      expect(bike.initialStats, ComponentStats.zero());
+      expect(bike.initialStats, ComponentStats.zero);
     });
 
     test("Version 5: fromJson() / toJson() roundtrips initialStats", () {

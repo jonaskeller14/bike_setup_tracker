@@ -30,7 +30,7 @@ class Bike {
     : id = id ?? const Uuid().v4(),
       isDeleted = isDeleted ?? false,
       lastModified = lastModified?.toUtc() ?? DateTime.now().toUtc(),
-      initialStats = initialStats ?? ComponentStats.zero();
+      initialStats = initialStats ?? ComponentStats.zero;
 
   Map<String, dynamic> toJson() => {
     'version': 5,

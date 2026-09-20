@@ -274,7 +274,7 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
                         Builder(
                           builder: (context) {
                             final isInitial = widget.previousSnapshot == null;
-                            final effectivePrevious = widget.previousSnapshot ?? ComponentStats.zero();
+                            final effectivePrevious = widget.previousSnapshot ?? ComponentStats.zero;
                             final delta = taskEntry.snapshot! - effectivePrevious;
                             final stats = (!isInitial && !_showDelta) ? taskEntry.snapshot! : delta;
                             final label = (!isInitial && !_showDelta) ? "Σ" : (isInitial ? "Σ" : "+");

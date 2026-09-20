@@ -449,7 +449,7 @@ void main() {
         name: "Chain",
         componentType: ComponentType.chain,
         installations: [Installation.sinceBeginning(parent: bike.id)],
-        initialStats: ComponentStats.zero(),
+        initialStats: ComponentStats.zero,
       );
       await repository.addComponents([component]);
 

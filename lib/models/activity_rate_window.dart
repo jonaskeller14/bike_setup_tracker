@@ -54,7 +54,7 @@ class ActivityRateWindow {
 
   TaskProgressContext get _asProgress => TaskProgressContext(
     currentStats: sum,
-    baselineStats: ComponentStats.zero(),
+    baselineStats: ComponentStats.zero,
     now: lastStart,
     baselineDate: firstStart,
   );

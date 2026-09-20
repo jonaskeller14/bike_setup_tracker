@@ -140,7 +140,7 @@ class _ComponentPageState extends State<ComponentPage> {
     _notesController.addListener(_changeListener);
 
     final appSettings = context.read<AppSettings>();
-    _initialStats = widget.component?.initialStats ?? ComponentStats.zero();
+    _initialStats = widget.component?.initialStats ?? ComponentStats.zero;
 
     if (widget.mode != ComponentPageMode.add) _expanded = true;
 
@@ -171,7 +171,7 @@ class _ComponentPageState extends State<ComponentPage> {
         _componentType != _initialComponentType ||
         !listEquals(_installations, _initialInstallations) ||
         !listEquals(_adjustments, _initialAdjustments) ||
-        _initialStats != (widget.component?.initialStats ?? ComponentStats.zero());
+        _initialStats != (widget.component?.initialStats ?? ComponentStats.zero);
 
     if (_formHasChanges != hasChanges) {
       setState(() {
@@ -595,7 +595,7 @@ class _ComponentPageState extends State<ComponentPage> {
     return FilterChip(
       avatar: const Icon(Icons.start),
       showCheckmark: false,
-      selected: widget.mode != ComponentPageMode.edit && _initialStats != ComponentStats.zero(),
+      selected: widget.mode != ComponentPageMode.edit && _initialStats != ComponentStats.zero,
       label: Text(
         summary == null ? "Initial Stats" : "Initial: $summary",
         overflow: TextOverflow.ellipsis,

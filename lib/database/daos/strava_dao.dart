@@ -458,7 +458,7 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
     );
 
     final row = await query.getSingleOrNull();
-    if (row == null) return ComponentStats.zero();
+    if (row == null) return ComponentStats.zero;
 
     return ComponentStats(
       distance: row.read<double>('distance'),
@@ -496,7 +496,7 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
     );
 
     final row = await query.getSingleOrNull();
-    if (row == null) return ComponentStats.zero();
+    if (row == null) return ComponentStats.zero;
 
     return ComponentStats(
       distance: row.read<double>('distance'),

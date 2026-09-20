@@ -675,7 +675,7 @@ class AppRepository extends ChangeNotifier {
     } else if (bikeId != null) {
       return database.stravaDao.getBikeStatsAt(bikeId, date);
     }
-    return ComponentStats.zero();
+    return ComponentStats.zero;
   }
 
   /// Reads from the DB, not the in-memory `_taskEntries` cache: (1) the cache
@@ -726,9 +726,9 @@ class AppRepository extends ChangeNotifier {
     }
 
     final stats = switch (rule.association) {
-      ComponentTaskAssociation(:final id) => _componentStats[id] ?? _components[id]?.initialStats ?? ComponentStats.zero(),
-      BikeTaskAssociation(:final id) => _bikeStats[id] ?? _bikes[id]?.initialStats ?? ComponentStats.zero(),
-      GeneralTaskAssociation() => ComponentStats.zero(),
+      ComponentTaskAssociation(:final id) => _componentStats[id] ?? _components[id]?.initialStats ?? ComponentStats.zero,
+      BikeTaskAssociation(:final id) => _bikeStats[id] ?? _bikes[id]?.initialStats ?? ComponentStats.zero,
+      GeneralTaskAssociation() => ComponentStats.zero,
     };
 
     return (

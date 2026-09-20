@@ -250,7 +250,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (appSettings.enableStrava && subscriptionService.hasStravaEntitlement) ...[
-                ComponentStatsCard(componentStats: component.totalStats),
+                ComponentStatsCard(componentStats: appRepository.componentStatsOf(component.id)),
                 const Divider(height: 1),
               ],
 

@@ -25,12 +25,11 @@ class Bike {
     required this.person,
     this.stravaGear,
     this.orderIndex = 0,
-    ComponentStats? initialStats,
+    this.initialStats = ComponentStats.zero,
   })
     : id = id ?? const Uuid().v4(),
       isDeleted = isDeleted ?? false,
-      lastModified = lastModified?.toUtc() ?? DateTime.now().toUtc(),
-      initialStats = initialStats ?? ComponentStats.zero;
+      lastModified = lastModified?.toUtc() ?? DateTime.now().toUtc();
 
   Map<String, dynamic> toJson() => {
     'version': 5,
@@ -59,7 +58,7 @@ class Bike {
           person: json['person'] as String?, // = null
           stravaGear: json['stravaGear'] as String?, // = null
           orderIndex: json['orderIndex'] as int? ?? 0,
-          initialStats: initialStats == null ? null : ComponentStats.fromJson(initialStats),
+          initialStats: initialStats == null ? ComponentStats.zero : ComponentStats.fromJson(initialStats),
         );
       default: throw Exception("Json Version $version of Bike incompatible.");
     }

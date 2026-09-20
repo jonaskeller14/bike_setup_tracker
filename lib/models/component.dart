@@ -20,7 +20,6 @@ class Component {
   final String? notes;
   final int orderIndex;
   final ComponentStats initialStats;
-  final ComponentStats totalStats;
   final String? presetKey;
   final String? presetDamperKey;
 
@@ -68,7 +67,6 @@ class Component {
     this.presetDamperKey,
     List<Adjustment>? adjustments,
     this.initialStats = ComponentStats.zero,
-    this.totalStats = ComponentStats.zero,
   }) : adjustments = adjustments ?? [],
        id = id ?? const Uuid().v4(),
        isDeleted = isDeleted ?? false,
@@ -83,7 +81,6 @@ class Component {
       orderIndex: orderIndex,
       adjustments: adjustments.map((a) => a.deepCopy()).toList(),
       initialStats: initialStats,
-      totalStats: totalStats,
       presetKey: presetKey,
       presetDamperKey: presetDamperKey,
     );
@@ -108,7 +105,6 @@ class Component {
     Object? installations = const _Sentinel(),
     Object? orderIndex = const _Sentinel(),
     Object? initialStats = const _Sentinel(),
-    Object? totalStats = const _Sentinel(),
     Object? presetKey = const _Sentinel(),
     Object? presetDamperKey = const _Sentinel(),
   }) {
@@ -143,9 +139,6 @@ class Component {
       initialStats: initialStats is _Sentinel
           ? this.initialStats
           : (initialStats as ComponentStats),
-      totalStats: totalStats is _Sentinel
-          ? this.totalStats
-          : (totalStats as ComponentStats),
       presetKey: presetKey is _Sentinel
           ? this.presetKey
           : (presetKey as String?),
@@ -245,7 +238,6 @@ class Component {
         notes == other.notes &&
         listEquals(adjustments, other.adjustments) &&
         initialStats == other.initialStats &&
-        totalStats == other.totalStats &&
         presetKey == other.presetKey &&
         presetDamperKey == other.presetDamperKey;
   }
@@ -262,7 +254,6 @@ class Component {
       notes,
       Object.hashAll(adjustments),
       initialStats,
-      totalStats,
       presetKey,
       presetDamperKey,
     );

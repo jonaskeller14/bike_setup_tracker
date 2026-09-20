@@ -128,6 +128,7 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
 
   DropdownMenuItem<String> _componentDropdownItem(Component component, {required bool showStrava, required AppSettings appSettings}) {
     final cs = Theme.of(context).colorScheme;
+    final stats = context.read<AppRepository>().componentStatsOf(component.id);
 
     return DropdownMenuItem<String>(
       value: component.id,
@@ -146,7 +147,7 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
                   children: [
                     Icon(Icons.route, size: 11, color: cs.onSurfaceVariant),
                     Text(
-                      '${NumberFormat.decimalPattern().format(AppSettings.convertDistanceFromMeters(component.totalStats.distance, appSettings.distanceUnit)!.round())} ${appSettings.distanceUnit}',
+                      '${NumberFormat.decimalPattern().format(AppSettings.convertDistanceFromMeters(stats.distance, appSettings.distanceUnit)!.round())} ${appSettings.distanceUnit}',
                       style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
                     ),
                   ],
@@ -156,7 +157,7 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
                   children: [
                     Icon(Icons.timer_outlined, size: 11, color: cs.onSurfaceVariant),
                     Text(
-                      '${component.totalStats.movingTime.inHours}h ${component.totalStats.movingTime.inMinutes.remainder(60)}m',
+                      '${stats.movingTime.inHours}h ${stats.movingTime.inMinutes.remainder(60)}m',
                       style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
                     ),
                   ],

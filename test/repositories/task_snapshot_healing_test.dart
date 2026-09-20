@@ -695,7 +695,7 @@ void main() {
       expect(repository.taskEntries[bikeEntry.id]?.snapshot?.activityCount, 11);
       expect(repository.taskEntries[componentEntry.id]?.snapshot?.distance, 600000.0);
       expect(repository.bikeStats[bike.id]?.distance, 600000.0);
-      expect(repository.components[component.id]?.totalStats.distance, 600000.0);
+      expect(repository.componentStatsOf(component.id).distance, 600000.0);
     });
   });
 

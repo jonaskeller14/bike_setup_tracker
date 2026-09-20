@@ -38,6 +38,7 @@ class ComponentListCard extends StatelessWidget{
     final appRepository = context.watch<AppRepository>();
     final subscriptionService = context.watch<SubscriptionService>();
     final bikes = appRepository.bikes;
+    final stats = appRepository.componentStatsOf(component.id);
 
     TaskStatusType? indicatorStatus;
     if (appSettings.enableTask && appSettings.enableGarageTaskIndicator) {
@@ -144,19 +145,19 @@ class ComponentListCard extends StatelessWidget{
                       children: [
                         _StatItem(
                           icon: Icons.route,
-                          label: '${NumberFormat.decimalPattern().format(AppSettings.convertDistanceFromMeters(component.totalStats.distance, appSettings.distanceUnit)!.round())} ${appSettings.distanceUnit}',
+                          label: '${NumberFormat.decimalPattern().format(AppSettings.convertDistanceFromMeters(stats.distance, appSettings.distanceUnit)!.round())} ${appSettings.distanceUnit}',
                         ),
                         _StatItem(
                           icon: Icons.terrain,
-                          label: '${NumberFormat.decimalPattern().format(AppSettings.convertElevationFromMeters(component.totalStats.elevationGain, appSettings.altitudeUnit)!.round())} ${appSettings.altitudeUnit}',
+                          label: '${NumberFormat.decimalPattern().format(AppSettings.convertElevationFromMeters(stats.elevationGain, appSettings.altitudeUnit)!.round())} ${appSettings.altitudeUnit}',
                         ),
                         _StatItem(
                           icon: Icons.timer_outlined,
-                          label: '${NumberFormat.decimalPattern().format(component.totalStats.movingTime.inHours)}h ${component.totalStats.movingTime.inMinutes.remainder(60)}m',
+                          label: '${NumberFormat.decimalPattern().format(stats.movingTime.inHours)}h ${stats.movingTime.inMinutes.remainder(60)}m',
                         ),
                         _StatItem(
                           icon: Icons.repeat,
-                          label: '${component.totalStats.activityCount}',
+                          label: '${stats.activityCount}',
                         ),
                       ],
                     ),

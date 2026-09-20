@@ -151,6 +151,11 @@ class AppRepository extends ChangeNotifier {
   Map<String, StravaGear> get stravaGears => _stravaGears;
   Map<String, ComponentStats> get componentStats => _componentStats;
   Map<String, ComponentStats> get bikeStats => _bikeStats;
+
+  ComponentStats componentStatsOf(String componentId) =>
+      _componentStats[componentId] ??
+      _components[componentId]?.initialStats ??
+      ComponentStats.zero;
   Map<String, ActivityRateWindow> get bikeActivityRates => _bikeActivityRates;
   Map<String, dynamic> get currentAdjustmentValues => _currentAdjustmentValues;
 
@@ -357,14 +362,6 @@ class AppRepository extends ChangeNotifier {
     );
     _setups = result.setups;
     _currentAdjustmentValues = result.globalState;
-
-    // Apply component stats
-    _components = {
-      for (var entry in _components.entries)
-        entry.key: entry.value.copyWith(
-          totalStats: _componentStats[entry.key] ?? entry.value.initialStats,
-        )
-    };
 
     _setupTags = SetupResolutionService.extractAllTags(_setups.values);
     _taskRuleTags = _taskRules.values.map((tr) => tr.tags).expand((tags) => tags).toSet();
@@ -726,7 +723,7 @@ class AppRepository extends ChangeNotifier {
     }
 
     final stats = switch (rule.association) {
-      ComponentTaskAssociation(:final id) => _componentStats[id] ?? _components[id]?.initialStats ?? ComponentStats.zero,
+      ComponentTaskAssociation(:final id) => componentStatsOf(id),
       BikeTaskAssociation(:final id) => _bikeStats[id] ?? _bikes[id]?.initialStats ?? ComponentStats.zero,
       GeneralTaskAssociation() => ComponentStats.zero,
     };

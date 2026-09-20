@@ -1,5 +1,10 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
@@ -7,6 +12,7 @@ import 'package:url_launcher/url_launcher_string.dart';
 
 import '../env/env.dart';
 import '../models/app_settings.dart';
+import '../models/context/context_position.dart';
 import '../models/strava/strava_activity.dart';
 import '../repositories/app_repository.dart';
 import '../services/location_service.dart';
@@ -20,8 +26,9 @@ import '../widgets/sheets/strava_activity.dart';
 
 class MapPage extends StatefulWidget {
   final LocationService? locationService;
+  final Stream<LocationMarkerHeading?>? headingStream;
 
-  const MapPage({super.key, this.locationService});
+  const MapPage({super.key, this.locationService, this.headingStream});
 
   @override
   State<MapPage> createState() => _MapPageState();
@@ -32,7 +39,12 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
   late final LocationService _locationService;
   late final bool _ownsLocationService;
   AnimationController? _mapMoveController;
+  AnimationController? _mapRotateController;
   LatLng? _userLocation;
+  late final Stream<LocationMarkerPosition> _markerPositions;
+  late final Stream<LocationMarkerHeading?> _headings;
+  StreamSubscription<MapEvent>? _mapEventSubscription;
+  final ValueNotifier<double> _rotation = ValueNotifier<double>(0);
 
   @override
   void initState() {
@@ -40,6 +52,29 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
     _ownsLocationService = widget.locationService == null;
     _locationService = widget.locationService ?? LocationService();
     _locationService.addListener(_locationStatusChanged);
+    // Built once: CurrentLocationLayer resubscribes whenever the stream
+    // identity changes, and this page rebuilds on every repository change.
+    _markerPositions = _locationService.positionStream
+        .where((position) => ContextPosition.hasValidCoordinateChange(null, position))
+        .map(
+          (position) => LocationMarkerPosition(
+            latitude: position.latitude!,
+            longitude: position.longitude!,
+            accuracy: position.accuracy ?? 0,
+          ),
+        );
+    // flutter_rotation_sensor 0.2.0 starts Core Motion without a north
+    // reference, so on iOS the azimuth is offset by an arbitrary constant and
+    // the heading cone points the wrong way. Leave it off there. The fix needs
+    // flutter_map_location_marker 10.3.0, which requires AGP 9.
+    _headings =
+        widget.headingStream ??
+        (defaultTargetPlatform == TargetPlatform.iOS
+            ? const Stream<LocationMarkerHeading?>.empty()
+            : const LocationMarkerDataStreamFactory().fromRotationSensorHeadingStream());
+    _mapEventSubscription = _mapController.mapEventStream.listen(
+      (_) => _rotation.value = _mapController.camera.rotation,
+    );
   }
 
   void _locationStatusChanged() {
@@ -49,10 +84,19 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
   @override
   void dispose() {
     _locationService.removeListener(_locationStatusChanged);
+    _locationService.stopPositionUpdates();
     if (_ownsLocationService) _locationService.dispose();
+    unawaited(_mapEventSubscription?.cancel());
+    _rotation.dispose();
     _mapMoveController?.dispose();
+    _mapRotateController?.dispose();
     _mapController.dispose();
     super.dispose();
+  }
+
+  static double _rotationOffNorth(double rotation) {
+    final normalized = rotation % 360;
+    return normalized > 180 ? normalized - 360 : normalized;
   }
 
   Future<void> _animatedMapMove(LatLng destLocation, double destZoom) async {
@@ -87,24 +131,40 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
     }
   }
 
+  Future<void> _animatedMapRotate(double destRotation) async {
+    final rotationTween = Tween<double>(begin: _mapController.camera.rotation, end: destRotation);
+
+    _mapRotateController?.dispose();
+    final controller = AnimationController(duration: const Duration(milliseconds: 500), vsync: this);
+    _mapRotateController = controller;
+    final Animation<double> animation = CurvedAnimation(parent: controller, curve: Curves.fastOutSlowIn);
+
+    controller.addListener(() => _mapController.rotate(rotationTween.evaluate(animation)));
+
+    animation.addStatusListener((status) {
+      if (status == AnimationStatus.completed || status == AnimationStatus.dismissed) {
+        controller.dispose();
+        if (identical(_mapRotateController, controller)) _mapRotateController = null;
+      }
+    });
+
+    try {
+      await controller.forward().orCancel;
+    } on TickerCanceled {
+      // The page was disposed while the map was rotating.
+    }
+  }
+
   Future<void> _locateMe() async {
     if (_locationService.status == LocationStatus.searching) return;
 
     final position = await _locationService.fetchLocation();
     if (!mounted) return;
 
-    final latitude = position?.latitude;
-    final longitude = position?.longitude;
-    if (latitude != null &&
-        longitude != null &&
-        latitude.isFinite &&
-        longitude.isFinite &&
-        latitude >= -90 &&
-        latitude <= 90 &&
-        longitude >= -180 &&
-        longitude <= 180) {
-      final userLocation = LatLng(latitude, longitude);
+    if (ContextPosition.hasValidCoordinateChange(null, position)) {
+      final userLocation = LatLng(position!.latitude!, position.longitude!);
       setState(() => _userLocation = userLocation);
+      _locationService.startPositionUpdates();
       await _animatedMapMove(userLocation, 15);
       return;
     }
@@ -150,6 +210,45 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
     );
   }
 
+  static Widget _compassTransition(Widget child, Animation<double> animation) {
+    return FadeTransition(
+      opacity: animation,
+      child: ScaleTransition(
+        scale: Tween<double>(begin: 0.9, end: 1).animate(animation),
+        child: child,
+      ),
+    );
+  }
+
+  Widget _compassButton() {
+    return ValueListenableBuilder<double>(
+      valueListenable: _rotation,
+      builder: (context, rotation, _) {
+        final offNorth = _rotationOffNorth(rotation);
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 220),
+          reverseDuration: const Duration(milliseconds: 160),
+          switchInCurve: Curves.easeOutCubic,
+          switchOutCurve: Curves.easeInCubic,
+          transitionBuilder: _compassTransition,
+          child: offNorth.abs() <= 0.5
+              ? const SizedBox.shrink()
+              : _mapControlButton(
+                  key: const Key('map-compass'),
+                  icon: Transform.rotate(
+                    angle: -_mapController.camera.rotationRad,
+                    child: const Icon(Icons.navigation),
+                  ),
+                  onPressed: () {
+                    unawaited(HapticFeedback.selectionClick());
+                    unawaited(_animatedMapRotate(rotation - offNorth));
+                  },
+                ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
@@ -163,29 +262,7 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
       future: appRepository.getFilteredStravaActivitiesWithPosition(),
       builder: (context, snapshot) {
         final stravaActivities = snapshot.data ?? [];
-
-        final Marker? userLocationMarker = _userLocation == null
-            ? null
-            : Marker(
-                point: _userLocation!,
-                width: 20,
-                height: 20,
-                child: Container(
-                  key: const Key('map-user-location-marker'),
-                  decoration: BoxDecoration(
-                    color: Colors.blue,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
-                    boxShadow: const [
-                      BoxShadow(
-                        blurRadius: 6,
-                        color: Colors.black26,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                ),
-              );
+        final scheme = Theme.of(context).colorScheme;
 
         final List<Marker> clusterMarkers = [
           if (appSettings.displayShowSetups)
@@ -244,9 +321,10 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                 ),
         ];
 
-        final List<Marker> markers = [
-          ?userLocationMarker,
-          ...clusterMarkers,
+        // Only used for camera fitting; the live marker draws itself.
+        final List<LatLng> fitPoints = [
+          ?_userLocation,
+          ...clusterMarkers.map((marker) => marker.point),
         ];
 
         return Scaffold(
@@ -275,12 +353,11 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                   ),
                   interactionOptions: const InteractionOptions(
                     flags: InteractiveFlag.all,
+                    enableMultiFingerGestureRace: true,
                   ),
-                  initialCameraFit: markers.isNotEmpty
+                  initialCameraFit: fitPoints.isNotEmpty
                       ? CameraFit.bounds(
-                          bounds: LatLngBounds.fromPoints(
-                            markers.map((m) => m.point).toList(),
-                          ),
+                          bounds: LatLngBounds.fromPoints(fitPoints),
                           padding: const EdgeInsets.all(50),
                           maxZoom: 17,
                         )
@@ -377,7 +454,18 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                       },
                     ),
                   ),
-                  if (userLocationMarker != null) MarkerLayer(markers: [userLocationMarker]),
+                  CurrentLocationLayer(
+                    positionStream: _markerPositions,
+                    headingStream: _headings,
+                    style: LocationMarkerStyle(
+                      marker: DefaultLocationMarker(
+                        key: const Key('map-user-location-marker'),
+                        color: scheme.primary,
+                      ),
+                      accuracyCircleColor: scheme.primary.withValues(alpha: 0.15),
+                      headingSectorColor: scheme.primary.withValues(alpha: 0.7),
+                    ),
+                  ),
                   RichAttributionWidget(
                     alignment: AttributionAlignment.bottomLeft,
                     showFlutterMapAttribution: false,
@@ -446,6 +534,7 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
             mainAxisSize: MainAxisSize.min,
             spacing: 8,
             children: [
+              _compassButton(),
               _mapControlButton(
                 icon: const Icon(Icons.add),
                 onPressed: () async {
@@ -465,16 +554,14 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                 icon: const Icon(Icons.my_location),
                 onPressed: _locationService.status == LocationStatus.searching ? null : _locateMe,
               ),
-              if (markers.isNotEmpty)
+              if (fitPoints.isNotEmpty)
                 _mapControlButton(
                   icon: const Icon(Icons.center_focus_strong),
                   onPressed: () {
-                    final points = markers.map((m) => m.point).toList();
-                    final bounds = LatLngBounds.fromPoints(points);
                     _mapController.rotate(0);
                     _mapController.fitCamera(
                       CameraFit.bounds(
-                        bounds: bounds,
+                        bounds: LatLngBounds.fromPoints(fitPoints),
                         padding: const EdgeInsets.all(50),
                         maxZoom: 17,
                       ),

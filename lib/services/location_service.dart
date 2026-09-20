@@ -21,6 +21,8 @@ class LocationService extends ChangeNotifier {
   static final geo.Geocoding _geocoding = geo.Geocoding();
   final LocationProvider _provider;
   final Future<List<ContextPosition>> Function(String) _addressLookup;
+  final StreamController<ContextPosition> _positions = StreamController<ContextPosition>.broadcast();
+  StreamSubscription<ContextPosition>? _positionSubscription;
   LocationStatus _status = LocationStatus.idle;
   bool _disposed = false;
 
@@ -32,6 +34,29 @@ class LocationService extends ChangeNotifier {
 
   LocationStatus get status => _status;
 
+  /// Positions emitted by [fetchLocation] and, once [startPositionUpdates] has
+  /// been called, by the platform's continuous updates.
+  Stream<ContextPosition> get positionStream => _positions.stream;
+
+  /// Idempotent: a second call while already subscribed is a no-op.
+  void startPositionUpdates() {
+    if (_disposed || _positionSubscription != null) return;
+    _positionSubscription = _provider.getPositionStream().listen(
+      _emitPosition,
+      onError: (Object error) => debugPrint('Location stream error: $error'),
+    );
+  }
+
+  void stopPositionUpdates() {
+    unawaited(_positionSubscription?.cancel());
+    _positionSubscription = null;
+  }
+
+  void _emitPosition(ContextPosition position) {
+    if (_disposed) return;
+    _positions.add(position);
+  }
+
   void setStatus(LocationStatus newStatus) {
     if (_disposed) return;
     _status = newStatus;
@@ -41,6 +66,8 @@ class LocationService extends ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
+    stopPositionUpdates();
+    unawaited(_positions.close());
     super.dispose();
   }
 
@@ -73,6 +100,7 @@ class LocationService extends ChangeNotifier {
 
       final location = await _provider.getCurrentPosition();
       setStatus(LocationStatus.success);
+      _emitPosition(location);
       return location;
     } on LocationProviderServiceDisabledException {
       setStatus(LocationStatus.noService);

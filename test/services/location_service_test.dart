@@ -158,6 +158,63 @@ void main() {
     });
   });
 
+  group('LocationService.positionStream', () {
+    test('emits the one-shot fix before any live updates are started', () async {
+      final provider = FakeLocationProvider();
+      final service = LocationService(provider: provider);
+      final emitted = <ContextPosition>[];
+      service.positionStream.listen(emitted.add);
+
+      await service.fetchLocation();
+      await pumpEventQueue();
+
+      expect(emitted, [provider.position]);
+      expect(provider.positionController.hasListener, isFalse);
+    });
+
+    test('forwards provider updates once started, and start is idempotent', () async {
+      final provider = FakeLocationProvider();
+      final service = LocationService(provider: provider);
+      final emitted = <ContextPosition>[];
+      service.positionStream.listen(emitted.add);
+
+      service.startPositionUpdates();
+      service.startPositionUpdates();
+      provider.positionController.add(const ContextPosition(latitude: 48.1, longitude: 9.2));
+      await pumpEventQueue();
+
+      expect(emitted, hasLength(1));
+      expect(emitted.single.latitude, 48.1);
+    });
+
+    test('stopPositionUpdates unsubscribes from the provider', () async {
+      final provider = FakeLocationProvider();
+      final service = LocationService(provider: provider);
+
+      service.startPositionUpdates();
+      await pumpEventQueue();
+      expect(provider.positionController.hasListener, isTrue);
+
+      service.stopPositionUpdates();
+      await pumpEventQueue();
+      expect(provider.positionController.hasListener, isFalse);
+    });
+
+    test('stops emitting after dispose', () async {
+      final provider = FakeLocationProvider();
+      final service = LocationService(provider: provider);
+      final emitted = <ContextPosition>[];
+      service.positionStream.listen(emitted.add);
+
+      service.startPositionUpdates();
+      service.dispose();
+      provider.positionController.add(const ContextPosition(latitude: 48.1, longitude: 9.2));
+      await pumpEventQueue();
+
+      expect(emitted, isEmpty);
+    });
+  });
+
   group('LocationService.locationFromAddress', () {
     test('returns the first address match', () async {
       final expected = ContextPosition(
@@ -284,6 +341,7 @@ class FakeElevationService extends ElevationService {
 
 class FakeLocationProvider implements LocationProvider {
   bool serviceEnabled = true;
+  final StreamController<ContextPosition> positionController = StreamController<ContextPosition>.broadcast();
   LocationProviderPermission checkedPermission = LocationProviderPermission.whileInUse;
   LocationProviderPermission requestedPermission = LocationProviderPermission.whileInUse;
   ContextPosition position = const ContextPosition(latitude: 47.1, longitude: 8.2);
@@ -320,4 +378,7 @@ class FakeLocationProvider implements LocationProvider {
     requestPermissionCalls++;
     return requestedPermission;
   }
+
+  @override
+  Stream<ContextPosition> getPositionStream() => positionController.stream;
 }

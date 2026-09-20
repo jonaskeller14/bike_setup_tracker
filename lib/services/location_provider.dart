@@ -20,6 +20,8 @@ abstract interface class LocationProvider {
 
   Future<ContextPosition> getCurrentPosition();
 
+  Stream<ContextPosition> getPositionStream();
+
   Future<bool> openAppSettings();
 
   Future<bool> openLocationSettings();
@@ -58,6 +60,16 @@ class GeolocatorLocationProvider implements LocationProvider {
     } on geo.LocationServiceDisabledException {
       throw const LocationProviderServiceDisabledException();
     }
+  }
+
+  @override
+  Stream<ContextPosition> getPositionStream() {
+    return geo.Geolocator.getPositionStream(
+      locationSettings: const geo.LocationSettings(
+        accuracy: geo.LocationAccuracy.high,
+        distanceFilter: 5,
+      ),
+    ).map(mapPosition);
   }
 
   @override

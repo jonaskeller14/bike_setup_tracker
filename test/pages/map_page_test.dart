@@ -9,8 +9,10 @@ import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/location_provider.dart';
 import 'package:bike_setup_tracker/services/location_service.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
@@ -41,14 +43,19 @@ void main() {
     settings.dispose();
   });
 
-  Widget buildPage(LocationService service) {
+  Widget buildPage(
+    LocationService service, {
+    Stream<LocationMarkerHeading?>? headingStream = const Stream.empty(),
+  }) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: settings),
         ListenableProvider<AppRepository>.value(value: repository),
         ListenableProvider<SubscriptionService>.value(value: subscriptionService),
       ],
-      child: MaterialApp(home: MapPage(locationService: service)),
+      child: MaterialApp(
+        home: MapPage(locationService: service, headingStream: headingStream),
+      ),
     );
   }
 
@@ -165,6 +172,97 @@ void main() {
     expect(provider.getCurrentPositionCalls, 1);
   });
 
+  testWidgets('starts live updates only after a successful locate', (tester) async {
+    final provider = FakeMapLocationProvider(
+      const ContextPosition(latitude: 47.3769, longitude: 8.5417),
+    );
+    final service = LocationService(provider: provider);
+    await tester.pumpWidget(buildPage(service));
+    await tester.pump();
+
+    expect(provider.positionController.hasListener, isFalse);
+
+    await tester.tap(find.byKey(const Key('map-locate-me')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 600));
+
+    expect(provider.positionController.hasListener, isTrue);
+    expect(find.byKey(const Key('map-user-location-marker')), findsOneWidget);
+
+    // A streamed update moves the marker but must not drag the camera along.
+    final before = tester.getCenter(find.byKey(const Key('map-user-location-marker')));
+    provider.positionController.add(const ContextPosition(latitude: 47.3789, longitude: 8.5417));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    final after = tester.getCenter(find.byKey(const Key('map-user-location-marker')));
+    expect(after.dy, lessThan(before.dy));
+    final map = tester.widget<FlutterMap>(find.byType(FlutterMap));
+    expect(map.mapController!.camera.center.latitude, closeTo(47.3769, 0.001));
+  });
+
+  testWidgets('shows the compass only while north is not up', (tester) async {
+    final service = LocationService(provider: FakeMapLocationProvider(null));
+    await tester.pumpWidget(buildPage(service));
+    await tester.pump();
+
+    expect(find.byKey(const Key('map-compass')), findsNothing);
+
+    final controller = tester.widget<FlutterMap>(find.byType(FlutterMap)).mapController!;
+    controller.rotate(45);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.byKey(const Key('map-compass')), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('map-compass')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 600));
+
+    expect(controller.camera.rotation, closeTo(0, 0.001));
+
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.byKey(const Key('map-compass')), findsNothing);
+  });
+
+  testWidgets('returns to north the short way round past a full turn', (tester) async {
+    final service = LocationService(provider: FakeMapLocationProvider(null));
+    await tester.pumpWidget(buildPage(service));
+    await tester.pump();
+
+    final controller = tester.widget<FlutterMap>(find.byType(FlutterMap)).mapController!;
+    controller.rotate(350);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    await tester.tap(find.byKey(const Key('map-compass')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 600));
+
+    // 350 -> 360 is a 10 degree turn; 350 -> 0 would be 350 the wrong way.
+    expect(controller.camera.rotation, closeTo(360, 0.001));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.byKey(const Key('map-compass')), findsNothing);
+  });
+
+  testWidgets('uses no device heading source on iOS', (tester) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+    try {
+      final service = LocationService(provider: FakeMapLocationProvider(null));
+      await tester.pumpWidget(buildPage(service, headingStream: null));
+      await tester.pump();
+
+      // flutter_rotation_sensor 0.2.0 has no north reference on iOS, so the
+      // heading cone must stay off rather than point the wrong way.
+      final layer = tester.widget<CurrentLocationLayer>(find.byType(CurrentLocationLayer));
+      expect(await layer.headingStream!.isEmpty, isTrue);
+    } finally {
+      // Must be reset inside the body: the binding asserts on leaked debug
+      // variables before addTearDown callbacks run.
+      debugDefaultTargetPlatformOverride = null;
+    }
+  });
+
   testWidgets('is safe to dispose during an in-flight request', (tester) async {
     final completer = Completer<ContextPosition>();
     final provider = FakeMapLocationProvider(null)..pendingPosition = completer.future;
@@ -184,6 +282,7 @@ void main() {
 
 class FakeMapLocationProvider implements LocationProvider {
   final ContextPosition? position;
+  final StreamController<ContextPosition> positionController = StreamController<ContextPosition>.broadcast();
   Future<ContextPosition>? pendingPosition;
   Object? error;
   int getCurrentPositionCalls = 0;
@@ -226,6 +325,9 @@ class FakeMapLocationProvider implements LocationProvider {
   Future<LocationProviderPermission> requestPermission() async {
     return permission;
   }
+
+  @override
+  Stream<ContextPosition> getPositionStream() => positionController.stream;
 }
 
 class MockSubscriptionService extends Mock implements SubscriptionService {}

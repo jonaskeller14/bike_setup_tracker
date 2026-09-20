@@ -41,6 +41,9 @@ class RotaryKnob extends StatelessWidget {
   final bool clockwise;
   final bool showAllTicks;
   final bool small;
+  final bool showTicks;
+  final bool showIndicator;
+  final double diameter;
 
   const RotaryKnob({
     required super.key,
@@ -55,7 +58,27 @@ class RotaryKnob extends StatelessWidget {
     required this.tickColor,
     this.showAllTicks = true,
     this.small = false,
+    this.showTicks = true,
+    this.showIndicator = true,
+    this.diameter = 50,
   });
+
+  const RotaryKnob.glyph({
+    required super.key,
+    required this.primaryColor,
+    required this.diameter,
+  })  : value = 0,
+        initialValue = null,
+        min = 0,
+        max = 1,
+        numberOfTicks = 2,
+        clockwise = true,
+        onPrimaryColor = Colors.transparent,
+        tickColor = Colors.transparent,
+        showAllTicks = false,
+        small = false,
+        showTicks = false,
+        showIndicator = false;
 
   @override
   Widget build(BuildContext context) {
@@ -65,9 +88,11 @@ class RotaryKnob extends StatelessWidget {
 
     // Normalized tick positions (0..1 along the sweep). For huge ranges we draw
     // only the endpoints; otherwise one tick per division.
-    final List<double> tickFractions = showAllTicks
-        ? List<double>.generate(numberOfTicks, (i) => i / (numberOfTicks - 1))
-        : const [0.0, 1.0];
+    final List<double> tickFractions = !showTicks
+        ? const []
+        : showAllTicks
+            ? List<double>.generate(numberOfTicks, (i) => i / (numberOfTicks - 1))
+            : const [0.0, 1.0];
     final double? initialFraction = initialValue == null
         ? null
         : ((initialValue! - min) / (max - min)).clamp(0.0, 1.0);
@@ -77,7 +102,7 @@ class RotaryKnob extends StatelessWidget {
       duration: const Duration(milliseconds: 100), // Quick, continuous-feeling animation
       builder: (context, value, child) {
         return CustomPaint(
-          size: const Size(50, 50),
+          size: Size.square(diameter),
           painter: KnobPainter(
             rotationRadians: value,
             tickFractions: tickFractions,
@@ -87,6 +112,7 @@ class RotaryKnob extends StatelessWidget {
             tickColor: tickColor,
             clockwise: clockwise,
             small: small,
+            showIndicator: showIndicator,
           ),
         );
       },
@@ -105,6 +131,7 @@ class KnobPainter extends CustomPainter {
   final Color tickColor;
   final bool clockwise;
   final bool small;
+  final bool showIndicator;
 
   KnobPainter({
     required this.rotationRadians,
@@ -115,6 +142,7 @@ class KnobPainter extends CustomPainter {
     required this.tickColor,
     required this.clockwise,
     required this.small,
+    required this.showIndicator,
   });
 
   @override
@@ -189,19 +217,21 @@ class KnobPainter extends CustomPainter {
     canvas.drawPath(knobPath, knobPaint);
 
     // --- Draw the Indicator Line (Now Rotates with the knob) ---
-    final indicatorPaint = Paint()
-      ..color = onPrimaryColor
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.0
-      ..strokeCap = StrokeCap.round;
+    if (showIndicator) {
+      final indicatorPaint = Paint()
+        ..color = onPrimaryColor
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.0
+        ..strokeCap = StrokeCap.round;
 
-    final xStart = center.dx;
-    final yStart = center.dy;
+      final xStart = center.dx;
+      final yStart = center.dy;
 
-    final xEnd = center.dx;
-    final yEnd = center.dy - 0.85 * knobRadius;
-    
-    canvas.drawLine(Offset(xStart, yStart), Offset(xEnd, yEnd), indicatorPaint);
+      final xEnd = center.dx;
+      final yEnd = center.dy - 0.85 * knobRadius;
+
+      canvas.drawLine(Offset(xStart, yStart), Offset(xEnd, yEnd), indicatorPaint);
+    }
 
     // -----------------------------------------------------------------
     // END: ROTATING SECTION
@@ -215,6 +245,7 @@ class KnobPainter extends CustomPainter {
         oldDelegate.initialFraction != initialFraction ||
         oldDelegate.tickFractions.length != tickFractions.length ||
         oldDelegate.small != small ||
+        oldDelegate.showIndicator != showIndicator ||
         oldDelegate.primaryColor != primaryColor ||
         oldDelegate.onPrimaryColor != onPrimaryColor ||
         oldDelegate.tickColor != tickColor;

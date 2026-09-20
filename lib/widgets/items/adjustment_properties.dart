@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../models/adjustment/adjustment.dart';
+import '../set_adjustment/set_step_adjustment_dial.dart';
 
 typedef _RangeParts = ({String? min, String? max, String? step, AdjustmentUnit? unit});
 
@@ -23,6 +24,7 @@ class AdjustmentProperties extends StatelessWidget {
   double get _iconGap => compact ? 3 : 4;
   double get _boundsGap => compact ? 6 : 10;
   double get _spacing => compact ? 4 : 6;
+  double get _dial => compact ? 13 : 15;
   EdgeInsets get _pad => compact
       ? const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5)
       : const EdgeInsets.symmetric(horizontal: 8, vertical: 3);
@@ -31,6 +33,7 @@ class AdjustmentProperties extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final chips = _buildChips(
+      context,
       fgColor: color ?? colorScheme.onSurfaceVariant,
       borderColor: color?.withValues(alpha: 0.4) ?? colorScheme.outlineVariant,
     );
@@ -54,7 +57,7 @@ class AdjustmentProperties extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildChips({required Color fgColor, required Color borderColor}) {
+  List<Widget> _buildChips(BuildContext context, {required Color fgColor, required Color borderColor}) {
     final items = <Widget>[];
 
     switch (adjustment) {
@@ -69,6 +72,14 @@ class AdjustmentProperties extends StatelessWidget {
           ));
         }
         items.add(_boundsChip(fgColor: fgColor, borderColor: borderColor, p: p));
+        if (adjustment case final StepAdjustment a when a.visualization.hasDial) {
+          items.add(_dialChip(
+            context,
+            fgColor: fgColor,
+            borderColor: borderColor,
+            dialColor: a.dialColor,
+          ));
+        }
       case final CategoricalAdjustment a:
         items.addAll(a.options.map((option) => _optionChip(
           fgColor: fgColor,
@@ -186,6 +197,30 @@ class AdjustmentProperties extends StatelessWidget {
         children: [
           Icon(icon, size: _icon, color: fgColor),
           Text(text, style: TextStyle(color: fgColor, fontSize: _font)),
+        ],
+      ),
+    );
+  }
+
+  Widget _dialChip(
+    BuildContext context, {
+    required Color fgColor,
+    required Color borderColor,
+    required StepAdjustmentDialColor dialColor,
+  }) {
+    return _chip(
+      borderColor: borderColor,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // The knob is a fixed-size painter, so an empty line box next to it
+          // keeps this chip exactly as tall as its text-driven siblings.
+          Text('', style: TextStyle(color: fgColor, fontSize: _font)),
+          RotaryKnob.glyph(
+            key: const ValueKey('AdjustmentPropertiesDial'),
+            primaryColor: resolveDialColor(context, dialColor),
+            diameter: _dial,
+          ),
         ],
       ),
     );

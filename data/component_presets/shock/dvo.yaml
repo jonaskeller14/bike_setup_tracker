@@ -183,6 +183,7 @@ shocks:
     source: https://dvosuspension.com/wp-content/uploads/2023/11/Jade-X-Setup-Guide-Nov20.pdf
     trims:
       - trim: T3
+        key: shock-dvo-jade-x-t3-2023
         mount: [Standard, Metric, Trunnion]
         stroke_mm: ["8.5x2.5", "7.875x2.25", "230x65", "230x60", "230x57.5", "210x55", "210x52.5", "210x50", "205x65", "205x62.5", "205x60", "205x57.5", "185x55", "185x52.5", "185x50"]
         dampers: [jade_x_t3]
@@ -195,6 +196,7 @@ shocks:
           - The bladder charge tunes the whole shock's feel — try the full 140-180psi range
           - Aim for 25-30% sag, then fine-tune with preload
       - trim: Prime
+        key: shock-dvo-jade-x-prime-2023
         url: https://dvosuspension.com/product/jade-x-prime/
         mount: [Standard, Metric, Trunnion]
         stroke_mm: ["8.5x2.5", "7.875x2.25", "230x65", "230x60", "230x57.5", "210x55", "210x52.5", "210x50", "205x65", "205x62.5", "205x60", "205x57.5", "185x55", "185x52.5", "185x50"]
@@ -202,6 +204,7 @@ shocks:
         adjustments: *jade_coil_spring
         note: Coil spring sold separately. Aim for 25-30% sag, then fine-tune with preload.
       - trim: WP CV
+        key: shock-dvo-jade-x-wp-cv-2023
         url: https://dvosuspension.com/product/jade-x-wp/
         dampers: []
         adjustments: *jade_coil_spring
@@ -219,6 +222,7 @@ shocks:
     source: https://tech.dvosuspension.com/setup/jade/
     trims:
       - trim: Standard
+        key: shock-dvo-jade-standard-2019
         dampers: [jade_coil]
         adjustments:
           - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
@@ -240,6 +244,7 @@ shocks:
     source: https://dvosuspension.com/wp-content/uploads/2024/05/DVO-Topaz-Setup-Guide-May9.pdf
     trims:
       - trim: Pro
+        key: shock-dvo-topaz-pro-2023
         mount: [Metric, Trunnion]
         stroke_mm: ["190x40", "190x42.5", "190x45", "210x50", "210x52.5", "210x55", "230x60", "230x62.5", "230x65", "165x40", "165x42.5", "165x50", "185x50", "185x52.5", "185x55", "205x60", "205x62.5", "205x65"]
         dampers: [topaz_pro]
@@ -251,6 +256,7 @@ shocks:
           - Positive spacers stop it bottoming out; negative spacers add pedalling support
           - Aim for 20-30% sag
       - trim: Prime
+        key: shock-dvo-topaz-prime-2023
         url: https://dvosuspension.com/product/topaz-prime/
         mount: [Metric, Trunnion]
         stroke_mm: ["190x40", "190x42.5", "190x45", "210x50", "210x52.5", "210x55", "230x60", "230x62.5", "230x65", "165x40", "165x42.5", "165x50", "185x50", "185x52.5", "185x55", "205x60", "205x62.5", "205x65"]
@@ -258,6 +264,7 @@ shocks:
         adjustments: *topaz_air_spring
         note: Aim for 20-30% sag, then use the bladder charge to fine-tune the feel.
       - trim: WP CV
+        key: shock-dvo-topaz-wp-cv-2023
         url: https://dvosuspension.com/product/topaz-wp-cv/
         dampers: []
         adjustments: *topaz_air_spring
@@ -273,6 +280,7 @@ shocks:
     url: https://dvosuspension.com/product/opal-hv-t3/
     trims:
       - trim: HV T3
+        key: shock-dvo-opal-hv-t3-2023
         mount: [Metric, Trunnion]
         stroke_mm: ["190x40", "190x42.5", "190x45", "210x50", "210x52.5", "210x55", "230x60", "230x62.5", "230x65", "165x40", "165x42.5", "165x50", "185x50", "185x52.5", "185x55", "205x60", "205x62.5", "205x65"]
         dampers: [opal_t3]
@@ -294,6 +302,7 @@ shocks:
       - https://tech.dvosuspension.com/setup/topaz-2/
     trims:
       - trim: T3Air
+        key: shock-dvo-topaz-2-t3air-2016
         dampers: [topaz_t3air]
         adjustments: &topaz_t3air_spring
           - { name: Pressure, type: numerical, unit: psi, min: 0, max: 300 }
@@ -303,6 +312,7 @@ shocks:
           - Volume spacers tune the positive and the negative chamber separately
           - Aim for 20-30% sag
       - trim: Maestro HV
+        key: shock-dvo-topaz-2-maestro-hv-2016
         dampers: [topaz_t3air]
         adjustments: *topaz_t3air_spring
         note: High-volume air can tuned specifically for Giant's Maestro suspension layout.

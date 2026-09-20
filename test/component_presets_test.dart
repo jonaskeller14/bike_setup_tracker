@@ -29,7 +29,7 @@ void main() {
   });
 
   // Collected across all files for the global duplicate-key check.
-  final allPresetKeys = <String, String>{}; // presetKey -> file
+  final allPresetKeys = <String, String>{}; // authored key -> file
 
   for (final file in yamlFiles) {
     final relative = p.relative(file.path, from: presetDir.path);
@@ -50,7 +50,7 @@ void main() {
       test('component_type matches directory', () {
         for (final v in variants) {
           expect(v.componentType.name, expectedTypeDir,
-              reason: '${v.presetKey}: type ${v.componentType.name} in $expectedTypeDir/');
+              reason: '${v.key}: type ${v.componentType.name} in $expectedTypeDir/');
         }
       });
 
@@ -62,8 +62,8 @@ void main() {
           ];
           for (final spec in specs) {
             final adjustment = spec.build(); // strict fromYaml — throws on typos
-            expect(adjustment.name, isNotEmpty, reason: v.presetKey);
-            _assertAdjustmentInvariants(adjustment, v.presetKey);
+            expect(adjustment.name, isNotEmpty, reason: v.key);
+            _assertAdjustmentInvariants(adjustment, v.key);
           }
         }
       });
@@ -74,7 +74,7 @@ void main() {
           if (url == null) continue;
           final uri = Uri.tryParse(url);
           expect(uri != null && (uri.scheme == 'http' || uri.scheme == 'https'), isTrue,
-              reason: '${v.presetKey}: bad url "$url"');
+              reason: '${v.key}: bad url "$url"');
         }
       });
 
@@ -97,30 +97,41 @@ void main() {
         }
       });
 
-      test('presetKeys are globally unique', () {
+      test('keys are authored, ASCII-kebab and type-prefixed', () {
+        // The key is persisted on user components, so its shape is frozen:
+        // see tool/preset_keys.dart and SCHEMA.md.
         for (final v in variants) {
-          final existing = allPresetKeys[v.presetKey];
+          expect(v.key, matches(RegExp(r'^[a-z0-9]+(-[a-z0-9]+)*$')),
+              reason: '"${v.key}" (${v.model} ${v.trim}) is not lowercase kebab-case');
+          expect(v.key, startsWith('${v.componentType.name}-'),
+              reason: '"${v.key}" does not start with its component type');
+        }
+      });
+
+      test('keys are globally unique', () {
+        for (final v in variants) {
+          final existing = allPresetKeys[v.key];
           expect(existing, isNull,
-              reason: 'duplicate presetKey "${v.presetKey}" in $relative and $existing');
-          allPresetKeys[v.presetKey] = relative;
+              reason: 'duplicate key "${v.key}" in $relative and $existing');
+          allPresetKeys[v.key] = relative;
         }
       });
     });
   }
 }
 
-void _assertAdjustmentInvariants(Adjustment adjustment, String presetKey) {
+void _assertAdjustmentInvariants(Adjustment adjustment, String key) {
   switch (adjustment) {
     case StepAdjustment(:final min, :final max, :final step):
-      expect(min, lessThan(max), reason: '$presetKey: step "${adjustment.name}" min<max');
-      expect(step, greaterThan(0), reason: '$presetKey: step "${adjustment.name}" step>0');
+      expect(min, lessThan(max), reason: '$key: step "${adjustment.name}" min<max');
+      expect(step, greaterThan(0), reason: '$key: step "${adjustment.name}" step>0');
     case NumericalAdjustment(:final min, :final max):
-      expect(min, lessThanOrEqualTo(max), reason: '$presetKey: numerical "${adjustment.name}"');
+      expect(min, lessThanOrEqualTo(max), reason: '$key: numerical "${adjustment.name}"');
     case CategoricalAdjustment(:final options):
-      expect(options, isNotEmpty, reason: '$presetKey: categorical "${adjustment.name}" options');
+      expect(options, isNotEmpty, reason: '$key: categorical "${adjustment.name}" options');
     case BooleanAdjustment():
       break;
     default:
-      fail('$presetKey: unexpected adjustment type ${adjustment.runtimeType} in preset data');
+      fail('$key: unexpected adjustment type ${adjustment.runtimeType} in preset data');
   }
 }

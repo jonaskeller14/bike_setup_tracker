@@ -39,6 +39,8 @@ PresetApplication buildApplication(
     componentType: variant.componentType,
     notes: _buildNotes(variant, resolvedDamper),
     adjustments: _buildAdjustments(variant, resolvedDamper),
+    presetKey: variant.key,
+    presetDamperKey: resolvedDamper?.key,
   );
 }
 

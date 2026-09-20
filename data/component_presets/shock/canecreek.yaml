@@ -199,12 +199,14 @@ shocks:
     url: https://www.canecreek.com/products/air-il
     trims:
       - trim: Standard
+        key: shock-cane-creek-air-il-standard-2025
         mount: [Standard]
         stroke_mm: ["190x40", "190x42.5", "190x45", "210x50", "210x52.5", "210x55"]
         dampers: [il_twin_tube]
         adjustments: &il_air_spring
           - { name: Pressure, type: numerical, unit: psi, min: 50, max: 350, notes: "50 psi minimum, 350 psi maximum; Cane Creek recommends 25-35% sag" }
       - trim: Trunnion
+        key: shock-cane-creek-air-il-trunnion-2025
         mount: [Trunnion]
         stroke_mm: ["165x40", "165x42.5", "165x45", "185x50", "185x52.5", "185x55"]
         dampers: [il_twin_tube]
@@ -218,6 +220,7 @@ shocks:
     url: https://www.canecreek.com/products/coil-il
     trims:
       - trim: Standard
+        key: shock-cane-creek-coil-il-standard-2025
         mount: [Standard]
         stroke_mm: ["190x40", "190x42.5", "190x45", "210x50", "210x52.5", "210x55"]
         dampers: [il_twin_tube]
@@ -225,6 +228,7 @@ shocks:
           - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0, notes: Cane Creek VALT linear or progressive spring sold separately — see Cane Creek's spring-rate guide }
           - { name: Preload, type: step, min: 3, max: 18, visualization: stepper, unit: clicks, notes: "Detented preload collar, 3 clicks per full turn. Keep at least 1 turn (3 clicks) engaged; 6 turns (18 clicks) is the maximum." }
       - trim: Trunnion
+        key: shock-cane-creek-coil-il-trunnion-2025
         mount: [Trunnion]
         stroke_mm: ["165x40", "165x42.5", "165x45", "185x50", "185x52.5", "185x55"]
         dampers: [il_twin_tube]
@@ -241,12 +245,14 @@ shocks:
     url: https://www.canecreek.com/products/kitsuma-g2-air
     trims:
       - trim: Standard
+        key: shock-cane-creek-kitsuma-standard-2025
         mount: [Standard]
         stroke_mm: ["210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x62.5", "230x65", "250x70", "250x75"]
         dampers: [kitsuma_g2]
         adjustments: &kitsuma_g2_air_spring
           - { name: Pressure, type: numerical, unit: psi, min: 50, max: 300, notes: "50 psi minimum, 300 psi maximum; Cane Creek recommends 25-35% sag" }
       - trim: Trunnion
+        key: shock-cane-creek-kitsuma-trunnion-2025
         mount: [Trunnion]
         stroke_mm: ["185x50", "185x52.5", "185x55", "205x57.5", "205x60", "205x62.5", "205x65", "225x70", "225x75"]
         dampers: [kitsuma_g2]
@@ -260,6 +266,7 @@ shocks:
     url: https://www.canecreek.com/products/kisuma-g2-coil
     trims:
       - trim: Standard
+        key: shock-cane-creek-kitsuma-coil-standard-2025
         mount: [Standard]
         stroke_mm: ["210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x62.5", "230x65", "250x70", "250x72.5", "250x75"]
         dampers: [kitsuma_g2]
@@ -267,6 +274,7 @@ shocks:
           - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0, notes: Coil spring sold separately — see Cane Creek's VALT spring-rate guide }
           - { name: Preload, type: numerical, unit: turns, min: 1, max: 6, notes: "Keep at least 1 full turn of preload engaged; 6 turns is the maximum" }
       - trim: Trunnion
+        key: shock-cane-creek-kitsuma-coil-trunnion-2025
         mount: [Trunnion]
         stroke_mm: ["185x50", "185x52.5", "185x55", "205x57.5", "205x60", "205x62.5", "205x65", "225x70", "225x75"]
         dampers: [kitsuma_g2]
@@ -280,6 +288,7 @@ shocks:
     url: https://www.canecreek.com/products/tigon
     trims:
       - trim: Standard
+        key: shock-cane-creek-tigon-standard-2025
         mount: [Standard, Trunnion]
         stroke_mm: ["185x50", "185x52.5", "185x55", "205x60", "205x62.5", "205x65", "210x50", "210x52.5", "210x55", "230x60", "230x62.5", "230x65"]
         dampers: [tigon_damper]
@@ -302,6 +311,7 @@ shocks:
     # publishes a separate trunnion 100-hour service guide for this shock.
     trims:
       - trim: Standard
+        key: shock-cane-creek-db-air-il-g1-standard
         mount: [Standard, Trunnion]
         dampers: [il_twin_tube_g1]
         adjustments:
@@ -316,6 +326,7 @@ shocks:
     url: https://www.canecreek.com/pages/legacy-products-product-support
     trims:
       - trim: Standard
+        key: shock-cane-creek-dbcoil-il-g1-standard
         mount: [Standard, Trunnion]
         dampers: [il_twin_tube_g1]
         adjustments:
@@ -330,6 +341,7 @@ shocks:
     # Manual: cdn.shopify.com/.../DBKitsuma-Manual_2022_02_25_1_...pdf
     trims:
       - trim: Standard
+        key: shock-cane-creek-db-kitsuma-air-g1-standard
         mount: [Standard, Trunnion]
         dampers: [kitsuma_g1]
         adjustments:
@@ -342,6 +354,7 @@ shocks:
     url: https://www.canecreek.com/blogs/journal/introducing-db-kitsuma
     trims:
       - trim: Standard
+        key: shock-cane-creek-db-kitsuma-coil-g1-standard
         mount: [Standard, Trunnion]
         dampers: [kitsuma_g1]
         adjustments:
@@ -358,6 +371,7 @@ shocks:
     # 2014 introduction per canecreek.com's own company-history journal post.
     trims:
       - trim: Standard
+        key: shock-cane-creek-db-inline-standard-2014
         mount: [Standard]
         dampers: [db_classic_cs]
         adjustments:
@@ -373,6 +387,7 @@ shocks:
     url: https://www.canecreek.com/pages/legacy-products-product-support
     trims:
       - trim: Standard
+        key: shock-cane-creek-db-air-cs-standard
         mount: [Standard]
         dampers: [db_classic_cs]
         adjustments:
@@ -388,6 +403,7 @@ shocks:
     url: https://www.canecreek.com/pages/legacy-products-product-support
     trims:
       - trim: Standard
+        key: shock-cane-creek-dbcoil-standard
         mount: [Standard]
         dampers: [db_classic]
         adjustments:

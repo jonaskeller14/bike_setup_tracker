@@ -22,6 +22,8 @@ class Components extends Table {
   IntColumn get initialElapsedTime => integer().withDefault(const Constant(0)).map(const DurationConverter())();
   IntColumn get initialActivityCount => integer().withDefault(const Constant(0))();
   RealColumn get initialKilojoules => real().withDefault(const Constant(0.0))();
+  TextColumn get presetKey => text().nullable()();
+  TextColumn get presetDamperKey => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};

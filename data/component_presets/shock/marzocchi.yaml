@@ -58,6 +58,7 @@ shocks:
     url: https://bike.marzocchi.com/products/bomber-air
     trims:
       - trim: Metric
+        key: shock-marzocchi-bomber-air-metric-2025
         mount: Metric (compatible with FOX bearing mounts)
         stroke_mm: ["190x45", "210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x65", "250x75"]
         dampers: [bomber_air]
@@ -67,6 +68,7 @@ shocks:
           Max air pressure 350psi. Adjustable volume spacers in 0.1 in³
           increments; max spacer count not published.
       - trim: Trunnion
+        key: shock-marzocchi-bomber-air-trunnion-2025
         mount: Trunnion
         stroke_mm: ["185x52.5", "185x55", "205x60", "205x62.5", "225x75"]
         dampers: [bomber_air]
@@ -80,6 +82,7 @@ shocks:
     url: https://bike.marzocchi.com/products/bomber-cr-rear-shock
     trims:
       - trim: Standard
+        key: shock-marzocchi-bomber-cr-standard-2025
         mount: Standard eyelet
         stroke_mm: ["210x50", "210x55", "230x60", "230x65", "250x75", "7.5x2.0in", "7.875x2.0in", "7.875x2.25in", "8.5x2.5in", "8.75x2.75in"]
         dampers: [bomber_cr]
@@ -90,6 +93,7 @@ shocks:
           (Purple/Blue/Green/Yellow ~ Soft/Medium/Firm/X-Firm); Marzocchi
           does not publish the actual lbs/in rate per color.
       - trim: Trunnion
+        key: shock-marzocchi-bomber-cr-trunnion-2025
         mount: Trunnion (threaded reservoir end)
         stroke_mm: ["185x52.5", "185x55", "205x60", "205x65", "225x75", "9.5x3.0in"]
         dampers: [bomber_cr]

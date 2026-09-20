@@ -85,6 +85,8 @@ class _ComponentPageState extends State<ComponentPage> {
   late List<Installation> _initialInstallations;
   late ComponentStats _initialStats;
   bool _expanded = false;
+  String? _presetKey;
+  String? _presetDamperKey;
 
   List<Adjustment>? _lastPresetAdjustments;
   VoidCallback? _adjustmentsFieldNotify;
@@ -130,6 +132,9 @@ class _ComponentPageState extends State<ComponentPage> {
 
     _componentType = widget.component?.componentType;
     _initialComponentType = _componentType;
+
+    _presetKey = widget.component?.presetKey;
+    _presetDamperKey = widget.component?.presetDamperKey;
 
     _notesController = TextEditingController(text: widget.component?.notes);
     _notesController.addListener(_changeListener);
@@ -325,6 +330,8 @@ class _ComponentPageState extends State<ComponentPage> {
       _nameController.text = app.name;
       _notesController.text = app.notes;
       _componentType ??= app.componentType;
+      _presetKey = app.presetKey;
+      _presetDamperKey = app.presetDamperKey;
       if (append) {
         _adjustments = [..._adjustments, ...app.adjustments];
         // The list no longer matches a single preset → next re-pick will prompt.
@@ -359,6 +366,8 @@ class _ComponentPageState extends State<ComponentPage> {
       adjustments: _adjustments,
       initialStats: _initialStats,
       orderIndex: widget.component?.orderIndex ?? 0,
+      presetKey: _presetKey,
+      presetDamperKey: _presetDamperKey,
     );
     Navigator.pop(
       context,

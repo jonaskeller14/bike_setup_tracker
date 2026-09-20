@@ -199,16 +199,19 @@ shocks:
     url: https://www.sram.com/en/rockshox/series/deluxe
     trims:
       - trim: Ultimate
+        key: shock-rockshox-deluxe-ultimate-2023
         dampers: [rct]
         spring: DebonAir+
         adjustments: &air_spring
           - { name: Pressure, type: numerical, unit: psi, min: 0 }
       - trim: Select+
+        key: shock-rockshox-deluxe-select-plus-2023
         dampers: [rct]
         spring: DebonAir
         adjustments: *air_spring
         note: OEM only
       - trim: Select
+        key: shock-rockshox-deluxe-select-2023
         dampers: [rct]
         spring: SoloAir
         adjustments: *air_spring
@@ -221,15 +224,18 @@ shocks:
     url: https://www.sram.com/en/rockshox/series/super-deluxe
     trims:
       - trim: Ultimate
+        key: shock-rockshox-super-deluxe-ultimate-2023
         dampers: [rc2t]
         spring: DebonAir+
         adjustments: *air_spring
       - trim: Select+
+        key: shock-rockshox-super-deluxe-select-plus-2023
         dampers: [rc2t]
         spring: DebonAir
         adjustments: *air_spring
         note: OEM only
       - trim: Select
+        key: shock-rockshox-super-deluxe-select-2023
         dampers: [rc2t]
         spring: SoloAir
         adjustments: *air_spring
@@ -242,14 +248,17 @@ shocks:
     url: https://www.sram.com/en/rockshox/series/super-deluxe-coil
     trims:
       - trim: Ultimate
+        key: shock-rockshox-super-deluxe-coil-ultimate-2023
         dampers: [rc2t]
         adjustments: &coil_spring
           - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
       - trim: Select+
+        key: shock-rockshox-super-deluxe-coil-select-plus-2023
         dampers: [rc2t]
         adjustments: *coil_spring
         note: OEM only
       - trim: Select
+        key: shock-rockshox-super-deluxe-coil-select-2023
         dampers: [rc2t]
         adjustments: *coil_spring
         note: OEM only
@@ -262,6 +271,7 @@ shocks:
     url: https://www.sram.com/en/rockshox/series/super-deluxe-dh
     trims:
       - trim: Ultimate DH
+        key: shock-rockshox-super-deluxe-ultimate-dh-ultimate-dh-2023
         dampers: [rc2]
         spring: DebonAir+
         adjustments: *air_spring
@@ -274,12 +284,14 @@ shocks:
     url: https://www.sram.com/en/rockshox/series/vivid-air
     trims:
       - trim: Ultimate
+        key: shock-rockshox-vivid-air-ultimate-2024
         dampers: [vivid_ultimate]
         spring: Vivid Air Spring
         adjustments: &vivid_air_spring
           - { name: Pressure, type: numerical, unit: psi, min: 0, notes: "Maximum 360 psi with 0-4 Bottomless Tokens, 300 psi with 5-6 Tokens or a 75mm stroke" }
           - { name: Volume Spacers, type: step, max: 6, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; snap onto the inner air can; 4 maximum on 75mm-stroke shocks" }
       - trim: Ultimate DH
+        key: shock-rockshox-vivid-air-ultimate-dh-2024
         dampers: [vivid_ultimate]
         spring: Vivid Air Spring
         adjustments: *vivid_air_spring
@@ -292,6 +304,7 @@ shocks:
     url: https://www.sram.com/en/rockshox/series/vivid-coil
     trims:
       - trim: Ultimate
+        key: shock-rockshox-vivid-coil-ultimate-2024
         dampers: [vivid_ultimate]
         adjustments: *coil_spring
         note: |-
@@ -306,6 +319,7 @@ shocks:
     url: https://www.sram.com/en/rockshox/series/vivid-coil-dh
     trims:
       - trim: Ultimate DH
+        key: shock-rockshox-vivid-coil-ultimate-dh-ultimate-dh-2024
         dampers: [vivid_ultimate]
         adjustments: *coil_spring
         note: Downhill build of the Vivid Coil
@@ -318,6 +332,7 @@ shocks:
     url: https://www.sram.com/en/rockshox/series/sidluxe
     trims:
       - trim: Ultimate Flight Attendant
+        key: shock-rockshox-sidluxe-ultimate-flight-attendant-2024
         dampers: [rct]
         spring: DebonAir+
         adjustments: &sidluxe_air_spring
@@ -325,10 +340,12 @@ shocks:
           - { name: Volume Spacers, type: step, max: 1, unit: tokens, visualization: stepper, notes: "Bottomless Token clamps onto the sealhead in a large or small size; only one fits at a time" }
         note: Compression is set electronically by Flight Attendant; the rebound dial stays manual
       - trim: Ultimate
+        key: shock-rockshox-sidluxe-ultimate-2024
         dampers: [rct]
         spring: DebonAir+
         adjustments: *sidluxe_air_spring
       - trim: Select+
+        key: shock-rockshox-sidluxe-select-plus-2024
         dampers: [rct]
         spring: DebonAir
         adjustments: *sidluxe_air_spring
@@ -348,14 +365,17 @@ shocks:
     url: https://www.sram.com/en/rockshox/series/super-deluxe
     trims:
       - trim: Ultimate
+        key: shock-rockshox-super-deluxe-ultimate-2017
         dampers: [super_deluxe_rct]
         spring: DebonAir
         adjustments: *air_spring
       - trim: RCT
+        key: shock-rockshox-super-deluxe-rct-2017
         dampers: [super_deluxe_rct]
         spring: DebonAir
         adjustments: *air_spring
       - trim: RC3
+        key: shock-rockshox-super-deluxe-rc3-2017
         dampers: [super_deluxe_rct]
         spring: SoloAir
         adjustments: *air_spring
@@ -369,9 +389,11 @@ shocks:
     url: https://www.sram.com/en/rockshox/series/super-deluxe-coil
     trims:
       - trim: Ultimate
+        key: shock-rockshox-super-deluxe-coil-ultimate-2017
         dampers: [super_deluxe_rct]
         adjustments: *coil_spring
       - trim: RCT
+        key: shock-rockshox-super-deluxe-coil-rct-2017
         dampers: [super_deluxe_rct]
         adjustments: *coil_spring
 
@@ -383,14 +405,17 @@ shocks:
     url: https://www.sram.com/en/rockshox/series/deluxe
     trims:
       - trim: Ultimate
+        key: shock-rockshox-deluxe-ultimate-2017
         dampers: [deluxe_rt3]
         spring: DebonAir
         adjustments: *air_spring
       - trim: RT3
+        key: shock-rockshox-deluxe-rt3-2017
         dampers: [deluxe_rt3]
         spring: DebonAir
         adjustments: *air_spring
       - trim: RL
+        key: shock-rockshox-deluxe-rl-2017
         dampers: [deluxe_rt3]
         spring: SoloAir
         adjustments: *air_spring
@@ -404,19 +429,23 @@ shocks:
     url: https://www.sram.com/en/rockshox/series/monarch
     trims:
       - trim: RT3
+        key: shock-rockshox-monarch-rt3-2013
         dampers: [monarch_rt3]
         spring: SoloAir
         adjustments: *air_spring
       - trim: RL
+        key: shock-rockshox-monarch-rl-2013
         dampers: [monarch_rt3]
         spring: DebonAir
         adjustments: *air_spring
       - trim: XX
+        key: shock-rockshox-monarch-xx-2013
         dampers: [monarch_rt3]
         spring: SoloAir
         adjustments: *air_spring
         note: XLoc remote lockout
       - trim: R
+        key: shock-rockshox-monarch-r-2013
         dampers: [monarch_rt3]
         spring: SoloAir
         adjustments: *air_spring
@@ -430,10 +459,12 @@ shocks:
     url: https://www.sram.com/en/rockshox/series/monarch-plus
     trims:
       - trim: RC3
+        key: shock-rockshox-monarch-plus-rc3-2013
         dampers: [monarch_plus_rc3]
         spring: DebonAir
         adjustments: *air_spring
       - trim: R
+        key: shock-rockshox-monarch-plus-r-2013
         dampers: [monarch_plus_rc3]
         spring: SoloAir
         adjustments: *air_spring
@@ -449,6 +480,7 @@ shocks:
     url: https://www.sram.com/en/rockshox/series/vivid-air
     trims:
       - trim: R2C
+        key: shock-rockshox-vivid-air-r2c-2010
         dampers: [vivid_air_r2c]
         adjustments: *air_spring
     note: Separate beginning- and ending-stroke rebound adjusters

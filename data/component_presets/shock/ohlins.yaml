@@ -182,6 +182,7 @@ shocks:
     url: https://www.ohlins.eu/en/products/mountainbike/ttx1air-universal--7689/
     trims:
       - trim: Universal
+        key: shock-ohlins-ttx1air-universal-2025
         mount: [Standard eyelet, Trunnion]
         stroke_mm: ["190x40/42.5/45", "210x50/52.5/55", "230x60/62.5/65", "165x40/42.5/45 (Trunnion)", "185x50/52.5/55 (Trunnion)", "205x60/62.5/65 (Trunnion)"]
         dampers: [ttx1air_m1]
@@ -196,6 +197,7 @@ shocks:
     url: https://www.ohlins.eu/en/products/mountainbike/ttx1air-m2-universal--7749/
     trims:
       - trim: Universal
+        key: shock-ohlins-ttx1air-m-2-universal-2025
         mount: [Trunnion, Standard eyelet]
         stroke_mm: ["165x45/42.5/40/37.5 (Trunnion)", "185x55/52.5/50/47.5 (Trunnion)", "190x45/42.5/40/37.5", "210x55/52.5/50/47.5"]
         dampers: [ttx1air_m2]
@@ -211,6 +213,7 @@ shocks:
     url: https://www.ohlins.eu/en/products/mountainbike/ttx2-air-universal--7690/
     trims:
       - trim: Universal
+        key: shock-ohlins-ttx2air-universal-2025
         mount: ["Standard eyelet (15 x 12.7mm)", Trunnion]
         stroke_mm: ["190x40/42.5/45", "185x50/52.5/55 (Trunnion)", "205x60/62.5/65 (Trunnion)"]
         dampers: [ttx2air_m1]
@@ -224,6 +227,7 @@ shocks:
     url: https://www.ohlins.eu/en/products/mountainbike/ttx2air-m2-universal--7750/
     trims:
       - trim: Universal
+        key: shock-ohlins-ttx2air-m-2-universal-2025
         mount: [Trunnion, Metric]
         stroke_mm: ["185x55/52.5/50/47.5 (Trunnion)", "205x65/62.5/60/57.5 (Trunnion)", "210x55/52.5/50/47.5 (Metric)", "230x65/62.5/60/57.5 (Metric)"]
         dampers: [ttx2air_m2]
@@ -239,6 +243,7 @@ shocks:
     url: https://www.ohlins.eu/en/products/mountainbike/txc1air-universal--7691/
     trims:
       - trim: Universal
+        key: shock-ohlins-txc1air-universal-2025
         mount: [Trunnion Remote, Remote]
         stroke_mm: ["165x37.5/40 (Trunnion Remote)", "185x47.5/50 (Trunnion Remote)", "190x37.5/40 (Remote)", "210x47.5/50 (Remote)"]
         dampers: [txc1air]
@@ -254,6 +259,7 @@ shocks:
     url: https://www.ohlins.eu/en/products/mountainbike/txc2air-universal--7593/
     trims:
       - trim: Universal
+        key: shock-ohlins-txc2air-universal-2025
         mount: [Standard eyelet, "Remote (5.5mm cable pull adapter)"]
         stroke_mm: ["165x37.5/40/42.5/45", "185x47.5/50/52.5/55", "190x37.5/40/42.5/45", "210x47.5/50/52.5/55"]
         dampers: [txc2air]
@@ -267,6 +273,7 @@ shocks:
     url: https://www.ohlins.eu/en/products/mountainbike/ttx22-m2-piggyback-105x35-267x89mm--5708/
     trims:
       - trim: Piggyback
+        key: shock-ohlins-ttx22-m-2-piggyback-2025
         stroke_mm: ["267x89 (10.5x3.5in)"]
         dampers: [ttx22_m2]
         adjustments: &coil_spring
@@ -274,18 +281,21 @@ shocks:
           - { name: Preload, type: numerical, unit: turns, min: 0 }
         note: 425-460g without the spring.
       - trim: Side-by-side
+        key: shock-ohlins-ttx22-m-2-side-by-side-2025
         url: https://www.ohlins.eu/en/products/mountainbike/ttx22-m2-side-by-side--7681/
         mount: MTBM 220x series
         stroke_mm: ["210x55 (MTBM 2204)", "230x65 (MTBM 2208)", "250x75 (MTBM 2212)"]
         dampers: [ttx22_m2]
         adjustments: *coil_spring
       - trim: Trunnion Piggyback
+        key: shock-ohlins-ttx22-m-2-trunnion-piggyback-2025
         url: https://www.ohlins.eu/en/products/mountainbike/ttx22-m2-trunnion-piggyback-mtbm--7680/
         mount: MTBM 224x series
         stroke_mm: ["185x55 (MTBM 2244)", "205x65 (MTBM 2248)", "225x75 (MTBM 2252)"]
         dampers: [ttx22_m2]
         adjustments: *coil_spring
       - trim: Trunnion Side-by-side
+        key: shock-ohlins-ttx22-m-2-trunnion-side-by-side-2025
         url: https://www.ohlins.eu/en/products/mountainbike/ttx22-m2-trunnion-side-by--7679/
         mount: MTBM 222x series
         stroke_mm: ["185x55 (MTBM 2224)", "205x65 (MTBM 2228)", "225x75 (MTBM 2232)"]

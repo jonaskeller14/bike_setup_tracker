@@ -233,6 +233,7 @@ forks:
     source: https://dvosuspension.com/wp-content/uploads/2023/09/onyx38setupguide-v1.pdf
     trims:
       - trim: D1
+        key: fork-dvo-38-d1-2024
         travel_mm: [160, 170, 180]
         stanchion: 38mm Tapered Alloy
         spring: Air
@@ -247,6 +248,7 @@ forks:
           - 5mm allen key under the left leg, turned in full rotations; let the air out first
           - The only Onyx 38 trim with the external OTT adjuster
       - trim: D1 SL
+        key: fork-dvo-38-d1-sl-2024
         travel_mm: [160, 170, 180]
         stanchion: 38mm Tapered Alloy
         spring: Air
@@ -256,6 +258,7 @@ forks:
           - { name: Volume Spacers, type: step, max: 4, visualization: stepper }
         note: Super-Light dual air system; no OTT adjuster on this trim.
       - trim: D2
+        key: fork-dvo-38-d2-2024
         travel_mm: [160, 170, 180]
         stanchion: 38mm Tapered Alloy
         spring: Air
@@ -263,6 +266,7 @@ forks:
         adjustments: *onyx38_air_spring
         note: OEM only. No OTT adjuster on this trim.
       - trim: D3
+        key: fork-dvo-38-d3-2024
         travel_mm: [160, 170, 180]
         stanchion: 38mm Tapered Alloy
         spring: Air
@@ -281,6 +285,7 @@ forks:
     wheel_size: [29]
     trims:
       - trim: CORE
+        key: fork-dvo-diamond-36-core-2024
         travel_mm: [140, 150, 160, 170]
         stanchion: 36mm Tapered Alloy
         spring: Air
@@ -292,6 +297,7 @@ forks:
         # so no Volume Spacers adjustment is declared here.
         note: All-new CORE damper. Ships with a 6x 5cc air volume reducer kit.
       - trim: D1 SL
+        key: fork-dvo-diamond-36-d1-sl-2024
         url: https://dvosuspension.com/product/diamond-d1-2024/
         travel_mm: [140, 150, 160]
         stanchion: 36mm Tapered Alloy
@@ -313,6 +319,7 @@ forks:
     source: https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
     trims:
       - trim: D3
+        key: fork-dvo-diamond-d3-2024
         stanchion: 35mm Tapered Alloy
         spring: Air
         dampers: [diamond_d3e3]
@@ -320,6 +327,7 @@ forks:
           - { name: Pressure, type: numerical, unit: psi, min: 0, max: 150 }
         note: OEM only. Closed-cartridge damper, no OTT adjuster.
       - trim: E3
+        key: fork-dvo-diamond-e3-2024
         stanchion: 35mm Tapered Alloy
         spring: Air
         dampers: [diamond_d3e3]
@@ -337,6 +345,7 @@ forks:
     source: https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
     trims:
       - trim: D1
+        key: fork-dvo-sapphire-34-d1-2019
         stanchion: 34mm Tapered Alloy
         spring: Air
         dampers: [quick_range_d1e1]
@@ -354,6 +363,7 @@ forks:
     url: https://tech.dvosuspension.com/setup/sapphire-series/
     trims:
       - trim: D1
+        key: fork-dvo-sapphire-32-d1-2019
         stanchion: 32mm Tapered Alloy
         spring: Air
         dampers: [quick_range_d1e1]
@@ -371,6 +381,7 @@ forks:
     source: https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
     trims:
       - trim: D2
+        key: fork-dvo-onyx-sc-d2-2020
         travel_mm: [160, 170, 180]
         stanchion: 36mm Tapered Alloy
         spring: Air
@@ -389,6 +400,7 @@ forks:
     source: https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
     trims:
       - trim: D1
+        key: fork-dvo-onyx-dc-d1-2020
         travel_mm: [203]
         stanchion: 36mm (dual-crown)
         spring: Air
@@ -417,6 +429,7 @@ forks:
       - https://www.pinkbike.com/news/dvo-emerald-review-2014.html
     trims:
       - trim: Standard
+        key: fork-dvo-emerald-inverted-standard-2014
         travel_mm: [203]
         stanchion: 36mm Inverted
         spring: Air

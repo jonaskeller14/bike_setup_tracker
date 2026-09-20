@@ -19,9 +19,10 @@ class Component {
   final List<Installation> installations;
   final String? notes;
   final int orderIndex;
-
   final ComponentStats initialStats;
   final ComponentStats totalStats;
+  final String? presetKey;
+  final String? presetDamperKey;
 
   String? get parentId => parentIdAt(DateTime.now().toUtc());
 
@@ -63,6 +64,8 @@ class Component {
     required this.componentType,
     this.notes,
     this.orderIndex = 0,
+    this.presetKey,
+    this.presetDamperKey,
     List<Adjustment>? adjustments,
     ComponentStats? initialStats,
     ComponentStats? totalStats,
@@ -83,6 +86,8 @@ class Component {
       adjustments: adjustments.map((a) => a.deepCopy()).toList(),
       initialStats: initialStats,
       totalStats: totalStats,
+      presetKey: presetKey,
+      presetDamperKey: presetDamperKey,
     );
   }
 
@@ -106,6 +111,8 @@ class Component {
     Object? orderIndex = const _Sentinel(),
     Object? initialStats = const _Sentinel(),
     Object? totalStats = const _Sentinel(),
+    Object? presetKey = const _Sentinel(),
+    Object? presetDamperKey = const _Sentinel(),
   }) {
     return Component(
       id: id is _Sentinel
@@ -141,6 +148,12 @@ class Component {
       totalStats: totalStats is _Sentinel
           ? this.totalStats
           : (totalStats as ComponentStats),
+      presetKey: presetKey is _Sentinel
+          ? this.presetKey
+          : (presetKey as String?),
+      presetDamperKey: presetDamperKey is _Sentinel
+          ? this.presetDamperKey
+          : (presetDamperKey as String?),
     );
   }
 
@@ -156,6 +169,8 @@ class Component {
     'orderIndex': orderIndex,
     'adjustments': adjustments.map((a) => a.toJson()).toList(),
     'initialStats': initialStats.toJson(),
+    'presetKey': presetKey,
+    'presetDamperKey': presetDamperKey,
   };
 
   /// Reads the initial stats of any component version: nested since version 5,
@@ -211,6 +226,8 @@ class Component {
             ?? <Adjustment>[],
           orderIndex: json["orderIndex"] as int? ?? 0,
           initialStats: _initialStatsFromJson(json),
+          presetKey: json["presetKey"] as String?,
+          presetDamperKey: json["presetDamperKey"] as String?,
         );
       default: throw Exception("Json Version $version of Component incompatible.");
     }
@@ -230,7 +247,9 @@ class Component {
         notes == other.notes &&
         listEquals(adjustments, other.adjustments) &&
         initialStats == other.initialStats &&
-        totalStats == other.totalStats;
+        totalStats == other.totalStats &&
+        presetKey == other.presetKey &&
+        presetDamperKey == other.presetDamperKey;
   }
 
   @override
@@ -246,6 +265,8 @@ class Component {
       Object.hashAll(adjustments),
       initialStats,
       totalStats,
+      presetKey,
+      presetDamperKey,
     );
   }
 }

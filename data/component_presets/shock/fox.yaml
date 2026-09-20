@@ -171,11 +171,13 @@ shocks:
     url: https://ridefox.com/pages/fox-float-sl
     trims:
       - trim: Factory
+        key: shock-fox-float-sl-factory-2025
         stanchion: Kashima
         dampers: [float_sl]
         adjustments: &air_spring
           - { name: Pressure, type: numerical, unit: psi, min: 0 }
       - trim: Performance
+        key: shock-fox-float-sl-performance-2025
         stanchion: 7000-series alloy, black anodized
         dampers: [float_sl]
         adjustments: *air_spring
@@ -187,18 +189,22 @@ shocks:
     url: https://ridefox.com/pages/fox-float
     trims:
       - trim: Factory
+        key: shock-fox-float-factory-2025
         stanchion: Kashima
         dampers: [float]
         adjustments: *air_spring
       - trim: Performance Elite
+        key: shock-fox-float-performance-elite-2025
         stanchion: 7000-series alloy, black anodized
         dampers: [float]
         adjustments: *air_spring
       - trim: Performance
+        key: shock-fox-float-performance-2025
         stanchion: 7000-series alloy, black anodized
         dampers: [float]
         adjustments: *air_spring
       - trim: Rhythm
+        key: shock-fox-float-rhythm-2025
         stanchion: 6000-series alloy, black anodized
         dampers: [float]
         adjustments: *air_spring
@@ -211,14 +217,17 @@ shocks:
     url: https://ridefox.com/pages/fox-float-x
     trims:
       - trim: Factory
+        key: shock-fox-float-x-factory-2025
         stanchion: Kashima
         dampers: [float_x]
         adjustments: *air_spring
       - trim: Performance Elite
+        key: shock-fox-float-x-performance-elite-2025
         stanchion: 7000-series alloy, black anodized
         dampers: [float_x]
         adjustments: *air_spring
       - trim: Performance
+        key: shock-fox-float-x-performance-2025
         stanchion: 7000-series alloy, black anodized
         dampers: [float_x]
         adjustments: *air_spring
@@ -230,14 +239,17 @@ shocks:
     url: https://ridefox.com/pages/fox-float-x2
     trims:
       - trim: Factory
+        key: shock-fox-float-x2-factory-2025
         stanchion: Kashima
         dampers: [vvc2]
         adjustments: *air_spring
       - trim: Performance Elite
+        key: shock-fox-float-x2-performance-elite-2025
         stanchion: 7000-series alloy, black anodized
         dampers: [vvc2]
         adjustments: *air_spring
       - trim: Performance
+        key: shock-fox-float-x2-performance-2025
         stanchion: 7000-series alloy, black anodized
         dampers: [vvc2]
         adjustments: *air_spring
@@ -250,6 +262,7 @@ shocks:
     url: https://ridefox.com/products/fox-dhx-factory
     trims:
       - trim: Factory
+        key: shock-fox-dhx-factory-2025
         stanchion: Kashima
         dampers: [dhx_coil]
         mount: [Metric, Metric Trunnion]
@@ -265,14 +278,17 @@ shocks:
     url: https://ridefox.com/pages/fox-dhx2
     trims:
       - trim: Factory
+        key: shock-fox-dhx2-factory-2025
         stanchion: Kashima
         dampers: [vvc2]
         adjustments: *coil_spring
       - trim: Performance Elite
+        key: shock-fox-dhx2-performance-elite-2025
         stanchion: 7000-series alloy, black anodized
         dampers: [vvc2]
         adjustments: *coil_spring
       - trim: Performance
+        key: shock-fox-dhx2-performance-2025
         stanchion: 7000-series alloy, black anodized
         dampers: [vvc2]
         adjustments: *coil_spring
@@ -293,15 +309,18 @@ shocks:
     url: https://tech.ridefox.com/bike/owners-manuals/1079/shock--2021-float-dps-and-dpx2
     trims:
       - trim: Factory
+        key: shock-fox-float-dps-factory-2016
         stanchion: Kashima
         dampers: [dps_2016]
         adjustments: *air_spring
         note: EVOL air sleeve, 350 psi maximum. Sold with a 9mm damper shaft.
       - trim: Performance Elite
+        key: shock-fox-float-dps-performance-elite-2016
         stanchion: 7000-series alloy, black anodized
         dampers: [dps_2016]
         adjustments: *air_spring
       - trim: Performance
+        key: shock-fox-float-dps-performance-2016
         stanchion: 7000-series alloy, black anodized
         dampers: [dps_2016]
         adjustments: *air_spring
@@ -314,15 +333,18 @@ shocks:
     url: https://tech.ridefox.com/bike/owners-manuals/1079/shock--2021-float-dps-and-dpx2
     trims:
       - trim: Factory
+        key: shock-fox-float-dpx2-factory-2018
         stanchion: Kashima
         dampers: [dpx2_2018]
         adjustments: *air_spring
         note: EVOL air sleeve, 350 psi maximum. Larger 1/2in damper shaft than the DPS.
       - trim: Performance Elite
+        key: shock-fox-float-dpx2-performance-elite-2018
         stanchion: 7000-series alloy, black anodized
         dampers: [dpx2_2018]
         adjustments: *air_spring
       - trim: Performance
+        key: shock-fox-float-dpx2-performance-2018
         stanchion: 7000-series alloy, black anodized
         dampers: [dpx2_2018]
         adjustments: *air_spring
@@ -335,6 +357,7 @@ shocks:
     url: https://tech.ridefox.com/bike/owners-manuals/1036/shock--2020-float-x2
     trims:
       - trim: Factory
+        key: shock-fox-float-x2-factory-2016
         stanchion: Kashima
         dampers: [x2_2016]
         adjustments: *air_spring
@@ -342,6 +365,7 @@ shocks:
           - Four-way adjustable; a 2-position Firm lever was offered on some shocks
           - High-speed compression and rebound are Factory Series only
       - trim: Performance Elite
+        key: shock-fox-float-x2-performance-elite-2016
         stanchion: 7000-series alloy, black anodized
         dampers: [x2_2016]
         adjustments: *air_spring
@@ -355,10 +379,12 @@ shocks:
     url: https://tech.ridefox.com/bike/owners-manuals/1078/shock--2021-float-x2
     trims:
       - trim: Factory
+        key: shock-fox-float-x2-factory-2021
         stanchion: Kashima
         dampers: [x2_vvc_2021]
         adjustments: *air_spring
       - trim: Performance Elite
+        key: shock-fox-float-x2-performance-elite-2021
         stanchion: 7000-series alloy, black anodized
         dampers: [x2_vvc_2021]
         adjustments: *air_spring
@@ -371,11 +397,13 @@ shocks:
     url: https://tech.ridefox.com/bike/owners-manuals/1038/shock--2020-all-coil-shocks-(dhx2-and-van-models)
     trims:
       - trim: Factory
+        key: shock-fox-dhx2-factory-2016
         stanchion: Kashima
         dampers: [x2_2016]
         adjustments: *coil_spring
         note: Coil spring sold separately. Shares the four-way X2 damper with the air FLOAT X2.
       - trim: Performance Elite
+        key: shock-fox-dhx2-performance-elite-2016
         stanchion: 7000-series alloy, black anodized
         dampers: [x2_2016]
         adjustments: *coil_spring
@@ -388,11 +416,13 @@ shocks:
     url: https://tech.ridefox.com/bike/owners-manuals/1078/shock--2021-float-x2
     trims:
       - trim: Factory
+        key: shock-fox-dhx2-factory-2021
         stanchion: Kashima
         dampers: [x2_vvc_2021]
         adjustments: *coil_spring
         note: Coil spring sold separately.
       - trim: Performance Elite
+        key: shock-fox-dhx2-performance-elite-2021
         stanchion: 7000-series alloy, black anodized
         dampers: [x2_vvc_2021]
         adjustments: *coil_spring

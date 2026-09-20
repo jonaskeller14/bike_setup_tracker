@@ -75,6 +75,8 @@ extension ComponentDbMapper on ComponentDb {
         activityCount: initialActivityCount,
         kilojoules: initialKilojoules,
       ),
+      presetKey: presetKey,
+      presetDamperKey: presetDamperKey,
     );
   }
 }
@@ -234,6 +236,8 @@ extension ComponentMapper on Component {
       initialElapsedTime: Value<Duration>(initialStats.elapsedTime),
       initialActivityCount: Value<int>(initialStats.activityCount),
       initialKilojoules: Value<double>(initialStats.kilojoules),
+      presetKey: Value<String?>(presetKey),
+      presetDamperKey: Value<String?>(presetDamperKey),
     );
   }
 }

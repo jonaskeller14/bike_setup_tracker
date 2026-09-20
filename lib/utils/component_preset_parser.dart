@@ -66,6 +66,13 @@ List<ComponentPresetVariant> parseBrandFile(String yamlSource) {
       }
       final trim = _requireString(rawTrim, 'trim');
 
+      // Permanent identity, persisted on components built from this trim — so a
+      // missing one is a data bug, not something to paper over with a fallback.
+      final key = rawTrim['key']?.toString();
+      if (key == null || key.isEmpty) {
+        throw FormatException('Trim "$model $trim" ($brand) is missing a required "key"');
+      }
+
       final trimDampers = _stringList(rawTrim['dampers']).map((key) {
         final spec = dampers[key];
         if (spec == null) {
@@ -75,6 +82,7 @@ List<ComponentPresetVariant> parseBrandFile(String yamlSource) {
       }).toList();
 
       variants.add(ComponentPresetVariant(
+        key: key,
         brand: brand,
         model: model,
         trim: trim,

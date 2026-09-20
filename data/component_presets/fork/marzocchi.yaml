@@ -82,6 +82,7 @@ forks:
     wheel_size: [29, 27.5]
     trims:
       - trim: Standard
+        key: fork-marzocchi-z1-standard-2025
         travel_mm: [100, 150, 160]
         stanchion: 36mm, Black Anodized
         spring: Air
@@ -99,6 +100,7 @@ forks:
     wheel_size: [29]
     trims:
       - trim: Coil
+        key: fork-marzocchi-z1-coil-coil-2025
         travel_mm: [160]
         stanchion: 36mm, Black Anodized
         spring: Coil
@@ -120,6 +122,7 @@ forks:
     wheel_size: [29, 27.5]
     trims:
       - trim: Standard
+        key: fork-marzocchi-z2-standard-2025
         travel_mm: [120, 130, 140, 150]
         stanchion: 34mm, Black Anodized
         spring: Air
@@ -138,6 +141,7 @@ forks:
     wheel_size: [26]
     trims:
       - trim: Standard
+        key: fork-marzocchi-dj-standard-2025
         travel_mm: [100]
         stanchion: 36mm
         spring: Air
@@ -156,6 +160,7 @@ forks:
     wheel_size: [27.5]
     trims:
       - trim: Standard
+        key: fork-marzocchi-58-standard-2025
         travel_mm: [203]
         stanchion: 40mm, Black Anodized
         spring: Air

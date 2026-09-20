@@ -131,6 +131,43 @@ void main() {
       expect(model.installations.first.parent, 'bike1');
     });
 
+    test('Component Mapping carries preset provenance both ways', () {
+      // `updateComponent` replaces the whole row, so a mapper that dropped
+      // these would silently clear the provenance on every component edit.
+      final component = Component(
+        id: 'comp1',
+        name: 'FOX 36 Factory',
+        componentType: ComponentType.fork,
+        installations: const [],
+        lastModified: DateTime(2023, 1, 1).toUtc(),
+        presetKey: 'fork-fox-36-factory-2025',
+        presetDamperKey: 'grip_x2',
+      );
+
+      final companion = component.toCompanion();
+      expect(companion.presetKey.value, 'fork-fox-36-factory-2025');
+      expect(companion.presetDamperKey.value, 'grip_x2');
+
+      final model = ComponentDb(
+        id: 'comp1',
+        name: 'FOX 36 Factory',
+        componentType: ComponentType.fork,
+        isDeleted: false,
+        lastModified: DateTime(2023, 1, 1).toUtc(),
+        orderIndex: 0,
+        initialDistance: 0.0,
+        initialElevationGain: 0.0,
+        initialMovingTime: Duration.zero,
+        initialElapsedTime: Duration.zero,
+        initialActivityCount: 0,
+        initialKilojoules: 0.0,
+        presetKey: 'fork-fox-36-factory-2025',
+        presetDamperKey: 'grip_x2',
+      ).toModel();
+      expect(model.presetKey, 'fork-fox-36-factory-2025');
+      expect(model.presetDamperKey, 'grip_x2');
+    });
+
     test('Setup Mapping', () {
       final setup = Setup(
         id: 'setup1',

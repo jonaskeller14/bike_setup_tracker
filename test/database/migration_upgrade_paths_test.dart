@@ -36,6 +36,12 @@ void main() {
   // structural undo — their steps rewrite/recreate the affected tables
   // regardless of the starting column shape.
   Future<void> reshapeToVersion(AppDatabase db, int version) async {
+    if (version < 19) {
+      // v19 added the components preset-provenance columns.
+      for (final column in _componentPresetColumns) {
+        await db.customStatement('ALTER TABLE components DROP COLUMN $column');
+      }
+    }
     if (version < 18) {
       // v18 added the bikes.initial_* stats columns.
       for (final column in _bikeInitialStatsColumns) {
@@ -107,6 +113,16 @@ void main() {
     );
   }
 
+  // Seeds the component the installation above points at, without the v19
+  // preset-provenance columns, so the upgrade has a pre-existing row to widen.
+  Future<void> seedComponent(AppDatabase db) async {
+    const epochSeconds = 1700000000;
+    await db.customStatement(
+      'INSERT INTO components (id, last_modified, name, component_type) '
+      "VALUES ('c1', $epochSeconds, 'Fork', 'fork')",
+    );
+  }
+
   // Seeds a single bike row via raw SQL, without the v18 initial stats columns.
   Future<void> seedBike(AppDatabase db) async {
     const epochSeconds = 1700000000;
@@ -129,6 +145,7 @@ void main() {
     await reshapeToVersion(seed, startVersion);
     await seedSetup(seed);
     await seedInstallation(seed);
+    await seedComponent(seed);
     await seedBike(seed);
     await seed.customStatement('PRAGMA user_version = $startVersion');
     await seed.close();
@@ -147,7 +164,7 @@ void main() {
   group('onUpgrade from every prior version to the current schema', () {
     // Covers the full range of jump sizes: the v12 case is a single step, the
     // v1 case crosses every TableMigration in the strategy.
-    for (final startVersion in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]) {
+    for (final startVersion in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]) {
       test('v$startVersion -> current completes and preserves seed rows', () async {
         final db = await migrateFrom(startVersion);
         addTearDown(db.close);
@@ -224,6 +241,12 @@ void main() {
         expect(bike.initialDistance, 0.0);
         expect(bike.initialMovingTime, Duration.zero);
         expect(bike.initialActivityCount, 0);
+
+        // The v19 step adds preset provenance; rows that predate it stay null.
+        expect(await columnNames(db, 'components'), containsAll(_componentPresetColumns));
+        final component = await (db.select(db.components)..where((t) => t.id.equals('c1'))).getSingle();
+        expect(component.presetKey, isNull);
+        expect(component.presetDamperKey, isNull);
       });
     }
   });
@@ -236,4 +259,9 @@ const _bikeInitialStatsColumns = [
   'initial_elapsed_time',
   'initial_activity_count',
   'initial_kilojoules',
+];
+
+const _componentPresetColumns = [
+  'preset_key',
+  'preset_damper_key',
 ];

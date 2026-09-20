@@ -108,6 +108,7 @@ forks:
     wheel_size: [29, 27.5]
     trims:
       - trim: Air
+        key: fork-cane-creek-helm-mkii-air-2020
         travel_mm: [120, 130, 140, 150, 160, 170]
         stanchion: 35mm
         spring: Air
@@ -117,6 +118,7 @@ forks:
           - { name: Volume Adjustment, type: step, max: 8, visualization: stepper, notes: Indexed rod/piston (not stackable spacers) — higher notch count = more progressive. Factory default is 2 of 8 notches down. }
         note: 29in offered in 120-160mm; 27.5in offered in 130-170mm (10mm internal increments, no extra parts required).
       - trim: Coil
+        key: fork-cane-creek-helm-mkii-coil-2020
         url: https://www.canecreek.com/products/helm-mkii-coil
         travel_mm: [120, 130, 140, 150, 160, 170]
         stanchion: 35mm
@@ -133,6 +135,7 @@ forks:
     wheel_size: [29]
     trims:
       - trim: Air
+        key: fork-cane-creek-helm-works-series-air-2023
         travel_mm: [100, 110, 120, 130]
         stanchion: 35mm
         spring: Air
@@ -151,6 +154,7 @@ forks:
     wheel_size: [26]
     trims:
       - trim: Standard
+        key: fork-cane-creek-helm-dj-standard-2025
         travel_mm: [90]
         stanchion: 35mm
         spring: Air
@@ -173,6 +177,7 @@ forks:
     wheel_size: [29, 27.5]
     trims:
       - trim: Air
+        key: fork-cane-creek-helm-mk1-air-2017
         travel_mm: [100, 110, 120, 130, 140, 150, 160, 170]
         stanchion: 35mm
         spring: Air
@@ -182,6 +187,7 @@ forks:
           - 27.5in runs 100-170mm, 29in/27.5+ runs 100-160mm, set with 10mm internal travel reducers
           - Air volume is set by a static piston on an indexed rod, 8 positions
       - trim: Coil
+        key: fork-cane-creek-helm-mk1-coil-2017
         travel_mm: [130, 140, 150, 160]
         stanchion: 35mm
         spring: Coil

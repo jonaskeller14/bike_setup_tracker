@@ -30,6 +30,7 @@ forks:
     year_range: 2025-26
     trims:
       - trim: Factory
+        key: fixture-1-factory
         travel_mm: [150, 160]
         dampers: [grip_x2, grip]
         spring: Air
@@ -40,6 +41,7 @@ forks:
     year_range: 2025-26
     trims:
       - trim: Factory
+        key: fixture-2-factory
         travel_mm: [170]
         dampers: [grip_x2]
         spring: Air
@@ -61,6 +63,7 @@ forks:
     year_range: 2025-26
     trims:
       - trim: Ultimate
+        key: fixture-3-ultimate
         travel_mm: [150, 160]
         dampers: [charger]
         spring: Air

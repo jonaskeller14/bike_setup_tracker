@@ -91,7 +91,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 18;
+  int get schemaVersion => 19;
 
   @override
   MigrationStrategy get migration {
@@ -240,6 +240,20 @@ class AppDatabase extends _$AppDatabase {
           for (final MapEntry(key: name, value: column) in columns.entries) {
             if (!await _columnExists('bikes', name)) {
               await m.addColumn(bikes, column);
+            }
+          }
+        }
+        if (from < 19) {
+          // Components remember the preset trim (and damper) they were created
+          // from, so the catalog can later offer setup guides and service
+          // intervals for that exact product.
+          final columns = <String, GeneratedColumn>{
+            'preset_key': components.presetKey,
+            'preset_damper_key': components.presetDamperKey,
+          };
+          for (final MapEntry(key: name, value: column) in columns.entries) {
+            if (!await _columnExists('components', name)) {
+              await m.addColumn(components, column);
             }
           }
         }

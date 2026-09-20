@@ -29,6 +29,7 @@ class DamperSpec {
 }
 
 class ComponentPresetVariant {
+  final String key;
   final String brand;
   final String model;
   final String trim;
@@ -66,6 +67,7 @@ class ComponentPresetVariant {
   final bool complete;
 
   const ComponentPresetVariant({
+    required this.key,
     required this.brand,
     required this.model,
     required this.trim,
@@ -84,14 +86,12 @@ class ComponentPresetVariant {
     this.complete = true,
   });
 
-  /// Stable, computed catalog identity — never persisted (see provenance
-  /// decision). Used as an index key and for the CI duplicate check.
-  /// Generations of one model share brand/model/trim and are told apart only by
-  /// [yearRange], so it is part of the key.
-  String get presetKey {
-    final years = yearRange;
-    return '${componentType.name}/$brand/$model/$trim'
-        '${years == null || years.isEmpty ? '' : '/$years'}';
+  DamperSpec? damperByKey(String? key) {
+    if (key == null) return null;
+    for (final damper in dampers) {
+      if (damper.key == key) return damper;
+    }
+    return null;
   }
 
   /// Compact travel/stroke label for subtitles: `160 mm`, `140–170 mm` for
@@ -114,11 +114,15 @@ class PresetApplication {
   final ComponentType componentType;
   final String notes;
   final List<Adjustment> adjustments;
+  final String presetKey;
+  final String? presetDamperKey;
 
   const PresetApplication({
     required this.name,
     required this.componentType,
     required this.notes,
     required this.adjustments,
+    required this.presetKey,
+    this.presetDamperKey,
   });
 }

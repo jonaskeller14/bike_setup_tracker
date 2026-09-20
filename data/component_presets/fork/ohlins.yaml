@@ -193,17 +193,20 @@ forks:
     wheel_size: [29]
     trims:
       - trim: Aluminum (remote)
+        key: fork-ohlins-rxc34-m-1-aluminum-remote-2025
         travel_mm: [100, 110, 120]
         spring: Air
         dampers: [otx14_r]
         adjustments: &air_spring
           - { name: Pressure, type: numerical, unit: psi, min: 0 }
       - trim: Carbon crown (remote)
+        key: fork-ohlins-rxc34-m-1-carbon-crown-remote-2025
         travel_mm: [100, 110, 120]
         spring: Air
         dampers: [otx14_r]
         adjustments: *air_spring
       - trim: Carbon crown (manual)
+        key: fork-ohlins-rxc34-m-1-carbon-crown-manual-2025
         travel_mm: [100, 110, 120]
         spring: Air
         dampers: [otx14_r]
@@ -219,6 +222,7 @@ forks:
     wheel_size: [29]
     trims:
       - trim: Air OTX18
+        key: fork-ohlins-rxf34-m-2-air-otx18-2025
         travel_mm: [120, 130, 140]
         offset_mm: [44]
         spring: Air
@@ -233,6 +237,7 @@ forks:
     wheel_size: [29, 27.5]
     trims:
       - trim: Air TTX18
+        key: fork-ohlins-rxf36-m-2-air-ttx18-2025
         travel_mm: [140, 150, 160, 170]
         offset_mm: [38, 44, 51]
         spring: Air
@@ -246,12 +251,14 @@ forks:
     wheel_size: [29, 27.5]
     trims:
       - trim: Air TTX18
+        key: fork-ohlins-rxf36-m-3-air-ttx18-2025
         travel_mm: [140, 150, 160, 170]   # 140-160mm on 29", up to 170mm on 27.5"
         offset_mm: [38, 44, 51]
         spring: Air
         dampers: [ttx18_m3]
         adjustments: *air_spring
       - trim: Coil
+        key: fork-ohlins-rxf36-m-3-coil-2025
         url: https://www.ohlins.eu/de/products/mountainbike/rxf36-m3-coil--6430/
         spring: Coil
         dampers: [ttx18_m3]
@@ -266,6 +273,7 @@ forks:
     wheel_size: [29]
     trims:
       - trim: Air
+        key: fork-ohlins-rxf38-m-2-air-2025
         travel_mm: [160, 170, 180]
         offset_mm: [44, 51]
         spring: Air
@@ -274,6 +282,7 @@ forks:
           - { name: Main Chamber Pressure, type: numerical, unit: psi, min: 0 }
           - { name: Ramp-up Chamber Pressure, type: numerical, unit: psi, min: 0 }
       - trim: Coil
+        key: fork-ohlins-rxf38-m-2-coil-2025
         # Spring rate chart: Owner's Manual RXF38 m.2, "4 COIL SPRING SETUP", p. 12
         travel_mm: [160, 170, 180]
         offset_mm: [44, 51]
@@ -295,12 +304,14 @@ forks:
     wheel_size: [29]
     trims:
       - trim: Air
+        key: fork-ohlins-rxf38-m-3-air-2025
         travel_mm: [160, 170, 180]
         offset_mm: [44]
         spring: Air
         dampers: [ttx18_m3]
         adjustments: *dual_chamber_air
       - trim: Coil
+        key: fork-ohlins-rxf38-m-3-coil-2025
         travel_mm: [170]
         offset_mm: [44]
         spring: Coil
@@ -318,6 +329,7 @@ forks:
     wheel_size: [29, 27.5]
     trims:
       - trim: Air
+        key: fork-ohlins-dh38-m-1-air-2025
         travel_mm: [180, 200]
         offset_mm: [46, 50, 54, 58]
         spring: Air
@@ -334,12 +346,14 @@ forks:
     wheel_size: [29, 27.5]
     trims:
       - trim: Air
+        key: fork-ohlins-dh38-m-2-air-2025
         travel_mm: [200]
         offset_mm: [46, 50, 54, 58]
         spring: Air
         dampers: [ttx18_m3]
         adjustments: *air_spring
       - trim: Coil
+        key: fork-ohlins-dh38-m-2-coil-2025
         travel_mm: [200]
         offset_mm: [46, 50, 54, 58]
         spring: Coil
@@ -357,6 +371,7 @@ forks:
     wheel_size: [26]
     trims:
       - trim: Air TTX18
+        key: fork-ohlins-rxfdj-m-1-air-ttx18-2025
         travel_mm: [90]
         spring: Air
         dampers: [ttx18_m2]

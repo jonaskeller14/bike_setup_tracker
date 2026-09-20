@@ -38,6 +38,7 @@ forks:
     url: https://www.foxfactory.com/36
     trims:
       - trim: Factory
+        key: fixture-1-factory
         travel_mm: [160]
         stanchion: 36 mm
         dampers: [grip_x2]
@@ -111,6 +112,7 @@ forks:
   - model: Lyrik
     trims:
       - trim: Ultimate
+        key: fixture-2-ultimate
         travel_mm: [150]
         dampers: [charger_3_1]
         spring: Air
@@ -135,6 +137,7 @@ forks:
   - model: Vivid Air
     trims:
       - trim: Ultimate
+        key: fixture-3-ultimate
         travel_mm: [160]
         spring: Air
         adjustments:
@@ -153,6 +156,7 @@ forks:
   - model: "34"
     trims:
       - trim: Performance
+        key: fixture-4-performance
         travel_mm: [140]
         spring: Air
         adjustments:
@@ -171,6 +175,7 @@ forks:
   - model: "38"
     trims:
       - trim: Factory Coil
+        key: fixture-5-factory-coil
         travel_mm: [170]
         spring: Coil
         adjustments:
@@ -194,6 +199,7 @@ shocks:
   - model: Float
     trims:
       - trim: Factory
+        key: fixture-6-factory
         stroke_mm: ["55"]
         dampers: [dps]
         spring: Air
@@ -227,6 +233,7 @@ forks:
   - model: "36"
     trims:
       - trim: Factory
+        key: fixture-7-factory
         travel_mm: [150, 160]
         dampers: [grip_x2, grip_x]
         spring: Air
@@ -246,6 +253,79 @@ forks:
       expect(app.name, 'FOX 36 Factory'); // no disambiguation without a choice
       expect(_names(app.adjustments), ['Pressure', 'SAG']);
     });
+
+    test('provenance records the chosen damper, or none when unchosen', () {
+      final variant = _variant(yaml);
+      expect(buildApplication(variant, variant.dampers.last).presetDamperKey, 'grip_x');
+      expect(buildApplication(variant).presetDamperKey, isNull);
+    });
+  });
+
+  group('provenance', () {
+    test('carries the trim key', () {
+      const yaml = '''
+brand: FOX
+component_type: fork
+forks:
+  - model: "36"
+    trims:
+      - trim: Factory
+        key: fork-fox-36-factory-2025
+        travel_mm: [160]
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi }
+''';
+      final app = buildApplication(_variant(yaml));
+      expect(app.presetKey, 'fork-fox-36-factory-2025');
+    });
+
+    test('records an implicitly resolved single damper', () {
+      const yaml = '''
+brand: RockShox
+component_type: fork
+dampers:
+  charger_3_1:
+    name: Charger 3.1
+    adjustments:
+      - { name: Rebound, type: step, max: 18 }
+forks:
+  - model: Lyrik
+    trims:
+      - trim: Ultimate
+        key: fork-rockshox-lyrik-ultimate-2024
+        travel_mm: [160]
+        dampers: [charger_3_1]
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi }
+''';
+      // The name never mentions the damper for a single-damper trim, so the
+      // key is the only record of which one was applied.
+      final app = buildApplication(_variant(yaml));
+      expect(app.name, 'RockShox Lyrik Ultimate');
+      expect(app.presetDamperKey, 'charger_3_1');
+    });
+
+    test('a variant resolves its damper back by key', () {
+      const yaml = '''
+brand: FOX
+component_type: fork
+dampers:
+  grip_x2:
+    name: GRIP X2
+  grip_x:
+    name: GRIP X
+forks:
+  - model: "36"
+    trims:
+      - trim: Factory
+        key: fork-fox-36-factory-2025
+        dampers: [grip_x2, grip_x]
+''';
+      final variant = _variant(yaml);
+      expect(variant.damperByKey('grip_x')?.name, 'GRIP X');
+      expect(variant.damperByKey('retired_damper'), isNull);
+      expect(variant.damperByKey(null), isNull);
+    });
   });
 
   test('multiple travel options leave SAG reference unset', () {
@@ -256,6 +336,7 @@ forks:
   - model: "36"
     trims:
       - trim: Factory
+        key: fixture-8-factory
         travel_mm: [150, 160, 170]
         spring: Air
         adjustments:

@@ -149,6 +149,28 @@ class $ComponentsTable extends Components
         requiredDuringInsert: false,
         defaultValue: const Constant(0.0),
       );
+  static const VerificationMeta _presetKeyMeta = const VerificationMeta(
+    'presetKey',
+  );
+  @override
+  late final GeneratedColumn<String> presetKey = GeneratedColumn<String>(
+    'preset_key',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _presetDamperKeyMeta = const VerificationMeta(
+    'presetDamperKey',
+  );
+  @override
+  late final GeneratedColumn<String> presetDamperKey = GeneratedColumn<String>(
+    'preset_damper_key',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -164,6 +186,8 @@ class $ComponentsTable extends Components
     initialElapsedTime,
     initialActivityCount,
     initialKilojoules,
+    presetKey,
+    presetDamperKey,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -244,6 +268,21 @@ class $ComponentsTable extends Components
         ),
       );
     }
+    if (data.containsKey('preset_key')) {
+      context.handle(
+        _presetKeyMeta,
+        presetKey.isAcceptableOrUnknown(data['preset_key']!, _presetKeyMeta),
+      );
+    }
+    if (data.containsKey('preset_damper_key')) {
+      context.handle(
+        _presetDamperKeyMeta,
+        presetDamperKey.isAcceptableOrUnknown(
+          data['preset_damper_key']!,
+          _presetDamperKeyMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -313,6 +352,14 @@ class $ComponentsTable extends Components
         DriftSqlType.double,
         data['${effectivePrefix}initial_kilojoules'],
       )!,
+      presetKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}preset_key'],
+      ),
+      presetDamperKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}preset_damper_key'],
+      ),
     );
   }
 
@@ -345,6 +392,13 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
   final Duration initialElapsedTime;
   final int initialActivityCount;
   final double initialKilojoules;
+
+  /// Catalog provenance: the preset trim this component was created from, and
+  /// the damper chosen at that time. Null for hand-built components. Resolved
+  /// through `ComponentPresetRepository.byKey`; see
+  /// `data/component_presets/SCHEMA.md`.
+  final String? presetKey;
+  final String? presetDamperKey;
   const ComponentDb({
     required this.id,
     required this.isDeleted,
@@ -359,6 +413,8 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     required this.initialElapsedTime,
     required this.initialActivityCount,
     required this.initialKilojoules,
+    this.presetKey,
+    this.presetDamperKey,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -394,6 +450,12 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     }
     map['initial_activity_count'] = Variable<int>(initialActivityCount);
     map['initial_kilojoules'] = Variable<double>(initialKilojoules);
+    if (!nullToAbsent || presetKey != null) {
+      map['preset_key'] = Variable<String>(presetKey);
+    }
+    if (!nullToAbsent || presetDamperKey != null) {
+      map['preset_damper_key'] = Variable<String>(presetDamperKey);
+    }
     return map;
   }
 
@@ -414,6 +476,12 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
       initialElapsedTime: Value(initialElapsedTime),
       initialActivityCount: Value(initialActivityCount),
       initialKilojoules: Value(initialKilojoules),
+      presetKey: presetKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(presetKey),
+      presetDamperKey: presetDamperKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(presetDamperKey),
     );
   }
 
@@ -446,6 +514,8 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
         json['initialActivityCount'],
       ),
       initialKilojoules: serializer.fromJson<double>(json['initialKilojoules']),
+      presetKey: serializer.fromJson<String?>(json['presetKey']),
+      presetDamperKey: serializer.fromJson<String?>(json['presetDamperKey']),
     );
   }
   @override
@@ -467,6 +537,8 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
       'initialElapsedTime': serializer.toJson<Duration>(initialElapsedTime),
       'initialActivityCount': serializer.toJson<int>(initialActivityCount),
       'initialKilojoules': serializer.toJson<double>(initialKilojoules),
+      'presetKey': serializer.toJson<String?>(presetKey),
+      'presetDamperKey': serializer.toJson<String?>(presetDamperKey),
     };
   }
 
@@ -484,6 +556,8 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     Duration? initialElapsedTime,
     int? initialActivityCount,
     double? initialKilojoules,
+    Value<String?> presetKey = const Value.absent(),
+    Value<String?> presetDamperKey = const Value.absent(),
   }) => ComponentDb(
     id: id ?? this.id,
     isDeleted: isDeleted ?? this.isDeleted,
@@ -498,6 +572,10 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     initialElapsedTime: initialElapsedTime ?? this.initialElapsedTime,
     initialActivityCount: initialActivityCount ?? this.initialActivityCount,
     initialKilojoules: initialKilojoules ?? this.initialKilojoules,
+    presetKey: presetKey.present ? presetKey.value : this.presetKey,
+    presetDamperKey: presetDamperKey.present
+        ? presetDamperKey.value
+        : this.presetDamperKey,
   );
   ComponentDb copyWithCompanion(ComponentsCompanion data) {
     return ComponentDb(
@@ -532,6 +610,10 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
       initialKilojoules: data.initialKilojoules.present
           ? data.initialKilojoules.value
           : this.initialKilojoules,
+      presetKey: data.presetKey.present ? data.presetKey.value : this.presetKey,
+      presetDamperKey: data.presetDamperKey.present
+          ? data.presetDamperKey.value
+          : this.presetDamperKey,
     );
   }
 
@@ -550,7 +632,9 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
           ..write('initialMovingTime: $initialMovingTime, ')
           ..write('initialElapsedTime: $initialElapsedTime, ')
           ..write('initialActivityCount: $initialActivityCount, ')
-          ..write('initialKilojoules: $initialKilojoules')
+          ..write('initialKilojoules: $initialKilojoules, ')
+          ..write('presetKey: $presetKey, ')
+          ..write('presetDamperKey: $presetDamperKey')
           ..write(')'))
         .toString();
   }
@@ -570,6 +654,8 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     initialElapsedTime,
     initialActivityCount,
     initialKilojoules,
+    presetKey,
+    presetDamperKey,
   );
   @override
   bool operator ==(Object other) =>
@@ -587,7 +673,9 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
           other.initialMovingTime == this.initialMovingTime &&
           other.initialElapsedTime == this.initialElapsedTime &&
           other.initialActivityCount == this.initialActivityCount &&
-          other.initialKilojoules == this.initialKilojoules);
+          other.initialKilojoules == this.initialKilojoules &&
+          other.presetKey == this.presetKey &&
+          other.presetDamperKey == this.presetDamperKey);
 }
 
 class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
@@ -604,6 +692,8 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
   final Value<Duration> initialElapsedTime;
   final Value<int> initialActivityCount;
   final Value<double> initialKilojoules;
+  final Value<String?> presetKey;
+  final Value<String?> presetDamperKey;
   final Value<int> rowid;
   const ComponentsCompanion({
     this.id = const Value.absent(),
@@ -619,6 +709,8 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     this.initialElapsedTime = const Value.absent(),
     this.initialActivityCount = const Value.absent(),
     this.initialKilojoules = const Value.absent(),
+    this.presetKey = const Value.absent(),
+    this.presetDamperKey = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ComponentsCompanion.insert({
@@ -635,6 +727,8 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     this.initialElapsedTime = const Value.absent(),
     this.initialActivityCount = const Value.absent(),
     this.initialKilojoules = const Value.absent(),
+    this.presetKey = const Value.absent(),
+    this.presetDamperKey = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        lastModified = Value(lastModified),
@@ -654,6 +748,8 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     Expression<int>? initialElapsedTime,
     Expression<int>? initialActivityCount,
     Expression<double>? initialKilojoules,
+    Expression<String>? presetKey,
+    Expression<String>? presetDamperKey,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -673,6 +769,8 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
       if (initialActivityCount != null)
         'initial_activity_count': initialActivityCount,
       if (initialKilojoules != null) 'initial_kilojoules': initialKilojoules,
+      if (presetKey != null) 'preset_key': presetKey,
+      if (presetDamperKey != null) 'preset_damper_key': presetDamperKey,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -691,6 +789,8 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     Value<Duration>? initialElapsedTime,
     Value<int>? initialActivityCount,
     Value<double>? initialKilojoules,
+    Value<String?>? presetKey,
+    Value<String?>? presetDamperKey,
     Value<int>? rowid,
   }) {
     return ComponentsCompanion(
@@ -707,6 +807,8 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
       initialElapsedTime: initialElapsedTime ?? this.initialElapsedTime,
       initialActivityCount: initialActivityCount ?? this.initialActivityCount,
       initialKilojoules: initialKilojoules ?? this.initialKilojoules,
+      presetKey: presetKey ?? this.presetKey,
+      presetDamperKey: presetDamperKey ?? this.presetDamperKey,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -767,6 +869,12 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     if (initialKilojoules.present) {
       map['initial_kilojoules'] = Variable<double>(initialKilojoules.value);
     }
+    if (presetKey.present) {
+      map['preset_key'] = Variable<String>(presetKey.value);
+    }
+    if (presetDamperKey.present) {
+      map['preset_damper_key'] = Variable<String>(presetDamperKey.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -789,6 +897,8 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
           ..write('initialElapsedTime: $initialElapsedTime, ')
           ..write('initialActivityCount: $initialActivityCount, ')
           ..write('initialKilojoules: $initialKilojoules, ')
+          ..write('presetKey: $presetKey, ')
+          ..write('presetDamperKey: $presetDamperKey, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -9506,6 +9616,8 @@ typedef $$ComponentsTableCreateCompanionBuilder =
       Value<Duration> initialElapsedTime,
       Value<int> initialActivityCount,
       Value<double> initialKilojoules,
+      Value<String?> presetKey,
+      Value<String?> presetDamperKey,
       Value<int> rowid,
     });
 typedef $$ComponentsTableUpdateCompanionBuilder =
@@ -9523,6 +9635,8 @@ typedef $$ComponentsTableUpdateCompanionBuilder =
       Value<Duration> initialElapsedTime,
       Value<int> initialActivityCount,
       Value<double> initialKilojoules,
+      Value<String?> presetKey,
+      Value<String?> presetDamperKey,
       Value<int> rowid,
     });
 
@@ -9678,6 +9792,16 @@ class $$ComponentsTableFilterComposer
 
   ColumnFilters<double> get initialKilojoules => $composableBuilder(
     column: $table.initialKilojoules,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get presetKey => $composableBuilder(
+    column: $table.presetKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get presetDamperKey => $composableBuilder(
+    column: $table.presetDamperKey,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -9855,6 +9979,16 @@ class $$ComponentsTableOrderingComposer
     column: $table.initialKilojoules,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get presetKey => $composableBuilder(
+    column: $table.presetKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get presetDamperKey => $composableBuilder(
+    column: $table.presetDamperKey,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ComponentsTableAnnotationComposer
@@ -9924,6 +10058,14 @@ class $$ComponentsTableAnnotationComposer
 
   GeneratedColumn<double> get initialKilojoules => $composableBuilder(
     column: $table.initialKilojoules,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get presetKey =>
+      $composableBuilder(column: $table.presetKey, builder: (column) => column);
+
+  GeneratedColumn<String> get presetDamperKey => $composableBuilder(
+    column: $table.presetDamperKey,
     builder: (column) => column,
   );
 
@@ -10074,6 +10216,8 @@ class $$ComponentsTableTableManager
                 Value<Duration> initialElapsedTime = const Value.absent(),
                 Value<int> initialActivityCount = const Value.absent(),
                 Value<double> initialKilojoules = const Value.absent(),
+                Value<String?> presetKey = const Value.absent(),
+                Value<String?> presetDamperKey = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ComponentsCompanion(
                 id: id,
@@ -10089,6 +10233,8 @@ class $$ComponentsTableTableManager
                 initialElapsedTime: initialElapsedTime,
                 initialActivityCount: initialActivityCount,
                 initialKilojoules: initialKilojoules,
+                presetKey: presetKey,
+                presetDamperKey: presetDamperKey,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -10106,6 +10252,8 @@ class $$ComponentsTableTableManager
                 Value<Duration> initialElapsedTime = const Value.absent(),
                 Value<int> initialActivityCount = const Value.absent(),
                 Value<double> initialKilojoules = const Value.absent(),
+                Value<String?> presetKey = const Value.absent(),
+                Value<String?> presetDamperKey = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ComponentsCompanion.insert(
                 id: id,
@@ -10121,6 +10269,8 @@ class $$ComponentsTableTableManager
                 initialElapsedTime: initialElapsedTime,
                 initialActivityCount: initialActivityCount,
                 initialKilojoules: initialKilojoules,
+                presetKey: presetKey,
+                presetDamperKey: presetDamperKey,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

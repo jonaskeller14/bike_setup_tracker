@@ -153,4 +153,59 @@ void main() {
       expect(component.parentIdAt(t2), 'bike_2');
     });
   });
+
+  group('preset provenance', () {
+    Component fork() => Component(
+          name: 'FOX 36 Factory',
+          componentType: ComponentType.fork,
+          installations: [],
+          presetKey: 'fork-fox-36-factory-2025',
+          presetDamperKey: 'grip_x2',
+        );
+
+    test('defaults to null for a hand-built component', () {
+      final component = Component(
+        name: 'Hand built',
+        componentType: ComponentType.fork,
+        installations: [],
+      );
+      expect(component.presetKey, isNull);
+      expect(component.presetDamperKey, isNull);
+    });
+
+    test('deepCopy keeps it — a duplicate is still that preset', () {
+      final copy = fork().deepCopy();
+      expect(copy.presetKey, 'fork-fox-36-factory-2025');
+      expect(copy.presetDamperKey, 'grip_x2');
+    });
+
+    test('copyWith leaves it alone, overwrites it, or clears it', () {
+      expect(fork().copyWith(name: 'Renamed').presetKey, 'fork-fox-36-factory-2025');
+      expect(fork().copyWith(presetKey: 'fork-fox-36-performance-2025').presetKey,
+          'fork-fox-36-performance-2025');
+      expect(fork().copyWith(presetKey: null).presetKey, isNull);
+    });
+
+    test('survives a json round trip', () {
+      final restored = Component.fromJson(json: fork().toJson());
+      expect(restored.presetKey, 'fork-fox-36-factory-2025');
+      expect(restored.presetDamperKey, 'grip_x2');
+    });
+
+    test('a backup written before provenance existed reads as null', () {
+      final legacy = fork().toJson()
+        ..remove('presetKey')
+        ..remove('presetDamperKey');
+      final restored = Component.fromJson(json: legacy);
+      expect(restored.presetKey, isNull);
+      expect(restored.presetDamperKey, isNull);
+    });
+
+    test('distinguishes two otherwise identical components', () {
+      final a = fork();
+      final b = a.copyWith(presetDamperKey: 'grip_x');
+      expect(a == b, isFalse);
+      expect(a.hashCode == b.hashCode, isFalse);
+    });
+  });
 }

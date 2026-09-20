@@ -20,6 +20,7 @@ class _FakePresetRepository extends ComponentPresetRepository {
     return [
       for (final brand in brands)
         ComponentPresetVariant(
+          key: '${type.name}-$brand-base',
           brand: brand,
           model: '$brand model',
           trim: 'base',

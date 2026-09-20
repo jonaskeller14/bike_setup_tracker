@@ -479,6 +479,13 @@ subtitle formatting).
 
 ## Phase 6 — Optional, currently not planned: persisted provenance
 
+> **Superseded (2026-09).** Built as key-based provenance: an authored, frozen
+> `key:` per trim, stored on `Component.presetKey` / `presetDamperKey` (Drift
+> v19, JSON unchanged at v5) and resolved through
+> `ComponentPresetRepository.byKey`. The catalog-driven *update flow* below is
+> still deliberately not built — the stored key only lets features read the
+> catalog, never rewrite a saved component.
+
 Persist `presetKey` on `Component` (nullable column, Drift v4 + JSON v5).
 Deliberately last and possibly never: catalog-driven component updates can
 introduce a lot of unexpected behavior (components changing under saved

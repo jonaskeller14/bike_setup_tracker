@@ -28,8 +28,10 @@ forks:
     url: https://ridefox.com/36
     trims:
       - trim: Factory
+        key: fork-fox-36-factory-2025
         dampers: [grip_x2]
       - trim: Performance
+        key: fork-fox-36-performance-2025
         dampers: [grip_x2]
   - model: "36"
     category: All-Mountain
@@ -37,8 +39,10 @@ forks:
     url: https://ridefox.com/36-2021
     trims:
       - trim: Factory
+        key: fork-fox-36-factory-2021
         dampers: [grip2_2021]
       - trim: Rhythm
+        key: fork-fox-36-rhythm-2022
         dampers: [grip2_2021]
         year_range: "2022-2024"
 ''';
@@ -72,22 +76,31 @@ void main() {
     });
   });
 
-  group('presetKey', () {
+  group('key', () {
     test('separates two generations of the same trim', () {
       final factories = variants.where((v) => v.trim == 'Factory').toList();
       expect(factories, hasLength(2));
-      expect(factories.map((v) => v.presetKey).toSet(), hasLength(2));
-      expect(factories.first.presetKey, 'fork/FOX/36/Factory/2025-2026');
+      expect(factories.map((v) => v.key).toSet(), hasLength(2));
+      expect(factories.first.key, 'fork-fox-36-factory-2025');
     });
 
-    test('omits the segment when the catalog has no years', () {
-      const variant = ComponentPresetVariant(
-        brand: 'Cane Creek',
-        model: 'DBcoil',
-        trim: 'IL',
-        componentType: ComponentType.shock,
+    test('a trim without one is a data error, not a silent null', () {
+      const yaml = '''
+brand: FOX
+component_type: fork
+forks:
+  - model: "36"
+    trims:
+      - trim: Factory
+''';
+      expect(
+        () => parseBrandFile(yaml),
+        throwsA(isA<FormatException>().having(
+          (e) => e.message,
+          'message',
+          allOf(contains('36 Factory'), contains('key')),
+        )),
       );
-      expect(variant.presetKey, 'shock/Cane Creek/DBcoil/IL');
     });
   });
 
@@ -117,6 +130,7 @@ void main() {
 
     test('is null when no trim declares years', () {
       const undated = ComponentPresetVariant(
+        key: 'shock-cane-creek-dbcoil-il',
         brand: 'Cane Creek',
         model: 'DBcoil',
         trim: 'IL',

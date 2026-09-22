@@ -159,7 +159,7 @@ void main() {
   }
 
   group('bike card', () {
-    testWidgets('names the parent in the passive hint for a mounted child', (tester) async {
+    testWidgets('keeps the plain hint for a mounted child', (tester) async {
       await tester.runAsync(seed);
       final notifier = dragNotifier();
       await pumpBikeCard(tester, notifier);
@@ -167,8 +167,7 @@ void main() {
       notifier.value = repository.components['tire'];
       await tester.pump();
 
-      expect(find.text('Drag here to move off Wheel A onto Bike B'), findsOneWidget);
-      expect(find.text('Drag here to install on Bike B'), findsNothing);
+      expect(find.text('Drag here to install on Bike B'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
 
@@ -184,7 +183,7 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('names the parent in the release overlay for a mounted child', (tester) async {
+    testWidgets('keeps the plain release overlay for a mounted child', (tester) async {
       await tester.runAsync(seed);
       final notifier = dragNotifier();
       await pumpBikeCard(tester, notifier);
@@ -193,8 +192,7 @@ void main() {
       await tester.pump();
       final gesture = await hoverOver(tester, find.byType(GarageBikeCard));
 
-      expect(find.text('Release to move Tire off Wheel A onto Bike B'), findsOneWidget);
-      expect(find.text('Release to install to Bike B'), findsNothing);
+      expect(find.text('Release to install to Bike B'), findsOneWidget);
 
       await gesture.up();
       await tester.pump();
@@ -284,7 +282,7 @@ void main() {
     });
   });
 
-  testWidgets('long parent and bike names stay within the card', (tester) async {
+  testWidgets('a long bike name stays within the card', (tester) async {
     await tester.runAsync(() => seed(wheelName: loremIpsum, targetBikeName: loremIpsum));
     final notifier = dragNotifier();
     await pumpBikeCard(tester, notifier);
@@ -292,7 +290,7 @@ void main() {
     notifier.value = repository.components['tire'];
     await tester.pump();
 
-    final hint = find.textContaining('Drag here to move off');
+    final hint = find.textContaining('Drag here to install on');
     expect(hint, findsOneWidget);
     expect(
       tester.getSize(hint).width,

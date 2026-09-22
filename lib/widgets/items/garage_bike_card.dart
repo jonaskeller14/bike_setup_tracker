@@ -343,9 +343,6 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                       draggedComp != null &&
                       hierarchy.currentBike(draggedComp.id) != widget.bike.id &&
                       !showDropZone;
-                  final draggedParent = draggedComp == null
-                      ? null
-                      : currentParentComponentOf(draggedComp.id, hierarchy: hierarchy);
 
                   return Padding(
                     padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
@@ -445,18 +442,14 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                           Positioned.fill(
                             child: _dragHintToBikeWidget(
                               context,
-                              message: draggedParent == null
-                                  ? "Drag here to install on ${widget.bike.name}"
-                                  : "Drag here to move off ${draggedParent.name} onto ${widget.bike.name}",
+                              message: "Drag here to install on ${widget.bike.name}",
                             ),
                           ),
                         if (showDropZone)
                           Positioned.fill(
                             child: _releaseToBikeWidget(
                               context,
-                              message: draggedComp != null && draggedParent != null
-                                  ? "Release to move ${draggedComp.name} off ${draggedParent.name} onto ${widget.bike.name}"
-                                  : "Release to install to ${widget.bike.name}",
+                              message: "Release to install to ${widget.bike.name}",
                             ),
                           ),
                       ],

@@ -6,12 +6,14 @@ import 'package:provider/provider.dart';
 import 'package:reorderables/reorderables.dart';
 
 import '../../models/component.dart';
-import '../../pages/details/component_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/component_actions.dart';
+import '../../utils/garage_component_grouping.dart';
 import '../../utils/installation_issue.dart';
 import '../dashed_border_painter.dart';
 import 'component_list_card.dart';
+import 'garage_component_cell.dart';
+import 'garage_component_group.dart';
 import 'garage_component_icon_card.dart';
 
 class GarageUninstalledCard extends StatefulWidget {
@@ -302,6 +304,11 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
       bikes: appRepository.bikes,
     );
 
+    final uninstalledGroups = garageGroupsFor(uninstalledComponents.values, hierarchy: hierarchy);
+    final uninstalledRoots = uninstalledGroups.map((group) => group.parent).toList();
+    final archivedGroups = garageGroupsFor(archivedComponents.values, hierarchy: hierarchy);
+    final archivedRoots = archivedGroups.map((group) => group.parent).toList();
+
     final showUninstalledComponent = widget.componentToShowDetails != null && uninstalledComponents.keys.contains(widget.componentToShowDetails);
 
     return Card(
@@ -370,6 +377,10 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                                         constraints.maxWidth,
                                         spacing: spacing,
                                       );
+                                      final cardsPerRow = GarageComponentIconCard.cardsPerRow(
+                                        constraints.maxWidth,
+                                        spacing: spacing,
+                                      );
 
                                       return ReorderableWrap(
                                         key: ValueKey(uninstalledComponents),
@@ -379,16 +390,14 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                                           await context.read<AppRepository>().reorderComponent(
                                             oldIndex: oldIndex,
                                             newIndex: newIndex,
-                                            filteredComponentsList: uninstalledComponents.values.toList(),
+                                            filteredComponentsList: uninstalledRoots,
                                           );
                                           widget.setDraggedComponent(null);
                                         },
                                         onReorderStarted: (index) =>
-                                            widget.setDraggedComponent(
-                                              uninstalledComponents.values
-                                                  .toList()[index],
-                                            ),
+                                            widget.setDraggedComponent(uninstalledRoots[index]),
                                         onNoReorder: (index) => widget.setDraggedComponent(null),
+                                        buildDraggableFeedback: buildGarageDraggableFeedback,
                                         footer: Container(
                                           width: itemWidth,
                                           decoration: BoxDecoration(
@@ -413,28 +422,26 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                                         ),
                                         spacing: spacing,
                                         runSpacing: spacing,
-                                        children: uninstalledComponents.values
-                                            .map(
-                                              (component) => GestureDetector(
-                                                onTap: () => widget.onPressedComponent(component),
-                                                onDoubleTap: () async {
-                                                  await Navigator.push<void>(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                      builder: (context) => ComponentDetailsPage(componentId: component.id),
-                                                    ),
-                                                  );
-                                                },
-                                                child: GarageComponentIconCard(
-                                                  component: component,
-                                                  componentToShowDetails:
-                                                      widget.componentToShowDetails,
-                                                  width: itemWidth,
-                                                  issue: issueOf(component),
-                                                ),
-                                              ),
+                                        children: uninstalledGroups.map((group) => group.isGroup
+                                          ? GarageComponentGroup(
+                                              key: ValueKey(group.parent),
+                                              group: group,
+                                              componentToShowDetails: widget.componentToShowDetails,
+                                              cellWidth: itemWidth,
+                                              spacing: spacing,
+                                              cardsPerRow: cardsPerRow,
+                                              onPressedComponent: widget.onPressedComponent,
+                                              setDraggedComponent: widget.setDraggedComponent,
+                                              issueOf: issueOf,
                                             )
-                                            .toList(),
+                                          : GarageComponentCell(
+                                              key: ValueKey(group.parent),
+                                              component: group.parent,
+                                              componentToShowDetails: widget.componentToShowDetails,
+                                              width: itemWidth,
+                                              issue: issueOf(group.parent),
+                                              onPressed: widget.onPressedComponent,
+                                            )).toList(),
                                       );
                                     },
                                   ),
@@ -544,6 +551,10 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                                             constraints.maxWidth,
                                             spacing: spacing,
                                           );
+                                          final cardsPerRow = GarageComponentIconCard.cardsPerRow(
+                                            constraints.maxWidth,
+                                            spacing: spacing,
+                                          );
 
                                           return ReorderableWrap(
                                             key: ValueKey(archivedComponents),
@@ -553,37 +564,34 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                                               await context.read<AppRepository>().reorderComponent(
                                                 oldIndex: oldIndex,
                                                 newIndex: newIndex,
-                                                filteredComponentsList: archivedComponents.values.toList(),
+                                                filteredComponentsList: archivedRoots,
                                               );
                                               widget.setDraggedComponent(null);
                                             },
-                                            onReorderStarted: (int index) => widget.setDraggedComponent(
-                                              archivedComponents.values.toList()[index],
-                                            ),
+                                            onReorderStarted: (int index) =>
+                                                widget.setDraggedComponent(archivedRoots[index]),
                                             onNoReorder: (int index) => widget.setDraggedComponent(null),
+                                            buildDraggableFeedback: buildGarageDraggableFeedback,
                                             spacing: spacing,
                                             runSpacing: spacing,
-                                            children: archivedComponents.values.map((component) {
-                                              return GestureDetector(
-                                                onTap: () => widget.onPressedComponent(component),
-                                                onDoubleTap: () async {
-                                                  await Navigator.push<void>(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          ComponentDetailsPage(
-                                                            componentId: component.id,
-                                                          ),
-                                                    ),
-                                                  );
-                                                },
-                                                child: GarageComponentIconCard(
-                                                  component: component,
+                                            children: archivedGroups.map((group) => group.isGroup
+                                              ? GarageComponentGroup(
+                                                  key: ValueKey(group.parent),
+                                                  group: group,
+                                                  componentToShowDetails: widget.componentToShowDetails,
+                                                  cellWidth: itemWidth,
+                                                  spacing: spacing,
+                                                  cardsPerRow: cardsPerRow,
+                                                  onPressedComponent: widget.onPressedComponent,
+                                                  setDraggedComponent: widget.setDraggedComponent,
+                                                )
+                                              : GarageComponentCell(
+                                                  key: ValueKey(group.parent),
+                                                  component: group.parent,
                                                   componentToShowDetails: widget.componentToShowDetails,
                                                   width: itemWidth,
-                                                ),
-                                              );
-                                            }).toList(),
+                                                  onPressed: widget.onPressedComponent,
+                                                )).toList(),
                                           );
                                         },
                                       ),

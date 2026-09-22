@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 
 import '../../models/component.dart';
 import '../../pages/details/component_details_page.dart';
+import '../../utils/installation_issue.dart';
 import 'garage_component_icon_card.dart';
 
 class GarageComponentCell extends StatelessWidget {
   final Component component;
   final String? componentToShowDetails;
   final double? width;
+  final InstallationIssue? issue;
   final bool merged;
   final void Function(Component)? onPressed;
 
@@ -16,6 +18,7 @@ class GarageComponentCell extends StatelessWidget {
     required this.component,
     required this.componentToShowDetails,
     this.width,
+    this.issue,
     this.merged = false,
     this.onPressed,
   });
@@ -26,6 +29,7 @@ class GarageComponentCell extends StatelessWidget {
       component: component,
       componentToShowDetails: componentToShowDetails,
       width: width,
+      issue: issue,
       merged: merged,
     );
 

@@ -7,6 +7,7 @@ import 'package:reorderables/reorderables.dart';
 import '../../models/component.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/garage_component_grouping.dart';
+import '../../utils/installation_issue.dart';
 import 'garage_component_cell.dart';
 
 /// A parent component and the components mounted on it, rendered as one wide
@@ -25,6 +26,7 @@ class GarageComponentGroup extends StatelessWidget {
   final int cardsPerRow;
   final void Function(Component) onPressedComponent;
   final ValueChanged<Component?> setDraggedComponent;
+  final InstallationIssue? Function(Component)? issueOf;
 
   /// Renders a static snapshot without the inner wrap and without gestures, for
   /// the drag feedback of the whole group.
@@ -39,6 +41,7 @@ class GarageComponentGroup extends StatelessWidget {
     required this.cardsPerRow,
     required this.onPressedComponent,
     required this.setDraggedComponent,
+    this.issueOf,
     this.isSnapshot = false,
   });
 
@@ -56,6 +59,7 @@ class GarageComponentGroup extends StatelessWidget {
     cardsPerRow: cardsPerRow,
     onPressedComponent: onPressedComponent,
     setDraggedComponent: setDraggedComponent,
+    issueOf: issueOf,
     isSnapshot: true,
   );
 
@@ -64,6 +68,7 @@ class GarageComponentGroup extends StatelessWidget {
     component: component,
     componentToShowDetails: componentToShowDetails,
     width: cellWidth,
+    issue: issueOf?.call(component),
     merged: merged,
     onPressed: isSnapshot ? null : onPressedComponent,
   );

@@ -11,14 +11,16 @@ import '../../models/bike.dart';
 import '../../models/component.dart';
 import '../../models/person.dart';
 import '../../pages/details/bike_details_page.dart';
-import '../../pages/details/component_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/bike_actions.dart';
 import '../../utils/component_actions.dart';
+import '../../utils/garage_component_grouping.dart';
 import '../dashed_border_painter.dart';
 import '../notes_text.dart';
 import 'component_list_card.dart';
+import 'garage_component_cell.dart';
+import 'garage_component_group.dart';
 import 'garage_component_icon_card.dart';
 
 class GarageBikeCard extends StatefulWidget {
@@ -173,6 +175,8 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
     final persons = appRepository.persons;
     final hierarchy = appRepository.componentHierarchy;
     final bikeComponents = Map.fromEntries(appRepository.components.entries.where((ce) => hierarchy.currentBike(ce.key) == widget.bike.id));
+    final groups = garageGroupsFor(bikeComponents.values, hierarchy: hierarchy);
+    final roots = groups.map((group) => group.parent).toList();
 
     return DragTarget<Object>(
       key: ValueKey(widget.bike.id),
@@ -355,6 +359,10 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                                   constraints.maxWidth,
                                   spacing: spacing,
                                 );
+                                final cardsPerRow = GarageComponentIconCard.cardsPerRow(
+                                  constraints.maxWidth,
+                                  spacing: spacing,
+                                );
 
                                 return ReorderableWrap(
                                   scrollPhysics: const NeverScrollableScrollPhysics(),
@@ -363,12 +371,13 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                                     await context.read<AppRepository>().reorderComponent(
                                       oldIndex: oldIndex,
                                       newIndex: newIndex,
-                                      filteredComponentsList: bikeComponents.values.toList(),
+                                      filteredComponentsList: roots,
                                     );
                                     widget.setDraggedComponent(null);
                                   },
-                                  onReorderStarted: (index) => widget.setDraggedComponent(bikeComponents.values.toList()[index]),
+                                  onReorderStarted: (index) => widget.setDraggedComponent(roots[index]),
                                   onNoReorder: (index) => widget.setDraggedComponent(null),
+                                  buildDraggableFeedback: buildGarageDraggableFeedback,
                                   runSpacing: spacing,
                                   spacing: spacing,
                                   footer: Container(
@@ -406,23 +415,24 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                                       ),
                                     ),
                                   ),
-                                  children: bikeComponents.values.map((component) => GestureDetector(
-                                    key: ValueKey(component),
-                                    onTap: () => widget.onPressedComponent(component),
-                                    onDoubleTap: () async {
-                                      await Navigator.push<void>(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => ComponentDetailsPage(componentId: component.id),
-                                        ),
-                                      );
-                                    },
-                                    child: GarageComponentIconCard(
-                                      component: component,
-                                      componentToShowDetails: widget.componentToShowDetails,
-                                      width: itemWidth,
-                                    ),
-                                  )).toList(),
+                                  children: groups.map((group) => group.isGroup
+                                    ? GarageComponentGroup(
+                                        key: ValueKey(group.parent),
+                                        group: group,
+                                        componentToShowDetails: widget.componentToShowDetails,
+                                        cellWidth: itemWidth,
+                                        spacing: spacing,
+                                        cardsPerRow: cardsPerRow,
+                                        onPressedComponent: widget.onPressedComponent,
+                                        setDraggedComponent: widget.setDraggedComponent,
+                                      )
+                                    : GarageComponentCell(
+                                        key: ValueKey(group.parent),
+                                        component: group.parent,
+                                        componentToShowDetails: widget.componentToShowDetails,
+                                        width: itemWidth,
+                                        onPressed: widget.onPressedComponent,
+                                      )).toList(),
                                 );
                               },
                             ),

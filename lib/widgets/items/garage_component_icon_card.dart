@@ -17,6 +17,7 @@ class GarageComponentIconCard extends StatelessWidget {
   final String? componentToShowDetails;
   final double? width;
   final InstallationIssue? issue;
+  final bool merged;  // group header --> no border+backgorund
 
   const GarageComponentIconCard({
     super.key,
@@ -24,6 +25,7 @@ class GarageComponentIconCard extends StatelessWidget {
     required this.componentToShowDetails,
     this.width,
     this.issue,
+    this.merged = false,
   });
 
   static double widthFor(
@@ -34,9 +36,20 @@ class GarageComponentIconCard extends StatelessWidget {
       0.0,
       availableWidth - rowEndSpacing,
     );
+    final columns = cardsPerRow(availableWidth, spacing: spacing);
+    return (safeAvailableWidth - spacing * (columns - 1)) / columns;
+  }
+
+  static int cardsPerRow(
+    double availableWidth, {
+    required double spacing,
+  }) {
+    final safeAvailableWidth = math.max(
+      0.0,
+      availableWidth - rowEndSpacing,
+    );
     final fittingCards = ((safeAvailableWidth + spacing) / (minimumWidth + spacing)).floor();
-    final cardsPerRow = fittingCards < 1 ? 1 : fittingCards;
-    return (safeAvailableWidth - spacing * (cardsPerRow - 1)) / cardsPerRow;
+    return fittingCards < 1 ? 1 : fittingCards;
   }
 
   @override
@@ -61,14 +74,18 @@ class GarageComponentIconCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: isSelected
                 ? colorScheme.tertiaryContainer
-                : colorScheme.surface,
+                : merged
+                    ? Colors.transparent
+                    : colorScheme.surface,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: issue != null
-                  ? colorScheme.error
-                  : isSelected
-                      ? colorScheme.tertiary
-                      : colorScheme.outlineVariant,
+              color: isSelected
+                  ? colorScheme.tertiary
+                  : issue != null
+                      ? colorScheme.error
+                      : merged
+                          ? Colors.transparent
+                          : colorScheme.outlineVariant,
               width: isSelected ? 1.5 : 1.0,
             ),
             boxShadow: isSelected

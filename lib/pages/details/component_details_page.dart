@@ -19,6 +19,7 @@ import '../../utils/installation_timeline_validation.dart';
 import '../../utils/table_column.dart';
 import '../../utils/table_column_comparator.dart';
 import '../../widgets/chips/filter_sheet_chip.dart';
+import '../../widgets/display_data/component_details_page_histogram_chart.dart';
 import '../../widgets/display_data/component_details_page_line_chart.dart';
 import '../../widgets/display_data/component_details_page_radial_chart.dart';
 import '../../widgets/display_data/component_stats_card.dart';
@@ -49,6 +50,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
   bool _sortAscending = true;
   TableColumn? _sortColumn;
   TableColumn? _selectedLineChartColumn;
+  TableColumn? _selectedHistogramColumn;
   Set<String>? _selectedSetupIds;
 
   Map<String, double?> _ratingScores = {};
@@ -117,6 +119,12 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     );
     final setupActivityCounts = context.select<SetupActivityAnalysisService, Map<String, int>>(
       (service) => service.setupActivityCounts,
+    );
+    final setupActivityCountsLoaded = context.select<SetupActivityAnalysisService, bool>(
+      (service) => service.setupActivityCountsLoaded,
+    );
+    final setupActivityCountsFailed = context.select<SetupActivityAnalysisService, bool>(
+      (service) => service.setupActivityCountsFailed,
     );
     if (hasAnyActivity) {
       unawaited(context.read<SetupActivityAnalysisService>().getSetupActivityCounts());
@@ -430,6 +438,9 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                       if (_selectedLineChartColumn == column) {
                         _selectedLineChartColumn = null;
                       }
+                      if (_selectedHistogramColumn == column) {
+                        _selectedHistogramColumn = null;
+                      }
                     });
                   },
                   onSelectAll: (selected) {
@@ -534,6 +545,50 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                   setState(() => _selectedSetupIds!.remove(setupId));
                 },
               ),
+
+              if (appSettings.enableStrava && subscriptionService.hasStravaEntitlement) ...[
+                const Divider(height: 1),
+                const SectionTitle(
+                  title: "Activity Histogram",
+                  infoText:
+                      "• Shows how many Strava activities were ridden with each adjustment value.\n"
+                      "• Counts all setups in the table above, not just the selected ones.\n"
+                      "• Numerical values are grouped into ranges when there are many distinct values.\n"
+                      "• Tap a legend entry to show a different adjustment.\n"
+                      "• Long-press a legend entry to remove its column.",
+                ),
+                ComponentDetailsPageHistogramChart(
+                  activeColumns: activeColumns,
+                  setups: setups,
+                  setupActivityCounts: setupActivityCounts,
+                  hasAnyActivity: hasAnyActivity,
+                  activityCountsLoaded: setupActivityCountsLoaded,
+                  activityCountsFailed: setupActivityCountsFailed,
+                  selectedHistogramColumn: _selectedHistogramColumn,
+                  valueFor: _rawValue,
+                  adjustmentFor: (column) => adjustmentForColumn(
+                    column,
+                    componentAdjustments,
+                    personAdjustments,
+                  ),
+                  columnLabel: (column) => _columnLabel(
+                    column,
+                    componentAdjustments,
+                    personAdjustments,
+                  ),
+                  onSelectedColumnChanged: (column) {
+                    setState(() => _selectedHistogramColumn = column);
+                  },
+                  onColumnRemoved: (column) {
+                    setState(() {
+                      column.active = false;
+                      if (_selectedHistogramColumn == column) {
+                        _selectedHistogramColumn = null;
+                      }
+                    });
+                  },
+                ),
+              ],
             ],
           ),
         ),

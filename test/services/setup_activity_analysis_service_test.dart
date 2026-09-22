@@ -153,6 +153,19 @@ void main() {
     expect(await service.getSetupActivityCounts(), {'setup': 0});
   });
 
+  test('reports when counts are loaded and resets on invalidation', () async {
+    expect(service.setupActivityCountsLoaded, isFalse);
+    await service.getSetupActivityCounts();
+    expect(service.setupActivityCountsLoaded, isTrue);
+    expect(service.setupActivityCountsFailed, isFalse);
+
+    await insertActivity(2);
+    await settle();
+    expect(service.setupActivityCountsLoaded, isFalse);
+    await service.getSetupActivityCounts();
+    expect(service.setupActivityCountsLoaded, isTrue);
+  });
+
   test('tracks full-database activity existence transitions', () async {
     await service.getSetupActivityCounts();
     expect(service.hasAnyActivity, isTrue);

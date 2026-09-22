@@ -16,6 +16,8 @@ class SetupActivityAnalysisService extends ChangeNotifier {
 
   Future<Map<String, int>>? _setupActivityCountsFuture;
   Map<String, int> _setupActivityCounts = const {};
+  bool _setupActivityCountsLoaded = false;
+  bool _setupActivityCountsFailed = false;
   final Map<String, Future<AdjustmentActivityHistogram>> _histogramFutures = {};
   bool _hasAnyActivity = false;
   bool _disposed = false;
@@ -57,6 +59,8 @@ class SetupActivityAnalysisService extends ChangeNotifier {
 
   bool get hasAnyActivity => _hasAnyActivity;
   Map<String, int> get setupActivityCounts => _setupActivityCounts;
+  bool get setupActivityCountsLoaded => _setupActivityCountsLoaded;
+  bool get setupActivityCountsFailed => _setupActivityCountsFailed;
 
   Future<Map<String, int>> getSetupActivityCounts() async {
     await _ready;
@@ -79,9 +83,19 @@ class SetupActivityAnalysisService extends ChangeNotifier {
   ]);
 
   Future<Map<String, int>> _loadSetupActivityCounts(int generation) async {
-    final counts = Map<String, int>.unmodifiable(await _database.stravaDao.getSetupActivityCounts());
+    final Map<String, int> counts;
+    try {
+      counts = Map<String, int>.unmodifiable(await _database.stravaDao.getSetupActivityCounts());
+    } catch (_) {
+      if (!_disposed && generation == _generation) {
+        _setupActivityCountsFailed = true;
+        _notifyListeners();
+      }
+      rethrow;
+    }
     if (!_disposed && generation == _generation) {
       _setupActivityCounts = counts;
+      _setupActivityCountsLoaded = true;
       _notifyListeners();
     }
     return counts;
@@ -122,6 +136,8 @@ class SetupActivityAnalysisService extends ChangeNotifier {
     _generation++;
     _setupActivityCountsFuture = null;
     _setupActivityCounts = const {};
+    _setupActivityCountsLoaded = false;
+    _setupActivityCountsFailed = false;
     _histogramFutures.clear();
     _notifyListeners();
   }

@@ -9,6 +9,7 @@ import '../../models/component.dart';
 import '../../pages/details/component_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/component_actions.dart';
+import '../../utils/installation_issue.dart';
 import '../dashed_border_painter.dart';
 import 'component_list_card.dart';
 import 'garage_component_icon_card.dart';
@@ -295,6 +296,12 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
     );
     final archivedComponents = appRepository.archivedComponents;
 
+    InstallationIssue? issueOf(Component component) => installationIssueOf(
+      component.id,
+      hierarchy: hierarchy,
+      bikes: appRepository.bikes,
+    );
+
     final showUninstalledComponent = widget.componentToShowDetails != null && uninstalledComponents.keys.contains(widget.componentToShowDetails);
 
     return Card(
@@ -423,6 +430,7 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                                                   componentToShowDetails:
                                                       widget.componentToShowDetails,
                                                   width: itemWidth,
+                                                  issue: issueOf(component),
                                                 ),
                                               ),
                                             )
@@ -465,6 +473,7 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                       constraints.maxWidth,
                       spacing: 8,
                     ),
+                    issue: issueOf(uninstalledComponents[widget.componentToShowDetails]!),
                   ),
                   child: ComponentListCard(
                     component: uninstalledComponents[widget.componentToShowDetails]!,

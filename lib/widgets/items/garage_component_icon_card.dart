@@ -7,6 +7,7 @@ import '../../models/app_settings.dart';
 import '../../models/component.dart';
 import '../../models/task/task_rule.dart';
 import '../../repositories/app_repository.dart';
+import '../../utils/installation_issue.dart';
 
 class GarageComponentIconCard extends StatelessWidget {
   static const double minimumWidth = 47;
@@ -15,12 +16,14 @@ class GarageComponentIconCard extends StatelessWidget {
   final Component component;
   final String? componentToShowDetails;
   final double? width;
+  final InstallationIssue? issue;
 
   const GarageComponentIconCard({
     super.key,
     required this.component,
     required this.componentToShowDetails,
     this.width,
+    this.issue,
   });
 
   static double widthFor(
@@ -63,7 +66,9 @@ class GarageComponentIconCard extends StatelessWidget {
             border: Border.all(
               color: isSelected
                   ? colorScheme.tertiary
-                  : colorScheme.outlineVariant,
+                  : issue != null
+                      ? colorScheme.error
+                      : colorScheme.outlineVariant,
               width: isSelected ? 1.5 : 1.0,
             ),
             boxShadow: isSelected
@@ -82,6 +87,28 @@ class GarageComponentIconCard extends StatelessWidget {
                 : colorScheme.onSurface,
           ),
         ),
+        if (issue != null)
+          Positioned(
+            top: -3,
+            left: -3,
+            child: Semantics(
+              label: issue!.label,
+              child: Tooltip(
+                message: issue!.label,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: isSelected ? colorScheme.tertiaryContainer : colorScheme.surface,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.error_outline,
+                    size: 14,
+                    color: colorScheme.error,
+                  ),
+                ),
+              ),
+            ),
+          ),
         if (indicatorStatus != null)
           Positioned(
             top: -3,

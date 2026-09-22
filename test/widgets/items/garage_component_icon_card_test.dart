@@ -1,9 +1,17 @@
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/component.dart';
+import 'package:bike_setup_tracker/models/task/task_rule.dart';
+import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/theme.dart';
+import 'package:bike_setup_tracker/utils/installation_issue.dart';
 import 'package:bike_setup_tracker/widgets/items/garage_component_icon_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class _MockAppRepository extends Mock implements AppRepository {}
 
 const _spacing = 8.0;
 
@@ -114,6 +122,122 @@ void main() {
     expect(tester.getTopLeft(fifteenthTile).dy, greaterThan(tester.getTopLeft(firstTile).dy));
     expect(tester.getSize(plusTile).width, tester.getSize(firstTile).width);
     expect(tester.takeException(), isNull);
+  });
+
+  group('installation issue badge', () {
+    final component = Component(
+      id: 'component',
+      name: 'Component',
+      installations: [],
+      componentType: ComponentType.other,
+    );
+
+    late _MockAppRepository repository;
+    late AppSettings settings;
+
+    setUp(() {
+      SharedPreferences.setMockInitialValues({});
+      repository = _MockAppRepository();
+      when(() => repository.componentTaskIndicatorStatus(component.id)).thenReturn(null);
+      settings = AppSettings();
+      addTearDown(settings.dispose);
+    });
+
+    Future<void> pumpCard(
+      WidgetTester tester, {
+      InstallationIssue? issue,
+      bool selected = false,
+    }) async {
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider<AppSettings>.value(value: settings),
+            ChangeNotifierProvider<AppRepository>.value(value: repository),
+          ],
+          child: MaterialApp(
+            theme: materialAppTheme,
+            home: Scaffold(
+              body: Align(
+                alignment: Alignment.topLeft,
+                child: GarageComponentIconCard(
+                  component: component,
+                  componentToShowDetails: selected ? component.id : null,
+                  width: GarageComponentIconCard.minimumWidth,
+                  issue: issue,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    Color borderColor(WidgetTester tester) {
+      final container = tester.widget<Container>(find.byKey(ValueKey(component.id)));
+      return ((container.decoration! as BoxDecoration).border! as Border).top.color;
+    }
+
+    ColorScheme colorScheme(WidgetTester tester) =>
+        Theme.of(tester.element(find.byType(GarageComponentIconCard))).colorScheme;
+
+    testWidgets('healthy component shows no badge', (tester) async {
+      await pumpCard(tester);
+
+      expect(find.byIcon(Icons.error_outline), findsNothing);
+      expect(borderColor(tester), colorScheme(tester).outlineVariant);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('missing bike is badged and announced', (tester) async {
+      final semantics = tester.ensureSemantics();
+
+      await pumpCard(tester, issue: InstallationIssue.missingBike);
+
+      expect(find.byIcon(Icons.error_outline), findsOneWidget);
+      expect(find.bySemanticsLabel('Bike not found'), findsOneWidget);
+      expect(borderColor(tester), colorScheme(tester).error);
+      expect(tester.takeException(), isNull);
+
+      semantics.dispose();
+    });
+
+    testWidgets('missing parent is badged and announced', (tester) async {
+      final semantics = tester.ensureSemantics();
+
+      await pumpCard(tester, issue: InstallationIssue.missingParent);
+
+      expect(find.byIcon(Icons.error_outline), findsOneWidget);
+      expect(find.bySemanticsLabel('Parent component not found'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+
+      semantics.dispose();
+    });
+
+    testWidgets('selected styling stays dominant over the issue tint', (tester) async {
+      await pumpCard(tester, issue: InstallationIssue.missingBike, selected: true);
+
+      expect(find.byIcon(Icons.error_outline), findsOneWidget);
+      expect(borderColor(tester), colorScheme(tester).tertiary);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('badge and task dot keep opposite corners', (tester) async {
+      settings.enableTask = true;
+      when(() => repository.componentTaskIndicatorStatus(component.id))
+          .thenReturn(TaskStatusType.overdue);
+
+      await pumpCard(tester, issue: InstallationIssue.missingBike);
+
+      final badge = tester.getRect(find.byIcon(Icons.error_outline));
+      final dot = tester.getRect(
+        find.byWidgetPredicate(
+          (widget) => widget is Container && widget.constraints == BoxConstraints.tight(const Size(10, 10)),
+        ),
+      );
+
+      expect(badge.right, lessThan(dot.left));
+      expect(tester.takeException(), isNull);
+    });
   });
 }
 

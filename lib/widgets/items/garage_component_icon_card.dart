@@ -72,23 +72,25 @@ class GarageComponentIconCard extends StatelessWidget {
           alignment: Alignment.center,
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: isSelected
-                ? colorScheme.tertiaryContainer
-                : merged
-                    ? Colors.transparent
+            // The group head stays unfilled: its group container carries the
+            // background and, when selected, the highlight for the whole group.
+            color: merged
+                ? Colors.transparent
+                : isSelected
+                    ? colorScheme.tertiaryContainer
                     : colorScheme.surface,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: isSelected
-                  ? colorScheme.tertiary
-                  : issue != null
-                      ? colorScheme.error
-                      : merged
-                          ? Colors.transparent
+              color: merged
+                  ? (issue != null && !isSelected ? colorScheme.error : Colors.transparent)
+                  : isSelected
+                      ? colorScheme.tertiary
+                      : issue != null
+                          ? colorScheme.error
                           : colorScheme.outlineVariant,
-              width: isSelected ? 1.5 : 1.0,
+              width: isSelected && !merged ? 1.5 : 1.0,
             ),
-            boxShadow: isSelected
+            boxShadow: isSelected && !merged
                 ? [BoxShadow(
                     color: colorScheme.tertiary.withValues(alpha: 0.2),
                     blurRadius: 4,

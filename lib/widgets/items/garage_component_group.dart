@@ -19,6 +19,9 @@ import 'garage_component_cell.dart';
 class GarageComponentGroup extends StatelessWidget {
   static const double borderRadius = 12;
 
+  /// How far the group outline sits outside the cells, into the wrap spacing.
+  static const double _outlineOutset = 2;
+
   final GarageComponentGroupData group;
   final String? componentToShowDetails;
   final double cellWidth;
@@ -76,45 +79,64 @@ class GarageComponentGroup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isParentSelected = componentToShowDetails == group.parent.id;
     final head = _cell(group.parent, merged: true);
     final children = [for (final child in group.children) _cell(child)];
 
-    return Container(
+    final content = isSnapshot
+        ? Wrap(
+            spacing: spacing,
+            runSpacing: spacing,
+            children: [head, ...children],
+          )
+        : ReorderableWrap(
+            scrollPhysics: const NeverScrollableScrollPhysics(),
+            ignorePrimaryScrollController: true,
+            spacing: spacing,
+            runSpacing: spacing,
+            onReorder: (int oldIndex, int newIndex) async {
+              await context.read<AppRepository>().reorderComponent(
+                oldIndex: oldIndex,
+                newIndex: newIndex,
+                filteredComponentsList: group.children,
+              );
+              setDraggedComponent(null);
+            },
+            onReorderStarted: (index) => setDraggedComponent(group.children[index]),
+            onNoReorder: (index) => setDraggedComponent(null),
+            header: [head],
+            children: children,
+          );
+
+    return SizedBox(
       width: width,
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(borderRadius),
-      ),
-      // Painted over the content instead of insetting it, so the cells inside
-      // stay aligned with the outer grid.
-      foregroundDecoration: BoxDecoration(
-        border: Border.all(color: colorScheme.outlineVariant),
-        borderRadius: BorderRadius.circular(borderRadius),
-      ),
-      child: isSnapshot
-          ? Wrap(
-              spacing: spacing,
-              runSpacing: spacing,
-              children: [head, ...children],
-            )
-          : ReorderableWrap(
-              scrollPhysics: const NeverScrollableScrollPhysics(),
-              ignorePrimaryScrollController: true,
-              spacing: spacing,
-              runSpacing: spacing,
-              onReorder: (int oldIndex, int newIndex) async {
-                await context.read<AppRepository>().reorderComponent(
-                  oldIndex: oldIndex,
-                  newIndex: newIndex,
-                  filteredComponentsList: group.children,
-                );
-                setDraggedComponent(null);
-              },
-              onReorderStarted: (index) => setDraggedComponent(group.children[index]),
-              onNoReorder: (index) => setDraggedComponent(null),
-              header: [head],
-              children: children,
+      child: Stack(
+        clipBehavior: Clip.none,
+        // Drawn behind the cells and slightly around them, so it never covers
+        // a selected cell's border or a task indicator, while the cells
+        // themselves stay aligned with the outer grid.
+        children: [
+          Positioned(
+            left: -_outlineOutset,
+            top: -_outlineOutset,
+            right: -_outlineOutset,
+            bottom: -_outlineOutset,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: isParentSelected
+                    ? colorScheme.tertiaryContainer
+                    : colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(borderRadius + _outlineOutset),
+                border: Border.all(
+                  color: isParentSelected ? colorScheme.tertiary : colorScheme.outlineVariant,
+                  width: isParentSelected ? 1.5 : 1.0,
+                ),
+              ),
             ),
+          ),
+          content,
+        ],
+      ),
     );
   }
 }
@@ -128,11 +150,12 @@ Widget buildGarageDraggableFeedback(
   Widget child,
 ) {
   return Material(
-    child: Card(
-      child: ConstrainedBox(
-        constraints: constraints,
-        child: child is GarageComponentGroup ? child.asSnapshot() : child,
-      ),
+    color: Theme.of(context).colorScheme.surface,
+    elevation: 6,
+    borderRadius: BorderRadius.circular(GarageComponentGroup.borderRadius),
+    child: ConstrainedBox(
+      constraints: constraints,
+      child: child is GarageComponentGroup ? child.asSnapshot() : child,
     ),
   );
 }

@@ -119,6 +119,7 @@ void main() {
     WidgetTester tester, {
     double width = 390,
     Brightness brightness = Brightness.light,
+    String? componentToShowDetails,
   }) async {
     final draggedComponentNotifier = ValueNotifier<Component?>(null);
     addTearDown(draggedComponentNotifier.dispose);
@@ -139,7 +140,7 @@ void main() {
                 child: GarageBikeCard(
                   bike: repository.bikes[_bikeId]!,
                   index: 0,
-                  componentToShowDetails: null,
+                  componentToShowDetails: componentToShowDetails,
                   onPressedComponent: (_) {},
                   onAcceptWithDetails: ({required String? newBike}) {},
                   setDraggedComponent: (_) {},
@@ -235,6 +236,54 @@ void main() {
       await pumpBikeCard(tester, brightness: Brightness.dark);
 
       expect(find.byType(GarageComponentGroup), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  });
+
+  group('selection', () {
+    setUp(() async {
+      await seed([
+        _component(_wheelId, 'Wheel', [_onBike(_wheelId)], orderIndex: 0),
+        _component(_tireId, 'Tire', [_onComponent(_tireId, _wheelId)], orderIndex: 1),
+      ]);
+    });
+
+    BoxDecoration groupDecoration(WidgetTester tester) => tester
+        .widget<DecoratedBox>(
+          find
+              .descendant(
+                of: find.byType(GarageComponentGroup),
+                matching: find.byType(DecoratedBox),
+              )
+              .first,
+        )
+        .decoration as BoxDecoration;
+
+    BoxDecoration cellDecoration(WidgetTester tester, String id) => tester
+        .widget<Container>(
+          find.descendant(of: cellFor(id), matching: find.byType(Container)).first,
+        )
+        .decoration as BoxDecoration;
+
+    testWidgets('selecting the parent highlights the whole group instead of the head cell', (tester) async {
+      await pumpBikeCard(tester, componentToShowDetails: _wheelId);
+
+      final colorScheme = materialAppTheme.colorScheme;
+      expect(groupDecoration(tester).color, colorScheme.tertiaryContainer);
+      expect(groupDecoration(tester).border?.top.color, colorScheme.tertiary);
+      expect(cellDecoration(tester, _wheelId).color, Colors.transparent);
+      expect(cellDecoration(tester, _wheelId).border?.top.color, Colors.transparent);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('selecting a child highlights only that cell', (tester) async {
+      await pumpBikeCard(tester, componentToShowDetails: _tireId);
+
+      final colorScheme = materialAppTheme.colorScheme;
+      expect(groupDecoration(tester).color, isNot(colorScheme.tertiaryContainer));
+      expect(groupDecoration(tester).border?.top.color, colorScheme.outlineVariant);
+      expect(cellDecoration(tester, _tireId).color, colorScheme.tertiaryContainer);
+      expect(cellDecoration(tester, _tireId).border?.top.color, colorScheme.tertiary);
       expect(tester.takeException(), isNull);
     });
   });

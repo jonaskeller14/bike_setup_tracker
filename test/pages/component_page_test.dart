@@ -4,9 +4,11 @@ import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component.dart';
+import 'package:bike_setup_tracker/models/component_preset.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/pages/component_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/repositories/component_preset_repository.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/set_installation_timeline.dart';
@@ -19,6 +21,7 @@ void main() {
   late AppDatabase database;
   late AppRepository appRepository;
   late AppSettings appSettings;
+  late ComponentPresetRepository presetRepository;
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
@@ -26,6 +29,19 @@ void main() {
     appRepository = AppRepository(database);
     appSettings = AppSettings();
     appSettings.enableInstallationTimeline = false;
+    presetRepository = ComponentPresetRepository.withVariants(const [
+      ComponentPresetVariant(
+        key: 'fox/38/factory',
+        brand: 'FOX',
+        model: '38',
+        trim: 'Factory',
+        componentType: ComponentType.fork,
+        note: 'Preset note',
+        adjustmentSpecs: [
+          PresetAdjustmentSpec({'name': 'Rebound', 'type': 'step', 'max': 20}),
+        ],
+      ),
+    ]);
   });
 
   tearDown(() async {
@@ -46,6 +62,7 @@ void main() {
         ChangeNotifierProvider.value(value: appSettings),
         ChangeNotifierProvider.value(value: appRepository),
         ChangeNotifierProvider<SubscriptionService>(create: (_) => SubscriptionService()),
+        Provider<ComponentPresetRepository>.value(value: presetRepository),
       ],
       child: MaterialApp(
         theme: materialAppTheme,
@@ -242,6 +259,129 @@ void main() {
 
       final popScope = tester.widget<PopScope>(find.byType(PopScope));
       expect(popScope.canPop, isTrue, reason: 'Form should not have changes initially');
+    });
+  });
+
+  group('ComponentPage applied preset', () {
+    const presetName = 'FOX 38 Factory';
+
+    Future<void> pickFoxFactory(WidgetTester tester) async {
+      for (final step in ['FOX', '38', 'Factory']) {
+        final row = find.widgetWithText(ListTile, step);
+        if (row.evaluate().isEmpty) continue; // The picker skips single-choice levels.
+        await tester.tap(row.last);
+        await tester.pumpAndSettle();
+      }
+    }
+
+    String notesText(WidgetTester tester) => tester
+        .widget<TextField>(find.descendant(
+          of: find.widgetWithText(TextFormField, 'Notes (optional)'),
+          matching: find.byType(TextField),
+        ))
+        .controller!
+        .text;
+
+    Future<void> applyPresetViaAutocomplete(WidgetTester tester) async {
+      appSettings.enableComponentPresets = true;
+      await tester.pumpWidget(createWidgetUnderTest(mode: ComponentPageMode.add));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.widgetWithText(TextFormField, 'Component Name'), 'fox 38');
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(ListTile, presetName));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('shows the applied preset, confirms it and offers undo', (WidgetTester tester) async {
+      await applyPresetViaAutocomplete(tester);
+
+      expect(find.text('From catalog · Tap to change'), findsOneWidget);
+      expect(find.text('Filled from $presetName'), findsOneWidget);
+      // Rebound from the spec plus the auto-injected SAG.
+      expect(find.text('2 adjustments prefilled from $presetName'), findsOneWidget);
+
+      await tester.tap(find.text('UNDO'));
+      await tester.pumpAndSettle();
+
+      expect(find.text(presetName), findsNothing);
+      expect(find.widgetWithText(TextFormField, 'fox 38'), findsOneWidget, reason: 'Undo restores the typed query');
+      expect(find.text('2 adjustments prefilled from $presetName'), findsNothing);
+      expect(find.text('Please select type'), findsOneWidget);
+    });
+
+    testWidgets('unlinking keeps the prefilled values', (WidgetTester tester) async {
+      await applyPresetViaAutocomplete(tester);
+
+      await tester.tap(find.byTooltip('Unlink preset (keeps values)'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Choose from catalog'), findsOneWidget);
+      expect(find.text('2 adjustments prefilled from $presetName'), findsNothing);
+      expect(find.widgetWithText(TextFormField, presetName), findsOneWidget);
+      expect(find.text('Unlinked from $presetName — values kept'), findsOneWidget);
+    });
+
+    testWidgets('shows persisted provenance in edit mode', (WidgetTester tester) async {
+      appSettings.enableComponentPresets = true;
+      // Warm the per-type cache so the card teaser never touches rootBundle.
+      await tester.runAsync(() => presetRepository.all());
+
+      final component = Component(
+        id: 'c1',
+        name: 'My Fork',
+        componentType: ComponentType.fork,
+        installations: [],
+        adjustments: [],
+        presetKey: 'fox/38/factory',
+      );
+      await tester.pumpWidget(createWidgetUnderTest(component: component, mode: ComponentPageMode.edit));
+      await tester.pumpAndSettle();
+
+      expect(find.text(presetName), findsOneWidget);
+      expect(find.text('From catalog · Tap to change'), findsOneWidget);
+      expect(tester.widget<PopScope>(find.byType(PopScope)).canPop, isTrue);
+
+      await tester.tap(find.byTooltip('Unlink preset (keeps values)'));
+      await tester.pumpAndSettle();
+
+      expect(find.text(presetName), findsNothing);
+      expect(tester.widget<PopScope>(find.byType(PopScope)).canPop, isFalse,
+          reason: 'Unlinking changes the persisted presetKey');
+    });
+
+    testWidgets('picking in edit mode only adds missing adjustments', (WidgetTester tester) async {
+      appSettings.enableComponentPresets = true;
+      await tester.runAsync(() => presetRepository.all());
+
+      final component = Component(
+        id: 'c1',
+        name: 'My Fork',
+        componentType: ComponentType.fork,
+        installations: [],
+        adjustments: [BooleanAdjustment(name: 'rebound', notes: '', unit: null)],
+        notes: 'Serial 123',
+      );
+      await tester.pumpWidget(createWidgetUnderTest(component: component, mode: ComponentPageMode.edit));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Choose from catalog'));
+      await tester.pumpAndSettle();
+      await pickFoxFactory(tester);
+
+      // Existing "rebound" matches the preset's "Rebound" by name → only SAG is added.
+      expect(find.text('Linked to $presetName · 1 adjustment added'), findsOneWidget);
+      expect(find.text('1 adjustment prefilled from $presetName · 1 other'), findsOneWidget);
+      expect(find.text('rebound'), findsOneWidget);
+      expect(find.text('SAG'), findsOneWidget);
+      expect(find.widgetWithText(TextFormField, 'My Fork'), findsOneWidget, reason: "Name stays the user's");
+      expect(notesText(tester), 'Serial 123\n\nPreset note');
+
+      // Re-picking swaps the appended block instead of stacking a second copy.
+      await tester.tap(find.widgetWithText(ListTile, presetName));
+      await tester.pumpAndSettle();
+      await pickFoxFactory(tester);
+      expect(notesText(tester), 'Serial 123\n\nPreset note');
     });
   });
 }

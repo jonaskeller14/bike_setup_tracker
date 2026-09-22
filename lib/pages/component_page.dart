@@ -19,6 +19,7 @@ import '../theme.dart';
 import '../utils/component_preset_application.dart';
 import '../utils/component_preset_search.dart';
 import '../utils/installation_timeline_validation.dart';
+import '../widgets/app_snackbar.dart';
 import '../widgets/dialogs/apply_preset_adjustments.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/empty_state_placeholder2.dart';
@@ -87,16 +88,19 @@ class _ComponentPageState extends State<ComponentPage> {
   bool _expanded = false;
   String? _presetKey;
   String? _presetDamperKey;
+  ComponentPresetVariant? _presetVariant;
+  Set<String> _presetAdjustmentIds = {};
+  String? _appendedPresetNotes;
 
   List<Adjustment>? _lastPresetAdjustments;
   VoidCallback? _adjustmentsFieldNotify;
   VoidCallback? _componentTypeFieldNotify;
 
   /// Cross-type catalog index for the name-field autocomplete (C2), loaded once
-  /// and cached. Null until loaded; the autocomplete simply shows nothing until
-  /// then.
+  /// and cached
   List<ComponentPresetVariant>? _presetIndex;
   bool _presetIndexLoading = false;
+  String? _typedName;
 
   @override
   void initState() {
@@ -144,10 +148,24 @@ class _ComponentPageState extends State<ComponentPage> {
 
     if (widget.mode != ComponentPageMode.add) _expanded = true;
 
-    // Preload the autocomplete index (add mode + flag on) so suggestions are
+    // Preload the autocomplete index (not in edit mode + flag on) so suggestions are
     // ready by the time the user types, without blocking page load.
-    if (widget.mode == ComponentPageMode.add && appSettings.enableComponentPresets) {
+    if (widget.mode != ComponentPageMode.edit && appSettings.enableComponentPresets) {
       unawaited(_loadPresetIndex());
+    }
+    final presetKey = _presetKey;
+    if (presetKey != null && appSettings.enableComponentPresets) {
+      unawaited(_loadAppliedPreset(presetKey));
+    }
+  }
+
+  Future<void> _loadAppliedPreset(String key) async {
+    try {
+      final variant = await context.read<ComponentPresetRepository>().byKey(key);
+      if (!mounted || variant == null || _presetKey != key) return;
+      setState(() => _presetVariant = variant);
+    } catch (_) {
+      // Provenance display is optional; an unresolvable key just shows nothing.
     }
   }
 
@@ -171,7 +189,9 @@ class _ComponentPageState extends State<ComponentPage> {
         _componentType != _initialComponentType ||
         !listEquals(_installations, _initialInstallations) ||
         !listEquals(_adjustments, _initialAdjustments) ||
-        _initialStats != (widget.component?.initialStats ?? ComponentStats.zero);
+        _initialStats != (widget.component?.initialStats ?? ComponentStats.zero) ||
+        _presetKey != widget.component?.presetKey ||
+        _presetDamperKey != widget.component?.presetDamperKey;
 
     if (_formHasChanges != hasChanges) {
       setState(() {
@@ -308,10 +328,14 @@ class _ComponentPageState extends State<ComponentPage> {
     if (type == null) return;
     final result = await showComponentPresetPicker(context: context, componentType: type);
     if (result == null || !mounted) return;
-    await _applyPreset(buildApplication(result.variant, result.damper));
+    await _applyPreset(result.variant, result.damper);
   }
 
-  Future<void> _applyPreset(PresetApplication app) async {
+  /// [typedName] overrides the name UNDO restores: the autocomplete has already
+  /// replaced the typed query with the suggestion by the time it calls back.
+  Future<void> _applyPreset(ComponentPresetVariant variant, DamperSpec? damper, {String? typedName}) async {
+    final app = buildApplication(variant, damper);
+    if (widget.mode == ComponentPageMode.edit) return _extendFromPreset(variant, app);
     final untouched = _adjustments.isEmpty ||
         (_lastPresetAdjustments != null && listEquals(_adjustments, _lastPresetAdjustments));
 
@@ -326,12 +350,15 @@ class _ComponentPageState extends State<ComponentPage> {
     }
 
     if (!mounted) return;
+    final snapshot = _snapshot(name: typedName);
     setState(() {
       _nameController.text = app.name;
       _notesController.text = app.notes;
       _componentType ??= app.componentType;
       _presetKey = app.presetKey;
       _presetDamperKey = app.presetDamperKey;
+      _presetVariant = variant;
+      _presetAdjustmentIds = {for (final a in app.adjustments) a.id};
       if (append) {
         _adjustments = [..._adjustments, ...app.adjustments];
         // The list no longer matches a single preset → next re-pick will prompt.
@@ -345,6 +372,116 @@ class _ComponentPageState extends State<ComponentPage> {
     _adjustmentsFieldNotify?.call();
     _componentTypeFieldNotify?.call();
     _changeListener();
+    _showPresetUndoSnackBar('Filled from ${app.name}', snapshot);
+  }
+
+  /// Edit mode only extends: setups store values by adjustment id, so saved
+  /// adjustments are never replaced; the name stays the user's and the preset
+  /// notes are appended (a re-pick swaps the block the previous pick appended).
+  void _extendFromPreset(ComponentPresetVariant variant, PresetApplication app) {
+    final snapshot = _snapshot();
+    // Only what an earlier pick in this session added is dropped — it was never saved.
+    final kept = _adjustments.where((a) => !_presetAdjustmentIds.contains(a.id)).toList();
+    final keptNames = {for (final a in kept) a.name.trim().toLowerCase()};
+    final added = app.adjustments.where((a) => !keptNames.contains(a.name.trim().toLowerCase())).toList();
+    final previousBlock = _appendedPresetNotes;
+    final keptNotes = (previousBlock == null ? _notesController.text : _notesController.text.replaceFirst(previousBlock, '')).trimRight();
+    final appendNotes = app.notes.isNotEmpty && !keptNotes.contains(app.notes);
+    setState(() {
+      if (appendNotes) {
+        _appendedPresetNotes = keptNotes.isEmpty ? app.notes : '\n\n${app.notes}';
+        _notesController.text = keptNotes + _appendedPresetNotes!;
+      } else {
+        _appendedPresetNotes = null;
+        _notesController.text = keptNotes;
+      }
+      _presetKey = app.presetKey;
+      _presetDamperKey = app.presetDamperKey;
+      _presetVariant = variant;
+      _presetAdjustmentIds = {for (final a in added) a.id};
+      _adjustments = [...kept, ...added];
+    });
+    _adjustmentsFieldNotify?.call();
+    _changeListener();
+    _showPresetUndoSnackBar(
+      Intl.plural(
+        added.length,
+        zero: 'Linked to ${app.name} · all adjustments already exist',
+        one: 'Linked to ${app.name} · 1 adjustment added',
+        other: 'Linked to ${app.name} · ${added.length} adjustments added',
+      ),
+      snapshot,
+    );
+  }
+
+  void _unlinkPreset() {
+    final variant = _presetVariant;
+    if (variant == null) return;
+    final snapshot = _snapshot();
+    setState(_clearPresetLink);
+    _changeListener();
+    _showPresetUndoSnackBar(
+      'Unlinked from ${presetVariantDisplayName(variant, variant.damperByKey(snapshot.presetDamperKey))} — values kept',
+      snapshot,
+    );
+  }
+
+  void _clearPresetLink() {
+    _presetKey = null;
+    _presetDamperKey = null;
+    _presetVariant = null;
+    _presetAdjustmentIds = {};
+    _appendedPresetNotes = null;
+    // The list no longer matches a linked preset → next pick will prompt.
+    _lastPresetAdjustments = null;
+  }
+
+  _PresetSnapshot _snapshot({String? name}) => _PresetSnapshot(
+        name: name ?? _nameController.text,
+        notes: _notesController.text,
+        componentType: _componentType,
+        adjustments: List.of(_adjustments),
+        lastPresetAdjustments: _lastPresetAdjustments,
+        presetAdjustmentIds: _presetAdjustmentIds,
+        appendedPresetNotes: _appendedPresetNotes,
+        presetKey: _presetKey,
+        presetDamperKey: _presetDamperKey,
+        presetVariant: _presetVariant,
+        expanded: _expanded,
+      );
+
+  void _restoreSnapshot(_PresetSnapshot snapshot) {
+    setState(() {
+      _nameController.text = snapshot.name;
+      _notesController.text = snapshot.notes;
+      _componentType = snapshot.componentType;
+      _adjustments = List.of(snapshot.adjustments);
+      _lastPresetAdjustments = snapshot.lastPresetAdjustments;
+      _presetAdjustmentIds = snapshot.presetAdjustmentIds;
+      _appendedPresetNotes = snapshot.appendedPresetNotes;
+      _presetKey = snapshot.presetKey;
+      _presetDamperKey = snapshot.presetDamperKey;
+      _presetVariant = snapshot.presetVariant;
+      _expanded = snapshot.expanded;
+    });
+    _adjustmentsFieldNotify?.call();
+    _componentTypeFieldNotify?.call();
+    _changeListener();
+  }
+
+  void _showPresetUndoSnackBar(String message, _PresetSnapshot snapshot) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(AppSnackBar.success(
+        context,
+        message,
+        action: AppSnackBarAction(
+          label: 'UNDO',
+          onPressed: () {
+            if (mounted) _restoreSnapshot(snapshot);
+          },
+        ),
+      ));
   }
 
   void _saveComponent() {
@@ -369,6 +506,8 @@ class _ComponentPageState extends State<ComponentPage> {
       presetKey: _presetKey,
       presetDamperKey: _presetDamperKey,
     );
+    // A preset UNDO would be a dead button on the previous screen.
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
     Navigator.pop(
       context,
       widget.mode == ComponentPageMode.edit
@@ -383,6 +522,7 @@ class _ComponentPageState extends State<ComponentPage> {
     final shouldDiscard = await showDiscardChangesDialog(context);
     if (!mounted) return;
     if (!shouldDiscard) return;
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
     Navigator.of(context).pop(null);
   }
 
@@ -410,7 +550,7 @@ class _ComponentPageState extends State<ComponentPage> {
       displayStringForOption: (suggestion) => suggestion.displayName,
       onSelected: (suggestion) {
         _nameFocusNode.unfocus();
-        unawaited(_applyPreset(buildApplication(suggestion.variant, suggestion.damper)));
+        unawaited(_applyPreset(suggestion.variant, suggestion.damper, typedName: _typedName));
       },
       fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) =>
           _nameTextField(presetsEnabled: true, onFieldSubmitted: onFieldSubmitted),
@@ -425,7 +565,7 @@ class _ComponentPageState extends State<ComponentPage> {
       focusNode: _nameFocusNode,
       textInputAction: TextInputAction.next,
       autovalidateMode: AutovalidateMode.onUserInteraction,
-      onChanged: (value) => setState(() {}), // see filled/fillColor
+      onChanged: (value) => setState(() => _typedName = value), // see filled/fillColor
       onFieldSubmitted: (_) => onFieldSubmitted?.call(),
       decoration: InputDecoration(
         labelText: 'Component Name',
@@ -556,7 +696,11 @@ class _ComponentPageState extends State<ComponentPage> {
       initialComponentType: widget.mode == ComponentPageMode.edit ? widget.component?.componentType : null,
     );
     if (picked == null || !mounted) return;
-    setState(() => _componentType = picked);
+    setState(() {
+      _componentType = picked;
+      // A fork preset link is meaningless on a shock; the prefilled values stay.
+      if (_presetVariant != null && _presetVariant!.componentType != picked) _clearPresetLink();
+    });
     field.didChange(picked);
     _changeListener();
   }
@@ -605,6 +749,43 @@ class _ComponentPageState extends State<ComponentPage> {
           ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
           : null,
       onSelected: (_) => _editInitialStats(),
+    );
+  }
+
+  String? _presetAdjustmentsCaption() {
+    final variant = _presetVariant;
+    if (variant == null) return null;
+    final fromPreset = _adjustments.where((a) => _presetAdjustmentIds.contains(a.id)).length;
+    if (fromPreset == 0) return null;
+    final others = _adjustments.length - fromPreset;
+    final name = presetVariantDisplayName(variant, variant.damperByKey(_presetDamperKey));
+    final caption = Intl.plural(
+      fromPreset,
+      one: '1 adjustment prefilled from $name',
+      other: '$fromPreset adjustments prefilled from $name',
+    );
+    if (others == 0) return caption;
+    return '$caption · ${Intl.plural(others, one: '1 other', other: '$others others')}';
+  }
+
+  Widget _presetCaptionRow(String caption) {
+    final color = Theme.of(context).colorScheme.onSurfaceVariant;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        spacing: 6,
+        children: [
+          Icon(Icons.auto_awesome, size: 14, color: color),
+          Expanded(
+            child: Text(
+              caption,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: color),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -747,19 +928,22 @@ class _ComponentPageState extends State<ComponentPage> {
                       children: [
                         _componentTypeField(existingComponentsCount: existingComponentsCount),
                         if (appSettings.enableComponentPresets &&
-                            widget.mode == ComponentPageMode.add &&
                             (_componentType == ComponentType.fork || _componentType == ComponentType.shock)) ...[
                           const SizedBox(height: 12),
                           PresetCatalogCard(
                             componentType: _componentType!,
                             onTap: _openPresetPicker,
+                            appliedVariant: _presetVariant,
+                            appliedDamper: _presetVariant?.damperByKey(_presetDamperKey),
+                            onUnlink: _unlinkPreset,
                           ),
                           const SizedBox(height: 12),
                         ],
                         const SizedBox(height: 12),
                         _nameField(
+                          // Off in edit mode: renaming shouldn't pop suggestions that overwrite name and notes.
                           presetsEnabled: appSettings.enableComponentPresets &&
-                              widget.mode == ComponentPageMode.add,
+                              widget.mode != ComponentPageMode.edit,
                         ),
                         Center(
                           child: TextButton.icon(
@@ -829,9 +1013,11 @@ class _ComponentPageState extends State<ComponentPage> {
                           onComponentTypeSelected: _componentType == null ? _setComponentType : null,
                         );
 
+                        final presetCaption = _presetAdjustmentsCaption();
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            if (presetCaption != null) _presetCaptionRow(presetCaption),
                             _adjustments.isNotEmpty
                                 ? AdjustmentEditList(
                                     adjustments: _adjustments,
@@ -883,6 +1069,34 @@ class _ComponentPageState extends State<ComponentPage> {
       ),
     );
   }
+}
+
+class _PresetSnapshot {
+  final String name;
+  final String notes;
+  final ComponentType? componentType;
+  final List<Adjustment> adjustments;
+  final List<Adjustment>? lastPresetAdjustments;
+  final Set<String> presetAdjustmentIds;
+  final String? appendedPresetNotes;
+  final String? presetKey;
+  final String? presetDamperKey;
+  final ComponentPresetVariant? presetVariant;
+  final bool expanded;
+
+  const _PresetSnapshot({
+    required this.name,
+    required this.notes,
+    required this.componentType,
+    required this.adjustments,
+    required this.lastPresetAdjustments,
+    required this.presetAdjustmentIds,
+    required this.appendedPresetNotes,
+    required this.presetKey,
+    required this.presetDamperKey,
+    required this.presetVariant,
+    required this.expanded,
+  });
 }
 
 /// Small year-range chip for autocomplete suggestion rows (mirrors the picker's

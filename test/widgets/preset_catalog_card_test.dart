@@ -40,7 +40,7 @@ Future<void> _pumpCard(
       value: _FakePresetRepository(brands),
       child: MaterialApp(
         home: Scaffold(
-          body: PresetCatalogCard(componentType: type, onTap: () {}),
+          body: PresetCatalogCard(componentType: type, onTap: () {}, onUnlink: () {}),
         ),
       ),
     ),
@@ -97,6 +97,53 @@ void main() {
         (tester) async {
       await _pumpCard(tester, brands: [], type: ComponentType.shock);
       expect(_subtitle(tester), 'Prefill from a shock model');
+    });
+  });
+
+  group('PresetCatalogCard applied state', () {
+    const variant = ComponentPresetVariant(
+      key: 'fox/38/factory',
+      brand: 'FOX',
+      model: '38',
+      trim: 'Factory',
+      componentType: ComponentType.fork,
+      yearRange: '2021–2024',
+    );
+
+    Future<void> pumpApplied(WidgetTester tester, {required VoidCallback onUnlink}) async {
+      await tester.pumpWidget(
+        Provider<ComponentPresetRepository>.value(
+          value: _FakePresetRepository(['FOX']),
+          child: MaterialApp(
+            home: Scaffold(
+              body: PresetCatalogCard(
+                componentType: ComponentType.fork,
+                onTap: () {},
+                appliedVariant: variant,
+                onUnlink: onUnlink,
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('shows the applied preset instead of the catalog teaser',
+        (tester) async {
+      await pumpApplied(tester, onUnlink: () {});
+
+      expect(find.text('FOX 38 Factory'), findsOneWidget);
+      expect(_subtitle(tester), 'From catalog · 2021–2024 · Tap to change');
+      expect(find.text('Choose from catalog'), findsNothing);
+    });
+
+    testWidgets('unlink button fires onUnlink', (tester) async {
+      var unlinked = 0;
+      await pumpApplied(tester, onUnlink: () => unlinked++);
+
+      await tester.tap(find.byTooltip('Unlink preset (keeps values)'));
+      expect(unlinked, 1);
     });
   });
 }

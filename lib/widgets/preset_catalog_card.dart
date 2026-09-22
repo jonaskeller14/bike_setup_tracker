@@ -4,16 +4,24 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/component.dart';
+import '../models/component_preset.dart';
 import '../repositories/component_preset_repository.dart';
+import '../utils/component_preset_application.dart';
 
 class PresetCatalogCard extends StatefulWidget {
   final ComponentType componentType;
   final VoidCallback onTap;
+  final ComponentPresetVariant? appliedVariant;
+  final DamperSpec? appliedDamper;
+  final VoidCallback onUnlink;
 
   const PresetCatalogCard({
     super.key,
     required this.componentType,
     required this.onTap,
+    this.appliedVariant,
+    this.appliedDamper,
+    required this.onUnlink,
   });
 
   @override
@@ -65,23 +73,50 @@ class _PresetCatalogCardState extends State<PresetCatalogCard> {
     }
   }
 
+  String _appliedSubtitle(ComponentPresetVariant variant) {
+    final yearRange = variant.yearRange;
+    return [
+      'From catalog',
+      if (yearRange != null && yearRange.isNotEmpty) yearRange,
+      'Tap to change',
+    ].join(' · ');
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final applied = widget.appliedVariant;
+    final isApplied = applied != null;
+    // Neutral surface once applied: picking a preset is no longer the page's primary action.
+    final foreground = isApplied ? colors.onSurface : colors.onPrimaryContainer;
+    final subtitleColor = isApplied ? colors.onSurfaceVariant : colors.onPrimaryContainer.withValues(alpha: 0.8);
     return Card(
       margin: EdgeInsets.zero,
-      color: colors.primaryContainer,
+      color: isApplied ? colors.surfaceContainerHighest : colors.primaryContainer,
       child: ListTile(
-        leading: Icon(Icons.auto_awesome, color: colors.onPrimaryContainer),
+        leading: Icon(Icons.auto_awesome, color: isApplied ? null : colors.onPrimaryContainer),
         title: Text(
-          'Choose from catalog',
-          style: TextStyle(fontWeight: FontWeight.w600, color: colors.onPrimaryContainer),
+          isApplied ? presetVariantDisplayName(applied, widget.appliedDamper) : 'Choose from catalog',
+          maxLines: isApplied ? 1 : null,
+          overflow: isApplied ? TextOverflow.ellipsis : null,
+          style: TextStyle(fontWeight: FontWeight.w600, color: foreground),
         ),
         subtitle: Text(
-          _teaser ?? 'Prefill from a ${widget.componentType.label.toLowerCase()} model',
-          style: TextStyle(color: colors.onPrimaryContainer.withValues(alpha: 0.8)),
+          isApplied
+              ? _appliedSubtitle(applied)
+              : _teaser ?? 'Prefill from a ${widget.componentType.label.toLowerCase()} model',
+          maxLines: isApplied ? 1 : null,
+          overflow: isApplied ? TextOverflow.ellipsis : null,
+          style: TextStyle(color: subtitleColor),
         ),
-        trailing: Icon(Icons.arrow_forward_ios, size: 16, color: colors.onPrimaryContainer),
+        trailing: isApplied
+            ? IconButton(
+                icon: const Icon(Icons.link_off),
+                color: subtitleColor,
+                tooltip: 'Unlink preset (keeps values)',
+                onPressed: widget.onUnlink,
+              )
+            : Icon(Icons.arrow_forward_ios, size: 16, color: foreground),
         onTap: widget.onTap,
       ),
     );

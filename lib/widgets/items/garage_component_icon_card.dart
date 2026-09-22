@@ -64,10 +64,10 @@ class GarageComponentIconCard extends StatelessWidget {
                 : colorScheme.surface,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: isSelected
-                  ? colorScheme.tertiary
-                  : issue != null
-                      ? colorScheme.error
+              color: issue != null
+                  ? colorScheme.error
+                  : isSelected
+                      ? colorScheme.tertiary
                       : colorScheme.outlineVariant,
               width: isSelected ? 1.5 : 1.0,
             ),

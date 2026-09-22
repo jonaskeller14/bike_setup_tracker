@@ -46,6 +46,7 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
   Widget _releaseToUninstallWidget(
     BuildContext context, {
     required bool isUnarchiving,
+    Component? parent,
   }) {
     final color = Theme.of(context).colorScheme.error;
     final bgColor = Theme.of(context).colorScheme.errorContainer;
@@ -76,7 +77,9 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
               child: Text(
                 isUnarchiving
                     ? "Release to unarchive"
-                    : "Release to uninstall component",
+                    : parent == null
+                        ? "Release to uninstall component"
+                        : "Release to uninstall from ${parent.name}",
                 style: TextStyle(color: color, fontWeight: FontWeight.bold),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -123,7 +126,7 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
     );
   }
 
-  Widget _dragHintToUninstallWidget(BuildContext context) {
+  Widget _dragHintToUninstallWidget(BuildContext context, {Component? parent}) {
     final color = Theme.of(context).colorScheme.error;
     return CustomPaint(
       painter: DashedBorderPainter(
@@ -147,7 +150,9 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
             Icon(Icons.archive_outlined, size: 18, color: color.withValues(alpha: 0.6)),
             Flexible(
               child: Text(
-                "Drag here to uninstall",
+                parent == null
+                    ? "Drag here to uninstall"
+                    : "Drag here to uninstall from ${parent.name}",
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: color.withValues(alpha: 0.7),
                 ),
@@ -357,6 +362,9 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                       (hierarchy.currentBike(draggedComp.id) != null || draggedComp.isArchived) &&
                       !showDropZone &&
                       !showUnarchiveZone;
+                  final draggedParent = draggedComp == null
+                      ? null
+                      : currentParentComponentOf(draggedComp.id, hierarchy: hierarchy);
 
                   return Padding(
                     padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
@@ -448,9 +456,17 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                           ),
                         ),
                         if (isPassiveUninstallZone)
-                          Positioned.fill(child: _dragHintToUninstallWidget(context)),
+                          Positioned.fill(
+                            child: _dragHintToUninstallWidget(context, parent: draggedParent),
+                          ),
                         if (showDropZone)
-                          Positioned.fill(child: _releaseToUninstallWidget(context, isUnarchiving: false)),
+                          Positioned.fill(
+                            child: _releaseToUninstallWidget(
+                              context,
+                              isUnarchiving: false,
+                              parent: draggedParent,
+                            ),
+                          ),
                         if (showUnarchiveZone)
                           Positioned.fill(
                             child: _releaseToUninstallWidget(context, isUnarchiving: true)),

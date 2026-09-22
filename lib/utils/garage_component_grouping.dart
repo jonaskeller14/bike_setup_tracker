@@ -1,4 +1,5 @@
 import '../models/component.dart';
+import '../models/component_ancestor.dart';
 import '../models/installation.dart';
 import '../services/component_hierarchy_resolver.dart';
 
@@ -52,6 +53,16 @@ List<GarageComponentGroupData> garageGroupsFor(
     groups.add(GarageComponentGroupData(parent: root, children: descendants));
   }
   return groups;
+}
+
+Component? currentParentComponentOf(
+  String componentId, {
+  required ComponentHierarchyResolver hierarchy,
+}) {
+  final ancestors = hierarchy.currentAncestors(componentId);
+  if (ancestors.isEmpty) return null;
+  final nearest = ancestors.first;
+  return nearest is ParentComponentAncestor ? nearest.component : null;
 }
 
 String? _sectionParentIdOf(

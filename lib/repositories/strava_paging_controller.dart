@@ -166,6 +166,9 @@ class StravaPagingController {
     return list.where(scope().matches).toList();
   }
 
+  /// Unscoped: ignores the active bike filter, unlike [filteredActivitiesWithPosition].
+  Future<bool> hasActivitiesWithPosition() async => (await activitiesWithPosition.first).isNotEmpty;
+
   Future<List<StravaActivity>> search(String query) async {
     final results = await database.stravaDao.searchActivitiesByName(query);
     return results.map((a) => a.toModel()).where(scope().matches).toList();

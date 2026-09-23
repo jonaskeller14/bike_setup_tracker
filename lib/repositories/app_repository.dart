@@ -13,6 +13,7 @@ import '../models/bike.dart';
 import '../models/component.dart';
 import '../models/component_installation.dart';
 import '../models/component_stats.dart';
+import '../models/context/context_position.dart';
 import '../models/installation.dart';
 import '../models/person.dart';
 import '../models/rating/rating.dart';
@@ -158,6 +159,15 @@ class AppRepository extends ChangeNotifier {
       ComponentStats.zero;
   Map<String, ActivityRateWindow> get bikeActivityRates => _bikeActivityRates;
   Map<String, dynamic> get currentAdjustmentValues => _currentAdjustmentValues;
+
+  bool get hasSetupsWithPosition =>
+      _setups.values.any((setup) => !setup.isDeleted && _isMappable(setup.position));
+
+  bool get hasRatingEntriesWithPosition =>
+      _ratingEntries.values.any((entry) => !entry.isDeleted && _isMappable(entry.position));
+
+  static bool _isMappable(ContextPosition? position) =>
+      (position?.latitude?.isFinite ?? false) && (position?.longitude?.isFinite ?? false);
 
   ComponentHierarchyResolver get componentHierarchy =>
       _componentHierarchyCache ??= ComponentHierarchyResolver(
@@ -1032,6 +1042,10 @@ class AppRepository extends ChangeNotifier {
   Stream<List<StravaActivity>> get stravaActivitiesWithPosition => _strava.activitiesWithPosition;
   Future<List<StravaActivity>> get latestStravaActivities => _strava.latest;
   Future<List<StravaActivity>> getFilteredStravaActivitiesWithPosition() => _strava.filteredActivitiesWithPosition();
+
+  /// Unfiltered: whether any synced activity carries coordinates the map can pin.
+  Future<bool> hasStravaActivitiesWithPosition() => _strava.hasActivitiesWithPosition();
+
   Future<List<StravaActivity>> searchStravaActivities(String query) => _strava.search(query);
   Future<StravaActivity?> getStravaActivity(int id) => _strava.getActivity(id);
 

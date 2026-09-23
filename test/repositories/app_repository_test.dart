@@ -3,6 +3,7 @@ import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component.dart';
+import 'package:bike_setup_tracker/models/context/context_position.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/models/person.dart';
 import 'package:bike_setup_tracker/models/rating/rating.dart';
@@ -10,6 +11,7 @@ import 'package:bike_setup_tracker/models/rating/rating_association.dart';
 import 'package:bike_setup_tracker/models/rating/rating_entry.dart';
 import 'package:bike_setup_tracker/models/rating/rating_metric.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
+import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:bike_setup_tracker/models/task/task_association.dart';
 import 'package:bike_setup_tracker/models/task/task_entry.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
@@ -1188,6 +1190,145 @@ void main() {
       // Tie-break is unspecified, but it must land on an exact match, not null.
       final resolved = repository.resolveSetupId(bikeId: bike1.id, atUtc: at.toUtc());
       expect(resolved, anyOf(a.id, b.id));
+    });
+  });
+
+  group("AppRepository - Map positions", () {
+    late AppDatabase database;
+    late AppRepository repository;
+    final bike1 = Bike(name: "Bike #1", person: null);
+    final bike2 = Bike(name: "Bike #2", person: null);
+
+    setUp(() async {
+      database = AppDatabase.memory();
+      repository = AppRepository(database);
+      await pumpEventQueue();
+    });
+
+    tearDown(() async {
+      await database.close();
+    });
+
+    Setup buildSetup(String bikeId, {ContextPosition? position}) => Setup(
+      name: "Setup",
+      tags: {},
+      datetime: DateTime(2025, 6, 1).toUtc(),
+      datetimeLocal: DateTime(2025, 6, 1).toLocal(),
+      bike: bikeId,
+      person: null,
+      bikeAdjustmentValues: {},
+      personAdjustmentValues: {},
+      position: position,
+    );
+
+    RatingEntry buildRatingEntry(String bikeId, String setupId, {ContextPosition? position}) => RatingEntry(
+      bike: bikeId,
+      setupId: setupId,
+      dateTimeUTC: DateTime(2025, 6, 1).toUtc(),
+      dateTimeLocal: DateTime(2025, 6, 1).toLocal(),
+      position: position,
+    );
+
+    StravaActivity buildActivity(int id, {double? lat, double? lon}) => StravaActivity(
+      id: id,
+      name: "Ride $id",
+      athlete: 1,
+      sportType: SportType.Ride,
+      startDate: DateTime(2025, 6, 1).toUtc(),
+      startDateLocal: DateTime(2025, 6, 1).toLocal(),
+      gearId: "gear_1",
+      startLat: lat,
+      startLon: lon,
+      distance: null,
+      totalElevationGain: null,
+      movingTime: Duration.zero,
+      elapsedTime: Duration.zero,
+    );
+
+    test("hasSetupsWithPosition is false without any positioned setup", () async {
+      await repository.addBikes([bike1]);
+      await repository.addSetups([buildSetup(bike1.id)]);
+      await pumpEventQueue();
+
+      expect(repository.hasSetupsWithPosition, false);
+    });
+
+    test("hasSetupsWithPosition ignores a half-recorded position", () async {
+      await repository.addBikes([bike1]);
+      await repository.addSetups([buildSetup(bike1.id, position: const ContextPosition(latitude: 44.16))]);
+      await pumpEventQueue();
+
+      expect(repository.hasSetupsWithPosition, false);
+    });
+
+    test("hasSetupsWithPosition ignores the selected bike", () async {
+      await repository.addBikes([bike1, bike2]);
+      await repository.addSetups([
+        buildSetup(bike1.id, position: const ContextPosition(latitude: 44.16, longitude: 8.34)),
+      ]);
+      await pumpEventQueue();
+      repository.onBikeTap(bike2.id);
+      await pumpEventQueue();
+
+      expect(repository.filteredSetups.isEmpty, true);
+      expect(repository.hasSetupsWithPosition, true);
+    });
+
+    test("hasSetupsWithPosition drops a removed setup", () async {
+      final setup = buildSetup(bike1.id, position: const ContextPosition(latitude: 44.16, longitude: 8.34));
+      await repository.addBikes([bike1]);
+      await repository.addSetups([setup]);
+      await pumpEventQueue();
+
+      expect(repository.hasSetupsWithPosition, true);
+
+      await repository.removeSetups([setup]);
+      await pumpEventQueue();
+
+      expect(repository.hasSetupsWithPosition, false);
+    });
+
+    test("hasRatingEntriesWithPosition reflects positioned entries", () async {
+      final setup = buildSetup(bike1.id);
+      await repository.addBikes([bike1]);
+      await repository.addSetups([setup]);
+      await repository.addRatingEntries([buildRatingEntry(bike1.id, setup.id)]);
+      await pumpEventQueue();
+
+      expect(repository.hasRatingEntriesWithPosition, false);
+
+      final positioned = buildRatingEntry(
+        bike1.id,
+        setup.id,
+        position: const ContextPosition(latitude: 44.16, longitude: 8.34),
+      );
+      await repository.addRatingEntries([positioned]);
+      await pumpEventQueue();
+
+      expect(repository.hasRatingEntriesWithPosition, true);
+
+      await repository.removeRatingEntries([positioned]);
+      await pumpEventQueue();
+
+      expect(repository.hasRatingEntriesWithPosition, false);
+    });
+
+    test("hasStravaActivitiesWithPosition ignores the selected bike", () async {
+      await repository.addBikes([bike1, bike2]);
+      await repository.setStravaActivities([buildActivity(1, lat: 44.16, lon: 8.34)]);
+      await pumpEventQueue();
+      repository.onBikeTap(bike2.id);
+      await pumpEventQueue();
+
+      expect(await repository.getFilteredStravaActivitiesWithPosition(), isEmpty);
+      expect(await repository.hasStravaActivitiesWithPosition(), true);
+    });
+
+    test("hasStravaActivitiesWithPosition is false without coordinates", () async {
+      await repository.setStravaActivities([buildActivity(1)]);
+      await pumpEventQueue();
+
+      expect(await repository.hasStravaActivitiesWithPosition(), false);
     });
   });
 }

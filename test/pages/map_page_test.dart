@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/context/context_position.dart';
+import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/pages/map_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
@@ -22,6 +23,7 @@ void main() {
   late MockAppRepository repository;
   late AppSettings settings;
   late MockSubscriptionService subscriptionService;
+  late List<VoidCallback> repositoryListeners;
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
@@ -34,6 +36,16 @@ void main() {
     when(() => repository.filteredSetups).thenReturn({});
     when(() => repository.filteredRatingEntries).thenReturn({});
     when(() => repository.getFilteredStravaActivitiesWithPosition()).thenAnswer((_) async => []);
+    when(() => repository.hasStravaActivitiesWithPosition()).thenAnswer((_) async => false);
+    when(() => repository.hasSetupsWithPosition).thenReturn(false);
+    when(() => repository.hasRatingEntriesWithPosition).thenReturn(false);
+    repositoryListeners = [];
+    when(() => repository.addListener(any())).thenAnswer(
+      (invocation) => repositoryListeners.add(invocation.positionalArguments.first as VoidCallback),
+    );
+    when(() => repository.removeListener(any())).thenAnswer(
+      (invocation) => repositoryListeners.remove(invocation.positionalArguments.first as VoidCallback),
+    );
     settings = AppSettings();
     subscriptionService = MockSubscriptionService();
     when(() => subscriptionService.hasStravaEntitlement).thenReturn(false);
@@ -277,6 +289,118 @@ void main() {
     await tester.pump();
 
     expect(tester.takeException(), isNull);
+  });
+
+  group('Strava pin state', () {
+    late StravaActivity positionedActivity;
+
+    setUp(() {
+      when(() => subscriptionService.hasStravaEntitlement).thenReturn(true);
+      positionedActivity = StravaActivity(
+        id: 1,
+        name: 'Ride',
+        athlete: 1,
+        sportType: SportType.Ride,
+        startDate: DateTime(2025, 6, 1).toUtc(),
+        startDateLocal: DateTime(2025, 6, 1).toLocal(),
+        gearId: null,
+        startLat: 44.16,
+        startLon: 8.34,
+        distance: null,
+        totalElevationGain: null,
+        movingTime: Duration.zero,
+        elapsedTime: Duration.zero,
+      );
+    });
+
+    MapPageState stateOf(WidgetTester tester) => tester.state<MapPageState>(find.byType(MapPage));
+
+    testWidgets('reports no empty state while the activity query is pending', (tester) async {
+      final completer = Completer<List<StravaActivity>>();
+      when(() => repository.getFilteredStravaActivitiesWithPosition()).thenAnswer((_) => completer.future);
+      await tester.pumpWidget(buildPage(LocationService(provider: FakeMapLocationProvider(null))));
+      await tester.pump();
+
+      expect(stateOf(tester).pinState, MapPinState.loading);
+
+      completer.complete([]);
+      await tester.pump();
+      await tester.pump();
+
+      expect(stateOf(tester).pinState, MapPinState.none);
+    });
+
+    testWidgets('surfaces the error state when the activity query fails', (tester) async {
+      when(() => repository.getFilteredStravaActivitiesWithPosition()).thenAnswer((_) async => throw StateError('nope'));
+      when(() => repository.hasSetupsWithPosition).thenReturn(true);
+      await tester.pumpWidget(buildPage(LocationService(provider: FakeMapLocationProvider(null))));
+      await tester.pump();
+      await tester.pump();
+
+      expect(stateOf(tester).pinState, MapPinState.error);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('queries once per repository notify, not per rebuild', (tester) async {
+      await tester.pumpWidget(buildPage(LocationService(provider: FakeMapLocationProvider(null))));
+      await tester.pump();
+
+      verify(() => repository.getFilteredStravaActivitiesWithPosition()).called(1);
+
+      // An unrelated rebuild: a layer toggle must not hit the database again.
+      settings.displayShowSetups = false;
+      await tester.pump();
+      verifyNever(() => repository.getFilteredStravaActivitiesWithPosition());
+
+      for (final listener in repositoryListeners) {
+        listener();
+      }
+      await tester.pump();
+      await tester.pump();
+
+      verify(() => repository.getFilteredStravaActivitiesWithPosition()).called(1);
+    });
+
+    testWidgets('a repository notify does not re-enter loading', (tester) async {
+      await tester.pumpWidget(buildPage(LocationService(provider: FakeMapLocationProvider(null))));
+      await tester.pump();
+      await tester.pump();
+
+      expect(stateOf(tester).pinState, MapPinState.none);
+
+      final completer = Completer<List<StravaActivity>>();
+      when(() => repository.getFilteredStravaActivitiesWithPosition()).thenAnswer((_) => completer.future);
+      for (final listener in repositoryListeners) {
+        listener();
+      }
+      await tester.pump();
+
+      expect(stateOf(tester).pinState, MapPinState.none);
+
+      completer.complete([]);
+      await tester.pump();
+      await tester.pump();
+
+      expect(stateOf(tester).pinState, MapPinState.none);
+    });
+
+    testWidgets('separates a filtered-empty map from an empty one', (tester) async {
+      when(() => repository.hasStravaActivitiesWithPosition()).thenAnswer((_) async => true);
+      await tester.pumpWidget(buildPage(LocationService(provider: FakeMapLocationProvider(null))));
+      await tester.pump();
+      await tester.pump();
+
+      expect(stateOf(tester).pinState, MapPinState.filtered);
+    });
+
+    testWidgets('reports nothing once an activity is pinned', (tester) async {
+      when(() => repository.getFilteredStravaActivitiesWithPosition()).thenAnswer((_) async => [positionedActivity]);
+      await tester.pumpWidget(buildPage(LocationService(provider: FakeMapLocationProvider(null))));
+      await tester.pump();
+      await tester.pump();
+
+      expect(stateOf(tester).pinState, isNull);
+    });
   });
 }
 

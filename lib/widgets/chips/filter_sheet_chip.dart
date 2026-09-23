@@ -5,6 +5,7 @@ import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
+import '../../utils/map_actions.dart';
 import '../sheets/filter.dart';
 
 class FilterSheetChip extends StatelessWidget {
@@ -66,21 +67,27 @@ class FilterSheetChip extends StatelessWidget {
             (appSettings.enableTask && !appSettings.displayShowTasks) ||
             (appSettings.enableInstallationTimeline && !appSettings.displayShowInstallations) ||
             (appSettings.enableRating && !appSettings.displayShowRatingEntries));
-    final selected = bikeSelected || setupTagsSelected || bookmarkSelected || taskPrioritySelected || taskTagsSelected || mapVisibilitySelected || timelineVisibilitySelected;
+    // The map shares its narrowed/reset logic with the map empty-state placeholder.
+    final selected = showMapVisibility
+        ? MapActions.isFiltered(appRepository: appRepository, appSettings: appSettings, stravaActive: stravaActive)
+        : bikeSelected || setupTagsSelected || bookmarkSelected || taskPrioritySelected || taskTagsSelected || timelineVisibilitySelected;
 
     void resetDisplay() {
+      if (showMapVisibility) {
+        MapActions.clearFilters(context);
+        return;
+      }
+
       if (showBikes) appRepository.onBikeTap(null);
       if (showSetupTags2) appRepository.deselectAllSetupTags();
       if (showSetupBookmark2) appRepository.setShowBookmarkedSetupsOnly(false);
       if (showTaskPriority2) appRepository.selectAllTaskPriorities();
       if (showTaskTags2) appRepository.deselectAllTaskRuleTags();
 
-      if (showMapVisibility2 || showTimelineVisibility2) {
+      if (showTimelineVisibility2) {
         appSettings.displayShowSetups = true;
         appSettings.displayShowActivities = true;
         appSettings.displayShowRatingEntries = true;
-      }
-      if (showTimelineVisibility2) {
         appSettings.displayShowTasks = true;
         appSettings.displayShowInstallations = true;
       }

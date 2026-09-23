@@ -179,4 +179,49 @@ void main() {
       expect(find.text('Bookmarked'), findsNothing);
     });
   });
+
+  group('FilterSheetChip — map filter delegation', () {
+    const mapChip = FilterSheetChip.map;
+
+    setUp(() {
+      appSettings.enableRating = true;
+      appSettings.enableSetupTags = true;
+      appSettings.enableSetupBookmark = true;
+    });
+
+    testWidgets('reports a hidden layer as an active filter', (tester) async {
+      appSettings.displayShowSetups = false;
+      await tester.pumpWidget(createWidgetUnderTest(mapChip));
+
+      expect(find.text('1 Filter'), findsOneWidget);
+    });
+
+    testWidgets('ignores hidden layers while no layer section is offered', (tester) async {
+      appSettings.enableRating = false;
+      appSettings.displayShowSetups = false;
+      await tester.pumpWidget(createWidgetUnderTest(mapChip));
+
+      expect(find.text('Filter'), findsOneWidget);
+      expect(find.text('1 Filter'), findsNothing);
+    });
+
+    testWidgets('resetting clears the bike, tags, bookmark and hidden layers', (tester) async {
+      selectBike();
+      selectTags({'t1'});
+      when(() => mockRepository.showBookmarkedSetupsOnly).thenReturn(true);
+      appSettings.displayShowSetups = false;
+      appSettings.displayShowRatingEntries = false;
+      await tester.pumpWidget(createWidgetUnderTest(mapChip));
+
+      tester.widget<FilterChip>(find.byType(FilterChip)).onDeleted!();
+      await tester.pumpAndSettle();
+
+      verify(() => mockRepository.onBikeTap(null)).called(1);
+      verify(mockRepository.deselectAllSetupTags).called(1);
+      verify(() => mockRepository.setShowBookmarkedSetupsOnly(false)).called(1);
+      expect(appSettings.displayShowSetups, true);
+      expect(appSettings.displayShowRatingEntries, true);
+      expect(appSettings.displayShowActivities, true);
+    });
+  });
 }

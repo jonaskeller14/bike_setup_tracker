@@ -1,6 +1,6 @@
 import '../models/bike.dart';
-import '../models/component.dart';
-import '../models/installation.dart';
+import '../models/component/component.dart';
+import '../models/component/installation.dart';
 import '../services/component_hierarchy_resolver.dart';
 
 bool isComplexInstallationTimeline(List<Installation> installations) =>

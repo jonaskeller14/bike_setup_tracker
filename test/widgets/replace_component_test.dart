@@ -1,7 +1,7 @@
 import 'package:bike_setup_tracker/models/app_settings.dart';
-import 'package:bike_setup_tracker/models/component.dart';
+import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component_stats.dart';
-import 'package:bike_setup_tracker/models/installation.dart';
+import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/component_hierarchy_resolver.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';

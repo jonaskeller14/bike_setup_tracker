@@ -8,7 +8,7 @@ import 'package:reorderables/reorderables.dart';
 import '../../icons/simple_icons.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
-import '../../models/component.dart';
+import '../../models/component/component.dart';
 import '../../models/person.dart';
 import '../../pages/details/bike_details_page.dart';
 import '../../repositories/app_repository.dart';

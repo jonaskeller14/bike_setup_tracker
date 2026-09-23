@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../models/adjustment/adjustment.dart';
-import '../models/component.dart';
+import '../models/component/component.dart';
 import '../services/dangling_adjustment_service.dart';
 import '../utils/component_actions.dart';
 import 'display_adjustment/display_adjustment_list.dart';

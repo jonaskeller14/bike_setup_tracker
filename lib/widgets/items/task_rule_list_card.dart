@@ -7,8 +7,8 @@ import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
-import '../../models/component.dart';
-import '../../models/component_ancestor.dart';
+import '../../models/component/component.dart';
+import '../../models/component/component_ancestor.dart';
 import '../../models/task/task_association.dart';
 import '../../models/task/task_rule.dart';
 import '../../models/task/task_threshold/task_threshold.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../models/adjustment/adjustment.dart';
-import '../../models/component.dart';
+import '../../models/component/component.dart';
 import '../../theme.dart';
 import '../../utils/number_input_formatters.dart';
 import '../../widgets/dialogs/discard_changes.dart';

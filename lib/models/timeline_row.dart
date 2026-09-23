@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 
-import '../models/component_installation.dart';
-import '../models/installation.dart';
+import 'component/resolved_installation.dart';
+import 'component/installation.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/timeline_entry.dart';
 
@@ -60,8 +60,8 @@ class SetupGroupRow extends EntryRow {
 }
 
 class ReplacementRow extends EntryRow {
-  final ResolvedComponentInstallation removed;
-  final ResolvedComponentInstallation installed;
+  final ResolvedInstallation removed;
+  final ResolvedInstallation installed;
   ReplacementRow({required this.removed, required this.installed});
 
   @override

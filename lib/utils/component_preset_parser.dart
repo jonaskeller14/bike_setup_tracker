@@ -1,7 +1,7 @@
 import 'package:yaml/yaml.dart';
 
-import '../models/component.dart';
-import '../models/component_preset.dart';
+import '../models/component/component.dart';
+import '../models/component/component_preset.dart';
 
 /// Parses one brand YAML file (e.g. `fork/fox.yaml`) into a flat list of
 /// user-selectable [ComponentPresetVariant]s — one per brand × model × trim.

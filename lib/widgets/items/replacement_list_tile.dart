@@ -4,9 +4,9 @@ import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
-import '../../models/component.dart';
-import '../../models/component_installation.dart';
-import '../../models/installation.dart';
+import '../../models/component/component.dart';
+import '../../models/component/resolved_installation.dart';
+import '../../models/component/installation.dart';
 import '../../models/timeline_row.dart';
 import '../../repositories/app_repository.dart';
 import 'tile_meta_row.dart';
@@ -24,7 +24,7 @@ class ReplacementListTile extends StatelessWidget {
   });
 
   static IconData _destinationIcon(
-    ResolvedComponentInstallation componentInstallation,
+    ResolvedInstallation componentInstallation,
     AppRepository appRepository,
   ) => switch (componentInstallation.installation) {
         BikeInstallation() => Bike.iconData,
@@ -46,7 +46,7 @@ class ReplacementListTile extends StatelessWidget {
   /// aligns both arrows to the end of the longer name rather than the far edge.
   Widget _componentRow(
     BuildContext context,
-    ResolvedComponentInstallation ci, {
+    ResolvedInstallation ci, {
     required bool emphasized,
     required AppRepository appRepository,
   }) {

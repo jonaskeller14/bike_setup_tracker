@@ -1,7 +1,7 @@
 import 'package:bike_setup_tracker/database/adjustment_value_codec.dart';
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
-import 'package:bike_setup_tracker/models/component.dart';
+import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:bike_setup_tracker/services/setup_activity_analysis_service.dart';
 import 'package:drift/drift.dart';

@@ -8,8 +8,8 @@ import 'package:provider/provider.dart';
 
 import '../models/rating/rating_entry.dart';
 import '../models/setup.dart';
-import '../pages/rating_entry_page.dart';
-import '../pages/setup_page.dart';
+import '../pages/forms/rating_entry_page.dart';
+import '../pages/forms/setup_page.dart';
 import '../repositories/app_repository.dart';
 import '../services/image_storage_service.dart';
 import '../services/share_service.dart';

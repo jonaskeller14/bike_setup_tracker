@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
-import '../../models/component.dart';
+import '../../models/component/component.dart';
 import '../../models/setup.dart';
 import '../../models/strava/strava_activity.dart';
 import '../../repositories/app_repository.dart';
@@ -17,7 +17,7 @@ import '../../widgets/empty_state_placeholder2.dart';
 import '../../widgets/items/component_list_card.dart';
 import '../../widgets/items/setup_tile.dart';
 import '../../widgets/sheets/sheet.dart';
-import '../setup_page.dart';
+import '../forms/setup_page.dart';
 
 class StravaActivityDetailsPage extends StatelessWidget {
   final StravaActivity stravaActivity;

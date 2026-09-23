@@ -1,5 +1,5 @@
 import 'package:bike_setup_tracker/models/app_settings.dart';
-import 'package:bike_setup_tracker/models/component.dart';
+import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/theme.dart';

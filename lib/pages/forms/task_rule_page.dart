@@ -7,24 +7,24 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
-import '../models/app_settings.dart';
-import '../models/bike.dart';
-import '../models/component.dart';
-import '../models/component_ancestor.dart';
-import '../models/task/task_association.dart';
-import '../models/task/task_rule.dart';
-import '../models/task/task_threshold/task_threshold.dart';
-import '../repositories/app_repository.dart';
-import '../services/component_hierarchy_resolver.dart';
-import '../services/subscription_service.dart';
-import '../theme.dart';
-import '../widgets/component_ancestor_display.dart';
-import '../widgets/dialogs/discard_changes.dart';
-import '../widgets/sheets/radio_group.dart';
-import '../widgets/sheets/set_tags.dart';
-import '../widgets/sheets/strava.dart';
-import '../widgets/sheets/task_association_picker.dart';
-import '../widgets/text/section_title.dart';
+import '../../models/app_settings.dart';
+import '../../models/bike.dart';
+import '../../models/component/component.dart';
+import '../../models/component/component_ancestor.dart';
+import '../../models/task/task_association.dart';
+import '../../models/task/task_rule.dart';
+import '../../models/task/task_threshold/task_threshold.dart';
+import '../../repositories/app_repository.dart';
+import '../../services/component_hierarchy_resolver.dart';
+import '../../services/subscription_service.dart';
+import '../../theme.dart';
+import '../../widgets/component_ancestor_display.dart';
+import '../../widgets/dialogs/discard_changes.dart';
+import '../../widgets/sheets/radio_group.dart';
+import '../../widgets/sheets/set_tags.dart';
+import '../../widgets/sheets/strava.dart';
+import '../../widgets/sheets/task_association_picker.dart';
+import '../../widgets/text/section_title.dart';
 
 enum TaskRulePageMode { add, edit, duplicate }
 

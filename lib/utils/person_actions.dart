@@ -12,7 +12,7 @@ import '../pages/adjustment/numerical_adjustment_page.dart';
 import '../pages/adjustment/sag_adjustment_page.dart';
 import '../pages/adjustment/step_adjustment_page.dart';
 import '../pages/adjustment/text_adjustment_page.dart';
-import '../pages/person_page.dart';
+import '../pages/forms/person_page.dart';
 import '../repositories/app_repository.dart';
 import '../widgets/app_snackbar.dart';
 import '../widgets/sheets/person_add_adjustment.dart';

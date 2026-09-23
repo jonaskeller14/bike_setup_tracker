@@ -1,6 +1,6 @@
-import '../models/component.dart';
-import '../models/component_ancestor.dart';
-import '../models/installation.dart';
+import '../models/component/component.dart';
+import '../models/component/component_ancestor.dart';
+import '../models/component/installation.dart';
 import '../services/component_hierarchy_resolver.dart';
 
 class GarageComponentGroupData {

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../models/bike.dart';
-import '../../models/component.dart';
-import '../../models/installation.dart';
+import '../../models/component/component.dart';
+import '../../models/component/installation.dart';
 import '../display_installation_timeline.dart';
 import 'sheet_header.dart';
 

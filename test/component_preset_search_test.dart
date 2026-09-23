@@ -1,4 +1,4 @@
-import 'package:bike_setup_tracker/models/component_preset.dart';
+import 'package:bike_setup_tracker/models/component/component_preset.dart';
 import 'package:bike_setup_tracker/utils/component_preset_parser.dart';
 import 'package:bike_setup_tracker/utils/component_preset_search.dart';
 import 'package:flutter_test/flutter_test.dart';

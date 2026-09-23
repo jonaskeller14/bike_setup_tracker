@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/bike.dart';
-import '../../models/component.dart';
-import '../../models/component_installation.dart';
-import '../../models/installation.dart';
+import '../../models/component/component.dart';
+import '../../models/component/resolved_installation.dart';
+import '../../models/component/installation.dart';
 import '../../repositories/app_repository.dart';
 import '../../theme.dart';
 import '../../utils/timeline_grouping.dart';
@@ -14,8 +14,8 @@ import 'sheet_header.dart';
 
 Future<void> showReplacementSheet(
   BuildContext context, {
-  required ResolvedComponentInstallation removed,
-  required ResolvedComponentInstallation installed,
+  required ResolvedInstallation removed,
+  required ResolvedInstallation installed,
 }) async {
   return showModalBottomSheet<void>(
     useSafeArea: true,
@@ -28,8 +28,8 @@ Future<void> showReplacementSheet(
 }
 
 class ReplacementSheet extends StatefulWidget {
-  final ResolvedComponentInstallation removed;
-  final ResolvedComponentInstallation installed;
+  final ResolvedInstallation removed;
+  final ResolvedInstallation installed;
 
   const ReplacementSheet({
     super.key,

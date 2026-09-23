@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:reorderables/reorderables.dart';
 
-import '../../models/component.dart';
+import '../../models/component/component.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/component_actions.dart';
 import '../../utils/garage_component_grouping.dart';

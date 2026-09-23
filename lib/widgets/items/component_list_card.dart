@@ -5,8 +5,8 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
-import '../../models/component.dart';
-import '../../models/installation.dart';
+import '../../models/component/component.dart';
+import '../../models/component/installation.dart';
 import '../../models/task/task_rule.dart';
 import '../../pages/details/component_details_page.dart';
 import '../../repositories/app_repository.dart';

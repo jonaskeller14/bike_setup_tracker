@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../models/adjustment/adjustment.dart';
-import '../../models/component.dart';
+import '../../models/component/component.dart';
 import '../../theme.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/set_adjustment/set_sag_adjustment.dart';

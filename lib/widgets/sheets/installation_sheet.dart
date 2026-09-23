@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/bike.dart';
-import '../../models/component.dart';
-import '../../models/component_installation.dart';
-import '../../models/installation.dart';
+import '../../models/component/component.dart';
+import '../../models/component/resolved_installation.dart';
+import '../../models/component/installation.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/installation_timeline_validation.dart';
 import '../dialogs/component_descendant_warning.dart';
@@ -33,7 +33,7 @@ Future<void> showAddInstallationSheet(BuildContext context, {
 
 Future<void> showEditInstallationSheet(BuildContext context, {
   required Component component, 
-  required ResolvedComponentInstallation editEntry,
+  required ResolvedInstallation editEntry,
 }) async {
   return showModalBottomSheet<void>(
     useSafeArea: true,
@@ -51,7 +51,7 @@ Future<void> showEditInstallationSheet(BuildContext context, {
 class InstallationSheet extends StatefulWidget {
   final Component component;
   final String? targetBikeId;
-  final ResolvedComponentInstallation? editEntry;
+  final ResolvedInstallation? editEntry;
   final bool isArchiving;
 
   const InstallationSheet._({
@@ -72,7 +72,7 @@ class InstallationSheet extends StatefulWidget {
   factory InstallationSheet.edit({
     Key? key,
     required Component component,
-    required ResolvedComponentInstallation editEntry,
+    required ResolvedInstallation editEntry,
   }) => InstallationSheet._(key: key, component: component, editEntry: editEntry);
 
   @override

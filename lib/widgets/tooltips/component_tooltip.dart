@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../models/component.dart';
+import '../../models/component/component.dart';
 import '../../models/component_stats.dart';
 import '../../repositories/app_repository.dart';
 import 'entity_tooltip_content.dart';

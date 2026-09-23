@@ -5,8 +5,8 @@ import 'package:timelines_plus/timelines_plus.dart';
 
 import '../models/app_settings.dart';
 import '../models/bike.dart';
-import '../models/component.dart';
-import '../models/installation.dart';
+import '../models/component/component.dart';
+import '../models/component/installation.dart';
 import '../models/task/task_entry.dart';
 import 'sheets/task_rule_sheet.dart';
 

@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
-import '../../models/component.dart';
+import '../../models/component/component.dart';
 import '../../utils/adjustment_preset_consumption.dart';
 import '../../utils/component_preset_application.dart';
 import '../items/adjustment_properties.dart';

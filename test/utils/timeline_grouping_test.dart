@@ -1,7 +1,7 @@
 import 'package:bike_setup_tracker/models/app_settings.dart';
-import 'package:bike_setup_tracker/models/component.dart';
-import 'package:bike_setup_tracker/models/component_installation.dart';
-import 'package:bike_setup_tracker/models/installation.dart';
+import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/component/resolved_installation.dart';
+import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:bike_setup_tracker/models/timeline_entry.dart';
@@ -71,7 +71,7 @@ InstallationEntry deinstallEntry({
   required String installationId,
   String? originBike = 'b1',
 }) {
-  return InstallationEntry(ResolvedComponentInstallation(
+  return InstallationEntry(ResolvedInstallation(
     component: component,
     installation: Uninstallation(
       id: installationId,
@@ -94,7 +94,7 @@ InstallationEntry installEntry({
   String bike = 'b1',
   bool isInitial = false,
 }) {
-  return InstallationEntry(ResolvedComponentInstallation(
+  return InstallationEntry(ResolvedInstallation(
     component: component,
     installation: BikeInstallation(
       bikeId: bike,
@@ -118,7 +118,7 @@ InstallationEntry archivalEntry({
   required String installationId,
   String? originBike = 'b1',
 }) {
-  return InstallationEntry(ResolvedComponentInstallation(
+  return InstallationEntry(ResolvedInstallation(
     component: component,
     installation: Archival(
       id: installationId,

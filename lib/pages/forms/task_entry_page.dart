@@ -3,21 +3,21 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
-import '../models/app_settings.dart';
-import '../models/bike.dart';
-import '../models/component.dart';
-import '../models/component_ancestor.dart';
-import '../models/task/task_association.dart';
-import '../models/task/task_entry.dart';
-import '../models/task/task_rule.dart';
-import '../repositories/app_repository.dart';
-import '../services/component_hierarchy_resolver.dart';
-import '../theme.dart';
-import '../widgets/app_snackbar.dart';
-import '../widgets/component_ancestor_display.dart';
-import '../widgets/dialogs/discard_changes.dart';
-import '../widgets/items/task_rule_display_card.dart';
-import '../widgets/sheets/task_association_picker.dart';
+import '../../models/app_settings.dart';
+import '../../models/bike.dart';
+import '../../models/component/component.dart';
+import '../../models/component/component_ancestor.dart';
+import '../../models/task/task_association.dart';
+import '../../models/task/task_entry.dart';
+import '../../models/task/task_rule.dart';
+import '../../repositories/app_repository.dart';
+import '../../services/component_hierarchy_resolver.dart';
+import '../../theme.dart';
+import '../../widgets/app_snackbar.dart';
+import '../../widgets/component_ancestor_display.dart';
+import '../../widgets/dialogs/discard_changes.dart';
+import '../../widgets/items/task_rule_display_card.dart';
+import '../../widgets/sheets/task_association_picker.dart';
 
 enum TaskEntryPageMode { add, edit, duplicate }
 

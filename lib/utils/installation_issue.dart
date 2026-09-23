@@ -1,5 +1,5 @@
 import '../models/bike.dart';
-import '../models/component_ancestor.dart';
+import '../models/component/component_ancestor.dart';
 import '../services/component_hierarchy_resolver.dart';
 import '../widgets/component_ancestor_display.dart';
 

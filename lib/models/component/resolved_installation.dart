@@ -2,7 +2,7 @@ import 'component.dart';
 import 'installation.dart';
 
 
-class ResolvedComponentInstallation {
+class ResolvedInstallation {
   // Runtime only helper model (resolved Installation entries)
   final Component component;
   final Installation installation;
@@ -10,7 +10,7 @@ class ResolvedComponentInstallation {
   final InstallationParentType? originParentType;
   final bool isInitial;
 
-  ResolvedComponentInstallation({
+  ResolvedInstallation({
     required this.component,
     required this.installation,
     this.originParent,

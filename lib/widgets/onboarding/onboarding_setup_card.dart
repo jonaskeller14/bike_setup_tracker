@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
-import '../../models/component.dart';
+import '../../models/component/component.dart';
 import '../../models/context/context_weather.dart';
 import '../../models/setup.dart';
 import '../display_adjustment/display_numerical_adjustment.dart';

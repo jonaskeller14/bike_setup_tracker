@@ -7,7 +7,7 @@ import '../models/bike.dart';
 import '../models/rating/rating_association.dart';
 import '../models/task/task_association.dart';
 import '../models/task/task_rule.dart';
-import '../pages/bike_page.dart';
+import '../pages/forms/bike_page.dart';
 import '../repositories/app_repository.dart';
 import '../widgets/app_snackbar.dart';
 import '../widgets/sheets/delete_task_rules.dart';

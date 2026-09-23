@@ -2,17 +2,17 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../icons/simple_icons.dart';
-import '../models/app_settings.dart';
-import '../models/bike.dart';
-import '../models/component_stats.dart';
-import '../models/person.dart';
-import '../models/strava/strava_gear.dart';
-import '../repositories/app_repository.dart';
-import '../services/subscription_service.dart';
-import '../theme.dart';
-import '../widgets/dialogs/discard_changes.dart';
-import '../widgets/sheets/set_initial_stats.dart';
+import '../../icons/simple_icons.dart';
+import '../../models/app_settings.dart';
+import '../../models/bike.dart';
+import '../../models/component_stats.dart';
+import '../../models/person.dart';
+import '../../models/strava/strava_gear.dart';
+import '../../repositories/app_repository.dart';
+import '../../services/subscription_service.dart';
+import '../../theme.dart';
+import '../../widgets/dialogs/discard_changes.dart';
+import '../../widgets/sheets/set_initial_stats.dart';
 
 enum BikePageMode {
   add,

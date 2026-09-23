@@ -2,9 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
-import '../icons/bike_icons.dart';
-import 'adjustment/adjustment.dart';
-import 'component_stats.dart';
+import '../../icons/bike_icons.dart';
+import '../adjustment/adjustment.dart';
+import '../component_stats.dart';
 import 'installation.dart';
 
 part 'component_type.dart';

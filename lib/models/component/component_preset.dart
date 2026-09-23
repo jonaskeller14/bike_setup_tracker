@@ -1,4 +1,4 @@
-import 'adjustment/adjustment.dart';
+import '../adjustment/adjustment.dart';
 import 'component.dart';
 
 /// In-memory model of the component-preset catalog (`data/component_presets/`).

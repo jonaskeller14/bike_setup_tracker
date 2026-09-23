@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../models/component.dart';
+import '../../models/component/component.dart';
 
 Future<bool> confirmComponentDescendantImpact(
   BuildContext context, {

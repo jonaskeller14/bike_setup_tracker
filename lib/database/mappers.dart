@@ -6,11 +6,11 @@ import 'package:geocoding/geocoding.dart' as geo;
 
 import '../models/adjustment/adjustment.dart';
 import '../models/bike.dart';
-import '../models/component.dart';
+import '../models/component/component.dart';
 import '../models/component_stats.dart';
 import '../models/context/context_position.dart';
 import '../models/context/context_weather.dart';
-import '../models/installation.dart';
+import '../models/component/installation.dart';
 import '../models/person.dart';
 import '../models/rating/rating.dart';
 import '../models/rating/rating_association.dart';

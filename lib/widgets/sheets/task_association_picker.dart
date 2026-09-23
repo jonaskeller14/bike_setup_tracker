@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/bike.dart';
-import '../../models/component.dart';
+import '../../models/component/component.dart';
 import '../../models/task/task_association.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/component_hierarchy_resolver.dart';

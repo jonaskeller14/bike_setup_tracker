@@ -2,26 +2,26 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../icons/simple_icons.dart';
-import '../models/adjustment/adjustment.dart';
-import '../models/app_settings.dart';
-import '../models/person.dart';
-import '../models/strava/strava_athlete.dart';
-import '../repositories/app_repository.dart';
-import '../services/subscription_service.dart';
-import '../theme.dart';
-import '../widgets/dialogs/discard_changes.dart';
-import '../widgets/empty_state_placeholder2.dart';
-import '../widgets/lists/adjustment_edit_list.dart';
-import '../widgets/sheets/person_add_adjustment.dart';
-import '../widgets/text/section_title.dart';
-import 'adjustment/boolean_adjustment_page.dart';
-import 'adjustment/categorical_adjustment_page.dart';
-import 'adjustment/duration_adjustment_page.dart';
-import 'adjustment/numerical_adjustment_page.dart';
-import 'adjustment/sag_adjustment_page.dart';
-import 'adjustment/step_adjustment_page.dart';
-import 'adjustment/text_adjustment_page.dart';
+import '../../icons/simple_icons.dart';
+import '../../models/adjustment/adjustment.dart';
+import '../../models/app_settings.dart';
+import '../../models/person.dart';
+import '../../models/strava/strava_athlete.dart';
+import '../../repositories/app_repository.dart';
+import '../../services/subscription_service.dart';
+import '../../theme.dart';
+import '../../widgets/dialogs/discard_changes.dart';
+import '../../widgets/empty_state_placeholder2.dart';
+import '../../widgets/lists/adjustment_edit_list.dart';
+import '../../widgets/sheets/person_add_adjustment.dart';
+import '../../widgets/text/section_title.dart';
+import '../adjustment/boolean_adjustment_page.dart';
+import '../adjustment/categorical_adjustment_page.dart';
+import '../adjustment/duration_adjustment_page.dart';
+import '../adjustment/numerical_adjustment_page.dart';
+import '../adjustment/sag_adjustment_page.dart';
+import '../adjustment/step_adjustment_page.dart';
+import '../adjustment/text_adjustment_page.dart';
 
 enum PersonPageMode {
   add,

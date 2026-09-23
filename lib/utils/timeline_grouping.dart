@@ -1,6 +1,6 @@
 import '../models/app_settings.dart';
-import '../models/component_installation.dart';
-import '../models/installation.dart';
+import '../models/component/resolved_installation.dart';
+import '../models/component/installation.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/timeline_entry.dart';
 import '../models/timeline_row.dart';
@@ -66,8 +66,8 @@ class StravaActivityIndex {
 }
 
 class ReplacementPair {
-  final ResolvedComponentInstallation removed;
-  final ResolvedComponentInstallation installed;
+  final ResolvedInstallation removed;
+  final ResolvedInstallation installed;
   const ReplacementPair({required this.removed, required this.installed});
 }
 
@@ -128,7 +128,7 @@ ReplacementPairing pairReplacements(
       continue;
     }
 
-    ResolvedComponentInstallation? best;
+    ResolvedInstallation? best;
     Duration? bestDelta;
     for (final candidate in installations) {
       if (candidate.installation is! BikeInstallation) continue;

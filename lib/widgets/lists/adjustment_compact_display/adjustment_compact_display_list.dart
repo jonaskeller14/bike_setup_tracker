@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../models/adjustment/adjustment.dart';
-import '../../../models/component.dart';
+import '../../../models/component/component.dart';
 import '../../../models/person.dart';
 import 'adjustment_cell.dart';
 import 'adjustment_display_item.dart';

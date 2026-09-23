@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-import '../models/component.dart';
-import '../models/component_preset.dart';
+import '../models/component/component.dart';
+import '../models/component/component_preset.dart';
 import '../utils/component_preset_parser.dart';
 
 /// Files are discovered at runtime through the [AssetManifest] (there is no

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../models/bike.dart';
-import '../../models/component.dart';
+import '../../models/component/component.dart';
 import '../../models/task/task_association.dart';
 import '../../models/task/task_rule.dart';
 import '../../services/component_hierarchy_resolver.dart';

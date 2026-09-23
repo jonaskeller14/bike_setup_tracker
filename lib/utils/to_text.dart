@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
-import '../models/component.dart';
+import '../models/component/component.dart';
 import '../models/context/context_position.dart';
 import '../models/context/context_weather.dart';
 import '../models/person.dart';

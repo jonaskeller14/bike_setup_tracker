@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/bike.dart';
-import '../models/component_ancestor.dart';
+import '../models/component/component_ancestor.dart';
 import 'component_ancestor_display.dart';
 
 class ComponentAncestorsColumn extends StatelessWidget {

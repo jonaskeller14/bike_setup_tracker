@@ -10,11 +10,11 @@ import '../database/mappers.dart';
 import '../models/activity_rate_window.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/bike.dart';
-import '../models/component.dart';
-import '../models/component_installation.dart';
+import '../models/component/component.dart';
+import '../models/component/resolved_installation.dart';
 import '../models/component_stats.dart';
 import '../models/context/context_position.dart';
-import '../models/installation.dart';
+import '../models/component/installation.dart';
 import '../models/person.dart';
 import '../models/rating/rating.dart';
 import '../models/rating/rating_association.dart';
@@ -409,7 +409,7 @@ class AppRepository extends ChangeNotifier {
   Map<String, TaskRule> _filteredTaskRules = {};
   Map<String, TaskEntry> _filteredTaskEntries = {};
   Map<String, TaskRule> _filteredOpenTaskRules = {};
-  List<ResolvedComponentInstallation> _filteredInstallations = [];
+  List<ResolvedInstallation> _filteredInstallations = [];
 
   Map<String, Bike> get filteredBikes => _filteredBikes;
   Map<String, Person> get filteredPersons => _filteredPersons;
@@ -426,7 +426,7 @@ class AppRepository extends ChangeNotifier {
   int get filteredOpenTaskRulesCount => _filteredOpenTaskRules.length;
   Map<String, TaskEntry> get filteredTaskEntries => _filteredTaskEntries;
   Map<int, StravaActivity> get filteredStravaActivities => _strava.activities;
-  List<ResolvedComponentInstallation> get filteredInstallations => _filteredInstallations;
+  List<ResolvedInstallation> get filteredInstallations => _filteredInstallations;
 
   void filter() {
     _filter();
@@ -555,7 +555,7 @@ class AppRepository extends ChangeNotifier {
         final originParent = previousInstallation?.parent;
         final isInitial = i == 0;
 
-        final ci = ResolvedComponentInstallation(
+        final ci = ResolvedInstallation(
           component: component,
           installation: installation,
           originParent: originParent,

@@ -1,8 +1,8 @@
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
-import 'package:bike_setup_tracker/models/component.dart';
-import 'package:bike_setup_tracker/models/component_installation.dart';
-import 'package:bike_setup_tracker/models/installation.dart';
+import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/component/resolved_installation.dart';
+import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/component_hierarchy_resolver.dart';
 import 'package:bike_setup_tracker/theme.dart';
@@ -228,7 +228,7 @@ void main() {
           dateTimeUTC: now.toUtc(),
           dateTimeLocal: now,
         );
-        final editEntry = ResolvedComponentInstallation(
+        final editEntry = ResolvedInstallation(
           component: component,
           installation: installation,
           originParent: 'b1',
@@ -252,7 +252,7 @@ void main() {
           dateTimeUTC: now.toUtc(),
           dateTimeLocal: now,
         );
-        final editEntry = ResolvedComponentInstallation(
+        final editEntry = ResolvedInstallation(
           component: component,
           installation: installation,
           originParent: 'b1',
@@ -272,7 +272,7 @@ void main() {
 
       testWidgets('initial: shows arrow and target only, no origin', (WidgetTester tester) async {
         final installation = Installation.sinceBeginning(parent: 'b1');
-        final editEntry = ResolvedComponentInstallation(
+        final editEntry = ResolvedInstallation(
           component: component,
           installation: installation,
           originParent: null,
@@ -297,7 +297,7 @@ void main() {
           dateTimeUTC: now.toUtc(),
           dateTimeLocal: now,
         );
-        final editEntry = ResolvedComponentInstallation(
+        final editEntry = ResolvedInstallation(
           component: component,
           installation: installation,
           originParent: 'b1',
@@ -322,7 +322,7 @@ void main() {
           dateTimeUTC: now.toUtc(),
           dateTimeLocal: now,
         );
-        final editEntry = ResolvedComponentInstallation(
+        final editEntry = ResolvedInstallation(
           component: component,
           installation: installation,
           originParent: 'b_missing',

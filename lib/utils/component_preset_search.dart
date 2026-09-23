@@ -1,4 +1,4 @@
-import '../models/component_preset.dart';
+import '../models/component/component_preset.dart';
 import 'component_preset_application.dart';
 
 String presetSearchHaystack(ComponentPresetVariant variant) {

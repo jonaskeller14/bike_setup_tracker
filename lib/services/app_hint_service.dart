@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/app_hint.dart';
 import '../models/app_settings.dart';
-import '../models/installation.dart';
+import '../models/component/installation.dart';
 import '../repositories/app_repository.dart';
 import '../utils/app_info.dart';
 import '../utils/installation_timeline_validation.dart';

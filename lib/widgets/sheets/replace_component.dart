@@ -4,9 +4,9 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
-import '../../models/component.dart';
-import '../../models/component_ancestor.dart';
-import '../../models/installation.dart';
+import '../../models/component/component.dart';
+import '../../models/component/component_ancestor.dart';
+import '../../models/component/installation.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import 'sheet_header.dart';

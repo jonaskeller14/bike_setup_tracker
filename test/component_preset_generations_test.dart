@@ -1,5 +1,5 @@
-import 'package:bike_setup_tracker/models/component.dart';
-import 'package:bike_setup_tracker/models/component_preset.dart';
+import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/component/component_preset.dart';
 import 'package:bike_setup_tracker/utils/component_preset_parser.dart';
 import 'package:bike_setup_tracker/utils/component_preset_search.dart';
 import 'package:bike_setup_tracker/widgets/sheets/component_preset_picker.dart';

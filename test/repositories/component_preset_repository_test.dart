@@ -1,5 +1,5 @@
-import 'package:bike_setup_tracker/models/component.dart';
-import 'package:bike_setup_tracker/models/component_preset.dart';
+import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/component/component_preset.dart';
 import 'package:bike_setup_tracker/repositories/component_preset_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 

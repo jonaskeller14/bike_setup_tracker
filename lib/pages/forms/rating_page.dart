@@ -2,27 +2,27 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../models/adjustment/adjustment.dart';
-import '../models/bike.dart';
-import '../models/component.dart';
-import '../models/installation.dart';
-import '../models/person.dart';
-import '../models/rating/rating.dart';
-import '../models/rating/rating_association.dart';
-import '../models/rating/rating_metric.dart';
-import '../repositories/app_repository.dart';
-import '../theme.dart';
-import '../widgets/dialogs/discard_changes.dart';
-import '../widgets/empty_state_placeholder2.dart';
-import '../widgets/lists/adjustment_edit_list.dart';
-import '../widgets/sheets/rating_add_adjustment.dart';
-import '../widgets/text/section_title.dart';
-import 'metric/boolean_metric_page.dart';
-import 'metric/categorical_metric_page.dart';
-import 'metric/duration_metric_page.dart';
-import 'metric/numerical_metric_page.dart';
-import 'metric/step_metric_page.dart';
-import 'metric/text_metric_page.dart';
+import '../../models/adjustment/adjustment.dart';
+import '../../models/bike.dart';
+import '../../models/component/component.dart';
+import '../../models/component/installation.dart';
+import '../../models/person.dart';
+import '../../models/rating/rating.dart';
+import '../../models/rating/rating_association.dart';
+import '../../models/rating/rating_metric.dart';
+import '../../repositories/app_repository.dart';
+import '../../theme.dart';
+import '../../widgets/dialogs/discard_changes.dart';
+import '../../widgets/empty_state_placeholder2.dart';
+import '../../widgets/lists/adjustment_edit_list.dart';
+import '../../widgets/sheets/rating_add_adjustment.dart';
+import '../../widgets/text/section_title.dart';
+import '../metric/boolean_metric_page.dart';
+import '../metric/categorical_metric_page.dart';
+import '../metric/duration_metric_page.dart';
+import '../metric/numerical_metric_page.dart';
+import '../metric/step_metric_page.dart';
+import '../metric/text_metric_page.dart';
 
 enum RatingPageMode {
   add,

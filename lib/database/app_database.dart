@@ -9,8 +9,8 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 import '../models/adjustment/adjustment.dart';
-import '../models/component.dart';
-import '../models/installation.dart';
+import '../models/component/component.dart';
+import '../models/component/installation.dart';
 import '../models/rating/rating_association.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/task/task_rule.dart';

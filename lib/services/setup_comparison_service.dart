@@ -1,5 +1,5 @@
 import '../models/adjustment/adjustment.dart';
-import '../models/component.dart';
+import '../models/component/component.dart';
 import '../models/person.dart';
 import '../models/setup.dart';
 import '../models/setup_comparison.dart';

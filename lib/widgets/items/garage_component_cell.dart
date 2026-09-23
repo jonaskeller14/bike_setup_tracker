@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../models/component.dart';
+import '../../models/component/component.dart';
 import '../../pages/details/component_details_page.dart';
 import '../../utils/installation_issue.dart';
 import 'garage_component_icon_card.dart';

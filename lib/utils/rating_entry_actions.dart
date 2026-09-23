@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/rating/rating_entry.dart';
-import '../pages/rating_entry_page.dart';
+import '../pages/forms/rating_entry_page.dart';
 import '../repositories/app_repository.dart';
 import '../widgets/app_snackbar.dart';
 

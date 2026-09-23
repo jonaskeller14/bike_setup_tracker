@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../models/bike.dart';
-import '../models/component.dart';
-import '../models/component_ancestor.dart';
+import '../models/component/component.dart';
+import '../models/component/component_ancestor.dart';
 
 extension ComponentAncestorDisplay on ComponentAncestor {
   bool isMissing(Map<String, Bike> bikes) => switch (this) {

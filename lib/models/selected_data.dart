@@ -1,6 +1,6 @@
 import 'adjustment/adjustment_unit.dart';
 import 'bike.dart';
-import 'component.dart';
+import 'component/component.dart';
 import 'person.dart';
 import 'rating/rating.dart';
 import 'rating/rating_entry.dart';

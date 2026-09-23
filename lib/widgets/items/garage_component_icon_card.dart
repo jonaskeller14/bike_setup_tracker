@@ -57,6 +57,7 @@ class GarageComponentIconCard extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final isSelected = componentToShowDetails == component.id;
     final appSettings = context.watch<AppSettings>();
+    final borderWidth = isSelected && !merged ? 1.5 : 1.0;
 
     TaskStatusType? indicatorStatus;
     if (appSettings.enableTask && appSettings.enableGarageTaskIndicator) {
@@ -70,7 +71,8 @@ class GarageComponentIconCard extends StatelessWidget {
           key: ValueKey(component.id),
           width: width,
           alignment: Alignment.center,
-          padding: const EdgeInsets.all(10),
+          // Border width counts toward layout; offset it so selection grows the border inward.
+          padding: EdgeInsets.all(11 - borderWidth),
           decoration: BoxDecoration(
             // The group head stays unfilled: its group container carries the
             // background and, when selected, the highlight for the whole group.
@@ -88,7 +90,7 @@ class GarageComponentIconCard extends StatelessWidget {
                       : issue != null
                           ? colorScheme.error
                           : colorScheme.outlineVariant,
-              width: isSelected && !merged ? 1.5 : 1.0,
+              width: borderWidth,
             ),
             boxShadow: isSelected && !merged
                 ? [BoxShadow(

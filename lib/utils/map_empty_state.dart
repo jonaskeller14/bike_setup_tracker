@@ -1,3 +1,11 @@
+/// What the map has to say about its pins, beyond drawing them.
+enum MapPinState {
+  loading,
+  error,
+  none,
+  filtered,
+}
+
 /// Why the map shows no pins.
 enum MapEmptyReason {
   /// No enabled source holds a positioned item at all.

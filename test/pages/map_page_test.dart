@@ -11,6 +11,7 @@ import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/location_provider.dart';
 import 'package:bike_setup_tracker/services/location_service.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
+import 'package:bike_setup_tracker/utils/map_empty_state.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -511,6 +512,113 @@ void main() {
       await tester.pump();
 
       expect(stateOf(tester).pinState, isNull);
+    });
+  });
+
+  group('Empty-state card', () {
+    void notifyRepository() {
+      for (final listener in repositoryListeners) {
+        listener();
+      }
+    }
+
+    testWidgets('stays away while the activity query is pending', (tester) async {
+      when(() => subscriptionService.hasStravaEntitlement).thenReturn(true);
+      final completer = Completer<List<StravaActivity>>();
+      when(() => repository.getFilteredStravaActivitiesWithPosition()).thenAnswer((_) => completer.future);
+      await tester.pumpWidget(buildPage(unpermittedService()));
+      await tester.pump();
+
+      expect(find.byKey(const Key('map-empty-none')), findsNothing);
+
+      completer.complete([]);
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.byKey(const Key('map-empty-none')), findsOneWidget);
+    });
+
+    testWidgets('clears the filters from the filtered card', (tester) async {
+      when(() => repository.hasSetupsWithPosition).thenReturn(true);
+      when(() => repository.onBikeTap(any())).thenAnswer((_) {});
+      await tester.pumpWidget(buildPage(unpermittedService()));
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.byKey(const Key('map-empty-filtered')), findsOneWidget);
+
+      await tester.tap(find.widgetWithText(FilledButton, 'Clear filters'));
+      await tester.pump();
+
+      verify(() => repository.onBikeTap(null)).called(1);
+    });
+
+    testWidgets('collapses to a pill and expands again on a new reason', (tester) async {
+      await tester.pumpWidget(buildPage(unpermittedService()));
+      await tester.pump();
+      await tester.pump();
+
+      await tester.tap(find.byKey(const Key('map-empty-collapse')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(find.byKey(const Key('map-empty-pill')), findsOneWidget);
+      expect(find.byKey(const Key('map-empty-none')), findsNothing);
+
+      // Positioned data appears: the reason turns into `filtered`.
+      when(() => repository.hasSetupsWithPosition).thenReturn(true);
+      notifyRepository();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(find.byKey(const Key('map-empty-filtered')), findsOneWidget);
+      expect(find.byKey(const Key('map-empty-pill')), findsNothing);
+    });
+
+    testWidgets('leaves the map draggable around the card', (tester) async {
+      await tester.pumpWidget(buildPage(unpermittedService()));
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.byKey(const Key('map-empty-none')), findsOneWidget);
+      final controller = tester.widget<FlutterMap>(find.byType(FlutterMap)).mapController!;
+      final before = controller.camera.center;
+
+      final gesture = await tester.startGesture(tester.getCenter(find.byType(FlutterMap)));
+      await gesture.moveBy(const Offset(0, -80));
+      await tester.pump(const Duration(milliseconds: 300));
+      await gesture.up();
+      await tester.pump(const Duration(milliseconds: 600));
+
+      // Dragging upwards pulls the camera south, card or no card.
+      expect(controller.camera.center.latitude, lessThan(before.latitude));
+    });
+
+    testWidgets('disappears once a pin is visible', (tester) async {
+      await tester.pumpWidget(buildPage(unpermittedService()));
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.byKey(const Key('map-empty-none')), findsOneWidget);
+
+      final setup = Setup(
+        datetime: DateTime(2025, 6, 1).toUtc(),
+        datetimeLocal: DateTime(2025, 6, 1),
+        tags: const {},
+        bike: 'bike-1',
+        person: null,
+        bikeAdjustmentValues: const {},
+        personAdjustmentValues: const {},
+        position: const ContextPosition(latitude: 44.16, longitude: 8.34),
+      );
+      when(() => repository.filteredSetups).thenReturn({setup.id: setup});
+      when(() => repository.hasSetupsWithPosition).thenReturn(true);
+      notifyRepository();
+      await tester.pump();
+      await tester.pump();
+
+      expect(tester.state<MapPageState>(find.byType(MapPage)).pinState, isNull);
+      expect(find.byKey(const Key('map-empty-none')), findsNothing);
     });
   });
 }

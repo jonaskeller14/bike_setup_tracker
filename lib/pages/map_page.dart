@@ -20,17 +20,11 @@ import '../services/subscription_service.dart';
 import '../utils/map_empty_state.dart';
 import '../widgets/app_snackbar.dart';
 import '../widgets/chips/map_filter_widget.dart';
+import '../widgets/map_empty_state_card.dart';
 import '../widgets/map_pins.dart';
 import '../widgets/sheets/rating_entry_details.dart';
 import '../widgets/sheets/setup_details.dart';
 import '../widgets/sheets/strava_activity.dart';
-
-enum MapPinState {
-  loading,
-  error,
-  none,
-  filtered,
-}
 
 class MapPage extends StatefulWidget {
   final LocationService? locationService;
@@ -60,6 +54,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
   bool _stravaFailed = false;
   int _stravaRequestId = 0;
   MapPinState? _pinState;
+  MapPinState? _collapsedFor;
   bool _cameraTouchedByUser = false;
   List<LatLng> _pinPoints = const [];
 
@@ -150,6 +145,15 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
         _stravaFailed = true;
       });
     }
+  }
+
+  /// Drops the failed result and queries again, which the card offers as Retry.
+  void _retryStravaActivities() {
+    setState(() {
+      _stravaResolved = false;
+      _stravaFailed = false;
+    });
+    _reloadStravaActivities();
   }
 
   MapPinState? _pinStateFor({
@@ -450,12 +454,13 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
     // Only used for camera fitting; the live marker draws itself.
     final List<LatLng> fitPoints = [?_userLocation, ..._pinPoints];
 
-    _pinState = _pinStateFor(
+    final pinState = _pinStateFor(
       visiblePinCount: clusterMarkers.length,
       appRepository: appRepository,
       appSettings: appSettings,
       stravaActive: stravaActive,
     );
+    _pinState = pinState;
 
     return Scaffold(
       body: Stack(
@@ -653,6 +658,27 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
               ),
             ),
           ),
+          if (pinState != null && pinState != MapPinState.loading)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: SafeArea(
+                // Keeps clear of the FAB column on the right and the
+                // attribution below; only the card itself takes hits.
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 0, 72, 40),
+                  child: MapEmptyStateCard(
+                    state: pinState,
+                    collapsed: _collapsedFor == pinState,
+                    onToggleCollapsed: () => setState(
+                      () => _collapsedFor = _collapsedFor == pinState ? null : pinState,
+                    ),
+                    onRetry: _retryStravaActivities,
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
       floatingActionButton: Column(

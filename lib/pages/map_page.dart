@@ -60,6 +60,17 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
   bool _stravaFailed = false;
   int _stravaRequestId = 0;
   MapPinState? _pinState;
+  bool _cameraTouchedByUser = false;
+  List<LatLng> _pinPoints = const [];
+
+  /// Camera sources the page drives itself; anything else comes from the user.
+  static const Set<MapEventSource> _programmaticCameraSources = {
+    MapEventSource.mapController,
+    MapEventSource.fitCamera,
+    MapEventSource.custom,
+    MapEventSource.interactiveFlagsChanged,
+    MapEventSource.nonRotatedSizeChange,
+  };
 
   /// Null while pins are on the map and nothing else needs saying.
   @visibleForTesting
@@ -91,9 +102,11 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
         (defaultTargetPlatform == TargetPlatform.iOS
             ? const Stream<LocationMarkerHeading?>.empty()
             : const LocationMarkerDataStreamFactory().fromRotationSensorHeadingStream());
-    _mapEventSubscription = _mapController.mapEventStream.listen(
-      (_) => _rotation.value = _mapController.camera.rotation,
-    );
+    _mapEventSubscription = _mapController.mapEventStream.listen((event) {
+      _rotation.value = _mapController.camera.rotation;
+      if (!_programmaticCameraSources.contains(event.source)) _cameraTouchedByUser = true;
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => unawaited(_autoLocate()));
   }
 
   void _locationStatusChanged() {
@@ -238,6 +251,34 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
     } on TickerCanceled {
       // The page was disposed while the map was rotating.
     }
+  }
+
+  static CameraFit _pinOverviewFit(List<LatLng> points) => CameraFit.bounds(
+    bounds: LatLngBounds.fromPoints(points),
+    padding: const EdgeInsets.all(50),
+    maxZoom: 17,
+  );
+
+  /// The silent counterpart to [_locateMe], run once when the page opens. It may
+  /// surface the OS permission prompt, but never a SnackBar.
+  Future<void> _autoLocate() async {
+    if (!mounted || _locationService.status == LocationStatus.permissionDeniedForever) return;
+
+    final position = await _locationService.fetchLocation();
+    if (!mounted || !ContextPosition.hasValidCoordinateChange(null, position)) return;
+
+    final userLocation = LatLng(position!.latitude!, position.longitude!);
+    setState(() => _userLocation = userLocation);
+    _locationService.startPositionUpdates();
+
+    // GPS can take seconds: never yank a camera the user has already moved.
+    if (_cameraTouchedByUser) return;
+    if (_pinPoints.isEmpty) {
+      await _animatedMapMove(userLocation, 15);
+      return;
+    }
+    final fit = _pinOverviewFit([userLocation, ..._pinPoints]).fit(_mapController.camera);
+    await _animatedMapMove(fit.center, fit.zoom);
   }
 
   Future<void> _locateMe() async {
@@ -403,11 +444,11 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
             ),
     ];
 
+    // Read by _autoLocate, which decides its camera outside build.
+    _pinPoints = clusterMarkers.map((marker) => marker.point).toList();
+
     // Only used for camera fitting; the live marker draws itself.
-    final List<LatLng> fitPoints = [
-      ?_userLocation,
-      ...clusterMarkers.map((marker) => marker.point),
-    ];
+    final List<LatLng> fitPoints = [?_userLocation, ..._pinPoints];
 
     _pinState = _pinStateFor(
       visiblePinCount: clusterMarkers.length,
@@ -444,13 +485,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
                 flags: InteractiveFlag.all,
                 enableMultiFingerGestureRace: true,
               ),
-              initialCameraFit: fitPoints.isNotEmpty
-                  ? CameraFit.bounds(
-                      bounds: LatLngBounds.fromPoints(fitPoints),
-                      padding: const EdgeInsets.all(50),
-                      maxZoom: 17,
-                    )
-                  : null,
+              initialCameraFit: fitPoints.isNotEmpty ? _pinOverviewFit(fitPoints) : null,
             ),
             children: [
               if (appSettings.useMapBoxTiles && Env.mapboxToken.isNotEmpty)
@@ -649,13 +684,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
               icon: const Icon(Icons.center_focus_strong),
               onPressed: () {
                 _mapController.rotate(0);
-                _mapController.fitCamera(
-                  CameraFit.bounds(
-                    bounds: LatLngBounds.fromPoints(fitPoints),
-                    padding: const EdgeInsets.all(50),
-                    maxZoom: 17,
-                  ),
-                );
+                _mapController.fitCamera(_pinOverviewFit(fitPoints));
               },
             ),
         ],

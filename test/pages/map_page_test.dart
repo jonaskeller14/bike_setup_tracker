@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/context/context_position.dart';
+import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/pages/map_page.dart';
@@ -15,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -55,6 +57,12 @@ void main() {
     settings.dispose();
   });
 
+  /// For tests that do not exercise location: the automatic lookup on open
+  /// stops at the permission check, so no position is ever produced.
+  LocationService unpermittedService() => LocationService(
+    provider: FakeMapLocationProvider(null)..permission = LocationProviderPermission.denied,
+  );
+
   Widget buildPage(
     LocationService service, {
     Stream<LocationMarkerHeading?>? headingStream = const Stream.empty(),
@@ -78,12 +86,15 @@ void main() {
     final service = LocationService(provider: provider);
     await tester.pumpWidget(buildPage(service));
     await tester.pump();
+    await tester.pump(const Duration(milliseconds: 600));
+    // The page looks the user up automatically when it opens.
+    final callsBeforeTap = provider.getCurrentPositionCalls;
 
     await tester.tap(find.byKey(const Key('map-locate-me')));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 600));
 
-    expect(provider.getCurrentPositionCalls, 1);
+    expect(provider.getCurrentPositionCalls, callsBeforeTap + 1);
     expect(find.byKey(const Key('map-user-location-marker')), findsOneWidget);
     final map = tester.widget<FlutterMap>(find.byType(FlutterMap));
     expect(map.mapController!.camera.center.latitude, closeTo(47.3769, 0.001));
@@ -169,14 +180,16 @@ void main() {
     await tester.pumpWidget(buildPage(service));
     await tester.pump();
 
-    await tester.tap(find.byKey(const Key('map-locate-me')));
-    await tester.pump();
-
+    // The automatic lookup on open is already searching.
     expect(provider.getCurrentPositionCalls, 1);
     expect(
       tester.widget<IconButton>(find.byKey(const Key('map-locate-me'))).onPressed,
       isNull,
     );
+
+    await tester.tap(find.byKey(const Key('map-locate-me')));
+    await tester.pump();
+    expect(provider.getCurrentPositionCalls, 1);
 
     completer.complete(const ContextPosition(latitude: 47.1, longitude: 8.2));
     await tester.pump();
@@ -184,17 +197,16 @@ void main() {
     expect(provider.getCurrentPositionCalls, 1);
   });
 
-  testWidgets('starts live updates only after a successful locate', (tester) async {
-    final provider = FakeMapLocationProvider(
-      const ContextPosition(latitude: 47.3769, longitude: 8.5417),
-    );
+  testWidgets('starts live updates only once a location arrives', (tester) async {
+    final completer = Completer<ContextPosition>();
+    final provider = FakeMapLocationProvider(null)..pendingPosition = completer.future;
     final service = LocationService(provider: provider);
     await tester.pumpWidget(buildPage(service));
     await tester.pump();
 
     expect(provider.positionController.hasListener, isFalse);
 
-    await tester.tap(find.byKey(const Key('map-locate-me')));
+    completer.complete(const ContextPosition(latitude: 47.3769, longitude: 8.5417));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 600));
 
@@ -214,7 +226,7 @@ void main() {
   });
 
   testWidgets('shows the compass only while north is not up', (tester) async {
-    final service = LocationService(provider: FakeMapLocationProvider(null));
+    final service = unpermittedService();
     await tester.pumpWidget(buildPage(service));
     await tester.pump();
 
@@ -238,7 +250,7 @@ void main() {
   });
 
   testWidgets('returns to north the short way round past a full turn', (tester) async {
-    final service = LocationService(provider: FakeMapLocationProvider(null));
+    final service = unpermittedService();
     await tester.pumpWidget(buildPage(service));
     await tester.pump();
 
@@ -260,7 +272,7 @@ void main() {
   testWidgets('uses no device heading source on iOS', (tester) async {
     debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
     try {
-      final service = LocationService(provider: FakeMapLocationProvider(null));
+      final service = unpermittedService();
       await tester.pumpWidget(buildPage(service, headingStream: null));
       await tester.pump();
 
@@ -282,13 +294,112 @@ void main() {
     await tester.pumpWidget(buildPage(service));
     await tester.pump();
 
-    await tester.tap(find.byKey(const Key('map-locate-me')));
-    await tester.pump();
     await tester.pumpWidget(const MaterialApp(home: SizedBox()));
     completer.complete(const ContextPosition(latitude: 47.1, longitude: 8.2));
     await tester.pump();
 
     expect(tester.takeException(), isNull);
+  });
+
+  group('Automatic locate on open', () {
+    const userPosition = ContextPosition(latitude: 47.3769, longitude: 8.5417);
+    const pinPoint = LatLng(44.16, 8.34);
+    const userPoint = LatLng(47.3769, 8.5417);
+
+    MapCamera cameraOf(WidgetTester tester) =>
+        tester.widget<FlutterMap>(find.byType(FlutterMap)).mapController!.camera;
+
+    void stubPositionedSetup() {
+      final setup = Setup(
+        datetime: DateTime(2025, 6, 1).toUtc(),
+        datetimeLocal: DateTime(2025, 6, 1),
+        tags: const {},
+        bike: 'bike-1',
+        person: null,
+        bikeAdjustmentValues: const {},
+        personAdjustmentValues: const {},
+        position: ContextPosition(latitude: pinPoint.latitude, longitude: pinPoint.longitude),
+      );
+      when(() => repository.filteredSetups).thenReturn({setup.id: setup});
+      when(() => repository.hasSetupsWithPosition).thenReturn(true);
+    }
+
+    testWidgets('centers on the user when the map has no pins', (tester) async {
+      final provider = FakeMapLocationProvider(userPosition);
+      await tester.pumpWidget(buildPage(LocationService(provider: provider)));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 600));
+
+      expect(provider.getCurrentPositionCalls, 1);
+      expect(find.byKey(const Key('map-user-location-marker')), findsOneWidget);
+      final camera = cameraOf(tester);
+      expect(camera.center.latitude, closeTo(47.3769, 0.001));
+      expect(camera.center.longitude, closeTo(8.5417, 0.001));
+      expect(camera.zoom, closeTo(15, 0.001));
+    });
+
+    testWidgets('refits the camera to the pins and the user', (tester) async {
+      stubPositionedSetup();
+      await tester.pumpWidget(buildPage(LocationService(provider: FakeMapLocationProvider(userPosition))));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 600));
+
+      final camera = cameraOf(tester);
+      expect(camera.visibleBounds.contains(userPoint), isTrue);
+      expect(camera.visibleBounds.contains(pinPoint), isTrue);
+      // The pin overview zoomed out to take the distant user in.
+      expect(camera.zoom, lessThan(13));
+    });
+
+    testWidgets('stays silent when the lookup fails', (tester) async {
+      final provider = FakeMapLocationProvider(null)..error = StateError('failure');
+      await tester.pumpWidget(buildPage(LocationService(provider: provider)));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 600));
+
+      expect(provider.getCurrentPositionCalls, 1);
+      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byKey(const Key('map-user-location-marker')), findsNothing);
+    });
+
+    testWidgets('leaves a camera the user has already moved alone', (tester) async {
+      final completer = Completer<ContextPosition>();
+      stubPositionedSetup();
+      final provider = FakeMapLocationProvider(null)..pendingPosition = completer.future;
+      await tester.pumpWidget(buildPage(LocationService(provider: provider)));
+      await tester.pump();
+
+      // Slow enough to count as a pan rather than a fling.
+      final gesture = await tester.startGesture(tester.getCenter(find.byType(FlutterMap)));
+      await gesture.moveBy(const Offset(0, -80));
+      await tester.pump(const Duration(milliseconds: 300));
+      await gesture.up();
+      await tester.pump(const Duration(milliseconds: 600));
+      final panned = cameraOf(tester).center;
+
+      completer.complete(userPosition);
+      await tester.pump();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 600));
+
+      // The location was taken (live updates started) but the camera stayed put,
+      // so the user marker is simply off-screen.
+      expect(provider.positionController.hasListener, isTrue);
+      expect(cameraOf(tester).center, panned);
+    });
+
+    testWidgets('does not look up again once permission is permanently denied', (tester) async {
+      final provider = FakeMapLocationProvider(userPosition);
+      final service = LocationService(provider: provider)
+        ..setStatus(LocationStatus.permissionDeniedForever);
+      await tester.pumpWidget(buildPage(service));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 600));
+
+      expect(provider.getCurrentPositionCalls, 0);
+      expect(find.byKey(const Key('map-user-location-marker')), findsNothing);
+      expect(find.byType(SnackBar), findsNothing);
+    });
   });
 
   group('Strava pin state', () {
@@ -318,7 +429,7 @@ void main() {
     testWidgets('reports no empty state while the activity query is pending', (tester) async {
       final completer = Completer<List<StravaActivity>>();
       when(() => repository.getFilteredStravaActivitiesWithPosition()).thenAnswer((_) => completer.future);
-      await tester.pumpWidget(buildPage(LocationService(provider: FakeMapLocationProvider(null))));
+      await tester.pumpWidget(buildPage(unpermittedService()));
       await tester.pump();
 
       expect(stateOf(tester).pinState, MapPinState.loading);
@@ -333,7 +444,7 @@ void main() {
     testWidgets('surfaces the error state when the activity query fails', (tester) async {
       when(() => repository.getFilteredStravaActivitiesWithPosition()).thenAnswer((_) async => throw StateError('nope'));
       when(() => repository.hasSetupsWithPosition).thenReturn(true);
-      await tester.pumpWidget(buildPage(LocationService(provider: FakeMapLocationProvider(null))));
+      await tester.pumpWidget(buildPage(unpermittedService()));
       await tester.pump();
       await tester.pump();
 
@@ -342,7 +453,7 @@ void main() {
     });
 
     testWidgets('queries once per repository notify, not per rebuild', (tester) async {
-      await tester.pumpWidget(buildPage(LocationService(provider: FakeMapLocationProvider(null))));
+      await tester.pumpWidget(buildPage(unpermittedService()));
       await tester.pump();
 
       verify(() => repository.getFilteredStravaActivitiesWithPosition()).called(1);
@@ -362,7 +473,7 @@ void main() {
     });
 
     testWidgets('a repository notify does not re-enter loading', (tester) async {
-      await tester.pumpWidget(buildPage(LocationService(provider: FakeMapLocationProvider(null))));
+      await tester.pumpWidget(buildPage(unpermittedService()));
       await tester.pump();
       await tester.pump();
 
@@ -386,7 +497,7 @@ void main() {
 
     testWidgets('separates a filtered-empty map from an empty one', (tester) async {
       when(() => repository.hasStravaActivitiesWithPosition()).thenAnswer((_) async => true);
-      await tester.pumpWidget(buildPage(LocationService(provider: FakeMapLocationProvider(null))));
+      await tester.pumpWidget(buildPage(unpermittedService()));
       await tester.pump();
       await tester.pump();
 
@@ -395,7 +506,7 @@ void main() {
 
     testWidgets('reports nothing once an activity is pinned', (tester) async {
       when(() => repository.getFilteredStravaActivitiesWithPosition()).thenAnswer((_) async => [positionedActivity]);
-      await tester.pumpWidget(buildPage(LocationService(provider: FakeMapLocationProvider(null))));
+      await tester.pumpWidget(buildPage(unpermittedService()));
       await tester.pump();
       await tester.pump();
 

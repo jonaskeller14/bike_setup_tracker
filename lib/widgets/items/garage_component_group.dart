@@ -9,6 +9,7 @@ import '../../repositories/app_repository.dart';
 import '../../utils/garage_component_grouping.dart';
 import '../../utils/installation_issue.dart';
 import 'garage_component_cell.dart';
+import 'garage_component_icon_card.dart';
 
 /// A parent component and the components mounted on it, rendered as one wide
 /// cell of the surrounding garage wrap.
@@ -158,4 +159,40 @@ Widget buildGarageDraggableFeedback(
       child: child is GarageComponentGroup ? child.asSnapshot() : child,
     ),
   );
+}
+
+/// Drag feedback for a component dragged from its detail card, matching the
+/// wrap's feedback: a single cell, or the snapshot of the whole [group] when
+/// components are mounted on it.
+Widget buildGarageDetailDragFeedback(
+  BuildContext context, {
+  required GarageComponentGroupData group,
+  required double availableWidth,
+  required String? componentToShowDetails,
+  required void Function(Component) onPressedComponent,
+  required ValueChanged<Component?> setDraggedComponent,
+  InstallationIssue? Function(Component)? issueOf,
+}) {
+  const spacing = 8.0;
+  final cellWidth = GarageComponentIconCard.widthFor(availableWidth, spacing: spacing);
+  if (!group.isGroup) {
+    return GarageComponentIconCard(
+      component: group.parent,
+      componentToShowDetails: componentToShowDetails,
+      width: cellWidth,
+      issue: issueOf?.call(group.parent),
+    );
+  }
+  final snapshot = GarageComponentGroup(
+    group: group,
+    componentToShowDetails: componentToShowDetails,
+    cellWidth: cellWidth,
+    spacing: spacing,
+    cardsPerRow: GarageComponentIconCard.cardsPerRow(availableWidth, spacing: spacing),
+    onPressedComponent: onPressedComponent,
+    setDraggedComponent: setDraggedComponent,
+    issueOf: issueOf,
+    isSnapshot: true,
+  );
+  return buildGarageDraggableFeedback(context, BoxConstraints.tightFor(width: snapshot.width), snapshot);
 }

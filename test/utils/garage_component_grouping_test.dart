@@ -179,4 +179,41 @@ void main() {
 
     expect(idsOf(groups.expand((g) => g.components)), ['wheel', 'tire', 'frame']);
   });
+
+  group('garageGroupOf', () {
+    final components = [
+      component('frame', [onBike('frame', 'bike')], orderIndex: 0),
+      component('wheel', [onComponent('wheel', 'frame')], orderIndex: 1),
+      component('tire', [onComponent('tire', 'wheel')], orderIndex: 2),
+      component('fork', [onBike('fork', 'bike')], orderIndex: 3),
+    ];
+    final byId = {for (final c in components) c.id: c};
+
+    test('a root includes all its descendants', () {
+      final group = garageGroupOf(byId['frame']!, components, hierarchy: resolverOf(components));
+
+      expect(idsOf(group.components), ['frame', 'wheel', 'tire']);
+    });
+
+    test('a mounted component roots a group of only its own descendants', () {
+      final group = garageGroupOf(byId['wheel']!, components, hierarchy: resolverOf(components));
+
+      expect(idsOf(group.components), ['wheel', 'tire']);
+    });
+
+    test('a component without descendants is a single cell', () {
+      final group = garageGroupOf(byId['fork']!, components, hierarchy: resolverOf(components));
+
+      expect(group.parent.id, 'fork');
+      expect(group.isGroup, isFalse);
+    });
+
+    test('descendants outside the section are left out', () {
+      final section = components.where((c) => c.id != 'tire');
+
+      final group = garageGroupOf(byId['frame']!, section, hierarchy: resolverOf(components));
+
+      expect(idsOf(group.components), ['frame', 'wheel']);
+    });
+  });
 }

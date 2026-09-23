@@ -55,6 +55,21 @@ List<GarageComponentGroupData> garageGroupsFor(
   return groups;
 }
 
+/// The group rooted at [root]: [root] plus its current descendants within the
+/// section, even when [root] is itself mounted on a component of the section.
+GarageComponentGroupData garageGroupOf(
+  Component root,
+  Iterable<Component> sectionComponents, {
+  required ComponentHierarchyResolver hierarchy,
+}) {
+  final descendants = hierarchy.descendantsOf(root.id);
+  final groups = garageGroupsFor(
+    [root, ...sectionComponents.where((component) => descendants.contains(component.id))],
+    hierarchy: hierarchy,
+  );
+  return groups.firstWhere((group) => group.parent.id == root.id);
+}
+
 Component? currentParentComponentOf(
   String componentId, {
   required ComponentHierarchyResolver hierarchy,

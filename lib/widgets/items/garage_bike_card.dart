@@ -469,13 +469,17 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                       onDragEnd: (_) => widget.draggedComponentNotifier.value = null,
                       onDraggableCanceled: (_, _) => widget.draggedComponentNotifier.value = null,
                       dragAnchorStrategy: pointerDragAnchorStrategy,
-                      feedback: GarageComponentIconCard(
-                        component: bikeComponents[widget.componentToShowDetails]!,
-                        componentToShowDetails: widget.componentToShowDetails,
-                        width: GarageComponentIconCard.widthFor(
-                          constraints.maxWidth,
-                          spacing: 8,
+                      feedback: buildGarageDetailDragFeedback(
+                        context,
+                        group: garageGroupOf(
+                          bikeComponents[widget.componentToShowDetails]!,
+                          bikeComponents.values,
+                          hierarchy: hierarchy,
                         ),
+                        availableWidth: constraints.maxWidth,
+                        componentToShowDetails: widget.componentToShowDetails,
+                        onPressedComponent: widget.onPressedComponent,
+                        setDraggedComponent: widget.setDraggedComponent,
                       ),
                       child: ComponentListCard(
                         component: bikeComponents[widget.componentToShowDetails]!,

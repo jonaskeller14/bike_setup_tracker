@@ -489,14 +489,18 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                   onDragEnd: (_) => widget.draggedComponentNotifier.value = null,
                   onDraggableCanceled: (_, _) => widget.draggedComponentNotifier.value = null,
                   dragAnchorStrategy: pointerDragAnchorStrategy,
-                  feedback: GarageComponentIconCard(
-                    component: uninstalledComponents[widget.componentToShowDetails]!,
-                    componentToShowDetails: widget.componentToShowDetails,
-                    width: GarageComponentIconCard.widthFor(
-                      constraints.maxWidth,
-                      spacing: 8,
+                  feedback: buildGarageDetailDragFeedback(
+                    context,
+                    group: garageGroupOf(
+                      uninstalledComponents[widget.componentToShowDetails]!,
+                      uninstalledComponents.values,
+                      hierarchy: hierarchy,
                     ),
-                    issue: issueOf(uninstalledComponents[widget.componentToShowDetails]!),
+                    availableWidth: constraints.maxWidth,
+                    componentToShowDetails: widget.componentToShowDetails,
+                    onPressedComponent: widget.onPressedComponent,
+                    setDraggedComponent: widget.setDraggedComponent,
+                    issueOf: issueOf,
                   ),
                   child: ComponentListCard(
                     component: uninstalledComponents[widget.componentToShowDetails]!,
@@ -647,13 +651,17 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                   onDragEnd: (_) => widget.draggedComponentNotifier.value = null,
                   onDraggableCanceled: (_, _) => widget.draggedComponentNotifier.value = null,
                   dragAnchorStrategy: pointerDragAnchorStrategy,
-                  feedback: GarageComponentIconCard(
-                    component: archivedComponents[widget.componentToShowDetails]!,
-                    componentToShowDetails: widget.componentToShowDetails,
-                    width: GarageComponentIconCard.widthFor(
-                      constraints.maxWidth,
-                      spacing: 8,
+                  feedback: buildGarageDetailDragFeedback(
+                    context,
+                    group: garageGroupOf(
+                      archivedComponents[widget.componentToShowDetails]!,
+                      archivedComponents.values,
+                      hierarchy: hierarchy,
                     ),
+                    availableWidth: constraints.maxWidth,
+                    componentToShowDetails: widget.componentToShowDetails,
+                    onPressedComponent: widget.onPressedComponent,
+                    setDraggedComponent: widget.setDraggedComponent,
                   ),
                   child: ComponentListCard(
                     component: archivedComponents[widget.componentToShowDetails]!,

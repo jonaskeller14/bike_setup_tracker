@@ -63,7 +63,7 @@ class MapEmptyStateCard extends StatelessWidget {
         spacing: 10,
         children: [
           Icon(copy.icon, size: 20, color: accent),
-          Flexible(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,

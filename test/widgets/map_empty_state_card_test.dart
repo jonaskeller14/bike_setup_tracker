@@ -49,14 +49,21 @@ void main() {
         child: MaterialApp(
           theme: theme,
           home: Scaffold(
-            body: Align(
-              alignment: Alignment.bottomLeft,
-              child: MapEmptyStateCard(
-                state: state,
-                collapsed: collapsed,
-                onToggleCollapsed: onToggleCollapsed ?? () {},
-                onRetry: () => retries++,
-              ),
+            // Mirrors the map's own Stack: the card gets the full width.
+            body: Stack(
+              children: [
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: MapEmptyStateCard(
+                    state: state,
+                    collapsed: collapsed,
+                    onToggleCollapsed: onToggleCollapsed ?? () {},
+                    onRetry: () => retries++,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -126,6 +133,16 @@ void main() {
     expect(find.byKey(const Key('map-empty-pill')), findsOneWidget);
     expect(find.byKey(const Key('map-empty-none')), findsNothing);
     expect(find.text('No pins'), findsOneWidget);
+  });
+
+  testWidgets('keeps the collapse button against the card edge', (tester) async {
+    await pumpCard(tester, state: MapPinState.filtered);
+
+    final card = tester.getRect(find.byKey(const Key('map-empty-filtered')));
+    final close = tester.getRect(find.byKey(const Key('map-empty-collapse')));
+
+    // The text column has to take the slack, or the button floats mid-card.
+    expect(card.right - close.right, lessThan(12));
   });
 
   testWidgets('survives a narrow screen', (tester) async {

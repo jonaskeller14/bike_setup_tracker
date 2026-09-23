@@ -38,7 +38,7 @@ class MapEmptyStateCard extends StatelessWidget {
       // The card and the pill differ in size: pin them to the same corner so
       // the smaller one doesn't drift while they cross-fade.
       layoutBuilder: (currentChild, previousChildren) => Stack(
-        alignment: Alignment.bottomLeft,
+        alignment: Alignment.topLeft,
         children: [...previousChildren, ?currentChild],
       ),
       child: collapsed ? _pill(context, copy) : _card(context, copy),
@@ -63,10 +63,13 @@ class MapEmptyStateCard extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(12, 10, 44, 10),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
+              // Only as wide as the copy needs; Flexible keeps it that way
+              // while still ellipsizing once the screen runs out.
+              mainAxisSize: MainAxisSize.min,
               spacing: 10,
               children: [
                 Icon(copy.icon, size: 20, color: accent),
-                Expanded(
+                Flexible(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
@@ -135,7 +138,7 @@ class MapEmptyStateCard extends StatelessWidget {
         visualDensity: VisualDensity.compact,
       ),
       onPressed: onToggleCollapsed,
-      icon: const Icon(Icons.expand_less, size: 18),
+      icon: const Icon(Icons.expand_more, size: 18),
       label: Text(copy.pillLabel, overflow: TextOverflow.ellipsis),
     );
   }

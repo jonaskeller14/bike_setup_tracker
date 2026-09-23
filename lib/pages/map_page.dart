@@ -539,10 +539,10 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
                               0,
                             ])
                           : const ColorFilter.matrix(<double>[
-                              0.6, 0.3, 0.1, 0, 0,  // Muted Red
-                              0.1, 0.8, 0.1, 0, 0,  // Muted Green
-                              0.1, 0.3, 0.6, 0, 0,  // Muted Blue
-                              0,   0,   0,   1, 0,  // Alpha (no change)
+                              0.6, 0.3, 0.1, 0, 0, // Muted Red
+                              0.1, 0.8, 0.1, 0, 0, // Muted Green
+                              0.1, 0.3, 0.6, 0, 0, // Muted Blue
+                              0, 0, 0, 1, 0, // Alpha (no change)
                             ]),
                       child: tileWidget,
                     );
@@ -645,40 +645,37 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(8),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                spacing: 12,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                spacing: 8,
                 children: [
-                  _mapControlButton(
-                    icon: const BackButtonIcon(),
-                    onPressed: () => Navigator.pop(context),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    spacing: 12,
+                    children: [
+                      _mapControlButton(
+                        icon: const BackButtonIcon(),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                      const Expanded(child: MapFilterWidget()),
+                    ],
                   ),
-                  const Expanded(child: MapFilterWidget()),
+                  // Under the filters it talks about, and away from the
+                  // bottom-left attribution, which expands when tapped.
+                  if (pinState != null && pinState != MapPinState.loading)
+                    MapEmptyStateCard(
+                      state: pinState,
+                      collapsed: _collapsedFor == pinState,
+                      onToggleCollapsed: () => setState(
+                        () => _collapsedFor = _collapsedFor == pinState ? null : pinState,
+                      ),
+                      onRetry: _retryStravaActivities,
+                    ),
                 ],
               ),
             ),
           ),
-          if (pinState != null && pinState != MapPinState.loading)
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: SafeArea(
-                // Keeps clear of the FAB column on the right and the
-                // attribution below; only the card itself takes hits.
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 0, 72, 40),
-                  child: MapEmptyStateCard(
-                    state: pinState,
-                    collapsed: _collapsedFor == pinState,
-                    onToggleCollapsed: () => setState(
-                      () => _collapsedFor = _collapsedFor == pinState ? null : pinState,
-                    ),
-                    onRetry: _retryStravaActivities,
-                  ),
-                ),
-              ),
-            ),
         ],
       ),
       floatingActionButton: Column(

@@ -49,19 +49,17 @@ void main() {
         child: MaterialApp(
           theme: theme,
           home: Scaffold(
-            // Mirrors the map's own Stack: the card gets the full width.
-            body: Stack(
+            // Mirrors the map's chrome column: full width offered, the card
+            // takes only what it needs and stays left-aligned.
+            body: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: MapEmptyStateCard(
-                    state: state,
-                    collapsed: collapsed,
-                    onToggleCollapsed: onToggleCollapsed ?? () {},
-                    onRetry: () => retries++,
-                  ),
+                MapEmptyStateCard(
+                  state: state,
+                  collapsed: collapsed,
+                  onToggleCollapsed: onToggleCollapsed ?? () {},
+                  onRetry: () => retries++,
                 ),
               ],
             ),
@@ -153,6 +151,25 @@ void main() {
     // level with the subtitle.
     expect(glyph.dy - card.top, lessThan(24));
     expect(card.right - glyph.dx, lessThan(24));
+  });
+
+  testWidgets('stays only as wide as its copy', (tester) async {
+    await pumpCard(tester, state: MapPinState.filtered);
+
+    final card = tester.getRect(find.byKey(const Key('map-empty-filtered')));
+    final available = tester.getSize(find.byType(Scaffold)).width;
+
+    expect(card.width, lessThan(available));
+    expect(card.left, 0);
+  });
+
+  testWidgets('stays only as wide as its copy', (tester) async {
+    await pumpCard(tester, state: MapPinState.filtered);
+
+    final card = tester.getRect(find.byKey(const Key('map-empty-filtered')));
+
+    expect(card.left, 0);
+    expect(card.width, lessThan(tester.getSize(find.byType(Scaffold)).width));
   });
 
   testWidgets('survives a narrow screen', (tester) async {

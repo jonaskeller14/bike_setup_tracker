@@ -57,49 +57,63 @@ class MapEmptyStateCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: scheme.outlineVariant),
       ),
-      padding: const EdgeInsets.fromLTRB(12, 10, 4, 10),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 10,
+      child: Stack(
         children: [
-          Icon(copy.icon, size: 20, color: accent),
-          Expanded(
-            child: Column(
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 10, 44, 10),
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
+              spacing: 10,
               children: [
-                Text(
-                  copy.title,
-                  style: textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: copy.isError ? scheme.error : scheme.onSurface,
+                Icon(copy.icon, size: 20, color: accent),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        copy.title,
+                        style: textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: copy.isError ? scheme.error : scheme.onSurface,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        copy.subtitle,
+                        style: textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 8),
+                      FilledButton.tonalIcon(
+                        onPressed: () => copy.onAction(context),
+                        icon: Icon(copy.actionIcon, size: 18),
+                        label: Text(copy.actionLabel, overflow: TextOverflow.ellipsis),
+                      ),
+                    ],
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  copy.subtitle,
-                  style: textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 8),
-                FilledButton.tonalIcon(
-                  onPressed: () => copy.onAction(context),
-                  icon: Icon(copy.actionIcon, size: 18),
-                  label: Text(copy.actionLabel, overflow: TextOverflow.ellipsis),
                 ),
               ],
             ),
           ),
-          IconButton(
-            key: const Key('map-empty-collapse'),
-            onPressed: onToggleCollapsed,
-            icon: const Icon(Icons.close, size: 18),
-            color: scheme.onSurfaceVariant,
-            visualDensity: VisualDensity.compact,
-            tooltip: 'Collapse',
+          Positioned(
+            top: 0,
+            right: 0,
+            child: IconButton(
+              key: const Key('map-empty-collapse'),
+              onPressed: onToggleCollapsed,
+              icon: const Icon(Icons.close, size: 18),
+              style: IconButton.styleFrom(
+                foregroundColor: scheme.onSurfaceVariant,
+                padding: EdgeInsets.zero,
+                minimumSize: const Size(40, 40),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              tooltip: 'Collapse',
+            ),
           ),
         ],
       ),

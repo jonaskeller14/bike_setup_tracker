@@ -135,14 +135,24 @@ void main() {
     expect(find.text('No pins'), findsOneWidget);
   });
 
-  testWidgets('keeps the collapse button against the card edge', (tester) async {
+  testWidgets('keeps the collapse button in the top-right corner', (tester) async {
     await pumpCard(tester, state: MapPinState.filtered);
 
     final card = tester.getRect(find.byKey(const Key('map-empty-filtered')));
     final close = tester.getRect(find.byKey(const Key('map-empty-collapse')));
+    final glyph = tester.getCenter(
+      find.descendant(
+        of: find.byKey(const Key('map-empty-collapse')),
+        matching: find.byIcon(Icons.close),
+      ),
+    );
 
     // The text column has to take the slack, or the button floats mid-card.
     expect(card.right - close.right, lessThan(12));
+    // The glyph, not just its tap target: centring it in the Row dropped it
+    // level with the subtitle.
+    expect(glyph.dy - card.top, lessThan(24));
+    expect(card.right - glyph.dx, lessThan(24));
   });
 
   testWidgets('survives a narrow screen', (tester) async {

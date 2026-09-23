@@ -133,7 +133,7 @@ class AppSettingsPage extends StatelessWidget {
               const Divider(),
               ListTile(
                 leading: Icon(Icons.delete_forever_outlined, color: Theme.of(context).colorScheme.error),
-                title: Text('Reset', style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                title: const Text('Reset'),
                 subtitle: const Text('Reset settings, delete backups or clear data'),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const ResetPage())),

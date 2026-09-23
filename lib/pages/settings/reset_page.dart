@@ -77,7 +77,7 @@ class _ResetPageState extends State<ResetPage> {
                   return ListTile(
                     enabled: hasUserData,
                     leading: Icon(Icons.delete_forever, color: color),
-                    title: Text('Clear Database', style: TextStyle(color: color)),
+                    title: const Text('Clear Database'),
                     subtitle: Text(
                       hasUserData ? 'Delete all bikes, components, setups and other data' : 'The database is empty',
                     ),

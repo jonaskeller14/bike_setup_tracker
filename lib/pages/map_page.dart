@@ -53,7 +53,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
   bool _stravaResolved = false;
   bool _stravaFailed = false;
   int _stravaRequestId = 0;
-  MapPinState? _pinState;
+  MapPinState _pinState = MapPinState.loading;
   MapPinState? _collapsedFor;
   bool _cameraTouchedByUser = false;
   List<LatLng> _pinPoints = const [];
@@ -67,9 +67,8 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
     MapEventSource.nonRotatedSizeChange,
   };
 
-  /// Null while pins are on the map and nothing else needs saying.
   @visibleForTesting
-  MapPinState? get pinState => _pinState;
+  MapPinState get pinState => _pinState;
 
   @override
   void initState() {
@@ -156,7 +155,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
     _reloadStravaActivities();
   }
 
-  MapPinState? _pinStateFor({
+  MapPinState _pinStateFor({
     required int visiblePinCount,
     required AppRepository appRepository,
     required AppSettings appSettings,
@@ -165,7 +164,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
     if (stravaActive && !_stravaResolved) return MapPinState.loading;
     if (stravaActive && _stravaFailed) return MapPinState.error;
 
-    final reason = mapEmptyReason(
+    return mapPinState(
       visiblePinCount,
       hasAnyPositionedMapData(
         hasSetups: appRepository.hasSetupsWithPosition,
@@ -175,11 +174,6 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
         stravaActive: stravaActive,
       ),
     );
-    return switch (reason) {
-      null => null,
-      MapEmptyReason.none => MapPinState.none,
-      MapEmptyReason.filtered => MapPinState.filtered,
-    };
   }
 
   @override
@@ -448,10 +442,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
             ),
     ];
 
-    // Read by _autoLocate, which decides its camera outside build.
     _pinPoints = clusterMarkers.map((marker) => marker.point).toList();
-
-    // Only used for camera fitting; the live marker draws itself.
     final List<LatLng> fitPoints = [?_userLocation, ..._pinPoints];
 
     final pinState = _pinStateFor(
@@ -661,16 +652,17 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
                       const Expanded(child: MapFilterWidget()),
                     ],
                   ),
-                  // Under the filters it talks about, and away from the
-                  // bottom-left attribution, which expands when tapped.
-                  if (pinState != null && pinState != MapPinState.loading)
-                    MapEmptyStateCard(
-                      state: pinState,
-                      collapsed: _collapsedFor == pinState,
-                      onToggleCollapsed: () => setState(
-                        () => _collapsedFor = _collapsedFor == pinState ? null : pinState,
+                  if (pinState != MapPinState.loading && pinState != MapPinState.success)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 2), // to align horizontally with BackButtonIcon
+                      child: MapEmptyStateCard(
+                        state: pinState,
+                        collapsed: _collapsedFor == pinState,
+                        onToggleCollapsed: () => setState(
+                          () => _collapsedFor = _collapsedFor == pinState ? null : pinState,
+                        ),
+                        onRetry: _retryStravaActivities,
                       ),
-                      onRetry: _retryStravaActivities,
                     ),
                 ],
               ),

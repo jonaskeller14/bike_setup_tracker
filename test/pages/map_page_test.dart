@@ -505,13 +505,13 @@ void main() {
       expect(stateOf(tester).pinState, MapPinState.filtered);
     });
 
-    testWidgets('reports nothing once an activity is pinned', (tester) async {
+    testWidgets('reports success once an activity is pinned', (tester) async {
       when(() => repository.getFilteredStravaActivitiesWithPosition()).thenAnswer((_) async => [positionedActivity]);
       await tester.pumpWidget(buildPage(unpermittedService()));
       await tester.pump();
       await tester.pump();
 
-      expect(stateOf(tester).pinState, isNull);
+      expect(stateOf(tester).pinState, MapPinState.success);
     });
   });
 
@@ -617,7 +617,7 @@ void main() {
       await tester.pump();
       await tester.pump();
 
-      expect(tester.state<MapPageState>(find.byType(MapPage)).pinState, isNull);
+      expect(tester.state<MapPageState>(find.byType(MapPage)).pinState, MapPinState.success);
       expect(find.byKey(const Key('map-empty-none')), findsNothing);
     });
   });

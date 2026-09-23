@@ -40,30 +40,28 @@ void main() {
     });
   });
 
-  group('mapEmptyReason', () {
-    test('is null while pins are visible', () {
-      expect(mapEmptyReason(1, false), null);
-      expect(mapEmptyReason(3, true), null);
+  group('mapPinState', () {
+    test('is success while pins are visible', () {
+      expect(mapPinState(1, false), MapPinState.success);
+      expect(mapPinState(3, true), MapPinState.success);
     });
 
     test('is none when nothing positioned exists', () {
-      expect(mapEmptyReason(0, false), MapEmptyReason.none);
+      expect(mapPinState(0, false), MapPinState.none);
     });
 
     test('is filtered when positioned data exists but no pin shows', () {
-      expect(mapEmptyReason(0, true), MapEmptyReason.filtered);
+      expect(mapPinState(0, true), MapPinState.filtered);
     });
 
     test('is none when the only positioned data comes from a disabled source', () {
-      final reason = mapEmptyReason(0, anyData(hasStravaActivities: true));
-
-      expect(reason, MapEmptyReason.none);
+      final reason = mapPinState(0, anyData(hasStravaActivities: true));
+      expect(reason, MapPinState.none);
     });
 
     test('is filtered when every layer is hidden but data exists', () {
-      final reason = mapEmptyReason(0, anyData(hasSetups: true));
-
-      expect(reason, MapEmptyReason.filtered);
+      final reason = mapPinState(0, anyData(hasSetups: true));
+      expect(reason, MapPinState.filtered);
     });
   });
 }

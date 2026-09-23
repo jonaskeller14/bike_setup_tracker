@@ -9,9 +9,6 @@ import '../utils/map_actions.dart';
 import '../utils/map_empty_state.dart';
 import '../utils/setup_actions.dart';
 
-/// Tells the user why the map has no pins, floating above the map itself.
-///
-/// It collapses to a pill so it can never hide a corner of the map for good.
 class MapEmptyStateCard extends StatelessWidget {
   static const _switchDuration = Duration(milliseconds: 200);
 
@@ -63,8 +60,6 @@ class MapEmptyStateCard extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(12, 10, 44, 10),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
-              // Only as wide as the copy needs; Flexible keeps it that way
-              // while still ellipsizing once the screen runs out.
               mainAxisSize: MainAxisSize.min,
               spacing: 10,
               children: [
@@ -168,7 +163,7 @@ class MapEmptyStateCard extends StatelessWidget {
         MapActions.clearFilters(context);
       },
     ),
-    // The map hides the card while pins are loading, so this is the `none` copy.
+    // The map hides the card while loading or showing pins, so this is the `none` copy.
     _ => _MapEmptyCopy(
       key: const Key('map-empty-none'),
       icon: Icons.place_outlined,

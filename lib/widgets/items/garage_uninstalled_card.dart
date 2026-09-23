@@ -42,6 +42,7 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
     with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
+  bool _isDraggingDetail = false;
 
   Widget _releaseToUninstallWidget(
     BuildContext context, {
@@ -365,6 +366,9 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                   final draggedParent = draggedComp == null
                       ? null
                       : currentParentComponentOf(draggedComp.id, hierarchy: hierarchy);
+                  final detailDraggedIds = _isDraggingDetail
+                      ? idsMovedWith(draggedComp, hierarchy: hierarchy)
+                      : const <String>{};
 
                   return Padding(
                     padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
@@ -441,12 +445,14 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                                               onPressedComponent: widget.onPressedComponent,
                                               setDraggedComponent: widget.setDraggedComponent,
                                               issueOf: issueOf,
+                                              dimmedIds: detailDraggedIds,
                                             )
                                           : GarageComponentCell(
                                               key: ValueKey(group.parent),
                                               component: group.parent,
                                               componentToShowDetails: widget.componentToShowDetails,
                                               width: itemWidth,
+                                              dimmed: detailDraggedIds.contains(group.parent.id),
                                               issue: issueOf(group.parent),
                                               onPressed: widget.onPressedComponent,
                                             )).toList(),
@@ -485,8 +491,14 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
               child: LayoutBuilder( // workaround to get same GarageComponentIconCard width
                 builder: (context, constraints) => LongPressDraggable<Component>(
                   data: uninstalledComponents[widget.componentToShowDetails]!,
-                  onDragStarted: () => widget.draggedComponentNotifier.value = uninstalledComponents[widget.componentToShowDetails],
-                  onDragEnd: (_) => widget.draggedComponentNotifier.value = null,
+                  onDragStarted: () {
+                    _isDraggingDetail = true;
+                    widget.draggedComponentNotifier.value = uninstalledComponents[widget.componentToShowDetails];
+                  },
+                  onDragEnd: (_) {
+                    _isDraggingDetail = false;
+                    widget.draggedComponentNotifier.value = null;
+                  },
                   onDraggableCanceled: (_, _) => widget.draggedComponentNotifier.value = null,
                   dragAnchorStrategy: pointerDragAnchorStrategy,
                   feedback: buildGarageDetailDragFeedback(
@@ -502,11 +514,16 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                     setDraggedComponent: widget.setDraggedComponent,
                     issueOf: issueOf,
                   ),
-                  child: ComponentListCard(
-                    component: uninstalledComponents[widget.componentToShowDetails]!,
-                    index: null,
-                    color: Theme.of(context).colorScheme.tertiaryContainer,
-                    showCurrentAdjustmentValues: false,
+                  child: GarageDetailDragDimmer(
+                    componentId: widget.componentToShowDetails!,
+                    draggedComponentNotifier: widget.draggedComponentNotifier,
+                    hierarchy: hierarchy,
+                    child: ComponentListCard(
+                      component: uninstalledComponents[widget.componentToShowDetails]!,
+                      index: null,
+                      color: Theme.of(context).colorScheme.tertiaryContainer,
+                      showCurrentAdjustmentValues: false,
+                    ),
                   ),
                 ),
               ),
@@ -520,6 +537,9 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                   draggedComp != null && !draggedComp.isArchived;
               final showSection =
                   archivedComponents.isNotEmpty || isDraggingNonArchived;
+              final detailDraggedIds = _isDraggingDetail
+                  ? idsMovedWith(draggedComp, hierarchy: hierarchy)
+                  : const <String>{};
 
               if (!showSection) {
                 if (showUninstalledComponent) {
@@ -604,12 +624,14 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                                                   cardsPerRow: cardsPerRow,
                                                   onPressedComponent: widget.onPressedComponent,
                                                   setDraggedComponent: widget.setDraggedComponent,
+                                                  dimmedIds: detailDraggedIds,
                                                 )
                                               : GarageComponentCell(
                                                   key: ValueKey(group.parent),
                                                   component: group.parent,
                                                   componentToShowDetails: widget.componentToShowDetails,
                                                   width: itemWidth,
+                                                  dimmed: detailDraggedIds.contains(group.parent.id),
                                                   onPressed: widget.onPressedComponent,
                                                 )).toList(),
                                           );
@@ -647,8 +669,14 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
               child: LayoutBuilder( // workaround to get same GarageComponentIconCard width
                 builder: (context, constraints) => LongPressDraggable<Component>(
                   data: archivedComponents[widget.componentToShowDetails]!,
-                  onDragStarted: () => widget.draggedComponentNotifier.value = archivedComponents[widget.componentToShowDetails],
-                  onDragEnd: (_) => widget.draggedComponentNotifier.value = null,
+                  onDragStarted: () {
+                    _isDraggingDetail = true;
+                    widget.draggedComponentNotifier.value = archivedComponents[widget.componentToShowDetails];
+                  },
+                  onDragEnd: (_) {
+                    _isDraggingDetail = false;
+                    widget.draggedComponentNotifier.value = null;
+                  },
                   onDraggableCanceled: (_, _) => widget.draggedComponentNotifier.value = null,
                   dragAnchorStrategy: pointerDragAnchorStrategy,
                   feedback: buildGarageDetailDragFeedback(
@@ -663,11 +691,16 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                     onPressedComponent: widget.onPressedComponent,
                     setDraggedComponent: widget.setDraggedComponent,
                   ),
-                  child: ComponentListCard(
-                    component: archivedComponents[widget.componentToShowDetails]!,
-                    index: null,
-                    color: Theme.of(context).colorScheme.tertiaryContainer,
-                    showCurrentAdjustmentValues: false,
+                  child: GarageDetailDragDimmer(
+                    componentId: widget.componentToShowDetails!,
+                    draggedComponentNotifier: widget.draggedComponentNotifier,
+                    hierarchy: hierarchy,
+                    child: ComponentListCard(
+                      component: archivedComponents[widget.componentToShowDetails]!,
+                      index: null,
+                      color: Theme.of(context).colorScheme.tertiaryContainer,
+                      showCurrentAdjustmentValues: false,
+                    ),
                   ),
                 ),
               ),

@@ -5,12 +5,15 @@ import '../../pages/details/component_details_page.dart';
 import '../../utils/installation_issue.dart';
 import 'garage_component_icon_card.dart';
 
+const double garageDraggedOpacity = 0.4;
+
 class GarageComponentCell extends StatelessWidget {
   final Component component;
   final String? componentToShowDetails;
   final double? width;
   final InstallationIssue? issue;
   final bool merged;
+  final bool dimmed;
   final void Function(Component)? onPressed;
 
   const GarageComponentCell({
@@ -20,17 +23,21 @@ class GarageComponentCell extends StatelessWidget {
     this.width,
     this.issue,
     this.merged = false,
+    this.dimmed = false,
     this.onPressed,
   });
 
   @override
   Widget build(BuildContext context) {
-    final card = GarageComponentIconCard(
-      component: component,
-      componentToShowDetails: componentToShowDetails,
-      width: width,
-      issue: issue,
-      merged: merged,
+    final card = Opacity(
+      opacity: dimmed ? garageDraggedOpacity : 1.0,
+      child: GarageComponentIconCard(
+        component: component,
+        componentToShowDetails: componentToShowDetails,
+        width: width,
+        issue: issue,
+        merged: merged,
+      ),
     );
 
     if (onPressed == null) return card;

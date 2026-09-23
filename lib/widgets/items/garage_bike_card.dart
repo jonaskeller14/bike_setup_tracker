@@ -84,6 +84,8 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
     super.dispose();
   }
 
+  bool _isDraggingDetail = false;
+
   void _onDragChanged() => updateKeepAlive();
 
   Widget _releaseToBikeWidget(BuildContext context, {required String message}) {
@@ -343,6 +345,9 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                       draggedComp != null &&
                       hierarchy.currentBike(draggedComp.id) != widget.bike.id &&
                       !showDropZone;
+                  final detailDraggedIds = _isDraggingDetail
+                      ? idsMovedWith(draggedComp, hierarchy: hierarchy)
+                      : const <String>{};
 
                   return Padding(
                     padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
@@ -425,12 +430,14 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                                         cardsPerRow: cardsPerRow,
                                         onPressedComponent: widget.onPressedComponent,
                                         setDraggedComponent: widget.setDraggedComponent,
+                                        dimmedIds: detailDraggedIds,
                                       )
                                     : GarageComponentCell(
                                         key: ValueKey(group.parent),
                                         component: group.parent,
                                         componentToShowDetails: widget.componentToShowDetails,
                                         width: itemWidth,
+                                        dimmed: detailDraggedIds.contains(group.parent.id),
                                         onPressed: widget.onPressedComponent,
                                       )).toList(),
                                 );
@@ -465,8 +472,14 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                   child: LayoutBuilder( // workaround to get same GarageComponentIconCard width
                     builder: (context, constraints) => LongPressDraggable<int>(
                       data: bikeComponents.keys.toList().indexOf(widget.componentToShowDetails!),
-                      onDragStarted: () => widget.draggedComponentNotifier.value = bikeComponents[widget.componentToShowDetails],
-                      onDragEnd: (_) => widget.draggedComponentNotifier.value = null,
+                      onDragStarted: () {
+                        _isDraggingDetail = true;
+                        widget.draggedComponentNotifier.value = bikeComponents[widget.componentToShowDetails];
+                      },
+                      onDragEnd: (_) {
+                        _isDraggingDetail = false;
+                        widget.draggedComponentNotifier.value = null;
+                      },
                       onDraggableCanceled: (_, _) => widget.draggedComponentNotifier.value = null,
                       dragAnchorStrategy: pointerDragAnchorStrategy,
                       feedback: buildGarageDetailDragFeedback(
@@ -481,10 +494,15 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                         onPressedComponent: widget.onPressedComponent,
                         setDraggedComponent: widget.setDraggedComponent,
                       ),
-                      child: ComponentListCard(
-                        component: bikeComponents[widget.componentToShowDetails]!,
-                        index: null,
-                        color: Theme.of(context).colorScheme.tertiaryContainer,
+                      child: GarageDetailDragDimmer(
+                        componentId: widget.componentToShowDetails!,
+                        draggedComponentNotifier: widget.draggedComponentNotifier,
+                        hierarchy: hierarchy,
+                        child: ComponentListCard(
+                          component: bikeComponents[widget.componentToShowDetails]!,
+                          index: null,
+                          color: Theme.of(context).colorScheme.tertiaryContainer,
+                        ),
                       ),
                     ),
                   ),

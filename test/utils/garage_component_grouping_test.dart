@@ -216,4 +216,20 @@ void main() {
       expect(idsOf(group.components), ['frame', 'wheel']);
     });
   });
+
+  group('idsMovedWith', () {
+    final components = [
+      component('frame', [onBike('frame', 'bike')]),
+      component('wheel', [onComponent('wheel', 'frame')]),
+      component('tire', [onComponent('tire', 'wheel')]),
+    ];
+
+    test('nothing moves without a drag', () {
+      expect(idsMovedWith(null, hierarchy: resolverOf(components)), isEmpty);
+    });
+
+    test('a dragged component moves with its descendants but not its ancestors', () {
+      expect(idsMovedWith(components[1], hierarchy: resolverOf(components)), {'wheel', 'tire'});
+    });
+  });
 }

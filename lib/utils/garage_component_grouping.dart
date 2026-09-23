@@ -70,6 +70,13 @@ GarageComponentGroupData garageGroupOf(
   return groups.firstWhere((group) => group.parent.id == root.id);
 }
 
+/// Ids that move along when [dragged] is dragged: itself and everything
+/// currently mounted below it.
+Set<String> idsMovedWith(
+  Component? dragged, {
+  required ComponentHierarchyResolver hierarchy,
+}) => dragged == null ? const {} : {dragged.id, ...hierarchy.descendantsOf(dragged.id)};
+
 Component? currentParentComponentOf(
   String componentId, {
   required ComponentHierarchyResolver hierarchy,

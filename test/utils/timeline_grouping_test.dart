@@ -70,6 +70,7 @@ InstallationEntry deinstallEntry({
   required DateTime utc,
   required String installationId,
   String? originBike = 'b1',
+  InstallationParentType originType = InstallationParentType.bike,
 }) {
   return InstallationEntry(ResolvedInstallation(
     component: component,
@@ -80,8 +81,7 @@ InstallationEntry deinstallEntry({
       dateTimeLocal: local(utc),
     ),
     originParent: originBike,
-    originParentType:
-        originBike == null ? InstallationParentType.none : InstallationParentType.bike,
+    originParentType: originBike == null ? InstallationParentType.none : originType,
     isInitial: false,
   ));
 }
@@ -109,6 +109,35 @@ InstallationEntry installEntry({
   ));
 }
 
+/// A ComponentInstallation event of [component] onto [parentComponent].
+/// When [originBike] is set the component came straight off that bike.
+InstallationEntry componentInstallEntry({
+  required Component component,
+  required DateTime utc,
+  required String installationId,
+  String parentComponent = 'wheel',
+  String? originBike,
+  bool isInitial = false,
+}) {
+  return InstallationEntry(ResolvedInstallation(
+    component: component,
+    installation: ComponentInstallation(
+      parentComponentId: parentComponent,
+      id: installationId,
+      componentId: component.id,
+      dateTimeUTC: utc,
+      dateTimeLocal: local(utc),
+    ),
+    originParent: originBike,
+    originParentType: isInitial
+        ? null
+        : originBike == null
+            ? InstallationParentType.none
+            : InstallationParentType.bike,
+    isInitial: isInitial,
+  ));
+}
+
 /// An Archival event of [component]. When [originBike] is set the component
 /// was on that bike immediately before (so the archival removes it from the
 /// bike); when null it was already off the bike.
@@ -117,6 +146,7 @@ InstallationEntry archivalEntry({
   required DateTime utc,
   required String installationId,
   String? originBike = 'b1',
+  InstallationParentType originType = InstallationParentType.bike,
 }) {
   return InstallationEntry(ResolvedInstallation(
     component: component,
@@ -127,8 +157,7 @@ InstallationEntry archivalEntry({
       dateTimeLocal: local(utc),
     ),
     originParent: originBike,
-    originParentType:
-        originBike == null ? InstallationParentType.none : InstallationParentType.bike,
+    originParentType: originBike == null ? InstallationParentType.none : originType,
     isInitial: false,
   ));
 }
@@ -549,6 +578,123 @@ void main() {
       );
       expect(rows.whereType<ReplacementRow>(), isEmpty);
       expect(rows.whereType<SingleEntryRow>(), hasLength(2));
+    });
+
+    group('on a parent component', () {
+      final oldTire = makeComponent(id: 'oldTire', type: ComponentType.tire);
+      final newTire = makeComponent(id: 'newTire', type: ComponentType.tire);
+
+      for (final ascending in [true, false]) {
+        for (final isInitial in [false, true]) {
+          test('pairs deinstall off a component + install onto it '
+              '(${isInitial ? "initial" : "re-install"}, '
+              '${ascending ? "ASC" : "DESC"})', () {
+            final removed = deinstallEntry(
+              component: oldTire,
+              utc: DateTime.utc(2026, 7, 1, 10),
+              installationId: 'd1',
+              originBike: 'wheel',
+              originType: InstallationParentType.component,
+            );
+            final installed = componentInstallEntry(
+              component: newTire,
+              utc: DateTime.utc(2026, 7, 1, 10, 3),
+              installationId: 'i1',
+              isInitial: isInitial,
+            );
+            final rows = build([removed, installed], ascending: ascending);
+            expect(rows, hasLength(2)); // header + replacement
+            final replacement = rows[1] as ReplacementRow;
+            expect(replacement.removed.component.id, 'oldTire');
+            expect(replacement.installed.component.id, 'newTire');
+          });
+        }
+      }
+
+      test('archival off a component pairs as the removal', () {
+        final archived = archivalEntry(
+          component: oldTire,
+          utc: DateTime.utc(2026, 7, 1, 10),
+          installationId: 'a1',
+          originBike: 'wheel',
+          originType: InstallationParentType.component,
+        );
+        final installed = componentInstallEntry(
+          component: newTire,
+          utc: DateTime.utc(2026, 7, 1, 10, 3),
+          installationId: 'i1',
+        );
+        final rows = build([archived, installed], ascending: false);
+        final replacement = rows[1] as ReplacementRow;
+        expect(replacement.removed.installation, isA<Archival>());
+      });
+
+      test('install onto a different parent component is not a replacement', () {
+        final removed = deinstallEntry(
+          component: oldTire,
+          utc: DateTime.utc(2026, 7, 1, 10),
+          installationId: 'd1',
+          originBike: 'wheel',
+          originType: InstallationParentType.component,
+        );
+        final installed = componentInstallEntry(
+          component: newTire,
+          utc: DateTime.utc(2026, 7, 1, 10, 3),
+          installationId: 'i1',
+          parentComponent: 'otherWheel',
+        );
+        final rows = build([removed, installed], ascending: false);
+        expect(rows.whereType<ReplacementRow>(), isEmpty);
+      });
+
+      test('a move from a bike onto a component is never the removed half', () {
+        final moved = componentInstallEntry(
+          component: oldTire,
+          utc: DateTime.utc(2026, 7, 1, 10),
+          installationId: 'm1',
+          originBike: 'b1',
+        );
+        final installed = installEntry(
+          component: newTire,
+          utc: DateTime.utc(2026, 7, 1, 10, 3),
+          installationId: 'i1',
+        );
+        final rows = build([moved, installed], ascending: false);
+        expect(rows.whereType<ReplacementRow>(), isEmpty);
+      });
+
+      test('swaps across hierarchy levels are not paired', () {
+        final offBike = deinstallEntry(
+          component: oldTire,
+          utc: DateTime.utc(2026, 7, 1, 10),
+          installationId: 'd1',
+        );
+        final ontoComponent = componentInstallEntry(
+          component: newTire,
+          utc: DateTime.utc(2026, 7, 1, 10, 3),
+          installationId: 'i1',
+        );
+        final rows = build([offBike, ontoComponent], ascending: false);
+        expect(rows.whereType<ReplacementRow>(), isEmpty);
+      });
+
+      test('a bike and a component sharing an id do not pair', () {
+        final offComponent = deinstallEntry(
+          component: oldTire,
+          utc: DateTime.utc(2026, 7, 1, 10),
+          installationId: 'd1',
+          originBike: 'x',
+          originType: InstallationParentType.component,
+        );
+        final ontoBike = installEntry(
+          component: newTire,
+          utc: DateTime.utc(2026, 7, 1, 10, 3),
+          installationId: 'i1',
+          bike: 'x',
+        );
+        final rows = build([offComponent, ontoBike], ascending: false);
+        expect(rows.whereType<ReplacementRow>(), isEmpty);
+      });
     });
   });
 

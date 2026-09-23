@@ -4,10 +4,12 @@ import 'package:provider/provider.dart';
 
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
-import '../../models/component/resolved_installation.dart';
+import '../../models/component/component_ancestor.dart';
 import '../../models/component/installation.dart';
+import '../../models/component/resolved_installation.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/installation_timeline_validation.dart';
+import '../component_ancestors_column.dart';
 import '../dialogs/component_descendant_warning.dart';
 import '../set_installation_timeline.dart';
 import 'sheet_header.dart';
@@ -147,15 +149,24 @@ class _InstallationSheetState extends State<InstallationSheet> {
     final targetParentType = _editableInstallation.parentType;
     final targetParentId = _editableInstallation.parent;
 
+    // "From beginning" (epoch 0) predates every installation, so show the current chain.
+    final eventUTC = _editableInstallation.dateTimeUTC;
+    List<ComponentAncestor> ancestorsOf(String componentId) =>
+        eventUTC.millisecondsSinceEpoch == 0
+            ? appRepository.componentHierarchy.currentAncestors(componentId)
+            : appRepository.componentHierarchy.ancestorsAt(componentId, eventUTC);
+
     final originPreview = _parentPreview(
       appRepository,
       originParentType ?? InstallationParentType.none,
       originParentId,
+      ancestorsOf,
     );
     final targetPreview = _parentPreview(
       appRepository,
       targetParentType,
       targetParentId,
+      ancestorsOf,
     );
     final isInitialInstallation = widget.editEntry != null
         ? widget.editEntry!.isInitial
@@ -191,6 +202,8 @@ class _InstallationSheetState extends State<InstallationSheet> {
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
+                          // Top-aligned so both icons and the arrow stay level when only one side has an ancestor tree.
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             if (!isInitialInstallation)
                               Expanded(
@@ -198,6 +211,8 @@ class _InstallationSheetState extends State<InstallationSheet> {
                                   icon: originPreview.icon,
                                   label: originPreview.label,
                                   isError: originPreview.isError,
+                                  ancestors: originPreview.ancestors,
+                                  bikes: appRepository.bikes,
                                 ),
                               ),
                             Padding(
@@ -209,6 +224,8 @@ class _InstallationSheetState extends State<InstallationSheet> {
                                 icon: targetPreview.icon,
                                 label: targetPreview.label,
                                 isError: targetPreview.isError,
+                                ancestors: targetPreview.ancestors,
+                                bikes: appRepository.bikes,
                               ),
                             ),
                           ],
@@ -250,30 +267,35 @@ class _InstallationSheetState extends State<InstallationSheet> {
   }
 }
 
-({IconData icon, String label, bool isError}) _parentPreview(
+({IconData icon, String label, bool isError, List<ComponentAncestor> ancestors}) _parentPreview(
   AppRepository appRepository,
   InstallationParentType parentType,
   String? parentId,
+  List<ComponentAncestor> Function(String componentId) ancestorsOf,
 ) => switch (parentType) {
       InstallationParentType.bike => (
         icon: Bike.iconData,
         label: appRepository.bikes[parentId]?.name ?? 'BIKE NOT FOUND',
         isError: !appRepository.bikes.containsKey(parentId),
+        ancestors: const [],
       ),
       InstallationParentType.component => (
         icon: appRepository.components[parentId]?.componentType.getIconData() ?? Component.iconData,
         label: appRepository.components[parentId]?.name ?? 'COMPONENT NOT FOUND',
         isError: !appRepository.components.containsKey(parentId),
+        ancestors: parentId == null ? const [] : ancestorsOf(parentId),
       ),
       InstallationParentType.none => (
         icon: Icons.shelves,
         label: 'Uninstalled',
         isError: false,
+        ancestors: const [],
       ),
       InstallationParentType.archived => (
         icon: Icons.inventory_2_outlined,
         label: 'Archive',
         isError: false,
+        ancestors: const [],
       ),
     };
 
@@ -281,11 +303,15 @@ class _ParentPreview extends StatelessWidget {
   final IconData icon;
   final String label;
   final bool isError;
+  final List<ComponentAncestor> ancestors;
+  final Map<String, Bike> bikes;
 
   const _ParentPreview({
     required this.icon,
     required this.label,
     this.isError = false,
+    this.ancestors = const [],
+    this.bikes = const {},
   });
 
   @override
@@ -310,6 +336,18 @@ class _ParentPreview extends StatelessWidget {
             color: color,
           ),
         ),
+        if (ancestors.isNotEmpty) ...[
+          const SizedBox(height: 2),
+          // Shrink-wraps the left-aligned rows so the tree stays centered under the label.
+          IntrinsicWidth(
+            child: ComponentAncestorsColumn(
+              ancestors: ancestors,
+              bikes: bikes,
+              iconSize: 13,
+              spacing: 2,
+            ),
+          ),
+        ],
       ],
     );
   }

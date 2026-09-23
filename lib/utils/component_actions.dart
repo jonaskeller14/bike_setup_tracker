@@ -190,6 +190,7 @@ class ComponentActions {
             builder: (context) => ComponentPage.replace(
               component: component.deepCopy(),
               replacementDate: replacementDate,
+              replacedInstallation: currentInstallation,
             ),
           ),
         );

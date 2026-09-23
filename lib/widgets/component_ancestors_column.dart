@@ -9,7 +9,7 @@ class ComponentAncestorsColumn extends StatelessWidget {
   final Map<String, Bike> bikes;
   final double iconSize;
   final double spacing;
-  /// Defaults to `bodySmall` in `onSurfaceVariant`.
+  final CrossAxisAlignment crossAxisAlignment;
   final TextStyle? textStyle;
 
   const ComponentAncestorsColumn({
@@ -18,6 +18,7 @@ class ComponentAncestorsColumn extends StatelessWidget {
     required this.bikes,
     this.iconSize = 14,
     this.spacing = 4,
+    this.crossAxisAlignment = CrossAxisAlignment.start,
     this.textStyle,
   });
 
@@ -29,10 +30,11 @@ class ComponentAncestorsColumn extends StatelessWidget {
     final style = textStyle ?? theme.textTheme.bodySmall?.copyWith(color: variantColor);
     return Column(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: crossAxisAlignment,
       children: [
         for (final ancestor in ancestors)
           Row(
+            mainAxisSize: MainAxisSize.min,
             spacing: spacing,
             children: [
               Icon(ancestor.iconData, size: iconSize, color: ancestor.isMissing(bikes) ? errorColor : variantColor),

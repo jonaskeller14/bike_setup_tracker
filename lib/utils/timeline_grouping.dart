@@ -90,15 +90,18 @@ class ReplacementPairing {
 }
 
 /// Pairs each removal — a [Uninstallation] or an [Archival] that came off a
-/// bike — with the nearest unconsumed [BikeInstallation] of the same component
-/// type onto that same bike (different component) within [window]. The install
-/// half may be a component's initial ("Added") install, so replacing with a
-/// freshly created component whose only event is that bike install is detected.
-/// Greedy over removals in chronological order, so the result is deterministic
-/// and independent of display sort direction.
+/// bike or a parent component — with the nearest unconsumed install
+/// ([BikeInstallation] / [ComponentInstallation]) of the same component type
+/// onto that exact same parent (different component) within [window]. The
+/// install half may be a component's initial ("Added") install, so replacing
+/// with a freshly created component whose only event is that install is
+/// detected. Greedy over removals in chronological order, so the result is
+/// deterministic and independent of display sort direction.
 ///
-/// Never participates: since-beginning events, same-component moves, and an
-/// initial install as the *removed* half (it has no bike to come off of).
+/// Never participates: since-beginning events, same-component moves, a move
+/// onto a parent component as the *removed* half, swaps across hierarchy
+/// levels (bike ↔ component parent), and an initial install as the *removed*
+/// half (it has no parent to come off of).
 ReplacementPairing pairReplacements(
   List<TimelineEntry> entries, {
   required Duration window,
@@ -118,12 +121,17 @@ ReplacementPairing pairReplacements(
   final pairs = <String, ReplacementPair>{};
 
   for (final removed in installations) {
-    // The old component leaves the bike either by deinstall or by archival;
-    // a re-install onto a bike is never the removed half.
-    if (removed.installation is BikeInstallation) continue;
+    // The old component leaves its parent either by deinstall or by archival;
+    // an install (even a move onto another parent) is never the removed half.
+    if (removed.installation is! Uninstallation &&
+        removed.installation is! Archival) {
+      continue;
+    }
     if (consumed.contains(removed.installation.id)) continue;
-    // A replacement needs a bike the old component came off of.
-    if (removed.originParentType != InstallationParentType.bike ||
+    // A replacement needs a bike or component the old component came off of.
+    final originType = removed.originParentType;
+    if ((originType != InstallationParentType.bike &&
+            originType != InstallationParentType.component) ||
         removed.originParent == null) {
       continue;
     }
@@ -131,11 +139,15 @@ ReplacementPairing pairReplacements(
     ResolvedInstallation? best;
     Duration? bestDelta;
     for (final candidate in installations) {
-      if (candidate.installation is! BikeInstallation) continue;
+      if (candidate.installation is! BikeInstallation &&
+          candidate.installation is! ComponentInstallation) {
+        continue;
+      }
       if (consumed.contains(candidate.installation.id)) continue;
       // Same component going elsewhere is a move, not a replacement.
       if (candidate.component.id == removed.component.id) continue;
       if (candidate.component.componentType != removed.component.componentType) continue;
+      if (candidate.installation.parentType != originType) continue;
       if (candidate.installation.parent != removed.originParent) continue;
       final delta = candidate.installation.dateTimeUTC
           .difference(removed.installation.dateTimeUTC)

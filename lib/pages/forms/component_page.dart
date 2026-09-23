@@ -51,8 +51,9 @@ class ComponentPage extends StatefulWidget {
   final ComponentPageMode mode;
   final List<Installation>? initialInstallations;
   final DateTime? replacementDate;
+  final Installation? replacedInstallation;
 
-  const ComponentPage._({super.key, this.component, required this.mode, this.initialInstallations, this.replacementDate});
+  const ComponentPage._({super.key, this.component, required this.mode, this.initialInstallations, this.replacementDate, this.replacedInstallation});
 
   factory ComponentPage.add({Key? key, List<Installation>? initialInstallations}) =>
     ComponentPage._(key: key, mode: ComponentPageMode.add, initialInstallations: initialInstallations);
@@ -63,8 +64,8 @@ class ComponentPage extends StatefulWidget {
   factory ComponentPage.duplicate({Key? key, required Component component}) => 
     ComponentPage._(key: key, component: component, mode: ComponentPageMode.duplicate);
   
-  factory ComponentPage.replace({Key? key, required Component component, required DateTime replacementDate}) => 
-    ComponentPage._(key: key, component: component, mode: ComponentPageMode.replace, replacementDate: replacementDate);
+  factory ComponentPage.replace({Key? key, required Component component, required DateTime replacementDate, required Installation replacedInstallation}) =>
+    ComponentPage._(key: key, component: component, mode: ComponentPageMode.replace, replacementDate: replacementDate, replacedInstallation: replacedInstallation);
 
   @override
   State<ComponentPage> createState() => _ComponentPageState();
@@ -118,7 +119,7 @@ class _ComponentPageState extends State<ComponentPage> {
         : appRepository.filteredBikes.keys.firstOrNull;
 
     if (widget.mode == ComponentPageMode.replace) {
-      final replacedInstallation = appRepository.componentHierarchy.currentInstallation(widget.component!.id)!;
+      final replacedInstallation = widget.replacedInstallation!;
       // Keeps the parent type, so a component on a component is replaced on that component.
       _installations = [
         replacedInstallation.samePlacementAt(

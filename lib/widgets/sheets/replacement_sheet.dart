@@ -2,13 +2,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../models/bike.dart';
 import '../../models/component/component.dart';
-import '../../models/component/resolved_installation.dart';
+import '../../models/component/component_ancestor.dart';
 import '../../models/component/installation.dart';
+import '../../models/component/resolved_installation.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/component_hierarchy_resolver.dart';
 import '../../theme.dart';
 import '../../utils/timeline_grouping.dart';
+import '../component_ancestors_column.dart';
 import '../set_installation_timeline.dart';
 import 'sheet_header.dart';
 
@@ -100,15 +102,10 @@ class _ReplacementSheetState extends State<ReplacementSheet> {
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
     final theme = Theme.of(context);
-    final bikes = appRepository.bikes;
-
-    final bikeId =
-        _editableInstalled.parent ?? widget.installed.installation.parent;
-    final bikeName = bikes[bikeId]?.name ?? "BIKE NOT FOUND";
-    final isBikeError = bikeId != null && !bikes.containsKey(bikeId);
-    final bikeColor = isBikeError
-        ? theme.colorScheme.error
-        : theme.colorScheme.onSurfaceVariant;
+    final ancestors = _ancestorsAbove(
+      appRepository.componentHierarchy,
+      _editableInstalled,
+    );
 
     final removedColor = theme.colorScheme.error;
     final installedColor = theme.extension<ValueHighlightColors>()!.initial;
@@ -169,25 +166,19 @@ class _ReplacementSheetState extends State<ReplacementSheet> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              spacing: 4,
-                              children: [
-                                Icon(Bike.iconData, size: 15, color: bikeColor),
-                                Flexible(
-                                  child: Text(
-                                    bikeName,
-                                    style: theme.textTheme.bodySmall?.copyWith(
-                                      color: bikeColor,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
+                            if (ancestors.isNotEmpty) ...[
+                              ComponentAncestorsColumn(
+                                ancestors: ancestors.reversed.toList(),
+                                bikes: appRepository.bikes,
+                                iconSize: 15,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                textStyle: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                  fontWeight: FontWeight.w600,
                                 ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
+                              ),
+                              const SizedBox(height: 12),
+                            ],
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -272,6 +263,32 @@ class _ReplacementSheetState extends State<ReplacementSheet> {
         ),
       ),
     );
+  }
+}
+
+/// The chain the installed component was mounted into, nearest parent first.
+List<ComponentAncestor> _ancestorsAbove(
+  ComponentHierarchyResolver hierarchy,
+  Installation installation,
+) {
+  switch (installation) {
+    case BikeInstallation(:final bikeId):
+      return [BikeAncestor(bikeId)];
+    case ComponentInstallation(:final parentComponentId):
+      final parent = hierarchy.deletedComponentIds.contains(parentComponentId)
+          ? null
+          : hierarchy.components[parentComponentId];
+      if (parent == null) return [MissingParentAncestor(parentComponentId)];
+      // "From beginning" (epoch 0) predates every installation, so show the current chain.
+      final isFromBeginning = installation.dateTimeUTC.millisecondsSinceEpoch == 0;
+      return [
+        ParentComponentAncestor(parent),
+        ...isFromBeginning
+            ? hierarchy.currentAncestors(parent.id)
+            : hierarchy.ancestorsAt(parent.id, installation.dateTimeUTC),
+      ];
+    default:
+      return const [];
   }
 }
 

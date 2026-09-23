@@ -8,7 +8,7 @@ import 'adjustment_cell.dart';
 /// so the layout pass and the cell widget always agree on cell width.
 const double cellHorizontalPadding = 8;
 
-/// Spacing between the value/change/unit segments inside a cell's value row.
+/// Spacing between the previous/value/unit segments inside a cell's value row.
 const double cellValueRowSpacing = 4;
 
 /// Colour-less text styles of a cell, shared by the cell widget and the width
@@ -26,8 +26,41 @@ abstract final class CellTextStyles {
 
   static const TextStyle change = TextStyle(fontSize: 10, height: 1.25, fontFeatures: [FontFeature.tabularFigures()]);
 
+  /// The arrow icon's box beside a cell's value.
+  static final double arrowSize = cellChangeArrowSizeFor(value.fontSize ?? 13);
+
   static const TextStyle unit = TextStyle(fontSize: 12, height: 1.25);
 }
+
+/// The arrow a changed cell prints between the previous and the current
+/// value. An icon rather than the text glyph `→`: `→` is drawn on the
+/// font's maths axis, well below the optical centre of the bold digits it
+/// separates, so no amount of baseline alignment lifts it into place.
+/// `replacement_list_tile.dart` uses the same icon for the same reason.
+const IconData cellChangeArrowIcon = Icons.arrow_right_alt;
+
+/// The arrow icon's box for text of [fontSize]: just over the text it sits
+/// beside — the ratio `lib/widgets/items/replacement_list_tile.dart` uses —
+/// so the glyph reads at that text's scale. Shared by the cell and its
+/// tooltip, which set type at different sizes.
+double cellChangeArrowSizeFor(double fontSize) => (fontSize * 1.15).roundToDouble();
+
+/// The arrow icon's rendered box, which is also exactly its width: an icon is
+/// laid out as a `size` x `size` square, so the width pass needs no font
+/// measurement for it. Scaled with the text so it keeps pace with the value.
+double cellChangeArrowExtent(BuildContext context) =>
+    MediaQuery.textScalerOf(context).scale(CellTextStyles.arrowSize);
+
+/// The arrow, sized to match the value beside it.
+///
+/// Its vertical placement needs no box or offset of its own: the value row
+/// centres its segments, so the glyph — which an icon font draws centred in
+/// its square — lands on the same centre as the values on either side.
+///
+/// Built here so the cell widget renders and [measureCellNaturalWidth]
+/// measures the same arrow.
+Widget cellChangeArrow(BuildContext context, {required Color color}) =>
+    Icon(cellChangeArrowIcon, size: cellChangeArrowExtent(context), color: color);
 
 // Keyed by content (role + text + scale), not by adjustment identity — an
 // edited adjustment name/value is a different string, so it's automatically
@@ -81,14 +114,15 @@ double measureCellNaturalWidth(BuildContext context, AdjustmentCell cell) {
     text: display.value,
     style: _resolveTextStyle(context, CellTextStyles.value),
   );
-  if (display.hasChange) {
+  if (display.hasPrevious) {
     valueRowWidth += cellValueRowSpacing +
         _measureTextWidth(
           context: context,
-          role: 'change',
-          text: display.change!,
+          role: 'previous',
+          text: display.previous!,
           style: _resolveTextStyle(context, CellTextStyles.change),
         );
+    valueRowWidth += cellValueRowSpacing + cellChangeArrowExtent(context);
   }
   final unit = cell.adjustment.unit;
   if (unit != null) {

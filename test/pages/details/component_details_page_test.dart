@@ -174,6 +174,8 @@ void main() {
     final service = MockSetupActivityAnalysisService();
     when(() => service.hasAnyActivity).thenReturn(true);
     when(() => service.setupActivityCounts).thenReturn(counts);
+    when(() => service.setupActivityCountsLoaded).thenReturn(true);
+    when(() => service.setupActivityCountsFailed).thenReturn(false);
     when(service.getSetupActivityCounts).thenAnswer((_) async => counts);
     setupActivityAnalysisService = service;
   }

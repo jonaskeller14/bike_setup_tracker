@@ -76,7 +76,11 @@ void main() {
               case ComponentPageMode.duplicate:
                 return ComponentPage.duplicate(component: component!);
               case ComponentPageMode.replace:
-                return ComponentPage.replace(component: component!, replacementDate: DateTime.now());
+                return ComponentPage.replace(
+                  component: component!,
+                  replacementDate: DateTime.now(),
+                  replacedInstallation: component.installations.last,
+                );
             }
           },
         ),

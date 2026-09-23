@@ -1,8 +1,8 @@
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/context/context_position.dart';
 import 'package:bike_setup_tracker/models/context/context_weather.dart';
-import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/services/pressure_drift_service.dart';
 import 'package:bike_setup_tracker/services/setup_resolution_service.dart';

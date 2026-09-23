@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 
-import 'component/resolved_installation.dart';
-import 'component/installation.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/timeline_entry.dart';
+import 'component/installation.dart';
+import 'component/resolved_installation.dart';
 
 class StravaContext {
   final StravaActivity activity;

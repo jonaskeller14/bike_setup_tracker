@@ -1,6 +1,6 @@
 import '../models/app_settings.dart';
-import '../models/component/resolved_installation.dart';
 import '../models/component/installation.dart';
+import '../models/component/resolved_installation.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/timeline_entry.dart';
 import '../models/timeline_row.dart';

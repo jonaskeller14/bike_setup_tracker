@@ -19,18 +19,31 @@ void main() {
   test('toggling ids drives selection mode', () {
     expect(controller.isSelectionMode, isFalse);
 
-    controller.toggle('a');
-    controller.toggle('b');
+    controller.toggle(['a']);
+    controller.toggle(['b']);
     expect(controller.selected, {'a', 'b'});
     expect(controller.length, 2);
     expect(controller.isSelectionMode, isTrue);
 
-    controller.toggle('a');
+    controller.toggle(['a']);
     expect(controller.selected, {'b'});
 
     controller.clear();
     expect(controller.isSelectionMode, isFalse);
     expect(notifications, 4);
+  });
+
+  test('toggle selects a partial group, then deselects the full group', () {
+    controller.toggle(['a']);
+    notifications = 0;
+
+    controller.toggle(['a', 'b', 'c']);
+    expect(controller.selected, {'a', 'b', 'c'});
+
+    controller.toggle(['d']);
+    controller.toggle(['a', 'b', 'c']);
+    expect(controller.selected, {'d'});
+    expect(notifications, 3);
   });
 
   test('clearing an empty selection does not notify', () {
@@ -40,8 +53,8 @@ void main() {
 
   test('retainWhere prunes hidden ids without notifying', () {
     controller
-      ..toggle('a')
-      ..toggle('b');
+      ..toggle(['a'])
+      ..toggle(['b']);
     notifications = 0;
 
     controller.retainWhere((id) => id == 'a');
@@ -50,7 +63,7 @@ void main() {
   });
 
   test('run clears the selection and reports busy while in flight', () async {
-    controller.toggle('a');
+    controller.toggle(['a']);
     final gate = Completer<void>();
 
     Set<String>? received;
@@ -71,7 +84,7 @@ void main() {
   });
 
   test('run hands the action a snapshot that later toggles do not mutate', () async {
-    controller.toggle('a');
+    controller.toggle(['a']);
     final gate = Completer<void>();
 
     Set<String>? received;
@@ -80,7 +93,7 @@ void main() {
       await gate.future;
     });
 
-    controller.toggle('b');
+    controller.toggle(['b']);
     gate.complete();
     await pending;
 
@@ -88,7 +101,7 @@ void main() {
   });
 
   test('runIfApplied keeps the selection when the action does not apply', () async {
-    controller.toggle('a');
+    controller.toggle(['a']);
 
     await controller.runIfApplied((_) async => false);
     expect(controller.selected, {'a'});
@@ -98,7 +111,7 @@ void main() {
   });
 
   test('a second action is ignored while one is running', () async {
-    controller.toggle('a');
+    controller.toggle(['a']);
     final gate = Completer<void>();
 
     var runs = 0;
@@ -123,7 +136,7 @@ void main() {
   });
 
   test('an action that completes after dispose does not notify', () async {
-    final disposable = ListSelectionController<String>()..toggle('a');
+    final disposable = ListSelectionController<String>()..toggle(['a']);
     final gate = Completer<void>();
     final pending = disposable.run((_) => gate.future);
 

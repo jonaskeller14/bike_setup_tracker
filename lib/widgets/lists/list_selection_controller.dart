@@ -16,9 +16,15 @@ class ListSelectionController<T> extends ChangeNotifier {
   bool get isSelectionMode => _selected.isNotEmpty;
   bool get isBusy => _isBusy;
 
-  void toggle(T id) {
+  /// Toggles [ids] as one unit with a single haptic: selects them all unless
+  /// every one is already selected, in which case it deselects them all.
+  void toggle(Iterable<T> ids) {
     unawaited(HapticFeedback.selectionClick());
-    if (!_selected.remove(id)) _selected.add(id);
+    if (_selected.containsAll(ids)) {
+      _selected.removeAll(ids);
+    } else {
+      _selected.addAll(ids);
+    }
     _notify();
   }
 

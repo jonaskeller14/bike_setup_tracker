@@ -26,7 +26,7 @@ import 'list_scroll_controller.dart';
 class GarageList extends StatefulWidget {
   final ListScrollController controller;
   final Set<String> selectedBikes;
-  final ValueChanged<String>? onBikeSelectionChanged;
+  final ValueChanged<Iterable<String>>? onBikeSelectionChanged;
 
   const GarageList({
     super.key,
@@ -279,7 +279,7 @@ class _GarageListState extends State<GarageList> {
                 selected: widget.selectedBikes.contains(bikesList[index].id),
                 onSelectionChanged: widget.onBikeSelectionChanged == null
                     ? null
-                    : () => widget.onBikeSelectionChanged!(bikesList[index].id),
+                    : () => widget.onBikeSelectionChanged!([bikesList[index].id]),
                 onPressedComponent: _onPressedComponent,
                 onAcceptWithDetails: _onAcceptWithDetails,
                 setDraggedComponent: (Component? c) => _draggedComponentNotifier.value = c,
@@ -344,7 +344,7 @@ class _GarageListState extends State<GarageList> {
                 // The insert index is computed with the dragged item still in place, so
                 // dropping back onto the original slot reports startIndex or startIndex + 1.
                 if (index == startIndex || index == startIndex + 1) {
-                  widget.onBikeSelectionChanged?.call(bikeId);
+                  widget.onBikeSelectionChanged?.call([bikeId]);
                 }
               },
               onReorderItem: (int oldIndex, int newIndex) =>
@@ -362,7 +362,7 @@ class _GarageListState extends State<GarageList> {
                     selected: widget.selectedBikes.contains(bike.id),
                     onSelectionChanged: widget.onBikeSelectionChanged == null
                         ? null
-                        : () => widget.onBikeSelectionChanged!(bike.id),
+                        : () => widget.onBikeSelectionChanged!([bike.id]),
                     onPressedComponent: _onPressedComponent,
                     onAcceptWithDetails: _onAcceptWithDetails,
                     setDraggedComponent: (Component? c) => _draggedComponentNotifier.value = c,

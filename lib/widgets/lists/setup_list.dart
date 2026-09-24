@@ -22,7 +22,7 @@ import 'list_scroll_controller.dart';
 class SetupList extends StatelessWidget {
   final ListScrollController? controller;
   final Set<TimelineSelectionId> selection;
-  final ValueChanged<TimelineSelectionId>? onSelectionChanged;
+  final ValueChanged<Iterable<TimelineSelectionId>>? onSelectionChanged;
 
   const SetupList({
     super.key,

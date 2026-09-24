@@ -32,7 +32,7 @@ class TimelineDaySection extends StatelessWidget{
   final AppSettings appSettings;
   final AppRepository appRepository;
   final Set<TimelineSelectionId> selection;
-  final ValueChanged<TimelineSelectionId>? onSelectionChanged;
+  final ValueChanged<Iterable<TimelineSelectionId>>? onSelectionChanged;
 
   const TimelineDaySection({
     super.key,
@@ -49,7 +49,7 @@ class TimelineDaySection extends StatelessWidget{
   bool get _selectionMode => selection.isNotEmpty;
 
   VoidCallback? _toggleSelection(TimelineSelectionId id) =>
-      onSelectionChanged == null ? null : () => onSelectionChanged!(id);
+      onSelectionChanged == null ? null : () => onSelectionChanged!([id]);
 
   void _openSetupDetails(
     BuildContext context,
@@ -186,7 +186,7 @@ class TimelineDaySection extends StatelessWidget{
         selectionMode: _selectionMode,
         selectedSetupIds: selection.idsOf(TimelineSelectionKind.setup),
         onSetupSelectionChanged:
-            onSelectionChanged == null ? null : (id) => onSelectionChanged!(setupSelectionId(id)),
+            onSelectionChanged == null ? null : (ids) => onSelectionChanged!(ids.map(setupSelectionId)),
       ),
       ReplacementRow() => ReplacementListTile(
         row: row,

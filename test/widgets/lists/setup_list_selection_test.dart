@@ -33,7 +33,7 @@ void main() {
   Future<void> pumpTimeline(
     WidgetTester tester, {
     Set<TimelineSelectionId> selection = const {},
-    ValueChanged<TimelineSelectionId>? onSelectionChanged,
+    ValueChanged<Iterable<TimelineSelectionId>>? onSelectionChanged,
   }) async {
     await harness.addSetups(tester, [setup]);
     await harness.reload(tester);
@@ -48,7 +48,7 @@ void main() {
 
   testWidgets('long-pressing a setup row starts a selection', (tester) async {
     final toggled = <TimelineSelectionId>[];
-    await pumpTimeline(tester, onSelectionChanged: toggled.add);
+    await pumpTimeline(tester, onSelectionChanged: toggled.addAll);
 
     expect(find.byType(SetupOptionsMenu), findsOneWidget);
 
@@ -63,7 +63,7 @@ void main() {
     await pumpTimeline(
       tester,
       selection: {setupSelectionId(setup.id)},
-      onSelectionChanged: toggled.add,
+      onSelectionChanged: toggled.addAll,
     );
 
     // The options menu would compete with the toggle for the same row.

@@ -14,7 +14,7 @@ import 'list_scroll_controller.dart';
 class TaskList extends StatefulWidget {
   final ListScrollController? controller;
   final Set<String> selectedTaskRules;
-  final ValueChanged<String>? onTaskRuleSelectionChanged;
+  final ValueChanged<Iterable<String>>? onTaskRuleSelectionChanged;
   final VoidCallback? onSelectedTaskRulesCompleted;
 
   const TaskList({
@@ -85,7 +85,7 @@ class _TaskListState extends State<TaskList> {
         selected: widget.selectedTaskRules.contains(taskRuleId),
         onSelectionChanged: widget.onTaskRuleSelectionChanged == null
             ? null
-            : () => widget.onTaskRuleSelectionChanged!(taskRuleId),
+            : () => widget.onTaskRuleSelectionChanged!([taskRuleId]),
         onSelectedTaskRulesCompleted: widget.onSelectedTaskRulesCompleted,
       ),
     );

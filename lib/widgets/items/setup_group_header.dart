@@ -7,6 +7,7 @@ class SetupGroupHeader extends StatelessWidget {
   final String dateTimeText;
   final Widget bikeMetadata;
   final List<Widget> contextMetadata;
+  final bool selected;
 
   const SetupGroupHeader({
     super.key,
@@ -14,6 +15,7 @@ class SetupGroupHeader extends StatelessWidget {
     required this.dateTimeText,
     required this.bikeMetadata,
     required this.contextMetadata,
+    this.selected = false,
   });
 
   @override
@@ -21,6 +23,7 @@ class SetupGroupHeader extends StatelessWidget {
     final mutedColor = Theme.of(
       context,
     ).colorScheme.onSurfaceVariant.withValues(alpha: 0.8);
+    final selectedColor = selected ? Theme.of(context).colorScheme.primary : null;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
@@ -30,9 +33,9 @@ class SetupGroupHeader extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Padding(
-                padding: EdgeInsets.only(top: 1),
-                child: Icon(Setup.iconData),
+              Padding(
+                padding: const EdgeInsets.only(top: 1),
+                child: Icon(Setup.iconData, color: selectedColor),
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -41,7 +44,7 @@ class SetupGroupHeader extends StatelessWidget {
                   children: [
                     Text(
                       '$setupCount Setups',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: selectedColor),
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
                     ),

@@ -19,7 +19,7 @@ class SetupGroupSection extends StatelessWidget {
   final void Function(Setup setup)? onTapSetup;
   final bool selectionMode;
   final Set<String> selectedSetupIds;
-  final ValueChanged<String>? onSetupSelectionChanged;
+  final ValueChanged<Iterable<String>>? onSetupSelectionChanged;
 
   const SetupGroupSection({
     super.key,
@@ -38,7 +38,7 @@ class SetupGroupSection extends StatelessWidget {
       selectionMode: selectionMode,
       selected: selectedSetupIds.contains(setup.id),
       showSelectionFill: !groupSelected,
-      onSelectionChanged: onSetupSelectionChanged == null ? null : () => onSetupSelectionChanged!(setup.id),
+      onSelectionChanged: onSetupSelectionChanged == null ? null : () => onSetupSelectionChanged!([setup.id]),
       showDate: false,
       hidePlace: hidePlace,
     );
@@ -62,7 +62,7 @@ class SetupGroupSection extends StatelessWidget {
         selected: selectedSetupIds.contains(setups.first.id),
         onSelectionChanged: onSetupSelectionChanged == null
             ? null
-            : () => onSetupSelectionChanged!(setups.first.id),
+            : () => onSetupSelectionChanged!([setups.first.id]),
         showDate: false,
       );
     }
@@ -118,32 +118,28 @@ class SetupGroupSection extends StatelessWidget {
     ];
 
     final allSelected = setups.every((s) => selectedSetupIds.contains(s.id));
-    final VoidCallback? onGroupSelectionChanged = onSetupSelectionChanged == null
+    final VoidCallback? toggleGroup = onSetupSelectionChanged == null
         ? null
-        : () {
-            for (final setup in setups) {
-              if (allSelected || !selectedSetupIds.contains(setup.id)) onSetupSelectionChanged!(setup.id);
-            }
-          };
+        : () => onSetupSelectionChanged!(setups.map((s) => s.id));
 
     return TimelineSelectionFill(
       selected: allSelected,
+      child: InkWell(
+      onTap: selectionMode ? toggleGroup : null,
+      onLongPress: toggleGroup,
       child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        InkWell(
-          onTap: selectionMode ? onGroupSelectionChanged : null,
-          onLongPress: onGroupSelectionChanged,
-          child: SetupGroupHeader(
-            setupCount: setups.length,
-            dateTimeText: dateTimeText,
-            bikeMetadata: TileMetaRow(
-              icon: Bike.iconData,
-              text: bikes[bikeId]?.name ?? "BIKE NOT FOUND",
-              isError: !bikeFound,
-            ),
-            contextMetadata: metadataRows,
+        SetupGroupHeader(
+          setupCount: setups.length,
+          dateTimeText: dateTimeText,
+          bikeMetadata: TileMetaRow(
+            icon: Bike.iconData,
+            text: bikes[bikeId]?.name ?? "BIKE NOT FOUND",
+            isError: !bikeFound,
           ),
+          contextMetadata: metadataRows,
+          selected: allSelected,
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
@@ -170,6 +166,7 @@ class SetupGroupSection extends StatelessWidget {
           ),
         ),
       ],
+      ),
       ),
     );
   }

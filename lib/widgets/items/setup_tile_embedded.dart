@@ -21,6 +21,10 @@ class SetupTileEmbedded extends StatefulWidget {
   final VoidCallback? onTap;
   final bool selectionMode;
   final bool selected;
+
+  /// False when an enclosing group already paints the selection tint, so the
+  /// translucent fills don't stack.
+  final bool showSelectionFill;
   final VoidCallback? onSelectionChanged;
   final bool displayBikeAdjustmentValues;
   final bool displayPersonAdjustmentValues;
@@ -41,6 +45,7 @@ class SetupTileEmbedded extends StatefulWidget {
     required this.onTap,
     this.selectionMode = false,
     this.selected = false,
+    this.showSelectionFill = true,
     this.onSelectionChanged,
     this.displayBikeAdjustmentValues = true,
     this.displayPersonAdjustmentValues = true,
@@ -281,7 +286,7 @@ class _SetupTileEmbeddedState extends State<SetupTileEmbedded> {
     );
 
     final Widget content = TimelineSelectionFill(
-      selected: widget.selected,
+      selected: widget.selected && widget.showSelectionFill,
       child: _buildEmbedded(context, setup, summary, adjustmentList),
     );
 

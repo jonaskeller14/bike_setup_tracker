@@ -12,6 +12,7 @@ import 'setup_group_header.dart';
 import 'setup_tile.dart';
 import 'setup_tile_embedded.dart';
 import 'tile_meta_row.dart';
+import 'timeline_selection_fill.dart';
 
 class SetupGroupSection extends StatelessWidget {
   final List<String> setupIds;
@@ -29,13 +30,14 @@ class SetupGroupSection extends StatelessWidget {
     this.onSetupSelectionChanged,
   });
 
-  Widget _member(BuildContext context, Setup setup, {required bool hidePlace}) {
+  Widget _member(BuildContext context, Setup setup, {required bool hidePlace, required bool groupSelected}) {
     return SetupTileEmbedded(
       key: ValueKey(setup.id),
       setupId: setup.id,
       onTap: onTapSetup == null ? null : () => onTapSetup!(setup),
       selectionMode: selectionMode,
       selected: selectedSetupIds.contains(setup.id),
+      showSelectionFill: !groupSelected,
       onSelectionChanged: onSetupSelectionChanged == null ? null : () => onSetupSelectionChanged!(setup.id),
       showDate: false,
       hidePlace: hidePlace,
@@ -115,18 +117,33 @@ class SetupGroupSection extends StatelessWidget {
         ),
     ];
 
-    return Column(
+    final allSelected = setups.every((s) => selectedSetupIds.contains(s.id));
+    final VoidCallback? onGroupSelectionChanged = onSetupSelectionChanged == null
+        ? null
+        : () {
+            for (final setup in setups) {
+              if (allSelected || !selectedSetupIds.contains(setup.id)) onSetupSelectionChanged!(setup.id);
+            }
+          };
+
+    return TimelineSelectionFill(
+      selected: allSelected,
+      child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SetupGroupHeader(
-          setupCount: setups.length,
-          dateTimeText: dateTimeText,
-          bikeMetadata: TileMetaRow(
-            icon: Bike.iconData,
-            text: bikes[bikeId]?.name ?? "BIKE NOT FOUND",
-            isError: !bikeFound,
+        InkWell(
+          onTap: selectionMode ? onGroupSelectionChanged : null,
+          onLongPress: onGroupSelectionChanged,
+          child: SetupGroupHeader(
+            setupCount: setups.length,
+            dateTimeText: dateTimeText,
+            bikeMetadata: TileMetaRow(
+              icon: Bike.iconData,
+              text: bikes[bikeId]?.name ?? "BIKE NOT FOUND",
+              isError: !bikeFound,
+            ),
+            contextMetadata: metadataRows,
           ),
-          contextMetadata: metadataRows,
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
@@ -146,13 +163,14 @@ class SetupGroupSection extends StatelessWidget {
                       thickness: 1,
                       color: Theme.of(context).colorScheme.outlineVariant,
                     ),
-                  _member(context, setups[i], hidePlace: sharedPlace != null),
+                  _member(context, setups[i], hidePlace: sharedPlace != null, groupSelected: allSelected),
                 ],
               ],
             ),
           ),
         ),
       ],
+      ),
     );
   }
 }

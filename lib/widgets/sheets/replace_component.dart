@@ -9,21 +9,35 @@ import '../../models/component/component_ancestor.dart';
 import '../../models/component/installation.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
+import 'sheet.dart';
 import 'sheet_header.dart';
 
 sealed class ReplaceComponentResult {
   final DateTime replacementDate;
-  const ReplaceComponentResult({required this.replacementDate});
+  /// Direct subcomponents to move onto the replacement; the others get uninstalled.
+  final List<Component> movedSubcomponents;
+  final List<Component> uninstalledSubcomponents;
+  const ReplaceComponentResult({
+    required this.replacementDate,
+    required this.movedSubcomponents,
+    required this.uninstalledSubcomponents,
+  });
 }
 
 class ReplaceComponentNewResult extends ReplaceComponentResult {
-  const ReplaceComponentNewResult({required super.replacementDate});
+  const ReplaceComponentNewResult({
+    required super.replacementDate,
+    required super.movedSubcomponents,
+    required super.uninstalledSubcomponents,
+  });
 }
 
 class ReplaceComponentExistingResult extends ReplaceComponentResult {
   final Component existingComponent;
   const ReplaceComponentExistingResult({
     required super.replacementDate,
+    required super.movedSubcomponents,
+    required super.uninstalledSubcomponents,
     required this.existingComponent,
   });
 }
@@ -57,6 +71,7 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
   late DateTime _replaceDate;
   _ReplaceMode _mode = _ReplaceMode.create;
   String? _selectedComponentId;
+  bool _moveSubcomponents = true;
 
   @override
   void initState() {
@@ -64,16 +79,35 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
     _replaceDate = DateTime.now();
   }
 
+  List<Component> _subcomponents(AppRepository appRepository) {
+    final componentHierarchy = appRepository.componentHierarchy;
+    return appRepository.components.values
+        .where((c) => switch (componentHierarchy.currentInstallation(c.id)) {
+              ComponentInstallation(:final parentComponentId) => parentComponentId == widget.component.id,
+              _ => false,
+            })
+        .toList()
+      ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+  }
+
   void _onContinue() {
     if (!_formKey.currentState!.validate()) return;
 
+    final appRepository = context.read<AppRepository>();
+    final subcomponents = _subcomponents(appRepository);
+    final moved = _moveSubcomponents ? subcomponents : const <Component>[];
+    final uninstalled = _moveSubcomponents ? const <Component>[] : subcomponents;
     final ReplaceComponentResult result = switch (_mode) {
       _ReplaceMode.existing => ReplaceComponentExistingResult(
         replacementDate: _replaceDate,
-        existingComponent: context.read<AppRepository>().components[_selectedComponentId]!,
+        movedSubcomponents: moved,
+        uninstalledSubcomponents: uninstalled,
+        existingComponent: appRepository.components[_selectedComponentId]!,
       ),
       _ReplaceMode.create => ReplaceComponentNewResult(
         replacementDate: _replaceDate,
+        movedSubcomponents: moved,
+        uninstalledSubcomponents: uninstalled,
       ),
     };
 
@@ -104,16 +138,6 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
       }
     }
     return null;
-  }
-
-  DropdownMenuItem<String> _componentSectionHeader(String label) {
-    return DropdownMenuItem<String>(
-      enabled: false,
-      child: Text(
-        label.toUpperCase(),
-        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.2),
-      ),
-    );
   }
 
   Widget _componentSelectedDisplay(Component component) {
@@ -184,6 +208,7 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
         .toSet();
     final uninstalledComponents = appRepository.components.values
         .where((c) => c.id != widget.component.id &&
+            c.componentType == widget.component.componentType &&
             !ancestorIds.contains(c.id) &&
             switch (componentHierarchy.currentInstallation(c.id)) {
               null || Uninstallation() => true,
@@ -201,9 +226,8 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
     if (selected != null && !menuComponents.any((c) => c.id == selected.id)) {
       menuComponents.add(selected);
     }
-    final sameTypeComponents = menuComponents.where((c) => c.componentType == widget.component.componentType).toList();
-    final otherTypeComponents = menuComponents.where((c) => c.componentType != widget.component.componentType).toList();
-    final showComponentSections = sameTypeComponents.isNotEmpty && otherTypeComponents.isNotEmpty;
+    final subcomponents = _subcomponents(appRepository);
+    final noExistingAvailable = _mode == _ReplaceMode.existing && menuComponents.isEmpty;
 
     return SafeArea(
       child: Form(
@@ -252,43 +276,34 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
-                    if (_mode == _ReplaceMode.existing) ...[
+                    if (noExistingAvailable) ...[
+                      const SizedBox(height: 16),
+                      SheetFilterEmptyHint(
+                        icon: Icons.shelves,
+                        title: "No uninstalled ${widget.component.componentType.label} available",
+                        hint: "Create a new component instead.",
+                        onTap: () {
+                          setState(() => _mode = _ReplaceMode.create);
+                          _formKey.currentState?.validate();
+                        },
+                      ),
+                    ] else if (_mode == _ReplaceMode.existing) ...[
                       const SizedBox(height: 16),
                       DropdownButtonFormField<String>(
                         initialValue: _selectedComponentId,
                         isExpanded: true,
                         autovalidateMode: AutovalidateMode.onUserInteraction,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: "Replacement Component",
-                          border: const OutlineInputBorder(),
+                          border: OutlineInputBorder(),
                           isDense: true,
-                          helperText: uninstalledComponents.isEmpty
-                              ? "No uninstalled components available"
-                              : null,
-                          helperMaxLines: 2,
                         ),
                         hint: const Text("Select a component"),
-                        selectedItemBuilder: (_) => [
-                          if (showComponentSections) ...[
-                            const SizedBox.shrink(),
-                            ...sameTypeComponents.map(_componentSelectedDisplay),
-                            const SizedBox.shrink(),
-                            ...otherTypeComponents.map(_componentSelectedDisplay),
-                          ] else
-                            ...menuComponents.map(_componentSelectedDisplay),
-                        ],
-                        items: [
-                          if (showComponentSections) ...[
-                            _componentSectionHeader(widget.component.componentType.label),
-                            ...sameTypeComponents.map((c) => _componentDropdownItem(c, showStrava: showStrava, appSettings: appSettings)),
-                            _componentSectionHeader("Other"),
-                            ...otherTypeComponents.map((c) => _componentDropdownItem(c, showStrava: showStrava, appSettings: appSettings)),
-                          ] else
-                            ...menuComponents.map((c) => _componentDropdownItem(c, showStrava: showStrava, appSettings: appSettings)),
-                        ],
-                        onChanged: menuComponents.isEmpty
-                            ? null
-                            : (id) => setState(() => _selectedComponentId = id),
+                        selectedItemBuilder: (_) => menuComponents.map(_componentSelectedDisplay).toList(),
+                        items: menuComponents
+                            .map((c) => _componentDropdownItem(c, showStrava: showStrava, appSettings: appSettings))
+                            .toList(),
+                        onChanged: (id) => setState(() => _selectedComponentId = id),
                         validator: (id) {
                           if (_mode == _ReplaceMode.existing && id == null) {
                             return "Please select a component";
@@ -297,12 +312,16 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
                         },
                       ),
                     ],
-                    const SizedBox(height: 16),
-                    FormField<DateTime>(
+                    if (!noExistingAvailable) const SizedBox(height: 16),
+                    if (!noExistingAvailable) FormField<DateTime>(
                       initialValue: _replaceDate,
                       validator: (value) {
                         if (value == null) return null;
-                        DateTime? lastInstall = widget.component.installations.map((i) => i.dateTimeUTC).maxOrNull;
+                        // Subcomponents get moved or uninstalled at the replacement date too.
+                        DateTime? lastInstall = [widget.component, ...subcomponents]
+                            .expand((c) => c.installations)
+                            .map((i) => i.dateTimeUTC)
+                            .maxOrNull;
                         if (_mode == _ReplaceMode.existing && _selectedComponentId != null) {
                           // The chosen component must not be reinstalled before its own
                           // last (de)installation, or the timeline would be out of order.
@@ -362,6 +381,14 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
                         );
                       },
                     ),
+                    if (subcomponents.isNotEmpty && !noExistingAvailable) ...[
+                      const SizedBox(height: 16),
+                      _SubcomponentsCard(
+                        subcomponents: subcomponents,
+                        moveSubcomponents: _moveSubcomponents,
+                        onChanged: (value) => setState(() => _moveSubcomponents = value),
+                      ),
+                    ],
                   ],
                 ),
               )
@@ -371,8 +398,91 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
               width: double.infinity,
               child: FilledButton.icon(
                 icon: const Icon(Icons.arrow_forward),
-                onPressed: _onContinue,
+                onPressed: noExistingAvailable ? null : _onContinue,
                 label: const Text('Continue'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SubcomponentsCard extends StatelessWidget {
+  final List<Component> subcomponents;
+  final bool moveSubcomponents;
+  final ValueChanged<bool> onChanged;
+
+  const _SubcomponentsCard({
+    required this.subcomponents,
+    required this.moveSubcomponents,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Card.outlined(
+      margin: EdgeInsets.zero,
+      clipBehavior: Clip.antiAlias,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              spacing: 8,
+              children: [
+                Icon(Icons.account_tree_outlined, size: 20, color: cs.onSurfaceVariant),
+                Expanded(
+                  child: Text(
+                    Intl.plural(
+                      subcomponents.length,
+                      one: "1 subcomponent",
+                      other: "${subcomponents.length} subcomponents",
+                    ),
+                    style: textTheme.titleSmall,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: subcomponents.map((c) => Chip(
+                avatar: Icon(c.componentType.getIconData(), size: 16),
+                label: Text(c.name, overflow: TextOverflow.ellipsis),
+                visualDensity: VisualDensity.compact,
+              )).toList(),
+            ),
+            RadioGroup<bool>(
+              groupValue: moveSubcomponents,
+              onChanged: (value) {
+                if (value == null) return;
+                onChanged(value);
+              },
+              child: const Column(
+                children: [
+                  RadioListTile<bool>(
+                    value: true,
+                    contentPadding: EdgeInsets.zero,
+                    visualDensity: VisualDensity.compact,
+                    title: Text("Move to replacement"),
+                    subtitle: Text("Installed on the replacement at the replacement date."),
+                  ),
+                  RadioListTile<bool>(
+                    value: false,
+                    contentPadding: EdgeInsets.zero,
+                    visualDensity: VisualDensity.compact,
+                    title: Text("Uninstall"),
+                    subtitle: Text("Removed along with this component and kept as uninstalled."),
+                  ),
+                ],
               ),
             ),
           ],

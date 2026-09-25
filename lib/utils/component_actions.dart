@@ -149,6 +149,20 @@ class ComponentActions {
       dateTimeLocal: removedAt.local,
     );
 
+    // Without an explicit move, subcomponents would stay on the retired parent.
+    List<Component> subcomponentEdits(String replacementId) => [
+      for (final child in result.movedSubcomponents)
+        child.copyWith(installations: [
+          ...child.installations,
+          _stampedInstallation(child, result.replacementDate, parentComponentId: replacementId),
+        ]),
+      for (final child in result.uninstalledSubcomponents)
+        child.copyWith(installations: [
+          ...child.installations,
+          _stampedInstallation(child, result.replacementDate),
+        ]),
+    ];
+
     switch (result) {
       case ReplaceComponentExistingResult(:final existingComponent, :final replacementDate):
         // Swap in an already uninstalled component: install it on the same parent
@@ -170,6 +184,7 @@ class ComponentActions {
               uninstallation,
             ],
           ),
+          ...subcomponentEdits(existingComponent.id),
         ]);
 
         if (!context.mounted) return;
@@ -197,18 +212,30 @@ class ComponentActions {
         if (newComponent == null) return;
 
         await appRepository.addComponents([newComponent]);
-        await appRepository.editComponent(
+        await appRepository.editComponents([
           component.copyWith(
             installations: [
               ...component.installations,
               uninstallation,
             ],
           ),
-        );
+          ...subcomponentEdits(newComponent.id),
+        ]);
 
         if (!context.mounted) return;
         await _copyTaskRulesTo(context, source: component, target: newComponent);
     }
+  }
+
+  static Installation _stampedInstallation(Component component, DateTime at, {String? parentComponentId}) {
+    final stamp = stampInstallationNow(component.installations, now: at);
+    return parentComponentId == null
+        ? Uninstallation(dateTimeUTC: stamp.utc, dateTimeLocal: stamp.local)
+        : ComponentInstallation(
+            parentComponentId: parentComponentId,
+            dateTimeUTC: stamp.utc,
+            dateTimeLocal: stamp.local,
+          );
   }
 
   static Future<void> removeComponent(BuildContext context, {required Component component}) async {

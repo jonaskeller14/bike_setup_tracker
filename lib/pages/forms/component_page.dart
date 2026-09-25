@@ -875,7 +875,8 @@ class _ComponentPageState extends State<ComponentPage> {
             ),
           ),
       ],
-      onChanged: (Installation? newInstallation) {
+      // Locked like the timeline: the replace flow relies on this placement.
+      onChanged: widget.mode == ComponentPageMode.replace ? null : (Installation? newInstallation) {
         if (newInstallation == null) return;
         setState(() => _installations = [newInstallation.copyWith()]);
         _changeListener();
@@ -899,6 +900,7 @@ class _ComponentPageState extends State<ComponentPage> {
             appRepository.componentHierarchy.currentBike(c.id) == currentBike &&
             c.componentType == _componentType &&
             widget.component?.id != c.id).length;
+    final isReplace = widget.mode == ComponentPageMode.replace;
 
     return PopScope( 
       canPop: !_formHasChanges,
@@ -988,11 +990,30 @@ class _ComponentPageState extends State<ComponentPage> {
                       componentId: widget.mode == ComponentPageMode.edit ? widget.component?.id : null,
                       initialInstallations: _installations,
                       originalInstallations: widget.mode == ComponentPageMode.edit ? widget.component?.installations : null,
+                      isEntryEditable: isReplace ? (_) => false : null,
                       onChanged: (newInstallations) {
                         setState(() => _installations = List.from(newInstallations));
                         _changeListener();
                       },
                     ),
+                    if (isReplace)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                        child: Row(
+                          spacing: 6,
+                          children: [
+                            Icon(Icons.lock_outline, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                            Expanded(
+                              child: Text(
+                                "The timeline is locked during the replacement. The new component is installed at the same time the old one is removed. You can edit the timeline after saving.",
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                   ],
                   // const Divider(height: 1),
                   const SectionTitle(title: "Adjustments", infoText: "Adjustments are physical parameters on this component that can be tuned—such as dial positions, switch settings, or pressure ranges. Step 1: Define what adjustment parameters exist for this component and set their limits here. Step 2: After you save this component, create a Setup to save actual adjustment values for your bike."),

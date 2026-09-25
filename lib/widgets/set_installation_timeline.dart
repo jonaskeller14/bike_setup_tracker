@@ -214,20 +214,20 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
           color: Theme.of(context).colorScheme.error,
         ),
       for (final component in parentComponentCandidates)
-        if (installation is! ComponentInstallation || installation.parentComponentId != component.id)
-          _ParentOption(
-            value: ComponentInstallation(
-              parentComponentId: component.id,
-              id: installation.id,
-              componentId: installation.componentId,
-              dateTimeUTC: installation.dateTimeUTC,
-              dateTimeLocal: installation.dateTimeLocal,
-            ),
-            icon: component.componentType.getIconData(),
-            label: component.name,
-            ancestors: ancestorsOf(component.id),
+        _ParentOption(
+          value: ComponentInstallation(
+            parentComponentId: component.id,
+            id: installation.id,
+            componentId: installation.componentId,
+            dateTimeUTC: installation.dateTimeUTC,
+            dateTimeLocal: installation.dateTimeLocal,
           ),
-      if (installation case ComponentInstallation(:final parentComponentId))
+          icon: component.componentType.getIconData(),
+          label: component.name,
+          ancestors: ancestorsOf(component.id),
+        ),
+      if (installation case ComponentInstallation(:final parentComponentId)
+          when !parentComponentCandidates.any((c) => c.id == parentComponentId))
         _ParentOption(
           value: installation,
           icon: components[parentComponentId]?.componentType.getIconData() ?? Component.iconData,

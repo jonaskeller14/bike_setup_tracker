@@ -183,6 +183,22 @@ class _InstallationContents extends StatelessWidget {
     final dateStr = installation.dateTimeUTC.millisecondsSinceEpoch == 0
         ? 'From beginning'
         : "${DateFormat(appSettings.dateFormat).format(installation.dateTimeLocal)} • ${DateFormat(appSettings.timeFormat).format(installation.dateTimeLocal)}";
+    final titleColor = switch (installation) {
+      BikeInstallation() => bikes[installation.parent]?.name == null
+          ? colorScheme.error
+          : colorScheme.onSurface,
+      ComponentInstallation(:final parentComponentId) =>
+        components[parentComponentId] == null
+            ? colorScheme.error
+            : colorScheme.onSurface,
+      Uninstallation() || Archival() => colorScheme.onSurfaceVariant,
+    };
+    final iconData = switch (installation) {
+      BikeInstallation() => Bike.iconData,
+      ComponentInstallation(:final parentComponentId) =>
+        components[parentComponentId]?.componentType.getIconData() ?? Component.iconData,
+      Uninstallation() || Archival() => null,
+    };
 
     return Container(
       padding: const EdgeInsets.only(left: 12, top: 12, bottom: 12),
@@ -191,21 +207,20 @@ class _InstallationContents extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           _DateLabel(dateStr),
-          Text(
-            bikeName,
-            style: textTheme.titleMedium?.copyWith(
-              fontWeight: installation.parent != null ? FontWeight.bold : FontWeight.normal,
-              color: switch (installation) {
-                BikeInstallation() => bikes[installation.parent]?.name == null
-                    ? colorScheme.error
-                    : colorScheme.onSurface,
-                ComponentInstallation(:final parentComponentId) =>
-                  components[parentComponentId] == null
-                      ? colorScheme.error
-                      : colorScheme.onSurface,
-                Uninstallation() || Archival() => colorScheme.onSurfaceVariant,
-              },
-            ),
+          Row(
+            spacing: 6,
+            children: [
+              if (iconData != null) Icon(iconData, size: 18, color: titleColor),
+              Flexible(
+                child: Text(
+                  bikeName,
+                  style: textTheme.titleMedium?.copyWith(
+                    fontWeight: installation.parent != null ? FontWeight.bold : FontWeight.normal,
+                    color: titleColor,
+                  ),
+                ),
+              ),
+            ],
           ),
           if (ancestors.isNotEmpty) ComponentAncestorsColumn(ancestors: ancestors, bikes: bikes),
         ],
@@ -320,18 +335,31 @@ class _TaskEntryContents extends StatelessWidget {
 
 class _DateLabel extends StatelessWidget {
   final String text;
+  static const showBadge = false;
 
   const _DateLabel(this.text);
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Text(
+    final child = Text(
       text.toUpperCase(),
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
       style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.secondary),
     );
+    return showBadge
+        ? Container(
+            margin: const EdgeInsets.only(bottom: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              // A translucent tint stays subtle on both page and card backgrounds.
+              color: theme.colorScheme.secondary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: child, 
+          )
+        : child;
   }
 }
 

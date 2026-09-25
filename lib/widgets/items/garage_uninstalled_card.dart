@@ -485,49 +485,55 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
           ),
 
           // ── Detail card for selected uninstalled component ───────────
-          if (showUninstalledComponent)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
-              child: LayoutBuilder( // workaround to get same GarageComponentIconCard width
-                builder: (context, constraints) => LongPressDraggable<Component>(
-                  data: uninstalledComponents[widget.componentToShowDetails]!,
-                  onDragStarted: () {
-                    _isDraggingDetail = true;
-                    widget.draggedComponentNotifier.value = uninstalledComponents[widget.componentToShowDetails];
-                  },
-                  onDragEnd: (_) {
-                    _isDraggingDetail = false;
-                    widget.draggedComponentNotifier.value = null;
-                  },
-                  onDraggableCanceled: (_, _) => widget.draggedComponentNotifier.value = null,
-                  dragAnchorStrategy: pointerDragAnchorStrategy,
-                  feedback: buildGarageDetailDragFeedback(
-                    context,
-                    group: garageGroupOf(
-                      uninstalledComponents[widget.componentToShowDetails]!,
-                      uninstalledComponents.values,
-                      hierarchy: hierarchy,
+          AnimatedSize(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeInOut,
+            alignment: Alignment.topCenter,
+            child: showUninstalledComponent
+                ? Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
+                    child: LayoutBuilder( // workaround to get same GarageComponentIconCard width
+                      builder: (context, constraints) => LongPressDraggable<Component>(
+                        data: uninstalledComponents[widget.componentToShowDetails]!,
+                        onDragStarted: () {
+                          _isDraggingDetail = true;
+                          widget.draggedComponentNotifier.value = uninstalledComponents[widget.componentToShowDetails];
+                        },
+                        onDragEnd: (_) {
+                          _isDraggingDetail = false;
+                          widget.draggedComponentNotifier.value = null;
+                        },
+                        onDraggableCanceled: (_, _) => widget.draggedComponentNotifier.value = null,
+                        dragAnchorStrategy: pointerDragAnchorStrategy,
+                        feedback: buildGarageDetailDragFeedback(
+                          context,
+                          group: garageGroupOf(
+                            uninstalledComponents[widget.componentToShowDetails]!,
+                            uninstalledComponents.values,
+                            hierarchy: hierarchy,
+                          ),
+                          availableWidth: constraints.maxWidth,
+                          componentToShowDetails: widget.componentToShowDetails,
+                          onPressedComponent: widget.onPressedComponent,
+                          setDraggedComponent: widget.setDraggedComponent,
+                          issueOf: issueOf,
+                        ),
+                        child: GarageDetailDragDimmer(
+                          componentId: widget.componentToShowDetails!,
+                          draggedComponentNotifier: widget.draggedComponentNotifier,
+                          hierarchy: hierarchy,
+                          child: ComponentListCard(
+                            component: uninstalledComponents[widget.componentToShowDetails]!,
+                            index: null,
+                            color: Theme.of(context).colorScheme.tertiaryContainer,
+                            showCurrentAdjustmentValues: false,
+                          ),
+                        ),
+                      ),
                     ),
-                    availableWidth: constraints.maxWidth,
-                    componentToShowDetails: widget.componentToShowDetails,
-                    onPressedComponent: widget.onPressedComponent,
-                    setDraggedComponent: widget.setDraggedComponent,
-                    issueOf: issueOf,
-                  ),
-                  child: GarageDetailDragDimmer(
-                    componentId: widget.componentToShowDetails!,
-                    draggedComponentNotifier: widget.draggedComponentNotifier,
-                    hierarchy: hierarchy,
-                    child: ComponentListCard(
-                      component: uninstalledComponents[widget.componentToShowDetails]!,
-                      index: null,
-                      color: Theme.of(context).colorScheme.tertiaryContainer,
-                      showCurrentAdjustmentValues: false,
-                    ),
-                  ),
-                ),
-              ),
-            ),
+                  )
+                : const SizedBox.shrink(),
+          ),
 
           // ── Archived section ─────────────────────────────────────────
           ValueListenableBuilder<Component?>(
@@ -663,48 +669,54 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
           ),
 
           // ── Detail card for selected archived component ──────────────
-          if (widget.componentToShowDetails != null && archivedComponents.keys.contains(widget.componentToShowDetails))
-            Padding(
-              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-              child: LayoutBuilder( // workaround to get same GarageComponentIconCard width
-                builder: (context, constraints) => LongPressDraggable<Component>(
-                  data: archivedComponents[widget.componentToShowDetails]!,
-                  onDragStarted: () {
-                    _isDraggingDetail = true;
-                    widget.draggedComponentNotifier.value = archivedComponents[widget.componentToShowDetails];
-                  },
-                  onDragEnd: (_) {
-                    _isDraggingDetail = false;
-                    widget.draggedComponentNotifier.value = null;
-                  },
-                  onDraggableCanceled: (_, _) => widget.draggedComponentNotifier.value = null,
-                  dragAnchorStrategy: pointerDragAnchorStrategy,
-                  feedback: buildGarageDetailDragFeedback(
-                    context,
-                    group: garageGroupOf(
-                      archivedComponents[widget.componentToShowDetails]!,
-                      archivedComponents.values,
-                      hierarchy: hierarchy,
+          AnimatedSize(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeInOut,
+            alignment: Alignment.topCenter,
+            child: widget.componentToShowDetails != null && archivedComponents.keys.contains(widget.componentToShowDetails)
+                ? Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                    child: LayoutBuilder( // workaround to get same GarageComponentIconCard width
+                      builder: (context, constraints) => LongPressDraggable<Component>(
+                        data: archivedComponents[widget.componentToShowDetails]!,
+                        onDragStarted: () {
+                          _isDraggingDetail = true;
+                          widget.draggedComponentNotifier.value = archivedComponents[widget.componentToShowDetails];
+                        },
+                        onDragEnd: (_) {
+                          _isDraggingDetail = false;
+                          widget.draggedComponentNotifier.value = null;
+                        },
+                        onDraggableCanceled: (_, _) => widget.draggedComponentNotifier.value = null,
+                        dragAnchorStrategy: pointerDragAnchorStrategy,
+                        feedback: buildGarageDetailDragFeedback(
+                          context,
+                          group: garageGroupOf(
+                            archivedComponents[widget.componentToShowDetails]!,
+                            archivedComponents.values,
+                            hierarchy: hierarchy,
+                          ),
+                          availableWidth: constraints.maxWidth,
+                          componentToShowDetails: widget.componentToShowDetails,
+                          onPressedComponent: widget.onPressedComponent,
+                          setDraggedComponent: widget.setDraggedComponent,
+                        ),
+                        child: GarageDetailDragDimmer(
+                          componentId: widget.componentToShowDetails!,
+                          draggedComponentNotifier: widget.draggedComponentNotifier,
+                          hierarchy: hierarchy,
+                          child: ComponentListCard(
+                            component: archivedComponents[widget.componentToShowDetails]!,
+                            index: null,
+                            color: Theme.of(context).colorScheme.tertiaryContainer,
+                            showCurrentAdjustmentValues: false,
+                          ),
+                        ),
+                      ),
                     ),
-                    availableWidth: constraints.maxWidth,
-                    componentToShowDetails: widget.componentToShowDetails,
-                    onPressedComponent: widget.onPressedComponent,
-                    setDraggedComponent: widget.setDraggedComponent,
-                  ),
-                  child: GarageDetailDragDimmer(
-                    componentId: widget.componentToShowDetails!,
-                    draggedComponentNotifier: widget.draggedComponentNotifier,
-                    hierarchy: hierarchy,
-                    child: ComponentListCard(
-                      component: archivedComponents[widget.componentToShowDetails]!,
-                      index: null,
-                      color: Theme.of(context).colorScheme.tertiaryContainer,
-                      showCurrentAdjustmentValues: false,
-                    ),
-                  ),
-                ),
-              ),
-            ),
+                  )
+                : const SizedBox.shrink(),
+          ),
         ],
       ),
     );

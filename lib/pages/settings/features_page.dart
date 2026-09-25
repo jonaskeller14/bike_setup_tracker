@@ -79,16 +79,17 @@ class FeaturesPage extends StatelessWidget {
                       'e.g. a tire on a wheel. The subcomponent follows its parent between bikes '
                       'and is credited with the same activities. Requires the Installation Timeline.',
                 ),
-              _FeatureToggleTile(
-                icon: Icons.auto_awesome_outlined,
-                title: "Component Presets",
-                value: appSettings.enableComponentPresets,
-                onChanged: (v) => appSettings.enableComponentPresets = v,
-                infoText:
-                    'When adding a fork or shock, pick the model from a built-in '
-                    'catalog to prefill its name, notes and adjustments (click ranges, '
-                    'air pressure, SAG) automatically. You can still edit everything afterwards.',
-              ),
+              if (kDebugMode)
+                _FeatureToggleTile(
+                  icon: Icons.auto_awesome_outlined,
+                  title: "Component Presets",
+                  value: appSettings.enableComponentPresets,
+                  onChanged: (v) => appSettings.enableComponentPresets = v,
+                  infoText:
+                      'When adding a fork or shock, pick the model from a built-in '
+                      'catalog to prefill its name, notes and adjustments (click ranges, '
+                      'air pressure, SAG) automatically. You can still edit everything afterwards.',
+                ),
               const Divider(),
               const SectionTitle(title: 'Adjustments'),
               if (kDebugMode)

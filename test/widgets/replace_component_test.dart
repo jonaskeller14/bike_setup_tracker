@@ -162,7 +162,7 @@ void main() {
       expect(result, isNull);
     });
 
-    testWidgets('groups uninstalled components into same-type and "Other" sections', (tester) async {
+    testWidgets('only offers uninstalled components of the same type', (tester) async {
       await tester.pumpWidget(harness(onResult: (_) {}));
       await openSheet(tester);
 
@@ -171,18 +171,14 @@ void main() {
       await tester.tap(find.byType(DropdownButtonFormField<String>));
       await tester.pumpAndSettle();
 
-      // Same-type header is the current component's type label, then an "Other" group.
-      expect(find.text(ComponentType.fork.label.toUpperCase()), findsWidgets);
-      expect(find.text('Other'.toUpperCase()), findsWidgets);
       expect(find.text('Spare Fork'), findsWidgets);
-      expect(find.text('Spare Chain'), findsWidgets);
+      expect(find.text('Spare Chain'), findsNothing);
     });
 
-    testWidgets('omits section headers when only one component type is available', (tester) async {
-      // Only fork-type components remain uninstalled -> flat list, no headers.
+    testWidgets('shows an empty state and disables continue when no same-type component is available', (tester) async {
       componentsMap = {
         currentComponent.id: currentComponent,
-        spareFork.id: spareFork,
+        spareChain.id: spareChain,
       };
 
       await tester.pumpWidget(harness(onResult: (_) {}));
@@ -190,12 +186,13 @@ void main() {
 
       await tester.tap(find.text('Existing'));
       await tester.pumpAndSettle();
-      await tester.tap(find.byType(DropdownButtonFormField<String>));
-      await tester.pumpAndSettle();
 
-      expect(find.text(ComponentType.fork.label.toUpperCase()), findsNothing);
-      expect(find.text('Other'.toUpperCase()), findsNothing);
-      expect(find.text('Spare Fork'), findsWidgets);
+      expect(find.byType(DropdownButtonFormField<String>), findsNothing);
+      expect(find.text('No uninstalled ${ComponentType.fork.label} available'), findsOneWidget);
+      final continueButton = tester.widget<ButtonStyleButton>(
+        find.ancestor(of: find.text('Continue'), matching: find.byWidgetPredicate((w) => w is ButtonStyleButton)),
+      );
+      expect(continueButton.onPressed, isNull);
     });
 
     testWidgets('rejects a date that is not after the replaced component\'s last installation', (tester) async {

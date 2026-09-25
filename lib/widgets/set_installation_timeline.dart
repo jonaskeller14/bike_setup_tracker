@@ -268,18 +268,26 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
       );
 
   Future<void> _pickDateTime(int index) async {
-    final current = _installations[index].dateTimeLocal;
+    final firstDate = DateTime(2000);
+    final lastDate = DateTime(2100);
+    // "From beginning" is epoch 0 in UTC, so its local value is not epoch 0 outside UTC.
+    final installation = _installations[index];
+    final current = installation.isFromBeginning ||
+            installation.dateTimeLocal.isBefore(firstDate) ||
+            installation.dateTimeLocal.isAfter(lastDate)
+        ? DateTime.now()
+        : installation.dateTimeLocal;
     final pickedDate = await showDatePicker(
       context: context,
-      initialDate: current.millisecondsSinceEpoch == 0 ? DateTime.now() : current,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+      initialDate: current,
+      firstDate: firstDate,
+      lastDate: lastDate,
     );
     if (pickedDate != null) {
       if (!mounted) return;
       final pickedTime = await showTimePicker(
         context: context,
-        initialTime: TimeOfDay.fromDateTime(current.millisecondsSinceEpoch == 0 ? DateTime.now() : current),
+        initialTime: TimeOfDay.fromDateTime(current),
       );
       if (pickedTime != null) {
         final newDateTimeLocal = DateTime(
@@ -416,7 +424,10 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                                     borderRadius: const BorderRadius.all(Radius.circular(4)),
                                     onSelected: (value) async {
                                       if (value == 'beginning') {
-                                        _updateEntry(index, Installation.sinceBeginning(parent: installation.parent));
+                                        _updateEntry(index, installation.copyWith(
+                                          dateTimeUTC: DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
+                                          dateTimeLocal: DateTime.fromMillisecondsSinceEpoch(0, isUtc: false),
+                                        ));
                                       } else if (value == 'now') {
                                         final now = DateTime.now();
                                         _updateEntry(index, installation.copyWith(

@@ -72,6 +72,8 @@ class DisplayInstallationTimeline extends StatelessWidget {
     return FixedTimeline.tileBuilder(
       theme: TimelineThemeData(
         nodePosition: 0,
+        // Paints the indicator above the connectors so dash caps can't bleed over the dot.
+        nodeItemOverlap: true,
         indicatorTheme: IndicatorThemeData(
           size: 15.0,
           color: colorScheme.secondary,

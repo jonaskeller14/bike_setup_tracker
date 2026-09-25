@@ -360,6 +360,106 @@ void main() {
 
         expect(find.text('Rim'), findsNothing);
       });
+
+      testWidgets('shows every initial parent state, including non-candidate and missing parents', (WidgetTester tester) async {
+        await seed(tester, nestedComponents);
+        appSettings.enableInstallOnComponent = true;
+
+        DateTime at(int day) => DateTime(2024, 1, day);
+        await tester.pumpWidget(createWidgetUnderTest(
+          componentId: 'valve',
+          initialInstallations: [
+            Installation.componentSinceBeginning(parentComponentId: 'tire'),
+            BikeInstallation(bikeId: 'gone', dateTimeUTC: at(2).toUtc(), dateTimeLocal: at(2)),
+            ComponentInstallation(parentComponentId: 'missing', dateTimeUTC: at(3).toUtc(), dateTimeLocal: at(3)),
+            ComponentInstallation(parentComponentId: 'old', dateTimeUTC: at(4).toUtc(), dateTimeLocal: at(4)),
+            Uninstallation(dateTimeUTC: at(5).toUtc(), dateTimeLocal: at(5)),
+            Archival(dateTimeUTC: at(6).toUtc(), dateTimeLocal: at(6)),
+          ],
+        ));
+        await tester.pumpAndSettle();
+
+        expect(tester.takeException(), isNull);
+        expect(find.text('Nested Tire'), findsOneWidget);
+        expect(find.text('BIKE NOT FOUND'), findsOneWidget);
+        expect(find.text('COMPONENT NOT FOUND'), findsOneWidget);
+        expect(find.text('Archived Wheel'), findsOneWidget);
+        expect(find.text('UNINSTALLED'), findsOneWidget);
+        expect(find.text('ARCHIVED'), findsOneWidget);
+      });
+
+      testWidgets('"From beginning" keeps the component parent and entry id', (WidgetTester tester) async {
+        await seed(tester, nestedComponents);
+        appSettings.enableInstallOnComponent = true;
+
+        List<Installation>? changed;
+        final entry = ComponentInstallation(
+          id: 'entry',
+          componentId: 'valve',
+          parentComponentId: 'tire',
+          dateTimeUTC: now.toUtc(),
+          dateTimeLocal: now,
+        );
+        await tester.pumpWidget(createWidgetUnderTest(
+          componentId: 'valve',
+          initialInstallations: [entry],
+          onChanged: (value) => changed = value,
+        ));
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.bySubtype<PopupMenuButton<dynamic>>().first);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('From beginning').last);
+        await tester.pumpAndSettle();
+
+        final updated = changed!.single;
+        expect(updated, isA<ComponentInstallation>());
+        expect(updated.parent, 'tire');
+        expect(updated.id, 'entry');
+        expect(updated.isFromBeginning, isTrue);
+        expect(find.text('Nested Tire'), findsOneWidget);
+        expect(find.text('BIKE NOT FOUND'), findsNothing);
+      });
+    });
+
+    group('select date & time', () {
+      Future<void> openPicker(WidgetTester tester, Installation installation) async {
+        await tester.runAsync(() async {
+          await appRepository.addBikes([Bike(id: 'bike1', name: 'Bike 1', person: 'Me')]);
+          int attempts = 0;
+          while (appRepository.bikes.isEmpty && attempts < 100) {
+            await Future<void>.delayed(const Duration(milliseconds: 10));
+            attempts++;
+          }
+        });
+        await tester.pumpWidget(createWidgetUnderTest(initialInstallations: [installation]));
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.bySubtype<PopupMenuButton<dynamic>>().first);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Select date & time...'));
+        await tester.pumpAndSettle();
+      }
+
+      testWidgets('opens for a "From beginning" entry whose local time is not epoch 0', (WidgetTester tester) async {
+        // As loaded in a non-UTC zone: UTC is epoch 0, but the floating local value is not.
+        await openPicker(tester, BikeInstallation(
+          bikeId: 'bike1',
+          dateTimeUTC: DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
+          dateTimeLocal: DateTime(1970, 1, 1, 12),
+        ));
+
+        expect(tester.takeException(), isNull);
+        expect(find.byType(DatePickerDialog), findsOneWidget);
+      });
+
+      testWidgets('opens for an entry dated before the picker range', (WidgetTester tester) async {
+        final date = DateTime(1995, 6, 1);
+        await openPicker(tester, BikeInstallation(bikeId: 'bike1', dateTimeUTC: date.toUtc(), dateTimeLocal: date));
+
+        expect(tester.takeException(), isNull);
+        expect(find.byType(DatePickerDialog), findsOneWidget);
+      });
     });
 
     testWidgets('popup menu disables "From beginning" if another entry has it', (WidgetTester tester) async {

@@ -464,49 +464,55 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                   );
                 },
               ),
-              if (!widget.selectionMode &&
-                  widget.componentToShowDetails != null &&
-                  bikeComponents.keys.contains(widget.componentToShowDetails))
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                  child: LayoutBuilder( // workaround to get same GarageComponentIconCard width
-                    builder: (context, constraints) => LongPressDraggable<int>(
-                      data: bikeComponents.keys.toList().indexOf(widget.componentToShowDetails!),
-                      onDragStarted: () {
-                        _isDraggingDetail = true;
-                        widget.draggedComponentNotifier.value = bikeComponents[widget.componentToShowDetails];
-                      },
-                      onDragEnd: (_) {
-                        _isDraggingDetail = false;
-                        widget.draggedComponentNotifier.value = null;
-                      },
-                      onDraggableCanceled: (_, _) => widget.draggedComponentNotifier.value = null,
-                      dragAnchorStrategy: pointerDragAnchorStrategy,
-                      feedback: buildGarageDetailDragFeedback(
-                        context,
-                        group: garageGroupOf(
-                          bikeComponents[widget.componentToShowDetails]!,
-                          bikeComponents.values,
-                          hierarchy: hierarchy,
+              AnimatedSize(
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeInOut,
+                alignment: Alignment.topCenter,
+                child: !widget.selectionMode &&
+                        widget.componentToShowDetails != null &&
+                        bikeComponents.keys.contains(widget.componentToShowDetails)
+                    ? Padding(
+                        padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                        child: LayoutBuilder( // workaround to get same GarageComponentIconCard width
+                          builder: (context, constraints) => LongPressDraggable<int>(
+                            data: bikeComponents.keys.toList().indexOf(widget.componentToShowDetails!),
+                            onDragStarted: () {
+                              _isDraggingDetail = true;
+                              widget.draggedComponentNotifier.value = bikeComponents[widget.componentToShowDetails];
+                            },
+                            onDragEnd: (_) {
+                              _isDraggingDetail = false;
+                              widget.draggedComponentNotifier.value = null;
+                            },
+                            onDraggableCanceled: (_, _) => widget.draggedComponentNotifier.value = null,
+                            dragAnchorStrategy: pointerDragAnchorStrategy,
+                            feedback: buildGarageDetailDragFeedback(
+                              context,
+                              group: garageGroupOf(
+                                bikeComponents[widget.componentToShowDetails]!,
+                                bikeComponents.values,
+                                hierarchy: hierarchy,
+                              ),
+                              availableWidth: constraints.maxWidth,
+                              componentToShowDetails: widget.componentToShowDetails,
+                              onPressedComponent: widget.onPressedComponent,
+                              setDraggedComponent: widget.setDraggedComponent,
+                            ),
+                            child: GarageDetailDragDimmer(
+                              componentId: widget.componentToShowDetails!,
+                              draggedComponentNotifier: widget.draggedComponentNotifier,
+                              hierarchy: hierarchy,
+                              child: ComponentListCard(
+                                component: bikeComponents[widget.componentToShowDetails]!,
+                                index: null,
+                                color: Theme.of(context).colorScheme.tertiaryContainer,
+                              ),
+                            ),
+                          ),
                         ),
-                        availableWidth: constraints.maxWidth,
-                        componentToShowDetails: widget.componentToShowDetails,
-                        onPressedComponent: widget.onPressedComponent,
-                        setDraggedComponent: widget.setDraggedComponent,
-                      ),
-                      child: GarageDetailDragDimmer(
-                        componentId: widget.componentToShowDetails!,
-                        draggedComponentNotifier: widget.draggedComponentNotifier,
-                        hierarchy: hierarchy,
-                        child: ComponentListCard(
-                          component: bikeComponents[widget.componentToShowDetails]!,
-                          index: null,
-                          color: Theme.of(context).colorScheme.tertiaryContainer,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+                      )
+                    : const SizedBox.shrink(),
+              ),
             ],
           ),
         ),

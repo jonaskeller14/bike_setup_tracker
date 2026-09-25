@@ -1,0 +1,242 @@
+# BOS Suspension mountain-bike forks — adjustment preset database
+#
+# Same design as fork/fox.yaml: click ranges belong to the DAMPER cartridge,
+# defined once under `dampers:` and referenced by key from each fork's trims.
+# See SCHEMA.md in this folder.
+#
+# BOS is a small French manufacturer. Its own product pages (bos-suspension.com,
+# the official BOS site) list the total click count of every damper circuit and
+# quote each as "plus ou moins 2 clics" (+/-2 clicks, manufacturing tolerance).
+# The "Quickstart" PDFs quote "standard settings" (11/10/10 clicks etc.), which
+# are recommended starting points and NOT maximums — they are used here only for
+# the click-counting direction, air-pressure range and token maximum.
+#
+# Scope: the current (2025) Grabber-generation lineup only. BOS's older forks
+# (Deville II 35 FCV, Idylle 39 FCV/SC, Deville 34/35, ...) are not listed —
+# see the Follow-ups footer.
+
+brand: BOS
+component_type: fork
+sources:
+  - https://www.bos-suspension.com/PBCPPlayer.asp?ID=2410051
+  - https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422873
+  - https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422386
+  - https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422364
+  - https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422906
+  - https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422893
+  # BOS Quickstart guides (PDF) — click-counting direction, air-pressure range, token maximum
+  - https://www.bos-suspension.com/Files/125448/Quickstart_DEVILLE__35_GRABBER_EN.pdf
+  - https://www.bos-suspension.com/Files/125448/Quickstart_KYLL_39_GRABBER_EN.pdf
+  - https://www.bos-suspension.com/Files/125448/Quickstart_IDYLLE_39_GRABBER_EN.pdf
+  - https://www.bos-suspension.com/Files/125448/Quickstart_Obsys-EN.pdf
+  - https://www.bos-suspension.com/PBCPPlayer.asp?ID=2252919
+updated: 2026-09-25
+# Clicks are counted from fully closed (firmest) = 0, opening counter-clockwise
+# (BOS Quickstart guides) → default `dial_ccw`.
+
+# --------------------------------------------------------------------------
+# Dampers
+# --------------------------------------------------------------------------
+dampers:
+  grabber_2025:
+    name: Grabber FCV (2025)
+    description: |-
+      - Pressurised closed three-way cartridge with the FCV valve
+      - Separate low-speed compression, high-speed compression and rebound dials
+      - Every click is counted from fully closed, opening counter-clockwise
+    adjustments:
+      - { name: HSC, type: step, max: 25, notes: High-Speed Compression }
+      - { name: LSC, type: step, max: 27, notes: Low-Speed Compression }
+      - { name: Rebound, type: step, max: 30, notes: Low-Speed Rebound }
+    source:
+      - https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422873
+      - https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422386
+      - https://www.bos-suspension.com/Files/125448/Quickstart_DEVILLE__35_GRABBER_EN.pdf
+    note: >-
+      Deville 35 Grabber and Kyll 39 Grabber product pages both list "Compression
+      Basses Vitesses (27 clics)", "Compression Hautes vitesses (25 clics)",
+      "Détente Basses Vitesses (30 clics)" with "Plus ou moins 2 clics". BOS labels
+      the single rebound circuit "Low-Speed". Counting direction from the Deville
+      35 Grabber Quickstart ("turn the knob clockwise until it stops (clic = 0)").
+
+  grabber_dh_2025:
+    name: Grabber FCV with hydraulic end stop (2025)
+    description: |-
+      - Downhill version of the pressurised closed three-way Grabber cartridge with FCV valve
+      - Adds a hydraulic end-of-travel stop
+      - Every click is counted from fully closed, opening counter-clockwise
+    adjustments:
+      - { name: HSC, type: step, max: 25, notes: High-Speed Compression }
+      - { name: LSC, type: step, max: 27, notes: Low-Speed Compression }
+      - { name: Rebound, type: step, max: 30, notes: Low-Speed Rebound }
+    source:
+      - https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422364
+      - https://www.bos-suspension.com/Files/125448/Quickstart_IDYLLE_39_GRABBER_EN.pdf
+    note: >-
+      Idylle 39 Grabber product page: "Cartouche fermée pressurisée 3 voies dotée
+      de la valve FCV et d'une butée de fin de course hydraulique" with 27/25/30
+      clics, "Plus ou moins 2 clics". No adjuster for the end stop is described.
+      Read off the Idylle's own page, not inherited from the Deville/Kyll cartridge.
+
+  obsys_2025:
+    name: Obsys two-way (2025)
+    description: |-
+      - Pressurised closed two-way downhill cartridge
+      - One compression dial and one rebound dial
+      - Progressive hydraulic end stop; every click is counted from fully closed
+    adjustments:
+      - { name: Compression, type: step, max: 20 }
+      - { name: Rebound, type: step, max: 28 }
+    source:
+      - https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422906
+      - https://www.bos-suspension.com/Files/125448/Quickstart_Obsys-EN.pdf
+    note: >-
+      Obsys 42 product page: "Cartouche fermée pressurisée 2 voies dotée d'une
+      butée de fin de couse hydraulique progressive", "Compression (20 clics*)",
+      "Détente (28 clics*)", "*Plus ou moins 2 clics". The page gives no
+      high/low-speed qualifier for compression or rebound. The Quickstart's
+      "Compression 20 clicks / Rebound 13 clicks" is a starting point; the
+      product page's 28 rebound clicks is used as the range.
+
+  toxik_open_2025:
+    name: Open three-way (2025)
+    description: |-
+      - Open three-way cartridge tuned for dirt jump
+      - Separate low-speed compression, high-speed compression and rebound dials
+      - Every click is counted from fully closed, opening counter-clockwise
+    adjustments:
+      - { name: HSC, type: step, max: 25, notes: High-Speed Compression }
+      - { name: LSC, type: step, max: 27, notes: Low-Speed Compression }
+      - { name: Rebound, type: step, max: 30, notes: Low-Speed Rebound }
+    source: https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422893
+    note: >-
+      Toxik product page: "Cartouche Ouverte 3 voies" with 27/25/30 clics, "Plus
+      ou moins 2 clics". Read off the Toxik's own page rather than the Grabber
+      pages, since the open cartridge is a different part.
+
+# --------------------------------------------------------------------------
+# Forks — current BOS MTB lineup (2025 air-spring cartridge).
+# The Deville, Kyll and Idylle share `&air_spring_tokens` (a single Pressure plus
+# up to 5 tokens, per the BOS Quickstarts). The Obsys and Toxik list a Pressure
+# only: the Obsys progresses via extra air pressure, and the Toxik's page names
+# anti-volume spacers without stating a maximum.
+# --------------------------------------------------------------------------
+forks:
+  - model: "Deville 35"
+    category: All-Mountain / Enduro
+    year_range: "2025-2026"
+    url: https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422873
+    wheel_size: [29]
+    trims:
+      - trim: Grabber
+        key: fork-bos-deville-35-grabber-2025
+        travel_mm: [140, 150, 160, 170]
+        offset_mm: [48]
+        spring: Air
+        dampers: [grabber_2025]
+        adjustments: &air_spring_tokens
+          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+          - { name: Volume Spacers, type: step, max: 5, unit: tokens, visualization: stepper, notes: Tokens clip onto the air-chamber cap; one stock token fitted }
+    note: |-
+      - Magnesium lowers, 35mm 7050 aluminium stanchions, from 2020g at 150mm
+      - Air pressure range 115-350 psi
+      - 15x110 or 20x110mm Boost axle, post-mount 180mm brakes
+
+  - model: "Kyll 39"
+    category: Freeride / Enduro / E-Bike
+    year_range: "2025-2026"
+    url: https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422386
+    wheel_size: [29]
+    trims:
+      - trim: Grabber
+        key: fork-bos-kyll-39-grabber-2025
+        travel_mm: [160, 170, 180, 190]
+        offset_mm: [44, 52]
+        spring: Air
+        dampers: [grabber_2025]
+        adjustments: *air_spring_tokens
+    note: |-
+      - Magnesium lowers, 39mm 7050 aluminium stanchions, from 2590g at 170mm
+      - Tool-free air bleed valve
+      - Air pressure range 115-350 psi
+      - 15x110 or 20x110mm Boost axle, post-mount 200mm brakes
+
+  - model: "Idylle 39"
+    category: Downhill
+    year_range: "2025-2026"
+    url: https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422364
+    wheel_size: [29]
+    trims:
+      - trim: Grabber
+        key: fork-bos-idylle-39-grabber-2025
+        travel_mm: [208]
+        offset_mm: [48]
+        spring: Air
+        dampers: [grabber_dh_2025]
+        adjustments: *air_spring_tokens
+    note: |-
+      - Dual-crown chassis, 39mm 7050 aluminium stanchions, 2950g
+      - Air pressure range 115-350 psi
+      - 20x110mm Boost axle, post-mount 200mm brakes, straight 1 1/8" steerer
+
+  - model: "Obsys 42"
+    category: Downhill
+    year_range: "2025-2026"
+    url: https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422906
+    wheel_size: [29]
+    trims:
+      - trim: Air
+        key: fork-bos-obsys-42-air-2025
+        travel_mm: [200]
+        offset_mm: [48]
+        spring: Air
+        dampers: [obsys_2025]
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+    note: |-
+      - Dual-crown chassis with aluminium lowers, 42mm 7050 aluminium stanchions, 3260g
+      - Air pressure range 135-250 psi
+      - 20x110mm Boost or standard axle, post-mount 200mm brakes
+
+  - model: "Toxik"
+    category: Dirt Jump
+    year_range: "2025-2026"
+    url: https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422893
+    wheel_size: [26]
+    trims:
+      - trim: Air
+        key: fork-bos-toxik-air-2025
+        travel_mm: [100]
+        offset_mm: [48]
+        spring: Air
+        dampers: [toxik_open_2025]
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+    note: |-
+      - Magnesium lowers, 35mm 7050 aluminium stanchions, 1900g
+      - 15x110 or 20x110mm Boost axle, post-mount 180mm brakes
+
+# --------------------------------------------------------------------------
+# Follow-ups (not yet captured — avoid guessing):
+#   - Brand domain: the task brief named bos-mtb.com, which does not resolve;
+#     all data here comes from bos-suspension.com (BOS's official site, with
+#     the "BOS Cycling" 2025 range).
+#   - "Rambler": no fork of that name appears on BOS's current or archived
+#     manuals pages, so none is listed.
+#   - Launch year: the product pages label the air cartridge "Version 2025" and
+#     carry no explicit model-year; year_range "2025-2026" and the -2025 key
+#     year follow that label. The Vital MTB "2025 range" press release could not
+#     be loaded to confirm it.
+#   - Toxik volume spacers: the page lists "Progressivité (via entretoises
+#     antivolume)" but no maximum, so no Volume Spacers adjustment is generated.
+#   - Preload: the Grabber, Obsys and Toxik pages list "Précontrainte" and the
+#     Obsys Quickstart mentions a separate PRELOAD valve ("range from 0 to
+#     500 gr"), but no unit/range that maps onto an adjuster is published. Not
+#     modelled.
+#   - Dial knob colours/sizes: no official photo or manual states them, so the
+#     defaults are used.
+#   - Legacy forks with manuals on bos-suspension.com (Deville II 35 FCV, Deville
+#     35/34/34 AM, Idylle 39 FCV/SC, Idylle 37/36, Idylle Rare/Air/SC, Dizzy,
+#     Obsys pre-2025): the manuals only show recommended starting clicks, not
+#     total click counts, so no older generation is listed.
+# --------------------------------------------------------------------------

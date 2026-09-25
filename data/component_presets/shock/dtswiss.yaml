@@ -1,0 +1,196 @@
+# DT Swiss mountain-bike rear shocks — adjustment preset database
+#
+# Same design as shock/fox.yaml and shock/rockshox.yaml: click ranges belong to
+# the DAMPER, defined once under `dampers:` and referenced by key from each
+# shock's trims. See SCHEMA.md in this folder.
+#
+# All three DT Swiss shock lines are LINEAIR dual-air-chamber shocks. The user
+# manuals give a different rebound click count for standard-mount (around 40)
+# and trunnion-mount (22) shocks, so each mount type is its own trim with its
+# own damper.
+
+brand: DT Swiss
+component_type: shock
+sources:
+  - https://www.dtswiss.com/en/suspension/shocks/r-535-one
+  - https://www.dtswiss.com/en/suspension/shocks/r-535
+  - https://www.dtswiss.com/en/suspension/shocks/r-232-one
+  - https://www.dtswiss.com/en/support/manuals
+  # Primary — DT Swiss official user manuals (PDF)
+  - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/04/86/2/MAN_CXD10000004862S_WEB_ZZ_001.pdf
+  - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/01/87/3/MAN_CXD10000001873S_WEB_ZZ_001.pdf
+  - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/03/02/9/MAN_CXD10000003029S_WEB_ZZ_001.pdf
+  # Secondary — editorial (article body text only)
+  - https://www.pinkbike.com/news/first-ride-dt-swisss-new-232-one-platform.html
+updated: 2026-09-25
+# Counting conventions:
+#   * Rebound: the manuals describe "rotating the red rebound wheel by around 40
+#     clicks (shock with standard mount) or 22 clicks (shock with trunnion
+#     mount)"; clockwise adds damping. The counts are DT Swiss's own
+#     approximations ("around"), and no zero point is stated, so they are
+#     stored as plain 0..N ranges.
+#   * Compression has no click adjuster on these shocks — only the lever modes.
+
+# --------------------------------------------------------------------------
+# Dampers
+# --------------------------------------------------------------------------
+dampers:
+  r535_one_standard:
+    name: INCONTROL O.D.L. (standard mount)
+    description: |-
+      - Lever with three modes: Open, Drive (partly closed compression) and Lock (with a blow-off valve)
+      - Red rebound wheel, around 40 clicks on standard-mount shocks
+    adjustments:
+      - { name: Compression Mode, type: categorical, options: [Open, Drive, Lock] }
+      - { name: Rebound, type: step, max: 40, notes: 'Clockwise adds damping; DT Swiss states around 40 clicks', dialColor: red }
+    source:
+      - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/04/86/2/MAN_CXD10000004862S_WEB_ZZ_001.pdf
+      - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/01/87/3/MAN_CXD10000001873S_WEB_ZZ_001.pdf
+    note: R 535 / R 535 ONE user manual V2023.03 sec. 4.5 and 4.7; R 535 ONE user manual V2021.09 sec. 5.6.
+
+  r535_one_trunnion:
+    name: INCONTROL O.D.L. (trunnion mount)
+    description: |-
+      - Lever with three modes: Open, Drive (partly closed compression) and Lock (with a blow-off valve)
+      - Red rebound wheel, around 22 clicks on trunnion-mount shocks
+    adjustments:
+      - { name: Compression Mode, type: categorical, options: [Open, Drive, Lock] }
+      - { name: Rebound, type: step, max: 22, notes: 'Clockwise adds damping; DT Swiss states around 22 clicks', dialColor: red }
+    source:
+      - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/04/86/2/MAN_CXD10000004862S_WEB_ZZ_001.pdf
+      - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/01/87/3/MAN_CXD10000001873S_WEB_ZZ_001.pdf
+    note: R 535 / R 535 ONE user manual V2023.03 sec. 4.5 and 4.7; R 535 ONE user manual V2021.09 sec. 5.6.
+
+  r535_standard:
+    name: INCONTROL O.L. (standard mount)
+    description: |-
+      - Two-position lever: Open and Lock (with a blow-off valve)
+      - Red rebound wheel, around 40 clicks on standard-mount shocks
+    adjustments:
+      - { name: Compression Mode, type: categorical, options: [Open, Lock] }
+      - { name: Rebound, type: step, max: 40, notes: 'Clockwise adds damping; DT Swiss states around 40 clicks', dialColor: red }
+    source: https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/04/86/2/MAN_CXD10000004862S_WEB_ZZ_001.pdf
+    note: R 535 / R 535 ONE user manual V2023.03 sec. 4.6 and 4.7.
+
+  r535_trunnion:
+    name: INCONTROL O.L. (trunnion mount)
+    description: |-
+      - Two-position lever: Open and Lock (with a blow-off valve)
+      - Red rebound wheel, around 22 clicks on trunnion-mount shocks
+    adjustments:
+      - { name: Compression Mode, type: categorical, options: [Open, Lock] }
+      - { name: Rebound, type: step, max: 22, notes: 'Clockwise adds damping; DT Swiss states around 22 clicks', dialColor: red }
+    source: https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/04/86/2/MAN_CXD10000004862S_WEB_ZZ_001.pdf
+    note: R 535 / R 535 ONE user manual V2023.03 sec. 4.6 and 4.7.
+
+  r232_one_standard:
+    name: INCONTROL O.D.L. (XC, standard mount)
+    description: |-
+      - Lever or handlebar remote with three modes: Open, Drive and Lock (with a blow-off valve)
+      - Red rebound wheel, around 40 clicks on standard-mount shocks
+    adjustments:
+      - { name: Compression Mode, type: categorical, options: [Open, Drive, Lock] }
+      - { name: Rebound, type: step, max: 40, notes: 'Clockwise adds damping; DT Swiss states around 40 clicks', dialColor: red }
+    source: https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/03/02/9/MAN_CXD10000003029S_WEB_ZZ_001.pdf
+    note: R 232 ONE user manual V2021.10 sec. 4.5 and 4.6.
+
+  r232_one_trunnion:
+    name: INCONTROL O.D.L. (XC, trunnion mount)
+    description: |-
+      - Lever or handlebar remote with three modes: Open, Drive and Lock (with a blow-off valve)
+      - Red rebound wheel, around 22 clicks on trunnion-mount shocks
+    adjustments:
+      - { name: Compression Mode, type: categorical, options: [Open, Drive, Lock] }
+      - { name: Rebound, type: step, max: 22, notes: 'Clockwise adds damping; DT Swiss states around 22 clicks', dialColor: red }
+    source: https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/03/02/9/MAN_CXD10000003029S_WEB_ZZ_001.pdf
+    note: R 232 ONE user manual V2021.10 sec. 4.5 and 4.6.
+
+# --------------------------------------------------------------------------
+# Shocks — all metric sizes; strokes and mounts from the DT Swiss product pages.
+# --------------------------------------------------------------------------
+shocks:
+  - model: "R 535 ONE"
+    category: Trail / All-Mountain
+    spring: Air
+    year_range: "2021-2026"
+    url: https://www.dtswiss.com/en/suspension/shocks/r-535-one
+    trims:
+      - trim: Standard Mount
+        key: shock-dtswiss-r-535-one-standard-mount-2021
+        stroke_mm: [40, 45, 50, 55, 60, 65]
+        mount: [Standard]
+        spring: LINEAIR
+        dampers: [r535_one_standard]
+        adjustments: &air_spring
+          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+        note: Large negative air chamber with a bypass for small-bump sensitivity; DU bushings.
+      - trim: Trunnion Mount
+        key: shock-dtswiss-r-535-one-trunnion-mount-2021
+        stroke_mm: [40, 45, 50, 55, 60, 65]
+        mount: [Trunnion]
+        spring: LINEAIR
+        dampers: [r535_one_trunnion]
+        adjustments: *air_spring
+        note: Large negative air chamber with a bypass for small-bump sensitivity; DU bushings.
+
+  - model: "R 535"
+    category: Trail / All-Mountain
+    spring: Air
+    year_range: "2023-2026"
+    url: https://www.dtswiss.com/en/suspension/shocks/r-535
+    trims:
+      - trim: Standard Mount
+        key: shock-dtswiss-r-535-standard-mount-2023
+        stroke_mm: [40, 45, 50, 55, 60, 65]
+        mount: [Standard]
+        spring: LINEAIR
+        dampers: [r535_standard]
+        adjustments: *air_spring
+        note: Two-position lever (Open / Lock); DU bushings.
+      - trim: Trunnion Mount
+        key: shock-dtswiss-r-535-trunnion-mount-2023
+        stroke_mm: [40, 45, 50, 55, 60, 65]
+        mount: [Trunnion]
+        spring: LINEAIR
+        dampers: [r535_trunnion]
+        adjustments: *air_spring
+        note: Two-position lever (Open / Lock); DU bushings.
+
+  - model: "R 232 ONE"
+    category: XC
+    spring: Air
+    year_range: "2020-2026"
+    url: https://www.dtswiss.com/en/suspension/shocks/r-232-one
+    trims:
+      - trim: Standard Mount
+        key: shock-dtswiss-r-232-one-standard-mount-2020
+        stroke_mm: [40, 45, 50, 55]
+        mount: [Standard]
+        spring: LINEAIR
+        dampers: [r232_one_standard]
+        adjustments: *air_spring
+        note: XC-tuned dual-chamber air spring from 245g; lever or remote versions.
+      - trim: Trunnion Mount
+        key: shock-dtswiss-r-232-one-trunnion-mount-2020
+        stroke_mm: [40, 45, 50, 55]
+        mount: [Trunnion]
+        spring: LINEAIR
+        dampers: [r232_one_trunnion]
+        adjustments: *air_spring
+        note: XC-tuned dual-chamber air spring from 245g; lever or remote versions.
+
+# --------------------------------------------------------------------------
+# Follow-ups (not yet captured — avoid guessing):
+#   - Rebound counts are DT Swiss's own "around 40 / 22 clicks" wording; the
+#     exact totals and the counting direction (open vs. closed zero point) are
+#     not stated. Re-check if DT Swiss publishes a precise range.
+#   - First model years: R 232 ONE is dated by Pinkbike's launch coverage
+#     (Jan 2020). R 535 ONE starts at 2021 only because the earliest official
+#     document found is user manual V2021.09 — the true launch year is not
+#     confirmed; R 535 starts at 2023 from user manual V2023.03. Keys are
+#     derived from these years, so confirm before shipping.
+#   - Maximum air pressures (R 535 / R 535 ONE 23 bar / 333 psi, R 232 ONE
+#     17.9 bar / 260 psi) are printed in the user manuals; Pressure is left
+#     unbounded to match the other brands' files.
+#   - R 414 / SAB / ABS legacy shocks (2013-2015 manuals) are not covered.
+# --------------------------------------------------------------------------

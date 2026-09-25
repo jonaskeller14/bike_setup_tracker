@@ -25,6 +25,12 @@ Installation onComponent(String componentId, String parentId, int day) => Compon
       dateTimeLocal: DateTime(2026, 1, day),
     );
 
+Installation uninstalled(String componentId, int day) => Uninstallation(
+  componentId: componentId,
+  dateTimeUTC: DateTime.utc(2026, 1, day),
+  dateTimeLocal: DateTime(2026, 1, day),
+);
+
 void main() {
   test('resolves arbitrary depth and latest effective installation date', () {
     final resolver = ComponentHierarchyResolver({
@@ -140,5 +146,65 @@ void main() {
     });
 
     expect(resolver.validate, throwsA(isA<ComponentHierarchyValidationException>()));
+  });
+
+  group('inheritedRootChanges', () {
+    test('emits a change each time the parent moves the child to a new root', () {
+      final fork = component('fork', [onBike('fork', 'a', 1), onBike('fork', 'b', 5), uninstalled('fork', 9)]);
+      final damper = component('damper', [onComponent('damper', 'fork', 2)]);
+      final resolver = ComponentHierarchyResolver({'fork': fork, 'damper': damper});
+
+      final changes = resolver.inheritedRootChanges('damper');
+
+      expect(changes.map((c) => c.cause.dateTimeUTC), [DateTime.utc(2026, 1, 5), DateTime.utc(2026, 1, 9)]);
+      expect((changes[0].root as BikeAncestor).bikeId, 'b');
+      expect(changes[1].root, isA<UninstalledAncestor>());
+      expect(changes.every((c) => c.viaParentId == 'fork'), isTrue);
+    });
+
+    test('ignores parent moves before the child is installed on it', () {
+      final fork = component('fork', [onBike('fork', 'a', 1), onBike('fork', 'b', 2)]);
+      final damper = component('damper', [onComponent('damper', 'fork', 3)]);
+      final resolver = ComponentHierarchyResolver({'fork': fork, 'damper': damper});
+
+      expect(resolver.inheritedRootChanges('damper'), isEmpty);
+    });
+
+    test('ignores parent moves after the child left it', () {
+      final fork = component('fork', [onBike('fork', 'a', 1), onBike('fork', 'b', 5)]);
+      final damper = component('damper', [onComponent('damper', 'fork', 2), uninstalled('damper', 3)]);
+      final resolver = ComponentHierarchyResolver({'fork': fork, 'damper': damper});
+
+      expect(resolver.inheritedRootChanges('damper'), isEmpty);
+    });
+
+    test('ignores parent events that keep the same root', () {
+      final fork = component('fork', [onBike('fork', 'a', 1), onBike('fork', 'a', 5)]);
+      final damper = component('damper', [onComponent('damper', 'fork', 2)]);
+      final resolver = ComponentHierarchyResolver({'fork': fork, 'damper': damper});
+
+      expect(resolver.inheritedRootChanges('damper'), isEmpty);
+    });
+
+    test('follows moves of a grandparent', () {
+      final wheel = component('wheel', [onBike('wheel', 'a', 1), onBike('wheel', 'b', 6)]);
+      final tire = component('tire', [onComponent('tire', 'wheel', 1)]);
+      final insert = component('insert', [onComponent('insert', 'tire', 2)]);
+      final resolver = ComponentHierarchyResolver({'wheel': wheel, 'tire': tire, 'insert': insert});
+
+      final changes = resolver.inheritedRootChanges('insert');
+
+      expect(changes, hasLength(1));
+      expect((changes.single.root as BikeAncestor).bikeId, 'b');
+      expect(changes.single.viaParentId, 'tire');
+    });
+
+    test('missing parent yields no changes and does not throw', () {
+      final damper = component('damper', [onComponent('damper', 'gone', 2)]);
+      final resolver = ComponentHierarchyResolver({'damper': damper});
+
+      expect(resolver.inheritedRootChanges('damper'), isEmpty);
+      expect(resolver.rootAt('damper', DateTime.utc(2026, 1, 3)), isA<MissingParentAncestor>());
+    });
   });
 }

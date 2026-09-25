@@ -300,6 +300,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                       component: component,
                       bikes: bikes,
                       components: appRepository.components,
+                      hierarchy: appRepository.componentHierarchy,
                       taskEntries: appRepository.taskEntries.values.where(
                         (entry) => entry.association.componentId == component.id,
                       ),

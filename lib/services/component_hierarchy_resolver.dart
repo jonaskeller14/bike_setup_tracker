@@ -44,6 +44,10 @@ class ComponentPlacement {
       );
 }
 
+/// A change of a component's root caused by an ancestor moving while the
+/// component sits on [viaParentId]; [cause] is the ancestor's installation.
+typedef InheritedRootChange = ({Installation cause, ComponentAncestor root, String viaParentId});
+
 /// Resolves a component's effective placement through component parents.
 ///
 /// Installation records remain the single source of truth: moving a parent
@@ -162,6 +166,57 @@ class ComponentHierarchyResolver {
 
   ComponentAncestor currentRoot(String componentId) =>
       rootAt(componentId, currentTimeUTC);
+
+  /// Root changes (bike, uninstalled, archived) of [componentId] that happen
+  /// while it sits on a parent component and are caused by an ancestor
+  /// moving - these have no installation record of the component itself.
+  List<InheritedRootChange> inheritedRootChanges(String componentId) {
+    final component = components[componentId];
+    if (component == null) return const [];
+    final own = List<Installation>.from(component.installations)
+      ..sort((a, b) => a.dateTimeUTC.compareTo(b.dateTimeUTC));
+    final changes = <InheritedRootChange>[];
+
+    for (final (index, installation) in own.indexed) {
+      if (installation is! ComponentInstallation) continue;
+      final start = installation.dateTimeUTC;
+      final end = index + 1 < own.length ? own[index + 1].dateTimeUTC : null;
+
+      // Every component that could be an ancestor during this segment.
+      final ancestorIds = <String>{};
+      final frontier = [installation.parentComponentId];
+      while (frontier.isNotEmpty) {
+        final id = frontier.removeLast();
+        if (id == componentId || !ancestorIds.add(id)) continue;
+        for (final i in components[id]?.installations ?? const <Installation>[]) {
+          if (i is ComponentInstallation) frontier.add(i.parentComponentId);
+        }
+      }
+
+      final causes = [
+        for (final id in ancestorIds)
+          for (final i in components[id]?.installations ?? const <Installation>[])
+            if (i.dateTimeUTC.isAfter(start) && (end == null || i.dateTimeUTC.isBefore(end))) i,
+      ]..sort((a, b) => a.dateTimeUTC.compareTo(b.dateTimeUTC));
+
+      var previousRoot = _rootKey(rootAt(componentId, start));
+      for (final cause in causes) {
+        final root = rootAt(componentId, cause.dateTimeUTC);
+        final key = _rootKey(root);
+        if (key == previousRoot) continue;
+        previousRoot = key;
+        changes.add((cause: cause, root: root, viaParentId: installation.parentComponentId));
+      }
+    }
+    return changes;
+  }
+
+  static Object _rootKey(ComponentAncestor root) => switch (root) {
+        BikeAncestor(:final bikeId) => 'bike:$bikeId',
+        MissingParentAncestor(:final componentId) => 'missing:$componentId',
+        ParentComponentAncestor(:final component) => 'component:${component.id}',
+        ArchivedAncestor() || UninstalledAncestor() => root.runtimeType,
+      };
 
   DateTime? effectiveBikeSinceAt(String componentId, DateTime atUTC) =>
       switch (resolveAt(componentId, atUTC)) {

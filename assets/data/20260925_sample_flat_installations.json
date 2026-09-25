@@ -2218,10 +2218,10 @@
             "componentType": "ComponentType.cockpit",
             "installations": [
                 {
-                    "type": "component",
+                    "type": "bike",
                     "id": "7fa0c04c-c195-4a7e-b387-0ddc26da23f1",
                     "componentId": "fd3603d1-e004-4223-a378-0b088c3c703c",
-                    "parent": "11acc7ca-105b-40b9-a70a-05220f335039",
+                    "parent": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
                     "dateTimeUTC": "1970-01-01T00:00:00.000Z",
                     "dateTimeLocal": "1970-01-01T01:00:00.000"
                 }
@@ -2297,10 +2297,10 @@
             "componentType": "ComponentType.brakePad",
             "installations": [
                 {
-                    "type": "component",
+                    "type": "bike",
                     "id": "7b9c3578-2f32-450c-8293-c17b9c9faf32",
                     "componentId": "f58b4521-87ce-4fbc-b41e-f06142d1c287",
-                    "parent": "047776ad-dd55-4bb0-aa38-1ecff2f56588",
+                    "parent": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
                     "dateTimeUTC": "2025-12-06T13:05:00.000Z",
                     "dateTimeLocal": "2025-12-06T14:05:00.000"
                 }
@@ -2323,10 +2323,10 @@
             "componentType": "ComponentType.brakePad",
             "installations": [
                 {
-                    "type": "component",
+                    "type": "bike",
                     "id": "7a933802-21ac-4ff8-896f-922edb1e7553",
                     "componentId": "c5e4f8ea-2c68-4f1f-8082-2928f7b9d674",
-                    "parent": "77c79ee8-7d90-4c7a-89ea-e1a0541824f4",
+                    "parent": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
                     "dateTimeUTC": "2025-12-06T13:20:00.000Z",
                     "dateTimeLocal": "2025-12-06T14:20:00.000"
                 }
@@ -2729,10 +2729,10 @@
             "componentType": "ComponentType.brakePad",
             "installations": [
                 {
-                    "type": "component",
+                    "type": "bike",
                     "id": "51ff9fea-ecdd-490f-9fb1-5a1087bf1888",
                     "componentId": "7b46ad10-beb5-4307-b645-85cb8028dda1",
-                    "parent": "7ccf28d7-32e0-4f30-913e-e43134299676",
+                    "parent": "5c9f1ccd-f00b-4145-ad8d-5e74fbf3c55a",
                     "dateTimeUTC": "1970-01-01T00:00:00.000Z",
                     "dateTimeLocal": "1970-01-01T01:00:00.000"
                 }
@@ -3565,26 +3565,26 @@
             "componentType": "ComponentType.pedal",
             "installations": [
                 {
-                    "type": "component",
+                    "type": "bike",
                     "id": "f1cbbb89-e3a5-4220-a62b-993378baa66b",
                     "componentId": "44e3c1ce-72db-4bc2-b58c-47a0de8ab188",
-                    "parent": "b36fb9b7-7a01-42a9-a62e-a08d85df8e95",
+                    "parent": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
                     "dateTimeUTC": "1970-01-01T00:00:00.000Z",
                     "dateTimeLocal": "1970-01-01T01:00:00.000"
                 },
                 {
-                    "type": "component",
+                    "type": "bike",
                     "id": "0969c3c4-81e2-4833-80af-66f78b25bda7",
                     "componentId": "44e3c1ce-72db-4bc2-b58c-47a0de8ab188",
-                    "parent": "8ca91e9d-bcf1-45a5-a66b-f23cc8a71ad3",
+                    "parent": "5c9f1ccd-f00b-4145-ad8d-5e74fbf3c55a",
                     "dateTimeUTC": "2026-05-15T16:00:00.000Z",
                     "dateTimeLocal": "2026-05-15T18:00:00.000"
                 },
                 {
-                    "type": "component",
+                    "type": "bike",
                     "id": "a12aa5cd-2f3c-4ff8-b02e-873cbe8d3a6a",
                     "componentId": "44e3c1ce-72db-4bc2-b58c-47a0de8ab188",
-                    "parent": "b36fb9b7-7a01-42a9-a62e-a08d85df8e95",
+                    "parent": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
                     "dateTimeUTC": "2026-05-20T17:00:00.000Z",
                     "dateTimeLocal": "2026-05-20T19:00:00.000"
                 }
@@ -3607,10 +3607,10 @@
             "componentType": "ComponentType.wheelFront",
             "installations": [
                 {
-                    "type": "component",
+                    "type": "bike",
                     "id": "8e589b57-dcc3-418c-bd98-f6e27c293fe7",
                     "componentId": "9a8e1dff-ad5a-42cc-8ac2-0da03cb2bc84",
-                    "parent": "e47480ee-0f71-453e-bb97-61d2041d05f5",
+                    "parent": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
                     "dateTimeUTC": "1970-01-01T00:00:00.000Z",
                     "dateTimeLocal": "1970-01-01T01:00:00.000"
                 }
@@ -3827,10 +3827,10 @@
             "componentType": "ComponentType.grip",
             "installations": [
                 {
-                    "type": "component",
+                    "type": "bike",
                     "id": "c7b393e7-34b3-4fc3-adf0-49466247b827",
                     "componentId": "8ac6eee3-bd48-4a7f-a0c6-e10ed3b578e0",
-                    "parent": "fd3603d1-e004-4223-a378-0b088c3c703c",
+                    "parent": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
                     "dateTimeUTC": "1970-01-01T00:00:00.000Z",
                     "dateTimeLocal": "1970-01-01T01:00:00.000"
                 }
@@ -3958,10 +3958,10 @@
             "componentType": "ComponentType.saddle",
             "installations": [
                 {
-                    "type": "component",
+                    "type": "bike",
                     "id": "aea89a21-3e2b-49f6-86f5-0dcb4224faeb",
                     "componentId": "42551a88-7fa8-4d61-b9ef-0e56849df488",
-                    "parent": "fd899b67-fd5e-41b4-bc4e-925148001083",
+                    "parent": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
                     "dateTimeUTC": "1970-01-01T00:00:00.000Z",
                     "dateTimeLocal": "1970-01-01T01:00:00.000"
                 }
@@ -3984,10 +3984,10 @@
             "componentType": "ComponentType.brakePad",
             "installations": [
                 {
-                    "type": "component",
+                    "type": "bike",
                     "id": "b5fca757-893a-43ab-b275-a54d18b52995",
                     "componentId": "e411194e-e012-42f3-ac98-24225eb285cd",
-                    "parent": "047776ad-dd55-4bb0-aa38-1ecff2f56588",
+                    "parent": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
                     "dateTimeUTC": "1970-01-01T00:00:00.000Z",
                     "dateTimeLocal": "1970-01-01T01:00:00.000"
                 },
@@ -4018,10 +4018,10 @@
             "componentType": "ComponentType.brakePad",
             "installations": [
                 {
-                    "type": "component",
+                    "type": "bike",
                     "id": "d289b792-b573-4dca-abfb-c8ceb14a924f",
                     "componentId": "3074ad17-f40c-4101-a75e-bd0f0fab3bf3",
-                    "parent": "77c79ee8-7d90-4c7a-89ea-e1a0541824f4",
+                    "parent": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
                     "dateTimeUTC": "1970-01-01T00:00:00.000Z",
                     "dateTimeLocal": "1970-01-01T01:00:00.000"
                 },
@@ -4322,10 +4322,10 @@
             "componentType": "ComponentType.brakePad",
             "installations": [
                 {
-                    "type": "component",
+                    "type": "bike",
                     "id": "581c3aee-c3ea-4777-bd9b-67dc7608fcde",
                     "componentId": "d50b54de-94a5-47ae-a5a7-708b099f989b",
-                    "parent": "a09fc290-175a-4d9b-8bd5-98a577ba34de",
+                    "parent": "5c9f1ccd-f00b-4145-ad8d-5e74fbf3c55a",
                     "dateTimeUTC": "1970-01-01T00:00:00.000Z",
                     "dateTimeLocal": "1970-01-01T01:00:00.000"
                 }
@@ -4400,10 +4400,10 @@
             "componentType": "ComponentType.cockpit",
             "installations": [
                 {
-                    "type": "component",
+                    "type": "bike",
                     "id": "4e780bb7-069a-481d-85d5-2be5c074c590",
                     "componentId": "7c43d39b-b7a6-4c62-bbef-351381fe4be8",
-                    "parent": "8adacc9e-6548-46e2-afec-911dc2cc1f28",
+                    "parent": "5c9f1ccd-f00b-4145-ad8d-5e74fbf3c55a",
                     "dateTimeUTC": "1970-01-01T00:00:00.000Z",
                     "dateTimeLocal": "1970-01-01T01:00:00.000"
                 }
@@ -4620,10 +4620,10 @@
             "componentType": "ComponentType.brakePad",
             "installations": [
                 {
-                    "type": "component",
+                    "type": "bike",
                     "id": "83f38c47-6331-4dd3-8d39-a8c2c79431db",
                     "componentId": "ea1c4e70-c5cc-496c-9d93-e001e15dee10",
-                    "parent": "6e2f328b-7a84-4bb5-9447-a28cbc4f14d6",
+                    "parent": "5a1bf1cf-9ae4-4481-9b2e-4a50f9424039",
                     "dateTimeUTC": "1970-01-01T00:00:00.000Z",
                     "dateTimeLocal": "1970-01-01T01:00:00.000"
                 }
@@ -4646,10 +4646,10 @@
             "componentType": "ComponentType.brakePad",
             "installations": [
                 {
-                    "type": "component",
+                    "type": "bike",
                     "id": "f206004f-1c14-4f50-925a-0f5a54189ad7",
                     "componentId": "47328e74-31e7-4a0e-b52f-dddf8cbb628b",
-                    "parent": "ce2129c6-8ccf-4afd-8b8b-cbe6230d8792",
+                    "parent": "5a1bf1cf-9ae4-4481-9b2e-4a50f9424039",
                     "dateTimeUTC": "1970-01-01T00:00:00.000Z",
                     "dateTimeLocal": "1970-01-01T01:00:00.000"
                 }
@@ -5389,10 +5389,10 @@
             "componentType": "ComponentType.brakePad",
             "installations": [
                 {
-                    "type": "component",
+                    "type": "bike",
                     "id": "99a09e29-41c1-4620-8aa8-2911050f7c57",
                     "componentId": "c7cf22ee-268e-4472-a4f3-a5baf839ba56",
-                    "parent": "b600eb25-fbe8-4ce1-a4c5-454baa74f3c1",
+                    "parent": "08d0a9e6-2c91-472c-a6e6-b28a6431a013",
                     "dateTimeUTC": "1970-01-01T00:00:00.000Z",
                     "dateTimeLocal": "1970-01-01T01:00:00.000"
                 }
@@ -5415,10 +5415,10 @@
             "componentType": "ComponentType.brakePad",
             "installations": [
                 {
-                    "type": "component",
+                    "type": "bike",
                     "id": "f68f63e3-1f45-4aa0-a57d-0d2a6e5d4dc2",
                     "componentId": "4aaeb809-fc3b-4ad7-94c1-95dab26d9995",
-                    "parent": "31698a56-7fbf-4465-b287-c9593f721bd4",
+                    "parent": "08d0a9e6-2c91-472c-a6e6-b28a6431a013",
                     "dateTimeUTC": "1970-01-01T00:00:00.000Z",
                     "dateTimeLocal": "1970-01-01T01:00:00.000"
                 }

@@ -33,6 +33,7 @@ import '../../widgets/notes_text.dart';
 import '../../widgets/open_tasks_tile.dart';
 import '../../widgets/sheets/column_filter.dart';
 import '../../widgets/sheets/set_initial_stats.dart';
+import '../../widgets/sheets/strava.dart';
 import '../../widgets/text/section_title.dart';
 
 class ComponentDetailsPage extends StatefulWidget {
@@ -546,7 +547,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                 },
               ),
 
-              if (appSettings.enableStrava && subscriptionService.hasStravaEntitlement) ...[
+              if (appSettings.enableStrava) ...[
                 const Divider(height: 1),
                 const SectionTitle(
                   title: "Activity Histogram",
@@ -557,37 +558,47 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                       "• Tap a legend entry to show a different adjustment.\n"
                       "• Long-press a legend entry to remove its column.",
                 ),
-                ComponentDetailsPageHistogramChart(
-                  activeColumns: activeColumns,
-                  setups: setups,
-                  setupActivityCounts: setupActivityCounts,
-                  hasAnyActivity: hasAnyActivity,
-                  activityCountsLoaded: setupActivityCountsLoaded,
-                  activityCountsFailed: setupActivityCountsFailed,
-                  selectedHistogramColumn: _selectedHistogramColumn,
-                  valueFor: _rawValue,
-                  adjustmentFor: (column) => adjustmentForColumn(
-                    column,
-                    componentAdjustments,
-                    personAdjustments,
+                if (!subscriptionService.hasStravaEntitlement)
+                  EmptyStatePlaceholder(
+                    icon: Icons.lock_outline,
+                    title: "Strava Sync required",
+                    subtitle: "See how many activities you rode with each adjustment value.",
+                    actionLabel: "View plans",
+                    actionIcon: Icons.auto_awesome,
+                    onAction: () => showStravaSheet(context: context),
+                  )
+                else
+                  ComponentDetailsPageHistogramChart(
+                    activeColumns: activeColumns,
+                    setups: setups,
+                    setupActivityCounts: setupActivityCounts,
+                    hasAnyActivity: hasAnyActivity,
+                    activityCountsLoaded: setupActivityCountsLoaded,
+                    activityCountsFailed: setupActivityCountsFailed,
+                    selectedHistogramColumn: _selectedHistogramColumn,
+                    valueFor: _rawValue,
+                    adjustmentFor: (column) => adjustmentForColumn(
+                      column,
+                      componentAdjustments,
+                      personAdjustments,
+                    ),
+                    columnLabel: (column) => _columnLabel(
+                      column,
+                      componentAdjustments,
+                      personAdjustments,
+                    ),
+                    onSelectedColumnChanged: (column) {
+                      setState(() => _selectedHistogramColumn = column);
+                    },
+                    onColumnRemoved: (column) {
+                      setState(() {
+                        column.active = false;
+                        if (_selectedHistogramColumn == column) {
+                          _selectedHistogramColumn = null;
+                        }
+                      });
+                    },
                   ),
-                  columnLabel: (column) => _columnLabel(
-                    column,
-                    componentAdjustments,
-                    personAdjustments,
-                  ),
-                  onSelectedColumnChanged: (column) {
-                    setState(() => _selectedHistogramColumn = column);
-                  },
-                  onColumnRemoved: (column) {
-                    setState(() {
-                      column.active = false;
-                      if (_selectedHistogramColumn == column) {
-                        _selectedHistogramColumn = null;
-                      }
-                    });
-                  },
-                ),
               ],
             ],
           ),

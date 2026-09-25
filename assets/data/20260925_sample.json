@@ -1933,7 +1933,7 @@
                     "max": null
                 },
                 {
-                    "version": 1,
+                    "version": 2,
                     "id": "8d75bfc4-73d0-4fcc-bbbd-0bf9e4ddc352",
                     "name": "Tokens",
                     "notes": null,
@@ -1943,10 +1943,12 @@
                     "min": 0,
                     "max": 5,
                     "step": 1,
-                    "visualization": "StepAdjustmentVisualization.slider"
+                    "visualization": "StepAdjustmentVisualization.slider",
+                    "dialColor": "blue",
+                    "dialSize": "normal"
                 },
                 {
-                    "version": 1,
+                    "version": 2,
                     "id": "2fae94d6-16d2-4b79-ad4b-55f6b9fa6e1d",
                     "name": "LSC",
                     "notes": null,
@@ -1956,10 +1958,12 @@
                     "min": 0,
                     "max": 15,
                     "step": 1,
-                    "visualization": "StepAdjustmentVisualization.sliderWithClockwiseDial"
+                    "visualization": "StepAdjustmentVisualization.sliderWithClockwiseDial",
+                    "dialColor": "blue",
+                    "dialSize": "small"
                 },
                 {
-                    "version": 1,
+                    "version": 2,
                     "id": "752afe27-22b7-45a2-92f6-b78f37237960",
                     "name": "HSC",
                     "notes": null,
@@ -1969,10 +1973,12 @@
                     "min": 0,
                     "max": 5,
                     "step": 1,
-                    "visualization": "StepAdjustmentVisualization.sliderWithClockwiseDial"
+                    "visualization": "StepAdjustmentVisualization.sliderWithClockwiseDial",
+                    "dialColor": "blue",
+                    "dialSize": "normal"
                 },
                 {
-                    "version": 1,
+                    "version": 2,
                     "id": "aefea436-580a-479b-bcd4-943a93c8e2fb",
                     "name": "Rebound",
                     "notes": null,
@@ -1982,7 +1988,9 @@
                     "min": 0,
                     "max": 18,
                     "step": 1,
-                    "visualization": "StepAdjustmentVisualization.sliderWithCounterclockwiseDial"
+                    "visualization": "StepAdjustmentVisualization.sliderWithCounterclockwiseDial",
+                    "dialColor": "red",
+                    "dialSize": "normal"
                 }
             ],
             "initialDistance": 0.0,
@@ -2023,7 +2031,7 @@
                     "max": null
                 },
                 {
-                    "version": 1,
+                    "version": 2,
                     "id": "9b86a28f-e963-407d-9771-22231e86ea08",
                     "name": "Tokens",
                     "notes": null,
@@ -2033,10 +2041,12 @@
                     "min": 0,
                     "max": 5,
                     "step": 1,
-                    "visualization": "StepAdjustmentVisualization.slider"
+                    "visualization": "StepAdjustmentVisualization.slider",
+                    "dialColor": "blue",
+                    "dialSize": "normal"
                 },
                 {
-                    "version": 1,
+                    "version": 2,
                     "id": "b3e1a5e0-9f9c-45de-bcb7-575477def1f8",
                     "name": "LSC",
                     "notes": null,
@@ -2046,10 +2056,12 @@
                     "min": 0,
                     "max": 15,
                     "step": 1,
-                    "visualization": "StepAdjustmentVisualization.sliderWithClockwiseDial"
+                    "visualization": "StepAdjustmentVisualization.sliderWithClockwiseDial",
+                    "dialColor": "blue",
+                    "dialSize": "normal"
                 },
                 {
-                    "version": 1,
+                    "version": 2,
                     "id": "ae9566eb-92e1-47c5-8f9a-eb910ad04e14",
                     "name": "Rebound",
                     "notes": null,
@@ -2059,7 +2071,9 @@
                     "min": 0,
                     "max": 18,
                     "step": 1,
-                    "visualization": "StepAdjustmentVisualization.sliderWithCounterclockwiseDial"
+                    "visualization": "StepAdjustmentVisualization.sliderWithCounterclockwiseDial",
+                    "dialColor": "red",
+                    "dialSize": "normal"
                 },
                 {
                     "version": 1,
@@ -2227,7 +2241,7 @@
                     "max": null
                 },
                 {
-                    "version": 1,
+                    "version": 2,
                     "id": "a05b6b56-9025-4bf7-9c5b-bb84e563ec6b",
                     "name": "Brake Lever Reach",
                     "notes": null,
@@ -2237,7 +2251,9 @@
                     "min": 0,
                     "max": 8,
                     "step": 1,
-                    "visualization": "StepAdjustmentVisualization.slider"
+                    "visualization": "StepAdjustmentVisualization.slider",
+                    "dialColor": "blue",
+                    "dialSize": "normal"
                 }
             ],
             "initialDistance": 0.0,
@@ -2398,7 +2414,7 @@
                     "max": null
                 },
                 {
-                    "version": 1,
+                    "version": 2,
                     "id": "dde60d2f-29df-40a0-a537-869845086024",
                     "name": "Tokens",
                     "notes": null,
@@ -2408,10 +2424,12 @@
                     "min": 0,
                     "max": 6,
                     "step": 1,
-                    "visualization": "StepAdjustmentVisualization.slider"
+                    "visualization": "StepAdjustmentVisualization.slider",
+                    "dialColor": "blue",
+                    "dialSize": "normal"
                 },
                 {
-                    "version": 1,
+                    "version": 2,
                     "id": "b580c957-dda6-4060-aab9-befb785ce0c0",
                     "name": "HSC",
                     "notes": null,
@@ -2421,10 +2439,12 @@
                     "min": -8,
                     "max": 0,
                     "step": 1,
-                    "visualization": "StepAdjustmentVisualization.sliderWithClockwiseDial"
+                    "visualization": "StepAdjustmentVisualization.sliderWithClockwiseDial",
+                    "dialColor": "blue",
+                    "dialSize": "normal"
                 },
                 {
-                    "version": 1,
+                    "version": 2,
                     "id": "f4f88cb6-7242-4df4-a248-eb8d485d868a",
                     "name": "LSC",
                     "notes": null,
@@ -2434,10 +2454,12 @@
                     "min": -16,
                     "max": 0,
                     "step": 1,
-                    "visualization": "StepAdjustmentVisualization.sliderWithClockwiseDial"
+                    "visualization": "StepAdjustmentVisualization.sliderWithClockwiseDial",
+                    "dialColor": "blue",
+                    "dialSize": "small"
                 },
                 {
-                    "version": 1,
+                    "version": 2,
                     "id": "25ec7116-8a17-410a-9be2-c026169d4966",
                     "name": "HSR",
                     "notes": null,
@@ -2447,10 +2469,12 @@
                     "min": -8,
                     "max": 0,
                     "step": 1,
-                    "visualization": "StepAdjustmentVisualization.sliderWithClockwiseDial"
+                    "visualization": "StepAdjustmentVisualization.sliderWithClockwiseDial",
+                    "dialColor": "red",
+                    "dialSize": "normal"
                 },
                 {
-                    "version": 1,
+                    "version": 2,
                     "id": "b8790bf5-d802-4700-ac57-263c8078b72b",
                     "name": "LSR",
                     "notes": null,
@@ -2460,7 +2484,9 @@
                     "min": -18,
                     "max": 0,
                     "step": 1,
-                    "visualization": "StepAdjustmentVisualization.sliderWithClockwiseDial"
+                    "visualization": "StepAdjustmentVisualization.sliderWithClockwiseDial",
+                    "dialColor": "red",
+                    "dialSize": "small"
                 }
             ],
             "initialDistance": 0.0,
@@ -2501,7 +2527,7 @@
                     "max": null
                 },
                 {
-                    "version": 1,
+                    "version": 2,
                     "id": "b18e65e6-bb38-47df-89bc-5e5c83a6f066",
                     "name": "HSC",
                     "notes": null,
@@ -2511,10 +2537,12 @@
                     "min": -8,
                     "max": 0,
                     "step": 1,
-                    "visualization": "StepAdjustmentVisualization.slider"
+                    "visualization": "StepAdjustmentVisualization.slider",
+                    "dialColor": "blue",
+                    "dialSize": "normal"
                 },
                 {
-                    "version": 1,
+                    "version": 2,
                     "id": "6635be6b-1972-4b6b-8c99-1ff7286fdca6",
                     "name": "LSC",
                     "notes": null,
@@ -2524,10 +2552,12 @@
                     "min": -16,
                     "max": 0,
                     "step": 1,
-                    "visualization": "StepAdjustmentVisualization.slider"
+                    "visualization": "StepAdjustmentVisualization.slider",
+                    "dialColor": "blue",
+                    "dialSize": "small"
                 },
                 {
-                    "version": 1,
+                    "version": 2,
                     "id": "da260eac-0561-42d3-b6c5-babf262a3a62",
                     "name": "HSR",
                     "notes": null,
@@ -2537,10 +2567,12 @@
                     "min": -8,
                     "max": 0,
                     "step": 1,
-                    "visualization": "StepAdjustmentVisualization.slider"
+                    "visualization": "StepAdjustmentVisualization.slider",
+                    "dialColor": "red",
+                    "dialSize": "normal"
                 },
                 {
-                    "version": 1,
+                    "version": 2,
                     "id": "02c8bab2-ff9f-4fe7-93c9-7364f06fb29c",
                     "name": "LSR",
                     "notes": null,
@@ -2550,7 +2582,9 @@
                     "min": -18,
                     "max": 0,
                     "step": 1,
-                    "visualization": "StepAdjustmentVisualization.slider"
+                    "visualization": "StepAdjustmentVisualization.slider",
+                    "dialColor": "red",
+                    "dialSize": "small"
                 }
             ],
             "initialDistance": 0.0,
@@ -2744,7 +2778,7 @@
                     "max": null
                 },
                 {
-                    "version": 1,
+                    "version": 2,
                     "id": "6bad03d7-c551-4699-9c6a-8d37aa26fac3",
                     "name": "Tokens",
                     "notes": null,
@@ -2754,10 +2788,12 @@
                     "min": 0,
                     "max": 5,
                     "step": 1,
-                    "visualization": "StepAdjustmentVisualization.slider"
+                    "visualization": "StepAdjustmentVisualization.slider",
+                    "dialColor": "blue",
+                    "dialSize": "normal"
                 },
                 {
-                    "version": 1,
+                    "version": 2,
                     "id": "785988d6-c3c1-4a43-96e3-8487204ac446",
                     "name": "LSC",
                     "notes": null,
@@ -2767,10 +2803,12 @@
                     "min": 0,
                     "max": 16,
                     "step": 1,
-                    "visualization": "StepAdjustmentVisualization.slider"
+                    "visualization": "StepAdjustmentVisualization.slider",
+                    "dialColor": "blue",
+                    "dialSize": "small"
                 },
                 {
-                    "version": 1,
+                    "version": 2,
                     "id": "e5e09e73-b216-4e62-9159-d9600640812d",
                     "name": "HSC",
                     "notes": null,
@@ -2780,10 +2818,12 @@
                     "min": 0,
                     "max": 8,
                     "step": 1,
-                    "visualization": "StepAdjustmentVisualization.slider"
+                    "visualization": "StepAdjustmentVisualization.slider",
+                    "dialColor": "blue",
+                    "dialSize": "normal"
                 },
                 {
-                    "version": 1,
+                    "version": 2,
                     "id": "6404d661-90ae-4506-98ee-b2fb3cb3fbbd",
                     "name": "Rebound",
                     "notes": null,
@@ -2793,7 +2833,9 @@
                     "min": 0,
                     "max": 18,
                     "step": 1,
-                    "visualization": "StepAdjustmentVisualization.slider"
+                    "visualization": "StepAdjustmentVisualization.slider",
+                    "dialColor": "red",
+                    "dialSize": "normal"
                 }
             ],
             "initialDistance": 0.0,
@@ -2847,7 +2889,7 @@
                     ]
                 },
                 {
-                    "version": 1,
+                    "version": 2,
                     "id": "bf847d7e-0eaf-4e57-8b78-b4948b9806e2",
                     "name": "LSC",
                     "notes": null,
@@ -2857,7 +2899,9 @@
                     "min": 0,
                     "max": 10,
                     "step": 1,
-                    "visualization": "StepAdjustmentVisualization.slider"
+                    "visualization": "StepAdjustmentVisualization.slider",
+                    "dialColor": "blue",
+                    "dialSize": "normal"
                 }
             ],
             "initialDistance": 0.0,
@@ -2887,7 +2931,7 @@
             "orderIndex": 0,
             "adjustments": [
                 {
-                    "version": 1,
+                    "version": 2,
                     "id": "77d7ba98-9865-4d75-b283-5e5bb0956d63",
                     "name": "Support",
                     "notes": "Assistance level %",
@@ -2897,10 +2941,12 @@
                     "min": 0,
                     "max": 100,
                     "step": 10,
-                    "visualization": "StepAdjustmentVisualization.slider"
+                    "visualization": "StepAdjustmentVisualization.slider",
+                    "dialColor": "blue",
+                    "dialSize": "normal"
                 },
                 {
-                    "version": 1,
+                    "version": 2,
                     "id": "a9bcbad2-b751-4bcb-9dad-240779fa1afb",
                     "name": "Peak Power",
                     "notes": null,
@@ -2910,7 +2956,9 @@
                     "min": 0,
                     "max": 100,
                     "step": 10,
-                    "visualization": "StepAdjustmentVisualization.slider"
+                    "visualization": "StepAdjustmentVisualization.slider",
+                    "dialColor": "blue",
+                    "dialSize": "normal"
                 },
                 {
                     "version": 1,
@@ -3268,7 +3316,7 @@
                     "max": null
                 },
                 {
-                    "version": 1,
+                    "version": 2,
                     "id": "e0087ce8-e08f-427a-9b13-2ee6dcc21705",
                     "name": "Tokens",
                     "notes": null,
@@ -3278,10 +3326,12 @@
                     "min": 0,
                     "max": 5,
                     "step": 1,
-                    "visualization": "StepAdjustmentVisualization.slider"
+                    "visualization": "StepAdjustmentVisualization.slider",
+                    "dialColor": "blue",
+                    "dialSize": "normal"
                 },
                 {
-                    "version": 1,
+                    "version": 2,
                     "id": "17e67cc1-7364-49d1-851a-2b1956fa424c",
                     "name": "LSC",
                     "notes": null,
@@ -3291,10 +3341,12 @@
                     "min": 0,
                     "max": 16,
                     "step": 1,
-                    "visualization": "StepAdjustmentVisualization.slider"
+                    "visualization": "StepAdjustmentVisualization.slider",
+                    "dialColor": "blue",
+                    "dialSize": "normal"
                 },
                 {
-                    "version": 1,
+                    "version": 2,
                     "id": "808d1df2-a20e-45b5-bf15-4faa55598b8a",
                     "name": "Rebound",
                     "notes": null,
@@ -3304,7 +3356,9 @@
                     "min": 0,
                     "max": 18,
                     "step": 1,
-                    "visualization": "StepAdjustmentVisualization.slider"
+                    "visualization": "StepAdjustmentVisualization.slider",
+                    "dialColor": "red",
+                    "dialSize": "normal"
                 }
             ],
             "initialDistance": 0.0,
@@ -3345,7 +3399,7 @@
                     "max": null
                 },
                 {
-                    "version": 1,
+                    "version": 2,
                     "id": "c84c43f2-0f2a-4693-8ee2-b7112227861d",
                     "name": "LSC",
                     "notes": null,
@@ -3355,10 +3409,12 @@
                     "min": 0,
                     "max": 16,
                     "step": 1,
-                    "visualization": "StepAdjustmentVisualization.slider"
+                    "visualization": "StepAdjustmentVisualization.slider",
+                    "dialColor": "blue",
+                    "dialSize": "normal"
                 },
                 {
-                    "version": 1,
+                    "version": 2,
                     "id": "f90079db-7c0e-4eb8-b7b1-8e3dc0596db7",
                     "name": "Rebound",
                     "notes": null,
@@ -3368,7 +3424,9 @@
                     "min": 0,
                     "max": 18,
                     "step": 1,
-                    "visualization": "StepAdjustmentVisualization.slider"
+                    "visualization": "StepAdjustmentVisualization.slider",
+                    "dialColor": "red",
+                    "dialSize": "normal"
                 }
             ],
             "initialDistance": 0.0,
@@ -3477,7 +3535,7 @@
                     "max": null
                 },
                 {
-                    "version": 1,
+                    "version": 2,
                     "id": "886f41c6-45b9-496c-8d09-edea2d24ac61",
                     "name": "Tokens",
                     "notes": null,
@@ -3487,7 +3545,9 @@
                     "min": 0,
                     "max": 5,
                     "step": 1,
-                    "visualization": "StepAdjustmentVisualization.slider"
+                    "visualization": "StepAdjustmentVisualization.slider",
+                    "dialColor": "blue",
+                    "dialSize": "normal"
                 }
             ],
             "initialDistance": 0.0,
@@ -5414,7 +5474,7 @@
                     ]
                 },
                 {
-                    "version": 1,
+                    "version": 2,
                     "id": "6d15e7c9-85ea-4ca0-b9bc-c588fbb18d5f",
                     "name": "Front Grip",
                     "notes": null,
@@ -5424,7 +5484,9 @@
                     "min": 1,
                     "max": 5,
                     "step": 1,
-                    "visualization": "StepAdjustmentVisualization.slider"
+                    "visualization": "StepAdjustmentVisualization.slider",
+                    "dialColor": "blue",
+                    "dialSize": "normal"
                 },
                 {
                     "version": 1,
@@ -5436,7 +5498,7 @@
                     "category": "AdjustmentCategory.rating"
                 },
                 {
-                    "version": 1,
+                    "version": 2,
                     "id": "3ec059d9-8656-4315-b55c-4bd22c4ce1a7",
                     "name": "Overall Fun",
                     "notes": null,
@@ -5446,7 +5508,9 @@
                     "min": 1,
                     "max": 5,
                     "step": 1,
-                    "visualization": "StepAdjustmentVisualization.slider"
+                    "visualization": "StepAdjustmentVisualization.slider",
+                    "dialColor": "blue",
+                    "dialSize": "normal"
                 }
             ]
         },

@@ -341,7 +341,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('explicit cross-bike inputs open and invalid implicit/equal calls do not', (tester) async {
+  testWidgets('explicit cross-bike and implicit inputs open and equal explicit calls do not', (tester) async {
     final setupA = harness.setup(id: 'a', name: 'A', local: DateTime(2026, 8, 1, 10));
     final setupB = harness.setup(
       id: 'b',
@@ -385,8 +385,9 @@ void main() {
 
     await tester.tap(find.text('Implicit'));
     await settle(tester);
-    expect(find.byType(CompareSetups), findsNothing);
-    expect(find.text('No current setup is available to compare.'), findsOneWidget);
+    expect(find.byType(CompareSetups), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.close));
+    await settle(tester);
 
     await tester.tap(find.text('Equal'));
     await settle(tester);

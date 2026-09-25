@@ -36,12 +36,9 @@ Future<void> showCompareSetupsSheet(
     setups: appRepository.setups.values,
   );
   if (resolution is! SetupComparisonTargets) {
-    final message = resolution is SetupComparisonTargetsEqualInput
-        ? 'Choose two different setups to compare.'
-        : 'No current setup is available to compare.';
     final messenger = ScaffoldMessenger.of(context);
     messenger.hideCurrentSnackBar();
-    messenger.showSnackBar(AppSnackBar.info(context, message));
+    messenger.showSnackBar(AppSnackBar.info(context, 'Choose two different setups to compare.'));
     return;
   }
 

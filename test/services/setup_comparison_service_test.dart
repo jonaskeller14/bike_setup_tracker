@@ -524,19 +524,29 @@ void main() {
       expect(result.setupB.id, 'historical');
     });
 
-    test('returns typed unavailable results when no distinct current setup is usable', () {
+    test('compares a current setup against the most recent other setup on its bike', () {
+      final oldest = setup(id: 'oldest', bike: bikeA, at: DateTime.utc(2026, 1, 1));
+      final previous = setup(id: 'previous', bike: bikeA, at: DateTime.utc(2026, 1, 5));
+      final otherBike = setup(id: 'other-bike', bike: bikeB, at: DateTime.utc(2026, 1, 8));
+      final current = setup(id: 'current', bike: bikeA, at: DateTime.utc(2026, 1, 10))..isCurrent = true;
+      final result = SetupComparisonService.resolveTargets(
+        setupB: current,
+        setups: [previous, oldest, otherBike, current],
+      );
+
+      expect(result, isA<SetupComparisonTargets>());
+      expect((result as SetupComparisonTargets).setupA.id, 'previous');
+      expect(result.setupB.id, 'current');
+    });
+
+    test('compares a setup against itself when it is the only setup on its bike', () {
       final current = setup(id: 'current', bike: bikeA)..isCurrent = true;
-      expect(
-        SetupComparisonService.resolveTargets(setupB: current, setups: [current]),
-        isA<SetupComparisonTargetsUnavailable>(),
-      );
-      expect(
-        SetupComparisonService.resolveTargets(
-          setupB: setup(id: 'only', bike: bikeA),
-          setups: [],
-        ),
-        isA<SetupComparisonTargetsUnavailable>(),
-      );
+      final otherBike = setup(id: 'other-bike', bike: bikeB);
+      final result = SetupComparisonService.resolveTargets(setupB: current, setups: [current, otherBike]);
+
+      expect(result, isA<SetupComparisonTargets>());
+      expect((result as SetupComparisonTargets).setupA, same(current));
+      expect(result.setupB, same(current));
     });
 
     test('rejects equal explicit inputs and accepts ordered cross-bike inputs', () {

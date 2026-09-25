@@ -4,8 +4,6 @@ import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../../models/rating/rating_entry.dart';
 import '../../models/setup.dart';
-import '../../repositories/app_repository.dart';
-import '../../services/setup_comparison_service.dart';
 import '../../utils/setup_actions.dart';
 import '../sheets/compare_setups.dart';
 
@@ -20,13 +18,12 @@ class SetupOptionsMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
-    final setups = context.read<AppRepository>().setups.values;
 
     return PopupMenuButton<_SetupOption>(
       onSelected: (option) => _handleSelection(context, option),
       itemBuilder: (context) => [
         for (final option in _SetupOption.values)
-          if (_isVisible(option, setups, appSettings))
+          if (_isVisible(option, appSettings))
             PopupMenuItem<_SetupOption>(
               value: option,
               child: Row(
@@ -46,14 +43,12 @@ class SetupOptionsMenu extends StatelessWidget {
 
   bool _isVisible(
     _SetupOption option,
-    Iterable<Setup> setups,
     AppSettings appSettings,
   ) {
     return switch (option) {
-      _SetupOption.edit || _SetupOption.share || _SetupOption.restore || _SetupOption.remove => true,
+      _SetupOption.edit || _SetupOption.share || _SetupOption.restore || _SetupOption.compare || _SetupOption.remove => true,
       _SetupOption.bookmark => appSettings.enableSetupBookmark,
       _SetupOption.addRating => appSettings.enableRating,
-      _SetupOption.compare => SetupComparisonService.resolveTargets(setupB: setup, setups: setups) is SetupComparisonTargets,
     };
   }
 

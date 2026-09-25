@@ -16,10 +16,6 @@ class SetupComparisonTargets extends SetupComparisonTargetResolution {
   const SetupComparisonTargets({required this.setupA, required this.setupB});
 }
 
-class SetupComparisonTargetsUnavailable extends SetupComparisonTargetResolution {
-  const SetupComparisonTargetsUnavailable();
-}
-
 class SetupComparisonTargetsEqualInput extends SetupComparisonTargetResolution {
   const SetupComparisonTargetsEqualInput();
 }
@@ -36,12 +32,14 @@ class SetupComparisonService {
           : SetupComparisonTargets(setupA: setupA, setupB: setupB);
     }
 
+    Setup? latestOther;
     for (final candidate in setups) {
-      if (candidate.id != setupB.id && candidate.bike == setupB.bike && candidate.isCurrent) {
-        return SetupComparisonTargets(setupA: candidate, setupB: setupB);
-      }
+      if (candidate.id == setupB.id || candidate.bike != setupB.bike) continue;
+      if (candidate.isCurrent) return SetupComparisonTargets(setupA: candidate, setupB: setupB);
+      if (latestOther == null || candidate.datetime.isAfter(latestOther.datetime)) latestOther = candidate;
     }
-    return const SetupComparisonTargetsUnavailable();
+    // setupB is the current setup: compare against the next most recent one, or itself if it is the only setup.
+    return SetupComparisonTargets(setupA: latestOther ?? setupB, setupB: setupB);
   }
 
   static SetupComparison build({

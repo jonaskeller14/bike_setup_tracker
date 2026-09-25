@@ -9,7 +9,6 @@ import '../../models/person.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/dangling_adjustment_service.dart';
-import '../../services/setup_comparison_service.dart';
 import '../../utils/setup_actions.dart';
 import '../../widgets/current_setup_badge.dart';
 import '../../widgets/current_setup_highlight.dart';
@@ -195,10 +194,7 @@ class SetupDetailsPageContent extends StatelessWidget {
     }
   }
 
-  Widget? _sheetCompareAction(BuildContext context, {required Setup setup}) {
-    final setups = context.read<AppRepository>().setups.values;
-    final canCompare = SetupComparisonService.resolveTargets(setupB: setup, setups: setups) is SetupComparisonTargets;
-    if (!canCompare) return null;
+  Widget _sheetCompareAction(BuildContext context, {required Setup setup}) {
     return IconButton.filled(
       iconSize: 20,
       tooltip: _SetupDetailsAction.compare.label,
@@ -215,13 +211,11 @@ class SetupDetailsPageContent extends StatelessWidget {
   }
 
   Widget _sheetActions(BuildContext context, {required Setup setup}) {
-    final setups = context.read<AppRepository>().setups.values;
-    final canCompare = SetupComparisonService.resolveTargets(setupB: setup, setups: setups) is SetupComparisonTargets;
     final actions = <_SetupDetailsAction>[
       _SetupDetailsAction.edit,
       //TODO: add "add rating" and "remove" ?
       if (!setup.isCurrent) _SetupDetailsAction.restore,
-      if (canCompare) _SetupDetailsAction.compare,
+      _SetupDetailsAction.compare,
     ];
     return PopupMenuButton<_SetupDetailsAction>(
       tooltip: 'Setup actions',

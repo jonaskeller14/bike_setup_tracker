@@ -13,6 +13,7 @@ import '../../models/person.dart';
 import '../../pages/details/bike_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
+import '../../utils/automation_ids.dart';
 import '../../utils/bike_actions.dart';
 import '../../utils/component_actions.dart';
 import '../../utils/garage_component_grouping.dart';
@@ -226,9 +227,13 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                   horizontal: 16,
                   vertical: 8,
                 ),
-                title: Text(
-                  widget.bike.name,
-                  style: Theme.of(context).textTheme.titleMedium,
+                title: Semantics(
+                  container: true,
+                  identifier: AutomationIds.garageBike(widget.bike.id),
+                  child: Text(
+                    widget.bike.name,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
                 ),
                 subtitle: appSettings.enablePerson || (widget.bike.notes != null && widget.bike.notes!.isNotEmpty) || attachmentCount > 0
                     ? Column(

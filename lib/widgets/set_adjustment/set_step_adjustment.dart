@@ -4,6 +4,7 @@ import 'package:syncfusion_flutter_sliders/sliders.dart';
 
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
+import '../../utils/automation_ids.dart';
 import '../display_adjustment/adjustment_icon_name_notes.dart';
 import 'set_step_adjustment_dial.dart';
 
@@ -116,35 +117,39 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                   mainAxisSize: MainAxisSize.max,
                   children: [
                     Expanded(
-                      child: SfSliderTheme(
-                        data: SfSliderThemeData(
-                          thumbRadius: 15,
-                          overlayRadius: 0,
-                          activeTrackColor: accentColor,
-                          tooltipBackgroundColor: accentColor,
-                          tooltipTextStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: onAccentColor,)
-                        ),
-                        child: SfSlider(
-                          min: adjustment.min.toDouble(),
-                          max: sliderMax,
-                          value: value!.value.toDouble(),
-                          thumbShape: CustomValueThumbShape(
-                            primaryColor: accentColor,
-                            onPrimaryColor: onAccentColor,
+                      child: Semantics(
+                        container: true,
+                        identifier: AutomationIds.setAdjustment(adjustment.id),
+                        child: SfSliderTheme(
+                          data: SfSliderThemeData(
+                            thumbRadius: 15,
+                            overlayRadius: 0,
+                            activeTrackColor: accentColor,
+                            tooltipBackgroundColor: accentColor,
+                            tooltipTextStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: onAccentColor,)
                           ),
-                          showLabels: true,
-                          interval: sliderInterval.toDouble(),
-                          showTicks: true,
-                          stepSize: adjustment.step.toDouble(),
-                          minorTicksPerInterval: showStepTicks ? sliderDivisions - 1 : 0,
-                          enableTooltip: true,
-                          tooltipShape: const SfPaddleTooltipShape(),
-                          onChanged: (dynamic newValue) {
-                            onChanged(StepValue((newValue as double).round()));
-                          },
-                          onChangeEnd: (dynamic newValue) {
-                            onChangedEnd(StepValue((newValue as double).round()));
-                          },
+                          child: SfSlider(
+                            min: adjustment.min.toDouble(),
+                            max: sliderMax,
+                            value: value!.value.toDouble(),
+                            thumbShape: CustomValueThumbShape(
+                              primaryColor: accentColor,
+                              onPrimaryColor: onAccentColor,
+                            ),
+                            showLabels: true,
+                            interval: sliderInterval.toDouble(),
+                            showTicks: true,
+                            stepSize: adjustment.step.toDouble(),
+                            minorTicksPerInterval: showStepTicks ? sliderDivisions - 1 : 0,
+                            enableTooltip: true,
+                            tooltipShape: const SfPaddleTooltipShape(),
+                            onChanged: (dynamic newValue) {
+                              onChanged(StepValue((newValue as double).round()));
+                            },
+                            onChangeEnd: (dynamic newValue) {
+                              onChangedEnd(StepValue((newValue as double).round()));
+                            },
+                          ),
                         ),
                       ),
                     ),

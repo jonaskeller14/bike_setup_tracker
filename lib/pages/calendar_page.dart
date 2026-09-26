@@ -18,6 +18,7 @@ import '../models/timeline_entry.dart';
 import '../models/timeline_row.dart';
 import '../repositories/app_repository.dart';
 import '../services/subscription_service.dart';
+import '../utils/automation_ids.dart';
 import '../utils/installation_timeline_validation.dart';
 import '../utils/setup_actions.dart';
 import '../utils/timeline_grouping.dart';
@@ -681,12 +682,16 @@ class _CalendarPageState extends State<CalendarPage> {
               ),
             ),
             const SizedBox(width: 8),
-            ActionChip(
-              avatar: const Icon(Icons.today, size: 18),
-              label: const Text('Today'),
-              onPressed: _todayShown
-                  ? null
-                  : () => _controller.displayDate = DateTime.now(),
+            Semantics(
+              container: true,
+              identifier: AutomationIds.calendarToday,
+              child: ActionChip(
+                avatar: const Icon(Icons.today, size: 18),
+                label: const Text('Today'),
+                onPressed: _todayShown
+                    ? null
+                    : () => _controller.displayDate = DateTime.now(),
+              ),
             ),
             const SizedBox(width: 6),
             MenuAnchor(

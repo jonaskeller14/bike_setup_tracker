@@ -19,6 +19,7 @@ import '../../services/attachment_storage_service.dart';
 import '../../services/subscription_service.dart';
 import '../../theme.dart';
 import '../../utils/attachment_actions.dart';
+import '../../utils/automation_ids.dart';
 import '../../utils/component_preset_application.dart';
 import '../../utils/component_preset_search.dart';
 import '../../utils/installation_timeline_validation.dart';
@@ -991,7 +992,11 @@ class _ComponentPageState extends State<ComponentPage> {
             ComponentPageMode.edit => const Text('Edit Component'),
           },
           actions: [
-            IconButton(icon: const Icon(Icons.check), onPressed: _saveComponent),
+            Semantics(
+              container: true,
+              identifier: AutomationIds.componentFormSave,
+              child: IconButton(icon: const Icon(Icons.check), onPressed: _saveComponent),
+            ),
           ],
         ),
         body: SafeArea(

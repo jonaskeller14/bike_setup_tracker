@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
+import '../../utils/automation_ids.dart';
 import '../../utils/number_input_formatters.dart';
 import '../../utils/unit_conversion.dart';
 import '../display_adjustment/adjustment_icon_name_notes.dart';
@@ -215,40 +216,44 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
           ),
           Flexible(
             flex: 3,
-            child: TextFormField(
-              keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-              inputFormatters: const [SignedDecimalInputFormatter()],
-              controller: _controller,
-              textInputAction: TextInputAction.next,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              onChanged: _handleChanged,
-              onFieldSubmitted: _handleChanged,
-              decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                isDense: true,
-                hintText: 'Please enter',
-                helperText: helperText,
-                helperMaxLines: 2,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                suffixIcon: _buildSuffix(context),
-                suffixIconConstraints: const BoxConstraints(minHeight: 48, minWidth: 0),
+            child: Semantics(
+              container: true,
+              identifier: AutomationIds.setAdjustment(widget.adjustment.id),
+              child: TextFormField(
+                keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
+                inputFormatters: const [SignedDecimalInputFormatter()],
+                controller: _controller,
+                textInputAction: TextInputAction.next,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                onChanged: _handleChanged,
+                onFieldSubmitted: _handleChanged,
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  isDense: true,
+                  hintText: 'Please enter',
+                  helperText: helperText,
+                  helperMaxLines: 2,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  suffixIcon: _buildSuffix(context),
+                  suffixIconConstraints: const BoxConstraints(minHeight: 48, minWidth: 0),
+                ),
+                validator: (String? newValue) {
+                  if ((newValue == null || newValue.trim().isEmpty) && !widget.optional && widget.initialValue != null) {
+                    return 'Please enter a value';
+                  }
+                  if (newValue != null && newValue.trim().isNotEmpty) {
+                    final parsedValue = double.tryParse(newValue);
+                    if (parsedValue == null) return "Please enter valid number";
+                    final unitLabel = _activeLabel;
+                    final unitSuffix = unitLabel == null ? "" : " $unitLabel";
+                    final max = _boundInActiveUnit(widget.adjustment.max);
+                    if (parsedValue > max) return "Max ${formatConverted(max)}$unitSuffix";
+                    final min = _boundInActiveUnit(widget.adjustment.min);
+                    if (parsedValue < min) return "Min ${formatConverted(min)}$unitSuffix";
+                  }
+                  return null;
+                },
               ),
-              validator: (String? newValue) {
-                if ((newValue == null || newValue.trim().isEmpty) && !widget.optional && widget.initialValue != null) {
-                  return 'Please enter a value';
-                }
-                if (newValue != null && newValue.trim().isNotEmpty) {
-                  final parsedValue = double.tryParse(newValue);
-                  if (parsedValue == null) return "Please enter valid number";
-                  final unitLabel = _activeLabel;
-                  final unitSuffix = unitLabel == null ? "" : " $unitLabel";
-                  final max = _boundInActiveUnit(widget.adjustment.max);
-                  if (parsedValue > max) return "Max ${formatConverted(max)}$unitSuffix";
-                  final min = _boundInActiveUnit(widget.adjustment.min);
-                  if (parsedValue < min) return "Min ${formatConverted(min)}$unitSuffix";
-                }
-                return null;
-              },
             ),
           ),
         ],

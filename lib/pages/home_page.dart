@@ -11,6 +11,7 @@ import '../models/setup.dart';
 import '../models/task/task_rule.dart';
 import '../models/timeline_selection.dart';
 import '../repositories/app_repository.dart';
+import '../utils/automation_ids.dart';
 import '../utils/bike_actions.dart';
 import '../utils/person_actions.dart';
 import '../utils/rating_actions.dart';
@@ -330,27 +331,39 @@ class _HomePageState extends State<HomePage> {
           }
         },
         destinations: <Widget>[
-          NavigationDestination(
-            icon: Badge(
-              isLabelVisible: appRepository.filters.bikeId != null,
-              backgroundColor: Theme.of(context).primaryColor,
-              child: const Icon(Bike.iconData),
+          Semantics(
+            container: true,
+            identifier: AutomationIds.navBikes,
+            child: NavigationDestination(
+              icon: Badge(
+                isLabelVisible: appRepository.filters.bikeId != null,
+                backgroundColor: Theme.of(context).primaryColor,
+                child: const Icon(Bike.iconData),
+              ),
+              label: 'Bikes',
             ),
-            label: 'Bikes',
           ),
-          const NavigationDestination(icon: Icon(Setup.iconData), label: 'Setups'),
+          Semantics(
+            container: true,
+            identifier: AutomationIds.navSetups,
+            child: const NavigationDestination(icon: Icon(Setup.iconData), label: 'Setups'),
+          ),
           if (appSettings.enablePerson) const NavigationDestination(icon: Icon(Person.iconData), label: "Profile"),
           if (appSettings.enableRating) const NavigationDestination(icon: Icon(Rating.iconData), label: "Ratings"),
           if (appSettings.enableTask)
-            NavigationDestination(
-              icon: Badge.count(
-                count: actionableTaskRulesCount,
-                maxCount: 99,
-                isLabelVisible: actionableTaskRulesCount > 0,
-                backgroundColor: (appRepository.worstActionableTaskStatus ?? TaskStatusType.completed).getStatusColor(context),
-                child: const Icon(Icons.checklist),
+            Semantics(
+              container: true,
+              identifier: AutomationIds.navTasks,
+              child: NavigationDestination(
+                icon: Badge.count(
+                  count: actionableTaskRulesCount,
+                  maxCount: 99,
+                  isLabelVisible: actionableTaskRulesCount > 0,
+                  backgroundColor: (appRepository.worstActionableTaskStatus ?? TaskStatusType.completed).getStatusColor(context),
+                  child: const Icon(Icons.checklist),
+                ),
+                label: "Tasks",
               ),
-              label: "Tasks",
             ),
         ],
       ),
@@ -422,13 +435,17 @@ class _HomePageState extends State<HomePage> {
                 ),
                 const SizedBox(height: 12),
               ],
-              FloatingActionButton(
-                heroTag: "addSetup",
-                onPressed: () async {
-                  await SetupActions.addSetup(context);
-                },
-                tooltip: 'Add Setup',
-                child: const Icon(Icons.add),
+              Semantics(
+                container: true,
+                identifier: AutomationIds.addSetupFab,
+                child: FloatingActionButton(
+                  heroTag: "addSetup",
+                  onPressed: () async {
+                    await SetupActions.addSetup(context);
+                  },
+                  tooltip: 'Add Setup',
+                  child: const Icon(Icons.add),
+                ),
               ),
             ],
           ),

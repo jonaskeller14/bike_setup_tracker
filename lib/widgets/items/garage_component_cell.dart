@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/component/component.dart';
 import '../../pages/details/component_details_page.dart';
+import '../../utils/automation_ids.dart';
 import '../../utils/installation_issue.dart';
 import 'garage_component_icon_card.dart';
 
@@ -42,17 +43,21 @@ class GarageComponentCell extends StatelessWidget {
 
     if (onPressed == null) return card;
 
-    return GestureDetector(
-      onTap: () => onPressed!(component),
-      onDoubleTap: () async {
-        await Navigator.push<void>(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ComponentDetailsPage(componentId: component.id),
-          ),
-        );
-      },
-      child: card,
+    return Semantics(
+      container: true,
+      identifier: AutomationIds.garageComponent(component.id),
+      child: GestureDetector(
+        onTap: () => onPressed!(component),
+        onDoubleTap: () async {
+          await Navigator.push<void>(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ComponentDetailsPage(componentId: component.id),
+            ),
+          );
+        },
+        child: card,
+      ),
     );
   }
 }

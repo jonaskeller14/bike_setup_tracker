@@ -28,6 +28,7 @@ import '../../services/setup_resolution_service.dart';
 import '../../services/weather_service.dart';
 import '../../theme.dart';
 import '../../utils/attachment_actions.dart';
+import '../../utils/automation_ids.dart';
 import '../../widgets/app_snackbar.dart';
 import '../../widgets/attachment_strip.dart';
 import '../../widgets/chips/utils.dart';
@@ -1040,26 +1041,30 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                       : null,
                 ),
               ),
-              ActionChip(
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                label: const SizedBox.shrink(),
-                labelPadding: const EdgeInsets.symmetric(vertical: 2),
-                padding: EdgeInsets.zero,
-                avatar: const Icon(Icons.tag),
-                tooltip: 'Add Tags',
-                onPressed: () async {
-                  await showSetTagsSheet(
-                    context: context, 
-                    tags: _tags,
-                    availableTags: context.read<AppRepository>().setupTags,
-                    title: 'Add Tags',
-                    subtitle: "Use tags to group and organize your setups. For example, to categorize by specific test sessions, tracks, or terrains.",
-                    onChanged: (Set<String> newTags) {
-                      setState(() => _tags = newTags);
-                      _changeListener();
-                    },
-                  );
-                },
+              Semantics(
+                container: true,
+                identifier: AutomationIds.setupFormAddTags,
+                child: ActionChip(
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  label: const SizedBox.shrink(),
+                  labelPadding: const EdgeInsets.symmetric(vertical: 2),
+                  padding: EdgeInsets.zero,
+                  avatar: const Icon(Icons.tag),
+                  tooltip: 'Add Tags',
+                  onPressed: () async {
+                    await showSetTagsSheet(
+                      context: context,
+                      tags: _tags,
+                      availableTags: context.read<AppRepository>().setupTags,
+                      title: 'Add Tags',
+                      subtitle: "Use tags to group and organize your setups. For example, to categorize by specific test sessions, tracks, or terrains.",
+                      onChanged: (Set<String> newTags) {
+                        setState(() => _tags = newTags);
+                        _changeListener();
+                      },
+                    );
+                  },
+                ),
               ),
             ],
             if (appSettings.enableAttachments && _attachmentsDirPath != null)
@@ -1233,9 +1238,17 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _nameTextFormField(),
+                        Semantics(
+                          container: true,
+                          identifier: AutomationIds.setupFormName,
+                          child: _nameTextFormField(),
+                        ),
                         const SizedBox(height: 12),
-                        _notesTextFormField(),
+                        Semantics(
+                          container: true,
+                          identifier: AutomationIds.setupFormNotes,
+                          child: _notesTextFormField(),
+                        ),
                         const SizedBox(height: 12),
                         _wrap(),
                         if (context.read<AppSettings>().enableAttachments && _attachmentsDirPath != null && _attachments.isNotEmpty) ...[

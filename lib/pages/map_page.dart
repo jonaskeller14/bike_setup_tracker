@@ -19,6 +19,7 @@ import '../repositories/app_repository.dart';
 import '../services/location_service.dart';
 import '../services/subscription_service.dart';
 import '../utils/animated_map_camera.dart';
+import '../utils/automation_ids.dart';
 import '../utils/map_empty_state.dart';
 import '../widgets/app_snackbar.dart';
 import '../widgets/chips/map_filter_widget.dart';
@@ -334,6 +335,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
     required LatLng point,
     required VoidCallback onTap,
     required Widget pin,
+    String? identifier,
   }) {
     return Marker(
       key: key,
@@ -341,13 +343,17 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
       width: 52,
       height: 52,
       alignment: mapPinAlignment,
-      child: GestureDetector(
-        onTap: onTap,
-        // Laid out at the pins' native 40 px so their badge offsets hold; only
-        // the paint is enlarged.
-        child: Transform.scale(
-          scale: 1.3,
-          child: Center(child: SizedBox.square(dimension: 40, child: pin)),
+      child: Semantics(
+        container: true,
+        identifier: identifier,
+        child: GestureDetector(
+          onTap: onTap,
+          // Laid out at the pins' native 40 px so their badge offsets hold; only
+          // the paint is enlarged.
+          child: Transform.scale(
+            scale: 1.3,
+            child: Center(child: SizedBox.square(dimension: 40, child: pin)),
+          ),
         ),
       ),
     );
@@ -360,6 +366,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
         point: LatLng(activity.startLat!, activity.startLon!),
         onTap: () => showStravaActivitySheet(context: context, stravaActivity: activity, showViewOnMap: false),
         pin: StravaActivityMapPin(workoutType: activity.workout),
+        identifier: AutomationIds.mapFocusActivity,
       ),
     for (final setup in widget.focusSetups)
       if (_pointOf(setup.position) case final point?)

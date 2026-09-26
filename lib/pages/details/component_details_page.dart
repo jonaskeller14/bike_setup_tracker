@@ -15,6 +15,7 @@ import '../../repositories/app_repository.dart';
 import '../../services/dangling_adjustment_service.dart';
 import '../../services/setup_activity_analysis_service.dart';
 import '../../services/subscription_service.dart';
+import '../../utils/automation_ids.dart';
 import '../../utils/component_actions.dart';
 import '../../utils/installation_timeline_validation.dart';
 import '../../utils/table_column.dart';
@@ -252,9 +253,13 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
           ],
         ),
         actions: [
-          IconButton(
-            onPressed: () => ComponentActions.editComponent(context, component: component),
-            icon: const Icon(Icons.edit),
+          Semantics(
+            container: true,
+            identifier: AutomationIds.componentDetailsEdit,
+            child: IconButton(
+              onPressed: () => ComponentActions.editComponent(context, component: component),
+              icon: const Icon(Icons.edit),
+            ),
           ),
         ],
       ),
@@ -487,14 +492,18 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
               const SizedBox(height: 16),
 
               const Divider(height: 1),
-              const SectionTitle(
-                title: "Line Chart",
-                infoText:
-                    "• Shows the setups selected in the table above in their current sort order.\n"
-                    "• The y-axis represents adjustment values.\n"
-                    "• Select at least two setups to display a trend.\n"
-                    "• Tap a legend entry to highlight a specific line.\n"
-                    "• Long-press a legend entry to remove it from the selection.",
+              Semantics(
+                container: true,
+                identifier: AutomationIds.componentDetailsLineChart,
+                child: const SectionTitle(
+                  title: "Line Chart",
+                  infoText:
+                      "• Shows the setups selected in the table above in their current sort order.\n"
+                      "• The y-axis represents adjustment values.\n"
+                      "• Select at least two setups to display a trend.\n"
+                      "• Tap a legend entry to highlight a specific line.\n"
+                      "• Long-press a legend entry to remove it from the selection.",
+                ),
               ),
               SetupLineChart(
                 activeColumns: activeColumns,

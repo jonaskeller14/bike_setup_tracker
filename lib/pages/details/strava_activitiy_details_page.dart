@@ -12,6 +12,7 @@ import '../../models/setup.dart';
 import '../../models/strava/strava_activity.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/strava_service.dart';
+import '../../utils/automation_ids.dart';
 import '../../utils/component_actions.dart';
 import '../../utils/map_actions.dart';
 import '../../utils/url.dart';
@@ -32,7 +33,13 @@ class StravaActivityDetailsPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Activity"),
         centerTitle: true,
-        actions: [StravaActivityActionsMenu(stravaActivity: stravaActivity)],
+        actions: [
+          Semantics(
+            container: true,
+            identifier: AutomationIds.stravaActivityActions,
+            child: StravaActivityActionsMenu(stravaActivity: stravaActivity),
+          ),
+        ],
       ),
       body: SafeArea(child: StravaActivitiyPageContent(stravaActivity: stravaActivity)),
     );
@@ -537,7 +544,10 @@ class StravaActivityActionsMenu extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(action.label),
+                      Semantics(
+                        identifier: action == _StravaActivityAction.viewOnMap ? AutomationIds.stravaActivityViewOnMap : null,
+                        child: Text(action.label),
+                      ),
                       if (!hasStartPosition && action.needsStartPosition)
                         Text(
                           'Start location not available',

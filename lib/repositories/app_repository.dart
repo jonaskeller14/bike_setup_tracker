@@ -1498,7 +1498,7 @@ class AppRepository extends ChangeNotifier {
     final updated = component.copyWith(lastModified: DateTime.now().toUtc());
     final candidateComponents = {..._components, updated.id: updated};
     final candidateHierarchy = ComponentHierarchyResolver(candidateComponents);
-    candidateHierarchy.validate();  //FIXME: is error catched here or in parent?
+    candidateHierarchy.validate();  //FIXME: is error caught here or in parent?
     await database.transaction(() async {
       await _writeComponentWithData(updated);
       for (final c in conversions) {
@@ -1532,7 +1532,7 @@ class AppRepository extends ChangeNotifier {
       candidateComponents[updated.id] = updated;
     }
     final candidateHierarchy = ComponentHierarchyResolver(candidateComponents);
-    candidateHierarchy.validate();  //FIXME: is error catched here or in parent?
+    candidateHierarchy.validate();  //FIXME: is error caught here or in parent?
     final affectedIds = <String>{...changedComponentIds};
     for (final componentId in changedComponentIds) {
       affectedIds

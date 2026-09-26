@@ -17,7 +17,7 @@ class GarageComponentIconCard extends StatelessWidget {
   final String? componentToShowDetails;
   final double? width;
   final InstallationIssue? issue;
-  final bool merged;  // group header --> no border+backgorund
+  final bool merged;  // group header --> no border+background
 
   const GarageComponentIconCard({
     super.key,

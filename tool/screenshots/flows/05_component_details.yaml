@@ -1,0 +1,26 @@
+# 05 Component details: the Lyrik's line and radial charts.
+appId: com.jonaskeller14.bike_setup_tracker
+---
+- runFlow: _launch.yaml
+- tapOn:
+    id: nav.bikes
+# RockShox Lyrik Ultimate: double-tap opens its details page
+- doubleTapOn:
+    id: garage.component.e47480ee-0f71-453e-bb97-61d2041d05f5
+- waitForAnimationToEnd:
+    timeout: 5000
+- scrollUntilVisible:
+    element:
+      id: componentDetails.lineChart
+    direction: DOWN
+    centerElement: true
+# The section title is now mid-screen; a slow drag (no fling) moves it up to
+# just below the app bar on any screen size.
+- swipe:
+    start: 50%, 50%
+    end: 50%, 12%
+    duration: 2000
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot:
+    path: ${OUT_DIR}/05_raw

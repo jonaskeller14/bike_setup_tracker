@@ -11,6 +11,7 @@ import '../../models/task/task_rule.dart';
 import '../../pages/details/component_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
+import '../../utils/automation_ids.dart';
 import '../../utils/component_actions.dart';
 import '../component_ancestors_column.dart';
 import '../lists/adjustment_compact_display/adjustment_compact_display_list.dart';
@@ -176,39 +177,46 @@ class ComponentListCard extends StatelessWidget{
                       index: index!,
                       child: const Icon(Icons.drag_handle),
                     ),
-                  PopupMenuButton<_ComponentOptions>(
-                    onSelected: (value) {
-                      switch (value) {
-                        case _ComponentOptions.edit:
-                          unawaited(ComponentActions.editComponent(context, component: component));
-                        case _ComponentOptions.duplicate:
-                          unawaited(ComponentActions.duplicateComponent(context, component: component));
-                        case _ComponentOptions.replace:
-                          unawaited(ComponentActions.replaceComponent(context, component: component));
-                        case _ComponentOptions.remove:
-                          unawaited(ComponentActions.removeComponent(context, component: component));
-                      }
-                    },
-                    itemBuilder: (BuildContext context) => _ComponentOptions.values.where((option) {
-                      if (option == _ComponentOptions.replace) {
-                        final installation = appRepository.componentHierarchy.currentInstallation(component.id);
-                        return (installation is BikeInstallation || installation is ComponentInstallation) &&
-                            appSettings.enableInstallationTimeline;
-                      }
+                  Semantics(
+                    container: true,
+                    identifier: AutomationIds.componentActions,
+                    child: PopupMenuButton<_ComponentOptions>(
+                      onSelected: (value) {
+                        switch (value) {
+                          case _ComponentOptions.edit:
+                            unawaited(ComponentActions.editComponent(context, component: component));
+                          case _ComponentOptions.duplicate:
+                            unawaited(ComponentActions.duplicateComponent(context, component: component));
+                          case _ComponentOptions.replace:
+                            unawaited(ComponentActions.replaceComponent(context, component: component));
+                          case _ComponentOptions.remove:
+                            unawaited(ComponentActions.removeComponent(context, component: component));
+                        }
+                      },
+                      itemBuilder: (BuildContext context) => _ComponentOptions.values.where((option) {
+                        if (option == _ComponentOptions.replace) {
+                          final installation = appRepository.componentHierarchy.currentInstallation(component.id);
+                          return (installation is BikeInstallation || installation is ComponentInstallation) &&
+                              appSettings.enableInstallationTimeline;
+                        }
 
-                      return true;
-                    }).map((option) {
-                      return PopupMenuItem<_ComponentOptions>(
-                        value: option,
-                        child: Row(
-                          spacing: 10,
-                          children: [
-                            Icon(option.iconData, size: 20),
-                            Text(option.label),
-                          ],
-                        ),
-                      );
-                    }).toList(),
+                        return true;
+                      }).map((option) {
+                        return PopupMenuItem<_ComponentOptions>(
+                          value: option,
+                          child: Row(
+                            spacing: 10,
+                            children: [
+                              Icon(option.iconData, size: 20),
+                              Semantics(
+                                identifier: option == _ComponentOptions.duplicate ? AutomationIds.componentActionsDuplicate : null,
+                                child: Text(option.label),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
                   ),
                 ],
               ),

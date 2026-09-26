@@ -1,0 +1,13 @@
+# 01 Garage: all bikes, with the Lyrik's detail card expanded.
+appId: com.jonaskeller14.bike_setup_tracker
+---
+- runFlow: _launch.yaml
+- tapOn:
+    id: nav.bikes
+# RockShox Lyrik Ultimate on the Santa Cruz Hightower
+- tapOn:
+    id: garage.component.e47480ee-0f71-453e-bb97-61d2041d05f5
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot:
+    path: ${OUT_DIR}/01_raw

@@ -1,0 +1,22 @@
+# 02 Add Component: the Lyrik duplicated, so the form is prefilled with its
+# adjustment definitions under the "Add Component" title.
+appId: com.jonaskeller14.bike_setup_tracker
+---
+- runFlow: _launch.yaml
+- tapOn:
+    id: nav.bikes
+# RockShox Lyrik Ultimate: a single tap expands its card, which has the menu
+- tapOn:
+    id: garage.component.e47480ee-0f71-453e-bb97-61d2041d05f5
+- tapOn:
+    id: component.actions
+- tapOn:
+    id: component.actions.duplicate
+- extendedWaitUntil:
+    visible:
+      id: componentForm.save
+    timeout: 15000
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot:
+    path: ${OUT_DIR}/02_raw

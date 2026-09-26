@@ -253,13 +253,9 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
           ],
         ),
         actions: [
-          Semantics(
-            container: true,
-            identifier: AutomationIds.componentDetailsEdit,
-            child: IconButton(
-              onPressed: () => ComponentActions.editComponent(context, component: component),
-              icon: const Icon(Icons.edit),
-            ),
+          IconButton(
+            onPressed: () => ComponentActions.editComponent(context, component: component),
+            icon: const Icon(Icons.edit),
           ),
         ],
       ),

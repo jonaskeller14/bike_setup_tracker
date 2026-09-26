@@ -1,0 +1,15 @@
+# 06 Tasks: due and upcoming tasks, filtered to the Santa Cruz Hightower.
+appId: com.jonaskeller14.bike_setup_tracker
+---
+- runFlow: _launch.yaml
+- tapOn:
+    id: nav.bikes
+# Santa Cruz Hightower: double-tap sets the bike filter
+- doubleTapOn:
+    id: garage.bike.93f93d45-3a56-43ae-8936-5cfcbd768c9b
+- tapOn:
+    id: nav.tasks
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot:
+    path: ${OUT_DIR}/06_raw

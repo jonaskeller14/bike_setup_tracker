@@ -1,0 +1,33 @@
+# 07 Map: the Finale Ligure activity on the map with its activity sheet open.
+# Tiles come live from CyclOSM; TILE_WAIT_MS (set by run_android.ps1) is a
+# fixed wait for them, since nothing in the semantics tree signals "loaded".
+appId: com.jonaskeller14.bike_setup_tracker
+---
+- runFlow: _launch.yaml
+# Finale Ligure - NATO Trail
+- scrollUntilVisible:
+    element:
+      id: stravaActivity.18000000011
+    direction: DOWN
+    timeout: 60000
+- tapOn:
+    id: stravaActivity.18000000011
+- tapOn:
+    id: stravaActivity.actions
+- tapOn:
+    id: stravaActivity.viewOnMap
+- extendedWaitUntil:
+    visible:
+      id: map.focusActivity
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: never.present
+    timeout: ${TILE_WAIT_MS}
+    optional: true
+- tapOn:
+    id: map.focusActivity
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot:
+    path: ${OUT_DIR}/07_raw

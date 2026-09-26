@@ -1,0 +1,55 @@
+# 03 Add Setup: a filled-in form with tags and two changed adjustments.
+# Location and weather are fetched live; run_android.ps1 pins the emulator's
+# GPS to Finale Ligure so the place chip matches the setup name.
+appId: com.jonaskeller14.bike_setup_tracker
+---
+- runFlow: _launch.yaml
+- tapOn:
+    id: setups.add
+- extendedWaitUntil:
+    visible:
+      id: setupForm.name
+    timeout: 15000
+
+- tapOn:
+    id: setupForm.name
+- eraseText: 80
+- inputText: Finale Ligure - NATO Trail
+- tapOn:
+    id: setupForm.notes
+- inputText: Loose over hard. Slowed rebound and firmed up for the long descents.
+- hideKeyboard
+
+# Tag names are record data (not localized), so selecting by text is stable.
+- tapOn:
+    id: setupForm.addTags
+- tapOn: Finale
+- tapOn: Trip
+- pressKey: Back
+
+# Lyrik pressure (numerical field)
+- scrollUntilVisible:
+    element:
+      id: setAdjustment.22866141-fe35-4cdc-99df-6e1ba91c1033
+    direction: DOWN
+- tapOn:
+    id: setAdjustment.22866141-fe35-4cdc-99df-6e1ba91c1033
+- eraseText: 10
+- inputText: '85'
+- hideKeyboard
+# Lyrik LSC (step slider): tapping the centre moves it to mid-range
+- scrollUntilVisible:
+    element:
+      id: setAdjustment.2fae94d6-16d2-4b79-ad4b-55f6b9fa6e1d
+    direction: DOWN
+- tapOn:
+    id: setAdjustment.2fae94d6-16d2-4b79-ad4b-55f6b9fa6e1d
+
+- scrollUntilVisible:
+    element:
+      id: setupForm.name
+    direction: UP
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot:
+    path: ${OUT_DIR}/03_raw

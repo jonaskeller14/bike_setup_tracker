@@ -15,7 +15,9 @@ abstract final class AutomationIds {
   static String garageBike(String bikeId) => 'garage.bike.$bikeId';
   static String garageComponent(String componentId) => 'garage.component.$componentId';
 
-  static const componentDetailsEdit = 'componentDetails.edit';
+  static const componentActions = 'component.actions';
+  static const componentActionsDuplicate = 'component.actions.duplicate';
+
   static const componentDetailsLineChart = 'componentDetails.lineChart';
 
   static const componentFormSave = 'componentForm.save';

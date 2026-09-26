@@ -1,9 +1,10 @@
 import 'package:collection/collection.dart';
 
 import '../models/adjustment/adjustment.dart';
-import '../models/component.dart';
+import '../models/component/component.dart';
 import '../models/person.dart';
 import '../models/setup.dart';
+import 'component_hierarchy_resolver.dart';
 
 class DanglingComponentGroup {
   final Component component;
@@ -51,13 +52,20 @@ class SetupAdjustmentBreakdown {
 }
 
 class DanglingAdjustmentService {
+  static bool isInstalledAtSetup(ComponentHierarchyResolver hierarchy, Component component, Setup setup) =>
+      hierarchy.bikeAt(component.id, setup.datetimeLocal.toUtc()) == setup.bike;
+
   static SetupAdjustmentBreakdown analyzeSetup({
     required Setup setup,
     required Iterable<Component> components,
     required Iterable<Person> persons,
   }) {
-    final List<Component> bikeComponents = components
-        .where((c) => c.bikeAt(setup.datetimeLocal.toUtc()) == setup.bike)
+    final componentList = components.toList();
+    final hierarchy = ComponentHierarchyResolver({
+      for (final component in componentList) component.id: component,
+    });
+    final List<Component> bikeComponents = componentList
+        .where((c) => hierarchy.bikeAt(c.id, setup.datetimeLocal.toUtc()) == setup.bike)
         .toList();
 
     final Map<String, dynamic> danglingBikeValues = Map.from(setup.bikeAdjustmentValues);
@@ -68,7 +76,7 @@ class DanglingAdjustmentService {
     }
     final componentSplit = splitComponents(
       danglingValues: danglingBikeValues,
-      components: components,
+      components: componentList,
     );
 
     final person = persons.firstWhereOrNull((p) => p.id == setup.person);

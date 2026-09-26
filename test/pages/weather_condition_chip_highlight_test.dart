@@ -3,10 +3,10 @@ import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/context/context_weather.dart';
-import 'package:bike_setup_tracker/models/rating_entry.dart';
+import 'package:bike_setup_tracker/models/rating/rating_entry.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
-import 'package:bike_setup_tracker/pages/rating_entry_page.dart';
-import 'package:bike_setup_tracker/pages/setup_page.dart';
+import 'package:bike_setup_tracker/pages/forms/rating_entry_page.dart';
+import 'package:bike_setup_tracker/pages/forms/setup_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
@@ -49,7 +49,9 @@ void main() {
   });
 
   tearDown(() async {
-    appRepository.dispose();
+    // Closing the database right after dispose() races its fire-and-forget
+    // subscription cancellation and can hang; wait for cancellation first.
+    await appRepository.disposeAndAwaitCancellation();
     appSettings.dispose();
     await database.close();
   });

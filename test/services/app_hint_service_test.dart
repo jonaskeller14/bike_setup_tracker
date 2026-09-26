@@ -2,8 +2,8 @@ import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/app_hint.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
-import 'package:bike_setup_tracker/models/component.dart';
-import 'package:bike_setup_tracker/models/installation.dart';
+import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/app_hint_service.dart';
@@ -30,7 +30,9 @@ void main() {
   });
 
   tearDown(() async {
-    repository.dispose();
+    // Closing the database right after dispose() races its fire-and-forget
+    // subscription cancellation and can hang; wait for cancellation first.
+    await repository.disposeAndAwaitCancellation();
     settings.dispose();
     await database.close();
   });

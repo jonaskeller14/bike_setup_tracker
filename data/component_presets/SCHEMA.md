@@ -104,6 +104,8 @@ misspelling `viz:` for `visualization:` fails CI rather than being ignored.
 | `max` | step, numerical | step: **yes** · numerical: no | step: — · numerical: unbounded |
 | `step` | step | no | `1` |
 | `visualization` | step | no | `dial_ccw` |
+| `dialColor` | step | no | `blue` (`blue` \| `red` \| `green` \| `brown` \| `orange` \| `purple` \| `grey`) |
+| `dialSize` | step | no | `normal` (`normal` \| `small`) |
 | `options` | categorical | **yes** (non-empty) | — |
 | `multiSelect` | categorical | no | `false` |
 
@@ -117,6 +119,27 @@ misspelling `viz:` for `visualization:` fails CI rather than being ignored.
 | `dial_cw` | `sliderWithClockwiseDial` | Increasing value turns the dial **clockwise**, e.g. RockShox Charger from-middle adjusters where `-2` lies counterclockwise of the `0` detent. |
 | `stepper` | `minusButtonValuePlusButton` | Discrete counts, no dial — e.g. Volume Spacers. |
 | `slider` | `slider` | Plain slider, no dial. |
+
+### `dialColor` and `dialSize` (step only)
+
+Match the **physical dial knob** on the real damper — the app renders the
+adjustment's dial in that color/size so it looks like the part the rider is
+actually turning. Source these from official product photos, tuning guides or
+manuals; when a knob's color/size isn't confirmed, omit the field (defaults to
+`blue`/`normal`) rather than guessing.
+
+High-speed and low-speed circuits sharing one damper are typically the same
+color (the brand's compression color vs. its rebound color) with the
+high-speed adjuster as the larger primary dial (`normal`) and the low-speed
+adjuster as a smaller nested dial (`small`) — e.g. FOX GRIP X2:
+
+```yaml
+adjustments:
+  - { name: HSC, type: step, max: 8, notes: High-Speed Compression, dialColor: blue }
+  - { name: LSC, type: step, max: 18, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
+  - { name: HSR, type: step, max: 8, notes: High-Speed Rebound, dialColor: red }
+  - { name: LSR, type: step, max: 16, notes: Low-Speed Rebound, dialColor: red, dialSize: small }
+```
 
 ### Click ranges & counting conventions
 
@@ -223,10 +246,10 @@ generation is only worth adding when its numbers can actually be sourced.
   groups by brand + model, so the blocks merge into a single `36` row whose
   trim list holds all of them, each trim badged with its own years
   (`FOX › 36 › Factory (2021-2024)`).
-- **`year_range:` is required on any block that shares its name.** `presetKey`
-  is `type/brand/model/trim/year_range`, so the years are the only thing
-  keeping two generations of `Factory` apart. The model row shows the span
-  across generations (`2018–2026`) as its subtitle.
+- **`year_range:` is required on any block that shares its name.** It is the
+  only thing keeping two generations of `Factory` apart, both in the picker and
+  when deriving a new trim's `key:`. The model row shows the span across
+  generations (`2018–2026`) as its subtitle.
 - **Author newest generation first.** The merged trim list follows file order;
   put older generations below the current one, under a comment footer (see
   `fork/rockshox.yaml`).
@@ -241,6 +264,31 @@ generation is only worth adding when its numbers can actually be sourced.
 - **Don't inherit numbers across generations.** If the older damper's counts
   aren't published, define it with `adjustments: []`, mark the models that use
   it `complete: false`, and record the gap in the Follow-ups footer.
+
+## Trim `key:` — permanent identity
+
+Every trim carries a required `key:`. It is **persisted on every component a
+user creates from that preset** (`Component.presetKey`, plus the chosen damper
+in `Component.presetDamperKey`), which is what lets the app later offer setup
+guides and service intervals for that exact product.
+
+- **Never edit a key that has shipped.** Renaming `model:` or `trim:`, fixing a
+  typo, or extending `year_range: "2025-2026"` to `"2025-2027"` must leave the
+  key untouched — otherwise every component already saved against it is
+  orphaned. The key is authored once and then frozen.
+- **Format:** `<component_type>-<brand>-<model>-<trim>[-<first year>]`,
+  lowercase, ASCII, hyphen-separated — `fork-fox-36-factory-2025`. The year is
+  the generation's *first* year, so extending the range never changes it.
+  Accented characters are spelled out (`Öhlins` → `ohlins`).
+- **Globally unique** across all brand files; CI enforces uniqueness and shape.
+- **Splitting a generation:** the surviving block keeps its key, the new block
+  gets a fresh one.
+- **Generating one:** `dart run tool/preset_keys.dart --write` derives and
+  inserts a key for every trim that lacks one, and never touches existing keys.
+  Run it bare to check for missing or duplicate keys.
+
+Damper keys (`grip_x2`, `charger_3_1`) are a separate, file-scoped namespace and
+are also persisted, so they are frozen the same way.
 
 ## Damper definition
 
@@ -311,6 +359,7 @@ adjustments.
   wheel_size: [29, 27.5]
   trims:                      # user-facing sub-models
     - trim: Factory
+      key: fork-fox-36-factory-2025   # permanent identity — never edit (see below)
       travel_mm: [150, 160]   # offered travels
       stanchion: Kashima
       spring: Air             # informational metadata (Air | Coil)
@@ -343,6 +392,7 @@ Rate; a trim may also carry its own `spring:` for the spring **variant** name
   url: https://ridefox.com/pages/fox-dhx2
   trims:
     - trim: Factory
+      key: shock-fox-dhx2-factory-2025   # permanent identity — never edit
       stanchion: Kashima
       dampers: [vvc2]
       adjustments:

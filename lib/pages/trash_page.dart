@@ -7,10 +7,10 @@ import 'package:provider/provider.dart';
 
 import '../models/app_settings.dart';
 import '../models/bike.dart';
-import '../models/component.dart';
+import '../models/component/component.dart';
 import '../models/person.dart';
-import '../models/rating.dart';
-import '../models/rating_entry.dart';
+import '../models/rating/rating.dart';
+import '../models/rating/rating_entry.dart';
 import '../models/setup.dart';
 import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';

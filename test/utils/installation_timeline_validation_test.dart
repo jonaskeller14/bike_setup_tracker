@@ -1,4 +1,6 @@
-import 'package:bike_setup_tracker/models/installation.dart';
+import 'package:bike_setup_tracker/models/bike.dart';
+import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/utils/installation_timeline_validation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -15,9 +17,25 @@ Uninstallation uninstall(int day) => Uninstallation(
       dateTimeLocal: _utc(day).toLocal(),
     );
 
+String? validate(List<Installation> installations) =>
+    installationTimelineIssue(installations)?.message;
+
 Archival archive(int day) => Archival(
       dateTimeUTC: _utc(day),
       dateTimeLocal: _utc(day).toLocal(),
+    );
+
+ComponentInstallation installOnComponent(String parentId, int day) => ComponentInstallation(
+      parentComponentId: parentId,
+      dateTimeUTC: _utc(day),
+      dateTimeLocal: _utc(day).toLocal(),
+    );
+
+Component component(String id, List<Installation> installations) => Component(
+      id: id,
+      name: id,
+      componentType: ComponentType.other,
+      installations: installations,
     );
 
 void main() {
@@ -71,55 +89,55 @@ void main() {
     });
   });
 
-  group('validateInstallationTimeline', () {
+  group('installationTimelineIssue messages', () {
     test('rejects an empty timeline', () {
-      expect(validateInstallationTimeline([]), 'At least one entry is required');
+      expect(validate([]), 'At least one entry is required');
     });
 
     test('accepts a single entry', () {
-      expect(validateInstallationTimeline([installOn('b1', 1)]), isNull);
-      expect(validateInstallationTimeline([uninstall(1)]), isNull);
-      expect(validateInstallationTimeline([archive(1)]), isNull);
+      expect(validate([installOn('b1', 1)]), isNull);
+      expect(validate([uninstall(1)]), isNull);
+      expect(validate([archive(1)]), isNull);
     });
 
     test('accepts archival as the last entry', () {
       expect(
-        validateInstallationTimeline([installOn('b1', 1), archive(2)]),
+        validate([installOn('b1', 1), archive(2)]),
         isNull,
       );
     });
 
     test('rejects archival before another entry', () {
       expect(
-        validateInstallationTimeline([archive(1), installOn('b1', 2)]),
+        validate([archive(1), installOn('b1', 2)]),
         'Archival can only be the last entry in the timeline',
       );
     });
 
     test('rejects consecutive uninstallations', () {
       expect(
-        validateInstallationTimeline([installOn('b1', 1), uninstall(2), uninstall(3)]),
+        validate([installOn('b1', 1), uninstall(2), uninstall(3)]),
         'Cannot have consecutive uninstallations',
       );
     });
 
     test('rejects consecutive installations on the same bike', () {
       expect(
-        validateInstallationTimeline([installOn('b1', 1), installOn('b1', 2)]),
+        validate([installOn('b1', 1), installOn('b1', 2)]),
         'Cannot have consecutive installations on the same bike',
       );
     });
 
     test('accepts consecutive installations on different bikes', () {
       expect(
-        validateInstallationTimeline([installOn('b1', 1), installOn('b2', 2)]),
+        validate([installOn('b1', 1), installOn('b2', 2)]),
         isNull,
       );
     });
 
     test('rejects multiple from-beginning entries', () {
       expect(
-        validateInstallationTimeline([
+        validate([
           Installation.sinceBeginning(parent: 'b1'),
           Installation.sinceBeginning(),
         ]),
@@ -129,7 +147,7 @@ void main() {
 
     test('accepts a single from-beginning entry', () {
       expect(
-        validateInstallationTimeline([
+        validate([
           Installation.sinceBeginning(parent: 'b1'),
           uninstall(2),
         ]),
@@ -139,7 +157,7 @@ void main() {
 
     test('accepts a valid mixed timeline', () {
       expect(
-        validateInstallationTimeline([
+        validate([
           installOn('b1', 1),
           uninstall(2),
           installOn('b2', 3),
@@ -152,7 +170,7 @@ void main() {
 
     test('sorts before validating: unsorted valid timeline passes', () {
       expect(
-        validateInstallationTimeline([
+        validate([
           archive(5),
           uninstall(2),
           installOn('b2', 3),
@@ -163,10 +181,47 @@ void main() {
       );
     });
 
+    test('rejects two entries in the same minute', () {
+      final at = DateTime.utc(2026, 1, 1, 14, 32);
+      expect(
+        validate([
+          BikeInstallation(bikeId: 'b1', dateTimeUTC: at, dateTimeLocal: at.toLocal()),
+          BikeInstallation(bikeId: 'b2', dateTimeUTC: at, dateTimeLocal: at.toLocal()),
+        ]),
+        'Two entries cannot have the same date & time',
+      );
+    });
+
+    test('rejects entries that only differ by seconds', () {
+      final at = DateTime.utc(2026, 1, 1, 14, 32);
+      expect(
+        validate([
+          BikeInstallation(bikeId: 'b1', dateTimeUTC: at, dateTimeLocal: at.toLocal()),
+          BikeInstallation(
+            bikeId: 'b2',
+            dateTimeUTC: at.add(const Duration(seconds: 47)),
+            dateTimeLocal: at.add(const Duration(seconds: 47)).toLocal(),
+          ),
+        ]),
+        'Two entries cannot have the same date & time',
+        reason: 'sub-minute precision is truncated away on construction',
+      );
+    });
+
+    test('reports duplicate from-beginning entries with their own message', () {
+      expect(
+        validate([
+          Installation.sinceBeginning(parent: 'b1'),
+          Installation.sinceBeginning(parent: 'b2'),
+        ]),
+        'Multiple "From beginning" entries are not allowed',
+      );
+    });
+
     test('sorts before validating: unsorted invalid timeline is rejected', () {
       // Chronologically this is install(b1) → install(b1) → uninstall.
       expect(
-        validateInstallationTimeline([
+        validate([
           uninstall(3),
           installOn('b1', 2),
           installOn('b1', 1),
@@ -176,11 +231,206 @@ void main() {
     });
   });
 
+  group('stampInstallationNow', () {
+    final now = DateTime(2026, 1, 1, 14, 32, 47, 123);
+
+    test('truncates to the minute', () {
+      final at = stampInstallationNow([], now: now);
+      expect(at.local, DateTime(2026, 1, 1, 14, 32));
+      expect(at.utc, now.toUtc().copyWith(second: 0, millisecond: 0, microsecond: 0));
+      expect(at.utc.isUtc, isTrue);
+    });
+
+    test('moves to the next free minute when the current one is taken', () {
+      final taken = Uninstallation(dateTimeUTC: now.toUtc(), dateTimeLocal: now);
+      final at = stampInstallationNow([taken], now: now);
+
+      expect(at.local, DateTime(2026, 1, 1, 14, 33));
+      expect(at.utc, taken.dateTimeUTC.add(const Duration(minutes: 1)));
+    });
+
+    test('keeps moving past a run of taken minutes', () {
+      final entries = [
+        Uninstallation(dateTimeUTC: now.toUtc(), dateTimeLocal: now),
+        BikeInstallation(
+          bikeId: 'b1',
+          dateTimeUTC: now.toUtc().add(const Duration(minutes: 1)),
+          dateTimeLocal: now.add(const Duration(minutes: 1)),
+        ),
+      ];
+      final at = stampInstallationNow(entries, now: now);
+
+      expect(at.local, DateTime(2026, 1, 1, 14, 34));
+      expect(isValidInstallationTimeline([
+        ...entries,
+        Uninstallation(dateTimeUTC: at.utc, dateTimeLocal: at.local),
+      ]), isTrue);
+    });
+
+    test('ignores entries in other minutes', () {
+      final other = Uninstallation(
+        dateTimeUTC: now.toUtc().add(const Duration(minutes: 5)),
+        dateTimeLocal: now.add(const Duration(minutes: 5)),
+      );
+      expect(stampInstallationNow([other], now: now).local, DateTime(2026, 1, 1, 14, 32));
+    });
+  });
+
+  group('installationTimelineIssue', () {
+    test('points at both parents of consecutive uninstallations, by input index', () {
+      final issue = installationTimelineIssue([
+        uninstall(3),
+        installOn('b1', 1),
+        uninstall(2),
+      ]);
+
+      expect(issue!.message, 'Cannot have consecutive uninstallations');
+      expect(issue.parentIndices, {0, 2});
+      expect(issue.dateTimeIndices, isEmpty);
+    });
+
+    test('points at both parents of consecutive installations on the same bike', () {
+      final issue = installationTimelineIssue([installOn('b1', 1), installOn('b1', 2)]);
+
+      expect(issue!.parentIndices, {0, 1});
+      expect(issue.dateTimeIndices, isEmpty);
+    });
+
+    test('points at the parent of a non-final archival, by input index', () {
+      final issue = installationTimelineIssue([installOn('b1', 5), archive(1)]);
+
+      expect(issue!.message, 'Archival can only be the last entry in the timeline');
+      expect(issue.parentIndices, {1});
+    });
+
+    test('points at the date & time of every entry sharing an instant', () {
+      final issue = installationTimelineIssue([
+        installOn('b1', 1),
+        installOn('b2', 1),
+        installOn('b3', 1),
+      ]);
+
+      expect(issue!.message, 'Two entries cannot have the same date & time');
+      expect(issue.dateTimeIndices, {0, 1, 2});
+      expect(issue.parentIndices, isEmpty);
+    });
+
+    test('points at the date & time of every "From beginning" entry', () {
+      final issue = installationTimelineIssue([
+        Installation.sinceBeginning(parent: 'b1'),
+        Installation.sinceBeginning(parent: 'b2'),
+      ]);
+
+      expect(issue!.message, 'Multiple "From beginning" entries are not allowed');
+      expect(issue.dateTimeIndices, {0, 1});
+    });
+
+    test('highlights nothing for an empty timeline', () {
+      final issue = installationTimelineIssue([]);
+
+      expect(issue!.dateTimeIndices, isEmpty);
+      expect(issue.parentIndices, isEmpty);
+    });
+
+    test('returns null for a valid timeline', () {
+      expect(installationTimelineIssue([installOn('b1', 1), uninstall(2)]), isNull);
+    });
+  });
+
   group('isValidInstallationTimeline', () {
-    test('mirrors validateInstallationTimeline', () {
+    test('mirrors installationTimelineIssue', () {
       expect(isValidInstallationTimeline([installOn('b1', 1)]), isTrue);
       expect(isValidInstallationTimeline([]), isFalse);
       expect(isValidInstallationTimeline([archive(1), uninstall(2)]), isFalse);
+    });
+  });
+  group('hierarchy issues', () {
+    test('rejects a component installed on itself', () {
+      final issue = installationTimelineIssue(
+        [installOnComponent('tire', 1)],
+        componentId: 'tire',
+        components: {'tire': component('tire', [installOnComponent('tire', 1)])},
+      );
+
+      expect(issue?.message, 'A component cannot be installed on itself');
+      expect(issue?.parentIndices, {0});
+    });
+
+    test('rejects a loop closed through an ancestor', () {
+      // wheel already sits on rim, so putting rim on wheel closes the loop.
+      final issue = installationTimelineIssue(
+        [installOnComponent('wheel', 2)],
+        componentId: 'rim',
+        components: {
+          'wheel': component('wheel', [installOnComponent('rim', 1)]),
+        },
+      );
+
+      expect(issue?.message, 'This installation creates a loop of components');
+      expect(issue?.parentIndices, {0});
+    });
+
+    test('accepts nesting that does not loop back', () {
+      final issue = installationTimelineIssue(
+        [installOnComponent('wheel', 2)],
+        componentId: 'tire',
+        components: {
+          'wheel': component('wheel', [installOn('bike', 1)]),
+        },
+      );
+
+      expect(issue, isNull);
+    });
+
+    test('keeps an unknown parent legal', () {
+      final issue = installationTimelineIssue(
+        [installOnComponent('missing-wheel', 1)],
+        componentId: 'tire',
+        components: const {},
+      );
+
+      expect(issue, isNull);
+    });
+
+    test('terminates on a pre-existing loop it is not part of', () {
+      final issue = installationTimelineIssue(
+        [installOnComponent('a', 3)],
+        componentId: 'tire',
+        components: {
+          'a': component('a', [installOnComponent('b', 1)]),
+          'b': component('b', [installOnComponent('a', 1)]),
+        },
+      );
+
+      expect(issue, isNull);
+    });
+
+    test('runs only the local checks when no hierarchy is supplied', () {
+      expect(installationTimelineIssue([installOnComponent('tire', 1)]), isNull);
+    });
+  });
+  group('deleted bike entries', () {
+    test('rejects an entry whose bike is gone', () {
+      final issue = installationTimelineIssue(
+        [installOn('sold-bike', 1)],
+        bikes: const {},
+      );
+
+      expect(issue?.message, 'This entry is installed on a bike that no longer exists');
+      expect(issue?.parentIndices, {0});
+    });
+
+    test('accepts an entry whose bike is present', () {
+      final issue = installationTimelineIssue(
+        [installOn('b1', 1)],
+        bikes: {'b1': Bike(id: 'b1', name: 'Trail', person: null)},
+      );
+
+      expect(issue, isNull);
+    });
+
+    test('ignores bikes entirely when none are supplied', () {
+      expect(installationTimelineIssue([installOn('sold-bike', 1)]), isNull);
     });
   });
 }

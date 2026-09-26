@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../theme.dart';
+import 'task_association.dart';
 import 'task_threshold/task_threshold.dart';
 
 part 'task_priority.dart';
@@ -16,8 +17,7 @@ class TaskRule {
   final String? notes;
   final TaskPriority priority;
   final Set<String> tags;
-  final String? componentId;
-  final String? bikeId;
+  final TaskAssociation association;
   final TaskThreshold? interval;
   final TaskThreshold? delay;
   final bool repeat;
@@ -30,21 +30,19 @@ class TaskRule {
     this.notes,
     this.priority = TaskPriority.medium,
     required this.tags,
-    this.componentId,
-    this.bikeId,
+    this.association = const GeneralTaskAssociation(),
     this.interval,
     this.delay,
     this.repeat = true,
   }) : id = id ?? const Uuid().v4(),
       isDeleted = isDeleted ?? false,
       lastModified = lastModified?.toUtc() ?? DateTime.now().toUtc() {
-    assert(interval?.requiresActivityData != true || componentId != null || bikeId != null,
-      'Ride-based intervals require at least a componentId or a bikeId to measure against');
-    assert(componentId == null || bikeId == null, 'Cannot link to both a component and a bike');
+    assert(interval?.requiresActivityData != true || association is! GeneralTaskAssociation,
+      'Ride-based intervals require a component or a bike to measure against');
   }
 
   Map<String, dynamic> toJson() => {
-    'version': 1,
+    'version': 2,
     'id': id,
     "isDeleted": isDeleted,
     "lastModified": lastModified.toUtc().toIso8601String(),
@@ -52,8 +50,7 @@ class TaskRule {
     'notes': notes,
     'priority': priority.toString(),
     'tags': tags.toList(),
-    'componentId': componentId,
-    'bikeId': bikeId,
+    'association': association.toJson(),
     'interval': interval?.toJson(),
     'delay': delay?.toJson(),
     'repeat': repeat,
@@ -74,13 +71,36 @@ class TaskRule {
             orElse: () => TaskPriority.medium,
           ),
           tags: (json['tags'] as List?)?.map((item) => item as String).toSet() ?? <String>{},
-          componentId: json["componentId"] as String?,
-          bikeId: json["bikeId"] as String?,
+          association: TaskAssociation.fromIds(
+            componentId: json["componentId"] as String?,
+            bikeId: json["bikeId"] as String?,
+          ),
           interval: json["interval"] != null 
               ? TaskThreshold.fromJson(json["interval"] as Map<String, dynamic>) 
               : null,
           delay: json["delay"] != null 
               ? TaskThreshold.fromJson(json["delay"] as Map<String, dynamic>) 
+              : null,
+          repeat: json["repeat"] as bool? ?? true,
+        );
+      case 2:
+        return TaskRule(
+          id: json["id"] as String,
+          isDeleted: json["isDeleted"] as bool,
+          lastModified: DateTime.parse(json["lastModified"] as String),
+          name: json["name"] as String,
+          notes: json["notes"] as String?,
+          priority: TaskPriority.values.firstWhere(
+            (p) => p.toString() == (json['priority'] as String?),
+            orElse: () => TaskPriority.medium,
+          ),
+          tags: (json['tags'] as List?)?.map((item) => item as String).toSet() ?? <String>{},
+          association: TaskAssociation.fromJson(json["association"] as Map<String, dynamic>),
+          interval: json["interval"] != null
+              ? TaskThreshold.fromJson(json["interval"] as Map<String, dynamic>)
+              : null,
+          delay: json["delay"] != null
+              ? TaskThreshold.fromJson(json["delay"] as Map<String, dynamic>)
               : null,
           repeat: json["repeat"] as bool? ?? true,
         );
@@ -100,8 +120,7 @@ class TaskRule {
         notes == other.notes &&
         priority == other.priority &&
         setEquals(tags, other.tags) &&
-        componentId == other.componentId &&
-        bikeId == other.bikeId &&
+        association == other.association &&
         interval == other.interval &&
         delay == other.delay &&
         repeat == other.repeat;
@@ -117,8 +136,7 @@ class TaskRule {
       notes,
       priority,
       tags,
-      componentId,
-      bikeId,
+      association,
       interval,
       delay,
       repeat,
@@ -131,8 +149,7 @@ class TaskRule {
       notes: notes,
       priority: priority,
       tags: tags,
-      componentId: componentId,
-      bikeId: bikeId,
+      association: association,
       interval: interval,
       delay: delay,
       repeat: repeat,
@@ -147,8 +164,7 @@ class TaskRule {
     Object? notes = const _Sentinel(),
     Object? priority = const _Sentinel(),
     Object? tags = const _Sentinel(),
-    Object? componentId = const _Sentinel(),
-    Object? bikeId = const _Sentinel(),
+    Object? association = const _Sentinel(),
     Object? interval = const _Sentinel(),
     Object? delay = const _Sentinel(),
     Object? repeat = const _Sentinel(),
@@ -175,12 +191,9 @@ class TaskRule {
       tags: tags is _Sentinel
           ? this.tags
           : (tags as Set<String>),
-      componentId: componentId is _Sentinel
-          ? this.componentId
-          : (componentId as String?),
-      bikeId: bikeId is _Sentinel
-          ? this.bikeId
-          : (bikeId as String?),
+      association: association is _Sentinel
+          ? this.association
+          : (association as TaskAssociation),
       interval: interval is _Sentinel
           ? this.interval
           : (interval as TaskThreshold?),

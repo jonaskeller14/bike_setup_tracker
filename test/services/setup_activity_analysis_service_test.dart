@@ -1,7 +1,7 @@
 import 'package:bike_setup_tracker/database/adjustment_value_codec.dart';
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
-import 'package:bike_setup_tracker/models/component.dart';
+import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:bike_setup_tracker/services/setup_activity_analysis_service.dart';
 import 'package:drift/drift.dart';
@@ -151,6 +151,19 @@ void main() {
     );
     await settle();
     expect(await service.getSetupActivityCounts(), {'setup': 0});
+  });
+
+  test('reports when counts are loaded and resets on invalidation', () async {
+    expect(service.setupActivityCountsLoaded, isFalse);
+    await service.getSetupActivityCounts();
+    expect(service.setupActivityCountsLoaded, isTrue);
+    expect(service.setupActivityCountsFailed, isFalse);
+
+    await insertActivity(2);
+    await settle();
+    expect(service.setupActivityCountsLoaded, isFalse);
+    await service.getSetupActivityCounts();
+    expect(service.setupActivityCountsLoaded, isTrue);
   });
 
   test('tracks full-database activity existence transitions', () async {

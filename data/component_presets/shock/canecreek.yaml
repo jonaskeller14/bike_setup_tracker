@@ -30,6 +30,8 @@ sources:
   - https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DBKitsuma-Manual_2022_02_25_1_c25c4778-7d40-4977-a021-ac43a3c30070.pdf
   - https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB_owners-manual_2014_v11-web_8703fe9e-d4d7-4766-b7db-3350db90bbfb.pdf
   - https://cdn.shopify.com/s/files/1/0579/5987/4639/files/tfg_english_30a0cfe9-1830-4f4f-8436-09f3bfd14390.pdf
+  - https://singletrackworld.com/2020/09/your-suspension-is-set-up-wrong-cane-creeks-kitsuma-is-here-to-help-that/
+  - https://www.pinkbike.com/news/Cane-Creek-DBair-CS-Tested-2013.html
 updated: 2026-09-10
 # Every click/turn count below is read off the "Damper Adjustments" table in
 # the relevant generation's official Cane Creek instruction manual (each
@@ -54,9 +56,9 @@ dampers:
       - Low-speed adjusters run 25 clicks; the high-speed adjusters are continuous, 4.5 turns end to end
       - Climb Switch lever with a 3mm adjustment tool nested inside it
     adjustments:
-      - { name: LSC, type: step, max: 25, notes: Low-Speed Compression }
+      - { name: LSC, type: step, max: 25, notes: Low-Speed Compression, dialColor: orange, dialSize: small }
       - { name: HSC, type: numerical, unit: turns, min: 0, max: 4.5, notes: "High-Speed Compression; Continuous (no clicks); counted from fully closed" }
-      - { name: LSR, type: step, max: 25, notes: Low-Speed Rebound }
+      - { name: LSR, type: step, max: 25, notes: Low-Speed Rebound, dialColor: orange, dialSize: small }
       - { name: HSR, type: numerical, unit: turns, min: 0, max: 4.5, notes: "High-Speed Rebound; Continuous (no clicks); counted from fully closed" }
       - { name: Climb Switch, type: categorical, options: [Open, Climb] }
     valves: twin-tube; 2 high-speed + 2 low-speed damping circuits
@@ -75,10 +77,10 @@ dampers:
       - 11 positions on each of the four adjusters
       - Three-position Climb Switch: Open, Climb (closes the low-speed circuit) and Firm (closes both)
     adjustments:
-      - { name: LSC, type: step, max: 11, notes: Low-Speed Compression }
-      - { name: HSC, type: step, max: 11, notes: High-Speed Compression }
-      - { name: LSR, type: step, max: 11, notes: Low-Speed Rebound }
-      - { name: HSR, type: step, max: 11, notes: High-Speed Rebound }
+      - { name: LSC, type: step, max: 11, notes: Low-Speed Compression, dialColor: grey }
+      - { name: HSC, type: step, max: 11, notes: High-Speed Compression, dialColor: grey }
+      - { name: LSR, type: step, max: 11, notes: Low-Speed Rebound, dialColor: grey }
+      - { name: HSR, type: step, max: 11, notes: High-Speed Rebound, dialColor: grey }
       - { name: Climb Switch, type: categorical, options: [Open, Climb, Firm] }
     source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/Kitsuma_Manual_2025_04_01.pdf
     note: >-
@@ -96,9 +98,9 @@ dampers:
       - 12 positions of Low-Speed Compression, 15 of rebound, and one full turn of High-Speed Compression
       - Two-position Climb Switch with a 3mm tool nested in the lever
     adjustments:
-      - { name: LSC, type: step, max: 12, notes: Low-Speed Compression }
+      - { name: LSC, type: step, max: 12, notes: Low-Speed Compression, dialColor: orange, dialSize: small }
       - { name: HSC, type: numerical, unit: turns, min: 0, max: 1, notes: "High-Speed Compression; Continuous (no clicks); counted from fully closed" }
-      - { name: Rebound, type: step, max: 15, notes: Low-Speed Rebound }
+      - { name: Rebound, type: step, max: 15, notes: Low-Speed Rebound, dialColor: orange, dialSize: small }
       - { name: Climb Switch, type: categorical, options: [Open, Climb] }
     source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/Tigon_Manual_2025_04_01.pdf
     note: >-
@@ -134,10 +136,10 @@ dampers:
       - 11 positions of low-speed adjustment per circuit, 13 positions of high-speed
       - Three-position Climb Switch: Open, Climb (closes the low-speed circuit) and Firm (closes both)
     adjustments:
-      - { name: LSC, type: step, max: 11, notes: Low-Speed Compression }
-      - { name: HSC, type: step, max: 13, notes: High-Speed Compression }
-      - { name: LSR, type: step, max: 11, notes: Low-Speed Rebound }
-      - { name: HSR, type: step, max: 13, notes: High-Speed Rebound }
+      - { name: LSC, type: step, max: 11, notes: Low-Speed Compression, dialColor: grey }
+      - { name: HSC, type: step, max: 13, notes: High-Speed Compression, dialColor: grey }
+      - { name: LSR, type: step, max: 11, notes: Low-Speed Rebound, dialColor: grey }
+      - { name: HSR, type: step, max: 13, notes: High-Speed Rebound, dialColor: grey }
       - { name: Climb Switch, type: categorical, options: [Open, Climb, Firm] }
     source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DBKitsuma-Manual_2022_02_25_1_c25c4778-7d40-4977-a021-ac43a3c30070.pdf
     note: >-
@@ -153,9 +155,9 @@ dampers:
       - Low-speed compression and rebound run 25 clicks each
       - High-speed compression and rebound are continuous, 4 turns end to end
     adjustments:
-      - { name: LSC, type: step, max: 25, notes: Low-Speed Compression }
+      - { name: LSC, type: step, max: 25, notes: Low-Speed Compression, dialColor: orange }
       - { name: HSC, type: numerical, unit: turns, min: 0, max: 4, notes: "High-Speed Compression; Continuous (no clicks); counted from fully closed" }
-      - { name: LSR, type: step, max: 25, notes: Low-Speed Rebound }
+      - { name: LSR, type: step, max: 25, notes: Low-Speed Rebound, dialColor: orange }
       - { name: HSR, type: numerical, unit: turns, min: 0, max: 4, notes: "High-Speed Rebound; Continuous (no clicks); counted from fully closed" }
     source:
       - https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB_owners-manual_2014_v11-web_8703fe9e-d4d7-4766-b7db-3350db90bbfb.pdf
@@ -173,9 +175,9 @@ dampers:
       - Low-speed compression and rebound run 25 clicks each; high-speed adjusters are continuous, 4 turns end to end
       - Flipping the Climb Switch on firms up the low-speed circuits for climbing
     adjustments:
-      - { name: LSC, type: step, max: 25, notes: Low-Speed Compression }
+      - { name: LSC, type: step, max: 25, notes: Low-Speed Compression, dialColor: grey, dialSize: small }
       - { name: HSC, type: numerical, unit: turns, min: 0, max: 4, notes: "High-Speed Compression; Continuous (no clicks); counted from fully closed" }
-      - { name: LSR, type: step, max: 25, notes: Low-Speed Rebound }
+      - { name: LSR, type: step, max: 25, notes: Low-Speed Rebound, dialColor: grey, dialSize: small }
       - { name: HSR, type: numerical, unit: turns, min: 0, max: 4, notes: "High-Speed Rebound; Continuous (no clicks); counted from fully closed" }
       - { name: Climb Switch, type: categorical, options: ["Off", "On"], notes: "On engages climb mode (firmer low-speed damping)" }
     source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB_owners-manual_2014_v11-web_8703fe9e-d4d7-4766-b7db-3350db90bbfb.pdf
@@ -197,12 +199,14 @@ shocks:
     url: https://www.canecreek.com/products/air-il
     trims:
       - trim: Standard
+        key: shock-cane-creek-air-il-standard-2025
         mount: [Standard]
         stroke_mm: ["190x40", "190x42.5", "190x45", "210x50", "210x52.5", "210x55"]
         dampers: [il_twin_tube]
         adjustments: &il_air_spring
           - { name: Pressure, type: numerical, unit: psi, min: 50, max: 350, notes: "50 psi minimum, 350 psi maximum; Cane Creek recommends 25-35% sag" }
       - trim: Trunnion
+        key: shock-cane-creek-air-il-trunnion-2025
         mount: [Trunnion]
         stroke_mm: ["165x40", "165x42.5", "165x45", "185x50", "185x52.5", "185x55"]
         dampers: [il_twin_tube]
@@ -216,6 +220,7 @@ shocks:
     url: https://www.canecreek.com/products/coil-il
     trims:
       - trim: Standard
+        key: shock-cane-creek-coil-il-standard-2025
         mount: [Standard]
         stroke_mm: ["190x40", "190x42.5", "190x45", "210x50", "210x52.5", "210x55"]
         dampers: [il_twin_tube]
@@ -223,6 +228,7 @@ shocks:
           - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0, notes: Cane Creek VALT linear or progressive spring sold separately — see Cane Creek's spring-rate guide }
           - { name: Preload, type: step, min: 3, max: 18, visualization: stepper, unit: clicks, notes: "Detented preload collar, 3 clicks per full turn. Keep at least 1 turn (3 clicks) engaged; 6 turns (18 clicks) is the maximum." }
       - trim: Trunnion
+        key: shock-cane-creek-coil-il-trunnion-2025
         mount: [Trunnion]
         stroke_mm: ["165x40", "165x42.5", "165x45", "185x50", "185x52.5", "185x55"]
         dampers: [il_twin_tube]
@@ -239,12 +245,14 @@ shocks:
     url: https://www.canecreek.com/products/kitsuma-g2-air
     trims:
       - trim: Standard
+        key: shock-cane-creek-kitsuma-standard-2025
         mount: [Standard]
         stroke_mm: ["210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x62.5", "230x65", "250x70", "250x75"]
         dampers: [kitsuma_g2]
         adjustments: &kitsuma_g2_air_spring
           - { name: Pressure, type: numerical, unit: psi, min: 50, max: 300, notes: "50 psi minimum, 300 psi maximum; Cane Creek recommends 25-35% sag" }
       - trim: Trunnion
+        key: shock-cane-creek-kitsuma-trunnion-2025
         mount: [Trunnion]
         stroke_mm: ["185x50", "185x52.5", "185x55", "205x57.5", "205x60", "205x62.5", "205x65", "225x70", "225x75"]
         dampers: [kitsuma_g2]
@@ -258,6 +266,7 @@ shocks:
     url: https://www.canecreek.com/products/kisuma-g2-coil
     trims:
       - trim: Standard
+        key: shock-cane-creek-kitsuma-coil-standard-2025
         mount: [Standard]
         stroke_mm: ["210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x62.5", "230x65", "250x70", "250x72.5", "250x75"]
         dampers: [kitsuma_g2]
@@ -265,6 +274,7 @@ shocks:
           - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0, notes: Coil spring sold separately — see Cane Creek's VALT spring-rate guide }
           - { name: Preload, type: numerical, unit: turns, min: 1, max: 6, notes: "Keep at least 1 full turn of preload engaged; 6 turns is the maximum" }
       - trim: Trunnion
+        key: shock-cane-creek-kitsuma-coil-trunnion-2025
         mount: [Trunnion]
         stroke_mm: ["185x50", "185x52.5", "185x55", "205x57.5", "205x60", "205x62.5", "205x65", "225x70", "225x75"]
         dampers: [kitsuma_g2]
@@ -278,6 +288,7 @@ shocks:
     url: https://www.canecreek.com/products/tigon
     trims:
       - trim: Standard
+        key: shock-cane-creek-tigon-standard-2025
         mount: [Standard, Trunnion]
         stroke_mm: ["185x50", "185x52.5", "185x55", "205x60", "205x62.5", "205x65", "210x50", "210x52.5", "210x55", "230x60", "230x62.5", "230x65"]
         dampers: [tigon_damper]
@@ -300,6 +311,7 @@ shocks:
     # publishes a separate trunnion 100-hour service guide for this shock.
     trims:
       - trim: Standard
+        key: shock-cane-creek-db-air-il-g1-standard
         mount: [Standard, Trunnion]
         dampers: [il_twin_tube_g1]
         adjustments:
@@ -314,6 +326,7 @@ shocks:
     url: https://www.canecreek.com/pages/legacy-products-product-support
     trims:
       - trim: Standard
+        key: shock-cane-creek-dbcoil-il-g1-standard
         mount: [Standard, Trunnion]
         dampers: [il_twin_tube_g1]
         adjustments:
@@ -328,6 +341,7 @@ shocks:
     # Manual: cdn.shopify.com/.../DBKitsuma-Manual_2022_02_25_1_...pdf
     trims:
       - trim: Standard
+        key: shock-cane-creek-db-kitsuma-air-g1-standard
         mount: [Standard, Trunnion]
         dampers: [kitsuma_g1]
         adjustments:
@@ -340,6 +354,7 @@ shocks:
     url: https://www.canecreek.com/blogs/journal/introducing-db-kitsuma
     trims:
       - trim: Standard
+        key: shock-cane-creek-db-kitsuma-coil-g1-standard
         mount: [Standard, Trunnion]
         dampers: [kitsuma_g1]
         adjustments:
@@ -356,6 +371,7 @@ shocks:
     # 2014 introduction per canecreek.com's own company-history journal post.
     trims:
       - trim: Standard
+        key: shock-cane-creek-db-inline-standard-2014
         mount: [Standard]
         dampers: [db_classic_cs]
         adjustments:
@@ -371,6 +387,7 @@ shocks:
     url: https://www.canecreek.com/pages/legacy-products-product-support
     trims:
       - trim: Standard
+        key: shock-cane-creek-db-air-cs-standard
         mount: [Standard]
         dampers: [db_classic_cs]
         adjustments:
@@ -386,6 +403,7 @@ shocks:
     url: https://www.canecreek.com/pages/legacy-products-product-support
     trims:
       - trim: Standard
+        key: shock-cane-creek-dbcoil-standard
         mount: [Standard]
         dampers: [db_classic]
         adjustments:

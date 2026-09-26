@@ -5,21 +5,29 @@ import 'package:timelines_plus/timelines_plus.dart';
 
 import '../models/app_settings.dart';
 import '../models/bike.dart';
-import '../models/component.dart';
-import '../models/installation.dart';
+import '../models/component/component.dart';
+import '../models/component/component_ancestor.dart';
+import '../models/component/installation.dart';
 import '../models/task/task_entry.dart';
+import '../services/component_hierarchy_resolver.dart';
+import 'component_ancestor_display.dart';
+import 'component_ancestors_column.dart';
 import 'sheets/task_rule_sheet.dart';
 
 class DisplayInstallationTimeline extends StatelessWidget {
   final Component component;
   final Map<String, Bike> bikes;
+  final Map<String, Component> components;
   final Iterable<TaskEntry> taskEntries;
+  final ComponentHierarchyResolver? hierarchy;
 
   const DisplayInstallationTimeline({
     super.key,
     required this.component,
     required this.bikes,
+    required this.components,
     this.taskEntries = const [],
+    this.hierarchy,
   });
 
   @override
@@ -29,14 +37,21 @@ class DisplayInstallationTimeline extends StatelessWidget {
 
     final appSettings = context.watch<AppSettings>();
 
+    final hierarchy = this.hierarchy;
+    int tieOrder(_TimelineItem item) => switch (item) {
+          _InstallationItem() => 0,
+          _DerivedPlacementItem() => 1,
+          _TaskItem() => 2,
+        };
     final items = <_TimelineItem>[
       ...component.installations.map((i) => _InstallationItem(i)),
+      if (hierarchy != null) ...hierarchy.inheritedRootChanges(component.id).map((c) => _DerivedPlacementItem(c)),
       ...taskEntries.map((te) => _TaskItem(te)),
     ]..sort((a, b) {
         final byDate = a.dateTimeUTC.compareTo(b.dateTimeUTC);
         if (byDate != 0) return byDate;
         // On ties, apply installation state transitions before task markers.
-        return (a is _InstallationItem ? 0 : 1).compareTo(b is _InstallationItem ? 0 : 1);
+        return tieOrder(a).compareTo(tieOrder(b));
       });
 
     // Precompute the prevailing installation state of the segment *after* each
@@ -46,19 +61,26 @@ class DisplayInstallationTimeline extends StatelessWidget {
     final installedAfter = <bool>[];
     for (final item in items) {
       if (item is _InstallationItem) currentParent = item.installation.parent;
-      installedAfter.add(currentParent != null);
+      installedAfter.add(
+        hierarchy != null ? hierarchy.bikeAt(component.id, item.dateTimeUTC) != null : currentParent != null,
+      );
     }
+
+    // Pre-blended: translucent dashes double up where neighbouring connectors' square caps overlap.
+    final connectorColor = Color.alphaBlend(colorScheme.secondary.withValues(alpha: 0.6), colorScheme.surface);
 
     return FixedTimeline.tileBuilder(
       theme: TimelineThemeData(
         nodePosition: 0,
+        // Paints the indicator above the connectors so dash caps can't bleed over the dot.
+        nodeItemOverlap: true,
         indicatorTheme: IndicatorThemeData(
           size: 15.0,
           color: colorScheme.secondary,
         ),
         connectorTheme: ConnectorThemeData(
           thickness: 3.0,
-          color: colorScheme.secondary.withValues(alpha: 0.6),
+          color: connectorColor,
         ),
       ),
       builder: TimelineTileBuilder.connected(
@@ -71,6 +93,16 @@ class DisplayInstallationTimeline extends StatelessWidget {
                 installation: item.installation,
                 appSettings: appSettings,
                 bikes: bikes,
+                components: components,
+                ancestors: hierarchy != null && item.installation is ComponentInstallation
+                    ? hierarchy.ancestorsAt(component.id, item.installation.dateTimeUTC).skip(1).toList()
+                    : const [],
+              ),
+            _DerivedPlacementItem() => _DerivedPlacementContents(
+                change: item.change,
+                appSettings: appSettings,
+                bikes: bikes,
+                components: components,
               ),
             _TaskItem() => _TaskEntryContents(
                 entry: item.taskEntry,
@@ -87,9 +119,15 @@ class DisplayInstallationTimeline extends StatelessWidget {
                 backgroundColor: colorScheme.surface,
                 child: switch (item.installation) {
                   BikeInstallation() => null,
+                  ComponentInstallation() => null,
                   Uninstallation() => Icon(Icons.close, size: 10, color: colorScheme.secondary),
                   Archival() => Icon(Icons.close, size: 10, color: colorScheme.secondary),
                 },
+              ),
+            _DerivedPlacementItem() => OutlinedDotIndicator(
+                borderWidth: 2.5,
+                color: connectorColor,
+                backgroundColor: colorScheme.surface,
               ),
             _TaskItem() => SizedBox(
                 width: 15,
@@ -118,11 +156,15 @@ class _InstallationContents extends StatelessWidget {
   final Installation installation;
   final AppSettings appSettings;
   final Map<String, Bike> bikes;
+  final Map<String, Component> components;
+  final List<ComponentAncestor> ancestors;
 
   const _InstallationContents({
     required this.installation,
     required this.appSettings,
     required this.bikes,
+    required this.components,
+    this.ancestors = const [],
   });
 
   @override
@@ -133,12 +175,30 @@ class _InstallationContents extends StatelessWidget {
 
     final bikeName = switch (installation) {
       BikeInstallation() => bikes[installation.parent]?.name ?? 'BIKE NOT FOUND',
+      ComponentInstallation(:final parentComponentId) =>
+        components[parentComponentId]?.name ?? 'COMPONENT NOT FOUND',
       Uninstallation() => 'Uninstalled',
       Archival() => 'Archived',
     };
     final dateStr = installation.dateTimeUTC.millisecondsSinceEpoch == 0
         ? 'From beginning'
         : "${DateFormat(appSettings.dateFormat).format(installation.dateTimeLocal)} • ${DateFormat(appSettings.timeFormat).format(installation.dateTimeLocal)}";
+    final titleColor = switch (installation) {
+      BikeInstallation() => bikes[installation.parent]?.name == null
+          ? colorScheme.error
+          : colorScheme.onSurface,
+      ComponentInstallation(:final parentComponentId) =>
+        components[parentComponentId] == null
+            ? colorScheme.error
+            : colorScheme.onSurface,
+      Uninstallation() || Archival() => colorScheme.onSurfaceVariant,
+    };
+    final iconData = switch (installation) {
+      BikeInstallation() => Bike.iconData,
+      ComponentInstallation(:final parentComponentId) =>
+        components[parentComponentId]?.componentType.getIconData() ?? Component.iconData,
+      Uninstallation() || Archival() => null,
+    };
 
     return Container(
       padding: const EdgeInsets.only(left: 12, top: 12, bottom: 12),
@@ -146,21 +206,81 @@ class _InstallationContents extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            bikeName,
-            style: textTheme.titleMedium?.copyWith(
-              fontWeight: installation is BikeInstallation ? FontWeight.bold : FontWeight.normal,
-              color: switch (installation) {
-                BikeInstallation() => bikes[installation.parent]?.name == null
-                    ? colorScheme.error
-                    : colorScheme.onSurface,
-                Uninstallation() || Archival() => colorScheme.onSurfaceVariant,
-              },
-            ),
+          _DateLabel(dateStr),
+          Row(
+            spacing: 6,
+            children: [
+              if (iconData != null) Icon(iconData, size: 18, color: titleColor),
+              Flexible(
+                child: Text(
+                  bikeName,
+                  style: textTheme.titleMedium?.copyWith(
+                    fontWeight: installation.parent != null ? FontWeight.bold : FontWeight.normal,
+                    color: titleColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (ancestors.isNotEmpty) ComponentAncestorsColumn(ancestors: ancestors, bikes: bikes),
+        ],
+      ),
+    );
+  }
+}
+
+class _DerivedPlacementContents extends StatelessWidget {
+  final InheritedRootChange change;
+  final AppSettings appSettings;
+  final Map<String, Bike> bikes;
+  final Map<String, Component> components;
+
+  const _DerivedPlacementContents({
+    required this.change,
+    required this.appSettings,
+    required this.bikes,
+    required this.components,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
+    final root = change.root;
+    final color = root.isMissing(bikes) ? colorScheme.error : colorScheme.onSurfaceVariant;
+    final parentName = components[change.viaParentId]?.name ?? 'COMPONENT NOT FOUND';
+    final dateTimeLocal = change.cause.dateTimeLocal;
+    final dateStr =
+        "${DateFormat(appSettings.dateFormat).format(dateTimeLocal)} • ${DateFormat(appSettings.timeFormat).format(dateTimeLocal)}";
+
+    return Container(
+      padding: const EdgeInsets.only(left: 12, top: 12, bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _DateLabel(dateStr),
+          Row(
+            spacing: 4,
+            children: [
+              Icon(root.iconData, size: 16, color: color),
+              Flexible(
+                child: Text(
+                  root.label(bikes),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: textTheme.titleSmall?.copyWith(color: color),
+                ),
+              ),
+            ],
           ),
           Text(
-            dateStr,
-            style: textTheme.bodySmall?.copyWith(color: colorScheme.secondary),
+            "via $parentName",
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
           ),
         ],
       ),
@@ -199,20 +319,47 @@ class _TaskEntryContents extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
+            _DateLabel(dateStr),
             Text(
               entry.name,
               style: textTheme.titleSmall?.copyWith(
                 color: colorScheme.onSurface,
               ),
             ),
-            Text(
-              dateStr,
-              style: textTheme.bodySmall?.copyWith(color: colorScheme.secondary),
-            ),
           ],
         ),
       ),
     );
+  }
+}
+
+class _DateLabel extends StatelessWidget {
+  final String text;
+  static const showBadge = false;
+
+  const _DateLabel(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final child = Text(
+      text.toUpperCase(),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.secondary),
+    );
+    return showBadge
+        ? Container(
+            margin: const EdgeInsets.only(bottom: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              // A translucent tint stays subtle on both page and card backgrounds.
+              color: theme.colorScheme.secondary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: child, 
+          )
+        : child;
   }
 }
 
@@ -224,6 +371,11 @@ sealed class _TimelineItem {
 class _InstallationItem extends _TimelineItem {
   final Installation installation;
   _InstallationItem(this.installation) : super(installation.dateTimeUTC);
+}
+
+class _DerivedPlacementItem extends _TimelineItem {
+  final InheritedRootChange change;
+  _DerivedPlacementItem(this.change) : super(change.cause.dateTimeUTC);
 }
 
 class _TaskItem extends _TimelineItem {

@@ -1,6 +1,6 @@
 import '../models/adjustment/adjustment.dart';
-import '../models/component.dart';
-import '../models/component_preset.dart';
+import '../models/component/component.dart';
+import '../models/component/component_preset.dart';
 
 const String kForkSagNotes =
     'Sag is how much your fork compresses under your body weight (including '
@@ -39,6 +39,8 @@ PresetApplication buildApplication(
     componentType: variant.componentType,
     notes: _buildNotes(variant, resolvedDamper),
     adjustments: _buildAdjustments(variant, resolvedDamper),
+    presetKey: variant.key,
+    presetDamperKey: resolvedDamper?.key,
   );
 }
 

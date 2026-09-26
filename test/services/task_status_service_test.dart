@@ -1,4 +1,5 @@
 import 'package:bike_setup_tracker/models/component_stats.dart';
+import 'package:bike_setup_tracker/models/task/task_association.dart';
 import 'package:bike_setup_tracker/models/task/task_entry.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
@@ -13,7 +14,7 @@ void main() {
     test('Recurring distance task', () {
       final rule = TaskRule(
         name: 'Chain Wax',
-        componentId: componentId,
+        association: ComponentTaskAssociation(componentId),
         interval: const DistanceThreshold(300000), // 300km
         repeat: true,
         tags: const {},
@@ -22,7 +23,7 @@ void main() {
       // No entries, 0m -> upcoming (0%)
       var status = TaskStatusService.calculate(
         rule: rule,
-        currentStats: ComponentStats.zero(),
+        currentStats: ComponentStats.zero,
         now: now,
       );
       expect(status.type, TaskStatusType.upcoming);
@@ -31,7 +32,7 @@ void main() {
       // 150km -> upcoming (50%)
       status = TaskStatusService.calculate(
         rule: rule,
-        currentStats: ComponentStats.zero().copyWith(distance: 150000),
+        currentStats: ComponentStats.zero.copyWith(distance: 150000),
         now: now,
       );
       expect(status.type, TaskStatusType.upcoming);
@@ -40,7 +41,7 @@ void main() {
       // 300km -> due (100%)
       status = TaskStatusService.calculate(
         rule: rule,
-        currentStats: ComponentStats.zero().copyWith(distance: 300000),
+        currentStats: ComponentStats.zero.copyWith(distance: 300000),
         now: now,
       );
       expect(status.type, TaskStatusType.due);
@@ -49,7 +50,7 @@ void main() {
       // 350km -> overdue (>110%)
       status = TaskStatusService.calculate(
         rule: rule,
-        currentStats: ComponentStats.zero().copyWith(distance: 350000),
+        currentStats: ComponentStats.zero.copyWith(distance: 350000),
         now: now,
       );
       expect(status.type, TaskStatusType.overdue);
@@ -59,7 +60,7 @@ void main() {
     test('Distance task with delay', () {
       final rule = TaskRule(
         name: 'Late Chain Wax',
-        componentId: componentId,
+        association: ComponentTaskAssociation(componentId),
         interval: const DistanceThreshold(300000),
         delay: const DistanceThreshold(50000),
         repeat: true,
@@ -69,7 +70,7 @@ void main() {
       // 300km -> upcoming (because of 50km delay, total is 350km)
       var status = TaskStatusService.calculate(
         rule: rule,
-        currentStats: ComponentStats.zero().copyWith(distance: 300000),
+        currentStats: ComponentStats.zero.copyWith(distance: 300000),
         now: now,
       );
       expect(status.type, TaskStatusType.upcoming);
@@ -78,7 +79,7 @@ void main() {
       // 350km -> due
       status = TaskStatusService.calculate(
         rule: rule,
-        currentStats: ComponentStats.zero().copyWith(distance: 350000),
+        currentStats: ComponentStats.zero.copyWith(distance: 350000),
         now: now,
       );
       expect(status.type, TaskStatusType.due);
@@ -88,7 +89,7 @@ void main() {
     test('One-time task completion', () {
       final rule = TaskRule(
         name: 'Break-in service',
-        componentId: componentId,
+        association: ComponentTaskAssociation(componentId),
         interval: const DistanceThreshold(100000),
         repeat: false,
         tags: const {},
@@ -97,7 +98,7 @@ void main() {
       // No entries, 50km -> upcoming
       var status = TaskStatusService.calculate(
         rule: rule,
-        currentStats: ComponentStats.zero().copyWith(distance: 50000),
+        currentStats: ComponentStats.zero.copyWith(distance: 50000),
         now: now,
       );
       expect(status.type, TaskStatusType.upcoming);
@@ -106,15 +107,15 @@ void main() {
       final entry = TaskEntry(
         name: 'Service Done',
         taskRule: rule.id,
-        componentId: componentId,
+        association: ComponentTaskAssociation(componentId),
         dateTimeUTC: now,
         dateTimeLocal: now,
-        snapshot: ComponentStats.zero().copyWith(distance: 100000),
+        snapshot: ComponentStats.zero.copyWith(distance: 100000),
       );
 
       status = TaskStatusService.calculate(
         rule: rule,
-        currentStats: ComponentStats.zero().copyWith(distance: 150000),
+        currentStats: ComponentStats.zero.copyWith(distance: 150000),
         now: now.add(const Duration(days: 1)),
         lastEntry: entry,
       );
@@ -124,7 +125,7 @@ void main() {
     test('Time-based recurring task', () {
       final rule = TaskRule(
         name: 'Monthly Check',
-        componentId: componentId,
+        association: ComponentTaskAssociation(componentId),
         interval: const DurationThreshold(Duration(days: 30)),
         repeat: true,
         tags: const {},
@@ -135,7 +136,7 @@ void main() {
       // No entry, 45 days since installation -> overdue (1.5x)
       var status = TaskStatusService.calculate(
         rule: rule,
-        currentStats: ComponentStats.zero(),
+        currentStats: ComponentStats.zero,
         now: now,
         componentInstallationDate: installationDate,
       );
@@ -146,15 +147,15 @@ void main() {
       final entry = TaskEntry(
         name: 'Last Check',
         taskRule: rule.id,
-        componentId: componentId,
+        association: ComponentTaskAssociation(componentId),
         dateTimeUTC: now.subtract(const Duration(days: 15)),
         dateTimeLocal: now.subtract(const Duration(days: 15)),
-        snapshot: ComponentStats.zero(),
+        snapshot: ComponentStats.zero,
       );
 
       status = TaskStatusService.calculate(
         rule: rule,
-        currentStats: ComponentStats.zero(),
+        currentStats: ComponentStats.zero,
         now: now,
         lastEntry: entry,
       );
@@ -165,7 +166,7 @@ void main() {
     test('Component unrelated task (bike task)', () {
       final rule = TaskRule(
         name: 'Wash Bike A',
-        bikeId: 'bike-1',
+        association: const BikeTaskAssociation('bike-1'),
         interval: const DurationThreshold(Duration(days: 7)),
         repeat: true,
         tags: const {},
@@ -174,7 +175,7 @@ void main() {
       // 8 days passed -> overdue
       final status = TaskStatusService.calculate(
         rule: rule,
-        currentStats: ComponentStats.zero(),
+        currentStats: ComponentStats.zero,
         now: now,
         componentInstallationDate: now.subtract(const Duration(days: 8)),
       );
@@ -194,11 +195,11 @@ void main() {
       test('Bike Distance threshold with bikeId is valid', () {
         final rule = TaskRule(
           name: 'Bike Distance Task',
-          bikeId: 'bike-1',
+          association: const BikeTaskAssociation('bike-1'),
           interval: const DistanceThreshold(100),
           tags: const {},
         );
-        expect(rule.bikeId, 'bike-1');
+        expect(rule.association.bikeId, 'bike-1');
       });
     });
 
@@ -212,7 +213,7 @@ void main() {
       // No entry -> due
       var status = TaskStatusService.calculate(
         rule: rule,
-        currentStats: ComponentStats.zero(),
+        currentStats: ComponentStats.zero,
         now: now,
       );
       expect(status.type, TaskStatusType.due);
@@ -223,12 +224,12 @@ void main() {
         taskRule: rule.id,
         dateTimeUTC: now,
         dateTimeLocal: now,
-        snapshot: ComponentStats.zero(),
+        snapshot: ComponentStats.zero,
       );
 
       status = TaskStatusService.calculate(
         rule: rule,
-        currentStats: ComponentStats.zero(),
+        currentStats: ComponentStats.zero,
         now: now.add(const Duration(hours: 1)),
         lastEntry: entry,
       );

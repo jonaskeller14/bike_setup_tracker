@@ -67,7 +67,7 @@ dampers:
       - Full-range High Speed Compression on a second dial, moved in full 1-2 rotations rather than clicks
       - Adjustments incomplete: please add Rebound yourself.
     adjustments:
-      - { name: LSC, type: step, max: 6, notes: "Low-Speed Compression; DVO 'Quick Range' adjuster; position 1 = fully open (softest), 6 = firmest" }
+      - { name: LSC, type: step, max: 6, notes: "Low-Speed Compression; DVO 'Quick Range' adjuster; position 1 = fully open (softest), 6 = firmest", dialColor: green }
       - { name: HSC, type: numerical, unit: turns, min: 0, notes: "High-Speed Compression; Start fully open (counter-clockwise) and adjust 1-2 full rotations at a time; clockwise = firmer. DVO publishes no total rotation count for these chassis" }
     source:
       - https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
@@ -86,7 +86,7 @@ dampers:
       - OTT is set internally to one of three positions for your body weight, so it is not a trailside adjustment
       - Adjustments incomplete: please add Rebound yourself.
     adjustments:
-      - { name: Compression, type: step, max: 4, notes: "Low-Speed Compression; Soft → Medium → Firm dial; counted from fully open (soft)" }
+      - { name: Compression, type: step, max: 4, notes: "Low-Speed Compression; Soft → Medium → Firm dial; counted from fully open (soft)", dialColor: green }
     source:
       - https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
     note: >-
@@ -102,9 +102,9 @@ dampers:
       - Low Speed Compression "Quick Range", 6 clicks: 1 wide open, 6 the firmest pedalling platform
       - Rebound, 20 clicks counted out from fully closed
     adjustments:
-      - { name: HSC, type: step, max: 29, notes: "High-Speed Compression; Adjust in full 1-2 rotations rather than single clicks; counted from fully open (softest); clockwise = firmer" }
-      - { name: LSC, type: step, max: 6, notes: "Low-Speed Compression; DVO 'Quick Range' adjuster; position 1 = fully open (softest), 6 = firmest" }
-      - { name: Rebound, type: step, max: 20, notes: "Counted from fully closed (slowest); opening (counterclockwise) increases speed" }
+      - { name: HSC, type: step, max: 29, notes: "High-Speed Compression; Adjust in full 1-2 rotations rather than single clicks; counted from fully open (softest); clockwise = firmer", dialColor: grey, dialSize: small }
+      - { name: LSC, type: step, max: 6, notes: "Low-Speed Compression; DVO 'Quick Range' adjuster; position 1 = fully open (softest), 6 = firmest", dialColor: green }
+      - { name: Rebound, type: step, max: 20, notes: "Counted from fully closed (slowest); opening (counterclockwise) increases speed", dialColor: green }
     source:
       - https://tech.dvosuspension.com/setup/diamond/
       - https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
@@ -153,8 +153,8 @@ dampers:
       - Rebound, 25 clicks counted out from fully closed — the same scale on every Onyx 38
       - Full-range High Speed Compression on the green dial, moved a half to a full turn at a time
     adjustments:
-      - { name: LSC, type: step, max: 5, notes: "Low-Speed Compression; Counted from fully open (softest); clockwise click = firmer" }
-      - { name: Rebound, type: step, max: 25, notes: "Counted from fully closed (slowest); shared scale across all Onyx 38 models" }
+      - { name: LSC, type: step, max: 5, notes: "Low-Speed Compression; Counted from fully open (softest); clockwise click = firmer", dialColor: grey, dialSize: small }
+      - { name: Rebound, type: step, max: 25, notes: "Counted from fully closed (slowest); shared scale across all Onyx 38 models", dialColor: green }
       - { name: HSC, type: numerical, unit: turns, min: 0, notes: "High-Speed Compression; Start fully open (counter-clockwise) and adjust a half to a full turn at a time; clockwise = firmer. DVO publishes no total rotation count" }
     source:
       - https://dvosuspension.com/wp-content/uploads/2023/09/onyx38setupguide-v1.pdf
@@ -173,8 +173,8 @@ dampers:
       - Rebound, 25 clicks counted out from fully closed — the same scale on every Onyx 38
       - No High Speed Compression dial at this tier
     adjustments:
-      - { name: Compression, type: step, max: 3, notes: "Low-Speed Compression; Counted from fully open (softest); clockwise click = firmer" }
-      - { name: Rebound, type: step, max: 25, notes: "Counted from fully closed (slowest); shared scale across all Onyx 38 models" }
+      - { name: Compression, type: step, max: 3, notes: "Low-Speed Compression; Counted from fully open (softest); clockwise click = firmer", dialColor: green }
+      - { name: Rebound, type: step, max: 25, notes: "Counted from fully closed (slowest); shared scale across all Onyx 38 models", dialColor: green }
     source:
       - https://dvosuspension.com/wp-content/uploads/2023/09/onyx38setupguide-v1.pdf
     note: >-
@@ -189,7 +189,7 @@ dampers:
       - No High Speed Compression dial at this tier
     adjustments:
       - { name: Compression, type: numerical, unit: turns, min: 0, notes: "Low-Speed Compression; Full-range adjuster with no detents — start fully open (counter-clockwise) and make full-turn adjustments; clockwise = firmer" }
-      - { name: Rebound, type: step, max: 25, notes: "Counted from fully closed (slowest); shared scale across all Onyx 38 models" }
+      - { name: Rebound, type: step, max: 25, notes: "Counted from fully closed (slowest); shared scale across all Onyx 38 models", dialColor: green }
     source:
       - https://dvosuspension.com/wp-content/uploads/2023/09/onyx38setupguide-v1.pdf
     note: >-
@@ -233,6 +233,7 @@ forks:
     source: https://dvosuspension.com/wp-content/uploads/2023/09/onyx38setupguide-v1.pdf
     trims:
       - trim: D1
+        key: fork-dvo-38-d1-2024
         travel_mm: [160, 170, 180]
         stanchion: 38mm Tapered Alloy
         spring: Air
@@ -247,6 +248,7 @@ forks:
           - 5mm allen key under the left leg, turned in full rotations; let the air out first
           - The only Onyx 38 trim with the external OTT adjuster
       - trim: D1 SL
+        key: fork-dvo-38-d1-sl-2024
         travel_mm: [160, 170, 180]
         stanchion: 38mm Tapered Alloy
         spring: Air
@@ -256,6 +258,7 @@ forks:
           - { name: Volume Spacers, type: step, max: 4, visualization: stepper }
         note: Super-Light dual air system; no OTT adjuster on this trim.
       - trim: D2
+        key: fork-dvo-38-d2-2024
         travel_mm: [160, 170, 180]
         stanchion: 38mm Tapered Alloy
         spring: Air
@@ -263,6 +266,7 @@ forks:
         adjustments: *onyx38_air_spring
         note: OEM only. No OTT adjuster on this trim.
       - trim: D3
+        key: fork-dvo-38-d3-2024
         travel_mm: [160, 170, 180]
         stanchion: 38mm Tapered Alloy
         spring: Air
@@ -281,6 +285,7 @@ forks:
     wheel_size: [29]
     trims:
       - trim: CORE
+        key: fork-dvo-diamond-36-core-2024
         travel_mm: [140, 150, 160, 170]
         stanchion: 36mm Tapered Alloy
         spring: Air
@@ -292,6 +297,7 @@ forks:
         # so no Volume Spacers adjustment is declared here.
         note: All-new CORE damper. Ships with a 6x 5cc air volume reducer kit.
       - trim: D1 SL
+        key: fork-dvo-diamond-36-d1-sl-2024
         url: https://dvosuspension.com/product/diamond-d1-2024/
         travel_mm: [140, 150, 160]
         stanchion: 36mm Tapered Alloy
@@ -313,6 +319,7 @@ forks:
     source: https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
     trims:
       - trim: D3
+        key: fork-dvo-diamond-d3-2024
         stanchion: 35mm Tapered Alloy
         spring: Air
         dampers: [diamond_d3e3]
@@ -320,6 +327,7 @@ forks:
           - { name: Pressure, type: numerical, unit: psi, min: 0, max: 150 }
         note: OEM only. Closed-cartridge damper, no OTT adjuster.
       - trim: E3
+        key: fork-dvo-diamond-e3-2024
         stanchion: 35mm Tapered Alloy
         spring: Air
         dampers: [diamond_d3e3]
@@ -337,6 +345,7 @@ forks:
     source: https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
     trims:
       - trim: D1
+        key: fork-dvo-sapphire-34-d1-2019
         stanchion: 34mm Tapered Alloy
         spring: Air
         dampers: [quick_range_d1e1]
@@ -354,6 +363,7 @@ forks:
     url: https://tech.dvosuspension.com/setup/sapphire-series/
     trims:
       - trim: D1
+        key: fork-dvo-sapphire-32-d1-2019
         stanchion: 32mm Tapered Alloy
         spring: Air
         dampers: [quick_range_d1e1]
@@ -371,6 +381,7 @@ forks:
     source: https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
     trims:
       - trim: D2
+        key: fork-dvo-onyx-sc-d2-2020
         travel_mm: [160, 170, 180]
         stanchion: 36mm Tapered Alloy
         spring: Air
@@ -389,6 +400,7 @@ forks:
     source: https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
     trims:
       - trim: D1
+        key: fork-dvo-onyx-dc-d1-2020
         travel_mm: [203]
         stanchion: 36mm (dual-crown)
         spring: Air
@@ -417,13 +429,14 @@ forks:
       - https://www.pinkbike.com/news/dvo-emerald-review-2014.html
     trims:
       - trim: Standard
+        key: fork-dvo-emerald-inverted-standard-2014
         travel_mm: [203]
         stanchion: 36mm Inverted
         spring: Air
         dampers: [emerald_damper]
         adjustments:
           - { name: Pressure, type: numerical, unit: psi, min: 60, max: 100 }
-          - { name: OTT, type: step, max: 15, unit: turns, notes: "Off The Top negative-spring preload; 15 full rotations total, 6 clicks per rotation; more OTT = plusher off the top. Let the air out of the fork before adjusting" }
+          - { name: OTT, type: step, max: 15, unit: turns, notes: "Off The Top negative-spring preload; 15 full rotations total, 6 clicks per rotation; more OTT = plusher off the top. Let the air out of the fork before adjusting", dialColor: green }
         note: |-
           - Inverted (upside-down) dual-crown chassis joined by a carbon torsion arch
           - The air spring runs 60-100psi, far lower than an upright fork

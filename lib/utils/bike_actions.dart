@@ -4,9 +4,10 @@ import 'package:provider/provider.dart';
 
 import '../models/app_settings.dart';
 import '../models/bike.dart';
-import '../models/rating_association.dart';
+import '../models/rating/rating_association.dart';
+import '../models/task/task_association.dart';
 import '../models/task/task_rule.dart';
-import '../pages/bike_page.dart';
+import '../pages/forms/bike_page.dart';
 import '../repositories/app_repository.dart';
 import '../widgets/app_snackbar.dart';
 import '../widgets/sheets/delete_task_rules.dart';
@@ -54,7 +55,9 @@ class BikeActions {
 
   static Future<void> duplicateBikeWithComponents(BuildContext context, {required Bike bike}) async {
     final appRepository = context.read<AppRepository>();
-    final bikeComponents = appRepository.components.values.where((c) => c.bike == bike.id).toList();
+    final bikeComponents = appRepository.components.values.where(
+      (component) => appRepository.componentHierarchy.currentBike(component.id) == bike.id,
+    ).toList();
 
     final newBike = await Navigator.push<Bike>(
       context,
@@ -82,14 +85,23 @@ class BikeActions {
     final messenger = ScaffoldMessenger.of(context);
 
     final bikeIds = bikeList.map((bike) => bike.id).toSet();
-    final obsoleteComponents = appRepository.components.values.where((c) => bikeIds.contains(c.bike)).toList();
+    final obsoleteComponents = appRepository.components.values.where(
+      (component) => bikeIds.contains(appRepository.componentHierarchy.currentBike(component.id)),
+    ).toList();
     final obsoleteSetups = appRepository.setups.values.where((s) => bikeIds.contains(s.bike)).toList();
     final obsoleteRatings = appRepository.ratings.values
-        .where((r) => r.filterType == FilterType.bike && bikeIds.contains(r.filter))
+        .where((r) => switch (r.association) {
+          BikeRatingAssociation(:final bikeId) => bikeIds.contains(bikeId),
+          _ => false,
+        })
         .toList();
     final obsoleteComponentIds = obsoleteComponents.map((component) => component.id).toSet();
     final relatedTaskRules = appRepository.taskRules.values
-        .where((rule) => bikeIds.contains(rule.bikeId) || obsoleteComponentIds.contains(rule.componentId))
+        .where((rule) => switch (rule.association) {
+          BikeTaskAssociation(:final id) => bikeIds.contains(id),
+          ComponentTaskAssociation(:final id) => obsoleteComponentIds.contains(id),
+          GeneralTaskAssociation() => false,
+        })
         .toList();
     final selectedTaskRules = relatedTaskRules.isEmpty
         ? const <TaskRule>[]

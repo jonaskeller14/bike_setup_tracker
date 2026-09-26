@@ -3,10 +3,10 @@ import "package:provider/provider.dart";
 
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
-import '../../models/component.dart';
+import '../../models/component/component.dart';
 import '../../models/person.dart';
-import '../../models/rating.dart';
-import '../../models/rating_entry.dart';
+import '../../models/rating/rating.dart';
+import '../../models/rating/rating_entry.dart';
 import '../../models/selected_data.dart';
 import '../../models/setup.dart';
 import '../../models/task/task_entry.dart';
@@ -277,6 +277,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                     children: widget.allData.components.values.map((c) => DataSelectComponent(
                       component: c,
                       bikes: widget.allData.bikes,
+                      components: widget.allData.components,
                       isSelected: selectedComponents.contains(c),
                       onChanged: (checked) {
                         setState(() {

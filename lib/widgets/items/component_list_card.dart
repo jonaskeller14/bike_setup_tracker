@@ -5,15 +5,15 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
-import '../../models/bike.dart';
-import '../../models/component.dart';
-import '../../models/installation.dart';
+import '../../models/component/component.dart';
+import '../../models/component/installation.dart';
 import '../../models/task/task_rule.dart';
 import '../../pages/details/component_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/component_actions.dart';
-import '../lists/adjustment_compact_display_list.dart';
+import '../component_ancestors_column.dart';
+import '../lists/adjustment_compact_display/adjustment_compact_display_list.dart';
 import '../notes_text.dart';
 
 class ComponentListCard extends StatelessWidget{
@@ -38,6 +38,7 @@ class ComponentListCard extends StatelessWidget{
     final appRepository = context.watch<AppRepository>();
     final subscriptionService = context.watch<SubscriptionService>();
     final bikes = appRepository.bikes;
+    final stats = appRepository.componentStatsOf(component.id);
 
     TaskStatusType? indicatorStatus;
     if (appSettings.enableTask && appSettings.enableGarageTaskIndicator) {
@@ -105,46 +106,15 @@ class ComponentListCard extends StatelessWidget{
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 2,
                 children: [
-                  Wrap(
-                    spacing: 4,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        spacing: 2,
-                        children: [
-                          Icon(switch (component.latestInstallation) {
-                              Archival() => Icons.inventory_2_outlined,
-                              BikeInstallation() => Bike.iconData,
-                              Uninstallation() || null => Icons.shelves,
-                            },
-                            size: 13,
-                            color: switch (component.latestInstallation) {
-                              BikeInstallation(:final bikeId) when !bikes.containsKey(bikeId) => Theme.of(context).colorScheme.error,
-                              _ => Theme.of(context).colorScheme.onSurfaceVariant,
-                            },
-                          ),
-                          Flexible(
-                            child: Text(
-                              switch (component.latestInstallation) {
-                                Archival() => "Archived",
-                                BikeInstallation(:final bikeId) => bikes[bikeId]?.name ?? "BIKE NOT FOUND",
-                                Uninstallation() || null => "Not installed",
-                              },
-                              style: TextStyle(
-                                color: switch (component.latestInstallation) {
-                                  BikeInstallation(:final bikeId) when !bikes.containsKey(bikeId) => Theme.of(context).colorScheme.error,
-                                  _ => Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                                },
-                                fontSize: 13,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                  ComponentAncestorsColumn(
+                    ancestors: appRepository.componentHierarchy.currentAncestors(component.id),
+                    bikes: bikes,
+                    iconSize: 13,
+                    spacing: 2,
+                    textStyle: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                      fontSize: 13,
+                    ),
                   ),
                   if (component.notes != null && component.notes!.isNotEmpty)
                     Row(
@@ -175,19 +145,19 @@ class ComponentListCard extends StatelessWidget{
                       children: [
                         _StatItem(
                           icon: Icons.route,
-                          label: '${NumberFormat.decimalPattern().format(AppSettings.convertDistanceFromMeters(component.totalStats.distance, appSettings.distanceUnit)!.round())} ${appSettings.distanceUnit}',
+                          label: '${NumberFormat.decimalPattern().format(AppSettings.convertDistanceFromMeters(stats.distance, appSettings.distanceUnit)!.round())} ${appSettings.distanceUnit}',
                         ),
                         _StatItem(
                           icon: Icons.terrain,
-                          label: '${NumberFormat.decimalPattern().format(AppSettings.convertElevationFromMeters(component.totalStats.elevationGain, appSettings.altitudeUnit)!.round())} ${appSettings.altitudeUnit}',
+                          label: '${NumberFormat.decimalPattern().format(AppSettings.convertElevationFromMeters(stats.elevationGain, appSettings.altitudeUnit)!.round())} ${appSettings.altitudeUnit}',
                         ),
                         _StatItem(
                           icon: Icons.timer_outlined,
-                          label: '${NumberFormat.decimalPattern().format(component.totalStats.movingTime.inHours)}h ${component.totalStats.movingTime.inMinutes.remainder(60)}m',
+                          label: '${NumberFormat.decimalPattern().format(stats.movingTime.inHours)}h ${stats.movingTime.inMinutes.remainder(60)}m',
                         ),
                         _StatItem(
                           icon: Icons.repeat,
-                          label: '${component.totalStats.activityCount}',
+                          label: '${stats.activityCount}',
                         ),
                       ],
                     ),
@@ -216,7 +186,9 @@ class ComponentListCard extends StatelessWidget{
                     },
                     itemBuilder: (BuildContext context) => _ComponentOptions.values.where((option) {
                       if (option == _ComponentOptions.replace) {
-                        return component.bike != null && appSettings.enableInstallationTimeline;
+                        final installation = appRepository.componentHierarchy.currentInstallation(component.id);
+                        return (installation is BikeInstallation || installation is ComponentInstallation) &&
+                            appSettings.enableInstallationTimeline;
                       }
 
                       return true;

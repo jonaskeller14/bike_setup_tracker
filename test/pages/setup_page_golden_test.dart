@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:alchemist/alchemist.dart';
-import 'package:bike_setup_tracker/pages/setup_page.dart';
+import 'package:bike_setup_tracker/pages/forms/setup_page.dart';
 import 'package:bike_setup_tracker/widgets/set_adjustment/set_boolean_adjustment.dart';
 import 'package:bike_setup_tracker/widgets/set_adjustment/set_categorical_adjustment.dart';
 import 'package:bike_setup_tracker/widgets/set_adjustment/set_numerical_adjustment.dart';

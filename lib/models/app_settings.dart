@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:units_converter/units_converter.dart';
@@ -31,7 +32,7 @@ class AppSettings extends ChangeNotifier {
   bool _enableTaskPriority = true;
   bool _enableTaskInterval = true;
   bool _enableTaskDelay = true;
-  bool _enableTaskDuePrediction = false;
+  bool _enableTaskDuePrediction = true;
   bool _enableGarageTaskIndicator = true;
   bool _enableInstallationTimeline = false;
   bool _useMapBoxTiles = false;
@@ -39,6 +40,7 @@ class AppSettings extends ChangeNotifier {
   bool _enableSetupImages = false;
   bool _enableSetupBookmark = false;
   bool _enableComponentPresets = false;
+  bool _enableInstallOnComponent = false;
   bool _enablePressureAssistant = false;
   // Setup timeline grouping passes (debug-only, see FeaturesPage)
   bool _enableTimelineSetupGrouping = false;
@@ -85,6 +87,7 @@ class AppSettings extends ChangeNotifier {
   bool get enableSetupImages => _enableSetupImages;
   bool get enableSetupBookmark => _enableSetupBookmark;
   bool get enableComponentPresets => _enableComponentPresets;
+  bool get enableInstallOnComponent => _enableInstallOnComponent;
   bool get enablePressureAssistant => _enablePressureAssistant;
   bool get enableTimelineSetupGrouping => _enableTimelineSetupGrouping;
   bool get enableTimelineReplacementDetection => _enableTimelineReplacementDetection;
@@ -315,6 +318,13 @@ class AppSettings extends ChangeNotifier {
     _persistBool('enableComponentPresets', newValue);
   }
 
+  set enableInstallOnComponent(bool newValue) {
+    if (newValue == _enableInstallOnComponent) return;
+    _enableInstallOnComponent = newValue;
+    notifyListeners();
+    _persistBool('enableInstallOnComponent', newValue);
+  }
+
   set enablePressureAssistant(bool newValue) {
     if (newValue == _enablePressureAssistant) return;
     _enablePressureAssistant = newValue;
@@ -440,6 +450,7 @@ class AppSettings extends ChangeNotifier {
       _enableSetupImages = prefs.getBool('${_kPrefix}enableSetupImages') ?? _enableSetupImages;
       _enableSetupBookmark = prefs.getBool('${_kPrefix}enableSetupBookmark') ?? _enableSetupBookmark;
       _enableComponentPresets = prefs.getBool('${_kPrefix}enableComponentPresets') ?? _enableComponentPresets;
+      _enableInstallOnComponent = prefs.getBool('${_kPrefix}enableInstallOnComponent') ?? _enableInstallOnComponent;
       _enablePressureAssistant = prefs.getBool('${_kPrefix}enablePressureAssistant') ?? _enablePressureAssistant;
       _enableTimelineSetupGrouping =
           prefs.getBool('${_kPrefix}enableTimelineSetupGrouping') ?? _enableTimelineSetupGrouping;
@@ -450,14 +461,107 @@ class AppSettings extends ChangeNotifier {
       _firstDayOfWeek = prefs.getInt('${_kPrefix}firstDayOfWeek') ?? _firstDayOfWeek;
     } catch (e, st) {
       debugPrint("ERROR loading App Settings: $e\n$st");
+      rethrow;
     }
   }
+
+  Future<void> resetToDefaults() async {
+    final prefs = await SharedPreferences.getInstance();
+    final keys = prefs.getKeys().where((key) => key.startsWith(_kPrefix) && key != '${_kPrefix}showOnboarding');
+    for (final key in keys.toList()) {
+      await prefs.remove(key);
+    }
+
+    final defaults = AppSettings();
+    _themeMode = defaults._themeMode;
+    _dateFormat = defaults._dateFormat;
+    _timeFormat = defaults._timeFormat;
+    _temperatureUnit = defaults._temperatureUnit;
+    _windSpeedUnit = defaults._windSpeedUnit;
+    _altitudeUnit = defaults._altitudeUnit;
+    _precipitationUnit = defaults._precipitationUnit;
+    _distanceUnit = defaults._distanceUnit;
+    _enableGoogleDrive = defaults._enableGoogleDrive;
+    _enableTextAdjustment = defaults._enableTextAdjustment;
+    _enableStepDialColorSize = defaults._enableStepDialColorSize;
+    _enableMultiSelect = defaults._enableMultiSelect;
+    _enableCountedSelect = defaults._enableCountedSelect;
+    _enablePerson = defaults._enablePerson;
+    _enableRating = defaults._enableRating;
+    _enableSetupTags = defaults._enableSetupTags;
+    _enableTaskTags = defaults._enableTaskTags;
+    _enableStravaNotifications = defaults._enableStravaNotifications;
+    _enableTask = defaults._enableTask;
+    _enableTaskPriority = defaults._enableTaskPriority;
+    _enableTaskInterval = defaults._enableTaskInterval;
+    _enableTaskDelay = defaults._enableTaskDelay;
+    _enableTaskDuePrediction = defaults._enableTaskDuePrediction;
+    _enableGarageTaskIndicator = defaults._enableGarageTaskIndicator;
+    _enableInstallationTimeline = defaults._enableInstallationTimeline;
+    _useMapBoxTiles = defaults._useMapBoxTiles;
+    _enableCalendar = defaults._enableCalendar;
+    _enableSetupImages = defaults._enableSetupImages;
+    _enableSetupBookmark = defaults._enableSetupBookmark;
+    _enableComponentPresets = defaults._enableComponentPresets;
+    _enableInstallOnComponent = defaults._enableInstallOnComponent;
+    _enablePressureAssistant = defaults._enablePressureAssistant;
+    _enableTimelineSetupGrouping = defaults._enableTimelineSetupGrouping;
+    _enableTimelineReplacementDetection = defaults._enableTimelineReplacementDetection;
+    _enableTimelineStravaContext = defaults._enableTimelineStravaContext;
+    _firstDayOfWeek = defaults._firstDayOfWeek;
+    defaults.dispose();
+    notifyListeners();
+  }
+
+  static final List<Object> _defaultValues = AppSettings()._resettableValues;
+
+  bool get hasDefaultValues => listEquals(_resettableValues, _defaultValues);
+
+  List<Object> get _resettableValues => [
+    _themeMode,
+    _dateFormat,
+    _timeFormat,
+    _temperatureUnit,
+    _windSpeedUnit,
+    _altitudeUnit,
+    _precipitationUnit,
+    _distanceUnit,
+    _enableGoogleDrive,
+    _enableTextAdjustment,
+    _enableStepDialColorSize,
+    _enableMultiSelect,
+    _enableCountedSelect,
+    _enablePerson,
+    _enableRating,
+    _enableSetupTags,
+    _enableTaskTags,
+    _enableStravaNotifications,
+    _enableTask,
+    _enableTaskPriority,
+    _enableTaskInterval,
+    _enableTaskDelay,
+    _enableTaskDuePrediction,
+    _enableGarageTaskIndicator,
+    _enableInstallationTimeline,
+    _useMapBoxTiles,
+    _enableCalendar,
+    _enableSetupImages,
+    _enableSetupBookmark,
+    _enableComponentPresets,
+    _enableInstallOnComponent,
+    _enablePressureAssistant,
+    _enableTimelineSetupGrouping,
+    _enableTimelineReplacementDetection,
+    _enableTimelineStravaContext,
+    _firstDayOfWeek,
+  ];
 
   /// Migrates the pre-existing monolithic `app_settings` JSON blob to per-key
   /// storage, then removes it. Runs at most once (the blob is gone afterwards).
   /// Only values that *differ* from the original default are migrated: settings
   /// the user never explicitly changed are left unset, so they continue to
   /// track the live code default — matching new-install behaviour.
+  /// // TODO: delete after grace period
   Future<void> _migrateLegacyBlob(SharedPreferences prefs) async {
     final raw = prefs.getString(_kLegacyBlobKey);
     if (raw == null) return;

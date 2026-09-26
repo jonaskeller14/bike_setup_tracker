@@ -1,0 +1,269 @@
+# Cannondale Lefty single-leg suspension forks — adjustment preset database
+#
+# Same design as fork/fox.yaml, fork/rockshox.yaml, fork/ext.yaml: click ranges
+# belong to the DAMPER, defined once under `dampers:` and referenced by key from
+# each fork's trims. See SCHEMA.md in this folder.
+#
+# Scope: Cannondale is a bike brand; the only suspension it builds itself is the
+# Lefty family (single-leg, needle-bearing, "Delta Cage" triangulated telescope
+# with a dedicated Lefty hub). The Fox / RockShox forks and shocks that spec on
+# most Cannondale full-suspension bikes belong in fork/fox.yaml, fork/rockshox.yaml
+# and the matching shock files. Cannondale currently sells no proprietary rear
+# shock, so there is no shock/cannondale.yaml.
+#
+# Lefty air-spring notes (from Cannondale's Ocho / Ocho 120 owner's manual
+# supplements): a single Schrader "SideCar" valve near the spindle charges the
+# positive chamber and the negative chamber equalizes automatically once the fork
+# has been compressed ~30mm five to ten times after every pressure change. There
+# is no spacer / spring-rate hardware to swap on the outside like a telescopic
+# fork; volume is tuned with "Ramp Clamps" (Ocho) / "Ramp Rings" (Oliver) on the
+# air-piston carrier. Rebound is counted in clicks OUT FROM CLOSED (slow) on the
+# Ocho and Ocho 120 tables.
+#
+# Click ranges: Cannondale's own manuals list recommended STARTING click values
+# (a rider-weight table) but never state an adjuster's total range, so totals
+# only come from press coverage. The 2018 Ocho's two secondary sources disagree
+# (see `chamber_ocho_2018`), so its adjusters carry no maximum; every other
+# damper here has no published count and stays empty. See Follow-ups.
+
+brand: Cannondale
+component_type: fork
+sources:
+  - https://www.cannondale.com/en/gear/components/suspension
+  - https://www.cannondale.com/en/gear/components/suspension/lefty-ocho
+  - https://www.cannondale.com/en/gear/components/suspension/lefty-ocho/lefty-ocho-120-carbon
+  - https://www.cannondale.com/en/gear/components/suspension/lefty-oliver
+  - https://www.cannondale.com/en/gear/components/suspension/lefty-oliver/lefty-oliver-carbon
+  - https://www.cannondale.com/en-us/owners-manuals/lefty
+  # Lefty Ocho Owner's Manual Supplement 134923 (2018), Specifications p.6, External Adjustments p.8, Rebound p.10, Compression p.11
+  - https://www.cannondale.com/-/media/files/manual-uploads/manuals/018_%20lefty%20ocho_134923_screen_en.pdf
+  # Lefty Ocho 120 Owner's Manual 138227 Rev 1 (01/2021), Specifications p.9, Adjustments p.10-13, parts list p.22
+  - https://www.cannondale.com/en-gb/owners-manuals/-/media/files/manual-uploads/my21/021_138227_oms_lefty%20ocho_120_pdfs_021_138227_oms_lefty%20ocho_en.pdf
+  # 2016 Lefty Owner's Manual Supplement 133095 (09/15), Safety Information p.2, Air pressure p.15, Rebound p.13-14
+  - https://www.cannondale.com/-/media/files/manual-uploads/manuals/133095%20MY16%20LEFTY%20OMS_EN.pdf
+  - https://www.bikeradar.com/news/everything-you-need-to-know-about-the-new-cannondale-lefty-ocho-fork
+  - https://www.bikeradar.com/news/lefty-ocho-120-fork-debuts-on-cannondale-scalpel-se-ltd
+  - https://www.bikeradar.com/reviews/components/forks/suspension-forks/cannondale-oliver-lefty-carbon-gravel-fork-review
+  - https://www.pinkbike.com/news/cannondale-lefty-ocho-review-2018.html
+updated: 2026-09-25
+
+# --------------------------------------------------------------------------
+# Dampers
+# --------------------------------------------------------------------------
+dampers:
+  chamber_ocho_2018:
+    name: Chamber (Ocho 100)
+    description: |-
+      - Self-bleeding Chamber damper with an external Low Speed Compression knob on top of the crown
+      - Low Speed Rebound dial at the bottom of the leg, counted in clicks out from fully closed
+      - Handlebar remote lockout with Descend and Climb modes
+    adjustments:
+      - { name: Compression, type: numerical, unit: clicks, min: 0, notes: "Low-Speed Compression; black knob on top of the crown, clockwise (+) = harder to compress; do not force past the stops. Total click count is not settled: see damper source" }
+      - { name: Rebound, type: numerical, unit: clicks, min: 0, notes: "Low-Speed Rebound; dial at the bottom of the leg, counted in clicks out from fully closed (slowest); the recommended-settings table runs from 16 clicks (light riders) to 2 clicks (heavy riders). Total click count is not settled: see damper source" }
+    source:
+      - https://www.cannondale.com/-/media/files/manual-uploads/manuals/018_%20lefty%20ocho_134923_screen_en.pdf
+      - https://www.bikeradar.com/news/everything-you-need-to-know-about-the-new-cannondale-lefty-ocho-fork
+      - https://www.pinkbike.com/news/cannondale-lefty-ocho-review-2018.html
+    note: >-
+      Adjuster direction and counting convention from Cannondale's Lefty Ocho manual
+      supplement 134923 (Rebound p.10: close clockwise toward SLOW, then count clicks out
+      toward FAST; Compression p.11). Totals CONFLICT between two allowed editorial
+      sources, so no maximum is set: BikeRadar's launch article says "six clicks of
+      compression adjustment and 23 clicks of rebound adjustment", while Pinkbike's
+      review says "There are eight clicks of low-speed compression, twenty-two of
+      low-speed rebound". Cannondale's manual gives no total.
+
+  chamber_ocho120_2021:
+    name: Chamber (Ocho 120)
+    description: >-
+      High-flow Chamber damper with a crown-top Low Speed Compression dial, a rebound dial
+      at the bottom of the leg and a remote lockout. Adjustments incomplete: please add
+      Rebound and Compression yourself.
+    adjustments: []
+    source:
+      - https://www.cannondale.com/en/gear/components/suspension/lefty-ocho/lefty-ocho-120-carbon
+      - https://www.cannondale.com/en-gb/owners-manuals/-/media/files/manual-uploads/my21/021_138227_oms_lefty%20ocho_120_pdfs_021_138227_oms_lefty%20ocho_en.pdf
+    note: >-
+      Cannondale's product page lists "Lockout, rebound & low speed compression
+      adjustments" and the owner's manual (p.10, p.12-13) describes the dials and a
+      recommended-rebound table (17 to 5 clicks out from slow), but no adjuster range
+      is published. The 100mm Ocho's press-quoted totals are deliberately not copied
+      across to this damper.
+
+  oliver:
+    name: Oliver
+    description: >-
+      Gravel-specific damper with a rebound knob at the bottom of the leg and a top-of-leg
+      lockout that blows off if you hit an obstacle while locked. Adjustments incomplete:
+      please add Rebound yourself.
+    adjustments: []
+    source:
+      - https://www.cannondale.com/en/gear/components/suspension/lefty-oliver/lefty-oliver-carbon
+      - https://www.bikeradar.com/reviews/components/forks/suspension-forks/cannondale-oliver-lefty-carbon-gravel-fork-review
+    note: >-
+      Cannondale's product page lists "Air spring, rebound, and lockout (with blowoff),
+      adjustments"; BikeRadar's review says "Rebound damping can be adjusted via a knob
+      at the bottom of the fork leg". No click count or range is published.
+
+  lefty_2_2016:
+    name: Lefty 2.0 (PBR / XLR)
+    description: >-
+      Rebound dial on top of the leg. Climb mode comes from a push button under the dial
+      (PBR) or from a handlebar RockShox XLoc remote (XLR). Adjustments incomplete:
+      please add Rebound yourself.
+    adjustments: []
+    source:
+      - https://www.cannondale.com/-/media/files/manual-uploads/manuals/133095%20MY16%20LEFTY%20OMS_EN.pdf
+    note: >-
+      2016 Lefty Owner's Manual Supplement 133095 p.13-14 describes the rebound dial
+      (rotate toward "+" to slow, "-" to speed up) for both control systems but gives no
+      click count and no recommended-clicks table.
+
+# --------------------------------------------------------------------------
+# Forks — current Lefty lineup, then legacy.
+# --------------------------------------------------------------------------
+forks:
+  - model: Lefty Ocho 120
+    category: Cross-Country
+    year_range: "2021-2026"
+    url: https://www.cannondale.com/en/gear/components/suspension/lefty-ocho/lefty-ocho-120-carbon
+    wheel_size: [29]
+    # Travel 120mm / 110mm, 50mm offset, recommended sag 25% (30mm / 27.5mm),
+    # Lefty 60 hub: owner's manual 138227 p.9. Ramp Clamp count (four fitted, six
+    # maximum) and 29in-only: BikeRadar's launch article.
+    source:
+      - https://www.cannondale.com/en-gb/owners-manuals/-/media/files/manual-uploads/my21/021_138227_oms_lefty%20ocho_120_pdfs_021_138227_oms_lefty%20ocho_en.pdf
+      - https://www.bikeradar.com/news/lefty-ocho-120-fork-debuts-on-cannondale-scalpel-se-ltd
+    complete: false
+    trims:
+      - trim: Carbon
+        key: fork-cannondale-lefty-ocho-120-carbon-2021
+        travel_mm: [110, 120]
+        spring: Air
+        dampers: [chamber_ocho120_2021]
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 50 }
+          - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Ramp Clamps on the air-piston carrier; four are fitted as standard" }
+        note: |-
+          - Single-leg, single-crown fork on triangulated needle bearings; needs a Lefty 60 hub
+          - Carbon upper leg, aluminum lower leg, 50mm offset, 29in wheels
+          - One SideCar valve charges the air spring and the negative chamber equalizes itself
+          - Ramp Clamps tune how progressive the end of the stroke feels
+          - Remote or crown-mounted lockout, StopLock quick-release brake mount
+
+  - model: Lefty Ocho
+    category: Cross-Country
+    year_range: "2018-2026"
+    url: https://www.cannondale.com/en/gear/components/suspension/lefty-ocho
+    wheel_size: [27.5, 29]
+    # 100mm travel, 27.5in / 29in, offset 50mm (27.5) / 55mm (29), recommended sag
+    # 25% (25mm), air pressure limits 50-250 psi, Lefty 60 hub: owner's manual
+    # 134923 p.6. Ramp Clamps: BikeRadar's launch article (max count not stated).
+    source:
+      - https://www.cannondale.com/-/media/files/manual-uploads/manuals/018_%20lefty%20ocho_134923_screen_en.pdf
+      - https://www.bikeradar.com/news/everything-you-need-to-know-about-the-new-cannondale-lefty-ocho-fork
+    trims:
+      - trim: Carbon
+        key: fork-cannondale-lefty-ocho-carbon-2018
+        travel_mm: [100]
+        spring: Air
+        dampers: [chamber_ocho_2018]
+        adjustments: &ocho_air_spring
+          - { name: Pressure, type: numerical, unit: psi, min: 50, max: 250 }
+        note: |-
+          - Single-leg, single-crown XC fork on triangulated needle bearings; needs a Lefty 60 hub
+          - Carbon chassis, 50mm offset on 27.5in and 55mm on 29in
+          - One SideCar valve charges the air spring and the negative chamber equalizes itself
+          - Optional Ramp Clamps add progression near the end of the stroke
+          - Remote lockout with Descend and Climb modes, StopLock quick-release brake mount
+      - trim: Alloy
+        key: fork-cannondale-lefty-ocho-alloy-2018
+        travel_mm: [100]
+        spring: Air
+        dampers: [chamber_ocho_2018]
+        adjustments: *ocho_air_spring
+        note: |-
+          - Aluminum-chassis version of the Ocho with the same air spring and damper
+          - Heavier than the carbon fork, otherwise adjusted identically
+
+  - model: Lefty Oliver
+    complete: false
+    category: Gravel
+    url: https://www.cannondale.com/en/gear/components/suspension/lefty-oliver/lefty-oliver-carbon
+    wheel_size: [29, 27.5]
+    # 30mm travel, tire clearance 700c (45mm) / 650b (47mm), Lefty 50 hub: Cannondale
+    # product page. 55mm offset and ramp-ring volume tuning: BikeRadar review (Apr 2024).
+    source:
+      - https://www.cannondale.com/en/gear/components/suspension/lefty-oliver/lefty-oliver-carbon
+      - https://www.bikeradar.com/reviews/components/forks/suspension-forks/cannondale-oliver-lefty-carbon-gravel-fork-review
+    trims:
+      - trim: Carbon
+        key: fork-cannondale-lefty-oliver-carbon
+        travel_mm: [30]
+        spring: Air
+        dampers: [oliver]
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+        note: |-
+          - Single-leg gravel fork with 30mm of travel and a 55mm offset; needs a Lefty 50 hub
+          - Air spring volume is tuned with Ramp Rings on the carrier (a special tool is needed)
+          - Add air in small steps and cycle the fork through its travel between each step
+          - Lockout on top of the leg with blow-off
+
+  # ---------------- Legacy ----------------
+  - model: Lefty 2.0
+    complete: false
+    category: Cross-Country
+    url: https://www.cannondale.com/en-us/owners-manuals/lefty
+    wheel_size: [29, 27.5]
+    # Travel/wheel combinations (100/29, 100/27.5, 120/27.5, 130/27.5) and the
+    # 50-225 psi pressure limits: 2016 Lefty Owner's Manual Supplement 133095 p.2, p.15.
+    source: https://www.cannondale.com/-/media/files/manual-uploads/manuals/133095%20MY16%20LEFTY%20OMS_EN.pdf
+    trims:
+      - trim: PBR
+        key: fork-cannondale-lefty-2-0-pbr
+        travel_mm: [100, 120, 130]
+        spring: Air
+        dampers: [lefty_2_2016]
+        adjustments: &lefty2_air_spring
+          - { name: Pressure, type: numerical, unit: psi, min: 50, max: 225 }
+        note: |-
+          - Push Button Rebound: press the centre button to pop the rebound dial up for Climb mode
+          - Press the dial back down to return to Descend mode
+      - trim: XLR
+        key: fork-cannondale-lefty-2-0-xlr
+        travel_mm: [100, 120, 130]
+        spring: Air
+        dampers: [lefty_2_2016]
+        adjustments: *lefty2_air_spring
+        note: |-
+          - XLoc with Rebound: Climb and Descend modes come from a handlebar RockShox XLoc remote
+          - The rebound dial sits on top of the fork
+
+# --------------------------------------------------------------------------
+# Follow-ups (not yet captured — avoid guessing):
+#   - Lefty Ocho (100mm, 2018) click totals: BikeRadar (May 2018) says 6 compression /
+#     23 rebound; Pinkbike (May 2018) says 8 LSC / 22 LSR. Cannondale's owner's manual
+#     gives only a starting-rebound table (16 to 2 clicks out from closed). Both
+#     adjusters are therefore unbounded `numerical` clicks until Cannondale or a
+#     service guide states the total.
+#   - Lefty Ocho 120 (2021) damper: no click totals anywhere (BikeRadar's launch
+#     article and Cannondale's page give none; the manual has a 17-to-5 starting
+#     rebound table only). Model stays `complete: false`. Also: the manual's spec table
+#     (p.9) says air pressure max 250 psi but its recommendation table (p.10) says
+#     200 psi, so no Pressure maximum is set.
+#   - Lefty Ocho 100 Ramp Clamp maximum count is not published (the Ocho 120's is 6),
+#     so no Volume Spacers adjustment is declared for the 100mm trims. Current-year
+#     Ocho 100 revisions vs. the 2018 manual were not separately documented.
+#   - Lefty Oliver (current single-sided generation): no rebound click count, no
+#     pressure limits and no Ramp Ring count found in fetchable sources. Cannondale's
+#     2020 (MY21) and 2025 (40mm variant) owner's manuals are listed at
+#     cannondale.com/en-us/owners-manuals/lefty but could not be read (404 / viewer
+#     only). BikeRadar's review says the fork is 30mm in stock trim; the 40mm version
+#     is unconfirmed here. No year_range set because the first year of this
+#     generation is not confirmed.
+#   - Lefty Oliver (2016, original dual-crown, PBR) and Lefty Supermax / Supermax 2.0
+#     / Olaf / Hybrid / Lefty (2011-2012) generations have manuals on the same page
+#     but publish no click counts; not added. Lefty 2.0 has no confirmed production
+#     years either (the manual is the 2016 supplement) so year_range is omitted.
+# --------------------------------------------------------------------------

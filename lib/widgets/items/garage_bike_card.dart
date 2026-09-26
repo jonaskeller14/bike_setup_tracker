@@ -8,17 +8,19 @@ import 'package:reorderables/reorderables.dart';
 import '../../icons/simple_icons.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
-import '../../models/component.dart';
+import '../../models/component/component.dart';
 import '../../models/person.dart';
 import '../../pages/details/bike_details_page.dart';
-import '../../pages/details/component_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/bike_actions.dart';
 import '../../utils/component_actions.dart';
+import '../../utils/garage_component_grouping.dart';
 import '../dashed_border_painter.dart';
 import '../notes_text.dart';
 import 'component_list_card.dart';
+import 'garage_component_cell.dart';
+import 'garage_component_group.dart';
 import 'garage_component_icon_card.dart';
 
 class GarageBikeCard extends StatefulWidget {
@@ -57,7 +59,8 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
   @override
   bool get wantKeepAlive {
     final dragged = widget.draggedComponentNotifier.value;
-    return dragged != null && dragged.bike == widget.bike.id;
+    return dragged != null &&
+        context.read<AppRepository>().componentHierarchy.currentBike(dragged.id) == widget.bike.id;
   }
 
   @override
@@ -81,9 +84,11 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
     super.dispose();
   }
 
+  bool _isDraggingDetail = false;
+
   void _onDragChanged() => updateKeepAlive();
 
-  Widget _releaseToBikeWidget(BuildContext context) {
+  Widget _releaseToBikeWidget(BuildContext context, {required String message}) {
     return CustomPaint(
       painter: DashedBorderPainter(
         color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
@@ -112,7 +117,7 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
             ),
             Flexible(
               child: Text(
-                "Release to install to ${widget.bike.name}",
+                message,
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.primary,
                   fontWeight: FontWeight.bold,
@@ -126,7 +131,7 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
     );
   }
 
-  Widget _dragHintToBikeWidget(BuildContext context) {
+  Widget _dragHintToBikeWidget(BuildContext context, {required String message}) {
     final color = Theme.of(context).colorScheme.primary;
     return CustomPaint(
       painter: DashedBorderPainter(
@@ -150,7 +155,7 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
             Icon(Icons.add_circle_outline, size: 18, color: color.withValues(alpha: 0.6)),
             Flexible(
               child: Text(
-                "Drag here to install on ${widget.bike.name}",
+                message,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: color.withValues(alpha: 0.7),
                 ),
@@ -170,7 +175,10 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
     final appRepository = context.watch<AppRepository>();
     final subscriptionService = context.watch<SubscriptionService>();
     final persons = appRepository.persons;
-    final bikeComponents = Map.fromEntries(appRepository.components.entries.where((ce) => ce.value.bike == widget.bike.id));
+    final hierarchy = appRepository.componentHierarchy;
+    final bikeComponents = Map.fromEntries(appRepository.components.entries.where((ce) => hierarchy.currentBike(ce.key) == widget.bike.id));
+    final groups = garageGroupsFor(bikeComponents.values, hierarchy: hierarchy);
+    final roots = groups.map((group) => group.parent).toList();
 
     return DragTarget<Object>(
       key: ValueKey(widget.bike.id),
@@ -331,12 +339,15 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                         (c) =>
                             c == null ||
                             (draggedComp != null &&
-                                draggedComp.bike != widget.bike.id),
+                                hierarchy.currentBike(draggedComp.id) != widget.bike.id),
                       );
                   final bool isPassiveDropZone =
                       draggedComp != null &&
-                      draggedComp.bike != widget.bike.id &&
+                      hierarchy.currentBike(draggedComp.id) != widget.bike.id &&
                       !showDropZone;
+                  final detailDraggedIds = _isDraggingDetail
+                      ? idsMovedWith(draggedComp, hierarchy: hierarchy)
+                      : const <String>{};
 
                   return Padding(
                     padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
@@ -353,6 +364,10 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                                   constraints.maxWidth,
                                   spacing: spacing,
                                 );
+                                final cardsPerRow = GarageComponentIconCard.cardsPerRow(
+                                  constraints.maxWidth,
+                                  spacing: spacing,
+                                );
 
                                 return ReorderableWrap(
                                   scrollPhysics: const NeverScrollableScrollPhysics(),
@@ -361,12 +376,13 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                                     await context.read<AppRepository>().reorderComponent(
                                       oldIndex: oldIndex,
                                       newIndex: newIndex,
-                                      filteredComponentsList: bikeComponents.values.toList(),
+                                      filteredComponentsList: roots,
                                     );
                                     widget.setDraggedComponent(null);
                                   },
-                                  onReorderStarted: (index) => widget.setDraggedComponent(bikeComponents.values.toList()[index]),
+                                  onReorderStarted: (index) => widget.setDraggedComponent(roots[index]),
                                   onNoReorder: (index) => widget.setDraggedComponent(null),
+                                  buildDraggableFeedback: buildGarageDraggableFeedback,
                                   runSpacing: spacing,
                                   spacing: spacing,
                                   footer: Container(
@@ -404,72 +420,106 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                                       ),
                                     ),
                                   ),
-                                  children: bikeComponents.values.map((component) => GestureDetector(
-                                    key: ValueKey(component),
-                                    onTap: () => widget.onPressedComponent(component),
-                                    onDoubleTap: () async {
-                                      await Navigator.push<void>(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => ComponentDetailsPage(componentId: component.id),
-                                        ),
-                                      );
-                                    },
-                                    child: GarageComponentIconCard(
-                                      component: component,
-                                      componentToShowDetails: widget.componentToShowDetails,
-                                      width: itemWidth,
-                                    ),
-                                  )).toList(),
+                                  children: groups.map((group) => group.isGroup
+                                    ? GarageComponentGroup(
+                                        key: ValueKey(group.parent),
+                                        group: group,
+                                        componentToShowDetails: widget.componentToShowDetails,
+                                        cellWidth: itemWidth,
+                                        spacing: spacing,
+                                        cardsPerRow: cardsPerRow,
+                                        onPressedComponent: widget.onPressedComponent,
+                                        setDraggedComponent: widget.setDraggedComponent,
+                                        dimmedIds: detailDraggedIds,
+                                      )
+                                    : GarageComponentCell(
+                                        key: ValueKey(group.parent),
+                                        component: group.parent,
+                                        componentToShowDetails: widget.componentToShowDetails,
+                                        width: itemWidth,
+                                        dimmed: detailDraggedIds.contains(group.parent.id),
+                                        onPressed: widget.onPressedComponent,
+                                      )).toList(),
                                 );
                               },
                             ),
                           ),
                         ),
                         if (isPassiveDropZone)
-                          Positioned.fill(child: _dragHintToBikeWidget(context)),
+                          Positioned.fill(
+                            child: _dragHintToBikeWidget(
+                              context,
+                              message: "Drag here to install on ${widget.bike.name}",
+                            ),
+                          ),
                         if (showDropZone)
-                          Positioned.fill(child: _releaseToBikeWidget(context)),
+                          Positioned.fill(
+                            child: _releaseToBikeWidget(
+                              context,
+                              message: "Release to install to ${widget.bike.name}",
+                            ),
+                          ),
                       ],
                     ),
                   );
                 },
               ),
-              if (!widget.selectionMode &&
-                  widget.componentToShowDetails != null &&
-                  bikeComponents.keys.contains(widget.componentToShowDetails))
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                  child: LayoutBuilder( // workaround to get same GarageComponentIconCard width
-                    builder: (context, constraints) => LongPressDraggable<int>(
-                      data: bikeComponents.keys.toList().indexOf(widget.componentToShowDetails!),
-                      onDragStarted: () => widget.draggedComponentNotifier.value = bikeComponents[widget.componentToShowDetails],
-                      onDragEnd: (_) => widget.draggedComponentNotifier.value = null,
-                      onDraggableCanceled: (_, _) => widget.draggedComponentNotifier.value = null,
-                      dragAnchorStrategy: pointerDragAnchorStrategy,
-                      feedback: GarageComponentIconCard(
-                        component: bikeComponents[widget.componentToShowDetails]!,
-                        componentToShowDetails: widget.componentToShowDetails,
-                        width: GarageComponentIconCard.widthFor(
-                          constraints.maxWidth,
-                          spacing: 8,
+              AnimatedSize(
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeInOut,
+                alignment: Alignment.topCenter,
+                child: !widget.selectionMode &&
+                        widget.componentToShowDetails != null &&
+                        bikeComponents.keys.contains(widget.componentToShowDetails)
+                    ? Padding(
+                        padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                        child: LayoutBuilder( // workaround to get same GarageComponentIconCard width
+                          builder: (context, constraints) => LongPressDraggable<int>(
+                            data: bikeComponents.keys.toList().indexOf(widget.componentToShowDetails!),
+                            onDragStarted: () {
+                              _isDraggingDetail = true;
+                              widget.draggedComponentNotifier.value = bikeComponents[widget.componentToShowDetails];
+                            },
+                            onDragEnd: (_) {
+                              _isDraggingDetail = false;
+                              widget.draggedComponentNotifier.value = null;
+                            },
+                            onDraggableCanceled: (_, _) => widget.draggedComponentNotifier.value = null,
+                            dragAnchorStrategy: pointerDragAnchorStrategy,
+                            feedback: buildGarageDetailDragFeedback(
+                              context,
+                              group: garageGroupOf(
+                                bikeComponents[widget.componentToShowDetails]!,
+                                bikeComponents.values,
+                                hierarchy: hierarchy,
+                              ),
+                              availableWidth: constraints.maxWidth,
+                              componentToShowDetails: widget.componentToShowDetails,
+                              onPressedComponent: widget.onPressedComponent,
+                              setDraggedComponent: widget.setDraggedComponent,
+                            ),
+                            child: GarageDetailDragDimmer(
+                              componentId: widget.componentToShowDetails!,
+                              draggedComponentNotifier: widget.draggedComponentNotifier,
+                              hierarchy: hierarchy,
+                              child: ComponentListCard(
+                                component: bikeComponents[widget.componentToShowDetails]!,
+                                index: null,
+                                color: Theme.of(context).colorScheme.tertiaryContainer,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                      child: ComponentListCard(
-                        component: bikeComponents[widget.componentToShowDetails]!,
-                        index: null,
-                        color: Theme.of(context).colorScheme.tertiaryContainer,
-                      ),
-                    ),
-                  ),
-                ),
+                      )
+                    : const SizedBox.shrink(),
+              ),
             ],
           ),
         ),
       ),
       onWillAcceptWithDetails: (details) {
         final draggedComp = widget.draggedComponentNotifier.value;
-        final willAccept = !widget.selectionMode && draggedComp != null && draggedComp.bike != widget.bike.id;
+        final willAccept = !widget.selectionMode && draggedComp != null && hierarchy.currentBike(draggedComp.id) != widget.bike.id;
         if (willAccept) unawaited(HapticFeedback.lightImpact());
         return willAccept;
       },

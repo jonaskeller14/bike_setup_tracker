@@ -1,5 +1,5 @@
-import 'component_installation.dart';
-import 'rating_entry.dart';
+import 'component/resolved_installation.dart';
+import 'rating/rating_entry.dart';
 import 'setup.dart';
 import 'strava/strava_activity.dart';
 import 'task/task_entry.dart';
@@ -44,7 +44,7 @@ class TaskTimeLineEntry extends TimelineEntry {
 }
 
 class InstallationEntry extends TimelineEntry {
-  final ComponentInstallation componentInstallation;
+  final ResolvedInstallation componentInstallation;
   InstallationEntry(this.componentInstallation);
   @override
   String get id => 'inst:${componentInstallation.installation.id}';

@@ -217,4 +217,7 @@ class FakeSheetLocationProvider implements LocationProvider {
 
   @override
   Future<LocationProviderPermission> requestPermission() async => requestedPermission;
+
+  @override
+  Stream<ContextPosition> getPositionStream() => const Stream.empty();
 }

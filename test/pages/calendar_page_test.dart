@@ -1,7 +1,7 @@
 import 'package:bike_setup_tracker/models/app_settings.dart';
-import 'package:bike_setup_tracker/models/component.dart';
-import 'package:bike_setup_tracker/models/component_installation.dart';
-import 'package:bike_setup_tracker/models/installation.dart';
+import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/component/installation.dart';
+import 'package:bike_setup_tracker/models/component/resolved_installation.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:bike_setup_tracker/models/timeline_entry.dart';
@@ -102,7 +102,7 @@ void main() {
     final oldComponent = component('old');
     final newComponent = component('new');
     final removed = InstallationEntry(
-      ComponentInstallation(
+      ResolvedInstallation(
         component: oldComponent,
         installation: Uninstallation(
           id: 'remove',
@@ -115,7 +115,7 @@ void main() {
       ),
     );
     final installed = InstallationEntry(
-      ComponentInstallation(
+      ResolvedInstallation(
         component: newComponent,
         installation: BikeInstallation(
           id: 'install',
@@ -197,7 +197,7 @@ void main() {
       final oldComponent = component('old');
       final newComponent = component('new');
       final row = ReplacementRow(
-        removed: ComponentInstallation(
+        removed: ResolvedInstallation(
           component: oldComponent,
           installation: Uninstallation(
             id: 'remove',
@@ -206,7 +206,7 @@ void main() {
             dateTimeLocal: DateTime(2026, 7, 4, 10),
           ),
         ),
-        installed: ComponentInstallation(
+        installed: ResolvedInstallation(
           component: newComponent,
           installation: BikeInstallation(
             id: 'install',

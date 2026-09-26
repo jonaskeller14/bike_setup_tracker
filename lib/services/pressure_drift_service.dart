@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:units_converter/units_converter.dart';
 
 import '../models/adjustment/adjustment.dart';
-import '../models/component.dart';
+import '../models/component/component.dart';
 import '../models/context/context_position.dart';
 import '../models/context/context_weather.dart';
 import '../models/setup.dart';

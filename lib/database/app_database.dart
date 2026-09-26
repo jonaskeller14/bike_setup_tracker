@@ -9,9 +9,9 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 import '../models/adjustment/adjustment.dart';
-import '../models/component.dart';
-import '../models/installation.dart';
-import '../models/rating_association.dart';
+import '../models/component/component.dart';
+import '../models/component/installation.dart';
+import '../models/rating/rating_association.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/task/task_rule.dart';
 import 'adjustment_value_codec.dart';
@@ -91,7 +91,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 15;
+  int get schemaVersion => 19;
 
   @override
   MigrationStrategy get migration {
@@ -208,8 +208,134 @@ class AppDatabase extends _$AppDatabase {
             await m.addColumn(components, components.initialKilojoules);
           }
         }
+        if (from < 16) {
+          // Installation instants became minute-resolution (the UI only ever
+          // edited minutes; "Now" and drag-and-drop wrote seconds). Round the
+          // stored rows down so they match what is displayed and editable.
+          await migrateInstallationMinutes(this);
+        }
+        if (from < 17) {
+          // Component nesting resolves placement by walking installations up the
+          // parent chain; index both lookup directions so the traversal stays
+          // cheap as timelines grow.
+          await customStatement(
+            'CREATE INDEX IF NOT EXISTS installations_component_date_idx '
+            'ON installations (component_id, date_time_u_t_c)',
+          );
+          await customStatement(
+            'CREATE INDEX IF NOT EXISTS installations_parent_lookup_idx '
+            'ON installations (parent_type, parent, date_time_u_t_c)',
+          );
+        }
+        if (from < 18) {
+          // Bikes gain initial stats (usage before tracking), mirroring components.
+          final columns = <String, GeneratedColumn>{
+            'initial_distance': bikes.initialDistance,
+            'initial_elevation_gain': bikes.initialElevationGain,
+            'initial_moving_time': bikes.initialMovingTime,
+            'initial_elapsed_time': bikes.initialElapsedTime,
+            'initial_activity_count': bikes.initialActivityCount,
+            'initial_kilojoules': bikes.initialKilojoules,
+          };
+          for (final MapEntry(key: name, value: column) in columns.entries) {
+            if (!await _columnExists('bikes', name)) {
+              await m.addColumn(bikes, column);
+            }
+          }
+        }
+        if (from < 19) {
+          // Components remember the preset trim (and damper) they were created
+          // from, so the catalog can later offer setup guides and service
+          // intervals for that exact product.
+          final columns = <String, GeneratedColumn>{
+            'preset_key': components.presetKey,
+            'preset_damper_key': components.presetDamperKey,
+          };
+          for (final MapEntry(key: name, value: column) in columns.entries) {
+            if (!await _columnExists('components', name)) {
+              await m.addColumn(components, column);
+            }
+          }
+        }
       },
     );
+  }
+
+  /// Ordered children first so deletes never trip a foreign key.
+  List<TableInfo<Table, dynamic>> get _userDataTables => [
+    setupAdjustmentValues,
+    ratingEntryValues,
+    ratingEntries,
+    setups,
+    adjustments,
+    installations,
+    taskEntries,
+    components,
+    taskRules,
+    ratingMetrics,
+    ratings,
+    bikes,
+    persons,
+  ];
+
+  /// Emits whether any table cleared by [deleteAllUserData] holds a row,
+  /// including soft-deleted ones.
+  Stream<bool> watchHasUserData() {
+    final tables = _userDataTables;
+    final query = tables.map((table) => 'SELECT 1 FROM ${table.actualTableName}').join(' UNION ALL ');
+    return customSelect('SELECT EXISTS($query) AS has_data', readsFrom: tables.toSet())
+        .watchSingle()
+        .map((row) => row.read<bool>('has_data'));
+  }
+
+  /// Hard-deletes all user data. Synced Strava tables are left untouched.
+  Future<void> deleteAllUserData() {
+    return transaction(() async {
+      for (final table in _userDataTables) {
+        await delete(table).go();
+      }
+    });
+  }
+
+  /// Rounds every installation instant down to the whole minute.
+  ///
+  /// Rounding can collapse two events onto the same minute, and equal instants
+  /// sort arbitrarily — which for a single component decides what it is
+  /// currently installed on. Collisions within a component are therefore spread
+  /// forward a minute at a time, preserving the order the rows were recorded in.
+  /// The epoch-0 "from beginning" sentinel is left untouched.
+  @visibleForTesting
+  static Future<void> migrateInstallationMinutes(AppDatabase db) async {
+    final rows = await db.customSelect(
+      'SELECT id, component_id, date_time_u_t_c, date_time_local FROM installations '
+      'ORDER BY component_id, date_time_u_t_c',
+    ).get();
+
+    final Map<String, int> lastMinuteByComponent = {};
+    for (final row in rows) {
+      final utc = row.read<int>('date_time_u_t_c');
+      if (utc == 0) continue;
+
+      final local = row.read<int>('date_time_local');
+      final componentId = row.read<String>('component_id');
+
+      final roundedUtc = utc - (utc % 60);
+      final lastMinute = lastMinuteByComponent[componentId];
+      final newUtc = (lastMinute != null && roundedUtc <= lastMinute)
+          ? lastMinute + 60
+          : roundedUtc;
+      lastMinuteByComponent[componentId] = newUtc;
+
+      // `date_time_local` stores a floating face value, so the same shift in
+      // seconds moves the wall clock by the same number of minutes.
+      final newLocal = local - (local % 60) + (newUtc - roundedUtc);
+      if (newUtc == utc && newLocal == local) continue;
+
+      await db.customStatement(
+        'UPDATE installations SET date_time_u_t_c = ?, date_time_local = ? WHERE id = ?',
+        [newUtc, newLocal, row.read<String>('id')],
+      );
+    }
   }
 
   @visibleForTesting

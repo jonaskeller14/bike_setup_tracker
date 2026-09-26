@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../../models/bike.dart';
-import '../../models/component.dart';
-import '../../models/installation.dart';
+import '../../models/component/component.dart';
+import '../../models/component/installation.dart';
 
 class DataSelectComponent extends StatelessWidget {
   final Component component;
   final Map<String, Bike> bikes;
+  final Map<String, Component> components;
   final bool isSelected;
   final ValueChanged<bool?> onChanged;
 
@@ -14,6 +15,7 @@ class DataSelectComponent extends StatelessWidget {
     super.key,
     required this.component,
     required this.bikes,
+    required this.components,
     required this.isSelected,
     required this.onChanged,
   });
@@ -38,11 +40,14 @@ class DataSelectComponent extends StatelessWidget {
               switch (component.latestInstallation) {
                 Archival() => Icons.inventory_2_outlined,
                 BikeInstallation() => Bike.iconData,
+                ComponentInstallation(:final parentComponentId) =>
+                  components[parentComponentId]?.componentType.getIconData() ?? Component.iconData,
                 Uninstallation() || null => Icons.shelves,
               },
               size: 13,
               color: switch (component.latestInstallation) {
                 BikeInstallation(:final bikeId) when !bikes.containsKey(bikeId) => Theme.of(context).colorScheme.error,
+                ComponentInstallation(:final parentComponentId) when !components.containsKey(parentComponentId) => Theme.of(context).colorScheme.error,
                 _ => Theme.of(context).colorScheme.onSurfaceVariant,
               },
             ),
@@ -51,11 +56,13 @@ class DataSelectComponent extends StatelessWidget {
                 switch (component.latestInstallation) {
                   Archival() => "Archived",
                   BikeInstallation(:final bikeId) => bikes[bikeId]?.name ?? "BIKE NOT FOUND",
+                  ComponentInstallation(:final parentComponentId) => components[parentComponentId]?.name ?? "COMPONENT NOT FOUND",
                   Uninstallation() || null => "Not installed",
                 },
                 style: TextStyle(
                   color: switch (component.latestInstallation) {
                     BikeInstallation(:final bikeId) when !bikes.containsKey(bikeId) => Theme.of(context).colorScheme.error,
+                    ComponentInstallation(:final parentComponentId) when !components.containsKey(parentComponentId) => Theme.of(context).colorScheme.error,
                     _ => Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                   },
                   fontSize: 13,

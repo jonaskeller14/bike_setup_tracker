@@ -1,0 +1,146 @@
+# RST rear shocks — adjustment preset database
+#
+# Same design as shock/suntour.yaml, shock/fox.yaml: click ranges belong to
+# the DAMPER, defined once under `dampers:` and referenced by key from each
+# shock's trims. See SCHEMA.md in this folder.
+#
+# RST (RST Greenergy Tech Co., Taiwan) sells two rear-shock families: the air
+# MONO (metric or trunnion, DPU or R damper) and the coil MEZZO (e-moto /
+# freeride / downhill). RST publishes which functions each shock has, but no
+# rebound or compression click counts anywhere (product pages, MONO owner's
+# manual, 2026 catalogue), so every rebound/compression adjuster is left out
+# and both models are `complete: false`. See the Follow-ups footer.
+#
+# RST does not publish model years; no `year_range:` is set and trim keys
+# carry no year suffix.
+
+brand: RST
+component_type: shock
+sources:
+  - https://rstsuspension.com/product-category/forks/rear-shock-forks/
+  - https://rstsuspension.com/catalogues/2026.pdf
+  - https://rstsuspension.com/owner-manual/
+  - https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-301%E5%BE%8C%E9%81%BF%E9%9C%87-MONO-%E8%8B%B1%E6%96%87ENGLISH_A4-1.pdf
+  - https://rstsuspension.com/products/mono-dpu-standard/
+  - https://rstsuspension.com/products/mono-dpu-trunnion/
+  - https://rstsuspension.com/products/elementor-12676/
+  - https://rstsuspension.com/products/elementor-12687/
+  - https://rstsuspension.com/products/elementor-12887/
+updated: 2026-09-25
+
+# --------------------------------------------------------------------------
+# Dampers
+# --------------------------------------------------------------------------
+dampers:
+  mono_dpu:
+    name: MONO DPU
+    description: >-
+      Air-shock damper with a three-position lockout knob: Downhill (maximum
+      absorption), Pedal (reduced force while pedalling) and Uphill (firmer
+      for climbing), plus an external rebound adjuster. Adjustments
+      incomplete: please add Rebound yourself.
+    adjustments:
+      - { name: Compression Mode, type: categorical, options: [Downhill, Pedal, Uphill], notes: 3-position lockout knob (D / P / U) }
+    source:
+      - https://rstsuspension.com/products/mono-dpu-standard/
+      - https://rstsuspension.com/products/mono-dpu-trunnion/
+      - https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-301%E5%BE%8C%E9%81%BF%E9%9C%87-MONO-%E8%8B%B1%E6%96%87ENGLISH_A4-1.pdf
+    note: Rebound adjuster confirmed in the MONO owner's manual ("+" direction increases rebound damping); no click count is published.
+
+  mono_r:
+    name: MONO R
+    description: >-
+      Air-shock damper with an external rebound adjuster. Adjustments
+      incomplete: please add Rebound yourself.
+    adjustments: []
+    source:
+      - https://rstsuspension.com/products/elementor-12676/
+      - https://rstsuspension.com/products/elementor-12687/
+      - https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-301%E5%BE%8C%E9%81%BF%E9%9C%87-MONO-%E8%8B%B1%E6%96%87ENGLISH_A4-1.pdf
+
+  mezzo_coil:
+    name: MEZZO
+    description: >-
+      Coil-shock damper with external compression and rebound adjusters.
+      Adjustments incomplete: please add Compression and Rebound yourself.
+    adjustments: []
+    source:
+      - https://rstsuspension.com/products/elementor-12887/
+
+# --------------------------------------------------------------------------
+# Shocks
+# --------------------------------------------------------------------------
+shocks:
+  - model: "MONO"
+    complete: false
+    category: All-Mountain
+    spring: Air
+    url: https://rstsuspension.com/products/mono-dpu-standard/
+    trims:
+      - trim: DPU Standard
+        key: shock-rst-mono-dpu-standard
+        mount: [Standard eyelet]
+        stroke_mm: ["170x30/35", "190x40/45", "210x50/55", "230x60/65"]
+        dampers: [mono_dpu]
+        adjustments: &air_spring
+          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+        note: Lightweight air shock for aggressive trail/AM bikes and race tracks; metric and legacy sizes.
+      - trim: DPU Trunnion
+        key: shock-rst-mono-dpu-trunnion
+        url: https://rstsuspension.com/products/mono-dpu-trunnion/
+        mount: [Trunnion]
+        stroke_mm: ["145x30/35", "165x40/45", "185x50/55", "205x60/65"]
+        dampers: [mono_dpu]
+        adjustments: *air_spring
+        note: Lightweight air shock for aggressive trail/AM bikes and race tracks; metric trunnion sizes.
+      - trim: R Standard
+        key: shock-rst-mono-r-standard
+        url: https://rstsuspension.com/products/elementor-12676/
+        mount: [Standard eyelet]
+        stroke_mm: ["170x30/35", "190x40/45", "210x50/55", "230x60/65"]
+        dampers: [mono_r]
+        adjustments: *air_spring
+        note: Lightweight air shock for aggressive trail/AM bikes and race tracks; metric and legacy sizes.
+      - trim: R Trunnion
+        key: shock-rst-mono-r-trunnion
+        url: https://rstsuspension.com/products/elementor-12687/
+        mount: [Trunnion]
+        stroke_mm: ["145x30/35", "165x40/45", "185x50/55", "205x60/65"]
+        dampers: [mono_r]
+        adjustments: *air_spring
+        note: Lightweight air shock for aggressive trail/AM bikes and race tracks; metric trunnion sizes.
+
+  - model: "MEZZO"
+    complete: false
+    category: E-Moto / Freeride
+    spring: Coil
+    url: https://rstsuspension.com/products/elementor-12887/
+    trims:
+      - trim: Coil
+        key: shock-rst-mezzo-coil
+        stroke_mm: ["265x85", "210x55", "190x50"]
+        dampers: [mezzo_coil]
+        adjustments:
+          - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
+          - { name: Preload, type: numerical, min: 0 }
+        note: |-
+          - Coil shock for AM / FR / DH / e-moto use
+          - Springs offered at 350, 400, 450, 500 and 550 lb
+
+# --------------------------------------------------------------------------
+# Follow-ups (not yet captured — avoid guessing):
+#   - No rebound or compression click counts are published by RST for MONO
+#     or MEZZO (product pages, MONO owner's manual, 2026 catalogue), so the
+#     rebound (MONO DPU/R) and compression + rebound (MEZZO) adjusters are
+#     left out and both models are `complete: false`.
+#   - Whether MONO DPU has a rebound adjuster is confirmed only by the shared
+#     MONO owner's manual ("Adjust Rebound Damping"), not by the DPU product
+#     pages, which list just the 3-position lockout.
+#   - MONO owner's manual gives contradictory air limits (text: "should not
+#     exceed 300 PSI"; table: "Maximum pressure is 400 psi"), so no Pressure
+#     `max` is set.
+#   - MEZZO spring rate unit is printed as "lb" only; assumed lbs/in.
+#   - Eye-to-eye x stroke pairs are listed as RST prints them (e.g. 170x30/35
+#     means 170mm eye-to-eye with 30mm or 35mm stroke, per the size list);
+#     "Standard" mounts are recorded as "Standard eyelet".
+# --------------------------------------------------------------------------

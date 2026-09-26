@@ -1,5 +1,5 @@
 import '../models/adjustment/adjustment.dart';
-import '../models/rating_metric.dart';
+import '../models/rating/rating_metric.dart';
 
 class EntryScore {
   final double weightedAvg;  // 0-10, Higher is better

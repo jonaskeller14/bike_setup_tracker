@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
-import '../../models/rating_metric.dart';
+import '../../models/rating/rating_metric.dart';
 import '../../theme.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/metric_weight_field.dart';

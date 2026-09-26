@@ -1,0 +1,150 @@
+# Formula mountain-bike shocks — adjustment preset database
+#
+# Same design as shock/fox.yaml: click ranges belong to the DAMPER, defined
+# once under `dampers:` and referenced by key from each shock's trims.
+# See SCHEMA.md in this folder.
+#
+# Formula (Formula SRL, Italy — the official site is rideformula.com) sells
+# three rear shocks: the Nebbia air shock (2024) and the MOD and MOD DH coil
+# shocks. All three use a bladder oil reservoir and Formula's Compression
+# Tuning System (CTS) valves, but each product page lists its own
+# click totals, so each shock gets its own damper key.
+
+brand: Formula
+component_type: shock
+sources:
+  - https://www.rideformula.com/cat/mtb-shocks/
+  - https://www.rideformula.com/products/mtb-shocks/nebbia/
+  - https://www.rideformula.com/products/mtb-shocks/mod/
+  - https://www.rideformula.com/products/mtb-shocks/mod-dh/
+  # Editorial — first model years only, never for click counts
+  - https://www.mbr.co.uk/news/formula-launches-its-first-air-shock-called-the-nebbia-and-it-promises-high-performance-with-simplified-set-up-437962
+  - https://www.mbr.co.uk/reviews/shocks/formula-mod-coil-shock
+updated: 2026-09-25
+
+# --------------------------------------------------------------------------
+# Dampers
+# --------------------------------------------------------------------------
+dampers:
+  nebbia_2024:
+    name: Nebbia damper
+    description: |-
+      - Bladder-backed damper with a three-position compression switch: Open, Platform, Firm
+      - Compression Tuning System (CTS) valves swap in for larger changes
+      - Very wide rebound range so one tune suits many frames
+    adjustments:
+      - { name: Compression, type: step, max: 21 }
+      - { name: Rebound, type: step, max: 23 }
+      - { name: Compression Mode, type: categorical, options: [Open, Platform, Firm] }
+    source: https://www.rideformula.com/products/mtb-shocks/nebbia/
+    note: >-
+      Nebbia page: "Compression: 21 Click Adjustment", "Rebound: 23 Click
+      Adjustment", "CTS: Gold, Orange and Green valves included", "Compression
+      Switch: Three position - Open, Platform, Firm".
+
+  mod_2020:
+    name: MOD damper
+    description: |-
+      - Single-tube damper with a 30mm piston and a large-volume bladder reservoir
+      - Two-position compression switch: Open or Firm
+      - Compression Tuning System (CTS) valves swap in for larger changes
+    adjustments:
+      - { name: Compression, type: step, max: 17 }
+      - { name: Rebound, type: step, max: 13 }
+      - { name: Compression Mode, type: categorical, options: [Open, Firm] }
+    source: https://www.rideformula.com/products/mtb-shocks/mod/
+    note: >-
+      MOD page: "Compression: 17 Click Adjustment", "Rebound: 13 Click
+      Adjustment", "Compression Switch: Two position - Open, Firm", "CTS: Gold,
+      Orange and Green valves included".
+
+  mod_dh:
+    name: MOD DH damper
+    description: |-
+      - Downhill version of the MOD damper, without a climb switch
+      - Single-tube damper with a 30mm piston and a large-volume bladder reservoir
+      - Compression Tuning System (CTS) valves swap in for larger changes
+    adjustments:
+      - { name: Compression, type: step, max: 17 }
+      - { name: Rebound, type: step, max: 13 }
+    source: https://www.rideformula.com/products/mtb-shocks/mod-dh/
+    note: >-
+      MOD DH page: "Compression: 17 Click Adjustment", "Rebound: 13 Click
+      Adjustment", "CTS: Gold, Orange and Green valves included"; the page
+      lists no compression switch.
+
+# --------------------------------------------------------------------------
+# Shocks
+# --------------------------------------------------------------------------
+shocks:
+  - model: "Nebbia"
+    category: Trail / Enduro / All-Mountain
+    spring: Air
+    year_range: "2024-2026"
+    url: https://www.rideformula.com/products/mtb-shocks/nebbia/
+    trims:
+      - trim: Air
+        key: shock-formula-nebbia-air-2024
+        dampers: [nebbia_2024]
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+        stroke_mm: [37.5, 40, 42.5, 45, 47.5, 50, 52.5, 55, 57.5, 60, 62.5, 65, 67.5, 70, 72.5, 75]
+        mount: [Standard, Trunnion]
+        note: |-
+          - Coil and air hybrid negative spring with a bladder oil reservoir
+          - Volume spacers tune the mid- and end-stroke
+          - Clip-in spacers cut the stroke by 2.5, 5 or 7.5mm without tools
+
+  - model: "MOD"
+    category: Enduro / All-Mountain
+    spring: Coil
+    year_range: "2020-2026"
+    url: https://www.rideformula.com/products/mtb-shocks/mod/
+    trims:
+      - trim: Coil
+        key: shock-formula-mod-coil-2020
+        dampers: [mod_2020]
+        adjustments:
+          - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
+          - { name: Preload, type: numerical }
+        stroke_mm: [47.5, 50, 52.5, 55, 57.5, 60, 62.5, 65]
+        mount: [Standard, Trunnion]
+        note: |-
+          - Steel coil springs from 300 to 700 lbs/in
+          - Yoke-mount compatible version available
+          - Major service interval of 200 hours
+
+  - model: "MOD DH"
+    category: Downhill
+    spring: Coil
+    url: https://www.rideformula.com/products/mtb-shocks/mod-dh/
+    trims:
+      - trim: Coil
+        key: shock-formula-mod-dh-coil
+        dampers: [mod_dh]
+        adjustments:
+          - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
+          - { name: Preload, type: numerical }
+        stroke_mm: [67.5, 70, 72.5, 75]
+        mount: [Standard, Trunnion]
+        note: |-
+          - Steel coil springs from 250 to 550 lbs/in
+          - Same internals as the MOD, without the climb switch
+          - Major service interval of 200 hours
+
+# --------------------------------------------------------------------------
+# Follow-ups (not yet captured — avoid guessing):
+#   - Click counting direction is not stated on any of the three product
+#     pages, so the default `dial_ccw` is used.
+#   - Nebbia volume spacers: the page says the shock is "Compatible" but gives
+#     no spacer count, so no Volume Spacers adjustment is generated.
+#   - MOD / MOD DH preload: the spec tables list "Preload" without a turn or
+#     click total, so Preload is an open-ended numerical.
+#   - MOD spring rates: the MOD page lists 300-700 lbs/in and the MOD DH page
+#     250-550 lbs/in in 50 lbs/in steps; no sag-by-weight chart was read, so
+#     Spring Rate stays open-ended.
+#   - MOD DH launch year is not confirmed by a readable editorial source, so
+#     it carries no year_range (the MOD's 2020 comes from MBR's Sept 2020
+#     review, the Nebbia's 2024 from its May 2024 launch coverage).
+#   - Owner's manuals for the three shocks were not read.
+# --------------------------------------------------------------------------

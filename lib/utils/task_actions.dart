@@ -5,8 +5,8 @@ import 'package:provider/provider.dart';
 
 import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
-import '../pages/task_entry_page.dart';
-import '../pages/task_rule_page.dart';
+import '../pages/forms/task_entry_page.dart';
+import '../pages/forms/task_rule_page.dart';
 import '../repositories/app_repository.dart';
 import '../widgets/app_snackbar.dart';
 import '../widgets/sheets/radio_group.dart';
@@ -297,8 +297,8 @@ class TaskActions {
     final taskEntries = await Future.wait(
       taskRules.map((taskRule) async {
         final snapshot = await appRepository.getStatsAt(
-          componentId: taskRule.componentId,
-          bikeId: taskRule.bikeId,
+          componentId: taskRule.association.componentId,
+          bikeId: taskRule.association.bikeId,
           date: dateTimeUTC,
         );
         return TaskEntry(
@@ -307,8 +307,7 @@ class TaskActions {
           dateTimeUTC: dateTimeUTC,
           dateTimeLocal: dateTimeLocal,
           taskRule: taskRule.id,
-          componentId: taskRule.componentId,
-          bikeId: taskRule.bikeId,
+          association: taskRule.association,
           snapshot: snapshot,
         );
       }),

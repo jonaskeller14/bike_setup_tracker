@@ -99,6 +99,7 @@ forks:
     wheel_size: [29]
     trims:
       - trim: Standard
+        key: fork-intend-samurai-xc-29-standard-2025
         travel_mm: [100, 110, 120, 130]
         offset_mm: [44]
         spring: Air
@@ -117,6 +118,7 @@ forks:
     wheel_size: [32]
     trims:
       - trim: Standard
+        key: fork-intend-samurai-xc-32-standard-2025
         travel_mm: [120, 130]
         offset_mm: [46, 48] # 46mm at sag, 48mm fully extended
         stanchion: 35mm
@@ -135,6 +137,7 @@ forks:
     wheel_size: [29]
     trims:
       - trim: Standard
+        key: fork-intend-samurai-super-tr-standard-2025
         travel_mm: [140, 150, 160, 170]
         offset_mm: [44]
         spring: Air
@@ -149,6 +152,7 @@ forks:
     wheel_size: [29]
     trims:
       - trim: Standard
+        key: fork-intend-hero-standard-2025
         travel_mm: [140, 150, 160, 170]
         offset_mm: [44]
         stanchion: 44mm upper / 35mm lower (inverted)
@@ -165,6 +169,7 @@ forks:
     wheel_size: [29]
     trims:
       - trim: Standard
+        key: fork-intend-essential-standard-2025
         travel_mm: [150, 160, 170]
         offset_mm: [44]
         stanchion: 35mm
@@ -184,6 +189,7 @@ forks:
     wheel_size: [29]
     trims:
       - trim: Standard
+        key: fork-intend-edge-standard-2025
         travel_mm: [150, 160, 170, 180]
         offset_mm: [44]
         stanchion: 35mm
@@ -199,6 +205,7 @@ forks:
     wheel_size: [29]
     trims:
       - trim: Standard
+        key: fork-intend-flash-35-standard-2025
         travel_mm: [160, 170, 180, 190]
         offset_mm: [44]
         stanchion: 35mm
@@ -214,6 +221,7 @@ forks:
     wheel_size: [29]
     trims:
       - trim: Standard
+        key: fork-intend-flash-38-standard-2025
         travel_mm: [160, 170, 180, 190]
         offset_mm: [44]
         stanchion: 38mm
@@ -230,6 +238,7 @@ forks:
     wheel_size: [29]
     trims:
       - trim: Standard
+        key: fork-intend-infinity-en-standard-2025
         travel_mm: [160, 170, 180, 190]
         offset_mm: [44]
         stanchion: 35mm
@@ -246,6 +255,7 @@ forks:
     wheel_size: [29]
     trims:
       - trim: Standard
+        key: fork-intend-bandit-standard-2025
         travel_mm: [160, 170, 180, 190]
         offset_mm: [44]
         stanchion: 35mm

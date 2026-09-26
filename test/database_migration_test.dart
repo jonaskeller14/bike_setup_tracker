@@ -1,6 +1,7 @@
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/component_stats.dart';
 import 'package:bike_setup_tracker/models/selected_data.dart';
+import 'package:bike_setup_tracker/models/task/task_association.dart';
 import 'package:bike_setup_tracker/models/task/task_entry.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
@@ -29,7 +30,7 @@ void main() {
       name: "Complex Task Rule",
       priority: TaskPriority.high,
       notes: "Some notes about the rule",
-      componentId: "comp_1",
+      association: const ComponentTaskAssociation("comp_1"),
       interval: const DurationThreshold(Duration(days: 45)),
       delay: const DistanceThreshold(500),
       repeat: true,
@@ -45,7 +46,7 @@ void main() {
       dateTimeUTC: now,
       dateTimeLocal: now.toLocal(),
       taskRule: "rule_1",
-      componentId: "comp_1",
+      association: const ComponentTaskAssociation("comp_1"),
       snapshot: const ComponentStats(
         distance: 12000,
         elevationGain: 400,

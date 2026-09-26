@@ -5,12 +5,15 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:reorderables/reorderables.dart';
 
-import '../../models/component.dart';
-import '../../pages/details/component_details_page.dart';
+import '../../models/component/component.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/component_actions.dart';
+import '../../utils/garage_component_grouping.dart';
+import '../../utils/installation_issue.dart';
 import '../dashed_border_painter.dart';
 import 'component_list_card.dart';
+import 'garage_component_cell.dart';
+import 'garage_component_group.dart';
 import 'garage_component_icon_card.dart';
 
 class GarageUninstalledCard extends StatefulWidget {
@@ -39,10 +42,12 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
     with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
+  bool _isDraggingDetail = false;
 
   Widget _releaseToUninstallWidget(
     BuildContext context, {
     required bool isUnarchiving,
+    Component? parent,
   }) {
     final color = Theme.of(context).colorScheme.error;
     final bgColor = Theme.of(context).colorScheme.errorContainer;
@@ -73,7 +78,9 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
               child: Text(
                 isUnarchiving
                     ? "Release to unarchive"
-                    : "Release to uninstall component",
+                    : parent == null
+                        ? "Release to uninstall component"
+                        : "Release to uninstall from ${parent.name}",
                 style: TextStyle(color: color, fontWeight: FontWeight.bold),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -120,7 +127,7 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
     );
   }
 
-  Widget _dragHintToUninstallWidget(BuildContext context) {
+  Widget _dragHintToUninstallWidget(BuildContext context, {Component? parent}) {
     final color = Theme.of(context).colorScheme.error;
     return CustomPaint(
       painter: DashedBorderPainter(
@@ -144,7 +151,9 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
             Icon(Icons.archive_outlined, size: 18, color: color.withValues(alpha: 0.6)),
             Flexible(
               child: Text(
-                "Drag here to uninstall",
+                parent == null
+                    ? "Drag here to uninstall"
+                    : "Drag here to uninstall from ${parent.name}",
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: color.withValues(alpha: 0.7),
                 ),
@@ -285,14 +294,26 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
     super.build(context);
     final appRepository = context.watch<AppRepository>();
 
+    final hierarchy = appRepository.componentHierarchy;
     final uninstalledComponents = Map.fromEntries(
       appRepository.components.entries.where(
         (ce) =>
-            !appRepository.bikes.keys.contains(ce.value.bike) &&
-            !ce.value.isArchived,
+            !appRepository.bikes.keys.contains(hierarchy.currentBike(ce.key)) &&
+            !hierarchy.isEffectivelyArchived(ce.key),
       ),
     );
     final archivedComponents = appRepository.archivedComponents;
+
+    InstallationIssue? issueOf(Component component) => installationIssueOf(
+      component.id,
+      hierarchy: hierarchy,
+      bikes: appRepository.bikes,
+    );
+
+    final uninstalledGroups = garageGroupsFor(uninstalledComponents.values, hierarchy: hierarchy);
+    final uninstalledRoots = uninstalledGroups.map((group) => group.parent).toList();
+    final archivedGroups = garageGroupsFor(archivedComponents.values, hierarchy: hierarchy);
+    final archivedRoots = archivedGroups.map((group) => group.parent).toList();
 
     final showUninstalledComponent = widget.componentToShowDetails != null && uninstalledComponents.keys.contains(widget.componentToShowDetails);
 
@@ -316,7 +337,7 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
           DragTarget<Object>(
             onWillAcceptWithDetails: (details) {
               final d = widget.draggedComponentNotifier.value;
-              final willAccept = d != null && (d.bike != null || d.isArchived);
+              final willAccept = d != null && (hierarchy.currentBike(d.id) != null || d.isArchived);
               if (willAccept) unawaited(HapticFeedback.lightImpact());
               return willAccept;
             },
@@ -331,7 +352,7 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                   final bool showDropZone =
                       candidateItems.isNotEmpty &&
                       draggedComp != null &&
-                      draggedComp.bike != null &&
+                      hierarchy.currentBike(draggedComp.id) != null &&
                       !draggedComp.isArchived;
                   final bool showUnarchiveZone =
                       candidateItems.isNotEmpty &&
@@ -339,9 +360,15 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                       draggedComp.isArchived;
                   final bool isPassiveUninstallZone =
                       draggedComp != null &&
-                      (draggedComp.bike != null || draggedComp.isArchived) &&
+                      (hierarchy.currentBike(draggedComp.id) != null || draggedComp.isArchived) &&
                       !showDropZone &&
                       !showUnarchiveZone;
+                  final draggedParent = draggedComp == null
+                      ? null
+                      : currentParentComponentOf(draggedComp.id, hierarchy: hierarchy);
+                  final detailDraggedIds = _isDraggingDetail
+                      ? idsMovedWith(draggedComp, hierarchy: hierarchy)
+                      : const <String>{};
 
                   return Padding(
                     padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
@@ -362,6 +389,10 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                                         constraints.maxWidth,
                                         spacing: spacing,
                                       );
+                                      final cardsPerRow = GarageComponentIconCard.cardsPerRow(
+                                        constraints.maxWidth,
+                                        spacing: spacing,
+                                      );
 
                                       return ReorderableWrap(
                                         key: ValueKey(uninstalledComponents),
@@ -371,16 +402,14 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                                           await context.read<AppRepository>().reorderComponent(
                                             oldIndex: oldIndex,
                                             newIndex: newIndex,
-                                            filteredComponentsList: uninstalledComponents.values.toList(),
+                                            filteredComponentsList: uninstalledRoots,
                                           );
                                           widget.setDraggedComponent(null);
                                         },
                                         onReorderStarted: (index) =>
-                                            widget.setDraggedComponent(
-                                              uninstalledComponents.values
-                                                  .toList()[index],
-                                            ),
+                                            widget.setDraggedComponent(uninstalledRoots[index]),
                                         onNoReorder: (index) => widget.setDraggedComponent(null),
+                                        buildDraggableFeedback: buildGarageDraggableFeedback,
                                         footer: Container(
                                           width: itemWidth,
                                           decoration: BoxDecoration(
@@ -405,36 +434,45 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                                         ),
                                         spacing: spacing,
                                         runSpacing: spacing,
-                                        children: uninstalledComponents.values
-                                            .map(
-                                              (component) => GestureDetector(
-                                                onTap: () => widget.onPressedComponent(component),
-                                                onDoubleTap: () async {
-                                                  await Navigator.push<void>(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                      builder: (context) => ComponentDetailsPage(componentId: component.id),
-                                                    ),
-                                                  );
-                                                },
-                                                child: GarageComponentIconCard(
-                                                  component: component,
-                                                  componentToShowDetails:
-                                                      widget.componentToShowDetails,
-                                                  width: itemWidth,
-                                                ),
-                                              ),
+                                        children: uninstalledGroups.map((group) => group.isGroup
+                                          ? GarageComponentGroup(
+                                              key: ValueKey(group.parent),
+                                              group: group,
+                                              componentToShowDetails: widget.componentToShowDetails,
+                                              cellWidth: itemWidth,
+                                              spacing: spacing,
+                                              cardsPerRow: cardsPerRow,
+                                              onPressedComponent: widget.onPressedComponent,
+                                              setDraggedComponent: widget.setDraggedComponent,
+                                              issueOf: issueOf,
+                                              dimmedIds: detailDraggedIds,
                                             )
-                                            .toList(),
+                                          : GarageComponentCell(
+                                              key: ValueKey(group.parent),
+                                              component: group.parent,
+                                              componentToShowDetails: widget.componentToShowDetails,
+                                              width: itemWidth,
+                                              dimmed: detailDraggedIds.contains(group.parent.id),
+                                              issue: issueOf(group.parent),
+                                              onPressed: widget.onPressedComponent,
+                                            )).toList(),
                                       );
                                     },
                                   ),
                           ),
                         ),
                         if (isPassiveUninstallZone)
-                          Positioned.fill(child: _dragHintToUninstallWidget(context)),
+                          Positioned.fill(
+                            child: _dragHintToUninstallWidget(context, parent: draggedParent),
+                          ),
                         if (showDropZone)
-                          Positioned.fill(child: _releaseToUninstallWidget(context, isUnarchiving: false)),
+                          Positioned.fill(
+                            child: _releaseToUninstallWidget(
+                              context,
+                              isUnarchiving: false,
+                              parent: draggedParent,
+                            ),
+                          ),
                         if (showUnarchiveZone)
                           Positioned.fill(
                             child: _releaseToUninstallWidget(context, isUnarchiving: true)),
@@ -447,33 +485,55 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
           ),
 
           // ── Detail card for selected uninstalled component ───────────
-          if (showUninstalledComponent)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
-              child: LayoutBuilder( // workaround to get same GarageComponentIconCard width
-                builder: (context, constraints) => LongPressDraggable<Component>(
-                  data: uninstalledComponents[widget.componentToShowDetails]!,
-                  onDragStarted: () => widget.draggedComponentNotifier.value = uninstalledComponents[widget.componentToShowDetails],
-                  onDragEnd: (_) => widget.draggedComponentNotifier.value = null,
-                  onDraggableCanceled: (_, _) => widget.draggedComponentNotifier.value = null,
-                  dragAnchorStrategy: pointerDragAnchorStrategy,
-                  feedback: GarageComponentIconCard(
-                    component: uninstalledComponents[widget.componentToShowDetails]!,
-                    componentToShowDetails: widget.componentToShowDetails,
-                    width: GarageComponentIconCard.widthFor(
-                      constraints.maxWidth,
-                      spacing: 8,
+          AnimatedSize(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeInOut,
+            alignment: Alignment.topCenter,
+            child: showUninstalledComponent
+                ? Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
+                    child: LayoutBuilder( // workaround to get same GarageComponentIconCard width
+                      builder: (context, constraints) => LongPressDraggable<Component>(
+                        data: uninstalledComponents[widget.componentToShowDetails]!,
+                        onDragStarted: () {
+                          _isDraggingDetail = true;
+                          widget.draggedComponentNotifier.value = uninstalledComponents[widget.componentToShowDetails];
+                        },
+                        onDragEnd: (_) {
+                          _isDraggingDetail = false;
+                          widget.draggedComponentNotifier.value = null;
+                        },
+                        onDraggableCanceled: (_, _) => widget.draggedComponentNotifier.value = null,
+                        dragAnchorStrategy: pointerDragAnchorStrategy,
+                        feedback: buildGarageDetailDragFeedback(
+                          context,
+                          group: garageGroupOf(
+                            uninstalledComponents[widget.componentToShowDetails]!,
+                            uninstalledComponents.values,
+                            hierarchy: hierarchy,
+                          ),
+                          availableWidth: constraints.maxWidth,
+                          componentToShowDetails: widget.componentToShowDetails,
+                          onPressedComponent: widget.onPressedComponent,
+                          setDraggedComponent: widget.setDraggedComponent,
+                          issueOf: issueOf,
+                        ),
+                        child: GarageDetailDragDimmer(
+                          componentId: widget.componentToShowDetails!,
+                          draggedComponentNotifier: widget.draggedComponentNotifier,
+                          hierarchy: hierarchy,
+                          child: ComponentListCard(
+                            component: uninstalledComponents[widget.componentToShowDetails]!,
+                            index: null,
+                            color: Theme.of(context).colorScheme.tertiaryContainer,
+                            showCurrentAdjustmentValues: false,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                  child: ComponentListCard(
-                    component: uninstalledComponents[widget.componentToShowDetails]!,
-                    index: null,
-                    color: Theme.of(context).colorScheme.tertiaryContainer,
-                    showCurrentAdjustmentValues: false,
-                  ),
-                ),
-              ),
-            ),
+                  )
+                : const SizedBox.shrink(),
+          ),
 
           // ── Archived section ─────────────────────────────────────────
           ValueListenableBuilder<Component?>(
@@ -483,6 +543,9 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                   draggedComp != null && !draggedComp.isArchived;
               final showSection =
                   archivedComponents.isNotEmpty || isDraggingNonArchived;
+              final detailDraggedIds = _isDraggingDetail
+                  ? idsMovedWith(draggedComp, hierarchy: hierarchy)
+                  : const <String>{};
 
               if (!showSection) {
                 if (showUninstalledComponent) {
@@ -534,6 +597,10 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                                             constraints.maxWidth,
                                             spacing: spacing,
                                           );
+                                          final cardsPerRow = GarageComponentIconCard.cardsPerRow(
+                                            constraints.maxWidth,
+                                            spacing: spacing,
+                                          );
 
                                           return ReorderableWrap(
                                             key: ValueKey(archivedComponents),
@@ -543,37 +610,36 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                                               await context.read<AppRepository>().reorderComponent(
                                                 oldIndex: oldIndex,
                                                 newIndex: newIndex,
-                                                filteredComponentsList: archivedComponents.values.toList(),
+                                                filteredComponentsList: archivedRoots,
                                               );
                                               widget.setDraggedComponent(null);
                                             },
-                                            onReorderStarted: (int index) => widget.setDraggedComponent(
-                                              archivedComponents.values.toList()[index],
-                                            ),
+                                            onReorderStarted: (int index) =>
+                                                widget.setDraggedComponent(archivedRoots[index]),
                                             onNoReorder: (int index) => widget.setDraggedComponent(null),
+                                            buildDraggableFeedback: buildGarageDraggableFeedback,
                                             spacing: spacing,
                                             runSpacing: spacing,
-                                            children: archivedComponents.values.map((component) {
-                                              return GestureDetector(
-                                                onTap: () => widget.onPressedComponent(component),
-                                                onDoubleTap: () async {
-                                                  await Navigator.push<void>(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          ComponentDetailsPage(
-                                                            componentId: component.id,
-                                                          ),
-                                                    ),
-                                                  );
-                                                },
-                                                child: GarageComponentIconCard(
-                                                  component: component,
+                                            children: archivedGroups.map((group) => group.isGroup
+                                              ? GarageComponentGroup(
+                                                  key: ValueKey(group.parent),
+                                                  group: group,
+                                                  componentToShowDetails: widget.componentToShowDetails,
+                                                  cellWidth: itemWidth,
+                                                  spacing: spacing,
+                                                  cardsPerRow: cardsPerRow,
+                                                  onPressedComponent: widget.onPressedComponent,
+                                                  setDraggedComponent: widget.setDraggedComponent,
+                                                  dimmedIds: detailDraggedIds,
+                                                )
+                                              : GarageComponentCell(
+                                                  key: ValueKey(group.parent),
+                                                  component: group.parent,
                                                   componentToShowDetails: widget.componentToShowDetails,
                                                   width: itemWidth,
-                                                ),
-                                              );
-                                            }).toList(),
+                                                  dimmed: detailDraggedIds.contains(group.parent.id),
+                                                  onPressed: widget.onPressedComponent,
+                                                )).toList(),
                                           );
                                         },
                                       ),
@@ -603,33 +669,54 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
           ),
 
           // ── Detail card for selected archived component ──────────────
-          if (widget.componentToShowDetails != null && archivedComponents.keys.contains(widget.componentToShowDetails))
-            Padding(
-              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-              child: LayoutBuilder( // workaround to get same GarageComponentIconCard width
-                builder: (context, constraints) => LongPressDraggable<Component>(
-                  data: archivedComponents[widget.componentToShowDetails]!,
-                  onDragStarted: () => widget.draggedComponentNotifier.value = archivedComponents[widget.componentToShowDetails],
-                  onDragEnd: (_) => widget.draggedComponentNotifier.value = null,
-                  onDraggableCanceled: (_, _) => widget.draggedComponentNotifier.value = null,
-                  dragAnchorStrategy: pointerDragAnchorStrategy,
-                  feedback: GarageComponentIconCard(
-                    component: archivedComponents[widget.componentToShowDetails]!,
-                    componentToShowDetails: widget.componentToShowDetails,
-                    width: GarageComponentIconCard.widthFor(
-                      constraints.maxWidth,
-                      spacing: 8,
+          AnimatedSize(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeInOut,
+            alignment: Alignment.topCenter,
+            child: widget.componentToShowDetails != null && archivedComponents.keys.contains(widget.componentToShowDetails)
+                ? Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                    child: LayoutBuilder( // workaround to get same GarageComponentIconCard width
+                      builder: (context, constraints) => LongPressDraggable<Component>(
+                        data: archivedComponents[widget.componentToShowDetails]!,
+                        onDragStarted: () {
+                          _isDraggingDetail = true;
+                          widget.draggedComponentNotifier.value = archivedComponents[widget.componentToShowDetails];
+                        },
+                        onDragEnd: (_) {
+                          _isDraggingDetail = false;
+                          widget.draggedComponentNotifier.value = null;
+                        },
+                        onDraggableCanceled: (_, _) => widget.draggedComponentNotifier.value = null,
+                        dragAnchorStrategy: pointerDragAnchorStrategy,
+                        feedback: buildGarageDetailDragFeedback(
+                          context,
+                          group: garageGroupOf(
+                            archivedComponents[widget.componentToShowDetails]!,
+                            archivedComponents.values,
+                            hierarchy: hierarchy,
+                          ),
+                          availableWidth: constraints.maxWidth,
+                          componentToShowDetails: widget.componentToShowDetails,
+                          onPressedComponent: widget.onPressedComponent,
+                          setDraggedComponent: widget.setDraggedComponent,
+                        ),
+                        child: GarageDetailDragDimmer(
+                          componentId: widget.componentToShowDetails!,
+                          draggedComponentNotifier: widget.draggedComponentNotifier,
+                          hierarchy: hierarchy,
+                          child: ComponentListCard(
+                            component: archivedComponents[widget.componentToShowDetails]!,
+                            index: null,
+                            color: Theme.of(context).colorScheme.tertiaryContainer,
+                            showCurrentAdjustmentValues: false,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                  child: ComponentListCard(
-                    component: archivedComponents[widget.componentToShowDetails]!,
-                    index: null,
-                    color: Theme.of(context).colorScheme.tertiaryContainer,
-                    showCurrentAdjustmentValues: false,
-                  ),
-                ),
-              ),
-            ),
+                  )
+                : const SizedBox.shrink(),
+          ),
         ],
       ),
     );

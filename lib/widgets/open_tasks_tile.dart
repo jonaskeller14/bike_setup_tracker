@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/task/task_rule.dart';
-import '../pages/task_rule_page.dart';
+import '../pages/forms/task_rule_page.dart';
 import '../repositories/app_repository.dart';
 import 'empty_state_placeholder2.dart';
 import 'items/task_rule_list_card.dart';

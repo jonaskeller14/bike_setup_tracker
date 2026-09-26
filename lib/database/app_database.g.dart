@@ -149,6 +149,28 @@ class $ComponentsTable extends Components
         requiredDuringInsert: false,
         defaultValue: const Constant(0.0),
       );
+  static const VerificationMeta _presetKeyMeta = const VerificationMeta(
+    'presetKey',
+  );
+  @override
+  late final GeneratedColumn<String> presetKey = GeneratedColumn<String>(
+    'preset_key',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _presetDamperKeyMeta = const VerificationMeta(
+    'presetDamperKey',
+  );
+  @override
+  late final GeneratedColumn<String> presetDamperKey = GeneratedColumn<String>(
+    'preset_damper_key',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -164,6 +186,8 @@ class $ComponentsTable extends Components
     initialElapsedTime,
     initialActivityCount,
     initialKilojoules,
+    presetKey,
+    presetDamperKey,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -244,6 +268,21 @@ class $ComponentsTable extends Components
         ),
       );
     }
+    if (data.containsKey('preset_key')) {
+      context.handle(
+        _presetKeyMeta,
+        presetKey.isAcceptableOrUnknown(data['preset_key']!, _presetKeyMeta),
+      );
+    }
+    if (data.containsKey('preset_damper_key')) {
+      context.handle(
+        _presetDamperKeyMeta,
+        presetDamperKey.isAcceptableOrUnknown(
+          data['preset_damper_key']!,
+          _presetDamperKeyMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -313,6 +352,14 @@ class $ComponentsTable extends Components
         DriftSqlType.double,
         data['${effectivePrefix}initial_kilojoules'],
       )!,
+      presetKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}preset_key'],
+      ),
+      presetDamperKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}preset_damper_key'],
+      ),
     );
   }
 
@@ -345,6 +392,13 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
   final Duration initialElapsedTime;
   final int initialActivityCount;
   final double initialKilojoules;
+
+  /// Catalog provenance: the preset trim this component was created from, and
+  /// the damper chosen at that time. Null for hand-built components. Resolved
+  /// through `ComponentPresetRepository.byKey`; see
+  /// `data/component_presets/SCHEMA.md`.
+  final String? presetKey;
+  final String? presetDamperKey;
   const ComponentDb({
     required this.id,
     required this.isDeleted,
@@ -359,6 +413,8 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     required this.initialElapsedTime,
     required this.initialActivityCount,
     required this.initialKilojoules,
+    this.presetKey,
+    this.presetDamperKey,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -394,6 +450,12 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     }
     map['initial_activity_count'] = Variable<int>(initialActivityCount);
     map['initial_kilojoules'] = Variable<double>(initialKilojoules);
+    if (!nullToAbsent || presetKey != null) {
+      map['preset_key'] = Variable<String>(presetKey);
+    }
+    if (!nullToAbsent || presetDamperKey != null) {
+      map['preset_damper_key'] = Variable<String>(presetDamperKey);
+    }
     return map;
   }
 
@@ -414,6 +476,12 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
       initialElapsedTime: Value(initialElapsedTime),
       initialActivityCount: Value(initialActivityCount),
       initialKilojoules: Value(initialKilojoules),
+      presetKey: presetKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(presetKey),
+      presetDamperKey: presetDamperKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(presetDamperKey),
     );
   }
 
@@ -446,6 +514,8 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
         json['initialActivityCount'],
       ),
       initialKilojoules: serializer.fromJson<double>(json['initialKilojoules']),
+      presetKey: serializer.fromJson<String?>(json['presetKey']),
+      presetDamperKey: serializer.fromJson<String?>(json['presetDamperKey']),
     );
   }
   @override
@@ -467,6 +537,8 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
       'initialElapsedTime': serializer.toJson<Duration>(initialElapsedTime),
       'initialActivityCount': serializer.toJson<int>(initialActivityCount),
       'initialKilojoules': serializer.toJson<double>(initialKilojoules),
+      'presetKey': serializer.toJson<String?>(presetKey),
+      'presetDamperKey': serializer.toJson<String?>(presetDamperKey),
     };
   }
 
@@ -484,6 +556,8 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     Duration? initialElapsedTime,
     int? initialActivityCount,
     double? initialKilojoules,
+    Value<String?> presetKey = const Value.absent(),
+    Value<String?> presetDamperKey = const Value.absent(),
   }) => ComponentDb(
     id: id ?? this.id,
     isDeleted: isDeleted ?? this.isDeleted,
@@ -498,6 +572,10 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     initialElapsedTime: initialElapsedTime ?? this.initialElapsedTime,
     initialActivityCount: initialActivityCount ?? this.initialActivityCount,
     initialKilojoules: initialKilojoules ?? this.initialKilojoules,
+    presetKey: presetKey.present ? presetKey.value : this.presetKey,
+    presetDamperKey: presetDamperKey.present
+        ? presetDamperKey.value
+        : this.presetDamperKey,
   );
   ComponentDb copyWithCompanion(ComponentsCompanion data) {
     return ComponentDb(
@@ -532,6 +610,10 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
       initialKilojoules: data.initialKilojoules.present
           ? data.initialKilojoules.value
           : this.initialKilojoules,
+      presetKey: data.presetKey.present ? data.presetKey.value : this.presetKey,
+      presetDamperKey: data.presetDamperKey.present
+          ? data.presetDamperKey.value
+          : this.presetDamperKey,
     );
   }
 
@@ -550,7 +632,9 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
           ..write('initialMovingTime: $initialMovingTime, ')
           ..write('initialElapsedTime: $initialElapsedTime, ')
           ..write('initialActivityCount: $initialActivityCount, ')
-          ..write('initialKilojoules: $initialKilojoules')
+          ..write('initialKilojoules: $initialKilojoules, ')
+          ..write('presetKey: $presetKey, ')
+          ..write('presetDamperKey: $presetDamperKey')
           ..write(')'))
         .toString();
   }
@@ -570,6 +654,8 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     initialElapsedTime,
     initialActivityCount,
     initialKilojoules,
+    presetKey,
+    presetDamperKey,
   );
   @override
   bool operator ==(Object other) =>
@@ -587,7 +673,9 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
           other.initialMovingTime == this.initialMovingTime &&
           other.initialElapsedTime == this.initialElapsedTime &&
           other.initialActivityCount == this.initialActivityCount &&
-          other.initialKilojoules == this.initialKilojoules);
+          other.initialKilojoules == this.initialKilojoules &&
+          other.presetKey == this.presetKey &&
+          other.presetDamperKey == this.presetDamperKey);
 }
 
 class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
@@ -604,6 +692,8 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
   final Value<Duration> initialElapsedTime;
   final Value<int> initialActivityCount;
   final Value<double> initialKilojoules;
+  final Value<String?> presetKey;
+  final Value<String?> presetDamperKey;
   final Value<int> rowid;
   const ComponentsCompanion({
     this.id = const Value.absent(),
@@ -619,6 +709,8 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     this.initialElapsedTime = const Value.absent(),
     this.initialActivityCount = const Value.absent(),
     this.initialKilojoules = const Value.absent(),
+    this.presetKey = const Value.absent(),
+    this.presetDamperKey = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ComponentsCompanion.insert({
@@ -635,6 +727,8 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     this.initialElapsedTime = const Value.absent(),
     this.initialActivityCount = const Value.absent(),
     this.initialKilojoules = const Value.absent(),
+    this.presetKey = const Value.absent(),
+    this.presetDamperKey = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        lastModified = Value(lastModified),
@@ -654,6 +748,8 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     Expression<int>? initialElapsedTime,
     Expression<int>? initialActivityCount,
     Expression<double>? initialKilojoules,
+    Expression<String>? presetKey,
+    Expression<String>? presetDamperKey,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -673,6 +769,8 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
       if (initialActivityCount != null)
         'initial_activity_count': initialActivityCount,
       if (initialKilojoules != null) 'initial_kilojoules': initialKilojoules,
+      if (presetKey != null) 'preset_key': presetKey,
+      if (presetDamperKey != null) 'preset_damper_key': presetDamperKey,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -691,6 +789,8 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     Value<Duration>? initialElapsedTime,
     Value<int>? initialActivityCount,
     Value<double>? initialKilojoules,
+    Value<String?>? presetKey,
+    Value<String?>? presetDamperKey,
     Value<int>? rowid,
   }) {
     return ComponentsCompanion(
@@ -707,6 +807,8 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
       initialElapsedTime: initialElapsedTime ?? this.initialElapsedTime,
       initialActivityCount: initialActivityCount ?? this.initialActivityCount,
       initialKilojoules: initialKilojoules ?? this.initialKilojoules,
+      presetKey: presetKey ?? this.presetKey,
+      presetDamperKey: presetDamperKey ?? this.presetDamperKey,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -767,6 +869,12 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     if (initialKilojoules.present) {
       map['initial_kilojoules'] = Variable<double>(initialKilojoules.value);
     }
+    if (presetKey.present) {
+      map['preset_key'] = Variable<String>(presetKey.value);
+    }
+    if (presetDamperKey.present) {
+      map['preset_damper_key'] = Variable<String>(presetDamperKey.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -789,6 +897,8 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
           ..write('initialElapsedTime: $initialElapsedTime, ')
           ..write('initialActivityCount: $initialActivityCount, ')
           ..write('initialKilojoules: $initialKilojoules, ')
+          ..write('presetKey: $presetKey, ')
+          ..write('presetDamperKey: $presetDamperKey, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -883,6 +993,74 @@ class $BikesTable extends Bikes with TableInfo<$BikesTable, BikeDb> {
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
+  static const VerificationMeta _initialDistanceMeta = const VerificationMeta(
+    'initialDistance',
+  );
+  @override
+  late final GeneratedColumn<double> initialDistance = GeneratedColumn<double>(
+    'initial_distance',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0.0),
+  );
+  static const VerificationMeta _initialElevationGainMeta =
+      const VerificationMeta('initialElevationGain');
+  @override
+  late final GeneratedColumn<double> initialElevationGain =
+      GeneratedColumn<double>(
+        'initial_elevation_gain',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(0.0),
+      );
+  @override
+  late final GeneratedColumnWithTypeConverter<Duration, int> initialMovingTime =
+      GeneratedColumn<int>(
+        'initial_moving_time',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(0),
+      ).withConverter<Duration>($BikesTable.$converterinitialMovingTime);
+  @override
+  late final GeneratedColumnWithTypeConverter<Duration, int>
+  initialElapsedTime = GeneratedColumn<int>(
+    'initial_elapsed_time',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  ).withConverter<Duration>($BikesTable.$converterinitialElapsedTime);
+  static const VerificationMeta _initialActivityCountMeta =
+      const VerificationMeta('initialActivityCount');
+  @override
+  late final GeneratedColumn<int> initialActivityCount = GeneratedColumn<int>(
+    'initial_activity_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _initialKilojoulesMeta = const VerificationMeta(
+    'initialKilojoules',
+  );
+  @override
+  late final GeneratedColumn<double> initialKilojoules =
+      GeneratedColumn<double>(
+        'initial_kilojoules',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(0.0),
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -893,6 +1071,12 @@ class $BikesTable extends Bikes with TableInfo<$BikesTable, BikeDb> {
     person,
     stravaGear,
     orderIndex,
+    initialDistance,
+    initialElevationGain,
+    initialMovingTime,
+    initialElapsedTime,
+    initialActivityCount,
+    initialKilojoules,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -949,6 +1133,42 @@ class $BikesTable extends Bikes with TableInfo<$BikesTable, BikeDb> {
         orderIndex.isAcceptableOrUnknown(data['order_index']!, _orderIndexMeta),
       );
     }
+    if (data.containsKey('initial_distance')) {
+      context.handle(
+        _initialDistanceMeta,
+        initialDistance.isAcceptableOrUnknown(
+          data['initial_distance']!,
+          _initialDistanceMeta,
+        ),
+      );
+    }
+    if (data.containsKey('initial_elevation_gain')) {
+      context.handle(
+        _initialElevationGainMeta,
+        initialElevationGain.isAcceptableOrUnknown(
+          data['initial_elevation_gain']!,
+          _initialElevationGainMeta,
+        ),
+      );
+    }
+    if (data.containsKey('initial_activity_count')) {
+      context.handle(
+        _initialActivityCountMeta,
+        initialActivityCount.isAcceptableOrUnknown(
+          data['initial_activity_count']!,
+          _initialActivityCountMeta,
+        ),
+      );
+    }
+    if (data.containsKey('initial_kilojoules')) {
+      context.handle(
+        _initialKilojoulesMeta,
+        initialKilojoules.isAcceptableOrUnknown(
+          data['initial_kilojoules']!,
+          _initialKilojoulesMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -992,6 +1212,34 @@ class $BikesTable extends Bikes with TableInfo<$BikesTable, BikeDb> {
         DriftSqlType.int,
         data['${effectivePrefix}order_index'],
       )!,
+      initialDistance: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}initial_distance'],
+      )!,
+      initialElevationGain: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}initial_elevation_gain'],
+      )!,
+      initialMovingTime: $BikesTable.$converterinitialMovingTime.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}initial_moving_time'],
+        )!,
+      ),
+      initialElapsedTime: $BikesTable.$converterinitialElapsedTime.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}initial_elapsed_time'],
+        )!,
+      ),
+      initialActivityCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}initial_activity_count'],
+      )!,
+      initialKilojoules: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}initial_kilojoules'],
+      )!,
     );
   }
 
@@ -1002,6 +1250,10 @@ class $BikesTable extends Bikes with TableInfo<$BikesTable, BikeDb> {
 
   static TypeConverter<DateTime, DateTime> $converterlastModified =
       const UtcDateTimeConverter();
+  static TypeConverter<Duration, int> $converterinitialMovingTime =
+      const DurationConverter();
+  static TypeConverter<Duration, int> $converterinitialElapsedTime =
+      const DurationConverter();
 }
 
 class BikeDb extends DataClass implements Insertable<BikeDb> {
@@ -1013,6 +1265,12 @@ class BikeDb extends DataClass implements Insertable<BikeDb> {
   final String? person;
   final String? stravaGear;
   final int orderIndex;
+  final double initialDistance;
+  final double initialElevationGain;
+  final Duration initialMovingTime;
+  final Duration initialElapsedTime;
+  final int initialActivityCount;
+  final double initialKilojoules;
   const BikeDb({
     required this.id,
     required this.isDeleted,
@@ -1022,6 +1280,12 @@ class BikeDb extends DataClass implements Insertable<BikeDb> {
     this.person,
     this.stravaGear,
     required this.orderIndex,
+    required this.initialDistance,
+    required this.initialElevationGain,
+    required this.initialMovingTime,
+    required this.initialElapsedTime,
+    required this.initialActivityCount,
+    required this.initialKilojoules,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1044,6 +1308,20 @@ class BikeDb extends DataClass implements Insertable<BikeDb> {
       map['strava_gear'] = Variable<String>(stravaGear);
     }
     map['order_index'] = Variable<int>(orderIndex);
+    map['initial_distance'] = Variable<double>(initialDistance);
+    map['initial_elevation_gain'] = Variable<double>(initialElevationGain);
+    {
+      map['initial_moving_time'] = Variable<int>(
+        $BikesTable.$converterinitialMovingTime.toSql(initialMovingTime),
+      );
+    }
+    {
+      map['initial_elapsed_time'] = Variable<int>(
+        $BikesTable.$converterinitialElapsedTime.toSql(initialElapsedTime),
+      );
+    }
+    map['initial_activity_count'] = Variable<int>(initialActivityCount);
+    map['initial_kilojoules'] = Variable<double>(initialKilojoules);
     return map;
   }
 
@@ -1063,6 +1341,12 @@ class BikeDb extends DataClass implements Insertable<BikeDb> {
           ? const Value.absent()
           : Value(stravaGear),
       orderIndex: Value(orderIndex),
+      initialDistance: Value(initialDistance),
+      initialElevationGain: Value(initialElevationGain),
+      initialMovingTime: Value(initialMovingTime),
+      initialElapsedTime: Value(initialElapsedTime),
+      initialActivityCount: Value(initialActivityCount),
+      initialKilojoules: Value(initialKilojoules),
     );
   }
 
@@ -1080,6 +1364,20 @@ class BikeDb extends DataClass implements Insertable<BikeDb> {
       person: serializer.fromJson<String?>(json['person']),
       stravaGear: serializer.fromJson<String?>(json['stravaGear']),
       orderIndex: serializer.fromJson<int>(json['orderIndex']),
+      initialDistance: serializer.fromJson<double>(json['initialDistance']),
+      initialElevationGain: serializer.fromJson<double>(
+        json['initialElevationGain'],
+      ),
+      initialMovingTime: serializer.fromJson<Duration>(
+        json['initialMovingTime'],
+      ),
+      initialElapsedTime: serializer.fromJson<Duration>(
+        json['initialElapsedTime'],
+      ),
+      initialActivityCount: serializer.fromJson<int>(
+        json['initialActivityCount'],
+      ),
+      initialKilojoules: serializer.fromJson<double>(json['initialKilojoules']),
     );
   }
   @override
@@ -1094,6 +1392,12 @@ class BikeDb extends DataClass implements Insertable<BikeDb> {
       'person': serializer.toJson<String?>(person),
       'stravaGear': serializer.toJson<String?>(stravaGear),
       'orderIndex': serializer.toJson<int>(orderIndex),
+      'initialDistance': serializer.toJson<double>(initialDistance),
+      'initialElevationGain': serializer.toJson<double>(initialElevationGain),
+      'initialMovingTime': serializer.toJson<Duration>(initialMovingTime),
+      'initialElapsedTime': serializer.toJson<Duration>(initialElapsedTime),
+      'initialActivityCount': serializer.toJson<int>(initialActivityCount),
+      'initialKilojoules': serializer.toJson<double>(initialKilojoules),
     };
   }
 
@@ -1106,6 +1410,12 @@ class BikeDb extends DataClass implements Insertable<BikeDb> {
     Value<String?> person = const Value.absent(),
     Value<String?> stravaGear = const Value.absent(),
     int? orderIndex,
+    double? initialDistance,
+    double? initialElevationGain,
+    Duration? initialMovingTime,
+    Duration? initialElapsedTime,
+    int? initialActivityCount,
+    double? initialKilojoules,
   }) => BikeDb(
     id: id ?? this.id,
     isDeleted: isDeleted ?? this.isDeleted,
@@ -1115,6 +1425,12 @@ class BikeDb extends DataClass implements Insertable<BikeDb> {
     person: person.present ? person.value : this.person,
     stravaGear: stravaGear.present ? stravaGear.value : this.stravaGear,
     orderIndex: orderIndex ?? this.orderIndex,
+    initialDistance: initialDistance ?? this.initialDistance,
+    initialElevationGain: initialElevationGain ?? this.initialElevationGain,
+    initialMovingTime: initialMovingTime ?? this.initialMovingTime,
+    initialElapsedTime: initialElapsedTime ?? this.initialElapsedTime,
+    initialActivityCount: initialActivityCount ?? this.initialActivityCount,
+    initialKilojoules: initialKilojoules ?? this.initialKilojoules,
   );
   BikeDb copyWithCompanion(BikesCompanion data) {
     return BikeDb(
@@ -1132,6 +1448,24 @@ class BikeDb extends DataClass implements Insertable<BikeDb> {
       orderIndex: data.orderIndex.present
           ? data.orderIndex.value
           : this.orderIndex,
+      initialDistance: data.initialDistance.present
+          ? data.initialDistance.value
+          : this.initialDistance,
+      initialElevationGain: data.initialElevationGain.present
+          ? data.initialElevationGain.value
+          : this.initialElevationGain,
+      initialMovingTime: data.initialMovingTime.present
+          ? data.initialMovingTime.value
+          : this.initialMovingTime,
+      initialElapsedTime: data.initialElapsedTime.present
+          ? data.initialElapsedTime.value
+          : this.initialElapsedTime,
+      initialActivityCount: data.initialActivityCount.present
+          ? data.initialActivityCount.value
+          : this.initialActivityCount,
+      initialKilojoules: data.initialKilojoules.present
+          ? data.initialKilojoules.value
+          : this.initialKilojoules,
     );
   }
 
@@ -1145,7 +1479,13 @@ class BikeDb extends DataClass implements Insertable<BikeDb> {
           ..write('notes: $notes, ')
           ..write('person: $person, ')
           ..write('stravaGear: $stravaGear, ')
-          ..write('orderIndex: $orderIndex')
+          ..write('orderIndex: $orderIndex, ')
+          ..write('initialDistance: $initialDistance, ')
+          ..write('initialElevationGain: $initialElevationGain, ')
+          ..write('initialMovingTime: $initialMovingTime, ')
+          ..write('initialElapsedTime: $initialElapsedTime, ')
+          ..write('initialActivityCount: $initialActivityCount, ')
+          ..write('initialKilojoules: $initialKilojoules')
           ..write(')'))
         .toString();
   }
@@ -1160,6 +1500,12 @@ class BikeDb extends DataClass implements Insertable<BikeDb> {
     person,
     stravaGear,
     orderIndex,
+    initialDistance,
+    initialElevationGain,
+    initialMovingTime,
+    initialElapsedTime,
+    initialActivityCount,
+    initialKilojoules,
   );
   @override
   bool operator ==(Object other) =>
@@ -1172,7 +1518,13 @@ class BikeDb extends DataClass implements Insertable<BikeDb> {
           other.notes == this.notes &&
           other.person == this.person &&
           other.stravaGear == this.stravaGear &&
-          other.orderIndex == this.orderIndex);
+          other.orderIndex == this.orderIndex &&
+          other.initialDistance == this.initialDistance &&
+          other.initialElevationGain == this.initialElevationGain &&
+          other.initialMovingTime == this.initialMovingTime &&
+          other.initialElapsedTime == this.initialElapsedTime &&
+          other.initialActivityCount == this.initialActivityCount &&
+          other.initialKilojoules == this.initialKilojoules);
 }
 
 class BikesCompanion extends UpdateCompanion<BikeDb> {
@@ -1184,6 +1536,12 @@ class BikesCompanion extends UpdateCompanion<BikeDb> {
   final Value<String?> person;
   final Value<String?> stravaGear;
   final Value<int> orderIndex;
+  final Value<double> initialDistance;
+  final Value<double> initialElevationGain;
+  final Value<Duration> initialMovingTime;
+  final Value<Duration> initialElapsedTime;
+  final Value<int> initialActivityCount;
+  final Value<double> initialKilojoules;
   final Value<int> rowid;
   const BikesCompanion({
     this.id = const Value.absent(),
@@ -1194,6 +1552,12 @@ class BikesCompanion extends UpdateCompanion<BikeDb> {
     this.person = const Value.absent(),
     this.stravaGear = const Value.absent(),
     this.orderIndex = const Value.absent(),
+    this.initialDistance = const Value.absent(),
+    this.initialElevationGain = const Value.absent(),
+    this.initialMovingTime = const Value.absent(),
+    this.initialElapsedTime = const Value.absent(),
+    this.initialActivityCount = const Value.absent(),
+    this.initialKilojoules = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   BikesCompanion.insert({
@@ -1205,6 +1569,12 @@ class BikesCompanion extends UpdateCompanion<BikeDb> {
     this.person = const Value.absent(),
     this.stravaGear = const Value.absent(),
     this.orderIndex = const Value.absent(),
+    this.initialDistance = const Value.absent(),
+    this.initialElevationGain = const Value.absent(),
+    this.initialMovingTime = const Value.absent(),
+    this.initialElapsedTime = const Value.absent(),
+    this.initialActivityCount = const Value.absent(),
+    this.initialKilojoules = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        lastModified = Value(lastModified),
@@ -1218,6 +1588,12 @@ class BikesCompanion extends UpdateCompanion<BikeDb> {
     Expression<String>? person,
     Expression<String>? stravaGear,
     Expression<int>? orderIndex,
+    Expression<double>? initialDistance,
+    Expression<double>? initialElevationGain,
+    Expression<int>? initialMovingTime,
+    Expression<int>? initialElapsedTime,
+    Expression<int>? initialActivityCount,
+    Expression<double>? initialKilojoules,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1229,6 +1605,15 @@ class BikesCompanion extends UpdateCompanion<BikeDb> {
       if (person != null) 'person': person,
       if (stravaGear != null) 'strava_gear': stravaGear,
       if (orderIndex != null) 'order_index': orderIndex,
+      if (initialDistance != null) 'initial_distance': initialDistance,
+      if (initialElevationGain != null)
+        'initial_elevation_gain': initialElevationGain,
+      if (initialMovingTime != null) 'initial_moving_time': initialMovingTime,
+      if (initialElapsedTime != null)
+        'initial_elapsed_time': initialElapsedTime,
+      if (initialActivityCount != null)
+        'initial_activity_count': initialActivityCount,
+      if (initialKilojoules != null) 'initial_kilojoules': initialKilojoules,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1242,6 +1627,12 @@ class BikesCompanion extends UpdateCompanion<BikeDb> {
     Value<String?>? person,
     Value<String?>? stravaGear,
     Value<int>? orderIndex,
+    Value<double>? initialDistance,
+    Value<double>? initialElevationGain,
+    Value<Duration>? initialMovingTime,
+    Value<Duration>? initialElapsedTime,
+    Value<int>? initialActivityCount,
+    Value<double>? initialKilojoules,
     Value<int>? rowid,
   }) {
     return BikesCompanion(
@@ -1253,6 +1644,12 @@ class BikesCompanion extends UpdateCompanion<BikeDb> {
       person: person ?? this.person,
       stravaGear: stravaGear ?? this.stravaGear,
       orderIndex: orderIndex ?? this.orderIndex,
+      initialDistance: initialDistance ?? this.initialDistance,
+      initialElevationGain: initialElevationGain ?? this.initialElevationGain,
+      initialMovingTime: initialMovingTime ?? this.initialMovingTime,
+      initialElapsedTime: initialElapsedTime ?? this.initialElapsedTime,
+      initialActivityCount: initialActivityCount ?? this.initialActivityCount,
+      initialKilojoules: initialKilojoules ?? this.initialKilojoules,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1286,6 +1683,32 @@ class BikesCompanion extends UpdateCompanion<BikeDb> {
     if (orderIndex.present) {
       map['order_index'] = Variable<int>(orderIndex.value);
     }
+    if (initialDistance.present) {
+      map['initial_distance'] = Variable<double>(initialDistance.value);
+    }
+    if (initialElevationGain.present) {
+      map['initial_elevation_gain'] = Variable<double>(
+        initialElevationGain.value,
+      );
+    }
+    if (initialMovingTime.present) {
+      map['initial_moving_time'] = Variable<int>(
+        $BikesTable.$converterinitialMovingTime.toSql(initialMovingTime.value),
+      );
+    }
+    if (initialElapsedTime.present) {
+      map['initial_elapsed_time'] = Variable<int>(
+        $BikesTable.$converterinitialElapsedTime.toSql(
+          initialElapsedTime.value,
+        ),
+      );
+    }
+    if (initialActivityCount.present) {
+      map['initial_activity_count'] = Variable<int>(initialActivityCount.value);
+    }
+    if (initialKilojoules.present) {
+      map['initial_kilojoules'] = Variable<double>(initialKilojoules.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1303,6 +1726,12 @@ class BikesCompanion extends UpdateCompanion<BikeDb> {
           ..write('person: $person, ')
           ..write('stravaGear: $stravaGear, ')
           ..write('orderIndex: $orderIndex, ')
+          ..write('initialDistance: $initialDistance, ')
+          ..write('initialElevationGain: $initialElevationGain, ')
+          ..write('initialMovingTime: $initialMovingTime, ')
+          ..write('initialElapsedTime: $initialElapsedTime, ')
+          ..write('initialActivityCount: $initialActivityCount, ')
+          ..write('initialKilojoules: $initialKilojoules, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -9041,6 +9470,14 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $StravaAthletesTable stravaAthletes = $StravaAthletesTable(this);
   late final $StravaGearsTable stravaGears = $StravaGearsTable(this);
+  late final Index installationsComponentDateIdx = Index(
+    'installations_component_date_idx',
+    'CREATE INDEX installations_component_date_idx ON installations (component_id, date_time_u_t_c)',
+  );
+  late final Index installationsParentLookupIdx = Index(
+    'installations_parent_lookup_idx',
+    'CREATE INDEX installations_parent_lookup_idx ON installations (parent_type, parent, date_time_u_t_c)',
+  );
   late final BikesDao bikesDao = BikesDao(this as AppDatabase);
   late final ComponentsDao componentsDao = ComponentsDao(this as AppDatabase);
   late final SetupsDao setupsDao = SetupsDao(this as AppDatabase);
@@ -9072,6 +9509,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     stravaActivities,
     stravaAthletes,
     stravaGears,
+    installationsComponentDateIdx,
+    installationsParentLookupIdx,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -9177,6 +9616,8 @@ typedef $$ComponentsTableCreateCompanionBuilder =
       Value<Duration> initialElapsedTime,
       Value<int> initialActivityCount,
       Value<double> initialKilojoules,
+      Value<String?> presetKey,
+      Value<String?> presetDamperKey,
       Value<int> rowid,
     });
 typedef $$ComponentsTableUpdateCompanionBuilder =
@@ -9194,6 +9635,8 @@ typedef $$ComponentsTableUpdateCompanionBuilder =
       Value<Duration> initialElapsedTime,
       Value<int> initialActivityCount,
       Value<double> initialKilojoules,
+      Value<String?> presetKey,
+      Value<String?> presetDamperKey,
       Value<int> rowid,
     });
 
@@ -9349,6 +9792,16 @@ class $$ComponentsTableFilterComposer
 
   ColumnFilters<double> get initialKilojoules => $composableBuilder(
     column: $table.initialKilojoules,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get presetKey => $composableBuilder(
+    column: $table.presetKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get presetDamperKey => $composableBuilder(
+    column: $table.presetDamperKey,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -9526,6 +9979,16 @@ class $$ComponentsTableOrderingComposer
     column: $table.initialKilojoules,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get presetKey => $composableBuilder(
+    column: $table.presetKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get presetDamperKey => $composableBuilder(
+    column: $table.presetDamperKey,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ComponentsTableAnnotationComposer
@@ -9595,6 +10058,14 @@ class $$ComponentsTableAnnotationComposer
 
   GeneratedColumn<double> get initialKilojoules => $composableBuilder(
     column: $table.initialKilojoules,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get presetKey =>
+      $composableBuilder(column: $table.presetKey, builder: (column) => column);
+
+  GeneratedColumn<String> get presetDamperKey => $composableBuilder(
+    column: $table.presetDamperKey,
     builder: (column) => column,
   );
 
@@ -9745,6 +10216,8 @@ class $$ComponentsTableTableManager
                 Value<Duration> initialElapsedTime = const Value.absent(),
                 Value<int> initialActivityCount = const Value.absent(),
                 Value<double> initialKilojoules = const Value.absent(),
+                Value<String?> presetKey = const Value.absent(),
+                Value<String?> presetDamperKey = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ComponentsCompanion(
                 id: id,
@@ -9760,6 +10233,8 @@ class $$ComponentsTableTableManager
                 initialElapsedTime: initialElapsedTime,
                 initialActivityCount: initialActivityCount,
                 initialKilojoules: initialKilojoules,
+                presetKey: presetKey,
+                presetDamperKey: presetDamperKey,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -9777,6 +10252,8 @@ class $$ComponentsTableTableManager
                 Value<Duration> initialElapsedTime = const Value.absent(),
                 Value<int> initialActivityCount = const Value.absent(),
                 Value<double> initialKilojoules = const Value.absent(),
+                Value<String?> presetKey = const Value.absent(),
+                Value<String?> presetDamperKey = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ComponentsCompanion.insert(
                 id: id,
@@ -9792,6 +10269,8 @@ class $$ComponentsTableTableManager
                 initialElapsedTime: initialElapsedTime,
                 initialActivityCount: initialActivityCount,
                 initialKilojoules: initialKilojoules,
+                presetKey: presetKey,
+                presetDamperKey: presetDamperKey,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -9941,6 +10420,12 @@ typedef $$BikesTableCreateCompanionBuilder =
       Value<String?> person,
       Value<String?> stravaGear,
       Value<int> orderIndex,
+      Value<double> initialDistance,
+      Value<double> initialElevationGain,
+      Value<Duration> initialMovingTime,
+      Value<Duration> initialElapsedTime,
+      Value<int> initialActivityCount,
+      Value<double> initialKilojoules,
       Value<int> rowid,
     });
 typedef $$BikesTableUpdateCompanionBuilder =
@@ -9953,6 +10438,12 @@ typedef $$BikesTableUpdateCompanionBuilder =
       Value<String?> person,
       Value<String?> stravaGear,
       Value<int> orderIndex,
+      Value<double> initialDistance,
+      Value<double> initialElevationGain,
+      Value<Duration> initialMovingTime,
+      Value<Duration> initialElapsedTime,
+      Value<int> initialActivityCount,
+      Value<double> initialKilojoules,
       Value<int> rowid,
     });
 
@@ -10080,6 +10571,38 @@ class $$BikesTableFilterComposer extends Composer<_$AppDatabase, $BikesTable> {
 
   ColumnFilters<int> get orderIndex => $composableBuilder(
     column: $table.orderIndex,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get initialDistance => $composableBuilder(
+    column: $table.initialDistance,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get initialElevationGain => $composableBuilder(
+    column: $table.initialElevationGain,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<Duration, Duration, int>
+  get initialMovingTime => $composableBuilder(
+    column: $table.initialMovingTime,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<Duration, Duration, int>
+  get initialElapsedTime => $composableBuilder(
+    column: $table.initialElapsedTime,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<int> get initialActivityCount => $composableBuilder(
+    column: $table.initialActivityCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get initialKilojoules => $composableBuilder(
+    column: $table.initialKilojoules,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -10232,6 +10755,36 @@ class $$BikesTableOrderingComposer
     column: $table.orderIndex,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<double> get initialDistance => $composableBuilder(
+    column: $table.initialDistance,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get initialElevationGain => $composableBuilder(
+    column: $table.initialElevationGain,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get initialMovingTime => $composableBuilder(
+    column: $table.initialMovingTime,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get initialElapsedTime => $composableBuilder(
+    column: $table.initialElapsedTime,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get initialActivityCount => $composableBuilder(
+    column: $table.initialActivityCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get initialKilojoules => $composableBuilder(
+    column: $table.initialKilojoules,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$BikesTableAnnotationComposer
@@ -10271,6 +10824,38 @@ class $$BikesTableAnnotationComposer
 
   GeneratedColumn<int> get orderIndex => $composableBuilder(
     column: $table.orderIndex,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get initialDistance => $composableBuilder(
+    column: $table.initialDistance,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get initialElevationGain => $composableBuilder(
+    column: $table.initialElevationGain,
+    builder: (column) => column,
+  );
+
+  GeneratedColumnWithTypeConverter<Duration, int> get initialMovingTime =>
+      $composableBuilder(
+        column: $table.initialMovingTime,
+        builder: (column) => column,
+      );
+
+  GeneratedColumnWithTypeConverter<Duration, int> get initialElapsedTime =>
+      $composableBuilder(
+        column: $table.initialElapsedTime,
+        builder: (column) => column,
+      );
+
+  GeneratedColumn<int> get initialActivityCount => $composableBuilder(
+    column: $table.initialActivityCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get initialKilojoules => $composableBuilder(
+    column: $table.initialKilojoules,
     builder: (column) => column,
   );
 
@@ -10416,6 +11001,12 @@ class $$BikesTableTableManager
                 Value<String?> person = const Value.absent(),
                 Value<String?> stravaGear = const Value.absent(),
                 Value<int> orderIndex = const Value.absent(),
+                Value<double> initialDistance = const Value.absent(),
+                Value<double> initialElevationGain = const Value.absent(),
+                Value<Duration> initialMovingTime = const Value.absent(),
+                Value<Duration> initialElapsedTime = const Value.absent(),
+                Value<int> initialActivityCount = const Value.absent(),
+                Value<double> initialKilojoules = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => BikesCompanion(
                 id: id,
@@ -10426,6 +11017,12 @@ class $$BikesTableTableManager
                 person: person,
                 stravaGear: stravaGear,
                 orderIndex: orderIndex,
+                initialDistance: initialDistance,
+                initialElevationGain: initialElevationGain,
+                initialMovingTime: initialMovingTime,
+                initialElapsedTime: initialElapsedTime,
+                initialActivityCount: initialActivityCount,
+                initialKilojoules: initialKilojoules,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -10438,6 +11035,12 @@ class $$BikesTableTableManager
                 Value<String?> person = const Value.absent(),
                 Value<String?> stravaGear = const Value.absent(),
                 Value<int> orderIndex = const Value.absent(),
+                Value<double> initialDistance = const Value.absent(),
+                Value<double> initialElevationGain = const Value.absent(),
+                Value<Duration> initialMovingTime = const Value.absent(),
+                Value<Duration> initialElapsedTime = const Value.absent(),
+                Value<int> initialActivityCount = const Value.absent(),
+                Value<double> initialKilojoules = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => BikesCompanion.insert(
                 id: id,
@@ -10448,6 +11051,12 @@ class $$BikesTableTableManager
                 person: person,
                 stravaGear: stravaGear,
                 orderIndex: orderIndex,
+                initialDistance: initialDistance,
+                initialElevationGain: initialElevationGain,
+                initialMovingTime: initialMovingTime,
+                initialElapsedTime: initialElapsedTime,
+                initialActivityCount: initialActivityCount,
+                initialKilojoules: initialKilojoules,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

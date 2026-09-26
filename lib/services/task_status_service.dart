@@ -25,7 +25,7 @@ class TaskStatusService {
 
     final context = TaskProgressContext(
       currentStats: currentStats,
-      baselineStats: lastEntry?.snapshot ?? ComponentStats.zero(),
+      baselineStats: lastEntry?.snapshot ?? ComponentStats.zero,
       now: now,
       baselineDate:
           lastEntry?.dateTimeUTC ?? componentInstallationDate ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),

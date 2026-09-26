@@ -80,6 +80,7 @@ forks:
     url: https://extremeshox.com/product/ext-era-v2-1/
     trims:
       - trim: Standard
+        key: fork-ext-era-v2-1-standard-2025
         travel_mm: [130, 140, 150, 160, 170]
         stanchion: 36mm, forged AL 7050 T6 crown
         spring: Air
@@ -96,6 +97,7 @@ forks:
     url: https://extremeshox.com/product/ext-era-v2-lt/
     trims:
       - trim: Standard
+        key: fork-ext-era-v2-lt-standard-2025
         travel_mm: [180, 190]
         stanchion: 36mm, stem/crown-integrated design
         spring: Air
@@ -113,6 +115,7 @@ forks:
     url: https://extremeshox.com/product/vaia/
     trims:
       - trim: Standard
+        key: fork-ext-vaia-standard-2025
         travel_mm: [170, 180, 190, 200]
         stanchion: 38.5mm tapered, dual-crown
         spring: Air

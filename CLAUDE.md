@@ -20,6 +20,10 @@ flutter pub run build_runner clean         # Clean generated files
 
 CI runs `flutter pub get` → `flutter analyze` → `flutter test` on push to `main`/`dev`.
 
+## Git Workflow
+
+**Do not stage or unstage files unprompted.** Only stage files when you are explicitly asked to commit. After making changes, ask for confirmation before staging and committing — show a summary of what will be committed and wait for approval. This includes changes made as part of task completion.
+
 ## Planning and feature status
 
 GitHub Issues are the canonical planning and status tracker:

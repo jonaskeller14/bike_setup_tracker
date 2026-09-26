@@ -9,8 +9,7 @@ import '../../icons/simple_icons.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
-import '../../models/component.dart';
-import '../../models/component_stats.dart';
+import '../../models/component/component.dart';
 import '../../models/person.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
@@ -30,6 +29,7 @@ import '../../widgets/items/component_list_card.dart';
 import '../../widgets/notes_text.dart';
 import '../../widgets/open_tasks_tile.dart';
 import '../../widgets/sheets/column_filter.dart';
+import '../../widgets/sheets/set_initial_stats.dart' as initial_stats;
 import '../../widgets/text/section_title.dart';
 
 class BikeDetailsPage extends StatefulWidget {
@@ -159,6 +159,11 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
     final activeColumns = orderedColumns.where((c) => c.active).toList();
     if (!activeColumns.contains(_sortColumn)) _sortColumn = null;
 
+    bool isDangling(Setup setup, TableColumn column) => column is PersonAttributeColumn && setup.person != person?.id;
+    final hasDanglingValues = activeColumns.any(
+      (column) => setupsUnsorted.any((setup) => _rawValue(setup, column) != null && isDangling(setup, column)),
+    );
+
     final bikes = appRepository.bikes;
     final setups = _sortSetupsByColumn(
       setups: setupsUnsorted,
@@ -218,6 +223,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
             bikes: bikes,
             setupActivityCounts: setupActivityCounts,
             valueFor: _rawValue,
+            isDangling: isDangling,
             columnLabel: (column) => _columnLabel(column, personAdjustments),
             onSort: (column, ascending) {
               setState(() {
@@ -229,7 +235,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
               setState(() => column.active = false);
             },
           ),
-          if (activeColumns.any((c) => c is PersonAttributeColumn)) const InitialChangedValueLegend(),
+          if (activeColumns.any((c) => c is PersonAttributeColumn)) InitialChangedValueLegend(showDangling: hasDanglingValues),
         ],
         const SizedBox(height: 16),
       ],
@@ -257,9 +263,12 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
 
     final person = appRepository.persons[bike.person];
     final stravaGear = appRepository.stravaGears[bike.stravaGear];
-    final components = appRepository.components.values.where((c) => c.bike == bike.id);
-    final stats = appRepository.bikeStats[widget.bikeId] ?? ComponentStats.zero();
-    
+    final components = appRepository.components.values.where(
+      (component) => appRepository.componentHierarchy.currentBike(component.id) == bike.id,
+    );
+    final stats = appRepository.bikeStats[widget.bikeId] ?? bike.initialStats;
+    final initialStatsSummary = initial_stats.initialStatsSummary(bike.initialStats, appSettings);
+
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -333,7 +342,14 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
                   dense: true,
                 ),
 
-              if ((appSettings.enableStrava && subscriptionService.hasStravaEntitlement) || appSettings.enablePerson || bike.notes != null)
+              if (initialStatsSummary != null)
+                ListTile(
+                  leading: const Icon(Icons.start),
+                  title: Text("Initial: $initialStatsSummary"),
+                  dense: true,
+                ),
+
+              if ((appSettings.enableStrava && subscriptionService.hasStravaEntitlement) || appSettings.enablePerson || bike.notes != null || initialStatsSummary != null)
                 const Divider(height: 1),
 
               if (appSettings.enableTask) ...[

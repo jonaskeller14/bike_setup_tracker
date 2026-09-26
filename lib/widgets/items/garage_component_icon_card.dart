@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
-import '../../models/component.dart';
+import '../../models/component/component.dart';
 import '../../models/task/task_rule.dart';
 import '../../repositories/app_repository.dart';
+import '../../utils/installation_issue.dart';
 
 class GarageComponentIconCard extends StatelessWidget {
   static const double minimumWidth = 47;
@@ -15,12 +16,16 @@ class GarageComponentIconCard extends StatelessWidget {
   final Component component;
   final String? componentToShowDetails;
   final double? width;
+  final InstallationIssue? issue;
+  final bool merged;  // group header --> no border+background
 
   const GarageComponentIconCard({
     super.key,
     required this.component,
     required this.componentToShowDetails,
     this.width,
+    this.issue,
+    this.merged = false,
   });
 
   static double widthFor(
@@ -31,9 +36,20 @@ class GarageComponentIconCard extends StatelessWidget {
       0.0,
       availableWidth - rowEndSpacing,
     );
+    final columns = cardsPerRow(availableWidth, spacing: spacing);
+    return (safeAvailableWidth - spacing * (columns - 1)) / columns;
+  }
+
+  static int cardsPerRow(
+    double availableWidth, {
+    required double spacing,
+  }) {
+    final safeAvailableWidth = math.max(
+      0.0,
+      availableWidth - rowEndSpacing,
+    );
     final fittingCards = ((safeAvailableWidth + spacing) / (minimumWidth + spacing)).floor();
-    final cardsPerRow = fittingCards < 1 ? 1 : fittingCards;
-    return (safeAvailableWidth - spacing * (cardsPerRow - 1)) / cardsPerRow;
+    return fittingCards < 1 ? 1 : fittingCards;
   }
 
   @override
@@ -41,6 +57,7 @@ class GarageComponentIconCard extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final isSelected = componentToShowDetails == component.id;
     final appSettings = context.watch<AppSettings>();
+    final borderWidth = isSelected && !merged ? 1.5 : 1.0;
 
     TaskStatusType? indicatorStatus;
     if (appSettings.enableTask && appSettings.enableGarageTaskIndicator) {
@@ -54,19 +71,28 @@ class GarageComponentIconCard extends StatelessWidget {
           key: ValueKey(component.id),
           width: width,
           alignment: Alignment.center,
-          padding: const EdgeInsets.all(10),
+          // Border width counts toward layout; offset it so selection grows the border inward.
+          padding: EdgeInsets.all(11 - borderWidth),
           decoration: BoxDecoration(
-            color: isSelected
-                ? colorScheme.tertiaryContainer
-                : colorScheme.surface,
+            // The group head stays unfilled: its group container carries the
+            // background and, when selected, the highlight for the whole group.
+            color: merged
+                ? Colors.transparent
+                : isSelected
+                    ? colorScheme.tertiaryContainer
+                    : colorScheme.surface,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: isSelected
-                  ? colorScheme.tertiary
-                  : colorScheme.outlineVariant,
-              width: isSelected ? 1.5 : 1.0,
+              color: merged
+                  ? (issue != null && !isSelected ? colorScheme.error : Colors.transparent)
+                  : isSelected
+                      ? colorScheme.tertiary
+                      : issue != null
+                          ? colorScheme.error
+                          : colorScheme.outlineVariant,
+              width: borderWidth,
             ),
-            boxShadow: isSelected
+            boxShadow: isSelected && !merged
                 ? [BoxShadow(
                     color: colorScheme.tertiary.withValues(alpha: 0.2),
                     blurRadius: 4,
@@ -82,6 +108,28 @@ class GarageComponentIconCard extends StatelessWidget {
                 : colorScheme.onSurface,
           ),
         ),
+        if (issue != null)
+          Positioned(
+            top: -3,
+            left: -3,
+            child: Semantics(
+              label: issue!.label,
+              child: Tooltip(
+                message: issue!.label,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: isSelected ? colorScheme.tertiaryContainer : colorScheme.surface,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.error_outline,
+                    size: 14,
+                    color: colorScheme.error,
+                  ),
+                ),
+              ),
+            ),
+          ),
         if (indicatorStatus != null)
           Positioned(
             top: -3,

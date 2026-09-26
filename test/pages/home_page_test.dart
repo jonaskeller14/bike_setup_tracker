@@ -3,8 +3,8 @@ import 'package:bike_setup_tracker/main.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
-import 'package:bike_setup_tracker/models/component.dart';
-import 'package:bike_setup_tracker/models/installation.dart';
+import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
 import 'package:bike_setup_tracker/pages/onboarding_page.dart';
@@ -44,7 +44,9 @@ void main() {
   });
 
   tearDown(() async {
-    appRepository.dispose();
+    // Closing the database right after dispose() races its fire-and-forget
+    // subscription cancellation and can hang; wait for cancellation first.
+    await appRepository.disposeAndAwaitCancellation();
     appSettings.dispose();
     appHintService.dispose();
     await database.close();
@@ -262,7 +264,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Settings'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Help & Support'));
+    await tester.tap(find.text('Help'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Show Onboarding'));
     await tester.pumpAndSettle();

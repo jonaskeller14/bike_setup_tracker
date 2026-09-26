@@ -1,11 +1,11 @@
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
-import 'package:bike_setup_tracker/models/component.dart';
-import 'package:bike_setup_tracker/models/installation.dart';
+import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/person.dart';
-import 'package:bike_setup_tracker/models/rating.dart';
-import 'package:bike_setup_tracker/models/rating_association.dart';
-import 'package:bike_setup_tracker/models/rating_entry.dart';
+import 'package:bike_setup_tracker/models/rating/rating.dart';
+import 'package:bike_setup_tracker/models/rating/rating_association.dart';
+import 'package:bike_setup_tracker/models/rating/rating_entry.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -20,7 +20,7 @@ void main() {
     late AppRepository appRepository;
     final bike1 = Bike(name: "Bike #1", person: null);
     final person1 = Person(name: "Person #1", adjustments: []);
-    final rating1 = Rating(name: "Rating #1", filterType: FilterType.global, filter: null, metrics: []);
+    final rating1 = Rating(name: "Rating #1", association: const GlobalRatingAssociation(), metrics: []);
     late Component component1;
     late Setup setup1;
     late RatingEntry ratingEntry1;
@@ -55,8 +55,10 @@ void main() {
     });
 
     tearDown(() async {
-      data.dispose();
-      appRepository.dispose();
+      // Closing the database right after dispose() races its fire-and-forget
+      // subscription cancellation and can hang; wait for cancellation first.
+      await data.disposeAndAwaitCancellation();
+      await appRepository.disposeAndAwaitCancellation();
       await database.close();
     });
 

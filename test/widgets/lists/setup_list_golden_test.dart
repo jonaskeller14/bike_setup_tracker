@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:alchemist/alchemist.dart';
 import 'package:bike_setup_tracker/widgets/current_setup_highlight.dart';
 import 'package:bike_setup_tracker/widgets/items/setup_tile.dart';
-import 'package:bike_setup_tracker/widgets/lists/adjustment_compact_display_list.dart';
+import 'package:bike_setup_tracker/widgets/lists/adjustment_compact_display/adjustment_compact_display_list.dart';
 import 'package:bike_setup_tracker/widgets/lists/setup_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';

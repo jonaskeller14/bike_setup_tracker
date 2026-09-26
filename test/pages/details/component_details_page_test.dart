@@ -4,8 +4,8 @@ import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
-import 'package:bike_setup_tracker/models/component.dart';
-import 'package:bike_setup_tracker/models/installation.dart';
+import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:bike_setup_tracker/pages/details/component_details_page.dart';
@@ -61,7 +61,9 @@ void main() {
   });
 
   tearDown(() async {
-    appRepository.dispose();
+    // Closing the database right after dispose() races its fire-and-forget
+    // subscription cancellation and can hang; wait for cancellation first.
+    await appRepository.disposeAndAwaitCancellation();
     appSettings.dispose();
     setupActivityAnalysisService.dispose();
     await database.close();
@@ -172,6 +174,8 @@ void main() {
     final service = MockSetupActivityAnalysisService();
     when(() => service.hasAnyActivity).thenReturn(true);
     when(() => service.setupActivityCounts).thenReturn(counts);
+    when(() => service.setupActivityCountsLoaded).thenReturn(true);
+    when(() => service.setupActivityCountsFailed).thenReturn(false);
     when(service.getSetupActivityCounts).thenAnswer((_) async => counts);
     setupActivityAnalysisService = service;
   }
@@ -439,6 +443,46 @@ void main() {
     await tester.pumpAndSettle();
     texts = getSetupTextOrder().toList();
     expect(texts, ['B Setup', 'A Setup']);
+  });
+
+  testWidgets('highlights values of setups before the component was installed as dangling', (WidgetTester tester) async {
+    final adjustment = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, min: 0, max: 10, step: 1, visualization: StepAdjustmentVisualization.slider);
+    final component = Component(
+      id: 'comp1',
+      name: 'Test Fork',
+      installations: [Installation(parent: 'bike1', dateTimeUTC: DateTime.utc(2024), dateTimeLocal: DateTime(2024))],
+      componentType: ComponentType.fork,
+      adjustments: [adjustment],
+    );
+    await seedRepository(tester, () async {
+      await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null)]);
+      await appRepository.addComponents([component]);
+      await appRepository.addSetups([
+        Setup(id: 's1', name: 'Before', datetime: DateTime(2023).toUtc(), datetimeLocal: DateTime(2023), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 3}, personAdjustmentValues: {}),
+        Setup(id: 's2', name: 'After', datetime: DateTime(2025).toUtc(), datetimeLocal: DateTime(2025), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 7}, personAdjustmentValues: {}),
+      ]);
+    });
+
+    appRepository.dispose();
+    appRepository = AppRepository(database);
+
+    await tester.pumpWidget(createWidgetUnderTest('comp1'));
+    await tester.runAsync(() async {
+      int attempts = 0;
+      while (appRepository.components['comp1'] == null && attempts < 10) {
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+        attempts++;
+      }
+    });
+    await tester.pumpAndSettle();
+
+    final errorColor = materialAppTheme.colorScheme.error;
+    Color? cellColor(String text) =>
+        tester.widget<Text>(find.descendant(of: find.byType(SetupTable), matching: find.text(text))).style?.color;
+
+    expect(cellColor('3'), errorColor);
+    expect(cellColor('7'), isNot(errorColor));
+    expect(find.text('Dangling Value'), findsOneWidget);
   });
 
   testWidgets('sortColumn and remove columns so that index >= length', (WidgetTester tester) async {

@@ -12,22 +12,33 @@ import 'setup_group_header.dart';
 import 'setup_tile.dart';
 import 'setup_tile_embedded.dart';
 import 'tile_meta_row.dart';
+import 'timeline_selection_fill.dart';
 
 class SetupGroupSection extends StatelessWidget {
   final List<String> setupIds;
   final void Function(Setup setup)? onTapSetup;
+  final bool selectionMode;
+  final Set<String> selectedSetupIds;
+  final ValueChanged<Iterable<String>>? onSetupSelectionChanged;
 
   const SetupGroupSection({
     super.key,
     required this.setupIds,
     required this.onTapSetup,
+    this.selectionMode = false,
+    this.selectedSetupIds = const {},
+    this.onSetupSelectionChanged,
   });
 
-  Widget _member(BuildContext context, Setup setup, {required bool hidePlace}) {
+  Widget _member(BuildContext context, Setup setup, {required bool hidePlace, required bool groupSelected}) {
     return SetupTileEmbedded(
       key: ValueKey(setup.id),
       setupId: setup.id,
       onTap: onTapSetup == null ? null : () => onTapSetup!(setup),
+      selectionMode: selectionMode,
+      selected: selectedSetupIds.contains(setup.id),
+      showSelectionFill: !groupSelected,
+      onSelectionChanged: onSetupSelectionChanged == null ? null : () => onSetupSelectionChanged!([setup.id]),
       showDate: false,
       hidePlace: hidePlace,
     );
@@ -47,6 +58,11 @@ class SetupGroupSection extends StatelessWidget {
       return SetupTile(
         setupId: setups.first.id,
         onTap: onTapSetup == null ? null : () => onTapSetup!(setups.first),
+        selectionMode: selectionMode,
+        selected: selectedSetupIds.contains(setups.first.id),
+        onSelectionChanged: onSetupSelectionChanged == null
+            ? null
+            : () => onSetupSelectionChanged!([setups.first.id]),
         showDate: false,
       );
     }
@@ -101,7 +117,17 @@ class SetupGroupSection extends StatelessWidget {
         ),
     ];
 
-    return Column(
+    final allSelected = setups.every((s) => selectedSetupIds.contains(s.id));
+    final VoidCallback? toggleGroup = onSetupSelectionChanged == null
+        ? null
+        : () => onSetupSelectionChanged!(setups.map((s) => s.id));
+
+    return TimelineSelectionFill(
+      selected: allSelected,
+      child: InkWell(
+      onTap: selectionMode ? toggleGroup : null,
+      onLongPress: toggleGroup,
+      child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SetupGroupHeader(
@@ -113,6 +139,7 @@ class SetupGroupSection extends StatelessWidget {
             isError: !bikeFound,
           ),
           contextMetadata: metadataRows,
+          selected: allSelected,
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
@@ -132,13 +159,15 @@ class SetupGroupSection extends StatelessWidget {
                       thickness: 1,
                       color: Theme.of(context).colorScheme.outlineVariant,
                     ),
-                  _member(context, setups[i], hidePlace: sharedPlace != null),
+                  _member(context, setups[i], hidePlace: sharedPlace != null, groupSelected: allSelected),
                 ],
               ],
             ),
           ),
         ),
       ],
+      ),
+      ),
     );
   }
 }

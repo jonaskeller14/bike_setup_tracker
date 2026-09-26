@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/adjustment/adjustment.dart';
-import '../../models/component.dart';
-import '../../models/component_preset.dart';
+import '../../models/component/component.dart';
+import '../../models/component/component_preset.dart';
 import '../../repositories/component_preset_repository.dart';
 import '../../utils/component_preset_search.dart';
 import 'sheet.dart';

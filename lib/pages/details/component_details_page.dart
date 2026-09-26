@@ -7,8 +7,11 @@ import 'package:provider/provider.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
+import '../../models/component/component.dart';
+import '../../models/component/installation.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/dangling_adjustment_service.dart';
 import '../../services/setup_activity_analysis_service.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/component_actions.dart';
@@ -16,16 +19,21 @@ import '../../utils/installation_timeline_validation.dart';
 import '../../utils/table_column.dart';
 import '../../utils/table_column_comparator.dart';
 import '../../widgets/chips/filter_sheet_chip.dart';
+import '../../widgets/display_data/component_details_page_histogram_chart.dart';
 import '../../widgets/display_data/component_details_page_line_chart.dart';
 import '../../widgets/display_data/component_details_page_radial_chart.dart';
 import '../../widgets/display_data/component_stats_card.dart';
 import '../../widgets/display_data/setup_table.dart';
 import '../../widgets/display_installation_timeline.dart';
 import '../../widgets/empty_state_placeholder.dart';
+import '../../widgets/empty_state_placeholder2.dart';
 import '../../widgets/initial_changed_value_legend.dart';
+import '../../widgets/items/component_list_card.dart';
 import '../../widgets/notes_text.dart';
 import '../../widgets/open_tasks_tile.dart';
 import '../../widgets/sheets/column_filter.dart';
+import '../../widgets/sheets/set_initial_stats.dart';
+import '../../widgets/sheets/strava.dart';
 import '../../widgets/text/section_title.dart';
 
 class ComponentDetailsPage extends StatefulWidget {
@@ -43,6 +51,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
   bool _sortAscending = true;
   TableColumn? _sortColumn;
   TableColumn? _selectedLineChartColumn;
+  TableColumn? _selectedHistogramColumn;
   Set<String>? _selectedSetupIds;
 
   Map<String, double?> _ratingScores = {};
@@ -112,6 +121,12 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     final setupActivityCounts = context.select<SetupActivityAnalysisService, Map<String, int>>(
       (service) => service.setupActivityCounts,
     );
+    final setupActivityCountsLoaded = context.select<SetupActivityAnalysisService, bool>(
+      (service) => service.setupActivityCountsLoaded,
+    );
+    final setupActivityCountsFailed = context.select<SetupActivityAnalysisService, bool>(
+      (service) => service.setupActivityCountsFailed,
+    );
     if (hasAnyActivity) {
       unawaited(context.read<SetupActivityAnalysisService>().getSetupActivityCounts());
     }
@@ -129,13 +144,25 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
       );
     }
     final componentAdjustments = component.adjustments;
+    final descendants = appRepository.affectedDescendants(component.id);
+    final initialStats = initialStatsSummary(component.initialStats, appSettings);
 
     final bikes = appRepository.bikes;
-    final bike = bikes[component.bike];
+    final bike = bikes[appRepository.componentHierarchy.currentBike(component.id)];
 
     final persons = appRepository.persons;
     final person = persons[bike?.person];
     final personAdjustments = person?.adjustments ?? [];
+
+    bool isDangling(Setup setup, TableColumn column) => switch (column) {
+      ComponentAdjustmentColumn() => !DanglingAdjustmentService.isInstalledAtSetup(
+        appRepository.componentHierarchy,
+        component,
+        setup,
+      ),
+      PersonAttributeColumn() => setup.person != person?.id,
+      _ => false,
+    };
 
     final setupsUnsorted = appRepository.filteredSetups.values
         .where((s) => component.adjustments.any((adj) => s.bikeAdjustmentValues.containsKey(adj.id)))
@@ -204,6 +231,9 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
         .toSet();
     _selectedSetupIds!.removeWhere((id) => !setups.any((s) => s.id == id));
     final selectedSetups = setups.where((s) => _selectedSetupIds!.contains(s.id)).toList();
+    final hasDanglingValues = activeColumns.any(
+      (column) => setups.any((setup) => _rawValue(setup, column) != null && isDangling(setup, column)),
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -229,24 +259,31 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (appSettings.enableStrava && subscriptionService.hasStravaEntitlement) ...[
-                ComponentStatsCard(componentStats: component.totalStats),
+                ComponentStatsCard(componentStats: appRepository.componentStatsOf(component.id)),
                 const Divider(height: 1),
               ],
 
-              if (component.notes != null) ...[
+              if (component.notes != null)
                 ListTile(
                   leading: const Icon(Icons.notes),
                   titleAlignment: ListTileTitleAlignment.titleHeight,
                   title: NotesText(component.notes!, maxLines: 10),
                   dense: true,
                 ),
-                const Divider(height: 1),
-              ],
+
+              if (initialStats != null)
+                ListTile(
+                  leading: const Icon(Icons.start),
+                  title: Text("Initial: $initialStats"),
+                  dense: true,
+                ),
+
+              if (component.notes != null || initialStats != null) const Divider(height: 1),
 
               if (shouldUseInstallationTimeline(
                 featureEnabled: appSettings.enableInstallationTimeline,
                 installations: component.installations,
-              ) || appRepository.taskEntries.values.any((te) => te.componentId == widget.componentId)) ...[
+              ) || appRepository.taskEntries.values.any((te) => te.association.componentId == widget.componentId)) ...[
                 ExpansionTile(
                   shape: const Border(),
                   collapsedShape: const Border(),
@@ -262,8 +299,10 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                     DisplayInstallationTimeline(
                       component: component,
                       bikes: bikes,
+                      components: appRepository.components,
+                      hierarchy: appRepository.componentHierarchy,
                       taskEntries: appRepository.taskEntries.values.where(
-                        (entry) => entry.componentId == component.id,
+                        (entry) => entry.association.componentId == component.id,
                       ),
                     ),
                   ],
@@ -276,10 +315,77 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                 const Divider(height: 1),
               ],
 
+              if (appSettings.enableInstallOnComponent) ...[
+                ExpansionTile(
+                  shape: const Border(),
+                  collapsedShape: const Border(),
+                  leading: const Icon(Component.iconData),
+                  title: Text(
+                    "Subcomponents (${descendants.length})",
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  childrenPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+                  children: [
+                    if (descendants.isEmpty) ...[
+                      EmptyStatePlaceholder2(
+                        iconData: Component.iconData,
+                        title: 'No components yet',
+                        subtitle: 'Install a component on this component',
+                        onTap: () => ComponentActions.addComponent(
+                            context,
+                            initialInstallations: [Installation.componentSinceBeginning(parentComponentId: component.id)],
+                          ),
+                      ),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton.icon(
+                          onPressed: () => ComponentActions.addComponent(
+                            context,
+                            initialInstallations: [Installation.componentSinceBeginning(parentComponentId: component.id)],
+                          ),
+                          icon: const Icon(Icons.add),
+                          label: const Text('Add Component'),
+                        ),
+                      ),
+                    ] else ...[
+                      ...descendants.map(
+                        (descendant) => ComponentListCard(
+                          component: descendant,
+                          showCurrentAdjustmentValues: false,
+                        ),
+                      ),
+                      Center(
+                        child: TextButton.icon(
+                          onPressed: () => ComponentActions.addComponent(
+                            context,
+                            initialInstallations: [Installation.componentSinceBeginning(parentComponentId: component.id)],
+                          ),
+                          icon: const Icon(Icons.add),
+                          label: const Text('Add Component'),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+                const Divider(height: 1),
+              ],
+
               const SectionTitle(
                 title: "Adjustment History",
                 infoText:
-                    "Add or remove columns via the Columns button, or long-press a column header to remove it. Use the filter button to narrow down by bike or tags. Select rows to compare specific setups in the charts below. Green values are new (no prior value), orange values have changed from the previous setup.",
+                    "• Add or remove columns via the Columns button.\n"
+                    "• Long-press a column header to remove it.\n"
+                    "• Tap a column header to sort.\n"
+                    "• Use the filter button to narrow down by bike or tags.\n"
+                    "• Select rows to compare setups in the charts below.\n"
+                    "\n"
+                    "Value colors:\n"
+                    "• Green: new value (no prior value).\n"
+                    "• Orange: changed from the previous setup.\n"
+                    "• Red: dangling value (component not installed or person not linked at setup time).",
               ),
 
               SingleChildScrollView(
@@ -316,6 +422,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                   bikes: bikes,
                   setupActivityCounts: setupActivityCounts,
                   valueFor: _rawValue,
+                  isDangling: isDangling,
                   columnLabel: (column) => _columnLabel(
                     column,
                     componentAdjustments,
@@ -332,6 +439,9 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                       column.active = false;
                       if (_selectedLineChartColumn == column) {
                         _selectedLineChartColumn = null;
+                      }
+                      if (_selectedHistogramColumn == column) {
+                        _selectedHistogramColumn = null;
                       }
                     });
                   },
@@ -366,7 +476,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                   title: component.adjustments.isEmpty ? 'No adjustments' : 'No setups yet',
                   subtitle: component.adjustments.isEmpty ? 'No adjustments are defined for this component' : null,
                 ),
-              if (activeColumns.isNotEmpty && setups.isNotEmpty) const InitialChangedValueLegend(),
+              if (activeColumns.isNotEmpty && setups.isNotEmpty) InitialChangedValueLegend(showDangling: hasDanglingValues),
               const SizedBox(height: 16),
 
               const Divider(height: 1),
@@ -437,6 +547,60 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                   setState(() => _selectedSetupIds!.remove(setupId));
                 },
               ),
+
+              if (appSettings.enableStrava) ...[
+                const Divider(height: 1),
+                const SectionTitle(
+                  title: "Activity Histogram",
+                  infoText:
+                      "• Shows how many Strava activities were ridden with each adjustment value.\n"
+                      "• Counts all setups in the table above, not just the selected ones.\n"
+                      "• Numerical values are grouped into ranges when there are many distinct values.\n"
+                      "• Tap a legend entry to show a different adjustment.\n"
+                      "• Long-press a legend entry to remove its column.",
+                ),
+                if (!subscriptionService.hasStravaEntitlement)
+                  EmptyStatePlaceholder(
+                    icon: Icons.lock_outline,
+                    title: "Strava Sync required",
+                    subtitle: "See how many activities you rode with each adjustment value.",
+                    actionLabel: "View plans",
+                    actionIcon: Icons.auto_awesome,
+                    onAction: () => showStravaSheet(context: context),
+                  )
+                else
+                  ComponentDetailsPageHistogramChart(
+                    activeColumns: activeColumns,
+                    setups: setups,
+                    setupActivityCounts: setupActivityCounts,
+                    hasAnyActivity: hasAnyActivity,
+                    activityCountsLoaded: setupActivityCountsLoaded,
+                    activityCountsFailed: setupActivityCountsFailed,
+                    selectedHistogramColumn: _selectedHistogramColumn,
+                    valueFor: _rawValue,
+                    adjustmentFor: (column) => adjustmentForColumn(
+                      column,
+                      componentAdjustments,
+                      personAdjustments,
+                    ),
+                    columnLabel: (column) => _columnLabel(
+                      column,
+                      componentAdjustments,
+                      personAdjustments,
+                    ),
+                    onSelectedColumnChanged: (column) {
+                      setState(() => _selectedHistogramColumn = column);
+                    },
+                    onColumnRemoved: (column) {
+                      setState(() {
+                        column.active = false;
+                        if (_selectedHistogramColumn == column) {
+                          _selectedHistogramColumn = null;
+                        }
+                      });
+                    },
+                  ),
+              ],
             ],
           ),
         ),

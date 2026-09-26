@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
 
-import '../../models/rating_association.dart';
+import '../../models/rating/rating_association.dart';
 import '../converters/utc_datetime_converter.dart';
 
 @DataClassName('RatingDb')

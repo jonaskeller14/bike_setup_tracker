@@ -6,20 +6,21 @@ import 'package:geocoding/geocoding.dart' as geo;
 
 import '../models/adjustment/adjustment.dart';
 import '../models/bike.dart';
-import '../models/component.dart';
+import '../models/component/component.dart';
+import '../models/component/installation.dart';
 import '../models/component_stats.dart';
 import '../models/context/context_position.dart';
 import '../models/context/context_weather.dart';
-import '../models/installation.dart';
 import '../models/person.dart';
-import '../models/rating.dart';
-import '../models/rating_association.dart';
-import '../models/rating_entry.dart';
-import '../models/rating_metric.dart';
+import '../models/rating/rating.dart';
+import '../models/rating/rating_association.dart';
+import '../models/rating/rating_entry.dart';
+import '../models/rating/rating_metric.dart';
 import '../models/setup.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/strava/strava_athlete.dart';
 import '../models/strava/strava_gear.dart';
+import '../models/task/task_association.dart';
 import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
 import '../models/task/task_threshold/task_threshold.dart';
@@ -39,6 +40,14 @@ extension BikeDbMapper on BikeDb {
       person: person,
       stravaGear: stravaGear,
       orderIndex: orderIndex,
+      initialStats: ComponentStats(
+        distance: initialDistance,
+        elevationGain: initialElevationGain,
+        movingTime: initialMovingTime,
+        elapsedTime: initialElapsedTime,
+        activityCount: initialActivityCount,
+        kilojoules: initialKilojoules,
+      ),
     );
   }
 }
@@ -66,6 +75,8 @@ extension ComponentDbMapper on ComponentDb {
         activityCount: initialActivityCount,
         kilojoules: initialKilojoules,
       ),
+      presetKey: presetKey,
+      presetDamperKey: presetDamperKey,
     );
   }
 }
@@ -78,6 +89,9 @@ extension InstallationDbMapper on InstallationDb {
       InstallationParentType.bike => parent == null
           ? Uninstallation(id: id, componentId: componentId, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal)
           : BikeInstallation(id: id, componentId: componentId, bikeId: parent!, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal),
+      InstallationParentType.component => parent == null
+          ? Uninstallation(id: id, componentId: componentId, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal)
+          : ComponentInstallation(id: id, componentId: componentId, parentComponentId: parent!, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal),
       InstallationParentType.none =>
         Uninstallation(id: id, componentId: componentId, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal),
       InstallationParentType.archived =>
@@ -124,8 +138,7 @@ extension RatingDbMapper on RatingDb {
       lastModified: _toUtcSafe(lastModified, 'Rating.lastModified'),
       name: name,
       notes: notes,
-      filter: filter,
-      filterType: filterType,
+      association: RatingAssociation.fromFilter(filterType, filter),
       metrics: metrics,
       orderIndex: orderIndex,
     );
@@ -152,8 +165,7 @@ extension RatingMetricDbMapper on RatingMetricDb {
 extension TaskRuleDbMapper on TaskRuleDb {
   TaskRule toModel() {
     return TaskRule(
-      componentId: componentId,
-      bikeId: bikeId,
+      association: TaskAssociation.fromIds(componentId: componentId, bikeId: bikeId),
       id: id,
       isDeleted: isDeleted,
       lastModified: _toUtcSafe(lastModified, 'TaskRule.lastModified'),
@@ -179,8 +191,7 @@ extension TaskEntryDbMapper on TaskEntryDb {
       dateTimeUTC: _toUtcSafe(dateTimeUTC, 'TaskEntry.dateTimeUTC'),
       dateTimeLocal: dateTimeLocal,
       notes: notes,
-      componentId: componentId,
-      bikeId: bikeId,
+      association: TaskAssociation.fromIds(componentId: componentId, bikeId: bikeId),
       snapshot: snapshot != null ? ComponentStats.fromJson(jsonDecode(snapshot!) as Map<String, dynamic>) : null,
     );
   }
@@ -199,6 +210,12 @@ extension BikeMapper on Bike {
       person: Value<String?>(person),
       stravaGear: Value<String?>(stravaGear),
       orderIndex: Value<int>(orderIndex),
+      initialDistance: Value<double>(initialStats.distance),
+      initialElevationGain: Value<double>(initialStats.elevationGain),
+      initialMovingTime: Value<Duration>(initialStats.movingTime),
+      initialElapsedTime: Value<Duration>(initialStats.elapsedTime),
+      initialActivityCount: Value<int>(initialStats.activityCount),
+      initialKilojoules: Value<double>(initialStats.kilojoules),
     );
   }
 }
@@ -219,6 +236,8 @@ extension ComponentMapper on Component {
       initialElapsedTime: Value<Duration>(initialStats.elapsedTime),
       initialActivityCount: Value<int>(initialStats.activityCount),
       initialKilojoules: Value<double>(initialStats.kilojoules),
+      presetKey: Value<String?>(presetKey),
+      presetDamperKey: Value<String?>(presetDamperKey),
     );
   }
 }
@@ -311,8 +330,8 @@ extension RatingMapper on Rating {
       lastModified: Value<DateTime>(lastModified),
       name: Value<String>(name),
       notes: Value<String?>(notes),
-      filter: Value<String?>(filter),
-      filterType: Value<FilterType>(filterType),
+      filter: Value<String?>(association.filter),
+      filterType: Value<FilterType>(association.filterType),
       orderIndex: Value<int>(orderIndex),
     );
   }
@@ -321,8 +340,8 @@ extension RatingMapper on Rating {
 extension TaskRuleMapper on TaskRule {
   TaskRulesCompanion toCompanion() {
     return TaskRulesCompanion(
-      componentId: Value<String?>(componentId),
-      bikeId: Value<String?>(bikeId),
+      componentId: Value<String?>(association.componentId),
+      bikeId: Value<String?>(association.bikeId),
       id: Value<String>(id),
       isDeleted: Value<bool>(isDeleted),
       lastModified: Value<DateTime>(lastModified),
@@ -348,8 +367,8 @@ extension TaskEntryMapper on TaskEntry {
       dateTimeUTC: Value<DateTime>(dateTimeUTC),
       dateTimeLocal: Value<DateTime>(dateTimeLocal),
       taskRule: Value<String>(taskRule),
-      componentId: Value<String?>(componentId),
-      bikeId: Value<String?>(bikeId),
+      componentId: Value<String?>(association.componentId),
+      bikeId: Value<String?>(association.bikeId),
       snapshot: Value<String?>(snapshot != null ? jsonEncode(snapshot!.toJson()) : null),
     );
   }

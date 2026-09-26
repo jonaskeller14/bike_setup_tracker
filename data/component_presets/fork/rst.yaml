@@ -1,0 +1,1206 @@
+# RST mountain-bike forks — adjustment preset database
+#
+# Same design as fork/suntour.yaml, fork/rockshox.yaml: click ranges belong to
+# the DAMPER cartridge, defined once under `dampers:` and referenced by key
+# from each fork's trims. See SCHEMA.md in this folder.
+#
+# RST (RST Greenergy Tech Co., Taiwan) is a value/OEM-focused brand. Its
+# product pages list, per model code, which functions are fitted ("Compress
+# adjust", "Rebound adjust", "Lock-Out", ...) but NEVER publish a click count
+# or turn count — neither do the owner's manuals or the 2026 catalogue. So
+# every hydraulic adjuster below is left out of `adjustments:` and the models
+# using it are `complete: false` (hidden from the picker until counts exist).
+# Only the air Pressure / coil Spring Rate + Preload springs and the binary
+# mechanical lockout (MLC) are captured. See the Follow-ups footer.
+#
+# RST does not publish model years, and the site shows only the current
+# catalogue, so no `year_range:` is set and trim keys carry no year suffix.
+# Model names follow the product page titles; where one title covers two
+# chassis (F1RST / AERIAL exist as a 110mm-Boost and a 100mm-spacing XC fork),
+# the 110mm-hub one is named "F1RST 110" / "AERIAL 110" as RST's own pages do.
+# Junior forks other than CAPA/VIVO, e-city/trekking/cargo/gravel/e-moto forks
+# are out of scope.
+
+brand: RST
+component_type: fork
+sources:
+  - https://rstsuspension.com/product-category/forks/
+  - https://rstsuspension.com/technology/
+  - https://rstsuspension.com/owner-manual/
+  - https://rstsuspension.com/catalogues/2026.pdf
+  - https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
+  - https://rstsuspension.com/products/killah/
+  - https://rstsuspension.com/products/r-evo-29/
+  - https://rstsuspension.com/products/stitch/
+  - https://rstsuspension.com/products/stitch-2/
+  - https://rstsuspension.com/products/stitch-29-limited-edition/
+  - https://rstsuspension.com/products/rogue-v2-2/
+  - https://rstsuspension.com/products/vibe-v2/
+  - https://rstsuspension.com/products/rebel-v2/
+  - https://rstsuspension.com/products/blade-pro/
+  - https://rstsuspension.com/products/blade/
+  - https://rstsuspension.com/products/storm/
+  - https://rstsuspension.com/products/f1rst/
+  - https://rstsuspension.com/products/f1rst-3/
+  - https://rstsuspension.com/products/aerial/
+  - https://rstsuspension.com/products/aerial-2/
+  - https://rstsuspension.com/products/omega/
+  - https://rstsuspension.com/products/blaze/
+  - https://rstsuspension.com/products/space/
+  - https://rstsuspension.com/products/slope/
+  - https://rstsuspension.com/products/shine/
+  - https://rstsuspension.com/products/dirt/
+  - https://rstsuspension.com/products/snyper/
+  - https://rstsuspension.com/products/capa/
+  - https://rstsuspension.com/products/vivo/
+  - https://rstsuspension.com/products/renegade/
+  - https://rstsuspension.com/products/guide/
+updated: 2026-09-25
+
+# --------------------------------------------------------------------------
+# Dampers
+# --------------------------------------------------------------------------
+# Function sets are read from each product page's "Damper" row and the
+# definitions on https://rstsuspension.com/technology/ (OCR platform, BO-TNL,
+# HCR, OCR) and the high-end owner's manual (lockout/rebound operation).
+dampers:
+  ocrc_plus:
+    name: OCRC+
+    description: >-
+      Open-bath hydraulic damper with external compression and rebound
+      adjusters. Adjustments incomplete: please add Compression and Rebound
+      yourself.
+    adjustments: []
+    source:
+      - https://rstsuspension.com/products/killah/
+      - https://rstsuspension.com/products/stitch-2/
+      - https://rstsuspension.com/technology/
+
+  ocr2_plus:
+    name: OCR2+
+    description: >-
+      Open-bath hydraulic damper with external compression and rebound
+      adjusters. Adjustments incomplete: please add Compression and Rebound
+      yourself.
+    adjustments: []
+    source:
+      - https://rstsuspension.com/products/r-evo-29/
+      - https://rstsuspension.com/products/stitch/
+      - https://rstsuspension.com/products/stitch-29-limited-edition/
+      - https://rstsuspension.com/products/rogue-v2-2/
+      - https://rstsuspension.com/technology/
+
+  ocr2_plus_lockout:
+    name: OCR2+ (Lock-Out)
+    description: >-
+      Open-bath hydraulic damper with external compression and rebound
+      adjusters plus a hydraulic lockout (handlebar remote on TRL trims).
+      Adjustments incomplete: please add Compression and Rebound yourself.
+    adjustments: []
+    source:
+      - https://rstsuspension.com/products/rogue-v2-2/
+
+  ocr_plus:
+    name: OCR+
+    description: >-
+      Open-bath hydraulic damper with external compression and rebound
+      adjusters. Adjustments incomplete: please add Compression and Rebound
+      yourself.
+    adjustments: []
+    source:
+      - https://rstsuspension.com/products/rebel-v2/
+      - https://rstsuspension.com/technology/
+
+  ocr_plus_lockout:
+    name: OCR+ (Lock-Out)
+    description: >-
+      Open-bath hydraulic damper with external compression and rebound
+      adjusters plus a crown-mounted hydraulic lockout. Adjustments
+      incomplete: please add Compression and Rebound yourself.
+    adjustments: []
+    source:
+      - https://rstsuspension.com/products/rebel-v2/
+
+  ocr_plus_rl:
+    name: OCR+ (Remote Lock-Out)
+    description: >-
+      Open-bath hydraulic damper with external rebound adjuster and a
+      handlebar-remote hydraulic lockout. Adjustments incomplete: please add
+      Rebound yourself.
+    adjustments: []
+    source:
+      - https://rstsuspension.com/products/rebel-v2/
+
+  ocr2:
+    name: OCR2
+    description: >-
+      Open-bath hydraulic damper with external compression and rebound
+      adjusters. Adjustments incomplete: please add Compression and Rebound
+      yourself.
+    adjustments: []
+    source:
+      - https://rstsuspension.com/products/slope/
+
+  bo_tnl_crl:
+    name: BO-TNL
+    description: >-
+      Blow-off protected damper with external compression adjust, hydraulic
+      lockout and rebound adjust. Adjustments incomplete: please add
+      Compression and Rebound yourself.
+    adjustments: []
+    source:
+      - https://rstsuspension.com/products/f1rst/
+      - https://rstsuspension.com/products/f1rst-3/
+      - https://rstsuspension.com/products/blade-pro/
+      - https://rstsuspension.com/products/renegade/
+      - https://rstsuspension.com/products/snyper/
+      - https://rstsuspension.com/technology/
+
+  bo_tnl_rl:
+    name: BO-TNL (Remote Lock-Out)
+    description: >-
+      Blow-off protected damper with rebound adjust and a handlebar-remote
+      hydraulic lockout. Adjustments incomplete: please add Rebound yourself.
+    adjustments: []
+    source:
+      - https://rstsuspension.com/products/f1rst/
+      - https://rstsuspension.com/products/f1rst-3/
+      - https://rstsuspension.com/products/blade-pro/
+      - https://rstsuspension.com/products/renegade/
+      - https://rstsuspension.com/products/snyper/
+      - https://rstsuspension.com/technology/
+
+  hcr:
+    name: HCR
+    description: >-
+      Hydraulic compression damper with external compression and rebound
+      adjusters, no lockout. Adjustments incomplete: please add Compression
+      and Rebound yourself.
+    adjustments: []
+    source:
+      - https://rstsuspension.com/products/blade-pro/
+      - https://rstsuspension.com/products/vivo/
+      - https://rstsuspension.com/technology/
+
+  tnl:
+    name: TNL
+    description: >-
+      Hydraulic lockout damper. Adjustments incomplete: please add the
+      Lockout control yourself.
+    adjustments: []
+    source:
+      - https://rstsuspension.com/products/aerial/
+      - https://rstsuspension.com/products/aerial-2/
+      - https://rstsuspension.com/products/omega/
+      - https://rstsuspension.com/products/blaze/
+      - https://rstsuspension.com/products/vibe-v2/
+      - https://rstsuspension.com/products/vivo/
+      - https://rstsuspension.com/products/guide/
+      - https://rstsuspension.com/products/renegade/
+
+  tnl_f:
+    name: TNL-F
+    description: >-
+      Hydraulic lockout damper with fixed (non-adjustable) rebound.
+      Adjustments incomplete: please add the Lockout control yourself.
+    adjustments: []
+    source:
+      - https://rstsuspension.com/products/blade/
+
+  tnl_r:
+    name: TNL-R
+    description: >-
+      Hydraulic lockout damper with external rebound adjust. Adjustments
+      incomplete: please add Rebound and the Lockout control yourself.
+    adjustments: []
+    source:
+      - https://rstsuspension.com/products/blade/
+
+  mlc:
+    name: MLC
+    description: >-
+      Mechanical lockout that locks the fork at any point in its travel.
+    adjustments:
+      - { name: Lockout, type: boolean, notes: Mechanical lock-out }
+    source:
+      - https://rstsuspension.com/products/aerial/
+      - https://rstsuspension.com/products/capa/
+      - https://rstsuspension.com/technology/
+      - https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
+
+  ra:
+    name: RA
+    description: >-
+      Simple damper with external rebound adjust. Adjustments incomplete:
+      please add Rebound yourself.
+    adjustments: []
+    source:
+      - https://rstsuspension.com/products/vibe-v2/
+      - https://rstsuspension.com/products/storm/
+      - https://rstsuspension.com/products/space/
+      - https://rstsuspension.com/products/shine/
+      - https://rstsuspension.com/products/dirt/
+
+# --------------------------------------------------------------------------
+# Forks — RST's current MTB lineup (2026 catalogue): downhill, enduro,
+# XC/trail, dirt jump, junior and fat-bike forks.
+# --------------------------------------------------------------------------
+forks:
+  # ---- Downhill -----------------------------------------------------------
+  - model: "KILLAH"
+    complete: false
+    category: Downhill
+    url: https://rstsuspension.com/products/killah/
+    wheel_size: [27.5, 26]
+    trims:
+      - trim: Air
+        key: fork-rst-killah-air
+        travel_mm: [200]
+        stanchion: 36mm Aluminum
+        spring: Air
+        dampers: [ocrc_plus]
+        adjustments: &air_spring
+          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+        offset_mm: 43
+        axle: 20x110mm bolt axle
+        note: |-
+          - Dual-crown downhill chassis with magnesium lowers
+          - Post-mount disc, 180-220mm rotors
+      - trim: Coil
+        key: fork-rst-killah-coil
+        travel_mm: [200]
+        stanchion: 36mm Aluminum
+        spring: Coil
+        dampers: [ocrc_plus]
+        adjustments: &coil_spring
+          - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
+          - { name: Preload, type: numerical, min: 0 }
+        offset_mm: 43
+        axle: 20x110mm bolt axle
+        note: |-
+          - Dual-crown downhill chassis with magnesium lowers
+          - Post-mount disc, 180-220mm rotors
+
+  - model: "R.EVO 29"
+    complete: false
+    category: Downhill
+    url: https://rstsuspension.com/products/r-evo-29/
+    wheel_size: [29]
+    trims:
+      - trim: Air
+        key: fork-rst-r-evo-29-air
+        travel_mm: [200]
+        stanchion: 38mm Aluminum
+        spring: Air
+        dampers: [ocr2_plus]
+        adjustments: *air_spring
+        offset_mm: 51
+        axle: 20x110mm bolt axle (Boost)
+        note: |-
+          - Dual-crown 29er downhill chassis, max tire 29x2.8
+          - Bosch eBike ABS ready
+      - trim: Coil
+        key: fork-rst-r-evo-29-coil
+        travel_mm: [200]
+        stanchion: 38mm Aluminum
+        spring: Coil
+        dampers: [ocr2_plus]
+        adjustments: *coil_spring
+        offset_mm: 51
+        axle: 20x110mm bolt axle (Boost)
+        note: |-
+          - Dual-crown 29er downhill chassis, max tire 29x2.8
+          - Bosch eBike ABS ready
+
+  # ---- Enduro / e-MTB -----------------------------------------------------
+  - model: "STITCH 29"
+    complete: false
+    category: Enduro
+    url: https://rstsuspension.com/products/stitch/
+    wheel_size: [29]
+    trims:
+      - trim: Air
+        key: fork-rst-stitch-29-air
+        travel_mm: [160, 170, 180]
+        stanchion: 38mm Aluminum
+        spring: Air
+        dampers: [ocr2_plus]
+        adjustments: *air_spring
+        offset_mm: 51
+        axle: 15x110mm or 20x110mm (Boost) bolt axle
+        note: Tapered 1.5" aluminum steerer, max tire 29x2.8. Bosch eBike ABS ready.
+      - trim: Coil
+        key: fork-rst-stitch-29-coil
+        travel_mm: [160, 170, 180]
+        stanchion: 38mm Aluminum
+        spring: Coil
+        dampers: [ocr2_plus]
+        adjustments: *coil_spring
+        offset_mm: 51
+        axle: 15x110mm or 20x110mm (Boost) bolt axle
+        note: Tapered 1.5" aluminum steerer, max tire 29x2.8. Bosch eBike ABS ready.
+
+  - model: "STITCH 29 Limited Edition"
+    complete: false
+    category: Enduro
+    url: https://rstsuspension.com/products/stitch-29-limited-edition/
+    wheel_size: [29]
+    trims:
+      - trim: Air
+        key: fork-rst-stitch-29-limited-edition-air
+        travel_mm: [180]
+        stanchion: 38mm Aluminum
+        spring: Air
+        dampers: [ocr2_plus]
+        adjustments: *air_spring
+        offset_mm: 51
+        axle: 15x110mm bolt axle
+        note: 180mm-only edition of the STITCH 29. Bosch eBike ABS ready.
+
+  - model: "STITCH"
+    complete: false
+    category: Enduro
+    url: https://rstsuspension.com/products/stitch-2/
+    wheel_size: [27.5, 26]
+    trims:
+      - trim: Air
+        key: fork-rst-stitch-air
+        travel_mm: [160, 170, 180]
+        stanchion: 36mm Aluminum
+        spring: Air
+        dampers: [ocrc_plus]
+        adjustments: *air_spring
+        offset_mm: 43
+        axle: 20x110mm QR axle
+        note: 27.5" / 26" chassis, max tire 2.4".
+      - trim: Coil
+        key: fork-rst-stitch-coil
+        travel_mm: [160, 170, 180]
+        stanchion: 36mm Aluminum
+        spring: Coil
+        dampers: [ocrc_plus]
+        adjustments: *coil_spring
+        offset_mm: 43
+        axle: 20x110mm QR axle
+        note: 27.5" / 26" chassis, max tire 2.4".
+
+  - model: "ROGUE V2"
+    complete: false
+    category: Enduro
+    url: https://rstsuspension.com/products/rogue-v2-2/
+    wheel_size: [29]
+    trims:
+      - trim: Air
+        key: fork-rst-rogue-v2-air
+        travel_mm: [140, 150, 160]
+        stanchion: 36mm Aluminum
+        spring: Air
+        dampers: [ocr2_plus_lockout]
+        adjustments: *air_spring
+        offset_mm: 47
+        axle: 15x110mm QR axle
+      - trim: Air-TRL
+        key: fork-rst-rogue-v2-air-trl
+        travel_mm: [140, 150, 160]
+        stanchion: 36mm Aluminum
+        spring: Air
+        dampers: [ocr2_plus_lockout]
+        adjustments: *air_spring
+        offset_mm: 47
+        axle: 15x110mm QR axle
+        note: Handlebar remote lockout (TRL).
+      - trim: Air w/o Lockout
+        key: fork-rst-rogue-v2-air-w-o-lockout
+        travel_mm: [140, 150, 160]
+        stanchion: 36mm Aluminum
+        spring: Air
+        dampers: [ocr2_plus]
+        adjustments: *air_spring
+        offset_mm: 47
+        axle: 15x110mm QR axle
+
+  - model: "VIBE V2"
+    complete: false
+    category: Trail
+    url: https://rstsuspension.com/products/vibe-v2/
+    wheel_size: [29]
+    trims:
+      - trim: Air-RA
+        key: fork-rst-vibe-v2-air-ra
+        travel_mm: [90, 100, 110, 120, 130, 140]
+        stanchion: 36mm Steel
+        spring: Air
+        dampers: [ra]
+        adjustments: *air_spring
+        offset_mm: 51
+        axle: 15x110mm bolt axle
+      - trim: Air-RL
+        key: fork-rst-vibe-v2-air-rl
+        travel_mm: [90, 100, 110, 120, 130, 140]
+        stanchion: 36mm Steel
+        spring: Air
+        dampers: [tnl]
+        adjustments: *air_spring
+        offset_mm: 51
+        axle: 15x110mm bolt axle
+        note: Remote-lockout variant.
+      - trim: RA
+        key: fork-rst-vibe-v2-ra
+        travel_mm: [90, 100, 110, 120, 130, 140]
+        stanchion: 36mm Steel
+        spring: Coil
+        dampers: [ra]
+        adjustments: *coil_spring
+        offset_mm: 51
+        axle: 15x110mm bolt axle
+      - trim: RL
+        key: fork-rst-vibe-v2-rl
+        travel_mm: [90, 100, 110, 120, 130, 140]
+        stanchion: 36mm Steel
+        spring: Coil
+        dampers: [tnl]
+        adjustments: *coil_spring
+        offset_mm: 51
+        axle: 15x110mm bolt axle
+        note: Remote-lockout variant.
+      - trim: TNL
+        key: fork-rst-vibe-v2-tnl
+        travel_mm: [90, 100, 110, 120, 130, 140]
+        stanchion: 36mm Steel
+        spring: Coil
+        dampers: [tnl]
+        adjustments: *coil_spring
+        offset_mm: 51
+        axle: 15x110mm bolt axle
+
+  - model: "REBEL V2"
+    complete: false
+    category: Trail
+    url: https://rstsuspension.com/products/rebel-v2/
+    wheel_size: [29, 27.5]
+    trims:
+      - trim: Air
+        key: fork-rst-rebel-v2-air
+        travel_mm: [80, 100, 130, 140, 150]
+        stanchion: 32mm Aluminum
+        spring: Air
+        dampers: [ocr_plus_lockout]
+        adjustments: *air_spring
+        offset_mm: 43
+        axle: 15x110mm or 20x110mm (Boost) bolt axle
+        note: Max tire 29x2.4 or 27.5x3.0.
+      - trim: Air-TRL
+        key: fork-rst-rebel-v2-air-trl
+        travel_mm: [80, 100, 130, 140, 150]
+        stanchion: 32mm Aluminum
+        spring: Air
+        dampers: [ocr_plus_rl]
+        adjustments: *air_spring
+        offset_mm: 43
+        axle: 15x110mm or 20x110mm (Boost) bolt axle
+        note: Handlebar remote lockout (TRL). Max tire 29x2.4 or 27.5x3.0.
+      - trim: Air w/o Lockout
+        key: fork-rst-rebel-v2-air-w-o-lockout
+        travel_mm: [80, 100, 130, 140, 150]
+        stanchion: 32mm Aluminum
+        spring: Air
+        dampers: [ocr_plus]
+        adjustments: *air_spring
+        offset_mm: 43
+        axle: 15x110mm or 20x110mm (Boost) bolt axle
+        note: Max tire 29x2.4 or 27.5x3.0.
+
+  - model: "BLADE PRO"
+    complete: false
+    category: Trail
+    url: https://rstsuspension.com/products/blade-pro/
+    wheel_size: [29, 27.5]
+    trims:
+      - trim: Air
+        key: fork-rst-blade-pro-air
+        travel_mm: [100, 120, 130, 140, 150]
+        stanchion: 35mm Aluminum
+        spring: Air
+        dampers: [bo_tnl_crl]
+        adjustments: *air_spring
+        offset_mm: 47
+        axle: 15x110mm bolt axle
+        note: 29" travels 130/140/150mm, 27.5" travels 100/120/140mm; max tire 2.8".
+      - trim: Air-TRL
+        key: fork-rst-blade-pro-air-trl
+        travel_mm: [100, 120, 130, 140, 150]
+        stanchion: 35mm Aluminum
+        spring: Air
+        dampers: [bo_tnl_rl]
+        adjustments: *air_spring
+        offset_mm: 47
+        axle: 15x110mm bolt axle
+        note: Handlebar remote lockout (TRL). 29" travels 130/140/150mm, 27.5" travels 100/120/140mm.
+      - trim: Air w/o Lockout
+        key: fork-rst-blade-pro-air-w-o-lockout
+        travel_mm: [100, 120, 130, 140, 150]
+        stanchion: 35mm Aluminum
+        spring: Air
+        dampers: [hcr]
+        adjustments: *air_spring
+        offset_mm: 47
+        axle: 15x110mm bolt axle
+        note: 29" travels 130/140/150mm, 27.5" travels 100/120/140mm; max tire 2.8".
+
+  - model: "BLADE"
+    complete: false
+    category: Trail
+    url: https://rstsuspension.com/products/blade/
+    wheel_size: [29, 27.5]
+    trims:
+      - trim: Air-TNL-F
+        key: fork-rst-blade-air-tnl-f
+        travel_mm: [90, 100, 110, 120, 130, 140, 150]
+        stanchion: 34mm Steel
+        spring: Air
+        dampers: [tnl_f]
+        adjustments: *air_spring
+        offset_mm: 47
+        axle: 15x110mm bolt axle
+        note: 29" travels 90-140mm (air up to 150mm), 27.5" travels 100/120/140mm; max tire 2.8".
+      - trim: Air-TNL-R
+        key: fork-rst-blade-air-tnl-r
+        travel_mm: [90, 100, 110, 120, 130, 140, 150]
+        stanchion: 34mm Steel
+        spring: Air
+        dampers: [tnl_r]
+        adjustments: *air_spring
+        offset_mm: 47
+        axle: 15x110mm bolt axle
+        note: 29" travels 90-140mm (air up to 150mm), 27.5" travels 100/120/140mm; max tire 2.8".
+      - trim: Air-RL
+        key: fork-rst-blade-air-rl
+        travel_mm: [90, 100, 110, 120, 130, 140, 150]
+        stanchion: 34mm Steel
+        spring: Air
+        dampers: [tnl_f]
+        adjustments: *air_spring
+        offset_mm: 47
+        axle: 15x110mm bolt axle
+        note: Remote-lockout variant.
+      - trim: Air-RL-R
+        key: fork-rst-blade-air-rl-r
+        travel_mm: [90, 100, 110, 120, 130, 140, 150]
+        stanchion: 34mm Steel
+        spring: Air
+        dampers: [tnl_r]
+        adjustments: *air_spring
+        offset_mm: 47
+        axle: 15x110mm bolt axle
+        note: Remote-lockout variant.
+      - trim: TNL-F
+        key: fork-rst-blade-tnl-f
+        travel_mm: [90, 100, 110, 120, 130, 140]
+        stanchion: 34mm Steel
+        spring: Coil
+        dampers: [tnl_f]
+        adjustments: *coil_spring
+        offset_mm: 47
+        axle: 15x110mm bolt axle
+      - trim: TNL-R
+        key: fork-rst-blade-tnl-r
+        travel_mm: [90, 100, 110, 120, 130, 140]
+        stanchion: 34mm Steel
+        spring: Coil
+        dampers: [tnl_r]
+        adjustments: *coil_spring
+        offset_mm: 47
+        axle: 15x110mm bolt axle
+      - trim: RL
+        key: fork-rst-blade-rl
+        travel_mm: [90, 100, 110, 120, 130, 140]
+        stanchion: 34mm Steel
+        spring: Coil
+        dampers: [tnl_f]
+        adjustments: *coil_spring
+        offset_mm: 47
+        axle: 15x110mm bolt axle
+        note: Remote-lockout variant.
+      - trim: RL-R
+        key: fork-rst-blade-rl-r
+        travel_mm: [90, 100, 110, 120, 130, 140]
+        stanchion: 34mm Steel
+        spring: Coil
+        dampers: [tnl_r]
+        adjustments: *coil_spring
+        offset_mm: 47
+        axle: 15x110mm bolt axle
+        note: Remote-lockout variant.
+
+  - model: "STORM"
+    complete: false
+    category: Enduro
+    url: https://rstsuspension.com/products/storm/
+    wheel_size: [27.5, 26]
+    trims:
+      - trim: RA
+        key: fork-rst-storm-ra
+        travel_mm: [160, 170, 180]
+        stanchion: 36mm Steel
+        spring: Coil
+        dampers: [ra]
+        adjustments: *coil_spring
+        offset_mm: 43
+        axle: 20x110mm QR axle (Boost)
+        note: Coil-sprung 27.5" / 26" chassis, max tire 2.4".
+
+  # ---- XC / e-MTB ---------------------------------------------------------
+  - model: "F1RST 110"
+    complete: false
+    category: XC / Trail
+    url: https://rstsuspension.com/products/f1rst/
+    wheel_size: [29, 27.5, 26]
+    trims:
+      - trim: 110-15 Air
+        key: fork-rst-f1rst-110-110-15-air
+        travel_mm: [80, 100, 120]
+        stanchion: 32mm Aluminum
+        spring: Air
+        dampers: [bo_tnl_crl]
+        adjustments: *air_spring
+        offset_mm: 51
+        axle: 15x110mm bolt axle (Boost)
+      - trim: 110-15 Air-TRL
+        key: fork-rst-f1rst-110-110-15-air-trl
+        travel_mm: [80, 100, 120]
+        stanchion: 32mm Aluminum
+        spring: Air
+        dampers: [bo_tnl_rl]
+        adjustments: *air_spring
+        offset_mm: 51
+        axle: 15x110mm bolt axle (Boost)
+        note: Handlebar remote lockout (TRL).
+      - trim: 110-9 Air
+        key: fork-rst-f1rst-110-110-9-air
+        travel_mm: [80, 100, 120]
+        stanchion: 32mm Aluminum
+        spring: Air
+        dampers: [bo_tnl_crl]
+        adjustments: *air_spring
+        axle: 9x110mm open dropout
+        note: Offset 51mm (29" / 27.5+) or 43mm (27.5" / 26").
+      - trim: 110-9 Air-TRL
+        key: fork-rst-f1rst-110-110-9-air-trl
+        travel_mm: [80, 100, 120]
+        stanchion: 32mm Aluminum
+        spring: Air
+        dampers: [bo_tnl_rl]
+        adjustments: *air_spring
+        axle: 9x110mm open dropout
+        note: Handlebar remote lockout (TRL). Offset 51mm (29" / 27.5+) or 43mm (27.5" / 26").
+
+  - model: "F1RST"
+    complete: false
+    category: XC / Trail
+    url: https://rstsuspension.com/products/f1rst-3/
+    wheel_size: [29, 27.5]
+    trims:
+      - trim: Air
+        key: fork-rst-f1rst-air
+        travel_mm: [80, 100, 120]
+        stanchion: 32mm Aluminum
+        spring: Air
+        dampers: [bo_tnl_crl]
+        adjustments: *air_spring
+        axle: 15x100mm bolt axle or 9x100mm open dropout
+        note: Offset 51mm (29") or 43mm (27.5").
+      - trim: Air-TRL
+        key: fork-rst-f1rst-air-trl
+        travel_mm: [80, 100, 120]
+        stanchion: 32mm Aluminum
+        spring: Air
+        dampers: [bo_tnl_rl]
+        adjustments: *air_spring
+        axle: 15x100mm bolt axle or 9x100mm open dropout
+        note: Handlebar remote lockout (TRL). Offset 51mm (29") or 43mm (27.5").
+
+  - model: "AERIAL 110"
+    complete: false
+    category: XC / Trail
+    url: https://rstsuspension.com/products/aerial/
+    wheel_size: [29, 27.5, 26]
+    trims:
+      - trim: 110-15 TNL
+        key: fork-rst-aerial-110-110-15-tnl
+        travel_mm: [80, 100, 120]
+        stanchion: 32mm Steel
+        spring: Air
+        dampers: [tnl]
+        adjustments: *air_spring
+        offset_mm: 51
+        axle: 15x110mm bolt axle
+      - trim: 110-15 MLC
+        key: fork-rst-aerial-110-110-15-mlc
+        travel_mm: [80, 100, 120]
+        stanchion: 32mm Steel
+        spring: Air
+        dampers: [mlc]
+        adjustments: *air_spring
+        offset_mm: 51
+        axle: 15x110mm bolt axle
+      - trim: 110-9 TNL
+        key: fork-rst-aerial-110-110-9-tnl
+        travel_mm: [80, 100, 120]
+        stanchion: 32mm Steel
+        spring: Air
+        dampers: [tnl]
+        adjustments: *air_spring
+        axle: 9x110mm open dropout
+      - trim: 110-9 MLC
+        key: fork-rst-aerial-110-110-9-mlc
+        travel_mm: [80, 100, 120]
+        stanchion: 32mm Steel
+        spring: Air
+        dampers: [mlc]
+        adjustments: *air_spring
+        axle: 9x110mm open dropout
+
+  - model: "AERIAL"
+    complete: false
+    category: XC / Trail
+    url: https://rstsuspension.com/products/aerial-2/
+    wheel_size: [29, 27.5]
+    trims:
+      - trim: RL
+        key: fork-rst-aerial-rl
+        travel_mm: [80, 100, 120]
+        stanchion: 32mm Steel
+        spring: Air
+        dampers: [tnl]
+        adjustments: *air_spring
+        axle: 15x100mm bolt axle or 9x100mm open dropout
+        note: Remote-lockout variant. Offset 51mm (29") or 43mm (27.5").
+      - trim: TNL
+        key: fork-rst-aerial-tnl
+        travel_mm: [80, 100, 120]
+        stanchion: 32mm Steel
+        spring: Air
+        dampers: [tnl]
+        adjustments: *air_spring
+        axle: 15x100mm bolt axle or 9x100mm open dropout
+        note: Offset 51mm (29") or 43mm (27.5").
+      - trim: MLC
+        key: fork-rst-aerial-mlc
+        travel_mm: [80, 100, 120]
+        stanchion: 32mm Steel
+        spring: Air
+        dampers: [mlc]
+        adjustments: *air_spring
+        axle: 15x100mm bolt axle or 9x100mm open dropout
+        note: Offset 51mm (29") or 43mm (27.5").
+
+  - model: "OMEGA"
+    complete: false
+    category: XC / Trail
+    url: https://rstsuspension.com/products/omega/
+    wheel_size: [29, 27.5, 26]
+    trims:
+      - trim: RL
+        key: fork-rst-omega-rl
+        travel_mm: [80, 100, 120]
+        stanchion: 32mm Steel
+        spring: Coil
+        dampers: [tnl]
+        adjustments: *coil_spring
+        axle: 15x100mm bolt axle or 9x100mm open dropout
+        note: Remote-lockout variant. Offset 51mm (29"), 43mm (27.5") or 38mm (26").
+      - trim: TNL
+        key: fork-rst-omega-tnl
+        travel_mm: [80, 100, 120]
+        stanchion: 32mm Steel
+        spring: Coil
+        dampers: [tnl]
+        adjustments: *coil_spring
+        axle: 15x100mm bolt axle or 9x100mm open dropout
+        note: Offset 51mm (29"), 43mm (27.5") or 38mm (26").
+      - trim: MLC
+        key: fork-rst-omega-mlc
+        travel_mm: [80, 100, 120]
+        stanchion: 32mm Steel
+        spring: Coil
+        dampers: [mlc]
+        adjustments: *coil_spring
+        axle: 15x100mm bolt axle or 9x100mm open dropout
+        note: Offset 51mm (29"), 43mm (27.5") or 38mm (26").
+      - trim: T
+        key: fork-rst-omega-t
+        travel_mm: [80, 100, 120]
+        stanchion: 32mm Steel
+        spring: Coil
+        adjustments: *coil_spring
+        axle: 15x100mm bolt axle or 9x100mm open dropout
+        note: Undamped coil fork. Offset 51mm (29"), 43mm (27.5") or 38mm (26").
+
+  - model: "BLAZE"
+    complete: false
+    category: XC / Trail
+    url: https://rstsuspension.com/products/blaze/
+    wheel_size: [29, 27.5]
+    trims:
+      - trim: RL
+        key: fork-rst-blaze-rl
+        travel_mm: [80, 100, 120]
+        stanchion: 32mm Steel
+        spring: Coil
+        dampers: [tnl]
+        adjustments: *coil_spring
+        axle: 15x100mm bolt axle or 9x100mm open dropout
+        note: Remote-lockout variant. Offset 51mm (29") or 44mm (27.5").
+      - trim: TNL
+        key: fork-rst-blaze-tnl
+        travel_mm: [80, 100, 120]
+        stanchion: 32mm Steel
+        spring: Coil
+        dampers: [tnl]
+        adjustments: *coil_spring
+        axle: 15x100mm bolt axle or 9x100mm open dropout
+        note: Offset 51mm (29") or 44mm (27.5").
+      - trim: MLC
+        key: fork-rst-blaze-mlc
+        travel_mm: [80, 100, 120]
+        stanchion: 32mm Steel
+        spring: Coil
+        dampers: [mlc]
+        adjustments: *coil_spring
+        axle: 15x100mm bolt axle or 9x100mm open dropout
+        note: Offset 51mm (29") or 44mm (27.5").
+      - trim: T
+        key: fork-rst-blaze-t
+        travel_mm: [80, 100, 120]
+        stanchion: 32mm Steel
+        spring: Coil
+        adjustments: *coil_spring
+        axle: 15x100mm bolt axle or 9x100mm open dropout
+        note: Undamped coil fork. Offset 51mm (29") or 44mm (27.5").
+
+  # ---- Dirt jump ----------------------------------------------------------
+  - model: "SPACE"
+    complete: false
+    category: Dirt Jump
+    url: https://rstsuspension.com/products/space/
+    wheel_size: [26]
+    trims:
+      - trim: Jump
+        key: fork-rst-space-jump
+        travel_mm: [80, 100]
+        stanchion: 36mm Aluminum
+        spring: Air
+        dampers: [ra]
+        adjustments: *air_spring
+        offset_mm: 43
+        axle: 15x100mm or 20x110mm bolt axle
+      - trim: Free
+        key: fork-rst-space-free
+        travel_mm: [80, 100]
+        stanchion: 36mm Steel
+        spring: Coil
+        dampers: [ra]
+        adjustments: *coil_spring
+        offset_mm: 43
+        axle: 15x100mm or 20x110mm bolt axle
+
+  - model: "SLOPE"
+    complete: false
+    category: Dirt Jump
+    url: https://rstsuspension.com/products/slope/
+    wheel_size: [27.5, 26]
+    trims:
+      - trim: HC
+        key: fork-rst-slope-hc
+        travel_mm: [80, 100, 130]
+        stanchion: 34mm Aluminum
+        spring: Air
+        dampers: [ocr2]
+        adjustments: *air_spring
+        offset_mm: 43
+        axle: 15x100mm QR axle
+
+  - model: "SHINE"
+    complete: false
+    category: Dirt Jump
+    url: https://rstsuspension.com/products/shine/
+    wheel_size: [26]
+    trims:
+      - trim: RA
+        key: fork-rst-shine-ra
+        travel_mm: [80, 100, 130]
+        stanchion: 34mm Steel
+        spring: Air
+        dampers: [ra]
+        adjustments: *air_spring
+        offset_mm: 43
+        axle: 15x100mm bolt axle
+
+  - model: "DIRT"
+    complete: false
+    category: Dirt Jump
+    url: https://rstsuspension.com/products/dirt/
+    wheel_size: [26]
+    trims:
+      - trim: RA
+        key: fork-rst-dirt-ra
+        travel_mm: [80, 100, 130]
+        stanchion: 32mm Steel
+        spring: Coil
+        dampers: [ra]
+        adjustments: *coil_spring
+        offset_mm: 38
+        axle: 15x100mm bolt axle
+      - trim: R
+        key: fork-rst-dirt-r
+        travel_mm: [80, 100, 130]
+        stanchion: 32mm Steel
+        spring: Coil
+        adjustments: *coil_spring
+        offset_mm: 38
+        axle: 15x100mm bolt axle
+        note: Fixed (non-adjustable) rebound.
+
+  - model: "SNYPER"
+    complete: false
+    category: Dirt Jump
+    url: https://rstsuspension.com/products/snyper/
+    wheel_size: [24]
+    trims:
+      - trim: Air
+        key: fork-rst-snyper-air
+        travel_mm: [60, 70, 80, 100, 120]
+        stanchion: 32mm Aluminum
+        spring: Air
+        dampers: [bo_tnl_crl]
+        adjustments: *air_spring
+        offset_mm: 38
+        axle: 9x100mm open dropout
+        note: 24" chassis, max tire 24x2.2.
+      - trim: TRL
+        key: fork-rst-snyper-trl
+        travel_mm: [60, 70, 80, 100, 120]
+        stanchion: 32mm Aluminum
+        spring: Air
+        dampers: [bo_tnl_rl]
+        adjustments: *air_spring
+        offset_mm: 38
+        axle: 9x100mm open dropout
+        note: Handlebar remote lockout (TRL). 24" chassis, max tire 24x2.2.
+
+  # ---- Junior -------------------------------------------------------------
+  - model: "CAPA"
+    category: Junior
+    url: https://rstsuspension.com/products/capa/
+    wheel_size: [24, 20]
+    trims:
+      - trim: MLC
+        key: fork-rst-capa-mlc
+        travel_mm: [50]
+        stanchion: 25.4mm Steel
+        spring: Coil
+        dampers: [mlc]
+        adjustments: *coil_spring
+        offset_mm: 38
+        axle: 9x100mm open dropout
+        note: 24" chassis, max tire 24x2.2.
+      - trim: T
+        key: fork-rst-capa-t
+        travel_mm: [50]
+        stanchion: 25.4mm Steel
+        spring: Coil
+        adjustments: *coil_spring
+        offset_mm: 38
+        axle: 9x100mm open dropout
+        note: Undamped coil fork for 24" or 20" wheels, max tire 2.2".
+
+  - model: "VIVO"
+    complete: false
+    category: Junior
+    url: https://rstsuspension.com/products/vivo/
+    wheel_size: [24, 20]
+    trims:
+      - trim: Air-TNL
+        key: fork-rst-vivo-air-tnl
+        travel_mm: [60, 80, 100, 120, 140]
+        stanchion: 30mm Steel
+        spring: Air
+        dampers: [tnl]
+        adjustments: *air_spring
+        offset_mm: 38
+        axle: 15x110mm, 15x100mm bolt axle or 9x100mm open dropout
+      - trim: Air-MLC
+        key: fork-rst-vivo-air-mlc
+        travel_mm: [60, 80, 100, 120, 140]
+        stanchion: 30mm Steel
+        spring: Air
+        dampers: [mlc]
+        adjustments: *air_spring
+        offset_mm: 38
+        axle: 15x110mm, 15x100mm bolt axle or 9x100mm open dropout
+      - trim: Air-HCR
+        key: fork-rst-vivo-air-hcr
+        travel_mm: [60, 80, 100, 120, 140]
+        stanchion: 30mm Steel
+        spring: Air
+        dampers: [hcr]
+        adjustments: *air_spring
+        offset_mm: 38
+        axle: 15x110mm, 15x100mm bolt axle or 9x100mm open dropout
+      - trim: TNL
+        key: fork-rst-vivo-tnl
+        travel_mm: [60, 80, 100, 120, 140]
+        stanchion: 30mm Steel
+        spring: Coil
+        dampers: [tnl]
+        adjustments: *coil_spring
+        offset_mm: 38
+        axle: 15x110mm, 15x100mm bolt axle or 9x100mm open dropout
+      - trim: MLC
+        key: fork-rst-vivo-mlc
+        travel_mm: [60, 80, 100, 120, 140]
+        stanchion: 30mm Steel
+        spring: Coil
+        dampers: [mlc]
+        adjustments: *coil_spring
+        offset_mm: 38
+        axle: 15x110mm, 15x100mm bolt axle or 9x100mm open dropout
+      - trim: T
+        key: fork-rst-vivo-t
+        travel_mm: [60, 80, 100, 120, 140]
+        stanchion: 30mm Steel
+        spring: Coil
+        adjustments: *coil_spring
+        offset_mm: 38
+        axle: 15x110mm, 15x100mm bolt axle or 9x100mm open dropout
+        note: Undamped coil fork.
+
+  # ---- Fat bike -----------------------------------------------------------
+  - model: "RENEGADE"
+    complete: false
+    category: Fat Bike
+    url: https://rstsuspension.com/products/renegade/
+    wheel_size: [26]
+    trims:
+      - trim: Air
+        key: fork-rst-renegade-air
+        travel_mm: [80, 100, 120]
+        stanchion: 32mm Aluminum
+        spring: Air
+        dampers: [bo_tnl_crl]
+        adjustments: *air_spring
+        offset_mm: 51
+        axle: 15x150mm QR axle
+        note: Max tire 26x4.0.
+      - trim: Air-TRL
+        key: fork-rst-renegade-air-trl
+        travel_mm: [80, 100, 120]
+        stanchion: 32mm Aluminum
+        spring: Air
+        dampers: [bo_tnl_rl]
+        adjustments: *air_spring
+        offset_mm: 51
+        axle: 15x150mm QR axle
+        note: Handlebar remote lockout (TRL). Max tire 26x4.0.
+      - trim: TNL
+        key: fork-rst-renegade-tnl
+        travel_mm: [80, 100, 120]
+        stanchion: 32mm Steel
+        spring: Coil
+        dampers: [tnl]
+        adjustments: *coil_spring
+        offset_mm: 51
+        axle: 15x150mm QR axle
+        note: Max tire 26x4.0.
+
+  - model: "GUIDE"
+    complete: false
+    category: Fat Bike
+    url: https://rstsuspension.com/products/guide/
+    wheel_size: [26, 20]
+    trims:
+      - trim: Air-TNL
+        key: fork-rst-guide-air-tnl
+        travel_mm: [75, 95, 120]
+        stanchion: 32mm Steel
+        spring: Air
+        dampers: [tnl]
+        adjustments: *air_spring
+        offset_mm: 50
+        axle: 15x135mm bolt axle or 9x135mm open dropout
+        note: 26" chassis, max tire 26x4.6.
+      - trim: Air-MLC
+        key: fork-rst-guide-air-mlc
+        travel_mm: [75, 95, 120]
+        stanchion: 32mm Steel
+        spring: Air
+        dampers: [mlc]
+        adjustments: *air_spring
+        offset_mm: 50
+        axle: 15x135mm bolt axle or 9x135mm open dropout
+        note: 26" chassis, max tire 26x4.6.
+      - trim: TNL
+        key: fork-rst-guide-tnl
+        travel_mm: [75, 95, 120]
+        stanchion: 34mm Steel
+        spring: Coil
+        dampers: [tnl]
+        adjustments: *coil_spring
+        offset_mm: 50
+        axle: 15x135mm bolt axle or 9x135mm open dropout
+        note: 26" chassis, max tire 26x4.6.
+      - trim: MLC
+        key: fork-rst-guide-mlc
+        travel_mm: [75, 95, 120]
+        stanchion: 34mm Steel
+        spring: Coil
+        dampers: [mlc]
+        adjustments: *coil_spring
+        offset_mm: 50
+        axle: 15x135mm bolt axle or 9x135mm open dropout
+        note: 26" chassis, max tire 26x4.6.
+      - trim: T
+        key: fork-rst-guide-t
+        travel_mm: [75, 95, 120]
+        stanchion: 34mm Steel
+        spring: Coil
+        adjustments: *coil_spring
+        offset_mm: 50
+        axle: 15x135mm bolt axle or 9x135mm open dropout
+        note: Undamped coil fork. 26" chassis, max tire 26x4.6.
+
+# --------------------------------------------------------------------------
+# Follow-ups (not yet captured — avoid guessing):
+#   - RST publishes NO click/turn counts anywhere (product pages, technology
+#     page, the general/high-end owner's manuals, the 2026 catalogue). Every
+#     external compression / rebound / hydraulic-lockout adjuster (OCR+, OCR2,
+#     OCR2+, OCRC+, BO-TNL, HCR, TNL, TNL-F, TNL-R, RA) is therefore left as
+#     `adjustments: []` and every model using one is `complete: false`. Only
+#     CAPA (mechanical MLC lockout + undamped T) is fully described.
+#   - Hydraulic lockout (TNL / BO-TNL / OCR+ lock-out) is described in the
+#     owner's manual as a progressive compression-to-lockout control, not a
+#     binary switch, so it was not modelled as a boolean.
+#   - Air-spring volume adjustment, negative-spring behaviour and exact coil
+#     spring rates/options are not published per model; only Pressure (air) or
+#     Spring Rate + Preload (coil) are listed.
+#   - Product-page spec tables are partly garbled (columns not aligned with
+#     model codes). Damper-per-trim assignments were read literally where the
+#     columns were clean; the following are best-effort and should be
+#     re-checked against RST directly:
+#       * F1RST (f1rst-3): the table lists a Compress-adjust damper against a
+#         27.5" column only; Air is mapped to BO-TNL with compress adjust and
+#         Air-TRL to BO-TNL without, mirroring the sibling F1RST 110 page.
+#       * VIBE V2: the table shows "29 AIR-RL" twice; only one Air-RL trim is
+#         listed. RL trims are mapped to the TNL lockout damper.
+#       * BLADE: four damper cells cover eight model columns; the -F / -R
+#         suffix (fixed / adjustable rebound) is used to map RL variants to
+#         TNL-F and RL-R variants to TNL-R.
+#       * ROGUE V2: the "Compress adjust / Lock-Out / Rebound adjust" cell
+#         spans Air and Air-TRL; Air-TRL is mapped to the same damper.
+#   - Model years are not published by RST; no year_range set.
+#   - Left out: JUNIOR F1RST / AERIAL 16-26" forks (spec table too garbled to
+#     map dampers reliably), SIGMA / GUIDE DC e-moto forks,
+#     E-city/trekking (VOYAGE, AVION, PULSE, VOLTA, VOLAIR E, VOLAR, VOGUE E,
+#     VIVAIR E, VOLANT, AVALON), cargo (BEAST, PORTER) and gravel (SS, STEM
+#     SHOCK) forks.
+# --------------------------------------------------------------------------

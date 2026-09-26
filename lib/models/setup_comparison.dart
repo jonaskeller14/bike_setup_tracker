@@ -1,5 +1,5 @@
 import 'adjustment/adjustment.dart';
-import 'component.dart';
+import 'component/component.dart';
 
 enum SetupComparisonGroupKind { component, person }
 

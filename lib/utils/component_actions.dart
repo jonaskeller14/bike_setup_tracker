@@ -4,8 +4,9 @@ import 'package:provider/provider.dart';
 
 import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
-import '../models/component.dart';
-import '../models/installation.dart';
+import '../models/component/component.dart';
+import '../models/component/installation.dart';
+import '../models/task/task_association.dart';
 import '../models/task/task_rule.dart';
 import '../pages/adjustment/boolean_adjustment_page.dart';
 import '../pages/adjustment/categorical_adjustment_page.dart';
@@ -14,44 +15,41 @@ import '../pages/adjustment/numerical_adjustment_page.dart';
 import '../pages/adjustment/sag_adjustment_page.dart';
 import '../pages/adjustment/step_adjustment_page.dart';
 import '../pages/adjustment/text_adjustment_page.dart';
-import '../pages/component_page.dart';
+import '../pages/forms/component_page.dart';
 import '../repositories/app_repository.dart';
 import '../widgets/app_snackbar.dart';
+import '../widgets/dialogs/component_descendant_warning.dart';
 import '../widgets/sheets/component_add_adjustment.dart';
 import '../widgets/sheets/copy_task_rules.dart';
 import '../widgets/sheets/delete_task_rules.dart';
 import '../widgets/sheets/replace_component.dart';
 import 'bike_actions.dart';
+import 'installation_timeline_validation.dart';
 
 class ComponentActions {
-  static Future<void> addComponent(BuildContext context, {Object? initialBike = const _Sentinel()}) async {
+  static Future<void> addComponent(BuildContext context, {Object? initialBike = const _Sentinel(), List<Installation>? initialInstallations}) async {
     final appRepository = context.read<AppRepository>();
 
-    late Component? component;
-    if (initialBike is _Sentinel) {
-      if (appRepository.filteredBikes.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          AppSnackBar.error(
-            context,
-            'Add a bike first',
-            action: AppSnackBarAction(
-              label: 'ADD',
-              onPressed: () => BikeActions.addBike(context),
-            ),
+    if (initialInstallations == null && initialBike is _Sentinel && appRepository.filteredBikes.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        AppSnackBar.error(
+          context,
+          'Add a bike first',
+          action: AppSnackBarAction(
+            label: 'ADD',
+            onPressed: () => BikeActions.addBike(context),
           ),
-        );
-        return;
-      }
-      component = await Navigator.push<Component>(
-        context,
-        MaterialPageRoute(builder: (context) => ComponentPage.add()),
+        ),
       );
-    } else {
-      component = await Navigator.push<Component>(
-        context,
-        MaterialPageRoute(builder: (context) => ComponentPage.add(initialBike: initialBike as String?)),
-      );
+      return;
     }
+    final installations = initialInstallations ??
+        (initialBike is _Sentinel ? null : [Installation.sinceBeginning(parent: initialBike as String?)]);
+
+    final component = await Navigator.push<Component>(
+      context,
+      MaterialPageRoute(builder: (context) => ComponentPage.add(initialInstallations: installations)),
+    );
 
     if (component == null) return;
     await appRepository.addComponents([component]);
@@ -67,6 +65,16 @@ class ComponentActions {
       ),
     );
     if (result == null) return;
+    if (!context.mounted) return;
+    if (!component.isArchived && result.value.isArchived) {
+      final confirmed = await confirmComponentDescendantImpact(
+        context,
+        component: component,
+        descendants: appRepository.affectedDescendants(component.id),
+        action: 'Archive',
+      );
+      if (!confirmed || !context.mounted) return;
+    }
     await appRepository.editComponent(result.value, conversions: result.conversions);
   }
 
@@ -97,14 +105,14 @@ class ComponentActions {
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);
 
-    final rules = appRepository.taskRules.values.where((rule) => rule.componentId == source.id).toList();
+    final rules = appRepository.taskRules.values.where((rule) => rule.association.componentId == source.id).toList();
     if (rules.isEmpty) return;
 
     final selected = await showCopyTaskRulesSheet(context, taskRules: rules, componentName: target.name);
     if (selected == null || selected.isEmpty) return;
 
-    // deepCopy() keeps the original componentId, so it has to be re-pointed.
-    final copies = selected.map((rule) => rule.deepCopy().copyWith(componentId: target.id)).toList();
+    // deepCopy() keeps the original association, so it has to be re-pointed.
+    final copies = selected.map((rule) => rule.deepCopy().copyWith(association: ComponentTaskAssociation(target.id))).toList();
     await appRepository.addTaskRules(copies);
 
     if (!context.mounted) return;
@@ -128,24 +136,45 @@ class ComponentActions {
     final result = await showReplaceComponentSheet(context, component: component);
     if (result == null) return;
 
+    final currentInstallation = appRepository.componentHierarchy.currentInstallation(component.id);
+    if (currentInstallation == null ||
+        (currentInstallation is! BikeInstallation && currentInstallation is! ComponentInstallation)) {
+      return;
+    }
+
+    final removedAt = stampInstallationNow(component.installations, now: result.replacementDate);
     final uninstallation = Installation(
       parent: null,
-      dateTimeUTC: result.replacementDate.toUtc(),
-      dateTimeLocal: result.replacementDate.toLocal(),
+      dateTimeUTC: removedAt.utc,
+      dateTimeLocal: removedAt.local,
     );
+
+    // Without an explicit move, subcomponents would stay on the retired parent.
+    List<Component> subcomponentEdits(String replacementId) => [
+      for (final child in result.movedSubcomponents)
+        child.copyWith(installations: [
+          ...child.installations,
+          _stampedInstallation(child, result.replacementDate, parentComponentId: replacementId),
+        ]),
+      for (final child in result.uninstalledSubcomponents)
+        child.copyWith(installations: [
+          ...child.installations,
+          _stampedInstallation(child, result.replacementDate),
+        ]),
+    ];
 
     switch (result) {
       case ReplaceComponentExistingResult(:final existingComponent, :final replacementDate):
-        // Swap in an already uninstalled component: install it on the same bike and
-        // retire the current one, both at the replacement date.
+        // Swap in an already uninstalled component: install it on the same parent
+        // (bike or component) and retire the current one, both at the replacement date.
+        final installedAt = stampInstallationNow(existingComponent.installations, now: replacementDate);
         await appRepository.editComponents([
           existingComponent.copyWith(
             installations: [
               ...existingComponent.installations,
-              Installation(
-                parent: component.bike,
-                dateTimeUTC: replacementDate.toUtc(),
-                dateTimeLocal: replacementDate.toLocal(),
+              currentInstallation.samePlacementAt(
+                dateTimeUTC: installedAt.utc,
+                dateTimeLocal: installedAt.local,
               ),
             ],
           ),
@@ -155,6 +184,7 @@ class ComponentActions {
               uninstallation,
             ],
           ),
+          ...subcomponentEdits(existingComponent.id),
         ]);
 
         if (!context.mounted) return;
@@ -175,31 +205,52 @@ class ComponentActions {
             builder: (context) => ComponentPage.replace(
               component: component.deepCopy(),
               replacementDate: replacementDate,
+              replacedInstallation: currentInstallation,
             ),
           ),
         );
         if (newComponent == null) return;
 
         await appRepository.addComponents([newComponent]);
-        await appRepository.editComponent(
+        await appRepository.editComponents([
           component.copyWith(
             installations: [
               ...component.installations,
               uninstallation,
             ],
           ),
-        );
+          ...subcomponentEdits(newComponent.id),
+        ]);
 
         if (!context.mounted) return;
         await _copyTaskRulesTo(context, source: component, target: newComponent);
     }
   }
 
+  static Installation _stampedInstallation(Component component, DateTime at, {String? parentComponentId}) {
+    final stamp = stampInstallationNow(component.installations, now: at);
+    return parentComponentId == null
+        ? Uninstallation(dateTimeUTC: stamp.utc, dateTimeLocal: stamp.local)
+        : ComponentInstallation(
+            parentComponentId: parentComponentId,
+            dateTimeUTC: stamp.utc,
+            dateTimeLocal: stamp.local,
+          );
+  }
+
   static Future<void> removeComponent(BuildContext context, {required Component component}) async {
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);
 
-    final relatedTaskRules = appRepository.taskRules.values.where((rule) => rule.componentId == component.id).toList();
+    final confirmed = await confirmComponentDescendantImpact(
+      context,
+      component: component,
+      descendants: appRepository.affectedDescendants(component.id),
+      action: 'Move to trash',
+    );
+    if (!confirmed || !context.mounted) return;
+
+    final relatedTaskRules = appRepository.taskRules.values.where((rule) => rule.association.componentId == component.id).toList();
     final selectedTaskRules = relatedTaskRules.isEmpty
         ? const <TaskRule>[]
         : await showDeleteTaskRulesSheet(context, taskRules: relatedTaskRules) ?? const <TaskRule>[];
@@ -270,6 +321,7 @@ class ComponentActions {
     showComponentAddAdjustmentBottomSheet(
       context: context,
       componentType: component.componentType,
+      existingAdjustments: component.adjustments,
       enableDurationAdjustment: false,
       addAdjustmentFromPreset: (Adjustment adjustment) async {
         final appRepository = context.read<AppRepository>();

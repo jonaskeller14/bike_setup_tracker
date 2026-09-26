@@ -3,21 +3,29 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
-import '../../models/rating_entry.dart';
+import '../../models/rating/rating_entry.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/dangling_adjustment_service.dart';
 import '../bookmark_ribbon.dart';
 import '../current_setup_badge.dart';
 import '../current_setup_highlight.dart';
-import '../lists/adjustment_compact_display_list.dart';
+import '../lists/adjustment_compact_display/adjustment_compact_display_list.dart';
 import 'setup_options_menu.dart';
 import 'setup_tile_header.dart';
 import 'tile_meta_row.dart';
+import 'timeline_selection_fill.dart';
 
 class SetupTileEmbedded extends StatefulWidget {
   final String setupId;
   final VoidCallback? onTap;
+  final bool selectionMode;
+  final bool selected;
+
+  /// False when an enclosing group already paints the selection tint, so the
+  /// translucent fills don't stack.
+  final bool showSelectionFill;
+  final VoidCallback? onSelectionChanged;
   final bool displayBikeAdjustmentValues;
   final bool displayPersonAdjustmentValues;
   final bool showDate;
@@ -35,6 +43,10 @@ class SetupTileEmbedded extends StatefulWidget {
     super.key,
     required this.setupId,
     required this.onTap,
+    this.selectionMode = false,
+    this.selected = false,
+    this.showSelectionFill = true,
+    this.onSelectionChanged,
     this.displayBikeAdjustmentValues = true,
     this.displayPersonAdjustmentValues = true,
     this.showDate = true,
@@ -130,6 +142,7 @@ class _SetupTileEmbeddedState extends State<SetupTileEmbedded> {
         metadata: metadataRows,
         badge: badge,
         showSetupIcon: false,
+        selected: widget.selected,
         secondaryMetadata: null,
       ),
     );
@@ -164,7 +177,8 @@ class _SetupTileEmbeddedState extends State<SetupTileEmbedded> {
     final bool hasValues = !_displayOnlyChanges ? summary.hasContent : summary.collapsedHasContent;
 
     return InkWell(
-      onTap: widget.onTap,
+      onTap: widget.selectionMode ? widget.onSelectionChanged : widget.onTap,
+      onLongPress: widget.onSelectionChanged,
       child: Padding(
         padding: const EdgeInsets.only(right: 4),
         child: Stack(
@@ -191,7 +205,7 @@ class _SetupTileEmbeddedState extends State<SetupTileEmbedded> {
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      if (!_displayOnlyChanges) SetupOptionsMenu(setup: setup),
+                      if (!_displayOnlyChanges && !widget.selectionMode) SetupOptionsMenu(setup: setup),
                       Padding(
                         padding: EdgeInsets.only(top: !_displayOnlyChanges ? 0 : _collapsedChevronTop),
                         child: ExpandIcon(
@@ -269,10 +283,12 @@ class _SetupTileEmbeddedState extends State<SetupTileEmbedded> {
       displayOnlyChanges: _displayOnlyChanges,
       displayBikeAdjustmentValues: widget.displayBikeAdjustmentValues,
       displayPersonAdjustmentValues: displayPerson,
-      contentInset: _embeddedContentInset,
     );
 
-    final Widget content = _buildEmbedded(context, setup, summary, adjustmentList);
+    final Widget content = TimelineSelectionFill(
+      selected: widget.selected && widget.showSelectionFill,
+      child: _buildEmbedded(context, setup, summary, adjustmentList),
+    );
 
     return setup.isCurrent
         ? CurrentSetupHighlight(

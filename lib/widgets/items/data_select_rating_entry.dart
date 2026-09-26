@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../models/bike.dart';
-import '../../models/rating_entry.dart';
+import '../../models/rating/rating_entry.dart';
 
 class DataSelectRatingEntry extends StatelessWidget {
   final RatingEntry item;

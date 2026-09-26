@@ -1,17 +1,21 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../models/rating_entry.dart';
+import '../models/rating/rating_entry.dart';
 import '../models/setup.dart';
-import '../pages/rating_entry_page.dart';
-import '../pages/setup_page.dart';
+import '../pages/forms/rating_entry_page.dart';
+import '../pages/forms/setup_page.dart';
 import '../repositories/app_repository.dart';
 import '../services/image_storage_service.dart';
 import '../services/share_service.dart';
 import '../widgets/app_snackbar.dart';
+import '../widgets/dialogs/confirmation.dart';
+import '../widgets/sheets/set_tags_bulk.dart';
 import 'bike_actions.dart';
 import 'component_actions.dart';
 import 'to_text.dart';
@@ -74,11 +78,42 @@ class SetupActions {
     );
     if (editedSetup == null) return;
 
-    await appRepository.editSetup(editedSetup);
+    await appRepository.editSetups([editedSetup]);
 
     // Delete images that the user removed during editing.
     final removedImages = originalImages.where((f) => !editedSetup.images.contains(f));
     await ImageStorageService().deleteImages(removedImages);
+  }
+
+  static Future<bool> deleteImages(BuildContext context, {required Set<String> filenames}) async {
+    final appRepository = context.read<AppRepository>();
+    final messenger = ScaffoldMessenger.of(context);
+
+    final confirmed = await showConfirmationDialog(
+      context,
+      title: filenames.length == 1 ? 'Delete image?' : 'Delete ${filenames.length} images?',
+      content: 'The images are permanently deleted and removed from their setups. This action cannot be undone.',
+      trueText: 'Delete',
+      isDestructive: true,
+    );
+    if (!confirmed) return false;
+    unawaited(HapticFeedback.heavyImpact());
+
+    await appRepository.editSetups(
+      appRepository.setups.values
+          .where((setup) => setup.images.any(filenames.contains))
+          .map((setup) => setup.copyWith(images: setup.images.where((f) => !filenames.contains(f)).toList())),
+    );
+    await ImageStorageService().deleteImages(filenames);
+
+    if (!context.mounted) return true;
+    messenger.showSnackBar(
+      AppSnackBar.info(
+        context,
+        filenames.length == 1 ? 'Image deleted.' : '${filenames.length} images deleted.',
+      ),
+    );
+    return true;
   }
 
   static Future<Setup?> duplicateSetup(BuildContext context, {required Setup setup}) async {
@@ -115,7 +150,93 @@ class SetupActions {
     final appRepository = context.read<AppRepository>();
 
     unawaited(HapticFeedback.selectionClick());
-    await appRepository.editSetup(setup.copyWith(isBookmarked: !setup.isBookmarked));
+    await appRepository.editSetups([setup.copyWith(isBookmarked: !setup.isBookmarked)]);
+  }
+
+  static Future<void> toggleBookmarks(BuildContext context, {required Iterable<String> setupIds}) async {
+    final appRepository = context.read<AppRepository>();
+    final messenger = ScaffoldMessenger.of(context);
+
+    final setups = setupIds.map((id) => appRepository.setups[id]).whereType<Setup>().toList();
+    if (setups.isEmpty) return;
+
+    final bookmark = !setups.every((setup) => setup.isBookmarked);
+    final originals = setups.where((setup) => setup.isBookmarked != bookmark).toList();
+
+    unawaited(HapticFeedback.selectionClick());
+    await appRepository.editSetups(originals.map((setup) => setup.copyWith(isBookmarked: bookmark)));
+
+    if (!context.mounted) return;
+    messenger.showSnackBar(
+      AppSnackBar.success(
+        context,
+        Intl.plural(
+          originals.length,
+          one: bookmark ? '1 Setup bookmarked.' : 'Bookmark removed from 1 Setup.',
+          other: bookmark
+              ? '${originals.length} Setups bookmarked.'
+              : 'Bookmark removed from ${originals.length} Setups.',
+        ),
+        duration: const Duration(seconds: 5),
+        action: AppSnackBarAction(
+          label: 'UNDO',
+          onPressed: () async => appRepository.editSetups(originals),
+        ),
+      ),
+    );
+  }
+
+  static Future<bool> setSetupsTags(BuildContext context, {required Iterable<String> setupIds}) async {
+    final appRepository = context.read<AppRepository>();
+    final messenger = ScaffoldMessenger.of(context);
+
+    final setups = setupIds.map((id) => appRepository.setups[id]).whereType<Setup>().toList();
+    if (setups.isEmpty) return false;
+
+    final changes = await showSetTagsBulkSheet(
+      context: context,
+      itemTags: setups.map((setup) => setup.tags).toList(),
+      availableTags: appRepository.setupTags,
+      title: 'Set Tags',
+      subtitle: 'Use tags to group and organize your setups. For example, to categorize by specific '
+          'test sessions, tracks, or terrains.',
+      applyLabel: Intl.plural(
+        setups.length,
+        one: 'Apply to 1 Setup',
+        other: 'Apply to ${setups.length} Setups',
+      ),
+    );
+    if (changes == null) return false;
+
+    final originals = <Setup>[];
+    final updated = <Setup>[];
+    for (final setup in setups) {
+      final newTags = changes.apply(setup.tags);
+      if (setEquals(newTags, setup.tags)) continue;
+      originals.add(setup);
+      updated.add(setup.copyWith(tags: newTags));
+    }
+    if (updated.isEmpty) return true;
+
+    await appRepository.editSetups(updated);
+
+    if (!context.mounted) return true;
+    messenger.showSnackBar(
+      AppSnackBar.success(
+        context,
+        Intl.plural(
+          updated.length,
+          one: 'Tags updated for 1 Setup.',
+          other: 'Tags updated for ${updated.length} Setups.',
+        ),
+        duration: const Duration(seconds: 5),
+        action: AppSnackBarAction(
+          label: 'UNDO',
+          onPressed: () async => appRepository.editSetups(originals),
+        ),
+      ),
+    );
+    return true;
   }
 
   static Future<void> removeSetup(BuildContext context, {required Setup setup}) async {

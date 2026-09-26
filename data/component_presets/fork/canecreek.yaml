@@ -27,6 +27,8 @@ sources:
   - https://cdn.shopify.com/s/files/1/0579/5987/4639/files/HelmMKII_UserManual_04_03_2025.pdf
   - https://cdn.shopify.com/s/files/1/0579/5987/4639/files/Helm_UserManual_1_12_18_FINAL_4a8c4476-2bc0-4f03-ae32-0ced7f5f3137.pdf
   - https://www.pinkbike.com/news/cane-creek-helm-fork-review-2017.html
+  - https://www.singletracks.com/mtb-gear/cane-creeks-sleek-helm-air-fork-is-a-legit-workhorse-on-the-trail-review/
+  - https://www.perpetualdisappointment.co.uk/cane-creek-helm-coil-fork-long-term-review/
 updated: 2026-09-10
 # Click ranges below come from the "Damping Adjustments" table in each
 # generation's official Cane Creek instruction manual (see each damper's
@@ -47,9 +49,9 @@ dampers:
       - 10 positions per adjuster, counted from fully closed
       - Clockwise adds damping, counter-clockwise takes it away
     adjustments:
-      - { name: HSC, type: step, max: 10, notes: High-Speed Compression }
-      - { name: LSC, type: step, max: 10, notes: Low-Speed Compression }
-      - { name: Rebound, type: step, max: 10, notes: "Low-Speed Rebound; Cane Creek labels this the fork's single rebound circuit (no separate high-speed rebound adjuster)" }
+      - { name: HSC, type: step, max: 10, notes: High-Speed Compression, dialColor: grey }
+      - { name: LSC, type: step, max: 10, notes: Low-Speed Compression, dialColor: orange, dialSize: small }
+      - { name: Rebound, type: step, max: 10, notes: "Low-Speed Rebound; Cane Creek labels this the fork's single rebound circuit (no separate high-speed rebound adjuster)", dialColor: orange }
     source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/HelmMKII_UserManual_04_03_2025.pdf
     note: >-
       Helm MKII instruction manual (rev. 04/03/2025), "Fork Features Overview
@@ -67,9 +69,9 @@ dampers:
       - 17 positions of Low-Speed Compression, 10 each of High-Speed Compression and rebound
       - Clockwise adds damping, counter-clockwise takes it away
     adjustments:
-      - { name: HSC, type: step, max: 10, notes: High-Speed Compression }
-      - { name: LSC, type: step, max: 17, notes: Low-Speed Compression }
-      - { name: Rebound, type: step, max: 10, notes: "Low-Speed Rebound; Cane Creek labels this the fork's single rebound circuit (no separate high-speed rebound adjuster)" }
+      - { name: HSC, type: step, max: 10, notes: High-Speed Compression, dialColor: grey }
+      - { name: LSC, type: step, max: 17, notes: Low-Speed Compression, dialColor: orange, dialSize: small }
+      - { name: Rebound, type: step, max: 10, notes: "Low-Speed Rebound; Cane Creek labels this the fork's single rebound circuit (no separate high-speed rebound adjuster)", dialColor: orange }
     source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/Helm_UserManual_1_12_18_FINAL_4a8c4476-2bc0-4f03-ae32-0ced7f5f3137.pdf
     note: >-
       Helm (original) instruction manual, rev. 01/12/2018, "Damping
@@ -106,6 +108,7 @@ forks:
     wheel_size: [29, 27.5]
     trims:
       - trim: Air
+        key: fork-cane-creek-helm-mkii-air-2020
         travel_mm: [120, 130, 140, 150, 160, 170]
         stanchion: 35mm
         spring: Air
@@ -115,6 +118,7 @@ forks:
           - { name: Volume Adjustment, type: step, max: 8, visualization: stepper, notes: Indexed rod/piston (not stackable spacers) — higher notch count = more progressive. Factory default is 2 of 8 notches down. }
         note: 29in offered in 120-160mm; 27.5in offered in 130-170mm (10mm internal increments, no extra parts required).
       - trim: Coil
+        key: fork-cane-creek-helm-mkii-coil-2020
         url: https://www.canecreek.com/products/helm-mkii-coil
         travel_mm: [120, 130, 140, 150, 160, 170]
         stanchion: 35mm
@@ -131,6 +135,7 @@ forks:
     wheel_size: [29]
     trims:
       - trim: Air
+        key: fork-cane-creek-helm-works-series-air-2023
         travel_mm: [100, 110, 120, 130]
         stanchion: 35mm
         spring: Air
@@ -149,6 +154,7 @@ forks:
     wheel_size: [26]
     trims:
       - trim: Standard
+        key: fork-cane-creek-helm-dj-standard-2025
         travel_mm: [90]
         stanchion: 35mm
         spring: Air
@@ -171,6 +177,7 @@ forks:
     wheel_size: [29, 27.5]
     trims:
       - trim: Air
+        key: fork-cane-creek-helm-mk1-air-2017
         travel_mm: [100, 110, 120, 130, 140, 150, 160, 170]
         stanchion: 35mm
         spring: Air
@@ -180,6 +187,7 @@ forks:
           - 27.5in runs 100-170mm, 29in/27.5+ runs 100-160mm, set with 10mm internal travel reducers
           - Air volume is set by a static piston on an indexed rod, 8 positions
       - trim: Coil
+        key: fork-cane-creek-helm-mk1-coil-2017
         travel_mm: [130, 140, 150, 160]
         stanchion: 35mm
         spring: Coil

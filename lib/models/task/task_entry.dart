@@ -1,6 +1,7 @@
 import 'package:uuid/uuid.dart';
 
 import '../component_stats.dart';
+import 'task_association.dart';
 
 class TaskEntry {
   final String id;
@@ -11,8 +12,7 @@ class TaskEntry {
   final DateTime dateTimeUTC;
   final DateTime dateTimeLocal;
   final String taskRule;
-  final String? componentId;
-  final String? bikeId;
+  final TaskAssociation association;
   final ComponentStats? snapshot;
 
   TaskEntry({
@@ -24,18 +24,16 @@ class TaskEntry {
     required DateTime dateTimeUTC,
     required this.dateTimeLocal,
     required this.taskRule,
-    this.componentId,
-    this.bikeId,
+    this.association = const GeneralTaskAssociation(),
     this.snapshot,
   })
     : id = id ?? const Uuid().v4(),
       isDeleted = isDeleted ?? false,
       lastModified = lastModified?.toUtc() ?? DateTime.now().toUtc(),
-      dateTimeUTC = dateTimeUTC.toUtc() {
-    assert(componentId == null || bikeId == null, 'Cannot link to both a component and a bike');
-  }
+      dateTimeUTC = dateTimeUTC.toUtc();
   
   Map<String, dynamic> toJson() => {
+    'version': 2,
     'id': id,
     "isDeleted": isDeleted,
     "lastModified": lastModified.toUtc().toIso8601String(),
@@ -44,12 +42,20 @@ class TaskEntry {
     'dateTimeUTC': dateTimeUTC.toUtc().toIso8601String(),
     'dateTimeLocal': dateTimeLocal.toIso8601String(),
     'taskRule': taskRule,
-    'componentId': componentId,
-    'bikeId': bikeId,
+    'association': association.toJson(),
     'snapshot': snapshot?.toJson(),
   };
 
   factory TaskEntry.fromJson(Map<String, dynamic> json) {
+    final int? version = json["version"] as int?;
+    final TaskAssociation association = switch (version) {
+      null || 1 => TaskAssociation.fromIds(
+          componentId: json['componentId'] as String?,
+          bikeId: json['bikeId'] as String?,
+        ),
+      2 => TaskAssociation.fromJson(json['association'] as Map<String, dynamic>),
+      _ => throw Exception("Json Version $version of TaskEntry incompatible."),
+    };
     return TaskEntry(
         id: json['id'] as String?,
         isDeleted: json["isDeleted"] as bool?,
@@ -59,8 +65,7 @@ class TaskEntry {
         dateTimeUTC: DateTime.parse(json['dateTimeUTC'] as String).toUtc(),
         dateTimeLocal: DateTime.parse(json['dateTimeLocal'] as String? ?? '').copyWith(isUtc: false),
         taskRule: json['taskRule'] as String,
-        componentId: json['componentId'] as String?,
-        bikeId: json['bikeId'] as String?,
+        association: association,
         snapshot: json['snapshot'] != null 
             ? ComponentStats.fromJson(json['snapshot'] as Map<String, dynamic>) 
             : null,
@@ -80,8 +85,7 @@ class TaskEntry {
         dateTimeUTC == other.dateTimeUTC &&
         dateTimeLocal == other.dateTimeLocal && 
         taskRule == other.taskRule &&
-        componentId == other.componentId &&
-        bikeId == other.bikeId &&
+        association == other.association &&
         snapshot == other.snapshot;
   }
 
@@ -96,8 +100,7 @@ class TaskEntry {
       dateTimeUTC,
       dateTimeLocal,
       taskRule,
-      componentId,
-      bikeId,
+      association,
       snapshot,
     ]);
   }
@@ -111,8 +114,7 @@ class TaskEntry {
     Object? dateTimeUTC = const _Sentinel(),
     Object? dateTimeLocal = const _Sentinel(),
     Object? taskRule = const _Sentinel(),
-    Object? componentId = const _Sentinel(),
-    Object? bikeId = const _Sentinel(),
+    Object? association = const _Sentinel(),
     Object? snapshot = const _Sentinel(),
   }) {
     return TaskEntry(
@@ -140,12 +142,9 @@ class TaskEntry {
       taskRule: taskRule is _Sentinel
           ? this.taskRule
           : (taskRule as String), 
-      componentId: componentId is _Sentinel
-          ? this.componentId
-          : (componentId as String?),
-      bikeId: bikeId is _Sentinel
-          ? this.bikeId
-          : (bikeId as String?),
+      association: association is _Sentinel
+          ? this.association
+          : (association as TaskAssociation),
       snapshot: snapshot is _Sentinel
           ? this.snapshot
           : (snapshot as ComponentStats?),

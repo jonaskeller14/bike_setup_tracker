@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../models/bike.dart';
-import '../../models/component.dart';
+import '../../models/component/component.dart';
+import '../../models/task/task_association.dart';
 import '../../models/task/task_rule.dart';
+import '../../services/component_hierarchy_resolver.dart';
 
 class DataSelectTaskRule extends StatelessWidget {
   final TaskRule item;
@@ -22,13 +24,12 @@ class DataSelectTaskRule extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final component = item.componentId != null
-        ? components[item.componentId]
-        : null;
-    final bike = item.bikeId != null
-        ? bikes[item.bikeId]
-        : (component?.bike != null
-              ? bikes[component!.bike]
+    final componentId = item.association.componentId;
+    final component = components[componentId];
+    final bike = item.association.bikeId != null
+        ? bikes[item.association.bikeId]
+        : (componentId != null
+              ? bikes[ComponentHierarchyResolver(components).currentBike(componentId)]
               : null);
 
     return Card(
@@ -45,7 +46,7 @@ class DataSelectTaskRule extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           spacing: 2,
           children: [
-            if (item.componentId != null) ...[
+            if (item.association is ComponentTaskAssociation) ...[
               Icon(
                 component?.componentType.getIconData() ?? Icons.grid_view_sharp,
                 size: 13,
@@ -68,7 +69,7 @@ class DataSelectTaskRule extends StatelessWidget {
                   ),
                 ),
               ),
-            ] else if (item.bikeId != null) ...[
+            ] else if (item.association is BikeTaskAssociation) ...[
               Icon(
                 Bike.iconData,
                 size: 13,

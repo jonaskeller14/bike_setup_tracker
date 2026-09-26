@@ -141,6 +141,7 @@ forks:
     wheel_size: [29, 27.5]
     trims:
       - trim: Boost
+        key: fork-sr-suntour-rux-boost-2025
         travel_mm: [200]
         stanchion: 38mm (Alloy)
         spring: Air
@@ -159,6 +160,7 @@ forks:
     wheel_size: [29, 27.5]
     trims:
       - trim: Boost
+        key: fork-sr-suntour-durolux-36x-boost-2025
         travel_mm: [150, 160]
         stanchion: 36mm (Alloy)
         spring: Air
@@ -176,6 +178,7 @@ forks:
     wheel_size: [29]
     trims:
       - trim: Standard
+        key: fork-sr-suntour-durolux-38-standard-2025
         travel_mm: [160, 170, 180]
         stanchion: 38mm (Alloy)
         spring: Air
@@ -185,6 +188,7 @@ forks:
         axle: ø15-110 (15AH4)
         note: Postmount 203mm, max rotor 220mm. Semi-open oil bath.
       - trim: E-Bike
+        key: fork-sr-suntour-durolux-38-e-bike-2025
         url: https://www.srsuntour.com/products/fork/SF25-DUROLUX38X-Boost-8052.html
         travel_mm: [160, 170, 180]
         stanchion: 38mm (Alloy)
@@ -203,6 +207,7 @@ forks:
     wheel_size: [29, 27.5]
     trims:
       - trim: Boost
+        key: fork-sr-suntour-aion-36-boost-2025
         travel_mm: [120, 130, 140, 150, 160]
         stanchion: 36mm (Alloy)
         spring: Air
@@ -219,6 +224,7 @@ forks:
     wheel_size: [29, 27.5]
     trims:
       - trim: Boost
+        key: fork-sr-suntour-aion-38x-boost-2025
         travel_mm: [160, 170, 180]
         stanchion: 38mm (Alloy)
         spring: Air
@@ -236,6 +242,7 @@ forks:
     wheel_size: [27.5, 29]
     trims:
       - trim: Boost
+        key: fork-sr-suntour-auron-36-boost-2025
         travel_mm: [140, 150, 160]
         stanchion: 36mm (Alloy)
         spring: Air
@@ -252,6 +259,7 @@ forks:
     wheel_size: [29, 27.5]
     trims:
       - trim: Boost
+        key: fork-sr-suntour-zeron-36-boost-2025
         travel_mm: [120, 130, 140, 150, 160]
         stanchion: 36mm (Alloy)
         spring: Air
@@ -268,6 +276,7 @@ forks:
     wheel_size: [29, 27.5]
     trims:
       - trim: Boost
+        key: fork-sr-suntour-zeron-36x-boost-2026
         travel_mm: [130, 140, 150, 160]
         stanchion: 36mm (Alloy)
         spring: Air
@@ -288,6 +297,7 @@ forks:
     wheel_size: [29]
     trims:
       - trim: Boost
+        key: fork-sr-suntour-axon-34-boost-2025
         travel_mm: [100, 120, 130, 140]
         stanchion: 34mm (Alloy)
         spring: Air
@@ -303,6 +313,7 @@ forks:
     wheel_size: [29]
     trims:
       - trim: Werx
+        key: fork-sr-suntour-axon-34-werx-werx-2025
         travel_mm: [100, 110, 120]
         stanchion: 34mm (Alloy)
         spring: Air
@@ -312,6 +323,7 @@ forks:
         axle: ø15-110 (15AHL)
         note: One-piece hollow carbon steerer. Flagship XC race fork.
       - trim: Elite
+        key: fork-sr-suntour-axon-34-werx-elite-2025
         url: https://www.srsuntour.com/products/fork/SF20-AXON34-Elite-Boost-8061.html
         travel_mm: [100, 110, 120]
         stanchion: 34mm (Alloy)
@@ -329,6 +341,7 @@ forks:
     wheel_size: [29, 27.5]
     trims:
       - trim: Boost
+        key: fork-sr-suntour-raidon-34-boost-2025
         travel_mm: [100, 120, 130, 140]
         stanchion: 34mm (Alloy)
         spring: Air

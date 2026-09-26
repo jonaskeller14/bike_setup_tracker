@@ -90,25 +90,47 @@ void main() {
       expect(repository.filteredStravaActivities.containsKey(activityLinked.id), true);
     });
 
-    test("Filtering with an unlinked bike selected should show unassigned activities", () async {
-      // Selecting the first unlinked bike
+    test("Filtering with an unlinked bike selected should show no activities", () async {
       repository.onBikeTap(bikeUnlinked.id);
       await pumpEventQueue();
 
-      // Should show Ride 2 (null gear) and Ride 3 (gear_unknown)
-      // because they are not assigned to any bike.
-      // This verifies the user's fix for Ride 2 (null gear).
-      expect(repository.filteredStravaActivities.length, 2);
-      expect(repository.filteredStravaActivities.containsKey(activityUnlinked.id), true);
-      expect(repository.filteredStravaActivities.containsKey(activityUnknownGear.id), true);
+      // Ride 2 (null gear) and Ride 3 (gear_unknown) are unattributed, not this
+      // bike's rides: its stats count neither, so its list shows neither.
+      expect(repository.filteredStravaActivities, isEmpty);
+      expect(repository.selectedBikeHasNoStravaGear, true);
     });
 
-    test("Filtering with another unlinked bike should show the same unassigned pool", () async {
+    test("Every unlinked bike shows nothing rather than a shared unassigned pool", () async {
       repository.onBikeTap(bikeOtherUnlinked.id);
       await pumpEventQueue();
-      expect(repository.filteredStravaActivities.length, 2);
-      expect(repository.filteredStravaActivities.containsKey(activityUnlinked.id), true);
-      expect(repository.filteredStravaActivities.containsKey(activityUnknownGear.id), true);
+      expect(repository.filteredStravaActivities, isEmpty);
+      expect(repository.selectedBikeHasNoStravaGear, true);
+    });
+
+    test("Deselecting an unlinked bike brings every activity back", () async {
+      repository.onBikeTap(bikeUnlinked.id);
+      await pumpEventQueue();
+      expect(repository.filteredStravaActivities, isEmpty);
+
+      repository.onBikeTap(bikeUnlinked.id); // tapping again clears the selection
+      await pumpEventQueue();
+      expect(repository.selectedBike, null);
+      expect(repository.filteredStravaActivities.length, 3);
+      expect(repository.selectedBikeHasNoStravaGear, false);
+    });
+
+    test("A linked bike is not reported as missing its gear", () async {
+      repository.onBikeTap(bikeLinked.id);
+      await pumpEventQueue();
+      expect(repository.selectedBikeHasNoStravaGear, false);
+    });
+
+    test("Search and map positions follow the same scope as the list", () async {
+      repository.onBikeTap(bikeUnlinked.id);
+      await pumpEventQueue();
+
+      expect(await repository.searchStravaActivities("Ride"), isEmpty);
+      expect(await repository.getFilteredStravaActivitiesWithPosition(), isEmpty);
     });
   });
 }

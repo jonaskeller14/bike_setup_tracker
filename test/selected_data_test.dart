@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:bike_setup_tracker/models/selected_data.dart';
+import 'package:bike_setup_tracker/models/task/task_association.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -12,8 +13,7 @@ void main() {
       lastModified: DateTime.now().toUtc(),
       name: 'Test',
       priority: TaskPriority.medium,
-      componentId: "c1",
-      bikeId: null,
+      association: const ComponentTaskAssociation("c1"),
       interval: const DurationThreshold(Duration(days: 30)),
       delay: const DistanceThreshold(500),
       repeat: true,

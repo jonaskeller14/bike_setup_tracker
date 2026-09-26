@@ -4,12 +4,11 @@ import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
-import '../../models/component.dart';
+import '../../models/component/component.dart';
 import '../../models/person.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/dangling_adjustment_service.dart';
-import '../../services/setup_comparison_service.dart';
 import '../../utils/setup_actions.dart';
 import '../../widgets/current_setup_badge.dart';
 import '../../widgets/current_setup_highlight.dart';
@@ -20,14 +19,15 @@ import '../../widgets/empty_state_placeholder2.dart';
 import '../../widgets/initial_changed_value_legend.dart';
 import '../../widgets/items/card_header_tile.dart';
 import '../../widgets/items/context_bike_person_card.dart';
-import '../../widgets/items/context_location_card.dart';
+import '../../widgets/items/context_location_weather_card.dart';
 import '../../widgets/items/context_meta_card.dart';
-import '../../widgets/items/context_weather_card.dart';
 import '../../widgets/items/rating_summary_card.dart';
 import '../../widgets/map_pins.dart';
 import '../../widgets/sheets/compare_setups.dart';
 import '../../widgets/sheets/sheet.dart';
 import '../../widgets/text/section_title.dart';
+import '../../widgets/tooltips/component_tooltip.dart';
+import '../../widgets/tooltips/person_tooltip.dart';
 
 class SetupDetailsPage extends StatefulWidget {
   final List<String> setupIds;
@@ -194,10 +194,7 @@ class SetupDetailsPageContent extends StatelessWidget {
     }
   }
 
-  Widget? _sheetCompareAction(BuildContext context, {required Setup setup}) {
-    final setups = context.read<AppRepository>().setups.values;
-    final canCompare = SetupComparisonService.resolveTargets(setupB: setup, setups: setups) is SetupComparisonTargets;
-    if (!canCompare) return null;
+  Widget _sheetCompareAction(BuildContext context, {required Setup setup}) {
     return IconButton.filled(
       iconSize: 20,
       tooltip: _SetupDetailsAction.compare.label,
@@ -214,13 +211,11 @@ class SetupDetailsPageContent extends StatelessWidget {
   }
 
   Widget _sheetActions(BuildContext context, {required Setup setup}) {
-    final setups = context.read<AppRepository>().setups.values;
-    final canCompare = SetupComparisonService.resolveTargets(setupB: setup, setups: setups) is SetupComparisonTargets;
     final actions = <_SetupDetailsAction>[
       _SetupDetailsAction.edit,
       //TODO: add "add rating" and "remove" ?
       if (!setup.isCurrent) _SetupDetailsAction.restore,
-      if (canCompare) _SetupDetailsAction.compare,
+      _SetupDetailsAction.compare,
     ];
     return PopupMenuButton<_SetupDetailsAction>(
       tooltip: 'Setup actions',
@@ -338,7 +333,7 @@ class SetupDetailsPageContent extends StatelessWidget {
               tags: appSettings.enableSetupTags ? setup.tags : const {},
               images: appSettings.enableSetupImages ? setup.images : const [],
             ),
-            ContextLocationCard(
+            ContextLocationWeatherCard(
               position: setup.position,
               place: setup.place,
               displayName: setup.displayName,
@@ -346,8 +341,8 @@ class SetupDetailsPageContent extends StatelessWidget {
                 isCurrent: setup.isCurrent,
                 isBookmarked: appSettings.enableSetupBookmark && setup.isBookmarked,
               ),
+              weather: setup.weather,
             ),
-            ContextWeatherCard(weather: setup.weather),
             ContextBikePersonCard(
               bike: bike,
               person: person,
@@ -392,11 +387,16 @@ class SetupDetailsPageContent extends StatelessWidget {
           CardHeaderTile(
             color: scheme.errorContainer,
             child: ListTile(
-              leading: Badge(
-                label: _errorBadgeDot(context),
-                backgroundColor: Colors.transparent,
-                largeSize: 20,
-                child: Icon(group.component.componentType.getIconData(), color: scheme.error),
+              leading: ComponentTooltip(
+                component: group.component,
+                isError: true,
+                triggerMode: TooltipTriggerMode.tap,
+                child: Badge(
+                  label: _errorBadgeDot(context),
+                  backgroundColor: Colors.transparent,
+                  largeSize: 20,
+                  child: Icon(group.component.componentType.getIconData(), color: scheme.error),
+                ),
               ),
               title: Text(group.component.name, style: TextStyle(fontWeight: FontWeight.bold, color: scheme.error)),
               subtitle: Text("Component was not installed at setup time", style: TextStyle(color: scheme.error)),
@@ -424,11 +424,16 @@ class SetupDetailsPageContent extends StatelessWidget {
           CardHeaderTile(
             color: scheme.errorContainer,
             child: ListTile(
-              leading: Badge(
-                label: _errorBadgeDot(context),
-                backgroundColor: Colors.transparent,
-                largeSize: 20,
-                child: Icon(Person.iconData, color: scheme.error),
+              leading: PersonTooltip(
+                person: group.person,
+                isError: true,
+                triggerMode: TooltipTriggerMode.tap,
+                child: Badge(
+                  label: _errorBadgeDot(context),
+                  backgroundColor: Colors.transparent,
+                  largeSize: 20,
+                  child: Icon(Person.iconData, color: scheme.error),
+                ),
               ),
               title: Text(group.person.name, style: TextStyle(fontWeight: FontWeight.bold, color: scheme.error)),
               subtitle: Text("Person is not linked to this setup", style: TextStyle(color: scheme.error)),
@@ -516,7 +521,11 @@ class SetupDetailsPageContent extends StatelessWidget {
                             one: "1 adjustment",
                             other: '${bikeComponent.adjustments.length} adjustments',
                           )),
-                          leading: Icon(bikeComponent.componentType.getIconData()),
+                          leading: ComponentTooltip(
+                            component: bikeComponent,
+                            triggerMode: TooltipTriggerMode.tap,
+                            child: Icon(bikeComponent.componentType.getIconData()),
+                          ),
                           enabled: bikeComponent.adjustments.isNotEmpty,
                         ),
                       ),
@@ -560,7 +569,11 @@ class SetupDetailsPageContent extends StatelessWidget {
                             one: "1 attribute",
                             other: '${person.adjustments.length} attributes',
                           )),
-                          leading: const Icon(Person.iconData),
+                          leading: PersonTooltip(
+                            person: person,
+                            triggerMode: TooltipTriggerMode.tap,
+                            child: const Icon(Person.iconData),
+                          ),
                           enabled: person.adjustments.isNotEmpty,
                         ),
                       ),

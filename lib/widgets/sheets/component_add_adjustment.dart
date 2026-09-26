@@ -3,10 +3,12 @@ import 'package:provider/provider.dart';
 
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
-import '../../models/component.dart';
+import '../../models/component/component.dart';
+import '../../utils/adjustment_preset_consumption.dart';
 import '../../utils/component_preset_application.dart';
 import '../items/adjustment_properties.dart';
 import '../items/adjustment_type_icon.dart';
+import '../sticky_section.dart';
 import 'component_type_picker.dart';
 import 'sheet.dart';
 import 'sheet_header.dart';
@@ -20,10 +22,10 @@ final Map<ComponentType, List<Adjustment>> _adjustmentPresets = {
     BooleanAdjustment(name: "Lockout", unit: null, notes: "Is the lockout lever enabled?", presetKey: "fork:lockout"),
     NumericalAdjustment(name: "Pressure", unit: AdjustmentUnit.fromLegacy("psi"), min: 0, notes: "Fork air pressure", presetKey: "fork:pressure"),
     SagAdjustment(name: "SAG", notes: kForkSagNotes, presetKey: "fork:sag"),
-    StepAdjustment(name: "Rebound", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Rebound clicks", presetKey: "fork:rebound"),
+    StepAdjustment(name: "Rebound", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, dialColor: StepAdjustmentDialColor.red, notes: "Rebound clicks", presetKey: "fork:rebound"),
     StepAdjustment(name: "Compression", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Compression clicks", presetKey: "fork:compression"),
-    StepAdjustment(name: "LSR", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Low Speed Rebound clicks", presetKey: "fork:lsr"),
-    StepAdjustment(name: "HSR", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "High Speed Rebound clicks", presetKey: "fork:hsr"),
+    StepAdjustment(name: "LSR", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, dialColor: StepAdjustmentDialColor.red, notes: "Low Speed Rebound clicks", presetKey: "fork:lsr"),
+    StepAdjustment(name: "HSR", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, dialColor: StepAdjustmentDialColor.red, notes: "High Speed Rebound clicks", presetKey: "fork:hsr"),
     StepAdjustment(name: "LSC", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Low Speed Compression clicks", presetKey: "fork:lsc"),
     StepAdjustment(name: "HSC", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "High Speed Compression clicks", presetKey: "fork:hsc"),
     StepAdjustment(name: "Volume Spacers", unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.minusButtonValuePlusButton, notes: "Number of volume spacers installed in the air spring", presetKey: "fork:volume_spacers"),
@@ -33,10 +35,10 @@ final Map<ComponentType, List<Adjustment>> _adjustmentPresets = {
     NumericalAdjustment(name: "Pressure", unit: AdjustmentUnit.fromLegacy("psi"), min: 0, notes: "Shock air pressure", presetKey: "shock:pressure"),
     NumericalAdjustment(name: "Spring Rate", unit: AdjustmentUnit.fromLegacy("lbs/in"), min: 0, notes: "Coil spring rate", presetKey: "shock:spring_rate"),
     SagAdjustment(name: "SAG", notes: kShockSagNotes, presetKey: "shock:sag"),
-    StepAdjustment(name: "Rebound", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Rebound clicks", presetKey: "shock:rebound"),
+    StepAdjustment(name: "Rebound", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, dialColor: StepAdjustmentDialColor.red, notes: "Rebound clicks", presetKey: "shock:rebound"),
     StepAdjustment(name: "Compression", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Compression clicks", presetKey: "shock:compression"),
-    StepAdjustment(name: "LSR", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Low Speed Rebound clicks", presetKey: "shock:lsr"),
-    StepAdjustment(name: "HSR", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "High Speed Rebound clicks", presetKey: "shock:hsr"),
+    StepAdjustment(name: "LSR", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, dialColor: StepAdjustmentDialColor.red, notes: "Low Speed Rebound clicks", presetKey: "shock:lsr"),
+    StepAdjustment(name: "HSR", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, dialColor: StepAdjustmentDialColor.red, notes: "High Speed Rebound clicks", presetKey: "shock:hsr"),
     StepAdjustment(name: "LSC", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Low Speed Compression clicks", presetKey: "shock:lsc"),
     StepAdjustment(name: "HSC", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "High Speed Compression clicks", presetKey: "shock:hsc"),
     StepAdjustment(name: "Volume Spacers", unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.minusButtonValuePlusButton, notes: "Number of volume spacers installed in the air spring", presetKey: "shock:volume_spacers"),
@@ -114,6 +116,7 @@ final Map<ComponentType, List<Adjustment>> _adjustmentPresets = {
 void showComponentAddAdjustmentBottomSheet({
   required BuildContext context,
   required ComponentType? componentType,
+  List<Adjustment> existingAdjustments = const [],
   bool enableDurationAdjustment = false,
   required Future<void> Function(Adjustment adjustment) addAdjustmentFromPreset,
   required Future<void> Function<T extends Adjustment>() addAdjustment,
@@ -125,6 +128,7 @@ void showComponentAddAdjustmentBottomSheet({
     context: context,
     builder: (_) => _ComponentAddAdjustmentSheet(
       componentType: componentType,
+      existingAdjustments: existingAdjustments,
       enableDurationAdjustment: enableDurationAdjustment,
       addAdjustmentFromPreset: addAdjustmentFromPreset,
       addAdjustment: addAdjustment,
@@ -135,6 +139,7 @@ void showComponentAddAdjustmentBottomSheet({
 
 class _ComponentAddAdjustmentSheet extends StatefulWidget {
   final ComponentType? componentType;
+  final List<Adjustment> existingAdjustments;
   final bool enableDurationAdjustment;
   final Future<void> Function(Adjustment adjustment) addAdjustmentFromPreset;
   final Future<void> Function<T extends Adjustment>() addAdjustment;
@@ -142,6 +147,7 @@ class _ComponentAddAdjustmentSheet extends StatefulWidget {
 
   const _ComponentAddAdjustmentSheet({
     required this.componentType,
+    required this.existingAdjustments,
     required this.enableDurationAdjustment,
     required this.addAdjustmentFromPreset,
     required this.addAdjustment,
@@ -164,9 +170,48 @@ class _ComponentAddAdjustmentSheetState extends State<_ComponentAddAdjustmentShe
     await onComponentTypeSelected(pickedType);
   }
 
+  Widget _presetTile(Adjustment preset, {required bool consumed}) {
+    final mutedColor = Theme.of(context).colorScheme.onSurfaceVariant;
+    final tile = ListTile(
+      textColor: consumed ? mutedColor : null,
+      iconColor: consumed ? mutedColor : null,
+      leading: AdjustmentTypeIcon(preset, color: consumed ? mutedColor : null),
+      title: Text(preset.name),
+      subtitle: AdjustmentProperties(preset, singleLine: true, compact: true),
+      trailing: Icon(consumed ? Icons.check : Icons.arrow_forward_ios, size: 16.0),
+      onTap: () async {
+        Navigator.pop(context);
+        await widget.addAdjustmentFromPreset(preset);
+      },
+    );
+    return consumed ? Opacity(opacity: 0.6, child: tile) : tile;
+  }
+
+  Widget _consumedGroup(List<Adjustment> consumed) {
+    final mutedColor = Theme.of(context).colorScheme.onSurfaceVariant;
+    return ExpansionTile(
+      shape: const Border(),
+      collapsedShape: const Border(),
+      dense: true,
+      textColor: mutedColor,
+      collapsedTextColor: mutedColor,
+      iconColor: mutedColor,
+      collapsedIconColor: mutedColor,
+      title: Text("Already added (${consumed.length})"),
+      // Already-added presets stay tappable for a deliberate second copy.
+      children: consumed.map((preset) => _presetTile(preset, consumed: true)).toList(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final componentType = _selectedType;
+    final presets = _adjustmentPresets[componentType] ?? const <Adjustment>[];
+    final available = <Adjustment>[];
+    final consumed = <Adjustment>[];
+    for (final preset in presets) {
+      (isAdjustmentPresetConsumed(preset, widget.existingAdjustments) ? consumed : available).add(preset);
+    }
     return SafeArea(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -178,126 +223,126 @@ class _ComponentAddAdjustmentSheetState extends State<_ComponentAddAdjustmentShe
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                    child: Text(
-                      componentType != null ? "Suggested for ${componentType.label}" : "Pre-filled Templates",
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.2,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
+                  StickySection(
+                    header: sheetSectionHeader(context,
+                      componentType == null
+                          ? "Pre-filled Templates"
+                          : consumed.isEmpty
+                              ? "Suggested for ${componentType.label}"
+                              : "Suggested for ${componentType.label} · ${consumed.length}/${presets.length} added",
+                    ),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (componentType == null)
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+                            child: SheetFilterEmptyHint(
+                              icon: widget.onComponentTypeSelected != null ? Icons.category_outlined : Icons.info_outline,
+                              title: widget.onComponentTypeSelected != null
+                                  ? "Select a component type"
+                                  : "No templates available",
+                              hint: widget.onComponentTypeSelected != null
+                                  ? "Templates are suggested per component type."
+                                  : "Select a component type first.",
+                              onTap: widget.onComponentTypeSelected == null ? null : _pickComponentType,
+                            ),
+                          )
+                        else
+                          if (presets.isNotEmpty) ...[
+                            ...available.map((preset) => _presetTile(preset, consumed: false)),
+                            if (available.isEmpty)
+                              const Padding(
+                                padding: EdgeInsets.fromLTRB(16, 4, 16, 0),
+                                child: SheetFilterEmptyHint(
+                                  icon: Icons.check_circle_outline,
+                                  title: "All suggestions added",
+                                  hint: "Add a custom adjustment below.",
+                                ),
+                              ),
+                            if (consumed.isNotEmpty) _consumedGroup(consumed),
+                          ]
+                          else
+                            Text(
+                              "No templates available.",
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                        const Divider(height: 16),
+                      ],
                     ),
                   ),
-                  if (componentType == null)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: SheetFilterEmptyHint(
-                        icon: widget.onComponentTypeSelected != null ? Icons.category_outlined : Icons.info_outline,
-                        title: widget.onComponentTypeSelected != null
-                            ? "Select a component type"
-                            : "No templates available",
-                        hint: widget.onComponentTypeSelected != null
-                            ? "Templates are suggested per component type."
-                            : "Select a component type first.",
-                        onTap: widget.onComponentTypeSelected == null ? null : _pickComponentType,
-                      ),
-                    )
-                  else
-                    if (_adjustmentPresets[componentType] != null && _adjustmentPresets[componentType]!.isNotEmpty)
-                      ..._adjustmentPresets[componentType]!.map((adjustmentPreset) => ListTile(
-                        leading: AdjustmentTypeIcon(adjustmentPreset),
-                        title: Text(adjustmentPreset.name),
-                        subtitle: AdjustmentProperties(adjustmentPreset, singleLine: true, compact: true),
-                        trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                        onTap: () async {
-                          Navigator.pop(context);
-                          await widget.addAdjustmentFromPreset(adjustmentPreset);
-                        },
-                      ))
-                    else
-                      Text(
-                        "No templates available.",
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  StickySection(
+                    header: sheetSectionHeader(context, "Custom Adjustment"),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ListTile(
+                          leading: Icon(NumericalAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
+                          title: const Text("Numerical Adjustment"),
+                          subtitle: const Text("Pressure (psi/bar), Length, Angle, Weight", style: TextStyle(fontSize: 12)),
+                          trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                          onTap: () async {
+                            Navigator.pop(context); // Close sheet first
+                            await widget.addAdjustment<NumericalAdjustment>(); // Then execute logic
+                          },
                         ),
-                      ),
-                  const Divider(height: 16),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                    child: Text(
-                      "Custom Adjustment",
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.2,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
+                        ListTile(
+                          leading: Icon(StepAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
+                          title: const Text("Step Adjustment"),
+                          subtitle: const Text("Rebound/Compression clicks, Spacers, Increments", style: TextStyle(fontSize: 12)),
+                          trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                          onTap: () async {
+                            Navigator.pop(context); // Close sheet first
+                            await widget.addAdjustment<StepAdjustment>(); // Then execute logic
+                          },
+                        ),
+                        ListTile(
+                          leading: Icon(CategoricalAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
+                          title: const Text("Categorical Adjustment"),
+                          subtitle: const Text("Tire Compound (soft/hard), Brand, Style, Mode", style: TextStyle(fontSize: 12)),
+                          trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                          onTap: () async {
+                            Navigator.pop(context); // Close sheet first
+                            await widget.addAdjustment<CategoricalAdjustment>(); // Then execute logic
+                          },
+                        ),
+                        ListTile(
+                          leading: Icon(BooleanAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
+                          title: const Text("On/Off Adjustment"),
+                          subtitle: const Text("Lockout, Climb switch, Component installed? Yes/No", style: TextStyle(fontSize: 12)),
+                          trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                          onTap: () async {
+                            Navigator.pop(context); // Close sheet first
+                            await widget.addAdjustment<BooleanAdjustment>(); // Then execute logic
+                          },
+                        ),
+                        if (context.read<AppSettings>().enableTextAdjustment)
+                          ListTile(
+                            leading: Icon(TextAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
+                            title: const Text("Text Adjustment"),
+                            subtitle: const Text("Notes, advanced settings details", style: TextStyle(fontSize: 12)),
+                            trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                            onTap: () async {
+                              Navigator.pop(context); // Close sheet first
+                              await widget.addAdjustment<TextAdjustment>(); // Then execute logic
+                            },
+                          ),
+                        if (widget.enableDurationAdjustment)
+                          ListTile(
+                            leading: Icon(DurationAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
+                            title: const Text("Duration Adjustment"),
+                            subtitle: const Text("Time Span", style: TextStyle(fontSize: 12)),
+                            trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                            onTap: () async {
+                              Navigator.pop(context); // Close sheet first
+                              await widget.addAdjustment<DurationAdjustment>(); // Then execute logic
+                            },
+                          ),
+                      ],
                     ),
                   ),
-                  ListTile(
-                    leading: Icon(NumericalAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                    title: const Text("Numerical Adjustment"),
-                    subtitle: const Text("Pressure (psi/bar), Length, Angle, Weight", style: TextStyle(fontSize: 12)),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                    onTap: () async {
-                      Navigator.pop(context); // Close sheet first
-                      await widget.addAdjustment<NumericalAdjustment>(); // Then execute logic
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(StepAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                    title: const Text("Step Adjustment"),
-                    subtitle: const Text("Rebound/Compression clicks, Spacers, Increments", style: TextStyle(fontSize: 12)),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                    onTap: () async {
-                      Navigator.pop(context); // Close sheet first
-                      await widget.addAdjustment<StepAdjustment>(); // Then execute logic
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(CategoricalAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                    title: const Text("Categorical Adjustment"),
-                    subtitle: const Text("Tire Compound (soft/hard), Brand, Style, Mode", style: TextStyle(fontSize: 12)),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                    onTap: () async {
-                      Navigator.pop(context); // Close sheet first
-                      await widget.addAdjustment<CategoricalAdjustment>(); // Then execute logic
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(BooleanAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                    title: const Text("On/Off Adjustment"),
-                    subtitle: const Text("Lockout, Climb switch, Component installed? Yes/No", style: TextStyle(fontSize: 12)),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                    onTap: () async {
-                      Navigator.pop(context); // Close sheet first
-                      await widget.addAdjustment<BooleanAdjustment>(); // Then execute logic
-                    },
-                  ),
-                  if (context.read<AppSettings>().enableTextAdjustment)
-                    ListTile(
-                      leading: Icon(TextAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                      title: const Text("Text Adjustment"),
-                      subtitle: const Text("Notes, advanced settings details", style: TextStyle(fontSize: 12)),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                      onTap: () async {
-                        Navigator.pop(context); // Close sheet first
-                        await widget.addAdjustment<TextAdjustment>(); // Then execute logic
-                      },
-                    ),
-                  if (widget.enableDurationAdjustment)
-                    ListTile(
-                      leading: Icon(DurationAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                      title: const Text("Duration Adjustment"),
-                      subtitle: const Text("Time Span", style: TextStyle(fontSize: 12)),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                      onTap: () async {
-                        Navigator.pop(context); // Close sheet first
-                        await widget.addAdjustment<DurationAdjustment>(); // Then execute logic
-                      },
-                    ),
                 ],
               ),
             ),

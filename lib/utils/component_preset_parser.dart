@@ -1,7 +1,7 @@
 import 'package:yaml/yaml.dart';
 
-import '../models/component.dart';
-import '../models/component_preset.dart';
+import '../models/component/component.dart';
+import '../models/component/component_preset.dart';
 
 /// Parses one brand YAML file (e.g. `fork/fox.yaml`) into a flat list of
 /// user-selectable [ComponentPresetVariant]s — one per brand × model × trim.
@@ -66,6 +66,13 @@ List<ComponentPresetVariant> parseBrandFile(String yamlSource) {
       }
       final trim = _requireString(rawTrim, 'trim');
 
+      // Permanent identity, persisted on components built from this trim — so a
+      // missing one is a data bug, not something to paper over with a fallback.
+      final key = rawTrim['key']?.toString();
+      if (key == null || key.isEmpty) {
+        throw FormatException('Trim "$model $trim" ($brand) is missing a required "key"');
+      }
+
       final trimDampers = _stringList(rawTrim['dampers']).map((key) {
         final spec = dampers[key];
         if (spec == null) {
@@ -75,6 +82,7 @@ List<ComponentPresetVariant> parseBrandFile(String yamlSource) {
       }).toList();
 
       variants.add(ComponentPresetVariant(
+        key: key,
         brand: brand,
         model: model,
         trim: trim,

@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
 import '../models/person.dart';
-import '../models/rating_association.dart';
+import '../models/rating/rating_association.dart';
 import '../pages/adjustment/boolean_adjustment_page.dart';
 import '../pages/adjustment/categorical_adjustment_page.dart';
 import '../pages/adjustment/duration_adjustment_page.dart';
@@ -12,7 +12,7 @@ import '../pages/adjustment/numerical_adjustment_page.dart';
 import '../pages/adjustment/sag_adjustment_page.dart';
 import '../pages/adjustment/step_adjustment_page.dart';
 import '../pages/adjustment/text_adjustment_page.dart';
-import '../pages/person_page.dart';
+import '../pages/forms/person_page.dart';
 import '../repositories/app_repository.dart';
 import '../widgets/app_snackbar.dart';
 import '../widgets/sheets/person_add_adjustment.dart';
@@ -105,7 +105,7 @@ class PersonActions {
     final messenger = ScaffoldMessenger.of(context);
 
     final obsoleteRatings = appRepository.ratings.values
-        .where((r) => r.filterType == FilterType.person && r.filter == person.id)
+        .where((r) => r.association == PersonRatingAssociation(person.id))
         .toList();
 
     await appRepository.removePersons([person]);
@@ -161,6 +161,7 @@ class PersonActions {
   static Future<void> addAdjustmentForPerson(BuildContext context, {required Person person}) async {
     showPersonAddAdjustmentBottomSheet(
       context: context,
+      existingAdjustments: person.adjustments,
       addAdjustmentFromPreset: (Adjustment adjustment) async {
         final appRepository = context.read<AppRepository>();
         final newAdjustment = await Navigator.push<Adjustment>(

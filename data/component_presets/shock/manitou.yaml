@@ -1,0 +1,233 @@
+# Manitou mountain-bike shocks — adjustment preset database
+#
+# Same design as fork/manitou.yaml: click ranges belong to the DAMPER, defined
+# once under `dampers:` and referenced by key from each shock's trims. See
+# SCHEMA.md in this folder.
+
+brand: Manitou
+component_type: shock
+sources:
+  # Primary — Manitou product pages. manitoumtb.com now redirects to
+  # manitou.hayesbicycle.com (bot-challenged); the same product specifications
+  # are published on the Hayes Bicycle store below.
+  - https://hayesbicycle.com/collections/shocks
+  - https://hayesbicycle.com/products/mara-pro-piggyback
+  - https://hayesbicycle.com/products/mara-pro-piggyback-dh
+  - https://hayesbicycle.com/products/mara-pro-inline
+  - https://hayesbicycle.com/products/mara-pro-inline-xc
+  - https://hayesbicycle.com/products/mara-comp
+  # Primary — official Manitou / Hayes Performance Systems set-up guides (PDF)
+  - https://hayesbicycle.zendesk.com/hc/en-us/articles/25871692546583-Mara-Pro-PB-Gen-2-Set-Up-Guide
+  - https://hayesbicycle.zendesk.com/hc/article_attachments/28476110600727
+  - https://hayesbicycle.zendesk.com/hc/en-us/articles/25871616811799-Mara-IL-Gen-2-Set-Up-Guide
+  - https://hayesbicycle.zendesk.com/hc/article_attachments/25871616439319
+  - https://hayesbicycle.zendesk.com/hc/article_attachments/25871600341655
+  - https://hayesbicycle.zendesk.com/hc/article_attachments/25871643572375
+  - https://hayesbicycle.zendesk.com/hc/en-us/articles/360047142633-Mara-Pro-PB-Gen-1-Set-up-Guide
+  - https://hayesbicycle.zendesk.com/hc/article_attachments/360066638914
+  # Secondary — editorial (article body text only)
+  - https://www.pinkbike.com/news/first-look-manitous-180mm-mezzer-pro-fork-and-mara-pro-shock-garda-trentino-2019.html
+updated: 2026-09-25
+# Counting conventions, from the Mara Pro PB Gen 2 set-up guide: low-speed
+# compression and rebound are counted from fully CLOSED (counterclockwise), but
+# because of the damper's design the high-speed compression clicks are counted
+# from fully OPEN (clockwise) — hence `dial_cw` on HSC.
+
+# --------------------------------------------------------------------------
+# Dampers
+# --------------------------------------------------------------------------
+dampers:
+  mara_pb_g2:
+    name: Mara Pro PB Gen 2
+    description: |-
+      - Externally adjustable high- and low-speed compression plus rebound
+      - Work / Party lever swaps between a preset climbing platform and the fully adjustable descending circuit
+    adjustments:
+      - { name: Platform Mode, type: categorical, options: [Party, Work], notes: "Party = adjustable circuit open; Work = separate preset climbing platform, compression adjusters deactivated" }
+      - { name: HSC, type: step, max: 6, visualization: dial_cw, notes: "High-Speed Compression; Counted from fully open (softest)" }
+      - { name: LSC, type: step, max: 30, notes: "Low-Speed Compression; Counted from fully closed (firmest)" }
+      - { name: Rebound, type: step, max: 12, notes: Counted from fully closed (slowest) }
+    source:
+      - https://hayesbicycle.zendesk.com/hc/article_attachments/28476110600727
+    note: >-
+      Mara Pro PB Gen 2 set-up guide (2024) — rebound "12-0", high-speed (outer)
+      "0-6", low-speed (inner) "30-0"; the guide states LSC and rebound are counted
+      from closed and HSC from open.
+
+  mara_pb_dh_g2:
+    name: Mara Pro PB DH Gen 2
+    description: |-
+      - Same damper as the Mara Pro PB without the Work / Party lever, so the platform can't be engaged by accident
+      - Externally adjustable high- and low-speed compression plus rebound
+    adjustments:
+      - { name: HSC, type: step, max: 6, visualization: dial_cw, notes: "High-Speed Compression; Counted from fully open (softest)" }
+      - { name: LSC, type: step, max: 30, notes: "Low-Speed Compression; Counted from fully closed (firmest)" }
+      - { name: Rebound, type: step, max: 12, notes: Counted from fully closed (slowest) }
+    source:
+      - https://hayesbicycle.zendesk.com/hc/article_attachments/28476110600727
+      - https://hayesbicycle.com/products/mara-pro-piggyback-dh
+    note: >-
+      The Mara Pro PB Gen 2 guide covers the DH shock ("Platform not included on
+      Mara Pro PB DH") with the same ranges: rebound "12-0", HSC "0-6", LSC "30-0".
+
+  mara_pb_g1:
+    name: Mara Pro PB Gen 1
+    description: |-
+      - Externally adjustable high- and low-speed compression plus rebound
+      - Work / Party lever swaps between a preset climbing platform and the fully adjustable descending circuit
+    adjustments:
+      - { name: Platform Mode, type: categorical, options: [Party, Work], notes: "Party = adjustable circuit open; Work = separate preset climbing platform, compression adjusters deactivated" }
+      - { name: HSC, type: step, max: 6, visualization: dial_cw, notes: "High-Speed Compression; Counted from fully open (softest)" }
+      - { name: LSC, type: step, max: 24, notes: "Low-Speed Compression; Counted from fully closed (firmest)" }
+      - { name: Rebound, type: step, max: 12, notes: Counted from fully closed (slowest) }
+    source:
+      - https://hayesbicycle.zendesk.com/hc/article_attachments/360066638914
+      - https://www.pinkbike.com/news/first-look-manitous-180mm-mezzer-pro-fork-and-mara-pro-shock-garda-trentino-2019.html
+    note: >-
+      Mara Pro set-up guide Rev B 4/2020 — rebound "12-0", hi-speed (outer)
+      "0-6", lo-speed (inner) "24-0". Count directions follow the guide's own
+      min/max notation (HSC runs min 0 to max 6; LSC and rebound run min 24/12 to
+      max 0); the Gen 1 guide does not spell out the direction in words.
+
+  ipa_pro_g2:
+    name: IPA (4-position)
+    description: |-
+      - Four-position Incremental Platform Adjust compression lever, from an open descending setting to a firm climbing platform
+      - Rebound knob with 17 detented clicks
+    adjustments:
+      - { name: IPA Compression, type: categorical, options: [Aggressive Descend, Trail Control, Technical Climb, Aggressive Climb] }
+      - { name: Rebound, type: step, max: 17, notes: "Clockwise adds rebound damping" }
+    source:
+      - https://hayesbicycle.zendesk.com/hc/article_attachments/25871616439319
+      - https://hayesbicycle.com/products/mara-pro-inline
+    note: Mara Pro Inline Gen 2 set-up guide (2024) — "17 clicks available"; product page lists a 4-position IPA and rebound with detents.
+
+  ipa_xc_g2:
+    name: IPA XC (3-position)
+    description: |-
+      - Three-position compression lever on an XC-specific shim stack: plush open mode with a very firm lockout
+      - Remote-compatible knobs
+      - Rebound knob with 17 detented clicks
+    adjustments:
+      - { name: IPA Compression, type: categorical, options: [Descend, Trail / Technical Climb, Climb] }
+      - { name: Rebound, type: step, max: 17, notes: "Clockwise adds rebound damping" }
+    source:
+      - https://hayesbicycle.zendesk.com/hc/article_attachments/25871600341655
+      - https://hayesbicycle.com/products/mara-pro-inline-xc
+    note: Mara Pro Inline XC Gen 2 set-up guide (2024) — "17 clicks available"; product page lists a 3-position IPA.
+
+  ipa_comp_g2:
+    name: IPA (4-position, Comp)
+    description: |-
+      - Four-position Incremental Platform Adjust compression lever, from an open descending setting to a firm climbing platform
+      - Simplified rebound knob with a smooth, non-detented 360 degrees of adjustment
+    adjustments:
+      - { name: IPA Compression, type: categorical, options: [Aggressive Descend, Trail Control, Technical Climb, Aggressive Climb] }
+      - { name: Rebound, type: numerical, unit: turns, min: 0, max: 1, notes: "Not detented; 360 degrees (one full turn) of adjustment; clockwise adds rebound damping" }
+    source:
+      - https://hayesbicycle.zendesk.com/hc/article_attachments/25871643572375
+      - https://hayesbicycle.com/products/mara-comp
+    note: Mara Inline Comp Gen 2 set-up guide (2024) — "360 degrees of adjustment"; the product page confirms the Comp has no rebound detents.
+
+# --------------------------------------------------------------------------
+# Shocks — newest generation first, then earlier generations.
+# --------------------------------------------------------------------------
+shocks:
+  - model: "Mara"
+    category: Trail / Enduro
+    spring: Air
+    year_range: "2024-2026"
+    url: https://hayesbicycle.com/collections/shocks
+    trims:
+      - trim: Pro Piggyback
+        key: shock-manitou-mara-pro-piggyback-2024
+        url: https://hayesbicycle.com/products/mara-pro-piggyback
+        dampers: [mara_pb_g2]
+        adjustments: &mara_air_spring
+          - { name: Pressure, type: numerical, unit: psi, min: 0, notes: "Max 350 psi; raise in 75 psi increments, cycling the shock between steps" }
+        stroke_mm: [45, 50, 52.5, 55, 57.5, 60, 62.5, 65]
+        mount: [Eyelet, Trunnion]
+        note: |-
+          - Balance Groove King Can air spring
+          - Piggyback reservoir with Work / Party lever
+          - 2.5mm travel spacers and air-volume spacers for tuning
+      - trim: Pro Piggyback DH
+        key: shock-manitou-mara-pro-piggyback-dh-2024
+        url: https://hayesbicycle.com/products/mara-pro-piggyback-dh
+        dampers: [mara_pb_dh_g2]
+        adjustments: *mara_air_spring
+        stroke_mm: [70, 72.5, 75]
+        mount: [Eyelet, Trunnion]
+        note: |-
+          - Balance Groove King Can air spring
+          - Piggyback reservoir without the Work / Party lever
+      - trim: Pro Inline
+        key: shock-manitou-mara-pro-inline-2024
+        url: https://hayesbicycle.com/products/mara-pro-inline
+        dampers: [ipa_pro_g2]
+        adjustments: *mara_air_spring
+        stroke_mm: [30, 35, 37.5, 40, 42.5, 45, 50, 52.5, 55, 57.5, 60, 62.5, 65]
+        mount: [Eyelet, Trunnion]
+        note: |-
+          - Balance Groove King Can air spring
+          - SKF flexible internal floating piston
+          - Trail-specific tune with a mid-firm technical-climb platform
+      - trim: Pro Inline XC
+        key: shock-manitou-mara-pro-inline-xc-2024
+        url: https://hayesbicycle.com/products/mara-pro-inline-xc
+        dampers: [ipa_xc_g2]
+        adjustments: *mara_air_spring
+        stroke_mm: [40, 45]
+        mount: [Eyelet, Trunnion]
+        note: |-
+          - Balance Groove Lite Can air spring
+          - XC shim stack with a very firm lockout
+          - King Can and manual knob available as options
+      - trim: Comp Inline
+        key: shock-manitou-mara-comp-inline-2024
+        url: https://hayesbicycle.com/products/mara-comp
+        dampers: [ipa_comp_g2]
+        adjustments: *mara_air_spring
+        stroke_mm: [30, 35, 37.5, 40, 42.5, 45, 50, 52.5, 55, 57.5, 60, 62.5, 65]
+        mount: [Eyelet, Trunnion]
+        note: |-
+          - Balance Groove King Can air spring
+          - Simplified architecture with a non-detented rebound knob
+
+  # ------------------------------------------------------------------------
+  # Earlier generations. They repeat the current model name and are told apart
+  # by `year_range`, so the picker merges them into one model row.
+  # ------------------------------------------------------------------------
+  - model: "Mara"
+    category: Trail / Enduro
+    spring: Air
+    year_range: "2019-2023"
+    url: https://hayesbicycle.zendesk.com/hc/en-us/articles/360047142633-Mara-Pro-PB-Gen-1-Set-up-Guide
+    trims:
+      - trim: Pro Piggyback
+        key: shock-manitou-mara-pro-piggyback-2019
+        dampers: [mara_pb_g1]
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0, notes: Max 250 psi }
+        note: |-
+          - Piggyback air shock with Work / Party lever
+          - Externally adjustable high- and low-speed compression
+
+# --------------------------------------------------------------------------
+# Follow-ups (not yet captured — avoid guessing):
+#   - manitoumtb.com redirects to manitou.hayesbicycle.com, which sits behind a
+#     bot challenge; product specs were read from the identical listings on
+#     hayesbicycle.com and click counts from the set-up guide PDFs hosted on the
+#     Hayes Performance Systems help center.
+#   - Year ranges are derived from the Hayes Gen 2 listing dates (Jun 2024) and
+#     Pinkbike's May 2019 Mara Pro launch coverage. The Gen 1 end year (2023) is
+#     not confirmed by a Manitou source, and Gen 1 stroke lengths were not
+#     collected.
+#   - Air-volume spacer ("volume ring") maximums for the King Can / Lite Can are
+#     not published as a single count, so no volume adjustment is offered.
+#   - Not covered: the earlier Mara IL (Gen 1, 4-position IPA, listing "Mara")
+#     and the discontinued McLeod — the McLeod tuning guide gives the four IPA
+#     positions but no rebound click count.
+#   - Dial colors and sizes were not confirmed from product photos, so all dials
+#     use the default blue / normal.
+# --------------------------------------------------------------------------

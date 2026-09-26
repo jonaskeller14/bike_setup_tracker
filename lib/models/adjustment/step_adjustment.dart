@@ -168,9 +168,25 @@ class StepAdjustment extends Adjustment {
     }
   }
 
+  static StepAdjustmentDialColor _dialColorFromYaml(String? name) {
+    if (name == null) return StepAdjustmentDialColor.blue;
+    return StepAdjustmentDialColor.values.firstWhere(
+      (e) => e.name == name,
+      orElse: () => throw ArgumentError('Unknown step dialColor "$name"'),
+    );
+  }
+
+  static StepAdjustmentDialSize _dialSizeFromYaml(String? name) {
+    if (name == null) return StepAdjustmentDialSize.normal;
+    return StepAdjustmentDialSize.values.firstWhere(
+      (e) => e.name == name,
+      orElse: () => throw ArgumentError('Unknown step dialSize "$name"'),
+    );
+  }
+
   factory StepAdjustment.fromYaml(Map<String, dynamic> map) {
     _checkPresetKeys(map, const {
-      'name', 'type', 'min', 'max', 'step', 'unit', 'visualization', 'notes',
+      'name', 'type', 'min', 'max', 'step', 'unit', 'visualization', 'notes', 'dialColor', 'dialSize',
     });
     final max = (map['max'] as num?)?.toInt();
     if (max == null) {
@@ -184,6 +200,8 @@ class StepAdjustment extends Adjustment {
       max: max,
       step: (map['step'] as num?)?.toInt() ?? 1,
       visualization: _visualizationFromYaml(map['visualization'] as String?),
+      dialColor: _dialColorFromYaml(map['dialColor'] as String?),
+      dialSize: _dialSizeFromYaml(map['dialSize'] as String?),
     );
   }
 

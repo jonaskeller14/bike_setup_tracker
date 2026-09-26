@@ -124,6 +124,7 @@ shocks:
     url: https://www.srsuntour.com/products/rear-shock/RS25-EDGE-EVO-2CR-METRIC-8187.html
     trims:
       - trim: 2CR
+        key: shock-sr-suntour-edge-evo-2cr-2025
         mount: [Metric, Trunnion, Standard eyelet]
         stroke_mm: ["230x57.5/60/62.5/65", "210x47.5/50/52.5/55", "190x37.5/40/42.5/45"]
         dampers: [edge_2cr]
@@ -131,12 +132,14 @@ shocks:
           - { name: Pressure, type: numerical, unit: psi, min: 0 }
         note: Glide ring; air-volume-spacer spring-curve adjustment.
       - trim: R
+        key: shock-sr-suntour-edge-evo-r-2025
         url: https://www.srsuntour.com/products/rear-shock/RS25-EDGE-EVO-R-METRIC-8188.html
         mount: [Metric, Trunnion, Standard eyelet]
         stroke_mm: ["230x57.5/60/62.5/65", "210x47.5/50/52.5/55", "190x37.5/40/42.5/45"]
         dampers: [edge_r]
         adjustments: *air_spring
       - trim: R-2CR
+        key: shock-sr-suntour-edge-evo-r-2cr-2025
         url: https://www.srsuntour.com/products/rear-shock/RS25-EDGE-EVO-R-2CR-METRIC-8201.html
         mount: [Metric, Trunnion, Standard eyelet]
         stroke_mm: ["230x57.5/60/62.5/65", "210x47.5/50/52.5/55", "190x37.5/40/42.5/45"]
@@ -152,12 +155,14 @@ shocks:
     url: https://www.srsuntour.com/products/rear-shock/RS24-EDGE-X-2CR-METRIC-8194.html
     trims:
       - trim: 2CR
+        key: shock-sr-suntour-edge-x-2cr-2024
         mount: [Metric, Trunnion, Standard eyelet]
         stroke_mm: ["210x47.5/50/52.5/55", "190x37.5/40/42.5/45", "170x27.5/30/32.5/35"]
         dampers: [edge_2cr]
         adjustments: *air_spring
         note: Reinforced/updated structure for demands of modern full-suspension e-MTBs.
       - trim: R
+        key: shock-sr-suntour-edge-x-r-2024
         url: https://www.srsuntour.com/products/rear-shock/RS24-EDGE-X-R-METRIC-8196.html
         mount: [Metric, Trunnion, Standard eyelet]
         stroke_mm: ["210x47.5/50/52.5/55", "190x37.5/40/42.5/45", "170x27.5/30/32.5/35"]
@@ -171,18 +176,21 @@ shocks:
     url: https://www.srsuntour.com/products/rear-shock/RS24-TRIAir2-3CR-METRIC-8203.html
     trims:
       - trim: 3CR
+        key: shock-sr-suntour-triair2-3cr-2024
         mount: [Metric, Trunnion, Standard eyelet]
         stroke_mm: ["250x67.5/70/72.5/75", "230x57.5/60/62.5/65", "210x47.5/50/52.5/55", "190x37.5/40/42.5/45"]
         dampers: [triair2_3cr]
         adjustments: *air_spring
         note: Redesigned piggyback for better oil flow/clearance; air-backed IFP; volume-spacer spring-curve adjustment; glide ring.
       - trim: 2CR
+        key: shock-sr-suntour-triair2-2cr-2024
         url: https://www.srsuntour.com/products/rear-shock/RS24-TRIAir2-2CR-METRIC-8205.html
         mount: [Metric, Trunnion, Standard eyelet]
         stroke_mm: ["250x67.5/70/72.5/75", "230x57.5/60/62.5/65", "210x47.5/50/52.5/55", "190x37.5/40/42.5/45"]
         dampers: [triair2_2cr]
         adjustments: *air_spring
       - trim: R
+        key: shock-sr-suntour-triair2-r-2024
         url: https://www.srsuntour.com/products/rear-shock/RS24-TRIAir2-R-METRIC-8207.html
         mount: [Metric, Trunnion, Standard eyelet]
         stroke_mm: ["250x67.5/70/72.5/75", "230x57.5/60/62.5/65", "210x47.5/50/52.5/55", "190x37.5/40/42.5/45"]
@@ -197,11 +205,13 @@ shocks:
     url: https://www.srsuntour.com/products/rear-shock/RS25-Raidon-R-METRIC-8157.html
     trims:
       - trim: R
+        key: shock-sr-suntour-raidon-r-2025
         mount: [Metric, Standard eyelet]
         stroke_mm: ["190x37.5/40/42.5/45", "170x27.5/30/32.5/35"]
         dampers: [raidon_shock_r]
         adjustments: *air_spring
       - trim: LO
+        key: shock-sr-suntour-raidon-lo-2025
         url: https://www.srsuntour.com/products/rear-shock/RS25-Raidon-LO-METRIC-8156.html
         mount: [Metric, Standard eyelet]
         stroke_mm: ["190x37.5/40/42.5/45", "170x27.5/30/32.5/35"]

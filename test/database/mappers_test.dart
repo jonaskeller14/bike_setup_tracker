@@ -3,8 +3,8 @@ import 'package:bike_setup_tracker/database/daos/setups_dao.dart';
 import 'package:bike_setup_tracker/database/mappers.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
-import 'package:bike_setup_tracker/models/component.dart';
-import 'package:bike_setup_tracker/models/installation.dart';
+import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/person.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/strava/strava_athlete.dart';
@@ -36,12 +36,22 @@ void main() {
         isDeleted: false,
         lastModified: DateTime(2023, 1, 1).toUtc(),
         orderIndex: 0,
+        initialDistance: 5000,
+        initialElevationGain: 100,
+        initialMovingTime: const Duration(hours: 2),
+        initialElapsedTime: const Duration(hours: 3),
+        initialActivityCount: 4,
+        initialKilojoules: 900,
       );
       final model = data.toModel();
       expect(model.id, 'bike1');
       expect(model.name, 'Road Bike');
       expect(model.person, 'person1');
       expect(model.isDeleted, false);
+      expect(model.initialStats.distance, 5000);
+      expect(model.initialStats.movingTime, const Duration(hours: 2));
+      expect(model.initialStats.activityCount, 4);
+      expect(model.initialStats.kilojoules, 900);
     });
 
     test('Person Mapping', () {
@@ -119,6 +129,43 @@ void main() {
       expect(model.id, 'comp1');
       expect(model.componentType, ComponentType.fork);
       expect(model.installations.first.parent, 'bike1');
+    });
+
+    test('Component Mapping carries preset provenance both ways', () {
+      // `updateComponent` replaces the whole row, so a mapper that dropped
+      // these would silently clear the provenance on every component edit.
+      final component = Component(
+        id: 'comp1',
+        name: 'FOX 36 Factory',
+        componentType: ComponentType.fork,
+        installations: const [],
+        lastModified: DateTime(2023, 1, 1).toUtc(),
+        presetKey: 'fork-fox-36-factory-2025',
+        presetDamperKey: 'grip_x2',
+      );
+
+      final companion = component.toCompanion();
+      expect(companion.presetKey.value, 'fork-fox-36-factory-2025');
+      expect(companion.presetDamperKey.value, 'grip_x2');
+
+      final model = ComponentDb(
+        id: 'comp1',
+        name: 'FOX 36 Factory',
+        componentType: ComponentType.fork,
+        isDeleted: false,
+        lastModified: DateTime(2023, 1, 1).toUtc(),
+        orderIndex: 0,
+        initialDistance: 0.0,
+        initialElevationGain: 0.0,
+        initialMovingTime: Duration.zero,
+        initialElapsedTime: Duration.zero,
+        initialActivityCount: 0,
+        initialKilojoules: 0.0,
+        presetKey: 'fork-fox-36-factory-2025',
+        presetDamperKey: 'grip_x2',
+      ).toModel();
+      expect(model.presetKey, 'fork-fox-36-factory-2025');
+      expect(model.presetDamperKey, 'grip_x2');
     });
 
     test('Setup Mapping', () {
@@ -263,6 +310,20 @@ void main() {
         expect(db.toModel(), isA<Uninstallation>());
       });
 
+      test('parentType=component yields ComponentInstallation', () {
+        final db = InstallationDb(
+          id: 'nested-i',
+          componentId: 'tire',
+          parent: 'wheel',
+          parentType: InstallationParentType.component,
+          dateTimeUTC: utc,
+          dateTimeLocal: local,
+        );
+        final model = db.toModel();
+        expect(model, isA<ComponentInstallation>());
+        expect((model as ComponentInstallation).parentComponentId, 'wheel');
+      });
+
       test('parentType=archived yields Archival', () {
         final db = InstallationDb(
           id: 'i3',
@@ -324,6 +385,24 @@ void main() {
 
         final restored = Installation.fromJson(json);
         expect(restored, isA<Uninstallation>());
+      });
+
+      test('ComponentInstallation round-trips and preserves subtype when copied', () {
+        final original = ComponentInstallation(
+          id: 'nested-i',
+          componentId: 'tire',
+          parentComponentId: 'wheel',
+          dateTimeUTC: utc,
+          dateTimeLocal: local,
+        );
+        final json = original.toJson();
+        expect(json['type'], 'component');
+        expect(json['parent'], 'wheel');
+
+        final restored = Installation.fromJson(json);
+        expect(restored, isA<ComponentInstallation>());
+        expect((restored as ComponentInstallation).parentComponentId, 'wheel');
+        expect(restored.copyWith(componentId: 'new-tire'), isA<ComponentInstallation>());
       });
 
       test('Archival round-trips', () {

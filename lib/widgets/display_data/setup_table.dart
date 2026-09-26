@@ -22,6 +22,7 @@ class SetupTable extends StatefulWidget {
   final Map<String, Bike> bikes;
   final Map<String, int> setupActivityCounts;
   final dynamic Function(Setup setup, TableColumn column) valueFor;
+  final bool Function(Setup setup, TableColumn column)? isDangling;
   final String Function(TableColumn column) columnLabel;
   final void Function(TableColumn column, bool ascending) onSort;
   final ValueChanged<TableColumn> onColumnRemoved;
@@ -40,6 +41,7 @@ class SetupTable extends StatefulWidget {
     required this.columnLabel,
     required this.onSort,
     required this.onColumnRemoved,
+    this.isDangling,
     this.selectedSetupIds,
     this.onSelectAll,
     this.onSetupSelected,
@@ -269,8 +271,11 @@ class _SetupTableState extends State<SetupTable> {
     final value = widget.valueFor(setup, column);
     final bool isChanged = value != null && previousValue != value;
     final bool isInitial = previousValue == null;
+    final bool isDangling = value != null && (widget.isDangling?.call(setup, column) ?? false);
     final highlights = Theme.of(context).extension<ValueHighlightColors>();
-    final highlightColor = isChanged
+    final highlightColor = isDangling
+        ? Theme.of(context).colorScheme.error
+        : isChanged
         ? (isInitial ? highlights?.initial ?? Colors.green : highlights?.changed ?? Colors.orange)
         : null;
 

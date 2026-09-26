@@ -1,11 +1,12 @@
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/database/mappers.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
-import 'package:bike_setup_tracker/models/component.dart';
+import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/component_stats.dart';
-import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/models/selected_data.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
+import 'package:bike_setup_tracker/models/task/task_association.dart';
 import 'package:bike_setup_tracker/models/task/task_entry.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
@@ -44,7 +45,7 @@ void main() {
 
       final rule = TaskRule(
         name: "Chain Wax",
-        componentId: component.id,
+        association: ComponentTaskAssociation(component.id),
         tags: const {},
       );
       await repository.addTaskRules([rule]);
@@ -82,7 +83,7 @@ void main() {
       final entry = TaskEntry(
         name: "Waxed",
         taskRule: rule.id,
-        componentId: component.id,
+        association: ComponentTaskAssociation(component.id),
         dateTimeUTC: entryDate,
         dateTimeLocal: entryDate.toLocal(),
         snapshot: initialStats,
@@ -255,7 +256,7 @@ void main() {
       );
       await repository.addComponents([component]);
 
-      final rule = TaskRule(name: "Chain Wax", componentId: component.id, tags: const {});
+      final rule = TaskRule(name: "Chain Wax", association: ComponentTaskAssociation(component.id), tags: const {});
       await repository.addTaskRules([rule]);
       await pumpEventQueue();
 
@@ -286,7 +287,7 @@ void main() {
       final entry = TaskEntry(
         name: "Waxed",
         taskRule: rule.id,
-        componentId: component.id,
+        association: ComponentTaskAssociation(component.id),
         dateTimeUTC: entryDate,
         dateTimeLocal: entryDate.toLocal(),
         snapshot: initialStats,
@@ -317,7 +318,7 @@ void main() {
       );
       await repository.addComponents([component]);
 
-      final rule = TaskRule(name: "Chain Wax", componentId: component.id, tags: const {});
+      final rule = TaskRule(name: "Chain Wax", association: ComponentTaskAssociation(component.id), tags: const {});
       await repository.addTaskRules([rule]);
 
       final activity = StravaActivity(
@@ -346,7 +347,7 @@ void main() {
       final entry = TaskEntry(
         name: "Waxed",
         taskRule: rule.id,
-        componentId: component.id,
+        association: ComponentTaskAssociation(component.id),
         dateTimeUTC: entryDate,
         dateTimeLocal: entryDate.toLocal(),
         snapshot: initialStats,
@@ -393,7 +394,7 @@ void main() {
       );
       await repository.addComponents([component]);
 
-      final rule = TaskRule(name: "Chain Wax", componentId: component.id, tags: const {});
+      final rule = TaskRule(name: "Chain Wax", association: ComponentTaskAssociation(component.id), tags: const {});
       await repository.addTaskRules([rule]);
 
       final activity = StravaActivity(
@@ -419,7 +420,7 @@ void main() {
       final entry = TaskEntry(
         name: "Waxed",
         taskRule: rule.id,
-        componentId: component.id,
+        association: ComponentTaskAssociation(component.id),
         dateTimeUTC: entryDate,
         dateTimeLocal: entryDate.toLocal(),
         snapshot: await repository.getStatsAt(componentId: component.id, date: entryDate),
@@ -448,11 +449,11 @@ void main() {
         name: "Chain",
         componentType: ComponentType.chain,
         installations: [Installation.sinceBeginning(parent: bike.id)],
-        initialStats: ComponentStats.zero(),
+        initialStats: ComponentStats.zero,
       );
       await repository.addComponents([component]);
 
-      final rule = TaskRule(name: "Chain Wax", componentId: component.id, tags: const {});
+      final rule = TaskRule(name: "Chain Wax", association: ComponentTaskAssociation(component.id), tags: const {});
       await repository.addTaskRules([rule]);
       await pumpEventQueue();
 
@@ -460,7 +461,7 @@ void main() {
       final entry = TaskEntry(
         name: "Waxed",
         taskRule: rule.id,
-        componentId: component.id,
+        association: ComponentTaskAssociation(component.id),
         dateTimeUTC: entryDate,
         dateTimeLocal: entryDate.toLocal(),
         snapshot: await repository.getStatsAt(componentId: component.id, date: entryDate),
@@ -505,7 +506,7 @@ void main() {
       );
       await repository.addComponents([component]);
 
-      final rule = TaskRule(name: "Chain Wax", componentId: component.id, tags: const {});
+      final rule = TaskRule(name: "Chain Wax", association: ComponentTaskAssociation(component.id), tags: const {});
       await repository.addTaskRules([rule]);
 
       final activity = StravaActivity(
@@ -530,7 +531,7 @@ void main() {
       final entry = TaskEntry(
         name: "Waxed",
         taskRule: rule.id,
-        componentId: component.id,
+        association: ComponentTaskAssociation(component.id),
         dateTimeUTC: entryDate,
         dateTimeLocal: entryDate.toLocal(),
         snapshot: await repository.getStatsAt(componentId: component.id, date: entryDate),
@@ -587,7 +588,7 @@ void main() {
       // Bike with no gear yet + a bike-linked task rule.
       final bike = Bike(name: "Test Bike", person: null, stravaGear: null);
       await repository.addBikes([bike]);
-      final rule = TaskRule(name: "Bike Service", bikeId: bike.id, tags: const {});
+      final rule = TaskRule(name: "Bike Service", association: BikeTaskAssociation(bike.id), tags: const {});
       await repository.addTaskRules([rule]);
 
       // An activity exists for gear "g123" (not linked to any bike yet).
@@ -599,7 +600,7 @@ void main() {
       final entry = TaskEntry(
         name: "Serviced",
         taskRule: rule.id,
-        bikeId: bike.id,
+        association: BikeTaskAssociation(bike.id),
         dateTimeUTC: entryDate,
         dateTimeLocal: entryDate.toLocal(),
         snapshot: await repository.getStatsAt(bikeId: bike.id, date: entryDate),
@@ -624,7 +625,7 @@ void main() {
     test("clearing Strava data resets a bike-linked entry snapshot", () async {
       final bike = Bike(name: "Test Bike", person: null, stravaGear: "g123");
       await repository.addBikes([bike]);
-      final rule = TaskRule(name: "Bike Service", bikeId: bike.id, tags: const {});
+      final rule = TaskRule(name: "Bike Service", association: BikeTaskAssociation(bike.id), tags: const {});
       await repository.addTaskRules([rule]);
 
       await repository.setStravaActivities([rideForGear("g123")]);
@@ -634,7 +635,7 @@ void main() {
       final entry = TaskEntry(
         name: "Serviced",
         taskRule: rule.id,
-        bikeId: bike.id,
+        association: BikeTaskAssociation(bike.id),
         dateTimeUTC: entryDate,
         dateTimeLocal: entryDate.toLocal(),
         snapshot: await repository.getStatsAt(bikeId: bike.id, date: entryDate),
@@ -647,6 +648,54 @@ void main() {
       await pumpEventQueue();
       expect(repository.taskEntries[entry.id]?.snapshot?.distance, 0.0);
       expect(repository.taskEntries[entry.id]?.snapshot?.activityCount, 0);
+    });
+
+    test("editing bike initial stats heals bike- and inheriting component-linked entries", () async {
+      final bike = Bike(name: "Test Bike", person: null, stravaGear: "g123");
+      await repository.addBikes([bike]);
+      final component = Component(
+        name: "Chain",
+        componentType: ComponentType.chain,
+        installations: [Installation.sinceBeginning(parent: bike.id)],
+      );
+      await repository.addComponents([component]);
+      final bikeRule = TaskRule(name: "Bike Service", association: BikeTaskAssociation(bike.id), tags: const {});
+      final componentRule = TaskRule(name: "Chain Wax", association: ComponentTaskAssociation(component.id), tags: const {});
+      await repository.addTaskRules([bikeRule, componentRule]);
+
+      await repository.setStravaActivities([rideForGear("g123")]);
+      await pumpEventQueue();
+
+      final entryDate = DateTime.utc(2024, 1, 2);
+      final bikeEntry = TaskEntry(
+        name: "Serviced",
+        taskRule: bikeRule.id,
+        association: BikeTaskAssociation(bike.id),
+        dateTimeUTC: entryDate,
+        dateTimeLocal: entryDate.toLocal(),
+        snapshot: await repository.getStatsAt(bikeId: bike.id, date: entryDate),
+      );
+      final componentEntry = TaskEntry(
+        name: "Waxed",
+        taskRule: componentRule.id,
+        association: ComponentTaskAssociation(component.id),
+        dateTimeUTC: entryDate,
+        dateTimeLocal: entryDate.toLocal(),
+        snapshot: await repository.getStatsAt(componentId: component.id, date: entryDate),
+      );
+      await repository.addTaskEntries([bikeEntry, componentEntry]);
+      await pumpEventQueue();
+      expect(repository.taskEntries[bikeEntry.id]?.snapshot?.distance, 100000.0);
+      expect(repository.taskEntries[componentEntry.id]?.snapshot?.distance, 100000.0);
+
+      await repository.editBike(bike.copyWith(initialStats: const ComponentStats(distance: 500000, activityCount: 10)));
+      await pumpEventQueue();
+
+      expect(repository.taskEntries[bikeEntry.id]?.snapshot?.distance, 600000.0);
+      expect(repository.taskEntries[bikeEntry.id]?.snapshot?.activityCount, 11);
+      expect(repository.taskEntries[componentEntry.id]?.snapshot?.distance, 600000.0);
+      expect(repository.bikeStats[bike.id]?.distance, 600000.0);
+      expect(repository.componentStatsOf(component.id).distance, 600000.0);
     });
   });
 
@@ -697,12 +746,12 @@ void main() {
         componentType: ComponentType.chain,
         installations: [Installation.sinceBeginning(parent: bikeId)],
       );
-      final rule = TaskRule(name: "Chain Wax", componentId: componentId, tags: const {});
+      final rule = TaskRule(name: "Chain Wax", association: const ComponentTaskAssociation(componentId), tags: const {});
       final entryDate = DateTime.utc(2024, 1, 2);
       final entry = TaskEntry(
         name: "Waxed",
         taskRule: rule.id,
-        componentId: componentId,
+        association: const ComponentTaskAssociation(componentId),
         dateTimeUTC: entryDate,
         dateTimeLocal: entryDate.toLocal(),
         snapshot: const ComponentStats(
@@ -746,7 +795,7 @@ void main() {
         installations: [Installation.sinceBeginning(parent: bike.id)],
       );
       await repository.addComponents([component]);
-      final rule = TaskRule(name: "Chain Wax", componentId: component.id, tags: const {});
+      final rule = TaskRule(name: "Chain Wax", association: ComponentTaskAssociation(component.id), tags: const {});
       await repository.addTaskRules([rule]);
 
       final activity = StravaActivity(
@@ -772,7 +821,7 @@ void main() {
       final trashedEntry = TaskEntry(
         name: "Waxed",
         taskRule: rule.id,
-        componentId: component.id,
+        association: ComponentTaskAssociation(component.id),
         dateTimeUTC: entryDate,
         dateTimeLocal: entryDate.toLocal(),
         isDeleted: true,
@@ -810,9 +859,9 @@ void main() {
         elapsedTime: Duration.zero,
         activityCount: 99,
       );
-      final targetEntry = TaskEntry(name: "Target task", taskRule: "target_rule", componentId: target.id, dateTimeUTC: entryDate, dateTimeLocal: entryDate, snapshot: staleSnapshot);
-      final trashedTargetEntry = TaskEntry(name: "Trashed target task", taskRule: "target_rule", componentId: target.id, dateTimeUTC: entryDate, dateTimeLocal: entryDate, isDeleted: true, snapshot: staleSnapshot);
-      final unrelatedEntry = TaskEntry(name: "Unrelated task", taskRule: "unrelated_rule", componentId: unrelated.id, dateTimeUTC: entryDate, dateTimeLocal: entryDate, snapshot: staleSnapshot);
+      final targetEntry = TaskEntry(name: "Target task", taskRule: "target_rule", association: ComponentTaskAssociation(target.id), dateTimeUTC: entryDate, dateTimeLocal: entryDate, snapshot: staleSnapshot);
+      final trashedTargetEntry = TaskEntry(name: "Trashed target task", taskRule: "target_rule", association: ComponentTaskAssociation(target.id), dateTimeUTC: entryDate, dateTimeLocal: entryDate, isDeleted: true, snapshot: staleSnapshot);
+      final unrelatedEntry = TaskEntry(name: "Unrelated task", taskRule: "unrelated_rule", association: ComponentTaskAssociation(unrelated.id), dateTimeUTC: entryDate, dateTimeLocal: entryDate, snapshot: staleSnapshot);
       final bikeOnlyEntry = TaskEntry(name: "Bike task", taskRule: "bike_rule", dateTimeUTC: entryDate, dateTimeLocal: entryDate, snapshot: staleSnapshot);
       await database.taskDao.insertEntry(targetEntry.toCompanion());
       await database.taskDao.insertEntry(trashedTargetEntry.toCompanion());
@@ -843,7 +892,7 @@ void main() {
       final entry = TaskEntry(
         name: "Task for missing component",
         taskRule: taskRuleId,
-        componentId: componentId,
+        association: const ComponentTaskAssociation(componentId),
         dateTimeUTC: entryDate,
         dateTimeLocal: entryDate.toLocal(),
         snapshot: const ComponentStats(
@@ -856,7 +905,7 @@ void main() {
       );
 
       final remoteData = SelectedData(
-        taskRules: {taskRuleId: TaskRule(name: "Orphaned Rule", componentId: componentId, tags: const {})},
+        taskRules: {taskRuleId: TaskRule(name: "Orphaned Rule", association: const ComponentTaskAssociation(componentId), tags: const {})},
         taskEntries: {entry.id: entry},
       );
 
@@ -930,7 +979,7 @@ void main() {
       final outgoingEntry = TaskEntry(
         name: "Waxed old",
         taskRule: "rule_out",
-        componentId: outgoing.id,
+        association: ComponentTaskAssociation(outgoing.id),
         dateTimeUTC: DateTime.utc(2024, 1, 2),
         dateTimeLocal: DateTime.utc(2024, 1, 2),
         snapshot: staleSnapshot,
@@ -938,7 +987,7 @@ void main() {
       final incomingEntry = TaskEntry(
         name: "Waxed new",
         taskRule: "rule_in",
-        componentId: incoming.id,
+        association: ComponentTaskAssociation(incoming.id),
         dateTimeUTC: DateTime.utc(2024, 6, 2),
         dateTimeLocal: DateTime.utc(2024, 6, 2),
         snapshot: staleSnapshot,

@@ -1,8 +1,9 @@
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/database/mappers.dart';
-import 'package:bike_setup_tracker/models/installation.dart';
+import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
+import 'package:bike_setup_tracker/models/task/task_association.dart';
 import 'package:bike_setup_tracker/models/task/task_entry.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -106,7 +107,7 @@ void main() {
         dateTimeUTC: localTime,
         dateTimeLocal: localTime,
         taskRule: 'rule1',
-        componentId: 'comp1',
+        association: const ComponentTaskAssociation('comp1'),
       );
 
       expect(taskEntry.dateTimeUTC.isUtc, isTrue);
@@ -122,6 +123,25 @@ void main() {
       );
 
       expect(installation.dateTimeUTC.isUtc, isTrue);
+    });
+
+    test('Installation constructor truncates to whole minutes', () {
+      final messy = DateTime(2026, 1, 1, 14, 32, 47, 123, 456);
+      final installation = Installation(
+        parent: 'parent1',
+        dateTimeUTC: messy.toUtc(),
+        dateTimeLocal: messy,
+      );
+
+      expect(installation.dateTimeLocal, DateTime(2026, 1, 1, 14, 32));
+      expect(installation.dateTimeUTC.second, 0);
+      expect(installation.dateTimeUTC.millisecond, 0);
+      expect(installation.dateTimeUTC.microsecond, 0);
+      expect(installation.dateTimeUTC.isUtc, isTrue);
+    });
+
+    test('Installation.sinceBeginning keeps the epoch-0 sentinel', () {
+      expect(Installation.sinceBeginning(parent: 'b1').isFromBeginning, isTrue);
     });
   });
 }

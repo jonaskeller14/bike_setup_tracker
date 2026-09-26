@@ -5,7 +5,9 @@ import '../theme.dart';
 
 class InitialChangedValueLegend extends StatelessWidget {
   @Preview(name: "InitialChangedValueLegend")
-  const InitialChangedValueLegend({super.key});
+  const InitialChangedValueLegend({super.key, this.showDangling = false});
+
+  final bool showDangling;
 
   Widget _buildLegendItem(BuildContext context, Color color, String text) {
     return Row(
@@ -45,6 +47,12 @@ class InitialChangedValueLegend extends StatelessWidget {
               highlights?.changed ?? Colors.orange,
               'Changed Value',
             ),
+            if (showDangling)
+              _buildLegendItem(
+                context,
+                Theme.of(context).colorScheme.error,
+                'Dangling Value',
+              ),
           ],
         ),
       ),

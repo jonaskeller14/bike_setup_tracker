@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../models/component.dart';
+import '../../models/component/component.dart';
 import '../../models/person.dart';
 import '../../models/setup_comparison.dart' as comparison;
 import '../../theme.dart';

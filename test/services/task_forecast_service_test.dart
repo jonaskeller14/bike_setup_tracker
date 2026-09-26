@@ -1,7 +1,6 @@
 import 'package:bike_setup_tracker/models/activity_rate_window.dart';
-import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/component_stats.dart';
-import 'package:bike_setup_tracker/models/installation.dart';
+import 'package:bike_setup_tracker/models/task/task_association.dart';
 import 'package:bike_setup_tracker/models/task/task_entry.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
@@ -39,24 +38,10 @@ void main() {
       );
     }
 
-    Component component(List<Installation> installations) => Component(
-      id: componentId,
-      name: 'Chain',
-      componentType: ComponentType.other,
-      installations: installations,
-    );
-
-    Installation installedOn(String bike, {required Duration ago}) => BikeInstallation(
-      bikeId: bike,
-      componentId: componentId,
-      dateTimeUTC: now.subtract(ago),
-      dateTimeLocal: now.subtract(ago),
-    );
-
     group('Distance interval', () {
       final rule = TaskRule(
         name: 'Chain Wax',
-        bikeId: bikeId,
+        association: const BikeTaskAssociation(bikeId),
         interval: const DistanceThreshold(300000), // 300 km
         tags: const {},
       );
@@ -65,7 +50,7 @@ void main() {
         // 200 km over 10 days = 20 km/day, with 200 km still to go.
         final forecast = TaskForecastService.predict(
           rule: rule,
-          currentStats: ComponentStats.zero().copyWith(distance: 100000),
+          currentStats: ComponentStats.zero.copyWith(distance: 100000),
           now: now,
           bikeRates: {bikeId: window(distance: 200000)},
         );
@@ -79,7 +64,7 @@ void main() {
         // 150 km remaining at 20 km/day = 7.5 days.
         final forecast = TaskForecastService.predict(
           rule: rule,
-          currentStats: ComponentStats.zero().copyWith(distance: 150000),
+          currentStats: ComponentStats.zero.copyWith(distance: 150000),
           now: now,
           bikeRates: {bikeId: window(distance: 200000)},
         );
@@ -93,13 +78,13 @@ void main() {
           taskRule: rule.id,
           dateTimeUTC: now.subtract(const Duration(days: 5)),
           dateTimeLocal: now.subtract(const Duration(days: 5)),
-          snapshot: ComponentStats.zero().copyWith(distance: 500000),
+          snapshot: ComponentStats.zero.copyWith(distance: 500000),
         );
 
         // 600 km on the clock, 500 km at the last wax: 100 km done, 200 km to go.
         final forecast = TaskForecastService.predict(
           rule: rule,
-          currentStats: ComponentStats.zero().copyWith(distance: 600000),
+          currentStats: ComponentStats.zero.copyWith(distance: 600000),
           now: now,
           bikeRates: {bikeId: window(distance: 200000)},
           lastEntry: entry,
@@ -113,7 +98,7 @@ void main() {
         // calendar time for the sample, so 10 km/day and 200 km still to go.
         final forecast = TaskForecastService.predict(
           rule: rule,
-          currentStats: ComponentStats.zero().copyWith(distance: 100000),
+          currentStats: ComponentStats.zero.copyWith(distance: 100000),
           now: now,
           bikeRates: {bikeId: window(distance: 200000, idle: const Duration(days: 10))},
         );
@@ -127,7 +112,7 @@ void main() {
         // 350 km target, 100 km done: 250 km at 20 km/day = 12.5 days.
         final forecast = TaskForecastService.predict(
           rule: delayed,
-          currentStats: ComponentStats.zero().copyWith(distance: 100000),
+          currentStats: ComponentStats.zero.copyWith(distance: 100000),
           now: now,
           bikeRates: {bikeId: window(distance: 200000)},
         );
@@ -139,7 +124,7 @@ void main() {
     group('No prediction', () {
       final rule = TaskRule(
         name: 'Chain Wax',
-        bikeId: bikeId,
+        association: const BikeTaskAssociation(bikeId),
         interval: const DistanceThreshold(300000),
         tags: const {},
       );
@@ -152,7 +137,7 @@ void main() {
       }) {
         return TaskForecastService.predict(
           rule: rule,
-          currentStats: currentStats ?? ComponentStats.zero(),
+          currentStats: currentStats ?? ComponentStats.zero,
           now: now,
           bikeRates: bikeRates ?? {bikeId: window(distance: 200000)},
           lastEntry: lastEntry,
@@ -169,11 +154,11 @@ void main() {
       });
 
       test('Rule that is already due', () {
-        expect(predictFor(rule: rule, currentStats: ComponentStats.zero().copyWith(distance: 300000)), isNull);
+        expect(predictFor(rule: rule, currentStats: ComponentStats.zero.copyWith(distance: 300000)), isNull);
       });
 
       test('Rule that is overdue', () {
-        expect(predictFor(rule: rule, currentStats: ComponentStats.zero().copyWith(distance: 400000)), isNull);
+        expect(predictFor(rule: rule, currentStats: ComponentStats.zero.copyWith(distance: 400000)), isNull);
       });
 
       test('Completed one-off rule', () {
@@ -182,7 +167,7 @@ void main() {
           taskRule: rule.id,
           dateTimeUTC: now,
           dateTimeLocal: now,
-          snapshot: ComponentStats.zero(),
+          snapshot: ComponentStats.zero,
         );
         expect(predictFor(rule: rule.copyWith(repeat: false), lastEntry: entry), isNull);
       });
@@ -241,7 +226,7 @@ void main() {
     group('Rate source resolution', () {
       final rule = TaskRule(
         name: 'Chain Wax',
-        componentId: componentId,
+        association: const ComponentTaskAssociation(componentId),
         interval: const DistanceThreshold(300000),
         tags: const {},
       );
@@ -254,10 +239,10 @@ void main() {
       test('A component forecasts at the rate of the bike it is on', () {
         final forecast = TaskForecastService.predict(
           rule: rule,
-          currentStats: ComponentStats.zero(),
+          currentStats: ComponentStats.zero,
           now: now,
           bikeRates: rates,
-          component: component([installedOn('bike-slow', ago: const Duration(days: 100))]),
+          componentBikeId: 'bike-slow',
         );
 
         expect(forecast!.dueDate, now.add(const Duration(days: 30)));
@@ -266,43 +251,21 @@ void main() {
       test('A component just moved to a busier bike forecasts at the new rate', () {
         final forecast = TaskForecastService.predict(
           rule: rule,
-          currentStats: ComponentStats.zero(),
+          currentStats: ComponentStats.zero,
           now: now,
           bikeRates: rates,
-          component: component([
-            installedOn('bike-slow', ago: const Duration(days: 100)),
-            installedOn('bike-fast', ago: const Duration(days: 1)),
-          ]),
+          componentBikeId: 'bike-fast',
         );
 
         expect(forecast!.dueDate, now.add(const Duration(days: 10)));
       });
 
-      test('An uninstalled component accrues nothing and gets no forecast', () {
+      test('A component that is not on a bike accrues nothing and gets no forecast', () {
         final forecast = TaskForecastService.predict(
           rule: rule,
-          currentStats: ComponentStats.zero(),
+          currentStats: ComponentStats.zero,
           now: now,
           bikeRates: rates,
-          component: component([
-            installedOn('bike-fast', ago: const Duration(days: 100)),
-            Uninstallation(componentId: componentId, dateTimeUTC: now, dateTimeLocal: now),
-          ]),
-        );
-
-        expect(forecast, isNull);
-      });
-
-      test('An archived component gets no forecast', () {
-        final forecast = TaskForecastService.predict(
-          rule: rule,
-          currentStats: ComponentStats.zero(),
-          now: now,
-          bikeRates: rates,
-          component: component([
-            installedOn('bike-fast', ago: const Duration(days: 100)),
-            Archival(componentId: componentId, dateTimeUTC: now, dateTimeLocal: now),
-          ]),
         );
 
         expect(forecast, isNull);
@@ -313,14 +276,14 @@ void main() {
       test('Duration interval is exact and needs no sample', () {
         final rule = TaskRule(
           name: 'Monthly check',
-          bikeId: bikeId,
+          association: const BikeTaskAssociation(bikeId),
           interval: const DurationThreshold(Duration(days: 30)),
           tags: const {},
         );
 
         final forecast = TaskForecastService.predict(
           rule: rule,
-          currentStats: ComponentStats.zero(),
+          currentStats: ComponentStats.zero,
           now: now,
           bikeRates: const {},
           componentInstallationDate: now.subtract(const Duration(days: 10, hours: 6)),
@@ -340,7 +303,7 @@ void main() {
 
         final forecast = TaskForecastService.predict(
           rule: rule,
-          currentStats: ComponentStats.zero(),
+          currentStats: ComponentStats.zero,
           now: now,
           bikeRates: const {},
         );
@@ -360,7 +323,7 @@ void main() {
 
         final forecast = TaskForecastService.predict(
           rule: rule,
-          currentStats: ComponentStats.zero(),
+          currentStats: ComponentStats.zero,
           now: now,
           bikeRates: const {},
         );
@@ -378,7 +341,7 @@ void main() {
         expect(
           TaskForecastService.predict(
             rule: rule,
-            currentStats: ComponentStats.zero(),
+            currentStats: ComponentStats.zero,
             now: now,
             bikeRates: const {},
           ),
@@ -390,14 +353,14 @@ void main() {
         // 5 rides over 10 days = 0.5 rides/day, with 10 rides to go = 20 days.
         final rule = TaskRule(
           name: 'Check bolts',
-          bikeId: bikeId,
+          association: const BikeTaskAssociation(bikeId),
           interval: const ActivityCountThreshold(10),
           tags: const {},
         );
 
         final forecast = TaskForecastService.predict(
           rule: rule,
-          currentStats: ComponentStats.zero(),
+          currentStats: ComponentStats.zero,
           now: now,
           bikeRates: {bikeId: window(count: 5)},
         );
@@ -409,14 +372,14 @@ void main() {
         // 10 h over 10 days = 1 h/day, with 20 h to go = 20 days.
         final rule = TaskRule(
           name: 'Suspension service',
-          bikeId: bikeId,
+          association: const BikeTaskAssociation(bikeId),
           interval: const MovingTimeThreshold(Duration(hours: 20)),
           tags: const {},
         );
 
         final forecast = TaskForecastService.predict(
           rule: rule,
-          currentStats: ComponentStats.zero(),
+          currentStats: ComponentStats.zero,
           now: now,
           bikeRates: {bikeId: window(movingTime: const Duration(hours: 10))},
         );
@@ -428,14 +391,14 @@ void main() {
         // 10000 m over 10 days = 1000 m/day, with 5000 m to go = 5 days.
         final rule = TaskRule(
           name: 'Brake pads',
-          bikeId: bikeId,
+          association: const BikeTaskAssociation(bikeId),
           interval: const ElevationThreshold(5000),
           tags: const {},
         );
 
         final forecast = TaskForecastService.predict(
           rule: rule,
-          currentStats: ComponentStats.zero(),
+          currentStats: ComponentStats.zero,
           now: now,
           bikeRates: {bikeId: window(elevationGain: 10000)},
         );

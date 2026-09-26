@@ -1,18 +1,30 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
 import '../env/env.dart';
 import '../models/app_settings.dart';
+import '../models/context/context_position.dart';
 import '../models/strava/strava_activity.dart';
 import '../repositories/app_repository.dart';
 import '../services/location_service.dart';
 import '../services/subscription_service.dart';
+import '../utils/animated_map_camera.dart';
+import '../utils/map_empty_state.dart';
 import '../widgets/app_snackbar.dart';
 import '../widgets/chips/map_filter_widget.dart';
+import '../widgets/map/map_attribution.dart';
+import '../widgets/map/map_cluster_bubble.dart';
+import '../widgets/map/map_compass_button.dart';
+import '../widgets/map/map_control_button.dart';
+import '../widgets/map/map_tile_layer.dart';
+import '../widgets/map_empty_state_card.dart';
 import '../widgets/map_pins.dart';
 import '../widgets/sheets/rating_entry_details.dart';
 import '../widgets/sheets/setup_details.dart';
@@ -20,19 +32,50 @@ import '../widgets/sheets/strava_activity.dart';
 
 class MapPage extends StatefulWidget {
   final LocationService? locationService;
+  final Stream<LocationMarkerHeading?>? headingStream;
 
-  const MapPage({super.key, this.locationService});
+  /// Activity to open the map on. Its pin is shown even when the map filters
+  /// would hide it; ignored when it has no start position.
+  final StravaActivity? focusActivity;
+
+  const MapPage({super.key, this.locationService, this.headingStream, this.focusActivity});
 
   @override
-  State<MapPage> createState() => _MapPageState();
+  State<MapPage> createState() => MapPageState();
 }
 
-class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
+class MapPageState extends State<MapPage> with TickerProviderStateMixin {
   final MapController _mapController = MapController();
+  late final AnimatedMapCamera _camera = AnimatedMapCamera(_mapController, this);
   late final LocationService _locationService;
   late final bool _ownsLocationService;
-  AnimationController? _mapMoveController;
   LatLng? _userLocation;
+  late final Stream<LocationMarkerPosition> _markerPositions;
+  late final Stream<LocationMarkerHeading?> _headings;
+  StreamSubscription<MapEvent>? _mapEventSubscription;
+  final ValueNotifier<double> _rotation = ValueNotifier<double>(0);
+  AppRepository? _repository;
+  List<StravaActivity> _stravaActivities = const [];
+  bool _stravaHasAnyPosition = false;
+  bool _stravaResolved = false;
+  bool _stravaFailed = false;
+  int _stravaRequestId = 0;
+  MapPinState _pinState = MapPinState.loading;
+  MapPinState? _collapsedFor;
+  bool _cameraTouchedByUser = false;
+  List<LatLng> _pinPoints = const [];
+
+  /// Camera sources the page drives itself; anything else comes from the user.
+  static const Set<MapEventSource> _programmaticCameraSources = {
+    MapEventSource.mapController,
+    MapEventSource.fitCamera,
+    MapEventSource.custom,
+    MapEventSource.interactiveFlagsChanged,
+    MapEventSource.nonRotatedSizeChange,
+  };
+
+  @visibleForTesting
+  MapPinState get pinState => _pinState;
 
   @override
   void initState() {
@@ -40,6 +83,31 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
     _ownsLocationService = widget.locationService == null;
     _locationService = widget.locationService ?? LocationService();
     _locationService.addListener(_locationStatusChanged);
+    // Built once: CurrentLocationLayer resubscribes whenever the stream
+    // identity changes, and this page rebuilds on every repository change.
+    _markerPositions = _locationService.positionStream
+        .where((position) => ContextPosition.hasValidCoordinateChange(null, position))
+        .map(
+          (position) => LocationMarkerPosition(
+            latitude: position.latitude!,
+            longitude: position.longitude!,
+            accuracy: position.accuracy ?? 0,
+          ),
+        );
+    // flutter_rotation_sensor 0.2.0 starts Core Motion without a north
+    // reference, so on iOS the azimuth is offset by an arbitrary constant and
+    // the heading cone points the wrong way. Leave it off there. The fix needs
+    // flutter_map_location_marker 10.3.0, which requires AGP 9.
+    _headings =
+        widget.headingStream ??
+        (defaultTargetPlatform == TargetPlatform.iOS
+            ? const Stream<LocationMarkerHeading?>.empty()
+            : const LocationMarkerDataStreamFactory().fromRotationSensorHeadingStream());
+    _mapEventSubscription = _mapController.mapEventStream.listen((event) {
+      _rotation.value = _mapController.camera.rotation;
+      if (!_programmaticCameraSources.contains(event.source)) _cameraTouchedByUser = true;
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => unawaited(_autoLocate()));
   }
 
   void _locationStatusChanged() {
@@ -47,44 +115,114 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final repository = context.read<AppRepository>();
+    if (identical(repository, _repository)) return;
+    _repository?.removeListener(_reloadStravaActivities);
+    _repository = repository..addListener(_reloadStravaActivities);
+    _reloadStravaActivities();
+  }
+
+  /// Requeries only when the repository changes, so unrelated rebuilds (layer
+  /// toggles, location updates, rotation) no longer hit the database.
+  void _reloadStravaActivities() => unawaited(_loadStravaActivities());
+
+  Future<void> _loadStravaActivities() async {
+    final repository = _repository;
+    if (repository == null) return;
+    final requestId = ++_stravaRequestId;
+    try {
+      final activities = await repository.getFilteredStravaActivitiesWithPosition();
+      // The unscoped check only matters once the filtered query came back empty.
+      final hasAnyPosition = activities.isNotEmpty || await repository.hasStravaActivitiesWithPosition();
+      if (!mounted || requestId != _stravaRequestId) return;
+      setState(() {
+        _stravaActivities = activities;
+        _stravaHasAnyPosition = hasAnyPosition;
+        _stravaResolved = true;
+        _stravaFailed = false;
+      });
+    } catch (_) {
+      if (!mounted || requestId != _stravaRequestId) return;
+      // Keep the last known activities: setups and rating entries stay pinned.
+      setState(() {
+        _stravaResolved = true;
+        _stravaFailed = true;
+      });
+    }
+  }
+
+  /// Drops the failed result and queries again, which the card offers as Retry.
+  void _retryStravaActivities() {
+    setState(() {
+      _stravaResolved = false;
+      _stravaFailed = false;
+    });
+    _reloadStravaActivities();
+  }
+
+  MapPinState _pinStateFor({
+    required int visiblePinCount,
+    required AppRepository appRepository,
+    required AppSettings appSettings,
+    required bool stravaActive,
+  }) {
+    if (stravaActive && !_stravaResolved) return MapPinState.loading;
+    if (stravaActive && _stravaFailed) return MapPinState.error;
+
+    return mapPinState(
+      visiblePinCount,
+      hasAnyPositionedMapData(
+        hasSetups: appRepository.hasSetupsWithPosition,
+        hasRatingEntries: appRepository.hasRatingEntriesWithPosition,
+        hasStravaActivities: _stravaHasAnyPosition,
+        ratingEnabled: appSettings.enableRating,
+        stravaActive: stravaActive,
+      ),
+    );
+  }
+
+  @override
   void dispose() {
+    _repository?.removeListener(_reloadStravaActivities);
     _locationService.removeListener(_locationStatusChanged);
+    _locationService.stopPositionUpdates();
     if (_ownsLocationService) _locationService.dispose();
-    _mapMoveController?.dispose();
+    unawaited(_mapEventSubscription?.cancel());
+    _rotation.dispose();
+    _camera.dispose();
     _mapController.dispose();
     super.dispose();
   }
 
-  Future<void> _animatedMapMove(LatLng destLocation, double destZoom) async {
-    final camera = _mapController.camera;
-    final latTween = Tween<double>(begin: camera.center.latitude, end: destLocation.latitude);
-    final lngTween = Tween<double>(begin: camera.center.longitude, end: destLocation.longitude);
-    final zoomTween = Tween<double>(begin: camera.zoom, end: destZoom);
+  static CameraFit _pinOverviewFit(List<LatLng> points) => CameraFit.bounds(
+    bounds: LatLngBounds.fromPoints(points),
+    padding: const EdgeInsets.all(50),
+    maxZoom: 17,
+  );
 
-    _mapMoveController?.dispose();
-    final controller = AnimationController(duration: const Duration(milliseconds: 500), vsync: this);
-    _mapMoveController = controller;
-    final Animation<double> animation = CurvedAnimation(parent: controller, curve: Curves.fastOutSlowIn);
+  /// The silent counterpart to [_locateMe], run once when the page opens. It may
+  /// surface the OS permission prompt, but never a SnackBar.
+  Future<void> _autoLocate() async {
+    if (!mounted || _locationService.status == LocationStatus.permissionDeniedForever) return;
 
-    controller.addListener(() {
-      _mapController.move(
-        LatLng(latTween.evaluate(animation), lngTween.evaluate(animation)),
-        zoomTween.evaluate(animation),
-      );
-    });
+    final position = await _locationService.fetchLocation();
+    if (!mounted || !ContextPosition.hasValidCoordinateChange(null, position)) return;
 
-    animation.addStatusListener((status) {
-      if (status == AnimationStatus.completed || status == AnimationStatus.dismissed) {
-        controller.dispose();
-        if (identical(_mapMoveController, controller)) _mapMoveController = null;
-      }
-    });
+    final userLocation = LatLng(position!.latitude!, position.longitude!);
+    setState(() => _userLocation = userLocation);
+    _locationService.startPositionUpdates();
 
-    try {
-      await controller.forward().orCancel;
-    } on TickerCanceled {
-      // The page was disposed while the map was moving.
+    // GPS can take seconds: never yank a camera the user has already moved,
+    // nor one that opened on a specific activity.
+    if (_cameraTouchedByUser || _focusPoint != null) return;
+    if (_pinPoints.isEmpty) {
+      await _camera.move(userLocation, 15);
+      return;
     }
+    final fit = _pinOverviewFit([userLocation, ..._pinPoints]).fit(_mapController.camera);
+    await _camera.move(fit.center, fit.zoom);
   }
 
   Future<void> _locateMe() async {
@@ -93,31 +231,16 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
     final position = await _locationService.fetchLocation();
     if (!mounted) return;
 
-    final latitude = position?.latitude;
-    final longitude = position?.longitude;
-    if (latitude != null &&
-        longitude != null &&
-        latitude.isFinite &&
-        longitude.isFinite &&
-        latitude >= -90 &&
-        latitude <= 90 &&
-        longitude >= -180 &&
-        longitude <= 180) {
-      final userLocation = LatLng(latitude, longitude);
+    if (ContextPosition.hasValidCoordinateChange(null, position)) {
+      final userLocation = LatLng(position!.latitude!, position.longitude!);
       setState(() => _userLocation = userLocation);
-      await _animatedMapMove(userLocation, 15);
+      _locationService.startPositionUpdates();
+      await _camera.move(userLocation, 15);
       return;
     }
 
-    final message = switch (_locationService.status) {
-      LocationStatus.noService => 'Location services are disabled.',
-      LocationStatus.noPermission => 'Location permission was not granted.',
-      LocationStatus.permissionDeniedForever => 'Location permission is permanently denied.',
-      LocationStatus.timeout => 'Location request timed out. Try again.',
-      LocationStatus.error => 'Unable to determine your location.',
-      _ => 'No valid location was returned.',
-    };
-    final AppSnackBarAction? action = switch (_locationService.status) {
+    final status = _locationService.status;
+    final AppSnackBarAction? action = switch (status) {
       LocationStatus.noService => AppSnackBarAction(
         label: 'Settings',
         onPressed: _locationService.openLocationSettings,
@@ -130,23 +253,78 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
     };
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(AppSnackBar.error(context, message, action: action));
+      ..showSnackBar(AppSnackBar.error(context, status.errorMessage, action: action));
   }
 
-  Widget _mapControlButton({Key? key, required Widget icon, required VoidCallback? onPressed}) {
-    final scheme = Theme.of(context).colorScheme;
-    return IconButton(
-      key: key,
-      iconSize: 20,
-      style: IconButton.styleFrom(
-        backgroundColor: scheme.surface,
-        foregroundColor: scheme.onSurfaceVariant,
-        side: BorderSide(color: scheme.outlineVariant),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        minimumSize: const Size(44, 44),
+  Future<void> _zoomBy(double delta) =>
+      _camera.move(_mapController.camera.center, (_mapController.camera.zoom + delta).clamp(3.0, 18.0));
+
+  static Marker _pinMarker({required LatLng point, required VoidCallback onTap, required Widget pin}) {
+    return Marker(
+      point: point,
+      width: 40,
+      height: 40,
+      child: GestureDetector(onTap: onTap, child: pin),
+    );
+  }
+
+  Iterable<Marker> _setupMarkers(AppRepository appRepository, AppSettings appSettings) {
+    return appRepository.filteredSetups.values
+        .where((s) => (s.position?.latitude?.isFinite ?? false) && (s.position?.longitude?.isFinite ?? false))
+        .map(
+          (setup) => _pinMarker(
+            point: LatLng(setup.position!.latitude!, setup.position!.longitude!),
+            onTap: () => showSetupDetailsSheet(context: context, setupId: setup.id),
+            pin: SetupMapPin.icon(
+              isCurrent: setup.isCurrent,
+              isBookmarked: appSettings.enableSetupBookmark && setup.isBookmarked,
+            ),
+          ),
+        );
+  }
+
+  LatLng? get _focusPoint {
+    final activity = widget.focusActivity;
+    if (activity == null || !activity.hasStartPosition) return null;
+    return LatLng(activity.startLat!, activity.startLon!);
+  }
+
+  Iterable<Marker> _activityMarkers() {
+    return _stravaActivities
+        .where((a) => a.hasStartPosition && a.id != widget.focusActivity?.id)
+        .map(
+          (activity) => _pinMarker(
+            point: LatLng(activity.startLat!, activity.startLon!),
+            onTap: () => showStravaActivitySheet(context: context, stravaActivity: activity, showViewOnMap: false),
+            pin: StravaActivityMapPin(workoutType: activity.workout),
+          ),
+        );
+  }
+
+  Iterable<Marker> _ratingEntryMarkers(AppRepository appRepository) {
+    return appRepository.filteredRatingEntries.values
+        .where((re) => (re.position?.latitude?.isFinite ?? false) && (re.position?.longitude?.isFinite ?? false))
+        .map(
+          (ratingEntry) => _pinMarker(
+            point: LatLng(ratingEntry.position!.latitude!, ratingEntry.position!.longitude!),
+            onTap: () => showRatingEntryDetailsSheet(context: context, ratingEntry: ratingEntry),
+            pin: const RatingEntryMapPin(),
+          ),
+        );
+  }
+
+  /// Kept out of the cluster layer so the focused activity is never folded
+  /// into a cluster bubble.
+  Marker _focusMarker(StravaActivity activity, LatLng point) {
+    return Marker(
+      key: const Key('map-focus-activity'),
+      point: point,
+      width: 52,
+      height: 52,
+      child: GestureDetector(
+        onTap: () => showStravaActivitySheet(context: context, stravaActivity: activity, showViewOnMap: false),
+        child: Transform.scale(scale: 1.3, child: StravaActivityMapPin(workoutType: activity.workout)),
       ),
-      onPressed: onPressed,
-      icon: icon,
     );
   }
 
@@ -155,336 +333,160 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
     final subscriptionService = context.watch<SubscriptionService>();
-    final setups = appRepository.filteredSetups.values.where(
-      (s) => (s.position?.latitude?.isFinite ?? false) && (s.position?.longitude?.isFinite ?? false),
+    final stravaActive = appSettings.enableStrava && subscriptionService.hasStravaEntitlement;
+    final useMapbox = appSettings.useMapBoxTiles && Env.mapboxToken.isNotEmpty;
+
+    final colorScheme = Theme.of(context).colorScheme;
+
+    final List<Marker> clusterMarkers = [
+      if (appSettings.displayShowSetups) ..._setupMarkers(appRepository, appSettings),
+      if (stravaActive && appSettings.displayShowActivities) ..._activityMarkers(),
+      if (appSettings.enableRating && appSettings.displayShowRatingEntries) ..._ratingEntryMarkers(appRepository),
+    ];
+
+    final focusActivity = widget.focusActivity;
+    final focusPoint = _focusPoint;
+    _pinPoints = [?focusPoint, ...clusterMarkers.map((marker) => marker.point)];
+    final List<LatLng> fitPoints = [?_userLocation, ..._pinPoints];
+
+    final pinState = _pinStateFor(
+      visiblePinCount: _pinPoints.length,
+      appRepository: appRepository,
+      appSettings: appSettings,
+      stravaActive: stravaActive,
     );
+    _pinState = pinState;
 
-    return FutureBuilder<List<StravaActivity>>(
-      future: appRepository.getFilteredStravaActivitiesWithPosition(),
-      builder: (context, snapshot) {
-        final stravaActivities = snapshot.data ?? [];
-
-        final Marker? userLocationMarker = _userLocation == null
-            ? null
-            : Marker(
-                point: _userLocation!,
-                width: 20,
-                height: 20,
-                child: Container(
-                  key: const Key('map-user-location-marker'),
-                  decoration: BoxDecoration(
-                    color: Colors.blue,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
-                    boxShadow: const [
-                      BoxShadow(
-                        blurRadius: 6,
-                        color: Colors.black26,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-
-        final List<Marker> clusterMarkers = [
-          if (appSettings.displayShowSetups)
-            ...setups.map(
-              (setup) => Marker(
-                point: LatLng(setup.position!.latitude!, setup.position!.longitude!),
-                width: 40,
-                height: 40,
-                child: GestureDetector(
-                  onTap: () async {
-                    await showSetupDetailsSheet(context: context, setupId: setup.id);
-                  },
-                  child: SetupMapPin.icon(
-                    isCurrent: setup.isCurrent,
-                    isBookmarked: appSettings.enableSetupBookmark && setup.isBookmarked,
-                  ),
+    return Scaffold(
+      body: Stack(
+        children: [
+          FlutterMap(
+            mapController: _mapController,
+            options: MapOptions(
+              backgroundColor: colorScheme.surfaceContainerHighest,
+              initialRotation: 0,
+              initialCenter: focusPoint ?? const LatLng(44.1687, 8.3444), // Finale Ligure
+              initialZoom: focusPoint != null ? 15 : 13,
+              minZoom: 3,
+              maxZoom: 18,
+              // Bound the camera to the world. Without this (default is
+              // CameraConstraint.unconstrained()), a fast pinch/fling
+              // zoom-out can momentarily drive the zoom scale to <= 0, so
+              // zoom(scale) = log(scale/256)/ln2 returns NaN/-Infinity. That
+              // produces a non-finite camera center which flutter_map 8.3.0
+              // now throws on during projection ("LatLng is not finite").
+              cameraConstraint: CameraConstraint.contain(
+                bounds: LatLngBounds(
+                  const LatLng(-85.05112878, -180),
+                  const LatLng(85.05112878, 180),
                 ),
               ),
+              interactionOptions: const InteractionOptions(
+                flags: InteractiveFlag.all,
+                enableMultiFingerGestureRace: true,
+              ),
+              initialCameraFit: focusPoint == null && fitPoints.isNotEmpty ? _pinOverviewFit(fitPoints) : null,
             ),
-          if (appSettings.enableStrava && subscriptionService.hasStravaEntitlement && appSettings.displayShowActivities)
-            ...stravaActivities
-                .where((a) => (a.startLat?.isFinite ?? false) && (a.startLon?.isFinite ?? false))
-                .map(
-                  (activity) => Marker(
-                    point: LatLng(activity.startLat!, activity.startLon!),
-                    width: 40,
-                    height: 40,
-                    child: GestureDetector(
-                      onTap: () async {
-                        await showStravaActivitySheet(
-                          context: context,
-                          stravaActivity: activity,
-                        );
-                      },
-                      child: StravaActivityMapPin(workoutType: activity.workout),
-                    ),
-                  ),
-                ),
-          if (appSettings.enableRating && appSettings.displayShowRatingEntries)
-            ...appRepository.filteredRatingEntries.values
-                .where(
-                  (re) => (re.position?.latitude?.isFinite ?? false) && (re.position?.longitude?.isFinite ?? false),
-                )
-                .map(
-                  (ratingEntry) => Marker(
-                    point: LatLng(ratingEntry.position!.latitude!, ratingEntry.position!.longitude!),
-                    width: 40,
-                    height: 40,
-                    child: GestureDetector(
-                      onTap: () async {
-                        await showRatingEntryDetailsSheet(context: context, ratingEntry: ratingEntry);
-                      },
-                      child: const RatingEntryMapPin(),
-                    ),
-                  ),
-                ),
-        ];
-
-        final List<Marker> markers = [
-          ?userLocationMarker,
-          ...clusterMarkers,
-        ];
-
-        return Scaffold(
-          body: Stack(
             children: [
-              FlutterMap(
-                mapController: _mapController,
-                options: MapOptions(
-                  backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  initialRotation: 0,
-                  initialCenter: const LatLng(44.1687, 8.3444), // Finale Ligure
-                  initialZoom: 13,
-                  minZoom: 3,
+              MapTileLayer(useMapbox: useMapbox),
+              MarkerClusterLayerWidget(
+                options: MarkerClusterLayerOptions(
+                  showPolygon: false,
+                  rotate: true,
+                  maxClusterRadius: 45,
+                  size: const Size(40, 40),
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.all(50),
                   maxZoom: 18,
-                  // Bound the camera to the world. Without this (default is
-                  // CameraConstraint.unconstrained()), a fast pinch/fling
-                  // zoom-out can momentarily drive the zoom scale to <= 0, so
-                  // zoom(scale) = log(scale/256)/ln2 returns NaN/-Infinity. That
-                  // produces a non-finite camera center which flutter_map 8.3.0
-                  // now throws on during projection ("LatLng is not finite").
-                  cameraConstraint: CameraConstraint.contain(
-                    bounds: LatLngBounds(
-                      const LatLng(-85.05112878, -180),
-                      const LatLng(85.05112878, 180),
-                    ),
-                  ),
-                  interactionOptions: const InteractionOptions(
-                    flags: InteractiveFlag.all,
-                  ),
-                  initialCameraFit: markers.isNotEmpty
-                      ? CameraFit.bounds(
-                          bounds: LatLngBounds.fromPoints(
-                            markers.map((m) => m.point).toList(),
-                          ),
-                          padding: const EdgeInsets.all(50),
-                          maxZoom: 17,
-                        )
-                      : null,
+                  markers: clusterMarkers,
+                  builder: (context, markers) => MapClusterBubble(count: markers.length),
                 ),
-                children: [
-                  if (appSettings.useMapBoxTiles && Env.mapboxToken.isNotEmpty)
-                    TileLayer(
-                      urlTemplate:
-                          'https://api.mapbox.com/styles/v1/mapbox/{style_id}/tiles/256/{z}/{x}/{y}?access_token={access_token}',
-                      additionalOptions: {
-                        'access_token': Env.mapboxToken,
-                        'style_id': Theme.of(context).brightness == Brightness.dark ? 'dark-v11' : 'outdoors-v12',
-                      },
-                      userAgentPackageName: 'com.jonaskeller14.bike_setup_tracker',
-                      tileDisplay: const TileDisplay.fadeIn(),
-                    )
-                  else
-                    TileLayer(
-                      urlTemplate: 'https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png',
-                      subdomains: const ['a', 'b', 'c'],
-                      minZoom: 3,
-                      maxZoom: 18,
-                      userAgentPackageName: 'com.jonaskeller14.bike_setup_tracker',
-                      tileDisplay: const TileDisplay.fadeIn(),
-                      tileBuilder: (context, tileWidget, tile) {
-                        final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-                        return ColorFiltered(
-                          colorFilter: isDarkMode
-                              ? const ColorFilter.matrix(<double>[
-                                  -0.2126,
-                                  -0.7152,
-                                  -0.0722,
-                                  0,
-                                  255,
-                                  -0.2126,
-                                  -0.7152,
-                                  -0.0722,
-                                  0,
-                                  255,
-                                  -0.2126,
-                                  -0.7152,
-                                  -0.0722,
-                                  0,
-                                  255,
-                                  0,
-                                  0,
-                                  0,
-                                  1,
-                                  0,
-                                ])
-                              : const ColorFilter.matrix(<double>[
-                                  0.6, 0.3, 0.1, 0, 0,  // Muted Red
-                                  0.1, 0.8, 0.1, 0, 0,  // Muted Green
-                                  0.1, 0.3, 0.6, 0, 0,  // Muted Blue
-                                  0,   0,   0,   1, 0,  // Alpha (no change)
-                                ]),
-                          child: tileWidget,
-                        );
-                      },
-                    ),
-                  MarkerClusterLayerWidget(
-                    options: MarkerClusterLayerOptions(
-                      showPolygon: false,
-                      maxClusterRadius: 45,
-                      size: const Size(40, 40),
-                      alignment: Alignment.center,
-                      padding: const EdgeInsets.all(50),
-                      maxZoom: 18,
-                      markers: clusterMarkers,
-                      builder: (context, markers) {
-                        return Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            color: Theme.of(context).colorScheme.secondaryContainer,
-                            boxShadow: const [
-                              BoxShadow(
-                                blurRadius: 10,
-                                color: Colors.black26,
-                                offset: Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Center(
-                            child: Text(
-                              markers.length.toString(),
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.onSecondaryContainer,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  if (userLocationMarker != null) MarkerLayer(markers: [userLocationMarker]),
-                  RichAttributionWidget(
-                    alignment: AttributionAlignment.bottomLeft,
-                    showFlutterMapAttribution: false,
-                    attributions: [
-                      if (appSettings.useMapBoxTiles && Env.mapboxToken.isNotEmpty) ...[
-                        LogoSourceAttribution(
-                          Image.asset(
-                            'assets/mapbox/mapbox-logo.png',
-                            height: 24,
-                          ),
-                          tooltip: 'Mapbox',
-                          onTap: () => launchUrlString('https://www.mapbox.com/about/maps/'),
-                        ),
-                        TextSourceAttribution(
-                          'Mapbox',
-                          onTap: () => launchUrlString('https://www.mapbox.com/about/maps/'),
-                        ),
-                        TextSourceAttribution(
-                          'OpenStreetMap',
-                          onTap: () => launchUrlString('https://www.openstreetmap.org/copyright'),
-                        ),
-                        TextSourceAttribution(
-                          prependCopyright: false,
-                          'Improve this map',
-                          onTap: () => launchUrlString('https://www.mapbox.com/map-feedback/'),
-                        ),
-                      ] else ...[
-                        TextSourceAttribution(
-                          'OpenStreetMap | Cyclosm',
-                          onTap: () => launchUrlString('https://openstreetmap.org/copyright'),
-                        ),
-                      ],
-                      if (stravaActivities.isNotEmpty)
-                        const LogoSourceAttribution(
-                          Image(
-                            image: AssetImage(
-                              'assets/strava/1.2-Strava-API-Logos/1.2-Strava-API-Logos/Powered by Strava/pwrdBy_strava_orange/api_logo_pwrdBy_strava_stack_orange.png',
-                            ),
-                            height: 24,
-                          ),
-                          tooltip: 'Powered by Strava',
-                        ),
-                    ],
-                  ),
-                ],
               ),
-              SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Row(
+              if (focusActivity != null && focusPoint != null)
+                MarkerLayer(markers: [_focusMarker(focusActivity, focusPoint)]),
+              CurrentLocationLayer(
+                positionStream: _markerPositions,
+                headingStream: _headings,
+                style: LocationMarkerStyle(
+                  marker: DefaultLocationMarker(
+                    key: const Key('map-user-location-marker'),
+                    color: colorScheme.primary,
+                  ),
+                  accuracyCircleColor: colorScheme.primary.withValues(alpha: 0.15),
+                  headingSectorColor: colorScheme.primary.withValues(alpha: 0.7),
+                ),
+              ),
+              MapAttribution(useMapbox: useMapbox, showStrava: _stravaActivities.isNotEmpty || focusPoint != null),
+            ],
+          ),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                spacing: 8,
+                children: [
+                  Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     spacing: 12,
                     children: [
-                      _mapControlButton(
+                      MapControlButton(
                         icon: const BackButtonIcon(),
                         onPressed: () => Navigator.pop(context),
                       ),
                       const Expanded(child: MapFilterWidget()),
                     ],
                   ),
-                ),
-              ),
-            ],
-          ),
-          floatingActionButton: Column(
-            mainAxisSize: MainAxisSize.min,
-            spacing: 8,
-            children: [
-              _mapControlButton(
-                icon: const Icon(Icons.add),
-                onPressed: () async {
-                  final newZoom = (_mapController.camera.zoom + 1).clamp(3.0, 18.0);
-                  await _animatedMapMove(_mapController.camera.center, newZoom);
-                },
-              ),
-              _mapControlButton(
-                icon: const Icon(Icons.remove),
-                onPressed: () async {
-                  final newZoom = (_mapController.camera.zoom - 1).clamp(3.0, 18.0);
-                  await _animatedMapMove(_mapController.camera.center, newZoom);
-                },
-              ),
-              _mapControlButton(
-                key: const Key('map-locate-me'),
-                icon: const Icon(Icons.my_location),
-                onPressed: _locationService.status == LocationStatus.searching ? null : _locateMe,
-              ),
-              if (markers.isNotEmpty)
-                _mapControlButton(
-                  icon: const Icon(Icons.center_focus_strong),
-                  onPressed: () {
-                    final points = markers.map((m) => m.point).toList();
-                    final bounds = LatLngBounds.fromPoints(points);
-                    _mapController.rotate(0);
-                    _mapController.fitCamera(
-                      CameraFit.bounds(
-                        bounds: bounds,
-                        padding: const EdgeInsets.all(50),
-                        maxZoom: 17,
+                  if (pinState != MapPinState.loading && pinState != MapPinState.success)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 2), // to align horizontally with BackButtonIcon
+                      child: MapEmptyStateCard(
+                        state: pinState,
+                        collapsed: _collapsedFor == pinState,
+                        onToggleCollapsed: () => setState(
+                          () => _collapsedFor = _collapsedFor == pinState ? null : pinState,
+                        ),
+                        onRetry: _retryStravaActivities,
                       ),
-                    );
-                  },
-                ),
-            ],
+                    ),
+                ],
+              ),
+            ),
           ),
-        );
-      },
+        ],
+      ),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        spacing: 8,
+        children: [
+          MapCompassButton(
+            rotation: _rotation,
+            onResetNorth: (target) => unawaited(_camera.rotate(target)),
+          ),
+          MapControlButton(
+            icon: const Icon(Icons.add),
+            onPressed: () => _zoomBy(1),
+          ),
+          MapControlButton(
+            icon: const Icon(Icons.remove),
+            onPressed: () => _zoomBy(-1),
+          ),
+          MapControlButton(
+            key: const Key('map-locate-me'),
+            icon: const Icon(Icons.my_location),
+            onPressed: _locationService.status == LocationStatus.searching ? null : _locateMe,
+          ),
+          if (fitPoints.isNotEmpty)
+            MapControlButton(
+              icon: const Icon(Icons.center_focus_strong),
+              onPressed: () {
+                _mapController.rotate(0);
+                _mapController.fitCamera(_pinOverviewFit(fitPoints));
+              },
+            ),
+        ],
+      ),
     );
   }
 }

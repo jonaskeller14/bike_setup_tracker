@@ -84,6 +84,17 @@
             "problemMatcher": []
         },
         {
+            "label": "Build & Upload IPA (App Store, Transporter)",
+            "type": "shell",
+            "command": "flutter build ipa --release && open -a Transporter build/ios/ipa/*.ipa",
+            "problemMatcher": [],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
             "label": "Build Runner: Generate .g Files (Drift, Envied)",
             "type": "shell",
             "command": "flutter pub run build_runner build",

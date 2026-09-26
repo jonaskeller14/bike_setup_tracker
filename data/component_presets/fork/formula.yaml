@@ -1,0 +1,311 @@
+# Formula mountain-bike forks — adjustment preset database
+#
+# Same design as fork/fox.yaml: click ranges belong to the DAMPER cartridge,
+# defined once under `dampers:` and referenced by key from each fork's trims.
+# See SCHEMA.md in this folder.
+#
+# Formula (Formula SRL, Italy — the official site is rideformula.com) sells a
+# small lineup: the single-crown Selva family (V, S, R, C), the dual-crown
+# Belva and the DH-only Nero (R, C). Every fork uses a "drop-in cartridge with
+# Internal Floating Technology" damper; the Selva family shares one damper
+# design (the Selva C page: "the same damping as the other models of the Selva
+# family"), the Nero R and Nero C share another ("The damper is identical to
+# that used in the Nero R"). The Selva V and the Belva each list a different
+# rebound total, so each gets its own damper key — nothing is copied across.
+#
+# Formula's product pages give one "Compression: High and Low Speed N click
+# adjustment" line for the Selva/Belva family. BikeRadar's Selva R review
+# (2023) explains that those forks have a single compression dial that moves
+# high- and low-speed compression together, so it is modelled as one
+# `Compression` adjuster. The Nero is the exception: its page lists separate
+# "Compression LS" and "Compression HS" totals, so it gets two adjusters.
+#
+# Scope: the current lineup. Formula's older Thirty-Five / earlier forks and
+# the 100-unit Josh Bryceland Edition Selva are not listed — see Follow-ups.
+
+brand: Formula
+component_type: fork
+sources:
+  - https://www.rideformula.com/cat/mtb-forks/
+  - https://www.rideformula.com/products/mountain-bike/selva-v/
+  - https://www.rideformula.com/products/mountain-bike/selva-s/
+  - https://www.rideformula.com/products/mountain-bike/selva-r-2/
+  - https://www.rideformula.com/products/mountain-bike/selva-c/
+  - https://www.rideformula.com/products/mtb-forks/belva/
+  - https://www.rideformula.com/products/mountain-bike/nero-r/
+  - https://www.rideformula.com/products/mountain-bike/nero-c/
+  # Formula user manuals (PDF)
+  - https://www.rideformula.com/wp-content/uploads/2025/06/Selva_V_User_Manual_EN-1.pdf
+  - https://www.rideformula.com/wp-content/uploads/2023/06/Manuale_SELVA_R_GB-Def.pdf
+  - https://www.rideformula.com/wp-content/uploads/2017/08/Nero-R-owner-manual.pdf
+  - https://www.rideformula.com/wp-content/uploads/2017/08/Nero-C-Owner-manual.pdf
+  # Editorial — used for the single-dial compression design (BikeRadar) and
+  # the first model years only, never for click counts
+  - https://www.bikeradar.com/reviews/components/forks/suspension-forks/formula-selva-r-suspension-fork-review
+  - https://www.pinkbike.com/news/formula-nero-dh-fork-first-look-2017.html
+  - https://www.pinkbike.com/news/formula-presents-the-new-selva-coil.html
+  - https://www.mbr.co.uk/news/2019-formula-selva-r-377158
+  - https://www.mbr.co.uk/news/formula-new-selva-v-boasts-less-stiction-450993
+  - https://www.bikeradar.com/news/2024formula-belva
+updated: 2026-09-25
+
+# --------------------------------------------------------------------------
+# Dampers
+# --------------------------------------------------------------------------
+dampers:
+  selva_v_2025:
+    name: Selva V cartridge
+    description: |-
+      - Drop-in bladder-style cartridge with Internal Floating Technology
+      - One compression dial moves high- and low-speed compression together
+      - Compression Tuning System (CTS) valves swap in for larger changes
+      - Crown-mounted lockout with an adjustable lockout force
+    adjustments:
+      - { name: Compression, type: step, max: 12, notes: High and Low Speed (one combined dial) }
+      - { name: Rebound, type: step, max: 19 }
+      - { name: Lockout, type: categorical, options: [Open, Locked], notes: Crown-mounted lever }
+    source:
+      - https://www.rideformula.com/products/mountain-bike/selva-v/
+      - https://www.rideformula.com/wp-content/uploads/2025/06/Selva_V_User_Manual_EN-1.pdf
+    note: >-
+      Selva V page: "Rebound: 19 Click Adjustment", "Compression: High and Low
+      Speed 12 click adjustment", "Blue and Gold valves included". The V manual
+      (sections 8-9) describes a single blue compression knob, a gold lockout
+      lever and a black lockout-force adjuster. The page says the damper
+      architecture is unchanged from the previous Selva, yet lists 19 rebound
+      clicks against the older Selva's 21, so the two are kept apart.
+
+  selva_2017:
+    name: Selva cartridge
+    description: |-
+      - Drop-in cartridge with Internal Floating Technology (ball joints let the air spring and cartridge move independently of the chassis)
+      - One compression dial moves high- and low-speed compression together
+      - Compression Tuning System (CTS) valves swap in for larger changes
+      - Crown-mounted lockout with an adjustable lockout force
+    adjustments:
+      - { name: Compression, type: step, max: 12, notes: High and Low Speed (one combined dial) }
+      - { name: Rebound, type: step, max: 21 }
+      - { name: Lockout, type: categorical, options: [Open, Locked], notes: Crown-mounted lever }
+    source:
+      - https://www.rideformula.com/products/mountain-bike/selva-s/
+      - https://www.rideformula.com/products/mountain-bike/selva-r-2/
+      - https://www.rideformula.com/products/mountain-bike/selva-c/
+      - https://www.bikeradar.com/reviews/components/forks/suspension-forks/formula-selva-r-suspension-fork-review
+    note: >-
+      Selva S, R and C pages each state "Rebound: 21 Click Adjustment" and
+      "Compression: High and Low Speed 12 Click Adjustment". BikeRadar's Selva R
+      review confirms one dial for high- and low-speed compression together and
+      counts rebound "from closed out of 21".
+
+  belva_2024:
+    name: Belva cartridge
+    description: |-
+      - Drop-in cartridge with Internal Floating Technology
+      - One compression dial moves high- and low-speed compression together
+      - Compression Tuning System (CTS) valves swap in for larger changes
+      - Crown-mounted lockout, optional remote cartridge control
+    adjustments:
+      - { name: Compression, type: step, max: 12, notes: High and Low Speed (one combined dial) }
+      - { name: Rebound, type: step, max: 18 }
+      - { name: Lockout, type: categorical, options: [Open, Locked], notes: Crown-mounted lever }
+    source: https://www.rideformula.com/products/mtb-forks/belva/
+    note: >-
+      Belva page: "Rebound: 18 Click Adjustment", "Compression: High and Low
+      Speed 12 Click Adjustment". The Belva page shows 18 rebound clicks, not
+      the Selva's 21.
+
+  nero_2017:
+    name: Nero cartridge
+    description: |-
+      - Downhill drop-in cartridge with Internal Floating Technology
+      - Separate high-speed compression, low-speed compression and rebound dials
+      - Compression Tuning System (CTS) valves swap in for larger changes
+    adjustments:
+      - { name: HSC, type: step, max: 20, notes: High-Speed Compression }
+      - { name: LSC, type: step, max: 12, notes: Low-Speed Compression }
+      - { name: Rebound, type: step, max: 21 }
+    source:
+      - https://www.rideformula.com/products/mountain-bike/nero-r/
+      - https://www.rideformula.com/products/mountain-bike/nero-c/
+      - https://www.rideformula.com/wp-content/uploads/2017/08/Nero-R-owner-manual.pdf
+    note: >-
+      Nero R and Nero C pages: "Rebound: 21 Click adjustment", "Compression LS:
+      12 Click adjustment", "Compression HS: 20 Click adjustment". The Nero C
+      page states its damper is identical to the Nero R's. The Nero R manual
+      (section 3.2) confirms separate high-speed and low-speed knobs.
+
+# --------------------------------------------------------------------------
+# Forks — newest generation first
+# Selva V (2025) and the earlier Selva S / R / C are separate blocks that all
+# carry `model: "Selva"`, so the picker merges them into one Selva row with the
+# V, S, R and C trims each badged with its own years.
+# --------------------------------------------------------------------------
+forks:
+  - model: "Selva"
+    category: Enduro / All-Mountain
+    year_range: "2025-2026"
+    url: https://www.rideformula.com/products/mountain-bike/selva-v/
+    wheel_size: [29, 27.5]
+    trims:
+      - trim: V
+        key: fork-formula-selva-v-2025
+        travel_mm: [160, 170, 180]
+        offset_mm: [43]
+        stanchion: 35mm 7075 aluminum
+        spring: Air
+        dampers: [selva_v_2025]
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+          - { name: Neopos, type: step, max: 3, visualization: stepper, unit: tokens, notes: Sponge-like tokens in the positive chamber for mid-stroke support }
+        # Neopos count: Selva V manual, section 11 ("Between 0 and 3 neopos")
+        note: |-
+          - New dual-chamber V air spring with a floating piston for low friction
+          - One valve inflates both chambers; a bypass valve balances them and a reset valve empties both to start over
+          - 15x110mm Boost with the Integrated Locking System axle, PM7 brake mount, from 2030g
+
+  - model: "Selva"
+    category: Enduro / All-Mountain
+    year_range: "2019-2026"
+    url: https://www.rideformula.com/products/mountain-bike/selva-r-2/
+    wheel_size: [29, 27.5]
+    trims:
+      - trim: R
+        key: fork-formula-selva-r-2019
+        travel_mm: [120, 130, 140, 160, 170, 180]
+        offset_mm: [37, 43]
+        stanchion: 35mm 7075 aluminum
+        spring: Air
+        dampers: [selva_2017]
+        adjustments:
+          - { name: Main Chamber Pressure, type: numerical, unit: psi, min: 0, notes: Silver chamber (positive) }
+          - { name: Negative Chamber Pressure, type: numerical, unit: psi, min: 0, notes: Bronze chamber (sensitivity) }
+          - { name: Neopos, type: step, max: 3, visualization: stepper, unit: tokens, notes: Sponge-like tokens in the positive chamber for mid-stroke support; one included }
+        # Neopos count: Selva R manual ("max. three Neopos"); Silver/Bronze
+        # naming: Selva R page ("Silver (main), Bronze (sensitivity)")
+        note: |-
+          - 2Air spring: separate positive (Silver) and negative (Bronze) chambers, each set with a shock pump
+          - Travel is internally adjustable with spacers, in a 27.5" and a 29" / 27.5+ chassis
+
+  - model: "Selva"
+    category: Enduro / All-Mountain
+    year_range: "2019-2026"
+    url: https://www.rideformula.com/products/mountain-bike/selva-c/
+    wheel_size: [29, 27.5]
+    trims:
+      - trim: C
+        key: fork-formula-selva-c-2019
+        travel_mm: [160, 170]
+        offset_mm: [37, 43]
+        stanchion: 35mm 7075 aluminum
+        spring: Coil
+        dampers: [selva_2017]
+        adjustments:
+          - { name: Spring Rate, type: categorical, options: [Soft, Medium, Firm, Super Firm], notes: Medium is the default coil }
+          - { name: Preload, type: step, max: 10, notes: External preload knob on the right side of the fork }
+        note: |-
+          - Steel coil spring with an external preload knob
+          - Same damper and CTS tunability as the air Selvas
+
+  - model: "Selva"
+    category: Enduro / All-Mountain
+    year_range: "2017-2026"
+    url: https://www.rideformula.com/products/mountain-bike/selva-s/
+    wheel_size: [29, 27.5]
+    trims:
+      - trim: S
+        key: fork-formula-selva-s-2017
+        travel_mm: [120, 160, 170, 180]
+        offset_mm: [37, 43]
+        stanchion: 35mm 7075 aluminum
+        spring: Air
+        dampers: [selva_2017]
+        adjustments: &air_spring
+          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+        note: |-
+          - Single positive air chamber with a steel negative spring (triple coil technology)
+          - Travel is internally adjustable with spacers; Neopos are optional
+          - Can be converted to a Selva R with Formula's 2Air kit
+
+  - model: "Belva"
+    category: Enduro / All-Mountain
+    year_range: "2024-2026"
+    url: https://www.rideformula.com/products/mtb-forks/belva/
+    trims:
+      - trim: Air
+        key: fork-formula-belva-air-2024
+        travel_mm: [170, 180]
+        offset_mm: [43]
+        stanchion: 35mm 7075 aluminum
+        spring: Air
+        dampers: [belva_2024]
+        adjustments: *air_spring
+        note: |-
+          - Dual-crown enduro fork built on the Selva lowers, 43mm offset, tapered 1.5" steerer
+          - Steel negative spring (triple coil technology); Neopos are optional
+          - 15x110mm Boost with the Integrated Locking System axle, from 2370g
+
+  - model: "Nero"
+    category: Downhill
+    year_range: "2017-2026"
+    url: https://www.rideformula.com/products/mountain-bike/nero-r/
+    wheel_size: [29, 27.5]
+    trims:
+      - trim: R
+        key: fork-formula-nero-r-2017
+        travel_mm: [180, 190, 200]
+        offset_mm: [50, 56]
+        stanchion: 35mm 7075 aluminum
+        spring: Air
+        dampers: [nero_2017]
+        adjustments:
+          - { name: Main Chamber Pressure, type: numerical, unit: psi, min: 0, notes: Silver chamber }
+          - { name: Sensitivity Chamber Pressure, type: numerical, unit: psi, min: 0, notes: Bronze chamber (negative) }
+          - { name: Progressivity Chamber Pressure, type: numerical, unit: psi, min: 0, notes: Gold chamber (end-stroke) }
+          - { name: Neopos, type: step, max: 3, visualization: stepper, unit: tokens, notes: Sponge-like tokens in the positive chamber; one included }
+        # Neopos count: Nero R manual, section 3.4 ("up to three Neopos");
+        # travel: 200mm standard, 180/190mm optional on 29" (Nero R page)
+        note: |-
+          - 3Air spring: three chambers set in the order Gold, Silver, Bronze
+          - Keep Gold at or above the Silver pressure and Bronze at least 20 psi above Silver
+          - 20mm Boost axle with the FIRM locking system, from 2620g
+      - trim: C
+        key: fork-formula-nero-c-2017
+        travel_mm: [200]
+        offset_mm: [50, 56]
+        stanchion: 35mm 7075 aluminum
+        spring: Coil
+        url: https://www.rideformula.com/products/mountain-bike/nero-c/
+        dampers: [nero_2017]
+        adjustments:
+          - { name: Spring Rate, type: categorical, options: [Soft, Medium, Firm], notes: Medium is the default coil }
+          - { name: Preload, type: numerical, notes: "Tool-free external preload ring nut; fully loose is minimum preload" }
+        note: |-
+          - Steel coil spring with a tool-free external preload ring nut
+          - Same damper as the Nero R, from 2850g
+
+# --------------------------------------------------------------------------
+# Follow-ups (not yet captured — avoid guessing):
+#   - Click counting direction: no Formula page or manual states where
+#     clicks are counted from for the Selva V, Belva or Nero dials. The
+#     manuals only say clockwise adds damping; only BikeRadar's Selva R review
+#     counts rebound "from closed". The default `dial_ccw` is used everywhere.
+#   - Neopos maximum for the Selva S and Belva (both listed as "optional"):
+#     only the Selva V, Selva R and Nero R manuals state the three-Neopos
+#     limit, so the S and Belva have no Neopos adjuster until one is published.
+#   - Selva C spring options: the spec table lists "Hyper Soft / Super Soft,
+#     Soft, Medium (default), Firm, Super Firm" while the intro text names four
+#     coils (soft, medium, firm, super firm). The intro's four are used.
+#   - Nero C preload: the page and manual describe a tool-free ring nut but no
+#     turn or click total, so Preload is an open-ended numerical.
+#   - Selva V wheel sizes come from the manual's max-tyre table
+#     (29x2.5 / 27.5x3.0); the page itself lists no wheel size.
+#   - Selva S / Selva C manuals and the Belva manual were not read; travel
+#     ranges and Neopos limits for them come from the product pages only.
+#   - Model years are first-appearance years from editorial coverage (Nero and
+#     Selva S 2017, Selva R and Selva C 2019, Belva 2024, Selva V 2025); Formula
+#     publishes no model-year table.
+#   - Not covered: the 2024 Josh Bryceland Edition Selva (limited to 100 forks,
+#     170mm), and older Formula forks (Thirty-Five and earlier); no current
+#     Formula page lists them. No current Formula fork named "35" or "Neutron"
+#     appears on rideformula.com.
+# --------------------------------------------------------------------------

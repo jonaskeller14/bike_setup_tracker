@@ -9,9 +9,9 @@ import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../icons/simple_icons.dart';
 import '../models/app_settings.dart';
-import '../models/component.dart';
-import '../models/installation.dart';
-import '../models/rating_entry.dart';
+import '../models/component/component.dart';
+import '../models/component/installation.dart';
+import '../models/rating/rating_entry.dart';
 import '../models/setup.dart';
 import '../models/timeline_entry.dart';
 import '../models/timeline_row.dart';
@@ -563,12 +563,12 @@ class _CalendarPageState extends State<CalendarPage> {
     switch (entry) {
       case SetupEntry():
         final original = entry.setup;
-        await appRepository.editSetup(original.copyWith(datetime: newUtc, datetimeLocal: newLocal));
+        await appRepository.editSetups([original.copyWith(datetime: newUtc, datetimeLocal: newLocal)]);
         _showMoveUndoSnackBar(
           calendarSubjectFor(entry),
           oldLocal,
           newLocal,
-          () => appRepository.editSetup(original),
+          () => appRepository.editSetups([original]),
         );
       case TaskTimeLineEntry():
         final original = entry.taskEntry;

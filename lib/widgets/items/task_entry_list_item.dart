@@ -7,10 +7,12 @@ import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
 import '../../models/component_stats.dart';
+import '../../models/task/task_association.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/task_actions.dart';
 import '../notes_text.dart';
+import 'timeline_selection_fill.dart';
 
 class TaskEntryListItem extends StatefulWidget {
   final String taskEntryId;
@@ -74,14 +76,11 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
 
     final taskRules = appRepository.taskRules;
 
-    final String entryContextName;
-    if (taskEntry.componentId != null) {
-      entryContextName = appRepository.components[taskEntry.componentId]?.name ?? "COMPONENT NOT FOUND";
-    } else if (taskEntry.bikeId != null) {
-      entryContextName = appRepository.bikes[taskEntry.bikeId]?.name ?? "BIKE NOT FOUND";
-    } else {
-      entryContextName = "General Task";
-    }
+    final String entryContextName = switch (taskEntry.association) {
+      ComponentTaskAssociation(:final id) => appRepository.components[id]?.name ?? "COMPONENT NOT FOUND",
+      BikeTaskAssociation(:final id) => appRepository.bikes[id]?.name ?? "BIKE NOT FOUND",
+      GeneralTaskAssociation() => "General Task",
+    };
 
     final taskRule = taskRules[taskEntry.taskRule];
 
@@ -90,8 +89,7 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
 
     final showLinkWarning =
         taskRules.containsKey(taskEntry.taskRule) &&
-        (taskEntry.componentId != taskRules[taskEntry.taskRule]!.componentId ||
-            taskEntry.bikeId != taskRules[taskEntry.taskRule]!.bikeId);
+        taskEntry.association != taskRules[taskEntry.taskRule]!.association;
     final hasNotes = taskEntry.notes != null && taskEntry.notes!.isNotEmpty;
     final resolvedShowStats =
         widget.showStats &&
@@ -99,15 +97,11 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
         subscriptionService.hasStravaEntitlement &&
         taskEntry.snapshot != null &&
         taskRules.containsKey(taskEntry.taskRule) &&
-        (taskEntry.componentId != null || taskEntry.bikeId != null);
+        taskEntry.association is! GeneralTaskAssociation;
     final hasBottomBlock = showLinkWarning || hasNotes || resolvedShowStats;
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 180),
-      curve: Curves.easeOut,
-      decoration: BoxDecoration(
-        color: widget.selected ? colorScheme.primaryContainer.withValues(alpha: 0.55) : Colors.transparent,
-      ),
+    return TimelineSelectionFill(
+      selected: widget.selected,
       child: Material(
         color: Colors.transparent,
         child: InkWell(
@@ -277,7 +271,7 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
                         Builder(
                           builder: (context) {
                             final isInitial = widget.previousSnapshot == null;
-                            final effectivePrevious = widget.previousSnapshot ?? ComponentStats.zero();
+                            final effectivePrevious = widget.previousSnapshot ?? ComponentStats.zero;
                             final delta = taskEntry.snapshot! - effectivePrevious;
                             final stats = (!isInitial && !_showDelta) ? taskEntry.snapshot! : delta;
                             final label = (!isInitial && !_showDelta) ? "Σ" : (isInitial ? "Σ" : "+");

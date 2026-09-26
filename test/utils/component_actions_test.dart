@@ -1,8 +1,8 @@
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
-import 'package:bike_setup_tracker/models/component.dart';
-import 'package:bike_setup_tracker/models/installation.dart';
+import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
@@ -47,7 +47,9 @@ void main() {
   });
 
   tearDown(() async {
-    appRepository.dispose();
+    // Closing the database right after dispose() races its fire-and-forget
+    // subscription cancellation and can hang; wait for cancellation first.
+    await appRepository.disposeAndAwaitCancellation();
     appSettings.dispose();
     await database.close();
   });
@@ -110,14 +112,14 @@ void main() {
     await tester.tap(find.text('Continue'));
     await tester.pumpAndSettle();
 
-    await settleRepository(tester, () => appRepository.components['c2']?.bike == 'b1');
+    await settleRepository(tester, () => appRepository.components['c2']?.parentId == 'b1');
 
     final installed = appRepository.components['c2']!;
     final retired = appRepository.components['c1']!;
 
     // The spare takes over the bike, the replaced one is left on no bike.
-    expect(installed.bike, 'b1');
-    expect(retired.bike, isNull);
+    expect(installed.parentId, 'b1');
+    expect(retired.parentId, isNull);
 
     // Both sides of the swap are logged at the same replacement date.
     expect(installed.installations.single.parent, 'b1');

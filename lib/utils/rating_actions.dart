@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/adjustment/adjustment.dart';
-import '../models/rating.dart';
-import '../pages/rating_page.dart';
+import '../models/rating/rating.dart';
+import '../pages/forms/rating_page.dart';
 import '../repositories/app_repository.dart';
 import '../widgets/app_snackbar.dart';
 

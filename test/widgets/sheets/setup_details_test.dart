@@ -37,7 +37,10 @@ void main() {
     await settle(tester);
     expect(find.text('Edit'), findsOneWidget);
     expect(find.text('Restore'), findsNothing);
-    expect(find.text('Compare'), findsNothing);
+    expect(find.text('Compare'), findsOneWidget);
+    await tester.tap(find.text('Compare'));
+    await settle(tester);
+    expect(find.byType(CompareSetups), findsOneWidget);
   });
 
   testWidgets('historical details offers strict eligible Compare above the sheet', (tester) async {

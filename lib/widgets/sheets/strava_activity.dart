@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../../models/strava/strava_activity.dart';
 import '../../pages/details/strava_activitiy_details_page.dart';
-import '../../utils/url.dart';
 
-Future<void> showStravaActivitySheet({required BuildContext context, required StravaActivity stravaActivity}) async {
+Future<void> showStravaActivitySheet({
+  required BuildContext context,
+  required StravaActivity stravaActivity,
+  bool showViewOnMap = true,
+}) async {
   return showModalBottomSheet<void>(
     useSafeArea: true,
     isScrollControlled: true,
@@ -13,9 +16,8 @@ Future<void> showStravaActivitySheet({required BuildContext context, required St
       child: StravaActivitiyPageContent(
         stravaActivity: stravaActivity,
         showCloseButton: true,
-        onMapPressed: stravaActivity.startLat != null && stravaActivity.startLon != null
-            ? () => launchLocationOnMap(context, stravaActivity.startLat!, stravaActivity.startLon!, stravaActivity.name)
-            : null,
+        showSheetActions: true,
+        showViewOnMap: showViewOnMap,
       ),
     ),
   );

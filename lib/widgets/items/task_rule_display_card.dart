@@ -91,7 +91,7 @@ class TaskRuleDisplayCard extends StatelessWidget {
     final status = appRepository.getTaskRuleStatus(taskRule);
     final isCompleted = status.type == TaskStatusType.completed;
 
-    final component = taskRule.componentId != null ? appRepository.components[taskRule.componentId] : null;
+    final component = appRepository.components[taskRule.association.componentId];
     final statusColor = status.type.getStatusColor(context);
     final forecastLabel = showStatus && !isCompleted && appSettings.enableTaskDuePrediction
         ? _forecastLabel(context, appRepository, status, appSettings.dateFormat)
@@ -130,7 +130,7 @@ class TaskRuleDisplayCard extends StatelessWidget {
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TaskRuleListCard.filterWidget(context, taskRule: taskRule, component: component, bikes: appRepository.bikes),
+              TaskRuleListCard.filterWidget(context, taskRule: taskRule, component: component, bikes: appRepository.bikes, hierarchy: appRepository.componentHierarchy),
               if (appSettings.enableTaskPriority)
                 TaskRuleListCard.priorityWidget(context, priority: taskRule.priority),
               if (appSettings.enableTaskTags && taskRule.tags.isNotEmpty)

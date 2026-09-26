@@ -1,9 +1,10 @@
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
-import 'package:bike_setup_tracker/models/component.dart';
-import 'package:bike_setup_tracker/models/component_installation.dart';
-import 'package:bike_setup_tracker/models/installation.dart';
+import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/component/installation.dart';
+import 'package:bike_setup_tracker/models/component/resolved_installation.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/services/component_hierarchy_resolver.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/set_installation_timeline.dart';
 import 'package:bike_setup_tracker/widgets/sheets/installation_sheet.dart';
@@ -50,6 +51,9 @@ void main() {
     );
 
     when(() => mockRepository.bikes).thenReturn({'b1': bike1, 'b2': bike2});
+    when(() => mockRepository.components).thenReturn({component.id: component});
+    when(() => mockRepository.componentHierarchy)
+        .thenAnswer((_) => ComponentHierarchyResolver(mockRepository.components));
     when(() => mockRepository.filteredBikes).thenReturn({'b1': bike1, 'b2': bike2});
     when(() => mockRepository.editComponent(any())).thenAnswer((_) async => {});
   });
@@ -205,6 +209,42 @@ void main() {
     });
 
     group('edit mode', () {
+      testWidgets('component target shows its type icon and name', (WidgetTester tester) async {
+        final parent = Component(
+          id: 'wheel',
+          name: 'Front Wheel',
+          componentType: ComponentType.wheelFront,
+          installations: [Installation.sinceBeginning(parent: 'b1')],
+          adjustments: [],
+        );
+        when(() => mockRepository.components).thenReturn({
+          component.id: component,
+          parent.id: parent,
+        });
+        final now = DateTime.now();
+        final installation = ComponentInstallation(
+          parentComponentId: parent.id,
+          componentId: component.id,
+          dateTimeUTC: now.toUtc(),
+          dateTimeLocal: now,
+        );
+        final editEntry = ResolvedInstallation(
+          component: component,
+          installation: installation,
+          originParent: 'b1',
+          originParentType: InstallationParentType.bike,
+          isInitial: false,
+        );
+
+        await tester.pumpWidget(createWidgetUnderTest(
+          InstallationSheet.edit(component: component, editEntry: editEntry),
+        ));
+        await tester.pumpAndSettle();
+
+        expect(find.text(parent.name), findsAtLeast(1));
+        expect(find.byIcon(parent.componentType.getIconData()), findsAtLeast(1));
+      });
+
       testWidgets('non-initial: shows origin, arrow and target', (WidgetTester tester) async {
         final now = DateTime.now();
         final installation = Installation(
@@ -212,7 +252,7 @@ void main() {
           dateTimeUTC: now.toUtc(),
           dateTimeLocal: now,
         );
-        final editEntry = ComponentInstallation(
+        final editEntry = ResolvedInstallation(
           component: component,
           installation: installation,
           originParent: 'b1',
@@ -232,7 +272,7 @@ void main() {
 
       testWidgets('initial: shows arrow and target only, no origin', (WidgetTester tester) async {
         final installation = Installation.sinceBeginning(parent: 'b1');
-        final editEntry = ComponentInstallation(
+        final editEntry = ResolvedInstallation(
           component: component,
           installation: installation,
           originParent: null,
@@ -257,7 +297,7 @@ void main() {
           dateTimeUTC: now.toUtc(),
           dateTimeLocal: now,
         );
-        final editEntry = ComponentInstallation(
+        final editEntry = ResolvedInstallation(
           component: component,
           installation: installation,
           originParent: 'b1',
@@ -282,7 +322,7 @@ void main() {
           dateTimeUTC: now.toUtc(),
           dateTimeLocal: now,
         );
-        final editEntry = ComponentInstallation(
+        final editEntry = ResolvedInstallation(
           component: component,
           installation: installation,
           originParent: 'b_missing',

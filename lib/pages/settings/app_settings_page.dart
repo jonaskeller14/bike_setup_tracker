@@ -16,6 +16,7 @@ import 'features_page.dart';
 import 'gallery_page.dart';
 import 'help_page.dart';
 import 'preferences_page.dart';
+import 'reset_page.dart';
 
 class AppSettingsPage extends StatelessWidget {
   const AppSettingsPage({super.key});
@@ -117,17 +118,25 @@ class AppSettingsPage extends StatelessWidget {
                 ),
               ListTile(
                 leading: const Icon(Icons.info_outline),
-                title: const Text('About & Legal'),
+                title: const Text('About'),
                 subtitle: const Text('Version, privacy policy and agreements'),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const AboutPage())),
               ),
               ListTile(
                 leading: const Icon(Icons.help_outline),
-                title: const Text('Help & Support'),
+                title: const Text('Help'),
                 subtitle: const Text('FAQ, onboarding and contact'),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const HelpPage())),
+              ),
+              const Divider(),
+              ListTile(
+                leading: Icon(Icons.delete_forever_outlined, color: Theme.of(context).colorScheme.error),
+                title: const Text('Reset'),
+                subtitle: const Text('Reset settings, delete backups or clear data'),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                onTap: () => Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const ResetPage())),
               ),
             ],
           ),

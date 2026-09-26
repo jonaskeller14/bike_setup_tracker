@@ -15,14 +15,7 @@ class ComponentStats {
     this.kilojoules = 0,
   });
 
-  factory ComponentStats.zero() => const ComponentStats(
-        distance: 0,
-        elevationGain: 0,
-        movingTime: Duration.zero,
-        elapsedTime: Duration.zero,
-        activityCount: 0,
-        kilojoules: 0,
-      );
+  static const zero = ComponentStats();
 
   Map<String, dynamic> toJson() => {
         'distance': distance,

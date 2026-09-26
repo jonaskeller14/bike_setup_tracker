@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/app_hint.dart';
@@ -15,9 +18,8 @@ import '../compare_setups/setup_comparison_header.dart';
 import '../compare_setups/setup_comparison_owner_card.dart';
 import '../hints/app_hint_slot.dart';
 import '../items/context_bike_person_card_diff.dart';
-import '../items/context_location_card_diff.dart';
+import '../items/context_location_weather_card_diff.dart';
 import '../items/context_meta_card_diff.dart';
-import '../items/context_weather_card_diff.dart';
 import '../items/rating_summary_card_diff.dart';
 import '../text/section_title.dart';
 import 'sheet.dart';
@@ -34,12 +36,9 @@ Future<void> showCompareSetupsSheet(
     setups: appRepository.setups.values,
   );
   if (resolution is! SetupComparisonTargets) {
-    final message = resolution is SetupComparisonTargetsEqualInput
-        ? 'Choose two different setups to compare.'
-        : 'No current setup is available to compare.';
     final messenger = ScaffoldMessenger.of(context);
     messenger.hideCurrentSnackBar();
-    messenger.showSnackBar(AppSnackBar.info(context, message));
+    messenger.showSnackBar(AppSnackBar.info(context, 'Choose two different setups to compare.'));
     return;
   }
 
@@ -73,6 +72,7 @@ class _CompareSetupsState extends State<CompareSetups> {
   late String _setupAId;
   late String _setupBId;
   String? _comparisonBikeId;
+  bool _lastChangeWasSwap = false;
 
   @override
   void initState() {
@@ -85,6 +85,24 @@ class _CompareSetupsState extends State<CompareSetups> {
     if (setupA != null && setupA.bike == setupB?.bike) {
       _comparisonBikeId = setupA.bike;
     }
+  }
+
+  void _selectSetup({String? setupAId, String? setupBId}) {
+    setState(() {
+      _setupAId = setupAId ?? _setupAId;
+      _setupBId = setupBId ?? _setupBId;
+      _lastChangeWasSwap = false;
+    });
+  }
+
+  void _swapSides() {
+    unawaited(HapticFeedback.selectionClick());
+    setState(() {
+      final previousA = _setupAId;
+      _setupAId = _setupBId;
+      _setupBId = previousA;
+      _lastChangeWasSwap = true;
+    });
   }
 
   PinnedHeaderSliver _sectionTitle(BuildContext context, String title, {Widget? trailing}) {
@@ -171,8 +189,10 @@ class _CompareSetupsState extends State<CompareSetups> {
           setups: selectableSetups,
           showBikeNames: _comparisonBikeId == null,
           bikeNamesById: appRepository.bikes.map((id, bike) => MapEntry(id, bike.name)),
-          onSetupAChanged: (setup) => setState(() => _setupAId = setup.id),
-          onSetupBChanged: (setup) => setState(() => _setupBId = setup.id),
+          onSetupAChanged: (setup) => _selectSetup(setupAId: setup.id),
+          onSetupBChanged: (setup) => _selectSetup(setupBId: setup.id),
+          onSwap: _swapSides,
+          animateSwap: _lastChangeWasSwap,
         ),
         const SliverToBoxAdapter(
           child: AppHintSlot(
@@ -372,14 +392,12 @@ class _ContextSection extends StatelessWidget {
           tagsB: settings.enableSetupTags ? setupB.tags : const {},
           imagesB: settings.enableSetupImages ? setupB.images : const [],
         ),
-        ContextLocationCardDiff(
+        ContextLocationWeatherCardDiff(
           positionA: setupA.position,
           placeA: setupA.place,
+          weatherA: setupA.weather,
           positionB: setupB.position,
           placeB: setupB.place,
-        ),
-        ContextWeatherCardDiff(
-          weatherA: setupA.weather,
           weatherB: setupB.weather,
         ),
         ContextBikePersonCardDiff(

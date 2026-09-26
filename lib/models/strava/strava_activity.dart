@@ -44,8 +44,8 @@ class StravaActivity {
       startDate = startDate.toUtc();
 
   StravaWorkoutType get workout => StravaWorkoutType.fromRaw(workoutType);
-
   double? get kilojoules => averageWatts != null ? averageWatts! * movingTime.inSeconds / 1000 : null;
+  bool get hasStartPosition => (startLat?.isFinite ?? false) && (startLon?.isFinite ?? false);
 
   Map<String, dynamic> toJson() => {
     'id': id,

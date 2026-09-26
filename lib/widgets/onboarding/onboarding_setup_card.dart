@@ -8,13 +8,13 @@ import 'package:provider/provider.dart';
 
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
-import '../../models/component.dart';
+import '../../models/component/component.dart';
 import '../../models/context/context_weather.dart';
 import '../../models/setup.dart';
 import '../display_adjustment/display_numerical_adjustment.dart';
 import '../items/setup_tile_header.dart';
 import '../items/tile_meta_row.dart';
-import '../lists/adjustment_compact_display_list.dart';
+import '../lists/adjustment_compact_display/adjustment_compact_display_list.dart';
 import '../set_adjustment/set_boolean_adjustment.dart';
 import '../set_adjustment/set_step_adjustment.dart';
 import 'onboarding_motion.dart';

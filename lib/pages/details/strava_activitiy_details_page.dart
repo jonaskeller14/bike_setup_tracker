@@ -13,6 +13,8 @@ import '../../models/strava/strava_activity.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/strava_service.dart';
 import '../../utils/component_actions.dart';
+import '../../utils/map_actions.dart';
+import '../../utils/url.dart';
 import '../../widgets/empty_state_placeholder2.dart';
 import '../../widgets/items/component_list_card.dart';
 import '../../widgets/items/setup_tile.dart';
@@ -30,13 +32,7 @@ class StravaActivityDetailsPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Activity"),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.open_in_new),
-            tooltip: "View on Strava",
-            onPressed: () => StravaService.openActivityOnStrava(stravaActivity.id),
-          ),
-        ],
+        actions: [StravaActivityActionsMenu(stravaActivity: stravaActivity)],
       ),
       body: SafeArea(child: StravaActivitiyPageContent(stravaActivity: stravaActivity)),
     );
@@ -46,13 +42,15 @@ class StravaActivityDetailsPage extends StatelessWidget {
 class StravaActivitiyPageContent extends StatelessWidget {
   final StravaActivity stravaActivity;
   final bool showCloseButton;
-  final VoidCallback? onMapPressed;
+  final bool showSheetActions;
+  final bool showViewOnMap;
 
   const StravaActivitiyPageContent({
     super.key,
     required this.stravaActivity,
     this.showCloseButton = false,
-    this.onMapPressed,
+    this.showSheetActions = false,
+    this.showViewOnMap = true,
   });
 
   String _formatDistance(double? meters, String distanceUnit) {
@@ -144,15 +142,15 @@ class StravaActivitiyPageContent extends StatelessWidget {
                   ),
                 ),
               ),
-              if (onMapPressed != null) ...[
+              if (showSheetActions) ...[
                 const SizedBox(width: 8),
-                sheetMapButton(context, onPressed: onMapPressed!),
+                StravaActivityActionsMenu(stravaActivity: stravaActivity, showViewOnMap: showViewOnMap, filled: true),
               ],
               if (showCloseButton) ...[
                 const SizedBox(width: 8),
                 sheetCloseButton(context),
               ],
-              if (onMapPressed != null || showCloseButton) const SizedBox(width: 16),
+              if (showSheetActions || showCloseButton) const SizedBox(width: 16),
             ],
           ),
           Padding(
@@ -487,6 +485,101 @@ class StravaActivitiyPageContent extends StatelessWidget {
       await appRepository.addSetups([result]);
     }
   }
+}
+
+/// Map and Strava links for an activity. The map entries stay listed but
+/// disabled when the activity has no start position, so the reason is visible.
+class StravaActivityActionsMenu extends StatelessWidget {
+  final StravaActivity stravaActivity;
+  final bool showViewOnMap;
+  final bool filled;
+
+  const StravaActivityActionsMenu({
+    super.key,
+    required this.stravaActivity,
+    this.showViewOnMap = true,
+    this.filled = false,
+  });
+
+  Future<void> _onSelected(BuildContext context, _StravaActivityAction action) async {
+    switch (action) {
+      case _StravaActivityAction.viewOnMap:
+        await MapActions.openActivityOnMap(context, stravaActivity);
+      case _StravaActivityAction.openInMapsApp:
+        await launchLocationOnMap(context, stravaActivity.startLat!, stravaActivity.startLon!, stravaActivity.name);
+      case _StravaActivityAction.viewOnStrava:
+        StravaService.openActivityOnStrava(stravaActivity.id);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final hasStartPosition = stravaActivity.hasStartPosition;
+    final actions = <_StravaActivityAction>[
+      if (showViewOnMap) _StravaActivityAction.viewOnMap,
+      _StravaActivityAction.openInMapsApp,
+      _StravaActivityAction.viewOnStrava,
+    ];
+    return PopupMenuButton<_StravaActivityAction>(
+      tooltip: 'Activity actions',
+      onSelected: (action) => _onSelected(context, action),
+      itemBuilder: (context) => [
+        for (final action in actions)
+          PopupMenuItem(
+            value: action,
+            enabled: hasStartPosition || !action.needsStartPosition,
+            child: Row(
+              spacing: 10,
+              children: [
+                Icon(action.icon),
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(action.label),
+                      if (!hasStartPosition && action.needsStartPosition)
+                        Text(
+                          'Start location not available',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+      child: filled
+          ? AbsorbPointer(
+              child: IconButton.filled(
+                iconSize: 20,
+                style: IconButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  foregroundColor: Theme.of(context).colorScheme.onSurface,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                onPressed: () {},
+                icon: const Icon(Icons.more_vert),
+              ),
+            )
+          : null,
+    );
+  }
+}
+
+enum _StravaActivityAction {
+  viewOnMap('View on map', Icons.map, needsStartPosition: true),
+  openInMapsApp('Open in maps app', Icons.directions, needsStartPosition: true),
+  viewOnStrava('View on Strava', Icons.open_in_new, needsStartPosition: false);
+
+  final String label;
+  final IconData icon;
+  final bool needsStartPosition;
+
+  const _StravaActivityAction(this.label, this.icon, {required this.needsStartPosition});
 }
 
 class _PowerStatTile extends StatefulWidget {

@@ -1,7 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../models/app_settings.dart';
+import '../models/strava/strava_activity.dart';
+import '../pages/map_page.dart';
 import '../repositories/app_repository.dart';
 import '../services/subscription_service.dart';
 
@@ -41,6 +46,12 @@ class MapActions {
       appSettings.displayShowActivities = true;
       appSettings.displayShowRatingEntries = true;
     }
+  }
+
+
+  static Future<void> openActivityOnMap(BuildContext context, StravaActivity activity) async {
+    unawaited(HapticFeedback.selectionClick());
+    await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => MapPage(focusActivity: activity)));
   }
 
   /// Whether Strava activities can appear on the map at all.

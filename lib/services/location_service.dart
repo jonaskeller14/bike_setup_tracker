@@ -14,7 +14,16 @@ enum LocationStatus {
   permissionDeniedForever,
   timeout,
   error,
-  success,
+  success;
+
+  String get errorMessage => switch (this) {
+    LocationStatus.noService => 'Location services are disabled.',
+    LocationStatus.noPermission => 'Location permission was not granted.',
+    LocationStatus.permissionDeniedForever => 'Location permission is permanently denied.',
+    LocationStatus.timeout => 'Location request timed out. Try again.',
+    LocationStatus.error => 'Unable to determine your location.',
+    _ => 'No valid location was returned.',
+  };
 }
 
 class LocationService extends ChangeNotifier {

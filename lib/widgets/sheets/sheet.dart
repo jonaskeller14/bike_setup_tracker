@@ -69,19 +69,6 @@ IconButton sheetBackButton(BuildContext context, {required VoidCallback onPresse
   );
 }
 
-IconButton sheetMapButton(BuildContext context, {required VoidCallback onPressed}) {
-  return IconButton.filled(
-    iconSize: 20,
-    style: IconButton.styleFrom(
-      backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-      foregroundColor: Theme.of(context).colorScheme.onSurface,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    ),
-    onPressed: onPressed,
-    icon: const Icon(Icons.directions),
-  );
-}
-
 class SheetFilterEmptyHint extends StatelessWidget {
   final IconData icon;
   final String title;

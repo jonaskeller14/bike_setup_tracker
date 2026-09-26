@@ -12,6 +12,7 @@ import 'package:bike_setup_tracker/services/location_provider.dart';
 import 'package:bike_setup_tracker/services/location_service.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/utils/map_empty_state.dart';
+import 'package:bike_setup_tracker/widgets/map/map_control_button.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -67,6 +68,7 @@ void main() {
   Widget buildPage(
     LocationService service, {
     Stream<LocationMarkerHeading?>? headingStream = const Stream.empty(),
+    StravaActivity? focusActivity,
   }) {
     return MultiProvider(
       providers: [
@@ -75,7 +77,7 @@ void main() {
         ListenableProvider<SubscriptionService>.value(value: subscriptionService),
       ],
       child: MaterialApp(
-        home: MapPage(locationService: service, headingStream: headingStream),
+        home: MapPage(locationService: service, headingStream: headingStream, focusActivity: focusActivity),
       ),
     );
   }
@@ -156,7 +158,7 @@ void main() {
 
     expect(find.text('Location permission was not granted.'), findsOneWidget);
     expect(find.widgetWithText(TextButton, 'Settings'), findsNothing);
-    expect(tester.widget<IconButton>(find.byKey(const Key('map-locate-me'))).onPressed, isNotNull);
+    expect(tester.widget<MapControlButton>(find.byKey(const Key('map-locate-me'))).onPressed, isNotNull);
   });
 
   testWidgets('rejects non-finite coordinates', (tester) async {
@@ -184,7 +186,7 @@ void main() {
     // The automatic lookup on open is already searching.
     expect(provider.getCurrentPositionCalls, 1);
     expect(
-      tester.widget<IconButton>(find.byKey(const Key('map-locate-me'))).onPressed,
+      tester.widget<MapControlButton>(find.byKey(const Key('map-locate-me'))).onPressed,
       isNull,
     );
 
@@ -512,6 +514,60 @@ void main() {
       await tester.pump();
 
       expect(stateOf(tester).pinState, MapPinState.success);
+    });
+  });
+
+  group('Focused activity', () {
+    final focusActivity = StravaActivity(
+      id: 7,
+      name: 'Focused ride',
+      athlete: 1,
+      sportType: SportType.Ride,
+      startDate: DateTime(2025, 6, 1).toUtc(),
+      startDateLocal: DateTime(2025, 6, 1).toLocal(),
+      gearId: null,
+      startLat: 46.5,
+      startLon: 9.8,
+      distance: null,
+      totalElevationGain: null,
+      movingTime: Duration.zero,
+      elapsedTime: Duration.zero,
+    );
+
+    MapCamera cameraOf(WidgetTester tester) =>
+        tester.widget<FlutterMap>(find.byType(FlutterMap)).mapController!.camera;
+
+    testWidgets('opens centred on the activity start', (tester) async {
+      await tester.pumpWidget(buildPage(unpermittedService(), focusActivity: focusActivity));
+      await tester.pump();
+
+      final camera = cameraOf(tester);
+      expect(camera.center.latitude, closeTo(46.5, 0.001));
+      expect(camera.center.longitude, closeTo(9.8, 0.001));
+      expect(camera.zoom, closeTo(15, 0.001));
+    });
+
+    testWidgets('pins the activity even when the map filters hide activities', (tester) async {
+      // Strava is not entitled and the activity layer is off.
+      settings.displayShowActivities = false;
+      await tester.pumpWidget(buildPage(unpermittedService(), focusActivity: focusActivity));
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.byKey(const Key('map-focus-activity')), findsOneWidget);
+      expect(tester.state<MapPageState>(find.byType(MapPage)).pinState, MapPinState.success);
+    });
+
+    testWidgets('does not move the camera to the user once located', (tester) async {
+      final provider = FakeMapLocationProvider(const ContextPosition(latitude: 47.3769, longitude: 8.5417));
+      await tester.pumpWidget(buildPage(LocationService(provider: provider), focusActivity: focusActivity));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 600));
+
+      // Located (live updates started), but the user marker stays off-screen.
+      expect(provider.positionController.hasListener, isTrue);
+      expect(cameraOf(tester).center.latitude, closeTo(46.5, 0.001));
+      expect(cameraOf(tester).center.longitude, closeTo(9.8, 0.001));
     });
   });
 

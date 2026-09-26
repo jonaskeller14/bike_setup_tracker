@@ -109,13 +109,29 @@ confirmation gate has been approved.
     so the notes never imply that an unreleased feature is generally available.
   - Use only the `**Features:**` and `**Bugs:**` headers; do not add a separate Development,
     Performance, or Internal section.
+  - **Before printing, verify every claimed-shipped bullet against live flag defaults**, not just
+    the flags called out in `$ARGUMENTS` or by the user. Grep `lib/models/app_settings.dart` for
+    the current default of every settings flag touched by the diff (component presets, install-
+    on-component, person, rating, setup bookmark, setup tags, task, calendar, setup images,
+    pressure assistant, etc.) — a `false` default means the surrounding capability is gated/not
+    generally shipped, even if it's only a side effect mentioned in passing (e.g. a tooltip that
+    only appears once the person feature is on, or a bulk action on setup bookmarks). Don't rely
+    solely on a subagent's shipped/gated call for the specific commits it names — a feature can
+    ride along inside a broader bullet (bulk actions, tooltips) without its own commit.
 
 ## 8. App Store / Play Store release notes
-- Print a separate, concise "What's New" block, user-focused and free of technical jargon (no
-  "refactor", "sealed class", "verification flow", etc.), inside its own ``` code block (plain
-  text, not markdown) so it's easy to copy-paste as-is. Keep each language's complete release-note
-  text at **500 characters or fewer**, including bullets, punctuation, and line breaks. Report the
-  character count beside each generated language block.
+- Print a separate, concise "What's New" block as **bullet points** (`• ` prefix), inside its own
+  ``` code block (plain text, not markdown) so it's easy to copy-paste as-is. Write each bullet as
+  a user story / benefit — what the person can now do or notice — not a technical feature
+  description. Avoid naming internal mechanisms (no "refactor", "sealed class", "verification
+  flow", "histogram", "association", flag names, etc.) and avoid restating GitHub-notes phrasing
+  verbatim; translate each shipped feature into what changes for the user (e.g. "See exactly where
+  you are on the map, updated live as you ride" rather than "Live position marker with heading").
+  Keep each language's complete release-note text at **500 characters or fewer**, including
+  bullets, punctuation, and line breaks. Report the character count beside each generated language
+  block.
+- Only bullet features that are actually shipped/default-on per the step 7 flag check — never
+  translate a gated/prototype bullet into user-facing store copy.
 - **Platform-specific split:** check whether this release contains changes that only apply to one
   store's platform.
   Genuinely platform-bound examples: iOS-only — Siri / Apple Shortcuts, App Attest, Apple Sign-In,

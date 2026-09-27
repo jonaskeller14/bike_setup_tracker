@@ -1,8 +1,11 @@
 import 'package:bike_setup_tracker/database/app_database.dart';
+import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
+import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/selected_data.dart';
+import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/database_migration_service.dart';
-import 'package:drift/drift.dart';
+import 'package:drift/drift.dart' hide Component;
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -186,6 +189,40 @@ void main() {
       expect(valueMap['adj_p1'], '75.0');
 
       sourceAppData.dispose();
+    });
+
+    test('unresolved values are decoded when the imported data defines their adjustment', () async {
+      // A merge combines setups from a file that lacked the component with the
+      // local component that defines the adjustment.
+      final warmUp = DurationAdjustment(name: 'Warm-up', notes: null, unit: null);
+      final data = SelectedData(
+        components: {
+          'c1': Component(id: 'c1', name: 'Fork', componentType: ComponentType.fork, adjustments: [warmUp], installations: []),
+        },
+        setups: {
+          's1': Setup(
+            id: 's1',
+            datetime: DateTime.utc(2026, 9, 27),
+            datetimeLocal: DateTime(2026, 9, 27),
+            tags: const {},
+            bike: 'b1',
+            person: null,
+            bikeAdjustmentValues: {
+              warmUp.id: const UnresolvedValue('"1:30:00.000000"'),
+              'orphan': const UnresolvedValue('"01:30:00"'),
+            },
+            personAdjustmentValues: const {},
+          ),
+        },
+      );
+
+      await DatabaseMigrationService(db).migrateFromSelectedData(data);
+
+      final values = await db.select(db.setupAdjustmentValues).get();
+      expect({for (final v in values) v.adjustmentId: v.value}, {
+        warmUp.id: '5400000000',
+        'orphan': '"01:30:00"',
+      });
     });
   });
 }

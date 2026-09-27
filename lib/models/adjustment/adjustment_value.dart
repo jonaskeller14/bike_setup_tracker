@@ -259,6 +259,9 @@ final class UnresolvedValue extends AdjustmentValue {
 
   const UnresolvedValue(this.raw);
 
+  /// A JSON `null` is absent whatever the type, so it yields `null`.
+  static UnresolvedValue? orNull(String raw) => raw == 'null' ? null : UnresolvedValue(raw);
+
   @override
   String encode() => raw;
 

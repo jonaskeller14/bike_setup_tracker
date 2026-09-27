@@ -1,5 +1,4 @@
 import 'adjustment/adjustment.dart';
-import 'adjustment/adjustment_unit.dart';
 import 'bike.dart';
 import 'component/component.dart';
 import 'person.dart';
@@ -56,16 +55,8 @@ class SelectedData {
         .map((a) => Rating.fromJson(json: a as Map<String, dynamic>))
         .toList();
 
-    final adjustmentTypes = {
-      for (final component in loadedComponents)
-        for (final adjustment in component.adjustments) adjustment.id: adjustment.type,
-      for (final person in loadedPersons)
-        for (final adjustment in person.adjustments) adjustment.id: adjustment.type,
-    };
-    final metricTypes = {
-      for (final rating in loadedRatings)
-        for (final metric in rating.metrics) metric.id: metric.adjustment.type,
-    };
+    final adjustmentTypes = adjustmentTypesOf(components: loadedComponents, persons: loadedPersons);
+    final metricTypes = metricTypesOf(loadedRatings);
 
     final loadedSetups = (json['setups'] as List<dynamic>? ?? [])
         .map((a) => Setup.fromJson(json: a as Map<String, dynamic>, adjustmentTypes: adjustmentTypes));
@@ -88,6 +79,21 @@ class SelectedData {
     );
   }
 }
+
+Map<String, AdjustmentType> adjustmentTypesOf({
+  required Iterable<Component> components,
+  required Iterable<Person> persons,
+}) => {
+  for (final component in components)
+    for (final adjustment in component.adjustments) adjustment.id: adjustment.type,
+  for (final person in persons)
+    for (final adjustment in person.adjustments) adjustment.id: adjustment.type,
+};
+
+Map<String, AdjustmentType> metricTypesOf(Iterable<Rating> ratings) => {
+  for (final rating in ratings)
+    for (final metric in rating.metrics) metric.id: metric.adjustment.type,
+};
 
 /// Recursively rewrites every `"unit"` string value in [node] via
 /// [AdjustmentUnit.fromLegacy], leaving everything else untouched.

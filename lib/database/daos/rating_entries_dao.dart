@@ -50,7 +50,7 @@ class RatingEntriesDao extends DatabaseAccessor<AppDatabase> with _$RatingEntrie
       final metric = row.readTableOrNull(ratingMetrics);
 
       final bucket = grouped.putIfAbsent(entry.id, () => RatingEntryWithValues(entry: entry, values: []));
-      if (value != null && metric != null) {
+      if (value != null) {
         bucket.values.add(TypedRatingEntryValue(value: value, metric: metric));
       }
     }
@@ -131,6 +131,7 @@ class RatingEntryWithValues {
 
 class TypedRatingEntryValue {
   final RatingEntryValueDb value;
-  final RatingMetricDb metric;
+  /// `null` when the metric row is gone; the value is then unresolved.
+  final RatingMetricDb? metric;
   TypedRatingEntryValue({required this.value, required this.metric});
 }

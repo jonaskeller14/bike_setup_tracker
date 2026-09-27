@@ -139,8 +139,9 @@ class Setup {
   }
 
   /// [adjustmentTypes] maps adjustment ids from the same backup to their type.
-  /// Values of unknown ids, or whose JSON shape does not fit their type, fall
-  /// back to guessing the type from the shape. Absent values are dropped.
+  /// Values of unknown ids are kept as [UnresolvedValue]s; values whose JSON
+  /// shape does not fit their type fall back to guessing the type from the
+  /// shape. Absent values are dropped.
   static Map<String, AdjustmentValue> adjustmentValuesFromJson(
     Map<String, dynamic> adjustmentValues, {
     Map<String, AdjustmentType> adjustmentTypes = const {},
@@ -149,7 +150,22 @@ class Setup {
       for (final MapEntry(:key, :value) in adjustmentValues.entries)
         key: ?switch (adjustmentTypes[key]) {
           final type? => _adjustmentValueFromJson(value, type),
-          null => _adjustmentValueFromJsonShape(value),
+          null => value == '' ? null : UnresolvedValue.orNull(jsonEncode(value)),
+        },
+    };
+  }
+
+  /// Decodes the [UnresolvedValue]s of ids in [adjustmentTypes] as if they had
+  /// been imported with their type; other values are returned unchanged.
+  static Map<String, AdjustmentValue> resolveAdjustmentValues(
+    Map<String, AdjustmentValue> adjustmentValues,
+    Map<String, AdjustmentType> adjustmentTypes,
+  ) {
+    return {
+      for (final MapEntry(:key, :value) in adjustmentValues.entries)
+        key: ?switch ((value, adjustmentTypes[key])) {
+          (UnresolvedValue(:final raw), final type?) => _adjustmentValueFromJson(_decodeRawJson(raw), type),
+          _ => value,
         },
     };
   }

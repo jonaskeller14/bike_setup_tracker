@@ -227,14 +227,14 @@ void main() {
 
   group('Setup.adjustmentValuesFromJson (backup import) preserves value shape', () {
     test('a JSON array becomes a categorical value', () {
-      final result = Setup.adjustmentValuesFromJson({'k': ['Front', 'Rear']});
+      final result = Setup.adjustmentValuesFromJson({'k': ['Front', 'Rear']}, adjustmentTypes: {'k': AdjustmentType.categorical});
       expect(result['k'], CategoricalValue(['Front', 'Rear']));
     });
 
     test('a text value that happens to look like JSON stays text', () {
       // In a backup this is a JSON *string* (quoted), so it is imported as
       // text and never confused with a categorical array.
-      final result = Setup.adjustmentValuesFromJson({'k': '["abc"]'});
+      final result = Setup.adjustmentValuesFromJson({'k': '["abc"]'}, adjustmentTypes: {'k': AdjustmentType.text});
       expect(result['k'], TextValue.orNull('["abc"]'));
     });
   });

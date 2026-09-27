@@ -418,6 +418,13 @@ extension SetupDbMapper on SetupDb {
 
     for (var typedValue in values) {
       final adj = typedValue.adjustment;
+      if (adj == null) {
+        // The owner of a removed adjustment is unknown; the bike map is where
+        // the dangling UI picks it up.
+        final unresolved = UnresolvedValue.orNull(typedValue.value.value);
+        if (unresolved != null) bikeAdjustmentValues[typedValue.value.adjustmentId] = unresolved;
+        continue;
+      }
       final parsedValue = AdjustmentValue.decode(typedValue.value.value, adj.type);
       if (parsedValue == null) continue;
 
@@ -454,8 +461,12 @@ extension RatingEntryDbMapper on RatingEntryDb {
   RatingEntry toModel({List<TypedRatingEntryValue> values = const []}) {
     final metricValues = <String, AdjustmentValue>{};
     for (final typedValue in values) {
-      final parsedValue = AdjustmentValue.decode(typedValue.value.value, typedValue.metric.type);
-      if (parsedValue != null) metricValues[typedValue.metric.id] = parsedValue;
+      final raw = typedValue.value.value;
+      final parsedValue = switch (typedValue.metric) {
+        final metric? => AdjustmentValue.decode(raw, metric.type),
+        null => UnresolvedValue.orNull(raw),
+      };
+      if (parsedValue != null) metricValues[typedValue.value.ratingMetricId] = parsedValue;
     }
 
     return RatingEntry(

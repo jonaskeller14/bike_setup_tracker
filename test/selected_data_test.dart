@@ -110,8 +110,9 @@ void main() {
     expect(importedSetup.bikeAdjustmentValues[note.id], TextValue.orNull('01:30:00'));
     expect(importedSetup.bikeAdjustmentValues[side.id], CategoricalValue(['Front']));
     expect(importedSetup.bikeAdjustmentValues[pressure.id], const NumericalValue(89.0));
-    // Unknown ids keep the shape heuristic.
-    expect(importedSetup.bikeAdjustmentValues['orphan'], const DurationValue(Duration(hours: 1, minutes: 30)));
+    // Unknown ids are kept unresolved instead of guessing a type.
+    expect(importedSetup.bikeAdjustmentValues['orphan'], const UnresolvedValue('"01:30:00"'));
+    expect(Setup.adjustmentValuesToJson(importedSetup.bikeAdjustmentValues)['orphan'], '01:30:00');
     expect(importedSetup.personAdjustmentValues, isEmpty);
     expect(importedData.ratingEntries['r1']!.metricValues[comment.id], TextValue.orNull('0:10:00'));
   });

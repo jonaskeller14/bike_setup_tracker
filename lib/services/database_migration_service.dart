@@ -2,6 +2,7 @@ import '../database/app_database.dart';
 import '../database/mappers.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/selected_data.dart';
+import '../models/setup.dart';
 
 class DatabaseMigrationService {
   final AppDatabase db;
@@ -129,10 +130,13 @@ class DatabaseMigrationService {
       // -----------------------------------------------------------------------
 
       // Setup Adjustment Values
+      // A merged import can bring the definition of a value that its own file
+      // lacked, so unresolved values are decoded against the combined data.
+      final adjustmentTypes = adjustmentTypesOf(components: data.components.values, persons: data.persons.values);
       final List<SetupAdjustmentValuesCompanion> valuesToInsert = [];
       for (final setup in data.setups.values) {
         // Bike adjustments
-        for (final entry in setup.bikeAdjustmentValues.entries) {
+        for (final entry in Setup.resolveAdjustmentValues(setup.bikeAdjustmentValues, adjustmentTypes).entries) {
           valuesToInsert.add(
             SetupAdjustmentValuesCompanion.insert(
               setupId: setup.id,
@@ -142,7 +146,7 @@ class DatabaseMigrationService {
           );
         }
         // Person adjustments
-        for (final entry in setup.personAdjustmentValues.entries) {
+        for (final entry in Setup.resolveAdjustmentValues(setup.personAdjustmentValues, adjustmentTypes).entries) {
           valuesToInsert.add(
             SetupAdjustmentValuesCompanion.insert(
               setupId: setup.id,
@@ -156,9 +160,10 @@ class DatabaseMigrationService {
       batch.insertAllOnConflictUpdate(db.setupAdjustmentValues, valuesToInsert);
 
       // Rating Entry Values
+      final metricTypes = metricTypesOf(data.ratings.values);
       final List<RatingEntryValuesCompanion> ratingEntryValuesToInsert = [];
       for (final ratingEntry in data.ratingEntries.values) {
-        for (final entry in ratingEntry.metricValues.entries) {
+        for (final entry in Setup.resolveAdjustmentValues(ratingEntry.metricValues, metricTypes).entries) {
           ratingEntryValuesToInsert.add(
             RatingEntryValuesCompanion.insert(
               ratingEntryId: ratingEntry.id,

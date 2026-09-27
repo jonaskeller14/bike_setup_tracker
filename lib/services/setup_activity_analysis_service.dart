@@ -112,12 +112,13 @@ class SetupActivityAnalysisService extends ChangeNotifier {
     for (final setup in setups) {
       if (setup.setup.isDeleted) continue;
       for (final typedValue in setup.values) {
-        if (typedValue.adjustment.id != adjustmentId) continue;
-        adjustmentDb ??= typedValue.adjustment;
+        final adjustment = typedValue.adjustment;
+        if (adjustment == null || adjustment.id != adjustmentId) continue;
+        adjustmentDb ??= adjustment;
         values.add(
           AdjustmentActivityValue(
             setupId: setup.setup.id,
-            value: AdjustmentValue.decode(typedValue.value.value, typedValue.adjustment.type),
+            value: AdjustmentValue.decode(typedValue.value.value, adjustment.type),
             activityCount: counts[setup.setup.id] ?? 0,
           ),
         );

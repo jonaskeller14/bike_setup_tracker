@@ -43,7 +43,7 @@ class SetupsDao extends DatabaseAccessor<AppDatabase> with _$SetupsDaoMixin, Sof
         final adjustment = row.readTableOrNull(adjustments);
         
         final entry = grouped.putIfAbsent(setup.id, () => SetupWithValues(setup: setup, values: []));
-        if (value != null && adjustment != null) {
+        if (value != null) {
           entry.values.add(TypedSetupValue(value: value, adjustment: adjustment));
         }
       }
@@ -166,7 +166,7 @@ class SetupsDao extends DatabaseAccessor<AppDatabase> with _$SetupsDaoMixin, Sof
       final adjustment = row.readTableOrNull(adjustments);
       
       final entry = grouped.putIfAbsent(setup.id, () => SetupWithValues(setup: setup, values: []));
-      if (value != null && adjustment != null) {
+      if (value != null) {
         entry.values.add(TypedSetupValue(value: value, adjustment: adjustment));
       }
     }
@@ -182,6 +182,7 @@ class SetupWithValues {
 
 class TypedSetupValue {
   final SetupAdjustmentValueDb value;
-  final AdjustmentDb adjustment;
+  /// `null` when the adjustment row is gone; the value is then unresolved.
+  final AdjustmentDb? adjustment;
   TypedSetupValue({required this.value, required this.adjustment});
 }

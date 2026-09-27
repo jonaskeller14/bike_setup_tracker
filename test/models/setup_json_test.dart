@@ -54,18 +54,55 @@ void main() {
       expect(decode('abc', AdjustmentType.numerical)['k'], TextValue.orNull('abc'));
     });
 
-    test('ids without a known type use the shape heuristic', () {
+    test('ids without a known type are kept unresolved as their JSON', () {
       final result = Setup.adjustmentValuesFromJson(
-        {'known': '01:30:00', 'unknown': '01:30:00'},
+        {'known': '01:30:00', 'unknown': '01:30:00', 'list': ['A']},
         adjustmentTypes: {'known': AdjustmentType.text},
       );
       expect(result['known'], TextValue.orNull('01:30:00'));
-      expect(result['unknown'], const DurationValue(Duration(hours: 1, minutes: 30)));
+      expect(result['unknown'], const UnresolvedValue('"01:30:00"'));
+      expect(result['list'], const UnresolvedValue('["A"]'));
+    });
+
+    test('absent values of unknown ids are dropped', () {
+      expect(Setup.adjustmentValuesFromJson({'a': null, 'b': ''}), isEmpty);
     });
 
     test('a JSON shape no value type fits is kept unresolved', () {
       final result = Setup.adjustmentValuesFromJson({'unknown': {'x': 1}});
       expect(result['unknown'], const UnresolvedValue('{"x":1}'));
+    });
+  });
+
+  group('Setup.resolveAdjustmentValues', () {
+    test('decodes unresolved values of known ids with their type', () {
+      final result = Setup.resolveAdjustmentValues(
+        {
+          'duration': const UnresolvedValue('"1:30:00.000000"'),
+          'categorical': const UnresolvedValue('"Front"'),
+          'unknown': const UnresolvedValue('"01:30:00"'),
+          'typed': const StepValue(3),
+        },
+        {
+          'duration': AdjustmentType.duration,
+          'categorical': AdjustmentType.categorical,
+          'typed': AdjustmentType.step,
+        },
+      );
+      expect(result, {
+        'duration': const DurationValue(Duration(hours: 1, minutes: 30)),
+        'categorical': CategoricalValue(['Front']),
+        'unknown': const UnresolvedValue('"01:30:00"'),
+        'typed': const StepValue(3),
+      });
+    });
+
+    test('drops an unresolved value that decodes as absent', () {
+      final result = Setup.resolveAdjustmentValues(
+        {'text': const UnresolvedValue('""')},
+        {'text': AdjustmentType.text},
+      );
+      expect(result, isEmpty);
     });
   });
 

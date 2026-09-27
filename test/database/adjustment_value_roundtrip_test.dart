@@ -1,5 +1,6 @@
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/database/mappers.dart';
+import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -122,5 +123,48 @@ void main() {
     final restored = await withLegacyValue('txt1', 'plain notes');
     expect(restored.bikeAdjustmentValues['txt1'], isA<String>());
     expect(restored.bikeAdjustmentValues['txt1'], 'plain notes');
+  });
+
+  test('stored rows decode to typed values and re-encode byte-identically', () async {
+    final types = <String, AdjustmentType>{
+      'bool1': AdjustmentType.boolean,
+      'step1': AdjustmentType.step,
+      'num1': AdjustmentType.numerical,
+      'txt1': AdjustmentType.text,
+      'cat1': AdjustmentType.categorical,
+      'dur1': AdjustmentType.duration,
+    };
+    await db.setupsDao.insertSetupWithValues(
+      setup: bareSetup().toCompanion(),
+      bikeValues: {
+        'bool1': true,
+        'step1': 4,
+        'num1': 89.0,
+        'txt1': '01:30:00',
+        'cat1': ['A', 'B', 'A'],
+        'dur1': const Duration(minutes: 90),
+      },
+      personValues: const {},
+    );
+    final rows = await db
+        .customSelect("SELECT adjustment_id, value FROM setup_adjustment_values WHERE setup_id = 's1'")
+        .get();
+    final decoded = {
+      for (final row in rows)
+        row.read<String>('adjustment_id'):
+            (row.read<String>('value'), AdjustmentValue.decode(row.read<String>('value'), types[row.read<String>('adjustment_id')]!)),
+    };
+
+    expect(decoded.map((id, entry) => MapEntry(id, entry.$2)), {
+      'bool1': const BooleanValue(true),
+      'step1': const StepValue(4),
+      'num1': const NumericalValue(89.0),
+      'txt1': TextValue.orNull('01:30:00'),
+      'cat1': CategoricalValue(['A', 'B', 'A']),
+      'dur1': const DurationValue(Duration(minutes: 90)),
+    });
+    for (final (raw, value) in decoded.values) {
+      expect(value!.encode(), raw);
+    }
   });
 }

@@ -7,6 +7,7 @@ import 'package:uuid/uuid.dart';
 import 'adjustment_unit.dart';
 
 export 'adjustment_unit.dart';
+export 'adjustment_value.dart';
 export 'value_unit_conversion.dart';
 
 part 'boolean_adjustment.dart';

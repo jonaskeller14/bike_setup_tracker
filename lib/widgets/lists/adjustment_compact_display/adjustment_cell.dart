@@ -5,19 +5,19 @@ import 'adjustment_display_item.dart';
 /// classified by how it relates to the previous setup.
 sealed class AdjustmentCell {
   final Adjustment adjustment;
-  final dynamic value;
+  final AdjustmentValue? value;
 
   const AdjustmentCell(this.adjustment, this.value);
 
   factory AdjustmentCell.resolve({
     required Adjustment adjustment,
-    required dynamic value,
-    required dynamic previousValue,
+    required AdjustmentValue? value,
+    required AdjustmentValue? previousValue,
     bool isError = false,
   }) {
     if (isError) return ErrorCell(adjustment, value);
     if (previousValue == null) return InitialCell(adjustment, value);
-    if (adjustmentValuesEqual(value, previousValue)) return ConstantCell(adjustment, value);
+    if (value == previousValue) return ConstantCell(adjustment, value);
     return ChangedCell(adjustment, value, previousValue);
   }
 
@@ -27,12 +27,14 @@ sealed class AdjustmentCell {
 
   CellDisplayText get displayText {
     final cell = this;
-    if (cell is! ChangedCell) return CellDisplayText(value: _normalize(Adjustment.formatValue(value)));
+    if (cell is! ChangedCell) return CellDisplayText(value: _normalize(value?.display ?? '-'));
 
     final previousValue = cell.previousValue;
-    final (valueText, previousText) = value is Duration && previousValue is Duration
-        ? _formatDurationPair(value as Duration, previousValue)
-        : (Adjustment.formatValue(value), Adjustment.formatValue(previousValue));
+    final (valueText, previousText) = switch ((value, previousValue)) {
+      (DurationValue(value: final current), DurationValue(value: final previous)) =>
+        _formatDurationPair(current, previous),
+      _ => (value?.display ?? '-', previousValue.display),
+    };
 
     return CellDisplayText(
       value: _normalize(valueText),
@@ -61,11 +63,11 @@ String _truncateChars(String text) => text.length <= _previousValueCharBudget
 /// multi-value list drops whole options at a time so every surviving option
 /// stays readable, falling back to character truncation when a single option
 /// already exceeds the budget.
-String _boundPreviousText(String text, dynamic value) {
+String _boundPreviousText(String text, AdjustmentValue value) {
   if (text.length <= _previousValueCharBudget) return text;
-  if (value is! List) return _truncateChars(text);
+  if (value is! CategoricalValue) return _truncateChars(text);
 
-  // `formatValue` joins the counted options with `multiValueSeparator`, so
+  // `display` joins the counted options with `multiValueSeparator`, so
   // splitting on it recovers them; an option containing the separator itself
   // only truncates earlier, never at a wrong place.
   final options = text.split(Adjustment.multiValueSeparator);
@@ -97,7 +99,7 @@ String _boundPreviousText(String text, dynamic value) {
     String hoursMinutes(Duration d) => '${d.inHours}:${twoDigits(d.inMinutes.remainder(60))}';
     return (hoursMinutes(value), hoursMinutes(previousValue));
   }
-  return (Adjustment.formatValue(value), Adjustment.formatValue(previousValue));
+  return (DurationValue(value).display, DurationValue(previousValue).display);
 }
 
 final class ConstantCell extends AdjustmentCell {
@@ -109,7 +111,7 @@ final class InitialCell extends AdjustmentCell {
 }
 
 final class ChangedCell extends AdjustmentCell {
-  final dynamic previousValue;
+  final AdjustmentValue previousValue;
 
   const ChangedCell(super.adjustment, super.value, this.previousValue);
 }

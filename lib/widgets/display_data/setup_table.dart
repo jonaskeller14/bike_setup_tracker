@@ -21,7 +21,7 @@ class SetupTable extends StatefulWidget {
   final TableColumn? sortColumn;
   final Map<String, Bike> bikes;
   final Map<String, int> setupActivityCounts;
-  final dynamic Function(Setup setup, TableColumn column) valueFor;
+  final AdjustmentValue? Function(Setup setup, TableColumn column) valueFor;
   final bool Function(Setup setup, TableColumn column)? isDangling;
   final String Function(TableColumn column) columnLabel;
   final void Function(TableColumn column, bool ascending) onSort;
@@ -256,20 +256,20 @@ class _SetupTableState extends State<SetupTable> {
           ),
         };
       case ComponentAdjustmentColumn(:final adjustmentId):
-        return _adjustmentCell(context, setup, column, setup.previousBikeAdjustmentValues[adjustmentId]);
+        return _adjustmentCell(context, setup, column, setup.previousBikeValue(adjustmentId));
       case PersonAttributeColumn(:final adjustmentId):
-        return _adjustmentCell(context, setup, column, setup.previousPersonAdjustmentValues[adjustmentId]);
+        return _adjustmentCell(context, setup, column, setup.previousPersonValue(adjustmentId));
       case RatingScoreColumn() || RatingMetricColumn():
-        final score = widget.valueFor(setup, column) as double?;
+        final score = widget.valueFor(setup, column)?.asNum;
         return DataCell(
           Center(child: Text(score == null ? '-' : "${score.toStringAsFixed(1)} / 10")),
         );
     }
   }
 
-  DataCell _adjustmentCell(BuildContext context, Setup setup, TableColumn column, dynamic previousValue) {
+  DataCell _adjustmentCell(BuildContext context, Setup setup, TableColumn column, AdjustmentValue? previousValue) {
     final value = widget.valueFor(setup, column);
-    final bool isChanged = value != null && !adjustmentValuesEqual(previousValue, value);
+    final bool isChanged = value != null && previousValue != value;
     final bool isInitial = previousValue == null;
     final bool isDangling = value != null && (widget.isDangling?.call(setup, column) ?? false);
     final highlights = Theme.of(context).extension<ValueHighlightColors>();
@@ -282,7 +282,7 @@ class _SetupTableState extends State<SetupTable> {
     return DataCell(
       Center(
         child: Text(
-          Adjustment.formatValue(value),
+          value?.display ?? '-',
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
             color: highlightColor,

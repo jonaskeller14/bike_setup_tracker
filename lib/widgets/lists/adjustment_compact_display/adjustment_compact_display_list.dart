@@ -28,8 +28,8 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
   final Iterable<Component> danglingComponents;
   final Iterable<Person> danglingPersons;
 
-  final Map<String, dynamic> adjustmentValues;
-  final Map<String, dynamic> previousAdjustmentValues;
+  final Map<String, AdjustmentValue> adjustmentValues;
+  final Map<String, AdjustmentValue> previousAdjustmentValues;
   final bool showRowIcons;
   final bool highlightInitialValues;
   final bool displayOnlyChanges;
@@ -58,8 +58,8 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
     required Iterable<Person> persons,
     required Iterable<Component> danglingComponents,
     required Iterable<Person> danglingPersons,
-    required Map<String, dynamic> adjustmentValues,
-    required Map<String, dynamic> previousAdjustmentValues,
+    required Map<String, AdjustmentValue> adjustmentValues,
+    required Map<String, AdjustmentValue> previousAdjustmentValues,
     required bool displayOnlyChanges,
     required bool displayBikeAdjustmentValues,
     required bool displayPersonAdjustmentValues,
@@ -94,10 +94,10 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
         if (!hasValue && !hasPrevious && !missingValuesPlaceholder) continue;
 
         final previousValue = previousAdjustmentValues[adjustment.id];
-        final dynamic value = hasValue ? adjustmentValues[adjustment.id] : (hasPrevious ? previousValue : null);
+        final value = hasValue ? adjustmentValues[adjustment.id] : (hasPrevious ? previousValue : null);
         final cell = AdjustmentCell.resolve(
           adjustment: adjustment,
-          value: value ?? '-',
+          value: value,
           previousValue: previousValue,
           isError: owner.isError,
         );
@@ -115,8 +115,8 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
     Iterable<Person> persons = const [],
     Iterable<Component> danglingComponents = const [],
     Iterable<Person> danglingPersons = const [],
-    required Map<String, dynamic> adjustmentValues,
-    Map<String, dynamic> previousAdjustmentValues = const {},
+    required Map<String, AdjustmentValue> adjustmentValues,
+    Map<String, AdjustmentValue> previousAdjustmentValues = const {},
     bool displayBikeAdjustmentValues = true,
     bool displayPersonAdjustmentValues = true,
     bool missingValuesPlaceholder = false,

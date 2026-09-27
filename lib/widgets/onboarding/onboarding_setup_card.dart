@@ -241,8 +241,8 @@ class OnboardingSetupRows extends StatelessWidget {
         DisplayNumericalAdjustmentWidget(
           key: const ValueKey('onboarding_pressure_row'),
           adjustment: OnboardingSetupExample.pressure,
-          initialValue: OnboardingSetupExample.startPressure,
-          value: pressure,
+          initialValue: const NumericalValue(OnboardingSetupExample.startPressure),
+          value: NumericalValue(pressure),
           showFill: true,
         ),
         SetStepAdjustmentWidget(
@@ -305,8 +305,8 @@ class OnboardingSetupSnapshotCard extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 10),
                 child: AdjustmentCompactDisplayList(
                   components: [OnboardingSetupExample.fork],
-                  adjustmentValues: snapshot.setup.bikeAdjustmentValues,
-                  previousAdjustmentValues: snapshot.setup.previousBikeAdjustmentValues,
+                  adjustmentValues: Setup.typedValues(snapshot.setup.bikeAdjustmentValues),
+                  previousAdjustmentValues: Setup.typedValues(snapshot.setup.previousBikeAdjustmentValues),
                   showRowIcons: true,
                   highlightInitialValues: true,
                 ),

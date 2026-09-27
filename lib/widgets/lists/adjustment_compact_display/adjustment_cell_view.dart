@@ -36,10 +36,10 @@ class AdjustmentCellView extends StatelessWidget {
   /// current` line would otherwise be read out with the arrow glyph.
   String get _semanticsLabel {
     final adjustment = cell.adjustment;
-    final value = Adjustment.formatValue(cell.value) + adjustment.unitSuffix();
+    final value = (cell.value?.display ?? '-') + adjustment.unitSuffix();
     return switch (cell) {
       ChangedCell(:final previousValue) =>
-        '${adjustment.name}, changed from ${Adjustment.formatValue(previousValue)} to $value',
+        '${adjustment.name}, changed from ${previousValue.display} to $value',
       _ => '${adjustment.name}, $value',
     };
   }
@@ -102,7 +102,7 @@ class AdjustmentCellView extends StatelessWidget {
               // the arrow icon, but with both values untruncated — this is
               // where a bounded previous value is recovered in full.
               if (cell case ChangedCell(:final previousValue)) ...[
-                TextSpan(text: Adjustment.formatValue(previousValue), style: previousStyle),
+                TextSpan(text: previousValue.display, style: previousStyle),
                 WidgetSpan(
                   // Aligns the glyph with the middle of the text run, the
                   // tooltip's equivalent of the cell row's centred segments.
@@ -118,7 +118,7 @@ class AdjustmentCellView extends StatelessWidget {
                 ),
               ],
               TextSpan(
-                text: Adjustment.formatValue(cell.value),
+                text: cell.value?.display ?? '-',
                 style: valueLine?.copyWith(color: valueColor, fontWeight: FontWeight.bold),
               ),
               TextSpan(

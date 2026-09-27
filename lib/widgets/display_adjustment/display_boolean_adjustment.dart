@@ -6,8 +6,8 @@ import 'adjustment_icon_name_notes.dart';
 
 class DisplayBooleanAdjustmentWidget extends StatelessWidget {
   final BooleanAdjustment adjustment;
-  final bool? initialValue;
-  final bool? value;
+  final BooleanValue? initialValue;
+  final BooleanValue? value;
   final bool highlighting;
   final bool isError;
   final VoidCallback? onRemove;
@@ -55,7 +55,7 @@ class DisplayBooleanAdjustmentWidget extends StatelessWidget {
                   TextSpan(
                     children: [
                       TextSpan(
-                        text: Adjustment.formatValue(value),
+                        text: value?.display ?? '-',
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: highlightColor,
@@ -73,7 +73,7 @@ class DisplayBooleanAdjustmentWidget extends StatelessWidget {
                   Opacity(
                     opacity: 0.7,
                     child: Text(
-                      Adjustment.formatValue(initialValue) + adjustment.unitSuffix(),
+                      (initialValue?.display ?? '-') + adjustment.unitSuffix(),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         fontWeight: FontWeight.bold,
                         decoration: TextDecoration.lineThrough,

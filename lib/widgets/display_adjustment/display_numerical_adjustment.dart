@@ -7,8 +7,8 @@ import 'toggleable_unit_value.dart';
 
 class DisplayNumericalAdjustmentWidget extends StatelessWidget {
   final NumericalAdjustment adjustment;
-  final num? initialValue;
-  final num? value;
+  final NumericalValue? initialValue;
+  final NumericalValue? value;
   final bool highlighting;
   final bool isError;
   final bool showFill;

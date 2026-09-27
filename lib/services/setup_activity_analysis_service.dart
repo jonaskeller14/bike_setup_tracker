@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-import '../database/adjustment_value_codec.dart';
 import '../database/app_database.dart';
 import '../database/mappers.dart';
+import '../models/adjustment/adjustment.dart';
 import '../models/adjustment_activity_histogram.dart';
 import '../utils/adjustment_activity_histogram_grouping.dart';
 
@@ -117,7 +117,7 @@ class SetupActivityAnalysisService extends ChangeNotifier {
         values.add(
           AdjustmentActivityValue(
             setupId: setup.setup.id,
-            value: decodeAdjustmentValue(typedValue.value.value, typedValue.adjustment.type),
+            value: AdjustmentValue.decode(typedValue.value.value, typedValue.adjustment.type),
             activityCount: counts[setup.setup.id] ?? 0,
           ),
         );

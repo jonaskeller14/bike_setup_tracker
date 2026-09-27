@@ -29,7 +29,7 @@ void main() {
     for (final a in [pressure, mode, note]) a.id: a,
   };
 
-  Setup setup(String id, {double? pressureValue, String? modeValue}) => Setup(
+  Setup setup(String id, {double? pressureValue, List<String>? modeValue}) => Setup(
     id: id,
     datetime: DateTime.utc(2024, 1, 1),
     datetimeLocal: DateTime(2024, 1, 1),
@@ -44,8 +44,8 @@ void main() {
   );
 
   final setups = [
-    setup('s1', pressureValue: 60, modeValue: 'Open'),
-    setup('s2', pressureValue: 70, modeValue: 'Trail'),
+    setup('s1', pressureValue: 60, modeValue: ['Open']),
+    setup('s2', pressureValue: 70, modeValue: ['Trail']),
     setup('s3', pressureValue: 60),
   ];
   const counts = {'s1': 3, 's2': 1, 's3': 2};
@@ -73,7 +73,7 @@ void main() {
             activityCountsLoaded: loaded,
             activityCountsFailed: failed,
             selectedHistogramColumn: selected,
-            valueFor: (setup, column) => setup.bikeAdjustmentValues[(column as ComponentAdjustmentColumn).adjustmentId],
+            valueFor: (setup, column) => setup.bikeValue((column as ComponentAdjustmentColumn).adjustmentId),
             adjustmentFor: (column) => column is ComponentAdjustmentColumn ? adjustments[column.adjustmentId] : null,
             columnLabel: (column) => adjustments[(column as ComponentAdjustmentColumn).adjustmentId]!.name,
             onSelectedColumnChanged: onSelected ?? (_) {},

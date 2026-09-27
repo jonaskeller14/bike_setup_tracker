@@ -6,8 +6,8 @@ import 'adjustment_icon_name_notes.dart';
 
 class DisplayTextAdjustmentWidget extends StatelessWidget {
   final TextAdjustment adjustment;
-  final String? initialValue;
-  final String? value;
+  final TextValue? initialValue;
+  final TextValue? value;
   final bool highlighting;
   final bool isError;
   final VoidCallback? onRemove;
@@ -57,7 +57,7 @@ class DisplayTextAdjustmentWidget extends StatelessWidget {
                   TextSpan(
                     children: [
                       TextSpan(
-                        text: Adjustment.formatValue(value),
+                        text: value?.display ?? '-',
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: highlightColor,
@@ -76,7 +76,7 @@ class DisplayTextAdjustmentWidget extends StatelessWidget {
                   Opacity(
                     opacity: 0.7,
                     child: Text(
-                      Adjustment.formatValue(initialValue) + adjustment.unitSuffix(),
+                      (initialValue?.display ?? '-') + adjustment.unitSuffix(),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         fontWeight: FontWeight.bold,
                         decoration: TextDecoration.lineThrough,

@@ -20,7 +20,7 @@ Adjustment? adjustmentForColumn(
 
 Comparator<Setup>? tableColumnComparator(
   TableColumn column, {
-  required dynamic Function(Setup setup, TableColumn column) valueFor,
+  required AdjustmentValue? Function(Setup setup, TableColumn column) valueFor,
   required Iterable<Adjustment> componentAdjustments,
   required Iterable<Adjustment> personAdjustments,
   required Map<String, Bike> bikes,
@@ -30,20 +30,17 @@ Comparator<Setup>? tableColumnComparator(
     case SetupTableColumn(column: final setupColumn):
       return setupColumnComparator(setupColumn, bikes: bikes, setupActivityCounts: setupActivityCounts);
     case RatingScoreColumn() || RatingMetricColumn():
-      return _by((s) => (valueFor(s, column) as double?) ?? double.negativeInfinity);
+      return _by((s) => valueFor(s, column)?.asNum ?? double.negativeInfinity);
     case ComponentAdjustmentColumn() || PersonAttributeColumn():
       final adjustment = adjustmentForColumn(column, componentAdjustments, personAdjustments);
       if (adjustment == null) return null;
 
-      dynamic value(Setup setup) => valueFor(setup, column);
+      AdjustmentValue? value(Setup setup) => valueFor(setup, column);
 
       return switch (adjustment) {
-        BooleanAdjustment() => _by((s) => (value(s) as bool? ?? false) ? 1 : 0),
-        StepAdjustment() => _by((s) => (value(s) ?? 0) as int),
-        NumericalAdjustment() => _by((s) => (value(s) ?? double.negativeInfinity) as double),
-        CategoricalAdjustment() => _by((s) => Adjustment.formatValue(value(s) ?? '')),
-        TextAdjustment() => _by((s) => (value(s) ?? '') as String),
-        DurationAdjustment() => _by((s) => (value(s) ?? Duration.zero) as Duration),
+        BooleanAdjustment() || StepAdjustment() || DurationAdjustment() => _by((s) => value(s)?.asNum ?? 0),
+        NumericalAdjustment() => _by((s) => value(s)?.asNum ?? double.negativeInfinity),
+        CategoricalAdjustment() || TextAdjustment() => _by((s) => value(s)?.display ?? ''),
       };
   }
 }

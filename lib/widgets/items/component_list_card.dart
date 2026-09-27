@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../../models/component/component.dart';
 import '../../models/component/installation.dart';
+import '../../models/setup.dart';
 import '../../models/task/task_rule.dart';
 import '../../pages/details/component_details_page.dart';
 import '../../repositories/app_repository.dart';
@@ -213,7 +214,7 @@ class ComponentListCard extends StatelessWidget{
                 padding: const EdgeInsets.only(bottom: 8),
                 child: AdjustmentCompactDisplayList(
                   components: [component],
-                  adjustmentValues: appRepository.currentAdjustmentValues,
+                  adjustmentValues: Setup.typedValues(appRepository.currentAdjustmentValues),
                   showRowIcons: false,
                   missingValuesPlaceholder: true,
                   displayBikeAdjustmentValues: true,

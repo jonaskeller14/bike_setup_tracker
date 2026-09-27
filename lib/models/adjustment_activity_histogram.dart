@@ -1,6 +1,8 @@
+import 'adjustment/adjustment.dart';
+
 class AdjustmentActivityValue {
   final String setupId;
-  final dynamic value;
+  final AdjustmentValue? value;
   final int activityCount;
 
   const AdjustmentActivityValue({
@@ -13,7 +15,7 @@ class AdjustmentActivityValue {
 class AdjustmentActivityHistogramBar {
   final String label;
   final int activityCount;
-  final dynamic exactValue;
+  final AdjustmentValue? exactValue;
   final num? lowerBound;
   final num? upperBound;
   final bool includesUpperBound;

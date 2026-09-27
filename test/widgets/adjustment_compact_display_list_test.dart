@@ -128,8 +128,8 @@ void main() {
       persons: breakdown.person != null ? [breakdown.person!] : const [],
       danglingComponents: breakdown.danglingComponents,
       danglingPersons: breakdown.danglingPersons,
-      adjustmentValues: {...setup.bikeAdjustmentValues, ...setup.personAdjustmentValues},
-      previousAdjustmentValues: {...setup.previousBikeAdjustmentValues, ...setup.previousPersonAdjustmentValues},
+      adjustmentValues: Setup.typedValues({...setup.bikeAdjustmentValues, ...setup.personAdjustmentValues}),
+      previousAdjustmentValues: Setup.typedValues({...setup.previousBikeAdjustmentValues, ...setup.previousPersonAdjustmentValues}),
       showRowIcons: true,
       highlightInitialValues: true,
       displayOnlyChanges: displayOnlyChanges,
@@ -313,8 +313,8 @@ void main() {
     test('only unchanged values -> has content, collapsing hides them', () {
       final summary = AdjustmentCompactDisplayList.summarize(
         components: [fork],
-        adjustmentValues: {pressure.id: '80'},
-        previousAdjustmentValues: {pressure.id: '80'},
+        adjustmentValues: {pressure.id: const NumericalValue(80)},
+        previousAdjustmentValues: {pressure.id: const NumericalValue(80)},
       );
       expect(summary.hasContent, isTrue);
       expect(summary.collapsedHidesSomething, isTrue);
@@ -323,8 +323,8 @@ void main() {
     test('only changed values -> has content, collapsing hides nothing', () {
       final summary = AdjustmentCompactDisplayList.summarize(
         components: [fork],
-        adjustmentValues: {pressure.id: '80'},
-        previousAdjustmentValues: {pressure.id: '85'},
+        adjustmentValues: {pressure.id: const NumericalValue(80)},
+        previousAdjustmentValues: {pressure.id: const NumericalValue(85)},
       );
       expect(summary.hasContent, isTrue);
       expect(summary.collapsedHidesSomething, isFalse);
@@ -333,7 +333,7 @@ void main() {
     test('only dangling values -> has content, collapsing hides them', () {
       final summary = AdjustmentCompactDisplayList.summarize(
         danglingComponents: [shock],
-        adjustmentValues: {sag.id: '30'},
+        adjustmentValues: {sag.id: const NumericalValue(30)},
       );
       expect(summary.hasContent, isTrue);
       expect(summary.collapsedHidesSomething, isTrue);
@@ -420,8 +420,8 @@ void main() {
       return harness(AdjustmentCompactDisplayList(
         components: breakdown.components,
         danglingComponents: breakdown.danglingComponents,
-        adjustmentValues: setup.bikeAdjustmentValues,
-        previousAdjustmentValues: setup.previousBikeAdjustmentValues,
+        adjustmentValues: Setup.typedValues(setup.bikeAdjustmentValues),
+        previousAdjustmentValues: Setup.typedValues(setup.previousBikeAdjustmentValues),
         showRowIcons: true,
         highlightInitialValues: true,
         displayOnlyChanges: onlyChanges,

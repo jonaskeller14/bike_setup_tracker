@@ -207,8 +207,8 @@ void main() {
       final comparator = tableColumnComparator(
         column,
         valueFor: (setup, column) => switch (column) {
-          ComponentAdjustmentColumn(:final adjustmentId) => setup.bikeAdjustmentValues[adjustmentId],
-          RatingScoreColumn() => setup.bikeAdjustmentValues['score'],
+          ComponentAdjustmentColumn(:final adjustmentId) => setup.bikeValue(adjustmentId),
+          RatingScoreColumn() => setup.bikeValue('score'),
           _ => null,
         },
         componentAdjustments: [numerical, boolean],

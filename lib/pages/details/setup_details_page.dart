@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
@@ -404,8 +405,8 @@ class SetupDetailsPageContent extends StatelessWidget {
           ),
           AdjustmentDisplayList(
             adjustments: group.adjustments,
-            initialAdjustmentValues: setup.previousBikeAdjustmentValues,
-            adjustmentValues: setup.bikeAdjustmentValues,
+            initialAdjustmentValues: Setup.typedValues(setup.previousBikeAdjustmentValues),
+            adjustmentValues: Setup.typedValues(setup.bikeAdjustmentValues),
             isError: true,
           ),
         ],
@@ -441,8 +442,8 @@ class SetupDetailsPageContent extends StatelessWidget {
           ),
           AdjustmentDisplayList(
             adjustments: group.adjustments,
-            initialAdjustmentValues: setup.previousPersonAdjustmentValues,
-            adjustmentValues: setup.personAdjustmentValues,
+            initialAdjustmentValues: Setup.typedValues(setup.previousPersonAdjustmentValues),
+            adjustmentValues: Setup.typedValues(setup.personAdjustmentValues),
             isError: true,
           ),
         ],
@@ -473,7 +474,7 @@ class SetupDetailsPageContent extends StatelessWidget {
           ...values.entries.map((danglingAdjustmentValue) {
             return DisplayDanglingAdjustmentWidget(
               name: danglingAdjustmentValue.key,
-              value: danglingAdjustmentValue.value,
+              value: AdjustmentValue.fromRuntime(danglingAdjustmentValue.value),
             );
           }),
         ],
@@ -531,8 +532,8 @@ class SetupDetailsPageContent extends StatelessWidget {
                       ),
                       AdjustmentDisplayList(
                         adjustments: bikeComponent.adjustments,
-                        initialAdjustmentValues: setup.previousBikeAdjustmentValues,
-                        adjustmentValues: setup.bikeAdjustmentValues,
+                        initialAdjustmentValues: Setup.typedValues(setup.previousBikeAdjustmentValues),
+                        adjustmentValues: Setup.typedValues(setup.bikeAdjustmentValues),
                       ),
                     ],
                   ),
@@ -579,8 +580,8 @@ class SetupDetailsPageContent extends StatelessWidget {
                       ),
                       AdjustmentDisplayList(
                         adjustments: person.adjustments,
-                        initialAdjustmentValues: setup.previousPersonAdjustmentValues,
-                        adjustmentValues: setup.personAdjustmentValues,
+                        initialAdjustmentValues: Setup.typedValues(setup.previousPersonAdjustmentValues),
+                        adjustmentValues: Setup.typedValues(setup.personAdjustmentValues),
                       ),
                     ],
                   ),

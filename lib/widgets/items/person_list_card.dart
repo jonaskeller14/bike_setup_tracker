@@ -5,6 +5,7 @@ import '../../icons/simple_icons.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/person.dart';
+import '../../models/setup.dart';
 import '../../pages/details/person_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
@@ -132,7 +133,7 @@ class PersonListCard extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 8),
               child: AdjustmentCompactDisplayList(
                 persons: [person],
-                adjustmentValues: appRepository.currentAdjustmentValues,
+                adjustmentValues: Setup.typedValues(appRepository.currentAdjustmentValues),
                 showRowIcons: false,
                 missingValuesPlaceholder: true,
                 displayBikeAdjustmentValues: false,

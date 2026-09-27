@@ -10,8 +10,8 @@ import 'toggleable_unit_value.dart';
 /// the adjustment knows its reference travel.
 class DisplaySagAdjustmentWidget extends StatelessWidget {
   final SagAdjustment adjustment;
-  final num? initialValue;
-  final num? value;
+  final NumericalValue? initialValue;
+  final NumericalValue? value;
   final bool highlighting;
   final bool isError;
   final VoidCallback? onRemove;

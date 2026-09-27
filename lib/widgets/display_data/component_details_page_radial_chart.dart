@@ -18,7 +18,7 @@ class ComponentDetailsPageRadialChart extends StatefulWidget {
   final List<TableColumn> activeColumns;
   final List<Setup> setups;
   final List<Setup> selectedSetups;
-  final dynamic Function(Setup setup, TableColumn column) valueFor;
+  final AdjustmentValue? Function(Setup setup, TableColumn column) valueFor;
   final Adjustment? Function(TableColumn column) adjustmentFor;
   final String Function(TableColumn column) columnLabel;
   final ValueChanged<String> onSetupRemoved;
@@ -86,7 +86,7 @@ class _ComponentDetailsPageRadialChartState extends State<ComponentDetailsPageRa
     }
 
     final validColumns = activeChartColumns.where((column) {
-      return widget.selectedSetups.any((setup) => widget.valueFor(setup, column) is num);
+      return widget.selectedSetups.any((setup) => widget.valueFor(setup, column)?.asNum != null);
     }).toList();
 
     if (validColumns.isEmpty) {
@@ -119,8 +119,8 @@ class _ComponentDetailsPageRadialChartState extends State<ComponentDetailsPageRa
       double dataMin = double.infinity;
       double dataMax = double.negativeInfinity;
       for (var setup in chartSetups) {
-        final rawValue = widget.valueFor(setup, column);
-        if (rawValue is num) {
+        final rawValue = widget.valueFor(setup, column)?.asNum;
+        if (rawValue != null) {
           if (rawValue < dataMin) dataMin = rawValue.toDouble();
           if (rawValue > dataMax) dataMax = rawValue.toDouble();
         }
@@ -215,9 +215,9 @@ class _ComponentDetailsPageRadialChartState extends State<ComponentDetailsPageRa
                           final color = radarColors[index];
 
                           final entries = featureDefs.map((def) {
-                            final rawValue = widget.valueFor(setup, def.column);
+                            final rawValue = widget.valueFor(setup, def.column)?.asNum;
                             double normalized = 0.0;
-                            if (rawValue is num) {
+                            if (rawValue != null) {
                               final v = rawValue.toDouble();
                               if (def.max > def.min) {
                                 normalized = ((v - def.min) / (def.max - def.min)) * 100;
@@ -249,7 +249,7 @@ class _ComponentDetailsPageRadialChartState extends State<ComponentDetailsPageRa
                         );
                         if (setup == null || def == null) return const SizedBox.shrink();
                         final rawValue = widget.valueFor(setup, def.column);
-                        final formattedVal = Adjustment.formatValue(rawValue);
+                        final formattedVal = rawValue?.display ?? '-';
                         final dateStr = DateFormat(appSettings.dateFormat).format(setup.datetimeLocal);
                         return Positioned(
                           left: _touchedRadarValue!.offset.dx > constraints.maxWidth / 2

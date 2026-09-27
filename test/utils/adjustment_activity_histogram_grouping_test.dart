@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   AdjustmentActivityValue value(dynamic value, int count, [String id = 'setup']) {
-    return AdjustmentActivityValue(setupId: id, value: value, activityCount: count);
+    return AdjustmentActivityValue(setupId: id, value: AdjustmentValue.fromRuntime(value), activityCount: count);
   }
 
   test('aggregates and naturally orders step values', () {
@@ -25,7 +25,7 @@ void main() {
       values: [value(2, 3), value(-1, 4), value(2, 5, 'other')],
     );
 
-    expect(result.bars.map((bar) => bar.exactValue), [-1, 2]);
+    expect(result.bars.map((bar) => bar.exactValue), [const StepValue(-1), const StepValue(2)]);
     expect(result.bars.map((bar) => bar.activityCount), [4, 8]);
   });
 

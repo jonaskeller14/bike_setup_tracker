@@ -111,28 +111,28 @@ class _DisplayAdjustmentDiffState extends State<DisplayAdjustmentDiff> {
     if (side.provenance == comparison.SetupComparisonValueProvenance.unavailable) {
       return const _DisplayedValue(text: '-');
     }
-    if (side.value == null) return const _DisplayedValue(text: '-');
+    final value = AdjustmentValue.fromRuntime(side.value);
+    if (value == null) return const _DisplayedValue(text: '-');
 
-    if (_supportsUnitToggle(definition) && side.value is num) {
+    if (_supportsUnitToggle(definition) && (value is StepValue || value is NumericalValue)) {
       final cycle = _cycleFor(definition);
       if (cycle.isNotEmpty) {
         final selected = cycle.firstWhere(
           (entry) => entry.label == _activeUnitLabel,
           orElse: () => cycle.first,
         );
-        final value = selected.fromStorage((side.value as num).toDouble());
         final converted = selected.label != cycle.first.label;
         return _DisplayedValue(
-          text: converted ? formatConverted(value) : Adjustment.formatValue(side.value),
+          text: converted ? formatConverted(selected.fromStorage(value.asNum!.toDouble())) : value.display,
           unit: selected.label,
-          storageEquivalent: converted ? '= ${Adjustment.formatValue(side.value)} ${cycle.first.label}' : null,
+          storageEquivalent: converted ? '= ${value.display} ${cycle.first.label}' : null,
           usesMonospace: true,
         );
       }
     }
 
     return _DisplayedValue(
-      text: Adjustment.formatValue(side.value),
+      text: value.display,
       unit: definition.unit?.label,
       usesMonospace: _usesMonospaceValue(definition),
     );

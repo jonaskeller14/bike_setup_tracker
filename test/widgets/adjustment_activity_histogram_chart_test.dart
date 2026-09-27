@@ -1,3 +1,4 @@
+import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/adjustment_activity_histogram.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/display_data/adjustment_activity_histogram_chart.dart';
@@ -9,10 +10,10 @@ void main() {
   AdjustmentActivityHistogram histogram({bool binned = false}) => AdjustmentActivityHistogram(
     adjustmentId: 'pressure',
     bars: [
-      const AdjustmentActivityHistogramBar.exact(
+      AdjustmentActivityHistogramBar.exact(
         label: 'An exceptionally long category name',
         activityCount: 12345,
-        exactValue: 'long',
+        exactValue: CategoricalValue(['long']),
       ),
       if (binned)
         const AdjustmentActivityHistogramBar.range(
@@ -23,7 +24,7 @@ void main() {
           includesUpperBound: true,
         )
       else
-        const AdjustmentActivityHistogramBar.exact(label: '30 psi', activityCount: 7, exactValue: 30),
+        const AdjustmentActivityHistogramBar.exact(label: '30 psi', activityCount: 7, exactValue: NumericalValue(30)),
     ],
     isBinned: binned,
   );

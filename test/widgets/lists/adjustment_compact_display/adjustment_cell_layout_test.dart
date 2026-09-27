@@ -71,18 +71,18 @@ void main() {
   group('AdjustmentCell.resolve', () {
     final pressure = NumericalAdjustment(id: 'p', name: 'Pressure', notes: null, unit: null, min: 0, max: 200);
 
-    AdjustmentCell resolve(dynamic value, dynamic previous, {bool isError = false}) =>
+    AdjustmentCell resolve(double value, double? previous, {bool isError = false}) =>
         AdjustmentCell.resolve(
           adjustment: pressure,
-          value: value,
-          previousValue: previous,
+          value: NumericalValue(value),
+          previousValue: previous == null ? null : NumericalValue(previous),
           isError: isError,
         );
 
     test('classifies by previous value', () {
       expect(resolve(80, null), isA<InitialCell>());
       expect(resolve(80, 80), isA<ConstantCell>());
-      expect(resolve(80, 85), isA<ChangedCell>().having((c) => c.previousValue, 'previousValue', 85));
+      expect(resolve(80, 85), isA<ChangedCell>().having((c) => c.previousValue, 'previousValue', const NumericalValue(85)));
       expect(resolve(80, 85, isError: true), isA<ErrorCell>());
     });
 

@@ -44,7 +44,7 @@ void main() {
 
   group('AdjustmentCellView arrow', () {
     testWidgets('draws an icon, not the maths-axis text glyph', (tester) async {
-      await pumpCell(tester, ChangedCell(pressure, 18, 16));
+      await pumpCell(tester, ChangedCell(pressure, const NumericalValue(18), const NumericalValue(16)));
 
       expect(arrowFinder, findsOneWidget);
       expect(richTextWithText('16'), findsOneWidget);
@@ -54,7 +54,7 @@ void main() {
     });
 
     testWidgets('shares one centre line with the previous value, the value and the unit', (tester) async {
-      await pumpCell(tester, ChangedCell(pressure, 18, 16));
+      await pumpCell(tester, ChangedCell(pressure, const NumericalValue(18), const NumericalValue(16)));
 
       final centres = <String, double>{
         'previous': tester.getRect(richTextWithText('16')).center.dy,
@@ -74,14 +74,14 @@ void main() {
     });
 
     testWidgets('sizes the arrow with the value, not with the previous value', (tester) async {
-      await pumpCell(tester, ChangedCell(pressure, 18, 16));
+      await pumpCell(tester, ChangedCell(pressure, const NumericalValue(18), const NumericalValue(16)));
 
       expect(tester.widget<Icon>(arrowFinder).size, CellTextStyles.arrowSize);
       expect(CellTextStyles.arrowSize, greaterThan(CellTextStyles.change.fontSize!));
     });
 
     testWidgets('the measured natural width still fits the rendered rows', (tester) async {
-      final cell = ChangedCell(pressure, 18, 16);
+      final cell = ChangedCell(pressure, const NumericalValue(18), const NumericalValue(16));
       late double measured;
       await tester.pumpWidget(
         MaterialApp(
@@ -113,7 +113,7 @@ void main() {
   group('AdjustmentCellView semantics', () {
     testWidgets('a changed cell announces the previous and the current value', (tester) async {
       final semantics = tester.ensureSemantics();
-      await pumpCell(tester, ChangedCell(pressure, 18, 16));
+      await pumpCell(tester, ChangedCell(pressure, const NumericalValue(18), const NumericalValue(16)));
 
       expect(labelOf(tester), 'Fork Pressure, changed from 16 to 18 psi');
       // The rendered arrow must not reach the screen reader.
@@ -124,7 +124,7 @@ void main() {
 
     testWidgets('an unchanged cell announces the plain value', (tester) async {
       final semantics = tester.ensureSemantics();
-      await pumpCell(tester, ConstantCell(pressure, 18));
+      await pumpCell(tester, ConstantCell(pressure, const NumericalValue(18)));
 
       expect(labelOf(tester), 'Fork Pressure, 18 psi');
 
@@ -134,7 +134,7 @@ void main() {
 
   group('AdjustmentCellView tooltip', () {
     testWidgets("shows the untruncated values with the cell's arrow", (tester) async {
-      await pumpCell(tester, ChangedCell(pressure, 18, 'RockShox Lyrik Ultimate'));
+      await pumpCell(tester, ChangedCell(pressure, const NumericalValue(18), TextValue.orNull('RockShox Lyrik Ultimate')!));
       expect(arrowFinder, findsOneWidget, reason: "the cell's own arrow");
 
       await tester.longPress(find.byType(AdjustmentCellView));

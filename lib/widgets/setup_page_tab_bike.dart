@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../models/adjustment/adjustment.dart';
 import '../models/component/component.dart';
+import '../models/setup.dart';
 import '../services/dangling_adjustment_service.dart';
 import '../utils/component_actions.dart';
 import 'display_adjustment/display_adjustment_list.dart';
@@ -217,8 +218,8 @@ Widget _danglingComponentCard(BuildContext context, {
         ),
         AdjustmentDisplayList(
           adjustments: group.adjustments,
-          initialAdjustmentValues: initialAdjustmentValues,
-          adjustmentValues: adjustmentValues,
+          initialAdjustmentValues: Setup.typedValues(initialAdjustmentValues),
+          adjustmentValues: Setup.typedValues(adjustmentValues),
           isError: true,
           onRemove: onRemove,
         ),

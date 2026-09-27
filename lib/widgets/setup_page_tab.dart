@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../models/adjustment/adjustment.dart';
 import 'display_adjustment/display_dangling_adjustment.dart';
 import 'initial_changed_value_legend.dart';
 import 'items/card_header_tile.dart';
@@ -41,7 +42,7 @@ Widget danglingValuesCard(BuildContext context, {
         ...values.entries.map((danglingAdjustmentValue) {
           return DisplayDanglingAdjustmentWidget(
             name: danglingAdjustmentValue.key,
-            value: danglingAdjustmentValue.value,
+            value: AdjustmentValue.fromRuntime(danglingAdjustmentValue.value),
             onRemove: () => onRemove(danglingAdjustmentValue.key),
           );
         }),

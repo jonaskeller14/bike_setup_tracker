@@ -7,8 +7,8 @@ import '../../models/adjustment/adjustment.dart';
 import '../../utils/unit_conversion.dart';
 
 class ToggleableUnitValue extends StatefulWidget {
-  final num? value;
-  final num? initialValue;
+  final AdjustmentValue? value;
+  final AdjustmentValue? initialValue;
   final AdjustmentUnit? unit;
   final Color? highlightColor;
   final bool showPreviousValue;
@@ -65,10 +65,10 @@ class _ToggleableUnitValueState extends State<ToggleableUnitValue> {
     if (widget.unit != oldWidget.unit) _index = 0;
   }
 
-  String _formatInActive(num? storageValue) {
-    if (storageValue == null) return Adjustment.formatValue(null);
-    if (!_isConverting) return Adjustment.formatValue(storageValue);
-    return formatConverted(_cycle[_activeIndex].fromStorage(storageValue.toDouble()));
+  String _formatInActive(AdjustmentValue? storageValue) {
+    final number = storageValue?.asNum;
+    if (!_isConverting || number == null) return storageValue?.display ?? '-';
+    return formatConverted(_cycle[_activeIndex].fromStorage(number.toDouble()));
   }
 
   String get _activeSuffix {
@@ -131,7 +131,7 @@ class _ToggleableUnitValueState extends State<ToggleableUnitValue> {
         ),
         if (_isConverting && widget.value != null)
           Text(
-            '= ${Adjustment.formatValue(widget.value)} $_storageLabel',
+            '= ${widget.value!.display} $_storageLabel',
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
             ),

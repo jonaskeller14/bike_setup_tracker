@@ -23,7 +23,7 @@ class ComponentDetailsPageHistogramChart extends StatefulWidget {
   final bool activityCountsLoaded;
   final bool activityCountsFailed;
   final TableColumn? selectedHistogramColumn;
-  final dynamic Function(Setup setup, TableColumn column) valueFor;
+  final AdjustmentValue? Function(Setup setup, TableColumn column) valueFor;
   final Adjustment? Function(TableColumn column) adjustmentFor;
   final String Function(TableColumn column) columnLabel;
   final ValueChanged<TableColumn> onSelectedColumnChanged;

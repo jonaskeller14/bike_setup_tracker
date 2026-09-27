@@ -20,7 +20,7 @@ class ComponentDetailsPageLineChart extends StatefulWidget {
   final List<Setup> selectedSetups;
   final bool showDateAxisLabels;
   final TableColumn? selectedLineChartColumn;
-  final dynamic Function(Setup setup, TableColumn column) valueFor;
+  final AdjustmentValue? Function(Setup setup, TableColumn column) valueFor;
   final Adjustment? Function(TableColumn column) adjustmentFor;
   final String Function(TableColumn column) columnLabel;
   final ValueChanged<TableColumn?> onSelectedColumnChanged;
@@ -87,7 +87,7 @@ class _ComponentDetailsPageLineChartState extends State<ComponentDetailsPageLine
     }
 
     final validColumns = activeChartColumns.where((column) {
-      return widget.selectedSetups.any((setup) => widget.valueFor(setup, column) is num);
+      return widget.selectedSetups.any((setup) => widget.valueFor(setup, column)?.asNum != null);
     }).toList();
 
     if (validColumns.isEmpty) {
@@ -126,8 +126,8 @@ class _ComponentDetailsPageLineChartState extends State<ComponentDetailsPageLine
                 final color = lineChartColors[index];
                 return LineChartBarData(
                   spots: chartSetups.asMap().entries.map((entry) {
-                    final val = widget.valueFor(entry.value, column);
-                    return FlSpot(entry.key.toDouble(), (val as num?)?.toDouble() ?? 0.0);
+                    final val = widget.valueFor(entry.value, column)?.asNum;
+                    return FlSpot(entry.key.toDouble(), val?.toDouble() ?? 0.0);
                   }).toList(),
                   isCurved: false,
                   color: isSelected ? color : color.withValues(alpha: 0.15),
@@ -241,7 +241,7 @@ class _ComponentDetailsPageLineChartState extends State<ComponentDetailsPageLine
                       final adjustment = widget.adjustmentFor(column);
                       final columnName = widget.columnLabel(column);
                       final unit = adjustment?.unit?.label ?? "";
-                      final formattedY = Adjustment.formatValue(barSpot.y);
+                      final formattedY = NumericalValue(barSpot.y).display;
 
                       final tooltipStyle = Theme.of(context).textTheme.bodySmall!.copyWith(
                         color: barSpot.bar.color ?? Theme.of(context).colorScheme.onSurface,

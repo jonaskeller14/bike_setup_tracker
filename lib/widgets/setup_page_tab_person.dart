@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../models/adjustment/adjustment.dart';
 import '../models/person.dart';
+import '../models/setup.dart';
 import '../services/dangling_adjustment_service.dart';
 import '../utils/person_actions.dart';
 import 'display_adjustment/display_adjustment_list.dart';
@@ -154,8 +155,8 @@ Widget _danglingPersonCard(BuildContext context, {
         ),
         AdjustmentDisplayList(
           adjustments: group.adjustments,
-          initialAdjustmentValues: initialAdjustmentValues,
-          adjustmentValues: adjustmentValues,
+          initialAdjustmentValues: Setup.typedValues(initialAdjustmentValues),
+          adjustmentValues: Setup.typedValues(adjustmentValues),
           isError: true,
           onRemove: onRemove,
         ),

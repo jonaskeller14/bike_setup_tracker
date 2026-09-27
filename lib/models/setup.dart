@@ -49,6 +49,9 @@ class Setup {
     }
   }
 
+  static Map<String, AdjustmentValue> typedValues(Map<String, dynamic> values) =>
+      Map.fromEntries(typedValueEntries(values));
+
   static const IconData iconData = Icons.tune;
 
   static const String namePlaceholder = 'Unnamed Setup';

@@ -60,13 +60,16 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
   Map<String, String> _ratingMetricNames = {};
 
   // Setup columns are rendered by the table itself; only data-driven columns resolve to a value here.
-  dynamic _rawValue(Setup setup, TableColumn column) => switch (column) {
-    ComponentAdjustmentColumn(:final adjustmentId) => setup.bikeAdjustmentValues[adjustmentId],
-    PersonAttributeColumn(:final adjustmentId) => setup.personAdjustmentValues[adjustmentId],
-    RatingMetricColumn(:final metricId) => _metricScores[setup.id]?[metricId],
-    RatingScoreColumn() => _ratingScores[setup.id],
+  // Rating scores ride along as numerical values so tables and charts treat them like any number.
+  AdjustmentValue? _rawValue(Setup setup, TableColumn column) => switch (column) {
+    ComponentAdjustmentColumn(:final adjustmentId) => setup.bikeValue(adjustmentId),
+    PersonAttributeColumn(:final adjustmentId) => setup.personValue(adjustmentId),
+    RatingMetricColumn(:final metricId) => _scoreValue(_metricScores[setup.id]?[metricId]),
+    RatingScoreColumn() => _scoreValue(_ratingScores[setup.id]),
     SetupTableColumn() => null,
   };
+
+  static NumericalValue? _scoreValue(double? score) => score == null ? null : NumericalValue(score);
 
   String _columnLabel(
     TableColumn column,

@@ -6,8 +6,8 @@ import 'adjustment_icon_name_notes.dart';
 
 class DisplayDurationAdjustmentWidget extends StatelessWidget {
   final DurationAdjustment adjustment;
-  final Duration? initialValue;
-  final Duration? value;
+  final DurationValue? initialValue;
+  final DurationValue? value;
   final bool highlighting;
   final bool isError;
   final VoidCallback? onRemove;
@@ -55,7 +55,7 @@ class DisplayDurationAdjustmentWidget extends StatelessWidget {
                   TextSpan(
                     children: [
                       TextSpan(
-                        text: Adjustment.formatValue(value),
+                        text: value?.display ?? '-',
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: highlightColor,
@@ -74,7 +74,7 @@ class DisplayDurationAdjustmentWidget extends StatelessWidget {
                   Opacity(
                     opacity: 0.7,
                     child: Text(
-                      Adjustment.formatValue(initialValue) + adjustment.unitSuffix(),
+                      (initialValue?.display ?? '-') + adjustment.unitSuffix(),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         fontFamily: 'monospace',
                         fontWeight: FontWeight.bold,

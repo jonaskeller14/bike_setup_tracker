@@ -251,12 +251,12 @@ class _SetupTileEmbeddedState extends State<SetupTileEmbedded> {
       persons: appRepository.persons.values,
     );
     final adjustmentValues = {
-      ...setup.bikeAdjustmentValues,
-      ...setup.personAdjustmentValues,
+      ...Setup.typedValues(setup.bikeAdjustmentValues),
+      ...Setup.typedValues(setup.personAdjustmentValues),
     };
     final previousAdjustmentValues = {
-      ...setup.previousBikeAdjustmentValues,
-      ...setup.previousPersonAdjustmentValues,
+      ...Setup.typedValues(setup.previousBikeAdjustmentValues),
+      ...Setup.typedValues(setup.previousPersonAdjustmentValues),
     };
     final displayPerson = widget.displayPersonAdjustmentValues && appSettings.enablePerson;
 

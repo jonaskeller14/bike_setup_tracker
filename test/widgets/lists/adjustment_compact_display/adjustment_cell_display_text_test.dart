@@ -87,8 +87,8 @@ void main() {
 
   CellDisplayText displayOf(_Case c, {required dynamic previousValue, bool isError = false}) => AdjustmentCell.resolve(
     adjustment: c.adjustment,
-    value: c.value,
-    previousValue: previousValue,
+    value: AdjustmentValue.fromRuntime(c.value),
+    previousValue: AdjustmentValue.fromRuntime(previousValue),
     isError: isError,
   ).displayText;
 
@@ -134,8 +134,8 @@ void main() {
       final text = cases.firstWhere((c) => c.type == 'text');
       final display = AdjustmentCell.resolve(
         adjustment: text.adjustment,
-        value: 'front\nrear',
-        previousValue: 'left\nright',
+        value: TextValue.orNull('front\nrear'),
+        previousValue: TextValue.orNull('left\nright'),
       ).displayText;
       expect(display.value, 'front rear');
       expect(display.previous, 'left right');
@@ -154,8 +154,11 @@ void main() {
       counted: true,
     );
 
-    CellDisplayText displayOf(Adjustment adjustment, dynamic value, dynamic previousValue) =>
-        AdjustmentCell.resolve(adjustment: adjustment, value: value, previousValue: previousValue).displayText;
+    CellDisplayText displayOf(Adjustment adjustment, dynamic value, dynamic previousValue) => AdjustmentCell.resolve(
+      adjustment: adjustment,
+      value: AdjustmentValue.fromRuntime(value),
+      previousValue: AdjustmentValue.fromRuntime(previousValue),
+    ).displayText;
 
     test('a previous value within the budget prints whole', () {
       expect(displayOf(text, 'Fox 38', 'Fox 36').previous, 'Fox 36');
@@ -184,8 +187,11 @@ void main() {
   group('Duration pairs', () {
     final duration = DurationAdjustment(id: 'd', name: 'Burn-in', notes: null, unit: null);
 
-    CellDisplayText displayOf(Duration value, Duration? previousValue) =>
-        AdjustmentCell.resolve(adjustment: duration, value: value, previousValue: previousValue).displayText;
+    CellDisplayText displayOf(Duration value, Duration? previousValue) => AdjustmentCell.resolve(
+      adjustment: duration,
+      value: DurationValue(value),
+      previousValue: previousValue == null ? null : DurationValue(previousValue),
+    ).displayText;
 
     test('zero seconds on both sides drops the seconds', () {
       final display = displayOf(const Duration(hours: 1, minutes: 35), const Duration(hours: 1, minutes: 20));

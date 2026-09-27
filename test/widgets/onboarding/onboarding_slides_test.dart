@@ -176,7 +176,7 @@ void main() {
     double pressure(WidgetTester tester) => tester
         .widget<DisplayNumericalAdjustmentWidget>(find.byType(DisplayNumericalAdjustmentWidget))
         .value!
-        .toDouble();
+        .value;
 
     /// A touch that lands on the card without reaching a control.
     Future<void> touchCard(WidgetTester tester) async {

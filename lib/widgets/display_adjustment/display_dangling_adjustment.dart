@@ -5,7 +5,7 @@ import 'adjustment_icon_name_notes.dart';
 
 class DisplayDanglingAdjustmentWidget extends StatelessWidget {
   final String name;
-  final dynamic value;
+  final AdjustmentValue? value;
   final VoidCallback? onRemove;
 
   const DisplayDanglingAdjustmentWidget({
@@ -41,7 +41,7 @@ class DisplayDanglingAdjustmentWidget extends StatelessWidget {
             child: Column(
               children: [
                 SelectableText(
-                  Adjustment.formatValue(value),
+                  value?.display ?? '-',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: highlightColor,

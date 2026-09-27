@@ -113,7 +113,7 @@ void main() {
     expect(identical(firstHistogram, secondHistogram), isTrue);
     expect(firstCounts, {'setup': 1});
     expect(firstHistogram.bars.single.activityCount, 1);
-    expect(firstHistogram.bars.single.exactValue, 20.0);
+    expect(firstHistogram.bars.single.exactValue, const NumericalValue(20.0));
   });
 
   test('invalidates after setup values and setup rows change', () async {
@@ -131,7 +131,7 @@ void main() {
 
     final changedValue = await service.getAdjustmentHistogram('adjustment');
     expect(identical(initial, changedValue), isFalse);
-    expect(changedValue.bars.single.exactValue, 25.0);
+    expect(changedValue.bars.single.exactValue, const NumericalValue(25.0));
 
     await (db.update(db.setups)..where((table) => table.id.equals('setup'))).write(
       const SetupsCompanion(isDeleted: Value(true)),

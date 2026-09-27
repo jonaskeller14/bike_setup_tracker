@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:collection/collection.dart' show DeepCollectionEquality;
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:uuid/uuid.dart';
@@ -162,7 +162,7 @@ class RatingEntry {
         dateTimeUTC == other.dateTimeUTC &&
         dateTimeLocal == other.dateTimeLocal &&
         notes == other.notes &&
-        mapEquals(metricValues, other.metricValues) &&
+        const DeepCollectionEquality().equals(metricValues, other.metricValues) &&
         ContextPosition.equal(position, other.position) &&
         ContextPlace.equal(place, other.place) &&
         weather == other.weather;
@@ -180,7 +180,7 @@ class RatingEntry {
       dateTimeUTC,
       dateTimeLocal,
       notes,
-      Object.hashAll(metricValues.entries),
+      const DeepCollectionEquality().hash(metricValues),
       position,
       place,
       weather,

@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart' show DeepCollectionEquality;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart' as geo;
@@ -265,8 +266,8 @@ class Setup {
         setEquals(tags, other.tags) &&
         bike == other.bike &&
         person == other.person &&
-        mapEquals(bikeAdjustmentValues, other.bikeAdjustmentValues) &&
-        mapEquals(personAdjustmentValues, other.personAdjustmentValues) &&
+        const DeepCollectionEquality().equals(bikeAdjustmentValues, other.bikeAdjustmentValues) &&
+        const DeepCollectionEquality().equals(personAdjustmentValues, other.personAdjustmentValues) &&
         ContextPosition.equal(position, other.position) &&
         ContextPlace.equal(place, other.place) &&
         weather == other.weather &&
@@ -287,8 +288,8 @@ class Setup {
       Object.hashAll(tags),
       bike,
       person,
-      Object.hashAll(bikeAdjustmentValues.entries),
-      Object.hashAll(personAdjustmentValues.entries),
+      const DeepCollectionEquality().hash(bikeAdjustmentValues),
+      const DeepCollectionEquality().hash(personAdjustmentValues),
       position,
       place,
       weather,

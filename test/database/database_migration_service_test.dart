@@ -176,9 +176,10 @@ void main() {
       // Values are stored JSON-encoded (via encodeAdjustmentValue), the same as
       // the DAO write path — strings are quoted and durations are microseconds.
       final valueMap = {for (var v in values) v.adjustmentId: v.value};
-      expect(valueMap['adj1'], '5.0');
+      // Decoded by adjustment type: step → int, legacy single-select → list.
+      expect(valueMap['adj1'], '5');
       expect(valueMap['adj2'], 'true');
-      expect(valueMap['adj3'], '"Open"');
+      expect(valueMap['adj3'], '["Open"]');
       expect(valueMap['adj4'], '85.5');
       expect(valueMap['adj5'], '"Some note"');
       expect(valueMap['adj6'], '5400000000');

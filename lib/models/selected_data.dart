@@ -1,3 +1,4 @@
+import 'adjustment/adjustment.dart';
 import 'adjustment/adjustment_unit.dart';
 import 'bike.dart';
 import 'component/component.dart';
@@ -44,17 +45,32 @@ class SelectedData {
     final json = _normalizeLegacyUnits(rawJson) as Map<String, dynamic>;
 
     final loadedPersons = (json['persons'] as List<dynamic>? ?? [])
-        .map((a) => Person.fromJson(a as Map<String, dynamic>));
+        .map((a) => Person.fromJson(a as Map<String, dynamic>))
+        .toList();
     final loadedBikes = (json['bikes'] as List<dynamic>? ?? [])
         .map((a) => Bike.fromJson(a as Map<String, dynamic>));
     final loadedComponents = (json['components'] as List<dynamic>? ?? [])
-        .map((a) => Component.fromJson(json: a as Map<String, dynamic>));
-    final loadedSetups = (json['setups'] as List<dynamic>? ?? [])
-        .map((a) => Setup.fromJson(json: a as Map<String, dynamic>));
+        .map((a) => Component.fromJson(json: a as Map<String, dynamic>))
+        .toList();
     final loadedRatings = (json['ratings'] as List<dynamic>? ?? [])
-        .map((a) => Rating.fromJson(json: a as Map<String, dynamic>));
+        .map((a) => Rating.fromJson(json: a as Map<String, dynamic>))
+        .toList();
+
+    final adjustmentTypes = {
+      for (final component in loadedComponents)
+        for (final adjustment in component.adjustments) adjustment.id: adjustment.type,
+      for (final person in loadedPersons)
+        for (final adjustment in person.adjustments) adjustment.id: adjustment.type,
+    };
+    final metricTypes = {
+      for (final rating in loadedRatings)
+        for (final metric in rating.metrics) metric.id: metric.adjustment.type,
+    };
+
+    final loadedSetups = (json['setups'] as List<dynamic>? ?? [])
+        .map((a) => Setup.fromJson(json: a as Map<String, dynamic>, adjustmentTypes: adjustmentTypes));
     final loadedRatingEntries = (json['ratingEntries'] as List<dynamic>? ?? [])
-        .map((a) => RatingEntry.fromJson(json: a as Map<String, dynamic>));
+        .map((a) => RatingEntry.fromJson(json: a as Map<String, dynamic>, metricTypes: metricTypes));
     final loadedTaskRules = (json['taskRules'] as List<dynamic>? ?? [])
         .map((a) => TaskRule.fromJson(a as Map<String, dynamic>));
     final loadedTaskEntries = (json['taskEntries'] as List<dynamic>? ?? [])

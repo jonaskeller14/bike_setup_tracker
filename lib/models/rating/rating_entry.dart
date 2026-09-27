@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:uuid/uuid.dart';
 
+import '../adjustment/adjustment.dart';
 import '../context/context_place.dart';
 import '../context/context_position.dart';
 import '../context/context_weather.dart';
@@ -67,7 +68,10 @@ class RatingEntry {
     'weather': weather?.toJson(),
   };
 
-  factory RatingEntry.fromJson({required Map<String, dynamic> json}) {
+  factory RatingEntry.fromJson({
+    required Map<String, dynamic> json,
+    Map<String, AdjustmentType> metricTypes = const {},
+  }) {
     final int? version = json['version'] as int?;
     switch (version) {
       case null || 1:
@@ -84,7 +88,8 @@ class RatingEntry {
               .copyWith(isUtc: false),
           notes: json['notes'] as String?,
           metricValues: Setup.adjustmentValuesFromJson(
-              (json['metricValues']) as Map<String, dynamic>? ?? {}),
+              (json['metricValues']) as Map<String, dynamic>? ?? {},
+              adjustmentTypes: metricTypes),
           position: json['position'] != null ? ContextPosition.fromJson(json['position'] as Map<String, dynamic>) : null,
           place: json['place'] != null ? ContextPlace.fromJson(json['place'] as Map<String, dynamic>) : null,
           weather: json['weather'] != null ? ContextWeather.fromJson(json['weather'] as Map<String, dynamic>) : null,

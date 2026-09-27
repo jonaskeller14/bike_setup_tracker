@@ -84,7 +84,10 @@ class Setup {
     'images': images,
   };
 
-  factory Setup.fromJson({required Map<String, dynamic> json}) {
+  factory Setup.fromJson({
+    required Map<String, dynamic> json,
+    Map<String, AdjustmentType> adjustmentTypes = const {},
+  }) {
     final int? version = json["version"] as int?;
     switch (version) {
       case null || 1 || 2 || 3 || 4 || 5 || 6 || 7:
@@ -100,8 +103,8 @@ class Setup {
           tags: (json['tags'] as List?)?.map((item) => item as String).toSet() ?? <String>{},
           bike: json['bike'] as String,
           person: json['person'] as String?,
-          bikeAdjustmentValues: adjustmentValuesFromJson((json['bikeAdjustmentValues'] ?? json['adjustmentValues']) as Map<String, dynamic>? ?? {}),
-          personAdjustmentValues: adjustmentValuesFromJson((json['personAdjustmentValues']) as Map<String, dynamic>? ?? {}),
+          bikeAdjustmentValues: adjustmentValuesFromJson((json['bikeAdjustmentValues'] ?? json['adjustmentValues']) as Map<String, dynamic>? ?? {}, adjustmentTypes: adjustmentTypes),
+          personAdjustmentValues: adjustmentValuesFromJson((json['personAdjustmentValues']) as Map<String, dynamic>? ?? {}, adjustmentTypes: adjustmentTypes),
           position: json['position'] != null ? ContextPosition.fromJson(json['position'] as Map<String, dynamic>) : null,
           place: json['place'] != null ? ContextPlace.fromJson(json['place'] as Map<String, dynamic>) : null,
           weather: json['weather'] != null ? ContextWeather.fromJson(json['weather'] as Map<String, dynamic>) : null,
@@ -120,25 +123,52 @@ class Setup {
     });
   }
 
-  static Map<String, dynamic> adjustmentValuesFromJson(Map<String, dynamic> adjustmentValues) {
+  /// [adjustmentTypes] maps adjustment ids from the same backup to their type.
+  /// Values of unknown ids, or whose JSON shape does not fit their type, fall
+  /// back to guessing the type from the shape.
+  static Map<String, dynamic> adjustmentValuesFromJson(
+    Map<String, dynamic> adjustmentValues, {
+    Map<String, AdjustmentType> adjustmentTypes = const {},
+  }) {
     return adjustmentValues.map((key, value) {
-      switch (value) {
-        case String():
-          final Duration? duration = DurationAdjustment.tryParseDurationString(value);
-          if (duration != null) {
-            return MapEntry(key, duration);
-          } else if (value.isEmpty) {
-            return MapEntry(key, null);
-          } else {
-            return MapEntry(key, value);
-          } // TextAdjustment --> String?, DurationAdjustment --> Duration
-        case List():
-          // Multi-select CategoricalAdjustment: JSON arrays decode to
-          // List<dynamic>; coerce to List<String>.
-          return MapEntry(key, value.map((e) => e.toString()).toList());
-        default: return MapEntry(key, value);
-      }
+      final type = adjustmentTypes[key];
+      return MapEntry(key, type == null ? _adjustmentValueFromJsonShape(value) : _adjustmentValueFromJson(value, type));
     });
+  }
+
+  static dynamic _adjustmentValueFromJson(dynamic value, AdjustmentType type) {
+    return switch ((type, value)) {
+      (_, null) => null,
+      (_, String() && '') => null,
+      (AdjustmentType.boolean, final bool value) => value,
+      (AdjustmentType.step, final num value) => value.toInt(),
+      (AdjustmentType.numerical, final num value) => value.toDouble(),
+      (AdjustmentType.text, final String value) => value,
+      (AdjustmentType.categorical, final List<dynamic> value) => value.map((e) => e.toString()).toList(),
+      // Legacy single-select categorical.
+      (AdjustmentType.categorical, final String value) => <String>[value],
+      (AdjustmentType.duration, final String value) => DurationAdjustment.tryParseDurationString(value),
+      _ => _adjustmentValueFromJsonShape(value),
+    };
+  }
+
+  static dynamic _adjustmentValueFromJsonShape(dynamic value) {
+    switch (value) {
+      case String():
+        final Duration? duration = DurationAdjustment.tryParseDurationString(value);
+        if (duration != null) {
+          return duration;
+        } else if (value.isEmpty) {
+          return null;
+        } else {
+          return value;
+        } // TextAdjustment --> String?, DurationAdjustment --> Duration
+      case List():
+        // Multi-select CategoricalAdjustment: JSON arrays decode to
+        // List<dynamic>; coerce to List<String>.
+        return value.map((e) => e.toString()).toList();
+      default: return value;
+    }
   }
 
   Setup deepCopy() {

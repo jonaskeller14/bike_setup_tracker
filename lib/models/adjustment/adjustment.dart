@@ -47,6 +47,15 @@ sealed class Adjustment {
   Map<String, dynamic> toJson();
   IconData getIconData();
 
+  AdjustmentType get type => switch (this) {
+    BooleanAdjustment() => AdjustmentType.boolean,
+    CategoricalAdjustment() => AdjustmentType.categorical,
+    StepAdjustment() => AdjustmentType.step,
+    NumericalAdjustment() => AdjustmentType.numerical,
+    TextAdjustment() => AdjustmentType.text,
+    DurationAdjustment() => AdjustmentType.duration,
+  };
+
   String unitSuffix() {
     return unit == null ? "" : " ${unit!.label}";
   }

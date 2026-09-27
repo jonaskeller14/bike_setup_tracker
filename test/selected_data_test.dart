@@ -1,5 +1,15 @@
 import 'dart:convert';
+import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
+import 'package:bike_setup_tracker/models/bike.dart';
+import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/component/installation.dart';
+import 'package:bike_setup_tracker/models/person.dart';
+import 'package:bike_setup_tracker/models/rating/rating.dart';
+import 'package:bike_setup_tracker/models/rating/rating_association.dart';
+import 'package:bike_setup_tracker/models/rating/rating_entry.dart';
+import 'package:bike_setup_tracker/models/rating/rating_metric.dart';
 import 'package:bike_setup_tracker/models/selected_data.dart';
+import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/task/task_association.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
@@ -40,5 +50,64 @@ void main() {
     final importedRule = importedData.taskRules.values.first;
     expect(importedRule.interval, isNotNull);
     expect(importedRule.interval, isA<DurationThreshold>());
+  });
+
+  test('Import decodes adjustment values with their adjustment type', () {
+    final bike = Bike(name: 'Bike', person: null);
+    final note = TextAdjustment(name: 'Note', notes: null, unit: null);
+    final side = CategoricalAdjustment(name: 'Side', notes: null, unit: null, options: {'Front', 'Rear'});
+    final pressure = NumericalAdjustment(name: 'Pressure', notes: null, unit: null, min: 0, max: 300);
+    final component = Component(
+      name: 'Fork',
+      installations: [Installation.sinceBeginning(parent: bike.id)],
+      componentType: ComponentType.fork,
+      adjustments: [note, side, pressure],
+    );
+    final riderNote = TextAdjustment(name: 'Rider note', notes: null, unit: null);
+    final person = Person(name: 'Rider', adjustments: [riderNote]);
+    final comment = TextAdjustment(name: 'Comment', notes: null, unit: null);
+    final rating = Rating(
+      name: 'Rating',
+      association: const GlobalRatingAssociation(),
+      metrics: [RatingMetric(adjustment: comment)],
+    );
+    final setup = Setup(
+      id: 's1',
+      datetime: DateTime.utc(2026, 9, 27),
+      datetimeLocal: DateTime(2026, 9, 27),
+      tags: const {},
+      bike: bike.id,
+      person: person.id,
+      bikeAdjustmentValues: {note.id: '01:30:00', side.id: 'Front', pressure.id: 89, 'orphan': '01:30:00'},
+      personAdjustmentValues: {riderNote.id: ''},
+    );
+    final entry = RatingEntry(
+      id: 'r1',
+      bike: bike.id,
+      setupId: setup.id,
+      dateTimeUTC: DateTime.utc(2026, 9, 27),
+      dateTimeLocal: DateTime(2026, 9, 27),
+      metricValues: {comment.id: '0:10:00'},
+    );
+
+    final exportMap = <String, dynamic>{
+      'persons': [person.toJson()],
+      'bikes': [bike.toJson()],
+      'components': [component.toJson()],
+      'setups': [setup.toJson()],
+      'ratings': [rating.toJson()],
+      'ratingEntries': [entry.toJson()],
+    };
+    final importedData = SelectedData.fromJson(jsonDecode(jsonEncode(exportMap)) as Map<String, dynamic>);
+
+    final importedSetup = importedData.setups['s1']!;
+    expect(importedSetup.bikeAdjustmentValues[note.id], '01:30:00');
+    expect(importedSetup.bikeAdjustmentValues[side.id], ['Front']);
+    expect(importedSetup.bikeAdjustmentValues[pressure.id], isA<double>());
+    expect(importedSetup.bikeAdjustmentValues[pressure.id], 89.0);
+    // Unknown ids keep the shape heuristic.
+    expect(importedSetup.bikeAdjustmentValues['orphan'], const Duration(hours: 1, minutes: 30));
+    expect(importedSetup.personAdjustmentValues[riderNote.id], isNull);
+    expect(importedData.ratingEntries['r1']!.metricValues[comment.id], '0:10:00');
   });
 }

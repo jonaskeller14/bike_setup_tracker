@@ -269,7 +269,7 @@ class _SetupTableState extends State<SetupTable> {
 
   DataCell _adjustmentCell(BuildContext context, Setup setup, TableColumn column, dynamic previousValue) {
     final value = widget.valueFor(setup, column);
-    final bool isChanged = value != null && previousValue != value;
+    final bool isChanged = value != null && !adjustmentValuesEqual(previousValue, value);
     final bool isInitial = previousValue == null;
     final bool isDangling = value != null && (widget.isDangling?.call(setup, column) ?? false);
     final highlights = Theme.of(context).extension<ValueHighlightColors>();

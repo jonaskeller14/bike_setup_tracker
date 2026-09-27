@@ -33,6 +33,22 @@ class Setup {
   Map<String, dynamic> previousBikeAdjustmentValues = {};
   Map<String, dynamic> previousPersonAdjustmentValues = {};
 
+  AdjustmentValue? bikeValue(String id) => AdjustmentValue.fromRuntime(bikeAdjustmentValues[id]);
+  AdjustmentValue? personValue(String id) => AdjustmentValue.fromRuntime(personAdjustmentValues[id]);
+  AdjustmentValue? previousBikeValue(String id) => AdjustmentValue.fromRuntime(previousBikeAdjustmentValues[id]);
+  AdjustmentValue? previousPersonValue(String id) => AdjustmentValue.fromRuntime(previousPersonAdjustmentValues[id]);
+
+  /// Present values only; entries whose value is absent are skipped.
+  Iterable<MapEntry<String, AdjustmentValue>> get bikeValueEntries => typedValueEntries(bikeAdjustmentValues);
+  Iterable<MapEntry<String, AdjustmentValue>> get personValueEntries => typedValueEntries(personAdjustmentValues);
+
+  static Iterable<MapEntry<String, AdjustmentValue>> typedValueEntries(Map<String, dynamic> values) sync* {
+    for (final entry in values.entries) {
+      final value = AdjustmentValue.fromRuntime(entry.value);
+      if (value != null) yield MapEntry(entry.key, value);
+    }
+  }
+
   static const IconData iconData = Icons.tune;
 
   static const String namePlaceholder = 'Unnamed Setup';

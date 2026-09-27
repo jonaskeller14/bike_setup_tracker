@@ -26,6 +26,11 @@ class RatingEntry {
   final geo.Placemark? place;
   final ContextWeather? weather;
 
+  AdjustmentValue? metricValue(String id) => AdjustmentValue.fromRuntime(metricValues[id]);
+
+  /// Present values only; entries whose value is absent are skipped.
+  Iterable<MapEntry<String, AdjustmentValue>> get metricValueEntries => Setup.typedValueEntries(metricValues);
+
   static const IconData iconData = Icons.star_rate;
 
   static const String namePlaceholder = 'Unnamed Rating';

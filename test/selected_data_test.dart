@@ -78,36 +78,41 @@ void main() {
       tags: const {},
       bike: bike.id,
       person: person.id,
-      bikeAdjustmentValues: {note.id: '01:30:00', side.id: 'Front', pressure.id: 89, 'orphan': '01:30:00'},
-      personAdjustmentValues: {riderNote.id: ''},
+      bikeAdjustmentValues: {note.id: TextValue.orNull('01:30:00')!, 'orphan': TextValue.orNull('01:30:00')!},
+      personAdjustmentValues: const {},
     );
+    // Legacy and loosely typed shapes found in older backups.
+    final setupJson = setup.toJson();
+    (setupJson['bikeAdjustmentValues'] as Map<String, dynamic>)
+      ..[side.id] = 'Front'
+      ..[pressure.id] = 89;
+    setupJson['personAdjustmentValues'] = {riderNote.id: ''};
     final entry = RatingEntry(
       id: 'r1',
       bike: bike.id,
       setupId: setup.id,
       dateTimeUTC: DateTime.utc(2026, 9, 27),
       dateTimeLocal: DateTime(2026, 9, 27),
-      metricValues: {comment.id: '0:10:00'},
+      metricValues: {comment.id: TextValue.orNull('0:10:00')!},
     );
 
     final exportMap = <String, dynamic>{
       'persons': [person.toJson()],
       'bikes': [bike.toJson()],
       'components': [component.toJson()],
-      'setups': [setup.toJson()],
+      'setups': [setupJson],
       'ratings': [rating.toJson()],
       'ratingEntries': [entry.toJson()],
     };
     final importedData = SelectedData.fromJson(jsonDecode(jsonEncode(exportMap)) as Map<String, dynamic>);
 
     final importedSetup = importedData.setups['s1']!;
-    expect(importedSetup.bikeAdjustmentValues[note.id], '01:30:00');
-    expect(importedSetup.bikeAdjustmentValues[side.id], ['Front']);
-    expect(importedSetup.bikeAdjustmentValues[pressure.id], isA<double>());
-    expect(importedSetup.bikeAdjustmentValues[pressure.id], 89.0);
+    expect(importedSetup.bikeAdjustmentValues[note.id], TextValue.orNull('01:30:00'));
+    expect(importedSetup.bikeAdjustmentValues[side.id], CategoricalValue(['Front']));
+    expect(importedSetup.bikeAdjustmentValues[pressure.id], const NumericalValue(89.0));
     // Unknown ids keep the shape heuristic.
-    expect(importedSetup.bikeAdjustmentValues['orphan'], const Duration(hours: 1, minutes: 30));
-    expect(importedSetup.personAdjustmentValues[riderNote.id], isNull);
-    expect(importedData.ratingEntries['r1']!.metricValues[comment.id], '0:10:00');
+    expect(importedSetup.bikeAdjustmentValues['orphan'], const DurationValue(Duration(hours: 1, minutes: 30)));
+    expect(importedSetup.personAdjustmentValues, isEmpty);
+    expect(importedData.ratingEntries['r1']!.metricValues[comment.id], TextValue.orNull('0:10:00'));
   });
 }

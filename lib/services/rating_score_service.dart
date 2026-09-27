@@ -17,7 +17,7 @@ class EntryScore {
   bool get isComplete => answeredScored >= totalScored;
 }
 
-typedef ScoringInput = ({List<RatingMetric> metrics, Map<String, dynamic> values});
+typedef ScoringInput = ({List<RatingMetric> metrics, Map<String, AdjustmentValue> values});
 
 /// Per-metric contribution row for the entry detail breakdown ("show your work").
 class MetricScoreBreakdown {
@@ -59,42 +59,42 @@ class EntryScoreBreakdown {
 class RatingScoreService {
   const RatingScoreService._();
 
-  static double? normalize(RatingMetric metric, dynamic value) {
+  static double? normalize(RatingMetric metric, AdjustmentValue? value) {
     if (value == null) return null;
     final adjustment = metric.adjustment;
     switch (adjustment) {
       case final BooleanAdjustment _:
-        if (value is! bool) return null;
-        return value ? 1.0 : 0.0;
+        if (value is! BooleanValue) return null;
+        return value.value ? 1.0 : 0.0;
       case final StepAdjustment a:
-        if (value is! int) return null;
+        if (value is! StepValue) return null;
         if (a.max <= a.min) return null;
-        return ((value - a.min) / (a.max - a.min)).clamp(0.0, 1.0).toDouble();
+        return ((value.value - a.min) / (a.max - a.min)).clamp(0.0, 1.0).toDouble();
       case final NumericalAdjustment a:
-        if (value is! double) return null;
+        if (value is! NumericalValue) return null;
         if (!a.min.isFinite || !a.max.isFinite || a.max <= a.min) return null;
-        return ((value - a.min) / (a.max - a.min)).clamp(0.0, 1.0).toDouble();
+        return ((value.value - a.min) / (a.max - a.min)).clamp(0.0, 1.0).toDouble();
       case final DurationAdjustment a:
-        if (value is! Duration) return null;
+        if (value is! DurationValue) return null;
         final min = a.min;
         final max = a.max;
         if (min == null || max == null || max.inMicroseconds <= min.inMicroseconds) {
           return null;
         }
-        return ((value.inMicroseconds - min.inMicroseconds) / (max.inMicroseconds - min.inMicroseconds)).clamp(0.0, 1.0).toDouble();
+        return ((value.value.inMicroseconds - min.inMicroseconds) / (max.inMicroseconds - min.inMicroseconds)).clamp(0.0, 1.0).toDouble();
       case final CategoricalAdjustment _:
       case final TextAdjustment _:
         return null;
     }
   }
 
-  static double? goodness(RatingMetric metric, dynamic value) {
+  static double? goodness(RatingMetric metric, AdjustmentValue? value) {
     final normalizedValue = normalize(metric, value);
     if (normalizedValue == null) return null;
     return metric.weight >= 0 ? normalizedValue : 1 - normalizedValue;
   }
 
-  static EntryScore? scoreEntry(List<RatingMetric> metrics, Map<String, dynamic> values) {
+  static EntryScore? scoreEntry(List<RatingMetric> metrics, Map<String, AdjustmentValue> values) {
     int totalScored = 0;
     int answeredScored = 0;
     double weightedSum = 0;
@@ -128,7 +128,7 @@ class RatingScoreService {
     );
   }
 
-  static EntryScoreBreakdown breakdown(List<RatingMetric> metrics, Map<String, dynamic> values) {
+  static EntryScoreBreakdown breakdown(List<RatingMetric> metrics, Map<String, AdjustmentValue> values) {
     final rows = <MetricScoreBreakdown>[];
     for (final metric in metrics) {
       if (!metric.isScored) continue;

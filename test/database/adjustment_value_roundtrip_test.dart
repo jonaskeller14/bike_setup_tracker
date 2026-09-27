@@ -5,12 +5,11 @@ import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// End-to-end DB round-trip for adjustment values: write via the setups DAO
-/// (`encodeAdjustmentValue`) and read back via the mapper (`decodeAdjustmentValue`).
+/// (`AdjustmentValue.encode`) and read back via the mapper (`AdjustmentValue.decode`).
 ///
 /// Since schema v11 every value is stored JSON-encoded, so the stored shape is
 /// structural: a *text* value which happens to be valid JSON is never decoded
-/// into a `List` (which would later crash a text field), while a categorical
-/// value round-trips as `List<String>`. A non-JSON row (a legacy value that
+/// into a categorical value, while a categorical value round-trips as a list. A non-JSON row (a legacy value that
 /// somehow escaped the v11 migration) degrades gracefully via the decoder's
 /// fallback rather than crashing the load.
 void main() {
@@ -51,7 +50,7 @@ void main() {
   }
 
   /// Persists [bikeValues] through the normal write path (encode).
-  Future<Setup> roundTrip(Map<String, dynamic> bikeValues) async {
+  Future<Setup> roundTrip(Map<String, AdjustmentValue> bikeValues) async {
     final setup = bareSetup();
     await db.setupsDao.insertSetupWithValues(
       setup: setup.toCompanion(),
@@ -76,37 +75,32 @@ void main() {
     return readSetup();
   }
 
-  test('a JSON-looking text value round-trips as a String, categorical as a List', () async {
+  test('a JSON-looking text value round-trips as text, categorical as a list', () async {
     await insertAdjustment('txt1', 'text', '{"version":1}');
     await insertAdjustment('cat1', 'categorical',
         '{"version":2,"multiSelect":true,"options":["Front","Rear"]}');
 
     final restored = await roundTrip({
-      'txt1': '["abc"]', // user literally typed this into a text field
-      'cat1': ['Front', 'Rear'],
+      'txt1': TextValue.orNull('["abc"]')!, // user literally typed this into a text field
+      'cat1': CategoricalValue(['Front', 'Rear']),
     });
 
-    expect(restored.bikeAdjustmentValues['txt1'], isA<String>());
-    expect(restored.bikeAdjustmentValues['txt1'], '["abc"]');
-    expect(restored.bikeAdjustmentValues['cat1'], isA<List<String>>());
-    expect(restored.bikeAdjustmentValues['cat1'], ['Front', 'Rear']);
+    expect(restored.bikeAdjustmentValues['txt1'], TextValue.orNull('["abc"]'));
+    expect(restored.bikeAdjustmentValues['cat1'], CategoricalValue(['Front', 'Rear']));
   });
 
-  test('single-select categorical round-trips as a one-element List', () async {
+  test('single-select categorical round-trips as a one-element list', () async {
     await insertAdjustment('cat1', 'categorical', '{"version":1,"options":["Open","Firm"]}');
-    final restored = await roundTrip({'cat1': ['Open']});
-    expect(restored.bikeAdjustmentValues['cat1'], isA<List<String>>());
-    expect(restored.bikeAdjustmentValues['cat1'], ['Open']);
+    final restored = await roundTrip({'cat1': CategoricalValue(['Open'])});
+    expect(restored.bikeAdjustmentValues['cat1'], CategoricalValue(['Open']));
   });
 
-  test('a categorical value written as a scalar String reads back as a wrapped List', () async {
-    // Multi-select never shipped, so callers still pass a plain option String;
-    // it is JSON-encoded as a scalar and read back canonicalised to List<String>
-    // (the `type` column, not the storage shape, marks it as categorical).
+  test('a categorical value stored as a scalar JSON string reads back as a wrapped list', () async {
+    // Single-select values were stored as a JSON string before multi-select;
+    // the `type` column, not the storage shape, marks it as categorical.
     await insertAdjustment('cat1', 'categorical', '{"version":1,"options":["Brand A","Brand B"]}');
-    final restored = await roundTrip({'cat1': 'Brand A'});
-    expect(restored.bikeAdjustmentValues['cat1'], isA<List<String>>());
-    expect(restored.bikeAdjustmentValues['cat1'], ['Brand A']);
+    final restored = await withLegacyValue('cat1', '"Brand A"');
+    expect(restored.bikeAdjustmentValues['cat1'], CategoricalValue(['Brand A']));
   });
 
   test('a non-JSON categorical row (un-migrated legacy value) falls back to a wrapped list', () async {
@@ -115,14 +109,13 @@ void main() {
     // than crashing the whole setup load.
     await insertAdjustment('cat1', 'categorical', '{"version":1,"options":["Open","Firm"]}');
     final restored = await withLegacyValue('cat1', 'Open');
-    expect(restored.bikeAdjustmentValues['cat1'], ['Open']);
+    expect(restored.bikeAdjustmentValues['cat1'], CategoricalValue(['Open']));
   });
 
   test('a non-JSON text row (un-migrated legacy value) falls back to the raw string', () async {
     await insertAdjustment('txt1', 'text', '{"version":1}');
     final restored = await withLegacyValue('txt1', 'plain notes');
-    expect(restored.bikeAdjustmentValues['txt1'], isA<String>());
-    expect(restored.bikeAdjustmentValues['txt1'], 'plain notes');
+    expect(restored.bikeAdjustmentValues['txt1'], TextValue.orNull('plain notes'));
   });
 
   test('stored rows decode to typed values and re-encode byte-identically', () async {
@@ -137,12 +130,12 @@ void main() {
     await db.setupsDao.insertSetupWithValues(
       setup: bareSetup().toCompanion(),
       bikeValues: {
-        'bool1': true,
-        'step1': 4,
-        'num1': 89.0,
-        'txt1': '01:30:00',
-        'cat1': ['A', 'B', 'A'],
-        'dur1': const Duration(minutes: 90),
+        'bool1': const BooleanValue(true),
+        'step1': const StepValue(4),
+        'num1': const NumericalValue(89.0),
+        'txt1': TextValue.orNull('01:30:00')!,
+        'cat1': CategoricalValue(['A', 'B', 'A']),
+        'dur1': const DurationValue(Duration(minutes: 90)),
       },
       personValues: const {},
     );

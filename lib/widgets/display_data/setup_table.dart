@@ -256,9 +256,9 @@ class _SetupTableState extends State<SetupTable> {
           ),
         };
       case ComponentAdjustmentColumn(:final adjustmentId):
-        return _adjustmentCell(context, setup, column, setup.previousBikeValue(adjustmentId));
+        return _adjustmentCell(context, setup, column, setup.previousBikeAdjustmentValues[adjustmentId]);
       case PersonAttributeColumn(:final adjustmentId):
-        return _adjustmentCell(context, setup, column, setup.previousPersonValue(adjustmentId));
+        return _adjustmentCell(context, setup, column, setup.previousPersonAdjustmentValues[adjustmentId]);
       case RatingScoreColumn() || RatingMetricColumn():
         final score = widget.valueFor(setup, column)?.asNum;
         return DataCell(

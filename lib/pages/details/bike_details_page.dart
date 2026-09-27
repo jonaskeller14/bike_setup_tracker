@@ -54,7 +54,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
   // Setup columns are rendered by the table itself; only data-driven columns resolve to a value here.
   // Rating scores ride along as numerical values so tables and charts treat them like any number.
   AdjustmentValue? _rawValue(Setup setup, TableColumn column) => switch (column) {
-    PersonAttributeColumn(:final adjustmentId) => setup.personValue(adjustmentId),
+    PersonAttributeColumn(:final adjustmentId) => setup.personAdjustmentValues[adjustmentId],
     RatingMetricColumn(:final metricId) => _scoreValue(_metricScores[setup.id]?[metricId]),
     RatingScoreColumn() => _scoreValue(_ratingScores[setup.id]),
     ComponentAdjustmentColumn() || SetupTableColumn() => null,

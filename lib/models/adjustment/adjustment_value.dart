@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:intl/intl.dart';
 
-import '../../database/adjustment_value_codec.dart';
 import 'adjustment.dart';
 
 sealed class AdjustmentValue {
@@ -11,43 +10,52 @@ sealed class AdjustmentValue {
 
   /// Decodes a stored [raw] string with the adjustment [type]. Returns `null`
   /// for an absent value (JSON `null`, unparseable legacy scalar, empty text).
+  ///
+  /// The type is required because JSON alone cannot distinguish a step (`int`)
+  /// from a numerical (`double`), nor a duration (stored as integer
+  /// microseconds) from a plain number.
   static AdjustmentValue? decode(String raw, AdjustmentType type) {
-    final decoded = decodeAdjustmentValue(raw, type);
+    final Object? decoded;
+    try {
+      decoded = jsonDecode(raw);
+    } on FormatException {
+      // Non-JSON: a legacy plain value that escaped the v11 migration.
+      return decodeLegacy(raw, type);
+    }
     if (decoded == null) return null;
     return switch (type) {
       AdjustmentType.boolean => BooleanValue(decoded as bool),
-      AdjustmentType.step => StepValue(decoded as int),
-      AdjustmentType.numerical => NumericalValue(decoded as double),
+      AdjustmentType.step => StepValue((decoded as num).toInt()),
+      AdjustmentType.numerical => NumericalValue((decoded as num).toDouble()),
       AdjustmentType.text => TextValue.orNull(decoded as String),
-      AdjustmentType.categorical => CategoricalValue(decoded as List<String>),
-      AdjustmentType.duration => DurationValue(decoded as Duration),
+      // A scalar is a single-select value encoded as a JSON string (multi-select
+      // never shipped). The adjustment `type` is what tells this apart from a
+      // text value with the same storage.
+      AdjustmentType.categorical => CategoricalValue(
+          decoded is List ? decoded.map((e) => e.toString()).toList() : [decoded.toString()]),
+      AdjustmentType.duration => DurationValue(Duration(microseconds: (decoded as num).toInt())),
     };
   }
 
-  /// Temporary bridge from the untyped runtime maps; removed once the maps are
-  /// typed.
-  static AdjustmentValue? fromRuntime(dynamic value) {
-    return switch (value) {
-      null => null,
-      bool() => BooleanValue(value),
-      int() => StepValue(value),
-      double() => NumericalValue(value),
-      String() => TextValue.orNull(value),
-      List() => CategoricalValue(value.map((e) => e.toString()).toList()),
-      Duration() => DurationValue(value),
-      _ => throw ArgumentError.value(value, 'value', 'Unsupported adjustment value type ${value.runtimeType}'),
-    };
-  }
-
-  static Object toRuntime(AdjustmentValue value) {
-    return switch (value) {
-      BooleanValue(:final value) => value,
-      StepValue(:final value) => value,
-      NumericalValue(:final value) => value,
-      TextValue(:final value) => value,
-      CategoricalValue(:final options) => List<String>.of(options),
-      DurationValue(:final value) => value,
-      UnresolvedValue() => throw ArgumentError.value(value, 'value', 'Unresolved values have no runtime form'),
+  /// Parses the pre-v11 per-type format: scalars via `.toString()`, durations
+  /// via `Duration.toString()`, and categoricals as a single plain option string.
+  static AdjustmentValue? decodeLegacy(String raw, AdjustmentType type) {
+    return switch (type) {
+      AdjustmentType.boolean => BooleanValue(raw.toLowerCase() == 'true'),
+      AdjustmentType.step => switch (int.tryParse(raw)) {
+          final value? => StepValue(value),
+          null => null,
+        },
+      AdjustmentType.numerical => switch (double.tryParse(raw)) {
+          final value? => NumericalValue(value),
+          null => null,
+        },
+      AdjustmentType.text => TextValue.orNull(raw),
+      AdjustmentType.categorical => CategoricalValue([raw]),
+      AdjustmentType.duration => switch (DurationAdjustment.tryParseDurationString(raw)) {
+          final value? => DurationValue(value),
+          null => null,
+        },
     };
   }
 

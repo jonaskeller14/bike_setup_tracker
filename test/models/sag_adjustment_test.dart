@@ -35,9 +35,9 @@ void main() {
     });
 
     test('stores a plain double percent, exactly like its parent type', () {
-      expect(build().isValidValue(28.0), isTrue);
-      expect(build().isValidValue(101.0), isFalse);
-      expect(build().isValidValue(-1.0), isFalse);
+      expect(build().isValidValue(const NumericalValue(28.0)), isTrue);
+      expect(build().isValidValue(const NumericalValue(101.0)), isFalse);
+      expect(build().isValidValue(const NumericalValue(-1.0)), isFalse);
     });
   });
 

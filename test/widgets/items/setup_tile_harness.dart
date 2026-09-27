@@ -95,7 +95,7 @@ class SetupTileHarness {
   Setup buildSetup({
     required String name,
     required DateTime local,
-    Map<String, dynamic> values = const {},
+    Map<String, AdjustmentValue> values = const {},
     String? notes,
   }) {
     return Setup(
@@ -106,7 +106,7 @@ class SetupTileHarness {
       tags: {},
       bike: bikeId,
       person: null,
-      bikeAdjustmentValues: Map<String, dynamic>.from(values),
+      bikeAdjustmentValues: Map<String, AdjustmentValue>.from(values),
       personAdjustmentValues: {},
     );
   }

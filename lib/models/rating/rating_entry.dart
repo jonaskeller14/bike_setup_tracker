@@ -1,4 +1,4 @@
-import 'package:collection/collection.dart' show DeepCollectionEquality;
+import 'package:collection/collection.dart' show MapEquality;
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:uuid/uuid.dart';
@@ -20,16 +20,11 @@ class RatingEntry {
   final DateTime dateTimeLocal;
   final String? notes;
 
-  final Map<String, dynamic> metricValues;
+  final Map<String, AdjustmentValue> metricValues;
 
   final ContextPosition? position;
   final geo.Placemark? place;
   final ContextWeather? weather;
-
-  AdjustmentValue? metricValue(String id) => AdjustmentValue.fromRuntime(metricValues[id]);
-
-  /// Present values only; entries whose value is absent are skipped.
-  Iterable<MapEntry<String, AdjustmentValue>> get metricValueEntries => Setup.typedValueEntries(metricValues);
 
   static const IconData iconData = Icons.star_rate;
 
@@ -46,7 +41,7 @@ class RatingEntry {
     required DateTime dateTimeUTC,
     required this.dateTimeLocal,
     this.notes,
-    Map<String, dynamic>? metricValues,
+    Map<String, AdjustmentValue>? metricValues,
     this.position,
     this.place,
     this.weather,
@@ -151,7 +146,7 @@ class RatingEntry {
       notes: notes is _Sentinel ? this.notes : (notes as String?),
       metricValues: metricValues is _Sentinel
           ? this.metricValues
-          : (metricValues as Map<String, dynamic>),
+          : (metricValues as Map<String, AdjustmentValue>),
       position: position is _Sentinel ? this.position : (position as ContextPosition?),
       place: place is _Sentinel ? this.place : (place as geo.Placemark?),
       weather: weather is _Sentinel ? this.weather : (weather as ContextWeather?),
@@ -172,7 +167,7 @@ class RatingEntry {
         dateTimeUTC == other.dateTimeUTC &&
         dateTimeLocal == other.dateTimeLocal &&
         notes == other.notes &&
-        const DeepCollectionEquality().equals(metricValues, other.metricValues) &&
+        const MapEquality<String, AdjustmentValue>().equals(metricValues, other.metricValues) &&
         ContextPosition.equal(position, other.position) &&
         ContextPlace.equal(place, other.place) &&
         weather == other.weather;
@@ -190,7 +185,7 @@ class RatingEntry {
       dateTimeUTC,
       dateTimeLocal,
       notes,
-      const DeepCollectionEquality().hash(metricValues),
+      const MapEquality<String, AdjustmentValue>().hash(metricValues),
       position,
       place,
       weather,

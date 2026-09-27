@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import '../../models/adjustment/adjustment.dart';
 import '../adjustment_value_codec.dart';
 import '../app_database.dart';
 import '../tables/adjustments.dart';
@@ -87,8 +88,8 @@ class SetupsDao extends DatabaseAccessor<AppDatabase> with _$SetupsDaoMixin, Sof
 
   Future<void> insertSetupWithValues({
     required SetupsCompanion setup,
-    required Map<String, dynamic> bikeValues,
-    required Map<String, dynamic> personValues,
+    required Map<String, AdjustmentValue> bikeValues,
+    required Map<String, AdjustmentValue> personValues,
   }) async {
     await transaction(() async {
       await insertSetup(setup);
@@ -99,8 +100,8 @@ class SetupsDao extends DatabaseAccessor<AppDatabase> with _$SetupsDaoMixin, Sof
 
   Future<void> updateSetupWithValues({
     required SetupsCompanion setup,
-    required Map<String, dynamic> bikeValues,
-    required Map<String, dynamic> personValues,
+    required Map<String, AdjustmentValue> bikeValues,
+    required Map<String, AdjustmentValue> personValues,
   }) async {
     await transaction(() async {
       await updateSetup(setup);
@@ -116,7 +117,7 @@ class SetupsDao extends DatabaseAccessor<AppDatabase> with _$SetupsDaoMixin, Sof
   /// backup merges propagate the change. Unparseable/null values are left as-is.
   Future<void> convertAdjustmentValues(
     String adjustmentId,
-    double Function(double) transform,
+    NumericalValue Function(NumericalValue) transform,
   ) async {
     final rows = await (select(setupAdjustmentValues)
           ..where((t) => t.adjustmentId.equals(adjustmentId)))
@@ -128,7 +129,7 @@ class SetupsDao extends DatabaseAccessor<AppDatabase> with _$SetupsDaoMixin, Sof
     for (final row in rows) {
       final decoded = decodeNumericalValueOrNull(row.value);
       if (decoded == null) continue; // unparseable/null — leave untouched
-      final newValue = encodeAdjustmentValue(transform(decoded));
+      final newValue = transform(NumericalValue(decoded)).encode();
       if (newValue == row.value) continue; // no material change
       await (update(setupAdjustmentValues)
             ..where((t) => t.setupId.equals(row.setupId) & t.adjustmentId.equals(adjustmentId)))
@@ -141,12 +142,12 @@ class SetupsDao extends DatabaseAccessor<AppDatabase> with _$SetupsDaoMixin, Sof
     }
   }
 
-  Future<void> _upsertValuesMap(String setupId, Map<String, dynamic> valuesMap) async {
+  Future<void> _upsertValuesMap(String setupId, Map<String, AdjustmentValue> valuesMap) async {
     for (var entry in valuesMap.entries) {
       await upsertSetupValue(SetupAdjustmentValuesCompanion(
         setupId: Value(setupId),
         adjustmentId: Value(entry.key),
-        value: Value(encodeAdjustmentValue(entry.value)),
+        value: Value(entry.value.encode()),
       ));
     }
   }

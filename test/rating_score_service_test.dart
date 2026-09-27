@@ -45,31 +45,31 @@ void main() {
   group('normalize', () {
     test('step maps to [0,1]', () {
       final m = RatingMetric(adjustment: _step());
-      expect(RatingScoreService.normalize(m, 0), 0.0);
-      expect(RatingScoreService.normalize(m, 10), 1.0);
-      expect(RatingScoreService.normalize(m, 8), closeTo(0.8, 1e-9));
+      expect(RatingScoreService.normalize(m, const StepValue(0)), 0.0);
+      expect(RatingScoreService.normalize(m, const StepValue(10)), 1.0);
+      expect(RatingScoreService.normalize(m, const StepValue(8)), closeTo(0.8, 1e-9));
     });
 
     test('bool maps to 0/1', () {
       final m = RatingMetric(adjustment: _bool());
-      expect(RatingScoreService.normalize(m, true), 1.0);
-      expect(RatingScoreService.normalize(m, false), 0.0);
+      expect(RatingScoreService.normalize(m, const BooleanValue(true)), 1.0);
+      expect(RatingScoreService.normalize(m, const BooleanValue(false)), 0.0);
     });
 
     test('unbounded numerical/duration are not scorable -> null', () {
-      expect(RatingScoreService.normalize(RatingMetric(adjustment: _num()), 5.0), isNull);
+      expect(RatingScoreService.normalize(RatingMetric(adjustment: _num()), const NumericalValue(5.0)), isNull);
       expect(RatingScoreService.normalize(RatingMetric(adjustment: _dur()),
-          const Duration(minutes: 1)), isNull);
+          const DurationValue(Duration(minutes: 1))), isNull);
     });
 
     test('bounded duration maps to [0,1]', () {
       final m = RatingMetric(
           adjustment: _dur(min: const Duration(minutes: 1), max: const Duration(minutes: 3)));
-      expect(RatingScoreService.normalize(m, const Duration(minutes: 2)), closeTo(0.5, 1e-9));
+      expect(RatingScoreService.normalize(m, const DurationValue(Duration(minutes: 2))), closeTo(0.5, 1e-9));
     });
 
     test('text/categorical and missing values -> null', () {
-      expect(RatingScoreService.normalize(RatingMetric(adjustment: _text()), 'hi'), isNull);
+      expect(RatingScoreService.normalize(RatingMetric(adjustment: _text()), TextValue.orNull('hi')), isNull);
       expect(RatingScoreService.normalize(RatingMetric(adjustment: _step()), null), isNull);
     });
   });
@@ -77,7 +77,7 @@ void main() {
   group('scoreEntry', () {
     test('single positive metric', () {
       final metrics = [RatingMetric(adjustment: _step(), weight: 1)];
-      final s = RatingScoreService.scoreEntry(metrics, {metrics.first.id: 8})!;
+      final s = RatingScoreService.scoreEntry(metrics, {metrics.first.id: const StepValue(8)})!;
       expect(s.weightedSum, closeTo(0.8, 1e-9));
       expect(s.weightedAvg, closeTo(8.0, 1e-9)); // goodness 0.8 * 10
       expect(s.answeredScored, 1);
@@ -88,7 +88,7 @@ void main() {
     test('negative weight subtracts (lower is better)', () {
       // "How bad does it feel?" with a high value should hurt the score.
       final bad = RatingMetric(adjustment: _step(), weight: -1);
-      final s = RatingScoreService.scoreEntry([bad], {bad.id: 10})!;
+      final s = RatingScoreService.scoreEntry([bad], {bad.id: const StepValue(10)})!;
       expect(s.weightedAvg, closeTo(0.0, 1e-9)); // n=1, *-1 -> avg01=-1 -> 0/10
     });
 
@@ -97,7 +97,7 @@ void main() {
       final missing = RatingMetric(adjustment: _step(), weight: 1);
       final txt = RatingMetric(adjustment: _text(), weight: 1);
       final s = RatingScoreService.scoreEntry(
-          [answered, missing, txt], {answered.id: 5});
+          [answered, missing, txt], {answered.id: const StepValue(5)});
       expect(s, isNotNull);
       expect(s!.answeredScored, 1);
       expect(s.totalScored, 2); // text not counted as scored
@@ -121,7 +121,7 @@ void main() {
 
       final b = RatingScoreService.breakdown(
         [grip, comfort, missing, txt],
-        {grip.id: 8, comfort.id: 4},
+        {grip.id: const StepValue(8), comfort.id: const StepValue(4)},
       );
 
       // Only scored metrics become rows (text excluded).
@@ -160,11 +160,11 @@ void main() {
       final metrics = [a, b];
 
       final entries = <ScoringInput>[
-        (metrics: metrics, values: {a.id: 10}), // A only
-        (metrics: metrics, values: {b.id: 0}),
-        (metrics: metrics, values: {b.id: 0}),
-        (metrics: metrics, values: {b.id: 0}),
-        (metrics: metrics, values: {b.id: 0}),
+        (metrics: metrics, values: {a.id: const StepValue(10)}), // A only
+        (metrics: metrics, values: {b.id: const StepValue(0)}),
+        (metrics: metrics, values: {b.id: const StepValue(0)}),
+        (metrics: metrics, values: {b.id: const StepValue(0)}),
+        (metrics: metrics, values: {b.id: const StepValue(0)}),
       ];
 
       final pooled = RatingScoreService.setupScore(entries)!;

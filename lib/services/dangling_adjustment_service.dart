@@ -68,7 +68,7 @@ class DanglingAdjustmentService {
         .where((c) => hierarchy.bikeAt(c.id, setup.datetimeLocal.toUtc()) == setup.bike)
         .toList();
 
-    final Map<String, AdjustmentValue> danglingBikeValues = Map.fromEntries(setup.bikeValueEntries);
+    final Map<String, AdjustmentValue> danglingBikeValues = Map.of(setup.bikeAdjustmentValues);
     for (final component in bikeComponents) {
       for (final adjustment in component.adjustments) {
         danglingBikeValues.remove(adjustment.id);
@@ -81,7 +81,7 @@ class DanglingAdjustmentService {
 
     final person = persons.firstWhereOrNull((p) => p.id == setup.person);
 
-    final Map<String, AdjustmentValue> danglingPersonValues = Map.fromEntries(setup.personValueEntries);
+    final Map<String, AdjustmentValue> danglingPersonValues = Map.of(setup.personAdjustmentValues);
     for (final adjustment in person?.adjustments ?? const <Adjustment>[]) {
       danglingPersonValues.remove(adjustment.id);
     }

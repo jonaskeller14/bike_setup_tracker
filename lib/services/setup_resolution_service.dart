@@ -30,7 +30,7 @@ class SetupResolutionService {
     FileImport.determineCurrentSetups(setups: sortedSetups.values.toList(), bikes: bikes);
     
     // 3. Global State Pass (Look-back resolution)
-    final Map<String, dynamic> globalLastKnownState = {};
+    final Map<String, AdjustmentValue> globalLastKnownState = {};
     
     // Performance optimization: Pre-group adjustments by their category to avoid repeated component iterations
     // However, since components move between bikes, we must check bikeAt(T) for each setup.
@@ -64,14 +64,14 @@ class SetupResolutionService {
       setup.previousBikeAdjustmentValues = {};
       for (final id in bikeAdjustmentIds) {
         if (globalLastKnownState.containsKey(id)) {
-          setup.previousBikeAdjustmentValues[id] = globalLastKnownState[id];
+          setup.previousBikeAdjustmentValues[id] = globalLastKnownState[id]!;
         }
       }
       
       setup.previousPersonAdjustmentValues = {};
       for (final id in personAdjustmentIds) {
         if (globalLastKnownState.containsKey(id)) {
-          setup.previousPersonAdjustmentValues[id] = globalLastKnownState[id];
+          setup.previousPersonAdjustmentValues[id] = globalLastKnownState[id]!;
         }
       }
 
@@ -83,7 +83,7 @@ class SetupResolutionService {
       globalLastKnownState.addAll(setup.personAdjustmentValues);
     }
 
-    return (setups: sortedSetups, globalState: Setup.typedValues(globalLastKnownState));
+    return (setups: sortedSetups, globalState: globalLastKnownState);
   }
 
   /// Calculates which tags to show in the global filter list based on all resolved setups.
@@ -108,8 +108,8 @@ class SetupResolutionService {
         .sortedBy((s) => s.datetime);
 
     for (final setup in sortedSetups) {
-      globalState.addEntries(setup.bikeValueEntries);
-      globalState.addEntries(setup.personValueEntries);
+      globalState.addAll(setup.bikeAdjustmentValues);
+      globalState.addAll(setup.personAdjustmentValues);
     }
 
     return globalState;
@@ -134,7 +134,7 @@ class SetupResolutionService {
         .sortedBy((s) => s.datetime);
 
     for (final setup in sortedSetups) {
-      for (final entry in [...setup.bikeValueEntries, ...setup.personValueEntries]) {
+      for (final entry in [...setup.bikeAdjustmentValues.entries, ...setup.personAdjustmentValues.entries]) {
         final known = provenance[entry.key];
         if (known != null && known.value == entry.value) continue;
         provenance[entry.key] = (value: entry.value, setup: setup);

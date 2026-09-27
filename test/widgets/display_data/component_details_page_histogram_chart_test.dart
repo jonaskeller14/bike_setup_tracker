@@ -37,8 +37,8 @@ void main() {
     bike: 'bike',
     person: null,
     bikeAdjustmentValues: {
-      'pressure': ?pressureValue,
-      'mode': ?modeValue,
+      if (pressureValue != null) 'pressure': NumericalValue(pressureValue),
+      if (modeValue != null) 'mode': CategoricalValue(modeValue),
     },
     personAdjustmentValues: const {},
   );
@@ -73,7 +73,7 @@ void main() {
             activityCountsLoaded: loaded,
             activityCountsFailed: failed,
             selectedHistogramColumn: selected,
-            valueFor: (setup, column) => setup.bikeValue((column as ComponentAdjustmentColumn).adjustmentId),
+            valueFor: (setup, column) => setup.bikeAdjustmentValues[(column as ComponentAdjustmentColumn).adjustmentId],
             adjustmentFor: (column) => column is ComponentAdjustmentColumn ? adjustments[column.adjustmentId] : null,
             columnLabel: (column) => adjustments[(column as ComponentAdjustmentColumn).adjustmentId]!.name,
             onSelectedColumnChanged: onSelected ?? (_) {},

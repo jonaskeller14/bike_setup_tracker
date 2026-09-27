@@ -19,7 +19,6 @@ import '../../models/rating/rating.dart';
 import '../../models/rating/rating_association.dart';
 import '../../models/rating/rating_entry.dart';
 import '../../models/rating/rating_metric.dart';
-import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/address_service.dart';
 import '../../services/elevation_service.dart';
@@ -140,8 +139,8 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
     _currentWeather.value = widget.ratingEntry?.weather;
 
     if (widget.ratingEntry != null) {
-      _metricValues.addEntries(widget.ratingEntry!.metricValueEntries);
-      _initialMetricValues.addEntries(widget.ratingEntry!.metricValueEntries);
+      _metricValues.addAll(widget.ratingEntry!.metricValues);
+      _initialMetricValues.addAll(widget.ratingEntry!.metricValues);
     }
     // Duplicate re-resolves on save; edit keeps the stored provenance.
     _setupId = widget.mode == RatingEntryPageMode.edit ? widget.ratingEntry?.setupId : null;
@@ -415,7 +414,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
     final applicableIds = _applicableRatings().values.expand((r) => r.metrics).map((m) => m.id).toSet();
     final metricValues = {
       for (final entry in _metricValues.entries)
-        if (applicableIds.contains(entry.key)) entry.key: AdjustmentValue.toRuntime(entry.value),
+        if (applicableIds.contains(entry.key)) entry.key: entry.value,
     };
 
     _formHasChanges = false;
@@ -721,7 +720,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
   }
 
   Widget _scoreBanner(List<RatingMetric> metrics) {
-    final score = RatingScoreService.scoreEntry(metrics, Setup.runtimeValues(_metricValues));
+    final score = RatingScoreService.scoreEntry(metrics, _metricValues);
     final scheme = Theme.of(context).colorScheme;
 
     if (score == null) {

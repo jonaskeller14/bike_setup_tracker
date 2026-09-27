@@ -1,4 +1,3 @@
-import 'package:bike_setup_tracker/database/adjustment_value_codec.dart';
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
@@ -31,7 +30,7 @@ void main() {
           SetupAdjustmentValuesCompanion.insert(
             setupId: id,
             adjustmentId: 'adjustment',
-            value: encodeAdjustmentValue(adjustmentValue),
+            value: NumericalValue(adjustmentValue).encode(),
           ),
         );
   }
@@ -124,7 +123,7 @@ void main() {
           SetupAdjustmentValuesCompanion.insert(
             setupId: 'setup',
             adjustmentId: 'adjustment',
-            value: encodeAdjustmentValue(25.0),
+            value: const NumericalValue(25.0).encode(),
           ),
         );
     await settle();

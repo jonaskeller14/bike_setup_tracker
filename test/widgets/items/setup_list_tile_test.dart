@@ -1,3 +1,4 @@
+import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/widgets/current_setup_badge.dart';
 import 'package:bike_setup_tracker/widgets/current_setup_highlight.dart';
@@ -46,12 +47,12 @@ void main() {
     final older = harness.buildSetup(
       name: 'Older Setup',
       local: DateTime(2026, 7, 1, 10),
-      values: {SetupTileHarness.reboundId: 5, SetupTileHarness.pressureId: 80},
+      values: {SetupTileHarness.reboundId: const StepValue(5), SetupTileHarness.pressureId: const StepValue(80)},
     );
     final newer = harness.buildSetup(
       name: 'Newer Setup',
       local: DateTime(2026, 7, 2, 10),
-      values: {SetupTileHarness.reboundId: 7, SetupTileHarness.pressureId: 80},
+      values: {SetupTileHarness.reboundId: const StepValue(7), SetupTileHarness.pressureId: const StepValue(80)},
     );
     await harness.addSetups(tester, [older, newer]);
     await harness.reload(tester);
@@ -129,7 +130,7 @@ void main() {
     final setup = harness.buildSetup(
       name: 'L' * 200,
       local: DateTime(2026, 7, 2, 10),
-      values: {SetupTileHarness.reboundId: 5},
+      values: {SetupTileHarness.reboundId: const StepValue(5)},
     );
     await harness.addSetups(tester, [setup]);
     await harness.reload(tester);

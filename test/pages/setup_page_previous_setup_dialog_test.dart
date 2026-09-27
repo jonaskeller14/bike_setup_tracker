@@ -130,7 +130,7 @@ class _SetupPageHarness {
         tags: const {},
         bike: _bikeId,
         person: null,
-        bikeAdjustmentValues: const {_adjustmentId: '80'},
+        bikeAdjustmentValues: {_adjustmentId: TextValue.orNull('80')!},
         personAdjustmentValues: const {},
       ),
     ]);
@@ -146,7 +146,7 @@ class _SetupPageHarness {
           tags: const {},
           bike: _bikeId,
           person: null,
-          bikeAdjustmentValues: const {_adjustmentId: '85'},
+          bikeAdjustmentValues: {_adjustmentId: TextValue.orNull('85')!},
           personAdjustmentValues: const {},
         ),
       ]);

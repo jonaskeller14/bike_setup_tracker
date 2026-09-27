@@ -96,7 +96,7 @@ class CompareSetupsHarness {
     required String name,
     required DateTime local,
     String bike = bikeId,
-    Map<String, dynamic> values = const {},
+    Map<String, AdjustmentValue> values = const {},
     String? notes,
     Set<String> tags = const {},
     List<String> images = const [],
@@ -112,7 +112,7 @@ class CompareSetupsHarness {
       bike: bike,
       person: null,
       position: position,
-      bikeAdjustmentValues: Map<String, dynamic>.from(values),
+      bikeAdjustmentValues: Map<String, AdjustmentValue>.from(values),
       personAdjustmentValues: {},
       images: images,
     );

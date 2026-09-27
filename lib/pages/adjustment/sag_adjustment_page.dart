@@ -72,7 +72,7 @@ class _SagAdjustmentPageState extends State<SagAdjustmentPage> {
     _travelController = TextEditingController(
       text: widget.adjustment?.referenceTravelMm == null
           ? null
-          : Adjustment.formatValue(widget.adjustment!.referenceTravelMm),
+          : NumericalValue(widget.adjustment!.referenceTravelMm!).display,
     );
     _travelController.addListener(_changeListener);
 

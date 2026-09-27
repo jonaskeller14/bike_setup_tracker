@@ -40,7 +40,7 @@ void showSetDurationSheet({
                               color: isBelowMin ? Theme.of(context).colorScheme.error : null,
                             ),
                             title: Text(
-                              "Min: ${Adjustment.formatValue(adjustment.min)}",
+                              "Min: ${DurationValue(adjustment.min!).display}",
                               style: TextStyle(color: isBelowMin ? Theme.of(context).colorScheme.error : null),
                             ),
                             dense: true,
@@ -54,7 +54,7 @@ void showSetDurationSheet({
                               color: isAboveMax ? Theme.of(context).colorScheme.error : null,
                             ),
                             title: Text(
-                              "Max: ${Adjustment.formatValue(adjustment.max)}",
+                              "Max: ${DurationValue(adjustment.max!).display}",
                               style: TextStyle(color: isAboveMax ? Theme.of(context).colorScheme.error : null),
                             ),
                             dense: true,
@@ -84,7 +84,7 @@ void showSetDurationSheet({
                         currentValue = newValue;
                       });
                       
-                      if (adjustment.isValidValue(newValue)) {
+                      if (adjustment.isValidValue(DurationValue(newValue))) {
                         onChanged(newValue);
                         return;
                       }

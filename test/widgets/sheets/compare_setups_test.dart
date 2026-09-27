@@ -38,10 +38,10 @@ void main() {
       name: name ?? 'Baseline',
       local: DateTime(2026, 8, 1, 10),
       values: {
-        CompareSetupsHarness.changedAdjustmentId: 2,
-        CompareSetupsHarness.unchangedAdjustmentId: 80,
+        CompareSetupsHarness.changedAdjustmentId: const StepValue(2),
+        CompareSetupsHarness.unchangedAdjustmentId: const StepValue(80),
         if (extraDifferences)
-          for (var index = 0; index < 12; index++) 'extra-$index': index,
+          for (var index = 0; index < 12; index++) 'extra-$index': StepValue(index),
       },
     );
     final newer = harness.setup(
@@ -49,10 +49,10 @@ void main() {
       name: name ?? 'Candidate',
       local: DateTime(2026, 8, 2, 10),
       values: {
-        CompareSetupsHarness.changedAdjustmentId: 4,
-        CompareSetupsHarness.unchangedAdjustmentId: 80,
+        CompareSetupsHarness.changedAdjustmentId: const StepValue(4),
+        CompareSetupsHarness.unchangedAdjustmentId: const StepValue(80),
         if (extraDifferences)
-          for (var index = 0; index < 12; index++) 'extra-$index': index + 1,
+          for (var index = 0; index < 12; index++) 'extra-$index': StepValue(index + 1),
       },
     );
     await harness.addSetups(tester, [older, newer]);
@@ -130,13 +130,13 @@ void main() {
       id: 'explicit',
       name: 'Explicit',
       local: DateTime(2026, 8, 1, 10),
-      values: {CompareSetupsHarness.changedAdjustmentId: 4},
+      values: {CompareSetupsHarness.changedAdjustmentId: const StepValue(4)},
     );
     final inherited = harness.setup(
       id: 'inherited',
       name: 'Inherited',
       local: DateTime(2026, 8, 2, 10),
-    )..previousBikeAdjustmentValues = {CompareSetupsHarness.changedAdjustmentId: 4};
+    )..previousBikeAdjustmentValues = {CompareSetupsHarness.changedAdjustmentId: const StepValue(4)};
     await harness.addSetups(tester, [explicit, inherited]);
     await harness.reload(tester);
     await pumpComparison(tester, explicit.id, inherited.id);
@@ -163,12 +163,11 @@ void main() {
     );
   });
 
-  testWidgets('uses a dash for unrecorded values, treating an explicit null as unrecorded', (tester) async {
+  testWidgets('uses a dash for unrecorded values', (tester) async {
     final cleared = harness.setup(
       id: 'cleared',
       name: 'Cleared',
       local: DateTime(2026, 8, 2, 10),
-      values: {CompareSetupsHarness.changedAdjustmentId: null},
     );
     final missing = harness.setup(
       id: 'missing',
@@ -197,13 +196,13 @@ void main() {
       id: 'same-a',
       name: 'Same A',
       local: DateTime(2026, 8, 1, 10),
-      values: {CompareSetupsHarness.changedAdjustmentId: 4},
+      values: {CompareSetupsHarness.changedAdjustmentId: const StepValue(4)},
     );
     final b = harness.setup(
       id: 'same-b',
       name: 'Same B',
       local: DateTime(2026, 8, 2, 10),
-      values: {CompareSetupsHarness.changedAdjustmentId: 4},
+      values: {CompareSetupsHarness.changedAdjustmentId: const StepValue(4)},
     );
     await harness.addSetups(tester, [a, b]);
     await harness.reload(tester);
@@ -221,13 +220,13 @@ void main() {
       id: 'same-sheet-a',
       name: 'Same A',
       local: DateTime(2026, 8, 1, 10),
-      values: {CompareSetupsHarness.changedAdjustmentId: 4},
+      values: {CompareSetupsHarness.changedAdjustmentId: const StepValue(4)},
     );
     final b = harness.setup(
       id: 'same-sheet-b',
       name: 'Same B',
       local: DateTime(2026, 8, 2, 10),
-      values: {CompareSetupsHarness.changedAdjustmentId: 4},
+      values: {CompareSetupsHarness.changedAdjustmentId: const StepValue(4)},
     );
     await harness.addSetups(tester, [a, b]);
     await harness.reload(tester);
@@ -407,7 +406,7 @@ void main() {
       id: 'bike-a-setup',
       name: 'Bike A setup',
       local: DateTime(2026, 8, 1, 10),
-      values: {CompareSetupsHarness.changedAdjustmentId: 4},
+      values: {CompareSetupsHarness.changedAdjustmentId: const StepValue(4)},
     );
     final setupOnBikeB = harness.setup(
       id: 'bike-b-setup',
@@ -488,14 +487,14 @@ void main() {
       id: 'replacement-a',
       name: 'Before replacement',
       local: DateTime(2026, 8, 1, 10),
-      values: {CompareSetupsHarness.changedAdjustmentId: 4},
+      values: {CompareSetupsHarness.changedAdjustmentId: const StepValue(4)},
     );
     final setupB = harness.setup(
       id: 'replacement-b',
       name: 'After replacement',
       local: DateTime(2026, 8, 2, 10),
       bike: CompareSetupsHarness.secondBikeId,
-      values: {'replacement-rebound': 'Open'},
+      values: {'replacement-rebound': TextValue.orNull('Open')!},
     );
     await harness.addSetups(tester, [setupA, setupB]);
     await harness.reload(tester);
@@ -554,7 +553,7 @@ void main() {
       id: 'bike-a-setup',
       name: 'Bike A setup',
       local: DateTime(2026, 8, 1, 10),
-      values: {CompareSetupsHarness.changedAdjustmentId: 4},
+      values: {CompareSetupsHarness.changedAdjustmentId: const StepValue(4)},
     );
     final setupB = harness.setup(
       id: 'bike-b-setup',

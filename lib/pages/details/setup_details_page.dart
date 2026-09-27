@@ -405,8 +405,8 @@ class SetupDetailsPageContent extends StatelessWidget {
           ),
           AdjustmentDisplayList(
             adjustments: group.adjustments,
-            initialAdjustmentValues: Setup.typedValues(setup.previousBikeAdjustmentValues),
-            adjustmentValues: Setup.typedValues(setup.bikeAdjustmentValues),
+            initialAdjustmentValues: setup.previousBikeAdjustmentValues,
+            adjustmentValues: setup.bikeAdjustmentValues,
             isError: true,
           ),
         ],
@@ -442,8 +442,8 @@ class SetupDetailsPageContent extends StatelessWidget {
           ),
           AdjustmentDisplayList(
             adjustments: group.adjustments,
-            initialAdjustmentValues: Setup.typedValues(setup.previousPersonAdjustmentValues),
-            adjustmentValues: Setup.typedValues(setup.personAdjustmentValues),
+            initialAdjustmentValues: setup.previousPersonAdjustmentValues,
+            adjustmentValues: setup.personAdjustmentValues,
             isError: true,
           ),
         ],
@@ -532,8 +532,8 @@ class SetupDetailsPageContent extends StatelessWidget {
                       ),
                       AdjustmentDisplayList(
                         adjustments: bikeComponent.adjustments,
-                        initialAdjustmentValues: Setup.typedValues(setup.previousBikeAdjustmentValues),
-                        adjustmentValues: Setup.typedValues(setup.bikeAdjustmentValues),
+                        initialAdjustmentValues: setup.previousBikeAdjustmentValues,
+                        adjustmentValues: setup.bikeAdjustmentValues,
                       ),
                     ],
                   ),
@@ -580,8 +580,8 @@ class SetupDetailsPageContent extends StatelessWidget {
                       ),
                       AdjustmentDisplayList(
                         adjustments: person.adjustments,
-                        initialAdjustmentValues: Setup.typedValues(setup.previousPersonAdjustmentValues),
-                        adjustmentValues: Setup.typedValues(setup.personAdjustmentValues),
+                        initialAdjustmentValues: setup.previousPersonAdjustmentValues,
+                        adjustmentValues: setup.personAdjustmentValues,
                       ),
                     ],
                   ),

@@ -1,34 +1,34 @@
-import 'package:bike_setup_tracker/database/adjustment_value_codec.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  /// Every value kind with the runtime value it bridges from and its type.
-  final samples = <(AdjustmentValue, dynamic, AdjustmentType)>[
-    (const BooleanValue(true), true, AdjustmentType.boolean),
-    (const BooleanValue(false), false, AdjustmentType.boolean),
-    (const StepValue(-3), -3, AdjustmentType.step),
-    (const NumericalValue(89.0), 89.0, AdjustmentType.numerical),
-    (const NumericalValue(1.123456), 1.123456, AdjustmentType.numerical),
-    (TextValue.orNull('01:30:00')!, '01:30:00', AdjustmentType.text),
-    (TextValue.orNull('["abc"]')!, '["abc"]', AdjustmentType.text),
-    (CategoricalValue(['Front']), ['Front'], AdjustmentType.categorical),
-    (CategoricalValue(['A', 'B', 'A']), ['A', 'B', 'A'], AdjustmentType.categorical),
+  /// Every value kind with its stored encoding, display text and type.
+  final samples = <(AdjustmentValue, String, String, AdjustmentType)>[
+    (const BooleanValue(true), 'true', 'On', AdjustmentType.boolean),
+    (const BooleanValue(false), 'false', 'Off', AdjustmentType.boolean),
+    (const StepValue(-3), '-3', '-3', AdjustmentType.step),
+    (const NumericalValue(89.0), '89.0', '89', AdjustmentType.numerical),
+    (const NumericalValue(1.123456), '1.123456', '1.12346', AdjustmentType.numerical),
+    (TextValue.orNull('01:30:00')!, '"01:30:00"', '01:30:00', AdjustmentType.text),
+    (TextValue.orNull('["abc"]')!, r'"[\"abc\"]"', '["abc"]', AdjustmentType.text),
+    (CategoricalValue(['Front']), '["Front"]', 'Front', AdjustmentType.categorical),
+    (CategoricalValue(['A', 'B', 'A']), '["A","B","A"]', 'A (2), B', AdjustmentType.categorical),
     (
       const DurationValue(Duration(hours: 1, minutes: 2, seconds: 3)),
-      const Duration(hours: 1, minutes: 2, seconds: 3),
+      '3723000000',
+      '01:02:03',
       AdjustmentType.duration,
     ),
   ];
 
   group('encode/decode', () {
-    for (final (value, runtime, type) in samples) {
+    for (final (value, encoded, _, type) in samples) {
       test('$value round-trips', () {
         expect(AdjustmentValue.decode(value.encode(), type), value);
       });
 
-      test('$value encodes identically to encodeAdjustmentValue', () {
-        expect(value.encode(), encodeAdjustmentValue(runtime));
+      test('$value encodes as $encoded', () {
+        expect(value.encode(), encoded);
       });
     }
 
@@ -110,14 +110,14 @@ void main() {
   });
 
   group('display', () {
-    for (final (value, runtime, _) in samples) {
-      test('$value matches Adjustment.formatValue', () {
-        expect(value.display, Adjustment.formatValue(runtime));
+    for (final (value, _, display, _) in samples) {
+      test('$value displays as $display', () {
+        expect(value.display, display);
       });
     }
 
     test('counted categorical', () => expect(CategoricalValue(['A', 'A', 'B']).display, 'A (2), B'));
-    test('empty categorical', () => expect(CategoricalValue([]).display, Adjustment.formatValue(<String>[])));
+    test('empty categorical', () => expect(CategoricalValue([]).display, '-'));
     test('unresolved shows raw', () => expect(const UnresolvedValue('{"x":1}').display, '{"x":1}'));
   });
 
@@ -132,7 +132,7 @@ void main() {
   });
 
   group('matches', () {
-    for (final (value, _, type) in samples) {
+    for (final (value, _, _, type) in samples) {
       test('$value matches only $type', () {
         for (final other in AdjustmentType.values) {
           expect(value.matches(other), other == type);
@@ -147,37 +147,18 @@ void main() {
     });
   });
 
-  group('fromRuntime', () {
-    for (final (value, runtime, _) in samples) {
-      test('$runtime bridges to $value', () {
-        expect(AdjustmentValue.fromRuntime(runtime), value);
-      });
-    }
-
-    test('null stays null', () => expect(AdjustmentValue.fromRuntime(null), isNull));
-    test('empty string is null', () => expect(AdjustmentValue.fromRuntime(''), isNull));
-    test(
-      'unsupported type throws',
-      () => expect(() => AdjustmentValue.fromRuntime(<String, int>{}), throwsArgumentError),
-    );
-  });
-
-  group('toRuntime', () {
-    for (final (value, runtime, _) in samples) {
-      test('$value bridges back to $runtime', () {
-        expect(AdjustmentValue.toRuntime(value), runtime);
-        expect(AdjustmentValue.fromRuntime(AdjustmentValue.toRuntime(value)), value);
-      });
-    }
-
-    test('categorical returns a growable copy', () {
-      final runtime = AdjustmentValue.toRuntime(CategoricalValue(['A'])) as List<String>;
-      expect(() => runtime.add('B'), returnsNormally);
+  group('decodeLegacy', () {
+    test('boolean', () => expect(AdjustmentValue.decodeLegacy('true', AdjustmentType.boolean), const BooleanValue(true)));
+    test('step', () => expect(AdjustmentValue.decodeLegacy('3', AdjustmentType.step), const StepValue(3)));
+    test('numerical', () => expect(AdjustmentValue.decodeLegacy('1.5', AdjustmentType.numerical), const NumericalValue(1.5)));
+    test('unparseable scalar is absent', () {
+      expect(AdjustmentValue.decodeLegacy('4 clicks', AdjustmentType.step), isNull);
+      expect(AdjustmentValue.decodeLegacy('1.5x', AdjustmentType.numerical), isNull);
+      expect(AdjustmentValue.decodeLegacy('soon', AdjustmentType.duration), isNull);
     });
-
-    test(
-      'unresolved throws',
-      () => expect(() => AdjustmentValue.toRuntime(const UnresolvedValue('1')), throwsArgumentError),
-    );
+    test('a JSON-looking categorical is one option', () {
+      expect(AdjustmentValue.decodeLegacy('[1,2]', AdjustmentType.categorical), CategoricalValue(['[1,2]']));
+    });
+    test('empty text is absent', () => expect(AdjustmentValue.decodeLegacy('', AdjustmentType.text), isNull));
   });
 }

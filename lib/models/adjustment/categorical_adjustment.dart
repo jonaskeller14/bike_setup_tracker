@@ -32,10 +32,10 @@ class CategoricalAdjustment extends Adjustment {
   }
 
   @override
-  bool isValidValue(dynamic value) {
-    // Values are canonically List<String>; a legacy single String is tolerated.
-    final list = categoricalValueAsList(value);
-    if (list == null || list.isEmpty) return false;
+  bool isValidValue(AdjustmentValue value) {
+    if (value is! CategoricalValue) return false;
+    final list = value.options;
+    if (list.isEmpty) return false;
     if (!list.every(options.contains)) return false;
     final distinct = list.toSet();
     if (distinct.length > 1 && !multiSelect) return false;

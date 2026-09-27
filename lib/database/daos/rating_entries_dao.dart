@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import '../../models/adjustment/adjustment.dart';
 import '../adjustment_value_codec.dart';
 import '../app_database.dart';
 import '../tables/rating_entries.dart';
@@ -62,7 +63,7 @@ class RatingEntriesDao extends DatabaseAccessor<AppDatabase> with _$RatingEntrie
 
   Future<void> insertRatingEntryWithValues({
     required RatingEntriesCompanion entry,
-    required Map<String, dynamic> values, // ratingMetricId -> value
+    required Map<String, AdjustmentValue> values, // ratingMetricId -> value
   }) async {
     await transaction(() async {
       await insertRatingEntry(entry);
@@ -72,7 +73,7 @@ class RatingEntriesDao extends DatabaseAccessor<AppDatabase> with _$RatingEntrie
 
   Future<void> updateRatingEntryWithValues({
     required RatingEntriesCompanion entry,
-    required Map<String, dynamic> values,
+    required Map<String, AdjustmentValue> values,
   }) async {
     await transaction(() async {
       await updateRatingEntry(entry);
@@ -86,7 +87,7 @@ class RatingEntriesDao extends DatabaseAccessor<AppDatabase> with _$RatingEntrie
   /// backup merges propagate the change. Unparseable/null values are left as-is.
   Future<void> convertMetricValues(
     String metricId,
-    double Function(double) transform,
+    NumericalValue Function(NumericalValue) transform,
   ) async {
     final rows = await (select(ratingEntryValues)
           ..where((t) => t.ratingMetricId.equals(metricId)))
@@ -98,7 +99,7 @@ class RatingEntriesDao extends DatabaseAccessor<AppDatabase> with _$RatingEntrie
     for (final row in rows) {
       final decoded = decodeNumericalValueOrNull(row.value);
       if (decoded == null) continue; // unparseable/null — leave untouched
-      final newValue = encodeAdjustmentValue(transform(decoded));
+      final newValue = transform(NumericalValue(decoded)).encode();
       if (newValue == row.value) continue; // no material change
       await (update(ratingEntryValues)
             ..where((t) => t.ratingEntryId.equals(row.ratingEntryId) & t.ratingMetricId.equals(metricId)))
@@ -111,13 +112,12 @@ class RatingEntriesDao extends DatabaseAccessor<AppDatabase> with _$RatingEntrie
     }
   }
 
-  Future<void> _upsertValues(String entryId, Map<String, dynamic> values) async {
+  Future<void> _upsertValues(String entryId, Map<String, AdjustmentValue> values) async {
     for (final e in values.entries) {
-      if (e.value == null) continue;
       await into(ratingEntryValues).insertOnConflictUpdate(RatingEntryValuesCompanion(
         ratingEntryId: Value(entryId),
         ratingMetricId: Value(e.key),
-        value: Value(encodeAdjustmentValue(e.value)),
+        value: Value(e.value.encode()),
       ));
     }
   }

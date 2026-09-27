@@ -302,10 +302,10 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     } else {
       // EDIT / DUPLIATE SETUP
       _initialBikeAdjustmentValues.clear();
-      _initialBikeAdjustmentValues.addEntries(widget.setup!.bikeValueEntries);
+      _initialBikeAdjustmentValues.addAll(widget.setup!.bikeAdjustmentValues);
 
       _initialPersonAdjustmentValues.clear();
-      _initialPersonAdjustmentValues.addEntries(widget.setup!.personValueEntries);
+      _initialPersonAdjustmentValues.addAll(widget.setup!.personAdjustmentValues);
     }
   }
 
@@ -726,8 +726,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         isBookmarked: _isBookmarked,
         bike: _bike,
         person: _person,
-        bikeAdjustmentValues: Setup.runtimeValues(_bikeAdjustmentValues),
-        personAdjustmentValues: Setup.runtimeValues(_personAdjustmentValues),
+        bikeAdjustmentValues: Map.of(_bikeAdjustmentValues),
+        personAdjustmentValues: Map.of(_personAdjustmentValues),
         position: _currentLocation.value,
         place: _currentPlace.value,
         weather: _currentWeather.value,

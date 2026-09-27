@@ -9,8 +9,8 @@ import 'package:flutter_test/flutter_test.dart';
 typedef _Case = ({
   String type,
   Adjustment adjustment,
-  dynamic value,
-  dynamic previousValue,
+  AdjustmentValue value,
+  AdjustmentValue previousValue,
   String valueText,
   String previousText,
 });
@@ -20,8 +20,8 @@ void main() {
     (
       type: 'boolean',
       adjustment: BooleanAdjustment(id: 'b', name: 'Lockout', notes: null, unit: null),
-      value: true,
-      previousValue: false,
+      value: const BooleanValue(true),
+      previousValue: const BooleanValue(false),
       valueText: 'On',
       previousText: 'Off',
     ),
@@ -36,8 +36,8 @@ void main() {
         multiSelect: true,
         counted: true,
       ),
-      value: ['A', 'C', 'C', 'C'],
-      previousValue: ['A', 'A', 'B', 'C', 'C', 'C'],
+      value: CategoricalValue(['A', 'C', 'C', 'C']),
+      previousValue: CategoricalValue(['A', 'A', 'B', 'C', 'C', 'C']),
       valueText: 'A, C (3)',
       // 'A (2), B, C (3)' is over budget, so the last option is dropped whole.
       previousText: 'A (2), B…',
@@ -54,41 +54,41 @@ void main() {
         max: 20,
         visualization: StepAdjustmentVisualization.slider,
       ),
-      value: 12,
-      previousValue: 10,
+      value: const StepValue(12),
+      previousValue: const StepValue(10),
       valueText: '12',
       previousText: '10',
     ),
     (
       type: 'numerical',
       adjustment: NumericalAdjustment(id: 'n', name: 'Pressure', notes: null, unit: null, min: 0, max: 200),
-      value: 85.5,
-      previousValue: 80.0,
+      value: const NumericalValue(85.5),
+      previousValue: const NumericalValue(80.0),
       valueText: '85.5',
       previousText: '80',
     ),
     (
       type: 'text',
       adjustment: TextAdjustment(id: 't', name: 'Mode', notes: null, unit: null),
-      value: 'Open',
-      previousValue: 'Closed',
+      value: TextValue.orNull('Open')!,
+      previousValue: TextValue.orNull('Closed')!,
       valueText: 'Open',
       previousText: 'Closed',
     ),
     (
       type: 'duration',
       adjustment: DurationAdjustment(id: 'd', name: 'Burn-in', notes: null, unit: null),
-      value: const Duration(hours: 1, minutes: 35),
-      previousValue: const Duration(hours: 1, minutes: 20),
+      value: const DurationValue(Duration(hours: 1, minutes: 35)),
+      previousValue: const DurationValue(Duration(hours: 1, minutes: 20)),
       valueText: '1:35',
       previousText: '1:20',
     ),
   ];
 
-  CellDisplayText displayOf(_Case c, {required dynamic previousValue, bool isError = false}) => AdjustmentCell.resolve(
+  CellDisplayText displayOf(_Case c, {required AdjustmentValue? previousValue, bool isError = false}) => AdjustmentCell.resolve(
     adjustment: c.adjustment,
-    value: AdjustmentValue.fromRuntime(c.value),
-    previousValue: AdjustmentValue.fromRuntime(previousValue),
+    value: c.value,
+    previousValue: previousValue,
     isError: isError,
   ).displayText;
 
@@ -107,7 +107,7 @@ void main() {
             displayOf(c, previousValue: c.value),
             displayOf(c, previousValue: c.previousValue, isError: true),
           ]) {
-            expect(display.value, Adjustment.formatValue(c.value));
+            expect(display.value, c.value.display);
             expect(display.previous, isNull);
             expect(display.hasPrevious, isFalse);
           }
@@ -154,33 +154,33 @@ void main() {
       counted: true,
     );
 
-    CellDisplayText displayOf(Adjustment adjustment, dynamic value, dynamic previousValue) => AdjustmentCell.resolve(
+    CellDisplayText displayOf(Adjustment adjustment, AdjustmentValue value, AdjustmentValue previousValue) => AdjustmentCell.resolve(
       adjustment: adjustment,
-      value: AdjustmentValue.fromRuntime(value),
-      previousValue: AdjustmentValue.fromRuntime(previousValue),
+      value: value,
+      previousValue: previousValue,
     ).displayText;
 
     test('a previous value within the budget prints whole', () {
-      expect(displayOf(text, 'Fox 38', 'Fox 36').previous, 'Fox 36');
+      expect(displayOf(text, TextValue.orNull('Fox 38')!, TextValue.orNull('Fox 36')!).previous, 'Fox 36');
     });
 
     test('a long previous value is head-truncated', () {
-      expect(displayOf(text, 'Fox 38', 'RockShox Lyrik Ultimate').previous, 'RockShox L…');
+      expect(displayOf(text, TextValue.orNull('Fox 38')!, TextValue.orNull('RockShox Lyrik Ultimate')!).previous, 'RockShox L…');
     });
 
     test('a list drops whole options once the budget is spent', () {
       expect(
-        displayOf(list, ['Mud'], ['Gravel', 'Gravel', 'Mud', 'Sand']).previous,
+        displayOf(list, CategoricalValue(['Mud']), CategoricalValue(['Gravel', 'Gravel', 'Mud', 'Sand'])).previous,
         'Gravel (2)…',
       );
     });
 
     test('a single over-budget option falls back to character truncation', () {
-      expect(displayOf(list, ['X'], ['Continental Kryptotal', 'X']).previous, 'Continenta…');
+      expect(displayOf(list, CategoricalValue(['X']), CategoricalValue(['Continental Kryptotal', 'X'])).previous, 'Continenta…');
     });
 
     test('the current value is never truncated', () {
-      expect(displayOf(text, 'RockShox Lyrik Ultimate', 'Fox 36').value, 'RockShox Lyrik Ultimate');
+      expect(displayOf(text, TextValue.orNull('RockShox Lyrik Ultimate')!, TextValue.orNull('Fox 36')!).value, 'RockShox Lyrik Ultimate');
     });
   });
 

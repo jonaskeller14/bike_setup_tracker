@@ -1,4 +1,3 @@
-import 'package:bike_setup_tracker/database/adjustment_value_codec.dart';
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
@@ -203,7 +202,7 @@ void main() {
       
       final setupWithVals = setup1.copyWith(
         bike: bikeWithAdj.id,
-        bikeAdjustmentValues: {adjustment.id: 100.0},
+        bikeAdjustmentValues: {adjustment.id: const NumericalValue(100.0)},
       );
 
       await repository.addBikes([bikeWithAdj]);
@@ -211,7 +210,7 @@ void main() {
       await repository.addSetups([setupWithVals]);
       await pumpEventQueue();
 
-      expect(repository.setups[setupWithVals.id]?.bikeAdjustmentValues[adjustment.id], 100.0);
+      expect(repository.setups[setupWithVals.id]?.bikeAdjustmentValues[adjustment.id], const NumericalValue(100.0));
 
       // Simulate BikeActions.removeBike logic
       final obsoleteComponents = repository.components.values.where((c) => c.parentId == bikeWithAdj.id).toList();
@@ -237,7 +236,7 @@ void main() {
       expect(repository.bikes.containsKey(bikeWithAdj.id), true);
       expect(repository.setups.containsKey(setupWithVals.id), true);
       // This is expected to fail before the fix
-      expect(repository.setups[setupWithVals.id]?.bikeAdjustmentValues[adjustment.id], 100.0);
+      expect(repository.setups[setupWithVals.id]?.bikeAdjustmentValues[adjustment.id], const NumericalValue(100.0));
     });
 
     test("restoreBike preserves component installations", () async {
@@ -306,6 +305,52 @@ void main() {
 
       repository.setShowBookmarkedSetupsOnly(false);
       expect(repository.filteredSetups.keys.toSet(), {bookmarked.id, plain.id});
+    });
+
+    group("value types at the write boundary", () {
+      final rebound = StepAdjustment(
+        name: "Rebound",
+        notes: null,
+        unit: null,
+        step: 1,
+        min: 0,
+        max: 10,
+        visualization: StepAdjustmentVisualization.slider,
+      );
+
+      setUp(() async {
+        await repository.addBikes([bike1]);
+        await repository.addComponents([
+          Component(
+            name: "Fork",
+            componentType: ComponentType.fork,
+            adjustments: [rebound],
+            installations: [Installation.sinceBeginning(parent: bike1.id)],
+          ),
+        ]);
+        await pumpEventQueue();
+      });
+
+      test("a value that does not match its adjustment type asserts on add and edit", () async {
+        final mismatched = setup1.copyWith(bikeAdjustmentValues: {rebound.id: const NumericalValue(5.0)});
+
+        await expectLater(repository.addSetups([mismatched]), throwsA(isA<AssertionError>()));
+        await expectLater(repository.editSetups([mismatched]), throwsA(isA<AssertionError>()));
+        await pumpEventQueue();
+        expect(repository.setups.containsKey(setup1.id), isFalse);
+      });
+
+      test("matching values and values of unknown adjustments are written", () async {
+        final setup = setup1.copyWith(bikeAdjustmentValues: {
+          rebound.id: const StepValue(5),
+          'removed-adjustment': const UnresolvedValue('"kept"'),
+        });
+
+        await repository.addSetups([setup]);
+        await pumpEventQueue();
+
+        expect(repository.setups[setup1.id]!.bikeAdjustmentValues[rebound.id], const StepValue(5));
+      });
     });
   });
 
@@ -411,6 +456,23 @@ void main() {
       expect(repository.ratings.containsKey(ratingWithAdj.id), true);
       expect(repository.ratings[ratingWithAdj.id]?.metrics.length, 1);
     });
+
+    test("a metric value that does not match its type asserts on add and edit", () async {
+      final metric = RatingMetric(adjustment: BooleanAdjustment(name: "Fun", notes: null, unit: null));
+      await repository.addRatings([rating1.copyWith(id: rating1.id, metrics: [metric])]);
+      await pumpEventQueue();
+
+      final entry = RatingEntry(
+        bike: 'bike',
+        setupId: 'setup',
+        dateTimeUTC: DateTime.utc(2024),
+        dateTimeLocal: DateTime(2024),
+        metricValues: {metric.id: TextValue.orNull('yes')!},
+      );
+
+      await expectLater(repository.addRatingEntries([entry]), throwsA(isA<AssertionError>()));
+      await expectLater(repository.editRatingEntry(entry), throwsA(isA<AssertionError>()));
+    });
   });
   group("AppRepository - Unit Conversions", () {
     late AppDatabase database;
@@ -431,7 +493,7 @@ void main() {
       await database.close();
     });
 
-    Setup buildSetup(String bikeId, {String? personId, Map<String, dynamic>? bikeValues, Map<String, dynamic>? personValues}) => Setup(
+    Setup buildSetup(String bikeId, {String? personId, Map<String, AdjustmentValue>? bikeValues, Map<String, AdjustmentValue>? personValues}) => Setup(
       name: "Setup",
       tags: {},
       datetime: DateTime(2020).toUtc(),
@@ -451,7 +513,7 @@ void main() {
         adjustments: [adj],
         installations: [Installation.sinceBeginning(parent: bike.id)],
       );
-      final setup = buildSetup(bike.id, bikeValues: {adj.id: 65.0});
+      final setup = buildSetup(bike.id, bikeValues: {adj.id: const NumericalValue(65.0)});
 
       await repository.addBikes([bike]);
       await repository.addComponents([component]);
@@ -473,8 +535,8 @@ void main() {
       );
       await pumpEventQueue();
 
-      final value = repository.setups[setup.id]!.bikeAdjustmentValues[adj.id] as double;
-      expect(value, closeTo(convertUnit(65.0, psi, bar), 1e-9));
+      final value = repository.setups[setup.id]!.bikeAdjustmentValues[adj.id]! as NumericalValue;
+      expect(value.value, closeTo(convertUnit(65.0, psi, bar), 1e-9));
       expect(repository.setups[setup.id]!.lastModified.isAfter(before), isTrue);
     });
 
@@ -487,7 +549,7 @@ void main() {
         adjustments: [adj],
         installations: [Installation.sinceBeginning(parent: bike.id)],
       );
-      final setup = buildSetup(bike.id, bikeValues: {adj.id: 65.0});
+      final setup = buildSetup(bike.id, bikeValues: {adj.id: const NumericalValue(65.0)});
 
       await repository.addBikes([bike]);
       await repository.addComponents([component]);
@@ -500,7 +562,7 @@ void main() {
       await repository.editComponent(component.copyWith(adjustments: [adj.copyWith(unit: bar)]));
       await pumpEventQueue();
 
-      expect(repository.setups[setup.id]!.bikeAdjustmentValues[adj.id], 65.0);
+      expect(repository.setups[setup.id]!.bikeAdjustmentValues[adj.id], const NumericalValue(65.0));
       expect(repository.setups[setup.id]!.lastModified, before);
     });
 
@@ -508,7 +570,7 @@ void main() {
       final bike = Bike(name: "B", person: null);
       final padj = NumericalAdjustment(name: "Weight", notes: null, unit: kg, min: 0);
       final person = Person(name: "P", adjustments: [padj]);
-      final setup = buildSetup(bike.id, personId: person.id, personValues: {padj.id: 70.0});
+      final setup = buildSetup(bike.id, personId: person.id, personValues: {padj.id: const NumericalValue(70.0)});
 
       await repository.addBikes([bike]);
       await repository.addPersons([person]);
@@ -521,8 +583,8 @@ void main() {
       );
       await pumpEventQueue();
 
-      final value = repository.setups[setup.id]!.personAdjustmentValues[padj.id] as double;
-      expect(value, closeTo(convertUnit(70.0, kg, lb), 1e-9));
+      final value = repository.setups[setup.id]!.personAdjustmentValues[padj.id]! as NumericalValue;
+      expect(value.value, closeTo(convertUnit(70.0, kg, lb), 1e-9));
     });
 
     test("editRating with Convert rewrites rating-entry values and bumps lastModified", () async {
@@ -537,7 +599,7 @@ void main() {
         setupId: "s",
         dateTimeUTC: DateTime(2020).toUtc(),
         dateTimeLocal: DateTime(2020),
-        metricValues: {metricAdj.id: 65.0},
+        metricValues: {metricAdj.id: const NumericalValue(65.0)},
       );
 
       await repository.addRatings([rating]);
@@ -560,23 +622,23 @@ void main() {
       );
       await pumpEventQueue();
 
-      final value = repository.ratingEntries[entry.id]!.metricValues[metricAdj.id] as double;
-      expect(value, closeTo(convertUnit(65.0, psi, bar), 1e-9));
+      final value = repository.ratingEntries[entry.id]!.metricValues[metricAdj.id]! as NumericalValue;
+      expect(value.value, closeTo(convertUnit(65.0, psi, bar), 1e-9));
       expect(repository.ratingEntries[entry.id]!.lastModified.isAfter(before), isTrue);
     });
 
     test("convertAdjustmentValues converts numeric rows and leaves unparseable rows untouched", () async {
       const adjId = 'adj-x';
       await database.into(database.setupAdjustmentValues).insert(
-        SetupAdjustmentValuesCompanion.insert(setupId: 's1', adjustmentId: adjId, value: encodeAdjustmentValue(10.0)));
+        SetupAdjustmentValuesCompanion.insert(setupId: 's1', adjustmentId: adjId, value: const NumericalValue(10.0).encode()));
       await database.into(database.setupAdjustmentValues).insert(
         SetupAdjustmentValuesCompanion.insert(setupId: 's2', adjustmentId: adjId, value: '"n/a"'));
 
-      await database.setupsDao.convertAdjustmentValues(adjId, (v) => v * 2);
+      await database.setupsDao.convertAdjustmentValues(adjId, (v) => NumericalValue(v.value * 2));
 
       final rows = await database.select(database.setupAdjustmentValues).get();
       final byId = {for (final r in rows) r.setupId: r.value};
-      expect(byId['s1'], encodeAdjustmentValue(20.0));
+      expect(byId['s1'], const NumericalValue(20.0).encode());
       expect(byId['s2'], '"n/a"'); // unparseable — left untouched
     });
 

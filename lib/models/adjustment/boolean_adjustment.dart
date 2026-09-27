@@ -38,8 +38,8 @@ class BooleanAdjustment extends Adjustment {
   }
 
   @override
-  bool isValidValue(dynamic value) {
-    return value is bool;
+  bool isValidValue(AdjustmentValue value) {
+    return value is BooleanValue;
   }
 
   @override

@@ -59,7 +59,7 @@ class DisplayStepAdjustmentWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               trailing: [
                 Text(
-                  "[${Adjustment.formatValue(adjustment.min)}..${Adjustment.formatValue(adjustment.max)}]",
+                  "[${adjustment.min}..${adjustment.max}]",
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: isError
                         ? highlightColor

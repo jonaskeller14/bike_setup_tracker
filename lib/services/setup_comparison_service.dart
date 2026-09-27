@@ -85,8 +85,8 @@ class SetupComparisonService {
       for (final component in breakdown.components)
         _ComponentOwnerData(
           component: component,
-          currentValues: Map.fromEntries(setup.bikeValueEntries),
-          previousValues: Setup.typedValues(setup.previousBikeAdjustmentValues),
+          currentValues: setup.bikeAdjustmentValues,
+          previousValues: setup.previousBikeAdjustmentValues,
         ),
     ];
   }
@@ -265,8 +265,8 @@ class SetupComparisonService {
       if (breakdown.person != null)
         _PersonOwnerData(
           person: breakdown.person!,
-          currentValues: Map.fromEntries(setup.personValueEntries),
-          previousValues: Setup.typedValues(setup.previousPersonAdjustmentValues),
+          currentValues: setup.personAdjustmentValues,
+          previousValues: setup.previousPersonAdjustmentValues,
         ),
     ];
   }

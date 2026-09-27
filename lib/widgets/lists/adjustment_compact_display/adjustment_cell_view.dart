@@ -86,7 +86,7 @@ class AdjustmentCellView extends StatelessWidget {
               ),
               if (adjustment is StepAdjustment)
                 TextSpan(
-                  text: "  [${Adjustment.formatValue(adjustment.min)}..${Adjustment.formatValue(adjustment.max)}]",
+                  text: "  [${adjustment.min}..${adjustment.max}]",
                   style: theme.textTheme.labelSmall?.copyWith(
                     color: onInverse.withValues(alpha: 0.7),
                     fontWeight: FontWeight.bold,

@@ -1,4 +1,6 @@
-import 'package:collection/collection.dart' show DeepCollectionEquality;
+import 'dart:convert';
+
+import 'package:collection/collection.dart' show MapEquality;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart' as geo;
@@ -21,8 +23,8 @@ class Setup {
   final Set<String> tags;
   final String bike;
   final String? person;
-  final Map<String, dynamic> bikeAdjustmentValues;
-  final Map<String, dynamic> personAdjustmentValues;
+  final Map<String, AdjustmentValue> bikeAdjustmentValues;
+  final Map<String, AdjustmentValue> personAdjustmentValues;
   final ContextPosition? position;
   final geo.Placemark? place;
   final ContextWeather? weather;
@@ -30,30 +32,8 @@ class Setup {
 
   // Transient values resolved at runtime
   bool isCurrent = false;
-  Map<String, dynamic> previousBikeAdjustmentValues = {};
-  Map<String, dynamic> previousPersonAdjustmentValues = {};
-
-  AdjustmentValue? bikeValue(String id) => AdjustmentValue.fromRuntime(bikeAdjustmentValues[id]);
-  AdjustmentValue? personValue(String id) => AdjustmentValue.fromRuntime(personAdjustmentValues[id]);
-  AdjustmentValue? previousBikeValue(String id) => AdjustmentValue.fromRuntime(previousBikeAdjustmentValues[id]);
-  AdjustmentValue? previousPersonValue(String id) => AdjustmentValue.fromRuntime(previousPersonAdjustmentValues[id]);
-
-  /// Present values only; entries whose value is absent are skipped.
-  Iterable<MapEntry<String, AdjustmentValue>> get bikeValueEntries => typedValueEntries(bikeAdjustmentValues);
-  Iterable<MapEntry<String, AdjustmentValue>> get personValueEntries => typedValueEntries(personAdjustmentValues);
-
-  static Iterable<MapEntry<String, AdjustmentValue>> typedValueEntries(Map<String, dynamic> values) sync* {
-    for (final entry in values.entries) {
-      final value = AdjustmentValue.fromRuntime(entry.value);
-      if (value != null) yield MapEntry(entry.key, value);
-    }
-  }
-
-  static Map<String, AdjustmentValue> typedValues(Map<String, dynamic> values) =>
-      Map.fromEntries(typedValueEntries(values));
-
-  static Map<String, dynamic> runtimeValues(Map<String, AdjustmentValue> values) =>
-      values.map((id, value) => MapEntry(id, AdjustmentValue.toRuntime(value)));
+  Map<String, AdjustmentValue> previousBikeAdjustmentValues = {};
+  Map<String, AdjustmentValue> previousPersonAdjustmentValues = {};
 
   static const IconData iconData = Icons.tune;
 
@@ -136,60 +116,77 @@ class Setup {
     }
   }
 
-  static Map<String, dynamic> adjustmentValuesToJson(Map<String, dynamic> adjustmentValues) {
-    return adjustmentValues.map((key, value) {
-      switch (value) {
-        case Duration(): return MapEntry(key, value.toString());
-        default: return MapEntry(key, value);
-      }
-    });
+  /// Durations are exported as `Duration.toString()`; unresolved values as
+  /// their decoded raw JSON.
+  static Map<String, dynamic> adjustmentValuesToJson(Map<String, AdjustmentValue> adjustmentValues) {
+    return adjustmentValues.map((key, value) => MapEntry(key, switch (value) {
+      BooleanValue(:final value) => value,
+      StepValue(:final value) => value,
+      NumericalValue(:final value) => value,
+      TextValue(:final value) => value,
+      CategoricalValue(:final options) => options,
+      DurationValue(:final value) => value.toString(),
+      UnresolvedValue(:final raw) => _decodeRawJson(raw),
+    }));
+  }
+
+  static Object? _decodeRawJson(String raw) {
+    try {
+      return jsonDecode(raw);
+    } on FormatException {
+      return raw;
+    }
   }
 
   /// [adjustmentTypes] maps adjustment ids from the same backup to their type.
   /// Values of unknown ids, or whose JSON shape does not fit their type, fall
-  /// back to guessing the type from the shape.
-  static Map<String, dynamic> adjustmentValuesFromJson(
+  /// back to guessing the type from the shape. Absent values are dropped.
+  static Map<String, AdjustmentValue> adjustmentValuesFromJson(
     Map<String, dynamic> adjustmentValues, {
     Map<String, AdjustmentType> adjustmentTypes = const {},
   }) {
-    return adjustmentValues.map((key, value) {
-      final type = adjustmentTypes[key];
-      return MapEntry(key, type == null ? _adjustmentValueFromJsonShape(value) : _adjustmentValueFromJson(value, type));
-    });
+    return {
+      for (final MapEntry(:key, :value) in adjustmentValues.entries)
+        key: ?switch (adjustmentTypes[key]) {
+          final type? => _adjustmentValueFromJson(value, type),
+          null => _adjustmentValueFromJsonShape(value),
+        },
+    };
   }
 
-  static dynamic _adjustmentValueFromJson(dynamic value, AdjustmentType type) {
+  static AdjustmentValue? _adjustmentValueFromJson(dynamic value, AdjustmentType type) {
     return switch ((type, value)) {
       (_, null) => null,
       (_, String() && '') => null,
-      (AdjustmentType.boolean, final bool value) => value,
-      (AdjustmentType.step, final num value) => value.toInt(),
-      (AdjustmentType.numerical, final num value) => value.toDouble(),
-      (AdjustmentType.text, final String value) => value,
-      (AdjustmentType.categorical, final List<dynamic> value) => value.map((e) => e.toString()).toList(),
+      (AdjustmentType.boolean, final bool value) => BooleanValue(value),
+      (AdjustmentType.step, final num value) => StepValue(value.toInt()),
+      (AdjustmentType.numerical, final num value) => NumericalValue(value.toDouble()),
+      (AdjustmentType.text, final String value) => TextValue.orNull(value),
+      (AdjustmentType.categorical, final List<dynamic> value) => CategoricalValue(value.map((e) => e.toString()).toList()),
       // Legacy single-select categorical.
-      (AdjustmentType.categorical, final String value) => <String>[value],
-      (AdjustmentType.duration, final String value) => DurationAdjustment.tryParseDurationString(value),
+      (AdjustmentType.categorical, final String value) => CategoricalValue([value]),
+      (AdjustmentType.duration, final String value) => switch (DurationAdjustment.tryParseDurationString(value)) {
+        final duration? => DurationValue(duration),
+        null => null,
+      },
       _ => _adjustmentValueFromJsonShape(value),
     };
   }
 
-  static dynamic _adjustmentValueFromJsonShape(dynamic value) {
+  static AdjustmentValue? _adjustmentValueFromJsonShape(dynamic value) {
     switch (value) {
+      case null: return null;
+      case bool(): return BooleanValue(value);
+      case int(): return StepValue(value);
+      case double(): return NumericalValue(value);
       case String():
         final Duration? duration = DurationAdjustment.tryParseDurationString(value);
-        if (duration != null) {
-          return duration;
-        } else if (value.isEmpty) {
-          return null;
-        } else {
-          return value;
-        } // TextAdjustment --> String?, DurationAdjustment --> Duration
+        return duration != null ? DurationValue(duration) : TextValue.orNull(value);
       case List():
         // Multi-select CategoricalAdjustment: JSON arrays decode to
         // List<dynamic>; coerce to List<String>.
-        return value.map((e) => e.toString()).toList();
-      default: return value;
+        return CategoricalValue(value.map((e) => e.toString()).toList());
+      default: return UnresolvedValue(jsonEncode(value));
     }
   }
 
@@ -275,10 +272,10 @@ class Setup {
           : (person as String?),
       bikeAdjustmentValues: bikeAdjustmentValues is _Sentinel
           ? this.bikeAdjustmentValues
-          : (bikeAdjustmentValues as Map<String, dynamic>),
+          : (bikeAdjustmentValues as Map<String, AdjustmentValue>),
       personAdjustmentValues: personAdjustmentValues is _Sentinel
           ? this.personAdjustmentValues
-          : (personAdjustmentValues as Map<String, dynamic>),
+          : (personAdjustmentValues as Map<String, AdjustmentValue>),
       position: position is _Sentinel
           ? this.position
           : (position as ContextPosition?),
@@ -296,10 +293,10 @@ class Setup {
           : (isCurrent as bool)
      ..previousBikeAdjustmentValues = previousBikeAdjustmentValues is _Sentinel
           ? this.previousBikeAdjustmentValues
-          : (previousBikeAdjustmentValues as Map<String, dynamic>)
+          : (previousBikeAdjustmentValues as Map<String, AdjustmentValue>)
      ..previousPersonAdjustmentValues = previousPersonAdjustmentValues is _Sentinel
           ? this.previousPersonAdjustmentValues
-          : (previousPersonAdjustmentValues as Map<String, dynamic>);
+          : (previousPersonAdjustmentValues as Map<String, AdjustmentValue>);
   }
 
   @override
@@ -318,8 +315,8 @@ class Setup {
         setEquals(tags, other.tags) &&
         bike == other.bike &&
         person == other.person &&
-        const DeepCollectionEquality().equals(bikeAdjustmentValues, other.bikeAdjustmentValues) &&
-        const DeepCollectionEquality().equals(personAdjustmentValues, other.personAdjustmentValues) &&
+        mapEquals(bikeAdjustmentValues, other.bikeAdjustmentValues) &&
+        mapEquals(personAdjustmentValues, other.personAdjustmentValues) &&
         ContextPosition.equal(position, other.position) &&
         ContextPlace.equal(place, other.place) &&
         weather == other.weather &&
@@ -340,8 +337,8 @@ class Setup {
       Object.hashAll(tags),
       bike,
       person,
-      const DeepCollectionEquality().hash(bikeAdjustmentValues),
-      const DeepCollectionEquality().hash(personAdjustmentValues),
+      const MapEquality<String, AdjustmentValue>().hash(bikeAdjustmentValues),
+      const MapEquality<String, AdjustmentValue>().hash(personAdjustmentValues),
       position,
       place,
       weather,

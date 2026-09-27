@@ -25,7 +25,7 @@ void main() {
     String? locality,
     double? altitude,
     ContextWeather? weather,
-    Map<String, dynamic>? bikeAdjustmentValues,
+    Map<String, AdjustmentValue>? bikeAdjustmentValues,
   }) {
     final effectiveDatetime = datetime ?? DateTime.utc(2025, 1, 1, 12);
     return Setup(
@@ -201,14 +201,14 @@ void main() {
     final numerical = NumericalAdjustment(id: 'sag', name: 'Sag', notes: null, unit: null);
     final boolean = BooleanAdjustment(id: 'lockout', name: 'Lockout', notes: null, unit: null);
 
-    Setup withAdjustments(String id, Map<String, dynamic> values) => buildSetup(id: id, bikeAdjustmentValues: values);
+    Setup withAdjustments(String id, Map<String, AdjustmentValue> values) => buildSetup(id: id, bikeAdjustmentValues: values);
 
     List<String> sortedByColumn(TableColumn column, List<Setup> setups) {
       final comparator = tableColumnComparator(
         column,
         valueFor: (setup, column) => switch (column) {
-          ComponentAdjustmentColumn(:final adjustmentId) => setup.bikeValue(adjustmentId),
-          RatingScoreColumn() => setup.bikeValue('score'),
+          ComponentAdjustmentColumn(:final adjustmentId) => setup.bikeAdjustmentValues[adjustmentId],
+          RatingScoreColumn() => setup.bikeAdjustmentValues['score'],
           _ => null,
         },
         componentAdjustments: [numerical, boolean],
@@ -222,8 +222,8 @@ void main() {
 
     test('numerical adjustments sort numerically, not lexically', () {
       final setups = [
-        withAdjustments('nine', {'sag': 9.0}),
-        withAdjustments('eleven', {'sag': 11.0}),
+        withAdjustments('nine', {'sag': const NumericalValue(9.0)}),
+        withAdjustments('eleven', {'sag': const NumericalValue(11.0)}),
         withAdjustments('missing', const {}),
       ];
       expect(
@@ -234,7 +234,7 @@ void main() {
 
     test('boolean adjustments sort false before true, missing counts as false', () {
       final setups = [
-        withAdjustments('on', {'lockout': true}),
+        withAdjustments('on', {'lockout': const BooleanValue(true)}),
         withAdjustments('missing', const {}),
       ];
       expect(
@@ -245,7 +245,7 @@ void main() {
 
     test('rating columns sort unscored setups first', () {
       final setups = [
-        withAdjustments('scored', {'score': 7.5}),
+        withAdjustments('scored', {'score': const NumericalValue(7.5)}),
         withAdjustments('unscored', const {}),
       ];
       expect(sortedByColumn(RatingScoreColumn(active: true), setups), ['unscored', 'scored']);

@@ -67,9 +67,9 @@ class _DurationMetricPageState extends State<DurationMetricPage> {
     _nameController.addListener(_changeListener);
     _notesController = TextEditingController(text: _initialAdj?.notes);
     _notesController.addListener(_changeListener);
-    _minController = TextEditingController(text: _initialAdj?.min == null ? null : Adjustment.formatValue(_initialAdj?.min));
+    _minController = TextEditingController(text: _initialAdj?.min == null ? null : DurationValue(_initialAdj!.min!).display);
     _minController.addListener(_changeListener);
-    _maxController = TextEditingController(text: _initialAdj?.max == null ? null : Adjustment.formatValue(_initialAdj?.max));
+    _maxController = TextEditingController(text: _initialAdj?.max == null ? null : DurationValue(_initialAdj!.max!).display);
     _maxController.addListener(_changeListener);
     _weightController = TextEditingController(text: MetricWeightField.formatWeight(_initialWeight));
     _weightController.addListener(_changeListener);
@@ -243,7 +243,7 @@ class _DurationMetricPageState extends State<DurationMetricPage> {
                                     adjustment: DurationAdjustment(name: 'Min', notes: null, unit: null, max: _previewAdjustment.max),
                                     value: _previewAdjustment.min,
                                     onChanged: (Duration newValue) {
-                                      _minController.text = Adjustment.formatValue(newValue);
+                                      _minController.text = DurationValue(newValue).display;
                                       _updatePreview(min: newValue, max: _previewAdjustment.max);
                                     }
                                   );
@@ -281,7 +281,7 @@ class _DurationMetricPageState extends State<DurationMetricPage> {
                                     adjustment: DurationAdjustment(name: 'Max', notes: null, unit: null, min: _previewAdjustment.min),
                                     value: _previewAdjustment.max,
                                     onChanged: (Duration newValue) {
-                                      _maxController.text = Adjustment.formatValue(newValue);
+                                      _maxController.text = DurationValue(newValue).display;
                                       _updatePreview(min: _previewAdjustment.min, max: newValue);
                                     }
                                   );

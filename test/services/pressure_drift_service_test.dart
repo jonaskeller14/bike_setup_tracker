@@ -19,7 +19,7 @@ const double _currentAltitudeM = 1800;
 Setup _setup({
   required String id,
   required DateTime datetime,
-  required Map<String, dynamic> bikeAdjustmentValues,
+  required Map<String, AdjustmentValue> bikeAdjustmentValues,
   double? temperatureC = _referenceTemperatureC,
   double? altitudeM = _referenceAltitudeM,
 }) {
@@ -147,7 +147,7 @@ void main() {
           _setup(
             id: 's1',
             datetime: referenceDateTime,
-            bikeAdjustmentValues: {forkPressure.id: 80.0},
+            bikeAdjustmentValues: {forkPressure.id: const NumericalValue(80.0)},
           ),
         ],
       );
@@ -171,7 +171,7 @@ void main() {
       final entry = _compute(
         components: [fork],
         setups: [
-          _setup(id: 's1', datetime: referenceDateTime, bikeAdjustmentValues: {forkPressure.id: 80.0}),
+          _setup(id: 's1', datetime: referenceDateTime, bikeAdjustmentValues: {forkPressure.id: const NumericalValue(80.0)}),
         ],
       ).single;
 
@@ -193,7 +193,7 @@ void main() {
       final entry = _compute(
         components: [wheel],
         setups: [
-          _setup(id: 's1', datetime: referenceDateTime, bikeAdjustmentValues: {tirePressure.id: 25.0}),
+          _setup(id: 's1', datetime: referenceDateTime, bikeAdjustmentValues: {tirePressure.id: const NumericalValue(25.0)}),
         ],
       ).single;
 
@@ -208,7 +208,7 @@ void main() {
       final entry = _compute(
         components: [fork],
         setups: [
-          _setup(id: 's1', datetime: referenceDateTime, bikeAdjustmentValues: {forkPressure.id: 80.0}),
+          _setup(id: 's1', datetime: referenceDateTime, bikeAdjustmentValues: {forkPressure.id: const NumericalValue(80.0)}),
         ],
         weather: _currentWeather(temperatureC: _referenceTemperatureC),
         position: _currentPosition(altitudeM: _referenceAltitudeM),
@@ -229,7 +229,7 @@ void main() {
       final entry = _compute(
         components: [barFork],
         setups: [
-          _setup(id: 's1', datetime: referenceDateTime, bikeAdjustmentValues: {barPressure.id: 5.5158}),
+          _setup(id: 's1', datetime: referenceDateTime, bikeAdjustmentValues: {barPressure.id: const NumericalValue(5.5158)}),
         ],
       ).single;
 
@@ -267,7 +267,7 @@ void main() {
           _setup(
             id: 's1',
             datetime: referenceDateTime,
-            bikeAdjustmentValues: {clicks.id: 5, travel.id: 160.0, sag.id: 20.0},
+            bikeAdjustmentValues: {clicks.id: const StepValue(5), travel.id: const NumericalValue(160.0), sag.id: const NumericalValue(20.0)},
           ),
         ],
       );
@@ -295,7 +295,7 @@ void main() {
       final entries = _compute(
         components: [fork],
         setups: [
-          _setup(id: 's1', datetime: referenceDateTime, bikeAdjustmentValues: {forkPressure.id: 0.0}),
+          _setup(id: 's1', datetime: referenceDateTime, bikeAdjustmentValues: {forkPressure.id: const NumericalValue(0.0)}),
         ],
       );
 
@@ -326,7 +326,7 @@ void main() {
           _setup(
             id: 's1',
             datetime: referenceDateTime,
-            bikeAdjustmentValues: {forkPressure.id: 80.0},
+            bikeAdjustmentValues: {forkPressure.id: const NumericalValue(80.0)},
             temperatureC: referenceTemperatureC,
             altitudeM: referenceAltitudeM,
           ),

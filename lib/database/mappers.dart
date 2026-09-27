@@ -24,7 +24,6 @@ import '../models/task/task_association.dart';
 import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
 import '../models/task/task_threshold/task_threshold.dart';
-import 'adjustment_value_codec.dart';
 import 'app_database.dart';
 import 'daos/rating_entries_dao.dart';
 import 'daos/setups_dao.dart';
@@ -414,13 +413,13 @@ extension SetupDbMapper on SetupDb {
   Setup toModel({
     List<TypedSetupValue> values = const [],
   }) {
-    final bikeAdjustmentValues = <String, dynamic>{};
-    final personAdjustmentValues = <String, dynamic>{};
+    final bikeAdjustmentValues = <String, AdjustmentValue>{};
+    final personAdjustmentValues = <String, AdjustmentValue>{};
 
     for (var typedValue in values) {
       final adj = typedValue.adjustment;
-      final valStr = typedValue.value.value;
-      final dynamic parsedValue = decodeAdjustmentValue(valStr, adj.type);
+      final parsedValue = AdjustmentValue.decode(typedValue.value.value, adj.type);
+      if (parsedValue == null) continue;
 
       if (adj.componentId != null) {
         bikeAdjustmentValues[adj.id] = parsedValue;
@@ -453,10 +452,10 @@ extension SetupDbMapper on SetupDb {
 
 extension RatingEntryDbMapper on RatingEntryDb {
   RatingEntry toModel({List<TypedRatingEntryValue> values = const []}) {
-    final metricValues = <String, dynamic>{};
+    final metricValues = <String, AdjustmentValue>{};
     for (final typedValue in values) {
-      metricValues[typedValue.metric.id] =
-          decodeAdjustmentValue(typedValue.value.value, typedValue.metric.type);
+      final parsedValue = AdjustmentValue.decode(typedValue.value.value, typedValue.metric.type);
+      if (parsedValue != null) metricValues[typedValue.metric.id] = parsedValue;
     }
 
     return RatingEntry(

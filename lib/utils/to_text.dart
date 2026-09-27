@@ -140,7 +140,7 @@ void _appendSetupText(
     if (person != null) {
       buffer.writeln("\n👤 ${person.name} Attributes:");
       for (final adj in person.adjustments) {
-        if (setup.personValue(adj.id) case final value?) {
+        if (setup.personAdjustmentValues[adj.id] case final value?) {
           buffer.writeln("- ${adj.name}: ${value.display}${adj.unitSuffix()}");
         }
       }
@@ -149,11 +149,11 @@ void _appendSetupText(
 
   // Component Adjustments
   for (final component in components.values) {
-    if (!component.adjustments.any((adj) => setup.bikeValue(adj.id) != null)) continue;
+    if (!component.adjustments.any((adj) => setup.bikeAdjustmentValues[adj.id] != null)) continue;
 
     buffer.writeln("\n- ${component.name}");
     for (final adjustment in component.adjustments) {
-      if (setup.bikeValue(adjustment.id) case final value?) {
+      if (setup.bikeAdjustmentValues[adjustment.id] case final value?) {
         buffer.writeln("\t- ${adjustment.name}: ${value.display}${adjustment.unitSuffix()}");
       }
     }

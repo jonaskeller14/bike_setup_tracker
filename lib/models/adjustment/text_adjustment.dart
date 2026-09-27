@@ -38,8 +38,8 @@ class TextAdjustment extends Adjustment {
   }
 
   @override
-  bool isValidValue(dynamic value) {
-    return value is String;
+  bool isValidValue(AdjustmentValue value) {
+    return value is TextValue;
   }
 
   @override

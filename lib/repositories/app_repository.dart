@@ -35,6 +35,7 @@ import '../services/rating_score_service.dart';
 import '../services/setup_resolution_service.dart';
 import '../services/task_forecast_service.dart';
 import '../services/task_status_service.dart';
+import '../utils/adjustment_value_type_check.dart';
 import '../utils/unit_conversion.dart';
 import 'strava_paging_controller.dart';
 
@@ -1319,6 +1320,7 @@ class AppRepository extends ChangeNotifier {
 
   Future<void> addRatingEntries(Iterable<RatingEntry> entries) async {
     if (entries.isEmpty) return;
+    checkRatingEntryValueTypes(entries, ratings: _ratings.values);
     final now = DateTime.now().toUtc();
     await database.transaction(() async {
       for (final entry in entries) {
@@ -1332,6 +1334,7 @@ class AppRepository extends ChangeNotifier {
   }
 
   Future<void> editRatingEntry(RatingEntry entry) async {
+    checkRatingEntryValueTypes([entry], ratings: _ratings.values);
     final updated = entry.copyWith(lastModified: DateTime.now().toUtc());
     await database.ratingEntriesDao.updateRatingEntryWithValues(
       entry: updated.toCompanion(),
@@ -1474,7 +1477,7 @@ class AppRepository extends ChangeNotifier {
       for (final c in conversions) {
         await database.setupsDao.convertAdjustmentValues(
           c.adjustmentId,
-          (v) => convertUnit(v, c.from, c.to),
+          (v) => NumericalValue(convertUnit(v.value, c.from, c.to)),
         );
       }
     });
@@ -1504,7 +1507,7 @@ class AppRepository extends ChangeNotifier {
       for (final c in conversions) {
         await database.setupsDao.convertAdjustmentValues(
           c.adjustmentId,
-          (v) => convertUnit(v, c.from, c.to),
+          (v) => NumericalValue(convertUnit(v.value, c.from, c.to)),
         );
       }
     });
@@ -1608,7 +1611,7 @@ class AppRepository extends ChangeNotifier {
       for (final c in conversions) {
         await database.ratingEntriesDao.convertMetricValues(
           c.adjustmentId,
-          (v) => convertUnit(v, c.from, c.to),
+          (v) => NumericalValue(convertUnit(v.value, c.from, c.to)),
         );
       }
     });
@@ -1616,6 +1619,7 @@ class AppRepository extends ChangeNotifier {
 
   Future<void> addSetups(Iterable<Setup> setups) async {
     if (setups.isEmpty) return;
+    checkSetupValueTypes(setups, components: _components.values, persons: _persons.values);
     final now = DateTime.now().toUtc();
     await database.transaction(() async {
       for (final setup in setups) {
@@ -1632,6 +1636,7 @@ class AppRepository extends ChangeNotifier {
   Future<void> editSetups(Iterable<Setup> setups) async {
     final setupList = setups.toList();
     if (setupList.isEmpty) return;
+    checkSetupValueTypes(setupList, components: _components.values, persons: _persons.values);
     final now = DateTime.now().toUtc();
 
     await database.transaction(() async {

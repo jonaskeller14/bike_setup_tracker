@@ -14,7 +14,6 @@ import '../models/component/installation.dart';
 import '../models/rating/rating_association.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/task/task_rule.dart';
-import 'adjustment_value_codec.dart';
 import 'converters/context_position_converter.dart';
 import 'converters/duration_converter.dart';
 import 'converters/local_floating_datetime_converter.dart';
@@ -394,7 +393,7 @@ class AppDatabase extends _$AppDatabase {
       final type = AdjustmentType.values.firstWhereOrNull((e) => e.name == typeName);
       if (type == null) continue; // unknown type — leave the row untouched.
 
-      final newRaw = encodeAdjustmentValue(decodeLegacyAdjustmentValue(raw, type));
+      final newRaw = AdjustmentValue.decodeLegacy(raw, type)?.encode() ?? 'null';
       if (newRaw == raw) continue; // already JSON-shaped.
 
       await customStatement(

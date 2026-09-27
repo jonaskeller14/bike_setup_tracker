@@ -18,10 +18,10 @@ void main() {
     String? notes,
     Set<String> tags = const {},
     List<String> images = const [],
-    Map<String, dynamic> bikeValues = const {},
-    Map<String, dynamic> personValues = const {},
-    Map<String, dynamic> previousBikeValues = const {},
-    Map<String, dynamic> previousPersonValues = const {},
+    Map<String, AdjustmentValue> bikeValues = const {},
+    Map<String, AdjustmentValue> personValues = const {},
+    Map<String, AdjustmentValue> previousBikeValues = const {},
+    Map<String, AdjustmentValue> previousPersonValues = const {},
     DateTime? at,
   }) {
     return Setup(
@@ -83,8 +83,8 @@ void main() {
       final adjustment = text('pressure');
       final fork = component(id: 'fork', name: 'Fork', bike: bikeA, adjustments: [adjustment]);
       final result = compare(
-        a: setup(id: 'current', bike: bikeA, bikeValues: {'pressure': 80}),
-        b: setup(id: 'older', bike: bikeA, previousBikeValues: {'pressure': 80}),
+        a: setup(id: 'current', bike: bikeA, bikeValues: {'pressure': const StepValue(80)}),
+        b: setup(id: 'older', bike: bikeA, previousBikeValues: {'pressure': const StepValue(80)}),
         components: [fork],
       );
 
@@ -93,22 +93,6 @@ void main() {
       expect(row.valueB.provenance, SetupComparisonValueProvenance.inherited);
       expect(row.isDifferent, isFalse);
       expect(result.differenceCount, 0);
-    });
-
-    test('treats an explicit null like an absent value', () {
-      final adjustment = text('cleared');
-      final fork = component(id: 'fork', name: 'Fork', bike: bikeA, adjustments: [adjustment]);
-      final result = compare(
-        a: setup(id: 'a', bike: bikeA, bikeValues: {'cleared': null}),
-        b: setup(id: 'b', bike: bikeA),
-        components: [fork],
-      );
-
-      final row = result.groups.single.rows.single;
-      expect(row.valueA.provenance, SetupComparisonValueProvenance.unavailable);
-      expect(row.valueA.value, isNull);
-      expect(row.valueB.provenance, SetupComparisonValueProvenance.unavailable);
-      expect(row.isDifferent, isFalse);
     });
 
     test('compares scalar, duration, and categorical values with deep list equality', () {
@@ -136,13 +120,13 @@ void main() {
         ),
       ];
       final fork = component(id: 'fork', name: 'Fork', bike: bikeA, adjustments: adjustments);
-      final values = <String, dynamic>{
-        'number': 2.5,
-        'bool': true,
-        'text': 'trail',
-        'duration': const Duration(seconds: 45),
-        'list': ['open', 'closed'],
-        'counted': ['open', 'open'],
+      final values = {
+        'number': const NumericalValue(2.5),
+        'bool': const BooleanValue(true),
+        'text': TextValue.orNull('trail')!,
+        'duration': const DurationValue(Duration(seconds: 45)),
+        'list': CategoricalValue(['open', 'closed']),
+        'counted': CategoricalValue(['open', 'open']),
       };
       final result = compare(
         a: setup(id: 'a', bike: bikeA, bikeValues: values),
@@ -151,7 +135,7 @@ void main() {
           bike: bikeA,
           bikeValues: {
             ...values,
-            'counted': ['open'],
+            'counted': CategoricalValue(['open']),
           },
         ),
         components: [fork],
@@ -172,8 +156,8 @@ void main() {
         adjustments: [aOne, aTwo, bSameLabel, bTwo],
       );
       final result = compare(
-        a: setup(id: 'a', bike: bikeA, bikeValues: {'a-one': 1, 'a-two': 2}),
-        b: setup(id: 'b', bike: bikeA, bikeValues: {'b-one': 1, 'b-two': 2}),
+        a: setup(id: 'a', bike: bikeA, bikeValues: {'a-one': const StepValue(1), 'a-two': const StepValue(2)}),
+        b: setup(id: 'b', bike: bikeA, bikeValues: {'b-one': const StepValue(1), 'b-two': const StepValue(2)}),
         components: [fork],
       );
 
@@ -250,12 +234,12 @@ void main() {
         a: setup(
           id: 'a',
           bike: bikeA,
-          bikeValues: {'a-pressure': 20, 'a-insert': 'yes', 'a-rebound': 5},
+          bikeValues: {'a-pressure': const StepValue(20), 'a-insert': TextValue.orNull('yes')!, 'a-rebound': const StepValue(5)},
         ),
         b: setup(
           id: 'b',
           bike: bikeB,
-          bikeValues: {'b-pressure': 21, 'b-insert': 'no', 'b-rebound': 6},
+          bikeValues: {'b-pressure': const StepValue(21), 'b-insert': TextValue.orNull('no')!, 'b-rebound': const StepValue(6)},
         ),
         components: [frontA, rearA, rearB, frontB],
       );
@@ -311,13 +295,13 @@ void main() {
           id: 'before',
           bike: bikeA,
           at: DateTime.utc(2026, 1, 1),
-          bikeValues: {'old-pressure': 20},
+          bikeValues: {'old-pressure': const StepValue(20)},
         ),
         b: setup(
           id: 'after',
           bike: bikeA,
           at: DateTime.utc(2026, 1, 3),
-          bikeValues: {'new-pressure': 22},
+          bikeValues: {'new-pressure': const StepValue(22)},
         ),
         components: [oldTire, newTire],
       );
@@ -471,7 +455,7 @@ void main() {
           id: 'b',
           bike: bikeA,
           at: DateTime.utc(2026, 1, 3),
-          bikeValues: {'legacy-value': 9, 'deleted-id': 'orphan'},
+          bikeValues: {'legacy-value': const StepValue(9), 'deleted-id': TextValue.orNull('orphan')!},
         ),
         components: [removed, structural],
       );

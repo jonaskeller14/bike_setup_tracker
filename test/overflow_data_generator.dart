@@ -223,7 +223,7 @@ void main() async {
           dateTimeLocal: DateTime(2025).add(Duration(days: idx)),
           metricValues: {
             if (firstRating.metrics.isNotEmpty)
-              firstRating.metrics.first.id: idx * 2,
+              firstRating.metrics.first.id: StepValue(idx * 2),
           },
         ),
     ];

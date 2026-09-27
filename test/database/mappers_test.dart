@@ -177,8 +177,8 @@ void main() {
         tags: {'race'},
         bike: 'bike1',
         person: 'person1',
-        bikeAdjustmentValues: {'adj1': 10},
-        personAdjustmentValues: {'adj2': 5},
+        bikeAdjustmentValues: {'adj1': const StepValue(10)},
+        personAdjustmentValues: {'adj2': const StepValue(5)},
       );
 
       // Model -> Companion
@@ -253,10 +253,8 @@ void main() {
 
       final model = setupDb.toModel(values: values);
 
-      expect(model.bikeAdjustmentValues['adj_step'], isA<int>());
-      expect(model.bikeAdjustmentValues['adj_step'], 10);
-      expect(model.bikeAdjustmentValues['adj_num'], isA<double>());
-      expect(model.bikeAdjustmentValues['adj_num'], 10.5);
+      expect(model.bikeAdjustmentValues['adj_step'], const StepValue(10));
+      expect(model.bikeAdjustmentValues['adj_num'], const NumericalValue(10.5));
     });
 
     group('Detailed Adjustment Mapping', () {

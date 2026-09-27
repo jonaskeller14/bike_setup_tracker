@@ -70,17 +70,17 @@ abstract final class OnboardingSetupExample {
   static const double editedPressure = 81;
   static const double editedRebound = 10;
 
-  static Map<String, dynamic> _values(double pressureValue, double reboundValue, bool lockoutValue) => {
-    pressure.id: pressureValue,
-    rebound.id: reboundValue,
-    lockout.id: lockoutValue,
+  static Map<String, AdjustmentValue> _values(double pressureValue, double reboundValue, bool lockoutValue) => {
+    pressure.id: NumericalValue(pressureValue),
+    rebound.id: StepValue(reboundValue.round()),
+    lockout.id: BooleanValue(lockoutValue),
   };
 
   static Setup _setup({
     required String name,
     required DateTime at,
-    required Map<String, dynamic> values,
-    required Map<String, dynamic> previousValues,
+    required Map<String, AdjustmentValue> values,
+    required Map<String, AdjustmentValue> previousValues,
   }) {
     return Setup(
       name: name,
@@ -305,8 +305,8 @@ class OnboardingSetupSnapshotCard extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 10),
                 child: AdjustmentCompactDisplayList(
                   components: [OnboardingSetupExample.fork],
-                  adjustmentValues: Setup.typedValues(snapshot.setup.bikeAdjustmentValues),
-                  previousAdjustmentValues: Setup.typedValues(snapshot.setup.previousBikeAdjustmentValues),
+                  adjustmentValues: snapshot.setup.bikeAdjustmentValues,
+                  previousAdjustmentValues: snapshot.setup.previousBikeAdjustmentValues,
                   showRowIcons: true,
                   highlightInitialValues: true,
                 ),

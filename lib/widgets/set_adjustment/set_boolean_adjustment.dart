@@ -6,9 +6,9 @@ import '../display_adjustment/adjustment_icon_name_notes.dart';
 
 class SetBooleanAdjustmentWidget extends StatelessWidget {
   final BooleanAdjustment adjustment;
-  final bool? initialValue;
-  final bool? value;
-  final ValueChanged<bool?> onChanged;
+  final BooleanValue? initialValue;
+  final BooleanValue? value;
+  final ValueChanged<BooleanValue?> onChanged;
   final bool highlighting;
 
   /// The value is not pre-filled from [initialValue], so it may be left unset
@@ -59,14 +59,14 @@ class SetBooleanAdjustmentWidget extends StatelessWidget {
                       style: OutlinedButton.styleFrom(
                         visualDensity: VisualDensity.compact,
                       ),
-                      onPressed: () => onChanged(false),
+                      onPressed: () => onChanged(const BooleanValue(false)),
                       child: const Text("Set value"),
                     )
                   : Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Switch(value: value!, onChanged: onChanged),
+                        Switch(value: value!.value, onChanged: (newValue) => onChanged(BooleanValue(newValue))),
                         if (isInitial || optional)
                           IconButton(
                             onPressed: () => onChanged(null), 

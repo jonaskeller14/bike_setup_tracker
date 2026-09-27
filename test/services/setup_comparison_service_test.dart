@@ -95,7 +95,7 @@ void main() {
       expect(result.differenceCount, 0);
     });
 
-    test('distinguishes an explicit null from an absent value', () {
+    test('treats an explicit null like an absent value', () {
       final adjustment = text('cleared');
       final fork = component(id: 'fork', name: 'Fork', bike: bikeA, adjustments: [adjustment]);
       final result = compare(
@@ -105,10 +105,10 @@ void main() {
       );
 
       final row = result.groups.single.rows.single;
-      expect(row.valueA.provenance, SetupComparisonValueProvenance.explicit);
+      expect(row.valueA.provenance, SetupComparisonValueProvenance.unavailable);
       expect(row.valueA.value, isNull);
       expect(row.valueB.provenance, SetupComparisonValueProvenance.unavailable);
-      expect(row.isDifferent, isTrue);
+      expect(row.isDifferent, isFalse);
     });
 
     test('compares scalar, duration, and categorical values with deep list equality', () {
@@ -269,8 +269,8 @@ void main() {
       expect(frontPair.rows, isEmpty);
       expect(frontPair.independentRowsA.map((row) => row.id), ['a-pressure', 'a-insert']);
       expect(frontPair.independentRowsB.map((row) => row.id), ['b-pressure', 'b-insert']);
-      expect(frontPair.independentRowsA.first.valueA.value, 20);
-      expect(frontPair.independentRowsB.first.valueB.value, 21);
+      expect(frontPair.independentRowsA.first.valueA.value, const StepValue(20));
+      expect(frontPair.independentRowsB.first.valueB.value, const StepValue(21));
       expect(frontPair.independentRowsA.every((row) => !row.isDifferent), isTrue);
       expect(frontPair.differenceCount, 1);
       expect(result.differenceCount, 2);
@@ -326,8 +326,8 @@ void main() {
       expect(result.groups.single.isInferredComponentPair, isTrue);
       expect(result.groups.single.componentA?.id, 'old-tire');
       expect(result.groups.single.componentB?.id, 'new-tire');
-      expect(result.groups.single.independentRowsA.single.valueA.value, 20);
-      expect(result.groups.single.independentRowsB.single.valueB.value, 22);
+      expect(result.groups.single.independentRowsA.single.valueA.value, const StepValue(20));
+      expect(result.groups.single.independentRowsB.single.valueB.value, const StepValue(22));
     });
 
     test('pairs zero-similarity candidates deterministically and leaves same-type surplus one-sided', () {

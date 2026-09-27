@@ -47,7 +47,7 @@ class _SagAdjustmentPageState extends State<SagAdjustmentPage> {
   late TextEditingController _notesController;
   late TextEditingController _travelController;
 
-  String? _previewValue;
+  NumericalValue? _previewValue;
   late SagAdjustment _previewAdjustment;
 
   String get _travelLabel => switch (widget.componentType) {
@@ -309,7 +309,7 @@ class _SagAdjustmentPageState extends State<SagAdjustmentPage> {
                     adjustment: _previewAdjustment,
                     initialValue: null,
                     value: _previewValue,
-                    onChanged: (String? newValue) {
+                    onChanged: (NumericalValue? newValue) {
                       setState(() {
                         _previewValue = newValue;
                       });

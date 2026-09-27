@@ -8,8 +8,8 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   DisplayAdjustmentDiff rowFor({
     required Adjustment adjustment,
-    required dynamic valueA,
-    required dynamic valueB,
+    required AdjustmentValue? valueA,
+    required AdjustmentValue? valueB,
   }) {
     return DisplayAdjustmentDiff(
       groupId: 'fork',
@@ -45,7 +45,7 @@ void main() {
       step: 1,
       visualization: StepAdjustmentVisualization.slider,
     );
-    await tester.pumpWidget(host(rowFor(adjustment: adjustment, valueA: 2, valueB: 4)));
+    await tester.pumpWidget(host(rowFor(adjustment: adjustment, valueA: const StepValue(2), valueB: const StepValue(4))));
 
     expect(find.text('Turn clockwise from fully open'), findsNothing);
     expect(find.byIcon(Icons.info_outline), findsOneWidget);
@@ -63,7 +63,7 @@ void main() {
       notes: null,
       unit: const KnownUnit(quantity: UnitQuantity.pressure, unitId: 'psi'),
     );
-    await tester.pumpWidget(host(rowFor(adjustment: adjustment, valueA: 65.0, valueB: 80.0)));
+    await tester.pumpWidget(host(rowFor(adjustment: adjustment, valueA: const NumericalValue(65.0), valueB: const NumericalValue(80.0))));
 
     final panelA = find.byKey(const Key('compare-panel-a-fork-pressure'));
     await tester.tap(find.descendant(of: panelA, matching: find.text('psi')));
@@ -92,8 +92,8 @@ void main() {
       host(
         Column(
           children: [
-            rowFor(adjustment: numerical, valueA: 65, valueB: 70),
-            rowFor(adjustment: text, valueA: 'Soft', valueB: 'Firm'),
+            rowFor(adjustment: numerical, valueA: const NumericalValue(65), valueB: const NumericalValue(70)),
+            rowFor(adjustment: text, valueA: TextValue.orNull('Soft'), valueB: TextValue.orNull('Firm')),
           ],
         ),
       ),

@@ -54,7 +54,7 @@ class _DurationMetricPageState extends State<DurationMetricPage> {
   late DurationAdjustment? _initialAdj;
   late double _initialWeight;
 
-  Duration _previewValue = Duration.zero;
+  DurationValue _previewValue = const DurationValue(Duration.zero);
   late DurationAdjustment _previewAdjustment;
 
   @override
@@ -79,7 +79,7 @@ class _DurationMetricPageState extends State<DurationMetricPage> {
       notes: null,
       unit: null,
     );
-    _previewValue = _previewAdjustment.min ?? Duration.zero;
+    _previewValue = DurationValue(_previewAdjustment.min ?? Duration.zero);
     if (widget.mode != MetricPageMode.add) _expanded = true;
   }
 
@@ -358,11 +358,11 @@ class _DurationMetricPageState extends State<DurationMetricPage> {
                   child: SetDurationAdjustmentWidget(
                     key: ValueKey(_previewAdjustment),
                     adjustment: _previewAdjustment,
-                    initialValue: Duration.zero,
+                    initialValue: const DurationValue(Duration.zero),
                     value: _previewValue,
-                    onChanged: (Duration? newValue) {
+                    onChanged: (DurationValue? newValue) {
                       setState(() {
-                        _previewValue = newValue ?? Duration.zero;
+                        _previewValue = newValue ?? const DurationValue(Duration.zero);
                       });
                     },
                     highlighting: false,

@@ -52,6 +52,9 @@ class Setup {
   static Map<String, AdjustmentValue> typedValues(Map<String, dynamic> values) =>
       Map.fromEntries(typedValueEntries(values));
 
+  static Map<String, dynamic> runtimeValues(Map<String, AdjustmentValue> values) =>
+      values.map((id, value) => MapEntry(id, AdjustmentValue.toRuntime(value)));
+
   static const IconData iconData = Icons.tune;
 
   static const String namePlaceholder = 'Unnamed Setup';

@@ -132,14 +132,14 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   late DateTime _selectedDateTimeLocal;
   late DateTime _initialDateTimeLocal;
 
-  final Map<String, dynamic> _bikeAdjustmentValues = {};
-  final Map<String, dynamic> _personAdjustmentValues = {};
-  final Map<String, dynamic> _initialBikeAdjustmentValues = {};
-  final Map<String, dynamic> _initialPersonAdjustmentValues = {};
-  final Map<String, dynamic> _previousBikeAdjustmentValues = {};
-  final Map<String, dynamic> _previousPersonAdjustmentValues = {};
-  final Map<String, dynamic> _danglingBikeAdjustmentValues = {};
-  final Map<String, dynamic> _danglingPersonAdjustmentValues = {};
+  final Map<String, AdjustmentValue> _bikeAdjustmentValues = {};
+  final Map<String, AdjustmentValue> _personAdjustmentValues = {};
+  final Map<String, AdjustmentValue> _initialBikeAdjustmentValues = {};
+  final Map<String, AdjustmentValue> _initialPersonAdjustmentValues = {};
+  final Map<String, AdjustmentValue> _previousBikeAdjustmentValues = {};
+  final Map<String, AdjustmentValue> _previousPersonAdjustmentValues = {};
+  final Map<String, AdjustmentValue> _danglingBikeAdjustmentValues = {};
+  final Map<String, AdjustmentValue> _danglingPersonAdjustmentValues = {};
 
   Map<String, AdjustmentProvenance>? _pressureDriftProvenance;
 
@@ -263,7 +263,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     for (final bikeComponent in bikeComponents) {
       for (final adj in bikeComponent.adjustments) {
         if (historicalState.containsKey(adj.id)) {
-          _previousBikeAdjustmentValues[adj.id] = historicalState[adj.id];
+          _previousBikeAdjustmentValues[adj.id] = historicalState[adj.id]!;
         }
       }
     }
@@ -274,7 +274,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       if (person != null) {
         for (final adj in person.adjustments) {
           if (historicalState.containsKey(adj.id)) {
-             _previousPersonAdjustmentValues[adj.id] = historicalState[adj.id];
+             _previousPersonAdjustmentValues[adj.id] = historicalState[adj.id]!;
           }
         }
       }
@@ -302,10 +302,10 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     } else {
       // EDIT / DUPLIATE SETUP
       _initialBikeAdjustmentValues.clear();
-      _initialBikeAdjustmentValues.addAll(widget.setup!.bikeAdjustmentValues);
+      _initialBikeAdjustmentValues.addEntries(widget.setup!.bikeValueEntries);
 
       _initialPersonAdjustmentValues.clear();
-      _initialPersonAdjustmentValues.addAll(widget.setup!.personAdjustmentValues);
+      _initialPersonAdjustmentValues.addEntries(widget.setup!.personValueEntries);
     }
   }
 
@@ -455,8 +455,6 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   }
 
   void _changeListener() {
-    const equality = DeepCollectionEquality();
-
     final hasChanges = _nameController.text.trim() != (widget.setup?.name ?? '') ||
         _notesController.text.trim() != (widget.setup?.notes ?? '') || 
         _initialDateTimeUtc != _selectedDateTimeUtc || 
@@ -471,8 +469,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         _bike != _initialBike || 
         _person != _initialPerson ||
 
-        !equality.equals(_bikeAdjustmentValues, _initialBikeAdjustmentValues) ||
-        !equality.equals(_personAdjustmentValues, _initialPersonAdjustmentValues) ||
+        !mapEquals(_bikeAdjustmentValues, _initialBikeAdjustmentValues) ||
+        !mapEquals(_personAdjustmentValues, _initialPersonAdjustmentValues) ||
         !listEquals(_images, _initialImages);
 
     if (_formHasChanges != hasChanges) {
@@ -502,12 +500,11 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   }
 
   Future<void> _resetValuesIfPreviousSetupChanged({
-    required Map<String, dynamic> previousBikeAdjustmentValues,
-    required Map<String, dynamic> previousPersonAdjustmentValues,
+    required Map<String, AdjustmentValue> previousBikeAdjustmentValues,
+    required Map<String, AdjustmentValue> previousPersonAdjustmentValues,
   }) async {
-    const mapEquality = DeepCollectionEquality();
-    if (mapEquality.equals(_previousBikeAdjustmentValues, previousBikeAdjustmentValues) &&
-        mapEquality.equals(_previousPersonAdjustmentValues, previousPersonAdjustmentValues)) {
+    if (mapEquals(_previousBikeAdjustmentValues, previousBikeAdjustmentValues) &&
+        mapEquals(_previousPersonAdjustmentValues, previousPersonAdjustmentValues)) {
       return;
     }
 
@@ -525,8 +522,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   }
 
   Future<void> _pickDate() async {
-    final tmpPreviousBikeAdjustmentValues = Map<String, dynamic>.from(_previousBikeAdjustmentValues);
-    final tmpPreviousPersonAdjustmentValues = Map<String, dynamic>.from(_previousPersonAdjustmentValues);
+    final tmpPreviousBikeAdjustmentValues = Map<String, AdjustmentValue>.from(_previousBikeAdjustmentValues);
+    final tmpPreviousPersonAdjustmentValues = Map<String, AdjustmentValue>.from(_previousPersonAdjustmentValues);
 
     final pickedDate = await showDatePicker(
       context: context,
@@ -567,8 +564,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   }
     
   Future<void> _pickTime() async {
-    final tmpPreviousBikeAdjustmentValues = Map<String, dynamic>.from(_previousBikeAdjustmentValues);
-    final tmpPreviousPersonAdjustmentValues = Map<String, dynamic>.from(_previousPersonAdjustmentValues);
+    final tmpPreviousBikeAdjustmentValues = Map<String, AdjustmentValue>.from(_previousBikeAdjustmentValues);
+    final tmpPreviousPersonAdjustmentValues = Map<String, AdjustmentValue>.from(_previousPersonAdjustmentValues);
 
     final TimeOfDay? pickedTime = await showTimePicker(
       context: context,
@@ -729,8 +726,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         isBookmarked: _isBookmarked,
         bike: _bike,
         person: _person,
-        bikeAdjustmentValues: _bikeAdjustmentValues,
-        personAdjustmentValues: _personAdjustmentValues,
+        bikeAdjustmentValues: Setup.runtimeValues(_bikeAdjustmentValues),
+        personAdjustmentValues: Setup.runtimeValues(_personAdjustmentValues),
         position: _currentLocation.value,
         place: _currentPlace.value,
         weather: _currentWeather.value,
@@ -739,12 +736,12 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     );
   }
 
-  void _onBikeAdjustmentValueChanged({required Adjustment adjustment, required dynamic newValue}) {
+  void _onBikeAdjustmentValueChanged({required Adjustment adjustment, required AdjustmentValue newValue}) {
     _bikeAdjustmentValues[adjustment.id] = newValue;
     _changeListener();
   }
 
-  void _onPersonAdjustmentValueChanged({required Adjustment adjustment, required dynamic newValue}) {
+  void _onPersonAdjustmentValueChanged({required Adjustment adjustment, required AdjustmentValue newValue}) {
     _personAdjustmentValues[adjustment.id] = newValue;
     _changeListener();
   }

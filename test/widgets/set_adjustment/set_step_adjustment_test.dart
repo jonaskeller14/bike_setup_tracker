@@ -19,8 +19,8 @@ void main() {
           key: formKey,
           child: SetStepAdjustmentWidget(
             key: const ValueKey("StepAdjustment #1"),
-            initialValue: initialValue,
-            value: value,
+            initialValue: initialValue == null ? null : StepValue(initialValue.toInt()),
+            value: value == null ? null : StepValue(value.toInt()),
             onChanged: (_) {},
             onChangedEnd: (_) {},
             adjustment: StepAdjustment(
@@ -72,7 +72,7 @@ void main() {
           body: SetStepAdjustmentWidget(
             key: const ValueKey("StepAdjustment #1"),
             initialValue: null,
-            value: validValue,
+            value: StepValue(validValue.toInt()),
             onChanged: (_) {},
             onChangedEnd: (_) {},
             adjustment: StepAdjustment(

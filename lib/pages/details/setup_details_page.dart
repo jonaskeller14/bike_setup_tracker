@@ -452,7 +452,7 @@ class SetupDetailsPageContent extends StatelessWidget {
   }
 
   Widget _danglingValuesCard(BuildContext context, {
-    required Map<String, dynamic> values,
+    required Map<String, AdjustmentValue> values,
     required String title,
     required String cause,
   }) {
@@ -474,7 +474,7 @@ class SetupDetailsPageContent extends StatelessWidget {
           ...values.entries.map((danglingAdjustmentValue) {
             return DisplayDanglingAdjustmentWidget(
               name: danglingAdjustmentValue.key,
-              value: AdjustmentValue.fromRuntime(danglingAdjustmentValue.value),
+              value: danglingAdjustmentValue.value,
             );
           }),
         ],
@@ -487,9 +487,9 @@ class SetupDetailsPageContent extends StatelessWidget {
     required Iterable<Component> bikeComponents,
     required Person? person,
     required List<DanglingComponentGroup> danglingComponentGroups,
-    required Map<String, dynamic> danglingDeletedBikeAdjustmentValues,
+    required Map<String, AdjustmentValue> danglingDeletedBikeAdjustmentValues,
     required List<DanglingPersonGroup> danglingPersonGroups,
-    required Map<String, dynamic> danglingDeletedPersonAdjustmentValues,
+    required Map<String, AdjustmentValue> danglingDeletedPersonAdjustmentValues,
   }) {
     final appSettings = context.read<AppSettings>();
     return SliverToBoxAdapter(

@@ -135,7 +135,7 @@ class AppRepository extends ChangeNotifier {
   Map<String, ComponentStats> _componentStats = {};
   Map<String, ComponentStats> _bikeStats = {};
   Map<String, ActivityRateWindow> _bikeActivityRates = {};
-  Map<String, dynamic> _currentAdjustmentValues = {};
+  Map<String, AdjustmentValue> _currentAdjustmentValues = {};
 
   Map<String, Person> get persons => _persons;
   Map<String, Bike> get bikes => _bikes;
@@ -158,7 +158,7 @@ class AppRepository extends ChangeNotifier {
       _components[componentId]?.initialStats ??
       ComponentStats.zero;
   Map<String, ActivityRateWindow> get bikeActivityRates => _bikeActivityRates;
-  Map<String, dynamic> get currentAdjustmentValues => _currentAdjustmentValues;
+  Map<String, AdjustmentValue> get currentAdjustmentValues => _currentAdjustmentValues;
 
   bool get hasSetupsWithPosition =>
       _setups.values.any((setup) => !setup.isDeleted && _isMappable(setup.position));

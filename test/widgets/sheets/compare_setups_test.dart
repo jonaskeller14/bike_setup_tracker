@@ -163,7 +163,7 @@ void main() {
     );
   });
 
-  testWidgets('uses a dash for cleared and unrecorded values', (tester) async {
+  testWidgets('uses a dash for unrecorded values, treating an explicit null as unrecorded', (tester) async {
     final cleared = harness.setup(
       id: 'cleared',
       name: 'Cleared',
@@ -179,9 +179,16 @@ void main() {
     await harness.reload(tester);
     await pumpComparison(tester, cleared.id, missing.id);
 
+    expect(find.byKey(const Key('compare-row-fork-rebound')), findsNothing);
+    await tester.tap(find.text('These setups have no value differences'));
+    await settle(tester);
+
     expect(find.text('Cleared'), findsOneWidget);
     expect(find.text('Not recorded'), findsNothing);
-    expect(find.text('-'), findsNWidgets(2));
+    expect(
+      find.descendant(of: find.byKey(const Key('compare-row-fork-rebound')), matching: find.text('-')),
+      findsNWidgets(2),
+    );
     expect(tester.takeException(), isNull);
   });
 

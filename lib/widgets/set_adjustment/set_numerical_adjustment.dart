@@ -11,9 +11,9 @@ import '../display_adjustment/adjustment_icon_name_notes.dart';
 
 class SetNumericalAdjustmentWidget extends StatefulWidget {
   final NumericalAdjustment adjustment;
-  final double? initialValue;
-  final String? value;
-  final ValueChanged<String> onChanged;
+  final NumericalValue? initialValue;
+  final NumericalValue? value;
+  final ValueChanged<NumericalValue?> onChanged;
   final bool highlighting;
 
   /// The field is not pre-filled with [initialValue], so it may be left empty
@@ -40,7 +40,7 @@ class SetNumericalAdjustmentWidget extends StatefulWidget {
 class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWidget> {
   late final TextEditingController _controller;
   int _index = 0;
-  String? _lastReported;
+  NumericalValue? _lastReported;
 
   // Recomputed, not cached: a cycle's conversions close over widget state (e.g.
   // a sag adjustment's travel), so a stale copy would convert with old inputs.
@@ -59,7 +59,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController(text: widget.value ?? '');
+    _controller = TextEditingController(text: widget.value?.value.toString() ?? '');
     _lastReported = widget.value;
   }
 
@@ -89,16 +89,10 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
   double _toStorage(double displayValue) =>
       _isConverting ? _cycle[_activeIndex].toStorage(displayValue) : displayValue;
 
-  String _displayTextForStorage(String? storageValue) {
-    if (!_isConverting) return storageValue ?? '';
-    final parsed = double.tryParse(storageValue ?? '');
-    return parsed == null ? storageValue ?? '' : formatConverted(_toDisplay(parsed));
-  }
-
-  String _storageTextForDisplay(String displayText) {
-    if (!_isConverting) return displayText;
-    final parsed = double.tryParse(displayText.trim());
-    return parsed == null ? displayText : _toStorage(parsed).toString();
+  String _displayTextForStorage(NumericalValue? storageValue) {
+    if (storageValue == null) return '';
+    if (!_isConverting) return storageValue.value.toString();
+    return formatConverted(_toDisplay(storageValue.value));
   }
 
   double _boundInActiveUnit(double bound) => bound.isFinite ? _toDisplay(bound) : bound;
@@ -110,35 +104,25 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
     );
   }
 
-  void _report(String storageText) {
-    _lastReported = storageText;
-    widget.onChanged(storageText);
+  void _report(NumericalValue? storageValue) {
+    _lastReported = storageValue;
+    widget.onChanged(storageValue);
   }
 
   void _handleChanged(String displayText) {
-    _report(_storageTextForDisplay(displayText));
+    final parsed = double.tryParse(displayText);
+    _report(parsed == null ? null : NumericalValue(_toStorage(parsed)));
   }
 
   void _reset() {
     final storageInit = widget.optional ? null : widget.initialValue;
-    _setText(storageInit == null ? '' : _displayTextForStorage(storageInit.toString()));
+    _setText(_displayTextForStorage(storageInit));
     // Report the exact stored initial value (not a round-tripped conversion) to
     // avoid float drift.
-    _report(storageInit?.toString() ?? '');
+    _report(storageInit);
   }
 
-  // Compares by parsed value (not raw text) so "10" vs "10.0" doesn't falsely
-  // show the reset button as having an effect.
-  bool get _resetWouldChange {
-    final storageInit = widget.optional ? null : widget.initialValue;
-    final targetText = storageInit?.toString() ?? '';
-    final currentText = widget.value ?? '';
-    if (targetText.isEmpty || currentText.isEmpty) return targetText != currentText;
-    final targetVal = double.tryParse(targetText);
-    final currentVal = double.tryParse(currentText);
-    if (targetVal != null && currentVal != null) return targetVal != currentVal;
-    return targetText != currentText;
-  }
+  bool get _resetWouldChange => widget.value != (widget.optional ? null : widget.initialValue);
 
   void _cycleUnit() {
     if (!_toggleEnabled) return;
@@ -193,13 +177,13 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
 
   @override
   Widget build(BuildContext context) {
-    final double? parsedValue = double.tryParse(widget.value ?? '');
+    final double? parsedValue = widget.value?.value;
     late bool isChanged;
     late bool isInitial;
     late Color? highlightColor;
     final highlights = Theme.of(context).extension<ValueHighlightColors>();
     if (widget.highlighting) {
-      isChanged = parsedValue == null ? false : widget.initialValue != parsedValue;
+      isChanged = parsedValue == null ? false : widget.initialValue?.value != parsedValue;
       isInitial = widget.initialValue == null;
       highlightColor = isChanged ? (isInitial ? highlights?.initial ?? Colors.green : highlights?.changed ?? Colors.orange) : null;
     } else {
@@ -210,7 +194,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
 
     String? helperText;
     if (_isConverting) {
-      final storageVal = double.tryParse(widget.value ?? '');
+      final storageVal = widget.value?.value;
       if (storageVal != null) {
         helperText = '= ${formatConverted(storageVal)} $_storageLabel';
       }

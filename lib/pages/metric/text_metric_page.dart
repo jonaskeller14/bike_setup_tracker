@@ -44,7 +44,7 @@ class _TextMetricPageState extends State<TextMetricPage> {
   late TextAdjustment? _initialAdj;
   late double _weight; // inert (text metrics are not scored), preserved as-is
 
-  String _previewValue = '';
+  TextValue? _previewValue;
   late TextAdjustment _previewAdjustment;
 
   @override
@@ -237,7 +237,7 @@ class _TextMetricPageState extends State<TextMetricPage> {
                     adjustment: _previewAdjustment,
                     initialValue: null,
                     value: _previewValue,
-                    onChanged: (String newValue) {
+                    onChanged: (TextValue? newValue) {
                       setState(() {
                         _previewValue = newValue;
                       });

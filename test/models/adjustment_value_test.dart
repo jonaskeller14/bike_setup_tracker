@@ -161,4 +161,23 @@ void main() {
       () => expect(() => AdjustmentValue.fromRuntime(<String, int>{}), throwsArgumentError),
     );
   });
+
+  group('toRuntime', () {
+    for (final (value, runtime, _) in samples) {
+      test('$value bridges back to $runtime', () {
+        expect(AdjustmentValue.toRuntime(value), runtime);
+        expect(AdjustmentValue.fromRuntime(AdjustmentValue.toRuntime(value)), value);
+      });
+    }
+
+    test('categorical returns a growable copy', () {
+      final runtime = AdjustmentValue.toRuntime(CategoricalValue(['A'])) as List<String>;
+      expect(() => runtime.add('B'), returnsNormally);
+    });
+
+    test(
+      'unresolved throws',
+      () => expect(() => AdjustmentValue.toRuntime(const UnresolvedValue('1')), throwsArgumentError),
+    );
+  });
 }

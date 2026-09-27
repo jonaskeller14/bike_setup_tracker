@@ -50,7 +50,7 @@ class _BooleanMetricPageState extends State<BooleanMetricPage> {
   late BooleanAdjustment? _initialAdj;
   late double _initialWeight;
 
-  bool? _previewValue = false;
+  BooleanValue? _previewValue = const BooleanValue(false);
   late BooleanAdjustment _previewAdjustment;
 
   @override
@@ -248,12 +248,12 @@ class _BooleanMetricPageState extends State<BooleanMetricPage> {
                   child: SetBooleanAdjustmentWidget(
                     key: ValueKey(_previewAdjustment),
                     adjustment: _previewAdjustment,
-                    initialValue: false,
+                    initialValue: const BooleanValue(false),
                     value: _previewValue,
-                    onChanged: (bool? newValue) {
+                    onChanged: (BooleanValue? newValue) {
                       unawaited(HapticFeedback.lightImpact());
                       setState(() {
-                        _previewValue = newValue ?? false;
+                        _previewValue = newValue ?? const BooleanValue(false);
                       });
                     },
                     highlighting: false,

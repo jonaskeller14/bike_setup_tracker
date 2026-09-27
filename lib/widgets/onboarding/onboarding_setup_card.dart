@@ -248,17 +248,17 @@ class OnboardingSetupRows extends StatelessWidget {
         SetStepAdjustmentWidget(
           key: const ValueKey('onboarding_rebound_row'),
           adjustment: OnboardingSetupExample.rebound,
-          initialValue: OnboardingSetupExample.startRebound,
-          value: rebound,
-          onChanged: onReboundChanged ?? _ignore,
+          initialValue: StepValue(OnboardingSetupExample.startRebound.round()),
+          value: StepValue(rebound.round()),
+          onChanged: (value) => (onReboundChanged ?? _ignore)(value?.value.toDouble()),
           onChangedEnd: _ignore,
         ),
         SetBooleanAdjustmentWidget(
           key: const ValueKey('onboarding_lockout_row'),
           adjustment: OnboardingSetupExample.lockout,
-          initialValue: OnboardingSetupExample.startLockout,
-          value: lockout,
-          onChanged: onLockoutChanged ?? _ignore,
+          initialValue: const BooleanValue(OnboardingSetupExample.startLockout),
+          value: BooleanValue(lockout),
+          onChanged: (value) => (onLockoutChanged ?? _ignore)(value?.value),
         ),
       ],
     );

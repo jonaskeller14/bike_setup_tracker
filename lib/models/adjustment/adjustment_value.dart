@@ -39,6 +39,18 @@ sealed class AdjustmentValue {
     };
   }
 
+  static Object toRuntime(AdjustmentValue value) {
+    return switch (value) {
+      BooleanValue(:final value) => value,
+      StepValue(:final value) => value,
+      NumericalValue(:final value) => value,
+      TextValue(:final value) => value,
+      CategoricalValue(:final options) => List<String>.of(options),
+      DurationValue(:final value) => value,
+      UnresolvedValue() => throw ArgumentError.value(value, 'value', 'Unresolved values have no runtime form'),
+    };
+  }
+
   /// JSON string as stored in the value tables.
   String encode();
 

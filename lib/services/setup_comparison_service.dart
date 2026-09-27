@@ -85,8 +85,8 @@ class SetupComparisonService {
       for (final component in breakdown.components)
         _ComponentOwnerData(
           component: component,
-          currentValues: setup.bikeAdjustmentValues,
-          previousValues: setup.previousBikeAdjustmentValues,
+          currentValues: Map.fromEntries(setup.bikeValueEntries),
+          previousValues: Setup.typedValues(setup.previousBikeAdjustmentValues),
         ),
     ];
   }
@@ -265,8 +265,8 @@ class SetupComparisonService {
       if (breakdown.person != null)
         _PersonOwnerData(
           person: breakdown.person!,
-          currentValues: setup.personAdjustmentValues,
-          previousValues: setup.previousPersonAdjustmentValues,
+          currentValues: Map.fromEntries(setup.personValueEntries),
+          previousValues: Setup.typedValues(setup.previousPersonAdjustmentValues),
         ),
     ];
   }
@@ -443,7 +443,7 @@ class SetupComparisonService {
     final unavailableB = valueB.provenance == SetupComparisonValueProvenance.unavailable;
     if (unavailableA != unavailableB) return true;
     if (unavailableA) return false;
-    return !adjustmentValuesEqual(valueA.value, valueB.value);
+    return valueA.value != valueB.value;
   }
 
   static List<String> _orderedUnion(Iterable<String> a, Iterable<String> b) {
@@ -457,8 +457,8 @@ class SetupComparisonService {
 }
 
 sealed class _OwnerData {
-  final Map<String, dynamic> currentValues;
-  final Map<String, dynamic> previousValues;
+  final Map<String, AdjustmentValue> currentValues;
+  final Map<String, AdjustmentValue> previousValues;
 
   const _OwnerData({
     required this.currentValues,

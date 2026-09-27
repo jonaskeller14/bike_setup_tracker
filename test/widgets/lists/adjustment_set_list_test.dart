@@ -25,8 +25,8 @@ void main() {
 
   Widget buildList({
     required List<Adjustment> adjustments,
-    required Map<String, dynamic> previousValues,
-    required Map<String, dynamic> values,
+    required Map<String, AdjustmentValue> previousValues,
+    required Map<String, AdjustmentValue> values,
     required Key formKey,
     bool prefillFromInitial = false,
   }) {
@@ -40,7 +40,7 @@ void main() {
             initialAdjustmentValues: previousValues,
             adjustmentValues: values,
             prefillFromInitial: prefillFromInitial,
-            onAdjustmentValueChanged: ({required Adjustment adjustment, required dynamic newValue}) =>
+            onAdjustmentValueChanged: ({required Adjustment adjustment, required AdjustmentValue newValue}) =>
                 values[adjustment.id] = newValue,
             removeFromAdjustmentValues: ({required Adjustment adjustment}) => values.remove(adjustment.id),
           ),
@@ -64,7 +64,7 @@ void main() {
       await tester.pumpWidget(
         buildList(
           adjustments: [adjustment],
-          previousValues: {adjustment.id: 65.0},
+          previousValues: {adjustment.id: const NumericalValue(65.0)},
           values: {},
           formKey: formKey,
         ),
@@ -81,7 +81,7 @@ void main() {
       await tester.pumpWidget(
         buildList(
           adjustments: [adjustment],
-          previousValues: {adjustment.id: 65.0},
+          previousValues: {adjustment.id: const NumericalValue(65.0)},
           values: {},
           formKey: formKey,
         ),
@@ -95,12 +95,12 @@ void main() {
       WidgetTester tester,
     ) async {
       final adjustment = numerical();
-      final values = <String, dynamic>{};
+      final values = <String, AdjustmentValue>{};
       final formKey = GlobalKey<FormState>();
       await tester.pumpWidget(
         buildList(
           adjustments: [adjustment],
-          previousValues: {adjustment.id: 65.0},
+          previousValues: {adjustment.id: const NumericalValue(65.0)},
           values: values,
           formKey: formKey,
         ),
@@ -108,7 +108,7 @@ void main() {
 
       await tester.enterText(find.byType(TextField), '80');
       await tester.pump();
-      expect(values[adjustment.id], 80.0);
+      expect(values[adjustment.id], const NumericalValue(80.0));
       expect(rowFill(tester, SetNumericalAdjustmentWidget), highlights.changedFill);
 
       await tester.tap(find.byIcon(Icons.replay));
@@ -120,12 +120,12 @@ void main() {
 
     testWidgets("keeps a value with a previous value clearable", (WidgetTester tester) async {
       final adjustment = boolean();
-      final values = <String, dynamic>{};
+      final values = <String, AdjustmentValue>{};
       final formKey = GlobalKey<FormState>();
       await tester.pumpWidget(
         buildList(
           adjustments: [adjustment],
-          previousValues: {adjustment.id: true},
+          previousValues: {adjustment.id: const BooleanValue(true)},
           values: values,
           formKey: formKey,
         ),
@@ -136,7 +136,7 @@ void main() {
 
       await tester.tap(find.text("Set value"));
       await tester.pump();
-      expect(values[adjustment.id], false);
+      expect(values[adjustment.id], const BooleanValue(false));
       expect(rowFill(tester, SetBooleanAdjustmentWidget), highlights.changedFill);
 
       await tester.tap(find.byIcon(Icons.replay));
@@ -153,7 +153,7 @@ void main() {
       await tester.pumpWidget(
         buildList(
           adjustments: [adjustment],
-          previousValues: {adjustment.id: 65.0},
+          previousValues: {adjustment.id: const NumericalValue(65.0)},
           values: {},
           formKey: formKey,
           prefillFromInitial: true,
@@ -166,6 +166,37 @@ void main() {
       expect(formKey.currentState!.validate(), isFalse);
       await tester.pump();
       expect(find.text('Please enter a value'), findsOneWidget);
+    });
+  });
+
+  group("AdjustmentSetList value pairing", () {
+    testWidgets("renders the set widget matching the adjustment type", (WidgetTester tester) async {
+      final adjustment = boolean();
+      await tester.pumpWidget(
+        buildList(
+          adjustments: [adjustment],
+          previousValues: {},
+          values: {adjustment.id: const BooleanValue(true)},
+          formKey: GlobalKey<FormState>(),
+        ),
+      );
+
+      expect(find.byType(SetBooleanAdjustmentWidget), findsOneWidget);
+      expect(tester.widget<Switch>(find.byType(Switch)).value, isTrue);
+    });
+
+    testWidgets("a value that does not match its adjustment type asserts", (WidgetTester tester) async {
+      final adjustment = numerical();
+      await tester.pumpWidget(
+        buildList(
+          adjustments: [adjustment],
+          previousValues: {},
+          values: {adjustment.id: const StepValue(7)},
+          formKey: GlobalKey<FormState>(),
+        ),
+      );
+
+      expect(tester.takeException(), isAssertionError);
     });
   });
 }

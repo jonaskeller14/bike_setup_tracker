@@ -16,8 +16,8 @@ void main() {
           key: formKey,
           child: SetDurationAdjustmentWidget(
             key: const ValueKey("DurationAdjustment #1"),
-            initialValue: initialValue,
-            value: value,
+            initialValue: initialValue == null ? null : DurationValue(initialValue),
+            value: value == null ? null : DurationValue(value),
             onChanged: (_) {},
             adjustment: DurationAdjustment(
               name: "DurationAdjustment #1", 

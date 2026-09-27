@@ -391,10 +391,10 @@ void main() {
         persons: {me.id: me},
       );
 
-      expect(history[pressureAdj.id], '80');
-      expect(history[reboundAdj.id], '7');
+      expect(history[pressureAdj.id], TextValue.orNull('80'));
+      expect(history[reboundAdj.id], TextValue.orNull('7'));
       // Person values are included in historical state for orange/green highlighting in SetupPage.
-      expect(history['person_adj_1'], 'val1');
+      expect(history['person_adj_1'], TextValue.orNull('val1'));
     });
 
     test('resolveHistoricalStateAt excludes the setup currently being edited', () {
@@ -476,7 +476,7 @@ void main() {
         ],
       );
 
-      expect(provenance[pressureAdj.id]?.value, '80');
+      expect(provenance[pressureAdj.id]?.value, TextValue.orNull('80'));
       expect(provenance[pressureAdj.id]?.setup.id, 's1');
     });
 
@@ -490,7 +490,7 @@ void main() {
         ],
       );
 
-      expect(provenance[pressureAdj.id]?.value, '85');
+      expect(provenance[pressureAdj.id]?.value, TextValue.orNull('85'));
       expect(provenance[pressureAdj.id]?.setup.id, 's3');
     });
 

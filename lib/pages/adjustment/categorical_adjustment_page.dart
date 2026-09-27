@@ -47,7 +47,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
 
   bool _multiSelect = false;
   bool _counted = false;
-  List<String>? _previewValues;
+  CategoricalValue? _previewValues;
   late CategoricalAdjustment _previewAdjustment;
 
   @override
@@ -421,7 +421,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                     adjustment: _previewAdjustment,
                     initialValue: null,
                     value: _previewValues,
-                    onChanged: (List<String>? newValue) {
+                    onChanged: (CategoricalValue? newValue) {
                       setState(() {
                         _previewValues = newValue;
                       });

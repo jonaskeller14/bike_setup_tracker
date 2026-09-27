@@ -7,9 +7,9 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   Widget build({
     required SagAdjustment adjustment,
-    required double? initialValue,
-    required String? value,
-    required ValueChanged<String> onChanged,
+    required NumericalValue? initialValue,
+    required NumericalValue? value,
+    required ValueChanged<NumericalValue?> onChanged,
     required Key formKey,
   }) {
     return MaterialApp(
@@ -35,11 +35,11 @@ void main() {
   group('SetSagAdjustmentWidget', () {
     testWidgets('toggles % → mm and reports the stored percentage', (tester) async {
       final formKey = GlobalKey<FormState>();
-      String? reported;
+      NumericalValue? reported;
       await tester.pumpWidget(build(
         adjustment: sag(),
         initialValue: null,
-        value: '25',
+        value: const NumericalValue(25),
         onChanged: (v) => reported = v,
         formKey: formKey,
       ));
@@ -58,7 +58,7 @@ void main() {
       // Entering a measured length reports the derived percentage.
       await tester.enterText(find.byType(TextField), '48');
       await tester.pump();
-      expect(double.parse(reported!), closeTo(30, 1e-6));
+      expect(reported!.value, closeTo(30, 1e-6));
     });
 
     testWidgets('validates against travel-converted bounds in mm', (tester) async {
@@ -66,7 +66,7 @@ void main() {
       await tester.pumpWidget(build(
         adjustment: sag(),
         initialValue: null,
-        value: '25',
+        value: const NumericalValue(25),
         onChanged: (_) {},
         formKey: formKey,
       ));
@@ -87,7 +87,7 @@ void main() {
       await tester.pumpWidget(build(
         adjustment: sag(travel: null),
         initialValue: null,
-        value: '25',
+        value: const NumericalValue(25),
         onChanged: (_) {},
         formKey: formKey,
       ));
@@ -98,7 +98,7 @@ void main() {
 
       expect(find.text('mm'), findsNothing);
       final field = tester.widget<TextField>(find.byType(TextField));
-      expect(field.controller!.text, '25');
+      expect(field.controller!.text, '25.0');
     });
   });
 }

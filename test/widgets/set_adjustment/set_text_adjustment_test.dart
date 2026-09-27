@@ -16,8 +16,8 @@ void main() {
           key: formKey,
           child: SetTextAdjustmentWidget(
             key: const ValueKey("TextAdjustment #1"),
-            initialValue: initialValue,
-            value: value,
+            initialValue: initialValue == null ? null : TextValue.orNull(initialValue),
+            value: value == null ? null : TextValue.orNull(value),
             onChanged: (_) {},
             adjustment: TextAdjustment(
               name: "TextAdjustment #1", 
@@ -50,8 +50,8 @@ void main() {
         home: Scaffold(
           body: SetTextAdjustmentWidget(
             key: const ValueKey("TextAdjustment #1"),
-            initialValue: initialValue,
-            value: value,
+            initialValue: initialValue == null ? null : TextValue.orNull(initialValue),
+            value: value == null ? null : TextValue.orNull(value),
             onChanged: (_) {},
             optional: optional,
             adjustment: TextAdjustment(

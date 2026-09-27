@@ -53,7 +53,7 @@ class _NumericalMetricPageState extends State<NumericalMetricPage> {
   late NumericalAdjustment? _initialAdj;
   late double _initialWeight;
 
-  String? _previewValue;
+  NumericalValue? _previewValue;
   late NumericalAdjustment _previewAdjustment;
 
   @override
@@ -432,7 +432,7 @@ class _NumericalMetricPageState extends State<NumericalMetricPage> {
                     adjustment: _previewAdjustment,
                     initialValue: null,
                     value: _previewValue,
-                    onChanged: (String? newValue) {
+                    onChanged: (NumericalValue? newValue) {
                       setState(() {
                         _previewValue = newValue;
                       });

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:intl/intl.dart';
@@ -18,6 +19,7 @@ import '../../models/rating/rating.dart';
 import '../../models/rating/rating_association.dart';
 import '../../models/rating/rating_entry.dart';
 import '../../models/rating/rating_metric.dart';
+import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/address_service.dart';
 import '../../services/elevation_service.dart';
@@ -103,8 +105,8 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
   late DateTime _initialDateTimeLocal;
 
   // Metric answers, keyed by RatingMetric id (== inner Adjustment id).
-  final Map<String, dynamic> _metricValues = {};
-  final Map<String, dynamic> _initialMetricValues = {};
+  final Map<String, AdjustmentValue> _metricValues = {};
+  final Map<String, AdjustmentValue> _initialMetricValues = {};
 
   final LocationService _locationService = LocationService();
   final ElevationService _elevationService = ElevationService();
@@ -138,8 +140,8 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
     _currentWeather.value = widget.ratingEntry?.weather;
 
     if (widget.ratingEntry != null) {
-      _metricValues.addAll(widget.ratingEntry!.metricValues);
-      _initialMetricValues.addAll(widget.ratingEntry!.metricValues);
+      _metricValues.addEntries(widget.ratingEntry!.metricValueEntries);
+      _initialMetricValues.addEntries(widget.ratingEntry!.metricValueEntries);
     }
     // Duplicate re-resolves on save; edit keeps the stored provenance.
     _setupId = widget.mode == RatingEntryPageMode.edit ? widget.ratingEntry?.setupId : null;
@@ -263,8 +265,6 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
   }
 
   void _changeListener() {
-    const equality = DeepCollectionEquality();
-
     final hasChanges = _nameController.text.trim() != (widget.ratingEntry?.name ?? '') ||
         _notesController.text.trim() != (widget.ratingEntry?.notes ?? '') ||
         _initialDateTimeUtc != _selectedDateTimeUtc ||
@@ -274,7 +274,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
         _currentWeather.value != widget.ratingEntry?.weather ||
         _bike != _initialBike ||
         _setupId != widget.ratingEntry?.setupId ||
-        !equality.equals(_metricValues, _initialMetricValues);
+        !mapEquals(_metricValues, _initialMetricValues);
 
     if (_formHasChanges != hasChanges) {
       setState(() {
@@ -415,7 +415,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
     final applicableIds = _applicableRatings().values.expand((r) => r.metrics).map((m) => m.id).toSet();
     final metricValues = {
       for (final entry in _metricValues.entries)
-        if (applicableIds.contains(entry.key)) entry.key: entry.value,
+        if (applicableIds.contains(entry.key)) entry.key: AdjustmentValue.toRuntime(entry.value),
     };
 
     _formHasChanges = false;
@@ -440,7 +440,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
     );
   }
 
-  void _onMetricValueChanged({required Adjustment adjustment, required dynamic newValue}) {
+  void _onMetricValueChanged({required Adjustment adjustment, required AdjustmentValue newValue}) {
     setState(() => _metricValues[adjustment.id] = newValue);
     _changeListener();
   }
@@ -721,7 +721,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
   }
 
   Widget _scoreBanner(List<RatingMetric> metrics) {
-    final score = RatingScoreService.scoreEntry(metrics, _metricValues);
+    final score = RatingScoreService.scoreEntry(metrics, Setup.runtimeValues(_metricValues));
     final scheme = Theme.of(context).colorScheme;
 
     if (score == null) {

@@ -9,9 +9,9 @@ import 'set_numerical_adjustment.dart';
 /// knows its reference travel.
 class SetSagAdjustmentWidget extends StatelessWidget {
   final SagAdjustment adjustment;
-  final double? initialValue;
-  final String? value;
-  final ValueChanged<String> onChanged;
+  final NumericalValue? initialValue;
+  final NumericalValue? value;
+  final ValueChanged<NumericalValue?> onChanged;
   final bool highlighting;
   final bool optional;
 

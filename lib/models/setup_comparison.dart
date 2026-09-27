@@ -91,7 +91,7 @@ class SetupAdjustmentComparison {
 }
 
 class SetupComparisonSideValue {
-  final dynamic value;
+  final AdjustmentValue? value;
   final SetupComparisonValueProvenance provenance;
 
   const SetupComparisonSideValue({

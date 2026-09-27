@@ -111,7 +111,7 @@ class _DisplayAdjustmentDiffState extends State<DisplayAdjustmentDiff> {
     if (side.provenance == comparison.SetupComparisonValueProvenance.unavailable) {
       return const _DisplayedValue(text: '-');
     }
-    final value = AdjustmentValue.fromRuntime(side.value);
+    final value = side.value;
     if (value == null) return const _DisplayedValue(text: '-');
 
     if (_supportsUnitToggle(definition) && (value is StepValue || value is NumericalValue)) {

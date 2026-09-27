@@ -22,14 +22,14 @@ class DanglingPersonGroup {
 
 class DanglingComponentSplit {
   final List<DanglingComponentGroup> groups;
-  final Map<String, dynamic> deletedValues;
+  final Map<String, AdjustmentValue> deletedValues;
 
   const DanglingComponentSplit({required this.groups, required this.deletedValues});
 }
 
 class DanglingPersonSplit {
   final List<DanglingPersonGroup> groups;
-  final Map<String, dynamic> deletedValues;
+  final Map<String, AdjustmentValue> deletedValues;
 
   const DanglingPersonSplit({required this.groups, required this.deletedValues});
 }
@@ -68,7 +68,7 @@ class DanglingAdjustmentService {
         .where((c) => hierarchy.bikeAt(c.id, setup.datetimeLocal.toUtc()) == setup.bike)
         .toList();
 
-    final Map<String, dynamic> danglingBikeValues = Map.from(setup.bikeAdjustmentValues);
+    final Map<String, AdjustmentValue> danglingBikeValues = Map.fromEntries(setup.bikeValueEntries);
     for (final component in bikeComponents) {
       for (final adjustment in component.adjustments) {
         danglingBikeValues.remove(adjustment.id);
@@ -81,7 +81,7 @@ class DanglingAdjustmentService {
 
     final person = persons.firstWhereOrNull((p) => p.id == setup.person);
 
-    final Map<String, dynamic> danglingPersonValues = Map.from(setup.personAdjustmentValues);
+    final Map<String, AdjustmentValue> danglingPersonValues = Map.fromEntries(setup.personValueEntries);
     for (final adjustment in person?.adjustments ?? const <Adjustment>[]) {
       danglingPersonValues.remove(adjustment.id);
     }
@@ -99,7 +99,7 @@ class DanglingAdjustmentService {
   }
 
   static DanglingComponentSplit splitComponents({
-    required Map<String, dynamic> danglingValues,
+    required Map<String, AdjustmentValue> danglingValues,
     required Iterable<Component> components,
   }) {
     final Map<String, (Component, Adjustment)> componentAndAdjustmentById = {};
@@ -110,7 +110,7 @@ class DanglingAdjustmentService {
     }
 
     final Map<String, DanglingComponentGroup> groupsByComponentId = {};
-    final Map<String, dynamic> deletedValues = {};
+    final Map<String, AdjustmentValue> deletedValues = {};
     for (final entry in danglingValues.entries) {
       final match = componentAndAdjustmentById[entry.key];
       if (match == null) {
@@ -128,7 +128,7 @@ class DanglingAdjustmentService {
   }
 
   static DanglingPersonSplit splitPersons({
-    required Map<String, dynamic> danglingValues,
+    required Map<String, AdjustmentValue> danglingValues,
     required Iterable<Person> persons,
   }) {
     final Map<String, (Person, Adjustment)> personAndAdjustmentById = {};
@@ -139,7 +139,7 @@ class DanglingAdjustmentService {
     }
 
     final Map<String, DanglingPersonGroup> groupsByPersonId = {};
-    final Map<String, dynamic> deletedValues = {};
+    final Map<String, AdjustmentValue> deletedValues = {};
     for (final entry in danglingValues.entries) {
       final match = personAndAdjustmentById[entry.key];
       if (match == null) {

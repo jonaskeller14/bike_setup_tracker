@@ -19,7 +19,7 @@ Widget cardErrorBadgeDot(BuildContext context, {double size = 9}) {
 }
 
 Widget danglingValuesCard(BuildContext context, {
-  required Map<String, dynamic> values,
+  required Map<String, AdjustmentValue> values,
   required String title,
   required String cause,
   required void Function(String) onRemove,
@@ -42,7 +42,7 @@ Widget danglingValuesCard(BuildContext context, {
         ...values.entries.map((danglingAdjustmentValue) {
           return DisplayDanglingAdjustmentWidget(
             name: danglingAdjustmentValue.key,
-            value: AdjustmentValue.fromRuntime(danglingAdjustmentValue.value),
+            value: danglingAdjustmentValue.value,
             onRemove: () => onRemove(danglingAdjustmentValue.key),
           );
         }),

@@ -3,7 +3,6 @@ import 'package:intl/intl.dart';
 
 import '../models/adjustment/adjustment.dart';
 import '../models/person.dart';
-import '../models/setup.dart';
 import '../services/dangling_adjustment_service.dart';
 import '../utils/person_actions.dart';
 import 'display_adjustment/display_adjustment_list.dart';
@@ -17,11 +16,11 @@ class SetupPersonTab extends StatelessWidget {
   final String bike;
   final String? personId;
   final Map<String, Person> persons;
-  final Map<String, dynamic> personAdjustmentValues;
-  final Map<String, dynamic> previousPersonAdjustmentValues;
-  final Map<String, dynamic> initialPersonAdjustmentValues;
-  final Map<String, dynamic> danglingPersonAdjustmentValues;
-  final void Function({required Adjustment adjustment, required dynamic newValue}) onAdjustmentValueChanged;
+  final Map<String, AdjustmentValue> personAdjustmentValues;
+  final Map<String, AdjustmentValue> previousPersonAdjustmentValues;
+  final Map<String, AdjustmentValue> initialPersonAdjustmentValues;
+  final Map<String, AdjustmentValue> danglingPersonAdjustmentValues;
+  final void Function({required Adjustment adjustment, required AdjustmentValue newValue}) onAdjustmentValueChanged;
   final void Function({required Adjustment adjustment}) onRemoveFromAdjustmentValues;
   final VoidCallback changeListener;
   final void Function(String) onDanglingRemove;
@@ -124,8 +123,8 @@ class SetupPersonTab extends StatelessWidget {
 
 Widget _danglingPersonCard(BuildContext context, {
   required DanglingPersonGroup group,
-  required Map<String, dynamic> adjustmentValues,
-  required Map<String, dynamic> initialAdjustmentValues,
+  required Map<String, AdjustmentValue> adjustmentValues,
+  required Map<String, AdjustmentValue> initialAdjustmentValues,
   required void Function(String) onRemove,
 }) {
   final scheme = Theme.of(context).colorScheme;
@@ -155,8 +154,8 @@ Widget _danglingPersonCard(BuildContext context, {
         ),
         AdjustmentDisplayList(
           adjustments: group.adjustments,
-          initialAdjustmentValues: Setup.typedValues(initialAdjustmentValues),
-          adjustmentValues: Setup.typedValues(adjustmentValues),
+          initialAdjustmentValues: initialAdjustmentValues,
+          adjustmentValues: adjustmentValues,
           isError: true,
           onRemove: onRemove,
         ),

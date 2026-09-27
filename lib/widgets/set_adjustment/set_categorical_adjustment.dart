@@ -7,9 +7,9 @@ import '../sheets/set_categorical.dart';
 
 class SetCategoricalAdjustmentWidget extends StatelessWidget {
   final CategoricalAdjustment adjustment;
-  final List<String>? initialValue;
-  final List<String>? value;
-  final ValueChanged<List<String>?> onChanged;
+  final CategoricalValue? initialValue;
+  final CategoricalValue? value;
+  final ValueChanged<CategoricalValue?> onChanged;
   final bool highlighting;
 
   /// The selection is not pre-filled from [initialValue], so it may be left
@@ -36,7 +36,7 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
     late Color? highlightColor;
     final highlights = Theme.of(context).extension<ValueHighlightColors>();
     if (highlighting) {
-      isChanged = value != null && !adjustmentValuesEqual(initialValue, value);
+      isChanged = value != null && initialValue != value;
       isInitial = initialValue == null;
       highlightColor = isChanged ? (isInitial ? highlights?.initial ?? Colors.green : highlights?.changed ?? Colors.orange) : null;
     } else {
@@ -51,7 +51,7 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
 
     // Only options that still exist are shown in the field; any dangling values
     // are surfaced (and removable) inside the sheet.
-    final List<String> selected = value ?? const [];
+    final List<String> selected = value?.options ?? const [];
     final List<String> validSelected = [
       for (final option in adjustment.options)
         for (var i = 0; i < selected.where((v) => v == option).length; i++) option,
@@ -74,10 +74,10 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
           Flexible(
             flex: 3,
             child: FormField<List<String>>(
-              initialValue: value,
+              initialValue: value?.options,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: (_) {
-                final selection = value ?? const <String>[];
+                final selection = value?.options ?? const <String>[];
                 if (selection.any((e) => !adjustment.options.contains(e))) {
                   return 'Contains options that no longer exist';
                 }
@@ -96,12 +96,12 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
                     context: context,
                     adjustment: adjustment,
                     selected: selected,
-                    initialValue: initialValue,
+                    initialValue: initialValue?.options,
                     highlighting: highlighting,
                     onAddOption: onAddOption,
                     onChanged: (List<String> newSelection) {
                       field.didChange(newSelection);
-                      onChanged(newSelection);
+                      onChanged(CategoricalValue(newSelection));
                     },
                   ),
                   child: InputDecorator(
@@ -122,7 +122,7 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
                             IconButton(
                               onPressed: () {
                                 final resetValue = optional ? null : initialValue;
-                                field.didChange(resetValue);
+                                field.didChange(resetValue?.options);
                                 onChanged(resetValue);
                               },
                               icon: const Icon(Icons.replay),
@@ -133,7 +133,7 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      hasValidValue ? Adjustment.formatValue(validSelected) : "Please select",
+                      hasValidValue ? CategoricalValue(validSelected).display : "Please select",
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: hasValidValue ? highlightColor : Theme.of(context).hintColor,

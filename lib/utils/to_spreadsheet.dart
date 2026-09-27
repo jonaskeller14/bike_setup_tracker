@@ -1,7 +1,6 @@
 import 'package:excel/excel.dart';
 import 'package:intl/intl.dart';
 
-import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
 import '../models/context/context_position.dart';
 import '../models/context/context_weather.dart';
@@ -244,18 +243,18 @@ class SpreadsheetExport {
     final person = bike != null ? data.persons[bike.person] : null;
     if (person != null && columnMap.containsKey('p_name')) {
       row[columnMap['p_name']!] = TextCellValue(person.name);
-      for (final entry in setup.personAdjustmentValues.entries) {
+      for (final entry in setup.personValueEntries) {
         final key = 'p_adj_${entry.key}';
         if (columnMap.containsKey(key)) {
-          row[columnMap[key]!] = TextCellValue(Adjustment.formatValue(entry.value));
+          row[columnMap[key]!] = TextCellValue(entry.value.display);
         }
       }
     }
 
-    for (final entry in setup.bikeAdjustmentValues.entries) {
+    for (final entry in setup.bikeValueEntries) {
       final key = 'comp_${entry.key}';
       if (columnMap.containsKey(key)) {
-        row[columnMap[key]!]= TextCellValue(Adjustment.formatValue(entry.value));
+        row[columnMap[key]!]= TextCellValue(entry.value.display);
       }
     }
 
@@ -303,18 +302,18 @@ class SpreadsheetExport {
     final person = bike != null ? data.persons[bike.person] : null;
     if (person != null && columnMap.containsKey('p_name')) {
       row[columnMap['p_name']!] = person.name;
-      for (final entry in setup.personAdjustmentValues.entries) {
+      for (final entry in setup.personValueEntries) {
         final key = 'p_adj_${entry.key}';
         if (columnMap.containsKey(key)) {
-          row[columnMap[key]!] = Adjustment.formatValue(entry.value);
+          row[columnMap[key]!] = entry.value.display;
         }
       }
     }
 
-    for (final entry in setup.bikeAdjustmentValues.entries) {
+    for (final entry in setup.bikeValueEntries) {
       final key = 'comp_${entry.key}';
       if (columnMap.containsKey(key)) {
-        row[columnMap[key]!] = Adjustment.formatValue(entry.value);
+        row[columnMap[key]!] = entry.value.display;
       }
     }
 

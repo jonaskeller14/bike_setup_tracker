@@ -3,6 +3,9 @@ import '../models/component/component.dart';
 import '../models/person.dart';
 import '../models/setup.dart';
 import '../models/setup_comparison.dart';
+import 'component_hierarchy_resolver.dart';
+import 'component_similarity.dart';
+import 'component_slot.dart';
 import 'dangling_adjustment_service.dart';
 
 sealed class SetupComparisonTargetResolution {
@@ -71,6 +74,9 @@ class SetupComparisonService {
         ..._buildComponentGroups(
           ownersA: componentOwnersA,
           ownersB: componentOwnersB,
+          setupA: setupA,
+          setupB: setupB,
+          hierarchy: ComponentHierarchyResolver({for (final component in allComponents) component.id: component}),
         ),
         ..._buildOwnerGroups(
           ownersA: personOwnersA,
@@ -94,6 +100,9 @@ class SetupComparisonService {
   static List<SetupComparisonGroup> _buildComponentGroups({
     required List<_OwnerData> ownersA,
     required List<_OwnerData> ownersB,
+    required Setup setupA,
+    required Setup setupB,
+    required ComponentHierarchyResolver hierarchy,
   }) {
     final componentsA = ownersA.cast<_ComponentOwnerData>();
     final componentsB = ownersB.cast<_ComponentOwnerData>();
@@ -101,7 +110,7 @@ class SetupComparisonService {
     final exactIds = componentsA.map((owner) => owner.id).where(byIdB.containsKey).toSet();
     final onlyA = componentsA.where((owner) => !exactIds.contains(owner.id)).toList();
     final onlyB = componentsB.where((owner) => !exactIds.contains(owner.id)).toList();
-    final inferredByA = _matchReplacementComponents(onlyA, onlyB);
+    final inferredByA = _matchReplacementComponents(onlyA, onlyB, setupA, setupB, hierarchy);
     final inferredBIds = inferredByA.values.map((owner) => owner.id).toSet();
 
     return [
@@ -120,29 +129,33 @@ class SetupComparisonService {
   static Map<String, _ComponentOwnerData> _matchReplacementComponents(
     List<_ComponentOwnerData> onlyA,
     List<_ComponentOwnerData> onlyB,
+    Setup setupA,
+    Setup setupB,
+    ComponentHierarchyResolver hierarchy,
   ) {
+    final slotsA = _groupBySlot(onlyA, hierarchy, setupA);
+    final slotsB = _groupBySlot(onlyB, hierarchy, setupB);
     final result = <String, _ComponentOwnerData>{};
-    for (final type in ComponentType.values) {
-      final candidatesA = onlyA.where((owner) => owner.component.componentType == type).toList()
-        ..sort((a, b) => a.id.compareTo(b.id));
-      final candidatesB = onlyB.where((owner) => owner.component.componentType == type).toList()
-        ..sort((a, b) => a.id.compareTo(b.id));
-      if (candidatesA.isEmpty || candidatesB.isEmpty) continue;
+    for (final MapEntry(key: slot, value: candidatesA) in slotsA.entries) {
+      final candidatesB = slotsB[slot];
+      if (candidatesB == null) continue;
+      candidatesA.sort((a, b) => a.id.compareTo(b.id));
+      candidatesB.sort((a, b) => a.id.compareTo(b.id));
 
       if (candidatesA.length <= candidatesB.length) {
-        final assignment = _maximumScoreAssignment(
+        final assignment = maximumScoreAssignment(
           candidatesA,
           candidatesB,
-          _componentSimilarity,
+          (a, b) => componentSimilarity(a.component, b.component),
         );
         for (var index = 0; index < candidatesA.length; index++) {
           result[candidatesA[index].id] = candidatesB[assignment[index]];
         }
       } else {
-        final assignment = _maximumScoreAssignment(
+        final assignment = maximumScoreAssignment(
           candidatesB,
           candidatesA,
-          _componentSimilarity,
+          (a, b) => componentSimilarity(a.component, b.component),
         );
         for (var index = 0; index < candidatesB.length; index++) {
           result[candidatesA[assignment[index]].id] = candidatesB[index];
@@ -152,113 +165,18 @@ class SetupComparisonService {
     return result;
   }
 
-  /// Returns the index of the assigned [right] item for every [left] item.
-  /// The Hungarian assignment keeps matching deterministic and order-independent.
-  static List<int> _maximumScoreAssignment<T>(
-    List<T> left,
-    List<T> right,
-    double Function(T left, T right) score,
+  static Map<ComponentSlot, List<_ComponentOwnerData>> _groupBySlot(
+    List<_ComponentOwnerData> owners,
+    ComponentHierarchyResolver hierarchy,
+    Setup setup,
   ) {
-    assert(left.length <= right.length);
-    final rowCount = left.length;
-    final columnCount = right.length;
-    final rowPotential = List<double>.filled(rowCount + 1, 0);
-    final columnPotential = List<double>.filled(columnCount + 1, 0);
-    final rowForColumn = List<int>.filled(columnCount + 1, 0);
-    final previousColumn = List<int>.filled(columnCount + 1, 0);
-
-    for (var row = 1; row <= rowCount; row++) {
-      rowForColumn[0] = row;
-      var column = 0;
-      final minimum = List<double>.filled(columnCount + 1, double.infinity);
-      final used = List<bool>.filled(columnCount + 1, false);
-      do {
-        used[column] = true;
-        final currentRow = rowForColumn[column];
-        var delta = double.infinity;
-        var nextColumn = 0;
-        for (var candidateColumn = 1; candidateColumn <= columnCount; candidateColumn++) {
-          if (used[candidateColumn]) continue;
-          final cost =
-              -score(left[currentRow - 1], right[candidateColumn - 1]) -
-              rowPotential[currentRow] -
-              columnPotential[candidateColumn];
-          if (cost < minimum[candidateColumn]) {
-            minimum[candidateColumn] = cost;
-            previousColumn[candidateColumn] = column;
-          }
-          if (minimum[candidateColumn] < delta) {
-            delta = minimum[candidateColumn];
-            nextColumn = candidateColumn;
-          }
-        }
-        for (var candidateColumn = 0; candidateColumn <= columnCount; candidateColumn++) {
-          if (used[candidateColumn]) {
-            rowPotential[rowForColumn[candidateColumn]] += delta;
-            columnPotential[candidateColumn] -= delta;
-          } else {
-            minimum[candidateColumn] -= delta;
-          }
-        }
-        column = nextColumn;
-      } while (rowForColumn[column] != 0);
-
-      do {
-        final nextColumn = previousColumn[column];
-        rowForColumn[column] = rowForColumn[nextColumn];
-        column = nextColumn;
-      } while (column != 0);
-    }
-
-    final result = List<int>.filled(rowCount, 0);
-    for (var column = 1; column <= columnCount; column++) {
-      final row = rowForColumn[column];
-      if (row != 0) result[row - 1] = column - 1;
+    final result = <ComponentSlot, List<_ComponentOwnerData>>{};
+    for (final owner in owners) {
+      final slot = slotAt(hierarchy, owner.component, setup.datetimeLocal.toUtc());
+      if (slot != null) (result[slot] ??= []).add(owner);
     }
     return result;
   }
-
-  static double _componentSimilarity(
-    _ComponentOwnerData a,
-    _ComponentOwnerData b,
-  ) {
-    final nameSimilarity = _nameSimilarity(a.label, b.label);
-    final adjustmentSimilarity = _setOverlap(
-      a.adjustments.map((adjustment) => _normalize(adjustment.name)).toSet(),
-      b.adjustments.map((adjustment) => _normalize(adjustment.name)).toSet(),
-    );
-    return nameSimilarity * 0.7 + adjustmentSimilarity * 0.3;
-  }
-
-  static double _nameSimilarity(String a, String b) {
-    final normalizedA = _normalize(a);
-    final normalizedB = _normalize(b);
-    if (normalizedA.isEmpty || normalizedB.isEmpty) return 0;
-    final tokenSimilarity = _setOverlap(
-      normalizedA.split(RegExp(r'[^a-z0-9]+')).where((token) => token.isNotEmpty).toSet(),
-      normalizedB.split(RegExp(r'[^a-z0-9]+')).where((token) => token.isNotEmpty).toSet(),
-    );
-    final bigramSimilarity = _setOverlap(
-      _bigrams(normalizedA.replaceAll(' ', '')),
-      _bigrams(normalizedB.replaceAll(' ', '')),
-    );
-    return tokenSimilarity * 0.6 + bigramSimilarity * 0.4;
-  }
-
-  static Set<String> _bigrams(String value) {
-    if (value.isEmpty) return const {};
-    if (value.length == 1) return {value};
-    return {
-      for (var index = 0; index < value.length - 1; index++) value.substring(index, index + 2),
-    };
-  }
-
-  static double _setOverlap(Set<String> a, Set<String> b) {
-    if (a.isEmpty || b.isEmpty) return 0;
-    return 2 * a.intersection(b).length / (a.length + b.length);
-  }
-
-  static String _normalize(String value) => value.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
 
   static List<_OwnerData> _personOwners(SetupAdjustmentBreakdown breakdown, Setup setup) {
     return [

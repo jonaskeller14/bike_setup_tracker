@@ -314,6 +314,44 @@ void main() {
       expect(result.groups.single.independentRowsB.single.valueB.value, const StepValue(22));
     });
 
+    test('pairs replaced tires by wheel position even when names match across positions', () {
+      final replacedAt = DateTime.utc(2026, 1, 2);
+      Installation onWheel(String wheelId, DateTime at) => ComponentInstallation(
+        parentComponentId: wheelId,
+        dateTimeUTC: at,
+        dateTimeLocal: at.toLocal(),
+      );
+      Installation removed() => Installation(parent: null, dateTimeUTC: replacedAt, dateTimeLocal: replacedAt.toLocal());
+      Component tire(String id, String name, String wheelId, {required bool isOld}) => component(
+        id: id,
+        name: name,
+        bike: bikeA,
+        type: ComponentType.tire,
+        installations: isOld
+            ? [Installation.componentSinceBeginning(parentComponentId: wheelId), removed()]
+            : [onWheel(wheelId, replacedAt)],
+      );
+
+      final result = compare(
+        a: setup(id: 'before', bike: bikeA, at: DateTime.utc(2026, 1, 1)),
+        b: setup(id: 'after', bike: bikeA, at: DateTime.utc(2026, 1, 3)),
+        components: [
+          component(id: 'front-wheel', name: 'Front Wheel', bike: bikeA, type: ComponentType.wheelFront),
+          component(id: 'rear-wheel', name: 'Rear Wheel', bike: bikeA, type: ComponentType.wheelRear),
+          tire('old-front', 'Maxxis Assegai', 'front-wheel', isOld: true),
+          tire('old-rear', 'Schwalbe Magic Mary', 'rear-wheel', isOld: true),
+          tire('new-front', 'Schwalbe Magic Mary', 'front-wheel', isOld: false),
+          tire('new-rear', 'Maxxis Assegai', 'rear-wheel', isOld: false),
+        ],
+      );
+
+      final pairs = {
+        for (final group in result.groups.where((group) => group.isInferredComponentPair))
+          group.componentA?.id: group.componentB?.id,
+      };
+      expect(pairs, {'old-front': 'new-front', 'old-rear': 'new-rear'});
+    });
+
     test('pairs zero-similarity candidates deterministically and leaves same-type surplus one-sided', () {
       final a = component(
         id: 'a-component',

@@ -10,8 +10,11 @@ import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/setup_activity_analysis_service.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
+import 'package:bike_setup_tracker/widgets/display_data/setup_line_chart.dart';
+import 'package:bike_setup_tracker/widgets/display_data/setup_radial_chart.dart';
 import 'package:bike_setup_tracker/widgets/display_data/setup_table.dart';
 import 'package:bike_setup_tracker/widgets/initial_changed_value_legend.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -110,8 +113,7 @@ void main() {
     expect(find.text('Alpha Setup'), findsOneWidget);
     expect(find.text('Beta Setup'), findsNothing);
 
-    // Rows are not selectable here: there are no charts to compare setups in.
-    expect(find.descendant(of: find.byType(SetupTable), matching: find.byType(Checkbox)), findsNothing);
+    expect(find.descendant(of: find.byType(SetupTable), matching: find.byType(Checkbox)), findsWidgets);
 
     await tester.tap(find.widgetWithText(FilterChip, 'Columns'));
     await tester.pumpAndSettle();
@@ -224,11 +226,38 @@ void main() {
       expect(find.byType(InitialChangedValueLegend), findsOneWidget);
     });
 
+    testWidgets('charts the merged column for the newest setups', (WidgetTester tester) async {
+      appSettings.enableBikeAdjustmentColumns = true;
+      await pumpPageWith(tester, seedTireReplacement);
+
+      final lineChart = find.byType(SetupLineChart);
+      expect(find.descendant(of: find.byType(SetupTable), matching: find.byType(Checkbox)), findsWidgets);
+      expect(find.descendant(of: lineChart, matching: find.byType(LineChart)), findsOneWidget);
+      expect(find.descendant(of: lineChart, matching: find.text(columnLabel)), findsOneWidget);
+      expect(find.byType(SetupRadialChart), findsOneWidget);
+    });
+
+    testWidgets('long-pressing a line chart legend entry deactivates its column', (WidgetTester tester) async {
+      appSettings.enableBikeAdjustmentColumns = true;
+      await pumpPageWith(tester, seedTireReplacement);
+
+      final legendEntry = find.descendant(of: find.byType(SetupLineChart), matching: find.text(columnLabel));
+      await tester.ensureVisible(legendEntry);
+      await tester.longPress(legendEntry);
+      await tester.pumpAndSettle();
+
+      expect(inTable(columnLabel), findsNothing);
+      expect(find.text('No adjustments selected'), findsNWidgets(2));
+    });
+
     testWidgets('hides the columns when the flag is off', (WidgetTester tester) async {
       await pumpPageWith(tester, seedTireReplacement);
 
       expect(inTable(columnLabel), findsNothing);
       expect(inTable('22'), findsNothing);
+      // The charts stay, with a placeholder: no chartable column is active.
+      expect(find.descendant(of: find.byType(SetupLineChart), matching: find.text('No adjustments selected')), findsOneWidget);
+      expect(find.descendant(of: find.byType(SetupRadialChart), matching: find.text('No adjustments selected')), findsOneWidget);
 
       await tester.tap(find.widgetWithText(FilterChip, 'Columns'));
       await tester.pumpAndSettle();

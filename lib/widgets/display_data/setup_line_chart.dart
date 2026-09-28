@@ -14,7 +14,7 @@ import '../../theme.dart';
 import '../../utils/table_column.dart';
 import '../empty_state_placeholder.dart';
 
-class ComponentDetailsPageLineChart extends StatefulWidget {
+class SetupLineChart extends StatefulWidget {
   final List<TableColumn> activeColumns;
   final List<Setup> setups;
   final List<Setup> selectedSetups;
@@ -26,7 +26,7 @@ class ComponentDetailsPageLineChart extends StatefulWidget {
   final ValueChanged<TableColumn?> onSelectedColumnChanged;
   final ValueChanged<TableColumn> onColumnRemoved;
 
-  const ComponentDetailsPageLineChart({
+  const SetupLineChart({
     super.key,
     required this.activeColumns,
     required this.setups,
@@ -41,10 +41,10 @@ class ComponentDetailsPageLineChart extends StatefulWidget {
   });
 
   @override
-  State<StatefulWidget> createState() => _ComponentDetailsPageLineChartState();
+  State<StatefulWidget> createState() => _SetupLineChartState();
 }
 
-class _ComponentDetailsPageLineChartState extends State<ComponentDetailsPageLineChart> {
+class _SetupLineChartState extends State<SetupLineChart> {
   int? _touchedLineChartSpotX;
 
   static const List<List<int>?> _dashPatterns = [
@@ -75,7 +75,7 @@ class _ComponentDetailsPageLineChartState extends State<ComponentDetailsPageLine
       return const EmptyStatePlaceholder(
         icon: Icons.insights_rounded,
         title: "No data",
-        subtitle: "No setup data available for this component",
+        subtitle: "No setup data available",
       );
     }
     if (widget.selectedSetups.isEmpty) {

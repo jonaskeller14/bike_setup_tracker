@@ -13,8 +13,8 @@ import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/setup_activity_analysis_service.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
-import 'package:bike_setup_tracker/widgets/display_data/component_details_page_line_chart.dart';
-import 'package:bike_setup_tracker/widgets/display_data/component_details_page_radial_chart.dart';
+import 'package:bike_setup_tracker/widgets/display_data/setup_line_chart.dart';
+import 'package:bike_setup_tracker/widgets/display_data/setup_radial_chart.dart';
 import 'package:bike_setup_tracker/widgets/display_data/setup_table.dart';
 import 'package:bike_setup_tracker/widgets/display_installation_timeline.dart';
 import 'package:bike_setup_tracker/widgets/lists/adjustment_edit_list.dart';
@@ -933,28 +933,28 @@ void main() {
     });
     await tester.pumpAndSettle();
 
-    final lineChart = tester.widget<ComponentDetailsPageLineChart>(
-      find.byType(ComponentDetailsPageLineChart),
+    final lineChart = tester.widget<SetupLineChart>(
+      find.byType(SetupLineChart),
     );
     expect(lineChart.selectedSetups.map((setup) => setup.id), ['s7', 's6', 's5']);
     expect(
-      find.descendant(of: find.byType(ComponentDetailsPageLineChart), matching: find.text('2024-01-07')),
+      find.descendant(of: find.byType(SetupLineChart), matching: find.text('2024-01-07')),
       findsOneWidget,
     );
     expect(
-      find.descendant(of: find.byType(ComponentDetailsPageLineChart), matching: find.text('2024-01-05')),
+      find.descendant(of: find.byType(SetupLineChart), matching: find.text('2024-01-05')),
       findsOneWidget,
     );
     expect(
-      find.descendant(of: find.byType(ComponentDetailsPageLineChart), matching: find.text('2024-01-06')),
+      find.descendant(of: find.byType(SetupLineChart), matching: find.text('2024-01-06')),
       findsNothing,
     );
-    final chartBounds = tester.getRect(find.byType(ComponentDetailsPageLineChart));
+    final chartBounds = tester.getRect(find.byType(SetupLineChart));
     final firstLabelBounds = tester.getRect(
-      find.descendant(of: find.byType(ComponentDetailsPageLineChart), matching: find.text('2024-01-07')),
+      find.descendant(of: find.byType(SetupLineChart), matching: find.text('2024-01-07')),
     );
     final lastLabelBounds = tester.getRect(
-      find.descendant(of: find.byType(ComponentDetailsPageLineChart), matching: find.text('2024-01-05')),
+      find.descendant(of: find.byType(SetupLineChart), matching: find.text('2024-01-05')),
     );
     expect(firstLabelBounds.left, greaterThanOrEqualTo(chartBounds.left));
     expect(lastLabelBounds.right, lessThanOrEqualTo(chartBounds.right));
@@ -962,22 +962,22 @@ void main() {
     await tester.tap(find.descendant(of: find.byType(DataTable), matching: find.text('Name')));
     await tester.pumpAndSettle();
     expect(
-      find.descendant(of: find.byType(ComponentDetailsPageLineChart), matching: find.text('2024-01-07')),
+      find.descendant(of: find.byType(SetupLineChart), matching: find.text('2024-01-07')),
       findsNothing,
     );
     expect(
-      find.descendant(of: find.byType(ComponentDetailsPageLineChart), matching: find.text('2024-01-05')),
+      find.descendant(of: find.byType(SetupLineChart), matching: find.text('2024-01-05')),
       findsNothing,
     );
 
     await tester.tap(find.descendant(of: find.byType(DataTable), matching: find.text('Date')));
     await tester.pumpAndSettle();
     expect(
-      find.descendant(of: find.byType(ComponentDetailsPageLineChart), matching: find.text('2024-01-07')),
+      find.descendant(of: find.byType(SetupLineChart), matching: find.text('2024-01-07')),
       findsOneWidget,
     );
     expect(
-      find.descendant(of: find.byType(ComponentDetailsPageLineChart), matching: find.text('2024-01-05')),
+      find.descendant(of: find.byType(SetupLineChart), matching: find.text('2024-01-05')),
       findsOneWidget,
     );
 
@@ -1157,7 +1157,7 @@ void main() {
     await _waitForComponent(tester, appRepository);
 
     final radarSetup = find.descendant(
-      of: find.byType(ComponentDetailsPageRadialChart),
+      of: find.byType(SetupRadialChart),
       matching: find.text('Setup 1'),
     );
     await tester.ensureVisible(radarSetup);
@@ -1173,7 +1173,7 @@ void main() {
     await tester.pumpAndSettle();
 
     final reselectedRadarSetup = find.descendant(
-      of: find.byType(ComponentDetailsPageRadialChart),
+      of: find.byType(SetupRadialChart),
       matching: find.text('Setup 1'),
     );
     await tester.ensureVisible(reselectedRadarSetup);
@@ -1204,7 +1204,7 @@ void main() {
     await _waitForComponent(tester, appRepository);
 
     final lineColumn = find.descendant(
-      of: find.byType(ComponentDetailsPageLineChart),
+      of: find.byType(SetupLineChart),
       matching: find.text('Rebound'),
     );
     await tester.ensureVisible(lineColumn);
@@ -1225,7 +1225,7 @@ void main() {
     await tester.pumpAndSettle();
 
     final reenabledLineColumn = find.descendant(
-      of: find.byType(ComponentDetailsPageLineChart),
+      of: find.byType(SetupLineChart),
       matching: find.text('Rebound'),
     );
     await tester.ensureVisible(reenabledLineColumn);

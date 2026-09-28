@@ -14,7 +14,7 @@ import '../../theme.dart';
 import '../../utils/table_column.dart';
 import '../empty_state_placeholder.dart';
 
-class ComponentDetailsPageRadialChart extends StatefulWidget {
+class SetupRadialChart extends StatefulWidget {
   final List<TableColumn> activeColumns;
   final List<Setup> setups;
   final List<Setup> selectedSetups;
@@ -23,7 +23,7 @@ class ComponentDetailsPageRadialChart extends StatefulWidget {
   final String Function(TableColumn column) columnLabel;
   final ValueChanged<String> onSetupRemoved;
 
-  const ComponentDetailsPageRadialChart({
+  const SetupRadialChart({
     super.key,
     required this.activeColumns,
     required this.setups,
@@ -35,15 +35,15 @@ class ComponentDetailsPageRadialChart extends StatefulWidget {
   });
 
   @override
-  State<ComponentDetailsPageRadialChart> createState() => _ComponentDetailsPageRadialChartState();
+  State<SetupRadialChart> createState() => _SetupRadialChartState();
 }
 
-class _ComponentDetailsPageRadialChartState extends State<ComponentDetailsPageRadialChart> {
+class _SetupRadialChartState extends State<SetupRadialChart> {
   _TouchedRadarValue? _touchedRadarValue;
   String? _selectedRadarSetupId;
 
   @override
-  void didUpdateWidget(covariant ComponentDetailsPageRadialChart oldWidget) {
+  void didUpdateWidget(covariant SetupRadialChart oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (!widget.selectedSetups.any((setup) => setup.id == _touchedRadarValue?.setupId)) {
       _touchedRadarValue = null;
@@ -74,7 +74,7 @@ class _ComponentDetailsPageRadialChartState extends State<ComponentDetailsPageRa
       return const EmptyStatePlaceholder(
         icon: Icons.insights_rounded,
         title: "No data",
-        subtitle: "No setup data available for this component",
+        subtitle: "No setup data available",
       );
     }
     if (widget.selectedSetups.isEmpty) {

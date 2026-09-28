@@ -20,9 +20,9 @@ import '../../utils/table_column.dart';
 import '../../utils/table_column_comparator.dart';
 import '../../widgets/chips/filter_sheet_chip.dart';
 import '../../widgets/display_data/component_details_page_histogram_chart.dart';
-import '../../widgets/display_data/component_details_page_line_chart.dart';
-import '../../widgets/display_data/component_details_page_radial_chart.dart';
 import '../../widgets/display_data/component_stats_card.dart';
+import '../../widgets/display_data/setup_line_chart.dart';
+import '../../widgets/display_data/setup_radial_chart.dart';
 import '../../widgets/display_data/setup_table.dart';
 import '../../widgets/display_installation_timeline.dart';
 import '../../widgets/empty_state_placeholder.dart';
@@ -491,7 +491,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                     "• Tap a legend entry to highlight a specific line.\n"
                     "• Long-press a legend entry to remove it from the selection.",
               ),
-              ComponentDetailsPageLineChart(
+              SetupLineChart(
                 activeColumns: activeColumns,
                 setups: setups,
                 selectedSetups: selectedSetups,
@@ -530,7 +530,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                     "• Tap a legend entry to highlight a specific graph.\n"
                     "• Long-press a legend entry to remove it from the selection.",
               ),
-              ComponentDetailsPageRadialChart(
+              SetupRadialChart(
                 activeColumns: activeColumns,
                 setups: setups,
                 selectedSetups: selectedSetups,

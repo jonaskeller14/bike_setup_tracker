@@ -22,6 +22,8 @@ import '../../utils/component_actions.dart';
 import '../../utils/table_column.dart';
 import '../../utils/table_column_comparator.dart';
 import '../../widgets/display_data/component_stats_card.dart';
+import '../../widgets/display_data/setup_line_chart.dart';
+import '../../widgets/display_data/setup_radial_chart.dart';
 import '../../widgets/display_data/setup_table.dart';
 import '../../widgets/empty_state_placeholder.dart';
 import '../../widgets/empty_state_placeholder2.dart';
@@ -48,9 +50,12 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
       "\n\nComponents that followed each other in the same position (e.g. the tire on the front wheel) "
       "share a column, so a replacement continues its predecessor's column and starts with a green value. "
       "Red values belong to a component that was not installed at that setup.";
+  static const int _defaultSelectedSetupCount = 3;
 
   bool _sortAscending = true;
   TableColumn? _sortColumn;
+  TableColumn? _selectedLineChartColumn;
+  Set<String>? _selectedSetupIds;
   Set<TableColumn> _columns = {};
 
   Map<String, double?> _ratingScores = {};
@@ -142,6 +147,13 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
     return setups;
   }
 
+  void _removeColumn(TableColumn column) {
+    setState(() {
+      column.active = false;
+      if (_selectedLineChartColumn == column) _selectedLineChartColumn = null;
+    });
+  }
+
   Widget _setupHistory(
     BuildContext context,
     AppSettings appSettings,
@@ -229,6 +241,23 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
       setupActivityCounts: setupActivityCounts,
     );
 
+    final selectedSetupIds = _selectedSetupIds ??= (setups.toList()..sort((a, b) => b.datetime.compareTo(a.datetime)))
+        .take(_defaultSelectedSetupCount)
+        .map((s) => s.id)
+        .toSet();
+    selectedSetupIds.removeWhere((id) => !setups.any((s) => s.id == id));
+    final selectedSetups = setups.where((s) => selectedSetupIds.contains(s.id)).toList();
+
+    final sortColumn = _sortColumn;
+    final showDateAxisLabels =
+        sortColumn == null || (sortColumn is SetupTableColumn && sortColumn.column == SetupColumn.date);
+    Adjustment? adjustmentFor(TableColumn column) => adjustmentForColumn(
+      column,
+      const [],
+      personAdjustments,
+      bikeAdjustmentFor: (column) => projection?.adjustmentFor(column.key),
+    );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -237,7 +266,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
           infoText:
               "All setups of this bike. Add or remove columns via the Columns button, or long-press a column "
               "header to remove it. Green values are new (no prior value), orange values have changed from the "
-              "previous setup."
+              "previous setup. Select rows to compare setups in the charts below."
               "${projection == null ? '' : _mergedColumnsInfoText}",
         ),
         Padding(
@@ -312,14 +341,71 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
                 _sortColumn = column;
               });
             },
-            onColumnRemoved: (column) {
-              setState(() => column.active = false);
-            },
+            onColumnRemoved: _removeColumn,
+            selectedSetupIds: selectedSetupIds,
+            onSelectAll: (selected) => setState(() {
+              if (selected == true) {
+                selectedSetupIds.addAll(setups.map((setup) => setup.id));
+              } else {
+                selectedSetupIds.clear();
+              }
+            }),
+            onSetupSelected: (setup, selected) => setState(() {
+              if (selected == true) {
+                selectedSetupIds.add(setup.id);
+              } else {
+                selectedSetupIds.remove(setup.id);
+              }
+            }),
           ),
           if (activeColumns.any((c) => c is PersonAttributeColumn || c is BikeAdjustmentColumn))
             InitialChangedValueLegend(showDangling: hasDanglingValues),
         ],
         const SizedBox(height: 16),
+        const Divider(height: 1),
+        const SectionTitle(
+          title: "Line Chart",
+          infoText:
+              "• Shows the setups selected in the table above in their current sort order.\n"
+              "• The y-axis represents adjustment values.\n"
+              "• Select at least two setups to display a trend.\n"
+              "• Tap a legend entry to highlight a specific line.\n"
+              "• Long-press a legend entry to remove its column.",
+        ),
+        SetupLineChart(
+          activeColumns: activeColumns,
+          setups: setups,
+          selectedSetups: selectedSetups,
+          showDateAxisLabels: showDateAxisLabels,
+          selectedLineChartColumn: _selectedLineChartColumn,
+          valueFor: _rawValue,
+          adjustmentFor: adjustmentFor,
+          columnLabel: (column) => _columnLabel(column, personAdjustments),
+          onSelectedColumnChanged: (column) {
+            setState(() => _selectedLineChartColumn = column);
+          },
+          onColumnRemoved: _removeColumn,
+        ),
+        const Divider(height: 1),
+        const SectionTitle(
+          title: "Radial Chart",
+          infoText:
+              "• Shows the setups selected in the table above.\n"
+              "• Axes are normalized across all data for stable comparison.\n"
+              "• Tap a legend entry to highlight a specific graph.\n"
+              "• Long-press a legend entry to remove it from the selection.",
+        ),
+        SetupRadialChart(
+          activeColumns: activeColumns,
+          setups: setups,
+          selectedSetups: selectedSetups,
+          valueFor: _rawValue,
+          adjustmentFor: adjustmentFor,
+          columnLabel: (column) => _columnLabel(column, personAdjustments),
+          onSetupRemoved: (setupId) {
+            setState(() => selectedSetupIds.remove(setupId));
+          },
+        ),
       ],
     );
   }

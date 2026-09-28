@@ -520,14 +520,15 @@ void main() {
 
           expect(find.text('Front Wheel'), findsOneWidget);
           expect(find.text('Brake Pad'), findsNothing);
-          expect(find.text('1 more hidden · Show all'), findsOneWidget);
-          expect(find.text("Type doesn't fit a Tire"), findsOneWidget);
+          expect(find.text('1 part hidden · unusual for a Tire'), findsOneWidget);
 
-          await tester.tap(find.text('1 more hidden · Show all'));
+          await tester.tap(find.widgetWithText(TextButton, 'Show all'));
           await tester.pumpAndSettle();
 
-          expect(find.text('1 more hidden · Show all'), findsNothing);
-          expect(find.text('Other components on Bike 1'), findsOneWidget);
+          expect(find.textContaining('hidden'), findsNothing);
+          expect(find.text('Components on Bike 1'), findsOneWidget);
+          // Revealed parts join the section below the suggested ones.
+          expect(tester.getTopLeft(find.text('Brake Pad')).dy, greaterThan(tester.getTopLeft(find.text('Front Wheel')).dy));
 
           await tester.tap(find.text('Brake Pad'));
           await tester.pump(const Duration(milliseconds: 250));
@@ -551,8 +552,8 @@ void main() {
           await tester.pumpAndSettle();
 
           expect(find.text('Brake Pad'), findsOneWidget);
-          expect(find.text('Other components on Bike 1'), findsOneWidget);
-          expect(find.textContaining('more hidden'), findsNothing);
+          expect(find.text('Components on Bike 1'), findsOneWidget);
+          expect(find.textContaining('hidden'), findsNothing);
         });
 
         testWidgets('a saved unusual parent stays in its normal section', (WidgetTester tester) async {
@@ -564,8 +565,8 @@ void main() {
           await openParentMenu(tester);
 
           expect(find.text('Components on Bike 1'), findsOneWidget);
-          expect(find.text('Other components on Bike 1'), findsNothing);
-          expect(find.textContaining('more hidden'), findsNothing);
+          expect(find.text('Brake Pad'), findsNWidgets(2));
+          expect(find.textContaining('hidden'), findsNothing);
         });
 
         for (final type in [null, ComponentType.other]) {
@@ -578,7 +579,7 @@ void main() {
 
             expect(find.text('Front Wheel'), findsOneWidget);
             expect(find.text('Brake Pad'), findsOneWidget);
-            expect(find.textContaining('more hidden'), findsNothing);
+            expect(find.textContaining('hidden'), findsNothing);
           });
         }
 

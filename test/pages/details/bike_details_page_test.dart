@@ -1,6 +1,9 @@
 import 'package:bike_setup_tracker/database/app_database.dart';
+import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
+import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/pages/details/bike_details_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
@@ -8,6 +11,7 @@ import 'package:bike_setup_tracker/services/setup_activity_analysis_service.dart
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/display_data/setup_table.dart';
+import 'package:bike_setup_tracker/widgets/initial_changed_value_legend.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -140,5 +144,112 @@ void main() {
 
     expect(find.byType(SetupTable), findsNothing);
     expect(find.text('No setups reference this bike'), findsOneWidget);
+  });
+
+  group('bike adjustment columns', () {
+    const columnLabel = 'Pressure · Tire (Front Wheel)';
+
+    Installation onBike(String componentId, int day) => BikeInstallation(
+      componentId: componentId,
+      bikeId: 'bike1',
+      dateTimeUTC: DateTime.utc(2026, 1, day),
+      dateTimeLocal: DateTime(2026, 1, day),
+    );
+
+    Installation onWheel(String componentId, int day) => ComponentInstallation(
+      componentId: componentId,
+      parentComponentId: 'wheel',
+      dateTimeUTC: DateTime.utc(2026, 1, day),
+      dateTimeLocal: DateTime(2026, 1, day),
+    );
+
+    Setup setupOn(String id, int day, Map<String, AdjustmentValue> values) => Setup(
+      id: id,
+      name: id,
+      datetime: DateTime.utc(2026, 1, day, 12),
+      datetimeLocal: DateTime.utc(2026, 1, day, 12).toLocal(),
+      tags: {},
+      bike: 'bike1',
+      person: null,
+      bikeAdjustmentValues: values,
+      personAdjustmentValues: {},
+    );
+
+    /// Tire A is replaced by tire B on the front wheel on day 5.
+    Future<void> seedTireReplacement({String tireName = 'Tire'}) async {
+      await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null)]);
+      await appRepository.addComponents([
+        Component(
+          id: 'wheel',
+          name: 'Front Wheel',
+          componentType: ComponentType.wheelFront,
+          installations: [onBike('wheel', 1)],
+        ),
+        Component(
+          id: 'tire-a',
+          name: '$tireName A',
+          componentType: ComponentType.tire,
+          installations: [
+            onWheel('tire-a', 1),
+            Uninstallation(componentId: 'tire-a', dateTimeUTC: DateTime.utc(2026, 1, 5), dateTimeLocal: DateTime(2026, 1, 5)),
+          ],
+          adjustments: [NumericalAdjustment(id: 'pa', name: 'Pressure', notes: null, unit: null)],
+        ),
+        Component(
+          id: 'tire-b',
+          name: '$tireName B',
+          componentType: ComponentType.tire,
+          installations: [onWheel('tire-b', 5)],
+          adjustments: [NumericalAdjustment(id: 'pb', name: 'Pressure', notes: null, unit: null)],
+        ),
+      ]);
+      await appRepository.addSetups([
+        setupOn('s1', 2, {'pa': const NumericalValue(25.0)}),
+        setupOn('s2', 6, {'pb': const NumericalValue(22.0)}),
+      ]);
+    }
+
+    Finder inTable(String text) => find.descendant(of: find.byType(SetupTable), matching: find.text(text));
+
+    testWidgets('merges a replaced tire into one column when the flag is on', (WidgetTester tester) async {
+      appSettings.enableBikeAdjustmentColumns = true;
+      await pumpPageWith(tester, seedTireReplacement);
+
+      expect(inTable(columnLabel), findsOneWidget);
+      expect(inTable('25'), findsOneWidget);
+      expect(inTable('22'), findsOneWidget);
+      // The replacement has no previous value of its own, so its first value is "initial".
+      final initial = materialAppTheme.extension<ValueHighlightColors>()!.initial;
+      expect(tester.widget<Text>(inTable('22')).style?.color, initial);
+      expect(find.byType(InitialChangedValueLegend), findsOneWidget);
+    });
+
+    testWidgets('hides the columns when the flag is off', (WidgetTester tester) async {
+      await pumpPageWith(tester, seedTireReplacement);
+
+      expect(inTable(columnLabel), findsNothing);
+      expect(inTable('22'), findsNothing);
+
+      await tester.tap(find.widgetWithText(FilterChip, 'Columns'));
+      await tester.pumpAndSettle();
+      expect(find.text('Component Adjustments'), findsNothing);
+    });
+
+    testWidgets('does not overflow with long component names on a narrow screen', (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(320, 640);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      appSettings.enableBikeAdjustmentColumns = true;
+
+      await pumpPageWith(tester, () => seedTireReplacement(tireName: 'Extraordinarily Long Tubeless Tire Name ' * 3));
+      expect(inTable(columnLabel), findsOneWidget);
+
+      await tester.tap(find.widgetWithText(FilterChip, 'Columns'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Component Adjustments'), findsOneWidget);
+      expect(find.text('Tire (Front Wheel)'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
   });
 }

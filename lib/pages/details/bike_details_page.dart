@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../icons/simple_icons.dart';
@@ -13,6 +14,7 @@ import '../../models/component/component.dart';
 import '../../models/person.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/bike_adjustment_column_service.dart';
 import '../../services/setup_activity_analysis_service.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/bike_actions.dart';
@@ -42,6 +44,11 @@ class BikeDetailsPage extends StatefulWidget {
 }
 
 class _BikeDetailsPageState extends State<BikeDetailsPage> {
+  static const _mergedColumnsInfoText =
+      "\n\nComponents that followed each other in the same position (e.g. the tire on the front wheel) "
+      "share a column, so a replacement continues its predecessor's column and starts with a green value. "
+      "Red values belong to a component that was not installed at that setup.";
+
   bool _sortAscending = true;
   TableColumn? _sortColumn;
   Set<TableColumn> _columns = {};
@@ -51,14 +58,53 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
   // ratingMetricId -> display name, for the per-metric rating columns.
   Map<String, String> _ratingMetricNames = {};
 
+  BikeAdjustmentProjection? _projection;
+  // Columns whose value changes at least once; these are active by default.
+  Set<BikeAdjustmentColumnKey> _changingColumns = {};
+  Object? _projectionSource;
+
   // Setup columns are rendered by the table itself; only data-driven columns resolve to a value here.
   // Rating scores ride along as numerical values so tables and charts treat them like any number.
   AdjustmentValue? _rawValue(Setup setup, TableColumn column) => switch (column) {
     PersonAttributeColumn(:final adjustmentId) => setup.personAdjustmentValues[adjustmentId],
     RatingMetricColumn(:final metricId) => NumericalValue.orNull(_metricScores[setup.id]?[metricId]),
     RatingScoreColumn() => NumericalValue.orNull(_ratingScores[setup.id]),
+    BikeAdjustmentColumn(:final key) => _projection?.valueFor(setup, key),
     ComponentAdjustmentColumn() || SetupTableColumn() => null,
   };
+
+  /// Rebuilds the projection only when the repository replaced its data.
+  BikeAdjustmentProjection _projectionFor(AppRepository appRepository) {
+    final source = (appRepository.setups, appRepository.components, appRepository.componentHierarchy);
+    if (_projection case final projection? when source == _projectionSource) return projection;
+
+    final projection = BikeAdjustmentColumnService.build(
+      bikeId: widget.bikeId,
+      setups: appRepository.setups.values,
+      components: appRepository.components.values,
+      hierarchy: appRepository.componentHierarchy,
+    );
+    _projectionSource = source;
+    _changingColumns = {
+      for (final column in projection.columns)
+        if (projection.hasChanges(column, appRepository.setups.values)) column,
+    };
+    return _projection = projection;
+  }
+
+  /// The lane's components with the dates of the first and last setup each was present at.
+  String _laneHistory(SlotLane lane, Map<String, Setup> setups, String dateFormat) {
+    final format = DateFormat(dateFormat);
+    return lane.members
+        .map((member) {
+          final dates = member.setupIds.map((id) => setups[id]?.datetimeLocal).nonNulls.sorted();
+          if (dates.isEmpty) return member.component.name;
+          final first = format.format(dates.first);
+          final last = format.format(dates.last);
+          return '${member.component.name}: ${first == last ? first : '$first – $last'}';
+        })
+        .join('\n');
+  }
 
   String _columnLabel(TableColumn column, Iterable<Adjustment> personAdjustments) {
     return switch (column) {
@@ -68,6 +114,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
       PersonAttributeColumn(:final adjustmentId) =>
         personAdjustments.firstWhereOrNull((a) => a.id == adjustmentId)?.name ?? adjustmentId,
       ComponentAdjustmentColumn(:final adjustmentId) => adjustmentId,
+      BikeAdjustmentColumn(:final key) => _projection?.columnLabel(key) ?? key.adjustment.name,
     };
   }
 
@@ -87,6 +134,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
       personAdjustments: personAdjustments,
       bikes: bikes,
       setupActivityCounts: setupActivityCounts,
+      bikeAdjustmentFor: (column) => _projection?.adjustmentFor(column.key),
     );
     if (comparator == null) return setups;
 
@@ -111,6 +159,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
     }
 
     final personAdjustments = person?.adjustments ?? [];
+    final projection = appSettings.enableBikeAdjustmentColumns ? _projectionFor(appRepository) : null;
 
     // Every setup of this bike, newest first - independent of the global bike filter.
     final setupsUnsorted = appRepository.setups.values
@@ -148,6 +197,9 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
 
     _columns = {
       for (final column in availableSetupColumns) retained(SetupTableColumn(column, active: column.defaultActive)),
+      if (projection != null)
+        for (final key in projection.columns)
+          retained(BikeAdjustmentColumn(key, active: _changingColumns.contains(key))),
       if (appSettings.enablePerson && person != null)
         for (final adjustment in personAdjustments) retained(PersonAttributeColumn(adjustment.id, active: false)),
       if (appSettings.enableRating) ...[
@@ -160,7 +212,11 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
     final activeColumns = orderedColumns.where((c) => c.active).toList();
     if (!activeColumns.contains(_sortColumn)) _sortColumn = null;
 
-    bool isDangling(Setup setup, TableColumn column) => column is PersonAttributeColumn && setup.person != person?.id;
+    bool isDangling(Setup setup, TableColumn column) => switch (column) {
+      PersonAttributeColumn() => setup.person != person?.id,
+      BikeAdjustmentColumn(:final key) => projection?.isDangling(setup, key) ?? false,
+      _ => false,
+    };
     final hasDanglingValues = activeColumns.any(
       (column) => setupsUnsorted.any((setup) => _rawValue(setup, column) != null && isDangling(setup, column)),
     );
@@ -176,12 +232,13 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SectionTitle(
+        SectionTitle(
           title: "Setup History",
           infoText:
               "All setups of this bike. Add or remove columns via the Columns button, or long-press a column "
               "header to remove it. Green values are new (no prior value), orange values have changed from the "
-              "previous setup.",
+              "previous setup."
+              "${projection == null ? '' : _mergedColumnsInfoText}",
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -196,7 +253,21 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
                 await showColumnFilterSheet(
                   context: context,
                   columns: orderedColumns,
-                  columnLabel: (TableColumn c) => _columnLabel(c, personAdjustments),
+                  columnLabel: (TableColumn c) => switch (c) {
+                    // The lane is shown as the group header.
+                    BikeAdjustmentColumn(:final key) => projection?.adjustmentFor(key)?.name ?? key.adjustment.name,
+                    _ => _columnLabel(c, personAdjustments),
+                  },
+                  columnGroup: (TableColumn c) => switch (c) {
+                    BikeAdjustmentColumn(:final key) => switch (projection?.laneOf(key)) {
+                      final lane? => (
+                        title: lane.label,
+                        subtitle: _laneHistory(lane, appRepository.setups, appSettings.dateFormat),
+                      ),
+                      null => null,
+                    },
+                    _ => null,
+                  },
                   onColumnStatusChanged: () => setState(() {}), // TableColumn.active is changed
                 );
               },
@@ -225,7 +296,16 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
             setupActivityCounts: setupActivityCounts,
             valueFor: _rawValue,
             isDangling: isDangling,
+            previousValueFor: (setup, column) =>
+                column is BikeAdjustmentColumn ? projection?.previousValueFor(setup, column.key) : null,
             columnLabel: (column) => _columnLabel(column, personAdjustments),
+            columnTooltip: (column) => switch (column) {
+              BikeAdjustmentColumn(:final key) => switch (projection?.laneOf(key)) {
+                final lane? => _laneHistory(lane, appRepository.setups, appSettings.dateFormat),
+                null => null,
+              },
+              _ => null,
+            },
             onSort: (column, ascending) {
               setState(() {
                 _sortAscending = ascending;
@@ -236,7 +316,8 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
               setState(() => column.active = false);
             },
           ),
-          if (activeColumns.any((c) => c is PersonAttributeColumn)) InitialChangedValueLegend(showDangling: hasDanglingValues),
+          if (activeColumns.any((c) => c is PersonAttributeColumn || c is BikeAdjustmentColumn))
+            InitialChangedValueLegend(showDangling: hasDanglingValues),
         ],
         const SizedBox(height: 16),
       ],

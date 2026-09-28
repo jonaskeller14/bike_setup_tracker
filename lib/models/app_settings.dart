@@ -41,6 +41,7 @@ class AppSettings extends ChangeNotifier {
   bool _enableSetupBookmark = false;
   bool _enableComponentPresets = false;
   bool _enableInstallOnComponent = false;
+  bool _enableBikeAdjustmentColumns = false;
   bool _enablePressureAssistant = false;
   // Setup timeline grouping passes (debug-only, see FeaturesPage)
   bool _enableTimelineSetupGrouping = false;
@@ -88,6 +89,7 @@ class AppSettings extends ChangeNotifier {
   bool get enableSetupBookmark => _enableSetupBookmark;
   bool get enableComponentPresets => _enableComponentPresets;
   bool get enableInstallOnComponent => _enableInstallOnComponent;
+  bool get enableBikeAdjustmentColumns => _enableBikeAdjustmentColumns;
   bool get enablePressureAssistant => _enablePressureAssistant;
   bool get enableTimelineSetupGrouping => _enableTimelineSetupGrouping;
   bool get enableTimelineReplacementDetection => _enableTimelineReplacementDetection;
@@ -325,6 +327,13 @@ class AppSettings extends ChangeNotifier {
     _persistBool('enableInstallOnComponent', newValue);
   }
 
+  set enableBikeAdjustmentColumns(bool newValue) {
+    if (newValue == _enableBikeAdjustmentColumns) return;
+    _enableBikeAdjustmentColumns = newValue;
+    notifyListeners();
+    _persistBool('enableBikeAdjustmentColumns', newValue);
+  }
+
   set enablePressureAssistant(bool newValue) {
     if (newValue == _enablePressureAssistant) return;
     _enablePressureAssistant = newValue;
@@ -451,6 +460,8 @@ class AppSettings extends ChangeNotifier {
       _enableSetupBookmark = prefs.getBool('${_kPrefix}enableSetupBookmark') ?? _enableSetupBookmark;
       _enableComponentPresets = prefs.getBool('${_kPrefix}enableComponentPresets') ?? _enableComponentPresets;
       _enableInstallOnComponent = prefs.getBool('${_kPrefix}enableInstallOnComponent') ?? _enableInstallOnComponent;
+      _enableBikeAdjustmentColumns =
+          prefs.getBool('${_kPrefix}enableBikeAdjustmentColumns') ?? _enableBikeAdjustmentColumns;
       _enablePressureAssistant = prefs.getBool('${_kPrefix}enablePressureAssistant') ?? _enablePressureAssistant;
       _enableTimelineSetupGrouping =
           prefs.getBool('${_kPrefix}enableTimelineSetupGrouping') ?? _enableTimelineSetupGrouping;
@@ -504,6 +515,7 @@ class AppSettings extends ChangeNotifier {
     _enableSetupBookmark = defaults._enableSetupBookmark;
     _enableComponentPresets = defaults._enableComponentPresets;
     _enableInstallOnComponent = defaults._enableInstallOnComponent;
+    _enableBikeAdjustmentColumns = defaults._enableBikeAdjustmentColumns;
     _enablePressureAssistant = defaults._enablePressureAssistant;
     _enableTimelineSetupGrouping = defaults._enableTimelineSetupGrouping;
     _enableTimelineReplacementDetection = defaults._enableTimelineReplacementDetection;
@@ -549,6 +561,7 @@ class AppSettings extends ChangeNotifier {
     _enableSetupBookmark,
     _enableComponentPresets,
     _enableInstallOnComponent,
+    _enableBikeAdjustmentColumns,
     _enablePressureAssistant,
     _enableTimelineSetupGrouping,
     _enableTimelineReplacementDetection,

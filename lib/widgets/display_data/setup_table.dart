@@ -23,7 +23,9 @@ class SetupTable extends StatefulWidget {
   final Map<String, int> setupActivityCounts;
   final AdjustmentValue? Function(Setup setup, TableColumn column) valueFor;
   final bool Function(Setup setup, TableColumn column)? isDangling;
+  final AdjustmentValue? Function(Setup setup, TableColumn column)? previousValueFor;
   final String Function(TableColumn column) columnLabel;
+  final String? Function(TableColumn column)? columnTooltip;
   final void Function(TableColumn column, bool ascending) onSort;
   final ValueChanged<TableColumn> onColumnRemoved;
   final ValueChanged<bool?>? onSelectAll;
@@ -42,6 +44,8 @@ class SetupTable extends StatefulWidget {
     required this.onSort,
     required this.onColumnRemoved,
     this.isDangling,
+    this.previousValueFor,
+    this.columnTooltip,
     this.selectedSetupIds,
     this.onSelectAll,
     this.onSetupSelected,
@@ -117,6 +121,12 @@ class _SetupTableState extends State<SetupTable> {
 
   DataColumn _dataColumn(TableColumn column) {
     final isSorted = widget.sortColumn == column;
+    final tooltip = widget.columnTooltip?.call(column);
+    final label = Text(
+      widget.columnLabel(column),
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(fontWeight: FontWeight.bold),
+    );
 
     void sort() {
       widget.onSort(column, isSorted ? !widget.sortAscending : true);
@@ -134,11 +144,10 @@ class _SetupTableState extends State<SetupTable> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Flexible(
-              child: Text(
-                widget.columnLabel(column),
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
+              child: tooltip == null
+                  ? label
+                  // Hover only: on touch, tap sorts and long-press removes the column.
+                  : Tooltip(message: tooltip, triggerMode: TooltipTriggerMode.manual, child: label),
             ),
             const SizedBox(width: 4),
             Opacity(
@@ -257,6 +266,8 @@ class _SetupTableState extends State<SetupTable> {
         };
       case ComponentAdjustmentColumn(:final adjustmentId):
         return _adjustmentCell(context, setup, column, setup.previousBikeAdjustmentValues[adjustmentId]);
+      case BikeAdjustmentColumn():
+        return _adjustmentCell(context, setup, column, widget.previousValueFor?.call(setup, column));
       case PersonAttributeColumn(:final adjustmentId):
         return _adjustmentCell(context, setup, column, setup.previousPersonAdjustmentValues[adjustmentId]);
       case RatingScoreColumn() || RatingMetricColumn():

@@ -11,10 +11,12 @@ Comparator<Setup> _by<T extends Comparable<Object>>(T Function(Setup setup) key)
 Adjustment? adjustmentForColumn(
   TableColumn column,
   Iterable<Adjustment> componentAdjustments,
-  Iterable<Adjustment> personAdjustments,
-) => switch (column) {
+  Iterable<Adjustment> personAdjustments, {
+  Adjustment? Function(BikeAdjustmentColumn column)? bikeAdjustmentFor,
+}) => switch (column) {
   ComponentAdjustmentColumn(:final adjustmentId) => componentAdjustments.firstWhereOrNull((a) => a.id == adjustmentId),
   PersonAttributeColumn(:final adjustmentId) => personAdjustments.firstWhereOrNull((a) => a.id == adjustmentId),
+  BikeAdjustmentColumn() => bikeAdjustmentFor?.call(column),
   SetupTableColumn() || RatingMetricColumn() || RatingScoreColumn() => null,
 };
 
@@ -25,14 +27,20 @@ Comparator<Setup>? tableColumnComparator(
   required Iterable<Adjustment> personAdjustments,
   required Map<String, Bike> bikes,
   required Map<String, int> setupActivityCounts,
+  Adjustment? Function(BikeAdjustmentColumn column)? bikeAdjustmentFor,
 }) {
   switch (column) {
     case SetupTableColumn(column: final setupColumn):
       return setupColumnComparator(setupColumn, bikes: bikes, setupActivityCounts: setupActivityCounts);
     case RatingScoreColumn() || RatingMetricColumn():
       return _by((s) => valueFor(s, column)?.asNum ?? double.negativeInfinity);
-    case ComponentAdjustmentColumn() || PersonAttributeColumn():
-      final adjustment = adjustmentForColumn(column, componentAdjustments, personAdjustments);
+    case ComponentAdjustmentColumn() || PersonAttributeColumn() || BikeAdjustmentColumn():
+      final adjustment = adjustmentForColumn(
+        column,
+        componentAdjustments,
+        personAdjustments,
+        bikeAdjustmentFor: bikeAdjustmentFor,
+      );
       if (adjustment == null) return null;
 
       AdjustmentValue? value(Setup setup) => valueFor(setup, column);

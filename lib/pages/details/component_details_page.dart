@@ -66,7 +66,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     PersonAttributeColumn(:final adjustmentId) => setup.personAdjustmentValues[adjustmentId],
     RatingMetricColumn(:final metricId) => NumericalValue.orNull(_metricScores[setup.id]?[metricId]),
     RatingScoreColumn() => NumericalValue.orNull(_ratingScores[setup.id]),
-    SetupTableColumn() => null,
+    SetupTableColumn() || BikeAdjustmentColumn() => null,
   };
 
   String _columnLabel(
@@ -82,6 +82,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
         componentAdjustments.firstWhereOrNull((a) => a.id == adjustmentId)?.name ?? adjustmentId,
       PersonAttributeColumn(:final adjustmentId) =>
         personAdjustments.firstWhereOrNull((a) => a.id == adjustmentId)?.name ?? adjustmentId,
+      BikeAdjustmentColumn(:final key) => key.adjustment.name,
     };
   }
 

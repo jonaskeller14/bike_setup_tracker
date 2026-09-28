@@ -1,3 +1,5 @@
+import '../services/bike_adjustment_column_service.dart';
+
 enum TableColumnSection {
   generalContext("General Context"),
   weatherContext("Weather Context"),
@@ -75,6 +77,22 @@ class ComponentAdjustmentColumn extends TableColumn {
 
   @override
   int get hashCode => Object.hash(section, adjustmentId);
+}
+
+/// A bike-level column merging the adjustments of the components in one slot lane.
+class BikeAdjustmentColumn extends TableColumn {
+  final BikeAdjustmentColumnKey key;
+
+  BikeAdjustmentColumn(this.key, {required super.active});
+
+  @override
+  TableColumnSection get section => TableColumnSection.componentAdjustments;
+
+  @override
+  bool operator ==(Object other) => identical(this, other) || other is BikeAdjustmentColumn && other.key == key;
+
+  @override
+  int get hashCode => Object.hash(section, key);
 }
 
 class PersonAttributeColumn extends TableColumn {

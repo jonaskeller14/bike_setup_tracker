@@ -309,4 +309,31 @@ void main() {
       expect(AppSettings.speedUnitForDistance('km'), 'km/h');
     });
   });
+
+  group('AppSettings — enableBikeAdjustmentColumns', () {
+    test('defaults to false', () async {
+      SharedPreferences.setMockInitialValues({});
+      final settings = AppSettings();
+      await settings.loadAppSettings();
+
+      expect(settings.enableBikeAdjustmentColumns, isFalse);
+    });
+
+    test('persists and reloads the stored value', () async {
+      SharedPreferences.setMockInitialValues({});
+      final settings = AppSettings();
+      await settings.loadAppSettings();
+
+      settings.enableBikeAdjustmentColumns = true;
+      await flushWrites();
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getBool('${_kPrefix}enableBikeAdjustmentColumns'), isTrue);
+
+      final reloaded = AppSettings();
+      await reloaded.loadAppSettings();
+      expect(reloaded.enableBikeAdjustmentColumns, isTrue);
+      expect(reloaded.hasDefaultValues, isFalse);
+    });
+  });
 }

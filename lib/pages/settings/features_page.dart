@@ -81,6 +81,17 @@ class FeaturesPage extends StatelessWidget {
                 ),
               if (kDebugMode)
                 _FeatureToggleTile(
+                  icon: Icons.view_column_outlined,
+                  title: "Bike Adjustment Columns",
+                  value: appSettings.enableBikeAdjustmentColumns,
+                  onChanged: (v) => appSettings.enableBikeAdjustmentColumns = v,
+                  infoText:
+                      'Show component adjustments in the Setup History of a bike. Components that '
+                      'followed each other in the same position (e.g. the tire on the front wheel) '
+                      'share a column, so values stay comparable across replacements.',
+                ),
+              if (kDebugMode)
+                _FeatureToggleTile(
                   icon: Icons.auto_awesome_outlined,
                   title: "Component Presets",
                   value: appSettings.enableComponentPresets,

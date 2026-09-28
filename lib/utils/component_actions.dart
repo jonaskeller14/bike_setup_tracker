@@ -199,6 +199,9 @@ class ComponentActions {
       case ReplaceComponentNewResult(:final replacementDate):
         // Create a brand-new replacement component, pre-filled from the current one.
         if (!context.mounted) return;
+        // Retiring the component can unmount the caller (e.g. its list card), so
+        // the task-copy prompt needs a context that outlives this flow.
+        final navigatorContext = Navigator.of(context).context;
         final newComponent = await Navigator.push<Component>(
           context,
           MaterialPageRoute(
@@ -222,8 +225,8 @@ class ComponentActions {
           ...subcomponentEdits(newComponent.id),
         ]);
 
-        if (!context.mounted) return;
-        await _copyTaskRulesTo(context, source: component, target: newComponent);
+        if (!navigatorContext.mounted) return;
+        await _copyTaskRulesTo(navigatorContext, source: component, target: newComponent);
     }
   }
 

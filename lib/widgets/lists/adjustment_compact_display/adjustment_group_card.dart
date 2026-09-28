@@ -45,29 +45,36 @@ class AdjustmentGroupCard extends StatelessWidget {
     final cap = cellWidthCap(rowWidth: rowWidth, spacing: _cellSpacing);
     final widths = [for (final cell in cells) math.min(measureCellNaturalWidth(context, cell), cap)];
     final rows = packCellRows(widths: widths, rowWidth: rowWidth, spacing: _cellSpacing);
+    // Flex proportional to each cell's packed width stretches the row to full
+    // width while keeping the cells' relative sizes.
+    final flexes = [for (final width in widths) math.max(1, (width * 10).round())];
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       spacing: _cellSpacing,
       children: [
-        for (final row in rows)
-          Row(
-            spacing: _cellSpacing,
-            children: [
-              // Flex proportional to each cell's packed width stretches the
-              // row to full width while keeping the cells' relative sizes.
-              for (final i in row)
-                Expanded(
-                  flex: math.max(1, (widths[i] * 10).round()),
-                  child: AdjustmentCellView(
-                    cell: cells[i],
-                    highlightInitialValues: highlightInitialValues,
-                    // The packed width is the least a cell gets once its row
-                    // is stretched, so deciding against it is always safe.
-                    showPrevious: cellFitsPrevious(context, cells[i], widths[i]),
-                  ),
-                ),
-            ],
+        for (final row in rows) _cellRow(context, row, flexes, rowWidth),
+      ],
+    );
+  }
+
+  Widget _cellRow(BuildContext context, List<int> row, List<int> flexes, double rowWidth) {
+    final cells = group.cells;
+    final freeWidth = rowWidth - _cellSpacing * (row.length - 1);
+    final totalFlex = row.fold(0, (sum, i) => sum + flexes[i]);
+    return Row(
+      spacing: _cellSpacing,
+      children: [
+        for (final i in row)
+          Expanded(
+            flex: flexes[i],
+            child: AdjustmentCellView(
+              cell: cells[i],
+              highlightInitialValues: highlightInitialValues,
+              // Decided against the stretched width the Expanded hands out,
+              // so spare room in the row can still fit the previous value.
+              showPrevious: cellFitsPrevious(context, cells[i], freeWidth * flexes[i] / totalFlex),
+            ),
           ),
       ],
     );

@@ -80,6 +80,7 @@ void main() {
                   component: component!,
                   replacementDate: DateTime.now(),
                   replacedInstallation: component.installations.last,
+                  replacedComponentId: component.id,
                 );
             }
           },

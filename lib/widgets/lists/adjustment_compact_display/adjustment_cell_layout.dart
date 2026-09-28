@@ -150,14 +150,23 @@ double measureCellNaturalWidth(BuildContext context, AdjustmentCell cell) {
 }
 
 /// Whether a changed cell [width] wide keeps its value and unit fully in view
-/// with at least [cellMinPreviousWidth] left for the previous value; the value
-/// wins, so otherwise the cell drops the previous value.
+/// with room left for the previous value — all of it, or at least
+/// [cellMinPreviousWidth] of a longer one; the value wins, so otherwise the
+/// cell drops the previous value.
 bool cellFitsPrevious(BuildContext context, AdjustmentCell cell, double width) {
+  final previous = cell.displayText.previous;
+  if (previous == null) return false;
   final fixedWidth = _measureValueAndUnitWidth(context, cell) +
       2 * cellValueRowSpacing +
       cellChangeArrowExtent(context) +
       2 * cellHorizontalPadding;
-  return fixedWidth + cellMinPreviousWidth(context) <= width;
+  final previousWidth = _measureTextWidth(
+    context: context,
+    role: 'previous',
+    text: previous,
+    style: _resolveTextStyle(context, CellTextStyles.change),
+  );
+  return fixedWidth + math.min(cellMinPreviousWidth(context), previousWidth) <= width;
 }
 
 /// The widest a cell may be while packing rows: half a row, so any two cells

@@ -179,6 +179,25 @@ void main() {
       expect(fitsNarrow, isFalse);
       expect(fitsWide, isTrue);
     });
+
+    testWidgets('cellFitsPrevious keeps a short previous value at its natural width', (tester) async {
+      final rebound = NumericalAdjustment(id: 'r', name: 'Rebound', notes: null, unit: null, min: -20, max: 0);
+      final shortChange = ChangedCell(rebound, const NumericalValue(-7), const NumericalValue(-8));
+      late bool fits;
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: materialAppTheme,
+          home: Builder(
+            builder: (context) {
+              fits = cellFitsPrevious(context, shortChange, measureCellNaturalWidth(context, shortChange));
+              return const SizedBox.shrink();
+            },
+          ),
+        ),
+      );
+
+      expect(fits, isTrue);
+    });
   });
 
   group('AdjustmentCellView semantics', () {

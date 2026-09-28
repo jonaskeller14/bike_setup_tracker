@@ -10,11 +10,13 @@ import 'adjustment_cell_layout.dart';
 class AdjustmentCellView extends StatelessWidget {
   final AdjustmentCell cell;
   final bool highlightInitialValues;
+  final bool showPrevious;
 
   const AdjustmentCellView({
     super.key,
     required this.cell,
     required this.highlightInitialValues,
+    this.showPrevious = true,
   });
 
   /// The value colour for [cell], or null for the default text colour.
@@ -147,21 +149,35 @@ class AdjustmentCellView extends StatelessWidget {
     );
     final changeColor = colorScheme.onSurfaceVariant.withValues(alpha: 0.7);
 
-    // Each line scrolls horizontally when the cell is narrower than its text;
-    // the Row keeps short content at its natural width so it stays centered.
+    // A scrollable line scrolls horizontally when the cell is narrower than
+    // its text; the Row keeps short content at its natural width so it stays centered.
     // The segments are centred, not bottom-aligned: the value line mixes three
     // font sizes, and bottom-aligning boxes of different heights pushes the
     // smaller ones' optical centres down, so the arrow could only ever line up
     // with one of them. Centring makes all three coincide.
+    Widget line(List<Widget> children) => Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          spacing: cellValueRowSpacing,
+          children: children,
+        );
     Widget scrollableLine(List<Widget> children) => SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            spacing: cellValueRowSpacing,
-            children: children,
-          ),
+          child: line(children),
         );
+
+    final valueAndUnit = [
+      Text(
+        display.value,
+        style: CellTextStyles.value.copyWith(color: valueColor),
+        maxLines: 1,
+      ),
+      if (cell.adjustment.unit != null)
+        Text(
+          cell.adjustment.unit!.label,
+          style: CellTextStyles.unit.copyWith(color: isError ? colorScheme.error : null),
+        ),
+    ];
 
     return Semantics(
       container: true,
@@ -189,26 +205,24 @@ class AdjustmentCellView extends StatelessWidget {
                   ),
                 ),
               ]),
-              scrollableLine([
-                if (display.hasPrevious) ...[
-                  Text(
-                    display.previous!,
-                    style: CellTextStyles.change.copyWith(color: changeColor),
-                    maxLines: 1,
+              // Not scrollable: the previous value is the only segment that
+              // gives way, so the value always stays in view.
+              if (display.hasPrevious && showPrevious)
+                line([
+                  Flexible(
+                    child: Text(
+                      display.previous!,
+                      style: CellTextStyles.change.copyWith(color: changeColor),
+                      maxLines: 1,
+                      softWrap: false,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                   cellChangeArrow(context, color: changeColor),
-                ],
-                Text(
-                  display.value,
-                  style: CellTextStyles.value.copyWith(color: valueColor),
-                  maxLines: 1,
-                ),
-                if (cell.adjustment.unit != null)
-                  Text(
-                    cell.adjustment.unit!.label,
-                    style: CellTextStyles.unit.copyWith(color: isError ? colorScheme.error : null),
-                  ),
-              ]),
+                  ...valueAndUnit,
+                ])
+              else
+                scrollableLine(valueAndUnit),
             ],
           ),
         ),

@@ -59,7 +59,13 @@ class AdjustmentGroupCard extends StatelessWidget {
               for (final i in row)
                 Expanded(
                   flex: math.max(1, (widths[i] * 10).round()),
-                  child: AdjustmentCellView(cell: cells[i], highlightInitialValues: highlightInitialValues),
+                  child: AdjustmentCellView(
+                    cell: cells[i],
+                    highlightInitialValues: highlightInitialValues,
+                    // The packed width is the least a cell gets once its row
+                    // is stretched, so deciding against it is always safe.
+                    showPrevious: cellFitsPrevious(context, cells[i], widths[i]),
+                  ),
                 ),
             ],
           ),

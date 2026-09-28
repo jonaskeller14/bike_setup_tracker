@@ -3,8 +3,8 @@ import 'package:bike_setup_tracker/widgets/lists/adjustment_compact_display/adju
 import 'package:flutter_test/flutter_test.dart';
 
 /// [valueText] and [previousText] are what a *changed* cell prints for
-/// [value] and [previousValue] — both already bounded and, for Duration,
-/// pairwise shortened. The `→` is not part of either: it is a styled span
+/// [value] and [previousValue] — untruncated and, for Duration, pairwise
+/// shortened. The `→` is not part of either: it is a styled span
 /// the cell widget adds (`previousSegmentSpan`).
 typedef _Case = ({
   String type,
@@ -39,8 +39,8 @@ void main() {
       value: CategoricalValue(['A', 'C', 'C', 'C']),
       previousValue: CategoricalValue(['A', 'A', 'B', 'C', 'C', 'C']),
       valueText: 'A, C (3)',
-      // 'A (2), B, C (3)' is over budget, so the last option is dropped whole.
-      previousText: 'A (2), B…',
+      // Over the packing budget, but printed whole; the cell ellipsizes it.
+      previousText: 'A (2), B, C (3)',
     ),
     (
       type: 'step',
@@ -160,23 +160,25 @@ void main() {
       previousValue: previousValue,
     ).displayText;
 
-    test('a previous value within the budget prints whole', () {
-      expect(displayOf(text, TextValue.orNull('Fox 38')!, TextValue.orNull('Fox 36')!).previous, 'Fox 36');
+    test('a previous value within the budget counts whole', () {
+      expect(displayOf(text, TextValue.orNull('Fox 38')!, TextValue.orNull('Fox 36')!).previousForWidth, 'Fox 36');
     });
 
-    test('a long previous value is head-truncated', () {
-      expect(displayOf(text, TextValue.orNull('Fox 38')!, TextValue.orNull('RockShox Lyrik Ultimate')!).previous, 'RockShox L…');
+    test('a long previous value is head-truncated for packing only', () {
+      final display = displayOf(text, TextValue.orNull('Fox 38')!, TextValue.orNull('RockShox Lyrik Ultimate')!);
+      expect(display.previousForWidth, 'RockShox L…');
+      expect(display.previous, 'RockShox Lyrik Ultimate');
     });
 
     test('a list drops whole options once the budget is spent', () {
       expect(
-        displayOf(list, CategoricalValue(['Mud']), CategoricalValue(['Gravel', 'Gravel', 'Mud', 'Sand'])).previous,
+        displayOf(list, CategoricalValue(['Mud']), CategoricalValue(['Gravel', 'Gravel', 'Mud', 'Sand'])).previousForWidth,
         'Gravel (2)…',
       );
     });
 
     test('a single over-budget option falls back to character truncation', () {
-      expect(displayOf(list, CategoricalValue(['X']), CategoricalValue(['Continental Kryptotal', 'X'])).previous, 'Continenta…');
+      expect(displayOf(list, CategoricalValue(['X']), CategoricalValue(['Continental Kryptotal', 'X'])).previousForWidth, 'Continenta…');
     });
 
     test('the current value is never truncated', () {

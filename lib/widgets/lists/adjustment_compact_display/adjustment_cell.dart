@@ -36,15 +36,18 @@ sealed class AdjustmentCell {
       _ => (value?.display ?? '-', previousValue.display),
     };
 
+    final previous = _normalize(previousText);
     return CellDisplayText(
       value: _normalize(valueText),
-      previous: _boundPreviousText(_normalize(previousText), previousValue),
+      previous: previous,
+      previousForWidth: _boundPreviousText(previous, previousValue),
     );
   }
 }
 
-/// The longest previous value a cell prints before it is head-truncated; the
-/// arrow, the current value and the unit are not counted. Sized so a changed
+/// The most characters of a previous value the packing pass reserves width
+/// for; the arrow, the current value and the unit are not counted. Rendering
+/// is not bound by it — a stretched cell shows more. Sized so a changed
 /// cell carrying a unit still fits `cellWidthCap` at 360 dp: ~11 characters at
 /// `CellTextStyles.change` plus the value at `CellTextStyles.value`, the
 /// arrow at `CellTextStyles.arrow`, a unit label and the row spacing spend the
@@ -127,9 +130,15 @@ class CellDisplayText {
 
   /// The previous value, shown ahead of [value] on a changed cell and
   /// separated from it by `cellChangeArrow`; null on every other cell.
+  /// Untruncated: the cell ellipsizes it to whatever width is left.
   final String? previous;
 
-  const CellDisplayText({required this.value, this.previous});
+  /// [previous] bounded to a fixed character budget; what the packing pass
+  /// counts, so a long previous value never claims more than a small share
+  /// of the row. Null exactly when [previous] is.
+  final String? previousForWidth;
+
+  const CellDisplayText({required this.value, this.previous, this.previousForWidth});
 
   bool get hasPrevious => previous != null;
 }

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/context/context_position.dart';
+import 'package:bike_setup_tracker/models/rating/rating_entry.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
@@ -69,6 +70,8 @@ void main() {
     LocationService service, {
     Stream<LocationMarkerHeading?>? headingStream = const Stream.empty(),
     StravaActivity? focusActivity,
+    List<Setup> focusSetups = const [],
+    RatingEntry? focusRatingEntry,
   }) {
     return MultiProvider(
       providers: [
@@ -77,7 +80,13 @@ void main() {
         ListenableProvider<SubscriptionService>.value(value: subscriptionService),
       ],
       child: MaterialApp(
-        home: MapPage(locationService: service, headingStream: headingStream, focusActivity: focusActivity),
+        home: MapPage(
+          locationService: service,
+          headingStream: headingStream,
+          focusActivity: focusActivity,
+          focusSetups: focusSetups,
+          focusRatingEntry: focusRatingEntry,
+        ),
       ),
     );
   }
@@ -568,6 +577,80 @@ void main() {
       expect(provider.positionController.hasListener, isTrue);
       expect(cameraOf(tester).center.latitude, closeTo(46.5, 0.001));
       expect(cameraOf(tester).center.longitude, closeTo(9.8, 0.001));
+    });
+  });
+
+  group('Focused setups and rating entry', () {
+    Setup setupAt(double latitude, double longitude) => Setup(
+      datetime: DateTime(2025, 6, 1).toUtc(),
+      datetimeLocal: DateTime(2025, 6, 1),
+      tags: const {},
+      bike: 'bike-1',
+      person: null,
+      bikeAdjustmentValues: const {},
+      personAdjustmentValues: const {},
+      position: ContextPosition(latitude: latitude, longitude: longitude),
+    );
+
+    MapCamera cameraOf(WidgetTester tester) =>
+        tester.widget<FlutterMap>(find.byType(FlutterMap)).mapController!.camera;
+
+    testWidgets('opens centred on a single setup and pins it despite the filters', (tester) async {
+      settings.displayShowSetups = false;
+      final setup = setupAt(46.5, 9.8);
+      await tester.pumpWidget(buildPage(unpermittedService(), focusSetups: [setup]));
+      await tester.pump();
+
+      final camera = cameraOf(tester);
+      expect(camera.center.latitude, closeTo(46.5, 0.001));
+      expect(camera.center.longitude, closeTo(9.8, 0.001));
+      expect(camera.zoom, closeTo(15, 0.001));
+      expect(find.byKey(Key('map-focus-setup-${setup.id}')), findsOneWidget);
+      expect(tester.state<MapPageState>(find.byType(MapPage)).pinState, MapPinState.success);
+    });
+
+    testWidgets('fits the camera to every focused setup', (tester) async {
+      final setupA = setupAt(46.5, 9.8);
+      final setupB = setupAt(46.6, 9.9);
+      await tester.pumpWidget(buildPage(unpermittedService(), focusSetups: [setupA, setupB]));
+      await tester.pump();
+
+      final bounds = cameraOf(tester).visibleBounds;
+      expect(bounds.contains(const LatLng(46.5, 9.8)), isTrue);
+      expect(bounds.contains(const LatLng(46.6, 9.9)), isTrue);
+      expect(find.byKey(Key('map-focus-setup-${setupA.id}')), findsOneWidget);
+      expect(find.byKey(Key('map-focus-setup-${setupB.id}')), findsOneWidget);
+    });
+
+    testWidgets('ignores focused setups without a position', (tester) async {
+      final setup = Setup(
+        datetime: DateTime(2025, 6, 1).toUtc(),
+        datetimeLocal: DateTime(2025, 6, 1),
+        tags: const {},
+        bike: 'bike-1',
+        person: null,
+        bikeAdjustmentValues: const {},
+        personAdjustmentValues: const {},
+      );
+      await tester.pumpWidget(buildPage(unpermittedService(), focusSetups: [setup]));
+      await tester.pump();
+
+      expect(find.byKey(Key('map-focus-setup-${setup.id}')), findsNothing);
+    });
+
+    testWidgets('opens centred on a rating entry', (tester) async {
+      final ratingEntry = RatingEntry(
+        bike: 'bike-1',
+        setupId: 'setup-1',
+        dateTimeUTC: DateTime(2025, 6, 1).toUtc(),
+        dateTimeLocal: DateTime(2025, 6, 1),
+        position: const ContextPosition(latitude: 46.5, longitude: 9.8),
+      );
+      await tester.pumpWidget(buildPage(unpermittedService(), focusRatingEntry: ratingEntry));
+      await tester.pump();
+
+      expect(cameraOf(tester).center.latitude, closeTo(46.5, 0.001));
+      expect(find.byKey(const Key('map-focus-rating-entry')), findsOneWidget);
     });
   });
 

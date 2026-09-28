@@ -9,7 +9,8 @@ import '../../env/env.dart';
 import '../../models/app_settings.dart';
 import '../../models/context/context_position.dart';
 import '../../models/context/context_weather.dart';
-import '../../utils/url.dart';
+import '../../utils/map_actions.dart';
+import '../map_pins.dart';
 
 class ContextLocationWeatherCard extends StatelessWidget {
   final ContextPosition? position;
@@ -17,6 +18,7 @@ class ContextLocationWeatherCard extends StatelessWidget {
   final String displayName;
   final Widget mapPin;
   final ContextWeather? weather;
+  final VoidCallback? onViewOnMap;
 
   const ContextLocationWeatherCard({
     super.key,
@@ -25,6 +27,7 @@ class ContextLocationWeatherCard extends StatelessWidget {
     required this.displayName,
     required this.mapPin,
     required this.weather,
+    required this.onViewOnMap,
   });
 
   bool get _hasLocation => position != null || place != null;
@@ -107,7 +110,19 @@ class ContextLocationWeatherCard extends StatelessWidget {
                   initialCenter: LatLng(position!.latitude!, position!.longitude!),
                   initialZoom: 13,
                   minZoom: 3,
-                  onTap: (_, _) => launchLocationOnMap(context, position!.latitude!, position!.longitude!, displayName),
+                  onTap: (tapPosition, _) => MapActions.showOpenMapMenu(
+                    context,
+                    globalPosition: tapPosition.global,
+                    onViewOnMap: onViewOnMap,
+                    externalTargets: [
+                      (
+                        label: 'Open in maps app',
+                        latitude: position!.latitude!,
+                        longitude: position!.longitude!,
+                        displayName: displayName,
+                      ),
+                    ],
+                  ),
                   interactionOptions: const InteractionOptions(flags: InteractiveFlag.none),
                 ),
                 children: [
@@ -154,6 +169,7 @@ class ContextLocationWeatherCard extends StatelessWidget {
                         point: LatLng(position!.latitude!, position!.longitude!),
                         width: 40,
                         height: 40,
+                        alignment: mapPinAlignment,
                         child: mapPin,
                       ),
                     ],

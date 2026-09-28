@@ -10,6 +10,7 @@ import '../../models/person.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/dangling_adjustment_service.dart';
+import '../../utils/map_actions.dart';
 import '../../utils/setup_actions.dart';
 import '../../widgets/current_setup_badge.dart';
 import '../../widgets/current_setup_highlight.dart';
@@ -172,15 +173,16 @@ class SetupDetailsPageContent extends StatelessWidget {
   final bool showCompareAction;
   final bool showSheetActions;
   final bool showCloseButton;
+  final bool showViewOnMap;
 
-  const SetupDetailsPageContent._({super.key, required this.setupId, this.showSheetActions = false, this.showCloseButton = false, this.showCompareAction = false});
+  const SetupDetailsPageContent._({super.key, required this.setupId, this.showSheetActions = false, this.showCloseButton = false, this.showCompareAction = false, this.showViewOnMap = true});
 
   factory SetupDetailsPageContent({Key? key, required String setupId}) {
     return SetupDetailsPageContent._(key: key, setupId: setupId, showSheetActions: false, showCloseButton: false, showCompareAction: true);
   }
 
-  factory SetupDetailsPageContent.sheet({Key? key, required String setupId}) {
-    return SetupDetailsPageContent._(key: key, setupId: setupId, showSheetActions: true, showCloseButton: true, showCompareAction: false);
+  factory SetupDetailsPageContent.sheet({Key? key, required String setupId, bool showViewOnMap = true}) {
+    return SetupDetailsPageContent._(key: key, setupId: setupId, showSheetActions: true, showCloseButton: true, showCompareAction: false, showViewOnMap: showViewOnMap);
   }
 
   Future<void> _onSheetAction(BuildContext context, _SetupDetailsAction action, {required Setup setup}) async {
@@ -191,7 +193,7 @@ class SetupDetailsPageContent extends StatelessWidget {
         final restored = await SetupActions.duplicateSetup(context, setup: setup);
         if (restored != null && context.mounted) Navigator.pop(context);
       case _SetupDetailsAction.compare:
-        await showCompareSetupsSheet(context, setupA: null, setupB: setup);
+        await showCompareSetupsSheet(context, setupA: null, setupB: setup, showViewOnMap: showViewOnMap);
     }
   }
 
@@ -343,6 +345,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                 isBookmarked: appSettings.enableSetupBookmark && setup.isBookmarked,
               ),
               weather: setup.weather,
+              onViewOnMap: showViewOnMap ? () => MapActions.openSetupsOnMap(context, [setup]) : null,
             ),
             ContextBikePersonCard(
               bike: bike,

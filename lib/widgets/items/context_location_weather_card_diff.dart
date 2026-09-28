@@ -8,24 +8,31 @@ import '../../env/env.dart';
 import '../../models/app_settings.dart';
 import '../../models/context/context_position.dart';
 import '../../models/context/context_weather.dart';
+import '../../utils/map_actions.dart';
 import '../map_pins.dart';
 
 class ContextLocationWeatherCardDiff extends StatelessWidget {
   final ContextPosition? positionA;
   final geo.Placemark? placeA;
   final ContextWeather? weatherA;
+  final String displayNameA;
   final ContextPosition? positionB;
   final geo.Placemark? placeB;
   final ContextWeather? weatherB;
+  final String displayNameB;
+  final VoidCallback? onViewOnMap;
 
   const ContextLocationWeatherCardDiff({
     super.key,
     required this.positionA,
     required this.placeA,
     required this.weatherA,
+    required this.displayNameA,
     required this.positionB,
     required this.placeB,
     required this.weatherB,
+    required this.displayNameB,
+    required this.onViewOnMap,
   });
 
   @override
@@ -77,7 +84,13 @@ class ContextLocationWeatherCardDiff extends StatelessWidget {
           dense: true,
         ),
         _AltitudeRow(positionA: positionA, positionB: positionB),
-        _ComparisonMap(positionA: positionA, positionB: positionB),
+        _ComparisonMap(
+          positionA: positionA,
+          positionB: positionB,
+          displayNameA: displayNameA,
+          displayNameB: displayNameB,
+          onViewOnMap: onViewOnMap,
+        ),
       ],
     );
   }
@@ -303,8 +316,17 @@ class _ComparisonTextRow extends StatelessWidget {
 class _ComparisonMap extends StatefulWidget {
   final ContextPosition? positionA;
   final ContextPosition? positionB;
+  final String displayNameA;
+  final String displayNameB;
+  final VoidCallback? onViewOnMap;
 
-  const _ComparisonMap({required this.positionA, required this.positionB});
+  const _ComparisonMap({
+    required this.positionA,
+    required this.positionB,
+    required this.displayNameA,
+    required this.displayNameB,
+    required this.onViewOnMap,
+  });
 
   @override
   State<_ComparisonMap> createState() => _ComparisonMapState();
@@ -326,16 +348,18 @@ class _ComparisonMapState extends State<_ComparisonMap> {
   bool _hasChanged(ContextPosition? previous, ContextPosition? current) =>
       previous?.latitude != current?.latitude || previous?.longitude != current?.longitude;
 
-  List<({String label, LatLng point})> get _points => [
+  List<({String label, LatLng point, String displayName})> get _points => [
     if (widget.positionA?.latitude != null && widget.positionA?.longitude != null)
       (
         label: 'A',
         point: LatLng(widget.positionA!.latitude!, widget.positionA!.longitude!),
+        displayName: widget.displayNameA,
       ),
     if (widget.positionB?.latitude != null && widget.positionB?.longitude != null)
       (
         label: 'B',
         point: LatLng(widget.positionB!.latitude!, widget.positionB!.longitude!),
+        displayName: widget.displayNameB,
       ),
   ];
 
@@ -376,6 +400,20 @@ class _ComparisonMapState extends State<_ComparisonMap> {
                   maxZoom: 16,
                 )
               : null,
+          onTap: (tapPosition, _) => MapActions.showOpenMapMenu(
+            context,
+            globalPosition: tapPosition.global,
+            onViewOnMap: widget.onViewOnMap,
+            externalTargets: [
+              for (final point in points)
+                (
+                  label: 'Open ${point.label} in maps app',
+                  latitude: point.point.latitude,
+                  longitude: point.point.longitude,
+                  displayName: point.displayName,
+                ),
+            ],
+          ),
           interactionOptions: const InteractionOptions(flags: InteractiveFlag.none),
         ),
         children: [
@@ -451,8 +489,9 @@ class _ComparisonMapState extends State<_ComparisonMap> {
               for (final point in points)
                 Marker(
                   point: point.point,
-                  width: 48,
-                  height: 48,
+                  width: 40,
+                  height: 40,
+                  alignment: mapPinAlignment,
                   child: SetupMapPin.label(label: point.label),
                 ),
             ],

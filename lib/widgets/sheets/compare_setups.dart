@@ -13,6 +13,7 @@ import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/setup_comparison_service.dart';
 import '../../theme.dart';
+import '../../utils/map_actions.dart';
 import '../app_snackbar.dart';
 import '../compare_setups/setup_comparison_header.dart';
 import '../compare_setups/setup_comparison_owner_card.dart';
@@ -28,6 +29,7 @@ Future<void> showCompareSetupsSheet(
   BuildContext context, {
   Setup? setupA,
   required Setup setupB,
+  bool showViewOnMap = true,
 }) async {
   final appRepository = context.read<AppRepository>();
   final resolution = SetupComparisonService.resolveTargets(
@@ -49,6 +51,7 @@ Future<void> showCompareSetupsSheet(
     builder: (_) => CompareSetups(
       setupAId: resolution.setupA.id,
       setupBId: resolution.setupB.id,
+      showViewOnMap: showViewOnMap,
     ),
   );
 }
@@ -56,11 +59,13 @@ Future<void> showCompareSetupsSheet(
 class CompareSetups extends StatefulWidget {
   final String setupAId;
   final String setupBId;
+  final bool showViewOnMap;
 
   const CompareSetups({
     super.key,
     required this.setupAId,
     required this.setupBId,
+    this.showViewOnMap = true,
   });
 
   @override
@@ -218,6 +223,7 @@ class _CompareSetupsState extends State<CompareSetups> {
                         setupA: setupA,
                         setupB: setupB,
                         settings: appSettings,
+                        showViewOnMap: widget.showViewOnMap,
                       ),
                     ),
                   ),
@@ -373,11 +379,13 @@ class _ContextSection extends StatelessWidget {
   final Setup setupA;
   final Setup setupB;
   final AppSettings settings;
+  final bool showViewOnMap;
 
   const _ContextSection({
     required this.setupA,
     required this.setupB,
     required this.settings,
+    required this.showViewOnMap,
   });
 
   @override
@@ -396,9 +404,12 @@ class _ContextSection extends StatelessWidget {
           positionA: setupA.position,
           placeA: setupA.place,
           weatherA: setupA.weather,
+          displayNameA: setupA.displayName,
           positionB: setupB.position,
           placeB: setupB.place,
           weatherB: setupB.weather,
+          displayNameB: setupB.displayName,
+          onViewOnMap: showViewOnMap ? () => MapActions.openSetupsOnMap(context, [setupA, setupB]) : null,
         ),
         ContextBikePersonCardDiff(
           setupA: setupA,

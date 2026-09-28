@@ -4,6 +4,11 @@ import 'package:flutter/material.dart';
 
 import '../models/strava/strava_activity.dart';
 
+/// Anchors a pin marker at the pin's tip rather than its centre, for markers
+/// the pin fills exactly. The location_pin glyph ends 2/24 above its box's
+/// bottom edge.
+const Alignment mapPinAlignment = Alignment(0, -5 / 6);
+
 class SetupMapPin extends StatelessWidget {
   final bool isCurrent;
   final bool isBookmarked;

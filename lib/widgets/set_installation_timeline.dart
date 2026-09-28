@@ -8,6 +8,7 @@ import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/component/component.dart';
 import '../models/component/component_ancestor.dart';
+import '../models/component/component_parent_types.dart';
 import '../models/component/installation.dart';
 import '../repositories/app_repository.dart';
 import '../services/component_hierarchy_resolver.dart';
@@ -47,7 +48,7 @@ extension _ParentOptionWidgets on InstallationParentOption {
                 label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: effectiveColor, height: 1.1),
+                style: TextStyle(color: effectiveColor, height: 1.1, fontWeight: FontWeight.w600),
               ),
               if (subtitle != null)
                 Text(
@@ -159,6 +160,7 @@ class _ParentPickerField extends StatelessWidget {
 class SetInstallationTimeline extends StatefulWidget {
   final String title;
   final String? componentId;  // The component being edited if existing
+  final ComponentType? componentType;
   final List<Installation> initialInstallations;
   final List<Installation>? originalInstallations;
   final void Function(List<Installation>) onChanged;
@@ -168,6 +170,7 @@ class SetInstallationTimeline extends StatefulWidget {
     super.key,
     this.title = 'Installation Timeline',
     this.componentId,
+    this.componentType,
     required this.initialInstallations,
     this.originalInstallations,
     required this.onChanged,
@@ -243,10 +246,19 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
         ? hierarchy.currentAncestors(componentId)
         : hierarchy.ancestorsAt(componentId, installation.dateTimeUTC);
 
+    // The current and saved parents always stay suggested, so an unusual
+    // existing parent is never tucked away behind "Show all".
+    bool isSuggested(Component? component, String parentComponentId) =>
+        component == null ||
+        parentComponentId == installation.parent ||
+        (initial is ComponentInstallation && parentComponentId == initial.parent) ||
+        isSuggestedParent(widget.componentType, component.componentType);
+
     InstallationParentOption componentOption(ComponentInstallation value) {
       final component = components[value.parentComponentId];
       final ancestors = ancestorsOf(value.parentComponentId);
       return InstallationParentOption(
+        isSuggested: isSuggested(component, value.parentComponentId),
         value: value,
         icon: component?.componentType.getIconData() ?? Component.iconData,
         label: component?.name ?? 'COMPONENT NOT FOUND',
@@ -362,6 +374,7 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
       initial: initial,
       currentBikeId: _entryBikeId(index, appRepository.componentHierarchy),
       depthCapHint: depthCapHint,
+      componentTypeLabel: widget.componentType?.label,
     );
     if (picked == null || !mounted) return;
     _updateEntry(index, picked);

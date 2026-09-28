@@ -24,6 +24,8 @@ class InstallationParentOption {
   final Color? color;
   final List<ComponentAncestor> ancestors;
   final bool isMissing;
+  /// False moves the option behind the "Show all" row.
+  final bool isSuggested;
 
   const InstallationParentOption({
     required this.value,
@@ -35,6 +37,7 @@ class InstallationParentOption {
     this.color,
     this.ancestors = const [],
     this.isMissing = false,
+    this.isSuggested = true,
   });
 }
 
@@ -46,6 +49,7 @@ Future<Installation?> showInstallationParentPickerSheet({
   Installation? initial,
   String? currentBikeId,
   String? depthCapHint,
+  String? componentTypeLabel,
 }) {
   return showModalBottomSheet<Installation>(
     useSafeArea: true,
@@ -58,6 +62,7 @@ Future<Installation?> showInstallationParentPickerSheet({
       initial: initial,
       currentBikeId: currentBikeId,
       depthCapHint: depthCapHint,
+      componentTypeLabel: componentTypeLabel,
     ),
   );
 }
@@ -71,6 +76,7 @@ class _InstallationParentPickerSheet extends StatefulWidget {
   final Installation? initial;
   final String? currentBikeId;
   final String? depthCapHint;
+  final String? componentTypeLabel;
 
   const _InstallationParentPickerSheet({
     required this.options,
@@ -79,6 +85,7 @@ class _InstallationParentPickerSheet extends StatefulWidget {
     this.initial,
     this.currentBikeId,
     this.depthCapHint,
+    this.componentTypeLabel,
   });
 
   @override
@@ -93,6 +100,7 @@ class _InstallationParentPickerSheetState extends State<_InstallationParentPicke
 
   late Installation _selected = widget.selected;
   String _query = '';
+  bool _showAll = false;
   bool _popping = false;
 
   @override
@@ -152,7 +160,10 @@ class _InstallationParentPickerSheetState extends State<_InstallationParentPicke
 
   @override
   Widget build(BuildContext context) {
-    final sections = _buildSections();
+    // Searching also looks through the hidden options.
+    final showOthers = _showAll || _query.isNotEmpty;
+    final sections = _buildSections(showOthers: showOthers);
+    final hiddenCount = showOthers ? 0 : widget.options.where((o) => !o.isSuggested).length;
     final showSearch = widget.options.length > _searchThreshold;
     final showDepthCapHint = widget.depthCapHint != null && _query.isEmpty;
     var selectedKeyUsed = false;
@@ -219,6 +230,18 @@ class _InstallationParentPickerSheetState extends State<_InstallationParentPicke
                                 ),
                               ),
                           ],
+                          if (hiddenCount > 0)
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                              child: SheetFilterEmptyHint(
+                                icon: Icons.visibility_off_outlined,
+                                title: '$hiddenCount more hidden · Show all',
+                                hint: widget.componentTypeLabel == null
+                                    ? null
+                                    : "Type doesn't fit a ${widget.componentTypeLabel}",
+                                onTap: () => setState(() => _showAll = true),
+                              ),
+                            ),
                         ],
                       ),
               ),
@@ -258,12 +281,14 @@ class _InstallationParentPickerSheetState extends State<_InstallationParentPicke
   /// Not installed · Bikes · Components on the current bike · Components on
   /// the other bikes (garage order) · Components on missing bikes ·
   /// Components with a missing parent · Uninstalled components · Archived
-  /// components. Empty sections are left out.
-  List<_Section> _buildSections() {
+  /// components · with [showOthers], the unsuggested components grouped the
+  /// same way. Empty sections are left out.
+  List<_Section> _buildSections({required bool showOthers}) {
     final notInstalled = <InstallationParentOption>[];
     final bikeOptions = <InstallationParentOption>[];
     // Keyed by bike id, or by a [_Root] for chains that don't end on a bike.
     final componentsByRoot = <Object, List<InstallationParentOption>>{};
+    final othersByRoot = <Object, List<InstallationParentOption>>{};
 
     for (final option in widget.options.where(_matches)) {
       switch (option.value) {
@@ -273,6 +298,8 @@ class _InstallationParentPickerSheetState extends State<_InstallationParentPicke
           bikeOptions.add(option);
         case ComponentInstallation() when option.isMissing:
           notInstalled.add(option);
+        case ComponentInstallation() when !option.isSuggested:
+          if (showOthers) (othersByRoot[_rootKey(option)] ??= []).add(option);
         case ComponentInstallation():
           (componentsByRoot[_rootKey(option)] ??= []).add(option);
       }
@@ -282,24 +309,31 @@ class _InstallationParentPickerSheetState extends State<_InstallationParentPicke
     final order = <Object>[
       ?currentBikeId,
       ...widget.bikes.keys.where((id) => id != currentBikeId),
-      ...componentsByRoot.keys.whereType<String>().where((id) => id != currentBikeId && !widget.bikes.containsKey(id)),
+      ...{...componentsByRoot.keys, ...othersByRoot.keys}
+          .whereType<String>()
+          .where((id) => id != currentBikeId && !widget.bikes.containsKey(id)),
       ..._Root.values,
     ];
+
+    Iterable<_Section> componentSections(Map<Object, List<InstallationParentOption>> byRoot, {bool other = false}) sync* {
+      for (final key in order) {
+        final options = byRoot[key];
+        if (options == null) continue;
+        final title = switch (key) {
+          _Root.brokenChain => 'components with a missing parent',
+          _Root.uninstalled => 'uninstalled components',
+          _Root.archived => 'archived components',
+          _ => 'components on ${widget.bikes[key]?.name ?? 'BIKE NOT FOUND'}',
+        };
+        yield _Section(other ? 'Other $title' : '${title[0].toUpperCase()}${title.substring(1)}', options);
+      }
+    }
 
     return [
       if (notInstalled.isNotEmpty) _Section('Not installed', notInstalled),
       if (bikeOptions.isNotEmpty) _Section('Bikes', bikeOptions, isBikes: true),
-      for (final key in order)
-        if (componentsByRoot[key] case final options?)
-          _Section(
-            switch (key) {
-              _Root.brokenChain => 'Components with a missing parent',
-              _Root.uninstalled => 'Uninstalled components',
-              _Root.archived => 'Archived components',
-              _ => 'Components on ${widget.bikes[key]?.name ?? 'BIKE NOT FOUND'}',
-            },
-            options,
-          ),
+      ...componentSections(componentsByRoot),
+      ...componentSections(othersByRoot, other: true),
     ];
   }
 

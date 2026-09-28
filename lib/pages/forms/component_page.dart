@@ -1000,6 +1000,7 @@ class _ComponentPageState extends State<ComponentPage> {
                     // const Divider(height: 1),
                     SetInstallationTimeline(
                       componentId: widget.mode == ComponentPageMode.edit ? widget.component?.id : null,
+                      componentType: _componentType,
                       initialInstallations: _installations,
                       originalInstallations: widget.mode == ComponentPageMode.edit ? widget.component?.installations : null,
                       isEntryEditable: isReplace ? (_) => false : null,

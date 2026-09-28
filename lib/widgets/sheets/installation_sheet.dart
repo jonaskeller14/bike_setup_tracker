@@ -235,6 +235,7 @@ class _InstallationSheetState extends State<InstallationSheet> {
                     const SizedBox(height: 24),
                     SetInstallationTimeline(
                       componentId: widget.component.id,
+                      componentType: widget.component.componentType,
                       initialInstallations: _installations,
                       originalInstallations: widget.component.installations,
                       onChanged: (newInstallations) {

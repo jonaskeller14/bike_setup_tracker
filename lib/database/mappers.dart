@@ -261,15 +261,12 @@ extension AdjustmentMapper on Adjustment {
     int? orderIndex,
   }) {
     final json = toJson();
-    final typeString = json['type'] as String;
     return AdjustmentsCompanion(
       id: Value<String>(id),
       name: Value<String>(name),
       notes: Value<String?>(notes),
       unit: Value<String?>(unit?.encode()),
-      type: Value<AdjustmentType>(
-        AdjustmentType.values.firstWhere((e) => e.name == typeString),
-      ),
+      type: Value<AdjustmentType>(type),
       componentId: componentId == null
           ? const Value.absent()
           : Value<String?>(componentId),
@@ -304,7 +301,6 @@ extension RatingMetricMapper on RatingMetric {
     required int orderIndex,
   }) {
     final json = adjustment.toJson();
-    final typeString = json['type'] as String;
     return RatingMetricsCompanion(
       id: Value<String>(adjustment.id),
       ratingId: Value<String>(ratingId),
@@ -313,9 +309,7 @@ extension RatingMetricMapper on RatingMetric {
       name: Value<String>(adjustment.name),
       notes: Value<String?>(adjustment.notes),
       unit: Value<String?>(adjustment.unit?.encode()),
-      type: Value<AdjustmentType>(
-        AdjustmentType.values.firstWhere((e) => e.name == typeString),
-      ),
+      type: Value<AdjustmentType>(adjustment.type),
       jsonPayload: Value<String?>(jsonEncode(json)),
     );
   }

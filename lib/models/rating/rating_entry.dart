@@ -70,7 +70,7 @@ class RatingEntry {
 
   factory RatingEntry.fromJson({
     required Map<String, dynamic> json,
-    Map<String, AdjustmentType> metricTypes = const {},
+    required Map<String, AdjustmentType> metricTypes,
   }) {
     final int? version = json['version'] as int?;
     switch (version) {

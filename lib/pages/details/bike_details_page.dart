@@ -55,12 +55,10 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
   // Rating scores ride along as numerical values so tables and charts treat them like any number.
   AdjustmentValue? _rawValue(Setup setup, TableColumn column) => switch (column) {
     PersonAttributeColumn(:final adjustmentId) => setup.personAdjustmentValues[adjustmentId],
-    RatingMetricColumn(:final metricId) => _scoreValue(_metricScores[setup.id]?[metricId]),
-    RatingScoreColumn() => _scoreValue(_ratingScores[setup.id]),
+    RatingMetricColumn(:final metricId) => NumericalValue.orNull(_metricScores[setup.id]?[metricId]),
+    RatingScoreColumn() => NumericalValue.orNull(_ratingScores[setup.id]),
     ComponentAdjustmentColumn() || SetupTableColumn() => null,
   };
-
-  static NumericalValue? _scoreValue(double? score) => score == null ? null : NumericalValue(score);
 
   String _columnLabel(TableColumn column, Iterable<Adjustment> personAdjustments) {
     return switch (column) {

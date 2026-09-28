@@ -411,10 +411,12 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
     }
 
     // Keep only answers for metrics that still apply to the selected bike.
+    // Unresolved values are kept too: saving rewrites all value rows, so
+    // dropping them would silently delete them.
     final applicableIds = _applicableRatings().values.expand((r) => r.metrics).map((m) => m.id).toSet();
     final metricValues = {
       for (final entry in _metricValues.entries)
-        if (applicableIds.contains(entry.key)) entry.key: entry.value,
+        if (applicableIds.contains(entry.key) || entry.value is UnresolvedValue) entry.key: entry.value,
     };
 
     _formHasChanges = false;

@@ -50,8 +50,14 @@ void main() {
       expect(decode(null, AdjustmentType.step), isEmpty);
     });
 
-    test('a value whose shape does not fit its type falls back to the shape heuristic', () {
-      expect(decode('abc', AdjustmentType.numerical)['k'], TextValue.orNull('abc'));
+    test('a value whose shape does not fit its type stays unresolved', () {
+      expect(decode('abc', AdjustmentType.numerical)['k'], const UnresolvedValue('"abc"'));
+      expect(decode(5, AdjustmentType.text)['k'], const UnresolvedValue('5'));
+    });
+
+    test('a mistyped value survives the database encode/decode round trip', () {
+      final value = decode('true', AdjustmentType.boolean)['k']!;
+      expect(AdjustmentValue.decode(value.encode(), AdjustmentType.boolean), value);
     });
 
     test('ids without a known type are kept unresolved as their JSON', () {

@@ -5,6 +5,7 @@ import '../models/component/component.dart';
 import '../models/person.dart';
 import '../models/rating/rating.dart';
 import '../models/rating/rating_entry.dart';
+import '../models/selected_data.dart';
 import '../models/setup.dart';
 
 void checkSetupValueTypes(
@@ -12,12 +13,7 @@ void checkSetupValueTypes(
   required Iterable<Component> components,
   required Iterable<Person> persons,
 }) {
-  final adjustments = {
-    for (final component in components)
-      for (final adjustment in component.adjustments) adjustment.id: adjustment,
-    for (final person in persons)
-      for (final adjustment in person.adjustments) adjustment.id: adjustment,
-  };
+  final adjustments = adjustmentsById(components: components, persons: persons);
   for (final setup in setups) {
     _checkValueTypes(setup.bikeAdjustmentValues, adjustments);
     _checkValueTypes(setup.personAdjustmentValues, adjustments);
@@ -25,10 +21,7 @@ void checkSetupValueTypes(
 }
 
 void checkRatingEntryValueTypes(Iterable<RatingEntry> entries, {required Iterable<Rating> ratings}) {
-  final adjustments = {
-    for (final rating in ratings)
-      for (final metric in rating.metrics) metric.id: metric.adjustment,
-  };
+  final adjustments = metricAdjustmentsById(ratings);
   for (final entry in entries) {
     _checkValueTypes(entry.metricValues, adjustments);
   }

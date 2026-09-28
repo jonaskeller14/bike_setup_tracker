@@ -51,6 +51,19 @@ void main() {
       expect(AdjustmentValue.decode('"Front"', AdjustmentType.categorical), CategoricalValue(['Front']));
     });
 
+    group('a JSON shape that does not fit the type stays unresolved', () {
+      for (final (raw, type) in [
+        ('5', AdjustmentType.text),
+        ('"true"', AdjustmentType.boolean),
+        ('"3"', AdjustmentType.step),
+        ('[1]', AdjustmentType.numerical),
+        ('{"x":1}', AdjustmentType.categorical),
+        ('"1:00:00.000000"', AdjustmentType.duration),
+      ]) {
+        test('$raw as ${type.name}', () => expect(AdjustmentValue.decode(raw, type), UnresolvedValue(raw)));
+      }
+    });
+
     group('legacy plain strings', () {
       test('boolean', () => expect(AdjustmentValue.decode('True', AdjustmentType.boolean), const BooleanValue(true)));
       test('step', () => expect(AdjustmentValue.decode('4 clicks', AdjustmentType.step), isNull));

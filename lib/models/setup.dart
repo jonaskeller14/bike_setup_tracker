@@ -88,7 +88,7 @@ class Setup {
 
   factory Setup.fromJson({
     required Map<String, dynamic> json,
-    Map<String, AdjustmentType> adjustmentTypes = const {},
+    required Map<String, AdjustmentType> adjustmentTypes,
   }) {
     final int? version = json["version"] as int?;
     switch (version) {
@@ -139,9 +139,8 @@ class Setup {
   }
 
   /// [adjustmentTypes] maps adjustment ids from the same backup to their type.
-  /// Values of unknown ids are kept as [UnresolvedValue]s; values whose JSON
-  /// shape does not fit their type fall back to guessing the type from the
-  /// shape. Absent values are dropped.
+  /// Values of unknown ids, and values whose JSON shape does not fit their
+  /// type, are kept as [UnresolvedValue]s. Absent values are dropped.
   static Map<String, AdjustmentValue> adjustmentValuesFromJson(
     Map<String, dynamic> adjustmentValues, {
     Map<String, AdjustmentType> adjustmentTypes = const {},
@@ -185,25 +184,10 @@ class Setup {
         final duration? => DurationValue(duration),
         null => null,
       },
-      _ => _adjustmentValueFromJsonShape(value),
+      // Guessing another type from the shape would store a value its own
+      // type cannot decode.
+      _ => UnresolvedValue(jsonEncode(value)),
     };
-  }
-
-  static AdjustmentValue? _adjustmentValueFromJsonShape(dynamic value) {
-    switch (value) {
-      case null: return null;
-      case bool(): return BooleanValue(value);
-      case int(): return StepValue(value);
-      case double(): return NumericalValue(value);
-      case String():
-        final Duration? duration = DurationAdjustment.tryParseDurationString(value);
-        return duration != null ? DurationValue(duration) : TextValue.orNull(value);
-      case List():
-        // Multi-select CategoricalAdjustment: JSON arrays decode to
-        // List<dynamic>; coerce to List<String>.
-        return CategoricalValue(value.map((e) => e.toString()).toList());
-      default: return UnresolvedValue(jsonEncode(value));
-    }
   }
 
   Setup deepCopy() {

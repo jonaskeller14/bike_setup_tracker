@@ -9,7 +9,9 @@ sealed class AdjustmentValue {
   const AdjustmentValue();
 
   /// Decodes a stored [raw] string with the adjustment [type]. Returns `null`
-  /// for an absent value (JSON `null`, unparseable legacy scalar, empty text).
+  /// for an absent value (JSON `null`, unparseable legacy scalar, empty text),
+  /// and an [UnresolvedValue] when the JSON shape does not fit [type], so one
+  /// bad row cannot break loading every other value.
   ///
   /// The type is required because JSON alone cannot distinguish a step (`int`)
   /// from a numerical (`double`), nor a duration (stored as integer
@@ -23,17 +25,18 @@ sealed class AdjustmentValue {
       return decodeLegacy(raw, type);
     }
     if (decoded == null) return null;
-    return switch (type) {
-      AdjustmentType.boolean => BooleanValue(decoded as bool),
-      AdjustmentType.step => StepValue((decoded as num).toInt()),
-      AdjustmentType.numerical => NumericalValue((decoded as num).toDouble()),
-      AdjustmentType.text => TextValue.orNull(decoded as String),
+    return switch ((type, decoded)) {
+      (AdjustmentType.boolean, final bool value) => BooleanValue(value),
+      (AdjustmentType.step, final num value) => StepValue(value.toInt()),
+      (AdjustmentType.numerical, final num value) => NumericalValue(value.toDouble()),
+      (AdjustmentType.text, final String value) => TextValue.orNull(value),
+      (AdjustmentType.categorical, final List<dynamic> value) => CategoricalValue(value.map((e) => e.toString()).toList()),
       // A scalar is a single-select value encoded as a JSON string (multi-select
       // never shipped). The adjustment `type` is what tells this apart from a
       // text value with the same storage.
-      AdjustmentType.categorical => CategoricalValue(
-          decoded is List ? decoded.map((e) => e.toString()).toList() : [decoded.toString()]),
-      AdjustmentType.duration => DurationValue(Duration(microseconds: (decoded as num).toInt())),
+      (AdjustmentType.categorical, final String value) => CategoricalValue([value]),
+      (AdjustmentType.duration, final num value) => DurationValue(Duration(microseconds: value.toInt())),
+      _ => UnresolvedValue(raw),
     };
   }
 
@@ -134,8 +137,12 @@ final class NumericalValue extends AdjustmentValue {
   @override
   String encode() => jsonEncode(value);
 
+  static NumericalValue? orNull(double? value) => value == null ? null : NumericalValue(value);
+
+  static final NumberFormat _format = NumberFormat('0.#####', 'en_US');
+
   @override
-  String get display => NumberFormat('0.#####', 'en_US').format(value);
+  String get display => _format.format(value);
 
   @override
   num? get asNum => value;

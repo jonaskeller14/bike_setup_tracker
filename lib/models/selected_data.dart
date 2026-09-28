@@ -80,20 +80,30 @@ class SelectedData {
   }
 }
 
-Map<String, AdjustmentType> adjustmentTypesOf({
+Map<String, Adjustment> adjustmentsById({
   required Iterable<Component> components,
   required Iterable<Person> persons,
 }) => {
   for (final component in components)
-    for (final adjustment in component.adjustments) adjustment.id: adjustment.type,
+    for (final adjustment in component.adjustments) adjustment.id: adjustment,
   for (final person in persons)
-    for (final adjustment in person.adjustments) adjustment.id: adjustment.type,
+    for (final adjustment in person.adjustments) adjustment.id: adjustment,
 };
 
-Map<String, AdjustmentType> metricTypesOf(Iterable<Rating> ratings) => {
+Map<String, Adjustment> metricAdjustmentsById(Iterable<Rating> ratings) => {
   for (final rating in ratings)
-    for (final metric in rating.metrics) metric.id: metric.adjustment.type,
+    for (final metric in rating.metrics) metric.id: metric.adjustment,
 };
+
+Map<String, AdjustmentType> adjustmentTypesOf({
+  required Iterable<Component> components,
+  required Iterable<Person> persons,
+}) => _typesOf(adjustmentsById(components: components, persons: persons));
+
+Map<String, AdjustmentType> metricTypesOf(Iterable<Rating> ratings) => _typesOf(metricAdjustmentsById(ratings));
+
+Map<String, AdjustmentType> _typesOf(Map<String, Adjustment> adjustments) =>
+    adjustments.map((id, adjustment) => MapEntry(id, adjustment.type));
 
 /// Recursively rewrites every `"unit"` string value in [node] via
 /// [AdjustmentUnit.fromLegacy], leaving everything else untouched.

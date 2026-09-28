@@ -64,12 +64,10 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
   AdjustmentValue? _rawValue(Setup setup, TableColumn column) => switch (column) {
     ComponentAdjustmentColumn(:final adjustmentId) => setup.bikeAdjustmentValues[adjustmentId],
     PersonAttributeColumn(:final adjustmentId) => setup.personAdjustmentValues[adjustmentId],
-    RatingMetricColumn(:final metricId) => _scoreValue(_metricScores[setup.id]?[metricId]),
-    RatingScoreColumn() => _scoreValue(_ratingScores[setup.id]),
+    RatingMetricColumn(:final metricId) => NumericalValue.orNull(_metricScores[setup.id]?[metricId]),
+    RatingScoreColumn() => NumericalValue.orNull(_ratingScores[setup.id]),
     SetupTableColumn() => null,
   };
-
-  static NumericalValue? _scoreValue(double? score) => score == null ? null : NumericalValue(score);
 
   String _columnLabel(
     TableColumn column,

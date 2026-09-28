@@ -1,3 +1,4 @@
+import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/rating/rating_entry.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -20,26 +21,34 @@ void main() {
       },
       'images': <String>[],
     };
+    const adjustmentTypes = {
+      'cat': AdjustmentType.categorical,
+      'step': AdjustmentType.step,
+      'dur': AdjustmentType.duration,
+      'multi': AdjustmentType.categorical,
+    };
+    Setup decode(Map<String, dynamic> json) => Setup.fromJson(json: json, adjustmentTypes: adjustmentTypes);
 
     test('independently decoded setups with equal categorical values are equal', () {
-      final a = Setup.fromJson(json: setupJson());
-      final b = Setup.fromJson(json: setupJson());
+      final a = decode(setupJson());
+      final b = decode(setupJson());
 
+      expect(a.bikeAdjustmentValues['cat'], isA<CategoricalValue>());
       expect(identical(a.bikeAdjustmentValues['cat'], b.bikeAdjustmentValues['cat']), isFalse);
       expect(a, b);
       expect(a.hashCode, b.hashCode);
     });
 
     test('setups with different categorical values are not equal', () {
-      final a = Setup.fromJson(json: setupJson());
-      final b = Setup.fromJson(json: setupJson(categorical: ['Rear']));
+      final a = decode(setupJson());
+      final b = decode(setupJson(categorical: ['Rear']));
 
       expect(a, isNot(b));
     });
 
     test('categorical order matters', () {
-      final a = Setup.fromJson(json: setupJson(categorical: ['A', 'B']));
-      final b = Setup.fromJson(json: setupJson(categorical: ['B', 'A']));
+      final a = decode(setupJson(categorical: ['A', 'B']));
+      final b = decode(setupJson(categorical: ['B', 'A']));
 
       expect(a, isNot(b));
     });
@@ -57,18 +66,21 @@ void main() {
       'dateTimeLocal': '2026-09-27T11:00:00.000',
       'metricValues': {'cat': categorical, 'score': 4},
     };
+    const metricTypes = {'cat': AdjustmentType.categorical, 'score': AdjustmentType.numerical};
+    RatingEntry decode(Map<String, dynamic> json) => RatingEntry.fromJson(json: json, metricTypes: metricTypes);
 
     test('independently decoded entries with equal categorical values are equal', () {
-      final a = RatingEntry.fromJson(json: entryJson());
-      final b = RatingEntry.fromJson(json: entryJson());
+      final a = decode(entryJson());
+      final b = decode(entryJson());
 
+      expect(a.metricValues['cat'], isA<CategoricalValue>());
       expect(a, b);
       expect(a.hashCode, b.hashCode);
     });
 
     test('entries with different categorical values are not equal', () {
-      final a = RatingEntry.fromJson(json: entryJson());
-      final b = RatingEntry.fromJson(json: entryJson(categorical: ['Rear']));
+      final a = decode(entryJson());
+      final b = decode(entryJson(categorical: ['Rear']));
 
       expect(a, isNot(b));
     });

@@ -52,8 +52,9 @@ class ComponentPage extends StatefulWidget {
   final List<Installation>? initialInstallations;
   final DateTime? replacementDate;
   final Installation? replacedInstallation;
+  final String? replacedComponentId;
 
-  const ComponentPage._({super.key, this.component, required this.mode, this.initialInstallations, this.replacementDate, this.replacedInstallation});
+  const ComponentPage._({super.key, this.component, required this.mode, this.initialInstallations, this.replacementDate, this.replacedInstallation, this.replacedComponentId});
 
   factory ComponentPage.add({Key? key, List<Installation>? initialInstallations}) =>
     ComponentPage._(key: key, mode: ComponentPageMode.add, initialInstallations: initialInstallations);
@@ -64,8 +65,8 @@ class ComponentPage extends StatefulWidget {
   factory ComponentPage.duplicate({Key? key, required Component component}) => 
     ComponentPage._(key: key, component: component, mode: ComponentPageMode.duplicate);
   
-  factory ComponentPage.replace({Key? key, required Component component, required DateTime replacementDate, required Installation replacedInstallation}) =>
-    ComponentPage._(key: key, component: component, mode: ComponentPageMode.replace, replacementDate: replacementDate, replacedInstallation: replacedInstallation);
+  factory ComponentPage.replace({Key? key, required Component component, required DateTime replacementDate, required Installation replacedInstallation, required String replacedComponentId}) =>
+    ComponentPage._(key: key, component: component, mode: ComponentPageMode.replace, replacementDate: replacementDate, replacedInstallation: replacedInstallation, replacedComponentId: replacedComponentId);
 
   @override
   State<ComponentPage> createState() => _ComponentPageState();
@@ -630,6 +631,7 @@ class _ComponentPageState extends State<ComponentPage> {
     final highlightBaseline = widget.mode == ComponentPageMode.edit ? widget.component?.componentType : null;
     final isChanged = highlightBaseline != null && type != highlightBaseline;
     final isOverLimit = type != null && existingComponentsCount >= type.maxCount;
+    final isReplace = widget.mode == ComponentPageMode.replace;
     // DropdownButton's own default (see DropdownButton._textStyle).
     final dropdownTextStyle = Theme.of(context).textTheme.titleMedium!;
     return FormField<ComponentType?>(
@@ -644,7 +646,8 @@ class _ComponentPageState extends State<ComponentPage> {
       builder: (FormFieldState<ComponentType?> field) {
         _componentTypeFieldNotify = () => field.didChange(_componentType);
         return InkWell(
-          onTap: () => _pickComponentType(field),
+          // Locked like the bike and timeline: the replacement keeps the replaced component's type.
+          onTap: isReplace ? null : () => _pickComponentType(field),
           borderRadius: BorderRadius.circular(4),
           child: InputDecorator(
             // Never "empty": the placeholder below stands in for a value, so the
@@ -652,9 +655,10 @@ class _ComponentPageState extends State<ComponentPage> {
             isEmpty: false,
             decoration: InputDecoration(
               labelText: 'Type',
+              enabled: !isReplace,
               border: const OutlineInputBorder(),
               errorText: field.errorText,
-              suffixIcon: const Icon(Icons.arrow_drop_down),
+              suffixIcon: Icon(isReplace ? Icons.lock_outline : Icons.arrow_drop_down),
               helperText: isOverLimit
                   ? Intl.plural(
                       type.maxCount,
@@ -679,8 +683,14 @@ class _ComponentPageState extends State<ComponentPage> {
                   : Row(
                       spacing: 8,
                       children: [
-                        Icon(type.getIconData()),
-                        Expanded(child: Text(type.label, overflow: TextOverflow.ellipsis)),
+                        Icon(type.getIconData(), color: isReplace ? Theme.of(context).disabledColor : null),
+                        Expanded(
+                          child: Text(
+                            type.label,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(color: isReplace ? Theme.of(context).disabledColor : null),
+                          ),
+                        ),
                       ],
                     ),
             ),
@@ -899,7 +909,9 @@ class _ComponentPageState extends State<ComponentPage> {
             !c.isArchived &&
             appRepository.componentHierarchy.currentBike(c.id) == currentBike &&
             c.componentType == _componentType &&
-            widget.component?.id != c.id).length;
+            widget.component?.id != c.id &&
+            // Retired once the replacement is saved.
+            widget.replacedComponentId != c.id).length;
     final isReplace = widget.mode == ComponentPageMode.replace;
 
     return PopScope( 

@@ -452,6 +452,7 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                                     },
                                     child: InputDecorator(
                                       decoration: InputDecoration(
+                                        enabled: isEditable,
                                         border: const OutlineInputBorder(),
                                         enabledBorder: dateInvalid ? invalidBorder : null,
                                         disabledBorder: dateInvalid ? invalidBorder : null,
@@ -512,6 +513,7 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                                   iconEnabledColor: parentColor,
                                   iconDisabledColor: parentColor,
                                   decoration: InputDecoration(
+                                    enabled: isEditable,
                                     border: const OutlineInputBorder(),
                                     enabledBorder: parentInvalid ? invalidBorder : null,
                                     disabledBorder: parentInvalid ? invalidBorder : null,

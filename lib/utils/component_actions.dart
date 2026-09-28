@@ -209,6 +209,7 @@ class ComponentActions {
               component: component.deepCopy(),
               replacementDate: replacementDate,
               replacedInstallation: currentInstallation,
+              replacedComponentId: component.id,
             ),
           ),
         );

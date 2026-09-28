@@ -36,6 +36,7 @@ void main() {
     List<Installation>? originalInstallations,
     void Function(List<Installation>)? onChanged,
     String? componentId,
+    ThemeData? theme,
   }) {
     return MultiProvider(
       providers: [
@@ -43,7 +44,7 @@ void main() {
         ChangeNotifierProvider.value(value: appSettings),
       ],
       child: MaterialApp(
-        theme: materialAppTheme,
+        theme: theme ?? materialAppTheme,
         home: Scaffold(
           // Wrap in SingleChildScrollView to avoid layout overflows in test environment
           body: SingleChildScrollView(
@@ -419,6 +420,48 @@ void main() {
         expect(find.text('Nested Tire'), findsOneWidget);
         expect(find.text('BIKE NOT FOUND'), findsNothing);
       });
+
+      testWidgets('closed field shows the component name over its bike', (WidgetTester tester) async {
+        await seed(tester, nestedComponents);
+        appSettings.enableInstallOnComponent = true;
+
+        await tester.pumpWidget(createWidgetUnderTest(
+          componentId: 'tire',
+          initialInstallations: [Installation.componentSinceBeginning(parentComponentId: 'wheel')],
+        ));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Front Wheel'), findsOneWidget);
+        expect(find.text('Bike 1'), findsOneWidget);
+
+        final decorators = find.byType(InputDecorator);
+        final dateField = decorators.evaluate().firstWhere((e) => (e.widget as InputDecorator).decoration.isDense ?? false);
+        final parentField = decorators.evaluate().firstWhere((e) => !((e.widget as InputDecorator).decoration.isDense ?? false));
+        expect(parentField.size!.height, dateField.size!.height);
+      });
+
+      for (final (themeName, theme) in [('light', materialAppTheme), ('dark', materialAppDarkTheme)]) {
+        testWidgets('a very long parent name does not overflow at 320 px ($themeName)', (WidgetTester tester) async {
+          tester.view.physicalSize = const Size(320, 800);
+          tester.view.devicePixelRatio = 1;
+          addTearDown(tester.view.reset);
+
+          final longName = 'Maxxis Assegai 29x2.5 WT EXO+ MaxxGrip TR ' * 3;
+          await seed(tester, [component('long', longName, [Installation.sinceBeginning(parent: 'bike1')])]);
+          appSettings.enableInstallOnComponent = true;
+
+          await tester.pumpWidget(createWidgetUnderTest(
+            componentId: 'tire',
+            theme: theme,
+            initialInstallations: [Installation.componentSinceBeginning(parentComponentId: 'long')],
+          ));
+          await tester.pumpAndSettle();
+
+          expect(longName.length, greaterThanOrEqualTo(120));
+          expect(tester.takeException(), isNull);
+          expect(find.text(longName), findsOneWidget);
+        });
+      }
     });
 
     group('select date & time', () {

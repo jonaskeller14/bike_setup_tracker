@@ -13,6 +13,7 @@ import '../repositories/app_repository.dart';
 import '../services/component_hierarchy_resolver.dart';
 import '../theme.dart';
 import '../utils/installation_timeline_validation.dart';
+import 'component_ancestor_display.dart';
 import 'component_ancestors_column.dart';
 import 'text/section_title.dart';
 
@@ -20,6 +21,7 @@ class _ParentOption {
   final Installation value;
   final IconData icon;
   final String label;
+  final String? subtitle;
   final Color? color;
   final List<ComponentAncestor> ancestors;
 
@@ -27,25 +29,55 @@ class _ParentOption {
     required this.value,
     required this.icon,
     required this.label,
+    this.subtitle,
     this.color,
     this.ancestors = const [],
   });
 
-  Widget content({Color? tint}) {
+  Widget content() {
+    return Row(
+      spacing: 8,
+      children: [
+        Icon(icon, size: 20, color: color),
+        Expanded(
+          child: Text(label, overflow: TextOverflow.ellipsis, style: TextStyle(color: color)),
+        ),
+      ],
+    );
+  }
+
+  Widget fieldContent(BuildContext context, {Color? tint}) {
+    final theme = Theme.of(context);
     final effectiveColor = color ?? tint;
     return Row(
       spacing: 8,
       children: [
         Icon(icon, size: 20, color: effectiveColor),
         Expanded(
-          child: Text(label, overflow: TextOverflow.ellipsis, style: TextStyle(color: effectiveColor)),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(color: effectiveColor, height: 1.1),
+              ),
+              if (subtitle != null)
+                Text(
+                  subtitle!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodySmall?.copyWith(color: tint ?? theme.hintColor, height: 1.1),
+                ),
+            ],
+          ),
         ),
       ],
     );
   }
 
-  /// [showDivider] draws a separator above the entry. A standalone divider
-  /// item is not used because dropdown items have a 48px minimum height.
   Widget menuContent(Map<String, Bike> bikes, {bool showDivider = false}) {
     final body = ancestors.isEmpty
         ? content()
@@ -173,6 +205,19 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
         ? hierarchy.currentAncestors(componentId)
         : hierarchy.ancestorsAt(componentId, installation.dateTimeUTC);
 
+    _ParentOption componentOption(ComponentInstallation value) {
+      final component = components[value.parentComponentId];
+      final ancestors = ancestorsOf(value.parentComponentId);
+      return _ParentOption(
+        value: value,
+        icon: component?.componentType.getIconData() ?? Component.iconData,
+        label: component?.name ?? 'COMPONENT NOT FOUND',
+        subtitle: ancestors.isEmpty ? null : ancestors.map((a) => a.label(bikes)).join(' · '),
+        color: component == null ? Theme.of(context).colorScheme.error : null,
+        ancestors: ancestors,
+      );
+    }
+
     return [
       _ParentOption(
         value: Uninstallation(
@@ -211,26 +256,15 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
           color: Theme.of(context).colorScheme.error,
         ),
       for (final component in parentComponentCandidates)
-        _ParentOption(
-          value: ComponentInstallation(
-            parentComponentId: component.id,
-            id: installation.id,
-            dateTimeUTC: installation.dateTimeUTC,
-            dateTimeLocal: installation.dateTimeLocal,
-          ),
-          icon: component.componentType.getIconData(),
-          label: component.name,
-          ancestors: ancestorsOf(component.id),
-        ),
-      if (installation case ComponentInstallation(:final parentComponentId)
-          when !parentComponentCandidates.any((c) => c.id == parentComponentId))
-        _ParentOption(
-          value: installation,
-          icon: components[parentComponentId]?.componentType.getIconData() ?? Component.iconData,
-          label: components[parentComponentId]?.name ?? 'COMPONENT NOT FOUND',
-          color: components.containsKey(parentComponentId) ? null : Theme.of(context).colorScheme.error,
-          ancestors: ancestorsOf(parentComponentId),
-        ),
+        componentOption(ComponentInstallation(
+          parentComponentId: component.id,
+          id: installation.id,
+          dateTimeUTC: installation.dateTimeUTC,
+          dateTimeLocal: installation.dateTimeLocal,
+        )),
+      if (installation case final ComponentInstallation current
+          when !parentComponentCandidates.any((c) => c.id == current.parentComponentId))
+        componentOption(current),
     ];
   }
 
@@ -505,6 +539,7 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                                   initialValue: installation,
                                   hint: const Text('Select Bike'),
                                   isExpanded: true,
+                                  isDense: false,
                                   itemHeight: null,
                                   iconEnabledColor: parentColor,
                                   iconDisabledColor: parentColor,
@@ -529,7 +564,7 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                                   // entry is locked or the validator flagged its parent.
                                   selectedItemBuilder: (context) => [
                                     for (final option in parentOptions)
-                                      option.content(tint: parentColor),
+                                      option.fieldContent(context, tint: parentColor),
                                   ],
                                   onChanged: !isEditable
                                       ? null

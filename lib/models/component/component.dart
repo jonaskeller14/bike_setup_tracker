@@ -89,7 +89,7 @@ class Component {
   Component copyWithNewInstallation(String? newBike) {
     return copyWith(
       installations: [
-        Installation.sinceBeginning(parent: newBike, componentId: id)
+        Installation.sinceBeginning(parent: newBike)
       ],
     );
   }
@@ -190,7 +190,7 @@ class Component {
           name: json['name'] as String,
           componentType: ComponentType.fromString(json['componentType'] as String?),
           installations: [
-            Installation.sinceBeginning(parent: bike, componentId: json["id"] as String)
+            Installation.sinceBeginning(parent: bike)
           ],
           notes: json["notes"] as String?,
           adjustments: (json["adjustments"] as List<dynamic>?)
@@ -208,7 +208,7 @@ class Component {
           name: json['name'] as String,
           componentType: ComponentType.fromString(json['componentType'] as String?),
           installations: (json["installations"] as List<dynamic>?)
-            ?.map((i) => Installation.fromJson(i as Map<String, dynamic>, componentId: json["id"] as String))
+            ?.map((i) => Installation.fromJson(i as Map<String, dynamic>))
             .toList() ?? [],
           notes: json["notes"] as String?,
           adjustments: (json["adjustments"] as List<dynamic>?)

@@ -130,7 +130,6 @@ class GoldenTestHarness {
         installations: [
           Installation.sinceBeginning(
             id: 'golden-installation-fork',
-            componentId: forkId,
             parent: trailBikeId,
           ),
         ],
@@ -176,7 +175,6 @@ class GoldenTestHarness {
         installations: [
           Installation.sinceBeginning(
             id: 'golden-installation-gravel-wheel',
-            componentId: gravelWheelId,
             parent: gravelBikeId,
           ),
         ],
@@ -189,7 +187,6 @@ class GoldenTestHarness {
         installations: [
           Installation.sinceBeginning(
             id: 'golden-uninstallation-spare-wheel',
-            componentId: spareWheelId,
           ),
         ],
       ),

@@ -224,7 +224,6 @@ void main() {
         final now = DateTime.now();
         final installation = ComponentInstallation(
           parentComponentId: parent.id,
-          componentId: component.id,
           dateTimeUTC: now.toUtc(),
           dateTimeLocal: now,
         );

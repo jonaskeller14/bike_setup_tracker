@@ -395,7 +395,6 @@ void main() {
         List<Installation>? changed;
         final entry = ComponentInstallation(
           id: 'entry',
-          componentId: 'valve',
           parentComponentId: 'tire',
           dateTimeUTC: now.toUtc(),
           dateTimeLocal: now,

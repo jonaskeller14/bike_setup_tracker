@@ -86,15 +86,15 @@ extension InstallationDbMapper on InstallationDb {
     return switch (parentType) {
       // Defensive: a 'bike' row with no parent is treated as uninstalled.
       InstallationParentType.bike => parent == null
-          ? Uninstallation(id: id, componentId: componentId, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal)
-          : BikeInstallation(id: id, componentId: componentId, bikeId: parent!, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal),
+          ? Uninstallation(id: id, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal)
+          : BikeInstallation(id: id, bikeId: parent!, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal),
       InstallationParentType.component => parent == null
-          ? Uninstallation(id: id, componentId: componentId, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal)
-          : ComponentInstallation(id: id, componentId: componentId, parentComponentId: parent!, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal),
+          ? Uninstallation(id: id, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal)
+          : ComponentInstallation(id: id, parentComponentId: parent!, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal),
       InstallationParentType.none =>
-        Uninstallation(id: id, componentId: componentId, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal),
+        Uninstallation(id: id, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal),
       InstallationParentType.archived =>
-        Archival(id: id, componentId: componentId, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal),
+        Archival(id: id, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal),
     };
   }
 }
@@ -242,7 +242,7 @@ extension ComponentMapper on Component {
 }
 
 extension InstallationMapper on Installation {
-  InstallationsCompanion toCompanion() {
+  InstallationsCompanion toCompanion({required String componentId}) {
     return InstallationsCompanion(
       id: Value(id),
       componentId: Value(componentId),

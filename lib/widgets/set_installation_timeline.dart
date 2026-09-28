@@ -177,7 +177,6 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
       _ParentOption(
         value: Uninstallation(
           id: installation.id,
-          componentId: installation.componentId,
           dateTimeUTC: installation.dateTimeUTC,
           dateTimeLocal: installation.dateTimeLocal,
         ),
@@ -187,7 +186,6 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
       _ParentOption(
         value: Archival(
           id: installation.id,
-          componentId: installation.componentId,
           dateTimeUTC: installation.dateTimeUTC,
           dateTimeLocal: installation.dateTimeLocal,
         ),
@@ -199,7 +197,6 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
           value: BikeInstallation(
             bikeId: bike.id,
             id: installation.id,
-            componentId: installation.componentId,
             dateTimeUTC: installation.dateTimeUTC,
             dateTimeLocal: installation.dateTimeLocal,
           ),
@@ -218,7 +215,6 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
           value: ComponentInstallation(
             parentComponentId: component.id,
             id: installation.id,
-            componentId: installation.componentId,
             dateTimeUTC: installation.dateTimeUTC,
             dateTimeLocal: installation.dateTimeLocal,
           ),

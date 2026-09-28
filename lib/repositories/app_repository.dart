@@ -1458,7 +1458,7 @@ class AppRepository extends ChangeNotifier {
             entry.value.toCompanion(componentId: updateComponent.id, orderIndex: entry.key)
           ).toList(),
           installationsList: updateComponent.installations.map((inst) =>
-            inst.copyWith(id: const Uuid().v4(), componentId: updateComponent.id).toCompanion()
+            inst.copyWith(id: const Uuid().v4()).toCompanion(componentId: updateComponent.id)
           ).toList(),
         );
       }
@@ -1572,9 +1572,8 @@ class AppRepository extends ChangeNotifier {
         entry.value.toCompanion(componentId: updated.id, orderIndex: entry.key)
       ).toList(),
       installationsList: updated.installations.map((inst) =>
-        // Preserve the stable installation ids across edits; only normalise the
-        // owning componentId.
-        inst.copyWith(componentId: updated.id).toCompanion()
+        // Preserve the stable installation ids across edits.
+        inst.toCompanion(componentId: updated.id)
       ).toList(),
     );
   }
@@ -1582,7 +1581,6 @@ class AppRepository extends ChangeNotifier {
   Future<void> archiveComponent(Component component, {DateTime? at}) async {
     final when = at ?? DateTime.now();
     final event = Archival(
-      componentId: component.id,
       dateTimeUTC: when.toUtc(),
       dateTimeLocal: when,
     );

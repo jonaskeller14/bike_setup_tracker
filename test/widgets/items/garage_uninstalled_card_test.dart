@@ -21,27 +21,23 @@ Component _component(String id, List<Installation> installations, {int orderInde
   orderIndex: orderIndex,
 );
 
-Installation _uninstalled(String componentId) => Uninstallation(
-  componentId: componentId,
+Installation _uninstalled() => Uninstallation(
   dateTimeUTC: DateTime.utc(2026, 1, 2),
   dateTimeLocal: DateTime(2026, 1, 2),
 );
 
-Installation _archived(String componentId) => Archival(
-  componentId: componentId,
+Installation _archived() => Archival(
   dateTimeUTC: DateTime.utc(2026, 1, 2),
   dateTimeLocal: DateTime(2026, 1, 2),
 );
 
-Installation _onBike(String componentId, String bikeId) => BikeInstallation(
-  componentId: componentId,
+Installation _onBike(String bikeId) => BikeInstallation(
   bikeId: bikeId,
   dateTimeUTC: DateTime.utc(2026, 1, 1),
   dateTimeLocal: DateTime(2026, 1, 1),
 );
 
-Installation _onComponent(String componentId, String parentId) => ComponentInstallation(
-  componentId: componentId,
+Installation _onComponent(String parentId) => ComponentInstallation(
   parentComponentId: parentId,
   dateTimeUTC: DateTime.utc(2026, 1, 1),
   dateTimeLocal: DateTime(2026, 1, 1),
@@ -118,9 +114,9 @@ void main() {
   testWidgets('keeps components with a broken placement and badges them', (tester) async {
     await tester.runAsync(
       () => seed([
-        _component('parked', [_uninstalled('parked')]),
-        _component('orphan', [_onBike('orphan', 'gone')]),
-        _component('detached', [_onComponent('detached', 'gone')]),
+        _component('parked', [_uninstalled()]),
+        _component('orphan', [_onBike('gone')]),
+        _component('detached', [_onComponent('gone')]),
       ]),
     );
     await pumpCard(tester);
@@ -135,9 +131,9 @@ void main() {
   testWidgets('groups a parked wheel with the component mounted on it', (tester) async {
     await tester.runAsync(
       () => seed([
-        _component('wheel', [_uninstalled('wheel')], orderIndex: 0),
-        _component('tire', [_onComponent('tire', 'wheel')], orderIndex: 1),
-        _component('pedal', [_uninstalled('pedal')], orderIndex: 2),
+        _component('wheel', [_uninstalled()], orderIndex: 0),
+        _component('tire', [_onComponent('wheel')], orderIndex: 1),
+        _component('pedal', [_uninstalled()], orderIndex: 2),
       ]),
     );
     await pumpCard(tester);
@@ -158,8 +154,8 @@ void main() {
   testWidgets('groups an archived parent with its children', (tester) async {
     await tester.runAsync(
       () => seed([
-        _component('shelf-wheel', [_archived('shelf-wheel')], orderIndex: 0),
-        _component('shelf-tire', [_onComponent('shelf-tire', 'shelf-wheel')], orderIndex: 1),
+        _component('shelf-wheel', [_archived()], orderIndex: 0),
+        _component('shelf-tire', [_onComponent('shelf-wheel')], orderIndex: 1),
       ]),
     );
     await pumpCard(tester);
@@ -177,8 +173,8 @@ void main() {
   testWidgets('a badged broken root still groups its descendants', (tester) async {
     await tester.runAsync(
       () => seed([
-        _component('detached', [_onComponent('detached', 'gone')], orderIndex: 0),
-        _component('child', [_onComponent('child', 'detached')], orderIndex: 1),
+        _component('detached', [_onComponent('gone')], orderIndex: 0),
+        _component('child', [_onComponent('detached')], orderIndex: 1),
       ]),
     );
     await pumpCard(tester);
@@ -205,9 +201,9 @@ void main() {
   testWidgets('the drop-zone overlay covers a wrap containing a group', (tester) async {
     await tester.runAsync(
       () => seed([
-        _component('wheel', [_uninstalled('wheel')], orderIndex: 0),
-        _component('tire', [_onComponent('tire', 'wheel')], orderIndex: 1),
-        _component('mounted', [_onBike('mounted', 'bike')], orderIndex: 2),
+        _component('wheel', [_uninstalled()], orderIndex: 0),
+        _component('tire', [_onComponent('wheel')], orderIndex: 1),
+        _component('mounted', [_onBike('bike')], orderIndex: 2),
       ]),
     );
     final draggedComponentNotifier = ValueNotifier<Component?>(null);

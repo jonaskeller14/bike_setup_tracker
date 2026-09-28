@@ -29,15 +29,13 @@ Component _component(String id, String name, List<Installation> installations, {
   orderIndex: orderIndex,
 );
 
-Installation _onBike(String componentId, String bikeId) => BikeInstallation(
-  componentId: componentId,
+Installation _onBike(String bikeId) => BikeInstallation(
   bikeId: bikeId,
   dateTimeUTC: DateTime.utc(2026, 1, 1),
   dateTimeLocal: DateTime(2026, 1, 1),
 );
 
-Installation _onComponent(String componentId, String parentId) => ComponentInstallation(
-  componentId: componentId,
+Installation _onComponent(String parentId) => ComponentInstallation(
   parentComponentId: parentId,
   dateTimeUTC: DateTime.utc(2026, 1, 1),
   dateTimeLocal: DateTime(2026, 1, 1),
@@ -71,9 +69,9 @@ void main() {
       Bike(id: 'bike-b', name: targetBikeName, person: null),
     ]);
     await repository.addComponents([
-      _component('wheel', wheelName, [_onBike('wheel', 'bike-a')], orderIndex: 0),
-      _component('tire', 'Tire', [_onComponent('tire', 'wheel')], orderIndex: 1),
-      _component('seat', 'Seat', [_onBike('seat', 'bike-a')], orderIndex: 2),
+      _component('wheel', wheelName, [_onBike('bike-a')], orderIndex: 0),
+      _component('tire', 'Tire', [_onComponent('wheel')], orderIndex: 1),
+      _component('seat', 'Seat', [_onBike('bike-a')], orderIndex: 2),
     ]);
     await _pumpEventQueue();
   }

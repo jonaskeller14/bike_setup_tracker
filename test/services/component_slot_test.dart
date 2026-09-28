@@ -11,22 +11,19 @@ Component component(String id, ComponentType type, List<Installation> installati
   installations: installations,
 );
 
-Installation onBike(String componentId, String bikeId, int day) => BikeInstallation(
-  componentId: componentId,
+Installation onBike(String bikeId, int day) => BikeInstallation(
   bikeId: bikeId,
   dateTimeUTC: DateTime.utc(2026, 1, day),
   dateTimeLocal: DateTime(2026, 1, day),
 );
 
-Installation onComponent(String componentId, String parentId, int day) => ComponentInstallation(
-  componentId: componentId,
+Installation onComponent(String parentId, int day) => ComponentInstallation(
   parentComponentId: parentId,
   dateTimeUTC: DateTime.utc(2026, 1, day),
   dateTimeLocal: DateTime(2026, 1, day),
 );
 
-Installation uninstalled(String componentId, int day) => Uninstallation(
-  componentId: componentId,
+Installation uninstalled(int day) => Uninstallation(
   dateTimeUTC: DateTime.utc(2026, 1, day),
   dateTimeLocal: DateTime(2026, 1, day),
 );
@@ -57,18 +54,18 @@ void main() {
     late Component rearWheel;
 
     setUp(() {
-      frontWheel = component('front-wheel', ComponentType.wheelFront, [onBike('front-wheel', 'bike', 1)]);
-      rearWheel = component('rear-wheel', ComponentType.wheelRear, [onBike('rear-wheel', 'bike', 1)]);
+      frontWheel = component('front-wheel', ComponentType.wheelFront, [onBike('bike', 1)]);
+      rearWheel = component('rear-wheel', ComponentType.wheelRear, [onBike('bike', 1)]);
     });
 
     test('has no parent type for a component mounted directly on the bike', () {
-      final fork = component('fork', ComponentType.fork, [onBike('fork', 'bike', 1)]);
+      final fork = component('fork', ComponentType.fork, [onBike('bike', 1)]);
 
       expect(slotAt(resolver([fork]), fork, DateTime.utc(2026, 1, 2)), const ComponentSlot(type: ComponentType.fork));
     });
 
     test('uses the direct parent type for a nested component', () {
-      final tire = component('tire', ComponentType.tire, [onComponent('tire', 'front-wheel', 1)]);
+      final tire = component('tire', ComponentType.tire, [onComponent('front-wheel', 1)]);
 
       expect(
         slotAt(resolver([frontWheel, tire]), tire, DateTime.utc(2026, 1, 2)),
@@ -78,8 +75,8 @@ void main() {
 
     test('follows the parent at the given time after a rotation', () {
       final tire = component('tire', ComponentType.tire, [
-        onComponent('tire', 'front-wheel', 1),
-        onComponent('tire', 'rear-wheel', 5),
+        onComponent('front-wheel', 1),
+        onComponent('rear-wheel', 5),
       ]);
       final hierarchy = resolver([frontWheel, rearWheel, tire]);
 
@@ -88,15 +85,15 @@ void main() {
     });
 
     test('falls back to no parent type when the parent is missing', () {
-      final tire = component('tire', ComponentType.tire, [onComponent('tire', 'deleted-wheel', 1)]);
+      final tire = component('tire', ComponentType.tire, [onComponent('deleted-wheel', 1)]);
 
       expect(slotAt(resolver([tire]), tire, DateTime.utc(2026, 1, 2)), const ComponentSlot(type: ComponentType.tire));
     });
 
     test('is null while the component is uninstalled', () {
       final tire = component('tire', ComponentType.tire, [
-        onComponent('tire', 'front-wheel', 1),
-        uninstalled('tire', 5),
+        onComponent('front-wheel', 1),
+        uninstalled(5),
       ]);
 
       expect(slotAt(resolver([frontWheel, tire]), tire, DateTime.utc(2026, 1, 6)), isNull);

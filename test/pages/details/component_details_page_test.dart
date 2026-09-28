@@ -262,9 +262,8 @@ void main() {
       id: 'comp1',
       name: 'Test Fork',
       installations: [
-        Installation.sinceBeginning(parent: 'bike1', componentId: 'comp1'),
+        Installation.sinceBeginning(parent: 'bike1'),
         Uninstallation(
-          componentId: 'comp1',
           dateTimeUTC: DateTime.utc(2026, 1, 2),
           dateTimeLocal: DateTime(2026, 1, 2),
         ),

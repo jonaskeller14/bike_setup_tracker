@@ -84,7 +84,6 @@ void main() {
             componentType: ComponentType.other,
             installations: [
               ComponentInstallation(
-                componentId: id,
                 parentComponentId: parentId,
                 dateTimeUTC: DateTime.utc(2026, 1, 1),
                 dateTimeLocal: DateTime(2026, 1, 1),

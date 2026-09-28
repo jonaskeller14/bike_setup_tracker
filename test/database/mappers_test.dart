@@ -293,7 +293,13 @@ void main() {
         expect(model, isA<BikeInstallation>());
         expect((model as BikeInstallation).bikeId, 'b1');
         expect(model.id, 'i1');
-        expect(model.componentId, 'c1');
+      });
+
+      test('toCompanion takes the owning componentId from the caller', () {
+        final companion = BikeInstallation(id: 'i1', bikeId: 'b1', dateTimeUTC: utc, dateTimeLocal: local)
+            .toCompanion(componentId: 'c1');
+        expect(companion.componentId.value, 'c1');
+        expect(companion.parent.value, 'b1');
       });
 
       test('parentType=none yields Uninstallation', () {
@@ -355,7 +361,6 @@ void main() {
       test('BikeInstallation round-trips', () {
         final original = BikeInstallation(
           id: 'i1',
-          componentId: 'c1',
           bikeId: 'b1',
           dateTimeUTC: utc,
           dateTimeLocal: local,
@@ -373,7 +378,6 @@ void main() {
       test('Uninstallation round-trips', () {
         final original = Uninstallation(
           id: 'i2',
-          componentId: 'c1',
           dateTimeUTC: utc,
           dateTimeLocal: local,
         );
@@ -388,7 +392,6 @@ void main() {
       test('ComponentInstallation round-trips and preserves subtype when copied', () {
         final original = ComponentInstallation(
           id: 'nested-i',
-          componentId: 'tire',
           parentComponentId: 'wheel',
           dateTimeUTC: utc,
           dateTimeLocal: local,
@@ -400,13 +403,20 @@ void main() {
         final restored = Installation.fromJson(json);
         expect(restored, isA<ComponentInstallation>());
         expect((restored as ComponentInstallation).parentComponentId, 'wheel');
-        expect(restored.copyWith(componentId: 'new-tire'), isA<ComponentInstallation>());
+        expect(restored.copyWith(id: 'new-id'), isA<ComponentInstallation>());
+      });
+
+      test('componentId is not serialised; a legacy key is ignored', () {
+        final json = BikeInstallation(id: 'i1', bikeId: 'b1', dateTimeUTC: utc, dateTimeLocal: local).toJson();
+        expect(json.containsKey('componentId'), isFalse);
+
+        final restored = Installation.fromJson({...json, 'componentId': 'stale'});
+        expect(restored, BikeInstallation(id: 'i1', bikeId: 'b1', dateTimeUTC: utc, dateTimeLocal: local));
       });
 
       test('Archival round-trips', () {
         final original = Archival(
           id: 'i3',
-          componentId: 'c1',
           dateTimeUTC: utc,
           dateTimeLocal: local,
         );

@@ -151,15 +151,13 @@ void main() {
   group('bike adjustment columns', () {
     const columnLabel = 'Pressure · Tire (Front Wheel)';
 
-    Installation onBike(String componentId, int day) => BikeInstallation(
-      componentId: componentId,
+    Installation onBike(int day) => BikeInstallation(
       bikeId: 'bike1',
       dateTimeUTC: DateTime.utc(2026, 1, day),
       dateTimeLocal: DateTime(2026, 1, day),
     );
 
-    Installation onWheel(String componentId, int day) => ComponentInstallation(
-      componentId: componentId,
+    Installation onWheel(int day) => ComponentInstallation(
       parentComponentId: 'wheel',
       dateTimeUTC: DateTime.utc(2026, 1, day),
       dateTimeLocal: DateTime(2026, 1, day),
@@ -185,15 +183,15 @@ void main() {
           id: 'wheel',
           name: 'Front Wheel',
           componentType: ComponentType.wheelFront,
-          installations: [onBike('wheel', 1)],
+          installations: [onBike(1)],
         ),
         Component(
           id: 'tire-a',
           name: '$tireName A',
           componentType: ComponentType.tire,
           installations: [
-            onWheel('tire-a', 1),
-            Uninstallation(componentId: 'tire-a', dateTimeUTC: DateTime.utc(2026, 1, 5), dateTimeLocal: DateTime(2026, 1, 5)),
+            onWheel(1),
+            Uninstallation(dateTimeUTC: DateTime.utc(2026, 1, 5), dateTimeLocal: DateTime(2026, 1, 5)),
           ],
           adjustments: [NumericalAdjustment(id: 'pa', name: 'Pressure', notes: null, unit: null)],
         ),
@@ -201,7 +199,7 @@ void main() {
           id: 'tire-b',
           name: '$tireName B',
           componentType: ComponentType.tire,
-          installations: [onWheel('tire-b', 5)],
+          installations: [onWheel(5)],
           adjustments: [NumericalAdjustment(id: 'pb', name: 'Pressure', notes: null, unit: null)],
         ),
       ]);

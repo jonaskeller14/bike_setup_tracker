@@ -16,7 +16,6 @@ void main() {
       componentType: ComponentType.other,
       installations: [
         BikeInstallation(
-          componentId: 'parent',
           bikeId: 'bike',
           dateTimeUTC: parentSince,
           dateTimeLocal: parentSince.toLocal(),
@@ -29,7 +28,6 @@ void main() {
       componentType: ComponentType.other,
       installations: [
         ComponentInstallation(
-          componentId: 'child',
           parentComponentId: 'parent',
           dateTimeUTC: childSince,
           dateTimeLocal: childSince.toLocal(),

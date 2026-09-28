@@ -9,22 +9,19 @@ import 'package:flutter_test/flutter_test.dart';
 
 const bike = 'bike';
 
-Installation onBike(String componentId, int day) => BikeInstallation(
-  componentId: componentId,
+Installation onBike(int day) => BikeInstallation(
   bikeId: bike,
   dateTimeUTC: DateTime.utc(2026, 1, day),
   dateTimeLocal: DateTime(2026, 1, day),
 );
 
-Installation onComponent(String componentId, String parentId, int day) => ComponentInstallation(
-  componentId: componentId,
+Installation onComponent(String parentId, int day) => ComponentInstallation(
   parentComponentId: parentId,
   dateTimeUTC: DateTime.utc(2026, 1, day),
   dateTimeLocal: DateTime(2026, 1, day),
 );
 
-Installation uninstalled(String componentId, int day) => Uninstallation(
-  componentId: componentId,
+Installation uninstalled(int day) => Uninstallation(
   dateTimeUTC: DateTime.utc(2026, 1, day),
   dateTimeLocal: DateTime(2026, 1, day),
 );
@@ -74,21 +71,21 @@ void main() {
     late Component rearWheel;
 
     setUp(() {
-      frontWheel = component('front-wheel', ComponentType.wheelFront, [onBike('front-wheel', 1)]);
-      rearWheel = component('rear-wheel', ComponentType.wheelRear, [onBike('rear-wheel', 1)]);
+      frontWheel = component('front-wheel', ComponentType.wheelFront, [onBike(1)]);
+      rearWheel = component('rear-wheel', ComponentType.wheelRear, [onBike(1)]);
     });
 
     test('merges a tire replaced on the same wheel into one column', () {
       final tireA = component(
         'tire-a',
         ComponentType.tire,
-        [onComponent('tire-a', 'front-wheel', 1), uninstalled('tire-a', 5)],
+        [onComponent('front-wheel', 1), uninstalled(5)],
         adjustments: [pressure('pa')],
       );
       final tireB = component(
         'tire-b',
         ComponentType.tire,
-        [onComponent('tire-b', 'front-wheel', 5)],
+        [onComponent('front-wheel', 5)],
         adjustments: [pressure('pb')],
       );
       final s1 = setup('s1', 2, values: {'pa': const NumericalValue(25)});
@@ -112,13 +109,13 @@ void main() {
       final tireA = component(
         'tire-a',
         ComponentType.tire,
-        [onComponent('tire-a', 'front-wheel', 1), onComponent('tire-a', 'rear-wheel', 5)],
+        [onComponent('front-wheel', 1), onComponent('rear-wheel', 5)],
         adjustments: [pressure('pa')],
       );
       final tireB = component(
         'tire-b',
         ComponentType.tire,
-        [onComponent('tire-b', 'rear-wheel', 1), onComponent('tire-b', 'front-wheel', 5)],
+        [onComponent('rear-wheel', 1), onComponent('front-wheel', 5)],
         adjustments: [pressure('pb')],
       );
       final s1 = setup('s1', 2, values: {'pa': const NumericalValue(20), 'pb': const NumericalValue(25)});
@@ -145,8 +142,8 @@ void main() {
     });
 
     test('puts two tires mounted on the bike at the same time into separate lanes', () {
-      final tireA = component('tire-a', ComponentType.tire, [onBike('tire-a', 1)], adjustments: [pressure('pa')]);
-      final tireB = component('tire-b', ComponentType.tire, [onBike('tire-b', 1)], adjustments: [pressure('pb')]);
+      final tireA = component('tire-a', ComponentType.tire, [onBike(1)], adjustments: [pressure('pa')]);
+      final tireB = component('tire-b', ComponentType.tire, [onBike(1)], adjustments: [pressure('pb')]);
       final s1 = setup('s1', 2, values: {'pa': const NumericalValue(20), 'pb': const NumericalValue(25)});
 
       final projection = project([s1], [tireA, tireB]);
@@ -163,19 +160,19 @@ void main() {
       final specialized = component(
         'specialized',
         ComponentType.tire,
-        [onBike('specialized', 1), uninstalled('specialized', 5)],
+        [onBike(1), uninstalled(5)],
         adjustments: [pressure('p1')],
       );
       final maxxis = component(
         'maxxis',
         ComponentType.tire,
-        [onBike('maxxis', 1), uninstalled('maxxis', 5)],
+        [onBike(1), uninstalled(5)],
         adjustments: [pressure('p2')],
       );
       final newMaxxis = component(
         'maxxis 2',
         ComponentType.tire,
-        [onBike('maxxis 2', 5)],
+        [onBike(5)],
         adjustments: [pressure('p3')],
       );
 
@@ -189,13 +186,13 @@ void main() {
       final oldWheel = component(
         'old-wheel',
         ComponentType.wheelFront,
-        [onBike('old-wheel', 1), uninstalled('old-wheel', 5)],
+        [onBike(1), uninstalled(5)],
       );
-      final newWheel = component('new-wheel', ComponentType.wheelFront, [onBike('new-wheel', 5)]);
+      final newWheel = component('new-wheel', ComponentType.wheelFront, [onBike(5)]);
       final tire = component(
         'tire',
         ComponentType.tire,
-        [onComponent('tire', 'old-wheel', 1), onComponent('tire', 'new-wheel', 5)],
+        [onComponent('old-wheel', 1), onComponent('new-wheel', 5)],
         adjustments: [pressure('p')],
       );
       final s1 = setup('s1', 2, values: {'p': const NumericalValue(20)});
@@ -219,13 +216,13 @@ void main() {
       final forkA = component(
         'fork-a',
         ComponentType.fork,
-        [onBike('fork-a', 1), uninstalled('fork-a', 5)],
+        [onBike(1), uninstalled(5)],
         adjustments: [pressure('pa', unit: 'psi')],
       );
       final forkB = component(
         'fork-b',
         ComponentType.fork,
-        [onBike('fork-b', 5)],
+        [onBike(5)],
         adjustments: [pressure('pb', unit: 'bar')],
       );
 
@@ -239,7 +236,7 @@ void main() {
       final forkA = component(
         'fork-a',
         ComponentType.fork,
-        [onBike('fork-a', 1), uninstalled('fork-a', 5)],
+        [onBike(1), uninstalled(5)],
         adjustments: [
           StepAdjustment(
             id: 'ra',
@@ -256,7 +253,7 @@ void main() {
       final forkB = component(
         'fork-b',
         ComponentType.fork,
-        [onBike('fork-b', 5)],
+        [onBike(5)],
         adjustments: [NumericalAdjustment(id: 'rb', name: ' rebound ', notes: null, unit: null)],
       );
 
@@ -269,13 +266,13 @@ void main() {
       final forkA = component(
         'fork-a',
         ComponentType.fork,
-        [onBike('fork-a', 1), uninstalled('fork-a', 5)],
+        [onBike(1), uninstalled(5)],
         adjustments: [pressure('pa', name: 'Air  Pressure')],
       );
       final forkB = component(
         'fork-b',
         ComponentType.fork,
-        [onBike('fork-b', 5)],
+        [onBike(5)],
         adjustments: [pressure('pb', name: 'air pressure')],
       );
 
@@ -289,7 +286,7 @@ void main() {
       final tireA = component(
         'tire-a',
         ComponentType.tire,
-        [onComponent('tire-a', 'front-wheel', 1), uninstalled('tire-a', 5)],
+        [onComponent('front-wheel', 1), uninstalled(5)],
         adjustments: [pressure('pa')],
       );
       final s1 = setup('s1', 2, values: {'pa': const NumericalValue(25)});
@@ -307,13 +304,13 @@ void main() {
       final tireA = component(
         'tire-a',
         ComponentType.tire,
-        [onComponent('tire-a', 'front-wheel', 1), uninstalled('tire-a', 5)],
+        [onComponent('front-wheel', 1), uninstalled(5)],
         adjustments: [pressure('pa')],
       );
       final tireB = component(
         'tire-b',
         ComponentType.tire,
-        [onComponent('tire-b', 'front-wheel', 5)],
+        [onComponent('front-wheel', 5)],
         adjustments: [pressure('pb')],
       );
       final s2 = setup('s2', 6, values: {'pa': const NumericalValue(25), 'pb': const NumericalValue(22)});
@@ -331,7 +328,6 @@ void main() {
         ComponentType.tire,
         [
           BikeInstallation(
-            componentId: 'other',
             bikeId: 'other-bike',
             dateTimeUTC: DateTime.utc(2026),
             dateTimeLocal: DateTime(2026),
@@ -352,12 +348,12 @@ void main() {
     });
 
     test('uses the direct parent for a component nested two levels deep', () {
-      final fork = component('fork', ComponentType.fork, [onBike('fork', 1)]);
-      final wheel = component('wheel', ComponentType.wheelFront, [onComponent('wheel', 'fork', 1)]);
+      final fork = component('fork', ComponentType.fork, [onBike(1)]);
+      final wheel = component('wheel', ComponentType.wheelFront, [onComponent('fork', 1)]);
       final tire = component(
         'tire',
         ComponentType.tire,
-        [onComponent('tire', 'wheel', 1)],
+        [onComponent('wheel', 1)],
         adjustments: [pressure('p')],
       );
 
@@ -368,17 +364,17 @@ void main() {
     });
 
     test('orders columns by slot, lane, and the latest component adjustment order', () {
-      final fork = component('fork', ComponentType.fork, [onBike('fork', 1)], adjustments: [pressure('fork-p')]);
+      final fork = component('fork', ComponentType.fork, [onBike(1)], adjustments: [pressure('fork-p')]);
       final rearTireComponent = component(
         'rear-tire',
         ComponentType.tire,
-        [onComponent('rear-tire', 'rear-wheel', 1)],
+        [onComponent('rear-wheel', 1)],
         adjustments: [pressure('rear-p')],
       );
       final oldFrontTire = component(
         'old-front',
         ComponentType.tire,
-        [onComponent('old-front', 'front-wheel', 1), uninstalled('old-front', 5)],
+        [onComponent('front-wheel', 1), uninstalled(5)],
         adjustments: [
           pressure('old-p'),
           pressure('old-inserts', name: 'Inserts'),
@@ -387,7 +383,7 @@ void main() {
       final newFrontTire = component(
         'new-front',
         ComponentType.tire,
-        [onComponent('new-front', 'front-wheel', 5)],
+        [onComponent('front-wheel', 5)],
         adjustments: [
           pressure('new-width', name: 'Width', unit: 'mm'),
           pressure('new-p'),
@@ -417,7 +413,7 @@ void main() {
     late BikeAdjustmentColumnKey column;
 
     setUp(() {
-      fork = component('fork', ComponentType.fork, [onBike('fork', 1)], adjustments: [pressure('p')]);
+      fork = component('fork', ComponentType.fork, [onBike(1)], adjustments: [pressure('p')]);
       column = project([setup('s1', 2)], [fork]).columns.single;
     });
 
@@ -444,10 +440,10 @@ void main() {
       final tireA = component(
         'tire-a',
         ComponentType.tire,
-        [onBike('tire-a', 1), uninstalled('tire-a', 5)],
+        [onBike(1), uninstalled(5)],
         adjustments: [pressure('pa')],
       );
-      final tireB = component('tire-b', ComponentType.tire, [onBike('tire-b', 5)], adjustments: [pressure('pb')]);
+      final tireB = component('tire-b', ComponentType.tire, [onBike(5)], adjustments: [pressure('pb')]);
       final same = [
         setup('s1', 2, values: {'pa': const NumericalValue(25)}),
         setup('s2', 6, values: {'pb': const NumericalValue(25)}),

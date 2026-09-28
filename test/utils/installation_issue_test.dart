@@ -12,15 +12,13 @@ Component component(String id, List<Installation> installations) => Component(
   componentType: ComponentType.other,
 );
 
-Installation onBike(String componentId, String bikeId) => BikeInstallation(
-  componentId: componentId,
+Installation onBike(String bikeId) => BikeInstallation(
   bikeId: bikeId,
   dateTimeUTC: DateTime.utc(2026, 1, 1),
   dateTimeLocal: DateTime(2026, 1, 1),
 );
 
-Installation onComponent(String componentId, String parentId) => ComponentInstallation(
-  componentId: componentId,
+Installation onComponent(String parentId) => ComponentInstallation(
   parentComponentId: parentId,
   dateTimeUTC: DateTime.utc(2026, 1, 1),
   dateTimeLocal: DateTime(2026, 1, 1),
@@ -46,7 +44,7 @@ void main() {
 
   test('healthy component on an existing bike has no issue', () {
     final components = {
-      'wheel': component('wheel', [onBike('wheel', 'bike')]),
+      'wheel': component('wheel', [onBike('bike')]),
     };
 
     expect(issueOf('wheel', components), isNull);
@@ -55,9 +53,8 @@ void main() {
   test('uninstalled component has no issue', () {
     final components = {
       'wheel': component('wheel', [
-        onBike('wheel', 'bike'),
+        onBike('bike'),
         Uninstallation(
-          componentId: 'wheel',
           dateTimeUTC: DateTime.utc(2026, 1, 2),
           dateTimeLocal: DateTime(2026, 1, 2),
         ),
@@ -71,7 +68,6 @@ void main() {
     final components = {
       'wheel': component('wheel', [
         Archival(
-          componentId: 'wheel',
           dateTimeUTC: DateTime.utc(2026, 1, 2),
           dateTimeLocal: DateTime(2026, 1, 2),
         ),
@@ -89,7 +85,7 @@ void main() {
 
   test('installation on an unknown bike reports a missing bike', () {
     final components = {
-      'wheel': component('wheel', [onBike('wheel', 'gone')]),
+      'wheel': component('wheel', [onBike('gone')]),
     };
 
     expect(issueOf('wheel', components), InstallationIssue.missingBike);
@@ -97,7 +93,7 @@ void main() {
 
   test('installation on an unknown component reports a missing parent', () {
     final components = {
-      'tire': component('tire', [onComponent('tire', 'gone')]),
+      'tire': component('tire', [onComponent('gone')]),
     };
 
     expect(issueOf('tire', components), InstallationIssue.missingParent);
@@ -105,8 +101,8 @@ void main() {
 
   test('installation on a trashed component reports a missing parent', () {
     final components = {
-      'wheel': component('wheel', [onBike('wheel', 'bike')]),
-      'tire': component('tire', [onComponent('tire', 'wheel')]),
+      'wheel': component('wheel', [onBike('bike')]),
+      'tire': component('tire', [onComponent('wheel')]),
     };
 
     expect(
@@ -117,8 +113,8 @@ void main() {
 
   test('a child of a broken parent stays unreported', () {
     final components = {
-      'wheel': component('wheel', [onComponent('wheel', 'gone')]),
-      'tire': component('tire', [onComponent('tire', 'wheel')]),
+      'wheel': component('wheel', [onComponent('gone')]),
+      'tire': component('tire', [onComponent('wheel')]),
     };
 
     expect(issueOf('wheel', components), InstallationIssue.missingParent);
@@ -127,9 +123,9 @@ void main() {
 
   test('only the root of a two-level chain under a missing bike reports', () {
     final components = {
-      'wheel': component('wheel', [onBike('wheel', 'gone')]),
-      'tire': component('tire', [onComponent('tire', 'wheel')]),
-      'insert': component('insert', [onComponent('insert', 'tire')]),
+      'wheel': component('wheel', [onBike('gone')]),
+      'tire': component('tire', [onComponent('wheel')]),
+      'insert': component('insert', [onComponent('tire')]),
     };
 
     expect(issueOf('wheel', components), InstallationIssue.missingBike);

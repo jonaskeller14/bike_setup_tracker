@@ -140,7 +140,7 @@ class _GarageListState extends State<GarageList> {
             await appRepository.editComponent(
               component.copyWith(
                 installations: [
-                  Uninstallation(dateTimeUTC: now.toUtc(), dateTimeLocal: now, componentId: component.id),
+                  Uninstallation(dateTimeUTC: now.toUtc(), dateTimeLocal: now),
                 ],
               ),
             );
@@ -198,7 +198,6 @@ class _GarageListState extends State<GarageList> {
           component.copyWith(
             installations: [
               Archival(
-                componentId: component.id,
                 dateTimeUTC: DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
                 dateTimeLocal: DateTime.fromMillisecondsSinceEpoch(0),
               ),

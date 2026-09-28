@@ -63,9 +63,8 @@ class DatabaseMigrationService {
       for (final component in data.components.values) {
         for (final installation in component.installations) {
           installationsToInsert.add(
-            // The model already carries a (synthesised) id from fromJson; just
-            // normalise the owning componentId.
-            installation.copyWith(componentId: component.id).toCompanion(),
+            // The model already carries a (synthesised) id from fromJson.
+            installation.toCompanion(componentId: component.id),
           );
         }
       }

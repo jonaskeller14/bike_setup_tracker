@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../utils/table_column.dart';
 import '../text/sheet_section_title.dart';
+import 'sheet.dart';
 import 'sheet_header.dart';
 
 Future<void> showColumnFilterSheet({
@@ -25,7 +26,26 @@ Future<void> showColumnFilterSheet({
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                const SheetHeader(title: 'Column Select'),
+                SheetHeader(
+                  title: 'Column Select',
+                  actions: [
+                    sheetActionButton(
+                      context,
+                      icon: Icons.deselect,
+                      tooltip: 'Deselect all',
+                      onPressed: columnsCopy.any((c) => c.active)
+                          ? () {
+                              setSheetState(() {
+                                for (final column in columnsCopy) {
+                                  column.active = false;
+                                }
+                              });
+                              onColumnStatusChanged();
+                            }
+                          : null,
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 16),
                 Flexible(
                   child: SingleChildScrollView(

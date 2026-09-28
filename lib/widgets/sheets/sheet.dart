@@ -56,6 +56,25 @@ IconButton sheetEditButton(BuildContext context, {required VoidCallback onPresse
   );
 }
 
+IconButton sheetActionButton(
+  BuildContext context, {
+  required IconData icon,
+  required String tooltip,
+  required VoidCallback? onPressed,
+}) {
+  return IconButton.filled(
+    iconSize: 20,
+    tooltip: tooltip,
+    style: IconButton.styleFrom(
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+      foregroundColor: Theme.of(context).colorScheme.onSurface,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    ),
+    onPressed: onPressed,
+    icon: Icon(icon),
+  );
+}
+
 IconButton sheetBackButton(BuildContext context, {required VoidCallback onPressed}) {
   return IconButton.filled(
     iconSize: 20,

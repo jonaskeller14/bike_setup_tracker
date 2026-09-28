@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/component/component.dart';
 import '../text/sheet_section_title.dart';
+import 'sheet.dart';
 import 'sheet_header.dart';
 
 Future<void> showComponentTypeFilterSheet({
@@ -20,13 +21,35 @@ Future<void> showComponentTypeFilterSheet({
           final int totalCount = availableComponentTypes.length;
           final int selectedCount =
               availableComponentTypes.where((t) => !hiddenComponentTypes.contains(t)).length;
+          final bool allSelected = selectedCount == totalCount;
 
           return SafeArea(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                SheetHeader(title: 'Component Types ($selectedCount/$totalCount)'),
+                SheetHeader(
+                  title: 'Component Types ($selectedCount/$totalCount)',
+                  actions: [
+                    sheetActionButton(
+                      context,
+                      icon: allSelected ? Icons.deselect : Icons.select_all,
+                      tooltip: allSelected ? 'Deselect all' : 'Select all',
+                      onPressed: totalCount == 0
+                          ? null
+                          : () {
+                              setSheetState(() {
+                                if (allSelected) {
+                                  hiddenComponentTypes.addAll(availableComponentTypes);
+                                } else {
+                                  hiddenComponentTypes.removeAll(availableComponentTypes);
+                                }
+                              });
+                              onChanged();
+                            },
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 8),
                 Flexible(
                   child: SingleChildScrollView(

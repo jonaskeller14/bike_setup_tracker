@@ -10,6 +10,7 @@ class SheetHeader extends StatelessWidget {
     this.onBack,
     this.showClose = true,
     this.onEdit,
+    this.actions = const [],
   });
 
   final String title;
@@ -17,10 +18,11 @@ class SheetHeader extends StatelessWidget {
   final VoidCallback? onBack;
   final bool showClose;
   final VoidCallback? onEdit;
+  final List<Widget> actions;
 
   @override
   Widget build(BuildContext context) {
-    final hasTrailing = onEdit != null || showClose;
+    final hasTrailing = actions.isNotEmpty || onEdit != null || showClose;
     final centerTitle = onBack != null || !hasTrailing;
 
     final titleRow = Row(
@@ -39,6 +41,7 @@ class SheetHeader extends StatelessWidget {
           Expanded(
             child: centerTitle ? Center(child: titleRow) : titleRow,
           ),
+          ...actions,
           if (onEdit != null) sheetEditButton(context, onPressed: onEdit!),
           if (showClose) sheetCloseButton(context),
         ],

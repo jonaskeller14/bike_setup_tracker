@@ -97,14 +97,18 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
     return _projection = projection;
   }
 
-  /// The lane's components with the dates of the first and last setup each was present at.
-  String _laneHistory(SlotLane lane, Map<String, Setup> setups, String dateFormat) {
+  /// The lane's components with the dates of the first and last setup each was present at;
+  /// components still on this bike are open-ended.
+  String _laneHistory(SlotLane lane, AppRepository appRepository, String dateFormat) {
     final format = DateFormat(dateFormat);
     return lane.members
         .map((member) {
           final dates = member.setupIds.map((id) => setups[id]?.datetimeLocal).nonNulls.sorted();
           if (dates.isEmpty) return member.component.name;
           final first = format.format(dates.first);
+          if (appRepository.componentHierarchy.currentBike(member.component.id) == widget.bikeId) {
+            return '${member.component.name}: $first – now';
+          }
           final last = format.format(dates.last);
           return '${member.component.name}: ${first == last ? first : '$first – $last'}';
         })

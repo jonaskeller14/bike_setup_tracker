@@ -1060,19 +1060,23 @@ class _TaskRulePageState extends State<TaskRulePage> {
                           if (!hasStravaEntitlement) _stravaTriggerBanner(context),
                           if (_intervalType != _ThresholdType.none && _intervalType != _ThresholdType.dateTime) ...[
                             const SizedBox(height: 8),
-                            ListTile(
-                              tileColor: widget.mode == TaskRulePageMode.edit && _repeat != (widget.taskRule?.repeat ?? true)
-                                  ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
-                                  : null,
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                              title: const Text("Repeat Interval"),
-                              subtitle: const Text("Start the interval over after each entry"),
-                              trailing: Switch(
-                                value: _repeat,
-                                onChanged: (v) {
-                                  setState(() => _repeat = v);
-                                  _changeListener();
-                                },
+                            // Keeps the tile color inside the scroll view (ListTile paints on the nearest Material).
+                            Material(
+                              type: MaterialType.transparency,
+                              child: ListTile(
+                                tileColor: widget.mode == TaskRulePageMode.edit && _repeat != (widget.taskRule?.repeat ?? true)
+                                    ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
+                                    : null,
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                title: const Text("Repeat Interval"),
+                                subtitle: const Text("Start the interval over after each entry"),
+                                trailing: Switch(
+                                  value: _repeat,
+                                  onChanged: (v) {
+                                    setState(() => _repeat = v);
+                                    _changeListener();
+                                  },
+                                ),
                               ),
                             ),
                             if (widget.mode == TaskRulePageMode.edit && appSettings.enableTaskDelay)

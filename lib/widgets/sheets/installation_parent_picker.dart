@@ -207,11 +207,7 @@ class _InstallationParentPickerSheetState extends State<_InstallationParentPicke
               child: SingleChildScrollView(
                 controller: _scrollController,
                 padding: const EdgeInsets.only(bottom: 16),
-                // ListTile paints its tile color on the nearest Material; without
-                // one inside the scroll view, it leaks over the header and search field.
-                child: Material(
-                  type: MaterialType.transparency,
-                  child: sections.isEmpty
+                child: sections.isEmpty
                     ? Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: SheetFilterEmptyHint(
@@ -237,7 +233,6 @@ class _InstallationParentPickerSheetState extends State<_InstallationParentPicke
                           if (hiddenCount > 0) _showAllRow(hiddenCount),
                         ],
                       ),
-                ),
               ),
             ),
           ],
@@ -392,27 +387,32 @@ class _ParentRow extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
-      child: ListTile(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        contentPadding: const EdgeInsetsDirectional.only(start: 8, end: 16),
-        leading: Icon(option.icon, color: option.color),
-        title: Text(
-          option.label,
-          style: TextStyle(color: option.color, fontWeight: selected ? FontWeight.w600 : null),
+      // ListTile paints its tile color on the nearest Material; the sheet's own
+      // sits outside the scroll view, so the color would scroll over the header.
+      child: Material(
+        type: MaterialType.transparency,
+        child: ListTile(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          contentPadding: const EdgeInsetsDirectional.only(start: 8, end: 16),
+          leading: Icon(option.icon, color: option.color),
+          title: Text(
+            option.label,
+            style: TextStyle(color: option.color, fontWeight: selected ? FontWeight.w600 : null),
+          ),
+          subtitle: option.ancestors.isEmpty ? null : ComponentAncestorsColumn(ancestors: option.ancestors, bikes: bikes),
+          selected: selected,
+          selectedColor: highlightColor == null ? scheme.onSecondaryContainer : scheme.onSurface,
+          selectedTileColor: highlightColor?.withValues(alpha: 0.18) ?? scheme.secondaryContainer,
+          trailing: selected
+              ? Icon(Icons.check, color: highlightColor)
+              : isPrevious
+                  ? Tooltip(
+                      message: 'Previous value',
+                      child: Icon(Icons.history, color: scheme.onSurfaceVariant),
+                    )
+                  : null,
+          onTap: onTap,
         ),
-        subtitle: option.ancestors.isEmpty ? null : ComponentAncestorsColumn(ancestors: option.ancestors, bikes: bikes),
-        selected: selected,
-        selectedColor: highlightColor == null ? scheme.onSecondaryContainer : scheme.onSurface,
-        selectedTileColor: highlightColor?.withValues(alpha: 0.18) ?? scheme.secondaryContainer,
-        trailing: selected
-            ? Icon(Icons.check, color: highlightColor)
-            : isPrevious
-                ? Tooltip(
-                    message: 'Previous value',
-                    child: Icon(Icons.history, color: scheme.onSurfaceVariant),
-                  )
-                : null,
-        onTap: onTap,
       ),
     );
   }

@@ -346,44 +346,51 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                             child: Column(
                               children: [
                                 if (appSettings.enableMultiSelect || _multiSelect)
-                                  CheckboxListTile(
-                                    contentPadding: EdgeInsets.zero,
-                                    controlAffinity: ListTileControlAffinity.leading,
-                                    tileColor: widget.mode == AdjustmentPageMode.edit && _multiSelect != (widget.adjustment?.multiSelect ?? false)
-                                        ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
-                                        : null,
-                                    title: const Text('Multi Select'),
-                                    subtitle: const Text('Allow more than one selection'),
-                                    value: _multiSelect,
-                                    onChanged: (bool? newValue) {
-                                      if (newValue == null) return;
-                                      setState(() {
-                                        _multiSelect = newValue;
-                                        _previewValues = null;
-                                        _previewAdjustment = _composePreview();
-                                      });
-                                      _changeListener();
-                                    },
+                                  // Keeps the tile colors inside the scroll view (ListTile paints on the nearest Material).
+                                  Material(
+                                    type: MaterialType.transparency,
+                                    child: CheckboxListTile(
+                                      contentPadding: EdgeInsets.zero,
+                                      controlAffinity: ListTileControlAffinity.leading,
+                                      tileColor: widget.mode == AdjustmentPageMode.edit && _multiSelect != (widget.adjustment?.multiSelect ?? false)
+                                          ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
+                                          : null,
+                                      title: const Text('Multi Select'),
+                                      subtitle: const Text('Allow more than one selection'),
+                                      value: _multiSelect,
+                                      onChanged: (bool? newValue) {
+                                        if (newValue == null) return;
+                                        setState(() {
+                                          _multiSelect = newValue;
+                                          _previewValues = null;
+                                          _previewAdjustment = _composePreview();
+                                        });
+                                        _changeListener();
+                                      },
+                                    ),
                                   ),
                                 if (appSettings.enableCountedSelect || _counted)
-                                  CheckboxListTile(
-                                    contentPadding: EdgeInsets.zero,
-                                    controlAffinity: ListTileControlAffinity.leading,
-                                    tileColor: widget.mode == AdjustmentPageMode.edit && _counted != (widget.adjustment?.counted ?? false)
-                                        ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
-                                        : null,
-                                    title: const Text('Count Occurrences'),
-                                    subtitle: const Text('Allow the same option multiple times'),
-                                    value: _counted,
-                                    onChanged: (bool? newValue) {
-                                      if (newValue == null) return;
-                                      setState(() {
-                                        _counted = newValue;
-                                        _previewValues = null;
-                                        _previewAdjustment = _composePreview();
-                                      });
-                                      _changeListener();
-                                    },
+                                  Material(
+                                    type: MaterialType.transparency,
+                                    child: CheckboxListTile(
+                                      contentPadding: EdgeInsets.zero,
+                                      controlAffinity: ListTileControlAffinity.leading,
+                                      tileColor: widget.mode == AdjustmentPageMode.edit && _counted != (widget.adjustment?.counted ?? false)
+                                          ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
+                                          : null,
+                                      title: const Text('Count Occurrences'),
+                                      subtitle: const Text('Allow the same option multiple times'),
+                                      value: _counted,
+                                      onChanged: (bool? newValue) {
+                                        if (newValue == null) return;
+                                        setState(() {
+                                          _counted = newValue;
+                                          _previewValues = null;
+                                          _previewAdjustment = _composePreview();
+                                        });
+                                        _changeListener();
+                                      },
+                                    ),
                                   ),
                                 TextFormField(
                                   controller: _notesController,

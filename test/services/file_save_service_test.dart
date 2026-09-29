@@ -61,6 +61,31 @@ void main() {
     expect(receivedExtensions, ['zip']);
   });
 
+  test('allows any file type when there is no extension', () async {
+    FileType? receivedType;
+    List<String>? receivedExtensions = const [];
+    final service = FileSaveService(({
+      required String fileName,
+      required FileType type,
+      List<String>? allowedExtensions,
+      required Uint8List bytes,
+    }) async {
+      receivedType = type;
+      receivedExtensions = allowedExtensions;
+      return Uri.file('/saved/notes');
+    });
+
+    final outcome = await service.saveFile(
+      fileName: 'notes',
+      bytes: const [1],
+      extension: '',
+    );
+
+    expect(outcome, FileSaveOutcome.saved);
+    expect(receivedType, FileType.any);
+    expect(receivedExtensions, isNull);
+  });
+
   test('lets platform errors propagate', () async {
     final service = FileSaveService(({
       required String fileName,

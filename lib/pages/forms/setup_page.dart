@@ -435,6 +435,11 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     _changeListener();
   }
 
+  void _onAttachmentRenamed(int index, String name) {
+    setState(() => _attachments[index] = _attachments[index].copyWith(name: name));
+    _changeListener();
+  }
+
   void _onAttachmentReorder(int oldIndex, int newIndex) {
     setState(() {
       final item = _attachments.removeAt(oldIndex);
@@ -1222,6 +1227,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                             mode: AttachmentStripMode.edit,
                             onRemove: _onAttachmentRemoved,
                             onReorder: _onAttachmentReorder,
+                            onRename: _onAttachmentRenamed,
                           ),
                         ],
                         const SizedBox(height: 12),

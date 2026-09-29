@@ -8,10 +8,11 @@ class ShareService {
   static Future<void> shareFile({
     required BuildContext context,
     required String filePath,
+    String? fileName,
     String? text,
     String? errorMessage,
   }) async {
-    final fileName = p.basename(filePath);
+    fileName ??= p.basename(filePath);
     final box = context.findRenderObject() as RenderBox?;
     final scaffoldMessenger = ScaffoldMessenger.of(context);
 

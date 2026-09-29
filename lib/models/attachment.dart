@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
+enum AttachmentOwnerType { setup, bike, component }
+
+typedef AttachmentOwner = ({AttachmentOwnerType type, String id});
+
 class Attachment {
   final String id;
   final String extension; // original, lower-cased, with leading dot ('.pdf') or ''

@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 
 import '../models/attachment.dart';
 import '../utils/attachment_actions.dart';
-import 'image_viewer.dart';
+import 'attachment_viewer.dart';
 
 enum AttachmentStripMode { view, edit }
 
@@ -17,6 +17,7 @@ class AttachmentStrip extends StatefulWidget {
   final void Function(int index)? onRemove;
   final void Function(int oldIndex, int newIndex)? onReorder;
   final void Function(List<Attachment> newAttachments)? onAdd;
+  final void Function(int index, String name)? onRename;
   final String heroTagPrefix;
 
   const AttachmentStrip({
@@ -27,6 +28,7 @@ class AttachmentStrip extends StatefulWidget {
     this.onRemove,
     this.onReorder,
     this.onAdd,
+    this.onRename,
     this.heroTagPrefix = 'attachment',
   });
 
@@ -120,11 +122,12 @@ class _AttachmentStripState extends State<AttachmentStrip> with TickerProviderSt
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => ImageViewer(
-            images: widget.attachments,
-            imagesDir: widget.attachmentsDir,
+          builder: (_) => AttachmentViewer(
+            attachments: widget.attachments,
+            attachmentsDir: widget.attachmentsDir,
             initialIndex: index,
             onDelete: widget.onRemove != null ? (deletedIndex) => widget.onRemove?.call(deletedIndex) : null,
+            onRename: widget.onRename,
           ),
         ),
       ),

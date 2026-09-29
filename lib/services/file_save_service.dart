@@ -24,8 +24,8 @@ class FileSaveService {
   }) async {
     final path = await _saveFile(
       fileName: fileName,
-      type: FileType.custom,
-      allowedExtensions: [extension],
+      type: extension.isEmpty ? FileType.any : FileType.custom,
+      allowedExtensions: extension.isEmpty ? null : [extension],
       bytes: Uint8List.fromList(bytes),
     );
 

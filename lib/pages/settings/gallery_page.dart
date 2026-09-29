@@ -11,8 +11,8 @@ import '../../repositories/app_repository.dart';
 import '../../services/attachment_storage_service.dart';
 import '../../utils/attachment_actions.dart';
 import '../../widgets/animated_app_bar_switcher.dart';
+import '../../widgets/attachment_viewer.dart';
 import '../../widgets/empty_state_placeholder.dart';
-import '../../widgets/image_viewer.dart';
 
 typedef _GalleryEntry = ({Attachment attachment, String? setupId});
 typedef _ImageFolder = ({String dir, List<String> filenames});
@@ -105,11 +105,14 @@ class _GalleryPageState extends State<GalleryPage> {
       Navigator.push<void>(
         context,
         MaterialPageRoute(
-          builder: (_) => ImageViewer(
-            images: [for (final entry in entries) entry.attachment],
-            imagesDir: imagesDir,
+          builder: (_) => AttachmentViewer(
+            attachments: [for (final entry in entries) entry.attachment],
+            attachmentsDir: imagesDir,
             initialIndex: index,
-            setupIdForImage: (filename) => setupIdsByImage[filename],
+            ownerForAttachment: (attachment) {
+              final setupId = setupIdsByImage[attachment.filename];
+              return setupId == null ? null : (type: AttachmentOwnerType.setup, id: setupId);
+            },
           ),
         ),
       ),

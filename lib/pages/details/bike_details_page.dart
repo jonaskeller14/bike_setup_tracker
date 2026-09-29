@@ -585,7 +585,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
                 const Divider(height: 1),
                 InstallationTimelineTable(
                   bikeId: widget.bikeId,
-                  allComponents: appRepository.components.values.toList(),
+                  componentHierarchy: appRepository.componentHierarchy,
                 ),
               ]
             ],

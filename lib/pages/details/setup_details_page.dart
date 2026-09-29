@@ -189,6 +189,8 @@ class SetupDetailsPageContent extends StatelessWidget {
     switch (action) {
       case _SetupDetailsAction.edit:
         await SetupActions.editSetup(context, setup: setup);
+      case _SetupDetailsAction.share:
+        await SetupActions.shareSetup(context, setup: setup);
       case _SetupDetailsAction.restore:
         final restored = await SetupActions.duplicateSetup(context, setup: setup);
         if (restored != null && context.mounted) Navigator.pop(context);
@@ -216,6 +218,7 @@ class SetupDetailsPageContent extends StatelessWidget {
   Widget _sheetActions(BuildContext context, {required Setup setup}) {
     final actions = <_SetupDetailsAction>[
       _SetupDetailsAction.edit,
+      _SetupDetailsAction.share,
       //TODO: add "add rating" and "remove" ?
       if (!setup.isCurrent) _SetupDetailsAction.restore,
       _SetupDetailsAction.compare,
@@ -733,6 +736,7 @@ class _SetupBookmarkAction extends StatelessWidget {
 
 enum _SetupDetailsAction {
   edit('Edit', Icons.edit),
+  share('Share', Icons.share),
   restore('Restore', Icons.restore),
   compare('Compare', Icons.compare);
 

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../dashed_border_painter.dart';
+import '../text/section_title.dart';
+import '../tooltips/info_tooltip.dart';
+import '../tooltips/tooltip_style.dart';
 
 Text sheetTitle(BuildContext context, String title) {
   return Text(
@@ -28,6 +31,46 @@ Widget sheetSectionHeader(BuildContext context, String title) {
       ),
     ),
   );
+}
+
+/// Sub-header inside a sheet section. [info] is shown in a tap tooltip behind
+/// an info icon on the right, styled like [SectionTitle]'s.
+class SheetGroupTitle extends StatelessWidget {
+  final String title;
+  final Widget? info;
+
+  const SheetGroupTitle({super.key, required this.title, this.info});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final style = TooltipStyle.inverse(context);
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 2),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(title, style: theme.textTheme.labelLarge, overflow: TextOverflow.ellipsis),
+          ),
+          if (info case final info?)
+            infoTooltip(
+              context: context,
+              style: style,
+              triggerMode: TooltipTriggerMode.tap,
+              message: DefaultTextStyle.merge(
+                style: theme.textTheme.bodySmall?.copyWith(color: style.foreground),
+                child: info,
+              ),
+              child: Icon(
+                Icons.info_outline_rounded,
+                size: 16,
+                color: theme.colorScheme.outline.withValues(alpha: 0.7),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
 }
 
 IconButton sheetCloseButton(BuildContext context) {

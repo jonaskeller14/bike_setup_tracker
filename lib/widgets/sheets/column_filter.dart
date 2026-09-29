@@ -58,14 +58,16 @@ Future<void> showColumnFilterSheet({
                           final sectionColumns = columnsCopy.where((c) => c.section == tcs);
                           if (sectionColumns.isEmpty) return const SizedBox.shrink();
 
-                          final groups = groupBy(sectionColumns, (c) => columnGroup?.call(c));
+                          // Grouped by title: the info rows are lists, which compare by identity.
+                          final groupOf = {for (final c in sectionColumns) c: columnGroup?.call(c)};
+                          final groups = groupBy(sectionColumns, (c) => groupOf[c]?.title);
                           return Column(
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               SheetSectionTitle(title: tcs.label),
-                              for (final MapEntry(key: group, value: groupColumns) in groups.entries) ...[
-                                if (group != null) _ColumnGroupHeader(group: group),
+                              for (final MapEntry(key: title, value: groupColumns) in groups.entries) ...[
+                                if (title != null) _ColumnGroupHeader(group: groupOf[groupColumns.first]!),
                                 Wrap(
                                   spacing: 6,
                                   children: groupColumns.map((column) {
@@ -105,7 +107,8 @@ Future<void> showColumnFilterSheet({
 }
 
 /// A sub-header inside a section of the column sheet, e.g. one slot lane.
-typedef ColumnGroup = ({String title, String? subtitle});
+/// [info] rows are shown as a table in a tooltip behind an info icon.
+typedef ColumnGroup = ({String title, List<List<String>>? info});
 
 class _ColumnGroupHeader extends StatelessWidget {
   final ColumnGroup group;
@@ -114,20 +117,29 @@ class _ColumnGroupHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    return Padding(
-      padding: const EdgeInsets.only(top: 8, bottom: 2),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(group.title, style: textTheme.labelLarge, overflow: TextOverflow.ellipsis),
-          if (group.subtitle case final subtitle?)
-            Text(
-              subtitle,
-              style: textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+    final info = group.info;
+    return SheetGroupTitle(
+      title: group.title,
+      info: info == null || info.isEmpty
+          ? null
+          : Table(
+              defaultColumnWidth: const IntrinsicColumnWidth(),
+              // The first column shrinks and wraps so the aligned columns stay visible.
+              columnWidths: const {0: IntrinsicColumnWidth(flex: 1)},
+              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+              children: [
+                for (final row in info)
+                  TableRow(
+                    children: [
+                      for (final (index, cell) in row.indexed)
+                        Padding(
+                          padding: EdgeInsets.only(left: index == 0 ? 0 : 8, top: 2, bottom: 2),
+                          child: Text(cell),
+                        ),
+                    ],
+                  ),
+              ],
             ),
-        ],
-      ),
     );
   }
 }

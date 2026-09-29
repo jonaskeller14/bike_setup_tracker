@@ -97,23 +97,28 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
     return _projection = projection;
   }
 
-  /// The lane's components with the dates of the first and last setup each was present at;
-  /// components still on this bike are open-ended.
-  String _laneHistory(SlotLane lane, AppRepository appRepository, String dateFormat) {
+  /// One row per lane component: name, first setup, dash, last setup it was present at.
+  /// Components still on this bike end with "now".
+  List<List<String>> _laneHistory(SlotLane lane, AppRepository appRepository, String dateFormat) {
     final format = DateFormat(dateFormat);
-    return lane.members
-        .map((member) {
-          final dates = member.setupIds.map((id) => setups[id]?.datetimeLocal).nonNulls.sorted();
-          if (dates.isEmpty) return member.component.name;
-          final first = format.format(dates.first);
-          if (appRepository.componentHierarchy.currentBike(member.component.id) == widget.bikeId) {
-            return '${member.component.name}: $first – now';
-          }
-          final last = format.format(dates.last);
-          return '${member.component.name}: ${first == last ? first : '$first – $last'}';
-        })
-        .join('\n');
+    return lane.members.map((member) {
+      final name = member.component.name;
+      final dates = member.setupIds.map((id) => appRepository.setups[id]?.datetimeLocal).nonNulls.sorted();
+      if (dates.isEmpty) return [name, '', '', ''];
+      final first = format.format(dates.first);
+      final last = appRepository.componentHierarchy.currentBike(member.component.id) == widget.bikeId
+          ? 'now'
+          : format.format(dates.last);
+      return first == last ? [name, first, '', ''] : [name, first, '–', last];
+    }).toList();
   }
+
+  String _laneHistoryText(List<List<String>> rows) => rows
+      .map((row) {
+        final dates = row.skip(1).where((cell) => cell.isNotEmpty).join(' ');
+        return dates.isEmpty ? row.first : '${row.first}: $dates';
+      })
+      .join('\n');
 
   String _columnLabel(TableColumn column, Iterable<Adjustment> personAdjustments) {
     return switch (column) {
@@ -295,7 +300,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
                     BikeAdjustmentColumn(:final key) => switch (projection?.laneOf(key)) {
                       final lane? => (
                         title: lane.label,
-                        subtitle: _laneHistory(lane, appRepository.setups, appSettings.dateFormat),
+                        info: _laneHistory(lane, appRepository, appSettings.dateFormat),
                       ),
                       null => null,
                     },
@@ -334,7 +339,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
             columnLabel: (column) => _columnLabel(column, personAdjustments),
             columnTooltip: (column) => switch (column) {
               BikeAdjustmentColumn(:final key) => switch (projection?.laneOf(key)) {
-                final lane? => _laneHistory(lane, appRepository.setups, appSettings.dateFormat),
+                final lane? => _laneHistoryText(_laneHistory(lane, appRepository, appSettings.dateFormat)),
                 null => null,
               },
               _ => null,

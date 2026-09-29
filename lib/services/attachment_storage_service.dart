@@ -7,29 +7,29 @@ import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:uuid/uuid.dart';
 
 import '../database/app_database.dart';
+import '../models/attachment.dart';
 import '../models/selected_data.dart';
 import 'data_export_service.dart';
 
-class ImageStorageService {
-  static const String _imagesDir = 'images';
+class AttachmentStorageService {
+  static const String _attachmentsDir = 'attachments';
 
-  Future<String> _imagesPath() async {
+  Future<String> _attachmentsPath() async {
     final base = await getApplicationDocumentsDirectory();
-    return p.join(base.path, _imagesDir);
+    return p.join(base.path, _attachmentsDir);
   }
 
   Future<void> ensureDir() async {
-    final dir = Directory(await _imagesPath());
+    final dir = Directory(await _attachmentsPath());
     if (!dir.existsSync()) await dir.create(recursive: true);
   }
 
-  Future<String> getImagesPath() => _imagesPath();
+  Future<String> getAttachmentsPath() => _attachmentsPath();
 
   Future<File> resolve(String filename) async {
-    return File(p.join(await _imagesPath(), filename));
+    return File(p.join(await _attachmentsPath(), filename));
   }
 
   File resolveSync(String dirPath, String filename) {
@@ -41,31 +41,30 @@ class ImageStorageService {
     return file.existsSync();
   }
 
-  /// Copy an XFile from the image picker into images/ and return the new filename.
-  Future<String> importImage(XFile picked) async {
+  /// Copy an XFile from the image picker into attachments/, named after the picked file.
+  Future<Attachment> importPicked(XFile picked) async {
     await ensureDir();
-    final ext = p.extension(picked.path).toLowerCase().isNotEmpty
-        ? p.extension(picked.path).toLowerCase()
-        : '.jpg';
-    final filename = '${const Uuid().v4()}$ext';
-    final dest = await resolve(filename);
+    final ext = p.extension(picked.path).isNotEmpty ? p.extension(picked.path) : '.jpg';
+    final attachment = Attachment(extension: ext, name: picked.name);
+    final dest = await resolve(attachment.filename);
     await File(picked.path).copy(dest.path);
-    return filename;
+    return attachment;
   }
 
-  /// Duplicate an existing image under a new filename so two objects never share a file.
-  Future<String> copyExisting(String filename) async {
+  /// Duplicate an existing attachment under a new id so two objects never share a file.
+  Future<Attachment> copyExisting(Attachment attachment) async {
     await ensureDir();
-    final src = await resolve(filename);
-    if (!src.existsSync()) return filename;
-    final ext = p.extension(filename);
-    final newFilename = '${const Uuid().v4()}$ext';
-    final dest = await resolve(newFilename);
+    final src = await resolve(attachment.filename);
+    if (!src.existsSync()) return attachment;
+    final copy = Attachment(extension: attachment.extension, name: attachment.name);
+    final dest = await resolve(copy.filename);
     await src.copy(dest.path);
-    return newFilename;
+    return copy;
   }
 
-  Future<void> deleteImages(Iterable<String> filenames) async {
+  /// Takes filenames rather than [Attachment]s: unlinked files in the folder
+  /// have no attachment left that describes them.
+  Future<void> deleteFiles(Iterable<String> filenames) async {
     for (final filename in filenames) {
       try {
         final file = await resolve(filename);
@@ -74,8 +73,8 @@ class ImageStorageService {
     }
   }
 
-  Future<void> deleteAllImages() async {
-    final dir = Directory(await _imagesPath());
+  Future<void> deleteAll() async {
+    final dir = Directory(await _attachmentsPath());
     if (dir.existsSync()) await dir.delete(recursive: true);
   }
 
@@ -90,20 +89,20 @@ class ImageStorageService {
     final jsonTempFile = File(p.join(tempDir.path, 'data.json'));
     await jsonTempFile.writeAsString(jsonString);
 
-    // When a subset is requested, only include images referenced by those setups.
-    final Set<String>? allowedFilenames = selectedData?.setups.values.expand((s) => s.images).toSet();
+    // When a subset is requested, only include attachments referenced by its setups, bikes and components.
+    final Set<String>? allowedFilenames = selectedData == null ? null : _attachmentFilenames(selectedData);
 
     final encoder = ZipFileEncoder();
     encoder.create(zipPath);
     await encoder.addFile(jsonTempFile, 'data.json');
 
-    final imagesDir = Directory(await _imagesPath());
-    if (imagesDir.existsSync()) {
-      await for (final entity in imagesDir.list()) {
+    final attachmentsDir = Directory(await _attachmentsPath());
+    if (attachmentsDir.existsSync()) {
+      await for (final entity in attachmentsDir.list()) {
         if (entity is File) {
           final filename = p.basename(entity.path);
           if (allowedFilenames == null || allowedFilenames.contains(filename)) {
-            await encoder.addFile(entity, 'images/$filename');
+            await encoder.addFile(entity, '$_attachmentsDir/$filename');
           }
         }
       }
@@ -113,6 +112,14 @@ class ImageStorageService {
     await jsonTempFile.delete();
 
     return File(zipPath);
+  }
+
+  static Set<String> _attachmentFilenames(SelectedData data) {
+    return {
+      ...data.setups.values.expand((s) => s.attachments),
+      ...data.bikes.values.expand((b) => b.attachments),
+      ...data.components.values.expand((c) => c.attachments),
+    }.map((a) => a.filename).toSet();
   }
 
   Future<ImportBundleResult> importBundle() async {
@@ -129,21 +136,21 @@ class ImageStorageService {
       final archive = ZipDecoder().decodeBytes(bytes);
 
       await ensureDir();
-      final imagesPath = await _imagesPath();
+      final attachmentsPath = await _attachmentsPath();
       String? jsonString;
-      int imageCount = 0;
+      int attachmentCount = 0;
 
       for (final file in archive) {
         if (!file.isFile) continue;
 
         if (file.name == 'data.json') {
           jsonString = utf8.decode(file.content as Uint8List);
-        } else if (file.name.startsWith('images/')) {
+        } else if (file.name.startsWith('$_attachmentsDir/')) {
           final filename = p.basename(file.name);
           if (filename.isEmpty) continue;
-          final dest = File(p.join(imagesPath, filename));
+          final dest = File(p.join(attachmentsPath, filename));
           await dest.writeAsBytes(file.content as Uint8List);
-          imageCount++;
+          attachmentCount++;
         }
       }
 
@@ -152,7 +159,7 @@ class ImageStorageService {
       }
 
       final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
-      return ImportBundleResult.success(SelectedData.fromJson(jsonData), imageCount);
+      return ImportBundleResult.success(SelectedData.fromJson(jsonData), attachmentCount);
     } catch (e) {
       return ImportBundleResult.failure('Import failed: $e');
     }
@@ -174,9 +181,9 @@ class ImportBundleResult {
   final String? errorMessage;
   final bool isError;
   final bool isCancelled;
-  final int imageCount;
+  final int attachmentCount;
 
-  ImportBundleResult.success(this.data, this.imageCount)
+  ImportBundleResult.success(this.data, this.attachmentCount)
       : errorMessage = null,
         isError = false,
         isCancelled = false;
@@ -185,12 +192,12 @@ class ImportBundleResult {
       : data = null,
         isError = true,
         isCancelled = false,
-        imageCount = 0;
+        attachmentCount = 0;
 
   ImportBundleResult.cancelled()
       : data = null,
         errorMessage = null,
         isError = false,
         isCancelled = true,
-        imageCount = 0;
+        attachmentCount = 0;
 }

@@ -37,7 +37,7 @@ class AppSettings extends ChangeNotifier {
   bool _enableInstallationTimeline = false;
   bool _useMapBoxTiles = false;
   bool _enableCalendar = false;
-  bool _enableSetupImages = false;
+  bool _enableAttachments = false;
   bool _enableSetupBookmark = false;
   bool _enableComponentPresets = false;
   bool _enableInstallOnComponent = false;
@@ -84,7 +84,7 @@ class AppSettings extends ChangeNotifier {
   bool get enableInstallationTimeline => _enableInstallationTimeline;
   bool get useMapBoxTiles => _useMapBoxTiles;
   bool get enableCalendar => _enableCalendar;
-  bool get enableSetupImages => _enableSetupImages;
+  bool get enableAttachments => _enableAttachments;
   bool get enableSetupBookmark => _enableSetupBookmark;
   bool get enableComponentPresets => _enableComponentPresets;
   bool get enableInstallOnComponent => _enableInstallOnComponent;
@@ -297,11 +297,11 @@ class AppSettings extends ChangeNotifier {
     _persistBool('enableCalendar', newValue);
   }
 
-  set enableSetupImages(bool newValue) {
-    if (newValue == _enableSetupImages) return;
-    _enableSetupImages = newValue;
+  set enableAttachments(bool newValue) {
+    if (newValue == _enableAttachments) return;
+    _enableAttachments = newValue;
     notifyListeners();
-    _persistBool('enableSetupImages', newValue);
+    _persistBool('enableAttachments', newValue);
   }
 
   set enableSetupBookmark(bool newValue) {
@@ -447,7 +447,7 @@ class AppSettings extends ChangeNotifier {
           prefs.getBool('${_kPrefix}enableInstallationTimeline') ?? _enableInstallationTimeline;
       _useMapBoxTiles = prefs.getBool('${_kPrefix}useMapBoxTiles') ?? _useMapBoxTiles;
       _enableCalendar = prefs.getBool('${_kPrefix}enableCalendar') ?? _enableCalendar;
-      _enableSetupImages = prefs.getBool('${_kPrefix}enableSetupImages') ?? _enableSetupImages;
+      _enableAttachments = prefs.getBool('${_kPrefix}enableAttachments') ?? _enableAttachments;
       _enableSetupBookmark = prefs.getBool('${_kPrefix}enableSetupBookmark') ?? _enableSetupBookmark;
       _enableComponentPresets = prefs.getBool('${_kPrefix}enableComponentPresets') ?? _enableComponentPresets;
       _enableInstallOnComponent = prefs.getBool('${_kPrefix}enableInstallOnComponent') ?? _enableInstallOnComponent;
@@ -500,7 +500,7 @@ class AppSettings extends ChangeNotifier {
     _enableInstallationTimeline = defaults._enableInstallationTimeline;
     _useMapBoxTiles = defaults._useMapBoxTiles;
     _enableCalendar = defaults._enableCalendar;
-    _enableSetupImages = defaults._enableSetupImages;
+    _enableAttachments = defaults._enableAttachments;
     _enableSetupBookmark = defaults._enableSetupBookmark;
     _enableComponentPresets = defaults._enableComponentPresets;
     _enableInstallOnComponent = defaults._enableInstallOnComponent;
@@ -545,7 +545,7 @@ class AppSettings extends ChangeNotifier {
     _enableInstallationTimeline,
     _useMapBoxTiles,
     _enableCalendar,
-    _enableSetupImages,
+    _enableAttachments,
     _enableSetupBookmark,
     _enableComponentPresets,
     _enableInstallOnComponent,
@@ -599,6 +599,7 @@ class AppSettings extends ChangeNotifier {
     'setupListRatingAdjustmentValues',
     'setupListSortAscending',
     'stravaGearHintDismissed',
+    'enableSetupImages',
     // TODO: delete after grace period (when all users have migrated hints via AppHintService._migrateLegacyStatuses)
     // 'showGarageListHint',
     // 'showGettingStartedGuideHint',

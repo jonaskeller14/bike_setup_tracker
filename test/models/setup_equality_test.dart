@@ -19,7 +19,7 @@ void main() {
       'personAdjustmentValues': {
         'multi': ['A', 'B'],
       },
-      'images': <String>[],
+      'attachments': <Map<String, dynamic>>[],
     };
     const adjustmentTypes = {
       'cat': AdjustmentType.categorical,

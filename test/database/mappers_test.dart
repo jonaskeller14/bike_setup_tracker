@@ -2,6 +2,7 @@ import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/database/daos/setups_dao.dart';
 import 'package:bike_setup_tracker/database/mappers.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
+import 'package:bike_setup_tracker/models/attachment.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
@@ -42,6 +43,7 @@ void main() {
         initialElapsedTime: const Duration(hours: 3),
         initialActivityCount: 4,
         initialKilojoules: 900,
+        attachments: const [],
       );
       final model = data.toModel();
       expect(model.id, 'bike1');
@@ -119,6 +121,7 @@ void main() {
         initialElapsedTime: Duration.zero,
         initialActivityCount: 0,
         initialKilojoules: 0.0,
+        attachments: const [],
       );
       final model = data.toModel(
         adjustments: [
@@ -163,6 +166,7 @@ void main() {
         initialKilojoules: 0.0,
         presetKey: 'fork-fox-36-factory-2025',
         presetDamperKey: 'grip_x2',
+        attachments: const [],
       ).toModel();
       expect(model.presetKey, 'fork-fox-36-factory-2025');
       expect(model.presetDamperKey, 'grip_x2');
@@ -199,7 +203,7 @@ void main() {
         personId: 'person1',
         isDeleted: false,
         lastModified: DateTime(2023, 1, 1).toUtc(),
-        images: const [],
+        attachments: const [],
         isBookmarked: false,
       );
       
@@ -220,7 +224,7 @@ void main() {
         datetime: DateTime.now().toUtc(),
         datetimeLocal: DateTime.now(),
         tags: {},
-        images: const [],
+        attachments: const [],
         isBookmarked: false,
       );
 
@@ -454,6 +458,46 @@ void main() {
         final result = Installation.fromJson(json);
         expect(result, isA<Uninstallation>());
       });
+    });
+
+    test('attachments survive a database round trip on setups, bikes and components', () async {
+      final database = AppDatabase.memory();
+      addTearDown(database.close);
+      final attachments = [
+        Attachment(id: 'm', extension: '.pdf', name: 'Service Manual'),
+        Attachment(id: 'p', extension: '.jpg', name: 'IMG_1.jpg'),
+      ];
+
+      final bike = Bike(id: 'b1', name: 'Bike', person: null, attachments: attachments);
+      final component = Component(
+        id: 'c1',
+        name: 'Fork',
+        componentType: ComponentType.fork,
+        installations: const [],
+        attachments: attachments.reversed.toList(),
+      );
+      final now = DateTime.now();
+      final setup = Setup(
+        id: 's1',
+        datetime: now,
+        datetimeLocal: now,
+        tags: const {},
+        bike: 'b1',
+        person: null,
+        bikeAdjustmentValues: const {},
+        personAdjustmentValues: const {},
+        attachments: attachments,
+      );
+      await database.into(database.bikes).insert(bike.toCompanion());
+      await database.into(database.components).insert(component.toCompanion());
+      await database.into(database.setups).insert(setup.toCompanion());
+
+      final bikeRow = await database.select(database.bikes).getSingle();
+      final componentRow = await database.select(database.components).getSingle();
+      final setupRow = await database.select(database.setups).getSingle();
+      expect(bikeRow.toModel().attachments, attachments);
+      expect(componentRow.toModel().attachments, attachments.reversed.toList());
+      expect(setupRow.toModel().attachments, attachments);
     });
 
     test('StravaAthlete Mapping', () {

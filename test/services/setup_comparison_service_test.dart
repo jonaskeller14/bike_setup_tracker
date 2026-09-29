@@ -17,7 +17,6 @@ void main() {
     String? person,
     String? notes,
     Set<String> tags = const {},
-    List<String> images = const [],
     Map<String, AdjustmentValue> bikeValues = const {},
     Map<String, AdjustmentValue> personValues = const {},
     Map<String, AdjustmentValue> previousBikeValues = const {},
@@ -34,7 +33,6 @@ void main() {
         person: person,
         bikeAdjustmentValues: bikeValues,
         personAdjustmentValues: personValues,
-        images: images,
       )
       ..previousBikeAdjustmentValues = previousBikeValues
       ..previousPersonAdjustmentValues = previousPersonValues;

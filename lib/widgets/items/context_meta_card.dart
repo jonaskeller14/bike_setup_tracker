@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 
-import '../../services/image_storage_service.dart';
+import '../../models/attachment.dart';
+import '../../services/attachment_storage_service.dart';
 import '../image_strip.dart';
 import '../notes_text.dart';
 
 class ContextMetaCard extends StatelessWidget {
   final String? notes;
   final Set<String> tags;
-  final List<String> images;
+  final List<Attachment> images;
 
   const ContextMetaCard({
     super.key,
@@ -53,7 +54,7 @@ class ContextMetaCard extends StatelessWidget {
                   ),
                   Expanded(
                     child: FutureBuilder<String>(
-                      future: ImageStorageService().getImagesPath(),
+                      future: AttachmentStorageService().getAttachmentsPath(),
                       builder: (context, snapshot) {
                         if (snapshot.hasError) {
                           return SizedBox(

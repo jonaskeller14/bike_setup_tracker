@@ -1,3 +1,4 @@
+import 'package:bike_setup_tracker/models/attachment.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -206,6 +207,53 @@ void main() {
       final b = a.copyWith(presetDamperKey: 'grip_x');
       expect(a == b, isFalse);
       expect(a.hashCode == b.hashCode, isFalse);
+    });
+  });
+
+  group('attachments', () {
+    Component fork() => Component(
+          name: 'FOX 36 Factory',
+          componentType: ComponentType.fork,
+          installations: [],
+          attachments: [
+            Attachment(id: 'm', extension: '.pdf', name: 'Service Manual'),
+            Attachment(id: 'p', extension: '.jpg', name: 'IMG_1.jpg'),
+          ],
+        );
+
+    test('default to an empty list', () {
+      final component = Component(name: 'Fork', componentType: ComponentType.fork, installations: []);
+      expect(component.attachments, isEmpty);
+    });
+
+    test('survive a json round trip in order', () {
+      final json = fork().toJson();
+      expect(json['version'], 6);
+      final restored = Component.fromJson(json: json);
+      expect(restored.attachments, fork().attachments);
+      expect(restored.attachments.map((a) => a.id), ['m', 'p']);
+    });
+
+    test('a backup written before attachments existed reads as empty', () {
+      final legacy = fork().toJson()
+        ..['version'] = 5
+        ..remove('attachments');
+      expect(Component.fromJson(json: legacy).attachments, isEmpty);
+    });
+
+    test('deepCopy copies the list', () {
+      final original = fork();
+      final copy = original.deepCopy();
+      expect(copy.attachments, original.attachments);
+      expect(identical(copy.attachments, original.attachments), isFalse);
+    });
+
+    test('take part in equality', () {
+      final a = fork();
+      final b = a.copyWith(attachments: a.attachments.reversed.toList());
+      expect(a == b, isFalse);
+      expect(a.hashCode == b.hashCode, isFalse);
+      expect(a.copyWith(attachments: List.of(a.attachments)), a);
     });
   });
 }

@@ -1,5 +1,6 @@
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/database/mappers.dart';
+import 'package:bike_setup_tracker/models/attachment.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
@@ -55,7 +56,7 @@ void main() {
     required String id,
     DateTime? lastModified,
     bool? isDeleted,
-    List<String> images = const [],
+    List<Attachment> attachments = const [],
   }) {
     final now = DateTime.now();
     return Setup(
@@ -69,9 +70,11 @@ void main() {
       person: null,
       bikeAdjustmentValues: {},
       personAdjustmentValues: {},
-      images: images,
+      attachments: attachments,
     );
   }
+
+  Attachment jpg(String id) => Attachment(id: id, extension: '.jpg', name: '$id.jpg');
 
   group('FileImport Tests', () {
     test('rejects a cyclic component hierarchy without touching local data', () async {
@@ -242,14 +245,14 @@ void main() {
       expect(bikesInDb.first.id, 'recent');
     });
 
-    test('cleanupIsDeleted - returns images of purged setups only', () {
+    test('cleanupIsDeleted - returns attachment files of purged setups only', () {
       final oldDate = DateTime.now().toUtc().subtract(const Duration(days: 31));
       final recentDate = DateTime.now().toUtc().subtract(const Duration(days: 1));
 
       final data = SelectedData(setups: {
-        'old': createSetup(id: 'old', isDeleted: true, lastModified: oldDate, images: ['a.jpg']),
-        'recent': createSetup(id: 'recent', isDeleted: true, lastModified: recentDate, images: ['b.jpg']),
-        'active': createSetup(id: 'active', images: ['c.jpg']),
+        'old': createSetup(id: 'old', isDeleted: true, lastModified: oldDate, attachments: [jpg('a')]),
+        'recent': createSetup(id: 'recent', isDeleted: true, lastModified: recentDate, attachments: [jpg('b')]),
+        'active': createSetup(id: 'active', attachments: [jpg('c')]),
       });
 
       final purged = FileImport.cleanupIsDeleted(data: data);
@@ -268,8 +271,8 @@ void main() {
       final oldDate = DateTime.now().toUtc().subtract(const Duration(days: 31));
 
       final data = SelectedData(setups: {
-        'old': createSetup(id: 'old', isDeleted: true, lastModified: oldDate, images: ['x.jpg']),
-        'active': createSetup(id: 'active', images: ['x.jpg']),
+        'old': createSetup(id: 'old', isDeleted: true, lastModified: oldDate, attachments: [jpg('x')]),
+        'active': createSetup(id: 'active', attachments: [jpg('x')]),
       });
 
       final purged = FileImport.cleanupIsDeleted(data: data);

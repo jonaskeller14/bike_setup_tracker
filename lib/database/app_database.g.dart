@@ -172,6 +172,16 @@ class $ComponentsTable extends Components
     requiredDuringInsert: false,
   );
   @override
+  late final GeneratedColumnWithTypeConverter<List<Attachment>, String>
+  attachments = GeneratedColumn<String>(
+    'attachments',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[]'),
+  ).withConverter<List<Attachment>>($ComponentsTable.$converterattachments);
+  @override
   List<GeneratedColumn> get $columns => [
     id,
     isDeleted,
@@ -188,6 +198,7 @@ class $ComponentsTable extends Components
     initialKilojoules,
     presetKey,
     presetDamperKey,
+    attachments,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -360,6 +371,12 @@ class $ComponentsTable extends Components
         DriftSqlType.string,
         data['${effectivePrefix}preset_damper_key'],
       ),
+      attachments: $ComponentsTable.$converterattachments.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}attachments'],
+        )!,
+      ),
     );
   }
 
@@ -376,6 +393,8 @@ class $ComponentsTable extends Components
       const DurationConverter();
   static TypeConverter<Duration, int> $converterinitialElapsedTime =
       const DurationConverter();
+  static TypeConverter<List<Attachment>, String> $converterattachments =
+      const AttachmentListConverter();
 }
 
 class ComponentDb extends DataClass implements Insertable<ComponentDb> {
@@ -392,13 +411,9 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
   final Duration initialElapsedTime;
   final int initialActivityCount;
   final double initialKilojoules;
-
-  /// Catalog provenance: the preset trim this component was created from, and
-  /// the damper chosen at that time. Null for hand-built components. Resolved
-  /// through `ComponentPresetRepository.byKey`; see
-  /// `data/component_presets/SCHEMA.md`.
   final String? presetKey;
   final String? presetDamperKey;
+  final List<Attachment> attachments;
   const ComponentDb({
     required this.id,
     required this.isDeleted,
@@ -415,6 +430,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     required this.initialKilojoules,
     this.presetKey,
     this.presetDamperKey,
+    required this.attachments,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -456,6 +472,11 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     if (!nullToAbsent || presetDamperKey != null) {
       map['preset_damper_key'] = Variable<String>(presetDamperKey);
     }
+    {
+      map['attachments'] = Variable<String>(
+        $ComponentsTable.$converterattachments.toSql(attachments),
+      );
+    }
     return map;
   }
 
@@ -482,6 +503,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
       presetDamperKey: presetDamperKey == null && nullToAbsent
           ? const Value.absent()
           : Value(presetDamperKey),
+      attachments: Value(attachments),
     );
   }
 
@@ -516,6 +538,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
       initialKilojoules: serializer.fromJson<double>(json['initialKilojoules']),
       presetKey: serializer.fromJson<String?>(json['presetKey']),
       presetDamperKey: serializer.fromJson<String?>(json['presetDamperKey']),
+      attachments: serializer.fromJson<List<Attachment>>(json['attachments']),
     );
   }
   @override
@@ -539,6 +562,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
       'initialKilojoules': serializer.toJson<double>(initialKilojoules),
       'presetKey': serializer.toJson<String?>(presetKey),
       'presetDamperKey': serializer.toJson<String?>(presetDamperKey),
+      'attachments': serializer.toJson<List<Attachment>>(attachments),
     };
   }
 
@@ -558,6 +582,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     double? initialKilojoules,
     Value<String?> presetKey = const Value.absent(),
     Value<String?> presetDamperKey = const Value.absent(),
+    List<Attachment>? attachments,
   }) => ComponentDb(
     id: id ?? this.id,
     isDeleted: isDeleted ?? this.isDeleted,
@@ -576,6 +601,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     presetDamperKey: presetDamperKey.present
         ? presetDamperKey.value
         : this.presetDamperKey,
+    attachments: attachments ?? this.attachments,
   );
   ComponentDb copyWithCompanion(ComponentsCompanion data) {
     return ComponentDb(
@@ -614,6 +640,9 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
       presetDamperKey: data.presetDamperKey.present
           ? data.presetDamperKey.value
           : this.presetDamperKey,
+      attachments: data.attachments.present
+          ? data.attachments.value
+          : this.attachments,
     );
   }
 
@@ -634,7 +663,8 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
           ..write('initialActivityCount: $initialActivityCount, ')
           ..write('initialKilojoules: $initialKilojoules, ')
           ..write('presetKey: $presetKey, ')
-          ..write('presetDamperKey: $presetDamperKey')
+          ..write('presetDamperKey: $presetDamperKey, ')
+          ..write('attachments: $attachments')
           ..write(')'))
         .toString();
   }
@@ -656,6 +686,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     initialKilojoules,
     presetKey,
     presetDamperKey,
+    attachments,
   );
   @override
   bool operator ==(Object other) =>
@@ -675,7 +706,8 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
           other.initialActivityCount == this.initialActivityCount &&
           other.initialKilojoules == this.initialKilojoules &&
           other.presetKey == this.presetKey &&
-          other.presetDamperKey == this.presetDamperKey);
+          other.presetDamperKey == this.presetDamperKey &&
+          other.attachments == this.attachments);
 }
 
 class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
@@ -694,6 +726,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
   final Value<double> initialKilojoules;
   final Value<String?> presetKey;
   final Value<String?> presetDamperKey;
+  final Value<List<Attachment>> attachments;
   final Value<int> rowid;
   const ComponentsCompanion({
     this.id = const Value.absent(),
@@ -711,6 +744,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     this.initialKilojoules = const Value.absent(),
     this.presetKey = const Value.absent(),
     this.presetDamperKey = const Value.absent(),
+    this.attachments = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ComponentsCompanion.insert({
@@ -729,6 +763,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     this.initialKilojoules = const Value.absent(),
     this.presetKey = const Value.absent(),
     this.presetDamperKey = const Value.absent(),
+    this.attachments = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        lastModified = Value(lastModified),
@@ -750,6 +785,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     Expression<double>? initialKilojoules,
     Expression<String>? presetKey,
     Expression<String>? presetDamperKey,
+    Expression<String>? attachments,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -771,6 +807,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
       if (initialKilojoules != null) 'initial_kilojoules': initialKilojoules,
       if (presetKey != null) 'preset_key': presetKey,
       if (presetDamperKey != null) 'preset_damper_key': presetDamperKey,
+      if (attachments != null) 'attachments': attachments,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -791,6 +828,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     Value<double>? initialKilojoules,
     Value<String?>? presetKey,
     Value<String?>? presetDamperKey,
+    Value<List<Attachment>>? attachments,
     Value<int>? rowid,
   }) {
     return ComponentsCompanion(
@@ -809,6 +847,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
       initialKilojoules: initialKilojoules ?? this.initialKilojoules,
       presetKey: presetKey ?? this.presetKey,
       presetDamperKey: presetDamperKey ?? this.presetDamperKey,
+      attachments: attachments ?? this.attachments,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -875,6 +914,11 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     if (presetDamperKey.present) {
       map['preset_damper_key'] = Variable<String>(presetDamperKey.value);
     }
+    if (attachments.present) {
+      map['attachments'] = Variable<String>(
+        $ComponentsTable.$converterattachments.toSql(attachments.value),
+      );
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -899,6 +943,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
           ..write('initialKilojoules: $initialKilojoules, ')
           ..write('presetKey: $presetKey, ')
           ..write('presetDamperKey: $presetDamperKey, ')
+          ..write('attachments: $attachments, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1062,6 +1107,16 @@ class $BikesTable extends Bikes with TableInfo<$BikesTable, BikeDb> {
         defaultValue: const Constant(0.0),
       );
   @override
+  late final GeneratedColumnWithTypeConverter<List<Attachment>, String>
+  attachments = GeneratedColumn<String>(
+    'attachments',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[]'),
+  ).withConverter<List<Attachment>>($BikesTable.$converterattachments);
+  @override
   List<GeneratedColumn> get $columns => [
     id,
     isDeleted,
@@ -1077,6 +1132,7 @@ class $BikesTable extends Bikes with TableInfo<$BikesTable, BikeDb> {
     initialElapsedTime,
     initialActivityCount,
     initialKilojoules,
+    attachments,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1240,6 +1296,12 @@ class $BikesTable extends Bikes with TableInfo<$BikesTable, BikeDb> {
         DriftSqlType.double,
         data['${effectivePrefix}initial_kilojoules'],
       )!,
+      attachments: $BikesTable.$converterattachments.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}attachments'],
+        )!,
+      ),
     );
   }
 
@@ -1254,6 +1316,8 @@ class $BikesTable extends Bikes with TableInfo<$BikesTable, BikeDb> {
       const DurationConverter();
   static TypeConverter<Duration, int> $converterinitialElapsedTime =
       const DurationConverter();
+  static TypeConverter<List<Attachment>, String> $converterattachments =
+      const AttachmentListConverter();
 }
 
 class BikeDb extends DataClass implements Insertable<BikeDb> {
@@ -1271,6 +1335,7 @@ class BikeDb extends DataClass implements Insertable<BikeDb> {
   final Duration initialElapsedTime;
   final int initialActivityCount;
   final double initialKilojoules;
+  final List<Attachment> attachments;
   const BikeDb({
     required this.id,
     required this.isDeleted,
@@ -1286,6 +1351,7 @@ class BikeDb extends DataClass implements Insertable<BikeDb> {
     required this.initialElapsedTime,
     required this.initialActivityCount,
     required this.initialKilojoules,
+    required this.attachments,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1322,6 +1388,11 @@ class BikeDb extends DataClass implements Insertable<BikeDb> {
     }
     map['initial_activity_count'] = Variable<int>(initialActivityCount);
     map['initial_kilojoules'] = Variable<double>(initialKilojoules);
+    {
+      map['attachments'] = Variable<String>(
+        $BikesTable.$converterattachments.toSql(attachments),
+      );
+    }
     return map;
   }
 
@@ -1347,6 +1418,7 @@ class BikeDb extends DataClass implements Insertable<BikeDb> {
       initialElapsedTime: Value(initialElapsedTime),
       initialActivityCount: Value(initialActivityCount),
       initialKilojoules: Value(initialKilojoules),
+      attachments: Value(attachments),
     );
   }
 
@@ -1378,6 +1450,7 @@ class BikeDb extends DataClass implements Insertable<BikeDb> {
         json['initialActivityCount'],
       ),
       initialKilojoules: serializer.fromJson<double>(json['initialKilojoules']),
+      attachments: serializer.fromJson<List<Attachment>>(json['attachments']),
     );
   }
   @override
@@ -1398,6 +1471,7 @@ class BikeDb extends DataClass implements Insertable<BikeDb> {
       'initialElapsedTime': serializer.toJson<Duration>(initialElapsedTime),
       'initialActivityCount': serializer.toJson<int>(initialActivityCount),
       'initialKilojoules': serializer.toJson<double>(initialKilojoules),
+      'attachments': serializer.toJson<List<Attachment>>(attachments),
     };
   }
 
@@ -1416,6 +1490,7 @@ class BikeDb extends DataClass implements Insertable<BikeDb> {
     Duration? initialElapsedTime,
     int? initialActivityCount,
     double? initialKilojoules,
+    List<Attachment>? attachments,
   }) => BikeDb(
     id: id ?? this.id,
     isDeleted: isDeleted ?? this.isDeleted,
@@ -1431,6 +1506,7 @@ class BikeDb extends DataClass implements Insertable<BikeDb> {
     initialElapsedTime: initialElapsedTime ?? this.initialElapsedTime,
     initialActivityCount: initialActivityCount ?? this.initialActivityCount,
     initialKilojoules: initialKilojoules ?? this.initialKilojoules,
+    attachments: attachments ?? this.attachments,
   );
   BikeDb copyWithCompanion(BikesCompanion data) {
     return BikeDb(
@@ -1466,6 +1542,9 @@ class BikeDb extends DataClass implements Insertable<BikeDb> {
       initialKilojoules: data.initialKilojoules.present
           ? data.initialKilojoules.value
           : this.initialKilojoules,
+      attachments: data.attachments.present
+          ? data.attachments.value
+          : this.attachments,
     );
   }
 
@@ -1485,7 +1564,8 @@ class BikeDb extends DataClass implements Insertable<BikeDb> {
           ..write('initialMovingTime: $initialMovingTime, ')
           ..write('initialElapsedTime: $initialElapsedTime, ')
           ..write('initialActivityCount: $initialActivityCount, ')
-          ..write('initialKilojoules: $initialKilojoules')
+          ..write('initialKilojoules: $initialKilojoules, ')
+          ..write('attachments: $attachments')
           ..write(')'))
         .toString();
   }
@@ -1506,6 +1586,7 @@ class BikeDb extends DataClass implements Insertable<BikeDb> {
     initialElapsedTime,
     initialActivityCount,
     initialKilojoules,
+    attachments,
   );
   @override
   bool operator ==(Object other) =>
@@ -1524,7 +1605,8 @@ class BikeDb extends DataClass implements Insertable<BikeDb> {
           other.initialMovingTime == this.initialMovingTime &&
           other.initialElapsedTime == this.initialElapsedTime &&
           other.initialActivityCount == this.initialActivityCount &&
-          other.initialKilojoules == this.initialKilojoules);
+          other.initialKilojoules == this.initialKilojoules &&
+          other.attachments == this.attachments);
 }
 
 class BikesCompanion extends UpdateCompanion<BikeDb> {
@@ -1542,6 +1624,7 @@ class BikesCompanion extends UpdateCompanion<BikeDb> {
   final Value<Duration> initialElapsedTime;
   final Value<int> initialActivityCount;
   final Value<double> initialKilojoules;
+  final Value<List<Attachment>> attachments;
   final Value<int> rowid;
   const BikesCompanion({
     this.id = const Value.absent(),
@@ -1558,6 +1641,7 @@ class BikesCompanion extends UpdateCompanion<BikeDb> {
     this.initialElapsedTime = const Value.absent(),
     this.initialActivityCount = const Value.absent(),
     this.initialKilojoules = const Value.absent(),
+    this.attachments = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   BikesCompanion.insert({
@@ -1575,6 +1659,7 @@ class BikesCompanion extends UpdateCompanion<BikeDb> {
     this.initialElapsedTime = const Value.absent(),
     this.initialActivityCount = const Value.absent(),
     this.initialKilojoules = const Value.absent(),
+    this.attachments = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        lastModified = Value(lastModified),
@@ -1594,6 +1679,7 @@ class BikesCompanion extends UpdateCompanion<BikeDb> {
     Expression<int>? initialElapsedTime,
     Expression<int>? initialActivityCount,
     Expression<double>? initialKilojoules,
+    Expression<String>? attachments,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1614,6 +1700,7 @@ class BikesCompanion extends UpdateCompanion<BikeDb> {
       if (initialActivityCount != null)
         'initial_activity_count': initialActivityCount,
       if (initialKilojoules != null) 'initial_kilojoules': initialKilojoules,
+      if (attachments != null) 'attachments': attachments,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1633,6 +1720,7 @@ class BikesCompanion extends UpdateCompanion<BikeDb> {
     Value<Duration>? initialElapsedTime,
     Value<int>? initialActivityCount,
     Value<double>? initialKilojoules,
+    Value<List<Attachment>>? attachments,
     Value<int>? rowid,
   }) {
     return BikesCompanion(
@@ -1650,6 +1738,7 @@ class BikesCompanion extends UpdateCompanion<BikeDb> {
       initialElapsedTime: initialElapsedTime ?? this.initialElapsedTime,
       initialActivityCount: initialActivityCount ?? this.initialActivityCount,
       initialKilojoules: initialKilojoules ?? this.initialKilojoules,
+      attachments: attachments ?? this.attachments,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1709,6 +1798,11 @@ class BikesCompanion extends UpdateCompanion<BikeDb> {
     if (initialKilojoules.present) {
       map['initial_kilojoules'] = Variable<double>(initialKilojoules.value);
     }
+    if (attachments.present) {
+      map['attachments'] = Variable<String>(
+        $BikesTable.$converterattachments.toSql(attachments.value),
+      );
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1732,6 +1826,7 @@ class BikesCompanion extends UpdateCompanion<BikeDb> {
           ..write('initialElapsedTime: $initialElapsedTime, ')
           ..write('initialActivityCount: $initialActivityCount, ')
           ..write('initialKilojoules: $initialKilojoules, ')
+          ..write('attachments: $attachments, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -4747,15 +4842,15 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
         requiredDuringInsert: true,
       ).withConverter<Set<String>>($SetupsTable.$convertertags);
   @override
-  late final GeneratedColumnWithTypeConverter<List<String>, String> images =
-      GeneratedColumn<String>(
-        'images',
-        aliasedName,
-        false,
-        type: DriftSqlType.string,
-        requiredDuringInsert: false,
-        defaultValue: const Constant('[]'),
-      ).withConverter<List<String>>($SetupsTable.$converterimages);
+  late final GeneratedColumnWithTypeConverter<List<Attachment>, String>
+  attachments = GeneratedColumn<String>(
+    'attachments',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[]'),
+  ).withConverter<List<Attachment>>($SetupsTable.$converterattachments);
   @override
   late final GeneratedColumnWithTypeConverter<ContextPosition?, String>
   position = GeneratedColumn<String>(
@@ -4796,7 +4891,7 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
     datetimeLocal,
     notes,
     tags,
-    images,
+    attachments,
     position,
     place,
     weather,
@@ -4920,10 +5015,10 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
           data['${effectivePrefix}tags'],
         )!,
       ),
-      images: $SetupsTable.$converterimages.fromSql(
+      attachments: $SetupsTable.$converterattachments.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.string,
-          data['${effectivePrefix}images'],
+          data['${effectivePrefix}attachments'],
         )!,
       ),
       position: $SetupsTable.$converterpositionn.fromSql(
@@ -4960,8 +5055,8 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
       const LocalFloatingDateTimeConverter();
   static TypeConverter<Set<String>, String> $convertertags =
       const StringListConverter();
-  static TypeConverter<List<String>, String> $converterimages =
-      const StringListOrderedConverter();
+  static TypeConverter<List<Attachment>, String> $converterattachments =
+      const AttachmentListConverter();
   static TypeConverter<ContextPosition, String> $converterposition =
       const ContextPositionConverter();
   static TypeConverter<ContextPosition?, String?> $converterpositionn =
@@ -4988,7 +5083,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
   final DateTime datetimeLocal;
   final String? notes;
   final Set<String> tags;
-  final List<String> images;
+  final List<Attachment> attachments;
   final ContextPosition? position;
   final geo.Placemark? place;
   final ContextWeather? weather;
@@ -5004,7 +5099,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
     required this.datetimeLocal,
     this.notes,
     required this.tags,
-    required this.images,
+    required this.attachments,
     this.position,
     this.place,
     this.weather,
@@ -5044,8 +5139,8 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
       map['tags'] = Variable<String>($SetupsTable.$convertertags.toSql(tags));
     }
     {
-      map['images'] = Variable<String>(
-        $SetupsTable.$converterimages.toSql(images),
+      map['attachments'] = Variable<String>(
+        $SetupsTable.$converterattachments.toSql(attachments),
       );
     }
     if (!nullToAbsent || position != null) {
@@ -5083,7 +5178,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
           ? const Value.absent()
           : Value(notes),
       tags: Value(tags),
-      images: Value(images),
+      attachments: Value(attachments),
       position: position == null && nullToAbsent
           ? const Value.absent()
           : Value(position),
@@ -5113,7 +5208,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
       datetimeLocal: serializer.fromJson<DateTime>(json['datetimeLocal']),
       notes: serializer.fromJson<String?>(json['notes']),
       tags: serializer.fromJson<Set<String>>(json['tags']),
-      images: serializer.fromJson<List<String>>(json['images']),
+      attachments: serializer.fromJson<List<Attachment>>(json['attachments']),
       position: serializer.fromJson<ContextPosition?>(json['position']),
       place: serializer.fromJson<geo.Placemark?>(json['place']),
       weather: serializer.fromJson<ContextWeather?>(json['weather']),
@@ -5134,7 +5229,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
       'datetimeLocal': serializer.toJson<DateTime>(datetimeLocal),
       'notes': serializer.toJson<String?>(notes),
       'tags': serializer.toJson<Set<String>>(tags),
-      'images': serializer.toJson<List<String>>(images),
+      'attachments': serializer.toJson<List<Attachment>>(attachments),
       'position': serializer.toJson<ContextPosition?>(position),
       'place': serializer.toJson<geo.Placemark?>(place),
       'weather': serializer.toJson<ContextWeather?>(weather),
@@ -5153,7 +5248,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
     DateTime? datetimeLocal,
     Value<String?> notes = const Value.absent(),
     Set<String>? tags,
-    List<String>? images,
+    List<Attachment>? attachments,
     Value<ContextPosition?> position = const Value.absent(),
     Value<geo.Placemark?> place = const Value.absent(),
     Value<ContextWeather?> weather = const Value.absent(),
@@ -5169,7 +5264,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
     datetimeLocal: datetimeLocal ?? this.datetimeLocal,
     notes: notes.present ? notes.value : this.notes,
     tags: tags ?? this.tags,
-    images: images ?? this.images,
+    attachments: attachments ?? this.attachments,
     position: position.present ? position.value : this.position,
     place: place.present ? place.value : this.place,
     weather: weather.present ? weather.value : this.weather,
@@ -5193,7 +5288,9 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
           : this.datetimeLocal,
       notes: data.notes.present ? data.notes.value : this.notes,
       tags: data.tags.present ? data.tags.value : this.tags,
-      images: data.images.present ? data.images.value : this.images,
+      attachments: data.attachments.present
+          ? data.attachments.value
+          : this.attachments,
       position: data.position.present ? data.position.value : this.position,
       place: data.place.present ? data.place.value : this.place,
       weather: data.weather.present ? data.weather.value : this.weather,
@@ -5214,7 +5311,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
           ..write('datetimeLocal: $datetimeLocal, ')
           ..write('notes: $notes, ')
           ..write('tags: $tags, ')
-          ..write('images: $images, ')
+          ..write('attachments: $attachments, ')
           ..write('position: $position, ')
           ..write('place: $place, ')
           ..write('weather: $weather')
@@ -5235,7 +5332,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
     datetimeLocal,
     notes,
     tags,
-    images,
+    attachments,
     position,
     place,
     weather,
@@ -5255,7 +5352,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
           other.datetimeLocal == this.datetimeLocal &&
           other.notes == this.notes &&
           other.tags == this.tags &&
-          other.images == this.images &&
+          other.attachments == this.attachments &&
           other.position == this.position &&
           other.place == this.place &&
           other.weather == this.weather);
@@ -5273,7 +5370,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
   final Value<DateTime> datetimeLocal;
   final Value<String?> notes;
   final Value<Set<String>> tags;
-  final Value<List<String>> images;
+  final Value<List<Attachment>> attachments;
   final Value<ContextPosition?> position;
   final Value<geo.Placemark?> place;
   final Value<ContextWeather?> weather;
@@ -5290,7 +5387,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
     this.datetimeLocal = const Value.absent(),
     this.notes = const Value.absent(),
     this.tags = const Value.absent(),
-    this.images = const Value.absent(),
+    this.attachments = const Value.absent(),
     this.position = const Value.absent(),
     this.place = const Value.absent(),
     this.weather = const Value.absent(),
@@ -5308,7 +5405,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
     required DateTime datetimeLocal,
     this.notes = const Value.absent(),
     required Set<String> tags,
-    this.images = const Value.absent(),
+    this.attachments = const Value.absent(),
     this.position = const Value.absent(),
     this.place = const Value.absent(),
     this.weather = const Value.absent(),
@@ -5331,7 +5428,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
     Expression<DateTime>? datetimeLocal,
     Expression<String>? notes,
     Expression<String>? tags,
-    Expression<String>? images,
+    Expression<String>? attachments,
     Expression<String>? position,
     Expression<String>? place,
     Expression<String>? weather,
@@ -5349,7 +5446,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
       if (datetimeLocal != null) 'datetime_local': datetimeLocal,
       if (notes != null) 'notes': notes,
       if (tags != null) 'tags': tags,
-      if (images != null) 'images': images,
+      if (attachments != null) 'attachments': attachments,
       if (position != null) 'position': position,
       if (place != null) 'place': place,
       if (weather != null) 'weather': weather,
@@ -5369,7 +5466,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
     Value<DateTime>? datetimeLocal,
     Value<String?>? notes,
     Value<Set<String>>? tags,
-    Value<List<String>>? images,
+    Value<List<Attachment>>? attachments,
     Value<ContextPosition?>? position,
     Value<geo.Placemark?>? place,
     Value<ContextWeather?>? weather,
@@ -5387,7 +5484,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
       datetimeLocal: datetimeLocal ?? this.datetimeLocal,
       notes: notes ?? this.notes,
       tags: tags ?? this.tags,
-      images: images ?? this.images,
+      attachments: attachments ?? this.attachments,
       position: position ?? this.position,
       place: place ?? this.place,
       weather: weather ?? this.weather,
@@ -5439,9 +5536,9 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
         $SetupsTable.$convertertags.toSql(tags.value),
       );
     }
-    if (images.present) {
-      map['images'] = Variable<String>(
-        $SetupsTable.$converterimages.toSql(images.value),
+    if (attachments.present) {
+      map['attachments'] = Variable<String>(
+        $SetupsTable.$converterattachments.toSql(attachments.value),
       );
     }
     if (position.present) {
@@ -5479,7 +5576,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
           ..write('datetimeLocal: $datetimeLocal, ')
           ..write('notes: $notes, ')
           ..write('tags: $tags, ')
-          ..write('images: $images, ')
+          ..write('attachments: $attachments, ')
           ..write('position: $position, ')
           ..write('place: $place, ')
           ..write('weather: $weather, ')
@@ -9618,6 +9715,7 @@ typedef $$ComponentsTableCreateCompanionBuilder =
       Value<double> initialKilojoules,
       Value<String?> presetKey,
       Value<String?> presetDamperKey,
+      Value<List<Attachment>> attachments,
       Value<int> rowid,
     });
 typedef $$ComponentsTableUpdateCompanionBuilder =
@@ -9637,6 +9735,7 @@ typedef $$ComponentsTableUpdateCompanionBuilder =
       Value<double> initialKilojoules,
       Value<String?> presetKey,
       Value<String?> presetDamperKey,
+      Value<List<Attachment>> attachments,
       Value<int> rowid,
     });
 
@@ -9803,6 +9902,12 @@ class $$ComponentsTableFilterComposer
   ColumnFilters<String> get presetDamperKey => $composableBuilder(
     column: $table.presetDamperKey,
     builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<List<Attachment>, List<Attachment>, String>
+  get attachments => $composableBuilder(
+    column: $table.attachments,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   Expression<bool> taskRulesRefs(
@@ -9989,6 +10094,11 @@ class $$ComponentsTableOrderingComposer
     column: $table.presetDamperKey,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get attachments => $composableBuilder(
+    column: $table.attachments,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ComponentsTableAnnotationComposer
@@ -10068,6 +10178,12 @@ class $$ComponentsTableAnnotationComposer
     column: $table.presetDamperKey,
     builder: (column) => column,
   );
+
+  GeneratedColumnWithTypeConverter<List<Attachment>, String> get attachments =>
+      $composableBuilder(
+        column: $table.attachments,
+        builder: (column) => column,
+      );
 
   Expression<T> taskRulesRefs<T extends Object>(
     Expression<T> Function($$TaskRulesTableAnnotationComposer a) f,
@@ -10218,6 +10334,7 @@ class $$ComponentsTableTableManager
                 Value<double> initialKilojoules = const Value.absent(),
                 Value<String?> presetKey = const Value.absent(),
                 Value<String?> presetDamperKey = const Value.absent(),
+                Value<List<Attachment>> attachments = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ComponentsCompanion(
                 id: id,
@@ -10235,6 +10352,7 @@ class $$ComponentsTableTableManager
                 initialKilojoules: initialKilojoules,
                 presetKey: presetKey,
                 presetDamperKey: presetDamperKey,
+                attachments: attachments,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -10254,6 +10372,7 @@ class $$ComponentsTableTableManager
                 Value<double> initialKilojoules = const Value.absent(),
                 Value<String?> presetKey = const Value.absent(),
                 Value<String?> presetDamperKey = const Value.absent(),
+                Value<List<Attachment>> attachments = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ComponentsCompanion.insert(
                 id: id,
@@ -10271,6 +10390,7 @@ class $$ComponentsTableTableManager
                 initialKilojoules: initialKilojoules,
                 presetKey: presetKey,
                 presetDamperKey: presetDamperKey,
+                attachments: attachments,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -10426,6 +10546,7 @@ typedef $$BikesTableCreateCompanionBuilder =
       Value<Duration> initialElapsedTime,
       Value<int> initialActivityCount,
       Value<double> initialKilojoules,
+      Value<List<Attachment>> attachments,
       Value<int> rowid,
     });
 typedef $$BikesTableUpdateCompanionBuilder =
@@ -10444,6 +10565,7 @@ typedef $$BikesTableUpdateCompanionBuilder =
       Value<Duration> initialElapsedTime,
       Value<int> initialActivityCount,
       Value<double> initialKilojoules,
+      Value<List<Attachment>> attachments,
       Value<int> rowid,
     });
 
@@ -10604,6 +10726,12 @@ class $$BikesTableFilterComposer extends Composer<_$AppDatabase, $BikesTable> {
   ColumnFilters<double> get initialKilojoules => $composableBuilder(
     column: $table.initialKilojoules,
     builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<List<Attachment>, List<Attachment>, String>
+  get attachments => $composableBuilder(
+    column: $table.attachments,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   Expression<bool> taskRulesRefs(
@@ -10785,6 +10913,11 @@ class $$BikesTableOrderingComposer
     column: $table.initialKilojoules,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get attachments => $composableBuilder(
+    column: $table.attachments,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$BikesTableAnnotationComposer
@@ -10858,6 +10991,12 @@ class $$BikesTableAnnotationComposer
     column: $table.initialKilojoules,
     builder: (column) => column,
   );
+
+  GeneratedColumnWithTypeConverter<List<Attachment>, String> get attachments =>
+      $composableBuilder(
+        column: $table.attachments,
+        builder: (column) => column,
+      );
 
   Expression<T> taskRulesRefs<T extends Object>(
     Expression<T> Function($$TaskRulesTableAnnotationComposer a) f,
@@ -11007,6 +11146,7 @@ class $$BikesTableTableManager
                 Value<Duration> initialElapsedTime = const Value.absent(),
                 Value<int> initialActivityCount = const Value.absent(),
                 Value<double> initialKilojoules = const Value.absent(),
+                Value<List<Attachment>> attachments = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => BikesCompanion(
                 id: id,
@@ -11023,6 +11163,7 @@ class $$BikesTableTableManager
                 initialElapsedTime: initialElapsedTime,
                 initialActivityCount: initialActivityCount,
                 initialKilojoules: initialKilojoules,
+                attachments: attachments,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -11041,6 +11182,7 @@ class $$BikesTableTableManager
                 Value<Duration> initialElapsedTime = const Value.absent(),
                 Value<int> initialActivityCount = const Value.absent(),
                 Value<double> initialKilojoules = const Value.absent(),
+                Value<List<Attachment>> attachments = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => BikesCompanion.insert(
                 id: id,
@@ -11057,6 +11199,7 @@ class $$BikesTableTableManager
                 initialElapsedTime: initialElapsedTime,
                 initialActivityCount: initialActivityCount,
                 initialKilojoules: initialKilojoules,
+                attachments: attachments,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -13865,7 +14008,7 @@ typedef $$SetupsTableCreateCompanionBuilder =
       required DateTime datetimeLocal,
       Value<String?> notes,
       required Set<String> tags,
-      Value<List<String>> images,
+      Value<List<Attachment>> attachments,
       Value<ContextPosition?> position,
       Value<geo.Placemark?> place,
       Value<ContextWeather?> weather,
@@ -13884,7 +14027,7 @@ typedef $$SetupsTableUpdateCompanionBuilder =
       Value<DateTime> datetimeLocal,
       Value<String?> notes,
       Value<Set<String>> tags,
-      Value<List<String>> images,
+      Value<List<Attachment>> attachments,
       Value<ContextPosition?> position,
       Value<geo.Placemark?> place,
       Value<ContextWeather?> weather,
@@ -14031,9 +14174,9 @@ class $$SetupsTableFilterComposer
         builder: (column) => ColumnWithTypeConverterFilters(column),
       );
 
-  ColumnWithTypeConverterFilters<List<String>, List<String>, String>
-  get images => $composableBuilder(
-    column: $table.images,
+  ColumnWithTypeConverterFilters<List<Attachment>, List<Attachment>, String>
+  get attachments => $composableBuilder(
+    column: $table.attachments,
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
@@ -14207,8 +14350,8 @@ class $$SetupsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get images => $composableBuilder(
-    column: $table.images,
+  ColumnOrderings<String> get attachments => $composableBuilder(
+    column: $table.attachments,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -14318,8 +14461,11 @@ class $$SetupsTableAnnotationComposer
   GeneratedColumnWithTypeConverter<Set<String>, String> get tags =>
       $composableBuilder(column: $table.tags, builder: (column) => column);
 
-  GeneratedColumnWithTypeConverter<List<String>, String> get images =>
-      $composableBuilder(column: $table.images, builder: (column) => column);
+  GeneratedColumnWithTypeConverter<List<Attachment>, String> get attachments =>
+      $composableBuilder(
+        column: $table.attachments,
+        builder: (column) => column,
+      );
 
   GeneratedColumnWithTypeConverter<ContextPosition?, String> get position =>
       $composableBuilder(column: $table.position, builder: (column) => column);
@@ -14472,7 +14618,7 @@ class $$SetupsTableTableManager
                 Value<DateTime> datetimeLocal = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<Set<String>> tags = const Value.absent(),
-                Value<List<String>> images = const Value.absent(),
+                Value<List<Attachment>> attachments = const Value.absent(),
                 Value<ContextPosition?> position = const Value.absent(),
                 Value<geo.Placemark?> place = const Value.absent(),
                 Value<ContextWeather?> weather = const Value.absent(),
@@ -14489,7 +14635,7 @@ class $$SetupsTableTableManager
                 datetimeLocal: datetimeLocal,
                 notes: notes,
                 tags: tags,
-                images: images,
+                attachments: attachments,
                 position: position,
                 place: place,
                 weather: weather,
@@ -14508,7 +14654,7 @@ class $$SetupsTableTableManager
                 required DateTime datetimeLocal,
                 Value<String?> notes = const Value.absent(),
                 required Set<String> tags,
-                Value<List<String>> images = const Value.absent(),
+                Value<List<Attachment>> attachments = const Value.absent(),
                 Value<ContextPosition?> position = const Value.absent(),
                 Value<geo.Placemark?> place = const Value.absent(),
                 Value<ContextWeather?> weather = const Value.absent(),
@@ -14525,7 +14671,7 @@ class $$SetupsTableTableManager
                 datetimeLocal: datetimeLocal,
                 notes: notes,
                 tags: tags,
-                images: images,
+                attachments: attachments,
                 position: position,
                 place: place,
                 weather: weather,

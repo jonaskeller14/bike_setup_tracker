@@ -200,7 +200,7 @@ class SelectExportDestinationSheetContent extends StatelessWidget {
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: onGoogleDriveBackup,
                     ),
-                  if (context.read<AppSettings>().enableSetupImages)
+                  if (context.read<AppSettings>().enableAttachments)
                     ListTile(
                       leading: Icon(Icons.photo_library, color: Theme.of(context).colorScheme.primary),
                       title: const Text("Export Image Bundle"),

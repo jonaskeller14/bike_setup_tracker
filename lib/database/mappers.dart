@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 
 import '../models/adjustment/adjustment.dart';
+import '../models/attachment.dart';
 import '../models/bike.dart';
 import '../models/component/component.dart';
 import '../models/component/installation.dart';
@@ -47,6 +48,7 @@ extension BikeDbMapper on BikeDb {
         activityCount: initialActivityCount,
         kilojoules: initialKilojoules,
       ),
+      attachments: attachments,
     );
   }
 }
@@ -76,6 +78,7 @@ extension ComponentDbMapper on ComponentDb {
       ),
       presetKey: presetKey,
       presetDamperKey: presetDamperKey,
+      attachments: attachments,
     );
   }
 }
@@ -215,6 +218,7 @@ extension BikeMapper on Bike {
       initialElapsedTime: Value<Duration>(initialStats.elapsedTime),
       initialActivityCount: Value<int>(initialStats.activityCount),
       initialKilojoules: Value<double>(initialStats.kilojoules),
+      attachments: Value<List<Attachment>>(attachments),
     );
   }
 }
@@ -237,6 +241,7 @@ extension ComponentMapper on Component {
       initialKilojoules: Value<double>(initialStats.kilojoules),
       presetKey: Value<String?>(presetKey),
       presetDamperKey: Value<String?>(presetDamperKey),
+      attachments: Value<List<Attachment>>(attachments),
     );
   }
 }
@@ -379,7 +384,7 @@ extension SetupMapper on Setup {
       datetimeLocal: Value<DateTime>(datetimeLocal),
       notes: Value<String?>(notes),
       tags: Value<Set<String>>(tags),
-      images: Value<List<String>>(images),
+      attachments: Value<List<Attachment>>(attachments),
       bikeId: Value<String>(bike),
       personId: Value<String?>(person),
       position: Value<ContextPosition?>(position),
@@ -439,7 +444,7 @@ extension SetupDbMapper on SetupDb {
       datetimeLocal: datetimeLocal,
       notes: notes,
       tags: tags,
-      images: images,
+      attachments: attachments,
       bike: bikeId,
       person: personId,
       bikeAdjustmentValues: bikeAdjustmentValues,

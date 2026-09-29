@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
+import 'package:bike_setup_tracker/models/attachment.dart';
 import 'package:bike_setup_tracker/models/rating/rating_entry.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -193,6 +194,52 @@ void main() {
 
       expect(entry.metricValues['comment'], TextValue.orNull('0:10:00'));
       expect(entry.metricValues['score'], const NumericalValue(4.0));
+    });
+  });
+
+  group('Setup attachments', () {
+    Setup setup({List<Attachment>? attachments}) => Setup(
+      id: 's1',
+      lastModified: DateTime.utc(2026, 9, 27, 10),
+      datetime: DateTime.utc(2026, 9, 27, 9),
+      datetimeLocal: DateTime(2026, 9, 27, 11),
+      tags: const {},
+      bike: 'b1',
+      person: null,
+      bikeAdjustmentValues: const {},
+      personAdjustmentValues: const {},
+      attachments: attachments,
+    );
+
+    test('round-trip through version 8 json in order', () {
+      final original = setup(
+        attachments: [
+          Attachment(id: 'b', extension: '.pdf', name: 'Fox 38 Service Manual'),
+          Attachment(id: 'a', extension: '.jpg', name: 'IMG_1234.jpg'),
+        ],
+      );
+      final json = jsonDecode(jsonEncode(original.toJson())) as Map<String, dynamic>;
+      expect(json['version'], 8);
+      expect(json.containsKey('images'), isFalse);
+
+      final restored = Setup.fromJson(json: json, adjustmentTypes: const {});
+      expect(restored, original);
+      expect(restored.attachments.map((a) => a.filename), ['b.pdf', 'a.jpg']);
+    });
+
+    test('the unshipped version 7 images key is ignored', () {
+      final json = setup().toJson()
+        ..['version'] = 7
+        ..remove('attachments')
+        ..['images'] = ['0f8e.jpg'];
+      expect(Setup.fromJson(json: json, adjustmentTypes: const {}).attachments, isEmpty);
+    });
+
+    test('deepCopy copies the attachments list', () {
+      final attachments = [Attachment(id: 'a', extension: '.jpg', name: 'IMG.jpg')];
+      final copy = setup(attachments: attachments).deepCopy();
+      expect(copy.attachments, attachments);
+      expect(identical(copy.attachments, attachments), isFalse);
     });
   });
 }

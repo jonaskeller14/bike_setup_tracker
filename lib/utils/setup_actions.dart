@@ -6,12 +6,13 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../models/attachment.dart';
 import '../models/rating/rating_entry.dart';
 import '../models/setup.dart';
 import '../pages/forms/rating_entry_page.dart';
 import '../pages/forms/setup_page.dart';
 import '../repositories/app_repository.dart';
-import '../services/image_storage_service.dart';
+import '../services/attachment_storage_service.dart';
 import '../services/share_service.dart';
 import '../widgets/app_snackbar.dart';
 import '../widgets/dialogs/confirmation.dart';
@@ -70,7 +71,7 @@ class SetupActions {
 
   static Future<void> editSetup(BuildContext context, {required Setup setup}) async {
     final appRepository = context.read<AppRepository>();
-    final originalImages = List<String>.from(setup.images);
+    final originalImages = List<Attachment>.from(setup.attachments);
 
     final editedSetup = await Navigator.push<Setup>(
       context,
@@ -81,8 +82,8 @@ class SetupActions {
     await appRepository.editSetups([editedSetup]);
 
     // Delete images that the user removed during editing.
-    final removedImages = originalImages.where((f) => !editedSetup.images.contains(f));
-    await ImageStorageService().deleteImages(removedImages);
+    final removedImages = originalImages.where((a) => !editedSetup.attachments.any((e) => e.id == a.id));
+    await AttachmentStorageService().deleteFiles(removedImages.map((a) => a.filename));
   }
 
   static Future<bool> deleteImages(BuildContext context, {required Set<String> filenames}) async {
@@ -101,10 +102,14 @@ class SetupActions {
 
     await appRepository.editSetups(
       appRepository.setups.values
-          .where((setup) => setup.images.any(filenames.contains))
-          .map((setup) => setup.copyWith(images: setup.images.where((f) => !filenames.contains(f)).toList())),
+          .where((setup) => setup.attachments.any((a) => filenames.contains(a.filename)))
+          .map(
+            (setup) => setup.copyWith(
+              attachments: setup.attachments.where((a) => !filenames.contains(a.filename)).toList(),
+            ),
+          ),
     );
-    await ImageStorageService().deleteImages(filenames);
+    await AttachmentStorageService().deleteFiles(filenames);
 
     if (!context.mounted) return true;
     messenger.showSnackBar(
@@ -121,15 +126,15 @@ class SetupActions {
     final deepCopied = setup.deepCopy();
 
     // Copy each photo file so the duplicate owns its own files.
-    final service = ImageStorageService();
-    final copiedImages = <String>[];
-    for (final filename in deepCopied.images) {
-      copiedImages.add(await service.copyExisting(filename));
+    final service = AttachmentStorageService();
+    final copiedImages = <Attachment>[];
+    for (final attachment in deepCopied.attachments) {
+      copiedImages.add(await service.copyExisting(attachment));
     }
-    final setupWithCopiedImages = deepCopied.copyWith(images: copiedImages);
+    final setupWithCopiedImages = deepCopied.copyWith(attachments: copiedImages);
 
     if (!context.mounted) {
-      await service.deleteImages(copiedImages);
+      await service.deleteFiles(copiedImages.map((a) => a.filename));
       return null;
     }
 
@@ -138,7 +143,7 @@ class SetupActions {
       MaterialPageRoute(builder: (context) => SetupPage.duplicate(setup: setupWithCopiedImages)),
     );
     if (newSetup == null) {
-      await service.deleteImages(copiedImages);
+      await service.deleteFiles(copiedImages.map((a) => a.filename));
       return null;
     }
 

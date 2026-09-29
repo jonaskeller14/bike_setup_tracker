@@ -5,19 +5,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../services/image_storage_service.dart';
+import '../models/attachment.dart';
+import '../services/attachment_storage_service.dart';
 import 'image_viewer.dart';
 import 'sheets/pick_image_source.dart';
 
 enum ImageStripMode { view, edit }
 
 class ImageStrip extends StatefulWidget {
-  final List<String> images;
+  final List<Attachment> images;
   final String imagesDir;
   final ImageStripMode mode;
   final void Function(int index)? onRemove;
   final void Function(int oldIndex, int newIndex)? onReorder;
-  final void Function(List<String> newFilenames)? onAdd;
+  final void Function(List<Attachment> newAttachments)? onAdd;
   final String heroTagPrefix;
 
   const ImageStrip({
@@ -42,8 +43,8 @@ class _ImageStripState extends State<ImageStrip> with TickerProviderStateMixin {
   @override
   void didUpdateWidget(ImageStrip oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final oldSet = oldWidget.images.toSet();
-    for (final filename in widget.images) {
+    final oldSet = oldWidget.images.map((a) => a.filename).toSet();
+    for (final filename in widget.images.map((a) => a.filename)) {
       if (!oldSet.contains(filename) && !_enterControllers.containsKey(filename)) {
         final ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 280));
         _enterControllers[filename] = ctrl;
@@ -55,7 +56,7 @@ class _ImageStripState extends State<ImageStrip> with TickerProviderStateMixin {
       }
     }
     // Clean up exit controllers for items removed from widget.images
-    final newSet = widget.images.toSet();
+    final newSet = widget.images.map((a) => a.filename).toSet();
     for (final f in _exitControllers.keys.where((f) => !newSet.contains(f)).toList()) {
       _exitControllers.remove(f)?.dispose();
     }
@@ -83,7 +84,7 @@ class _ImageStripState extends State<ImageStrip> with TickerProviderStateMixin {
     unawaited(
       ctrl.reverse().then((_) {
         if (!mounted) return;
-        final index = widget.images.indexOf(filename);
+        final index = widget.images.indexWhere((a) => a.filename == filename);
         if (index != -1) widget.onRemove?.call(index);
       }),
     );
@@ -137,20 +138,20 @@ class _ImageStripState extends State<ImageStrip> with TickerProviderStateMixin {
     final source = await showPickImageSourceSheet(context);
     if (source == null) return;
 
-    final service = ImageStorageService();
+    final service = AttachmentStorageService();
     if (source == ImageSource.camera) {
       final picked = await picker.pickImage(source: ImageSource.camera, preferredCameraDevice: CameraDevice.rear);
       if (picked == null) return;
-      final filename = await service.importImage(picked);
-      widget.onAdd?.call([filename]);
+      final attachment = await service.importPicked(picked);
+      widget.onAdd?.call([attachment]);
     } else {
       final picked = await picker.pickMultiImage();
       if (picked.isEmpty) return;
-      final filenames = <String>[];
+      final attachments = <Attachment>[];
       for (final x in picked) {
-        filenames.add(await service.importImage(x));
+        attachments.add(await service.importPicked(x));
       }
-      widget.onAdd?.call(filenames);
+      widget.onAdd?.call(attachments);
     }
   }
 
@@ -219,7 +220,7 @@ class _ImageStripState extends State<ImageStrip> with TickerProviderStateMixin {
 
     if (widget.mode == ImageStripMode.edit) {
       Widget proxyDecorator(Widget child, int index, Animation<double> animation) {
-        final file = File('${widget.imagesDir}${Platform.pathSeparator}${widget.images[index]}');
+        final file = File('${widget.imagesDir}${Platform.pathSeparator}${widget.images[index].filename}');
         return SizedBox(
           width: tileSize,
           height: tileSize,
@@ -305,7 +306,7 @@ class _ImageStripState extends State<ImageStrip> with TickerProviderStateMixin {
                 ),
               );
             }
-            final filename = widget.images[index];
+            final filename = widget.images[index].filename;
             return ReorderableDelayedDragStartListener(
               key: ValueKey(filename),
               index: index,
@@ -334,7 +335,7 @@ class _ImageStripState extends State<ImageStrip> with TickerProviderStateMixin {
         itemCount: widget.images.length,
         separatorBuilder: (_, _) => const SizedBox(width: spacing),
         itemBuilder: (context, index) {
-          final filename = widget.images[index];
+          final filename = widget.images[index].filename;
           return _animatedItem(
             filename,
             SizedBox(

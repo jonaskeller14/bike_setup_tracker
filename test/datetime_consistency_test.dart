@@ -61,7 +61,7 @@ void main() {
         datetime: localTime.toUtc(), // Simulate UtcDateTimeConverter
         datetimeLocal: localTime,
         tags: {},
-        images: const [],
+        attachments: const [],
         isBookmarked: false,
       );
 

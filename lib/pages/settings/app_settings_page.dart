@@ -108,7 +108,7 @@ class AppSettingsPage extends StatelessWidget {
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const FeaturesPage())),
               ),
-              if (appSettings.enableSetupImages)
+              if (appSettings.enableAttachments)
                 ListTile(
                   leading: const Icon(Icons.photo_library_outlined),
                   title: const Text('Gallery'),

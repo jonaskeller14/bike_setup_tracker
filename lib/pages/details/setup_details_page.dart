@@ -337,7 +337,7 @@ class SetupDetailsPageContent extends StatelessWidget {
             ContextMetaCard(
               notes: setup.notes,
               tags: appSettings.enableSetupTags ? setup.tags : const {},
-              images: appSettings.enableSetupImages ? setup.images : const [],
+              images: appSettings.enableAttachments ? setup.attachments : const [],
             ),
             ContextLocationWeatherCard(
               position: setup.position,

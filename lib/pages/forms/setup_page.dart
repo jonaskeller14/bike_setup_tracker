@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
+import '../../models/attachment.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
 import '../../models/context/context_place.dart';
@@ -20,8 +21,8 @@ import '../../models/setup.dart';
 import '../../models/strava/strava_activity.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/address_service.dart';
+import '../../services/attachment_storage_service.dart';
 import '../../services/elevation_service.dart';
-import '../../services/image_storage_service.dart';
 import '../../services/location_service.dart';
 import '../../services/pressure_drift_service.dart';
 import '../../services/setup_resolution_service.dart';
@@ -123,8 +124,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   late String? _initialPerson;
   String? _linkedPerson;
     
-  List<String> _images = [];
-  List<String> _initialImages = [];
+  List<Attachment> _images = [];
+  List<Attachment> _initialImages = [];
   String? _imagesDirPath;
 
   late DateTime _selectedDateTimeUtc;
@@ -182,7 +183,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     _isBookmarked = widget.setup?.isBookmarked ?? appRepository.showBookmarkedSetupsOnly;
     _initialIsBookmarked = _isBookmarked;
 
-    _images = List.from(widget.setup?.images ?? []);
+    _images = List.from(widget.setup?.attachments ?? []);
     _initialImages = List.from(_images);
     unawaited(_initImagesDir());
 
@@ -411,13 +412,13 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   }
 
   Future<void> _initImagesDir() async {
-    final path = await ImageStorageService().getImagesPath();
+    final path = await AttachmentStorageService().getAttachmentsPath();
     if (!mounted) return;
     setState(() => _imagesDirPath = path);
   }
 
-  void _onImagesAdded(List<String> newFilenames) {
-    setState(() => _images.addAll(newFilenames));
+  void _onImagesAdded(List<Attachment> newAttachments) {
+    setState(() => _images.addAll(newAttachments));
     _changeListener();
   }
 
@@ -425,19 +426,19 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     final picker = ImagePicker();
     final source = await showPickImageSourceSheet(context);
     if (source == null) return;
-    final service = ImageStorageService();
+    final service = AttachmentStorageService();
     if (source == ImageSource.camera) {
       final picked = await picker.pickImage(source: ImageSource.camera, preferredCameraDevice: CameraDevice.rear);
       if (picked == null) return;
-      _onImagesAdded([await service.importImage(picked)]);
+      _onImagesAdded([await service.importPicked(picked)]);
     } else {
       final picked = await picker.pickMultiImage();
       if (picked.isEmpty) return;
-      final filenames = <String>[];
+      final attachments = <Attachment>[];
       for (final x in picked) {
-        filenames.add(await service.importImage(x));
+        attachments.add(await service.importPicked(x));
       }
-      _onImagesAdded(filenames);
+      _onImagesAdded(attachments);
     }
   }
 
@@ -731,7 +732,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         position: _currentLocation.value,
         place: _currentPlace.value,
         weather: _currentWeather.value,
-        images: _images,
+        attachments: _images,
       ),
     );
   }
@@ -1035,7 +1036,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                 },
               ),
             ],
-            if (appSettings.enableSetupImages && _imagesDirPath != null)
+            if (appSettings.enableAttachments && _imagesDirPath != null)
               ActionChip(
                 avatar: const Icon(Icons.add_photo_alternate_outlined),
                 label: const Text('Image'),
@@ -1222,7 +1223,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                         _notesTextFormField(),
                         const SizedBox(height: 12),
                         _wrap(),
-                        if (context.read<AppSettings>().enableSetupImages && _imagesDirPath != null && _images.isNotEmpty) ...[
+                        if (context.read<AppSettings>().enableAttachments && _imagesDirPath != null && _images.isNotEmpty) ...[
                           const SizedBox(height: 12),
                           ImageStrip(
                             images: _images,

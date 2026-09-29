@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 
-import '../../services/image_storage_service.dart';
+import '../../models/attachment.dart';
+import '../../services/attachment_storage_service.dart';
 import '../image_strip.dart';
 import '../notes_text.dart';
 
 class ContextMetaCardDiff extends StatelessWidget {
   final String? notesA;
   final Set<String> tagsA;
-  final List<String> imagesA;
+  final List<Attachment> imagesA;
 
   final String? notesB;
   final Set<String> tagsB;
-  final List<String> imagesB;
+  final List<Attachment> imagesB;
 
   const ContextMetaCardDiff({
     super.key,
@@ -82,7 +83,7 @@ class ContextMetaCardDiff extends StatelessWidget {
                   ),
                   Expanded(
                     child: FutureBuilder<String>(
-                      future: ImageStorageService().getImagesPath(),
+                      future: AttachmentStorageService().getAttachmentsPath(),
                       builder: (context, snapshot) {
                         if (snapshot.hasError) {
                           return SizedBox(
@@ -147,7 +148,7 @@ class _ComparisonRow extends StatelessWidget {
 }
 
 class _ImageSide extends StatelessWidget {
-  final List<String> images;
+  final List<Attachment> images;
   final String imagesDir;
   final String heroTagPrefix;
   final Color? emptyColor;

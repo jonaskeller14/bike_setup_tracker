@@ -16,7 +16,7 @@ import '../../widgets/text/section_title.dart';
 class FeaturesPage extends StatelessWidget {
   const FeaturesPage({super.key});
 
-  static const String _setupExtrasTitle = kDebugMode ? "Setup Tags, Images & Bookmarks" : "Setup Tags";
+  static const String _setupExtrasTitle = kDebugMode ? "Setup Tags & Bookmarks" : "Setup Tags";
 
   @override
   Widget build(BuildContext context) {
@@ -153,14 +153,14 @@ class FeaturesPage extends StatelessWidget {
                   ),
                   if (kDebugMode)
                     CheckboxGroupSheetOption(
-                      title: 'Images',
+                      title: 'Attachments',
                       subtitle:
-                          'Attach images to setups. WARNING: images are stored only on this '
-                          'device. They are NOT included in cloud/Drive backups and will be lost on '
-                          'reinstall or when restoring from a backup. Use "Export Images" to move them '
-                          'to a new device.',
-                      value: () => appSettings.enableSetupImages,
-                      onChanged: (v) => appSettings.enableSetupImages = v,
+                          'Attach images and files to setups, bikes and components. WARNING: attachments '
+                          'are stored only on this device. They are NOT included in cloud/Drive backups and '
+                          'will be lost on reinstall or when restoring from a backup. Use "Export Image '
+                          'Bundle" to move them to a new device.',
+                      value: () => appSettings.enableAttachments,
+                      onChanged: (v) => appSettings.enableAttachments = v,
                     ),
                   if (kDebugMode)
                     CheckboxGroupSheetOption(

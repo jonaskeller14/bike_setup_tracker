@@ -116,10 +116,10 @@ class _SetupTileEmbeddedState extends State<SetupTileEmbedded> {
           muted: true,
         ),
       if (appSettings.enableSetupTags) ...setup.tags.map((tag) => TileMetaRow(icon: Icons.tag, text: tag, muted: true)),
-      if (appSettings.enableSetupImages && setup.images.isNotEmpty)
+      if (appSettings.enableAttachments && setup.attachments.isNotEmpty)
         TileMetaRow(
           icon: Icons.photo_library_outlined,
-          text: '${setup.images.length}',
+          text: '${setup.attachments.length}',
           muted: true,
         ),
     ];

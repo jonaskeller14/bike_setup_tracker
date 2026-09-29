@@ -10,10 +10,10 @@ import '../database/app_database.dart';
 import '../models/bike.dart';
 import '../models/selected_data.dart';
 import '../models/setup.dart';
+import '../services/attachment_storage_service.dart';
 import '../services/component_hierarchy_resolver.dart';
 import '../services/data_export_service.dart';
 import '../services/database_migration_service.dart';
-import '../services/image_storage_service.dart';
 import '../widgets/app_snackbar.dart';
 import 'backup.dart';
 
@@ -94,7 +94,7 @@ class FileImport {
   static Future<void> replace({required SelectedData remoteData, required AppDatabase database}) async {
     final purgedImages = cleanupIsDeleted(data: remoteData);
     await _importDataToDb(database, remoteData);
-    await ImageStorageService().deleteImages(purgedImages);
+    await AttachmentStorageService().deleteFiles(purgedImages);
   }
 
   static Future<void> overwrite({required SelectedData remoteData, required AppDatabase database}) async {
@@ -110,7 +110,7 @@ class FileImport {
     await _importDataToDb(database, localData);
 
     // 4. Delete images of purged setups (after the DB write succeeds).
-    await ImageStorageService().deleteImages(purgedImages);
+    await AttachmentStorageService().deleteFiles(purgedImages);
   }
 
   static Future<void> merge({
@@ -129,7 +129,7 @@ class FileImport {
     await _importDataToDb(database, localData);
 
     // 4. Delete images of purged setups (after the DB write succeeds).
-    await ImageStorageService().deleteImages(purgedImages);
+    await AttachmentStorageService().deleteFiles(purgedImages);
   }
 
   static Future<void> _importDataToDb(AppDatabase database, SelectedData dataToImport) async {
@@ -319,7 +319,7 @@ class FileImport {
     final purgedSetupImages = <String>[];
     data.setups.removeWhere((_, s) {
       final purge = s.isDeleted && s.lastModified.isBefore(deleteDateTime);
-      if (purge) purgedSetupImages.addAll(s.images);
+      if (purge) purgedSetupImages.addAll(s.attachments.map((a) => a.filename));
       return purge;
     });
 
@@ -327,7 +327,7 @@ class FileImport {
     data.taskEntries.removeWhere((_, te) => te.isDeleted && te.lastModified.isBefore(deleteDateTime));
 
     // Never delete a file a surviving setup still references.
-    final stillReferenced = data.setups.values.expand((s) => s.images).toSet();
+    final stillReferenced = data.setups.values.expand((s) => s.attachments).map((a) => a.filename).toSet();
     return purgedSetupImages.where((f) => !stillReferenced.contains(f)).toList();
   }
 }

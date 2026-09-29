@@ -14,12 +14,12 @@ import '../models/component/installation.dart';
 import '../models/rating/rating_association.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/task/task_rule.dart';
+import 'converters/attachment_list_converter.dart';
 import 'converters/context_position_converter.dart';
 import 'converters/duration_converter.dart';
 import 'converters/local_floating_datetime_converter.dart';
 import 'converters/placemark_converter.dart';
 import 'converters/string_list_converter.dart';
-import 'converters/string_list_ordered_converter.dart';
 import 'converters/utc_datetime_converter.dart';
 import 'converters/weather_converter.dart';
 import 'daos/bikes_dao.dart';
@@ -90,7 +90,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 19;
+  int get schemaVersion => 20;
 
   @override
   MigrationStrategy get migration {
@@ -113,12 +113,12 @@ class AppDatabase extends _$AppDatabase {
           // those setups fall back to the (localizable) UI placeholder instead.
           //
           // This recreation rebuilds setups from the *current* schema, which
-          // now includes `images` (added in v8) and `isBookmarked` (v13).
+          // now includes `attachments` (v20, `images` from v8) and `isBookmarked` (v13).
           // Pre-v4 rows have no such columns, so flag them as new columns —
           // Drift fills them from their defaults instead of trying to copy
           // them out of the old table.
           await m.alterTable(
-            TableMigration(setups, newColumns: [setups.images, setups.isBookmarked]),
+            TableMigration(setups, newColumns: [setups.attachments, setups.isBookmarked]),
           );
           await customStatement("UPDATE setups SET name = NULL WHERE name = 'Unnamed Setup'");
         }
@@ -150,11 +150,12 @@ class AppDatabase extends _$AppDatabase {
           await m.alterTable(TableMigration(ratingMetrics));
         }
         if (from < 8) {
-          // Upgrades that crossed the v4 boundary already gained `images` when
-          // the setups table was recreated above; only add it when missing so
-          // we don't hit a duplicate-column error.
-          if (!await _columnExists('setups', 'images')) {
-            await m.addColumn(setups, setups.images);
+          // v8 added `images`, which v20 replaces with `attachments`; add the
+          // latter directly. Upgrades that crossed the v4 boundary already
+          // gained it when the setups table was recreated above; only add it
+          // when missing so we don't hit a duplicate-column error.
+          if (!await _columnExists('setups', 'attachments')) {
+            await m.addColumn(setups, setups.attachments);
           }
         }
         if (from < 9) {
@@ -254,6 +255,21 @@ class AppDatabase extends _$AppDatabase {
             if (!await _columnExists('components', name)) {
               await m.addColumn(components, column);
             }
+          }
+        }
+        if (from < 20) {
+          // Setup images generalise to attachments on setups, bikes and
+          // components. The image feature never shipped, so `images` is
+          // dropped rather than converted. Only databases that ran the old v8
+          // step still have it; every other path gained `attachments` above.
+          if (await _columnExists('setups', 'images')) {
+            await m.alterTable(TableMigration(setups, newColumns: [setups.attachments]));
+          }
+          if (!await _columnExists('bikes', 'attachments')) {
+            await m.addColumn(bikes, bikes.attachments);
+          }
+          if (!await _columnExists('components', 'attachments')) {
+            await m.addColumn(components, components.attachments);
           }
         }
       },

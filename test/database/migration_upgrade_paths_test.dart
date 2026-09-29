@@ -36,6 +36,13 @@ void main() {
   // structural undo — their steps rewrite/recreate the affected tables
   // regardless of the starting column shape.
   Future<void> reshapeToVersion(AppDatabase db, int version) async {
+    if (version < 20) {
+      // v20 replaced setups.images with attachments and added attachments to
+      // bikes and components.
+      await db.customStatement('ALTER TABLE setups RENAME COLUMN attachments TO images');
+      await db.customStatement('ALTER TABLE bikes DROP COLUMN attachments');
+      await db.customStatement('ALTER TABLE components DROP COLUMN attachments');
+    }
     if (version < 19) {
       // v19 added the components preset-provenance columns.
       for (final column in _componentPresetColumns) {
@@ -90,7 +97,7 @@ void main() {
   }
 
   // Seeds a single setup row via raw SQL — the typed API can't be used here
-  // because the reshaped schema predates the `images` and `is_bookmarked`
+  // because the reshaped schema predates the `attachments` and `is_bookmarked`
   // columns. `name` is the legacy placeholder the v4 step is expected to clear.
   Future<void> seedSetup(AppDatabase db) async {
     const epochSeconds = 1700000000; // 2023-11-14, arbitrary but valid.
@@ -164,16 +171,23 @@ void main() {
   group('onUpgrade from every prior version to the current schema', () {
     // Covers the full range of jump sizes: the v12 case is a single step, the
     // v1 case crosses every TableMigration in the strategy.
-    for (final startVersion in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]) {
+    for (final startVersion in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]) {
       test('v$startVersion -> current completes and preserves seed rows', () async {
         final db = await migrateFrom(startVersion);
         addTearDown(db.close);
 
-        // The setups table ends up with the v8 `images` column.
+        // Every path ends with exactly the v20 `attachments` column on setups —
+        // whether added by the v4 recreation, the v8 step or the v20 step —
+        // and without the unshipped `images` column.
         expect(
           await columnNames(db, 'setups'),
-          contains('images'),
-          reason: 'images column missing after v$startVersion upgrade',
+          contains('attachments'),
+          reason: 'attachments column missing after v$startVersion upgrade',
+        );
+        expect(
+          await columnNames(db, 'setups'),
+          isNot(contains('images')),
+          reason: 'images column left behind after v$startVersion upgrade',
         );
 
         // The installations table ends up with the v9 `parent_type` column.
@@ -206,15 +220,15 @@ void main() {
         expect(instRows.single.read<String>('parent_type'), 'bike');
 
         // The seeded row survived the migration.
-        final rows = await db.customSelect('SELECT id, name, images, is_bookmarked FROM setups').get();
+        final rows = await db.customSelect('SELECT id, name, attachments, is_bookmarked FROM setups').get();
         expect(rows, hasLength(1));
         final row = rows.single;
         expect(row.read<String>('id'), 's1');
 
-        // images defaulted to the empty list, and the converter round-trips it.
-        expect(row.read<String>('images'), '[]');
+        // attachments defaulted to the empty list, and the converter round-trips it.
+        expect(row.read<String>('attachments'), '[]');
         final typed = await (db.select(db.setups)..where((t) => t.id.equals('s1'))).getSingle();
-        expect(typed.images, isEmpty);
+        expect(typed.attachments, isEmpty);
 
         // Setups recorded before bookmarks existed come back unbookmarked.
         expect(typed.isBookmarked, isFalse);
@@ -247,6 +261,12 @@ void main() {
         final component = await (db.select(db.components)..where((t) => t.id.equals('c1'))).getSingle();
         expect(component.presetKey, isNull);
         expect(component.presetDamperKey, isNull);
+
+        // The v20 step adds attachments to bikes and components.
+        expect(await columnNames(db, 'bikes'), contains('attachments'));
+        expect(await columnNames(db, 'components'), contains('attachments'));
+        expect(bike.attachments, isEmpty);
+        expect(component.attachments, isEmpty);
       });
     }
   });

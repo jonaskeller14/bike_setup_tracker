@@ -99,7 +99,6 @@ class CompareSetupsHarness {
     Map<String, AdjustmentValue> values = const {},
     String? notes,
     Set<String> tags = const {},
-    List<String> images = const [],
     ContextPosition? position,
   }) {
     return Setup(
@@ -114,7 +113,6 @@ class CompareSetupsHarness {
       position: position,
       bikeAdjustmentValues: Map<String, AdjustmentValue>.from(values),
       personAdjustmentValues: {},
-      images: images,
     );
   }
 

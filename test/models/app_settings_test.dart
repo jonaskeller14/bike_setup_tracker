@@ -78,6 +78,20 @@ void main() {
       expect(prefs.getBool('${_kPrefix}enableCalendar'), isNull);
     });
 
+    test('enableAttachments persists under its own key, ignoring the old image flag', () async {
+      SharedPreferences.setMockInitialValues({'${_kPrefix}enableSetupImages': true});
+      final settings = AppSettings();
+      await settings.loadAppSettings();
+
+      expect(settings.enableAttachments, isFalse);
+
+      settings.enableAttachments = true;
+      await flushWrites();
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getBool('${_kPrefix}enableAttachments'), isTrue);
+    });
+
     test('string setter persists under its namespaced key', () async {
       SharedPreferences.setMockInitialValues({});
       final settings = AppSettings();

@@ -6,14 +6,15 @@ import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
 import 'package:provider/provider.dart';
 
+import '../../models/attachment.dart';
 import '../../repositories/app_repository.dart';
-import '../../services/image_storage_service.dart';
+import '../../services/attachment_storage_service.dart';
 import '../../utils/setup_actions.dart';
 import '../../widgets/animated_app_bar_switcher.dart';
 import '../../widgets/empty_state_placeholder.dart';
 import '../../widgets/image_viewer.dart';
 
-typedef _GalleryEntry = ({String filename, String? setupId});
+typedef _GalleryEntry = ({Attachment attachment, String? setupId});
 typedef _ImageFolder = ({String dir, List<String> filenames});
 
 class GalleryPage extends StatefulWidget {
@@ -61,7 +62,7 @@ class _GalleryPageState extends State<GalleryPage> {
   /// no setup references any more still surface here — nothing sweeps them
   /// except an import or sync, so they can pile up unnoticed.
   Future<_ImageFolder> _loadFolder() async {
-    final dir = await ImageStorageService().getImagesPath();
+    final dir = await AttachmentStorageService().getAttachmentsPath();
     final directory = Directory(dir);
     if (!directory.existsSync()) return (dir: dir, filenames: const <String>[]);
 
@@ -78,29 +79,34 @@ class _GalleryPageState extends State<GalleryPage> {
     final entries = <_GalleryEntry>[];
     final linked = <String>{};
     for (final setup in setups) {
-      for (final filename in setup.images) {
-        if (linked.add(filename)) entries.add((filename: filename, setupId: setup.id));
+      for (final attachment in setup.attachments) {
+        if (linked.add(attachment.filename)) entries.add((attachment: attachment, setupId: setup.id));
       }
     }
 
     // A trashed setup still owns its images, so they are neither listed nor
     // counted as unlinked until that setup is purged for good.
-    final trashed = repository.deletedSetups.expand((s) => s.images).toSet();
+    final trashed = repository.deletedSetups.expand((s) => s.attachments).map((a) => a.filename).toSet();
     for (final filename in filenames) {
       if (linked.contains(filename) || trashed.contains(filename)) continue;
-      entries.add((filename: filename, setupId: null));
+      final attachment = Attachment(
+        id: p.basenameWithoutExtension(filename),
+        extension: p.extension(filename),
+        name: filename,
+      );
+      entries.add((attachment: attachment, setupId: null));
     }
     return entries;
   }
 
   void _openViewer(List<_GalleryEntry> entries, String imagesDir, int index) {
-    final setupIdsByImage = {for (final entry in entries) entry.filename: entry.setupId};
+    final setupIdsByImage = {for (final entry in entries) entry.attachment.filename: entry.setupId};
     unawaited(
       Navigator.push<void>(
         context,
         MaterialPageRoute(
           builder: (_) => ImageViewer(
-            images: [for (final entry in entries) entry.filename],
+            images: [for (final entry in entries) entry.attachment],
             imagesDir: imagesDir,
             initialIndex: index,
             setupIdForImage: (filename) => setupIdsByImage[filename],
@@ -127,16 +133,17 @@ class _GalleryPageState extends State<GalleryPage> {
   Widget _tile(BuildContext context, _GalleryEntry entry, String imagesDir, VoidCallback onTap) {
     final colorScheme = Theme.of(context).colorScheme;
     final isUnlinked = entry.setupId == null;
-    final isSelected = _selectedImages.contains(entry.filename);
+    final filename = entry.attachment.filename;
+    final isSelected = _selectedImages.contains(filename);
 
     return GestureDetector(
-      onTap: _isSelectionMode ? () => _toggleSelection(entry.filename) : onTap,
-      onLongPress: () => _toggleSelection(entry.filename),
+      onTap: _isSelectionMode ? () => _toggleSelection(filename) : onTap,
+      onLongPress: () => _toggleSelection(filename),
       child: Stack(
         fit: StackFit.expand,
         children: [
           Hero(
-            tag: 'setup-image-${entry.filename}',
+            tag: 'setup-image-$filename',
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
@@ -144,7 +151,7 @@ class _GalleryPageState extends State<GalleryPage> {
               ),
               clipBehavior: Clip.antiAlias,
               child: Image.file(
-                File(p.join(imagesDir, entry.filename)),
+                File(p.join(imagesDir, filename)),
                 fit: BoxFit.cover,
                 cacheWidth: 400,
                 errorBuilder: (_, _, _) => Container(

@@ -3,12 +3,13 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+import '../models/attachment.dart';
 import '../models/setup.dart';
 import '../services/share_service.dart';
 import 'sheets/setup_details.dart';
 
 class ImageViewer extends StatefulWidget {
-  final List<String> images;
+  final List<Attachment> images;
   final String imagesDir;
   final int initialIndex;
   final void Function(int index)? onDelete;
@@ -30,7 +31,7 @@ class ImageViewer extends StatefulWidget {
 class _ImageViewerState extends State<ImageViewer> {
   late PageController _pageController;
   late int _currentIndex;
-  late List<String> _images;
+  late List<Attachment> _images;
 
   @override
   void initState() {
@@ -47,7 +48,7 @@ class _ImageViewerState extends State<ImageViewer> {
   }
 
   String get _currentFilePath =>
-      '${widget.imagesDir}${Platform.pathSeparator}${_images[_currentIndex]}';
+      '${widget.imagesDir}${Platform.pathSeparator}${_images[_currentIndex].filename}';
 
   void _delete() {
     final index = _currentIndex;
@@ -73,7 +74,7 @@ class _ImageViewerState extends State<ImageViewer> {
 
   @override
   Widget build(BuildContext context) {
-    final setupId = widget.setupIdForImage?.call(_images[_currentIndex]);
+    final setupId = widget.setupIdForImage?.call(_images[_currentIndex].filename);
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -107,14 +108,14 @@ class _ImageViewerState extends State<ImageViewer> {
         onPageChanged: (index) => setState(() => _currentIndex = index),
         itemBuilder: (context, index) {
           final file = File(
-            '${widget.imagesDir}${Platform.pathSeparator}${_images[index]}',
+            '${widget.imagesDir}${Platform.pathSeparator}${_images[index].filename}',
           );
           return InteractiveViewer(
             minScale: 0.5,
             maxScale: 6,
             child: Center(
               child: Hero(
-                tag: 'setup-image-${_images[index]}',
+                tag: 'setup-image-${_images[index].filename}',
                 child: Image.file(
                   file,
                   fit: BoxFit.contain,

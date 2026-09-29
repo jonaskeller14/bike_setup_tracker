@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../../models/component/component.dart';
+import '../converters/attachment_list_converter.dart';
 import '../converters/duration_converter.dart';
 import '../converters/utc_datetime_converter.dart';
 
@@ -24,6 +25,7 @@ class Components extends Table {
   RealColumn get initialKilojoules => real().withDefault(const Constant(0.0))();
   TextColumn get presetKey => text().nullable()();
   TextColumn get presetDamperKey => text().nullable()();
+  TextColumn get attachments => text().map(const AttachmentListConverter()).withDefault(const Constant('[]'))();
 
   @override
   Set<Column> get primaryKey => {id};

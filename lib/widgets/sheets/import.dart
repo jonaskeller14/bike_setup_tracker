@@ -5,7 +5,7 @@ import '../../database/app_database.dart';
 import '../../models/app_settings.dart';
 import '../../models/selected_data.dart';
 import '../../repositories/app_repository.dart';
-import '../../services/image_storage_service.dart';
+import '../../services/attachment_storage_service.dart';
 import '../../utils/file_import.dart';
 import '../app_snackbar.dart';
 import 'backup.dart';
@@ -281,14 +281,14 @@ class _SelectImportSourceSheetContentState extends State<SelectImportSourceSheet
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                     onTap: widget.onBackup,
                   ),
-                  if (context.read<AppSettings>().enableSetupImages)
+                  if (context.read<AppSettings>().enableAttachments)
                     ListTile(
                       leading: Icon(Icons.photo_library_outlined, color: Theme.of(context).colorScheme.primary),
                       title: const Text("Import Image Bundle"),
                       subtitle: const Text("Restore data and images from a ZIP bundle"),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: () async {
-                        final result = await ImageStorageService().importBundle();
+                        final result = await AttachmentStorageService().importBundle();
                         if (result.isCancelled) return;
                         if (result.isError) {
                           setState(() => _filePickingError = result.errorMessage);

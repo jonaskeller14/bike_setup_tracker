@@ -123,6 +123,47 @@ void main() {
       expect(columnOf, {'early': 0, 'late': 1, 'after': 0});
     });
 
+    test('packs per interval, so a returning component does not force an extra slot', () {
+      final layout = layoutFor(
+        [
+          component('A', ComponentType.tire),
+          component('B', ComponentType.tire),
+          component('C', ComponentType.tire),
+        ],
+        [
+          interval('A', local(1), local(3)),
+          interval('B', local(1), local(6)),
+          interval('C', local(3), local(9)),
+          interval('A', local(6), local(9)),
+        ],
+      );
+
+      expect(layout.columns, hasLength(2));
+      expect(layout.blocks.map((b) => (b.componentId, b.rowFrom, b.columnIndex)), [
+        ('A', 0, 0),
+        ('B', 0, 1),
+        ('C', 1, 0),
+        ('A', 2, 1),
+      ]);
+    });
+
+    test('an interval keeps its component slot when free, even if a lower slot is free', () {
+      final layout = layoutFor(
+        [component('front', ComponentType.tire), component('rear', ComponentType.tire)],
+        [
+          interval('front', local(1), local(2)),
+          interval('rear', local(1), local(4), 'wheelA'),
+          interval('rear', local(4), null, 'wheelB'),
+        ],
+      );
+
+      expect(layout.blocks.map((b) => (b.componentId, b.parentComponentId, b.columnIndex)), [
+        ('front', null, 0),
+        ('rear', 'wheelA', 1),
+        ('rear', 'wheelB', 1),
+      ]);
+    });
+
     test('blockAt returns the same block for every covered cell and null for gaps', () {
       final layout = layoutFor(
         [component('fork', ComponentType.fork), component('shock', ComponentType.shock)],

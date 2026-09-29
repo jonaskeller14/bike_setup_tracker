@@ -89,51 +89,55 @@ TimelineLayout buildTimelineLayout({
   required double blockHeight,
   required double nestedBlockHeight,
 }) {
-  final intervalsByType = <ComponentType, Map<String, List<TimelineInterval>>>{};
+  final intervalsByType = <ComponentType, List<TimelineInterval>>{};
   for (final MapEntry(key: componentId, value: componentIntervals) in intervals.entries) {
     final type = components[componentId]?.componentType;
     if (type == null || !visibleTypes.contains(type)) continue;
-    (intervalsByType[type] ??= {})[componentId] = componentIntervals;
+    (intervalsByType[type] ??= []).addAll(componentIntervals);
   }
 
   final boundaries = <DateTime>{
-    for (final byComponent in intervalsByType.values)
-      for (final componentIntervals in byComponent.values)
-        for (final interval in componentIntervals) ...[
-          interval.startLocal,
-          if (interval.endLocal != null) interval.endLocal!,
-        ],
+    for (final typeIntervals in intervalsByType.values)
+      for (final interval in typeIntervals) ...[
+        interval.startLocal,
+        if (interval.endLocal != null) interval.endLocal!,
+      ],
   }.toList()..sort();
   final rowOf = {for (final (index, boundary) in boundaries.indexed) boundary: index};
 
   final columns = <TimelineColumn>[];
   final blocks = <TimelineBlock>[];
   for (final type in visibleTypes) {
-    final byComponent = intervalsByType[type];
-    if (byComponent == null) continue;
-    final slots = _packSlots(byComponent);
-    for (final (slotIndex, componentIds) in slots.indexed) {
-      final columnIndex = columns.length;
-      columns.add(TimelineColumn(type: type, slotIndex: slotIndex, slotCount: slots.length));
-      for (final componentId in componentIds) {
-        for (final interval in byComponent[componentId]!) {
-          final rowFrom = rowOf[interval.startLocal]!;
-          final rowTo = interval.endLocal == null ? boundaries.length - 1 : rowOf[interval.endLocal]! - 1;
-          // Distinct UTC instants can share (or invert) local times; such an
-          // interval covers no row.
-          if (rowTo < rowFrom) continue;
-          blocks.add(
-            TimelineBlock(
-              componentId: componentId,
-              parentComponentId: interval.parentComponentId,
-              columnIndex: columnIndex,
-              rowFrom: rowFrom,
-              rowTo: rowTo,
-              isOpen: interval.endLocal == null,
-            ),
-          );
-        }
-      }
+    final typeIntervals = intervalsByType[type];
+    if (typeIntervals == null) continue;
+    final spans = [
+      for (final interval in typeIntervals)
+        (
+          interval: interval,
+          rowFrom: rowOf[interval.startLocal]!,
+          rowTo: interval.endLocal == null ? boundaries.length - 1 : rowOf[interval.endLocal]! - 1,
+        ),
+    ];
+    // Distinct UTC instants can share (or invert) local times; such an
+    // interval covers no row.
+    spans.removeWhere((span) => span.rowTo < span.rowFrom);
+    final (slots, slotCount) = _packSlots(spans);
+
+    final firstColumn = columns.length;
+    for (var slotIndex = 0; slotIndex < slotCount; slotIndex++) {
+      columns.add(TimelineColumn(type: type, slotIndex: slotIndex, slotCount: slotCount));
+    }
+    for (final (span, slot) in slots) {
+      blocks.add(
+        TimelineBlock(
+          componentId: span.interval.componentId,
+          parentComponentId: span.interval.parentComponentId,
+          columnIndex: firstColumn + slot,
+          rowFrom: span.rowFrom,
+          rowTo: span.rowTo,
+          isOpen: span.interval.endLocal == null,
+        ),
+      );
     }
   }
 
@@ -169,38 +173,36 @@ TimelineLayout buildTimelineLayout({
   return TimelineLayout._(rows, columns, blocks, cells);
 }
 
-/// Greedy slot packing: components sorted by first start (then id) go into
-/// the first slot where none of their intervals overlap.
-List<List<String>> _packSlots(Map<String, List<TimelineInterval>> intervalsByComponent) {
-  DateTime firstStart(String id) =>
-      intervalsByComponent[id]!.map((interval) => interval.startLocal).reduce((a, b) => b.isBefore(a) ? b : a);
+typedef _Span = ({TimelineInterval interval, int rowFrom, int rowTo});
 
-  final componentIds = intervalsByComponent.keys.toList()
-    ..sort((a, b) {
-      final byStart = firstStart(a).compareTo(firstStart(b));
-      return byStart != 0 ? byStart : a.compareTo(b);
-    });
+/// Greedy per-interval slot packing in start order. An interval reuses its
+/// component's previous slot when that slot is free, otherwise the first free
+/// one. Since every free-slot choice is valid, the slot count stays at the
+/// most intervals active at once.
+(List<(_Span, int)>, int) _packSlots(List<_Span> spans) {
+  spans.sort((a, b) {
+    final byRow = a.rowFrom.compareTo(b.rowFrom);
+    return byRow != 0 ? byRow : a.interval.componentId.compareTo(b.interval.componentId);
+  });
 
-  final slots = <List<String>>[];
-  for (final id in componentIds) {
-    final slot = slots
-        .where((slot) => !slot.any((other) => _overlap(intervalsByComponent[id]!, intervalsByComponent[other]!)))
-        .firstOrNull;
-    if (slot == null) {
-      slots.add([id]);
+  final slotLastRow = <int>[];
+  final previousSlotOf = <String, int>{};
+  final placed = <(_Span, int)>[];
+  for (final span in spans) {
+    final previous = previousSlotOf[span.interval.componentId];
+    var slot = previous != null && slotLastRow[previous] < span.rowFrom
+        ? previous
+        : slotLastRow.indexWhere((lastRow) => lastRow < span.rowFrom);
+    if (slot == -1) {
+      slot = slotLastRow.length;
+      slotLastRow.add(span.rowTo);
     } else {
-      slot.add(id);
+      slotLastRow[slot] = span.rowTo;
     }
+    previousSlotOf[span.interval.componentId] = slot;
+    placed.add((span, slot));
   }
-  return slots;
+  return (placed, slotLastRow.length);
 }
-
-bool _overlap(List<TimelineInterval> a, List<TimelineInterval> b) => a.any(
-  (x) => b.any(
-    (y) =>
-        (y.endLocal == null || x.startLocal.isBefore(y.endLocal!)) &&
-        (x.endLocal == null || y.startLocal.isBefore(x.endLocal!)),
-  ),
-);
 
 bool _isSameDay(DateTime a, DateTime b) => a.year == b.year && a.month == b.month && a.day == b.day;

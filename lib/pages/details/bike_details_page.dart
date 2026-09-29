@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../../icons/simple_icons.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
+import '../../models/attachment.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
 import '../../models/person.dart';
@@ -20,6 +21,7 @@ import '../../utils/bike_actions.dart';
 import '../../utils/component_actions.dart';
 import '../../utils/table_column.dart';
 import '../../utils/table_column_comparator.dart';
+import '../../widgets/attachment_row.dart';
 import '../../widgets/display_data/component_stats_card.dart';
 import '../../widgets/display_data/setup_line_chart.dart';
 import '../../widgets/display_data/setup_radial_chart.dart';
@@ -441,6 +443,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
     );
     final stats = appRepository.bikeStats[widget.bikeId] ?? bike.initialStats;
     final initialStatsSummary = initial_stats.initialStatsSummary(bike.initialStats, appSettings);
+    final attachments = appSettings.enableAttachments ? bike.attachments : const <Attachment>[];
 
     return Scaffold(
       appBar: AppBar(
@@ -522,7 +525,9 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
                   dense: true,
                 ),
 
-              if ((appSettings.enableStrava && subscriptionService.hasStravaEntitlement) || appSettings.enablePerson || bike.notes != null || initialStatsSummary != null)
+              if (attachments.isNotEmpty) AttachmentRow(attachments: attachments),
+
+              if ((appSettings.enableStrava && subscriptionService.hasStravaEntitlement) || appSettings.enablePerson || bike.notes != null || initialStatsSummary != null || attachments.isNotEmpty)
                 const Divider(height: 1),
 
               if (appSettings.enableTask) ...[

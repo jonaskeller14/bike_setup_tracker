@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../models/attachment.dart';
-import '../../services/attachment_storage_service.dart';
-import '../attachment_strip.dart';
+import '../attachment_row.dart';
 import '../notes_text.dart';
 
 class ContextMetaCard extends StatelessWidget {
@@ -42,47 +41,7 @@ class ContextMetaCard extends StatelessWidget {
               title: Text(tags.join("\n")),
               dense: true,
             ),
-          if (attachments.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(right: 16),
-                    child: Icon(Icons.attach_file),
-                  ),
-                  Expanded(
-                    child: FutureBuilder<String>(
-                      future: AttachmentStorageService().getAttachmentsPath(),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasError) {
-                          return SizedBox(
-                            height: 80,
-                            child: Center(
-                              child: Icon(
-                                Icons.broken_image_outlined,
-                                color: Theme.of(context).colorScheme.error,
-                              ),
-                            ),
-                          );
-                        }
-                        if (!snapshot.hasData) {
-                          return const SizedBox(
-                            height: 80,
-                            child: Center(child: CircularProgressIndicator()),
-                          );
-                        }
-                        return AttachmentStrip(
-                          attachments: attachments,
-                          attachmentsDir: snapshot.data!,
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          if (attachments.isNotEmpty) AttachmentRow(attachments: attachments),
         ],
       ),
     );

@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
+import 'package:bike_setup_tracker/models/attachment.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
@@ -10,12 +13,14 @@ import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/setup_activity_analysis_service.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
+import 'package:bike_setup_tracker/widgets/attachment_row.dart';
 import 'package:bike_setup_tracker/widgets/display_data/setup_line_chart.dart';
 import 'package:bike_setup_tracker/widgets/display_data/setup_radial_chart.dart';
 import 'package:bike_setup_tracker/widgets/display_data/setup_table.dart';
 import 'package:bike_setup_tracker/widgets/initial_changed_value_legend.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
@@ -146,6 +151,35 @@ void main() {
 
     expect(find.byType(SetupTable), findsNothing);
     expect(find.text('No setups reference this bike'), findsOneWidget);
+  });
+
+  testWidgets('shows the bike attachments only when attachments are enabled', (WidgetTester tester) async {
+    const pathProviderChannel = MethodChannel('plugins.flutter.io/path_provider');
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+      pathProviderChannel,
+      (call) async => Directory.systemTemp.path,
+    );
+    addTearDown(
+      () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(pathProviderChannel, null),
+    );
+    await pumpPageWith(tester, () async {
+      await appRepository.addBikes([
+        Bike(
+          id: 'bike1',
+          name: 'Test Bike',
+          person: null,
+          attachments: [Attachment(extension: '.pdf', name: 'Frame Manual.pdf')],
+        ),
+      ]);
+    });
+
+    expect(find.byType(AttachmentRow), findsNothing);
+
+    appSettings.enableAttachments = true;
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AttachmentRow), findsOneWidget);
+    expect(find.text('Frame Manual.pdf'), findsOneWidget);
   });
 
   group('bike adjustment columns', () {

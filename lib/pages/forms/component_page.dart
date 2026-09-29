@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
+import '../../models/attachment.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
 import '../../models/component/component_preset.dart';
@@ -14,12 +15,15 @@ import '../../models/component/installation.dart';
 import '../../models/component_stats.dart';
 import '../../repositories/app_repository.dart';
 import '../../repositories/component_preset_repository.dart';
+import '../../services/attachment_storage_service.dart';
 import '../../services/subscription_service.dart';
 import '../../theme.dart';
+import '../../utils/attachment_actions.dart';
 import '../../utils/component_preset_application.dart';
 import '../../utils/component_preset_search.dart';
 import '../../utils/installation_timeline_validation.dart';
 import '../../widgets/app_snackbar.dart';
+import '../../widgets/attachment_strip.dart';
 import '../../widgets/dialogs/apply_preset_adjustments.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/empty_state_placeholder2.dart';
@@ -94,6 +98,11 @@ class _ComponentPageState extends State<ComponentPage> {
   Set<String> _presetAdjustmentIds = {};
   String? _appendedPresetNotes;
 
+  List<Attachment> _attachments = [];
+  String? _attachmentsDirPath;
+  final List<Attachment> _importedAttachments = [];
+  List<Attachment>? _savedAttachments;
+
   List<Adjustment>? _lastPresetAdjustments;
   VoidCallback? _adjustmentsFieldNotify;
   VoidCallback? _componentTypeFieldNotify;
@@ -148,6 +157,9 @@ class _ComponentPageState extends State<ComponentPage> {
     final appSettings = context.read<AppSettings>();
     _initialStats = widget.component?.initialStats ?? ComponentStats.zero;
 
+    _attachments = List.from(widget.component?.attachments ?? []);
+    if (appSettings.enableAttachments) unawaited(_initAttachmentsDir());
+
     if (widget.mode != ComponentPageMode.add) _expanded = true;
 
     // Preload the autocomplete index (not in edit mode + flag on) so suggestions are
@@ -159,6 +171,38 @@ class _ComponentPageState extends State<ComponentPage> {
     if (presetKey != null && appSettings.enableComponentPresets) {
       unawaited(_loadAppliedPreset(presetKey));
     }
+  }
+
+  Future<void> _initAttachmentsDir() async {
+    final path = await AttachmentStorageService().getAttachmentsPath();
+    if (!mounted) return;
+    setState(() => _attachmentsDirPath = path);
+  }
+
+  Future<void> _addAttachments() async {
+    final attachments = await AttachmentActions.pickAttachments(context);
+    if (attachments.isEmpty || !mounted) return;
+    _importedAttachments.addAll(attachments);
+    setState(() => _attachments.addAll(attachments));
+    _changeListener();
+  }
+
+  void _onAttachmentRemoved(int index) {
+    setState(() => _attachments.removeAt(index));
+    _changeListener();
+  }
+
+  void _onAttachmentRenamed(int index, String name) {
+    setState(() => _attachments[index] = _attachments[index].copyWith(name: name));
+    _changeListener();
+  }
+
+  void _onAttachmentReorder(int oldIndex, int newIndex) {
+    setState(() {
+      final item = _attachments.removeAt(oldIndex);
+      _attachments.insert(newIndex, item);
+    });
+    _changeListener();
   }
 
   Future<void> _loadAppliedPreset(String key) async {
@@ -193,7 +237,8 @@ class _ComponentPageState extends State<ComponentPage> {
         !listEquals(_adjustments, _initialAdjustments) ||
         _initialStats != (widget.component?.initialStats ?? ComponentStats.zero) ||
         _presetKey != widget.component?.presetKey ||
-        _presetDamperKey != widget.component?.presetDamperKey;
+        _presetDamperKey != widget.component?.presetDamperKey ||
+        !listEquals(_attachments, widget.component?.attachments ?? const []);
 
     if (_formHasChanges != hasChanges) {
       setState(() {
@@ -209,6 +254,8 @@ class _ComponentPageState extends State<ComponentPage> {
     _nameFocusNode.dispose();
     _notesController.removeListener(_changeListener);
     _notesController.dispose();
+    // Files imported here but not saved with the component would be left unlinked.
+    unawaited(AttachmentActions.deleteUnsaved(_importedAttachments, saved: _savedAttachments));
     super.dispose();
   }
 
@@ -507,8 +554,9 @@ class _ComponentPageState extends State<ComponentPage> {
       orderIndex: widget.component?.orderIndex ?? 0,
       presetKey: _presetKey,
       presetDamperKey: _presetDamperKey,
-      attachments: widget.component?.attachments,
+      attachments: _attachments,
     );
+    _savedAttachments = _attachments;
     // A preset UNDO would be a dead button on the previous screen.
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     Navigator.pop(
@@ -764,6 +812,17 @@ class _ComponentPageState extends State<ComponentPage> {
     );
   }
 
+  Widget _attachChip() {
+    return ActionChip(
+      avatar: const Icon(Icons.attach_file),
+      label: const Text('Attach'),
+      backgroundColor: widget.mode == ComponentPageMode.edit && !listEquals(_attachments, widget.component!.attachments)
+          ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
+          : null,
+      onPressed: _addAttachments,
+    );
+  }
+
   String? _presetAdjustmentsCaption() {
     final variant = _presetVariant;
     if (variant == null) return null;
@@ -914,8 +973,10 @@ class _ComponentPageState extends State<ComponentPage> {
             // Retired once the replacement is saved.
             widget.replacedComponentId != c.id).length;
     final isReplace = widget.mode == ComponentPageMode.replace;
+    final showInitialStats = appSettings.enableStrava && subscriptionService.hasStravaEntitlement;
+    final showAttachments = appSettings.enableAttachments && _attachmentsDirPath != null;
 
-    return PopScope( 
+    return PopScope(
       canPop: !_formHasChanges,
       onPopInvokedWithResult: _handlePopInvoked,
       child: Scaffold(
@@ -980,13 +1041,31 @@ class _ComponentPageState extends State<ComponentPage> {
                           child: Column(
                             children: [
                               _notesField(),
-                              if (appSettings.enableStrava && subscriptionService.hasStravaEntitlement) ...[
+                              if (showInitialStats || showAttachments) ...[
                                 const SizedBox(height: 12),
                                 Align(
                                   alignment: Alignment.centerLeft,
-                                  child: _initialStatsChip(),
+                                  child: Wrap(
+                                    spacing: 8.0,
+                                    runSpacing: 4.0,
+                                    children: [
+                                      if (showInitialStats) _initialStatsChip(),
+                                      if (showAttachments) _attachChip(),
+                                    ],
+                                  ),
                                 ),
-                              ]
+                              ],
+                              if (showAttachments && _attachments.isNotEmpty) ...[
+                                const SizedBox(height: 12),
+                                AttachmentStrip(
+                                  attachments: _attachments,
+                                  attachmentsDir: _attachmentsDirPath!,
+                                  mode: AttachmentStripMode.edit,
+                                  onRemove: _onAttachmentRemoved,
+                                  onReorder: _onAttachmentReorder,
+                                  onRename: _onAttachmentRenamed,
+                                ),
+                              ],
                             ],
                           ),
                         ),

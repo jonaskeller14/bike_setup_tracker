@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
+import '../../models/attachment.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
 import '../../models/component/installation.dart';
@@ -18,6 +19,7 @@ import '../../utils/component_actions.dart';
 import '../../utils/installation_timeline_validation.dart';
 import '../../utils/table_column.dart';
 import '../../utils/table_column_comparator.dart';
+import '../../widgets/attachment_row.dart';
 import '../../widgets/chips/filter_sheet_chip.dart';
 import '../../widgets/display_data/component_details_page_histogram_chart.dart';
 import '../../widgets/display_data/component_stats_card.dart';
@@ -148,6 +150,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     final componentAdjustments = component.adjustments;
     final descendants = appRepository.affectedDescendants(component.id);
     final initialStats = initialStatsSummary(component.initialStats, appSettings);
+    final attachments = appSettings.enableAttachments ? component.attachments : const <Attachment>[];
 
     final bikes = appRepository.bikes;
     final bike = bikes[appRepository.componentHierarchy.currentBike(component.id)];
@@ -280,7 +283,9 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                   dense: true,
                 ),
 
-              if (component.notes != null || initialStats != null) const Divider(height: 1),
+              if (attachments.isNotEmpty) AttachmentRow(attachments: attachments),
+
+              if (component.notes != null || initialStats != null || attachments.isNotEmpty) const Divider(height: 1),
 
               if (shouldUseInstallationTimeline(
                 featureEnabled: appSettings.enableInstallationTimeline,

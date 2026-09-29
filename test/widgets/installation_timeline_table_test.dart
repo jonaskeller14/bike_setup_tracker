@@ -152,6 +152,32 @@ void main() {
       expect(find.byType(TableView), findsNothing);
     });
 
+    testWidgets('tapping a block offers component details and installation editing', (tester) async {
+      await tester.pumpWidget(createWidgetUnderTest(wheelAndTire));
+
+      await tester.tap(find.text('Fox 36'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Component details'), findsOneWidget);
+      expect(find.text('Edit installation'), findsOneWidget);
+    });
+
+    testWidgets('a block that starts with its parent\'s installation still offers editing', (tester) async {
+      // The tire sits on the wheel before the wheel reaches the bike, so the
+      // block starts at the wheel's event, not the tire's own one.
+      await tester.pumpWidget(
+        createWidgetUnderTest([
+          component('wheel', ComponentType.wheelFront, [onBike(3)], name: 'Wheel A'),
+          component('tire', ComponentType.tire, [onComponent('wheel', 1)], name: 'Tire X'),
+        ]),
+      );
+
+      await tester.tap(find.text('Tire X'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Edit installation'), findsOneWidget);
+    });
+
     for (final (name, theme) in [('light', materialAppTheme), ('dark', materialAppDarkTheme)]) {
       testWidgets('renders in $name theme', (tester) async {
         await tester.pumpWidget(createWidgetUnderTest(wheelAndTire, theme: theme));

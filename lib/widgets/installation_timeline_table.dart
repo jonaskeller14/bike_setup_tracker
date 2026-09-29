@@ -9,12 +9,15 @@ import 'package:two_dimensional_scrollables/two_dimensional_scrollables.dart';
 
 import '../models/app_settings.dart';
 import '../models/component/component.dart';
+import '../models/component/installation.dart';
+import '../models/component/resolved_installation.dart';
 import '../pages/details/component_details_page.dart';
 import '../services/component_hierarchy_resolver.dart';
 import '../utils/installation_timeline_intervals.dart';
 import '../utils/installation_timeline_layout.dart';
 import 'empty_state_placeholder.dart';
 import 'sheets/component_type_filter.dart';
+import 'sheets/installation_sheet.dart';
 import 'text/section_title.dart';
 
 class InstallationTimelineTable extends StatefulWidget {
@@ -214,6 +217,8 @@ class _InstallationTimelineTableState extends State<InstallationTimelineTable> {
                       ),
                       child: _TimelineBlock(
                         component: components[block.componentId]!,
+                        startUTC: block.startUTC,
+                        endUTC: block.endUTC,
                         parentName: parentId == null ? null : components[parentId]!.name,
                         nameStyle: nameStyle,
                         captionStyle: captionStyle,
@@ -322,12 +327,16 @@ class _RowLabel extends StatelessWidget {
 
 class _TimelineBlock extends StatelessWidget {
   final Component component;
+  final DateTime startUTC;
+  final DateTime? endUTC;
   final String? parentName;
   final TextStyle? nameStyle;
   final TextStyle? captionStyle;
 
   const _TimelineBlock({
     required this.component,
+    required this.startUTC,
+    required this.endUTC,
     required this.parentName,
     required this.nameStyle,
     required this.captionStyle,
@@ -349,15 +358,7 @@ class _TimelineBlock extends StatelessWidget {
         ),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
-          onTap: () {
-            unawaited(
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => ComponentDetailsPage(componentId: component.id),
-                ),
-              ),
-            );
-          },
+          onTapUp: (details) => unawaited(_showMenu(context, details.globalPosition)),
           child: Padding(
             padding: const EdgeInsets.all(_InstallationTimelineTableState._cellPadding),
             child: Column(
@@ -395,6 +396,71 @@ class _TimelineBlock extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Future<void> _showMenu(BuildContext context, Offset globalPosition) async {
+    final sorted = [...component.installations]..sort((a, b) => a.dateTimeUTC.compareTo(b.dateTimeUTC));
+    // The start event can predate [startUTC] when the block starts because a
+    // parent was installed.
+    final startIndex = sorted.lastIndexWhere((installation) => !installation.dateTimeUTC.isAfter(startUTC));
+    // Only the component's own event can be edited here; an end caused by a
+    // parent's event belongs to that parent.
+    final endIndex = endUTC == null ? -1 : sorted.indexWhere((installation) => installation.dateTimeUTC == endUTC);
+    final overlay = Overlay.of(context).context.findRenderObject()! as RenderBox;
+    final selected = await showMenu<VoidCallback>(
+      context: context,
+      position: RelativeRect.fromRect(globalPosition & Size.zero, Offset.zero & overlay.size),
+      items: [
+        _menuItem(
+          icon: component.componentType.getIconData(),
+          label: 'Component details',
+          value: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(builder: (context) => ComponentDetailsPage(componentId: component.id)),
+          ),
+        ),
+        if (startIndex >= 0)
+          _menuItem(
+            icon: Icons.edit,
+            label: 'Edit installation',
+            value: () => showEditInstallationSheet(
+              context,
+              component: component,
+              editEntry: _resolve(sorted, startIndex),
+              editEnd: endIndex >= 0 ? sorted[endIndex] : null,
+            ),
+          ),
+      ],
+    );
+    if (!context.mounted) return;
+    selected?.call();
+  }
+
+  ResolvedInstallation _resolve(List<Installation> sorted, int index) {
+    final previous = index > 0 ? sorted[index - 1] : null;
+    return ResolvedInstallation(
+      component: component,
+      installation: sorted[index],
+      originParent: previous?.parent,
+      originParentType: previous?.parentType,
+      isInitial: index == 0,
+    );
+  }
+
+  static PopupMenuItem<VoidCallback> _menuItem({
+    required IconData icon,
+    required String label,
+    required VoidCallback value,
+  }) {
+    return PopupMenuItem(
+      value: value,
+      child: Row(
+        spacing: 10,
+        children: [
+          Icon(icon),
+          Flexible(child: Text(label, overflow: TextOverflow.ellipsis)),
+        ],
       ),
     );
   }

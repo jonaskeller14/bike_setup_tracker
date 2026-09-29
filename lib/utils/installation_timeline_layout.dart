@@ -48,6 +48,8 @@ class TimelineBlock {
   final int rowFrom;
   final int rowTo;
   final bool isOpen;
+  final DateTime startUTC;
+  final DateTime? endUTC;
 
   const TimelineBlock({
     required this.componentId,
@@ -56,6 +58,8 @@ class TimelineBlock {
     required this.rowFrom,
     required this.rowTo,
     required this.isOpen,
+    required this.startUTC,
+    required this.endUTC,
   });
 
   bool get isNested => parentComponentId != null;
@@ -136,6 +140,8 @@ TimelineLayout buildTimelineLayout({
           rowFrom: span.rowFrom,
           rowTo: span.rowTo,
           isOpen: span.interval.endLocal == null,
+          startUTC: span.interval.startUTC,
+          endUTC: span.interval.endUTC,
         ),
       );
     }

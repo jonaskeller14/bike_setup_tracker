@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -36,6 +37,7 @@ Future<void> showAddInstallationSheet(BuildContext context, {
 Future<void> showEditInstallationSheet(BuildContext context, {
   required Component component, 
   required ResolvedInstallation editEntry,
+  Installation? editEnd,
 }) async {
   return showModalBottomSheet<void>(
     useSafeArea: true,
@@ -45,6 +47,7 @@ Future<void> showEditInstallationSheet(BuildContext context, {
       return InstallationSheet.edit(
         component: component,
         editEntry: editEntry,
+        editEnd: editEnd,
       );
     },
   );
@@ -54,6 +57,7 @@ class InstallationSheet extends StatefulWidget {
   final Component component;
   final String? targetBikeId;
   final ResolvedInstallation? editEntry;
+  final Installation? editEnd;
   final bool isArchiving;
 
   const InstallationSheet._({
@@ -61,6 +65,7 @@ class InstallationSheet extends StatefulWidget {
     required this.component,
     this.targetBikeId,
     this.editEntry,
+    this.editEnd,
     this.isArchiving = false,
   });
 
@@ -75,7 +80,8 @@ class InstallationSheet extends StatefulWidget {
     Key? key,
     required Component component,
     required ResolvedInstallation editEntry,
-  }) => InstallationSheet._(key: key, component: component, editEntry: editEntry);
+    Installation? editEnd,
+  }) => InstallationSheet._(key: key, component: component, editEntry: editEntry, editEnd: editEnd);
 
   @override
   State<InstallationSheet> createState() => _InstallationSheetState();
@@ -84,6 +90,7 @@ class InstallationSheet extends StatefulWidget {
 class _InstallationSheetState extends State<InstallationSheet> {
   late List<Installation> _installations;
   late Installation _editableInstallation;
+  Installation? _editableEnd;
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -94,6 +101,7 @@ class _InstallationSheetState extends State<InstallationSheet> {
     
     if (widget.editEntry != null) {
       _editableInstallation = widget.editEntry!.installation;
+      _editableEnd = widget.editEnd;
     } else {
       final at = stampInstallationNow(_installations);
       _editableInstallation = widget.isArchiving
@@ -150,11 +158,11 @@ class _InstallationSheetState extends State<InstallationSheet> {
     final targetParentId = _editableInstallation.parent;
 
     // "From beginning" (epoch 0) predates every installation, so show the current chain.
-    final eventUTC = _editableInstallation.dateTimeUTC;
-    List<ComponentAncestor> ancestorsOf(String componentId) =>
-        eventUTC.millisecondsSinceEpoch == 0
+    List<ComponentAncestor> Function(String componentId) ancestorsAt(DateTime eventUTC) =>
+        (componentId) => eventUTC.millisecondsSinceEpoch == 0
             ? appRepository.componentHierarchy.currentAncestors(componentId)
             : appRepository.componentHierarchy.ancestorsAt(componentId, eventUTC);
+    final ancestorsOf = ancestorsAt(_editableInstallation.dateTimeUTC);
 
     final originPreview = _parentPreview(
       appRepository,
@@ -168,6 +176,14 @@ class _InstallationSheetState extends State<InstallationSheet> {
       targetParentId,
       ancestorsOf,
     );
+    final endPreview = _editableEnd == null
+        ? null
+        : _parentPreview(
+            appRepository,
+            _editableEnd!.parentType,
+            _editableEnd!.parent,
+            ancestorsAt(_editableEnd!.dateTimeUTC),
+          );
     final isInitialInstallation = widget.editEntry != null
         ? widget.editEntry!.isInitial
         : widget.component.installations.isEmpty;
@@ -228,6 +244,21 @@ class _InstallationSheetState extends State<InstallationSheet> {
                                 bikes: appRepository.bikes,
                               ),
                             ),
+                            if (endPreview != null) ...[
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 12),
+                                child: Icon(Icons.arrow_forward, color: theme.colorScheme.primary),
+                              ),
+                              Expanded(
+                                child: _ParentPreview(
+                                  icon: endPreview.icon,
+                                  label: endPreview.label,
+                                  isError: endPreview.isError,
+                                  ancestors: endPreview.ancestors,
+                                  bikes: appRepository.bikes,
+                                ),
+                              ),
+                            ],
                           ],
                         ),
                       ),
@@ -240,14 +271,19 @@ class _InstallationSheetState extends State<InstallationSheet> {
                       originalInstallations: widget.component.installations,
                       onChanged: (newInstallations) {
                         setState(() {
-                          final addedItems = newInstallations.where((n) => !_installations.contains(n)).toList();
-                          if (addedItems.isNotEmpty) {
-                            _editableInstallation = addedItems.first;
+                          // Edits keep an entry's id, so ids track the editable entries.
+                          _editableInstallation =
+                              newInstallations.firstWhereOrNull((n) => n.id == _editableInstallation.id) ??
+                                  _editableInstallation;
+                          if (_editableEnd != null) {
+                            _editableEnd =
+                                newInstallations.firstWhereOrNull((n) => n.id == _editableEnd!.id) ?? _editableEnd;
                           }
                           _installations = List.from(newInstallations);
                         });
                       },
-                      isEntryEditable: (installation) => installation == _editableInstallation,
+                      isEntryEditable: (installation) =>
+                          installation.id == _editableInstallation.id || installation.id == _editableEnd?.id,
                     ),
                   ],
                 ),

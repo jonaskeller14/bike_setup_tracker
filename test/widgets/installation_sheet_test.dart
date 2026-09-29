@@ -338,6 +338,36 @@ void main() {
         expect(find.byIcon(Icons.arrow_forward), findsOneWidget);
         expect(find.text('Bike 2'), findsAtLeast(1));
       });
+
+      testWidgets('with an end: previews and unlocks both the installation and its end', (WidgetTester tester) async {
+        DateTime localAt(int day) => DateTime(2026, 1, day);
+        final installed = Installation(parent: 'b2', dateTimeUTC: localAt(2).toUtc(), dateTimeLocal: localAt(2));
+        final removed = Uninstallation(dateTimeUTC: localAt(3).toUtc(), dateTimeLocal: localAt(3));
+        final movedComponent = component.copyWith(installations: [
+          Installation.sinceBeginning(parent: 'b1'),
+          installed,
+          removed,
+          Installation(parent: 'b1', dateTimeUTC: localAt(4).toUtc(), dateTimeLocal: localAt(4)),
+        ]);
+        final editEntry = ResolvedInstallation(
+          component: movedComponent,
+          installation: installed,
+          originParent: 'b1',
+          originParentType: InstallationParentType.bike,
+        );
+
+        await tester.pumpWidget(createWidgetUnderTest(
+          InstallationSheet.edit(component: movedComponent, editEntry: editEntry, editEnd: removed),
+        ));
+        await tester.pumpAndSettle();
+
+        expect(find.byIcon(Icons.arrow_forward), findsNWidgets(2));
+        expect(find.text('Uninstalled'), findsAtLeast(1));
+        final dropdowns = tester.widgetList<DropdownButtonFormField<Installation>>(
+          find.byType(DropdownButtonFormField<Installation>),
+        );
+        expect(dropdowns.map((dropdown) => dropdown.onChanged != null), [false, true, true, false]);
+      });
     });
   });
 

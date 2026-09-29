@@ -180,7 +180,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
     }
 
     final personAdjustments = person?.adjustments ?? [];
-    final projection = appSettings.enableBikeAdjustmentColumns ? _projectionFor(appRepository) : null;
+    final projection = _projectionFor(appRepository);
 
     // Every setup of this bike, newest first - independent of the global bike filter.
     final setupsUnsorted = appRepository.setups.values
@@ -218,9 +218,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
 
     _columns = {
       for (final column in availableSetupColumns) retained(SetupTableColumn(column, active: column.defaultActive)),
-      if (projection != null)
-        for (final key in projection.columns)
-          retained(BikeAdjustmentColumn(key, active: _changingColumns.contains(key))),
+      for (final key in projection.columns) retained(BikeAdjustmentColumn(key, active: _changingColumns.contains(key))),
       if (appSettings.enablePerson && person != null)
         for (final adjustment in personAdjustments) retained(PersonAttributeColumn(adjustment.id, active: false)),
       if (appSettings.enableRating) ...[
@@ -235,7 +233,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
 
     bool isDangling(Setup setup, TableColumn column) => switch (column) {
       PersonAttributeColumn() => setup.person != person?.id,
-      BikeAdjustmentColumn(:final key) => projection?.isDangling(setup, key) ?? false,
+      BikeAdjustmentColumn(:final key) => projection.isDangling(setup, key),
       _ => false,
     };
     final hasDanglingValues = activeColumns.any(
@@ -264,7 +262,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
       column,
       const [],
       personAdjustments,
-      bikeAdjustmentFor: (column) => projection?.adjustmentFor(column.key),
+      bikeAdjustmentFor: (column) => projection.adjustmentFor(column.key),
     );
 
     return Column(
@@ -275,8 +273,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
           infoText:
               "All setups of this bike. Add or remove columns via the Columns button, or long-press a column "
               "header to remove it. Green values are new (no prior value), orange values have changed from the "
-              "previous setup. Select rows to compare setups in the charts below."
-              "${projection == null ? '' : _mergedColumnsInfoText}",
+              "previous setup. Select rows to compare setups in the charts below.$_mergedColumnsInfoText",
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -293,11 +290,11 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
                   columns: orderedColumns,
                   columnLabel: (TableColumn c) => switch (c) {
                     // The lane is shown as the group header.
-                    BikeAdjustmentColumn(:final key) => projection?.adjustmentFor(key)?.name ?? key.adjustment.name,
+                    BikeAdjustmentColumn(:final key) => projection.adjustmentFor(key)?.name ?? key.adjustment.name,
                     _ => _columnLabel(c, personAdjustments),
                   },
                   columnGroup: (TableColumn c) => switch (c) {
-                    BikeAdjustmentColumn(:final key) => switch (projection?.laneOf(key)) {
+                    BikeAdjustmentColumn(:final key) => switch (projection.laneOf(key)) {
                       final lane? => (
                         title: lane.label,
                         info: _laneHistory(lane, appRepository, appSettings.dateFormat),
@@ -335,10 +332,10 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
             valueFor: _rawValue,
             isDangling: isDangling,
             previousValueFor: (setup, column) =>
-                column is BikeAdjustmentColumn ? projection?.previousValueFor(setup, column.key) : null,
+                column is BikeAdjustmentColumn ? projection.previousValueFor(setup, column.key) : null,
             columnLabel: (column) => _columnLabel(column, personAdjustments),
             columnTooltip: (column) => switch (column) {
-              BikeAdjustmentColumn(:final key) => switch (projection?.laneOf(key)) {
+              BikeAdjustmentColumn(:final key) => switch (projection.laneOf(key)) {
                 final lane? => _laneHistoryText(_laneHistory(lane, appRepository, appSettings.dateFormat)),
                 null => null,
               },
@@ -581,7 +578,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
               ),
               const Divider(height: 1),
               _setupHistory(context, appSettings, appRepository, person),
-              if (kDebugMode) ...[
+              if (appSettings.enableInstallationTimeline) ...[
                 const Divider(height: 1),
                 InstallationTimelineTable(
                   bikeId: widget.bikeId,

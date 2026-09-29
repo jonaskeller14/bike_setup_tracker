@@ -211,8 +211,7 @@ void main() {
 
     Finder inTable(String text) => find.descendant(of: find.byType(SetupTable), matching: find.text(text));
 
-    testWidgets('merges a replaced tire into one column when the flag is on', (WidgetTester tester) async {
-      appSettings.enableBikeAdjustmentColumns = true;
+    testWidgets('merges a replaced tire into one column', (WidgetTester tester) async {
       await pumpPageWith(tester, seedTireReplacement);
 
       expect(inTable(columnLabel), findsOneWidget);
@@ -225,7 +224,6 @@ void main() {
     });
 
     testWidgets('charts the merged column for the newest setups', (WidgetTester tester) async {
-      appSettings.enableBikeAdjustmentColumns = true;
       await pumpPageWith(tester, seedTireReplacement);
 
       final lineChart = find.byType(SetupLineChart);
@@ -236,7 +234,6 @@ void main() {
     });
 
     testWidgets('long-pressing a line chart legend entry deactivates its column', (WidgetTester tester) async {
-      appSettings.enableBikeAdjustmentColumns = true;
       await pumpPageWith(tester, seedTireReplacement);
 
       final legendEntry = find.descendant(of: find.byType(SetupLineChart), matching: find.text(columnLabel));
@@ -248,25 +245,10 @@ void main() {
       expect(find.text('No adjustments selected'), findsNWidgets(2));
     });
 
-    testWidgets('hides the columns when the flag is off', (WidgetTester tester) async {
-      await pumpPageWith(tester, seedTireReplacement);
-
-      expect(inTable(columnLabel), findsNothing);
-      expect(inTable('22'), findsNothing);
-      // The charts stay, with a placeholder: no chartable column is active.
-      expect(find.descendant(of: find.byType(SetupLineChart), matching: find.text('No adjustments selected')), findsOneWidget);
-      expect(find.descendant(of: find.byType(SetupRadialChart), matching: find.text('No adjustments selected')), findsOneWidget);
-
-      await tester.tap(find.widgetWithText(FilterChip, 'Columns'));
-      await tester.pumpAndSettle();
-      expect(find.text('Component Adjustments'), findsNothing);
-    });
-
     testWidgets('does not overflow with long component names on a narrow screen', (WidgetTester tester) async {
       tester.view.physicalSize = const Size(320, 640);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
-      appSettings.enableBikeAdjustmentColumns = true;
 
       await pumpPageWith(tester, () => seedTireReplacement(tireName: 'Extraordinarily Long Tubeless Tire Name ' * 3));
       expect(inTable(columnLabel), findsOneWidget);

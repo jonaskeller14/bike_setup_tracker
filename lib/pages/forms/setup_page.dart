@@ -28,6 +28,7 @@ import '../../services/pressure_drift_service.dart';
 import '../../services/setup_resolution_service.dart';
 import '../../services/weather_service.dart';
 import '../../theme.dart';
+import '../../utils/attachment_actions.dart';
 import '../../widgets/app_snackbar.dart';
 import '../../widgets/chips/utils.dart';
 import '../../widgets/dialogs/confirmation.dart';
@@ -127,6 +128,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   List<Attachment> _images = [];
   List<Attachment> _initialImages = [];
   String? _imagesDirPath;
+  final List<Attachment> _importedAttachments = [];
+  List<Attachment>? _savedAttachments;
 
   late DateTime _selectedDateTimeUtc;
   late DateTime _initialDateTimeUtc;
@@ -418,6 +421,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   }
 
   void _onImagesAdded(List<Attachment> newAttachments) {
+    _importedAttachments.addAll(newAttachments);
     setState(() => _images.addAll(newAttachments));
     _changeListener();
   }
@@ -497,6 +501,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     _currentLocation.dispose();
     _currentPlace.dispose();
     _currentWeather.dispose();
+    // Files imported here but not saved with the setup would be left unlinked.
+    unawaited(AttachmentActions.deleteUnsaved(_importedAttachments, saved: _savedAttachments));
     super.dispose();
   }
 
@@ -713,6 +719,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
     _formHasChanges = false;
     if (!mounted) return;
+    _savedAttachments = _images;
     Navigator.pop(
       context,
       Setup(

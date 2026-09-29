@@ -23,6 +23,7 @@ import '../widgets/sheets/component_add_adjustment.dart';
 import '../widgets/sheets/copy_task_rules.dart';
 import '../widgets/sheets/delete_task_rules.dart';
 import '../widgets/sheets/replace_component.dart';
+import 'attachment_actions.dart';
 import 'bike_actions.dart';
 import 'installation_timeline_validation.dart';
 
@@ -73,26 +74,46 @@ class ComponentActions {
         descendants: appRepository.affectedDescendants(component.id),
         action: 'Archive',
       );
-      if (!confirmed || !context.mounted) return;
+      if (!confirmed || !context.mounted) {
+        // The edit is dropped, so files added in the form would be left unlinked.
+        await AttachmentActions.deleteUnsaved(result.value.attachments, saved: component.attachments);
+        return;
+      }
     }
     await appRepository.editComponent(result.value, conversions: result.conversions);
+    await AttachmentActions.deleteUnsaved(component.attachments, saved: result.value.attachments);
   }
 
   static Future<void> duplicateComponent(BuildContext context, {required Component component}) async {
     final appRepository = context.read<AppRepository>();
+    final deepCopied = await _deepCopyWithFiles(component);
+
+    if (!context.mounted) {
+      await AttachmentActions.deleteAttachmentFiles(deepCopied.attachments);
+      return;
+    }
 
     final newComponent = await Navigator.push<Component>(
       context,
       MaterialPageRoute(
-        builder: (context) => ComponentPage.duplicate(component: component.deepCopy()),
+        builder: (context) => ComponentPage.duplicate(component: deepCopied),
       ),
     );
-    if (newComponent == null) return;
+    if (newComponent == null) {
+      await AttachmentActions.deleteAttachmentFiles(deepCopied.attachments);
+      return;
+    }
 
     await appRepository.addComponents([newComponent]);
+    await AttachmentActions.deleteUnsaved(deepCopied.attachments, saved: newComponent.attachments);
 
     if (!context.mounted) return;
     await _copyTaskRulesTo(context, source: component, target: newComponent);
+  }
+
+  static Future<Component> _deepCopyWithFiles(Component component) async {
+    final deepCopied = component.deepCopy();
+    return deepCopied.copyWith(attachments: await AttachmentActions.copyAttachmentFiles(deepCopied.attachments));
   }
 
   static Future<void> _copyTaskRulesTo(
@@ -202,20 +223,29 @@ class ComponentActions {
         // Retiring the component can unmount the caller (e.g. its list card), so
         // the task-copy prompt needs a context that outlives this flow.
         final navigatorContext = Navigator.of(context).context;
+        final deepCopied = await _deepCopyWithFiles(component);
+        if (!context.mounted) {
+          await AttachmentActions.deleteAttachmentFiles(deepCopied.attachments);
+          return;
+        }
         final newComponent = await Navigator.push<Component>(
           context,
           MaterialPageRoute(
             builder: (context) => ComponentPage.replace(
-              component: component.deepCopy(),
+              component: deepCopied,
               replacementDate: replacementDate,
               replacedInstallation: currentInstallation,
               replacedComponentId: component.id,
             ),
           ),
         );
-        if (newComponent == null) return;
+        if (newComponent == null) {
+          await AttachmentActions.deleteAttachmentFiles(deepCopied.attachments);
+          return;
+        }
 
         await appRepository.addComponents([newComponent]);
+        await AttachmentActions.deleteUnsaved(deepCopied.attachments, saved: newComponent.attachments);
         await appRepository.editComponents([
           component.copyWith(
             installations: [

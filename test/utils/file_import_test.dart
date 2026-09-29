@@ -31,17 +31,31 @@ void main() {
     );
   }
 
-  Bike createBike({required String id, required String name, String? person, DateTime? lastModified, bool? isDeleted}) {
+  Bike createBike({
+    required String id,
+    required String name,
+    String? person,
+    DateTime? lastModified,
+    bool? isDeleted,
+    List<Attachment> attachments = const [],
+  }) {
     return Bike(
       id: id,
       name: name,
       person: person,
       lastModified: lastModified,
       isDeleted: isDeleted,
+      attachments: attachments,
     );
   }
 
-  Component createComponent({required String id, required String name, DateTime? lastModified, bool? isDeleted}) {
+  Component createComponent({
+    required String id,
+    required String name,
+    DateTime? lastModified,
+    bool? isDeleted,
+    List<Attachment> attachments = const [],
+  }) {
     return Component(
       id: id,
       name: name,
@@ -49,6 +63,7 @@ void main() {
       isDeleted: isDeleted,
       componentType: ComponentType.other,
       installations: [],
+      attachments: attachments,
     );
   }
 
@@ -280,6 +295,52 @@ void main() {
       // x.jpg is still referenced by the active setup → must not be deleted.
       expect(purged, isNot(contains('x.jpg')));
       expect(purged, isEmpty);
+    });
+
+    test('cleanupIsDeleted - returns attachment files of purged bikes and components', () {
+      final oldDate = DateTime.now().toUtc().subtract(const Duration(days: 31));
+      final recentDate = DateTime.now().toUtc().subtract(const Duration(days: 1));
+
+      final data = SelectedData(
+        bikes: {
+          'oldBike': createBike(id: 'oldBike', name: 'Old', isDeleted: true, lastModified: oldDate, attachments: [jpg('a')]),
+          'recentBike': createBike(id: 'recentBike', name: 'Recent', isDeleted: true, lastModified: recentDate, attachments: [jpg('b')]),
+        },
+        components: {
+          'oldComponent': createComponent(id: 'oldComponent', name: 'Old', isDeleted: true, lastModified: oldDate, attachments: [jpg('c')]),
+          'activeComponent': createComponent(id: 'activeComponent', name: 'Active', attachments: [jpg('d')]),
+        },
+      );
+
+      final purged = FileImport.cleanupIsDeleted(data: data);
+
+      expect(purged, unorderedEquals(['a.jpg', 'c.jpg']));
+      expect(data.bikes.keys, ['recentBike']);
+      expect(data.components.keys, ['activeComponent']);
+    });
+
+    test('cleanupIsDeleted - keeps a file still referenced by any surviving owner type', () {
+      final oldDate = DateTime.now().toUtc().subtract(const Duration(days: 31));
+
+      final data = SelectedData(
+        setups: {
+          'oldSetup': createSetup(id: 'oldSetup', isDeleted: true, lastModified: oldDate, attachments: [jpg('x'), jpg('y')]),
+          'activeSetup': createSetup(id: 'activeSetup', attachments: [jpg('z')]),
+        },
+        bikes: {
+          'oldBike': createBike(id: 'oldBike', name: 'Old', isDeleted: true, lastModified: oldDate, attachments: [jpg('z')]),
+          'activeBike': createBike(id: 'activeBike', name: 'Active', attachments: [jpg('x')]),
+        },
+        components: {
+          'oldComponent': createComponent(id: 'oldComponent', name: 'Old', isDeleted: true, lastModified: oldDate, attachments: [jpg('w')]),
+          'activeComponent': createComponent(id: 'activeComponent', name: 'Active', attachments: [jpg('y')]),
+        },
+      );
+
+      final purged = FileImport.cleanupIsDeleted(data: data);
+
+      // x.jpg, y.jpg and z.jpg each survive through a live bike, component or setup.
+      expect(purged, ['w.jpg']);
     });
   });
 }

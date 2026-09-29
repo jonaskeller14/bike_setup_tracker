@@ -507,6 +507,7 @@ class _ComponentPageState extends State<ComponentPage> {
       orderIndex: widget.component?.orderIndex ?? 0,
       presetKey: _presetKey,
       presetDamperKey: _presetDamperKey,
+      attachments: widget.component?.attachments,
     );
     // A preset UNDO would be a dead button on the previous screen.
     ScaffoldMessenger.of(context).hideCurrentSnackBar();

@@ -123,6 +123,7 @@ class _BikePageState extends State<BikePage> {
       stravaGear: _stravaGear,
       orderIndex: widget.bike?.orderIndex ?? 0,
       initialStats: _initialStats,
+      attachments: widget.bike?.attachments,
     ));
   }
 

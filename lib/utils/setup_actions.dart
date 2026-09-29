@@ -6,17 +6,15 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../models/attachment.dart';
 import '../models/rating/rating_entry.dart';
 import '../models/setup.dart';
 import '../pages/forms/rating_entry_page.dart';
 import '../pages/forms/setup_page.dart';
 import '../repositories/app_repository.dart';
-import '../services/attachment_storage_service.dart';
 import '../services/share_service.dart';
 import '../widgets/app_snackbar.dart';
-import '../widgets/dialogs/confirmation.dart';
 import '../widgets/sheets/set_tags_bulk.dart';
+import 'attachment_actions.dart';
 import 'bike_actions.dart';
 import 'component_actions.dart';
 import 'to_text.dart';
@@ -71,7 +69,6 @@ class SetupActions {
 
   static Future<void> editSetup(BuildContext context, {required Setup setup}) async {
     final appRepository = context.read<AppRepository>();
-    final originalImages = List<Attachment>.from(setup.attachments);
 
     final editedSetup = await Navigator.push<Setup>(
       context,
@@ -80,74 +77,27 @@ class SetupActions {
     if (editedSetup == null) return;
 
     await appRepository.editSetups([editedSetup]);
-
-    // Delete images that the user removed during editing.
-    final removedImages = originalImages.where((a) => !editedSetup.attachments.any((e) => e.id == a.id));
-    await AttachmentStorageService().deleteFiles(removedImages.map((a) => a.filename));
-  }
-
-  static Future<bool> deleteImages(BuildContext context, {required Set<String> filenames}) async {
-    final appRepository = context.read<AppRepository>();
-    final messenger = ScaffoldMessenger.of(context);
-
-    final confirmed = await showConfirmationDialog(
-      context,
-      title: filenames.length == 1 ? 'Delete image?' : 'Delete ${filenames.length} images?',
-      content: 'The images are permanently deleted and removed from their setups. This action cannot be undone.',
-      trueText: 'Delete',
-      isDestructive: true,
-    );
-    if (!confirmed) return false;
-    unawaited(HapticFeedback.heavyImpact());
-
-    await appRepository.editSetups(
-      appRepository.setups.values
-          .where((setup) => setup.attachments.any((a) => filenames.contains(a.filename)))
-          .map(
-            (setup) => setup.copyWith(
-              attachments: setup.attachments.where((a) => !filenames.contains(a.filename)).toList(),
-            ),
-          ),
-    );
-    await AttachmentStorageService().deleteFiles(filenames);
-
-    if (!context.mounted) return true;
-    messenger.showSnackBar(
-      AppSnackBar.info(
-        context,
-        filenames.length == 1 ? 'Image deleted.' : '${filenames.length} images deleted.',
-      ),
-    );
-    return true;
+    await AttachmentActions.deleteUnsaved(setup.attachments, saved: editedSetup.attachments);
   }
 
   static Future<Setup?> duplicateSetup(BuildContext context, {required Setup setup}) async {
     final appRepository = context.read<AppRepository>();
     final deepCopied = setup.deepCopy();
-
-    // Copy each photo file so the duplicate owns its own files.
-    final service = AttachmentStorageService();
-    final copiedImages = <Attachment>[];
-    for (final attachment in deepCopied.attachments) {
-      copiedImages.add(await service.copyExisting(attachment));
-    }
-    final setupWithCopiedImages = deepCopied.copyWith(attachments: copiedImages);
+    final copiedAttachments = await AttachmentActions.copyAttachmentFiles(deepCopied.attachments);
 
     if (!context.mounted) {
-      await service.deleteFiles(copiedImages.map((a) => a.filename));
+      await AttachmentActions.deleteAttachmentFiles(copiedAttachments);
       return null;
     }
 
     final newSetup = await Navigator.push<Setup>(
       context,
-      MaterialPageRoute(builder: (context) => SetupPage.duplicate(setup: setupWithCopiedImages)),
+      MaterialPageRoute(
+        builder: (context) => SetupPage.duplicate(setup: deepCopied.copyWith(attachments: copiedAttachments)),
+      ),
     );
-    if (newSetup == null) {
-      await service.deleteFiles(copiedImages.map((a) => a.filename));
-      return null;
-    }
-
-    await appRepository.addSetups([newSetup]);
+    if (newSetup != null) await appRepository.addSetups([newSetup]);
+    await AttachmentActions.deleteUnsaved(copiedAttachments, saved: newSetup?.attachments);
     return newSetup;
   }
 

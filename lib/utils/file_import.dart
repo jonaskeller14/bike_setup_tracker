@@ -92,9 +92,9 @@ class FileImport {
   }
 
   static Future<void> replace({required SelectedData remoteData, required AppDatabase database}) async {
-    final purgedImages = cleanupIsDeleted(data: remoteData);
+    final purgedAttachments = cleanupIsDeleted(data: remoteData);
     await _importDataToDb(database, remoteData);
-    await AttachmentStorageService().deleteFiles(purgedImages);
+    await AttachmentStorageService().deleteFiles(purgedAttachments);
   }
 
   static Future<void> overwrite({required SelectedData remoteData, required AppDatabase database}) async {
@@ -104,13 +104,13 @@ class FileImport {
 
     // 2. Perform merge in memory
     _overwriteInternal(remoteData: remoteData, localData: localData);
-    final purgedImages = cleanupIsDeleted(data: localData);
+    final purgedAttachments = cleanupIsDeleted(data: localData);
 
     // 3. Write merged state back to DB
     await _importDataToDb(database, localData);
 
-    // 4. Delete images of purged setups (after the DB write succeeds).
-    await AttachmentStorageService().deleteFiles(purgedImages);
+    // 4. Delete attachments of purged setups, bikes and components (after the DB write succeeds).
+    await AttachmentStorageService().deleteFiles(purgedAttachments);
   }
 
   static Future<void> merge({
@@ -123,13 +123,13 @@ class FileImport {
 
     // 2. Perform merge in memory
     _mergeInternal(remoteData: remoteData, localData: localData);
-    final purgedImages = cleanupIsDeleted(data: localData);
+    final purgedAttachments = cleanupIsDeleted(data: localData);
 
     // 3. Write merged state back to DB
     await _importDataToDb(database, localData);
 
-    // 4. Delete images of purged setups (after the DB write succeeds).
-    await AttachmentStorageService().deleteFiles(purgedImages);
+    // 4. Delete attachments of purged setups, bikes and components (after the DB write succeeds).
+    await AttachmentStorageService().deleteFiles(purgedAttachments);
   }
 
   static Future<void> _importDataToDb(AppDatabase database, SelectedData dataToImport) async {
@@ -313,22 +313,34 @@ class FileImport {
     data.persons.removeWhere((_, p) => p.isDeleted && p.lastModified.isBefore(deleteDateTime));
     data.ratings.removeWhere((_, r) => r.isDeleted && r.lastModified.isBefore(deleteDateTime));
     data.ratingEntries.removeWhere((_, re) => re.isDeleted && re.lastModified.isBefore(deleteDateTime));
-    data.bikes.removeWhere((_, b) => b.isDeleted && b.lastModified.isBefore(deleteDateTime));
-    data.components.removeWhere((_, c) => c.isDeleted && c.lastModified.isBefore(deleteDateTime));
 
-    final purgedSetupImages = <String>[];
+    final purgedAttachments = <String>[];
+    data.bikes.removeWhere((_, b) {
+      final purge = b.isDeleted && b.lastModified.isBefore(deleteDateTime);
+      if (purge) purgedAttachments.addAll(b.attachments.map((a) => a.filename));
+      return purge;
+    });
+    data.components.removeWhere((_, c) {
+      final purge = c.isDeleted && c.lastModified.isBefore(deleteDateTime);
+      if (purge) purgedAttachments.addAll(c.attachments.map((a) => a.filename));
+      return purge;
+    });
     data.setups.removeWhere((_, s) {
       final purge = s.isDeleted && s.lastModified.isBefore(deleteDateTime);
-      if (purge) purgedSetupImages.addAll(s.attachments.map((a) => a.filename));
+      if (purge) purgedAttachments.addAll(s.attachments.map((a) => a.filename));
       return purge;
     });
 
     data.taskRules.removeWhere((_, tr) => tr.isDeleted && tr.lastModified.isBefore(deleteDateTime));
     data.taskEntries.removeWhere((_, te) => te.isDeleted && te.lastModified.isBefore(deleteDateTime));
 
-    // Never delete a file a surviving setup still references.
-    final stillReferenced = data.setups.values.expand((s) => s.attachments).map((a) => a.filename).toSet();
-    return purgedSetupImages.where((f) => !stillReferenced.contains(f)).toList();
+    // Never delete a file a surviving setup, bike or component still references.
+    final stillReferenced = {
+      ...data.setups.values.expand((s) => s.attachments),
+      ...data.bikes.values.expand((b) => b.attachments),
+      ...data.components.values.expand((c) => c.attachments),
+    }.map((a) => a.filename).toSet();
+    return purgedAttachments.where((f) => !stillReferenced.contains(f)).toList();
   }
 }
 

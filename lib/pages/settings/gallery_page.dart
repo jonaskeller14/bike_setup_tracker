@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 import '../../models/attachment.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/attachment_storage_service.dart';
-import '../../utils/setup_actions.dart';
+import '../../utils/attachment_actions.dart';
 import '../../widgets/animated_app_bar_switcher.dart';
 import '../../widgets/empty_state_placeholder.dart';
 import '../../widgets/image_viewer.dart';
@@ -47,7 +47,7 @@ class _GalleryPageState extends State<GalleryPage> {
 
     setState(() => _isDeleting = true);
     try {
-      final deleted = await SetupActions.deleteImages(context, filenames: Set<String>.of(_selectedImages));
+      final deleted = await AttachmentActions.deleteAttachments(context, filenames: Set<String>.of(_selectedImages));
       if (!mounted || !deleted) return;
       setState(() {
         _selectedImages.clear();

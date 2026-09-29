@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../models/app_settings.dart';
 import '../models/bike.dart';
+import '../models/component/component.dart';
 import '../models/rating/rating_association.dart';
 import '../models/task/task_association.dart';
 import '../models/task/task_rule.dart';
@@ -11,6 +12,7 @@ import '../pages/forms/bike_page.dart';
 import '../repositories/app_repository.dart';
 import '../widgets/app_snackbar.dart';
 import '../widgets/sheets/delete_task_rules.dart';
+import 'attachment_actions.dart';
 
 class BikeActions {
   static Future<void> addBike(BuildContext context) async {
@@ -37,20 +39,11 @@ class BikeActions {
     if (editedBike == null) return;
 
     await appRepository.editBike(editedBike);
+    await AttachmentActions.deleteUnsaved(bike.attachments, saved: editedBike.attachments);
   }
 
   static Future<void> duplicateBikeWithoutComponents(BuildContext context, {required Bike bike}) async {
-    final appRepository = context.read<AppRepository>();
-
-    final newBike = await Navigator.push<Bike>(
-      context,
-      MaterialPageRoute(
-        builder: (context) => BikePage.duplicate(bike: bike.deepCopy()),
-      ),
-    );
-    if (newBike == null) return;
-
-    await appRepository.addBikes([newBike]);
+    await _duplicateBike(context, bike: bike);
   }
 
   static Future<void> duplicateBikeWithComponents(BuildContext context, {required Bike bike}) async {
@@ -59,18 +52,37 @@ class BikeActions {
       (component) => appRepository.componentHierarchy.currentBike(component.id) == bike.id,
     ).toList();
 
+    final newBike = await _duplicateBike(context, bike: bike);
+    if (newBike == null) return;
+
+    // The components never pass through a form, so their files are copied only once the bike is saved.
+    final newComponents = <Component>[];
+    for (final component in bikeComponents) {
+      final copy = component.deepCopy().copyWithNewInstallation(newBike.id);
+      newComponents.add(copy.copyWith(attachments: await AttachmentActions.copyAttachmentFiles(copy.attachments)));
+    }
+    await appRepository.addComponents(newComponents);
+  }
+
+  static Future<Bike?> _duplicateBike(BuildContext context, {required Bike bike}) async {
+    final appRepository = context.read<AppRepository>();
+    final deepCopied = bike.deepCopy();
+    final copiedAttachments = await AttachmentActions.copyAttachmentFiles(deepCopied.attachments);
+
+    if (!context.mounted) {
+      await AttachmentActions.deleteAttachmentFiles(copiedAttachments);
+      return null;
+    }
+
     final newBike = await Navigator.push<Bike>(
       context,
       MaterialPageRoute(
-        builder: (context) => BikePage.duplicate(bike: bike.deepCopy()),
+        builder: (context) => BikePage.duplicate(bike: deepCopied.copyWith(attachments: copiedAttachments)),
       ),
     );
-    if (newBike == null) return;
-
-    await appRepository.addBikes([newBike]);
-    await appRepository.addComponents(
-      bikeComponents.map((c) => c.deepCopy().copyWithNewInstallation(newBike.id)),
-    );
+    if (newBike != null) await appRepository.addBikes([newBike]);
+    await AttachmentActions.deleteUnsaved(copiedAttachments, saved: newBike?.attachments);
+    return newBike;
   }
 
   static Future<void> removeBike(BuildContext context, {required Bike bike}) =>

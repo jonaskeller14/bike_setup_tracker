@@ -299,7 +299,7 @@ class _RowLabel extends StatelessWidget {
     if (row.isInitialSetup) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 2 * padding, vertical: padding),
-        child: Text("Initial Setup", style: dateStyle, maxLines: 1, overflow: TextOverflow.ellipsis),
+        child: Text("From beginning", style: dateStyle, maxLines: 1, overflow: TextOverflow.ellipsis),
       );
     }
 

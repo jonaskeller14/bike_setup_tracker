@@ -76,7 +76,6 @@ void main() {
     });
 
     testWidgets('keeps the parent caption when the parent type is hidden', (tester) async {
-      // Four active types; `other` sorts last and is hidden by default.
       await tester.pumpWidget(
         createWidgetUnderTest([
           component('frame', ComponentType.frame, [onBike(1)], name: 'Frame V2'),
@@ -85,6 +84,17 @@ void main() {
           component('shock', ComponentType.shock, [onComponent('mount', 2)], name: 'Float X2'),
         ]),
       );
+      expect(find.text('All Component Types'), findsOneWidget);
+
+      await tester.tap(find.text('All Component Types'));
+      await tester.pumpAndSettle();
+      final otherChip = find.widgetWithText(FilterChip, 'Other');
+      await tester.ensureVisible(otherChip);
+      await tester.pumpAndSettle();
+      await tester.tap(otherChip);
+      await tester.pumpAndSettle();
+      await tester.tapAt(const Offset(10, 10));
+      await tester.pumpAndSettle();
 
       expect(find.text('Component Types 3/4'), findsOneWidget);
       expect(find.text('Float X2'), findsOneWidget);

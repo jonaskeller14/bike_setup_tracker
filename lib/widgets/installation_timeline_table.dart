@@ -35,7 +35,6 @@ class InstallationTimelineTable extends StatefulWidget {
 }
 
 class _InstallationTimelineTableState extends State<InstallationTimelineTable> {
-  static const int _defaultVisibleComponentTypeCount = 3;
   static const double _minRowHeight = 44.0;
   static const double _rowHeaderWidth = 132.0;
   static const double _minHeaderHeight = 60.0;
@@ -44,7 +43,6 @@ class _InstallationTimelineTableState extends State<InstallationTimelineTable> {
   static const double _captionIconSize = 12.0;
 
   final Set<ComponentType> _hiddenComponentTypes = {};
-  bool _hiddenComponentTypesInitialized = false;
 
   @override
   Widget build(BuildContext context) {
@@ -57,13 +55,6 @@ class _InstallationTimelineTableState extends State<InstallationTimelineTable> {
 
     final activeComponentTypes = intervals.keys.map((id) => components[id]!.componentType).toSet().toList()
       ..sort((a, b) => a.index.compareTo(b.index));
-
-    if (!_hiddenComponentTypesInitialized) {
-      _hiddenComponentTypesInitialized = true;
-      if (activeComponentTypes.length > _defaultVisibleComponentTypeCount) {
-        _hiddenComponentTypes.addAll(activeComponentTypes.skip(_defaultVisibleComponentTypeCount));
-      }
-    }
 
     final visibleComponentTypes = activeComponentTypes.where((type) => !_hiddenComponentTypes.contains(type)).toList();
 

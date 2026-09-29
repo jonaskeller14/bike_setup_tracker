@@ -395,10 +395,10 @@ class _ContextSection extends StatelessWidget {
         ContextMetaCardDiff(
           notesA: setupA.notes,
           tagsA: settings.enableSetupTags ? setupA.tags : const {},
-          imagesA: settings.enableAttachments ? setupA.attachments : const [],
+          attachmentsA: settings.enableAttachments ? setupA.attachments : const [],
           notesB: setupB.notes,
           tagsB: settings.enableSetupTags ? setupB.tags : const {},
-          imagesB: settings.enableAttachments ? setupB.attachments : const [],
+          attachmentsB: settings.enableAttachments ? setupB.attachments : const [],
         ),
         ContextLocationWeatherCardDiff(
           positionA: setupA.position,

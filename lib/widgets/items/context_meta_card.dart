@@ -2,25 +2,25 @@ import 'package:flutter/material.dart';
 
 import '../../models/attachment.dart';
 import '../../services/attachment_storage_service.dart';
-import '../image_strip.dart';
+import '../attachment_strip.dart';
 import '../notes_text.dart';
 
 class ContextMetaCard extends StatelessWidget {
   final String? notes;
   final Set<String> tags;
-  final List<Attachment> images;
+  final List<Attachment> attachments;
 
   const ContextMetaCard({
     super.key,
     required this.notes,
     required this.tags,
-    required this.images,
+    required this.attachments,
   });
 
   @override
   Widget build(BuildContext context) {
     final hasNotes = notes?.trim().isNotEmpty ?? false;
-    if (!hasNotes && tags.isEmpty && images.isEmpty) return const SizedBox.shrink();
+    if (!hasNotes && tags.isEmpty && attachments.isEmpty) return const SizedBox.shrink();
 
     return Card.outlined(
       margin: const EdgeInsets.symmetric(vertical: 4),
@@ -42,7 +42,7 @@ class ContextMetaCard extends StatelessWidget {
               title: Text(tags.join("\n")),
               dense: true,
             ),
-          if (images.isNotEmpty)
+          if (attachments.isNotEmpty)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
               child: Row(
@@ -50,7 +50,7 @@ class ContextMetaCard extends StatelessWidget {
                 children: [
                   const Padding(
                     padding: EdgeInsets.only(right: 16),
-                    child: Icon(Icons.photo_library_outlined),
+                    child: Icon(Icons.attach_file),
                   ),
                   Expanded(
                     child: FutureBuilder<String>(
@@ -73,9 +73,9 @@ class ContextMetaCard extends StatelessWidget {
                             child: Center(child: CircularProgressIndicator()),
                           );
                         }
-                        return ImageStrip(
-                          images: images,
-                          imagesDir: snapshot.data!,
+                        return AttachmentStrip(
+                          attachments: attachments,
+                          attachmentsDir: snapshot.data!,
                         );
                       },
                     ),

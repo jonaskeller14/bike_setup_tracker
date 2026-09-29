@@ -8,6 +8,7 @@ import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/selected_data.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/services/attachment_storage_service.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image_picker/image_picker.dart';
@@ -74,6 +75,41 @@ void main() {
       final stored = await service.resolve(attachment.filename);
       expect(await stored.readAsBytes(), [1, 2, 3]);
       expect(source.existsSync(), isTrue);
+    });
+
+    test('importFile streams the file and keeps its original name', () async {
+      final attachment = await service.importFile(_FakePlatformFile('Fox 38 Manual.PDF', [1, 2, 3]));
+
+      expect(attachment.name, 'Fox 38 Manual.PDF');
+      expect(attachment.extension, '.pdf');
+      expect(await (await service.resolve(attachment.filename)).readAsBytes(), [1, 2, 3]);
+    });
+
+    test('importFile accepts a file of exactly the size cap', () async {
+      final attachment = await service.importFile(
+        _FakePlatformFile('manual.pdf', [1], length: AttachmentStorageService.maxFileBytes),
+      );
+
+      expect(await service.exists(attachment.filename), isTrue);
+    });
+
+    test('importFile rejects a file above the size cap without storing it', () async {
+      await expectLater(
+        service.importFile(_FakePlatformFile('huge.pdf', [1], length: AttachmentStorageService.maxFileBytes + 1)),
+        throwsA(isA<AttachmentTooLargeException>().having((e) => e.name, 'name', 'huge.pdf')),
+      );
+
+      final dir = Directory(await service.getAttachmentsPath());
+      expect(dir.existsSync() ? dir.listSync() : const <FileSystemEntity>[], isEmpty);
+    });
+
+    test('importPicked rejects an image above the size cap', () async {
+      final source = await sourceFile('huge.jpg', List.filled(AttachmentStorageService.maxFileBytes + 1, 0));
+
+      await expectLater(
+        service.importPicked(XFile(source.path)),
+        throwsA(isA<AttachmentTooLargeException>()),
+      );
     });
 
     test('copyExisting yields a distinct file with the same name and extension', () async {
@@ -181,4 +217,30 @@ void main() {
       expect(archive.files.map((f) => f.name), contains('attachments/${unlinked.filename}'));
     });
   });
+}
+
+final class _FakePlatformFile extends PlatformFile {
+  _FakePlatformFile(this.name, List<int> bytes, {int? length})
+    : _bytes = Uint8List.fromList(bytes),
+      _length = length ?? bytes.length;
+
+  @override
+  final String name;
+  final Uint8List _bytes;
+  final int _length;
+
+  @override
+  Uri get uri => Uri.parse('content://fake/$name');
+
+  @override
+  XFile get xFile => XFile.fromData(_bytes, name: name);
+
+  @override
+  Future<int> length() async => _length;
+
+  @override
+  Future<Uint8List> readAsBytes() async => _bytes;
+
+  @override
+  Stream<Uint8List> readAsByteStream() => Stream.value(_bytes);
 }

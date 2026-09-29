@@ -157,7 +157,7 @@ class FeaturesPage extends StatelessWidget {
                       subtitle:
                           'Attach images and files to setups, bikes and components. WARNING: attachments '
                           'are stored only on this device. They are NOT included in cloud/Drive backups and '
-                          'will be lost on reinstall or when restoring from a backup. Use "Export Image '
+                          'will be lost on reinstall or when restoring from a backup. Use "Export Attachment '
                           'Bundle" to move them to a new device.',
                       value: () => appSettings.enableAttachments,
                       onChanged: (v) => appSettings.enableAttachments = v,

@@ -143,7 +143,7 @@ class _GalleryPageState extends State<GalleryPage> {
         fit: StackFit.expand,
         children: [
           Hero(
-            tag: 'setup-image-$filename',
+            tag: 'attachment-${entry.attachment.id}',
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),

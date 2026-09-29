@@ -13,8 +13,18 @@ import '../models/attachment.dart';
 import '../models/selected_data.dart';
 import 'data_export_service.dart';
 
+class AttachmentTooLargeException implements Exception {
+  final String name;
+
+  const AttachmentTooLargeException(this.name);
+
+  @override
+  String toString() => 'AttachmentTooLargeException: $name';
+}
+
 class AttachmentStorageService {
   static const String _attachmentsDir = 'attachments';
+  static const int maxFileBytes = 25 * 1024 * 1024;
 
   Future<String> _attachmentsPath() async {
     final base = await getApplicationDocumentsDirectory();
@@ -41,13 +51,34 @@ class AttachmentStorageService {
     return file.existsSync();
   }
 
+  static void _checkSize(String name, int bytes) {
+    if (bytes > maxFileBytes) throw AttachmentTooLargeException(name);
+  }
+
   /// Copy an XFile from the image picker into attachments/, named after the picked file.
   Future<Attachment> importPicked(XFile picked) async {
+    _checkSize(picked.name, await picked.length());
     await ensureDir();
     final ext = p.extension(picked.path).isNotEmpty ? p.extension(picked.path) : '.jpg';
     final attachment = Attachment(extension: ext, name: picked.name);
     final dest = await resolve(attachment.filename);
     await File(picked.path).copy(dest.path);
+    return attachment;
+  }
+
+  /// Copy a file of any type from the file picker into attachments/, named after the picked file.
+  Future<Attachment> importFile(PlatformFile picked) async {
+    _checkSize(picked.name, await picked.length());
+    await ensureDir();
+    final attachment = Attachment(extension: p.extension(picked.name), name: picked.name);
+    final dest = await resolve(attachment.filename);
+    // Streamed rather than copied by path: Android may hand out a content URI instead of a file path.
+    final sink = dest.openWrite();
+    try {
+      await sink.addStream(picked.readAsByteStream());
+    } finally {
+      await sink.close();
+    }
     return attachment;
   }
 

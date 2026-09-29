@@ -4,7 +4,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart' as geo;
-import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -30,14 +29,13 @@ import '../../services/weather_service.dart';
 import '../../theme.dart';
 import '../../utils/attachment_actions.dart';
 import '../../widgets/app_snackbar.dart';
+import '../../widgets/attachment_strip.dart';
 import '../../widgets/chips/utils.dart';
 import '../../widgets/dialogs/confirmation.dart';
 import '../../widgets/dialogs/discard_changes.dart';
-import '../../widgets/image_strip.dart';
 import '../../widgets/pressure_drift_card.dart';
 import '../../widgets/setup_page_tab_bike.dart';
 import '../../widgets/setup_page_tab_person.dart';
-import '../../widgets/sheets/pick_image_source.dart';
 import '../../widgets/sheets/set_condition.dart';
 import '../../widgets/sheets/set_location_place.dart';
 import '../../widgets/sheets/set_tags.dart';
@@ -125,9 +123,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   late String? _initialPerson;
   String? _linkedPerson;
     
-  List<Attachment> _images = [];
-  List<Attachment> _initialImages = [];
-  String? _imagesDirPath;
+  List<Attachment> _attachments = [];
+  List<Attachment> _initialAttachments = [];
+  String? _attachmentsDirPath;
   final List<Attachment> _importedAttachments = [];
   List<Attachment>? _savedAttachments;
 
@@ -186,9 +184,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     _isBookmarked = widget.setup?.isBookmarked ?? appRepository.showBookmarkedSetupsOnly;
     _initialIsBookmarked = _isBookmarked;
 
-    _images = List.from(widget.setup?.attachments ?? []);
-    _initialImages = List.from(_images);
-    unawaited(_initImagesDir());
+    _attachments = List.from(widget.setup?.attachments ?? []);
+    _initialAttachments = List.from(_attachments);
+    unawaited(_initAttachmentsDir());
 
     final bikes = appRepository.bikes;
     _initialBike = widget.setup?.bike ?? widget.initialBike?.id ?? appRepository.filteredBikes.keys.firstOrNull ?? '';
@@ -414,47 +412,33 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     _changeListener();
   }
 
-  Future<void> _initImagesDir() async {
+  Future<void> _initAttachmentsDir() async {
     final path = await AttachmentStorageService().getAttachmentsPath();
     if (!mounted) return;
-    setState(() => _imagesDirPath = path);
+    setState(() => _attachmentsDirPath = path);
   }
 
-  void _onImagesAdded(List<Attachment> newAttachments) {
+  void _onAttachmentsAdded(List<Attachment> newAttachments) {
     _importedAttachments.addAll(newAttachments);
-    setState(() => _images.addAll(newAttachments));
+    setState(() => _attachments.addAll(newAttachments));
     _changeListener();
   }
 
-  Future<void> _addImages() async {
-    final picker = ImagePicker();
-    final source = await showPickImageSourceSheet(context);
-    if (source == null) return;
-    final service = AttachmentStorageService();
-    if (source == ImageSource.camera) {
-      final picked = await picker.pickImage(source: ImageSource.camera, preferredCameraDevice: CameraDevice.rear);
-      if (picked == null) return;
-      _onImagesAdded([await service.importPicked(picked)]);
-    } else {
-      final picked = await picker.pickMultiImage();
-      if (picked.isEmpty) return;
-      final attachments = <Attachment>[];
-      for (final x in picked) {
-        attachments.add(await service.importPicked(x));
-      }
-      _onImagesAdded(attachments);
-    }
+  Future<void> _addAttachments() async {
+    final attachments = await AttachmentActions.pickAttachments(context);
+    if (attachments.isEmpty) return;
+    _onAttachmentsAdded(attachments);
   }
 
-  void _onImageRemoved(int index) {
-    setState(() => _images.removeAt(index));
+  void _onAttachmentRemoved(int index) {
+    setState(() => _attachments.removeAt(index));
     _changeListener();
   }
 
-  void _onImageReorder(int oldIndex, int newIndex) {
+  void _onAttachmentReorder(int oldIndex, int newIndex) {
     setState(() {
-      final item = _images.removeAt(oldIndex);
-      _images.insert(newIndex, item);
+      final item = _attachments.removeAt(oldIndex);
+      _attachments.insert(newIndex, item);
     });
     _changeListener();
   }
@@ -476,7 +460,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
         !mapEquals(_bikeAdjustmentValues, _initialBikeAdjustmentValues) ||
         !mapEquals(_personAdjustmentValues, _initialPersonAdjustmentValues) ||
-        !listEquals(_images, _initialImages);
+        !listEquals(_attachments, _initialAttachments);
 
     if (_formHasChanges != hasChanges) {
       setState(() {
@@ -719,7 +703,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
     _formHasChanges = false;
     if (!mounted) return;
-    _savedAttachments = _images;
+    _savedAttachments = _attachments;
     Navigator.pop(
       context,
       Setup(
@@ -739,7 +723,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         position: _currentLocation.value,
         place: _currentPlace.value,
         weather: _currentWeather.value,
-        attachments: _images,
+        attachments: _attachments,
       ),
     );
   }
@@ -1043,11 +1027,11 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                 },
               ),
             ],
-            if (appSettings.enableAttachments && _imagesDirPath != null)
+            if (appSettings.enableAttachments && _attachmentsDirPath != null)
               ActionChip(
-                avatar: const Icon(Icons.add_photo_alternate_outlined),
-                label: const Text('Image'),
-                onPressed: _addImages,
+                avatar: const Icon(Icons.attach_file),
+                label: const Text('Attach'),
+                onPressed: _addAttachments,
               ),
             if (appSettings.enableSetupBookmark)
               FilterChip(
@@ -1230,14 +1214,14 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                         _notesTextFormField(),
                         const SizedBox(height: 12),
                         _wrap(),
-                        if (context.read<AppSettings>().enableAttachments && _imagesDirPath != null && _images.isNotEmpty) ...[
+                        if (context.read<AppSettings>().enableAttachments && _attachmentsDirPath != null && _attachments.isNotEmpty) ...[
                           const SizedBox(height: 12),
-                          ImageStrip(
-                            images: _images,
-                            imagesDir: _imagesDirPath!,
-                            mode: ImageStripMode.edit,
-                            onRemove: _onImageRemoved,
-                            onReorder: _onImageReorder,
+                          AttachmentStrip(
+                            attachments: _attachments,
+                            attachmentsDir: _attachmentsDirPath!,
+                            mode: AttachmentStripMode.edit,
+                            onRemove: _onAttachmentRemoved,
+                            onReorder: _onAttachmentReorder,
                           ),
                         ],
                         const SizedBox(height: 12),

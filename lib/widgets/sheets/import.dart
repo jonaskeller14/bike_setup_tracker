@@ -284,8 +284,8 @@ class _SelectImportSourceSheetContentState extends State<SelectImportSourceSheet
                   if (context.read<AppSettings>().enableAttachments)
                     ListTile(
                       leading: Icon(Icons.photo_library_outlined, color: Theme.of(context).colorScheme.primary),
-                      title: const Text("Import Image Bundle"),
-                      subtitle: const Text("Restore data and images from a ZIP bundle"),
+                      title: const Text("Import Attachment Bundle"),
+                      subtitle: const Text("Restore data and attachments from a ZIP bundle"),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: () async {
                         final result = await AttachmentStorageService().importBundle();

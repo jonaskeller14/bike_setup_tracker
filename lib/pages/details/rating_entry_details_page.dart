@@ -302,7 +302,7 @@ class RatingEntryDetailsContent extends StatelessWidget {
       ContextMetaCard(
         notes: entry.notes,
         tags: const {},
-        images: const [],
+        attachments: const [],
       ),
       ContextLocationWeatherCard(
         position: entry.position,

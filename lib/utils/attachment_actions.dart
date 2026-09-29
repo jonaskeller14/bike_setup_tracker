@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../models/attachment.dart';
@@ -9,6 +11,7 @@ import '../repositories/app_repository.dart';
 import '../services/attachment_storage_service.dart';
 import '../widgets/app_snackbar.dart';
 import '../widgets/dialogs/confirmation.dart';
+import '../widgets/sheets/pick_attachment_source.dart';
 
 class AttachmentActions {
   /// Attachments of [original] that [edited] no longer contains, matched by id.
@@ -30,6 +33,43 @@ class AttachmentActions {
   /// a discarded form (`saved == null`) keeps none of them.
   static Future<void> deleteUnsaved(Iterable<Attachment> attachments, {required Iterable<Attachment>? saved}) =>
       deleteAttachmentFiles(removedAttachments(attachments, saved ?? const []));
+
+  /// Asks for a source, then imports the picked images or files. Files over the size cap are
+  /// skipped with an error SnackBar each; the others still import.
+  static Future<List<Attachment>> pickAttachments(BuildContext context) async {
+    final source = await showPickAttachmentSourceSheet(context);
+    if (source == null || !context.mounted) return [];
+
+    final service = AttachmentStorageService();
+    final List<Future<Attachment> Function()> imports;
+    switch (source) {
+      case AttachmentSource.camera:
+        final picked = await ImagePicker().pickImage(source: ImageSource.camera, preferredCameraDevice: CameraDevice.rear);
+        imports = [if (picked != null) () => service.importPicked(picked)];
+      case AttachmentSource.gallery:
+        final picked = await ImagePicker().pickMultiImage();
+        imports = [for (final x in picked) () => service.importPicked(x)];
+      case AttachmentSource.file:
+        final picked = await FilePicker.pickFiles();
+        imports = [for (final file in picked) () => service.importFile(file)];
+    }
+
+    final attachments = <Attachment>[];
+    for (final import in imports) {
+      try {
+        attachments.add(await import());
+      } on AttachmentTooLargeException catch (e) {
+        if (!context.mounted) continue;
+        ScaffoldMessenger.of(context).showSnackBar(
+          AppSnackBar.error(
+            context,
+            '"${e.name}" is larger than ${AttachmentStorageService.maxFileBytes ~/ (1024 * 1024)} MB and was not attached.',
+          ),
+        );
+      }
+    }
+    return attachments;
+  }
 
   static Future<bool> deleteAttachments(BuildContext context, {required Set<String> filenames}) async {
     final appRepository = context.read<AppRepository>();

@@ -2,26 +2,26 @@ import 'package:flutter/material.dart';
 
 import '../../models/attachment.dart';
 import '../../services/attachment_storage_service.dart';
-import '../image_strip.dart';
+import '../attachment_strip.dart';
 import '../notes_text.dart';
 
 class ContextMetaCardDiff extends StatelessWidget {
   final String? notesA;
   final Set<String> tagsA;
-  final List<Attachment> imagesA;
+  final List<Attachment> attachmentsA;
 
   final String? notesB;
   final Set<String> tagsB;
-  final List<Attachment> imagesB;
+  final List<Attachment> attachmentsB;
 
   const ContextMetaCardDiff({
     super.key,
     required this.notesA,
     required this.tagsA,
-    required this.imagesA,
+    required this.attachmentsA,
     required this.notesB,
     required this.tagsB,
-    required this.imagesB,
+    required this.attachmentsB,
   });
 
   @override
@@ -33,9 +33,9 @@ class ContextMetaCardDiff extends StatelessWidget {
 
     final hasTags = tagsA.isNotEmpty || tagsB.isNotEmpty;
 
-    final hasImages = imagesA.isNotEmpty || imagesB.isNotEmpty;
+    final hasAttachments = attachmentsA.isNotEmpty || attachmentsB.isNotEmpty;
 
-    if (!hasNotes && !hasTags && !hasImages) return const SizedBox.shrink();
+    if (!hasNotes && !hasTags && !hasAttachments) return const SizedBox.shrink();
 
     return Card.outlined(
       margin: const EdgeInsets.symmetric(vertical: 4),
@@ -71,7 +71,7 @@ class ContextMetaCardDiff extends StatelessWidget {
               ),
               dense: true,
             ),
-          if (hasImages)
+          if (hasAttachments)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
               child: Row(
@@ -79,7 +79,7 @@ class ContextMetaCardDiff extends StatelessWidget {
                 children: [
                   const Padding(
                     padding: EdgeInsets.only(right: 16),
-                    child: Icon(Icons.photo_library_outlined),
+                    child: Icon(Icons.attach_file),
                   ),
                   Expanded(
                     child: FutureBuilder<String>(
@@ -103,16 +103,16 @@ class ContextMetaCardDiff extends StatelessWidget {
                           );
                         }
                         return _ComparisonRow(
-                          childA: _ImageSide(
-                            images: imagesA,
-                            imagesDir: snapshot.data!,
-                            heroTagPrefix: 'compare-images-a',
+                          childA: _AttachmentSide(
+                            attachments: attachmentsA,
+                            attachmentsDir: snapshot.data!,
+                            heroTagPrefix: 'compare-attachments-a',
                             emptyColor: null,
                           ),
-                          childB: _ImageSide(
-                            images: imagesB,
-                            imagesDir: snapshot.data!,
-                            heroTagPrefix: 'compare-images-b',
+                          childB: _AttachmentSide(
+                            attachments: attachmentsB,
+                            attachmentsDir: snapshot.data!,
+                            heroTagPrefix: 'compare-attachments-b',
                             emptyColor: null,
                           ),
                         );
@@ -147,22 +147,22 @@ class _ComparisonRow extends StatelessWidget {
   }
 }
 
-class _ImageSide extends StatelessWidget {
-  final List<Attachment> images;
-  final String imagesDir;
+class _AttachmentSide extends StatelessWidget {
+  final List<Attachment> attachments;
+  final String attachmentsDir;
   final String heroTagPrefix;
   final Color? emptyColor;
 
-  const _ImageSide({
-    required this.images,
-    required this.imagesDir,
+  const _AttachmentSide({
+    required this.attachments,
+    required this.attachmentsDir,
     required this.heroTagPrefix,
     required this.emptyColor,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (images.isEmpty) {
+    if (attachments.isEmpty) {
       return SizedBox(
         height: 80,
         child: Align(
@@ -171,9 +171,9 @@ class _ImageSide extends StatelessWidget {
         ),
       );
     }
-    return ImageStrip(
-      images: images,
-      imagesDir: imagesDir,
+    return AttachmentStrip(
+      attachments: attachments,
+      attachmentsDir: attachmentsDir,
       heroTagPrefix: heroTagPrefix,
     );
   }

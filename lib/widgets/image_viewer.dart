@@ -115,7 +115,7 @@ class _ImageViewerState extends State<ImageViewer> {
             maxScale: 6,
             child: Center(
               child: Hero(
-                tag: 'setup-image-${_images[index].filename}',
+                tag: 'attachment-${_images[index].id}',
                 child: Image.file(
                   file,
                   fit: BoxFit.contain,

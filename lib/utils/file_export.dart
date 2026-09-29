@@ -32,7 +32,7 @@ class FileExport {
     );
   }
 
-  static Future<void> saveImageBundle({
+  static Future<void> saveAttachmentBundle({
     required BuildContext context,
     required AppDatabase database,
     SelectedData? selectedData,
@@ -40,7 +40,7 @@ class FileExport {
   }) async {
     await _runSave(
       context: context,
-      save: () => _saveImageBundle(
+      save: () => _saveAttachmentBundle(
         database: database,
         selectedData: selectedData,
         fileSaveService: fileSaveService ?? FileSaveService(),
@@ -48,7 +48,7 @@ class FileExport {
     );
   }
       
-  static Future<FileSaveOutcome> _saveImageBundle({
+  static Future<FileSaveOutcome> _saveAttachmentBundle({
     required AppDatabase database,
     SelectedData? selectedData,
     required FileSaveService fileSaveService,

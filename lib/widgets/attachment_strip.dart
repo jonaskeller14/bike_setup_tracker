@@ -3,48 +3,46 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:image_picker/image_picker.dart';
 
 import '../models/attachment.dart';
-import '../services/attachment_storage_service.dart';
+import '../utils/attachment_actions.dart';
 import 'image_viewer.dart';
-import 'sheets/pick_image_source.dart';
 
-enum ImageStripMode { view, edit }
+enum AttachmentStripMode { view, edit }
 
-class ImageStrip extends StatefulWidget {
-  final List<Attachment> images;
-  final String imagesDir;
-  final ImageStripMode mode;
+class AttachmentStrip extends StatefulWidget {
+  final List<Attachment> attachments;
+  final String attachmentsDir;
+  final AttachmentStripMode mode;
   final void Function(int index)? onRemove;
   final void Function(int oldIndex, int newIndex)? onReorder;
   final void Function(List<Attachment> newAttachments)? onAdd;
   final String heroTagPrefix;
 
-  const ImageStrip({
+  const AttachmentStrip({
     super.key,
-    required this.images,
-    required this.imagesDir,
-    this.mode = ImageStripMode.view,
+    required this.attachments,
+    required this.attachmentsDir,
+    this.mode = AttachmentStripMode.view,
     this.onRemove,
     this.onReorder,
     this.onAdd,
-    this.heroTagPrefix = 'setup-image',
+    this.heroTagPrefix = 'attachment',
   });
 
   @override
-  State<ImageStrip> createState() => _ImageStripState();
+  State<AttachmentStrip> createState() => _AttachmentStripState();
 }
 
-class _ImageStripState extends State<ImageStrip> with TickerProviderStateMixin {
+class _AttachmentStripState extends State<AttachmentStrip> with TickerProviderStateMixin {
   final Map<String, AnimationController> _enterControllers = {};
   final Map<String, AnimationController> _exitControllers = {};
 
   @override
-  void didUpdateWidget(ImageStrip oldWidget) {
+  void didUpdateWidget(AttachmentStrip oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final oldSet = oldWidget.images.map((a) => a.filename).toSet();
-    for (final filename in widget.images.map((a) => a.filename)) {
+    final oldSet = oldWidget.attachments.map((a) => a.filename).toSet();
+    for (final filename in widget.attachments.map((a) => a.filename)) {
       if (!oldSet.contains(filename) && !_enterControllers.containsKey(filename)) {
         final ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 280));
         _enterControllers[filename] = ctrl;
@@ -55,8 +53,8 @@ class _ImageStripState extends State<ImageStrip> with TickerProviderStateMixin {
         );
       }
     }
-    // Clean up exit controllers for items removed from widget.images
-    final newSet = widget.images.map((a) => a.filename).toSet();
+    // Clean up exit controllers for items removed from widget.attachments
+    final newSet = widget.attachments.map((a) => a.filename).toSet();
     for (final f in _exitControllers.keys.where((f) => !newSet.contains(f)).toList()) {
       _exitControllers.remove(f)?.dispose();
     }
@@ -84,7 +82,7 @@ class _ImageStripState extends State<ImageStrip> with TickerProviderStateMixin {
     unawaited(
       ctrl.reverse().then((_) {
         if (!mounted) return;
-        final index = widget.images.indexWhere((a) => a.filename == filename);
+        final index = widget.attachments.indexWhere((a) => a.filename == filename);
         if (index != -1) widget.onRemove?.call(index);
       }),
     );
@@ -123,8 +121,8 @@ class _ImageStripState extends State<ImageStrip> with TickerProviderStateMixin {
         context,
         MaterialPageRoute(
           builder: (_) => ImageViewer(
-            images: widget.images,
-            imagesDir: widget.imagesDir,
+            images: widget.attachments,
+            imagesDir: widget.attachmentsDir,
             initialIndex: index,
             onDelete: widget.onRemove != null ? (deletedIndex) => widget.onRemove?.call(deletedIndex) : null,
           ),
@@ -133,26 +131,10 @@ class _ImageStripState extends State<ImageStrip> with TickerProviderStateMixin {
     );
   }
 
-  Future<void> _pickImages(BuildContext context) async {
-    final picker = ImagePicker();
-    final source = await showPickImageSourceSheet(context);
-    if (source == null) return;
-
-    final service = AttachmentStorageService();
-    if (source == ImageSource.camera) {
-      final picked = await picker.pickImage(source: ImageSource.camera, preferredCameraDevice: CameraDevice.rear);
-      if (picked == null) return;
-      final attachment = await service.importPicked(picked);
-      widget.onAdd?.call([attachment]);
-    } else {
-      final picked = await picker.pickMultiImage();
-      if (picked.isEmpty) return;
-      final attachments = <Attachment>[];
-      for (final x in picked) {
-        attachments.add(await service.importPicked(x));
-      }
-      widget.onAdd?.call(attachments);
-    }
+  Future<void> _pickAttachments(BuildContext context) async {
+    final attachments = await AttachmentActions.pickAttachments(context);
+    if (attachments.isEmpty) return;
+    widget.onAdd?.call(attachments);
   }
 
   Widget _placeholder(BuildContext context) {
@@ -164,32 +146,58 @@ class _ImageStripState extends State<ImageStrip> with TickerProviderStateMixin {
     );
   }
 
-  Widget _thumbnail(BuildContext context, String filename, int index) {
-    final file = File('${widget.imagesDir}${Platform.pathSeparator}$filename');
+  Widget _fileTile(BuildContext context, Attachment attachment) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      color: colorScheme.surfaceContainerHighest,
+      padding: const EdgeInsets.all(6),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(attachment.iconData, color: colorScheme.onSurfaceVariant),
+          const SizedBox(height: 4),
+          Text(
+            attachment.name,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(color: colorScheme.onSurfaceVariant),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _tileContent(BuildContext context, Attachment attachment) {
+    if (!attachment.isImage) return _fileTile(context, attachment);
+    return Image.file(
+      File('${widget.attachmentsDir}${Platform.pathSeparator}${attachment.filename}'),
+      fit: BoxFit.cover,
+      cacheWidth: 300,
+      errorBuilder: (_, _, _) => _placeholder(context),
+    );
+  }
+
+  Widget _thumbnail(BuildContext context, Attachment attachment, int index) {
     return Stack(
       fit: StackFit.expand,
       children: [
         GestureDetector(
           onTap: () => _openViewer(context, index),
           child: Hero(
-            tag: '${widget.heroTagPrefix}-$filename',
+            tag: '${widget.heroTagPrefix}-${attachment.id}',
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Image.file(
-                file,
-                fit: BoxFit.cover,
-                cacheWidth: 300,
-                errorBuilder: (_, _, _) => _placeholder(context),
-              ),
+              child: _tileContent(context, attachment),
             ),
           ),
         ),
-        if (widget.mode == ImageStripMode.edit)
+        if (widget.mode == AttachmentStripMode.edit)
           Positioned(
             top: 0,
             right: 0,
             child: GestureDetector(
-              onTap: () => _handleRemove(filename),
+              onTap: () => _handleRemove(attachment.filename),
               child: Container(
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.inverseSurface,
@@ -216,11 +224,10 @@ class _ImageStripState extends State<ImageStrip> with TickerProviderStateMixin {
     const double tileSize = 80;
     const double spacing = 8;
 
-    if (widget.images.isEmpty && widget.mode == ImageStripMode.view) return const SizedBox.shrink();
+    if (widget.attachments.isEmpty && widget.mode == AttachmentStripMode.view) return const SizedBox.shrink();
 
-    if (widget.mode == ImageStripMode.edit) {
+    if (widget.mode == AttachmentStripMode.edit) {
       Widget proxyDecorator(Widget child, int index, Animation<double> animation) {
-        final file = File('${widget.imagesDir}${Platform.pathSeparator}${widget.images[index].filename}');
         return SizedBox(
           width: tileSize,
           height: tileSize,
@@ -231,12 +238,7 @@ class _ImageStripState extends State<ImageStrip> with TickerProviderStateMixin {
                 elevation: 4,
                 borderRadius: BorderRadius.circular(8),
                 clipBehavior: Clip.antiAlias,
-                child: Image.file(
-                  file,
-                  fit: BoxFit.cover,
-                  cacheWidth: 300,
-                  errorBuilder: (_, _, _) => _placeholder(context),
-                ),
+                child: _tileContent(context, widget.attachments[index]),
               ),
               Positioned(
                 top: 0,
@@ -272,14 +274,14 @@ class _ImageStripState extends State<ImageStrip> with TickerProviderStateMixin {
           onReorderItem: (oldIndex, newIndex) {
             widget.onReorder?.call(oldIndex, newIndex);
           },
-          itemCount: widget.images.length + (widget.onAdd != null ? 1 : 0),
+          itemCount: widget.attachments.length + (widget.onAdd != null ? 1 : 0),
           itemBuilder: (context, index) {
-            if (widget.onAdd != null && index == widget.images.length) {
+            if (widget.onAdd != null && index == widget.attachments.length) {
               return Padding(
                 key: const ValueKey('add_button'),
-                padding: EdgeInsets.only(left: widget.images.isEmpty ? 0 : spacing),
+                padding: EdgeInsets.only(left: widget.attachments.isEmpty ? 0 : spacing),
                 child: GestureDetector(
-                  onTap: () => _pickImages(context),
+                  onTap: () => _pickAttachments(context),
                   child: Container(
                     width: tileSize,
                     decoration: BoxDecoration(
@@ -292,7 +294,7 @@ class _ImageStripState extends State<ImageStrip> with TickerProviderStateMixin {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.add_photo_alternate_outlined, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        Icon(Icons.attach_file, color: Theme.of(context).colorScheme.onSurfaceVariant),
                         Text(
                           'Add',
                           style: TextStyle(
@@ -306,18 +308,18 @@ class _ImageStripState extends State<ImageStrip> with TickerProviderStateMixin {
                 ),
               );
             }
-            final filename = widget.images[index].filename;
+            final attachment = widget.attachments[index];
             return ReorderableDelayedDragStartListener(
-              key: ValueKey(filename),
+              key: ValueKey(attachment.filename),
               index: index,
               child: Padding(
                 padding: const EdgeInsets.only(right: spacing),
                 child: _animatedItem(
-                  filename,
+                  attachment.filename,
                   SizedBox(
                     width: tileSize,
                     height: tileSize,
-                    child: _thumbnail(context, filename, index),
+                    child: _thumbnail(context, attachment, index),
                   ),
                 ),
               ),
@@ -332,16 +334,16 @@ class _ImageStripState extends State<ImageStrip> with TickerProviderStateMixin {
       height: tileSize,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        itemCount: widget.images.length,
+        itemCount: widget.attachments.length,
         separatorBuilder: (_, _) => const SizedBox(width: spacing),
         itemBuilder: (context, index) {
-          final filename = widget.images[index].filename;
+          final attachment = widget.attachments[index];
           return _animatedItem(
-            filename,
+            attachment.filename,
             SizedBox(
               width: tileSize,
               height: tileSize,
-              child: _thumbnail(context, filename, index),
+              child: _thumbnail(context, attachment, index),
             ),
           );
         },

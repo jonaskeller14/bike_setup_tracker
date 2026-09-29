@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 
-Future<ImageSource?> showPickImageSourceSheet(BuildContext context) {
-  return showModalBottomSheet<ImageSource>(
+enum AttachmentSource { gallery, camera, file }
+
+Future<AttachmentSource?> showPickAttachmentSourceSheet(BuildContext context) {
+  return showModalBottomSheet<AttachmentSource>(
     useSafeArea: true,
     context: context,
     builder: (ctx) => SafeArea(
@@ -12,12 +13,17 @@ Future<ImageSource?> showPickImageSourceSheet(BuildContext context) {
           ListTile(
             leading: const Icon(Icons.photo_library_outlined),
             title: const Text('Choose from Gallery'),
-            onTap: () => Navigator.pop(ctx, ImageSource.gallery),
+            onTap: () => Navigator.pop(ctx, AttachmentSource.gallery),
           ),
           ListTile(
             leading: const Icon(Icons.camera_alt_outlined),
             title: const Text('Take Photo'),
-            onTap: () => Navigator.pop(ctx, ImageSource.camera),
+            onTap: () => Navigator.pop(ctx, AttachmentSource.camera),
+          ),
+          ListTile(
+            leading: const Icon(Icons.attach_file),
+            title: const Text('Choose File'),
+            onTap: () => Navigator.pop(ctx, AttachmentSource.file),
           ),
         ],
       ),

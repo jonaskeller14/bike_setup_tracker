@@ -280,16 +280,32 @@ class _AttachmentViewerState extends State<AttachmentViewer> {
               _AttachmentAction.share => unawaited(_share(attachment)),
               _AttachmentAction.save => unawaited(_saveToFiles(attachment)),
             },
-            itemBuilder: (_) => const [
-              PopupMenuItem(
-                value: _AttachmentAction.share,
-                child: Row(spacing: 10, children: [Icon(Icons.share), Text('Share…')]),
-              ),
-              PopupMenuItem(
-                value: _AttachmentAction.save,
-                child: Row(spacing: 10, children: [Icon(Icons.save_alt), Text('Save to Files')]),
-              ),
-            ],
+            // The menu inherits the app bar's white icon theme; use the popup's own foreground.
+            itemBuilder: (context) {
+              final iconColor = Theme.of(context).colorScheme.onSurface;
+              return [
+                PopupMenuItem(
+                  value: _AttachmentAction.share,
+                  child: Row(
+                    spacing: 10,
+                    children: [
+                      Icon(Icons.share, color: iconColor),
+                      const Text('Share…'),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: _AttachmentAction.save,
+                  child: Row(
+                    spacing: 10,
+                    children: [
+                      Icon(Icons.save_alt, color: iconColor),
+                      const Text('Save to Files'),
+                    ],
+                  ),
+                ),
+              ];
+            },
           ),
         ],
       ),

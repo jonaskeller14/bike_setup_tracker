@@ -12,8 +12,8 @@ import '../../widgets/dialogs/strava_disconnect.dart';
 import '../../widgets/items/strava_subscription_card.dart';
 import '../../widgets/sheets/radio_group.dart';
 import 'about_page.dart';
+import 'attachments_page.dart';
 import 'features_page.dart';
-import 'gallery_page.dart';
 import 'help_page.dart';
 import 'preferences_page.dart';
 import 'reset_page.dart';
@@ -110,11 +110,11 @@ class AppSettingsPage extends StatelessWidget {
               ),
               if (appSettings.enableAttachments)
                 ListTile(
-                  leading: const Icon(Icons.photo_library_outlined),
-                  title: const Text('Gallery'),
-                  subtitle: const Text('All images from your setups'),
+                  leading: const Icon(Icons.attach_file),
+                  title: const Text('Attachments'),
+                  subtitle: const Text('Images and files from setups, bikes and components'),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                  onTap: () => Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const GalleryPage())),
+                  onTap: () => Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const AttachmentsPage())),
                 ),
               ListTile(
                 leading: const Icon(Icons.info_outline),

@@ -10,6 +10,35 @@ import 'attachment_viewer.dart';
 
 enum AttachmentStripMode { view, edit }
 
+class AttachmentFileTile extends StatelessWidget {
+  final Attachment attachment;
+
+  const AttachmentFileTile({super.key, required this.attachment});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      color: colorScheme.surfaceContainerHighest,
+      padding: const EdgeInsets.all(6),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(attachment.iconData, color: colorScheme.onSurfaceVariant),
+          const SizedBox(height: 4),
+          Text(
+            attachment.name,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(color: colorScheme.onSurfaceVariant),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class AttachmentStrip extends StatefulWidget {
   final List<Attachment> attachments;
   final String attachmentsDir;
@@ -149,30 +178,8 @@ class _AttachmentStripState extends State<AttachmentStrip> with TickerProviderSt
     );
   }
 
-  Widget _fileTile(BuildContext context, Attachment attachment) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      color: colorScheme.surfaceContainerHighest,
-      padding: const EdgeInsets.all(6),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(attachment.iconData, color: colorScheme.onSurfaceVariant),
-          const SizedBox(height: 4),
-          Text(
-            attachment.name,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(color: colorScheme.onSurfaceVariant),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _tileContent(BuildContext context, Attachment attachment) {
-    if (!attachment.isImage) return _fileTile(context, attachment);
+    if (!attachment.isImage) return AttachmentFileTile(attachment: attachment);
     return Image.file(
       File('${widget.attachmentsDir}${Platform.pathSeparator}${attachment.filename}'),
       fit: BoxFit.cover,
@@ -231,38 +238,41 @@ class _AttachmentStripState extends State<AttachmentStrip> with TickerProviderSt
 
     if (widget.mode == AttachmentStripMode.edit) {
       Widget proxyDecorator(Widget child, int index, Animation<double> animation) {
-        return SizedBox(
-          width: tileSize,
-          height: tileSize,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              Material(
-                elevation: 4,
-                borderRadius: BorderRadius.circular(8),
-                clipBehavior: Clip.antiAlias,
-                child: _tileContent(context, widget.attachments[index]),
-              ),
-              Positioned(
-                top: 0,
-                right: 0,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.inverseSurface,
-                    borderRadius: const BorderRadius.only(
-                      topRight: Radius.circular(8),
-                      bottomLeft: Radius.circular(8),
+        return ScaleTransition(
+          scale: Tween(begin: 1.0, end: 1.1).animate(CurvedAnimation(parent: animation, curve: Curves.easeOut)),
+          child: SizedBox(
+            width: tileSize,
+            height: tileSize,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Material(
+                  elevation: 4,
+                  borderRadius: BorderRadius.circular(8),
+                  clipBehavior: Clip.antiAlias,
+                  child: _tileContent(context, widget.attachments[index]),
+                ),
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.inverseSurface,
+                      borderRadius: const BorderRadius.only(
+                        topRight: Radius.circular(8),
+                        bottomLeft: Radius.circular(8),
+                      ),
+                    ),
+                    padding: const EdgeInsets.all(5),
+                    child: Icon(
+                      Icons.close_rounded,
+                      size: 14,
+                      color: Theme.of(context).colorScheme.onInverseSurface,
                     ),
                   ),
-                  padding: const EdgeInsets.all(5),
-                  child: Icon(
-                    Icons.close_rounded,
-                    size: 14,
-                    color: Theme.of(context).colorScheme.onInverseSurface,
-                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       }

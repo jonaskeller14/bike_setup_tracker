@@ -7,11 +7,13 @@ import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
 import '../../models/person.dart';
+import '../../models/rating/rating_entry.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/dangling_adjustment_service.dart';
 import '../../utils/map_actions.dart';
 import '../../utils/setup_actions.dart';
+import '../../utils/url.dart';
 import '../../widgets/current_setup_badge.dart';
 import '../../widgets/current_setup_highlight.dart';
 import '../../widgets/display_adjustment/display_adjustment_list.dart';
@@ -170,67 +172,81 @@ class _SetupDetailsPageState extends State<SetupDetailsPage> {
 
 class SetupDetailsPageContent extends StatelessWidget {
   final String setupId;
-  final bool showCompareAction;
-  final bool showSheetActions;
+  final bool showEditAction;
   final bool showCloseButton;
   final bool showViewOnMap;
 
-  const SetupDetailsPageContent._({super.key, required this.setupId, this.showSheetActions = false, this.showCloseButton = false, this.showCompareAction = false, this.showViewOnMap = true});
+  const SetupDetailsPageContent._({super.key, required this.setupId, this.showEditAction = false, this.showCloseButton = false, this.showViewOnMap = true});
 
   factory SetupDetailsPageContent({Key? key, required String setupId}) {
-    return SetupDetailsPageContent._(key: key, setupId: setupId, showSheetActions: false, showCloseButton: false, showCompareAction: true);
+    return SetupDetailsPageContent._(key: key, setupId: setupId, showEditAction: false, showCloseButton: false);
   }
 
   factory SetupDetailsPageContent.sheet({Key? key, required String setupId, bool showViewOnMap = true}) {
-    return SetupDetailsPageContent._(key: key, setupId: setupId, showSheetActions: true, showCloseButton: true, showCompareAction: false, showViewOnMap: showViewOnMap);
+    return SetupDetailsPageContent._(key: key, setupId: setupId, showEditAction: true, showCloseButton: true, showViewOnMap: showViewOnMap);
   }
 
-  Future<void> _onSheetAction(BuildContext context, _SetupDetailsAction action, {required Setup setup}) async {
+  Future<void> _onAction(BuildContext context, _SetupDetailsAction action, {required Setup setup}) async {
     switch (action) {
       case _SetupDetailsAction.edit:
         await SetupActions.editSetup(context, setup: setup);
       case _SetupDetailsAction.share:
         await SetupActions.shareSetup(context, setup: setup);
+      case _SetupDetailsAction.compare:
+        await showCompareSetupsSheet(context, setupA: null, setupB: setup, showViewOnMap: showViewOnMap);
       case _SetupDetailsAction.restore:
         final restored = await SetupActions.duplicateSetup(context, setup: setup);
         if (restored != null && context.mounted) Navigator.pop(context);
-      case _SetupDetailsAction.compare:
-        await showCompareSetupsSheet(context, setupA: null, setupB: setup, showViewOnMap: showViewOnMap);
+      case _SetupDetailsAction.addRating:
+        await SetupActions.addRatingEntryForSetup(context, setup: setup);
+      case _SetupDetailsAction.viewOnMap:
+        await MapActions.openSetupsOnMap(context, [setup]);
+      case _SetupDetailsAction.openInMapsApp:
+        await launchLocationOnMap(context, setup.position!.latitude!, setup.position!.longitude!, setup.displayName);
     }
   }
 
-  Widget _sheetCompareAction(BuildContext context, {required Setup setup}) {
-    return IconButton.filled(
-      iconSize: 20,
-      tooltip: _SetupDetailsAction.compare.label,
-      style: IconButton.styleFrom(
-        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-        foregroundColor: Theme.of(context).colorScheme.onSurface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-      onPressed: () async {
-        await _onSheetAction(context, _SetupDetailsAction.compare, setup: setup);
-      },
-      icon: Icon(_SetupDetailsAction.compare.icon),
-    );
-  }
-
-  Widget _sheetActions(BuildContext context, {required Setup setup}) {
+  Widget _actionsMenu(BuildContext context, {required Setup setup}) {
+    final appSettings = context.read<AppSettings>();
+    final hasPosition = setup.position?.latitude != null && setup.position?.longitude != null;
     final actions = <_SetupDetailsAction>[
-      _SetupDetailsAction.edit,
+      if (showEditAction) _SetupDetailsAction.edit,
       _SetupDetailsAction.share,
-      //TODO: add "add rating" and "remove" ?
-      if (!setup.isCurrent) _SetupDetailsAction.restore,
       _SetupDetailsAction.compare,
+      if (!setup.isCurrent) _SetupDetailsAction.restore,
+      if (appSettings.enableRating) _SetupDetailsAction.addRating,
+      if (showViewOnMap) ...[_SetupDetailsAction.viewOnMap, _SetupDetailsAction.openInMapsApp],
     ];
     return PopupMenuButton<_SetupDetailsAction>(
       tooltip: 'Setup actions',
-      onSelected: (action) => _onSheetAction(context, action, setup: setup),
+      onSelected: (action) => _onAction(context, action, setup: setup),
       itemBuilder: (context) => [
         for (final action in actions)
           PopupMenuItem(
             value: action,
-            child: Row(spacing: 10, children: [Icon(action.icon), Text(action.label)]),
+            enabled: hasPosition || !action.needsPosition,
+            child: Row(
+              spacing: 10,
+              children: [
+                Icon(action.icon),
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(action.label),
+                      if (!hasPosition && action.needsPosition)
+                        Text(
+                          'Location not available',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
       ],
       child: AbsorbPointer(
@@ -254,7 +270,6 @@ class SetupDetailsPageContent extends StatelessWidget {
     final Color background = setup.isCurrent
         ? CurrentSetupHighlight.opaqueFill(colorScheme)
         : colorScheme.surface;
-    final Widget? compareAction = showCompareAction ? _sheetCompareAction(context, setup: setup) : null;
     final bool showBookmarkAction = appSettings.enableSetupBookmark;
 
     return SliverAppBar(
@@ -297,11 +312,9 @@ class SetupDetailsPageContent extends StatelessWidget {
               ],
             ),
           ),
-          if (compareAction != null || showBookmarkAction || showSheetActions || showCloseButton)
-            const SizedBox(width: 12),
-          ?compareAction,
+          const SizedBox(width: 12),
           if (showBookmarkAction) _SetupBookmarkAction(setupId: setup.id),
-          if (showSheetActions) _sheetActions(context, setup: setup),
+          _actionsMenu(context, setup: setup),
           if (showCloseButton)
             sheetCloseButton(context),
         ],
@@ -737,11 +750,15 @@ class _SetupBookmarkAction extends StatelessWidget {
 enum _SetupDetailsAction {
   edit('Edit', Icons.edit),
   share('Share', Icons.share),
+  compare('Compare', Icons.compare),
   restore('Restore', Icons.restore),
-  compare('Compare', Icons.compare);
+  addRating('Add Rating', RatingEntry.iconData),
+  viewOnMap('View on map', Icons.map, needsPosition: true),
+  openInMapsApp('Open in maps app', Icons.directions, needsPosition: true);
 
   final String label;
   final IconData icon;
+  final bool needsPosition;
 
-  const _SetupDetailsAction(this.label, this.icon);
+  const _SetupDetailsAction(this.label, this.icon, {this.needsPosition = false});
 }

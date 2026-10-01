@@ -1416,6 +1416,20 @@ void main() {
       expect(await repository.hasStravaActivitiesWithPosition(), true);
     });
 
+    test("getFilteredStravaActivitiesWithPosition follows the selected bike's gear", () async {
+      final linked = Bike(name: "Linked", person: null, stravaGear: "gear_1");
+      final otherGear = Bike(name: "Other gear", person: null, stravaGear: "gear_2");
+      await repository.addBikes([linked, otherGear]);
+      await repository.setStravaActivities([buildActivity(1, lat: 44.16, lon: 8.34)]);
+      await pumpEventQueue();
+
+      repository.filters.toggleBike(linked.id);
+      expect((await repository.getFilteredStravaActivitiesWithPosition()).map((a) => a.id), [1]);
+
+      repository.filters.toggleBike(otherGear.id);
+      expect(await repository.getFilteredStravaActivitiesWithPosition(), isEmpty);
+    });
+
     test("hasStravaActivitiesWithPosition is false without coordinates", () async {
       await repository.setStravaActivities([buildActivity(1)]);
       await pumpEventQueue();

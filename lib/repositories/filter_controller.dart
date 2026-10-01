@@ -1,6 +1,8 @@
+import '../models/bike.dart';
 import '../models/filters/layer_filter.dart';
 import '../models/filters/setup_filter.dart';
 import '../models/filters/task_rule_filter.dart';
+import '../models/strava/strava_activity_query.dart';
 
 /// Owns the filter criteria: the selected bike plus one immutable filter object
 /// per domain.
@@ -47,6 +49,15 @@ class FilterController {
     if (value == _layers) return;
     _layers = value;
     onChanged();
+  }
+
+  /// The Strava activities the criteria select, given the [selectedBike] that
+  /// [bikeId] resolves to. `null` when that bike has no linked Strava gear: it
+  /// owns no activities, so there is nothing to query.
+  StravaActivityQuery? stravaQuery(Bike? selectedBike) {
+    if (selectedBike == null) return const StravaActivityQuery();
+    final gearId = selectedBike.stravaGear;
+    return gearId == null ? null : StravaActivityQuery(gearId: gearId);
   }
 
   /// Drops criteria whose bike or tags no longer exist. Runs inside the

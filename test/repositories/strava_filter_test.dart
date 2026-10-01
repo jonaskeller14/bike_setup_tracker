@@ -98,6 +98,8 @@ void main() {
       // bike's rides: its stats count neither, so its list shows neither.
       expect(repository.stravaActivities, isEmpty);
       expect(repository.selectedBikeHasNoStravaGear, true);
+      expect(repository.hasMoreStrava, false);
+      expect(repository.isLoadingMoreStrava, false);
     });
 
     test("Every unlinked bike shows nothing rather than a shared unassigned pool", () async {
@@ -131,6 +133,15 @@ void main() {
 
       expect(await repository.searchStravaActivities("Ride"), isEmpty);
       expect(await repository.getFilteredStravaActivitiesWithPosition(), isEmpty);
+    });
+
+    test("Search returns only the selected bike's activities", () async {
+      expect((await repository.searchStravaActivities("Ride")).map((a) => a.id), unorderedEquals([1, 2, 3]));
+
+      repository.filters.toggleBike(bikeLinked.id);
+      await pumpEventQueue();
+
+      expect((await repository.searchStravaActivities("Ride")).map((a) => a.id), [activityLinked.id]);
     });
   });
 }

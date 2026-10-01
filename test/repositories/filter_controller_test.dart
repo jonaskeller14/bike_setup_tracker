@@ -1,6 +1,8 @@
+import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/filters/layer_filter.dart';
 import 'package:bike_setup_tracker/models/filters/setup_filter.dart';
 import 'package:bike_setup_tracker/models/filters/task_rule_filter.dart';
+import 'package:bike_setup_tracker/models/strava/strava_activity_query.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/repositories/filter_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -89,6 +91,22 @@ void main() {
       filters.taskRule = TaskRuleFilter();
       filters.layers = const LayerFilter();
       expect(changes, 0);
+    });
+  });
+
+  group("stravaQuery", () {
+    test("no selected bike queries every gear", () {
+      expect(filters.stravaQuery(null), const StravaActivityQuery());
+    });
+
+    test("a bike with a linked gear queries that gear", () {
+      final bike = Bike(name: "Enduro", person: null, stravaGear: "g1");
+      expect(filters.stravaQuery(bike), const StravaActivityQuery(gearId: "g1"));
+    });
+
+    test("a bike without a linked gear has no query", () {
+      final bike = Bike(name: "Hardtail", person: null, stravaGear: null);
+      expect(filters.stravaQuery(bike), null);
     });
   });
 

@@ -122,5 +122,15 @@ void main() {
       expect(repository.stravaActivities.length, 1);
       expect(repository.stravaActivities.containsKey(1), true);
     });
+
+    test("Results of a superseded selection are dropped", () async {
+      // Both loads are in flight at once; only the last selection may land.
+      repository.filters.toggleBike(bikeNew.id);
+      repository.filters.toggleBike(bikeOld.id);
+      await pumpEventQueue();
+
+      expect(repository.stravaActivities.keys, [1]);
+      expect(repository.hasMoreStrava, false);
+    });
   });
 }

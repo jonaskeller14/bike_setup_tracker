@@ -22,9 +22,9 @@ import '../models/rating/rating_metric.dart';
 import '../models/selected_data.dart';
 import '../models/setup.dart';
 import '../models/strava/strava_activity.dart';
+import '../models/strava/strava_activity_query.dart';
 import '../models/strava/strava_athlete.dart';
 import '../models/strava/strava_gear.dart';
-import '../models/strava/strava_scope.dart';
 import '../models/task/task_association.dart';
 import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
@@ -94,7 +94,7 @@ class AppRepository extends ChangeNotifier {
     _view = _buildView();
     _strava = StravaPagingController(
       database: database,
-      scope: _currentStravaScope,
+      query: _currentStravaQuery,
       onLoadingChanged: notifyListeners,
       onWindowChanged: _dataChanged,
     );
@@ -409,7 +409,7 @@ class AppRepository extends ChangeNotifier {
   void _filter() {
     filters.normalize(bikeIds: bikes.keys, setupTags: setupTags, taskRuleTags: taskRuleTags);
     _view = _buildView();
-    _strava.reloadIfScopeChanged();  // re-pages Strava if the bike scope changed
+    _strava.reloadIfQueryChanged();  // re-pages Strava if the bike scope changed
   }
 
   FilteredView _buildView() => FilteredView(
@@ -815,7 +815,6 @@ class AppRepository extends ChangeNotifier {
   bool get isLoadingMoreStrava => _strava.isLoadingMore;
   bool get stravaSortAscending => _strava.sortAscending;
 
-  Stream<List<StravaActivity>> get stravaActivitiesWithPosition => _strava.activitiesWithPosition;
   Future<List<StravaActivity>> get latestStravaActivities => _strava.latest;
   Future<List<StravaActivity>> getFilteredStravaActivitiesWithPosition() => _strava.filteredActivitiesWithPosition();
 
@@ -833,8 +832,8 @@ class AppRepository extends ChangeNotifier {
   /// Debug helper to override the pagination chunk size in tests.
   void debugSetStravaLimit(int limit) => _strava.limit = limit;
 
-  StravaScope _currentStravaScope() => StravaScope.forBike(bikes[filters.bikeId]);
-  bool get selectedBikeHasNoStravaGear => _currentStravaScope() is NoStravaActivities;
+  StravaActivityQuery? _currentStravaQuery() => filters.stravaQuery(bikes[filters.bikeId]);
+  bool get selectedBikeHasNoStravaGear => _currentStravaQuery() == null;
 
   Future<void> setStravaActivities(Iterable<StravaActivity> activities, {List<int>? toDelete}) async {
     final versionAtStart = _stravaOperationVersion;

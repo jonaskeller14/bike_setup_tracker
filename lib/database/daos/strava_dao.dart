@@ -2,7 +2,7 @@ import 'package:drift/drift.dart';
 
 import '../../models/activity_rate_window.dart';
 import '../../models/component_stats.dart';
-import '../../models/strava/strava_scope.dart';
+import '../../models/strava/strava_activity_query.dart';
 import '../../utils/text_search.dart';
 import '../app_database.dart';
 import '../tables/bikes.dart';
@@ -253,40 +253,49 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
     );
   }
 
-  /// Paginated activities narrowed to [scope], so the filter is applied in SQL
+  /// The one place a [StravaActivityQuery] becomes SQL, shared by the paged
+  /// list, the map and search.
+  SimpleSelectStatement<$StravaActivitiesTable, StravaActivityDb> _selectActivities(StravaActivityQuery query) {
+    final statement = select(stravaActivities);
+    final gearId = query.gearId;
+    if (gearId != null) statement.where((t) => t.gearId.equals(gearId));
+    return statement;
+  }
+
+  /// Paginated activities narrowed to [query], so the filter is applied in SQL
   /// rather than after a global fetch.
   Future<List<StravaActivityDb>> getActivitiesPaginated({
     required int limit,
     required int offset,
     OrderingMode mode = OrderingMode.desc,
-    StravaScope scope = const StravaScope.all(),
+    StravaActivityQuery query = const StravaActivityQuery(),
   }) {
-    final query = select(stravaActivities)
-      ..orderBy([(t) => OrderingTerm(expression: t.startDate, mode: mode)]);
-
-    switch (scope) {
-      case AllStravaActivities():
-        break;
-      case GearStravaActivities(:final gearId):
-        query.where((t) => t.gearId.equals(gearId));
-      case NoStravaActivities():
-        return Future.value(const []);
-    }
-
-    query.limit(limit, offset: offset);
-    return query.get();
+    final statement = _selectActivities(query)
+      ..orderBy([(t) => OrderingTerm(expression: t.startDate, mode: mode)])
+      ..limit(limit, offset: offset);
+    return statement.get();
   }
 
-  Stream<List<StravaActivityDb>> watchActivitiesWithPosition() {
-    return (select(stravaActivities)
+  Future<List<StravaActivityDb>> getActivitiesWithPosition(StravaActivityQuery query) {
+    return (_selectActivities(query)
           ..where((t) => t.startLat.isNotNull() & t.startLon.isNotNull())
           ..orderBy([(t) => OrderingTerm(expression: t.startDate, mode: OrderingMode.desc)]))
-        .watch();
+        .get();
   }
 
-  Future<List<StravaActivityDb>> searchActivitiesByName(String query) {
-    final tokens = tokenizeSearchQuery(query);
-    final statement = select(stravaActivities);
+  /// Unscoped: whether any activity carries coordinates at all.
+  Future<bool> hasActivitiesWithPosition() async {
+    final row = await (selectOnly(stravaActivities)
+          ..addColumns([stravaActivities.id])
+          ..where(stravaActivities.startLat.isNotNull() & stravaActivities.startLon.isNotNull())
+          ..limit(1))
+        .getSingleOrNull();
+    return row != null;
+  }
+
+  Future<List<StravaActivityDb>> searchActivitiesByName(String text, StravaActivityQuery query) {
+    final tokens = tokenizeSearchQuery(text);
+    final statement = _selectActivities(query);
     if (tokens.isNotEmpty) {
       statement.where(
         (t) => tokens

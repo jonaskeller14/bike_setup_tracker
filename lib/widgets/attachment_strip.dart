@@ -146,6 +146,13 @@ class _AttachmentStripState extends State<AttachmentStrip> with TickerProviderSt
     return child;
   }
 
+  /// The viewer works on its own copy of the list, so its attachment is looked up again here:
+  /// a tile finishing its exit animation meanwhile shifts the indices.
+  void _withCurrentIndex(Attachment attachment, void Function(int index) action) {
+    final index = widget.attachments.indexWhere((a) => a.id == attachment.id);
+    if (index != -1) action(index);
+  }
+
   void _openViewer(BuildContext context, int index) {
     unawaited(
       Navigator.push(
@@ -155,8 +162,12 @@ class _AttachmentStripState extends State<AttachmentStrip> with TickerProviderSt
             attachments: widget.attachments,
             attachmentsDir: widget.attachmentsDir,
             initialIndex: index,
-            onDelete: widget.onRemove != null ? (deletedIndex) => widget.onRemove?.call(deletedIndex) : null,
-            onRename: widget.onRename,
+            onDelete: widget.onRemove != null
+                ? (attachment) => _withCurrentIndex(attachment, (i) => widget.onRemove?.call(i))
+                : null,
+            onRename: widget.onRename != null
+                ? (attachment, name) => _withCurrentIndex(attachment, (i) => widget.onRename?.call(i, name))
+                : null,
           ),
         ),
       ),

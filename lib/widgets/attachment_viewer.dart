@@ -21,8 +21,8 @@ class AttachmentViewer extends StatefulWidget {
   final List<Attachment> attachments;
   final String attachmentsDir;
   final int initialIndex;
-  final void Function(int index)? onDelete;
-  final void Function(int index, String name)? onRename;
+  final void Function(Attachment attachment)? onDelete;
+  final void Function(Attachment attachment, String name)? onRename;
   final AttachmentOwner? Function(Attachment attachment)? ownerForAttachment;
   final FileSaveService? fileSaveService;
 
@@ -64,7 +64,7 @@ class _AttachmentViewerState extends State<AttachmentViewer> {
 
   void _delete() {
     final index = _currentIndex;
-    widget.onDelete?.call(index);
+    widget.onDelete?.call(_attachments[index]);
     if (_attachments.length == 1) {
       Navigator.of(context).pop();
       return;
@@ -82,7 +82,7 @@ class _AttachmentViewerState extends State<AttachmentViewer> {
     final index = _currentIndex;
     final name = await showRenameAttachmentDialog(context, name: _attachments[index].name);
     if (name == null || !mounted) return;
-    widget.onRename?.call(index, name);
+    widget.onRename?.call(_attachments[index], name);
     setState(() => _attachments[index] = _attachments[index].copyWith(name: name));
   }
 

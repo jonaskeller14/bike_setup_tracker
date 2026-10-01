@@ -30,6 +30,21 @@ void main() {
       expect(restored.hashCode, attachment.hashCode);
     });
 
+    test('ids and extensions that leave the attachments folder are rejected', () {
+      for (final (id, extension) in [
+        ('../bike_setup_tracker', '.sqlite'),
+        (r'..\bike_setup_tracker', '.sqlite'),
+        ('a', '/../../x.pdf'),
+        ('.', '.'),
+        ('..', ''),
+      ]) {
+        final json = {'id': id, 'extension': extension, 'name': 'n'};
+
+        expect(() => Attachment.fromJson(json), throwsFormatException, reason: '$id$extension');
+        expect(Attachment.tryFromJson(json), isNull, reason: '$id$extension');
+      }
+    });
+
     test('tryFromJson returns null for malformed input', () {
       expect(Attachment.tryFromJson('nope'), isNull);
       expect(Attachment.tryFromJson({'id': 'a', 'extension': '.jpg'}), isNull);

@@ -27,7 +27,7 @@ void main() {
   Future<void> pumpViewer(
     WidgetTester tester, {
     required List<Attachment> attachments,
-    void Function(int index, String name)? onRename,
+    void Function(Attachment attachment, String name)? onRename,
     AttachmentOwner? Function(Attachment attachment)? ownerForAttachment,
     FileSaveService? fileSaveService,
     ThemeData? theme,
@@ -90,11 +90,12 @@ void main() {
     });
 
     testWidgets('passes the new name to onRename and shows it in the app bar', (tester) async {
-      final renamed = <(int, String)>[];
+      final attachment = stored(Attachment(extension: '.pdf', name: 'fox38_manual.pdf'));
+      final renamed = <(Attachment, String)>[];
       await pumpViewer(
         tester,
-        attachments: [stored(Attachment(extension: '.pdf', name: 'fox38_manual.pdf'))],
-        onRename: (index, name) => renamed.add((index, name)),
+        attachments: [attachment],
+        onRename: (attachment, name) => renamed.add((attachment, name)),
       );
 
       await tester.tap(find.byTooltip('Rename'));
@@ -103,7 +104,7 @@ void main() {
       await tester.tap(find.text('Rename'));
       await tester.pumpAndSettle();
 
-      expect(renamed, [(0, 'Fox 38 Service Manual')]);
+      expect(renamed, [(attachment, 'Fox 38 Service Manual')]);
       expect(
         find.descendant(of: find.byType(AppBar), matching: find.text('Fox 38 Service Manual')),
         findsOneWidget,

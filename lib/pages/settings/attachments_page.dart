@@ -103,7 +103,10 @@ class _AttachmentsPageState extends State<AttachmentsPage> {
             ownerForAttachment: (attachment) => ownersByAttachment[attachment.filename],
           ),
         ),
-      ),
+      ).then((_) {
+        // "Show owner" in the viewer leads to edit forms that can delete files.
+        if (mounted) setState(() => _folder = _loadFolder());
+      }),
     );
   }
 

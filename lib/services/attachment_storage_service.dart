@@ -40,6 +40,7 @@ class AttachmentStorageService {
   Future<String> getAttachmentsPath() => _attachmentsPath();
 
   Future<File> resolve(String filename) async {
+    if (!Attachment.isPlainFilename(filename)) throw ArgumentError.value(filename, 'filename');
     return File(p.join(await _attachmentsPath(), filename));
   }
 
@@ -74,7 +75,12 @@ class AttachmentStorageService {
         : picked.name;
     final attachment = Attachment(extension: ext, name: name);
     final dest = await resolve(attachment.filename);
-    await File(picked.path).copy(dest.path);
+    try {
+      await File(picked.path).copy(dest.path);
+    } catch (_) {
+      await deleteFiles([attachment.filename]);
+      rethrow;
+    }
     return attachment;
   }
 
@@ -85,11 +91,20 @@ class AttachmentStorageService {
     final attachment = Attachment(extension: p.extension(picked.name), name: picked.name);
     final dest = await resolve(attachment.filename);
     // Streamed rather than copied by path: Android may hand out a content URI instead of a file path.
-    final sink = dest.openWrite();
     try {
-      await sink.addStream(picked.readAsByteStream());
-    } finally {
-      await sink.close();
+      // Written through a handle that is closed before the cleanup below: an IOSink only
+      // closes its file in the background after an error, which blocks the delete on Windows.
+      final file = await dest.open(mode: FileMode.write);
+      try {
+        await for (final chunk in picked.readAsByteStream()) {
+          await file.writeFrom(chunk);
+        }
+      } finally {
+        await file.close();
+      }
+    } catch (_) {
+      await deleteFiles([attachment.filename]);
+      rethrow;
     }
     return attachment;
   }

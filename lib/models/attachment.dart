@@ -49,12 +49,21 @@ class Attachment {
     'name': name,
   };
 
+  /// Ids and extensions arrive from imported JSON, so a filename must never be able to
+  /// point outside the attachments folder.
+  static bool isPlainFilename(String filename) =>
+      filename != '.' && filename != '..' && !filename.contains(RegExp(r'[/\\]'));
+
   factory Attachment.fromJson(Map<String, dynamic> json) {
-    return Attachment(
+    final attachment = Attachment(
       id: json['id'] as String,
       extension: json['extension'] as String,
       name: json['name'] as String,
     );
+    if (!isPlainFilename(attachment.filename)) {
+      throw FormatException('Attachment "${attachment.filename}" is not a plain file name.');
+    }
+    return attachment;
   }
 
   /// Returns null instead of throwing when [json] is not a valid attachment.
@@ -65,7 +74,8 @@ class Attachment {
     final name = json['name'];
     if (id is! String || extension is! String || name is! String) return null;
     if (id.isEmpty) return null;
-    return Attachment(id: id, extension: extension, name: name);
+    final attachment = Attachment(id: id, extension: extension, name: name);
+    return isPlainFilename(attachment.filename) ? attachment : null;
   }
 
   Attachment copyWith({

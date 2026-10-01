@@ -34,30 +34,38 @@ class AttachmentActions {
   static Future<void> deleteUnsaved(Iterable<Attachment> attachments, {required Iterable<Attachment>? saved}) =>
       deleteAttachmentFiles(removedAttachments(attachments, saved ?? const []));
 
-  /// Asks for a source, then imports the picked images or files. Files over the size cap are
-  /// skipped with an error SnackBar each; the others still import.
+  /// Asks for a source, then imports the picked images or files. Files that are over the size
+  /// cap or fail to import are skipped with an error SnackBar each; the others still import.
   static Future<List<Attachment>> pickAttachments(BuildContext context) async {
     final source = await showPickAttachmentSourceSheet(context);
     if (source == null || !context.mounted) return [];
 
     final service = AttachmentStorageService();
-    final List<Future<Attachment> Function()> imports;
-    switch (source) {
-      case AttachmentSource.camera:
-        final picked = await ImagePicker().pickImage(source: ImageSource.camera, preferredCameraDevice: CameraDevice.rear);
-        imports = [if (picked != null) () => service.importPicked(picked)];
-      case AttachmentSource.gallery:
-        final picked = await ImagePicker().pickMultiImage();
-        imports = [for (final x in picked) () => service.importPicked(x)];
-      case AttachmentSource.file:
-        final picked = await FilePicker.pickFiles();
-        imports = [for (final file in picked) () => service.importFile(file)];
+    final List<({String name, Future<Attachment> Function() run})> imports;
+    try {
+      switch (source) {
+        case AttachmentSource.camera:
+          final picked = await ImagePicker().pickImage(source: ImageSource.camera, preferredCameraDevice: CameraDevice.rear);
+          imports = [if (picked != null) (name: picked.name, run: () => service.importPicked(picked))];
+        case AttachmentSource.gallery:
+          final picked = await ImagePicker().pickMultiImage();
+          imports = [for (final x in picked) (name: x.name, run: () => service.importPicked(x))];
+        case AttachmentSource.file:
+          final picked = await FilePicker.pickFiles();
+          imports = [for (final file in picked) (name: file.name, run: () => service.importFile(file))];
+      }
+    } catch (e) {
+      // The pickers throw when camera, photo or file access is denied.
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, 'Could not pick attachments: $e'));
+      }
+      return [];
     }
 
     final attachments = <Attachment>[];
     for (final import in imports) {
       try {
-        attachments.add(await import());
+        attachments.add(await import.run());
       } on AttachmentTooLargeException catch (e) {
         if (!context.mounted) continue;
         ScaffoldMessenger.of(context).showSnackBar(
@@ -65,6 +73,11 @@ class AttachmentActions {
             context,
             '"${e.name}" is larger than ${AttachmentStorageService.maxFileBytes ~/ (1024 * 1024)} MB and was not attached.',
           ),
+        );
+      } catch (_) {
+        if (!context.mounted) continue;
+        ScaffoldMessenger.of(context).showSnackBar(
+          AppSnackBar.error(context, '"${import.name}" could not be attached.'),
         );
       }
     }

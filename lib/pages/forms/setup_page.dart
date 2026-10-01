@@ -426,7 +426,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
   Future<void> _addAttachments() async {
     final attachments = await AttachmentActions.pickAttachments(context);
-    if (attachments.isEmpty) return;
+    if (attachments.isEmpty || !mounted) return;
     _onAttachmentsAdded(attachments);
   }
 

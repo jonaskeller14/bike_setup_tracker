@@ -73,6 +73,41 @@ void main() {
       expect(find.byIcon(Icons.insert_drive_file_outlined), findsOneWidget);
     });
 
+    testWidgets('the viewer deletes its own attachment after a tile left the strip meanwhile', (tester) async {
+      final attachments = [
+        Attachment(id: 'a', extension: '.pdf', name: 'A'),
+        Attachment(id: 'b', extension: '.pdf', name: 'B'),
+        Attachment(id: 'c', extension: '.pdf', name: 'C'),
+      ];
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: materialAppTheme,
+          home: Scaffold(
+            body: StatefulBuilder(
+              builder: (context, setState) => AttachmentStrip(
+                attachments: attachments,
+                attachmentsDir: 'missing-dir',
+                mode: AttachmentStripMode.edit,
+                onRemove: (index) => setState(() => attachments.removeAt(index)),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      // Open B while A's exit animation is still running.
+      await tester.tap(find.byIcon(Icons.close_rounded).first);
+      await tester.pump(const Duration(milliseconds: 50));
+      await tester.tap(find.text('B'));
+      await tester.pumpAndSettle();
+      expect(attachments.map((a) => a.id), ['b', 'c']);
+
+      await tester.tap(find.byTooltip('Delete'));
+      await tester.pumpAndSettle();
+
+      expect(attachments.map((a) => a.id), ['c']);
+    });
+
     testWidgets('view mode shows no remove badges', (tester) async {
       await pumpStrip(
         tester,

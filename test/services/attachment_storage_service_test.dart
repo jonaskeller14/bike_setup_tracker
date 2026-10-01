@@ -118,6 +118,17 @@ void main() {
       expect(dir.existsSync() ? dir.listSync() : const <FileSystemEntity>[], isEmpty);
     });
 
+    test('importFile removes the partial file when reading fails', () async {
+      await expectLater(
+        service.importFile(
+          _FakePlatformFile('manual.pdf', [1, 2, 3], streamError: const FileSystemException('read failed')),
+        ),
+        throwsA(isA<FileSystemException>()),
+      );
+
+      expect(Directory(await service.getAttachmentsPath()).listSync(), isEmpty);
+    });
+
     test('importPicked rejects an image above the size cap', () async {
       final source = await sourceFile('huge.jpg', List.filled(AttachmentStorageService.maxFileBytes + 1, 0));
 
@@ -156,6 +167,22 @@ void main() {
 
       expect(await service.exists(keep.filename), isTrue);
       expect(await service.exists(remove.filename), isFalse);
+    });
+
+    test('resolve rejects filenames that point outside the attachments directory', () async {
+      for (final filename in ['../bike_setup_tracker.sqlite', r'..\bike_setup_tracker.sqlite', 'sub/a.pdf', '..', '.']) {
+        await expectLater(service.resolve(filename), throwsArgumentError, reason: filename);
+      }
+    });
+
+    test('deleteFiles leaves files outside the attachments directory alone', () async {
+      await service.ensureDir();
+      final database = File(p.join(documentsDirectory.path, 'bike_setup_tracker.sqlite'));
+      await database.writeAsBytes([1]);
+
+      await service.deleteFiles(['../bike_setup_tracker.sqlite']);
+
+      expect(database.existsSync(), isTrue);
     });
 
     test('deleteAll removes the attachments directory', () async {
@@ -235,7 +262,7 @@ void main() {
 }
 
 final class _FakePlatformFile extends PlatformFile {
-  _FakePlatformFile(this.name, List<int> bytes, {int? length})
+  _FakePlatformFile(this.name, List<int> bytes, {int? length, this.streamError})
     : _bytes = Uint8List.fromList(bytes),
       _length = length ?? bytes.length;
 
@@ -243,6 +270,7 @@ final class _FakePlatformFile extends PlatformFile {
   final String name;
   final Uint8List _bytes;
   final int _length;
+  final Object? streamError;
 
   @override
   Uri get uri => Uri.parse('content://fake/$name');
@@ -257,5 +285,8 @@ final class _FakePlatformFile extends PlatformFile {
   Future<Uint8List> readAsBytes() async => _bytes;
 
   @override
-  Stream<Uint8List> readAsByteStream() => Stream.value(_bytes);
+  Stream<Uint8List> readAsByteStream() async* {
+    yield _bytes;
+    if (streamError case final error?) throw error;
+  }
 }

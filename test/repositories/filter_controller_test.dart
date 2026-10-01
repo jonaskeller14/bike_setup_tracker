@@ -1,6 +1,7 @@
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/filters/activity_filter.dart';
 import 'package:bike_setup_tracker/models/filters/layer_filter.dart';
+import 'package:bike_setup_tracker/models/filters/local_date_range.dart';
 import 'package:bike_setup_tracker/models/filters/numeric_range.dart';
 import 'package:bike_setup_tracker/models/filters/setup_filter.dart';
 import 'package:bike_setup_tracker/models/filters/task_rule_filter.dart';
@@ -20,6 +21,7 @@ void main() {
 
   test("starts without any criteria", () {
     expect(filters.bikeId, null);
+    expect(filters.dateRange, null);
     expect(filters.setup, const SetupFilter());
     expect(filters.taskRule, TaskRuleFilter());
     expect(filters.layers, const LayerFilter());
@@ -102,7 +104,22 @@ void main() {
       expect(changes, 2);
     });
 
+    test("dateRange fires once per actual change, also when it is cleared", () {
+      filters.dateRange = LocalDateRange(start: DateTime(2024, 5, 10), end: DateTime(2024, 5, 12));
+      expect(filters.dateRange, LocalDateRange(start: DateTime(2024, 5, 10), end: DateTime(2024, 5, 12)));
+      expect(changes, 1);
+
+      // An equal value that is not the same instance.
+      filters.dateRange = LocalDateRange(start: DateTime(2024, 5, 10, 8), end: DateTime(2024, 5, 12, 20));
+      expect(changes, 1);
+
+      filters.dateRange = null;
+      expect(filters.dateRange, null);
+      expect(changes, 2);
+    });
+
     test("equal default values do not fire", () {
+      filters.dateRange = null;
       filters.setup = const SetupFilter();
       filters.taskRule = TaskRuleFilter();
       filters.layers = const LayerFilter();
@@ -145,6 +162,35 @@ void main() {
         expect(filters.stravaQuery(bike), null);
       });
     });
+
+    group("with a date range", () {
+      const activity = ActivityFilter(distance: NumericRange(min: 10000));
+      final may = LocalDateRange(start: DateTime(2024, 5), end: DateTime(2024, 5, 31));
+
+      setUp(() {
+        filters.activity = activity;
+        filters.dateRange = may;
+      });
+
+      test("no selected bike queries every gear within the range and the activity criteria", () {
+        expect(filters.stravaQuery(null), StravaActivityQuery(activity: activity, dateRange: may));
+      });
+
+      test("a bike with a linked gear queries that gear within the range", () {
+        final bike = Bike(name: "Enduro", person: null, stravaGear: "g1");
+        expect(filters.stravaQuery(bike), StravaActivityQuery(gearId: "g1", activity: activity, dateRange: may));
+      });
+
+      test("a bike without a linked gear still has no query", () {
+        final bike = Bike(name: "Hardtail", person: null, stravaGear: null);
+        expect(filters.stravaQuery(bike), null);
+      });
+
+      test("clearing the range queries every day again", () {
+        filters.dateRange = null;
+        expect(filters.stravaQuery(null), const StravaActivityQuery(activity: activity));
+      });
+    });
   });
 
   group("normalize", () {
@@ -154,6 +200,7 @@ void main() {
       filters.taskRule = TaskRuleFilter(priorities: const {TaskPriority.high}, tags: const {"service", "fork"});
       filters.layers = const LayerFilter(hidden: {TimelineLayer.tasks});
       filters.activity = const ActivityFilter(distance: NumericRange(min: 10000));
+      filters.dateRange = LocalDateRange(start: DateTime(2024, 5), end: DateTime(2024, 5, 31));
       changes = 0;
     });
 
@@ -185,6 +232,7 @@ void main() {
       expect(filters.taskRule.tags, isEmpty);
       expect(filters.layers, const LayerFilter(hidden: {TimelineLayer.tasks}));
       expect(filters.activity, const ActivityFilter(distance: NumericRange(min: 10000)));
+      expect(filters.dateRange, LocalDateRange(start: DateTime(2024, 5), end: DateTime(2024, 5, 31)));
       expect(changes, 0);
     });
   });

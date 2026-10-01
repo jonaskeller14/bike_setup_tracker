@@ -1,5 +1,6 @@
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/filters/activity_filter.dart';
+import 'package:bike_setup_tracker/models/filters/local_date_range.dart';
 import 'package:bike_setup_tracker/models/filters/numeric_range.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity_query.dart';
@@ -170,6 +171,80 @@ void main() {
         'ride',
         ranges(distance: const NumericRange(min: 10000)),
       );
+
+      expect(results.map((activity) => activity.id), unorderedEquals([2, 3]));
+    });
+  });
+
+  group('Strava activity date range', () {
+    late AppDatabase database;
+
+    Future<List<int>> positioned(StravaActivityQuery query) async =>
+        (await database.stravaDao.getActivitiesWithPosition(query)).map((activity) => activity.id).toList();
+
+    StravaActivityQuery days(int from, int to, {String? gearId, ActivityFilter activity = const ActivityFilter()}) =>
+        StravaActivityQuery(
+          gearId: gearId,
+          activity: activity,
+          dateRange: LocalDateRange(start: DateTime(2024, 1, from), end: DateTime(2024, 1, to)),
+        );
+
+    setUp(() async {
+      database = AppDatabase.memory();
+      final activities = [
+        _activity(1, 'Late on the 9th', day: 9, gearId: 'g1', lat: 44, lon: 8, distance: 5000)
+            .copyWith(startDateLocal: DateTime(2024, 1, 9, 23, 59, 59)),
+        _activity(2, 'Midnight on the 10th', day: 10, gearId: 'g1', lat: 44, lon: 8, distance: 60000),
+        _activity(3, 'Noon on the 11th', day: 11, gearId: 'g2', lat: 44, lon: 8, distance: 30000)
+            .copyWith(startDateLocal: DateTime(2024, 1, 11, 12)),
+        _activity(4, 'Late on the 12th', day: 12, gearId: 'g1', lat: 44, lon: 8, distance: 30000)
+            .copyWith(startDateLocal: DateTime(2024, 1, 12, 23, 59, 59)),
+        // Started on the 13th in UTC, but late on the 12th where it was ridden.
+        _activity(5, 'Abroad on the 12th', day: 13, gearId: 'g1', lat: 44, lon: 8, distance: 5000)
+            .copyWith(startDate: DateTime.utc(2024, 1, 13, 6), startDateLocal: DateTime(2024, 1, 12, 22)),
+        _activity(6, 'Midnight on the 13th', day: 14, gearId: 'g1', lat: 44, lon: 8, distance: 30000)
+            .copyWith(startDateLocal: DateTime(2024, 1, 13)),
+      ];
+      for (final activity in activities) {
+        await database.into(database.stravaActivities).insert(activity);
+      }
+    });
+
+    tearDown(() => database.close());
+
+    test('no range keeps every activity', () async {
+      expect(await positioned(const StravaActivityQuery()), [6, 5, 4, 3, 2, 1]);
+    });
+
+    test('both days are inclusive, from 00:00 of the first to 23:59 of the last', () async {
+      expect(await positioned(days(10, 12)), [5, 4, 3, 2]);
+    });
+
+    test('a single day holds that whole local day', () async {
+      expect(await positioned(days(12, 12)), [5, 4]);
+      expect(await positioned(days(13, 13)), [6]);
+    });
+
+    test('date range, gear and distance narrow together', () async {
+      expect(await positioned(days(10, 12, gearId: 'g1')), [5, 4, 2]);
+      expect(
+        await positioned(
+          days(10, 12, gearId: 'g1', activity: const ActivityFilter(distance: NumericRange(min: 30000))),
+        ),
+        [4, 2],
+      );
+    });
+
+    test('paging walks only the activities in the date range', () async {
+      final first = await database.stravaDao.getActivitiesPaginated(limit: 3, offset: 0, query: days(10, 12));
+      final second = await database.stravaDao.getActivitiesPaginated(limit: 3, offset: 3, query: days(10, 12));
+
+      expect(first.map((activity) => activity.id), [5, 4, 3]);
+      expect(second.map((activity) => activity.id), [2]);
+    });
+
+    test('search narrows the matches to the date range', () async {
+      final results = await database.stravaDao.searchActivitiesByName('on the', days(10, 11));
 
       expect(results.map((activity) => activity.id), unorderedEquals([2, 3]));
     });

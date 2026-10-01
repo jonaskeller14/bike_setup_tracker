@@ -2,6 +2,7 @@ import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/filters/activity_filter.dart';
 import 'package:bike_setup_tracker/models/filters/layer_filter.dart';
+import 'package:bike_setup_tracker/models/filters/local_date_range.dart';
 import 'package:bike_setup_tracker/models/filters/numeric_range.dart';
 import 'package:bike_setup_tracker/models/filters/setup_filter.dart';
 import 'package:bike_setup_tracker/models/filters/task_rule_filter.dart';
@@ -22,8 +23,10 @@ const timelineSections = {FilterSection.bike, FilterSection.setups, FilterSectio
 const mapSections = {FilterSection.bike, FilterSection.setups, FilterSection.mapLayers};
 const taskSections = {FilterSection.bike, FilterSection.taskPriority, FilterSection.taskTags};
 const activitySections = {FilterSection.bike, FilterSection.activity};
+const dateSections = {FilterSection.bike, FilterSection.dateRange};
 
 const activityRanges = ActivityFilter(distance: NumericRange(min: 10000), elevationGain: NumericRange(max: 500));
+final dateRange = LocalDateRange(start: DateTime(2024, 5, 10), end: DateTime(2024, 5, 12));
 
 void main() {
   late MockAppRepository repository;
@@ -97,6 +100,13 @@ void main() {
 
       settings.enableTaskTags = true;
       expect(enabled(taskSections), taskSections);
+    });
+
+    test('offers the date range section whatever the feature flags say', () {
+      // Tests run in debug mode, the only mode that offers the section so far.
+      const sections = {FilterSection.dateRange};
+      expect(enabled(sections), sections);
+      expect(enabled(taskSections), isNot(contains(FilterSection.dateRange)));
     });
 
     test('offers the activity section only while Strava is active', () {
@@ -294,12 +304,29 @@ void main() {
       expect(isFiltered(taskSections, stravaActive: true), false);
     });
 
+    test('label the date range in the user\'s date format', () {
+      filters.dateRange = dateRange;
+
+      expect(isFiltered(dateSections), true);
+      expect(labels(dateSections), ['2024-05-10 – 2024-05-12']);
+
+      settings.dateFormat = 'dd.MM.yyyy';
+      expect(labels(dateSections), ['10.05.2024 – 12.05.2024']);
+    });
+
+    test('ignore the date range on a page without a date range section', () {
+      filters.dateRange = dateRange;
+
+      expect(isFiltered(taskSections), false);
+    });
+
     test('order the labels like the chip', () {
       settings.enableSetupTags = true;
       settings.enableSetupBookmark = true;
       settings.enableTaskTags = true;
       settings.enableTask = true;
       filters.toggleBike('b1');
+      filters.dateRange = dateRange;
       filters.setup = const SetupFilter(tags: {'race'}, bookmarkedOnly: true);
       filters.taskRule = TaskRuleFilter(priorities: const {TaskPriority.high}, tags: const {'service'});
       filters.layers = const LayerFilter(hidden: {TimelineLayer.setups});
@@ -308,9 +335,17 @@ void main() {
         elevationGain: NumericRange(min: 500),
       );
 
-      expect(labels(FilterSection.values.toSet()), ['Bike 1', 'Bookmarked', '2 Tags', '1 Priority', '1 Filter']);
+      expect(labels(FilterSection.values.toSet()), [
+        'Bike 1',
+        '2024-05-10 – 2024-05-12',
+        'Bookmarked',
+        '2 Tags',
+        '1 Priority',
+        '1 Filter',
+      ]);
       expect(labels(FilterSection.values.toSet(), stravaActive: true), [
         'Bike 1',
+        '2024-05-10 – 2024-05-12',
         'Bookmarked',
         '2 Tags',
         '1 Priority',
@@ -340,6 +375,22 @@ void main() {
     });
   });
 
+  group('dateRangeLabel', () {
+    String? label(LocalDateRange? range) => FilterActions.dateRangeLabel(range, dateFormat: 'yyyy-MM-dd');
+
+    test('is null without a range', () {
+      expect(label(null), null);
+    });
+
+    test('names both days of a range', () {
+      expect(label(dateRange), '2024-05-10 – 2024-05-12');
+    });
+
+    test('names a single day once', () {
+      expect(label(LocalDateRange(start: DateTime(2024, 5, 10), end: DateTime(2024, 5, 10))), '2024-05-10');
+    });
+  });
+
   group('clear', () {
     Future<void> clear(WidgetTester tester, Set<FilterSection> sections) async {
       await tester.pumpWidget(
@@ -357,9 +408,10 @@ void main() {
       filters.taskRule = TaskRuleFilter(priorities: const {TaskPriority.high}, tags: const {'service'});
       filters.layers = const LayerFilter(hidden: {TimelineLayer.setups, TimelineLayer.tasks});
       filters.activity = activityRanges;
+      filters.dateRange = dateRange;
     }
 
-    testWidgets('resets the timeline sections and leaves the task and activity criteria', (tester) async {
+    testWidgets('resets the timeline sections and leaves the task, activity and date criteria', (tester) async {
       setEverything();
       await clear(tester, timelineSections);
 
@@ -367,6 +419,17 @@ void main() {
       expect(filters.setup, const SetupFilter());
       expect(filters.layers, const LayerFilter());
       expect(filters.taskRule, TaskRuleFilter(priorities: const {TaskPriority.high}, tags: const {'service'}));
+      expect(filters.activity, activityRanges);
+      expect(filters.dateRange, dateRange);
+    });
+
+    testWidgets('resets the date range and nothing else', (tester) async {
+      setEverything();
+      await clear(tester, const {FilterSection.dateRange});
+
+      expect(filters.dateRange, null);
+      expect(filters.bikeId, 'b1');
+      expect(filters.setup, const SetupFilter(tags: {'race'}, bookmarkedOnly: true));
       expect(filters.activity, activityRanges);
     });
 
@@ -418,6 +481,7 @@ void main() {
       expect(filters.taskRule, TaskRuleFilter());
       expect(filters.layers, const LayerFilter());
       expect(filters.activity, const ActivityFilter());
+      expect(filters.dateRange, null);
     });
 
     testWidgets('notifies once per changed filter object', (tester) async {
@@ -428,10 +492,10 @@ void main() {
       changes = 0;
 
       await clear(tester, FilterSection.values.toSet());
-      expect(changes, 5);
+      expect(changes, 6);
 
       await clear(tester, FilterSection.values.toSet());
-      expect(changes, 5);
+      expect(changes, 6);
     });
   });
 }

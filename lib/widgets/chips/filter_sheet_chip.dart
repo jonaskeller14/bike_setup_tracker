@@ -12,6 +12,7 @@ class FilterSheetChip extends StatelessWidget {
   static const garageList = FilterSheetChip._({FilterSection.bike});
   static const setupList = FilterSheetChip._({
     FilterSection.bike,
+    FilterSection.dateRange,
     FilterSection.setups,
     FilterSection.activity,
     FilterSection.timelineLayers,
@@ -21,17 +22,23 @@ class FilterSheetChip extends StatelessWidget {
   static const taskList = FilterSheetChip._({FilterSection.bike, FilterSection.taskPriority, FilterSection.taskTags});
   static const map = FilterSheetChip._({
     FilterSection.bike,
+    FilterSection.dateRange,
     FilterSection.setups,
     FilterSection.activity,
     FilterSection.mapLayers,
   });
   static const calendar = FilterSheetChip._({
     FilterSection.bike,
+    FilterSection.dateRange,
     FilterSection.setups,
     FilterSection.activity,
     FilterSection.timelineLayers,
   });
-  static const componentDetailsPage = FilterSheetChip._({FilterSection.bike, FilterSection.setups});
+  static const componentDetailsPage = FilterSheetChip._({
+    FilterSection.bike,
+    FilterSection.dateRange,
+    FilterSection.setups,
+  });
   static const bikeDetailsPage = FilterSheetChip._({FilterSection.setups});
 
   final Set<FilterSection> sections;

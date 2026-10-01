@@ -6,16 +6,18 @@ import '../../services/subscription_service.dart';
 import '../../utils/filter_actions.dart';
 import 'filter/activity_filter_section.dart';
 import 'filter/bike_filter_section.dart';
+import 'filter/date_range_filter_section.dart';
 import 'filter/layer_filter_section.dart';
 import 'filter/setup_filter_section.dart';
 import 'filter/task_priority_filter_section.dart';
 import 'filter/task_tags_filter_section.dart';
 import 'sheet_header.dart';
 
-enum FilterSection { bike, setups, taskPriority, taskTags, activity, mapLayers, timelineLayers }
+enum FilterSection { bike, dateRange, setups, taskPriority, taskTags, activity, mapLayers, timelineLayers }
 
 Widget _sectionWidget(FilterSection section) => switch (section) {
   FilterSection.bike => const BikeFilterSection(),
+  FilterSection.dateRange => const DateRangeFilterSection(),
   FilterSection.setups => const SetupFilterSection(),
   FilterSection.taskPriority => const TaskPriorityFilterSection(),
   FilterSection.taskTags => const TaskTagsFilterSection(),

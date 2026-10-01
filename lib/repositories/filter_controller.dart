@@ -1,12 +1,13 @@
 import '../models/bike.dart';
 import '../models/filters/activity_filter.dart';
 import '../models/filters/layer_filter.dart';
+import '../models/filters/local_date_range.dart';
 import '../models/filters/setup_filter.dart';
 import '../models/filters/task_rule_filter.dart';
 import '../models/strava/strava_activity_query.dart';
 
-/// Owns the filter criteria: the selected bike plus one immutable filter object
-/// per domain.
+/// Owns the filter criteria: the selected bike, the date range and one
+/// immutable filter object per domain.
 ///
 /// The owning repository is told about changes through [onChanged] and derives
 /// the filtered results from the criteria.
@@ -17,12 +18,16 @@ class FilterController {
   FilterController({required this.onChanged});
 
   String? _bikeId;
+  LocalDateRange? _dateRange;
   SetupFilter _setup = const SetupFilter();
   TaskRuleFilter _taskRule = TaskRuleFilter();
   LayerFilter _layers = const LayerFilter();
   ActivityFilter _activity = const ActivityFilter();
 
   String? get bikeId => _bikeId;
+
+  /// `null` shows the entries of every day.
+  LocalDateRange? get dateRange => _dateRange;
   SetupFilter get setup => _setup;
   TaskRuleFilter get taskRule => _taskRule;
   LayerFilter get layers => _layers;
@@ -33,6 +38,12 @@ class FilterController {
     final next = bikeId == _bikeId ? null : bikeId;
     if (next == _bikeId) return;
     _bikeId = next;
+    onChanged();
+  }
+
+  set dateRange(LocalDateRange? value) {
+    if (value == _dateRange) return;
+    _dateRange = value;
     onChanged();
   }
 
@@ -64,7 +75,7 @@ class FilterController {
   /// [bikeId] resolves to. `null` when that bike has no linked Strava gear: it
   /// owns no activities, so there is nothing to query.
   StravaActivityQuery? stravaQuery(Bike? selectedBike) {
-    final query = StravaActivityQuery(activity: _activity);
+    final query = StravaActivityQuery(activity: _activity, dateRange: _dateRange);
     if (selectedBike == null) return query;
     final gearId = selectedBike.stravaGear;
     return gearId == null ? null : query.copyWith(gearId: gearId);

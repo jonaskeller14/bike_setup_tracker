@@ -1,6 +1,7 @@
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/filters/activity_filter.dart';
+import 'package:bike_setup_tracker/models/filters/local_date_range.dart';
 import 'package:bike_setup_tracker/models/filters/numeric_range.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
@@ -242,6 +243,112 @@ void main() {
 
         expect((await repository.getFilteredStravaActivitiesWithPosition()).map((a) => a.id), [5, 4, 1]);
         expect((await repository.searchStravaActivities("Activity")).map((a) => a.id), unorderedEquals([1, 4, 5]));
+      });
+    });
+
+    group("date range", () {
+      LocalDateRange february({required int from, required int to}) =>
+          LocalDateRange(start: DateTime(2023, 2, from), end: DateTime(2023, 2, to));
+
+      test("Pagination walks only the activities in the date range", () async {
+        repository.filters.dateRange = february(from: 2, to: 4);
+        await pumpEventQueue();
+
+        expect(repository.stravaActivities.keys, [5, 4]);
+        expect(repository.hasMoreStrava, true);
+
+        await repository.loadMoreStravaActivities();
+        await pumpEventQueue();
+        expect(repository.stravaActivities.keys, [5, 4, 3]);
+        expect(repository.hasMoreStrava, false);
+      });
+
+      test("A range that ends on a full page still ends with hasMore == false", () async {
+        repository.filters.dateRange = february(from: 1, to: 4);
+        await pumpEventQueue();
+        await repository.loadMoreStravaActivities();
+        await pumpEventQueue();
+        expect(repository.stravaActivities.keys, [5, 4, 3, 2]);
+        expect(repository.hasMoreStrava, true);
+
+        await repository.loadMoreStravaActivities();
+        await pumpEventQueue();
+        expect(repository.stravaActivities.keys, [5, 4, 3, 2]);
+        expect(repository.hasMoreStrava, false);
+      });
+
+      test("Changing or clearing the range re-pages from the top", () async {
+        repository.filters.dateRange = february(from: 1, to: 5);
+        await pumpEventQueue();
+        await repository.loadMoreStravaActivities();
+        await pumpEventQueue();
+        expect(repository.stravaActivities.length, 4);
+
+        repository.filters.dateRange = february(from: 1, to: 2);
+        await pumpEventQueue();
+        expect(repository.stravaActivities.keys, [3, 2]);
+
+        repository.filters.dateRange = LocalDateRange(start: DateTime(2023, 1, 1), end: DateTime(2023, 1, 1));
+        await pumpEventQueue();
+        expect(repository.stravaActivities.keys, [1]);
+        expect(repository.hasMoreStrava, false);
+
+        repository.filters.dateRange = null;
+        await pumpEventQueue();
+        expect(repository.stravaActivities.keys, [6, 5]);
+        expect(repository.hasMoreStrava, true);
+      });
+
+      test("A range without activities gives an empty window", () async {
+        repository.filters.dateRange = LocalDateRange(start: DateTime(2022), end: DateTime(2022, 12, 31));
+        await pumpEventQueue();
+
+        expect(repository.stravaActivities, isEmpty);
+        expect(repository.hasMoreStrava, false);
+      });
+
+      test("Results of a superseded range are dropped", () async {
+        repository.filters.dateRange = february(from: 4, to: 5);
+        repository.filters.dateRange = february(from: 1, to: 2);
+        await pumpEventQueue();
+
+        expect(repository.stravaActivities.keys, [3, 2]);
+      });
+
+      test("A range narrows within the selected bike and the activity ranges", () async {
+        await repository.setStravaActivities([
+          activity(1, DateTime(2023, 1, 1), "gear_old", distance: 40000),
+          activity(2, DateTime(2023, 2, 1), "gear_new", distance: 10000),
+          activity(3, DateTime(2023, 2, 2), "gear_new", distance: 20000),
+          activity(4, DateTime(2023, 2, 3), "gear_new", distance: 30000),
+          activity(5, DateTime(2023, 2, 4), "gear_new", distance: 40000),
+          activity(7, DateTime(2023, 2, 3), "gear_old", distance: 30000),
+        ]);
+        await pumpEventQueue();
+
+        repository.filters.toggleBike(bikeNew.id);
+        repository.filters.activity = const ActivityFilter(distance: NumericRange(min: 20000));
+        repository.filters.dateRange = february(from: 1, to: 3);
+        await pumpEventQueue();
+        await repository.loadMoreStravaActivities();
+        await pumpEventQueue();
+
+        // 2 is too short, 5 too late and 7 on the other bike.
+        expect(repository.stravaActivities.keys, [4, 3]);
+        expect(repository.hasMoreStrava, false);
+      });
+
+      test("Map positions and search follow the date range", () async {
+        await repository.setStravaActivities([
+          for (var day = 1; day <= 5; day++) activity(day + 1, DateTime(2023, 2, day), "gear_new", positioned: true),
+        ]);
+        await pumpEventQueue();
+
+        repository.filters.dateRange = february(from: 2, to: 3);
+        await pumpEventQueue();
+
+        expect((await repository.getFilteredStravaActivitiesWithPosition()).map((a) => a.id), [4, 3]);
+        expect((await repository.searchStravaActivities("Activity")).map((a) => a.id), unorderedEquals([3, 4]));
       });
     });
   });

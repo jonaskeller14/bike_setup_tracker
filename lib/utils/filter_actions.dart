@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../models/app_settings.dart';
 import '../models/filters/activity_filter.dart';
 import '../models/filters/layer_filter.dart';
+import '../models/filters/local_date_range.dart';
 import '../models/filters/numeric_range.dart';
 import '../models/filters/setup_filter.dart';
 import '../models/task/task_rule.dart';
@@ -24,6 +25,8 @@ class FilterActions {
   }) {
     bool enabled(FilterSection section) => switch (section) {
       FilterSection.bike => true,
+      // Not shipped yet: release builds do not offer the date range.
+      FilterSection.dateRange => kDebugMode,
       FilterSection.setups => appSettings.enableSetupTags || appSettings.enableSetupBookmark,
       FilterSection.taskPriority => appSettings.enableTaskPriority,
       FilterSection.taskTags => appSettings.enableTaskTags,
@@ -82,6 +85,10 @@ class FilterActions {
     final enabled = enabledSections(sections, appSettings: appSettings, stravaActive: stravaActive);
     final setups = enabled.contains(FilterSection.setups);
 
+    final dateLabel = dateRangeLabel(
+      enabled.contains(FilterSection.dateRange) ? filters.dateRange : null,
+      dateFormat: appSettings.dateFormat,
+    );
     final setupTagCount = setups && appSettings.enableSetupTags ? filters.setup.tags.length : 0;
     final taskTagCount = enabled.contains(FilterSection.taskTags) ? filters.taskRule.tags.length : 0;
     final tagCount = setupTagCount + taskTagCount;
@@ -102,6 +109,7 @@ class FilterActions {
     return [
       if (enabled.contains(FilterSection.bike) && filters.bikeId != null)
         appRepository.bikes[filters.bikeId]?.name ?? '',
+      ?dateLabel,
       if (setups && appSettings.enableSetupBookmark && filters.setup.bookmarkedOnly) "Bookmarked",
       if (tagCount > 0) "$tagCount ${tagCount != 1 ? 'Tags' : 'Tag'}",
       if (enabled.contains(FilterSection.taskPriority) && filters.taskRule.hasActivePriorities)
@@ -129,12 +137,22 @@ class FilterActions {
     return null;
   }
 
+  /// [range] with its days in the user's [dateFormat]: "2024-05-01 – 2024-05-31",
+  /// or the one date of a single day. `null` without a range.
+  static String? dateRangeLabel(LocalDateRange? range, {required String dateFormat}) {
+    if (range == null) return null;
+    final format = DateFormat(dateFormat);
+    final start = format.format(range.start);
+    return range.start == range.end ? start : "$start – ${format.format(range.end)}";
+  }
+
   /// Resets every criterion the [sections] own, whether or not its feature is
   /// on. A layer that only another section offers keeps its state.
   static void clear(BuildContext context, Set<FilterSection> sections) {
     final filters = context.read<AppRepository>().filters;
 
     if (sections.contains(FilterSection.bike)) filters.toggleBike(null);
+    if (sections.contains(FilterSection.dateRange)) filters.dateRange = null;
     if (sections.contains(FilterSection.setups)) filters.setup = const SetupFilter();
     filters.taskRule = filters.taskRule.copyWith(
       priorities: sections.contains(FilterSection.taskPriority) ? TaskPriority.values.toSet() : null,

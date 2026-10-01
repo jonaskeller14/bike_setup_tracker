@@ -80,6 +80,10 @@ void main() {
     expect(elevationSlider(tester).values, const RangeValues(500, 3000));
     expect(find.text('10–50 km'), findsOneWidget);
     expect(find.text('≥ 500 m'), findsOneWidget);
+
+    final rightEdge = tester.getTopRight(find.byType(ActivityFilterSection)).dx;
+    expect(tester.getTopRight(find.text('10–50 km')).dx, rightEdge);
+    expect(tester.getTopRight(find.text('≥ 500 m')).dx, rightEdge);
   });
 
   testWidgets('a drag previews the range and writes it on release only', (tester) async {

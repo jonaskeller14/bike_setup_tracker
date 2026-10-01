@@ -1,6 +1,7 @@
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
+import 'package:bike_setup_tracker/models/filters/local_date_range.dart';
 import 'package:bike_setup_tracker/models/filters/setup_filter.dart';
 import 'package:bike_setup_tracker/models/filters/task_rule_filter.dart';
 import 'package:bike_setup_tracker/models/person.dart';
@@ -51,6 +52,7 @@ void main() {
     Map<String, TaskEntry> taskEntries = const {},
     SetupFilter setupFilter = const SetupFilter(),
     TaskRuleFilter? taskRuleFilter,
+    LocalDateRange? dateRange,
   }) {
     final allComponents = rawComponents ?? components;
     return FilteredView(
@@ -64,6 +66,7 @@ void main() {
       taskEntries: taskEntries,
       hierarchy: ComponentHierarchyResolver(allComponents, deletedComponentIds: const {"trashed"}),
       bikeId: bikeId,
+      dateRange: dateRange,
       setupFilter: setupFilter,
       taskRuleFilter: taskRuleFilter ?? TaskRuleFilter(),
     );
@@ -276,6 +279,117 @@ void main() {
     test("a selected bike matches as origin or as target", () {
       expect(ids(build(rawComponents: moving, bikeId: "b1")), ["toB2", "added"]);
       expect(ids(build(rawComponents: moving, bikeId: "b2")), ["toB2", "off"]);
+    });
+  });
+
+  group("date range", () {
+    // May 10th to 12th. Every entry kind has one entry just outside and one
+    // just inside each end, named after where it falls.
+    final range = LocalDateRange(start: DateTime(2024, 5, 10), end: DateTime(2024, 5, 12));
+    final moments = {
+      "before": DateTime(2024, 5, 9, 23, 59),
+      "first": DateTime(2024, 5, 10),
+      "last": DateTime(2024, 5, 12, 23, 59),
+      "after": DateTime(2024, 5, 13),
+    };
+
+    Setup setup(String id, DateTime local, {String bike = "b1", DateTime? utc}) => Setup(
+      id: id,
+      tags: const {},
+      datetime: utc ?? local.toUtc(),
+      datetimeLocal: local,
+      bike: bike,
+      person: null,
+      bikeAdjustmentValues: const {},
+      personAdjustmentValues: const {},
+    );
+
+    final setups = {for (final MapEntry(:key, :value) in moments.entries) key: setup(key, value)};
+    final ratingEntries = {
+      for (final MapEntry(:key, :value) in moments.entries)
+        key: RatingEntry(id: key, bike: "b1", setupId: "first", dateTimeUTC: value.toUtc(), dateTimeLocal: value),
+    };
+    final taskRules = byId([
+      TaskRule(id: "done", name: "done", tags: const {}),
+      TaskRule(id: "open", name: "open", tags: const {}),
+    ], (rule) => rule.id);
+    final taskEntries = {
+      for (final MapEntry(:key, :value) in moments.entries)
+        key: TaskEntry(id: key, name: key, dateTimeUTC: value.toUtc(), dateTimeLocal: value, taskRule: "done"),
+    };
+    // The mover swaps between the two bikes at every moment.
+    final moving = byId([
+      component("mover", ComponentType.other, [
+        Installation.sinceBeginning(parent: "b1"),
+        for (final (index, MapEntry(:key, :value)) in moments.entries.indexed)
+          Installation(parent: index.isEven ? "b2" : "b1", id: key, dateTimeUTC: value.toUtc(), dateTimeLocal: value),
+      ]),
+    ], (component) => component.id);
+
+    FilteredView view({LocalDateRange? dateRange, String? bikeId}) => build(
+      rawComponents: moving,
+      setups: setups,
+      ratingEntries: ratingEntries,
+      taskRules: taskRules,
+      taskEntries: taskEntries,
+      dateRange: dateRange,
+      bikeId: bikeId,
+    );
+
+    List<String> installationIds(FilteredView view) =>
+        view.installations.map((resolved) => resolved.installation.id).toList();
+
+    test("without a range every entry is kept", () {
+      final unfiltered = view();
+
+      expect(unfiltered.setups.keys, moments.keys);
+      expect(unfiltered.ratingEntries.keys, moments.keys);
+      expect(unfiltered.taskEntries.keys, moments.keys);
+      expect(installationIds(unfiltered), moments.keys);
+    });
+
+    test("narrows every timeline entry kind to the days of the range, both ends inclusive", () {
+      final filtered = view(dateRange: range);
+
+      expect(filtered.setups.keys, ["first", "last"]);
+      expect(filtered.ratingEntries.keys, ["first", "last"]);
+      expect(filtered.taskEntries.keys, ["first", "last"]);
+      expect(installationIds(filtered), ["first", "last"]);
+    });
+
+    test("an installation in range keeps the origin it had before the range", () {
+      final first = view(dateRange: range).installations.first;
+
+      expect((first.installation.parent, first.originParent, first.isInitial), ("b1", "b2", false));
+    });
+
+    test("compares the local day, not the UTC instant", () {
+      // Recorded late on the 12th in a time zone behind UTC, and early on the
+      // 10th in one ahead of it.
+      final floating = byId([
+        setup("lateEvening", DateTime(2024, 5, 12, 22), utc: DateTime.utc(2024, 5, 13, 5)),
+        setup("earlyMorning", DateTime(2024, 5, 10, 2), utc: DateTime.utc(2024, 5, 9, 16)),
+        setup("utcInRangeOnly", DateTime(2024, 5, 13, 1), utc: DateTime.utc(2024, 5, 12, 23)),
+      ], (setup) => setup.id);
+
+      expect(build(setups: floating, dateRange: range).setups.keys, ["lateEvening", "earlyMorning"]);
+    });
+
+    test("combines with the bike scope", () {
+      final mixed = {...setups, "otherBike": setup("otherBike", DateTime(2024, 5, 11), bike: "b2")};
+
+      expect(build(setups: mixed, dateRange: range).setups.keys, ["first", "last", "otherBike"]);
+      expect(build(setups: mixed, dateRange: range, bikeId: "b1").setups.keys, ["first", "last"]);
+      expect(installationIds(view(dateRange: range, bikeId: "b1")), ["first", "last"]);
+    });
+
+    test("does not narrow task rules, and a rule whose entries are hidden stays done", () {
+      final outside = view(dateRange: LocalDateRange(start: DateTime(2020), end: DateTime(2020, 12, 31)));
+
+      expect(outside.taskEntries, isEmpty);
+      expect(outside.taskRulesInScope.keys, ["done", "open"]);
+      expect(outside.taskRules.keys, ["done", "open"]);
+      expect(outside.openTaskRules.keys, ["open"]);
     });
   });
 

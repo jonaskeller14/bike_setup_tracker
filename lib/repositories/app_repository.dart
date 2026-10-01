@@ -423,6 +423,7 @@ class AppRepository extends ChangeNotifier {
         taskEntries: _taskEntries,
         hierarchy: componentHierarchy,
         bikeId: filters.bikeId,
+        dateRange: filters.dateRange,
         setupFilter: filters.setup,
         taskRuleFilter: filters.taskRule,
       );

@@ -101,21 +101,22 @@ class _RangeFilterState extends State<_RangeFilter> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Flexible(child: Text(widget.label, maxLines: 1, overflow: TextOverflow.ellipsis)),
             const SizedBox(width: 8),
-            Expanded(
+            Flexible(
               child: Text(
                 rangeLabel ?? "Any",
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.end,
                 style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
               ),
             ),
           ],
         ),
         RangeSlider(
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 0),
           values:
               dragging ??
               RangeValues(_thumb(widget.range.min, open: 0), _thumb(widget.range.max, open: widget.sliderMax)),

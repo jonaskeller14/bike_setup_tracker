@@ -1,6 +1,7 @@
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/filters/layer_filter.dart';
+import 'package:bike_setup_tracker/models/filters/local_date_range.dart';
 import 'package:bike_setup_tracker/models/filters/setup_filter.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/repositories/filter_controller.dart';
@@ -171,8 +172,62 @@ void main() {
       filterBookmarked();
       await tester.pumpWidget(createWidgetUnderTest(bookmarkChip));
 
-      expect(find.text('All Bikes'), findsOneWidget);
+      // Not "All Bikes": debug builds also offer the date range on this page.
+      expect(find.text('Filter'), findsOneWidget);
       expect(find.text('Bookmarked'), findsNothing);
+    });
+  });
+
+  group('FilterSheetChip label — date range filter', () {
+    void selectDays() =>
+        filters.dateRange = LocalDateRange(start: DateTime(2024, 5, 10), end: DateTime(2024, 5, 12));
+
+    testWidgets('shows the range in the user\'s date format', (tester) async {
+      appSettings.dateFormat = 'dd.MM.yyyy';
+      selectDays();
+      await tester.pumpWidget(createWidgetUnderTest(FilterSheetChip.setupList));
+
+      expect(find.text('10.05.2024 – 12.05.2024'), findsOneWidget);
+    });
+
+    testWidgets('combines bike name, date range and tag count', (tester) async {
+      appSettings.enableSetupTags = true;
+      selectBike();
+      selectDays();
+      selectTags({'t1'});
+      await tester.pumpWidget(createWidgetUnderTest(FilterSheetChip.componentDetailsPage));
+
+      expect(find.text('Bike 1 + 2024-05-10 – 2024-05-12 + 1 Tag'), findsOneWidget);
+    });
+
+    testWidgets('ignores the range on a page without a date range section', (tester) async {
+      selectDays();
+      await tester.pumpWidget(createWidgetUnderTest(FilterSheetChip.taskList));
+
+      expect(find.text('Filter'), findsOneWidget);
+    });
+
+    testWidgets('a long label ellipsizes on a narrow screen', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(280, 600));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      appSettings.enableSetupTags = true;
+      selectBike();
+      selectDays();
+      selectTags({'t1', 't2'});
+      await tester.pumpWidget(createWidgetUnderTest(FilterSheetChip.setupList));
+
+      expect(tester.takeException(), null);
+      expect(find.text('Bike 1 + 2024-05-10 – 2024-05-12 + 2 Tags'), findsOneWidget);
+    });
+
+    testWidgets('resetting clears the range', (tester) async {
+      selectDays();
+      await tester.pumpWidget(createWidgetUnderTest(FilterSheetChip.map));
+
+      tester.widget<FilterChip>(find.byType(FilterChip)).onDeleted!();
+      await tester.pumpAndSettle();
+
+      expect(filters.dateRange, null);
     });
   });
 
@@ -308,6 +363,31 @@ void main() {
 
       expect(find.text('Strava Activities'), findsOneWidget);
       expect(find.text('Tasks'), findsNothing);
+    });
+
+    testWidgets('offers the date range on the pages that show timeline entries', (tester) async {
+      for (final chip in [
+        FilterSheetChip.setupList,
+        FilterSheetChip.map,
+        FilterSheetChip.calendar,
+        FilterSheetChip.componentDetailsPage,
+      ]) {
+        await openSheet(tester, chip);
+        expect(find.text('Any date'), findsOneWidget);
+
+        await tester.pumpWidget(const SizedBox.shrink());
+      }
+    });
+
+    testWidgets('does not offer the date range on the other pages', (tester) async {
+      appSettings.enableSetupBookmark = true;
+      for (final chip in [FilterSheetChip.garageList, FilterSheetChip.taskList, FilterSheetChip.bikeDetailsPage]) {
+        await openSheet(tester, chip);
+        expect(find.text('Filter'), findsWidgets);
+        expect(find.text('Any date'), findsNothing);
+
+        await tester.pumpWidget(const SizedBox.shrink());
+      }
     });
 
     testWidgets('offers the activity ranges while Strava is active', (tester) async {

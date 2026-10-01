@@ -49,6 +49,7 @@ void main() {
         taskEntries: const {},
         hierarchy: ComponentHierarchyResolver(const {}),
         bikeId: null,
+        dateRange: null,
         setupFilter: const SetupFilter(),
         taskRuleFilter: TaskRuleFilter(),
       ),

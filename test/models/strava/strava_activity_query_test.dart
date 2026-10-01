@@ -1,4 +1,5 @@
 import 'package:bike_setup_tracker/models/filters/activity_filter.dart';
+import 'package:bike_setup_tracker/models/filters/local_date_range.dart';
 import 'package:bike_setup_tracker/models/filters/numeric_range.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity_query.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -59,6 +60,41 @@ void main() {
 
       expect(query.copyWith(activity: hilly), const StravaActivityQuery(gearId: "g1", activity: hilly));
       expect(query.copyWith(activity: hilly).copyWith(gearId: "g2").activity, hilly);
+    });
+
+    test("defaults to the activities of every day", () {
+      expect(const StravaActivityQuery().dateRange, null);
+    });
+
+    test("differs per date range, so a changed range re-pages", () {
+      final may = LocalDateRange(start: DateTime(2024, 5), end: DateTime(2024, 5, 31));
+      final june = LocalDateRange(start: DateTime(2024, 6), end: DateTime(2024, 6, 30));
+
+      expect(StravaActivityQuery(dateRange: may), isNot(const StravaActivityQuery()));
+      expect(StravaActivityQuery(gearId: "g1", dateRange: may), isNot(StravaActivityQuery(gearId: "g1", dateRange: june)));
+    });
+
+    test("is equal by value with a date range", () {
+      final query = StravaActivityQuery(
+        gearId: "g1",
+        dateRange: LocalDateRange(start: DateTime(2024, 5), end: DateTime(2024, 5, 31)),
+      );
+      final other = StravaActivityQuery(
+        gearId: "g1",
+        dateRange: LocalDateRange(start: DateTime(2024, 5), end: DateTime(2024, 5, 31)),
+      );
+
+      expect(query, other);
+      expect(query.hashCode, other.hashCode);
+    });
+
+    test("copyWith replaces the date range and keeps the gear and the activity criteria", () {
+      const hilly = ActivityFilter(elevationGain: NumericRange(min: 1000));
+      const query = StravaActivityQuery(gearId: "g1", activity: hilly);
+      final may = LocalDateRange(start: DateTime(2024, 5), end: DateTime(2024, 5, 31));
+
+      expect(query.copyWith(dateRange: may), StravaActivityQuery(gearId: "g1", activity: hilly, dateRange: may));
+      expect(query.copyWith(dateRange: may).copyWith(gearId: "g2").dateRange, may);
     });
   });
 }

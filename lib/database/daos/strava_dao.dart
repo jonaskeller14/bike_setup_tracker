@@ -6,6 +6,7 @@ import '../../models/filters/numeric_range.dart';
 import '../../models/strava/strava_activity_query.dart';
 import '../../utils/text_search.dart';
 import '../app_database.dart';
+import '../converters/local_floating_datetime_converter.dart';
 import '../tables/bikes.dart';
 import '../tables/installations.dart';
 import '../tables/strava/strava_activities.dart';
@@ -262,6 +263,17 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
     if (gearId != null) statement.where((t) => t.gearId.equals(gearId));
     _whereInRange(statement, (t) => t.distance, query.activity.distance);
     _whereInRange(statement, (t) => t.totalElevationGain, query.activity.elevationGain);
+    final dateRange = query.dateRange;
+    if (dateRange != null) {
+      // The column holds the local wall-clock time as a UTC face value, so the
+      // day bounds go through its converter.
+      final toSql = const LocalFloatingDateTimeConverter().toSql;
+      statement.where(
+        (t) =>
+            t.startDateLocal.isBiggerOrEqualValue(toSql(dateRange.start)) &
+            t.startDateLocal.isSmallerThanValue(toSql(dateRange.endExclusive)),
+      );
+    }
     return statement;
   }
 

@@ -2,6 +2,7 @@ import '../models/bike.dart';
 import '../models/component/component.dart';
 import '../models/component/installation.dart';
 import '../models/component/resolved_installation.dart';
+import '../models/filters/local_date_range.dart';
 import '../models/filters/setup_filter.dart';
 import '../models/filters/task_rule_filter.dart';
 import '../models/person.dart';
@@ -31,6 +32,7 @@ class FilteredView {
   final Map<String, TaskEntry> _taskEntries;
   final ComponentHierarchyResolver _hierarchy;
   final String? _bikeId;
+  final LocalDateRange? _dateRange;
   final SetupFilter _setupFilter;
   final TaskRuleFilter _taskRuleFilter;
 
@@ -45,9 +47,13 @@ class FilteredView {
     required this._taskEntries,
     required this._hierarchy,
     required this._bikeId,
+    required this._dateRange,
     required this._setupFilter,
     required this._taskRuleFilter,
   });
+
+  /// The date range narrows the dated entries by their local calendar day.
+  bool _inDateRange(DateTime local) => _dateRange?.contains(local) ?? true;
 
   late final Map<String, Bike> bikes = _bikeId == null
       ? _bikes
@@ -63,12 +69,17 @@ class FilteredView {
 
   late final Map<String, Setup> setups = Map.fromEntries(
     _setups.entries.where(
-      (entry) => (_bikeId == null || entry.value.bike == _bikeId) && _setupFilter.matches(entry.value),
+      (entry) =>
+          (_bikeId == null || entry.value.bike == _bikeId) &&
+          _inDateRange(entry.value.datetimeLocal) &&
+          _setupFilter.matches(entry.value),
     ),
   );
 
   late final Map<String, RatingEntry> ratingEntries = Map.fromEntries(
-    _ratingEntries.entries.where((entry) => _bikeId == null || entry.value.bike == _bikeId),
+    _ratingEntries.entries.where(
+      (entry) => (_bikeId == null || entry.value.bike == _bikeId) && _inDateRange(entry.value.dateTimeLocal),
+    ),
   );
 
   late final Map<String, Person> persons = _bikeId == null
@@ -105,18 +116,20 @@ class FilteredView {
     taskRulesInScope.entries.where((entry) => _taskRuleFilter.matches(entry.value)),
   );
 
-  /// The [taskRules] that have no entry yet.
+  /// The [taskRules] that have no entry yet, whatever the date range hides.
   late final Map<String, TaskRule> openTaskRules = () {
     final rulesWithEntries = {for (final entry in _taskEntries.values) entry.taskRule};
     return Map.fromEntries(taskRules.entries.where((entry) => !rulesWithEntries.contains(entry.key)));
   }();
 
   late final Map<String, TaskEntry> taskEntries = Map.fromEntries(
-    _taskEntries.entries.where((entry) => taskRules.containsKey(entry.value.taskRule)),
+    _taskEntries.entries.where(
+      (entry) => taskRules.containsKey(entry.value.taskRule) && _inDateRange(entry.value.dateTimeLocal),
+    ),
   );
 
-  /// Every installation change that touches the bike scope, as its origin or
-  /// its target.
+  /// Every installation change in the date range that touches the bike scope,
+  /// as its origin or its target.
   late final List<ResolvedInstallation> installations = () {
     final result = <ResolvedInstallation>[];
     for (final component in _components.values) {
@@ -126,6 +139,7 @@ class FilteredView {
       for (int i = 0; i < sorted.length; i++) {
         final installation = sorted[i];
         if (installation.dateTimeUTC.millisecondsSinceEpoch == 0) continue;
+        if (!_inDateRange(installation.dateTimeLocal)) continue;
 
         final previousInstallation = i > 0 ? sorted[i - 1] : null;
         final targetBike = _hierarchy.bikeAt(component.id, installation.dateTimeUTC);

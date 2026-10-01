@@ -1,4 +1,5 @@
 import 'package:bike_setup_tracker/database/app_database.dart';
+import 'package:bike_setup_tracker/models/filters/local_date_range.dart';
 import 'package:bike_setup_tracker/models/task/task_entry.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
@@ -90,6 +91,36 @@ void main() {
       await repository.addTaskEntries([entryAgo(rule: rule, days: 1)]);
       await pumpEventQueue();
       expect(repository.getTaskRuleStatus(rule).type, TaskStatusType.upcoming);
+    });
+
+    test("a date range that hides the newest entry leaves the status untouched", () async {
+      final rule = TaskRule(
+        name: "Wash",
+        tags: const {},
+        interval: const DurationThreshold(Duration(days: 10)),
+      );
+      await repository.addTaskRules([rule]);
+      await repository.addTaskEntries([entryAgo(rule: rule, days: 100), entryAgo(rule: rule, days: 1)]);
+      await pumpEventQueue();
+      final unfiltered = repository.getTaskRuleStatus(rule);
+      expect(unfiltered.type, TaskStatusType.upcoming);
+
+      // Only the old entry is inside the range, so the timeline shows just that one.
+      final oldDay = DateTime.now().subtract(const Duration(days: 100));
+      repository.filters.dateRange = LocalDateRange(start: oldDay, end: oldDay);
+      expect(repository.view.taskEntries.length, 1);
+
+      final filtered = repository.getTaskRuleStatus(rule);
+      expect(filtered.type, unfiltered.type);
+      expect(filtered.progress, closeTo(unfiltered.progress, 1e-3));
+      expect(repository.view.taskRules.keys, [rule.id]);
+      expect(repository.view.openTaskRules, isEmpty);
+
+      // Nor does a range that hides every entry turn the rule into an open one.
+      repository.filters.dateRange = LocalDateRange(start: DateTime(2000), end: DateTime(2000));
+      expect(repository.view.taskEntries, isEmpty);
+      expect(repository.getTaskRuleStatus(rule).type, unfiltered.type);
+      expect(repository.view.openTaskRules, isEmpty);
     });
   });
 }

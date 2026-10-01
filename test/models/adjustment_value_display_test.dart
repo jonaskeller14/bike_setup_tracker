@@ -46,21 +46,21 @@ void main() {
     });
 
     group('CategoricalValue (multi-select)', () {
-      test('joins values with a comma', () => expect(CategoricalValue(['Front', 'Rear']).display, 'Front, Rear'));
-      test('single-element list shows just the value', () => expect(CategoricalValue(['Front']).display, 'Front'));
-      test('empty list returns dash', () => expect(CategoricalValue([]).display, '-'));
+      test('joins values with a comma', () => expect(CategoricalValue(const ['Front', 'Rear']).display, 'Front, Rear'));
+      test('single-element list shows just the value', () => expect(CategoricalValue(const ['Front']).display, 'Front'));
+      test('empty list returns dash', () => expect(CategoricalValue(const []).display, '-'));
     });
 
     group('CategoricalValue (counted, grouped rendering)', () {
       test('groups repeats with a count suffix', () {
-        expect(CategoricalValue(['Bar', 'Bar', 'Gel', 'Gel', 'Gel']).display, 'Bar (2), Gel (3)');
+        expect(CategoricalValue(const ['Bar', 'Bar', 'Gel', 'Gel', 'Gel']).display, 'Bar (2), Gel (3)');
       });
-      test('omits (1) for a non-repeated element', () => expect(CategoricalValue(['Bottle']).display, 'Bottle'));
+      test('omits (1) for a non-repeated element', () => expect(CategoricalValue(const ['Bottle']).display, 'Bottle'));
       test('mixes repeated and single-count elements', () {
-        expect(CategoricalValue(['Bar', 'Bar', 'Bottle']).display, 'Bar (2), Bottle');
+        expect(CategoricalValue(const ['Bar', 'Bar', 'Bottle']).display, 'Bar (2), Bottle');
       });
       test('preserves first-occurrence order, not sorted', () {
-        expect(CategoricalValue(['Gel', 'Bar', 'Gel', 'Bar']).display, 'Gel (2), Bar (2)');
+        expect(CategoricalValue(const ['Gel', 'Bar', 'Gel', 'Bar']).display, 'Gel (2), Bar (2)');
       });
     });
   });

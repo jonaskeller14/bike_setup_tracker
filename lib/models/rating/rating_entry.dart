@@ -9,6 +9,7 @@ import '../context/context_position.dart';
 import '../context/context_weather.dart';
 import '../setup.dart';
 
+@immutable
 class RatingEntry {
   final String id;
   final bool isDeleted;

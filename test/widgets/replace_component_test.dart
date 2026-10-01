@@ -39,7 +39,7 @@ void main() {
       name: 'Current Fork',
       componentType: ComponentType.fork,
       installations: [Installation.sinceBeginning(parent: 'b1')],
-      adjustments: [],
+      adjustments: const [],
     );
     // Never installed -> bike == null (uninstalled), same type as current.
     spareFork = Component(
@@ -47,7 +47,7 @@ void main() {
       name: 'Spare Fork',
       componentType: ComponentType.fork,
       installations: const [],
-      adjustments: [],
+      adjustments: const [],
     );
     // Uninstalled, different type than current.
     spareChain = Component(
@@ -55,7 +55,7 @@ void main() {
       name: 'Spare Chain',
       componentType: ComponentType.chain,
       installations: const [],
-      adjustments: [],
+      adjustments: const [],
     );
 
     componentsMap = {

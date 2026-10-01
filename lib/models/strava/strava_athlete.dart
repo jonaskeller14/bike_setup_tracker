@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
+@immutable
 class StravaAthlete {
   final int id;
-  DateTime lastModified;
+  final DateTime lastModified;
   final String? firstname;
   final String? lastname;
   final String? profile;

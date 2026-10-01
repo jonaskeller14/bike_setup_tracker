@@ -38,7 +38,7 @@ void main() {
 
   group('CategoricalAdjustment.fromJson', () {
     test('legacy v1 without multiSelect key ⇒ single-select', () {
-      final adj = CategoricalAdjustment.fromJson({
+      final adj = CategoricalAdjustment.fromJson(const {
         'version': 1,
         'id': 'adj1',
         'name': 'Mode',
@@ -50,7 +50,7 @@ void main() {
     });
 
     test('v1 with an explicit multiSelect key is honoured', () {
-      final adj = CategoricalAdjustment.fromJson({
+      final adj = CategoricalAdjustment.fromJson(const {
         'version': 1,
         'id': 'adj1',
         'name': 'Mode',
@@ -102,11 +102,11 @@ void main() {
 
   group('AdjustmentValue.encode (every value is JSON since schema v11)', () {
     test('encodes a list as a JSON array', () {
-      expect(CategoricalValue(['Open', 'Firm']).encode(), '["Open","Firm"]');
+      expect(CategoricalValue(const ['Open', 'Firm']).encode(), '["Open","Firm"]');
     });
 
     test('encodes a single-select one-element list as a JSON array', () {
-      expect(CategoricalValue(['Open']).encode(), '["Open"]');
+      expect(CategoricalValue(const ['Open']).encode(), '["Open"]');
     });
 
     test('scalars are JSON-encoded (bool, int, double)', () {
@@ -143,8 +143,8 @@ void main() {
     });
 
     test('categorical decodes a JSON array', () {
-      expect(AdjustmentValue.decode('["Front","Rear"]', AdjustmentType.categorical), CategoricalValue(['Front', 'Rear']));
-      expect(AdjustmentValue.decode('["Open"]', AdjustmentType.categorical), CategoricalValue(['Open']));
+      expect(AdjustmentValue.decode('["Front","Rear"]', AdjustmentType.categorical), CategoricalValue(const ['Front', 'Rear']));
+      expect(AdjustmentValue.decode('["Open"]', AdjustmentType.categorical), CategoricalValue(const ['Open']));
     });
 
     test('text decodes a quoted JSON string (JSON-looking text stays text)', () {
@@ -161,7 +161,7 @@ void main() {
         (const BooleanValue(true), AdjustmentType.boolean),
         (const NumericalValue(1.5), AdjustmentType.numerical),
         (const StepValue(3), AdjustmentType.step),
-        (CategoricalValue(['a', 'b']), AdjustmentType.categorical),
+        (CategoricalValue(const ['a', 'b']), AdjustmentType.categorical),
         (TextValue.orNull('hi')!, AdjustmentType.text),
         (const DurationValue(Duration(minutes: 3)), AdjustmentType.duration),
       ]) {
@@ -171,7 +171,7 @@ void main() {
 
     group('defensive fallback for a non-JSON (un-migrated legacy) row', () {
       test('categorical plain option string ⇒ wrapped', () {
-        expect(AdjustmentValue.decode('Open', AdjustmentType.categorical), CategoricalValue(['Open']));
+        expect(AdjustmentValue.decode('Open', AdjustmentType.categorical), CategoricalValue(const ['Open']));
       });
       test('text plain string ⇒ itself', () {
         expect(AdjustmentValue.decode('hello world', AdjustmentType.text), TextValue.orNull('hello world'));
@@ -193,11 +193,11 @@ void main() {
     });
 
     test('a categorical value was a plain option string ⇒ one-element list', () {
-      expect(AdjustmentValue.decodeLegacy('Open', AdjustmentType.categorical), CategoricalValue(['Open']));
+      expect(AdjustmentValue.decodeLegacy('Open', AdjustmentType.categorical), CategoricalValue(const ['Open']));
     });
 
     test('a JSON-looking option name is preserved whole (multi-select never shipped)', () {
-      expect(AdjustmentValue.decodeLegacy('[1,2]', AdjustmentType.categorical), CategoricalValue(['[1,2]']));
+      expect(AdjustmentValue.decodeLegacy('[1,2]', AdjustmentType.categorical), CategoricalValue(const ['[1,2]']));
     });
 
     test('text is identity, duration parses the H:MM:SS form', () {
@@ -228,7 +228,7 @@ void main() {
   group('Setup.adjustmentValuesFromJson (backup import) preserves value shape', () {
     test('a JSON array becomes a categorical value', () {
       final result = Setup.adjustmentValuesFromJson({'k': ['Front', 'Rear']}, adjustmentTypes: {'k': AdjustmentType.categorical});
-      expect(result['k'], CategoricalValue(['Front', 'Rear']));
+      expect(result['k'], CategoricalValue(const ['Front', 'Rear']));
     });
 
     test('a text value that happens to look like JSON stays text', () {

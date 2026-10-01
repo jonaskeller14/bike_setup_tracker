@@ -9,6 +9,7 @@ import 'task_threshold/task_threshold.dart';
 part 'task_priority.dart';
 part 'task_status.dart';
 
+@immutable
 class TaskRule {
   final String id;
   final bool isDeleted;

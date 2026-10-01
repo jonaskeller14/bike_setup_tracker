@@ -140,7 +140,7 @@ void main() {
         name: 'Fork',
         componentType: ComponentType.fork,
         installations: [Installation.sinceBeginning(parent: bike.id)],
-        adjustments: [],
+        adjustments: const [],
         attachments: [kept, shared],
       );
       final setup = Setup(

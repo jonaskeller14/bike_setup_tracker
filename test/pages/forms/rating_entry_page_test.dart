@@ -45,7 +45,7 @@ void main() {
       setupId: 's1',
       dateTimeUTC: DateTime.utc(2026, 1, 1, 12),
       dateTimeLocal: DateTime(2026, 1, 1, 12),
-      metricValues: {'removed-metric': const UnresolvedValue('4')},
+      metricValues: const {'removed-metric': UnresolvedValue('4')},
     );
     RatingEntry? saved;
 

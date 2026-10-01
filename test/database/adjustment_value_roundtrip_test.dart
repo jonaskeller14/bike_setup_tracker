@@ -82,17 +82,17 @@ void main() {
 
     final restored = await roundTrip({
       'txt1': TextValue.orNull('["abc"]')!, // user literally typed this into a text field
-      'cat1': CategoricalValue(['Front', 'Rear']),
+      'cat1': CategoricalValue(const ['Front', 'Rear']),
     });
 
     expect(restored.bikeAdjustmentValues['txt1'], TextValue.orNull('["abc"]'));
-    expect(restored.bikeAdjustmentValues['cat1'], CategoricalValue(['Front', 'Rear']));
+    expect(restored.bikeAdjustmentValues['cat1'], CategoricalValue(const ['Front', 'Rear']));
   });
 
   test('single-select categorical round-trips as a one-element list', () async {
     await insertAdjustment('cat1', 'categorical', '{"version":1,"options":["Open","Firm"]}');
-    final restored = await roundTrip({'cat1': CategoricalValue(['Open'])});
-    expect(restored.bikeAdjustmentValues['cat1'], CategoricalValue(['Open']));
+    final restored = await roundTrip({'cat1': CategoricalValue(const ['Open'])});
+    expect(restored.bikeAdjustmentValues['cat1'], CategoricalValue(const ['Open']));
   });
 
   test('a categorical value stored as a scalar JSON string reads back as a wrapped list', () async {
@@ -100,7 +100,7 @@ void main() {
     // the `type` column, not the storage shape, marks it as categorical.
     await insertAdjustment('cat1', 'categorical', '{"version":1,"options":["Brand A","Brand B"]}');
     final restored = await withLegacyValue('cat1', '"Brand A"');
-    expect(restored.bikeAdjustmentValues['cat1'], CategoricalValue(['Brand A']));
+    expect(restored.bikeAdjustmentValues['cat1'], CategoricalValue(const ['Brand A']));
   });
 
   test('a non-JSON categorical row (un-migrated legacy value) falls back to a wrapped list', () async {
@@ -109,7 +109,7 @@ void main() {
     // than crashing the whole setup load.
     await insertAdjustment('cat1', 'categorical', '{"version":1,"options":["Open","Firm"]}');
     final restored = await withLegacyValue('cat1', 'Open');
-    expect(restored.bikeAdjustmentValues['cat1'], CategoricalValue(['Open']));
+    expect(restored.bikeAdjustmentValues['cat1'], CategoricalValue(const ['Open']));
   });
 
   test('a non-JSON text row (un-migrated legacy value) falls back to the raw string', () async {
@@ -134,7 +134,7 @@ void main() {
         'step1': const StepValue(4),
         'num1': const NumericalValue(89.0),
         'txt1': TextValue.orNull('01:30:00')!,
-        'cat1': CategoricalValue(['A', 'B', 'A']),
+        'cat1': CategoricalValue(const ['A', 'B', 'A']),
         'dur1': const DurationValue(Duration(minutes: 90)),
       },
       personValues: const {},
@@ -153,7 +153,7 @@ void main() {
       'step1': const StepValue(4),
       'num1': const NumericalValue(89.0),
       'txt1': TextValue.orNull('01:30:00'),
-      'cat1': CategoricalValue(['A', 'B', 'A']),
+      'cat1': CategoricalValue(const ['A', 'B', 'A']),
       'dur1': const DurationValue(Duration(minutes: 90)),
     });
     for (final (raw, value) in decoded.values) {

@@ -10,6 +10,7 @@ import 'installation.dart';
 
 part 'component_type.dart';
 
+@immutable
 class Component {
   final String id;
   final bool isDeleted;

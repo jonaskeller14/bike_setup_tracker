@@ -54,7 +54,7 @@ Component component(String id) => Component(
   id: id,
   name: id,
   componentType: ComponentType.fork,
-  installations: [],
+  installations: const [],
 );
 
 void main() {

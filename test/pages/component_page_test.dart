@@ -129,7 +129,7 @@ void main() {
         id: 'c1',
         name: 'My Fork',
         componentType: ComponentType.fork,
-        installations: [],
+        installations: const [],
         adjustments: [
           BooleanAdjustment(name: 'Lockout', notes: '', unit: null),
         ],
@@ -155,8 +155,8 @@ void main() {
         id: 'c1',
         name: 'My Fork',
         componentType: ComponentType.fork,
-        installations: [],
-        adjustments: [],
+        installations: const [],
+        adjustments: const [],
       );
 
       await tester.pumpWidget(createWidgetUnderTest(
@@ -352,8 +352,8 @@ void main() {
         id: 'c1',
         name: 'My Fork',
         componentType: ComponentType.fork,
-        installations: [],
-        adjustments: [],
+        installations: const [],
+        adjustments: const [],
         presetKey: 'fox/38/factory',
       );
       await tester.pumpWidget(createWidgetUnderTest(component: component, mode: ComponentPageMode.edit));
@@ -379,7 +379,7 @@ void main() {
         id: 'c1',
         name: 'My Fork',
         componentType: ComponentType.fork,
-        installations: [],
+        installations: const [],
         adjustments: [BooleanAdjustment(name: 'rebound', notes: '', unit: null)],
         notes: 'Serial 123',
       );
@@ -427,7 +427,7 @@ void main() {
       name: 'My Fork',
       componentType: ComponentType.fork,
       installations: [Installation.sinceBeginning(parent: null)],
-      adjustments: [],
+      adjustments: const [],
       attachments: attachments ?? [manual, invoice],
     );
 

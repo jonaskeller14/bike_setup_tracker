@@ -138,7 +138,7 @@ class _ComponentPageState extends State<ComponentPage> {
         ),
       ];
     } else {
-      _installations = widget.component?.installations ??
+      _installations = widget.component?.installations.toList() ??
           (widget.initialInstallations != null ? List.of(widget.initialInstallations!) : null) ??
           [Installation.sinceBeginning(parent: initialParentId)];
     }

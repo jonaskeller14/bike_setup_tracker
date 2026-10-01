@@ -205,7 +205,7 @@ class GoldenTestHarness {
         bikeAdjustmentValues: {
           pressureId: const NumericalValue(78.0),
           reboundId: const StepValue(4),
-          modeId: CategoricalValue(['Open']),
+          modeId: CategoricalValue(const ['Open']),
           lockoutId: const BooleanValue(false),
         },
         personAdjustmentValues: const {},
@@ -222,7 +222,7 @@ class GoldenTestHarness {
         bikeAdjustmentValues: {
           pressureId: const NumericalValue(82.0),
           reboundId: const StepValue(6),
-          modeId: CategoricalValue(['Trail']),
+          modeId: CategoricalValue(const ['Trail']),
           lockoutId: const BooleanValue(false),
         },
         personAdjustmentValues: const {},
@@ -239,7 +239,7 @@ class GoldenTestHarness {
         bikeAdjustmentValues: {
           pressureId: const NumericalValue(84.0),
           reboundId: const StepValue(8),
-          modeId: CategoricalValue(['Trail']),
+          modeId: CategoricalValue(const ['Trail']),
           lockoutId: const BooleanValue(true),
         },
         personAdjustmentValues: const {},

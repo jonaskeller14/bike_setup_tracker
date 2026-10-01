@@ -28,8 +28,8 @@ void main() {
       id: 'dummy',
       name: 'dummy',
       componentType: ComponentType.fork,
-      installations: [],
-      adjustments: [],
+      installations: const [],
+      adjustments: const [],
     ));
   });
 
@@ -47,7 +47,7 @@ void main() {
       installations: [
         Installation.sinceBeginning(parent: 'b1'),
       ],
-      adjustments: [],
+      adjustments: const [],
     );
 
     when(() => mockRepository.bikes).thenReturn({'b1': bike1, 'b2': bike2});
@@ -122,8 +122,8 @@ void main() {
           id: 'c_new',
           name: 'Fork',
           componentType: ComponentType.fork,
-          installations: [],
-          adjustments: [],
+          installations: const [],
+          adjustments: const [],
         );
 
         await tester.pumpWidget(createWidgetUnderTest(
@@ -148,7 +148,7 @@ void main() {
             Installation.sinceBeginning(parent: 'b1'),
             Archival(dateTimeUTC: now.toUtc(), dateTimeLocal: now),
           ],
-          adjustments: [],
+          adjustments: const [],
         );
 
         await tester.pumpWidget(createWidgetUnderTest(
@@ -194,7 +194,7 @@ void main() {
           installations: [
             Installation.sinceBeginning(parent: 'b_missing'),
           ],
-          adjustments: [],
+          adjustments: const [],
         );
 
         await tester.pumpWidget(createWidgetUnderTest(
@@ -215,7 +215,7 @@ void main() {
           name: 'Front Wheel',
           componentType: ComponentType.wheelFront,
           installations: [Installation.sinceBeginning(parent: 'b1')],
-          adjustments: [],
+          adjustments: const [],
         );
         when(() => mockRepository.components).thenReturn({
           component.id: component,

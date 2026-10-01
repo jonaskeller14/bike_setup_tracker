@@ -27,6 +27,7 @@ enum AdjustmentType {
   duration;
 }
 
+@immutable
 sealed class Adjustment {
   final String id;
   final String name;

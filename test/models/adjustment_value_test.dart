@@ -11,8 +11,8 @@ void main() {
     (const NumericalValue(1.123456), '1.123456', '1.12346', AdjustmentType.numerical),
     (TextValue.orNull('01:30:00')!, '"01:30:00"', '01:30:00', AdjustmentType.text),
     (TextValue.orNull('["abc"]')!, r'"[\"abc\"]"', '["abc"]', AdjustmentType.text),
-    (CategoricalValue(['Front']), '["Front"]', 'Front', AdjustmentType.categorical),
-    (CategoricalValue(['A', 'B', 'A']), '["A","B","A"]', 'A (2), B', AdjustmentType.categorical),
+    (CategoricalValue(const ['Front']), '["Front"]', 'Front', AdjustmentType.categorical),
+    (CategoricalValue(const ['A', 'B', 'A']), '["A","B","A"]', 'A (2), B', AdjustmentType.categorical),
     (
       const DurationValue(Duration(hours: 1, minutes: 2, seconds: 3)),
       '3723000000',
@@ -48,7 +48,7 @@ void main() {
     });
 
     test('a scalar categorical decodes to a one-element list', () {
-      expect(AdjustmentValue.decode('"Front"', AdjustmentType.categorical), CategoricalValue(['Front']));
+      expect(AdjustmentValue.decode('"Front"', AdjustmentType.categorical), CategoricalValue(const ['Front']));
     });
 
     group('a JSON shape that does not fit the type stays unresolved', () {
@@ -70,7 +70,7 @@ void main() {
       test('numerical', () => expect(AdjustmentValue.decode('1.5x', AdjustmentType.numerical), isNull));
       test(
         'categorical',
-        () => expect(AdjustmentValue.decode('Open', AdjustmentType.categorical), CategoricalValue(['Open'])),
+        () => expect(AdjustmentValue.decode('Open', AdjustmentType.categorical), CategoricalValue(const ['Open'])),
       );
       test(
         'text',
@@ -93,23 +93,23 @@ void main() {
 
   group('equality', () {
     test('categorical compares by content', () {
-      final a = CategoricalValue(['Front']);
-      final b = CategoricalValue(['Front']);
+      final a = CategoricalValue(const ['Front']);
+      final b = CategoricalValue(const ['Front']);
       expect(a, b);
       expect(a.hashCode, b.hashCode);
     });
 
     test('categorical is order-sensitive', () {
-      expect(CategoricalValue(['A', 'B']), isNot(CategoricalValue(['B', 'A'])));
+      expect(CategoricalValue(const ['A', 'B']), isNot(CategoricalValue(const ['B', 'A'])));
     });
 
     test('counted categorical compares by counts', () {
-      expect(CategoricalValue(['A', 'A']), isNot(CategoricalValue(['A'])));
+      expect(CategoricalValue(const ['A', 'A']), isNot(CategoricalValue(const ['A'])));
     });
 
     test('different kinds are never equal', () {
       expect(const StepValue(1), isNot(const NumericalValue(1.0)));
-      expect(TextValue.orNull('Front'), isNot(CategoricalValue(['Front'])));
+      expect(TextValue.orNull('Front'), isNot(CategoricalValue(const ['Front'])));
       expect(const UnresolvedValue('"Front"'), isNot(TextValue.orNull('Front')));
     });
 
@@ -129,8 +129,8 @@ void main() {
       });
     }
 
-    test('counted categorical', () => expect(CategoricalValue(['A', 'A', 'B']).display, 'A (2), B'));
-    test('empty categorical', () => expect(CategoricalValue([]).display, '-'));
+    test('counted categorical', () => expect(CategoricalValue(const ['A', 'A', 'B']).display, 'A (2), B'));
+    test('empty categorical', () => expect(CategoricalValue(const []).display, '-'));
     test('unresolved shows raw', () => expect(const UnresolvedValue('{"x":1}').display, '{"x":1}'));
   });
 
@@ -140,7 +140,7 @@ void main() {
     test('boolean', () => expect(const BooleanValue(true).asNum, 1));
     test('duration in seconds', () => expect(const DurationValue(Duration(milliseconds: 1500)).asNum, 1.5));
     test('text', () => expect(TextValue.orNull('x')!.asNum, isNull));
-    test('categorical', () => expect(CategoricalValue(['A']).asNum, isNull));
+    test('categorical', () => expect(CategoricalValue(const ['A']).asNum, isNull));
     test('unresolved', () => expect(const UnresolvedValue('1').asNum, isNull));
   });
 
@@ -170,7 +170,7 @@ void main() {
       expect(AdjustmentValue.decodeLegacy('soon', AdjustmentType.duration), isNull);
     });
     test('a JSON-looking categorical is one option', () {
-      expect(AdjustmentValue.decodeLegacy('[1,2]', AdjustmentType.categorical), CategoricalValue(['[1,2]']));
+      expect(AdjustmentValue.decodeLegacy('[1,2]', AdjustmentType.categorical), CategoricalValue(const ['[1,2]']));
     });
     test('empty text is absent', () => expect(AdjustmentValue.decodeLegacy('', AdjustmentType.text), isNull));
   });

@@ -13,7 +13,7 @@ void main() {
       AdjustmentActivityHistogramBar.exact(
         label: 'An exceptionally long category name',
         activityCount: 12345,
-        exactValue: CategoricalValue(['long']),
+        exactValue: CategoricalValue(const ['long']),
       ),
       if (binned)
         const AdjustmentActivityHistogramBar.range(

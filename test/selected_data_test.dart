@@ -55,7 +55,7 @@ void main() {
   test('Import decodes adjustment values with their adjustment type', () {
     final bike = Bike(name: 'Bike', person: null);
     final note = TextAdjustment(name: 'Note', notes: null, unit: null);
-    final side = CategoricalAdjustment(name: 'Side', notes: null, unit: null, options: {'Front', 'Rear'});
+    final side = CategoricalAdjustment(name: 'Side', notes: null, unit: null, options: const {'Front', 'Rear'});
     final pressure = NumericalAdjustment(name: 'Pressure', notes: null, unit: null, min: 0, max: 300);
     final component = Component(
       name: 'Fork',
@@ -108,7 +108,7 @@ void main() {
 
     final importedSetup = importedData.setups['s1']!;
     expect(importedSetup.bikeAdjustmentValues[note.id], TextValue.orNull('01:30:00'));
-    expect(importedSetup.bikeAdjustmentValues[side.id], CategoricalValue(['Front']));
+    expect(importedSetup.bikeAdjustmentValues[side.id], CategoricalValue(const ['Front']));
     expect(importedSetup.bikeAdjustmentValues[pressure.id], const NumericalValue(89.0));
     // Unknown ids are kept unresolved instead of guessing a type.
     expect(importedSetup.bikeAdjustmentValues['orphan'], const UnresolvedValue('"01:30:00"'));

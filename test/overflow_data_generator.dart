@@ -93,7 +93,7 @@ void main() async {
                   name: "CategoricalAdjustment: $loremIpsum",
                   notes: loremIpsum,
                   unit: null,
-                  options: {loremIpsum, "Option 2", "Option 3"},
+                  options: const {loremIpsum, "Option 2", "Option 3"},
                 ),
                 StepAdjustment(
                   name: "StepAdjustment: $loremIpsum",
@@ -187,7 +187,7 @@ void main() async {
           ? "Check drivetrain: $loremIpsum"
           : "Check drivetrain #$idx",
       notes: idx == 0 ? loremIpsum : null,
-      tags: {},
+      tags: const {},
       association: ComponentTaskAssociation(componentsList[idx].id),
       interval: const DurationThreshold(Duration(days: 30)),
     )]);

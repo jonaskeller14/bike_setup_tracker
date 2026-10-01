@@ -27,8 +27,8 @@ void main() {
     id: id,
     name: id,
     componentType: ComponentType.fork,
-    installations: [],
-    adjustments: [],
+    installations: const [],
+    adjustments: const [],
     orderIndex: orderIndex,
     attachments: attachments,
   );

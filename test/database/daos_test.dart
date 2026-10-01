@@ -39,8 +39,8 @@ void main() {
         id: 'comp1', 
         name: 'Fork', 
         componentType: ComponentType.fork,
-        adjustments: [],
-        installations: [],
+        adjustments: const [],
+        installations: const [],
       );
       await database.componentsDao.insertComponent(component.toCompanion());
 
@@ -54,7 +54,7 @@ void main() {
         id: 'comp1', 
         name: 'Fork', 
         componentType: ComponentType.fork,
-        installations: [],
+        installations: const [],
       );
       await database.componentsDao.insertComponent(component.toCompanion());
 
@@ -91,7 +91,7 @@ void main() {
           name: 'Fork',
           componentType: ComponentType.fork,
           adjustments: adjustments,
-          installations: [],
+          installations: const [],
         );
 
     Future<void> saveComponent(List<Adjustment> adjustments) {

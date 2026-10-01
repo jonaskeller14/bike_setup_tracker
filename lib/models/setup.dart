@@ -300,7 +300,10 @@ class Setup {
           : (previousPersonAdjustmentValues as Map<String, AdjustmentValue>);
   }
 
+  // Not @immutable: the transient fields are assigned after construction and
+  // deliberately left out of equality.
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
     return identical(this, other) ||
         other is Setup &&
@@ -325,6 +328,7 @@ class Setup {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
     return Object.hashAll([
       id,

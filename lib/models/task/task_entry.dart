@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
 import '../component_stats.dart';
 import 'task_association.dart';
 
+@immutable
 class TaskEntry {
   final String id;
   final bool isDeleted;

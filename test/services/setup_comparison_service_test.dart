@@ -123,8 +123,8 @@ void main() {
         'bool': const BooleanValue(true),
         'text': TextValue.orNull('trail')!,
         'duration': const DurationValue(Duration(seconds: 45)),
-        'list': CategoricalValue(['open', 'closed']),
-        'counted': CategoricalValue(['open', 'open']),
+        'list': CategoricalValue(const ['open', 'closed']),
+        'counted': CategoricalValue(const ['open', 'open']),
       };
       final result = compare(
         a: setup(id: 'a', bike: bikeA, bikeValues: values),
@@ -133,7 +133,7 @@ void main() {
           bike: bikeA,
           bikeValues: {
             ...values,
-            'counted': CategoricalValue(['open']),
+            'counted': CategoricalValue(const ['open']),
           },
         ),
         components: [fork],

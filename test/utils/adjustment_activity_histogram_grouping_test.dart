@@ -55,15 +55,15 @@ void main() {
       name: 'Tyres',
       notes: null,
       unit: null,
-      options: {'Rear', 'Front', 'Spare'},
+      options: const {'Rear', 'Front', 'Spare'},
       multiSelect: true,
     );
 
     final result = groupAdjustmentActivityHistogram(
       adjustment: adjustment,
       values: [
-        value(CategoricalValue(['Front', 'Rear', 'Front']), 4),
-        value(CategoricalValue(['Front']), 2, 'other'),
+        value(CategoricalValue(const ['Front', 'Rear', 'Front']), 4),
+        value(CategoricalValue(const ['Front']), 2, 'other'),
       ],
     );
 

@@ -6,6 +6,7 @@ import '../adjustment/adjustment.dart';
 import 'rating_association.dart';
 import 'rating_metric.dart';
 
+@immutable
 class Rating {
   final String id;
   final bool isDeleted;

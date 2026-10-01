@@ -197,7 +197,7 @@ void main() {
       final warmUp = DurationAdjustment(name: 'Warm-up', notes: null, unit: null);
       final data = SelectedData(
         components: {
-          'c1': Component(id: 'c1', name: 'Fork', componentType: ComponentType.fork, adjustments: [warmUp], installations: []),
+          'c1': Component(id: 'c1', name: 'Fork', componentType: ComponentType.fork, adjustments: [warmUp], installations: const []),
         },
         setups: {
           's1': Setup(

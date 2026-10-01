@@ -62,7 +62,7 @@ void main() {
       lastModified: lastModified,
       isDeleted: isDeleted,
       componentType: ComponentType.other,
-      installations: [],
+      installations: const [],
       attachments: attachments,
     );
   }

@@ -9,7 +9,7 @@ void main() {
       final component = Component(
         name: 'Test Component',
         componentType: ComponentType.other,
-        installations: [],
+        installations: const [],
       );
       expect(component.parentId, isNull);
     });
@@ -159,7 +159,7 @@ void main() {
     Component fork() => Component(
           name: 'FOX 36 Factory',
           componentType: ComponentType.fork,
-          installations: [],
+          installations: const [],
           presetKey: 'fork-fox-36-factory-2025',
           presetDamperKey: 'grip_x2',
         );
@@ -168,7 +168,7 @@ void main() {
       final component = Component(
         name: 'Hand built',
         componentType: ComponentType.fork,
-        installations: [],
+        installations: const [],
       );
       expect(component.presetKey, isNull);
       expect(component.presetDamperKey, isNull);
@@ -214,7 +214,7 @@ void main() {
     Component fork() => Component(
           name: 'FOX 36 Factory',
           componentType: ComponentType.fork,
-          installations: [],
+          installations: const [],
           attachments: [
             Attachment(id: 'm', extension: '.pdf', name: 'Service Manual'),
             Attachment(id: 'p', extension: '.jpg', name: 'IMG_1.jpg'),
@@ -222,7 +222,7 @@ void main() {
         );
 
     test('default to an empty list', () {
-      final component = Component(name: 'Fork', componentType: ComponentType.fork, installations: []);
+      final component = Component(name: 'Fork', componentType: ComponentType.fork, installations: const []);
       expect(component.attachments, isEmpty);
     });
 

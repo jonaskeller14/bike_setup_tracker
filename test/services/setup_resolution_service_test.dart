@@ -34,7 +34,7 @@ void main() {
 
       myBike = Bike(id: 'bike_1', name: 'My Enduro', person: 'person_1');
       otherBike = Bike(id: 'bike_2', name: 'My Trail Bike', person: 'person_1');
-      me = Person(id: 'person_1', name: 'Me', adjustments: []);
+      me = Person(id: 'person_1', name: 'Me', adjustments: const []);
 
       fork = Component(
         id: 'comp_fork',
@@ -459,7 +459,7 @@ void main() {
         unit: AdjustmentUnit.fromLegacy('clicks'),
       );
       myBike = Bike(id: 'bike_1', name: 'My Enduro', person: 'person_1');
-      me = Person(id: 'person_1', name: 'Me', adjustments: []);
+      me = Person(id: 'person_1', name: 'Me', adjustments: const []);
     });
 
     test('a repeated value still points at the setup that introduced it', () {

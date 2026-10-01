@@ -1,3 +1,6 @@
+// TableColumn.active is mutable by design and excluded from equality.
+// ignore_for_file: avoid_equals_and_hash_code_on_mutable_classes
+
 import '../services/bike_adjustment_column_service.dart';
 
 enum TableColumnSection {

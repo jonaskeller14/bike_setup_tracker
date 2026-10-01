@@ -295,7 +295,7 @@ void main() {
             name: name,
             componentType: type,
             installations: installations,
-            adjustments: [],
+            adjustments: const [],
           );
 
       Future<void> seed(WidgetTester tester, List<Component> components) async {

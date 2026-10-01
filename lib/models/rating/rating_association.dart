@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 
 enum FilterType {
   person,
@@ -7,6 +8,7 @@ enum FilterType {
   global,
 }
 
+@immutable
 sealed class RatingAssociation {
   const RatingAssociation();
 

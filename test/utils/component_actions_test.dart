@@ -29,14 +29,14 @@ void main() {
     name: 'Current Fork',
     componentType: ComponentType.fork,
     installations: [Installation.sinceBeginning(parent: 'b1')],
-    adjustments: [],
+    adjustments: const [],
   );
   final spare = Component(
     id: 'c2',
     name: 'Spare Fork',
     componentType: ComponentType.fork,
     installations: const [],
-    adjustments: [],
+    adjustments: const [],
   );
 
   setUp(() {

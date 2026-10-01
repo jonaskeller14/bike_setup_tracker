@@ -13,7 +13,7 @@ void main() {
       name: 'Test Categorical',
       notes: 'Some notes',
       unit: AdjustmentUnit.fromLegacy('some unit'),
-      options: {'Option 1', 'Option 2'},
+      options: const {'Option 1', 'Option 2'},
     );
 
     CategoricalAdjustment? result;
@@ -137,7 +137,7 @@ void main() {
       name: 'Counted Adjustment',
       notes: null,
       unit: null,
-      options: {'Bar', 'Gel'},
+      options: const {'Bar', 'Gel'},
       multiSelect: true,
       counted: true,
     );

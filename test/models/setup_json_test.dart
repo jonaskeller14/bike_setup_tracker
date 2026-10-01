@@ -24,11 +24,11 @@ void main() {
     });
 
     test('a legacy single-select categorical becomes a one-element list', () {
-      expect(decode('Front', AdjustmentType.categorical)['k'], CategoricalValue(['Front']));
+      expect(decode('Front', AdjustmentType.categorical)['k'], CategoricalValue(const ['Front']));
     });
 
     test('a categorical array becomes a categorical value', () {
-      expect(decode(<dynamic>['A', 'B'], AdjustmentType.categorical)['k'], CategoricalValue(['A', 'B']));
+      expect(decode(<dynamic>['A', 'B'], AdjustmentType.categorical)['k'], CategoricalValue(const ['A', 'B']));
     });
 
     test('empty text is dropped', () {
@@ -98,7 +98,7 @@ void main() {
       );
       expect(result, {
         'duration': const DurationValue(Duration(hours: 1, minutes: 30)),
-        'categorical': CategoricalValue(['Front']),
+        'categorical': CategoricalValue(const ['Front']),
         'unknown': const UnresolvedValue('"01:30:00"'),
         'typed': const StepValue(3),
       });
@@ -119,7 +119,7 @@ void main() {
       'step': const StepValue(3),
       'num': const NumericalValue(89.0),
       'text': TextValue.orNull('01:30:00')!,
-      'cat': CategoricalValue(['A', 'B', 'A']),
+      'cat': CategoricalValue(const ['A', 'B', 'A']),
       'dur': const DurationValue(Duration(hours: 1, minutes: 30)),
     };
     final types = {
@@ -175,13 +175,13 @@ void main() {
       );
 
       expect(setup.bikeAdjustmentValues['note'], TextValue.orNull('0:10:00'));
-      expect(setup.bikeAdjustmentValues['cat'], CategoricalValue(['Front']));
+      expect(setup.bikeAdjustmentValues['cat'], CategoricalValue(const ['Front']));
       expect(setup.personAdjustmentValues['weight'], isA<NumericalValue>());
     });
 
     test('RatingEntry.fromJson decodes metric values by type', () {
       final entry = RatingEntry.fromJson(
-        json: {
+        json: const {
           'version': 1,
           'id': 'r1',
           'bike': 'b1',
@@ -189,7 +189,7 @@ void main() {
           'dateTimeUTC': '2026-09-27T09:00:00.000Z',
           'metricValues': {'comment': '0:10:00', 'score': 4},
         },
-        metricTypes: {'comment': AdjustmentType.text, 'score': AdjustmentType.numerical},
+        metricTypes: const {'comment': AdjustmentType.text, 'score': AdjustmentType.numerical},
       );
 
       expect(entry.metricValues['comment'], TextValue.orNull('0:10:00'));

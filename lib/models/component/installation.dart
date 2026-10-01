@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
 enum InstallationParentType { bike, component, none, archived }
 
+@immutable
 sealed class Installation {
   final String id;
   final DateTime dateTimeUTC;

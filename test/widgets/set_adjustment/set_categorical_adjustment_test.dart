@@ -357,7 +357,7 @@ void main() {
         name: 'n',
         notes: 'note',
         unit: null,
-        options: {'a', 'b'},
+        options: const {'a', 'b'},
         multiSelect: true,
         counted: true,
       );
@@ -375,14 +375,14 @@ void main() {
         name: 'n',
         notes: 'note',
         unit: null,
-        options: {'a'},
+        options: const {'a'},
         multiSelect: true,
       );
       expect(adjustment.copyWith(), adjustment);
     });
 
     test('can clear a nullable field explicitly', () {
-      final adjustment = CategoricalAdjustment(name: 'n', notes: 'note', unit: null, options: {'a'});
+      final adjustment = CategoricalAdjustment(name: 'n', notes: 'note', unit: null, options: const {'a'});
       expect(adjustment.copyWith(notes: null).notes, isNull);
     });
   });

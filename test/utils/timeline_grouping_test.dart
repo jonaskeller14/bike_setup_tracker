@@ -60,7 +60,7 @@ Component makeComponent({
     id: id,
     name: 'Component $id',
     componentType: type,
-    installations: [],
+    installations: const [],
   );
 }
 

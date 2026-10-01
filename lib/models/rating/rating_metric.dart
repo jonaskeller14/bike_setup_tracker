@@ -1,5 +1,8 @@
+import 'package:flutter/foundation.dart';
+
 import '../adjustment/adjustment.dart';
 
+@immutable
 class RatingMetric {
   final Adjustment adjustment;
   final double weight;

@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 part 'strava_sportType.dart';
 part 'strava_workout_type.dart';
 
+@immutable
 class StravaActivity {
   final int id;
-  DateTime lastModified;
+  final DateTime lastModified;
   final String name;
   final int athlete;
   final SportType sportType;

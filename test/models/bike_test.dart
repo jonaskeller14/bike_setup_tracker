@@ -32,7 +32,7 @@ void main() {
     });
 
     test("Version 4: fromJson() defaults initialStats to zero", () {
-      final bike = Bike.fromJson({
+      final bike = Bike.fromJson(const {
         "version": 4,
         "id": "6b55cf93-4f42-4449-ba2e-88ce763bbe83",
         "isDeleted": false,
@@ -86,7 +86,7 @@ void main() {
     });
 
     test("Version 5: fromJson() without attachments reads an empty list", () {
-      final bike = Bike.fromJson({'version': 5, 'name': 'Bike'});
+      final bike = Bike.fromJson(const {'version': 5, 'name': 'Bike'});
       expect(bike.attachments, isEmpty);
     });
 

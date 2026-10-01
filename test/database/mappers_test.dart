@@ -506,7 +506,7 @@ void main() {
         firstname: 'Jonas',
         lastname: 'Keller',
         profile: 'https://example.com/profile.jpg',
-        gears: {'gear1', 'gear2'},
+        gears: const {'gear1', 'gear2'},
         lastModified: DateTime(2023, 1, 1).toUtc(),
       );
 

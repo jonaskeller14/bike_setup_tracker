@@ -32,12 +32,12 @@ void main() {
         name: 'Tokens',
         notes: null,
         unit: null,
-        options: {'A', 'B', 'C'},
+        options: const {'A', 'B', 'C'},
         multiSelect: true,
         counted: true,
       ),
-      value: CategoricalValue(['A', 'C', 'C', 'C']),
-      previousValue: CategoricalValue(['A', 'A', 'B', 'C', 'C', 'C']),
+      value: CategoricalValue(const ['A', 'C', 'C', 'C']),
+      previousValue: CategoricalValue(const ['A', 'A', 'B', 'C', 'C', 'C']),
       valueText: 'A, C (3)',
       // Over the packing budget, but printed whole; the cell ellipsizes it.
       previousText: 'A (2), B, C (3)',
@@ -149,7 +149,7 @@ void main() {
       name: 'Tyre',
       notes: null,
       unit: null,
-      options: {'Gravel', 'Mud', 'Sand', 'Continental Kryptotal', 'X'},
+      options: const {'Gravel', 'Mud', 'Sand', 'Continental Kryptotal', 'X'},
       multiSelect: true,
       counted: true,
     );
@@ -172,13 +172,13 @@ void main() {
 
     test('a list drops whole options once the budget is spent', () {
       expect(
-        displayOf(list, CategoricalValue(['Mud']), CategoricalValue(['Gravel', 'Gravel', 'Mud', 'Sand'])).previousForWidth,
+        displayOf(list, CategoricalValue(const ['Mud']), CategoricalValue(const ['Gravel', 'Gravel', 'Mud', 'Sand'])).previousForWidth,
         'Gravel (2)…',
       );
     });
 
     test('a single over-budget option falls back to character truncation', () {
-      expect(displayOf(list, CategoricalValue(['X']), CategoricalValue(['Continental Kryptotal', 'X'])).previousForWidth, 'Continenta…');
+      expect(displayOf(list, CategoricalValue(const ['X']), CategoricalValue(const ['Continental Kryptotal', 'X'])).previousForWidth, 'Continenta…');
     });
 
     test('the current value is never truncated', () {

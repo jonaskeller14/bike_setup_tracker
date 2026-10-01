@@ -1,9 +1,12 @@
+import 'package:flutter/foundation.dart';
+
 import '../models/component/component.dart';
 import '../models/component/component_ancestor.dart';
 import 'component_hierarchy_resolver.dart';
 
 /// The position a component fills on a bike: its own type plus the type of
 /// its direct parent (`null` when mounted directly on the bike).
+@immutable
 class ComponentSlot {
   final ComponentType type;
   final ComponentType? parentType;

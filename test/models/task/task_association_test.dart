@@ -26,7 +26,7 @@ void main() {
     });
 
     test('fromJson() throws for an unknown type', () {
-      expect(() => TaskAssociation.fromJson({'type': 'person', 'id': 'p1'}), throwsArgumentError);
+      expect(() => TaskAssociation.fromJson(const {'type': 'person', 'id': 'p1'}), throwsArgumentError);
     });
   });
 

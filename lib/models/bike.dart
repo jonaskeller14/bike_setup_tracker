@@ -5,6 +5,7 @@ import 'package:uuid/uuid.dart';
 import 'attachment.dart';
 import 'component_stats.dart';
 
+@immutable
 class Bike {
   final String id;
   final bool isDeleted;

@@ -94,7 +94,7 @@ void main() {
 
     test('guards against an unknown future version', () {
       expect(
-        () => SagAdjustment.fromJson({'version': 3, 'id': 'a', 'name': 'n', 'notes': null}),
+        () => SagAdjustment.fromJson(const {'version': 3, 'id': 'a', 'name': 'n', 'notes': null}),
         throwsException,
       );
     });

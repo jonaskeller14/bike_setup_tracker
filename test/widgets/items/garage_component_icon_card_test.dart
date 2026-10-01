@@ -128,7 +128,7 @@ void main() {
     final component = Component(
       id: 'component',
       name: 'Component',
-      installations: [],
+      installations: const [],
       componentType: ComponentType.other,
     );
 

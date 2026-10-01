@@ -189,8 +189,8 @@ void main() {
       expect(v['txt1'], TextValue.orNull('hello world'));
       // The whole point: JSON-looking text survives as text, not a list.
       expect(v['txt2'], TextValue.orNull('["abc"]'));
-      expect(v['c1'], CategoricalValue(['Open']));
-      expect(v['c2'], CategoricalValue(['[1,2]']));
+      expect(v['c1'], CategoricalValue(const ['Open']));
+      expect(v['c2'], CategoricalValue(const ['[1,2]']));
       expect(v['d1'], const DurationValue(Duration(seconds: 10)));
     });
   });

@@ -394,7 +394,7 @@ void main() {
         name: 'Mode',
         notes: null,
         unit: null,
-        options: {'Eco', 'Trail'},
+        options: const {'Eco', 'Trail'},
         multiSelect: true,
       );
       controller = Component(
@@ -431,8 +431,8 @@ void main() {
 
     testWidgets('empty list over a previous value shows "-" in changed colour', (tester) async {
       await tester.pumpWidget(compactWith(
-        bikeValues: {mode.id: CategoricalValue(<String>[])},
-        previous: {mode.id: CategoricalValue(['Eco'])},
+        bikeValues: {mode.id: CategoricalValue(const <String>[])},
+        previous: {mode.id: CategoricalValue(const ['Eco'])},
         onlyChanges: false,
       ));
       expect(valueColor(tester, '-'), _highlights.changed);
@@ -440,8 +440,8 @@ void main() {
 
     testWidgets('empty list over a previous value survives collapse (it is a change)', (tester) async {
       await tester.pumpWidget(compactWith(
-        bikeValues: {mode.id: CategoricalValue(<String>[])},
-        previous: {mode.id: CategoricalValue(['Eco'])},
+        bikeValues: {mode.id: CategoricalValue(const <String>[])},
+        previous: {mode.id: CategoricalValue(const ['Eco'])},
         onlyChanges: true,
       ));
       expect(find.text('-'), findsOneWidget);
@@ -449,7 +449,7 @@ void main() {
 
     testWidgets('empty list with no previous value is green (a new explicit none)', (tester) async {
       await tester.pumpWidget(compactWith(
-        bikeValues: {mode.id: CategoricalValue(<String>[])},
+        bikeValues: {mode.id: CategoricalValue(const <String>[])},
         previous: const {},
         onlyChanges: false,
       ));

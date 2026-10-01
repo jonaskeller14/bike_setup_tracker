@@ -31,20 +31,21 @@ class MapActions {
             (stravaActive && !appSettings.displayShowActivities) ||
             (appSettings.enableRating && !appSettings.displayShowRatingEntries));
 
-    return appRepository.selectedBike != null ||
-        (appSettings.enableSetupTags && appRepository.selectedSetupTags.isNotEmpty) ||
-        (appSettings.enableSetupBookmark && appRepository.showBookmarkedSetupsOnly) ||
+    final filters = appRepository.filters;
+    return filters.bikeId != null ||
+        (appSettings.enableSetupTags && filters.setup.tags.isNotEmpty) ||
+        (appSettings.enableSetupBookmark && filters.setup.bookmarkedOnly) ||
         visibilityFiltered;
   }
 
   /// Resets every filter [isFiltered] reports on.
   static void clearFilters(BuildContext context) {
-    final appRepository = context.read<AppRepository>();
+    final filters = context.read<AppRepository>().filters;
     final appSettings = context.read<AppSettings>();
 
-    appRepository.onBikeTap(null);
-    if (appSettings.enableSetupTags) appRepository.deselectAllSetupTags();
-    if (appSettings.enableSetupBookmark) appRepository.setShowBookmarkedSetupsOnly(false);
+    filters.toggleBike(null);
+    if (appSettings.enableSetupTags) filters.setup = filters.setup.copyWith(tags: const {});
+    if (appSettings.enableSetupBookmark) filters.setup = filters.setup.copyWith(bookmarkedOnly: false);
 
     if (_showsVisibility(appSettings, stravaActive: stravaActive(context))) {
       appSettings.displayShowSetups = true;

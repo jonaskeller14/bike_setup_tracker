@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../../icons/simple_icons.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
+import '../../models/task/task_rule.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../widgets/sheets/checkbox_group.dart';
@@ -160,7 +161,9 @@ class FeaturesPage extends StatelessWidget {
                     value: () => appSettings.enableSetupTags,
                     onChanged: (v) {
                       appSettings.enableSetupTags = v;
-                      if (!v) context.read<AppRepository>().deselectAllSetupTags();
+                      if (v) return;
+                      final filters = context.read<AppRepository>().filters;
+                      filters.setup = filters.setup.copyWith(tags: const {});
                     },
                   ),
                   if (kDebugMode)
@@ -173,7 +176,9 @@ class FeaturesPage extends StatelessWidget {
                       value: () => appSettings.enableSetupBookmark,
                       onChanged: (v) {
                         appSettings.enableSetupBookmark = v;
-                        if (!v) context.read<AppRepository>().setShowBookmarkedSetupsOnly(false);
+                        if (v) return;
+                        final filters = context.read<AppRepository>().filters;
+                        filters.setup = filters.setup.copyWith(bookmarkedOnly: false);
                       },
                     ),
                 ],
@@ -267,7 +272,9 @@ class FeaturesPage extends StatelessWidget {
                     value: () => appSettings.enableTaskTags,
                     onChanged: (v) {
                       appSettings.enableTaskTags = v;
-                      if (!v) context.read<AppRepository>().deselectAllTaskRuleTags();
+                      if (v) return;
+                      final filters = context.read<AppRepository>().filters;
+                      filters.taskRule = filters.taskRule.copyWith(tags: const {});
                     },
                   ),
                   CheckboxGroupSheetOption(
@@ -276,7 +283,9 @@ class FeaturesPage extends StatelessWidget {
                     value: () => appSettings.enableTaskPriority,
                     onChanged: (v) {
                       appSettings.enableTaskPriority = v;
-                      if (!v) context.read<AppRepository>().selectAllTaskPriorities();
+                      if (v) return;
+                      final filters = context.read<AppRepository>().filters;
+                      filters.taskRule = filters.taskRule.copyWith(priorities: TaskPriority.values.toSet());
                     },
                   ),
                   CheckboxGroupSheetOption(

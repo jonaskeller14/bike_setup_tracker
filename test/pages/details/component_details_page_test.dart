@@ -6,6 +6,7 @@ import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
+import 'package:bike_setup_tracker/models/filters/setup_filter.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:bike_setup_tracker/pages/details/component_details_page.dart';
@@ -292,7 +293,7 @@ void main() {
       name: 'Test Fork',
       installations: [Installation.sinceBeginning(parent: 'bike1')],
       componentType: ComponentType.fork,
-      adjustments: [],
+      adjustments: const [],
     );
     await seedRepository(tester, () async {
       await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null)]);
@@ -830,7 +831,7 @@ void main() {
     expect(find.text('Hidden Boundary'), findsWidgets);
     await showActivitiesColumn(tester);
 
-    appRepository.selectSetupTag('visible');
+    appRepository.filters.setup = const SetupFilter(tags: {'visible'});
     await tester.pumpAndSettle();
 
     expect(find.descendant(of: find.byType(DataTable), matching: find.text('Visible Setup')), findsOneWidget);
@@ -1234,7 +1235,7 @@ void main() {
   // ── Chart placeholders ─────────────────────────────────────────────────────
 
   testWidgets('line and radar charts show placeholder when no numerical columns are active', (WidgetTester tester) async {
-    final adjustment = CategoricalAdjustment(id: 'adj1', name: 'Tire Brand', notes: '', unit: null, options: {'Brand A', 'Brand B'});
+    final adjustment = CategoricalAdjustment(id: 'adj1', name: 'Tire Brand', notes: '', unit: null, options: const {'Brand A', 'Brand B'});
     await seedRepository(tester, () async {
       await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null)]);
       await appRepository.addComponents([Component(

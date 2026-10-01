@@ -55,6 +55,9 @@ Widget _buildIsolatableChips(List<_IsolatableChipOption> options) {
   );
 }
 
+Set<T> _toggled<T>(Set<T> values, T value, {required bool selected}) =>
+    selected ? {...values, value} : values.difference({value});
+
 Future<void> showFilterSheet({
   required BuildContext context,
   required bool showBikes,
@@ -71,6 +74,7 @@ Future<void> showFilterSheet({
     context: context,
     builder: (context) {
       final appRepository = context.watch<AppRepository>();
+      final filters = appRepository.filters;
       final appSettings = context.watch<AppSettings>();
       final stravaActive = appSettings.enableStrava &&
           context.watch<SubscriptionService>().hasStravaEntitlement;
@@ -102,16 +106,11 @@ Future<void> showFilterSheet({
                               children: appRepository.bikes.values.map((bike) => FilterChip(
                                 avatar: const Icon(Bike.iconData),
                                 label: Text(bike.name),
-                                selected: bike.id == appRepository.selectedBike,
+                                selected: bike.id == filters.bikeId,
                                 showCheckmark: false,
-                                onSelected: (bool newValue) {
-                                  switch (newValue) {
-                                    case true: appRepository.onBikeTap(bike.id);
-                                    case false: appRepository.onBikeTap(bike.id);
-                                  }
-                                },
-                                onDeleted: appRepository.selectedBike != null && appRepository.selectedBike == bike.id
-                                    ? () => appRepository.onBikeTap(bike.id)
+                                onSelected: (_) => filters.toggleBike(bike.id),
+                                onDeleted: bike.id == filters.bikeId
+                                    ? () => filters.toggleBike(bike.id)
                                     : null,
                               )).toList(),
                             ),
@@ -124,33 +123,30 @@ Future<void> showFilterSheet({
                           children: [
                             if (showSetupBookmark)
                               FilterChip(
-                                avatar: Icon(appRepository.showBookmarkedSetupsOnly
+                                avatar: Icon(filters.setup.bookmarkedOnly
                                     ? Icons.bookmark
                                     : Icons.bookmark_border),
                                 label: const Text("Bookmarked"),
-                                selected: appRepository.showBookmarkedSetupsOnly,
+                                selected: filters.setup.bookmarkedOnly,
                                 showCheckmark: false,
-                                onSelected: (bool newValue) => appRepository.setShowBookmarkedSetupsOnly(newValue),
-                                onDeleted: appRepository.showBookmarkedSetupsOnly
-                                    ? () => appRepository.setShowBookmarkedSetupsOnly(false)
+                                onSelected: (bool newValue) =>
+                                    filters.setup = filters.setup.copyWith(bookmarkedOnly: newValue),
+                                onDeleted: filters.setup.bookmarkedOnly
+                                    ? () => filters.setup = filters.setup.copyWith(bookmarkedOnly: false)
                                     : null,
                               ),
                             if (showSetupTags)
                               ...appRepository.setupTags.map((tag) {
+                                void select(bool selected) => filters.setup = filters.setup.copyWith(
+                                  tags: _toggled(filters.setup.tags, tag, selected: selected),
+                                );
                                 return FilterChip(
                                   avatar: const Icon(Icons.tag),
                                   label: Text(tag),
-                                  selected: appRepository.selectedSetupTags.contains(tag),
+                                  selected: filters.setup.tags.contains(tag),
                                   showCheckmark: false,
-                                  onSelected: (bool newValue) {
-                                    switch (newValue) {
-                                      case true: appRepository.selectSetupTag(tag);
-                                      case false: appRepository.deselectSetupTag(tag);
-                                    }
-                                  },
-                                  onDeleted: appRepository.selectedSetupTags.contains(tag)
-                                      ? () => appRepository.deselectSetupTag(tag)
-                                      : null,
+                                  onSelected: select,
+                                  onDeleted: filters.setup.tags.contains(tag) ? () => select(false) : null,
                                 );
                               }),
                           ],
@@ -168,13 +164,10 @@ Future<void> showFilterSheet({
                         return _IsolatableChipOption(
                           icon: null,
                           label: tp.label,
-                          selected: appRepository.selectedTaskPriorities.contains(tp),
-                          onChanged: (selected) {
-                            switch (selected) {
-                              case true: appRepository.selectTaskPriority(tp);
-                              case false: appRepository.deselectTaskPriority(tp);
-                            }
-                          },
+                          selected: filters.taskRule.priorities.contains(tp),
+                          onChanged: (selected) => filters.taskRule = filters.taskRule.copyWith(
+                            priorities: _toggled(filters.taskRule.priorities, tp, selected: selected),
+                          ),
                         );
                       }).toList()),
                     ],
@@ -189,20 +182,16 @@ Future<void> showFilterSheet({
                           : Wrap(
                               spacing: 6,
                               children: appRepository.taskRuleTags.map((tag) {
+                                void select(bool selected) => filters.taskRule = filters.taskRule.copyWith(
+                                  tags: _toggled(filters.taskRule.tags, tag, selected: selected),
+                                );
                                 return FilterChip(
                                   avatar: const Icon(Icons.tag),
                                   label: Text(tag),
-                                  selected: appRepository.selectedTaskRuleTags.contains(tag),
+                                  selected: filters.taskRule.tags.contains(tag),
                                   showCheckmark: false,
-                                  onSelected: (bool newValue) {
-                                    switch (newValue) {
-                                      case true: appRepository.selectTaskRuleTag(tag);
-                                      case false: appRepository.deselectTaskRuleTag(tag);
-                                    }
-                                  },
-                                  onDeleted: appRepository.selectedTaskRuleTags.contains(tag)
-                                      ? () => appRepository.deselectTaskRuleTag(tag)
-                                      : null,
+                                  onSelected: select,
+                                  onDeleted: filters.taskRule.tags.contains(tag) ? () => select(false) : null,
                                 );
                               }).toList(),
                             ),

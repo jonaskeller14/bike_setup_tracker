@@ -137,7 +137,7 @@ void main() {
       await appRepository.addSetups([setup('s1', 'Alpha Setup', 'bike1')]);
     });
 
-    appRepository.onBikeTap('bike2');
+    appRepository.filters.toggleBike('bike2');
     await tester.pumpAndSettle();
 
     expect(find.text('Alpha Setup'), findsOneWidget);

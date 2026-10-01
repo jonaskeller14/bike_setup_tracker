@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../models/filters/task_rule_filter.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/task_actions.dart';
 import '../chips/task_list_filter_widget.dart';
@@ -103,7 +104,7 @@ class _TaskListState extends State<TaskList> {
       );
     }
 
-    if (repository.hasActiveTaskRuleNarrowing && repository.hasScopeActionableTaskRules) {
+    if (repository.filters.taskRule.isActive && repository.hasScopeActionableTaskRules) {
       return EmptyStatePlaceholder(
         key: const ValueKey('task-empty-filtered'),
         icon: Icons.filter_alt_off,
@@ -111,14 +112,11 @@ class _TaskListState extends State<TaskList> {
         subtitle: 'Priority or tag filters are hiding tasks that need attention.',
         actionLabel: 'Clear filters',
         actionIcon: Icons.filter_alt_off,
-        onAction: () {
-          repository.selectAllTaskPriorities();
-          repository.deselectAllTaskRuleTags();
-        },
+        onAction: () => repository.filters.taskRule = TaskRuleFilter(),
       );
     }
 
-    final selectedBike = repository.selectedBike == null ? null : repository.bikes[repository.selectedBike!];
+    final selectedBike = repository.bikes[repository.filters.bikeId];
     return TaskCaughtUpPlaceholder(
       key: const ValueKey('task-empty-caught-up'),
       bikeName: selectedBike?.name,

@@ -178,10 +178,10 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     _currentWeather.value = widget.setup?.weather;
 
     final appRepository = context.read<AppRepository>();
-    _tags.addAll(widget.setup?.tags ?? appRepository.selectedSetupTags);
+    _tags.addAll(widget.setup?.tags ?? appRepository.filters.setup.tags);
     _initialTags = _tags;
 
-    _isBookmarked = widget.setup?.isBookmarked ?? appRepository.showBookmarkedSetupsOnly;
+    _isBookmarked = widget.setup?.isBookmarked ?? appRepository.filters.setup.bookmarkedOnly;
     _initialIsBookmarked = _isBookmarked;
 
     _attachments = List.from(widget.setup?.attachments ?? []);

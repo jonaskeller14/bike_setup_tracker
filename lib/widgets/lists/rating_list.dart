@@ -16,7 +16,7 @@ class RatingList extends StatelessWidget {
   const RatingList({super.key});
 
   Widget _emptyPlaceholder(BuildContext context, AppRepository appRepository) {
-    final filtered = appRepository.selectedBike != null && appRepository.ratings.isNotEmpty;
+    final filtered = appRepository.filters.bikeId != null && appRepository.ratings.isNotEmpty;
     return CustomScrollView(
       slivers: [
         const SliverToBoxAdapter(child: RatingListFilterWidget()),
@@ -31,7 +31,7 @@ class RatingList extends StatelessWidget {
                     subtitle: 'The bike filter is hiding all ratings.',
                     actionLabel: 'Clear filters',
                     actionIcon: Icons.filter_alt_off,
-                    onAction: () => appRepository.onBikeTap(null),
+                    onAction: () => appRepository.filters.toggleBike(null),
                   )
                 : EmptyStatePlaceholder(
                     icon: Rating.iconData,

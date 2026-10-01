@@ -37,6 +37,7 @@ import '../services/task_forecast_service.dart';
 import '../services/task_status_service.dart';
 import '../utils/adjustment_value_type_check.dart';
 import '../utils/unit_conversion.dart';
+import 'filter_controller.dart';
 import 'strava_paging_controller.dart';
 
 class AppRepository extends ChangeNotifier {
@@ -84,6 +85,12 @@ class AppRepository extends ChangeNotifier {
   }
 
   AppRepository(this.database) {
+    filters = FilterController(
+      onChanged: () {
+        _filter();
+        notifyListeners();
+      },
+    );
     _strava = StravaPagingController(
       database: database,
       scope: _currentStravaScope,
@@ -382,24 +389,12 @@ class AppRepository extends ChangeNotifier {
   // FILTERING STATE
   // ---------------------------------------------------------------------------
 
-  String? _selectedBike;
-  final Set<String> _selectedSetupTags = {};
-  bool _showBookmarkedSetupsOnly = false;
-  final Set<TaskPriority> _selectedTaskPriorities = TaskPriority.values.toSet();
-  final Set<String> _selectedTaskRuleTags = {};
+  late final FilterController filters;
   Set<String> _setupTags = {};
   Set<String> _taskRuleTags = {};
 
-  String? get selectedBike => _selectedBike;
-  Set<String> get selectedSetupTags => _selectedSetupTags;
-  bool get showBookmarkedSetupsOnly => _showBookmarkedSetupsOnly;
-  Set<TaskPriority> get selectedTaskPriorities => _selectedTaskPriorities;
-  Set<String> get selectedTaskRuleTags => _selectedTaskRuleTags;
   Set<String> get setupTags => _setupTags;
   Set<String> get taskRuleTags => _taskRuleTags;
-  bool get hasActiveTaskPriorityFilter => !setEquals(_selectedTaskPriorities, TaskPriority.values.toSet());
-  bool get hasActiveTaskRuleTagFilter => _selectedTaskRuleTags.isNotEmpty;
-  bool get hasActiveTaskRuleNarrowing => hasActiveTaskPriorityFilter || hasActiveTaskRuleTagFilter;
 
   Map<String, Bike> _filteredBikes = {};
   Map<String, Person> _filteredPersons = {};
@@ -429,17 +424,8 @@ class AppRepository extends ChangeNotifier {
   Map<int, StravaActivity> get filteredStravaActivities => _strava.activities;
   List<ResolvedInstallation> get filteredInstallations => _filteredInstallations;
 
-  void filter() {
-    _filter();
-    notifyListeners();
-  }
-
   void _filter() {
-    if (selectedBike != null && !bikes.containsKey(_selectedBike!)) {
-      _selectedBike = null;
-    }
-    _selectedSetupTags.removeWhere((tag) => !setupTags.contains(tag));
-    _selectedTaskRuleTags.removeWhere((tag) => !taskRuleTags.contains(tag));
+    filters.normalize(bikeIds: bikes.keys, setupTags: setupTags, taskRuleTags: taskRuleTags);
 
     _filterBikes();
     _filterComponents();
@@ -454,12 +440,14 @@ class AppRepository extends ChangeNotifier {
   }
 
   void _filterBikes() {
+    final selectedBike = filters.bikeId;
     _filteredBikes = selectedBike == null
         ? bikes
         : Map.fromEntries(bikes.entries.where((entry) => entry.key == selectedBike));
   }
 
   void _filterComponents() {
+    final selectedBike = filters.bikeId;
     final hierarchy = componentHierarchy;
     _filteredComponents = Map.fromEntries(components.entries.where((entry) {
       final placement = hierarchy.resolveCurrent(entry.key);
@@ -469,38 +457,37 @@ class AppRepository extends ChangeNotifier {
   }
 
   void _filterSetups() {
+    final selectedBike = filters.bikeId;
     _filteredSetups = Map.fromEntries(setups.entries.where((entry) =>
       (selectedBike == null ? true : entry.value.bike == selectedBike) &&
-      matchesSetupTagAndBookmarkFilter(entry.value)
+      filters.setup.matches(entry.value)
     ));
   }
 
-  /// The setup filters without the bike filter, for views that are already scoped to one bike.
-  bool matchesSetupTagAndBookmarkFilter(Setup setup) =>
-      (selectedSetupTags.isEmpty ? true : setup.tags.containsAll(selectedSetupTags)) &&
-      (_showBookmarkedSetupsOnly ? setup.isBookmarked : true);
-
   void _filterRatingEntries() {
+    final selectedBike = filters.bikeId;
     _filteredRatingEntries = selectedBike == null
         ? Map.fromEntries(ratingEntries.entries)
         : Map.fromEntries(ratingEntries.entries.where((entry) => entry.value.bike == selectedBike));
   }
 
   void _filterPersons() {
-    _filteredPersons = _selectedBike == null
+    final selectedBike = filters.bikeId;
+    _filteredPersons = selectedBike == null
         ? persons
-        : Map.fromEntries(persons.entries.where((entry) => entry.value.id == bikes[_selectedBike]?.person));
+        : Map.fromEntries(persons.entries.where((entry) => entry.value.id == bikes[selectedBike]?.person));
   }
 
   void _filterRatings() {
+    final selectedBike = filters.bikeId;
     _filteredRatings = Map.fromEntries(ratings.entries.where((entry) {
       final rating = entry.value;
       switch (rating.association) {
         case GlobalRatingAssociation(): return true;
         case PersonRatingAssociation(): return true;
-        case BikeRatingAssociation(:final bikeId): return _selectedBike == null ? true : bikeId == _selectedBike;
-        case ComponentRatingAssociation(:final componentId): return _selectedBike == null ? true : filteredComponents.values.any((c) => c.id == componentId);
-        case ComponentTypeRatingAssociation(:final componentTypeStr): return _selectedBike == null ? true : filteredComponents.values.any((c) => c.componentType.toString() == componentTypeStr);
+        case BikeRatingAssociation(:final bikeId): return selectedBike == null ? true : bikeId == selectedBike;
+        case ComponentRatingAssociation(:final componentId): return selectedBike == null ? true : filteredComponents.values.any((c) => c.id == componentId);
+        case ComponentTypeRatingAssociation(:final componentTypeStr): return selectedBike == null ? true : filteredComponents.values.any((c) => c.componentType.toString() == componentTypeStr);
       }
     }));
   }
@@ -509,10 +496,7 @@ class AppRepository extends ChangeNotifier {
     _filteredTaskRules = Map.fromEntries(
       taskRules.entries.where((entry) {
         final rule = entry.value;
-        if (!_selectedTaskPriorities.contains(rule.priority)) return false;
-
-        if (selectedTaskRuleTags.isNotEmpty && !entry.value.tags.containsAll(selectedTaskRuleTags)) return false;
-        return _isTaskRuleInCurrentScope(rule);
+        return filters.taskRule.matches(rule) && _isTaskRuleInCurrentScope(rule);
       }),
     );
 
@@ -524,16 +508,17 @@ class AppRepository extends ChangeNotifier {
   }
 
   bool _isTaskRuleInCurrentScope(TaskRule rule) {
+    final selectedBike = filters.bikeId;
     switch (rule.association) {
       case GeneralTaskAssociation():
         return true;
       case BikeTaskAssociation(:final id):
-        return _selectedBike == null || id == _selectedBike;
+        return selectedBike == null || id == selectedBike;
       case ComponentTaskAssociation(:final id):
         if (!_components.containsKey(id)) return false;
         final placement = componentHierarchy.resolveCurrent(id);
         if (placement.isArchived || placement.isDeleted) return false;
-        return _selectedBike == null || placement.bikeId == _selectedBike;
+        return selectedBike == null || placement.bikeId == selectedBike;
     }
   }
 
@@ -547,6 +532,7 @@ class AppRepository extends ChangeNotifier {
 
   void _filterInstallations() {
     _filteredInstallations = [];
+    final selectedBike = filters.bikeId;
     final hierarchy = componentHierarchy;
     for (final component in components.values) {
       final sorted = List<Installation>.from(component.installations)
@@ -576,82 +562,6 @@ class AppRepository extends ChangeNotifier {
         }
       }
     }
-  }
-
-  void onBikeTap(String? newBike) {
-    if (newBike == null || selectedBike == newBike) {
-      _selectedBike = null;
-    } else {
-      _selectedBike = newBike;
-    }
-    _filter();
-    notifyListeners();
-  }
-
-  void selectSetupTag(String newTag) {
-    if (!setupTags.contains(newTag)) return;
-    _selectedSetupTags.add(newTag);
-    _filterSetups();
-    notifyListeners();
-  }
-
-  void deselectSetupTag(String tag) {
-    _selectedSetupTags.remove(tag);
-    _filterSetups();
-    notifyListeners();
-  }
-
-  void deselectAllSetupTags() {
-    _selectedSetupTags.clear();
-    _filterSetups();
-    notifyListeners();
-  }
-
-  void setShowBookmarkedSetupsOnly(bool newValue) {
-    if (_showBookmarkedSetupsOnly == newValue) return;
-    _showBookmarkedSetupsOnly = newValue;
-    _filterSetups();
-    notifyListeners();
-  }
-
-  void selectTaskRuleTag(String newTag) {
-    if (!taskRuleTags.contains(newTag)) return;
-    _selectedTaskRuleTags.add(newTag);
-    _filterTaskRules();
-    notifyListeners();
-  }
-
-  void deselectTaskRuleTag(String tag) {
-    _selectedTaskRuleTags.remove(tag);
-    _filterTaskRules();
-    notifyListeners();
-  }
-
-  void deselectAllTaskRuleTags() {
-    _selectedTaskRuleTags.clear();
-    _filterTaskRules();
-    notifyListeners();
-  }
-
-  void selectTaskPriority(TaskPriority taskPriority) {
-    _selectedTaskPriorities.add(taskPriority);
-    _filterTaskRules();
-    _filterTaskEntries();
-    notifyListeners();
-  }
-
-  void deselectTaskPriority(TaskPriority taskPriority) {
-    _selectedTaskPriorities.remove(taskPriority);
-    _filterTaskRules();
-    _filterTaskEntries();
-    notifyListeners();
-  }
-
-  void selectAllTaskPriorities() {
-    _selectedTaskPriorities.addAll(TaskPriority.values.toSet());
-    _filterTaskRules();
-    _filterTaskEntries();
-    notifyListeners();
   }
 
   // ---------------------------------------------------------------------------
@@ -1062,7 +972,7 @@ class AppRepository extends ChangeNotifier {
   /// Debug helper to override the pagination chunk size in tests.
   void debugSetStravaLimit(int limit) => _strava.limit = limit;
 
-  StravaScope _currentStravaScope() => StravaScope.forBike(bikes[_selectedBike]);
+  StravaScope _currentStravaScope() => StravaScope.forBike(bikes[filters.bikeId]);
   bool get selectedBikeHasNoStravaGear => _currentStravaScope() is NoStravaActivities;
 
   Future<void> setStravaActivities(Iterable<StravaActivity> activities, {List<int>? toDelete}) async {

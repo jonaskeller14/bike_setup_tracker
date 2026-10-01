@@ -11,6 +11,7 @@ import '../../models/app_settings.dart';
 import '../../models/attachment.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
+import '../../models/filters/setup_filter.dart';
 import '../../models/person.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
@@ -188,7 +189,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
     final bikeSetups = appRepository.setups.values.where((s) => s.bike == widget.bikeId).toList();
     // Newest first, narrowed by the tag and bookmark filters.
     final setupsUnsorted = bikeSetups
-        .where(appRepository.matchesSetupTagAndBookmarkFilter)
+        .where(appRepository.filters.setup.matches)
         .toList()
         .reversed
         .toList();
@@ -331,10 +332,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
             subtitle: 'Your filters are hiding all setups.',
             actionLabel: 'Clear filters',
             actionIcon: Icons.filter_alt_off,
-            onAction: () {
-              appRepository.deselectAllSetupTags();
-              appRepository.setShowBookmarkedSetupsOnly(false);
-            },
+            onAction: () => appRepository.filters.setup = const SetupFilter(),
           )
         else if (activeColumns.isEmpty)
           const EmptyStatePlaceholder(

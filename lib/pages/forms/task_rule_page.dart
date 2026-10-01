@@ -132,7 +132,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
     _initialAssociation = _association;
 
     final appRepository = context.read<AppRepository>();
-    _tags.addAll(widget.taskRule?.tags ?? appRepository.selectedTaskRuleTags);
+    _tags.addAll(widget.taskRule?.tags ?? appRepository.filters.taskRule.tags);
     _initialTags = _tags;
     
     if (widget.mode != TaskRulePageMode.add && widget.taskRule != null) {

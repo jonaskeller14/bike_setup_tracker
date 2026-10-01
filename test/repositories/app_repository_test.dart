@@ -4,6 +4,8 @@ import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/context/context_position.dart';
+import 'package:bike_setup_tracker/models/filters/setup_filter.dart';
+import 'package:bike_setup_tracker/models/filters/task_rule_filter.dart';
 import 'package:bike_setup_tracker/models/person.dart';
 import 'package:bike_setup_tracker/models/rating/rating.dart';
 import 'package:bike_setup_tracker/models/rating/rating_association.dart';
@@ -70,15 +72,15 @@ void main() {
     test("removeBike (selected)", () async {
       await repository.addBikes([bike1]);
       await pumpEventQueue();
-      repository.onBikeTap(bike1.id);
+      repository.filters.toggleBike(bike1.id);
       await pumpEventQueue();
 
-      expect(repository.selectedBike == bike1.id, true);
+      expect(repository.filters.bikeId == bike1.id, true);
 
       await repository.removeBikes([bike1]);
       await pumpEventQueue();
 
-      expect(repository.selectedBike == null, true);
+      expect(repository.filters.bikeId == null, true);
       expect(repository.bikes.containsKey(bike1.id), false);
     });
   });
@@ -97,7 +99,7 @@ void main() {
         name: "Component #1", 
         installations: [Installation.sinceBeginning(parent: bike1.id)], 
         componentType: ComponentType.fork, 
-        adjustments: []
+        adjustments: const []
       );
     });
 
@@ -126,9 +128,9 @@ void main() {
     test("editComponents applies every edit of a swap", () async {
       final spare = Component(
         name: "Spare Fork",
-        installations: [],
+        installations: const [],
         componentType: ComponentType.fork,
-        adjustments: [],
+        adjustments: const [],
       );
       await repository.addBikes([bike1]);
       await repository.addComponents([component1, spare]);
@@ -244,7 +246,7 @@ void main() {
       final component = Component(
         name: "Fork",
         componentType: ComponentType.fork,
-        adjustments: [],
+        adjustments: const [],
         installations: [
           Installation.sinceBeginning(parent: bikeWithComp.id),
           Installation(
@@ -300,10 +302,10 @@ void main() {
 
       expect(repository.filteredSetups.keys.toSet(), {bookmarked.id, plain.id});
 
-      repository.setShowBookmarkedSetupsOnly(true);
+      repository.filters.setup = const SetupFilter(bookmarkedOnly: true);
       expect(repository.filteredSetups.keys.toSet(), {bookmarked.id});
 
-      repository.setShowBookmarkedSetupsOnly(false);
+      repository.filters.setup = const SetupFilter();
       expect(repository.filteredSetups.keys.toSet(), {bookmarked.id, plain.id});
     });
 
@@ -357,7 +359,7 @@ void main() {
   group("AppRepository - Persons", () {
     late AppDatabase database;
     late AppRepository repository;
-    final person1 = Person(name: "Person #1", adjustments: []);
+    final person1 = Person(name: "Person #1", adjustments: const []);
 
     setUp(() async {
       database = AppDatabase.memory();
@@ -409,7 +411,7 @@ void main() {
   group("AppRepository - Ratings", () {
     late AppDatabase database;
     late AppRepository repository;
-    final rating1 = Rating(name: "Rating #1", association: const GlobalRatingAssociation(), metrics: []);
+    final rating1 = Rating(name: "Rating #1", association: const GlobalRatingAssociation(), metrics: const []);
 
     setUp(() async {
       database = AppDatabase.memory();
@@ -711,7 +713,7 @@ void main() {
 
       expect(repository.filteredInstallations.length, 2);
 
-      repository.onBikeTap(bike1.id);
+      repository.filters.toggleBike(bike1.id);
       await pumpEventQueue();
 
       expect(repository.filteredInstallations.length, 1);
@@ -739,14 +741,14 @@ void main() {
       expect(repository.filteredInstallations.length, 2);
 
       // Filter by bike1: should see Event 1 (origin is bike1)
-      repository.onBikeTap(bike1.id);
+      repository.filters.toggleBike(bike1.id);
       await pumpEventQueue();
       expect(repository.filteredInstallations.length, 1);
       expect(repository.filteredInstallations.first.originParent, bike1.id);
       expect(repository.filteredInstallations.first.installation.parent, bike2.id);
 
       // Filter by bike2: should see Event 1 (target is bike2) AND Event 2 (origin is bike2)
-      repository.onBikeTap(bike2.id); 
+      repository.filters.toggleBike(bike2.id); 
       await pumpEventQueue();
       expect(repository.filteredInstallations.length, 2);
       expect(repository.filteredInstallations.any((ci) => ci.originParent == bike1.id && ci.installation.parent == bike2.id), true);
@@ -769,7 +771,7 @@ void main() {
         name: "C1", 
         installations: [Installation.sinceBeginning(parent: bike1.id)], 
         componentType: ComponentType.fork, 
-        adjustments: []
+        adjustments: const []
       );
       rule1 = TaskRule(name: "Rule 1", association: ComponentTaskAssociation(component1.id), tags: const {});
     });
@@ -825,13 +827,40 @@ void main() {
       expect(repository.taskEntries.containsKey(entry.id), false);
     });
 
+    test("selecting a task tag narrows filteredTaskEntries immediately", () async {
+      final tagged = TaskRule(name: "Tagged", tags: const {"service"});
+      final plain = TaskRule(name: "Plain", tags: const {});
+      TaskEntry entryFor(TaskRule rule) => TaskEntry(
+        name: rule.name,
+        dateTimeUTC: DateTime.now().toUtc(),
+        dateTimeLocal: DateTime.now(),
+        taskRule: rule.id,
+      );
+      final taggedEntry = entryFor(tagged);
+      final plainEntry = entryFor(plain);
+
+      await repository.addTaskRules([tagged, plain]);
+      await pumpEventQueue();
+      await repository.addTaskEntries([taggedEntry, plainEntry]);
+      await pumpEventQueue();
+
+      expect(repository.filteredTaskEntries.keys.toSet(), {taggedEntry.id, plainEntry.id});
+
+      // No pump: the entries must follow their rules without waiting for a DB event.
+      repository.filters.taskRule = TaskRuleFilter(tags: const {"service"});
+      expect(repository.filteredTaskEntries.keys.toSet(), {taggedEntry.id});
+
+      repository.filters.taskRule = TaskRuleFilter();
+      expect(repository.filteredTaskEntries.keys.toSet(), {taggedEntry.id, plainEntry.id});
+    });
+
     test("openTaskCount handles filtering by bike", () async {
       final bike2 = Bike(name: "Bike #2", person: null);
       final component2 = Component(
         name: "C2", 
         installations: [Installation.sinceBeginning(parent: bike2.id)], 
         componentType: ComponentType.fork, 
-        adjustments: []
+        adjustments: const []
       );
       final rule2 = TaskRule(name: "Rule 2", association: ComponentTaskAssociation(component2.id), tags: const {});
 
@@ -843,7 +872,7 @@ void main() {
       expect(repository.filteredOpenTaskRulesCount, 2);
 
       // Filter by bike1
-      repository.onBikeTap(bike1.id);
+      repository.filters.toggleBike(bike1.id);
       await pumpEventQueue();
 
       expect(repository.filteredOpenTaskRulesCount, 1);
@@ -1041,27 +1070,28 @@ void main() {
       await repository.addBikes([bike1, bike2]);
       await repository.addTaskRules([bike1Rule, bike2Rule]);
       await pumpEventQueue();
-      repository.onBikeTap(bike1.id);
-      repository.deselectTaskPriority(TaskPriority.critical);
+      repository.filters.toggleBike(bike1.id);
+      repository.filters.taskRule = TaskRuleFilter(
+        priorities: TaskPriority.values.toSet()..remove(TaskPriority.critical),
+      );
       await pumpEventQueue();
 
-      expect(repository.hasActiveTaskPriorityFilter, isTrue);
-      expect(repository.hasActiveTaskRuleTagFilter, isFalse);
-      expect(repository.hasActiveTaskRuleNarrowing, isTrue);
+      expect(repository.filters.taskRule.hasActivePriorities, isTrue);
+      expect(repository.filters.taskRule.tags, isEmpty);
+      expect(repository.filters.taskRule.isActive, isTrue);
       expect(repository.actionableTaskRules, isEmpty);
       expect(repository.hasScopeActionableTaskRules, isTrue);
 
-      repository.selectAllTaskPriorities();
-      repository.selectTaskRuleTag("other");
+      repository.filters.taskRule = TaskRuleFilter(tags: const {"other"});
       await pumpEventQueue();
 
-      expect(repository.hasActiveTaskPriorityFilter, isFalse);
-      expect(repository.hasActiveTaskRuleTagFilter, isTrue);
-      expect(repository.hasActiveTaskRuleNarrowing, isTrue);
+      expect(repository.filters.taskRule.hasActivePriorities, isFalse);
+      expect(repository.filters.taskRule.tags, {"other"});
+      expect(repository.filters.taskRule.isActive, isTrue);
       expect(repository.actionableTaskRules, isEmpty);
       expect(repository.hasScopeActionableTaskRules, isTrue);
 
-      repository.onBikeTap(bike2.id);
+      repository.filters.toggleBike(bike2.id);
       await pumpEventQueue();
       expect(repository.actionableTaskRules.map((taskRule) => taskRule.rule.id), [bike2Rule.id]);
     });
@@ -1081,7 +1111,7 @@ void main() {
         name: "C1",
         installations: [Installation.sinceBeginning(parent: bike1.id)],
         componentType: ComponentType.fork,
-        adjustments: [],
+        adjustments: const [],
       );
     });
 
@@ -1329,7 +1359,7 @@ void main() {
         buildSetup(bike1.id, position: const ContextPosition(latitude: 44.16, longitude: 8.34)),
       ]);
       await pumpEventQueue();
-      repository.onBikeTap(bike2.id);
+      repository.filters.toggleBike(bike2.id);
       await pumpEventQueue();
 
       expect(repository.filteredSetups.isEmpty, true);
@@ -1379,7 +1409,7 @@ void main() {
       await repository.addBikes([bike1, bike2]);
       await repository.setStravaActivities([buildActivity(1, lat: 44.16, lon: 8.34)]);
       await pumpEventQueue();
-      repository.onBikeTap(bike2.id);
+      repository.filters.toggleBike(bike2.id);
       await pumpEventQueue();
 
       expect(await repository.getFilteredStravaActivitiesWithPosition(), isEmpty);

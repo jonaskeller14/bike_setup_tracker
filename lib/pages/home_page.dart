@@ -332,7 +332,7 @@ class _HomePageState extends State<HomePage> {
         destinations: <Widget>[
           NavigationDestination(
             icon: Badge(
-              isLabelVisible: appRepository.selectedBike != null,
+              isLabelVisible: appRepository.filters.bikeId != null,
               backgroundColor: Theme.of(context).primaryColor,
               child: const Icon(Bike.iconData),
             ),

@@ -1,7 +1,8 @@
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
-import 'package:bike_setup_tracker/models/task/task_rule.dart';
+import 'package:bike_setup_tracker/models/filters/setup_filter.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/repositories/filter_controller.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/chips/filter_sheet_chip.dart';
@@ -17,6 +18,7 @@ class MockSubscriptionService extends Mock implements SubscriptionService {}
 
 void main() {
   late MockAppRepository mockRepository;
+  late FilterController filters;
   late MockSubscriptionService mockSubscription;
   late AppSettings appSettings;
   late Bike bike1;
@@ -29,22 +31,15 @@ void main() {
     bike1 = Bike(id: 'b1', name: 'Bike 1', person: 'P1');
 
     // Defaults: no bike selected, no tags. Individual tests override as needed.
-    when(() => mockRepository.selectedBike).thenReturn(null);
-    when(() => mockRepository.selectedSetupTags).thenReturn(<String>{});
-    when(() => mockRepository.showBookmarkedSetupsOnly).thenReturn(false);
-    when(() => mockRepository.selectedTaskRuleTags).thenReturn(<String>{});
-    when(() => mockRepository.selectedTaskPriorities).thenReturn(TaskPriority.values.toSet());
+    filters = FilterController(onChanged: () {});
+    when(() => mockRepository.filters).thenReturn(filters);
     when(() => mockRepository.bikes).thenReturn({'b1': bike1});
     when(() => mockSubscription.hasStravaEntitlement).thenReturn(false);
   });
 
-  void selectBike() {
-    when(() => mockRepository.selectedBike).thenReturn('b1');
-  }
+  void selectBike() => filters.toggleBike('b1');
 
-  void selectTags(Set<String> tags) {
-    when(() => mockRepository.selectedSetupTags).thenReturn(tags);
-  }
+  void selectTags(Set<String> tags) => filters.setup = filters.setup.copyWith(tags: tags);
 
   Widget createWidgetUnderTest(FilterSheetChip chip) {
     return MultiProvider(
@@ -149,9 +144,7 @@ void main() {
     const bookmarkChip = FilterSheetChip.componentDetailsPage;
     setUp(() => appSettings.enableSetupBookmark = true);
 
-    void filterBookmarked() {
-      when(() => mockRepository.showBookmarkedSetupsOnly).thenReturn(true);
-    }
+    void filterBookmarked() => filters.setup = filters.setup.copyWith(bookmarkedOnly: true);
 
     testWidgets('shows "Bookmarked" when only bookmarked setups are shown', (tester) async {
       filterBookmarked();
@@ -208,7 +201,7 @@ void main() {
     testWidgets('resetting clears the bike, tags, bookmark and hidden layers', (tester) async {
       selectBike();
       selectTags({'t1'});
-      when(() => mockRepository.showBookmarkedSetupsOnly).thenReturn(true);
+      filters.setup = filters.setup.copyWith(bookmarkedOnly: true);
       appSettings.displayShowSetups = false;
       appSettings.displayShowRatingEntries = false;
       await tester.pumpWidget(createWidgetUnderTest(mapChip));
@@ -216,9 +209,8 @@ void main() {
       tester.widget<FilterChip>(find.byType(FilterChip)).onDeleted!();
       await tester.pumpAndSettle();
 
-      verify(() => mockRepository.onBikeTap(null)).called(1);
-      verify(mockRepository.deselectAllSetupTags).called(1);
-      verify(() => mockRepository.setShowBookmarkedSetupsOnly(false)).called(1);
+      expect(filters.bikeId, null);
+      expect(filters.setup, const SetupFilter());
       expect(appSettings.displayShowSetups, true);
       expect(appSettings.displayShowRatingEntries, true);
       expect(appSettings.displayShowActivities, true);

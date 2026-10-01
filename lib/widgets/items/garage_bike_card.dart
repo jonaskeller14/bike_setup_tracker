@@ -200,7 +200,7 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                     ),
                   );
                 },
-          onDoubleTap: widget.selectionMode ? null : () => appRepository.onBikeTap(widget.bike.id),
+          onDoubleTap: widget.selectionMode ? null : () => appRepository.filters.toggleBike(widget.bike.id),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,

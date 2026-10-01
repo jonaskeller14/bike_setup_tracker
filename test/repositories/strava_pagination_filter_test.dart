@@ -68,7 +68,7 @@ void main() {
     test("DESC: a bike's older activity surfaces despite a full page of newer ones", () async {
       expect(repository.stravaSortAscending, false); // default ordering
 
-      repository.onBikeTap(bikeOld.id);
+      repository.filters.toggleBike(bikeOld.id);
       await pumpEventQueue();
 
       // The previous global-then-filter pagination returned empty here.
@@ -77,7 +77,7 @@ void main() {
     });
 
     test("Toggling the sort order keeps the bike's activity visible (the reported bug)", () async {
-      repository.onBikeTap(bikeOld.id);
+      repository.filters.toggleBike(bikeOld.id);
       await pumpEventQueue();
       expect(repository.filteredStravaActivities.containsKey(1), true);
 
@@ -91,7 +91,7 @@ void main() {
     });
 
     test("Pagination walks only the selected bike's activities", () async {
-      repository.onBikeTap(bikeNew.id);
+      repository.filters.toggleBike(bikeNew.id);
       await pumpEventQueue();
 
       // First page (limit 2) of bikeNew's 5 activities.
@@ -112,12 +112,12 @@ void main() {
     });
 
     test("Switching bikes re-pages from the top for the new filter", () async {
-      repository.onBikeTap(bikeNew.id);
+      repository.filters.toggleBike(bikeNew.id);
       await pumpEventQueue();
       expect(repository.filteredStravaActivities.values.every((a) => a.gearId == "gear_new"), true);
       expect(repository.filteredStravaActivities.containsKey(1), false);
 
-      repository.onBikeTap(bikeOld.id);
+      repository.filters.toggleBike(bikeOld.id);
       await pumpEventQueue();
       expect(repository.filteredStravaActivities.length, 1);
       expect(repository.filteredStravaActivities.containsKey(1), true);

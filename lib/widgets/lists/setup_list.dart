@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/app_hint.dart';
 import '../../models/app_settings.dart';
+import '../../models/filters/setup_filter.dart';
 import '../../models/setup.dart';
 import '../../models/strava/strava_activity.dart';
 import '../../models/timeline_entry.dart';
@@ -32,9 +33,8 @@ class SetupList extends StatelessWidget {
   });
 
   bool _hasActiveFilters(AppRepository appRepository, AppSettings appSettings) {
-    return appRepository.selectedBike != null ||
-        appRepository.selectedSetupTags.isNotEmpty ||
-        appRepository.showBookmarkedSetupsOnly ||
+    return appRepository.filters.bikeId != null ||
+        appRepository.filters.setup.isActive ||
         !appSettings.displayShowSetups ||
         !appSettings.displayShowActivities ||
         !appSettings.displayShowTasks ||
@@ -50,9 +50,8 @@ class SetupList extends StatelessWidget {
   }
 
   void _clearFilters(AppRepository appRepository, AppSettings appSettings) {
-    appRepository.onBikeTap(null);
-    appRepository.deselectAllSetupTags();
-    appRepository.setShowBookmarkedSetupsOnly(false);
+    appRepository.filters.toggleBike(null);
+    appRepository.filters.setup = const SetupFilter();
     appSettings.displayShowSetups = true;
     appSettings.displayShowActivities = true;
     appSettings.displayShowTasks = true;

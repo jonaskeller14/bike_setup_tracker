@@ -210,7 +210,7 @@ class _GarageListState extends State<GarageList> {
   }
 
   Widget _emptyPlaceholder(BuildContext context, AppRepository appRepository) {
-    final filtered = appRepository.selectedBike != null && appRepository.bikes.isNotEmpty;
+    final filtered = appRepository.filters.bikeId != null && appRepository.bikes.isNotEmpty;
     return CustomScrollView(
       controller: widget.controller.scrollController,
       slivers: [
@@ -232,7 +232,7 @@ class _GarageListState extends State<GarageList> {
                     subtitle: 'The bike filter is hiding all bikes.',
                     actionLabel: 'Clear filters',
                     actionIcon: Icons.filter_alt_off,
-                    onAction: () => appRepository.onBikeTap(null),
+                    onAction: () => appRepository.filters.toggleBike(null),
                   )
                 : EmptyStatePlaceholder(
                     icon: Bike.iconData,

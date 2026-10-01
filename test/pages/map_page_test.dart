@@ -6,9 +6,9 @@ import 'package:bike_setup_tracker/models/context/context_position.dart';
 import 'package:bike_setup_tracker/models/rating/rating_entry.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
-import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/pages/map_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/repositories/filter_controller.dart';
 import 'package:bike_setup_tracker/services/location_provider.dart';
 import 'package:bike_setup_tracker/services/location_service.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
@@ -26,6 +26,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   late MockAppRepository repository;
+  late FilterController filters;
   late AppSettings settings;
   late MockSubscriptionService subscriptionService;
   late List<VoidCallback> repositoryListeners;
@@ -34,10 +35,8 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     repository = MockAppRepository();
     when(() => repository.bikes).thenReturn(<String, Bike>{});
-    when(() => repository.selectedBike).thenReturn(null);
-    when(() => repository.selectedSetupTags).thenReturn(<String>{});
-    when(() => repository.selectedTaskRuleTags).thenReturn(<String>{});
-    when(() => repository.selectedTaskPriorities).thenReturn(TaskPriority.values.toSet());
+    filters = FilterController(onChanged: () {});
+    when(() => repository.filters).thenReturn(filters);
     when(() => repository.filteredSetups).thenReturn({});
     when(() => repository.filteredRatingEntries).thenReturn({});
     when(() => repository.getFilteredStravaActivitiesWithPosition()).thenAnswer((_) async => []);
@@ -679,7 +678,7 @@ void main() {
 
     testWidgets('clears the filters from the filtered card', (tester) async {
       when(() => repository.hasSetupsWithPosition).thenReturn(true);
-      when(() => repository.onBikeTap(any())).thenAnswer((_) {});
+      filters.toggleBike('b1');
       await tester.pumpWidget(buildPage(unpermittedService()));
       await tester.pump();
       await tester.pump();
@@ -689,7 +688,7 @@ void main() {
       await tester.tap(find.widgetWithText(FilledButton, 'Clear filters'));
       await tester.pump();
 
-      verify(() => repository.onBikeTap(null)).called(1);
+      expect(filters.bikeId, null);
     });
 
     testWidgets('collapses to a pill and expands again on a new reason', (tester) async {

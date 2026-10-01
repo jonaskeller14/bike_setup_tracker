@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
+import '../../models/task/task_rule.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/map_actions.dart';
@@ -40,6 +41,7 @@ class FilterSheetChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
+    final filters = appRepository.filters;
     final appSettings = context.watch<AppSettings>();
     final stravaActive = appSettings.enableStrava &&
         context.watch<SubscriptionService>().hasStravaEntitlement;
@@ -53,11 +55,11 @@ class FilterSheetChip extends StatelessWidget {
 
     final showBikeOnly = showBikes && !showSetupTags2 && !showSetupBookmark2 && !showTaskPriority2 && !showTaskTags2 && !showMapVisibility2 && !showTimelineVisibility2;
 
-    final bikeSelected = showBikes && appRepository.selectedBike != null;
-    final setupTagsSelected = showSetupTags2 && appRepository.selectedSetupTags.isNotEmpty;
-    final bookmarkSelected = showSetupBookmark2 && appRepository.showBookmarkedSetupsOnly;
-    final taskPrioritySelected = showTaskPriority2 && appRepository.hasActiveTaskPriorityFilter;
-    final taskTagsSelected = showTaskTags2 && appRepository.selectedTaskRuleTags.isNotEmpty;
+    final bikeSelected = showBikes && filters.bikeId != null;
+    final setupTagsSelected = showSetupTags2 && filters.setup.tags.isNotEmpty;
+    final bookmarkSelected = showSetupBookmark2 && filters.setup.bookmarkedOnly;
+    final taskPrioritySelected = showTaskPriority2 && filters.taskRule.hasActivePriorities;
+    final taskTagsSelected = showTaskTags2 && filters.taskRule.tags.isNotEmpty;
     final mapVisibilitySelected = showMapVisibility2 &&
         (!appSettings.displayShowSetups ||
             (stravaActive && !appSettings.displayShowActivities) ||
@@ -79,11 +81,11 @@ class FilterSheetChip extends StatelessWidget {
         return;
       }
 
-      if (showBikes) appRepository.onBikeTap(null);
-      if (showSetupTags2) appRepository.deselectAllSetupTags();
-      if (showSetupBookmark2) appRepository.setShowBookmarkedSetupsOnly(false);
-      if (showTaskPriority2) appRepository.selectAllTaskPriorities();
-      if (showTaskTags2) appRepository.deselectAllTaskRuleTags();
+      if (showBikes) filters.toggleBike(null);
+      if (showSetupTags2) filters.setup = filters.setup.copyWith(tags: const {});
+      if (showSetupBookmark2) filters.setup = filters.setup.copyWith(bookmarkedOnly: false);
+      if (showTaskPriority2) filters.taskRule = filters.taskRule.copyWith(priorities: TaskPriority.values.toSet());
+      if (showTaskTags2) filters.taskRule = filters.taskRule.copyWith(tags: const {});
 
       if (showTimelineVisibility2) {
         appSettings.displayShowSetups = true;
@@ -94,14 +96,14 @@ class FilterSheetChip extends StatelessWidget {
       }
     }
 
-    final String bikeName = appRepository.bikes[appRepository.selectedBike]?.name ?? '';
+    final String bikeName = appRepository.bikes[filters.bikeId]?.name ?? '';
 
-    final int setupTagCount = setupTagsSelected ? appRepository.selectedSetupTags.length : 0;
-    final int taskTagCount = taskTagsSelected ? appRepository.selectedTaskRuleTags.length : 0;
+    final int setupTagCount = setupTagsSelected ? filters.setup.tags.length : 0;
+    final int taskTagCount = taskTagsSelected ? filters.taskRule.tags.length : 0;
     final int tagCount = setupTagCount + taskTagCount;
     final String tagLabel = "$tagCount ${tagCount != 1 ? 'Tags' : 'Tag'}";
 
-    final priorityCount = appRepository.selectedTaskPriorities.length;
+    final priorityCount = filters.taskRule.priorities.length;
     final priorityCountLabel = "$priorityCount ${priorityCount != 1 ? 'Priorities' : 'Priority'}";
 
     final extraCount = (mapVisibilitySelected ? 1 : 0) + (timelineVisibilitySelected ? 1 : 0);

@@ -17,6 +17,7 @@ class FilterSheetChip extends StatelessWidget {
   static const map = FilterSheetChip._(showBikes: true, showSetupTags: true, showSetupBookmark: true, showMapVisibility: true);
   static const calendar = FilterSheetChip._(showBikes: true, showSetupTags: true, showSetupBookmark: true, showTimelineVisibility: true);
   static const componentDetailsPage = FilterSheetChip._(showBikes: true, showSetupTags: true, showSetupBookmark: true);
+  static const bikeDetailsPage = FilterSheetChip._(showSetupTags: true, showSetupBookmark: true);
 
   final bool showBikes;
   final bool showSetupTags;

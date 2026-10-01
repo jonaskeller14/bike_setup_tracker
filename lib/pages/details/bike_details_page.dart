@@ -22,6 +22,7 @@ import '../../utils/component_actions.dart';
 import '../../utils/table_column.dart';
 import '../../utils/table_column_comparator.dart';
 import '../../widgets/attachment_row.dart';
+import '../../widgets/chips/filter_sheet_chip.dart';
 import '../../widgets/display_data/component_stats_card.dart';
 import '../../widgets/display_data/setup_line_chart.dart';
 import '../../widgets/display_data/setup_radial_chart.dart';
@@ -183,17 +184,20 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
     final personAdjustments = person?.adjustments ?? [];
     final projection = _projectionFor(appRepository);
 
-    // Every setup of this bike, newest first - independent of the global bike filter.
-    final setupsUnsorted = appRepository.setups.values
-        .where((s) => s.bike == widget.bikeId)
+    // Every setup of this bike - independent of the global bike filter.
+    final bikeSetups = appRepository.setups.values.where((s) => s.bike == widget.bikeId).toList();
+    // Newest first, narrowed by the tag and bookmark filters.
+    final setupsUnsorted = bikeSetups
+        .where(appRepository.matchesSetupTagAndBookmarkFilter)
         .toList()
         .reversed
         .toList();
 
     // Rating scores derived from RatingEntries that resolve to each setup:
     // overall (0-10) and per-metric sub-scores (0-10).
-    _ratingScores = {for (final s in setupsUnsorted) s.id: appRepository.scoreForSetup(s.id)};
-    _metricScores = {for (final s in setupsUnsorted) s.id: appRepository.metricScoresForSetup(s.id)};
+    // Scored over all bike setups so filtering does not drop rating-metric columns.
+    _ratingScores = {for (final s in bikeSetups) s.id: appRepository.scoreForSetup(s.id)};
+    _metricScores = {for (final s in bikeSetups) s.id: appRepository.metricScoresForSetup(s.id)};
 
     final allRatingMetrics = appRepository.allRatingMetricsById;
     final ratingMetricIds = <String>{for (final m in _metricScores.values) ...m.keys};
@@ -276,45 +280,61 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
               "header to remove it. Green values are new (no prior value), orange values have changed from the "
               "previous setup. Select rows to compare setups in the charts below.$_mergedColumnsInfoText",
         ),
-        Padding(
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: FilterChip(
-              avatar: const Icon(Icons.view_column_outlined),
-              showCheckmark: false,
-              label: const Text("Columns"),
-              selected: activeColumns.isNotEmpty,
-              onSelected: (bool newValue) async {
-                await showColumnFilterSheet(
-                  context: context,
-                  columns: orderedColumns,
-                  columnLabel: (TableColumn c) => switch (c) {
-                    // The lane is shown as the group header.
-                    BikeAdjustmentColumn(:final key) => projection.adjustmentFor(key)?.name ?? key.adjustment.name,
-                    _ => _columnLabel(c, personAdjustments),
-                  },
-                  columnGroup: (TableColumn c) => switch (c) {
-                    BikeAdjustmentColumn(:final key) => switch (projection.laneOf(key)) {
-                      final lane? => (
-                        title: lane.label,
-                        info: _laneHistory(lane, appRepository, appSettings.dateFormat),
-                      ),
-                      null => null,
+          child: Row(
+            spacing: 6,
+            children: [
+              FilterChip(
+                avatar: const Icon(Icons.view_column_outlined),
+                showCheckmark: false,
+                label: const Text("Columns"),
+                selected: activeColumns.isNotEmpty,
+                onSelected: (bool newValue) async {
+                  await showColumnFilterSheet(
+                    context: context,
+                    columns: orderedColumns,
+                    columnLabel: (TableColumn c) => switch (c) {
+                      // The lane is shown as the group header.
+                      BikeAdjustmentColumn(:final key) => projection.adjustmentFor(key)?.name ?? key.adjustment.name,
+                      _ => _columnLabel(c, personAdjustments),
                     },
-                    _ => null,
-                  },
-                  onColumnStatusChanged: () => setState(() {}), // TableColumn.active is changed
-                );
-              },
-            ),
+                    columnGroup: (TableColumn c) => switch (c) {
+                      BikeAdjustmentColumn(:final key) => switch (projection.laneOf(key)) {
+                        final lane? => (
+                          title: lane.label,
+                          info: _laneHistory(lane, appRepository, appSettings.dateFormat),
+                        ),
+                        null => null,
+                      },
+                      _ => null,
+                    },
+                    onColumnStatusChanged: () => setState(() {}), // TableColumn.active is changed
+                  );
+                },
+              ),
+              if (appSettings.enableSetupTags || appSettings.enableSetupBookmark) FilterSheetChip.bikeDetailsPage,
+            ],
           ),
         ),
-        if (setups.isEmpty)
+        if (bikeSetups.isEmpty)
           const EmptyStatePlaceholder(
             icon: Icons.history_rounded,
             title: 'No setups yet',
             subtitle: 'No setups reference this bike',
+          )
+        else if (setups.isEmpty)
+          EmptyStatePlaceholder(
+            icon: Icons.filter_alt_off,
+            title: 'Nothing matches this filter',
+            subtitle: 'Your filters are hiding all setups.',
+            actionLabel: 'Clear filters',
+            actionIcon: Icons.filter_alt_off,
+            onAction: () {
+              appRepository.deselectAllSetupTags();
+              appRepository.setShowBookmarkedSetupsOnly(false);
+            },
           )
         else if (activeColumns.isEmpty)
           const EmptyStatePlaceholder(

@@ -20,6 +20,7 @@ import '../../utils/task_actions.dart';
 import '../component_ancestor_display.dart';
 import '../notes_text.dart';
 import '../sheets/set_task_delay.dart';
+import '../task_priority_badge.dart';
 import '../task_rule_progress_bar.dart';
 
 class TaskRuleListCard extends StatelessWidget {
@@ -151,24 +152,6 @@ class TaskRuleListCard extends StatelessWidget {
             ),
           ),
         ],
-      ],
-    );
-  }
-
-  static Widget priorityWidget(BuildContext context, {required TaskPriority priority}) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      spacing: 2,
-      children: [
-        Icon(Icons.traffic, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-        Text(
-          priority.label,
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-            fontSize: 13,
-          ),
-        ),
       ],
     );
   }
@@ -319,14 +302,23 @@ class TaskRuleListCard extends StatelessWidget {
                 },
           onLongPress: onSelectionChanged,
           titleAlignment: ListTileTitleAlignment.top,
-          title: Text(
-            taskRule.name,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              decoration: isCompleted ? TextDecoration.lineThrough : null,
-              decorationThickness: 2,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+          title: Row(
+            spacing: 6,
+            children: [
+              Flexible(
+                child: Text(
+                  taskRule.name,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    decoration: isCompleted ? TextDecoration.lineThrough : null,
+                    decorationThickness: 2,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              if (appSettings.enableTaskPriority)
+                TaskPriorityBadge(priority: taskRule.priority),
+            ],
           ),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -338,8 +330,6 @@ class TaskRuleListCard extends StatelessWidget {
                 bikes: appRepository.bikes,
                 hierarchy: appRepository.componentHierarchy,
               ),
-              if (appSettings.enableTaskPriority)
-                priorityWidget(context, priority: taskRule.priority),
               if (appSettings.enableTaskTags && taskRule.tags.isNotEmpty)
                 tagsWidget(context, tags: taskRule.tags),
               if (taskRule.notes != null && taskRule.notes!.isNotEmpty)

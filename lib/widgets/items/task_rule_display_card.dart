@@ -11,6 +11,7 @@ import '../../models/task/task_threshold/task_threshold.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/task_actions.dart';
+import '../task_priority_badge.dart';
 import '../task_rule_progress_bar.dart';
 import 'task_rule_list_card.dart';
 
@@ -120,8 +121,20 @@ class TaskRuleDisplayCard extends StatelessWidget {
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           minTileHeight: 0,
           titleAlignment: ListTileTitleAlignment.top,
-          title: Text(
-            taskRule.name,
+          title: Text.rich(
+            TextSpan(
+              text: taskRule.name,
+              children: [
+                if (appSettings.enableTaskPriority)
+                  WidgetSpan(
+                    alignment: PlaceholderAlignment.middle,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 6),
+                      child: TaskPriorityBadge(priority: taskRule.priority),
+                    ),
+                  ),
+              ],
+            ),
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
               decoration: isCompleted ? TextDecoration.lineThrough: null,
               decorationThickness: 2,
@@ -131,8 +144,6 @@ class TaskRuleDisplayCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TaskRuleListCard.filterWidget(context, taskRule: taskRule, component: component, bikes: appRepository.bikes, hierarchy: appRepository.componentHierarchy),
-              if (appSettings.enableTaskPriority)
-                TaskRuleListCard.priorityWidget(context, priority: taskRule.priority),
               if (appSettings.enableTaskTags && taskRule.tags.isNotEmpty)
                 TaskRuleListCard.tagsWidget(context, tags: taskRule.tags),
               if (taskRule.notes != null && taskRule.notes!.isNotEmpty)

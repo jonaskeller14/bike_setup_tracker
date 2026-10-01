@@ -443,7 +443,7 @@ void main() {
 
       expect(_appBarTitle(tester), 'Bikes');
       expect(
-        appRepository.filteredBikes.values.map((bike) => bike.name).toList(),
+        appRepository.view.bikes.values.map((bike) => bike.name).toList(),
         ['Second bike', 'First bike'],
       );
     });

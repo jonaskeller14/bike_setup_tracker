@@ -182,7 +182,7 @@ Future<void> _runDeepWindowLazinessTest(WidgetTester tester) async {
   // guards against would inflate all ~500 headers and fail here.
   final builtHeaders = find.byType(TimelineDayHeader).evaluate().length;
   final builtStravaTiles = find.byType(StravaListTile).evaluate().length;
-  expect(appRepository.filteredStravaActivities.length, 1000);
+  expect(appRepository.stravaActivities.length, 1000);
   expect(builtHeaders, greaterThan(0));
   expect(
     builtHeaders,

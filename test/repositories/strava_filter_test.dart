@@ -80,14 +80,14 @@ void main() {
 
     test("Filtering with no bike selected should show all activities", () {
       expect(repository.filters.bikeId, null);
-      expect(repository.filteredStravaActivities.length, 3);
+      expect(repository.stravaActivities.length, 3);
     });
 
     test("Filtering with a linked bike selected should show only its activities", () async {
       repository.filters.toggleBike(bikeLinked.id);
       await pumpEventQueue(); // selection re-pages Strava at the DB level
-      expect(repository.filteredStravaActivities.length, 1);
-      expect(repository.filteredStravaActivities.containsKey(activityLinked.id), true);
+      expect(repository.stravaActivities.length, 1);
+      expect(repository.stravaActivities.containsKey(activityLinked.id), true);
     });
 
     test("Filtering with an unlinked bike selected should show no activities", () async {
@@ -96,26 +96,26 @@ void main() {
 
       // Ride 2 (null gear) and Ride 3 (gear_unknown) are unattributed, not this
       // bike's rides: its stats count neither, so its list shows neither.
-      expect(repository.filteredStravaActivities, isEmpty);
+      expect(repository.stravaActivities, isEmpty);
       expect(repository.selectedBikeHasNoStravaGear, true);
     });
 
     test("Every unlinked bike shows nothing rather than a shared unassigned pool", () async {
       repository.filters.toggleBike(bikeOtherUnlinked.id);
       await pumpEventQueue();
-      expect(repository.filteredStravaActivities, isEmpty);
+      expect(repository.stravaActivities, isEmpty);
       expect(repository.selectedBikeHasNoStravaGear, true);
     });
 
     test("Deselecting an unlinked bike brings every activity back", () async {
       repository.filters.toggleBike(bikeUnlinked.id);
       await pumpEventQueue();
-      expect(repository.filteredStravaActivities, isEmpty);
+      expect(repository.stravaActivities, isEmpty);
 
       repository.filters.toggleBike(bikeUnlinked.id); // tapping again clears the selection
       await pumpEventQueue();
       expect(repository.filters.bikeId, null);
-      expect(repository.filteredStravaActivities.length, 3);
+      expect(repository.stravaActivities.length, 3);
       expect(repository.selectedBikeHasNoStravaGear, false);
     });
 

@@ -12,7 +12,6 @@ import '../models/adjustment/adjustment.dart';
 import '../models/bike.dart';
 import '../models/component/component.dart';
 import '../models/component/installation.dart';
-import '../models/component/resolved_installation.dart';
 import '../models/component_stats.dart';
 import '../models/context/context_position.dart';
 import '../models/person.dart';
@@ -38,6 +37,7 @@ import '../services/task_status_service.dart';
 import '../utils/adjustment_value_type_check.dart';
 import '../utils/unit_conversion.dart';
 import 'filter_controller.dart';
+import 'filtered_view.dart';
 import 'strava_paging_controller.dart';
 
 class AppRepository extends ChangeNotifier {
@@ -91,6 +91,7 @@ class AppRepository extends ChangeNotifier {
         notifyListeners();
       },
     );
+    _view = _buildView();
     _strava = StravaPagingController(
       database: database,
       scope: _currentStravaScope,
@@ -154,8 +155,7 @@ class AppRepository extends ChangeNotifier {
   Map<String, TaskRule> get taskRules => _taskRules;
   Map<String, TaskEntry> get taskEntries => _taskEntries;
   Map<int, StravaAthlete> get stravaAthletes => _stravaAthletes;
-  // Strava is paginated per active filter, so the loaded window is the filtered
-  // set; [stravaActivities] and [filteredStravaActivities] return the same map.
+  // Strava is paginated per active filter, so the loaded window is the filtered set.
   Map<int, StravaActivity> get stravaActivities => _strava.activities;
   Map<String, StravaGear> get stravaGears => _stravaGears;
   Map<String, ComponentStats> get componentStats => _componentStats;
@@ -396,173 +396,36 @@ class AppRepository extends ChangeNotifier {
   Set<String> get setupTags => _setupTags;
   Set<String> get taskRuleTags => _taskRuleTags;
 
-  Map<String, Bike> _filteredBikes = {};
-  Map<String, Person> _filteredPersons = {};
-  Map<String, Rating> _filteredRatings = {};
-  Map<String, Component> _filteredComponents = {};
-  Map<String, Setup> _filteredSetups = {};
-  Map<String, RatingEntry> _filteredRatingEntries = {};
-  Map<String, TaskRule> _filteredTaskRules = {};
-  Map<String, TaskEntry> _filteredTaskEntries = {};
-  Map<String, TaskRule> _filteredOpenTaskRules = {};
-  List<ResolvedInstallation> _filteredInstallations = [];
-
-  Map<String, Bike> get filteredBikes => _filteredBikes;
-  Map<String, Person> get filteredPersons => _filteredPersons;
-  Map<String, Rating> get filteredRatings => _filteredRatings;
-  Map<String, Component> get filteredComponents => _filteredComponents;
   Map<String, Component> get archivedComponents => {
         for (final entry in _components.entries)
           if (componentHierarchy.isEffectivelyArchived(entry.key)) entry.key: entry.value
       };
-  Map<String, Setup> get filteredSetups => _filteredSetups;
-  Map<String, RatingEntry> get filteredRatingEntries => _filteredRatingEntries;
-  Map<String, TaskRule> get filteredTaskRules => _filteredTaskRules;
-  Map<String, TaskRule> get filteredOpenTaskRules => _filteredOpenTaskRules;
-  int get filteredOpenTaskRulesCount => _filteredOpenTaskRules.length;
-  Map<String, TaskEntry> get filteredTaskEntries => _filteredTaskEntries;
-  Map<int, StravaActivity> get filteredStravaActivities => _strava.activities;
-  List<ResolvedInstallation> get filteredInstallations => _filteredInstallations;
+
+  late FilteredView _view;
+
+  /// The raw data narrowed by [filters].
+  FilteredView get view => _view;
 
   void _filter() {
     filters.normalize(bikeIds: bikes.keys, setupTags: setupTags, taskRuleTags: taskRuleTags);
-
-    _filterBikes();
-    _filterComponents();
-    _filterSetups();
-    _filterRatingEntries();
-    _filterPersons();
-    _filterRatings();
-    _filterTaskRules();  // after _filterComponents()
-    _filterTaskEntries();  // after _filterTaskRules()
+    _view = _buildView();
     _strava.reloadIfScopeChanged();  // re-pages Strava if the bike scope changed
-    _filterInstallations();
   }
 
-  void _filterBikes() {
-    final selectedBike = filters.bikeId;
-    _filteredBikes = selectedBike == null
-        ? bikes
-        : Map.fromEntries(bikes.entries.where((entry) => entry.key == selectedBike));
-  }
-
-  void _filterComponents() {
-    final selectedBike = filters.bikeId;
-    final hierarchy = componentHierarchy;
-    _filteredComponents = Map.fromEntries(components.entries.where((entry) {
-      final placement = hierarchy.resolveCurrent(entry.key);
-      if (placement.isArchived || placement.isDeleted) return false;
-      return selectedBike == null || placement.bikeId == selectedBike;
-    }));
-  }
-
-  void _filterSetups() {
-    final selectedBike = filters.bikeId;
-    _filteredSetups = Map.fromEntries(setups.entries.where((entry) =>
-      (selectedBike == null ? true : entry.value.bike == selectedBike) &&
-      filters.setup.matches(entry.value)
-    ));
-  }
-
-  void _filterRatingEntries() {
-    final selectedBike = filters.bikeId;
-    _filteredRatingEntries = selectedBike == null
-        ? Map.fromEntries(ratingEntries.entries)
-        : Map.fromEntries(ratingEntries.entries.where((entry) => entry.value.bike == selectedBike));
-  }
-
-  void _filterPersons() {
-    final selectedBike = filters.bikeId;
-    _filteredPersons = selectedBike == null
-        ? persons
-        : Map.fromEntries(persons.entries.where((entry) => entry.value.id == bikes[selectedBike]?.person));
-  }
-
-  void _filterRatings() {
-    final selectedBike = filters.bikeId;
-    _filteredRatings = Map.fromEntries(ratings.entries.where((entry) {
-      final rating = entry.value;
-      switch (rating.association) {
-        case GlobalRatingAssociation(): return true;
-        case PersonRatingAssociation(): return true;
-        case BikeRatingAssociation(:final bikeId): return selectedBike == null ? true : bikeId == selectedBike;
-        case ComponentRatingAssociation(:final componentId): return selectedBike == null ? true : filteredComponents.values.any((c) => c.id == componentId);
-        case ComponentTypeRatingAssociation(:final componentTypeStr): return selectedBike == null ? true : filteredComponents.values.any((c) => c.componentType.toString() == componentTypeStr);
-      }
-    }));
-  }
-
-  void _filterTaskRules() {
-    _filteredTaskRules = Map.fromEntries(
-      taskRules.entries.where((entry) {
-        final rule = entry.value;
-        return filters.taskRule.matches(rule) && _isTaskRuleInCurrentScope(rule);
-      }),
-    );
-
-    _filteredOpenTaskRules = Map.fromEntries(
-      _filteredTaskRules.entries.where(
-        (entry) => !taskEntries.values.any((te) => te.taskRule == entry.key),
-      ),
-    );
-  }
-
-  bool _isTaskRuleInCurrentScope(TaskRule rule) {
-    final selectedBike = filters.bikeId;
-    switch (rule.association) {
-      case GeneralTaskAssociation():
-        return true;
-      case BikeTaskAssociation(:final id):
-        return selectedBike == null || id == selectedBike;
-      case ComponentTaskAssociation(:final id):
-        if (!_components.containsKey(id)) return false;
-        final placement = componentHierarchy.resolveCurrent(id);
-        if (placement.isArchived || placement.isDeleted) return false;
-        return selectedBike == null || placement.bikeId == selectedBike;
-    }
-  }
-
-  void _filterTaskEntries() {
-    _filteredTaskEntries = Map.fromEntries(
-      taskEntries.entries.where(
-        (entry) => _filteredTaskRules.containsKey(entry.value.taskRule),
-      ),
-    );
-  }
-
-  void _filterInstallations() {
-    _filteredInstallations = [];
-    final selectedBike = filters.bikeId;
-    final hierarchy = componentHierarchy;
-    for (final component in components.values) {
-      final sorted = List<Installation>.from(component.installations)
-        ..sort((a, b) => a.dateTimeUTC.compareTo(b.dateTimeUTC));
-
-      for (int i = 0; i < sorted.length; i++) {
-        final installation = sorted[i];
-        if (installation.dateTimeUTC.millisecondsSinceEpoch == 0) continue;
-
-        final previousInstallation = i > 0 ? sorted[i-1] : null;
-        final originParent = previousInstallation?.parent;
-        final isInitial = i == 0;
-
-        final ci = ResolvedInstallation(
-          component: component,
-          installation: installation,
-          originParent: originParent,
-          originParentType: previousInstallation?.parentType,
-          isInitial: isInitial,
-        );
-
-        final targetBike = hierarchy.bikeAt(component.id, installation.dateTimeUTC);
-        final originTime = installation.dateTimeUTC.subtract(const Duration(microseconds: 1));
-        final originBike = hierarchy.bikeAt(component.id, originTime);
-        if (selectedBike == null || targetBike == selectedBike || originBike == selectedBike) {
-          _filteredInstallations.add(ci);
-        }
-      }
-    }
-  }
+  FilteredView _buildView() => FilteredView(
+        bikes: _bikes,
+        components: _components,
+        setups: _setups,
+        ratingEntries: _ratingEntries,
+        persons: _persons,
+        ratings: _ratings,
+        taskRules: _taskRules,
+        taskEntries: _taskEntries,
+        hierarchy: componentHierarchy,
+        bikeId: filters.bikeId,
+        setupFilter: filters.setup,
+        taskRuleFilter: filters.taskRule,
+      );
 
   // ---------------------------------------------------------------------------
   // TASKS: SNAPSHOTS, STATUS & DERIVED LISTS
@@ -717,10 +580,10 @@ class AppRepository extends ChangeNotifier {
     return toDo;
   }
 
-  List<TaskRuleWithStatus> get openTaskRules => _openTaskRulesWithStatus(_filteredTaskRules.values);
+  List<TaskRuleWithStatus> get openTaskRules => _openTaskRulesWithStatus(view.taskRules.values);
 
   List<TaskRuleWithStatus> get actionableTaskRules {
-    final actionable = _filteredTaskRules.values
+    final actionable = view.taskRules.values
         .map((rule) => TaskRuleWithStatus(rule: rule, status: getTaskRuleStatus(rule)))
         .where((taskRule) => taskRule.status.isDue)
         .toList();
@@ -737,7 +600,7 @@ class AppRepository extends ChangeNotifier {
   }
 
   List<TaskRuleWithStatus> get upcomingTaskRules {
-    final upcoming = _filteredTaskRules.values
+    final upcoming = view.taskRules.values
         .map((rule) => TaskRuleWithStatus(rule: rule, status: getTaskRuleStatus(rule)))
         .where((taskRule) => taskRule.status.type == TaskStatusType.upcoming)
         .toList();
@@ -758,13 +621,11 @@ class AppRepository extends ChangeNotifier {
     return actionable.isEmpty ? null : actionable.first.status.type;
   }
 
-  bool get hasScopeActionableTaskRules => _taskRules.values
-      .where(_isTaskRuleInCurrentScope)
+  bool get hasScopeActionableTaskRules => view.taskRulesInScope.values
       .map(getTaskRuleStatus)
       .any((status) => status.isDue);
 
-  bool get hasTaskRulesInCurrentScope =>
-      _taskRules.values.any(_isTaskRuleInCurrentScope);
+  bool get hasTaskRulesInCurrentScope => view.taskRulesInScope.isNotEmpty;
 
   /// Open (non-completed) task rules for a bike, including rules attached to its components.
   List<TaskRuleWithStatus> openTaskRulesForBike(String bikeId) {
@@ -809,7 +670,7 @@ class AppRepository extends ChangeNotifier {
     return TaskStatusType.completed;
   }
 
-  TaskStatusType get openTaskRulesStatusType => getAggregatedTaskStatus(_filteredTaskRules.values);
+  TaskStatusType get openTaskRulesStatusType => getAggregatedTaskStatus(view.taskRules.values);
 
   /// Worst status among a component's open task rules, or null if it has none.
   TaskStatusType? componentTaskIndicatorStatus(String componentId) {
@@ -819,7 +680,7 @@ class AppRepository extends ChangeNotifier {
   }
 
   List<TaskRuleWithStatus> get completedTaskRules {
-    final statusRules = _filteredTaskRules.values.map((rule) => TaskRuleWithStatus(rule: rule, status: getTaskRuleStatus(rule)));
+    final statusRules = view.taskRules.values.map((rule) => TaskRuleWithStatus(rule: rule, status: getTaskRuleStatus(rule)));
     final completed = statusRules.where((tr) => tr.status.type == TaskStatusType.completed).toList();
     completed.sort((a, b) {
       final modifiedComparison = b.rule.lastModified.compareTo(a.rule.lastModified);

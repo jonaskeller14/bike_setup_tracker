@@ -72,22 +72,22 @@ void main() {
       await pumpEventQueue();
 
       // The previous global-then-filter pagination returned empty here.
-      expect(repository.filteredStravaActivities.length, 1);
-      expect(repository.filteredStravaActivities.containsKey(1), true);
+      expect(repository.stravaActivities.length, 1);
+      expect(repository.stravaActivities.containsKey(1), true);
     });
 
     test("Toggling the sort order keeps the bike's activity visible (the reported bug)", () async {
       repository.filters.toggleBike(bikeOld.id);
       await pumpEventQueue();
-      expect(repository.filteredStravaActivities.containsKey(1), true);
+      expect(repository.stravaActivities.containsKey(1), true);
 
       await repository.setStravaSortOrder(true); // ascending
       await pumpEventQueue();
-      expect(repository.filteredStravaActivities.containsKey(1), true);
+      expect(repository.stravaActivities.containsKey(1), true);
 
       await repository.setStravaSortOrder(false); // back to descending
       await pumpEventQueue();
-      expect(repository.filteredStravaActivities.containsKey(1), true);
+      expect(repository.stravaActivities.containsKey(1), true);
     });
 
     test("Pagination walks only the selected bike's activities", () async {
@@ -95,32 +95,32 @@ void main() {
       await pumpEventQueue();
 
       // First page (limit 2) of bikeNew's 5 activities.
-      expect(repository.filteredStravaActivities.length, 2);
+      expect(repository.stravaActivities.length, 2);
       expect(repository.hasMoreStrava, true);
-      expect(repository.filteredStravaActivities.values.every((a) => a.gearId == "gear_new"), true);
+      expect(repository.stravaActivities.values.every((a) => a.gearId == "gear_new"), true);
 
       await repository.loadMoreStravaActivities();
       await pumpEventQueue();
-      expect(repository.filteredStravaActivities.length, 4);
+      expect(repository.stravaActivities.length, 4);
 
       await repository.loadMoreStravaActivities();
       await pumpEventQueue();
-      expect(repository.filteredStravaActivities.length, 5);
+      expect(repository.stravaActivities.length, 5);
       expect(repository.hasMoreStrava, false);
       // The other bike's activity never leaks into the filtered window.
-      expect(repository.filteredStravaActivities.containsKey(1), false);
+      expect(repository.stravaActivities.containsKey(1), false);
     });
 
     test("Switching bikes re-pages from the top for the new filter", () async {
       repository.filters.toggleBike(bikeNew.id);
       await pumpEventQueue();
-      expect(repository.filteredStravaActivities.values.every((a) => a.gearId == "gear_new"), true);
-      expect(repository.filteredStravaActivities.containsKey(1), false);
+      expect(repository.stravaActivities.values.every((a) => a.gearId == "gear_new"), true);
+      expect(repository.stravaActivities.containsKey(1), false);
 
       repository.filters.toggleBike(bikeOld.id);
       await pumpEventQueue();
-      expect(repository.filteredStravaActivities.length, 1);
-      expect(repository.filteredStravaActivities.containsKey(1), true);
+      expect(repository.stravaActivities.length, 1);
+      expect(repository.stravaActivities.containsKey(1), true);
     });
   });
 }

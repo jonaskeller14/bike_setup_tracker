@@ -73,7 +73,7 @@ class SetupListSearch extends StatelessWidget {
         final List<TimelineEntry> matchingEntries = [];
 
         if (appSettings.displayShowSetups) {
-          final setups = appRepository.filteredSetups.values;
+          final setups = appRepository.view.setups.values;
           matchingEntries.addAll(
             setups
                 .where(
@@ -93,7 +93,7 @@ class SetupListSearch extends StatelessWidget {
         }
 
         if (appSettings.displayShowTasks) {
-          final tasks = appRepository.filteredTaskEntries.values;
+          final tasks = appRepository.view.taskEntries.values;
           matchingEntries.addAll(
             tasks
                 .where(
@@ -107,7 +107,7 @@ class SetupListSearch extends StatelessWidget {
         }
 
         if (appSettings.displayShowInstallations) {
-          final installations = appRepository.filteredInstallations;
+          final installations = appRepository.view.installations;
           matchingEntries.addAll(
             installations
                 .where(
@@ -121,7 +121,7 @@ class SetupListSearch extends StatelessWidget {
         }
 
         if (appSettings.enableRating && appSettings.displayShowRatingEntries) {
-          final ratingEntries = appRepository.filteredRatingEntries.values;
+          final ratingEntries = appRepository.view.ratingEntries.values;
           matchingEntries.addAll(
             ratingEntries
                 .where(

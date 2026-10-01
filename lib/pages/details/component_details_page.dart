@@ -169,7 +169,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
       _ => false,
     };
 
-    final setupsUnsorted = appRepository.filteredSetups.values
+    final setupsUnsorted = appRepository.view.setups.values
         .where((s) => component.adjustments.any((adj) => s.bikeAdjustmentValues.containsKey(adj.id)))
         .toList()
         .reversed

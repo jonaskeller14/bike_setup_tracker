@@ -3,12 +3,16 @@ import 'dart:async';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/context/context_position.dart';
+import 'package:bike_setup_tracker/models/filters/setup_filter.dart';
+import 'package:bike_setup_tracker/models/filters/task_rule_filter.dart';
 import 'package:bike_setup_tracker/models/rating/rating_entry.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:bike_setup_tracker/pages/map_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/repositories/filter_controller.dart';
+import 'package:bike_setup_tracker/repositories/filtered_view.dart';
+import 'package:bike_setup_tracker/services/component_hierarchy_resolver.dart';
 import 'package:bike_setup_tracker/services/location_provider.dart';
 import 'package:bike_setup_tracker/services/location_service.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
@@ -31,14 +35,32 @@ void main() {
   late MockSubscriptionService subscriptionService;
   late List<VoidCallback> repositoryListeners;
 
+  void stubView({Map<String, Setup> setups = const {}}) {
+    when(() => repository.view).thenReturn(
+      FilteredView(
+        bikes: const {},
+        components: const {},
+        setups: setups,
+        ratingEntries: const {},
+        persons: const {},
+        ratings: const {},
+        taskRules: const {},
+        taskEntries: const {},
+        hierarchy: ComponentHierarchyResolver(const {}),
+        bikeId: null,
+        setupFilter: const SetupFilter(),
+        taskRuleFilter: TaskRuleFilter(),
+      ),
+    );
+  }
+
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     repository = MockAppRepository();
     when(() => repository.bikes).thenReturn(<String, Bike>{});
     filters = FilterController(onChanged: () {});
     when(() => repository.filters).thenReturn(filters);
-    when(() => repository.filteredSetups).thenReturn({});
-    when(() => repository.filteredRatingEntries).thenReturn({});
+    stubView();
     when(() => repository.getFilteredStravaActivitiesWithPosition()).thenAnswer((_) async => []);
     when(() => repository.hasStravaActivitiesWithPosition()).thenAnswer((_) async => false);
     when(() => repository.hasSetupsWithPosition).thenReturn(false);
@@ -331,7 +353,7 @@ void main() {
         personAdjustmentValues: const {},
         position: ContextPosition(latitude: pinPoint.latitude, longitude: pinPoint.longitude),
       );
-      when(() => repository.filteredSetups).thenReturn({setup.id: setup});
+      stubView(setups: {setup.id: setup});
       when(() => repository.hasSetupsWithPosition).thenReturn(true);
     }
 
@@ -749,7 +771,7 @@ void main() {
         personAdjustmentValues: const {},
         position: const ContextPosition(latitude: 44.16, longitude: 8.34),
       );
-      when(() => repository.filteredSetups).thenReturn({setup.id: setup});
+      stubView(setups: {setup.id: setup});
       when(() => repository.hasSetupsWithPosition).thenReturn(true);
       notifyRepository();
       await tester.pump();

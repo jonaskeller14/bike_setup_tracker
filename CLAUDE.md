@@ -89,7 +89,7 @@ After changing any table or adding a `@JsonSerializable` annotation, run `build_
 
 ### Filtering State in AppRepository
 
-The filter criteria live in `appRepository.filters` (`FilterController`, `lib/repositories/filter_controller.dart`), with one immutable filter object per domain in `lib/models/filters/`. `filters.bikeId` is the primary filter — it drives which components, setups, persons, ratings, task rules, and installations are shown. Setup tags and task rule tags provide secondary filtering. Computed properties like `toDoTaskRules` and `completedTaskRules` derive status (Overdue / Due / Upcoming) from rule intervals and Strava distance data.
+The filter criteria live in `appRepository.filters` (`FilterController`, `lib/repositories/filter_controller.dart`), with one immutable filter object per domain in `lib/models/filters/`. `filters.bikeId` is the primary filter — it drives which components, setups, persons, ratings, task rules, and installations are shown. Setup tags and task rule tags provide secondary filtering. The filtered results are read from `appRepository.view` (`FilteredView`, `lib/repositories/filtered_view.dart`), a snapshot that is rebuilt on every data or criteria change and computes each result lazily on first read. Computed properties like `toDoTaskRules` and `completedTaskRules` derive status (Overdue / Due / Upcoming) from rule intervals and Strava distance data.
 
 ### Services (`lib/services/`)
 

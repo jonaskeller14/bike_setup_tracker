@@ -281,7 +281,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
 
   Iterable<Marker> _setupMarkers(AppRepository appRepository, AppSettings appSettings) {
     final focusSetupIds = widget.focusSetups.map((setup) => setup.id).toSet();
-    return appRepository.filteredSetups.values
+    return appRepository.view.setups.values
         .where((s) => (s.position?.latitude?.isFinite ?? false) && (s.position?.longitude?.isFinite ?? false))
         .where((s) => !focusSetupIds.contains(s.id))
         .map(
@@ -309,7 +309,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
   }
 
   Iterable<Marker> _ratingEntryMarkers(AppRepository appRepository) {
-    return appRepository.filteredRatingEntries.values
+    return appRepository.view.ratingEntries.values
         .where((re) => (re.position?.latitude?.isFinite ?? false) && (re.position?.longitude?.isFinite ?? false))
         .where((re) => re.id != widget.focusRatingEntry?.id)
         .map(

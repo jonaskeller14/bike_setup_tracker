@@ -54,7 +54,6 @@ void main() {
     when(() => mockRepository.components).thenReturn({component.id: component});
     when(() => mockRepository.componentHierarchy)
         .thenAnswer((_) => ComponentHierarchyResolver(mockRepository.components));
-    when(() => mockRepository.filteredBikes).thenReturn({'b1': bike1, 'b2': bike2});
     when(() => mockRepository.editComponent(any())).thenAnswer((_) async => {});
   });
 

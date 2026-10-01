@@ -120,17 +120,17 @@ class SetupList extends StatelessWidget {
     final appRepository = context.watch<AppRepository>();
     final subscriptionService = context.watch<SubscriptionService>();
     final sortAscending = appRepository.stravaSortAscending;
-    final setupsList = appRepository.filteredSetups.values;
+    final setupsList = appRepository.view.setups.values;
     final bool showingStrava =
         appSettings.displayShowActivities && appSettings.enableStrava && subscriptionService.hasStravaEntitlement;
-    final stravaActivities = showingStrava ? appRepository.filteredStravaActivities.values : const <StravaActivity>[];
+    final stravaActivities = showingStrava ? appRepository.stravaActivities.values : const <StravaActivity>[];
     final lazyLoadTriggerIds = _lazyLoadTriggerIds(
       appRepository,
       stravaActivities,
       sortAscending,
     );
-    final taskEntries = appRepository.filteredTaskEntries.values;
-    final installations = appRepository.filteredInstallations;
+    final taskEntries = appRepository.view.taskEntries.values;
+    final installations = appRepository.view.installations;
 
     // Horizon date is the "furthest" loaded activity date in the current scroll direction.
     // ASC: newest activity date. DESC: oldest activity date.
@@ -170,7 +170,7 @@ class SetupList extends StatelessWidget {
             })
             .map((ci) => InstallationEntry(ci)),
       if (appSettings.enableRating && appSettings.displayShowRatingEntries)
-        ...appRepository.filteredRatingEntries.values
+        ...appRepository.view.ratingEntries.values
             .where((re) {
               if (horizonDate == null || !appRepository.hasMoreStrava) return true;
               return sortAscending

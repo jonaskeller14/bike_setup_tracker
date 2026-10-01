@@ -31,7 +31,7 @@ class ComponentActions {
   static Future<void> addComponent(BuildContext context, {Object? initialBike = const _Sentinel(), List<Installation>? initialInstallations}) async {
     final appRepository = context.read<AppRepository>();
 
-    if (initialInstallations == null && initialBike is _Sentinel && appRepository.filteredBikes.isEmpty) {
+    if (initialInstallations == null && initialBike is _Sentinel && appRepository.view.bikes.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         AppSnackBar.error(
           context,
@@ -347,7 +347,7 @@ class ComponentActions {
     await appRepository.reorderComponent(
       oldIndex: oldIndex,
       newIndex: newIndex,
-      filteredComponentsList: appRepository.filteredComponents.values.toList(),
+      filteredComponentsList: appRepository.view.components.values.toList(),
     );
   }
 

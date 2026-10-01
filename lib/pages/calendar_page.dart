@@ -251,15 +251,15 @@ class _CalendarPageState extends State<CalendarPage> {
   ) {
     return [
       if (settings.displayShowSetups)
-        ...repo.filteredSetups.values.map((s) => SetupEntry(s)),
+        ...repo.view.setups.values.map((s) => SetupEntry(s)),
       if (_showingStrava(settings, sub))
-        ...repo.filteredStravaActivities.values.map((a) => StravaEntry(a)),
+        ...repo.stravaActivities.values.map((a) => StravaEntry(a)),
       if (settings.displayShowTasks)
-        ...repo.filteredTaskEntries.values.map((t) => TaskTimeLineEntry(t)),
+        ...repo.view.taskEntries.values.map((t) => TaskTimeLineEntry(t)),
       if (settings.displayShowInstallations)
-        ...repo.filteredInstallations.map((ci) => InstallationEntry(ci)),
+        ...repo.view.installations.map((ci) => InstallationEntry(ci)),
       if (settings.enableRating && settings.displayShowRatingEntries)
-        ...repo.filteredRatingEntries.values.map((re) => RatingEntryTimelineEntry(re)),
+        ...repo.view.ratingEntries.values.map((re) => RatingEntryTimelineEntry(re)),
     ];
   }
 

@@ -148,7 +148,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
     final appRepository = context.read<AppRepository>();
     _initialBike = widget.ratingEntry?.bike ??
         widget.initialBike?.id ??
-        appRepository.filteredBikes.keys.firstOrNull ??
+        appRepository.view.bikes.keys.firstOrNull ??
         appRepository.bikes.keys.firstOrNull ??
         '';
     _bike = _initialBike;

@@ -126,7 +126,7 @@ class _ComponentPageState extends State<ComponentPage> {
     final appRepository = context.read<AppRepository>();
     final initialParentId = widget.component != null 
         ? widget.component!.parentId 
-        : appRepository.filteredBikes.keys.firstOrNull;
+        : appRepository.view.bikes.keys.firstOrNull;
 
     if (widget.mode == ComponentPageMode.replace) {
       final replacedInstallation = widget.replacedInstallation!;

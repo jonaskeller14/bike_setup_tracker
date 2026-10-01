@@ -189,7 +189,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     unawaited(_initAttachmentsDir());
 
     final bikes = appRepository.bikes;
-    _initialBike = widget.setup?.bike ?? widget.initialBike?.id ?? appRepository.filteredBikes.keys.firstOrNull ?? '';
+    _initialBike = widget.setup?.bike ?? widget.initialBike?.id ?? appRepository.view.bikes.keys.firstOrNull ?? '';
 
     _initialPerson = widget.setup?.person ?? bikes[_initialBike]?.person;
 

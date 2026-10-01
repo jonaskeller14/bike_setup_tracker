@@ -256,7 +256,7 @@ class _GarageListState extends State<GarageList> {
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
-    final bikesList = appRepository.filteredBikes.values.toList();
+    final bikesList = appRepository.view.bikes.values.toList();
 
     Widget proxyDecorator(Widget child, int index, Animation<double> animation) {
       return AnimatedBuilder(

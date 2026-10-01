@@ -49,7 +49,7 @@ class RatingList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
-    final ratingsList = appRepository.filteredRatings.values.toList();
+    final ratingsList = appRepository.view.ratings.values.toList();
 
     Widget proxyDecorator(Widget child, int index, Animation<double> animation) {
       return AnimatedBuilder(

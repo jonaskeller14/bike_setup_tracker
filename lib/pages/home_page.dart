@@ -114,13 +114,13 @@ class _HomePageState extends State<HomePage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final appRepository = context.read<AppRepository>();
-    _taskRuleSelection.retainWhere(appRepository.filteredTaskRules.containsKey);
-    _bikeSelection.retainWhere(appRepository.filteredBikes.containsKey);
+    _taskRuleSelection.retainWhere(appRepository.view.taskRules.containsKey);
+    _bikeSelection.retainWhere(appRepository.view.bikes.containsKey);
     _timelineSelection.retainWhere(
       (entry) => switch (entry.kind) {
-        TimelineSelectionKind.setup => appRepository.filteredSetups.containsKey(entry.id),
-        TimelineSelectionKind.taskEntry => appRepository.filteredTaskEntries.containsKey(entry.id),
-        TimelineSelectionKind.ratingEntry => appRepository.filteredRatingEntries.containsKey(entry.id),
+        TimelineSelectionKind.setup => appRepository.view.setups.containsKey(entry.id),
+        TimelineSelectionKind.taskEntry => appRepository.view.taskEntries.containsKey(entry.id),
+        TimelineSelectionKind.ratingEntry => appRepository.view.ratingEntries.containsKey(entry.id),
       },
     );
   }

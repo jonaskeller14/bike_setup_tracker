@@ -137,7 +137,7 @@ class AppHintService extends ChangeNotifier {
   AppHint? _setupTaskHint() {
     final eligible =
         !_appSettings.enableTask &&
-        _appRepository.filteredSetups.isNotEmpty &&
+        _appRepository.view.setups.isNotEmpty &&
         statusOf(AppHint.setupTasksV1) == AppHintStatus.unseen;
     return eligible ? AppHint.setupTasksV1 : null;
   }
@@ -145,7 +145,7 @@ class AppHintService extends ChangeNotifier {
   AppHint? _setupCalendarHint() {
     final eligible =
         !_appSettings.enableCalendar &&
-        (_appRepository.filteredSetups.length >= 2 || _appRepository.filteredStravaActivities.length > 2) &&
+        (_appRepository.view.setups.length >= 2 || _appRepository.stravaActivities.length > 2) &&
         statusOf(AppHint.setupCalendarV1) == AppHintStatus.unseen;
     return eligible ? AppHint.setupCalendarV1 : null;
   }

@@ -827,6 +827,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
               await showSetTagsSheet(
                 context: context,
                 tags: _tags,
+                availableTags: context.read<AppRepository>().taskRuleTags,
                 title: 'Add Tags',
                 subtitle: "Use tags to group and organize your tasks (e.g. maintenance, order list, setup test, ...)",
                 onChanged: (Set<String> newTags) {

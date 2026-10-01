@@ -69,8 +69,12 @@ void main() {
         child: MaterialApp(theme: theme ?? materialAppTheme, home: const AttachmentsPage()),
       ),
     );
-    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
-    await tester.pump();
+    // Listing a folder takes several real I/O round trips, and each one only
+    // continues once the fake-async zone is pumped.
+    for (var i = 0; i < 10 && find.byType(CircularProgressIndicator).evaluate().isNotEmpty; i++) {
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+      await tester.pump();
+    }
   }
 
   Setup setup(String bikeId, List<Attachment> attachments) => Setup(

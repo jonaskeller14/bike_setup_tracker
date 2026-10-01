@@ -1051,6 +1051,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                   await showSetTagsSheet(
                     context: context, 
                     tags: _tags,
+                    availableTags: context.read<AppRepository>().setupTags,
                     title: 'Add Tags',
                     subtitle: "Use tags to group and organize your setups. For example, to categorize by specific test sessions, tracks, or terrains.",
                     onChanged: (Set<String> newTags) {

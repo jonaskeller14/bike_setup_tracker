@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
-import 'package:bike_setup_tracker/models/adjustment/value_unit_conversion.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/attachment.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
@@ -432,7 +431,7 @@ void main() {
       attachments: attachments ?? [manual, invoice],
     );
 
-    Finder attachChip() => find.widgetWithText(ActionChip, 'Attach');
+    Finder attachChip() => find.widgetWithIcon(ActionChip, Icons.attach_file);
 
     testWidgets('hides the Attach chip when attachments are disabled', (tester) async {
       await tester.pumpWidget(createWidgetUnderTest(component: componentWithAttachments(), mode: ComponentPageMode.edit));

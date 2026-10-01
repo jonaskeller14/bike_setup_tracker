@@ -130,7 +130,7 @@ void main() {
     final invoice = Attachment(id: 'invoice', extension: '.pdf', name: 'Invoice.pdf');
     Bike bikeWithAttachments() => Bike(id: 'bike1', name: 'Test Bike', person: null, attachments: [manual, invoice]);
 
-    Finder attachChip() => find.widgetWithText(ActionChip, 'Attach');
+    Finder attachChip() => find.widgetWithIcon(ActionChip, Icons.attach_file);
 
     testWidgets('hides the Attach chip when attachments are disabled', (tester) async {
       await tester.pumpWidget(createWidgetUnderTest(BikePage.edit(bike: bikeWithAttachments())));

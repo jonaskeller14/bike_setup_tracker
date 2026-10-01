@@ -74,7 +74,7 @@ class DataActions {
       context,
       title: 'Clear database?',
       content:
-          'All bikes, components, setups, riders, ratings, tasks and images are deleted. '
+          'All bikes, components, setups, riders, ratings, tasks and attachments are deleted. '
           'A backup is saved first. This action cannot be undone.',
       trueText: 'Clear',
       isDestructive: true,

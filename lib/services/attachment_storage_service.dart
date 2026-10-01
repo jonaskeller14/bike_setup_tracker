@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:archive/archive_io.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
@@ -55,12 +56,23 @@ class AttachmentStorageService {
     if (bytes > maxFileBytes) throw AttachmentTooLargeException(name);
   }
 
-  /// Copy an XFile from the image picker into attachments/, named after the picked file.
-  Future<Attachment> importPicked(XFile picked) async {
+  /// image_picker names camera shots and all iOS picks after its temp file (`image_picker_<GUID>`,
+  /// `<UUID>…`); only Android gallery picks keep their original name.
+  static final _generatedPickerName = RegExp(
+    r'^image_picker|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}',
+    caseSensitive: false,
+  );
+
+  /// Copy an XFile from the image picker into attachments/, named after the picked file
+  /// or, when the picker made the name up, after the import time.
+  Future<Attachment> importPicked(XFile picked, {DateTime? now}) async {
     _checkSize(picked.name, await picked.length());
     await ensureDir();
     final ext = p.extension(picked.path).isNotEmpty ? p.extension(picked.path) : '.jpg';
-    final attachment = Attachment(extension: ext, name: picked.name);
+    final name = _generatedPickerName.hasMatch(picked.name)
+        ? 'Photo ${DateFormat('yyyy-MM-dd HH.mm').format(now ?? DateTime.now())}'
+        : picked.name;
+    final attachment = Attachment(extension: ext, name: name);
     final dest = await resolve(attachment.filename);
     await File(picked.path).copy(dest.path);
     return attachment;

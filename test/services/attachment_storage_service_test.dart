@@ -77,6 +77,21 @@ void main() {
       expect(source.existsSync(), isTrue);
     });
 
+    test('importPicked names picker temp files after the import time', () async {
+      final now = DateTime(2026, 9, 30, 14, 32);
+      for (final tempName in [
+        'image_picker_3F2504E0-4F89-11D3-9A0C-0305E82C3301-1234-0000.jpg',
+        '3f2504e0-4f89-11d3-9a0c-0305e82c33011234567890.jpg',
+      ]) {
+        final source = await sourceFile(tempName, [1]);
+
+        final attachment = await service.importPicked(XFile(source.path), now: now);
+
+        expect(attachment.name, 'Photo 2026-09-30 14.32');
+        expect(attachment.exportFileName, 'Photo 2026-09-30 14.32.jpg');
+      }
+    });
+
     test('importFile streams the file and keeps its original name', () async {
       final attachment = await service.importFile(_FakePlatformFile('Fox 38 Manual.PDF', [1, 2, 3]));
 

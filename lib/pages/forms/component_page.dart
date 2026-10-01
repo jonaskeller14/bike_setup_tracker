@@ -797,6 +797,7 @@ class _ComponentPageState extends State<ComponentPage> {
     final appSettings = context.watch<AppSettings>();
     final summary = initialStatsSummary(_initialStats, appSettings);
     return FilterChip(
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       avatar: const Icon(Icons.start),
       showCheckmark: false,
       selected: widget.mode != ComponentPageMode.edit && _initialStats != ComponentStats.zero,
@@ -814,8 +815,12 @@ class _ComponentPageState extends State<ComponentPage> {
 
   Widget _attachChip() {
     return ActionChip(
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      label: const SizedBox.shrink(),
+      labelPadding: const EdgeInsets.symmetric(vertical: 2),
+      padding: EdgeInsets.zero,
       avatar: const Icon(Icons.attach_file),
-      label: const Text('Attach'),
+      tooltip: 'Add Attachment',
       backgroundColor: widget.mode == ComponentPageMode.edit && !listEquals(_attachments, widget.component!.attachments)
           ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
           : null,
@@ -1047,7 +1052,8 @@ class _ComponentPageState extends State<ComponentPage> {
                                   alignment: Alignment.centerLeft,
                                   child: Wrap(
                                     spacing: 8.0,
-                                    runSpacing: 4.0,
+                                    runSpacing: 8.0,
+                                    crossAxisAlignment: WrapCrossAlignment.center,
                                     children: [
                                       if (showInitialStats) _initialStatsChip(),
                                       if (showAttachments) _attachChip(),

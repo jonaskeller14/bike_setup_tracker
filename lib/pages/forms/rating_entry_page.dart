@@ -519,21 +519,25 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
       builder: (context, child) {
         return Wrap(
           spacing: 8.0,
-          runSpacing: 4.0,
+          runSpacing: 8.0,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             ActionChip(
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               avatar: const Icon(Icons.calendar_month),
               label: Text(DateFormat(appSettings.dateFormat).format(_selectedDateTimeLocal)),
               backgroundColor: widget.mode == RatingEntryPageMode.edit && (_selectedDateTimeUtc.year != _initialDateTimeUtc.year || _selectedDateTimeUtc.month != _initialDateTimeUtc.month || _selectedDateTimeUtc.day != _initialDateTimeUtc.day) ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
               onPressed: _pickDate,
             ),
             ActionChip(
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               avatar: const Icon(Icons.access_time),
               label: Text(DateFormat(appSettings.timeFormat).format(_selectedDateTimeLocal)),
               backgroundColor: widget.mode == RatingEntryPageMode.edit && (_selectedDateTimeUtc.hour != _initialDateTimeUtc.hour || _selectedDateTimeUtc.minute != _initialDateTimeUtc.minute) ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
               onPressed: _pickTime,
             ),
             ActionChip(
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               backgroundColor: widget.mode == RatingEntryPageMode.edit && (!ContextPosition.equal(_currentLocation.value, widget.ratingEntry?.position) || !ContextPlace.equal(_currentPlace.value, widget.ratingEntry?.place)) ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
               onPressed: _locationService.status == LocationStatus.searching || _addressService.status == AddressStatus.searching
                   ? null
@@ -616,6 +620,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
               },
             ),
             ActionChip(
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               avatar: switch (_weatherService.status) {
                 WeatherIdle() => Icon(_currentWeather.value?.getIconData() ?? Icons.cloudy_snowing),
                 WeatherSearching() => const Icon(Icons.cloudy_snowing),
@@ -647,6 +652,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
                     },
             ),
             ActionChip(
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               avatar: Icon(_currentWeather.value?.condition?.iconData ?? Icons.edit_road, color: _currentWeather.value?.condition?.color),
               label: _weatherService.status is WeatherSearching
                   ? const ChipLoadingIndicator()

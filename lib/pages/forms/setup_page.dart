@@ -832,9 +832,11 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       builder: (context, child) { 
         return Wrap(
           spacing: 8.0,
-          runSpacing: 4.0,
+          runSpacing: 8.0,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             ActionChip(
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               avatar: const Icon(Icons.calendar_month),
               label: Text(
                 DateFormat(appSettings.dateFormat).format(_selectedDateTimeLocal),
@@ -845,6 +847,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
               onPressed: _pickDate,
             ),
             ActionChip(
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               avatar: const Icon(Icons.access_time),
               label: Text(
                 DateFormat(appSettings.timeFormat).format(_selectedDateTimeLocal),
@@ -855,6 +858,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
               onPressed: _pickTime,
             ),
             ActionChip(
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               backgroundColor: widget.mode == SetupPageMode.edit && (!ContextPosition.equal(_currentLocation.value, widget.setup?.position) || !ContextPlace.equal(_currentPlace.value, widget.setup?.place))
                   ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
                   : null,
@@ -939,6 +943,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
               }
             ),
             ActionChip(
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               avatar: switch (_weatherService.status) {
                 WeatherIdle() => Icon(_currentWeather.value?.getIconData() ?? Icons.cloudy_snowing),
                 WeatherSearching() => const Icon(Icons.cloudy_snowing),
@@ -972,6 +977,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                     },
             ),
             ActionChip(
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               avatar: Icon(_currentWeather.value?.condition?.iconData ?? Icons.edit_road, color: _currentWeather.value?.condition?.color),
               label: _weatherService.status is WeatherSearching
                 ? const ChipLoadingIndicator()
@@ -996,10 +1002,29 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                       },
               ),
             ),
+            if (appSettings.enableSetupBookmark)
+              FilterChip(
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                label: const SizedBox.shrink(),
+                labelPadding: const EdgeInsets.symmetric(vertical: 2),
+                padding: EdgeInsets.zero,
+                avatar: Icon(_isBookmarked ? Icons.bookmark : Icons.bookmark_border),
+                tooltip: _isBookmarked ? 'Remove Bookmark' : 'Bookmark',
+                showCheckmark: false,
+                selected: _isBookmarked,
+                backgroundColor: widget.mode == SetupPageMode.edit && _isBookmarked != _initialIsBookmarked
+                    ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
+                    : null,
+                onSelected: (bool selected) {
+                  setState(() => _isBookmarked = selected);
+                  _changeListener();
+                },
+              ),
             if (appSettings.enableSetupTags) ... [
               ..._tags.map((tag) => FilterChip(
                 avatar: const Icon(Icons.tag),
                   showCheckmark: false,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   selected: widget.mode != SetupPageMode.edit,
                   label: Text(tag), 
                   onSelected: (_) {
@@ -1016,8 +1041,12 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                 ),
               ),
               ActionChip(
-                avatar: const Icon(Icons.add),
-                label: const Text("Tags"),
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                label: const SizedBox.shrink(),
+                labelPadding: const EdgeInsets.symmetric(vertical: 2),
+                padding: EdgeInsets.zero,
+                avatar: const Icon(Icons.tag),
+                tooltip: 'Add Tags',
                 onPressed: () async {
                   await showSetTagsSheet(
                     context: context, 
@@ -1034,24 +1063,13 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
             ],
             if (appSettings.enableAttachments && _attachmentsDirPath != null)
               ActionChip(
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                label: const SizedBox.shrink(),
+                labelPadding: const EdgeInsets.symmetric(vertical: 2),
+                padding: EdgeInsets.zero,
                 avatar: const Icon(Icons.attach_file),
-                label: const Text('Attach'),
+                tooltip: 'Add Attachment',
                 onPressed: _addAttachments,
-              ),
-            if (appSettings.enableSetupBookmark)
-              FilterChip(
-                label: const Text("Bookmark"),
-                avatar: Icon(_isBookmarked ? Icons.bookmark : Icons.bookmark_border),
-                tooltip: _isBookmarked ? 'Remove Bookmark' : 'Bookmark',
-                showCheckmark: false,
-                selected: _isBookmarked,
-                backgroundColor: widget.mode == SetupPageMode.edit && _isBookmarked != _initialIsBookmarked
-                    ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
-                    : null,
-                onSelected: (bool selected) {
-                  setState(() => _isBookmarked = selected);
-                  _changeListener();
-                },
               ),
           ],
         );

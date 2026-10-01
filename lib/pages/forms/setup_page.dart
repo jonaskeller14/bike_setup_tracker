@@ -1248,7 +1248,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                             onRename: _onAttachmentRenamed,
                           ),
                         ],
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 18),
                         _bikeField(bikes: bikes),
                         const SizedBox(height: 12),
                       ],

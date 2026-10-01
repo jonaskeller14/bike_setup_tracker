@@ -8,8 +8,9 @@ import '../theme.dart';
 /// color — the overdue red, so a card never carries two different reds.
 class TaskPriorityBadge extends StatelessWidget {
   final TaskPriority priority;
+  final bool large;
 
-  const TaskPriorityBadge({super.key, required this.priority});
+  const TaskPriorityBadge({super.key, required this.priority, this.large = false});
 
   @override
   Widget build(BuildContext context) {
@@ -24,13 +25,13 @@ class TaskPriorityBadge extends StatelessWidget {
     };
     return Container(
       // Caps growth under large text scaling so the title keeps most of its row.
-      constraints: const BoxConstraints(maxWidth: 96),
-      padding: const EdgeInsets.symmetric(horizontal: 4),
+      constraints: large ? null : const BoxConstraints(maxWidth: 96),
+      padding: EdgeInsets.symmetric(horizontal: large ? 8 : 4, vertical: large ? 2 : 0),
       decoration: BoxDecoration(
         color: background,
         // Always present so the filled levels match the outlined Low in size.
         border: Border.all(color: border ?? Colors.transparent),
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(large ? 6 : 4),
       ),
       child: FittedBox(
         fit: BoxFit.scaleDown,
@@ -39,7 +40,7 @@ class TaskPriorityBadge extends StatelessWidget {
           semanticsLabel: '${priority.label} priority',
           style: theme.textTheme.labelSmall?.copyWith(
             color: foreground,
-            fontSize: 10,
+            fontSize: large ? 14 : 10,
             fontWeight: priority.index >= TaskPriority.high.index ? FontWeight.w700 : FontWeight.w500,
             letterSpacing: 0,
           ),

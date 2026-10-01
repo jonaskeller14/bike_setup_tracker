@@ -9,9 +9,9 @@ import '../pages/forms/task_entry_page.dart';
 import '../pages/forms/task_rule_page.dart';
 import '../repositories/app_repository.dart';
 import '../widgets/app_snackbar.dart';
-import '../widgets/sheets/radio_group.dart';
 import '../widgets/sheets/set_tags_bulk.dart';
 import '../widgets/sheets/set_task_delay.dart';
+import '../widgets/sheets/set_task_priority.dart';
 
 class TaskActions {
   static Future<void> addTaskRule(BuildContext context) async {
@@ -96,18 +96,10 @@ class TaskActions {
     final initialPriority = distinctPriorities.length == 1 ? distinctPriorities.first : TaskPriority.medium;
 
     TaskPriority? newPriority;
-    await radioGroupSheet<TaskPriority>(
+    await showSetTaskPrioritySheet(
       context: context,
-      title: 'Task Priority',
-      value: initialPriority,
-      onChanged: (value) {
-        if (value == null) return;
-        newPriority = value;
-        Navigator.pop(context);
-      },
-      optionWidgets: Map.fromEntries(TaskPriority.values.map((priority) {
-        return MapEntry(priority, Text(priority.label));
-      })),
+      currentPriority: initialPriority,
+      onSelected: (value) => newPriority = value,
     );
     final selectedPriority = newPriority;
     if (selectedPriority == null) return false;

@@ -1076,7 +1076,7 @@ class _ComponentPageState extends State<ComponentPage> {
                           ),
                         ),
                         if (!appSettings.enableInstallationTimeline && !_isComplexInstallation) ...[
-                          const SizedBox(height: 12),
+                          SizedBox(height: _expanded && (showInitialStats || showAttachments) ? 18 : 12),
                           _bikesDropdownField(bikes: bikes),
                         ],
                       ],

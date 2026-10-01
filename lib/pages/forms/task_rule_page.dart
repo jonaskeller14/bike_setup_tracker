@@ -20,8 +20,8 @@ import '../../services/subscription_service.dart';
 import '../../theme.dart';
 import '../../widgets/component_ancestor_display.dart';
 import '../../widgets/dialogs/discard_changes.dart';
-import '../../widgets/sheets/radio_group.dart';
 import '../../widgets/sheets/set_tags.dart';
+import '../../widgets/sheets/set_task_priority.dart';
 import '../../widgets/sheets/strava.dart';
 import '../../widgets/sheets/task_association_picker.dart';
 import '../../widgets/text/section_title.dart';
@@ -788,22 +788,13 @@ class _TaskRulePageState extends State<TaskRulePage> {
             avatar: const Icon(Icons.traffic),
             label: Text(_priority.label),
             backgroundColor: widget.mode == TaskRulePageMode.edit && _priority != widget.taskRule?.priority ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
-            onPressed: () => radioGroupSheet<TaskPriority>(
+            onPressed: () => showSetTaskPrioritySheet(
               context: context,
-              title: "Task Priority",
-              value: _priority,
-              onChanged: (TaskPriority? newValue) {
-                if (newValue == null) return;
+              currentPriority: _priority,
+              onSelected: (TaskPriority newValue) {
                 setState(() => _priority = newValue);
-                Navigator.pop(context);
                 _changeListener();
               },
-              optionWidgets: Map.fromEntries(TaskPriority.values.map((priority) {
-                return MapEntry(
-                  priority,
-                  Text(priority.label),
-                );
-              })),
             ),
           ),
         if (enableTaskTags) ..._tags.map((tag) => FilterChip(
@@ -890,7 +881,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                         _notesTextFormField(),
                         const SizedBox(height: 12),
                         _wrap(),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 18),
                         FormField<TaskAssociation>(
                           initialValue: _association,
                           autovalidateMode: AutovalidateMode.onUserInteraction,

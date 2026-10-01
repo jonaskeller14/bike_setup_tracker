@@ -842,7 +842,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
                   _notesTextFormField(),
                   const SizedBox(height: 12),
                   _wrap(),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 18),
                   _bikeField(bikes: bikes),
                   const SizedBox(height: 12),
                   ?driftWarning,

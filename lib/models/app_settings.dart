@@ -622,5 +622,10 @@ class AppSettings extends ChangeNotifier {
     return meters.convertFromTo(LENGTH.meters, _elevationLengthUnit(targetUnit));
   }
 
+  static double? convertElevationToMeters(double? elevation, String currentUnit) {
+    if (elevation == null) return null;
+    return elevation.convertFromTo(_elevationLengthUnit(currentUnit), LENGTH.meters);
+  }
+
   static String speedUnitForDistance(String distanceUnit) => distanceUnit == 'mi' ? 'mph' : 'km/h';
 }

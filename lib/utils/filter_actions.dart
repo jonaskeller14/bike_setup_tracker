@@ -1,8 +1,12 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../models/app_settings.dart';
+import '../models/filters/activity_filter.dart';
 import '../models/filters/layer_filter.dart';
+import '../models/filters/numeric_range.dart';
 import '../models/filters/setup_filter.dart';
 import '../models/task/task_rule.dart';
 import '../repositories/app_repository.dart';
@@ -23,6 +27,8 @@ class FilterActions {
       FilterSection.setups => appSettings.enableSetupTags || appSettings.enableSetupBookmark,
       FilterSection.taskPriority => appSettings.enableTaskPriority,
       FilterSection.taskTags => appSettings.enableTaskTags,
+      // Not shipped yet: release builds do not offer the activity ranges.
+      FilterSection.activity => kDebugMode && stravaActive,
       // Layer toggles are only offered when a layer other than setups can be shown at all.
       FilterSection.mapLayers => appSettings.enableRating || stravaActive,
       FilterSection.timelineLayers =>
@@ -80,6 +86,17 @@ class FilterActions {
     final taskTagCount = enabled.contains(FilterSection.taskTags) ? filters.taskRule.tags.length : 0;
     final tagCount = setupTagCount + taskTagCount;
     final priorityCount = filters.taskRule.priorities.length;
+    final activity = enabled.contains(FilterSection.activity) ? filters.activity : const ActivityFilter();
+    final distanceLabel = rangeLabel(
+      activity.distance,
+      unit: appSettings.distanceUnit,
+      fromMeters: AppSettings.convertDistanceFromMeters,
+    );
+    final elevationGainLabel = rangeLabel(
+      activity.elevationGain,
+      unit: appSettings.altitudeUnit,
+      fromMeters: AppSettings.convertElevationFromMeters,
+    );
     final layers = availableLayers(sections, appSettings: appSettings, stravaActive: stravaActive);
 
     return [
@@ -89,8 +106,27 @@ class FilterActions {
       if (tagCount > 0) "$tagCount ${tagCount != 1 ? 'Tags' : 'Tag'}",
       if (enabled.contains(FilterSection.taskPriority) && filters.taskRule.hasActivePriorities)
         "$priorityCount ${priorityCount != 1 ? 'Priorities' : 'Priority'}",
+      ?distanceLabel,
+      ?elevationGainLabel,
       if (filters.layers.isActiveFor(layers)) "1 Filter",
     ];
+  }
+
+  /// [range] (in metres) in the user's [unit]: "10–50 km", "≥ 10 km" or
+  /// "≤ 50 km". `null` while the range is open at both ends.
+  static String? rangeLabel(
+    NumericRange range, {
+    required String unit,
+    required double? Function(double? meters, String unit) fromMeters,
+  }) {
+    final format = NumberFormat.decimalPattern()..maximumFractionDigits = 1;
+    final min = range.min == null ? null : format.format(fromMeters(range.min, unit));
+    final max = range.max == null ? null : format.format(fromMeters(range.max, unit));
+
+    if (min != null && max != null) return "$min–$max $unit";
+    if (min != null) return "≥ $min $unit";
+    if (max != null) return "≤ $max $unit";
+    return null;
   }
 
   /// Resets every criterion the [sections] own, whether or not its feature is
@@ -104,6 +140,7 @@ class FilterActions {
       priorities: sections.contains(FilterSection.taskPriority) ? TaskPriority.values.toSet() : null,
       tags: sections.contains(FilterSection.taskTags) ? const {} : null,
     );
+    if (sections.contains(FilterSection.activity)) filters.activity = const ActivityFilter();
     filters.layers = filters.layers.copyWith(hidden: filters.layers.hidden.difference(_layersOf(sections)));
   }
 

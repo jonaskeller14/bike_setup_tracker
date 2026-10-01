@@ -310,6 +310,23 @@ void main() {
       expect(find.text('Tasks'), findsNothing);
     });
 
+    testWidgets('offers the activity ranges while Strava is active', (tester) async {
+      when(() => mockSubscription.hasStravaEntitlement).thenReturn(true);
+      await openSheet(tester, FilterSheetChip.setupList);
+
+      expect(find.text('Distance'), findsOneWidget);
+      expect(find.text('Elevation Gain'), findsOneWidget);
+    });
+
+    testWidgets('hides the activity ranges while Strava is not active', (tester) async {
+      appSettings.enableTask = true;
+      await openSheet(tester, FilterSheetChip.setupList);
+
+      expect(find.text('Visibility'), findsOneWidget);
+      expect(find.text('Distance'), findsNothing);
+      expect(find.text('Elevation Gain'), findsNothing);
+    });
+
     testWidgets('a long-press isolates a layer', (tester) async {
       appSettings.enableTask = true;
       appSettings.enableInstallationTimeline = true;

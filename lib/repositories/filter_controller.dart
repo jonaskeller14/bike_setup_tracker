@@ -1,4 +1,5 @@
 import '../models/bike.dart';
+import '../models/filters/activity_filter.dart';
 import '../models/filters/layer_filter.dart';
 import '../models/filters/setup_filter.dart';
 import '../models/filters/task_rule_filter.dart';
@@ -19,11 +20,13 @@ class FilterController {
   SetupFilter _setup = const SetupFilter();
   TaskRuleFilter _taskRule = TaskRuleFilter();
   LayerFilter _layers = const LayerFilter();
+  ActivityFilter _activity = const ActivityFilter();
 
   String? get bikeId => _bikeId;
   SetupFilter get setup => _setup;
   TaskRuleFilter get taskRule => _taskRule;
   LayerFilter get layers => _layers;
+  ActivityFilter get activity => _activity;
 
   /// Selects [bikeId], or clears the selection when it is `null` or already selected.
   void toggleBike(String? bikeId) {
@@ -51,13 +54,20 @@ class FilterController {
     onChanged();
   }
 
+  set activity(ActivityFilter value) {
+    if (value == _activity) return;
+    _activity = value;
+    onChanged();
+  }
+
   /// The Strava activities the criteria select, given the [selectedBike] that
   /// [bikeId] resolves to. `null` when that bike has no linked Strava gear: it
   /// owns no activities, so there is nothing to query.
   StravaActivityQuery? stravaQuery(Bike? selectedBike) {
-    if (selectedBike == null) return const StravaActivityQuery();
+    final query = StravaActivityQuery(activity: _activity);
+    if (selectedBike == null) return query;
     final gearId = selectedBike.stravaGear;
-    return gearId == null ? null : StravaActivityQuery(gearId: gearId);
+    return gearId == null ? null : query.copyWith(gearId: gearId);
   }
 
   /// Drops criteria whose bike or tags no longer exist. Runs inside the

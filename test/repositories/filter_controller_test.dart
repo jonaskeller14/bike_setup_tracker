@@ -1,5 +1,7 @@
 import 'package:bike_setup_tracker/models/bike.dart';
+import 'package:bike_setup_tracker/models/filters/activity_filter.dart';
 import 'package:bike_setup_tracker/models/filters/layer_filter.dart';
+import 'package:bike_setup_tracker/models/filters/numeric_range.dart';
 import 'package:bike_setup_tracker/models/filters/setup_filter.dart';
 import 'package:bike_setup_tracker/models/filters/task_rule_filter.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity_query.dart';
@@ -21,6 +23,7 @@ void main() {
     expect(filters.setup, const SetupFilter());
     expect(filters.taskRule, TaskRuleFilter());
     expect(filters.layers, const LayerFilter());
+    expect(filters.activity, const ActivityFilter());
   });
 
   group("toggleBike", () {
@@ -86,10 +89,24 @@ void main() {
       expect(changes, 1);
     });
 
+    test("activity fires once per actual change", () {
+      filters.activity = const ActivityFilter(distance: NumericRange(min: 10000));
+      expect(filters.activity.distance, const NumericRange(min: 10000));
+      expect(changes, 1);
+
+      // An equal value that is not the same instance.
+      filters.activity = ActivityFilter(distance: NumericRange(min: [10000.0].first));
+      expect(changes, 1);
+
+      filters.activity = filters.activity.copyWith(elevationGain: const NumericRange(max: 500));
+      expect(changes, 2);
+    });
+
     test("equal default values do not fire", () {
       filters.setup = const SetupFilter();
       filters.taskRule = TaskRuleFilter();
       filters.layers = const LayerFilter();
+      filters.activity = const ActivityFilter();
       expect(changes, 0);
     });
   });
@@ -108,6 +125,26 @@ void main() {
       final bike = Bike(name: "Hardtail", person: null, stravaGear: null);
       expect(filters.stravaQuery(bike), null);
     });
+
+    group("with activity criteria", () {
+      const activity = ActivityFilter(distance: NumericRange(min: 10000), elevationGain: NumericRange(max: 500));
+
+      setUp(() => filters.activity = activity);
+
+      test("no selected bike queries every gear within the ranges", () {
+        expect(filters.stravaQuery(null), const StravaActivityQuery(activity: activity));
+      });
+
+      test("a bike with a linked gear queries that gear within the ranges", () {
+        final bike = Bike(name: "Enduro", person: null, stravaGear: "g1");
+        expect(filters.stravaQuery(bike), const StravaActivityQuery(gearId: "g1", activity: activity));
+      });
+
+      test("a bike without a linked gear still has no query", () {
+        final bike = Bike(name: "Hardtail", person: null, stravaGear: null);
+        expect(filters.stravaQuery(bike), null);
+      });
+    });
   });
 
   group("normalize", () {
@@ -116,6 +153,7 @@ void main() {
       filters.setup = const SetupFilter(tags: {"race", "wet"}, bookmarkedOnly: true);
       filters.taskRule = TaskRuleFilter(priorities: const {TaskPriority.high}, tags: const {"service", "fork"});
       filters.layers = const LayerFilter(hidden: {TimelineLayer.tasks});
+      filters.activity = const ActivityFilter(distance: NumericRange(min: 10000));
       changes = 0;
     });
 
@@ -146,6 +184,7 @@ void main() {
       expect(filters.setup.tags, isEmpty);
       expect(filters.taskRule.tags, isEmpty);
       expect(filters.layers, const LayerFilter(hidden: {TimelineLayer.tasks}));
+      expect(filters.activity, const ActivityFilter(distance: NumericRange(min: 10000)));
       expect(changes, 0);
     });
   });

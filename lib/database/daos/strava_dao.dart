@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 
 import '../../models/activity_rate_window.dart';
 import '../../models/component_stats.dart';
+import '../../models/filters/numeric_range.dart';
 import '../../models/strava/strava_activity_query.dart';
 import '../../utils/text_search.dart';
 import '../app_database.dart';
@@ -259,7 +260,22 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
     final statement = select(stravaActivities);
     final gearId = query.gearId;
     if (gearId != null) statement.where((t) => t.gearId.equals(gearId));
+    _whereInRange(statement, (t) => t.distance, query.activity.distance);
+    _whereInRange(statement, (t) => t.totalElevationGain, query.activity.elevationGain);
     return statement;
+  }
+
+  /// A SQL comparison is never true for NULL, so an active bound also drops
+  /// the activities that have no value in [column].
+  void _whereInRange(
+    SimpleSelectStatement<$StravaActivitiesTable, StravaActivityDb> statement,
+    GeneratedColumn<double> Function($StravaActivitiesTable) column,
+    NumericRange range,
+  ) {
+    final min = range.min;
+    final max = range.max;
+    if (min != null) statement.where((t) => column(t).isBiggerOrEqualValue(min));
+    if (max != null) statement.where((t) => column(t).isSmallerOrEqualValue(max));
   }
 
   /// Paginated activities narrowed to [query], so the filter is applied in SQL

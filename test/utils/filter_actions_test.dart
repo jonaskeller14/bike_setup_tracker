@@ -1,6 +1,8 @@
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
+import 'package:bike_setup_tracker/models/filters/activity_filter.dart';
 import 'package:bike_setup_tracker/models/filters/layer_filter.dart';
+import 'package:bike_setup_tracker/models/filters/numeric_range.dart';
 import 'package:bike_setup_tracker/models/filters/setup_filter.dart';
 import 'package:bike_setup_tracker/models/filters/task_rule_filter.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
@@ -19,6 +21,9 @@ class MockAppRepository extends Mock implements AppRepository {}
 const timelineSections = {FilterSection.bike, FilterSection.setups, FilterSection.timelineLayers};
 const mapSections = {FilterSection.bike, FilterSection.setups, FilterSection.mapLayers};
 const taskSections = {FilterSection.bike, FilterSection.taskPriority, FilterSection.taskTags};
+const activitySections = {FilterSection.bike, FilterSection.activity};
+
+const activityRanges = ActivityFilter(distance: NumericRange(min: 10000), elevationGain: NumericRange(max: 500));
 
 void main() {
   late MockAppRepository repository;
@@ -92,6 +97,13 @@ void main() {
 
       settings.enableTaskTags = true;
       expect(enabled(taskSections), taskSections);
+    });
+
+    test('offers the activity section only while Strava is active', () {
+      // Tests run in debug mode, the only mode that offers the section so far.
+      const sections = {FilterSection.activity};
+      expect(enabled(sections), isEmpty);
+      expect(enabled(sections, stravaActive: true), sections);
     });
 
     test('map layers need a layer besides setups', () {
@@ -250,6 +262,38 @@ void main() {
       expect(isFiltered(timelineSections), true);
     });
 
+    test('label an activity range in the user\'s units', () {
+      filters.activity = const ActivityFilter(
+        distance: NumericRange(min: 10000, max: 50000),
+        elevationGain: NumericRange(min: 500),
+      );
+
+      expect(labels(activitySections, stravaActive: true), ['10–50 km', '≥ 500 m']);
+
+      settings.distanceUnit = 'mi';
+      settings.altitudeUnit = 'ft';
+      expect(labels(activitySections, stravaActive: true), ['6.2–31.1 mi', '≥ 1,640.4 ft']);
+    });
+
+    test('count one activity range without the other', () {
+      filters.activity = const ActivityFilter(elevationGain: NumericRange(max: 1000));
+
+      expect(labels(activitySections, stravaActive: true), ['≤ 1,000 m']);
+    });
+
+    test('ignore the activity ranges while Strava is not active', () {
+      filters.activity = const ActivityFilter(distance: NumericRange(min: 10000));
+
+      expect(isFiltered(activitySections), false);
+      expect(isFiltered(activitySections, stravaActive: true), true);
+    });
+
+    test('ignore the activity ranges on a page without an activity section', () {
+      filters.activity = const ActivityFilter(distance: NumericRange(min: 10000));
+
+      expect(isFiltered(taskSections, stravaActive: true), false);
+    });
+
     test('order the labels like the chip', () {
       settings.enableSetupTags = true;
       settings.enableSetupBookmark = true;
@@ -259,8 +303,40 @@ void main() {
       filters.setup = const SetupFilter(tags: {'race'}, bookmarkedOnly: true);
       filters.taskRule = TaskRuleFilter(priorities: const {TaskPriority.high}, tags: const {'service'});
       filters.layers = const LayerFilter(hidden: {TimelineLayer.setups});
+      filters.activity = const ActivityFilter(
+        distance: NumericRange(max: 50000),
+        elevationGain: NumericRange(min: 500),
+      );
 
       expect(labels(FilterSection.values.toSet()), ['Bike 1', 'Bookmarked', '2 Tags', '1 Priority', '1 Filter']);
+      expect(labels(FilterSection.values.toSet(), stravaActive: true), [
+        'Bike 1',
+        'Bookmarked',
+        '2 Tags',
+        '1 Priority',
+        '≤ 50 km',
+        '≥ 500 m',
+        '1 Filter',
+      ]);
+    });
+  });
+
+  group('rangeLabel', () {
+    String? label(NumericRange range) =>
+        FilterActions.rangeLabel(range, unit: 'km', fromMeters: AppSettings.convertDistanceFromMeters);
+
+    test('is null while the range is open at both ends', () {
+      expect(label(const NumericRange()), null);
+    });
+
+    test('names a min only, a max only and both', () {
+      expect(label(const NumericRange(min: 10000)), '≥ 10 km');
+      expect(label(const NumericRange(max: 50000)), '≤ 50 km');
+      expect(label(const NumericRange(min: 10000, max: 50000)), '10–50 km');
+    });
+
+    test('keeps a bound of zero and at most one decimal', () {
+      expect(label(const NumericRange(min: 0, max: 12340)), '0–12.3 km');
     });
   });
 
@@ -280,9 +356,10 @@ void main() {
       filters.setup = const SetupFilter(tags: {'race'}, bookmarkedOnly: true);
       filters.taskRule = TaskRuleFilter(priorities: const {TaskPriority.high}, tags: const {'service'});
       filters.layers = const LayerFilter(hidden: {TimelineLayer.setups, TimelineLayer.tasks});
+      filters.activity = activityRanges;
     }
 
-    testWidgets('resets the timeline sections and leaves the task criteria', (tester) async {
+    testWidgets('resets the timeline sections and leaves the task and activity criteria', (tester) async {
       setEverything();
       await clear(tester, timelineSections);
 
@@ -290,6 +367,17 @@ void main() {
       expect(filters.setup, const SetupFilter());
       expect(filters.layers, const LayerFilter());
       expect(filters.taskRule, TaskRuleFilter(priorities: const {TaskPriority.high}, tags: const {'service'}));
+      expect(filters.activity, activityRanges);
+    });
+
+    testWidgets('resets both activity ranges and nothing else', (tester) async {
+      setEverything();
+      await clear(tester, const {FilterSection.activity});
+
+      expect(filters.activity, const ActivityFilter());
+      expect(filters.bikeId, 'b1');
+      expect(filters.setup, const SetupFilter(tags: {'race'}, bookmarkedOnly: true));
+      expect(filters.layers, const LayerFilter(hidden: {TimelineLayer.setups, TimelineLayer.tasks}));
     });
 
     testWidgets('resets the map layers and keeps a timeline-only layer hidden', (tester) async {
@@ -329,6 +417,7 @@ void main() {
       expect(filters.setup, const SetupFilter());
       expect(filters.taskRule, TaskRuleFilter());
       expect(filters.layers, const LayerFilter());
+      expect(filters.activity, const ActivityFilter());
     });
 
     testWidgets('notifies once per changed filter object', (tester) async {
@@ -339,10 +428,10 @@ void main() {
       changes = 0;
 
       await clear(tester, FilterSection.values.toSet());
-      expect(changes, 4);
+      expect(changes, 5);
 
       await clear(tester, FilterSection.values.toSet());
-      expect(changes, 4);
+      expect(changes, 5);
     });
   });
 }

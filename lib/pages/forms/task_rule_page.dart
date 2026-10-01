@@ -779,10 +779,12 @@ class _TaskRulePageState extends State<TaskRulePage> {
     final enableTaskPriority = appSettings.enableTaskPriority;
     return Wrap(
       spacing: 8.0,
-      runSpacing: 4.0,
+      runSpacing: 8.0,
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         if (enableTaskPriority)
           ActionChip(
+            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             avatar: const Icon(Icons.traffic),
             label: Text(_priority.label),
             backgroundColor: widget.mode == TaskRulePageMode.edit && _priority != widget.taskRule?.priority ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
@@ -807,6 +809,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
         if (enableTaskTags) ..._tags.map((tag) => FilterChip(
           avatar: const Icon(Icons.tag),
           showCheckmark: false,
+          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
           selected: widget.mode != TaskRulePageMode.edit,
           label: Text(tag),
           onSelected: (_) {
@@ -823,8 +826,12 @@ class _TaskRulePageState extends State<TaskRulePage> {
         )),
         if (enableTaskTags)
           ActionChip(
-            avatar: const Icon(Icons.add),
-            label: const Text("Tags"),
+            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            label: const SizedBox.shrink(),
+            labelPadding: const EdgeInsets.symmetric(vertical: 2),
+            padding: EdgeInsets.zero,
+            avatar: const Icon(Icons.tag),
+            tooltip: 'Add Tags',
             onPressed: () async {
               await showSetTagsSheet(
                 context: context,

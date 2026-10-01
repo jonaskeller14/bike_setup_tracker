@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/app_hint.dart';
 import '../../models/app_settings.dart';
+import '../../models/filters/layer_filter.dart';
 import '../../models/filters/setup_filter.dart';
 import '../../models/setup.dart';
 import '../../models/strava/strava_activity.dart';
@@ -32,14 +33,10 @@ class SetupList extends StatelessWidget {
     this.onSelectionChanged,
   });
 
-  bool _hasActiveFilters(AppRepository appRepository, AppSettings appSettings) {
+  bool _hasActiveFilters(AppRepository appRepository) {
     return appRepository.filters.bikeId != null ||
         appRepository.filters.setup.isActive ||
-        !appSettings.displayShowSetups ||
-        !appSettings.displayShowActivities ||
-        !appSettings.displayShowTasks ||
-        !appSettings.displayShowInstallations ||
-        !appSettings.displayShowRatingEntries;
+        appRepository.filters.layers.hidden.isNotEmpty;
   }
 
   bool _hasAnyContent(AppRepository appRepository) {
@@ -49,18 +46,14 @@ class SetupList extends StatelessWidget {
         appRepository.components.values.any((c) => c.installations.isNotEmpty);
   }
 
-  void _clearFilters(AppRepository appRepository, AppSettings appSettings) {
+  void _clearFilters(AppRepository appRepository) {
     appRepository.filters.toggleBike(null);
     appRepository.filters.setup = const SetupFilter();
-    appSettings.displayShowSetups = true;
-    appSettings.displayShowActivities = true;
-    appSettings.displayShowTasks = true;
-    appSettings.displayShowInstallations = true;
-    appSettings.displayShowRatingEntries = true;
+    appRepository.filters.layers = const LayerFilter();
   }
 
-  Widget _emptyPlaceholder(BuildContext context, AppRepository appRepository, AppSettings appSettings) {
-    final filtered = _hasActiveFilters(appRepository, appSettings) && _hasAnyContent(appRepository);
+  Widget _emptyPlaceholder(BuildContext context, AppRepository appRepository) {
+    final filtered = _hasActiveFilters(appRepository) && _hasAnyContent(appRepository);
     return CustomScrollView(
       slivers: [
         const SliverToBoxAdapter(
@@ -81,7 +74,7 @@ class SetupList extends StatelessWidget {
                     subtitle: 'Your filters are hiding all entries.',
                     actionLabel: 'Clear filters',
                     actionIcon: Icons.filter_alt_off,
-                    onAction: () => _clearFilters(appRepository, appSettings),
+                    onAction: () => _clearFilters(appRepository),
                   )
                 : EmptyStatePlaceholder(
                     icon: Setup.iconData,
@@ -120,9 +113,10 @@ class SetupList extends StatelessWidget {
     final appRepository = context.watch<AppRepository>();
     final subscriptionService = context.watch<SubscriptionService>();
     final sortAscending = appRepository.stravaSortAscending;
+    final layers = appRepository.filters.layers;
     final setupsList = appRepository.view.setups.values;
     final bool showingStrava =
-        appSettings.displayShowActivities && appSettings.enableStrava && subscriptionService.hasStravaEntitlement;
+        layers.shows(TimelineLayer.activities) && appSettings.enableStrava && subscriptionService.hasStravaEntitlement;
     final stravaActivities = showingStrava ? appRepository.stravaActivities.values : const <StravaActivity>[];
     final lazyLoadTriggerIds = _lazyLoadTriggerIds(
       appRepository,
@@ -141,7 +135,7 @@ class SetupList extends StatelessWidget {
         : stravaActivities.map((a) => a.startDate).reduce((a, b) => a.isBefore(b) ? a : b);
 
     final List<TimelineEntry> entries = [
-      if (appSettings.displayShowSetups)
+      if (layers.shows(TimelineLayer.setups))
         ...setupsList
             .where((s) {
               if (horizonDate == null || !appRepository.hasMoreStrava) return true;
@@ -151,7 +145,7 @@ class SetupList extends StatelessWidget {
             })
             .map((s) => SetupEntry(s)),
       if (showingStrava) ...stravaActivities.map((a) => StravaEntry(a)),
-      if (appSettings.displayShowTasks)
+      if (layers.shows(TimelineLayer.tasks))
         ...taskEntries
             .where((t) {
               if (horizonDate == null || !appRepository.hasMoreStrava) return true;
@@ -160,7 +154,7 @@ class SetupList extends StatelessWidget {
                   : !t.dateTimeUTC.isBefore(horizonDate); // DESC: hide older than horizon
             })
             .map((t) => TaskTimeLineEntry(t)),
-      if (appSettings.displayShowInstallations)
+      if (layers.shows(TimelineLayer.installations))
         ...installations
             .where((ci) {
               if (horizonDate == null || !appRepository.hasMoreStrava) return true;
@@ -169,7 +163,7 @@ class SetupList extends StatelessWidget {
                   : !ci.installation.dateTimeUTC.isBefore(horizonDate); // DESC: hide older than horizon
             })
             .map((ci) => InstallationEntry(ci)),
-      if (appSettings.enableRating && appSettings.displayShowRatingEntries)
+      if (appSettings.enableRating && layers.shows(TimelineLayer.ratingEntries))
         ...appRepository.view.ratingEntries.values
             .where((re) {
               if (horizonDate == null || !appRepository.hasMoreStrava) return true;
@@ -190,7 +184,7 @@ class SetupList extends StatelessWidget {
     );
 
     if (entries.isEmpty && !appRepository.isLoadingMoreStrava) {
-      return _emptyPlaceholder(context, appRepository, appSettings);
+      return _emptyPlaceholder(context, appRepository);
     }
 
     final sections = <({DayHeaderRow header, List<TimelineRow> rows})>[];

@@ -1,3 +1,4 @@
+import '../models/filters/layer_filter.dart';
 import '../models/filters/setup_filter.dart';
 import '../models/filters/task_rule_filter.dart';
 
@@ -15,10 +16,12 @@ class FilterController {
   String? _bikeId;
   SetupFilter _setup = const SetupFilter();
   TaskRuleFilter _taskRule = TaskRuleFilter();
+  LayerFilter _layers = const LayerFilter();
 
   String? get bikeId => _bikeId;
   SetupFilter get setup => _setup;
   TaskRuleFilter get taskRule => _taskRule;
+  LayerFilter get layers => _layers;
 
   /// Selects [bikeId], or clears the selection when it is `null` or already selected.
   void toggleBike(String? bikeId) {
@@ -37,6 +40,12 @@ class FilterController {
   set taskRule(TaskRuleFilter value) {
     if (value == _taskRule) return;
     _taskRule = value;
+    onChanged();
+  }
+
+  set layers(LayerFilter value) {
+    if (value == _layers) return;
+    _layers = value;
     onChanged();
   }
 

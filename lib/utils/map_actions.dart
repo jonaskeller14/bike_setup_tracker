@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../models/app_settings.dart';
+import '../models/filters/layer_filter.dart';
 import '../models/rating/rating_entry.dart';
 import '../models/setup.dart';
 import '../models/strava/strava_activity.dart';
@@ -25,13 +26,15 @@ class MapActions {
     required AppSettings appSettings,
     required bool stravaActive,
   }) {
+    final filters = appRepository.filters;
     final visibilityFiltered =
         _showsVisibility(appSettings, stravaActive: stravaActive) &&
-        (!appSettings.displayShowSetups ||
-            (stravaActive && !appSettings.displayShowActivities) ||
-            (appSettings.enableRating && !appSettings.displayShowRatingEntries));
+        filters.layers.isActiveFor({
+          TimelineLayer.setups,
+          if (stravaActive) TimelineLayer.activities,
+          if (appSettings.enableRating) TimelineLayer.ratingEntries,
+        });
 
-    final filters = appRepository.filters;
     return filters.bikeId != null ||
         (appSettings.enableSetupTags && filters.setup.tags.isNotEmpty) ||
         (appSettings.enableSetupBookmark && filters.setup.bookmarkedOnly) ||
@@ -48,11 +51,11 @@ class MapActions {
     if (appSettings.enableSetupBookmark) filters.setup = filters.setup.copyWith(bookmarkedOnly: false);
 
     if (_showsVisibility(appSettings, stravaActive: stravaActive(context))) {
-      appSettings.displayShowSetups = true;
-      appSettings.displayShowActivities = true;
-      appSettings.displayShowRatingEntries = true;
+      filters.layers = filters.layers.copyWith(hidden: filters.layers.hidden.difference(_mapLayers));
     }
   }
+
+  static const _mapLayers = {TimelineLayer.setups, TimelineLayer.activities, TimelineLayer.ratingEntries};
 
 
   static Future<void> openActivityOnMap(BuildContext context, StravaActivity activity) async {

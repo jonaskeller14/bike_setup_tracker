@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
 import '../../models/context/context_place.dart';
+import '../../models/filters/layer_filter.dart';
 import '../../models/timeline_entry.dart';
 import '../../pages/details/setup_details_page.dart';
 import '../../repositories/app_repository.dart';
@@ -65,6 +66,7 @@ class SetupListSearch extends StatelessWidget {
         final appSettings = context.read<AppSettings>();
         final appRepository = context.read<AppRepository>();
         final subscriptionService = context.read<SubscriptionService>();
+        final layers = appRepository.filters.layers;
 
         final controllerText = controller.text.trim().toLowerCase();
         final searchTokens = tokenizeSearchQuery(controllerText);
@@ -72,7 +74,7 @@ class SetupListSearch extends StatelessWidget {
 
         final List<TimelineEntry> matchingEntries = [];
 
-        if (appSettings.displayShowSetups) {
+        if (layers.shows(TimelineLayer.setups)) {
           final setups = appRepository.view.setups.values;
           matchingEntries.addAll(
             setups
@@ -87,12 +89,12 @@ class SetupListSearch extends StatelessWidget {
           );
         }
 
-        if (appSettings.displayShowActivities && appSettings.enableStrava && subscriptionService.hasStravaEntitlement) {
+        if (layers.shows(TimelineLayer.activities) && appSettings.enableStrava && subscriptionService.hasStravaEntitlement) {
           final activities = await appRepository.searchStravaActivities(controllerText);
           matchingEntries.addAll(activities.map((a) => StravaEntry(a)));
         }
 
-        if (appSettings.displayShowTasks) {
+        if (layers.shows(TimelineLayer.tasks)) {
           final tasks = appRepository.view.taskEntries.values;
           matchingEntries.addAll(
             tasks
@@ -106,7 +108,7 @@ class SetupListSearch extends StatelessWidget {
           );
         }
 
-        if (appSettings.displayShowInstallations) {
+        if (layers.shows(TimelineLayer.installations)) {
           final installations = appRepository.view.installations;
           matchingEntries.addAll(
             installations
@@ -120,7 +122,7 @@ class SetupListSearch extends StatelessWidget {
           );
         }
 
-        if (appSettings.enableRating && appSettings.displayShowRatingEntries) {
+        if (appSettings.enableRating && layers.shows(TimelineLayer.ratingEntries)) {
           final ratingEntries = appRepository.view.ratingEntries.values;
           matchingEntries.addAll(
             ratingEntries

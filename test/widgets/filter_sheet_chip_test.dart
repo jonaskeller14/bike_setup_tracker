@@ -1,5 +1,6 @@
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
+import 'package:bike_setup_tracker/models/filters/layer_filter.dart';
 import 'package:bike_setup_tracker/models/filters/setup_filter.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/repositories/filter_controller.dart';
@@ -40,6 +41,8 @@ void main() {
   void selectBike() => filters.toggleBike('b1');
 
   void selectTags(Set<String> tags) => filters.setup = filters.setup.copyWith(tags: tags);
+
+  void hideLayers(Set<TimelineLayer> layers) => filters.layers = LayerFilter(hidden: layers);
 
   Widget createWidgetUnderTest(FilterSheetChip chip) {
     return MultiProvider(
@@ -183,7 +186,7 @@ void main() {
     });
 
     testWidgets('reports a hidden layer as an active filter', (tester) async {
-      appSettings.displayShowSetups = false;
+      hideLayers({TimelineLayer.setups});
       await tester.pumpWidget(createWidgetUnderTest(mapChip));
 
       expect(find.text('1 Filter'), findsOneWidget);
@@ -191,19 +194,26 @@ void main() {
 
     testWidgets('ignores hidden layers while no layer section is offered', (tester) async {
       appSettings.enableRating = false;
-      appSettings.displayShowSetups = false;
+      hideLayers({TimelineLayer.setups});
       await tester.pumpWidget(createWidgetUnderTest(mapChip));
 
       expect(find.text('Filter'), findsOneWidget);
       expect(find.text('1 Filter'), findsNothing);
     });
 
-    testWidgets('resetting clears the bike, tags, bookmark and hidden layers', (tester) async {
+    testWidgets('ignores a hidden layer the map does not show', (tester) async {
+      hideLayers({TimelineLayer.tasks, TimelineLayer.installations});
+      await tester.pumpWidget(createWidgetUnderTest(mapChip));
+
+      expect(find.text('Filter'), findsOneWidget);
+      expect(find.text('1 Filter'), findsNothing);
+    });
+
+    testWidgets('resetting clears the bike, tags, bookmark and hidden map layers', (tester) async {
       selectBike();
       selectTags({'t1'});
       filters.setup = filters.setup.copyWith(bookmarkedOnly: true);
-      appSettings.displayShowSetups = false;
-      appSettings.displayShowRatingEntries = false;
+      hideLayers({TimelineLayer.setups, TimelineLayer.ratingEntries, TimelineLayer.tasks});
       await tester.pumpWidget(createWidgetUnderTest(mapChip));
 
       tester.widget<FilterChip>(find.byType(FilterChip)).onDeleted!();
@@ -211,9 +221,38 @@ void main() {
 
       expect(filters.bikeId, null);
       expect(filters.setup, const SetupFilter());
-      expect(appSettings.displayShowSetups, true);
-      expect(appSettings.displayShowRatingEntries, true);
-      expect(appSettings.displayShowActivities, true);
+      // The timeline-only layer keeps its state.
+      expect(filters.layers, const LayerFilter(hidden: {TimelineLayer.tasks}));
+    });
+  });
+
+  group('FilterSheetChip — timeline layers', () {
+    const timelineChip = FilterSheetChip.setupList;
+    setUp(() => appSettings.enableTask = true);
+
+    testWidgets('reports a hidden layer as an active filter', (tester) async {
+      hideLayers({TimelineLayer.tasks});
+      await tester.pumpWidget(createWidgetUnderTest(timelineChip));
+
+      expect(find.text('1 Filter'), findsOneWidget);
+    });
+
+    testWidgets('ignores a hidden layer whose feature is off', (tester) async {
+      hideLayers({TimelineLayer.installations, TimelineLayer.ratingEntries, TimelineLayer.activities});
+      await tester.pumpWidget(createWidgetUnderTest(timelineChip));
+
+      expect(find.text('Filter'), findsOneWidget);
+      expect(find.text('1 Filter'), findsNothing);
+    });
+
+    testWidgets('resetting shows every layer again', (tester) async {
+      hideLayers({TimelineLayer.setups, TimelineLayer.tasks, TimelineLayer.installations});
+      await tester.pumpWidget(createWidgetUnderTest(timelineChip));
+
+      tester.widget<FilterChip>(find.byType(FilterChip)).onDeleted!();
+      await tester.pumpAndSettle();
+
+      expect(filters.layers, const LayerFilter());
     });
   });
 }

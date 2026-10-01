@@ -48,13 +48,6 @@ class AppSettings extends ChangeNotifier {
   bool _enableTimelineStravaContext = false;
   int _firstDayOfWeek = DateTime.monday; // 1 = Monday … 7 = Sunday
 
-  // Temporary Settings (in-memory only, never persisted)
-  bool _displayShowSetups = true;
-  bool _displayShowActivities = true;
-  bool _displayShowInstallations = true;
-  bool _displayShowTasks = true;
-  bool _displayShowRatingEntries = true;
-
   bool get showOnboarding => _showOnboarding;
   ThemeMode get themeMode => _themeMode;
   String get dateFormat => _dateFormat;
@@ -93,13 +86,6 @@ class AppSettings extends ChangeNotifier {
   bool get enableTimelineReplacementDetection => _enableTimelineReplacementDetection;
   bool get enableTimelineStravaContext => _enableTimelineStravaContext;
   int get firstDayOfWeek => _firstDayOfWeek;
-
-  // Temporary Settings
-  bool get displayShowSetups => _displayShowSetups;
-  bool get displayShowActivities => _displayShowActivities;
-  bool get displayShowInstallations => _displayShowInstallations;
-  bool get displayShowTasks => _displayShowTasks;
-  bool get displayShowRatingEntries => _displayShowRatingEntries;
 
   set showOnboarding(bool newShowOnboarding) {
     if (_showOnboarding == newShowOnboarding) return;
@@ -358,36 +344,6 @@ class AppSettings extends ChangeNotifier {
     _firstDayOfWeek = newValue;
     notifyListeners();
     _persistInt('firstDayOfWeek', newValue);
-  }
-
-  set displayShowSetups(bool newValue) {
-    if (newValue == _displayShowSetups) return;
-    _displayShowSetups = newValue;
-    notifyListeners();
-  }
-
-  set displayShowActivities(bool newValue) {
-    if (newValue == _displayShowActivities) return;
-    _displayShowActivities = newValue;
-    notifyListeners();
-  }
-
-  set displayShowInstallations(bool newValue) {
-    if (newValue == _displayShowInstallations) return;
-    _displayShowInstallations = newValue;
-    notifyListeners();
-  }
-
-  set displayShowTasks(bool newValue) {
-    if (newValue == _displayShowTasks) return;
-    _displayShowTasks = newValue;
-    notifyListeners();
-  }
-
-  set displayShowRatingEntries(bool newValue) {
-    if (newValue == _displayShowRatingEntries) return;
-    _displayShowRatingEntries = newValue;
-    notifyListeners();
   }
 
   void _persistBool(String name, bool value) async {

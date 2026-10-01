@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
+import '../../models/filters/layer_filter.dart';
 import '../../models/task/task_rule.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
@@ -61,15 +62,19 @@ class FilterSheetChip extends StatelessWidget {
     final taskPrioritySelected = showTaskPriority2 && filters.taskRule.hasActivePriorities;
     final taskTagsSelected = showTaskTags2 && filters.taskRule.tags.isNotEmpty;
     final mapVisibilitySelected = showMapVisibility2 &&
-        (!appSettings.displayShowSetups ||
-            (stravaActive && !appSettings.displayShowActivities) ||
-            (appSettings.enableRating && !appSettings.displayShowRatingEntries));
+        filters.layers.isActiveFor({
+          TimelineLayer.setups,
+          if (stravaActive) TimelineLayer.activities,
+          if (appSettings.enableRating) TimelineLayer.ratingEntries,
+        });
     final timelineVisibilitySelected = showTimelineVisibility2 &&
-        (!appSettings.displayShowSetups ||
-            (stravaActive && !appSettings.displayShowActivities) ||
-            (appSettings.enableTask && !appSettings.displayShowTasks) ||
-            (appSettings.enableInstallationTimeline && !appSettings.displayShowInstallations) ||
-            (appSettings.enableRating && !appSettings.displayShowRatingEntries));
+        filters.layers.isActiveFor({
+          TimelineLayer.setups,
+          if (stravaActive) TimelineLayer.activities,
+          if (appSettings.enableTask) TimelineLayer.tasks,
+          if (appSettings.enableInstallationTimeline) TimelineLayer.installations,
+          if (appSettings.enableRating) TimelineLayer.ratingEntries,
+        });
     // The map shares its narrowed/reset logic with the map empty-state placeholder.
     final selected = showMapVisibility
         ? MapActions.isFiltered(appRepository: appRepository, appSettings: appSettings, stravaActive: stravaActive)
@@ -87,13 +92,7 @@ class FilterSheetChip extends StatelessWidget {
       if (showTaskPriority2) filters.taskRule = filters.taskRule.copyWith(priorities: TaskPriority.values.toSet());
       if (showTaskTags2) filters.taskRule = filters.taskRule.copyWith(tags: const {});
 
-      if (showTimelineVisibility2) {
-        appSettings.displayShowSetups = true;
-        appSettings.displayShowActivities = true;
-        appSettings.displayShowRatingEntries = true;
-        appSettings.displayShowTasks = true;
-        appSettings.displayShowInstallations = true;
-      }
+      if (showTimelineVisibility2) filters.layers = const LayerFilter();
     }
 
     final String bikeName = appRepository.bikes[filters.bikeId]?.name ?? '';

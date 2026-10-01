@@ -1,3 +1,4 @@
+import 'package:bike_setup_tracker/models/filters/layer_filter.dart';
 import 'package:bike_setup_tracker/models/filters/setup_filter.dart';
 import 'package:bike_setup_tracker/models/filters/task_rule_filter.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
@@ -17,6 +18,7 @@ void main() {
     expect(filters.bikeId, null);
     expect(filters.setup, const SetupFilter());
     expect(filters.taskRule, TaskRuleFilter());
+    expect(filters.layers, const LayerFilter());
   });
 
   group("toggleBike", () {
@@ -73,9 +75,19 @@ void main() {
       expect(changes, 1);
     });
 
+    test("layers fires once per actual change", () {
+      filters.layers = const LayerFilter(hidden: {TimelineLayer.tasks});
+      expect(filters.layers.shows(TimelineLayer.tasks), false);
+      expect(changes, 1);
+
+      filters.layers = LayerFilter(hidden: {TimelineLayer.tasks}.toSet());
+      expect(changes, 1);
+    });
+
     test("equal default values do not fire", () {
       filters.setup = const SetupFilter();
       filters.taskRule = TaskRuleFilter();
+      filters.layers = const LayerFilter();
       expect(changes, 0);
     });
   });
@@ -85,6 +97,7 @@ void main() {
       filters.toggleBike("b1");
       filters.setup = const SetupFilter(tags: {"race", "wet"}, bookmarkedOnly: true);
       filters.taskRule = TaskRuleFilter(priorities: const {TaskPriority.high}, tags: const {"service", "fork"});
+      filters.layers = const LayerFilter(hidden: {TimelineLayer.tasks});
       changes = 0;
     });
 
@@ -114,6 +127,7 @@ void main() {
       expect(filters.bikeId, null);
       expect(filters.setup.tags, isEmpty);
       expect(filters.taskRule.tags, isEmpty);
+      expect(filters.layers, const LayerFilter(hidden: {TimelineLayer.tasks}));
       expect(changes, 0);
     });
   });

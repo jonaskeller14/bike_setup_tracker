@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/context/context_position.dart';
+import 'package:bike_setup_tracker/models/filters/layer_filter.dart';
 import 'package:bike_setup_tracker/models/filters/setup_filter.dart';
 import 'package:bike_setup_tracker/models/filters/task_rule_filter.dart';
 import 'package:bike_setup_tracker/models/rating/rating_entry.dart';
@@ -491,8 +492,8 @@ void main() {
 
       verify(() => repository.getFilteredStravaActivitiesWithPosition()).called(1);
 
-      // An unrelated rebuild: a layer toggle must not hit the database again.
-      settings.displayShowSetups = false;
+      // An unrelated rebuild: a settings change must not hit the database again.
+      settings.enableSetupBookmark = true;
       await tester.pump();
       verifyNever(() => repository.getFilteredStravaActivitiesWithPosition());
 
@@ -579,7 +580,7 @@ void main() {
 
     testWidgets('pins the activity even when the map filters hide activities', (tester) async {
       // Strava is not entitled and the activity layer is off.
-      settings.displayShowActivities = false;
+      filters.layers = const LayerFilter(hidden: {TimelineLayer.activities});
       await tester.pumpWidget(buildPage(unpermittedService(), focusActivity: focusActivity));
       await tester.pump();
       await tester.pump();
@@ -617,7 +618,7 @@ void main() {
         tester.widget<FlutterMap>(find.byType(FlutterMap)).mapController!.camera;
 
     testWidgets('opens centred on a single setup and pins it despite the filters', (tester) async {
-      settings.displayShowSetups = false;
+      filters.layers = const LayerFilter(hidden: {TimelineLayer.setups});
       final setup = setupAt(46.5, 9.8);
       await tester.pumpWidget(buildPage(unpermittedService(), focusSetups: [setup]));
       await tester.pump();

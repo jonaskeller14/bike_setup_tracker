@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import '../env/env.dart';
 import '../models/app_settings.dart';
 import '../models/context/context_position.dart';
+import '../models/filters/layer_filter.dart';
 import '../models/rating/rating_entry.dart';
 import '../models/setup.dart';
 import '../models/strava/strava_activity.dart';
@@ -134,8 +135,8 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
     _reloadStravaActivities();
   }
 
-  /// Requeries only when the repository changes, so unrelated rebuilds (layer
-  /// toggles, location updates, rotation) no longer hit the database.
+  /// Requeries only when the repository changes, so unrelated rebuilds (settings
+  /// changes, location updates, rotation) no longer hit the database.
   void _reloadStravaActivities() => unawaited(_loadStravaActivities());
 
   Future<void> _loadStravaActivities() async {
@@ -391,10 +392,11 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
 
     final colorScheme = Theme.of(context).colorScheme;
 
+    final layers = appRepository.filters.layers;
     final List<Marker> clusterMarkers = [
-      if (appSettings.displayShowSetups) ..._setupMarkers(appRepository, appSettings),
-      if (stravaActive && appSettings.displayShowActivities) ..._activityMarkers(),
-      if (appSettings.enableRating && appSettings.displayShowRatingEntries) ..._ratingEntryMarkers(appRepository),
+      if (layers.shows(TimelineLayer.setups)) ..._setupMarkers(appRepository, appSettings),
+      if (stravaActive && layers.shows(TimelineLayer.activities)) ..._activityMarkers(),
+      if (appSettings.enableRating && layers.shows(TimelineLayer.ratingEntries)) ..._ratingEntryMarkers(appRepository),
     ];
 
     final focusMarkers = _focusMarkers(appSettings);

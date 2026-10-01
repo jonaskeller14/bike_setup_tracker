@@ -4,10 +4,12 @@ import 'package:provider/provider.dart';
 import '../../icons/simple_icons.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
+import '../../models/filters/layer_filter.dart';
 import '../../models/rating/rating.dart';
 import '../../models/setup.dart';
 import '../../models/task/task_rule.dart';
 import '../../repositories/app_repository.dart';
+import '../../repositories/filter_controller.dart';
 import '../../services/subscription_service.dart';
 import '../text/sheet_section_title.dart';
 import 'sheet.dart';
@@ -57,6 +59,22 @@ Widget _buildIsolatableChips(List<_IsolatableChipOption> options) {
 
 Set<T> _toggled<T>(Set<T> values, T value, {required bool selected}) =>
     selected ? {...values, value} : values.difference({value});
+
+_IsolatableChipOption _layerOption(
+  FilterController filters,
+  TimelineLayer layer, {
+  required IconData icon,
+  required String label,
+}) {
+  return _IsolatableChipOption(
+    icon: icon,
+    label: label,
+    selected: filters.layers.shows(layer),
+    onChanged: (selected) => filters.layers = filters.layers.copyWith(
+      hidden: _toggled(filters.layers.hidden, layer, selected: !selected),
+    ),
+  );
+}
 
 Future<void> showFilterSheet({
   required BuildContext context,
@@ -199,65 +217,25 @@ Future<void> showFilterSheet({
                     if (showMapVisibility) ...[
                       const SheetSectionTitle(title: "Visibility"),
                       _buildIsolatableChips([
-                        _IsolatableChipOption(
-                          icon: Setup.iconData,
-                          label: "Setups",
-                          selected: appSettings.displayShowSetups,
-                          onChanged: (selected) => appSettings.displayShowSetups = selected,
-                        ),
+                        _layerOption(filters, TimelineLayer.setups, icon: Setup.iconData, label: "Setups"),
                         if (stravaActive)
-                          _IsolatableChipOption(
-                            icon: SimpleIcons.strava,
-                            label: "Strava Activities",
-                            selected: appSettings.displayShowActivities,
-                            onChanged: (selected) => appSettings.displayShowActivities = selected,
-                          ),
+                          _layerOption(filters, TimelineLayer.activities, icon: SimpleIcons.strava, label: "Strava Activities"),
                         if (appSettings.enableRating)
-                          _IsolatableChipOption(
-                            icon: Rating.iconData,
-                            label: "Ratings",
-                            selected: appSettings.displayShowRatingEntries,
-                            onChanged: (selected) => appSettings.displayShowRatingEntries = selected,
-                          ),
+                          _layerOption(filters, TimelineLayer.ratingEntries, icon: Rating.iconData, label: "Ratings"),
                       ]),
                     ],
                     if (showTimelineVisibility) ...[
                       const SheetSectionTitle(title: "Visibility"),
                       _buildIsolatableChips([
-                        _IsolatableChipOption(
-                          icon: Setup.iconData,
-                          label: "Setups",
-                          selected: appSettings.displayShowSetups,
-                          onChanged: (selected) => appSettings.displayShowSetups = selected,
-                        ),
+                        _layerOption(filters, TimelineLayer.setups, icon: Setup.iconData, label: "Setups"),
                         if (stravaActive)
-                          _IsolatableChipOption(
-                            icon: SimpleIcons.strava,
-                            label: "Activities",
-                            selected: appSettings.displayShowActivities,
-                            onChanged: (selected) => appSettings.displayShowActivities = selected,
-                          ),
+                          _layerOption(filters, TimelineLayer.activities, icon: SimpleIcons.strava, label: "Activities"),
                         if (appSettings.enableTask)
-                          _IsolatableChipOption(
-                            icon: Icons.check_box_outlined,
-                            label: "Tasks",
-                            selected: appSettings.displayShowTasks,
-                            onChanged: (selected) => appSettings.displayShowTasks = selected,
-                          ),
+                          _layerOption(filters, TimelineLayer.tasks, icon: Icons.check_box_outlined, label: "Tasks"),
                         if (appSettings.enableInstallationTimeline)
-                          _IsolatableChipOption(
-                            icon: Icons.swap_horiz,
-                            label: "Installations",
-                            selected: appSettings.displayShowInstallations,
-                            onChanged: (selected) => appSettings.displayShowInstallations = selected,
-                          ),
+                          _layerOption(filters, TimelineLayer.installations, icon: Icons.swap_horiz, label: "Installations"),
                         if (appSettings.enableRating)
-                          _IsolatableChipOption(
-                            icon: Rating.iconData,
-                            label: "Ratings",
-                            selected: appSettings.displayShowRatingEntries,
-                            onChanged: (selected) => appSettings.displayShowRatingEntries = selected,
-                          ),
+                          _layerOption(filters, TimelineLayer.ratingEntries, icon: Rating.iconData, label: "Ratings"),
                       ]),
                     ],
                   ],

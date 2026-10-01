@@ -255,4 +255,70 @@ void main() {
       expect(filters.layers, const LayerFilter());
     });
   });
+
+  group('FilterSheetChip — filter sheet', () {
+    setUp(() {
+      when(() => mockRepository.setupTags).thenReturn({'race'});
+      when(() => mockRepository.taskRuleTags).thenReturn({'service'});
+    });
+
+    Future<void> openSheet(WidgetTester tester, FilterSheetChip chip) async {
+      await tester.pumpWidget(createWidgetUnderTest(chip));
+      await tester.tap(find.byType(FilterChip));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('offers the enabled sections of the timeline preset', (tester) async {
+      appSettings.enableSetupTags = true;
+      appSettings.enableTask = true;
+      await openSheet(tester, FilterSheetChip.setupList);
+
+      expect(find.text('Bike'), findsOneWidget);
+      expect(find.text('Setup Tags'), findsOneWidget);
+      expect(find.text('race'), findsOneWidget);
+      expect(find.text('Visibility'), findsOneWidget);
+      expect(find.text('Tasks'), findsOneWidget);
+      expect(find.text('Installations'), findsNothing);
+      expect(find.text('Task Priority'), findsNothing);
+    });
+
+    testWidgets('titles the setup section "Setups" once bookmarks are on', (tester) async {
+      appSettings.enableSetupBookmark = true;
+      await openSheet(tester, FilterSheetChip.bikeDetailsPage);
+
+      expect(find.text('Setups'), findsOneWidget);
+      expect(find.text('Bookmarked'), findsOneWidget);
+      expect(find.text('race'), findsNothing);
+      expect(find.text('Bike'), findsNothing);
+    });
+
+    testWidgets('offers the task sections of the task preset', (tester) async {
+      appSettings.enableTaskTags = true;
+      await openSheet(tester, FilterSheetChip.taskList);
+
+      expect(find.text('Task Priority'), findsOneWidget);
+      expect(find.text('Task Tags'), findsOneWidget);
+      expect(find.text('service'), findsOneWidget);
+      expect(find.text('Visibility'), findsNothing);
+    });
+
+    testWidgets('labels the map activity layer with the Strava name', (tester) async {
+      when(() => mockSubscription.hasStravaEntitlement).thenReturn(true);
+      await openSheet(tester, FilterSheetChip.map);
+
+      expect(find.text('Strava Activities'), findsOneWidget);
+      expect(find.text('Tasks'), findsNothing);
+    });
+
+    testWidgets('a long-press isolates a layer', (tester) async {
+      appSettings.enableTask = true;
+      appSettings.enableInstallationTimeline = true;
+      await openSheet(tester, FilterSheetChip.setupList);
+
+      await tester.longPress(find.text('Tasks'));
+      await tester.pumpAndSettle();
+
+      expect(filters.layers, const LayerFilter(hidden: {TimelineLayer.setups, TimelineLayer.installations}));
+    });
+  });
 }

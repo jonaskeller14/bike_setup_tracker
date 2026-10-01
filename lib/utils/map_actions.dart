@@ -5,59 +5,16 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../models/app_settings.dart';
-import '../models/filters/layer_filter.dart';
 import '../models/rating/rating_entry.dart';
 import '../models/setup.dart';
 import '../models/strava/strava_activity.dart';
 import '../pages/map_page.dart';
-import '../repositories/app_repository.dart';
 import '../services/subscription_service.dart';
 import 'url.dart';
 
 typedef ExternalMapTarget = ({String label, double latitude, double longitude, String displayName});
 
 class MapActions {
-  /// Whether the map filters currently narrow what the map can show.
-  ///
-  /// Shared by the map's filter chip and its empty-state placeholder so the
-  /// chip's reset and the placeholder's "Clear filters" can't drift apart.
-  static bool isFiltered({
-    required AppRepository appRepository,
-    required AppSettings appSettings,
-    required bool stravaActive,
-  }) {
-    final filters = appRepository.filters;
-    final visibilityFiltered =
-        _showsVisibility(appSettings, stravaActive: stravaActive) &&
-        filters.layers.isActiveFor({
-          TimelineLayer.setups,
-          if (stravaActive) TimelineLayer.activities,
-          if (appSettings.enableRating) TimelineLayer.ratingEntries,
-        });
-
-    return filters.bikeId != null ||
-        (appSettings.enableSetupTags && filters.setup.tags.isNotEmpty) ||
-        (appSettings.enableSetupBookmark && filters.setup.bookmarkedOnly) ||
-        visibilityFiltered;
-  }
-
-  /// Resets every filter [isFiltered] reports on.
-  static void clearFilters(BuildContext context) {
-    final filters = context.read<AppRepository>().filters;
-    final appSettings = context.read<AppSettings>();
-
-    filters.toggleBike(null);
-    if (appSettings.enableSetupTags) filters.setup = filters.setup.copyWith(tags: const {});
-    if (appSettings.enableSetupBookmark) filters.setup = filters.setup.copyWith(bookmarkedOnly: false);
-
-    if (_showsVisibility(appSettings, stravaActive: stravaActive(context))) {
-      filters.layers = filters.layers.copyWith(hidden: filters.layers.hidden.difference(_mapLayers));
-    }
-  }
-
-  static const _mapLayers = {TimelineLayer.setups, TimelineLayer.activities, TimelineLayer.ratingEntries};
-
-
   static Future<void> openActivityOnMap(BuildContext context, StravaActivity activity) async {
     unawaited(HapticFeedback.selectionClick());
     await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => MapPage(focusActivity: activity)));
@@ -120,9 +77,4 @@ class MapActions {
   /// Whether Strava activities can appear on the map at all.
   static bool stravaActive(BuildContext context) =>
       context.read<AppSettings>().enableStrava && context.read<SubscriptionService>().hasStravaEntitlement;
-
-  /// The map filter sheet only offers the layer toggles when a layer other than
-  /// setups can be shown at all.
-  static bool _showsVisibility(AppSettings appSettings, {required bool stravaActive}) =>
-      appSettings.enableRating || stravaActive;
 }

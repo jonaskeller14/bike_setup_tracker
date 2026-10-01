@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../models/filters/task_rule_filter.dart';
 import '../../repositories/app_repository.dart';
+import '../../utils/filter_actions.dart';
 import '../../utils/task_actions.dart';
 import '../chips/task_list_filter_widget.dart';
 import '../empty_state_placeholder.dart';
 import '../items/task_rule_list_card.dart';
+import '../sheets/filter.dart';
 import '../sticky_section.dart';
 import '../task_caught_up_placeholder.dart';
 import '../task_list_divider.dart';
@@ -112,7 +113,7 @@ class _TaskListState extends State<TaskList> {
         subtitle: 'Priority or tag filters are hiding tasks that need attention.',
         actionLabel: 'Clear filters',
         actionIcon: Icons.filter_alt_off,
-        onAction: () => repository.filters.taskRule = TaskRuleFilter(),
+        onAction: () => FilterActions.clear(context, const {FilterSection.taskPriority, FilterSection.taskTags}),
       );
     }
 

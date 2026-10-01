@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../../icons/simple_icons.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
+import '../../models/filters/layer_filter.dart';
 import '../../models/task/task_rule.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
@@ -18,6 +19,11 @@ class FeaturesPage extends StatelessWidget {
   const FeaturesPage({super.key});
 
   static const String _setupExtrasTitle = kDebugMode ? "Setup Tags & Bookmarks" : "Setup Tags";
+
+  static void _showLayer(BuildContext context, TimelineLayer layer) {
+    final filters = context.read<AppRepository>().filters;
+    filters.layers = filters.layers.copyWith(hidden: filters.layers.hidden.difference({layer}));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +80,10 @@ class FeaturesPage extends StatelessWidget {
                 icon: Icons.timeline,
                 title: "Installation Timeline",
                 value: appSettings.enableInstallationTimeline,
-                onChanged: (v) => appSettings.enableInstallationTimeline = v,
+                onChanged: (v) {
+                  appSettings.enableInstallationTimeline = v;
+                  if (!v) _showLayer(context, TimelineLayer.installations);
+                },
                 infoText:
                     'By default, Components are linked to a Bike. '
                     'When this setting is enabled, you can track exactly when a component was installed and uninstalled. '
@@ -201,7 +210,10 @@ class FeaturesPage extends StatelessWidget {
                   icon: Icons.star,
                   title: "Rating",
                   value: appSettings.enableRating,
-                  onChanged: (v) => appSettings.enableRating = v,
+                  onChanged: (v) {
+                    appSettings.enableRating = v;
+                    if (!v) _showLayer(context, TimelineLayer.ratingEntries);
+                  },
                 ),
               if (kDebugMode)
                 _FeatureToggleTile(
@@ -256,7 +268,10 @@ class FeaturesPage extends StatelessWidget {
                 icon: Icons.checklist,
                 title: "Tasks",
                 value: appSettings.enableTask,
-                onChanged: (v) => appSettings.enableTask = v,
+                onChanged: (v) {
+                  appSettings.enableTask = v;
+                  if (!v) _showLayer(context, TimelineLayer.tasks);
+                },
                 infoText:
                     "Plan and track anything from recurring maintenance like fork services and chain cleaning to setup experiments like suspension testing or trying different handlebar widths. Keep a complete log of your goals and achievements in one place.",
               ),

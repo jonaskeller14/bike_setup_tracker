@@ -11,7 +11,6 @@ import '../../models/app_settings.dart';
 import '../../models/attachment.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
-import '../../models/filters/setup_filter.dart';
 import '../../models/person.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
@@ -20,6 +19,7 @@ import '../../services/setup_activity_analysis_service.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/bike_actions.dart';
 import '../../utils/component_actions.dart';
+import '../../utils/filter_actions.dart';
 import '../../utils/table_column.dart';
 import '../../utils/table_column_comparator.dart';
 import '../../widgets/attachment_row.dart';
@@ -332,7 +332,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
             subtitle: 'Your filters are hiding all setups.',
             actionLabel: 'Clear filters',
             actionIcon: Icons.filter_alt_off,
-            onAction: () => appRepository.filters.setup = const SetupFilter(),
+            onAction: () => FilterActions.clear(context, FilterSheetChip.bikeDetailsPage.sections),
           )
         else if (activeColumns.isEmpty)
           const EmptyStatePlaceholder(

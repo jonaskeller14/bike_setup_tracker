@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import '../../models/app_hint.dart';
 import '../../models/app_settings.dart';
 import '../../models/filters/layer_filter.dart';
-import '../../models/filters/setup_filter.dart';
 import '../../models/setup.dart';
 import '../../models/strava/strava_activity.dart';
 import '../../models/timeline_entry.dart';
@@ -13,8 +12,10 @@ import '../../models/timeline_row.dart';
 import '../../models/timeline_selection.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
+import '../../utils/filter_actions.dart';
 import '../../utils/setup_actions.dart';
 import '../../utils/timeline_grouping.dart';
+import '../chips/filter_sheet_chip.dart';
 import '../chips/setup_list_filter_widget.dart';
 import '../empty_state_placeholder.dart';
 import '../hints/app_hint_slot.dart';
@@ -33,12 +34,6 @@ class SetupList extends StatelessWidget {
     this.onSelectionChanged,
   });
 
-  bool _hasActiveFilters(AppRepository appRepository) {
-    return appRepository.filters.bikeId != null ||
-        appRepository.filters.setup.isActive ||
-        appRepository.filters.layers.hidden.isNotEmpty;
-  }
-
   bool _hasAnyContent(AppRepository appRepository) {
     return appRepository.setups.isNotEmpty ||
         appRepository.taskEntries.isNotEmpty ||
@@ -46,14 +41,8 @@ class SetupList extends StatelessWidget {
         appRepository.components.values.any((c) => c.installations.isNotEmpty);
   }
 
-  void _clearFilters(AppRepository appRepository) {
-    appRepository.filters.toggleBike(null);
-    appRepository.filters.setup = const SetupFilter();
-    appRepository.filters.layers = const LayerFilter();
-  }
-
-  Widget _emptyPlaceholder(BuildContext context, AppRepository appRepository) {
-    final filtered = _hasActiveFilters(appRepository) && _hasAnyContent(appRepository);
+  Widget _emptyPlaceholder(BuildContext context, AppRepository appRepository, {required bool hasActiveFilters}) {
+    final filtered = hasActiveFilters && _hasAnyContent(appRepository);
     return CustomScrollView(
       slivers: [
         const SliverToBoxAdapter(
@@ -74,7 +63,7 @@ class SetupList extends StatelessWidget {
                     subtitle: 'Your filters are hiding all entries.',
                     actionLabel: 'Clear filters',
                     actionIcon: Icons.filter_alt_off,
-                    onAction: () => _clearFilters(appRepository),
+                    onAction: () => FilterActions.clear(context, FilterSheetChip.setupList.sections),
                   )
                 : EmptyStatePlaceholder(
                     icon: Setup.iconData,
@@ -184,7 +173,16 @@ class SetupList extends StatelessWidget {
     );
 
     if (entries.isEmpty && !appRepository.isLoadingMoreStrava) {
-      return _emptyPlaceholder(context, appRepository);
+      return _emptyPlaceholder(
+        context,
+        appRepository,
+        hasActiveFilters: FilterActions.isFiltered(
+          FilterSheetChip.setupList.sections,
+          appRepository: appRepository,
+          appSettings: appSettings,
+          stravaActive: appSettings.enableStrava && subscriptionService.hasStravaEntitlement,
+        ),
+      );
     }
 
     final sections = <({DayHeaderRow header, List<TimelineRow> rows})>[];

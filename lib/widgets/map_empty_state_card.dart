@@ -5,9 +5,11 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../models/app_settings.dart';
+import '../utils/filter_actions.dart';
 import '../utils/map_actions.dart';
 import '../utils/map_empty_state.dart';
 import '../utils/setup_actions.dart';
+import 'chips/filter_sheet_chip.dart';
 
 class MapEmptyStateCard extends StatelessWidget {
   static const _switchDuration = Duration(milliseconds: 200);
@@ -160,7 +162,7 @@ class MapEmptyStateCard extends StatelessWidget {
       actionIcon: Icons.filter_alt_off,
       onAction: (context) {
         unawaited(HapticFeedback.selectionClick());
-        MapActions.clearFilters(context);
+        FilterActions.clear(context, FilterSheetChip.map.sections);
       },
     ),
     // The map hides the card while loading or showing pins, so this is the `none` copy.

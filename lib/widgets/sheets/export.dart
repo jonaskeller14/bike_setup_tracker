@@ -202,7 +202,7 @@ class SelectExportDestinationSheetContent extends StatelessWidget {
                     ),
                   if (context.read<AppSettings>().enableAttachments)
                     ListTile(
-                      leading: Icon(Icons.photo_library, color: Theme.of(context).colorScheme.primary),
+                      leading: Icon(Icons.attach_file, color: Theme.of(context).colorScheme.primary),
                       title: const Text("Export Attachment Bundle"),
                       subtitle: const Text("Export data and attachments as a ZIP bundle"),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),

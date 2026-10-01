@@ -125,7 +125,7 @@ class _SetupTileState extends State<SetupTile> {
       if (appSettings.enableSetupTags) ...setup.tags.map((tag) => TileMetaRow(icon: Icons.tag, text: tag, muted: true)),
       if (appSettings.enableAttachments && setup.attachments.isNotEmpty)
         TileMetaRow(
-          icon: Icons.photo_library_outlined,
+          icon: Icons.attach_file,
           text: '${setup.attachments.length}',
           muted: true,
         ),

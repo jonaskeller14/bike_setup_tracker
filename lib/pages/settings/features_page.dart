@@ -24,6 +24,18 @@ class FeaturesPage extends StatelessWidget {
     final subscriptionService = context.watch<SubscriptionService>();
 
     final otherTiles = [
+      if (kDebugMode)
+        _FeatureToggleTile(
+          icon: Icons.attach_file,
+          title: "Attachments",
+          value: appSettings.enableAttachments,
+          onChanged: (v) => appSettings.enableAttachments = v,
+          infoText:
+              'Attach images and files to bikes, components and setups. WARNING: attachments '
+              'are stored only on this device. They are NOT included in cloud/Drive backups and '
+              'will be lost on reinstall or when restoring from a backup. Use "Export Attachment '
+              'Bundle" to move them to a new device.',
+        ),
       if (Platform.isAndroid)
         _FeatureToggleTile(
           icon: SimpleIcons.googledrive,
@@ -151,17 +163,6 @@ class FeaturesPage extends StatelessWidget {
                       if (!v) context.read<AppRepository>().deselectAllSetupTags();
                     },
                   ),
-                  if (kDebugMode)
-                    CheckboxGroupSheetOption(
-                      title: 'Attachments',
-                      subtitle:
-                          'Attach images and files to setups, bikes and components. WARNING: attachments '
-                          'are stored only on this device. They are NOT included in cloud/Drive backups and '
-                          'will be lost on reinstall or when restoring from a backup. Use "Export Attachment '
-                          'Bundle" to move them to a new device.',
-                      value: () => appSettings.enableAttachments,
-                      onChanged: (v) => appSettings.enableAttachments = v,
-                    ),
                   if (kDebugMode)
                     CheckboxGroupSheetOption(
                       title: 'Bookmarks',

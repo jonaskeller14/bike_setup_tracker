@@ -138,6 +138,11 @@ class ComponentListCard extends StatelessWidget{
                         ),
                       ],
                     ),
+                  if (appSettings.enableAttachments && component.attachments.isNotEmpty)
+                    _StatItem(
+                      icon: Icons.attach_file,
+                      label: '${component.attachments.length}',
+                    ),
                   if (appSettings.enableStrava && subscriptionService.hasStravaEntitlement)
                     Wrap(
                       spacing: 8,

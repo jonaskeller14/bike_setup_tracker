@@ -471,10 +471,14 @@ class AppRepository extends ChangeNotifier {
   void _filterSetups() {
     _filteredSetups = Map.fromEntries(setups.entries.where((entry) =>
       (selectedBike == null ? true : entry.value.bike == selectedBike) &&
-      (selectedSetupTags.isEmpty ? true : entry.value.tags.containsAll(selectedSetupTags)) &&
-      (_showBookmarkedSetupsOnly ? entry.value.isBookmarked : true)
+      matchesSetupTagAndBookmarkFilter(entry.value)
     ));
   }
+
+  /// The setup filters without the bike filter, for views that are already scoped to one bike.
+  bool matchesSetupTagAndBookmarkFilter(Setup setup) =>
+      (selectedSetupTags.isEmpty ? true : setup.tags.containsAll(selectedSetupTags)) &&
+      (_showBookmarkedSetupsOnly ? setup.isBookmarked : true);
 
   void _filterRatingEntries() {
     _filteredRatingEntries = selectedBike == null

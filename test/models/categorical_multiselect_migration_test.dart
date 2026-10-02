@@ -1,4 +1,3 @@
-import 'package:bike_setup_tracker/database/adjustment_value_codec.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -10,7 +9,6 @@ import 'package:flutter_test/flutter_test.dart';
 ///   builds refuse (not silently drop) multi-select data across cloud sync.
 /// * The stored value round-trips as the canonical `List<String>`, with legacy
 ///   single `String` values (and even JSON-looking option names) preserved.
-/// * A stray non-String never reaches a text field.
 void main() {
   const options = {'Open', 'Firm', 'Locked'};
 
@@ -40,7 +38,7 @@ void main() {
 
   group('CategoricalAdjustment.fromJson', () {
     test('legacy v1 without multiSelect key ⇒ single-select', () {
-      final adj = CategoricalAdjustment.fromJson({
+      final adj = CategoricalAdjustment.fromJson(const {
         'version': 1,
         'id': 'adj1',
         'name': 'Mode',
@@ -52,7 +50,7 @@ void main() {
     });
 
     test('v1 with an explicit multiSelect key is honoured', () {
-      final adj = CategoricalAdjustment.fromJson({
+      final adj = CategoricalAdjustment.fromJson(const {
         'version': 1,
         'id': 'adj1',
         'name': 'Mode',
@@ -102,109 +100,112 @@ void main() {
     });
   });
 
-  group('encodeAdjustmentValue (every value is JSON since schema v11)', () {
+  group('AdjustmentValue.encode (every value is JSON since schema v11)', () {
     test('encodes a list as a JSON array', () {
-      expect(encodeAdjustmentValue(['Open', 'Firm']), '["Open","Firm"]');
+      expect(CategoricalValue(const ['Open', 'Firm']).encode(), '["Open","Firm"]');
     });
 
     test('encodes a single-select one-element list as a JSON array', () {
-      expect(encodeAdjustmentValue(['Open']), '["Open"]');
+      expect(CategoricalValue(const ['Open']).encode(), '["Open"]');
     });
 
     test('scalars are JSON-encoded (bool, int, double)', () {
-      expect(encodeAdjustmentValue(true), 'true');
-      expect(encodeAdjustmentValue(42), '42');
-      expect(encodeAdjustmentValue(1.5), '1.5');
+      expect(const BooleanValue(true).encode(), 'true');
+      expect(const StepValue(42).encode(), '42');
+      expect(const NumericalValue(1.5).encode(), '1.5');
     });
 
     test('a text value is a *quoted* JSON string (never confused with a list)', () {
-      expect(encodeAdjustmentValue('Open'), '"Open"');
+      expect(TextValue.orNull('Open')!.encode(), '"Open"');
       // Text that happens to look like a JSON array stays a JSON string.
-      expect(encodeAdjustmentValue('["abc"]'), '"[\\"abc\\"]"');
+      expect(TextValue.orNull('["abc"]')!.encode(), '"[\\"abc\\"]"');
     });
 
     test('a Duration is stored as integer microseconds', () {
-      expect(encodeAdjustmentValue(const Duration(seconds: 10)), '10000000');
-      expect(encodeAdjustmentValue(Duration.zero), '0');
+      expect(const DurationValue(Duration(seconds: 10)).encode(), '10000000');
+      expect(const DurationValue(Duration.zero).encode(), '0');
     });
   });
 
-  group('decodeAdjustmentValue (read path, keyed by type)', () {
+  group('AdjustmentValue.decode (read path, keyed by type)', () {
     test('boolean', () {
-      expect(decodeAdjustmentValue('true', AdjustmentType.boolean), true);
-      expect(decodeAdjustmentValue('false', AdjustmentType.boolean), false);
+      expect(AdjustmentValue.decode('true', AdjustmentType.boolean), const BooleanValue(true));
+      expect(AdjustmentValue.decode('false', AdjustmentType.boolean), const BooleanValue(false));
     });
 
     test('numerical always decodes to double (even integer-valued)', () {
-      expect(decodeAdjustmentValue('1.5', AdjustmentType.numerical), 1.5);
-      final v = decodeAdjustmentValue('2', AdjustmentType.numerical);
-      expect(v, isA<double>());
-      expect(v, 2.0);
+      expect(AdjustmentValue.decode('1.5', AdjustmentType.numerical), const NumericalValue(1.5));
+      expect(AdjustmentValue.decode('2', AdjustmentType.numerical), const NumericalValue(2.0));
     });
 
     test('step decodes to int', () {
-      expect(decodeAdjustmentValue('3', AdjustmentType.step), 3);
+      expect(AdjustmentValue.decode('3', AdjustmentType.step), const StepValue(3));
     });
 
-    test('categorical decodes a JSON array to List<String>', () {
-      expect(decodeAdjustmentValue('["Front","Rear"]', AdjustmentType.categorical), ['Front', 'Rear']);
-      expect(decodeAdjustmentValue('["Open"]', AdjustmentType.categorical), ['Open']);
+    test('categorical decodes a JSON array', () {
+      expect(AdjustmentValue.decode('["Front","Rear"]', AdjustmentType.categorical), CategoricalValue(const ['Front', 'Rear']));
+      expect(AdjustmentValue.decode('["Open"]', AdjustmentType.categorical), CategoricalValue(const ['Open']));
     });
 
-    test('text decodes a quoted JSON string (JSON-looking text stays a String)', () {
-      expect(decodeAdjustmentValue('"Open"', AdjustmentType.text), 'Open');
-      final v = decodeAdjustmentValue('"[\\"abc\\"]"', AdjustmentType.text);
-      expect(v, isA<String>());
-      expect(v, '["abc"]');
+    test('text decodes a quoted JSON string (JSON-looking text stays text)', () {
+      expect(AdjustmentValue.decode('"Open"', AdjustmentType.text), TextValue.orNull('Open'));
+      expect(AdjustmentValue.decode('"[\\"abc\\"]"', AdjustmentType.text), TextValue.orNull('["abc"]'));
     });
 
     test('duration reconstructs from integer microseconds', () {
-      expect(decodeAdjustmentValue('10000000', AdjustmentType.duration), const Duration(seconds: 10));
+      expect(AdjustmentValue.decode('10000000', AdjustmentType.duration), const DurationValue(Duration(seconds: 10)));
     });
 
     test('encode → decode round-trips for every type', () {
-      expect(decodeAdjustmentValue(encodeAdjustmentValue(true), AdjustmentType.boolean), true);
-      expect(decodeAdjustmentValue(encodeAdjustmentValue(1.5), AdjustmentType.numerical), 1.5);
-      expect(decodeAdjustmentValue(encodeAdjustmentValue(3), AdjustmentType.step), 3);
-      expect(decodeAdjustmentValue(encodeAdjustmentValue(['a', 'b']), AdjustmentType.categorical), ['a', 'b']);
-      expect(decodeAdjustmentValue(encodeAdjustmentValue('hi'), AdjustmentType.text), 'hi');
-      expect(
-        decodeAdjustmentValue(encodeAdjustmentValue(const Duration(minutes: 3)), AdjustmentType.duration),
-        const Duration(minutes: 3),
-      );
+      for (final (value, type) in <(AdjustmentValue, AdjustmentType)>[
+        (const BooleanValue(true), AdjustmentType.boolean),
+        (const NumericalValue(1.5), AdjustmentType.numerical),
+        (const StepValue(3), AdjustmentType.step),
+        (CategoricalValue(const ['a', 'b']), AdjustmentType.categorical),
+        (TextValue.orNull('hi')!, AdjustmentType.text),
+        (const DurationValue(Duration(minutes: 3)), AdjustmentType.duration),
+      ]) {
+        expect(AdjustmentValue.decode(value.encode(), type), value);
+      }
     });
 
     group('defensive fallback for a non-JSON (un-migrated legacy) row', () {
       test('categorical plain option string ⇒ wrapped', () {
-        expect(decodeAdjustmentValue('Open', AdjustmentType.categorical), ['Open']);
+        expect(AdjustmentValue.decode('Open', AdjustmentType.categorical), CategoricalValue(const ['Open']));
       });
       test('text plain string ⇒ itself', () {
-        expect(decodeAdjustmentValue('hello world', AdjustmentType.text), 'hello world');
+        expect(AdjustmentValue.decode('hello world', AdjustmentType.text), TextValue.orNull('hello world'));
       });
       test('duration legacy H:MM:SS string ⇒ parsed', () {
-        expect(decodeAdjustmentValue('0:00:10.000000', AdjustmentType.duration), const Duration(seconds: 10));
+        expect(
+          AdjustmentValue.decode('0:00:10.000000', AdjustmentType.duration),
+          const DurationValue(Duration(seconds: 10)),
+        );
       });
     });
   });
 
-  group('decodeLegacyAdjustmentValue (pre-v11 reparse, migration only)', () {
+  group('AdjustmentValue.decodeLegacy (pre-v11 reparse, migration only)', () {
     test('scalars reparse from their toString form', () {
-      expect(decodeLegacyAdjustmentValue('true', AdjustmentType.boolean), true);
-      expect(decodeLegacyAdjustmentValue('1.5', AdjustmentType.numerical), 1.5);
-      expect(decodeLegacyAdjustmentValue('3', AdjustmentType.step), 3);
+      expect(AdjustmentValue.decodeLegacy('true', AdjustmentType.boolean), const BooleanValue(true));
+      expect(AdjustmentValue.decodeLegacy('1.5', AdjustmentType.numerical), const NumericalValue(1.5));
+      expect(AdjustmentValue.decodeLegacy('3', AdjustmentType.step), const StepValue(3));
     });
 
     test('a categorical value was a plain option string ⇒ one-element list', () {
-      expect(decodeLegacyAdjustmentValue('Open', AdjustmentType.categorical), ['Open']);
+      expect(AdjustmentValue.decodeLegacy('Open', AdjustmentType.categorical), CategoricalValue(const ['Open']));
     });
 
     test('a JSON-looking option name is preserved whole (multi-select never shipped)', () {
-      expect(decodeLegacyAdjustmentValue('[1,2]', AdjustmentType.categorical), ['[1,2]']);
+      expect(AdjustmentValue.decodeLegacy('[1,2]', AdjustmentType.categorical), CategoricalValue(const ['[1,2]']));
     });
 
     test('text is identity, duration parses the H:MM:SS form', () {
-      expect(decodeLegacyAdjustmentValue('some notes', AdjustmentType.text), 'some notes');
-      expect(decodeLegacyAdjustmentValue('0:00:10.000000', AdjustmentType.duration), const Duration(seconds: 10));
+      expect(AdjustmentValue.decodeLegacy('some notes', AdjustmentType.text), TextValue.orNull('some notes'));
+      expect(
+        AdjustmentValue.decodeLegacy('0:00:10.000000', AdjustmentType.duration),
+        const DurationValue(Duration(seconds: 10)),
+      );
     });
 
     test('legacy → re-encode → new-decode round-trips (the migration path)', () {
@@ -217,44 +218,24 @@ void main() {
         ('free text', AdjustmentType.text),
         ('0:00:10.000000', AdjustmentType.duration),
       ]) {
-        final migrated = encodeAdjustmentValue(decodeLegacyAdjustmentValue(raw, type));
+        final legacy = AdjustmentValue.decodeLegacy(raw, type)!;
         // The migrated value is valid JSON and decodes to the same in-memory value.
-        expect(
-          decodeAdjustmentValue(migrated, type),
-          decodeLegacyAdjustmentValue(raw, type),
-          reason: 'round-trip failed for $raw ($type)',
-        );
+        expect(AdjustmentValue.decode(legacy.encode(), type), legacy, reason: 'round-trip failed for $raw ($type)');
       }
     });
   });
 
-  group('categoricalValueAsList', () {
-    test('null ⇒ null', () => expect(categoricalValueAsList(null), isNull));
-    test('list passes through as List<String>', () => expect(categoricalValueAsList(['a', 'b']), ['a', 'b']));
-    test('legacy String ⇒ one-element list', () => expect(categoricalValueAsList('Open'), ['Open']));
-  });
-
-  group('textValueAsString (never hand a List to a TextEditingController)', () {
-    test('String passes through', () => expect(textValueAsString('hello'), 'hello'));
-    test('null ⇒ null', () => expect(textValueAsString(null), isNull));
-    test('a stray List is flattened to text rather than crashing', () {
-      expect(textValueAsString(['a', 'b']), 'a, b');
-    });
-  });
-
   group('Setup.adjustmentValuesFromJson (backup import) preserves value shape', () {
-    test('a JSON array becomes List<String> (categorical multi)', () {
-      final result = Setup.adjustmentValuesFromJson({'k': ['Front', 'Rear']});
-      expect(result['k'], isA<List<String>>());
-      expect(result['k'], ['Front', 'Rear']);
+    test('a JSON array becomes a categorical value', () {
+      final result = Setup.adjustmentValuesFromJson({'k': ['Front', 'Rear']}, adjustmentTypes: {'k': AdjustmentType.categorical});
+      expect(result['k'], CategoricalValue(const ['Front', 'Rear']));
     });
 
-    test('a text value that happens to look like JSON stays a String', () {
-      // In a backup this is a JSON *string* (quoted), so it is imported as a
-      // Dart String and never confused with a categorical array.
-      final result = Setup.adjustmentValuesFromJson({'k': '["abc"]'});
-      expect(result['k'], isA<String>());
-      expect(result['k'], '["abc"]');
+    test('a text value that happens to look like JSON stays text', () {
+      // In a backup this is a JSON *string* (quoted), so it is imported as
+      // text and never confused with a categorical array.
+      final result = Setup.adjustmentValuesFromJson({'k': '["abc"]'}, adjustmentTypes: {'k': AdjustmentType.text});
+      expect(result['k'], TextValue.orNull('["abc"]'));
     });
   });
 }

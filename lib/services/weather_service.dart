@@ -28,6 +28,10 @@ class WeatherError extends WeatherStatus {
   const WeatherError(this.message);
 }
 
+/// Creates the [WeatherService] of the setup form. Overridable for the
+/// screenshot entry point, which needs the same weather on every run.
+WeatherService Function() createWeatherService = WeatherService.new;
+
 class WeatherService extends ChangeNotifier {
   final historicalAPI = const HistoricalApi(
     userAgent: "Bike Setup Tracker App v1.0",

@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-import '../../repositories/app_repository.dart';
 import 'add_tag_chip.dart';
 import 'sheet_header.dart';
 
 Future<void> showSetTagsSheet({
-  required BuildContext context, 
+  required BuildContext context,
   required Set<String> tags,
+  required Set<String> availableTags,
   required ValueChanged<Set<String>> onChanged,
   required String title,
   required String subtitle,
@@ -18,7 +17,8 @@ Future<void> showSetTagsSheet({
     context: context,
     builder: (context) {
       return SetTagsSheetContent(
-        setupTags: tags.toSet(),
+        tags: tags.toSet(),
+        availableTags: availableTags,
         onChanged: onChanged,
         title: title,
         subtitle: subtitle,
@@ -28,14 +28,16 @@ Future<void> showSetTagsSheet({
 }
 
 class SetTagsSheetContent extends StatefulWidget {
-  final Set<String> setupTags;
+  final Set<String> tags;
+  final Set<String> availableTags;
   final ValueChanged<Set<String>> onChanged;
   final String title;
   final String subtitle;
 
   const SetTagsSheetContent({
-    super.key, 
-    required this.setupTags,
+    super.key,
+    required this.tags,
+    required this.availableTags,
     required this.onChanged,
     required this.title,
     required this.subtitle,
@@ -53,8 +55,8 @@ class _SetTagsSheetContentState extends State<SetTagsSheetContent> {
   @override 
   void initState() {
     super.initState();
-    _selectedTags = widget.setupTags;
-    _availableTags = {..._selectedTags, ...context.read<AppRepository>().setupTags};
+    _selectedTags = widget.tags;
+    _availableTags = {..._selectedTags, ...widget.availableTags};
     // With nothing to pick from, the sheet opens straight into the new-tag field.
     _addingTag = _availableTags.isEmpty;
   }

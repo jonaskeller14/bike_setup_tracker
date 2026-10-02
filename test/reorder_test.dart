@@ -48,9 +48,9 @@ void main() {
     });
 
     test("Reorder Components", () async {
-      final comp1 = Component(id: "c1", name: "C1", installations: [], componentType: ComponentType.other);
-      final comp2 = Component(id: "c2", name: "C2", installations: [], componentType: ComponentType.other);
-      final comp3 = Component(id: "c3", name: "C3", installations: [], componentType: ComponentType.other);
+      final comp1 = Component(id: "c1", name: "C1", installations: const [], componentType: ComponentType.other);
+      final comp2 = Component(id: "c2", name: "C2", installations: const [], componentType: ComponentType.other);
+      final comp3 = Component(id: "c3", name: "C3", installations: const [], componentType: ComponentType.other);
 
       await repository.addComponents([comp1, comp2, comp3]);
       await pumpEventQueue();
@@ -105,9 +105,9 @@ void main() {
   group("ReorderableWrap reorder", () {
     Future<void> setupComponents() async {
       await repository.addComponents([
-        Component(id: "c1", name: "C1", installations: [], componentType: ComponentType.other),
-        Component(id: "c2", name: "C2", installations: [], componentType: ComponentType.other),
-        Component(id: "c3", name: "C3", installations: [], componentType: ComponentType.other),
+        Component(id: "c1", name: "C1", installations: const [], componentType: ComponentType.other),
+        Component(id: "c2", name: "C2", installations: const [], componentType: ComponentType.other),
+        Component(id: "c3", name: "C3", installations: const [], componentType: ComponentType.other),
       ]);
       await pumpEventQueue();
     }

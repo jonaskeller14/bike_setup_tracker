@@ -1,8 +1,11 @@
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
+import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/context/context_position.dart';
 import 'package:bike_setup_tracker/models/context/context_weather.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
+import 'package:bike_setup_tracker/services/bike_adjustment_column_service.dart';
+import 'package:bike_setup_tracker/services/component_slot.dart';
 import 'package:bike_setup_tracker/utils/table_column.dart';
 import 'package:bike_setup_tracker/utils/table_column_comparator.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -25,7 +28,7 @@ void main() {
     String? locality,
     double? altitude,
     ContextWeather? weather,
-    Map<String, dynamic>? bikeAdjustmentValues,
+    Map<String, AdjustmentValue>? bikeAdjustmentValues,
   }) {
     final effectiveDatetime = datetime ?? DateTime.utc(2025, 1, 1, 12);
     return Setup(
@@ -201,7 +204,7 @@ void main() {
     final numerical = NumericalAdjustment(id: 'sag', name: 'Sag', notes: null, unit: null);
     final boolean = BooleanAdjustment(id: 'lockout', name: 'Lockout', notes: null, unit: null);
 
-    Setup withAdjustments(String id, Map<String, dynamic> values) => buildSetup(id: id, bikeAdjustmentValues: values);
+    Setup withAdjustments(String id, Map<String, AdjustmentValue> values) => buildSetup(id: id, bikeAdjustmentValues: values);
 
     List<String> sortedByColumn(TableColumn column, List<Setup> setups) {
       final comparator = tableColumnComparator(
@@ -222,8 +225,8 @@ void main() {
 
     test('numerical adjustments sort numerically, not lexically', () {
       final setups = [
-        withAdjustments('nine', {'sag': 9.0}),
-        withAdjustments('eleven', {'sag': 11.0}),
+        withAdjustments('nine', {'sag': const NumericalValue(9.0)}),
+        withAdjustments('eleven', {'sag': const NumericalValue(11.0)}),
         withAdjustments('missing', const {}),
       ];
       expect(
@@ -234,7 +237,7 @@ void main() {
 
     test('boolean adjustments sort false before true, missing counts as false', () {
       final setups = [
-        withAdjustments('on', {'lockout': true}),
+        withAdjustments('on', {'lockout': const BooleanValue(true)}),
         withAdjustments('missing', const {}),
       ];
       expect(
@@ -245,7 +248,7 @@ void main() {
 
     test('rating columns sort unscored setups first', () {
       final setups = [
-        withAdjustments('scored', {'score': 7.5}),
+        withAdjustments('scored', {'score': const NumericalValue(7.5)}),
         withAdjustments('unscored', const {}),
       ];
       expect(sortedByColumn(RatingScoreColumn(active: true), setups), ['unscored', 'scored']);
@@ -261,6 +264,41 @@ void main() {
         setupActivityCounts: const {},
       );
       expect(comparator, isNull);
+    });
+
+    group('BikeAdjustmentColumn', () {
+      final column = BikeAdjustmentColumn(
+        (lane: (slot: const ComponentSlot(type: ComponentType.tire), index: 0), adjustment: laneAdjustmentKey(numerical)),
+        active: true,
+      );
+      // Each setup stores the value under its own component's adjustment ID.
+      final valueIds = {'nine': 'sag-a', 'eleven': 'sag-b', 'missing': 'sag-a'};
+
+      Comparator<Setup>? comparatorFor(Adjustment? Function(BikeAdjustmentColumn column)? bikeAdjustmentFor) =>
+          tableColumnComparator(
+            column,
+            valueFor: (setup, column) => setup.bikeAdjustmentValues[valueIds[setup.id]],
+            componentAdjustments: const [],
+            personAdjustments: const [],
+            bikes: bikes,
+            setupActivityCounts: const {},
+            bikeAdjustmentFor: bikeAdjustmentFor,
+          );
+
+      test('sorts by the representative adjustment of the lane', () {
+        final setups = [
+          withAdjustments('eleven', {'sag-b': const NumericalValue(11.0)}),
+          withAdjustments('nine', {'sag-a': const NumericalValue(9.0)}),
+          withAdjustments('missing', const {}),
+        ];
+        final sorted = setups.toList()..sort(comparatorFor((_) => numerical)!);
+        expect(sorted.map((s) => s.id), ['missing', 'nine', 'eleven']);
+      });
+
+      test('returns null without a resolver', () {
+        expect(comparatorFor(null), isNull);
+        expect(adjustmentForColumn(column, [numerical], const []), isNull);
+      });
     });
   });
 }

@@ -1,0 +1,75 @@
+# 03 Add Setup: a filled-in form with tags and two changed adjustments.
+# Location is fetched live; the run scripts pin the device's GPS to Finale
+# Ligure so the place chip matches the setup name. Weather comes from the
+# screenshot build's fixed ScreenshotWeatherService.
+appId: ${APP_ID}
+---
+- runFlow: _launch.yaml
+- tapOn:
+    id: setups.add
+- runFlow:
+    when:
+      platform: Android
+    file: _accept_location_accuracy.yaml
+- extendedWaitUntil:
+    visible:
+      id: setupForm.name
+    timeout: 15000
+
+- tapOn:
+    id: setupForm.name
+- eraseText: 80
+- inputText: Finale Ligure - NATO Trail
+- tapOn:
+    id: setupForm.notes
+- inputText: Loose over hard. Slowed rebound and firmed up for the long descents.
+- runFlow: _hide_keyboard_android.yaml
+
+# Tag names are record data (not localized), so selecting by text is stable.
+- tapOn:
+    id: setupForm.addTags
+- tapOn: Finale
+- tapOn: Trip
+- runFlow: _dismiss_sheet.yaml
+
+# Lyrik pressure (numerical field)
+- scrollUntilVisible:
+    element:
+      id: setAdjustment.22866141-fe35-4cdc-99df-6e1ba91c1033
+    direction: DOWN
+- tapOn:
+    id: setAdjustment.22866141-fe35-4cdc-99df-6e1ba91c1033
+- eraseText: 10
+- inputText: '85'
+- runFlow: _hide_keyboard_android.yaml
+# Lyrik LSC (step slider): tapping the centre moves it to mid-range
+- scrollUntilVisible:
+    element:
+      id: setAdjustment.2fae94d6-16d2-4b79-ad4b-55f6b9fa6e1d
+    direction: DOWN
+- tapOn:
+    id: setAdjustment.2fae94d6-16d2-4b79-ad4b-55f6b9fa6e1d
+
+- scrollUntilVisible:
+    element:
+      id: setupForm.name
+    direction: UP
+# scrollUntilVisible stops as soon as the name shows; drag on to the very top
+# so the app bar isn't in its scrolled-under state.
+- swipe:
+    start: 50%, 35%
+    end: 50%, 85%
+    duration: 800
+# Maestro's hideKeyboard can't close the keyboard of a Flutter text field on
+# iOS, but opening and closing a sheet does, and it stays closed afterwards.
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn:
+          id: setupForm.addTags
+      - runFlow: _dismiss_sheet.yaml
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot:
+    path: 03_raw

@@ -54,7 +54,7 @@ Component component(String id) => Component(
   id: id,
   name: id,
   componentType: ComponentType.fork,
-  installations: [],
+  installations: const [],
 );
 
 void main() {
@@ -106,7 +106,6 @@ void main() {
         component: oldComponent,
         installation: Uninstallation(
           id: 'remove',
-          componentId: oldComponent.id,
           dateTimeUTC: DateTime.utc(2026, 7, 4, 12),
           dateTimeLocal: DateTime(2026, 7, 4, 12),
         ),
@@ -119,7 +118,6 @@ void main() {
         component: newComponent,
         installation: BikeInstallation(
           id: 'install',
-          componentId: newComponent.id,
           bikeId: 'bike',
           dateTimeUTC: DateTime.utc(2026, 7, 4, 12, 3),
           dateTimeLocal: DateTime(2026, 7, 4, 12, 3),
@@ -201,7 +199,6 @@ void main() {
           component: oldComponent,
           installation: Uninstallation(
             id: 'remove',
-            componentId: oldComponent.id,
             dateTimeUTC: DateTime.utc(2026, 7, 4, 10),
             dateTimeLocal: DateTime(2026, 7, 4, 10),
           ),
@@ -210,7 +207,6 @@ void main() {
           component: newComponent,
           installation: BikeInstallation(
             id: 'install',
-            componentId: newComponent.id,
             bikeId: 'bike',
             dateTimeUTC: DateTime.utc(2026, 7, 4, 10, 3),
             dateTimeLocal: DateTime(2026, 7, 4, 10, 3),

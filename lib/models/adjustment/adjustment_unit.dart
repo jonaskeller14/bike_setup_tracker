@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:units_converter/units_converter.dart';
 
 enum UnitQuantity {
@@ -107,6 +108,7 @@ final Map<String, (UnitQuantity, String)> _aliasTable = {
   'lb/in': (UnitQuantity.springRate, 'lbs/in'),
 };
 
+@immutable
 sealed class AdjustmentUnit {
   const AdjustmentUnit();
 

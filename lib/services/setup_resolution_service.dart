@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 
+import '../models/adjustment/adjustment.dart';
 import '../models/bike.dart';
 import '../models/component/component.dart';
 import '../models/person.dart';
@@ -8,11 +9,11 @@ import '../models/setup.dart';
 import '../utils/file_import.dart';
 import 'component_hierarchy_resolver.dart';
 
-typedef AdjustmentProvenance = ({dynamic value, Setup setup});
+typedef AdjustmentProvenance = ({AdjustmentValue value, Setup setup});
 
 class SetupResolutionService {
   /// Sorts setups chronologically and calculates inherited adjustment values.
-  static ({Map<String, Setup> setups, Map<String, dynamic> globalState}) resolveSetups({
+  static ({Map<String, Setup> setups, Map<String, AdjustmentValue> globalState}) resolveSetups({
     required Map<String, Setup> setups,
     required Map<String, Bike> bikes,
     required Map<String, Person> persons,
@@ -29,7 +30,7 @@ class SetupResolutionService {
     FileImport.determineCurrentSetups(setups: sortedSetups.values.toList(), bikes: bikes);
     
     // 3. Global State Pass (Look-back resolution)
-    final Map<String, dynamic> globalLastKnownState = {};
+    final Map<String, AdjustmentValue> globalLastKnownState = {};
     
     // Performance optimization: Pre-group adjustments by their category to avoid repeated component iterations
     // However, since components move between bikes, we must check bikeAt(T) for each setup.
@@ -63,14 +64,14 @@ class SetupResolutionService {
       setup.previousBikeAdjustmentValues = {};
       for (final id in bikeAdjustmentIds) {
         if (globalLastKnownState.containsKey(id)) {
-          setup.previousBikeAdjustmentValues[id] = globalLastKnownState[id];
+          setup.previousBikeAdjustmentValues[id] = globalLastKnownState[id]!;
         }
       }
       
       setup.previousPersonAdjustmentValues = {};
       for (final id in personAdjustmentIds) {
         if (globalLastKnownState.containsKey(id)) {
-          setup.previousPersonAdjustmentValues[id] = globalLastKnownState[id];
+          setup.previousPersonAdjustmentValues[id] = globalLastKnownState[id]!;
         }
       }
 
@@ -92,13 +93,13 @@ class SetupResolutionService {
 
   /// Resolves the cumulative global state (bike and person adjustments) up to a given [datetime].
   /// This handles component transfers across different bikes by performing a full chronological pass.
-  static Map<String, dynamic> resolveHistoricalStateAt({
+  static Map<String, AdjustmentValue> resolveHistoricalStateAt({
     required DateTime datetime,
     required Iterable<Setup> setups,
     required Map<String, Person> persons,
     String? excludedSetupId,
   }) {
-    final Map<String, dynamic> globalState = {};
+    final Map<String, AdjustmentValue> globalState = {};
     
     // 1. Sort setups chronologically up to the target datetime
     // Note: We use .toList() to ensure we don't accidentally mutate the underlying collection if it were mutable.
@@ -126,7 +127,6 @@ class SetupResolutionService {
     required Iterable<Setup> setups,
     String? excludedSetupId,
   }) {
-    const equality = DeepCollectionEquality();
     final Map<String, AdjustmentProvenance> provenance = {};
 
     final sortedSetups = setups
@@ -134,9 +134,9 @@ class SetupResolutionService {
         .sortedBy((s) => s.datetime);
 
     for (final setup in sortedSetups) {
-      for (final entry in {...setup.bikeAdjustmentValues, ...setup.personAdjustmentValues}.entries) {
+      for (final entry in [...setup.bikeAdjustmentValues.entries, ...setup.personAdjustmentValues.entries]) {
         final known = provenance[entry.key];
-        if (known != null && equality.equals(known.value, entry.value)) continue;
+        if (known != null && known.value == entry.value) continue;
         provenance[entry.key] = (value: entry.value, setup: setup);
       }
     }

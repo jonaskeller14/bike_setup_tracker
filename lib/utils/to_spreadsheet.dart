@@ -1,7 +1,6 @@
 import 'package:excel/excel.dart';
 import 'package:intl/intl.dart';
 
-import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
 import '../models/context/context_position.dart';
 import '../models/context/context_weather.dart';
@@ -247,7 +246,7 @@ class SpreadsheetExport {
       for (final entry in setup.personAdjustmentValues.entries) {
         final key = 'p_adj_${entry.key}';
         if (columnMap.containsKey(key)) {
-          row[columnMap[key]!] = TextCellValue(Adjustment.formatValue(entry.value));
+          row[columnMap[key]!] = TextCellValue(entry.value.display);
         }
       }
     }
@@ -255,7 +254,7 @@ class SpreadsheetExport {
     for (final entry in setup.bikeAdjustmentValues.entries) {
       final key = 'comp_${entry.key}';
       if (columnMap.containsKey(key)) {
-        row[columnMap[key]!]= TextCellValue(Adjustment.formatValue(entry.value));
+        row[columnMap[key]!]= TextCellValue(entry.value.display);
       }
     }
 
@@ -306,7 +305,7 @@ class SpreadsheetExport {
       for (final entry in setup.personAdjustmentValues.entries) {
         final key = 'p_adj_${entry.key}';
         if (columnMap.containsKey(key)) {
-          row[columnMap[key]!] = Adjustment.formatValue(entry.value);
+          row[columnMap[key]!] = entry.value.display;
         }
       }
     }
@@ -314,7 +313,7 @@ class SpreadsheetExport {
     for (final entry in setup.bikeAdjustmentValues.entries) {
       final key = 'comp_${entry.key}';
       if (columnMap.containsKey(key)) {
-        row[columnMap[key]!] = Adjustment.formatValue(entry.value);
+        row[columnMap[key]!] = entry.value.display;
       }
     }
 

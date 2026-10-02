@@ -1,9 +1,13 @@
+import 'dart:convert';
+
+import 'package:collection/collection.dart' show MapEquality;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:uuid/uuid.dart';
 
 import 'adjustment/adjustment.dart';
+import 'attachment.dart';
 import 'context/context_place.dart';
 import 'context/context_position.dart';
 import 'context/context_weather.dart';
@@ -20,17 +24,17 @@ class Setup {
   final Set<String> tags;
   final String bike;
   final String? person;
-  final Map<String, dynamic> bikeAdjustmentValues;
-  final Map<String, dynamic> personAdjustmentValues;
+  final Map<String, AdjustmentValue> bikeAdjustmentValues;
+  final Map<String, AdjustmentValue> personAdjustmentValues;
   final ContextPosition? position;
   final geo.Placemark? place;
   final ContextWeather? weather;
-  final List<String> images;
+  final List<Attachment> attachments;
 
   // Transient values resolved at runtime
   bool isCurrent = false;
-  Map<String, dynamic> previousBikeAdjustmentValues = {};
-  Map<String, dynamic> previousPersonAdjustmentValues = {};
+  Map<String, AdjustmentValue> previousBikeAdjustmentValues = {};
+  Map<String, AdjustmentValue> previousPersonAdjustmentValues = {};
 
   static const IconData iconData = Icons.tune;
 
@@ -54,16 +58,16 @@ class Setup {
     this.place,
     this.position,
     this.weather,
-    List<String>? images,
+    List<Attachment>? attachments,
   }) : id = id ?? const Uuid().v4(),
-       images = images ?? const [],
+       attachments = attachments ?? const [],
        isDeleted = isDeleted ?? false,
        isBookmarked = isBookmarked ?? false,
        datetime = datetime.toUtc(),
        lastModified = lastModified?.toUtc() ?? DateTime.now().toUtc();
 
   Map<String, dynamic> toJson() => {
-    'version': 7,
+    'version': 8,
     'id': id,
     "isDeleted": isDeleted,
     "lastModified": lastModified.toUtc().toIso8601String(),
@@ -80,13 +84,16 @@ class Setup {
     'position': position?.toJson(),
     'place': place != null ? ContextPlace.toJson(place!) : null,
     'weather': weather?.toJson(),
-    'images': images,
+    'attachments': attachments.map((a) => a.toJson()).toList(),
   };
 
-  factory Setup.fromJson({required Map<String, dynamic> json}) {
+  factory Setup.fromJson({
+    required Map<String, dynamic> json,
+    required Map<String, AdjustmentType> adjustmentTypes,
+  }) {
     final int? version = json["version"] as int?;
     switch (version) {
-      case null || 1 || 2 || 3 || 4 || 5 || 6 || 7:
+      case null || 1 || 2 || 3 || 4 || 5 || 6 || 7 || 8:
         return Setup(
           id: json['id'] as String?,
           isDeleted: json["isDeleted"] as bool?,
@@ -99,51 +106,95 @@ class Setup {
           tags: (json['tags'] as List?)?.map((item) => item as String).toSet() ?? <String>{},
           bike: json['bike'] as String,
           person: json['person'] as String?,
-          bikeAdjustmentValues: adjustmentValuesFromJson((json['bikeAdjustmentValues'] ?? json['adjustmentValues']) as Map<String, dynamic>? ?? {}),
-          personAdjustmentValues: adjustmentValuesFromJson((json['personAdjustmentValues']) as Map<String, dynamic>? ?? {}),
+          bikeAdjustmentValues: adjustmentValuesFromJson((json['bikeAdjustmentValues'] ?? json['adjustmentValues']) as Map<String, dynamic>? ?? {}, adjustmentTypes: adjustmentTypes),
+          personAdjustmentValues: adjustmentValuesFromJson((json['personAdjustmentValues']) as Map<String, dynamic>? ?? {}, adjustmentTypes: adjustmentTypes),
           position: json['position'] != null ? ContextPosition.fromJson(json['position'] as Map<String, dynamic>) : null,
           place: json['place'] != null ? ContextPlace.fromJson(json['place'] as Map<String, dynamic>) : null,
           weather: json['weather'] != null ? ContextWeather.fromJson(json['weather'] as Map<String, dynamic>) : null,
-          images: (json['images'] as List?)?.map((e) => e as String).toList() ?? <String>[],
+          attachments: (json['attachments'] as List?)?.map((e) => Attachment.fromJson(e as Map<String, dynamic>)).toList() ?? <Attachment>[],
         );
       default: throw Exception("Json Version $version of Setup incompatible.");
     }
   }
 
-  static Map<String, dynamic> adjustmentValuesToJson(Map<String, dynamic> adjustmentValues) {
-    return adjustmentValues.map((key, value) {
-      switch (value) {
-        case Duration(): return MapEntry(key, value.toString());
-        default: return MapEntry(key, value);
-      }
-    });
+  /// Durations are exported as `Duration.toString()`; unresolved values as
+  /// their decoded raw JSON.
+  static Map<String, dynamic> adjustmentValuesToJson(Map<String, AdjustmentValue> adjustmentValues) {
+    return adjustmentValues.map((key, value) => MapEntry(key, switch (value) {
+      BooleanValue(:final value) => value,
+      StepValue(:final value) => value,
+      NumericalValue(:final value) => value,
+      TextValue(:final value) => value,
+      CategoricalValue(:final options) => options,
+      DurationValue(:final value) => value.toString(),
+      UnresolvedValue(:final raw) => _decodeRawJson(raw),
+    }));
   }
 
-  static Map<String, dynamic> adjustmentValuesFromJson(Map<String, dynamic> adjustmentValues) {
-    return adjustmentValues.map((key, value) {
-      switch (value) {
-        case String():
-          final Duration? duration = DurationAdjustment.tryParseDurationString(value);
-          if (duration != null) {
-            return MapEntry(key, duration);
-          } else if (value.isEmpty) {
-            return MapEntry(key, null);
-          } else {
-            return MapEntry(key, value);
-          } // TextAdjustment --> String?, DurationAdjustment --> Duration
-        case List():
-          // Multi-select CategoricalAdjustment: JSON arrays decode to
-          // List<dynamic>; coerce to List<String>.
-          return MapEntry(key, value.map((e) => e.toString()).toList());
-        default: return MapEntry(key, value);
-      }
-    });
+  static Object? _decodeRawJson(String raw) {
+    try {
+      return jsonDecode(raw);
+    } on FormatException {
+      return raw;
+    }
+  }
+
+  /// [adjustmentTypes] maps adjustment ids from the same backup to their type.
+  /// Values of unknown ids, and values whose JSON shape does not fit their
+  /// type, are kept as [UnresolvedValue]s. Absent values are dropped.
+  static Map<String, AdjustmentValue> adjustmentValuesFromJson(
+    Map<String, dynamic> adjustmentValues, {
+    Map<String, AdjustmentType> adjustmentTypes = const {},
+  }) {
+    return {
+      for (final MapEntry(:key, :value) in adjustmentValues.entries)
+        key: ?switch (adjustmentTypes[key]) {
+          final type? => _adjustmentValueFromJson(value, type),
+          null => value == '' ? null : UnresolvedValue.orNull(jsonEncode(value)),
+        },
+    };
+  }
+
+  /// Decodes the [UnresolvedValue]s of ids in [adjustmentTypes] as if they had
+  /// been imported with their type; other values are returned unchanged.
+  static Map<String, AdjustmentValue> resolveAdjustmentValues(
+    Map<String, AdjustmentValue> adjustmentValues,
+    Map<String, AdjustmentType> adjustmentTypes,
+  ) {
+    return {
+      for (final MapEntry(:key, :value) in adjustmentValues.entries)
+        key: ?switch ((value, adjustmentTypes[key])) {
+          (UnresolvedValue(:final raw), final type?) => _adjustmentValueFromJson(_decodeRawJson(raw), type),
+          _ => value,
+        },
+    };
+  }
+
+  static AdjustmentValue? _adjustmentValueFromJson(dynamic value, AdjustmentType type) {
+    return switch ((type, value)) {
+      (_, null) => null,
+      (_, String() && '') => null,
+      (AdjustmentType.boolean, final bool value) => BooleanValue(value),
+      (AdjustmentType.step, final num value) => StepValue(value.toInt()),
+      (AdjustmentType.numerical, final num value) => NumericalValue(value.toDouble()),
+      (AdjustmentType.text, final String value) => TextValue.orNull(value),
+      (AdjustmentType.categorical, final List<dynamic> value) => CategoricalValue(value.map((e) => e.toString()).toList()),
+      // Legacy single-select categorical.
+      (AdjustmentType.categorical, final String value) => CategoricalValue([value]),
+      (AdjustmentType.duration, final String value) => switch (DurationAdjustment.tryParseDurationString(value)) {
+        final duration? => DurationValue(duration),
+        null => null,
+      },
+      // Guessing another type from the shape would store a value its own
+      // type cannot decode.
+      _ => UnresolvedValue(jsonEncode(value)),
+    };
   }
 
   Setup deepCopy() {
     // Used for Setup restore --> Duplication with current Date, remove pos/place/weather.
-    // Callers are responsible for copying image files via ImageStorageService.copyExisting
-    // for each filename in the returned setup's images list before persisting.
+    // Callers are responsible for copying attachment files via AttachmentStorageService.copyExisting
+    // for each attachment in the returned setup's attachments list before persisting.
     final now = DateTime.now();
 
     return Setup(
@@ -159,7 +210,7 @@ class Setup {
       person: person,
       bikeAdjustmentValues: Map.from(bikeAdjustmentValues),
       personAdjustmentValues: Map.from(personAdjustmentValues),
-      images: List.from(images),
+      attachments: List.from(attachments),
     )..previousBikeAdjustmentValues = Map.from(previousBikeAdjustmentValues)
      ..previousPersonAdjustmentValues = Map.from(previousPersonAdjustmentValues);
   }
@@ -181,7 +232,7 @@ class Setup {
     Object? position = const _Sentinel(),
     Object? place = const _Sentinel(),
     Object? weather = const _Sentinel(),
-    Object? images = const _Sentinel(),
+    Object? attachments = const _Sentinel(),
     Object? isCurrent = const _Sentinel(),
     Object? previousBikeAdjustmentValues = const _Sentinel(),
     Object? previousPersonAdjustmentValues = const _Sentinel(),
@@ -222,10 +273,10 @@ class Setup {
           : (person as String?),
       bikeAdjustmentValues: bikeAdjustmentValues is _Sentinel
           ? this.bikeAdjustmentValues
-          : (bikeAdjustmentValues as Map<String, dynamic>),
+          : (bikeAdjustmentValues as Map<String, AdjustmentValue>),
       personAdjustmentValues: personAdjustmentValues is _Sentinel
           ? this.personAdjustmentValues
-          : (personAdjustmentValues as Map<String, dynamic>),
+          : (personAdjustmentValues as Map<String, AdjustmentValue>),
       position: position is _Sentinel
           ? this.position
           : (position as ContextPosition?),
@@ -235,21 +286,24 @@ class Setup {
       weather: weather is _Sentinel
           ? this.weather
           : (weather as ContextWeather?),
-      images: images is _Sentinel
-          ? this.images
-          : (images as List<String>),
+      attachments: attachments is _Sentinel
+          ? this.attachments
+          : (attachments as List<Attachment>),
     )..isCurrent = isCurrent is _Sentinel
           ? this.isCurrent
           : (isCurrent as bool)
      ..previousBikeAdjustmentValues = previousBikeAdjustmentValues is _Sentinel
           ? this.previousBikeAdjustmentValues
-          : (previousBikeAdjustmentValues as Map<String, dynamic>)
+          : (previousBikeAdjustmentValues as Map<String, AdjustmentValue>)
      ..previousPersonAdjustmentValues = previousPersonAdjustmentValues is _Sentinel
           ? this.previousPersonAdjustmentValues
-          : (previousPersonAdjustmentValues as Map<String, dynamic>);
+          : (previousPersonAdjustmentValues as Map<String, AdjustmentValue>);
   }
 
+  // Not @immutable: the transient fields are assigned after construction and
+  // deliberately left out of equality.
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
     return identical(this, other) ||
         other is Setup &&
@@ -270,10 +324,11 @@ class Setup {
         ContextPosition.equal(position, other.position) &&
         ContextPlace.equal(place, other.place) &&
         weather == other.weather &&
-        listEquals(images, other.images);
+        listEquals(attachments, other.attachments);
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
     return Object.hashAll([
       id,
@@ -287,12 +342,12 @@ class Setup {
       Object.hashAll(tags),
       bike,
       person,
-      Object.hashAll(bikeAdjustmentValues.entries),
-      Object.hashAll(personAdjustmentValues.entries),
+      const MapEquality<String, AdjustmentValue>().hash(bikeAdjustmentValues),
+      const MapEquality<String, AdjustmentValue>().hash(personAdjustmentValues),
       position,
       place,
       weather,
-      Object.hashAll(images),
+      Object.hashAll(attachments),
     ]);
   }
 }

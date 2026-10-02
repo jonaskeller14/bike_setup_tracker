@@ -215,6 +215,7 @@ class _ReplacementSheetState extends State<ReplacementSheet> {
                     SetInstallationTimeline(
                       title: removedTitle,
                       componentId: widget.removed.component.id,
+                      componentType: widget.removed.component.componentType,
                       initialInstallations: _removedInstallations,
                       originalInstallations: widget.removed.component.installations,
                       onChanged: (newInstallations) {
@@ -233,6 +234,7 @@ class _ReplacementSheetState extends State<ReplacementSheet> {
                     SetInstallationTimeline(
                       title: installedTitle,
                       componentId: widget.installed.component.id,
+                      componentType: widget.installed.component.componentType,
                       initialInstallations: _installedInstallations,
                       originalInstallations: widget.installed.component.installations,
                       onChanged: (newInstallations) {

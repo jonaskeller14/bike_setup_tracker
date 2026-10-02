@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 part 'strava_sportType.dart';
 part 'strava_workout_type.dart';
 
+@immutable
 class StravaActivity {
   final int id;
-  DateTime lastModified;
+  final DateTime lastModified;
   final String name;
   final int athlete;
   final SportType sportType;
@@ -88,7 +89,7 @@ class StravaActivity {
           workoutType: (json['workoutType'] as num?)?.toInt(),
           averageWatts: (json['averageWatts'] as num?)?.toDouble(),
         );
-      default: throw Exception("Json Version $version of StravaActivitiy incompatible.");
+      default: throw Exception("Json Version $version of StravaActivity incompatible.");
     }
   }
 
@@ -114,7 +115,7 @@ class StravaActivity {
           workoutType: (json['workoutType'] as num?)?.toInt(),
           averageWatts: (json['averageWatts'] as num?)?.toDouble(),
         );
-      default: throw Exception("Json Version $version of StravaActivitiy incompatible.");
+      default: throw Exception("Json Version $version of StravaActivity incompatible.");
     }
   }
 

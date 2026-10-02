@@ -5,9 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../models/app_settings.dart';
+import '../../models/attachment.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/attachment_storage_service.dart';
 import '../../utils/task_actions.dart';
 import '../../widgets/animated_app_bar_switcher.dart';
+import '../../widgets/attachment_strip.dart';
 import '../../widgets/empty_state_placeholder.dart';
 import '../../widgets/flash_highlight.dart';
 import '../../widgets/items/task_entry_list_item.dart';
@@ -145,6 +149,23 @@ class TaskRuleDetailsPageContent extends StatefulWidget {
 class _TaskRuleDetailsPageContentState extends State<TaskRuleDetailsPageContent> {
   final GlobalKey _highlightKey = GlobalKey();
   bool _didScrollToHighlight = false;
+  String? _attachmentsDirPath;
+
+  @override
+  void initState() {
+    super.initState();
+    if (context.read<AppSettings>().enableAttachments) unawaited(_initAttachmentsDir());
+  }
+
+  Future<void> _initAttachmentsDir() async {
+    try {
+      final path = await AttachmentStorageService().getAttachmentsPath();
+      if (!mounted) return;
+      setState(() => _attachmentsDirPath = path);
+    } catch (_) {
+      // Without the directory the rule and its entries show their attachment count instead of a strip.
+    }
+  }
 
   void _scrollToHighlight() {
     if (_didScrollToHighlight) return;
@@ -164,6 +185,7 @@ class _TaskRuleDetailsPageContentState extends State<TaskRuleDetailsPageContent>
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
+    final enableAttachments = context.select<AppSettings, bool>((s) => s.enableAttachments);
 
     final taskRule = appRepository.taskRules[widget.taskRuleId];
     if (taskRule == null) {
@@ -172,6 +194,7 @@ class _TaskRuleDetailsPageContentState extends State<TaskRuleDetailsPageContent>
         subtitle: "This task was deleted or is no longer available.",
       );
     }
+    final attachments = enableAttachments ? taskRule.attachments : const <Attachment>[];
 
     final taskEntries = appRepository.taskEntries.values
         .where((te) => te.taskRule == taskRule.id)
@@ -195,7 +218,13 @@ class _TaskRuleDetailsPageContentState extends State<TaskRuleDetailsPageContent>
               heroTag: widget.heroTag,
             ),
           ),
-          const SizedBox(height: 16),
+          if (attachments.isNotEmpty && _attachmentsDirPath != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              child: AttachmentStrip(attachments: attachments, attachmentsDir: _attachmentsDirPath!),
+            )
+          else
+            const SizedBox(height: 16),
 
           const SectionTitle(
             title: "Entries",
@@ -244,6 +273,8 @@ class _TaskRuleDetailsPageContentState extends State<TaskRuleDetailsPageContent>
                   showTaskRule: false,
                   selected: isSelected,
                   showStats: true,
+                  showAttachments: true,
+                  attachmentsDir: _attachmentsDirPath,
                   heroTag: widget.heroTag,
                 ),
               );

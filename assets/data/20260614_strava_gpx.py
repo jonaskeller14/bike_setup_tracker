@@ -6,6 +6,10 @@ Usage:
 Strava derives distance, elevation gain and elapsed/moving time from the
 trackpoints (GPX has no summary fields). Points follow a straight line of the
 target length with a single stationary break so moving time < elapsed time.
+
+The optional 'avgPowerW' is written as the same <power> value on every
+trackpoint, break included, so Strava's average power equals it whether it
+averages over moving or elapsed time.
 """
 import json
 import os
@@ -64,6 +68,8 @@ def make_gpx(act):
     moving_s = act["movingMin"] * 60
     elapsed_s = act["elapsedMin"] * 60
     start = datetime.fromisoformat(act["startUtc"].replace("Z", "+00:00")).astimezone(timezone.utc)
+    power = act.get("avgPowerW")
+    extensions = "" if power is None else f'<extensions><power>{round(power)}</power></extensions>'
 
     lines = [
         '<?xml version="1.0" encoding="UTF-8"?>',
@@ -86,7 +92,7 @@ def make_gpx(act):
         ts = (start + timedelta(seconds=round(t_s))).strftime("%Y-%m-%dT%H:%M:%SZ")
         lines.append(
             f'      <trkpt lat="{lat:.6f}" lon="{lon0:.6f}">'
-            f'<ele>{ele:.1f}</ele><time>{ts}</time></trkpt>'
+            f'<ele>{ele:.1f}</ele><time>{ts}</time>{extensions}</trkpt>'
         )
     lines += ['    </trkseg>', '  </trk>', '</gpx>', '']
     return "\n".join(lines)

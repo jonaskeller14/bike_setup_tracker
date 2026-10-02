@@ -2,12 +2,15 @@ import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/database/daos/setups_dao.dart';
 import 'package:bike_setup_tracker/database/mappers.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
+import 'package:bike_setup_tracker/models/attachment.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/person.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/strava/strava_athlete.dart';
+import 'package:bike_setup_tracker/models/task/task_entry.dart';
+import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -42,6 +45,7 @@ void main() {
         initialElapsedTime: const Duration(hours: 3),
         initialActivityCount: 4,
         initialKilojoules: 900,
+        attachments: const [],
       );
       final model = data.toModel();
       expect(model.id, 'bike1');
@@ -119,6 +123,7 @@ void main() {
         initialElapsedTime: Duration.zero,
         initialActivityCount: 0,
         initialKilojoules: 0.0,
+        attachments: const [],
       );
       final model = data.toModel(
         adjustments: [
@@ -163,6 +168,7 @@ void main() {
         initialKilojoules: 0.0,
         presetKey: 'fork-fox-36-factory-2025',
         presetDamperKey: 'grip_x2',
+        attachments: const [],
       ).toModel();
       expect(model.presetKey, 'fork-fox-36-factory-2025');
       expect(model.presetDamperKey, 'grip_x2');
@@ -177,8 +183,8 @@ void main() {
         tags: {'race'},
         bike: 'bike1',
         person: 'person1',
-        bikeAdjustmentValues: {'adj1': 10},
-        personAdjustmentValues: {'adj2': 5},
+        bikeAdjustmentValues: {'adj1': const StepValue(10)},
+        personAdjustmentValues: {'adj2': const StepValue(5)},
       );
 
       // Model -> Companion
@@ -199,7 +205,7 @@ void main() {
         personId: 'person1',
         isDeleted: false,
         lastModified: DateTime(2023, 1, 1).toUtc(),
-        images: const [],
+        attachments: const [],
         isBookmarked: false,
       );
       
@@ -220,7 +226,7 @@ void main() {
         datetime: DateTime.now().toUtc(),
         datetimeLocal: DateTime.now(),
         tags: {},
-        images: const [],
+        attachments: const [],
         isBookmarked: false,
       );
 
@@ -253,10 +259,8 @@ void main() {
 
       final model = setupDb.toModel(values: values);
 
-      expect(model.bikeAdjustmentValues['adj_step'], isA<int>());
-      expect(model.bikeAdjustmentValues['adj_step'], 10);
-      expect(model.bikeAdjustmentValues['adj_num'], isA<double>());
-      expect(model.bikeAdjustmentValues['adj_num'], 10.5);
+      expect(model.bikeAdjustmentValues['adj_step'], const StepValue(10));
+      expect(model.bikeAdjustmentValues['adj_num'], const NumericalValue(10.5));
     });
 
     group('Detailed Adjustment Mapping', () {
@@ -295,7 +299,13 @@ void main() {
         expect(model, isA<BikeInstallation>());
         expect((model as BikeInstallation).bikeId, 'b1');
         expect(model.id, 'i1');
-        expect(model.componentId, 'c1');
+      });
+
+      test('toCompanion takes the owning componentId from the caller', () {
+        final companion = BikeInstallation(id: 'i1', bikeId: 'b1', dateTimeUTC: utc, dateTimeLocal: local)
+            .toCompanion(componentId: 'c1');
+        expect(companion.componentId.value, 'c1');
+        expect(companion.parent.value, 'b1');
       });
 
       test('parentType=none yields Uninstallation', () {
@@ -357,7 +367,6 @@ void main() {
       test('BikeInstallation round-trips', () {
         final original = BikeInstallation(
           id: 'i1',
-          componentId: 'c1',
           bikeId: 'b1',
           dateTimeUTC: utc,
           dateTimeLocal: local,
@@ -375,7 +384,6 @@ void main() {
       test('Uninstallation round-trips', () {
         final original = Uninstallation(
           id: 'i2',
-          componentId: 'c1',
           dateTimeUTC: utc,
           dateTimeLocal: local,
         );
@@ -390,7 +398,6 @@ void main() {
       test('ComponentInstallation round-trips and preserves subtype when copied', () {
         final original = ComponentInstallation(
           id: 'nested-i',
-          componentId: 'tire',
           parentComponentId: 'wheel',
           dateTimeUTC: utc,
           dateTimeLocal: local,
@@ -402,13 +409,20 @@ void main() {
         final restored = Installation.fromJson(json);
         expect(restored, isA<ComponentInstallation>());
         expect((restored as ComponentInstallation).parentComponentId, 'wheel');
-        expect(restored.copyWith(componentId: 'new-tire'), isA<ComponentInstallation>());
+        expect(restored.copyWith(id: 'new-id'), isA<ComponentInstallation>());
+      });
+
+      test('componentId is not serialised; a legacy key is ignored', () {
+        final json = BikeInstallation(id: 'i1', bikeId: 'b1', dateTimeUTC: utc, dateTimeLocal: local).toJson();
+        expect(json.containsKey('componentId'), isFalse);
+
+        final restored = Installation.fromJson({...json, 'componentId': 'stale'});
+        expect(restored, BikeInstallation(id: 'i1', bikeId: 'b1', dateTimeUTC: utc, dateTimeLocal: local));
       });
 
       test('Archival round-trips', () {
         final original = Archival(
           id: 'i3',
-          componentId: 'c1',
           dateTimeUTC: utc,
           dateTimeLocal: local,
         );
@@ -448,13 +462,80 @@ void main() {
       });
     });
 
+    test('attachments survive a database round trip on setups, bikes and components', () async {
+      final database = AppDatabase.memory();
+      addTearDown(database.close);
+      final attachments = [
+        Attachment(id: 'm', extension: '.pdf', name: 'Service Manual'),
+        Attachment(id: 'p', extension: '.jpg', name: 'IMG_1.jpg'),
+      ];
+
+      final bike = Bike(id: 'b1', name: 'Bike', person: null, attachments: attachments);
+      final component = Component(
+        id: 'c1',
+        name: 'Fork',
+        componentType: ComponentType.fork,
+        installations: const [],
+        attachments: attachments.reversed.toList(),
+      );
+      final now = DateTime.now();
+      final setup = Setup(
+        id: 's1',
+        datetime: now,
+        datetimeLocal: now,
+        tags: const {},
+        bike: 'b1',
+        person: null,
+        bikeAdjustmentValues: const {},
+        personAdjustmentValues: const {},
+        attachments: attachments,
+      );
+      await database.into(database.bikes).insert(bike.toCompanion());
+      await database.into(database.components).insert(component.toCompanion());
+      await database.into(database.setups).insert(setup.toCompanion());
+
+      final bikeRow = await database.select(database.bikes).getSingle();
+      final componentRow = await database.select(database.components).getSingle();
+      final setupRow = await database.select(database.setups).getSingle();
+      expect(bikeRow.toModel().attachments, attachments);
+      expect(componentRow.toModel().attachments, attachments.reversed.toList());
+      expect(setupRow.toModel().attachments, attachments);
+    });
+
+    test('attachments survive a database round trip on task rules and task entries', () async {
+      final database = AppDatabase.memory();
+      addTearDown(database.close);
+      final attachments = [
+        Attachment(id: 'm', extension: '.pdf', name: 'Service Manual'),
+        Attachment(id: 'p', extension: '.jpg', name: 'IMG_1.jpg'),
+      ];
+
+      final rule = TaskRule(id: 'tr1', name: 'Service fork', tags: const {}, attachments: attachments);
+      final now = DateTime.now();
+      final entry = TaskEntry(
+        id: 'te1',
+        name: 'Fork serviced',
+        dateTimeUTC: now,
+        dateTimeLocal: now,
+        taskRule: 'tr1',
+        attachments: attachments.reversed.toList(),
+      );
+      await database.into(database.taskRules).insert(rule.toCompanion());
+      await database.into(database.taskEntries).insert(entry.toCompanion());
+
+      final ruleRow = await database.select(database.taskRules).getSingle();
+      final entryRow = await database.select(database.taskEntries).getSingle();
+      expect(ruleRow.toModel().attachments, attachments);
+      expect(entryRow.toModel().attachments, attachments.reversed.toList());
+    });
+
     test('StravaAthlete Mapping', () {
       final athlete = StravaAthlete(
         id: 123,
         firstname: 'Jonas',
         lastname: 'Keller',
         profile: 'https://example.com/profile.jpg',
-        gears: {'gear1', 'gear2'},
+        gears: const {'gear1', 'gear2'},
         lastModified: DateTime(2023, 1, 1).toUtc(),
       );
 

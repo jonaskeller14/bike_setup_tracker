@@ -14,13 +14,12 @@ import '../models/component/installation.dart';
 import '../models/rating/rating_association.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/task/task_rule.dart';
-import 'adjustment_value_codec.dart';
+import 'converters/attachment_list_converter.dart';
 import 'converters/context_position_converter.dart';
 import 'converters/duration_converter.dart';
 import 'converters/local_floating_datetime_converter.dart';
 import 'converters/placemark_converter.dart';
 import 'converters/string_list_converter.dart';
-import 'converters/string_list_ordered_converter.dart';
 import 'converters/utc_datetime_converter.dart';
 import 'converters/weather_converter.dart';
 import 'daos/bikes_dao.dart';
@@ -91,7 +90,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 19;
+  int get schemaVersion => 21;
 
   @override
   MigrationStrategy get migration {
@@ -114,12 +113,12 @@ class AppDatabase extends _$AppDatabase {
           // those setups fall back to the (localizable) UI placeholder instead.
           //
           // This recreation rebuilds setups from the *current* schema, which
-          // now includes `images` (added in v8) and `isBookmarked` (v13).
+          // now includes `attachments` (v20, `images` from v8) and `isBookmarked` (v13).
           // Pre-v4 rows have no such columns, so flag them as new columns —
           // Drift fills them from their defaults instead of trying to copy
           // them out of the old table.
           await m.alterTable(
-            TableMigration(setups, newColumns: [setups.images, setups.isBookmarked]),
+            TableMigration(setups, newColumns: [setups.attachments, setups.isBookmarked]),
           );
           await customStatement("UPDATE setups SET name = NULL WHERE name = 'Unnamed Setup'");
         }
@@ -151,11 +150,12 @@ class AppDatabase extends _$AppDatabase {
           await m.alterTable(TableMigration(ratingMetrics));
         }
         if (from < 8) {
-          // Upgrades that crossed the v4 boundary already gained `images` when
-          // the setups table was recreated above; only add it when missing so
-          // we don't hit a duplicate-column error.
-          if (!await _columnExists('setups', 'images')) {
-            await m.addColumn(setups, setups.images);
+          // v8 added `images`, which v20 replaces with `attachments`; add the
+          // latter directly. Upgrades that crossed the v4 boundary already
+          // gained it when the setups table was recreated above; only add it
+          // when missing so we don't hit a duplicate-column error.
+          if (!await _columnExists('setups', 'attachments')) {
+            await m.addColumn(setups, setups.attachments);
           }
         }
         if (from < 9) {
@@ -257,6 +257,31 @@ class AppDatabase extends _$AppDatabase {
             }
           }
         }
+        if (from < 20) {
+          // Setup images generalise to attachments on setups, bikes and
+          // components. The image feature never shipped, so `images` is
+          // dropped rather than converted. Only databases that ran the old v8
+          // step still have it; every other path gained `attachments` above.
+          if (await _columnExists('setups', 'images')) {
+            await m.alterTable(TableMigration(setups, newColumns: [setups.attachments]));
+          }
+          if (!await _columnExists('bikes', 'attachments')) {
+            await m.addColumn(bikes, bikes.attachments);
+          }
+          if (!await _columnExists('components', 'attachments')) {
+            await m.addColumn(components, components.attachments);
+          }
+        }
+        if (from < 21) {
+          // Task rules (reference files) and task entries (record of one
+          // completion) gain attachments.
+          if (!await _columnExists('task_rules', 'attachments')) {
+            await m.addColumn(taskRules, taskRules.attachments);
+          }
+          if (!await _columnExists('task_entries', 'attachments')) {
+            await m.addColumn(taskEntries, taskEntries.attachments);
+          }
+        }
       },
     );
   }
@@ -295,6 +320,87 @@ class AppDatabase extends _$AppDatabase {
         await delete(table).go();
       }
     });
+  }
+
+  /// Hard-deletes every trashed row last modified before [cutoff], together
+  /// with the rows nested under it. Foreign keys are not enforced, so those
+  /// children are deleted explicitly.
+  Future<void> purgeTrash(DateTime cutoff) {
+    return transaction(() async {
+      Future<List<String>> expiredIds(
+        TableInfo<Table, dynamic> table,
+        GeneratedColumn<String> id,
+        GeneratedColumn<bool> isDeleted,
+        GeneratedColumnWithTypeConverter<DateTime, DateTime> lastModified,
+      ) async {
+        final trashed = selectOnly(table)
+          ..addColumns([id, lastModified])
+          ..where(isDeleted.equals(true));
+        return [
+          for (final row in await trashed.get())
+            if (row.readWithConverter(lastModified)!.isBefore(cutoff)) row.read(id)!,
+        ];
+      }
+
+      final setupIds = await expiredIds(setups, setups.id, setups.isDeleted, setups.lastModified);
+      await (delete(setupAdjustmentValues)..where((t) => t.setupId.isIn(setupIds))).go();
+      await (delete(setups)..where((t) => t.id.isIn(setupIds))).go();
+
+      final ratingEntryIds = await expiredIds(
+        ratingEntries,
+        ratingEntries.id,
+        ratingEntries.isDeleted,
+        ratingEntries.lastModified,
+      );
+      await (delete(ratingEntryValues)..where((t) => t.ratingEntryId.isIn(ratingEntryIds))).go();
+      await (delete(ratingEntries)..where((t) => t.id.isIn(ratingEntryIds))).go();
+
+      final taskEntryIds = await expiredIds(
+        taskEntries,
+        taskEntries.id,
+        taskEntries.isDeleted,
+        taskEntries.lastModified,
+      );
+      await (delete(taskEntries)..where((t) => t.id.isIn(taskEntryIds))).go();
+
+      final componentIds = await expiredIds(components, components.id, components.isDeleted, components.lastModified);
+      await (delete(adjustments)..where((t) => t.componentId.isIn(componentIds))).go();
+      await (delete(installations)..where((t) => t.componentId.isIn(componentIds))).go();
+      await (delete(components)..where((t) => t.id.isIn(componentIds))).go();
+
+      final taskRuleIds = await expiredIds(taskRules, taskRules.id, taskRules.isDeleted, taskRules.lastModified);
+      await (delete(taskRules)..where((t) => t.id.isIn(taskRuleIds))).go();
+
+      final ratingIds = await expiredIds(ratings, ratings.id, ratings.isDeleted, ratings.lastModified);
+      await (delete(ratingMetrics)..where((t) => t.ratingId.isIn(ratingIds))).go();
+      await (delete(ratings)..where((t) => t.id.isIn(ratingIds))).go();
+
+      final bikeIds = await expiredIds(bikes, bikes.id, bikes.isDeleted, bikes.lastModified);
+      await (delete(bikes)..where((t) => t.id.isIn(bikeIds))).go();
+
+      final personIds = await expiredIds(persons, persons.id, persons.isDeleted, persons.lastModified);
+      await (delete(adjustments)..where((t) => t.personId.isIn(personIds))).go();
+      await (delete(persons)..where((t) => t.id.isIn(personIds))).go();
+    });
+  }
+
+  /// Filenames of the attachments any row still references, trashed rows included.
+  Future<Set<String>> referencedAttachmentFilenames() async {
+    Future<Iterable<Attachment>> attachmentsOf(
+      TableInfo<Table, dynamic> table,
+      GeneratedColumnWithTypeConverter<List<Attachment>, String> column,
+    ) async {
+      final rows = await (selectOnly(table)..addColumns([column])).get();
+      return rows.expand((row) => row.readWithConverter(column)!);
+    }
+
+    return {
+      ...await attachmentsOf(setups, setups.attachments),
+      ...await attachmentsOf(bikes, bikes.attachments),
+      ...await attachmentsOf(components, components.attachments),
+      ...await attachmentsOf(taskRules, taskRules.attachments),
+      ...await attachmentsOf(taskEntries, taskEntries.attachments),
+    }.map((a) => a.filename).toSet();
   }
 
   /// Rounds every installation instant down to the whole minute.
@@ -394,7 +500,7 @@ class AppDatabase extends _$AppDatabase {
       final type = AdjustmentType.values.firstWhereOrNull((e) => e.name == typeName);
       if (type == null) continue; // unknown type — leave the row untouched.
 
-      final newRaw = encodeAdjustmentValue(decodeLegacyAdjustmentValue(raw, type));
+      final newRaw = AdjustmentValue.decodeLegacy(raw, type)?.encode() ?? 'null';
       if (newRaw == raw) continue; // already JSON-shaped.
 
       await customStatement(

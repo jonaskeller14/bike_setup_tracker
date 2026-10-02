@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -36,6 +37,7 @@ Future<void> showAddInstallationSheet(BuildContext context, {
 Future<void> showEditInstallationSheet(BuildContext context, {
   required Component component, 
   required ResolvedInstallation editEntry,
+  Installation? editEnd,
 }) async {
   return showModalBottomSheet<void>(
     useSafeArea: true,
@@ -45,6 +47,7 @@ Future<void> showEditInstallationSheet(BuildContext context, {
       return InstallationSheet.edit(
         component: component,
         editEntry: editEntry,
+        editEnd: editEnd,
       );
     },
   );
@@ -54,6 +57,7 @@ class InstallationSheet extends StatefulWidget {
   final Component component;
   final String? targetBikeId;
   final ResolvedInstallation? editEntry;
+  final Installation? editEnd;
   final bool isArchiving;
 
   const InstallationSheet._({
@@ -61,6 +65,7 @@ class InstallationSheet extends StatefulWidget {
     required this.component,
     this.targetBikeId,
     this.editEntry,
+    this.editEnd,
     this.isArchiving = false,
   });
 
@@ -75,7 +80,8 @@ class InstallationSheet extends StatefulWidget {
     Key? key,
     required Component component,
     required ResolvedInstallation editEntry,
-  }) => InstallationSheet._(key: key, component: component, editEntry: editEntry);
+    Installation? editEnd,
+  }) => InstallationSheet._(key: key, component: component, editEntry: editEntry, editEnd: editEnd);
 
   @override
   State<InstallationSheet> createState() => _InstallationSheetState();
@@ -84,6 +90,7 @@ class InstallationSheet extends StatefulWidget {
 class _InstallationSheetState extends State<InstallationSheet> {
   late List<Installation> _installations;
   late Installation _editableInstallation;
+  Installation? _editableEnd;
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -94,6 +101,7 @@ class _InstallationSheetState extends State<InstallationSheet> {
     
     if (widget.editEntry != null) {
       _editableInstallation = widget.editEntry!.installation;
+      _editableEnd = widget.editEnd;
     } else {
       final at = stampInstallationNow(_installations);
       _editableInstallation = widget.isArchiving
@@ -130,8 +138,7 @@ class _InstallationSheetState extends State<InstallationSheet> {
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
-    final theme = Theme.of(context);
-    
+
     // Origin is the state before this event. In edit mode that is the entry's
     // recorded origin; in add mode it is the component's latest installation.
     final originInstallation = widget.editEntry == null
@@ -150,24 +157,12 @@ class _InstallationSheetState extends State<InstallationSheet> {
     final targetParentId = _editableInstallation.parent;
 
     // "From beginning" (epoch 0) predates every installation, so show the current chain.
-    final eventUTC = _editableInstallation.dateTimeUTC;
-    List<ComponentAncestor> ancestorsOf(String componentId) =>
-        eventUTC.millisecondsSinceEpoch == 0
+    List<ComponentAncestor> Function(String componentId) ancestorsAt(DateTime eventUTC) =>
+        (componentId) => eventUTC.millisecondsSinceEpoch == 0
             ? appRepository.componentHierarchy.currentAncestors(componentId)
             : appRepository.componentHierarchy.ancestorsAt(componentId, eventUTC);
+    final ancestorsOf = ancestorsAt(_editableInstallation.dateTimeUTC);
 
-    final originPreview = _parentPreview(
-      appRepository,
-      originParentType ?? InstallationParentType.none,
-      originParentId,
-      ancestorsOf,
-    );
-    final targetPreview = _parentPreview(
-      appRepository,
-      targetParentType,
-      targetParentId,
-      ancestorsOf,
-    );
     final isInitialInstallation = widget.editEntry != null
         ? widget.editEntry!.isInitial
         : widget.component.installations.isEmpty;
@@ -190,63 +185,49 @@ class _InstallationSheetState extends State<InstallationSheet> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Origin -> Arrow -> Target Preview
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          // Top-aligned so both icons and the arrow stay level when only one side has an ancestor tree.
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (!isInitialInstallation)
-                              Expanded(
-                                child: _ParentPreview(
-                                  icon: originPreview.icon,
-                                  label: originPreview.label,
-                                  isError: originPreview.isError,
-                                  ancestors: originPreview.ancestors,
-                                  bikes: appRepository.bikes,
-                                ),
+                      child: _InstallationTransitionPreview(
+                        origin: isInitialInstallation
+                            ? null
+                            : _parentPreview(
+                                appRepository,
+                                originParentType ?? InstallationParentType.none,
+                                originParentId,
+                                ancestorsOf,
                               ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 12),
-                              child: Icon(Icons.arrow_forward, color: theme.colorScheme.primary),
-                            ),
-                            Expanded(
-                              child: _ParentPreview(
-                                icon: targetPreview.icon,
-                                label: targetPreview.label,
-                                isError: targetPreview.isError,
-                                ancestors: targetPreview.ancestors,
-                                bikes: appRepository.bikes,
+                        target: _parentPreview(appRepository, targetParentType, targetParentId, ancestorsOf),
+                        end: _editableEnd == null
+                            ? null
+                            : _parentPreview(
+                                appRepository,
+                                _editableEnd!.parentType,
+                                _editableEnd!.parent,
+                                ancestorsAt(_editableEnd!.dateTimeUTC),
                               ),
-                            ),
-                          ],
-                        ),
                       ),
                     ),
                     const SizedBox(height: 24),
                     SetInstallationTimeline(
                       componentId: widget.component.id,
+                      componentType: widget.component.componentType,
                       initialInstallations: _installations,
                       originalInstallations: widget.component.installations,
                       onChanged: (newInstallations) {
                         setState(() {
-                          final addedItems = newInstallations.where((n) => !_installations.contains(n)).toList();
-                          if (addedItems.isNotEmpty) {
-                            _editableInstallation = addedItems.first;
+                          // Edits keep an entry's id, so ids track the editable entries.
+                          _editableInstallation =
+                              newInstallations.firstWhereOrNull((n) => n.id == _editableInstallation.id) ??
+                                  _editableInstallation;
+                          if (_editableEnd != null) {
+                            _editableEnd =
+                                newInstallations.firstWhereOrNull((n) => n.id == _editableEnd!.id) ?? _editableEnd;
                           }
                           _installations = List.from(newInstallations);
                         });
                       },
-                      isEntryEditable: (installation) => installation == _editableInstallation,
+                      isEntryEditable: (installation) =>
+                          installation.id == _editableInstallation.id || installation.id == _editableEnd?.id,
                     ),
                   ],
                 ),
@@ -267,37 +248,74 @@ class _InstallationSheetState extends State<InstallationSheet> {
   }
 }
 
-({IconData icon, String label, bool isError, List<ComponentAncestor> ancestors}) _parentPreview(
+_ParentPreview _parentPreview(
   AppRepository appRepository,
   InstallationParentType parentType,
   String? parentId,
   List<ComponentAncestor> Function(String componentId) ancestorsOf,
 ) => switch (parentType) {
-      InstallationParentType.bike => (
+      InstallationParentType.bike => _ParentPreview(
         icon: Bike.iconData,
         label: appRepository.bikes[parentId]?.name ?? 'BIKE NOT FOUND',
         isError: !appRepository.bikes.containsKey(parentId),
-        ancestors: const [],
       ),
-      InstallationParentType.component => (
+      InstallationParentType.component => _ParentPreview(
         icon: appRepository.components[parentId]?.componentType.getIconData() ?? Component.iconData,
         label: appRepository.components[parentId]?.name ?? 'COMPONENT NOT FOUND',
         isError: !appRepository.components.containsKey(parentId),
         ancestors: parentId == null ? const [] : ancestorsOf(parentId),
+        bikes: appRepository.bikes,
       ),
-      InstallationParentType.none => (
+      InstallationParentType.none => const _ParentPreview(
         icon: Icons.shelves,
         label: 'Uninstalled',
-        isError: false,
-        ancestors: const [],
       ),
-      InstallationParentType.archived => (
+      InstallationParentType.archived => const _ParentPreview(
         icon: Icons.inventory_2_outlined,
         label: 'Archive',
-        isError: false,
-        ancestors: const [],
       ),
     };
+
+/// Origin -> target (-> end) card at the top of the sheet.
+class _InstallationTransitionPreview extends StatelessWidget {
+  final _ParentPreview? origin;
+  final _ParentPreview target;
+  final _ParentPreview? end;
+
+  const _InstallationTransitionPreview({
+    this.origin,
+    required this.target,
+    this.end,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final arrow = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Icon(Icons.arrow_forward, color: theme.colorScheme.primary),
+    );
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        // Top-aligned so both icons and the arrow stay level when only one side has an ancestor tree.
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (origin != null) Expanded(child: origin!),
+          arrow,
+          Expanded(child: target),
+          if (end != null) ...[arrow, Expanded(child: end!)],
+        ],
+      ),
+    );
+  }
+}
 
 class _ParentPreview extends StatelessWidget {
   final IconData icon;

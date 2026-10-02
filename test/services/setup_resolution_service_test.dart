@@ -34,7 +34,7 @@ void main() {
 
       myBike = Bike(id: 'bike_1', name: 'My Enduro', person: 'person_1');
       otherBike = Bike(id: 'bike_2', name: 'My Trail Bike', person: 'person_1');
-      me = Person(id: 'person_1', name: 'Me', adjustments: []);
+      me = Person(id: 'person_1', name: 'Me', adjustments: const []);
 
       fork = Component(
         id: 'comp_fork',
@@ -71,7 +71,7 @@ void main() {
         person: me.id,
         tags: {},
         personAdjustmentValues: {},
-        bikeAdjustmentValues: {pressureAdj.id: '80', reboundAdj.id: '5'},
+        bikeAdjustmentValues: {pressureAdj.id: TextValue.orNull('80')!, reboundAdj.id: TextValue.orNull('5')!},
       );
 
       final setup2 = Setup(
@@ -83,7 +83,7 @@ void main() {
         person: me.id,
         tags: {},
         personAdjustmentValues: {},
-        bikeAdjustmentValues: {pressureAdj.id: '85'},
+        bikeAdjustmentValues: {pressureAdj.id: TextValue.orNull('85')!},
       );
 
       final setup3 = Setup(
@@ -109,10 +109,10 @@ void main() {
       );
       final resolved = result.setups;
 
-      expect(resolved['s2']!.previousBikeAdjustmentValues[reboundAdj.id], '5');
-      expect(resolved['s2']!.previousBikeAdjustmentValues[pressureAdj.id], '80');
-      expect(resolved['s3']!.previousBikeAdjustmentValues[pressureAdj.id], '85');
-      expect(resolved['s3']!.previousBikeAdjustmentValues[reboundAdj.id], '5');
+      expect(resolved['s2']!.previousBikeAdjustmentValues[reboundAdj.id], TextValue.orNull('5'));
+      expect(resolved['s2']!.previousBikeAdjustmentValues[pressureAdj.id], TextValue.orNull('80'));
+      expect(resolved['s3']!.previousBikeAdjustmentValues[pressureAdj.id], TextValue.orNull('85'));
+      expect(resolved['s3']!.previousBikeAdjustmentValues[reboundAdj.id], TextValue.orNull('5'));
     });
 
     test('historical edits propagate forward to sparse setups', () {
@@ -135,7 +135,7 @@ void main() {
         person: me.id,
         tags: {},
         personAdjustmentValues: {},
-        bikeAdjustmentValues: {pressureAdj.id: '82', reboundAdj.id: '5'},
+        bikeAdjustmentValues: {pressureAdj.id: TextValue.orNull('82')!, reboundAdj.id: TextValue.orNull('5')!},
       );
 
       final setup2 = Setup(
@@ -159,7 +159,7 @@ void main() {
         person: me.id,
         tags: {},
         personAdjustmentValues: {},
-        bikeAdjustmentValues: {pressureAdj.id: '90'}, // Explicitly overrides
+        bikeAdjustmentValues: {pressureAdj.id: TextValue.orNull('90')!}, // Explicitly overrides
       );
 
       final setups = {'s1': setup1, 's2': setup2, 's3': setup3};
@@ -173,9 +173,9 @@ void main() {
       );
       final resolved = result.setups;
 
-      expect(resolved['s2']!.previousBikeAdjustmentValues[pressureAdj.id], '82');
-      expect(resolved['s3']!.previousBikeAdjustmentValues[pressureAdj.id], '82');
-      expect(resolved['s3']!.bikeAdjustmentValues[pressureAdj.id], '90');
+      expect(resolved['s2']!.previousBikeAdjustmentValues[pressureAdj.id], TextValue.orNull('82'));
+      expect(resolved['s3']!.previousBikeAdjustmentValues[pressureAdj.id], TextValue.orNull('82'));
+      expect(resolved['s3']!.bikeAdjustmentValues[pressureAdj.id], TextValue.orNull('90'));
     });
 
     test('component transfers carry adjustment values globally', () {
@@ -208,7 +208,7 @@ void main() {
         person: me.id,
         tags: {},
         personAdjustmentValues: {},
-        bikeAdjustmentValues: {reboundAdj.id: '7'}, // Set while on myBike
+        bikeAdjustmentValues: {reboundAdj.id: TextValue.orNull('7')!}, // Set while on myBike
       );
 
       final setup2 = Setup(
@@ -233,7 +233,7 @@ void main() {
       final resolved = result.setups;
 
       // s2 should inherit the shock value even though it's on a different bike
-      expect(resolved['s2']!.previousBikeAdjustmentValues[reboundAdj.id], '7');
+      expect(resolved['s2']!.previousBikeAdjustmentValues[reboundAdj.id], TextValue.orNull('7'));
     });
 
     test('dangling values from edited installation timeline are preserved in snapshot, but excluded from previous calculation', () {
@@ -266,7 +266,7 @@ void main() {
         person: me.id,
         tags: {},
         personAdjustmentValues: {},
-        bikeAdjustmentValues: {pressureAdj.id: '80'}, // Recorded snapshot
+        bikeAdjustmentValues: {pressureAdj.id: TextValue.orNull('80')!}, // Recorded snapshot
       );
 
       final setup2 = Setup(
@@ -278,7 +278,7 @@ void main() {
         person: me.id,
         tags: {},
         personAdjustmentValues: {},
-        bikeAdjustmentValues: {pressureAdj.id: '80'}, // Let's say it recorded it historically, then timeline was edited
+        bikeAdjustmentValues: {pressureAdj.id: TextValue.orNull('80')!}, // Let's say it recorded it historically, then timeline was edited
       );
 
       final result = SetupResolutionService.resolveSetups(
@@ -290,8 +290,8 @@ void main() {
       );
       final resolved = result.setups;
 
-      expect(resolved['s1']!.bikeAdjustmentValues[pressureAdj.id], '80');
-      expect(resolved['s2']!.bikeAdjustmentValues[pressureAdj.id], '80');
+      expect(resolved['s1']!.bikeAdjustmentValues[pressureAdj.id], TextValue.orNull('80'));
+      expect(resolved['s2']!.bikeAdjustmentValues[pressureAdj.id], TextValue.orNull('80'));
       expect(resolved['s2']!.previousBikeAdjustmentValues.containsKey(pressureAdj.id), false);
     });
 
@@ -313,7 +313,7 @@ void main() {
         person: me.id,
         tags: {},
         personAdjustmentValues: {},
-        bikeAdjustmentValues: {pressureAdj.id: '80'},
+        bikeAdjustmentValues: {pressureAdj.id: TextValue.orNull('80')!},
       );
 
       final s2 = Setup(
@@ -325,7 +325,7 @@ void main() {
         person: me.id,
         tags: {},
         personAdjustmentValues: {},
-        bikeAdjustmentValues: {reboundAdj.id: '7'},
+        bikeAdjustmentValues: {reboundAdj.id: TextValue.orNull('7')!},
       );
 
       // Setup 3: Bike A, Sparse edit. F1 is on Bike A.
@@ -351,7 +351,7 @@ void main() {
       final resolved = result.setups;
 
       // s3 should inherit fork pressure '80' from s1, even though s2 was the most recent global setup.
-      expect(resolved['s3']!.previousBikeAdjustmentValues[pressureAdj.id], '80');
+      expect(resolved['s3']!.previousBikeAdjustmentValues[pressureAdj.id], TextValue.orNull('80'));
     });
 
     test('resolveHistoricalStateAt correctly aggregates state up to a timestamp', () {
@@ -369,8 +369,8 @@ void main() {
         bike: myBike.id,
         person: me.id,
         tags: {},
-        personAdjustmentValues: {'person_adj_1': 'val1'},
-        bikeAdjustmentValues: {pressureAdj.id: '80'},
+        personAdjustmentValues: {'person_adj_1': TextValue.orNull('val1')!},
+        bikeAdjustmentValues: {pressureAdj.id: TextValue.orNull('80')!},
       );
 
       final s2 = Setup(
@@ -382,7 +382,7 @@ void main() {
         person: me.id,
         tags: {},
         personAdjustmentValues: {},
-        bikeAdjustmentValues: {reboundAdj.id: '7'},
+        bikeAdjustmentValues: {reboundAdj.id: TextValue.orNull('7')!},
       );
 
       final history = SetupResolutionService.resolveHistoricalStateAt(
@@ -391,10 +391,10 @@ void main() {
         persons: {me.id: me},
       );
 
-      expect(history[pressureAdj.id], '80');
-      expect(history[reboundAdj.id], '7');
+      expect(history[pressureAdj.id], TextValue.orNull('80'));
+      expect(history[reboundAdj.id], TextValue.orNull('7'));
       // Person values are included in historical state for orange/green highlighting in SetupPage.
-      expect(history['person_adj_1'], 'val1');
+      expect(history['person_adj_1'], TextValue.orNull('val1'));
     });
 
     test('resolveHistoricalStateAt excludes the setup currently being edited', () {
@@ -408,7 +408,7 @@ void main() {
         person: me.id,
         tags: {},
         personAdjustmentValues: {},
-        bikeAdjustmentValues: {pressureAdj.id: '80'},
+        bikeAdjustmentValues: {pressureAdj.id: TextValue.orNull('80')!},
       );
 
       final history = SetupResolutionService.resolveHistoricalStateAt(
@@ -432,7 +432,7 @@ void main() {
     final t2 = DateTime(2025, 1, 2).toUtc();
     final t3 = DateTime(2025, 1, 3).toUtc();
 
-    Setup setupAt(DateTime datetime, String id, Map<String, dynamic> bikeAdjustmentValues) {
+    Setup setupAt(DateTime datetime, String id, Map<String, AdjustmentValue> bikeAdjustmentValues) {
       return Setup(
         id: id,
         datetime: datetime,
@@ -459,7 +459,7 @@ void main() {
         unit: AdjustmentUnit.fromLegacy('clicks'),
       );
       myBike = Bike(id: 'bike_1', name: 'My Enduro', person: 'person_1');
-      me = Person(id: 'person_1', name: 'Me', adjustments: []);
+      me = Person(id: 'person_1', name: 'Me', adjustments: const []);
     });
 
     test('a repeated value still points at the setup that introduced it', () {
@@ -470,13 +470,13 @@ void main() {
       final provenance = SetupResolutionService.resolveHistoricalProvenanceAt(
         datetime: t3.add(const Duration(seconds: 1)),
         setups: [
-          setupAt(t1, 's1', {pressureAdj.id: '80'}),
-          setupAt(t2, 's2', {pressureAdj.id: '80'}),
-          setupAt(t3, 's3', {pressureAdj.id: '80'}),
+          setupAt(t1, 's1', {pressureAdj.id: TextValue.orNull('80')!}),
+          setupAt(t2, 's2', {pressureAdj.id: TextValue.orNull('80')!}),
+          setupAt(t3, 's3', {pressureAdj.id: TextValue.orNull('80')!}),
         ],
       );
 
-      expect(provenance[pressureAdj.id]?.value, '80');
+      expect(provenance[pressureAdj.id]?.value, TextValue.orNull('80'));
       expect(provenance[pressureAdj.id]?.setup.id, 's1');
     });
 
@@ -484,13 +484,13 @@ void main() {
       final provenance = SetupResolutionService.resolveHistoricalProvenanceAt(
         datetime: t3.add(const Duration(seconds: 1)),
         setups: [
-          setupAt(t1, 's1', {pressureAdj.id: '80'}),
-          setupAt(t2, 's2', {pressureAdj.id: '80'}),
-          setupAt(t3, 's3', {pressureAdj.id: '85'}),
+          setupAt(t1, 's1', {pressureAdj.id: TextValue.orNull('80')!}),
+          setupAt(t2, 's2', {pressureAdj.id: TextValue.orNull('80')!}),
+          setupAt(t3, 's3', {pressureAdj.id: TextValue.orNull('85')!}),
         ],
       );
 
-      expect(provenance[pressureAdj.id]?.value, '85');
+      expect(provenance[pressureAdj.id]?.value, TextValue.orNull('85'));
       expect(provenance[pressureAdj.id]?.setup.id, 's3');
     });
 
@@ -501,9 +501,9 @@ void main() {
       final provenance = SetupResolutionService.resolveHistoricalProvenanceAt(
         datetime: t3.add(const Duration(seconds: 1)),
         setups: [
-          setupAt(t1, 's1', {pressureAdj.id: '80', reboundAdj.id: '5'}),
-          setupAt(t2, 's2', {pressureAdj.id: '80', reboundAdj.id: '5'}),
-          setupAt(t3, 's3', {pressureAdj.id: '80', reboundAdj.id: '7'}),
+          setupAt(t1, 's1', {pressureAdj.id: TextValue.orNull('80')!, reboundAdj.id: TextValue.orNull('5')!}),
+          setupAt(t2, 's2', {pressureAdj.id: TextValue.orNull('80')!, reboundAdj.id: TextValue.orNull('5')!}),
+          setupAt(t3, 's3', {pressureAdj.id: TextValue.orNull('80')!, reboundAdj.id: TextValue.orNull('7')!}),
         ],
       );
 
@@ -515,9 +515,9 @@ void main() {
       final provenance = SetupResolutionService.resolveHistoricalProvenanceAt(
         datetime: t2,
         setups: [
-          setupAt(t1, 's1', {pressureAdj.id: '80'}),
-          setupAt(t2, 's2', {pressureAdj.id: '85'}),
-          setupAt(t3, 's3', {reboundAdj.id: '7'}),
+          setupAt(t1, 's1', {pressureAdj.id: TextValue.orNull('80')!}),
+          setupAt(t2, 's2', {pressureAdj.id: TextValue.orNull('85')!}),
+          setupAt(t3, 's3', {reboundAdj.id: TextValue.orNull('7')!}),
         ],
         excludedSetupId: 's1',
       );

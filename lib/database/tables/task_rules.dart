@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../../models/task/task_rule.dart';
+import '../converters/attachment_list_converter.dart';
 import '../converters/string_list_converter.dart';
 import '../converters/utc_datetime_converter.dart';
 import 'bikes.dart';
@@ -20,6 +21,7 @@ class TaskRules extends Table {
   TextColumn get interval => text().nullable()(); // JSON serialized TaskThreshold
   TextColumn get delay => text().nullable()();    // JSON serialized TaskThreshold
   BoolColumn get repeat => boolean().withDefault(const Constant(true))();
+  TextColumn get attachments => text().map(const AttachmentListConverter()).withDefault(const Constant('[]'))();
 
   @override
   Set<Column> get primaryKey => {id};

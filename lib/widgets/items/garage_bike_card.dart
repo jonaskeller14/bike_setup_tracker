@@ -13,6 +13,7 @@ import '../../models/person.dart';
 import '../../pages/details/bike_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
+import '../../utils/automation_ids.dart';
 import '../../utils/bike_actions.dart';
 import '../../utils/component_actions.dart';
 import '../../utils/garage_component_grouping.dart';
@@ -179,6 +180,7 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
     final bikeComponents = Map.fromEntries(appRepository.components.entries.where((ce) => hierarchy.currentBike(ce.key) == widget.bike.id));
     final groups = garageGroupsFor(bikeComponents.values, hierarchy: hierarchy);
     final roots = groups.map((group) => group.parent).toList();
+    final attachmentCount = appSettings.enableAttachments ? widget.bike.attachments.length : 0;
 
     return DragTarget<Object>(
       key: ValueKey(widget.bike.id),
@@ -199,7 +201,7 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                     ),
                   );
                 },
-          onDoubleTap: widget.selectionMode ? null : () => appRepository.onBikeTap(widget.bike.id),
+          onDoubleTap: widget.selectionMode ? null : () => appRepository.filters.toggleBike(widget.bike.id),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -225,11 +227,15 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                   horizontal: 16,
                   vertical: 8,
                 ),
-                title: Text(
-                  widget.bike.name,
-                  style: Theme.of(context).textTheme.titleMedium,
+                title: Semantics(
+                  container: true,
+                  identifier: AutomationIds.garageBike(widget.bike.id),
+                  child: Text(
+                    widget.bike.name,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
                 ),
-                subtitle: appSettings.enablePerson || (widget.bike.notes != null && widget.bike.notes!.isNotEmpty)
+                subtitle: appSettings.enablePerson || (widget.bike.notes != null && widget.bike.notes!.isNotEmpty) || attachmentCount > 0
                     ? Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
@@ -287,6 +293,25 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                                     widget.bike.notes!,
                                     fontSize: 13,
                                     color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          if (attachmentCount > 0)
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              spacing: 2,
+                              children: [
+                                Icon(
+                                  Icons.attach_file,
+                                  size: 13,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
+                                Text(
+                                  '$attachmentCount',
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                                    fontSize: 13,
                                   ),
                                 ),
                               ],

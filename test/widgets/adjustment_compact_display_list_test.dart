@@ -93,10 +93,10 @@ void main() {
       );
 
   Setup makeSetup({
-    required Map<String, dynamic> bikeValues,
-    Map<String, dynamic> personValues = const {},
-    Map<String, dynamic> previousBikeValues = const {},
-    Map<String, dynamic> previousPersonValues = const {},
+    required Map<String, AdjustmentValue> bikeValues,
+    Map<String, AdjustmentValue> personValues = const {},
+    Map<String, AdjustmentValue> previousBikeValues = const {},
+    Map<String, AdjustmentValue> previousPersonValues = const {},
   }) {
     final t = DateTime(2025, 6, 1).toUtc();
     return Setup(
@@ -153,15 +153,15 @@ void main() {
   ///  - weight      : 72 -> 70   changed    (orange, person)
   Setup mixedSetup() => makeSetup(
         bikeValues: {
-          pressure.id: '80',
-          rebound.id: '5',
-          compression.id: '3',
-          sag.id: '30',
-          deletedAdjId: '999',
+          pressure.id: TextValue.orNull('80')!,
+          rebound.id: TextValue.orNull('5')!,
+          compression.id: TextValue.orNull('3')!,
+          sag.id: TextValue.orNull('30')!,
+          deletedAdjId: TextValue.orNull('999')!,
         },
-        personValues: {weight.id: '70'},
-        previousBikeValues: {pressure.id: '85', compression.id: '3'},
-        previousPersonValues: {weight.id: '72'},
+        personValues: {weight.id: TextValue.orNull('70')!},
+        previousBikeValues: {pressure.id: TextValue.orNull('85')!, compression.id: TextValue.orNull('3')!},
+        previousPersonValues: {weight.id: TextValue.orNull('72')!},
       );
 
   // --- Widget: expanded ----------------------------------------------------
@@ -242,7 +242,7 @@ void main() {
             person: me.id,
             tags: {},
             personAdjustmentValues: {},
-            bikeAdjustmentValues: {pressure.id: pressureVal},
+            bikeAdjustmentValues: {pressure.id: TextValue.orNull(pressureVal)!},
           );
 
       final resolved = SetupResolutionService.resolveSetups(
@@ -272,7 +272,7 @@ void main() {
   group('DanglingAdjustmentService.analyzeSetup', () {
     test('installed component is normal, not dangling', () {
       final breakdown = DanglingAdjustmentService.analyzeSetup(
-        setup: makeSetup(bikeValues: {pressure.id: '80'}),
+        setup: makeSetup(bikeValues: {pressure.id: TextValue.orNull('80')!}),
         components: [fork, shock],
         persons: [me],
       );
@@ -283,7 +283,7 @@ void main() {
 
     test('value on a not-installed component becomes a dangling group', () {
       final breakdown = DanglingAdjustmentService.analyzeSetup(
-        setup: makeSetup(bikeValues: {sag.id: '30'}),
+        setup: makeSetup(bikeValues: {sag.id: TextValue.orNull('30')!}),
         components: [fork, shock],
         persons: [me],
       );
@@ -293,7 +293,7 @@ void main() {
 
     test('value for an unknown adjustment id becomes a deleted value', () {
       final breakdown = DanglingAdjustmentService.analyzeSetup(
-        setup: makeSetup(bikeValues: {deletedAdjId: '999'}),
+        setup: makeSetup(bikeValues: {deletedAdjId: TextValue.orNull('999')!}),
         components: [fork, shock],
         persons: [me],
       );
@@ -313,8 +313,8 @@ void main() {
     test('only unchanged values -> has content, collapsing hides them', () {
       final summary = AdjustmentCompactDisplayList.summarize(
         components: [fork],
-        adjustmentValues: {pressure.id: '80'},
-        previousAdjustmentValues: {pressure.id: '80'},
+        adjustmentValues: {pressure.id: const NumericalValue(80)},
+        previousAdjustmentValues: {pressure.id: const NumericalValue(80)},
       );
       expect(summary.hasContent, isTrue);
       expect(summary.collapsedHidesSomething, isTrue);
@@ -323,8 +323,8 @@ void main() {
     test('only changed values -> has content, collapsing hides nothing', () {
       final summary = AdjustmentCompactDisplayList.summarize(
         components: [fork],
-        adjustmentValues: {pressure.id: '80'},
-        previousAdjustmentValues: {pressure.id: '85'},
+        adjustmentValues: {pressure.id: const NumericalValue(80)},
+        previousAdjustmentValues: {pressure.id: const NumericalValue(85)},
       );
       expect(summary.hasContent, isTrue);
       expect(summary.collapsedHidesSomething, isFalse);
@@ -333,7 +333,7 @@ void main() {
     test('only dangling values -> has content, collapsing hides them', () {
       final summary = AdjustmentCompactDisplayList.summarize(
         danglingComponents: [shock],
-        adjustmentValues: {sag.id: '30'},
+        adjustmentValues: {sag.id: const NumericalValue(30)},
       );
       expect(summary.hasContent, isTrue);
       expect(summary.collapsedHidesSomething, isTrue);
@@ -347,8 +347,8 @@ void main() {
   group('inherited values from previous setups', () {
     testWidgets('installed component: a value only in a previous setup is shown, unchanged colour', (tester) async {
       final setup = makeSetup(
-        bikeValues: {pressure.id: '80'},
-        previousBikeValues: {pressure.id: '85', compression.id: '3'},
+        bikeValues: {pressure.id: TextValue.orNull('80')!},
+        previousBikeValues: {pressure.id: TextValue.orNull('85')!, compression.id: TextValue.orNull('3')!},
       );
       await tester.pumpWidget(compactFor(setup, displayOnlyChanges: false));
 
@@ -361,8 +361,8 @@ void main() {
 
     testWidgets('inherited-only value is hidden when collapsed to changes', (tester) async {
       final setup = makeSetup(
-        bikeValues: {pressure.id: '80'},
-        previousBikeValues: {pressure.id: '85', compression.id: '3'},
+        bikeValues: {pressure.id: TextValue.orNull('80')!},
+        previousBikeValues: {pressure.id: TextValue.orNull('85')!, compression.id: TextValue.orNull('3')!},
       );
       await tester.pumpWidget(compactFor(setup, displayOnlyChanges: true));
 
@@ -374,8 +374,8 @@ void main() {
       // sag belongs to shock, which is never installed on myBike. With only a
       // previous value (no current), shock is not iterated at all -> nothing shown.
       final setup = makeSetup(
-        bikeValues: {pressure.id: '80'},
-        previousBikeValues: {pressure.id: '80', sag.id: '30'},
+        bikeValues: {pressure.id: TextValue.orNull('80')!},
+        previousBikeValues: {pressure.id: TextValue.orNull('80')!, sag.id: TextValue.orNull('30')!},
       );
       await tester.pumpWidget(compactFor(setup, displayOnlyChanges: false));
 
@@ -394,7 +394,7 @@ void main() {
         name: 'Mode',
         notes: null,
         unit: null,
-        options: {'Eco', 'Trail'},
+        options: const {'Eco', 'Trail'},
         multiSelect: true,
       );
       controller = Component(
@@ -407,8 +407,8 @@ void main() {
     });
 
     Widget compactWith({
-      required Map<String, dynamic> bikeValues,
-      required Map<String, dynamic> previous,
+      required Map<String, AdjustmentValue> bikeValues,
+      required Map<String, AdjustmentValue> previous,
       required bool onlyChanges,
     }) {
       final setup = makeSetup(bikeValues: bikeValues, previousBikeValues: previous);
@@ -431,8 +431,8 @@ void main() {
 
     testWidgets('empty list over a previous value shows "-" in changed colour', (tester) async {
       await tester.pumpWidget(compactWith(
-        bikeValues: {mode.id: <String>[]},
-        previous: {mode.id: ['Eco']},
+        bikeValues: {mode.id: CategoricalValue(const <String>[])},
+        previous: {mode.id: CategoricalValue(const ['Eco'])},
         onlyChanges: false,
       ));
       expect(valueColor(tester, '-'), _highlights.changed);
@@ -440,8 +440,8 @@ void main() {
 
     testWidgets('empty list over a previous value survives collapse (it is a change)', (tester) async {
       await tester.pumpWidget(compactWith(
-        bikeValues: {mode.id: <String>[]},
-        previous: {mode.id: ['Eco']},
+        bikeValues: {mode.id: CategoricalValue(const <String>[])},
+        previous: {mode.id: CategoricalValue(const ['Eco'])},
         onlyChanges: true,
       ));
       expect(find.text('-'), findsOneWidget);
@@ -449,7 +449,7 @@ void main() {
 
     testWidgets('empty list with no previous value is green (a new explicit none)', (tester) async {
       await tester.pumpWidget(compactWith(
-        bikeValues: {mode.id: <String>[]},
+        bikeValues: {mode.id: CategoricalValue(const <String>[])},
         previous: const {},
         onlyChanges: false,
       ));

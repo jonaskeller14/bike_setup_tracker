@@ -6,6 +6,7 @@ import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
+import 'package:bike_setup_tracker/models/filters/setup_filter.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:bike_setup_tracker/pages/details/component_details_page.dart';
@@ -13,8 +14,9 @@ import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/setup_activity_analysis_service.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
-import 'package:bike_setup_tracker/widgets/display_data/component_details_page_line_chart.dart';
-import 'package:bike_setup_tracker/widgets/display_data/component_details_page_radial_chart.dart';
+import 'package:bike_setup_tracker/utils/automation_ids.dart';
+import 'package:bike_setup_tracker/widgets/display_data/setup_line_chart.dart';
+import 'package:bike_setup_tracker/widgets/display_data/setup_radial_chart.dart';
 import 'package:bike_setup_tracker/widgets/display_data/setup_table.dart';
 import 'package:bike_setup_tracker/widgets/display_installation_timeline.dart';
 import 'package:bike_setup_tracker/widgets/lists/adjustment_edit_list.dart';
@@ -262,9 +264,8 @@ void main() {
       id: 'comp1',
       name: 'Test Fork',
       installations: [
-        Installation.sinceBeginning(parent: 'bike1', componentId: 'comp1'),
+        Installation.sinceBeginning(parent: 'bike1'),
         Uninstallation(
-          componentId: 'comp1',
           dateTimeUTC: DateTime.utc(2026, 1, 2),
           dateTimeLocal: DateTime(2026, 1, 2),
         ),
@@ -293,7 +294,7 @@ void main() {
       name: 'Test Fork',
       installations: [Installation.sinceBeginning(parent: 'bike1')],
       componentType: ComponentType.fork,
-      adjustments: [],
+      adjustments: const [],
     );
     await seedRepository(tester, () async {
       await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null)]);
@@ -338,7 +339,7 @@ void main() {
         tags: {},
         bike: 'bike1',
         person: null,
-        bikeAdjustmentValues: {'adj1': 5},
+        bikeAdjustmentValues: {'adj1': const StepValue(5)},
         personAdjustmentValues: {},
       );
       await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null)]);
@@ -395,8 +396,8 @@ void main() {
       await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null)]);
       await appRepository.addComponents([component]);
       await appRepository.addSetups([
-        Setup(id: 's1', name: 'A Setup', datetime: DateTime(2023).toUtc(), datetimeLocal: DateTime(2023), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5}, personAdjustmentValues: {}),
-        Setup(id: 's2', name: 'B Setup', datetime: DateTime(2024).toUtc(), datetimeLocal: DateTime(2024), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5}, personAdjustmentValues: {}),
+        Setup(id: 's1', name: 'A Setup', datetime: DateTime(2023).toUtc(), datetimeLocal: DateTime(2023), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': const StepValue(5)}, personAdjustmentValues: {}),
+        Setup(id: 's2', name: 'B Setup', datetime: DateTime(2024).toUtc(), datetimeLocal: DateTime(2024), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': const StepValue(5)}, personAdjustmentValues: {}),
       ]);
     });
     
@@ -458,8 +459,8 @@ void main() {
       await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null)]);
       await appRepository.addComponents([component]);
       await appRepository.addSetups([
-        Setup(id: 's1', name: 'Before', datetime: DateTime(2023).toUtc(), datetimeLocal: DateTime(2023), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 3}, personAdjustmentValues: {}),
-        Setup(id: 's2', name: 'After', datetime: DateTime(2025).toUtc(), datetimeLocal: DateTime(2025), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 7}, personAdjustmentValues: {}),
+        Setup(id: 's1', name: 'Before', datetime: DateTime(2023).toUtc(), datetimeLocal: DateTime(2023), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': const StepValue(3)}, personAdjustmentValues: {}),
+        Setup(id: 's2', name: 'After', datetime: DateTime(2025).toUtc(), datetimeLocal: DateTime(2025), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': const StepValue(7)}, personAdjustmentValues: {}),
       ]);
     });
 
@@ -499,7 +500,7 @@ void main() {
     await seedRepository(tester, () async {
       await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null)]);
       await appRepository.addComponents([component]);
-      await appRepository.addSetups([Setup(name: 'Setup 1', datetime: DateTime.now().toUtc(), datetimeLocal: DateTime.now(), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5, 'adj2': 5}, personAdjustmentValues: {})]);
+      await appRepository.addSetups([Setup(name: 'Setup 1', datetime: DateTime.now().toUtc(), datetimeLocal: DateTime.now(), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': const StepValue(5), 'adj2': const StepValue(5)}, personAdjustmentValues: {})]);
     });
     
     appRepository.dispose();
@@ -545,7 +546,7 @@ void main() {
     await seedRepository(tester, () async {
       await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null)]);
       await appRepository.addComponents([component]);
-      await appRepository.addSetups([Setup(name: 'Setup 1', datetime: DateTime.now().toUtc(), datetimeLocal: DateTime.now(), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5}, personAdjustmentValues: {})]);
+      await appRepository.addSetups([Setup(name: 'Setup 1', datetime: DateTime.now().toUtc(), datetimeLocal: DateTime.now(), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': const StepValue(5)}, personAdjustmentValues: {})]);
     });
     
     appRepository.dispose();
@@ -652,12 +653,19 @@ void main() {
         tags: {},
         bike: 'bike1',
         person: null,
-        bikeAdjustmentValues: {'adj1': 5},
+        bikeAdjustmentValues: {'adj1': const StepValue(5)},
         personAdjustmentValues: {},
       )]);
     });
-    appRepository.dispose();
-    appRepository = AppRepository(database);
+    // This test writes inside runAsync after the swap. A query stream first
+    // listened to under fake async refetches there, parks on drift's lock until
+    // the next pump and deadlocks the real-async query queued behind it. The
+    // activity-rates stream is keyed by the current second, so it is such a new
+    // stream whenever the swap lands in a later second than setUp.
+    await tester.runAsync(() async {
+      appRepository.dispose();
+      appRepository = AppRepository(database);
+    });
     await tester.pumpWidget(createWidgetUnderTest('comp1'));
     await _waitForComponent(tester, appRepository);
 
@@ -732,7 +740,7 @@ void main() {
             tags: {},
             bike: 'bike1',
             person: null,
-            bikeAdjustmentValues: {'adj1': index},
+            bikeAdjustmentValues: {'adj1': StepValue(index)},
             personAdjustmentValues: {},
           ),
       ]);
@@ -802,7 +810,7 @@ void main() {
         tags: {'visible'},
         bike: 'bike1',
         person: null,
-        bikeAdjustmentValues: {'adj1': 1},
+        bikeAdjustmentValues: {'adj1': const StepValue(1)},
         personAdjustmentValues: {},
       )]);
       await appRepository.addSetups([Setup(
@@ -813,7 +821,7 @@ void main() {
         tags: {'hidden'},
         bike: 'bike1',
         person: null,
-        bikeAdjustmentValues: {'adj1': 2},
+        bikeAdjustmentValues: {'adj1': const StepValue(2)},
         personAdjustmentValues: {},
       )]);
       await insertActivity(1, baseTime.add(const Duration(hours: 1)));
@@ -831,7 +839,7 @@ void main() {
     expect(find.text('Hidden Boundary'), findsWidgets);
     await showActivitiesColumn(tester);
 
-    appRepository.selectSetupTag('visible');
+    appRepository.filters.setup = const SetupFilter(tags: {'visible'});
     await tester.pumpAndSettle();
 
     expect(find.descendant(of: find.byType(DataTable), matching: find.text('Visible Setup')), findsOneWidget);
@@ -870,7 +878,7 @@ void main() {
         tags: {},
         bike: 'bike1',
         person: null,
-        bikeAdjustmentValues: {'adj1': 1},
+        bikeAdjustmentValues: {'adj1': const StepValue(1)},
         personAdjustmentValues: {},
       )]);
       for (var id = 1; id <= 75; id++) {
@@ -916,7 +924,7 @@ void main() {
             id: 's$i', name: 'Setup $i',
             datetime: DateTime(2024, 1, i).toUtc(), datetimeLocal: DateTime(2024, 1, i),
             tags: {}, bike: 'bike1', person: null,
-            bikeAdjustmentValues: {'adj1': i},
+            bikeAdjustmentValues: {'adj1': StepValue(i)},
             personAdjustmentValues: {},
           ),
       ]);
@@ -933,28 +941,28 @@ void main() {
     });
     await tester.pumpAndSettle();
 
-    final lineChart = tester.widget<ComponentDetailsPageLineChart>(
-      find.byType(ComponentDetailsPageLineChart),
+    final lineChart = tester.widget<SetupLineChart>(
+      find.byType(SetupLineChart),
     );
     expect(lineChart.selectedSetups.map((setup) => setup.id), ['s7', 's6', 's5']);
     expect(
-      find.descendant(of: find.byType(ComponentDetailsPageLineChart), matching: find.text('2024-01-07')),
+      find.descendant(of: find.byType(SetupLineChart), matching: find.text('2024-01-07')),
       findsOneWidget,
     );
     expect(
-      find.descendant(of: find.byType(ComponentDetailsPageLineChart), matching: find.text('2024-01-05')),
+      find.descendant(of: find.byType(SetupLineChart), matching: find.text('2024-01-05')),
       findsOneWidget,
     );
     expect(
-      find.descendant(of: find.byType(ComponentDetailsPageLineChart), matching: find.text('2024-01-06')),
+      find.descendant(of: find.byType(SetupLineChart), matching: find.text('2024-01-06')),
       findsNothing,
     );
-    final chartBounds = tester.getRect(find.byType(ComponentDetailsPageLineChart));
+    final chartBounds = tester.getRect(find.byType(SetupLineChart));
     final firstLabelBounds = tester.getRect(
-      find.descendant(of: find.byType(ComponentDetailsPageLineChart), matching: find.text('2024-01-07')),
+      find.descendant(of: find.byType(SetupLineChart), matching: find.text('2024-01-07')),
     );
     final lastLabelBounds = tester.getRect(
-      find.descendant(of: find.byType(ComponentDetailsPageLineChart), matching: find.text('2024-01-05')),
+      find.descendant(of: find.byType(SetupLineChart), matching: find.text('2024-01-05')),
     );
     expect(firstLabelBounds.left, greaterThanOrEqualTo(chartBounds.left));
     expect(lastLabelBounds.right, lessThanOrEqualTo(chartBounds.right));
@@ -962,22 +970,22 @@ void main() {
     await tester.tap(find.descendant(of: find.byType(DataTable), matching: find.text('Name')));
     await tester.pumpAndSettle();
     expect(
-      find.descendant(of: find.byType(ComponentDetailsPageLineChart), matching: find.text('2024-01-07')),
+      find.descendant(of: find.byType(SetupLineChart), matching: find.text('2024-01-07')),
       findsNothing,
     );
     expect(
-      find.descendant(of: find.byType(ComponentDetailsPageLineChart), matching: find.text('2024-01-05')),
+      find.descendant(of: find.byType(SetupLineChart), matching: find.text('2024-01-05')),
       findsNothing,
     );
 
     await tester.tap(find.descendant(of: find.byType(DataTable), matching: find.text('Date')));
     await tester.pumpAndSettle();
     expect(
-      find.descendant(of: find.byType(ComponentDetailsPageLineChart), matching: find.text('2024-01-07')),
+      find.descendant(of: find.byType(SetupLineChart), matching: find.text('2024-01-07')),
       findsOneWidget,
     );
     expect(
-      find.descendant(of: find.byType(ComponentDetailsPageLineChart), matching: find.text('2024-01-05')),
+      find.descendant(of: find.byType(SetupLineChart), matching: find.text('2024-01-05')),
       findsOneWidget,
     );
 
@@ -1001,7 +1009,7 @@ void main() {
             id: 's$i', name: 'Setup $i',
             datetime: DateTime(2024, 1, i).toUtc(), datetimeLocal: DateTime(2024, 1, i),
             tags: {}, bike: 'bike1', person: null,
-            bikeAdjustmentValues: {'adj1': i},
+            bikeAdjustmentValues: {'adj1': StepValue(i)},
             personAdjustmentValues: {},
           ),
       ]);
@@ -1043,6 +1051,55 @@ void main() {
     expect(tester.widget<Checkbox>(find.byKey(const ValueKey('select-setup-s1'))).value, isFalse);
   });
 
+  testWidgets('exposes the automation identifiers the screenshot flows use', (WidgetTester tester) async {
+    final semantics = tester.ensureSemantics();
+    // The radial chart (and its legend) needs at least three numerical columns.
+    final adjustments = [
+      for (final name in ['Rebound', 'LSC', 'HSC'])
+        StepAdjustment(id: name, name: name, notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider),
+    ];
+    await seedRepository(tester, () async {
+      await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null)]);
+      await appRepository.addComponents([Component(
+        id: 'comp1', name: 'Test Fork',
+        installations: [Installation.sinceBeginning(parent: 'bike1')],
+        componentType: ComponentType.fork,
+        adjustments: adjustments,
+      )]);
+      await appRepository.addSetups([
+        Setup(
+          id: 's1', name: 'Setup 1',
+          datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1),
+          tags: {}, bike: 'bike1', person: null,
+          bikeAdjustmentValues: {'Rebound': const StepValue(1), 'LSC': const StepValue(2), 'HSC': const StepValue(3)},
+          personAdjustmentValues: {},
+        ),
+      ]);
+    });
+    appRepository.dispose();
+    appRepository = AppRepository(database);
+    await tester.pumpWidget(createWidgetUnderTest('comp1'));
+    await tester.runAsync(() async {
+      int attempts = 0;
+      while (appRepository.components['comp1'] == null && attempts < 10) {
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+        attempts++;
+      }
+    });
+    await tester.pumpAndSettle();
+
+    for (final id in [
+      AutomationIds.componentDetailsAdjustmentHistory,
+      AutomationIds.componentDetailsColumns,
+      AutomationIds.setupTableSelectAll,
+      AutomationIds.componentDetailsLineChart,
+      AutomationIds.radialChartLegend(0),
+    ]) {
+      expect(find.bySemanticsIdentifier(id, skipOffstage: false), findsOneWidget, reason: id);
+    }
+    semantics.dispose();
+  });
+
   testWidgets('tapping a selected row deselects it', (WidgetTester tester) async {
     final adjustment = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
     await seedRepository(tester, () async {
@@ -1054,8 +1111,8 @@ void main() {
         adjustments: [adjustment],
       )]);
       await appRepository.addSetups([
-        Setup(id: 's1', name: 'Setup Old', datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 3}, personAdjustmentValues: {}),
-        Setup(id: 's2', name: 'Setup New', datetime: DateTime(2024, 2, 1).toUtc(), datetimeLocal: DateTime(2024, 2, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 7}, personAdjustmentValues: {}),
+        Setup(id: 's1', name: 'Setup Old', datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': const StepValue(3)}, personAdjustmentValues: {}),
+        Setup(id: 's2', name: 'Setup New', datetime: DateTime(2024, 2, 1).toUtc(), datetimeLocal: DateTime(2024, 2, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': const StepValue(7)}, personAdjustmentValues: {}),
       ]);
     });
     appRepository.dispose();
@@ -1096,8 +1153,8 @@ void main() {
         adjustments: [adjustment],
       )]);
       await appRepository.addSetups([
-        Setup(id: 's1', name: 'Setup Old', datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 3}, personAdjustmentValues: {}),
-        Setup(id: 's2', name: 'Setup New', datetime: DateTime(2024, 2, 1).toUtc(), datetimeLocal: DateTime(2024, 2, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 7}, personAdjustmentValues: {}),
+        Setup(id: 's1', name: 'Setup Old', datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': const StepValue(3)}, personAdjustmentValues: {}),
+        Setup(id: 's2', name: 'Setup New', datetime: DateTime(2024, 2, 1).toUtc(), datetimeLocal: DateTime(2024, 2, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': const StepValue(7)}, personAdjustmentValues: {}),
       ]);
     });
     appRepository.dispose();
@@ -1147,8 +1204,8 @@ void main() {
         adjustments: adjustments,
       )]);
       await appRepository.addSetups([
-        Setup(id: 's1', name: 'Setup 1', datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 3, 'adj2': 4, 'adj3': 5}, personAdjustmentValues: {}),
-        Setup(id: 's2', name: 'Setup 2', datetime: DateTime(2024, 1, 2).toUtc(), datetimeLocal: DateTime(2024, 1, 2), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5, 'adj2': 6, 'adj3': 7}, personAdjustmentValues: {}),
+        Setup(id: 's1', name: 'Setup 1', datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': const StepValue(3), 'adj2': const StepValue(4), 'adj3': const StepValue(5)}, personAdjustmentValues: {}),
+        Setup(id: 's2', name: 'Setup 2', datetime: DateTime(2024, 1, 2).toUtc(), datetimeLocal: DateTime(2024, 1, 2), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': const StepValue(5), 'adj2': const StepValue(6), 'adj3': const StepValue(7)}, personAdjustmentValues: {}),
       ]);
     });
     appRepository.dispose();
@@ -1157,7 +1214,7 @@ void main() {
     await _waitForComponent(tester, appRepository);
 
     final radarSetup = find.descendant(
-      of: find.byType(ComponentDetailsPageRadialChart),
+      of: find.byType(SetupRadialChart),
       matching: find.text('Setup 1'),
     );
     await tester.ensureVisible(radarSetup);
@@ -1173,7 +1230,7 @@ void main() {
     await tester.pumpAndSettle();
 
     final reselectedRadarSetup = find.descendant(
-      of: find.byType(ComponentDetailsPageRadialChart),
+      of: find.byType(SetupRadialChart),
       matching: find.text('Setup 1'),
     );
     await tester.ensureVisible(reselectedRadarSetup);
@@ -1194,8 +1251,8 @@ void main() {
         adjustments: adjustments,
       )]);
       await appRepository.addSetups([
-        Setup(id: 's1', name: 'Setup 1', datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 3, 'adj2': 4}, personAdjustmentValues: {}),
-        Setup(id: 's2', name: 'Setup 2', datetime: DateTime(2024, 1, 2).toUtc(), datetimeLocal: DateTime(2024, 1, 2), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5, 'adj2': 6}, personAdjustmentValues: {}),
+        Setup(id: 's1', name: 'Setup 1', datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': const StepValue(3), 'adj2': const StepValue(4)}, personAdjustmentValues: {}),
+        Setup(id: 's2', name: 'Setup 2', datetime: DateTime(2024, 1, 2).toUtc(), datetimeLocal: DateTime(2024, 1, 2), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': const StepValue(5), 'adj2': const StepValue(6)}, personAdjustmentValues: {}),
       ]);
     });
     appRepository.dispose();
@@ -1204,7 +1261,7 @@ void main() {
     await _waitForComponent(tester, appRepository);
 
     final lineColumn = find.descendant(
-      of: find.byType(ComponentDetailsPageLineChart),
+      of: find.byType(SetupLineChart),
       matching: find.text('Rebound'),
     );
     await tester.ensureVisible(lineColumn);
@@ -1225,7 +1282,7 @@ void main() {
     await tester.pumpAndSettle();
 
     final reenabledLineColumn = find.descendant(
-      of: find.byType(ComponentDetailsPageLineChart),
+      of: find.byType(SetupLineChart),
       matching: find.text('Rebound'),
     );
     await tester.ensureVisible(reenabledLineColumn);
@@ -1235,7 +1292,7 @@ void main() {
   // ── Chart placeholders ─────────────────────────────────────────────────────
 
   testWidgets('line and radar charts show placeholder when no numerical columns are active', (WidgetTester tester) async {
-    final adjustment = CategoricalAdjustment(id: 'adj1', name: 'Tire Brand', notes: '', unit: null, options: {'Brand A', 'Brand B'});
+    final adjustment = CategoricalAdjustment(id: 'adj1', name: 'Tire Brand', notes: '', unit: null, options: const {'Brand A', 'Brand B'});
     await seedRepository(tester, () async {
       await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null)]);
       await appRepository.addComponents([Component(
@@ -1244,7 +1301,7 @@ void main() {
         componentType: ComponentType.fork,
         adjustments: [adjustment],
       )]);
-      await appRepository.addSetups([Setup(id: 's1', name: 'Setup 1', datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 'Brand A'}, personAdjustmentValues: {})]);
+      await appRepository.addSetups([Setup(id: 's1', name: 'Setup 1', datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': TextValue.orNull('Brand A')!}, personAdjustmentValues: {})]);
     });
     appRepository.dispose();
     appRepository = AppRepository(database);
@@ -1273,8 +1330,8 @@ void main() {
         adjustments: [adjustment],
       )]);
       await appRepository.addSetups([
-        Setup(id: 's1', name: 'Setup 1', datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 3}, personAdjustmentValues: {}),
-        Setup(id: 's2', name: 'Setup 2', datetime: DateTime(2024, 1, 2).toUtc(), datetimeLocal: DateTime(2024, 1, 2), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5}, personAdjustmentValues: {}),
+        Setup(id: 's1', name: 'Setup 1', datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': const StepValue(3)}, personAdjustmentValues: {}),
+        Setup(id: 's2', name: 'Setup 2', datetime: DateTime(2024, 1, 2).toUtc(), datetimeLocal: DateTime(2024, 1, 2), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': const StepValue(5)}, personAdjustmentValues: {}),
       ]);
     });
     appRepository.dispose();
@@ -1309,8 +1366,8 @@ void main() {
         adjustments: [adjustment],
       )]);
       await appRepository.addSetups([
-        Setup(id: 's1', name: 'Setup 1', datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 3}, personAdjustmentValues: {}),
-        Setup(id: 's2', name: 'Setup 2', datetime: DateTime(2024, 1, 2).toUtc(), datetimeLocal: DateTime(2024, 1, 2), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5}, personAdjustmentValues: {}),
+        Setup(id: 's1', name: 'Setup 1', datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': const StepValue(3)}, personAdjustmentValues: {}),
+        Setup(id: 's2', name: 'Setup 2', datetime: DateTime(2024, 1, 2).toUtc(), datetimeLocal: DateTime(2024, 1, 2), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': const StepValue(5)}, personAdjustmentValues: {}),
       ]);
     });
     appRepository.dispose();
@@ -1345,8 +1402,8 @@ void main() {
         adjustments: [adj1, adj2],
       )]);
       await appRepository.addSetups([
-        Setup(id: 's1', name: 'Setup 1', datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 3, 'adj2': 5}, personAdjustmentValues: {}),
-        Setup(id: 's2', name: 'Setup 2', datetime: DateTime(2024, 1, 2).toUtc(), datetimeLocal: DateTime(2024, 1, 2), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 4, 'adj2': 7}, personAdjustmentValues: {}),
+        Setup(id: 's1', name: 'Setup 1', datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': const StepValue(3), 'adj2': const StepValue(5)}, personAdjustmentValues: {}),
+        Setup(id: 's2', name: 'Setup 2', datetime: DateTime(2024, 1, 2).toUtc(), datetimeLocal: DateTime(2024, 1, 2), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': const StepValue(4), 'adj2': const StepValue(7)}, personAdjustmentValues: {}),
       ]);
     });
     appRepository.dispose();

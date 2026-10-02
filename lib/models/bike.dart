@@ -1,8 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
+import 'attachment.dart';
 import 'component_stats.dart';
 
+@immutable
 class Bike {
   final String id;
   final bool isDeleted;
@@ -13,6 +16,7 @@ class Bike {
   final String? stravaGear;
   final int orderIndex;
   final ComponentStats initialStats;
+  final List<Attachment> attachments;
 
   static const IconData iconData = Icons.pedal_bike;
 
@@ -26,13 +30,15 @@ class Bike {
     this.stravaGear,
     this.orderIndex = 0,
     this.initialStats = ComponentStats.zero,
+    List<Attachment>? attachments,
   })
     : id = id ?? const Uuid().v4(),
+      attachments = attachments ?? const [],
       isDeleted = isDeleted ?? false,
       lastModified = lastModified?.toUtc() ?? DateTime.now().toUtc();
 
   Map<String, dynamic> toJson() => {
-    'version': 5,
+    'version': 6,
     'id': id,
     "isDeleted": isDeleted,
     "lastModified": lastModified.toUtc().toIso8601String(),
@@ -42,12 +48,13 @@ class Bike {
     'stravaGear': stravaGear,
     'orderIndex': orderIndex,
     'initialStats': initialStats.toJson(),
+    'attachments': attachments.map((a) => a.toJson()).toList(),
   };
 
   factory Bike.fromJson(Map<String, dynamic> json) {
     final int? version = json["version"] as int?;
     switch (version) {
-      case null || 1 || 2 || 3 || 4 || 5:
+      case null || 1 || 2 || 3 || 4 || 5 || 6:
         final initialStats = json['initialStats'] as Map<String, dynamic>?; // since version 5
         return Bike(
           id: json["id"] as String?,
@@ -59,6 +66,9 @@ class Bike {
           stravaGear: json['stravaGear'] as String?, // = null
           orderIndex: json['orderIndex'] as int? ?? 0,
           initialStats: initialStats == null ? ComponentStats.zero : ComponentStats.fromJson(initialStats),
+          attachments: (json['attachments'] as List?) // since version 6
+              ?.map((e) => Attachment.fromJson(e as Map<String, dynamic>))
+              .toList(),
         );
       default: throw Exception("Json Version $version of Bike incompatible.");
     }
@@ -76,7 +86,8 @@ class Bike {
         notes == other.notes &&
         person == other.person &&
         stravaGear == other.stravaGear &&
-        initialStats == other.initialStats;
+        initialStats == other.initialStats &&
+        listEquals(attachments, other.attachments);
   }
 
   @override
@@ -90,10 +101,13 @@ class Bike {
       person,
       stravaGear,
       initialStats,
+      Object.hashAll(attachments),
     );
   }
 
   Bike deepCopy() {
+    // Callers are responsible for copying attachment files via AttachmentStorageService.copyExisting
+    // for each attachment in the returned bike's attachments list before persisting.
     return Bike(
       name: name,
       notes: notes,
@@ -101,6 +115,7 @@ class Bike {
       stravaGear: stravaGear,
       orderIndex: orderIndex,
       initialStats: initialStats,
+      attachments: List.from(attachments),
     );
   }
 
@@ -114,6 +129,7 @@ class Bike {
     Object? stravaGear = const _Sentinel(),
     Object? orderIndex = const _Sentinel(),
     Object? initialStats = const _Sentinel(),
+    Object? attachments = const _Sentinel(),
   }) {
     return Bike(
       id: id is _Sentinel ? this.id : (id as String),
@@ -125,6 +141,7 @@ class Bike {
       stravaGear: stravaGear is _Sentinel ? this.stravaGear : (stravaGear as String?),
       orderIndex: orderIndex is _Sentinel ? this.orderIndex : (orderIndex as int),
       initialStats: initialStats is _Sentinel ? this.initialStats : (initialStats as ComponentStats),
+      attachments: attachments is _Sentinel ? this.attachments : (attachments as List<Attachment>),
     );
   }
 }

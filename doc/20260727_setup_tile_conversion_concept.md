@@ -65,7 +65,7 @@ out of embedded `SetupListCard`s inside a `Card`.
   ([setup_list.dart:144](lib/widgets/lists/setup_list.dart#L144)), the search
   overlay ([setup_list_search.dart:120](lib/widgets/chips/setup_list_search.dart#L120)),
   the Strava activity details `ExpansionTile`
-  ([strava_activitiy_details_page.dart:323](lib/pages/details/strava_activitiy_details_page.dart#L323)),
+  ([strava_activity_details_page.dart:323](lib/pages/details/strava_activity_details_page.dart#L323)),
   and `SetupGroupCard` (both the single-member shortcut and the embedded members).
 - **Prior decisions** (`doc/20260702_setup_list_redesign.md`, Round 2) already
   pushed in this direction: full-bleed day bands, list padding moved into rows,

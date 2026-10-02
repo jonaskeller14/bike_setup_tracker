@@ -8,9 +8,9 @@ import 'package:provider/provider.dart';
 import '../database/app_database.dart';
 import '../models/app_settings.dart';
 import '../models/selected_data.dart';
+import '../services/attachment_storage_service.dart';
 import '../services/data_export_service.dart';
 import '../services/file_save_service.dart';
-import '../services/image_storage_service.dart';
 import '../services/share_service.dart';
 import '../widgets/app_snackbar.dart';
 import 'to_spreadsheet.dart';
@@ -32,7 +32,7 @@ class FileExport {
     );
   }
 
-  static Future<void> saveImageBundle({
+  static Future<void> saveAttachmentBundle({
     required BuildContext context,
     required AppDatabase database,
     SelectedData? selectedData,
@@ -40,7 +40,7 @@ class FileExport {
   }) async {
     await _runSave(
       context: context,
-      save: () => _saveImageBundle(
+      save: () => _saveAttachmentBundle(
         database: database,
         selectedData: selectedData,
         fileSaveService: fileSaveService ?? FileSaveService(),
@@ -48,12 +48,12 @@ class FileExport {
     );
   }
       
-  static Future<FileSaveOutcome> _saveImageBundle({
+  static Future<FileSaveOutcome> _saveAttachmentBundle({
     required AppDatabase database,
     SelectedData? selectedData,
     required FileSaveService fileSaveService,
   }) async {
-    final file = await ImageStorageService().exportBundle(database, selectedData: selectedData);
+    final file = await AttachmentStorageService().exportBundle(database, selectedData: selectedData);
     final bytes = await file.readAsBytes();
     return fileSaveService.saveFile(
       fileName: file.uri.pathSegments.last,

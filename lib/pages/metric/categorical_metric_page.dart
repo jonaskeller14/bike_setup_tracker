@@ -51,7 +51,7 @@ class _CategoricalMetricPageState extends State<CategoricalMetricPage> {
 
   bool _multiSelect = false;
   bool _counted = false;
-  List<String>? _previewValues;
+  CategoricalValue? _previewValues;
   late CategoricalAdjustment _previewAdjustment;
 
   @override
@@ -363,44 +363,51 @@ class _CategoricalMetricPageState extends State<CategoricalMetricPage> {
                                 child: Column(
                                   children: [
                                     if (appSettings.enableMultiSelect || _multiSelect)
-                                      CheckboxListTile(
-                                        contentPadding: EdgeInsets.zero,
-                                        controlAffinity: ListTileControlAffinity.leading,
-                                        tileColor: widget.mode == MetricPageMode.edit && _multiSelect != (_initialAdj?.multiSelect ?? false)
-                                            ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
-                                            : null,
-                                        title: const Text('Multi Select'),
-                                        subtitle: const Text('Allow more than one selection'),
-                                        value: _multiSelect,
-                                        onChanged: (bool? newValue) {
-                                          if (newValue == null) return;
-                                          setState(() {
-                                            _multiSelect = newValue;
-                                            _previewValues = null;
-                                            _previewAdjustment = _composePreview();
-                                          });
-                                          _changeListener();
-                                        },
+                                      // Keeps the tile colors inside the scroll view (ListTile paints on the nearest Material).
+                                      Material(
+                                        type: MaterialType.transparency,
+                                        child: CheckboxListTile(
+                                          contentPadding: EdgeInsets.zero,
+                                          controlAffinity: ListTileControlAffinity.leading,
+                                          tileColor: widget.mode == MetricPageMode.edit && _multiSelect != (_initialAdj?.multiSelect ?? false)
+                                              ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
+                                              : null,
+                                          title: const Text('Multi Select'),
+                                          subtitle: const Text('Allow more than one selection'),
+                                          value: _multiSelect,
+                                          onChanged: (bool? newValue) {
+                                            if (newValue == null) return;
+                                            setState(() {
+                                              _multiSelect = newValue;
+                                              _previewValues = null;
+                                              _previewAdjustment = _composePreview();
+                                            });
+                                            _changeListener();
+                                          },
+                                        ),
                                       ),
                                     if (appSettings.enableCountedSelect || _counted)
-                                      CheckboxListTile(
-                                        contentPadding: EdgeInsets.zero,
-                                        controlAffinity: ListTileControlAffinity.leading,
-                                        tileColor: widget.mode == MetricPageMode.edit && _counted != (_initialAdj?.counted ?? false)
-                                            ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
-                                            : null,
-                                        title: const Text('Count Occurrences'),
-                                        subtitle: const Text('Allow the same option multiple times'),
-                                        value: _counted,
-                                        onChanged: (bool? newValue) {
-                                          if (newValue == null) return;
-                                          setState(() {
-                                            _counted = newValue;
-                                            _previewValues = null;
-                                            _previewAdjustment = _composePreview();
-                                          });
-                                          _changeListener();
-                                        },
+                                      Material(
+                                        type: MaterialType.transparency,
+                                        child: CheckboxListTile(
+                                          contentPadding: EdgeInsets.zero,
+                                          controlAffinity: ListTileControlAffinity.leading,
+                                          tileColor: widget.mode == MetricPageMode.edit && _counted != (_initialAdj?.counted ?? false)
+                                              ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
+                                              : null,
+                                          title: const Text('Count Occurrences'),
+                                          subtitle: const Text('Allow the same option multiple times'),
+                                          value: _counted,
+                                          onChanged: (bool? newValue) {
+                                            if (newValue == null) return;
+                                            setState(() {
+                                              _counted = newValue;
+                                              _previewValues = null;
+                                              _previewAdjustment = _composePreview();
+                                            });
+                                            _changeListener();
+                                          },
+                                        ),
                                       ),
                                     TextFormField(
                                       controller: _notesController,
@@ -440,7 +447,7 @@ class _CategoricalMetricPageState extends State<CategoricalMetricPage> {
                     adjustment: _previewAdjustment,
                     initialValue: null,
                     value: _previewValues,
-                    onChanged: (List<String>? newValue) {
+                    onChanged: (CategoricalValue? newValue) {
                       setState(() {
                         _previewValues = newValue;
                       });

@@ -11,11 +11,15 @@ import 'package:provider/provider.dart';
 import '../env/env.dart';
 import '../models/app_settings.dart';
 import '../models/context/context_position.dart';
+import '../models/filters/layer_filter.dart';
+import '../models/rating/rating_entry.dart';
+import '../models/setup.dart';
 import '../models/strava/strava_activity.dart';
 import '../repositories/app_repository.dart';
 import '../services/location_service.dart';
 import '../services/subscription_service.dart';
 import '../utils/animated_map_camera.dart';
+import '../utils/automation_ids.dart';
 import '../utils/map_empty_state.dart';
 import '../widgets/app_snackbar.dart';
 import '../widgets/chips/map_filter_widget.dart';
@@ -34,11 +38,18 @@ class MapPage extends StatefulWidget {
   final LocationService? locationService;
   final Stream<LocationMarkerHeading?>? headingStream;
 
-  /// Activity to open the map on. Its pin is shown even when the map filters
-  /// would hide it; ignored when it has no start position.
   final StravaActivity? focusActivity;
+  final List<Setup> focusSetups;
+  final RatingEntry? focusRatingEntry;
 
-  const MapPage({super.key, this.locationService, this.headingStream, this.focusActivity});
+  const MapPage({
+    super.key,
+    this.locationService,
+    this.headingStream,
+    this.focusActivity,
+    this.focusSetups = const [],
+    this.focusRatingEntry,
+  });
 
   @override
   State<MapPage> createState() => MapPageState();
@@ -64,6 +75,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
   MapPinState? _collapsedFor;
   bool _cameraTouchedByUser = false;
   List<LatLng> _pinPoints = const [];
+  List<LatLng> _focusPoints = const [];
 
   /// Camera sources the page drives itself; anything else comes from the user.
   static const Set<MapEventSource> _programmaticCameraSources = {
@@ -124,8 +136,8 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
     _reloadStravaActivities();
   }
 
-  /// Requeries only when the repository changes, so unrelated rebuilds (layer
-  /// toggles, location updates, rotation) no longer hit the database.
+  /// Requeries only when the repository changes, so unrelated rebuilds (settings
+  /// changes, location updates, rotation) no longer hit the database.
   void _reloadStravaActivities() => unawaited(_loadStravaActivities());
 
   Future<void> _loadStravaActivities() async {
@@ -216,7 +228,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
 
     // GPS can take seconds: never yank a camera the user has already moved,
     // nor one that opened on a specific activity.
-    if (_cameraTouchedByUser || _focusPoint != null) return;
+    if (_cameraTouchedByUser || _focusPoints.isNotEmpty) return;
     if (_pinPoints.isEmpty) {
       await _camera.move(userLocation, 15);
       return;
@@ -259,34 +271,41 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
   Future<void> _zoomBy(double delta) =>
       _camera.move(_mapController.camera.center, (_mapController.camera.zoom + delta).clamp(3.0, 18.0));
 
-  static Marker _pinMarker({required LatLng point, required VoidCallback onTap, required Widget pin}) {
+  Marker _pinMarker({required LatLng point, required VoidCallback onTap, required Widget pin}) {
     return Marker(
       point: point,
       width: 40,
       height: 40,
-      child: GestureDetector(onTap: onTap, child: pin),
+      alignment: mapPinAlignment,
+      child: GestureDetector(onTap: () => _openPinSheet(point, onTap), child: pin),
     );
   }
 
+  /// Pans the tapped pin into the top band of the map first, so it stays
+  /// visible above the bottom sheet the tap opens.
+  void _openPinSheet(LatLng point, VoidCallback showSheet) {
+    final camera = _mapController.camera;
+    final pin = camera.latLngToScreenOffset(point);
+    final center = camera.screenOffsetToLatLng(Offset(pin.dx, pin.dy + camera.nonRotatedSize.height * 0.35));
+    unawaited(_camera.move(center, camera.zoom));
+    showSheet();
+  }
+
   Iterable<Marker> _setupMarkers(AppRepository appRepository, AppSettings appSettings) {
-    return appRepository.filteredSetups.values
+    final focusSetupIds = widget.focusSetups.map((setup) => setup.id).toSet();
+    return appRepository.view.setups.values
         .where((s) => (s.position?.latitude?.isFinite ?? false) && (s.position?.longitude?.isFinite ?? false))
+        .where((s) => !focusSetupIds.contains(s.id))
         .map(
           (setup) => _pinMarker(
             point: LatLng(setup.position!.latitude!, setup.position!.longitude!),
-            onTap: () => showSetupDetailsSheet(context: context, setupId: setup.id),
+            onTap: () => showSetupDetailsSheet(context: context, setupId: setup.id, showViewOnMap: false),
             pin: SetupMapPin.icon(
               isCurrent: setup.isCurrent,
               isBookmarked: appSettings.enableSetupBookmark && setup.isBookmarked,
             ),
           ),
         );
-  }
-
-  LatLng? get _focusPoint {
-    final activity = widget.focusActivity;
-    if (activity == null || !activity.hasStartPosition) return null;
-    return LatLng(activity.startLat!, activity.startLon!);
   }
 
   Iterable<Marker> _activityMarkers() {
@@ -302,31 +321,83 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
   }
 
   Iterable<Marker> _ratingEntryMarkers(AppRepository appRepository) {
-    return appRepository.filteredRatingEntries.values
+    return appRepository.view.ratingEntries.values
         .where((re) => (re.position?.latitude?.isFinite ?? false) && (re.position?.longitude?.isFinite ?? false))
+        .where((re) => re.id != widget.focusRatingEntry?.id)
         .map(
           (ratingEntry) => _pinMarker(
             point: LatLng(ratingEntry.position!.latitude!, ratingEntry.position!.longitude!),
-            onTap: () => showRatingEntryDetailsSheet(context: context, ratingEntry: ratingEntry),
+            onTap: () => showRatingEntryDetailsSheet(context: context, ratingEntry: ratingEntry, showViewOnMap: false),
             pin: const RatingEntryMapPin(),
           ),
         );
   }
 
-  /// Kept out of the cluster layer so the focused activity is never folded
-  /// into a cluster bubble.
-  Marker _focusMarker(StravaActivity activity, LatLng point) {
+  static LatLng? _pointOf(ContextPosition? position) =>
+      (position?.latitude?.isFinite ?? false) && (position?.longitude?.isFinite ?? false)
+      ? LatLng(position!.latitude!, position.longitude!)
+      : null;
+
+  /// Kept out of the cluster layer so a focused pin is never folded into a
+  /// cluster bubble.
+  Marker _focusMarker({
+    required Key key,
+    required LatLng point,
+    required VoidCallback onTap,
+    required Widget pin,
+    String? identifier,
+  }) {
     return Marker(
-      key: const Key('map-focus-activity'),
+      key: key,
       point: point,
       width: 52,
       height: 52,
-      child: GestureDetector(
-        onTap: () => showStravaActivitySheet(context: context, stravaActivity: activity, showViewOnMap: false),
-        child: Transform.scale(scale: 1.3, child: StravaActivityMapPin(workoutType: activity.workout)),
+      alignment: mapPinAlignment,
+      child: Semantics(
+        container: true,
+        identifier: identifier,
+        child: GestureDetector(
+          onTap: () => _openPinSheet(point, onTap),
+          // Laid out at the pins' native 40 px so their badge offsets hold; only
+          // the paint is enlarged.
+          child: Transform.scale(
+            scale: 1.3,
+            child: Center(child: SizedBox.square(dimension: 40, child: pin)),
+          ),
+        ),
       ),
     );
   }
+
+  List<Marker> _focusMarkers(AppSettings appSettings) => [
+    if (widget.focusActivity case final activity? when activity.hasStartPosition)
+      _focusMarker(
+        key: const Key('map-focus-activity'),
+        point: LatLng(activity.startLat!, activity.startLon!),
+        onTap: () => showStravaActivitySheet(context: context, stravaActivity: activity, showViewOnMap: false),
+        pin: StravaActivityMapPin(workoutType: activity.workout),
+        identifier: AutomationIds.mapFocusActivity,
+      ),
+    for (final setup in widget.focusSetups)
+      if (_pointOf(setup.position) case final point?)
+        _focusMarker(
+          key: Key('map-focus-setup-${setup.id}'),
+          point: point,
+          onTap: () => showSetupDetailsSheet(context: context, setupId: setup.id, showViewOnMap: false),
+          pin: SetupMapPin.icon(
+            isCurrent: setup.isCurrent,
+            isBookmarked: appSettings.enableSetupBookmark && setup.isBookmarked,
+          ),
+        ),
+    if (widget.focusRatingEntry case final ratingEntry?)
+      if (_pointOf(ratingEntry.position) case final point?)
+        _focusMarker(
+          key: const Key('map-focus-rating-entry'),
+          point: point,
+          onTap: () => showRatingEntryDetailsSheet(context: context, ratingEntry: ratingEntry, showViewOnMap: false),
+          pin: const RatingEntryMapPin(),
+        ),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -338,15 +409,16 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
 
     final colorScheme = Theme.of(context).colorScheme;
 
+    final layers = appRepository.filters.layers;
     final List<Marker> clusterMarkers = [
-      if (appSettings.displayShowSetups) ..._setupMarkers(appRepository, appSettings),
-      if (stravaActive && appSettings.displayShowActivities) ..._activityMarkers(),
-      if (appSettings.enableRating && appSettings.displayShowRatingEntries) ..._ratingEntryMarkers(appRepository),
+      if (layers.shows(TimelineLayer.setups)) ..._setupMarkers(appRepository, appSettings),
+      if (stravaActive && layers.shows(TimelineLayer.activities)) ..._activityMarkers(),
+      if (appSettings.enableRating && layers.shows(TimelineLayer.ratingEntries)) ..._ratingEntryMarkers(appRepository),
     ];
 
-    final focusActivity = widget.focusActivity;
-    final focusPoint = _focusPoint;
-    _pinPoints = [?focusPoint, ...clusterMarkers.map((marker) => marker.point)];
+    final focusMarkers = _focusMarkers(appSettings);
+    final focusPoints = _focusPoints = [for (final marker in focusMarkers) marker.point];
+    _pinPoints = [...focusPoints, ...clusterMarkers.map((marker) => marker.point)];
     final List<LatLng> fitPoints = [?_userLocation, ..._pinPoints];
 
     final pinState = _pinStateFor(
@@ -365,8 +437,8 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
             options: MapOptions(
               backgroundColor: colorScheme.surfaceContainerHighest,
               initialRotation: 0,
-              initialCenter: focusPoint ?? const LatLng(44.1687, 8.3444), // Finale Ligure
-              initialZoom: focusPoint != null ? 15 : 13,
+              initialCenter: focusPoints.firstOrNull ?? const LatLng(44.1687, 8.3444), // Finale Ligure
+              initialZoom: focusPoints.isNotEmpty ? 15 : 13,
               minZoom: 3,
               maxZoom: 18,
               // Bound the camera to the world. Without this (default is
@@ -385,7 +457,11 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
                 flags: InteractiveFlag.all,
                 enableMultiFingerGestureRace: true,
               ),
-              initialCameraFit: focusPoint == null && fitPoints.isNotEmpty ? _pinOverviewFit(fitPoints) : null,
+              initialCameraFit: focusPoints.length > 1
+                  ? _pinOverviewFit(focusPoints)
+                  : focusPoints.isEmpty && fitPoints.isNotEmpty
+                  ? _pinOverviewFit(fitPoints)
+                  : null,
             ),
             children: [
               MapTileLayer(useMapbox: useMapbox),
@@ -402,8 +478,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
                   builder: (context, markers) => MapClusterBubble(count: markers.length),
                 ),
               ),
-              if (focusActivity != null && focusPoint != null)
-                MarkerLayer(markers: [_focusMarker(focusActivity, focusPoint)]),
+              if (focusMarkers.isNotEmpty) MarkerLayer(markers: focusMarkers),
               CurrentLocationLayer(
                 positionStream: _markerPositions,
                 headingStream: _headings,
@@ -416,7 +491,10 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
                   headingSectorColor: colorScheme.primary.withValues(alpha: 0.7),
                 ),
               ),
-              MapAttribution(useMapbox: useMapbox, showStrava: _stravaActivities.isNotEmpty || focusPoint != null),
+              MapAttribution(
+                useMapbox: useMapbox,
+                showStrava: _stravaActivities.isNotEmpty || (widget.focusActivity?.hasStartPosition ?? false),
+              ),
             ],
           ),
           SafeArea(

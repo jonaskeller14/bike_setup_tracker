@@ -1,13 +1,15 @@
-import 'package:flutter/foundation.dart';
+import 'package:collection/collection.dart' show MapEquality;
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:uuid/uuid.dart';
 
+import '../adjustment/adjustment.dart';
 import '../context/context_place.dart';
 import '../context/context_position.dart';
 import '../context/context_weather.dart';
 import '../setup.dart';
 
+@immutable
 class RatingEntry {
   final String id;
   final bool isDeleted;
@@ -19,7 +21,7 @@ class RatingEntry {
   final DateTime dateTimeLocal;
   final String? notes;
 
-  final Map<String, dynamic> metricValues;
+  final Map<String, AdjustmentValue> metricValues;
 
   final ContextPosition? position;
   final geo.Placemark? place;
@@ -40,7 +42,7 @@ class RatingEntry {
     required DateTime dateTimeUTC,
     required this.dateTimeLocal,
     this.notes,
-    Map<String, dynamic>? metricValues,
+    Map<String, AdjustmentValue>? metricValues,
     this.position,
     this.place,
     this.weather,
@@ -67,7 +69,10 @@ class RatingEntry {
     'weather': weather?.toJson(),
   };
 
-  factory RatingEntry.fromJson({required Map<String, dynamic> json}) {
+  factory RatingEntry.fromJson({
+    required Map<String, dynamic> json,
+    required Map<String, AdjustmentType> metricTypes,
+  }) {
     final int? version = json['version'] as int?;
     switch (version) {
       case null || 1:
@@ -84,7 +89,8 @@ class RatingEntry {
               .copyWith(isUtc: false),
           notes: json['notes'] as String?,
           metricValues: Setup.adjustmentValuesFromJson(
-              (json['metricValues']) as Map<String, dynamic>? ?? {}),
+              (json['metricValues']) as Map<String, dynamic>? ?? {},
+              adjustmentTypes: metricTypes),
           position: json['position'] != null ? ContextPosition.fromJson(json['position'] as Map<String, dynamic>) : null,
           place: json['place'] != null ? ContextPlace.fromJson(json['place'] as Map<String, dynamic>) : null,
           weather: json['weather'] != null ? ContextWeather.fromJson(json['weather'] as Map<String, dynamic>) : null,
@@ -141,7 +147,7 @@ class RatingEntry {
       notes: notes is _Sentinel ? this.notes : (notes as String?),
       metricValues: metricValues is _Sentinel
           ? this.metricValues
-          : (metricValues as Map<String, dynamic>),
+          : (metricValues as Map<String, AdjustmentValue>),
       position: position is _Sentinel ? this.position : (position as ContextPosition?),
       place: place is _Sentinel ? this.place : (place as geo.Placemark?),
       weather: weather is _Sentinel ? this.weather : (weather as ContextWeather?),
@@ -162,7 +168,7 @@ class RatingEntry {
         dateTimeUTC == other.dateTimeUTC &&
         dateTimeLocal == other.dateTimeLocal &&
         notes == other.notes &&
-        mapEquals(metricValues, other.metricValues) &&
+        const MapEquality<String, AdjustmentValue>().equals(metricValues, other.metricValues) &&
         ContextPosition.equal(position, other.position) &&
         ContextPlace.equal(place, other.place) &&
         weather == other.weather;
@@ -180,7 +186,7 @@ class RatingEntry {
       dateTimeUTC,
       dateTimeLocal,
       notes,
-      Object.hashAll(metricValues.entries),
+      const MapEquality<String, AdjustmentValue>().hash(metricValues),
       position,
       place,
       weather,

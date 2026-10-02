@@ -7,9 +7,9 @@ import '../sheets/set_duration.dart';
 
 class SetDurationAdjustmentWidget extends StatelessWidget {
   final DurationAdjustment adjustment;
-  final Duration? initialValue;
-  final Duration? value;
-  final ValueChanged<Duration?> onChanged;
+  final DurationValue? initialValue;
+  final DurationValue? value;
+  final ValueChanged<DurationValue?> onChanged;
   final bool highlighting;
 
   /// The value is not pre-filled from [initialValue], so it may be left unset
@@ -59,7 +59,7 @@ class SetDurationAdjustmentWidget extends StatelessWidget {
               style: OutlinedButton.styleFrom(
                 visualDensity: VisualDensity.compact,
               ),
-              onPressed: () => onChanged(Duration.zero),
+              onPressed: () => onChanged(const DurationValue(Duration.zero)),
               child: const Text("Set value"),
             )
           else
@@ -69,8 +69,8 @@ class SetDurationAdjustmentWidget extends StatelessWidget {
                   onTap: () => showSetDurationSheet(
                     context: context,
                     adjustment: adjustment,
-                    value: value,
-                    onChanged: onChanged, 
+                    value: value!.value,
+                    onChanged: (newValue) => onChanged(DurationValue(newValue)),
                   ),
                   borderRadius: BorderRadius.circular(6),
                   child: Row(
@@ -78,7 +78,7 @@ class SetDurationAdjustmentWidget extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        Adjustment.formatValue(value),
+                        value!.display,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           fontFamily: 'monospace',
                           fontWeight: FontWeight.bold,

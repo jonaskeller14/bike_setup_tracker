@@ -19,8 +19,8 @@ void main() {
     late AppRepository data;
     late AppRepository appRepository;
     final bike1 = Bike(name: "Bike #1", person: null);
-    final person1 = Person(name: "Person #1", adjustments: []);
-    final rating1 = Rating(name: "Rating #1", association: const GlobalRatingAssociation(), metrics: []);
+    final person1 = Person(name: "Person #1", adjustments: const []);
+    final rating1 = Rating(name: "Rating #1", association: const GlobalRatingAssociation(), metrics: const []);
     late Component component1;
     late Setup setup1;
     late RatingEntry ratingEntry1;
@@ -33,7 +33,7 @@ void main() {
         name: "Component #1",
         installations: [Installation.sinceBeginning(parent: bike1.id)],
         componentType: ComponentType.fork,
-        adjustments: [],
+        adjustments: const [],
       );
       setup1 = Setup(
         name: "Setup #1",

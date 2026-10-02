@@ -4,16 +4,17 @@ import 'package:syncfusion_flutter_sliders/sliders.dart';
 
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
+import '../../utils/automation_ids.dart';
 import '../display_adjustment/adjustment_icon_name_notes.dart';
 import 'set_step_adjustment_dial.dart';
 
 class SetStepAdjustmentWidget extends StatelessWidget {
   static const int maxRenderedTicks = 50;
   final StepAdjustment adjustment;
-  final double? initialValue;
-  final double? value;
-  final ValueChanged<double?> onChanged;
-  final ValueChanged<double?> onChangedEnd;
+  final StepValue? initialValue;
+  final StepValue? value;
+  final ValueChanged<StepValue?> onChanged;
+  final ValueChanged<StepValue?> onChangedEnd;
   final bool highlighting;
 
   /// The value is not pre-filled from [initialValue], so it may be left unset
@@ -32,24 +33,24 @@ class SetStepAdjustmentWidget extends StatelessWidget {
   });
 
   void onPressedMinusButton() {
-    onChanged(value!-adjustment.step);
-    onChangedEnd(value!-adjustment.step);
+    onChanged(StepValue(value!.value - adjustment.step));
+    onChangedEnd(StepValue(value!.value - adjustment.step));
   }
 
   void onPressedPlusButton() {
-    onChanged(value!+adjustment.step);
-    onChangedEnd(value!+adjustment.step);
+    onChanged(StepValue(value!.value + adjustment.step));
+    onChangedEnd(StepValue(value!.value + adjustment.step));
   }
 
   void onLongPressedMinusButton() {
-    final minValue = adjustment.min.toDouble();
+    final minValue = StepValue(adjustment.min);
     onChanged(minValue);
     onChangedEnd(minValue);
   }
 
   void onLongPressedPlusButton() {
     final divisions = ((adjustment.max - adjustment.min) / adjustment.step).floor();
-    final maxValue = (adjustment.min + divisions * adjustment.step).toDouble();
+    final maxValue = StepValue(adjustment.min + divisions * adjustment.step);
     onChanged(maxValue);
     onChangedEnd(maxValue);
   }
@@ -100,7 +101,7 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                   style: OutlinedButton.styleFrom(
                     visualDensity: VisualDensity.compact,
                   ),
-                  onPressed: () {onChanged(adjustment.min.toDouble()); onChangedEnd(adjustment.min.toDouble());},
+                  onPressed: () {onChanged(StepValue(adjustment.min)); onChangedEnd(StepValue(adjustment.min));},
                   child: const Text("Set value"),
                 ),
               ),
@@ -116,43 +117,47 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                   mainAxisSize: MainAxisSize.max,
                   children: [
                     Expanded(
-                      child: SfSliderTheme(
-                        data: SfSliderThemeData(
-                          thumbRadius: 15,
-                          overlayRadius: 0,
-                          activeTrackColor: accentColor,
-                          tooltipBackgroundColor: accentColor,
-                          tooltipTextStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: onAccentColor,)
-                        ),
-                        child: SfSlider(
-                          min: adjustment.min.toDouble(),
-                          max: sliderMax,
-                          value: value,
-                          thumbShape: CustomValueThumbShape(
-                            primaryColor: accentColor,
-                            onPrimaryColor: onAccentColor,
+                      child: Semantics(
+                        container: true,
+                        identifier: AutomationIds.setAdjustment(adjustment.id),
+                        child: SfSliderTheme(
+                          data: SfSliderThemeData(
+                            thumbRadius: 15,
+                            overlayRadius: 0,
+                            activeTrackColor: accentColor,
+                            tooltipBackgroundColor: accentColor,
+                            tooltipTextStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: onAccentColor,)
                           ),
-                          showLabels: true,
-                          interval: sliderInterval.toDouble(),
-                          showTicks: true,
-                          stepSize: adjustment.step.toDouble(),
-                          minorTicksPerInterval: showStepTicks ? sliderDivisions - 1 : 0,
-                          enableTooltip: true,
-                          tooltipShape: const SfPaddleTooltipShape(),
-                          onChanged: (dynamic newValue) {
-                            onChanged(newValue as double?);
-                          },
-                          onChangeEnd: (dynamic newValue) {
-                            onChangedEnd(newValue as double?);
-                          },
+                          child: SfSlider(
+                            min: adjustment.min.toDouble(),
+                            max: sliderMax,
+                            value: value!.value.toDouble(),
+                            thumbShape: CustomValueThumbShape(
+                              primaryColor: accentColor,
+                              onPrimaryColor: onAccentColor,
+                            ),
+                            showLabels: true,
+                            interval: sliderInterval.toDouble(),
+                            showTicks: true,
+                            stepSize: adjustment.step.toDouble(),
+                            minorTicksPerInterval: showStepTicks ? sliderDivisions - 1 : 0,
+                            enableTooltip: true,
+                            tooltipShape: const SfPaddleTooltipShape(),
+                            onChanged: (dynamic newValue) {
+                              onChanged(StepValue((newValue as double).round()));
+                            },
+                            onChangeEnd: (dynamic newValue) {
+                              onChangedEnd(StepValue((newValue as double).round()));
+                            },
+                          ),
                         ),
                       ),
                     ),
                     if (adjustment.visualization == StepAdjustmentVisualization.sliderWithClockwiseDial || adjustment.visualization == StepAdjustmentVisualization.sliderWithCounterclockwiseDial)
                       RotaryKnob(
                         key: const ValueKey('RotaryKnob'),
-                        value: value!,
-                        initialValue: initialValue?.toInt(),
+                        value: value!.value.toDouble(),
+                        initialValue: initialValue?.value,
                         min: adjustment.min.toDouble(),
                         max: sliderMax,
                         numberOfTicks: knobTicks,
@@ -176,8 +181,8 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                   mainAxisSize: MainAxisSize.max,
                   children: [
                     FilledButton(
-                      onPressed: value! - adjustment.step >= adjustment.min ? onPressedMinusButton : null,
-                      onLongPress: value! - adjustment.step >= adjustment.min ? onLongPressedMinusButton : null,
+                      onPressed: value!.value - adjustment.step >= adjustment.min ? onPressedMinusButton : null,
+                      onLongPress: value!.value - adjustment.step >= adjustment.min ? onLongPressedMinusButton : null,
                       style: FilledButton.styleFrom(
                         backgroundColor: accentColor,
                         foregroundColor: onAccentColor,
@@ -192,15 +197,15 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                         child: FittedBox(
                           fit: BoxFit.scaleDown,
                           child: Text(
-                            value!.toInt().toString(),
+                            value!.value.toString(),
                             style: const TextStyle(fontWeight: FontWeight.bold, fontFamily: 'monospace'),
                           ),
                         ),
                       ),
                     ),
                     FilledButton(
-                      onPressed: value! + adjustment.step <= adjustment.max ? onPressedPlusButton : null,
-                      onLongPress: value! + adjustment.step <= adjustment.max ? onLongPressedPlusButton : null,
+                      onPressed: value!.value + adjustment.step <= adjustment.max ? onPressedPlusButton : null,
+                      onLongPress: value!.value + adjustment.step <= adjustment.max ? onLongPressedPlusButton : null,
                       style: FilledButton.styleFrom(
                         backgroundColor: accentColor,
                         foregroundColor: onAccentColor,
@@ -225,8 +230,8 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       FilledButton(
-                        onPressed: value! - adjustment.step >= adjustment.min ? onPressedMinusButton : null,
-                        onLongPress: value! - adjustment.step >= adjustment.min ? onLongPressedMinusButton : null,
+                        onPressed: value!.value - adjustment.step >= adjustment.min ? onPressedMinusButton : null,
+                        onLongPress: value!.value - adjustment.step >= adjustment.min ? onLongPressedMinusButton : null,
                         style: FilledButton.styleFrom(
                           backgroundColor: accentColor,
                           foregroundColor: onAccentColor,
@@ -236,11 +241,11 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                         child: Text("- ${adjustment.step}"),
                       ),
                       const SizedBox(width: 6),
-                      Text(value!.toInt().toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontFamily: 'monospace')),
+                      Text(value!.value.toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontFamily: 'monospace')),
                       const SizedBox(width: 6),
                       FilledButton(
-                        onPressed: value! + adjustment.step <= adjustment.max ? onPressedPlusButton : null,
-                        onLongPress: value! + adjustment.step <= adjustment.max ? onLongPressedPlusButton : null,
+                        onPressed: value!.value + adjustment.step <= adjustment.max ? onPressedPlusButton : null,
+                        onLongPress: value!.value + adjustment.step <= adjustment.max ? onLongPressedPlusButton : null,
                         style: FilledButton.styleFrom(
                           backgroundColor: accentColor,
                           foregroundColor: onAccentColor,
@@ -252,8 +257,8 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                       const SizedBox(width: 6),
                       RotaryKnob(
                         key: const ValueKey('RotaryKnob'),
-                        value: value!,
-                        initialValue: initialValue?.toInt(),
+                        value: value!.value.toDouble(),
+                        initialValue: initialValue?.value,
                         min: adjustment.min.toDouble(),
                         max: sliderMax,
                         numberOfTicks: knobTicks,

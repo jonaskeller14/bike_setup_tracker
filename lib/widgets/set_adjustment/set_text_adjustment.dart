@@ -6,9 +6,9 @@ import '../display_adjustment/adjustment_icon_name_notes.dart';
 
 class SetTextAdjustmentWidget extends StatefulWidget {
   final TextAdjustment adjustment;
-  final String? initialValue;
-  final String? value;
-  final ValueChanged<String> onChanged;
+  final TextValue? initialValue;
+  final TextValue? value;
+  final ValueChanged<TextValue?> onChanged;
   final bool highlighting;
 
   /// The field is not pre-filled with [initialValue], so it may be left empty
@@ -35,14 +35,14 @@ class _SetTextAdjustmentWidgetState extends State<SetTextAdjustmentWidget> {
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController(text: widget.value ?? '');
+    _controller = TextEditingController(text: widget.value?.value ?? '');
   }
 
   @override
   void didUpdateWidget(SetTextAdjustmentWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.value == oldWidget.value) return;
-    final newText = widget.value ?? '';
+    final newText = widget.value?.value ?? '';
     // If the controller already holds the same text (e.g. parent echoed a local edit),
     // don't overwrite it — that would move the cursor to the end and disrupt editing.
     if (newText == _controller.text) return;
@@ -59,9 +59,11 @@ class _SetTextAdjustmentWidgetState extends State<SetTextAdjustmentWidget> {
     super.dispose();
   }
 
+  void _handleChanged(String text) => widget.onChanged(TextValue.orNull(text));
+
   bool get _resetWouldChange {
-    final target = widget.optional ? '' : (widget.initialValue ?? '');
-    final current = widget.value ?? '';
+    final target = widget.optional ? '' : (widget.initialValue?.value ?? '');
+    final current = widget.value?.value ?? '';
     return current.trim() != target.trim();
   }
 
@@ -73,7 +75,7 @@ class _SetTextAdjustmentWidgetState extends State<SetTextAdjustmentWidget> {
     late Color? highlightColor;
     final highlights = Theme.of(context).extension<ValueHighlightColors>();
     if (widget.highlighting) {
-      isChanged = parsedValue == null ? false : widget.initialValue != parsedValue;
+      isChanged = parsedValue == null ? false : widget.initialValue?.value != parsedValue;
       isInitial = widget.initialValue == null;
       highlightColor = isChanged ? (isInitial ? highlights?.initial ?? Colors.green : highlights?.changed ?? Colors.orange) : null;
     } else {
@@ -101,8 +103,8 @@ class _SetTextAdjustmentWidgetState extends State<SetTextAdjustmentWidget> {
               controller: _controller,
               textInputAction: TextInputAction.newline,
               autovalidateMode: AutovalidateMode.onUserInteraction,
-              onChanged: widget.onChanged,
-              onFieldSubmitted: widget.onChanged,
+              onChanged: _handleChanged,
+              onFieldSubmitted: _handleChanged,
               maxLines: null,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
@@ -117,8 +119,8 @@ class _SetTextAdjustmentWidgetState extends State<SetTextAdjustmentWidget> {
                 suffixIcon: _resetWouldChange
                     ? IconButton(
                         onPressed: () {
-                          _controller.text = widget.optional ? '' : widget.initialValue ?? '';
-                          widget.onChanged(_controller.text.trim());
+                          _controller.text = widget.optional ? '' : widget.initialValue?.value ?? '';
+                          _handleChanged(_controller.text.trim());
                         },
                         icon: const Icon(Icons.replay),
                         visualDensity: VisualDensity.compact,

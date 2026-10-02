@@ -1,12 +1,13 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
 import 'adjustment_unit.dart';
+import 'adjustment_value.dart';
 
 export 'adjustment_unit.dart';
+export 'adjustment_value.dart';
 export 'value_unit_conversion.dart';
 
 part 'boolean_adjustment.dart';
@@ -26,6 +27,7 @@ enum AdjustmentType {
   duration;
 }
 
+@immutable
 sealed class Adjustment {
   final String id;
   final String name;
@@ -42,38 +44,24 @@ sealed class Adjustment {
   }) : id = id ?? const Uuid().v4();
 
   Adjustment deepCopy();
-  bool isValidValue(dynamic value);
+  bool isValidValue(AdjustmentValue value);
   Map<String, dynamic> toJson();
   IconData getIconData();
+
+  AdjustmentType get type => switch (this) {
+    BooleanAdjustment() => AdjustmentType.boolean,
+    CategoricalAdjustment() => AdjustmentType.categorical,
+    StepAdjustment() => AdjustmentType.step,
+    NumericalAdjustment() => AdjustmentType.numerical,
+    TextAdjustment() => AdjustmentType.text,
+    DurationAdjustment() => AdjustmentType.duration,
+  };
 
   String unitSuffix() {
     return unit == null ? "" : " ${unit!.label}";
   }
 
   static const String multiValueSeparator = ', ';
-
-  static String formatValue(dynamic value) {
-    switch (value) {
-      case null: return '-';
-      case String(): return value;
-      case bool(): return value ? 'On' : 'Off';
-      case double(): return NumberFormat('0.#####', 'en_US').format(value);
-      case int(): return value.toString();
-      case Duration():
-        String twoDigits(int n) => n.toString().padLeft(2, '0');
-        return '${twoDigits(value.inHours)}:${twoDigits(value.inMinutes.remainder(60))}:${twoDigits(value.inSeconds.remainder(60))}';
-      case List():
-        if (value.isEmpty) return '-';
-        final counts = <dynamic, int>{};
-        for (final element in value) {
-          counts[element] = (counts[element] ?? 0) + 1;
-        }
-        return counts.entries
-            .map((entry) => entry.value == 1 ? formatValue(entry.key) : '${formatValue(entry.key)} (${entry.value})')
-            .join(multiValueSeparator);
-      default: return value.toString();
-    }
-  }
 
   static Adjustment fromJson(Map<String, dynamic> json) {
     final int? version = json["version"] as int?;
@@ -129,26 +117,6 @@ String _requirePresetName(Map<String, dynamic> map) {
     throw ArgumentError('Preset adjustment requires a non-empty "name": $map');
   }
   return name;
-}
-
-bool adjustmentValuesEqual(dynamic a, dynamic b) =>
-    const DeepCollectionEquality().equals(a, b);
-
-List<String>? categoricalValueAsList(dynamic value) {
-  if (value == null) return null;
-  if (value is List) return value.cast<String>();
-  if (value is String) return [value];
-  return null;
-}
-
-/// Coerces a stored value to a plain `String` for a [TextAdjustment] field. A
-/// correctly-typed value is already a `String`; anything else (e.g. a stray
-/// `List` from a malformed/foreign backup) is formatted to text rather than
-/// being handed to a `TextEditingController`, which would crash on a non-String.
-String? textValueAsString(dynamic value) {
-  if (value == null) return null;
-  if (value is String) return value;
-  return Adjustment.formatValue(value);
 }
 
 class _Sentinel {

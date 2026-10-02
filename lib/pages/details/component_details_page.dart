@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
+import '../../models/attachment.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
 import '../../models/component/installation.dart';
@@ -14,15 +15,17 @@ import '../../repositories/app_repository.dart';
 import '../../services/dangling_adjustment_service.dart';
 import '../../services/setup_activity_analysis_service.dart';
 import '../../services/subscription_service.dart';
+import '../../utils/automation_ids.dart';
 import '../../utils/component_actions.dart';
 import '../../utils/installation_timeline_validation.dart';
 import '../../utils/table_column.dart';
 import '../../utils/table_column_comparator.dart';
+import '../../widgets/attachment_row.dart';
 import '../../widgets/chips/filter_sheet_chip.dart';
-import '../../widgets/display_data/component_details_page_histogram_chart.dart';
-import '../../widgets/display_data/component_details_page_line_chart.dart';
-import '../../widgets/display_data/component_details_page_radial_chart.dart';
 import '../../widgets/display_data/component_stats_card.dart';
+import '../../widgets/display_data/setup_histogram_chart.dart';
+import '../../widgets/display_data/setup_line_chart.dart';
+import '../../widgets/display_data/setup_radial_chart.dart';
 import '../../widgets/display_data/setup_table.dart';
 import '../../widgets/display_installation_timeline.dart';
 import '../../widgets/empty_state_placeholder.dart';
@@ -60,12 +63,13 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
   Map<String, String> _ratingMetricNames = {};
 
   // Setup columns are rendered by the table itself; only data-driven columns resolve to a value here.
-  dynamic _rawValue(Setup setup, TableColumn column) => switch (column) {
+  // Rating scores ride along as numerical values so tables and charts treat them like any number.
+  AdjustmentValue? _rawValue(Setup setup, TableColumn column) => switch (column) {
     ComponentAdjustmentColumn(:final adjustmentId) => setup.bikeAdjustmentValues[adjustmentId],
     PersonAttributeColumn(:final adjustmentId) => setup.personAdjustmentValues[adjustmentId],
-    RatingMetricColumn(:final metricId) => _metricScores[setup.id]?[metricId],
-    RatingScoreColumn() => _ratingScores[setup.id],
-    SetupTableColumn() => null,
+    RatingMetricColumn(:final metricId) => NumericalValue.orNull(_metricScores[setup.id]?[metricId]),
+    RatingScoreColumn() => NumericalValue.orNull(_ratingScores[setup.id]),
+    SetupTableColumn() || BikeAdjustmentColumn() => null,
   };
 
   String _columnLabel(
@@ -81,6 +85,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
         componentAdjustments.firstWhereOrNull((a) => a.id == adjustmentId)?.name ?? adjustmentId,
       PersonAttributeColumn(:final adjustmentId) =>
         personAdjustments.firstWhereOrNull((a) => a.id == adjustmentId)?.name ?? adjustmentId,
+      BikeAdjustmentColumn(:final key) => key.adjustment.name,
     };
   }
 
@@ -146,6 +151,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     final componentAdjustments = component.adjustments;
     final descendants = appRepository.affectedDescendants(component.id);
     final initialStats = initialStatsSummary(component.initialStats, appSettings);
+    final attachments = appSettings.enableAttachments ? component.attachments : const <Attachment>[];
 
     final bikes = appRepository.bikes;
     final bike = bikes[appRepository.componentHierarchy.currentBike(component.id)];
@@ -164,7 +170,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
       _ => false,
     };
 
-    final setupsUnsorted = appRepository.filteredSetups.values
+    final setupsUnsorted = appRepository.view.setups.values
         .where((s) => component.adjustments.any((adj) => s.bikeAdjustmentValues.containsKey(adj.id)))
         .toList()
         .reversed
@@ -278,7 +284,9 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                   dense: true,
                 ),
 
-              if (component.notes != null || initialStats != null) const Divider(height: 1),
+              if (attachments.isNotEmpty) AttachmentRow(attachments: attachments),
+
+              if (component.notes != null || initialStats != null || attachments.isNotEmpty) const Divider(height: 1),
 
               if (shouldUseInstallationTimeline(
                 featureEnabled: appSettings.enableInstallationTimeline,
@@ -373,19 +381,23 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                 const Divider(height: 1),
               ],
 
-              const SectionTitle(
-                title: "Adjustment History",
-                infoText:
-                    "• Add or remove columns via the Columns button.\n"
-                    "• Long-press a column header to remove it.\n"
-                    "• Tap a column header to sort.\n"
-                    "• Use the filter button to narrow down by bike or tags.\n"
-                    "• Select rows to compare setups in the charts below.\n"
-                    "\n"
-                    "Value colors:\n"
-                    "• Green: new value (no prior value).\n"
-                    "• Orange: changed from the previous setup.\n"
-                    "• Red: dangling value (component not installed or person not linked at setup time).",
+              Semantics(
+                container: true,
+                identifier: AutomationIds.componentDetailsAdjustmentHistory,
+                child: const SectionTitle(
+                  title: "Adjustment History",
+                  infoText:
+                      "• Add or remove columns via the Columns button.\n"
+                      "• Long-press a column header to remove it.\n"
+                      "• Tap a column header to sort.\n"
+                      "• Use the filter button to narrow down by bike or tags.\n"
+                      "• Select rows to compare setups in the charts below.\n"
+                      "\n"
+                      "Value colors:\n"
+                      "• Green: new value (no prior value).\n"
+                      "• Orange: changed from the previous setup.\n"
+                      "• Red: dangling value (component not installed or person not linked at setup time).",
+                ),
               ),
 
               SingleChildScrollView(
@@ -394,19 +406,23 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                 child: Row(
                   spacing: 6,
                   children: [
-                    FilterChip(
-                      avatar: const Icon(Icons.view_column_outlined),
-                      showCheckmark: false,
-                      label: const Text("Columns"),
-                      selected: _columns.any((c) => c.active),
-                      onSelected: (bool newValue) async {
-                        await showColumnFilterSheet(
-                          context: context,
-                          columns: orderedColumns,
-                          columnLabel: (TableColumn c) => _columnLabel(c, componentAdjustments, personAdjustments),
-                          onColumnStatusChanged: () => setState(() {}), // TableColumn.active is changed
-                        );
-                      },
+                    Semantics(
+                      container: true,
+                      identifier: AutomationIds.componentDetailsColumns,
+                      child: FilterChip(
+                        avatar: const Icon(Icons.view_column_outlined),
+                        showCheckmark: false,
+                        label: const Text("Columns"),
+                        selected: _columns.any((c) => c.active),
+                        onSelected: (bool newValue) async {
+                          await showColumnFilterSheet(
+                            context: context,
+                            columns: orderedColumns,
+                            columnLabel: (TableColumn c) => _columnLabel(c, componentAdjustments, personAdjustments),
+                            onColumnStatusChanged: () => setState(() {}), // TableColumn.active is changed
+                          );
+                        },
+                      ),
                     ),
                     FilterSheetChip.componentDetailsPage,
                   ],
@@ -480,16 +496,20 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
               const SizedBox(height: 16),
 
               const Divider(height: 1),
-              const SectionTitle(
-                title: "Line Chart",
-                infoText:
-                    "• Shows the setups selected in the table above in their current sort order.\n"
-                    "• The y-axis represents adjustment values.\n"
-                    "• Select at least two setups to display a trend.\n"
-                    "• Tap a legend entry to highlight a specific line.\n"
-                    "• Long-press a legend entry to remove it from the selection.",
+              Semantics(
+                container: true,
+                identifier: AutomationIds.componentDetailsLineChart,
+                child: const SectionTitle(
+                  title: "Line Chart",
+                  infoText:
+                      "• Shows the setups selected in the table above in their current sort order.\n"
+                      "• The y-axis represents adjustment values.\n"
+                      "• Select at least two setups to display a trend.\n"
+                      "• Tap a legend entry to highlight a specific line.\n"
+                      "• Long-press a legend entry to remove it from the selection.",
+                ),
               ),
-              ComponentDetailsPageLineChart(
+              SetupLineChart(
                 activeColumns: activeColumns,
                 setups: setups,
                 selectedSetups: selectedSetups,
@@ -528,7 +548,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                     "• Tap a legend entry to highlight a specific graph.\n"
                     "• Long-press a legend entry to remove it from the selection.",
               ),
-              ComponentDetailsPageRadialChart(
+              SetupRadialChart(
                 activeColumns: activeColumns,
                 setups: setups,
                 selectedSetups: selectedSetups,
@@ -569,7 +589,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                     onAction: () => showStravaSheet(context: context),
                   )
                 else
-                  ComponentDetailsPageHistogramChart(
+                  SetupHistogramChart(
                     activeColumns: activeColumns,
                     setups: setups,
                     setupActivityCounts: setupActivityCounts,

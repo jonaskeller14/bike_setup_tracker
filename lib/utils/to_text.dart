@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/component/component.dart';
@@ -141,8 +140,8 @@ void _appendSetupText(
     if (person != null) {
       buffer.writeln("\n👤 ${person.name} Attributes:");
       for (final adj in person.adjustments) {
-        if (setup.personAdjustmentValues.containsKey(adj.id)) {
-          buffer.writeln("- ${adj.name}: ${Adjustment.formatValue(setup.personAdjustmentValues[adj.id])}${adj.unitSuffix()}");
+        if (setup.personAdjustmentValues[adj.id] case final value?) {
+          buffer.writeln("- ${adj.name}: ${value.display}${adj.unitSuffix()}");
         }
       }
     }
@@ -150,12 +149,12 @@ void _appendSetupText(
 
   // Component Adjustments
   for (final component in components.values) {
-    if (!component.adjustments.any((adj) => setup.bikeAdjustmentValues.containsKey(adj.id))) continue;
+    if (!component.adjustments.any((adj) => setup.bikeAdjustmentValues[adj.id] != null)) continue;
 
     buffer.writeln("\n- ${component.name}");
     for (final adjustment in component.adjustments) {
-      if (setup.bikeAdjustmentValues.containsKey(adjustment.id)) {
-        buffer.writeln("\t- ${adjustment.name}: ${Adjustment.formatValue(setup.bikeAdjustmentValues[adjustment.id])}${adjustment.unitSuffix()}");
+      if (setup.bikeAdjustmentValues[adjustment.id] case final value?) {
+        buffer.writeln("\t- ${adjustment.name}: ${value.display}${adjustment.unitSuffix()}");
       }
     }
   }

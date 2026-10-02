@@ -5,7 +5,11 @@ import '../../pages/details/setup_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../current_setup_highlight.dart';
 
-Future<void> showSetupDetailsSheet({required BuildContext context, required String setupId}) async {
+Future<void> showSetupDetailsSheet({
+  required BuildContext context,
+  required String setupId,
+  bool showViewOnMap = true,
+}) async {
   final setup = context.read<AppRepository>().setups[setupId];
 
   return showModalBottomSheet<void>(
@@ -16,7 +20,7 @@ Future<void> showSetupDetailsSheet({required BuildContext context, required Stri
         ? CurrentSetupHighlight.opaqueFill(Theme.of(context).colorScheme)
         : Theme.of(context).colorScheme.surface,
     builder: (BuildContext context) => SafeArea(
-      child: SetupDetailsPageContent.sheet(setupId: setupId),
+      child: SetupDetailsPageContent.sheet(setupId: setupId, showViewOnMap: showViewOnMap),
     ),
   );
 }

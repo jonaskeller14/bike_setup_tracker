@@ -39,7 +39,7 @@ class PersonList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
-    final personsList = appRepository.filteredPersons.values.toList();
+    final personsList = appRepository.view.persons.values.toList();
 
     Widget proxyDecorator(Widget child, int index, Animation<double> animation) {
       return AnimatedBuilder(

@@ -1,5 +1,8 @@
+import 'package:flutter/foundation.dart';
+
 import 'adjustment_unit.dart';
 
+@immutable
 class ValueUnitConversion {
   final String adjustmentId;
   final KnownUnit from;

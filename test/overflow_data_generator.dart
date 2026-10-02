@@ -93,7 +93,7 @@ void main() async {
                   name: "CategoricalAdjustment: $loremIpsum",
                   notes: loremIpsum,
                   unit: null,
-                  options: {loremIpsum, "Option 2", "Option 3"},
+                  options: const {loremIpsum, "Option 2", "Option 3"},
                 ),
                 StepAdjustment(
                   name: "StepAdjustment: $loremIpsum",
@@ -187,7 +187,7 @@ void main() async {
           ? "Check drivetrain: $loremIpsum"
           : "Check drivetrain #$idx",
       notes: idx == 0 ? loremIpsum : null,
-      tags: {},
+      tags: const {},
       association: ComponentTaskAssociation(componentsList[idx].id),
       interval: const DurationThreshold(Duration(days: 30)),
     )]);
@@ -223,7 +223,7 @@ void main() async {
           dateTimeLocal: DateTime(2025).add(Duration(days: idx)),
           metricValues: {
             if (firstRating.metrics.isNotEmpty)
-              firstRating.metrics.first.id: idx * 2,
+              firstRating.metrics.first.id: StepValue(idx * 2),
           },
         ),
     ];

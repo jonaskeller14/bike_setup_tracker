@@ -1,6 +1,7 @@
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/repositories/filter_controller.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/utils/map_empty_state.dart';
@@ -13,6 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   late MockAppRepository repository;
+  late FilterController filters;
   late AppSettings settings;
   late MockSubscriptionService subscriptionService;
   late int retries;
@@ -21,7 +23,8 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     repository = MockAppRepository();
     when(() => repository.bikes).thenReturn(<String, Bike>{});
-    when(() => repository.onBikeTap(any())).thenAnswer((_) {});
+    filters = FilterController(onChanged: () {});
+    when(() => repository.filters).thenReturn(filters);
     settings = AppSettings();
     subscriptionService = MockSubscriptionService();
     when(() => subscriptionService.hasStravaEntitlement).thenReturn(false);
@@ -95,6 +98,7 @@ void main() {
   });
 
   testWidgets('clears the filters from the filtered state', (tester) async {
+    filters.toggleBike('b1');
     await pumpCard(tester, state: MapPinState.filtered);
 
     expect(find.byKey(const Key('map-empty-filtered')), findsOneWidget);
@@ -103,7 +107,7 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Clear filters'));
     await tester.pump();
 
-    verify(() => repository.onBikeTap(null)).called(1);
+    expect(filters.bikeId, null);
   });
 
   testWidgets('retries the activity query from the error state', (tester) async {

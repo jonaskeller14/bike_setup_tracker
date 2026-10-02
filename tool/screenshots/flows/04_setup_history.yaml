@@ -1,0 +1,15 @@
+# 04 Setup History: the timeline filtered to the Santa Cruz Hightower.
+appId: ${APP_ID}
+---
+- runFlow: _launch.yaml
+- tapOn:
+    id: nav.bikes
+# Santa Cruz Hightower: double-tap sets the bike filter
+- doubleTapOn:
+    id: garage.bike.93f93d45-3a56-43ae-8936-5cfcbd768c9b
+- tapOn:
+    id: nav.setups
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot:
+    path: 04_raw

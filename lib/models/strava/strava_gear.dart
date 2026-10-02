@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 
+@immutable
 class StravaGear {
   final String id;
-  DateTime lastModified;
+  final DateTime lastModified;
   final String name;
 
   StravaGear({

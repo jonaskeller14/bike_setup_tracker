@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 
 import 'adjustment/adjustment.dart';
 
+@immutable
 class Person {
   final String id;
   final bool isDeleted;

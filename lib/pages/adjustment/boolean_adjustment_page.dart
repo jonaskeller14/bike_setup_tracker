@@ -42,7 +42,7 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
   late TextEditingController _nameController;
   late TextEditingController _notesController;
 
-  bool? _previewValue = false;
+  BooleanValue? _previewValue = const BooleanValue(false);
   late BooleanAdjustment _previewAdjustment;
 
   @override
@@ -218,12 +218,12 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
                   child: SetBooleanAdjustmentWidget(
                     key: ValueKey(_previewAdjustment),
                     adjustment: _previewAdjustment,
-                    initialValue: false,
+                    initialValue: const BooleanValue(false),
                     value: _previewValue,
-                    onChanged: (bool? newValue) {
+                    onChanged: (BooleanValue? newValue) {
                       unawaited(HapticFeedback.lightImpact());
                       setState(() {
-                        _previewValue = newValue ?? false;
+                        _previewValue = newValue ?? const BooleanValue(false);
                       });
                     },
                     highlighting: false,

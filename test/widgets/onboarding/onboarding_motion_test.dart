@@ -154,7 +154,7 @@ void main() {
     double pressure() => tester
         .widget<DisplayNumericalAdjustmentWidget>(find.byType(DisplayNumericalAdjustmentWidget))
         .value!
-        .toDouble();
+        .value;
 
     await tester.pumpWidget(host(OnboardingSlide4(onNext: () {}, active: true)));
     await tester.pump();

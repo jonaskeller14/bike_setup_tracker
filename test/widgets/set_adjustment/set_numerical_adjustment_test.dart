@@ -8,7 +8,7 @@ void main() {
   const validValues = {"0.1", "-0.1", "-1", "1", ""};
   const invalidValues = {"1..1", "-1.1", "1.1", "."};
 
-  Widget buildWidget({required double? initialValue, required String? value, required Key formKey}) {
+  Widget buildWidget({required NumericalValue? initialValue, required NumericalValue? value, required Key formKey}) {
     return MaterialApp(
       theme: materialAppTheme,
       home: Scaffold(
@@ -32,19 +32,27 @@ void main() {
     );
   }
 
+  // Sets the raw field text directly, bypassing the input formatter, so
+  // malformed text reaches the validator.
+  Future<GlobalKey<FormState>> pumpWithText(WidgetTester tester, String text) async {
+    final formKey = GlobalKey<FormState>();
+    await tester.pumpWidget(buildWidget(initialValue: null, value: null, formKey: formKey));
+    tester.widget<TextFormField>(find.byType(TextFormField)).controller!.text = text;
+    await tester.pump();
+    return formKey;
+  }
+
   group("SetNumericalAdjustmentWidget", () {
     testWidgets("Form Validation with valid values", (WidgetTester tester) async {
       for (final value in validValues) {
-        final formKey = GlobalKey<FormState>();
-        await tester.pumpWidget(buildWidget(initialValue: null, value: value, formKey: formKey));
+        final formKey = await pumpWithText(tester, value);
         expect(formKey.currentState!.validate(), isTrue);
       }
     });
 
     testWidgets("Form Validation with invalid values", (WidgetTester tester) async {
       for (final value in invalidValues) {
-        final formKey = GlobalKey<FormState>();
-        await tester.pumpWidget(buildWidget(initialValue: null, value: value, formKey: formKey));
+        final formKey = await pumpWithText(tester, value);
         expect(formKey.currentState!.validate(), isFalse);
       }
     });
@@ -62,9 +70,9 @@ void main() {
 
     Widget buildPressure({
       required NumericalAdjustment adjustment,
-      required double? initialValue,
-      required String? value,
-      required ValueChanged<String> onChanged,
+      required NumericalValue? initialValue,
+      required NumericalValue? value,
+      required ValueChanged<NumericalValue?> onChanged,
       required Key formKey,
     }) {
       return MaterialApp(
@@ -102,7 +110,7 @@ void main() {
                   max: 20,
                 ),
                 initialValue: null,
-                value: '5',
+                value: const NumericalValue(5),
                 onChanged: (_) {},
               ),
             ),
@@ -115,16 +123,16 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('clicks'), findsOneWidget);
       final field = tester.widget<TextField>(find.byType(TextField));
-      expect(field.controller!.text, '5');
+      expect(field.controller!.text, '5.0');
     });
 
     testWidgets("toggle converts displayed text and reports storage-unit value", (tester) async {
       final formKey = GlobalKey<FormState>();
-      String? reported;
+      NumericalValue? reported;
       await tester.pumpWidget(buildPressure(
         adjustment: pressureAdjustment(),
         initialValue: null,
-        value: '65',
+        value: const NumericalValue(65),
         onChanged: (v) => reported = v,
         formKey: formKey,
       ));
@@ -148,15 +156,15 @@ void main() {
       // A fresh edit in bar reports the storage-unit (psi) value.
       await tester.enterText(find.byType(TextField), '5');
       await tester.pump();
-      expect(double.parse(reported!), closeTo(72.52, 0.05)); // 5 bar ≈ 72.5 psi
+      expect(reported!.value, closeTo(72.52, 0.05)); // 5 bar ≈ 72.5 psi
     });
 
     testWidgets("validation messages use converted bounds after toggle", (tester) async {
       final formKey = GlobalKey<FormState>();
       await tester.pumpWidget(buildPressure(
         adjustment: pressureAdjustment(min: 0, max: 100), // psi bounds
-        initialValue: 50,
-        value: '65',
+        initialValue: const NumericalValue(50),
+        value: const NumericalValue(65),
         onChanged: (_) {},
         formKey: formKey,
       ));
@@ -176,11 +184,11 @@ void main() {
 
     testWidgets("reset shows converted initial value in the active unit", (tester) async {
       final formKey = GlobalKey<FormState>();
-      String? reported;
+      NumericalValue? reported;
       await tester.pumpWidget(buildPressure(
         adjustment: pressureAdjustment(),
-        initialValue: 65, // stored in psi
-        value: '10',
+        initialValue: const NumericalValue(65), // stored in psi
+        value: const NumericalValue(10),
         onChanged: (v) => reported = v,
         formKey: formKey,
       ));
@@ -195,12 +203,12 @@ void main() {
       final field = tester.widget<TextField>(find.byType(TextField));
       expect(double.parse(field.controller!.text), closeTo(4.48, 0.01));
       // …while the reported storage value is the exact stored initial (psi).
-      expect(double.parse(reported!), closeTo(65, 0.0001));
+      expect(reported!.value, closeTo(65, 0.0001));
     });
   });
 
   group("SetNumericalAdjustmentWidget reset button visibility", () {
-    Widget buildWidget({required double? initialValue, required String? value, bool optional = false}) {
+    Widget buildWidget({required NumericalValue? initialValue, required NumericalValue? value, bool optional = false}) {
       return MaterialApp(
         theme: materialAppTheme,
         home: Scaffold(
@@ -223,27 +231,27 @@ void main() {
     }
 
     testWidgets("hidden when current value equals initial value", (tester) async {
-      await tester.pumpWidget(buildWidget(initialValue: 5, value: '5'));
+      await tester.pumpWidget(buildWidget(initialValue: const NumericalValue(5), value: const NumericalValue(5)));
       expect(find.byIcon(Icons.replay), findsNothing);
     });
 
-    testWidgets("hidden when '5' vs '5.0' (equal parsed value, different text)", (tester) async {
-      await tester.pumpWidget(buildWidget(initialValue: 5, value: '5.0'));
+    testWidgets("hidden when equal values arrive as distinct instances", (tester) async {
+      await tester.pumpWidget(buildWidget(initialValue: const NumericalValue(5), value: NumericalValue(double.parse('5.0'))));
       expect(find.byIcon(Icons.replay), findsNothing);
     });
 
     testWidgets("shown when current value differs from initial value", (tester) async {
-      await tester.pumpWidget(buildWidget(initialValue: 5, value: '6'));
+      await tester.pumpWidget(buildWidget(initialValue: const NumericalValue(5), value: const NumericalValue(6)));
       expect(find.byIcon(Icons.replay), findsOneWidget);
     });
 
     testWidgets("hidden for an optional field left empty", (tester) async {
-      await tester.pumpWidget(buildWidget(initialValue: 5, value: '', optional: true));
+      await tester.pumpWidget(buildWidget(initialValue: const NumericalValue(5), value: null, optional: true));
       expect(find.byIcon(Icons.replay), findsNothing);
     });
 
     testWidgets("shown for an optional field with a value entered", (tester) async {
-      await tester.pumpWidget(buildWidget(initialValue: 5, value: '6', optional: true));
+      await tester.pumpWidget(buildWidget(initialValue: const NumericalValue(5), value: const NumericalValue(6), optional: true));
       expect(find.byIcon(Icons.replay), findsOneWidget);
     });
   });

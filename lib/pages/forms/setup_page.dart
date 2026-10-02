@@ -4,12 +4,12 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart' as geo;
-import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
+import '../../models/attachment.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
 import '../../models/context/context_place.dart';
@@ -20,22 +20,23 @@ import '../../models/setup.dart';
 import '../../models/strava/strava_activity.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/address_service.dart';
+import '../../services/attachment_storage_service.dart';
 import '../../services/elevation_service.dart';
-import '../../services/image_storage_service.dart';
 import '../../services/location_service.dart';
 import '../../services/pressure_drift_service.dart';
 import '../../services/setup_resolution_service.dart';
 import '../../services/weather_service.dart';
 import '../../theme.dart';
+import '../../utils/attachment_actions.dart';
+import '../../utils/automation_ids.dart';
 import '../../widgets/app_snackbar.dart';
+import '../../widgets/attachment_strip.dart';
 import '../../widgets/chips/utils.dart';
 import '../../widgets/dialogs/confirmation.dart';
 import '../../widgets/dialogs/discard_changes.dart';
-import '../../widgets/image_strip.dart';
 import '../../widgets/pressure_drift_card.dart';
 import '../../widgets/setup_page_tab_bike.dart';
 import '../../widgets/setup_page_tab_person.dart';
-import '../../widgets/sheets/pick_image_source.dart';
 import '../../widgets/sheets/set_condition.dart';
 import '../../widgets/sheets/set_location_place.dart';
 import '../../widgets/sheets/set_tags.dart';
@@ -123,23 +124,25 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   late String? _initialPerson;
   String? _linkedPerson;
     
-  List<String> _images = [];
-  List<String> _initialImages = [];
-  String? _imagesDirPath;
+  List<Attachment> _attachments = [];
+  List<Attachment> _initialAttachments = [];
+  String? _attachmentsDirPath;
+  final List<Attachment> _importedAttachments = [];
+  List<Attachment>? _savedAttachments;
 
   late DateTime _selectedDateTimeUtc;
   late DateTime _initialDateTimeUtc;
   late DateTime _selectedDateTimeLocal;
   late DateTime _initialDateTimeLocal;
 
-  final Map<String, dynamic> _bikeAdjustmentValues = {};
-  final Map<String, dynamic> _personAdjustmentValues = {};
-  final Map<String, dynamic> _initialBikeAdjustmentValues = {};
-  final Map<String, dynamic> _initialPersonAdjustmentValues = {};
-  final Map<String, dynamic> _previousBikeAdjustmentValues = {};
-  final Map<String, dynamic> _previousPersonAdjustmentValues = {};
-  final Map<String, dynamic> _danglingBikeAdjustmentValues = {};
-  final Map<String, dynamic> _danglingPersonAdjustmentValues = {};
+  final Map<String, AdjustmentValue> _bikeAdjustmentValues = {};
+  final Map<String, AdjustmentValue> _personAdjustmentValues = {};
+  final Map<String, AdjustmentValue> _initialBikeAdjustmentValues = {};
+  final Map<String, AdjustmentValue> _initialPersonAdjustmentValues = {};
+  final Map<String, AdjustmentValue> _previousBikeAdjustmentValues = {};
+  final Map<String, AdjustmentValue> _previousPersonAdjustmentValues = {};
+  final Map<String, AdjustmentValue> _danglingBikeAdjustmentValues = {};
+  final Map<String, AdjustmentValue> _danglingPersonAdjustmentValues = {};
 
   Map<String, AdjustmentProvenance>? _pressureDriftProvenance;
 
@@ -150,7 +153,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   final AddressService _addressService = AddressService();
   final ValueNotifier<geo.Placemark?> _currentPlace = ValueNotifier<geo.Placemark?>(null);
 
-  final WeatherService _weatherService = WeatherService();
+  final WeatherService _weatherService = createWeatherService();
   final ValueNotifier<ContextWeather?> _currentWeather = ValueNotifier<ContextWeather?>(null);
 
   @override
@@ -176,18 +179,18 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     _currentWeather.value = widget.setup?.weather;
 
     final appRepository = context.read<AppRepository>();
-    _tags.addAll(widget.setup?.tags ?? appRepository.selectedSetupTags);
+    _tags.addAll(widget.setup?.tags ?? appRepository.filters.setup.tags);
     _initialTags = _tags;
 
-    _isBookmarked = widget.setup?.isBookmarked ?? appRepository.showBookmarkedSetupsOnly;
+    _isBookmarked = widget.setup?.isBookmarked ?? appRepository.filters.setup.bookmarkedOnly;
     _initialIsBookmarked = _isBookmarked;
 
-    _images = List.from(widget.setup?.images ?? []);
-    _initialImages = List.from(_images);
-    unawaited(_initImagesDir());
+    _attachments = List.from(widget.setup?.attachments ?? []);
+    _initialAttachments = List.from(_attachments);
+    unawaited(_initAttachmentsDir());
 
     final bikes = appRepository.bikes;
-    _initialBike = widget.setup?.bike ?? widget.initialBike?.id ?? appRepository.filteredBikes.keys.firstOrNull ?? '';
+    _initialBike = widget.setup?.bike ?? widget.initialBike?.id ?? appRepository.view.bikes.keys.firstOrNull ?? '';
 
     _initialPerson = widget.setup?.person ?? bikes[_initialBike]?.person;
 
@@ -263,7 +266,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     for (final bikeComponent in bikeComponents) {
       for (final adj in bikeComponent.adjustments) {
         if (historicalState.containsKey(adj.id)) {
-          _previousBikeAdjustmentValues[adj.id] = historicalState[adj.id];
+          _previousBikeAdjustmentValues[adj.id] = historicalState[adj.id]!;
         }
       }
     }
@@ -274,7 +277,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       if (person != null) {
         for (final adj in person.adjustments) {
           if (historicalState.containsKey(adj.id)) {
-             _previousPersonAdjustmentValues[adj.id] = historicalState[adj.id];
+             _previousPersonAdjustmentValues[adj.id] = historicalState[adj.id]!;
           }
         }
       }
@@ -410,53 +413,43 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     _changeListener();
   }
 
-  Future<void> _initImagesDir() async {
-    final path = await ImageStorageService().getImagesPath();
+  Future<void> _initAttachmentsDir() async {
+    final path = await AttachmentStorageService().getAttachmentsPath();
     if (!mounted) return;
-    setState(() => _imagesDirPath = path);
+    setState(() => _attachmentsDirPath = path);
   }
 
-  void _onImagesAdded(List<String> newFilenames) {
-    setState(() => _images.addAll(newFilenames));
+  void _onAttachmentsAdded(List<Attachment> newAttachments) {
+    _importedAttachments.addAll(newAttachments);
+    setState(() => _attachments.addAll(newAttachments));
     _changeListener();
   }
 
-  Future<void> _addImages() async {
-    final picker = ImagePicker();
-    final source = await showPickImageSourceSheet(context);
-    if (source == null) return;
-    final service = ImageStorageService();
-    if (source == ImageSource.camera) {
-      final picked = await picker.pickImage(source: ImageSource.camera, preferredCameraDevice: CameraDevice.rear);
-      if (picked == null) return;
-      _onImagesAdded([await service.importImage(picked)]);
-    } else {
-      final picked = await picker.pickMultiImage();
-      if (picked.isEmpty) return;
-      final filenames = <String>[];
-      for (final x in picked) {
-        filenames.add(await service.importImage(x));
-      }
-      _onImagesAdded(filenames);
-    }
+  Future<void> _addAttachments() async {
+    final attachments = await AttachmentActions.pickAttachments(context);
+    if (attachments.isEmpty || !mounted) return;
+    _onAttachmentsAdded(attachments);
   }
 
-  void _onImageRemoved(int index) {
-    setState(() => _images.removeAt(index));
+  void _onAttachmentRemoved(int index) {
+    setState(() => _attachments.removeAt(index));
     _changeListener();
   }
 
-  void _onImageReorder(int oldIndex, int newIndex) {
+  void _onAttachmentRenamed(int index, String name) {
+    setState(() => _attachments[index] = _attachments[index].copyWith(name: name));
+    _changeListener();
+  }
+
+  void _onAttachmentReorder(int oldIndex, int newIndex) {
     setState(() {
-      final item = _images.removeAt(oldIndex);
-      _images.insert(newIndex, item);
+      final item = _attachments.removeAt(oldIndex);
+      _attachments.insert(newIndex, item);
     });
     _changeListener();
   }
 
   void _changeListener() {
-    const equality = DeepCollectionEquality();
-
     final hasChanges = _nameController.text.trim() != (widget.setup?.name ?? '') ||
         _notesController.text.trim() != (widget.setup?.notes ?? '') || 
         _initialDateTimeUtc != _selectedDateTimeUtc || 
@@ -471,9 +464,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         _bike != _initialBike || 
         _person != _initialPerson ||
 
-        !equality.equals(_bikeAdjustmentValues, _initialBikeAdjustmentValues) ||
-        !equality.equals(_personAdjustmentValues, _initialPersonAdjustmentValues) ||
-        !listEquals(_images, _initialImages);
+        !mapEquals(_bikeAdjustmentValues, _initialBikeAdjustmentValues) ||
+        !mapEquals(_personAdjustmentValues, _initialPersonAdjustmentValues) ||
+        !listEquals(_attachments, _initialAttachments);
 
     if (_formHasChanges != hasChanges) {
       setState(() {
@@ -498,16 +491,17 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     _currentLocation.dispose();
     _currentPlace.dispose();
     _currentWeather.dispose();
+    // Files imported here but not saved with the setup would be left unlinked.
+    unawaited(AttachmentActions.deleteUnsaved(_importedAttachments, saved: _savedAttachments));
     super.dispose();
   }
 
   Future<void> _resetValuesIfPreviousSetupChanged({
-    required Map<String, dynamic> previousBikeAdjustmentValues,
-    required Map<String, dynamic> previousPersonAdjustmentValues,
+    required Map<String, AdjustmentValue> previousBikeAdjustmentValues,
+    required Map<String, AdjustmentValue> previousPersonAdjustmentValues,
   }) async {
-    const mapEquality = DeepCollectionEquality();
-    if (mapEquality.equals(_previousBikeAdjustmentValues, previousBikeAdjustmentValues) &&
-        mapEquality.equals(_previousPersonAdjustmentValues, previousPersonAdjustmentValues)) {
+    if (mapEquals(_previousBikeAdjustmentValues, previousBikeAdjustmentValues) &&
+        mapEquals(_previousPersonAdjustmentValues, previousPersonAdjustmentValues)) {
       return;
     }
 
@@ -525,8 +519,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   }
 
   Future<void> _pickDate() async {
-    final tmpPreviousBikeAdjustmentValues = Map<String, dynamic>.from(_previousBikeAdjustmentValues);
-    final tmpPreviousPersonAdjustmentValues = Map<String, dynamic>.from(_previousPersonAdjustmentValues);
+    final tmpPreviousBikeAdjustmentValues = Map<String, AdjustmentValue>.from(_previousBikeAdjustmentValues);
+    final tmpPreviousPersonAdjustmentValues = Map<String, AdjustmentValue>.from(_previousPersonAdjustmentValues);
 
     final pickedDate = await showDatePicker(
       context: context,
@@ -567,8 +561,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   }
     
   Future<void> _pickTime() async {
-    final tmpPreviousBikeAdjustmentValues = Map<String, dynamic>.from(_previousBikeAdjustmentValues);
-    final tmpPreviousPersonAdjustmentValues = Map<String, dynamic>.from(_previousPersonAdjustmentValues);
+    final tmpPreviousBikeAdjustmentValues = Map<String, AdjustmentValue>.from(_previousBikeAdjustmentValues);
+    final tmpPreviousPersonAdjustmentValues = Map<String, AdjustmentValue>.from(_previousPersonAdjustmentValues);
 
     final TimeOfDay? pickedTime = await showTimePicker(
       context: context,
@@ -715,6 +709,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
     _formHasChanges = false;
     if (!mounted) return;
+    _savedAttachments = _attachments;
     Navigator.pop(
       context,
       Setup(
@@ -729,22 +724,22 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         isBookmarked: _isBookmarked,
         bike: _bike,
         person: _person,
-        bikeAdjustmentValues: _bikeAdjustmentValues,
-        personAdjustmentValues: _personAdjustmentValues,
+        bikeAdjustmentValues: Map.of(_bikeAdjustmentValues),
+        personAdjustmentValues: Map.of(_personAdjustmentValues),
         position: _currentLocation.value,
         place: _currentPlace.value,
         weather: _currentWeather.value,
-        images: _images,
+        attachments: _attachments,
       ),
     );
   }
 
-  void _onBikeAdjustmentValueChanged({required Adjustment adjustment, required dynamic newValue}) {
+  void _onBikeAdjustmentValueChanged({required Adjustment adjustment, required AdjustmentValue newValue}) {
     _bikeAdjustmentValues[adjustment.id] = newValue;
     _changeListener();
   }
 
-  void _onPersonAdjustmentValueChanged({required Adjustment adjustment, required dynamic newValue}) {
+  void _onPersonAdjustmentValueChanged({required Adjustment adjustment, required AdjustmentValue newValue}) {
     _personAdjustmentValues[adjustment.id] = newValue;
     _changeListener();
   }
@@ -838,9 +833,11 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       builder: (context, child) { 
         return Wrap(
           spacing: 8.0,
-          runSpacing: 4.0,
+          runSpacing: 8.0,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             ActionChip(
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               avatar: const Icon(Icons.calendar_month),
               label: Text(
                 DateFormat(appSettings.dateFormat).format(_selectedDateTimeLocal),
@@ -851,6 +848,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
               onPressed: _pickDate,
             ),
             ActionChip(
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               avatar: const Icon(Icons.access_time),
               label: Text(
                 DateFormat(appSettings.timeFormat).format(_selectedDateTimeLocal),
@@ -861,6 +859,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
               onPressed: _pickTime,
             ),
             ActionChip(
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               backgroundColor: widget.mode == SetupPageMode.edit && (!ContextPosition.equal(_currentLocation.value, widget.setup?.position) || !ContextPlace.equal(_currentPlace.value, widget.setup?.place))
                   ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
                   : null,
@@ -945,6 +944,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
               }
             ),
             ActionChip(
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               avatar: switch (_weatherService.status) {
                 WeatherIdle() => Icon(_currentWeather.value?.getIconData() ?? Icons.cloudy_snowing),
                 WeatherSearching() => const Icon(Icons.cloudy_snowing),
@@ -978,6 +978,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                     },
             ),
             ActionChip(
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               avatar: Icon(_currentWeather.value?.condition?.iconData ?? Icons.edit_road, color: _currentWeather.value?.condition?.color),
               label: _weatherService.status is WeatherSearching
                 ? const ChipLoadingIndicator()
@@ -1002,10 +1003,29 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                       },
               ),
             ),
+            if (appSettings.enableSetupBookmark)
+              FilterChip(
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                label: const SizedBox.shrink(),
+                labelPadding: const EdgeInsets.symmetric(vertical: 2),
+                padding: EdgeInsets.zero,
+                avatar: Icon(_isBookmarked ? Icons.bookmark : Icons.bookmark_border),
+                tooltip: _isBookmarked ? 'Remove Bookmark' : 'Bookmark',
+                showCheckmark: false,
+                selected: _isBookmarked,
+                backgroundColor: widget.mode == SetupPageMode.edit && _isBookmarked != _initialIsBookmarked
+                    ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
+                    : null,
+                onSelected: (bool selected) {
+                  setState(() => _isBookmarked = selected);
+                  _changeListener();
+                },
+              ),
             if (appSettings.enableSetupTags) ... [
               ..._tags.map((tag) => FilterChip(
                 avatar: const Icon(Icons.tag),
                   showCheckmark: false,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   selected: widget.mode != SetupPageMode.edit,
                   label: Text(tag), 
                   onSelected: (_) {
@@ -1021,43 +1041,41 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                       : null,
                 ),
               ),
-              ActionChip(
-                avatar: const Icon(Icons.add),
-                label: const Text("Tags"),
-                onPressed: () async {
-                  await showSetTagsSheet(
-                    context: context, 
-                    tags: _tags,
-                    title: 'Add Tags',
-                    subtitle: "Use tags to group and organize your setups. For example, to categorize by specific test sessions, tracks, or terrains.",
-                    onChanged: (Set<String> newTags) {
-                      setState(() => _tags = newTags);
-                      _changeListener();
-                    },
-                  );
-                },
+              Semantics(
+                container: true,
+                identifier: AutomationIds.setupFormAddTags,
+                child: ActionChip(
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  label: const SizedBox.shrink(),
+                  labelPadding: const EdgeInsets.symmetric(vertical: 2),
+                  padding: EdgeInsets.zero,
+                  avatar: const Icon(Icons.tag),
+                  tooltip: 'Add Tags',
+                  onPressed: () async {
+                    await showSetTagsSheet(
+                      context: context,
+                      tags: _tags,
+                      availableTags: context.read<AppRepository>().setupTags,
+                      title: 'Add Tags',
+                      subtitle: "Use tags to group and organize your setups. For example, to categorize by specific test sessions, tracks, or terrains.",
+                      onChanged: (Set<String> newTags) {
+                        setState(() => _tags = newTags);
+                        _changeListener();
+                      },
+                    );
+                  },
+                ),
               ),
             ],
-            if (appSettings.enableSetupImages && _imagesDirPath != null)
+            if (appSettings.enableAttachments && _attachmentsDirPath != null)
               ActionChip(
-                avatar: const Icon(Icons.add_photo_alternate_outlined),
-                label: const Text('Image'),
-                onPressed: _addImages,
-              ),
-            if (appSettings.enableSetupBookmark)
-              FilterChip(
-                label: const Text("Bookmark"),
-                avatar: Icon(_isBookmarked ? Icons.bookmark : Icons.bookmark_border),
-                tooltip: _isBookmarked ? 'Remove Bookmark' : 'Bookmark',
-                showCheckmark: false,
-                selected: _isBookmarked,
-                backgroundColor: widget.mode == SetupPageMode.edit && _isBookmarked != _initialIsBookmarked
-                    ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
-                    : null,
-                onSelected: (bool selected) {
-                  setState(() => _isBookmarked = selected);
-                  _changeListener();
-                },
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                label: const SizedBox.shrink(),
+                labelPadding: const EdgeInsets.symmetric(vertical: 2),
+                padding: EdgeInsets.zero,
+                avatar: const Icon(Icons.attach_file),
+                tooltip: 'Add Attachment',
+                onPressed: _addAttachments,
               ),
           ],
         );
@@ -1220,22 +1238,31 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _nameTextFormField(),
+                        Semantics(
+                          container: true,
+                          identifier: AutomationIds.setupFormName,
+                          child: _nameTextFormField(),
+                        ),
                         const SizedBox(height: 12),
-                        _notesTextFormField(),
+                        Semantics(
+                          container: true,
+                          identifier: AutomationIds.setupFormNotes,
+                          child: _notesTextFormField(),
+                        ),
                         const SizedBox(height: 12),
                         _wrap(),
-                        if (context.read<AppSettings>().enableSetupImages && _imagesDirPath != null && _images.isNotEmpty) ...[
+                        if (context.read<AppSettings>().enableAttachments && _attachmentsDirPath != null && _attachments.isNotEmpty) ...[
                           const SizedBox(height: 12),
-                          ImageStrip(
-                            images: _images,
-                            imagesDir: _imagesDirPath!,
-                            mode: ImageStripMode.edit,
-                            onRemove: _onImageRemoved,
-                            onReorder: _onImageReorder,
+                          AttachmentStrip(
+                            attachments: _attachments,
+                            attachmentsDir: _attachmentsDirPath!,
+                            mode: AttachmentStripMode.edit,
+                            onRemove: _onAttachmentRemoved,
+                            onReorder: _onAttachmentReorder,
+                            onRename: _onAttachmentRenamed,
                           ),
                         ],
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 18),
                         _bikeField(bikes: bikes),
                         const SizedBox(height: 12),
                       ],

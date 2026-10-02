@@ -1,16 +1,23 @@
+import 'dart:async';
+
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../icons/simple_icons.dart';
 import '../../models/app_settings.dart';
+import '../../models/attachment.dart';
 import '../../models/bike.dart';
 import '../../models/component_stats.dart';
 import '../../models/person.dart';
 import '../../models/strava/strava_gear.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/attachment_storage_service.dart';
 import '../../services/subscription_service.dart';
 import '../../theme.dart';
+import '../../utils/attachment_actions.dart';
+import '../../widgets/attachment_strip.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/sheets/set_initial_stats.dart';
 
@@ -58,6 +65,11 @@ class _BikePageState extends State<BikePage> {
 
   late ComponentStats _initialStats;
 
+  List<Attachment> _attachments = [];
+  String? _attachmentsDirPath;
+  final List<Attachment> _importedAttachments = [];
+  List<Attachment>? _savedAttachments;
+
   @override
   void initState() {
     super.initState();
@@ -81,7 +93,42 @@ class _BikePageState extends State<BikePage> {
 
     _initialStats = widget.bike?.initialStats ?? ComponentStats.zero;
 
+    _attachments = List.from(widget.bike?.attachments ?? []);
+    if (context.read<AppSettings>().enableAttachments) unawaited(_initAttachmentsDir());
+
     if (widget.mode != BikePageMode.add) _expanded = true;
+  }
+
+  Future<void> _initAttachmentsDir() async {
+    final path = await AttachmentStorageService().getAttachmentsPath();
+    if (!mounted) return;
+    setState(() => _attachmentsDirPath = path);
+  }
+
+  Future<void> _addAttachments() async {
+    final attachments = await AttachmentActions.pickAttachments(context);
+    if (attachments.isEmpty || !mounted) return;
+    _importedAttachments.addAll(attachments);
+    setState(() => _attachments.addAll(attachments));
+    _changeListener();
+  }
+
+  void _onAttachmentRemoved(int index) {
+    setState(() => _attachments.removeAt(index));
+    _changeListener();
+  }
+
+  void _onAttachmentRenamed(int index, String name) {
+    setState(() => _attachments[index] = _attachments[index].copyWith(name: name));
+    _changeListener();
+  }
+
+  void _onAttachmentReorder(int oldIndex, int newIndex) {
+    setState(() {
+      final item = _attachments.removeAt(oldIndex);
+      _attachments.insert(newIndex, item);
+    });
+    _changeListener();
   }
 
   void _changeListener() {
@@ -89,7 +136,8 @@ class _BikePageState extends State<BikePage> {
         _notesController.text.trim() != (widget.bike?.notes ?? '') ||
         _person != _initialPerson || 
         _stravaGear != _initialStravaGear ||
-        _initialStats != (widget.bike?.initialStats ?? ComponentStats.zero);
+        _initialStats != (widget.bike?.initialStats ?? ComponentStats.zero) ||
+        !listEquals(_attachments, widget.bike?.attachments ?? const []);
     if (_formHasChanges != hasChanges) {
       setState(() {
         _formHasChanges = hasChanges;
@@ -103,6 +151,8 @@ class _BikePageState extends State<BikePage> {
     _nameController.dispose();
     _notesController.removeListener(_changeListener);
     _notesController.dispose();
+    // Files imported here but not saved with the bike would be left unlinked.
+    unawaited(AttachmentActions.deleteUnsaved(_importedAttachments, saved: _savedAttachments));
     super.dispose();
   }
 
@@ -114,6 +164,7 @@ class _BikePageState extends State<BikePage> {
     final name = _nameController.text.trim();
     final notes = _notesController.text.trim();
     _formHasChanges = false;
+    _savedAttachments = _attachments;
 
     Navigator.pop(context, Bike(
       id: widget.mode == BikePageMode.edit ? widget.bike!.id : null, 
@@ -123,6 +174,7 @@ class _BikePageState extends State<BikePage> {
       stravaGear: _stravaGear,
       orderIndex: widget.bike?.orderIndex ?? 0,
       initialStats: _initialStats,
+      attachments: _attachments,
     ));
   }
 
@@ -252,6 +304,7 @@ class _BikePageState extends State<BikePage> {
     final appSettings = context.watch<AppSettings>();
     final summary = initialStatsSummary(_initialStats, appSettings);
     return FilterChip(
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       avatar: const Icon(Icons.start),
       showCheckmark: false,
       selected: widget.mode != BikePageMode.edit && _initialStats != ComponentStats.zero,
@@ -264,6 +317,21 @@ class _BikePageState extends State<BikePage> {
           ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
           : null,
       onSelected: (_) => _editInitialStats(),
+    );
+  }
+
+  Widget _attachChip() {
+    return ActionChip(
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      label: const SizedBox.shrink(),
+      labelPadding: const EdgeInsets.symmetric(vertical: 2),
+      padding: EdgeInsets.zero,
+      avatar: const Icon(Icons.attach_file),
+      tooltip: 'Add Attachment',
+      backgroundColor: widget.mode == BikePageMode.edit && !listEquals(_attachments, widget.bike!.attachments)
+          ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
+          : null,
+      onPressed: _addAttachments,
     );
   }
 
@@ -337,6 +405,8 @@ class _BikePageState extends State<BikePage> {
     final existingBikes = appRepository.bikes;
     final persons = appRepository.persons;
     final stravaGears = appRepository.stravaGears;
+    final showInitialStats = appSettings.enableStrava && subscriptionService.hasStravaEntitlement;
+    final showAttachments = appSettings.enableAttachments && _attachmentsDirPath != null;
 
     return PopScope( 
       canPop: !_formHasChanges,
@@ -392,11 +462,30 @@ class _BikePageState extends State<BikePage> {
                     child: Column(
                       children: [
                         _notesField(),
-                        if (appSettings.enableStrava && subscriptionService.hasStravaEntitlement) ...[
+                        if (showInitialStats || showAttachments) ...[
                           const SizedBox(height: 12),
                           Align(
                             alignment: Alignment.centerLeft,
-                            child: _initialStatsChip(),
+                            child: Wrap(
+                              spacing: 8.0,
+                              runSpacing: 8.0,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              children: [
+                                if (showInitialStats) _initialStatsChip(),
+                                if (showAttachments) _attachChip(),
+                              ],
+                            ),
+                          ),
+                        ],
+                        if (showAttachments && _attachments.isNotEmpty) ...[
+                          const SizedBox(height: 12),
+                          AttachmentStrip(
+                            attachments: _attachments,
+                            attachmentsDir: _attachmentsDirPath!,
+                            mode: AttachmentStripMode.edit,
+                            onRemove: _onAttachmentRemoved,
+                            onReorder: _onAttachmentReorder,
+                            onRename: _onAttachmentRenamed,
                           ),
                         ],
                       ],

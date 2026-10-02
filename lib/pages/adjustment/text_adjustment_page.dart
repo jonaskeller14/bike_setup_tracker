@@ -39,7 +39,7 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
   late TextEditingController _nameController;
   late TextEditingController _notesController;
 
-  String _previewValue = '';
+  TextValue? _previewValue;
   late TextAdjustment _previewAdjustment;
 
   @override
@@ -216,7 +216,7 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
                     adjustment: _previewAdjustment,
                     initialValue: null,
                     value: _previewValue,
-                    onChanged: (String newValue) {
+                    onChanged: (TextValue? newValue) {
                       setState(() {
                         _previewValue = newValue;
                       });

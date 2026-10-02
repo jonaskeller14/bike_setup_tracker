@@ -39,7 +39,7 @@ void main() {
     });
 
     test('still accepts a legacy v1 payload (custom unit label)', () {
-      final adj = NumericalAdjustment.fromJson({
+      final adj = NumericalAdjustment.fromJson(const {
         'version': 1,
         'id': 'adj1',
         'name': 'Clicks',
@@ -54,7 +54,7 @@ void main() {
 
     test('guards against an unknown future version', () {
       expect(
-        () => NumericalAdjustment.fromJson({'version': 3, 'id': 'a', 'name': 'n', 'notes': null, 'unit': null}),
+        () => NumericalAdjustment.fromJson(const {'version': 3, 'id': 'a', 'name': 'n', 'notes': null, 'unit': null}),
         throwsException,
       );
     });

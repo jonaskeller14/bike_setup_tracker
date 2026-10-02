@@ -1,7 +1,10 @@
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
-import 'package:bike_setup_tracker/models/task/task_rule.dart';
+import 'package:bike_setup_tracker/models/filters/layer_filter.dart';
+import 'package:bike_setup_tracker/models/filters/local_date_range.dart';
+import 'package:bike_setup_tracker/models/filters/setup_filter.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/repositories/filter_controller.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/chips/filter_sheet_chip.dart';
@@ -17,6 +20,7 @@ class MockSubscriptionService extends Mock implements SubscriptionService {}
 
 void main() {
   late MockAppRepository mockRepository;
+  late FilterController filters;
   late MockSubscriptionService mockSubscription;
   late AppSettings appSettings;
   late Bike bike1;
@@ -29,22 +33,17 @@ void main() {
     bike1 = Bike(id: 'b1', name: 'Bike 1', person: 'P1');
 
     // Defaults: no bike selected, no tags. Individual tests override as needed.
-    when(() => mockRepository.selectedBike).thenReturn(null);
-    when(() => mockRepository.selectedSetupTags).thenReturn(<String>{});
-    when(() => mockRepository.showBookmarkedSetupsOnly).thenReturn(false);
-    when(() => mockRepository.selectedTaskRuleTags).thenReturn(<String>{});
-    when(() => mockRepository.selectedTaskPriorities).thenReturn(TaskPriority.values.toSet());
+    filters = FilterController(onChanged: () {});
+    when(() => mockRepository.filters).thenReturn(filters);
     when(() => mockRepository.bikes).thenReturn({'b1': bike1});
     when(() => mockSubscription.hasStravaEntitlement).thenReturn(false);
   });
 
-  void selectBike() {
-    when(() => mockRepository.selectedBike).thenReturn('b1');
-  }
+  void selectBike() => filters.toggleBike('b1');
 
-  void selectTags(Set<String> tags) {
-    when(() => mockRepository.selectedSetupTags).thenReturn(tags);
-  }
+  void selectTags(Set<String> tags) => filters.setup = filters.setup.copyWith(tags: tags);
+
+  void hideLayers(Set<TimelineLayer> layers) => filters.layers = LayerFilter(hidden: layers);
 
   Widget createWidgetUnderTest(FilterSheetChip chip) {
     return MultiProvider(
@@ -149,9 +148,7 @@ void main() {
     const bookmarkChip = FilterSheetChip.componentDetailsPage;
     setUp(() => appSettings.enableSetupBookmark = true);
 
-    void filterBookmarked() {
-      when(() => mockRepository.showBookmarkedSetupsOnly).thenReturn(true);
-    }
+    void filterBookmarked() => filters.setup = filters.setup.copyWith(bookmarkedOnly: true);
 
     testWidgets('shows "Bookmarked" when only bookmarked setups are shown', (tester) async {
       filterBookmarked();
@@ -175,8 +172,62 @@ void main() {
       filterBookmarked();
       await tester.pumpWidget(createWidgetUnderTest(bookmarkChip));
 
-      expect(find.text('All Bikes'), findsOneWidget);
+      // Not "All Bikes": debug builds also offer the date range on this page.
+      expect(find.text('Filter'), findsOneWidget);
       expect(find.text('Bookmarked'), findsNothing);
+    });
+  });
+
+  group('FilterSheetChip label — date range filter', () {
+    void selectDays() =>
+        filters.dateRange = LocalDateRange(start: DateTime(2024, 5, 10), end: DateTime(2024, 5, 12));
+
+    testWidgets('shows the range in the user\'s date format', (tester) async {
+      appSettings.dateFormat = 'dd.MM.yyyy';
+      selectDays();
+      await tester.pumpWidget(createWidgetUnderTest(FilterSheetChip.setupList));
+
+      expect(find.text('10.05.2024 – 12.05.2024'), findsOneWidget);
+    });
+
+    testWidgets('combines bike name, date range and tag count', (tester) async {
+      appSettings.enableSetupTags = true;
+      selectBike();
+      selectDays();
+      selectTags({'t1'});
+      await tester.pumpWidget(createWidgetUnderTest(FilterSheetChip.componentDetailsPage));
+
+      expect(find.text('Bike 1 + 2024-05-10 – 2024-05-12 + 1 Tag'), findsOneWidget);
+    });
+
+    testWidgets('ignores the range on a page without a date range section', (tester) async {
+      selectDays();
+      await tester.pumpWidget(createWidgetUnderTest(FilterSheetChip.taskList));
+
+      expect(find.text('Filter'), findsOneWidget);
+    });
+
+    testWidgets('a long label ellipsizes on a narrow screen', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(280, 600));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      appSettings.enableSetupTags = true;
+      selectBike();
+      selectDays();
+      selectTags({'t1', 't2'});
+      await tester.pumpWidget(createWidgetUnderTest(FilterSheetChip.setupList));
+
+      expect(tester.takeException(), null);
+      expect(find.text('Bike 1 + 2024-05-10 – 2024-05-12 + 2 Tags'), findsOneWidget);
+    });
+
+    testWidgets('resetting clears the range', (tester) async {
+      selectDays();
+      await tester.pumpWidget(createWidgetUnderTest(FilterSheetChip.map));
+
+      tester.widget<FilterChip>(find.byType(FilterChip)).onDeleted!();
+      await tester.pumpAndSettle();
+
+      expect(filters.dateRange, null);
     });
   });
 
@@ -190,7 +241,7 @@ void main() {
     });
 
     testWidgets('reports a hidden layer as an active filter', (tester) async {
-      appSettings.displayShowSetups = false;
+      hideLayers({TimelineLayer.setups});
       await tester.pumpWidget(createWidgetUnderTest(mapChip));
 
       expect(find.text('1 Filter'), findsOneWidget);
@@ -198,30 +249,173 @@ void main() {
 
     testWidgets('ignores hidden layers while no layer section is offered', (tester) async {
       appSettings.enableRating = false;
-      appSettings.displayShowSetups = false;
+      hideLayers({TimelineLayer.setups});
       await tester.pumpWidget(createWidgetUnderTest(mapChip));
 
       expect(find.text('Filter'), findsOneWidget);
       expect(find.text('1 Filter'), findsNothing);
     });
 
-    testWidgets('resetting clears the bike, tags, bookmark and hidden layers', (tester) async {
+    testWidgets('ignores a hidden layer the map does not show', (tester) async {
+      hideLayers({TimelineLayer.tasks, TimelineLayer.installations});
+      await tester.pumpWidget(createWidgetUnderTest(mapChip));
+
+      expect(find.text('Filter'), findsOneWidget);
+      expect(find.text('1 Filter'), findsNothing);
+    });
+
+    testWidgets('resetting clears the bike, tags, bookmark and hidden map layers', (tester) async {
       selectBike();
       selectTags({'t1'});
-      when(() => mockRepository.showBookmarkedSetupsOnly).thenReturn(true);
-      appSettings.displayShowSetups = false;
-      appSettings.displayShowRatingEntries = false;
+      filters.setup = filters.setup.copyWith(bookmarkedOnly: true);
+      hideLayers({TimelineLayer.setups, TimelineLayer.ratingEntries, TimelineLayer.tasks});
       await tester.pumpWidget(createWidgetUnderTest(mapChip));
 
       tester.widget<FilterChip>(find.byType(FilterChip)).onDeleted!();
       await tester.pumpAndSettle();
 
-      verify(() => mockRepository.onBikeTap(null)).called(1);
-      verify(mockRepository.deselectAllSetupTags).called(1);
-      verify(() => mockRepository.setShowBookmarkedSetupsOnly(false)).called(1);
-      expect(appSettings.displayShowSetups, true);
-      expect(appSettings.displayShowRatingEntries, true);
-      expect(appSettings.displayShowActivities, true);
+      expect(filters.bikeId, null);
+      expect(filters.setup, const SetupFilter());
+      // The timeline-only layer keeps its state.
+      expect(filters.layers, const LayerFilter(hidden: {TimelineLayer.tasks}));
+    });
+  });
+
+  group('FilterSheetChip — timeline layers', () {
+    const timelineChip = FilterSheetChip.setupList;
+    setUp(() => appSettings.enableTask = true);
+
+    testWidgets('reports a hidden layer as an active filter', (tester) async {
+      hideLayers({TimelineLayer.tasks});
+      await tester.pumpWidget(createWidgetUnderTest(timelineChip));
+
+      expect(find.text('1 Filter'), findsOneWidget);
+    });
+
+    testWidgets('ignores a hidden layer whose feature is off', (tester) async {
+      hideLayers({TimelineLayer.installations, TimelineLayer.ratingEntries, TimelineLayer.activities});
+      await tester.pumpWidget(createWidgetUnderTest(timelineChip));
+
+      expect(find.text('Filter'), findsOneWidget);
+      expect(find.text('1 Filter'), findsNothing);
+    });
+
+    testWidgets('resetting shows every layer again', (tester) async {
+      hideLayers({TimelineLayer.setups, TimelineLayer.tasks, TimelineLayer.installations});
+      await tester.pumpWidget(createWidgetUnderTest(timelineChip));
+
+      tester.widget<FilterChip>(find.byType(FilterChip)).onDeleted!();
+      await tester.pumpAndSettle();
+
+      expect(filters.layers, const LayerFilter());
+    });
+  });
+
+  group('FilterSheetChip — filter sheet', () {
+    setUp(() {
+      when(() => mockRepository.setupTags).thenReturn({'race'});
+      when(() => mockRepository.taskRuleTags).thenReturn({'service'});
+    });
+
+    Future<void> openSheet(WidgetTester tester, FilterSheetChip chip) async {
+      await tester.pumpWidget(createWidgetUnderTest(chip));
+      await tester.tap(find.byType(FilterChip));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('offers the enabled sections of the timeline preset', (tester) async {
+      appSettings.enableSetupTags = true;
+      appSettings.enableTask = true;
+      await openSheet(tester, FilterSheetChip.setupList);
+
+      expect(find.text('Bike'), findsOneWidget);
+      expect(find.text('Setup Tags'), findsOneWidget);
+      expect(find.text('race'), findsOneWidget);
+      expect(find.text('Visibility'), findsOneWidget);
+      expect(find.text('Tasks'), findsOneWidget);
+      expect(find.text('Installations'), findsNothing);
+      expect(find.text('Task Priority'), findsNothing);
+    });
+
+    testWidgets('titles the setup section "Setups" once bookmarks are on', (tester) async {
+      appSettings.enableSetupBookmark = true;
+      await openSheet(tester, FilterSheetChip.bikeDetailsPage);
+
+      expect(find.text('Setups'), findsOneWidget);
+      expect(find.text('Bookmarked'), findsOneWidget);
+      expect(find.text('race'), findsNothing);
+      expect(find.text('Bike'), findsNothing);
+    });
+
+    testWidgets('offers the task sections of the task preset', (tester) async {
+      appSettings.enableTaskTags = true;
+      await openSheet(tester, FilterSheetChip.taskList);
+
+      expect(find.text('Task Priority'), findsOneWidget);
+      expect(find.text('Task Tags'), findsOneWidget);
+      expect(find.text('service'), findsOneWidget);
+      expect(find.text('Visibility'), findsNothing);
+    });
+
+    testWidgets('labels the map activity layer with the Strava name', (tester) async {
+      when(() => mockSubscription.hasStravaEntitlement).thenReturn(true);
+      await openSheet(tester, FilterSheetChip.map);
+
+      expect(find.text('Strava Activities'), findsOneWidget);
+      expect(find.text('Tasks'), findsNothing);
+    });
+
+    testWidgets('offers the date range on the pages that show timeline entries', (tester) async {
+      for (final chip in [
+        FilterSheetChip.setupList,
+        FilterSheetChip.map,
+        FilterSheetChip.calendar,
+        FilterSheetChip.componentDetailsPage,
+      ]) {
+        await openSheet(tester, chip);
+        expect(find.text('Any date'), findsOneWidget);
+
+        await tester.pumpWidget(const SizedBox.shrink());
+      }
+    });
+
+    testWidgets('does not offer the date range on the other pages', (tester) async {
+      appSettings.enableSetupBookmark = true;
+      for (final chip in [FilterSheetChip.garageList, FilterSheetChip.taskList, FilterSheetChip.bikeDetailsPage]) {
+        await openSheet(tester, chip);
+        expect(find.text('Filter'), findsWidgets);
+        expect(find.text('Any date'), findsNothing);
+
+        await tester.pumpWidget(const SizedBox.shrink());
+      }
+    });
+
+    testWidgets('offers the activity ranges while Strava is active', (tester) async {
+      when(() => mockSubscription.hasStravaEntitlement).thenReturn(true);
+      await openSheet(tester, FilterSheetChip.setupList);
+
+      expect(find.text('Distance'), findsOneWidget);
+      expect(find.text('Elevation Gain'), findsOneWidget);
+    });
+
+    testWidgets('hides the activity ranges while Strava is not active', (tester) async {
+      appSettings.enableTask = true;
+      await openSheet(tester, FilterSheetChip.setupList);
+
+      expect(find.text('Visibility'), findsOneWidget);
+      expect(find.text('Distance'), findsNothing);
+      expect(find.text('Elevation Gain'), findsNothing);
+    });
+
+    testWidgets('a long-press isolates a layer', (tester) async {
+      appSettings.enableTask = true;
+      appSettings.enableInstallationTimeline = true;
+      await openSheet(tester, FilterSheetChip.setupList);
+
+      await tester.longPress(find.text('Tasks'));
+      await tester.pumpAndSettle();
+
+      expect(filters.layers, const LayerFilter(hidden: {TimelineLayer.setups, TimelineLayer.installations}));
     });
   });
 }

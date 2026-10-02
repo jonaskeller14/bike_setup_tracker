@@ -11,12 +11,14 @@ import '../icons/simple_icons.dart';
 import '../models/app_settings.dart';
 import '../models/component/component.dart';
 import '../models/component/installation.dart';
+import '../models/filters/layer_filter.dart';
 import '../models/rating/rating_entry.dart';
 import '../models/setup.dart';
 import '../models/timeline_entry.dart';
 import '../models/timeline_row.dart';
 import '../repositories/app_repository.dart';
 import '../services/subscription_service.dart';
+import '../utils/automation_ids.dart';
 import '../utils/installation_timeline_validation.dart';
 import '../utils/setup_actions.dart';
 import '../utils/timeline_grouping.dart';
@@ -241,25 +243,26 @@ class _CalendarPageState extends State<CalendarPage> {
     super.dispose();
   }
 
-  bool _showingStrava(AppSettings settings, SubscriptionService sub) =>
-      settings.displayShowActivities && settings.enableStrava && sub.hasStravaEntitlement;
+  bool _showingStrava(AppRepository appRepository, AppSettings appSettings, SubscriptionService subscriptionService) =>
+      appRepository.filters.layers.shows(TimelineLayer.activities) && appSettings.enableStrava && subscriptionService.hasStravaEntitlement;
 
   List<TimelineEntry> _buildEntries(
-    AppRepository repo,
-    AppSettings settings,
-    SubscriptionService sub,
+    AppRepository appRepository,
+    AppSettings appSettings,
+    SubscriptionService subscriptionService,
   ) {
+    final layers = appRepository.filters.layers;
     return [
-      if (settings.displayShowSetups)
-        ...repo.filteredSetups.values.map((s) => SetupEntry(s)),
-      if (_showingStrava(settings, sub))
-        ...repo.filteredStravaActivities.values.map((a) => StravaEntry(a)),
-      if (settings.displayShowTasks)
-        ...repo.filteredTaskEntries.values.map((t) => TaskTimeLineEntry(t)),
-      if (settings.displayShowInstallations)
-        ...repo.filteredInstallations.map((ci) => InstallationEntry(ci)),
-      if (settings.enableRating && settings.displayShowRatingEntries)
-        ...repo.filteredRatingEntries.values.map((re) => RatingEntryTimelineEntry(re)),
+      if (layers.shows(TimelineLayer.setups))
+        ...appRepository.view.setups.values.map((s) => SetupEntry(s)),
+      if (_showingStrava(appRepository, appSettings, subscriptionService))
+        ...appRepository.stravaActivities.values.map((a) => StravaEntry(a)),
+      if (layers.shows(TimelineLayer.tasks))
+        ...appRepository.view.taskEntries.values.map((t) => TaskTimeLineEntry(t)),
+      if (layers.shows(TimelineLayer.installations))
+        ...appRepository.view.installations.map((ci) => InstallationEntry(ci)),
+      if (appSettings.enableRating && layers.shows(TimelineLayer.ratingEntries))
+        ...appRepository.view.ratingEntries.values.map((re) => RatingEntryTimelineEntry(re)),
     ];
   }
 
@@ -273,7 +276,7 @@ class _CalendarPageState extends State<CalendarPage> {
     AppSettings settings,
     SubscriptionService sub,
   ) {
-    if (!settings.enableTaskDuePrediction || !settings.displayShowTasks) return const [];
+    if (!settings.enableTaskDuePrediction || !repo.filters.layers.shows(TimelineLayer.tasks)) return const [];
     final now = DateTime.now();
     final predicted = <CalendarPredictedTask>[];
     for (final open in repo.openTaskRules) {
@@ -304,7 +307,7 @@ class _CalendarPageState extends State<CalendarPage> {
     final repo = context.read<AppRepository>();
     final settings = context.read<AppSettings>();
     final sub = context.read<SubscriptionService>();
-    if (!_showingStrava(settings, sub)) return;
+    if (!_showingStrava(repo, settings, sub)) return;
     if (!repo.hasMoreStrava) return;
 
     final visibleStart = visibleDates.first;
@@ -679,12 +682,16 @@ class _CalendarPageState extends State<CalendarPage> {
               ),
             ),
             const SizedBox(width: 8),
-            ActionChip(
-              avatar: const Icon(Icons.today, size: 18),
-              label: const Text('Today'),
-              onPressed: _todayShown
-                  ? null
-                  : () => _controller.displayDate = DateTime.now(),
+            Semantics(
+              container: true,
+              identifier: AutomationIds.calendarToday,
+              child: ActionChip(
+                avatar: const Icon(Icons.today, size: 18),
+                label: const Text('Today'),
+                onPressed: _todayShown
+                    ? null
+                    : () => _controller.displayDate = DateTime.now(),
+              ),
             ),
             const SizedBox(width: 6),
             MenuAnchor(

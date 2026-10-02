@@ -15,8 +15,8 @@ import 'sheet_header.dart';
 
 final Map<ComponentType, List<Adjustment>> _adjustmentPresets = {
   ComponentType.frame: [
-    CategoricalAdjustment(name: "Flipchip", notes: "Controls geometry and bottom bracket height", unit: null, options: {"Low", "Mid", "High"}, presetKey: "frame:flipchip"),
-    CategoricalAdjustment(name: "Chainstay Length", notes: "Some bikes have a adjustable chainstay length", unit: null, options: {"Short", "Mid", "Long"}, presetKey: "frame:chainstay_length"),
+    CategoricalAdjustment(name: "Flipchip", notes: "Controls geometry and bottom bracket height", unit: null, options: const {"Low", "Mid", "High"}, presetKey: "frame:flipchip"),
+    CategoricalAdjustment(name: "Chainstay Length", notes: "Some bikes have an adjustable chainstay length", unit: null, options: const {"Short", "Mid", "Long"}, presetKey: "frame:chainstay_length"),
   ],
   ComponentType.fork: [
     BooleanAdjustment(name: "Lockout", unit: null, notes: "Is the lockout lever enabled?", presetKey: "fork:lockout"),
@@ -62,11 +62,11 @@ final Map<ComponentType, List<Adjustment>> _adjustmentPresets = {
   ],
   ComponentType.derailleur: [
     BooleanAdjustment(name: "Clutch", notes: "Is the derailleur clutch/stabilizer enabled?", unit: null, presetKey: "derailleur:clutch"),
-    CategoricalAdjustment(name: "Clutch Tension", options: {"Soft", "Medium", "Hard"}, notes: "Adjustable clutch tension for some derailleurs", unit: null, presetKey: "derailleur:clutch_tension"),
+    CategoricalAdjustment(name: "Clutch Tension", options: const {"Soft", "Medium", "Hard"}, notes: "Adjustable clutch tension for some derailleurs", unit: null, presetKey: "derailleur:clutch_tension"),
   ],
   ComponentType.pedal: [
     StepAdjustment(name: "Clipless Spring Tension", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Release tension setting for clipless pedals", presetKey: "pedal:spring_tension"),
-    CategoricalAdjustment(name: "Pin Arrangement", options: {"Full", "Aggressive", "Balanced", "Minimum"}, notes: "Pattern and arrangement of pins on platform pedals", unit: null, presetKey: "pedal:pin_arrangement"),
+    CategoricalAdjustment(name: "Pin Arrangement", options: const {"Full", "Aggressive", "Balanced", "Minimum"}, notes: "Pattern and arrangement of pins on platform pedals", unit: null, presetKey: "pedal:pin_arrangement"),
     NumericalAdjustment(name: "Pin Height", unit: AdjustmentUnit.fromLegacy("mm"), min: 0, notes: "Height of the pins above the pedal platform", presetKey: "pedal:pin_height"),
   ],
   ComponentType.brakeLever: [
@@ -78,16 +78,16 @@ final Map<ComponentType, List<Adjustment>> _adjustmentPresets = {
   ComponentType.wheelFront: [
     NumericalAdjustment(name: "Pressure", unit: AdjustmentUnit.fromLegacy("bar"), min: 0, notes: "Front tire pressure", presetKey: "wheel_front:pressure"),
     BooleanAdjustment(name: "Insert", unit: null, notes: "Tire insert installed?", presetKey: "wheel_front:insert"),
-    CategoricalAdjustment(name: "Wear", options: {"New", "Used", "Worn Out"}, unit: null, notes: "Current state of the tire tread", presetKey: "wheel_front:wear"),
+    CategoricalAdjustment(name: "Wear", options: const {"New", "Used", "Worn Out"}, unit: null, notes: "Current state of the tire tread", presetKey: "wheel_front:wear"),
   ],
   ComponentType.wheelRear: [
     NumericalAdjustment(name: "Tire Pressure", unit: AdjustmentUnit.fromLegacy("bar"), min: 0, notes: "Rear tire pressure", presetKey: "wheel_rear:tire_pressure"),
     BooleanAdjustment(name: "Insert", unit: null, notes: "Tire insert installed?", presetKey: "wheel_rear:insert"),
-    CategoricalAdjustment(name: "Tire Wear", options: {"New", "Used", "Worn Out"}, unit: null, notes: "Current state of the tire tread", presetKey: "wheel_rear:tire_wear"),
+    CategoricalAdjustment(name: "Tire Wear", options: const {"New", "Used", "Worn Out"}, unit: null, notes: "Current state of the tire tread", presetKey: "wheel_rear:tire_wear"),
   ],
   ComponentType.tire: [
     NumericalAdjustment(name: "Pressure", unit: AdjustmentUnit.fromLegacy("bar"), min: 0, notes: "Tire pressure", presetKey: "tire:pressure"),
-    CategoricalAdjustment(name: "Wear", options: {"New", "Used", "Worn Out"}, unit: null, notes: "Current state of the tire tread", presetKey: "tire:wear"),
+    CategoricalAdjustment(name: "Wear", options: const {"New", "Used", "Worn Out"}, unit: null, notes: "Current state of the tire tread", presetKey: "tire:wear"),
   ],
   ComponentType.saddle: [
     NumericalAdjustment(name: "Saddle Tilt", unit: AdjustmentUnit.fromLegacy("°"), notes: "Angle of the saddle relative to horizontal", presetKey: "saddle:saddle_tilt"),
@@ -100,13 +100,13 @@ final Map<ComponentType, List<Adjustment>> _adjustmentPresets = {
   ComponentType.motor: [
     NumericalAdjustment(name: "Max Power", unit: AdjustmentUnit.fromLegacy("W"), min: 0, notes: "Maximum motor power output", presetKey: "motor:max_power"),
     NumericalAdjustment(name: "Max Torque", unit: AdjustmentUnit.fromLegacy("Nm"), min: 0, notes: "Maximum motor torque", presetKey: "motor:max_torque"),
-    CategoricalAdjustment(name: "Mode", notes: "Current assistance level", unit: null, options: {"Eco", "Trail", "Turbo", "Boost", "Auto"}, presetKey: "motor:mode"),
+    CategoricalAdjustment(name: "Mode", notes: "Current assistance level", unit: null, options: const {"Eco", "Trail", "Turbo", "Boost", "Auto"}, presetKey: "motor:mode"),
   ],
   ComponentType.equipment: [
     BooleanAdjustment(name: "Backpack", notes: "Wearing a backpack? Yes/No", unit: null, presetKey: "equipment:backpack"),
-    CategoricalAdjustment(name: "Upper clothing layer 1", notes: "First clothing layer from inside (e.g. thermal shirt, ...)", unit: null, options: {"my Clothing Item A", "my Clothing Item B"}, presetKey: "equipment:upper_clothing_1"),
-    CategoricalAdjustment(name: "Upper clothing layer 2", notes: "Second clothing layer from inside (e.g. wind jacket, ...)", unit: null, options: {"my Clothing Item A", "my Clothing Item B"}, presetKey: "equipment:upper_clothing_2"),
-    CategoricalAdjustment(name: "Cleat Position", notes: "Shoe cleat fore/aft or lateral position", unit: null, options: {"Forward", "Neutral", "Rearward"}, presetKey: "equipment:cleat_position"),
+    CategoricalAdjustment(name: "Upper clothing layer 1", notes: "First clothing layer from inside (e.g. thermal shirt, ...)", unit: null, options: const {"my Clothing Item A", "my Clothing Item B"}, presetKey: "equipment:upper_clothing_1"),
+    CategoricalAdjustment(name: "Upper clothing layer 2", notes: "Second clothing layer from inside (e.g. wind jacket, ...)", unit: null, options: const {"my Clothing Item A", "my Clothing Item B"}, presetKey: "equipment:upper_clothing_2"),
+    CategoricalAdjustment(name: "Cleat Position", notes: "Shoe cleat fore/aft or lateral position", unit: null, options: const {"Forward", "Neutral", "Rearward"}, presetKey: "equipment:cleat_position"),
   ],
   ComponentType.other: [
     NumericalAdjustment(name: "Stack Height", unit: AdjustmentUnit.fromLegacy("mm"), min: 0, notes: "Height of spacers under the stem", presetKey: "other:stack_height"),

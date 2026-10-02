@@ -13,8 +13,8 @@ void main() {
           key: formKey,
           child: SetBooleanAdjustmentWidget(
             key: const ValueKey("BooleanAdjustment #1"),
-            initialValue: initialValue,
-            value: value,
+            initialValue: initialValue == null ? null : BooleanValue(initialValue),
+            value: value == null ? null : BooleanValue(value),
             onChanged: (_) {},
             adjustment: BooleanAdjustment(
               name: "BooleanAdjustment #1", 

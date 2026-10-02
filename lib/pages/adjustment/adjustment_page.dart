@@ -57,27 +57,31 @@ class _CollapsibleAdjustmentPreviewState extends State<CollapsibleAdjustmentPrev
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        InkWell(
-          onTap: () => setState(() => _expanded = !_expanded),
-          child: Container(
-            width: double.infinity,
-            color: theme.colorScheme.inverseSurface,
-            padding: EdgeInsets.fromLTRB(16, 8, 16, _expanded ? 8 : 8 + bottomInset),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                chevron,
-                Text(
-                  _expanded ? "Preview only — changes won’t be saved!" : 'Preview',
-                  style: TextStyle(
-                    color: theme.colorScheme.onInverseSurface,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
-                    letterSpacing: 0.5,
+        Material(
+          color: theme.colorScheme.inverseSurface,
+          child: InkWell(
+            onTap: () => setState(() => _expanded = !_expanded),
+            // The theme ripple is barely visible on the inverse surface.
+            splashColor: theme.colorScheme.onInverseSurface.withValues(alpha: 0.12),
+            highlightColor: theme.colorScheme.onInverseSurface.withValues(alpha: 0.08),
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(16, 8, 16, _expanded ? 8 : 8 + bottomInset),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  chevron,
+                  Text(
+                    _expanded ? "Preview only — changes won’t be saved!" : 'Preview',
+                    style: TextStyle(
+                      color: theme.colorScheme.onInverseSurface,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                      letterSpacing: 0.5,
+                    ),
                   ),
-                ),
-                chevron,
-              ],
+                  chevron,
+                ],
+              ),
             ),
           ),
         ),

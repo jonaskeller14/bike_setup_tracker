@@ -1,8 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
+import '../attachment.dart';
 import '../component_stats.dart';
 import 'task_association.dart';
 
+@immutable
 class TaskEntry {
   final String id;
   final bool isDeleted;
@@ -14,6 +17,7 @@ class TaskEntry {
   final String taskRule;
   final TaskAssociation association;
   final ComponentStats? snapshot;
+  final List<Attachment> attachments;
 
   TaskEntry({
     String? id,
@@ -26,14 +30,16 @@ class TaskEntry {
     required this.taskRule,
     this.association = const GeneralTaskAssociation(),
     this.snapshot,
+    List<Attachment>? attachments,
   })
     : id = id ?? const Uuid().v4(),
+      attachments = attachments ?? const [],
       isDeleted = isDeleted ?? false,
       lastModified = lastModified?.toUtc() ?? DateTime.now().toUtc(),
       dateTimeUTC = dateTimeUTC.toUtc();
   
   Map<String, dynamic> toJson() => {
-    'version': 2,
+    'version': 3,
     'id': id,
     "isDeleted": isDeleted,
     "lastModified": lastModified.toUtc().toIso8601String(),
@@ -44,6 +50,7 @@ class TaskEntry {
     'taskRule': taskRule,
     'association': association.toJson(),
     'snapshot': snapshot?.toJson(),
+    'attachments': attachments.map((a) => a.toJson()).toList(),
   };
 
   factory TaskEntry.fromJson(Map<String, dynamic> json) {
@@ -53,7 +60,7 @@ class TaskEntry {
           componentId: json['componentId'] as String?,
           bikeId: json['bikeId'] as String?,
         ),
-      2 => TaskAssociation.fromJson(json['association'] as Map<String, dynamic>),
+      2 || 3 => TaskAssociation.fromJson(json['association'] as Map<String, dynamic>),
       _ => throw Exception("Json Version $version of TaskEntry incompatible."),
     };
     return TaskEntry(
@@ -69,6 +76,9 @@ class TaskEntry {
         snapshot: json['snapshot'] != null 
             ? ComponentStats.fromJson(json['snapshot'] as Map<String, dynamic>) 
             : null,
+        attachments: (json['attachments'] as List?) // since version 3
+            ?.map((e) => Attachment.fromJson(e as Map<String, dynamic>))
+            .toList(),
     );
   }
 
@@ -86,7 +96,8 @@ class TaskEntry {
         dateTimeLocal == other.dateTimeLocal && 
         taskRule == other.taskRule &&
         association == other.association &&
-        snapshot == other.snapshot;
+        snapshot == other.snapshot &&
+        listEquals(attachments, other.attachments);
   }
 
   @override
@@ -102,6 +113,7 @@ class TaskEntry {
       taskRule,
       association,
       snapshot,
+      Object.hashAll(attachments),
     ]);
   }
 
@@ -116,6 +128,7 @@ class TaskEntry {
     Object? taskRule = const _Sentinel(),
     Object? association = const _Sentinel(),
     Object? snapshot = const _Sentinel(),
+    Object? attachments = const _Sentinel(),
   }) {
     return TaskEntry(
       id: id is _Sentinel
@@ -148,6 +161,9 @@ class TaskEntry {
       snapshot: snapshot is _Sentinel
           ? this.snapshot
           : (snapshot as ComponentStats?),
+      attachments: attachments is _Sentinel
+          ? this.attachments
+          : (attachments as List<Attachment>),
     );
   }
 }

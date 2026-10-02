@@ -11,6 +11,7 @@ import '../models/setup.dart';
 import '../models/task/task_rule.dart';
 import '../models/timeline_selection.dart';
 import '../repositories/app_repository.dart';
+import '../utils/automation_ids.dart';
 import '../utils/bike_actions.dart';
 import '../utils/person_actions.dart';
 import '../utils/rating_actions.dart';
@@ -114,13 +115,13 @@ class _HomePageState extends State<HomePage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final appRepository = context.read<AppRepository>();
-    _taskRuleSelection.retainWhere(appRepository.filteredTaskRules.containsKey);
-    _bikeSelection.retainWhere(appRepository.filteredBikes.containsKey);
+    _taskRuleSelection.retainWhere(appRepository.view.taskRules.containsKey);
+    _bikeSelection.retainWhere(appRepository.view.bikes.containsKey);
     _timelineSelection.retainWhere(
       (entry) => switch (entry.kind) {
-        TimelineSelectionKind.setup => appRepository.filteredSetups.containsKey(entry.id),
-        TimelineSelectionKind.taskEntry => appRepository.filteredTaskEntries.containsKey(entry.id),
-        TimelineSelectionKind.ratingEntry => appRepository.filteredRatingEntries.containsKey(entry.id),
+        TimelineSelectionKind.setup => appRepository.view.setups.containsKey(entry.id),
+        TimelineSelectionKind.taskEntry => appRepository.view.taskEntries.containsKey(entry.id),
+        TimelineSelectionKind.ratingEntry => appRepository.view.ratingEntries.containsKey(entry.id),
       },
     );
   }
@@ -330,27 +331,39 @@ class _HomePageState extends State<HomePage> {
           }
         },
         destinations: <Widget>[
-          NavigationDestination(
-            icon: Badge(
-              isLabelVisible: appRepository.selectedBike != null,
-              backgroundColor: Theme.of(context).primaryColor,
-              child: const Icon(Bike.iconData),
+          Semantics(
+            container: true,
+            identifier: AutomationIds.navBikes,
+            child: NavigationDestination(
+              icon: Badge(
+                isLabelVisible: appRepository.filters.bikeId != null,
+                backgroundColor: Theme.of(context).primaryColor,
+                child: const Icon(Bike.iconData),
+              ),
+              label: 'Bikes',
             ),
-            label: 'Bikes',
           ),
-          const NavigationDestination(icon: Icon(Setup.iconData), label: 'Setups'),
+          Semantics(
+            container: true,
+            identifier: AutomationIds.navSetups,
+            child: const NavigationDestination(icon: Icon(Setup.iconData), label: 'Setups'),
+          ),
           if (appSettings.enablePerson) const NavigationDestination(icon: Icon(Person.iconData), label: "Profile"),
           if (appSettings.enableRating) const NavigationDestination(icon: Icon(Rating.iconData), label: "Ratings"),
           if (appSettings.enableTask)
-            NavigationDestination(
-              icon: Badge.count(
-                count: actionableTaskRulesCount,
-                maxCount: 99,
-                isLabelVisible: actionableTaskRulesCount > 0,
-                backgroundColor: (appRepository.worstActionableTaskStatus ?? TaskStatusType.completed).getStatusColor(context),
-                child: const Icon(Icons.checklist),
+            Semantics(
+              container: true,
+              identifier: AutomationIds.navTasks,
+              child: NavigationDestination(
+                icon: Badge.count(
+                  count: actionableTaskRulesCount,
+                  maxCount: 99,
+                  isLabelVisible: actionableTaskRulesCount > 0,
+                  backgroundColor: (appRepository.worstActionableTaskStatus ?? TaskStatusType.completed).getStatusColor(context),
+                  child: const Icon(Icons.checklist),
+                ),
+                label: "Tasks",
               ),
-              label: "Tasks",
             ),
         ],
       ),
@@ -396,13 +409,20 @@ class _HomePageState extends State<HomePage> {
                 ),
                 const SizedBox(height: 12),
               ],
-              FloatingActionButton(
-                heroTag: "addBike",
-                onPressed: () async {
-                  await BikeActions.addBike(context);
-                },
-                tooltip: 'Add Bike',
-                child: const Icon(Icons.add),
+              // Distinct keys: the tabs share this slot, and an identifier-only
+              // change on a reused semantics node never reaches the platform.
+              Semantics(
+                key: const ValueKey(AutomationIds.addBikeFab),
+                container: true,
+                identifier: AutomationIds.addBikeFab,
+                child: FloatingActionButton(
+                  heroTag: "addBike",
+                  onPressed: () async {
+                    await BikeActions.addBike(context);
+                  },
+                  tooltip: 'Add Bike',
+                  child: const Icon(Icons.add),
+                ),
               ),
             ],
           ),
@@ -422,13 +442,18 @@ class _HomePageState extends State<HomePage> {
                 ),
                 const SizedBox(height: 12),
               ],
-              FloatingActionButton(
-                heroTag: "addSetup",
-                onPressed: () async {
-                  await SetupActions.addSetup(context);
-                },
-                tooltip: 'Add Setup',
-                child: const Icon(Icons.add),
+              Semantics(
+                key: const ValueKey(AutomationIds.addSetupFab),
+                container: true,
+                identifier: AutomationIds.addSetupFab,
+                child: FloatingActionButton(
+                  heroTag: "addSetup",
+                  onPressed: () async {
+                    await SetupActions.addSetup(context);
+                  },
+                  tooltip: 'Add Setup',
+                  child: const Icon(Icons.add),
+                ),
               ),
             ],
           ),

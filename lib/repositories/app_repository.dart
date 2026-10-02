@@ -12,7 +12,6 @@ import '../models/adjustment/adjustment.dart';
 import '../models/bike.dart';
 import '../models/component/component.dart';
 import '../models/component/installation.dart';
-import '../models/component/resolved_installation.dart';
 import '../models/component_stats.dart';
 import '../models/context/context_position.dart';
 import '../models/person.dart';
@@ -23,9 +22,9 @@ import '../models/rating/rating_metric.dart';
 import '../models/selected_data.dart';
 import '../models/setup.dart';
 import '../models/strava/strava_activity.dart';
+import '../models/strava/strava_activity_query.dart';
 import '../models/strava/strava_athlete.dart';
 import '../models/strava/strava_gear.dart';
-import '../models/strava/strava_scope.dart';
 import '../models/task/task_association.dart';
 import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
@@ -35,7 +34,11 @@ import '../services/rating_score_service.dart';
 import '../services/setup_resolution_service.dart';
 import '../services/task_forecast_service.dart';
 import '../services/task_status_service.dart';
+import '../services/trash_cleanup_service.dart';
+import '../utils/adjustment_value_type_check.dart';
 import '../utils/unit_conversion.dart';
+import 'filter_controller.dart';
+import 'filtered_view.dart';
 import 'strava_paging_controller.dart';
 
 class AppRepository extends ChangeNotifier {
@@ -83,9 +86,16 @@ class AppRepository extends ChangeNotifier {
   }
 
   AppRepository(this.database) {
+    filters = FilterController(
+      onChanged: () {
+        _filter();
+        notifyListeners();
+      },
+    );
+    _view = _buildView();
     _strava = StravaPagingController(
       database: database,
-      scope: _currentStravaScope,
+      query: _currentStravaQuery,
       onLoadingChanged: notifyListeners,
       onWindowChanged: _dataChanged,
     );
@@ -95,6 +105,8 @@ class AppRepository extends ChangeNotifier {
   Future<void> initialize() async {
     unawaited(BackupService.deleteOldBackups());
     unawaited(initialStravaLoad());
+    // Awaited, unlike the others: it has to finish before the UI mounts.
+    await TrashCleanupService.run(database);
   }
 
   @override
@@ -135,7 +147,7 @@ class AppRepository extends ChangeNotifier {
   Map<String, ComponentStats> _componentStats = {};
   Map<String, ComponentStats> _bikeStats = {};
   Map<String, ActivityRateWindow> _bikeActivityRates = {};
-  Map<String, dynamic> _currentAdjustmentValues = {};
+  Map<String, AdjustmentValue> _currentAdjustmentValues = {};
 
   Map<String, Person> get persons => _persons;
   Map<String, Bike> get bikes => _bikes;
@@ -146,8 +158,7 @@ class AppRepository extends ChangeNotifier {
   Map<String, TaskRule> get taskRules => _taskRules;
   Map<String, TaskEntry> get taskEntries => _taskEntries;
   Map<int, StravaAthlete> get stravaAthletes => _stravaAthletes;
-  // Strava is paginated per active filter, so the loaded window is the filtered
-  // set; [stravaActivities] and [filteredStravaActivities] return the same map.
+  // Strava is paginated per active filter, so the loaded window is the filtered set.
   Map<int, StravaActivity> get stravaActivities => _strava.activities;
   Map<String, StravaGear> get stravaGears => _stravaGears;
   Map<String, ComponentStats> get componentStats => _componentStats;
@@ -158,7 +169,7 @@ class AppRepository extends ChangeNotifier {
       _components[componentId]?.initialStats ??
       ComponentStats.zero;
   Map<String, ActivityRateWindow> get bikeActivityRates => _bikeActivityRates;
-  Map<String, dynamic> get currentAdjustmentValues => _currentAdjustmentValues;
+  Map<String, AdjustmentValue> get currentAdjustmentValues => _currentAdjustmentValues;
 
   bool get hasSetupsWithPosition =>
       _setups.values.any((setup) => !setup.isDeleted && _isMappable(setup.position));
@@ -381,273 +392,44 @@ class AppRepository extends ChangeNotifier {
   // FILTERING STATE
   // ---------------------------------------------------------------------------
 
-  String? _selectedBike;
-  final Set<String> _selectedSetupTags = {};
-  bool _showBookmarkedSetupsOnly = false;
-  final Set<TaskPriority> _selectedTaskPriorities = TaskPriority.values.toSet();
-  final Set<String> _selectedTaskRuleTags = {};
+  late final FilterController filters;
   Set<String> _setupTags = {};
   Set<String> _taskRuleTags = {};
 
-  String? get selectedBike => _selectedBike;
-  Set<String> get selectedSetupTags => _selectedSetupTags;
-  bool get showBookmarkedSetupsOnly => _showBookmarkedSetupsOnly;
-  Set<TaskPriority> get selectedTaskPriorities => _selectedTaskPriorities;
-  Set<String> get selectedTaskRuleTags => _selectedTaskRuleTags;
   Set<String> get setupTags => _setupTags;
   Set<String> get taskRuleTags => _taskRuleTags;
-  bool get hasActiveTaskPriorityFilter => !setEquals(_selectedTaskPriorities, TaskPriority.values.toSet());
-  bool get hasActiveTaskRuleTagFilter => _selectedTaskRuleTags.isNotEmpty;
-  bool get hasActiveTaskRuleNarrowing => hasActiveTaskPriorityFilter || hasActiveTaskRuleTagFilter;
 
-  Map<String, Bike> _filteredBikes = {};
-  Map<String, Person> _filteredPersons = {};
-  Map<String, Rating> _filteredRatings = {};
-  Map<String, Component> _filteredComponents = {};
-  Map<String, Setup> _filteredSetups = {};
-  Map<String, RatingEntry> _filteredRatingEntries = {};
-  Map<String, TaskRule> _filteredTaskRules = {};
-  Map<String, TaskEntry> _filteredTaskEntries = {};
-  Map<String, TaskRule> _filteredOpenTaskRules = {};
-  List<ResolvedInstallation> _filteredInstallations = [];
-
-  Map<String, Bike> get filteredBikes => _filteredBikes;
-  Map<String, Person> get filteredPersons => _filteredPersons;
-  Map<String, Rating> get filteredRatings => _filteredRatings;
-  Map<String, Component> get filteredComponents => _filteredComponents;
   Map<String, Component> get archivedComponents => {
         for (final entry in _components.entries)
           if (componentHierarchy.isEffectivelyArchived(entry.key)) entry.key: entry.value
       };
-  Map<String, Setup> get filteredSetups => _filteredSetups;
-  Map<String, RatingEntry> get filteredRatingEntries => _filteredRatingEntries;
-  Map<String, TaskRule> get filteredTaskRules => _filteredTaskRules;
-  Map<String, TaskRule> get filteredOpenTaskRules => _filteredOpenTaskRules;
-  int get filteredOpenTaskRulesCount => _filteredOpenTaskRules.length;
-  Map<String, TaskEntry> get filteredTaskEntries => _filteredTaskEntries;
-  Map<int, StravaActivity> get filteredStravaActivities => _strava.activities;
-  List<ResolvedInstallation> get filteredInstallations => _filteredInstallations;
 
-  void filter() {
-    _filter();
-    notifyListeners();
-  }
+  late FilteredView _view;
+
+  /// The raw data narrowed by [filters].
+  FilteredView get view => _view;
 
   void _filter() {
-    if (selectedBike != null && !bikes.containsKey(_selectedBike!)) {
-      _selectedBike = null;
-    }
-    _selectedSetupTags.removeWhere((tag) => !setupTags.contains(tag));
-    _selectedTaskRuleTags.removeWhere((tag) => !taskRuleTags.contains(tag));
-
-    _filterBikes();
-    _filterComponents();
-    _filterSetups();
-    _filterRatingEntries();
-    _filterPersons();
-    _filterRatings();
-    _filterTaskRules();  // after _filterComponents()
-    _filterTaskEntries();  // after _filterTaskRules()
-    _strava.reloadIfScopeChanged();  // re-pages Strava if the bike scope changed
-    _filterInstallations();
+    filters.normalize(bikeIds: bikes.keys, setupTags: setupTags, taskRuleTags: taskRuleTags);
+    _view = _buildView();
+    _strava.reloadIfQueryChanged();  // re-pages Strava if the bike scope changed
   }
 
-  void _filterBikes() {
-    _filteredBikes = selectedBike == null
-        ? bikes
-        : Map.fromEntries(bikes.entries.where((entry) => entry.key == selectedBike));
-  }
-
-  void _filterComponents() {
-    final hierarchy = componentHierarchy;
-    _filteredComponents = Map.fromEntries(components.entries.where((entry) {
-      final placement = hierarchy.resolveCurrent(entry.key);
-      if (placement.isArchived || placement.isDeleted) return false;
-      return selectedBike == null || placement.bikeId == selectedBike;
-    }));
-  }
-
-  void _filterSetups() {
-    _filteredSetups = Map.fromEntries(setups.entries.where((entry) =>
-      (selectedBike == null ? true : entry.value.bike == selectedBike) &&
-      (selectedSetupTags.isEmpty ? true : entry.value.tags.containsAll(selectedSetupTags)) &&
-      (_showBookmarkedSetupsOnly ? entry.value.isBookmarked : true)
-    ));
-  }
-
-  void _filterRatingEntries() {
-    _filteredRatingEntries = selectedBike == null
-        ? Map.fromEntries(ratingEntries.entries)
-        : Map.fromEntries(ratingEntries.entries.where((entry) => entry.value.bike == selectedBike));
-  }
-
-  void _filterPersons() {
-    _filteredPersons = _selectedBike == null
-        ? persons
-        : Map.fromEntries(persons.entries.where((entry) => entry.value.id == bikes[_selectedBike]?.person));
-  }
-
-  void _filterRatings() {
-    _filteredRatings = Map.fromEntries(ratings.entries.where((entry) {
-      final rating = entry.value;
-      switch (rating.association) {
-        case GlobalRatingAssociation(): return true;
-        case PersonRatingAssociation(): return true;
-        case BikeRatingAssociation(:final bikeId): return _selectedBike == null ? true : bikeId == _selectedBike;
-        case ComponentRatingAssociation(:final componentId): return _selectedBike == null ? true : filteredComponents.values.any((c) => c.id == componentId);
-        case ComponentTypeRatingAssociation(:final componentTypeStr): return _selectedBike == null ? true : filteredComponents.values.any((c) => c.componentType.toString() == componentTypeStr);
-      }
-    }));
-  }
-
-  void _filterTaskRules() {
-    _filteredTaskRules = Map.fromEntries(
-      taskRules.entries.where((entry) {
-        final rule = entry.value;
-        if (!_selectedTaskPriorities.contains(rule.priority)) return false;
-
-        if (selectedTaskRuleTags.isNotEmpty && !entry.value.tags.containsAll(selectedTaskRuleTags)) return false;
-        return _isTaskRuleInCurrentScope(rule);
-      }),
-    );
-
-    _filteredOpenTaskRules = Map.fromEntries(
-      _filteredTaskRules.entries.where(
-        (entry) => !taskEntries.values.any((te) => te.taskRule == entry.key),
-      ),
-    );
-  }
-
-  bool _isTaskRuleInCurrentScope(TaskRule rule) {
-    switch (rule.association) {
-      case GeneralTaskAssociation():
-        return true;
-      case BikeTaskAssociation(:final id):
-        return _selectedBike == null || id == _selectedBike;
-      case ComponentTaskAssociation(:final id):
-        if (!_components.containsKey(id)) return false;
-        final placement = componentHierarchy.resolveCurrent(id);
-        if (placement.isArchived || placement.isDeleted) return false;
-        return _selectedBike == null || placement.bikeId == _selectedBike;
-    }
-  }
-
-  void _filterTaskEntries() {
-    _filteredTaskEntries = Map.fromEntries(
-      taskEntries.entries.where(
-        (entry) => _filteredTaskRules.containsKey(entry.value.taskRule),
-      ),
-    );
-  }
-
-  void _filterInstallations() {
-    _filteredInstallations = [];
-    final hierarchy = componentHierarchy;
-    for (final component in components.values) {
-      final sorted = List<Installation>.from(component.installations)
-        ..sort((a, b) => a.dateTimeUTC.compareTo(b.dateTimeUTC));
-
-      for (int i = 0; i < sorted.length; i++) {
-        final installation = sorted[i];
-        if (installation.dateTimeUTC.millisecondsSinceEpoch == 0) continue;
-
-        final previousInstallation = i > 0 ? sorted[i-1] : null;
-        final originParent = previousInstallation?.parent;
-        final isInitial = i == 0;
-
-        final ci = ResolvedInstallation(
-          component: component,
-          installation: installation,
-          originParent: originParent,
-          originParentType: previousInstallation?.parentType,
-          isInitial: isInitial,
-        );
-
-        final targetBike = hierarchy.bikeAt(component.id, installation.dateTimeUTC);
-        final originTime = installation.dateTimeUTC.subtract(const Duration(microseconds: 1));
-        final originBike = hierarchy.bikeAt(component.id, originTime);
-        if (selectedBike == null || targetBike == selectedBike || originBike == selectedBike) {
-          _filteredInstallations.add(ci);
-        }
-      }
-    }
-  }
-
-  void onBikeTap(String? newBike) {
-    if (newBike == null || selectedBike == newBike) {
-      _selectedBike = null;
-    } else {
-      _selectedBike = newBike;
-    }
-    _filter();
-    notifyListeners();
-  }
-
-  void selectSetupTag(String newTag) {
-    if (!setupTags.contains(newTag)) return;
-    _selectedSetupTags.add(newTag);
-    _filterSetups();
-    notifyListeners();
-  }
-
-  void deselectSetupTag(String tag) {
-    _selectedSetupTags.remove(tag);
-    _filterSetups();
-    notifyListeners();
-  }
-
-  void deselectAllSetupTags() {
-    _selectedSetupTags.clear();
-    _filterSetups();
-    notifyListeners();
-  }
-
-  void setShowBookmarkedSetupsOnly(bool newValue) {
-    if (_showBookmarkedSetupsOnly == newValue) return;
-    _showBookmarkedSetupsOnly = newValue;
-    _filterSetups();
-    notifyListeners();
-  }
-
-  void selectTaskRuleTag(String newTag) {
-    if (!taskRuleTags.contains(newTag)) return;
-    _selectedTaskRuleTags.add(newTag);
-    _filterTaskRules();
-    notifyListeners();
-  }
-
-  void deselectTaskRuleTag(String tag) {
-    _selectedTaskRuleTags.remove(tag);
-    _filterTaskRules();
-    notifyListeners();
-  }
-
-  void deselectAllTaskRuleTags() {
-    _selectedTaskRuleTags.clear();
-    _filterTaskRules();
-    notifyListeners();
-  }
-
-  void selectTaskPriority(TaskPriority taskPriority) {
-    _selectedTaskPriorities.add(taskPriority);
-    _filterTaskRules();
-    _filterTaskEntries();
-    notifyListeners();
-  }
-
-  void deselectTaskPriority(TaskPriority taskPriority) {
-    _selectedTaskPriorities.remove(taskPriority);
-    _filterTaskRules();
-    _filterTaskEntries();
-    notifyListeners();
-  }
-
-  void selectAllTaskPriorities() {
-    _selectedTaskPriorities.addAll(TaskPriority.values.toSet());
-    _filterTaskRules();
-    _filterTaskEntries();
-    notifyListeners();
-  }
+  FilteredView _buildView() => FilteredView(
+        bikes: _bikes,
+        components: _components,
+        setups: _setups,
+        ratingEntries: _ratingEntries,
+        persons: _persons,
+        ratings: _ratings,
+        taskRules: _taskRules,
+        taskEntries: _taskEntries,
+        hierarchy: componentHierarchy,
+        bikeId: filters.bikeId,
+        dateRange: filters.dateRange,
+        setupFilter: filters.setup,
+        taskRuleFilter: filters.taskRule,
+      );
 
   // ---------------------------------------------------------------------------
   // TASKS: SNAPSHOTS, STATUS & DERIVED LISTS
@@ -802,10 +584,10 @@ class AppRepository extends ChangeNotifier {
     return toDo;
   }
 
-  List<TaskRuleWithStatus> get openTaskRules => _openTaskRulesWithStatus(_filteredTaskRules.values);
+  List<TaskRuleWithStatus> get openTaskRules => _openTaskRulesWithStatus(view.taskRules.values);
 
   List<TaskRuleWithStatus> get actionableTaskRules {
-    final actionable = _filteredTaskRules.values
+    final actionable = view.taskRules.values
         .map((rule) => TaskRuleWithStatus(rule: rule, status: getTaskRuleStatus(rule)))
         .where((taskRule) => taskRule.status.isDue)
         .toList();
@@ -822,7 +604,7 @@ class AppRepository extends ChangeNotifier {
   }
 
   List<TaskRuleWithStatus> get upcomingTaskRules {
-    final upcoming = _filteredTaskRules.values
+    final upcoming = view.taskRules.values
         .map((rule) => TaskRuleWithStatus(rule: rule, status: getTaskRuleStatus(rule)))
         .where((taskRule) => taskRule.status.type == TaskStatusType.upcoming)
         .toList();
@@ -843,13 +625,11 @@ class AppRepository extends ChangeNotifier {
     return actionable.isEmpty ? null : actionable.first.status.type;
   }
 
-  bool get hasScopeActionableTaskRules => _taskRules.values
-      .where(_isTaskRuleInCurrentScope)
+  bool get hasScopeActionableTaskRules => view.taskRulesInScope.values
       .map(getTaskRuleStatus)
       .any((status) => status.isDue);
 
-  bool get hasTaskRulesInCurrentScope =>
-      _taskRules.values.any(_isTaskRuleInCurrentScope);
+  bool get hasTaskRulesInCurrentScope => view.taskRulesInScope.isNotEmpty;
 
   /// Open (non-completed) task rules for a bike, including rules attached to its components.
   List<TaskRuleWithStatus> openTaskRulesForBike(String bikeId) {
@@ -894,7 +674,7 @@ class AppRepository extends ChangeNotifier {
     return TaskStatusType.completed;
   }
 
-  TaskStatusType get openTaskRulesStatusType => getAggregatedTaskStatus(_filteredTaskRules.values);
+  TaskStatusType get openTaskRulesStatusType => getAggregatedTaskStatus(view.taskRules.values);
 
   /// Worst status among a component's open task rules, or null if it has none.
   TaskStatusType? componentTaskIndicatorStatus(String componentId) {
@@ -904,7 +684,7 @@ class AppRepository extends ChangeNotifier {
   }
 
   List<TaskRuleWithStatus> get completedTaskRules {
-    final statusRules = _filteredTaskRules.values.map((rule) => TaskRuleWithStatus(rule: rule, status: getTaskRuleStatus(rule)));
+    final statusRules = view.taskRules.values.map((rule) => TaskRuleWithStatus(rule: rule, status: getTaskRuleStatus(rule)));
     final completed = statusRules.where((tr) => tr.status.type == TaskStatusType.completed).toList();
     completed.sort((a, b) {
       final modifiedComparison = b.rule.lastModified.compareTo(a.rule.lastModified);
@@ -1039,7 +819,6 @@ class AppRepository extends ChangeNotifier {
   bool get isLoadingMoreStrava => _strava.isLoadingMore;
   bool get stravaSortAscending => _strava.sortAscending;
 
-  Stream<List<StravaActivity>> get stravaActivitiesWithPosition => _strava.activitiesWithPosition;
   Future<List<StravaActivity>> get latestStravaActivities => _strava.latest;
   Future<List<StravaActivity>> getFilteredStravaActivitiesWithPosition() => _strava.filteredActivitiesWithPosition();
 
@@ -1057,8 +836,8 @@ class AppRepository extends ChangeNotifier {
   /// Debug helper to override the pagination chunk size in tests.
   void debugSetStravaLimit(int limit) => _strava.limit = limit;
 
-  StravaScope _currentStravaScope() => StravaScope.forBike(bikes[_selectedBike]);
-  bool get selectedBikeHasNoStravaGear => _currentStravaScope() is NoStravaActivities;
+  StravaActivityQuery? _currentStravaQuery() => filters.stravaQuery(bikes[filters.bikeId]);
+  bool get selectedBikeHasNoStravaGear => _currentStravaQuery() == null;
 
   Future<void> setStravaActivities(Iterable<StravaActivity> activities, {List<int>? toDelete}) async {
     final versionAtStart = _stravaOperationVersion;
@@ -1319,6 +1098,7 @@ class AppRepository extends ChangeNotifier {
 
   Future<void> addRatingEntries(Iterable<RatingEntry> entries) async {
     if (entries.isEmpty) return;
+    checkRatingEntryValueTypes(entries, ratings: _ratings.values);
     final now = DateTime.now().toUtc();
     await database.transaction(() async {
       for (final entry in entries) {
@@ -1332,6 +1112,7 @@ class AppRepository extends ChangeNotifier {
   }
 
   Future<void> editRatingEntry(RatingEntry entry) async {
+    checkRatingEntryValueTypes([entry], ratings: _ratings.values);
     final updated = entry.copyWith(lastModified: DateTime.now().toUtc());
     await database.ratingEntriesDao.updateRatingEntryWithValues(
       entry: updated.toCompanion(),
@@ -1455,7 +1236,7 @@ class AppRepository extends ChangeNotifier {
             entry.value.toCompanion(componentId: updateComponent.id, orderIndex: entry.key)
           ).toList(),
           installationsList: updateComponent.installations.map((inst) =>
-            inst.copyWith(id: const Uuid().v4(), componentId: updateComponent.id).toCompanion()
+            inst.copyWith(id: const Uuid().v4()).toCompanion(componentId: updateComponent.id)
           ).toList(),
         );
       }
@@ -1474,7 +1255,7 @@ class AppRepository extends ChangeNotifier {
       for (final c in conversions) {
         await database.setupsDao.convertAdjustmentValues(
           c.adjustmentId,
-          (v) => convertUnit(v, c.from, c.to),
+          (v) => NumericalValue(convertUnit(v.value, c.from, c.to)),
         );
       }
     });
@@ -1504,7 +1285,7 @@ class AppRepository extends ChangeNotifier {
       for (final c in conversions) {
         await database.setupsDao.convertAdjustmentValues(
           c.adjustmentId,
-          (v) => convertUnit(v, c.from, c.to),
+          (v) => NumericalValue(convertUnit(v.value, c.from, c.to)),
         );
       }
     });
@@ -1569,9 +1350,8 @@ class AppRepository extends ChangeNotifier {
         entry.value.toCompanion(componentId: updated.id, orderIndex: entry.key)
       ).toList(),
       installationsList: updated.installations.map((inst) =>
-        // Preserve the stable installation ids across edits; only normalise the
-        // owning componentId.
-        inst.copyWith(componentId: updated.id).toCompanion()
+        // Preserve the stable installation ids across edits.
+        inst.toCompanion(componentId: updated.id)
       ).toList(),
     );
   }
@@ -1579,7 +1359,6 @@ class AppRepository extends ChangeNotifier {
   Future<void> archiveComponent(Component component, {DateTime? at}) async {
     final when = at ?? DateTime.now();
     final event = Archival(
-      componentId: component.id,
       dateTimeUTC: when.toUtc(),
       dateTimeLocal: when,
     );
@@ -1608,7 +1387,7 @@ class AppRepository extends ChangeNotifier {
       for (final c in conversions) {
         await database.ratingEntriesDao.convertMetricValues(
           c.adjustmentId,
-          (v) => convertUnit(v, c.from, c.to),
+          (v) => NumericalValue(convertUnit(v.value, c.from, c.to)),
         );
       }
     });
@@ -1616,6 +1395,7 @@ class AppRepository extends ChangeNotifier {
 
   Future<void> addSetups(Iterable<Setup> setups) async {
     if (setups.isEmpty) return;
+    checkSetupValueTypes(setups, components: _components.values, persons: _persons.values);
     final now = DateTime.now().toUtc();
     await database.transaction(() async {
       for (final setup in setups) {
@@ -1632,6 +1412,7 @@ class AppRepository extends ChangeNotifier {
   Future<void> editSetups(Iterable<Setup> setups) async {
     final setupList = setups.toList();
     if (setupList.isEmpty) return;
+    checkSetupValueTypes(setupList, components: _components.values, persons: _persons.values);
     final now = DateTime.now().toUtc();
 
     await database.transaction(() async {

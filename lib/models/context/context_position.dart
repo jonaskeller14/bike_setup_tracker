@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:units_converter/units_converter.dart';
 
+@immutable
 class ContextPosition {
   final double? latitude;
   final double? longitude;

@@ -130,7 +130,6 @@ class GoldenTestHarness {
         installations: [
           Installation.sinceBeginning(
             id: 'golden-installation-fork',
-            componentId: forkId,
             parent: trailBikeId,
           ),
         ],
@@ -176,7 +175,6 @@ class GoldenTestHarness {
         installations: [
           Installation.sinceBeginning(
             id: 'golden-installation-gravel-wheel',
-            componentId: gravelWheelId,
             parent: gravelBikeId,
           ),
         ],
@@ -189,7 +187,6 @@ class GoldenTestHarness {
         installations: [
           Installation.sinceBeginning(
             id: 'golden-uninstallation-spare-wheel',
-            componentId: spareWheelId,
           ),
         ],
       ),
@@ -205,11 +202,11 @@ class GoldenTestHarness {
         tags: const {'Baseline'},
         bike: trailBikeId,
         person: null,
-        bikeAdjustmentValues: const {
-          pressureId: 78.0,
-          reboundId: 4,
-          modeId: ['Open'],
-          lockoutId: false,
+        bikeAdjustmentValues: {
+          pressureId: const NumericalValue(78.0),
+          reboundId: const StepValue(4),
+          modeId: CategoricalValue(const ['Open']),
+          lockoutId: const BooleanValue(false),
         },
         personAdjustmentValues: const {},
       ),
@@ -222,11 +219,11 @@ class GoldenTestHarness {
         tags: const {'Dry'},
         bike: trailBikeId,
         person: null,
-        bikeAdjustmentValues: const {
-          pressureId: 82.0,
-          reboundId: 6,
-          modeId: ['Trail'],
-          lockoutId: false,
+        bikeAdjustmentValues: {
+          pressureId: const NumericalValue(82.0),
+          reboundId: const StepValue(6),
+          modeId: CategoricalValue(const ['Trail']),
+          lockoutId: const BooleanValue(false),
         },
         personAdjustmentValues: const {},
       ),
@@ -239,11 +236,11 @@ class GoldenTestHarness {
         tags: const {'Race'},
         bike: trailBikeId,
         person: null,
-        bikeAdjustmentValues: const {
-          pressureId: 84.0,
-          reboundId: 8,
-          modeId: ['Trail'],
-          lockoutId: true,
+        bikeAdjustmentValues: {
+          pressureId: const NumericalValue(84.0),
+          reboundId: const StepValue(8),
+          modeId: CategoricalValue(const ['Trail']),
+          lockoutId: const BooleanValue(true),
         },
         personAdjustmentValues: const {},
       ),

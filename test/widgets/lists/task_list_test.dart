@@ -1,5 +1,6 @@
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
+import 'package:bike_setup_tracker/models/attachment.dart';
 import 'package:bike_setup_tracker/models/task/task_entry.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
@@ -7,6 +8,7 @@ import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/chips/task_list_filter_widget.dart';
+import 'package:bike_setup_tracker/widgets/items/task_rule_list_card.dart';
 import 'package:bike_setup_tracker/widgets/lists/task_list.dart';
 import 'package:bike_setup_tracker/widgets/sticky_section.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +16,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MockSubscriptionService extends Mock implements SubscriptionService {}
 
@@ -273,6 +276,39 @@ void main() {
 
     expect(find.byType(SliverPersistentHeader), findsNothing);
     expect(find.byType(TaskListFilterWidget), findsOneWidget);
+  });
+
+  testWidgets('task cards show the attachment count only with attachments enabled', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    await tester.runAsync(() async {
+      await repository.addTaskRules([
+        TaskRule(
+          name: 'Lower leg service',
+          tags: const {},
+          attachments: [
+            Attachment(extension: '.pdf', name: 'Service Manual'),
+            Attachment(extension: '.pdf', name: 'Torque Chart'),
+          ],
+        ),
+      ]);
+      await pumpEventQueue();
+    });
+    for (var attempt = 0; attempt < 20 && repository.taskRules.isEmpty; attempt++) {
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    await tester.pumpWidget(buildSubject());
+    await tester.pumpAndSettle();
+
+    final card = find.byType(TaskRuleListCard);
+    expect(card, findsOneWidget);
+    expect(find.descendant(of: card, matching: find.byIcon(Icons.attach_file)), findsNothing);
+
+    settings.enableAttachments = true;
+    await tester.pumpAndSettle();
+
+    expect(find.descendant(of: card, matching: find.byIcon(Icons.attach_file)), findsOneWidget);
+    expect(find.descendant(of: card, matching: find.text('2')), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('show all and show less relayout the native section', (tester) async {

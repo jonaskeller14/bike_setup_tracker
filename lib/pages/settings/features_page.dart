@@ -7,6 +7,8 @@ import 'package:provider/provider.dart';
 import '../../icons/simple_icons.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
+import '../../models/filters/layer_filter.dart';
+import '../../models/task/task_rule.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../widgets/sheets/checkbox_group.dart';
@@ -16,7 +18,12 @@ import '../../widgets/text/section_title.dart';
 class FeaturesPage extends StatelessWidget {
   const FeaturesPage({super.key});
 
-  static const String _setupExtrasTitle = kDebugMode ? "Setup Tags, Images & Bookmarks" : "Setup Tags";
+  static const String _setupExtrasTitle = kDebugMode ? "Setup Tags & Bookmarks" : "Setup Tags";
+
+  static void _showLayer(BuildContext context, TimelineLayer layer) {
+    final filters = context.read<AppRepository>().filters;
+    filters.layers = filters.layers.copyWith(hidden: filters.layers.hidden.difference({layer}));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +31,17 @@ class FeaturesPage extends StatelessWidget {
     final subscriptionService = context.watch<SubscriptionService>();
 
     final otherTiles = [
+      _FeatureToggleTile(
+        icon: Icons.attach_file,
+        title: "Attachments",
+        value: appSettings.enableAttachments,
+        onChanged: (v) => appSettings.enableAttachments = v,
+        infoText:
+            'Attach images and files to bikes, components, setups and tasks. WARNING: attachments '
+            'are stored only on this device. They are NOT included in cloud/Drive backups and '
+            'will be lost on reinstall or when restoring from a backup. Use "Export Attachment '
+            'Bundle" to move them to a new device.',
+      ),
       if (Platform.isAndroid)
         _FeatureToggleTile(
           icon: SimpleIcons.googledrive,
@@ -61,7 +79,10 @@ class FeaturesPage extends StatelessWidget {
                 icon: Icons.timeline,
                 title: "Installation Timeline",
                 value: appSettings.enableInstallationTimeline,
-                onChanged: (v) => appSettings.enableInstallationTimeline = v,
+                onChanged: (v) {
+                  appSettings.enableInstallationTimeline = v;
+                  if (!v) _showLayer(context, TimelineLayer.installations);
+                },
                 infoText:
                     'By default, Components are linked to a Bike. '
                     'When this setting is enabled, you can track exactly when a component was installed and uninstalled. '
@@ -92,23 +113,6 @@ class FeaturesPage extends StatelessWidget {
                 ),
               const Divider(),
               const SectionTitle(title: 'Adjustments'),
-              if (kDebugMode)
-                _FeatureGroupTile(
-                  icon: StepAdjustment.iconData,
-                  title: "Step Adjustment",
-                  infoText: 'Extra options for Step Adjustments. Each can be toggled on its own.',
-                  options: [
-                    CheckboxGroupSheetOption(
-                      title: 'Dial Color & Size',
-                      subtitle:
-                          'When a Step Adjustment uses a dial visualization, lets you tap the dial '
-                          'preview to cycle through its color and size. When disabled, only the '
-                          'visualization dropdown is shown.',
-                      value: () => appSettings.enableStepDialColorSize,
-                      onChanged: (v) => appSettings.enableStepDialColorSize = v,
-                    ),
-                  ],
-                ),
               _FeatureGroupTile(
                 icon: CategoricalAdjustment.iconData,
                 title: "Categorical Adjustment",
@@ -148,20 +152,11 @@ class FeaturesPage extends StatelessWidget {
                     value: () => appSettings.enableSetupTags,
                     onChanged: (v) {
                       appSettings.enableSetupTags = v;
-                      if (!v) context.read<AppRepository>().deselectAllSetupTags();
+                      if (v) return;
+                      final filters = context.read<AppRepository>().filters;
+                      filters.setup = filters.setup.copyWith(tags: const {});
                     },
                   ),
-                  if (kDebugMode)
-                    CheckboxGroupSheetOption(
-                      title: 'Images',
-                      subtitle:
-                          'Attach images to setups. WARNING: images are stored only on this '
-                          'device. They are NOT included in cloud/Drive backups and will be lost on '
-                          'reinstall or when restoring from a backup. Use "Export Images" to move them '
-                          'to a new device.',
-                      value: () => appSettings.enableSetupImages,
-                      onChanged: (v) => appSettings.enableSetupImages = v,
-                    ),
                   if (kDebugMode)
                     CheckboxGroupSheetOption(
                       title: 'Bookmarks',
@@ -172,7 +167,9 @@ class FeaturesPage extends StatelessWidget {
                       value: () => appSettings.enableSetupBookmark,
                       onChanged: (v) {
                         appSettings.enableSetupBookmark = v;
-                        if (!v) context.read<AppRepository>().setShowBookmarkedSetupsOnly(false);
+                        if (v) return;
+                        final filters = context.read<AppRepository>().filters;
+                        filters.setup = filters.setup.copyWith(bookmarkedOnly: false);
                       },
                     ),
                 ],
@@ -195,7 +192,10 @@ class FeaturesPage extends StatelessWidget {
                   icon: Icons.star,
                   title: "Rating",
                   value: appSettings.enableRating,
-                  onChanged: (v) => appSettings.enableRating = v,
+                  onChanged: (v) {
+                    appSettings.enableRating = v;
+                    if (!v) _showLayer(context, TimelineLayer.ratingEntries);
+                  },
                 ),
               if (kDebugMode)
                 _FeatureToggleTile(
@@ -250,7 +250,10 @@ class FeaturesPage extends StatelessWidget {
                 icon: Icons.checklist,
                 title: "Tasks",
                 value: appSettings.enableTask,
-                onChanged: (v) => appSettings.enableTask = v,
+                onChanged: (v) {
+                  appSettings.enableTask = v;
+                  if (!v) _showLayer(context, TimelineLayer.tasks);
+                },
                 infoText:
                     "Plan and track anything from recurring maintenance like fork services and chain cleaning to setup experiments like suspension testing or trying different handlebar widths. Keep a complete log of your goals and achievements in one place.",
               ),
@@ -266,7 +269,9 @@ class FeaturesPage extends StatelessWidget {
                     value: () => appSettings.enableTaskTags,
                     onChanged: (v) {
                       appSettings.enableTaskTags = v;
-                      if (!v) context.read<AppRepository>().deselectAllTaskRuleTags();
+                      if (v) return;
+                      final filters = context.read<AppRepository>().filters;
+                      filters.taskRule = filters.taskRule.copyWith(tags: const {});
                     },
                   ),
                   CheckboxGroupSheetOption(
@@ -275,7 +280,9 @@ class FeaturesPage extends StatelessWidget {
                     value: () => appSettings.enableTaskPriority,
                     onChanged: (v) {
                       appSettings.enableTaskPriority = v;
-                      if (!v) context.read<AppRepository>().selectAllTaskPriorities();
+                      if (v) return;
+                      final filters = context.read<AppRepository>().filters;
+                      filters.taskRule = filters.taskRule.copyWith(priorities: TaskPriority.values.toSet());
                     },
                   ),
                   CheckboxGroupSheetOption(

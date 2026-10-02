@@ -4,6 +4,7 @@ import 'package:bike_setup_tracker/widgets/lists/adjustment_compact_display/adju
 import 'package:bike_setup_tracker/widgets/lists/adjustment_compact_display/adjustment_cell_layout.dart';
 import 'package:bike_setup_tracker/widgets/lists/adjustment_compact_display/adjustment_cell_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -44,7 +45,7 @@ void main() {
 
   group('AdjustmentCellView arrow', () {
     testWidgets('draws an icon, not the maths-axis text glyph', (tester) async {
-      await pumpCell(tester, ChangedCell(pressure, 18, 16));
+      await pumpCell(tester, ChangedCell(pressure, const NumericalValue(18), const NumericalValue(16)));
 
       expect(arrowFinder, findsOneWidget);
       expect(richTextWithText('16'), findsOneWidget);
@@ -54,7 +55,7 @@ void main() {
     });
 
     testWidgets('shares one centre line with the previous value, the value and the unit', (tester) async {
-      await pumpCell(tester, ChangedCell(pressure, 18, 16));
+      await pumpCell(tester, ChangedCell(pressure, const NumericalValue(18), const NumericalValue(16)));
 
       final centres = <String, double>{
         'previous': tester.getRect(richTextWithText('16')).center.dy,
@@ -74,14 +75,14 @@ void main() {
     });
 
     testWidgets('sizes the arrow with the value, not with the previous value', (tester) async {
-      await pumpCell(tester, ChangedCell(pressure, 18, 16));
+      await pumpCell(tester, ChangedCell(pressure, const NumericalValue(18), const NumericalValue(16)));
 
       expect(tester.widget<Icon>(arrowFinder).size, CellTextStyles.arrowSize);
       expect(CellTextStyles.arrowSize, greaterThan(CellTextStyles.change.fontSize!));
     });
 
     testWidgets('the measured natural width still fits the rendered rows', (tester) async {
-      final cell = ChangedCell(pressure, 18, 16);
+      final cell = ChangedCell(pressure, const NumericalValue(18), const NumericalValue(16));
       late double measured;
       await tester.pumpWidget(
         MaterialApp(
@@ -102,18 +103,107 @@ void main() {
         ),
       );
 
+      // Only the label scrolls; the value line with a previous value never
+      // does, and an overflowing Row would fail the test.
       final rows = find.descendant(of: find.byType(AdjustmentCellView), matching: find.byType(Scrollable));
-      expect(rows, findsNWidgets(2));
-      for (var i = 0; i < 2; i++) {
-        expect(tester.state<ScrollableState>(rows.at(i)).position.maxScrollExtent, closeTo(0, 0.5));
-      }
+      expect(rows, findsOneWidget);
+      expect(tester.state<ScrollableState>(rows).position.maxScrollExtent, closeTo(0, 0.5));
+      expect(tester.takeException(), isNull);
+    });
+  });
+
+  group('AdjustmentCellView previous value', () {
+    final tyre = TextAdjustment(id: 't', name: 'Tire', notes: null, unit: null);
+    final longChange = ChangedCell(tyre, TextValue.orNull('Assegai MaxxTerra')!, TextValue.orNull('Minion DHF MaxxGrip')!);
+
+    // The test font draws every glyph as a square of the font size, so
+    // 'Assegai MaxxTerra' alone takes 17 x 13 dp.
+    bool previousTruncated(WidgetTester tester) =>
+        tester.renderObject<RenderParagraph>(find.text('Minion DHF MaxxGrip')).didExceedMaxLines;
+
+    testWidgets('prints in full when the cell has room', (tester) async {
+      await pumpCell(tester, longChange, width: 800);
+
+      expect(previousTruncated(tester), isFalse);
+    });
+
+    testWidgets('gives way to the value when the cell is narrow', (tester) async {
+      await pumpCell(tester, longChange, width: 300);
+
+      expect(tester.takeException(), isNull);
+      expect(previousTruncated(tester), isTrue);
+      final cellRect = tester.getRect(find.byType(AdjustmentCellView));
+      final valueRect = tester.getRect(richTextWithText('Assegai MaxxTerra'));
+      expect(valueRect.right, lessThanOrEqualTo(cellRect.right - cellHorizontalPadding + 0.5));
+      expect(valueRect.left, greaterThanOrEqualTo(cellRect.left));
+    });
+
+    testWidgets('is left out when showPrevious is false', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: materialAppTheme,
+          home: Scaffold(
+            body: Center(
+              child: SizedBox(
+                width: 100,
+                child: AdjustmentCellView(cell: longChange, highlightInitialValues: true, showPrevious: false),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(arrowFinder, findsNothing);
+      expect(find.text('Minion DHF MaxxGrip'), findsNothing);
+      final cellRect = tester.getRect(find.byType(AdjustmentCellView));
+      final valueRect = tester.getRect(richTextWithText('Assegai MaxxTerra'));
+      expect(valueRect.left, closeTo(cellRect.left + cellHorizontalPadding, 0.5));
+    });
+
+    testWidgets('cellFitsPrevious keeps it only while the value stays in view', (tester) async {
+      late bool fitsNarrow;
+      late bool fitsWide;
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: materialAppTheme,
+          home: Builder(
+            builder: (context) {
+              fitsNarrow = cellFitsPrevious(context, longChange, 250);
+              fitsWide = cellFitsPrevious(context, longChange, 300);
+              return const SizedBox.shrink();
+            },
+          ),
+        ),
+      );
+
+      expect(fitsNarrow, isFalse);
+      expect(fitsWide, isTrue);
+    });
+
+    testWidgets('cellFitsPrevious keeps a short previous value at its natural width', (tester) async {
+      final rebound = NumericalAdjustment(id: 'r', name: 'Rebound', notes: null, unit: null, min: -20, max: 0);
+      final shortChange = ChangedCell(rebound, const NumericalValue(-7), const NumericalValue(-8));
+      late bool fits;
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: materialAppTheme,
+          home: Builder(
+            builder: (context) {
+              fits = cellFitsPrevious(context, shortChange, measureCellNaturalWidth(context, shortChange));
+              return const SizedBox.shrink();
+            },
+          ),
+        ),
+      );
+
+      expect(fits, isTrue);
     });
   });
 
   group('AdjustmentCellView semantics', () {
     testWidgets('a changed cell announces the previous and the current value', (tester) async {
       final semantics = tester.ensureSemantics();
-      await pumpCell(tester, ChangedCell(pressure, 18, 16));
+      await pumpCell(tester, ChangedCell(pressure, const NumericalValue(18), const NumericalValue(16)));
 
       expect(labelOf(tester), 'Fork Pressure, changed from 16 to 18 psi');
       // The rendered arrow must not reach the screen reader.
@@ -124,7 +214,7 @@ void main() {
 
     testWidgets('an unchanged cell announces the plain value', (tester) async {
       final semantics = tester.ensureSemantics();
-      await pumpCell(tester, ConstantCell(pressure, 18));
+      await pumpCell(tester, ConstantCell(pressure, const NumericalValue(18)));
 
       expect(labelOf(tester), 'Fork Pressure, 18 psi');
 
@@ -134,15 +224,15 @@ void main() {
 
   group('AdjustmentCellView tooltip', () {
     testWidgets("shows the untruncated values with the cell's arrow", (tester) async {
-      await pumpCell(tester, ChangedCell(pressure, 18, 'RockShox Lyrik Ultimate'));
+      await pumpCell(tester, ChangedCell(pressure, const NumericalValue(18), TextValue.orNull('RockShox Lyrik Ultimate')!));
       expect(arrowFinder, findsOneWidget, reason: "the cell's own arrow");
 
       await tester.longPress(find.byType(AdjustmentCellView));
       await tester.pumpAndSettle();
 
-      // The cell head-truncates the previous value; the tooltip is where it
-      // is recovered in full.
-      expect(find.textContaining('RockShox Lyrik Ultimate', findRichText: true), findsOneWidget);
+      // The cell may ellipsize the previous value; the tooltip always carries
+      // it in full, next to the cell's own (untruncated) text.
+      expect(find.textContaining('RockShox Lyrik Ultimate', findRichText: true), findsNWidgets(2));
       expect(find.textContaining('18 psi', findRichText: true), findsOneWidget);
       // The same icon as the cell — one in the cell, one in the tooltip —
       // and never the text glyph, which would sit low the way it used to.

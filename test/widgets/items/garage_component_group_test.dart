@@ -58,15 +58,13 @@ Component _component(String id, String name, List<Installation> installations, {
   orderIndex: orderIndex,
 );
 
-Installation _onBike(String componentId) => BikeInstallation(
-  componentId: componentId,
+Installation _onBike() => BikeInstallation(
   bikeId: _bikeId,
   dateTimeUTC: DateTime.utc(2026, 1, 1),
   dateTimeLocal: DateTime(2026, 1, 1),
 );
 
-Installation _onComponent(String componentId, String parentId) => ComponentInstallation(
-  componentId: componentId,
+Installation _onComponent(String parentId) => ComponentInstallation(
   parentComponentId: parentId,
   dateTimeUTC: DateTime.utc(2026, 1, 1),
   dateTimeLocal: DateTime(2026, 1, 1),
@@ -164,10 +162,10 @@ void main() {
     testWidgets('renders one group holding the parent and its children in order, without duplicates', (tester) async {
       await tester.runAsync(
         () => seed([
-          _component(_forkId, 'Fork', [_onBike(_forkId)], orderIndex: 0),
-          _component(_wheelId, 'Wheel', [_onBike(_wheelId)], orderIndex: 1),
-          _component(_tireId, 'Tire', [_onComponent(_tireId, _wheelId)], orderIndex: 2),
-          _component(_tubeId, 'Tube', [_onComponent(_tubeId, _tireId)], orderIndex: 3),
+          _component(_forkId, 'Fork', [_onBike()], orderIndex: 0),
+          _component(_wheelId, 'Wheel', [_onBike()], orderIndex: 1),
+          _component(_tireId, 'Tire', [_onComponent(_wheelId)], orderIndex: 2),
+          _component(_tubeId, 'Tube', [_onComponent(_tireId)], orderIndex: 3),
         ]),
       );
       await pumpBikeCard(tester);
@@ -193,8 +191,8 @@ void main() {
     testWidgets('the group spans whole cells of the outer grid', (tester) async {
       await tester.runAsync(
         () => seed([
-          _component(_wheelId, 'Wheel', [_onBike(_wheelId)], orderIndex: 0),
-          _component(_tireId, 'Tire', [_onComponent(_tireId, _wheelId)], orderIndex: 1),
+          _component(_wheelId, 'Wheel', [_onBike()], orderIndex: 0),
+          _component(_tireId, 'Tire', [_onComponent(_wheelId)], orderIndex: 1),
         ]),
       );
       await pumpBikeCard(tester);
@@ -210,9 +208,9 @@ void main() {
     testWidgets('a group wider than one row wraps and stays overflow-safe', (tester) async {
       await tester.runAsync(
         () => seed([
-          _component(_wheelId, _longName, [_onBike(_wheelId)], orderIndex: 0),
+          _component(_wheelId, _longName, [_onBike()], orderIndex: 0),
           for (var index = 0; index < 12; index++)
-            _component('child-$index', _longName, [_onComponent('child-$index', _wheelId)], orderIndex: index + 1),
+            _component('child-$index', _longName, [_onComponent(_wheelId)], orderIndex: index + 1),
         ]),
       );
       await pumpBikeCard(tester, width: 320);
@@ -229,8 +227,8 @@ void main() {
     testWidgets('renders in the dark theme without overflow', (tester) async {
       await tester.runAsync(
         () => seed([
-          _component(_wheelId, _longName, [_onBike(_wheelId)], orderIndex: 0),
-          _component(_tireId, _longName, [_onComponent(_tireId, _wheelId)], orderIndex: 1),
+          _component(_wheelId, _longName, [_onBike()], orderIndex: 0),
+          _component(_tireId, _longName, [_onComponent(_wheelId)], orderIndex: 1),
         ]),
       );
       await pumpBikeCard(tester, brightness: Brightness.dark);
@@ -243,8 +241,8 @@ void main() {
   group('selection', () {
     setUp(() async {
       await seed([
-        _component(_wheelId, 'Wheel', [_onBike(_wheelId)], orderIndex: 0),
-        _component(_tireId, 'Tire', [_onComponent(_tireId, _wheelId)], orderIndex: 1),
+        _component(_wheelId, 'Wheel', [_onBike()], orderIndex: 0),
+        _component(_tireId, 'Tire', [_onComponent(_wheelId)], orderIndex: 1),
       ]);
     });
 
@@ -291,10 +289,10 @@ void main() {
   group('drag and reorder', () {
     setUp(() async {
       await seed([
-        _component(_forkId, 'Fork', [_onBike(_forkId)], orderIndex: 0),
-        _component(_wheelId, 'Wheel', [_onBike(_wheelId)], orderIndex: 1),
-        _component(_tireId, 'Tire', [_onComponent(_tireId, _wheelId)], orderIndex: 2),
-        _component(_tubeId, 'Tube', [_onComponent(_tubeId, _wheelId)], orderIndex: 3),
+        _component(_forkId, 'Fork', [_onBike()], orderIndex: 0),
+        _component(_wheelId, 'Wheel', [_onBike()], orderIndex: 1),
+        _component(_tireId, 'Tire', [_onComponent(_wheelId)], orderIndex: 2),
+        _component(_tubeId, 'Tube', [_onComponent(_wheelId)], orderIndex: 3),
       ]);
     });
 

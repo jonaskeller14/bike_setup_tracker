@@ -152,9 +152,8 @@ class PressureDriftService {
         if (unit == null) continue;
 
         final source = provenance[adjustment.id];
-        final referenceRaw = source?.value;
-        if (source == null || referenceRaw is! num) continue;
-        final referenceValue = referenceRaw.toDouble();
+        if (source == null || source.value is! NumericalValue) continue;
+        final referenceValue = (source.value as NumericalValue).value;
         // Zero gauge pressure is an empty chamber, and a negative one is bad
         // data; neither has a meaningful relative drift.
         if (referenceValue <= 0) continue;

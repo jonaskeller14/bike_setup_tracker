@@ -4,7 +4,7 @@ import 'package:bike_setup_tracker/utils/adjustment_activity_histogram_grouping.
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  AdjustmentActivityValue value(dynamic value, int count, [String id = 'setup']) {
+  AdjustmentActivityValue value(AdjustmentValue? value, int count, [String id = 'setup']) {
     return AdjustmentActivityValue(setupId: id, value: value, activityCount: count);
   }
 
@@ -22,10 +22,10 @@ void main() {
 
     final result = groupAdjustmentActivityHistogram(
       adjustment: adjustment,
-      values: [value(2, 3), value(-1, 4), value(2, 5, 'other')],
+      values: [value(const StepValue(2), 3), value(const StepValue(-1), 4), value(const StepValue(2), 5, 'other')],
     );
 
-    expect(result.bars.map((bar) => bar.exactValue), [-1, 2]);
+    expect(result.bars.map((bar) => bar.exactValue), [const StepValue(-1), const StepValue(2)]);
     expect(result.bars.map((bar) => bar.activityCount), [4, 8]);
   });
 
@@ -36,14 +36,14 @@ void main() {
     expect(
       groupAdjustmentActivityHistogram(
         adjustment: boolean,
-        values: [value(true, 2), value(false, 1)],
+        values: [value(const BooleanValue(true), 2), value(const BooleanValue(false), 1)],
       ).bars.map((bar) => bar.label),
       ['Off', 'On'],
     );
     expect(
       groupAdjustmentActivityHistogram(
         adjustment: text,
-        values: [value('Beta', 2), value('Alpha', 1), value('Beta', 3, 'other')],
+        values: [value(TextValue.orNull('Beta'), 2), value(TextValue.orNull('Alpha'), 1), value(TextValue.orNull('Beta'), 3, 'other')],
       ).bars.map((bar) => (bar.label, bar.activityCount)),
       [('Alpha', 1), ('Beta', 5)],
     );
@@ -55,15 +55,15 @@ void main() {
       name: 'Tyres',
       notes: null,
       unit: null,
-      options: {'Rear', 'Front', 'Spare'},
+      options: const {'Rear', 'Front', 'Spare'},
       multiSelect: true,
     );
 
     final result = groupAdjustmentActivityHistogram(
       adjustment: adjustment,
       values: [
-        value(['Front', 'Rear', 'Front'], 4),
-        value(['Front'], 2, 'other'),
+        value(CategoricalValue(const ['Front', 'Rear', 'Front']), 4),
+        value(CategoricalValue(const ['Front']), 2, 'other'),
       ],
     );
 
@@ -79,7 +79,7 @@ void main() {
     );
     final result = groupAdjustmentActivityHistogram(
       adjustment: adjustment,
-      values: [for (var index = 0; index < 12; index++) value(index / 2, 1, '$index')],
+      values: [for (var index = 0; index < 12; index++) value(NumericalValue(index / 2), 1, '$index')],
     );
 
     expect(result.isBinned, isFalse);
@@ -92,7 +92,7 @@ void main() {
     final adjustment = NumericalAdjustment(id: 'number', name: 'Value', notes: null, unit: null);
     final result = groupAdjustmentActivityHistogram(
       adjustment: adjustment,
-      values: [for (var index = -6; index <= 6; index++) value(index.toDouble(), 1, '$index')],
+      values: [for (var index = -6; index <= 6; index++) value(NumericalValue(index.toDouble()), 1, '$index')],
     );
 
     expect(result.isBinned, isTrue);
@@ -109,7 +109,7 @@ void main() {
     final result = groupAdjustmentActivityHistogram(
       adjustment: adjustment,
       values: [
-        for (var index = 0; index < 13; index++) value(Duration(seconds: index * 10), 1, '$index'),
+        for (var index = 0; index < 13; index++) value(DurationValue(Duration(seconds: index * 10)), 1, '$index'),
       ],
     );
 
@@ -121,7 +121,7 @@ void main() {
     final adjustment = SagAdjustment(id: 'sag', name: 'SAG', notes: null, referenceTravelMm: 160);
     final result = groupAdjustmentActivityHistogram(
       adjustment: adjustment,
-      values: [value(20.0, 2), value(25.0, 3, 'other')],
+      values: [value(const NumericalValue(20.0), 2), value(const NumericalValue(25.0), 3, 'other')],
     );
 
     expect(result.bars.map((bar) => bar.label), ['20 %', '25 %']);
@@ -131,7 +131,7 @@ void main() {
     final adjustment = NumericalAdjustment(id: 'number', name: 'Value', notes: null, unit: null);
     final result = groupAdjustmentActivityHistogram(
       adjustment: adjustment,
-      values: [value(null, 4), value(2.0, 0), value(double.infinity, 2)],
+      values: [value(null, 4), value(const NumericalValue(2.0), 0), value(const NumericalValue(double.infinity), 2)],
     );
 
     expect(result.isEmpty, isTrue);

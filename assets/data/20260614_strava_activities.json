@@ -12,7 +12,8 @@
       "distanceKm": 24,
       "ascentM": 720,
       "movingMin": 95,
-      "elapsedMin": 150
+      "elapsedMin": 150,
+      "avgPowerW": 165
     },
     {
       "name": "Bikepark Winterberg",
@@ -24,7 +25,8 @@
       "distanceKm": 18,
       "ascentM": 380,
       "movingMin": 75,
-      "elapsedMin": 300
+      "elapsedMin": 300,
+      "avgPowerW": 95
     },
     {
       "name": "Hometrails - post fork service",
@@ -36,7 +38,8 @@
       "distanceKm": 21,
       "ascentM": 640,
       "movingMin": 80,
-      "elapsedMin": 120
+      "elapsedMin": 120,
+      "avgPowerW": 170
     },
     {
       "name": "Saalbach - Big Day Out",
@@ -48,7 +51,8 @@
       "distanceKm": 42,
       "ascentM": 1950,
       "movingMin": 165,
-      "elapsedMin": 260
+      "elapsedMin": 260,
+      "avgPowerW": 140
     },
     {
       "name": "Saalbach - Hacklberg & Pro Line",
@@ -60,7 +64,8 @@
       "distanceKm": 38,
       "ascentM": 1700,
       "movingMin": 150,
-      "elapsedMin": 240
+      "elapsedMin": 240,
+      "avgPowerW": 135
     },
     {
       "name": "Flowtrail Stromberg",
@@ -72,7 +77,8 @@
       "distanceKm": 16,
       "ascentM": 320,
       "movingMin": 55,
-      "elapsedMin": 110
+      "elapsedMin": 110,
+      "avgPowerW": 150
     },
     {
       "name": "Leogang - Worldcup Track (wet)",
@@ -84,7 +90,8 @@
       "distanceKm": 15,
       "ascentM": 300,
       "movingMin": 60,
-      "elapsedMin": 280
+      "elapsedMin": 280,
+      "avgPowerW": 90
     },
     {
       "name": "Leogang - Speedster (dry)",
@@ -96,7 +103,8 @@
       "distanceKm": 22,
       "ascentM": 460,
       "movingMin": 85,
-      "elapsedMin": 300
+      "elapsedMin": 300,
+      "avgPowerW": 100
     },
     {
       "name": "Mia - Hometrails",
@@ -108,7 +116,8 @@
       "distanceKm": 19,
       "ascentM": 560,
       "movingMin": 78,
-      "elapsedMin": 120
+      "elapsedMin": 120,
+      "avgPowerW": 130
     },
     {
       "name": "Bikepark Lac Blanc",
@@ -120,7 +129,8 @@
       "distanceKm": 20,
       "ascentM": 520,
       "movingMin": 80,
-      "elapsedMin": 260
+      "elapsedMin": 260,
+      "avgPowerW": 110
     },
     {
       "name": "Finale Ligure - NATO Trail",
@@ -132,7 +142,8 @@
       "distanceKm": 28,
       "ascentM": 900,
       "movingMin": 110,
-      "elapsedMin": 240
+      "elapsedMin": 240,
+      "avgPowerW": 160
     },
     {
       "name": "Finale Ligure - DH Men",
@@ -144,7 +155,8 @@
       "distanceKm": 24,
       "ascentM": 780,
       "movingMin": 100,
-      "elapsedMin": 220
+      "elapsedMin": 220,
+      "avgPowerW": 155
     },
     {
       "name": "Finale - eMTB explore day",
@@ -156,7 +168,8 @@
       "distanceKm": 45,
       "ascentM": 2100,
       "movingMin": 180,
-      "elapsedMin": 280
+      "elapsedMin": 280,
+      "avgPowerW": 145
     },
     {
       "name": "Gravel - Kaiserstuhl Loop",
@@ -168,7 +181,8 @@
       "distanceKm": 86,
       "ascentM": 640,
       "movingMin": 210,
-      "elapsedMin": 250
+      "elapsedMin": 250,
+      "avgPowerW": 185
     },
     {
       "name": "Mia - Bikepark Willingen",
@@ -180,7 +194,8 @@
       "distanceKm": 17,
       "ascentM": 360,
       "movingMin": 70,
-      "elapsedMin": 290
+      "elapsedMin": 290,
+      "avgPowerW": 85
     },
     {
       "name": "Hometrails - end of May reference",
@@ -192,7 +207,8 @@
       "distanceKm": 23,
       "ascentM": 700,
       "movingMin": 90,
-      "elapsedMin": 140
+      "elapsedMin": 140,
+      "avgPowerW": 172
     }
   ]
 }

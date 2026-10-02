@@ -129,7 +129,7 @@ void main() {
     });
 
     test('accepts partial legacy backup JSON and integer measurements', () {
-      final position = ContextPosition.fromJson({
+      final position = ContextPosition.fromJson(const {
         'latitude': 47,
         'longitude': null,
         'time': '2026-05-22T10:15:30+02:00',

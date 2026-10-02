@@ -97,6 +97,32 @@ double _measureTextWidth({
   return _textWidthCache[key] = painter.width;
 }
 
+/// The narrowest room worth showing a previous value in; below it the cell
+/// drops the previous value and its arrow rather than print a bare `…`.
+double cellMinPreviousWidth(BuildContext context) => MediaQuery.textScalerOf(context).scale(24);
+
+/// The value and unit segments of a cell's value line, without the previous
+/// value and its arrow.
+double _measureValueAndUnitWidth(BuildContext context, AdjustmentCell cell) {
+  var width = _measureTextWidth(
+    context: context,
+    role: 'value',
+    text: cell.displayText.value,
+    style: _resolveTextStyle(context, CellTextStyles.value),
+  );
+  final unit = cell.adjustment.unit;
+  if (unit != null) {
+    width += cellValueRowSpacing +
+        _measureTextWidth(
+          context: context,
+          role: 'unit',
+          text: unit.label,
+          style: _resolveTextStyle(context, CellTextStyles.unit),
+        );
+  }
+  return width;
+}
+
 /// The width a cell needs to show its label and value line without scrolling.
 double measureCellNaturalWidth(BuildContext context, AdjustmentCell cell) {
   final display = cell.displayText;
@@ -108,34 +134,39 @@ double measureCellNaturalWidth(BuildContext context, AdjustmentCell cell) {
     style: _resolveTextStyle(context, CellTextStyles.label(context)),
   );
 
-  var valueRowWidth = _measureTextWidth(
-    context: context,
-    role: 'value',
-    text: display.value,
-    style: _resolveTextStyle(context, CellTextStyles.value),
-  );
+  var valueRowWidth = _measureValueAndUnitWidth(context, cell);
   if (display.hasPrevious) {
     valueRowWidth += cellValueRowSpacing +
         _measureTextWidth(
           context: context,
           role: 'previous',
-          text: display.previous!,
+          text: display.previousForWidth!,
           style: _resolveTextStyle(context, CellTextStyles.change),
         );
     valueRowWidth += cellValueRowSpacing + cellChangeArrowExtent(context);
   }
-  final unit = cell.adjustment.unit;
-  if (unit != null) {
-    valueRowWidth += cellValueRowSpacing +
-        _measureTextWidth(
-          context: context,
-          role: 'unit',
-          text: unit.label,
-          style: _resolveTextStyle(context, CellTextStyles.unit),
-        );
-  }
 
   return math.max(labelWidth, valueRowWidth) + 2 * cellHorizontalPadding;
+}
+
+/// Whether a changed cell [width] wide keeps its value and unit fully in view
+/// with room left for the previous value — all of it, or at least
+/// [cellMinPreviousWidth] of a longer one; the value wins, so otherwise the
+/// cell drops the previous value.
+bool cellFitsPrevious(BuildContext context, AdjustmentCell cell, double width) {
+  final previous = cell.displayText.previous;
+  if (previous == null) return false;
+  final fixedWidth = _measureValueAndUnitWidth(context, cell) +
+      2 * cellValueRowSpacing +
+      cellChangeArrowExtent(context) +
+      2 * cellHorizontalPadding;
+  final previousWidth = _measureTextWidth(
+    context: context,
+    role: 'previous',
+    text: previous,
+    style: _resolveTextStyle(context, CellTextStyles.change),
+  );
+  return fixedWidth + math.min(cellMinPreviousWidth(context), previousWidth) <= width;
 }
 
 /// The widest a cell may be while packing rows: half a row, so any two cells

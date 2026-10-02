@@ -15,7 +15,7 @@ final NumericalAdjustment ridingWeightPreset = NumericalAdjustment(name: 'Riding
 final List<Adjustment> _adjustmentPresets = [
   ridingWeightPreset,
   NumericalAdjustment(name: 'Height', unit: AdjustmentUnit.fromLegacy('cm'), min: 0.0, notes: "Body height", presetKey: "person:height"),
-  CategoricalAdjustment(name: 'Riding Style', unit: null, options: {'Plush/Comfort', 'Balanced', 'Aggressive/Race'}, notes: "Aggressive riders usually require higher support (more compression damping).", presetKey: "person:riding_style"),
+  CategoricalAdjustment(name: 'Riding Style', unit: null, options: const {'Plush/Comfort', 'Balanced', 'Aggressive/Race'}, notes: "Aggressive riders usually require higher support (more compression damping).", presetKey: "person:riding_style"),
 ];
 
 void showPersonAddAdjustmentBottomSheet({

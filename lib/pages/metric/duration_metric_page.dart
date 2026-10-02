@@ -54,7 +54,7 @@ class _DurationMetricPageState extends State<DurationMetricPage> {
   late DurationAdjustment? _initialAdj;
   late double _initialWeight;
 
-  Duration _previewValue = Duration.zero;
+  DurationValue _previewValue = const DurationValue(Duration.zero);
   late DurationAdjustment _previewAdjustment;
 
   @override
@@ -67,9 +67,9 @@ class _DurationMetricPageState extends State<DurationMetricPage> {
     _nameController.addListener(_changeListener);
     _notesController = TextEditingController(text: _initialAdj?.notes);
     _notesController.addListener(_changeListener);
-    _minController = TextEditingController(text: _initialAdj?.min == null ? null : Adjustment.formatValue(_initialAdj?.min));
+    _minController = TextEditingController(text: _initialAdj?.min == null ? null : DurationValue(_initialAdj!.min!).display);
     _minController.addListener(_changeListener);
-    _maxController = TextEditingController(text: _initialAdj?.max == null ? null : Adjustment.formatValue(_initialAdj?.max));
+    _maxController = TextEditingController(text: _initialAdj?.max == null ? null : DurationValue(_initialAdj!.max!).display);
     _maxController.addListener(_changeListener);
     _weightController = TextEditingController(text: MetricWeightField.formatWeight(_initialWeight));
     _weightController.addListener(_changeListener);
@@ -79,7 +79,7 @@ class _DurationMetricPageState extends State<DurationMetricPage> {
       notes: null,
       unit: null,
     );
-    _previewValue = _previewAdjustment.min ?? Duration.zero;
+    _previewValue = DurationValue(_previewAdjustment.min ?? Duration.zero);
     if (widget.mode != MetricPageMode.add) _expanded = true;
   }
 
@@ -243,7 +243,7 @@ class _DurationMetricPageState extends State<DurationMetricPage> {
                                     adjustment: DurationAdjustment(name: 'Min', notes: null, unit: null, max: _previewAdjustment.max),
                                     value: _previewAdjustment.min,
                                     onChanged: (Duration newValue) {
-                                      _minController.text = Adjustment.formatValue(newValue);
+                                      _minController.text = DurationValue(newValue).display;
                                       _updatePreview(min: newValue, max: _previewAdjustment.max);
                                     }
                                   );
@@ -281,7 +281,7 @@ class _DurationMetricPageState extends State<DurationMetricPage> {
                                     adjustment: DurationAdjustment(name: 'Max', notes: null, unit: null, min: _previewAdjustment.min),
                                     value: _previewAdjustment.max,
                                     onChanged: (Duration newValue) {
-                                      _maxController.text = Adjustment.formatValue(newValue);
+                                      _maxController.text = DurationValue(newValue).display;
                                       _updatePreview(min: _previewAdjustment.min, max: newValue);
                                     }
                                   );
@@ -358,11 +358,11 @@ class _DurationMetricPageState extends State<DurationMetricPage> {
                   child: SetDurationAdjustmentWidget(
                     key: ValueKey(_previewAdjustment),
                     adjustment: _previewAdjustment,
-                    initialValue: Duration.zero,
+                    initialValue: const DurationValue(Duration.zero),
                     value: _previewValue,
-                    onChanged: (Duration? newValue) {
+                    onChanged: (DurationValue? newValue) {
                       setState(() {
-                        _previewValue = newValue ?? Duration.zero;
+                        _previewValue = newValue ?? const DurationValue(Duration.zero);
                       });
                     },
                     highlighting: false,

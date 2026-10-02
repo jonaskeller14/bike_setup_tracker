@@ -11,6 +11,7 @@ part 'activity_count_threshold.dart';
 part 'datetime_threshold.dart';
 part 'kilojoules_threshold.dart';
 
+@immutable
 sealed class TaskThreshold {
   const TaskThreshold();
 

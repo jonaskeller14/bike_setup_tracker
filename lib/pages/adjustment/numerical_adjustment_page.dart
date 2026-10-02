@@ -64,7 +64,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
   AdjustmentUnit? _unit;
   late AdjustmentUnit? _initialUnit;
 
-  String? _previewValue;
+  NumericalValue? _previewValue;
   late NumericalAdjustment _previewAdjustment;
 
   @override
@@ -515,7 +515,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                     adjustment: _previewAdjustment,
                     initialValue: null,
                     value: _previewValue,
-                    onChanged: (String? newValue) {
+                    onChanged: (NumericalValue? newValue) {
                       setState(() {
                         _previewValue = newValue;
                       });

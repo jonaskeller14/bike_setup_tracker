@@ -14,22 +14,19 @@ Component component(String id, List<Installation> installations, {int orderIndex
   orderIndex: orderIndex,
 );
 
-Installation onBike(String componentId, String bikeId) => BikeInstallation(
-  componentId: componentId,
+Installation onBike(String bikeId) => BikeInstallation(
   bikeId: bikeId,
   dateTimeUTC: DateTime.utc(2026, 1, 1),
   dateTimeLocal: DateTime(2026, 1, 1),
 );
 
-Installation onComponent(String componentId, String parentId) => ComponentInstallation(
-  componentId: componentId,
+Installation onComponent(String parentId) => ComponentInstallation(
   parentComponentId: parentId,
   dateTimeUTC: DateTime.utc(2026, 1, 1),
   dateTimeLocal: DateTime(2026, 1, 1),
 );
 
-Installation archived(String componentId) => Archival(
-  componentId: componentId,
+Installation archived() => Archival(
   dateTimeUTC: DateTime.utc(2026, 1, 1),
   dateTimeLocal: DateTime(2026, 1, 1),
 );
@@ -44,8 +41,8 @@ List<String> idsOf(Iterable<Component> components) => components.map((c) => c.id
 void main() {
   test('returns every component as its own entry when nothing is mounted on a component', () {
     final components = [
-      component('frame', [onBike('frame', 'bike')], orderIndex: 0),
-      component('fork', [onBike('fork', 'bike')], orderIndex: 1),
+      component('frame', [onBike('bike')], orderIndex: 0),
+      component('fork', [onBike('bike')], orderIndex: 1),
     ];
 
     final groups = garageGroupsFor(components, hierarchy: resolverOf(components));
@@ -60,9 +57,9 @@ void main() {
 
   test('groups two children under their parent', () {
     final components = [
-      component('wheel', [onBike('wheel', 'bike')], orderIndex: 0),
-      component('tire', [onComponent('tire', 'wheel')], orderIndex: 1),
-      component('rotor', [onComponent('rotor', 'wheel')], orderIndex: 2),
+      component('wheel', [onBike('bike')], orderIndex: 0),
+      component('tire', [onComponent('wheel')], orderIndex: 1),
+      component('rotor', [onComponent('wheel')], orderIndex: 2),
     ];
 
     final groups = garageGroupsFor(components, hierarchy: resolverOf(components));
@@ -76,10 +73,10 @@ void main() {
 
   test('flattens a three-level chain into one group, depth-first', () {
     final components = [
-      component('wheel', [onBike('wheel', 'bike')], orderIndex: 0),
-      component('tire', [onComponent('tire', 'wheel')], orderIndex: 1),
-      component('insert', [onComponent('insert', 'tire')], orderIndex: 2),
-      component('valve', [onComponent('valve', 'wheel')], orderIndex: 3),
+      component('wheel', [onBike('bike')], orderIndex: 0),
+      component('tire', [onComponent('wheel')], orderIndex: 1),
+      component('insert', [onComponent('tire')], orderIndex: 2),
+      component('valve', [onComponent('wheel')], orderIndex: 3),
     ];
 
     final groups = garageGroupsFor(components, hierarchy: resolverOf(components));
@@ -90,9 +87,9 @@ void main() {
 
   test('a child whose parent lives in another section roots its own group', () {
     final all = [
-      component('wheel', [onBike('wheel', 'bike')], orderIndex: 0),
-      component('tire', [onComponent('tire', 'wheel')], orderIndex: 1),
-      component('insert', [onComponent('insert', 'tire')], orderIndex: 2),
+      component('wheel', [onBike('bike')], orderIndex: 0),
+      component('tire', [onComponent('wheel')], orderIndex: 1),
+      component('insert', [onComponent('tire')], orderIndex: 2),
     ];
     // The section holds the tire and its insert, but not the wheel they hang off.
     final section = all.where((c) => c.id != 'wheel');
@@ -106,8 +103,8 @@ void main() {
 
   test('an archived parent still carries its children', () {
     final components = [
-      component('wheel', [archived('wheel')], orderIndex: 0),
-      component('tire', [onComponent('tire', 'wheel')], orderIndex: 1),
+      component('wheel', [archived()], orderIndex: 0),
+      component('tire', [onComponent('wheel')], orderIndex: 1),
     ];
 
     final groups = garageGroupsFor(components, hierarchy: resolverOf(components));
@@ -119,10 +116,10 @@ void main() {
 
   test('orders roots and direct children by orderIndex', () {
     final components = [
-      component('tire-b', [onComponent('tire-b', 'wheel')], orderIndex: 5),
-      component('frame', [onBike('frame', 'bike')], orderIndex: 9),
-      component('tire-a', [onComponent('tire-a', 'wheel')], orderIndex: 3),
-      component('wheel', [onBike('wheel', 'bike')], orderIndex: 1),
+      component('tire-b', [onComponent('wheel')], orderIndex: 5),
+      component('frame', [onBike('bike')], orderIndex: 9),
+      component('tire-a', [onComponent('wheel')], orderIndex: 3),
+      component('wheel', [onBike('bike')], orderIndex: 1),
     ];
 
     final groups = garageGroupsFor(components, hierarchy: resolverOf(components));
@@ -133,8 +130,8 @@ void main() {
 
   test('a cyclic pair renders as plain entries instead of looping', () {
     final components = [
-      component('a', [onComponent('a', 'b')], orderIndex: 0),
-      component('b', [onComponent('b', 'a')], orderIndex: 1),
+      component('a', [onComponent('b')], orderIndex: 0),
+      component('b', [onComponent('a')], orderIndex: 1),
     ];
 
     final groups = garageGroupsFor(components, hierarchy: resolverOf(components));
@@ -145,9 +142,9 @@ void main() {
 
   test('a component below a cycle roots its own group', () {
     final components = [
-      component('a', [onComponent('a', 'b')], orderIndex: 0),
-      component('b', [onComponent('b', 'a')], orderIndex: 1),
-      component('tire', [onComponent('tire', 'a')], orderIndex: 2),
+      component('a', [onComponent('b')], orderIndex: 0),
+      component('b', [onComponent('a')], orderIndex: 1),
+      component('tire', [onComponent('a')], orderIndex: 2),
     ];
 
     final groups = garageGroupsFor(components, hierarchy: resolverOf(components));
@@ -158,7 +155,7 @@ void main() {
 
   test('a component whose parent id does not exist roots its own group', () {
     final components = [
-      component('tire', [onComponent('tire', 'ghost-wheel')], orderIndex: 0),
+      component('tire', [onComponent('ghost-wheel')], orderIndex: 0),
     ];
 
     final groups = garageGroupsFor(components, hierarchy: resolverOf(components));
@@ -170,9 +167,9 @@ void main() {
 
   test('each component appears exactly once across all groups', () {
     final components = [
-      component('wheel', [onBike('wheel', 'bike')], orderIndex: 0),
-      component('tire', [onComponent('tire', 'wheel')], orderIndex: 1),
-      component('frame', [onBike('frame', 'bike')], orderIndex: 2),
+      component('wheel', [onBike('bike')], orderIndex: 0),
+      component('tire', [onComponent('wheel')], orderIndex: 1),
+      component('frame', [onBike('bike')], orderIndex: 2),
     ];
 
     final groups = garageGroupsFor(components, hierarchy: resolverOf(components));
@@ -182,10 +179,10 @@ void main() {
 
   group('garageGroupOf', () {
     final components = [
-      component('frame', [onBike('frame', 'bike')], orderIndex: 0),
-      component('wheel', [onComponent('wheel', 'frame')], orderIndex: 1),
-      component('tire', [onComponent('tire', 'wheel')], orderIndex: 2),
-      component('fork', [onBike('fork', 'bike')], orderIndex: 3),
+      component('frame', [onBike('bike')], orderIndex: 0),
+      component('wheel', [onComponent('frame')], orderIndex: 1),
+      component('tire', [onComponent('wheel')], orderIndex: 2),
+      component('fork', [onBike('bike')], orderIndex: 3),
     ];
     final byId = {for (final c in components) c.id: c};
 
@@ -219,9 +216,9 @@ void main() {
 
   group('idsMovedWith', () {
     final components = [
-      component('frame', [onBike('frame', 'bike')]),
-      component('wheel', [onComponent('wheel', 'frame')]),
-      component('tire', [onComponent('tire', 'wheel')]),
+      component('frame', [onBike('bike')]),
+      component('wheel', [onComponent('frame')]),
+      component('tire', [onComponent('wheel')]),
     ];
 
     test('nothing moves without a drag', () {

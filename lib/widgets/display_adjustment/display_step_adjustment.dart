@@ -7,8 +7,8 @@ import 'toggleable_unit_value.dart';
 
 class DisplayStepAdjustmentWidget extends StatelessWidget {
   final StepAdjustment adjustment;
-  final num? initialValue;
-  final num? value;
+  final StepValue? initialValue;
+  final StepValue? value;
   final bool highlighting;
   final bool isError;
   final VoidCallback? onRemove;
@@ -59,7 +59,7 @@ class DisplayStepAdjustmentWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               trailing: [
                 Text(
-                  "[${Adjustment.formatValue(adjustment.min)}..${Adjustment.formatValue(adjustment.max)}]",
+                  "[${adjustment.min}..${adjustment.max}]",
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: isError
                         ? highlightColor

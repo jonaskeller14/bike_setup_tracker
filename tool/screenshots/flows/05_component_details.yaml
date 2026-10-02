@@ -1,0 +1,78 @@
+# 05 Component details: the Lyrik's line and radial charts over all setups.
+# The phone shows both charts; the tablet has room for the table above them.
+appId: ${APP_ID}
+---
+- runFlow: _launch.yaml
+- tapOn:
+    id: nav.bikes
+# RockShox Lyrik Ultimate: double-tap opens its details page
+- doubleTapOn:
+    id: garage.component.e47480ee-0f71-453e-bb97-61d2041d05f5
+- waitForAnimationToEnd:
+    timeout: 5000
+- scrollUntilVisible:
+    element:
+      id: setupTable.selectAll
+    direction: DOWN
+# Drop Pressure (~85 psi) from the table and both charts; it would squash the
+# click-based lines at the bottom of the line chart. Adjustment names are
+# record data, so selecting the chip by text is stable.
+- tapOn:
+    id: componentDetails.columns
+- tapOn: Pressure
+- runFlow: _dismiss_sheet.yaml
+# The charts compare the table's selected setups, by default only the latest
+# three.
+- tapOn:
+    id: setupTable.selectAll
+# Highlight the newest setup in the radial chart.
+- scrollUntilVisible:
+    element:
+      id: radialChart.legend.0
+    direction: DOWN
+- tapOn:
+    id: radialChart.legend.0
+
+# Swiping from an element slowly (no fling) moves its centre to 10 % of the
+# screen height, just below the app bar.
+- runFlow:
+    when:
+      true: ${DEVICE == 'tablet'}
+    commands:
+      - scrollUntilVisible:
+          element:
+            id: componentDetails.adjustmentHistory
+          direction: UP
+      - swipe:
+          from:
+            id: componentDetails.adjustmentHistory
+          direction: UP
+          duration: 10000
+- runFlow:
+    when:
+      true: ${DEVICE != 'tablet'}
+    commands:
+      - scrollUntilVisible:
+          element:
+            id: componentDetails.lineChart
+          direction: UP
+          centerElement: true
+      - swipe:
+          from:
+            id: componentDetails.lineChart
+          direction: UP
+          duration: 10000
+      # The iPhone's status bar plus app bar are taller than 10 % of the
+      # screen, so the title ends up under the app bar: drag it back out.
+      - runFlow:
+          when:
+            platform: iOS
+          commands:
+            - swipe:
+                start: 50%, 50%
+                end: 50%, 55%
+                duration: 3000
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot:
+    path: 05_raw

@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../theme.dart';
+import '../attachment.dart';
 import 'task_association.dart';
 import 'task_threshold/task_threshold.dart';
 
 part 'task_priority.dart';
 part 'task_status.dart';
 
+@immutable
 class TaskRule {
   final String id;
   final bool isDeleted;
@@ -21,6 +23,7 @@ class TaskRule {
   final TaskThreshold? interval;
   final TaskThreshold? delay;
   final bool repeat;
+  final List<Attachment> attachments;
 
   TaskRule({
     String? id,
@@ -34,7 +37,9 @@ class TaskRule {
     this.interval,
     this.delay,
     this.repeat = true,
+    List<Attachment>? attachments,
   }) : id = id ?? const Uuid().v4(),
+      attachments = attachments ?? const [],
       isDeleted = isDeleted ?? false,
       lastModified = lastModified?.toUtc() ?? DateTime.now().toUtc() {
     assert(interval?.requiresActivityData != true || association is! GeneralTaskAssociation,
@@ -42,7 +47,7 @@ class TaskRule {
   }
 
   Map<String, dynamic> toJson() => {
-    'version': 2,
+    'version': 3,
     'id': id,
     "isDeleted": isDeleted,
     "lastModified": lastModified.toUtc().toIso8601String(),
@@ -54,6 +59,7 @@ class TaskRule {
     'interval': interval?.toJson(),
     'delay': delay?.toJson(),
     'repeat': repeat,
+    'attachments': attachments.map((a) => a.toJson()).toList(),
   };
 
   factory TaskRule.fromJson(Map<String, dynamic> json) {
@@ -83,7 +89,7 @@ class TaskRule {
               : null,
           repeat: json["repeat"] as bool? ?? true,
         );
-      case 2:
+      case 2 || 3:
         return TaskRule(
           id: json["id"] as String,
           isDeleted: json["isDeleted"] as bool,
@@ -103,6 +109,9 @@ class TaskRule {
               ? TaskThreshold.fromJson(json["delay"] as Map<String, dynamic>)
               : null,
           repeat: json["repeat"] as bool? ?? true,
+          attachments: (json['attachments'] as List?) // since version 3
+              ?.map((e) => Attachment.fromJson(e as Map<String, dynamic>))
+              .toList(),
         );
       default: throw Exception("Json Version $version of TaskRule incompatible.");
     }
@@ -123,7 +132,8 @@ class TaskRule {
         association == other.association &&
         interval == other.interval &&
         delay == other.delay &&
-        repeat == other.repeat;
+        repeat == other.repeat &&
+        listEquals(attachments, other.attachments);
   }
 
   @override
@@ -140,10 +150,13 @@ class TaskRule {
       interval,
       delay,
       repeat,
+      Object.hashAll(attachments),
     );
   }
 
   TaskRule deepCopy() {
+    // Callers are responsible for copying attachment files via AttachmentStorageService.copyExisting
+    // for each attachment in the returned task rule's attachments list before persisting.
     return TaskRule(
       name: name, 
       notes: notes,
@@ -153,6 +166,7 @@ class TaskRule {
       interval: interval,
       delay: delay,
       repeat: repeat,
+      attachments: List.from(attachments),
     );
   }
 
@@ -168,6 +182,7 @@ class TaskRule {
     Object? interval = const _Sentinel(),
     Object? delay = const _Sentinel(),
     Object? repeat = const _Sentinel(),
+    Object? attachments = const _Sentinel(),
   }) {
     return TaskRule(
       id: id is _Sentinel 
@@ -203,6 +218,9 @@ class TaskRule {
       repeat: repeat is _Sentinel
           ? this.repeat
           : (repeat as bool),
+      attachments: attachments is _Sentinel
+          ? this.attachments
+          : (attachments as List<Attachment>),
     );
   }
 }

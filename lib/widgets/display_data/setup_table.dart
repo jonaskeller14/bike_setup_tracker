@@ -11,6 +11,7 @@ import '../../models/bike.dart';
 import '../../models/context/context_weather.dart';
 import '../../models/setup.dart';
 import '../../theme.dart';
+import '../../utils/automation_ids.dart';
 import '../../utils/table_column.dart';
 
 class SetupTable extends StatefulWidget {
@@ -21,9 +22,11 @@ class SetupTable extends StatefulWidget {
   final TableColumn? sortColumn;
   final Map<String, Bike> bikes;
   final Map<String, int> setupActivityCounts;
-  final dynamic Function(Setup setup, TableColumn column) valueFor;
+  final AdjustmentValue? Function(Setup setup, TableColumn column) valueFor;
   final bool Function(Setup setup, TableColumn column)? isDangling;
+  final AdjustmentValue? Function(Setup setup, TableColumn column)? previousValueFor;
   final String Function(TableColumn column) columnLabel;
+  final String? Function(TableColumn column)? columnTooltip;
   final void Function(TableColumn column, bool ascending) onSort;
   final ValueChanged<TableColumn> onColumnRemoved;
   final ValueChanged<bool?>? onSelectAll;
@@ -42,6 +45,8 @@ class SetupTable extends StatefulWidget {
     required this.onSort,
     required this.onColumnRemoved,
     this.isDangling,
+    this.previousValueFor,
+    this.columnTooltip,
     this.selectedSetupIds,
     this.onSelectAll,
     this.onSetupSelected,
@@ -103,20 +108,30 @@ class _SetupTableState extends State<SetupTable> {
 
   DataColumn _selectionColumn() {
     return DataColumn(
-      label: Checkbox(
-        key: const ValueKey('select-all-setups'),
-        value: _selectAllValue,
-        tristate: true,
-        onChanged: (_) {
-          unawaited(HapticFeedback.selectionClick());
-          widget.onSelectAll!(!_allSetupsSelected);
-        },
+      label: Semantics(
+        container: true,
+        identifier: AutomationIds.setupTableSelectAll,
+        child: Checkbox(
+          key: const ValueKey('select-all-setups'),
+          value: _selectAllValue,
+          tristate: true,
+          onChanged: (_) {
+            unawaited(HapticFeedback.selectionClick());
+            widget.onSelectAll!(!_allSetupsSelected);
+          },
+        ),
       ),
     );
   }
 
   DataColumn _dataColumn(TableColumn column) {
     final isSorted = widget.sortColumn == column;
+    final tooltip = widget.columnTooltip?.call(column);
+    final label = Text(
+      widget.columnLabel(column),
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(fontWeight: FontWeight.bold),
+    );
 
     void sort() {
       widget.onSort(column, isSorted ? !widget.sortAscending : true);
@@ -134,11 +149,10 @@ class _SetupTableState extends State<SetupTable> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Flexible(
-              child: Text(
-                widget.columnLabel(column),
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
+              child: tooltip == null
+                  ? label
+                  // Hover only: on touch, tap sorts and long-press removes the column.
+                  : Tooltip(message: tooltip, triggerMode: TooltipTriggerMode.manual, child: label),
             ),
             const SizedBox(width: 4),
             Opacity(
@@ -257,17 +271,19 @@ class _SetupTableState extends State<SetupTable> {
         };
       case ComponentAdjustmentColumn(:final adjustmentId):
         return _adjustmentCell(context, setup, column, setup.previousBikeAdjustmentValues[adjustmentId]);
+      case BikeAdjustmentColumn():
+        return _adjustmentCell(context, setup, column, widget.previousValueFor?.call(setup, column));
       case PersonAttributeColumn(:final adjustmentId):
         return _adjustmentCell(context, setup, column, setup.previousPersonAdjustmentValues[adjustmentId]);
       case RatingScoreColumn() || RatingMetricColumn():
-        final score = widget.valueFor(setup, column) as double?;
+        final score = widget.valueFor(setup, column)?.asNum;
         return DataCell(
           Center(child: Text(score == null ? '-' : "${score.toStringAsFixed(1)} / 10")),
         );
     }
   }
 
-  DataCell _adjustmentCell(BuildContext context, Setup setup, TableColumn column, dynamic previousValue) {
+  DataCell _adjustmentCell(BuildContext context, Setup setup, TableColumn column, AdjustmentValue? previousValue) {
     final value = widget.valueFor(setup, column);
     final bool isChanged = value != null && previousValue != value;
     final bool isInitial = previousValue == null;
@@ -282,7 +298,7 @@ class _SetupTableState extends State<SetupTable> {
     return DataCell(
       Center(
         child: Text(
-          Adjustment.formatValue(value),
+          value?.display ?? '-',
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
             color: highlightColor,

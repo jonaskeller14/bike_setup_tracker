@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/database/mappers.dart';
+import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
@@ -182,17 +183,15 @@ void main() {
       final setup = (await db.setupsDao.getSetup('s1'))!.toModel(values: typed);
       final v = setup.bikeAdjustmentValues;
 
-      expect(v['b1adj'], true);
-      expect(v['n1'], 1.5);
-      expect(v['st1'], 3);
-      expect(v['txt1'], 'hello world');
-      // The whole point: JSON-looking text survives as a String, not a List.
-      expect(v['txt2'], isA<String>());
-      expect(v['txt2'], '["abc"]');
-      expect(v['c1'], isA<List<String>>());
-      expect(v['c1'], ['Open']);
-      expect(v['c2'], ['[1,2]']);
-      expect(v['d1'], const Duration(seconds: 10));
+      expect(v['b1adj'], const BooleanValue(true));
+      expect(v['n1'], const NumericalValue(1.5));
+      expect(v['st1'], const StepValue(3));
+      expect(v['txt1'], TextValue.orNull('hello world'));
+      // The whole point: JSON-looking text survives as text, not a list.
+      expect(v['txt2'], TextValue.orNull('["abc"]'));
+      expect(v['c1'], CategoricalValue(const ['Open']));
+      expect(v['c2'], CategoricalValue(const ['[1,2]']));
+      expect(v['d1'], const DurationValue(Duration(seconds: 10)));
     });
   });
 }

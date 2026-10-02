@@ -21,7 +21,7 @@ void main() {
         "person": "p1",
       };
 
-      final setup = Setup.fromJson(json: json);
+      final setup = Setup.fromJson(json: json, adjustmentTypes: const {});
       expect(setup.datetime.isUtc, true);
       
       // Face value should be exactly 10 floating hours!

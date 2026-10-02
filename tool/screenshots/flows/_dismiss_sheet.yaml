@@ -1,0 +1,17 @@
+# Shared subflow: close the open modal bottom sheet. iOS has no Back key, so
+# it taps the barrier above the sheet instead.
+appId: ${APP_ID}
+---
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - pressKey: Back
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn:
+          point: 50%, 10%
+- waitForAnimationToEnd:
+    timeout: 3000

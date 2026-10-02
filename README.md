@@ -40,7 +40,7 @@ Here are the current development goals and their status:
 - [x] Publish for **iOS** ➡️ **Live on App Store**
 - [x] Migration to **drift SQL database**
 - [x] **Task Manager** to plan & track service, rides, testing and more ➡️ **Opt-in, now with recurring tasks**
-- [ ] **Setup images** to capture how a configuration looked ➡️ **In development**
+- [x] **Attachments** to add images & files to setups, bikes, components and tasks ➡️ **Opt-in, stored on-device**
 - [ ] **Rating procedure** to distinguish good setups from bad ➡️ **In development**
 - [ ] **Marketing** push to grow the user base ➡️ **Next up**
 - [ ] Add a **rider profile** (track body weight, ...) ➡️ **Planned**

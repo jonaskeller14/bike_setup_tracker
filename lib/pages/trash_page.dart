@@ -277,6 +277,7 @@ class _TrashPageState extends State<TrashPage> {
   }
 }
 
+@immutable
 sealed class _TrashItem {
   String get id;
   DateTime get lastModified;

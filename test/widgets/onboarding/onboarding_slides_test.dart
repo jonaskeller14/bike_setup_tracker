@@ -171,12 +171,12 @@ void main() {
 
   group('slide 4', () {
     double rebound(WidgetTester tester) =>
-        tester.widget<SetStepAdjustmentWidget>(find.byType(SetStepAdjustmentWidget)).value!;
+        tester.widget<SetStepAdjustmentWidget>(find.byType(SetStepAdjustmentWidget)).value!.value.toDouble();
 
     double pressure(WidgetTester tester) => tester
         .widget<DisplayNumericalAdjustmentWidget>(find.byType(DisplayNumericalAdjustmentWidget))
         .value!
-        .toDouble();
+        .value;
 
     /// A touch that lands on the card without reaching a control.
     Future<void> touchCard(WidgetTester tester) async {

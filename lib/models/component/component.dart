@@ -4,11 +4,13 @@ import 'package:uuid/uuid.dart';
 
 import '../../icons/bike_icons.dart';
 import '../adjustment/adjustment.dart';
+import '../attachment.dart';
 import '../component_stats.dart';
 import 'installation.dart';
 
 part 'component_type.dart';
 
+@immutable
 class Component {
   final String id;
   final bool isDeleted;
@@ -22,6 +24,7 @@ class Component {
   final ComponentStats initialStats;
   final String? presetKey;
   final String? presetDamperKey;
+  final List<Attachment> attachments;
 
   String? get parentId => parentIdAt(DateTime.now().toUtc());
 
@@ -67,12 +70,16 @@ class Component {
     this.presetDamperKey,
     List<Adjustment>? adjustments,
     this.initialStats = ComponentStats.zero,
+    List<Attachment>? attachments,
   }) : adjustments = adjustments ?? [],
+       attachments = attachments ?? const [],
        id = id ?? const Uuid().v4(),
        isDeleted = isDeleted ?? false,
        lastModified = lastModified?.toUtc() ?? DateTime.now().toUtc();
     
   Component deepCopy() {
+    // Callers are responsible for copying attachment files via AttachmentStorageService.copyExisting
+    // for each attachment in the returned component's attachments list before persisting.
     return Component(
       name: name,
       installations: installations.map((i) => i.copyWith()).toList(),
@@ -83,13 +90,14 @@ class Component {
       initialStats: initialStats,
       presetKey: presetKey,
       presetDamperKey: presetDamperKey,
+      attachments: List.from(attachments),
     );
   }
 
   Component copyWithNewInstallation(String? newBike) {
     return copyWith(
       installations: [
-        Installation.sinceBeginning(parent: newBike, componentId: id)
+        Installation.sinceBeginning(parent: newBike)
       ],
     );
   }
@@ -107,6 +115,7 @@ class Component {
     Object? initialStats = const _Sentinel(),
     Object? presetKey = const _Sentinel(),
     Object? presetDamperKey = const _Sentinel(),
+    Object? attachments = const _Sentinel(),
   }) {
     return Component(
       id: id is _Sentinel
@@ -145,11 +154,14 @@ class Component {
       presetDamperKey: presetDamperKey is _Sentinel
           ? this.presetDamperKey
           : (presetDamperKey as String?),
+      attachments: attachments is _Sentinel
+          ? this.attachments
+          : (attachments as List<Attachment>),
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'version': 5,
+    'version': 6,
     'id': id,
     "isDeleted": isDeleted,
     "lastModified": lastModified.toUtc().toIso8601String(),
@@ -162,6 +174,7 @@ class Component {
     'initialStats': initialStats.toJson(),
     'presetKey': presetKey,
     'presetDamperKey': presetDamperKey,
+    'attachments': attachments.map((a) => a.toJson()).toList(),
   };
 
   /// Reads the initial stats of any component version: nested since version 5,
@@ -190,7 +203,7 @@ class Component {
           name: json['name'] as String,
           componentType: ComponentType.fromString(json['componentType'] as String?),
           installations: [
-            Installation.sinceBeginning(parent: bike, componentId: json["id"] as String)
+            Installation.sinceBeginning(parent: bike)
           ],
           notes: json["notes"] as String?,
           adjustments: (json["adjustments"] as List<dynamic>?)
@@ -200,7 +213,7 @@ class Component {
           orderIndex: json["orderIndex"] as int? ?? 0,
           initialStats: _initialStatsFromJson(json),
         );
-      case 2 || 3 || 4 || 5:
+      case 2 || 3 || 4 || 5 || 6:
         return Component(
           id: json["id"] as String,
           isDeleted: json["isDeleted"] as bool,
@@ -208,7 +221,7 @@ class Component {
           name: json['name'] as String,
           componentType: ComponentType.fromString(json['componentType'] as String?),
           installations: (json["installations"] as List<dynamic>?)
-            ?.map((i) => Installation.fromJson(i as Map<String, dynamic>, componentId: json["id"] as String))
+            ?.map((i) => Installation.fromJson(i as Map<String, dynamic>))
             .toList() ?? [],
           notes: json["notes"] as String?,
           adjustments: (json["adjustments"] as List<dynamic>?)
@@ -219,6 +232,9 @@ class Component {
           initialStats: _initialStatsFromJson(json),
           presetKey: json["presetKey"] as String?,
           presetDamperKey: json["presetDamperKey"] as String?,
+          attachments: (json["attachments"] as List<dynamic>?) // since version 6
+            ?.map((a) => Attachment.fromJson(a as Map<String, dynamic>))
+            .toList(),
         );
       default: throw Exception("Json Version $version of Component incompatible.");
     }
@@ -239,7 +255,8 @@ class Component {
         listEquals(adjustments, other.adjustments) &&
         initialStats == other.initialStats &&
         presetKey == other.presetKey &&
-        presetDamperKey == other.presetDamperKey;
+        presetDamperKey == other.presetDamperKey &&
+        listEquals(attachments, other.attachments);
   }
 
   @override
@@ -256,6 +273,7 @@ class Component {
       initialStats,
       presetKey,
       presetDamperKey,
+      Object.hashAll(attachments),
     );
   }
 }

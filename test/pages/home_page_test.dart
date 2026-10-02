@@ -5,6 +5,7 @@ import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
+import 'package:bike_setup_tracker/models/filters/task_rule_filter.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
 import 'package:bike_setup_tracker/pages/onboarding_page.dart';
@@ -394,7 +395,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(_appBarTitle(tester), '1 selected');
 
-    appRepository.selectTaskRuleTag('service');
+    appRepository.filters.taskRule = TaskRuleFilter(tags: const {'service'});
     await tester.pumpAndSettle();
 
     expect(find.text('Plain'), findsNothing);
@@ -442,7 +443,7 @@ void main() {
 
       expect(_appBarTitle(tester), 'Bikes');
       expect(
-        appRepository.filteredBikes.values.map((bike) => bike.name).toList(),
+        appRepository.view.bikes.values.map((bike) => bike.name).toList(),
         ['Second bike', 'First bike'],
       );
     });
@@ -454,7 +455,7 @@ void main() {
       expect(_appBarTitle(tester), '1 selected');
 
       final secondBike = appRepository.bikes.values.firstWhere((bike) => bike.name == 'Second bike');
-      appRepository.onBikeTap(secondBike.id);
+      appRepository.filters.toggleBike(secondBike.id);
       await tester.pumpAndSettle();
 
       expect(find.text('First bike'), findsNothing);

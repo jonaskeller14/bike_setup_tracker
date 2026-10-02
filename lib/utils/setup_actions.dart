@@ -11,11 +11,10 @@ import '../models/setup.dart';
 import '../pages/forms/rating_entry_page.dart';
 import '../pages/forms/setup_page.dart';
 import '../repositories/app_repository.dart';
-import '../services/image_storage_service.dart';
 import '../services/share_service.dart';
 import '../widgets/app_snackbar.dart';
-import '../widgets/dialogs/confirmation.dart';
 import '../widgets/sheets/set_tags_bulk.dart';
+import 'attachment_actions.dart';
 import 'bike_actions.dart';
 import 'component_actions.dart';
 import 'to_text.dart';
@@ -70,7 +69,6 @@ class SetupActions {
 
   static Future<void> editSetup(BuildContext context, {required Setup setup}) async {
     final appRepository = context.read<AppRepository>();
-    final originalImages = List<String>.from(setup.images);
 
     final editedSetup = await Navigator.push<Setup>(
       context,
@@ -79,70 +77,27 @@ class SetupActions {
     if (editedSetup == null) return;
 
     await appRepository.editSetups([editedSetup]);
-
-    // Delete images that the user removed during editing.
-    final removedImages = originalImages.where((f) => !editedSetup.images.contains(f));
-    await ImageStorageService().deleteImages(removedImages);
-  }
-
-  static Future<bool> deleteImages(BuildContext context, {required Set<String> filenames}) async {
-    final appRepository = context.read<AppRepository>();
-    final messenger = ScaffoldMessenger.of(context);
-
-    final confirmed = await showConfirmationDialog(
-      context,
-      title: filenames.length == 1 ? 'Delete image?' : 'Delete ${filenames.length} images?',
-      content: 'The images are permanently deleted and removed from their setups. This action cannot be undone.',
-      trueText: 'Delete',
-      isDestructive: true,
-    );
-    if (!confirmed) return false;
-    unawaited(HapticFeedback.heavyImpact());
-
-    await appRepository.editSetups(
-      appRepository.setups.values
-          .where((setup) => setup.images.any(filenames.contains))
-          .map((setup) => setup.copyWith(images: setup.images.where((f) => !filenames.contains(f)).toList())),
-    );
-    await ImageStorageService().deleteImages(filenames);
-
-    if (!context.mounted) return true;
-    messenger.showSnackBar(
-      AppSnackBar.info(
-        context,
-        filenames.length == 1 ? 'Image deleted.' : '${filenames.length} images deleted.',
-      ),
-    );
-    return true;
+    await AttachmentActions.deleteUnsaved(setup.attachments, saved: editedSetup.attachments);
   }
 
   static Future<Setup?> duplicateSetup(BuildContext context, {required Setup setup}) async {
     final appRepository = context.read<AppRepository>();
     final deepCopied = setup.deepCopy();
-
-    // Copy each photo file so the duplicate owns its own files.
-    final service = ImageStorageService();
-    final copiedImages = <String>[];
-    for (final filename in deepCopied.images) {
-      copiedImages.add(await service.copyExisting(filename));
-    }
-    final setupWithCopiedImages = deepCopied.copyWith(images: copiedImages);
+    final copiedAttachments = await AttachmentActions.copyAttachmentFiles(deepCopied.attachments);
 
     if (!context.mounted) {
-      await service.deleteImages(copiedImages);
+      await AttachmentActions.deleteAttachmentFiles(copiedAttachments);
       return null;
     }
 
     final newSetup = await Navigator.push<Setup>(
       context,
-      MaterialPageRoute(builder: (context) => SetupPage.duplicate(setup: setupWithCopiedImages)),
+      MaterialPageRoute(
+        builder: (context) => SetupPage.duplicate(setup: deepCopied.copyWith(attachments: copiedAttachments)),
+      ),
     );
-    if (newSetup == null) {
-      await service.deleteImages(copiedImages);
-      return null;
-    }
-
-    await appRepository.addSetups([newSetup]);
+    if (newSetup != null) await appRepository.addSetups([newSetup]);
+    await AttachmentActions.deleteUnsaved(copiedAttachments, saved: newSetup?.attachments);
     return newSetup;
   }
 

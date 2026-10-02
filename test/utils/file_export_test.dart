@@ -148,7 +148,7 @@ void main() {
     final service = RecordingFileSaveService();
 
     await tester.runAsync(
-      () => FileExport.saveImageBundle(
+      () => FileExport.saveAttachmentBundle(
         context: context,
         database: database,
         fileSaveService: service,

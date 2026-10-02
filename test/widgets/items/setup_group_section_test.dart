@@ -1,3 +1,4 @@
+import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/widgets/current_setup_highlight.dart';
 import 'package:bike_setup_tracker/widgets/items/setup_group_section.dart';
@@ -37,7 +38,7 @@ void main() {
         harness.buildSetup(
           name: 'Setup ${i + 1}',
           local: DateTime(2026, 7, 2, 10 + i),
-          values: {SetupTileHarness.reboundId: 3 + i},
+          values: {SetupTileHarness.reboundId: StepValue(3 + i)},
         ),
     ];
     await harness.addSetups(tester, setups);

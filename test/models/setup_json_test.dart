@@ -1,0 +1,245 @@
+import 'dart:convert';
+
+import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
+import 'package:bike_setup_tracker/models/attachment.dart';
+import 'package:bike_setup_tracker/models/rating/rating_entry.dart';
+import 'package:bike_setup_tracker/models/setup.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  group('Setup.adjustmentValuesFromJson with adjustment types', () {
+    Map<String, AdjustmentValue> decode(dynamic value, AdjustmentType type) =>
+        Setup.adjustmentValuesFromJson({'k': value}, adjustmentTypes: {'k': type});
+
+    test('a text value that looks like a duration stays a String', () {
+      expect(decode('01:30:00', AdjustmentType.text)['k'], TextValue.orNull('01:30:00'));
+    });
+
+    test('a duration string becomes a Duration', () {
+      expect(decode('1:30:00.000000', AdjustmentType.duration)['k'], const DurationValue(Duration(hours: 1, minutes: 30)));
+    });
+
+    test('an unparseable duration string becomes null', () {
+      expect(decode('soon', AdjustmentType.duration)['k'], isNull);
+    });
+
+    test('a legacy single-select categorical becomes a one-element list', () {
+      expect(decode('Front', AdjustmentType.categorical)['k'], CategoricalValue(const ['Front']));
+    });
+
+    test('a categorical array becomes a categorical value', () {
+      expect(decode(<dynamic>['A', 'B'], AdjustmentType.categorical)['k'], CategoricalValue(const ['A', 'B']));
+    });
+
+    test('empty text is dropped', () {
+      expect(decode('', AdjustmentType.text), isEmpty);
+    });
+
+    test('an integral numerical value becomes a double', () {
+      expect(decode(89, AdjustmentType.numerical)['k'], const NumericalValue(89.0));
+    });
+
+    test('a step value becomes an int', () {
+      expect(decode(3, AdjustmentType.step)['k'], const StepValue(3));
+    });
+
+    test('a boolean stays a bool', () {
+      expect(decode(true, AdjustmentType.boolean)['k'], const BooleanValue(true));
+    });
+
+    test('null is dropped', () {
+      expect(decode(null, AdjustmentType.step), isEmpty);
+    });
+
+    test('a value whose shape does not fit its type stays unresolved', () {
+      expect(decode('abc', AdjustmentType.numerical)['k'], const UnresolvedValue('"abc"'));
+      expect(decode(5, AdjustmentType.text)['k'], const UnresolvedValue('5'));
+    });
+
+    test('a mistyped value survives the database encode/decode round trip', () {
+      final value = decode('true', AdjustmentType.boolean)['k']!;
+      expect(AdjustmentValue.decode(value.encode(), AdjustmentType.boolean), value);
+    });
+
+    test('ids without a known type are kept unresolved as their JSON', () {
+      final result = Setup.adjustmentValuesFromJson(
+        {'known': '01:30:00', 'unknown': '01:30:00', 'list': ['A']},
+        adjustmentTypes: {'known': AdjustmentType.text},
+      );
+      expect(result['known'], TextValue.orNull('01:30:00'));
+      expect(result['unknown'], const UnresolvedValue('"01:30:00"'));
+      expect(result['list'], const UnresolvedValue('["A"]'));
+    });
+
+    test('absent values of unknown ids are dropped', () {
+      expect(Setup.adjustmentValuesFromJson({'a': null, 'b': ''}), isEmpty);
+    });
+
+    test('a JSON shape no value type fits is kept unresolved', () {
+      final result = Setup.adjustmentValuesFromJson({'unknown': {'x': 1}});
+      expect(result['unknown'], const UnresolvedValue('{"x":1}'));
+    });
+  });
+
+  group('Setup.resolveAdjustmentValues', () {
+    test('decodes unresolved values of known ids with their type', () {
+      final result = Setup.resolveAdjustmentValues(
+        {
+          'duration': const UnresolvedValue('"1:30:00.000000"'),
+          'categorical': const UnresolvedValue('"Front"'),
+          'unknown': const UnresolvedValue('"01:30:00"'),
+          'typed': const StepValue(3),
+        },
+        {
+          'duration': AdjustmentType.duration,
+          'categorical': AdjustmentType.categorical,
+          'typed': AdjustmentType.step,
+        },
+      );
+      expect(result, {
+        'duration': const DurationValue(Duration(hours: 1, minutes: 30)),
+        'categorical': CategoricalValue(const ['Front']),
+        'unknown': const UnresolvedValue('"01:30:00"'),
+        'typed': const StepValue(3),
+      });
+    });
+
+    test('drops an unresolved value that decodes as absent', () {
+      final result = Setup.resolveAdjustmentValues(
+        {'text': const UnresolvedValue('""')},
+        {'text': AdjustmentType.text},
+      );
+      expect(result, isEmpty);
+    });
+  });
+
+  group('Setup.adjustmentValuesToJson', () {
+    final values = <String, AdjustmentValue>{
+      'bool': const BooleanValue(true),
+      'step': const StepValue(3),
+      'num': const NumericalValue(89.0),
+      'text': TextValue.orNull('01:30:00')!,
+      'cat': CategoricalValue(const ['A', 'B', 'A']),
+      'dur': const DurationValue(Duration(hours: 1, minutes: 30)),
+    };
+    final types = {
+      'bool': AdjustmentType.boolean,
+      'step': AdjustmentType.step,
+      'num': AdjustmentType.numerical,
+      'text': AdjustmentType.text,
+      'cat': AdjustmentType.categorical,
+      'dur': AdjustmentType.duration,
+    };
+
+    test('keeps the backup JSON shapes', () {
+      expect(Setup.adjustmentValuesToJson(values), {
+        'bool': true,
+        'step': 3,
+        'num': 89.0,
+        'text': '01:30:00',
+        'cat': ['A', 'B', 'A'],
+        'dur': '1:30:00.000000',
+      });
+    });
+
+    test('round-trips through adjustmentValuesFromJson', () {
+      final json = jsonDecode(jsonEncode(Setup.adjustmentValuesToJson(values))) as Map<String, dynamic>;
+      expect(Setup.adjustmentValuesFromJson(json, adjustmentTypes: types), values);
+    });
+
+    test('exports an unresolved value as its decoded raw JSON', () {
+      expect(
+        Setup.adjustmentValuesToJson({'a': const UnresolvedValue('{"x":1}'), 'b': const UnresolvedValue('not json')}),
+        {'a': {'x': 1}, 'b': 'not json'},
+      );
+    });
+  });
+
+  group('fromJson passes adjustment types through', () {
+    test('Setup.fromJson decodes bike and person values by type', () {
+      final setup = Setup.fromJson(
+        json: {
+          'version': 7,
+          'id': 's1',
+          'datetime': '2026-09-27T09:00:00.000Z',
+          'bike': 'b1',
+          'person': 'p1',
+          'bikeAdjustmentValues': {'note': '0:10:00', 'cat': 'Front'},
+          'personAdjustmentValues': {'weight': 72},
+        },
+        adjustmentTypes: {
+          'note': AdjustmentType.text,
+          'cat': AdjustmentType.categorical,
+          'weight': AdjustmentType.numerical,
+        },
+      );
+
+      expect(setup.bikeAdjustmentValues['note'], TextValue.orNull('0:10:00'));
+      expect(setup.bikeAdjustmentValues['cat'], CategoricalValue(const ['Front']));
+      expect(setup.personAdjustmentValues['weight'], isA<NumericalValue>());
+    });
+
+    test('RatingEntry.fromJson decodes metric values by type', () {
+      final entry = RatingEntry.fromJson(
+        json: const {
+          'version': 1,
+          'id': 'r1',
+          'bike': 'b1',
+          'setupId': 's1',
+          'dateTimeUTC': '2026-09-27T09:00:00.000Z',
+          'metricValues': {'comment': '0:10:00', 'score': 4},
+        },
+        metricTypes: const {'comment': AdjustmentType.text, 'score': AdjustmentType.numerical},
+      );
+
+      expect(entry.metricValues['comment'], TextValue.orNull('0:10:00'));
+      expect(entry.metricValues['score'], const NumericalValue(4.0));
+    });
+  });
+
+  group('Setup attachments', () {
+    Setup setup({List<Attachment>? attachments}) => Setup(
+      id: 's1',
+      lastModified: DateTime.utc(2026, 9, 27, 10),
+      datetime: DateTime.utc(2026, 9, 27, 9),
+      datetimeLocal: DateTime(2026, 9, 27, 11),
+      tags: const {},
+      bike: 'b1',
+      person: null,
+      bikeAdjustmentValues: const {},
+      personAdjustmentValues: const {},
+      attachments: attachments,
+    );
+
+    test('round-trip through version 8 json in order', () {
+      final original = setup(
+        attachments: [
+          Attachment(id: 'b', extension: '.pdf', name: 'Fox 38 Service Manual'),
+          Attachment(id: 'a', extension: '.jpg', name: 'IMG_1234.jpg'),
+        ],
+      );
+      final json = jsonDecode(jsonEncode(original.toJson())) as Map<String, dynamic>;
+      expect(json['version'], 8);
+      expect(json.containsKey('images'), isFalse);
+
+      final restored = Setup.fromJson(json: json, adjustmentTypes: const {});
+      expect(restored, original);
+      expect(restored.attachments.map((a) => a.filename), ['b.pdf', 'a.jpg']);
+    });
+
+    test('the unshipped version 7 images key is ignored', () {
+      final json = setup().toJson()
+        ..['version'] = 7
+        ..remove('attachments')
+        ..['images'] = ['0f8e.jpg'];
+      expect(Setup.fromJson(json: json, adjustmentTypes: const {}).attachments, isEmpty);
+    });
+
+    test('deepCopy copies the attachments list', () {
+      final attachments = [Attachment(id: 'a', extension: '.jpg', name: 'IMG.jpg')];
+      final copy = setup(attachments: attachments).deepCopy();
+      expect(copy.attachments, attachments);
+      expect(identical(copy.attachments, attachments), isFalse);
+    });
+  });
+}

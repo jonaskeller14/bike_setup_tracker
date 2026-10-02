@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../models/adjustment/adjustment.dart';
 import 'display_adjustment/display_dangling_adjustment.dart';
 import 'initial_changed_value_legend.dart';
 import 'items/card_header_tile.dart';
@@ -18,7 +19,7 @@ Widget cardErrorBadgeDot(BuildContext context, {double size = 9}) {
 }
 
 Widget danglingValuesCard(BuildContext context, {
-  required Map<String, dynamic> values,
+  required Map<String, AdjustmentValue> values,
   required String title,
   required String cause,
   required void Function(String) onRemove,

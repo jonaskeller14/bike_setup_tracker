@@ -45,7 +45,7 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
   final FocusNode _minFocusNode = FocusNode(canRequestFocus: false);
   final FocusNode _maxFocusNode = FocusNode(canRequestFocus: false);
 
-  Duration _previewValue = Duration.zero;
+  DurationValue _previewValue = const DurationValue(Duration.zero);
   late DurationAdjustment _previewAdjustment;
 
   @override
@@ -55,9 +55,9 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
     _nameController.addListener(_changeListener);
     _notesController = TextEditingController(text: widget.adjustment?.notes);
     _notesController.addListener(_changeListener);
-    _minController = TextEditingController(text: widget.adjustment?.min == null ? null : Adjustment.formatValue(widget.adjustment?.min));
+    _minController = TextEditingController(text: widget.adjustment?.min == null ? null : DurationValue(widget.adjustment!.min!).display);
     _minController.addListener(_changeListener);
-    _maxController = TextEditingController(text: widget.adjustment?.max == null ? null : Adjustment.formatValue(widget.adjustment?.max));
+    _maxController = TextEditingController(text: widget.adjustment?.max == null ? null : DurationValue(widget.adjustment!.max!).display);
     _maxController.addListener(_changeListener);
 
     _previewAdjustment = widget.adjustment ?? DurationAdjustment(
@@ -65,7 +65,7 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
       notes: null,
       unit: null,
     );
-    _previewValue = _previewAdjustment.min ?? Duration.zero;
+    _previewValue = DurationValue(_previewAdjustment.min ?? Duration.zero);
     if (widget.mode != AdjustmentPageMode.add) _expanded = true;
   }
 
@@ -220,7 +220,7 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                                       adjustment: DurationAdjustment(name: 'Min', notes: null, unit: null, max: _previewAdjustment.max),
                                       value: _previewAdjustment.min,
                                       onChanged: (Duration newValue) {
-                                        _minController.text = Adjustment.formatValue(newValue);
+                                        _minController.text = DurationValue(newValue).display;
                                         _updatePreview(min: newValue, max: _previewAdjustment.max);
                                       }
                                     );
@@ -256,7 +256,7 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                                       adjustment: DurationAdjustment(name: 'Max', notes: null, unit: null, min: _previewAdjustment.min),
                                       value: _previewAdjustment.max,
                                       onChanged: (Duration newValue) {
-                                        _maxController.text = Adjustment.formatValue(newValue);
+                                        _maxController.text = DurationValue(newValue).display;
                                         _updatePreview(min: _previewAdjustment.min, max: newValue);
                                       }
                                     );
@@ -313,11 +313,11 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                   child: SetDurationAdjustmentWidget(
                     key: ValueKey(_previewAdjustment),
                     adjustment: _previewAdjustment,
-                    initialValue: Duration.zero,
+                    initialValue: const DurationValue(Duration.zero),
                     value: _previewValue,
-                    onChanged: (Duration? newValue) {
+                    onChanged: (DurationValue? newValue) {
                       setState(() {
-                        _previewValue = newValue ?? Duration.zero;
+                        _previewValue = newValue ?? const DurationValue(Duration.zero);
                       });
                     },
                     highlighting: false,

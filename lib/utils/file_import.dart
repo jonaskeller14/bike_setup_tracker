@@ -10,10 +10,11 @@ import '../database/app_database.dart';
 import '../models/bike.dart';
 import '../models/selected_data.dart';
 import '../models/setup.dart';
+import '../services/attachment_storage_service.dart';
 import '../services/component_hierarchy_resolver.dart';
 import '../services/data_export_service.dart';
 import '../services/database_migration_service.dart';
-import '../services/image_storage_service.dart';
+import '../services/trash_cleanup_service.dart';
 import '../widgets/app_snackbar.dart';
 import 'backup.dart';
 
@@ -92,9 +93,9 @@ class FileImport {
   }
 
   static Future<void> replace({required SelectedData remoteData, required AppDatabase database}) async {
-    final purgedImages = cleanupIsDeleted(data: remoteData);
+    final purgedAttachments = cleanupIsDeleted(data: remoteData);
     await _importDataToDb(database, remoteData);
-    await ImageStorageService().deleteImages(purgedImages);
+    await AttachmentStorageService().deleteFiles(purgedAttachments);
   }
 
   static Future<void> overwrite({required SelectedData remoteData, required AppDatabase database}) async {
@@ -104,13 +105,13 @@ class FileImport {
 
     // 2. Perform merge in memory
     _overwriteInternal(remoteData: remoteData, localData: localData);
-    final purgedImages = cleanupIsDeleted(data: localData);
+    final purgedAttachments = cleanupIsDeleted(data: localData);
 
     // 3. Write merged state back to DB
     await _importDataToDb(database, localData);
 
-    // 4. Delete images of purged setups (after the DB write succeeds).
-    await ImageStorageService().deleteImages(purgedImages);
+    // 4. Delete attachments of purged setups, bikes, components and tasks (after the DB write succeeds).
+    await AttachmentStorageService().deleteFiles(purgedAttachments);
   }
 
   static Future<void> merge({
@@ -123,13 +124,13 @@ class FileImport {
 
     // 2. Perform merge in memory
     _mergeInternal(remoteData: remoteData, localData: localData);
-    final purgedImages = cleanupIsDeleted(data: localData);
+    final purgedAttachments = cleanupIsDeleted(data: localData);
 
     // 3. Write merged state back to DB
     await _importDataToDb(database, localData);
 
-    // 4. Delete images of purged setups (after the DB write succeeds).
-    await ImageStorageService().deleteImages(purgedImages);
+    // 4. Delete attachments of purged setups, bikes, components and tasks (after the DB write succeeds).
+    await AttachmentStorageService().deleteFiles(purgedAttachments);
   }
 
   static Future<void> _importDataToDb(AppDatabase database, SelectedData dataToImport) async {
@@ -307,28 +308,51 @@ class FileImport {
   }
 
   static List<String> cleanupIsDeleted({required SelectedData data}) {
-    final thirtyDays = const Duration(days: 30);
-    final deleteDateTime = DateTime.now().toUtc().subtract(thirtyDays);
+    final deleteDateTime = DateTime.now().toUtc().subtract(TrashCleanupService.retention);
 
     data.persons.removeWhere((_, p) => p.isDeleted && p.lastModified.isBefore(deleteDateTime));
     data.ratings.removeWhere((_, r) => r.isDeleted && r.lastModified.isBefore(deleteDateTime));
     data.ratingEntries.removeWhere((_, re) => re.isDeleted && re.lastModified.isBefore(deleteDateTime));
-    data.bikes.removeWhere((_, b) => b.isDeleted && b.lastModified.isBefore(deleteDateTime));
-    data.components.removeWhere((_, c) => c.isDeleted && c.lastModified.isBefore(deleteDateTime));
 
-    final purgedSetupImages = <String>[];
+    final purgedAttachments = <String>[];
+    data.bikes.removeWhere((_, b) {
+      final purge = b.isDeleted && b.lastModified.isBefore(deleteDateTime);
+      if (purge) purgedAttachments.addAll(b.attachments.map((a) => a.filename));
+      return purge;
+    });
+    data.components.removeWhere((_, c) {
+      final purge = c.isDeleted && c.lastModified.isBefore(deleteDateTime);
+      if (purge) purgedAttachments.addAll(c.attachments.map((a) => a.filename));
+      return purge;
+    });
     data.setups.removeWhere((_, s) {
       final purge = s.isDeleted && s.lastModified.isBefore(deleteDateTime);
-      if (purge) purgedSetupImages.addAll(s.images);
+      if (purge) purgedAttachments.addAll(s.attachments.map((a) => a.filename));
       return purge;
     });
 
-    data.taskRules.removeWhere((_, tr) => tr.isDeleted && tr.lastModified.isBefore(deleteDateTime));
-    data.taskEntries.removeWhere((_, te) => te.isDeleted && te.lastModified.isBefore(deleteDateTime));
+    data.taskRules.removeWhere((_, tr) {
+      final purge = tr.isDeleted && tr.lastModified.isBefore(deleteDateTime);
+      if (purge) purgedAttachments.addAll(tr.attachments.map((a) => a.filename));
+      return purge;
+    });
+    // An entry outlives its purged rule until its own 30 days are up: the import
+    // does not enforce foreign keys, so the entry and its files stay.
+    data.taskEntries.removeWhere((_, te) {
+      final purge = te.isDeleted && te.lastModified.isBefore(deleteDateTime);
+      if (purge) purgedAttachments.addAll(te.attachments.map((a) => a.filename));
+      return purge;
+    });
 
-    // Never delete a file a surviving setup still references.
-    final stillReferenced = data.setups.values.expand((s) => s.images).toSet();
-    return purgedSetupImages.where((f) => !stillReferenced.contains(f)).toList();
+    // Never delete a file a surviving setup, bike, component or task still references.
+    final stillReferenced = {
+      ...data.setups.values.expand((s) => s.attachments),
+      ...data.bikes.values.expand((b) => b.attachments),
+      ...data.components.values.expand((c) => c.attachments),
+      ...data.taskRules.values.expand((tr) => tr.attachments),
+      ...data.taskEntries.values.expand((te) => te.attachments),
+    }.map((a) => a.filename).toSet();
+    return purgedAttachments.where((f) => !stillReferenced.contains(f)).toList();
   }
 }
 

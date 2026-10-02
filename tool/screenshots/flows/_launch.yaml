@@ -1,0 +1,15 @@
+# Shared subflow: cold-start the screenshot build and wait until the seeded
+# app is interactive. lib/main_screenshots.dart wipes and reseeds on every
+# launch, so each screen flow starts from identical state.
+appId: ${APP_ID}
+---
+- launchApp:
+    stopApp: true
+    permissions:
+      all: allow
+- extendedWaitUntil:
+    visible:
+      id: nav.setups
+    timeout: 90000
+- waitForAnimationToEnd:
+    timeout: 5000

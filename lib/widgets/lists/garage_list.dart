@@ -140,7 +140,7 @@ class _GarageListState extends State<GarageList> {
             await appRepository.editComponent(
               component.copyWith(
                 installations: [
-                  Uninstallation(dateTimeUTC: now.toUtc(), dateTimeLocal: now, componentId: component.id),
+                  Uninstallation(dateTimeUTC: now.toUtc(), dateTimeLocal: now),
                 ],
               ),
             );
@@ -198,7 +198,6 @@ class _GarageListState extends State<GarageList> {
           component.copyWith(
             installations: [
               Archival(
-                componentId: component.id,
                 dateTimeUTC: DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
                 dateTimeLocal: DateTime.fromMillisecondsSinceEpoch(0),
               ),
@@ -211,7 +210,7 @@ class _GarageListState extends State<GarageList> {
   }
 
   Widget _emptyPlaceholder(BuildContext context, AppRepository appRepository) {
-    final filtered = appRepository.selectedBike != null && appRepository.bikes.isNotEmpty;
+    final filtered = appRepository.filters.bikeId != null && appRepository.bikes.isNotEmpty;
     return CustomScrollView(
       controller: widget.controller.scrollController,
       slivers: [
@@ -233,7 +232,7 @@ class _GarageListState extends State<GarageList> {
                     subtitle: 'The bike filter is hiding all bikes.',
                     actionLabel: 'Clear filters',
                     actionIcon: Icons.filter_alt_off,
-                    onAction: () => appRepository.onBikeTap(null),
+                    onAction: () => appRepository.filters.toggleBike(null),
                   )
                 : EmptyStatePlaceholder(
                     icon: Bike.iconData,
@@ -257,7 +256,7 @@ class _GarageListState extends State<GarageList> {
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
-    final bikesList = appRepository.filteredBikes.values.toList();
+    final bikesList = appRepository.view.bikes.values.toList();
 
     Widget proxyDecorator(Widget child, int index, Animation<double> animation) {
       return AnimatedBuilder(

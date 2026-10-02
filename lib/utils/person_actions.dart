@@ -154,7 +154,7 @@ class PersonActions {
     await appRepository.reorderPerson(
       oldIndex: oldIndex,
       newIndex: newIndex,
-      filteredPersonsList: appRepository.filteredPersons.values.toList(),
+      filteredPersonsList: appRepository.view.persons.values.toList(),
     );
   }
 

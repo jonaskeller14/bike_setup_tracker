@@ -17,7 +17,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
 
-version: 1.6.0+41  # TODO: Update AppInfo (lib/utils/app_info.dart)
+version: 1.6.1+42  # TODO: Update AppInfo (lib/utils/app_info.dart)
 
 environment:
   # Floor raised from ^3.9.2 for in_app_purchase_android 0.5.2 (Play Billing 8),
@@ -93,6 +93,7 @@ dependencies:
   units_converter: ^3.2.0
   yaml: ^3.1.2
   firebase_crashlytics: ^5.4.0
+  two_dimensional_scrollables: ^0.5.5
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -131,6 +132,8 @@ flutter:
     - assets/icons/logo_1024_white.png
     - assets/strava/1.2-Strava-API-Logos/1.2-Strava-API-Logos/Powered by Strava/pwrdBy_strava_orange/api_logo_pwrdBy_strava_stack_orange.png
     - assets/mapbox/mapbox-logo.png
+    - assets/data/20260925_sample_simple.json
+    - assets/data/20260925_sample_simple_strava.json
     # Component preset database — one YAML per brand; a directory declaration
     # bundles every file in it (non-recursive), so new brand files are picked
     # up with zero pubspec changes. SCHEMA.md sits in the parent dir and is

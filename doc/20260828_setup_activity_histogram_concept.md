@@ -9,7 +9,7 @@ remain correct when setups or activities change, and keep tooltip opening respon
 
 Relevant constraints found in the current code:
 
-- `strava_activitiy_details_page.dart` associates an activity with the setup active
+- `strava_activity_details_page.dart` associates an activity with the setup active
   at activity start plus every setup created before the activity ends. One activity
   can therefore relate to more than one setup.
 - `AppRepository.stravaActivities` is only the currently paginated/filtered activity

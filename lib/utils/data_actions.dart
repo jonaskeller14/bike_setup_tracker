@@ -6,8 +6,8 @@ import 'package:provider/provider.dart';
 
 import '../models/app_settings.dart';
 import '../repositories/app_repository.dart';
+import '../services/attachment_storage_service.dart';
 import '../services/backup_service.dart';
-import '../services/image_storage_service.dart';
 import '../services/strava_service.dart';
 import '../widgets/app_snackbar.dart';
 import '../widgets/dialogs/confirmation.dart';
@@ -74,7 +74,7 @@ class DataActions {
       context,
       title: 'Clear database?',
       content:
-          'All bikes, components, setups, riders, ratings, tasks and images are deleted. '
+          'All bikes, components, setups, riders, ratings, tasks and attachments are deleted. '
           'A backup is saved first. This action cannot be undone.',
       trueText: 'Clear',
       isDestructive: true,
@@ -91,7 +91,7 @@ class DataActions {
 
     try {
       await database.deleteAllUserData();
-      await ImageStorageService().deleteAllImages();
+      await AttachmentStorageService().deleteAll();
       if (!context.mounted) return;
       messenger.showSnackBar(AppSnackBar.success(context, 'Database cleared.'));
     } catch (e) {

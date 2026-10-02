@@ -1,9 +1,13 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../models/app_settings.dart';
+import '../../models/attachment.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
 import '../../models/component/component_ancestor.dart';
@@ -11,9 +15,12 @@ import '../../models/task/task_association.dart';
 import '../../models/task/task_entry.dart';
 import '../../models/task/task_rule.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/attachment_storage_service.dart';
 import '../../services/component_hierarchy_resolver.dart';
 import '../../theme.dart';
+import '../../utils/attachment_actions.dart';
 import '../../widgets/app_snackbar.dart';
+import '../../widgets/attachment_strip.dart';
 import '../../widgets/component_ancestor_display.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/items/task_rule_display_card.dart';
@@ -56,6 +63,11 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
   late TaskAssociation _association;
   late TaskAssociation _initialAssociation;
 
+  List<Attachment> _attachments = [];
+  String? _attachmentsDirPath;
+  final List<Attachment> _importedAttachments = [];
+  List<Attachment>? _savedAttachments;
+
   final _formKey = GlobalKey<FormState>();
   bool _formHasChanges = false;
   bool _isSaving = false;
@@ -81,14 +93,50 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
     _association = widget.taskEntry?.association ??
         (widget.mode == TaskEntryPageMode.add ? widget.taskRule.association : const GeneralTaskAssociation());
     _initialAssociation = _association;
+
+    _attachments = List.from(widget.taskEntry?.attachments ?? []);
+    if (context.read<AppSettings>().enableAttachments) unawaited(_initAttachmentsDir());
+  }
+
+  Future<void> _initAttachmentsDir() async {
+    final path = await AttachmentStorageService().getAttachmentsPath();
+    if (!mounted) return;
+    setState(() => _attachmentsDirPath = path);
+  }
+
+  Future<void> _addAttachments() async {
+    final attachments = await AttachmentActions.pickAttachments(context);
+    if (attachments.isEmpty || !mounted) return;
+    _importedAttachments.addAll(attachments);
+    setState(() => _attachments.addAll(attachments));
+    _changeListener();
+  }
+
+  void _onAttachmentRemoved(int index) {
+    setState(() => _attachments.removeAt(index));
+    _changeListener();
+  }
+
+  void _onAttachmentRenamed(int index, String name) {
+    setState(() => _attachments[index] = _attachments[index].copyWith(name: name));
+    _changeListener();
+  }
+
+  void _onAttachmentReorder(int oldIndex, int newIndex) {
+    setState(() {
+      final item = _attachments.removeAt(oldIndex);
+      _attachments.insert(newIndex, item);
+    });
+    _changeListener();
   }
 
   void _changeListener() {
     final hasChanges = _nameController.text.trim() != _initialName ||
-        _notesController.text.trim() != (_initialNotes ?? '') || 
-        _initialDateTimeUtc != _selectedDateTimeUtc || 
+        _notesController.text.trim() != (_initialNotes ?? '') ||
+        _initialDateTimeUtc != _selectedDateTimeUtc ||
         _initialDateTimeLocal != _selectedDateTimeLocal ||
-        _association != _initialAssociation;
+        _association != _initialAssociation ||
+        !listEquals(_attachments, widget.taskEntry?.attachments ?? const []);
     if (_formHasChanges != hasChanges) {
       setState(() {
         _formHasChanges = hasChanges;
@@ -102,6 +150,8 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
     _nameController.dispose();
     _notesController.removeListener(_changeListener);
     _notesController.dispose();
+    // Files imported here but not saved with the entry would be left unlinked.
+    unawaited(AttachmentActions.deleteUnsaved(_importedAttachments, saved: _savedAttachments));
     super.dispose();
   }
 
@@ -178,7 +228,8 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
 
       if (!mounted) return;
       _formHasChanges = false;
-      
+      _savedAttachments = _attachments;
+
       Navigator.pop(context, TaskEntry(
         id: widget.mode == TaskEntryPageMode.edit 
             ? widget.taskEntry!.id 
@@ -192,6 +243,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
         dateTimeLocal: _selectedDateTimeLocal,
         isDeleted: false,
         lastModified: DateTime.now().toUtc(),
+        attachments: _attachments,
       ));
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -312,8 +364,9 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
     final appRepository = context.watch<AppRepository>();
     final bikes = appRepository.bikes;
     final components = appRepository.components;
+    final showAttachments = appSettings.enableAttachments && _attachmentsDirPath != null;
 
-    return PopScope( 
+    return PopScope(
       canPop: !_formHasChanges,
       onPopInvokedWithResult: _handlePopInvoked,
       child: Scaffold(
@@ -414,9 +467,11 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
                   const SizedBox(height: 12),
                   Wrap(
                     spacing: 8.0,
-                    runSpacing: 4.0,
+                    runSpacing: 8.0,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       ActionChip(
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         avatar: const Icon(Icons.calendar_month),
                         label: Text(
                           DateFormat(appSettings.dateFormat).format(_selectedDateTimeLocal),
@@ -425,6 +480,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
                         onPressed: _pickDate,
                       ),
                       ActionChip(
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         avatar: const Icon(Icons.access_time),
                         label: Text(
                           DateFormat(appSettings.timeFormat).format(_selectedDateTimeLocal),
@@ -432,8 +488,30 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
                         backgroundColor: widget.mode == TaskEntryPageMode.edit && (_selectedDateTimeUtc.hour != _initialDateTimeUtc.hour || _selectedDateTimeUtc.minute != _initialDateTimeUtc.minute) ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
                         onPressed: _pickTime,
                       ),
+                      if (showAttachments)
+                        ActionChip(
+                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          label: const SizedBox.shrink(),
+                          labelPadding: const EdgeInsets.symmetric(vertical: 2),
+                          padding: EdgeInsets.zero,
+                          avatar: const Icon(Icons.attach_file),
+                          tooltip: 'Add Attachment',
+                          backgroundColor: widget.mode == TaskEntryPageMode.edit && !listEquals(_attachments, widget.taskEntry!.attachments) ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
+                          onPressed: _addAttachments,
+                        ),
                     ],
                   ),
+                  if (showAttachments && _attachments.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    AttachmentStrip(
+                      attachments: _attachments,
+                      attachmentsDir: _attachmentsDirPath!,
+                      mode: AttachmentStripMode.edit,
+                      onRemove: _onAttachmentRemoved,
+                      onReorder: _onAttachmentReorder,
+                      onRename: _onAttachmentRenamed,
+                    ),
+                  ],
                 ],
               ),
             ),

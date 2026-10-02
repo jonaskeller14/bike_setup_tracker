@@ -46,6 +46,7 @@ linter:
     no_logic_in_create_state: true
     prefer_relative_imports: true
     avoid_empty_else: true
+    avoid_equals_and_hash_code_on_mutable_classes: true
 
     # # Style Consistency
     always_declare_return_types: true

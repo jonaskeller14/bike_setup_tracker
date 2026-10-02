@@ -26,9 +26,9 @@ AdjustmentActivityHistogram _groupCategorical(
 ) {
   final counts = <String, int>{};
   for (final entry in values) {
-    final selections = categoricalValueAsList(entry.value);
-    if (selections == null) continue;
-    for (final option in selections.toSet()) {
+    final value = entry.value;
+    if (value is! CategoricalValue) continue;
+    for (final option in value.options.toSet()) {
       counts[option] = (counts[option] ?? 0) + entry.activityCount;
     }
   }
@@ -44,7 +44,7 @@ AdjustmentActivityHistogram _groupCategorical(
         (option) => AdjustmentActivityHistogramBar.exact(
           label: _withUnit(option, adjustment),
           activityCount: counts[option]!,
-          exactValue: option,
+          exactValue: CategoricalValue([option]),
         ),
       ),
     ),
@@ -56,9 +56,9 @@ AdjustmentActivityHistogram _groupDiscrete(
   Adjustment adjustment,
   List<AdjustmentActivityValue> values,
 ) {
-  final counts = <dynamic, int>{};
+  final counts = <AdjustmentValue, int>{};
   for (final entry in values) {
-    counts[entry.value] = (counts[entry.value] ?? 0) + entry.activityCount;
+    counts[entry.value!] = (counts[entry.value] ?? 0) + entry.activityCount;
   }
   final ordered = counts.keys.toList()..sort(_compareExactValues);
   return AdjustmentActivityHistogram(
@@ -66,7 +66,7 @@ AdjustmentActivityHistogram _groupDiscrete(
     bars: List.unmodifiable(
       ordered.map(
         (value) => AdjustmentActivityHistogramBar.exact(
-          label: _withUnit(Adjustment.formatValue(value), adjustment),
+          label: _withUnit(value.display, adjustment),
           activityCount: counts[value]!,
           exactValue: value,
         ),
@@ -81,12 +81,12 @@ AdjustmentActivityHistogram _groupContinuous(
   List<AdjustmentActivityValue> values,
 ) {
   final counts = <num, int>{};
-  final originalValues = <num, dynamic>{};
+  final originalValues = <num, AdjustmentValue>{};
   for (final entry in values) {
-    final numeric = _asNumeric(entry.value);
+    final numeric = entry.value!.asNum;
     if (numeric == null || !numeric.isFinite) continue;
     counts[numeric] = (counts[numeric] ?? 0) + entry.activityCount;
-    originalValues[numeric] = entry.value;
+    originalValues[numeric] = entry.value!;
   }
   if (counts.isEmpty) return AdjustmentActivityHistogram.empty(adjustment.id);
 
@@ -97,7 +97,7 @@ AdjustmentActivityHistogram _groupContinuous(
       bars: List.unmodifiable(
         ordered.map(
           (value) => AdjustmentActivityHistogramBar.exact(
-            label: _withUnit(Adjustment.formatValue(originalValues[value]), adjustment),
+            label: _withUnit(originalValues[value]!.display, adjustment),
             activityCount: counts[value]!,
             exactValue: originalValues[value],
           ),
@@ -136,23 +136,18 @@ AdjustmentActivityHistogram _groupContinuous(
   );
 }
 
-num? _asNumeric(dynamic value) {
-  return switch (value) {
-    num() => value,
-    Duration() => value.inMicroseconds,
-    _ => null,
-  };
+int _compareExactValues(AdjustmentValue left, AdjustmentValue right) {
+  final (leftNum, rightNum) = (left.asNum, right.asNum);
+  if (leftNum != null && rightNum != null) return leftNum.compareTo(rightNum);
+  return left.display.compareTo(right.display);
 }
 
-int _compareExactValues(dynamic left, dynamic right) {
-  if (left is num && right is num) return left.compareTo(right);
-  if (left is bool && right is bool) return (left ? 1 : 0).compareTo(right ? 1 : 0);
-  return Adjustment.formatValue(left).compareTo(Adjustment.formatValue(right));
-}
-
+/// [value] is on the [AdjustmentValue.asNum] scale, i.e. seconds for durations.
 String _formatBoundary(double value, Adjustment adjustment) {
-  final dynamic displayValue = adjustment is DurationAdjustment ? Duration(microseconds: value.round()) : value;
-  return _withUnit(Adjustment.formatValue(displayValue), adjustment);
+  final AdjustmentValue displayValue = adjustment is DurationAdjustment
+      ? DurationValue(Duration(microseconds: (value * Duration.microsecondsPerSecond).round()))
+      : NumericalValue(value);
+  return _withUnit(displayValue.display, adjustment);
 }
 
 String _withUnit(String label, Adjustment adjustment) {

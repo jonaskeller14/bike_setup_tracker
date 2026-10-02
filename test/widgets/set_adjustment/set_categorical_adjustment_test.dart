@@ -23,8 +23,8 @@ void main() {
           key: formKey,
           child: SetCategoricalAdjustmentWidget(
             key: const ValueKey("CategoricalAdjustment #1"),
-            initialValue: initialValue,
-            value: value,
+            initialValue: initialValue == null ? null : CategoricalValue(initialValue),
+            value: value == null ? null : CategoricalValue(value),
             onChanged: (_) {},
             adjustment: CategoricalAdjustment(
               name: "CategoricalAdjustment #1",
@@ -172,9 +172,9 @@ void main() {
         home: Scaffold(
           body: SetCategoricalAdjustmentWidget(
             key: const ValueKey("cat"),
-            initialValue: initialValue,
-            value: value,
-            onChanged: onChanged,
+            initialValue: initialValue == null ? null : CategoricalValue(initialValue),
+            value: value == null ? null : CategoricalValue(value),
+            onChanged: (newValue) => onChanged(newValue?.options),
             adjustment: CategoricalAdjustment(
               name: "CategoricalAdjustment #1",
               notes: null,
@@ -279,8 +279,8 @@ void main() {
           body: SetCategoricalAdjustmentWidget(
             key: const ValueKey("cat-add"),
             initialValue: null,
-            value: value,
-            onChanged: onChanged ?? (_) {},
+            value: value == null ? null : CategoricalValue(value),
+            onChanged: (newValue) => onChanged?.call(newValue?.options),
             onAddOption: onAddOption,
             adjustment: CategoricalAdjustment(
               name: "CategoricalAdjustment #1",
@@ -357,7 +357,7 @@ void main() {
         name: 'n',
         notes: 'note',
         unit: null,
-        options: {'a', 'b'},
+        options: const {'a', 'b'},
         multiSelect: true,
         counted: true,
       );
@@ -375,14 +375,14 @@ void main() {
         name: 'n',
         notes: 'note',
         unit: null,
-        options: {'a'},
+        options: const {'a'},
         multiSelect: true,
       );
       expect(adjustment.copyWith(), adjustment);
     });
 
     test('can clear a nullable field explicitly', () {
-      final adjustment = CategoricalAdjustment(name: 'n', notes: 'note', unit: null, options: {'a'});
+      final adjustment = CategoricalAdjustment(name: 'n', notes: 'note', unit: null, options: const {'a'});
       expect(adjustment.copyWith(notes: null).notes, isNull);
     });
   });

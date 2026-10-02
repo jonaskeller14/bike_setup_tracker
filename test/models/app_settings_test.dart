@@ -78,6 +78,20 @@ void main() {
       expect(prefs.getBool('${_kPrefix}enableCalendar'), isNull);
     });
 
+    test('enableAttachments persists under its own key, ignoring the old image flag', () async {
+      SharedPreferences.setMockInitialValues({'${_kPrefix}enableSetupImages': true});
+      final settings = AppSettings();
+      await settings.loadAppSettings();
+
+      expect(settings.enableAttachments, isFalse);
+
+      settings.enableAttachments = true;
+      await flushWrites();
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getBool('${_kPrefix}enableAttachments'), isTrue);
+    });
+
     test('string setter persists under its namespaced key', () async {
       SharedPreferences.setMockInitialValues({});
       final settings = AppSettings();
@@ -285,6 +299,7 @@ void main() {
   group('AppSettings — elevation conversion', () {
     test('null input returns null', () {
       expect(AppSettings.convertElevationFromMeters(null, 'm'), isNull);
+      expect(AppSettings.convertElevationToMeters(null, 'ft'), isNull);
     });
 
     test('meters -> meters is identity', () {
@@ -298,8 +313,21 @@ void main() {
       );
     });
 
+    test('meters -> meters and feet -> meters', () {
+      expect(AppSettings.convertElevationToMeters(1234, 'm'), closeTo(1234, 1e-9));
+      expect(AppSettings.convertElevationToMeters(1, 'ft'), closeTo(0.3048, 1e-9));
+    });
+
+    test('round-trips through meters for both units', () {
+      for (final unit in ['m', 'ft']) {
+        final meters = AppSettings.convertElevationToMeters(1500.0, unit)!;
+        expect(AppSettings.convertElevationFromMeters(meters, unit), closeTo(1500.0, 1e-9));
+      }
+    });
+
     test('unknown unit falls back to meters', () {
       expect(AppSettings.convertElevationFromMeters(500, 'cubits'), closeTo(500, 1e-9));
+      expect(AppSettings.convertElevationToMeters(500, 'cubits'), closeTo(500, 1e-9));
     });
   });
 

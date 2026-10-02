@@ -1,3 +1,4 @@
+import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/app_hint.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/widgets/items/installation_list_tile.dart';
@@ -32,7 +33,7 @@ void main() {
       harness.buildSetup(
         name: 'Timeline Setup',
         local: day.add(const Duration(hours: 12)),
-        values: {SetupTileHarness.reboundId: 5},
+        values: {SetupTileHarness.reboundId: const StepValue(5)},
       ),
     ]);
     await harness.reload(tester);

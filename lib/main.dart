@@ -69,17 +69,7 @@ void main() async {
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  unawaited(SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge));
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      systemNavigationBarColor: Colors.transparent,
-      statusBarColor: Colors.transparent,
-      systemNavigationBarIconBrightness: Brightness.dark,
-      statusBarIconBrightness: Brightness.dark,
-      systemNavigationBarContrastEnforced: false,
-      systemStatusBarContrastEnforced: false,
-    ),
-  );
+  configureSystemChrome();
 
   final appDatabase = AppDatabase();
 
@@ -99,6 +89,20 @@ void main() async {
   );
 }
 
+void configureSystemChrome() {
+  unawaited(SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge));
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      systemNavigationBarColor: Colors.transparent,
+      statusBarColor: Colors.transparent,
+      systemNavigationBarIconBrightness: Brightness.dark,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarContrastEnforced: false,
+      systemStatusBarContrastEnforced: false,
+    ),
+  );
+}
+
 typedef BootErrorReporter = void Function(Object error, StackTrace stack, {required String reason});
 
 void _reportBootErrorToCrashlytics(Object error, StackTrace stack, {required String reason}) {
@@ -109,20 +113,26 @@ void _reportBootErrorToCrashlytics(Object error, StackTrace stack, {required Str
 
 /// Startup failures never reach the global handlers: [LoadingGate] catches them
 /// to show [LoadingErrorPage] or to degrade silently, so they must be reported
-/// explicitly. Overridable so those paths can be tested without Firebase.
-@visibleForTesting
+/// explicitly. Overridable for tests and the screenshot entry point, which
+/// run without Firebase.
 BootErrorReporter recordBootError = _reportBootErrorToCrashlytics;
 
 class LoadingGate extends StatefulWidget {
   final AppSettings appSettings;
   final AppRepository appRepository;
   final AppHintService appHintService;
+  final SubscriptionService Function() createSubscriptionService;
+  final StravaService Function(AppRepository, AppSettings) createStravaService;
+  final bool enablePushNotifications;
 
   const LoadingGate({
     super.key,
     required this.appSettings,
     required this.appRepository,
     required this.appHintService,
+    this.createSubscriptionService = SubscriptionService.new,
+    this.createStravaService = StravaService.new,
+    this.enablePushNotifications = true,
   });
 
   @override
@@ -244,7 +254,7 @@ class _LoadingGateState extends State<LoadingGate> {
               ),
               ChangeNotifierProxyProvider2<AppSettings, AppRepository, StravaService>(
                 lazy: false,
-                create: (context) => StravaService(widget.appRepository, widget.appSettings),
+                create: (context) => widget.createStravaService(widget.appRepository, widget.appSettings),
                 update: (context, settings, appRepo, stravaService) {
                   if (settings.enableStrava) {
                     unawaited(stravaService!.update(appRepository: appRepo, appSettings: settings));
@@ -254,7 +264,7 @@ class _LoadingGateState extends State<LoadingGate> {
               ),
               ChangeNotifierProxyProvider<AppSettings, SubscriptionService>(
                 lazy: false,
-                create: (context) => SubscriptionService(),
+                create: (context) => widget.createSubscriptionService(),
                 update: (context, settings, subscriptionService) {
                   unawaited(subscriptionService!.initialize(enableStrava: settings.enableStrava));
                   return subscriptionService;
@@ -274,7 +284,7 @@ class _LoadingGateState extends State<LoadingGate> {
                 // Initialize Services after Snapshots are done and context is available
                 unawaited(DeepLinkService().init());
                 unawaited(QuickActionsService().init());
-                NotificationService().init(widget.appRepository);
+                if (widget.enablePushNotifications) NotificationService().init(widget.appRepository);
                 return const BikeSetupTrackerApp();
               },
             ),

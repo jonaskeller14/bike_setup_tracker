@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:intl/intl.dart';
@@ -103,8 +104,8 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
   late DateTime _initialDateTimeLocal;
 
   // Metric answers, keyed by RatingMetric id (== inner Adjustment id).
-  final Map<String, dynamic> _metricValues = {};
-  final Map<String, dynamic> _initialMetricValues = {};
+  final Map<String, AdjustmentValue> _metricValues = {};
+  final Map<String, AdjustmentValue> _initialMetricValues = {};
 
   final LocationService _locationService = LocationService();
   final ElevationService _elevationService = ElevationService();
@@ -147,7 +148,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
     final appRepository = context.read<AppRepository>();
     _initialBike = widget.ratingEntry?.bike ??
         widget.initialBike?.id ??
-        appRepository.filteredBikes.keys.firstOrNull ??
+        appRepository.view.bikes.keys.firstOrNull ??
         appRepository.bikes.keys.firstOrNull ??
         '';
     _bike = _initialBike;
@@ -263,8 +264,6 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
   }
 
   void _changeListener() {
-    const equality = DeepCollectionEquality();
-
     final hasChanges = _nameController.text.trim() != (widget.ratingEntry?.name ?? '') ||
         _notesController.text.trim() != (widget.ratingEntry?.notes ?? '') ||
         _initialDateTimeUtc != _selectedDateTimeUtc ||
@@ -274,7 +273,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
         _currentWeather.value != widget.ratingEntry?.weather ||
         _bike != _initialBike ||
         _setupId != widget.ratingEntry?.setupId ||
-        !equality.equals(_metricValues, _initialMetricValues);
+        !mapEquals(_metricValues, _initialMetricValues);
 
     if (_formHasChanges != hasChanges) {
       setState(() {
@@ -412,10 +411,12 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
     }
 
     // Keep only answers for metrics that still apply to the selected bike.
+    // Unresolved values are kept too: saving rewrites all value rows, so
+    // dropping them would silently delete them.
     final applicableIds = _applicableRatings().values.expand((r) => r.metrics).map((m) => m.id).toSet();
     final metricValues = {
       for (final entry in _metricValues.entries)
-        if (applicableIds.contains(entry.key)) entry.key: entry.value,
+        if (applicableIds.contains(entry.key) || entry.value is UnresolvedValue) entry.key: entry.value,
     };
 
     _formHasChanges = false;
@@ -440,7 +441,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
     );
   }
 
-  void _onMetricValueChanged({required Adjustment adjustment, required dynamic newValue}) {
+  void _onMetricValueChanged({required Adjustment adjustment, required AdjustmentValue newValue}) {
     setState(() => _metricValues[adjustment.id] = newValue);
     _changeListener();
   }
@@ -518,21 +519,25 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
       builder: (context, child) {
         return Wrap(
           spacing: 8.0,
-          runSpacing: 4.0,
+          runSpacing: 8.0,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             ActionChip(
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               avatar: const Icon(Icons.calendar_month),
               label: Text(DateFormat(appSettings.dateFormat).format(_selectedDateTimeLocal)),
               backgroundColor: widget.mode == RatingEntryPageMode.edit && (_selectedDateTimeUtc.year != _initialDateTimeUtc.year || _selectedDateTimeUtc.month != _initialDateTimeUtc.month || _selectedDateTimeUtc.day != _initialDateTimeUtc.day) ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
               onPressed: _pickDate,
             ),
             ActionChip(
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               avatar: const Icon(Icons.access_time),
               label: Text(DateFormat(appSettings.timeFormat).format(_selectedDateTimeLocal)),
               backgroundColor: widget.mode == RatingEntryPageMode.edit && (_selectedDateTimeUtc.hour != _initialDateTimeUtc.hour || _selectedDateTimeUtc.minute != _initialDateTimeUtc.minute) ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
               onPressed: _pickTime,
             ),
             ActionChip(
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               backgroundColor: widget.mode == RatingEntryPageMode.edit && (!ContextPosition.equal(_currentLocation.value, widget.ratingEntry?.position) || !ContextPlace.equal(_currentPlace.value, widget.ratingEntry?.place)) ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
               onPressed: _locationService.status == LocationStatus.searching || _addressService.status == AddressStatus.searching
                   ? null
@@ -615,6 +620,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
               },
             ),
             ActionChip(
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               avatar: switch (_weatherService.status) {
                 WeatherIdle() => Icon(_currentWeather.value?.getIconData() ?? Icons.cloudy_snowing),
                 WeatherSearching() => const Icon(Icons.cloudy_snowing),
@@ -646,6 +652,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
                     },
             ),
             ActionChip(
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               avatar: Icon(_currentWeather.value?.condition?.iconData ?? Icons.edit_road, color: _currentWeather.value?.condition?.color),
               label: _weatherService.status is WeatherSearching
                   ? const ChipLoadingIndicator()
@@ -835,7 +842,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
                   _notesTextFormField(),
                   const SizedBox(height: 12),
                   _wrap(),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 18),
                   _bikeField(bikes: bikes),
                   const SizedBox(height: 12),
                   ?driftWarning,

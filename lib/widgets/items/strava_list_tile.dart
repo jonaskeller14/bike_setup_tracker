@@ -6,9 +6,10 @@ import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/strava/strava_activity.dart';
-import '../../pages/details/strava_activitiy_details_page.dart';
+import '../../pages/details/strava_activity_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/strava_service.dart';
+import '../../utils/automation_ids.dart';
 import 'strava_context_wrapper.dart';
 
 class StravaListTile extends StatelessWidget {
@@ -86,11 +87,15 @@ class StravaListTile extends StatelessWidget {
                 stravaActivity.workout.isNotable ? stravaActivity.workout.icon : stravaActivity.sportType.getIconData(),
               ),
             ),
-            title: Text(
-              stravaActivity.name,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontWeight: FontWeight.bold)
+            title: Semantics(
+              container: true,
+              identifier: AutomationIds.stravaActivity(stravaActivity.id),
+              child: Text(
+                stravaActivity.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontWeight: FontWeight.bold)
+              ),
             ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

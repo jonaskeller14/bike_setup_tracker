@@ -6,8 +6,8 @@ import 'adjustment_icon_name_notes.dart';
 
 class DisplayCategoricalAdjustmentWidget extends StatelessWidget {
   final CategoricalAdjustment adjustment;
-  final List<String>? initialValue;
-  final List<String>? value;
+  final CategoricalValue? initialValue;
+  final CategoricalValue? value;
   final bool highlighting;
   final bool isError;
   final VoidCallback? onRemove;
@@ -29,7 +29,7 @@ class DisplayCategoricalAdjustmentWidget extends StatelessWidget {
     Color? highlightColor;
     final highlights = Theme.of(context).extension<ValueHighlightColors>();
     if (highlighting) {
-      isChanged = value != null && !adjustmentValuesEqual(initialValue, value);
+      isChanged = value != null && initialValue != value;
       isInitial = initialValue == null;
       highlightColor = isChanged ? (isInitial ? highlights?.initial ?? Colors.green : highlights?.changed ?? Colors.orange) : null;
     }
@@ -57,7 +57,7 @@ class DisplayCategoricalAdjustmentWidget extends StatelessWidget {
                   TextSpan(
                     children: [
                       TextSpan(
-                        text: Adjustment.formatValue(value),
+                        text: value?.display ?? '-',
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: highlightColor,
@@ -76,7 +76,7 @@ class DisplayCategoricalAdjustmentWidget extends StatelessWidget {
                   Opacity(
                     opacity: 0.7,
                     child: Text(
-                      Adjustment.formatValue(initialValue) + adjustment.unitSuffix(),
+                      (initialValue?.display ?? '-') + adjustment.unitSuffix(),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         fontWeight: FontWeight.bold,
                         decoration: TextDecoration.lineThrough,

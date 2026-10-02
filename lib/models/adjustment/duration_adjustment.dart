@@ -49,8 +49,8 @@ class DurationAdjustment extends Adjustment {
   }
 
   @override
-  bool isValidValue(dynamic value) {  
-    return value is Duration && (min == null || value.compareTo(min!) >= 0) && (max == null || value.compareTo(max!) <= 0);
+  bool isValidValue(AdjustmentValue value) {
+    return value is DurationValue && (min == null || value.value.compareTo(min!) >= 0) && (max == null || value.value.compareTo(max!) <= 0);
   }
 
   @override

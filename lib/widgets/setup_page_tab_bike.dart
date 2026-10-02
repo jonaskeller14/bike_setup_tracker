@@ -17,11 +17,11 @@ class SetupBikeTab extends StatefulWidget {
   final String bike;
   final List<Component> bikeComponents;
   final Map<String, Component> allComponents;
-  final Map<String, dynamic> bikeAdjustmentValues;
-  final Map<String, dynamic> previousBikeAdjustmentValues;
-  final Map<String, dynamic> initialBikeAdjustmentValues;
-  final Map<String, dynamic> danglingBikeAdjustmentValues;
-  final void Function({required Adjustment adjustment, required dynamic newValue}) onAdjustmentValueChanged;
+  final Map<String, AdjustmentValue> bikeAdjustmentValues;
+  final Map<String, AdjustmentValue> previousBikeAdjustmentValues;
+  final Map<String, AdjustmentValue> initialBikeAdjustmentValues;
+  final Map<String, AdjustmentValue> danglingBikeAdjustmentValues;
+  final void Function({required Adjustment adjustment, required AdjustmentValue newValue}) onAdjustmentValueChanged;
   final void Function({required Adjustment adjustment}) onRemoveFromAdjustmentValues;
   final void Function(String) onDanglingRemove;
   final Future<void> Function({required CategoricalAdjustment adjustment, required String option})? onAddCategoricalOption;
@@ -186,8 +186,8 @@ class _SetupBikeTabState extends State<SetupBikeTab> {
 
 Widget _danglingComponentCard(BuildContext context, {
   required DanglingComponentGroup group,
-  required Map<String, dynamic> adjustmentValues,
-  required Map<String, dynamic> initialAdjustmentValues,
+  required Map<String, AdjustmentValue> adjustmentValues,
+  required Map<String, AdjustmentValue> initialAdjustmentValues,
   required void Function(String) onRemove,
 }) {
   final scheme = Theme.of(context).colorScheme;

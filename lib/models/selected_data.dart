@@ -1,4 +1,4 @@
-import 'adjustment/adjustment_unit.dart';
+import 'adjustment/adjustment.dart';
 import 'bike.dart';
 import 'component/component.dart';
 import 'person.dart';
@@ -44,17 +44,24 @@ class SelectedData {
     final json = _normalizeLegacyUnits(rawJson) as Map<String, dynamic>;
 
     final loadedPersons = (json['persons'] as List<dynamic>? ?? [])
-        .map((a) => Person.fromJson(a as Map<String, dynamic>));
+        .map((a) => Person.fromJson(a as Map<String, dynamic>))
+        .toList();
     final loadedBikes = (json['bikes'] as List<dynamic>? ?? [])
         .map((a) => Bike.fromJson(a as Map<String, dynamic>));
     final loadedComponents = (json['components'] as List<dynamic>? ?? [])
-        .map((a) => Component.fromJson(json: a as Map<String, dynamic>));
-    final loadedSetups = (json['setups'] as List<dynamic>? ?? [])
-        .map((a) => Setup.fromJson(json: a as Map<String, dynamic>));
+        .map((a) => Component.fromJson(json: a as Map<String, dynamic>))
+        .toList();
     final loadedRatings = (json['ratings'] as List<dynamic>? ?? [])
-        .map((a) => Rating.fromJson(json: a as Map<String, dynamic>));
+        .map((a) => Rating.fromJson(json: a as Map<String, dynamic>))
+        .toList();
+
+    final adjustmentTypes = adjustmentTypesOf(components: loadedComponents, persons: loadedPersons);
+    final metricTypes = metricTypesOf(loadedRatings);
+
+    final loadedSetups = (json['setups'] as List<dynamic>? ?? [])
+        .map((a) => Setup.fromJson(json: a as Map<String, dynamic>, adjustmentTypes: adjustmentTypes));
     final loadedRatingEntries = (json['ratingEntries'] as List<dynamic>? ?? [])
-        .map((a) => RatingEntry.fromJson(json: a as Map<String, dynamic>));
+        .map((a) => RatingEntry.fromJson(json: a as Map<String, dynamic>, metricTypes: metricTypes));
     final loadedTaskRules = (json['taskRules'] as List<dynamic>? ?? [])
         .map((a) => TaskRule.fromJson(a as Map<String, dynamic>));
     final loadedTaskEntries = (json['taskEntries'] as List<dynamic>? ?? [])
@@ -72,6 +79,31 @@ class SelectedData {
     );
   }
 }
+
+Map<String, Adjustment> adjustmentsById({
+  required Iterable<Component> components,
+  required Iterable<Person> persons,
+}) => {
+  for (final component in components)
+    for (final adjustment in component.adjustments) adjustment.id: adjustment,
+  for (final person in persons)
+    for (final adjustment in person.adjustments) adjustment.id: adjustment,
+};
+
+Map<String, Adjustment> metricAdjustmentsById(Iterable<Rating> ratings) => {
+  for (final rating in ratings)
+    for (final metric in rating.metrics) metric.id: metric.adjustment,
+};
+
+Map<String, AdjustmentType> adjustmentTypesOf({
+  required Iterable<Component> components,
+  required Iterable<Person> persons,
+}) => _typesOf(adjustmentsById(components: components, persons: persons));
+
+Map<String, AdjustmentType> metricTypesOf(Iterable<Rating> ratings) => _typesOf(metricAdjustmentsById(ratings));
+
+Map<String, AdjustmentType> _typesOf(Map<String, Adjustment> adjustments) =>
+    adjustments.map((id, adjustment) => MapEntry(id, adjustment.type));
 
 /// Recursively rewrites every `"unit"` string value in [node] via
 /// [AdjustmentUnit.fromLegacy], leaving everything else untouched.

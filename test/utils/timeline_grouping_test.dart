@@ -60,7 +60,7 @@ Component makeComponent({
     id: id,
     name: 'Component $id',
     componentType: type,
-    installations: [],
+    installations: const [],
   );
 }
 
@@ -76,7 +76,6 @@ InstallationEntry deinstallEntry({
     component: component,
     installation: Uninstallation(
       id: installationId,
-      componentId: component.id,
       dateTimeUTC: utc,
       dateTimeLocal: local(utc),
     ),
@@ -99,7 +98,6 @@ InstallationEntry installEntry({
     installation: BikeInstallation(
       bikeId: bike,
       id: installationId,
-      componentId: component.id,
       dateTimeUTC: utc,
       dateTimeLocal: local(utc),
     ),
@@ -124,7 +122,6 @@ InstallationEntry componentInstallEntry({
     installation: ComponentInstallation(
       parentComponentId: parentComponent,
       id: installationId,
-      componentId: component.id,
       dateTimeUTC: utc,
       dateTimeLocal: local(utc),
     ),
@@ -152,7 +149,6 @@ InstallationEntry archivalEntry({
     component: component,
     installation: Archival(
       id: installationId,
-      componentId: component.id,
       dateTimeUTC: utc,
       dateTimeLocal: local(utc),
     ),

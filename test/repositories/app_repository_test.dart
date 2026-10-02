@@ -1,10 +1,11 @@
-import 'package:bike_setup_tracker/database/adjustment_value_codec.dart';
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/context/context_position.dart';
+import 'package:bike_setup_tracker/models/filters/setup_filter.dart';
+import 'package:bike_setup_tracker/models/filters/task_rule_filter.dart';
 import 'package:bike_setup_tracker/models/person.dart';
 import 'package:bike_setup_tracker/models/rating/rating.dart';
 import 'package:bike_setup_tracker/models/rating/rating_association.dart';
@@ -71,15 +72,15 @@ void main() {
     test("removeBike (selected)", () async {
       await repository.addBikes([bike1]);
       await pumpEventQueue();
-      repository.onBikeTap(bike1.id);
+      repository.filters.toggleBike(bike1.id);
       await pumpEventQueue();
 
-      expect(repository.selectedBike == bike1.id, true);
+      expect(repository.filters.bikeId == bike1.id, true);
 
       await repository.removeBikes([bike1]);
       await pumpEventQueue();
 
-      expect(repository.selectedBike == null, true);
+      expect(repository.filters.bikeId == null, true);
       expect(repository.bikes.containsKey(bike1.id), false);
     });
   });
@@ -98,7 +99,7 @@ void main() {
         name: "Component #1", 
         installations: [Installation.sinceBeginning(parent: bike1.id)], 
         componentType: ComponentType.fork, 
-        adjustments: []
+        adjustments: const []
       );
     });
 
@@ -127,9 +128,9 @@ void main() {
     test("editComponents applies every edit of a swap", () async {
       final spare = Component(
         name: "Spare Fork",
-        installations: [],
+        installations: const [],
         componentType: ComponentType.fork,
-        adjustments: [],
+        adjustments: const [],
       );
       await repository.addBikes([bike1]);
       await repository.addComponents([component1, spare]);
@@ -203,7 +204,7 @@ void main() {
       
       final setupWithVals = setup1.copyWith(
         bike: bikeWithAdj.id,
-        bikeAdjustmentValues: {adjustment.id: 100.0},
+        bikeAdjustmentValues: {adjustment.id: const NumericalValue(100.0)},
       );
 
       await repository.addBikes([bikeWithAdj]);
@@ -211,7 +212,7 @@ void main() {
       await repository.addSetups([setupWithVals]);
       await pumpEventQueue();
 
-      expect(repository.setups[setupWithVals.id]?.bikeAdjustmentValues[adjustment.id], 100.0);
+      expect(repository.setups[setupWithVals.id]?.bikeAdjustmentValues[adjustment.id], const NumericalValue(100.0));
 
       // Simulate BikeActions.removeBike logic
       final obsoleteComponents = repository.components.values.where((c) => c.parentId == bikeWithAdj.id).toList();
@@ -237,7 +238,7 @@ void main() {
       expect(repository.bikes.containsKey(bikeWithAdj.id), true);
       expect(repository.setups.containsKey(setupWithVals.id), true);
       // This is expected to fail before the fix
-      expect(repository.setups[setupWithVals.id]?.bikeAdjustmentValues[adjustment.id], 100.0);
+      expect(repository.setups[setupWithVals.id]?.bikeAdjustmentValues[adjustment.id], const NumericalValue(100.0));
     });
 
     test("restoreBike preserves component installations", () async {
@@ -245,7 +246,7 @@ void main() {
       final component = Component(
         name: "Fork",
         componentType: ComponentType.fork,
-        adjustments: [],
+        adjustments: const [],
         installations: [
           Installation.sinceBeginning(parent: bikeWithComp.id),
           Installation(
@@ -282,7 +283,7 @@ void main() {
       expect(repository.components[component.id]?.installations.length, 2);
     });
 
-    test("bookmark filter narrows filteredSetups to bookmarked setups", () async {
+    test("bookmark filter narrows view.setups to bookmarked setups", () async {
       final bookmarked = setup1.copyWith(isBookmarked: true);
       final plain = Setup(
         name: "Setup #2",
@@ -299,20 +300,66 @@ void main() {
       await repository.addSetups([bookmarked, plain]);
       await pumpEventQueue();
 
-      expect(repository.filteredSetups.keys.toSet(), {bookmarked.id, plain.id});
+      expect(repository.view.setups.keys.toSet(), {bookmarked.id, plain.id});
 
-      repository.setShowBookmarkedSetupsOnly(true);
-      expect(repository.filteredSetups.keys.toSet(), {bookmarked.id});
+      repository.filters.setup = const SetupFilter(bookmarkedOnly: true);
+      expect(repository.view.setups.keys.toSet(), {bookmarked.id});
 
-      repository.setShowBookmarkedSetupsOnly(false);
-      expect(repository.filteredSetups.keys.toSet(), {bookmarked.id, plain.id});
+      repository.filters.setup = const SetupFilter();
+      expect(repository.view.setups.keys.toSet(), {bookmarked.id, plain.id});
+    });
+
+    group("value types at the write boundary", () {
+      final rebound = StepAdjustment(
+        name: "Rebound",
+        notes: null,
+        unit: null,
+        step: 1,
+        min: 0,
+        max: 10,
+        visualization: StepAdjustmentVisualization.slider,
+      );
+
+      setUp(() async {
+        await repository.addBikes([bike1]);
+        await repository.addComponents([
+          Component(
+            name: "Fork",
+            componentType: ComponentType.fork,
+            adjustments: [rebound],
+            installations: [Installation.sinceBeginning(parent: bike1.id)],
+          ),
+        ]);
+        await pumpEventQueue();
+      });
+
+      test("a value that does not match its adjustment type asserts on add and edit", () async {
+        final mismatched = setup1.copyWith(bikeAdjustmentValues: {rebound.id: const NumericalValue(5.0)});
+
+        await expectLater(repository.addSetups([mismatched]), throwsA(isA<AssertionError>()));
+        await expectLater(repository.editSetups([mismatched]), throwsA(isA<AssertionError>()));
+        await pumpEventQueue();
+        expect(repository.setups.containsKey(setup1.id), isFalse);
+      });
+
+      test("matching values and values of unknown adjustments are written", () async {
+        final setup = setup1.copyWith(bikeAdjustmentValues: {
+          rebound.id: const StepValue(5),
+          'removed-adjustment': const UnresolvedValue('"kept"'),
+        });
+
+        await repository.addSetups([setup]);
+        await pumpEventQueue();
+
+        expect(repository.setups[setup1.id]!.bikeAdjustmentValues[rebound.id], const StepValue(5));
+      });
     });
   });
 
   group("AppRepository - Persons", () {
     late AppDatabase database;
     late AppRepository repository;
-    final person1 = Person(name: "Person #1", adjustments: []);
+    final person1 = Person(name: "Person #1", adjustments: const []);
 
     setUp(() async {
       database = AppDatabase.memory();
@@ -364,7 +411,7 @@ void main() {
   group("AppRepository - Ratings", () {
     late AppDatabase database;
     late AppRepository repository;
-    final rating1 = Rating(name: "Rating #1", association: const GlobalRatingAssociation(), metrics: []);
+    final rating1 = Rating(name: "Rating #1", association: const GlobalRatingAssociation(), metrics: const []);
 
     setUp(() async {
       database = AppDatabase.memory();
@@ -411,6 +458,23 @@ void main() {
       expect(repository.ratings.containsKey(ratingWithAdj.id), true);
       expect(repository.ratings[ratingWithAdj.id]?.metrics.length, 1);
     });
+
+    test("a metric value that does not match its type asserts on add and edit", () async {
+      final metric = RatingMetric(adjustment: BooleanAdjustment(name: "Fun", notes: null, unit: null));
+      await repository.addRatings([rating1.copyWith(id: rating1.id, metrics: [metric])]);
+      await pumpEventQueue();
+
+      final entry = RatingEntry(
+        bike: 'bike',
+        setupId: 'setup',
+        dateTimeUTC: DateTime.utc(2024),
+        dateTimeLocal: DateTime(2024),
+        metricValues: {metric.id: TextValue.orNull('yes')!},
+      );
+
+      await expectLater(repository.addRatingEntries([entry]), throwsA(isA<AssertionError>()));
+      await expectLater(repository.editRatingEntry(entry), throwsA(isA<AssertionError>()));
+    });
   });
   group("AppRepository - Unit Conversions", () {
     late AppDatabase database;
@@ -431,7 +495,7 @@ void main() {
       await database.close();
     });
 
-    Setup buildSetup(String bikeId, {String? personId, Map<String, dynamic>? bikeValues, Map<String, dynamic>? personValues}) => Setup(
+    Setup buildSetup(String bikeId, {String? personId, Map<String, AdjustmentValue>? bikeValues, Map<String, AdjustmentValue>? personValues}) => Setup(
       name: "Setup",
       tags: {},
       datetime: DateTime(2020).toUtc(),
@@ -451,7 +515,7 @@ void main() {
         adjustments: [adj],
         installations: [Installation.sinceBeginning(parent: bike.id)],
       );
-      final setup = buildSetup(bike.id, bikeValues: {adj.id: 65.0});
+      final setup = buildSetup(bike.id, bikeValues: {adj.id: const NumericalValue(65.0)});
 
       await repository.addBikes([bike]);
       await repository.addComponents([component]);
@@ -473,8 +537,8 @@ void main() {
       );
       await pumpEventQueue();
 
-      final value = repository.setups[setup.id]!.bikeAdjustmentValues[adj.id] as double;
-      expect(value, closeTo(convertUnit(65.0, psi, bar), 1e-9));
+      final value = repository.setups[setup.id]!.bikeAdjustmentValues[adj.id]! as NumericalValue;
+      expect(value.value, closeTo(convertUnit(65.0, psi, bar), 1e-9));
       expect(repository.setups[setup.id]!.lastModified.isAfter(before), isTrue);
     });
 
@@ -487,7 +551,7 @@ void main() {
         adjustments: [adj],
         installations: [Installation.sinceBeginning(parent: bike.id)],
       );
-      final setup = buildSetup(bike.id, bikeValues: {adj.id: 65.0});
+      final setup = buildSetup(bike.id, bikeValues: {adj.id: const NumericalValue(65.0)});
 
       await repository.addBikes([bike]);
       await repository.addComponents([component]);
@@ -500,7 +564,7 @@ void main() {
       await repository.editComponent(component.copyWith(adjustments: [adj.copyWith(unit: bar)]));
       await pumpEventQueue();
 
-      expect(repository.setups[setup.id]!.bikeAdjustmentValues[adj.id], 65.0);
+      expect(repository.setups[setup.id]!.bikeAdjustmentValues[adj.id], const NumericalValue(65.0));
       expect(repository.setups[setup.id]!.lastModified, before);
     });
 
@@ -508,7 +572,7 @@ void main() {
       final bike = Bike(name: "B", person: null);
       final padj = NumericalAdjustment(name: "Weight", notes: null, unit: kg, min: 0);
       final person = Person(name: "P", adjustments: [padj]);
-      final setup = buildSetup(bike.id, personId: person.id, personValues: {padj.id: 70.0});
+      final setup = buildSetup(bike.id, personId: person.id, personValues: {padj.id: const NumericalValue(70.0)});
 
       await repository.addBikes([bike]);
       await repository.addPersons([person]);
@@ -521,8 +585,8 @@ void main() {
       );
       await pumpEventQueue();
 
-      final value = repository.setups[setup.id]!.personAdjustmentValues[padj.id] as double;
-      expect(value, closeTo(convertUnit(70.0, kg, lb), 1e-9));
+      final value = repository.setups[setup.id]!.personAdjustmentValues[padj.id]! as NumericalValue;
+      expect(value.value, closeTo(convertUnit(70.0, kg, lb), 1e-9));
     });
 
     test("editRating with Convert rewrites rating-entry values and bumps lastModified", () async {
@@ -537,7 +601,7 @@ void main() {
         setupId: "s",
         dateTimeUTC: DateTime(2020).toUtc(),
         dateTimeLocal: DateTime(2020),
-        metricValues: {metricAdj.id: 65.0},
+        metricValues: {metricAdj.id: const NumericalValue(65.0)},
       );
 
       await repository.addRatings([rating]);
@@ -560,23 +624,23 @@ void main() {
       );
       await pumpEventQueue();
 
-      final value = repository.ratingEntries[entry.id]!.metricValues[metricAdj.id] as double;
-      expect(value, closeTo(convertUnit(65.0, psi, bar), 1e-9));
+      final value = repository.ratingEntries[entry.id]!.metricValues[metricAdj.id]! as NumericalValue;
+      expect(value.value, closeTo(convertUnit(65.0, psi, bar), 1e-9));
       expect(repository.ratingEntries[entry.id]!.lastModified.isAfter(before), isTrue);
     });
 
     test("convertAdjustmentValues converts numeric rows and leaves unparseable rows untouched", () async {
       const adjId = 'adj-x';
       await database.into(database.setupAdjustmentValues).insert(
-        SetupAdjustmentValuesCompanion.insert(setupId: 's1', adjustmentId: adjId, value: encodeAdjustmentValue(10.0)));
+        SetupAdjustmentValuesCompanion.insert(setupId: 's1', adjustmentId: adjId, value: const NumericalValue(10.0).encode()));
       await database.into(database.setupAdjustmentValues).insert(
         SetupAdjustmentValuesCompanion.insert(setupId: 's2', adjustmentId: adjId, value: '"n/a"'));
 
-      await database.setupsDao.convertAdjustmentValues(adjId, (v) => v * 2);
+      await database.setupsDao.convertAdjustmentValues(adjId, (v) => NumericalValue(v.value * 2));
 
       final rows = await database.select(database.setupAdjustmentValues).get();
       final byId = {for (final r in rows) r.setupId: r.value};
-      expect(byId['s1'], encodeAdjustmentValue(20.0));
+      expect(byId['s1'], const NumericalValue(20.0).encode());
       expect(byId['s2'], '"n/a"'); // unparseable — left untouched
     });
 
@@ -609,7 +673,7 @@ void main() {
       await database.close();
     });
 
-    test("filteredInstallations excludes sinceBeginning", () async {
+    test("view.installations excludes sinceBeginning", () async {
       final component = Component(
         name: "C1",
         installations: [
@@ -623,11 +687,11 @@ void main() {
       await repository.addComponents([component]);
       await pumpEventQueue();
 
-      expect(repository.filteredInstallations.length, 1);
-      expect(repository.filteredInstallations.first.installation.dateTimeUTC, DateTime(2025).toUtc());
+      expect(repository.view.installations.length, 1);
+      expect(repository.view.installations.first.installation.dateTimeUTC, DateTime(2025).toUtc());
     });
 
-    test("filteredInstallations filters by selectedBike", () async {
+    test("view.installations filters by selectedBike", () async {
       final component1 = Component(
         name: "C1",
         installations: [
@@ -647,16 +711,16 @@ void main() {
       await repository.addComponents([component1, component2]);
       await pumpEventQueue();
 
-      expect(repository.filteredInstallations.length, 2);
+      expect(repository.view.installations.length, 2);
 
-      repository.onBikeTap(bike1.id);
+      repository.filters.toggleBike(bike1.id);
       await pumpEventQueue();
 
-      expect(repository.filteredInstallations.length, 1);
-      expect(repository.filteredInstallations.first.component.name, "C1");
+      expect(repository.view.installations.length, 1);
+      expect(repository.view.installations.first.component.name, "C1");
     });
 
-    test("filteredInstallations includes uninstallations for selectedBike", () async {
+    test("view.installations includes uninstallations for selectedBike", () async {
       final component = Component(
         name: "C1",
         installations: [
@@ -674,21 +738,21 @@ void main() {
       await pumpEventQueue();
 
       // Without filter: 2 events (sinceBeginning is excluded)
-      expect(repository.filteredInstallations.length, 2);
+      expect(repository.view.installations.length, 2);
 
       // Filter by bike1: should see Event 1 (origin is bike1)
-      repository.onBikeTap(bike1.id);
+      repository.filters.toggleBike(bike1.id);
       await pumpEventQueue();
-      expect(repository.filteredInstallations.length, 1);
-      expect(repository.filteredInstallations.first.originParent, bike1.id);
-      expect(repository.filteredInstallations.first.installation.parent, bike2.id);
+      expect(repository.view.installations.length, 1);
+      expect(repository.view.installations.first.originParent, bike1.id);
+      expect(repository.view.installations.first.installation.parent, bike2.id);
 
       // Filter by bike2: should see Event 1 (target is bike2) AND Event 2 (origin is bike2)
-      repository.onBikeTap(bike2.id); 
+      repository.filters.toggleBike(bike2.id); 
       await pumpEventQueue();
-      expect(repository.filteredInstallations.length, 2);
-      expect(repository.filteredInstallations.any((ci) => ci.originParent == bike1.id && ci.installation.parent == bike2.id), true);
-      expect(repository.filteredInstallations.any((ci) => ci.originParent == bike2.id && ci.installation.parent == null), true);
+      expect(repository.view.installations.length, 2);
+      expect(repository.view.installations.any((ci) => ci.originParent == bike1.id && ci.installation.parent == bike2.id), true);
+      expect(repository.view.installations.any((ci) => ci.originParent == bike2.id && ci.installation.parent == null), true);
     });
   });
 
@@ -707,7 +771,7 @@ void main() {
         name: "C1", 
         installations: [Installation.sinceBeginning(parent: bike1.id)], 
         componentType: ComponentType.fork, 
-        adjustments: []
+        adjustments: const []
       );
       rule1 = TaskRule(name: "Rule 1", association: ComponentTaskAssociation(component1.id), tags: const {});
     });
@@ -723,8 +787,8 @@ void main() {
       await pumpEventQueue();
 
       // Rule added, no entry -> open count should be 1
-      expect(repository.filteredOpenTaskRulesCount, 1);
-      expect(repository.filteredOpenTaskRules.containsKey(rule1.id), true);
+      expect(repository.view.openTaskRules.length, 1);
+      expect(repository.view.openTaskRules.containsKey(rule1.id), true);
 
       final entry1 = TaskEntry(
         name: "Entry 1",
@@ -738,8 +802,8 @@ void main() {
       await pumpEventQueue();
 
       // Entry added -> open count should be 0
-      expect(repository.filteredOpenTaskRulesCount, 0);
-      expect(repository.filteredOpenTaskRules.containsKey(rule1.id), false);
+      expect(repository.view.openTaskRules.length, 0);
+      expect(repository.view.openTaskRules.containsKey(rule1.id), false);
     });
 
     test("addTaskEntries rolls back the batch when one insert fails", () async {
@@ -763,13 +827,40 @@ void main() {
       expect(repository.taskEntries.containsKey(entry.id), false);
     });
 
+    test("selecting a task tag narrows view.taskEntries immediately", () async {
+      final tagged = TaskRule(name: "Tagged", tags: const {"service"});
+      final plain = TaskRule(name: "Plain", tags: const {});
+      TaskEntry entryFor(TaskRule rule) => TaskEntry(
+        name: rule.name,
+        dateTimeUTC: DateTime.now().toUtc(),
+        dateTimeLocal: DateTime.now(),
+        taskRule: rule.id,
+      );
+      final taggedEntry = entryFor(tagged);
+      final plainEntry = entryFor(plain);
+
+      await repository.addTaskRules([tagged, plain]);
+      await pumpEventQueue();
+      await repository.addTaskEntries([taggedEntry, plainEntry]);
+      await pumpEventQueue();
+
+      expect(repository.view.taskEntries.keys.toSet(), {taggedEntry.id, plainEntry.id});
+
+      // No pump: the entries must follow their rules without waiting for a DB event.
+      repository.filters.taskRule = TaskRuleFilter(tags: const {"service"});
+      expect(repository.view.taskEntries.keys.toSet(), {taggedEntry.id});
+
+      repository.filters.taskRule = TaskRuleFilter();
+      expect(repository.view.taskEntries.keys.toSet(), {taggedEntry.id, plainEntry.id});
+    });
+
     test("openTaskCount handles filtering by bike", () async {
       final bike2 = Bike(name: "Bike #2", person: null);
       final component2 = Component(
         name: "C2", 
         installations: [Installation.sinceBeginning(parent: bike2.id)], 
         componentType: ComponentType.fork, 
-        adjustments: []
+        adjustments: const []
       );
       final rule2 = TaskRule(name: "Rule 2", association: ComponentTaskAssociation(component2.id), tags: const {});
 
@@ -778,15 +869,15 @@ void main() {
       await repository.addTaskRules([rule1, rule2]);
       await pumpEventQueue();
 
-      expect(repository.filteredOpenTaskRulesCount, 2);
+      expect(repository.view.openTaskRules.length, 2);
 
       // Filter by bike1
-      repository.onBikeTap(bike1.id);
+      repository.filters.toggleBike(bike1.id);
       await pumpEventQueue();
 
-      expect(repository.filteredOpenTaskRulesCount, 1);
-      expect(repository.filteredOpenTaskRules.containsKey(rule1.id), true);
-      expect(repository.filteredOpenTaskRules.containsKey(rule2.id), false);
+      expect(repository.view.openTaskRules.length, 1);
+      expect(repository.view.openTaskRules.containsKey(rule1.id), true);
+      expect(repository.view.openTaskRules.containsKey(rule2.id), false);
     });
 
     test("toDoTaskRules sorts by status, then priority, then progress", () async {
@@ -979,27 +1070,28 @@ void main() {
       await repository.addBikes([bike1, bike2]);
       await repository.addTaskRules([bike1Rule, bike2Rule]);
       await pumpEventQueue();
-      repository.onBikeTap(bike1.id);
-      repository.deselectTaskPriority(TaskPriority.critical);
+      repository.filters.toggleBike(bike1.id);
+      repository.filters.taskRule = TaskRuleFilter(
+        priorities: TaskPriority.values.toSet()..remove(TaskPriority.critical),
+      );
       await pumpEventQueue();
 
-      expect(repository.hasActiveTaskPriorityFilter, isTrue);
-      expect(repository.hasActiveTaskRuleTagFilter, isFalse);
-      expect(repository.hasActiveTaskRuleNarrowing, isTrue);
+      expect(repository.filters.taskRule.hasActivePriorities, isTrue);
+      expect(repository.filters.taskRule.tags, isEmpty);
+      expect(repository.filters.taskRule.isActive, isTrue);
       expect(repository.actionableTaskRules, isEmpty);
       expect(repository.hasScopeActionableTaskRules, isTrue);
 
-      repository.selectAllTaskPriorities();
-      repository.selectTaskRuleTag("other");
+      repository.filters.taskRule = TaskRuleFilter(tags: const {"other"});
       await pumpEventQueue();
 
-      expect(repository.hasActiveTaskPriorityFilter, isFalse);
-      expect(repository.hasActiveTaskRuleTagFilter, isTrue);
-      expect(repository.hasActiveTaskRuleNarrowing, isTrue);
+      expect(repository.filters.taskRule.hasActivePriorities, isFalse);
+      expect(repository.filters.taskRule.tags, {"other"});
+      expect(repository.filters.taskRule.isActive, isTrue);
       expect(repository.actionableTaskRules, isEmpty);
       expect(repository.hasScopeActionableTaskRules, isTrue);
 
-      repository.onBikeTap(bike2.id);
+      repository.filters.toggleBike(bike2.id);
       await pumpEventQueue();
       expect(repository.actionableTaskRules.map((taskRule) => taskRule.rule.id), [bike2Rule.id]);
     });
@@ -1019,7 +1111,7 @@ void main() {
         name: "C1",
         installations: [Installation.sinceBeginning(parent: bike1.id)],
         componentType: ComponentType.fork,
-        adjustments: [],
+        adjustments: const [],
       );
     });
 
@@ -1027,19 +1119,19 @@ void main() {
       await database.close();
     });
 
-    test("archiveComponent removes from filteredComponents and adds to archivedComponents", () async {
+    test("archiveComponent removes from view.components and adds to archivedComponents", () async {
       await repository.addBikes([bike1]);
       await repository.addComponents([component1]);
       await pumpEventQueue();
 
-      expect(repository.filteredComponents.containsKey(component1.id), isTrue);
+      expect(repository.view.components.containsKey(component1.id), isTrue);
       expect(repository.archivedComponents.containsKey(component1.id), isFalse);
 
       final comp = repository.components[component1.id]!;
       await repository.archiveComponent(comp);
       await pumpEventQueue();
 
-      expect(repository.filteredComponents.containsKey(component1.id), isFalse);
+      expect(repository.view.components.containsKey(component1.id), isFalse);
       expect(repository.archivedComponents.containsKey(component1.id), isTrue);
       expect(repository.archivedComponents[component1.id]!.isArchived, isTrue);
     });
@@ -1071,7 +1163,7 @@ void main() {
       expect(unarchived.parentId, bike1.id);
     });
 
-    test("task rule for archived component is hidden from filteredOpenTaskRules", () async {
+    test("task rule for archived component is hidden from view.openTaskRules", () async {
       final rule = TaskRule(
         name: "Rule 1",
         association: ComponentTaskAssociation(component1.id),
@@ -1083,7 +1175,7 @@ void main() {
       await repository.addTaskRules([rule]);
       await pumpEventQueue();
 
-      expect(repository.filteredOpenTaskRules.containsKey(rule.id), isTrue);
+      expect(repository.view.openTaskRules.containsKey(rule.id), isTrue);
       expect(repository.actionableTaskRules.map((taskRule) => taskRule.rule.id), [rule.id]);
       expect(repository.hasScopeActionableTaskRules, isTrue);
 
@@ -1091,7 +1183,7 @@ void main() {
       await repository.archiveComponent(comp);
       await pumpEventQueue();
 
-      expect(repository.filteredOpenTaskRules.containsKey(rule.id), isFalse);
+      expect(repository.view.openTaskRules.containsKey(rule.id), isFalse);
       expect(repository.actionableTaskRules, isEmpty);
       expect(repository.hasScopeActionableTaskRules, isFalse);
     });
@@ -1267,10 +1359,10 @@ void main() {
         buildSetup(bike1.id, position: const ContextPosition(latitude: 44.16, longitude: 8.34)),
       ]);
       await pumpEventQueue();
-      repository.onBikeTap(bike2.id);
+      repository.filters.toggleBike(bike2.id);
       await pumpEventQueue();
 
-      expect(repository.filteredSetups.isEmpty, true);
+      expect(repository.view.setups.isEmpty, true);
       expect(repository.hasSetupsWithPosition, true);
     });
 
@@ -1317,11 +1409,25 @@ void main() {
       await repository.addBikes([bike1, bike2]);
       await repository.setStravaActivities([buildActivity(1, lat: 44.16, lon: 8.34)]);
       await pumpEventQueue();
-      repository.onBikeTap(bike2.id);
+      repository.filters.toggleBike(bike2.id);
       await pumpEventQueue();
 
       expect(await repository.getFilteredStravaActivitiesWithPosition(), isEmpty);
       expect(await repository.hasStravaActivitiesWithPosition(), true);
+    });
+
+    test("getFilteredStravaActivitiesWithPosition follows the selected bike's gear", () async {
+      final linked = Bike(name: "Linked", person: null, stravaGear: "gear_1");
+      final otherGear = Bike(name: "Other gear", person: null, stravaGear: "gear_2");
+      await repository.addBikes([linked, otherGear]);
+      await repository.setStravaActivities([buildActivity(1, lat: 44.16, lon: 8.34)]);
+      await pumpEventQueue();
+
+      repository.filters.toggleBike(linked.id);
+      expect((await repository.getFilteredStravaActivitiesWithPosition()).map((a) => a.id), [1]);
+
+      repository.filters.toggleBike(otherGear.id);
+      expect(await repository.getFilteredStravaActivitiesWithPosition(), isEmpty);
     });
 
     test("hasStravaActivitiesWithPosition is false without coordinates", () async {

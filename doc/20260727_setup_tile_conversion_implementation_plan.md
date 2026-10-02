@@ -206,7 +206,7 @@ bordered value container. The `Stack` body stays exactly as it is (B4).
 - `lib/widgets/lists/adjustment_compact_display_list.dart` *(modify)*
 - `lib/widgets/lists/setup_list.dart` *(modify — call site)*
 - `lib/widgets/chips/setup_list_search.dart` *(modify — call site)*
-- `lib/pages/details/strava_activitiy_details_page.dart` *(modify — call site + padding)*
+- `lib/pages/details/strava_activity_details_page.dart` *(modify — call site + padding)*
 - `lib/widgets/items/setup_group_card.dart` *(modify — call sites)*
 - `test/widgets/adjustment_compact_display_list_test.dart` *(modify — stale comment)*
 - `test/widgets/items/setup_list_tile_test.dart` *(new)*
@@ -245,7 +245,7 @@ bordered value container. The `Stack` body stays exactly as it is (B4).
       the standalone and the `embedded` path so group members get it in Phase 5.
       Skip the container when the list renders nothing (collapsed with no
       changes → the `_noChangesHint` path).
-- [ ] `strava_activitiy_details_page.dart`: the `ExpansionTile`'s
+- [ ] `strava_activity_details_page.dart`: the `ExpansionTile`'s
       `childrenPadding: symmetric(horizontal: 16, vertical: 8)` would now
       double-pad the tile — change to `symmetric(vertical: 8)` (H2).
 - [ ] New `test/widgets/items/setup_list_tile_test.dart`, using the provider

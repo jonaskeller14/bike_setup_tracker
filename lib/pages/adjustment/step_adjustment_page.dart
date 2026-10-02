@@ -2,10 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 
 import '../../models/adjustment/adjustment.dart';
-import '../../models/app_settings.dart';
 import '../../theme.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/set_adjustment/set_step_adjustment.dart';
@@ -58,7 +56,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
   late StepAdjustmentDialColor dialColor;
   late StepAdjustmentDialSize dialSize;
 
-  late double _previewValue;
+  late StepValue _previewValue;
   late StepAdjustment _previewAdjustment;
 
   @override
@@ -87,7 +85,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
       max: 5,
       visualization: _defaultVisualization,
     );
-    _previewValue = _previewAdjustment.min.toDouble();
+    _previewValue = StepValue(_previewAdjustment.min);
     if (widget.mode != AdjustmentPageMode.add) _expanded = true;
   }
 
@@ -216,7 +214,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
   void _updatePreview({bool resetValue = false}) {
     setState(() {
       _previewAdjustment = _composePreview();
-      if (resetValue) _previewValue = _previewAdjustment.min.toDouble();
+      if (resetValue) _previewValue = StepValue(_previewAdjustment.min);
     });
   }
 
@@ -258,7 +256,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
             ),
             child: RotaryKnob(
               key: const ValueKey('DialStyle'),
-              value: _previewValue.clamp(_previewAdjustment.min.toDouble(), knobMax),
+              value: _previewValue.value.toDouble().clamp(_previewAdjustment.min.toDouble(), knobMax),
               initialValue: null,
               min: _previewAdjustment.min.toDouble(),
               max: knobMax,
@@ -278,7 +276,6 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
 
   @override
   Widget build(BuildContext context) {
-    final enableStepDialColorSize = context.select<AppSettings, bool>((s) => s.enableStepDialColorSize);
     return PopScope(
       canPop: !_formHasChanges,
       onPopInvokedWithResult: _handlePopInvoked,
@@ -458,7 +455,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                                         },
                                       ),
                                     ),
-                                    if (visualization.hasDial && enableStepDialColorSize) ...[
+                                    if (visualization.hasDial) ...[
                                       const SizedBox(width: 8),
                                       _buildDialStyleButton(context),
                                     ],
@@ -495,12 +492,12 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                   child: SetStepAdjustmentWidget(
                     key: ValueKey(_previewAdjustment),
                     adjustment: _previewAdjustment,
-                    initialValue: 0.0,
+                    initialValue: const StepValue(0),
                     value: _previewValue,
-                    onChanged: (double? newValue) {
+                    onChanged: (StepValue? newValue) {
                       unawaited(HapticFeedback.lightImpact());
                       setState(() {
-                        _previewValue = newValue ?? _previewAdjustment.min.toDouble();
+                        _previewValue = newValue ?? StepValue(_previewAdjustment.min);
                       });
                     },
                     onChangedEnd: (_) => {},

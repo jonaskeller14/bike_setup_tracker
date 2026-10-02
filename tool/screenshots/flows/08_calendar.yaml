@@ -1,0 +1,25 @@
+# 08 Calendar: month view of the sample's busiest month.
+appId: ${APP_ID}
+---
+- runFlow: _launch.yaml
+- tapOn:
+    id: setups.calendar
+- extendedWaitUntil:
+    visible:
+      id: calendar.today
+    timeout: 15000
+- tapOn:
+    id: calendar.today
+- runScript: scripts/calendar_months_back.js
+# Swiping right pages the month view back by one month.
+- repeat:
+    times: ${output.monthsBack}
+    commands:
+      - swipe:
+          start: 15%, 55%
+          end: 85%, 55%
+          duration: 600
+      - waitForAnimationToEnd:
+          timeout: 3000
+- takeScreenshot:
+    path: 08_raw

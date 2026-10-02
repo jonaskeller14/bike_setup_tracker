@@ -10,11 +10,13 @@ import 'adjustment_cell_layout.dart';
 class AdjustmentCellView extends StatelessWidget {
   final AdjustmentCell cell;
   final bool highlightInitialValues;
+  final bool showPrevious;
 
   const AdjustmentCellView({
     super.key,
     required this.cell,
     required this.highlightInitialValues,
+    this.showPrevious = true,
   });
 
   /// The value colour for [cell], or null for the default text colour.
@@ -36,10 +38,10 @@ class AdjustmentCellView extends StatelessWidget {
   /// current` line would otherwise be read out with the arrow glyph.
   String get _semanticsLabel {
     final adjustment = cell.adjustment;
-    final value = Adjustment.formatValue(cell.value) + adjustment.unitSuffix();
+    final value = (cell.value?.display ?? '-') + adjustment.unitSuffix();
     return switch (cell) {
       ChangedCell(:final previousValue) =>
-        '${adjustment.name}, changed from ${Adjustment.formatValue(previousValue)} to $value',
+        '${adjustment.name}, changed from ${previousValue.display} to $value',
       _ => '${adjustment.name}, $value',
     };
   }
@@ -86,7 +88,7 @@ class AdjustmentCellView extends StatelessWidget {
               ),
               if (adjustment is StepAdjustment)
                 TextSpan(
-                  text: "  [${Adjustment.formatValue(adjustment.min)}..${Adjustment.formatValue(adjustment.max)}]",
+                  text: "  [${adjustment.min}..${adjustment.max}]",
                   style: theme.textTheme.labelSmall?.copyWith(
                     color: onInverse.withValues(alpha: 0.7),
                     fontWeight: FontWeight.bold,
@@ -102,7 +104,7 @@ class AdjustmentCellView extends StatelessWidget {
               // the arrow icon, but with both values untruncated — this is
               // where a bounded previous value is recovered in full.
               if (cell case ChangedCell(:final previousValue)) ...[
-                TextSpan(text: Adjustment.formatValue(previousValue), style: previousStyle),
+                TextSpan(text: previousValue.display, style: previousStyle),
                 WidgetSpan(
                   // Aligns the glyph with the middle of the text run, the
                   // tooltip's equivalent of the cell row's centred segments.
@@ -118,7 +120,7 @@ class AdjustmentCellView extends StatelessWidget {
                 ),
               ],
               TextSpan(
-                text: Adjustment.formatValue(cell.value),
+                text: cell.value?.display ?? '-',
                 style: valueLine?.copyWith(color: valueColor, fontWeight: FontWeight.bold),
               ),
               TextSpan(
@@ -147,21 +149,35 @@ class AdjustmentCellView extends StatelessWidget {
     );
     final changeColor = colorScheme.onSurfaceVariant.withValues(alpha: 0.7);
 
-    // Each line scrolls horizontally when the cell is narrower than its text;
-    // the Row keeps short content at its natural width so it stays centered.
+    // A scrollable line scrolls horizontally when the cell is narrower than
+    // its text; the Row keeps short content at its natural width so it stays centered.
     // The segments are centred, not bottom-aligned: the value line mixes three
     // font sizes, and bottom-aligning boxes of different heights pushes the
     // smaller ones' optical centres down, so the arrow could only ever line up
     // with one of them. Centring makes all three coincide.
+    Widget line(List<Widget> children) => Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          spacing: cellValueRowSpacing,
+          children: children,
+        );
     Widget scrollableLine(List<Widget> children) => SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            spacing: cellValueRowSpacing,
-            children: children,
-          ),
+          child: line(children),
         );
+
+    final valueAndUnit = [
+      Text(
+        display.value,
+        style: CellTextStyles.value.copyWith(color: valueColor),
+        maxLines: 1,
+      ),
+      if (cell.adjustment.unit != null)
+        Text(
+          cell.adjustment.unit!.label,
+          style: CellTextStyles.unit.copyWith(color: isError ? colorScheme.error : null),
+        ),
+    ];
 
     return Semantics(
       container: true,
@@ -189,26 +205,24 @@ class AdjustmentCellView extends StatelessWidget {
                   ),
                 ),
               ]),
-              scrollableLine([
-                if (display.hasPrevious) ...[
-                  Text(
-                    display.previous!,
-                    style: CellTextStyles.change.copyWith(color: changeColor),
-                    maxLines: 1,
+              // Not scrollable: the previous value is the only segment that
+              // gives way, so the value always stays in view.
+              if (display.hasPrevious && showPrevious)
+                line([
+                  Flexible(
+                    child: Text(
+                      display.previous!,
+                      style: CellTextStyles.change.copyWith(color: changeColor),
+                      maxLines: 1,
+                      softWrap: false,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                   cellChangeArrow(context, color: changeColor),
-                ],
-                Text(
-                  display.value,
-                  style: CellTextStyles.value.copyWith(color: valueColor),
-                  maxLines: 1,
-                ),
-                if (cell.adjustment.unit != null)
-                  Text(
-                    cell.adjustment.unit!.label,
-                    style: CellTextStyles.unit.copyWith(color: isError ? colorScheme.error : null),
-                  ),
-              ]),
+                  ...valueAndUnit,
+                ])
+              else
+                scrollableLine(valueAndUnit),
             ],
           ),
         ),

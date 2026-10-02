@@ -36,8 +36,8 @@ Future<void> exportData(BuildContext context) async {
       await BackupService.saveBackup(context: context, database: context.read<AppDatabase>(), force: true);
     case ExportDestination.googleDriveBackup:
       await context.read<GoogleDriveService>().saveBackup(context: context, force: true);
-    case ExportDestination.imageBundle:
-      await FileExport.saveImageBundle(
+    case ExportDestination.attachmentBundle:
+      await FileExport.saveAttachmentBundle(
       context: context,
       database: context.read<AppDatabase>(),
       selectedData: exportResult.selectedData,
@@ -49,7 +49,7 @@ enum ExportDestination {
   file,
   backup,
   googleDriveBackup,
-  imageBundle,
+  attachmentBundle,
 }
 
 class ExportResult {
@@ -119,8 +119,8 @@ class _ExportSheetFlowState extends State<ExportSheetFlow> {
               selectedData: _allData,
               ),
             ),
-            onImageBundle: () {
-              _destination = ExportDestination.imageBundle;
+            onAttachmentBundle: () {
+              _destination = ExportDestination.attachmentBundle;
               setState(() => _step = ExportSheetFlowSteps.step2SelectDataMethod);
             },
           ),
@@ -154,14 +154,14 @@ class SelectExportDestinationSheetContent extends StatelessWidget {
   final VoidCallback onFile;
   final VoidCallback onBackup;
   final VoidCallback onGoogleDriveBackup;
-  final VoidCallback onImageBundle;
+  final VoidCallback onAttachmentBundle;
 
   const SelectExportDestinationSheetContent({
     super.key,
     required this.onFile,
     required this.onBackup,
     required this.onGoogleDriveBackup,
-    required this.onImageBundle,
+    required this.onAttachmentBundle,
   });
 
   @override
@@ -200,13 +200,13 @@ class SelectExportDestinationSheetContent extends StatelessWidget {
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: onGoogleDriveBackup,
                     ),
-                  if (context.read<AppSettings>().enableSetupImages)
+                  if (context.read<AppSettings>().enableAttachments)
                     ListTile(
-                      leading: Icon(Icons.photo_library, color: Theme.of(context).colorScheme.primary),
-                      title: const Text("Export Image Bundle"),
-                      subtitle: const Text("Export data and images as a ZIP bundle"),
+                      leading: Icon(Icons.attach_file, color: Theme.of(context).colorScheme.primary),
+                      title: const Text("Export Attachment Bundle"),
+                      subtitle: const Text("Export data and attachments as a ZIP bundle"),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                      onTap: onImageBundle,
+                      onTap: onAttachmentBundle,
                     ),
                 ],
               ),

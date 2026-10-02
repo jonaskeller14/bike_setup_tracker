@@ -1,3 +1,6 @@
+import 'package:flutter/foundation.dart';
+
+@immutable
 class ComponentStats {
   final double distance;
   final double elevationGain;

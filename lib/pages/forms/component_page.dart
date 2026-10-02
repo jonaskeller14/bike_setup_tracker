@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
+import '../../models/attachment.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
 import '../../models/component/component_preset.dart';
@@ -14,12 +15,16 @@ import '../../models/component/installation.dart';
 import '../../models/component_stats.dart';
 import '../../repositories/app_repository.dart';
 import '../../repositories/component_preset_repository.dart';
+import '../../services/attachment_storage_service.dart';
 import '../../services/subscription_service.dart';
 import '../../theme.dart';
+import '../../utils/attachment_actions.dart';
+import '../../utils/automation_ids.dart';
 import '../../utils/component_preset_application.dart';
 import '../../utils/component_preset_search.dart';
 import '../../utils/installation_timeline_validation.dart';
 import '../../widgets/app_snackbar.dart';
+import '../../widgets/attachment_strip.dart';
 import '../../widgets/dialogs/apply_preset_adjustments.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/empty_state_placeholder2.dart';
@@ -52,8 +57,9 @@ class ComponentPage extends StatefulWidget {
   final List<Installation>? initialInstallations;
   final DateTime? replacementDate;
   final Installation? replacedInstallation;
+  final String? replacedComponentId;
 
-  const ComponentPage._({super.key, this.component, required this.mode, this.initialInstallations, this.replacementDate, this.replacedInstallation});
+  const ComponentPage._({super.key, this.component, required this.mode, this.initialInstallations, this.replacementDate, this.replacedInstallation, this.replacedComponentId});
 
   factory ComponentPage.add({Key? key, List<Installation>? initialInstallations}) =>
     ComponentPage._(key: key, mode: ComponentPageMode.add, initialInstallations: initialInstallations);
@@ -64,8 +70,8 @@ class ComponentPage extends StatefulWidget {
   factory ComponentPage.duplicate({Key? key, required Component component}) => 
     ComponentPage._(key: key, component: component, mode: ComponentPageMode.duplicate);
   
-  factory ComponentPage.replace({Key? key, required Component component, required DateTime replacementDate, required Installation replacedInstallation}) =>
-    ComponentPage._(key: key, component: component, mode: ComponentPageMode.replace, replacementDate: replacementDate, replacedInstallation: replacedInstallation);
+  factory ComponentPage.replace({Key? key, required Component component, required DateTime replacementDate, required Installation replacedInstallation, required String replacedComponentId}) =>
+    ComponentPage._(key: key, component: component, mode: ComponentPageMode.replace, replacementDate: replacementDate, replacedInstallation: replacedInstallation, replacedComponentId: replacedComponentId);
 
   @override
   State<ComponentPage> createState() => _ComponentPageState();
@@ -93,6 +99,11 @@ class _ComponentPageState extends State<ComponentPage> {
   Set<String> _presetAdjustmentIds = {};
   String? _appendedPresetNotes;
 
+  List<Attachment> _attachments = [];
+  String? _attachmentsDirPath;
+  final List<Attachment> _importedAttachments = [];
+  List<Attachment>? _savedAttachments;
+
   List<Adjustment>? _lastPresetAdjustments;
   VoidCallback? _adjustmentsFieldNotify;
   VoidCallback? _componentTypeFieldNotify;
@@ -116,7 +127,7 @@ class _ComponentPageState extends State<ComponentPage> {
     final appRepository = context.read<AppRepository>();
     final initialParentId = widget.component != null 
         ? widget.component!.parentId 
-        : appRepository.filteredBikes.keys.firstOrNull;
+        : appRepository.view.bikes.keys.firstOrNull;
 
     if (widget.mode == ComponentPageMode.replace) {
       final replacedInstallation = widget.replacedInstallation!;
@@ -128,7 +139,7 @@ class _ComponentPageState extends State<ComponentPage> {
         ),
       ];
     } else {
-      _installations = widget.component?.installations ??
+      _installations = widget.component?.installations.toList() ??
           (widget.initialInstallations != null ? List.of(widget.initialInstallations!) : null) ??
           [Installation.sinceBeginning(parent: initialParentId)];
     }
@@ -147,6 +158,9 @@ class _ComponentPageState extends State<ComponentPage> {
     final appSettings = context.read<AppSettings>();
     _initialStats = widget.component?.initialStats ?? ComponentStats.zero;
 
+    _attachments = List.from(widget.component?.attachments ?? []);
+    if (appSettings.enableAttachments) unawaited(_initAttachmentsDir());
+
     if (widget.mode != ComponentPageMode.add) _expanded = true;
 
     // Preload the autocomplete index (not in edit mode + flag on) so suggestions are
@@ -158,6 +172,38 @@ class _ComponentPageState extends State<ComponentPage> {
     if (presetKey != null && appSettings.enableComponentPresets) {
       unawaited(_loadAppliedPreset(presetKey));
     }
+  }
+
+  Future<void> _initAttachmentsDir() async {
+    final path = await AttachmentStorageService().getAttachmentsPath();
+    if (!mounted) return;
+    setState(() => _attachmentsDirPath = path);
+  }
+
+  Future<void> _addAttachments() async {
+    final attachments = await AttachmentActions.pickAttachments(context);
+    if (attachments.isEmpty || !mounted) return;
+    _importedAttachments.addAll(attachments);
+    setState(() => _attachments.addAll(attachments));
+    _changeListener();
+  }
+
+  void _onAttachmentRemoved(int index) {
+    setState(() => _attachments.removeAt(index));
+    _changeListener();
+  }
+
+  void _onAttachmentRenamed(int index, String name) {
+    setState(() => _attachments[index] = _attachments[index].copyWith(name: name));
+    _changeListener();
+  }
+
+  void _onAttachmentReorder(int oldIndex, int newIndex) {
+    setState(() {
+      final item = _attachments.removeAt(oldIndex);
+      _attachments.insert(newIndex, item);
+    });
+    _changeListener();
   }
 
   Future<void> _loadAppliedPreset(String key) async {
@@ -192,7 +238,8 @@ class _ComponentPageState extends State<ComponentPage> {
         !listEquals(_adjustments, _initialAdjustments) ||
         _initialStats != (widget.component?.initialStats ?? ComponentStats.zero) ||
         _presetKey != widget.component?.presetKey ||
-        _presetDamperKey != widget.component?.presetDamperKey;
+        _presetDamperKey != widget.component?.presetDamperKey ||
+        !listEquals(_attachments, widget.component?.attachments ?? const []);
 
     if (_formHasChanges != hasChanges) {
       setState(() {
@@ -208,6 +255,8 @@ class _ComponentPageState extends State<ComponentPage> {
     _nameFocusNode.dispose();
     _notesController.removeListener(_changeListener);
     _notesController.dispose();
+    // Files imported here but not saved with the component would be left unlinked.
+    unawaited(AttachmentActions.deleteUnsaved(_importedAttachments, saved: _savedAttachments));
     super.dispose();
   }
 
@@ -506,7 +555,9 @@ class _ComponentPageState extends State<ComponentPage> {
       orderIndex: widget.component?.orderIndex ?? 0,
       presetKey: _presetKey,
       presetDamperKey: _presetDamperKey,
+      attachments: _attachments,
     );
+    _savedAttachments = _attachments;
     // A preset UNDO would be a dead button on the previous screen.
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     Navigator.pop(
@@ -630,6 +681,7 @@ class _ComponentPageState extends State<ComponentPage> {
     final highlightBaseline = widget.mode == ComponentPageMode.edit ? widget.component?.componentType : null;
     final isChanged = highlightBaseline != null && type != highlightBaseline;
     final isOverLimit = type != null && existingComponentsCount >= type.maxCount;
+    final isReplace = widget.mode == ComponentPageMode.replace;
     // DropdownButton's own default (see DropdownButton._textStyle).
     final dropdownTextStyle = Theme.of(context).textTheme.titleMedium!;
     return FormField<ComponentType?>(
@@ -644,7 +696,8 @@ class _ComponentPageState extends State<ComponentPage> {
       builder: (FormFieldState<ComponentType?> field) {
         _componentTypeFieldNotify = () => field.didChange(_componentType);
         return InkWell(
-          onTap: () => _pickComponentType(field),
+          // Locked like the bike and timeline: the replacement keeps the replaced component's type.
+          onTap: isReplace ? null : () => _pickComponentType(field),
           borderRadius: BorderRadius.circular(4),
           child: InputDecorator(
             // Never "empty": the placeholder below stands in for a value, so the
@@ -652,9 +705,10 @@ class _ComponentPageState extends State<ComponentPage> {
             isEmpty: false,
             decoration: InputDecoration(
               labelText: 'Type',
+              enabled: !isReplace,
               border: const OutlineInputBorder(),
               errorText: field.errorText,
-              suffixIcon: const Icon(Icons.arrow_drop_down),
+              suffixIcon: Icon(isReplace ? Icons.lock_outline : Icons.arrow_drop_down),
               helperText: isOverLimit
                   ? Intl.plural(
                       type.maxCount,
@@ -679,8 +733,14 @@ class _ComponentPageState extends State<ComponentPage> {
                   : Row(
                       spacing: 8,
                       children: [
-                        Icon(type.getIconData()),
-                        Expanded(child: Text(type.label, overflow: TextOverflow.ellipsis)),
+                        Icon(type.getIconData(), color: isReplace ? Theme.of(context).disabledColor : null),
+                        Expanded(
+                          child: Text(
+                            type.label,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(color: isReplace ? Theme.of(context).disabledColor : null),
+                          ),
+                        ),
                       ],
                     ),
             ),
@@ -738,6 +798,7 @@ class _ComponentPageState extends State<ComponentPage> {
     final appSettings = context.watch<AppSettings>();
     final summary = initialStatsSummary(_initialStats, appSettings);
     return FilterChip(
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       avatar: const Icon(Icons.start),
       showCheckmark: false,
       selected: widget.mode != ComponentPageMode.edit && _initialStats != ComponentStats.zero,
@@ -750,6 +811,21 @@ class _ComponentPageState extends State<ComponentPage> {
           ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
           : null,
       onSelected: (_) => _editInitialStats(),
+    );
+  }
+
+  Widget _attachChip() {
+    return ActionChip(
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      label: const SizedBox.shrink(),
+      labelPadding: const EdgeInsets.symmetric(vertical: 2),
+      padding: EdgeInsets.zero,
+      avatar: const Icon(Icons.attach_file),
+      tooltip: 'Add Attachment',
+      backgroundColor: widget.mode == ComponentPageMode.edit && !listEquals(_attachments, widget.component!.attachments)
+          ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
+          : null,
+      onPressed: _addAttachments,
     );
   }
 
@@ -899,10 +975,14 @@ class _ComponentPageState extends State<ComponentPage> {
             !c.isArchived &&
             appRepository.componentHierarchy.currentBike(c.id) == currentBike &&
             c.componentType == _componentType &&
-            widget.component?.id != c.id).length;
+            widget.component?.id != c.id &&
+            // Retired once the replacement is saved.
+            widget.replacedComponentId != c.id).length;
     final isReplace = widget.mode == ComponentPageMode.replace;
+    final showInitialStats = appSettings.enableStrava && subscriptionService.hasStravaEntitlement;
+    final showAttachments = appSettings.enableAttachments && _attachmentsDirPath != null;
 
-    return PopScope( 
+    return PopScope(
       canPop: !_formHasChanges,
       onPopInvokedWithResult: _handlePopInvoked,
       child: Scaffold(
@@ -912,7 +992,11 @@ class _ComponentPageState extends State<ComponentPage> {
             ComponentPageMode.edit => const Text('Edit Component'),
           },
           actions: [
-            IconButton(icon: const Icon(Icons.check), onPressed: _saveComponent),
+            Semantics(
+              container: true,
+              identifier: AutomationIds.componentFormSave,
+              child: IconButton(icon: const Icon(Icons.check), onPressed: _saveComponent),
+            ),
           ],
         ),
         body: SafeArea(
@@ -949,15 +1033,19 @@ class _ComponentPageState extends State<ComponentPage> {
                               widget.mode != ComponentPageMode.edit,
                         ),
                         Center(
-                          child: TextButton.icon(
-                            onPressed: () => setState(() => _expanded = !_expanded),
-                            icon: Icon(_expanded
-                                ? Icons.expand_less
-                                : Icons.expand_more,
-                            ),
-                            label: Text(_expanded
-                                ? "Hide Additional Fields"
-                                : "Show Additional Fields"
+                          child: Semantics(
+                            container: true,
+                            identifier: AutomationIds.componentFormAdditionalFields,
+                            child: TextButton.icon(
+                              onPressed: () => setState(() => _expanded = !_expanded),
+                              icon: Icon(_expanded
+                                  ? Icons.expand_less
+                                  : Icons.expand_more,
+                              ),
+                              label: Text(_expanded
+                                  ? "Hide Additional Fields"
+                                  : "Show Additional Fields"
+                              ),
                             ),
                           ),
                         ),
@@ -967,18 +1055,37 @@ class _ComponentPageState extends State<ComponentPage> {
                           child: Column(
                             children: [
                               _notesField(),
-                              if (appSettings.enableStrava && subscriptionService.hasStravaEntitlement) ...[
+                              if (showInitialStats || showAttachments) ...[
                                 const SizedBox(height: 12),
                                 Align(
                                   alignment: Alignment.centerLeft,
-                                  child: _initialStatsChip(),
+                                  child: Wrap(
+                                    spacing: 8.0,
+                                    runSpacing: 8.0,
+                                    crossAxisAlignment: WrapCrossAlignment.center,
+                                    children: [
+                                      if (showInitialStats) _initialStatsChip(),
+                                      if (showAttachments) _attachChip(),
+                                    ],
+                                  ),
                                 ),
-                              ]
+                              ],
+                              if (showAttachments && _attachments.isNotEmpty) ...[
+                                const SizedBox(height: 12),
+                                AttachmentStrip(
+                                  attachments: _attachments,
+                                  attachmentsDir: _attachmentsDirPath!,
+                                  mode: AttachmentStripMode.edit,
+                                  onRemove: _onAttachmentRemoved,
+                                  onReorder: _onAttachmentReorder,
+                                  onRename: _onAttachmentRenamed,
+                                ),
+                              ],
                             ],
                           ),
                         ),
                         if (!appSettings.enableInstallationTimeline && !_isComplexInstallation) ...[
-                          const SizedBox(height: 12),
+                          SizedBox(height: _expanded && (showInitialStats || showAttachments) ? 18 : 12),
                           _bikesDropdownField(bikes: bikes),
                         ],
                       ],
@@ -988,6 +1095,7 @@ class _ComponentPageState extends State<ComponentPage> {
                     // const Divider(height: 1),
                     SetInstallationTimeline(
                       componentId: widget.mode == ComponentPageMode.edit ? widget.component?.id : null,
+                      componentType: _componentType,
                       initialInstallations: _installations,
                       originalInstallations: widget.mode == ComponentPageMode.edit ? widget.component?.installations : null,
                       isEntryEditable: isReplace ? (_) => false : null,

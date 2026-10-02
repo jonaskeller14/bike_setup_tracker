@@ -36,6 +36,8 @@ void main() {
     List<Installation>? originalInstallations,
     void Function(List<Installation>)? onChanged,
     String? componentId,
+    ComponentType? componentType,
+    ThemeData? theme,
   }) {
     return MultiProvider(
       providers: [
@@ -43,12 +45,13 @@ void main() {
         ChangeNotifierProvider.value(value: appSettings),
       ],
       child: MaterialApp(
-        theme: materialAppTheme,
+        theme: theme ?? materialAppTheme,
         home: Scaffold(
           // Wrap in SingleChildScrollView to avoid layout overflows in test environment
           body: SingleChildScrollView(
             child: SetInstallationTimeline(
               componentId: componentId,
+              componentType: componentType,
               initialInstallations: initialInstallations,
               originalInstallations: originalInstallations,
               onChanged: onChanged ?? (_) {},
@@ -281,12 +284,18 @@ void main() {
     });
 
     group('component parents', () {
-      Component component(String id, String name, List<Installation> installations) => Component(
+      Component component(
+        String id,
+        String name,
+        List<Installation> installations, {
+        ComponentType type = ComponentType.wheelFront,
+      }) =>
+          Component(
             id: id,
             name: name,
-            componentType: ComponentType.wheelFront,
+            componentType: type,
             installations: installations,
-            adjustments: [],
+            adjustments: const [],
           );
 
       Future<void> seed(WidgetTester tester, List<Component> components) async {
@@ -301,8 +310,10 @@ void main() {
         });
       }
 
+      /// Opens the first row's parent dropdown (flag off) or picker sheet (flag on);
+      /// the date field's arrow comes first.
       Future<void> openParentMenu(WidgetTester tester) async {
-        await tester.tap(find.byType(DropdownButtonFormField<Installation>).first);
+        await tester.tap(find.byIcon(Icons.arrow_drop_down).at(1));
         await tester.pumpAndSettle();
       }
 
@@ -395,7 +406,6 @@ void main() {
         List<Installation>? changed;
         final entry = ComponentInstallation(
           id: 'entry',
-          componentId: 'valve',
           parentComponentId: 'tire',
           dateTimeUTC: now.toUtc(),
           dateTimeLocal: now,
@@ -419,6 +429,177 @@ void main() {
         expect(updated.isFromBeginning, isTrue);
         expect(find.text('Nested Tire'), findsOneWidget);
         expect(find.text('BIKE NOT FOUND'), findsNothing);
+      });
+
+      testWidgets('closed field shows the component name over its bike', (WidgetTester tester) async {
+        await seed(tester, nestedComponents);
+        appSettings.enableInstallOnComponent = true;
+
+        await tester.pumpWidget(createWidgetUnderTest(
+          componentId: 'tire',
+          initialInstallations: [Installation.componentSinceBeginning(parentComponentId: 'wheel')],
+        ));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Front Wheel'), findsOneWidget);
+        expect(find.text('Bike 1'), findsOneWidget);
+
+        final decorators = find.byType(InputDecorator);
+        final dateField = decorators.evaluate().firstWhere((e) => (e.widget as InputDecorator).decoration.isDense ?? false);
+        final parentField = decorators.evaluate().firstWhere((e) => !((e.widget as InputDecorator).decoration.isDense ?? false));
+        expect(parentField.size!.height, dateField.size!.height);
+      });
+
+      for (final (themeName, theme) in [('light', materialAppTheme), ('dark', materialAppDarkTheme)]) {
+        testWidgets('a very long parent name does not overflow at 320 px ($themeName)', (WidgetTester tester) async {
+          tester.view.physicalSize = const Size(320, 800);
+          tester.view.devicePixelRatio = 1;
+          addTearDown(tester.view.reset);
+
+          final longName = 'Maxxis Assegai 29x2.5 WT EXO+ MaxxGrip TR ' * 3;
+          await seed(tester, [component('long', longName, [Installation.sinceBeginning(parent: 'bike1')])]);
+          appSettings.enableInstallOnComponent = true;
+
+          await tester.pumpWidget(createWidgetUnderTest(
+            componentId: 'tire',
+            theme: theme,
+            initialInstallations: [Installation.componentSinceBeginning(parentComponentId: 'long')],
+          ));
+          await tester.pumpAndSettle();
+
+          expect(longName.length, greaterThanOrEqualTo(120));
+          expect(tester.takeException(), isNull);
+          expect(find.text(longName), findsOneWidget);
+        });
+      }
+
+      testWidgets('closed field shows the selected parent name in bold', (WidgetTester tester) async {
+        await seed(tester, nestedComponents);
+        appSettings.enableInstallOnComponent = true;
+
+        await tester.pumpWidget(createWidgetUnderTest(
+          componentId: 'tire',
+          initialInstallations: [Installation.componentSinceBeginning(parentComponentId: 'wheel')],
+        ));
+        await tester.pumpAndSettle();
+
+        expect(tester.widget<Text>(find.text('Front Wheel')).style?.fontWeight, FontWeight.w600);
+        expect(tester.widget<Text>(find.text('Bike 1')).style?.fontWeight, isNot(FontWeight.w600));
+      });
+
+      group('type-aware suggestions', () {
+        final typedComponents = [
+          component('wheel', 'Front Wheel', [Installation.sinceBeginning(parent: 'bike1')]),
+          component('pad', 'Brake Pad', [Installation.sinceBeginning(parent: 'bike1')], type: ComponentType.brakePad),
+        ];
+
+        Future<void> pumpTimeline(
+          WidgetTester tester, {
+          ComponentType? type,
+          List<Installation>? installations,
+          List<Installation>? original,
+          void Function(List<Installation>)? onChanged,
+        }) async {
+          await tester.pumpWidget(createWidgetUnderTest(
+            componentId: 'new',
+            componentType: type,
+            initialInstallations: installations ?? [Installation.sinceBeginning(parent: 'bike1')],
+            originalInstallations: original,
+            onChanged: onChanged,
+          ));
+          await tester.pumpAndSettle();
+        }
+
+        testWidgets('a tire hides the brake pad behind "Show all"', (WidgetTester tester) async {
+          await seed(tester, typedComponents);
+          appSettings.enableInstallOnComponent = true;
+          List<Installation>? changed;
+
+          await pumpTimeline(tester, type: ComponentType.tire, onChanged: (value) => changed = value);
+          await openParentMenu(tester);
+
+          expect(find.text('Front Wheel'), findsOneWidget);
+          expect(find.text('Brake Pad'), findsNothing);
+          expect(find.text('1 part hidden · unusual for a Tire'), findsOneWidget);
+
+          await tester.tap(find.widgetWithText(TextButton, 'Show all'));
+          await tester.pumpAndSettle();
+
+          expect(find.textContaining('hidden'), findsNothing);
+          expect(find.text('Components on Bike 1'), findsOneWidget);
+          // Revealed parts join the section below the suggested ones.
+          expect(tester.getTopLeft(find.text('Brake Pad')).dy, greaterThan(tester.getTopLeft(find.text('Front Wheel')).dy));
+
+          await tester.tap(find.text('Brake Pad'));
+          await tester.pump(const Duration(milliseconds: 250));
+          await tester.pumpAndSettle();
+
+          expect(changed!.single, isA<ComponentInstallation>());
+          expect(changed!.single.parent, 'pad');
+          expect(find.text('Brake Pad'), findsOneWidget);
+        });
+
+        testWidgets('search finds hidden options without "Show all"', (WidgetTester tester) async {
+          await seed(tester, [
+            ...typedComponents,
+            for (var i = 0; i < 6; i++) component('w$i', 'Spare Wheel $i', [Installation.sinceBeginning(parent: 'bike1')]),
+          ]);
+          appSettings.enableInstallOnComponent = true;
+
+          await pumpTimeline(tester, type: ComponentType.tire);
+          await openParentMenu(tester);
+          await tester.enterText(find.byType(TextField), 'pad');
+          await tester.pumpAndSettle();
+
+          expect(find.text('Brake Pad'), findsOneWidget);
+          expect(find.text('Components on Bike 1'), findsOneWidget);
+          expect(find.textContaining('hidden'), findsNothing);
+        });
+
+        testWidgets('a saved unusual parent stays in its normal section', (WidgetTester tester) async {
+          await seed(tester, typedComponents);
+          appSettings.enableInstallOnComponent = true;
+          final saved = [Installation.componentSinceBeginning(parentComponentId: 'pad')];
+
+          await pumpTimeline(tester, type: ComponentType.tire, installations: saved, original: saved);
+          await openParentMenu(tester);
+
+          expect(find.text('Components on Bike 1'), findsOneWidget);
+          expect(find.text('Brake Pad'), findsNWidgets(2));
+          expect(find.textContaining('hidden'), findsNothing);
+        });
+
+        for (final type in [null, ComponentType.other]) {
+          testWidgets('type $type hides nothing', (WidgetTester tester) async {
+            await seed(tester, typedComponents);
+            appSettings.enableInstallOnComponent = true;
+
+            await pumpTimeline(tester, type: type);
+            await openParentMenu(tester);
+
+            expect(find.text('Front Wheel'), findsOneWidget);
+            expect(find.text('Brake Pad'), findsOneWidget);
+            expect(find.textContaining('hidden'), findsNothing);
+          });
+        }
+
+        testWidgets('changing the type keeps a picked parent without a form error', (WidgetTester tester) async {
+          await seed(tester, typedComponents);
+          appSettings.enableInstallOnComponent = true;
+          final installations = [Installation.componentSinceBeginning(parentComponentId: 'wheel')];
+
+          await pumpTimeline(tester, type: ComponentType.tire, installations: installations);
+          await pumpTimeline(tester, type: ComponentType.brakeDisc, installations: installations);
+          await pumpTimeline(tester, type: ComponentType.saddle, installations: installations);
+
+          final formField = tester.state<FormFieldState<List<Installation>>>(find.byType(FormField<List<Installation>>));
+          expect(formField.validate(), isTrue);
+          expect(find.text('Front Wheel'), findsOneWidget);
+
+          await openParentMenu(tester);
+          expect(find.text('Front Wheel'), findsNWidgets(2));
+          expect(find.text('Brake Pad'), findsNothing);
+        });
       });
     });
 

@@ -3,11 +3,17 @@ import 'dart:async';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/context/context_position.dart';
+import 'package:bike_setup_tracker/models/filters/layer_filter.dart';
+import 'package:bike_setup_tracker/models/filters/setup_filter.dart';
+import 'package:bike_setup_tracker/models/filters/task_rule_filter.dart';
+import 'package:bike_setup_tracker/models/rating/rating_entry.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
-import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/pages/map_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/repositories/filter_controller.dart';
+import 'package:bike_setup_tracker/repositories/filtered_view.dart';
+import 'package:bike_setup_tracker/services/component_hierarchy_resolver.dart';
 import 'package:bike_setup_tracker/services/location_provider.dart';
 import 'package:bike_setup_tracker/services/location_service.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
@@ -25,20 +31,38 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   late MockAppRepository repository;
+  late FilterController filters;
   late AppSettings settings;
   late MockSubscriptionService subscriptionService;
   late List<VoidCallback> repositoryListeners;
+
+  void stubView({Map<String, Setup> setups = const {}}) {
+    when(() => repository.view).thenReturn(
+      FilteredView(
+        bikes: const {},
+        components: const {},
+        setups: setups,
+        ratingEntries: const {},
+        persons: const {},
+        ratings: const {},
+        taskRules: const {},
+        taskEntries: const {},
+        hierarchy: ComponentHierarchyResolver(const {}),
+        bikeId: null,
+        dateRange: null,
+        setupFilter: const SetupFilter(),
+        taskRuleFilter: TaskRuleFilter(),
+      ),
+    );
+  }
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     repository = MockAppRepository();
     when(() => repository.bikes).thenReturn(<String, Bike>{});
-    when(() => repository.selectedBike).thenReturn(null);
-    when(() => repository.selectedSetupTags).thenReturn(<String>{});
-    when(() => repository.selectedTaskRuleTags).thenReturn(<String>{});
-    when(() => repository.selectedTaskPriorities).thenReturn(TaskPriority.values.toSet());
-    when(() => repository.filteredSetups).thenReturn({});
-    when(() => repository.filteredRatingEntries).thenReturn({});
+    filters = FilterController(onChanged: () {});
+    when(() => repository.filters).thenReturn(filters);
+    stubView();
     when(() => repository.getFilteredStravaActivitiesWithPosition()).thenAnswer((_) async => []);
     when(() => repository.hasStravaActivitiesWithPosition()).thenAnswer((_) async => false);
     when(() => repository.hasSetupsWithPosition).thenReturn(false);
@@ -69,6 +93,8 @@ void main() {
     LocationService service, {
     Stream<LocationMarkerHeading?>? headingStream = const Stream.empty(),
     StravaActivity? focusActivity,
+    List<Setup> focusSetups = const [],
+    RatingEntry? focusRatingEntry,
   }) {
     return MultiProvider(
       providers: [
@@ -77,7 +103,13 @@ void main() {
         ListenableProvider<SubscriptionService>.value(value: subscriptionService),
       ],
       child: MaterialApp(
-        home: MapPage(locationService: service, headingStream: headingStream, focusActivity: focusActivity),
+        home: MapPage(
+          locationService: service,
+          headingStream: headingStream,
+          focusActivity: focusActivity,
+          focusSetups: focusSetups,
+          focusRatingEntry: focusRatingEntry,
+        ),
       ),
     );
   }
@@ -323,7 +355,7 @@ void main() {
         personAdjustmentValues: const {},
         position: ContextPosition(latitude: pinPoint.latitude, longitude: pinPoint.longitude),
       );
-      when(() => repository.filteredSetups).thenReturn({setup.id: setup});
+      stubView(setups: {setup.id: setup});
       when(() => repository.hasSetupsWithPosition).thenReturn(true);
     }
 
@@ -461,8 +493,8 @@ void main() {
 
       verify(() => repository.getFilteredStravaActivitiesWithPosition()).called(1);
 
-      // An unrelated rebuild: a layer toggle must not hit the database again.
-      settings.displayShowSetups = false;
+      // An unrelated rebuild: a settings change must not hit the database again.
+      settings.enableSetupBookmark = true;
       await tester.pump();
       verifyNever(() => repository.getFilteredStravaActivitiesWithPosition());
 
@@ -549,7 +581,7 @@ void main() {
 
     testWidgets('pins the activity even when the map filters hide activities', (tester) async {
       // Strava is not entitled and the activity layer is off.
-      settings.displayShowActivities = false;
+      filters.layers = const LayerFilter(hidden: {TimelineLayer.activities});
       await tester.pumpWidget(buildPage(unpermittedService(), focusActivity: focusActivity));
       await tester.pump();
       await tester.pump();
@@ -568,6 +600,80 @@ void main() {
       expect(provider.positionController.hasListener, isTrue);
       expect(cameraOf(tester).center.latitude, closeTo(46.5, 0.001));
       expect(cameraOf(tester).center.longitude, closeTo(9.8, 0.001));
+    });
+  });
+
+  group('Focused setups and rating entry', () {
+    Setup setupAt(double latitude, double longitude) => Setup(
+      datetime: DateTime(2025, 6, 1).toUtc(),
+      datetimeLocal: DateTime(2025, 6, 1),
+      tags: const {},
+      bike: 'bike-1',
+      person: null,
+      bikeAdjustmentValues: const {},
+      personAdjustmentValues: const {},
+      position: ContextPosition(latitude: latitude, longitude: longitude),
+    );
+
+    MapCamera cameraOf(WidgetTester tester) =>
+        tester.widget<FlutterMap>(find.byType(FlutterMap)).mapController!.camera;
+
+    testWidgets('opens centred on a single setup and pins it despite the filters', (tester) async {
+      filters.layers = const LayerFilter(hidden: {TimelineLayer.setups});
+      final setup = setupAt(46.5, 9.8);
+      await tester.pumpWidget(buildPage(unpermittedService(), focusSetups: [setup]));
+      await tester.pump();
+
+      final camera = cameraOf(tester);
+      expect(camera.center.latitude, closeTo(46.5, 0.001));
+      expect(camera.center.longitude, closeTo(9.8, 0.001));
+      expect(camera.zoom, closeTo(15, 0.001));
+      expect(find.byKey(Key('map-focus-setup-${setup.id}')), findsOneWidget);
+      expect(tester.state<MapPageState>(find.byType(MapPage)).pinState, MapPinState.success);
+    });
+
+    testWidgets('fits the camera to every focused setup', (tester) async {
+      final setupA = setupAt(46.5, 9.8);
+      final setupB = setupAt(46.6, 9.9);
+      await tester.pumpWidget(buildPage(unpermittedService(), focusSetups: [setupA, setupB]));
+      await tester.pump();
+
+      final bounds = cameraOf(tester).visibleBounds;
+      expect(bounds.contains(const LatLng(46.5, 9.8)), isTrue);
+      expect(bounds.contains(const LatLng(46.6, 9.9)), isTrue);
+      expect(find.byKey(Key('map-focus-setup-${setupA.id}')), findsOneWidget);
+      expect(find.byKey(Key('map-focus-setup-${setupB.id}')), findsOneWidget);
+    });
+
+    testWidgets('ignores focused setups without a position', (tester) async {
+      final setup = Setup(
+        datetime: DateTime(2025, 6, 1).toUtc(),
+        datetimeLocal: DateTime(2025, 6, 1),
+        tags: const {},
+        bike: 'bike-1',
+        person: null,
+        bikeAdjustmentValues: const {},
+        personAdjustmentValues: const {},
+      );
+      await tester.pumpWidget(buildPage(unpermittedService(), focusSetups: [setup]));
+      await tester.pump();
+
+      expect(find.byKey(Key('map-focus-setup-${setup.id}')), findsNothing);
+    });
+
+    testWidgets('opens centred on a rating entry', (tester) async {
+      final ratingEntry = RatingEntry(
+        bike: 'bike-1',
+        setupId: 'setup-1',
+        dateTimeUTC: DateTime(2025, 6, 1).toUtc(),
+        dateTimeLocal: DateTime(2025, 6, 1),
+        position: const ContextPosition(latitude: 46.5, longitude: 9.8),
+      );
+      await tester.pumpWidget(buildPage(unpermittedService(), focusRatingEntry: ratingEntry));
+      await tester.pump();
+
+      expect(cameraOf(tester).center.latitude, closeTo(46.5, 0.001));
+      expect(find.byKey(const Key('map-focus-rating-entry')), findsOneWidget);
     });
   });
 
@@ -596,7 +702,7 @@ void main() {
 
     testWidgets('clears the filters from the filtered card', (tester) async {
       when(() => repository.hasSetupsWithPosition).thenReturn(true);
-      when(() => repository.onBikeTap(any())).thenAnswer((_) {});
+      filters.toggleBike('b1');
       await tester.pumpWidget(buildPage(unpermittedService()));
       await tester.pump();
       await tester.pump();
@@ -606,7 +712,7 @@ void main() {
       await tester.tap(find.widgetWithText(FilledButton, 'Clear filters'));
       await tester.pump();
 
-      verify(() => repository.onBikeTap(null)).called(1);
+      expect(filters.bikeId, null);
     });
 
     testWidgets('collapses to a pill and expands again on a new reason', (tester) async {
@@ -667,7 +773,7 @@ void main() {
         personAdjustmentValues: const {},
         position: const ContextPosition(latitude: 44.16, longitude: 8.34),
       );
-      when(() => repository.filteredSetups).thenReturn({setup.id: setup});
+      stubView(setups: {setup.id: setup});
       when(() => repository.hasSetupsWithPosition).thenReturn(true);
       notifyRepository();
       await tester.pump();

@@ -70,17 +70,17 @@ abstract final class OnboardingSetupExample {
   static const double editedPressure = 81;
   static const double editedRebound = 10;
 
-  static Map<String, dynamic> _values(double pressureValue, double reboundValue, bool lockoutValue) => {
-    pressure.id: pressureValue,
-    rebound.id: reboundValue,
-    lockout.id: lockoutValue,
+  static Map<String, AdjustmentValue> _values(double pressureValue, double reboundValue, bool lockoutValue) => {
+    pressure.id: NumericalValue(pressureValue),
+    rebound.id: StepValue(reboundValue.round()),
+    lockout.id: BooleanValue(lockoutValue),
   };
 
   static Setup _setup({
     required String name,
     required DateTime at,
-    required Map<String, dynamic> values,
-    required Map<String, dynamic> previousValues,
+    required Map<String, AdjustmentValue> values,
+    required Map<String, AdjustmentValue> previousValues,
   }) {
     return Setup(
       name: name,
@@ -241,24 +241,24 @@ class OnboardingSetupRows extends StatelessWidget {
         DisplayNumericalAdjustmentWidget(
           key: const ValueKey('onboarding_pressure_row'),
           adjustment: OnboardingSetupExample.pressure,
-          initialValue: OnboardingSetupExample.startPressure,
-          value: pressure,
+          initialValue: const NumericalValue(OnboardingSetupExample.startPressure),
+          value: NumericalValue(pressure),
           showFill: true,
         ),
         SetStepAdjustmentWidget(
           key: const ValueKey('onboarding_rebound_row'),
           adjustment: OnboardingSetupExample.rebound,
-          initialValue: OnboardingSetupExample.startRebound,
-          value: rebound,
-          onChanged: onReboundChanged ?? _ignore,
+          initialValue: StepValue(OnboardingSetupExample.startRebound.round()),
+          value: StepValue(rebound.round()),
+          onChanged: (value) => (onReboundChanged ?? _ignore)(value?.value.toDouble()),
           onChangedEnd: _ignore,
         ),
         SetBooleanAdjustmentWidget(
           key: const ValueKey('onboarding_lockout_row'),
           adjustment: OnboardingSetupExample.lockout,
-          initialValue: OnboardingSetupExample.startLockout,
-          value: lockout,
-          onChanged: onLockoutChanged ?? _ignore,
+          initialValue: const BooleanValue(OnboardingSetupExample.startLockout),
+          value: BooleanValue(lockout),
+          onChanged: (value) => (onLockoutChanged ?? _ignore)(value?.value),
         ),
       ],
     );

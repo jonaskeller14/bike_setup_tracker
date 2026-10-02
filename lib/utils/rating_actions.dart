@@ -99,7 +99,7 @@ class RatingActions {
     await appRepository.reorderRating(
       oldIndex: oldIndex,
       newIndex: newIndex,
-      filteredRatingsList: appRepository.filteredRatings.values.toList(),
+      filteredRatingsList: appRepository.view.ratings.values.toList(),
     );
   }
 }

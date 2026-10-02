@@ -25,7 +25,7 @@ void main() {
   final populated = AdjustmentActivityHistogram(
     adjustmentId: adjustment.id,
     bars: const [
-      AdjustmentActivityHistogramBar.exact(label: '4 clicks', activityCount: 3, exactValue: 4),
+      AdjustmentActivityHistogramBar.exact(label: '4 clicks', activityCount: 3, exactValue: StepValue(4)),
     ],
     isBinned: false,
   );

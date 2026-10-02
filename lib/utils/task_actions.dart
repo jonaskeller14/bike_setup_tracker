@@ -3,15 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../models/attachment.dart';
 import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
 import '../pages/forms/task_entry_page.dart';
 import '../pages/forms/task_rule_page.dart';
 import '../repositories/app_repository.dart';
 import '../widgets/app_snackbar.dart';
-import '../widgets/sheets/radio_group.dart';
 import '../widgets/sheets/set_tags_bulk.dart';
 import '../widgets/sheets/set_task_delay.dart';
+import '../widgets/sheets/set_task_priority.dart';
+import 'attachment_actions.dart';
 
 class TaskActions {
   static Future<void> addTaskRule(BuildContext context) async {
@@ -37,6 +39,7 @@ class TaskActions {
     if (editedRule == null) return;
 
     await appRepository.editTaskRules([editedRule]);
+    await AttachmentActions.deleteUnsaved(taskRule.attachments, saved: editedRule.attachments);
 
     if (editedRule.name == taskRule.name) return;
 
@@ -96,18 +99,10 @@ class TaskActions {
     final initialPriority = distinctPriorities.length == 1 ? distinctPriorities.first : TaskPriority.medium;
 
     TaskPriority? newPriority;
-    await radioGroupSheet<TaskPriority>(
+    await showSetTaskPrioritySheet(
       context: context,
-      title: 'Task Priority',
-      value: initialPriority,
-      onChanged: (value) {
-        if (value == null) return;
-        newPriority = value;
-        Navigator.pop(context);
-      },
-      optionWidgets: Map.fromEntries(TaskPriority.values.map((priority) {
-        return MapEntry(priority, Text(priority.label));
-      })),
+      currentPriority: initialPriority,
+      onSelected: (value) => newPriority = value,
     );
     final selectedPriority = newPriority;
     if (selectedPriority == null) return false;
@@ -193,14 +188,22 @@ class TaskActions {
 
   static Future<void> duplicateTaskRule(BuildContext context, {required TaskRule taskRule}) async {
     final appRepository = context.read<AppRepository>();
+    final deepCopied = taskRule.deepCopy();
+    final copiedAttachments = await AttachmentActions.copyAttachmentFiles(deepCopied.attachments);
+
+    if (!context.mounted) {
+      await AttachmentActions.deleteAttachmentFiles(copiedAttachments);
+      return;
+    }
 
     final newRule = await Navigator.push<TaskRule>(
       context,
-      MaterialPageRoute(builder: (context) => TaskRulePage.duplicate(taskRule: taskRule.deepCopy())),
+      MaterialPageRoute(
+        builder: (context) => TaskRulePage.duplicate(taskRule: deepCopied.copyWith(attachments: copiedAttachments)),
+      ),
     );
-    if (newRule == null) return;
-
-    await appRepository.addTaskRules([newRule]);
+    if (newRule != null) await appRepository.addTaskRules([newRule]);
+    await AttachmentActions.deleteUnsaved(copiedAttachments, saved: newRule?.attachments);
   }
 
   static Future<void> removeTaskRules(BuildContext context, {required Iterable<String> taskRuleIds}) async {
@@ -355,6 +358,7 @@ class TaskActions {
     if (editedEntry == null) return;
 
     await appRepository.editTaskEntry([editedEntry]);
+    await AttachmentActions.deleteUnsaved(taskEntry.attachments, saved: editedEntry.attachments);
   }
 
   static Future<void> duplicateTaskEntry(BuildContext context, {required TaskEntry taskEntry}) async {
@@ -362,10 +366,14 @@ class TaskActions {
     final taskRule = appRepository.taskRules[taskEntry.taskRule];
     if (taskRule == null) return;
 
+    // Attachments record one completion, so the duplicate starts without them.
     final newEntry = await Navigator.push<TaskEntry>(
       context,
       MaterialPageRoute(
-        builder: (context) => TaskEntryPage.duplicate(taskEntry: taskEntry, taskRule: taskRule),
+        builder: (context) => TaskEntryPage.duplicate(
+          taskEntry: taskEntry.copyWith(attachments: const <Attachment>[]),
+          taskRule: taskRule,
+        ),
       ),
     );
     if (newEntry == null) return;

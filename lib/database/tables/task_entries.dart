@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import '../converters/attachment_list_converter.dart';
 import '../converters/local_floating_datetime_converter.dart';
 import '../converters/utc_datetime_converter.dart';
 import 'bikes.dart';
@@ -19,6 +20,7 @@ class TaskEntries extends Table {
   TextColumn get componentId => text().nullable().references(Components, #id)();
   TextColumn get bikeId => text().nullable().references(Bikes, #id)();
   TextColumn get snapshot => text().nullable()(); // JSON serialized ComponentStats
+  TextColumn get attachments => text().map(const AttachmentListConverter()).withDefault(const Constant('[]'))();
 
   @override
   Set<Column> get primaryKey => {id};

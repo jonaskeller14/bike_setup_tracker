@@ -8,6 +8,7 @@ import '../../models/rating/rating_entry.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/rating_score_service.dart';
+import '../../utils/map_actions.dart';
 import '../../utils/rating_entry_actions.dart';
 import '../../widgets/empty_state_placeholder.dart';
 import '../../widgets/items/context_location_weather_card.dart';
@@ -36,12 +37,14 @@ class RatingEntryDetailsContent extends StatelessWidget {
   final String ratingEntryId;
   final bool showEditButton;
   final bool showCloseButton;
+  final bool showViewOnMap;
 
   const RatingEntryDetailsContent({
     super.key,
     required this.ratingEntryId,
     this.showEditButton = false,
     this.showCloseButton = false,
+    this.showViewOnMap = true,
   });
 
   @override
@@ -282,7 +285,7 @@ class RatingEntryDetailsContent extends StatelessWidget {
     await route?.popped;
     if (!navigator.mounted) return;
 
-    await showSetupDetailsSheet(context: navigator.context, setupId: setup.id);
+    await showSetupDetailsSheet(context: navigator.context, setupId: setup.id, showViewOnMap: showViewOnMap);
   }
 
   List<Widget> _contextSection(BuildContext context, {required RatingEntry entry}) {
@@ -299,9 +302,16 @@ class RatingEntryDetailsContent extends StatelessWidget {
       ContextMetaCard(
         notes: entry.notes,
         tags: const {},
-        images: const [],
+        attachments: const [],
       ),
-      ContextLocationWeatherCard(position: entry.position, place: entry.place, displayName: entry.displayName, mapPin: const RatingEntryMapPin(), weather: entry.weather),
+      ContextLocationWeatherCard(
+        position: entry.position,
+        place: entry.place,
+        displayName: entry.displayName,
+        mapPin: const RatingEntryMapPin(),
+        weather: entry.weather,
+        onViewOnMap: showViewOnMap ? () => MapActions.openRatingEntryOnMap(context, entry) : null,
+      ),
       Card.outlined(
         margin: const EdgeInsets.symmetric(vertical: 4),
         clipBehavior: Clip.antiAlias,

@@ -19,7 +19,6 @@ class AppSettings extends ChangeNotifier {
   String _distanceUnit = 'km';
   bool _enableGoogleDrive = false; // False is default, can only be activated on Android (see AppSettingsPage)
   bool _enableTextAdjustment = false;
-  bool _enableStepDialColorSize = true;
   bool _enableMultiSelect = false;
   bool _enableCountedSelect = false;
   bool _enablePerson = false;
@@ -37,7 +36,7 @@ class AppSettings extends ChangeNotifier {
   bool _enableInstallationTimeline = false;
   bool _useMapBoxTiles = false;
   bool _enableCalendar = false;
-  bool _enableSetupImages = false;
+  bool _enableAttachments = false;
   bool _enableSetupBookmark = false;
   bool _enableComponentPresets = false;
   bool _enableInstallOnComponent = false;
@@ -47,13 +46,6 @@ class AppSettings extends ChangeNotifier {
   bool _enableTimelineReplacementDetection = true;
   bool _enableTimelineStravaContext = false;
   int _firstDayOfWeek = DateTime.monday; // 1 = Monday … 7 = Sunday
-
-  // Temporary Settings (in-memory only, never persisted)
-  bool _displayShowSetups = true;
-  bool _displayShowActivities = true;
-  bool _displayShowInstallations = true;
-  bool _displayShowTasks = true;
-  bool _displayShowRatingEntries = true;
 
   bool get showOnboarding => _showOnboarding;
   ThemeMode get themeMode => _themeMode;
@@ -66,7 +58,6 @@ class AppSettings extends ChangeNotifier {
   String get distanceUnit => _distanceUnit;
   bool get enableGoogleDrive => _enableGoogleDrive;
   bool get enableTextAdjustment => _enableTextAdjustment;
-  bool get enableStepDialColorSize => _enableStepDialColorSize;
   bool get enableMultiSelect => _enableMultiSelect;
   bool get enableCountedSelect => _enableCountedSelect;
   bool get enablePerson => _enablePerson;
@@ -84,7 +75,7 @@ class AppSettings extends ChangeNotifier {
   bool get enableInstallationTimeline => _enableInstallationTimeline;
   bool get useMapBoxTiles => _useMapBoxTiles;
   bool get enableCalendar => _enableCalendar;
-  bool get enableSetupImages => _enableSetupImages;
+  bool get enableAttachments => _enableAttachments;
   bool get enableSetupBookmark => _enableSetupBookmark;
   bool get enableComponentPresets => _enableComponentPresets;
   bool get enableInstallOnComponent => _enableInstallOnComponent;
@@ -93,13 +84,6 @@ class AppSettings extends ChangeNotifier {
   bool get enableTimelineReplacementDetection => _enableTimelineReplacementDetection;
   bool get enableTimelineStravaContext => _enableTimelineStravaContext;
   int get firstDayOfWeek => _firstDayOfWeek;
-
-  // Temporary Settings
-  bool get displayShowSetups => _displayShowSetups;
-  bool get displayShowActivities => _displayShowActivities;
-  bool get displayShowInstallations => _displayShowInstallations;
-  bool get displayShowTasks => _displayShowTasks;
-  bool get displayShowRatingEntries => _displayShowRatingEntries;
 
   set showOnboarding(bool newShowOnboarding) {
     if (_showOnboarding == newShowOnboarding) return;
@@ -176,13 +160,6 @@ class AppSettings extends ChangeNotifier {
     _enableTextAdjustment = newValue;
     notifyListeners();
     _persistBool('enableTextAdjustment', newValue);
-  }
-
-  set enableStepDialColorSize(bool newValue) {
-    if (newValue == _enableStepDialColorSize) return;
-    _enableStepDialColorSize = newValue;
-    notifyListeners();
-    _persistBool('enableStepDialColorSize', newValue);
   }
 
   set enableMultiSelect(bool newValue) {
@@ -297,11 +274,11 @@ class AppSettings extends ChangeNotifier {
     _persistBool('enableCalendar', newValue);
   }
 
-  set enableSetupImages(bool newValue) {
-    if (newValue == _enableSetupImages) return;
-    _enableSetupImages = newValue;
+  set enableAttachments(bool newValue) {
+    if (newValue == _enableAttachments) return;
+    _enableAttachments = newValue;
     notifyListeners();
-    _persistBool('enableSetupImages', newValue);
+    _persistBool('enableAttachments', newValue);
   }
 
   set enableSetupBookmark(bool newValue) {
@@ -360,36 +337,6 @@ class AppSettings extends ChangeNotifier {
     _persistInt('firstDayOfWeek', newValue);
   }
 
-  set displayShowSetups(bool newValue) {
-    if (newValue == _displayShowSetups) return;
-    _displayShowSetups = newValue;
-    notifyListeners();
-  }
-
-  set displayShowActivities(bool newValue) {
-    if (newValue == _displayShowActivities) return;
-    _displayShowActivities = newValue;
-    notifyListeners();
-  }
-
-  set displayShowInstallations(bool newValue) {
-    if (newValue == _displayShowInstallations) return;
-    _displayShowInstallations = newValue;
-    notifyListeners();
-  }
-
-  set displayShowTasks(bool newValue) {
-    if (newValue == _displayShowTasks) return;
-    _displayShowTasks = newValue;
-    notifyListeners();
-  }
-
-  set displayShowRatingEntries(bool newValue) {
-    if (newValue == _displayShowRatingEntries) return;
-    _displayShowRatingEntries = newValue;
-    notifyListeners();
-  }
-
   void _persistBool(String name, bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('$_kPrefix$name', value);
@@ -427,7 +374,6 @@ class AppSettings extends ChangeNotifier {
       _distanceUnit = prefs.getString('${_kPrefix}distanceUnit') ?? _distanceUnit;
       _enableGoogleDrive = prefs.getBool('${_kPrefix}enableGoogleDrive') ?? _enableGoogleDrive;
       _enableTextAdjustment = prefs.getBool('${_kPrefix}enableTextAdjustment') ?? _enableTextAdjustment;
-      _enableStepDialColorSize = prefs.getBool('${_kPrefix}enableStepDialColorSize') ?? _enableStepDialColorSize;
       _enableMultiSelect = prefs.getBool('${_kPrefix}enableMultiSelect') ?? _enableMultiSelect;
       _enableCountedSelect = prefs.getBool('${_kPrefix}enableCountedSelect') ?? _enableCountedSelect;
       _enablePerson = prefs.getBool('${_kPrefix}enablePerson') ?? _enablePerson;
@@ -447,7 +393,7 @@ class AppSettings extends ChangeNotifier {
           prefs.getBool('${_kPrefix}enableInstallationTimeline') ?? _enableInstallationTimeline;
       _useMapBoxTiles = prefs.getBool('${_kPrefix}useMapBoxTiles') ?? _useMapBoxTiles;
       _enableCalendar = prefs.getBool('${_kPrefix}enableCalendar') ?? _enableCalendar;
-      _enableSetupImages = prefs.getBool('${_kPrefix}enableSetupImages') ?? _enableSetupImages;
+      _enableAttachments = prefs.getBool('${_kPrefix}enableAttachments') ?? _enableAttachments;
       _enableSetupBookmark = prefs.getBool('${_kPrefix}enableSetupBookmark') ?? _enableSetupBookmark;
       _enableComponentPresets = prefs.getBool('${_kPrefix}enableComponentPresets') ?? _enableComponentPresets;
       _enableInstallOnComponent = prefs.getBool('${_kPrefix}enableInstallOnComponent') ?? _enableInstallOnComponent;
@@ -483,7 +429,6 @@ class AppSettings extends ChangeNotifier {
     _distanceUnit = defaults._distanceUnit;
     _enableGoogleDrive = defaults._enableGoogleDrive;
     _enableTextAdjustment = defaults._enableTextAdjustment;
-    _enableStepDialColorSize = defaults._enableStepDialColorSize;
     _enableMultiSelect = defaults._enableMultiSelect;
     _enableCountedSelect = defaults._enableCountedSelect;
     _enablePerson = defaults._enablePerson;
@@ -500,7 +445,7 @@ class AppSettings extends ChangeNotifier {
     _enableInstallationTimeline = defaults._enableInstallationTimeline;
     _useMapBoxTiles = defaults._useMapBoxTiles;
     _enableCalendar = defaults._enableCalendar;
-    _enableSetupImages = defaults._enableSetupImages;
+    _enableAttachments = defaults._enableAttachments;
     _enableSetupBookmark = defaults._enableSetupBookmark;
     _enableComponentPresets = defaults._enableComponentPresets;
     _enableInstallOnComponent = defaults._enableInstallOnComponent;
@@ -528,7 +473,6 @@ class AppSettings extends ChangeNotifier {
     _distanceUnit,
     _enableGoogleDrive,
     _enableTextAdjustment,
-    _enableStepDialColorSize,
     _enableMultiSelect,
     _enableCountedSelect,
     _enablePerson,
@@ -545,7 +489,7 @@ class AppSettings extends ChangeNotifier {
     _enableInstallationTimeline,
     _useMapBoxTiles,
     _enableCalendar,
-    _enableSetupImages,
+    _enableAttachments,
     _enableSetupBookmark,
     _enableComponentPresets,
     _enableInstallOnComponent,
@@ -599,6 +543,8 @@ class AppSettings extends ChangeNotifier {
     'setupListRatingAdjustmentValues',
     'setupListSortAscending',
     'stravaGearHintDismissed',
+    'enableSetupImages',
+    'enableStepDialColorSize',
     // TODO: delete after grace period (when all users have migrated hints via AppHintService._migrateLegacyStatuses)
     // 'showGarageListHint',
     // 'showGettingStartedGuideHint',
@@ -663,6 +609,11 @@ class AppSettings extends ChangeNotifier {
   static double? convertElevationFromMeters(double? meters, String targetUnit) {
     if (meters == null) return null;
     return meters.convertFromTo(LENGTH.meters, _elevationLengthUnit(targetUnit));
+  }
+
+  static double? convertElevationToMeters(double? elevation, String currentUnit) {
+    if (elevation == null) return null;
+    return elevation.convertFromTo(_elevationLengthUnit(currentUnit), LENGTH.meters);
   }
 
   static String speedUnitForDistance(String distanceUnit) => distanceUnit == 'mi' ? 'mph' : 'km/h';

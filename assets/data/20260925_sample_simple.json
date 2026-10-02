@@ -869,8 +869,8 @@
                 "8dcdc09a-067c-4203-8556-a053fc97371d": 183.0
             },
             "position": {
-                "latitude": 44.1742,
-                "longitude": 8.3538,
+                "latitude": 44.1737,
+                "longitude": 8.3509,
                 "altitude": 320.0,
                 "accuracy": null,
                 "heading": null,
@@ -1561,8 +1561,8 @@
                 "8dcdc09a-067c-4203-8556-a053fc97371d": 183.0
             },
             "position": {
-                "latitude": 44.1742,
-                "longitude": 8.3538,
+                "latitude": 44.1732,
+                "longitude": 8.3573,
                 "altitude": 320.0,
                 "accuracy": null,
                 "heading": null,
@@ -1733,9 +1733,9 @@
             "bikeAdjustmentValues": {
                 "22866141-fe35-4cdc-99df-6e1ba91c1033": 84,
                 "8d75bfc4-73d0-4fcc-bbbd-0bf9e4ddc352": 2,
-                "2fae94d6-16d2-4b79-ad4b-55f6b9fa6e1d": 6,
+                "2fae94d6-16d2-4b79-ad4b-55f6b9fa6e1d": 7,
                 "752afe27-22b7-45a2-92f6-b78f37237960": 2,
-                "aefea436-580a-479b-bcd4-943a93c8e2fb": 9,
+                "aefea436-580a-479b-bcd4-943a93c8e2fb": 10,
                 "db17c214-1cd8-4297-ae5b-fbb0a3678bc6": 190,
                 "9b86a28f-e963-407d-9771-22231e86ea08": 1,
                 "b3e1a5e0-9f9c-45de-bcb7-575477def1f8": 4,
@@ -1806,7 +1806,7 @@
                 "8d75bfc4-73d0-4fcc-bbbd-0bf9e4ddc352": 2,
                 "2fae94d6-16d2-4b79-ad4b-55f6b9fa6e1d": 6,
                 "752afe27-22b7-45a2-92f6-b78f37237960": 2,
-                "aefea436-580a-479b-bcd4-943a93c8e2fb": 9,
+                "aefea436-580a-479b-bcd4-943a93c8e2fb": 10,
                 "db17c214-1cd8-4297-ae5b-fbb0a3678bc6": 190,
                 "9b86a28f-e963-407d-9771-22231e86ea08": 1,
                 "b3e1a5e0-9f9c-45de-bcb7-575477def1f8": 4,
@@ -3985,6 +3985,26 @@
             "interval": null,
             "delay": null,
             "repeat": false
+        },
+        {
+            "version": 1,
+            "id": "6b0f4d7e-2c1a-4e59-8f3d-9a7c5e1b2d40",
+            "isDeleted": false,
+            "lastModified": "2026-06-01T18:00:00.000Z",
+            "name": "Bolt torque check",
+            "notes": null,
+            "priority": "TaskPriority.medium",
+            "tags": [
+                "Maintenance"
+            ],
+            "componentId": null,
+            "bikeId": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
+            "interval": {
+                "type": "distance",
+                "meters": 150000.0
+            },
+            "delay": null,
+            "repeat": true
         }
     ],
     "taskEntries": [

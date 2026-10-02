@@ -17,11 +17,10 @@ void main() {
     String? person,
     String? notes,
     Set<String> tags = const {},
-    List<String> images = const [],
-    Map<String, dynamic> bikeValues = const {},
-    Map<String, dynamic> personValues = const {},
-    Map<String, dynamic> previousBikeValues = const {},
-    Map<String, dynamic> previousPersonValues = const {},
+    Map<String, AdjustmentValue> bikeValues = const {},
+    Map<String, AdjustmentValue> personValues = const {},
+    Map<String, AdjustmentValue> previousBikeValues = const {},
+    Map<String, AdjustmentValue> previousPersonValues = const {},
     DateTime? at,
   }) {
     return Setup(
@@ -34,7 +33,6 @@ void main() {
         person: person,
         bikeAdjustmentValues: bikeValues,
         personAdjustmentValues: personValues,
-        images: images,
       )
       ..previousBikeAdjustmentValues = previousBikeValues
       ..previousPersonAdjustmentValues = previousPersonValues;
@@ -83,8 +81,8 @@ void main() {
       final adjustment = text('pressure');
       final fork = component(id: 'fork', name: 'Fork', bike: bikeA, adjustments: [adjustment]);
       final result = compare(
-        a: setup(id: 'current', bike: bikeA, bikeValues: {'pressure': 80}),
-        b: setup(id: 'older', bike: bikeA, previousBikeValues: {'pressure': 80}),
+        a: setup(id: 'current', bike: bikeA, bikeValues: {'pressure': const StepValue(80)}),
+        b: setup(id: 'older', bike: bikeA, previousBikeValues: {'pressure': const StepValue(80)}),
         components: [fork],
       );
 
@@ -93,22 +91,6 @@ void main() {
       expect(row.valueB.provenance, SetupComparisonValueProvenance.inherited);
       expect(row.isDifferent, isFalse);
       expect(result.differenceCount, 0);
-    });
-
-    test('distinguishes an explicit null from an absent value', () {
-      final adjustment = text('cleared');
-      final fork = component(id: 'fork', name: 'Fork', bike: bikeA, adjustments: [adjustment]);
-      final result = compare(
-        a: setup(id: 'a', bike: bikeA, bikeValues: {'cleared': null}),
-        b: setup(id: 'b', bike: bikeA),
-        components: [fork],
-      );
-
-      final row = result.groups.single.rows.single;
-      expect(row.valueA.provenance, SetupComparisonValueProvenance.explicit);
-      expect(row.valueA.value, isNull);
-      expect(row.valueB.provenance, SetupComparisonValueProvenance.unavailable);
-      expect(row.isDifferent, isTrue);
     });
 
     test('compares scalar, duration, and categorical values with deep list equality', () {
@@ -136,13 +118,13 @@ void main() {
         ),
       ];
       final fork = component(id: 'fork', name: 'Fork', bike: bikeA, adjustments: adjustments);
-      final values = <String, dynamic>{
-        'number': 2.5,
-        'bool': true,
-        'text': 'trail',
-        'duration': const Duration(seconds: 45),
-        'list': ['open', 'closed'],
-        'counted': ['open', 'open'],
+      final values = {
+        'number': const NumericalValue(2.5),
+        'bool': const BooleanValue(true),
+        'text': TextValue.orNull('trail')!,
+        'duration': const DurationValue(Duration(seconds: 45)),
+        'list': CategoricalValue(const ['open', 'closed']),
+        'counted': CategoricalValue(const ['open', 'open']),
       };
       final result = compare(
         a: setup(id: 'a', bike: bikeA, bikeValues: values),
@@ -151,7 +133,7 @@ void main() {
           bike: bikeA,
           bikeValues: {
             ...values,
-            'counted': ['open'],
+            'counted': CategoricalValue(const ['open']),
           },
         ),
         components: [fork],
@@ -172,8 +154,8 @@ void main() {
         adjustments: [aOne, aTwo, bSameLabel, bTwo],
       );
       final result = compare(
-        a: setup(id: 'a', bike: bikeA, bikeValues: {'a-one': 1, 'a-two': 2}),
-        b: setup(id: 'b', bike: bikeA, bikeValues: {'b-one': 1, 'b-two': 2}),
+        a: setup(id: 'a', bike: bikeA, bikeValues: {'a-one': const StepValue(1), 'a-two': const StepValue(2)}),
+        b: setup(id: 'b', bike: bikeA, bikeValues: {'b-one': const StepValue(1), 'b-two': const StepValue(2)}),
         components: [fork],
       );
 
@@ -250,12 +232,12 @@ void main() {
         a: setup(
           id: 'a',
           bike: bikeA,
-          bikeValues: {'a-pressure': 20, 'a-insert': 'yes', 'a-rebound': 5},
+          bikeValues: {'a-pressure': const StepValue(20), 'a-insert': TextValue.orNull('yes')!, 'a-rebound': const StepValue(5)},
         ),
         b: setup(
           id: 'b',
           bike: bikeB,
-          bikeValues: {'b-pressure': 21, 'b-insert': 'no', 'b-rebound': 6},
+          bikeValues: {'b-pressure': const StepValue(21), 'b-insert': TextValue.orNull('no')!, 'b-rebound': const StepValue(6)},
         ),
         components: [frontA, rearA, rearB, frontB],
       );
@@ -269,8 +251,8 @@ void main() {
       expect(frontPair.rows, isEmpty);
       expect(frontPair.independentRowsA.map((row) => row.id), ['a-pressure', 'a-insert']);
       expect(frontPair.independentRowsB.map((row) => row.id), ['b-pressure', 'b-insert']);
-      expect(frontPair.independentRowsA.first.valueA.value, 20);
-      expect(frontPair.independentRowsB.first.valueB.value, 21);
+      expect(frontPair.independentRowsA.first.valueA.value, const StepValue(20));
+      expect(frontPair.independentRowsB.first.valueB.value, const StepValue(21));
       expect(frontPair.independentRowsA.every((row) => !row.isDifferent), isTrue);
       expect(frontPair.differenceCount, 1);
       expect(result.differenceCount, 2);
@@ -311,13 +293,13 @@ void main() {
           id: 'before',
           bike: bikeA,
           at: DateTime.utc(2026, 1, 1),
-          bikeValues: {'old-pressure': 20},
+          bikeValues: {'old-pressure': const StepValue(20)},
         ),
         b: setup(
           id: 'after',
           bike: bikeA,
           at: DateTime.utc(2026, 1, 3),
-          bikeValues: {'new-pressure': 22},
+          bikeValues: {'new-pressure': const StepValue(22)},
         ),
         components: [oldTire, newTire],
       );
@@ -326,8 +308,46 @@ void main() {
       expect(result.groups.single.isInferredComponentPair, isTrue);
       expect(result.groups.single.componentA?.id, 'old-tire');
       expect(result.groups.single.componentB?.id, 'new-tire');
-      expect(result.groups.single.independentRowsA.single.valueA.value, 20);
-      expect(result.groups.single.independentRowsB.single.valueB.value, 22);
+      expect(result.groups.single.independentRowsA.single.valueA.value, const StepValue(20));
+      expect(result.groups.single.independentRowsB.single.valueB.value, const StepValue(22));
+    });
+
+    test('pairs replaced tires by wheel position even when names match across positions', () {
+      final replacedAt = DateTime.utc(2026, 1, 2);
+      Installation onWheel(String wheelId, DateTime at) => ComponentInstallation(
+        parentComponentId: wheelId,
+        dateTimeUTC: at,
+        dateTimeLocal: at.toLocal(),
+      );
+      Installation removed() => Installation(parent: null, dateTimeUTC: replacedAt, dateTimeLocal: replacedAt.toLocal());
+      Component tire(String id, String name, String wheelId, {required bool isOld}) => component(
+        id: id,
+        name: name,
+        bike: bikeA,
+        type: ComponentType.tire,
+        installations: isOld
+            ? [Installation.componentSinceBeginning(parentComponentId: wheelId), removed()]
+            : [onWheel(wheelId, replacedAt)],
+      );
+
+      final result = compare(
+        a: setup(id: 'before', bike: bikeA, at: DateTime.utc(2026, 1, 1)),
+        b: setup(id: 'after', bike: bikeA, at: DateTime.utc(2026, 1, 3)),
+        components: [
+          component(id: 'front-wheel', name: 'Front Wheel', bike: bikeA, type: ComponentType.wheelFront),
+          component(id: 'rear-wheel', name: 'Rear Wheel', bike: bikeA, type: ComponentType.wheelRear),
+          tire('old-front', 'Maxxis Assegai', 'front-wheel', isOld: true),
+          tire('old-rear', 'Schwalbe Magic Mary', 'rear-wheel', isOld: true),
+          tire('new-front', 'Schwalbe Magic Mary', 'front-wheel', isOld: false),
+          tire('new-rear', 'Maxxis Assegai', 'rear-wheel', isOld: false),
+        ],
+      );
+
+      final pairs = {
+        for (final group in result.groups.where((group) => group.isInferredComponentPair))
+          group.componentA?.id: group.componentB?.id,
+      };
+      expect(pairs, {'old-front': 'new-front', 'old-rear': 'new-rear'});
     });
 
     test('pairs zero-similarity candidates deterministically and leaves same-type surplus one-sided', () {
@@ -471,7 +491,7 @@ void main() {
           id: 'b',
           bike: bikeA,
           at: DateTime.utc(2026, 1, 3),
-          bikeValues: {'legacy-value': 9, 'deleted-id': 'orphan'},
+          bikeValues: {'legacy-value': const StepValue(9), 'deleted-id': TextValue.orNull('orphan')!},
         ),
         components: [removed, structural],
       );

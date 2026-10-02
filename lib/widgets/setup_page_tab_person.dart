@@ -16,11 +16,11 @@ class SetupPersonTab extends StatelessWidget {
   final String bike;
   final String? personId;
   final Map<String, Person> persons;
-  final Map<String, dynamic> personAdjustmentValues;
-  final Map<String, dynamic> previousPersonAdjustmentValues;
-  final Map<String, dynamic> initialPersonAdjustmentValues;
-  final Map<String, dynamic> danglingPersonAdjustmentValues;
-  final void Function({required Adjustment adjustment, required dynamic newValue}) onAdjustmentValueChanged;
+  final Map<String, AdjustmentValue> personAdjustmentValues;
+  final Map<String, AdjustmentValue> previousPersonAdjustmentValues;
+  final Map<String, AdjustmentValue> initialPersonAdjustmentValues;
+  final Map<String, AdjustmentValue> danglingPersonAdjustmentValues;
+  final void Function({required Adjustment adjustment, required AdjustmentValue newValue}) onAdjustmentValueChanged;
   final void Function({required Adjustment adjustment}) onRemoveFromAdjustmentValues;
   final VoidCallback changeListener;
   final void Function(String) onDanglingRemove;
@@ -123,8 +123,8 @@ class SetupPersonTab extends StatelessWidget {
 
 Widget _danglingPersonCard(BuildContext context, {
   required DanglingPersonGroup group,
-  required Map<String, dynamic> adjustmentValues,
-  required Map<String, dynamic> initialAdjustmentValues,
+  required Map<String, AdjustmentValue> adjustmentValues,
+  required Map<String, AdjustmentValue> initialAdjustmentValues,
   required void Function(String) onRemove,
 }) {
   final scheme = Theme.of(context).colorScheme;

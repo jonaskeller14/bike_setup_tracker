@@ -229,7 +229,9 @@ void main() {
       .widget<SetStepAdjustmentWidget>(
         find.descendant(of: find.byType(OnboardingSlide4), matching: find.byType(SetStepAdjustmentWidget)),
       )
-      .value!;
+      .value!
+      .value
+      .toDouble();
 
   testWidgets('adjustment rows fly on into the setup card', (WidgetTester tester) async {
     final gesture = await swipeFromSlide3(tester);

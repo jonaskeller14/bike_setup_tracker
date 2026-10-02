@@ -1,25 +1,33 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../icons/simple_icons.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
+import '../../models/attachment.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
 import '../../models/person.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/bike_adjustment_column_service.dart';
 import '../../services/setup_activity_analysis_service.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/bike_actions.dart';
 import '../../utils/component_actions.dart';
+import '../../utils/filter_actions.dart';
 import '../../utils/table_column.dart';
 import '../../utils/table_column_comparator.dart';
+import '../../widgets/attachment_row.dart';
+import '../../widgets/chips/filter_sheet_chip.dart';
 import '../../widgets/display_data/component_stats_card.dart';
+import '../../widgets/display_data/setup_histogram_chart.dart';
+import '../../widgets/display_data/setup_line_chart.dart';
+import '../../widgets/display_data/setup_radial_chart.dart';
 import '../../widgets/display_data/setup_table.dart';
 import '../../widgets/empty_state_placeholder.dart';
 import '../../widgets/empty_state_placeholder2.dart';
@@ -30,6 +38,7 @@ import '../../widgets/notes_text.dart';
 import '../../widgets/open_tasks_tile.dart';
 import '../../widgets/sheets/column_filter.dart';
 import '../../widgets/sheets/set_initial_stats.dart' as initial_stats;
+import '../../widgets/sheets/strava.dart';
 import '../../widgets/text/section_title.dart';
 
 class BikeDetailsPage extends StatefulWidget {
@@ -42,8 +51,17 @@ class BikeDetailsPage extends StatefulWidget {
 }
 
 class _BikeDetailsPageState extends State<BikeDetailsPage> {
+  static const _mergedColumnsInfoText =
+      "\n\nComponents that followed each other in the same position (e.g. the tire on the front wheel) "
+      "share a column, so a replacement continues its predecessor's column and starts with a green value. "
+      "Red values belong to a component that was not installed at that setup.";
+  static const int _defaultSelectedSetupCount = 3;
+
   bool _sortAscending = true;
   TableColumn? _sortColumn;
+  TableColumn? _selectedLineChartColumn;
+  TableColumn? _selectedHistogramColumn;
+  Set<String>? _selectedSetupIds;
   Set<TableColumn> _columns = {};
 
   Map<String, double?> _ratingScores = {};
@@ -51,13 +69,62 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
   // ratingMetricId -> display name, for the per-metric rating columns.
   Map<String, String> _ratingMetricNames = {};
 
+  BikeAdjustmentProjection? _projection;
+  // Columns whose value changes at least once; these are active by default.
+  Set<BikeAdjustmentColumnKey> _changingColumns = {};
+  Object? _projectionSource;
+
   // Setup columns are rendered by the table itself; only data-driven columns resolve to a value here.
-  dynamic _rawValue(Setup setup, TableColumn column) => switch (column) {
+  // Rating scores ride along as numerical values so tables and charts treat them like any number.
+  AdjustmentValue? _rawValue(Setup setup, TableColumn column) => switch (column) {
     PersonAttributeColumn(:final adjustmentId) => setup.personAdjustmentValues[adjustmentId],
-    RatingMetricColumn(:final metricId) => _metricScores[setup.id]?[metricId],
-    RatingScoreColumn() => _ratingScores[setup.id],
+    RatingMetricColumn(:final metricId) => NumericalValue.orNull(_metricScores[setup.id]?[metricId]),
+    RatingScoreColumn() => NumericalValue.orNull(_ratingScores[setup.id]),
+    BikeAdjustmentColumn(:final key) => _projection?.valueFor(setup, key),
     ComponentAdjustmentColumn() || SetupTableColumn() => null,
   };
+
+  /// Rebuilds the projection only when the repository replaced its data.
+  BikeAdjustmentProjection _projectionFor(AppRepository appRepository) {
+    final source = (appRepository.setups, appRepository.components, appRepository.componentHierarchy);
+    if (_projection case final projection? when source == _projectionSource) return projection;
+
+    final projection = BikeAdjustmentColumnService.build(
+      bikeId: widget.bikeId,
+      setups: appRepository.setups.values,
+      components: appRepository.components.values,
+      hierarchy: appRepository.componentHierarchy,
+    );
+    _projectionSource = source;
+    _changingColumns = {
+      for (final column in projection.columns)
+        if (projection.hasChanges(column, appRepository.setups.values)) column,
+    };
+    return _projection = projection;
+  }
+
+  /// One row per lane component: name, first setup, dash, last setup it was present at.
+  /// Components still on this bike end with "now".
+  List<List<String>> _laneHistory(SlotLane lane, AppRepository appRepository, String dateFormat) {
+    final format = DateFormat(dateFormat);
+    return lane.members.map((member) {
+      final name = member.component.name;
+      final dates = member.setupIds.map((id) => appRepository.setups[id]?.datetimeLocal).nonNulls.sorted();
+      if (dates.isEmpty) return [name, '', '', ''];
+      final first = format.format(dates.first);
+      final last = appRepository.componentHierarchy.currentBike(member.component.id) == widget.bikeId
+          ? 'now'
+          : format.format(dates.last);
+      return first == last ? [name, first, '', ''] : [name, first, '–', last];
+    }).toList();
+  }
+
+  String _laneHistoryText(List<List<String>> rows) => rows
+      .map((row) {
+        final dates = row.skip(1).where((cell) => cell.isNotEmpty).join(' ');
+        return dates.isEmpty ? row.first : '${row.first}: $dates';
+      })
+      .join('\n');
 
   String _columnLabel(TableColumn column, Iterable<Adjustment> personAdjustments) {
     return switch (column) {
@@ -67,6 +134,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
       PersonAttributeColumn(:final adjustmentId) =>
         personAdjustments.firstWhereOrNull((a) => a.id == adjustmentId)?.name ?? adjustmentId,
       ComponentAdjustmentColumn(:final adjustmentId) => adjustmentId,
+      BikeAdjustmentColumn(:final key) => _projection?.columnLabel(key) ?? key.adjustment.name,
     };
   }
 
@@ -86,6 +154,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
       personAdjustments: personAdjustments,
       bikes: bikes,
       setupActivityCounts: setupActivityCounts,
+      bikeAdjustmentFor: (column) => _projection?.adjustmentFor(column.key),
     );
     if (comparator == null) return setups;
 
@@ -93,10 +162,19 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
     return setups;
   }
 
+  void _removeColumn(TableColumn column) {
+    setState(() {
+      column.active = false;
+      if (_selectedLineChartColumn == column) _selectedLineChartColumn = null;
+      if (_selectedHistogramColumn == column) _selectedHistogramColumn = null;
+    });
+  }
+
   Widget _setupHistory(
     BuildContext context,
     AppSettings appSettings,
     AppRepository appRepository,
+    SubscriptionService subscriptionService,
     Person? person,
   ) {
     final hasAnyActivity = context.select<SetupActivityAnalysisService, bool>(
@@ -105,23 +183,33 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
     final setupActivityCounts = context.select<SetupActivityAnalysisService, Map<String, int>>(
       (service) => service.setupActivityCounts,
     );
+    final setupActivityCountsLoaded = context.select<SetupActivityAnalysisService, bool>(
+      (service) => service.setupActivityCountsLoaded,
+    );
+    final setupActivityCountsFailed = context.select<SetupActivityAnalysisService, bool>(
+      (service) => service.setupActivityCountsFailed,
+    );
     if (hasAnyActivity) {
       unawaited(context.read<SetupActivityAnalysisService>().getSetupActivityCounts());
     }
 
     final personAdjustments = person?.adjustments ?? [];
+    final projection = _projectionFor(appRepository);
 
-    // Every setup of this bike, newest first - independent of the global bike filter.
-    final setupsUnsorted = appRepository.setups.values
-        .where((s) => s.bike == widget.bikeId)
+    // Every setup of this bike - independent of the global bike filter.
+    final bikeSetups = appRepository.setups.values.where((s) => s.bike == widget.bikeId).toList();
+    // Newest first, narrowed by the tag and bookmark filters.
+    final setupsUnsorted = bikeSetups
+        .where(appRepository.filters.setup.matches)
         .toList()
         .reversed
         .toList();
 
     // Rating scores derived from RatingEntries that resolve to each setup:
     // overall (0-10) and per-metric sub-scores (0-10).
-    _ratingScores = {for (final s in setupsUnsorted) s.id: appRepository.scoreForSetup(s.id)};
-    _metricScores = {for (final s in setupsUnsorted) s.id: appRepository.metricScoresForSetup(s.id)};
+    // Scored over all bike setups so filtering does not drop rating-metric columns.
+    _ratingScores = {for (final s in bikeSetups) s.id: appRepository.scoreForSetup(s.id)};
+    _metricScores = {for (final s in bikeSetups) s.id: appRepository.metricScoresForSetup(s.id)};
 
     final allRatingMetrics = appRepository.allRatingMetricsById;
     final ratingMetricIds = <String>{for (final m in _metricScores.values) ...m.keys};
@@ -147,6 +235,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
 
     _columns = {
       for (final column in availableSetupColumns) retained(SetupTableColumn(column, active: column.defaultActive)),
+      for (final key in projection.columns) retained(BikeAdjustmentColumn(key, active: _changingColumns.contains(key))),
       if (appSettings.enablePerson && person != null)
         for (final adjustment in personAdjustments) retained(PersonAttributeColumn(adjustment.id, active: false)),
       if (appSettings.enableRating) ...[
@@ -159,7 +248,11 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
     final activeColumns = orderedColumns.where((c) => c.active).toList();
     if (!activeColumns.contains(_sortColumn)) _sortColumn = null;
 
-    bool isDangling(Setup setup, TableColumn column) => column is PersonAttributeColumn && setup.person != person?.id;
+    bool isDangling(Setup setup, TableColumn column) => switch (column) {
+      PersonAttributeColumn() => setup.person != person?.id,
+      BikeAdjustmentColumn(:final key) => projection.isDangling(setup, key),
+      _ => false,
+    };
     final hasDanglingValues = activeColumns.any(
       (column) => setupsUnsorted.any((setup) => _rawValue(setup, column) != null && isDangling(setup, column)),
     );
@@ -172,6 +265,23 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
       setupActivityCounts: setupActivityCounts,
     );
 
+    final selectedSetupIds = _selectedSetupIds ??= (setups.toList()..sort((a, b) => b.datetime.compareTo(a.datetime)))
+        .take(_defaultSelectedSetupCount)
+        .map((s) => s.id)
+        .toSet();
+    selectedSetupIds.removeWhere((id) => !setups.any((s) => s.id == id));
+    final selectedSetups = setups.where((s) => selectedSetupIds.contains(s.id)).toList();
+
+    final sortColumn = _sortColumn;
+    final showDateAxisLabels =
+        sortColumn == null || (sortColumn is SetupTableColumn && sortColumn.column == SetupColumn.date);
+    Adjustment? adjustmentFor(TableColumn column) => adjustmentForColumn(
+      column,
+      const [],
+      personAdjustments,
+      bikeAdjustmentFor: (column) => projection.adjustmentFor(column.key),
+    );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -180,33 +290,60 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
           infoText:
               "All setups of this bike. Add or remove columns via the Columns button, or long-press a column "
               "header to remove it. Green values are new (no prior value), orange values have changed from the "
-              "previous setup.",
+              "previous setup. Select rows to compare setups in the charts below.$_mergedColumnsInfoText",
         ),
-        Padding(
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: FilterChip(
-              avatar: const Icon(Icons.view_column_outlined),
-              showCheckmark: false,
-              label: const Text("Columns"),
-              selected: activeColumns.isNotEmpty,
-              onSelected: (bool newValue) async {
-                await showColumnFilterSheet(
-                  context: context,
-                  columns: orderedColumns,
-                  columnLabel: (TableColumn c) => _columnLabel(c, personAdjustments),
-                  onColumnStatusChanged: () => setState(() {}), // TableColumn.active is changed
-                );
-              },
-            ),
+          child: Row(
+            spacing: 6,
+            children: [
+              FilterChip(
+                avatar: const Icon(Icons.view_column_outlined),
+                showCheckmark: false,
+                label: const Text("Columns"),
+                selected: activeColumns.isNotEmpty,
+                onSelected: (bool newValue) async {
+                  await showColumnFilterSheet(
+                    context: context,
+                    columns: orderedColumns,
+                    columnLabel: (TableColumn c) => switch (c) {
+                      // The lane is shown as the group header.
+                      BikeAdjustmentColumn(:final key) => projection.adjustmentFor(key)?.name ?? key.adjustment.name,
+                      _ => _columnLabel(c, personAdjustments),
+                    },
+                    columnGroup: (TableColumn c) => switch (c) {
+                      BikeAdjustmentColumn(:final key) => switch (projection.laneOf(key)) {
+                        final lane? => (
+                          title: lane.label,
+                          info: _laneHistory(lane, appRepository, appSettings.dateFormat),
+                        ),
+                        null => null,
+                      },
+                      _ => null,
+                    },
+                    onColumnStatusChanged: () => setState(() {}), // TableColumn.active is changed
+                  );
+                },
+              ),
+              if (appSettings.enableSetupTags || appSettings.enableSetupBookmark) FilterSheetChip.bikeDetailsPage,
+            ],
           ),
         ),
-        if (setups.isEmpty)
+        if (bikeSetups.isEmpty)
           const EmptyStatePlaceholder(
             icon: Icons.history_rounded,
             title: 'No setups yet',
             subtitle: 'No setups reference this bike',
+          )
+        else if (setups.isEmpty)
+          EmptyStatePlaceholder(
+            icon: Icons.filter_alt_off,
+            title: 'Nothing matches this filter',
+            subtitle: 'Your filters are hiding all setups.',
+            actionLabel: 'Clear filters',
+            actionIcon: Icons.filter_alt_off,
+            onAction: () => FilterActions.clear(context, FilterSheetChip.bikeDetailsPage.sections),
           )
         else if (activeColumns.isEmpty)
           const EmptyStatePlaceholder(
@@ -224,20 +361,126 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
             setupActivityCounts: setupActivityCounts,
             valueFor: _rawValue,
             isDangling: isDangling,
+            previousValueFor: (setup, column) =>
+                column is BikeAdjustmentColumn ? projection.previousValueFor(setup, column.key) : null,
             columnLabel: (column) => _columnLabel(column, personAdjustments),
+            columnTooltip: (column) => switch (column) {
+              BikeAdjustmentColumn(:final key) => switch (projection.laneOf(key)) {
+                final lane? => _laneHistoryText(_laneHistory(lane, appRepository, appSettings.dateFormat)),
+                null => null,
+              },
+              _ => null,
+            },
             onSort: (column, ascending) {
               setState(() {
                 _sortAscending = ascending;
                 _sortColumn = column;
               });
             },
-            onColumnRemoved: (column) {
-              setState(() => column.active = false);
-            },
+            onColumnRemoved: _removeColumn,
+            selectedSetupIds: selectedSetupIds,
+            onSelectAll: (selected) => setState(() {
+              if (selected == true) {
+                selectedSetupIds.addAll(setups.map((setup) => setup.id));
+              } else {
+                selectedSetupIds.clear();
+              }
+            }),
+            onSetupSelected: (setup, selected) => setState(() {
+              if (selected == true) {
+                selectedSetupIds.add(setup.id);
+              } else {
+                selectedSetupIds.remove(setup.id);
+              }
+            }),
           ),
-          if (activeColumns.any((c) => c is PersonAttributeColumn)) InitialChangedValueLegend(showDangling: hasDanglingValues),
+          if (activeColumns.any((c) => c is PersonAttributeColumn || c is BikeAdjustmentColumn))
+            InitialChangedValueLegend(showDangling: hasDanglingValues),
         ],
         const SizedBox(height: 16),
+        const Divider(height: 1),
+        const SectionTitle(
+          title: "Line Chart",
+          infoText:
+              "• Shows the setups selected in the table above in their current sort order.\n"
+              "• The y-axis represents adjustment values.\n"
+              "• Select at least two setups to display a trend.\n"
+              "• Tap a legend entry to highlight a specific line.\n"
+              "• Long-press a legend entry to remove its column.",
+        ),
+        SetupLineChart(
+          activeColumns: activeColumns,
+          setups: setups,
+          selectedSetups: selectedSetups,
+          showDateAxisLabels: showDateAxisLabels,
+          selectedLineChartColumn: _selectedLineChartColumn,
+          valueFor: _rawValue,
+          adjustmentFor: adjustmentFor,
+          columnLabel: (column) => _columnLabel(column, personAdjustments),
+          onSelectedColumnChanged: (column) {
+            setState(() => _selectedLineChartColumn = column);
+          },
+          onColumnRemoved: _removeColumn,
+        ),
+        const Divider(height: 1),
+        const SectionTitle(
+          title: "Radial Chart",
+          infoText:
+              "• Shows the setups selected in the table above.\n"
+              "• Axes are normalized across all data for stable comparison.\n"
+              "• Tap a legend entry to highlight a specific graph.\n"
+              "• Long-press a legend entry to remove it from the selection.",
+        ),
+        SetupRadialChart(
+          activeColumns: activeColumns,
+          setups: setups,
+          selectedSetups: selectedSetups,
+          valueFor: _rawValue,
+          adjustmentFor: adjustmentFor,
+          columnLabel: (column) => _columnLabel(column, personAdjustments),
+          onSetupRemoved: (setupId) {
+            setState(() => selectedSetupIds.remove(setupId));
+          },
+        ),
+        if (appSettings.enableStrava) ...[
+          const Divider(height: 1),
+          const SectionTitle(
+            title: "Activity Histogram",
+            infoText:
+                "• Shows how many Strava activities were ridden with each adjustment value.\n"
+                "• Counts all setups in the table above, not just the selected ones.\n"
+                "• Components that followed each other in the same position are counted together in one column.\n"
+                "• Numerical values are grouped into ranges when there are many distinct values.\n"
+                "• Tap a legend entry to show a different adjustment.\n"
+                "• Long-press a legend entry to remove its column.",
+          ),
+          if (!subscriptionService.hasStravaEntitlement)
+            EmptyStatePlaceholder(
+              icon: Icons.lock_outline,
+              title: "Strava Sync required",
+              subtitle: "See how many activities you rode with each adjustment value.",
+              actionLabel: "View plans",
+              actionIcon: Icons.auto_awesome,
+              onAction: () => showStravaSheet(context: context),
+            )
+          else
+            SetupHistogramChart(
+              activeColumns: activeColumns,
+              setups: setups,
+              setupActivityCounts: setupActivityCounts,
+              hasAnyActivity: hasAnyActivity,
+              activityCountsLoaded: setupActivityCountsLoaded,
+              activityCountsFailed: setupActivityCountsFailed,
+              selectedHistogramColumn: _selectedHistogramColumn,
+              valueFor: _rawValue,
+              adjustmentFor: adjustmentFor,
+              columnLabel: (column) => _columnLabel(column, personAdjustments),
+              onSelectedColumnChanged: (column) {
+                setState(() => _selectedHistogramColumn = column);
+              },
+              onColumnRemoved: _removeColumn,
+            ),
+        ],
       ],
     );
   }
@@ -268,6 +511,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
     );
     final stats = appRepository.bikeStats[widget.bikeId] ?? bike.initialStats;
     final initialStatsSummary = initial_stats.initialStatsSummary(bike.initialStats, appSettings);
+    final attachments = appSettings.enableAttachments ? bike.attachments : const <Attachment>[];
 
     return Scaffold(
       appBar: AppBar(
@@ -349,7 +593,9 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
                   dense: true,
                 ),
 
-              if ((appSettings.enableStrava && subscriptionService.hasStravaEntitlement) || appSettings.enablePerson || bike.notes != null || initialStatsSummary != null)
+              if (attachments.isNotEmpty) AttachmentRow(attachments: attachments),
+
+              if ((appSettings.enableStrava && subscriptionService.hasStravaEntitlement) || appSettings.enablePerson || bike.notes != null || initialStatsSummary != null || attachments.isNotEmpty)
                 const Divider(height: 1),
 
               if (appSettings.enableTask) ...[
@@ -403,12 +649,12 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
                 ],
               ),
               const Divider(height: 1),
-              _setupHistory(context, appSettings, appRepository, person),
-              if (kDebugMode) ...[
+              _setupHistory(context, appSettings, appRepository, subscriptionService, person),
+              if (appSettings.enableInstallationTimeline) ...[
                 const Divider(height: 1),
                 InstallationTimelineTable(
                   bikeId: widget.bikeId,
-                  allComponents: appRepository.components.values.toList(),
+                  componentHierarchy: appRepository.componentHierarchy,
                 ),
               ]
             ],

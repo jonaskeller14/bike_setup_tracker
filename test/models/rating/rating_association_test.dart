@@ -31,7 +31,7 @@ void main() {
     });
 
     test('fromJson() throws for an unknown type', () {
-      expect(() => RatingAssociation.fromJson({'type': 'setup', 'filter': 's1'}), throwsArgumentError);
+      expect(() => RatingAssociation.fromJson(const {'type': 'setup', 'filter': 's1'}), throwsArgumentError);
     });
   });
 

@@ -80,7 +80,7 @@ class _StepMetricPageState extends State<StepMetricPage> {
   late double _initialWeight;
   late StepAdjustmentVisualization _initialVisualization;
 
-  late double _previewValue;
+  late StepValue _previewValue;
   late StepAdjustment _previewAdjustment;
 
   @override
@@ -113,7 +113,7 @@ class _StepMetricPageState extends State<StepMetricPage> {
       max: 5,
       visualization: _defaultVisualization,
     );
-    _previewValue = _previewAdjustment.min.toDouble();
+    _previewValue = StepValue(_previewAdjustment.min);
     if (widget.mode != MetricPageMode.add) _expanded = true;
   }
 
@@ -243,7 +243,7 @@ class _StepMetricPageState extends State<StepMetricPage> {
   void _updatePreview({bool resetValue = false}) {
     setState(() {
       _previewAdjustment = _composePreview();
-      if (resetValue) _previewValue = _previewAdjustment.min.toDouble();
+      if (resetValue) _previewValue = StepValue(_previewAdjustment.min);
     });
   }
 
@@ -448,12 +448,12 @@ class _StepMetricPageState extends State<StepMetricPage> {
                   child: SetStepAdjustmentWidget(
                     key: ValueKey(_previewAdjustment),
                     adjustment: _previewAdjustment,
-                    initialValue: 0.0,
+                    initialValue: const StepValue(0),
                     value: _previewValue,
-                    onChanged: (double? newValue) {
+                    onChanged: (StepValue? newValue) {
                       unawaited(HapticFeedback.lightImpact());
                       setState(() {
-                        _previewValue = newValue ?? _previewAdjustment.min.toDouble();
+                        _previewValue = newValue ?? StepValue(_previewAdjustment.min);
                       });
                     },
                     onChangedEnd: (_) => {},

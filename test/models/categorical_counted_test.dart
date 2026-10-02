@@ -19,53 +19,53 @@ void main() {
 
   group('isValidValue — four-state validation', () {
     test('(false,false) single: one distinct option is valid', () {
-      expect(build().isValidValue(['Bar']), isTrue);
+      expect(build().isValidValue(CategoricalValue(const ['Bar'])), isTrue);
     });
 
     test('(false,false) single: repeats are invalid', () {
-      expect(build().isValidValue(['Bar', 'Bar']), isFalse);
+      expect(build().isValidValue(CategoricalValue(const ['Bar', 'Bar'])), isFalse);
     });
 
     test('(false,false) single: >1 distinct option is invalid', () {
-      expect(build().isValidValue(['Bar', 'Gel']), isFalse);
+      expect(build().isValidValue(CategoricalValue(const ['Bar', 'Gel'])), isFalse);
     });
 
     test('(true,false) multi: distinct options are valid', () {
-      expect(build(multiSelect: true).isValidValue(['Bar', 'Gel']), isTrue);
+      expect(build(multiSelect: true).isValidValue(CategoricalValue(const ['Bar', 'Gel'])), isTrue);
     });
 
     test('(true,false) multi: repeats are invalid', () {
-      expect(build(multiSelect: true).isValidValue(['Bar', 'Bar', 'Gel']), isFalse);
+      expect(build(multiSelect: true).isValidValue(CategoricalValue(const ['Bar', 'Bar', 'Gel'])), isFalse);
     });
 
     test('(false,true) counted-single: repeats of one option are valid', () {
-      expect(build(counted: true).isValidValue(['Bar', 'Bar', 'Bar', 'Bar']), isTrue);
+      expect(build(counted: true).isValidValue(CategoricalValue(const ['Bar', 'Bar', 'Bar', 'Bar'])), isTrue);
     });
 
     test('(false,true) counted-single: >1 distinct option is invalid even if counted', () {
-      expect(build(counted: true).isValidValue(['Bar', 'Gel']), isFalse);
+      expect(build(counted: true).isValidValue(CategoricalValue(const ['Bar', 'Gel'])), isFalse);
     });
 
     test('(true,true) counted-multi: repeats across multiple options are valid', () {
-      expect(build(multiSelect: true, counted: true).isValidValue(['Bar', 'Bar', 'Gel', 'Gel', 'Gel']), isTrue);
+      expect(build(multiSelect: true, counted: true).isValidValue(CategoricalValue(const ['Bar', 'Bar', 'Gel', 'Gel', 'Gel'])), isTrue);
     });
 
     test('empty value is always invalid', () {
-      expect(build(multiSelect: true, counted: true).isValidValue(<String>[]), isFalse);
+      expect(build(multiSelect: true, counted: true).isValidValue(CategoricalValue(const [])), isFalse);
     });
 
     test('an option outside the option set is always invalid', () {
-      expect(build(multiSelect: true, counted: true).isValidValue(['Unknown']), isFalse);
+      expect(build(multiSelect: true, counted: true).isValidValue(CategoricalValue(const ['Unknown'])), isFalse);
     });
   });
 
-  group('formatValue — count-grouped rendering', () {
+  group('display — count-grouped rendering', () {
     test('groups repeats into "Element (N)"', () {
-      expect(Adjustment.formatValue(['Bar', 'Bar', 'Gel', 'Gel', 'Gel']), 'Bar (2), Gel (3)');
+      expect(CategoricalValue(const ['Bar', 'Bar', 'Gel', 'Gel', 'Gel']).display, 'Bar (2), Gel (3)');
     });
 
     test('a single occurrence omits the count', () {
-      expect(Adjustment.formatValue(['Bottle']), 'Bottle');
+      expect(CategoricalValue(const ['Bottle']).display, 'Bottle');
     });
   });
 
@@ -91,7 +91,7 @@ void main() {
     });
 
     test('legacy json without a counted key defaults to false', () {
-      final adj = CategoricalAdjustment.fromJson({
+      final adj = CategoricalAdjustment.fromJson(const {
         'version': 1,
         'id': 'adj1',
         'name': 'Mode',

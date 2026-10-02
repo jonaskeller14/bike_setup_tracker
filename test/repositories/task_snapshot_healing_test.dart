@@ -847,8 +847,8 @@ void main() {
     });
 
     test("component edits refresh only that component's active and trashed entries", () async {
-      final target = Component(name: "Target Chain", componentType: ComponentType.chain, installations: []);
-      final unrelated = Component(name: "Unrelated Chain", componentType: ComponentType.chain, installations: []);
+      final target = Component(name: "Target Chain", componentType: ComponentType.chain, installations: const []);
+      final unrelated = Component(name: "Unrelated Chain", componentType: ComponentType.chain, installations: const []);
       await repository.addComponents([target, unrelated]);
 
       final entryDate = DateTime.utc(2024, 1, 2);
@@ -969,7 +969,7 @@ void main() {
         componentType: ComponentType.chain,
         installations: [Installation.sinceBeginning(parent: bike.id)],
       );
-      final incoming = Component(name: "New Chain", componentType: ComponentType.chain, installations: []);
+      final incoming = Component(name: "New Chain", componentType: ComponentType.chain, installations: const []);
       await repository.addComponents([outgoing, incoming]);
       await repository.setStravaActivities([
         activity(1, DateTime.utc(2024, 1, 1, 12), 100000.0),

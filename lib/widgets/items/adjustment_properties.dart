@@ -114,7 +114,7 @@ class AdjustmentProperties extends StatelessWidget {
         fgColor: fgColor,
         borderColor: borderColor,
         icon: SagAdjustment.travelIconData,
-        text: '${Adjustment.formatValue(travel)} mm',
+        text: '${NumericalValue(travel).display} mm',
       ));
     }
 
@@ -126,22 +126,22 @@ class AdjustmentProperties extends StatelessWidget {
     switch (adjustment) {
       case final NumericalAdjustment a:
         return (
-          min: a.min == double.negativeInfinity ? null : Adjustment.formatValue(a.min),
-          max: a.max == double.infinity ? null : Adjustment.formatValue(a.max),
+          min: a.min == double.negativeInfinity ? null : NumericalValue(a.min).display,
+          max: a.max == double.infinity ? null : NumericalValue(a.max).display,
           step: null,
           unit: a.unit,
         );
       case final StepAdjustment a:
         return (
-          min: Adjustment.formatValue(a.min),
-          max: Adjustment.formatValue(a.max),
+          min: a.min.toString(),
+          max: a.max.toString(),
           step: a.step != 1 ? a.step.toString() : null,
           unit: a.unit,
         );
       case final DurationAdjustment a:
         return (
-          min: a.min == null ? null : Adjustment.formatValue(a.min),
-          max: a.max == null ? null : Adjustment.formatValue(a.max),
+          min: a.min == null ? null : DurationValue(a.min!).display,
+          max: a.max == null ? null : DurationValue(a.max!).display,
           step: null,
           unit: a.unit,
         );

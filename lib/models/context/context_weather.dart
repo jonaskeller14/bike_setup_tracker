@@ -28,6 +28,7 @@ enum Condition {
   };
 }
 
+@immutable
 class ContextWeather {
   final DateTime currentDateTime;
   final double? currentTemperature;

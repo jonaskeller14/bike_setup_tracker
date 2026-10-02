@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 
 import '../models/adjustment/adjustment.dart';
+import '../models/attachment.dart';
 import '../models/bike.dart';
 import '../models/component/component.dart';
 import '../models/component/installation.dart';
@@ -24,7 +25,6 @@ import '../models/task/task_association.dart';
 import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
 import '../models/task/task_threshold/task_threshold.dart';
-import 'adjustment_value_codec.dart';
 import 'app_database.dart';
 import 'daos/rating_entries_dao.dart';
 import 'daos/setups_dao.dart';
@@ -48,6 +48,7 @@ extension BikeDbMapper on BikeDb {
         activityCount: initialActivityCount,
         kilojoules: initialKilojoules,
       ),
+      attachments: attachments,
     );
   }
 }
@@ -77,6 +78,7 @@ extension ComponentDbMapper on ComponentDb {
       ),
       presetKey: presetKey,
       presetDamperKey: presetDamperKey,
+      attachments: attachments,
     );
   }
 }
@@ -87,15 +89,15 @@ extension InstallationDbMapper on InstallationDb {
     return switch (parentType) {
       // Defensive: a 'bike' row with no parent is treated as uninstalled.
       InstallationParentType.bike => parent == null
-          ? Uninstallation(id: id, componentId: componentId, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal)
-          : BikeInstallation(id: id, componentId: componentId, bikeId: parent!, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal),
+          ? Uninstallation(id: id, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal)
+          : BikeInstallation(id: id, bikeId: parent!, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal),
       InstallationParentType.component => parent == null
-          ? Uninstallation(id: id, componentId: componentId, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal)
-          : ComponentInstallation(id: id, componentId: componentId, parentComponentId: parent!, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal),
+          ? Uninstallation(id: id, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal)
+          : ComponentInstallation(id: id, parentComponentId: parent!, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal),
       InstallationParentType.none =>
-        Uninstallation(id: id, componentId: componentId, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal),
+        Uninstallation(id: id, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal),
       InstallationParentType.archived =>
-        Archival(id: id, componentId: componentId, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal),
+        Archival(id: id, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal),
     };
   }
 }
@@ -176,6 +178,7 @@ extension TaskRuleDbMapper on TaskRuleDb {
       interval: interval != null ? TaskThreshold.fromJson(jsonDecode(interval!) as Map<String, dynamic>) : null,
       delay: delay != null ? TaskThreshold.fromJson(jsonDecode(delay!) as Map<String, dynamic>) : null,
       repeat: repeat,
+      attachments: attachments,
     );
   }
 }
@@ -193,6 +196,7 @@ extension TaskEntryDbMapper on TaskEntryDb {
       notes: notes,
       association: TaskAssociation.fromIds(componentId: componentId, bikeId: bikeId),
       snapshot: snapshot != null ? ComponentStats.fromJson(jsonDecode(snapshot!) as Map<String, dynamic>) : null,
+      attachments: attachments,
     );
   }
 }
@@ -216,6 +220,7 @@ extension BikeMapper on Bike {
       initialElapsedTime: Value<Duration>(initialStats.elapsedTime),
       initialActivityCount: Value<int>(initialStats.activityCount),
       initialKilojoules: Value<double>(initialStats.kilojoules),
+      attachments: Value<List<Attachment>>(attachments),
     );
   }
 }
@@ -238,12 +243,13 @@ extension ComponentMapper on Component {
       initialKilojoules: Value<double>(initialStats.kilojoules),
       presetKey: Value<String?>(presetKey),
       presetDamperKey: Value<String?>(presetDamperKey),
+      attachments: Value<List<Attachment>>(attachments),
     );
   }
 }
 
 extension InstallationMapper on Installation {
-  InstallationsCompanion toCompanion() {
+  InstallationsCompanion toCompanion({required String componentId}) {
     return InstallationsCompanion(
       id: Value(id),
       componentId: Value(componentId),
@@ -262,15 +268,12 @@ extension AdjustmentMapper on Adjustment {
     int? orderIndex,
   }) {
     final json = toJson();
-    final typeString = json['type'] as String;
     return AdjustmentsCompanion(
       id: Value<String>(id),
       name: Value<String>(name),
       notes: Value<String?>(notes),
       unit: Value<String?>(unit?.encode()),
-      type: Value<AdjustmentType>(
-        AdjustmentType.values.firstWhere((e) => e.name == typeString),
-      ),
+      type: Value<AdjustmentType>(type),
       componentId: componentId == null
           ? const Value.absent()
           : Value<String?>(componentId),
@@ -305,7 +308,6 @@ extension RatingMetricMapper on RatingMetric {
     required int orderIndex,
   }) {
     final json = adjustment.toJson();
-    final typeString = json['type'] as String;
     return RatingMetricsCompanion(
       id: Value<String>(adjustment.id),
       ratingId: Value<String>(ratingId),
@@ -314,9 +316,7 @@ extension RatingMetricMapper on RatingMetric {
       name: Value<String>(adjustment.name),
       notes: Value<String?>(adjustment.notes),
       unit: Value<String?>(adjustment.unit?.encode()),
-      type: Value<AdjustmentType>(
-        AdjustmentType.values.firstWhere((e) => e.name == typeString),
-      ),
+      type: Value<AdjustmentType>(adjustment.type),
       jsonPayload: Value<String?>(jsonEncode(json)),
     );
   }
@@ -352,6 +352,7 @@ extension TaskRuleMapper on TaskRule {
       interval: Value<String?>(interval != null ? jsonEncode(interval!.toJson()) : null),
       delay: Value<String?>(delay != null ? jsonEncode(delay!.toJson()) : null),
       repeat: Value<bool>(repeat),
+      attachments: Value<List<Attachment>>(attachments),
     );
   }
 }
@@ -370,6 +371,7 @@ extension TaskEntryMapper on TaskEntry {
       componentId: Value<String?>(association.componentId),
       bikeId: Value<String?>(association.bikeId),
       snapshot: Value<String?>(snapshot != null ? jsonEncode(snapshot!.toJson()) : null),
+      attachments: Value<List<Attachment>>(attachments),
     );
   }
 }
@@ -386,7 +388,7 @@ extension SetupMapper on Setup {
       datetimeLocal: Value<DateTime>(datetimeLocal),
       notes: Value<String?>(notes),
       tags: Value<Set<String>>(tags),
-      images: Value<List<String>>(images),
+      attachments: Value<List<Attachment>>(attachments),
       bikeId: Value<String>(bike),
       personId: Value<String?>(person),
       position: Value<ContextPosition?>(position),
@@ -414,13 +416,20 @@ extension SetupDbMapper on SetupDb {
   Setup toModel({
     List<TypedSetupValue> values = const [],
   }) {
-    final bikeAdjustmentValues = <String, dynamic>{};
-    final personAdjustmentValues = <String, dynamic>{};
+    final bikeAdjustmentValues = <String, AdjustmentValue>{};
+    final personAdjustmentValues = <String, AdjustmentValue>{};
 
     for (var typedValue in values) {
       final adj = typedValue.adjustment;
-      final valStr = typedValue.value.value;
-      final dynamic parsedValue = decodeAdjustmentValue(valStr, adj.type);
+      if (adj == null) {
+        // The owner of a removed adjustment is unknown; the bike map is where
+        // the dangling UI picks it up.
+        final unresolved = UnresolvedValue.orNull(typedValue.value.value);
+        if (unresolved != null) bikeAdjustmentValues[typedValue.value.adjustmentId] = unresolved;
+        continue;
+      }
+      final parsedValue = AdjustmentValue.decode(typedValue.value.value, adj.type);
+      if (parsedValue == null) continue;
 
       if (adj.componentId != null) {
         bikeAdjustmentValues[adj.id] = parsedValue;
@@ -439,7 +448,7 @@ extension SetupDbMapper on SetupDb {
       datetimeLocal: datetimeLocal,
       notes: notes,
       tags: tags,
-      images: images,
+      attachments: attachments,
       bike: bikeId,
       person: personId,
       bikeAdjustmentValues: bikeAdjustmentValues,
@@ -453,10 +462,14 @@ extension SetupDbMapper on SetupDb {
 
 extension RatingEntryDbMapper on RatingEntryDb {
   RatingEntry toModel({List<TypedRatingEntryValue> values = const []}) {
-    final metricValues = <String, dynamic>{};
+    final metricValues = <String, AdjustmentValue>{};
     for (final typedValue in values) {
-      metricValues[typedValue.metric.id] =
-          decodeAdjustmentValue(typedValue.value.value, typedValue.metric.type);
+      final raw = typedValue.value.value;
+      final parsedValue = switch (typedValue.metric) {
+        final metric? => AdjustmentValue.decode(raw, metric.type),
+        null => UnresolvedValue.orNull(raw),
+      };
+      if (parsedValue != null) metricValues[typedValue.value.ratingMetricId] = parsedValue;
     }
 
     return RatingEntry(

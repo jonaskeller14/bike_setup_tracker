@@ -61,7 +61,7 @@ void main() {
         datetime: localTime.toUtc(), // Simulate UtcDateTimeConverter
         datetimeLocal: localTime,
         tags: {},
-        images: const [],
+        attachments: const [],
         isBookmarked: false,
       );
 
@@ -93,6 +93,7 @@ void main() {
         dateTimeUTC: DateTime.now().toUtc(), // Simulate UtcDateTimeConverter
         dateTimeLocal: DateTime.now(),
         taskRule: 'rule1',
+        attachments: const [],
       );
 
       final model = taskEntryDb.toModel();

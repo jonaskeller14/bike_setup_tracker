@@ -7,13 +7,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
 void main() {
-  Widget wrap(Widget child, [AppSettings? appSettings]) {
-    return appSettings == null
-        ? ChangeNotifierProvider<AppSettings>(create: (_) => AppSettings(), child: child)
-        : ChangeNotifierProvider<AppSettings>.value(value: appSettings, child: child);
+  Widget wrap(Widget child) {
+    return ChangeNotifierProvider<AppSettings>(create: (_) => AppSettings(), child: child);
   }
-
-  AppSettings settingsWithDialStyle() => AppSettings()..enableStepDialColorSize = true;
 
   testWidgets('StepAdjustmentPage edit returns equal adjustment when unchanged', (WidgetTester tester) async {
     final initial = StepAdjustment(
@@ -237,7 +233,6 @@ void main() {
   });
 
   testWidgets('Dial visualization renders the dial field and taps cycle its style', (WidgetTester tester) async {
-    final appSettings = settingsWithDialStyle();
     final initial = StepAdjustment(
       id: 'test-id',
       name: 'Rebound',
@@ -268,7 +263,6 @@ void main() {
           ),
         ),
       ),
-      appSettings,
     ));
 
     await tester.tap(find.text('Open Page'));
@@ -290,7 +284,6 @@ void main() {
   });
 
   testWidgets('Dial field is hidden for visualizations without a dial', (WidgetTester tester) async {
-    final appSettings = settingsWithDialStyle();
     final initial = StepAdjustment(
       id: 'test-id',
       name: 'Rebound',
@@ -307,31 +300,6 @@ void main() {
         theme: materialAppTheme,
         home: StepAdjustmentPage.edit(adjustment: initial),
       ),
-      appSettings,
-    ));
-    await tester.pumpAndSettle();
-
-    expect(find.byKey(const ValueKey('DialStyle')), findsNothing);
-  });
-
-  testWidgets('Dial field is hidden while the feature flag is off', (WidgetTester tester) async {
-    final initial = StepAdjustment(
-      id: 'test-id',
-      name: 'Rebound',
-      notes: null,
-      unit: null,
-      step: 1,
-      min: 0,
-      max: 20,
-      visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial,
-    );
-
-    await tester.pumpWidget(wrap(
-      MaterialApp(
-        theme: materialAppTheme,
-        home: StepAdjustmentPage.edit(adjustment: initial),
-      ),
-      AppSettings()..enableStepDialColorSize = false,
     ));
     await tester.pumpAndSettle();
 

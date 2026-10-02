@@ -14,6 +14,7 @@ import '../services/attachment_storage_service.dart';
 import '../services/component_hierarchy_resolver.dart';
 import '../services/data_export_service.dart';
 import '../services/database_migration_service.dart';
+import '../services/trash_cleanup_service.dart';
 import '../widgets/app_snackbar.dart';
 import 'backup.dart';
 
@@ -307,8 +308,7 @@ class FileImport {
   }
 
   static List<String> cleanupIsDeleted({required SelectedData data}) {
-    final thirtyDays = const Duration(days: 30);
-    final deleteDateTime = DateTime.now().toUtc().subtract(thirtyDays);
+    final deleteDateTime = DateTime.now().toUtc().subtract(TrashCleanupService.retention);
 
     data.persons.removeWhere((_, p) => p.isDeleted && p.lastModified.isBefore(deleteDateTime));
     data.ratings.removeWhere((_, r) => r.isDeleted && r.lastModified.isBefore(deleteDateTime));

@@ -131,6 +131,17 @@ class AttachmentStorageService {
     }
   }
 
+  /// Deletes every file in attachments/ whose name is not in [referenced].
+  Future<void> deleteUnreferenced(Set<String> referenced) async {
+    final dir = Directory(await _attachmentsPath());
+    if (!dir.existsSync()) return;
+    final filenames = [
+      for (final entity in await dir.list().toList())
+        if (entity is File) p.basename(entity.path),
+    ];
+    await deleteFiles(filenames.where((filename) => !referenced.contains(filename)));
+  }
+
   Future<void> deleteAll() async {
     final dir = Directory(await _attachmentsPath());
     if (dir.existsSync()) await dir.delete(recursive: true);

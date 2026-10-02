@@ -143,7 +143,7 @@ class _AttachmentViewerState extends State<AttachmentViewer> {
       AttachmentOwnerType.setup => ('Show Setup', Setup.iconData),
       AttachmentOwnerType.bike => ('Show Bike', Bike.iconData),
       AttachmentOwnerType.component => ('Show Component', Component.iconData),
-      AttachmentOwnerType.taskRule || AttachmentOwnerType.taskEntry => ('Show Task', Icons.checklist),
+      AttachmentOwnerType.taskRule || AttachmentOwnerType.taskEntry => ('Show Task', Icons.check_box_outlined),
     };
     return IconButton(
       tooltip: tooltip,

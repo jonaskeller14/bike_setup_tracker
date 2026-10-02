@@ -63,8 +63,8 @@ class _AttachmentsPageState extends State<AttachmentsPage> {
   }
 
   /// Reads the folder itself rather than the owners' attachment lists, so files
-  /// that no setup, bike, component or task references any more still surface here —
-  /// nothing sweeps them except an import or sync, so they can pile up unnoticed.
+  /// that no setup, bike, component or task references any more still surface here
+  /// until the cleanup at the next app start removes them.
   Future<_AttachmentFolder> _loadFolder() async {
     final dir = await AttachmentStorageService().getAttachmentsPath();
     final directory = Directory(dir);
@@ -120,8 +120,8 @@ class _AttachmentsPageState extends State<AttachmentsPage> {
       leading: Icon(Icons.error_outline, color: colorScheme.error),
       title: Text(
         count == 1
-            ? '1 attachment is no longer linked to a setup, bike, component or task. It stays on this device until you import or sync a backup.'
-            : '$count attachments are no longer linked to a setup, bike, component or task. They stay on this device until you import or sync a backup.',
+            ? '1 attachment is no longer linked to a setup, bike, component or task. It is removed the next time the app starts.'
+            : '$count attachments are no longer linked to a setup, bike, component or task. They are removed the next time the app starts.',
         style: TextStyle(color: colorScheme.error),
       ),
       dense: true,

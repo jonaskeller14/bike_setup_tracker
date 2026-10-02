@@ -322,6 +322,87 @@ class AppDatabase extends _$AppDatabase {
     });
   }
 
+  /// Hard-deletes every trashed row last modified before [cutoff], together
+  /// with the rows nested under it. Foreign keys are not enforced, so those
+  /// children are deleted explicitly.
+  Future<void> purgeTrash(DateTime cutoff) {
+    return transaction(() async {
+      Future<List<String>> expiredIds(
+        TableInfo<Table, dynamic> table,
+        GeneratedColumn<String> id,
+        GeneratedColumn<bool> isDeleted,
+        GeneratedColumnWithTypeConverter<DateTime, DateTime> lastModified,
+      ) async {
+        final trashed = selectOnly(table)
+          ..addColumns([id, lastModified])
+          ..where(isDeleted.equals(true));
+        return [
+          for (final row in await trashed.get())
+            if (row.readWithConverter(lastModified)!.isBefore(cutoff)) row.read(id)!,
+        ];
+      }
+
+      final setupIds = await expiredIds(setups, setups.id, setups.isDeleted, setups.lastModified);
+      await (delete(setupAdjustmentValues)..where((t) => t.setupId.isIn(setupIds))).go();
+      await (delete(setups)..where((t) => t.id.isIn(setupIds))).go();
+
+      final ratingEntryIds = await expiredIds(
+        ratingEntries,
+        ratingEntries.id,
+        ratingEntries.isDeleted,
+        ratingEntries.lastModified,
+      );
+      await (delete(ratingEntryValues)..where((t) => t.ratingEntryId.isIn(ratingEntryIds))).go();
+      await (delete(ratingEntries)..where((t) => t.id.isIn(ratingEntryIds))).go();
+
+      final taskEntryIds = await expiredIds(
+        taskEntries,
+        taskEntries.id,
+        taskEntries.isDeleted,
+        taskEntries.lastModified,
+      );
+      await (delete(taskEntries)..where((t) => t.id.isIn(taskEntryIds))).go();
+
+      final componentIds = await expiredIds(components, components.id, components.isDeleted, components.lastModified);
+      await (delete(adjustments)..where((t) => t.componentId.isIn(componentIds))).go();
+      await (delete(installations)..where((t) => t.componentId.isIn(componentIds))).go();
+      await (delete(components)..where((t) => t.id.isIn(componentIds))).go();
+
+      final taskRuleIds = await expiredIds(taskRules, taskRules.id, taskRules.isDeleted, taskRules.lastModified);
+      await (delete(taskRules)..where((t) => t.id.isIn(taskRuleIds))).go();
+
+      final ratingIds = await expiredIds(ratings, ratings.id, ratings.isDeleted, ratings.lastModified);
+      await (delete(ratingMetrics)..where((t) => t.ratingId.isIn(ratingIds))).go();
+      await (delete(ratings)..where((t) => t.id.isIn(ratingIds))).go();
+
+      final bikeIds = await expiredIds(bikes, bikes.id, bikes.isDeleted, bikes.lastModified);
+      await (delete(bikes)..where((t) => t.id.isIn(bikeIds))).go();
+
+      final personIds = await expiredIds(persons, persons.id, persons.isDeleted, persons.lastModified);
+      await (delete(adjustments)..where((t) => t.personId.isIn(personIds))).go();
+      await (delete(persons)..where((t) => t.id.isIn(personIds))).go();
+    });
+  }
+
+  /// Filenames of the attachments any row still references, trashed rows included.
+  Future<Set<String>> referencedAttachmentFilenames() async {
+    Future<Iterable<Attachment>> attachmentsOf(
+      TableInfo<Table, dynamic> table,
+      GeneratedColumnWithTypeConverter<List<Attachment>, String> column,
+    ) async {
+      final rows = await (selectOnly(table)..addColumns([column])).get();
+      return rows.expand((row) => row.readWithConverter(column)!);
+    }
+
+    return {
+      ...await attachmentsOf(setups, setups.attachments),
+      ...await attachmentsOf(bikes, bikes.attachments),
+      ...await attachmentsOf(components, components.attachments),
+      ...await attachmentsOf(taskRules, taskRules.attachments),
+      ...await attachmentsOf(taskEntries, taskEntries.attachments),
+    }.map((a) => a.filename).toSet();
+  }
+
   /// Rounds every installation instant down to the whole minute.
   ///
   /// Rounding can collapse two events onto the same minute, and equal instants

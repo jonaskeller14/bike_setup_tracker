@@ -34,6 +34,7 @@ import '../services/rating_score_service.dart';
 import '../services/setup_resolution_service.dart';
 import '../services/task_forecast_service.dart';
 import '../services/task_status_service.dart';
+import '../services/trash_cleanup_service.dart';
 import '../utils/adjustment_value_type_check.dart';
 import '../utils/unit_conversion.dart';
 import 'filter_controller.dart';
@@ -104,6 +105,8 @@ class AppRepository extends ChangeNotifier {
   Future<void> initialize() async {
     unawaited(BackupService.deleteOldBackups());
     unawaited(initialStravaLoad());
+    // Awaited, unlike the others: it has to finish before the UI mounts.
+    await TrashCleanupService.run(database);
   }
 
   @override

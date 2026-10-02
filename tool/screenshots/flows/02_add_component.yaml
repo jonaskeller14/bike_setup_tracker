@@ -1,6 +1,6 @@
 # 02 Add Component: the Lyrik duplicated, so the form is prefilled with its
 # adjustment definitions under the "Add Component" title.
-appId: com.jonaskeller14.bike_setup_tracker
+appId: ${APP_ID}
 ---
 - runFlow: _launch.yaml
 - tapOn:

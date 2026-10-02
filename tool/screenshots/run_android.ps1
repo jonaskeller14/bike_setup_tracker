@@ -166,6 +166,7 @@ foreach ($name in $selected) {
                 try {
                     & $maestro --device $serial test $flow.Name `
                         --test-output-dir $outDir `
+                        -e "APP_ID=$appId" `
                         -e "DEVICE=$name" `
                         -e "TILE_WAIT_MS=$TileWaitMs"
                     $ok = $LASTEXITCODE -eq 0

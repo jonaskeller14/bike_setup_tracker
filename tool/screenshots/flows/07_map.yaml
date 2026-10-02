@@ -1,7 +1,7 @@
 # 07 Map: the Finale Ligure activity on the map with its activity sheet open.
-# Tiles come live from CyclOSM; TILE_WAIT_MS (set by run_android.ps1) is a
+# Tiles come live from CyclOSM; TILE_WAIT_MS (set by the run scripts) is a
 # fixed wait for them, since nothing in the semantics tree signals "loaded".
-appId: com.jonaskeller14.bike_setup_tracker
+appId: ${APP_ID}
 ---
 - runFlow: _launch.yaml
 # Finale Ligure - NATO Trail

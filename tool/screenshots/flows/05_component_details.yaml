@@ -1,6 +1,6 @@
 # 05 Component details: the Lyrik's line and radial charts over all setups.
 # The phone shows both charts; the tablet has room for the table above them.
-appId: com.jonaskeller14.bike_setup_tracker
+appId: ${APP_ID}
 ---
 - runFlow: _launch.yaml
 - tapOn:
@@ -20,7 +20,7 @@ appId: com.jonaskeller14.bike_setup_tracker
 - tapOn:
     id: componentDetails.columns
 - tapOn: Pressure
-- pressKey: Back
+- runFlow: _dismiss_sheet.yaml
 # The charts compare the table's selected setups, by default only the latest
 # three.
 - tapOn:
@@ -62,6 +62,16 @@ appId: com.jonaskeller14.bike_setup_tracker
             id: componentDetails.lineChart
           direction: UP
           duration: 10000
+      # The iPhone's status bar plus app bar are taller than 10 % of the
+      # screen, so the title ends up under the app bar: drag it back out.
+      - runFlow:
+          when:
+            platform: iOS
+          commands:
+            - swipe:
+                start: 50%, 50%
+                end: 50%, 55%
+                duration: 3000
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot:

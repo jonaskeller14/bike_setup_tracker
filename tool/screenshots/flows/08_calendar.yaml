@@ -1,5 +1,5 @@
 # 08 Calendar: month view of the sample's busiest month.
-appId: com.jonaskeller14.bike_setup_tracker
+appId: ${APP_ID}
 ---
 - runFlow: _launch.yaml
 - tapOn:

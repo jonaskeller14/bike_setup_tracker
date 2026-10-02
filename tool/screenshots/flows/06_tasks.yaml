@@ -1,5 +1,5 @@
 # 06 Tasks: due and upcoming tasks, filtered to the Santa Cruz Hightower.
-appId: com.jonaskeller14.bike_setup_tracker
+appId: ${APP_ID}
 ---
 - runFlow: _launch.yaml
 - tapOn:

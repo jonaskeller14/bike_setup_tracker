@@ -2,7 +2,7 @@
 # services ask to turn on Google Location Accuracy. That toggle lives in Play
 # services, not in Android settings, so adb can't pre-set it. Accepting it once
 # persists on the AVD, so later runs only pay the short wait.
-appId: com.jonaskeller14.bike_setup_tracker
+appId: ${APP_ID}
 ---
 - extendedWaitUntil:
     visible:

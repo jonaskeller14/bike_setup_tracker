@@ -1,7 +1,7 @@
 # Shared subflow: cold-start the screenshot build and wait until the seeded
 # app is interactive. lib/main_screenshots.dart wipes and reseeds on every
 # launch, so each screen flow starts from identical state.
-appId: com.jonaskeller14.bike_setup_tracker
+appId: ${APP_ID}
 ---
 - launchApp:
     stopApp: true

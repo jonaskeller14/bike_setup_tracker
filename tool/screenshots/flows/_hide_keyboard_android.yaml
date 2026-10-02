@@ -1,0 +1,9 @@
+# Shared subflow: hide the keyboard on Android. On iOS, hideKeyboard fails on
+# Flutter text fields, so flows close the keyboard there by other means.
+appId: ${APP_ID}
+---
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - hideKeyboard

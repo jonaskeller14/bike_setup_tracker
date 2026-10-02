@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../models/app_settings.dart';
+import '../../models/attachment.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
 import '../../models/component/component_ancestor.dart';
@@ -15,9 +16,12 @@ import '../../models/task/task_association.dart';
 import '../../models/task/task_rule.dart';
 import '../../models/task/task_threshold/task_threshold.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/attachment_storage_service.dart';
 import '../../services/component_hierarchy_resolver.dart';
 import '../../services/subscription_service.dart';
 import '../../theme.dart';
+import '../../utils/attachment_actions.dart';
+import '../../widgets/attachment_strip.dart';
 import '../../widgets/component_ancestor_display.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/sheets/set_tags.dart';
@@ -116,6 +120,11 @@ class _TaskRulePageState extends State<TaskRulePage> {
   _DurationUnit _intervalDurationUnit = _DurationUnit.days;
   _DurationUnit _delayDurationUnit = _DurationUnit.days;
 
+  List<Attachment> _attachments = [];
+  String? _attachmentsDirPath;
+  final List<Attachment> _importedAttachments = [];
+  List<Attachment>? _savedAttachments;
+
   final _formKey = GlobalKey<FormState>();
   bool _formHasChanges = false;
 
@@ -166,6 +175,41 @@ class _TaskRulePageState extends State<TaskRulePage> {
 
     _intervalValueController.addListener(_changeListener);
     _delayValueController.addListener(_changeListener);
+
+    _attachments = List.from(widget.taskRule?.attachments ?? []);
+    if (context.read<AppSettings>().enableAttachments) unawaited(_initAttachmentsDir());
+  }
+
+  Future<void> _initAttachmentsDir() async {
+    final path = await AttachmentStorageService().getAttachmentsPath();
+    if (!mounted) return;
+    setState(() => _attachmentsDirPath = path);
+  }
+
+  Future<void> _addAttachments() async {
+    final attachments = await AttachmentActions.pickAttachments(context);
+    if (attachments.isEmpty || !mounted) return;
+    _importedAttachments.addAll(attachments);
+    setState(() => _attachments.addAll(attachments));
+    _changeListener();
+  }
+
+  void _onAttachmentRemoved(int index) {
+    setState(() => _attachments.removeAt(index));
+    _changeListener();
+  }
+
+  void _onAttachmentRenamed(int index, String name) {
+    setState(() => _attachments[index] = _attachments[index].copyWith(name: name));
+    _changeListener();
+  }
+
+  void _onAttachmentReorder(int oldIndex, int newIndex) {
+    setState(() {
+      final item = _attachments.removeAt(oldIndex);
+      _attachments.insert(newIndex, item);
+    });
+    _changeListener();
   }
 
   /// Types a delay can use. A delay is added on top of the trigger, so it has
@@ -244,7 +288,8 @@ class _TaskRulePageState extends State<TaskRulePage> {
         _valueChanged(_intervalValueController, widget.taskRule?.interval, _intervalDurationUnit) ||
         (_intervalType == _ThresholdType.dateTime && _intervalDate != (widget.taskRule?.interval is DateTimeThreshold ? (widget.taskRule!.interval as DateTimeThreshold).deadline : null)) ||
         _effectiveDelayType != _getThresholdType(widget.taskRule?.delay) ||
-        _valueChanged(_delayValueController, widget.taskRule?.delay, _delayDurationUnit);
+        _valueChanged(_delayValueController, widget.taskRule?.delay, _delayDurationUnit) ||
+        !listEquals(_attachments, widget.taskRule?.attachments ?? const []);
 
     if (_formHasChanges != hasChanges) {
       setState(() {
@@ -275,6 +320,8 @@ class _TaskRulePageState extends State<TaskRulePage> {
     _intervalValueFocusNode.dispose();
     _delayValueController.removeListener(_changeListener);
     _delayValueController.dispose();
+    // Files imported here but not saved with the rule would be left unlinked.
+    unawaited(AttachmentActions.deleteUnsaved(_importedAttachments, saved: _savedAttachments));
 
     super.dispose();
   }
@@ -492,6 +539,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
         : null;
 
     _formHasChanges = false;
+    _savedAttachments = _attachments;
 
     Navigator.pop(
       context,
@@ -509,7 +557,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
         repeat: (_intervalType == _ThresholdType.dateTime || _intervalType == _ThresholdType.none) ? false : _repeat,
         isDeleted: false,
         lastModified: DateTime.now().toUtc(),
-        attachments: widget.mode == TaskRulePageMode.edit ? widget.taskRule!.attachments : null,
+        attachments: _attachments,
       ),
     );
   }
@@ -838,6 +886,17 @@ class _TaskRulePageState extends State<TaskRulePage> {
               );
             },
           ),
+        if (kDebugMode && appSettings.enableAttachments && _attachmentsDirPath != null)
+          ActionChip(
+            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            label: const SizedBox.shrink(),
+            labelPadding: const EdgeInsets.symmetric(vertical: 2),
+            padding: EdgeInsets.zero,
+            avatar: const Icon(Icons.attach_file),
+            tooltip: 'Add Attachment',
+            backgroundColor: widget.mode == TaskRulePageMode.edit && !listEquals(_attachments, widget.taskRule!.attachments) ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
+            onPressed: _addAttachments,
+          ),
       ],
     );
   }
@@ -883,6 +942,17 @@ class _TaskRulePageState extends State<TaskRulePage> {
                         _notesTextFormField(),
                         const SizedBox(height: 12),
                         _wrap(),
+                        if (appSettings.enableAttachments && _attachmentsDirPath != null && _attachments.isNotEmpty) ...[
+                          const SizedBox(height: 12),
+                          AttachmentStrip(
+                            attachments: _attachments,
+                            attachmentsDir: _attachmentsDirPath!,
+                            mode: AttachmentStripMode.edit,
+                            onRemove: _onAttachmentRemoved,
+                            onReorder: _onAttachmentReorder,
+                            onRename: _onAttachmentRenamed,
+                          ),
+                        ],
                         const SizedBox(height: 18),
                         FormField<TaskAssociation>(
                           initialValue: _association,

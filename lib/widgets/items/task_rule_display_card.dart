@@ -148,6 +148,8 @@ class TaskRuleDisplayCard extends StatelessWidget {
                 TaskRuleListCard.tagsWidget(context, tags: taskRule.tags),
               if (taskRule.notes != null && taskRule.notes!.isNotEmpty)
                 TaskRuleListCard.notesWidget(context, notes: taskRule.notes!),
+              if (appSettings.enableAttachments && taskRule.attachments.isNotEmpty)
+                TaskRuleListCard.attachmentsWidget(context, count: taskRule.attachments.length),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

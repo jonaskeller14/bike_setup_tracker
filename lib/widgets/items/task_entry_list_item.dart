@@ -6,11 +6,13 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
+import '../../models/attachment.dart';
 import '../../models/component_stats.dart';
 import '../../models/task/task_association.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/task_actions.dart';
+import '../attachment_strip.dart';
 import '../notes_text.dart';
 import 'timeline_selection_fill.dart';
 
@@ -24,6 +26,8 @@ class TaskEntryListItem extends StatefulWidget {
   final bool showDate;
   final bool showTaskRule;
   final bool showStats;
+  final bool showAttachments;
+  final String? attachmentsDir;
   final String? heroTag;
 
   const TaskEntryListItem({
@@ -37,6 +41,8 @@ class TaskEntryListItem extends StatefulWidget {
     this.showDate = true,
     this.showTaskRule = true,
     this.showStats = false,
+    this.showAttachments = false,
+    this.attachmentsDir,
     this.heroTag,
   });
 
@@ -98,7 +104,9 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
         taskEntry.snapshot != null &&
         taskRules.containsKey(taskEntry.taskRule) &&
         taskEntry.association is! GeneralTaskAssociation;
-    final hasBottomBlock = showLinkWarning || hasNotes || resolvedShowStats;
+    final attachments = appSettings.enableAttachments ? taskEntry.attachments : const <Attachment>[];
+    final showAttachmentStrip = widget.showAttachments && widget.attachmentsDir != null && attachments.isNotEmpty;
+    final hasBottomBlock = showLinkWarning || hasNotes || resolvedShowStats || showAttachmentStrip;
 
     return TimelineSelectionFill(
       selected: widget.selected,
@@ -168,6 +176,26 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
                                   ),
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 1,
+                                ),
+                              ),
+                            ],
+                          ),
+                        if (attachments.isNotEmpty && !showAttachmentStrip)
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            spacing: 2,
+                            children: [
+                              Icon(
+                                Icons.attach_file,
+                                size: 12,
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                              Text(
+                                '${attachments.length}',
+                                style: TextStyle(
+                                  color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                                  fontSize: 12,
                                 ),
                               ),
                             ],
@@ -327,6 +355,17 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
                               ),
                             );
                           },
+                        ),
+                      ],
+                      if (showAttachmentStrip) ...[
+                        const SizedBox(height: 8),
+                        // While selecting, a tap on a thumbnail toggles the entry instead of opening the viewer.
+                        IgnorePointer(
+                          ignoring: widget.selectionMode,
+                          child: AttachmentStrip(
+                            attachments: attachments,
+                            attachmentsDir: widget.attachmentsDir!,
+                          ),
                         ),
                       ],
                     ],

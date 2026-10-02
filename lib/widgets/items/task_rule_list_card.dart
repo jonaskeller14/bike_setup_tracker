@@ -206,6 +206,21 @@ class TaskRuleListCard extends StatelessWidget {
     );
   }
 
+  static Widget attachmentsWidget(BuildContext context, {required int count}) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      spacing: 2,
+      children: [
+        Icon(Icons.attach_file, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+        Text(
+          '$count',
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+        ),
+      ],
+    );
+  }
+
   /// Background revealed while swiping the card to the left.
   Widget _delaySwipeBackground(BuildContext context, {required TaskRule taskRule}) {
     final color = Theme.of(context).extension<ValueHighlightColors>()!.changed;
@@ -334,6 +349,8 @@ class TaskRuleListCard extends StatelessWidget {
                 tagsWidget(context, tags: taskRule.tags),
               if (taskRule.notes != null && taskRule.notes!.isNotEmpty)
                 notesWidget(context, notes: taskRule.notes!),
+              if (appSettings.enableAttachments && taskRule.attachments.isNotEmpty)
+                attachmentsWidget(context, count: taskRule.attachments.length),
               if (taskRule.interval != null)
                 TaskIntervalText(
                   interval: taskRule.interval!,

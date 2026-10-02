@@ -11,6 +11,7 @@ import '../../models/bike.dart';
 import '../../models/context/context_weather.dart';
 import '../../models/setup.dart';
 import '../../theme.dart';
+import '../../utils/automation_ids.dart';
 import '../../utils/table_column.dart';
 
 class SetupTable extends StatefulWidget {
@@ -107,14 +108,18 @@ class _SetupTableState extends State<SetupTable> {
 
   DataColumn _selectionColumn() {
     return DataColumn(
-      label: Checkbox(
-        key: const ValueKey('select-all-setups'),
-        value: _selectAllValue,
-        tristate: true,
-        onChanged: (_) {
-          unawaited(HapticFeedback.selectionClick());
-          widget.onSelectAll!(!_allSetupsSelected);
-        },
+      label: Semantics(
+        container: true,
+        identifier: AutomationIds.setupTableSelectAll,
+        child: Checkbox(
+          key: const ValueKey('select-all-setups'),
+          value: _selectAllValue,
+          tristate: true,
+          onChanged: (_) {
+            unawaited(HapticFeedback.selectionClick());
+            widget.onSelectAll!(!_allSetupsSelected);
+          },
+        ),
       ),
     );
   }

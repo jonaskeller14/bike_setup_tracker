@@ -409,13 +409,20 @@ class _HomePageState extends State<HomePage> {
                 ),
                 const SizedBox(height: 12),
               ],
-              FloatingActionButton(
-                heroTag: "addBike",
-                onPressed: () async {
-                  await BikeActions.addBike(context);
-                },
-                tooltip: 'Add Bike',
-                child: const Icon(Icons.add),
+              // Distinct keys: the tabs share this slot, and an identifier-only
+              // change on a reused semantics node never reaches the platform.
+              Semantics(
+                key: const ValueKey(AutomationIds.addBikeFab),
+                container: true,
+                identifier: AutomationIds.addBikeFab,
+                child: FloatingActionButton(
+                  heroTag: "addBike",
+                  onPressed: () async {
+                    await BikeActions.addBike(context);
+                  },
+                  tooltip: 'Add Bike',
+                  child: const Icon(Icons.add),
+                ),
               ),
             ],
           ),
@@ -436,6 +443,7 @@ class _HomePageState extends State<HomePage> {
                 const SizedBox(height: 12),
               ],
               Semantics(
+                key: const ValueKey(AutomationIds.addSetupFab),
                 container: true,
                 identifier: AutomationIds.addSetupFab,
                 child: FloatingActionButton(

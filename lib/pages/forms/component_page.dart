@@ -1033,15 +1033,19 @@ class _ComponentPageState extends State<ComponentPage> {
                               widget.mode != ComponentPageMode.edit,
                         ),
                         Center(
-                          child: TextButton.icon(
-                            onPressed: () => setState(() => _expanded = !_expanded),
-                            icon: Icon(_expanded
-                                ? Icons.expand_less
-                                : Icons.expand_more,
-                            ),
-                            label: Text(_expanded
-                                ? "Hide Additional Fields"
-                                : "Show Additional Fields"
+                          child: Semantics(
+                            container: true,
+                            identifier: AutomationIds.componentFormAdditionalFields,
+                            child: TextButton.icon(
+                              onPressed: () => setState(() => _expanded = !_expanded),
+                              icon: Icon(_expanded
+                                  ? Icons.expand_less
+                                  : Icons.expand_more,
+                              ),
+                              label: Text(_expanded
+                                  ? "Hide Additional Fields"
+                                  : "Show Additional Fields"
+                              ),
                             ),
                           ),
                         ),

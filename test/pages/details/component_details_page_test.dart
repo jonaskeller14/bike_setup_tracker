@@ -14,6 +14,7 @@ import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/setup_activity_analysis_service.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
+import 'package:bike_setup_tracker/utils/automation_ids.dart';
 import 'package:bike_setup_tracker/widgets/display_data/setup_line_chart.dart';
 import 'package:bike_setup_tracker/widgets/display_data/setup_radial_chart.dart';
 import 'package:bike_setup_tracker/widgets/display_data/setup_table.dart';
@@ -1048,6 +1049,55 @@ void main() {
     await tester.pumpAndSettle();
     expect(selectAll().value, isFalse);
     expect(tester.widget<Checkbox>(find.byKey(const ValueKey('select-setup-s1'))).value, isFalse);
+  });
+
+  testWidgets('exposes the automation identifiers the screenshot flows use', (WidgetTester tester) async {
+    final semantics = tester.ensureSemantics();
+    // The radial chart (and its legend) needs at least three numerical columns.
+    final adjustments = [
+      for (final name in ['Rebound', 'LSC', 'HSC'])
+        StepAdjustment(id: name, name: name, notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider),
+    ];
+    await seedRepository(tester, () async {
+      await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null)]);
+      await appRepository.addComponents([Component(
+        id: 'comp1', name: 'Test Fork',
+        installations: [Installation.sinceBeginning(parent: 'bike1')],
+        componentType: ComponentType.fork,
+        adjustments: adjustments,
+      )]);
+      await appRepository.addSetups([
+        Setup(
+          id: 's1', name: 'Setup 1',
+          datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1),
+          tags: {}, bike: 'bike1', person: null,
+          bikeAdjustmentValues: {'Rebound': const StepValue(1), 'LSC': const StepValue(2), 'HSC': const StepValue(3)},
+          personAdjustmentValues: {},
+        ),
+      ]);
+    });
+    appRepository.dispose();
+    appRepository = AppRepository(database);
+    await tester.pumpWidget(createWidgetUnderTest('comp1'));
+    await tester.runAsync(() async {
+      int attempts = 0;
+      while (appRepository.components['comp1'] == null && attempts < 10) {
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+        attempts++;
+      }
+    });
+    await tester.pumpAndSettle();
+
+    for (final id in [
+      AutomationIds.componentDetailsAdjustmentHistory,
+      AutomationIds.componentDetailsColumns,
+      AutomationIds.setupTableSelectAll,
+      AutomationIds.componentDetailsLineChart,
+      AutomationIds.radialChartLegend(0),
+    ]) {
+      expect(find.bySemanticsIdentifier(id, skipOffstage: false), findsOneWidget, reason: id);
+    }
+    semantics.dispose();
   });
 
   testWidgets('tapping a selected row deselects it', (WidgetTester tester) async {

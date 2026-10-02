@@ -11,6 +11,7 @@ import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/setup.dart';
 import '../../theme.dart';
+import '../../utils/automation_ids.dart';
 import '../../utils/table_column.dart';
 import '../empty_state_placeholder.dart';
 
@@ -307,64 +308,68 @@ class _SetupRadialChartState extends State<SetupRadialChart> {
                     final isSelected = effectiveSelectedSetupId == setup.id;
                     final isDimmed = effectiveSelectedSetupId != null && !isSelected;
                     final color = radarColors[index];
-                    return InkWell(
-                      onTap: () {
-                        unawaited(HapticFeedback.selectionClick());
-                        setState(() {
-                          if (_selectedRadarSetupId == setup.id) {
-                            _selectedRadarSetupId = null;
-                          } else {
-                            _selectedRadarSetupId = setup.id;
-                          }
-                        });
-                      },
-                      onLongPress: () {
-                        unawaited(HapticFeedback.selectionClick());
-                        setState(() {
-                          if (_selectedRadarSetupId == setup.id) _selectedRadarSetupId = null;
-                          if (_touchedRadarValue?.setupId == setup.id) {
-                            _touchedRadarValue = null;
-                          }
-                        });
-                        widget.onSetupRemoved(setup.id);
-                      },
-                      borderRadius: BorderRadius.circular(8),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: isSelected ? color.withValues(alpha: 0.1) : Colors.transparent,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          spacing: 4,
-                          children: [
-                            Opacity(
-                              opacity: isDimmed ? 0.3 : 1.0,
-                              child: Container(
-                                width: 12,
-                                height: 12,
-                                decoration: BoxDecoration(
-                                  color: color,
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                            ),
-                            Flexible(
-                              child: Opacity(
+                    return Semantics(
+                      container: true,
+                      identifier: AutomationIds.radialChartLegend(index),
+                      child: InkWell(
+                        onTap: () {
+                          unawaited(HapticFeedback.selectionClick());
+                          setState(() {
+                            if (_selectedRadarSetupId == setup.id) {
+                              _selectedRadarSetupId = null;
+                            } else {
+                              _selectedRadarSetupId = setup.id;
+                            }
+                          });
+                        },
+                        onLongPress: () {
+                          unawaited(HapticFeedback.selectionClick());
+                          setState(() {
+                            if (_selectedRadarSetupId == setup.id) _selectedRadarSetupId = null;
+                            if (_touchedRadarValue?.setupId == setup.id) {
+                              _touchedRadarValue = null;
+                            }
+                          });
+                          widget.onSetupRemoved(setup.id);
+                        },
+                        borderRadius: BorderRadius.circular(8),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: isSelected ? color.withValues(alpha: 0.1) : Colors.transparent,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            spacing: 4,
+                            children: [
+                              Opacity(
                                 opacity: isDimmed ? 0.3 : 1.0,
-                                child: Text(
-                                  setup.displayName,
-                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                    color: isSelected ? color : null,
+                                child: Container(
+                                  width: 12,
+                                  height: 12,
+                                  decoration: BoxDecoration(
+                                    color: color,
+                                    shape: BoxShape.circle,
                                   ),
-                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                            ),
-                          ],
+                              Flexible(
+                                child: Opacity(
+                                  opacity: isDimmed ? 0.3 : 1.0,
+                                  child: Text(
+                                    setup.displayName,
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                      color: isSelected ? color : null,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     );

@@ -48,10 +48,16 @@ void main() {
       }
       expect(find.bySemanticsIdentifier(AutomationIds.addSetupFab), findsOneWidget);
       expect(find.bySemanticsIdentifier(AutomationIds.setupListCalendar), findsOneWidget);
+      final setupFabNodeId = tester.getSemantics(find.bySemanticsIdentifier(AutomationIds.addSetupFab)).id;
 
       await tester.tap(find.bySemanticsIdentifier(AutomationIds.navBikes));
       await settleGolden(tester);
 
+      // The tabs share the FAB slot. An identifier-only change on a reused
+      // node never reaches the platform (it doesn't mark the node dirty), so
+      // the bike FAB must get a node of its own.
+      expect(find.bySemanticsIdentifier(AutomationIds.addBikeFab), findsOneWidget);
+      expect(tester.getSemantics(find.bySemanticsIdentifier(AutomationIds.addBikeFab)).id, isNot(setupFabNodeId));
       expect(find.bySemanticsIdentifier(AutomationIds.garageBike(GoldenTestHarness.trailBikeId)), findsOneWidget);
       expect(find.bySemanticsIdentifier(AutomationIds.garageComponent(GoldenTestHarness.forkId)), findsOneWidget);
 

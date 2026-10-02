@@ -381,19 +381,23 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                 const Divider(height: 1),
               ],
 
-              const SectionTitle(
-                title: "Adjustment History",
-                infoText:
-                    "• Add or remove columns via the Columns button.\n"
-                    "• Long-press a column header to remove it.\n"
-                    "• Tap a column header to sort.\n"
-                    "• Use the filter button to narrow down by bike or tags.\n"
-                    "• Select rows to compare setups in the charts below.\n"
-                    "\n"
-                    "Value colors:\n"
-                    "• Green: new value (no prior value).\n"
-                    "• Orange: changed from the previous setup.\n"
-                    "• Red: dangling value (component not installed or person not linked at setup time).",
+              Semantics(
+                container: true,
+                identifier: AutomationIds.componentDetailsAdjustmentHistory,
+                child: const SectionTitle(
+                  title: "Adjustment History",
+                  infoText:
+                      "• Add or remove columns via the Columns button.\n"
+                      "• Long-press a column header to remove it.\n"
+                      "• Tap a column header to sort.\n"
+                      "• Use the filter button to narrow down by bike or tags.\n"
+                      "• Select rows to compare setups in the charts below.\n"
+                      "\n"
+                      "Value colors:\n"
+                      "• Green: new value (no prior value).\n"
+                      "• Orange: changed from the previous setup.\n"
+                      "• Red: dangling value (component not installed or person not linked at setup time).",
+                ),
               ),
 
               SingleChildScrollView(
@@ -402,19 +406,23 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                 child: Row(
                   spacing: 6,
                   children: [
-                    FilterChip(
-                      avatar: const Icon(Icons.view_column_outlined),
-                      showCheckmark: false,
-                      label: const Text("Columns"),
-                      selected: _columns.any((c) => c.active),
-                      onSelected: (bool newValue) async {
-                        await showColumnFilterSheet(
-                          context: context,
-                          columns: orderedColumns,
-                          columnLabel: (TableColumn c) => _columnLabel(c, componentAdjustments, personAdjustments),
-                          onColumnStatusChanged: () => setState(() {}), // TableColumn.active is changed
-                        );
-                      },
+                    Semantics(
+                      container: true,
+                      identifier: AutomationIds.componentDetailsColumns,
+                      child: FilterChip(
+                        avatar: const Icon(Icons.view_column_outlined),
+                        showCheckmark: false,
+                        label: const Text("Columns"),
+                        selected: _columns.any((c) => c.active),
+                        onSelected: (bool newValue) async {
+                          await showColumnFilterSheet(
+                            context: context,
+                            columns: orderedColumns,
+                            columnLabel: (TableColumn c) => _columnLabel(c, componentAdjustments, personAdjustments),
+                            onColumnStatusChanged: () => setState(() {}), // TableColumn.active is changed
+                          );
+                        },
+                      ),
                     ),
                     FilterSheetChip.componentDetailsPage,
                   ],

@@ -2,7 +2,7 @@ import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/utils/table_column.dart';
-import 'package:bike_setup_tracker/widgets/display_data/component_details_page_histogram_chart.dart';
+import 'package:bike_setup_tracker/widgets/display_data/setup_histogram_chart.dart';
 import 'package:collection/collection.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -65,7 +65,7 @@ void main() {
       theme: theme ?? materialAppTheme,
       home: Scaffold(
         body: SingleChildScrollView(
-          child: ComponentDetailsPageHistogramChart(
+          child: SetupHistogramChart(
             activeColumns: columns,
             setups: setupList ?? setups,
             setupActivityCounts: activityCounts,

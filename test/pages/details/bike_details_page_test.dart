@@ -14,6 +14,7 @@ import 'package:bike_setup_tracker/services/setup_activity_analysis_service.dart
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/attachment_row.dart';
+import 'package:bike_setup_tracker/widgets/display_data/setup_histogram_chart.dart';
 import 'package:bike_setup_tracker/widgets/display_data/setup_line_chart.dart';
 import 'package:bike_setup_tracker/widgets/display_data/setup_radial_chart.dart';
 import 'package:bike_setup_tracker/widgets/display_data/setup_table.dart';
@@ -27,15 +28,20 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MockSubscriptionService extends Mock implements SubscriptionService {
+  MockSubscriptionService({this.hasStravaEntitlement = false});
+
   @override
-  bool get hasStravaEntitlement => false;
+  final bool hasStravaEntitlement;
 }
+
+class MockSetupActivityAnalysisService extends Mock implements SetupActivityAnalysisService {}
 
 void main() {
   late AppDatabase database;
   late AppRepository appRepository;
   late AppSettings appSettings;
   late SetupActivityAnalysisService setupActivityAnalysisService;
+  late bool hasStravaEntitlement;
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
@@ -43,6 +49,7 @@ void main() {
     appRepository = AppRepository(database);
     appSettings = AppSettings();
     setupActivityAnalysisService = SetupActivityAnalysisService(database);
+    hasStravaEntitlement = false;
   });
 
   tearDown(() async {
@@ -60,7 +67,9 @@ void main() {
         ChangeNotifierProvider.value(value: appSettings),
         ChangeNotifierProvider.value(value: appRepository),
         ChangeNotifierProvider.value(value: setupActivityAnalysisService),
-        ChangeNotifierProvider<SubscriptionService>.value(value: MockSubscriptionService()),
+        ChangeNotifierProvider<SubscriptionService>.value(
+          value: MockSubscriptionService(hasStravaEntitlement: hasStravaEntitlement),
+        ),
       ],
       child: MaterialApp(
         theme: materialAppTheme,
@@ -277,6 +286,27 @@ void main() {
 
       expect(inTable(columnLabel), findsNothing);
       expect(find.text('No adjustments selected'), findsNWidgets(2));
+    });
+
+    testWidgets('counts the activities of a replaced tire in one histogram', (WidgetTester tester) async {
+      const counts = {'s1': 3, 's2': 2};
+      setupActivityAnalysisService.dispose();
+      final service = MockSetupActivityAnalysisService();
+      when(() => service.hasAnyActivity).thenReturn(true);
+      when(() => service.setupActivityCounts).thenReturn(counts);
+      when(() => service.setupActivityCountsLoaded).thenReturn(true);
+      when(() => service.setupActivityCountsFailed).thenReturn(false);
+      when(service.getSetupActivityCounts).thenAnswer((_) async => counts);
+      setupActivityAnalysisService = service;
+      hasStravaEntitlement = true;
+
+      await pumpPageWith(tester, seedTireReplacement);
+
+      final histogram = find.byType(SetupHistogramChart);
+      final barChart = tester.widget<BarChart>(find.descendant(of: histogram, matching: find.byType(BarChart)));
+      // 22: tire B at s2, 25: tire A at s1.
+      expect(barChart.data.barGroups.map((group) => group.barRods.single.toY), [2, 3]);
+      expect(find.descendant(of: histogram, matching: find.text(columnLabel)), findsOneWidget);
     });
 
     testWidgets('does not overflow with long component names on a narrow screen', (WidgetTester tester) async {

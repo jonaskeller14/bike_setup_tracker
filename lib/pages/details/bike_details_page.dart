@@ -25,6 +25,7 @@ import '../../utils/table_column_comparator.dart';
 import '../../widgets/attachment_row.dart';
 import '../../widgets/chips/filter_sheet_chip.dart';
 import '../../widgets/display_data/component_stats_card.dart';
+import '../../widgets/display_data/setup_histogram_chart.dart';
 import '../../widgets/display_data/setup_line_chart.dart';
 import '../../widgets/display_data/setup_radial_chart.dart';
 import '../../widgets/display_data/setup_table.dart';
@@ -37,6 +38,7 @@ import '../../widgets/notes_text.dart';
 import '../../widgets/open_tasks_tile.dart';
 import '../../widgets/sheets/column_filter.dart';
 import '../../widgets/sheets/set_initial_stats.dart' as initial_stats;
+import '../../widgets/sheets/strava.dart';
 import '../../widgets/text/section_title.dart';
 
 class BikeDetailsPage extends StatefulWidget {
@@ -58,6 +60,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
   bool _sortAscending = true;
   TableColumn? _sortColumn;
   TableColumn? _selectedLineChartColumn;
+  TableColumn? _selectedHistogramColumn;
   Set<String>? _selectedSetupIds;
   Set<TableColumn> _columns = {};
 
@@ -163,6 +166,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
     setState(() {
       column.active = false;
       if (_selectedLineChartColumn == column) _selectedLineChartColumn = null;
+      if (_selectedHistogramColumn == column) _selectedHistogramColumn = null;
     });
   }
 
@@ -170,6 +174,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
     BuildContext context,
     AppSettings appSettings,
     AppRepository appRepository,
+    SubscriptionService subscriptionService,
     Person? person,
   ) {
     final hasAnyActivity = context.select<SetupActivityAnalysisService, bool>(
@@ -177,6 +182,12 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
     );
     final setupActivityCounts = context.select<SetupActivityAnalysisService, Map<String, int>>(
       (service) => service.setupActivityCounts,
+    );
+    final setupActivityCountsLoaded = context.select<SetupActivityAnalysisService, bool>(
+      (service) => service.setupActivityCountsLoaded,
+    );
+    final setupActivityCountsFailed = context.select<SetupActivityAnalysisService, bool>(
+      (service) => service.setupActivityCountsFailed,
     );
     if (hasAnyActivity) {
       unawaited(context.read<SetupActivityAnalysisService>().getSetupActivityCounts());
@@ -431,6 +442,45 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
             setState(() => selectedSetupIds.remove(setupId));
           },
         ),
+        if (appSettings.enableStrava) ...[
+          const Divider(height: 1),
+          const SectionTitle(
+            title: "Activity Histogram",
+            infoText:
+                "• Shows how many Strava activities were ridden with each adjustment value.\n"
+                "• Counts all setups in the table above, not just the selected ones.\n"
+                "• Components that followed each other in the same position are counted together in one column.\n"
+                "• Numerical values are grouped into ranges when there are many distinct values.\n"
+                "• Tap a legend entry to show a different adjustment.\n"
+                "• Long-press a legend entry to remove its column.",
+          ),
+          if (!subscriptionService.hasStravaEntitlement)
+            EmptyStatePlaceholder(
+              icon: Icons.lock_outline,
+              title: "Strava Sync required",
+              subtitle: "See how many activities you rode with each adjustment value.",
+              actionLabel: "View plans",
+              actionIcon: Icons.auto_awesome,
+              onAction: () => showStravaSheet(context: context),
+            )
+          else
+            SetupHistogramChart(
+              activeColumns: activeColumns,
+              setups: setups,
+              setupActivityCounts: setupActivityCounts,
+              hasAnyActivity: hasAnyActivity,
+              activityCountsLoaded: setupActivityCountsLoaded,
+              activityCountsFailed: setupActivityCountsFailed,
+              selectedHistogramColumn: _selectedHistogramColumn,
+              valueFor: _rawValue,
+              adjustmentFor: adjustmentFor,
+              columnLabel: (column) => _columnLabel(column, personAdjustments),
+              onSelectedColumnChanged: (column) {
+                setState(() => _selectedHistogramColumn = column);
+              },
+              onColumnRemoved: _removeColumn,
+            ),
+        ],
       ],
     );
   }
@@ -599,7 +649,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
                 ],
               ),
               const Divider(height: 1),
-              _setupHistory(context, appSettings, appRepository, person),
+              _setupHistory(context, appSettings, appRepository, subscriptionService, person),
               if (appSettings.enableInstallationTimeline) ...[
                 const Divider(height: 1),
                 InstallationTimelineTable(

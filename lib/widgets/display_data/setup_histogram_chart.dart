@@ -15,7 +15,7 @@ import '../../utils/adjustment_activity_histogram_grouping.dart';
 import '../../utils/table_column.dart';
 import '../empty_state_placeholder.dart';
 
-class ComponentDetailsPageHistogramChart extends StatefulWidget {
+class SetupHistogramChart extends StatefulWidget {
   final List<TableColumn> activeColumns;
   final List<Setup> setups;
   final Map<String, int> setupActivityCounts;
@@ -29,7 +29,7 @@ class ComponentDetailsPageHistogramChart extends StatefulWidget {
   final ValueChanged<TableColumn> onSelectedColumnChanged;
   final ValueChanged<TableColumn> onColumnRemoved;
 
-  const ComponentDetailsPageHistogramChart({
+  const SetupHistogramChart({
     super.key,
     required this.activeColumns,
     required this.setups,
@@ -46,10 +46,10 @@ class ComponentDetailsPageHistogramChart extends StatefulWidget {
   });
 
   @override
-  State<ComponentDetailsPageHistogramChart> createState() => _ComponentDetailsPageHistogramChartState();
+  State<SetupHistogramChart> createState() => _SetupHistogramChartState();
 }
 
-class _ComponentDetailsPageHistogramChartState extends State<ComponentDetailsPageHistogramChart> {
+class _SetupHistogramChartState extends State<SetupHistogramChart> {
   int? _touchedBarIndex;
 
   AdjustmentActivityHistogram _histogramFor(TableColumn column, Adjustment adjustment) {
@@ -84,7 +84,7 @@ class _ComponentDetailsPageHistogramChartState extends State<ComponentDetailsPag
       return const EmptyStatePlaceholder(
         icon: Icons.bar_chart_rounded,
         title: "No data",
-        subtitle: "No setup data available for this component",
+        subtitle: "No setup data available",
       );
     }
     if (!widget.hasAnyActivity) {

@@ -21,8 +21,8 @@ import '../../utils/table_column.dart';
 import '../../utils/table_column_comparator.dart';
 import '../../widgets/attachment_row.dart';
 import '../../widgets/chips/filter_sheet_chip.dart';
-import '../../widgets/display_data/component_details_page_histogram_chart.dart';
 import '../../widgets/display_data/component_stats_card.dart';
+import '../../widgets/display_data/setup_histogram_chart.dart';
 import '../../widgets/display_data/setup_line_chart.dart';
 import '../../widgets/display_data/setup_radial_chart.dart';
 import '../../widgets/display_data/setup_table.dart';
@@ -576,7 +576,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                     onAction: () => showStravaSheet(context: context),
                   )
                 else
-                  ComponentDetailsPageHistogramChart(
+                  SetupHistogramChart(
                     activeColumns: activeColumns,
                     setups: setups,
                     setupActivityCounts: setupActivityCounts,

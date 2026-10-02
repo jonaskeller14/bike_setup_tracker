@@ -1,0 +1,202 @@
+# Marzocchi mountain-bike forks — adjustment preset database
+#
+# Marzocchi has been a FOX Factory-owned brand since 2015 ("Marzocchi by FOX")
+# and its current Bomber-series forks share Fox-style adjuster mechanisms
+# (RAIL / GRIP dampers) and Fox's official documentation infrastructure
+# (tech.ridefox.com hosts Marzocchi's tuning guides and owner's guides).
+#
+# See SCHEMA.md in this folder for the sparse `adjustments:` format, the field
+# defaults table, and how these entries map to the app's Adjustment presets.
+
+brand: Marzocchi
+component_type: fork
+sources:
+  - https://bike.marzocchi.com/collections/forks
+  - https://bike.marzocchi.com/products/bomber-z1
+  - https://bike.marzocchi.com/products/bomber-z1-coil
+  - https://bike.marzocchi.com/products/bomber-z2
+  - https://bike.marzocchi.com/products/bomber-dj
+  - https://bike.marzocchi.com/products/bomber-58
+  - https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-256_RevB_DJ-Z1_TuningGuide.pdf
+  - https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-237-%20RevA_Z2_TuningGuide.pdf
+  - https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-174-58_TuningGuide-revA.pdf
+  - https://www.pinkbike.com/news/marzocchi-bomber-z1-review.html
+  - https://nsmb.com/articles/marzocchi-bomber-z1-reviewed/
+updated: 2026-07-18
+# Rebound/compression numbers below come from the official Marzocchi tuning
+# guides (PDFs hosted on tech.ridefox.com), not the marketing product pages,
+# which describe adjusters in prose only ("simple sweep adjuster") without
+# click counts. Clicks are counted from fully closed (firmest); the tuning
+# guides all show a 9-position "OPEN 9-8-7-6-5-4-3-2-1 CLOSED" rebound scale,
+# i.e. the default `dial_ccw` visualization.
+
+# --------------------------------------------------------------------------
+# Dampers — click ranges shared across every fork that ships with the damper.
+# --------------------------------------------------------------------------
+option_values:
+  damper:
+    rail:
+      name: RAIL
+      description: >
+        Current-generation damper on Bomber Z1 (Air), Bomber Z1 Coil and Bomber
+        Z2. Marketing copy ("simple sweep adjuster", "no fuss") does not itself
+        publish click counts; the numbers below come from the official Bomber
+        Z1/DJ (2020, then labelled "GRIP") and Bomber Z2 (2019) tuning guides,
+        which show the identical 2-position sweep + 9-click rebound spec under
+        both names. Marzocchi's current Z2 product copy mentions a "new RAIL
+        damper", so this may have been revised since 2019 without a republished
+        spec sheet — see Follow-ups.
+      adjustments: &sweep_2pos
+        - { name: Compression Mode, type: categorical, options: [Open, Firm], notes: 2-Position Sweep Adjust lever; continuously variable between the two end positions }
+        - { name: Rebound, type: step, max: 9, dialColor: red }
+
+    grip:
+      name: GRIP
+      description: >
+        Damper on Bomber DJ. Same 2-position sweep compression + 9-click
+        rebound spec as `rail` above, per the shared official 2020 "Bomber Z1 &
+        DJ" tuning guide (which calls it GRIP); Marzocchi's current DJ product
+        page still uses the GRIP name.
+      adjustments: *sweep_2pos
+
+    grip_58:
+      name: GRIP
+      description: >
+        Damper on the dual-crown Bomber 58. Despite the shared "GRIP" name this
+        is a different cartridge than Bomber DJ's: a continuously-indexed
+        Low-Speed Compression dial (not a 2-position sweep) plus the same
+        9-click rebound scale. Per the official Bomber 58 tuning guide.
+      adjustments:
+        - { name: Compression, type: step, max: 8, notes: Low-Speed Compression }
+        - { name: Rebound, type: step, max: 9 }
+
+# --------------------------------------------------------------------------
+# Forks — current (2025/2026) Marzocchi lineup. Every model below is air- or
+# coil-sprung and single-trim (Marzocchi doesn't sell multiple build kits per
+# model the way Fox does), so each model has one trim named for the spring.
+# --------------------------------------------------------------------------
+nodes:
+  - label: "Z1"
+    level: model
+    category: Trail / All-Mountain
+    years: "2025-2026"
+    url: https://bike.marzocchi.com/products/bomber-z1
+    children:
+      - label: Standard
+        level: trim
+        specs: { stanchion: "36mm, Black Anodized", spring: Air }
+        offset_mm: 44
+        axle: 15QRx110
+        adjustments: &air_spring
+          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+        options:
+          damper: [rail]
+          travel_mm: [100, 150, 160]
+          wheel_size: [29, 27.5]
+        note: 180mm post mount, max air pressure 120psi.
+
+  - label: "Z1 Coil"
+    level: model
+    category: Trail / All-Mountain
+    years: "2025-2026"
+    url: https://bike.marzocchi.com/products/bomber-z1-coil
+    children:
+      - label: Coil
+        level: trim
+        specs: { stanchion: "36mm, Black Anodized", spring: Coil }
+        offset_mm: 44
+        axle: 15QRx110
+        adjustments:
+          - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
+        options:
+          damper: [rail]
+          travel_mm: [160]
+          wheel_size: [29]
+        note: >
+          Travel adjustable down in 10mm increments via included internal
+          spacers. Coil springs sold separately, color-coded to rider weight
+          (Purple/Blue/Green/Yellow ~ Soft/Medium/Firm/X-Firm); Marzocchi
+          does not publish the actual lbs/in rate per color.
+
+  - label: "Z2"
+    level: model
+    category: Trail
+    years: "2025-2026"
+    url: https://bike.marzocchi.com/products/bomber-z2
+    children:
+      - label: Standard
+        level: trim
+        specs: { stanchion: "34mm, Black Anodized", spring: Air }
+        offset_mm: 44
+        axle: 15QRx110
+        adjustments: *air_spring
+        options:
+          damper: [rail]
+          travel_mm: [120, 130, 140, 150]
+          wheel_size: [29, 27.5]
+        note: >
+          160mm post mount, max air pressure 120psi. An "E-Bike+" tune is
+          also offered (max air pressure 140psi) for e-MTB use.
+
+  - label: "DJ"
+    level: model
+    category: Dirt Jump / Slopestyle
+    years: "2025-2026"
+    url: https://bike.marzocchi.com/products/bomber-dj
+    children:
+      - label: Standard
+        level: trim
+        specs: { stanchion: 36mm, spring: Air }
+        offset_mm: 37
+        axle: 20x110 non-boost (15x100 conversion kit available)
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+          - { name: Volume Spacers, type: step, visualization: stepper, max: 10, notes: Factory installed 8 }
+        options:
+          damper: [grip]
+          travel_mm: [100]
+          wheel_size: [26]
+        note: Max air pressure 120psi.
+
+  - label: "58"
+    level: model
+    category: Downhill
+    years: "2025-2026"
+    url: https://bike.marzocchi.com/products/bomber-58
+    children:
+      - label: Standard
+        level: trim
+        specs: { stanchion: "40mm, Black Anodized", spring: Air }
+        offset_mm: 51
+        axle: 20x110 DH (non-Boost)
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+          - { name: Volume Spacers, type: step, visualization: stepper, max: 7, notes: Factory installed 4 }
+        options:
+          damper: [grip_58]
+          travel_mm: [203]
+          wheel_size: [27.5]
+        note: Dual-crown chassis, 203mm post mount, 1.125in straight steerer.
+
+# --------------------------------------------------------------------------
+# Follow-ups (not yet captured — avoid guessing):
+#   - Bomber Z1 and Bomber Z2 volume-spacer counts ARE published, but per
+#     travel setting rather than one fixed number per trim (Z1: factory 1-5 /
+#     max 5-8 clip-on spacers across its 130-180mm chart, of which only
+#     150/160mm are currently sold; Z2: factory 0-4 / max 4-6 across its
+#     100-150mm chart, of which 120-150mm are currently sold) — see the
+#     tuning-guide sources above. The current schema only has one `max` per
+#     trim, so no Volume Spacers entry was added for these two models rather
+#     than picking a single travel's number and mislabeling it as universal.
+#     Revisit once the schema supports a per-travel table, or once a single
+#     travel is confirmed as the only one Marzocchi still sells.
+#   - The `rail` damper's 9-click rebound / 2-position sweep numbers are
+#     taken from tuning-guide PDFs dated 2019-2020; current Bomber Z2 product
+#     copy advertises a "new RAIL damper" without a republished click-count
+#     spec, so these numbers should be reverified against updated
+#     documentation if Marzocchi publishes one.
+#   - Bomber Z1's 100mm/27.5in configuration is listed as a current selector
+#     option on the product page but isn't broken out separately in the
+#     tuning guide's volume-spacer table (only Bomber DJ's 100mm row is) —
+#     flagged above rather than assumed identical to DJ's spacer counts.
+# --------------------------------------------------------------------------

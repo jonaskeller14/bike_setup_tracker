@@ -467,9 +467,11 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
                   const SizedBox(height: 12),
                   Wrap(
                     spacing: 8.0,
-                    runSpacing: 4.0,
+                    runSpacing: 8.0,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       ActionChip(
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         avatar: const Icon(Icons.calendar_month),
                         label: Text(
                           DateFormat(appSettings.dateFormat).format(_selectedDateTimeLocal),
@@ -478,6 +480,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
                         onPressed: _pickDate,
                       ),
                       ActionChip(
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         avatar: const Icon(Icons.access_time),
                         label: Text(
                           DateFormat(appSettings.timeFormat).format(_selectedDateTimeLocal),
@@ -487,6 +490,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
                       ),
                       if (kDebugMode && showAttachments)
                         ActionChip(
+                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           label: const SizedBox.shrink(),
                           labelPadding: const EdgeInsets.symmetric(vertical: 2),
                           padding: EdgeInsets.zero,

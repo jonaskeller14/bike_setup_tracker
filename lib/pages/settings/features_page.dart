@@ -113,23 +113,6 @@ class FeaturesPage extends StatelessWidget {
                 ),
               const Divider(),
               const SectionTitle(title: 'Adjustments'),
-              if (kDebugMode)
-                _FeatureGroupTile(
-                  icon: StepAdjustment.iconData,
-                  title: "Step Adjustment",
-                  infoText: 'Extra options for Step Adjustments. Each can be toggled on its own.',
-                  options: [
-                    CheckboxGroupSheetOption(
-                      title: 'Dial Color & Size',
-                      subtitle:
-                          'When a Step Adjustment uses a dial visualization, lets you tap the dial '
-                          'preview to cycle through its color and size. When disabled, only the '
-                          'visualization dropdown is shown.',
-                      value: () => appSettings.enableStepDialColorSize,
-                      onChanged: (v) => appSettings.enableStepDialColorSize = v,
-                    ),
-                  ],
-                ),
               _FeatureGroupTile(
                 icon: CategoricalAdjustment.iconData,
                 title: "Categorical Adjustment",

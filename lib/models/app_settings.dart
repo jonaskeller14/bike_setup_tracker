@@ -19,7 +19,6 @@ class AppSettings extends ChangeNotifier {
   String _distanceUnit = 'km';
   bool _enableGoogleDrive = false; // False is default, can only be activated on Android (see AppSettingsPage)
   bool _enableTextAdjustment = false;
-  bool _enableStepDialColorSize = true;
   bool _enableMultiSelect = false;
   bool _enableCountedSelect = false;
   bool _enablePerson = false;
@@ -59,7 +58,6 @@ class AppSettings extends ChangeNotifier {
   String get distanceUnit => _distanceUnit;
   bool get enableGoogleDrive => _enableGoogleDrive;
   bool get enableTextAdjustment => _enableTextAdjustment;
-  bool get enableStepDialColorSize => _enableStepDialColorSize;
   bool get enableMultiSelect => _enableMultiSelect;
   bool get enableCountedSelect => _enableCountedSelect;
   bool get enablePerson => _enablePerson;
@@ -162,13 +160,6 @@ class AppSettings extends ChangeNotifier {
     _enableTextAdjustment = newValue;
     notifyListeners();
     _persistBool('enableTextAdjustment', newValue);
-  }
-
-  set enableStepDialColorSize(bool newValue) {
-    if (newValue == _enableStepDialColorSize) return;
-    _enableStepDialColorSize = newValue;
-    notifyListeners();
-    _persistBool('enableStepDialColorSize', newValue);
   }
 
   set enableMultiSelect(bool newValue) {
@@ -383,7 +374,6 @@ class AppSettings extends ChangeNotifier {
       _distanceUnit = prefs.getString('${_kPrefix}distanceUnit') ?? _distanceUnit;
       _enableGoogleDrive = prefs.getBool('${_kPrefix}enableGoogleDrive') ?? _enableGoogleDrive;
       _enableTextAdjustment = prefs.getBool('${_kPrefix}enableTextAdjustment') ?? _enableTextAdjustment;
-      _enableStepDialColorSize = prefs.getBool('${_kPrefix}enableStepDialColorSize') ?? _enableStepDialColorSize;
       _enableMultiSelect = prefs.getBool('${_kPrefix}enableMultiSelect') ?? _enableMultiSelect;
       _enableCountedSelect = prefs.getBool('${_kPrefix}enableCountedSelect') ?? _enableCountedSelect;
       _enablePerson = prefs.getBool('${_kPrefix}enablePerson') ?? _enablePerson;
@@ -439,7 +429,6 @@ class AppSettings extends ChangeNotifier {
     _distanceUnit = defaults._distanceUnit;
     _enableGoogleDrive = defaults._enableGoogleDrive;
     _enableTextAdjustment = defaults._enableTextAdjustment;
-    _enableStepDialColorSize = defaults._enableStepDialColorSize;
     _enableMultiSelect = defaults._enableMultiSelect;
     _enableCountedSelect = defaults._enableCountedSelect;
     _enablePerson = defaults._enablePerson;
@@ -484,7 +473,6 @@ class AppSettings extends ChangeNotifier {
     _distanceUnit,
     _enableGoogleDrive,
     _enableTextAdjustment,
-    _enableStepDialColorSize,
     _enableMultiSelect,
     _enableCountedSelect,
     _enablePerson,
@@ -556,6 +544,7 @@ class AppSettings extends ChangeNotifier {
     'setupListSortAscending',
     'stravaGearHintDismissed',
     'enableSetupImages',
+    'enableStepDialColorSize',
     // TODO: delete after grace period (when all users have migrated hints via AppHintService._migrateLegacyStatuses)
     // 'showGarageListHint',
     // 'showGettingStartedGuideHint',

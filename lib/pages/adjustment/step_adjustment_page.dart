@@ -2,10 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 
 import '../../models/adjustment/adjustment.dart';
-import '../../models/app_settings.dart';
 import '../../theme.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/set_adjustment/set_step_adjustment.dart';
@@ -278,7 +276,6 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
 
   @override
   Widget build(BuildContext context) {
-    final enableStepDialColorSize = context.select<AppSettings, bool>((s) => s.enableStepDialColorSize);
     return PopScope(
       canPop: !_formHasChanges,
       onPopInvokedWithResult: _handlePopInvoked,
@@ -458,7 +455,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                                         },
                                       ),
                                     ),
-                                    if (visualization.hasDial && enableStepDialColorSize) ...[
+                                    if (visualization.hasDial) ...[
                                       const SizedBox(width: 8),
                                       _buildDialStyleButton(context),
                                     ],

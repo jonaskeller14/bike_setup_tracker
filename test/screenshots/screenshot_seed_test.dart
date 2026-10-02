@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/app_hint.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
+import 'package:bike_setup_tracker/models/task/task_rule.dart';
+import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/screenshots/screenshot_seed.dart';
 import 'package:bike_setup_tracker/services/app_hint_service.dart';
@@ -81,6 +83,15 @@ void main() {
       final newest = repository.setups.values.map((s) => s.datetime).reduce((a, b) => a.isAfter(b) ? a : b);
       expect(newest.isBefore(today), isTrue);
       expect(today.difference(newest).inDays, lessThan(30));
+    });
+
+    test('has a due distance-based task for screen 06', () async {
+      await ScreenshotSeed.seedDatabase(repository, today: today);
+      await repository.initialDataLoaded;
+
+      final boltCheck = repository.actionableTaskRules.singleWhere((t) => t.rule.name == 'Bolt torque check');
+      expect(boltCheck.rule.interval, isA<DistanceThreshold>());
+      expect(boltCheck.status.type, TaskStatusType.due);
     });
 
     test('replaces data from a previous run', () async {

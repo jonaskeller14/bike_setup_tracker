@@ -33,13 +33,13 @@ appId: com.jonaskeller14.bike_setup_tracker
 - tapOn:
     id: componentForm.additionalFields
 # New bikes get orderIndex 0, like the seeded Hightower, and sort after it by
-# insertion: the namesake closest above the Trek is the new one. The open menu
-# blocks the form's semantics, so the field's own label doesn't match.
-- tapOn: Santa Cruz Hightower
+# insertion: the second namesake in the menu is the new one. The field's
+# label merges with its value ("Bike\nSanta Cruz Hightower"), hence the regex;
+# the open menu then blocks the form's semantics, so only menu items match.
+- tapOn: .*Santa Cruz Hightower
 - tapOn:
     text: Santa Cruz Hightower
-    above:
-      text: Trek Session 9
+    index: 1
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot:

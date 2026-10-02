@@ -59,7 +59,7 @@
       "movingTime": 5700,
       "elapsedTime": 9000,
       "workoutType": null,
-      "averageWatts": null
+      "averageWatts": 165.0
     },
     {
       "id": 18000000002,
@@ -77,7 +77,7 @@
       "movingTime": 4500,
       "elapsedTime": 18000,
       "workoutType": null,
-      "averageWatts": null
+      "averageWatts": 95.0
     },
     {
       "id": 18000000003,
@@ -95,7 +95,7 @@
       "movingTime": 4800,
       "elapsedTime": 7200,
       "workoutType": null,
-      "averageWatts": null
+      "averageWatts": 170.0
     },
     {
       "id": 18000000004,
@@ -113,7 +113,7 @@
       "movingTime": 9900,
       "elapsedTime": 15600,
       "workoutType": null,
-      "averageWatts": null
+      "averageWatts": 140.0
     },
     {
       "id": 18000000005,
@@ -131,7 +131,7 @@
       "movingTime": 9000,
       "elapsedTime": 14400,
       "workoutType": null,
-      "averageWatts": null
+      "averageWatts": 135.0
     },
     {
       "id": 18000000006,
@@ -149,7 +149,7 @@
       "movingTime": 3300,
       "elapsedTime": 6600,
       "workoutType": null,
-      "averageWatts": null
+      "averageWatts": 150.0
     },
     {
       "id": 18000000007,
@@ -167,7 +167,7 @@
       "movingTime": 3600,
       "elapsedTime": 16800,
       "workoutType": null,
-      "averageWatts": null
+      "averageWatts": 90.0
     },
     {
       "id": 18000000008,
@@ -185,7 +185,7 @@
       "movingTime": 5100,
       "elapsedTime": 18000,
       "workoutType": null,
-      "averageWatts": null
+      "averageWatts": 100.0
     },
     {
       "id": 18000000009,
@@ -203,7 +203,7 @@
       "movingTime": 4680,
       "elapsedTime": 7200,
       "workoutType": null,
-      "averageWatts": null
+      "averageWatts": 130.0
     },
     {
       "id": 18000000010,
@@ -221,7 +221,7 @@
       "movingTime": 4800,
       "elapsedTime": 15600,
       "workoutType": null,
-      "averageWatts": null
+      "averageWatts": 110.0
     },
     {
       "id": 18000000011,
@@ -239,7 +239,7 @@
       "movingTime": 6600,
       "elapsedTime": 14400,
       "workoutType": null,
-      "averageWatts": null
+      "averageWatts": 160.0
     },
     {
       "id": 18000000012,
@@ -257,7 +257,7 @@
       "movingTime": 6000,
       "elapsedTime": 13200,
       "workoutType": null,
-      "averageWatts": null
+      "averageWatts": 155.0
     },
     {
       "id": 18000000013,
@@ -275,7 +275,7 @@
       "movingTime": 10800,
       "elapsedTime": 16800,
       "workoutType": null,
-      "averageWatts": null
+      "averageWatts": 145.0
     },
     {
       "id": 18000000014,
@@ -293,7 +293,7 @@
       "movingTime": 12600,
       "elapsedTime": 15000,
       "workoutType": null,
-      "averageWatts": null
+      "averageWatts": 185.0
     },
     {
       "id": 18000000015,
@@ -311,7 +311,7 @@
       "movingTime": 4200,
       "elapsedTime": 17400,
       "workoutType": null,
-      "averageWatts": null
+      "averageWatts": 85.0
     },
     {
       "id": 18000000016,
@@ -329,7 +329,7 @@
       "movingTime": 5400,
       "elapsedTime": 8400,
       "workoutType": null,
-      "averageWatts": null
+      "averageWatts": 172.0
     }
   ]
 }

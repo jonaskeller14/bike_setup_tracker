@@ -94,6 +94,9 @@ function Start-Avd($config) {
 function Set-DemoStatusBar([string]$serial) {
     Invoke-Adb $serial @('shell', 'settings', 'put', 'global', 'sysui_demo_allowed', '1')
     $commands = @(
+        # After a cold boot the real wifi icon can register once demo mode is
+        # already on and then shows next to the demo one. Re-entering drops it.
+        @('exit'),
         @('enter'),
         @('clock', '-e', 'hhmm', '0941'),
         @('battery', '-e', 'level', '100', '-e', 'plugged', 'false', '-e', 'powersave', 'false'),
@@ -116,7 +119,17 @@ function Initialize-Device([string]$serial) {
     # Play services' Location Accuracy prompt is handled in the flows.
     Invoke-Adb $serial @('shell', 'cmd', 'location', 'set-location-enabled', 'true')
     Invoke-Adb $serial @('emu', 'geo', 'fix', $gpsLon, $gpsLat) | Out-Null
-    Set-DemoStatusBar $serial
+    # Gboard otherwise opens its "Try out your stylus" onboarding over a focused
+    # text field and swallows the flow's input.
+    Invoke-Adb $serial @('shell', 'settings', 'put', 'secure', 'stylus_handwriting_enabled', '0')
+}
+
+# Maestro connects to every entry in `adb devices` and reports no device at all
+# when a single one is not ready (offline, authorizing, unauthorized), even an
+# unrelated emulator.
+$notReady = @((& $adb devices) -match '^\S+\s+(?!device$)\S+$') -replace '\s+', ' '
+if ($notReady) {
+    throw "Maestro cannot see any device while these adb entries are not ready: $($notReady -join ', '). Shut them down (adb -s <serial> emu kill) or unplug them, then rerun."
 }
 
 if (-not $SkipBuild) {
@@ -148,6 +161,7 @@ foreach ($name in $selected) {
             foreach ($attempt in 1, 2) {
                 Write-Host "[$name] $($flow.Name)$(if ($attempt -gt 1) { ' (retry)' })"
                 & $adb -s $serial wait-for-device
+                Set-DemoStatusBar $serial
                 Push-Location $flowsDir
                 try {
                     & $maestro --device $serial test $flow.Name `
@@ -168,8 +182,9 @@ foreach ($name in $selected) {
         }
         $checkedFolders += $config.Folder
     } finally {
-        Invoke-Adb $serial @('shell', 'am', 'broadcast', '-a', 'com.android.systemui.demo', '-e', 'command', 'exit') | Out-Null
-        if (-not $KeepRunning) { & $adb -s $serial emu kill | Out-Null }
+        # Best effort: a dropped adb transport here must not abort the next device.
+        & $adb -s $serial shell am broadcast -a com.android.systemui.demo -e command exit 2>&1 | Out-Null
+        if (-not $KeepRunning) { & $adb -s $serial emu kill 2>&1 | Out-Null }
     }
 }
 

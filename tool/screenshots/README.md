@@ -33,10 +33,12 @@ The run does the following:
 
 1. Builds `flutter build apk --debug -t lib/main_screenshots.dart`.
 2. Boots each AVD on a fixed port (5580 for the phone, 5582 for the tablet). Any other running emulator is left alone.
-3. Installs the APK and grants the location permission.
-4. Sets the GPS to Finale Ligure and pins the status bar with SystemUI demo mode: 9:41, full battery, full wifi, no notifications. The mobile icon is hidden, because Android 16's demo mode ignores `datatype` and always labels it "3G".
+3. Installs the APK, grants the location permission and turns off stylus handwriting, so Gboard's stylus onboarding can't cover a text field.
+4. Sets the GPS to Finale Ligure and, before each flow, pins the status bar with SystemUI demo mode: 9:41, full battery, full wifi, no notifications. The mobile icon is hidden, because Android 16's demo mode ignores `datatype` and always labels it "3G". Demo mode is re-entered per flow, because after a cold boot a second wifi icon can appear next to the demo one.
 5. Runs each flow and copies the resulting PNGs over the raws in place. A flow that fails is retried once, because the emulator's adb connection sometimes drops right after the install. If it fails again, its raw is left unchanged and the script exits non-zero.
 6. Runs `python tool/screenshots/check_output.py <folders>`. It checks the sizes and lists which raws changed against `HEAD`.
+
+Before building, the script aborts if any entry in `adb devices` is not in the `device` state (`offline`, `authorizing`, `unauthorized`). Maestro connects to every listed device, and a single stuck one, even an unrelated emulator, makes it report "Device emulator-5580 was requested, but it is not connected". Shut the stuck emulator down with `adb -s <serial> emu kill`, or unplug the device.
 
 Review the changed raws with `git diff` or an image diff before committing.
 
@@ -48,7 +50,7 @@ Review the changed raws with `git diff` or an image diff before committing.
 - **Screen 03 (Add Setup):**
   - On a fresh AVD, the first location request makes Play services ask to turn on Location Accuracy. That toggle lives inside Play services, so `adb` can't pre-set it. `flows/_accept_location_accuracy.yaml` taps *Turn on*, and the choice sticks on the AVD.
   - Weather is fixed: `main_screenshots.dart` swaps in `ScreenshotWeatherService` (clear sky, dry). A live Open-Meteo fetch can fail or time out (one run showed N/A), and it changes from run to run.
-- **Screen 02 (Add Component):** a duplicate lands on the Lyrik's bike, which already has a fork, so the type field would warn. The flow first adds an empty bike that is also named *Santa Cruz Hightower* and installs the duplicate there. That bike only lives until the next launch reseeds. New bikes get `orderIndex` 0 like the seeded Hightower and sort right after it, so the flow picks the namesake directly above *Trek Session 9*.
+- **Screen 02 (Add Component):** a duplicate lands on the Lyrik's bike, which already has a fork, so the type field would warn. The flow first adds an empty bike that is also named *Santa Cruz Hightower* and installs the duplicate there. That bike only lives until the next launch reseeds. New bikes get `orderIndex` 0 like the seeded Hightower and sort right after it, so the flow picks the second namesake in the Bike menu.
 - **Screen 05 (component details):**
   - The flow hides the *Pressure* column via the Columns sheet, so the line chart's y-range fits the click-based adjustments. It then ticks the table's select-all box, so the charts compare all setups instead of the latest three, and highlights the first (newest) setup in the radial chart.
   - It then drags from a section title over 10 s. That's slow enough that Flutter doesn't fling, and the title's centre lands at 10 % of the screen height. The phone anchors on *Line Chart* (both charts); the tablet anchors on *Adjustment History* (table and both charts). `run_android.ps1` passes the device as `DEVICE` (`phone` or `tablet`).

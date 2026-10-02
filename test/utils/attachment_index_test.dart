@@ -2,6 +2,8 @@ import 'package:bike_setup_tracker/models/attachment.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
+import 'package:bike_setup_tracker/models/task/task_entry.dart';
+import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/utils/attachment_index.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -33,6 +35,18 @@ void main() {
     attachments: attachments,
   );
 
+  TaskRule taskRule(String id, String name, List<Attachment> attachments) =>
+      TaskRule(id: id, name: name, tags: const {}, attachments: attachments);
+
+  TaskEntry taskEntry(String id, DateTime dateTime, List<Attachment> attachments) => TaskEntry(
+    id: id,
+    name: id,
+    dateTimeUTC: dateTime.toUtc(),
+    dateTimeLocal: dateTime,
+    taskRule: 'rule',
+    attachments: attachments,
+  );
+
   List<String> ids(List<AttachmentIndexEntry> entries) => [for (final e in entries) e.attachment.id];
 
   group('attachmentIndex', () {
@@ -50,6 +64,8 @@ void main() {
           component('c2', 1, [pdf('c2')]),
           component('c1', 0, [pdf('c1')]),
         ],
+        taskRules: [],
+        taskEntries: [],
         trashedAttachments: [],
         filenames: [],
       );
@@ -60,6 +76,32 @@ void main() {
       expect(entries.last.owner, (type: AttachmentOwnerType.component, id: 'c2'));
     });
 
+    test('lists task rules by name and task entries newest first, after components', () {
+      final entries = attachmentIndex(
+        setups: [],
+        bikes: [],
+        components: [
+          component('c', 0, [pdf('c')]),
+        ],
+        taskRules: [
+          taskRule('r2', 'Lower leg service', [pdf('r2')]),
+          taskRule('r1', 'bleed brakes', [pdf('r1-1'), pdf('r1-2')]),
+        ],
+        taskEntries: [
+          taskEntry('e-old', DateTime(2024), [pdf('e-old')]),
+          taskEntry('e-new', DateTime(2025), [pdf('e-new')]),
+        ],
+        trashedAttachments: [],
+        filenames: [for (final id in ['c', 'r1-1', 'r1-2', 'r2', 'e-old', 'e-new']) '$id.pdf'],
+      );
+
+      expect(ids(entries), ['c', 'r1-1', 'r1-2', 'r2', 'e-new', 'e-old']);
+      expect(entries[1].owner, (type: AttachmentOwnerType.taskRule, id: 'r1'));
+      expect(entries[3].owner, (type: AttachmentOwnerType.taskRule, id: 'r2'));
+      expect(entries[4].owner, (type: AttachmentOwnerType.taskEntry, id: 'e-new'));
+      expect(entries.last.owner, (type: AttachmentOwnerType.taskEntry, id: 'e-old'));
+    });
+
     test('appends unreferenced files as unlinked entries in folder order', () {
       final linked = pdf('linked');
       final entries = attachmentIndex(
@@ -68,6 +110,8 @@ void main() {
           bike('b', 0, [linked]),
         ],
         components: [],
+        taskRules: [],
+        taskEntries: [],
         trashedAttachments: [],
         filenames: ['zeta.jpg', linked.filename, 'alpha'],
       );
@@ -86,6 +130,8 @@ void main() {
         setups: [],
         bikes: [],
         components: [],
+        taskRules: [],
+        taskEntries: [],
         trashedAttachments: [trashed],
         filenames: [trashed.filename, 'orphan.pdf'],
       );
@@ -104,6 +150,12 @@ void main() {
         ],
         components: [
           component('c', 0, [shared]),
+        ],
+        taskRules: [
+          taskRule('r', 'Rule', [shared]),
+        ],
+        taskEntries: [
+          taskEntry('e', DateTime(2025), [shared]),
         ],
         trashedAttachments: [],
         filenames: [shared.filename],

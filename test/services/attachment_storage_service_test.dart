@@ -7,6 +7,8 @@ import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/selected_data.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
+import 'package:bike_setup_tracker/models/task/task_entry.dart';
+import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/services/attachment_storage_service.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
@@ -193,15 +195,24 @@ void main() {
       expect(Directory(await service.getAttachmentsPath()).existsSync(), isFalse);
     });
 
-    test('a subset bundle includes attachments of its setups, bikes and components only', () async {
+    test('a subset bundle includes attachments of its setups, bikes, components and tasks only', () async {
       final database = AppDatabase.memory();
       addTearDown(database.close);
 
       final setupAttachment = Attachment(extension: '.jpg', name: 'setup.jpg');
       final bikeAttachment = Attachment(extension: '.pdf', name: 'Frame Manual');
       final componentAttachment = Attachment(extension: '', name: 'notes');
+      final taskRuleAttachment = Attachment(extension: '.pdf', name: 'Service Manual');
+      final taskEntryAttachment = Attachment(extension: '.jpg', name: 'invoice.jpg');
       final otherAttachment = Attachment(extension: '.jpg', name: 'other.jpg');
-      for (final attachment in [setupAttachment, bikeAttachment, componentAttachment, otherAttachment]) {
+      for (final attachment in [
+        setupAttachment,
+        bikeAttachment,
+        componentAttachment,
+        taskRuleAttachment,
+        taskEntryAttachment,
+        otherAttachment,
+      ]) {
         await storeFile(attachment, [7]);
       }
 
@@ -230,6 +241,19 @@ void main() {
             attachments: [setupAttachment],
           ),
         },
+        taskRules: {
+          'r1': TaskRule(id: 'r1', name: 'Lower leg service', tags: const {}, attachments: [taskRuleAttachment]),
+        },
+        taskEntries: {
+          'e1': TaskEntry(
+            id: 'e1',
+            name: 'Lower leg service',
+            dateTimeUTC: now.toUtc(),
+            dateTimeLocal: now,
+            taskRule: 'r1',
+            attachments: [taskEntryAttachment],
+          ),
+        },
       );
 
       final bundle = await service.exportBundle(database, selectedData: subset);
@@ -243,6 +267,8 @@ void main() {
           'attachments/${setupAttachment.filename}',
           'attachments/${bikeAttachment.filename}',
           'attachments/${componentAttachment.filename}',
+          'attachments/${taskRuleAttachment.filename}',
+          'attachments/${taskEntryAttachment.filename}',
         ]),
       );
     });

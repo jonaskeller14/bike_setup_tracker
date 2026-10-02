@@ -92,7 +92,7 @@ class AttachmentActions {
       context,
       title: filenames.length == 1 ? 'Delete attachment?' : 'Delete ${filenames.length} attachments?',
       content:
-          'The attachments are permanently deleted and removed from their setups, bikes and components. '
+          'The attachments are permanently deleted and removed from their setups, bikes, components and tasks. '
           'This action cannot be undone.',
       trueText: 'Delete',
       isDestructive: true,
@@ -113,7 +113,7 @@ class AttachmentActions {
     return true;
   }
 
-  /// Strips [filenames] from every setup, bike and component that references them.
+  /// Strips [filenames] from every setup, bike, component and task that references them.
   static Future<void> removeAttachmentReferences(AppRepository appRepository, {required Set<String> filenames}) async {
     bool references(List<Attachment> attachments) => attachments.any((a) => filenames.contains(a.filename));
     List<Attachment> without(List<Attachment> attachments) =>
@@ -133,6 +133,18 @@ class AttachmentActions {
       appRepository.components.values
           .where((component) => references(component.attachments))
           .map((component) => component.copyWith(attachments: without(component.attachments)))
+          .toList(),
+    );
+    await appRepository.editTaskRules(
+      appRepository.taskRules.values
+          .where((taskRule) => references(taskRule.attachments))
+          .map((taskRule) => taskRule.copyWith(attachments: without(taskRule.attachments)))
+          .toList(),
+    );
+    await appRepository.editTaskEntry(
+      appRepository.taskEntries.values
+          .where((taskEntry) => references(taskEntry.attachments))
+          .map((taskEntry) => taskEntry.copyWith(attachments: without(taskEntry.attachments)))
           .toList(),
     );
   }

@@ -5,6 +5,8 @@ import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/attachment.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
+import 'package:bike_setup_tracker/models/task/task_entry.dart';
+import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/pages/settings/attachments_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/theme.dart';
@@ -144,7 +146,56 @@ void main() {
       expect(find.byIcon(Icons.picture_as_pdf), findsOneWidget);
       expect(find.text('Frame Manual'), findsOneWidget);
       expect(find.text('orphan.txt'), findsOneWidget);
-      expect(find.textContaining('1 attachment is no longer linked to a setup, bike or component'), findsOneWidget);
+      expect(
+        find.textContaining('1 attachment is no longer linked to a setup, bike, component or task'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('lists files of task rules and entries, and hides those of trashed ones', (tester) async {
+      TaskEntry entry(TaskRule rule, String attachmentName) => TaskEntry(
+        name: rule.name,
+        dateTimeUTC: DateTime(2026).toUtc(),
+        dateTimeLocal: DateTime(2026),
+        taskRule: rule.id,
+        attachments: [Attachment(extension: '.pdf', name: attachmentName)],
+      );
+      final rule = TaskRule(
+        name: 'Lower leg service',
+        tags: const {},
+        attachments: [Attachment(extension: '.pdf', name: 'Service Manual')],
+      );
+      final trashedRule = TaskRule(
+        name: 'Bleed brakes',
+        tags: const {},
+        attachments: [Attachment(extension: '.pdf', name: 'Trashed Manual')],
+      );
+      final liveEntry = entry(rule, 'Invoice');
+      final trashedEntry = entry(rule, 'Trashed Invoice');
+      for (final attachments in [
+        rule.attachments,
+        trashedRule.attachments,
+        liveEntry.attachments,
+        trashedEntry.attachments,
+      ]) {
+        storeFile(attachments.single.filename);
+      }
+
+      await pumpPage(
+        tester,
+        writes: () async {
+          await appRepository.addTaskRules([rule, trashedRule]);
+          await appRepository.addTaskEntries([liveEntry, trashedEntry]);
+          await appRepository.removeTaskRules([trashedRule]);
+          await appRepository.removeTaskEntries([trashedEntry]);
+        },
+      );
+
+      expect(find.text('Service Manual'), findsOneWidget);
+      expect(find.text('Invoice'), findsOneWidget);
+      expect(find.text('Trashed Manual'), findsNothing);
+      expect(find.text('Trashed Invoice'), findsNothing);
+      expect(find.textContaining('no longer linked'), findsNothing);
     });
 
     for (final (label, theme) in [('light', materialAppTheme), ('dark', materialAppDarkTheme)]) {

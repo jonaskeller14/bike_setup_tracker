@@ -7,6 +7,8 @@ import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/person.dart';
 import 'package:bike_setup_tracker/models/selected_data.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
+import 'package:bike_setup_tracker/models/task/task_entry.dart';
+import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/services/component_hierarchy_resolver.dart';
 import 'package:bike_setup_tracker/utils/file_import.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -85,6 +87,42 @@ void main() {
       person: null,
       bikeAdjustmentValues: {},
       personAdjustmentValues: {},
+      attachments: attachments,
+    );
+  }
+
+  TaskRule createTaskRule({
+    required String id,
+    DateTime? lastModified,
+    bool? isDeleted,
+    List<Attachment> attachments = const [],
+  }) {
+    return TaskRule(
+      id: id,
+      name: id,
+      tags: const {},
+      lastModified: lastModified,
+      isDeleted: isDeleted,
+      attachments: attachments,
+    );
+  }
+
+  TaskEntry createTaskEntry({
+    required String id,
+    required String taskRule,
+    DateTime? lastModified,
+    bool? isDeleted,
+    List<Attachment> attachments = const [],
+  }) {
+    final now = DateTime.now();
+    return TaskEntry(
+      id: id,
+      name: id,
+      dateTimeUTC: now.toUtc(),
+      dateTimeLocal: now,
+      taskRule: taskRule,
+      lastModified: lastModified,
+      isDeleted: isDeleted,
       attachments: attachments,
     );
   }
@@ -341,6 +379,72 @@ void main() {
 
       // x.jpg, y.jpg and z.jpg each survive through a live bike, component or setup.
       expect(purged, ['w.jpg']);
+    });
+
+    test('cleanupIsDeleted - returns attachment files of purged task rules and entries', () {
+      final oldDate = DateTime.now().toUtc().subtract(const Duration(days: 31));
+      final recentDate = DateTime.now().toUtc().subtract(const Duration(days: 1));
+
+      final data = SelectedData(
+        taskRules: {
+          'oldRule': createTaskRule(id: 'oldRule', isDeleted: true, lastModified: oldDate, attachments: [jpg('a')]),
+          'recentRule': createTaskRule(id: 'recentRule', isDeleted: true, lastModified: recentDate, attachments: [jpg('b')]),
+          'activeRule': createTaskRule(id: 'activeRule', attachments: [jpg('c')]),
+        },
+        taskEntries: {
+          'oldEntry': createTaskEntry(id: 'oldEntry', taskRule: 'activeRule', isDeleted: true, lastModified: oldDate, attachments: [jpg('d')]),
+          'recentEntry': createTaskEntry(id: 'recentEntry', taskRule: 'activeRule', isDeleted: true, lastModified: recentDate, attachments: [jpg('e')]),
+          'activeEntry': createTaskEntry(id: 'activeEntry', taskRule: 'activeRule', attachments: [jpg('f')]),
+        },
+      );
+
+      final purged = FileImport.cleanupIsDeleted(data: data);
+
+      expect(purged, unorderedEquals(['a.jpg', 'd.jpg']));
+      expect(data.taskRules.keys, ['recentRule', 'activeRule']);
+      expect(data.taskEntries.keys, ['recentEntry', 'activeEntry']);
+    });
+
+    test('cleanupIsDeleted - keeps a file a surviving task rule or entry still references', () {
+      final oldDate = DateTime.now().toUtc().subtract(const Duration(days: 31));
+
+      final data = SelectedData(
+        setups: {
+          'oldSetup': createSetup(id: 'oldSetup', isDeleted: true, lastModified: oldDate, attachments: [jpg('x'), jpg('y')]),
+        },
+        taskRules: {
+          'oldRule': createTaskRule(id: 'oldRule', isDeleted: true, lastModified: oldDate, attachments: [jpg('w'), jpg('z')]),
+          'activeRule': createTaskRule(id: 'activeRule', attachments: [jpg('x')]),
+        },
+        taskEntries: {
+          'oldEntry': createTaskEntry(id: 'oldEntry', taskRule: 'activeRule', isDeleted: true, lastModified: oldDate, attachments: [jpg('z')]),
+          'activeEntry': createTaskEntry(id: 'activeEntry', taskRule: 'activeRule', attachments: [jpg('y')]),
+        },
+      );
+
+      final purged = FileImport.cleanupIsDeleted(data: data);
+
+      // x.jpg and y.jpg survive through a live rule and entry; w.jpg and z.jpg have no owner left.
+      expect(purged.toSet(), {'w.jpg', 'z.jpg'});
+    });
+
+    test('merge - an entry outlives its purged rule and keeps its files', () async {
+      final oldDate = DateTime.now().toUtc().subtract(const Duration(days: 31));
+      final recentDate = DateTime.now().toUtc().subtract(const Duration(days: 1));
+
+      final rule = createTaskRule(id: 'rule', isDeleted: true, lastModified: oldDate, attachments: [jpg('rule')]);
+      final entry = createTaskEntry(id: 'entry', taskRule: 'rule', isDeleted: true, lastModified: recentDate, attachments: [jpg('entry')]);
+      final data = SelectedData(taskRules: {'rule': rule}, taskEntries: {'entry': entry});
+
+      expect(FileImport.cleanupIsDeleted(data: data), ['rule.jpg']);
+
+      await database.into(database.taskRules).insert(rule.toCompanion());
+      await database.into(database.taskEntries).insert(entry.toCompanion());
+      await FileImport.merge(remoteData: SelectedData(), database: database);
+
+      expect(await database.select(database.taskRules).get(), isEmpty);
+      final entriesInDb = await database.select(database.taskEntries).get();
+      expect(entriesInDb.single.toModel().attachments, [jpg('entry')]);
     });
   });
 }

@@ -132,8 +132,7 @@ class ComponentActions {
     final selected = await showCopyTaskRulesSheet(context, taskRules: rules, componentName: target.name);
     if (selected == null || selected.isEmpty) return;
 
-    // deepCopy() keeps the original association, so it has to be re-pointed.
-    final copies = selected.map((rule) => rule.deepCopy().copyWith(association: ComponentTaskAssociation(target.id))).toList();
+    final copies = await taskRuleCopies(selected, componentId: target.id);
     await appRepository.addTaskRules(copies);
 
     if (!context.mounted) return;
@@ -148,6 +147,19 @@ class ComponentActions {
         ),
       ),
     );
+  }
+
+  /// Copies of [rules] linked to [componentId], each with its own attachment files.
+  @visibleForTesting
+  static Future<List<TaskRule>> taskRuleCopies(Iterable<TaskRule> rules, {required String componentId}) async {
+    return [
+      for (final rule in rules)
+        // deepCopy() keeps the original association, so it has to be re-pointed.
+        rule.deepCopy().copyWith(
+          association: ComponentTaskAssociation(componentId),
+          attachments: await AttachmentActions.copyAttachmentFiles(rule.attachments),
+        ),
+    ];
   }
 
   static Future<void> replaceComponent(BuildContext context, {required Component component}) async {

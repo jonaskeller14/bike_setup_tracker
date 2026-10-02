@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
-enum AttachmentOwnerType { setup, bike, component }
+enum AttachmentOwnerType { setup, bike, component, taskRule, taskEntry }
 
 typedef AttachmentOwner = ({AttachmentOwnerType type, String id});
 

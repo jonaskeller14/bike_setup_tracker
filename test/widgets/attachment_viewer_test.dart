@@ -156,6 +156,18 @@ void main() {
       });
     }
 
+    for (final type in [AttachmentOwnerType.taskRule, AttachmentOwnerType.taskEntry]) {
+      testWidgets('offers "Show Task" for an attachment owned by a ${type.name}', (tester) async {
+        await pumpViewer(
+          tester,
+          attachments: [stored(Attachment(extension: '.pdf', name: 'manual.pdf'))],
+          ownerForAttachment: (_) => (type: type, id: 'owner'),
+        );
+
+        expect(find.byTooltip('Show Task'), findsOneWidget);
+      });
+    }
+
     testWidgets('a missing file disables share and save', (tester) async {
       await pumpViewer(
         tester,

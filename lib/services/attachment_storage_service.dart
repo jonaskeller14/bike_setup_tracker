@@ -147,7 +147,7 @@ class AttachmentStorageService {
     final jsonTempFile = File(p.join(tempDir.path, 'data.json'));
     await jsonTempFile.writeAsString(jsonString);
 
-    // When a subset is requested, only include attachments referenced by its setups, bikes and components.
+    // When a subset is requested, only include attachments referenced by its setups, bikes, components and tasks.
     final Set<String>? allowedFilenames = selectedData == null ? null : _attachmentFilenames(selectedData);
 
     final encoder = ZipFileEncoder();
@@ -177,6 +177,8 @@ class AttachmentStorageService {
       ...data.setups.values.expand((s) => s.attachments),
       ...data.bikes.values.expand((b) => b.attachments),
       ...data.components.values.expand((c) => c.attachments),
+      ...data.taskRules.values.expand((tr) => tr.attachments),
+      ...data.taskEntries.values.expand((te) => te.attachments),
     }.map((a) => a.filename).toSet();
   }
 

@@ -6,6 +6,8 @@ import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
+import 'package:bike_setup_tracker/models/task/task_entry.dart';
+import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/attachment_storage_service.dart';
 import 'package:bike_setup_tracker/utils/attachment_actions.dart';
@@ -129,6 +131,32 @@ void main() {
     tearDown(() async {
       await appRepository.disposeAndAwaitCancellation();
       await database.close();
+    });
+
+    test('strips the filenames from task rules and task entries', () async {
+      final shared = pdf('shared');
+      final kept = pdf('kept');
+      final rule = TaskRule(name: 'Lower leg service', tags: const {}, attachments: [shared, kept]);
+      final otherRule = TaskRule(name: 'Bleed brakes', tags: const {}, attachments: [kept]);
+      final entry = TaskEntry(
+        name: 'Lower leg service',
+        dateTimeUTC: DateTime(2026).toUtc(),
+        dateTimeLocal: DateTime(2026),
+        taskRule: rule.id,
+        attachments: [kept, shared],
+      );
+      final otherEntry = entry.copyWith(id: 'other', attachments: [shared]);
+      await appRepository.addTaskRules([rule, otherRule]);
+      await appRepository.addTaskEntries([entry, otherEntry]);
+      await pumpEventQueue();
+
+      await AttachmentActions.removeAttachmentReferences(appRepository, filenames: {shared.filename});
+      await pumpEventQueue();
+
+      expect(appRepository.taskRules[rule.id]!.attachments, [kept]);
+      expect(appRepository.taskRules[otherRule.id]!.attachments, [kept]);
+      expect(appRepository.taskEntries[entry.id]!.attachments, [kept]);
+      expect(appRepository.taskEntries[otherEntry.id]!.attachments, isEmpty);
     });
 
     test('strips the filenames from setups, bikes and components', () async {

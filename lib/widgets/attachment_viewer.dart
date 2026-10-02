@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../models/attachment.dart';
 import '../models/bike.dart';
@@ -9,11 +10,13 @@ import '../models/component/component.dart';
 import '../models/setup.dart';
 import '../pages/details/bike_details_page.dart';
 import '../pages/details/component_details_page.dart';
+import '../repositories/app_repository.dart';
 import '../services/file_save_service.dart';
 import '../services/share_service.dart';
 import 'app_snackbar.dart';
 import 'dialogs/rename_attachment.dart';
 import 'sheets/setup_details.dart';
+import 'sheets/task_rule_sheet.dart';
 
 enum _AttachmentAction { share, save }
 
@@ -124,6 +127,14 @@ class _AttachmentViewerState extends State<AttachmentViewer> {
             MaterialPageRoute<void>(builder: (_) => ComponentDetailsPage(componentId: owner.id)),
           ),
         );
+      case AttachmentOwnerType.taskRule:
+        if (!context.read<AppRepository>().taskRules.containsKey(owner.id)) return;
+        unawaited(showTaskRuleSheet(context, taskRuleId: owner.id));
+      case AttachmentOwnerType.taskEntry:
+        final appRepository = context.read<AppRepository>();
+        final taskEntry = appRepository.taskEntries[owner.id];
+        if (taskEntry == null || !appRepository.taskRules.containsKey(taskEntry.taskRule)) return;
+        unawaited(showTaskRuleSheet(context, taskRuleId: taskEntry.taskRule, highlightTaskEntryId: taskEntry.id));
     }
   }
 
@@ -132,6 +143,7 @@ class _AttachmentViewerState extends State<AttachmentViewer> {
       AttachmentOwnerType.setup => ('Show Setup', Setup.iconData),
       AttachmentOwnerType.bike => ('Show Bike', Bike.iconData),
       AttachmentOwnerType.component => ('Show Component', Component.iconData),
+      AttachmentOwnerType.taskRule || AttachmentOwnerType.taskEntry => ('Show Task', Icons.checklist),
     };
     return IconButton(
       tooltip: tooltip,

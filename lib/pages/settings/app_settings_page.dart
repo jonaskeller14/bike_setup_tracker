@@ -112,7 +112,7 @@ class AppSettingsPage extends StatelessWidget {
                 ListTile(
                   leading: const Icon(Icons.attach_file),
                   title: const Text('Attachments'),
-                  subtitle: const Text('Images and files from setups, bikes and components'),
+                  subtitle: const Text('Images and files from setups, bikes, components and tasks'),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                   onTap: () => Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const AttachmentsPage())),
                 ),

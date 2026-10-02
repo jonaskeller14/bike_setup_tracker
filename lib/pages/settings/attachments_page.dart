@@ -63,7 +63,7 @@ class _AttachmentsPageState extends State<AttachmentsPage> {
   }
 
   /// Reads the folder itself rather than the owners' attachment lists, so files
-  /// that no setup, bike or component references any more still surface here —
+  /// that no setup, bike, component or task references any more still surface here —
   /// nothing sweeps them except an import or sync, so they can pile up unnoticed.
   Future<_AttachmentFolder> _loadFolder() async {
     final dir = await AttachmentStorageService().getAttachmentsPath();
@@ -81,10 +81,14 @@ class _AttachmentsPageState extends State<AttachmentsPage> {
       setups: repository.setups.values,
       bikes: repository.bikes.values,
       components: repository.components.values,
+      taskRules: repository.taskRules.values,
+      taskEntries: repository.taskEntries.values,
       trashedAttachments: [
         ...repository.deletedSetups.expand((s) => s.attachments),
         ...repository.deletedBikes.expand((b) => b.attachments),
         ...repository.deletedComponents.expand((c) => c.attachments),
+        ...repository.deletedTaskRules.expand((tr) => tr.attachments),
+        ...repository.deletedTaskEntries.expand((te) => te.attachments),
       ],
       filenames: filenames,
     );
@@ -116,8 +120,8 @@ class _AttachmentsPageState extends State<AttachmentsPage> {
       leading: Icon(Icons.error_outline, color: colorScheme.error),
       title: Text(
         count == 1
-            ? '1 attachment is no longer linked to a setup, bike or component. It stays on this device until you import or sync a backup.'
-            : '$count attachments are no longer linked to a setup, bike or component. They stay on this device until you import or sync a backup.',
+            ? '1 attachment is no longer linked to a setup, bike, component or task. It stays on this device until you import or sync a backup.'
+            : '$count attachments are no longer linked to a setup, bike, component or task. They stay on this device until you import or sync a backup.',
         style: TextStyle(color: colorScheme.error),
       ),
       dense: true,
@@ -242,7 +246,7 @@ class _AttachmentsPageState extends State<AttachmentsPage> {
                 return const EmptyStatePlaceholder(
                   icon: Icons.attach_file,
                   title: 'No attachments yet',
-                  subtitle: 'Images and files you add to a setup, bike or component appear here.',
+                  subtitle: 'Images and files you add to a setup, bike, component or task appear here.',
                 );
               }
 

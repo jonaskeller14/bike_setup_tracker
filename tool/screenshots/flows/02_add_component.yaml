@@ -5,7 +5,20 @@ appId: com.jonaskeller14.bike_setup_tracker
 - runFlow: _launch.yaml
 - tapOn:
     id: nav.bikes
+# A duplicate lands on the Hightower, which already has a fork, so the type
+# field warns. Install it on an empty namesake instead; it only lives until the
+# next launch reseeds the data.
+- tapOn:
+    id: garage.addBike
+- inputText: Santa Cruz Hightower
+- pressKey: Enter
+- waitForAnimationToEnd:
+    timeout: 5000
 # RockShox Lyrik Ultimate: a single tap expands its card, which has the menu
+- scrollUntilVisible:
+    element:
+      id: garage.component.e47480ee-0f71-453e-bb97-61d2041d05f5
+    direction: UP
 - tapOn:
     id: garage.component.e47480ee-0f71-453e-bb97-61d2041d05f5
 - tapOn:
@@ -16,7 +29,18 @@ appId: com.jonaskeller14.bike_setup_tracker
     visible:
       id: componentForm.save
     timeout: 15000
+# Duplicating opens with the additional fields (notes, initial stats) expanded.
+- tapOn:
+    id: componentForm.additionalFields
+# New bikes get orderIndex 0, like the seeded Hightower, and sort after it by
+# insertion: the namesake closest above the Trek is the new one. The open menu
+# blocks the form's semantics, so the field's own label doesn't match.
+- tapOn: Santa Cruz Hightower
+- tapOn:
+    text: Santa Cruz Hightower
+    above:
+      text: Trek Session 9
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot:
-    path: ${OUT_DIR}/02_raw
+    path: 02_raw

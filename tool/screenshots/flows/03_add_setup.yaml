@@ -1,11 +1,13 @@
 # 03 Add Setup: a filled-in form with tags and two changed adjustments.
-# Location and weather are fetched live; run_android.ps1 pins the emulator's
-# GPS to Finale Ligure so the place chip matches the setup name.
+# Location is fetched live; run_android.ps1 pins the emulator's GPS to Finale
+# Ligure so the place chip matches the setup name. Weather comes from the
+# screenshot build's fixed ScreenshotWeatherService.
 appId: com.jonaskeller14.bike_setup_tracker
 ---
 - runFlow: _launch.yaml
 - tapOn:
     id: setups.add
+- runFlow: _accept_location_accuracy.yaml
 - extendedWaitUntil:
     visible:
       id: setupForm.name
@@ -49,7 +51,13 @@ appId: com.jonaskeller14.bike_setup_tracker
     element:
       id: setupForm.name
     direction: UP
+# scrollUntilVisible stops as soon as the name shows; drag on to the very top
+# so the app bar isn't in its scrolled-under state.
+- swipe:
+    start: 50%, 35%
+    end: 50%, 85%
+    duration: 800
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot:
-    path: ${OUT_DIR}/03_raw
+    path: 03_raw

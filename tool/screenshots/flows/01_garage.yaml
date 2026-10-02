@@ -10,4 +10,4 @@ appId: com.jonaskeller14.bike_setup_tracker
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot:
-    path: ${OUT_DIR}/01_raw
+    path: 01_raw

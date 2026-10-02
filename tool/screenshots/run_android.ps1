@@ -62,7 +62,7 @@ if (-not $maestro) {
 $env:MAESTRO_CLI_NO_ANALYTICS = '1'
 $env:MAESTRO_CLI_ANALYSIS_NOTIFICATION_DISABLED = 'true'
 
-$flows = Get-ChildItem $flowsDir -Filter '[0-9][0-9]_*.yaml' | Sort-Object Name
+$flows = Get-ChildItem $flowsDir -Filter '*.yaml' | Where-Object Name -Match '^\d\d_' | Sort-Object Name
 if ($Screens) {
     $flows = $flows | Where-Object { [int]$_.Name.Substring(0, 2) -in $Screens }
 }
@@ -98,7 +98,9 @@ function Set-DemoStatusBar([string]$serial) {
         @('clock', '-e', 'hhmm', '0941'),
         @('battery', '-e', 'level', '100', '-e', 'plugged', 'false', '-e', 'powersave', 'false'),
         @('network', '-e', 'wifi', 'show', '-e', 'level', '4', '-e', 'fully', 'true'),
-        @('network', '-e', 'mobile', 'show', '-e', 'datatype', 'none', '-e', 'level', '4', '-e', 'fully', 'true'),
+        # The Android 16 SystemUI ignores `datatype` and always labels a demo
+        # mobile signal "3G", so the mobile icon is hidden instead.
+        @('network', '-e', 'mobile', 'hide'),
         @('notifications', '-e', 'visible', 'false')
     )
     foreach ($command in $commands) {
@@ -111,7 +113,8 @@ function Initialize-Device([string]$serial) {
     foreach ($permission in 'ACCESS_FINE_LOCATION', 'ACCESS_COARSE_LOCATION') {
         Invoke-Adb $serial @('shell', 'pm', 'grant', $appId, "android.permission.$permission")
     }
-    Invoke-Adb $serial @('shell', 'settings', 'put', 'system', 'time_12_24', '24')
+    # Play services' Location Accuracy prompt is handled in the flows.
+    Invoke-Adb $serial @('shell', 'cmd', 'location', 'set-location-enabled', 'true')
     Invoke-Adb $serial @('emu', 'geo', 'fix', $gpsLon, $gpsLat) | Out-Null
     Set-DemoStatusBar $serial
 }
@@ -139,18 +142,26 @@ foreach ($name in $selected) {
         $targetDir = Join-Path $repoRoot "assets\store\$($config.Folder)"
 
         foreach ($flow in $flows) {
-            Write-Host "[$name] $($flow.Name)"
-            Push-Location $flowsDir
-            try {
-                & $maestro --device $serial test $flow.Name `
-                    -e "OUT_DIR=$($outDir -replace '\\', '/')" `
-                    -e "TILE_WAIT_MS=$TileWaitMs"
-                $ok = $LASTEXITCODE -eq 0
-            } finally { Pop-Location }
+            # The emulator's adb transport can drop briefly (seen right after
+            # installing the APK), which kills Maestro's device server: wait for
+            # the device before each attempt and retry a failed flow once.
+            foreach ($attempt in 1, 2) {
+                Write-Host "[$name] $($flow.Name)$(if ($attempt -gt 1) { ' (retry)' })"
+                & $adb -s $serial wait-for-device
+                Push-Location $flowsDir
+                try {
+                    & $maestro --device $serial test $flow.Name `
+                        --test-output-dir $outDir `
+                        -e "DEVICE=$name" `
+                        -e "TILE_WAIT_MS=$TileWaitMs"
+                    $ok = $LASTEXITCODE -eq 0
+                } finally { Pop-Location }
+                if ($ok) { break }
+            }
 
-            $shot = Join-Path $outDir "$($flow.Name.Substring(0, 2))_raw.png"
-            if ($ok -and (Test-Path $shot)) {
-                Copy-Item $shot $targetDir -Force
+            $shot = Get-ChildItem $outDir -Recurse -Filter "$($flow.Name.Substring(0, 2))_raw.png" | Select-Object -First 1
+            if ($ok -and $shot) {
+                Copy-Item $shot.FullName $targetDir -Force
             } else {
                 $failed += "$name/$($flow.Name)"
             }

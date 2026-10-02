@@ -1,0 +1,18 @@
+# Shared subflow: on a fresh AVD, the first location request makes Play
+# services ask to turn on Google Location Accuracy. That toggle lives in Play
+# services, not in Android settings, so adb can't pre-set it. Accepting it once
+# persists on the AVD, so later runs only pay the short wait.
+appId: com.jonaskeller14.bike_setup_tracker
+---
+- extendedWaitUntil:
+    visible:
+      id: android:id/button1
+    timeout: 8000
+    optional: true
+- runFlow:
+    when:
+      visible:
+        id: android:id/button1
+    commands:
+      - tapOn:
+          id: android:id/button1

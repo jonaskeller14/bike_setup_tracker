@@ -24,7 +24,7 @@ $image = 'system-images;android-36;google_apis;x86_64'
 $avdHome = if ($env:ANDROID_AVD_HOME) { $env:ANDROID_AVD_HOME } else { Join-Path $env:USERPROFILE '.android\avd' }
 
 $avds = @(
-    @{ Name = 'screenshots_phone'; Device = 'pixel_8'; Width = 1080; Height = 2400; Density = 420 },
+    @{ Name = 'screenshots_phone'; Device = 'medium_phone'; Width = 1080; Height = 2400; Density = 420 },
     @{ Name = 'screenshots_tablet'; Device = 'Nexus 7 2013'; Width = 1200; Height = 1920; Density = 240 }
 )
 

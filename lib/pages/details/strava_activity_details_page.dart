@@ -41,18 +41,18 @@ class StravaActivityDetailsPage extends StatelessWidget {
           ),
         ],
       ),
-      body: SafeArea(child: StravaActivitiyPageContent(stravaActivity: stravaActivity)),
+      body: SafeArea(child: StravaActivityPageContent(stravaActivity: stravaActivity)),
     );
   }
 }
 
-class StravaActivitiyPageContent extends StatelessWidget {
+class StravaActivityPageContent extends StatelessWidget {
   final StravaActivity stravaActivity;
   final bool showCloseButton;
   final bool showSheetActions;
   final bool showViewOnMap;
 
-  const StravaActivitiyPageContent({
+  const StravaActivityPageContent({
     super.key,
     required this.stravaActivity,
     this.showCloseButton = false,

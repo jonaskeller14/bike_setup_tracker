@@ -101,7 +101,7 @@ line. No new rows, no new colors.
 - **List tile** ([strava_list_tile.dart:73](../lib/widgets/items/strava_list_tile.dart#L73)):
   `Mountain Bike Ride · Race` — change the sport `Text` to
   `"${sportType.label}${w.isNotable ? " · ${w.label}" : ""}"`.
-- **Details page** ([strava_activitiy_details_page.dart:165](../lib/pages/details/strava_activitiy_details_page.dart#L165)):
+- **Details page** ([strava_activity_details_page.dart:165](../lib/pages/details/strava_activity_details_page.dart#L165)):
   same concatenation on the sport-type row under the title.
 - **Map marker:** *no change possible without a label* — markers have no text.
   Text-only approach effectively skips the map (or falls back to A's sibling

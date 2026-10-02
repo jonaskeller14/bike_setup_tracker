@@ -374,7 +374,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) return null;
                                 final parsedValue = double.tryParse(value);
-                                if (parsedValue == null) return "Please enter valid number";
+                                if (parsedValue == null) return "Please enter a valid number";
                                 if (parsedValue.abs() > 90) return "Latitude must be between -90..90°";
                                 return null;
                               },
@@ -406,7 +406,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) return null;
                                 final parsedValue = double.tryParse(value);
-                                if (parsedValue == null) return "Please enter valid number";
+                                if (parsedValue == null) return "Please enter a valid number";
                                 if (parsedValue.abs() > 180) return "Longitude must be between -180..180°";
                                 return null;
                               },
@@ -438,7 +438,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) return null;
                                 final parsedValue = double.tryParse(value);
-                                if (parsedValue == null) return "Please enter valid number";
+                                if (parsedValue == null) return "Please enter a valid number";
                                 return null;
                               },
                               onChanged: (String newValue) {

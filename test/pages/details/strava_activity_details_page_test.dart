@@ -1,7 +1,7 @@
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
-import 'package:bike_setup_tracker/pages/details/strava_activitiy_details_page.dart';
+import 'package:bike_setup_tracker/pages/details/strava_activity_details_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/sheets/strava_activity.dart';

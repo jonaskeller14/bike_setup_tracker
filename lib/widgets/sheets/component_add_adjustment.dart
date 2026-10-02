@@ -16,7 +16,7 @@ import 'sheet_header.dart';
 final Map<ComponentType, List<Adjustment>> _adjustmentPresets = {
   ComponentType.frame: [
     CategoricalAdjustment(name: "Flipchip", notes: "Controls geometry and bottom bracket height", unit: null, options: const {"Low", "Mid", "High"}, presetKey: "frame:flipchip"),
-    CategoricalAdjustment(name: "Chainstay Length", notes: "Some bikes have a adjustable chainstay length", unit: null, options: const {"Short", "Mid", "Long"}, presetKey: "frame:chainstay_length"),
+    CategoricalAdjustment(name: "Chainstay Length", notes: "Some bikes have an adjustable chainstay length", unit: null, options: const {"Short", "Mid", "Long"}, presetKey: "frame:chainstay_length"),
   ],
   ComponentType.fork: [
     BooleanAdjustment(name: "Lockout", unit: null, notes: "Is the lockout lever enabled?", presetKey: "fork:lockout"),

@@ -89,7 +89,7 @@ class StravaActivity {
           workoutType: (json['workoutType'] as num?)?.toInt(),
           averageWatts: (json['averageWatts'] as num?)?.toDouble(),
         );
-      default: throw Exception("Json Version $version of StravaActivitiy incompatible.");
+      default: throw Exception("Json Version $version of StravaActivity incompatible.");
     }
   }
 
@@ -115,7 +115,7 @@ class StravaActivity {
           workoutType: (json['workoutType'] as num?)?.toInt(),
           averageWatts: (json['averageWatts'] as num?)?.toDouble(),
         );
-      default: throw Exception("Json Version $version of StravaActivitiy incompatible.");
+      default: throw Exception("Json Version $version of StravaActivity incompatible.");
     }
   }
 

@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/strava/strava_activity.dart';
-import '../../pages/details/strava_activitiy_details_page.dart';
+import '../../pages/details/strava_activity_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/strava_service.dart';
 import '../../utils/automation_ids.dart';

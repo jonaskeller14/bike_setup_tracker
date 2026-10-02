@@ -228,7 +228,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) return null;
                                 final parsedValue = double.tryParse(value);
-                                if (parsedValue == null) return "Please enter valid number";
+                                if (parsedValue == null) return "Please enter a valid number";
                                 return null;
                               },
                               onChanged: (String newValue) {
@@ -259,7 +259,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) return null;
                                 final parsedValue = double.tryParse(value);
-                                if (parsedValue == null) return "Please enter valid number";
+                                if (parsedValue == null) return "Please enter a valid number";
                                 if (parsedValue < 0) return "Value cannot be negative";
                                 return null;
                               },
@@ -291,7 +291,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) return null;
                                 final parsedValue = double.tryParse(value);
-                                if (parsedValue == null) return "Please enter valid number";
+                                if (parsedValue == null) return "Please enter a valid number";
                                 if (parsedValue < 0 || parsedValue > 100) return "Enter a valid value in the range 0..100 %";
                                 return null;
                               },
@@ -323,7 +323,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) return null;
                                 final parsedValue = double.tryParse(value);
-                                if (parsedValue == null) return "Please enter valid number";
+                                if (parsedValue == null) return "Please enter a valid number";
                                 if (parsedValue < 0) return "Value cannot be negative";
                                 return null;
                               },
@@ -355,7 +355,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) return null;
                                 final parsedValue = double.tryParse(value);
-                                if (parsedValue == null) return "Please enter valid number";
+                                if (parsedValue == null) return "Please enter a valid number";
                                 if (parsedValue < 0) return "Value cannot be negative";
                                 return null;
                               },

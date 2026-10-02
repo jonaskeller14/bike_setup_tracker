@@ -1,5 +1,5 @@
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
-import 'package:bike_setup_tracker/pages/details/strava_activitiy_details_page.dart';
+import 'package:bike_setup_tracker/pages/details/strava_activity_details_page.dart';
 import 'package:bike_setup_tracker/pages/forms/setup_page.dart';
 import 'package:bike_setup_tracker/pages/home_page.dart';
 import 'package:bike_setup_tracker/services/strava_service.dart';

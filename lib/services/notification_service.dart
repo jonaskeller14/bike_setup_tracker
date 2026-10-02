@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
-import '../pages/details/strava_activitiy_details_page.dart';
+import '../pages/details/strava_activity_details_page.dart';
 import '../repositories/app_repository.dart';
 import 'navigation_service.dart';
 

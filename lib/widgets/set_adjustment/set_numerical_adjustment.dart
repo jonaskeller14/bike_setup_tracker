@@ -243,7 +243,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
                   }
                   if (newValue != null && newValue.trim().isNotEmpty) {
                     final parsedValue = double.tryParse(newValue);
-                    if (parsedValue == null) return "Please enter valid number";
+                    if (parsedValue == null) return "Please enter a valid number";
                     final unitLabel = _activeLabel;
                     final unitSuffix = unitLabel == null ? "" : " $unitLabel";
                     final max = _boundInActiveUnit(widget.adjustment.max);

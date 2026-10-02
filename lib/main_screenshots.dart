@@ -16,10 +16,12 @@ import 'repositories/app_repository.dart';
 import 'screenshots/screenshot_seed.dart';
 import 'screenshots/screenshot_services.dart';
 import 'services/app_hint_service.dart';
+import 'services/weather_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   recordBootError = (error, stack, {required reason}) => debugPrint('$reason: $error\n$stack');
+  createWeatherService = ScreenshotWeatherService.new;
   configureSystemChrome();
 
   final appDatabase = AppDatabase();

@@ -153,7 +153,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   final AddressService _addressService = AddressService();
   final ValueNotifier<geo.Placemark?> _currentPlace = ValueNotifier<geo.Placemark?>(null);
 
-  final WeatherService _weatherService = WeatherService();
+  final WeatherService _weatherService = createWeatherService();
   final ValueNotifier<ContextWeather?> _currentWeather = ValueNotifier<ContextWeather?>(null);
 
   @override

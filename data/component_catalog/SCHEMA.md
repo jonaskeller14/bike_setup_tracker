@@ -8,7 +8,7 @@ brand inside it, e.g. `fork/fox.yaml`, `fork/ohlins.yaml`.
 
 > **Staging directory.** This is the node/option schema of issue #25. The app
 > still reads `data/component_presets/` (the flat model › trim schema) until
-> the switch; this directory then replaces it. Only `fork/` is converted so far.
+> the switch; this directory then replaces it.
 
 ## The two concepts: nodes and options
 
@@ -17,11 +17,13 @@ exactly one of them:
 
 - **Nodes say what the product is.** A tree per brand, as deep as that brand
   needs: `model › generation › trim` for FOX, `model › version › trim` for
-  Öhlins, `model › trim` where a model has a single generation. A node without
-  `children` is a selectable **product**.
+  Öhlins, `model › mount` for Cane Creek shocks, `model › trim` where a model
+  has a single generation. A node without `children` is a selectable
+  **product**, at whatever level it sits: a model sold in one version only is
+  itself the product.
 - **Options say how it is configured.** On the product, each option axis
-  (`damper`, `travel_mm`, `wheel_size`) lists the values that product can be
-  had with.
+  (`damper`, `travel_mm`, `wheel_size`, `size`) lists the values that product
+  can be had with.
 
 **Rule of thumb:** if it changes the part or the generation, it is a node. If
 the buyer picks it, or it can be changed at home, it is an option.
@@ -162,13 +164,14 @@ for the same step across one file:
 |---|---|
 | `model` | The top-level product family (`36`, `Pike`, `RXF36`) |
 | `generation` | A model-year generation of a model, see [Generations](#generations) |
-| `version` | A manufacturer-named revision that users know by name (Öhlins `m.2` / `m.3`) |
+| `version` | A manufacturer-named revision that users know by name (Öhlins `m.2` / `m.3`). An original that only got a successor badge later is `First generation` with `id: m1` |
 | `trim` | The user-facing sub-model (`Factory`, `Ultimate`, `Air`, `Coil`). The default leaf level |
+| `mount` | A shock that is sold as one product per mount (Cane Creek `Standard` / `Trunnion`). Only where the mount is all that tells the leaves apart |
 
 Level names share one namespace with the option axis ids of their product and
 with the two entries every persisted map has (`brand`, `component_type`). So do
-not call a level `damper`, `travel_mm` or `wheel_size`, and do not repeat a
-level name on one path; the parser rejects both.
+not call a level `damper`, `travel_mm`, `wheel_size` or `size`, and do not
+repeat a level name on one path; the parser rejects both.
 
 ### Inheritance
 
@@ -258,6 +261,9 @@ used on the wrong component type.
 | `spring` | text | fork, shock | `Air`, `Coil`, `DebonAir+` (informational, does not drive adjustments) |
 | `travel_mm` | number | fork | set by the `travel_mm` option |
 | `wheel_size` | text | fork | set by the `wheel_size` option |
+| `eye_to_eye_mm` | number | shock | set by the `size` option |
+| `stroke_mm` | number | shock | set by the `size` option |
+| `mount` | text | shock | `Standard`, `Trunnion`; on the product, or set by the `size` option |
 
 ```yaml
 specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
@@ -265,6 +271,10 @@ specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
 
 Quote a value that contains a comma inside the flow map. A fact with no
 consumer in the app does not need a spec key — leave it as a freeform key.
+
+`specs` are merged along the path, so a shock's `spring: Air` is written once on
+the model node and a trim only repeats the key to name its spring variant
+(`spring: DebonAir+`).
 
 ## Options
 
@@ -276,6 +286,7 @@ must be registered next to the spec keys.
 | `damper` | ids defined under `option_values.damper` | fork, shock |
 | `travel_mm` | literal numbers, `[150, 160]` | fork |
 | `wheel_size` | literal sizes, `[29, 27.5]`, `[700c, 650b]` | fork |
+| `size` | eye-to-eye × stroke sizes, see [Shock sizes](#shock-sizes) | shock |
 
 ```yaml
 options:
@@ -297,6 +308,53 @@ options:
 - `options` is inherited as a whole. A product that writes `options` has to
   list every axis, so `wheel_size` is repeated on each trim rather than written
   once on the model.
+
+### Shock sizes
+
+A shock is sold by eye-to-eye × stroke length to match a frame, so its sizes
+are one axis, `size`. Each value is one concrete size and carries up to three
+specs: `stroke_mm` (always), `eye_to_eye_mm` and `mount`. The stroke of the
+selected size becomes the SAG reference travel of the created shock.
+
+```yaml
+options:
+  damper: [ttx1air_m2]
+  size:
+    - "210x50/52.5/55"                                  # three sizes, one eye-to-eye
+    - 65                                                # stroke only
+    - { size: "185x50/52.5/55", mount: Trunnion }       # the same, in a named mount
+    - { size: "210x55", label: "210x55 (MTBM 2204)" }   # with a part number
+    - { eye_to_eye_mm: 215.9, stroke_mm: 63.5, label: 8.5x2.5in }
+```
+
+| Form | Meaning |
+|---|---|
+| `"210x50/52.5/55"` | Shorthand: eye-to-eye, then every stroke that body is sold with. The parser expands it into one value per stroke |
+| `65` | A stroke without an eye-to-eye, where the brand lists strokes only |
+| `{ size: …, mount: … }` | The shorthand or a bare stroke, plus the mount of those sizes |
+| `{ size: …, label: … }` | A single size with its own display text |
+| `{ eye_to_eye_mm: …, stroke_mm: …, mount: …, label: … }` | The lengths spelled out; `eye_to_eye_mm`, `mount` and `label` are optional |
+
+- **The id is `<eye-to-eye>x<stroke>`** (`210x55`), or the stroke alone (`65`).
+  It is derived, never authored, and frozen like every option value id.
+- **The mount joins the id only where it is needed** to tell two values of one
+  product apart (`185x55-trunnion` next to `185x55-standard`).
+- **Everything is in mm.** An imperial size is converted (× 25.4, not rounded
+  to the nearest metric size) and keeps the manufacturer's inch figures as its
+  `label`: `8.5x2.5in` is `215.9` × `63.5`. CI rejects a stroke of 20 or less
+  as an unconverted inch figure.
+- **`label` is for what belongs to the name of the size**: the inch figures, a
+  part number. It needs a single size, so it cannot sit on a multi-stroke
+  shorthand. Without it the value is shown as `210x55 mm`.
+- **Where the mount goes** depends on what the manufacturer states:
+  - every size of the product has the same mount → `specs: { mount: Trunnion }`
+    on the product, plain sizes;
+  - the mount is stated per size → `mount:` on those sizes;
+  - several mounts are offered but not per size → the freeform key
+    `mounts: [Standard, Trunnion]` on the product, plain sizes. Never guess the
+    mount from the eye-to-eye length.
+- **Leave `size` out when no sizes are published.** The user then enters the
+  SAG travel by hand.
 
 ### Damper definition
 
@@ -566,7 +624,7 @@ all publish specs the same way:
   it in the `description` and the file's Follow-ups footer, and keep the
   products that ship with it `draft: true`.
 - **Freeform informational keys** (`valves`, `firm_mode`, `remote`, `lockout`,
-  `offset_mm`, `axle`, …): add whatever extra key(s) best capture a
+  `offset_mm`, `axle`, `mounts`, `part_numbers`, …): add whatever extra key(s) best capture a
   distinguishing spec. They are for humans and future schema growth; promote
   one to a registered spec key when the app starts consuming it.
 - **Same physical damper, different click counts across generations**: give
@@ -577,5 +635,5 @@ all publish specs the same way:
 
 `test/component_catalog_test.dart` parses every file in this directory with the
 parser the app uses and fails when a file does not parse, `component_type` does
-not match its directory, an adjustment spec does not build, a `url` is not
-http(s), or two files claim the same product path.
+not match its directory, an adjustment spec does not build, a shock size is not
+in mm, a `url` is not http(s), or two files claim the same product path.

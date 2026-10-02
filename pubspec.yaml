@@ -140,6 +140,10 @@ flutter:
     # intentionally not declared (repo-only, not shipped).
     - data/component_presets/fork/
     - data/component_presets/shock/
+    # Staging copy in the node/option schema (#25), until it replaces the
+    # directory above.
+    - data/component_catalog/fork/
+    - data/component_catalog/shock/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

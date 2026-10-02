@@ -16,7 +16,7 @@ void main() {
   final oldDir = p.join(Directory.current.path, 'data', 'component_presets');
   final newDir = p.join(Directory.current.path, 'data', 'component_catalog');
 
-  for (final type in ['fork']) {
+  for (final type in ['fork', 'shock']) {
     final oldFiles =
         Directory(
             p.join(oldDir, type),
@@ -37,7 +37,8 @@ void main() {
         final catalog = parseCatalogFile(newFile.readAsStringSync());
         final after = <String, Map<String, Object?>>{};
         for (final (:path, :product) in _products(catalog.nodes, const [])) {
-          after[_productName(path)] = _describeProduct(catalog, product);
+          final name = _productName(path);
+          after[_renamed[name] ?? name] = _describeProduct(catalog, product);
         }
 
         expect(after.keys, unorderedEquals(before.keys));
@@ -48,6 +49,19 @@ void main() {
     }
   }
 }
+
+/// Shocks whose path was reshaped, new name → old name. An Öhlins air shock
+/// without a version badge got one next to its `m.2`, and a Cane Creek
+/// "Standard" trim that covered both mounts became the model node itself.
+const _renamed = {
+  'TTX1Air First generation Universal (2025-2026)': 'TTX1Air Universal (2025-2026)',
+  'TTX2Air First generation Universal (2025-2026)': 'TTX2Air Universal (2025-2026)',
+  'Tigon (2025-2026)': 'Tigon Standard (2025-2026)',
+  'DB Air IL G1 (null)': 'DB Air IL G1 Standard (null)',
+  'DBcoil IL G1 (null)': 'DBcoil IL G1 Standard (null)',
+  'DB Kitsuma Air G1 (null)': 'DB Kitsuma Air G1 Standard (null)',
+  'DB Kitsuma Coil G1 (null)': 'DB Kitsuma Coil G1 Standard (null)',
+};
 
 String _variantName(ComponentPresetVariant variant) => '${variant.model} ${variant.trim} (${variant.yearRange})';
 
@@ -94,6 +108,8 @@ Map<String, Object?> _describeVariant(ComponentPresetVariant variant) => {
   ],
   'travel': variant.travelOptions,
   'wheelSizes': variant.wheelSizes,
+  // "190x40/42.5/45 (Trunnion)" is three sizes.
+  'sizes': variant.strokeOptions.fold<int>(0, (count, strokes) => count + strokes.split(' ').first.split('/').length),
 };
 
 Map<String, Object?> _describeProduct(BrandCatalog catalog, CatalogProduct product) => {
@@ -117,6 +133,7 @@ Map<String, Object?> _describeProduct(BrandCatalog catalog, CatalogProduct produ
   ],
   'travel': _optionIds(product, PresetOptionAxes.travelMm),
   'wheelSizes': _optionIds(product, PresetOptionAxes.wheelSize),
+  'sizes': _optionIds(product, PresetOptionAxes.size).length,
 };
 
 List<Object> _optionIds(CatalogProduct product, OptionAxisKey axis) => [

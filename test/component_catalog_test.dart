@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/component/component_catalog.dart';
 import 'package:bike_setup_tracker/models/component/component_preset.dart';
+import 'package:bike_setup_tracker/models/component/preset_spec_keys.dart';
 import 'package:bike_setup_tracker/utils/component_catalog_parser.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
@@ -64,6 +65,22 @@ void main() {
             final adjustment = spec.build(); // strict fromYaml — throws on typos
             expect(adjustment.name, isNotEmpty, reason: path);
             _assertAdjustmentInvariants(adjustment, path);
+          }
+        }
+      });
+
+      test('every size has a stroke in mm', () {
+        for (final MapEntry(key: path, value: node) in nodes.entries) {
+          if (node is! CatalogProduct) continue;
+          for (final size in node.options[PresetOptionAxes.size.id]?.values ?? const <OptionValue>[]) {
+            final stroke = size.specs.get(PresetSpecKeys.strokeMm);
+            final eyeToEye = size.specs.get(PresetSpecKeys.eyeToEyeMm);
+            expect(stroke, isNotNull, reason: '$path: size "${size.id}" has no stroke_mm');
+            // An inch figure that was not converted reads as a tiny mm value.
+            expect(stroke, greaterThan(20), reason: '$path: size "${size.id}" is not in mm');
+            if (eyeToEye != null) {
+              expect(eyeToEye, greaterThan(stroke!), reason: '$path: size "${size.id}" eye-to-eye > stroke');
+            }
           }
         }
       });

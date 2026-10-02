@@ -1,0 +1,191 @@
+# BOS Suspension mountain-bike shocks — adjustment preset database
+#
+# Same design as shock/fox.yaml: click ranges belong to the DAMPER, defined
+# once under `option_values.damper` and referenced by id from each shock's trims.
+# See SCHEMA.md in this folder.
+#
+# BOS is a small French manufacturer. Its own product pages (bos-suspension.com,
+# the official BOS site) list the total click count of every damper circuit and
+# quote each as "plus ou moins 2 clics" (+/-2 clicks, manufacturing tolerance).
+# Each current shock has its own damper id, read off that shock's own page
+# even though the three pages currently publish matching numbers.
+#
+# Scope: the current lineup only (Stoy 4, Void 4, Syors 2). Earlier BOS shocks
+# (Kirk, Kirk 2, VIP'R, VIP'R 2, Void, Void 2, Void 3, Stoy 3, Stoy Rare, Syors)
+# are not listed — see the Follow-ups footer.
+
+brand: BOS
+component_type: shock
+sources:
+  - https://www.bos-suspension.com/PBCPPlayer.asp?ID=2421470
+  - https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422708
+  - https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422711
+  - https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422837
+  # Coil spring rates are quoted in lbs/inch on BOS's spring page
+  - https://www.bos-suspension.com/PBCPPlayer.asp?ID=2229099
+  - https://www.bos-suspension.com/PBCPPlayer.asp?ID=2252919
+updated: 2026-09-25
+# The BOS product pages for these three shocks do not restate the counting
+# direction. BOS's own Quickstart/user manuals for the Grabber forks and the
+# earlier Syors, Stoy 3 and Void 3 shocks all count clicks from fully closed
+# (clockwise until it stops = 0), so the default `dial_ccw` is used.
+
+# --------------------------------------------------------------------------
+# Dampers
+# --------------------------------------------------------------------------
+option_values:
+  damper:
+    stoy4_2025:
+      name: Stoy 4 three-way
+      description: |-
+        - Three-way adjustable monotube damper for enduro, freeride and downhill
+        - Separate low-speed compression, high-speed compression and rebound dials
+      adjustments:
+        - { name: HSC, type: step, max: 25, notes: High-Speed Compression }
+        - { name: LSC, type: step, max: 23, notes: Low-Speed Compression }
+        - { name: Rebound, type: step, max: 30, notes: Low-Speed Rebound }
+      source: https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422708
+      note: >-
+        Stoy 4 product page: "Hydraulique : 3 voies monotube", "Compression Basses
+        Vitesses (23 clics *)", "Compressions Hautes Vitesses (25 clics *)",
+        "Détente basses Vitesses (30 clics *)", "*(plus ou moins 2 clics)". BOS
+        labels the single rebound circuit "Low-Speed".
+
+    void4_2025:
+      name: Void 4 three-way
+      description: |-
+        - Three-way damper with an adjustable hydraulic bottom-out stop
+        - Factory-set kick valve for extra support against big impacts
+        - Separate low-speed compression, high-speed compression and rebound dials
+      adjustments:
+        - { name: HSC, type: step, max: 25, notes: High-Speed Compression }
+        - { name: LSC, type: step, max: 23, notes: Low-Speed Compression }
+        - { name: Rebound, type: step, max: 30, notes: Low-Speed Rebound }
+        - { name: Bottom-Out Stop, type: step, max: 11, notes: Adjustable hydraulic end-of-stroke stop in compression }
+      source: https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422711
+      note: >-
+        Void 4 product page: "3 voies + butée de fin de course réglable. Valve
+        impact (kick valve) réglée en usine.", "Compression Basses Vitesses (23
+        clics*)", "Compressions Hautes Vitesses (25 clics*)", "Détente basses
+        Vitesses (30 clics*)", "Butée de fin de course hydraulique en compression
+        ajustable (11 clics)", "*(plus ou moins 2 clics)".
+
+    syors2_2025:
+      name: Syors 2 three-way
+      description: |-
+        - Three-way damper with an adjustable hydraulic bottom-out stop
+        - Factory-set kick valve; quieter hydraulic operation than the first Syors
+        - Separate low-speed compression, high-speed compression and rebound dials
+      adjustments:
+        - { name: HSC, type: step, max: 25, notes: High-Speed Compression }
+        - { name: LSC, type: step, max: 23, notes: Low-Speed Compression }
+        - { name: Rebound, type: step, max: 30, notes: Low-Speed Rebound }
+        - { name: Bottom-Out Stop, type: step, max: 11, notes: Adjustable hydraulic end-of-stroke stop in compression }
+      source: https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422837
+      note: >-
+        Syors 2 product page: "3 voies + butée de fin de course réglable. Valve
+        impact (kick valve) réglée en usine.", "Compression Basses Vitesses (23
+        clics*)", "Compressions Hautes Vitesses (25 clics*)", "Détente basses
+        Vitesses (30 clics*)", "Butée de fin de course hydraulique en compression
+        ajustable (11 clics)", "*(plus ou moins 2 clics)". Read off the Syors 2's
+        own page, not inherited from the Void 4.
+
+# --------------------------------------------------------------------------
+# Shocks — current BOS MTB lineup.
+# The Stoy 4 and Syors 2 are coil shocks sold without a spring (BOS springs are
+# rated in lbs/inch); the Void 4 is a high-volume air shock. Every model comes
+# in eyelet or trunnion mounts in imperial and metric sizes; BOS does not list
+# a fixed set of strokes on the product pages, so no `size` option is listed.
+# --------------------------------------------------------------------------
+nodes:
+  - label: "Stoy 4"
+    level: model
+    category: Enduro / Freeride / Downhill
+    years: "2025-2026"
+    url: https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422708
+    specs: { spring: Coil }
+    note: |-
+      - Light, compact three-way monotube shock; 393g in 205x65mm trunnion without spring
+      - Coil spring sold separately, with a preload adjustment
+    children:
+      - label: Standard
+        level: trim
+        mounts: [Eyelet, Trunnion]
+        adjustments: &coil_spring
+          - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
+        options:
+          damper: [stoy4_2025]
+
+  - label: "Void 4"
+    level: model
+    category: Enduro / Freeride / Downhill
+    years: "2025-2026"
+    url: https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422711
+    specs: { spring: Air }
+    note: |-
+      - High-volume air spring with adjustable positive and negative chamber volume via spacers
+      - Fourth generation of the Void, first released in 2012
+      - 550g in 230x60mm without lever; maximum pressure 300 psi
+    children:
+      - label: Standard
+        level: trim
+        mounts: [Eyelet, Trunnion]
+        adjustments: &air_spring
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 300 }
+        options:
+          damper: [void4_2025]
+      - label: Lever
+        level: trim
+        mounts: [Eyelet, Trunnion]
+        adjustments: *air_spring
+        options:
+          damper: [void4_2025]
+        note: Adds the optional pedalling-platform lever.
+
+  - label: "Syors 2"
+    level: model
+    category: Enduro / Freeride / Downhill
+    years: "2025-2026"
+    url: https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422837
+    specs: { spring: Coil }
+    note: |-
+      - Coil shock with an adjustable hydraulic bottom-out stop; 450g in 250x75mm without spring
+      - Coil spring sold separately, with a preload adjustment
+    children:
+      - label: Standard
+        level: trim
+        mounts: [Eyelet, Trunnion]
+        adjustments: *coil_spring
+        options:
+          damper: [syors2_2025]
+      - label: Lever
+        level: trim
+        mounts: [Eyelet, Trunnion]
+        adjustments: *coil_spring
+        options:
+          damper: [syors2_2025]
+        note: Adds the optional pedalling-platform lever.
+
+# --------------------------------------------------------------------------
+# Follow-ups (not yet captured — avoid guessing):
+#   - Brand domain: the task brief named bos-mtb.com, which does not resolve;
+#     all data here comes from bos-suspension.com (BOS's official site).
+#   - Launch year: the product pages carry no model year. `years:
+#     "2025-2026"` follows the fork range's "Version 2025" air-cartridge label
+#     and the 2025 BOS range launch; not independently confirmed per shock.
+#   - Void 4 volume spacers: the page lists positive/negative chamber volume
+#     adjustment "via entretoises" (MKP4 kit) but no maximum count, so no
+#     Volume Spacers adjustment is generated.
+#   - Lever versions: the pages mention an optional pedalling-platform lever but
+#     no position count for the Void 4 / Syors 2, so no lever adjuster is
+#     modelled.
+#   - Coil preload: "Réglage : précontrainte" is listed for the Stoy 4 and
+#     Syors 2 without any turns range, so only Spring Rate is modelled.
+#   - Counting direction on these three pages is not restated; see the note
+#     under `updated`.
+#   - Dial knob colours/sizes: not stated in any source, so the defaults are used.
+#   - Legacy shocks with manuals on bos-suspension.com (Kirk, Kirk 2, VIP'R,
+#     VIP'R 2, Void, Void 2, Void 3, Stoy Rare, Stoy 3, Syors): the manuals
+#     show recommended starting clicks in diagrams, not total counts, so no
+#     older generation is listed. "Stoy 4"/"Void 4" are BOS's own names.
+# --------------------------------------------------------------------------

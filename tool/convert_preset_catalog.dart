@@ -10,7 +10,8 @@
 ///
 /// Works on source lines instead of re-serializing the YAML, so `#` comments,
 /// anchors/aliases and the Follow-ups footers survive. Comments are carried
-/// over as written, so the ones describing the old shape need a hand pass.
+/// over as written, so the ones describing the old shape need a hand pass, and
+/// `--force` discards that pass.
 library;
 
 // A maintenance CLI: stdout is its output channel.
@@ -22,14 +23,27 @@ import 'package:yaml/yaml.dart';
 
 const String _sourceDir = 'data/component_presets';
 const String _targetDir = 'data/component_catalog';
-const List<String> _componentTypes = <String>['fork'];
+const List<String> _componentTypes = <String>['fork', 'shock'];
 
-const String _leafLevel = 'trim';
+const String _defaultLeafLevel = 'trim';
+
+/// Files whose trims are something else than trims.
+const Map<String, String> _leafLevels = <String, String>{
+  // "Standard" and "Trunnion" are the two mounts a Cane Creek shock is sold in.
+  'shock/Cane Creek': 'mount',
+};
 
 /// Brands whose model names carry a level of their own.
 final Map<String, _ModelSplit> _modelSplits = <String, _ModelSplit>{
-  // "RXF36 m.3" is the m.3 version of the RXF36.
-  'Öhlins': _ModelSplit(RegExp(r'^(.+) (m\.\d+)$'), level: 'version', id: (label) => label.replaceAll('.', '')),
+  // "RXF36 m.3" is the m.3 version of the RXF36. The air shocks only got the
+  // badge with their second version: "TTX1Air" next to "TTX1Air m.2".
+  'Öhlins': _ModelSplit(
+    RegExp(r'^(.+) (m\.\d+)$'),
+    level: 'version',
+    id: (label) => label.replaceAll('.', ''),
+    baseLabel: 'First generation',
+    baseId: 'm1',
+  ),
 };
 
 void main(List<String> args) {
@@ -56,7 +70,7 @@ void main(List<String> args) {
 
       final String source = file.readAsStringSync();
       final String eol = source.contains('\r\n') ? '\r\n' : '\n';
-      final String converted = _convert(source.split(eol)).join(eol);
+      final String converted = _convert(source.split(eol), type).join(eol);
       loadYaml(converted);
 
       target.createSync(recursive: true);
@@ -66,7 +80,7 @@ void main(List<String> args) {
   }
 }
 
-List<String> _convert(List<String> lines) {
+List<String> _convert(List<String> lines, String type) {
   final int dampersAt = lines.indexOf('dampers:');
   final int modelsAt = lines.indexWhere(RegExp(r'^(forks|shocks):\s*$').hasMatch);
   if (dampersAt < 0 || modelsAt < dampersAt) {
@@ -87,7 +101,11 @@ List<String> _convert(List<String> lines) {
     for (final line in lines.sublist(dampersAt + 1, dampersEnd)) line.startsWith(' ') ? '  $line' : line,
     ...lines.sublist(dampersEnd, modelsAt),
     'nodes:',
-    ..._convertModels(lines.sublist(modelsAt + 1), _modelSplits[brand]),
+    ..._convertModels(
+      lines.sublist(modelsAt + 1),
+      _modelSplits[brand],
+      _leafLevels['$type/$brand'] ?? _defaultLeafLevel,
+    ),
   ];
   return <String>[
     for (final line in _hoistAnchors(converted))
@@ -132,14 +150,22 @@ List<String> _hoistAnchors(List<String> source) {
   return lines;
 }
 
-List<String> _convertModels(List<String> lines, _ModelSplit? split) {
+List<String> _convertModels(List<String> lines, _ModelSplit? split, String leafLevel) {
   final (:items, :trailing) = _splitItems(lines, 2, 'model');
 
   // Same-named blocks become one model node, at the position of the first.
   final Map<String, List<_Block>> groups = <String, List<_Block>>{};
   for (final item in items) {
-    final _Block block = _Block(item, split);
+    final _Block block = _Block(item, split, leafLevel);
     groups.putIfAbsent(block.model, () => <_Block>[]).add(block);
+  }
+
+  // Next to a badged version, the block without a badge is a version too.
+  for (final blocks in groups.values) {
+    if (blocks.every((block) => block.splitLabel == null)) continue;
+    for (var i = 0; i < blocks.length; i++) {
+      if (blocks[i].splitLabel == null) blocks[i] = blocks[i].asBaseOf(split!);
+    }
   }
 
   return <String>[
@@ -153,6 +179,17 @@ List<String> _emitModel(List<_Block> blocks) {
   final _Block first = blocks.first;
 
   if (blocks.length == 1 && first.splitLabel == null) {
+    if (first.isProduct) {
+      return _emitTrim(
+        first.trims.single,
+        first,
+        column: 4,
+        leading: first.item.leading,
+        inheritBlock: true,
+        label: first.item.label,
+        level: 'model',
+      );
+    }
     return _emitBlock(
       first,
       column: 4,
@@ -183,7 +220,7 @@ List<String> _emitModel(List<_Block> blocks) {
           leading: block == first ? const <String>[] : _comments(block.item.leading, 6),
           label: _quoteIfNeeded(block.splitLabel!),
           level: block.split!.level,
-          id: block.split!.id(block.splitLabel!),
+          id: block.split!.idOf(block.splitLabel!),
           withCategory: !sharedCategory,
         ),
     ];
@@ -196,7 +233,7 @@ List<String> _emitModel(List<_Block> blocks) {
     for (final block in blocks)
       for (final trim in block.trims) trim.label,
   ];
-  if (trimNames.toSet().length == trimNames.length) {
+  if (trimNames.toSet().length == trimNames.length && _yearsOverlap(blocks)) {
     return <String>[
       ...model,
       for (final block in blocks)
@@ -250,14 +287,19 @@ List<String> _emitBlock(
     '${pad}level: $level',
     if (id != null && id != label.replaceAll('"', '')) '${pad}id: ${_quoteIfNeeded(id)}',
     if (block.draft) ...<String>[..._comments(item['complete']!.leading, column), '${pad}draft: true'],
-    if (withCategory) ..._emitIfPresent(item['category'], column),
+    if (withCategory)
+      ..._emitIfPresent(item['category'], column)
+    else
+      // The value sits on the model node; what was written above it stays.
+      ..._comments(item['category']?.leading ?? const <String>[], column),
     ..._emitIfPresent(item['year_range'], column, as: 'years'),
     ..._emitIfPresent(item['url'], column),
-    for (final entry in item.entries)
-      if (!_blockKeys.contains(entry.key)) ..._emit(entry, column),
+    if (block.specs.isNotEmpty) ..._emitSpecs(block.specs, column),
+    for (final entry in block.freeform) ..._emit(entry, column),
     ..._emitIfPresent(item['note'], column),
     // Its value moves into every trim's options; what was written above it stays.
     ..._comments(item['wheel_size']?.leading ?? const <String>[], column),
+    ..._comments(item['trims']!.leading, column),
     '${pad}children:',
     for (final trim in block.trims)
       ..._emitTrim(trim, block, column: column + 4, leading: _comments(trim.leading, column + 2)),
@@ -266,50 +308,201 @@ List<String> _emitBlock(
 }
 
 /// A leaf node. With [inheritBlock] it also takes over the block-level fields,
-/// because no node is left between it and the model.
+/// because no node is left between it and the model. [label] and [level] are
+/// set where the block itself is the product.
 List<String> _emitTrim(
   _Item trim,
   _Block block, {
   required int column,
   required List<String> leading,
   bool inheritBlock = false,
+  String? label,
+  String? level,
 }) {
   final String pad = ' ' * column;
   final _Item item = block.item;
+  final _Sizes sizes = _Sizes(trim);
 
-  final List<_Entry> specs = trim.entries.where((entry) => _specKeys.contains(entry.key)).toList();
+  final Map<String, _Entry> specs = <String, _Entry>{
+    if (inheritBlock)
+      for (final entry in block.specs) entry.key: entry,
+    for (final entry in trim.entries)
+      if (_specKeys.contains(entry.key)) entry.key: entry,
+    'mount': ?sizes.sharedMount,
+  };
   final Map<String, _Entry> axes = <String, _Entry>{
     for (final MapEntry(key: axis, value: entry) in <String, _Entry?>{
       'damper': trim['dampers'],
       'travel_mm': trim['travel_mm'],
       'wheel_size': item['wheel_size'],
+      'size': sizes.axis,
     }.entries)
       if (entry != null && _splitComment(entry.value).value != '[]') axis: entry,
   };
 
   return <String>[
     ...leading,
-    '${' ' * (column - 2)}- label: ${trim.label}',
-    '${pad}level: $_leafLevel',
+    '${' ' * (column - 2)}- label: ${label ?? trim.label}',
+    '${pad}level: ${level ?? block.leafLevel}',
     if (inheritBlock && block.draft) '${pad}draft: true',
+    if (level == 'model') ..._emitIfPresent(item['category'], column),
     ..._emitIfPresent(trim['year_range'] ?? (inheritBlock ? item['year_range'] : null), column, as: 'years'),
     ..._emitIfPresent(trim['url'] ?? (inheritBlock ? item['url'] : null), column),
-    if (specs.isNotEmpty) ..._emitSpecs(specs, column),
+    if (specs.isNotEmpty) ..._emitSpecs(specs.values.toList(), column),
     for (final entry in <_Entry>[
-      if (inheritBlock) ...item.entries.where((e) => !_blockKeys.contains(e.key)),
+      if (inheritBlock) ...block.freeform,
       ...trim.entries.where((e) => !_trimKeys.contains(e.key)),
+      ?sizes.mounts,
     ])
       ..._emit(entry, column),
+    if (inheritBlock) ..._comments(item['trims']!.leading, column),
     ..._emitIfPresent(trim['adjustments'], column),
     if (axes.isNotEmpty) '${pad}options:',
     for (final MapEntry(key: axis, value: entry) in axes.entries) ...<String>[
       // A block-level entry is shared by every trim; its comments stay on the block.
-      if (trim.entries.contains(entry)) ..._comments(entry.leading, column + 2),
+      if (trim.entries.contains(entry) || axis == 'size') ..._comments(entry.leading, column + 2),
       '$pad  $axis: ${entry.value}',
       ..._reindent(entry.continuation, entry.column, column + 2),
     ],
     ..._emitIfPresent(trim['note'] ?? (inheritBlock ? item['note'] : null), column),
   ];
+}
+
+/// What a shock trim's `stroke_mm` and `mount` turn into.
+///
+/// A mount belongs to a size wherever the old data says which one: as a
+/// `(Trunnion)` remark on the size, or because the trim has a single mount. A
+/// mount list that cannot be attributed stays behind as freeform `mounts`.
+class _Sizes {
+  /// The `size` option axis, null for a trim that lists no sizes.
+  final _Entry? axis;
+
+  /// The one mount of the trim, which becomes a spec of the product.
+  final _Entry? sharedMount;
+
+  /// The old `mount` list, where its entries cannot be told apart per size.
+  final _Entry? mounts;
+
+  const _Sizes._(this.axis, this.sharedMount, this.mounts);
+
+  factory _Sizes(_Item trim) {
+    final _Entry? strokes = trim['stroke_mm'];
+    final _Entry? mount = trim['mount'];
+    final List<String> mounts = <String>[if (mount != null) ..._flowValues(mount).map((value) => value.toString())];
+
+    final List<_Size> sizes = <_Size>[if (strokes != null) ..._flowValues(strokes).map(_Size.new)];
+    final Set<String> claimed = sizes.map((size) => size.mount).nonNulls.toSet();
+    final List<String> unclaimed = mounts.where((name) => !claimed.contains(name)).toList();
+
+    String? shared;
+    var keepList = false;
+    if (claimed.isEmpty) {
+      if (mounts.length == 1) shared = mounts.single;
+      keepList = mounts.length > 1;
+    } else if (sizes.any((size) => size.mount == null)) {
+      // "190x45" next to "165x45 (Trunnion)" is in the mount no remark names.
+      if (unclaimed.length != 1) {
+        throw FormatException('Cannot tell the mount of the sizes without a remark: ${strokes!.value}');
+      }
+      for (final size in sizes) {
+        size.mount ??= unclaimed.single;
+      }
+    } else if (unclaimed.isNotEmpty) {
+      throw FormatException('No size is listed for the mount(s) ${unclaimed.join(', ')}: ${strokes!.value}');
+    }
+
+    return _Sizes._(
+      strokes == null
+          ? null
+          : _Entry(
+              'size',
+              '[${sizes.map((size) => size.text).join(', ')}]${_spaced(_splitComment(strokes.value).comment)}',
+              strokes.column,
+              strokes.leading,
+            ),
+      shared == null ? null : _Entry('mount', shared, mount!.column, mount.leading),
+      keepList
+          ? (_Entry('mounts', mount!.value, mount.column, mount.leading)..continuation.addAll(mount.continuation))
+          : null,
+    );
+  }
+}
+
+/// One entry of an old `stroke_mm` list.
+class _Size {
+  static final RegExp _remark = RegExp(r'^(\S+) \((.+)\)$');
+  static final RegExp _lengths = RegExp(r'^(\d+(?:\.\d+)?)x(\d+(?:\.\d+)?)(in)?$');
+
+  /// The entry as a value of the `size` axis, without its mount.
+  final String _value;
+  final String? _label;
+  String? mount;
+
+  _Size._(this._value, this._label, this.mount);
+
+  factory _Size(Object? raw) {
+    if (raw is num) return _Size._('$raw', null, null);
+
+    final String text = raw.toString();
+    final RegExpMatch? remark = _remark.firstMatch(text);
+    final String size = remark?.group(1) ?? text;
+    // "(Trunnion)" names the mount; "(MTBM 2204)" and "(10.5x3.5in)" only
+    // belong to the name of the size.
+    final bool named = remark != null && remark.group(2)!.contains(RegExp(r'\d'));
+    final String? mount = named ? null : remark?.group(2);
+
+    final RegExpMatch? lengths = _lengths.firstMatch(size);
+    final bool imperial = lengths != null && (lengths.group(3) != null || double.parse(lengths.group(1)!) < 50);
+    if (imperial) {
+      final String eyeToEye = _inchesToMm(lengths.group(1)!);
+      final String stroke = _inchesToMm(lengths.group(2)!);
+      final String label = '${lengths.group(1)}x${lengths.group(2)}in';
+      return _Size._('eye_to_eye_mm: $eyeToEye, stroke_mm: $stroke', named ? text : label, mount);
+    }
+    return _Size._('"$size"', named ? text : null, mount);
+  }
+
+  String get text {
+    final bool explicit = _value.contains(':');
+    if (mount == null && _label == null && !explicit) return _value;
+    return '{ ${<String>[
+      explicit ? _value : 'size: $_value',
+      if (mount != null) 'mount: ${_flowScalar(mount!)}',
+      if (_label != null) 'label: "$_label"',
+    ].join(', ')} }';
+  }
+}
+
+String _inchesToMm(String inches) {
+  final double mm = (double.parse(inches) * 25.4 * 1000).round() / 1000;
+  return mm == mm.roundToDouble() ? mm.toInt().toString() : mm.toString();
+}
+
+/// The elements of an entry written as a flow list or a single scalar.
+List<Object?> _flowValues(_Entry entry) {
+  final Object? value = loadYaml(<String>[_splitComment(entry.value).value, ...entry.continuation].join('\n'));
+  return value is YamlList ? value.toList() : <Object?>[value];
+}
+
+String _spaced(String comment) => comment.isEmpty ? '' : '   $comment';
+
+/// Blocks whose trims all differ are siblings only while they were sold side
+/// by side. A gap between their years makes them generations.
+bool _yearsOverlap(List<_Block> blocks) {
+  final List<({int first, int last})> spans = <({int first, int last})>[
+    for (final block in blocks)
+      if (block.item['year_range'] != null)
+        (
+          first: int.parse(block.firstYear),
+          last: int.parse(RegExp(r'\d{4}$').firstMatch(block.years)!.group(0)!),
+        ),
+  ];
+  for (final a in spans) {
+    for (final b in spans) {
+      if (a.last < b.first) return false;
+    }
+  }
+  return true;
 }
 
 List<String> _emitSpecs(List<_Entry> specs, int column) {
@@ -464,6 +657,8 @@ const Set<String> _trimKeys = <String>{
   'year_range',
   'url',
   'travel_mm',
+  'stroke_mm',
+  'mount',
   'dampers',
   'adjustments',
   'note',
@@ -477,7 +672,20 @@ class _ModelSplit {
   final String level;
   final String Function(String label) id;
 
-  const _ModelSplit(this.pattern, {required this.level, required this.id});
+  /// Label and id of a block without the suffix, where another block of the
+  /// same model has one.
+  final String baseLabel;
+  final String baseId;
+
+  const _ModelSplit(
+    this.pattern, {
+    required this.level,
+    required this.id,
+    required this.baseLabel,
+    required this.baseId,
+  });
+
+  String idOf(String label) => label == baseLabel ? baseId : id(label);
 }
 
 class _Entry {
@@ -513,6 +721,7 @@ class _Item {
 class _Block {
   final _Item item;
   final _ModelSplit? split;
+  final String leafLevel;
   final List<_Item> trims;
 
   /// Comments after the last trim.
@@ -524,17 +733,37 @@ class _Block {
   /// The part of the old model name that becomes a level of its own.
   final String? splitLabel;
 
-  _Block._(this.item, this.split, this.trims, this.trailing, this.model, this.splitLabel);
+  _Block._(this.item, this.split, this.leafLevel, this.trims, this.trailing, this.model, this.splitLabel);
 
-  factory _Block(_Item item, _ModelSplit? split) {
+  factory _Block(_Item item, _ModelSplit? split, String leafLevel) {
     final _Entry? trims = item['trims'];
     if (trims == null) throw FormatException('Model ${item.label} has no trims');
     final (:items, :trailing) = _splitItems(trims.continuation, trims.column + 2, 'trim');
 
     final String name = _unquote(_splitComment(item.label).value);
     final RegExpMatch? match = split?.pattern.firstMatch(name);
-    return _Block._(item, match == null ? null : split, items, trailing, match?.group(1) ?? name, match?.group(2));
+    return _Block._(
+      item,
+      match == null ? null : split,
+      leafLevel,
+      items,
+      trailing,
+      match?.group(1) ?? name,
+      match?.group(2),
+    );
   }
+
+  _Block asBaseOf(_ModelSplit split) => _Block._(item, split, leafLevel, trims, trailing, model, split.baseLabel);
+
+  /// A single "Standard" trim that covers every mount is no mount: the model
+  /// itself is the product.
+  bool get isProduct => leafLevel == 'mount' && trims.length == 1 && _Sizes(trims.single).mounts != null;
+
+  List<_Entry> get specs => item.entries.where((entry) => _specKeys.contains(entry.key)).toList();
+
+  /// Entries that are carried over as written.
+  List<_Entry> get freeform =>
+      item.entries.where((entry) => !_blockKeys.contains(entry.key) && !_specKeys.contains(entry.key)).toList();
 
   bool get draft => _splitComment(item['complete']?.value ?? 'true').value == 'false';
 

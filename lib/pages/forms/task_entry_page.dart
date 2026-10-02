@@ -192,6 +192,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
         dateTimeLocal: _selectedDateTimeLocal,
         isDeleted: false,
         lastModified: DateTime.now().toUtc(),
+        attachments: widget.mode == TaskEntryPageMode.edit ? widget.taskEntry!.attachments : null,
       ));
     } finally {
       if (mounted) setState(() => _isSaving = false);

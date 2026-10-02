@@ -47,10 +47,10 @@ void main() {
       expect(rule.association, const ComponentTaskAssociation('c1'));
     });
 
-    test('Version 2: fromJson() / toJson()', () {
+    test('Version 3: fromJson() / toJson()', () {
       final ruleA = TaskRule.fromJson(legacyJson);
       final json = ruleA.toJson();
-      expect(json['version'], 2);
+      expect(json['version'], 3);
       expect(json.containsKey('componentId'), false);
       final ruleB = TaskRule.fromJson(json);
       expect(ruleA == ruleB, true);
@@ -75,11 +75,11 @@ void main() {
       expect(entry.association, const ComponentTaskAssociation('c1'));
     });
 
-    test('Version 2: fromJson() / toJson()', () {
+    test('Version 3: fromJson() / toJson()', () {
       final entryA = TaskEntry.fromJson({...legacyJson, 'componentId': null});
       expect(entryA.association, const BikeTaskAssociation('b1'));
       final json = entryA.toJson();
-      expect(json['version'], 2);
+      expect(json['version'], 3);
       final entryB = TaskEntry.fromJson(json);
       expect(entryA == entryB, true);
     });

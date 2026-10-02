@@ -509,6 +509,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
         repeat: (_intervalType == _ThresholdType.dateTime || _intervalType == _ThresholdType.none) ? false : _repeat,
         isDeleted: false,
         lastModified: DateTime.now().toUtc(),
+        attachments: widget.mode == TaskRulePageMode.edit ? widget.taskRule!.attachments : null,
       ),
     );
   }

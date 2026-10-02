@@ -36,6 +36,11 @@ void main() {
   // structural undo — their steps rewrite/recreate the affected tables
   // regardless of the starting column shape.
   Future<void> reshapeToVersion(AppDatabase db, int version) async {
+    if (version < 21) {
+      // v21 added attachments to task_rules and task_entries.
+      await db.customStatement('ALTER TABLE task_rules DROP COLUMN attachments');
+      await db.customStatement('ALTER TABLE task_entries DROP COLUMN attachments');
+    }
     if (version < 20) {
       // v20 replaced setups.images with attachments and added attachments to
       // bikes and components.
@@ -139,6 +144,20 @@ void main() {
     );
   }
 
+  // Seeds a task rule and one entry of it via raw SQL, without the v3 `tags`
+  // and v21 `attachments` columns.
+  Future<void> seedTask(AppDatabase db) async {
+    const epochSeconds = 1700000000;
+    await db.customStatement(
+      'INSERT INTO task_rules (id, last_modified, name) '
+      "VALUES ('tr1', $epochSeconds, 'Service fork')",
+    );
+    await db.customStatement(
+      'INSERT INTO task_entries (id, last_modified, name, date_time_u_t_c, date_time_local, task_rule) '
+      "VALUES ('te1', $epochSeconds, 'Fork serviced', $epochSeconds, $epochSeconds, 'tr1')",
+    );
+  }
+
   // Builds a db file seeded at [startVersion] and re-opens it so drift runs the
   // real upgrade to the current schema. Returns the upgraded database.
   Future<AppDatabase> migrateFrom(int startVersion) async {
@@ -154,6 +173,7 @@ void main() {
     await seedInstallation(seed);
     await seedComponent(seed);
     await seedBike(seed);
+    await seedTask(seed);
     await seed.customStatement('PRAGMA user_version = $startVersion');
     await seed.close();
 
@@ -168,10 +188,15 @@ void main() {
     return rows.map((r) => r.read<String>('name')).toSet();
   }
 
+  Future<int> columnCount(AppDatabase db, String table, String column) async {
+    final rows = await db.customSelect('PRAGMA table_info($table)').get();
+    return rows.where((r) => r.read<String>('name') == column).length;
+  }
+
   group('onUpgrade from every prior version to the current schema', () {
     // Covers the full range of jump sizes: the v12 case is a single step, the
     // v1 case crosses every TableMigration in the strategy.
-    for (final startVersion in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]) {
+    for (final startVersion in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]) {
       test('v$startVersion -> current completes and preserves seed rows', () async {
         final db = await migrateFrom(startVersion);
         addTearDown(db.close);
@@ -267,6 +292,14 @@ void main() {
         expect(await columnNames(db, 'components'), contains('attachments'));
         expect(bike.attachments, isEmpty);
         expect(component.attachments, isEmpty);
+
+        // The v21 step adds attachments to task rules and task entries.
+        expect(await columnCount(db, 'task_rules', 'attachments'), 1);
+        expect(await columnCount(db, 'task_entries', 'attachments'), 1);
+        final taskRule = await (db.select(db.taskRules)..where((t) => t.id.equals('tr1'))).getSingle();
+        final taskEntry = await (db.select(db.taskEntries)..where((t) => t.id.equals('te1'))).getSingle();
+        expect(taskRule.attachments, isEmpty);
+        expect(taskEntry.attachments, isEmpty);
       });
     }
   });

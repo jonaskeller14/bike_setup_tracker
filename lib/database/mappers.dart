@@ -178,6 +178,7 @@ extension TaskRuleDbMapper on TaskRuleDb {
       interval: interval != null ? TaskThreshold.fromJson(jsonDecode(interval!) as Map<String, dynamic>) : null,
       delay: delay != null ? TaskThreshold.fromJson(jsonDecode(delay!) as Map<String, dynamic>) : null,
       repeat: repeat,
+      attachments: attachments,
     );
   }
 }
@@ -195,6 +196,7 @@ extension TaskEntryDbMapper on TaskEntryDb {
       notes: notes,
       association: TaskAssociation.fromIds(componentId: componentId, bikeId: bikeId),
       snapshot: snapshot != null ? ComponentStats.fromJson(jsonDecode(snapshot!) as Map<String, dynamic>) : null,
+      attachments: attachments,
     );
   }
 }
@@ -350,6 +352,7 @@ extension TaskRuleMapper on TaskRule {
       interval: Value<String?>(interval != null ? jsonEncode(interval!.toJson()) : null),
       delay: Value<String?>(delay != null ? jsonEncode(delay!.toJson()) : null),
       repeat: Value<bool>(repeat),
+      attachments: Value<List<Attachment>>(attachments),
     );
   }
 }
@@ -368,6 +371,7 @@ extension TaskEntryMapper on TaskEntry {
       componentId: Value<String?>(association.componentId),
       bikeId: Value<String?>(association.bikeId),
       snapshot: Value<String?>(snapshot != null ? jsonEncode(snapshot!.toJson()) : null),
+      attachments: Value<List<Attachment>>(attachments),
     );
   }
 }

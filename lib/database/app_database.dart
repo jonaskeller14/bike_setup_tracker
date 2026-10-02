@@ -90,7 +90,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 20;
+  int get schemaVersion => 21;
 
   @override
   MigrationStrategy get migration {
@@ -270,6 +270,16 @@ class AppDatabase extends _$AppDatabase {
           }
           if (!await _columnExists('components', 'attachments')) {
             await m.addColumn(components, components.attachments);
+          }
+        }
+        if (from < 21) {
+          // Task rules (reference files) and task entries (record of one
+          // completion) gain attachments.
+          if (!await _columnExists('task_rules', 'attachments')) {
+            await m.addColumn(taskRules, taskRules.attachments);
+          }
+          if (!await _columnExists('task_entries', 'attachments')) {
+            await m.addColumn(taskEntries, taskEntries.attachments);
           }
         }
       },

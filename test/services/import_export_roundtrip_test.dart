@@ -265,5 +265,29 @@ void main() {
 
       expect(exportB, equals(exportA));
     });
+
+    test('preserves task rule and task entry attachments in order', () async {
+      const ruleAttachments = [
+        {'id': 'm', 'extension': '.pdf', 'name': 'Service Manual'},
+        {'id': 't', 'extension': '.jpg', 'name': 'Torque Chart'},
+      ];
+      const entryAttachments = [
+        {'id': 'i', 'extension': '.pdf', 'name': 'Invoice'},
+      ];
+      final data = await importThenExport(sampleData());
+      expect(findById(data, 'taskRules', 'tr1')['attachments'], isEmpty);
+      expect(findById(data, 'taskEntries', 'te1')['attachments'], isEmpty);
+      findById(data, 'taskRules', 'tr1')['attachments'] = ruleAttachments;
+      findById(data, 'taskEntries', 'te1')['attachments'] = entryAttachments;
+
+      final export = await importThenExport(data);
+
+      final rule = findById(export, 'taskRules', 'tr1');
+      final entry = findById(export, 'taskEntries', 'te1');
+      expect(rule['version'], 3);
+      expect(rule['attachments'], ruleAttachments);
+      expect(entry['version'], 3);
+      expect(entry['attachments'], entryAttachments);
+    });
   });
 }

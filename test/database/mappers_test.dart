@@ -9,6 +9,8 @@ import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/person.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/strava/strava_athlete.dart';
+import 'package:bike_setup_tracker/models/task/task_entry.dart';
+import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -498,6 +500,33 @@ void main() {
       expect(bikeRow.toModel().attachments, attachments);
       expect(componentRow.toModel().attachments, attachments.reversed.toList());
       expect(setupRow.toModel().attachments, attachments);
+    });
+
+    test('attachments survive a database round trip on task rules and task entries', () async {
+      final database = AppDatabase.memory();
+      addTearDown(database.close);
+      final attachments = [
+        Attachment(id: 'm', extension: '.pdf', name: 'Service Manual'),
+        Attachment(id: 'p', extension: '.jpg', name: 'IMG_1.jpg'),
+      ];
+
+      final rule = TaskRule(id: 'tr1', name: 'Service fork', tags: const {}, attachments: attachments);
+      final now = DateTime.now();
+      final entry = TaskEntry(
+        id: 'te1',
+        name: 'Fork serviced',
+        dateTimeUTC: now,
+        dateTimeLocal: now,
+        taskRule: 'tr1',
+        attachments: attachments.reversed.toList(),
+      );
+      await database.into(database.taskRules).insert(rule.toCompanion());
+      await database.into(database.taskEntries).insert(entry.toCompanion());
+
+      final ruleRow = await database.select(database.taskRules).getSingle();
+      final entryRow = await database.select(database.taskEntries).getSingle();
+      expect(ruleRow.toModel().attachments, attachments);
+      expect(entryRow.toModel().attachments, attachments.reversed.toList());
     });
 
     test('StravaAthlete Mapping', () {

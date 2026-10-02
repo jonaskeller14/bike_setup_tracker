@@ -656,8 +656,15 @@ void main() {
         personAdjustmentValues: {},
       )]);
     });
-    appRepository.dispose();
-    appRepository = AppRepository(database);
+    // This test writes inside runAsync after the swap. A query stream first
+    // listened to under fake async refetches there, parks on drift's lock until
+    // the next pump and deadlocks the real-async query queued behind it. The
+    // activity-rates stream is keyed by the current second, so it is such a new
+    // stream whenever the swap lands in a later second than setUp.
+    await tester.runAsync(() async {
+      appRepository.dispose();
+      appRepository = AppRepository(database);
+    });
     await tester.pumpWidget(createWidgetUnderTest('comp1'));
     await _waitForComponent(tester, appRepository);
 

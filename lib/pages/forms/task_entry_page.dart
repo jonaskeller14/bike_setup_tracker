@@ -488,7 +488,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
                         backgroundColor: widget.mode == TaskEntryPageMode.edit && (_selectedDateTimeUtc.hour != _initialDateTimeUtc.hour || _selectedDateTimeUtc.minute != _initialDateTimeUtc.minute) ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
                         onPressed: _pickTime,
                       ),
-                      if (kDebugMode && showAttachments)
+                      if (showAttachments)
                         ActionChip(
                           materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           label: const SizedBox.shrink(),

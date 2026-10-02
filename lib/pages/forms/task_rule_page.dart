@@ -886,7 +886,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
               );
             },
           ),
-        if (kDebugMode && appSettings.enableAttachments && _attachmentsDirPath != null)
+        if (appSettings.enableAttachments && _attachmentsDirPath != null)
           ActionChip(
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             label: const SizedBox.shrink(),

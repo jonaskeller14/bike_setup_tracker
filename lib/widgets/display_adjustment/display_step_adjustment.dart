@@ -47,7 +47,7 @@ class DisplayStepAdjustmentWidget extends StatelessWidget {
         spacing: 20,
         children: [
           Expanded(
-            child: AdjustmentIconNameNotes(adjustment: adjustment, color: highlightColor),
+            child: AdjustmentIconNameNotes(adjustment: adjustment, value: value, color: highlightColor),
           ),
           Flexible(
             child: ToggleableUnitValue(

@@ -136,4 +136,73 @@ void main() {
 
     expect(result.isEmpty, isTrue);
   });
+
+  group('adjustmentHistogramBarIndexesFor', () {
+    test('matches the exact bar and nothing for an unridden or absent value', () {
+      final adjustment = StepAdjustment(
+        id: 'step',
+        name: 'Rebound',
+        notes: null,
+        unit: null,
+        step: 1,
+        min: -10,
+        max: 10,
+        visualization: StepAdjustmentVisualization.slider,
+      );
+      final histogram = groupAdjustmentActivityHistogram(
+        adjustment: adjustment,
+        values: [value(const StepValue(-1), 4), value(const StepValue(2), 3, 'other')],
+      );
+
+      expect(adjustmentHistogramBarIndexesFor(histogram, const StepValue(2)), {1});
+      expect(adjustmentHistogramBarIndexesFor(histogram, const StepValue(5)), isEmpty);
+      expect(adjustmentHistogramBarIndexesFor(histogram, null), isEmpty);
+      expect(
+        adjustmentHistogramBarIndexesFor(AdjustmentActivityHistogram.empty('step'), const StepValue(2)),
+        isEmpty,
+      );
+    });
+
+    test('matches every bar of a multi-select categorical value', () {
+      final adjustment = CategoricalAdjustment(
+        id: 'category',
+        name: 'Tyres',
+        notes: null,
+        unit: null,
+        options: const {'Rear', 'Front', 'Spare'},
+        multiSelect: true,
+      );
+      final histogram = groupAdjustmentActivityHistogram(
+        adjustment: adjustment,
+        values: [
+          value(CategoricalValue(const ['Rear']), 1),
+          value(CategoricalValue(const ['Front']), 1, 'front'),
+          value(CategoricalValue(const ['Spare']), 1, 'spare'),
+        ],
+      );
+
+      expect(adjustmentHistogramBarIndexesFor(histogram, CategoricalValue(const ['Spare', 'Rear'])), {0, 2});
+      expect(adjustmentHistogramBarIndexesFor(histogram, CategoricalValue(const ['Front'])), {1});
+      expect(adjustmentHistogramBarIndexesFor(histogram, CategoricalValue(const [])), isEmpty);
+    });
+
+    test('puts a binned value into the bin that counted it', () {
+      final adjustment = NumericalAdjustment(id: 'number', name: 'Value', notes: null, unit: null);
+      final ridden = [for (var index = -6; index <= 6; index++) NumericalValue(index.toDouble())];
+      final histogram = groupAdjustmentActivityHistogram(
+        adjustment: adjustment,
+        values: [for (final entry in ridden) value(entry, 1, entry.display)],
+      );
+
+      final perBar = List<int>.filled(histogram.bars.length, 0);
+      for (final entry in ridden) {
+        perBar[adjustmentHistogramBarIndexesFor(histogram, entry).single]++;
+      }
+      expect(perBar, histogram.bars.map((bar) => bar.activityCount));
+      expect(adjustmentHistogramBarIndexesFor(histogram, const NumericalValue(6)), {histogram.bars.length - 1});
+      expect(adjustmentHistogramBarIndexesFor(histogram, const NumericalValue(0.25)), {4});
+      expect(adjustmentHistogramBarIndexesFor(histogram, const NumericalValue(6.5)), isEmpty);
+      expect(adjustmentHistogramBarIndexesFor(histogram, const NumericalValue(-6.5)), isEmpty);
+    });
+  });
 }

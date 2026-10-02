@@ -95,7 +95,7 @@ class _SetTextAdjustmentWidgetState extends State<SetTextAdjustmentWidget> {
         children: [
           Flexible(
             flex: 2,
-            child: AdjustmentIconNameNotes(adjustment: widget.adjustment, color: highlightColor),
+            child: AdjustmentIconNameNotes(adjustment: widget.adjustment, value: widget.value, color: highlightColor),
           ),
           Flexible(
             flex: 3,

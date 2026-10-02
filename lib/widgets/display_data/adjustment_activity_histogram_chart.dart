@@ -3,12 +3,15 @@ import 'dart:math' as math;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
+import '../../models/adjustment/adjustment.dart';
 import '../../models/adjustment_activity_histogram.dart';
+import '../../utils/adjustment_activity_histogram_grouping.dart';
 
 class AdjustmentActivityHistogramChart extends StatelessWidget {
   final AdjustmentActivityHistogram histogram;
+  final AdjustmentValue? currentValue;
 
-  const AdjustmentActivityHistogramChart({super.key, required this.histogram});
+  const AdjustmentActivityHistogramChart({super.key, required this.histogram, this.currentValue});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +23,12 @@ class AdjustmentActivityHistogramChart extends StatelessWidget {
     final maxCount = bars.fold<int>(0, (maximum, bar) => math.max(maximum, bar.activityCount));
     final tickInterval = math.max(1, (maxCount / 4).ceil());
     final chartMaximum = math.max(tickInterval, (maxCount / tickInterval).ceil() * tickInterval).toDouble();
-    final summary = bars.map((bar) => '${bar.label}: ${bar.activityCount} activities').join(', ');
+    final highlighted = adjustmentHistogramBarIndexesFor(histogram, currentValue);
+    final labelStyle = textTheme.labelSmall?.copyWith(color: colorScheme.onSecondary);
+    final summary = [
+      for (var index = 0; index < bars.length; index++)
+        '${bars[index].label}: ${bars[index].activityCount} activities${highlighted.contains(index) ? ' (current)' : ''}',
+    ].join(', ');
 
     return Semantics(
       container: true,
@@ -85,7 +93,9 @@ class AdjustmentActivityHistogramChart extends StatelessWidget {
                               label,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: textTheme.labelSmall?.copyWith(color: colorScheme.onSecondary),
+                              style: highlighted.contains(index)
+                                  ? labelStyle?.copyWith(fontWeight: FontWeight.bold)
+                                  : labelStyle,
                             ),
                           );
                         },
@@ -99,7 +109,7 @@ class AdjustmentActivityHistogramChart extends StatelessWidget {
                       getTooltipItem: (group, groupIndex, rod, rodIndex) {
                         final bar = bars[group.x];
                         return BarTooltipItem(
-                          '${bar.label}\n${bar.activityCount} activities',
+                          '${bar.label}\n${bar.activityCount} activities${highlighted.contains(group.x) ? '\nCurrent value' : ''}',
                           textTheme.labelSmall?.copyWith(color: colorScheme.onSecondaryContainer) ??
                               TextStyle(color: colorScheme.onSecondaryContainer),
                         );
@@ -114,7 +124,9 @@ class AdjustmentActivityHistogramChart extends StatelessWidget {
                           BarChartRodData(
                             toY: bars[index].activityCount.toDouble(),
                             width: math.max(6, math.min(18, 180 / bars.length)),
-                            color: colorScheme.primaryContainer,
+                            color: highlighted.isEmpty || highlighted.contains(index)
+                                ? colorScheme.primaryContainer
+                                : colorScheme.primaryContainer.withValues(alpha: 0.4),
                             borderRadius: const BorderRadius.vertical(top: Radius.circular(3)),
                           ),
                         ],

@@ -69,7 +69,7 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
         children: [
           Flexible(
             flex: 2,
-            child: AdjustmentIconNameNotes(adjustment: adjustment, color: highlightColor),
+            child: AdjustmentIconNameNotes(adjustment: adjustment, value: value, color: highlightColor),
           ),
           Flexible(
             flex: 3,

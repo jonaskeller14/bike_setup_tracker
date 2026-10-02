@@ -112,9 +112,7 @@ AdjustmentActivityHistogram _groupContinuous(
   final width = (max - min) / adjustmentHistogramBinCount;
   final binCounts = List<int>.filled(adjustmentHistogramBinCount, 0);
   for (final entry in counts.entries) {
-    final rawIndex = ((entry.key.toDouble() - min) / width).floor();
-    final index = rawIndex.clamp(0, adjustmentHistogramBinCount - 1);
-    binCounts[index] += entry.value;
+    binCounts[_binIndex(entry.key, min, width, adjustmentHistogramBinCount)] += entry.value;
   }
 
   return AdjustmentActivityHistogram(
@@ -134,6 +132,37 @@ AdjustmentActivityHistogram _groupContinuous(
     ),
     isBinned: true,
   );
+}
+
+int _binIndex(num value, double min, double width, int binCount) {
+  return ((value.toDouble() - min) / width).floor().clamp(0, binCount - 1);
+}
+
+/// Indexes of the [histogram] bars that [value] falls into. Empty when the
+/// value was never ridden; several for a multi-select categorical value.
+Set<int> adjustmentHistogramBarIndexesFor(AdjustmentActivityHistogram histogram, AdjustmentValue? value) {
+  final bars = histogram.bars;
+  if (value == null || bars.isEmpty) return const {};
+
+  if (histogram.isBinned) {
+    final numeric = value.asNum;
+    final min = bars.first.lowerBound!.toDouble();
+    final max = bars.last.upperBound!.toDouble();
+    if (numeric == null || !numeric.isFinite || numeric < min || numeric > max) return const {};
+    return {_binIndex(numeric, min, (max - min) / bars.length, bars.length)};
+  }
+
+  return {
+    for (var index = 0; index < bars.length; index++)
+      if (_isExactMatch(bars[index].exactValue, value)) index,
+  };
+}
+
+bool _isExactMatch(AdjustmentValue? barValue, AdjustmentValue value) {
+  if (value is CategoricalValue) {
+    return barValue is CategoricalValue && barValue.options.every(value.options.contains);
+  }
+  return barValue == value;
 }
 
 int _compareExactValues(AdjustmentValue left, AdjustmentValue right) {

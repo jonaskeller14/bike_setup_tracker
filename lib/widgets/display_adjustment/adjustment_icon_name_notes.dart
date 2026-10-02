@@ -12,10 +12,11 @@ import '../items/adjustment_type_icon.dart';
 
 class AdjustmentIconNameNotes extends StatefulWidget {
   final Adjustment adjustment;
+  final AdjustmentValue? value;
   final Color? color;
   final bool compact;
 
-  const AdjustmentIconNameNotes({super.key, required this.adjustment, this.color, this.compact = false});
+  const AdjustmentIconNameNotes({super.key, required this.adjustment, this.value, this.color, this.compact = false});
 
   @override
   State<AdjustmentIconNameNotes> createState() => _AdjustmentIconNameNotesState();
@@ -169,7 +170,7 @@ class _AdjustmentIconNameNotesState extends State<AdjustmentIconNameNotes> {
                     if (_analysisService?.hasAnyActivity == true && _histogram?.isEmpty == false)
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
-                        child: AdjustmentActivityHistogramChart(histogram: _histogram!),
+                        child: AdjustmentActivityHistogramChart(histogram: _histogram!, currentValue: widget.value),
                       ),
                   ],
                 ),

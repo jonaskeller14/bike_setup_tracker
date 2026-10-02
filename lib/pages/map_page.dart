@@ -271,14 +271,24 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
   Future<void> _zoomBy(double delta) =>
       _camera.move(_mapController.camera.center, (_mapController.camera.zoom + delta).clamp(3.0, 18.0));
 
-  static Marker _pinMarker({required LatLng point, required VoidCallback onTap, required Widget pin}) {
+  Marker _pinMarker({required LatLng point, required VoidCallback onTap, required Widget pin}) {
     return Marker(
       point: point,
       width: 40,
       height: 40,
       alignment: mapPinAlignment,
-      child: GestureDetector(onTap: onTap, child: pin),
+      child: GestureDetector(onTap: () => _openPinSheet(point, onTap), child: pin),
     );
+  }
+
+  /// Pans the tapped pin into the top band of the map first, so it stays
+  /// visible above the bottom sheet the tap opens.
+  void _openPinSheet(LatLng point, VoidCallback showSheet) {
+    final camera = _mapController.camera;
+    final pin = camera.latLngToScreenOffset(point);
+    final center = camera.screenOffsetToLatLng(Offset(pin.dx, pin.dy + camera.nonRotatedSize.height * 0.35));
+    unawaited(_camera.move(center, camera.zoom));
+    showSheet();
   }
 
   Iterable<Marker> _setupMarkers(AppRepository appRepository, AppSettings appSettings) {
@@ -330,7 +340,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
 
   /// Kept out of the cluster layer so a focused pin is never folded into a
   /// cluster bubble.
-  static Marker _focusMarker({
+  Marker _focusMarker({
     required Key key,
     required LatLng point,
     required VoidCallback onTap,
@@ -347,7 +357,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
         container: true,
         identifier: identifier,
         child: GestureDetector(
-          onTap: onTap,
+          onTap: () => _openPinSheet(point, onTap),
           // Laid out at the pins' native 40 px so their badge offsets hold; only
           // the paint is enlarged.
           child: Transform.scale(

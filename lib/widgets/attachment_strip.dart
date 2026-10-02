@@ -48,6 +48,7 @@ class AttachmentStrip extends StatefulWidget {
   final void Function(List<Attachment> newAttachments)? onAdd;
   final void Function(int index, String name)? onRename;
   final String heroTagPrefix;
+  final EdgeInsets? padding;
 
   const AttachmentStrip({
     super.key,
@@ -59,6 +60,7 @@ class AttachmentStrip extends StatefulWidget {
     this.onAdd,
     this.onRename,
     this.heroTagPrefix = 'attachment',
+    this.padding,
   });
 
   @override
@@ -292,6 +294,7 @@ class _AttachmentStripState extends State<AttachmentStrip> with TickerProviderSt
         height: tileSize,
         child: ReorderableListView.builder(
           scrollDirection: Axis.horizontal,
+          padding: widget.padding,
           buildDefaultDragHandles: false,
           proxyDecorator: proxyDecorator,
           onReorderStart: (_) => unawaited(HapticFeedback.lightImpact()),
@@ -358,6 +361,7 @@ class _AttachmentStripState extends State<AttachmentStrip> with TickerProviderSt
       height: tileSize,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
+        padding: widget.padding,
         itemCount: widget.attachments.length,
         separatorBuilder: (_, _) => const SizedBox(width: spacing),
         itemBuilder: (context, index) {

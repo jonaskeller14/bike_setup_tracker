@@ -20,7 +20,7 @@ class _AttachmentRowState extends State<AttachmentRow> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+      padding: const EdgeInsets.fromLTRB(16, 8, 0, 16),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -52,6 +52,7 @@ class _AttachmentRowState extends State<AttachmentRow> {
                 return AttachmentStrip(
                   attachments: widget.attachments,
                   attachmentsDir: snapshot.data!,
+                  padding: const EdgeInsets.only(right: 16),
                 );
               },
             ),

@@ -357,18 +357,20 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
                           },
                         ),
                       ],
-                      if (showAttachmentStrip) ...[
-                        const SizedBox(height: 8),
-                        // While selecting, a tap on a thumbnail toggles the entry instead of opening the viewer.
-                        IgnorePointer(
-                          ignoring: widget.selectionMode,
-                          child: AttachmentStrip(
-                            attachments: attachments,
-                            attachmentsDir: widget.attachmentsDir!,
-                          ),
-                        ),
-                      ],
                     ],
+                  ),
+                ),
+              if (showAttachmentStrip)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  // While selecting, a tap on a thumbnail toggles the entry instead of opening the viewer.
+                  child: IgnorePointer(
+                    ignoring: widget.selectionMode,
+                    child: AttachmentStrip(
+                      attachments: attachments,
+                      attachmentsDir: widget.attachmentsDir!,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                    ),
                   ),
                 ),
             ],

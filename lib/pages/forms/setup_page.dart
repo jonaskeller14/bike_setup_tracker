@@ -1075,6 +1075,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                 padding: EdgeInsets.zero,
                 avatar: const Icon(Icons.attach_file),
                 tooltip: 'Add Attachment',
+                backgroundColor: widget.mode == SetupPageMode.edit && !listEquals(_attachments, _initialAttachments)
+                    ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
+                    : null,
                 onPressed: _addAttachments,
               ),
           ],
@@ -1251,17 +1254,31 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                         ),
                         const SizedBox(height: 12),
                         _wrap(),
-                        if (context.read<AppSettings>().enableAttachments && _attachmentsDirPath != null && _attachments.isNotEmpty) ...[
-                          const SizedBox(height: 12),
-                          AttachmentStrip(
-                            attachments: _attachments,
-                            attachmentsDir: _attachmentsDirPath!,
-                            mode: AttachmentStripMode.edit,
-                            onRemove: _onAttachmentRemoved,
-                            onReorder: _onAttachmentReorder,
-                            onRename: _onAttachmentRenamed,
-                          ),
-                        ],
+                      ],
+                    ),
+                  ),
+                ),
+                if (context.read<AppSettings>().enableAttachments && _attachmentsDirPath != null && _attachments.isNotEmpty)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: AttachmentStrip(
+                        attachments: _attachments,
+                        attachmentsDir: _attachmentsDirPath!,
+                        mode: AttachmentStripMode.edit,
+                        onRemove: _onAttachmentRemoved,
+                        onReorder: _onAttachmentReorder,
+                        onRename: _onAttachmentRenamed,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                      ),
+                    ),
+                  ),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         const SizedBox(height: 18),
                         _bikeField(bikes: bikes),
                         const SizedBox(height: 12),

@@ -428,69 +428,83 @@ class _BikePageState extends State<BikePage> {
         ),
         body: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.symmetric(vertical: 16.0),
             child: Form(
               key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _nameField(),
-                  if (appSettings.enablePerson) ...[
-                    const SizedBox(height: 12),
-                    _personField(persons: persons),
-                  ],
-                  if (appSettings.enableStrava && (subscriptionService.hasStravaEntitlement)) ...[
-                    const SizedBox(height: 12),
-                    _stravaGearField(existingBikes: existingBikes, stravaGears: stravaGears),
-                  ],
-                  Center(
-                    child: TextButton.icon(
-                      onPressed: () => setState(() => _expanded = !_expanded),
-                      icon: Icon(_expanded 
-                          ? Icons.expand_less 
-                          : Icons.expand_more,
-                      ),
-                      label: Text(_expanded 
-                          ? "Hide Additional Fields" 
-                          : "Show Additional Fields"
-                      ),
-                    ),
-                  ),
-                  Visibility(
-                    visible: _expanded,
-                    maintainState: true,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _notesField(),
-                        if (showInitialStats || showAttachments) ...[
+                        _nameField(),
+                        if (appSettings.enablePerson) ...[
                           const SizedBox(height: 12),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Wrap(
-                              spacing: 8.0,
-                              runSpacing: 8.0,
-                              crossAxisAlignment: WrapCrossAlignment.center,
-                              children: [
-                                if (showInitialStats) _initialStatsChip(),
-                                if (showAttachments) _attachChip(),
-                              ],
+                          _personField(persons: persons),
+                        ],
+                        if (appSettings.enableStrava && (subscriptionService.hasStravaEntitlement)) ...[
+                          const SizedBox(height: 12),
+                          _stravaGearField(existingBikes: existingBikes, stravaGears: stravaGears),
+                        ],
+                        Center(
+                          child: TextButton.icon(
+                            onPressed: () => setState(() => _expanded = !_expanded),
+                            icon: Icon(_expanded 
+                                ? Icons.expand_less 
+                                : Icons.expand_more,
+                            ),
+                            label: Text(_expanded 
+                                ? "Hide Additional Fields" 
+                                : "Show Additional Fields"
                             ),
                           ),
-                        ],
-                        if (showAttachments && _attachments.isNotEmpty) ...[
-                          const SizedBox(height: 12),
-                          AttachmentStrip(
-                            attachments: _attachments,
-                            attachmentsDir: _attachmentsDirPath!,
-                            mode: AttachmentStripMode.edit,
-                            onRemove: _onAttachmentRemoved,
-                            onReorder: _onAttachmentReorder,
-                            onRename: _onAttachmentRenamed,
+                        ),
+                        Visibility(
+                          visible: _expanded,
+                          maintainState: true,
+                          child: Column(
+                            children: [
+                              _notesField(),
+                              if (showInitialStats || showAttachments) ...[
+                                const SizedBox(height: 12),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Wrap(
+                                    spacing: 8.0,
+                                    runSpacing: 8.0,
+                                    crossAxisAlignment: WrapCrossAlignment.center,
+                                    children: [
+                                      if (showInitialStats) _initialStatsChip(),
+                                      if (showAttachments) _attachChip(),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
-                        ],
+                        ),
                       ],
                     ),
                   ),
+                  if (showAttachments && _attachments.isNotEmpty)
+                    Visibility(
+                      visible: _expanded,
+                      maintainState: true,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: AttachmentStrip(
+                          attachments: _attachments,
+                          attachmentsDir: _attachmentsDirPath!,
+                          mode: AttachmentStripMode.edit,
+                          onRemove: _onAttachmentRemoved,
+                          onReorder: _onAttachmentReorder,
+                          onRename: _onAttachmentRenamed,
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),

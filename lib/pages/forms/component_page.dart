@@ -1008,7 +1008,7 @@ class _ComponentPageState extends State<ComponentPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
@@ -1070,27 +1070,35 @@ class _ComponentPageState extends State<ComponentPage> {
                                   ),
                                 ),
                               ],
-                              if (showAttachments && _attachments.isNotEmpty) ...[
-                                const SizedBox(height: 12),
-                                AttachmentStrip(
-                                  attachments: _attachments,
-                                  attachmentsDir: _attachmentsDirPath!,
-                                  mode: AttachmentStripMode.edit,
-                                  onRemove: _onAttachmentRemoved,
-                                  onReorder: _onAttachmentReorder,
-                                  onRename: _onAttachmentRenamed,
-                                ),
-                              ],
                             ],
                           ),
                         ),
-                        if (!appSettings.enableInstallationTimeline && !_isComplexInstallation) ...[
-                          SizedBox(height: _expanded && (showInitialStats || showAttachments) ? 18 : 12),
-                          _bikesDropdownField(bikes: bikes),
-                        ],
                       ],
                     ),
                   ),
+                  if (showAttachments && _attachments.isNotEmpty)
+                    Visibility(
+                      visible: _expanded,
+                      maintainState: true,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: AttachmentStrip(
+                          attachments: _attachments,
+                          attachmentsDir: _attachmentsDirPath!,
+                          mode: AttachmentStripMode.edit,
+                          onRemove: _onAttachmentRemoved,
+                          onReorder: _onAttachmentReorder,
+                          onRename: _onAttachmentRenamed,
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                        ),
+                      ),
+                    ),
+                  if (!appSettings.enableInstallationTimeline && !_isComplexInstallation)
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(16, _expanded && (showInitialStats || showAttachments) ? 18 : 12, 16, 0),
+                      child: _bikesDropdownField(bikes: bikes),
+                    ),
+                  const SizedBox(height: 12),
                   if (appSettings.enableInstallationTimeline || _isComplexInstallation) ...[
                     // const Divider(height: 1),
                     SetInstallationTimeline(

@@ -932,7 +932,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
@@ -942,17 +942,28 @@ class _TaskRulePageState extends State<TaskRulePage> {
                         _notesTextFormField(),
                         const SizedBox(height: 12),
                         _wrap(),
-                        if (appSettings.enableAttachments && _attachmentsDirPath != null && _attachments.isNotEmpty) ...[
-                          const SizedBox(height: 12),
-                          AttachmentStrip(
-                            attachments: _attachments,
-                            attachmentsDir: _attachmentsDirPath!,
-                            mode: AttachmentStripMode.edit,
-                            onRemove: _onAttachmentRemoved,
-                            onReorder: _onAttachmentReorder,
-                            onRename: _onAttachmentRenamed,
-                          ),
-                        ],
+                      ],
+                    ),
+                  ),
+                  if (appSettings.enableAttachments && _attachmentsDirPath != null && _attachments.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: AttachmentStrip(
+                        attachments: _attachments,
+                        attachmentsDir: _attachmentsDirPath!,
+                        mode: AttachmentStripMode.edit,
+                        onRemove: _onAttachmentRemoved,
+                        onReorder: _onAttachmentReorder,
+                        onRename: _onAttachmentRenamed,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                      ),
+                    ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
                         const SizedBox(height: 18),
                         FormField<TaskAssociation>(
                           initialValue: _association,

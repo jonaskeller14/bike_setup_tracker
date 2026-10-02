@@ -42,6 +42,11 @@ class StepAdjustment extends Adjustment {
 
   static const IconData iconData = Icons.stairs_outlined;
 
+  /// Stand-in for a catalog range authored as `max: ~` (see [StepAdjustment.fromYaml]).
+  static const int unknownMaxPlaceholder = 20;
+  static const String unknownMaxWarning =
+      'Click count not published. Max is a placeholder, edit it to match your component.';
+
   StepAdjustment({
     super.id,
     required super.name,
@@ -188,15 +193,26 @@ class StepAdjustment extends Adjustment {
     _checkPresetKeys(map, const {
       'name', 'type', 'min', 'max', 'step', 'unit', 'visualization', 'notes', 'dialColor', 'dialSize',
     });
-    final max = (map['max'] as num?)?.toInt();
+    final min = (map['min'] as num?)?.toInt() ?? 0;
+    var max = (map['max'] as num?)?.toInt();
+    var notes = map['notes'] as String?;
     if (max == null) {
-      throw ArgumentError('Step adjustment "${map['name']}" requires "max"');
+      // `max: ~` declares a range the manufacturer does not publish; a missing
+      // key is still a data bug.
+      if (!map.containsKey('max')) {
+        throw ArgumentError('Step adjustment "${map['name']}" requires "max"');
+      }
+      if (min != 0) {
+        throw ArgumentError('Step adjustment "${map['name']}" has an unknown "max", which needs a range counted from 0');
+      }
+      max = unknownMaxPlaceholder;
+      notes = notes == null ? unknownMaxWarning : '$notes; $unknownMaxWarning';
     }
     return StepAdjustment(
       name: _requirePresetName(map),
-      notes: map['notes'] as String?,
+      notes: notes,
       unit: AdjustmentUnit.fromLegacy(map['unit'] as String?),
-      min: (map['min'] as num?)?.toInt() ?? 0,
+      min: min,
       max: max,
       step: (map['step'] as num?)?.toInt() ?? 1,
       visualization: _visualizationFromYaml(map['visualization'] as String?),

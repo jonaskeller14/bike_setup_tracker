@@ -1,3 +1,4 @@
+import '../adjustment/adjustment.dart';
 import 'component.dart';
 import 'component_preset.dart';
 import 'preset_spec_keys.dart';
@@ -120,5 +121,24 @@ class OptionValue {
     this.description,
     this.specs = Specs.empty,
     this.adjustments = const [],
+  });
+}
+
+/// Form-fill data for a component created from the catalog.
+class CatalogApplication {
+  final String name;
+  final ComponentType componentType;
+  final String notes;
+  final List<Adjustment> adjustments;
+
+  /// What the component persists: the node path plus the chosen options.
+  final Map<String, Object> preset;
+
+  const CatalogApplication({
+    required this.name,
+    required this.componentType,
+    required this.notes,
+    required this.adjustments,
+    required this.preset,
   });
 }

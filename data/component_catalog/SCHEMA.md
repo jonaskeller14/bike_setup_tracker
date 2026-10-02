@@ -236,6 +236,9 @@ generation is only worth adding when its numbers can actually be sourced.
   on the model node and the trims are its direct children. Adding a second
   generation later inserts the level, which changes the path of the existing
   trims — do it before rollout where an earlier generation is foreseeable.
+- **A generation is left out of the component's name**: `FOX 36 Factory`, not
+  `FOX 36 2025–2026 Factory`. Its years reach the user as a badge and a `Year:`
+  line in the notes. A step that users know by name is a `version` instead.
 - **Author newest generation first.** Children are shown in file order.
 - **`category` sits on the model node**, the generation-level fields (`years`,
   `url`, `draft`, `note`) on the generation node.

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 import '../display_adjustment/adjustment_icon_name_notes.dart';
+import '../display_adjustment/previous_value_line.dart';
 import '../sheets/set_duration.dart';
 
 class SetDurationAdjustmentWidget extends StatelessWidget {
@@ -47,62 +48,71 @@ class SetDurationAdjustmentWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: isChanged ? (isInitial ? highlights?.initialFill ?? Colors.green.withValues(alpha: 0.08) : highlights?.changedFill ?? Colors.orange.withValues(alpha: 0.08)) : null,
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        spacing: 20,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 8,
         children: [
-          Expanded(
-            child: AdjustmentIconNameNotes(adjustment: adjustment, value: value, color: highlightColor),
-          ),
-          if (value == null)
-            OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                visualDensity: VisualDensity.compact,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            spacing: 20,
+            children: [
+              Expanded(
+                child: AdjustmentIconNameNotes(adjustment: adjustment, value: value, color: highlightColor),
               ),
-              onPressed: () => onChanged(const DurationValue(Duration.zero)),
-              child: const Text("Set value"),
-            )
-          else
-            Row(
-              children: [
-                InkWell(
-                  onTap: () => showSetDurationSheet(
-                    context: context,
-                    adjustment: adjustment,
-                    value: value!.value,
-                    onChanged: (newValue) => onChanged(DurationValue(newValue)),
-                  ),
-                  borderRadius: BorderRadius.circular(6),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        value!.display,
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          fontFamily: 'monospace',
-                          fontWeight: FontWeight.bold,
-                          color: highlightColor,
-                          fontFeatures: [const FontFeature.tabularFigures()],
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Icon(
-                        Icons.edit, 
-                        size: 20, 
-                        color: highlightColor ?? Theme.of(context).colorScheme.primary,
-                      ),
-                    ],
-                  ),
-                ),
-                if (isInitial || optional)
-                  IconButton(
-                    onPressed: () => onChanged(null), 
-                    icon: const Icon(Icons.replay),
+              if (value == null)
+                OutlinedButton(
+                  style: OutlinedButton.styleFrom(
                     visualDensity: VisualDensity.compact,
                   ),
-              ],
-            ),
+                  onPressed: () => onChanged(const DurationValue(Duration.zero)),
+                  child: const Text("Set value"),
+                )
+              else
+                Row(
+                  children: [
+                    InkWell(
+                      onTap: () => showSetDurationSheet(
+                        context: context,
+                        adjustment: adjustment,
+                        value: value!.value,
+                        onChanged: (newValue) => onChanged(DurationValue(newValue)),
+                      ),
+                      borderRadius: BorderRadius.circular(6),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            value!.display,
+                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              fontFamily: 'monospace',
+                              fontWeight: FontWeight.bold,
+                              color: highlightColor,
+                              fontFeatures: [const FontFeature.tabularFigures()],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Icon(
+                            Icons.edit, 
+                            size: 20, 
+                            color: highlightColor ?? Theme.of(context).colorScheme.primary,
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (isInitial || optional)
+                      IconButton(
+                        onPressed: () => onChanged(null), 
+                        icon: const Icon(Icons.replay),
+                        visualDensity: VisualDensity.compact,
+                      ),
+                  ],
+                ),
+            ],
+          ),
+          if (highlighting && PreviousValueLine.appliesTo(adjustment, initialValue, value))
+            PreviousValueLine(adjustment: adjustment, previousValue: initialValue!, value: value!),
         ],
       ),
     );

@@ -169,6 +169,79 @@ void main() {
     });
   });
 
+  group("AdjustmentSetList previous value", () {
+    Finder struckThrough(String text) => find.byWidgetPredicate(
+      (widget) => widget is Text && widget.data == text && widget.style?.decoration == TextDecoration.lineThrough,
+    );
+
+    testWidgets("shows a changed value's previous one with the delta", (WidgetTester tester) async {
+      final adjustment = numerical();
+      await tester.pumpWidget(
+        buildList(
+          adjustments: [adjustment],
+          previousValues: {adjustment.id: const NumericalValue(65.0)},
+          values: {adjustment.id: const NumericalValue(70.5)},
+          formKey: GlobalKey<FormState>(),
+          prefillFromInitial: true,
+        ),
+      );
+
+      expect(struckThrough('65'), findsOneWidget);
+      expect(find.text('+5.5'), findsOneWidget);
+    });
+
+    testWidgets("shows nothing while the value matches the previous one", (WidgetTester tester) async {
+      final adjustment = numerical();
+      await tester.pumpWidget(
+        buildList(
+          adjustments: [adjustment],
+          previousValues: {adjustment.id: const NumericalValue(65.0)},
+          values: {},
+          formKey: GlobalKey<FormState>(),
+          prefillFromInitial: true,
+        ),
+      );
+
+      expect(struckThrough('65'), findsNothing);
+    });
+
+    testWidgets("keeps the field's text and focus when the line appears", (WidgetTester tester) async {
+      final adjustment = numerical();
+      await tester.pumpWidget(
+        buildList(
+          adjustments: [adjustment],
+          previousValues: {adjustment.id: const NumericalValue(65.0)},
+          values: {},
+          formKey: GlobalKey<FormState>(),
+          prefillFromInitial: true,
+        ),
+      );
+
+      await tester.enterText(find.byType(TextField), '60');
+      await tester.pump();
+      final field = find.descendant(of: find.byType(TextField), matching: find.byType(EditableText));
+
+      expect(struckThrough('65'), findsOneWidget);
+      expect(tester.widget<EditableText>(field).controller.text, '60');
+      expect(tester.widget<EditableText>(field).focusNode.hasFocus, isTrue);
+    });
+
+    testWidgets("never shows a boolean's previous value", (WidgetTester tester) async {
+      final adjustment = boolean();
+      await tester.pumpWidget(
+        buildList(
+          adjustments: [adjustment],
+          previousValues: {adjustment.id: const BooleanValue(false)},
+          values: {adjustment.id: const BooleanValue(true)},
+          formKey: GlobalKey<FormState>(),
+          prefillFromInitial: true,
+        ),
+      );
+
+      expect(struckThrough('Off'), findsNothing);
+    });
+  });
+
   group("AdjustmentSetList value pairing", () {
     testWidgets("renders the set widget matching the adjustment type", (WidgetTester tester) async {
       final adjustment = boolean();

@@ -260,9 +260,13 @@ class GoldenTestHarness {
     throw StateError('Golden fixture did not finish loading.');
   }
 
-  Widget wrap({required Brightness brightness, required Widget child}) {
-    const mediaQueryData = MediaQueryData(
-      size: goldenViewport,
+  Widget wrap({
+    required Brightness brightness,
+    required Widget child,
+    Size viewport = goldenViewport,
+  }) {
+    final mediaQueryData = MediaQueryData(
+      size: viewport,
       devicePixelRatio: 1,
       textScaler: TextScaler.noScaling,
       disableAnimations: true,
@@ -278,8 +282,8 @@ class GoldenTestHarness {
         ),
       ],
       child: SizedBox(
-        width: goldenViewport.width,
-        height: goldenViewport.height,
+        width: viewport.width,
+        height: viewport.height,
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
           theme: brightness == Brightness.light ? materialAppTheme : materialAppDarkTheme,

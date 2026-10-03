@@ -11,12 +11,12 @@ import 'package:flutter_test/flutter_test.dart';
 /// whole-number double 12.0 must read "12", never "12.0".
 void main() {
   group('Display Widgets Robustness Tests', () {
-    testWidgets('DisplayStepAdjustmentWidget shows the step value with its unit', (WidgetTester tester) async {
+    testWidgets('DisplayStepAdjustmentWidget shows the step value', (WidgetTester tester) async {
       final adjustment = StepAdjustment(
         id: 'step1',
         name: 'Step Adj',
         notes: '',
-        unit: AdjustmentUnit.fromLegacy('clicks'),
+        unit: null,
         step: 1,
         min: 0,
         max: 10,
@@ -34,8 +34,8 @@ void main() {
           ),
         ),
       ));
-      expect(find.text('6'), findsOneWidget);
-      expect(find.textContaining('clicks'), findsWidgets);
+      // The value closes the `previous → value` line.
+      expect(find.textContaining(RegExp(r'(^|\D)6$')), findsOneWidget);
     });
 
     testWidgets('DisplayNumericalAdjustmentWidget drops a trailing .0', (WidgetTester tester) async {

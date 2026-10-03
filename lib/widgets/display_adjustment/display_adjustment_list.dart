@@ -108,7 +108,16 @@ class AdjustmentDisplayList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
-      children: [for (final adjustment in adjustments) _row(adjustment)],
+      children: [
+        for (final adjustment in adjustments)
+          AnimatedSize(
+            key: ValueKey(adjustment.id),
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeInOut,
+            alignment: Alignment.topCenter,
+            child: _row(adjustment),
+          ),
+      ],
     );
   }
 }

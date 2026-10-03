@@ -52,6 +52,7 @@ class DisplayCategoricalAdjustmentWidget extends StatelessWidget {
           Flexible(
             flex: 3,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 SelectableText.rich(
                   TextSpan(

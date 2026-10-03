@@ -217,7 +217,18 @@ against the old path then resolves only as far as the path still matches (the
 resolver returns the deepest matching node), so restructure before rollout, not
 after.
 
-Until the feature flag is rolled out, ids may still change freely.
+`ids.lock` lists every node path and every option value
+(`fork/fox/36/2025/factory#damper=grip_x2`). `test/component_catalog_ids_test.dart`
+fails when a locked id disappears; new ids are fine. After adding data,
+regenerate the lockfile:
+
+```
+UPDATE_CATALOG_IDS=1 flutter test test/component_catalog_ids_test.dart
+```
+
+Until the feature flag is rolled out, ids may still change freely: regenerate
+the lockfile after a deliberate rename. After rollout the lockfile is
+append-only, and a failing test means an id must be restored.
 
 ### Generations
 

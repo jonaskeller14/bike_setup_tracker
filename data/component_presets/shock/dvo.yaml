@@ -1,7 +1,7 @@
 # DVO Suspension mountain-bike shocks — adjustment preset database
 #
 # Same design as shock/fox.yaml, shock/ohlins.yaml: click ranges belong to the
-# DAMPER, defined once under `dampers:` and referenced by key from each
+# DAMPER, defined once under `option_values.damper` and referenced by id from each
 # shock's trims. See SCHEMA.md in this folder.
 #
 # DVO's current air-shock lineup (Topaz, Opal) and coil-shock lineup (Jade,
@@ -48,273 +48,285 @@ updated: 2026-09-10
 # --------------------------------------------------------------------------
 # Dampers
 # --------------------------------------------------------------------------
-dampers:
-  jade_x_t3:
-    name: Jade X T3
-    description: |-
-      - One lever, three on-the-fly settings: Open for rough descents, Mid for support, Firm for fire-road climbs
-      - Firm is a pedalling platform, not a lockout
-      - Adjustments incomplete: please add Rebound yourself.
-    adjustments:
-      - { name: Compression Mode, type: categorical, options: [Open, Mid, Firm], notes: "On-the-fly lever; Open = plush, Mid = supportive, Firm = firm (not a lockout)" }
-    source:
-      - https://dvosuspension.com/wp-content/uploads/2023/11/Jade-X-Setup-Guide-Nov20.pdf
-    note: >-
-      Jade X Set-Up Guide v2.0. The T3 trim does carry a rebound knob (labelled on the
-      adjuster diagram, p.4), but its scale strip (p.12) reads "Open 18+ 16 14 12 10 8 6 4 2
-      0 Closed" — the open end is open-ended, so no rebound total is recorded. The p.12 tech
-      tip only says to start fully closed and adjust out in two-click increments.
+option_values:
+  damper:
+    jade_x_t3:
+      name: Jade X T3
+      description: |-
+        - One lever, three on-the-fly settings: Open for rough descents, Mid for support, Firm for fire-road climbs
+        - Firm is a pedalling platform, not a lockout
+        - Adjustments incomplete: please add Rebound yourself.
+      adjustments:
+        - { name: Compression Mode, type: categorical, options: [Open, Mid, Firm], notes: "On-the-fly lever; Open = plush, Mid = supportive, Firm = firm (not a lockout)" }
+      source:
+        - https://dvosuspension.com/wp-content/uploads/2023/11/Jade-X-Setup-Guide-Nov20.pdf
+      note: >-
+        Jade X Set-Up Guide v2.0. The T3 trim does carry a rebound knob (labelled on the
+        adjuster diagram, p.4), but its scale strip (p.12) reads "Open 18+ 16 14 12 10 8 6 4 2
+        0 Closed" — the open end is open-ended, so no rebound total is recorded. The p.12 tech
+        tip only says to start fully closed and adjust out in two-click increments.
 
-  jade_x_prime:
-    name: Jade X Prime
-    description: |-
-      - High Speed Compression on the green dial, 10 clicks from fully open to closed
-      - Low Speed Compression on the black dial behind it, 5 clicks; clockwise adds support
-      - Adjustments incomplete: please add Rebound yourself.
-    adjustments:
-      - { name: HSC, type: step, max: 10, notes: "High-Speed Compression; Counted from fully open (softest); clockwise = more support", dialColor: green }
-      - { name: LSC, type: step, max: 5, notes: "Low-Speed Compression; Counted from fully open (softest); clockwise = more support", dialColor: grey, dialSize: small }
-    source:
-      - https://dvosuspension.com/wp-content/uploads/2023/11/Jade-X-Setup-Guide-Nov20.pdf
-    note: >-
-      Jade X Set-Up Guide v2.0, p.10-11 scale strips: HSC "Open 1 2 3 4 5 6 7 8 9 10 Closed"
-      and LSC "Open 1 2 3 4 5 Closed". Rebound omitted for the same "18+" reason as the T3.
+    jade_x_prime:
+      name: Jade X Prime
+      description: |-
+        - High Speed Compression on the green dial, 10 clicks from fully open to closed
+        - Low Speed Compression on the black dial behind it, 5 clicks; clockwise adds support
+        - Adjustments incomplete: please add Rebound yourself.
+      adjustments:
+        - { name: HSC, type: step, max: 10, notes: "High-Speed Compression; Counted from fully open (softest); clockwise = more support", dialColor: green }
+        - { name: LSC, type: step, max: 5, notes: "Low-Speed Compression; Counted from fully open (softest); clockwise = more support", dialColor: grey, dialSize: small }
+      source:
+        - https://dvosuspension.com/wp-content/uploads/2023/11/Jade-X-Setup-Guide-Nov20.pdf
+      note: >-
+        Jade X Set-Up Guide v2.0, p.10-11 scale strips: HSC "Open 1 2 3 4 5 6 7 8 9 10 Closed"
+        and LSC "Open 1 2 3 4 5 Closed". Rebound omitted for the same "18+" reason as the T3.
 
-  jade_coil:
-    name: Jade
-    description: |-
-      - High Speed Compression, 24 clicks, and Low Speed Compression, 22 clicks, counted in from fully open
-      - Rebound, 37 clicks, counted out from fully closed
-      - A pressurised bladder replaces the usual floating piston and is itself tunable
-    adjustments:
-      - { name: HSC, type: step, max: 24, notes: "High-Speed Compression; Counted from fully open (counter-clockwise = open); clockwise = firmer" }
-      - { name: LSC, type: step, max: 22, notes: "Low-Speed Compression; Counted from fully open; clockwise = firmer" }
-      - { name: Rebound, type: step, max: 37, notes: "Counted from fully closed (clockwise = closed/slowest); opening (counter-clockwise) increases speed" }
-    source:
-      - https://tech.dvosuspension.com/setup/jade/
-    note: >-
-      tech.dvosuspension.com/setup/jade states each total outright: "Rebound Range: 37 clicks
-      total", "High Speed Compression (HSC) Range: 24 clicks total", "Low Speed Compression
-      (LSC) Range: 22 clicks total", "Air Pressure Range: 170-200psi" and "The maximum amount
-      of preload length is 5mm." The Jade is coil-sprung, so that 170-200psi air range is the
-      bladder charge, and it is higher than the Jade X's 140-180psi.
+    jade_coil:
+      name: Jade
+      description: |-
+        - High Speed Compression, 24 clicks, and Low Speed Compression, 22 clicks, counted in from fully open
+        - Rebound, 37 clicks, counted out from fully closed
+        - A pressurised bladder replaces the usual floating piston and is itself tunable
+      adjustments:
+        - { name: HSC, type: step, max: 24, notes: "High-Speed Compression; Counted from fully open (counter-clockwise = open); clockwise = firmer" }
+        - { name: LSC, type: step, max: 22, notes: "Low-Speed Compression; Counted from fully open; clockwise = firmer" }
+        - { name: Rebound, type: step, max: 37, notes: "Counted from fully closed (clockwise = closed/slowest); opening (counter-clockwise) increases speed" }
+      source:
+        - https://tech.dvosuspension.com/setup/jade/
+      note: >-
+        tech.dvosuspension.com/setup/jade states each total outright: "Rebound Range: 37 clicks
+        total", "High Speed Compression (HSC) Range: 24 clicks total", "Low Speed Compression
+        (LSC) Range: 22 clicks total", "Air Pressure Range: 170-200psi" and "The maximum amount
+        of preload length is 5mm." The Jade is coil-sprung, so that 170-200psi air range is the
+        bladder charge, and it is higher than the Jade X's 140-180psi.
 
-  topaz_prime:
-    name: Topaz Prime
-    description: |-
-      - High Speed Compression on the green dial, 10 clicks from fully open to closed
-      - Low Speed Compression on the black dial behind it, 5 clicks; clockwise adds support
-      - Adjustments incomplete: please add Rebound yourself.
-    adjustments:
-      - { name: HSC, type: step, max: 10, notes: "High-Speed Compression; Counted from fully open (softest); clockwise = more support", dialColor: green }
-      - { name: LSC, type: step, max: 5, notes: "Low-Speed Compression; Counted from fully open (softest); clockwise = more support", dialColor: grey, dialSize: small }
-    source:
-      - https://dvosuspension.com/wp-content/uploads/2024/05/DVO-Topaz-Setup-Guide-May9.pdf
-    note: >-
-      Topaz Set-Up Guide (May 2024), p.10 scale strips: HSC "Open 1 2 3 4 5 6 7 8 9 10
-      Closed" and LSC "Open 1 2 3 4 5 Closed". Rebound is deliberately NOT set to 9: the only
-      rebound figure DVO prints for the Topaz is the p.12 "Rebound Base Setting Chart (for
-      all Topaz models)" whose columns run 1-9, and the same chart shape overshoots the real
-      total on the Diamond (chart to 22, stated range 20 clicks). The 2020 Topaz Air Owner's
-      Guide repeats the identical 1-9 chart with no total either.
+    topaz_prime:
+      name: Topaz Prime
+      description: |-
+        - High Speed Compression on the green dial, 10 clicks from fully open to closed
+        - Low Speed Compression on the black dial behind it, 5 clicks; clockwise adds support
+        - Adjustments incomplete: please add Rebound yourself.
+      adjustments:
+        - { name: HSC, type: step, max: 10, notes: "High-Speed Compression; Counted from fully open (softest); clockwise = more support", dialColor: green }
+        - { name: LSC, type: step, max: 5, notes: "Low-Speed Compression; Counted from fully open (softest); clockwise = more support", dialColor: grey, dialSize: small }
+      source:
+        - https://dvosuspension.com/wp-content/uploads/2024/05/DVO-Topaz-Setup-Guide-May9.pdf
+      note: >-
+        Topaz Set-Up Guide (May 2024), p.10 scale strips: HSC "Open 1 2 3 4 5 6 7 8 9 10
+        Closed" and LSC "Open 1 2 3 4 5 Closed". Rebound is deliberately NOT set to 9: the only
+        rebound figure DVO prints for the Topaz is the p.12 "Rebound Base Setting Chart (for
+        all Topaz models)" whose columns run 1-9, and the same chart shape overshoots the real
+        total on the Diamond (chart to 22, stated range 20 clicks). The 2020 Topaz Air Owner's
+        Guide repeats the identical 1-9 chart with no total either.
 
-  topaz_pro:
-    name: Topaz Pro
-    description: |-
-      - One lever, three on-the-fly settings: Open for rough descents, Mid for support, Firm for steep climbs
-      - Firm is a pedalling platform, not a lockout
-      - Adjustments incomplete: please add Rebound yourself.
-    adjustments:
-      - { name: Compression Mode, type: categorical, options: [Open, Mid, Firm], notes: "On-the-fly lever; Open = plush, Mid = supportive, Firm = firm (not a lockout)" }
-    source:
-      - https://dvosuspension.com/wp-content/uploads/2024/05/DVO-Topaz-Setup-Guide-May9.pdf
-    note: >-
-      Topaz Set-Up Guide (May 2024), p.12 T3 Adjust. Rebound omitted for the same reason as
-      the Topaz Prime — chart columns only, no stated total.
+    topaz_pro:
+      name: Topaz Pro
+      description: |-
+        - One lever, three on-the-fly settings: Open for rough descents, Mid for support, Firm for steep climbs
+        - Firm is a pedalling platform, not a lockout
+        - Adjustments incomplete: please add Rebound yourself.
+      adjustments:
+        - { name: Compression Mode, type: categorical, options: [Open, Mid, Firm], notes: "On-the-fly lever; Open = plush, Mid = supportive, Firm = firm (not a lockout)" }
+      source:
+        - https://dvosuspension.com/wp-content/uploads/2024/05/DVO-Topaz-Setup-Guide-May9.pdf
+      note: >-
+        Topaz Set-Up Guide (May 2024), p.12 T3 Adjust. Rebound omitted for the same reason as
+        the Topaz Prime — chart columns only, no stated total.
 
-  topaz_t3air:
-    name: Topaz T3Air
-    description: |-
-      - Previous-generation Topaz lever with three positions: Open, Medium and Closed
-      - Closed reduces pedal bob for climbing; it is a platform, not a lockout
-      - Adjustments incomplete: please add Rebound yourself.
-    adjustments:
-      - { name: Compression Mode, type: categorical, options: [Open, Medium, Closed], notes: "On-the-fly lever; Open = most sensitive, Medium = balanced with a pedalling platform, Closed = least bob when climbing" }
-    source:
-      - https://tech.dvosuspension.com/setup/topaz-2/
-      - https://tech.dvosuspension.com/wp-content/uploads/2020/10/DVO-Set-Up-Guide-shock-2020.pdf
-    note: >-
-      Its own damper key rather than reusing topaz_pro: the T3Air generation runs a
-      170-200psi bladder (2020 Topaz Air Owner's Guide, p.5 "Do Not Exceed Maximum Bladder
-      Pressure! 200PSI") where the current Topaz runs 140-180psi. Three named positions
-      (Open / Medium / Closed) from tech.dvosuspension.com/setup/topaz-2. That page calls
-      rebound continuously variable and prints only the same 1-9 base chart, so no rebound
-      total is recorded.
+    topaz_t3air:
+      name: Topaz T3Air
+      description: |-
+        - Previous-generation Topaz lever with three positions: Open, Medium and Closed
+        - Closed reduces pedal bob for climbing; it is a platform, not a lockout
+        - Adjustments incomplete: please add Rebound yourself.
+      adjustments:
+        - { name: Compression Mode, type: categorical, options: [Open, Medium, Closed], notes: "On-the-fly lever; Open = most sensitive, Medium = balanced with a pedalling platform, Closed = least bob when climbing" }
+      source:
+        - https://tech.dvosuspension.com/setup/topaz-2/
+        - https://tech.dvosuspension.com/wp-content/uploads/2020/10/DVO-Set-Up-Guide-shock-2020.pdf
+      note: >-
+        Its own damper key rather than reusing topaz_pro: the T3Air generation runs a
+        170-200psi bladder (2020 Topaz Air Owner's Guide, p.5 "Do Not Exceed Maximum Bladder
+        Pressure! 200PSI") where the current Topaz runs 140-180psi. Three named positions
+        (Open / Medium / Closed) from tech.dvosuspension.com/setup/topaz-2. That page calls
+        rebound continuously variable and prints only the same 1-9 base chart, so no rebound
+        total is recorded.
 
-  opal_t3:
-    name: Opal T3
-    description: >-
-      Lightweight XC air shock with a three-position on-the-fly compression lever and a
-      low-speed rebound dial. Adjustments incomplete: please add Rebound and Compression
-      yourself.
-    adjustments: []
-    source:
-      - https://dvosuspension.com/product/opal-hv-t3/
-    note: >-
-      No click counts anywhere: the Opal has no page under tech.dvosuspension.com/setup
-      (/setup/opal/ returns HTTP 404 as of 2026-09-10) and no set-up guide PDF, and DVO's
-      product page describes the adjusters without numbering them. Every model using this
-      damper is therefore marked `complete: false`.
+    opal_t3:
+      name: Opal T3
+      description: >-
+        Lightweight XC air shock with a three-position on-the-fly compression lever and a
+        low-speed rebound dial. Adjustments incomplete: please add Rebound and Compression
+        yourself.
+      adjustments: []
+      source:
+        - https://dvosuspension.com/product/opal-hv-t3/
+      note: >-
+        No click counts anywhere: the Opal has no page under tech.dvosuspension.com/setup
+        (/setup/opal/ returns HTTP 404 as of 2026-09-10) and no set-up guide PDF, and DVO's
+        product page describes the adjusters without numbering them. Every model using this
+        damper is therefore marked `complete: false`.
 
 # --------------------------------------------------------------------------
 # Shocks — current DVO lineup, then the previous-generation Topaz. Shocks are
-# sold by eye-to-eye/stroke length to fit a given frame; stroke_mm lists the
-# combinations published on each product page.
+# sold by eye-to-eye/stroke length to fit a given frame; `options.size` lists
+# the combinations published on each product page.
 # --------------------------------------------------------------------------
-shocks:
-  - model: Jade X
+nodes:
+  - label: Jade X
+    level: model
     category: Enduro / DH
-    spring: Coil
-    year_range: "2023-2026"
+    years: "2023-2026"
     url: https://dvosuspension.com/product/jade-x/
+    specs: { spring: Coil }
     # Bladder 140-180psi and the 6mm preload limit: Jade X Set-Up Guide v2.0,
     # p.8 "BLADDER PRESSURE RANGE 140-180PSI / DO NOT EXCEED 180PSI" and p.11
     # "One (1) rotation equals 1mm of preload. Do NOT exceed 6mm of preload."
     source: https://dvosuspension.com/wp-content/uploads/2023/11/Jade-X-Setup-Guide-Nov20.pdf
-    trims:
-      - trim: T3
-        key: shock-dvo-jade-x-t3-2023
-        mount: [Standard, Metric, Trunnion]
-        stroke_mm: ["8.5x2.5", "7.875x2.25", "230x65", "230x60", "230x57.5", "210x55", "210x52.5", "210x50", "205x65", "205x62.5", "205x60", "205x57.5", "185x55", "185x52.5", "185x50"]
-        dampers: [jade_x_t3]
+    children:
+      - label: T3
+        level: trim
+        mounts: [Standard, Metric, Trunnion]
         adjustments: &jade_coil_spring
           - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
           - { name: Preload, type: numerical, unit: mm, min: 0, max: 6, notes: "One full turn of the spring collar equals 1mm of preload; do not exceed 6mm" }
           - { name: Bladder Pressure, type: numerical, unit: psi, min: 140, max: 180 }
+        options:
+          damper: [jade_x_t3]
+          size: [{ eye_to_eye_mm: 215.9, stroke_mm: 63.5, label: "8.5x2.5in" }, { eye_to_eye_mm: 200.025, stroke_mm: 57.15, label: "7.875x2.25in" }, "230x65", "230x60", "230x57.5", "210x55", "210x52.5", "210x50", "205x65", "205x62.5", "205x60", "205x57.5", "185x55", "185x52.5", "185x50"]
         note: |-
           - Coil spring sold separately: DVO's LS "light steel" or a regular steel spring
           - The bladder charge tunes the whole shock's feel — try the full 140-180psi range
           - Aim for 25-30% sag, then fine-tune with preload
-      - trim: Prime
-        key: shock-dvo-jade-x-prime-2023
+      - label: Prime
+        level: trim
         url: https://dvosuspension.com/product/jade-x-prime/
-        mount: [Standard, Metric, Trunnion]
-        stroke_mm: ["8.5x2.5", "7.875x2.25", "230x65", "230x60", "230x57.5", "210x55", "210x52.5", "210x50", "205x65", "205x62.5", "205x60", "205x57.5", "185x55", "185x52.5", "185x50"]
-        dampers: [jade_x_prime]
+        mounts: [Standard, Metric, Trunnion]
         adjustments: *jade_coil_spring
+        options:
+          damper: [jade_x_prime]
+          size: [{ eye_to_eye_mm: 215.9, stroke_mm: 63.5, label: "8.5x2.5in" }, { eye_to_eye_mm: 200.025, stroke_mm: 57.15, label: "7.875x2.25in" }, "230x65", "230x60", "230x57.5", "210x55", "210x52.5", "210x50", "205x65", "205x62.5", "205x60", "205x57.5", "185x55", "185x52.5", "185x50"]
         note: Coil spring sold separately. Aim for 25-30% sag, then fine-tune with preload.
-      - trim: WP CV
-        key: shock-dvo-jade-x-wp-cv-2023
+      - label: WP CV
+        level: trim
         url: https://dvosuspension.com/product/jade-x-wp/
-        dampers: []
         adjustments: *jade_coil_spring
         note: >-
           Built with WP Suspension and running WP's Cone Valve damper internals.
           Adjustments incomplete: please add Rebound and Compression yourself.
 
-  - model: Jade
+  - label: Jade
+    level: model
     category: Downhill
-    spring: Coil
-    year_range: "2019-2026"
+    years: "2019-2026"
     url: https://dvosuspension.com/product/jade/
+    specs: { spring: Coil }
     # Bladder 170-200psi and the 5mm preload limit: tech.dvosuspension.com/setup/jade
     # ("Air Pressure Range: 170-200psi", "The maximum amount of preload length is 5mm.").
     source: https://tech.dvosuspension.com/setup/jade/
-    trims:
-      - trim: Standard
-        key: shock-dvo-jade-standard-2019
-        dampers: [jade_coil]
+    children:
+      - label: Standard
+        level: trim
         adjustments:
           - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
           - { name: Preload, type: numerical, unit: mm, min: 0, max: 5, notes: "Do not exceed 5mm of preload — more risks damaging the spring" }
           - { name: Bladder Pressure, type: numerical, unit: psi, min: 170, max: 200 }
+        options:
+          damper: [jade_coil]
         note: |-
           - Coil DH shock, born on the UCI Downhill World Cup circuit
           - Runs a higher 170-200psi bladder charge than the Jade X
           - Aim for 25-30% sag measured in the attack position
 
-  - model: Topaz
+  - label: Topaz
+    level: model
     category: XC / Trail / Enduro / E-MTB
-    spring: Air
-    year_range: "2023-2026"
+    years: "2023-2026"
     url: https://dvosuspension.com/product/topaz-gen-3/
+    specs: { spring: Air }
     # Max air 300psi and bladder 140-180psi: Topaz Set-Up Guide (May 2024), p.10
     # "DO NOT EXCEED MAXIMUM AIR PRESSURE! 300PSI" and p.9 "BLADDER PRESSURE
     # RANGE 140-180PSI / DO NOT EXCEED 180PSI".
     source: https://dvosuspension.com/wp-content/uploads/2024/05/DVO-Topaz-Setup-Guide-May9.pdf
-    trims:
-      - trim: Pro
-        key: shock-dvo-topaz-pro-2023
-        mount: [Metric, Trunnion]
-        stroke_mm: ["190x40", "190x42.5", "190x45", "210x50", "210x52.5", "210x55", "230x60", "230x62.5", "230x65", "165x40", "165x42.5", "165x50", "185x50", "185x52.5", "185x55", "205x60", "205x62.5", "205x65"]
-        dampers: [topaz_pro]
+    children:
+      - label: Pro
+        level: trim
+        mounts: [Metric, Trunnion]
         adjustments: &topaz_air_spring
           - { name: Pressure, type: numerical, unit: psi, min: 0, max: 300 }
           - { name: Bladder Pressure, type: numerical, unit: psi, min: 140, max: 180 }
+        options:
+          damper: [topaz_pro]
+          size: ["190x40", "190x42.5", "190x45", "210x50", "210x52.5", "210x55", "230x60", "230x62.5", "230x65", "165x40", "165x42.5", "165x50", "185x50", "185x52.5", "185x55", "205x60", "205x62.5", "205x65"]
         note: |-
           - Quick-clip volume spacers tune the positive and the negative chamber separately
           - Positive spacers stop it bottoming out; negative spacers add pedalling support
           - Aim for 20-30% sag
-      - trim: Prime
-        key: shock-dvo-topaz-prime-2023
+      - label: Prime
+        level: trim
         url: https://dvosuspension.com/product/topaz-prime/
-        mount: [Metric, Trunnion]
-        stroke_mm: ["190x40", "190x42.5", "190x45", "210x50", "210x52.5", "210x55", "230x60", "230x62.5", "230x65", "165x40", "165x42.5", "165x50", "185x50", "185x52.5", "185x55", "205x60", "205x62.5", "205x65"]
-        dampers: [topaz_prime]
+        mounts: [Metric, Trunnion]
         adjustments: *topaz_air_spring
+        options:
+          damper: [topaz_prime]
+          size: ["190x40", "190x42.5", "190x45", "210x50", "210x52.5", "210x55", "230x60", "230x62.5", "230x65", "165x40", "165x42.5", "165x50", "185x50", "185x52.5", "185x55", "205x60", "205x62.5", "205x65"]
         note: Aim for 20-30% sag, then use the bladder charge to fine-tune the feel.
-      - trim: WP CV
-        key: shock-dvo-topaz-wp-cv-2023
+      - label: WP CV
+        level: trim
         url: https://dvosuspension.com/product/topaz-wp-cv/
-        dampers: []
         adjustments: *topaz_air_spring
         note: >-
           Built with WP Suspension and running WP's Cone Valve damper internals.
           Adjustments incomplete: please add Rebound and Compression yourself.
 
-  - model: Opal
-    complete: false
+  - label: Opal
+    level: model
+    draft: true
     category: XC
-    spring: Air
-    year_range: "2023-2026"
+    years: "2023-2026"
     url: https://dvosuspension.com/product/opal-hv-t3/
-    trims:
-      - trim: HV T3
-        key: shock-dvo-opal-hv-t3-2023
-        mount: [Metric, Trunnion]
-        stroke_mm: ["190x40", "190x42.5", "190x45", "210x50", "210x52.5", "210x55", "230x60", "230x62.5", "230x65", "165x40", "165x42.5", "165x50", "185x50", "185x52.5", "185x55", "205x60", "205x62.5", "205x65"]
-        dampers: [opal_t3]
+    specs: { spring: Air }
+    children:
+      - label: HV T3
+        level: trim
+        mounts: [Metric, Trunnion]
         adjustments:
           - { name: Pressure, type: numerical, unit: psi, min: 0 }
+        options:
+          damper: [opal_t3]
+          size: ["190x40", "190x42.5", "190x45", "210x50", "210x52.5", "210x55", "230x60", "230x62.5", "230x65", "165x40", "165x42.5", "165x50", "185x50", "185x52.5", "185x55", "205x60", "205x62.5", "205x65"]
         note: OEM option only. High-volume air can with a spacer-adjustable negative chamber.
 
   # ---------------- Previous generation ----------------
-  - model: Topaz 2
+  - label: Topaz 2
+    level: model
     category: XC / Trail
-    spring: Air
-    year_range: "2016-2022"
+    years: "2016-2022"
     url: https://dvosuspension.com/product/topaz-2/
+    specs: { spring: Air }
     # Max air 300psi and bladder 170-200psi: 2020 Topaz Air Owner's Guide, p.4
     # "Do Not Exceed Maximum Air Pressure! 300PSI" and p.5 "Do Not Exceed
     # Maximum Bladder Pressure! 200PSI" with a 170-200 rider-weight chart.
     source:
       - https://tech.dvosuspension.com/wp-content/uploads/2020/10/DVO-Set-Up-Guide-shock-2020.pdf
       - https://tech.dvosuspension.com/setup/topaz-2/
-    trims:
-      - trim: T3Air
-        key: shock-dvo-topaz-2-t3air-2016
-        dampers: [topaz_t3air]
+    children:
+      - label: T3Air
+        level: trim
         adjustments: &topaz_t3air_spring
           - { name: Pressure, type: numerical, unit: psi, min: 0, max: 300 }
           - { name: Bladder Pressure, type: numerical, unit: psi, min: 170, max: 200 }
+        options:
+          damper: [topaz_t3air]
         note: |-
           - Previous-generation Topaz, with a higher 170-200psi bladder than the current one
           - Volume spacers tune the positive and the negative chamber separately
           - Aim for 20-30% sag
-      - trim: Maestro HV
-        key: shock-dvo-topaz-2-maestro-hv-2016
-        dampers: [topaz_t3air]
+      - label: Maestro HV
+        level: trim
         adjustments: *topaz_t3air_spring
+        options:
+          damper: [topaz_t3air]
         note: High-volume air can tuned specifically for Giant's Maestro suspension layout.
 
 # --------------------------------------------------------------------------
@@ -341,12 +353,12 @@ shocks:
 #     published stroke table beyond the Opal's product page.
 #   - Opal HV T3: no tech page (/setup/opal/ is a 404), no set-up guide PDF, no
 #     click counts for its T3 lever or its rebound dial. Model stays
-#     `complete: false`, so the picker hides it until DVO publishes numbers.
+#     `draft: true`, so the picker hides it until DVO publishes numbers.
 #   - Volume-spacer counts: DVO documents WHAT the Topaz and Opal spacers do
 #     (positive vs. negative chamber, "add 1-2") but never a maximum count, so
 #     no Volume Spacers adjustment is declared on any shock. Contrast the Onyx
 #     38 fork, where DVO does state "A maximum of 4 volume spacers can be used".
-#   - Topaz 2 year_range "2016-2022": brackets DVO's 2016-dated Topaz manuals
+#   - Topaz 2 `years: "2016-2022"`: brackets DVO's 2016-dated Topaz manuals
 #     and the Gen 3's arrival; DVO publishes no start/end year for the
 #     generation. Same for the first-generation Topaz, which has no separate
 #     documentation and is therefore not modelled at all.

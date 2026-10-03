@@ -1,17 +1,15 @@
 import 'package:collection/collection.dart';
 
 import '../models/component/component_catalog.dart';
+import '../models/component/component_preset.dart';
 import '../models/component/preset_spec_keys.dart';
-
-const String _brandKey = 'brand';
-const String _componentTypeKey = 'component_type';
 
 /// A catalog selection as far as it is resolved: the node path, plus the option
 /// values chosen on the product it ends at.
 ///
 /// It is the one shape every step shares — a catalog entry before anything is
 /// picked, a suggestion with its damper set, the picker's result, and a saved
-/// `Component.preset` map read back.
+/// [ComponentPreset] read back.
 class ResolvedPreset {
   final BrandCatalog catalog;
 
@@ -93,15 +91,15 @@ Iterable<ResolvedPreset> catalogProducts(BrandCatalog catalog) {
   return visit(catalog.nodes, const []);
 }
 
-/// Reads a persisted `Component.preset` map back against [catalogs].
+/// Reads a persisted [ComponentPreset] back against [catalogs].
 ///
 /// Walks the tree one level per step and stops at the deepest node that still
 /// matches, so a map that is short, or whose deeper entries were retired from
 /// the data, resolves as far as it can. Entries that match nothing are ignored.
 /// Null when not even the first level matches.
-ResolvedPreset? resolvePreset(Iterable<BrandCatalog> catalogs, Map<String, Object> preset) {
+ResolvedPreset? resolvePreset(Iterable<BrandCatalog> catalogs, ComponentPreset preset) {
   final catalog = catalogs.firstWhereOrNull(
-    (catalog) => preset[_brandKey] == catalog.id && preset[_componentTypeKey] == catalog.componentType.name,
+    (catalog) => preset.brand == catalog.id && preset.componentType == catalog.componentType,
   );
   if (catalog == null) return null;
 
@@ -127,11 +125,11 @@ ResolvedPreset? resolvePreset(Iterable<BrandCatalog> catalogs, Map<String, Objec
   );
 }
 
-/// The map a component persists for [resolved]: one entry per tree level and
-/// one per chosen option. An option the user skipped is absent.
-Map<String, Object> toPresetMap(ResolvedPreset resolved) => {
-  _brandKey: resolved.catalog.id,
-  _componentTypeKey: resolved.catalog.componentType.name,
+/// What a component persists for [resolved]: one entry per tree level and one
+/// per chosen option. An option the user skipped is absent.
+ComponentPreset toComponentPreset(ResolvedPreset resolved) => ComponentPreset({
+  ComponentPreset.brandKey: resolved.catalog.id,
+  ComponentPreset.componentTypeKey: resolved.catalog.componentType.name,
   for (final node in resolved.path) node.level: node.id,
   for (final MapEntry(key: axisId, :value) in resolved.selections.entries) axisId: value.id,
-};
+});

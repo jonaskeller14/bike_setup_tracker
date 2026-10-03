@@ -36,6 +36,13 @@ void main() {
   // structural undo — their steps rewrite/recreate the affected tables
   // regardless of the starting column shape.
   Future<void> reshapeToVersion(AppDatabase db, int version) async {
+    if (version < 22) {
+      // v22 replaced the components preset key pair with the preset map.
+      await db.customStatement('ALTER TABLE components DROP COLUMN preset');
+      for (final column in _componentPresetKeyColumns) {
+        await db.customStatement('ALTER TABLE components ADD COLUMN $column TEXT');
+      }
+    }
     if (version < 21) {
       // v21 added attachments to task_rules and task_entries.
       await db.customStatement('ALTER TABLE task_rules DROP COLUMN attachments');
@@ -49,8 +56,8 @@ void main() {
       await db.customStatement('ALTER TABLE components DROP COLUMN attachments');
     }
     if (version < 19) {
-      // v19 added the components preset-provenance columns.
-      for (final column in _componentPresetColumns) {
+      // v19 added the components preset key pair.
+      for (final column in _componentPresetKeyColumns) {
         await db.customStatement('ALTER TABLE components DROP COLUMN $column');
       }
     }
@@ -125,8 +132,8 @@ void main() {
     );
   }
 
-  // Seeds the component the installation above points at, without the v19
-  // preset-provenance columns, so the upgrade has a pre-existing row to widen.
+  // Seeds the component the installation above points at, without any preset
+  // column, so the upgrade has a pre-existing row to widen.
   Future<void> seedComponent(AppDatabase db) async {
     const epochSeconds = 1700000000;
     await db.customStatement(
@@ -196,7 +203,7 @@ void main() {
   group('onUpgrade from every prior version to the current schema', () {
     // Covers the full range of jump sizes: the v12 case is a single step, the
     // v1 case crosses every TableMigration in the strategy.
-    for (final startVersion in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]) {
+    for (final startVersion in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]) {
       test('v$startVersion -> current completes and preserves seed rows', () async {
         final db = await migrateFrom(startVersion);
         addTearDown(db.close);
@@ -281,11 +288,13 @@ void main() {
         expect(bike.initialMovingTime, Duration.zero);
         expect(bike.initialActivityCount, 0);
 
-        // The v19 step adds preset provenance; rows that predate it stay null.
-        expect(await columnNames(db, 'components'), containsAll(_componentPresetColumns));
+        // Every path ends with exactly the v22 `preset` column, whether the v22
+        // step recreated the table or added it, and without the v19 key pair.
+        expect(await columnCount(db, 'components', 'preset'), 1);
+        expect(await columnNames(db, 'components'), isNot(contains(anyOf(_componentPresetKeyColumns))));
         final component = await (db.select(db.components)..where((t) => t.id.equals('c1'))).getSingle();
-        expect(component.presetKey, isNull);
-        expect(component.presetDamperKey, isNull);
+        expect(component.name, 'Fork');
+        expect(component.preset, isNull);
 
         // The v20 step adds attachments to bikes and components.
         expect(await columnNames(db, 'bikes'), contains('attachments'));
@@ -314,7 +323,7 @@ const _bikeInitialStatsColumns = [
   'initial_kilojoules',
 ];
 
-const _componentPresetColumns = [
+const _componentPresetKeyColumns = [
   'preset_key',
   'preset_damper_key',
 ];

@@ -2,7 +2,7 @@ import 'package:collection/collection.dart';
 
 import 'component.dart';
 
-/// Registry of every key the component catalog (`data/component_catalog/`) may
+/// Registry of every key the component catalog (`data/component_presets/`) may
 /// use under `specs:` and `options:`. The parser rejects anything unregistered,
 /// so a typo fails the CI catalog test instead of being silently dropped.
 

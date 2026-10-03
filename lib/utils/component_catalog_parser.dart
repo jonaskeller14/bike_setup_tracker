@@ -2,7 +2,6 @@ import 'package:yaml/yaml.dart';
 
 import '../models/component/component.dart';
 import '../models/component/component_catalog.dart';
-import '../models/component/component_preset.dart';
 import '../models/component/preset_spec_keys.dart';
 
 /// Parses one brand YAML file of the generic catalog (e.g. `fork/fox.yaml`)

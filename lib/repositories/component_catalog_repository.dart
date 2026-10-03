@@ -1,9 +1,9 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import '../models/component/component.dart';
 import '../models/component/component_catalog.dart';
+import '../models/component/component_preset.dart';
 import '../utils/component_catalog_parser.dart';
 import '../utils/component_preset_resolver.dart';
 
@@ -11,7 +11,7 @@ import '../utils/component_preset_resolver.dart';
 /// hardcoded brand list), loaded and parsed on first request, then cached for
 /// the session.
 class ComponentCatalogRepository {
-  static const String _baseDir = 'data/component_catalog';
+  static const String _baseDir = 'data/component_presets';
 
   /// Unfiltered — the `draft` filter belongs to the selectable-product getters,
   /// so [resolve] can still read an entry that went back to draft.
@@ -52,14 +52,14 @@ class ComponentCatalogRepository {
   }
 
   /// Resolves the catalog entry a saved component points at
-  /// (`Component.preset`), as deep as the map still matches; null when not even
+  /// (`Component.preset`), as deep as it still matches; null when not even
   /// its brand does.
   ///
   /// Deliberately reads the **unfiltered** catalog, `draft: true` nodes
   /// included: an entry can go back to draft in a later data revision, and a
   /// component saved before that still has to resolve.
-  Future<ResolvedPreset?> resolve(Map<String, Object> preset) async {
-    final type = ComponentType.values.firstWhereOrNull((type) => type.name == preset['component_type']);
+  Future<ResolvedPreset?> resolve(ComponentPreset preset) async {
+    final type = preset.componentType;
     if (type == null) return null;
     return resolvePreset(await _load(type), preset);
   }

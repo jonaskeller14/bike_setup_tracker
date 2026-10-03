@@ -1,5 +1,6 @@
+import '../models/component/component_catalog.dart';
+import '../models/component/preset_spec_keys.dart';
 import 'component_preset_resolver.dart';
-import 'component_preset_search.dart' show presetHaystackMatches;
 
 /// The text a product is found by: brand, every label on its path, its years
 /// and the values of its required axes (the damper names).
@@ -17,9 +18,41 @@ String presetSearchHaystack(ResolvedPreset product) {
   return parts.join(' ').toLowerCase();
 }
 
+/// Case-insensitive AND-of-tokens match: every whitespace-separated token in
+/// [query] must appear somewhere in [haystack] (already lower-cased).
+bool presetHaystackMatches(String haystack, String query) {
+  final tokens = query.toLowerCase().split(RegExp(r'\s+')).where((t) => t.isNotEmpty);
+  if (tokens.isEmpty) return false;
+  return tokens.every(haystack.contains);
+}
+
 /// Filters [products] to those matching [query], preserving input order.
 List<ResolvedPreset> filterPresets(List<ResolvedPreset> products, String query) {
   return products.where((product) => presetHaystackMatches(presetSearchHaystack(product), query)).toList();
+}
+
+/// Subtitle for a suggestion row: what the product can still be had with,
+/// since its name already carries the required choices; `null` when nothing
+/// is left.
+String? presetSuggestionSubtitle(ResolvedPreset suggestion) {
+  final parts = [for (final axis in suggestion.optionalAxes) optionAxisSummary(axis)];
+  return parts.isEmpty ? null : parts.join(' · ');
+}
+
+/// `GRIP X2 / GRIP X`, `150 / 160 mm`, or `12 sizes` where listing them all
+/// would not fit a row.
+String optionAxisSummary(OptionAxis axis) {
+  if (axis.id == PresetOptionAxes.size.id && axis.values.length > 1) return '${axis.values.length} sizes';
+  final unit = axis.key.spec?.unit;
+  if (unit == null) return axis.values.map((value) => value.label).join(' / ');
+  // `150 / 160 mm` instead of the unit on every value. A literal value is its own id.
+  final values = axis.values.map(
+    (value) => switch (value.id) {
+      final num number => formatSpecNumber(number),
+      final id => id.toString(),
+    },
+  );
+  return '${values.join(' / ')} $unit';
 }
 
 /// Ranks matching [products] and expands them into at most [limit] flat

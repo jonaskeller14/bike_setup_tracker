@@ -1,7 +1,7 @@
 # EXT (Extreme Racing Shox) mountain-bike forks — adjustment preset database
 #
 # Same design as fork/fox.yaml and fork/ohlins.yaml: click ranges belong to
-# the DAMPER cartridge, defined once under `dampers:` and referenced by key
+# the DAMPER cartridge, defined once under `option_values.damper` and referenced by id
 # from each fork's trims. See SCHEMA.md in this folder.
 #
 # EXT is an Italian boutique brand (extremeshox.com). Its current MTB fork
@@ -36,32 +36,33 @@ updated: 2026-07-17
 # --------------------------------------------------------------------------
 # Dampers
 # --------------------------------------------------------------------------
-dampers:
-  era_cartridge:
-    name: EXT Era 3-Way Cartridge
-    description: >
-      Shared damper cartridge across both Era V2.1 and Era V2 LT (confirmed
-      by EXT's own quick manual, which covers both forks together): high
-      volume cartridge with a 22mm piston, HDRV compression valve (24mm
-      piston) and a 24mm-piston IFP reservoir. Independently adjustable
-      Low-Speed Compression, High-Speed Compression and Rebound. EXT does
-      not publish a maximum click count for any of the three adjusters —
-      only a weight-based table of suggested (non-maximal) starting clicks
-      — so no step adjustments are generated here; verify the true click
-      range with EXT before relying on a number.
-    adjustments: []
-    adjusters: LSC (nickel dial, top of right leg) / HSC (black dial, top of right leg) / Rebound (red dial, bottom of right leg)
+option_values:
+  damper:
+    era_cartridge:
+      name: EXT Era 3-Way Cartridge
+      description: >
+        Shared damper cartridge across both Era V2.1 and Era V2 LT (confirmed
+        by EXT's own quick manual, which covers both forks together): high
+        volume cartridge with a 22mm piston, HDRV compression valve (24mm
+        piston) and a 24mm-piston IFP reservoir. Independently adjustable
+        Low-Speed Compression, High-Speed Compression and Rebound. EXT does
+        not publish a maximum click count for any of the three adjusters —
+        only a weight-based table of suggested (non-maximal) starting clicks
+        — so no step adjustments are generated here; verify the true click
+        range with EXT before relying on a number.
+      adjustments: []
+      adjusters: LSC (nickel dial, top of right leg) / HSC (black dial, top of right leg) / Rebound (red dial, bottom of right leg)
 
-  vaia_cartridge:
-    name: EXT Vaia 3-Way Cartridge
-    description: >
-      Vaia's own damper cartridge (dual-crown downhill fork). Independently
-      adjustable Low-Speed Compression, High-Speed Compression and Rebound,
-      all counted from fully closed (click 0) with the same clockwise-closes
-      convention as Era. No maximum click count is published on the product
-      page or quick manual — omitted rather than guessed.
-    adjustments: []
-    adjusters: LSC (nickel dial) / HSC (black dial) / Rebound (red dial), all on the fork's left leg
+    vaia_cartridge:
+      name: EXT Vaia 3-Way Cartridge
+      description: >
+        Vaia's own damper cartridge (dual-crown downhill fork). Independently
+        adjustable Low-Speed Compression, High-Speed Compression and Rebound,
+        all counted from fully closed (click 0) with the same clockwise-closes
+        convention as Era. No maximum click count is published on the product
+        page or quick manual — omitted rather than guessed.
+      adjustments: []
+      adjusters: LSC (nickel dial) / HSC (black dial) / Rebound (red dial), all on the fork's left leg
 
 # --------------------------------------------------------------------------
 # Forks — current EXT MTB lineup (extremeshox.com, checked 2026-07-17).
@@ -72,58 +73,61 @@ dampers:
 # Wheel size isn't stated on either product page, so it is omitted rather
 # than guessed — see Follow-ups.
 # --------------------------------------------------------------------------
-forks:
-  - model: "Era V2.1"
-    complete: false
+nodes:
+  - label: "Era V2.1"
+    level: model
+    draft: true
     category: Trail / Enduro
-    year_range: "2025-2026"
+    years: "2025-2026"
     url: https://extremeshox.com/product/ext-era-v2-1/
-    trims:
-      - trim: Standard
-        key: fork-ext-era-v2-1-standard-2025
-        travel_mm: [130, 140, 150, 160, 170]
-        stanchion: 36mm, forged AL 7050 T6 crown
-        spring: Air
-        dampers: [era_cartridge]
+    children:
+      - label: Standard
+        level: trim
+        specs: { stanchion: "36mm, forged AL 7050 T6 crown", spring: Air }
         adjustments: &hs3_air_spring
           - { name: Main Chamber Pressure, type: numerical, unit: psi, min: 0 }
           - { name: Secondary Chamber Pressure, type: numerical, unit: psi, min: 0, notes: Inflate ++ (secondary) chamber before + (main) chamber; do not exceed 200 psi / 14 bar combined per the product warning label (not broken out per chamber) }
+        options:
+          damper: [era_cartridge]
+          travel_mm: [130, 140, 150, 160, 170]
         note: HS3 hybrid dual-positive-chamber air spring; 15QR Boost Torque Cap dropout (15x110mm)
 
-  - model: "Era V2 LT"
-    complete: false
+  - label: "Era V2 LT"
+    level: model
+    draft: true
     category: Enduro
-    year_range: "2025-2026"
+    years: "2025-2026"
     url: https://extremeshox.com/product/ext-era-v2-lt/
-    trims:
-      - trim: Standard
-        key: fork-ext-era-v2-lt-standard-2025
-        travel_mm: [180, 190]
-        stanchion: 36mm, stem/crown-integrated design
-        spring: Air
-        dampers: [era_cartridge]
+    children:
+      - label: Standard
+        level: trim
+        specs: { stanchion: "36mm, stem/crown-integrated design", spring: Air }
         adjustments: *hs3_air_spring
+        options:
+          damper: [era_cartridge]
+          travel_mm: [180, 190]
         note: >
           Longer-travel Super Enduro sibling of the Era V2.1; same HS3
           spring/damper system per EXT's combined Era V2/V2 LT quick manual.
           Axle-to-crown: 594mm (180mm travel) / 604mm (190mm travel).
 
-  - model: "Vaia"
-    complete: false
+  - label: "Vaia"
+    level: model
+    draft: true
     category: Downhill / Enduro
-    year_range: "2025-2026"
+    years: "2025-2026"
     url: https://extremeshox.com/product/vaia/
-    trims:
-      - trim: Standard
-        key: fork-ext-vaia-standard-2025
-        travel_mm: [170, 180, 190, 200]
-        stanchion: 38.5mm tapered, dual-crown
-        spring: Air
-        dampers: [vaia_cartridge]
+    children:
+      - label: Standard
+        level: trim
+        specs: { stanchion: "38.5mm tapered, dual-crown", spring: Air }
+        offset_mm: [44, 48]
         adjustments:
           - { name: Main Chamber Pressure, type: numerical, unit: psi, min: 0 }
           - { name: Secondary Chamber Pressure, type: numerical, unit: psi, min: 0, notes: Inflate ++ (secondary) chamber before + (main) chamber; do not exceed 250 psi / 17 bar combined per the product warning label (not broken out per chamber) }
-        offset_mm: [44, 48]
+        options:
+          damper: [vaia_cartridge]
+          travel_mm: [170, 180, 190, 200]
         note: >
           Interchangeable 20mm/15mm(110 Boost) Grade-5 titanium axle;
           two-position cam stem sets 44mm (enduro) or 48mm (DH) offset.

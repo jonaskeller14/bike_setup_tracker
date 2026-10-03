@@ -1,4 +1,5 @@
 import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/component/component_preset.dart';
 import 'package:bike_setup_tracker/repositories/component_catalog_repository.dart';
 import 'package:bike_setup_tracker/utils/component_catalog_application.dart';
 import 'package:bike_setup_tracker/utils/component_catalog_parser.dart';
@@ -60,12 +61,12 @@ void main() {
 
   group('resolve', () {
     test('resolves a saved map to its product', () async {
-      final resolved = await _repository().resolve(const {
+      final resolved = await _repository().resolve(ComponentPreset(const {
         'brand': 'fox',
         'component_type': 'fork',
         'model': '36',
         'trim': 'factory',
-      });
+      }));
 
       expect(resolved?.product?.label, 'Factory');
     });
@@ -75,13 +76,13 @@ void main() {
       // before that has to keep resolving its provenance.
       final repository = _repository();
 
-      final trim = await repository.resolve(const {
+      final trim = await repository.resolve(ComponentPreset(const {
         'brand': 'fox',
         'component_type': 'fork',
         'model': '36',
         'trim': 'rhythm',
-      });
-      final model = await repository.resolve(const {'brand': 'fox', 'component_type': 'fork', 'model': '40'});
+      }));
+      final model = await repository.resolve(ComponentPreset(const {'brand': 'fox', 'component_type': 'fork', 'model': '40'}));
 
       expect(trim?.product?.label, 'Rhythm');
       expect(model?.product?.label, '40');
@@ -90,9 +91,9 @@ void main() {
     test('returns null for a brand or type the catalog does not have', () async {
       final repository = _repository();
 
-      expect(await repository.resolve(const {'brand': 'manitou', 'component_type': 'fork', 'model': '36'}), isNull);
-      expect(await repository.resolve(const {'brand': 'fox', 'component_type': 'hovercraft'}), isNull);
-      expect(await repository.resolve(const {}), isNull);
+      expect(await repository.resolve(ComponentPreset(const {'brand': 'manitou', 'component_type': 'fork', 'model': '36'})), isNull);
+      expect(await repository.resolve(ComponentPreset(const {'brand': 'fox', 'component_type': 'hovercraft'})), isNull);
+      expect(await repository.resolve(ComponentPreset(const {})), isNull);
     });
   });
 
@@ -107,7 +108,7 @@ void main() {
       expect(forks.every((fork) => fork.catalog.componentType == ComponentType.fork), isTrue);
       expect(forks.any((fork) => fork.node.draft), isFalse);
 
-      final shock = await repository.resolve(const {'brand': 'rst', 'component_type': 'shock', 'model': 'mono'});
+      final shock = await repository.resolve(ComponentPreset(const {'brand': 'rst', 'component_type': 'shock', 'model': 'mono'}));
       expect(shock?.node.draft, isTrue);
     });
   });

@@ -2,8 +2,18 @@ import '../models/adjustment/adjustment.dart';
 import '../models/component/component.dart';
 import '../models/component/component_catalog.dart';
 import '../models/component/preset_spec_keys.dart';
-import 'component_preset_application.dart' show kForkSagNotes, kShockSagNotes;
 import 'component_preset_resolver.dart';
+
+const String kForkSagNotes =
+    'Sag is how much your fork compresses under your body weight (including '
+    'riding gear) in a static riding position. SAG is a good metric for initial '
+    'setup. Recommended ranges by discipline: XC: 15%, Trail: 15-20%, '
+    'Enduro: 20%, Downhill: 20-25%.';
+const String kShockSagNotes =
+    'Sag is how much your shock compresses under your body weight (including '
+    'riding gear) in a static riding position. SAG is a good metric for initial '
+    'setup. Recommended ranges by discipline: XC: 20-25%, Trail: 25-30%, '
+    'Enduro: 30%, Downhill: 30-35%.';
 
 /// A generation's label is its year span, which the `Year:` note line and the
 /// year badge already carry.
@@ -26,7 +36,7 @@ CatalogApplication buildCatalogApplication(ResolvedPreset resolved) {
     componentType: resolved.catalog.componentType,
     notes: _buildNotes(resolved),
     adjustments: _buildAdjustments(resolved),
-    preset: toPresetMap(resolved),
+    preset: toComponentPreset(resolved),
   );
 }
 

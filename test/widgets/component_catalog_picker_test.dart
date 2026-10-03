@@ -199,7 +199,7 @@ void main() {
 
       expect(outcome.closed, isTrue);
       expect(outcome.result?.product?.label, 'Bolt');
-      expect(toPresetMap(outcome.result!), {'brand': 'acme', 'component_type': 'fork', 'model': 'bolt'});
+      expect(toComponentPreset(outcome.result!).toJson(), {'brand': 'acme', 'component_type': 'fork', 'model': 'bolt'});
     });
 
     testWidgets('back returns to the previous level', (tester) async {
@@ -231,7 +231,7 @@ void main() {
       await _tapChip(tester, '160 mm');
       await _tap(tester, 'Apply');
 
-      expect(toPresetMap(outcome.result!), {
+      expect(toComponentPreset(outcome.result!).toJson(), {
         'brand': 'fox',
         'component_type': 'fork',
         'model': '36',
@@ -255,7 +255,7 @@ void main() {
 
       await _tap(tester, 'Skip');
 
-      final map = toPresetMap(outcome.result!);
+      final map = toComponentPreset(outcome.result!).toJson();
       expect(map['damper'], 'grip_x');
       expect(map.containsKey('travel_mm'), isFalse);
     });
@@ -269,7 +269,7 @@ void main() {
       expect(find.text('Optional details'), findsOneWidget);
 
       await _tap(tester, 'Skip');
-      expect(toPresetMap(outcome.result!)['damper'], 'grip_x');
+      expect(toComponentPreset(outcome.result!).toJson()['damper'], 'grip_x');
     });
 
     testWidgets('groups shock sizes by eye-to-eye length', (tester) async {
@@ -284,7 +284,7 @@ void main() {
 
       await _tapChip(tester, '185x55 mm');
       await _tap(tester, 'Apply');
-      expect(toPresetMap(outcome.result!)['size'], '185x55');
+      expect(toComponentPreset(outcome.result!).toJson()['size'], '185x55');
     });
   });
 

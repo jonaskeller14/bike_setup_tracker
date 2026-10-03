@@ -1,8 +1,8 @@
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/component/component_preset.dart';
 import 'package:bike_setup_tracker/utils/component_catalog_application.dart';
 import 'package:bike_setup_tracker/utils/component_catalog_parser.dart';
-import 'package:bike_setup_tracker/utils/component_preset_application.dart' show kForkSagNotes, kShockSagNotes;
 import 'package:bike_setup_tracker/utils/component_preset_resolver.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -107,7 +107,7 @@ void main() {
 
       expect(app.name, 'FOX 36 Factory GRIP X2');
       expect(app.componentType, ComponentType.fork);
-      expect(app.preset, {
+      expect(app.preset.toJson(), {
         'brand': 'fox',
         'component_type': 'fork',
         'model': '36',
@@ -173,7 +173,7 @@ void main() {
 
       expect(app.name, 'FOX 36 Factory');
       expect(_names(app.adjustments), ['Pressure', 'Volume Spacers', 'SAG']);
-      expect(app.preset.containsKey('damper'), isFalse);
+      expect(app.preset['damper'], isNull);
     });
 
     test('a skipped travel leaves the SAG reference travel unset', () {
@@ -222,7 +222,7 @@ void main() {
       final app = buildCatalogApplication(_preset(_ohlinsYaml));
 
       expect(_sag(app.adjustments).referenceTravelMm, isNull);
-      expect(app.preset.containsKey('size'), isFalse);
+      expect(app.preset['size'], isNull);
       expect(app.notes.split('\n'), contains('Size: 210x50 mm / 210x55 mm / 185x55 mm'));
     });
 
@@ -244,7 +244,7 @@ void main() {
   test('a path that stops at a group is named by its deepest node', () {
     final resolved = resolvePreset(
       [parseCatalogFile(_foxYaml)],
-      {'brand': 'fox', 'component_type': 'fork', 'model': '36', 'generation': '2025', 'trim': 'retired'},
+      ComponentPreset(const {'brand': 'fox', 'component_type': 'fork', 'model': '36', 'generation': '2025', 'trim': 'retired'}),
     )!;
 
     // The generation's label is its year span, which is not part of the name.

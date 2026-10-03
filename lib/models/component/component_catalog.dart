@@ -3,14 +3,23 @@ import 'component.dart';
 import 'component_preset.dart';
 import 'preset_spec_keys.dart';
 
-/// In-memory model of the generic component catalog (`data/component_catalog/`):
+/// In-memory model of the generic component catalog (`data/component_presets/`):
 /// a node tree names the product, option axes configure it.
+
+/// Defers instantiation to selection time
+class PresetAdjustmentSpec {
+  final Map<String, dynamic> raw;
+
+  const PresetAdjustmentSpec(this.raw);
+
+  Adjustment build() => Adjustment.fromYaml(raw);
+}
 
 /// One brand file, e.g. `fork/fox.yaml`.
 class BrandCatalog {
   final String brand;
 
-  /// Slug of [brand], persisted as the `brand` entry of `Component.preset`.
+  /// Slug of [brand], persisted as [ComponentPreset.brand].
   final String id;
   final ComponentType componentType;
   final List<CatalogNode> nodes;
@@ -132,7 +141,7 @@ class CatalogApplication {
   final List<Adjustment> adjustments;
 
   /// What the component persists: the node path plus the chosen options.
-  final Map<String, Object> preset;
+  final ComponentPreset preset;
 
   const CatalogApplication({
     required this.name,

@@ -19,7 +19,7 @@ import 'pages/home_page.dart';
 import 'pages/loading_error_page.dart';
 import 'pages/onboarding_page.dart';
 import 'repositories/app_repository.dart';
-import 'repositories/component_preset_repository.dart';
+import 'repositories/component_catalog_repository.dart';
 import 'services/app_hint_service.dart';
 import 'services/backup_service.dart';
 import 'services/database_migration_service.dart';
@@ -224,7 +224,7 @@ class _LoadingGateState extends State<LoadingGate> {
               ChangeNotifierProvider<SetupActivityAnalysisService>(
                 create: (_) => SetupActivityAnalysisService(widget.appRepository.database),
               ),
-              Provider<ComponentPresetRepository>(create: (_) => ComponentPresetRepository()),
+              Provider<ComponentCatalogRepository>(create: (_) => ComponentCatalogRepository()),
               ChangeNotifierProvider.value(value: widget.appSettings),
               ChangeNotifierProvider.value(value: widget.appRepository),
               ListenableProxyProvider2<AppRepository, AppSettings, AppHintService>(

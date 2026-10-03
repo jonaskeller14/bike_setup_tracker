@@ -10,7 +10,7 @@ import '../../models/task/task_association.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/component_hierarchy_resolver.dart';
 import '../../theme.dart';
-import '../../utils/component_preset_search.dart';
+import '../../utils/component_catalog_search.dart';
 import 'sheet.dart';
 import 'sheet_header.dart';
 

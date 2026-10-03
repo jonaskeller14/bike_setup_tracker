@@ -11,9 +11,10 @@ import 'package:bike_setup_tracker/models/component/component_preset.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/pages/forms/component_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
-import 'package:bike_setup_tracker/repositories/component_preset_repository.dart';
+import 'package:bike_setup_tracker/repositories/component_catalog_repository.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
+import 'package:bike_setup_tracker/utils/component_catalog_parser.dart';
 import 'package:bike_setup_tracker/widgets/attachment_strip.dart';
 import 'package:bike_setup_tracker/widgets/set_installation_timeline.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +33,7 @@ void main() {
   late AppDatabase database;
   late AppRepository appRepository;
   late AppSettings appSettings;
-  late ComponentPresetRepository presetRepository;
+  late ComponentCatalogRepository presetRepository;
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
@@ -40,18 +41,32 @@ void main() {
     appRepository = AppRepository(database);
     appSettings = AppSettings();
     appSettings.enableInstallationTimeline = false;
-    presetRepository = ComponentPresetRepository.withVariants(const [
-      ComponentPresetVariant(
-        key: 'fox/38/factory',
-        brand: 'FOX',
-        model: '38',
-        trim: 'Factory',
-        componentType: ComponentType.fork,
-        note: 'Preset note',
-        adjustmentSpecs: [
-          PresetAdjustmentSpec({'name': 'Rebound', 'type': 'step', 'max': 20}),
-        ],
-      ),
+    presetRepository = ComponentCatalogRepository.withCatalogs([
+      parseCatalogFile('''
+brand: FOX
+component_type: fork
+option_values:
+  damper:
+    grip_x2: { name: GRIP X2, adjustments: [{ name: HSC, type: step, max: 8 }] }
+    grip_x: { name: GRIP X, adjustments: [{ name: LSC, type: step, max: 16 }] }
+nodes:
+  - label: "38"
+    level: model
+    children:
+      - label: Factory
+        level: trim
+        note: Preset note
+        adjustments:
+          - { name: Rebound, type: step, max: 20 }
+  - label: "36"
+    level: model
+    children:
+      - label: Performance
+        level: trim
+        options:
+          damper: [grip_x2, grip_x]
+          travel_mm: [150, 160]
+'''),
     ]);
   });
 
@@ -78,7 +93,7 @@ void main() {
           ChangeNotifierProvider<SubscriptionService>.value(value: subscriptionService)
         else
           ChangeNotifierProvider<SubscriptionService>(create: (_) => SubscriptionService()),
-        Provider<ComponentPresetRepository>.value(value: presetRepository),
+        Provider<ComponentCatalogRepository>.value(value: presetRepository),
       ],
       child: MaterialApp(
         theme: theme ?? materialAppTheme,
@@ -317,7 +332,7 @@ void main() {
     testWidgets('shows the applied preset, confirms it and offers undo', (WidgetTester tester) async {
       await applyPresetViaAutocomplete(tester);
 
-      expect(find.text('From catalog · Tap to change'), findsOneWidget);
+      expect(find.text('Tap to change'), findsOneWidget);
       expect(find.text('Filled from $presetName'), findsOneWidget);
       // Rebound from the spec plus the auto-injected SAG.
       expect(find.text('2 adjustments prefilled from $presetName'), findsOneWidget);
@@ -354,13 +369,13 @@ void main() {
         componentType: ComponentType.fork,
         installations: const [],
         adjustments: const [],
-        presetKey: 'fox/38/factory',
+        preset: ComponentPreset(const {'brand': 'fox', 'component_type': 'fork', 'model': '38', 'trim': 'factory'}),
       );
       await tester.pumpWidget(createWidgetUnderTest(component: component, mode: ComponentPageMode.edit));
       await tester.pumpAndSettle();
 
       expect(find.text(presetName), findsOneWidget);
-      expect(find.text('From catalog · Tap to change'), findsOneWidget);
+      expect(find.text('Tap to change'), findsOneWidget);
       expect(tester.widget<PopScope>(find.byType(PopScope)).canPop, isTrue);
 
       await tester.tap(find.byTooltip('Unlink preset (keeps values)'));
@@ -368,7 +383,7 @@ void main() {
 
       expect(find.text(presetName), findsNothing);
       expect(tester.widget<PopScope>(find.byType(PopScope)).canPop, isFalse,
-          reason: 'Unlinking changes the persisted presetKey');
+          reason: 'Unlinking changes the persisted preset');
     });
 
     testWidgets('picking in edit mode only adds missing adjustments', (WidgetTester tester) async {
@@ -403,6 +418,78 @@ void main() {
       await tester.pumpAndSettle();
       await pickFoxFactory(tester);
       expect(notesText(tester), 'Serial 123\n\nPreset note');
+    });
+
+    testWidgets('saves the picked path, damper and travel as the preset', (WidgetTester tester) async {
+      appSettings.enableComponentPresets = true;
+      await tester.runAsync(() => presetRepository.all());
+
+      Object? result;
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider.value(value: appSettings),
+            ChangeNotifierProvider.value(value: appRepository),
+            ChangeNotifierProvider<SubscriptionService>(create: (_) => SubscriptionService()),
+            Provider<ComponentCatalogRepository>.value(value: presetRepository),
+          ],
+          child: MaterialApp(
+            theme: materialAppTheme,
+            home: Builder(
+              builder: (context) => TextButton(
+                onPressed: () async => result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ComponentPage.edit(
+                      component: Component(
+                        id: 'c1',
+                        name: 'My Fork',
+                        componentType: ComponentType.fork,
+                        installations: [Installation.sinceBeginning(parent: null)],
+                      ),
+                    ),
+                  ),
+                ),
+                child: const Text('open'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Choose from catalog'));
+      await tester.pumpAndSettle();
+      for (final row in ['FOX', '36', 'Performance', 'GRIP X']) {
+        await tester.tap(find.widgetWithText(ListTile, row).last);
+        await tester.pumpAndSettle();
+      }
+      await tester.tap(find.widgetWithText(ChoiceChip, '160 mm'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Apply'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('FOX 36 Performance GRIP X'), findsOneWidget);
+      expect(find.text('160 mm · Tap to change'), findsOneWidget);
+
+      await tester.tap(find.byIcon(Icons.check));
+      await tester.pumpAndSettle();
+
+      final saved = (result! as EditResult<Component>).value;
+      expect(
+        saved.preset,
+        ComponentPreset(const {
+          'brand': 'fox',
+          'component_type': 'fork',
+          'model': '36',
+          'trim': 'performance',
+          'damper': 'grip_x',
+          'travel_mm': 160,
+        }),
+      );
+      expect(saved.adjustments.map((a) => a.name), ['SAG', 'LSC']);
+      expect(saved.adjustments.whereType<SagAdjustment>().single.referenceTravelMm, 160);
     });
   });
 
@@ -487,7 +574,7 @@ void main() {
             ChangeNotifierProvider.value(value: appSettings),
             ChangeNotifierProvider.value(value: appRepository),
             ChangeNotifierProvider<SubscriptionService>(create: (_) => SubscriptionService()),
-            Provider<ComponentPresetRepository>.value(value: presetRepository),
+            Provider<ComponentCatalogRepository>.value(value: presetRepository),
           ],
           child: MaterialApp(
             theme: materialAppTheme,

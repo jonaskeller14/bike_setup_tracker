@@ -2,13 +2,12 @@ import 'dart:io';
 
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/component/component_catalog.dart';
-import 'package:bike_setup_tracker/models/component/component_preset.dart';
 import 'package:bike_setup_tracker/models/component/preset_spec_keys.dart';
 import 'package:bike_setup_tracker/utils/component_catalog_parser.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 
-/// CI correctness gate for the generic component catalog (`data/component_catalog/`).
+/// CI correctness gate for the generic component catalog (`data/component_presets/`).
 ///
 /// Enumerates every brand YAML file, parses it with the same [parseCatalogFile]
 /// the app uses, then **instantiates every adjustment spec** via the strict
@@ -17,7 +16,7 @@ import 'package:path/path.dart' as p;
 /// a typo detector: a data edit that breaks the schema fails CI here rather
 /// than in the app.
 void main() {
-  final catalogDir = Directory(p.join(Directory.current.path, 'data', 'component_catalog'));
+  final catalogDir = Directory(p.join(Directory.current.path, 'data', 'component_presets'));
 
   final yamlFiles =
       catalogDir.listSync(recursive: true).whereType<File>().where((f) => p.extension(f.path) == '.yaml').toList()

@@ -1,13 +1,14 @@
 import 'dart:convert';
 
 import 'package:bike_setup_tracker/models/component/component_catalog.dart';
+import 'package:bike_setup_tracker/models/component/component_preset.dart';
 import 'package:bike_setup_tracker/models/component/preset_spec_keys.dart';
 import 'package:bike_setup_tracker/utils/component_catalog_parser.dart';
 import 'package:bike_setup_tracker/utils/component_preset_resolver.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// [resolvePreset] reads a persisted `Component.preset` map back against the
-/// catalog, [toPresetMap] writes one. Fixtures are small inline YAML files run
+/// [resolvePreset] reads a persisted [ComponentPreset] back against the
+/// catalog, [toComponentPreset] writes one. Fixtures are small inline YAML files run
 /// through the real [parseCatalogFile].
 
 const _foxYaml = '''
@@ -83,18 +84,18 @@ const Map<String, Object> _factory = {
 };
 
 /// [_factory] without [removed], plus [changed].
-Map<String, Object> _factoryWith({List<String> removed = const [], Map<String, Object> changed = const {}}) => {
+ComponentPreset _factoryWith({List<String> removed = const [], Map<String, Object> changed = const {}}) => ComponentPreset({
   for (final entry in _factory.entries)
     if (!removed.contains(entry.key)) entry.key: entry.value,
   ...changed,
-};
+});
 
 List<String> _labels(ResolvedPreset resolved) => resolved.path.map((node) => node.label).toList();
 
 void main() {
   group('resolvePreset', () {
     test('walks the tree to the product and reads its selections', () {
-      final resolved = resolvePreset(_catalogs, _factory)!;
+      final resolved = resolvePreset(_catalogs, ComponentPreset(_factory))!;
 
       expect(resolved.catalog.brand, 'FOX');
       expect(_labels(resolved), ['36', '2025–2026', 'Factory']);
@@ -106,7 +107,7 @@ void main() {
     });
 
     test('a map that stops early resolves to the group it reached', () {
-      final resolved = resolvePreset(_catalogs, {'brand': 'fox', 'component_type': 'fork', 'model': '36'})!;
+      final resolved = resolvePreset(_catalogs, ComponentPreset(const {'brand': 'fox', 'component_type': 'fork', 'model': '36'}))!;
 
       expect(_labels(resolved), ['36']);
       expect(resolved.product, isNull);
@@ -134,17 +135,17 @@ void main() {
     test('ignores entries the catalog does not know', () {
       final resolved = resolvePreset(_catalogs, _factoryWith(changed: {'colour': 'orange', 'size': '210x55'}))!;
 
-      expect(toPresetMap(resolved), _factory);
+      expect(toComponentPreset(resolved), ComponentPreset(_factory));
     });
 
     test('still resolves a draft node', () {
-      final resolved = resolvePreset(_catalogs, {
+      final resolved = resolvePreset(_catalogs, ComponentPreset(const {
         'brand': 'fox',
         'component_type': 'fork',
         'model': '36',
         'generation': '2021',
         'trim': 'factory',
-      })!;
+      }))!;
 
       expect(resolved.node.draft, isTrue);
       expect(resolved.product!.label, 'Factory');
@@ -156,7 +157,7 @@ void main() {
       expect(resolved.selections.containsKey('travel_mm'), isFalse);
       expect(resolved.optionalAxes.map((axis) => axis.id), ['travel_mm']);
       expect(resolved.effectiveSpecs.get(PresetSpecKeys.travelMm), isNull);
-      expect(toPresetMap(resolved).containsKey('travel_mm'), isFalse);
+      expect(toComponentPreset(resolved)['travel_mm'], isNull);
     });
 
     test('an axis with a single value is resolved without being asked for', () {
@@ -165,17 +166,17 @@ void main() {
       expect(resolved.selections['wheel_size']!.id, '29');
       // Nothing to choose, so it is not offered either.
       expect(resolved.optionalAxes.map((axis) => axis.id), ['travel_mm']);
-      expect(toPresetMap(resolved)['wheel_size'], '29');
+      expect(toComponentPreset(resolved)['wheel_size'], '29');
     });
 
     test('resolves a shock size by its id', () {
-      final resolved = resolvePreset(_catalogs, {
+      final resolved = resolvePreset(_catalogs, ComponentPreset(const {
         'brand': 'ohlins',
         'component_type': 'shock',
         'model': 'ttx22',
         'version': 'm2',
         'size': '210x52.5',
-      })!;
+      }))!;
 
       expect(_labels(resolved), ['TTX22', 'm.2']);
       expect(resolved.effectiveSpecs.get(PresetSpecKeys.strokeMm), 52.5);
@@ -186,31 +187,29 @@ void main() {
       expect(resolvePreset(_catalogs, _factoryWith(changed: {'brand': 'rockshox'})), isNull);
       expect(resolvePreset(_catalogs, _factoryWith(changed: {'component_type': 'shock'})), isNull);
       expect(resolvePreset(_catalogs, _factoryWith(changed: {'model': '99'})), isNull);
-      expect(resolvePreset(_catalogs, const {}), isNull);
+      expect(resolvePreset(_catalogs, ComponentPreset(const {})), isNull);
     });
   });
 
-  group('toPresetMap', () {
-    test('round-trips a resolved map', () {
-      expect(toPresetMap(resolvePreset(_catalogs, _factory)!), _factory);
+  group('toComponentPreset', () {
+    test('round-trips a resolved preset', () {
+      expect(toComponentPreset(resolvePreset(_catalogs, ComponentPreset(_factory))!), ComponentPreset(_factory));
     });
 
     test('survives the JSON column', () {
-      final stored = jsonEncode(toPresetMap(resolvePreset(_catalogs, _factory)!));
-      final restored = (jsonDecode(stored) as Map<String, dynamic>).cast<String, Object>();
+      final stored = jsonEncode(toComponentPreset(resolvePreset(_catalogs, ComponentPreset(_factory))!).toJson());
+      final restored = ComponentPreset.tryFromJson(jsonDecode(stored))!;
 
-      expect(toPresetMap(resolvePreset(_catalogs, restored)!), _factory);
+      expect(toComponentPreset(resolvePreset(_catalogs, restored)!), ComponentPreset(_factory));
     });
 
     test('stops where the path stops', () {
       final resolved = resolvePreset(_catalogs, _factoryWith(changed: {'trim': 'retired'}))!;
 
-      expect(toPresetMap(resolved), {
-        'brand': 'fox',
-        'component_type': 'fork',
-        'model': '36',
-        'generation': '2025',
-      });
+      expect(
+        toComponentPreset(resolved),
+        ComponentPreset(const {'brand': 'fox', 'component_type': 'fork', 'model': '36', 'generation': '2025'}),
+      );
     });
   });
 

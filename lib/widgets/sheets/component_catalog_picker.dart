@@ -625,24 +625,10 @@ class _ProductTrailing extends StatelessWidget {
 String? _productSubtitle(ResolvedPreset product) {
   final stanchion = product.effectiveSpecs.get(PresetSpecKeys.stanchion);
   final parts = [
-    for (final axis in product.axes) _axisSummary(axis),
+    for (final axis in product.axes) optionAxisSummary(axis),
     ?stanchion,
   ];
   return parts.isEmpty ? null : parts.join(' · ');
-}
-
-String _axisSummary(OptionAxis axis) {
-  if (axis.id == PresetOptionAxes.size.id && axis.values.length > 1) return _count(axis.values.length, 'size');
-  final unit = axis.key.spec?.unit;
-  if (unit == null) return axis.values.map((value) => value.label).join(' / ');
-  // `150 / 160 mm` instead of the unit on every value. A literal value is its own id.
-  final values = axis.values.map(
-    (value) => switch (value.id) {
-      final num number => formatSpecNumber(number),
-      final id => id.toString(),
-    },
-  );
-  return '${values.join(' / ')} $unit';
 }
 
 // --- stage 3: required axes, one at a time -----------------------------------

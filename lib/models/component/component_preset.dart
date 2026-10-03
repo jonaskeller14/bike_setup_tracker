@@ -1,128 +1,50 @@
-import '../adjustment/adjustment.dart';
+import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
+
 import 'component.dart';
 
-/// In-memory model of the component-preset catalog (`data/component_presets/`).
+/// The catalog selection a component was created from: one `<level>: <node id>`
+/// entry per tree level plus one `<axis id>: <value id>` entry per chosen
+/// option. Level names differ per brand, so apart from [brand] and
+/// [componentType] the entries are read by name.
+///
+/// It may stop short of a product, or name nodes the catalog has since
+/// retired; resolving it against the catalog goes as deep as it still matches.
+@immutable
+class ComponentPreset {
+  static const String brandKey = 'brand';
+  static const String componentTypeKey = 'component_type';
 
-/// Defers instantiation to selection time
-class PresetAdjustmentSpec {
-  final Map<String, dynamic> raw;
+  final Map<String, Object> _entries;
 
-  const PresetAdjustmentSpec(this.raw);
+  ComponentPreset(Map<String, Object> entries) : _entries = Map.unmodifiable(entries);
 
-  Adjustment build() => Adjustment.fromYaml(raw);
-}
-
-class DamperSpec {
-  final String key;
-  final String name;
-  final String? description;
-  final List<PresetAdjustmentSpec> adjustmentSpecs;
-  final Map<String, dynamic> info;
-
-  const DamperSpec({
-    required this.key,
-    required this.name,
-    this.description,
-    this.adjustmentSpecs = const [],
-    this.info = const {},
-  });
-}
-
-class ComponentPresetVariant {
-  final String key;
-  final String brand;
-  final String model;
-  final String trim;
-  final ComponentType componentType;
-  final String? category;
-  final String? yearRange;
-
-  /// Product page for this variant (trim-level `url` overrides the model-level).
-  final String? url;
-
-  /// Wheel sizes as authored (`29`, `27.5`, `700c`, …), stringified.
-  final List<String> wheelSizes;
-
-  /// Fork `travel_mm` options (numeric).
-  final List<num> travelOptions;
-
-  /// Shock `stroke_mm` options (may be descriptive strings), stringified.
-  final List<String> strokeOptions;
-
-  /// Informational spring label (`Air`, `Coil`, `DebonAir+`, …); no longer
-  /// drives adjustment generation.
-  final String? springLabel;
-
-  /// Trim-level (spring) adjustment specs.
-  final List<PresetAdjustmentSpec> adjustmentSpecs;
-
-  /// Resolved dampers this trim can ship with (>1 = buyer-selectable).
-  final List<DamperSpec> dampers;
-
-  final String? stanchion;
-  final String? note;
-
-  /// Whether all adjustment click counts are published (true by default).
-  /// Incomplete models are filtered from the UI preset picker.
-  final bool complete;
-
-  const ComponentPresetVariant({
-    required this.key,
-    required this.brand,
-    required this.model,
-    required this.trim,
-    required this.componentType,
-    this.category,
-    this.yearRange,
-    this.url,
-    this.wheelSizes = const [],
-    this.travelOptions = const [],
-    this.strokeOptions = const [],
-    this.springLabel,
-    this.adjustmentSpecs = const [],
-    this.dampers = const [],
-    this.stanchion,
-    this.note,
-    this.complete = true,
-  });
-
-  DamperSpec? damperByKey(String? key) {
-    if (key == null) return null;
-    for (final damper in dampers) {
-      if (damper.key == key) return damper;
-    }
-    return null;
+  /// Null unless [json] is an object of strings and numbers, so a malformed
+  /// preset only drops the catalog link.
+  static ComponentPreset? tryFromJson(Object? json) {
+    if (json is! Map<String, dynamic>) return null;
+    if (!json.values.every((value) => value is String || value is num)) return null;
+    return ComponentPreset(Map<String, Object>.from(json));
   }
 
-  /// Compact travel/stroke label for subtitles: `160 mm`, `140–170 mm` for
-  /// forks, the stroke options joined for shocks; `null` when unknown.
-  String? get travelLabel {
-    if (componentType == ComponentType.fork && travelOptions.isNotEmpty) {
-      return travelOptions.length == 1
-          ? '${travelOptions.single} mm'
-          : '${travelOptions.first}–${travelOptions.last} mm';
-    }
-    if (componentType == ComponentType.shock && strokeOptions.isNotEmpty) {
-      return strokeOptions.join(' / ');
-    }
-    return null;
-  }
-}
+  /// A node id or an option value id; null when the selection has no entry.
+  Object? operator [](String key) => _entries[key];
 
-class PresetApplication {
-  final String name;
-  final ComponentType componentType;
-  final String notes;
-  final List<Adjustment> adjustments;
-  final String presetKey;
-  final String? presetDamperKey;
+  /// The brand file's id (`fox`), not its display name.
+  Object? get brand => _entries[brandKey];
 
-  const PresetApplication({
-    required this.name,
-    required this.componentType,
-    required this.notes,
-    required this.adjustments,
-    required this.presetKey,
-    this.presetDamperKey,
-  });
+  ComponentType? get componentType =>
+      ComponentType.values.firstWhereOrNull((type) => type.name == _entries[componentTypeKey]);
+
+  Map<String, Object> toJson() => _entries;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || other is ComponentPreset && mapEquals(_entries, other._entries);
+
+  @override
+  int get hashCode => Object.hashAllUnordered(_entries.entries.map((e) => Object.hash(e.key, e.value)));
+
+  @override
+  String toString() => 'ComponentPreset($_entries)';
 }

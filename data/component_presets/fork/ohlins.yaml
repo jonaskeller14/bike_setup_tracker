@@ -46,15 +46,17 @@ option_values:
       description: |-
         - XC race cartridge with a three-position lever: Open, Pedal and Lockout
         - Rebound, low-speed and high-speed compression each get their own dial
-        - Adjustments incomplete: please add Rebound and Compression yourself.
       adjustments:
+        - { name: HSC, type: step, max: ~, notes: High-Speed Compression }
+        - { name: LSC, type: step, max: ~, notes: Low-Speed Compression }
+        - { name: Rebound, type: step, max: ~ }
         - { name: Ride Mode, type: categorical, options: [Open, Pedal, Lockout], notes: "Crown lever or bar remote; 7.5mm cable pull per click, 5.5mm/click adapter available" }
       source: https://www.ohlins.eu/en/products/mountainbike/rxc34-m1-air-otx14-r--7692/
       note: >-
         RXC34 m.1 page lists "3 Ride Modes: open, pedal, lockout", "Lockout
         Funktion (7,5 mm per Klick)" and "Getrennt einstellbare Zug- und
         Druckstufendämpfung", but no click totals for the rebound, low-speed or
-        high-speed compression dials. Left out rather than guessed.
+        high-speed compression dials, so those three carry `max: ~`.
 
     otx18:
       name: OTX18
@@ -113,25 +115,27 @@ option_values:
       description: |-
         - Twin-tube cartridge of the first-generation RXF38
         - High-speed compression is a four-position dial, shipped fully open at 3
-        - Adjustments incomplete: please add Rebound and Low-Speed Compression yourself.
       adjustments:
         - { name: HSC, type: step, max: 3, notes: "High-Speed Compression; 0 is fully closed, 3 fully open", dialColor: grey }
+        - { name: LSC, type: step, max: ~, notes: Low-Speed Compression }
+        - { name: Rebound, type: step, max: ~ }
       source: https://ohlins.com/storage/9C8C7FB7E305B5CED4AFC6118547113286CF63B94F14ADAB8050C2CFEA78FF38/dcb2294119c04b8da8dd7613ae7db28f/pdf/media/60aa019099bd416e8b0207e44ee4a2ac/OM_07258-09_3_FGxx%2038xx%2021xx.pdf
       note: >-
         Owner's Manual RXF38 m.1 (part no. OM_07258-09_3), chapter "4 TTX18
         SETUP", p. 13: "The high speed adjuster has four positions ... position 0
         [zero] ... position 3." That manual states no click totals for low-speed
-        compression or rebound, so those two are omitted rather than copied from
-        the m.2 cartridge.
+        compression or rebound, so those two carry `max: ~` rather than the
+        m.2 cartridge's numbers.
 
     ttx22_fork:
       name: TTX22 (fork cartridge)
       description: |-
         - Twin-tube cartridge of the original RXF34/RXF36, opposite the air spring
         - High-speed compression runs 0 fully closed to 5 fully open, shipped at 5
-        - Adjustments incomplete: please add Rebound and Low-Speed Compression yourself.
       adjustments:
         - { name: HSC, type: step, max: 5, notes: "High-Speed Compression; 0 is fully closed, 5 fully open" }
+        - { name: LSC, type: step, max: ~, notes: Low-Speed Compression }
+        - { name: Rebound, type: step, max: ~ }
       source: https://ohlins.pl/sites/default/files/mtb_rxf34_rxf36_27.5-29-1.pdf
       note: >-
         Öhlins "Front Fork RXF34/RXF36 Owner's Manual / Mounting Instructions",
@@ -149,15 +153,16 @@ option_values:
       description: |-
         - Simpler cartridge sold alongside the TTX22 in the original RXF36
         - Low-speed compression and rebound only, both shipped at 7 clicks from closed
-        - Adjustments incomplete: please add Rebound and Compression yourself.
-      adjustments: []
+      adjustments:
+        - { name: Compression, type: step, max: ~, notes: Low-Speed Compression }
+        - { name: Rebound, type: step, max: ~ }
       source: https://ohlins.pl/sites/default/files/mtb_rxf34_rxf36_27.5-29-1.pdf
       note: >-
         Same manual, chapter "SETTING UP STX22", p. 11/16: "The front forks are
         delivered with the low speed compression and rebound adjuster at 7
-        clicks." That is a delivery setting, not a maximum, so no click range is
-        entered for either circuit. The chapter describes no high-speed
-        compression adjuster on this cartridge.
+        clicks." That is a delivery setting, not a maximum, so both circuits
+        carry `max: ~`. The chapter describes no high-speed compression
+        adjuster on this cartridge.
 
     ttx18_dh38_m1:
       name: TTX18 (DH38 m.1)
@@ -433,10 +438,10 @@ nodes:
 # Follow-ups (not yet captured — avoid guessing):
 #   - OTX14 R (RXC34 m.1): Öhlins publishes the three ride modes and the
 #     7.5mm/click lockout throw, but no click totals for its rebound, low-speed
-#     or high-speed compression dials. Only the Ride Mode selector is modelled.
+#     or high-speed compression dials, so the three dials carry `max: ~`.
 #   - RXF38 m.1: the owner's manual gives the four-position high-speed dial but
-#     no low-speed compression or rebound totals, so the m.1 fork is not listed
-#     yet — `ttx18_rxf38_m1` is defined and waiting for those two numbers.
+#     no low-speed compression or rebound totals. `ttx18_rxf38_m1` is defined
+#     with `max: ~` for those two; the m.1 fork itself is not listed yet.
 #   - RXF34 m.2 volume spacers: the page weighs the fork "ohne Volumenspacer"
 #     but never states how many the air spring accepts. No Volume Spacers
 #     adjustment is generated until a maximum is published.

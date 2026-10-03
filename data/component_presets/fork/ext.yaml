@@ -20,7 +20,7 @@
 # The quick manuals only print a rider-weight-based table of *suggested
 # starting* clicks (well short of the mechanical max), which is not the same
 # thing as the click range — so, per SCHEMA.md's "never guess a number" rule,
-# no `step` adjustments are generated for these dampers. See "Follow-ups".
+# every adjuster is declared with `max: ~`. See "Follow-ups".
 brand: EXT
 component_type: fork
 sources:
@@ -45,12 +45,12 @@ option_values:
         by EXT's own quick manual, which covers both forks together): high
         volume cartridge with a 22mm piston, HDRV compression valve (24mm
         piston) and a 24mm-piston IFP reservoir. Independently adjustable
-        Low-Speed Compression, High-Speed Compression and Rebound. EXT does
-        not publish a maximum click count for any of the three adjusters —
-        only a weight-based table of suggested (non-maximal) starting clicks
-        — so no step adjustments are generated here; verify the true click
-        range with EXT before relying on a number.
-      adjustments: []
+        Low-Speed Compression, High-Speed Compression and Rebound, all
+        counted from fully closed (click 0).
+      adjustments:
+        - { name: LSC, type: step, max: ~, notes: Low-Speed Compression }
+        - { name: HSC, type: step, max: ~, notes: High-Speed Compression }
+        - { name: Rebound, type: step, max: ~, dialColor: red }
       adjusters: LSC (nickel dial, top of right leg) / HSC (black dial, top of right leg) / Rebound (red dial, bottom of right leg)
 
     vaia_cartridge:
@@ -59,9 +59,11 @@ option_values:
         Vaia's own damper cartridge (dual-crown downhill fork). Independently
         adjustable Low-Speed Compression, High-Speed Compression and Rebound,
         all counted from fully closed (click 0) with the same clockwise-closes
-        convention as Era. No maximum click count is published on the product
-        page or quick manual — omitted rather than guessed.
-      adjustments: []
+        convention as Era.
+      adjustments:
+        - { name: LSC, type: step, max: ~, notes: Low-Speed Compression }
+        - { name: HSC, type: step, max: ~, notes: High-Speed Compression }
+        - { name: Rebound, type: step, max: ~, dialColor: red }
       adjusters: LSC (nickel dial) / HSC (black dial) / Rebound (red dial), all on the fork's left leg
 
 # --------------------------------------------------------------------------
@@ -76,7 +78,6 @@ option_values:
 nodes:
   - label: "Era V2.1"
     level: model
-    draft: true
     category: Trail / Enduro
     years: "2025-2026"
     url: https://extremeshox.com/product/ext-era-v2-1/
@@ -94,7 +95,6 @@ nodes:
 
   - label: "Era V2 LT"
     level: model
-    draft: true
     category: Enduro
     years: "2025-2026"
     url: https://extremeshox.com/product/ext-era-v2-lt/
@@ -113,7 +113,6 @@ nodes:
 
   - label: "Vaia"
     level: model
-    draft: true
     category: Downhill / Enduro
     years: "2025-2026"
     url: https://extremeshox.com/product/vaia/
@@ -138,8 +137,8 @@ nodes:
 #   - No maximum click counts are published anywhere for LSC/HSC/Rebound on
 #     either Era (V2.1/V2 LT) or Vaia. The Era quick manual's rider-weight
 #     table gives only a *suggested starting point* (e.g. HSC-LSC-R = 10-10-18
-#     for a <60kg rider), which is not the mechanical max — verify the real
-#     range with EXT support/dealer before adding step adjustments.
+#     for a <60kg rider), which is not the mechanical max, so all three carry
+#     `max: ~`. Verify the real range with EXT support/dealer.
 #   - Era V2.1/V2 LT: published max inflation is a single combined figure
 #     (200 psi / 14 bar) rather than separate + / ++ chamber limits like the
 #     Aria shock (280/600 psi) — not modeled as a per-chamber `max` to avoid

@@ -94,13 +94,13 @@ option_values:
 nodes:
   - label: "Samurai XC 29"
     level: model
-    draft: true
     category: XC / Down-country
     years: "2025-2026"
     url: https://www.intend-bc.com/products/samurai-xc/
     children:
       - label: Standard
         level: trim
+        draft: true
         specs: { spring: Air }
         offset_mm: [44]
         adjustments: &air_spring
@@ -115,13 +115,13 @@ nodes:
 
   - label: "Samurai XC 32"
     level: model
-    draft: true
     category: XC
     years: "2025-2026"
     url: https://www.intend-bc.com/products/samurai-32/
     children:
       - label: Standard
         level: trim
+        draft: true
         specs: { stanchion: 35mm, spring: Air }
         offset_mm: [46, 48] # 46mm at sag, 48mm fully extended
         adjustments: *air_spring
@@ -135,13 +135,13 @@ nodes:
 
   - label: "Samurai Super TR"
     level: model
-    draft: true
     category: Downcountry / Trail / Enduro
     years: "2025-2026"
     url: https://www.intend-bc.com/products/samurai-supertr/
     children:
       - label: Standard
         level: trim
+        draft: true
         specs: { spring: Air }
         offset_mm: [44]
         adjustments: *air_spring
@@ -152,13 +152,13 @@ nodes:
 
   - label: "Hero"
     level: model
-    draft: true
     category: Trail / All-Mountain / Enduro
     years: "2025-2026"
     url: https://www.intend-bc.com/products/intend-hero/
     children:
       - label: Standard
         level: trim
+        draft: true
         specs: { stanchion: 44mm upper / 35mm lower (inverted), spring: Air }
         offset_mm: [44]
         adjustments: *air_spring
@@ -170,13 +170,13 @@ nodes:
 
   - label: "Essential"
     level: model
-    draft: true
     category: Trail / All-Mountain / Enduro
     years: "2025-2026"
     url: https://www.intend-bc.com/products/essentials/
     children:
       - label: Standard
         level: trim
+        draft: true
         specs: { stanchion: 35mm, spring: Air }
         offset_mm: [44]
         adjustments: *air_spring
@@ -191,13 +191,13 @@ nodes:
 
   - label: "Edge"
     level: model
-    draft: true
     category: Enduro
     years: "2025-2026"
     url: https://www.intend-bc.com/products/intend-edge/
     children:
       - label: Standard
         level: trim
+        draft: true
         specs: { stanchion: 35mm, spring: Air }
         offset_mm: [44]
         adjustments: *air_spring
@@ -208,13 +208,13 @@ nodes:
 
   - label: "Flash 35"
     level: model
-    draft: true
     category: Enduro / Freeride
     years: "2025-2026"
     url: https://www.intend-bc.com/products/intend-flash/
     children:
       - label: Standard
         level: trim
+        draft: true
         specs: { stanchion: 35mm, spring: Air }
         offset_mm: [44]
         adjustments: *air_spring
@@ -225,13 +225,13 @@ nodes:
 
   - label: "Flash 38"
     level: model
-    draft: true
     category: Enduro / Freeride / DH
     years: "2025-2026"
     url: https://www.intend-bc.com/products/flash-38/
     children:
       - label: Standard
         level: trim
+        draft: true
         specs: { stanchion: 38mm, spring: Air }
         offset_mm: [44]
         adjustments: *air_spring
@@ -243,13 +243,13 @@ nodes:
 
   - label: "Infinity EN"
     level: model
-    draft: true
     category: Enduro / Freeride / DH (Dual Crown)
     years: "2025-2026"
     url: https://www.intend-bc.com/products/infinity-en/
     children:
       - label: Standard
         level: trim
+        draft: true
         specs: { stanchion: 35mm, spring: Air }
         offset_mm: [44]
         adjustments: *air_spring
@@ -261,13 +261,13 @@ nodes:
 
   - label: "Bandit"
     level: model
-    draft: true
     category: Enduro / Freeride
     years: "2025-2026"
     url: https://www.intend-bc.com/products/bandit/
     children:
       - label: Standard
         level: trim
+        draft: true
         specs: { stanchion: 35mm, spring: Air }
         offset_mm: [44]
         adjustments: *air_spring

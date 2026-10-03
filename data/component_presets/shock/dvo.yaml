@@ -55,15 +55,15 @@ option_values:
       description: |-
         - One lever, three on-the-fly settings: Open for rough descents, Mid for support, Firm for fire-road climbs
         - Firm is a pedalling platform, not a lockout
-        - Adjustments incomplete: please add Rebound yourself.
       adjustments:
+        - { name: Rebound, type: step, max: ~, notes: "Counted from fully closed (slowest)" }
         - { name: Compression Mode, type: categorical, options: [Open, Mid, Firm], notes: "On-the-fly lever; Open = plush, Mid = supportive, Firm = firm (not a lockout)" }
       source:
         - https://dvosuspension.com/wp-content/uploads/2023/11/Jade-X-Setup-Guide-Nov20.pdf
       note: >-
         Jade X Set-Up Guide v2.0. The T3 trim does carry a rebound knob (labelled on the
         adjuster diagram, p.4), but its scale strip (p.12) reads "Open 18+ 16 14 12 10 8 6 4 2
-        0 Closed" — the open end is open-ended, so no rebound total is recorded. The p.12 tech
+        0 Closed" — the open end is open-ended, so rebound carries `max: ~`. The p.12 tech
         tip only says to start fully closed and adjust out in two-click increments.
 
     jade_x_prime:
@@ -71,15 +71,16 @@ option_values:
       description: |-
         - High Speed Compression on the green dial, 10 clicks from fully open to closed
         - Low Speed Compression on the black dial behind it, 5 clicks; clockwise adds support
-        - Adjustments incomplete: please add Rebound yourself.
       adjustments:
         - { name: HSC, type: step, max: 10, notes: "High-Speed Compression; Counted from fully open (softest); clockwise = more support", dialColor: green }
         - { name: LSC, type: step, max: 5, notes: "Low-Speed Compression; Counted from fully open (softest); clockwise = more support", dialColor: grey, dialSize: small }
+        - { name: Rebound, type: step, max: ~, notes: "Counted from fully closed (slowest)" }
       source:
         - https://dvosuspension.com/wp-content/uploads/2023/11/Jade-X-Setup-Guide-Nov20.pdf
       note: >-
         Jade X Set-Up Guide v2.0, p.10-11 scale strips: HSC "Open 1 2 3 4 5 6 7 8 9 10 Closed"
-        and LSC "Open 1 2 3 4 5 Closed". Rebound omitted for the same "18+" reason as the T3.
+        and LSC "Open 1 2 3 4 5 Closed". Rebound carries `max: ~` for the same "18+" reason as
+        the T3.
 
     jade_coil:
       name: Jade
@@ -105,10 +106,10 @@ option_values:
       description: |-
         - High Speed Compression on the green dial, 10 clicks from fully open to closed
         - Low Speed Compression on the black dial behind it, 5 clicks; clockwise adds support
-        - Adjustments incomplete: please add Rebound yourself.
       adjustments:
         - { name: HSC, type: step, max: 10, notes: "High-Speed Compression; Counted from fully open (softest); clockwise = more support", dialColor: green }
         - { name: LSC, type: step, max: 5, notes: "Low-Speed Compression; Counted from fully open (softest); clockwise = more support", dialColor: grey, dialSize: small }
+        - { name: Rebound, type: step, max: ~ }
       source:
         - https://dvosuspension.com/wp-content/uploads/2024/05/DVO-Topaz-Setup-Guide-May9.pdf
       note: >-
@@ -117,21 +118,21 @@ option_values:
         rebound figure DVO prints for the Topaz is the p.12 "Rebound Base Setting Chart (for
         all Topaz models)" whose columns run 1-9, and the same chart shape overshoots the real
         total on the Diamond (chart to 22, stated range 20 clicks). The 2020 Topaz Air Owner's
-        Guide repeats the identical 1-9 chart with no total either.
+        Guide repeats the identical 1-9 chart with no total either, so rebound carries `max: ~`.
 
     topaz_pro:
       name: Topaz Pro
       description: |-
         - One lever, three on-the-fly settings: Open for rough descents, Mid for support, Firm for steep climbs
         - Firm is a pedalling platform, not a lockout
-        - Adjustments incomplete: please add Rebound yourself.
       adjustments:
+        - { name: Rebound, type: step, max: ~ }
         - { name: Compression Mode, type: categorical, options: [Open, Mid, Firm], notes: "On-the-fly lever; Open = plush, Mid = supportive, Firm = firm (not a lockout)" }
       source:
         - https://dvosuspension.com/wp-content/uploads/2024/05/DVO-Topaz-Setup-Guide-May9.pdf
       note: >-
-        Topaz Set-Up Guide (May 2024), p.12 T3 Adjust. Rebound omitted for the same reason as
-        the Topaz Prime — chart columns only, no stated total.
+        Topaz Set-Up Guide (May 2024), p.12 T3 Adjust. Rebound carries `max: ~` for the same
+        reason as the Topaz Prime — chart columns only, no stated total.
 
     topaz_t3air:
       name: Topaz T3Air
@@ -156,16 +157,18 @@ option_values:
       name: Opal T3
       description: >-
         Lightweight XC air shock with a three-position on-the-fly compression lever and a
-        low-speed rebound dial. Adjustments incomplete: please add Rebound and Compression
+        low-speed rebound dial. Adjustments incomplete: please add the Compression lever
         yourself.
-      adjustments: []
+      adjustments:
+        - { name: Rebound, type: step, max: ~, notes: Low-Speed Rebound }
       source:
         - https://dvosuspension.com/product/opal-hv-t3/
       note: >-
         No click counts anywhere: the Opal has no page under tech.dvosuspension.com/setup
         (/setup/opal/ returns HTTP 404 as of 2026-09-10) and no set-up guide PDF, and DVO's
-        product page describes the adjusters without numbering them. Every model using this
-        damper is therefore marked `complete: false`.
+        product page describes the adjusters without numbering them. Rebound carries
+        `max: ~`; the lever's position names are unpublished, so every model using this
+        damper stays `draft: true`.
 
 # --------------------------------------------------------------------------
 # Shocks — current DVO lineup, then the previous-generation Topaz. Shocks are
@@ -281,7 +284,6 @@ nodes:
 
   - label: Opal
     level: model
-    draft: true
     category: XC
     years: "2023-2026"
     url: https://dvosuspension.com/product/opal-hv-t3/
@@ -289,6 +291,7 @@ nodes:
     children:
       - label: HV T3
         level: trim
+        draft: true
         mounts: [Metric, Trunnion]
         adjustments:
           - { name: Pressure, type: numerical, unit: psi, min: 0 }
@@ -333,15 +336,16 @@ nodes:
 # Follow-ups (not yet captured — avoid guessing):
 #   - Jade X rebound total (both the T3 and the Prime): the Jade X Set-Up Guide
 #     v2.0 prints an explicit scale strip for HSC and LSC but the rebound strip
-#     ends "Open 18+ ... Closed". "18+" is open-ended, so the total stays
-#     unrecorded. tech.dvosuspension.com/setup/jade-x hosts only that same PDF —
+#     ends "Open 18+ ... Closed". "18+" is open-ended, so rebound carries
+#     `max: ~`. tech.dvosuspension.com/setup/jade-x hosts only that same PDF —
 #     ask DVO for a "Rebound Range: N clicks total" figure like the Jade's.
 #   - Topaz rebound total (Pro, Prime and T3Air): REGRESSION ON PURPOSE. The
 #     previous `Rebound max: 9` was read off the "Rebound Base Setting Chart"
 #     column count in both the 2024 Topaz Set-Up Guide and the 2020 Topaz Air
 #     Owner's Guide. Neither states a total, and DVO's own Diamond figures show
 #     a base chart overshooting the real range (chart 22 vs. 20 clicks total),
-#     so the 9 has been removed rather than shipped as fact.
+#     so the 9 has been replaced with `max: ~` on the Pro and Prime. The T3Air
+#     page calls its rebound continuously variable, so it has no step adjuster.
 #   - Jade X WP CV / Topaz WP CV: WP Suspension's Cone Valve internals. DVO
 #     publishes no counts for them and they have no page under
 #     tech.dvosuspension.com/setup — would need WP's own documentation.
@@ -352,8 +356,9 @@ nodes:
 #     lists may differ in practice. The Jade, Topaz 2 and Opal have no
 #     published stroke table beyond the Opal's product page.
 #   - Opal HV T3: no tech page (/setup/opal/ is a 404), no set-up guide PDF, no
-#     click counts for its T3 lever or its rebound dial. Model stays
-#     `draft: true`, so the picker hides it until DVO publishes numbers.
+#     click counts for its T3 lever or its rebound dial. Rebound carries
+#     `max: ~`, but the lever's positions are unnamed, so the trim stays
+#     `draft: true` and the picker hides it until DVO publishes them.
 #   - Volume-spacer counts: DVO documents WHAT the Topaz and Opal spacers do
 #     (positive vs. negative chamber, "add 1-2") but never a maximum count, so
 #     no Volume Spacers adjustment is declared on any shock. Contrast the Onyx

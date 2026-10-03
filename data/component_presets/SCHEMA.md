@@ -416,9 +416,13 @@ An on-the-fly compression lever is a categorical:
 non-draft products are selectable. A component that was saved against a node
 keeps resolving after the node goes back to draft.
 
-- Set it on the **narrowest node it applies to**: one generation, one trim.
-- Use it when the adjuster list of a damper the product ships with is unknown
-  (`adjustments: []`), or when a from-middle range is unknown.
+- Set it on the **narrowest node it applies to**: one generation, one trim. A
+  model or generation only carries it when every product below it is draft.
+- Use it when a damper the product ships with has an adjuster that cannot be
+  declared: the adjuster list is unknown (`adjustments: []`), a from-middle
+  range is unknown, or the adjuster's type is not documented (a lever whose
+  positions are not named, a dial that may not be click-indexed).
+- A product whose only gaps are `max: ~` adjusters is not draft.
 - `draft` is a node property only. An option value cannot be draft.
 - A child can opt out of an inherited draft with `draft: false`.
 
@@ -514,7 +518,12 @@ not publish, is declared with an explicit null:
   adjuster with an unknown range has no sensible placeholder: leave it out and
   keep the product `draft: true`.
 - A missing `max` key is still an error.
-- The adjuster's *existence* has to be sourced like any other fact.
+- The adjuster's *existence* has to be sourced like any other fact, and so has
+  its being click-indexed and counted from an end stop: a click count in a
+  setup table, a stated counting convention for the brand or damper. Where
+  the source leaves that open, leave the adjuster out.
+- The placeholder caps input at 20 until the rider edits it, also where a
+  setup table already suggests a higher setting.
 
 ### Combine order
 
@@ -577,12 +586,14 @@ distinctive. Keep them short — one to three facts.
 | "search results only mentioned Ultimate and Select+" | Follow-ups footer |
 
 The one exception is a short, actionable heads-up when adjusters are missing
-from the data — the rider needs to know they have to add them by hand:
+from the data — the rider needs to know they have to add them by hand. Name
+only the adjusters that could not be declared; one declared with `max: ~`
+already carries its own warning:
 
 ```yaml
     description: >-
       Lightweight XC damper for marathon racing. Adjustments incomplete:
-      please add Rebound and Compression yourself.
+      please add the Compression lever yourself.
 ```
 
 Note the two different `note` keys: on a **node** it is user-facing; on a
@@ -635,4 +646,5 @@ all publish specs the same way:
 `test/component_catalog_test.dart` parses every file in this directory with the
 parser the app uses and fails when a file does not parse, `component_type` does
 not match its directory, an adjustment spec does not build, a shock size is not
-in mm, a `url` is not http(s), or two files claim the same product path.
+in mm, a `url` is not http(s), two files claim the same product path, or a
+non-draft product offers a damper with `adjustments: []`.

@@ -9,7 +9,7 @@
 # freeride / downhill). RST publishes which functions each shock has, but no
 # rebound or compression click counts anywhere (product pages, MONO owner's
 # manual, 2026 catalogue), so every rebound/compression adjuster is left out
-# and both models are `draft: true`. See the Follow-ups footer.
+# and every trim is `draft: true`. See the Follow-ups footer.
 #
 # RST does not publish model years, so no `years` is set.
 
@@ -117,13 +117,13 @@ nodes:
 
   - label: "MEZZO"
     level: model
-    draft: true
     category: E-Moto / Freeride
     url: https://rstsuspension.com/products/elementor-12887/
     specs: { spring: Coil }
     children:
       - label: Coil
         level: trim
+        draft: true
         adjustments:
           - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
           - { name: Preload, type: numerical, min: 0 }
@@ -139,7 +139,7 @@ nodes:
 #   - No rebound or compression click counts are published by RST for MONO
 #     or MEZZO (product pages, MONO owner's manual, 2026 catalogue), so the
 #     rebound (MONO DPU/R) and compression + rebound (MEZZO) adjusters are
-#     left out and both models are `draft: true`.
+#     left out and every trim is `draft: true`.
 #   - Whether MONO DPU has a rebound adjuster is confirmed only by the shared
 #     MONO owner's manual ("Adjust Rebound Damping"), not by the DPU product
 #     pages, which list just the 3-position lockout.

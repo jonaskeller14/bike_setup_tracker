@@ -8,7 +8,7 @@
 # product pages list, per model code, which functions are fitted ("Compress
 # adjust", "Rebound adjust", "Lock-Out", ...) but NEVER publish a click count
 # or turn count — neither do the owner's manuals or the 2026 catalogue. So
-# every hydraulic adjuster below is left out of `adjustments:` and the models
+# every hydraulic adjuster below is left out of `adjustments:` and the trims
 # using it are `draft: true` (hidden from the picker until counts exist).
 # Only the air Pressure / coil Spring Rate + Preload springs and the binary
 # mechanical lockout (MLC) are captured. See the Follow-ups footer.
@@ -349,12 +349,12 @@ nodes:
 
   - label: "STITCH 29 Limited Edition"
     level: model
-    draft: true
     category: Enduro
     url: https://rstsuspension.com/products/stitch-29-limited-edition/
     children:
       - label: Air
         level: trim
+        draft: true
         specs: { stanchion: 38mm Aluminum, spring: Air }
         offset_mm: 51
         axle: 15x110mm bolt axle
@@ -666,12 +666,12 @@ nodes:
 
   - label: "STORM"
     level: model
-    draft: true
     category: Enduro
     url: https://rstsuspension.com/products/storm/
     children:
       - label: RA
         level: trim
+        draft: true
         specs: { stanchion: 36mm Steel, spring: Coil }
         offset_mm: 43
         axle: 20x110mm QR axle (Boost)
@@ -760,12 +760,12 @@ nodes:
 
   - label: "AERIAL 110"
     level: model
-    draft: true
     category: XC / Trail
     url: https://rstsuspension.com/products/aerial/
     children:
       - label: 110-15 TNL
         level: trim
+        draft: true
         specs: { stanchion: 32mm Steel, spring: Air }
         offset_mm: 51
         axle: 15x110mm bolt axle
@@ -786,6 +786,7 @@ nodes:
           wheel_size: [29, 27.5, 26]
       - label: 110-9 TNL
         level: trim
+        draft: true
         specs: { stanchion: 32mm Steel, spring: Air }
         axle: 9x110mm open dropout
         adjustments: *air_spring
@@ -805,12 +806,12 @@ nodes:
 
   - label: "AERIAL"
     level: model
-    draft: true
     category: XC / Trail
     url: https://rstsuspension.com/products/aerial-2/
     children:
       - label: RL
         level: trim
+        draft: true
         specs: { stanchion: 32mm Steel, spring: Air }
         axle: 15x100mm bolt axle or 9x100mm open dropout
         adjustments: *air_spring
@@ -821,6 +822,7 @@ nodes:
         note: Remote-lockout variant. Offset 51mm (29") or 43mm (27.5").
       - label: TNL
         level: trim
+        draft: true
         specs: { stanchion: 32mm Steel, spring: Air }
         axle: 15x100mm bolt axle or 9x100mm open dropout
         adjustments: *air_spring
@@ -842,12 +844,12 @@ nodes:
 
   - label: "OMEGA"
     level: model
-    draft: true
     category: XC / Trail
     url: https://rstsuspension.com/products/omega/
     children:
       - label: RL
         level: trim
+        draft: true
         specs: { stanchion: 32mm Steel, spring: Coil }
         axle: 15x100mm bolt axle or 9x100mm open dropout
         adjustments: *coil_spring
@@ -858,6 +860,7 @@ nodes:
         note: Remote-lockout variant. Offset 51mm (29"), 43mm (27.5") or 38mm (26").
       - label: TNL
         level: trim
+        draft: true
         specs: { stanchion: 32mm Steel, spring: Coil }
         axle: 15x100mm bolt axle or 9x100mm open dropout
         adjustments: *coil_spring
@@ -888,12 +891,12 @@ nodes:
 
   - label: "BLAZE"
     level: model
-    draft: true
     category: XC / Trail
     url: https://rstsuspension.com/products/blaze/
     children:
       - label: RL
         level: trim
+        draft: true
         specs: { stanchion: 32mm Steel, spring: Coil }
         axle: 15x100mm bolt axle or 9x100mm open dropout
         adjustments: *coil_spring
@@ -904,6 +907,7 @@ nodes:
         note: Remote-lockout variant. Offset 51mm (29") or 44mm (27.5").
       - label: TNL
         level: trim
+        draft: true
         specs: { stanchion: 32mm Steel, spring: Coil }
         axle: 15x100mm bolt axle or 9x100mm open dropout
         adjustments: *coil_spring
@@ -962,12 +966,12 @@ nodes:
 
   - label: "SLOPE"
     level: model
-    draft: true
     category: Dirt Jump
     url: https://rstsuspension.com/products/slope/
     children:
       - label: HC
         level: trim
+        draft: true
         specs: { stanchion: 34mm Aluminum, spring: Air }
         offset_mm: 43
         axle: 15x100mm QR axle
@@ -979,12 +983,12 @@ nodes:
 
   - label: "SHINE"
     level: model
-    draft: true
     category: Dirt Jump
     url: https://rstsuspension.com/products/shine/
     children:
       - label: RA
         level: trim
+        draft: true
         specs: { stanchion: 34mm Steel, spring: Air }
         offset_mm: 43
         axle: 15x100mm bolt axle
@@ -996,12 +1000,12 @@ nodes:
 
   - label: "DIRT"
     level: model
-    draft: true
     category: Dirt Jump
     url: https://rstsuspension.com/products/dirt/
     children:
       - label: RA
         level: trim
+        draft: true
         specs: { stanchion: 32mm Steel, spring: Coil }
         offset_mm: 38
         axle: 15x100mm bolt axle
@@ -1080,12 +1084,12 @@ nodes:
 
   - label: "VIVO"
     level: model
-    draft: true
     category: Junior
     url: https://rstsuspension.com/products/vivo/
     children:
       - label: Air-TNL
         level: trim
+        draft: true
         specs: { stanchion: 30mm Steel, spring: Air }
         offset_mm: 38
         axle: 15x110mm, 15x100mm bolt axle or 9x100mm open dropout
@@ -1106,6 +1110,7 @@ nodes:
           wheel_size: [24, 20]
       - label: Air-HCR
         level: trim
+        draft: true
         specs: { stanchion: 30mm Steel, spring: Air }
         offset_mm: 38
         axle: 15x110mm, 15x100mm bolt axle or 9x100mm open dropout
@@ -1116,6 +1121,7 @@ nodes:
           wheel_size: [24, 20]
       - label: TNL
         level: trim
+        draft: true
         specs: { stanchion: 30mm Steel, spring: Coil }
         offset_mm: 38
         axle: 15x110mm, 15x100mm bolt axle or 9x100mm open dropout
@@ -1188,12 +1194,12 @@ nodes:
 
   - label: "GUIDE"
     level: model
-    draft: true
     category: Fat Bike
     url: https://rstsuspension.com/products/guide/
     children:
       - label: Air-TNL
         level: trim
+        draft: true
         specs: { stanchion: 32mm Steel, spring: Air }
         offset_mm: 50
         axle: 15x135mm bolt axle or 9x135mm open dropout
@@ -1216,6 +1222,7 @@ nodes:
         note: 26" chassis, max tire 26x4.6.
       - label: TNL
         level: trim
+        draft: true
         specs: { stanchion: 34mm Steel, spring: Coil }
         offset_mm: 50
         axle: 15x135mm bolt axle or 9x135mm open dropout
@@ -1253,8 +1260,10 @@ nodes:
 #     page, the general/high-end owner's manuals, the 2026 catalogue). Every
 #     external compression / rebound / hydraulic-lockout adjuster (OCR+, OCR2,
 #     OCR2+, OCRC+, BO-TNL, HCR, TNL, TNL-F, TNL-R, RA) is therefore left as
-#     `adjustments: []` and every model using one is `draft: true`. Only
-#     CAPA (mechanical MLC lockout + undamped T) is fully described.
+#     `adjustments: []` and every trim using one is `draft: true`. Nothing says
+#     whether these knobs are click-indexed or where they count from, so
+#     `max: ~` does not apply either. Only the MLC (mechanical lockout), the
+#     undamped T and the fixed-rebound DIRT R trims are fully described.
 #   - Hydraulic lockout (TNL / BO-TNL / OCR+ lock-out) is described in the
 #     owner's manual as a progressive compression-to-lockout control, not a
 #     binary switch, so it was not modelled as a boolean.

@@ -211,7 +211,6 @@ nodes:
 
   - label: "RAIDON"
     level: model
-    draft: true
     category: XC / Trail
     years: "2025-2026"
     url: https://www.srsuntour.com/products/rear-shock/RS25-Raidon-R-METRIC-8157.html
@@ -219,6 +218,7 @@ nodes:
     children:
       - label: R
         level: trim
+        draft: true
         mounts: [Metric, Standard eyelet]
         adjustments: *air_spring
         options:

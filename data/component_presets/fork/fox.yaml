@@ -107,7 +107,8 @@ option_values:
     # Legacy dampers. FOX's owner's manuals for these years publish the usable
     # GRIP2 high-speed compression range and the FIT4 open-mode adjust range, but
     # give rebound and low-speed compression only as rider-weight starting-point
-    # tables — those are recommendations, not ranges, so no total is recorded.
+    # tables — those are recommendations, not ranges, so those adjusters are
+    # declared with `max: ~` (placeholder range).
     # Each generation keeps its own id even where the badge did not change.
     # ------------------------------------------------------------------------
     grip2_2018:
@@ -115,9 +116,11 @@ option_values:
       description: |-
         - Four-way descent damper: high- and low-speed compression and rebound
         - Only the 16 high-speed compression clicks nearest fully closed change damping
-        - Adjustments incomplete: please add LSC, HSR and LSR yourself.
       adjustments:
         - { name: HSC, type: step, max: 16, notes: "High-Speed Compression; clicks past 16 out from fully closed have no damping effect", dialColor: blue }
+        - { name: LSC, type: step, max: ~, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
+        - { name: HSR, type: step, max: ~, notes: High-Speed Rebound, dialColor: red }
+        - { name: LSR, type: step, max: ~, notes: Low-Speed Rebound, dialColor: red, dialSize: small }
       source: https://tech.ridefox.com/bike/owners-manuals/1040/fork--2020-36mm
       note: >-
         "Factory and Performance-Elite Series GRIP2 Compression Adjusters" section
@@ -129,9 +132,11 @@ option_values:
       description: |-
         - Four-way descent damper with Variable Valve Control high-speed circuits
         - Only the 16 high-speed compression clicks nearest fully closed change damping
-        - Adjustments incomplete: please add LSC, HSR and LSR yourself.
       adjustments:
         - { name: HSC, type: step, max: 16, notes: "High-Speed Compression; clicks past 16 out from fully closed have no damping effect", dialColor: blue }
+        - { name: LSC, type: step, max: ~, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
+        - { name: HSR, type: step, max: ~, notes: High-Speed Rebound, dialColor: red }
+        - { name: LSR, type: step, max: ~, notes: Low-Speed Rebound, dialColor: red, dialSize: small }
       source:
         - https://tech.ridefox.com/bike/owners-manuals/1082/fork--2021-36mm-or-38mm
         - https://tech.ridefox.com/bike/owners-manuals/2930/fork--2024-36mm-or-38mm
@@ -144,8 +149,8 @@ option_values:
       description: |-
         - Three-position compression lever: Open, Medium, Firm
         - Open mode carries 22 extra clicks of low-speed fine tuning (22 plushest, 1 firmest)
-        - Adjustments incomplete: please add Rebound yourself.
       adjustments:
+        - { name: Rebound, type: step, max: ~, dialColor: red }
         - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm] }
         - { name: Open Mode Adjust, type: step, max: 22, notes: "Low-Speed Compression in Open mode; Factory and Performance Elite forks only", dialColor: blue, dialSize: small }
       source: https://tech.ridefox.com/bike/owners-manuals/1040/fork--2020-36mm
@@ -159,8 +164,8 @@ option_values:
       description: |-
         - Three-position compression lever: Open, Medium, Firm
         - Open mode carries 22 extra clicks of low-speed fine tuning (22 plushest, 1 firmest)
-        - Adjustments incomplete: please add Rebound yourself.
       adjustments:
+        - { name: Rebound, type: step, max: ~, dialColor: red }
         - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm] }
         - { name: Open Mode Adjust, type: step, max: 22, notes: "Low-Speed Compression in Open mode; Factory and Performance Elite forks only", dialColor: blue, dialSize: small }
       source:
@@ -173,8 +178,8 @@ option_values:
       description: |-
         - Three-position compression lever: Open, Medium, Firm
         - The detents between the three modes are usable for fine tuning
-        - Adjustments incomplete: please add Rebound yourself.
       adjustments:
+        - { name: Rebound, type: step, max: ~, dialColor: red }
         - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm] }
       source:
         - https://tech.ridefox.com/bike/owners-manuals/1040/fork--2020-36mm
@@ -425,13 +430,12 @@ nodes:
               wheel_size: [29, 27.5]
             note: OEM complete bikes only
       # Legacy generations, here and on the 38. Keep them below the current
-      # generation. All are `draft: true` because FOX never published the
-      # rebound (and, on GRIP2, the LSC/HSR/LSR) click totals for these
-      # cartridges.
+      # generation. FOX never published the rebound (and, on GRIP2, the
+      # LSC/HSR/LSR) click totals for these cartridges, so those adjusters
+      # carry `max: ~`.
       - label: "2018–2020"
         level: generation
         id: "2018"
-        draft: true
         years: "2018-2020"
         url: https://tech.ridefox.com/bike/owners-manuals/1040/fork--2020-36mm
         children:
@@ -469,7 +473,6 @@ nodes:
       - label: "2021–2024"
         level: generation
         id: "2021"
-        draft: true
         years: "2021-2024"
         url: https://tech.ridefox.com/bike/owners-manuals/1082/fork--2021-36mm-or-38mm
         children:
@@ -560,7 +563,6 @@ nodes:
       - label: "2021–2024"
         level: generation
         id: "2021"
-        draft: true
         years: "2021-2024"
         url: https://tech.ridefox.com/bike/owners-manuals/1082/fork--2021-36mm-or-38mm
         children:
@@ -682,9 +684,9 @@ nodes:
 #   - Legacy rebound totals. The 2018-2024 owner's manuals give rebound (and
 #     GRIP2 LSC/HSR/LSR) only as pressure-vs-clicks starting-point tables, never
 #     as a range, so grip2_2018 / grip2_vvc_2021 / fit4_2018 / fit4_2021 /
-#     grip_2018 stay partial and every legacy model is `draft: true`. A FOX
-#     service manual or a staff-written magazine bench test that states the
-#     totals outright would close this.
+#     grip_2018 declare those adjusters with `max: ~`. A FOX service manual or a
+#     staff-written magazine bench test that states the totals outright would
+#     replace the placeholders.
 #   - 36 Rhythm (2025-2026) has no Volume Spacer Configurations table in the
 #     2026 36mm manual (it tabulates 36mm and 36mm E-Bike+ only), so that trim
 #     carries Pressure alone. The 2024-2027 36mm Rhythm spec sheet is published

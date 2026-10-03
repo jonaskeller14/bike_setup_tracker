@@ -68,6 +68,17 @@ void main() {
         }
       });
 
+      test('non-draft products have no damper with an empty adjustment list', () {
+        // An empty list means the adjusters themselves are unknown. It also
+        // makes the axis optional, so the check cannot rely on `required`.
+        for (final MapEntry(key: path, value: node) in nodes.entries) {
+          if (node is! CatalogProduct || node.draft) continue;
+          for (final damper in node.options[PresetOptionAxes.damper.id]?.values ?? const <OptionValue>[]) {
+            expect(damper.adjustments, isNotEmpty, reason: '$path: damper "${damper.id}" has no adjustments');
+          }
+        }
+      });
+
       test('every size has a stroke in mm', () {
         for (final MapEntry(key: path, value: node) in nodes.entries) {
           if (node is! CatalogProduct) continue;

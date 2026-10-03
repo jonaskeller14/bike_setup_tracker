@@ -23,8 +23,9 @@
 # Click ranges: Cannondale's own manuals list recommended STARTING click values
 # (a rider-weight table) but never state an adjuster's total range, so totals
 # only come from press coverage. The 2018 Ocho's two secondary sources disagree
-# (see `chamber_ocho_2018`), so its adjusters carry no maximum; every other
-# damper here has no published count and stays empty. See Follow-ups.
+# (see `chamber_ocho_2018`), so its adjusters carry no maximum. The Ocho 120's
+# rebound is counted in clicks but has no total, so it carries `max: ~`; every
+# other adjuster here has no published count and stays out. See Follow-ups.
 
 brand: Cannondale
 component_type: fork
@@ -79,8 +80,9 @@ option_values:
       description: >-
         High-flow Chamber damper with a crown-top Low Speed Compression dial, a rebound dial
         at the bottom of the leg and a remote lockout. Adjustments incomplete: please add
-        Rebound and Compression yourself.
-      adjustments: []
+        Compression yourself.
+      adjustments:
+        - { name: Rebound, type: step, max: ~, notes: "Low-Speed Rebound; counted in clicks out from fully closed (slowest)" }
       source:
         - https://www.cannondale.com/en/gear/components/suspension/lefty-ocho/lefty-ocho-120-carbon
         - https://www.cannondale.com/en-gb/owners-manuals/-/media/files/manual-uploads/my21/021_138227_oms_lefty%20ocho_120_pdfs_021_138227_oms_lefty%20ocho_en.pdf
@@ -88,8 +90,8 @@ option_values:
         Cannondale's product page lists "Lockout, rebound & low speed compression
         adjustments" and the owner's manual (p.10, p.12-13) describes the dials and a
         recommended-rebound table (17 to 5 clicks out from slow), but no adjuster range
-        is published. The 100mm Ocho's press-quoted totals are deliberately not copied
-        across to this damper.
+        is published, so rebound carries `max: ~`. The 100mm Ocho's press-quoted totals
+        are deliberately not copied across to this damper.
 
     oliver:
       name: Oliver
@@ -126,7 +128,6 @@ option_values:
 nodes:
   - label: Lefty Ocho 120
     level: model
-    draft: true
     category: Cross-Country
     years: "2021-2026"
     url: https://www.cannondale.com/en/gear/components/suspension/lefty-ocho/lefty-ocho-120-carbon
@@ -139,6 +140,7 @@ nodes:
     children:
       - label: Carbon
         level: trim
+        draft: true
         specs: { spring: Air }
         adjustments:
           - { name: Pressure, type: numerical, unit: psi, min: 50 }
@@ -195,7 +197,6 @@ nodes:
 
   - label: Lefty Oliver
     level: model
-    draft: true
     category: Gravel
     url: https://www.cannondale.com/en/gear/components/suspension/lefty-oliver/lefty-oliver-carbon
     # 30mm travel, tire clearance 700c (45mm) / 650b (47mm), Lefty 50 hub: Cannondale
@@ -206,6 +207,7 @@ nodes:
     children:
       - label: Carbon
         level: trim
+        draft: true
         specs: { spring: Air }
         adjustments:
           - { name: Pressure, type: numerical, unit: psi, min: 0 }
@@ -262,7 +264,8 @@ nodes:
 #     service guide states the total.
 #   - Lefty Ocho 120 (2021) damper: no click totals anywhere (BikeRadar's launch
 #     article and Cannondale's page give none; the manual has a 17-to-5 starting
-#     rebound table only). Model stays `draft: true`. Also: the manual's spec table
+#     rebound table only). Rebound carries `max: ~`; how the compression dial
+#     counts is not stated, so the trim stays `draft: true`. Also: the manual's spec table
 #     (p.9) says air pressure max 250 psi but its recommendation table (p.10) says
 #     200 psi, so no Pressure maximum is set.
 #   - Lefty Ocho 100 Ramp Clamp maximum count is not published (the Ocho 120's is 6),

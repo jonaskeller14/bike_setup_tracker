@@ -100,9 +100,9 @@ option_values:
       name: Charger 3.2 RC2
       description: >-
         Highest-damping Charger, built to match the Linear XL air spring and the
-        2027 chassis. Adjustments incomplete: please add HSC, LSC and Rebound
-        yourself.
-      adjustments: []
+        2027 chassis. Adjustments incomplete: please add HSC and LSC yourself.
+      adjustments:
+        - { name: Rebound, type: step, max: ~, notes: Counted from fully open (fastest), dialColor: red }
       source:
         - https://support.rockshox.com/hc/en-us/articles/46637226489755-What-are-the-differences-between-Charger-3-Charger-3-1-and-Charger-3-2
         - https://support.rockshox.com/hc/en-us/articles/46638364341531-Which-damper-upgrades-are-available-for-the-BoXXer-D2
@@ -110,66 +110,75 @@ option_values:
         SRAM confirms the damper exists and pairs with Linear XL (Charger 3/3.1
         pairs with DebonAir+), and that BoXXer D2 Ultimate ships with it — but
         publishes no click counts for 3.2. Do not copy the Charger 3/3.1 numbers
-        across: SRAM describes 3.2 as a different tune and range.
+        across: SRAM describes 3.2 as a different tune and range. Rebound carries
+        `max: ~`; HSC/LSC are left out because a from-middle range has no
+        placeholder.
 
     charger_2_1_rc2:
       name: Charger 2.1 RC2
       description: >-
         Gravity damper of the 2019-2023 BoXXer, with separate high- and low-speed
-        compression dials. Adjustments incomplete: please add HSC, LSC and Rebound
-        yourself.
-      adjustments: []
+        compression dials. Adjustments incomplete: please add HSC and LSC yourself.
+      adjustments:
+        - { name: Rebound, type: step, max: ~, notes: Counted from fully open (fastest), dialColor: red }
       source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-front-suspension-oil-air-coil-token-specifications-english.pdf
       note: >-
         Damper-to-model assignment from the 2023 Front Suspension Specifications
         (BoXXer Ultimate FS-BXR-ULT-C2). SRAM publishes no click counts for
-        Charger 2.1 RC2, so none are recorded here.
+        Charger 2.1 RC2. Rebound carries `max: ~`; HSC/LSC are left out because
+        it is not documented whether they count from an end stop or the middle.
 
     charger_race_day:
       name: Charger Race Day
       description: >-
         Featherweight XC damper with a rebound dial and a compression lever that
-        firms the fork for climbs. Adjustments incomplete: please add Rebound and
-        Compression yourself.
-      adjustments: []
+        firms the fork for climbs. Adjustments incomplete: please add the
+        Compression lever yourself.
+      adjustments:
+        - { name: Rebound, type: step, max: ~, notes: Counted from fully open (fastest), dialColor: red }
       source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2021-2023-sid-and-sid-sl-service-manual.pdf
       note: >-
         Fitted to 2021-2023 SID / SID SL Ultimate and Rudy XPLR Ultimate. The
         service manual documents the rebound adjuster only as "counter-clockwise
-        until it stops" and gives no click count.
+        until it stops" and gives no click count, so it carries `max: ~`. The
+        lever's positions are not documented.
 
     charger_race_day_2:
       name: Charger Race Day 2
       description: >-
         Featherweight XC damper for marathon and cross-country racing, with a
         rebound dial and a 2- or 3-position compression lever. Adjustments
-        incomplete: please add Rebound and Compression yourself.
-      adjustments: []
+        incomplete: please add the Compression lever yourself.
+      adjustments:
+        - { name: Rebound, type: step, max: ~, notes: Counted from fully open (fastest), dialColor: red }
       source:
         - https://support.rockshox.com/hc/en-us/articles/24894559854747-What-is-the-difference-between-the-Race-Day-and-Race-Day-2-damper
         - https://support.rockshox.com/hc/en-us/articles/17383057951259-How-do-the-Charger-XC-and-Rush-XC-differ-from-Charger-Race-Day-2
       note: >-
         SRAM sells the cartridge as 2P (Open / Lock) and 3P (Open / Pedal / Lock),
         so the compression mode options depend on the individual fork. No rebound
-        click count is published; nothing inferred from the Race Day 1 damper.
+        click count is published, so it carries `max: ~`; nothing inferred from
+        the Race Day 1 damper.
 
     charger_2_rl:
       name: Charger 2 RL
       description: >-
-        Cross-country damper with a rebound dial and a lockout lever. Adjustments
-        incomplete: please add Rebound and Compression yourself.
-      adjustments: []
+        Cross-country damper with a rebound dial and a lockout lever.
+      adjustments:
+        - { name: Rebound, type: step, max: ~, notes: Counted from fully open (fastest), dialColor: red }
+        - { name: Lockout, type: boolean }
       source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2021-2023-sid-and-sid-sl-service-manual.pdf
-      note: Fitted to 2021-2023 SID / SID SL Select+. No click counts published.
+      note: "Fitted to 2021-2023 SID / SID SL Select+. No click counts published; rebound carries `max: ~`."
 
     charger_rl:
       name: Charger RL
       description: >-
         Sealed-bladder trail damper with a rebound dial and a lockout lever.
-        Adjustments incomplete: please add Rebound and Compression yourself.
-      adjustments: []
+      adjustments:
+        - { name: Rebound, type: step, max: ~, notes: Counted from fully open (fastest), dialColor: red }
+        - { name: Lockout, type: boolean }
       source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2021-2023-sid-and-sid-sl-service-manual.pdf
-      note: Fitted to 2021-2023 SID / SID SL Select. No click counts published.
+      note: "Fitted to 2021-2023 SID / SID SL Select. No click counts published; rebound carries `max: ~`."
 
     rush_rc:
       name: Rush RC
@@ -196,6 +205,7 @@ option_values:
         - Compression lockout lever, available with a bar remote
       adjustments:
         - { name: Rebound, type: step, max: 16, notes: Counted from fully open (fastest), dialColor: red }
+        - { name: Lockout, type: boolean }
       source:
         - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2021-2023-sid-and-sid-sl-service-manual.pdf
         - https://freehub.com/product-reviews/2014-rockshox-pike-rct3-160mm-review
@@ -225,24 +235,29 @@ option_values:
       description: >-
         Long-travel trail damper with a rebound dial and a compression dial that
         sweeps from open to a firm pedalling platform. Adjustments incomplete:
-        please add Rebound and Compression yourself.
-      adjustments: []
+        please add Compression yourself.
+      adjustments:
+        - { name: Rebound, type: step, max: ~, notes: Counted from fully open (fastest), dialColor: red }
       source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-front-suspension-oil-air-coil-token-specifications-english.pdf
       note: >-
         Fitted to Yari, Revelation and Domain per the 2023 Front Suspension
-        Specifications damper column. No click counts published by SRAM.
+        Specifications damper column. No click counts published by SRAM. Rebound
+        carries `max: ~`; whether the compression dial is click-indexed is not
+        documented.
 
     motion_control_rl:
       name: Motion Control RL
       description: >-
         Cross-country damper with a rebound dial and a lockout lever, offered with
-        a bar remote. Adjustments incomplete: please add Rebound and Compression
-        yourself.
-      adjustments: []
+        a bar remote.
+      adjustments:
+        - { name: Rebound, type: step, max: ~, notes: Counted from fully open (fastest), dialColor: red }
+        - { name: Lockout, type: boolean }
       source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-front-suspension-oil-air-coil-token-specifications-english.pdf
       note: >-
         Fitted to Reba, Recon Gold and 35 Gold per the 2023 Front Suspension
-        Specifications damper column. No click counts published by SRAM.
+        Specifications damper column. No click counts published by SRAM, so
+        rebound carries `max: ~`.
 
 # --------------------------------------------------------------------------
 # Forks — current lineup first, then the models that only exist as an earlier
@@ -286,12 +301,12 @@ nodes:
       - label: "2021–2023"
         level: generation
         id: "2021"
-        draft: true
         years: "2021-2023"
         url: https://www.sram.com/en/rockshox/series/sid-sl
         children:
           - label: Ultimate
             level: trim
+            draft: true
             specs: { stanchion: 32mm, spring: Air }
             adjustments: &sid_c1_air_spring
               - { name: Pressure, type: numerical, unit: psi, min: 0 }
@@ -357,12 +372,12 @@ nodes:
       - label: "2021–2023"
         level: generation
         id: "2021"
-        draft: true
         years: "2021-2023"
         url: https://www.sram.com/en/rockshox/series/sid
         children:
           - label: Ultimate
             level: trim
+            draft: true
             specs: { stanchion: 35mm, spring: Air }
             adjustments: *sid_c1_air_spring
             options:
@@ -397,7 +412,6 @@ nodes:
 
   - label: "Reba"
     level: model
-    draft: true
     category: XC / Trail
     years: "2018-2024"
     url: https://www.sram.com/en/rockshox/series/reba
@@ -784,13 +798,13 @@ nodes:
 
   - label: "Rudy XPLR"
     level: model
-    draft: true
     category: Gravel / Bikepacking
     years: "2022-2026"
     url: https://www.sram.com/en/rockshox/series/rudy-xplr
     children:
       - label: Ultimate
         level: trim
+        draft: true
         specs: { stanchion: 30mm, spring: Air }
         offset_mm: [45, 51]
         adjustments: *air_spring
@@ -802,7 +816,6 @@ nodes:
 
   - label: "Rudy XL"
     level: model
-    draft: true
     category: Gravel / Bikepacking
     years: "2025-2026"
     url: https://www.sram.com/en/rockshox/series/rudy-xl
@@ -810,6 +823,7 @@ nodes:
     children:
       - label: Ultimate
         level: trim
+        draft: true
         specs: { stanchion: 30mm, spring: Air }
         adjustments: *air_spring
         options:
@@ -819,13 +833,13 @@ nodes:
 
   - label: "Yari"
     level: model
-    draft: true
     category: Enduro
     years: "2016-2023"
     url: https://www.sram.com/en/rockshox/series/yari
     children:
       - label: RC
         level: trim
+        draft: true
         specs: { stanchion: 35mm, spring: Air }
         offset_mm: [37, 42, 44, 46, 51]
         adjustments:
@@ -839,13 +853,13 @@ nodes:
 
   - label: "Revelation"
     level: model
-    draft: true
     category: Trail
     years: "2018-2023"
     url: https://www.sram.com/en/rockshox/series/revelation
     children:
       - label: RC
         level: trim
+        draft: true
         specs: { stanchion: 35mm, spring: Air }
         offset_mm: [37, 42, 46, 51]
         adjustments:
@@ -859,7 +873,6 @@ nodes:
 
   - label: "Recon Gold"
     level: model
-    draft: true
     category: XC / Trail
     years: "2018-2024"
     url: https://www.sram.com/en/rockshox/series/recon
@@ -886,13 +899,19 @@ nodes:
 #   - Rush RC / Rush RL low-speed compression click count — the rebound count
 #     (16) is published in the service manuals, the LSC count is not.
 #   - Charger 3.2 RC2 click counts — SRAM confirms a different tune and range
-#     from Charger 3/3.1 but publishes no numbers. BoXXer (2027) stays
-#     `draft: true` until they do.
-#   - Charger Race Day / Race Day 2 rebound click counts (SID, SID SL, Reba,
-#     Rudy) — not published; the 2P/3P compression lever positions are known but
-#     which fork gets which is not documented per trim.
-#   - Charger 2.1 RC2 (BoXXer 2019-2023) and Motion Control RC / RL (Yari,
-#     Revelation, Recon, Reba) click counts — not published by SRAM.
+#     from Charger 3/3.1 but publishes no numbers. Its from-middle HSC/LSC have
+#     no placeholder, so BoXXer (2027) stays `draft: true` until they do.
+#   - Charger Race Day / Race Day 2 rebound click counts (SID, SID SL, Rudy) —
+#     not published, so rebound carries `max: ~`. The 2P/3P compression lever
+#     positions are known but which fork gets which is not documented per trim,
+#     so the trims with these dampers stay `draft: true`.
+#   - Charger 2.1 RC2 (BoXXer 2019-2023): no click counts, and no statement
+#     whether HSC/LSC count from an end stop or the middle. Stays `draft: true`.
+#   - Motion Control RC (Yari, Revelation): no click counts; whether the
+#     compression dial is click-indexed is not documented. Stays `draft: true`.
+#   - Rebound totals of Charger 2 RL, Charger RL and Motion Control RL (SID /
+#     SID SL Select+ and Select, Reba, Recon Gold) — not published, so rebound
+#     carries `max: ~`.
 #   - Bottomless Token maxima are recorded per model from the 2023 Front
 #     Suspension Specifications and the 2023-2027 ZEB/Lyrik/Pike service manual.
 #     Still missing: BoXXer D1/D2 (38mm), Psylo, Domain C1, current SID/SID SL

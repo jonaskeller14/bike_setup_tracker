@@ -86,9 +86,10 @@ option_values:
       description: >-
         Lightweight cross-country damper with a three-position lever (Open, Drive,
         Lock) and external rebound and low-speed compression adjusters.
-        Adjustments incomplete: please add Compression and Rebound yourself.
       adjustments:
         - { name: Compression Mode, type: categorical, options: [Open, Drive, Lock] }
+        - { name: Compression, type: step, max: ~, notes: "Low-Speed Compression; blue T10 Torx adjuster, affects Open mode only" }
+        - { name: Rebound, type: step, max: ~ }
       source:
         - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/02/81/9/MAN_FXD10000002819S_WEB_ZZ_001.pdf
         - https://www.pinkbike.com/news/first-ride-dt-swisss-new-232-one-platform.html
@@ -96,7 +97,7 @@ option_values:
         Lever modes and the blue compression adjuster (T10 Torx, affects Open
         mode only) from the F 232 ONE user manual V2021.09 (sec. 4.3). The
         manual's rebound table lists recommended settings only; no total click
-        count for compression or rebound is published, so none is recorded.
+        count for compression or rebound is published, so both carry `max: ~`.
 
 # --------------------------------------------------------------------------
 # Forks — current lineup. DT Swiss only offers 29" versions of all three.
@@ -148,7 +149,6 @@ nodes:
 
   - label: "F 232 ONE"
     level: model
-    draft: true
     category: XC
     years: "2020-2026"
     url: https://www.dtswiss.com/en/suspension/forks/f-232-one
@@ -171,7 +171,7 @@ nodes:
 # Follow-ups (not yet captured — avoid guessing):
 #   - F 232 ONE compression and rebound click counts: DT Swiss's product page,
 #     user manual (V2021.09) and technical manual publish neither, and none of
-#     the approved outlets state them, so the fork stays `draft: true`.
+#     the approved outlets state them, so both carry `max: ~`.
 #     (Non-approved outlets — off-road.cc, Bike Perfect — quote figures; do not
 #     use them without a primary or approved secondary source.)
 #   - Pre-2023 F 535 ONE (2018-2022; 27.5" / 29", 44 or 51mm offset, HSC/LSC

@@ -136,13 +136,13 @@ option_values:
 nodes:
   - label: "RUX"
     level: model
-    draft: true
     category: Downhill
     years: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-RUX38-Boost-8390.html
     children:
       - label: Boost
         level: trim
+        draft: true
         specs: { stanchion: 38mm (Alloy), spring: Air }
         offset_mm: 50
         axle: ø20-110 (Q-LOC2 tool-type or tool-free)
@@ -156,13 +156,13 @@ nodes:
 
   - label: "DUROLUX 36X"
     level: model
-    draft: true
     category: All-Mountain (eMTB)
     years: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-DUROLUX36X-Boost-8049.html
     children:
       - label: Boost
         level: trim
+        draft: true
         specs: { stanchion: 36mm (Alloy), spring: Air }
         offset_mm: 44
         axle: ø15-110 (15AH4)
@@ -206,13 +206,13 @@ nodes:
 
   - label: "AION 36"
     level: model
-    draft: true
     category: All-Mountain
     years: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-AION36-Boost-8057.html
     children:
       - label: Boost
         level: trim
+        draft: true
         specs: { stanchion: 36mm (Alloy), spring: Air }
         offset_mm: 44
         axle: ø15-110 (15AH4)
@@ -224,13 +224,13 @@ nodes:
 
   - label: "AION 38X"
     level: model
-    draft: true
     category: All-Mountain (eMTB)
     years: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-AION38X-Boost-8053.html
     children:
       - label: Boost
         level: trim
+        draft: true
         specs: { stanchion: 38mm (Alloy), spring: Air }
         offset_mm: 44
         axle: ø15-110 (15AH4)
@@ -243,13 +243,13 @@ nodes:
 
   - label: "AURON 36"
     level: model
-    draft: true
     category: All-Mountain
     years: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-AURON36-Boost-8244.html
     children:
       - label: Boost
         level: trim
+        draft: true
         specs: { stanchion: 36mm (Alloy), spring: Air }
         offset_mm: 44
         axle: ø15-110 (15AH4)
@@ -261,13 +261,13 @@ nodes:
 
   - label: "ZERON 36"
     level: model
-    draft: true
     category: All-Mountain
     years: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-ZERON36-Boost-8138.html
     children:
       - label: Boost
         level: trim
+        draft: true
         specs: { stanchion: 36mm (Alloy), spring: Air }
         offset_mm: 44
         axle: ø15-110 (15AH4)
@@ -279,13 +279,13 @@ nodes:
 
   - label: "ZERON 36X"
     level: model
-    draft: true
     category: All-Mountain (eMTB)
     years: "2026"
     url: https://www.srsuntour.com/products/fork/SF26-ZERON36X-Boost-8140.html
     children:
       - label: Boost
         level: trim
+        draft: true
         specs: { stanchion: 36mm (Alloy), spring: Air }
         offset_mm: 44
         axle: ø15-110 (15AH4)

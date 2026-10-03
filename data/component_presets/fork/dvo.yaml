@@ -66,10 +66,10 @@ option_values:
       description: |-
         - Low Speed Compression "Quick Range", 6 clicks: 1 wide open to descend, 6 the firmest pedalling platform
         - Full-range High Speed Compression on a second dial, moved in full 1-2 rotations rather than clicks
-        - Adjustments incomplete: please add Rebound yourself.
       adjustments:
         - { name: LSC, type: step, max: 6, notes: "Low-Speed Compression; DVO 'Quick Range' adjuster; position 1 = fully open (softest), 6 = firmest", dialColor: green }
         - { name: HSC, type: numerical, unit: turns, min: 0, notes: "High-Speed Compression; Start fully open (counter-clockwise) and adjust 1-2 full rotations at a time; clockwise = firmer. DVO publishes no total rotation count for these chassis" }
+        - { name: Rebound, type: step, max: ~ }
       source:
         - https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
       note: >-
@@ -78,23 +78,23 @@ option_values:
         Setting '1' is wide open ... you can switch the LSC to '6'". HSC on p.12 of the same
         guide is a "full range" adjuster with a rotations-based base chart (0-5) and no stated
         total. Rebound appears only as a base-setting chart (2-22 in 2-click steps) for
-        Sapphire 34 D1 / Onyx SC / Onyx DC, so no rebound total is claimed for this tier.
+        Sapphire 34 D1 / Onyx SC / Onyx DC, so rebound carries `max: ~`.
 
     quick_range_d2e2:
       name: Quick Range D2/E2 (BERYL)
       description: |-
         - Mid-tier BERYL damper with a 4-click "Quick Range" Low Speed Compression dial, soft through firm
         - OTT is set internally to one of three positions for your body weight, so it is not a trailside adjustment
-        - Adjustments incomplete: please add Rebound yourself.
       adjustments:
         - { name: Compression, type: step, max: 4, notes: "Low-Speed Compression; Soft → Medium → Firm dial; counted from fully open (soft)", dialColor: green }
+        - { name: Rebound, type: step, max: ~ }
       source:
         - https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
       note: >-
         LSC 4 clicks from the DVO Fork Set-Up Guide 2020 v4, p.14: "The BERYL 'D2 damper' comes
         with a 'Quick Range' low speed compression adjuster that has 4 clicks of adjustment."
         Internal 3-position OTT (Open / Middle / Max by rider weight) from p.5 of the same
-        guide. No HSC at this tier; no rebound total published.
+        guide. No HSC at this tier; no rebound total published, so it carries `max: ~`.
 
     diamond_d1e1:
       name: D1/E1 (Diamond)
@@ -122,30 +122,34 @@ option_values:
       description: |-
         - Base-tier closed-cartridge damper with a full-range Low Speed Compression dial
         - LSC is not click-indexed: start fully open and add support a full turn at a time
-        - Adjustments incomplete: please add Rebound yourself.
       adjustments:
         - { name: Compression, type: numerical, unit: turns, min: 0, notes: "Low-Speed Compression; Full-range adjuster with no detents — start fully open (counter-clockwise) and make full-turn adjustments; clockwise = firmer" }
+        - { name: Rebound, type: step, max: ~ }
       source:
         - https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
       note: >-
         DVO Fork Set-Up Guide 2020 v4, p.14: "The D3/E3 Model forks come with a full range low
         speed compression ... Start from full open, (counter-clockwise) then make full turn
         adjustments at a time." There is therefore no LSC click total to find — the adjuster
-        is continuous. Rebound exists (base-setting chart on p.10) but DVO states no total.
+        is continuous. Rebound exists (base-setting chart on p.10) but DVO states no total,
+        so it carries `max: ~`.
         No HSC and no OTT at this tier (p.4: "D3 / E3 Models: No OTT Feature").
 
     diamond_core:
       name: CORE (Diamond 36 CORE)
       description: >-
         All-new damper for the Diamond 36 CORE, with full-range Low Speed Compression and
-        Rebound dials. Adjustments incomplete: please add Rebound and Compression yourself.
-      adjustments: []
+        Rebound dials. Adjustments incomplete: please add Compression yourself.
+      adjustments:
+        - { name: Rebound, type: step, max: ~ }
       source:
         - https://dvosuspension.com/product/diamond-36-core/
       note: >-
         DVO advertises "Full Range Low Speed Compression" and a Rebound adjuster for the CORE
         but states no click or rotation total for either, and no CORE-specific set-up guide or
         tech page exists yet (tech.dvosuspension.com/setup/ lists none as of 2026-09-10).
+        Rebound carries `max: ~`. Compression is left out: DVO uses "full range" for a
+        continuous adjuster on the D3/E3, so it may not be click-indexed at all.
 
     onyx38_d1e1:
       name: D1/E1 (Onyx 38)
@@ -284,13 +288,13 @@ nodes:
 
   - label: Diamond 36
     level: model
-    draft: true
     category: Trail / Enduro
     years: "2024-2026"
     url: https://dvosuspension.com/product/diamond-36-core/
     children:
       - label: CORE
         level: trim
+        draft: true
         specs: { stanchion: 36mm Tapered Alloy, spring: Air }
         adjustments:
           - { name: Pressure, type: numerical, unit: psi, min: 0 }
@@ -470,8 +474,8 @@ nodes:
 #     these four chassis have no per-model page on tech.dvosuspension.com/setup
 #     (each links only to the shared 2020 Fork Set-Up Guide and the 2018 DVO
 #     Fork Owner's Manual, which is installation-only). The guide gives LSC
-#     clicks per tier but rebound only as a base chart, so no rebound total is
-#     recorded. tech.dvosuspension.com publishes "Range: N clicks total" blocks
+#     clicks per tier but rebound only as a base chart, so rebound carries
+#     `max: ~`. tech.dvosuspension.com publishes "Range: N clicks total" blocks
 #     for the Diamond, Emerald and Jade only — ask DVO for the equivalent.
 #   - Sapphire 34 / 32 travel, wheel size and offset: dvosuspension.com's
 #     Sapphire pages still serve an empty cart page instead of product content
@@ -488,9 +492,11 @@ nodes:
 #     does ("A maximum of 4 volume spacers can be used"). No Volume Spacers
 #     adjustment declared for either.
 #   - Diamond 36 CORE damper: no click or rotation totals anywhere, and no CORE
-#     set-up guide or tech page exists yet. Model stays `draft: true`.
+#     set-up guide or tech page exists yet. Rebound carries `max: ~`; whether
+#     the full-range compression is click-indexed is unknown, so the CORE trim
+#     stays `draft: true`.
 #   - Diamond D3/E3 rebound total: rebound appears only as a base chart in the
-#     2020 guide. Its LSC needs no number — DVO documents it as a continuous
+#     2020 guide, so it carries `max: ~`. Its LSC needs no number — DVO documents it as a continuous
 #     full-range adjuster, so it is modelled in turns.
 #   - Diamond E3 chassis specs: still no dedicated page; stanchion and travel
 #     are carried from the D3 it is valved from, and travel is left unset.

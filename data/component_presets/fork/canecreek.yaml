@@ -84,17 +84,18 @@ option_values:
       name: Helm DJ Damper
       description: >-
         Dirt-jump tune of the Helm cartridge, set up firm for repeated hard
-        landings. Adjustments incomplete: please add Rebound and any
-        compression adjusters your fork has yourself.
-      adjustments: []
+        landings. Adjustments incomplete: please add any compression adjusters
+        your fork has yourself.
+      adjustments:
+        - { name: Rebound, type: step, max: ~, notes: Counted from fully closed }
       source: https://www.canecreek.com/products/helm-dj
       note: >-
         canecreek.com/products/helm-dj documents only a recommended rebound
         dial-in window (5-10 clicks from fully closed at 95-125 psi) and names
         no compression adjuster; no total click range is given anywhere on the
         page. The Helm DJ has no entry on canecreek.com/pages/forks-product-
-        support, so there is no manual to read the range out of. Left empty
-        rather than inheriting the MKII's 10/10/10 — see Follow-ups.
+        support, so there is no manual to read the range out of. Rebound carries
+        `max: ~` rather than inheriting the MKII's 10/10/10 — see Follow-ups.
 
 # --------------------------------------------------------------------------
 # Forks — current (2025/2026) lineup plus the first-generation Helm. Cane
@@ -152,13 +153,13 @@ nodes:
 
   - label: "Helm DJ"
     level: model
-    draft: true
     category: Dirt Jump / Dual Slalom / Street
     years: "2025-2026"
     url: https://www.canecreek.com/products/helm-dj
     children:
       - label: Standard
         level: trim
+        draft: true
         specs: { stanchion: 35mm, spring: Air }
         adjustments:
           - { name: Pressure, type: numerical, unit: psi, min: 0, notes: Cane Creek recommends 95-125 psi based on rider weight and sag/ride-height preference }
@@ -204,13 +205,14 @@ nodes:
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):
-#   - Helm DJ: no total click range for Rebound, and no confirmation that
-#     HSC/LSC exist as external adjusters at all. The product page publishes
-#     only a recommended dial-in window (5-10 clicks from closed) and the fork
-#     has no manual on canecreek.com/pages/forks-product-support. The Helm DJ
-#     is a 27.5in Helm chassis, but Cane Creek nowhere states the DJ cartridge
-#     is the MKII cartridge, so its counts were NOT inherited. Revisit when a
-#     Helm DJ manual is published.
+#   - Helm DJ: no total click range for Rebound (`max: ~`), and no
+#     confirmation that HSC/LSC exist as external adjusters at all, so the
+#     trim stays `draft: true`. The product page publishes only a recommended
+#     dial-in window (5-10 clicks from closed) and the fork has no manual on
+#     canecreek.com/pages/forks-product-support. The Helm DJ is a 27.5in Helm
+#     chassis, but Cane Creek nowhere states the DJ cartridge is the MKII
+#     cartridge, so its counts were NOT inherited. Revisit when a Helm DJ
+#     manual is published.
 #   - Helm Works Series 27.5in+ availability for the current 100-130mm SKU
 #     range is still not stated anywhere on canecreek.com; only the
 #     discontinued single-travel "Works Series 130" predecessor listed

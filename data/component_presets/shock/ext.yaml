@@ -18,11 +18,11 @@
 # convention as the schema's default `dial_ccw`), but none of them publishes
 # a maximum click count. The e-Storia and Storia V3-S quick manuals only give
 # a single suggested *starting* setting (e.g. "BH7 BL6 R7"), not the range —
-# so, per SCHEMA.md's "never guess a number" rule, no `step` adjustments are
-# generated for most of these dampers. Exception: storia_v3 and arma_v4 below
-# carry real click-count totals sourced from Pinkbike review body text (not
-# comments) per SCHEMA.md's sourcing-policy exception for this case. See
-# "Follow-ups" for the rest.
+# so, per SCHEMA.md's "never guess a number" rule, those adjusters are
+# declared with `max: ~`. Exception: storia_v3 and arma_v4 below carry real
+# click-count totals sourced from Pinkbike review body text (not comments) per
+# SCHEMA.md's sourcing-policy exception for this case. See "Follow-ups" for
+# the rest.
 brand: EXT
 component_type: shock
 sources:
@@ -76,6 +76,10 @@ option_values:
         externally adjustable here (unlike Storia V3). No click-count maximum
         is published for LSC/HSC/Rebound/HBC.
       adjustments:
+        - { name: LSC, type: step, max: ~, notes: Low-Speed Compression }
+        - { name: HSC, type: step, max: ~, notes: High-Speed Compression }
+        - { name: Rebound, type: step, max: ~, notes: Low-Speed Rebound }
+        - { name: HBC, type: step, max: ~, notes: Hydraulic bottom-out control }
         - { name: LOK 2.0 (Climb Switch), type: boolean, notes: "Black lever on damper head. Turn clockwise = LOK (firm/pedal-platform circuit engaged); counterclockwise = Open. EXT's proprietary pedaling-support circuit, not a true hydraulic lockout." }
       adjusters: LSC/BL (4mm Allen) / HSC/BH (12mm wrench or socket) / Rebound/R (bottom knob) / HBC (4mm Allen, top of compression valve)
 
@@ -86,7 +90,11 @@ option_values:
         adjustable" settings: LSC, HSC, LSR and HBC (adjustable bottom-out
         control) — no LOK/climb switch on Arma. No click-count maximum is
         published for any of the four adjusters.
-      adjustments: []
+      adjustments:
+        - { name: LSC, type: step, max: ~, notes: Low-Speed Compression }
+        - { name: HSC, type: step, max: ~, notes: High-Speed Compression }
+        - { name: Rebound, type: step, max: ~, notes: Low-Speed Rebound }
+        - { name: HBC, type: step, max: ~, notes: Hydraulic bottom-out control }
       adjusters: LSC / HSC / Rebound / HBC — no LOK on Arma (confirmed "Available on Storia V4 only")
 
     arma_v4:
@@ -102,11 +110,12 @@ option_values:
         closed, 14 in total)", "HSC: -8/15" and confirms in prose that HBC "can
         be tweaked to your liking with 10 clicks of adjustment." The same
         table's Rebound entry ("R: -5/-14") doesn't follow that same
-        from-closed/total notation cleanly, so Rebound is left unmodeled — see
-        Follow-ups.
+        from-closed/total notation cleanly, so Rebound has no recorded range —
+        see Follow-ups.
       adjustments:
         - { name: LSC, type: step, max: 14, notes: "Low-Speed Compression; Source: Pinkbike Arma V4 review, not EXT's own site." }
         - { name: HSC, type: step, max: 15, notes: "High-Speed Compression; Source: Pinkbike Arma V4 review, not EXT's own site." }
+        - { name: Rebound, type: step, max: ~, notes: Low-Speed Rebound }
         - { name: HBC, type: step, max: 10, notes: "Hydraulic bottom-out control, last 20% of stroke. Source: Pinkbike Arma V4 review, not EXT's own site." }
       adjusters: LSC (4mm Allen) / HSC (5mm Allen) / Rebound / HBC
 
@@ -118,6 +127,10 @@ option_values:
         manual. No click-count maximum is published for any of the hydraulic
         adjusters.
       adjustments:
+        - { name: LSC, type: step, max: ~, notes: Low-Speed Compression }
+        - { name: HSC, type: step, max: ~, notes: High-Speed Compression }
+        - { name: Rebound, type: step, max: ~ }
+        - { name: HBC, type: step, max: ~, notes: Hydraulic bottom-out control }
         - { name: LOK (Climb Switch), type: boolean, notes: "Black lever on damper head. Turn clockwise = LOK (firm/pedal-platform circuit engaged); counterclockwise = Open. EXT's proprietary pedaling-support circuit, not a true hydraulic lockout." }
       adjusters: LSC/BL (4mm Allen) / HSC/BH (12mm wrench) / Rebound/R (bottom knob) / HBC/H (4mm Allen)
 
@@ -130,6 +143,10 @@ option_values:
         Rebound/R, HBC and LOK — with no published click-count maximum for
         LSC/HSC/Rebound/HBC.
       adjustments:
+        - { name: LSC, type: step, max: ~, notes: Low-Speed Compression }
+        - { name: HSC, type: step, max: ~, notes: High-Speed Compression }
+        - { name: Rebound, type: step, max: ~ }
+        - { name: HBC, type: step, max: ~, notes: Hydraulic bottom-out control }
         - { name: LOK (Climb Switch), type: boolean, notes: "Black lever on damper head. Turn clockwise = LOK (firm/pedal-platform circuit engaged); counterclockwise = Open. EXT's proprietary pedaling-support circuit, not a true hydraulic lockout." }
       adjusters: LSC/BL (4mm Allen) / HSC/BH (12mm wrench) / Rebound/R (bottom knob) / HBC (4mm Allen)
       note: High-rate springs (>600 lbs/in / 105 N/mm) require EXT-specific mounting adapters; spring preload must not exceed 2mm.
@@ -144,6 +161,9 @@ option_values:
         HBC entry is modeled. No click-count maximum is published for
         LSC/HSC/Rebound.
       adjustments:
+        - { name: LSC, type: step, max: ~, notes: Low-Speed Compression }
+        - { name: HSC, type: step, max: ~, notes: High-Speed Compression }
+        - { name: Rebound, type: step, max: ~ }
         - { name: LOK 2.0 (Climb Switch), type: boolean, notes: "Black lever on damper head. Turn clockwise = LOK (firm/pedal-platform circuit engaged); counterclockwise = Open. EXT's proprietary pedaling-support circuit, not a true hydraulic lockout." }
       adjusters: LSC (4mm Allen) / HSC (5mm Allen) / Rebound (bottom knob)
 
@@ -208,7 +228,6 @@ nodes:
 
   - label: "Arma V3"
     level: model
-    draft: true
     category: Downhill
     years: "2025-2026"
     url: https://extremeshox.com/product/arma-v3/
@@ -329,13 +348,14 @@ nodes:
 #     any current damper. storia_v3 (LSC 14, HSC 14, Rebound 10) and arma_v4
 #     (LSC 14, HSC 15, HBC 10) now carry real totals sourced from Pinkbike
 #     review body text per SCHEMA.md's sourcing-policy exception — but
-#     storia_v4, arma_v3, e_storia and aria still have none, and arma_v4's own
-#     Rebound is also still unmodeled (see its damper description above: the
-#     Pinkbike setup table's "R: -5/-14" doesn't parse as cleanly as the LSC/
-#     HSC entries did). The Storia V3-S and e-Storia quick manuals only give a
-#     single suggested *starting* setting (e.g. "BH7 BL6 R7"), never the
-#     mechanical max — verify with EXT support/dealer, or a Pinkbike review of
-#     those specific models, before adding step adjustments for them.
+#     storia_v4, arma_v3, e_storia, aria and vecta still have none, and
+#     arma_v4's own Rebound has no range either (see its damper description
+#     above: the Pinkbike setup table's "R: -5/-14" doesn't parse as cleanly
+#     as the LSC/HSC entries did). All of these carry `max: ~`. The Storia V3-S
+#     and e-Storia quick manuals only give a single suggested *starting*
+#     setting (e.g. "BH7 BL6 R7"), never the mechanical max — verify with EXT
+#     support/dealer, or a Pinkbike review of those specific models, before
+#     replacing the placeholders.
 #   - Arma V3's exact stroke-length pairing per body size (which stroke goes
 #     with which of the 210/230/250mm standard bodies, and 165-225mm
 #     trunnion bodies) was reported only as an aggregate range on the

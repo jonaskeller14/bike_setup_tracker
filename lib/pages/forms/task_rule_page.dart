@@ -123,6 +123,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
   List<Attachment> _attachments = [];
   String? _attachmentsDirPath;
   final List<Attachment> _importedAttachments = [];
+  bool _importingAttachments = false;
   List<Attachment>? _savedAttachments;
 
   final _formKey = GlobalKey<FormState>();
@@ -187,7 +188,15 @@ class _TaskRulePageState extends State<TaskRulePage> {
   }
 
   Future<void> _addAttachments() async {
-    final attachments = await AttachmentActions.pickAttachments(context);
+    final List<Attachment> attachments;
+    try {
+      attachments = await AttachmentActions.pickAttachments(
+        context,
+        onImportStarted: () => setState(() => _importingAttachments = true),
+      );
+    } finally {
+      if (mounted) setState(() => _importingAttachments = false);
+    }
     if (attachments.isEmpty || !mounted) return;
     _importedAttachments.addAll(attachments);
     setState(() => _attachments.addAll(attachments));
@@ -895,7 +904,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
             avatar: const Icon(Icons.attach_file),
             tooltip: 'Add Attachment',
             backgroundColor: widget.mode == TaskRulePageMode.edit && !listEquals(_attachments, widget.taskRule!.attachments) ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
-            onPressed: _addAttachments,
+            onPressed: _importingAttachments ? null : _addAttachments,
           ),
       ],
     );
@@ -945,13 +954,14 @@ class _TaskRulePageState extends State<TaskRulePage> {
                       ],
                     ),
                   ),
-                  if (appSettings.enableAttachments && _attachmentsDirPath != null && _attachments.isNotEmpty)
+                  if (appSettings.enableAttachments && _attachmentsDirPath != null && (_attachments.isNotEmpty || _importingAttachments))
                     Padding(
                       padding: const EdgeInsets.only(top: 12),
                       child: AttachmentStrip(
                         attachments: _attachments,
                         attachmentsDir: _attachmentsDirPath!,
                         mode: AttachmentStripMode.edit,
+                        isLoading: _importingAttachments,
                         onRemove: _onAttachmentRemoved,
                         onReorder: _onAttachmentReorder,
                         onRename: _onAttachmentRenamed,

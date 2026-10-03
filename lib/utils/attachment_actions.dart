@@ -36,9 +36,13 @@ class AttachmentActions {
 
   /// Asks for a source, then imports the picked images or files. Files that are over the size
   /// cap or fail to import are skipped with an error SnackBar each; the others still import.
-  static Future<List<Attachment>> pickAttachments(BuildContext context) async {
+  ///
+  /// [onImportStarted] fires once a source is chosen. On iOS the picker returns only after it has
+  /// loaded every image out of Photos, which can take seconds — long enough to need a loading state.
+  static Future<List<Attachment>> pickAttachments(BuildContext context, {VoidCallback? onImportStarted}) async {
     final source = await showPickAttachmentSourceSheet(context);
     if (source == null || !context.mounted) return [];
+    onImportStarted?.call();
 
     final service = AttachmentStorageService();
     final List<({String name, Future<Attachment> Function() run})> imports;

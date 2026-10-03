@@ -12,6 +12,7 @@ void main() {
     required List<Attachment> attachments,
     AttachmentStripMode mode = AttachmentStripMode.view,
     ThemeData? theme,
+    bool isLoading = false,
   }) async {
     await tester.pumpWidget(
       MaterialApp(
@@ -22,6 +23,7 @@ void main() {
             attachmentsDir: 'missing-dir',
             mode: mode,
             onRemove: mode == AttachmentStripMode.edit ? (_) {} : null,
+            isLoading: isLoading,
           ),
         ),
       ),
@@ -106,6 +108,34 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(attachments.map((a) => a.id), ['c']);
+    });
+
+    testWidgets('edit mode shows a loading tile while attachments import, even before the first one', (tester) async {
+      await pumpStrip(tester, attachments: const [], mode: AttachmentStripMode.edit, isLoading: true);
+
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    });
+
+    testWidgets('the loading tile follows the existing attachments', (tester) async {
+      await pumpStrip(
+        tester,
+        attachments: [Attachment(extension: '.pdf', name: 'Manual')],
+        mode: AttachmentStripMode.edit,
+        isLoading: true,
+      );
+
+      final tileLeft = tester.getTopLeft(find.byKey(const ValueKey('loading_tile'))).dx;
+      expect(tileLeft, greaterThan(tester.getTopLeft(find.text('Manual')).dx));
+    });
+
+    testWidgets('edit mode shows no loading tile once the import is done', (tester) async {
+      await pumpStrip(
+        tester,
+        attachments: [Attachment(extension: '.pdf', name: 'Manual')],
+        mode: AttachmentStripMode.edit,
+      );
+
+      expect(find.byType(CircularProgressIndicator), findsNothing);
     });
 
     testWidgets('view mode shows no remove badges', (tester) async {

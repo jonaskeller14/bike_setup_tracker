@@ -102,6 +102,7 @@ class _ComponentPageState extends State<ComponentPage> {
   List<Attachment> _attachments = [];
   String? _attachmentsDirPath;
   final List<Attachment> _importedAttachments = [];
+  bool _importingAttachments = false;
   List<Attachment>? _savedAttachments;
 
   List<Adjustment>? _lastPresetAdjustments;
@@ -181,7 +182,15 @@ class _ComponentPageState extends State<ComponentPage> {
   }
 
   Future<void> _addAttachments() async {
-    final attachments = await AttachmentActions.pickAttachments(context);
+    final List<Attachment> attachments;
+    try {
+      attachments = await AttachmentActions.pickAttachments(
+        context,
+        onImportStarted: () => setState(() => _importingAttachments = true),
+      );
+    } finally {
+      if (mounted) setState(() => _importingAttachments = false);
+    }
     if (attachments.isEmpty || !mounted) return;
     _importedAttachments.addAll(attachments);
     setState(() => _attachments.addAll(attachments));
@@ -825,7 +834,7 @@ class _ComponentPageState extends State<ComponentPage> {
       backgroundColor: widget.mode == ComponentPageMode.edit && !listEquals(_attachments, widget.component!.attachments)
           ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
           : null,
-      onPressed: _addAttachments,
+      onPressed: _importingAttachments ? null : _addAttachments,
     );
   }
 
@@ -1076,7 +1085,7 @@ class _ComponentPageState extends State<ComponentPage> {
                       ],
                     ),
                   ),
-                  if (showAttachments && _attachments.isNotEmpty)
+                  if (showAttachments && (_attachments.isNotEmpty || _importingAttachments))
                     Visibility(
                       visible: _expanded,
                       maintainState: true,
@@ -1086,6 +1095,7 @@ class _ComponentPageState extends State<ComponentPage> {
                           attachments: _attachments,
                           attachmentsDir: _attachmentsDirPath!,
                           mode: AttachmentStripMode.edit,
+                          isLoading: _importingAttachments,
                           onRemove: _onAttachmentRemoved,
                           onReorder: _onAttachmentReorder,
                           onRename: _onAttachmentRenamed,

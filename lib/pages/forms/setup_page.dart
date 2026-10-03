@@ -128,6 +128,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   List<Attachment> _initialAttachments = [];
   String? _attachmentsDirPath;
   final List<Attachment> _importedAttachments = [];
+  bool _importingAttachments = false;
   List<Attachment>? _savedAttachments;
 
   late DateTime _selectedDateTimeUtc;
@@ -426,7 +427,15 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   }
 
   Future<void> _addAttachments() async {
-    final attachments = await AttachmentActions.pickAttachments(context);
+    final List<Attachment> attachments;
+    try {
+      attachments = await AttachmentActions.pickAttachments(
+        context,
+        onImportStarted: () => setState(() => _importingAttachments = true),
+      );
+    } finally {
+      if (mounted) setState(() => _importingAttachments = false);
+    }
     if (attachments.isEmpty || !mounted) return;
     _onAttachmentsAdded(attachments);
   }
@@ -1078,7 +1087,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                 backgroundColor: widget.mode == SetupPageMode.edit && !listEquals(_attachments, _initialAttachments)
                     ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
                     : null,
-                onPressed: _addAttachments,
+                onPressed: _importingAttachments ? null : _addAttachments,
               ),
           ],
         );
@@ -1258,7 +1267,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                     ),
                   ),
                 ),
-                if (context.read<AppSettings>().enableAttachments && _attachmentsDirPath != null && _attachments.isNotEmpty)
+                if (context.read<AppSettings>().enableAttachments && _attachmentsDirPath != null && (_attachments.isNotEmpty || _importingAttachments))
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.only(top: 12),
@@ -1266,6 +1275,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                         attachments: _attachments,
                         attachmentsDir: _attachmentsDirPath!,
                         mode: AttachmentStripMode.edit,
+                        isLoading: _importingAttachments,
                         onRemove: _onAttachmentRemoved,
                         onReorder: _onAttachmentReorder,
                         onRename: _onAttachmentRenamed,

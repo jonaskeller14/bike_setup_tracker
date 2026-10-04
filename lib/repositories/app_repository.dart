@@ -22,6 +22,7 @@ import '../models/rating/rating_metric.dart';
 import '../models/selected_data.dart';
 import '../models/setup.dart';
 import '../models/setup_history.dart';
+import '../models/strava/activity_bounds.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/strava/strava_activity_query.dart';
 import '../models/strava/strava_athlete.dart';
@@ -148,6 +149,7 @@ class AppRepository extends ChangeNotifier {
   Map<String, ComponentStats> _componentStats = {};
   Map<String, ComponentStats> _bikeStats = {};
   Map<String, ActivityRateWindow> _bikeActivityRates = {};
+  ActivityBounds _activityBounds = ActivityBounds.empty;
   Map<String, AdjustmentValue> _currentAdjustmentValues = {};
   SetupHistory _setupHistory = SetupHistory.empty;
 
@@ -171,6 +173,23 @@ class AppRepository extends ChangeNotifier {
       _components[componentId]?.initialStats ??
       ComponentStats.zero;
   Map<String, ActivityRateWindow> get bikeActivityRates => _bikeActivityRates;
+  ActivityBounds get activityBounds => _activityBounds;
+
+  /// The earliest local day the date range can narrow: of setups, rating
+  /// entries, task entries and activities. Installations are left out, as a
+  /// "since the beginning" install is dated at the epoch. `null` without any.
+  DateTime? get firstEntryDay {
+    var first = _activityBounds.firstStartLocal;
+    final dates = _setups.values
+        .map((s) => s.datetimeLocal)
+        .followedBy(_ratingEntries.values.map((e) => e.dateTimeLocal))
+        .followedBy(_taskEntries.values.map((e) => e.dateTimeLocal));
+    for (final date in dates) {
+      if (first == null || date.isBefore(first)) first = date;
+    }
+    return first == null ? null : DateTime(first.year, first.month, first.day);
+  }
+
   Map<String, AdjustmentValue> get currentAdjustmentValues => _currentAdjustmentValues;
   SetupHistory get setupHistory => _setupHistory;
 
@@ -283,6 +302,11 @@ class AppRepository extends ChangeNotifier {
 
     _subscriptions.add(database.stravaDao.watchBikeStats().listen((map) {
       _bikeStats = map;
+      _dataChanged();
+    }));
+
+    _subscriptions.add(database.stravaDao.watchActivityBounds().listen((bounds) {
+      _activityBounds = bounds;
       _dataChanged();
     }));
 

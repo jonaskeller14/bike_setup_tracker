@@ -102,16 +102,20 @@ void main() {
       expect(enabled(taskSections), taskSections);
     });
 
-    test('offers the date range section whatever the feature flags say', () {
-      // Tests run in debug mode, the only mode that offers the section so far.
+    test('offers the date range section only with advanced filters', () {
       const sections = {FilterSection.dateRange};
+      expect(enabled(sections), isEmpty);
+
+      settings.enableAdvancedFilters = true;
       expect(enabled(sections), sections);
       expect(enabled(taskSections), isNot(contains(FilterSection.dateRange)));
     });
 
-    test('offers the activity section only while Strava is active', () {
-      // Tests run in debug mode, the only mode that offers the section so far.
+    test('offers the activity section only with advanced filters while Strava is active', () {
       const sections = {FilterSection.activity};
+      expect(enabled(sections, stravaActive: true), isEmpty);
+
+      settings.enableAdvancedFilters = true;
       expect(enabled(sections), isEmpty);
       expect(enabled(sections, stravaActive: true), sections);
     });
@@ -172,6 +176,8 @@ void main() {
   });
 
   group('isFiltered and activeLabels', () {
+    setUp(() => settings.enableAdvancedFilters = true);
+
     test('report nothing while no criterion is set', () {
       settings.enableSetupTags = true;
       settings.enableTask = true;
@@ -312,6 +318,15 @@ void main() {
 
       settings.dateFormat = 'dd.MM.yyyy';
       expect(labels(dateSections), ['10.05.2024 – 12.05.2024']);
+    });
+
+    test('ignore the date and activity ranges without advanced filters', () {
+      filters.dateRange = dateRange;
+      filters.activity = activityRanges;
+      settings.enableAdvancedFilters = false;
+
+      expect(isFiltered(dateSections), false);
+      expect(isFiltered(activitySections, stravaActive: true), false);
     });
 
     test('ignore the date range on a page without a date range section', () {

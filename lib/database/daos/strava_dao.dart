@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 import '../../models/activity_rate_window.dart';
 import '../../models/component_stats.dart';
 import '../../models/filters/numeric_range.dart';
+import '../../models/strava/activity_bounds.dart';
 import '../../models/strava/strava_activity_query.dart';
 import '../../utils/text_search.dart';
 import '../app_database.dart';
@@ -253,6 +254,28 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
       ''',
       readsFrom: {stravaActivities},
     );
+  }
+
+  Stream<ActivityBounds> watchActivityBounds() {
+    final query = customSelect(
+      '''
+      SELECT
+        MIN(start_date_local) AS first_start_local,
+        MAX(distance) AS max_distance,
+        MAX(total_elevation_gain) AS max_elevation_gain
+      FROM strava_activities
+      ''',
+      readsFrom: {stravaActivities},
+    );
+
+    return query.watchSingle().map((row) {
+      final firstStartLocal = row.readNullable<DateTime>('first_start_local');
+      return ActivityBounds(
+        firstStartLocal: firstStartLocal == null ? null : const LocalFloatingDateTimeConverter().fromSql(firstStartLocal),
+        maxDistance: row.readNullable<double>('max_distance'),
+        maxElevationGain: row.readNullable<double>('max_elevation_gain'),
+      );
+    }).distinct();
   }
 
   /// The one place a [StravaActivityQuery] becomes SQL, shared by the paged

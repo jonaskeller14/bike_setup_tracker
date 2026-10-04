@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../../icons/simple_icons.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
+import '../../models/filters/activity_filter.dart';
 import '../../models/filters/layer_filter.dart';
 import '../../models/task/task_rule.dart';
 import '../../repositories/app_repository.dart';
@@ -243,6 +244,21 @@ class FeaturesPage extends StatelessWidget {
                 onChanged: (v) => appSettings.enableCalendar = v,
                 infoText:
                     "Adds a calendar view, reachable from the Setup History page via the calendar button next to search and map buttons.",
+              ),
+              _FeatureToggleTile(
+                icon: Icons.filter_alt_outlined,
+                title: "Advanced Filters",
+                value: appSettings.enableAdvancedFilters,
+                onChanged: (v) {
+                  appSettings.enableAdvancedFilters = v;
+                  if (v) return;
+                  final filters = context.read<AppRepository>().filters;
+                  filters.dateRange = null;
+                  filters.activity = const ActivityFilter();
+                },
+                infoText:
+                    'Adds a date range and, with Strava connected, activity distance and elevation filters '
+                    'to the filter sheet of the Setup History, map and calendar.',
               ),
               const Divider(),
               const SectionTitle(title: 'Tasks'),

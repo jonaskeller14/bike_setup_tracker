@@ -1,6 +1,7 @@
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/filters/activity_filter.dart';
 import 'package:bike_setup_tracker/models/filters/numeric_range.dart';
+import 'package:bike_setup_tracker/models/strava/activity_bounds.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/repositories/filter_controller.dart';
 import 'package:bike_setup_tracker/theme.dart';
@@ -14,6 +15,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 class _FakeAppRepository extends ChangeNotifier implements AppRepository {
   @override
   late final FilterController filters = FilterController(onChanged: notifyListeners);
+
+  @override
+  ActivityBounds activityBounds = ActivityBounds.empty;
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
@@ -152,6 +156,29 @@ void main() {
     expect(find.text('≤ 2,000 ft'), findsOneWidget);
     expect(distanceSlider(tester).values, const RangeValues(5, 100));
     expect(elevationSlider(tester).values, const RangeValues(0, 2000));
+  });
+
+  testWidgets('the tracks end just past the longest and highest activity', (tester) async {
+    repository.activityBounds = const ActivityBounds(maxDistance: 143000, maxElevationGain: 1840);
+    await pumpSection(tester);
+
+    expect(distanceSlider(tester).values, const RangeValues(0, 145));
+    expect(distanceSlider(tester).divisions, 29);
+    expect(elevationSlider(tester).values, const RangeValues(0, 1850));
+    expect(elevationSlider(tester).divisions, 37);
+
+    await release(tester, distanceSlider(tester), const RangeValues(10, 145));
+    expect(filters.activity.distance.min, closeTo(10000, 1e-6));
+    expect(filters.activity.distance.max, null);
+  });
+
+  testWidgets('a stored bound beyond the track keeps its label', (tester) async {
+    repository.activityBounds = const ActivityBounds(maxDistance: 40000, maxElevationGain: 1000);
+    filters.activity = const ActivityFilter(distance: NumericRange(max: 80000));
+    await pumpSection(tester);
+
+    expect(distanceSlider(tester).values, const RangeValues(0, 40));
+    expect(find.text('≤ 80 km'), findsOneWidget);
   });
 
   testWidgets('a tap on the track sets the nearer bound', (tester) async {

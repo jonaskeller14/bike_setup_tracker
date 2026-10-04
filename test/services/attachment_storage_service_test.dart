@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:archive/archive_io.dart';
@@ -283,6 +284,18 @@ void main() {
       final archive = ZipDecoder().decodeBytes(await bundle.readAsBytes());
 
       expect(archive.files.map((f) => f.name), contains('attachments/${unlinked.filename}'));
+    });
+
+    test('a recovery bundle holds the backup file as data.json and every stored file', () async {
+      final attachment = Attachment(extension: '.jpg', name: 'photo.jpg');
+      await storeFile(attachment, [1, 2]);
+      final backup = await sourceFile('20260101_000000_backup.json', utf8.encode('{"bikes":[]}'));
+
+      final bundle = await service.exportRecoveryBundle(backup);
+      final archive = ZipDecoder().decodeBytes(await bundle.readAsBytes());
+
+      expect(utf8.decode(archive.findFile('data.json')!.content as List<int>), '{"bikes":[]}');
+      expect(archive.files.map((f) => f.name), contains('attachments/${attachment.filename}'));
     });
   });
 }

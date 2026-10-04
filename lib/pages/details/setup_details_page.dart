@@ -63,8 +63,11 @@ class _SetupDetailsPageState extends State<SetupDetailsPage> {
         ? (_pageController.page ?? _currentPageIndex.toDouble())
         : _currentPageIndex.toDouble();
 
-    double tintAt(int index) =>
-        (setups[index.clamp(0, setups.length - 1)]?.isCurrent ?? false) ? 1 : 0;
+    final setupHistory = context.read<AppRepository>().setupHistory;
+    double tintAt(int index) {
+      final setup = setups[index.clamp(0, setups.length - 1)];
+      return setup != null && setupHistory.isCurrent(setup.id) ? 1 : 0;
+    }
 
     final double t = page - page.floorToDouble();
     return tintAt(page.floor()) * (1 - t) + tintAt(page.ceil()) * t;
@@ -213,7 +216,7 @@ class SetupDetailsPageContent extends StatelessWidget {
       if (showEditAction) _SetupDetailsAction.edit,
       _SetupDetailsAction.share,
       _SetupDetailsAction.compare,
-      if (!setup.isCurrent) _SetupDetailsAction.restore,
+      if (!context.watch<AppRepository>().setupHistory.isCurrent(setup.id)) _SetupDetailsAction.restore,
       if (appSettings.enableRating) _SetupDetailsAction.addRating,
       if (showViewOnMap) ...[_SetupDetailsAction.viewOnMap, _SetupDetailsAction.openInMapsApp],
     ];
@@ -267,7 +270,8 @@ class SetupDetailsPageContent extends StatelessWidget {
   SliverAppBar _setupTitle(BuildContext context, {required Setup setup}) {
     final appSettings = context.read<AppSettings>();
     final colorScheme = Theme.of(context).colorScheme;
-    final Color background = setup.isCurrent
+    final bool isCurrent = context.watch<AppRepository>().setupHistory.isCurrent(setup.id);
+    final Color background = isCurrent
         ? CurrentSetupHighlight.opaqueFill(colorScheme)
         : colorScheme.surface;
     final bool showBookmarkAction = appSettings.enableSetupBookmark;
@@ -297,7 +301,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                         maxLines: 1,
                       ),
                     ),
-                    if (setup.isCurrent) ...[
+                    if (isCurrent) ...[
                       const SizedBox(width: 8),
                       const CurrentSetupBadge(),
                     ],
@@ -331,7 +335,7 @@ class SetupDetailsPageContent extends StatelessWidget {
 
     return PinnedHeaderSliver(
       child: Container(
-        color: setup.isCurrent
+        color: context.watch<AppRepository>().setupHistory.isCurrent(setup.id)
             ? CurrentSetupHighlight.opaqueFill(colorScheme)
             : colorScheme.surface,
         child: SectionTitle(title: title),
@@ -357,7 +361,7 @@ class SetupDetailsPageContent extends StatelessWidget {
               place: setup.place,
               displayName: setup.displayName,
               mapPin: SetupMapPin.icon(
-                isCurrent: setup.isCurrent,
+                isCurrent: context.watch<AppRepository>().setupHistory.isCurrent(setup.id),
                 isBookmarked: appSettings.enableSetupBookmark && setup.isBookmarked,
               ),
               weather: setup.weather,
@@ -424,7 +428,7 @@ class SetupDetailsPageContent extends StatelessWidget {
           ),
           AdjustmentDisplayList(
             adjustments: group.adjustments,
-            initialAdjustmentValues: setup.previousBikeAdjustmentValues,
+            initialAdjustmentValues: context.watch<AppRepository>().setupHistory.previousBikeValuesOf(setup.id),
             adjustmentValues: setup.bikeAdjustmentValues,
             isError: true,
           ),
@@ -461,7 +465,7 @@ class SetupDetailsPageContent extends StatelessWidget {
           ),
           AdjustmentDisplayList(
             adjustments: group.adjustments,
-            initialAdjustmentValues: setup.previousPersonAdjustmentValues,
+            initialAdjustmentValues: context.watch<AppRepository>().setupHistory.previousPersonValuesOf(setup.id),
             adjustmentValues: setup.personAdjustmentValues,
             isError: true,
           ),
@@ -511,6 +515,7 @@ class SetupDetailsPageContent extends StatelessWidget {
     required Map<String, AdjustmentValue> danglingDeletedPersonAdjustmentValues,
   }) {
     final appSettings = context.read<AppSettings>();
+    final setupHistory = context.watch<AppRepository>().setupHistory;
     return SliverToBoxAdapter(
       child: Padding(
         padding: const EdgeInsets.only(left: 16, right: 16),
@@ -551,7 +556,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                       ),
                       AdjustmentDisplayList(
                         adjustments: bikeComponent.adjustments,
-                        initialAdjustmentValues: setup.previousBikeAdjustmentValues,
+                        initialAdjustmentValues: setupHistory.previousBikeValuesOf(setup.id),
                         adjustmentValues: setup.bikeAdjustmentValues,
                       ),
                     ],
@@ -599,7 +604,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                       ),
                       AdjustmentDisplayList(
                         adjustments: person.adjustments,
-                        initialAdjustmentValues: setup.previousPersonAdjustmentValues,
+                        initialAdjustmentValues: setupHistory.previousPersonValuesOf(setup.id),
                         adjustmentValues: setup.personAdjustmentValues,
                       ),
                     ],
@@ -671,7 +676,7 @@ class SetupDetailsPageContent extends StatelessWidget {
     final personSplit = breakdown.personSplit;
 
     return ColoredBox(
-      color: setup.isCurrent
+      color: appRepository.setupHistory.isCurrent(setup.id)
           ? CurrentSetupHighlight.opaqueFill(colorScheme)
           : colorScheme.surface,
       child: CustomScrollView(

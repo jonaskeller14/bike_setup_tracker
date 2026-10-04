@@ -103,11 +103,11 @@ class SetupTileHarness {
       datetime: local.toUtc(),
       datetimeLocal: local,
       notes: notes,
-      tags: {},
+      tags: const {},
       bike: bikeId,
       person: null,
       bikeAdjustmentValues: Map<String, AdjustmentValue>.from(values),
-      personAdjustmentValues: {},
+      personAdjustmentValues: const {},
     );
   }
 
@@ -120,7 +120,7 @@ class SetupTileHarness {
   }
 
   /// Re-reads everything from the database, the way a fresh app launch does —
-  /// this is what resolves the transient `isCurrent` / previous-value state.
+  /// this is what resolves the current setups and inherited values.
   Future<void> reload(WidgetTester tester) async {
     repository.dispose();
     repository = AppRepository(database);

@@ -86,7 +86,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
 
   /// Rebuilds the projection only when the repository replaced its data.
   BikeAdjustmentProjection _projectionFor(AppRepository appRepository) {
-    final source = (appRepository.setups, appRepository.components, appRepository.componentHierarchy);
+    final source = (appRepository.setups, appRepository.components, appRepository.componentHierarchy, appRepository.setupHistory);
     if (_projection case final projection? when source == _projectionSource) return projection;
 
     final projection = BikeAdjustmentColumnService.build(
@@ -94,6 +94,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
       setups: appRepository.setups.values,
       components: appRepository.components.values,
       hierarchy: appRepository.componentHierarchy,
+      history: appRepository.setupHistory,
     );
     _projectionSource = source;
     _changingColumns = {
@@ -358,6 +359,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
             sortAscending: _sortAscending,
             sortColumn: _sortColumn,
             bikes: bikes,
+            setupHistory: appRepository.setupHistory,
             setupActivityCounts: setupActivityCounts,
             valueFor: _rawValue,
             isDangling: isDangling,

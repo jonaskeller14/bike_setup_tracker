@@ -10,8 +10,8 @@ Setup setup({Set<String> tags = const {}, bool isBookmarked = false}) => Setup(
   datetimeLocal: DateTime(2024),
   bike: "bike",
   person: null,
-  bikeAdjustmentValues: {},
-  personAdjustmentValues: {},
+  bikeAdjustmentValues: const {},
+  personAdjustmentValues: const {},
 );
 
 void main() {

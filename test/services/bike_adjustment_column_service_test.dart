@@ -2,6 +2,7 @@ import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
+import 'package:bike_setup_tracker/models/setup_history.dart';
 import 'package:bike_setup_tracker/services/bike_adjustment_column_service.dart';
 import 'package:bike_setup_tracker/services/component_hierarchy_resolver.dart';
 import 'package:bike_setup_tracker/services/component_slot.dart';
@@ -40,7 +41,6 @@ Setup setup(
   String id,
   int day, {
   Map<String, AdjustmentValue> values = const {},
-  Map<String, AdjustmentValue> previous = const {},
 }) {
   final at = DateTime.utc(2026, 1, day, 12);
   return Setup(
@@ -52,14 +52,20 @@ Setup setup(
     person: null,
     bikeAdjustmentValues: values,
     personAdjustmentValues: const {},
-  )..previousBikeAdjustmentValues = previous;
+  );
 }
 
-BikeAdjustmentProjection project(List<Setup> setups, List<Component> components) => BikeAdjustmentColumnService.build(
+/// [previous] maps setup ids to the bike values they inherit.
+BikeAdjustmentProjection project(
+  List<Setup> setups,
+  List<Component> components, {
+  Map<String, Map<String, AdjustmentValue>> previous = const {},
+}) => BikeAdjustmentColumnService.build(
   bikeId: bike,
   setups: setups,
   components: components,
   hierarchy: ComponentHierarchyResolver({for (final c in components) c.id: c}),
+  history: SetupHistory(previousBikeValues: previous),
 );
 
 const frontTire = ComponentSlot(type: ComponentType.tire, parentType: ComponentType.wheelFront);
@@ -89,9 +95,13 @@ void main() {
         adjustments: [pressure('pb')],
       );
       final s1 = setup('s1', 2, values: {'pa': const NumericalValue(25)});
-      final s2 = setup('s2', 6, values: {'pb': const NumericalValue(22)}, previous: {'pa': const NumericalValue(25)});
+      final s2 = setup('s2', 6, values: {'pb': const NumericalValue(22)});
 
-      final projection = project([s1, s2], [frontWheel, tireA, tireB]);
+      final projection = project(
+        [s1, s2],
+        [frontWheel, tireA, tireB],
+        previous: {'s2': {'pa': const NumericalValue(25)}},
+      );
       final columns = projection.columns.where((c) => c.lane.slot == frontTire).toList();
 
       expect(columns, hasLength(1));
@@ -420,20 +430,27 @@ void main() {
     test('is false when the value never changes', () {
       final setups = [
         setup('s1', 2, values: {'p': const NumericalValue(80)}),
-        setup('s2', 3, previous: {'p': const NumericalValue(80)}),
-        setup('s3', 4, values: {'p': const NumericalValue(80)}, previous: {'p': const NumericalValue(80)}),
+        setup('s2', 3),
+        setup('s3', 4, values: {'p': const NumericalValue(80)}),
       ];
+      final previous = {
+        's2': {'p': const NumericalValue(80)},
+        's3': {'p': const NumericalValue(80)},
+      };
 
-      expect(project(setups, [fork]).hasChanges(column, setups), isFalse);
+      expect(project(setups, [fork], previous: previous).hasChanges(column, setups), isFalse);
     });
 
     test('is true when the value changes at least once', () {
       final setups = [
         setup('s1', 2, values: {'p': const NumericalValue(80)}),
-        setup('s2', 3, values: {'p': const NumericalValue(85)}, previous: {'p': const NumericalValue(80)}),
+        setup('s2', 3, values: {'p': const NumericalValue(85)}),
       ];
+      final previous = {
+        's2': {'p': const NumericalValue(80)},
+      };
 
-      expect(project(setups, [fork]).hasChanges(column, setups), isTrue);
+      expect(project(setups, [fork], previous: previous).hasChanges(column, setups), isTrue);
     });
 
     test('compares values across a replacement', () {

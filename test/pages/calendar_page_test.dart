@@ -20,11 +20,11 @@ SetupEntry setupEntry({required String id, required DateTime utc}) => SetupEntry
     name: id,
     datetime: utc,
     datetimeLocal: local(utc),
-    tags: {},
+    tags: const {},
     bike: 'bike',
     person: null,
-    bikeAdjustmentValues: {},
-    personAdjustmentValues: {},
+    bikeAdjustmentValues: const {},
+    personAdjustmentValues: const {},
   ),
 );
 

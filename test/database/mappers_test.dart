@@ -180,11 +180,11 @@ void main() {
         name: 'Race Setup',
         datetime: DateTime(2023, 1, 1).toUtc(),
         datetimeLocal: DateTime(2023, 1, 1),
-        tags: {'race'},
+        tags: const {'race'},
         bike: 'bike1',
         person: 'person1',
-        bikeAdjustmentValues: {'adj1': const StepValue(10)},
-        personAdjustmentValues: {'adj2': const StepValue(5)},
+        bikeAdjustmentValues: const {'adj1': StepValue(10)},
+        personAdjustmentValues: const {'adj2': StepValue(5)},
       );
 
       // Model -> Companion

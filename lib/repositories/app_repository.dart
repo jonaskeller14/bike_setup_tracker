@@ -21,6 +21,7 @@ import '../models/rating/rating_entry.dart';
 import '../models/rating/rating_metric.dart';
 import '../models/selected_data.dart';
 import '../models/setup.dart';
+import '../models/setup_history.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/strava/strava_activity_query.dart';
 import '../models/strava/strava_athlete.dart';
@@ -148,6 +149,7 @@ class AppRepository extends ChangeNotifier {
   Map<String, ComponentStats> _bikeStats = {};
   Map<String, ActivityRateWindow> _bikeActivityRates = {};
   Map<String, AdjustmentValue> _currentAdjustmentValues = {};
+  SetupHistory _setupHistory = SetupHistory.empty;
 
   Map<String, Person> get persons => _persons;
   Map<String, Bike> get bikes => _bikes;
@@ -170,6 +172,10 @@ class AppRepository extends ChangeNotifier {
       ComponentStats.zero;
   Map<String, ActivityRateWindow> get bikeActivityRates => _bikeActivityRates;
   Map<String, AdjustmentValue> get currentAdjustmentValues => _currentAdjustmentValues;
+  SetupHistory get setupHistory => _setupHistory;
+
+  @visibleForTesting
+  set setupHistory(SetupHistory history) => _setupHistory = history;
 
   bool get hasSetupsWithPosition =>
       _setups.values.any((setup) => !setup.isDeleted && _isMappable(setup.position));
@@ -383,6 +389,7 @@ class AppRepository extends ChangeNotifier {
     );
     _setups = result.setups;
     _currentAdjustmentValues = result.globalState;
+    _setupHistory = result.history;
 
     _setupTags = SetupResolutionService.extractAllTags(_setups.values);
     _taskRuleTags = _taskRules.values.map((tr) => tr.tags).expand((tags) => tags).toSet();

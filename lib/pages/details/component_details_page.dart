@@ -436,6 +436,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                   sortAscending: _sortAscending,
                   sortColumn: _sortColumn,
                   bikes: bikes,
+                  setupHistory: appRepository.setupHistory,
                   setupActivityCounts: setupActivityCounts,
                   valueFor: _rawValue,
                   isDangling: isDangling,

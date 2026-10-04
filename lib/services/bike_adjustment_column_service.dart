@@ -1,6 +1,7 @@
 import '../models/adjustment/adjustment.dart';
 import '../models/component/component.dart';
 import '../models/setup.dart';
+import '../models/setup_history.dart';
 import 'component_hierarchy_resolver.dart';
 import 'component_similarity.dart';
 import 'component_slot.dart';
@@ -46,8 +47,9 @@ class BikeAdjustmentProjection {
   final Map<SlotLaneKey, SlotLane> _lanesByKey;
   final Map<BikeAdjustmentColumnKey, Adjustment> _representatives;
   final Map<String, Map<BikeAdjustmentColumnKey, BikeAdjustmentCell>> _cellsBySetupId;
+  final SetupHistory _history;
 
-  BikeAdjustmentProjection._(this.lanes, this.columns, this._representatives, this._cellsBySetupId)
+  BikeAdjustmentProjection._(this.lanes, this.columns, this._representatives, this._cellsBySetupId, this._history)
     : _lanesByKey = {for (final lane in lanes) lane.key: lane};
 
   SlotLane? laneOf(BikeAdjustmentColumnKey column) => _lanesByKey[column.lane];
@@ -67,7 +69,7 @@ class BikeAdjustmentProjection {
   /// Reads the setup's own adjustment ID, so the first value of a replacement
   /// component has no previous value.
   AdjustmentValue? previousValueFor(Setup setup, BikeAdjustmentColumnKey column) =>
-      setup.previousBikeAdjustmentValues[resolve(setup, column)?.adjustment.id];
+      _history.previousBikeValuesOf(setup.id)[resolve(setup, column)?.adjustment.id];
 
   bool isDangling(Setup setup, BikeAdjustmentColumnKey column) => resolve(setup, column)?.isDangling ?? false;
 
@@ -91,6 +93,7 @@ class BikeAdjustmentColumnService {
     required Iterable<Setup> setups,
     required Iterable<Component> components,
     required ComponentHierarchyResolver hierarchy,
+    required SetupHistory history,
   }) {
     final bikeSetups = _sortedByTime(setups.where((setup) => setup.bike == bikeId));
     final componentList = components.toList();
@@ -169,7 +172,7 @@ class BikeAdjustmentColumnService {
       }
     }
 
-    return BikeAdjustmentProjection._(lanes, columns, representatives, cellsBySetupId);
+    return BikeAdjustmentProjection._(lanes, columns, representatives, cellsBySetupId, history);
   }
 
   /// Greedy assignment in order of first presence: a component joins the first

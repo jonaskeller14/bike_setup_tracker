@@ -7,9 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../database/app_database.dart';
-import '../models/bike.dart';
 import '../models/selected_data.dart';
-import '../models/setup.dart';
 import '../services/attachment_storage_service.dart';
 import '../services/component_hierarchy_resolver.dart';
 import '../services/data_export_service.dart';
@@ -289,22 +287,6 @@ class FileImport {
     localData.ratingEntries.addAll(remoteData.ratingEntries);
     localData.taskRules.addAll(remoteData.taskRules);
     localData.taskEntries.addAll(remoteData.taskEntries);
-  }
-
-  static void determineCurrentSetups({required List<Setup> setups, required Map<String, Bike> bikes}) {
-    // Assumes setups is sorted
-    for (final setup in setups) {
-      setup.isCurrent = false;
-    }
-    final Set<String> remainingBikes = Set.of(bikes.values.where((b) => !b.isDeleted).map((b) => b.id));
-    for (final setup in setups.reversed.where((s) => !s.isDeleted)) {
-      final bike = setup.bike;
-      if (remainingBikes.contains(bike)) {
-        setup.isCurrent = true;
-        remainingBikes.remove(bike);
-        if (remainingBikes.isEmpty) break;
-      }
-    }
   }
 
   static List<String> cleanupIsDeleted({required SelectedData data}) {

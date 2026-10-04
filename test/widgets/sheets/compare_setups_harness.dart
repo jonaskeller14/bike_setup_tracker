@@ -112,7 +112,7 @@ class CompareSetupsHarness {
       person: null,
       position: position,
       bikeAdjustmentValues: Map<String, AdjustmentValue>.from(values),
-      personAdjustmentValues: {},
+      personAdjustmentValues: const {},
     );
   }
 

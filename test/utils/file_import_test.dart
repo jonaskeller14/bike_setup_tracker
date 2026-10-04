@@ -82,11 +82,11 @@ void main() {
       isDeleted: isDeleted,
       datetime: now,
       datetimeLocal: now,
-      tags: <String>{},
+      tags: const <String>{},
       bike: 'b1',
       person: null,
-      bikeAdjustmentValues: {},
-      personAdjustmentValues: {},
+      bikeAdjustmentValues: const {},
+      personAdjustmentValues: const {},
       attachments: attachments,
     );
   }

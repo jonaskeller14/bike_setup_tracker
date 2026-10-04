@@ -36,6 +36,7 @@ Future<void> showCompareSetupsSheet(
     setupA: setupA,
     setupB: setupB,
     setups: appRepository.setups.values,
+    history: appRepository.setupHistory,
   );
   if (resolution is! SetupComparisonTargets) {
     final messenger = ScaffoldMessenger.of(context);
@@ -154,6 +155,7 @@ class _CompareSetupsState extends State<CompareSetups> {
       setupB: setupB,
       components: appRepository.components.values,
       persons: appRepository.persons.values,
+      history: appRepository.setupHistory,
     );
     final allValueGroups = projection.groups
         .where((group) => group.rows.isNotEmpty || group.isStructuralDifference)
@@ -194,6 +196,7 @@ class _CompareSetupsState extends State<CompareSetups> {
           setups: selectableSetups,
           showBikeNames: _comparisonBikeId == null,
           bikeNamesById: appRepository.bikes.map((id, bike) => MapEntry(id, bike.name)),
+          currentSetupIds: appRepository.setupHistory.currentSetupIds,
           onSetupAChanged: (setup) => _selectSetup(setupAId: setup.id),
           onSetupBChanged: (setup) => _selectSetup(setupBId: setup.id),
           onSwap: _swapSides,

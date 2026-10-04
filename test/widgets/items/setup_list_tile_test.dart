@@ -79,7 +79,7 @@ void main() {
     await pumpTile(tester, setup);
 
     // The latest setup of a bike is its current one.
-    expect(harness.repository.setups[setup.id]!.isCurrent, isTrue);
+    expect(harness.repository.setupHistory.isCurrent(setup.id), isTrue);
     expect(find.byType(CurrentSetupHighlight), findsOneWidget);
   });
 

@@ -10,6 +10,7 @@ import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/context/context_weather.dart';
 import '../../models/setup.dart';
+import '../../models/setup_history.dart';
 import '../../theme.dart';
 import '../../utils/automation_ids.dart';
 import '../../utils/table_column.dart';
@@ -21,6 +22,7 @@ class SetupTable extends StatefulWidget {
   final bool sortAscending;
   final TableColumn? sortColumn;
   final Map<String, Bike> bikes;
+  final SetupHistory setupHistory;
   final Map<String, int> setupActivityCounts;
   final AdjustmentValue? Function(Setup setup, TableColumn column) valueFor;
   final bool Function(Setup setup, TableColumn column)? isDangling;
@@ -39,6 +41,7 @@ class SetupTable extends StatefulWidget {
     required this.sortAscending,
     required this.sortColumn,
     required this.bikes,
+    required this.setupHistory,
     required this.setupActivityCounts,
     required this.valueFor,
     required this.columnLabel,
@@ -270,11 +273,11 @@ class _SetupTableState extends State<SetupTable> {
           ),
         };
       case ComponentAdjustmentColumn(:final adjustmentId):
-        return _adjustmentCell(context, setup, column, setup.previousBikeAdjustmentValues[adjustmentId]);
+        return _adjustmentCell(context, setup, column, widget.setupHistory.previousBikeValuesOf(setup.id)[adjustmentId]);
       case BikeAdjustmentColumn():
         return _adjustmentCell(context, setup, column, widget.previousValueFor?.call(setup, column));
       case PersonAttributeColumn(:final adjustmentId):
-        return _adjustmentCell(context, setup, column, setup.previousPersonAdjustmentValues[adjustmentId]);
+        return _adjustmentCell(context, setup, column, widget.setupHistory.previousPersonValuesOf(setup.id)[adjustmentId]);
       case RatingScoreColumn() || RatingMetricColumn():
         final score = widget.valueFor(setup, column)?.asNum;
         return DataCell(

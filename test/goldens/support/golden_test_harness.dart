@@ -252,7 +252,7 @@ class GoldenTestHarness {
       if (repository.bikes.length == 2 &&
           repository.components.length == 3 &&
           repository.setups.length == 3 &&
-          repository.setups[newerSetupId]?.isCurrent == true) {
+          repository.setupHistory.isCurrent(newerSetupId)) {
         return;
       }
       await Future<void>.delayed(const Duration(milliseconds: 20));

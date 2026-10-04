@@ -80,7 +80,6 @@ abstract final class OnboardingSetupExample {
     required String name,
     required DateTime at,
     required Map<String, AdjustmentValue> values,
-    required Map<String, AdjustmentValue> previousValues,
   }) {
     return Setup(
       name: name,
@@ -91,7 +90,7 @@ abstract final class OnboardingSetupExample {
       person: null,
       bikeAdjustmentValues: values,
       personAdjustmentValues: const {},
-    )..previousBikeAdjustmentValues = previousValues;
+    );
   }
 
   /// The setup the slide records, stamped with [now].
@@ -100,8 +99,8 @@ abstract final class OnboardingSetupExample {
       name: "My new Setup",
       at: now,
       values: _values(editedPressure, editedRebound, startLockout),
-      previousValues: _values(startPressure, startRebound, startLockout),
     ),
+    previousValues: _values(startPressure, startRebound, startLockout),
     place: "Whistler, CA",
     condition: Condition.dry,
   );
@@ -117,8 +116,8 @@ abstract final class OnboardingSetupExample {
           name: "Enduro Day",
           at: now.subtract(const Duration(days: 6)),
           values: lastRide,
-          previousValues: firstRide,
         ),
+        previousValues: firstRide,
         place: "Finale Ligure, IT",
         condition: Condition.wet,
       ),
@@ -127,7 +126,6 @@ abstract final class OnboardingSetupExample {
           name: "Bikepark Day",
           at: now.subtract(const Duration(days: 20)),
           values: firstRide,
-          previousValues: const {},
         ),
         place: "Leogang, AT",
         condition: Condition.dry,
@@ -138,9 +136,15 @@ abstract final class OnboardingSetupExample {
 
 /// A saved setup plus the context it was ridden in.
 class OnboardingSnapshot {
-  const OnboardingSnapshot({required this.setup, required this.place, required this.condition});
+  const OnboardingSnapshot({
+    required this.setup,
+    this.previousValues = const {},
+    required this.place,
+    required this.condition,
+  });
 
   final Setup setup;
+  final Map<String, AdjustmentValue> previousValues;
   final String place;
   final Condition condition;
 }
@@ -306,7 +310,7 @@ class OnboardingSetupSnapshotCard extends StatelessWidget {
                 child: AdjustmentCompactDisplayList(
                   components: [OnboardingSetupExample.fork],
                   adjustmentValues: snapshot.setup.bikeAdjustmentValues,
-                  previousAdjustmentValues: snapshot.setup.previousBikeAdjustmentValues,
+                  previousAdjustmentValues: snapshot.previousValues,
                   showRowIcons: true,
                   highlightInitialValues: true,
                 ),

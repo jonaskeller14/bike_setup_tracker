@@ -133,7 +133,7 @@ class _SetupTileState extends State<SetupTile> {
     final Widget? badge = score != null
         ? _scoreBadge(context, score)
         : widget.showCurrentBadge
-        ? setup.isCurrent
+        ? appRepository.setupHistory.isCurrent(setup.id)
               ? const CurrentSetupBadge()
               : null
         : null;
@@ -219,10 +219,7 @@ class _SetupTileState extends State<SetupTile> {
       ...setup.bikeAdjustmentValues,
       ...setup.personAdjustmentValues,
     };
-    final previousAdjustmentValues = {
-      ...setup.previousBikeAdjustmentValues,
-      ...setup.previousPersonAdjustmentValues,
-    };
+    final previousAdjustmentValues = appRepository.setupHistory.previousValuesOf(setup.id);
 
     final summary = AdjustmentCompactDisplayList.summarize(
       components: breakdown.components,
@@ -273,7 +270,7 @@ class _SetupTileState extends State<SetupTile> {
       ),
     );
 
-    final Widget row = setup.isCurrent
+    final Widget row = appRepository.setupHistory.isCurrent(setup.id)
         ? CurrentSetupHighlight(
             barLeft: widget.currentBarLeft,
             padding: widget.edgeInset,

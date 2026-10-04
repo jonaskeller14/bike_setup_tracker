@@ -29,9 +29,9 @@ Setup _setup({
     datetimeLocal: datetime.toLocal(),
     bike: 'bike_1',
     person: null,
-    tags: {},
+    tags: const {},
     bikeAdjustmentValues: bikeAdjustmentValues,
-    personAdjustmentValues: {},
+    personAdjustmentValues: const {},
     position: altitudeM == null ? null : ContextPosition(latitude: 47, longitude: 11, altitude: altitudeM),
     weather: temperatureC == null
         ? null

@@ -69,8 +69,8 @@ void main() {
         datetimeLocal: t1.toLocal(),
         bike: myBike.id,
         person: me.id,
-        tags: {},
-        personAdjustmentValues: {},
+        tags: const {},
+        personAdjustmentValues: const {},
         bikeAdjustmentValues: {pressureAdj.id: TextValue.orNull('80')!, reboundAdj.id: TextValue.orNull('5')!},
       );
 
@@ -81,8 +81,8 @@ void main() {
         datetimeLocal: t2.toLocal(),
         bike: myBike.id,
         person: me.id,
-        tags: {},
-        personAdjustmentValues: {},
+        tags: const {},
+        personAdjustmentValues: const {},
         bikeAdjustmentValues: {pressureAdj.id: TextValue.orNull('85')!},
       );
 
@@ -93,9 +93,9 @@ void main() {
         datetimeLocal: t3.toLocal(),
         bike: myBike.id,
         person: me.id,
-        tags: {},
-        personAdjustmentValues: {},
-        bikeAdjustmentValues: {},
+        tags: const {},
+        personAdjustmentValues: const {},
+        bikeAdjustmentValues: const {},
       );
 
       final setups = {'s1': setup1, 's2': setup2, 's3': setup3};
@@ -107,12 +107,11 @@ void main() {
         components: {fork.id: fork, shock.id: shock},
         ratings: {},
       );
-      final resolved = result.setups;
 
-      expect(resolved['s2']!.previousBikeAdjustmentValues[reboundAdj.id], TextValue.orNull('5'));
-      expect(resolved['s2']!.previousBikeAdjustmentValues[pressureAdj.id], TextValue.orNull('80'));
-      expect(resolved['s3']!.previousBikeAdjustmentValues[pressureAdj.id], TextValue.orNull('85'));
-      expect(resolved['s3']!.previousBikeAdjustmentValues[reboundAdj.id], TextValue.orNull('5'));
+      expect(result.history.previousBikeValuesOf('s2')[reboundAdj.id], TextValue.orNull('5'));
+      expect(result.history.previousBikeValuesOf('s2')[pressureAdj.id], TextValue.orNull('80'));
+      expect(result.history.previousBikeValuesOf('s3')[pressureAdj.id], TextValue.orNull('85'));
+      expect(result.history.previousBikeValuesOf('s3')[reboundAdj.id], TextValue.orNull('5'));
     });
 
     test('historical edits propagate forward to sparse setups', () {
@@ -133,8 +132,8 @@ void main() {
         datetimeLocal: t1.toLocal(),
         bike: myBike.id,
         person: me.id,
-        tags: {},
-        personAdjustmentValues: {},
+        tags: const {},
+        personAdjustmentValues: const {},
         bikeAdjustmentValues: {pressureAdj.id: TextValue.orNull('82')!, reboundAdj.id: TextValue.orNull('5')!},
       );
 
@@ -145,9 +144,9 @@ void main() {
         datetimeLocal: t2.toLocal(),
         bike: myBike.id,
         person: me.id,
-        tags: {},
-        personAdjustmentValues: {},
-        bikeAdjustmentValues: {},
+        tags: const {},
+        personAdjustmentValues: const {},
+        bikeAdjustmentValues: const {},
       );
 
       final setup3 = Setup(
@@ -157,8 +156,8 @@ void main() {
         datetimeLocal: t3.toLocal(),
         bike: myBike.id,
         person: me.id,
-        tags: {},
-        personAdjustmentValues: {},
+        tags: const {},
+        personAdjustmentValues: const {},
         bikeAdjustmentValues: {pressureAdj.id: TextValue.orNull('90')!}, // Explicitly overrides
       );
 
@@ -173,8 +172,8 @@ void main() {
       );
       final resolved = result.setups;
 
-      expect(resolved['s2']!.previousBikeAdjustmentValues[pressureAdj.id], TextValue.orNull('82'));
-      expect(resolved['s3']!.previousBikeAdjustmentValues[pressureAdj.id], TextValue.orNull('82'));
+      expect(result.history.previousBikeValuesOf('s2')[pressureAdj.id], TextValue.orNull('82'));
+      expect(result.history.previousBikeValuesOf('s3')[pressureAdj.id], TextValue.orNull('82'));
       expect(resolved['s3']!.bikeAdjustmentValues[pressureAdj.id], TextValue.orNull('90'));
     });
 
@@ -206,8 +205,8 @@ void main() {
         datetimeLocal: t1.add(const Duration(hours: 1)).toLocal(),
         bike: myBike.id,
         person: me.id,
-        tags: {},
-        personAdjustmentValues: {},
+        tags: const {},
+        personAdjustmentValues: const {},
         bikeAdjustmentValues: {reboundAdj.id: TextValue.orNull('7')!}, // Set while on myBike
       );
 
@@ -218,9 +217,9 @@ void main() {
         datetimeLocal: t3.toLocal(),
         bike: otherBike.id,
         person: me.id, // now on otherBike
-        tags: {},
-        personAdjustmentValues: {},
-        bikeAdjustmentValues: {}, // completely sparse
+        tags: const {},
+        personAdjustmentValues: const {},
+        bikeAdjustmentValues: const {}, // completely sparse
       );
 
       final result = SetupResolutionService.resolveSetups(
@@ -230,15 +229,14 @@ void main() {
         components: {movingShock.id: movingShock},
         ratings: {},
       );
-      final resolved = result.setups;
 
       // s2 should inherit the shock value even though it's on a different bike
-      expect(resolved['s2']!.previousBikeAdjustmentValues[reboundAdj.id], TextValue.orNull('7'));
+      expect(result.history.previousBikeValuesOf('s2')[reboundAdj.id], TextValue.orNull('7'));
     });
 
     test('dangling values from edited installation timeline are preserved in snapshot, but excluded from previous calculation', () {
       // Intention: Verify behaviour when an older setup has a recorded value for a component that is later uninstalled, or was never installed according to an edited timeline.
-      // Desired outcome: The recorded snapshot value in the old Setup is preserved (dangling value), but it is NOT inherited in `previousBikeAdjustmentValues` if the component is physically not on the bike at the time of the Setup.
+      // Desired outcome: The recorded snapshot value in the old Setup is preserved (dangling value), but it is NOT inherited as a previous bike value if the component is physically not on the bike at the time of the Setup.
       // Not desired outcome: The UI inherits values for components not on the bike, or the snapshot data is destructively discarded.
 
       final t1 = DateTime(2025, 1, 1).toUtc();
@@ -264,8 +262,8 @@ void main() {
         datetimeLocal: t1.add(const Duration(hours: 1)).toLocal(),
         bike: myBike.id,
         person: me.id,
-        tags: {},
-        personAdjustmentValues: {},
+        tags: const {},
+        personAdjustmentValues: const {},
         bikeAdjustmentValues: {pressureAdj.id: TextValue.orNull('80')!}, // Recorded snapshot
       );
 
@@ -276,8 +274,8 @@ void main() {
         datetimeLocal: t2.add(const Duration(hours: 1)).toLocal(),
         bike: myBike.id,
         person: me.id,
-        tags: {},
-        personAdjustmentValues: {},
+        tags: const {},
+        personAdjustmentValues: const {},
         bikeAdjustmentValues: {pressureAdj.id: TextValue.orNull('80')!}, // Let's say it recorded it historically, then timeline was edited
       );
 
@@ -292,7 +290,7 @@ void main() {
 
       expect(resolved['s1']!.bikeAdjustmentValues[pressureAdj.id], TextValue.orNull('80'));
       expect(resolved['s2']!.bikeAdjustmentValues[pressureAdj.id], TextValue.orNull('80'));
-      expect(resolved['s2']!.previousBikeAdjustmentValues.containsKey(pressureAdj.id), false);
+      expect(result.history.previousBikeValuesOf('s2').containsKey(pressureAdj.id), false);
     });
 
     test('intervening setup for different bike does not break resolution chain for a moved component', () {
@@ -311,8 +309,8 @@ void main() {
         datetimeLocal: t1.toLocal(),
         bike: myBike.id,
         person: me.id,
-        tags: {},
-        personAdjustmentValues: {},
+        tags: const {},
+        personAdjustmentValues: const {},
         bikeAdjustmentValues: {pressureAdj.id: TextValue.orNull('80')!},
       );
 
@@ -323,8 +321,8 @@ void main() {
         datetimeLocal: t2.toLocal(),
         bike: otherBike.id,
         person: me.id,
-        tags: {},
-        personAdjustmentValues: {},
+        tags: const {},
+        personAdjustmentValues: const {},
         bikeAdjustmentValues: {reboundAdj.id: TextValue.orNull('7')!},
       );
 
@@ -336,9 +334,9 @@ void main() {
         datetimeLocal: t3.toLocal(),
         bike: myBike.id,
         person: me.id,
-        tags: {},
-        personAdjustmentValues: {},
-        bikeAdjustmentValues: {}, // Will inherit from s1
+        tags: const {},
+        personAdjustmentValues: const {},
+        bikeAdjustmentValues: const {}, // Will inherit from s1
       );
 
       final result = SetupResolutionService.resolveSetups(
@@ -348,10 +346,9 @@ void main() {
         components: {fork.id: fork, shock.id: shock},
         ratings: {},
       );
-      final resolved = result.setups;
 
       // s3 should inherit fork pressure '80' from s1, even though s2 was the most recent global setup.
-      expect(resolved['s3']!.previousBikeAdjustmentValues[pressureAdj.id], TextValue.orNull('80'));
+      expect(result.history.previousBikeValuesOf('s3')[pressureAdj.id], TextValue.orNull('80'));
     });
 
     test('resolveHistoricalStateAt correctly aggregates state up to a timestamp', () {
@@ -368,7 +365,7 @@ void main() {
         datetimeLocal: t1.toLocal(),
         bike: myBike.id,
         person: me.id,
-        tags: {},
+        tags: const {},
         personAdjustmentValues: {'person_adj_1': TextValue.orNull('val1')!},
         bikeAdjustmentValues: {pressureAdj.id: TextValue.orNull('80')!},
       );
@@ -380,8 +377,8 @@ void main() {
         datetimeLocal: t2.toLocal(),
         bike: otherBike.id,
         person: me.id,
-        tags: {},
-        personAdjustmentValues: {},
+        tags: const {},
+        personAdjustmentValues: const {},
         bikeAdjustmentValues: {reboundAdj.id: TextValue.orNull('7')!},
       );
 
@@ -406,8 +403,8 @@ void main() {
         datetimeLocal: originalTime.toLocal(),
         bike: myBike.id,
         person: me.id,
-        tags: {},
-        personAdjustmentValues: {},
+        tags: const {},
+        personAdjustmentValues: const {},
         bikeAdjustmentValues: {pressureAdj.id: TextValue.orNull('80')!},
       );
 
@@ -439,8 +436,8 @@ void main() {
         datetimeLocal: datetime.toLocal(),
         bike: myBike.id,
         person: me.id,
-        tags: {},
-        personAdjustmentValues: {},
+        tags: const {},
+        personAdjustmentValues: const {},
         bikeAdjustmentValues: bikeAdjustmentValues,
       );
     }
@@ -523,6 +520,61 @@ void main() {
       );
 
       expect(provenance, isEmpty);
+    });
+  });
+
+  group('SetupResolutionService current setups', () {
+    final bikeA = Bike(id: 'bike_a', name: 'A', person: null);
+    final bikeB = Bike(id: 'bike_b', name: 'B', person: null);
+
+    Setup setupAt(int day, String id, String bike, {bool isDeleted = false}) {
+      final at = DateTime.utc(2025, 1, day);
+      return Setup(
+        id: id,
+        isDeleted: isDeleted,
+        datetime: at,
+        datetimeLocal: at.toLocal(),
+        bike: bike,
+        person: null,
+        tags: const {},
+        bikeAdjustmentValues: const {},
+        personAdjustmentValues: const {},
+      );
+    }
+
+    Set<String> currentSetupIds(List<Setup> setups, List<Bike> bikes) => SetupResolutionService.resolveSetups(
+          setups: {for (final setup in setups) setup.id: setup},
+          bikes: {for (final bike in bikes) bike.id: bike},
+          persons: {},
+          components: {},
+          ratings: {},
+        ).history.currentSetupIds;
+
+    test('the latest setup of each bike is current, regardless of input order', () {
+      final ids = currentSetupIds(
+        [setupAt(3, 'a2', bikeA.id), setupAt(1, 'a1', bikeA.id), setupAt(2, 'b1', bikeB.id)],
+        [bikeA, bikeB],
+      );
+
+      expect(ids, {'a2', 'b1'});
+    });
+
+    test('a deleted setup is skipped in favour of the previous one', () {
+      final ids = currentSetupIds(
+        [setupAt(1, 'a1', bikeA.id), setupAt(2, 'a2', bikeA.id, isDeleted: true)],
+        [bikeA],
+      );
+
+      expect(ids, {'a1'});
+    });
+
+    test('setups of deleted or unknown bikes are never current', () {
+      final ids = currentSetupIds(
+        [setupAt(1, 'a1', bikeA.id), setupAt(2, 'b1', bikeB.id), setupAt(3, 'x1', 'unknown')],
+        [bikeA, bikeB.copyWith(isDeleted: true)],
+      );
+
+      expect(ids, {'a1'});
     });
   });
 }

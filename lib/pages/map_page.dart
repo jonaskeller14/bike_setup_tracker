@@ -301,7 +301,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
             point: LatLng(setup.position!.latitude!, setup.position!.longitude!),
             onTap: () => showSetupDetailsSheet(context: context, setupId: setup.id, showViewOnMap: false),
             pin: SetupMapPin.icon(
-              isCurrent: setup.isCurrent,
+              isCurrent: appRepository.setupHistory.isCurrent(setup.id),
               isBookmarked: appSettings.enableSetupBookmark && setup.isBookmarked,
             ),
           ),
@@ -369,7 +369,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
     );
   }
 
-  List<Marker> _focusMarkers(AppSettings appSettings) => [
+  List<Marker> _focusMarkers(AppRepository appRepository, AppSettings appSettings) => [
     if (widget.focusActivity case final activity? when activity.hasStartPosition)
       _focusMarker(
         key: const Key('map-focus-activity'),
@@ -385,7 +385,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
           point: point,
           onTap: () => showSetupDetailsSheet(context: context, setupId: setup.id, showViewOnMap: false),
           pin: SetupMapPin.icon(
-            isCurrent: setup.isCurrent,
+            isCurrent: appRepository.setupHistory.isCurrent(setup.id),
             isBookmarked: appSettings.enableSetupBookmark && setup.isBookmarked,
           ),
         ),
@@ -416,7 +416,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
       if (appSettings.enableRating && layers.shows(TimelineLayer.ratingEntries)) ..._ratingEntryMarkers(appRepository),
     ];
 
-    final focusMarkers = _focusMarkers(appSettings);
+    final focusMarkers = _focusMarkers(appRepository, appSettings);
     final focusPoints = _focusPoints = [for (final marker in focusMarkers) marker.point];
     _pinPoints = [...focusPoints, ...clusterMarkers.map((marker) => marker.point)];
     final List<LatLng> fitPoints = [?_userLocation, ..._pinPoints];

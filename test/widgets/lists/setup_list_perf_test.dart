@@ -106,11 +106,11 @@ Future<void> _runDeepWindowLazinessTest(WidgetTester tester) async {
         name: 'Setup ${i + 1}',
         datetime: dt,
         datetimeLocal: dt,
-        tags: {},
+        tags: const {},
         bike: bike.id,
         person: null,
-        bikeAdjustmentValues: {},
-        personAdjustmentValues: {},
+        bikeAdjustmentValues: const {},
+        personAdjustmentValues: const {},
       ).copyWith(lastModified: DateTime.now().toUtc());
       await database.setupsDao.insertSetupWithValues(
         setup: setup.toCompanion(),

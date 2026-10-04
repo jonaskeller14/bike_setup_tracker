@@ -98,14 +98,22 @@ List<EntryRow> buildCalendarRows(List<TimelineEntry> entries, AppSettings settin
   return rows;
 }
 
-IconData setupCalendarIcon(Setup setup, {required bool showSetupBookmark}) {
-  if (setup.isCurrent) return Icons.flag;
+IconData setupCalendarIcon(Setup setup, {required bool isCurrent, required bool showSetupBookmark}) {
+  if (isCurrent) return Icons.flag;
   if (showSetupBookmark && setup.isBookmarked) return Icons.bookmark;
   return Setup.iconData;
 }
 
-IconData calendarIconFor(TimelineEntry entry, {bool showSetupBookmark = false}) => switch (entry) {
-      SetupEntry() => setupCalendarIcon(entry.setup, showSetupBookmark: showSetupBookmark),
+IconData calendarIconFor(
+  TimelineEntry entry, {
+  Set<String> currentSetupIds = const {},
+  bool showSetupBookmark = false,
+}) => switch (entry) {
+      SetupEntry() => setupCalendarIcon(
+          entry.setup,
+          isCurrent: currentSetupIds.contains(entry.setup.id),
+          showSetupBookmark: showSetupBookmark,
+        ),
       StravaEntry() => entry.activity.workout.isNotable
           ? entry.activity.workout.icon
           : SimpleIcons.strava,
@@ -138,8 +146,16 @@ String calendarSubjectFor(TimelineEntry entry) => switch (entry) {
       RatingEntryTimelineEntry() => entry.ratingEntry.displayName,
     };
 
-IconData calendarIconForRow(EntryRow row, {bool showSetupBookmark = false}) => switch (row) {
-      SingleEntryRow(:final entry) => calendarIconFor(entry, showSetupBookmark: showSetupBookmark),
+IconData calendarIconForRow(
+  EntryRow row, {
+  Set<String> currentSetupIds = const {},
+  bool showSetupBookmark = false,
+}) => switch (row) {
+      SingleEntryRow(:final entry) => calendarIconFor(
+          entry,
+          currentSetupIds: currentSetupIds,
+          showSetupBookmark: showSetupBookmark,
+        ),
       ReplacementRow() => Icons.swap_horiz,
       SetupGroupRow() => Setup.iconData,
     };
@@ -876,9 +892,10 @@ class _CalendarPageState extends State<CalendarPage> {
     }
     if (row is! EntryRow) return const SizedBox.shrink();
     final showSetupBookmark = context.read<AppSettings>().enableSetupBookmark;
+    final currentSetupIds = context.read<AppRepository>().setupHistory.currentSetupIds;
     return CalendarEntryAppointment(
       details: details,
-      icon: calendarIconForRow(row, showSetupBookmark: showSetupBookmark),
+      icon: calendarIconForRow(row, currentSetupIds: currentSetupIds, showSetupBookmark: showSetupBookmark),
       subject: calendarSubjectForRow(row),
       color: calendarColorForRow(row, cs),
       contentColor: calendarOnColorForRow(row, cs),

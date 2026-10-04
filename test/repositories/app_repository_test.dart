@@ -166,13 +166,13 @@ void main() {
       await pumpEventQueue();
       setup1 = Setup(
         name: "Setup #1", 
-        tags: {},
+        tags: const {},
         datetime: DateTime(2000).toUtc(),
         datetimeLocal: DateTime(2000).toLocal(),
         bike: bike1.id, 
         person: null, 
-        bikeAdjustmentValues: {}, 
-        personAdjustmentValues: {},
+        bikeAdjustmentValues: const {}, 
+        personAdjustmentValues: const {},
       );
     });
 
@@ -287,13 +287,13 @@ void main() {
       final bookmarked = setup1.copyWith(isBookmarked: true);
       final plain = Setup(
         name: "Setup #2",
-        tags: {},
+        tags: const {},
         datetime: DateTime(2001).toUtc(),
         datetimeLocal: DateTime(2001).toLocal(),
         bike: bike1.id,
         person: null,
-        bikeAdjustmentValues: {},
-        personAdjustmentValues: {},
+        bikeAdjustmentValues: const {},
+        personAdjustmentValues: const {},
       );
 
       await repository.addBikes([bike1]);
@@ -497,7 +497,7 @@ void main() {
 
     Setup buildSetup(String bikeId, {String? personId, Map<String, AdjustmentValue>? bikeValues, Map<String, AdjustmentValue>? personValues}) => Setup(
       name: "Setup",
-      tags: {},
+      tags: const {},
       datetime: DateTime(2020).toUtc(),
       datetimeLocal: DateTime(2020),
       bike: bikeId,
@@ -1207,13 +1207,13 @@ void main() {
 
     Setup buildSetup(String bikeId, DateTime datetime) => Setup(
       name: "Setup",
-      tags: {},
+      tags: const {},
       datetime: datetime.toUtc(),
       datetimeLocal: datetime.toLocal(),
       bike: bikeId,
       person: null,
-      bikeAdjustmentValues: {},
-      personAdjustmentValues: {},
+      bikeAdjustmentValues: const {},
+      personAdjustmentValues: const {},
     );
 
     test("returns null when the bike has no setups", () async {
@@ -1303,13 +1303,13 @@ void main() {
 
     Setup buildSetup(String bikeId, {ContextPosition? position}) => Setup(
       name: "Setup",
-      tags: {},
+      tags: const {},
       datetime: DateTime(2025, 6, 1).toUtc(),
       datetimeLocal: DateTime(2025, 6, 1).toLocal(),
       bike: bikeId,
       person: null,
-      bikeAdjustmentValues: {},
-      personAdjustmentValues: {},
+      bikeAdjustmentValues: const {},
+      personAdjustmentValues: const {},
       position: position,
     );
 

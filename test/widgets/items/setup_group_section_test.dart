@@ -98,9 +98,7 @@ void main() {
         matching: find.byType(SetupTileEmbedded),
       ),
     );
-    final currentId =
-        harness.repository.setups.values.firstWhere((s) => s.isCurrent).id;
-    expect(highlighted.setupId, currentId);
+    expect(harness.repository.setupHistory.isCurrent(highlighted.setupId), isTrue);
   });
 
   testWidgets('a single-setup group renders a plain tile', (tester) async {

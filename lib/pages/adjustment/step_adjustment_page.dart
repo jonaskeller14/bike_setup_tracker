@@ -160,6 +160,10 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
     Navigator.of(context).pop(null);
   }
 
+  Iterable<StepAdjustmentVisualization> get _selectableVisualizations =>
+      StepAdjustmentVisualization.values.where((v) =>
+          widget.term != AdjustmentTerm.attribute || !v.hasDial || v == widget.adjustment?.visualization);
+
   String? _validateStep(String? value) {
     if (value == null || value.trim().isEmpty) return 'Step is required';
     final v = int.tryParse(value);
@@ -412,7 +416,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                                           fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                           filled: widget.mode == AdjustmentPageMode.edit && visualization != widget.adjustment?.visualization,
                                         ),
-                                        items: StepAdjustmentVisualization.values.map((v) {
+                                        items: _selectableVisualizations.map((v) {
                                           return DropdownMenuItem<StepAdjustmentVisualization>(
                                             value: v,
                                             child: Row(

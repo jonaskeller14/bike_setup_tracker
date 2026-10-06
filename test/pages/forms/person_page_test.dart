@@ -78,7 +78,7 @@ void main() {
       await pumpPage(tester, PersonPage.add());
       await openAddAttributeSheet(tester);
 
-      await tester.tap(find.text('Riding Style'));
+      await tester.tap(find.text('Riding style'));
       await tester.pumpAndSettle();
 
       expect(appBarTitle('Add Categorical Attribute'), findsOneWidget);

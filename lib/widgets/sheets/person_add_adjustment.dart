@@ -15,7 +15,12 @@ final NumericalAdjustment ridingWeightPreset = NumericalAdjustment(name: 'Riding
 final List<Adjustment> _adjustmentPresets = [
   ridingWeightPreset,
   NumericalAdjustment(name: 'Height', unit: AdjustmentUnit.fromLegacy('cm'), min: 0.0, notes: "Body height", presetKey: "person:height"),
-  CategoricalAdjustment(name: 'Riding Style', unit: null, options: const {'Plush/Comfort', 'Balanced', 'Aggressive/Race'}, notes: "Aggressive riders usually require higher support (more compression damping).", presetKey: "person:riding_style"),
+  NumericalAdjustment(name: 'Inseam', unit: AdjustmentUnit.fromLegacy('cm'), min: 0.0, notes: "Crotch to floor, barefoot. Helps with dropper post length and saddle height.", presetKey: "person:inseam"),
+  NumericalAdjustment(name: 'FTP', unit: AdjustmentUnit.fromLegacy('W'), min: 0.0, notes: "Functional Threshold Power: the highest power you can sustain for about one hour.", presetKey: "person:ftp"),
+  NumericalAdjustment(name: 'Max heart rate', unit: AdjustmentUnit.fromLegacy('bpm'), min: 0.0, notes: "Highest heart rate reached in an all-out effort. Basis for heart rate zones.", presetKey: "person:max_heart_rate"),
+  NumericalAdjustment(name: 'Resting heart rate', unit: AdjustmentUnit.fromLegacy('bpm'), min: 0.0, notes: "Heart rate at rest, ideally measured right after waking up.", presetKey: "person:resting_heart_rate"),
+  NumericalAdjustment(name: 'LTHR', unit: AdjustmentUnit.fromLegacy('bpm'), min: 0.0, notes: "Lactate Threshold Heart Rate: the average heart rate you can sustain for about one hour.", presetKey: "person:lthr"),
+  CategoricalAdjustment(name: 'Riding style', unit: null, options: const {'Comfort', 'Balanced', 'Race'}, notes: "Race-oriented riders usually require higher support (more compression damping).", presetKey: "person:riding_style"),
 ];
 
 void showPersonAddAdjustmentBottomSheet({

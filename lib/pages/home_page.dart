@@ -152,9 +152,9 @@ class _HomePageState extends State<HomePage> {
     final defaultIndex = appRepository.bikes.isEmpty || appRepository.components.isEmpty ? 0 : 1;
     final pageIndex = (_currentPageIndex ?? defaultIndex).clamp(
       0,
-      1 + (appSettings.enablePerson ? 1 : 0) + (appSettings.enableRating ? 1 : 0) + (appSettings.enableTask ? 1 : 0),
+      1 + (appSettings.showAdvancedPersonUi ? 1 : 0) + (appSettings.enableRating ? 1 : 0) + (appSettings.enableTask ? 1 : 0),
     );
-    final taskPageIndex = 2 + (appSettings.enablePerson ? 1 : 0) + (appSettings.enableRating ? 1 : 0);
+    final taskPageIndex = 2 + (appSettings.showAdvancedPersonUi ? 1 : 0) + (appSettings.enableRating ? 1 : 0);
     final showTaskSelectionAppBar =
         appSettings.enableTask && pageIndex == taskPageIndex && _taskRuleSelection.isSelectionMode;
     final showBikeSelectionAppBar = pageIndex == 0 && _bikeSelection.isSelectionMode;
@@ -266,7 +266,7 @@ class _HomePageState extends State<HomePage> {
                 title: <Text>[
                   const Text("Bikes"),
                   const Text("Setup History"),
-                  if (appSettings.enablePerson) const Text("Profile"),
+                  if (appSettings.showAdvancedPersonUi) const Text("Profile"),
                   if (appSettings.enableRating) const Text("Ratings"),
                   if (appSettings.enableTask) const Text("Tasks"),
                 ][pageIndex],
@@ -348,7 +348,7 @@ class _HomePageState extends State<HomePage> {
             identifier: AutomationIds.navSetups,
             child: const NavigationDestination(icon: Icon(Setup.iconData), label: 'Setups'),
           ),
-          if (appSettings.enablePerson) const NavigationDestination(icon: Icon(Person.iconData), label: "Profile"),
+          if (appSettings.showAdvancedPersonUi) const NavigationDestination(icon: Icon(Person.iconData), label: "Profile"),
           if (appSettings.enableRating) const NavigationDestination(icon: Icon(Rating.iconData), label: "Ratings"),
           if (appSettings.enableTask)
             Semantics(
@@ -381,7 +381,7 @@ class _HomePageState extends State<HomePage> {
               selection: _timelineSelection.selected,
               onSelectionChanged: _timelineSelection.isBusy ? null : _timelineSelection.toggle,
             ),
-            if (appSettings.enablePerson) const PersonList(),
+            if (appSettings.showAdvancedPersonUi) const PersonList(),
             if (appSettings.enableRating) const RatingList(),
             if (appSettings.enableTask)
               TaskList(
@@ -458,7 +458,7 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
         ),
-        if (appSettings.enablePerson)
+        if (appSettings.showAdvancedPersonUi)
           FloatingActionButton(
             heroTag: "addPerson",
             onPressed: () async {

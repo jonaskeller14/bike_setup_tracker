@@ -13,13 +13,13 @@ import '../lists/adjustment_compact_display/adjustment_compact_display_list.dart
 
 class PersonListCard extends StatelessWidget {
   final Person person;
-  final int index;
+  final int? index;
   final double? elevation;
 
   const PersonListCard({
     super.key,
     required this.person,
-    required this.index,
+    this.index,
     this.elevation,
   });
 
@@ -49,8 +49,11 @@ class PersonListCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
     final subscriptionService = context.watch<SubscriptionService>();
+    final appSettings = context.watch<AppSettings>();
+    final advanced = appSettings.showAdvancedPersonUi;
     final bikes = appRepository.bikes;
-    
+    final index = this.index;
+
     return Card(
       key: ValueKey(person.id),
       elevation: elevation,
@@ -58,6 +61,10 @@ class PersonListCard extends StatelessWidget {
       clipBehavior: Clip.antiAlias, // Borderradius for InkWell
       child: InkWell(
         onTap: () async {
+          if (!advanced) {
+            await PersonActions.editPerson(context, person: person);
+            return;
+          }
           await Navigator.push<void>(
             context,
             MaterialPageRoute(
@@ -69,7 +76,7 @@ class PersonListCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ListTile(
-              leading: context.watch<AppSettings>().enableStrava && subscriptionService.hasStravaEntitlement
+              leading: advanced && appSettings.enableStrava && subscriptionService.hasStravaEntitlement
                   ? Badge(
                       label: person.stravaAthlete == null
                           ? Icon(
@@ -97,10 +104,11 @@ class PersonListCard extends StatelessWidget {
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  ReorderableDragStartListener(
-                    index: index,
-                    child: const Icon(Icons.drag_handle),
-                  ),
+                  if (index != null)
+                    ReorderableDragStartListener(
+                      index: index,
+                      child: const Icon(Icons.drag_handle),
+                    ),
                   PopupMenuButton<_PersonOptions>(
                     onSelected: (_PersonOptions value) async {
                       switch (value) {
@@ -112,7 +120,9 @@ class PersonListCard extends StatelessWidget {
                           await PersonActions.removePerson(context, person: person);
                       }
                     },
-                    itemBuilder: (BuildContext context) => _PersonOptions.values.map((option) {
+                    itemBuilder: (BuildContext context) => _PersonOptions.values
+                        .where((option) => advanced || option != _PersonOptions.duplicate)
+                        .map((option) {
                       return PopupMenuItem<_PersonOptions>(
                         value: option,
                         child: Row(

@@ -205,6 +205,16 @@ class FeaturesPage extends StatelessWidget {
                   value: appSettings.enablePerson,
                   onChanged: (v) => appSettings.enablePerson = v,
                 ),
+              if (kDebugMode && appSettings.enablePerson)
+                _FeatureToggleTile(
+                  icon: Icons.groups_outlined,
+                  title: "Advanced Rider Layout",
+                  value: appSettings.enablePersonAdvanced,
+                  onChanged: (v) => appSettings.enablePersonAdvanced = v,
+                  infoText:
+                      'Restores the multi-rider UI: a Profile tab with reorder and bike filter, '
+                      'Duplicate, the rider details page and the Strava athlete link.',
+                ),
               const Divider(),
               const SectionTitle(title: 'Setup History'),
               _FeatureGroupTile(

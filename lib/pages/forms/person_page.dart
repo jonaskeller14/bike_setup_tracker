@@ -75,11 +75,8 @@ class _PersonPageState extends State<PersonPage> {
 
     if (widget.mode != PersonPageMode.add) _expanded = true;
 
-    _adjustments = widget.person == null 
-        ? [
-            NumericalAdjustment(name: 'Body weight', notes: null, unit: AdjustmentUnit.fromLegacy('kg'), min: 0.0),
-            NumericalAdjustment(name: 'Height', notes: null, unit: AdjustmentUnit.fromLegacy('cm'), min: 0.0),
-          ] 
+    _adjustments = widget.person == null
+        ? [ridingWeightPreset.deepCopy()]
         : List.from(widget.person!.adjustments);
     _initialAdjustments = List.from(_adjustments);
   }
@@ -360,6 +357,7 @@ class _PersonPageState extends State<PersonPage> {
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
     final subscriptionService = context.watch<SubscriptionService>();
+    final appSettings = context.watch<AppSettings>();
     final existingPersons = appRepository.persons;
     final stravaAthletes = appRepository.stravaAthletes;
 
@@ -410,7 +408,9 @@ class _PersonPageState extends State<PersonPage> {
                           child: Column(
                             children: [
                               _notesField(),
-                              if (context.read<AppSettings>().enableStrava && subscriptionService.hasStravaEntitlement) ...[
+                              if (appSettings.showAdvancedPersonUi &&
+                                  appSettings.enableStrava &&
+                                  subscriptionService.hasStravaEntitlement) ...[
                                 const SizedBox(height: 12),
                                 _stravaAthleteDropdown(existingPersons: existingPersons, stravaAthletes: stravaAthletes),
                               ],

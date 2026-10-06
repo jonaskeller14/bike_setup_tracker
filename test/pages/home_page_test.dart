@@ -20,6 +20,7 @@ import 'package:bike_setup_tracker/widgets/items/component_list_card.dart';
 import 'package:bike_setup_tracker/widgets/items/garage_bike_card.dart';
 import 'package:bike_setup_tracker/widgets/items/garage_component_icon_card.dart';
 import 'package:bike_setup_tracker/widgets/lists/garage_list.dart';
+import 'package:bike_setup_tracker/widgets/lists/person_list.dart';
 import 'package:bike_setup_tracker/widgets/lists/task_list.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -400,6 +401,60 @@ void main() {
 
     expect(find.text('Plain'), findsNothing);
     expect(_appBarTitle(tester), 'Tasks');
+  });
+
+  group('Rider layout', () {
+    Future<void> pumpWithTaskRule(WidgetTester tester) async {
+      appSettings
+        ..enableTask = true
+        ..enablePerson = true;
+      final rule = TaskRule(name: 'Plain', tags: const {});
+      await tester.runAsync(() => appRepository.addTaskRules([rule]));
+      await tester.pumpWidget(createWidgetUnderTest());
+      await _waitForRepositoryUpdate(
+        tester,
+        until: (repository) => repository.taskRules.containsKey(rule.id),
+      );
+    }
+
+    // Selection mode only engages when the Tasks page sits at taskPageIndex.
+    Future<void> expectTasksTabIndexed(WidgetTester tester) async {
+      await tester.tap(_navigationDestination('Tasks'));
+      await tester.pumpAndSettle();
+      expect(_appBarTitle(tester), 'Tasks');
+      await tester.longPress(find.text('Plain'));
+      await tester.pumpAndSettle();
+      expect(_appBarTitle(tester), '1 selected');
+    }
+
+    testWidgets('simple layout has no Profile tab', (tester) async {
+      await pumpWithTaskRule(tester);
+
+      expect(_navigationDestination('Profile'), findsNothing);
+      expect(find.byType(PersonList), findsNothing);
+      expect(find.byTooltip('Add Person'), findsNothing);
+      await expectTasksTabIndexed(tester);
+    });
+
+    testWidgets('advanced layout restores the Profile tab', (tester) async {
+      appSettings.enablePersonAdvanced = true;
+      await pumpWithTaskRule(tester);
+
+      await tester.tap(_navigationDestination('Profile'));
+      await tester.pumpAndSettle();
+      expect(_appBarTitle(tester), 'Profile');
+      expect(find.byType(PersonList), findsOneWidget);
+      expect(find.byTooltip('Add Person'), findsOneWidget);
+      await expectTasksTabIndexed(tester);
+    });
+
+    testWidgets('advanced setting alone shows no Profile tab', (tester) async {
+      appSettings.enablePersonAdvanced = true;
+      await tester.pumpWidget(createWidgetUnderTest());
+      await tester.pumpAndSettle();
+
+      expect(_navigationDestination('Profile'), findsNothing);
+    });
   });
 
   group('Garage multi-select', () {

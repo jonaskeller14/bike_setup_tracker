@@ -152,6 +152,41 @@ void main() {
     });
   });
 
+  group('AppSettings — enablePersonAdvanced', () {
+    test('persists, loads and resets', () async {
+      SharedPreferences.setMockInitialValues({});
+      final settings = AppSettings();
+      await settings.loadAppSettings();
+      expect(settings.enablePersonAdvanced, isFalse);
+
+      settings.enablePersonAdvanced = true;
+      await flushWrites();
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getBool('${_kPrefix}enablePersonAdvanced'), isTrue);
+      expect(settings.hasDefaultValues, isFalse);
+
+      final reloaded = AppSettings();
+      await reloaded.loadAppSettings();
+      expect(reloaded.enablePersonAdvanced, isTrue);
+
+      await reloaded.resetToDefaults();
+      expect(reloaded.enablePersonAdvanced, isFalse);
+      expect(prefs.getBool('${_kPrefix}enablePersonAdvanced'), isNull);
+    });
+
+    test('showAdvancedPersonUi needs enablePerson as well', () {
+      SharedPreferences.setMockInitialValues({});
+      final settings = AppSettings()..enablePersonAdvanced = true;
+      expect(settings.showAdvancedPersonUi, isFalse);
+
+      settings.enablePerson = true;
+      expect(settings.showAdvancedPersonUi, isTrue);
+
+      settings.enablePersonAdvanced = false;
+      expect(settings.showAdvancedPersonUi, isFalse);
+    });
+  });
+
   group('AppSettings — legacy blob migration (Option B)', () {
     test('preserves a value the user changed away from the default', () async {
       SharedPreferences.setMockInitialValues({

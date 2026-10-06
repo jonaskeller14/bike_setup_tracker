@@ -22,6 +22,7 @@ class AppSettings extends ChangeNotifier {
   bool _enableMultiSelect = false;
   bool _enableCountedSelect = false;
   bool _enablePerson = false;
+  bool _enablePersonAdvanced = false;
   bool _enableRating = false;
   bool _enableSetupTags = false;
   bool _enableTaskTags = false;
@@ -62,6 +63,8 @@ class AppSettings extends ChangeNotifier {
   bool get enableMultiSelect => _enableMultiSelect;
   bool get enableCountedSelect => _enableCountedSelect;
   bool get enablePerson => _enablePerson;
+  bool get enablePersonAdvanced => _enablePersonAdvanced;
+  bool get showAdvancedPersonUi => _enablePerson && _enablePersonAdvanced;
   bool get enableRating => _enableRating;
   bool get enableSetupTags => _enableSetupTags;
   bool get enableTaskTags => _enableTaskTags;
@@ -183,6 +186,13 @@ class AppSettings extends ChangeNotifier {
     _enablePerson = newValue;
     notifyListeners();
     _persistBool('enablePerson', newValue);
+  }
+
+  set enablePersonAdvanced(bool newValue) {
+    if (newValue == _enablePersonAdvanced) return;
+    _enablePersonAdvanced = newValue;
+    notifyListeners();
+    _persistBool('enablePersonAdvanced', newValue);
   }
 
   set enableRating(bool newValue) {
@@ -386,6 +396,7 @@ class AppSettings extends ChangeNotifier {
       _enableMultiSelect = prefs.getBool('${_kPrefix}enableMultiSelect') ?? _enableMultiSelect;
       _enableCountedSelect = prefs.getBool('${_kPrefix}enableCountedSelect') ?? _enableCountedSelect;
       _enablePerson = prefs.getBool('${_kPrefix}enablePerson') ?? _enablePerson;
+      _enablePersonAdvanced = prefs.getBool('${_kPrefix}enablePersonAdvanced') ?? _enablePersonAdvanced;
       _enableRating = prefs.getBool('${_kPrefix}enableRating') ?? _enableRating;
       _enableSetupTags = prefs.getBool('${_kPrefix}enableSetupTags') ?? _enableSetupTags;
       _enableTaskTags = prefs.getBool('${_kPrefix}enableTaskTags') ?? _enableTaskTags;
@@ -442,6 +453,7 @@ class AppSettings extends ChangeNotifier {
     _enableMultiSelect = defaults._enableMultiSelect;
     _enableCountedSelect = defaults._enableCountedSelect;
     _enablePerson = defaults._enablePerson;
+    _enablePersonAdvanced = defaults._enablePersonAdvanced;
     _enableRating = defaults._enableRating;
     _enableSetupTags = defaults._enableSetupTags;
     _enableTaskTags = defaults._enableTaskTags;
@@ -487,6 +499,7 @@ class AppSettings extends ChangeNotifier {
     _enableMultiSelect,
     _enableCountedSelect,
     _enablePerson,
+    _enablePersonAdvanced,
     _enableRating,
     _enableSetupTags,
     _enableTaskTags,

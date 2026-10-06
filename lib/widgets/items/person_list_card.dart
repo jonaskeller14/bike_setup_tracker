@@ -62,18 +62,16 @@ class PersonListCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 4.0),
       clipBehavior: Clip.antiAlias, // Borderradius for InkWell
       child: InkWell(
-        onTap: () async {
-          if (!advanced) {
-            await PersonActions.editPerson(context, person: person);
-            return;
-          }
-          await Navigator.push<void>(
-            context,
-            MaterialPageRoute(
-              builder: (context) => PersonDetailsPage(personId: person.id),
-            ),
-          );
-        },
+        onTap: !advanced
+            ? null
+            : () async {
+                await Navigator.push<void>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PersonDetailsPage(personId: person.id),
+                  ),
+                );
+              },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

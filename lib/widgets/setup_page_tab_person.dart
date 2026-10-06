@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import '../models/adjustment/adjustment.dart';
+import '../models/app_settings.dart';
 import '../models/person.dart';
 import '../services/dangling_adjustment_service.dart';
 import '../utils/person_actions.dart';
@@ -9,6 +11,7 @@ import 'display_adjustment/display_adjustment_list.dart';
 import 'empty_state_placeholder2.dart';
 import 'items/card_header_tile.dart';
 import 'lists/adjustment_set_list.dart';
+import 'rider_name_form.dart';
 import 'setup_page_tab.dart';
 import 'tooltips/person_tooltip.dart';
 
@@ -166,6 +169,9 @@ Widget _danglingPersonCard(BuildContext context, {
 
 /// Empty state of the person tab: the bike has no rider yet, so it offers to
 /// link an existing person or to create one for this bike.
+///
+/// Outside the advanced layout there is only one rider: it is created inline
+/// while none exists, and afterwards it can only be linked.
 class _LinkPersonPlaceholder extends StatefulWidget {
   final String bike;
   final Map<String, Person> persons;
@@ -184,13 +190,17 @@ class _LinkPersonPlaceholderState extends State<_LinkPersonPlaceholder> {
   /// [MenuAnchor] pins the menu's top edge to the anchor, so opening it above
   /// the button means offsetting it by the menu's own height. Overestimating
   /// only costs a gap: a menu that no longer fits above is placed below.
-  double _estimatedMenuHeight(BuildContext context) {
+  double _estimatedMenuHeight(BuildContext context, {required bool showCreate}) {
     final itemHeight = MediaQuery.textScalerOf(context).scale(kMinInteractiveDimension);
-    return (widget.persons.length + 1) * itemHeight + (widget.persons.isEmpty ? 0 : 1) + 8;
+    final showDivider = showCreate && widget.persons.isNotEmpty;
+    return (widget.persons.length + (showCreate ? 1 : 0)) * itemHeight + (showDivider ? 1 : 0) + 8;
   }
 
   @override
   Widget build(BuildContext context) {
+    final advanced = context.select<AppSettings, bool>((s) => s.showAdvancedPersonUi);
+    if (!advanced && widget.persons.isEmpty) return RiderNameForm(bikeId: widget.bike);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -203,7 +213,7 @@ class _LinkPersonPlaceholderState extends State<_LinkPersonPlaceholder> {
         const SizedBox(height: 8),
         MenuAnchor(
           controller: _menuController,
-          alignmentOffset: Offset(0, -_estimatedMenuHeight(context) - 4),
+          alignmentOffset: Offset(0, -_estimatedMenuHeight(context, showCreate: advanced) - 4),
           style: MenuStyle(
             alignment: AlignmentDirectional.topStart,
             shape: WidgetStatePropertyAll(
@@ -222,12 +232,14 @@ class _LinkPersonPlaceholderState extends State<_LinkPersonPlaceholder> {
                 ),
               );
             }),
-            if (widget.persons.isNotEmpty) const Divider(height: 1),
-            MenuItemButton(
-              leadingIcon: const Icon(Icons.add),
-              onPressed: () => PersonActions.addPersonForBike(context, bikeId: widget.bike),
-              child: const Text("Create new Person"),
-            ),
+            if (advanced) ...[
+              if (widget.persons.isNotEmpty) const Divider(height: 1),
+              MenuItemButton(
+                leadingIcon: const Icon(Icons.add),
+                onPressed: () => PersonActions.addPersonForBike(context, bikeId: widget.bike),
+                child: const Text("Create new Person"),
+              ),
+            ],
           ],
           builder: (context, controller, child) => FilledButton.icon(
             onPressed: _toggleMenu,

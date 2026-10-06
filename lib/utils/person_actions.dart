@@ -62,12 +62,23 @@ class PersonActions {
     );
   }
 
-  static Future<Person?> createOnboardingRider(BuildContext context, {required String name}) async {
+  static Future<Person?> createRider(BuildContext context, {required String name}) async {
     final trimmed = name.trim();
     if (trimmed.isEmpty) return null;
 
     final person = Person(name: trimmed, adjustments: [ridingWeightPreset.deepCopy()]);
     await context.read<AppRepository>().addPersons([person]);
+    return person;
+  }
+
+  static Future<Person?> createRiderForBike(BuildContext context, {required String name, required String bikeId}) async {
+    final appRepository = context.read<AppRepository>();
+
+    final person = await createRider(context, name: name);
+    if (person == null) return null;
+
+    final bike = appRepository.bikes[bikeId];
+    if (bike != null) await appRepository.editBike(bike.copyWith(person: person.id));
     return person;
   }
 

@@ -33,7 +33,7 @@ class PersonTooltip extends StatelessWidget {
         style: resolvedStyle,
         name: person.name,
         notes: person.notes,
-        errorDescription: isError ? "Person is not linked to this setup" : null,
+        errorDescription: isError ? "Rider is not linked to this setup" : null,
       ),
       child: child,
     );

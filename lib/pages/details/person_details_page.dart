@@ -28,8 +28,8 @@ class PersonDetailsPage extends StatelessWidget {
         appBar: AppBar(),
         body: const SafeArea(
           child: EmptyStatePlaceholder.error(
-            title: "Person not found",
-            subtitle: "This person was deleted or is no longer available.",
+            title: "Rider not found",
+            subtitle: "This rider was deleted or is no longer available.",
           ),
         ),
       );
@@ -82,7 +82,7 @@ class PersonDetailsPage extends StatelessWidget {
                     stravaAthlete != null
                         ? "${stravaAthlete.firstname} ${stravaAthlete.lastname}"
                         : (person.stravaAthlete == null
-                            ? "No Strava Athlete linked to this person."
+                            ? "No Strava Athlete linked to this rider."
                             : "STRAVA ATHLETE NOT FOUND"),
                     style: TextStyle(
                       color: person.stravaAthlete == null || stravaAthlete != null
@@ -95,7 +95,7 @@ class PersonDetailsPage extends StatelessWidget {
               if (linkedBikes.isEmpty)
                 const ListTile(
                   leading: Icon(Bike.iconData),
-                  title: Text("No bikes linked to this person."),
+                  title: Text("No bikes linked to this rider."),
                   dense: true,
                   enabled: false,
                 )

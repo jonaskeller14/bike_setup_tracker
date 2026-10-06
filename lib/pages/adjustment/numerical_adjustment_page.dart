@@ -14,6 +14,7 @@ import 'sag_adjustment_page.dart';
 class NumericalAdjustmentPage extends StatefulWidget {
   final NumericalAdjustment? adjustment;
   final AdjustmentPageMode mode;
+  final AdjustmentTerm term;
 
   final ComponentType? componentType;
   final bool enableSagConversion;
@@ -22,18 +23,20 @@ class NumericalAdjustmentPage extends StatefulWidget {
     super.key,
     this.adjustment,
     required this.mode,
+    this.term = AdjustmentTerm.adjustment,
     this.componentType,
     this.enableSagConversion = false,
   });
 
-  factory NumericalAdjustmentPage.add({Key? key}) =>
-      NumericalAdjustmentPage._(key: key, mode: AdjustmentPageMode.add);
+  factory NumericalAdjustmentPage.add({Key? key, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
+      NumericalAdjustmentPage._(key: key, mode: AdjustmentPageMode.add, term: term);
 
   factory NumericalAdjustmentPage.edit({
     Key? key,
     required NumericalAdjustment adjustment,
     ComponentType? componentType,
     bool enableSagConversion = false,
+    AdjustmentTerm term = AdjustmentTerm.adjustment,
   }) =>
       NumericalAdjustmentPage._(
         key: key,
@@ -41,13 +44,14 @@ class NumericalAdjustmentPage extends StatefulWidget {
         mode: AdjustmentPageMode.edit,
         componentType: componentType,
         enableSagConversion: enableSagConversion,
+        term: term,
       );
 
-  factory NumericalAdjustmentPage.duplicate({Key? key, required NumericalAdjustment adjustment}) =>
-      NumericalAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate);
+  factory NumericalAdjustmentPage.duplicate({Key? key, required NumericalAdjustment adjustment, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
+      NumericalAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate, term: term);
 
-  factory NumericalAdjustmentPage.template({Key? key, required NumericalAdjustment adjustment}) =>
-      NumericalAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.template);
+  factory NumericalAdjustmentPage.template({Key? key, required NumericalAdjustment adjustment, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
+      NumericalAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.template, term: term);
 
   @override
   State<NumericalAdjustmentPage> createState() => _NumericalAdjustmentPageState();
@@ -141,6 +145,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
         builder: (context) => SagAdjustmentPage.edit(
           adjustment: sag,
           componentType: widget.componentType,
+          term: widget.term,
         ),
       ),
     );
@@ -347,8 +352,8 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
           title: switch (widget.mode) {
             AdjustmentPageMode.add ||
             AdjustmentPageMode.duplicate ||
-            AdjustmentPageMode.template => const Text('Add Numerical Adjustment'),
-            AdjustmentPageMode.edit => const Text('Edit Numerical Adjustment'),
+            AdjustmentPageMode.template => Text('Add Numerical ${widget.term.label}'),
+            AdjustmentPageMode.edit => Text('Edit Numerical ${widget.term.label}'),
           },
           actions: [
             IconButton(icon: const Icon(Icons.check), onPressed: _saveNumericalAdjustment),
@@ -375,8 +380,8 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                             autovalidateMode: AutovalidateMode.onUserInteraction,
                             autofocus: widget.mode == AdjustmentPageMode.add,
                             decoration: InputDecoration(
-                              labelText: 'Adjustment Name',
-                              hintText: 'Enter Adjustment Name',
+                              labelText: '${widget.term.label} Name',
+                              hintText: 'Enter ${widget.term.label} Name',
                               border: const OutlineInputBorder(),
                               helper: adjustmentNameLengthWarning(context, _nameController.text),
                               fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,

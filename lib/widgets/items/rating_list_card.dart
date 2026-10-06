@@ -123,7 +123,7 @@ class RatingListCard extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                               ),
                               PersonRatingAssociation(:final personId) => Text(
-                                persons[personId]?.name ?? "PERSON NOT FOUND",
+                                persons[personId]?.name ?? "RIDER NOT FOUND",
                                 style: TextStyle(
                                   color: persons.containsKey(personId) 
                                       ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8) 

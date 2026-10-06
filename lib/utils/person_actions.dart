@@ -5,6 +5,7 @@ import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
 import '../models/person.dart';
 import '../models/rating/rating_association.dart';
+import '../pages/adjustment/adjustment_page.dart';
 import '../pages/adjustment/boolean_adjustment_page.dart';
 import '../pages/adjustment/categorical_adjustment_page.dart';
 import '../pages/adjustment/duration_adjustment_page.dart';
@@ -58,7 +59,7 @@ class PersonActions {
 
     if (!context.mounted) return;
     messenger.showSnackBar(
-      AppSnackBar.success(context, "'${person.name}' is now the owner of '${bike.name}'."),
+      AppSnackBar.success(context, "'${person.name}' is now the rider of '${bike.name}'."),
     );
   }
 
@@ -122,9 +123,9 @@ class PersonActions {
     await appRepository.removePersons([person]);
     await appRepository.removeRatings(obsoleteRatings);
 
-    String message = "Person '${person.name}' moved to trash.";
+    String message = "Rider '${person.name}' moved to trash.";
     if (obsoleteRatings.isNotEmpty && appSettings.enableRating) {
-      message += "\n${obsoleteRatings.length} Ratings which belong to this person are deleted as well.";
+      message += "\n${obsoleteRatings.length} Ratings which belong to this rider are deleted as well.";
     }
     if (!context.mounted) return;
     messenger.showSnackBar(
@@ -150,7 +151,7 @@ class PersonActions {
     messenger.showSnackBar(
       AppSnackBar.info(
         context,
-        "Person '${person.name}' restored from trash.",
+        "Rider '${person.name}' restored from trash.",
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
           label: 'UNDO',
@@ -179,13 +180,13 @@ class PersonActions {
           context,
           MaterialPageRoute(
             builder: (context) => switch (adjustment.deepCopy()) {
-              final BooleanAdjustment a => BooleanAdjustmentPage.template(adjustment: a),
-              final CategoricalAdjustment a => CategoricalAdjustmentPage.template(adjustment: a),
-              final StepAdjustment a => StepAdjustmentPage.template(adjustment: a),
-              final SagAdjustment a => SagAdjustmentPage.template(adjustment: a),
-              final NumericalAdjustment a => NumericalAdjustmentPage.template(adjustment: a),
-              final TextAdjustment a => TextAdjustmentPage.template(adjustment: a),
-              final DurationAdjustment a => DurationAdjustmentPage.template(adjustment: a),
+              final BooleanAdjustment a => BooleanAdjustmentPage.template(adjustment: a, term: AdjustmentTerm.attribute),
+              final CategoricalAdjustment a => CategoricalAdjustmentPage.template(adjustment: a, term: AdjustmentTerm.attribute),
+              final StepAdjustment a => StepAdjustmentPage.template(adjustment: a, term: AdjustmentTerm.attribute),
+              final SagAdjustment a => SagAdjustmentPage.template(adjustment: a, term: AdjustmentTerm.attribute),
+              final NumericalAdjustment a => NumericalAdjustmentPage.template(adjustment: a, term: AdjustmentTerm.attribute),
+              final TextAdjustment a => TextAdjustmentPage.template(adjustment: a, term: AdjustmentTerm.attribute),
+              final DurationAdjustment a => DurationAdjustmentPage.template(adjustment: a, term: AdjustmentTerm.attribute),
             },
           ),
         );
@@ -198,12 +199,12 @@ class PersonActions {
           context,
           MaterialPageRoute(
             builder: (context) => switch (T) {
-              const (BooleanAdjustment) => BooleanAdjustmentPage.add(),
-              const (CategoricalAdjustment) => CategoricalAdjustmentPage.add(),
-              const (StepAdjustment) => StepAdjustmentPage.add(),
-              const (NumericalAdjustment) => NumericalAdjustmentPage.add(),
-              const (TextAdjustment) => TextAdjustmentPage.add(),
-              const (DurationAdjustment) => DurationAdjustmentPage.add(),
+              const (BooleanAdjustment) => BooleanAdjustmentPage.add(term: AdjustmentTerm.attribute),
+              const (CategoricalAdjustment) => CategoricalAdjustmentPage.add(term: AdjustmentTerm.attribute),
+              const (StepAdjustment) => StepAdjustmentPage.add(term: AdjustmentTerm.attribute),
+              const (NumericalAdjustment) => NumericalAdjustmentPage.add(term: AdjustmentTerm.attribute),
+              const (TextAdjustment) => TextAdjustmentPage.add(term: AdjustmentTerm.attribute),
+              const (DurationAdjustment) => DurationAdjustmentPage.add(term: AdjustmentTerm.attribute),
               Type() => throw UnimplementedError(),
             },
           ),

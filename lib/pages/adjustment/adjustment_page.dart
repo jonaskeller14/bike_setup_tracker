@@ -7,6 +7,13 @@ enum AdjustmentPageMode {
   template,
 }
 
+enum AdjustmentTerm {
+  adjustment('Adjustment'),
+  attribute('Attribute');
+  final String label;
+  const AdjustmentTerm(this.label);
+}
+
 String? validateAdjustmentName(String? value) {
   if (value == null || value.trim().isEmpty) return 'Name is required';
   return null;

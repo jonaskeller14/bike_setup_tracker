@@ -549,7 +549,7 @@ class _BikeDetailsPageState extends State<BikeDetailsPage> {
                       ? const Icon(Person.iconData)
                       : const Icon(Icons.person_off),
                   title: Text(
-                    person?.name ?? (bike.person == null ? "No bike owner person specified." : "PERSON NOT FOUND"),
+                    person?.name ?? (bike.person == null ? "No rider linked to this bike." : "RIDER NOT FOUND"),
                     style: TextStyle(
                       color: bike.person == null || person != null
                           ? null

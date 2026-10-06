@@ -12,24 +12,26 @@ import 'adjustment_page.dart';
 class BooleanAdjustmentPage extends StatefulWidget {
   final BooleanAdjustment? adjustment;
   final AdjustmentPageMode mode;
+  final AdjustmentTerm term;
 
   const BooleanAdjustmentPage._({
     super.key,
     this.adjustment,
     required this.mode,
+    this.term = AdjustmentTerm.adjustment,
   });
 
-  factory BooleanAdjustmentPage.add({Key? key}) =>
-      BooleanAdjustmentPage._(key: key, mode: AdjustmentPageMode.add);
+  factory BooleanAdjustmentPage.add({Key? key, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
+      BooleanAdjustmentPage._(key: key, mode: AdjustmentPageMode.add, term: term);
 
-  factory BooleanAdjustmentPage.edit({Key? key, required BooleanAdjustment adjustment}) =>
-      BooleanAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit);
+  factory BooleanAdjustmentPage.edit({Key? key, required BooleanAdjustment adjustment, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
+      BooleanAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit, term: term);
 
-  factory BooleanAdjustmentPage.duplicate({Key? key, required BooleanAdjustment adjustment}) =>
-      BooleanAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate);
+  factory BooleanAdjustmentPage.duplicate({Key? key, required BooleanAdjustment adjustment, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
+      BooleanAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate, term: term);
 
-  factory BooleanAdjustmentPage.template({Key? key, required BooleanAdjustment adjustment}) =>
-      BooleanAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.template);
+  factory BooleanAdjustmentPage.template({Key? key, required BooleanAdjustment adjustment, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
+      BooleanAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.template, term: term);
 
   @override
   State<BooleanAdjustmentPage> createState() => _BooleanAdjustmentPageState();
@@ -118,8 +120,8 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
           title: switch (widget.mode) {
             AdjustmentPageMode.add ||
             AdjustmentPageMode.duplicate ||
-            AdjustmentPageMode.template => const Text('Add On/Off Adjustment'),
-            AdjustmentPageMode.edit => const Text('Edit On/Off Adjustment'),
+            AdjustmentPageMode.template => Text('Add On/Off ${widget.term.label}'),
+            AdjustmentPageMode.edit => Text('Edit On/Off ${widget.term.label}'),
           },
           actions: [
             IconButton(icon: const Icon(Icons.check), onPressed: _saveBooleanAdjustment),
@@ -155,8 +157,8 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
                             autovalidateMode: AutovalidateMode.onUserInteraction,
                             autofocus: widget.mode == AdjustmentPageMode.add,
                             decoration: InputDecoration(
-                              labelText: 'Adjustment Name',
-                              hintText: 'Enter Adjustment Name',
+                              labelText: '${widget.term.label} Name',
+                              hintText: 'Enter ${widget.term.label} Name',
                               border: const OutlineInputBorder(),
                               helper: adjustmentNameLengthWarning(context, _nameController.text),
                               fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,

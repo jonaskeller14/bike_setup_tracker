@@ -89,12 +89,14 @@ class FAQPage extends StatelessWidget {
       'What does the "Restore" option do?':
           'It duplicates the selected setup, copying all adjustment values, but sets the date and time to now. It also automatically updates the location and weather to your current position. \n\nThis is especially useful if you made changes that feel worse than before and want to easily go back to a previous, known good setup.',
     },
-    "Person": {
+    "Rider": {
       'Why?':
-          'Adding a person profile allows you to link bikes to individual riders for a better overview. You can also track personal data (like body weight) that directly influences bike component behavior. Having personal data as context makes finding the optimal setup easier.',
-      'How to add a Person?': 'Go to the "Person" tab and tap the "+" button to add a new person.',
-      "How to link a Person to a Bike?":
-          'Navigate to the "Bikes" tab and select the bike you want to link. Tap the three-dot menu, select "Edit", and choose the person from the dropdown menu.',
+          'Your rider profile adds personal context to your setups. Values like your riding weight directly influence how bike components behave, so recording them with each setup makes finding the optimal setup easier.',
+      'How to add a Rider?': 'Tap the rider icon in the top bar and enter your name. You can also create your rider from the rider tab while adding a setup.',
+      "How to link a Rider to a Bike?":
+          'Navigate to the "Bikes" tab and select the bike you want to link. Tap the three-dot menu, select "Edit", and choose the rider from the "Rider" dropdown menu. Alternatively, tap "Link rider" in the rider tab while adding a setup for that bike. A bike can also have no rider, e.g. a bike of a family member.',
+      'How do I update my riding weight?':
+          'Rider values are recorded with each setup: add a setup and enter the current values in its rider tab. To add, rename or remove attributes, tap the rider icon in the top bar and then tap your rider.',
     },
     "Rating": {
       'What is a Rating?':
@@ -144,7 +146,7 @@ class FAQPage extends StatelessWidget {
     final faqSections = Map.fromEntries(
       _faqSections.entries.where((entry) {
         switch (entry.key) {
-          case "Person":
+          case "Rider":
             return appSettings.enablePerson;
           case "Rating":
             return appSettings.enableRating;

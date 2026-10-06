@@ -396,7 +396,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                       "Value colors:\n"
                       "• Green: new value (no prior value).\n"
                       "• Orange: changed from the previous setup.\n"
-                      "• Red: dangling value (component not installed or person not linked at setup time).",
+                      "• Red: dangling value (component not installed or rider not linked at setup time).",
                 ),
               ),
 

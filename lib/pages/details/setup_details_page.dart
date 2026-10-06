@@ -460,7 +460,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                 ),
               ),
               title: Text(group.person.name, style: TextStyle(fontWeight: FontWeight.bold, color: scheme.error)),
-              subtitle: Text("Person is not linked to this setup", style: TextStyle(color: scheme.error)),
+              subtitle: Text("Rider is not linked to this setup", style: TextStyle(color: scheme.error)),
             ),
           ),
           AdjustmentDisplayList(

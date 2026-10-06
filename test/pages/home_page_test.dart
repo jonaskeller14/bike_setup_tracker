@@ -434,9 +434,9 @@ void main() {
     testWidgets('simple layout has no Profile tab', (tester) async {
       await pumpWithTaskRule(tester);
 
-      expect(_navigationDestination('Profile'), findsNothing);
+      expect(_navigationDestination('Riders'), findsNothing);
       expect(find.byType(PersonList), findsNothing);
-      expect(find.byTooltip('Add Person'), findsNothing);
+      expect(find.byTooltip('Add Rider'), findsNothing);
       await expectTasksTabIndexed(tester);
     });
 
@@ -444,11 +444,11 @@ void main() {
       appSettings.enablePersonAdvanced = true;
       await pumpWithTaskRule(tester);
 
-      await tester.tap(_navigationDestination('Profile'));
+      await tester.tap(_navigationDestination('Riders'));
       await tester.pumpAndSettle();
-      expect(_appBarTitle(tester), 'Profile');
+      expect(_appBarTitle(tester), 'Riders');
       expect(find.byType(PersonList), findsOneWidget);
-      expect(find.byTooltip('Add Person'), findsOneWidget);
+      expect(find.byTooltip('Add Rider'), findsOneWidget);
       await expectTasksTabIndexed(tester);
     });
 
@@ -457,7 +457,7 @@ void main() {
       await tester.pumpWidget(createWidgetUnderTest());
       await tester.pumpAndSettle();
 
-      expect(_navigationDestination('Profile'), findsNothing);
+      expect(_navigationDestination('Riders'), findsNothing);
     });
 
     testWidgets('no rider button without enablePerson', (tester) async {

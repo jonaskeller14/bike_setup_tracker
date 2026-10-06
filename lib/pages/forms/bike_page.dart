@@ -224,11 +224,11 @@ class _BikePageState extends State<BikePage> {
       isExpanded: true,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       decoration: InputDecoration(
-        labelText: 'Bike Owner',
+        labelText: 'Rider',
         border: const OutlineInputBorder(),
-        hintText: "Choose an owner for this bike",
+        hintText: "Choose a rider for this bike",
         helperText: persons.isEmpty
-            ? "You can assign an owner later, as soon as you've created a person."
+            ? "You can assign a rider later, as soon as you've created one."
             : null,
         helperMaxLines: 99,
         fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
@@ -236,7 +236,7 @@ class _BikePageState extends State<BikePage> {
       ),
       validator: (String? newPerson) {
         if (newPerson == null) return null;
-        if (!persons.containsKey(newPerson)) return "Please select valid person";
+        if (!persons.containsKey(newPerson)) return "Please select a valid rider";
         return null;
       },
       items: [
@@ -246,7 +246,7 @@ class _BikePageState extends State<BikePage> {
             spacing: 8,
             children: [
               Icon(Icons.person_off),
-              Expanded(child: Text("No Owner", overflow: TextOverflow.ellipsis))
+              Expanded(child: Text("No rider", overflow: TextOverflow.ellipsis))
             ],
           ),
         ),
@@ -269,7 +269,7 @@ class _BikePageState extends State<BikePage> {
             spacing: 8,
             children: [
               Icon(Icons.person, color: Theme.of(context).colorScheme.error),
-              Expanded(child: Text("PERSON NOT FOUND", overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.error)))
+              Expanded(child: Text("RIDER NOT FOUND", overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.error)))
             ],
           ),
         ), 

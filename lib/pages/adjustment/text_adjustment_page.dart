@@ -9,24 +9,26 @@ import 'adjustment_page.dart';
 class TextAdjustmentPage extends StatefulWidget {
   final TextAdjustment? adjustment;
   final AdjustmentPageMode mode;
+  final AdjustmentTerm term;
 
   const TextAdjustmentPage._({
     super.key,
     this.adjustment,
     required this.mode,
+    this.term = AdjustmentTerm.adjustment,
   });
 
-  factory TextAdjustmentPage.add({Key? key}) =>
-      TextAdjustmentPage._(key: key, mode: AdjustmentPageMode.add);
+  factory TextAdjustmentPage.add({Key? key, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
+      TextAdjustmentPage._(key: key, mode: AdjustmentPageMode.add, term: term);
 
-  factory TextAdjustmentPage.edit({Key? key, required TextAdjustment adjustment}) =>
-      TextAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit);
+  factory TextAdjustmentPage.edit({Key? key, required TextAdjustment adjustment, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
+      TextAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit, term: term);
 
-  factory TextAdjustmentPage.duplicate({Key? key, required TextAdjustment adjustment}) =>
-      TextAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate);
+  factory TextAdjustmentPage.duplicate({Key? key, required TextAdjustment adjustment, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
+      TextAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate, term: term);
 
-  factory TextAdjustmentPage.template({Key? key, required TextAdjustment adjustment}) =>
-      TextAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.template);
+  factory TextAdjustmentPage.template({Key? key, required TextAdjustment adjustment, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
+      TextAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.template, term: term);
 
   @override
   State<TextAdjustmentPage> createState() => _TextAdjustmentPageState();
@@ -115,8 +117,8 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
           title: switch (widget.mode) {
             AdjustmentPageMode.add ||
             AdjustmentPageMode.duplicate ||
-            AdjustmentPageMode.template => const Text('Add Text Adjustment'),
-            AdjustmentPageMode.edit => const Text('Edit Text Adjustment'),
+            AdjustmentPageMode.template => Text('Add Text ${widget.term.label}'),
+            AdjustmentPageMode.edit => Text('Edit Text ${widget.term.label}'),
           },
           actions: [
             IconButton(icon: const Icon(Icons.check), onPressed: _saveTextAdjustment),
@@ -151,8 +153,8 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
                             autovalidateMode: AutovalidateMode.onUserInteraction,
                             autofocus: widget.mode == AdjustmentPageMode.add,
                             decoration: InputDecoration(
-                              labelText: 'Adjustment Name',
-                              hintText: 'Enter Adjustment Name',
+                              labelText: '${widget.term.label} Name',
+                              hintText: 'Enter ${widget.term.label} Name',
                               border: const OutlineInputBorder(),
                               helper: adjustmentNameLengthWarning(context, _nameController.text),
                               fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,

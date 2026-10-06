@@ -7,7 +7,7 @@ enum TableColumnSection {
   generalContext("General Context"),
   weatherContext("Weather Context"),
   componentAdjustments("Component Adjustments"),
-  personAttributes("Person Attributes"),
+  personAttributes("Rider Attributes"),
   ratingMetrics("Rating Metrics"),
   ratingScore("Rating");
 

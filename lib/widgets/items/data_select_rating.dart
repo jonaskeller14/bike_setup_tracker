@@ -104,7 +104,7 @@ class DataSelectRating extends StatelessWidget {
                 ),
                 PersonRatingAssociation(:final personId) => Text(
                   persons[personId]?.name ??
-                      "PERSON NOT FOUND",
+                      "RIDER NOT FOUND",
                   style: TextStyle(
                     color: persons.containsKey(personId)
                         ? Theme.of(

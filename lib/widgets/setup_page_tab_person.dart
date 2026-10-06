@@ -152,7 +152,7 @@ Widget _danglingPersonCard(BuildContext context, {
               ),
             ),
             title: Text(group.person.name, style: TextStyle(fontWeight: FontWeight.bold, color: scheme.error)),
-            subtitle: Text("Person is not linked to this setup", style: TextStyle(color: scheme.error)),
+            subtitle: Text("Rider is not linked to this setup", style: TextStyle(color: scheme.error)),
           ),
         ),
         AdjustmentDisplayList(
@@ -206,8 +206,8 @@ class _LinkPersonPlaceholderState extends State<_LinkPersonPlaceholder> {
       children: [
         EmptyStatePlaceholder2(
           iconData: Person.iconData,
-          title: "No person linked",
-          subtitle: "Link a person to this bike to track rider attributes",
+          title: "No rider linked",
+          subtitle: "Link a rider to this bike to track rider attributes",
           onTap: _toggleMenu,
         ),
         const SizedBox(height: 8),
@@ -237,14 +237,14 @@ class _LinkPersonPlaceholderState extends State<_LinkPersonPlaceholder> {
               MenuItemButton(
                 leadingIcon: const Icon(Icons.add),
                 onPressed: () => PersonActions.addPersonForBike(context, bikeId: widget.bike),
-                child: const Text("Create new Person"),
+                child: const Text("Create new rider"),
               ),
             ],
           ],
           builder: (context, controller, child) => FilledButton.icon(
             onPressed: _toggleMenu,
             icon: const Icon(Icons.person_add_alt),
-            label: const Text("Link Person"),
+            label: const Text("Link rider"),
           ),
         ),
       ],

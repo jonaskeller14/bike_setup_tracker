@@ -267,7 +267,7 @@ class _HomePageState extends State<HomePage> {
                 title: <Text>[
                   const Text("Bikes"),
                   const Text("Setup History"),
-                  if (appSettings.showAdvancedPersonUi) const Text("Profile"),
+                  if (appSettings.showAdvancedPersonUi) const Text("Riders"),
                   if (appSettings.enableRating) const Text("Ratings"),
                   if (appSettings.enableTask) const Text("Tasks"),
                 ][pageIndex],
@@ -362,7 +362,7 @@ class _HomePageState extends State<HomePage> {
             identifier: AutomationIds.navSetups,
             child: const NavigationDestination(icon: Icon(Setup.iconData), label: 'Setups'),
           ),
-          if (appSettings.showAdvancedPersonUi) const NavigationDestination(icon: Icon(Person.iconData), label: "Profile"),
+          if (appSettings.showAdvancedPersonUi) const NavigationDestination(icon: Icon(Person.iconData), label: "Riders"),
           if (appSettings.enableRating) const NavigationDestination(icon: Icon(Rating.iconData), label: "Ratings"),
           if (appSettings.enableTask)
             Semantics(
@@ -478,7 +478,7 @@ class _HomePageState extends State<HomePage> {
             onPressed: () async {
               await PersonActions.addPerson(context);
             },
-            tooltip: 'Add Person',
+            tooltip: 'Add Rider',
             child: const Icon(Icons.add),
           ),
         if (appSettings.enableRating)

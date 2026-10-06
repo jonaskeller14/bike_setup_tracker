@@ -40,13 +40,13 @@ void main() {
     await tester.tap(find.descendant(of: find.byType(TabBar), matching: find.byIcon(Person.iconData)));
     await _settle(tester);
 
-    expect(find.text('No person linked'), findsOneWidget);
+    expect(find.text('No rider linked'), findsOneWidget);
 
-    await tester.tap(find.text('Link Person'));
+    await tester.tap(find.text('Link rider'));
     await _settle(tester);
 
     // Only one rider outside the advanced layout: it can be linked, not added.
-    expect(find.text('Create new Person'), findsNothing);
+    expect(find.text('Create new rider'), findsNothing);
 
     await tester.tap(find.text("Link 'Rider'"));
     await tester.pump();
@@ -55,7 +55,7 @@ void main() {
     await _settle(tester);
 
     expect(harness.repository.bikes[_PersonLinkHarness.bikeId]!.person, _PersonLinkHarness.personId);
-    expect(find.text('No person linked'), findsNothing);
+    expect(find.text('No rider linked'), findsNothing);
     expect(find.text('Rider'), findsOneWidget);
     expect(find.text('1 attribute'), findsOneWidget);
   });
@@ -70,7 +70,7 @@ void main() {
     await tester.tap(find.descendant(of: find.byType(TabBar), matching: find.byIcon(Person.iconData)));
     await _settle(tester);
 
-    expect(find.text('Link Person'), findsNothing);
+    expect(find.text('Link rider'), findsNothing);
     expect(find.byType(RiderNameForm), findsOneWidget);
 
     await tester.enterText(find.byType(RiderNameField), 'Jonas');
@@ -103,11 +103,11 @@ void main() {
     await tester.tap(find.descendant(of: find.byType(TabBar), matching: find.byIcon(Person.iconData)));
     await _settle(tester);
 
-    await tester.tap(find.text('Link Person'));
+    await tester.tap(find.text('Link rider'));
     await _settle(tester);
 
     expect(find.text("Link 'Rider'"), findsOneWidget);
-    expect(find.text('Create new Person'), findsOneWidget);
+    expect(find.text('Create new rider'), findsOneWidget);
   });
 }
 

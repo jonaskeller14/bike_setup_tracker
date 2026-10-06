@@ -48,7 +48,7 @@ class DataSelectBike extends StatelessWidget {
                   if (bike.person != null)
                     Flexible(
                       child: Text(
-                        persons[bike.person]?.name ?? "PERSON NOT FOUND",
+                        persons[bike.person]?.name ?? "RIDER NOT FOUND",
                         style: TextStyle(
                           color:
                               bike.person == null ||

@@ -39,7 +39,7 @@ class ContextBikePersonCard extends StatelessWidget {
             ListTile(
               leading: Icon(personLinked ? Person.iconData : Icons.person_off),
               title: Text(
-                person?.name ?? (personLinked ? 'PERSON NOT FOUND' : 'No person linked to this setup.'),
+                person?.name ?? (personLinked ? 'RIDER NOT FOUND' : 'No rider linked to this setup.'),
               ),
               dense: true,
             ),

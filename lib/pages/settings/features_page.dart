@@ -201,7 +201,7 @@ class FeaturesPage extends StatelessWidget {
               if (kDebugMode)
                 _FeatureToggleTile(
                   icon: Icons.person,
-                  title: "Profile",
+                  title: "Rider",
                   value: appSettings.enablePerson,
                   onChanged: (v) => appSettings.enablePerson = v,
                 ),
@@ -212,7 +212,7 @@ class FeaturesPage extends StatelessWidget {
                   value: appSettings.enablePersonAdvanced,
                   onChanged: (v) => appSettings.enablePersonAdvanced = v,
                   infoText:
-                      'Restores the multi-rider UI: a Profile tab with reorder and bike filter, '
+                      'Restores the multi-rider UI: a Riders tab with reorder and bike filter, '
                       'Duplicate, the rider details page and the Strava athlete link.',
                 ),
               const Divider(),

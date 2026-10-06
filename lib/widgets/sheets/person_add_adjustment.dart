@@ -4,8 +4,8 @@ import 'package:provider/provider.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../utils/adjustment_preset_consumption.dart';
-import '../items/adjustment_properties.dart';
 import '../sticky_section.dart';
+import 'adjustment_preset_list.dart';
 import 'sheet.dart';
 import 'sheet_header.dart';
 
@@ -29,6 +29,7 @@ void showPersonAddAdjustmentBottomSheet({
     isScrollControlled: true,
     context: context, 
     builder: (BuildContext context) {
+      final consumedCount = _adjustmentPresets.where((preset) => isAdjustmentPresetConsumed(preset, existingAdjustments)).length;
       return SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -42,36 +43,21 @@ void showPersonAddAdjustmentBottomSheet({
                   children: [
                     if (_adjustmentPresets.isNotEmpty)
                       StickySection(
-                        header: sheetSectionHeader(context, "Pre-filled Templates"),
+                        header: sheetSectionHeader(context,
+                          consumedCount == 0
+                              ? "Pre-filled Templates"
+                              : "Pre-filled Templates · $consumedCount/${_adjustmentPresets.length} added",
+                        ),
                         content: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            ..._adjustmentPresets.map((adjustmentPreset) {
-                              final isConsumed = isAdjustmentPresetConsumed(adjustmentPreset, existingAdjustments);
-                              return Opacity(
-                                // Soft-disable: already-added presets stay tappable for
-                                // a deliberate second copy.
-                                opacity: isConsumed ? 0.5 : 1.0,
-                                child: ListTile(
-                                  leading: Icon(adjustmentPreset.getIconData()),
-                                  title: Text(adjustmentPreset.name),
-                                  subtitle: AdjustmentProperties(adjustmentPreset, singleLine: true, compact: true),
-                                  trailing: Icon(
-                                    isConsumed ? Icons.check : Icons.arrow_forward_ios,
-                                    size: 16.0,
-                                    color: isConsumed ? Theme.of(context).colorScheme.onSurfaceVariant : null,
-                                  ),
-                                  onTap: () async {
-                                    Navigator.pop(context);
-                                    await addAdjustmentFromPreset(adjustmentPreset);
-                                  },
-                                ),
-                              );
-                            }),
-                            const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 8.0),
-                              child: Divider(),
+                            AdjustmentPresetList(
+                              presets: _adjustmentPresets,
+                              existingAdjustments: existingAdjustments,
+                              allAddedHint: "Add a custom attribute below.",
+                              onSelected: addAdjustmentFromPreset,
                             ),
+                            const Divider(height: 16),
                           ],
                         ),
                       ),

@@ -6,6 +6,7 @@ import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/filters/task_rule_filter.dart';
+import 'package:bike_setup_tracker/models/person.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
 import 'package:bike_setup_tracker/pages/onboarding_page.dart';
@@ -19,9 +20,12 @@ import 'package:bike_setup_tracker/widgets/items/adjustment_list_card.dart';
 import 'package:bike_setup_tracker/widgets/items/component_list_card.dart';
 import 'package:bike_setup_tracker/widgets/items/garage_bike_card.dart';
 import 'package:bike_setup_tracker/widgets/items/garage_component_icon_card.dart';
+import 'package:bike_setup_tracker/widgets/items/person_list_card.dart';
 import 'package:bike_setup_tracker/widgets/lists/garage_list.dart';
 import 'package:bike_setup_tracker/widgets/lists/person_list.dart';
 import 'package:bike_setup_tracker/widgets/lists/task_list.dart';
+import 'package:bike_setup_tracker/widgets/rider_name_form.dart';
+import 'package:bike_setup_tracker/widgets/sheets/rider_sheet.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -455,6 +459,34 @@ void main() {
 
       expect(_navigationDestination('Profile'), findsNothing);
     });
+
+    testWidgets('no rider button without enablePerson', (tester) async {
+      await tester.pumpWidget(createWidgetUnderTest());
+      await tester.pumpAndSettle();
+
+      expect(find.byTooltip('Rider'), findsNothing);
+    });
+
+    testWidgets('rider button shows a badge until a rider exists and opens the sheet', (tester) async {
+      appSettings.enablePerson = true;
+      await tester.pumpWidget(createWidgetUnderTest());
+      await tester.pumpAndSettle();
+
+      expect(find.byTooltip('Rider'), findsOneWidget);
+      expect(tester.widget<Badge>(_riderBadge()).isLabelVisible, isTrue);
+
+      await tester.tap(find.byTooltip('Rider'));
+      await tester.pumpAndSettle();
+      expect(find.byType(RiderSheetContent), findsOneWidget);
+      expect(find.byType(RiderNameForm), findsOneWidget);
+
+      await tester.runAsync(() => appRepository.addPersons([Person(name: 'Jonas')]));
+      await _waitForRepositoryUpdate(tester, until: (repository) => repository.persons.isNotEmpty);
+      await tester.pumpAndSettle();
+
+      expect(find.widgetWithText(PersonListCard, 'Jonas'), findsOneWidget);
+      expect(tester.widget<Badge>(_riderBadge()).isLabelVisible, isFalse);
+    });
   });
 
   group('Garage multi-select', () {
@@ -539,6 +571,11 @@ Future<void> _liftAndDrop(WidgetTester tester, Finder finder, {Offset? moveBy}) 
 Finder _navigationDestination(String label) => find.descendant(
   of: find.byType(NavigationBar),
   matching: find.text(label),
+);
+
+Finder _riderBadge() => find.descendant(
+  of: find.byTooltip('Rider'),
+  matching: find.byType(Badge),
 );
 
 Finder _taskBadge() => find.ancestor(

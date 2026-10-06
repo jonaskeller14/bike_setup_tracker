@@ -15,12 +15,14 @@ class PersonListCard extends StatelessWidget {
   final Person person;
   final int? index;
   final double? elevation;
+  final Future<void> Function()? onRemove;
 
   const PersonListCard({
     super.key,
     required this.person,
     this.index,
     this.elevation,
+    this.onRemove,
   });
 
   Column _bikeColumn(BuildContext context, {required Person person, required Map<String, Bike> bikes}) {
@@ -99,6 +101,8 @@ class PersonListCard extends StatelessWidget {
               title: Text(
                 person.name,
                 style: Theme.of(context).textTheme.titleMedium,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
               subtitle: _bikeColumn(context, person: person, bikes: bikes),
               trailing: Row(
@@ -117,7 +121,7 @@ class PersonListCard extends StatelessWidget {
                         case _PersonOptions.duplicate:
                           await PersonActions.duplicatePerson(context, person: person);
                         case _PersonOptions.remove:
-                          await PersonActions.removePerson(context, person: person);
+                          await (onRemove?.call() ?? PersonActions.removePerson(context, person: person));
                       }
                     },
                     itemBuilder: (BuildContext context) => _PersonOptions.values

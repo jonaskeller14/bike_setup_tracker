@@ -29,6 +29,7 @@ import '../widgets/lists/setup_list.dart';
 import '../widgets/lists/task_list.dart';
 import '../widgets/sheets/export.dart';
 import '../widgets/sheets/import.dart';
+import '../widgets/sheets/rider_sheet.dart';
 import '../widgets/sheets/share.dart';
 import '../widgets/strava_sync_button.dart';
 import 'settings/app_settings_page.dart';
@@ -271,6 +272,19 @@ class _HomePageState extends State<HomePage> {
                   if (appSettings.enableTask) const Text("Tasks"),
                 ][pageIndex],
                 actions: [
+                  if (appSettings.enablePerson)
+                    Semantics(
+                      container: true,
+                      identifier: AutomationIds.appBarRider,
+                      child: IconButton(
+                        onPressed: () => showRiderSheet(context),
+                        icon: Badge(
+                          isLabelVisible: appRepository.persons.isEmpty,
+                          child: const Icon(Person.iconData),
+                        ),
+                        tooltip: 'Rider',
+                      ),
+                    ),
                   if (appSettings.enableStrava) const StravaSyncButton(),
                   if (appSettings.enableGoogleDrive) const GoogleDriveSyncButton(),
                   PopupMenuButton<_AppOptions>(

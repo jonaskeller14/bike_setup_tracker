@@ -6,9 +6,8 @@ import '../../models/app_settings.dart';
 import '../../models/component/component.dart';
 import '../../utils/adjustment_preset_consumption.dart';
 import '../../utils/component_catalog_application.dart';
-import '../items/adjustment_properties.dart';
-import '../items/adjustment_type_icon.dart';
 import '../sticky_section.dart';
+import 'adjustment_preset_list.dart';
 import 'component_type_picker.dart';
 import 'sheet.dart';
 import 'sheet_header.dart';
@@ -170,48 +169,11 @@ class _ComponentAddAdjustmentSheetState extends State<_ComponentAddAdjustmentShe
     await onComponentTypeSelected(pickedType);
   }
 
-  Widget _presetTile(Adjustment preset, {required bool consumed}) {
-    final mutedColor = Theme.of(context).colorScheme.onSurfaceVariant;
-    final tile = ListTile(
-      textColor: consumed ? mutedColor : null,
-      iconColor: consumed ? mutedColor : null,
-      leading: AdjustmentTypeIcon(preset, color: consumed ? mutedColor : null),
-      title: Text(preset.name),
-      subtitle: AdjustmentProperties(preset, singleLine: true, compact: true),
-      trailing: Icon(consumed ? Icons.check : Icons.arrow_forward_ios, size: 16.0),
-      onTap: () async {
-        Navigator.pop(context);
-        await widget.addAdjustmentFromPreset(preset);
-      },
-    );
-    return consumed ? Opacity(opacity: 0.6, child: tile) : tile;
-  }
-
-  Widget _consumedGroup(List<Adjustment> consumed) {
-    final mutedColor = Theme.of(context).colorScheme.onSurfaceVariant;
-    return ExpansionTile(
-      shape: const Border(),
-      collapsedShape: const Border(),
-      dense: true,
-      textColor: mutedColor,
-      collapsedTextColor: mutedColor,
-      iconColor: mutedColor,
-      collapsedIconColor: mutedColor,
-      title: Text("Already added (${consumed.length})"),
-      // Already-added presets stay tappable for a deliberate second copy.
-      children: consumed.map((preset) => _presetTile(preset, consumed: true)).toList(),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final componentType = _selectedType;
     final presets = _adjustmentPresets[componentType] ?? const <Adjustment>[];
-    final available = <Adjustment>[];
-    final consumed = <Adjustment>[];
-    for (final preset in presets) {
-      (isAdjustmentPresetConsumed(preset, widget.existingAdjustments) ? consumed : available).add(preset);
-    }
+    final consumedCount = presets.where((preset) => isAdjustmentPresetConsumed(preset, widget.existingAdjustments)).length;
     return SafeArea(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -227,9 +189,9 @@ class _ComponentAddAdjustmentSheetState extends State<_ComponentAddAdjustmentShe
                     header: sheetSectionHeader(context,
                       componentType == null
                           ? "Pre-filled Templates"
-                          : consumed.isEmpty
+                          : consumedCount == 0
                               ? "Suggested for ${componentType.label}"
-                              : "Suggested for ${componentType.label} · ${consumed.length}/${presets.length} added",
+                              : "Suggested for ${componentType.label} · $consumedCount/${presets.length} added",
                     ),
                     content: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -249,19 +211,13 @@ class _ComponentAddAdjustmentSheetState extends State<_ComponentAddAdjustmentShe
                             ),
                           )
                         else
-                          if (presets.isNotEmpty) ...[
-                            ...available.map((preset) => _presetTile(preset, consumed: false)),
-                            if (available.isEmpty)
-                              const Padding(
-                                padding: EdgeInsets.fromLTRB(16, 4, 16, 0),
-                                child: SheetFilterEmptyHint(
-                                  icon: Icons.check_circle_outline,
-                                  title: "All suggestions added",
-                                  hint: "Add a custom adjustment below.",
-                                ),
-                              ),
-                            if (consumed.isNotEmpty) _consumedGroup(consumed),
-                          ]
+                          if (presets.isNotEmpty)
+                            AdjustmentPresetList(
+                              presets: presets,
+                              existingAdjustments: widget.existingAdjustments,
+                              allAddedHint: "Add a custom adjustment below.",
+                              onSelected: widget.addAdjustmentFromPreset,
+                            )
                           else
                             Text(
                               "No templates available.",

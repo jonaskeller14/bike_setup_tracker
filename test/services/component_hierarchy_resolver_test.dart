@@ -42,6 +42,19 @@ void main() {
     expect(resolver.descendantsOf('wheel'), {'tire', 'insert'});
   });
 
+  test('childrenOf lists only direct children at the given time', () {
+    final resolver = ComponentHierarchyResolver({
+      'wheel': component('wheel', [onBike('bike', 1)]),
+      'tire': component('tire', [onComponent('wheel', 1)]),
+      'insert': component('insert', [onComponent('tire', 1)]),
+      'valve': component('valve', [onComponent('wheel', 1), uninstalled(5)]),
+    });
+
+    expect(resolver.childrenOf('wheel', atUTC: DateTime.utc(2026, 1, 3)), {'tire', 'valve'});
+    expect(resolver.childrenOf('wheel', atUTC: DateTime.utc(2026, 1, 6)), {'tire'});
+    expect(resolver.childrenOf('insert', atUTC: DateTime.utc(2026, 1, 6)), isEmpty);
+  });
+
   test('parent deinstallation implicitly takes descendants off-bike', () {
     final resolver = ComponentHierarchyResolver({
       'wheel': component('wheel', [

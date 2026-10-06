@@ -9,9 +9,9 @@ import '../../models/component/component_ancestor.dart';
 import '../../models/component/installation.dart';
 import '../../models/component/resolved_installation.dart';
 import '../../repositories/app_repository.dart';
+import '../../utils/component_actions.dart';
 import '../../utils/installation_timeline_validation.dart';
 import '../component_ancestors_column.dart';
-import '../dialogs/component_descendant_warning.dart';
 import '../set_installation_timeline.dart';
 import 'sheet_header.dart';
 
@@ -118,16 +118,18 @@ class _InstallationSheetState extends State<InstallationSheet> {
       installations: _installations,
     );
     final appRepository = context.read<AppRepository>();
+    var subcomponentEdits = const <Component>[];
     if (!widget.component.isArchived && updatedComponent.isArchived) {
-      final confirmed = await confirmComponentDescendantImpact(
+      final edits = await ComponentActions.archiveSubcomponentEdits(
         context,
         component: widget.component,
-        descendants: appRepository.affectedDescendants(widget.component.id),
-        action: 'Archive',
+        atUTC: _editableInstallation.dateTimeUTC,
       );
-      if (!confirmed || !mounted) return;
+      if (edits == null || !mounted) return;
+      subcomponentEdits = edits;
     }
     await appRepository.editComponent(updatedComponent);
+    if (subcomponentEdits.isNotEmpty) await appRepository.editComponents(subcomponentEdits);
     if (!mounted) return;
     Navigator.pop(context);
   }

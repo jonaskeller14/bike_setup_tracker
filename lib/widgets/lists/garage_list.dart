@@ -13,6 +13,7 @@ import '../../models/component/installation.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/app_hint_service.dart';
 import '../../utils/bike_actions.dart';
+import '../../utils/component_actions.dart';
 import '../../utils/installation_timeline_validation.dart';
 import '../chips/garage_list_filter_widget.dart';
 import '../empty_state_placeholder.dart';
@@ -181,7 +182,6 @@ class _GarageListState extends State<GarageList> {
   void _onArchiveAccept() async {
     if (_draggedComponentNotifier.value == null) return;
     final component = _draggedComponentNotifier.value!;
-    final appRepository = context.read<AppRepository>();
     final appSettings = context.read<AppSettings>();
 
     await Future.microtask(() async {
@@ -194,16 +194,7 @@ class _GarageListState extends State<GarageList> {
       )) {
         unawaited(showAddInstallationSheet(context, component: component, targetBikeId: null, isArchiving: true));
       } else {
-        await appRepository.editComponent(
-          component.copyWith(
-            installations: [
-              Archival(
-                dateTimeUTC: DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
-                dateTimeLocal: DateTime.fromMillisecondsSinceEpoch(0),
-              ),
-            ],
-          ),
-        );
+        await ComponentActions.archiveWithoutTimeline(context, component: component);
       }
       _draggedComponentNotifier.value = null;
     });

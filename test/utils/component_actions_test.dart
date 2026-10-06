@@ -54,7 +54,10 @@ void main() {
     await database.close();
   });
 
-  Widget createWidgetUnderTest() {
+  Widget createWidgetUnderTest({
+    String label = 'replace',
+    Future<void> Function(BuildContext context)? action,
+  }) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: appSettings),
@@ -66,8 +69,8 @@ void main() {
         home: Scaffold(
           body: Builder(
             builder: (context) => ElevatedButton(
-              onPressed: () => ComponentActions.replaceComponent(context, component: current),
-              child: const Text('replace'),
+              onPressed: () => (action ?? (context) => ComponentActions.replaceComponent(context, component: current))(context),
+              child: Text(label),
             ),
           ),
         ),
@@ -76,11 +79,11 @@ void main() {
   }
 
   Future<void> settleRepository(WidgetTester tester, bool Function() until) async {
-    await tester.runAsync(() async {
-      for (var attempts = 0; !until() && attempts < 100; attempts++) {
-        await Future<void>.delayed(const Duration(milliseconds: 50));
-      }
-    });
+    // Pump between real waits so multi-step actions (e.g. UNDO) can continue.
+    for (var attempts = 0; !until() && attempts < 100; attempts++) {
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+      await tester.pump();
+    }
     await tester.pumpAndSettle();
   }
 
@@ -128,5 +131,98 @@ void main() {
     expect(retired.installations.last.dateTimeUTC, installed.installations.single.dateTimeUTC);
 
     expect(find.textContaining("Replaced 'Current Fork' with 'Spare Fork'"), findsOneWidget);
+  });
+
+  group('removeComponent with subcomponents', () {
+    final fork = Component(
+      id: 'f1',
+      name: 'Fork',
+      componentType: ComponentType.fork,
+      installations: [Installation.sinceBeginning(parent: 'b1')],
+      adjustments: const [],
+    );
+    final damper = Component(
+      id: 'd1',
+      name: 'Damper',
+      componentType: ComponentType.other,
+      installations: [Installation.componentSinceBeginning(parentComponentId: 'f1')],
+      adjustments: const [],
+    );
+    final token = Component(
+      id: 't1',
+      name: 'Token',
+      componentType: ComponentType.other,
+      installations: [Installation.componentSinceBeginning(parentComponentId: 'd1')],
+      adjustments: const [],
+    );
+
+    Future<void> pumpRemove(WidgetTester tester) async {
+      await tester.runAsync(() async {
+        await appRepository.addBikes([bike]);
+        await appRepository.addComponents([fork, damper, token]);
+        await Future<void>.delayed(Duration.zero);
+      });
+      appRepository.dispose();
+      appRepository = AppRepository(database);
+
+      await tester.pumpWidget(createWidgetUnderTest(
+        label: 'remove',
+        action: (context) => ComponentActions.removeComponent(context, component: fork),
+      ));
+      await tester.runAsync(() => appRepository.initialDataLoaded);
+      await tester.pumpAndSettle();
+      expect(appRepository.components.keys, containsAll(['f1', 'd1', 't1']));
+
+      await tester.tap(find.text('remove'));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('only the parent: direct children are uninstalled, deeper ones stay on their parent', (tester) async {
+      await pumpRemove(tester);
+      await tester.tap(find.text('Move to trash'));
+      await tester.pumpAndSettle();
+
+      await settleRepository(tester, () => !appRepository.components.containsKey('f1'));
+
+      final detachedDamper = appRepository.components['d1']!;
+      expect(detachedDamper.installations, hasLength(2));
+      expect(detachedDamper.installations.last, isA<Uninstallation>());
+      expect(appRepository.components['t1']!.installations.single.parent, 'd1');
+      expect(find.textContaining('1 subcomponent uninstalled.'), findsOneWidget);
+
+      await tester.tap(find.text('UNDO'));
+      await settleRepository(
+        tester,
+        () => appRepository.components.containsKey('f1') && appRepository.components['d1']!.installations.length == 1,
+      );
+      expect(appRepository.components['d1']!.installations.single.parent, 'f1');
+    });
+
+    testWidgets('with subcomponents: the whole tree is moved to the trash', (tester) async {
+      await pumpRemove(tester);
+      await tester.tap(find.text('Remove with subcomponents'));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('Move 3 components to trash'));
+      await tester.tap(find.text('Move 3 components to trash'));
+      await tester.pumpAndSettle();
+
+      await settleRepository(tester, () => appRepository.deletedComponents.length == 3);
+      expect(appRepository.components.keys, isNot(contains(anyOf('f1', 'd1', 't1'))));
+      expect(find.textContaining('Also moved to trash: 2 subcomponents.'), findsOneWidget);
+
+      await tester.tap(find.text('UNDO'));
+      await settleRepository(tester, () => appRepository.deletedComponents.isEmpty);
+      expect(appRepository.components.keys, containsAll(['f1', 'd1', 't1']));
+    });
+
+    testWidgets('dismissing the sheet changes nothing', (tester) async {
+      await pumpRemove(tester);
+      await tester.tapAt(const Offset(10, 10));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Move to trash'), findsNothing);
+      expect(appRepository.components.keys, containsAll(['f1', 'd1', 't1']));
+      expect(appRepository.deletedComponents, isEmpty);
+    });
   });
 }

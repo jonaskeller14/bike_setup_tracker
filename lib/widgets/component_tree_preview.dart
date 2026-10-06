@@ -59,40 +59,41 @@ class ComponentTreePreview extends StatelessWidget {
     final rows = _flatten();
     final subcomponentCount = rows.length - 1;
 
-    return Card.outlined(
-      margin: EdgeInsets.zero,
-      clipBehavior: Clip.antiAlias,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 10,
-          children: [
-            Row(
-              spacing: 8,
-              children: [
-                Icon(Icons.account_tree_outlined, size: 20, color: cs.onSurfaceVariant),
-                Expanded(
-                  child: Text(
-                    Intl.plural(
-                      subcomponentCount,
-                      one: "1 subcomponent",
-                      other: "$subcomponentCount subcomponents",
-                    ),
-                    style: textTheme.titleSmall,
-                    overflow: TextOverflow.ellipsis,
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 10,
+        children: [
+          Row(
+            spacing: 8,
+            children: [
+              Icon(Icons.account_tree_outlined, size: 20, color: cs.onSurfaceVariant),
+              Expanded(
+                child: Text(
+                  Intl.plural(
+                    subcomponentCount,
+                    one: "1 subcomponent",
+                    other: "$subcomponentCount subcomponents",
                   ),
+                  style: textTheme.titleSmall,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ],
-            ),
-            for (final (component, depth) in rows)
-              _TreeRow(
-                component: component,
-                depth: depth,
-                outcome: outcomeForDepth(depth),
               ),
-          ],
-        ),
+            ],
+          ),
+          for (final (component, depth) in rows)
+            _TreeRow(
+              component: component,
+              depth: depth,
+              outcome: outcomeForDepth(depth),
+            ),
+        ],
       ),
     );
   }
@@ -148,7 +149,7 @@ class _OutcomeBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final background = outcome.isDestructive ? cs.errorContainer : cs.surfaceContainerHighest;
+    final background = outcome.isDestructive ? cs.errorContainer : cs.surface;
     final foreground = outcome.isDestructive ? cs.onErrorContainer : cs.onSurfaceVariant;
 
     return ConstrainedBox(

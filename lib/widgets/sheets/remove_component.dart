@@ -6,6 +6,7 @@ import '../../models/component/component.dart';
 import '../../models/component/subcomponent_detach.dart';
 import '../../repositories/app_repository.dart';
 import '../component_tree_preview.dart';
+import 'radio_option_card.dart';
 import 'sheet_header.dart';
 
 typedef RemoveComponentChoice = ({bool withSubcomponents, SubcomponentDetach detach});
@@ -34,7 +35,7 @@ class _RemoveComponentSheet extends StatefulWidget {
 }
 
 class _RemoveComponentSheetState extends State<_RemoveComponentSheet> {
-  bool _withSubcomponents = false;
+  bool _withSubcomponents = true;
   SubcomponentDetach _detach = SubcomponentDetach.uninstall;
 
   ComponentOutcome? _outcomeFor({required int depth, required SubcomponentDetach detach, required Bike? bike}) {
@@ -45,7 +46,11 @@ class _RemoveComponentSheetState extends State<_RemoveComponentSheet> {
     return switch (detach) {
       SubcomponentDetach.uninstall => const ComponentOutcome(icon: Icons.shelves, label: 'Uninstalled'),
       SubcomponentDetach.installOnBike => ComponentOutcome(icon: Bike.iconData, label: bike?.name ?? ''),
-      SubcomponentDetach.keepLinked => const ComponentOutcome(icon: Icons.link, label: 'Linked'),
+      SubcomponentDetach.keepLinked => const ComponentOutcome(
+        icon: Icons.error_outline,
+        label: 'Missing parent',
+        isDestructive: true,
+      ),
     };
   }
 
@@ -85,74 +90,61 @@ class _RemoveComponentSheetState extends State<_RemoveComponentSheet> {
                     childrenOf: hierarchy.childrenOf,
                     outcomeForDepth: (depth) => _outcomeFor(depth: depth, detach: detach, bike: bike),
                   ),
-                  const SizedBox(height: 8),
-                  RadioGroup<bool>(
-                    groupValue: _withSubcomponents,
-                    onChanged: (value) {
-                      if (value == null) return;
-                      setState(() => _withSubcomponents = value);
-                    },
-                    child: Column(
-                      children: [
-                        RadioListTile<bool>(
-                          value: true,
-                          contentPadding: EdgeInsets.zero,
-                          title: const Text("Remove with subcomponents"),
-                          subtitle: Text("All ${subcomponentCount + 1} components are moved to the trash."),
-                        ),
-                        RadioListTile<bool>(
-                          value: false,
-                          contentPadding: EdgeInsets.zero,
-                          title: Text("Remove only '$name'", overflow: TextOverflow.ellipsis),
-                          subtitle: const Text("Subcomponents stay in your garage."),
-                        ),
-                        AnimatedSize(
-                          duration: const Duration(milliseconds: 200),
-                          alignment: Alignment.topCenter,
-                          child: _withSubcomponents
-                              ? const SizedBox(width: double.infinity)
-                              : Padding(
-                                  padding: const EdgeInsets.only(left: 32),
-                                  child: RadioGroup<SubcomponentDetach>(
-                                    groupValue: detach,
-                                    onChanged: (value) {
-                                      if (value == null) return;
-                                      setState(() => _detach = value);
-                                    },
-                                    child: Column(
-                                      children: [
-                                        const RadioListTile<SubcomponentDetach>(
-                                          value: SubcomponentDetach.uninstall,
-                                          contentPadding: EdgeInsets.zero,
-                                          visualDensity: VisualDensity.compact,
-                                          title: Text("Uninstall"),
-                                          subtitle: Text("Shown under Uninstalled components."),
-                                        ),
-                                        if (bike != null)
-                                          RadioListTile<SubcomponentDetach>(
-                                            value: SubcomponentDetach.installOnBike,
-                                            contentPadding: EdgeInsets.zero,
-                                            visualDensity: VisualDensity.compact,
-                                            title: Text("Install on '${bike.name}'", overflow: TextOverflow.ellipsis),
-                                            subtitle: const Text("Installed directly on the bike."),
-                                          ),
-                                        RadioListTile<SubcomponentDetach>(
-                                          value: SubcomponentDetach.keepLinked,
-                                          contentPadding: EdgeInsets.zero,
-                                          visualDensity: VisualDensity.compact,
-                                          title: const Text("Keep linked"),
-                                          subtitle: Text(
-                                            "Stay mounted on '$name' and return with it when restored from the trash. "
-                                            "Until then they are shown under Uninstalled components with a missing parent.",
-                                          ),
-                                        ),
-                                      ],
+                  const SizedBox(height: 16),
+                  Column(
+                    spacing: 8,
+                    children: [
+                      RadioOptionCard(
+                        selected: _withSubcomponents,
+                        onTap: () => setState(() => _withSubcomponents = true),
+                        title: "Remove with subcomponents",
+                        subtitle: "All ${subcomponentCount + 1} components are moved to the trash.",
+                      ),
+                      RadioOptionCard(
+                        selected: !_withSubcomponents,
+                        onTap: () => setState(() => _withSubcomponents = false),
+                        title: "Remove only '$name'",
+                        subtitle: "Subcomponents are kept. Choose what happens to them below.",
+                      ),
+                      AnimatedSize(
+                        duration: const Duration(milliseconds: 200),
+                        alignment: Alignment.topCenter,
+                        child: _withSubcomponents
+                            ? const SizedBox(width: double.infinity)
+                            : Padding(
+                                padding: const EdgeInsets.only(left: 16),
+                                child: Column(
+                                  spacing: 8,
+                                  children: [
+                                    RadioOptionCard(
+                                      compact: true,
+                                      selected: detach == SubcomponentDetach.uninstall,
+                                      onTap: () => setState(() => _detach = SubcomponentDetach.uninstall),
+                                      title: "Uninstall subcomponents",
+                                      subtitle: "They move to your uninstalled components.",
                                     ),
-                                  ),
+                                    if (bike != null)
+                                      RadioOptionCard(
+                                        compact: true,
+                                        selected: detach == SubcomponentDetach.installOnBike,
+                                        onTap: () => setState(() => _detach = SubcomponentDetach.installOnBike),
+                                        title: "Install subcomponents on '${bike.name}'",
+                                        subtitle: "They are installed directly on the bike.",
+                                      ),
+                                    RadioOptionCard(
+                                      compact: true,
+                                      selected: detach == SubcomponentDetach.keepLinked,
+                                      onTap: () => setState(() => _detach = SubcomponentDetach.keepLinked),
+                                      title: "Keep subcomponents linked",
+                                      subtitle:
+                                          "They stay mounted on '$name' and return with it when restored from the trash. "
+                                          "Until then they are shown under uninstalled components with a missing parent.",
+                                    ),
+                                  ],
                                 ),
-                        ),
-                      ],
-                    ),
+                              ),
+                      ),
+                    ],
                   ),
                 ],
               ),

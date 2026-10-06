@@ -6,6 +6,7 @@ import '../../models/component/component.dart';
 import '../../models/component/subcomponent_detach.dart';
 import '../../repositories/app_repository.dart';
 import '../component_tree_preview.dart';
+import 'radio_option_card.dart';
 import 'sheet_header.dart';
 
 typedef ArchiveComponentChoice = ({bool withSubcomponents, SubcomponentDetach detach});
@@ -85,64 +86,52 @@ class _ArchiveComponentSheetState extends State<_ArchiveComponentSheet> {
                     childrenOf: (id) => hierarchy.childrenOf(id, atUTC: widget.atUTC),
                     outcomeForDepth: (depth) => _outcomeFor(depth: depth, detach: detach, bike: bike),
                   ),
-                  const SizedBox(height: 8),
-                  RadioGroup<bool>(
-                    groupValue: _withSubcomponents,
-                    onChanged: (value) {
-                      if (value == null) return;
-                      setState(() => _withSubcomponents = value);
-                    },
-                    child: Column(
-                      children: [
-                        const RadioListTile<bool>(
-                          value: true,
-                          contentPadding: EdgeInsets.zero,
-                          title: Text("Archive with subcomponents"),
-                          subtitle: Text("They stay mounted and are archived along with it."),
-                        ),
-                        RadioListTile<bool>(
-                          value: false,
-                          contentPadding: EdgeInsets.zero,
-                          title: Text("Archive only '$name'", overflow: TextOverflow.ellipsis),
-                          subtitle: const Text("Subcomponents stay in your garage."),
-                        ),
-                        AnimatedSize(
-                          duration: const Duration(milliseconds: 200),
-                          alignment: Alignment.topCenter,
-                          child: _withSubcomponents
-                              ? const SizedBox(width: double.infinity)
-                              : Padding(
-                                  padding: const EdgeInsets.only(left: 32),
-                                  child: RadioGroup<SubcomponentDetach>(
-                                    groupValue: detach,
-                                    onChanged: (value) {
-                                      if (value == null) return;
-                                      setState(() => _detach = value);
-                                    },
-                                    child: Column(
-                                      children: [
-                                        const RadioListTile<SubcomponentDetach>(
-                                          value: SubcomponentDetach.uninstall,
-                                          contentPadding: EdgeInsets.zero,
-                                          visualDensity: VisualDensity.compact,
-                                          title: Text("Uninstall"),
-                                          subtitle: Text("Shown under Uninstalled components."),
-                                        ),
-                                        if (bike != null)
-                                          RadioListTile<SubcomponentDetach>(
-                                            value: SubcomponentDetach.installOnBike,
-                                            contentPadding: EdgeInsets.zero,
-                                            visualDensity: VisualDensity.compact,
-                                            title: Text("Install on '${bike.name}'", overflow: TextOverflow.ellipsis),
-                                            subtitle: const Text("Installed directly on the bike."),
-                                          ),
-                                      ],
+                  const SizedBox(height: 16),
+                  Column(
+                    spacing: 8,
+                    children: [
+                      RadioOptionCard(
+                        selected: _withSubcomponents,
+                        onTap: () => setState(() => _withSubcomponents = true),
+                        title: "Archive with subcomponents",
+                        subtitle: "They stay mounted and are archived along with it.",
+                      ),
+                      RadioOptionCard(
+                        selected: !_withSubcomponents,
+                        onTap: () => setState(() => _withSubcomponents = false),
+                        title: "Archive only '$name'",
+                        subtitle: "Subcomponents are kept. Choose what happens to them below.",
+                      ),
+                      AnimatedSize(
+                        duration: const Duration(milliseconds: 200),
+                        alignment: Alignment.topCenter,
+                        child: _withSubcomponents
+                            ? const SizedBox(width: double.infinity)
+                            : Padding(
+                                padding: const EdgeInsets.only(left: 16),
+                                child: Column(
+                                  spacing: 8,
+                                  children: [
+                                    RadioOptionCard(
+                                      compact: true,
+                                      selected: detach == SubcomponentDetach.uninstall,
+                                      onTap: () => setState(() => _detach = SubcomponentDetach.uninstall),
+                                      title: "Uninstall subcomponents",
+                                      subtitle: "They move to your uninstalled components.",
                                     ),
-                                  ),
+                                    if (bike != null)
+                                      RadioOptionCard(
+                                        compact: true,
+                                        selected: detach == SubcomponentDetach.installOnBike,
+                                        onTap: () => setState(() => _detach = SubcomponentDetach.installOnBike),
+                                        title: "Install subcomponents on '${bike.name}'",
+                                        subtitle: "They are installed directly on the bike.",
+                                      ),
+                                  ],
                                 ),
-                        ),
-                      ],
-                    ),
+                              ),
+                      ),
+                    ],
                   ),
                 ],
               ),

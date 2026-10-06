@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
+import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/filter_actions.dart';
 import 'filter/activity_filter_section.dart';
@@ -11,6 +15,7 @@ import 'filter/layer_filter_section.dart';
 import 'filter/setup_filter_section.dart';
 import 'filter/task_priority_filter_section.dart';
 import 'filter/task_tags_filter_section.dart';
+import 'sheet.dart';
 import 'sheet_header.dart';
 
 enum FilterSection { bike, dateRange, setups, taskPriority, taskTags, activity, mapLayers, timelineLayers }
@@ -39,12 +44,35 @@ Future<void> showFilterSheet({
           context.watch<SubscriptionService>().hasStravaEntitlement;
       final enabled = FilterActions.enabledSections(sections, appSettings: appSettings, stravaActive: stravaActive);
 
+      final isFiltered = FilterActions.isFiltered(
+        sections,
+        appRepository: context.watch<AppRepository>(),
+        appSettings: appSettings,
+        stravaActive: stravaActive,
+      );
+
       return SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            const SheetHeader(title: 'Filter'),
+            SheetHeader(
+              title: 'Filter',
+              actions: [
+                sheetActionButton(
+                  context,
+                  icon: Icons.filter_alt_off,
+                  tooltip: 'Reset filters',
+                  onPressed: isFiltered
+                      ? () {
+                          unawaited(HapticFeedback.selectionClick());
+                          FilterActions.clear(context, sections);
+                        }
+                      : null,
+                ),
+                const SizedBox(width: 4),
+              ],
+            ),
             const SizedBox(height: 16),
             Flexible(
               child: SingleChildScrollView(

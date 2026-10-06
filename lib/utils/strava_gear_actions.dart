@@ -16,14 +16,14 @@ class StravaGearActions {
     final messenger = ScaffoldMessenger.of(context);
 
     unawaited(HapticFeedback.selectionClick());
-    await appRepository.editBike(bike.copyWith(stravaGear: gear.id));
+    await appRepository.editBikes([bike.copyWith(stravaGear: gear.id)]);
 
     if (!context.mounted) return;
     messenger.showSnackBar(
       AppSnackBar.success(
         context,
         "Linked '${gear.name}' to '${bike.name}'.",
-        action: AppSnackBarAction(label: 'UNDO', onPressed: () => unawaited(appRepository.editBike(bike))),
+        action: AppSnackBarAction(label: 'UNDO', onPressed: () => unawaited(appRepository.editBikes([bike]))),
       ),
     );
   }
@@ -33,14 +33,14 @@ class StravaGearActions {
     final messenger = ScaffoldMessenger.of(context);
 
     unawaited(HapticFeedback.selectionClick());
-    await appRepository.editBike(bike.copyWith(stravaGear: null));
+    await appRepository.editBikes([bike.copyWith(stravaGear: null)]);
 
     if (!context.mounted) return;
     messenger.showSnackBar(
       AppSnackBar.info(
         context,
         "Unlinked '${gear.name}' from '${bike.name}'.",
-        action: AppSnackBarAction(label: 'UNDO', onPressed: () => unawaited(appRepository.editBike(bike))),
+        action: AppSnackBarAction(label: 'UNDO', onPressed: () => unawaited(appRepository.editBikes([bike]))),
       ),
     );
   }

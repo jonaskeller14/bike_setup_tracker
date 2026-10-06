@@ -1292,15 +1292,22 @@ class AppRepository extends ChangeNotifier {
     });
   }
 
-  Future<void> editBike(Bike bike) async {
-    final gearChanged = _bikes[bike.id]?.stravaGear != bike.stravaGear;
-    // Also moves every component inheriting them (installed since beginning).
-    final initialStatsChanged = _bikes[bike.id]?.initialStats != bike.initialStats;
+  Future<void> editBikes(Iterable<Bike> bikes) async {
+    final bikeList = bikes.toList();
+    if (bikeList.isEmpty) return;
+    // Initial stats also move every component inheriting them (installed since beginning).
+    final statsInputsChanged = bikeList.any((bike) =>
+        _bikes[bike.id]?.stravaGear != bike.stravaGear ||
+        _bikes[bike.id]?.initialStats != bike.initialStats);
+    final now = DateTime.now().toUtc();
 
-    final updated = bike.copyWith(lastModified: DateTime.now().toUtc());
-    await database.bikesDao.updateBike(updated.toCompanion());
+    await database.transaction(() async {
+      for (final bike in bikeList) {
+        await database.bikesDao.updateBike(bike.copyWith(lastModified: now).toCompanion());
+      }
+    });
 
-    if (gearChanged || initialStatsChanged) await refreshTaskEntrySnapshots();
+    if (statsInputsChanged) await refreshTaskEntrySnapshots();
   }
 
   Future<void> editComponent(Component component, {List<ValueUnitConversion> conversions = const []}) async {

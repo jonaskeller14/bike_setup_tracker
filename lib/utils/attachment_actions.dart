@@ -129,10 +129,12 @@ class AttachmentActions {
           .map((setup) => setup.copyWith(attachments: without(setup.attachments)))
           .toList(),
     );
-    final bikes = appRepository.bikes.values.where((bike) => references(bike.attachments)).toList();
-    for (final bike in bikes) {
-      await appRepository.editBike(bike.copyWith(attachments: without(bike.attachments)));
-    }
+    await appRepository.editBikes(
+      appRepository.bikes.values
+          .where((bike) => references(bike.attachments))
+          .map((bike) => bike.copyWith(attachments: without(bike.attachments)))
+          .toList(),
+    );
     await appRepository.editComponents(
       appRepository.components.values
           .where((component) => references(component.attachments))

@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../models/bike.dart';
 import '../models/rating/rating_entry.dart';
 import '../models/setup.dart';
 import '../pages/forms/rating_entry_page.dart';
@@ -23,6 +24,8 @@ class SetupActions {
   static Future<void> addSetup(
     BuildContext context, {
     DateTime? initialDateTimeLocal,
+    Bike? initialBike,
+    bool openRiderTab = false,
   }) async {
     final appRepository = context.read<AppRepository>();
 
@@ -59,6 +62,8 @@ class SetupActions {
         builder: (context) => SetupPage.add(
           initialDateTimeUtc: initialDateTimeLocal?.toUtc(),
           initialDateTimeLocal: initialDateTimeLocal,
+          initialBike: initialBike,
+          openRiderTab: openRiderTab,
         ),
       ),
     );

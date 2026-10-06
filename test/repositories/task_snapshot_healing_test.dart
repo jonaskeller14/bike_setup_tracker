@@ -297,7 +297,7 @@ void main() {
       expect(repository.taskEntries[entry.id]?.snapshot?.distance, 0.0);
 
       // 4. Link the gear to the bike. This should heal the task entry snapshot.
-      await repository.editBike(bike.copyWith(stravaGear: "g123"));
+      await repository.editBikes([bike.copyWith(stravaGear: "g123")]);
       await pumpEventQueue();
 
       // 5. The snapshot now reflects the gear's activity (100km, 1 activity).
@@ -357,7 +357,7 @@ void main() {
       expect(repository.taskEntries[entry.id]?.snapshot?.distance, 100000.0);
 
       // 3. Unlink the gear. The snapshot should fall back to 0km.
-      await repository.editBike(bike.copyWith(stravaGear: null));
+      await repository.editBikes([bike.copyWith(stravaGear: null)]);
       await pumpEventQueue();
 
       final updated = repository.taskEntries[entry.id];
@@ -610,13 +610,13 @@ void main() {
       expect(repository.taskEntries[entry.id]?.snapshot?.distance, 0.0);
 
       // Link the gear -> the bike-linked snapshot picks up the 100km activity.
-      await repository.editBike(bike.copyWith(stravaGear: "g123"));
+      await repository.editBikes([bike.copyWith(stravaGear: "g123")]);
       await pumpEventQueue();
       expect(repository.taskEntries[entry.id]?.snapshot?.distance, 100000.0);
       expect(repository.taskEntries[entry.id]?.snapshot?.activityCount, 1);
 
       // Unlink again -> back to 0km.
-      await repository.editBike(bike.copyWith(stravaGear: null));
+      await repository.editBikes([bike.copyWith(stravaGear: null)]);
       await pumpEventQueue();
       expect(repository.taskEntries[entry.id]?.snapshot?.distance, 0.0);
       expect(repository.taskEntries[entry.id]?.snapshot?.activityCount, 0);
@@ -688,7 +688,7 @@ void main() {
       expect(repository.taskEntries[bikeEntry.id]?.snapshot?.distance, 100000.0);
       expect(repository.taskEntries[componentEntry.id]?.snapshot?.distance, 100000.0);
 
-      await repository.editBike(bike.copyWith(initialStats: const ComponentStats(distance: 500000, activityCount: 10)));
+      await repository.editBikes([bike.copyWith(initialStats: const ComponentStats(distance: 500000, activityCount: 10))]);
       await pumpEventQueue();
 
       expect(repository.taskEntries[bikeEntry.id]?.snapshot?.distance, 600000.0);

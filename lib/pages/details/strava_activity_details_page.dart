@@ -285,9 +285,9 @@ class StravaActivityPageContent extends StatelessWidget {
                                 menuChildren: unlinkedBikes
                                     .map(
                                       (bike) => MenuItemButton(
-                                        onPressed: () => appRepository.editBike(
+                                        onPressed: () => appRepository.editBikes([
                                           bike.copyWith(stravaGear: stravaGear.id),
-                                        ),
+                                        ]),
                                         child: Text(
                                           bike.name,
                                           overflow: TextOverflow.ellipsis,

@@ -93,6 +93,7 @@ class PersonListCard extends StatelessWidget {
                       child: const Icon(Person.iconData),
                     )
                   : const Icon(Person.iconData),
+              titleAlignment: ListTileTitleAlignment.titleHeight,
               minTileHeight: 0,
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
@@ -118,6 +119,8 @@ class PersonListCard extends StatelessWidget {
                       switch (value) {
                         case _PersonOptions.edit:
                           await PersonActions.editPerson(context, person: person);
+                        case _PersonOptions.linkBikes:
+                          await PersonActions.editBikeLinks(context, person: person);
                         case _PersonOptions.duplicate:
                           await PersonActions.duplicatePerson(context, person: person);
                         case _PersonOptions.remove:
@@ -162,6 +165,7 @@ class PersonListCard extends StatelessWidget {
 
 enum _PersonOptions {
   edit("Edit", Icons.edit),
+  linkBikes("Link bikes", Icons.link),
   duplicate("Duplicate", Icons.copy),
   remove("Remove", Icons.delete);
   final String label;

@@ -7,6 +7,7 @@ import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/items/person_list_card.dart';
+import 'package:bike_setup_tracker/widgets/sheets/bike_link_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -63,7 +64,7 @@ void main() {
     await tester.tap(find.byTooltip('Show menu'));
     await tester.pumpAndSettle();
     final labels = [
-      for (final label in ['Edit', 'Duplicate', 'Remove'])
+      for (final label in ['Edit', 'Link bikes', 'Duplicate', 'Remove'])
         if (find.text(label).evaluate().isNotEmpty) label,
     ];
     await tester.tapAt(Offset.zero);
@@ -82,7 +83,7 @@ void main() {
 
       expect(find.byIcon(Icons.drag_handle), findsNothing);
       expect(find.byIcon(Icons.link_off), findsNothing);
-      expect(await openMenu(tester), ['Edit', 'Remove']);
+      expect(await openMenu(tester), ['Edit', 'Link bikes', 'Remove']);
     });
 
     testWidgets('tap opens edit', (tester) async {
@@ -94,6 +95,17 @@ void main() {
       expect(find.byType(PersonPage), findsOneWidget);
       expect(find.byType(PersonDetailsPage), findsNothing);
     });
+
+    testWidgets('Link bikes opens the bike link sheet', (tester) async {
+      await pumpCard(tester, PersonListCard(person: person));
+
+      await tester.tap(find.byTooltip('Show menu'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Link bikes'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(BikeLinkSheetContent), findsOneWidget);
+    });
   });
 
   group('advanced layout', () {
@@ -104,7 +116,7 @@ void main() {
 
       expect(find.byIcon(Icons.drag_handle), findsOneWidget);
       expect(find.byIcon(Icons.link_off), findsOneWidget);
-      expect(await openMenu(tester), ['Edit', 'Duplicate', 'Remove']);
+      expect(await openMenu(tester), ['Edit', 'Link bikes', 'Duplicate', 'Remove']);
     });
 
     testWidgets('tap opens the details page', (tester) async {

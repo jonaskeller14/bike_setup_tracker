@@ -55,6 +55,7 @@ class SetupPage extends StatefulWidget {
   final DateTime? initialDateTimeUtc;
   final DateTime? initialDateTimeLocal;
   final Bike? initialBike;
+  final bool openRiderTab;
 
   const SetupPage._({
     super.key,
@@ -63,18 +64,23 @@ class SetupPage extends StatefulWidget {
     this.initialDateTimeUtc,
     this.initialDateTimeLocal,
     this.initialBike,
+    this.openRiderTab = false,
   });
 
   factory SetupPage.add({
     Key? key,
     DateTime? initialDateTimeUtc,
     DateTime? initialDateTimeLocal,
+    Bike? initialBike,
+    bool openRiderTab = false,
   }) =>
       SetupPage._(
         key: key,
         mode: SetupPageMode.add,
         initialDateTimeUtc: initialDateTimeUtc,
         initialDateTimeLocal: initialDateTimeLocal,
+        initialBike: initialBike,
+        openRiderTab: openRiderTab,
       );
 
   factory SetupPage.addFromStravaActivity({
@@ -205,14 +211,15 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     super.didChangeDependencies();
     final int newLength = 1 + (context.read<AppSettings>().enablePerson ? 1 : 0);
     if (_tabControllerLength == null || _tabControllerLength != newLength) {
-      if (_tabControllerLength != null) {
+      final isFirstController = _tabControllerLength == null;
+      if (!isFirstController) {
         _tabController.removeListener(_onTabIndexChanged);
         _tabController.dispose();
       }
       _tabControllerLength = newLength;
-      _tabIndex = 0;
+      _tabIndex = isFirstController && widget.openRiderTab && newLength > 1 ? 1 : 0;
       _tabController = TabController(
-        initialIndex: 0,
+        initialIndex: _tabIndex,
         length: newLength,
         vsync: this,
       )..addListener(_onTabIndexChanged);

@@ -38,7 +38,7 @@ class BikeActions {
     );
     if (editedBike == null) return;
 
-    await appRepository.editBike(editedBike);
+    await appRepository.editBikes([editedBike]);
     await AttachmentActions.deleteUnsaved(bike.attachments, saved: editedBike.attachments);
   }
 

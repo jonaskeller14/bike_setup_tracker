@@ -198,13 +198,17 @@ class FeaturesPage extends StatelessWidget {
                     if (!v) _showLayer(context, TimelineLayer.ratingEntries);
                   },
                 ),
-              if (kDebugMode)
-                _FeatureToggleTile(
-                  icon: Icons.person,
-                  title: "Rider",
-                  value: appSettings.enablePerson,
-                  onChanged: (v) => appSettings.enablePerson = v,
-                ),
+              _FeatureToggleTile(
+                icon: Icons.person,
+                title: "Rider",
+                value: appSettings.enablePerson,
+                onChanged: (v) => appSettings.enablePerson = v,
+                infoText:
+                    'Adds a rider profile, opened with the rider button in the app bar. Link the rider '
+                    'to your bikes to record riding weight and other rider attributes with each setup. '
+                    'A new rider starts with a "Riding weight" attribute. Turning this off hides the '
+                    'rider but keeps its data.',
+              ),
               if (kDebugMode && appSettings.enablePerson)
                 _FeatureToggleTile(
                   icon: Icons.groups_outlined,

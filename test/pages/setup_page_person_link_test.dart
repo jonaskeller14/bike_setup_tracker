@@ -93,6 +93,20 @@ void main() {
     expect(find.text('1 attribute'), findsOneWidget);
   });
 
+  testWidgets('starts on the Bike tab by default and on the Rider tab with openRiderTab', (tester) async {
+    final harness = (await tester.runAsync(_PersonLinkHarness.create))!;
+    addTearDown(harness.dispose);
+    int tabIndex() => tester.widget<TabBar>(find.byType(TabBar)).controller!.index;
+
+    await tester.pumpWidget(harness.wrap(SetupPage.add()));
+    await _settle(tester);
+    expect(tabIndex(), 0);
+
+    await tester.pumpWidget(harness.wrap(SetupPage.add(key: UniqueKey(), openRiderTab: true)));
+    await _settle(tester);
+    expect(tabIndex(), 1);
+  });
+
   testWidgets('the advanced layout still offers to create another person', (tester) async {
     final harness = (await tester.runAsync(() => _PersonLinkHarness.create(advanced: true)))!;
     addTearDown(harness.dispose);

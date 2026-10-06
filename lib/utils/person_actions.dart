@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
+import '../models/bike.dart';
 import '../models/person.dart';
 import '../models/rating/rating_association.dart';
 import '../pages/adjustment/adjustment_page.dart';
@@ -16,7 +17,9 @@ import '../pages/adjustment/text_adjustment_page.dart';
 import '../pages/forms/person_page.dart';
 import '../repositories/app_repository.dart';
 import '../widgets/app_snackbar.dart';
+import '../widgets/sheets/bike_link_sheet.dart';
 import '../widgets/sheets/person_add_adjustment.dart';
+import 'setup_actions.dart';
 
 class PersonActions {
   static Future<void> addPerson(BuildContext context) async {
@@ -55,7 +58,7 @@ class PersonActions {
       return;
     }
 
-    await appRepository.editBike(bike.copyWith(person: person.id));
+    await appRepository.editBikes([bike.copyWith(person: person.id)]);
 
     if (!context.mounted) return;
     messenger.showSnackBar(
@@ -79,8 +82,37 @@ class PersonActions {
     if (person == null) return null;
 
     final bike = appRepository.bikes[bikeId];
-    if (bike != null) await appRepository.editBike(bike.copyWith(person: person.id));
+    if (bike != null) await appRepository.editBikes([bike.copyWith(person: person.id)]);
     return person;
+  }
+
+  /// No snackbar: the card menu also opens this inside the rider sheet, where
+  /// a snackbar would render behind it. The card's bike list shows the result.
+  static Future<void> editBikeLinks(BuildContext context, {required Person person}) async {
+    final appRepository = context.read<AppRepository>();
+
+    final linkedIds = await showBikeLinkSheet(context, person: person);
+    if (linkedIds == null) return;
+
+    await appRepository.editBikes([
+      for (final bike in appRepository.bikes.values)
+        if (linkedIds.contains(bike.id) != (bike.person == person.id))
+          bike.copyWith(person: linkedIds.contains(bike.id) ? person.id : null),
+    ]);
+  }
+
+  /// The bike a new setup for [person] starts on: the selected filter bike if
+  /// it is linked to [person], else the first linked bike.
+  static Bike? recordTargetBike(AppRepository appRepository, {required Person person}) {
+    final selected = appRepository.bikes[appRepository.filters.bikeId];
+    if (selected?.person == person.id) return selected;
+    return appRepository.bikes.values.where((bike) => bike.person == person.id).firstOrNull;
+  }
+
+  static Future<void> recordRiderValues(BuildContext context, {required Person person}) async {
+    final bike = recordTargetBike(context.read<AppRepository>(), person: person);
+    if (bike == null) return;
+    await SetupActions.addSetup(context, initialBike: bike, openRiderTab: true);
   }
 
   static Future<void> editPerson(BuildContext context, {required Person person}) async {

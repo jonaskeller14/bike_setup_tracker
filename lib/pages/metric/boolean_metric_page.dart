@@ -113,6 +113,7 @@ class _BooleanMetricPageState extends State<BooleanMetricPage> {
         name: name,
         notes: notes.isEmpty ? null : notes,
         unit: _initialAdj?.unit,
+        presetKey: _initialAdj?.presetKey,
       ),
       weight: weight,
     ));
@@ -173,6 +174,7 @@ class _BooleanMetricPageState extends State<BooleanMetricPage> {
                                       name: newValue,
                                       notes: _previewAdjustment.notes,
                                       unit: null,
+                                      presetKey: _initialAdj?.presetKey,
                                     );
                                   });
                                 },
@@ -218,6 +220,7 @@ class _BooleanMetricPageState extends State<BooleanMetricPage> {
                                             name: _previewAdjustment.name,
                                             notes: (value == null || value.isEmpty) ? null : value,
                                             unit: null,
+                                            presetKey: _initialAdj?.presetKey,
                                           );
                                         });
                                       },

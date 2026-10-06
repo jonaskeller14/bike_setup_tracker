@@ -92,6 +92,7 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
       name: name,
       notes: notes.isEmpty ? null : notes,
       unit: widget.adjustment?.unit,
+      presetKey: widget.adjustment?.presetKey,
     ));
   }
 
@@ -142,6 +143,7 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
                                   name: value ?? '',
                                   notes: _previewAdjustment.notes,
                                   unit: _previewAdjustment.unit,
+                                  presetKey: widget.adjustment?.presetKey,
                                 );
                               });
                             },
@@ -186,6 +188,7 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
                                         name: _previewAdjustment.name,
                                         notes: (value == null || value.isEmpty) ? null : value,
                                         unit: _previewAdjustment.unit,
+                                        presetKey: widget.adjustment?.presetKey,
                                       );
                                     });
                                   },

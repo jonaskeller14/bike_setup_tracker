@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
+import 'preset_key_test_utils.dart';
+
 void main() {
   testWidgets('CategoricalAdjustmentPage edit returns equal adjustment when unchanged', (WidgetTester tester) async {
     final initial = CategoricalAdjustment(
@@ -153,4 +155,12 @@ void main() {
     final checkbox = tester.widget<CheckboxListTile>(find.widgetWithText(CheckboxListTile, 'Count Occurrences'));
     expect(checkbox.value, isTrue);
   });
+
+  final preset = CategoricalAdjustment(name: 'Preset', notes: null, unit: null, options: const {'A', 'B'}, presetKey: testPresetKey);
+  presetKeyTests(
+    template: () => CategoricalAdjustmentPage.template(adjustment: preset),
+    edit: () => CategoricalAdjustmentPage.edit(adjustment: preset),
+    add: () => CategoricalAdjustmentPage.add(),
+    fillAdd: (tester) => tester.enterText(find.widgetWithText(TextFormField, 'Option 1'), 'A'),
+  );
 }

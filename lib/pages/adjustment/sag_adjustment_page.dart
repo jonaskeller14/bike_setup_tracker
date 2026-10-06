@@ -126,6 +126,7 @@ class _SagAdjustmentPageState extends State<SagAdjustmentPage> {
       id: widget.mode == AdjustmentPageMode.edit ? widget.adjustment!.id : null,
       name: name,
       notes: notes.isEmpty ? null : notes,
+      presetKey: widget.adjustment?.presetKey,
       referenceTravelMm: _travel(),
     );
     Navigator.pop(context, adjustment);
@@ -140,6 +141,7 @@ class _SagAdjustmentPageState extends State<SagAdjustmentPage> {
       name: name,
       notes: notes.isEmpty ? null : notes,
       unit: SagAdjustment.percentUnit,
+      presetKey: widget.adjustment!.presetKey,
       min: SagAdjustment.minPercent,
       max: SagAdjustment.maxPercent,
     );
@@ -168,6 +170,7 @@ class _SagAdjustmentPageState extends State<SagAdjustmentPage> {
       id: _previewAdjustment.id,
       name: _nameController.text.trim(),
       notes: notes.isEmpty ? null : notes,
+      presetKey: widget.adjustment?.presetKey,
       referenceTravelMm: _validateTravel(_travelController.text) == null ? _travel() : null,
     );
   }

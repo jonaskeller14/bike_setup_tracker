@@ -166,6 +166,7 @@ class _NumericalMetricPageState extends State<NumericalMetricPage> {
         min: min,
         max: max,
         unit: _unit,
+        presetKey: _initialAdj?.presetKey,
       ),
       weight: weight,
     );
@@ -249,6 +250,7 @@ class _NumericalMetricPageState extends State<NumericalMetricPage> {
       name: _nameController.text.trim(),
       notes: notes.isEmpty ? null : notes,
       unit: _unit,
+      presetKey: _initialAdj?.presetKey,
       min: min,
       max: max,
     );

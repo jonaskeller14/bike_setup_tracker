@@ -133,6 +133,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
       id: widget.adjustment!.id,
       name: name,
       notes: notes.isEmpty ? null : notes,
+      presetKey: widget.adjustment!.presetKey,
     );
     final result = await Navigator.push<Object>(
       context,
@@ -244,6 +245,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
       min: min,
       max: max,
       unit: _unit,
+      presetKey: widget.adjustment?.presetKey,
     );
     Navigator.pop(
       context,
@@ -322,6 +324,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
       name: _nameController.text.trim(),
       notes: notes.isEmpty ? null : notes,
       unit: _unit,
+      presetKey: widget.adjustment?.presetKey,
       min: min,
       max: max,
     );

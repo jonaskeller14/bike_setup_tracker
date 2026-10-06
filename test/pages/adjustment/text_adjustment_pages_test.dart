@@ -4,6 +4,8 @@ import 'package:bike_setup_tracker/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'preset_key_test_utils.dart';
+
 void main() {
   testWidgets('TextAdjustmentPage edit returns equal adjustment when unchanged', (WidgetTester tester) async {
     final initial = TextAdjustment(
@@ -43,4 +45,11 @@ void main() {
     expect(result, isNotNull);
     expect(result, equals(initial));
   });
+
+  final preset = TextAdjustment(name: 'Preset', notes: null, unit: null, presetKey: testPresetKey);
+  presetKeyTests(
+    template: () => TextAdjustmentPage.template(adjustment: preset),
+    edit: () => TextAdjustmentPage.edit(adjustment: preset),
+    add: () => TextAdjustmentPage.add(),
+  );
 }

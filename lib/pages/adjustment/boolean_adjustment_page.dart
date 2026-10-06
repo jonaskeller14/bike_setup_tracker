@@ -95,6 +95,7 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
       name: name,
       notes: notes.isEmpty ? null : notes,
       unit: widget.adjustment?.unit,
+      presetKey: widget.adjustment?.presetKey,
     ));
   }
 
@@ -145,6 +146,7 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
                                   name: newValue,
                                   notes: _previewAdjustment.notes,
                                   unit: null,
+                                  presetKey: widget.adjustment?.presetKey,
                                 );
                               });
                             },
@@ -190,6 +192,7 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
                                         name: _previewAdjustment.name,
                                         notes: (value == null || value.isEmpty) ? null : value,
                                         unit: null,
+                                        presetKey: widget.adjustment?.presetKey,
                                       );
                                     });
                                   },

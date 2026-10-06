@@ -113,6 +113,7 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
       min: _previewAdjustment.min,
       max: _previewAdjustment.max,
       unit: widget.adjustment?.unit,
+      presetKey: widget.adjustment?.presetKey,
     ));
   }
 
@@ -133,6 +134,7 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
         name: _nameController.text.trim(),
         notes: notes.isEmpty ? null : notes,
         unit: _previewAdjustment.unit,
+        presetKey: widget.adjustment?.presetKey,
         min: min,
         max: max,
       );

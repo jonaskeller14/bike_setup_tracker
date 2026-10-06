@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
+import 'preset_key_test_utils.dart';
+
 void main() {
   Widget wrap(Widget child) {
     return ChangeNotifierProvider<AppSettings>(create: (_) => AppSettings(), child: child);
@@ -305,4 +307,26 @@ void main() {
 
     expect(find.byKey(const ValueKey('DialStyle')), findsNothing);
   });
+
+  final preset = StepAdjustment(
+    name: 'Preset',
+    notes: null,
+    unit: null,
+    step: 1,
+    min: 0,
+    max: 10,
+    visualization: StepAdjustmentVisualization.slider,
+    presetKey: testPresetKey,
+  );
+  presetKeyTests(
+    template: () => StepAdjustmentPage.template(adjustment: preset),
+    edit: () => StepAdjustmentPage.edit(adjustment: preset),
+    add: () => StepAdjustmentPage.add(),
+    fillAdd: (tester) async {
+      final fields = find.byType(TextFormField);
+      await tester.enterText(fields.at(1), '1');
+      await tester.enterText(fields.at(2), '0');
+      await tester.enterText(fields.at(3), '10');
+    },
+  );
 }

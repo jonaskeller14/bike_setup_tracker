@@ -83,8 +83,7 @@ class ComponentActions {
       }
       subcomponentEdits = edits;
     }
-    await appRepository.editComponent(result.value, conversions: result.conversions);
-    if (subcomponentEdits.isNotEmpty) await appRepository.editComponents(subcomponentEdits);
+    await appRepository.editComponents([result.value, ...subcomponentEdits], conversions: result.conversions);
     await AttachmentActions.deleteUnsaved(component.attachments, saved: result.value.attachments);
   }
 
@@ -125,8 +124,7 @@ class ComponentActions {
       atUTC: archival.dateTimeUTC,
     );
     if (subcomponentEdits == null) return;
-    await appRepository.editComponent(component.copyWith(installations: [archival]));
-    if (subcomponentEdits.isNotEmpty) await appRepository.editComponents(subcomponentEdits);
+    await appRepository.editComponents([component.copyWith(installations: [archival]), ...subcomponentEdits]);
   }
 
   static List<Component> _componentsOf(AppRepository appRepository, Iterable<String> ids) =>
@@ -494,7 +492,7 @@ class ComponentActions {
           ),
         );
         if (newAdjustment == null) return;
-        await appRepository.editComponent(component.copyWith(adjustments: [...component.adjustments, newAdjustment]));
+        await appRepository.editComponents([component.copyWith(adjustments: [...component.adjustments, newAdjustment])]);
       },
       addAdjustment: <T extends Adjustment>() async {
         final appRepository = context.read<AppRepository>();
@@ -513,7 +511,7 @@ class ComponentActions {
           ),
         );
         if (newAdjustment == null) return;
-        await appRepository.editComponent(component.copyWith(adjustments: [...component.adjustments, newAdjustment]));
+        await appRepository.editComponents([component.copyWith(adjustments: [...component.adjustments, newAdjustment])]);
       },
     );
   }

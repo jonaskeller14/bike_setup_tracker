@@ -777,7 +777,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     final updated = component.adjustments
         .map((a) => a.id == adjustment.id && a is CategoricalAdjustment ? a.copyWith(options: {...a.options, option}) : a)
         .toList();
-    await appRepository.editComponent(component.copyWith(adjustments: updated));
+    await appRepository.editComponents([component.copyWith(adjustments: updated)]);
   }
 
   Future<void> _onAddPersonCategoricalOption({required CategoricalAdjustment adjustment, required String option}) async {

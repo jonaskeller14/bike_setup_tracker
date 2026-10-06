@@ -128,8 +128,7 @@ class _InstallationSheetState extends State<InstallationSheet> {
       if (edits == null || !mounted) return;
       subcomponentEdits = edits;
     }
-    await appRepository.editComponent(updatedComponent);
-    if (subcomponentEdits.isNotEmpty) await appRepository.editComponents(subcomponentEdits);
+    await appRepository.editComponents([updatedComponent, ...subcomponentEdits]);
     if (!mounted) return;
     Navigator.pop(context);
   }

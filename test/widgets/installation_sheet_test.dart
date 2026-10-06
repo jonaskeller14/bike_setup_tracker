@@ -54,7 +54,7 @@ void main() {
     when(() => mockRepository.components).thenReturn({component.id: component});
     when(() => mockRepository.componentHierarchy)
         .thenAnswer((_) => ComponentHierarchyResolver(mockRepository.components));
-    when(() => mockRepository.editComponent(any())).thenAnswer((_) async => {});
+    when(() => mockRepository.editComponents(any())).thenAnswer((_) async => {});
   });
 
   Widget createWidgetUnderTest(Widget child) {
@@ -87,7 +87,7 @@ void main() {
       expect(find.byIcon(Icons.arrow_forward), findsOneWidget);
     });
 
-    testWidgets('confirms changes calls editComponent', (WidgetTester tester) async {
+    testWidgets('confirms changes calls editComponents', (WidgetTester tester) async {
       await tester.pumpWidget(createWidgetUnderTest(
         InstallationSheet.add(
           component: component,
@@ -98,7 +98,7 @@ void main() {
       await tester.tap(find.text('Save'));
       await tester.pumpAndSettle();
 
-      verify(() => mockRepository.editComponent(any())).called(1);
+      verify(() => mockRepository.editComponents(any())).called(1);
     });
   });
 

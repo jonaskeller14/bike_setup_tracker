@@ -506,7 +506,7 @@ void main() {
       personAdjustmentValues: personValues ?? {},
     );
 
-    test("editComponent with Convert rewrites setup values and bumps lastModified", () async {
+    test("editComponents with Convert rewrites setup values and bumps lastModified", () async {
       final bike = Bike(name: "B", person: null);
       final adj = NumericalAdjustment(name: "Pressure", notes: null, unit: psi, min: 0, max: 300);
       final component = Component(
@@ -531,8 +531,8 @@ void main() {
 
       // Bounds are left as typed; only stored setup values convert.
       final convertedComponent = component.copyWith(adjustments: [adj.copyWith(unit: bar)]);
-      await repository.editComponent(
-        convertedComponent,
+      await repository.editComponents(
+        [convertedComponent],
         conversions: [ValueUnitConversion(adjustmentId: adj.id, from: psi, to: bar)],
       );
       await pumpEventQueue();
@@ -542,7 +542,7 @@ void main() {
       expect(repository.setups[setup.id]!.lastModified.isAfter(before), isTrue);
     });
 
-    test("editComponent without conversions leaves setup values and lastModified untouched", () async {
+    test("editComponents without conversions leaves setup values and lastModified untouched", () async {
       final bike = Bike(name: "B", person: null);
       final adj = NumericalAdjustment(name: "Pressure", notes: null, unit: psi);
       final component = Component(
@@ -561,7 +561,7 @@ void main() {
       final before = repository.setups[setup.id]!.lastModified;
 
       // "Keep numbers": unit changes but no conversion staged.
-      await repository.editComponent(component.copyWith(adjustments: [adj.copyWith(unit: bar)]));
+      await repository.editComponents([component.copyWith(adjustments: [adj.copyWith(unit: bar)])]);
       await pumpEventQueue();
 
       expect(repository.setups[setup.id]!.bikeAdjustmentValues[adj.id], const NumericalValue(65.0));

@@ -1310,35 +1310,9 @@ class AppRepository extends ChangeNotifier {
     if (statsInputsChanged) await refreshTaskEntrySnapshots();
   }
 
-  Future<void> editComponent(Component component, {List<ValueUnitConversion> conversions = const []}) async {
-    final statsInputsChanged = _componentStatsInputsChanged(component);
-    final oldDescendants = componentHierarchy.historicalDescendantsOf(component.id);
-
-    final updated = component.copyWith(lastModified: DateTime.now().toUtc());
-    final candidateComponents = {..._components, updated.id: updated};
-    final candidateHierarchy = ComponentHierarchyResolver(candidateComponents);
-    candidateHierarchy.validate();  //FIXME: is error caught here or in parent?
-    await database.transaction(() async {
-      await _writeComponentWithData(updated);
-      for (final c in conversions) {
-        await database.setupsDao.convertAdjustmentValues(
-          c.adjustmentId,
-          (v) => NumericalValue(convertUnit(v.value, c.from, c.to)),
-        );
-      }
-    });
-
-    if (statsInputsChanged) {
-      await refreshTaskEntrySnapshots(componentIds: {
-        component.id,
-        ...oldDescendants,
-        ...candidateHierarchy.historicalDescendantsOf(component.id),
-      });
-    }
-  }
-
-  Future<void> editComponents(Iterable<Component> components) async {
+  Future<void> editComponents(Iterable<Component> components, {List<ValueUnitConversion> conversions = const []}) async {
     final componentList = components.toList();
+    if (componentList.isEmpty) return;
     final changedComponentIds = componentList
         .where(_componentStatsInputsChanged)
         .map((component) => component.id)
@@ -1362,6 +1336,12 @@ class AppRepository extends ChangeNotifier {
     await database.transaction(() async {
       for (final updated in updates) {
         await _writeComponentWithData(updated);
+      }
+      for (final c in conversions) {
+        await database.setupsDao.convertAdjustmentValues(
+          c.adjustmentId,
+          (v) => NumericalValue(convertUnit(v.value, c.from, c.to)),
+        );
       }
     });
 
@@ -1400,9 +1380,9 @@ class AppRepository extends ChangeNotifier {
       dateTimeUTC: when.toUtc(),
       dateTimeLocal: when,
     );
-    await editComponent(
+    await editComponents([
       component.copyWith(installations: [...component.installations, event]),
-    );
+    ]);
   }
 
   Future<void> unarchiveComponent(Component component) async {
@@ -1410,7 +1390,7 @@ class AppRepository extends ChangeNotifier {
     final idx = updated.lastIndexWhere((i) => i is Archival);
     if (idx == -1) return;
     updated.removeAt(idx);
-    await editComponent(component.copyWith(installations: updated));
+    await editComponents([component.copyWith(installations: updated)]);
   }
 
   Future<void> editRating(Rating rating, {List<ValueUnitConversion> conversions = const []}) async {

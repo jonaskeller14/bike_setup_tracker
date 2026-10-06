@@ -561,16 +561,15 @@ class _CalendarPageState extends State<CalendarPage> {
       return;
     }
 
-    await appRepository.editComponent(removedComponent.copyWith(installations: updatedRemoved));
-    await appRepository.editComponent(installedComponent.copyWith(installations: updatedInstalled));
+    await appRepository.editComponents([
+      removedComponent.copyWith(installations: updatedRemoved),
+      installedComponent.copyWith(installations: updatedInstalled),
+    ]);
     _showMoveUndoSnackBar(
       calendarSubjectForRow(row),
       oldLocal,
       newLocal,
-      () async {
-        await appRepository.editComponent(removedComponent);
-        await appRepository.editComponent(installedComponent);
-      },
+      () => appRepository.editComponents([removedComponent, installedComponent]),
     );
   }
 
@@ -609,12 +608,12 @@ class _CalendarPageState extends State<CalendarPage> {
           _rejectMove("Can't move this installation there.");
           return;
         }
-        await appRepository.editComponent(originalComponent.copyWith(installations: updatedInstallations));
+        await appRepository.editComponents([originalComponent.copyWith(installations: updatedInstallations)]);
         _showMoveUndoSnackBar(
           calendarSubjectFor(entry),
           oldLocal,
           newLocal,
-          () => appRepository.editComponent(originalComponent),
+          () => appRepository.editComponents([originalComponent]),
         );
       case RatingEntryTimelineEntry():
         final original = entry.ratingEntry;

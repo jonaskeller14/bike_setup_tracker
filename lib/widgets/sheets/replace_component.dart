@@ -9,6 +9,8 @@ import '../../models/component/component_ancestor.dart';
 import '../../models/component/installation.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
+import '../component_tree_preview.dart';
+import 'radio_option_card.dart';
 import 'sheet.dart';
 import 'sheet_header.dart';
 
@@ -88,6 +90,15 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
             })
         .toList()
       ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+  }
+
+  ComponentOutcome? _outcomeFor({required int depth, required Component? replacement}) {
+    if (depth == 0) return const ComponentOutcome(icon: Icons.shelves, label: 'Uninstalled');
+    // Deeper levels stay on their own parent and follow it.
+    if (depth > 1) return null;
+    if (!_moveSubcomponents) return const ComponentOutcome(icon: Icons.shelves, label: 'Uninstalled');
+    final label = _mode == _ReplaceMode.existing ? replacement?.name ?? 'Replacement' : 'New component';
+    return ComponentOutcome(icon: widget.component.componentType.getIconData(), label: label);
   }
 
   void _onContinue() {
@@ -383,10 +394,29 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
                     ),
                     if (subcomponents.isNotEmpty && !noExistingAvailable) ...[
                       const SizedBox(height: 16),
-                      _SubcomponentsCard(
-                        subcomponents: subcomponents,
-                        moveSubcomponents: _moveSubcomponents,
-                        onChanged: (value) => setState(() => _moveSubcomponents = value),
+                      ComponentTreePreview(
+                        root: widget.component,
+                        components: appRepository.components,
+                        childrenOf: componentHierarchy.childrenOf,
+                        outcomeForDepth: (depth) => _outcomeFor(depth: depth, replacement: selected),
+                      ),
+                      const SizedBox(height: 16),
+                      Column(
+                        spacing: 8,
+                        children: [
+                          RadioOptionCard(
+                            selected: _moveSubcomponents,
+                            onTap: () => setState(() => _moveSubcomponents = true),
+                            title: "Move subcomponents to replacement",
+                            subtitle: "They are installed on the replacement at the replacement date.",
+                          ),
+                          RadioOptionCard(
+                            selected: !_moveSubcomponents,
+                            onTap: () => setState(() => _moveSubcomponents = false),
+                            title: "Uninstall subcomponents",
+                            subtitle: "They move to your uninstalled components.",
+                          ),
+                        ],
                       ),
                     ],
                   ],
@@ -400,89 +430,6 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
                 icon: const Icon(Icons.arrow_forward),
                 onPressed: noExistingAvailable ? null : _onContinue,
                 label: const Text('Continue'),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SubcomponentsCard extends StatelessWidget {
-  final List<Component> subcomponents;
-  final bool moveSubcomponents;
-  final ValueChanged<bool> onChanged;
-
-  const _SubcomponentsCard({
-    required this.subcomponents,
-    required this.moveSubcomponents,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
-    return Card.outlined(
-      margin: EdgeInsets.zero,
-      clipBehavior: Clip.antiAlias,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              spacing: 8,
-              children: [
-                Icon(Icons.account_tree_outlined, size: 20, color: cs.onSurfaceVariant),
-                Expanded(
-                  child: Text(
-                    Intl.plural(
-                      subcomponents.length,
-                      one: "1 subcomponent",
-                      other: "${subcomponents.length} subcomponents",
-                    ),
-                    style: textTheme.titleSmall,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: subcomponents.map((c) => Chip(
-                avatar: Icon(c.componentType.getIconData(), size: 16),
-                label: Text(c.name, overflow: TextOverflow.ellipsis),
-                visualDensity: VisualDensity.compact,
-              )).toList(),
-            ),
-            RadioGroup<bool>(
-              groupValue: moveSubcomponents,
-              onChanged: (value) {
-                if (value == null) return;
-                onChanged(value);
-              },
-              child: const Column(
-                children: [
-                  RadioListTile<bool>(
-                    value: true,
-                    contentPadding: EdgeInsets.zero,
-                    visualDensity: VisualDensity.compact,
-                    title: Text("Move to replacement"),
-                    subtitle: Text("Installed on the replacement at the replacement date."),
-                  ),
-                  RadioListTile<bool>(
-                    value: false,
-                    contentPadding: EdgeInsets.zero,
-                    visualDensity: VisualDensity.compact,
-                    title: Text("Uninstall"),
-                    subtitle: Text("Removed along with this component and kept as uninstalled."),
-                  ),
-                ],
               ),
             ),
           ],

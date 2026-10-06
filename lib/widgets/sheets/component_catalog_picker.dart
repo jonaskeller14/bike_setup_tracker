@@ -19,15 +19,22 @@ import 'sheet_header.dart';
 /// Lets the user drill into the generic catalog of [componentType]: brand, then
 /// one stage per tree level, then the required option axes one at a time, then
 /// the optional axes together in a single skippable step.
+///
+/// With a [current] selection the sheet opens on its options, preselected, with
+/// the path to it marked on the way back, so changing it is a short step.
 Future<ResolvedPreset?> showComponentCatalogPicker({
   required BuildContext context,
   required ComponentType componentType,
+  ResolvedPreset? current,
 }) {
   return showModalBottomSheet<ResolvedPreset>(
     useSafeArea: true,
     isScrollControlled: true,
     context: context,
-    builder: (_) => _ComponentCatalogPickerSheet(componentType: componentType),
+    builder: (_) => _ComponentCatalogPickerSheet(
+      componentType: componentType,
+      current: current?.catalog.componentType == componentType ? current : null,
+    ),
   );
 }
 
@@ -36,6 +43,12 @@ const int _minQueryLength = 2;
 const String _uncategorised = 'Other';
 
 const Widget _chevron = Icon(Icons.arrow_forward_ios, size: 16);
+
+/// Trailing icon of a row whose tap completes the selection.
+const Widget _check = Icon(Icons.check, size: 20);
+
+/// Nothing is left to ask after [preset], so choosing it closes the sheet.
+bool _completes(ResolvedPreset preset) => preset.openRequiredAxes.isEmpty && preset.optionalAxes.isEmpty;
 
 // --- where we are ------------------------------------------------------------
 
@@ -91,8 +104,9 @@ enum _Direction {
 
 class _ComponentCatalogPickerSheet extends StatefulWidget {
   final ComponentType componentType;
+  final ResolvedPreset? current;
 
-  const _ComponentCatalogPickerSheet({required this.componentType});
+  const _ComponentCatalogPickerSheet({required this.componentType, this.current});
 
   @override
   State<_ComponentCatalogPickerSheet> createState() => _ComponentCatalogPickerSheetState();
@@ -129,19 +143,105 @@ class _ComponentCatalogPickerSheetState extends State<_ComponentCatalogPickerShe
     try {
       final products = await repository.forType(widget.componentType);
       if (!mounted) return;
-      setState(() => _catalog = _Catalog(products));
+      setState(() {
+        final catalog = _catalog = _Catalog(products);
+        _openAtCurrent(catalog);
+      });
     } catch (error) {
       if (!mounted) return;
       setState(() => _loadError = error);
     }
   }
 
+  // --- the current selection ------------------------------------------------
+
+  /// Opens on the current product's options, with every stage that leads there
+  /// as the way back. A path that no longer fully resolves, or leads through
+  /// draft nodes, opens as deep as it still reaches.
+  void _openAtCurrent(_Catalog catalog) {
+    final current = widget.current;
+    if (current == null) return;
+    final brand = catalog.brands.firstWhereOrNull((entry) => entry.catalog.id == current.catalog.id)?.catalog;
+    if (brand == null) return;
+    final parents = <CatalogNode>[];
+    ResolvedPreset? product;
+    for (final target in current.path) {
+      final match = catalog.childrenOf(brand, parents).firstWhereOrNull((entry) => entry.node.id == target.id);
+      if (match == null) break;
+      if (match.node is CatalogProduct) {
+        product = match.products.single;
+        break;
+      }
+      parents.add(match.node);
+    }
+    for (var depth = 0; depth <= parents.length; depth++) {
+      _enter(_Nodes(brand, parents.sublist(0, depth)));
+    }
+    if (product != null) _enterOptionsOf(product);
+  }
+
+  /// Replays the current values of [product]'s required axes, stopping on the
+  /// first one the catalog no longer offers, then opens the optional axes. A
+  /// product without optional axes stays on its last required one, so a single
+  /// tap still changes it; one with nothing to ask stays among its siblings.
+  void _enterOptionsOf(ResolvedPreset product) {
+    if (_completes(product)) return;
+    var preset = product;
+    while (preset.openRequiredAxes.isNotEmpty) {
+      final stage = _RequiredAxis(preset);
+      _enter(stage);
+      final id = widget.current!.selections[stage.axis.id]?.id;
+      final value = stage.axis.values.firstWhereOrNull((value) => value.id == id);
+      if (value == null) return;
+      preset = preset.select(stage.axis, value);
+      if (_completes(preset)) return;
+    }
+    _enter(_OptionalAxes(_withCurrentOptions(preset)));
+  }
+
+  /// Whether [nodes], from the top level down, lead along the current path.
+  bool _onCurrentPath(BrandCatalog brand, List<CatalogNode> nodes) {
+    final current = widget.current;
+    if (current == null || current.catalog.id != brand.id || nodes.length > current.path.length) return false;
+    for (var depth = 0; depth < nodes.length; depth++) {
+      if (nodes[depth].id != current.path[depth].id) return false;
+    }
+    return true;
+  }
+
+  /// The current selection when [preset] is the same product.
+  ResolvedPreset? _currentFor(ResolvedPreset preset) {
+    final current = widget.current;
+    if (current == null || preset.path.length != current.path.length) return null;
+    return _onCurrentPath(preset.catalog, preset.path) ? current : null;
+  }
+
+  bool _isCurrent(ResolvedPreset preset) => _currentFor(preset) != null;
+
+  /// [preset] with the optional values of the current selection chosen, when
+  /// it is the same product; a value the catalog dropped stays unset.
+  ResolvedPreset _withCurrentOptions(ResolvedPreset preset) {
+    final current = _currentFor(preset);
+    if (current == null) return preset;
+    var result = preset;
+    for (final axis in preset.optionalAxes) {
+      final id = current.selections[axis.id]?.id;
+      final value = axis.values.firstWhereOrNull((value) => value.id == id);
+      if (value != null) result = result.select(axis, value);
+    }
+    return result;
+  }
+
   // --- navigation -----------------------------------------------------------
+
+  void _enter(_Stage stage) {
+    _history.add(_stage);
+    _stage = stage;
+  }
 
   void _goTo(_Stage stage) {
     setState(() {
-      _history.add(_stage);
-      _stage = stage;
+      _enter(stage);
       _direction = _Direction.forward;
     });
   }
@@ -169,7 +269,7 @@ class _ComponentCatalogPickerSheetState extends State<_ComponentCatalogPickerShe
   /// never get a stage.
   void _advance(ResolvedPreset preset) {
     if (preset.openRequiredAxes.isNotEmpty) return _goTo(_RequiredAxis(preset));
-    if (preset.optionalAxes.isNotEmpty) return _goTo(_OptionalAxes(preset));
+    if (preset.optionalAxes.isNotEmpty) return _goTo(_OptionalAxes(_withCurrentOptions(preset)));
     _finish(preset);
   }
 
@@ -233,9 +333,13 @@ class _ComponentCatalogPickerSheetState extends State<_ComponentCatalogPickerShe
               const SizedBox(height: 12),
               if (_stage is _Brands) _buildSearchField(),
               Flexible(
-                child: _StageSwitcher(
-                  direction: _direction,
-                  child: KeyedSubtree(key: _bodyKey, child: _buildBody()),
+                child: ListTileTheme.merge(
+                  selectedColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                  selectedTileColor: Theme.of(context).colorScheme.secondaryContainer,
+                  child: _StageSwitcher(
+                    direction: _direction,
+                    child: KeyedSubtree(key: _bodyKey, child: _buildBody()),
+                  ),
                 ),
               ),
             ],
@@ -255,12 +359,14 @@ class _ComponentCatalogPickerSheetState extends State<_ComponentCatalogPickerShe
     return switch (_stage) {
       _Brands() => _BrandList(
         brands: catalog.brands,
+        isCurrent: (brand) => _onCurrentPath(brand.catalog, const []),
         onSelect: (brand) => _goTo(_Nodes(brand.catalog, const [])),
       ),
       _Nodes(catalog: final brand, :final parents) => _WithContext(
         label: [brand.brand, for (final node in parents) node.label].join(' '),
         child: _NodeList(
           rows: catalog.rowsFor(brand, parents),
+          isCurrent: (entry) => _onCurrentPath(brand, [...parents, entry.node]),
           onSelect: _selectNode,
         ),
       ),
@@ -268,6 +374,8 @@ class _ComponentCatalogPickerSheetState extends State<_ComponentCatalogPickerShe
         label: presetDisplayName(stage.preset),
         child: _RequiredValueList(
           values: stage.axis.values,
+          currentId: _currentFor(stage.preset)?.selections[stage.axis.id]?.id,
+          completes: (value) => _completes(stage.preset.select(stage.axis, value)),
           onSelect: (value) => _advance(stage.preset.select(stage.axis, value)),
         ),
       ),
@@ -278,7 +386,7 @@ class _ComponentCatalogPickerSheetState extends State<_ComponentCatalogPickerShe
   Widget _buildSearchResults(_Catalog catalog) {
     final results = filterPresets(catalog.products, _query);
     if (results.isEmpty) return _EmptyHint(text: 'No matches for "$_query".');
-    return _ProductList(products: results, onSelect: _advance);
+    return _ProductList(products: results, isCurrent: _isCurrent, onSelect: _advance);
   }
 
   Widget _buildSearchField() {
@@ -470,9 +578,10 @@ class _NodeEntry extends _NodeRow {
 // --- stage 1: brands ---------------------------------------------------------
 
 class _BrandList extends StatelessWidget {
-  const _BrandList({required this.brands, required this.onSelect});
+  const _BrandList({required this.brands, required this.isCurrent, required this.onSelect});
 
   final List<_BrandEntry> brands;
+  final bool Function(_BrandEntry) isCurrent;
   final ValueChanged<_BrandEntry> onSelect;
 
   @override
@@ -489,6 +598,7 @@ class _BrandList extends StatelessWidget {
           title: Text(entry.catalog.brand),
           subtitle: Text(_count(entry.productCount, 'variant')),
           trailing: _chevron,
+          selected: isCurrent(entry),
           onTap: () => onSelect(entry),
         );
       },
@@ -499,9 +609,10 @@ class _BrandList extends StatelessWidget {
 // --- stage 2: one level of the brand's tree ----------------------------------
 
 class _NodeList extends StatelessWidget {
-  const _NodeList({required this.rows, required this.onSelect});
+  const _NodeList({required this.rows, required this.isCurrent, required this.onSelect});
 
   final List<_NodeRow> rows;
+  final bool Function(_NodeEntry) isCurrent;
   final ValueChanged<_NodeEntry> onSelect;
 
   @override
@@ -516,11 +627,13 @@ class _NodeList extends StatelessWidget {
             title: Text(entry.node.label),
             subtitle: _SubtitleText(_groupSubtitle(entry)),
             trailing: _chevron,
+            selected: isCurrent(entry),
             onTap: () => onSelect(entry),
           ),
           CatalogProduct() => _ProductTile(
             product: entry.products.single,
             title: entry.node.label,
+            selected: isCurrent(entry),
             onTap: () => onSelect(entry),
           ),
         },
@@ -560,9 +673,10 @@ String _count(int count, String noun) => '$count $noun${count == 1 ? '' : 's'}';
 // --- products, and the flat search results -----------------------------------
 
 class _ProductList extends StatelessWidget {
-  const _ProductList({required this.products, required this.onSelect});
+  const _ProductList({required this.products, required this.isCurrent, required this.onSelect});
 
   final List<ResolvedPreset> products;
+  final bool Function(ResolvedPreset) isCurrent;
   final ValueChanged<ResolvedPreset> onSelect;
 
   @override
@@ -577,6 +691,7 @@ class _ProductList extends StatelessWidget {
           // A flat result list has no brand/model context around it, so spell
           // the whole name out.
           title: presetDisplayName(product),
+          selected: isCurrent(product),
           onTap: () => onSelect(product),
         );
       },
@@ -585,10 +700,11 @@ class _ProductList extends StatelessWidget {
 }
 
 class _ProductTile extends StatelessWidget {
-  const _ProductTile({required this.product, required this.title, required this.onTap});
+  const _ProductTile({required this.product, required this.title, required this.selected, required this.onTap});
 
   final ResolvedPreset product;
   final String title;
+  final bool selected;
   final VoidCallback onTap;
 
   @override
@@ -597,25 +713,29 @@ class _ProductTile extends StatelessWidget {
     return ListTile(
       title: Text(title),
       subtitle: subtitle == null ? null : _SubtitleText(subtitle),
-      trailing: _ProductTrailing(product.node.years),
+      trailing: _ProductTrailing(product.node.years, completes: _completes(product)),
+      selected: selected,
       onTap: onTap,
     );
   }
 }
 
-/// Chevron, preceded by the year badge when the catalog knows the years.
+/// Chevron, or a check when the tap completes the selection, preceded by the
+/// year badge when the catalog knows the years.
 class _ProductTrailing extends StatelessWidget {
-  const _ProductTrailing(this.years);
+  const _ProductTrailing(this.years, {required this.completes});
 
   final String? years;
+  final bool completes;
 
   @override
   Widget build(BuildContext context) {
     final years = this.years;
-    if (years == null || years.isEmpty) return _chevron;
+    final icon = completes ? _check : _chevron;
+    if (years == null || years.isEmpty) return icon;
     return Row(
       mainAxisSize: MainAxisSize.min,
-      children: [_YearBadge(years), const SizedBox(width: 6), _chevron],
+      children: [_YearBadge(years), const SizedBox(width: 6), icon],
     );
   }
 }
@@ -634,29 +754,35 @@ String? _productSubtitle(ResolvedPreset product) {
 // --- stage 3: required axes, one at a time -----------------------------------
 
 class _RequiredValueList extends StatelessWidget {
-  const _RequiredValueList({required this.values, required this.onSelect});
+  const _RequiredValueList({
+    required this.values,
+    required this.currentId,
+    required this.completes,
+    required this.onSelect,
+  });
 
   final List<OptionValue> values;
+
+  /// The value of the current selection, when this is its product.
+  final Object? currentId;
+  final bool Function(OptionValue) completes;
   final ValueChanged<OptionValue> onSelect;
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
       shrinkWrap: true,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
       itemCount: values.length,
       itemBuilder: (context, index) {
         final value = values[index];
         final description = value.description;
-        return Card(
-          margin: const EdgeInsets.symmetric(vertical: 6),
-          child: ListTile(
-            title: Text(value.label),
-            subtitle: _valueSubtitle(value),
-            trailing: _chevron,
-            isThreeLine: description != null && description.isNotEmpty,
-            onTap: () => onSelect(value),
-          ),
+        return ListTile(
+          title: Text(value.label),
+          subtitle: _valueSubtitle(value),
+          trailing: completes(value) ? _check : _chevron,
+          selected: value.id == currentId,
+          isThreeLine: description != null && description.isNotEmpty,
+          onTap: () => onSelect(value),
         );
       },
     );
@@ -671,6 +797,7 @@ Widget? _valueSubtitle(OptionValue value) {
   if (description != null && description.isNotEmpty) lines.add(description);
   final adjustments = _adjustmentSummary(value);
   if (adjustments.isNotEmpty) lines.add(adjustments);
+  if (value.missingAdjustments.isNotEmpty) lines.add('Add by hand: ${value.missingAdjustments.join(', ')}');
   return lines.isEmpty ? null : Text(lines.join('\n'));
 }
 

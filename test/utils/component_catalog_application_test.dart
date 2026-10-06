@@ -26,6 +26,7 @@ option_values:
       name: GRIP X
       adjustments:
         - { name: Rebound, type: step, max: 17 }
+      missing_adjustments: [LSC]
 nodes:
   - label: "36"
     level: model
@@ -37,6 +38,7 @@ nodes:
         id: "2025"
         years: "2025-2026"
         url: https://www.foxfactory.com/36
+        setup_guide: https://tech.ridefox.com/36
         children:
           - label: Factory
             level: trim
@@ -141,18 +143,18 @@ void main() {
       expect(sag.notes, kForkSagNotes);
     });
 
-    test('notes show chosen values, the option list otherwise, and the url last', () {
+    test('notes are a dash list of the chosen values and specs, then the setup guide', () {
       final app = buildCatalogApplication(resolved);
 
+      // The damper description, the skipped wheel size and the product page are left out.
       expect(app.notes.split('\n'), [
-        'Damper: GRIP X2 — 4-way adjustable damper',
-        'Travel: 160 mm',
-        'Wheel size: 29 / 27.5',
-        'Stanchion: Kashima',
-        'Spring: Air',
-        'Year: 2025-2026',
-        'Trim note',
-        'https://www.foxfactory.com/36',
+        '- Damper: GRIP X2',
+        '- Travel: 160 mm',
+        '- Stanchion: Kashima · Spring: Air',
+        '- Model years: 2025-2026',
+        '- Trim note',
+        '',
+        'Setup guide: https://tech.ridefox.com/36',
       ]);
     });
 
@@ -180,11 +182,11 @@ void main() {
       expect(_sag(buildCatalogApplication(resolved).adjustments).referenceTravelMm, isNull);
     });
 
-    test('notes list the options that are still open', () {
-      final lines = buildCatalogApplication(resolved).notes.split('\n');
+    test('notes leave out the options that are still open', () {
+      final notes = buildCatalogApplication(resolved).notes;
 
-      expect(lines, contains('Damper: GRIP X2 / GRIP X'));
-      expect(lines, contains('Travel: 150 / 160 mm'));
+      expect(notes, isNot(contains('Damper')));
+      expect(notes, isNot(contains('Travel')));
     });
   });
 
@@ -202,8 +204,12 @@ void main() {
       expect(app.preset['travel_mm'], 160);
     });
 
-    test('a value without a description is named alone', () {
-      expect(app.notes.split('\n'), contains('Damper: GRIP X'));
+    test('the damper is named, and its missing adjusters are listed', () {
+      final lines = app.notes.split('\n');
+
+      expect(lines, contains('- Damper: GRIP X'));
+      expect(lines, contains('- Travel: 160 mm'));
+      expect(lines, contains('- Not in the catalog yet, add by hand: LSC'));
     });
   });
 
@@ -223,20 +229,17 @@ void main() {
 
       expect(_sag(app.adjustments).referenceTravelMm, isNull);
       expect(app.preset['size'], isNull);
-      expect(app.notes.split('\n'), contains('Size: 210x50 mm / 210x55 mm / 185x55 mm'));
+      expect(app.notes, isNot(contains('Size')));
     });
 
-    test('notes spell out the specs of the chosen size', () {
+    test('notes name the chosen size once, with its mount', () {
       final app = buildCatalogApplication(_preset(_ohlinsYaml, choices: {'size': '185x55'}));
 
       expect(app.name, 'Öhlins TTX22 m.2');
       expect(app.notes.split('\n'), [
-        'Damper: TTX22 m.2',
-        'Size: 185x55 mm',
-        'Spring: Coil',
-        'Eye-to-eye: 185 mm',
-        'Stroke: 55 mm',
-        'Mount: Trunnion',
+        '- Damper: TTX22 m.2',
+        '- Size: 185x55 mm',
+        '- Spring: Coil · Mount: Trunnion',
       ]);
     });
   });

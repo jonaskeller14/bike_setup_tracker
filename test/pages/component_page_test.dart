@@ -411,13 +411,13 @@ nodes:
       expect(find.text('rebound'), findsOneWidget);
       expect(find.text('SAG'), findsOneWidget);
       expect(find.widgetWithText(TextFormField, 'My Fork'), findsOneWidget, reason: "Name stays the user's");
-      expect(notesText(tester), 'Serial 123\n\nPreset note');
+      expect(notesText(tester), 'Serial 123\n\n- Preset note');
 
       // Re-picking swaps the appended block instead of stacking a second copy.
       await tester.tap(find.widgetWithText(ListTile, presetName));
       await tester.pumpAndSettle();
       await pickFoxFactory(tester);
-      expect(notesText(tester), 'Serial 123\n\nPreset note');
+      expect(notesText(tester), 'Serial 123\n\n- Preset note');
     });
 
     testWidgets('saves the picked path, damper and travel as the preset', (WidgetTester tester) async {

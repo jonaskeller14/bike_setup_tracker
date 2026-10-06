@@ -34,7 +34,7 @@ sources:
   - https://worldwidecyclery.com/blogs/worldwide-cyclery-blog/ohlins-ttx-22-m-rear-shock-customer-review
   - https://www.pinkbike.com/news/review-hlins-ttx2air-shock.html
   - https://www.pinkbike.com/news/first-ride-ohlins-cross-country-suspension.html
-updated: 2026-09-10
+updated: 2026-10-05
 # Click ranges taken from each model's own listing at ohlins.eu. Clicks are
 # counted from fully closed (firmest) → default `dial_ccw`.
 
@@ -190,6 +190,7 @@ nodes:
         id: m1
         years: "2025-2026"
         url: https://www.ohlins.eu/en/products/mountainbike/ttx1air-universal--7689/
+        setup_guide: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-ttx-air--00002997.pdf
         specs: { spring: Air }
         children:
           - label: Universal
@@ -205,6 +206,7 @@ nodes:
         id: m2
         years: "2025-2026"
         url: https://www.ohlins.eu/en/products/mountainbike/ttx1air-m2-universal--7749/
+        setup_guide: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-ttx-air--00004276.pdf
         specs: { spring: Air }
         children:
           - label: Universal
@@ -226,6 +228,7 @@ nodes:
         id: m1
         years: "2025-2026"
         url: https://www.ohlins.eu/en/products/mountainbike/ttx2-air-universal--7690/
+        setup_guide: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-ttx-air--00002997.pdf
         specs: { spring: Air }
         children:
           - label: Universal
@@ -240,6 +243,7 @@ nodes:
         id: m2
         years: "2025-2026"
         url: https://www.ohlins.eu/en/products/mountainbike/ttx2air-m2-universal--7750/
+        setup_guide: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-ttx-air--00004276.pdf
         specs: { spring: Air }
         children:
           - label: Universal
@@ -257,6 +261,7 @@ nodes:
     category: XC
     years: "2025-2026"
     url: https://www.ohlins.eu/en/products/mountainbike/txc1air-universal--7691/
+    setup_guide: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-txc-air--00003880.pdf
     specs: { spring: Air }
     children:
       - label: Universal
@@ -274,6 +279,7 @@ nodes:
     category: XC
     years: "2025-2026"
     url: https://www.ohlins.eu/en/products/mountainbike/txc2air-universal--7593/
+    setup_guide: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-txc-air--00003880.pdf
     specs: { spring: Air }
     children:
       - label: Universal
@@ -294,6 +300,7 @@ nodes:
         id: m2
         years: "2025-2026"
         url: https://www.ohlins.eu/en/products/mountainbike/ttx22-m2-piggyback-105x35-267x89mm--5708/
+        setup_guide: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-ttx22m2-englisch--00003682.pdf
         specs: { spring: Coil }
         note: |-
           - The coil spring is bought separately, from the Öhlins 18075 series
@@ -337,6 +344,11 @@ nodes:
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):
+#   - setup_guide: the TTX Air manual (TTX Air AM, ...00002997) covers both
+#     first-generation air shocks; ...00004276 is the m.2 one; the TXC manual
+#     (...00003880) covers both TXC shocks.
+#   - Dial colors: none found for the TXC1Air / TXC2Air rebound and the TXC2Air
+#     lever, so those carry no `dialColor` beyond the TXC2Air compression.
 #   - Volume-spacer counts: the TTX1Air m.2, TTX2Air m.2 and both TXC shocks
 #     ship with an air-volume spacer system, but Öhlins never states how many
 #     spacers a can accepts. No Volume Spacers adjustment is generated until a

@@ -40,10 +40,13 @@ sources:
   - https://dvosuspension.com/product/topaz-wp-cv/
   - https://dvosuspension.com/wp-content/uploads/2024/05/DVO-Topaz-Setup-Guide-May9.pdf
   - https://dvosuspension.com/product/topaz-2/
+  - https://dvosuspension.com/wp-content/uploads/2024/05/DVO-Jade-X-Setup-Guide-May16.pdf
+  - https://dvosuspension.com/wp-content/uploads/2024/02/DVO-Jade-X-WP-Setup_Guide_Dec5_2023.pdf
+  - https://dvosuspension.com/wp-content/uploads/2024/02/DVO-Topaz-WP-Setup_Guide_Dec5_2023.pdf
   - https://tech.dvosuspension.com/setup/topaz-2/
   - https://tech.dvosuspension.com/wp-content/uploads/2020/10/DVO-Set-Up-Guide-shock-2020.pdf
   - https://dvosuspension.com/product/opal-hv-t3/
-updated: 2026-09-10
+updated: 2026-10-05
 
 # --------------------------------------------------------------------------
 # Dampers
@@ -139,7 +142,7 @@ option_values:
       description: |-
         - Previous-generation Topaz lever with three positions: Open, Medium and Closed
         - Closed reduces pedal bob for climbing; it is a platform, not a lockout
-        - Adjustments incomplete: please add Rebound yourself.
+      missing_adjustments: [Rebound]
       adjustments:
         - { name: Compression Mode, type: categorical, options: [Open, Medium, Closed], notes: "On-the-fly lever; Open = most sensitive, Medium = balanced with a pedalling platform, Closed = least bob when climbing" }
       source:
@@ -156,9 +159,9 @@ option_values:
     opal_t3:
       name: Opal T3
       description: >-
-        Lightweight XC air shock with a three-position on-the-fly compression lever and a
-        low-speed rebound dial. Adjustments incomplete: please add the Compression lever
-        yourself.
+        Lightweight XC air shock with a three-position on-the-fly compression lever
+        and a low-speed rebound dial.
+      missing_adjustments: [Compression lever]
       adjustments:
         - { name: Rebound, type: step, max: ~, notes: Low-Speed Rebound }
       source:
@@ -181,6 +184,7 @@ nodes:
     category: Enduro / DH
     years: "2023-2026"
     url: https://dvosuspension.com/product/jade-x/
+    setup_guide: https://dvosuspension.com/wp-content/uploads/2024/05/DVO-Jade-X-Setup-Guide-May16.pdf
     specs: { spring: Coil }
     # Bladder 140-180psi and the 6mm preload limit: Jade X Set-Up Guide v2.0,
     # p.8 "BLADDER PRESSURE RANGE 140-180PSI / DO NOT EXCEED 180PSI" and p.11
@@ -213,16 +217,21 @@ nodes:
       - label: WP CV
         level: trim
         url: https://dvosuspension.com/product/jade-x-wp/
+        setup_guide: https://dvosuspension.com/wp-content/uploads/2024/02/DVO-Jade-X-WP-Setup_Guide_Dec5_2023.pdf
         adjustments: *jade_coil_spring
+        options:
+          size:
+            - { size: "205x65", mount: Trunnion }
         note: >-
           Built with WP Suspension and running WP's Cone Valve damper internals.
-          Adjustments incomplete: please add Rebound and Compression yourself.
+        missing_adjustments: [Rebound, Compression]
 
   - label: Jade
     level: model
     category: Downhill
     years: "2019-2026"
     url: https://dvosuspension.com/product/jade/
+    setup_guide: https://tech.dvosuspension.com/setup/jade/
     specs: { spring: Coil }
     # Bladder 170-200psi and the 5mm preload limit: tech.dvosuspension.com/setup/jade
     # ("Air Pressure Range: 170-200psi", "The maximum amount of preload length is 5mm.").
@@ -236,6 +245,16 @@ nodes:
           - { name: Bladder Pressure, type: numerical, unit: psi, min: 170, max: 200 }
         options:
           damper: [jade_coil]
+          size:
+            - { size: "210x50/52.5/55", mount: Metric }
+            - { size: "230x57.5/60/65", mount: Metric }
+            - { size: "250x70", mount: Metric }
+            - { eye_to_eye_mm: 215.9, stroke_mm: 63.5, mount: Standard, label: 8.5x2.5in }
+            - { eye_to_eye_mm: 222.25, stroke_mm: 69.85, mount: Standard, label: 8.75x2.75in }
+            - { eye_to_eye_mm: 200.025, stroke_mm: 57.15, mount: Standard, label: 7.875x2.25in }
+            - { size: "185x50/52.5/55", mount: Trunnion }
+            - { size: "205x57.5/60/62.5/65", mount: Trunnion }
+            - { size: "225x70/75", mount: Trunnion }
         note: |-
           - Coil DH shock, born on the UCI Downhill World Cup circuit
           - Runs a higher 170-200psi bladder charge than the Jade X
@@ -246,6 +265,7 @@ nodes:
     category: XC / Trail / Enduro / E-MTB
     years: "2023-2026"
     url: https://dvosuspension.com/product/topaz-gen-3/
+    setup_guide: https://dvosuspension.com/wp-content/uploads/2024/05/DVO-Topaz-Setup-Guide-May9.pdf
     specs: { spring: Air }
     # Max air 300psi and bladder 140-180psi: Topaz Set-Up Guide (May 2024), p.10
     # "DO NOT EXCEED MAXIMUM AIR PRESSURE! 300PSI" and p.9 "BLADDER PRESSURE
@@ -277,10 +297,14 @@ nodes:
       - label: WP CV
         level: trim
         url: https://dvosuspension.com/product/topaz-wp-cv/
+        setup_guide: https://dvosuspension.com/wp-content/uploads/2024/02/DVO-Topaz-WP-Setup_Guide_Dec5_2023.pdf
         adjustments: *topaz_air_spring
+        options:
+          size:
+            - { size: "205x60", mount: Trunnion }
         note: >-
           Built with WP Suspension and running WP's Cone Valve damper internals.
-          Adjustments incomplete: please add Rebound and Compression yourself.
+        missing_adjustments: [Rebound, Compression]
 
   - label: Opal
     level: model
@@ -306,6 +330,7 @@ nodes:
     category: XC / Trail
     years: "2016-2022"
     url: https://dvosuspension.com/product/topaz-2/
+    setup_guide: https://tech.dvosuspension.com/setup/topaz-2/
     specs: { spring: Air }
     # Max air 300psi and bladder 170-200psi: 2020 Topaz Air Owner's Guide, p.4
     # "Do Not Exceed Maximum Air Pressure! 300PSI" and p.5 "Do Not Exceed
@@ -330,6 +355,8 @@ nodes:
         adjustments: *topaz_t3air_spring
         options:
           damper: [topaz_t3air]
+          size:
+            - { size: "205x62.5", mount: Trunnion }
         note: High-volume air can tuned specifically for Giant's Maestro suspension layout.
 
 # --------------------------------------------------------------------------
@@ -355,7 +382,13 @@ nodes:
 #     both tables cover the model, not the trim, so the Pro / Prime / WP CV
 #     lists may differ in practice. The Jade, Topaz 2 and Opal have no
 #     published stroke table beyond the Opal's product page.
-#   - Opal HV T3: no tech page (/setup/opal/ is a 404), no set-up guide PDF, no
+#   - Sizes added 2026-10-05 from each product page's size dropdown / size list: Jade
+#     (union of the dropdown and the "Standard / Metric / Trunnion Sizes" text, with
+#     the mount group the page prints; the page FAQ also mentions a 10.5x3.5in size
+#     that is not in the dropdown, not added), Jade X WP CV (205x65 Trunnion only),
+#     Topaz WP CV (205x60 Trunnion only), Topaz 2 Maestro HV (205x62.5 Trunnion only).
+#     Topaz 2 T3Air: no shock product page exists (only spare-part pages), so no sizes.
+#   - Opal HV T3: no setup guide; no tech page (/setup/opal/ is a 404), no set-up guide PDF, no
 #     click counts for its T3 lever or its rebound dial. Rebound carries
 #     `max: ~`, but the lever's positions are unnamed, so the trim stays
 #     `draft: true` and the picker hides it until DVO publishes them.

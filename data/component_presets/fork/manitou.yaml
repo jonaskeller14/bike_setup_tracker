@@ -49,7 +49,7 @@ sources:
   # Secondary — editorial (article body text only)
   - https://www.pinkbike.com/news/first-ride-the-manitou-mezzer-lt-class-leading-sensitivity.html
   - https://www.pinkbike.com/news/first-look-manitous-180mm-mezzer-pro-fork-and-mara-pro-shock-garda-trentino-2019.html
-updated: 2026-09-25
+updated: 2026-10-05
 # Counting conventions, taken from the "Set-up notes" of every guide above:
 #   * Damper knobs are turned fully clockwise to reach the maximum "zero"
 #     position and are counted counterclockwise (opening) from there — i.e.
@@ -230,6 +230,7 @@ nodes:
           - label: Pro
             level: trim
             url: https://hayesbicycle.com/products/mezzer-pro-g2
+            setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/43742231652503
             specs: { stanchion: 37mm, spring: Air }
             offset_mm: [44]
             adjustments: &mezzer_irt_spring
@@ -246,6 +247,7 @@ nodes:
           - label: Expert
             level: trim
             url: https://hayesbicycle.com/products/mezzer-expert-1
+            setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/41067689282071
             specs: { stanchion: 37mm, spring: Air }
             offset_mm: [44]
             adjustments: &expert_air_spring
@@ -266,6 +268,7 @@ nodes:
         children:
           - label: Pro
             level: trim
+            setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/43742473560727
             specs: { stanchion: 37mm, spring: Air }
             offset_mm: [37, 44, 51]
             adjustments:
@@ -281,6 +284,7 @@ nodes:
               - Travel adjusted internally with spacer clips
           - label: Expert
             level: trim
+            setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/43742488803479
             specs: { stanchion: 37mm, spring: Air }
             offset_mm: [37, 44, 51]
             adjustments: *expert_air_spring
@@ -301,6 +305,7 @@ nodes:
       - label: Pro
         level: trim
         url: https://hayesbicycle.com/products/mezzer-lt-pro-g2
+        setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/43742231652503
         specs: { stanchion: 37mm, spring: Air }
         offset_mm: [44]
         adjustments: *mezzer_irt_spring
@@ -314,6 +319,7 @@ nodes:
       - label: Comp
         level: trim
         url: https://hayesbicycle.com/products/mezzer-lt-comp-g2
+        setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/43742211211927
         specs: { stanchion: 37mm, spring: Air }
         offset_mm: [44]
         adjustments: *expert_air_spring
@@ -334,6 +340,7 @@ nodes:
       - label: Pro
         level: trim
         url: https://hayesbicycle.com/products/mattoc-pro
+        setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/14639548710935
         specs: { stanchion: 34mm, spring: Air }
         adjustments:
           - { name: Pressure, type: numerical, unit: psi, min: 0, notes: Max 120 psi }
@@ -349,6 +356,7 @@ nodes:
       - label: Expert
         level: trim
         url: https://hayesbicycle.com/products/mattoc-expert
+        setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/14639542611479
         specs: { stanchion: 34mm, spring: Air }
         adjustments: *expert_air_spring
         options:
@@ -361,6 +369,7 @@ nodes:
       - label: Comp
         level: trim
         url: https://hayesbicycle.com/products/mattoc-comp
+        setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/14639496469143
         specs: { stanchion: 34mm, spring: Air }
         adjustments: *expert_air_spring
         options:
@@ -377,6 +386,7 @@ nodes:
     category: XC
     years: "2024-2026"
     url: https://hayesbicycle.com/products/r8-pro
+    setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/24504253740951
     children:
       - label: Pro
         level: trim
@@ -403,6 +413,7 @@ nodes:
       - label: Pro
         level: trim
         url: https://hayesbicycle.com/products/my22-dorado-pro
+        setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/4404709083799
         specs: { stanchion: 37mm, spring: Air }
         offset_mm: [47, 57]
         adjustments:
@@ -419,6 +430,7 @@ nodes:
       - label: Expert
         level: trim
         url: https://hayesbicycle.com/products/new-my22-dorado-expert
+        setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/4404701744407
         specs: { stanchion: 37mm, spring: Air }
         offset_mm: [47, 57]
         adjustments:
@@ -434,6 +446,7 @@ nodes:
       - label: Comp Coil
         level: trim
         url: https://hayesbicycle.com/products/new-dorado-coil
+        setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/4404709071767
         specs: { stanchion: 37mm, spring: Coil }
         offset_mm: [47, 57]
         adjustments:
@@ -454,6 +467,7 @@ nodes:
       - label: Pro
         level: trim
         url: https://hayesbicycle.com/products/mastodon-pro
+        setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/17493411154967
         specs: { stanchion: 34mm, spring: Air }
         offset_mm: [44]
         adjustments:
@@ -468,6 +482,7 @@ nodes:
       - label: Comp
         level: trim
         url: https://hayesbicycle.com/products/mastodon-comp
+        setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/17493359414167
         specs: { stanchion: 34mm, spring: Air }
         offset_mm: [44]
         adjustments:
@@ -501,6 +516,10 @@ nodes:
 #   - Not covered: Machete, Markhor (Kwik Toggle / TPC rebound, no click counts
 #     in the service guides), JUNIT and Circus (youth / dirt-jump / BMX), Magnum,
 #     Dorado 36 and the 2018-2022 Mattoc generations.
-#   - Dial colors and sizes were not confirmed from product photos, so all dials
-#     use the default blue / normal.
+#   - Dial colors and sizes: no set-up guide or product page states a knob colour in
+#     text, so all dials use the default blue / normal.
+#   - Dorado Comp Coil `travel_mm`: the product page says only "Travel: Fixed Travel"
+#     and the Comp set-up guide gives no travel figure, so none is declared.
+#   - Setup guides link the per-trim PDF attachments (the help-center articles
+#     themselves are bot-blocked); Mezzer G2 / LT Pro share one guide.
 # --------------------------------------------------------------------------

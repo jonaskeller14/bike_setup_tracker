@@ -23,7 +23,7 @@
 # Click ranges: Cannondale's own manuals list recommended STARTING click values
 # (a rider-weight table) but never state an adjuster's total range, so totals
 # only come from press coverage. The 2018 Ocho's two secondary sources disagree
-# (see `chamber_ocho_2018`), so its adjusters carry no maximum. The Ocho 120's
+# (see `chamber_ocho_2018`), so its adjusters carry `max: ~`. The Ocho 120's
 # rebound is counted in clicks but has no total, so it carries `max: ~`; every
 # other adjuster here has no published count and stays out. See Follow-ups.
 
@@ -46,7 +46,7 @@ sources:
   - https://www.bikeradar.com/news/lefty-ocho-120-fork-debuts-on-cannondale-scalpel-se-ltd
   - https://www.bikeradar.com/reviews/components/forks/suspension-forks/cannondale-oliver-lefty-carbon-gravel-fork-review
   - https://www.pinkbike.com/news/cannondale-lefty-ocho-review-2018.html
-updated: 2026-09-25
+updated: 2026-10-05
 
 # --------------------------------------------------------------------------
 # Dampers
@@ -60,8 +60,8 @@ option_values:
         - Low Speed Rebound dial at the bottom of the leg, counted in clicks out from fully closed
         - Handlebar remote lockout with Descend and Climb modes
       adjustments:
-        - { name: Compression, type: numerical, unit: clicks, min: 0, notes: "Low-Speed Compression; black knob on top of the crown, clockwise (+) = harder to compress; do not force past the stops. Total click count is not settled: see damper source" }
-        - { name: Rebound, type: numerical, unit: clicks, min: 0, notes: "Low-Speed Rebound; dial at the bottom of the leg, counted in clicks out from fully closed (slowest); the recommended-settings table runs from 16 clicks (light riders) to 2 clicks (heavy riders). Total click count is not settled: see damper source" }
+        - { name: Compression, type: step, max: ~, notes: "Low-Speed Compression; black knob on top of the crown, clockwise (+) = harder to compress; do not force past the stops" }
+        - { name: Rebound, type: step, max: ~, notes: "Low-Speed Rebound; dial at the bottom of the leg, counted in clicks out from fully closed (slowest)" }
       source:
         - https://www.cannondale.com/-/media/files/manual-uploads/manuals/018_%20lefty%20ocho_134923_screen_en.pdf
         - https://www.bikeradar.com/news/everything-you-need-to-know-about-the-new-cannondale-lefty-ocho-fork
@@ -70,17 +70,18 @@ option_values:
         Adjuster direction and counting convention from Cannondale's Lefty Ocho manual
         supplement 134923 (Rebound p.10: close clockwise toward SLOW, then count clicks out
         toward FAST; Compression p.11). Totals CONFLICT between two allowed editorial
-        sources, so no maximum is set: BikeRadar's launch article says "six clicks of
+        sources, so both adjusters carry `max: ~`: BikeRadar's launch article says "six clicks of
         compression adjustment and 23 clicks of rebound adjustment", while Pinkbike's
         review says "There are eight clicks of low-speed compression, twenty-two of
-        low-speed rebound". Cannondale's manual gives no total.
+        low-speed rebound". Cannondale's manual gives no total; its recommended-rebound table
+        runs from 16 clicks (light riders) to 2 clicks (heavy riders).
 
     chamber_ocho120_2021:
       name: Chamber (Ocho 120)
       description: >-
-        High-flow Chamber damper with a crown-top Low Speed Compression dial, a rebound dial
-        at the bottom of the leg and a remote lockout. Adjustments incomplete: please add
-        Compression yourself.
+        High-flow Chamber damper with a crown-top Low Speed Compression dial, a
+        rebound dial at the bottom of the leg and a remote lockout.
+      missing_adjustments: [Compression]
       adjustments:
         - { name: Rebound, type: step, max: ~, notes: "Low-Speed Rebound; counted in clicks out from fully closed (slowest)" }
       source:
@@ -96,9 +97,9 @@ option_values:
     oliver:
       name: Oliver
       description: >-
-        Gravel-specific damper with a rebound knob at the bottom of the leg and a top-of-leg
-        lockout that blows off if you hit an obstacle while locked. Adjustments incomplete:
-        please add Rebound yourself.
+        Gravel-specific damper with a rebound knob at the bottom of the leg and a
+        top-of-leg lockout that blows off if you hit an obstacle while locked.
+      missing_adjustments: [Rebound]
       adjustments: []
       source:
         - https://www.cannondale.com/en/gear/components/suspension/lefty-oliver/lefty-oliver-carbon
@@ -111,9 +112,9 @@ option_values:
     lefty_2_2016:
       name: Lefty 2.0 (PBR / XLR)
       description: >-
-        Rebound dial on top of the leg. Climb mode comes from a push button under the dial
-        (PBR) or from a handlebar RockShox XLoc remote (XLR). Adjustments incomplete:
-        please add Rebound yourself.
+        Rebound dial on top of the leg. Climb mode comes from a push button under the
+        dial (PBR) or from a handlebar RockShox XLoc remote (XLR).
+      missing_adjustments: [Rebound]
       adjustments: []
       source:
         - https://www.cannondale.com/-/media/files/manual-uploads/manuals/133095%20MY16%20LEFTY%20OMS_EN.pdf
@@ -260,8 +261,8 @@ nodes:
 #   - Lefty Ocho (100mm, 2018) click totals: BikeRadar (May 2018) says 6 compression /
 #     23 rebound; Pinkbike (May 2018) says 8 LSC / 22 LSR. Cannondale's owner's manual
 #     gives only a starting-rebound table (16 to 2 clicks out from closed). Both
-#     adjusters are therefore unbounded `numerical` clicks until Cannondale or a
-#     service guide states the total.
+#     adjusters therefore carry `max: ~` until Cannondale or a service guide states
+#     the total.
 #   - Lefty Ocho 120 (2021) damper: no click totals anywhere (BikeRadar's launch
 #     article and Cannondale's page give none; the manual has a 17-to-5 starting
 #     rebound table only). Rebound carries `max: ~`; how the compression dial

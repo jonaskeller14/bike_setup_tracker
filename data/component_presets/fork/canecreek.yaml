@@ -29,7 +29,7 @@ sources:
   - https://www.pinkbike.com/news/cane-creek-helm-fork-review-2017.html
   - https://www.singletracks.com/mtb-gear/cane-creeks-sleek-helm-air-fork-is-a-legit-workhorse-on-the-trail-review/
   - https://www.perpetualdisappointment.co.uk/cane-creek-helm-coil-fork-long-term-review/
-updated: 2026-09-10
+updated: 2026-10-05
 # Click ranges below come from the "Damping Adjustments" table in each
 # generation's official Cane Creek instruction manual (see each damper's
 # `source:`). Clicks are counted from fully closed (firmest); the default
@@ -52,13 +52,14 @@ option_values:
       adjustments:
         - { name: HSC, type: step, max: 10, notes: High-Speed Compression, dialColor: grey }
         - { name: LSC, type: step, max: 10, notes: Low-Speed Compression, dialColor: orange, dialSize: small }
-        - { name: Rebound, type: step, max: 10, notes: "Low-Speed Rebound; Cane Creek labels this the fork's single rebound circuit (no separate high-speed rebound adjuster)", dialColor: orange }
+        - { name: Rebound, type: step, max: 10, notes: Low-Speed Rebound, dialColor: orange }
       source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/HelmMKII_UserManual_04_03_2025.pdf
       note: >-
         Helm MKII instruction manual (rev. 04/03/2025), "Fork Features Overview
         → Damping Adjustments", p. 6: Compression Low Speed 10 Positions,
         Compression High Speed 10 Positions, Rebound Low Speed 10 Positions.
-        This replaces the earlier 10/17/10 figure in this file — LSC 17 is the
+        Cane Creek labels Rebound Low Speed the fork's single rebound circuit (no
+        separate high-speed rebound adjuster). This replaces the earlier 10/17/10 figure in this file — LSC 17 is the
         first-generation Helm number (see helm_mk1_damper), not the MKII's.
         Same cartridge spec covers Helm MKII Air, Helm MKII Coil and the Helm
         Works Series, which are all documented by this one manual.
@@ -72,20 +73,20 @@ option_values:
       adjustments:
         - { name: HSC, type: step, max: 10, notes: High-Speed Compression, dialColor: grey }
         - { name: LSC, type: step, max: 17, notes: Low-Speed Compression, dialColor: orange, dialSize: small }
-        - { name: Rebound, type: step, max: 10, notes: "Low-Speed Rebound; Cane Creek labels this the fork's single rebound circuit (no separate high-speed rebound adjuster)", dialColor: orange }
+        - { name: Rebound, type: step, max: 10, notes: Low-Speed Rebound, dialColor: orange }
       source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/Helm_UserManual_1_12_18_FINAL_4a8c4476-2bc0-4f03-ae32-0ced7f5f3137.pdf
       note: >-
         Helm (original) instruction manual, rev. 01/12/2018, "Damping
         Adjustments" table, p. 5: Compression Low Speed 17 Clicks, Compression
-        High Speed 10 Clicks, Rebound Low Speed 10 Clicks. Distinct from the
+        High Speed 10 Clicks, Rebound Low Speed 10 Clicks. Cane Creek labels it the fork's single
+        rebound circuit. Distinct from the
         MKII cartridge, which the 2025 MKII manual lists as 10/10/10.
 
     helm_dj_damper:
       name: Helm DJ Damper
       description: >-
-        Dirt-jump tune of the Helm cartridge, set up firm for repeated hard
-        landings. Adjustments incomplete: please add any compression adjusters
-        your fork has yourself.
+        Dirt-jump tune of the Helm cartridge, set up firm for repeated hard landings.
+      missing_adjustments: [Compression]
       adjustments:
         - { name: Rebound, type: step, max: ~, notes: Counted from fully closed }
       source: https://www.canecreek.com/products/helm-dj
@@ -108,6 +109,7 @@ nodes:
     category: Downcountry / Trail / Enduro
     years: "2020-2026"
     url: https://www.canecreek.com/products/helm-mkii
+    setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/HelmMKII_UserManual_04_03_2025.pdf
     children:
       - label: Air
         level: trim
@@ -137,6 +139,7 @@ nodes:
     category: Downcountry
     years: "2023-2026"
     url: https://www.canecreek.com/products/helm-works-series
+    setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/HelmMKII_UserManual_04_03_2025.pdf
     children:
       - label: Air
         level: trim
@@ -178,6 +181,7 @@ nodes:
     category: Trail / Enduro
     years: "2017-2019"
     url: https://www.canecreek.com/pages/legacy-products-product-support
+    setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/Helm_UserManual_1_12_18_FINAL_4a8c4476-2bc0-4f03-ae32-0ced7f5f3137.pdf
     # Manual: cdn.shopify.com/.../Helm_UserManual_1_12_18_FINAL_...pdf
     # 2017 launch year per Pinkbike's Helm fork review; superseded by the
     # Helm MKII in 2020.
@@ -226,6 +230,9 @@ nodes:
 #     volume (8 indexed positions) and travel-reducer systems; kept separate
 #     anyway, so a future correction to one generation cannot leak into the
 #     other.
+#
+# Not sourceable: dial colours (no text source states a knob colour for the Helm
+# DJ cartridge) and a Helm DJ setup guide (no manual or support entry exists).
 #
 # Resolved 2026-09-10:
 #   - Helm MKII HSC/LSC/Rebound reconfirmed against the printed manual

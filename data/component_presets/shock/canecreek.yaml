@@ -22,6 +22,8 @@ sources:
   - https://www.canecreek.com/pages/dbair-il-trunnion-mount-complete-100-hour-service-part-4-of-4
   - https://www.canecreek.com/pages/shocks-product-support
   - https://www.canecreek.com/pages/legacy-products-product-support
+  - https://www.canecreek.com/products/db-kitsuma-air
+  - https://www.canecreek.com/products/kitsuma-coil
   # Official PDF instruction manuals (linked from the two support pages above)
   - https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB_IL_G2_Manual_2025_04_01.pdf
   - https://cdn.shopify.com/s/files/1/0579/5987/4639/files/Kitsuma_Manual_2025_04_01.pdf
@@ -32,7 +34,7 @@ sources:
   - https://cdn.shopify.com/s/files/1/0579/5987/4639/files/tfg_english_30a0cfe9-1830-4f4f-8436-09f3bfd14390.pdf
   - https://singletrackworld.com/2020/09/your-suspension-is-set-up-wrong-cane-creeks-kitsuma-is-here-to-help-that/
   - https://www.pinkbike.com/news/Cane-Creek-DBair-CS-Tested-2013.html
-updated: 2026-09-10
+updated: 2026-10-05
 # Every click/turn count below is read off the "Damper Adjustments" table in
 # the relevant generation's official Cane Creek instruction manual (each
 # damper carries the exact PDF in its `source:` key). Those tables footnote
@@ -202,6 +204,7 @@ nodes:
     category: XC / Downcountry
     years: "2025-2026"
     url: https://www.canecreek.com/products/air-il
+    setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB_IL_G2_Manual_2025_04_01.pdf
     specs: { spring: Air }
     note: For bikes with 100-140mm rear travel; ~385g. Lightest shock in the Cane Creek lineup.
     children:
@@ -226,6 +229,7 @@ nodes:
     category: XC / Trail
     years: "2025-2026"
     url: https://www.canecreek.com/products/coil-il
+    setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB_IL_G2_Manual_2025_04_01.pdf
     specs: { spring: Coil }
     note: |-
       - ~280g without a spring
@@ -254,6 +258,7 @@ nodes:
     category: Enduro / Downhill
     years: "2025-2026"
     url: https://www.canecreek.com/products/kitsuma-g2-air
+    setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/Kitsuma_Manual_2025_04_01.pdf
     specs: { spring: Air }
     note: "~585g. \"Gravity-first\" shock for long-travel trail/enduro/DH bikes; 2nd generation (G2)."
     children:
@@ -278,6 +283,7 @@ nodes:
     category: Enduro / Downhill
     years: "2025-2026"
     url: https://www.canecreek.com/products/kisuma-g2-coil
+    setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/Kitsuma_Manual_2025_04_01.pdf
     specs: { spring: Coil }
     note: ~417g without spring; 2nd generation (G2).
     children:
@@ -303,6 +309,7 @@ nodes:
     category: Trail / Enduro
     years: "2025-2026"
     url: https://www.canecreek.com/products/tigon
+    setup_guide: https://www.canecreek.com/pages/tigon-set-up-procedure
     specs: { spring: Coil }
     mounts: [Standard, Trunnion]
     adjustments:
@@ -322,6 +329,7 @@ nodes:
     level: model
     category: Trail / Enduro
     url: https://www.canecreek.com/pages/legacy-products-product-support
+    setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB-IL-Manual_2022_02_25_1_d8229608-3c4e-406c-bf6f-5b97afc6b6f8.pdf
     specs: { spring: Air }
     mounts: [Standard, Trunnion]
     # Manual: cdn.shopify.com/.../DB-IL-Manual_2022_02_25_1_...pdf (covers
@@ -339,6 +347,7 @@ nodes:
     level: model
     category: Trail / Enduro
     url: https://www.canecreek.com/pages/legacy-products-product-support
+    setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB-IL-Manual_2022_02_25_1_d8229608-3c4e-406c-bf6f-5b97afc6b6f8.pdf
     specs: { spring: Coil }
     mounts: [Standard, Trunnion]
     adjustments:
@@ -352,26 +361,38 @@ nodes:
     level: model
     category: Enduro / Downhill
     url: https://www.canecreek.com/blogs/journal/introducing-db-kitsuma
+    setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DBKitsuma-Manual_2022_02_25_1_c25c4778-7d40-4977-a021-ac43a3c30070.pdf
     specs: { spring: Air }
-    mounts: [Standard, Trunnion]
     # Manual: cdn.shopify.com/.../DBKitsuma-Manual_2022_02_25_1_...pdf
     adjustments:
       - { name: Pressure, type: numerical, unit: psi, min: 50, max: 300, notes: "50 psi minimum, 300 psi maximum; starting point is 75-100% of rider weight in lbs read as psi" }
     options:
       damper: [kitsuma_g1]
+      size:
+        - { size: "210x47.5/50/55", mount: Standard }
+        - { size: "250x67.5/72.5/75", mount: Standard }
+        - { size: "185x50/55", mount: Trunnion }
+        - { size: "205x60/62.5/65", mount: Trunnion }
     note: First-generation Kitsuma piggyback air shock for long-travel enduro and downhill bikes.
 
   - label: "DB Kitsuma Coil G1"
     level: model
     category: Enduro / Downhill
     url: https://www.canecreek.com/blogs/journal/introducing-db-kitsuma
+    setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DBKitsuma-Manual_2022_02_25_1_c25c4778-7d40-4977-a021-ac43a3c30070.pdf
     specs: { spring: Coil }
-    mounts: [Standard, Trunnion]
     adjustments:
       - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0, notes: Coil spring sold separately — see Cane Creek's VALT spring-rate guide }
       - { name: Preload, type: numerical, unit: turns, min: 1, max: 6, notes: "Keep at least 1 full turn of preload engaged; 6 turns is the maximum" }
     options:
       damper: [kitsuma_g1]
+      size:
+        - { size: "210x50/55", mount: Standard }
+        - { size: "230x60/62.5/65", mount: Standard }
+        - { size: "250x57.5/70/75", mount: Standard }   # 250x57.5 as listed on the product page
+        - { size: "185x47.5/50/52.5/55", mount: Trunnion }
+        - { size: "205x65", mount: Trunnion }
+        - { size: "225x75", mount: Trunnion }
     note: First-generation Kitsuma piggyback coil shock for long-travel enduro and downhill bikes.
 
   - label: "DB Inline"
@@ -379,6 +400,7 @@ nodes:
     category: Trail / All-Mountain
     years: "2014-2019"
     url: https://www.canecreek.com/pages/legacy-products-product-support
+    setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB_owners-manual_2014_v11-web_8703fe9e-d4d7-4766-b7db-3350db90bbfb.pdf
     specs: { spring: Air }
     note: |-
       - The Double Barrel packed into an inline body, no piggyback reservoir
@@ -399,6 +421,7 @@ nodes:
     level: model
     category: Trail / Enduro
     url: https://www.canecreek.com/pages/legacy-products-product-support
+    setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB_owners-manual_2014_v11-web_8703fe9e-d4d7-4766-b7db-3350db90bbfb.pdf
     specs: { spring: Air }
     children:
       - label: Standard
@@ -417,6 +440,7 @@ nodes:
     level: model
     category: Enduro / Downhill
     url: https://www.canecreek.com/pages/legacy-products-product-support
+    setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB_owners-manual_2014_v11-web_8703fe9e-d4d7-4766-b7db-3350db90bbfb.pdf
     specs: { spring: Coil }
     note: Piggyback coil Double Barrel, four-way adjustable, without a Climb Switch lever.
     children:
@@ -431,10 +455,13 @@ nodes:
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):
-#   - Legacy eye-to-eye / stroke options are not modelled. Cane Creek's legacy
-#     support page links per-model dimension PDFs (DBAir-IL-Dimensions,
-#     KITSUMA-AIR-USER-SPEC, DBInline_Dimensions, …) that would fill in
-#     `options.size` for every legacy entry; none of them have been read yet.
+#   - Legacy eye-to-eye / stroke options: DB Kitsuma G1 Air and Coil sizes (with
+#     per-size mounts) are read off the variant list of their canecreek.com
+#     product pages. DB Air IL G1, DBcoil IL G1, DB Inline, DB Air CS and DBcoil
+#     have no product page, and their dimension drawings and manuals only say
+#     "refer to owner's manual" without listing sizes, so no `size` axis is declared.
+#   - Setup guides: Tigon links Cane Creek's set-up procedure page; every other
+#     shock links its instruction manual. No dial colours are stated in text.
 #   - Legacy production year ranges: Cane Creek publishes none except the
 #     DB Inline's 2014 introduction (company-history journal post), so
 #     `years` is omitted on the G1 IL, G1 Kitsuma, DB Air CS and DBcoil

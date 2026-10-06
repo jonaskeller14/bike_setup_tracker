@@ -24,7 +24,7 @@ sources:
   # Coil spring rates are quoted in lbs/inch on BOS's spring page
   - https://www.bos-suspension.com/PBCPPlayer.asp?ID=2229099
   - https://www.bos-suspension.com/PBCPPlayer.asp?ID=2252919
-updated: 2026-09-25
+updated: 2026-10-05
 # The BOS product pages for these three shocks do not restate the counting
 # direction. BOS's own Quickstart/user manuals for the Grabber forks and the
 # earlier Syors, Stoy 3 and Void 3 shocks all count clicks from fully closed
@@ -184,6 +184,12 @@ nodes:
 #   - Counting direction on these three pages is not restated; see the note
 #     under `updated`.
 #   - Dial knob colours/sizes: not stated in any source, so the defaults are used.
+#   - Sizes: the Stoy 4, Void 4 and Syors 2 pages name one example size each
+#     (205x65 trunnion, 230x60, 250x75) and say only "Courses et entraxes de
+#     fixation : Impériales et Métriques disponibles" with eyelet or trunnion
+#     mounts, so no `size` axis is declared for any of them.
+#   - Setup guide: the BOS manuals page lists no setup guide for the Stoy 4 or
+#     Void 4 and only a service manual (not a rider setup guide) for the Syors.
 #   - Legacy shocks with manuals on bos-suspension.com (Kirk, Kirk 2, VIP'R,
 #     VIP'R 2, Void, Void 2, Void 3, Stoy Rare, Stoy 3, Syors): the manuals
 #     show recommended starting clicks in diagrams, not total counts, so no

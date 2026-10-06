@@ -16,7 +16,7 @@ sources:
   - https://www.srsuntour.com/products/rear-shock/RS24-TRIAir2-R-METRIC-8207.html
   - https://www.srsuntour.com/products/rear-shock/RS25-Raidon-R-METRIC-8157.html
   - https://www.srsuntour.com/products/rear-shock/RS25-Raidon-LO-METRIC-8156.html
-updated: 2026-07-18
+updated: 2026-10-05
 # Function codes on SR SUNTOUR's rear-shock spec tables ("R", "RC", "2CR",
 # "3CR", "LO") follow the same PCS naming convention documented for their
 # forks (fork/suntour.yaml / the suspension-fork glossary): R = rebound-only,
@@ -37,32 +37,32 @@ option_values:
     edge_r:
       name: EDGE R
       description: >
-        Rebound-only cartridge on the EDGE Evo/EDGE X shocks. External
-        low-speed rebound dial; no user compression adjustment. Click count is
-        not published on the official product page.
+        Rebound-only cartridge on the EDGE Evo/EDGE X shocks. External low-speed
+        rebound dial; no user compression adjustment.
+      missing_adjustments: [Rebound]
       adjustments: []
-      note: "Rebound click count unconfirmed"
+      note: Rebound click count is not published by SR SUNTOUR.
 
     edge_2cr:
       name: EDGE 2CR
       description: >
-        2-position on-the-fly compression lever (Open, Firm settings) plus a
-        low-speed rebound dial. Shared cartridge naming/function across both
-        EDGE Evo (XC/Trail) and EDGE X (reinforced eMTB) shocks. Rebound click
-        count is not published.
+        2-position on-the-fly compression lever (Open, Firm settings) plus a low-speed
+        rebound dial. Shared cartridge naming/function across both EDGE Evo (XC/Trail)
+        and EDGE X (reinforced eMTB) shocks.
+      missing_adjustments: [Rebound]
       adjustments:
         - { name: Compression Mode, type: categorical, options: [Open, Firm], notes: 2-position on-the-fly lever }
-      note: "Low-speed rebound click count unconfirmed"
+      note: Low-speed rebound click count is not published by SR SUNTOUR.
 
     edge_evo_r_2cr:
       name: EDGE Evo R-2CR
       description: >
-        Handlebar-remote version of EDGE 2CR: a remote-actuated 2-position
-        compression lever (Open, Firm settings) plus a low-speed rebound dial.
-        Rebound click count is not published.
+        Handlebar-remote version of EDGE 2CR: a remote-actuated 2-position compression
+        lever (Open, Firm settings) plus a low-speed rebound dial.
+      missing_adjustments: [Rebound]
       adjustments:
         - { name: Compression Mode, type: categorical, options: [Open, Firm], notes: Handlebar-remote 2-position lever }
-      note: "Low-speed rebound click count unconfirmed"
+      note: Low-speed rebound click count is not published by SR SUNTOUR.
 
     triair2_r:
       name: TRIAIR2 R
@@ -96,17 +96,16 @@ option_values:
       name: RAIDON R
       description: >
         Rebound-only cartridge on the RAIDON XC/Trail shock. External low-speed
-        rebound dial; no user compression adjustment. Click count is not
-        published on the official product page.
+        rebound dial; no user compression adjustment.
+      missing_adjustments: [Rebound]
       adjustments: []
-      note: "Rebound click count unconfirmed"
+      note: Rebound click count is not published by SR SUNTOUR.
 
     raidon_shock_lo:
       name: RAIDON LO
       description: >
         Hydraulic lockout variant of the RAIDON shock (fixed-rate damping when
-        unlocked); the lockout on/off function is documented on the official
-        product page. No numeric click counts are published for this cartridge.
+        unlocked).
       adjustments:
         - { name: Lockout, type: boolean, notes: Hydraulic lockout lever }
 
@@ -123,6 +122,7 @@ nodes:
     category: XC / Trail
     years: "2025-2026"
     url: https://www.srsuntour.com/products/rear-shock/RS25-EDGE-EVO-2CR-METRIC-8187.html
+    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/Rear%20Shock%20Manual/MY19_EN_General_Rear_shock_manual-20200623.pdf
     specs: { spring: Air }
     children:
       - label: 2CR
@@ -158,6 +158,7 @@ nodes:
     category: Trail (eMTB, reinforced)
     years: "2024-2026"
     url: https://www.srsuntour.com/products/rear-shock/RS24-EDGE-X-2CR-METRIC-8194.html
+    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/Rear%20Shock%20Manual/MY19_EN_General_Rear_shock_manual-20200623.pdf
     specs: { spring: Air }
     children:
       - label: 2CR
@@ -182,6 +183,7 @@ nodes:
     category: Enduro (eMTB)
     years: "2024-2026"
     url: https://www.srsuntour.com/products/rear-shock/RS24-TRIAir2-3CR-METRIC-8203.html
+    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/Rear%20Shock%20Manual/MY19_EN_General_Rear_shock_manual-20200623.pdf
     specs: { spring: Air }
     children:
       - label: 3CR
@@ -214,6 +216,7 @@ nodes:
     category: XC / Trail
     years: "2025-2026"
     url: https://www.srsuntour.com/products/rear-shock/RS25-Raidon-R-METRIC-8157.html
+    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/Rear%20Shock%20Manual/MY19_EN_General_Rear_shock_manual-20200623.pdf
     specs: { spring: Air }
     children:
       - label: R
@@ -235,6 +238,8 @@ nodes:
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):
+#   - setup_guide is the MY19 general rear shock manual for every model; no
+#     adjuster knob colors are published, so none are set.
 #   - No official SR SUNTOUR source publishes rebound/compression click
 #     counts for EDGE Evo, EDGE X or RAIDON — only TRIAIR2's spec table states
 #     an explicit "8 clicks rebound" (confirmed identical across its R/2CR/3CR

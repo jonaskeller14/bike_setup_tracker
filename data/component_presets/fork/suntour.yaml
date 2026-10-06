@@ -24,7 +24,7 @@ sources:
   - https://www.srsuntour.com/products/fork/SF25-AXON34-Werx-Boost-8059.html
   - https://www.srsuntour.com/products/fork/SF20-AXON34-Elite-Boost-8061.html
   - https://www.srsuntour.com/products/fork/SF25-RAIDON34-Boost-8070.html
-updated: 2026-07-18
+updated: 2026-10-05
 # SR SUNTOUR's PCS ("Piston Compensator System") cartridges are named by their
 # externally-adjustable function rather than a marketing name: RC+ / RC2 / RC
 # are continuously-adjustable dial-type compression/rebound circuits; 3CR / 2CR
@@ -52,22 +52,21 @@ option_values:
       name: RC+-PCS
       description: >
         Race-proven WERX cartridge with PCS (Piston Compensator System) floating
-        piston. Provides external low-speed compression and rebound adjustment
-        via forged alloy dial knobs; high-speed compression/rebound is managed
-        internally by shims and is not user-adjustable. Used on the current RUX,
-        DUROLUX and AURON. Exact click counts for the external LSC/rebound dials
-        are not published on any official SR SUNTOUR source.
+        piston. Provides external low-speed compression and rebound adjustment via
+        forged alloy dial knobs; high-speed compression/rebound is managed internally
+        by shims and is not user-adjustable. Used on the current RUX, DUROLUX and
+        AURON.
+      missing_adjustments: [Low-speed compression, Rebound dials]
       adjustments: []
-      note: "Low-speed compression and rebound click counts unconfirmed — verify against an official service manual before relying on them"
+      note: Low-speed compression and rebound click counts are not published by SR SUNTOUR.
 
     cr3_pcs:
       name: 3CR-PCS
       description: >
         WERX/PCS cartridge with a 3-position on-the-fly compression lever (Open,
-        Medium, Firm settings, per SR SUNTOUR's official function table) plus a
-        separate low-speed rebound dial. Offered as one of the buyer-selectable
-        damper options on AION and ZERON. The rebound dial's click count is not
-        published.
+        Medium, Firm settings) plus a separate low-speed rebound dial.
+        Buyer-selectable on AION and ZERON.
+      missing_adjustments: [Rebound]
       adjustments:
         - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm], notes: 3-position on-the-fly lever (PCS cartridge) }
       note: "Low-speed rebound click count unconfirmed"
@@ -76,9 +75,9 @@ option_values:
       name: 2CR-PCS
       description: >
         WERX/PCS cartridge with a 2-position on-the-fly compression lever (Open,
-        Firm settings) plus a separate low-speed rebound dial. Offered as a
-        buyer-selectable damper option on AION, ZERON and RAIDON. The rebound
-        dial's click count is not published.
+        Firm settings) plus a separate low-speed rebound dial. Buyer-selectable
+        on AION, ZERON and RAIDON.
+      missing_adjustments: [Rebound]
       adjustments:
         - { name: Compression Mode, type: categorical, options: [Open, Firm], notes: 2-position on-the-fly lever (PCS cartridge) }
       note: "Low-speed rebound click count unconfirmed"
@@ -86,10 +85,10 @@ option_values:
     rc_pcs:
       name: RC-PCS
       description: >
-        WERX/PCS cartridge with external low-speed compression and low-speed
-        rebound dials (continuously adjustable, no discrete on-the-fly
-        positions). Offered as a buyer-selectable damper option on AION. Click
-        counts for both dials are not published.
+        WERX/PCS cartridge with external low-speed compression and low-speed rebound
+        dials (continuously adjustable, no discrete on-the-fly positions).
+        Buyer-selectable on AION.
+      missing_adjustments: [Both dials]
       adjustments: []
       note: "Low-speed compression and rebound click counts unconfirmed"
 
@@ -97,9 +96,9 @@ option_values:
       name: RLRC-PCS
       description: >
         WERX/PCS cartridge combining a handlebar-remote hydraulic lockout with
-        adjustable rebound and compression damping (blow-off protected). Used on
-        AXON and AXON Werx/Elite. The lockout on/off function is documented; the
-        rebound/compression dial click counts are not published.
+        adjustable rebound and compression damping (blow-off protected). Used on AXON
+        and AXON Werx/Elite.
+      missing_adjustments: [Rebound, Compression dials]
       adjustments:
         - { name: Lockout, type: boolean, notes: Handlebar-remote hydraulic lockout with blow-off feature }
       note: "Rebound/compression click counts unconfirmed"
@@ -107,10 +106,10 @@ option_values:
     lorc_pcs:
       name: LORC-PCS
       description: >
-        WERX/PCS cartridge combining a crown-mounted (non-remote) hydraulic
-        lockout lever with adjustable rebound and compression damping (blow-off
-        protected). Offered as an alternative to RLRC-PCS on AXON. Click counts
-        are not published.
+        WERX/PCS cartridge combining a crown-mounted (non-remote) hydraulic lockout
+        lever with adjustable rebound and compression damping (blow-off protected).
+        Alternative to RLRC-PCS on AXON.
+      missing_adjustments: [Rebound, Compression dials]
       adjustments:
         - { name: Lockout, type: boolean, notes: Crown-mounted hydraulic lockout lever with blow-off feature }
       note: "Rebound/compression click counts unconfirmed"
@@ -119,9 +118,9 @@ option_values:
       name: R-2CR-PCS
       description: >
         WERX/PCS cartridge with a handlebar-remote 2-position compression lever
-        (Open, Firm settings) plus a low-speed rebound dial. Offered as a
-        buyer-selectable damper option on RAIDON alongside the manual 2CR-PCS
-        cartridge. The rebound dial's click count is not published.
+        (Open, Firm settings) plus a low-speed rebound dial. Buyer-selectable
+        on RAIDON alongside the manual 2CR-PCS cartridge.
+      missing_adjustments: [Rebound]
       adjustments:
         - { name: Compression Mode, type: categorical, options: [Open, Firm], notes: Handlebar-remote 2-position lever (PCS cartridge) }
       note: "Low-speed rebound click count unconfirmed"
@@ -139,6 +138,7 @@ nodes:
     category: Downhill
     years: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-RUX38-Boost-8390.html
+    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_25_Suspension_Fork_Manuals/MY25_General_Fork_Manual_w_5TA__English_20240628.pdf
     children:
       - label: Boost
         level: trim
@@ -159,6 +159,7 @@ nodes:
     category: All-Mountain (eMTB)
     years: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-DUROLUX36X-Boost-8049.html
+    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_25_Suspension_Fork_Manuals/MY25_General_Fork_Manual_w_5TA__English_20240628.pdf
     children:
       - label: Boost
         level: trim
@@ -179,6 +180,7 @@ nodes:
     category: Enduro
     years: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-DUROLUX38-Boost-8051.html
+    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_25_Suspension_Fork_Manuals/MY25_General_Fork_Manual_w_5TA__English_20240628.pdf
     children:
       - label: Standard
         level: trim
@@ -209,6 +211,7 @@ nodes:
     category: All-Mountain
     years: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-AION36-Boost-8057.html
+    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_25_Suspension_Fork_Manuals/MY25_General_Fork_Manual_w_5TA__English_20240628.pdf
     children:
       - label: Boost
         level: trim
@@ -227,6 +230,7 @@ nodes:
     category: All-Mountain (eMTB)
     years: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-AION38X-Boost-8053.html
+    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_25_Suspension_Fork_Manuals/MY25_General_Fork_Manual_w_5TA__English_20240628.pdf
     children:
       - label: Boost
         level: trim
@@ -246,6 +250,7 @@ nodes:
     category: All-Mountain
     years: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-AURON36-Boost-8244.html
+    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_25_Suspension_Fork_Manuals/MY25_General_Fork_Manual_w_5TA__English_20240628.pdf
     children:
       - label: Boost
         level: trim
@@ -264,6 +269,7 @@ nodes:
     category: All-Mountain
     years: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-ZERON36-Boost-8138.html
+    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_25_Suspension_Fork_Manuals/MY25_General_Fork_Manual_w_5TA__English_20240628.pdf
     children:
       - label: Boost
         level: trim
@@ -282,6 +288,7 @@ nodes:
     category: All-Mountain (eMTB)
     years: "2026"
     url: https://www.srsuntour.com/products/fork/SF26-ZERON36X-Boost-8140.html
+    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_25_Suspension_Fork_Manuals/MY25_General_Fork_Manual_w_5TA__English_20240628.pdf
     children:
       - label: Boost
         level: trim
@@ -294,17 +301,17 @@ nodes:
           damper: [cr3_pcs, cr2_pcs, rc_pcs]
           travel_mm: [130, 140, 150, 160]
           wheel_size: [29, 27.5]
-        note: >
-          ABS mount optional. Product page also lists a 4th selectable damper
-          abbreviated "R", which is not defined in SR SUNTOUR's official
-          function/glossary legend — omitted here rather than guessed (see
-          Follow-ups).
+        # The product page also lists a 4th damper abbreviated "R", which SR
+        # SUNTOUR's function legend does not define; omitted rather than
+        # guessed (see Follow-ups).
+        note: ABS mount optional.
 
   - label: "AXON 34"
     level: model
     category: Trail / XC
     years: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-AXON34-Boost-8060.html
+    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_25_Suspension_Fork_Manuals/MY25_General_Fork_Manual_w_5TA__English_20240628.pdf
     children:
       - label: Boost
         level: trim
@@ -322,6 +329,7 @@ nodes:
     category: Trail / XC
     years: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-AXON34-Werx-Boost-8059.html
+    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_25_Suspension_Fork_Manuals/MY25_General_Fork_Manual_w_5TA__English_20240628.pdf
     children:
       - label: Werx
         level: trim
@@ -352,6 +360,7 @@ nodes:
     category: Trail / XC
     years: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-RAIDON34-Boost-8070.html
+    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_25_Suspension_Fork_Manuals/MY25_General_Fork_Manual_w_5TA__English_20240628.pdf
     children:
       - label: Boost
         level: trim
@@ -366,6 +375,10 @@ nodes:
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):
+#   - setup_guide is the MY25 general fork manual for every model (the product
+#     pages link per-model manuals only as part of that family document).
+#   - Dial colors: no SR SUNTOUR page or manual names an adjuster knob color
+#     (the pages only say "forged alloy dial knobs"), so none are set.
 #   - No official SR SUNTOUR source (product pages, the suspension-fork
 #     glossary, or the general fork owner's manual) publishes exact click
 #     counts for the continuously-adjustable compression/rebound dials on

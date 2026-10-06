@@ -25,7 +25,7 @@ sources:
   - https://rstsuspension.com/products/elementor-12676/
   - https://rstsuspension.com/products/elementor-12687/
   - https://rstsuspension.com/products/elementor-12887/
-updated: 2026-09-25
+updated: 2026-10-05
 
 # --------------------------------------------------------------------------
 # Dampers
@@ -36,9 +36,9 @@ option_values:
       name: MONO DPU
       description: >-
         Air-shock damper with a three-position lockout knob: Downhill (maximum
-        absorption), Pedal (reduced force while pedalling) and Uphill (firmer
-        for climbing), plus an external rebound adjuster. Adjustments
-        incomplete: please add Rebound yourself.
+        absorption), Pedal (reduced force while pedalling) and Uphill (firmer for
+        climbing), plus an external rebound adjuster.
+      missing_adjustments: [Rebound]
       adjustments:
         - { name: Compression Mode, type: categorical, options: [Downhill, Pedal, Uphill], notes: 3-position lockout knob (D / P / U) }
       source:
@@ -50,8 +50,8 @@ option_values:
     mono_r:
       name: MONO R
       description: >-
-        Air-shock damper with an external rebound adjuster. Adjustments
-        incomplete: please add Rebound yourself.
+        Air-shock damper with an external rebound adjuster.
+      missing_adjustments: [Rebound]
       adjustments: []
       source:
         - https://rstsuspension.com/products/elementor-12676/
@@ -62,7 +62,7 @@ option_values:
       name: MEZZO
       description: >-
         Coil-shock damper with external compression and rebound adjusters.
-        Adjustments incomplete: please add Compression and Rebound yourself.
+      missing_adjustments: [Compression, Rebound]
       adjustments: []
       source:
         - https://rstsuspension.com/products/elementor-12887/
@@ -76,6 +76,7 @@ nodes:
     draft: true
     category: All-Mountain
     url: https://rstsuspension.com/products/mono-dpu-standard/
+    setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-301%E5%BE%8C%E9%81%BF%E9%9C%87-MONO-%E8%8B%B1%E6%96%87ENGLISH_A4-1.pdf
     specs: { spring: Air }
     children:
       - label: DPU Standard
@@ -136,6 +137,9 @@ nodes:
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):
+#   - setup_guide covers the MONO only (its owner's manual); no MEZZO manual
+#     was found on rstsuspension.com/owner-manual/. No adjuster colors are
+#     published.
 #   - No rebound or compression click counts are published by RST for MONO
 #     or MEZZO (product pages, MONO owner's manual, 2026 catalogue), so the
 #     rebound (MONO DPU/R) and compression + rebound (MEZZO) adjusters are

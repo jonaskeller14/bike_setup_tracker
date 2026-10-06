@@ -15,6 +15,14 @@ sources:
   - https://ridefox.com/products/fox-dhx-factory
   # Archived spec sheets + owner's manuals (tech.ridefox.com) — the source for
   # the open-mode adjust positions and every legacy damper below.
+  # Shock sizes: per-variant listings (eye-to-eye x stroke, Metric / Metric Trunnion /
+  # Imperial) on the ridefox.com shop collection pages below.
+  - https://ridefox.com/collections/fox-float-sl
+  - https://ridefox.com/collections/fox-float
+  - https://ridefox.com/collections/fox-float-x
+  - https://ridefox.com/collections/fox-float-x2
+  - https://ridefox.com/collections/fox-dhx2
+  - https://ridefox.com/collections/shocks
   - https://tech.ridefox.com/bike/list/spec-sheets
   - https://tech.ridefox.com/bike/list/owners-manuals
   - https://tech.ridefox.com/bike/owners-manuals/3099/shock--2026-float
@@ -26,7 +34,7 @@ sources:
   - https://tech.ridefox.com/bike/owners-manuals/1036/shock--2020-float-x2
   - https://tech.ridefox.com/bike/owners-manuals/1078/shock--2021-float-x2
   - https://tech.ridefox.com/bike/owners-manuals/1038/shock--2020-all-coil-shocks-(dhx2-and-van-models)
-updated: 2026-09-10
+updated: 2026-10-05
 # Click ranges taken from the per-model spec tables on the official FOX
 # product pages (ridefox.com/pages/fox-<model>). Clicks counted from fully
 # closed (firmest) → default `dial_ccw`; an adjuster with "16 clicks" is 0..16.
@@ -187,6 +195,7 @@ nodes:
     category: XC
     years: "2025-2026"
     url: https://ridefox.com/pages/fox-float-sl
+    setup_guide: https://tech.ridefox.com/bike/owners-manuals/3098/shock--2026-float-sl-and-float-x
     specs: { spring: Air }
     children:
       - label: Factory
@@ -196,18 +205,26 @@ nodes:
           - { name: Pressure, type: numerical, unit: psi, min: 0 }
         options:
           damper: [float_sl]
+          size:
+            - { size: "190x40/42.5/45", mount: Standard }
+            - { size: "210x55", mount: Standard }
+            - { size: "165x40/42.5/45", mount: Trunnion }
       - label: Performance
         level: trim
         specs: { stanchion: "7000-series alloy, black anodized" }
         adjustments: *air_spring
         options:
           damper: [float_sl]
+          size:
+            - { size: "190x45", mount: Standard }
+            - { size: "165x40", mount: Trunnion }
 
   - label: "FLOAT"
     level: model
     category: XC / Trail
     years: "2025-2026"
     url: https://ridefox.com/pages/fox-float
+    setup_guide: https://tech.ridefox.com/bike/owners-manuals/3099/shock--2026-float
     specs: { spring: Air }
     children:
       - label: Factory
@@ -216,6 +233,10 @@ nodes:
         adjustments: *air_spring
         options:
           damper: [float]
+          size:
+            - { size: "190x45", mount: Standard }
+            - { size: "210x50/55", mount: Standard }
+            - { size: "185x50/52.5/55", mount: Trunnion }
       - label: Performance Elite
         level: trim
         specs: { stanchion: "7000-series alloy, black anodized" }
@@ -228,6 +249,10 @@ nodes:
         adjustments: *air_spring
         options:
           damper: [float]
+          size:
+            - { size: "190x45", mount: Standard }
+            - { size: "210x55", mount: Standard }
+            - { size: "185x55", mount: Trunnion }
       - label: Rhythm
         level: trim
         specs: { stanchion: "6000-series alloy, black anodized" }
@@ -241,6 +266,7 @@ nodes:
     category: All-Mountain
     years: "2025-2026"
     url: https://ridefox.com/pages/fox-float-x
+    setup_guide: https://tech.ridefox.com/bike/owners-manuals/3098/shock--2026-float-sl-and-float-x
     specs: { spring: Air }
     children:
       - label: Factory
@@ -249,12 +275,22 @@ nodes:
         adjustments: *air_spring
         options:
           damper: [float_x]
+          size:
+            - { size: "190x45", mount: Standard }
+            - { size: "210x50/52.5/55", mount: Standard }
+            - { size: "230x60/65", mount: Standard }
+            - { size: "185x55", mount: Trunnion }
+            - { size: "205x60/62.5/65", mount: Trunnion }
       - label: Performance Elite
         level: trim
         specs: { stanchion: "7000-series alloy, black anodized" }
         adjustments: *air_spring
         options:
           damper: [float_x]
+          size:
+            - { size: "190x45", mount: Standard }
+            - { size: "210x50/55", mount: Standard }
+            - { size: "205x65", mount: Trunnion }
       - label: Performance
         level: trim
         specs: { stanchion: "7000-series alloy, black anodized" }
@@ -271,6 +307,7 @@ nodes:
         id: "2025"
         years: "2025-2026"
         url: https://ridefox.com/pages/fox-float-x2
+        setup_guide: https://tech.ridefox.com/bike/owners-manuals/3023/shock--2026-float-x2
         specs: { spring: Air }
         children:
           - label: Factory
@@ -279,12 +316,23 @@ nodes:
             adjustments: *air_spring
             options:
               damper: [vvc2]
+              size:
+                - { size: "210x50/52.5/55", mount: Standard }
+                - { size: "230x60/62.5/65", mount: Standard }
+                - { size: "250x75", mount: Standard }
+                - { size: "185x55", mount: Trunnion }
+                - { size: "205x60/65", mount: Trunnion }
+                - { size: "225x75", mount: Trunnion }
           - label: Performance Elite
             level: trim
             specs: { stanchion: "7000-series alloy, black anodized" }
             adjustments: *air_spring
             options:
               damper: [vvc2]
+              size:
+                - { size: "210x55", mount: Standard }
+                - { size: "230x60/65", mount: Standard }
+                - { size: "205x60/65", mount: Trunnion }
           - label: Performance
             level: trim
             specs: { stanchion: "7000-series alloy, black anodized" }
@@ -297,6 +345,7 @@ nodes:
         id: "2016"
         years: "2016-2020"
         url: https://tech.ridefox.com/bike/owners-manuals/1036/shock--2020-float-x2
+        setup_guide: https://tech.ridefox.com/bike/owners-manuals/1036/shock--2020-float-x2
         specs: { spring: Air }
         children:
           - label: Factory
@@ -320,6 +369,7 @@ nodes:
         id: "2021"
         years: "2021-2024"
         url: https://tech.ridefox.com/bike/owners-manuals/1078/shock--2021-float-x2
+        setup_guide: https://tech.ridefox.com/bike/owners-manuals/1078/shock--2021-float-x2
         specs: { spring: Air }
         children:
           - label: Factory
@@ -328,6 +378,11 @@ nodes:
             adjustments: *air_spring
             options:
               damper: [x2_vvc_2021]
+              size:
+                - { eye_to_eye_mm: 200.025, stroke_mm: 50.8, label: 7.875x2in }
+                - { eye_to_eye_mm: 215.9, stroke_mm: 63.5, label: 8.5x2.5in }
+                - { eye_to_eye_mm: 241.3, stroke_mm: 76.2, label: 9.5x3in }
+                - { eye_to_eye_mm: 266.7, stroke_mm: 88.9, label: 10.5x3.5in }
           - label: Performance Elite
             level: trim
             specs: { stanchion: "7000-series alloy, black anodized" }
@@ -340,6 +395,7 @@ nodes:
     category: Trail / Enduro
     years: "2025-2026"
     url: https://ridefox.com/products/fox-dhx-factory
+    setup_guide: https://tech.ridefox.com/bike/owners-manuals/3100/shock--2026-dhx-
     specs: { spring: Coil }
     children:
       - label: Factory
@@ -362,6 +418,7 @@ nodes:
         id: "2025"
         years: "2025-2026"
         url: https://ridefox.com/pages/fox-dhx2
+        setup_guide: https://tech.ridefox.com/bike/owners-manuals/3090/shock--2026-dhx2
         specs: { spring: Coil }
         children:
           - label: Factory
@@ -370,6 +427,13 @@ nodes:
             adjustments: *coil_spring
             options:
               damper: [vvc2]
+              size:
+                - { size: "210x50/55", mount: Standard }
+                - { size: "230x60/65", mount: Standard }
+                - { size: "250x75", mount: Standard }
+                - { size: "185x55", mount: Trunnion }
+                - { size: "205x60/65", mount: Trunnion }
+                - { size: "225x75", mount: Trunnion }
           - label: Performance Elite
             level: trim
             specs: { stanchion: "7000-series alloy, black anodized" }
@@ -388,6 +452,7 @@ nodes:
         id: "2016"
         years: "2016-2020"
         url: https://tech.ridefox.com/bike/owners-manuals/1038/shock--2020-all-coil-shocks-(dhx2-and-van-models)
+        setup_guide: https://tech.ridefox.com/bike/owners-manuals/1038/shock--2020-all-coil-shocks-(dhx2-and-van-models)
         specs: { spring: Coil }
         children:
           - label: Factory
@@ -408,6 +473,7 @@ nodes:
         id: "2021"
         years: "2021-2024"
         url: https://tech.ridefox.com/bike/owners-manuals/1078/shock--2021-float-x2
+        setup_guide: https://tech.ridefox.com/bike/owners-manuals/1078/shock--2021-float-x2
         specs: { spring: Coil }
         children:
           - label: Factory
@@ -416,6 +482,11 @@ nodes:
             adjustments: *coil_spring
             options:
               damper: [x2_vvc_2021]
+              size:
+                - { eye_to_eye_mm: 200.025, stroke_mm: 50.8, label: 7.875x2in }
+                - { eye_to_eye_mm: 215.9, stroke_mm: 63.5, label: 8.5x2.5in }
+                - { eye_to_eye_mm: 241.3, stroke_mm: 76.2, label: 9.5x3in }
+                - { eye_to_eye_mm: 266.7, stroke_mm: 88.9, label: 10.5x3.5in }
             note: Coil spring sold separately.
           - label: Performance Elite
             level: trim
@@ -435,6 +506,7 @@ nodes:
     category: XC / Trail
     years: "2016-2023"
     url: https://tech.ridefox.com/bike/owners-manuals/1079/shock--2021-float-dps-and-dpx2
+    setup_guide: https://tech.ridefox.com/bike/owners-manuals/1079/shock--2021-float-dps-and-dpx2
     specs: { spring: Air }
     children:
       - label: Factory
@@ -443,6 +515,12 @@ nodes:
         adjustments: *air_spring
         options:
           damper: [dps_2016]
+          size:
+            - { eye_to_eye_mm: 165.1, stroke_mm: 38.1, label: 6.5x1.5in }
+            - { eye_to_eye_mm: 184.15, stroke_mm: 44.45, label: 7.25x1.75in }
+            - { eye_to_eye_mm: 190.5, stroke_mm: 50.8, label: 7.5x2in }
+            - { eye_to_eye_mm: 200.025, stroke_mm: 50.8, label: 7.875x2in }
+            - { eye_to_eye_mm: 200.025, stroke_mm: 57.15, label: 7.875x2.25in }
         note: EVOL air sleeve, 350 psi maximum. Sold with a 9mm damper shaft.
       - label: Performance Elite
         level: trim
@@ -456,12 +534,21 @@ nodes:
         adjustments: *air_spring
         options:
           damper: [dps_2016]
+          size:
+            - { eye_to_eye_mm: 165.1, stroke_mm: 38.1, label: 6.5x1.5in }
+            - { eye_to_eye_mm: 184.15, stroke_mm: 44.45, label: 7.25x1.75in }
+            - { eye_to_eye_mm: 190.5, stroke_mm: 50.8, label: 7.5x2in }
+            - { eye_to_eye_mm: 200.025, stroke_mm: 50.8, label: 7.875x2in }
+            - { eye_to_eye_mm: 200.025, stroke_mm: 57.15, label: 7.875x2.25in }
+            - { size: "165x40", mount: Trunnion }
+            - { size: "185x55", mount: Trunnion }
 
   - label: "FLOAT DPX2"
     level: model
     category: Trail / Enduro
     years: "2018-2021"
     url: https://tech.ridefox.com/bike/owners-manuals/1079/shock--2021-float-dps-and-dpx2
+    setup_guide: https://tech.ridefox.com/bike/owners-manuals/1079/shock--2021-float-dps-and-dpx2
     specs: { spring: Air }
     children:
       - label: Factory
@@ -500,9 +587,16 @@ nodes:
 #     Neo, DHX Live Valve Neo) are electronically controlled — no manual
 #     click-based adjustment model. Would need modes/profiles (categorical
 #     entries) instead of click counts if added.
-#   - Exact stroke/eye-to-eye options for FLOAT/FLOAT X/FLOAT X2/FLOAT SL are
-#     frame-dependent. The tech.ridefox.com spec sheets that would list them are
-#     published as images only; DHX's common sizes came from its product page.
+#   - Shock sizes come from the per-variant listings on the ridefox.com shop
+#     (currently sold trims, "Metric" read as the Standard mount). Not listed
+#     there, so left without `size`: FLOAT Performance Elite and Rhythm, FLOAT X
+#     Performance, FLOAT X2 Performance (2025-2026), DHX2 Performance Elite and
+#     Performance (2025-2026), FLOAT X2 and DHX2 Performance Elite (2021-2024),
+#     both 2016-2020 generations of FLOAT X2 / DHX2, FLOAT DPS Performance Elite
+#     and FLOAT DPX2 (all trims). The tech.ridefox.com spec sheets are images only.
+#     Imperial sizes carry no stated mount. The 2021-2024 X2/DHX2 Factory and the
+#     DPS sizes come from the MY24 / current shop listings; older frame-specific
+#     sizes may exist.
 #   - FLOAT X "Performance": whether that trim keeps the 11-click low-speed
 #     compression dial or ships with a fixed setting is still unresolved, so its
 #     trim note was removed rather than left as an unverified claim.

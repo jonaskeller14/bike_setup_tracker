@@ -48,7 +48,14 @@ sealed class CatalogNode {
   final String? category;
   final String? years;
   final String? url;
+
+  /// Official setup or tuning guide, the link the generated notes carry.
+  final String? setupGuide;
   final String? note;
+
+  /// Adjusters the product is known to have but that cannot be declared yet;
+  /// the rider is told to add them by hand.
+  final List<String> missingAdjustments;
 
   const CatalogNode({
     required this.id,
@@ -59,7 +66,9 @@ sealed class CatalogNode {
     this.category,
     this.years,
     this.url,
+    this.setupGuide,
     this.note,
+    this.missingAdjustments = const [],
   });
 }
 
@@ -75,7 +84,9 @@ final class CatalogGroup extends CatalogNode {
     super.category,
     super.years,
     super.url,
+    super.setupGuide,
     super.note,
+    super.missingAdjustments,
     required this.children,
   });
 }
@@ -96,7 +107,9 @@ final class CatalogProduct extends CatalogNode {
     super.category,
     super.years,
     super.url,
+    super.setupGuide,
     super.note,
+    super.missingAdjustments,
     this.adjustments = const [],
     this.options = const {},
   });
@@ -124,12 +137,17 @@ class OptionValue {
   final Specs specs;
   final List<PresetAdjustmentSpec> adjustments;
 
+  /// Adjusters the value is known to have but that cannot be declared yet; the
+  /// rider is told to add them by hand.
+  final List<String> missingAdjustments;
+
   const OptionValue({
     required this.id,
     required this.label,
     this.description,
     this.specs = Specs.empty,
     this.adjustments = const [],
+    this.missingAdjustments = const [],
   });
 }
 

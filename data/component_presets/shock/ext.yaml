@@ -39,9 +39,11 @@ sources:
   - https://extremeshox.com/wp-content/uploads/2023/09/e-Storia-quick-manual.pdf
   - https://extremeshox.com/wp-content/uploads/2023/08/Quick-manual-Aria-min.pdf
   - https://extremeshox.com/wp-content/uploads/2025/06/EXT-Vecta-Quick-Manual.pdf
+  - https://extremeshox.com/wp-content/uploads/2024/06/Arma-Storia-V4-Quick-Manual.pdf
+  - https://extremeshox.com/wp-content/uploads/2023/09/ARMA-STORIA_V3_quick_manual.pdf
   - https://www.pinkbike.com/news/review-ext-storia-v3-shock.html
   - https://www.pinkbike.com/news/review-ext-arma-v4-one-of-the-best-mtb-shocks-gets-even-better.html
-updated: 2026-07-18
+updated: 2026-10-05
 
 # --------------------------------------------------------------------------
 # Dampers
@@ -51,45 +53,36 @@ option_values:
     storia_v3:
       name: Storia V3(-S)
       description: >
-        Storia's V3/V3-S-generation damper. EXT's own product page lists it as
-        "4-way adjustable: LSC-HSC-LSR-Lok proprietary system" — i.e. no
-        externally adjustable HBC (bottom-out control) on this generation. LOK
-        is a proprietary pedal-platform lever (not a true lockout). Click-count
-        totals for LSC/HSC/Rebound aren't published by EXT itself; per
-        SCHEMA.md's sourcing-policy exception, they're taken from Pinkbike's
-        Storia V3 review body text, which states plainly: "There are 14 clicks
-        of LSC, 14 clicks of HSC, and 10 possible rebound settings."
+        Four-way adjustable damper (LSC, HSC, rebound and the LOK pedal-platform
+        lever) without an adjustable bottom-out circuit.
       adjustments:
-        - { name: LSC, type: step, max: 14, notes: "Low-Speed Compression; Source: Pinkbike Storia V3 review, not EXT's own site." }
-        - { name: HSC, type: step, max: 14, notes: "High-Speed Compression; Source: Pinkbike Storia V3 review, not EXT's own site." }
-        - { name: Rebound, type: step, max: 10, notes: "Source: Pinkbike Storia V3 review (\"10 possible rebound settings\"), not EXT's own site." }
-        - { name: LOK (Climb Switch), type: boolean, notes: "Black lever on damper head. Turn clockwise = LOK (firm/pedal-platform circuit engaged); counterclockwise = Open. EXT's proprietary \"Lok\" pedaling-support circuit, not a true hydraulic lockout." }
+        - { name: LSC, type: step, max: 14, notes: Low-Speed Compression }
+        - { name: HSC, type: step, max: 14, notes: High-Speed Compression }
+        - { name: Rebound, type: step, max: 10 }
+        - { name: LOK (Climb Switch), type: boolean, notes: "Clockwise = LOK (firm pedal platform), counterclockwise = Open. Not a true lockout" }
       adjusters: LSC/BL (4mm Allen) / HSC/BH (12mm wrench or socket) / Rebound/R (bottom knob)
+      source: https://www.pinkbike.com/news/review-ext-storia-v3-shock.html
+      note: >-
+        Click totals are not published by EXT; taken from Pinkbike's Storia V3
+        review body text: "There are 14 clicks of LSC, 14 clicks of HSC, and 10
+        possible rebound settings."
 
     storia_v4:
       name: Storia V4
       description: >
-        Storia's current (V4) damper generation. EXT's product page lists
-        "4-way adjustable: LSC-HSC-LSR-HBC" plus a separately-marketed
-        "LOK 2.0" pedal-platform circuit described as "Available on Storia V4
-        only" (vs. the V3's plain "Lok"). HBC (Hydraulic Bottom-out Circuit) is
-        externally adjustable here (unlike Storia V3). No click-count maximum
-        is published for LSC/HSC/Rebound/HBC.
+        Four-way adjustable damper (LSC, HSC, rebound, HBC) plus the LOK 2.0
+        pedal-platform lever.
       adjustments:
         - { name: LSC, type: step, max: ~, notes: Low-Speed Compression }
         - { name: HSC, type: step, max: ~, notes: High-Speed Compression }
         - { name: Rebound, type: step, max: ~, notes: Low-Speed Rebound }
         - { name: HBC, type: step, max: ~, notes: Hydraulic bottom-out control }
-        - { name: LOK 2.0 (Climb Switch), type: boolean, notes: "Black lever on damper head. Turn clockwise = LOK (firm/pedal-platform circuit engaged); counterclockwise = Open. EXT's proprietary pedaling-support circuit, not a true hydraulic lockout." }
+        - { name: LOK 2.0 (Climb Switch), type: boolean, notes: "Clockwise = LOK (firm pedal platform), counterclockwise = Open. Not a true lockout" }
       adjusters: LSC/BL (4mm Allen) / HSC/BH (12mm wrench or socket) / Rebound/R (bottom knob) / HBC (4mm Allen, top of compression valve)
 
     arma_v3:
       name: Arma V3
-      description: >
-        Arma V3's damper (downhill-race focused). Product page lists "4-way
-        adjustable" settings: LSC, HSC, LSR and HBC (adjustable bottom-out
-        control) — no LOK/climb switch on Arma. No click-count maximum is
-        published for any of the four adjusters.
+      description: Downhill-race damper with four adjusters (LSC, HSC, rebound, HBC) and no climb switch.
       adjustments:
         - { name: LSC, type: step, max: ~, notes: Low-Speed Compression }
         - { name: HSC, type: step, max: ~, notes: High-Speed Compression }
@@ -100,71 +93,60 @@ option_values:
     arma_v4:
       name: Arma V4
       description: >
-        Arma V4's damper. Same 4-way adjustable set as V3 (LSC, HSC, LSR, HBC);
-        EXT's page notes compression can be tuned "with a common multi-tool,
-        needing only 5mm and 4mm Allen keys." No LOK/climb switch — EXT
-        explicitly states LOK 2.0 is "Available on Storia V4 only." EXT itself
-        publishes no click-count totals; per SCHEMA.md's sourcing-policy
-        exception, LSC/HSC/HBC below are taken from Pinkbike's Arma V4 review,
-        whose reviewer setup-details table gives "LSC: -7/14 (7 clicks from
-        closed, 14 in total)", "HSC: -8/15" and confirms in prose that HBC "can
-        be tweaked to your liking with 10 clicks of adjustment." The same
-        table's Rebound entry ("R: -5/-14") doesn't follow that same
-        from-closed/total notation cleanly, so Rebound has no recorded range —
-        see Follow-ups.
+        Downhill damper with four adjusters (LSC, HSC, rebound, HBC), tunable
+        with a multi-tool (5mm and 4mm Allen keys). No climb switch.
       adjustments:
-        - { name: LSC, type: step, max: 14, notes: "Low-Speed Compression; Source: Pinkbike Arma V4 review, not EXT's own site." }
-        - { name: HSC, type: step, max: 15, notes: "High-Speed Compression; Source: Pinkbike Arma V4 review, not EXT's own site." }
+        - { name: LSC, type: step, max: 14, notes: Low-Speed Compression }
+        - { name: HSC, type: step, max: 15, notes: High-Speed Compression }
         - { name: Rebound, type: step, max: ~, notes: Low-Speed Rebound }
-        - { name: HBC, type: step, max: 10, notes: "Hydraulic bottom-out control, last 20% of stroke. Source: Pinkbike Arma V4 review, not EXT's own site." }
+        - { name: HBC, type: step, max: 10, notes: "Hydraulic bottom-out control, last 20% of stroke" }
       adjusters: LSC (4mm Allen) / HSC (5mm Allen) / Rebound / HBC
+      source: https://www.pinkbike.com/news/review-ext-arma-v4-one-of-the-best-mtb-shocks-gets-even-better.html
+      note: >-
+        Click totals are not published by EXT; taken from Pinkbike's Arma V4
+        review: setup table "LSC: -7/14 (7 clicks from closed, 14 in total)",
+        "HSC: -8/15", and in prose HBC "can be tweaked to your liking with 10
+        clicks of adjustment." The table's Rebound entry ("R: -5/-14") does not
+        follow the same notation, so Rebound has no recorded range.
 
     aria:
       name: Aria
       description: >
-        EXT's first air shock. 4-way hydraulic adjustment (LSC/BL, HSC/BH,
-        Rebound/R, HBC/H) plus a LOK climb lever, per the official quick
-        manual. No click-count maximum is published for any of the hydraulic
-        adjusters.
+        EXT's first air shock: four hydraulic adjusters (LSC, HSC, rebound,
+        HBC) plus a LOK climb lever.
       adjustments:
         - { name: LSC, type: step, max: ~, notes: Low-Speed Compression }
         - { name: HSC, type: step, max: ~, notes: High-Speed Compression }
         - { name: Rebound, type: step, max: ~ }
         - { name: HBC, type: step, max: ~, notes: Hydraulic bottom-out control }
-        - { name: LOK (Climb Switch), type: boolean, notes: "Black lever on damper head. Turn clockwise = LOK (firm/pedal-platform circuit engaged); counterclockwise = Open. EXT's proprietary pedaling-support circuit, not a true hydraulic lockout." }
+        - { name: LOK (Climb Switch), type: boolean, notes: "Clockwise = LOK (firm pedal platform), counterclockwise = Open. Not a true lockout" }
       adjusters: LSC/BL (4mm Allen) / HSC/BH (12mm wrench) / Rebound/R (bottom knob) / HBC/H (4mm Allen)
 
     e_storia:
       name: e-Storia
       description: >
-        Damper tuned for e-MTB use (heavier bikes/higher speeds); dedicated
-        stiffer spring platform and negative spring. Official quick manual
-        confirms the same 5-adjuster set as Storia V4 — LSC/BL, HSC/BH,
-        Rebound/R, HBC and LOK — with no published click-count maximum for
-        LSC/HSC/Rebound/HBC.
+        Damper tuned for e-MTB use (heavier bikes, higher speeds) with a
+        stiffer spring platform and negative spring. Adjusters: LSC, HSC,
+        rebound, HBC and LOK.
       adjustments:
         - { name: LSC, type: step, max: ~, notes: Low-Speed Compression }
         - { name: HSC, type: step, max: ~, notes: High-Speed Compression }
         - { name: Rebound, type: step, max: ~ }
         - { name: HBC, type: step, max: ~, notes: Hydraulic bottom-out control }
-        - { name: LOK (Climb Switch), type: boolean, notes: "Black lever on damper head. Turn clockwise = LOK (firm/pedal-platform circuit engaged); counterclockwise = Open. EXT's proprietary pedaling-support circuit, not a true hydraulic lockout." }
+        - { name: LOK (Climb Switch), type: boolean, notes: "Clockwise = LOK (firm pedal platform), counterclockwise = Open. Not a true lockout" }
       adjusters: LSC/BL (4mm Allen) / HSC/BH (12mm wrench) / Rebound/R (bottom knob) / HBC (4mm Allen)
       note: High-rate springs (>600 lbs/in / 105 N/mm) require EXT-specific mounting adapters; spring preload must not exceed 2mm.
 
     vecta:
       name: Vecta
       description: >
-        Newest (2025) EXT coil shock, monotube design. Official quick manual
-        lists LSC (4mm Allen), HSC (5mm Allen), Rebound and a "LOK 2.0" climb
-        lever. Unlike Storia/Arma/Aria, HBC on Vecta is factory-tuned and NOT
-        externally adjustable ("Factory-tuned HBC" per the product page), so no
-        HBC entry is modeled. No click-count maximum is published for
-        LSC/HSC/Rebound.
+        Monotube coil damper with LSC (4mm Allen), HSC (5mm Allen), rebound and
+        a LOK 2.0 climb lever. The HBC is factory-tuned and not adjustable.
       adjustments:
         - { name: LSC, type: step, max: ~, notes: Low-Speed Compression }
         - { name: HSC, type: step, max: ~, notes: High-Speed Compression }
         - { name: Rebound, type: step, max: ~ }
-        - { name: LOK 2.0 (Climb Switch), type: boolean, notes: "Black lever on damper head. Turn clockwise = LOK (firm/pedal-platform circuit engaged); counterclockwise = Open. EXT's proprietary pedaling-support circuit, not a true hydraulic lockout." }
+        - { name: LOK 2.0 (Climb Switch), type: boolean, notes: "Clockwise = LOK (firm pedal platform), counterclockwise = Open. Not a true lockout" }
       adjusters: LSC (4mm Allen) / HSC (5mm Allen) / Rebound (bottom knob)
 
 # --------------------------------------------------------------------------
@@ -179,6 +161,7 @@ nodes:
     category: Enduro / Trail
     years: "2025-2026"
     url: https://extremeshox.com/product/ext-storia/
+    setup_guide: https://extremeshox.com/wp-content/uploads/2023/09/ARMA-STORIA_V3_quick_manual.pdf
     specs: { spring: Coil }
     note: Sold as "Storia V3-S" per the official quick manual; features a spring thrust bearing between spring and collar — do not omit it during spring install.
     children:
@@ -207,6 +190,7 @@ nodes:
     category: Enduro / Trail
     years: "2025-2026"
     url: https://extremeshox.com/product/storia-v4/
+    setup_guide: https://extremeshox.com/wp-content/uploads/2024/06/Arma-Storia-V4-Quick-Manual.pdf
     specs: { spring: Coil }
     note: >
       Marketed as one of the lightest coil shocks available (397g without
@@ -231,6 +215,7 @@ nodes:
     category: Downhill
     years: "2025-2026"
     url: https://extremeshox.com/product/arma-v3/
+    setup_guide: https://extremeshox.com/wp-content/uploads/2023/09/ARMA-STORIA_V3_quick_manual.pdf
     specs: { spring: Coil }
     children:
       - label: Metric Standard
@@ -238,15 +223,13 @@ nodes:
         adjustments: *coil_spring
         options:
           damper: [arma_v3]
-          size: ["210x50", "210x55", "210x60", "210x65", "210x70", "210x75", "230x50", "230x55", "230x60", "230x65", "230x70", "230x75", "250x50", "250x55", "250x60", "250x65", "250x70", "250x75"]
-        note: Full standard-mount span reported as 210-250mm length x 50-75mm stroke (12 size options); exact per-length stroke pairing not itemized on the product page.
+          size: ["210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x62.5", "230x65", "250x67.5", "250x70", "250x72.5", "250x75"]
       - label: Metric Trunnion
         level: trim
         adjustments: *coil_spring
         options:
           damper: [arma_v3]
-          size: ["165x45", "185x50", "185x55", "205x60", "205x65", "225x70", "225x75"]
-        note: Trunnion span reported as 165-225mm length x 45-75mm stroke (12 size options); exact per-length stroke pairing not itemized on the product page.
+          size: ["165x45", "185x50", "185x52.5", "185x55", "205x57.5", "205x60", "205x62.5", "205x65", "225x67.5", "225x70", "225x72.5", "225x75"]
       - label: Imperial
         level: trim
         adjustments: *coil_spring
@@ -259,6 +242,7 @@ nodes:
     category: Downhill
     years: "2025-2026"
     url: https://extremeshox.com/product/arma-v4/
+    setup_guide: https://extremeshox.com/wp-content/uploads/2024/06/Arma-Storia-V4-Quick-Manual.pdf
     specs: { spring: Coil }
     note: Uses EV2S damper fluid; DLC-coated 14mm steel shaft.
     children:
@@ -280,6 +264,7 @@ nodes:
     category: Trail / Enduro
     years: "2025-2026"
     url: https://extremeshox.com/product/ext-aria/
+    setup_guide: https://extremeshox.com/wp-content/uploads/2023/08/Quick-manual-Aria-min.pdf
     specs: { spring: Air }
     note: AS3 dual-positive-chamber air spring (2 dynamic seals separating 3 chambers); 28mm hydraulic main piston.
     children:
@@ -303,6 +288,7 @@ nodes:
     category: E-MTB / Enduro
     years: "2025-2026"
     url: https://extremeshox.com/product/ext-e-storia/
+    setup_guide: https://extremeshox.com/wp-content/uploads/2023/09/e-Storia-quick-manual.pdf
     specs: { spring: Coil }
     children:
       - label: Metric Standard
@@ -323,6 +309,7 @@ nodes:
     category: Enduro / Trail
     years: "2025-2026"
     url: https://extremeshox.com/product/vecta/
+    setup_guide: https://extremeshox.com/wp-content/uploads/2025/06/EXT-Vecta-Quick-Manual.pdf
     specs: { spring: Coil }
     note: >
       Riders can adjust HSC/LSC with a common multi-tool (5mm/4mm Allen);
@@ -356,13 +343,10 @@ nodes:
 #     setting (e.g. "BH7 BL6 R7"), never the mechanical max — verify with EXT
 #     support/dealer, or a Pinkbike review of those specific models, before
 #     replacing the placeholders.
-#   - Arma V3's exact stroke-length pairing per body size (which stroke goes
-#     with which of the 210/230/250mm standard bodies, and 165-225mm
-#     trunnion bodies) was reported only as an aggregate range on the
-#     product page, unlike the per-pair tables published for the other
-#     models — the `size` lists above assume the same 47.5/50/52.5/55mm
-#     stagger as Storia V3/Arma V4 but this was not itemized for Arma V3
-#     itself; verify before relying on exact pairs.
+#   - Arma V3 sizes follow EXT's product page (11 standard, 12 trunnion, 3 imperial).
+#   - Dial colors: EXT's quick manuals call the LSC adjuster nickel-colored and
+#     the HSC adjuster / LOK lever black, none of which maps to a palette
+#     color, so no shock adjuster carries `dialColor`.
 #   - Volume-spacer / air-chamber-size options for the Aria's AS3 spring are
 #     not published as a count — omitted rather than guessed.
 #   - "Superlight V2" (coil spring product, extremeshox.com/product/ext-

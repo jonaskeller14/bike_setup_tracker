@@ -140,8 +140,10 @@ grip2_2019:
 | `draft` | no | nearest | `true` hides the node and its whole subtree from selection |
 | `category` | no | nearest | Discipline (`Enduro`, `XC`, …), informational |
 | `years` | no | nearest | Model years the specs apply to, `"2025-2026"` or `"2026"` |
-| `url` | no | nearest | Product page, surfaced in the generated component's notes |
+| `url` | no | nearest | Product page, for data editors; not shown to the rider |
+| `setup_guide` | no | nearest | Official rider setup or tuning guide (page or PDF), linked at the end of the generated component's notes |
 | `note` | no | nearest | User-facing text, see [User-facing text](#user-facing-text-description-and-note) |
+| `missing_adjustments` | no | nearest | Adjusters the product has but that cannot be declared, see [Missing adjusters](#missing-adjusters-missing_adjustments) |
 | `specs` | no | merged per key | Typed facts, see [Specs](#specs) |
 | `adjustments` | no | nearest | The spring adjustments, see [Adjustments](#adjustments--sparse-literal-lists) |
 | `options` | no | nearest | The option axes, see [Options](#options) |
@@ -174,7 +176,8 @@ repeat a level name on one path; the parser rejects both.
 A node hands its fields down to its subtree, so a value is written once at the
 highest node it holds for:
 
-- `draft`, `category`, `years`, `url`, `note`, `adjustments` and `options` use
+- `draft`, `category`, `years`, `url`, `setup_guide`, `note`,
+  `missing_adjustments`, `adjustments` and `options` use
   the **nearest** declaration: a child that writes the field replaces the
   inherited value as a whole. `options` is replaced as one map, not per axis.
 - `specs` are **merged per key**: a child adds to and overrides single keys.
@@ -392,7 +395,8 @@ option_values:
 ```
 
 The map key (`grip_x2`) is the option value id and is frozen like a node id.
-All keys other than `name`, `description`, `specs` and `adjustments` (e.g.
+All keys other than `name`, `description`, `specs`, `adjustments` and
+`missing_adjustments` (e.g.
 `valves`, `firm_mode`, `remote`, `source`, `note`) are freeform informational
 metadata for humans; they are not consumed.
 
@@ -574,13 +578,18 @@ once on that node instead and let the trims inherit it.
 
 ## User-facing text: `description` and `note`
 
-Two fields in this catalog are copied verbatim into the notes of the component
-the user ends up with:
+Three kinds of text in this catalog reach the rider:
 
 | Field | Where |
 |---|---|
-| damper `description` | rendered as `Damper: <name> — <description>` |
-| node `note` | rendered on its own line |
+| damper `description` | under the damper in the picker, to choose between dampers |
+| node `note` | in the generated component notes: a dash list keeps its lines, prose becomes one bullet |
+| adjustment `notes` | next to the adjustment on every setup; keep it to one short line |
+
+The generated component notes are a short dash list the app builds from the
+selection: the chosen options, the spring and stanchion, the model years, the
+node `note`, the missing adjusters, then the `setup_guide` link. Skipped
+options, the damper `description` and the product page are left out.
 
 Write them **for the rider, not for the next data editor.** They describe the
 part: what the damper does, how its adjusters behave, what makes the chassis
@@ -596,15 +605,20 @@ distinctive. Keep them short — one to three facts.
 | "exact internals not independently confirmed" | Follow-ups footer |
 | "search results only mentioned Ultimate and Select+" | Follow-ups footer |
 
-The one exception is a short, actionable heads-up when adjusters are missing
-from the data — the rider needs to know they have to add them by hand. Name
-only the adjusters that could not be declared; one declared with `max: ~`
-already carries its own warning:
+### Missing adjusters (`missing_adjustments`)
+
+When an adjuster exists but cannot be declared (see [Draft entries](#draft-entries)),
+name it in `missing_adjustments` on the damper, or on the node when the product
+has no damper axis. The app tells the rider to add it by hand, in the picker and
+in the component notes. Never write that heads-up as prose. Name only the
+adjusters that could not be declared; one declared with `max: ~` already
+carries its own warning:
 
 ```yaml
-    description: >-
-      Lightweight XC damper for marathon racing. Adjustments incomplete:
-      please add the Compression lever yourself.
+    charger_race_day:
+      name: Charger Race Day
+      description: Lightweight XC damper for marathon racing.
+      missing_adjustments: [Compression lever]
 ```
 
 Note the two different `note` keys: on a **node** it is user-facing; on a
@@ -658,4 +672,6 @@ all publish specs the same way:
 parser the app uses and fails when a file does not parse, `component_type` does
 not match its directory, an adjustment spec does not build, a shock size is not
 in mm, a `url` is not http(s), two files claim the same product path, or a
-non-draft product offers a damper with `adjustments: []`.
+non-draft product offers a damper with `adjustments: []`, an adjustment counts
+`clicks` without being a `step`, or rider-facing text contains research wording
+(links, sources, reviews, "confirmed", "not published", "add … yourself").

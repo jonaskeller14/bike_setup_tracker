@@ -55,8 +55,9 @@ String optionAxisSummary(OptionAxis axis) {
   return '${values.join(' / ')} $unit';
 }
 
-/// Ranks matching [products] and expands them into at most [limit] flat
-/// suggestions for the name-field autocomplete. Returns empty below
+/// Ranks matching [products] and expands them into flat suggestions for the
+/// name-field autocomplete, all of them unless [limit] is set: the overlay
+/// scrolls, and a cut would hide whole models behind one model's variants. Returns empty below
 /// [minChars] characters. Ranking (best first): whole query prefixes the brand
 /// → first token prefixes the brand → query prefixes the searchable text →
 /// generic token match; ties keep the input (catalog) order.
@@ -67,7 +68,7 @@ String optionAxisSummary(OptionAxis axis) {
 List<ResolvedPreset> suggestPresets(
   List<ResolvedPreset> products,
   String query, {
-  int limit = 5,
+  int? limit,
   int minChars = 3,
 }) {
   final normalized = query.trim().toLowerCase();
@@ -87,7 +88,8 @@ List<ResolvedPreset> suggestPresets(
     return rankA != rankB ? rankA.compareTo(rankB) : a.key.compareTo(b.key);
   });
 
-  return indexed.expand((entry) => _requiredCombinations(entry.value)).take(limit).toList();
+  final suggestions = indexed.expand((entry) => _requiredCombinations(entry.value));
+  return (limit == null ? suggestions : suggestions.take(limit)).toList();
 }
 
 Iterable<ResolvedPreset> _requiredCombinations(ResolvedPreset preset) sync* {

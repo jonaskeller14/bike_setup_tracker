@@ -34,7 +34,7 @@ sources:
   - https://www.intend-bc.com/products/flash-38/
   - https://www.intend-bc.com/products/infinity-en/
   - https://www.intend-bc.com/products/bandit/
-updated: 2026-07-17
+updated: 2026-10-05
 
 # --------------------------------------------------------------------------
 # Dampers
@@ -50,18 +50,16 @@ option_values:
         Current-production units ship with the retrofittable "Smooth Operator"
         compression valve as standard equipment on Hero/Edge/Flash 35/Flash
         38/Infinity EN/Bandit (not on Samurai or Essential, and not on older
-        units — retrofittable separately). No total click count is published for
-        either dial; the official setup guide only describes Low-Speed
-        Compression as having a coarser zone (clicks 1-6) followed by a finer
-        zone continuing to fully open. Never independently confirmed/quantified
-        — not modelled as a step adjustment. See Follow-ups.
+        units — retrofittable separately).
+      missing_adjustments: [Rebound, Compression]
       adjustments: []
 
     open_bath:
       name: Open Bath (self-bleeding)
       description: >
         Essential's entry-level open-bath damper. External Low-Speed Rebound and
-        Low-Speed Compression dials. No click counts published — see Follow-ups.
+        Low-Speed Compression dials.
+      missing_adjustments: [Rebound, Compression]
       adjustments: []
 
     energizer:
@@ -97,6 +95,7 @@ nodes:
     category: XC / Down-country
     years: "2025-2026"
     url: https://www.intend-bc.com/products/samurai-xc/
+    setup_guide: https://www.intend-bc.com/fork-setup/
     children:
       - label: Standard
         level: trim
@@ -118,6 +117,7 @@ nodes:
     category: XC
     years: "2025-2026"
     url: https://www.intend-bc.com/products/samurai-32/
+    setup_guide: https://www.intend-bc.com/fork-setup/
     children:
       - label: Standard
         level: trim
@@ -138,6 +138,7 @@ nodes:
     category: Downcountry / Trail / Enduro
     years: "2025-2026"
     url: https://www.intend-bc.com/products/samurai-supertr/
+    setup_guide: https://www.intend-bc.com/fork-setup/
     children:
       - label: Standard
         level: trim
@@ -155,6 +156,7 @@ nodes:
     category: Trail / All-Mountain / Enduro
     years: "2025-2026"
     url: https://www.intend-bc.com/products/intend-hero/
+    setup_guide: https://www.intend-bc.com/fork-setup/
     children:
       - label: Standard
         level: trim
@@ -173,6 +175,7 @@ nodes:
     category: Trail / All-Mountain / Enduro
     years: "2025-2026"
     url: https://www.intend-bc.com/products/essentials/
+    setup_guide: https://www.intend-bc.com/fork-setup/
     children:
       - label: Standard
         level: trim
@@ -194,6 +197,7 @@ nodes:
     category: Enduro
     years: "2025-2026"
     url: https://www.intend-bc.com/products/intend-edge/
+    setup_guide: https://www.intend-bc.com/fork-setup/
     children:
       - label: Standard
         level: trim
@@ -211,6 +215,7 @@ nodes:
     category: Enduro / Freeride
     years: "2025-2026"
     url: https://www.intend-bc.com/products/intend-flash/
+    setup_guide: https://www.intend-bc.com/fork-setup/
     children:
       - label: Standard
         level: trim
@@ -228,6 +233,7 @@ nodes:
     category: Enduro / Freeride / DH
     years: "2025-2026"
     url: https://www.intend-bc.com/products/flash-38/
+    setup_guide: https://www.intend-bc.com/fork-setup/
     children:
       - label: Standard
         level: trim
@@ -246,6 +252,7 @@ nodes:
     category: Enduro / Freeride / DH (Dual Crown)
     years: "2025-2026"
     url: https://www.intend-bc.com/products/infinity-en/
+    setup_guide: https://www.intend-bc.com/fork-setup/
     children:
       - label: Standard
         level: trim
@@ -264,6 +271,7 @@ nodes:
     category: Enduro / Freeride
     years: "2025-2026"
     url: https://www.intend-bc.com/products/bandit/
+    setup_guide: https://www.intend-bc.com/fork-setup/
     children:
       - label: Standard
         level: trim
@@ -300,4 +308,6 @@ nodes:
 #   - Older/legacy INTEND fork generations (e.g. Ebonite and pre-Blackline
 #     2-piece-crown models) are not covered — only the current lineup shown on
 #     intend-bc.com/fork-chart/ as of 2026-07-17.
+#   - Setup guide: every model links intend-bc.com/fork-setup/, INTEND's one
+#     brand-wide fork setup page. No text source states a dial colour.
 # --------------------------------------------------------------------------

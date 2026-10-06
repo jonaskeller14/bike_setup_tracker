@@ -140,9 +140,12 @@ void main() {
       expect(suggestPresets(catalog, 'ohl').map(presetDisplayName), ['Öhlins RXF36', 'FOX Ohlala']);
     });
 
-    test('respects the suggestion limit', () {
-      expect(suggestPresets(fox, 'fox', limit: 2), hasLength(2));
-      expect(suggestPresets(fox, 'fox'), hasLength(3));
+    test('returns every match unless a limit is set', () {
+      // Four copies of the FOX file: 12 suggestions, more than any old cap.
+      final many = [for (var i = 0; i < 4; i++) ...fox];
+
+      expect(suggestPresets(many, 'fox'), hasLength(12));
+      expect(suggestPresets(many, 'fox', limit: 2), hasLength(2));
     });
   });
 

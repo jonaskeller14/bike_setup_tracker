@@ -51,7 +51,9 @@ class _Inherited {
   final String? category;
   final String? years;
   final String? url;
+  final String? setupGuide;
   final String? note;
+  final List<String> missingAdjustments;
   final Object? adjustments;
   final Object? options;
 
@@ -63,7 +65,9 @@ class _Inherited {
     this.category,
     this.years,
     this.url,
+    this.setupGuide,
     this.note,
+    this.missingAdjustments = const [],
     this.adjustments,
     this.options,
   });
@@ -122,7 +126,16 @@ class _CatalogParser {
       description: raw['description']?.toString(),
       specs: _parseSpecs(raw['specs'], where),
       adjustments: _parseAdjustmentSpecs(raw['adjustments'], where),
+      missingAdjustments: _parseNames(raw['missing_adjustments'], '"missing_adjustments" of $where'),
     );
+  }
+
+  List<String> _parseNames(Object? raw, String where) {
+    if (raw == null) return const [];
+    if (raw is! YamlList || raw.isEmpty || raw.any((name) => name is! String || name.isEmpty)) {
+      throw _error('$where is not a non-empty list of names');
+    }
+    return List.unmodifiable(raw.cast<String>());
   }
 
   List<CatalogNode> parseNodes(YamlList raw, _Inherited parent) {
@@ -186,7 +199,11 @@ class _CatalogParser {
       category: _inheritText(raw, 'category', parent.category),
       years: _inheritText(raw, 'years', parent.years),
       url: _inheritText(raw, 'url', parent.url),
+      setupGuide: _inheritText(raw, 'setup_guide', parent.setupGuide),
       note: _inheritText(raw, 'note', parent.note),
+      missingAdjustments: raw.containsKey('missing_adjustments')
+          ? _parseNames(raw['missing_adjustments'], '"missing_adjustments" of $where')
+          : parent.missingAdjustments,
       adjustments: raw.containsKey('adjustments') ? raw['adjustments'] : parent.adjustments,
       options: raw.containsKey('options') ? raw['options'] : parent.options,
     );
@@ -201,7 +218,9 @@ class _CatalogParser {
         category: scope.category,
         years: scope.years,
         url: scope.url,
+        setupGuide: scope.setupGuide,
         note: scope.note,
+        missingAdjustments: scope.missingAdjustments,
         adjustments: _parseAdjustmentSpecs(scope.adjustments, where),
         options: _parseOptions(scope.options, scope),
       );
@@ -220,7 +239,9 @@ class _CatalogParser {
       category: scope.category,
       years: scope.years,
       url: scope.url,
+      setupGuide: scope.setupGuide,
       note: scope.note,
+      missingAdjustments: scope.missingAdjustments,
       children: parseNodes(rawChildren, scope),
     );
   }

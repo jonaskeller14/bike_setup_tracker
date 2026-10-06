@@ -31,7 +31,11 @@ sources:
   - https://extremeshox.com/product/vaia/
   - https://extremeshox.com/wp-content/uploads/2023/08/quick-manual-Era-v2_20x30.pdf
   - https://extremeshox.com/wp-content/uploads/2024/12/Vaia-Quick-Manual-1.pdf
-updated: 2026-07-17
+  - https://extremeshox.com/wp-content/uploads/2023/09/ERA_V2S_quick_manual-5.pdf
+  # Secondary — editorial spec lists (wheel size)
+  - https://www.pinkbike.com/news/review-ext-era-v21-fork.html
+  - https://www.pinkbike.com/news/review-ext-vaia-extra-adjustable-usd-fork.html
+updated: 2026-10-05
 
 # --------------------------------------------------------------------------
 # Dampers
@@ -41,12 +45,11 @@ option_values:
     era_cartridge:
       name: EXT Era 3-Way Cartridge
       description: >
-        Shared damper cartridge across both Era V2.1 and Era V2 LT (confirmed
-        by EXT's own quick manual, which covers both forks together): high
-        volume cartridge with a 22mm piston, HDRV compression valve (24mm
-        piston) and a 24mm-piston IFP reservoir. Independently adjustable
-        Low-Speed Compression, High-Speed Compression and Rebound, all
-        counted from fully closed (click 0).
+        Shared damper cartridge of the Era V2.1 and Era V2 LT: high volume
+        cartridge with a 22mm piston, HDRV compression valve (24mm piston) and
+        a 24mm-piston IFP reservoir. Independently adjustable Low-Speed
+        Compression, High-Speed Compression and Rebound, all counted from fully
+        closed (click 0).
       adjustments:
         - { name: LSC, type: step, max: ~, notes: Low-Speed Compression }
         - { name: HSC, type: step, max: ~, notes: High-Speed Compression }
@@ -72,8 +75,9 @@ option_values:
 # chambers), so trims share the &hs3_air_spring anchor. EXT states an overall
 # max inflation pressure per fork (not broken out per chamber the way the
 # Aria shock's is) — recorded as a note rather than a per-chamber `max`.
-# Wheel size isn't stated on either product page, so it is omitted rather
-# than guessed — see Follow-ups.
+# Wheel size isn't stated on the product pages: Era V2.1 and Vaia take it from
+# Pinkbike's review spec lists (29" only / "Designed for 29" wheels"); Era V2 LT
+# has no source and is omitted — see Follow-ups.
 # --------------------------------------------------------------------------
 nodes:
   - label: "Era V2.1"
@@ -81,6 +85,7 @@ nodes:
     category: Trail / Enduro
     years: "2025-2026"
     url: https://extremeshox.com/product/ext-era-v2-1/
+    setup_guide: https://extremeshox.com/wp-content/uploads/2023/08/quick-manual-Era-v2_20x30.pdf
     children:
       - label: Standard
         level: trim
@@ -91,6 +96,7 @@ nodes:
         options:
           damper: [era_cartridge]
           travel_mm: [130, 140, 150, 160, 170]
+          wheel_size: [29]
         note: HS3 hybrid dual-positive-chamber air spring; 15QR Boost Torque Cap dropout (15x110mm)
 
   - label: "Era V2 LT"
@@ -98,6 +104,7 @@ nodes:
     category: Enduro
     years: "2025-2026"
     url: https://extremeshox.com/product/ext-era-v2-lt/
+    setup_guide: https://extremeshox.com/wp-content/uploads/2023/09/ERA_V2S_quick_manual-5.pdf
     children:
       - label: Standard
         level: trim
@@ -116,6 +123,7 @@ nodes:
     category: Downhill / Enduro
     years: "2025-2026"
     url: https://extremeshox.com/product/vaia/
+    setup_guide: https://extremeshox.com/wp-content/uploads/2024/12/Vaia-Quick-Manual-1.pdf
     children:
       - label: Standard
         level: trim
@@ -127,6 +135,7 @@ nodes:
         options:
           damper: [vaia_cartridge]
           travel_mm: [170, 180, 190, 200]
+          wheel_size: [29]
         note: >
           Interchangeable 20mm/15mm(110 Boost) Grade-5 titanium axle;
           two-position cam stem sets 44mm (enduro) or 48mm (DH) offset.
@@ -144,8 +153,13 @@ nodes:
 #     Aria shock (280/600 psi) — not modeled as a per-chamber `max` to avoid
 #     misattributing the number to the wrong valve.
 #   - Vaia: same ambiguity, single combined ceiling of 250 psi / 17 bar.
-#   - Wheel size (29" / 27.5" / mullet) is not stated on either the Era V2.1,
-#     Era V2 LT, or Vaia product pages — omitted rather than guessed.
+#   - Wheel size is not stated on EXT's product pages. Era V2.1 (29" only) and
+#     Vaia (designed for 29") come from Pinkbike's review spec lists; Era V2 LT
+#     has no approved source (Pinkbike's launch article lists no wheel size),
+#     so the axis is omitted there.
+#   - Dial colors: EXT's quick manuals describe the LSC adjuster as nickel-colored
+#     and the HSC adjuster as black; neither maps to a palette color, so only
+#     the red rebound dials carry `dialColor`.
 #   - HS3 volume-spacer / ramp-up chamber counts are not published per model.
 #   - No older/legacy EXT MTB fork generations (pre-Era V2) are covered —
 #     only the current (2026) lineup listed on extremeshox.com.

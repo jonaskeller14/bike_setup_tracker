@@ -16,13 +16,14 @@ sources:
   - https://www.dtswiss.com/en/suspension/shocks/r-535
   - https://www.dtswiss.com/en/suspension/shocks/r-232-one
   - https://www.dtswiss.com/en/support/manuals
+  - https://setupguide.dtswiss.com/en/
   # Primary — DT Swiss official user manuals (PDF)
   - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/04/86/2/MAN_CXD10000004862S_WEB_ZZ_001.pdf
   - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/01/87/3/MAN_CXD10000001873S_WEB_ZZ_001.pdf
   - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/03/02/9/MAN_CXD10000003029S_WEB_ZZ_001.pdf
   # Secondary — editorial (article body text only)
   - https://www.pinkbike.com/news/first-ride-dt-swisss-new-232-one-platform.html
-updated: 2026-09-25
+updated: 2026-10-05
 # Counting conventions:
 #   * Rebound: the manuals describe "rotating the red rebound wheel by around 40
 #     clicks (shock with standard mount) or 22 clicks (shock with trunnion
@@ -115,6 +116,7 @@ nodes:
     category: Trail / All-Mountain
     years: "2021-2026"
     url: https://www.dtswiss.com/en/suspension/shocks/r-535-one
+    setup_guide: https://setupguide.dtswiss.com/en/
     specs: { spring: Air }
     children:
       - label: Standard Mount
@@ -124,7 +126,7 @@ nodes:
           - { name: Pressure, type: numerical, unit: psi, min: 0 }
         options:
           damper: [r535_one_standard]
-          size: [40, 45, 50, 55, 60, 65]
+          size: ["165x40/45", "190x40/45", "185x50/55", "210x50/55", "205x60/65", "230x60/65"]
         note: Large negative air chamber with a bypass for small-bump sensitivity; DU bushings.
       - label: Trunnion Mount
         level: trim
@@ -132,7 +134,7 @@ nodes:
         adjustments: *air_spring
         options:
           damper: [r535_one_trunnion]
-          size: [40, 45, 50, 55, 60, 65]
+          size: ["165x40/45", "190x40/45", "185x50/55", "210x50/55", "205x60/65", "230x60/65"]
         note: Large negative air chamber with a bypass for small-bump sensitivity; DU bushings.
 
   - label: "R 535"
@@ -140,6 +142,7 @@ nodes:
     category: Trail / All-Mountain
     years: "2023-2026"
     url: https://www.dtswiss.com/en/suspension/shocks/r-535
+    setup_guide: https://setupguide.dtswiss.com/en/
     specs: { spring: Air }
     children:
       - label: Standard Mount
@@ -148,7 +151,7 @@ nodes:
         adjustments: *air_spring
         options:
           damper: [r535_standard]
-          size: [40, 45, 50, 55, 60, 65]
+          size: ["165x40/45", "190x40/45", "185x50/55", "210x50/55", "205x60/65", "230x60/65"]
         note: Two-position lever (Open / Lock); DU bushings.
       - label: Trunnion Mount
         level: trim
@@ -156,7 +159,7 @@ nodes:
         adjustments: *air_spring
         options:
           damper: [r535_trunnion]
-          size: [40, 45, 50, 55, 60, 65]
+          size: ["165x40/45", "190x40/45", "185x50/55", "210x50/55", "205x60/65", "230x60/65"]
         note: Two-position lever (Open / Lock); DU bushings.
 
   - label: "R 232 ONE"
@@ -164,6 +167,7 @@ nodes:
     category: XC
     years: "2020-2026"
     url: https://www.dtswiss.com/en/suspension/shocks/r-232-one
+    setup_guide: https://setupguide.dtswiss.com/en/
     specs: { spring: Air }
     children:
       - label: Standard Mount
@@ -172,7 +176,7 @@ nodes:
         adjustments: *air_spring
         options:
           damper: [r232_one_standard]
-          size: [40, 45, 50, 55]
+          size: ["165x40/45", "190x40/45", "185x50/55", "210x50/55"]
         note: XC-tuned dual-chamber air spring from 245g; lever or remote versions.
       - label: Trunnion Mount
         level: trim
@@ -180,11 +184,16 @@ nodes:
         adjustments: *air_spring
         options:
           damper: [r232_one_trunnion]
-          size: [40, 45, 50, 55]
+          size: ["165x40/45", "190x40/45", "185x50/55", "210x50/55"]
         note: XC-tuned dual-chamber air spring from 245g; lever or remote versions.
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):
+#   - Shock sizes: the user manuals' SAG charts list eye-to-eye/stroke pairs
+#     (R 535: 165/190x40/45, 185/210x50/55, 205/230x60/65; R 232 ONE:
+#     165/190x40/45, 185/210x50/55) without saying which length belongs to
+#     which mount, so both mount trims list the full set and no mount is set per
+#     size. Never infer the mount from the length.
 #   - Rebound counts are DT Swiss's own "around 40 / 22 clicks" wording; the
 #     exact totals and the counting direction (open vs. closed zero point) are
 #     not stated. Re-check if DT Swiss publishes a precise range.

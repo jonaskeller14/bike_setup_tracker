@@ -27,7 +27,7 @@ sources:
   - https://hayesbicycle.zendesk.com/hc/article_attachments/360066638914
   # Secondary — editorial (article body text only)
   - https://www.pinkbike.com/news/first-look-manitous-180mm-mezzer-pro-fork-and-mara-pro-shock-garda-trentino-2019.html
-updated: 2026-09-25
+updated: 2026-10-05
 # Counting conventions, from the Mara Pro PB Gen 2 set-up guide: low-speed
 # compression and rebound are counted from fully CLOSED (counterclockwise), but
 # because of the damper's design the high-speed compression clicks are counted
@@ -149,6 +149,7 @@ nodes:
           - label: Pro Piggyback
             level: trim
             url: https://hayesbicycle.com/products/mara-pro-piggyback
+            setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/28476110600727
             mounts: [Eyelet, Trunnion]
             adjustments: &mara_air_spring
               - { name: Pressure, type: numerical, unit: psi, min: 0, notes: "Max 350 psi; raise in 75 psi increments, cycling the shock between steps" }
@@ -162,6 +163,7 @@ nodes:
           - label: Pro Piggyback DH
             level: trim
             url: https://hayesbicycle.com/products/mara-pro-piggyback-dh
+            setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/28476110600727
             mounts: [Eyelet, Trunnion]
             adjustments: *mara_air_spring
             options:
@@ -173,6 +175,7 @@ nodes:
           - label: Pro Inline
             level: trim
             url: https://hayesbicycle.com/products/mara-pro-inline
+            setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/25871616439319
             mounts: [Eyelet, Trunnion]
             adjustments: *mara_air_spring
             options:
@@ -185,6 +188,7 @@ nodes:
           - label: Pro Inline XC
             level: trim
             url: https://hayesbicycle.com/products/mara-pro-inline-xc
+            setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/25871600341655
             mounts: [Eyelet, Trunnion]
             adjustments: *mara_air_spring
             options:
@@ -197,6 +201,7 @@ nodes:
           - label: Comp Inline
             level: trim
             url: https://hayesbicycle.com/products/mara-comp
+            setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/25871643572375
             mounts: [Eyelet, Trunnion]
             adjustments: *mara_air_spring
             options:
@@ -214,6 +219,7 @@ nodes:
         children:
           - label: Pro Piggyback
             level: trim
+            setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/360066638914
             adjustments:
               - { name: Pressure, type: numerical, unit: psi, min: 0, notes: Max 250 psi }
             options:
@@ -237,6 +243,11 @@ nodes:
 #   - Not covered: the earlier Mara IL (Gen 1, 4-position IPA, listing "Mara")
 #     and the discontinued McLeod — the McLeod tuning guide gives the four IPA
 #     positions but no rebound click count.
-#   - Dial colors and sizes were not confirmed from product photos, so all dials
-#     use the default blue / normal.
+#   - Mara Pro Piggyback Gen 1 (2019-2023) `size`: no Manitou page lists the sizes
+#     (the Gen 1 set-up guide is a settings table only and the Pinkbike launch
+#     article is bot-blocked; only retailer listings state them), so none declared.
+#   - Dial colors: no set-up guide or product page states a knob colour in text, so
+#     all dials use the default blue / normal.
+#   - Setup guides link the PDF attachments (the help-center articles themselves
+#     are bot-blocked).
 # --------------------------------------------------------------------------

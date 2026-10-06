@@ -17,10 +17,14 @@ sources:
   - https://www.rideformula.com/products/mtb-shocks/nebbia/
   - https://www.rideformula.com/products/mtb-shocks/mod/
   - https://www.rideformula.com/products/mtb-shocks/mod-dh/
+  # Formula user manuals (PDF) — setup guides and knob colors
+  - https://www.rideformula.com/wp-content/uploads/2024/07/Manuale-Utente-Nebbia-ENG.pdf
+  - https://www.rideformula.com/wp-content/uploads/2020/09/MOD-Owner-Manual.pdf
+  - https://www.rideformula.com/wp-content/uploads/2020/09/MOD-Manuale-utente.pdf
   # Editorial — first model years only, never for click counts
   - https://www.mbr.co.uk/news/formula-launches-its-first-air-shock-called-the-nebbia-and-it-promises-high-performance-with-simplified-set-up-437962
   - https://www.mbr.co.uk/reviews/shocks/formula-mod-coil-shock
-updated: 2026-09-25
+updated: 2026-10-05
 
 # --------------------------------------------------------------------------
 # Dampers
@@ -34,7 +38,7 @@ option_values:
         - Compression Tuning System (CTS) valves swap in for larger changes
         - Very wide rebound range so one tune suits many frames
       adjustments:
-        - { name: Compression, type: step, max: 21 }
+        - { name: Compression, type: step, max: 21, dialColor: blue }
         - { name: Rebound, type: step, max: 23 }
         - { name: Compression Mode, type: categorical, options: [Open, Platform, Firm] }
       source: https://www.rideformula.com/products/mtb-shocks/nebbia/
@@ -50,8 +54,8 @@ option_values:
         - Two-position compression switch: Open or Firm
         - Compression Tuning System (CTS) valves swap in for larger changes
       adjustments:
-        - { name: Compression, type: step, max: 17 }
-        - { name: Rebound, type: step, max: 13 }
+        - { name: Compression, type: step, max: 17, dialColor: blue }
+        - { name: Rebound, type: step, max: 13, dialColor: red }
         - { name: Compression Mode, type: categorical, options: [Open, Firm] }
       source: https://www.rideformula.com/products/mtb-shocks/mod/
       note: >-
@@ -66,8 +70,8 @@ option_values:
         - Single-tube damper with a 30mm piston and a large-volume bladder reservoir
         - Compression Tuning System (CTS) valves swap in for larger changes
       adjustments:
-        - { name: Compression, type: step, max: 17 }
-        - { name: Rebound, type: step, max: 13 }
+        - { name: Compression, type: step, max: 17, dialColor: blue }
+        - { name: Rebound, type: step, max: 13, dialColor: red }
       source: https://www.rideformula.com/products/mtb-shocks/mod-dh/
       note: >-
         MOD DH page: "Compression: 17 Click Adjustment", "Rebound: 13 Click
@@ -83,16 +87,16 @@ nodes:
     category: Trail / Enduro / All-Mountain
     years: "2024-2026"
     url: https://www.rideformula.com/products/mtb-shocks/nebbia/
+    setup_guide: https://www.rideformula.com/wp-content/uploads/2024/07/Manuale-Utente-Nebbia-ENG.pdf
     specs: { spring: Air }
     children:
       - label: Air
         level: trim
-        mounts: [Standard, Trunnion]
         adjustments:
           - { name: Pressure, type: numerical, unit: psi, min: 0 }
         options:
           damper: [nebbia_2024]
-          size: [37.5, 40, 42.5, 45, 47.5, 50, 52.5, 55, 57.5, 60, 62.5, 65, 67.5, 70, 72.5, 75]
+          size: [{ size: "190x37.5/40/42.5/45", mount: Standard }, { size: "210x47.5/50/52.5/55", mount: Standard }, { size: "230x57.5/60/62.5/65", mount: Standard }, { size: "250x67.5/70/72.5/75", mount: Standard }, { size: "165x37.5/40/42.5/45", mount: Trunnion }, { size: "185x47.5/50/52.5/55", mount: Trunnion }, { size: "205x57.5/60/62.5/65/67.5", mount: Trunnion }, { size: "225x70/72.5/75", mount: Trunnion }]
         note: |-
           - Coil and air hybrid negative spring with a bladder oil reservoir
           - Volume spacers tune the mid- and end-stroke
@@ -103,17 +107,17 @@ nodes:
     category: Enduro / All-Mountain
     years: "2020-2026"
     url: https://www.rideformula.com/products/mtb-shocks/mod/
+    setup_guide: https://www.rideformula.com/wp-content/uploads/2020/09/MOD-Owner-Manual.pdf
     specs: { spring: Coil }
     children:
       - label: Coil
         level: trim
-        mounts: [Standard, Trunnion]
         adjustments:
           - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
           - { name: Preload, type: numerical }
         options:
           damper: [mod_2020]
-          size: [47.5, 50, 52.5, 55, 57.5, 60, 62.5, 65]
+          size: [{ size: "210x47.5/50/52.5/55", mount: Standard }, { size: "230x57.5/60/62.5/65", mount: Standard }, { size: "185x47.5/50/52.5/55", mount: Trunnion }, { size: "205x57.5/60/62.5/65", mount: Trunnion }]
         note: |-
           - Steel coil springs from 300 to 700 lbs/in
           - Yoke-mount compatible version available
@@ -123,17 +127,17 @@ nodes:
     level: model
     category: Downhill
     url: https://www.rideformula.com/products/mtb-shocks/mod-dh/
+    setup_guide: https://www.rideformula.com/wp-content/uploads/2020/09/MOD-Manuale-utente.pdf
     specs: { spring: Coil }
     children:
       - label: Coil
         level: trim
-        mounts: [Standard, Trunnion]
         adjustments:
           - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
           - { name: Preload, type: numerical }
         options:
           damper: [mod_dh]
-          size: [67.5, 70, 72.5, 75]
+          size: [{ size: "250x67.5/70/72.5/75", mount: Standard }, { size: "225x67.5/70/72.5/75", mount: Trunnion }]
         note: |-
           - Steel coil springs from 250 to 550 lbs/in
           - Same internals as the MOD, without the climb switch
@@ -153,5 +157,9 @@ nodes:
 #   - MOD DH launch year is not confirmed by a readable editorial source, so
 #     it carries no `years` (the MOD's 2020 comes from MBR's Sept 2020
 #     review, the Nebbia's 2024 from its May 2024 launch coverage).
-#   - Owner's manuals for the three shocks were not read.
+#   - Dial colors come from the user manuals: blue CTS compression knob on all
+#     three (the Nebbia manual) and a red rebound knob on the MOD / MOD DH; the
+#     Nebbia manual names no rebound color. The MOD DH manual is the Italian one
+#     on its product page (the English MOD manual covers the MOD).
+#   - Sizes (eye-to-eye x stroke, with mount) are as printed on each product page.
 # --------------------------------------------------------------------------

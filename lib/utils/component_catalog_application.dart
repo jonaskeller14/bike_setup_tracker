@@ -5,15 +5,11 @@ import '../models/component/preset_spec_keys.dart';
 import 'component_preset_resolver.dart';
 
 const String kForkSagNotes =
-    'Sag is how much your fork compresses under your body weight (including '
-    'riding gear) in a static riding position. SAG is a good metric for initial '
-    'setup. Recommended ranges by discipline: XC: 15%, Trail: 15-20%, '
-    'Enduro: 20%, Downhill: 20-25%.';
+    'Travel used with you and your gear on the bike in riding position. '
+    'Targets: XC 15%, Trail 15-20%, Enduro 20%, DH 20-25%';
 const String kShockSagNotes =
-    'Sag is how much your shock compresses under your body weight (including '
-    'riding gear) in a static riding position. SAG is a good metric for initial '
-    'setup. Recommended ranges by discipline: XC: 20-25%, Trail: 25-30%, '
-    'Enduro: 30%, Downhill: 30-35%.';
+    'Travel used with you and your gear on the bike in riding position. '
+    'Targets: XC 20-25%, Trail 25-30%, Enduro 30%, DH 30-35%';
 
 /// A generation's label is its year span, which the `Year:` note line and the
 /// year badge already carry.
@@ -52,43 +48,67 @@ String presetDisplayName(ResolvedPreset resolved) {
   ].join(' ');
 }
 
+/// A short dash list of what the rider would otherwise look up: the chosen
+/// configuration, the spring, the model years, the product note and any
+/// adjuster to add by hand, then the setup guide link. Options the rider skipped
+/// and the damper's internals are left out.
 String _buildNotes(ResolvedPreset resolved) {
   final node = resolved.node;
-  final axes = resolved.axes;
+  final chosen = [
+    for (final axis in resolved.axes) ?resolved.selections[axis.id],
+  ];
+  final damper = resolved.selections[PresetOptionAxes.damper.id];
+  final missing = [
+    ...node.missingAdjustments,
+    for (final value in chosen) ...value.missingAdjustments,
+  ];
+  final setupGuide = node.setupGuide;
+  final bullets = [
+    if (damper != null) 'Damper: ${damper.label}',
+    _joined([
+      for (final axis in resolved.axes)
+        if (axis.id != PresetOptionAxes.damper.id) ?_chosenText(axis, resolved.selections[axis.id]),
+    ]),
+    _joined(_specTexts(resolved, chosen)),
+    if (_isNotBlank(node.years)) 'Model years: ${node.years}',
+    ..._noteLines(node.note),
+    if (missing.isNotEmpty) 'Not in the catalog yet, add by hand: ${missing.join(', ')}',
+  ].where(_isNotBlank).map((line) => line!.startsWith('- ') ? line : '- $line');
+  return [
+    bullets.join('\n'),
+    if (_isNotBlank(setupGuide)) 'Setup guide: $setupGuide',
+  ].where(_isNotBlank).join('\n\n');
+}
+
+String? _chosenText(OptionAxis axis, OptionValue? selected) =>
+    selected == null ? null : '${axis.key.label}: ${selected.label}';
+
+/// Spec facts the chosen values do not already name. A size's label carries
+/// its lengths but not its mount, so the mount stays.
+List<String> _specTexts(ResolvedPreset resolved, List<OptionValue> chosen) {
+  final covered = {
+    for (final value in chosen) ...value.specs.keys,
+  }..remove(PresetSpecKeys.mount.id);
   final specs = resolved.effectiveSpecs;
   return [
-    for (final axis in axes) '${axis.key.label}: ${_optionText(axis, resolved.selections[axis.id])}',
     for (final key in PresetSpecKeys.values)
-      // A literal axis has its own line above.
-      if (!axes.any((axis) => axis.key.spec == key)) ?_specLine(key, specs),
-    if (_isNotBlank(node.years)) 'Year: ${node.years}',
-    if (_isNotBlank(node.note)) node.note!,
-    if (_isNotBlank(node.url)) node.url!,
-  ].join('\n');
+      if (!covered.contains(key.id)) ?_specText(key, specs),
+  ];
 }
 
-/// The chosen value, or everything the product can be had with.
-String _optionText(OptionAxis axis, OptionValue? selected) {
-  if (selected != null) {
-    final description = selected.description;
-    return _isNotBlank(description) ? '${selected.label} — $description' : selected.label;
-  }
-  final unit = axis.key.spec?.unit;
-  if (unit == null) return axis.values.map((value) => value.label).join(' / ');
-  // `150 / 160 mm` instead of the unit on every value. A literal value is its own id.
-  final values = axis.values.map(
-    (value) => switch (value.id) {
-      final num number => formatSpecNumber(number),
-      final id => id.toString(),
-    },
-  );
-  return '${values.join(' / ')} $unit';
-}
-
-String? _specLine(SpecKey<Object> key, Specs specs) {
+String? _specText(SpecKey<Object> key, Specs specs) {
   final value = specs.get(key);
   return value == null ? null : '${key.label}: ${key.format(value)}';
 }
+
+/// A note authored as a dash list keeps its lines; prose becomes one bullet.
+List<String> _noteLines(String? note) {
+  if (!_isNotBlank(note)) return const [];
+  final lines = note!.trim().split('\n').where((line) => line.trim().isNotEmpty).toList();
+  return lines.every((line) => line.startsWith('- ')) ? lines : [lines.join(' ')];
+}
+
+String? _joined(List<String> parts) => parts.isEmpty ? null : parts.join(' · ');
 
 List<Adjustment> _buildAdjustments(ResolvedPreset resolved) {
   return [

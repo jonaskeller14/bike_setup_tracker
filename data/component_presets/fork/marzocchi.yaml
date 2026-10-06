@@ -22,7 +22,7 @@ sources:
   - https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-174-58_TuningGuide-revA.pdf
   - https://www.pinkbike.com/news/marzocchi-bomber-z1-review.html
   - https://nsmb.com/articles/marzocchi-bomber-z1-reviewed/
-updated: 2026-07-18
+updated: 2026-10-05
 # Rebound/compression numbers below come from the official Marzocchi tuning
 # guides (PDFs hosted on tech.ridefox.com), not the marketing product pages,
 # which describe adjusters in prose only ("simple sweep adjuster") without
@@ -38,37 +38,37 @@ option_values:
     rail:
       name: RAIL
       description: >
-        Current-generation damper on Bomber Z1 (Air), Bomber Z1 Coil and Bomber
-        Z2. Marketing copy ("simple sweep adjuster", "no fuss") does not itself
-        publish click counts; the numbers below come from the official Bomber
-        Z1/DJ (2020, then labelled "GRIP") and Bomber Z2 (2019) tuning guides,
-        which show the identical 2-position sweep + 9-click rebound spec under
-        both names. Marzocchi's current Z2 product copy mentions a "new RAIL
-        damper", so this may have been revised since 2019 without a republished
-        spec sheet — see Follow-ups.
+        Damper on Bomber Z1 (Air), Bomber Z1 Coil and Bomber Z2: a simple sweep
+        compression lever and a 9-click rebound dial.
       adjustments: &sweep_2pos
-        - { name: Compression Mode, type: categorical, options: [Open, Firm], notes: 2-Position Sweep Adjust lever; continuously variable between the two end positions }
+        - { name: Compression Mode, type: categorical, options: [Open, Firm], notes: "Sweep lever, continuously variable between Open and Firm" }
         - { name: Rebound, type: step, max: 9, dialColor: red }
+      source:
+        - https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-256_RevB_DJ-Z1_TuningGuide.pdf
+        - https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-237-%20RevA_Z2_TuningGuide.pdf
+      note: >-
+        Numbers from the 2020 Bomber Z1/DJ tuning guide (then labelled "GRIP")
+        and the 2019 Bomber Z2 tuning guide, which show the identical sweep +
+        9-click rebound spec under both names. Current Z2 copy mentions a "new
+        RAIL damper", so this may have changed since without a republished spec.
 
     grip:
       name: GRIP
-      description: >
-        Damper on Bomber DJ. Same 2-position sweep compression + 9-click
-        rebound spec as `rail` above, per the shared official 2020 "Bomber Z1 &
-        DJ" tuning guide (which calls it GRIP); Marzocchi's current DJ product
-        page still uses the GRIP name.
+      description: Damper on Bomber DJ with a sweep compression lever and a 9-click rebound dial.
       adjustments: *sweep_2pos
+      source: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-256_RevB_DJ-Z1_TuningGuide.pdf
+      note: Same spec as `rail`, per the shared 2020 "Bomber Z1 & DJ" tuning guide, which calls it GRIP.
 
     grip_58:
       name: GRIP
       description: >
-        Damper on the dual-crown Bomber 58. Despite the shared "GRIP" name this
-        is a different cartridge than Bomber DJ's: a continuously-indexed
-        Low-Speed Compression dial (not a 2-position sweep) plus the same
-        9-click rebound scale. Per the official Bomber 58 tuning guide.
+        Damper on the dual-crown Bomber 58: a clicked low-speed compression dial
+        plus a 9-click rebound dial.
       adjustments:
         - { name: Compression, type: step, max: 8, notes: Low-Speed Compression }
         - { name: Rebound, type: step, max: 9 }
+      source: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-174-58_TuningGuide-revA.pdf
+      note: Official Bomber 58 tuning guide. Despite the shared GRIP name, not the same cartridge as Bomber DJ's.
 
 # --------------------------------------------------------------------------
 # Forks — current (2025/2026) Marzocchi lineup. Every model below is air- or
@@ -81,6 +81,7 @@ nodes:
     category: Trail / All-Mountain
     years: "2025-2026"
     url: https://bike.marzocchi.com/products/bomber-z1
+    setup_guide: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-256_RevB_DJ-Z1_TuningGuide.pdf
     children:
       - label: Standard
         level: trim
@@ -100,6 +101,7 @@ nodes:
     category: Trail / All-Mountain
     years: "2025-2026"
     url: https://bike.marzocchi.com/products/bomber-z1-coil
+    setup_guide: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-256_RevB_DJ-Z1_TuningGuide.pdf
     children:
       - label: Coil
         level: trim
@@ -123,6 +125,7 @@ nodes:
     category: Trail
     years: "2025-2026"
     url: https://bike.marzocchi.com/products/bomber-z2
+    setup_guide: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-237-%20RevA_Z2_TuningGuide.pdf
     children:
       - label: Standard
         level: trim
@@ -143,6 +146,7 @@ nodes:
     category: Dirt Jump / Slopestyle
     years: "2025-2026"
     url: https://bike.marzocchi.com/products/bomber-dj
+    setup_guide: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-256_RevB_DJ-Z1_TuningGuide.pdf
     children:
       - label: Standard
         level: trim
@@ -163,6 +167,7 @@ nodes:
     category: Downhill
     years: "2025-2026"
     url: https://bike.marzocchi.com/products/bomber-58
+    setup_guide: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-174-58_TuningGuide-revA.pdf
     children:
       - label: Standard
         level: trim

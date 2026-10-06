@@ -55,16 +55,46 @@ void main() {
       test('every adjustment spec builds into a valid Adjustment', () {
         for (final MapEntry(key: path, value: node) in nodes.entries) {
           if (node is! CatalogProduct) continue;
-          final specs = <PresetAdjustmentSpec>[
-            ...node.adjustments,
-            for (final axis in node.options.values)
-              for (final value in axis.values) ...value.adjustments,
-          ];
-          for (final spec in specs) {
+          for (final spec in _adjustmentSpecs(node)) {
             final adjustment = spec.build(); // strict fromYaml — throws on typos
             expect(adjustment.name, isNotEmpty, reason: path);
             _assertAdjustmentInvariants(adjustment, path);
           }
+        }
+      });
+
+      test('clicks are step adjustments', () {
+        // A click count is discrete; a numerical field would accept 12.5 clicks
+        // and show no dial.
+        for (final MapEntry(key: path, value: node) in nodes.entries) {
+          if (node is! CatalogProduct) continue;
+          for (final spec in _adjustmentSpecs(node)) {
+            expect(
+              spec.raw['type'] != 'numerical' || spec.raw['unit'] != 'clicks',
+              isTrue,
+              reason: '$path: "${spec.raw['name']}" counts clicks, so it is a step adjustment',
+            );
+          }
+        }
+      });
+
+      test('rider-facing text carries no research notes', () {
+        // Node notes, value descriptions and adjustment notes reach the rider;
+        // sourcing belongs in `source:` / `note:` keys and comments, and a
+        // missing adjuster in `missing_adjustments`.
+        final texts = <String, String?>{
+          for (final MapEntry(key: path, value: node) in nodes.entries) ...{
+            '$path note': node.note,
+            if (node is CatalogProduct) ...{
+              for (final spec in _adjustmentSpecs(node)) '$path ${spec.raw['name']} notes': spec.raw['notes'] as String?,
+              for (final axis in node.options.values)
+                for (final value in axis.values) '${axis.id} ${value.id} description': value.description,
+            },
+          },
+        };
+        for (final MapEntry(key: where, value: text) in texts.entries) {
+          final match = text == null ? null : _researchNote.firstMatch(text);
+          expect(match, isNull, reason: '$where: "${match?[0]}" in "$text"');
         }
       });
 
@@ -97,14 +127,14 @@ void main() {
 
       test('urls are http(s)', () {
         for (final MapEntry(key: path, value: node) in nodes.entries) {
-          final url = node.url;
-          if (url == null) continue;
-          final uri = Uri.tryParse(url);
-          expect(
-            uri != null && (uri.scheme == 'http' || uri.scheme == 'https'),
-            isTrue,
-            reason: '$path: bad url "$url"',
-          );
+          for (final url in [node.url, node.setupGuide].nonNulls) {
+            final uri = Uri.tryParse(url);
+            expect(
+              uri != null && (uri.scheme == 'http' || uri.scheme == 'https'),
+              isTrue,
+              reason: '$path: bad url "$url"',
+            );
+          }
         }
       });
 
@@ -141,6 +171,22 @@ Map<String, CatalogNode> _nodesByPath(BrandCatalog catalog) {
   }
   return nodes;
 }
+
+/// The product's own adjustments plus those of every option value it offers.
+List<PresetAdjustmentSpec> _adjustmentSpecs(CatalogProduct product) => [
+  ...product.adjustments,
+  for (final axis in product.options.values)
+    for (final value in axis.values) ...value.adjustments,
+];
+
+/// Wording that belongs to the data editor, not the rider: links, citations,
+/// verification status, and "please add it yourself" prose.
+final RegExp _researchNote = RegExp(
+  r'https?://|\bsource[sd]?\b|\breview(ed|s)?\b|pinkbike|vital ?mtb|bikeradar|enduro-mtb|\bconfirm|'
+  r'\bverif|follow-?up|not (yet )?published|\bper (the )?(manual|review|article|tuning guide|product page)\b|'
+  r'see damper|product page|adjustments incomplete|yourself',
+  caseSensitive: false,
+);
 
 void _assertAdjustmentInvariants(Adjustment adjustment, String path) {
   switch (adjustment) {

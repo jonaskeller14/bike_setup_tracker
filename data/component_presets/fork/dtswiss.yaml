@@ -15,6 +15,7 @@ sources:
   - https://www.dtswiss.com/en/suspension/forks/f-535
   - https://www.dtswiss.com/en/suspension/forks/f-232-one
   - https://www.dtswiss.com/en/support/manuals
+  - https://setupguide.dtswiss.com/en/
   # Primary — DT Swiss official user / technical manuals (PDF)
   - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/04/85/7/MAN_FXD10000004857S_WEB_ZZ_001.pdf
   - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/04/85/8/MAN_FXD10000004858S_WEB_EN_001.pdf
@@ -25,7 +26,7 @@ sources:
   # Secondary — editorial (article body text only)
   - https://enduro-mtb.com/en/dt-swiss-f-535-and-f-535-one-forks-test/
   - https://www.pinkbike.com/news/first-ride-dt-swisss-new-232-one-platform.html
-updated: 2026-09-25
+updated: 2026-10-05
 # Counting conventions:
 #   * Rebound is counted from fully OPEN (fastest): the F 535 / F 535 ONE user
 #     manual's rebound-recommendation table is headed "Rebound clicks (from
@@ -88,7 +89,7 @@ option_values:
         Lock) and external rebound and low-speed compression adjusters.
       adjustments:
         - { name: Compression Mode, type: categorical, options: [Open, Drive, Lock] }
-        - { name: Compression, type: step, max: ~, notes: "Low-Speed Compression; blue T10 Torx adjuster, affects Open mode only" }
+        - { name: Compression, type: step, max: ~, notes: "Low-Speed Compression; blue T10 Torx adjuster, affects Open mode only", dialColor: blue }
         - { name: Rebound, type: step, max: ~ }
       source:
         - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/02/81/9/MAN_FXD10000002819S_WEB_ZZ_001.pdf
@@ -108,6 +109,7 @@ nodes:
     category: Trail / All-Mountain
     years: "2023-2026"
     url: https://www.dtswiss.com/en/suspension/forks/f-535-one
+    setup_guide: https://setupguide.dtswiss.com/en/
     children:
       - label: Standard
         level: trim
@@ -131,6 +133,7 @@ nodes:
     category: Trail / All-Mountain
     years: "2023-2026"
     url: https://www.dtswiss.com/en/suspension/forks/f-535
+    setup_guide: https://setupguide.dtswiss.com/en/
     children:
       - label: Standard
         level: trim
@@ -152,6 +155,7 @@ nodes:
     category: XC
     years: "2020-2026"
     url: https://www.dtswiss.com/en/suspension/forks/f-232-one
+    setup_guide: https://setupguide.dtswiss.com/en/
     children:
       - label: Standard
         level: trim
@@ -169,6 +173,10 @@ nodes:
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):
+#   - Fork rebound dial color: none of the F 535 / F 535 ONE / F 232 ONE
+#     manuals or the approved reviews name it (the shock manuals do say "red
+#     rebound wheel"), so the fork rebound adjusters carry no `dialColor`.
+#     The F 232 ONE manual (sec. 4.3) names the compression adjuster "blue".
 #   - F 232 ONE compression and rebound click counts: DT Swiss's product page,
 #     user manual (V2021.09) and technical manual publish neither, and none of
 #     the approved outlets state them, so both carry `max: ~`.

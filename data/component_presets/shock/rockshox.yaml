@@ -19,6 +19,13 @@ sources:
   - https://support.rockshox.com/hc/en-us/articles/17939965514523-What-kind-of-Bottomless-Tokens-does-Vivid-use-and-how-many-tokens-can-Vivid-hold
   - https://support.rockshox.com/hc/en-us/articles/17404773069851-What-is-the-maximum-number-of-Bottomless-Tokens-that-2024-SIDLuxe-can-use
   - https://support.rockshox.com/hc/en-us/articles/17938105283355-Will-Vivid-Ultimate-DH-replace-Super-Deluxe-Ultimate-DH
+  # Primary — SRAM fitment and setup guides
+  - https://www.sram.com/en/service/articles/RockShox-fitment-article
+  - https://www.sram.com/globalassets/publicsites/service-articles/rear-shock-fitment/untitled-5.png
+  - https://www.sram.com/globalassets/document-hierarchy/spare-parts/spare-parts-catalog/2026-rockshox-spare-part-catalog.pdf
+  - https://www.sram.com/en/rockshox/learn/suspension-welcome-guide
+  - https://www.sram.com/en/rockshox/learn/vivid-air-setup
+  - https://www.sram.com/en/rockshox/learn/downhill-suspension-welcome-guide
   # Primary — SRAM service documentation (PDF)
   - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/bottomless-tokens-english.pdf
   # Secondary — editorial, used for context only, no numbers taken from them
@@ -26,7 +33,7 @@ sources:
   - https://flowmountainbike.com/features/rockshox-shock-setup/
   - https://www.pinkbike.com/news/first-ride-the-new-rockshox-vivid-ultimate.html
   - https://freehub.com/product-reviews/2014-rockshox-pike-rct3-160mm-review
-updated: 2026-09-10
+updated: 2026-10-05
 # Counting conventions, verified per damper against SRAM material:
 #   * RC2T compression counts from the MIDDLE — SRAM: "5 positions for both HSC
 #     and LSC ... the base tune is in the middle, with two positions to increase
@@ -74,8 +81,8 @@ option_values:
       name: RC2
       description: >-
         Downhill damper of the Super Deluxe Ultimate DH, with separate high- and
-        low-speed compression and no climb switch. Adjustments incomplete: please
-        add HSC and LSC yourself.
+        low-speed compression and no climb switch.
+      missing_adjustments: [HSC, LSC]
       adjustments:
         - { name: Rebound, type: step, max: ~, notes: Counted from fully open (fastest), dialColor: red }
       source: https://support.rockshox.com/hc/en-us/articles/17938105283355-Will-Vivid-Ultimate-DH-replace-Super-Deluxe-Ultimate-DH
@@ -116,8 +123,8 @@ option_values:
       name: RCT
       description: >-
         Compact trail damper of the Deluxe and SIDLuxe, with compression damping,
-        rebound and a climb lever. Adjustments incomplete: please add Compression
-        and the climb lever yourself.
+        rebound and a climb lever.
+      missing_adjustments: [Compression, Climb lever]
       adjustments:
         - { name: Rebound, type: step, max: ~, notes: Counted from fully open (fastest), dialColor: red }
       source: https://www.sram.com/en/rockshox/products/shocks
@@ -130,7 +137,7 @@ option_values:
       name: Monarch RT3
       description: >-
         Inline air damper with rebound and a three-position compression lever.
-        Adjustments incomplete: please add the Compression lever yourself.
+      missing_adjustments: [Compression lever]
       adjustments:
         - { name: Rebound, type: step, max: ~, notes: Counted from fully open (fastest), dialColor: red }
       source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/bottomless-tokens-english.pdf
@@ -142,9 +149,9 @@ option_values:
     monarch_plus_rc3:
       name: Monarch Plus RC3
       description: >-
-        Piggyback air damper with rebound and a three-position compression lever
-        for longer-travel bikes. Adjustments incomplete: please add the
-        Compression lever yourself.
+        Piggyback air damper with rebound and a three-position compression lever for
+        longer-travel bikes.
+      missing_adjustments: [Compression lever]
       adjustments:
         - { name: Rebound, type: step, max: ~, notes: Counted from fully open (fastest), dialColor: red }
       source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/bottomless-tokens-english.pdf
@@ -156,7 +163,7 @@ option_values:
       name: Deluxe RT3
       description: >-
         Inline trail damper with rebound and a three-position compression lever.
-        Adjustments incomplete: please add the Compression lever yourself.
+      missing_adjustments: [Compression lever]
       adjustments:
         - { name: Rebound, type: step, max: ~, notes: Counted from fully open (fastest), dialColor: red }
       source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/bottomless-tokens-english.pdf
@@ -168,9 +175,9 @@ option_values:
     super_deluxe_rct:
       name: Super Deluxe RCT
       description: >-
-        Piggyback damper of the 2017-2022 Super Deluxe, with rebound, compression
-        and a threshold lever. Adjustments incomplete: please add Compression and
-        the threshold lever yourself.
+        Piggyback damper of the 2017-2022 Super Deluxe, with rebound, compression and
+        a threshold lever.
+      missing_adjustments: [Compression, Threshold lever]
       adjustments:
         - { name: Rebound, type: step, max: ~, notes: Counted from fully open (fastest), dialColor: red }
       source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/bottomless-tokens-english.pdf
@@ -183,7 +190,8 @@ option_values:
       name: Vivid Air R2C
       description: >-
         Downhill air damper with separate beginning- and ending-stroke rebound
-        adjusters. Adjustments incomplete: please add Compression yourself.
+        adjusters.
+      missing_adjustments: [Compression]
       adjustments:
         - { name: Beginning Stroke Rebound, type: step, max: ~, notes: Counted from fully open (fastest), dialColor: red }
         - { name: Ending Stroke Rebound, type: step, max: ~, notes: Counted from fully open (fastest), dialColor: red }
@@ -198,8 +206,14 @@ option_values:
 # them as `generation` nodes, newest first. Each generation gets its own
 # damper id.
 # Shocks are sold by stroke/eye-to-eye length to match a given frame, not by a
-# fixed "travel" like forks — `options.size` lists commonly offered lengths
-# when published on the product page.
+# fixed "travel" like forks — `options.size` lists only sizes the 2026 SRAM
+# spare-parts catalog ties to that model. Eye-to-eye x stroke: the catalog's air
+# can names (165/190 x 37.5-45, 185/210 x 47.5-55, 205/230 x 57.5-65,
+# 225/250 x 67.5-75, 2.5 mm steps) for Super Deluxe C1-C2 and Vivid C1; mount:
+# SRAM's Shock Fitment article, which states Trunnion for 165/185/205/225 and
+# Standard for 190/210/230/250. Coil shocks (Super Deluxe Coil B1, Vivid Coil
+# C1) are tied to strokes and both eyelet types only, so they list strokes plus
+# a freeform `mounts`. Lists are written once (`&anchor`) and aliased.
 #
 # The model-level `specs.spring` names the spring type; a trim-level
 # `specs.spring` (DebonAir+, SoloAir, …) is the informational spring-variant name.
@@ -278,6 +292,7 @@ nodes:
         id: "2023"
         years: "2023-2026"
         url: https://www.sram.com/en/rockshox/series/super-deluxe
+        setup_guide: https://www.sram.com/en/rockshox/learn/suspension-welcome-guide
         specs: { spring: Air }
         children:
           - label: Ultimate
@@ -286,12 +301,22 @@ nodes:
             adjustments: *air_spring
             options:
               damper: [rc2t]
+              size: &metric_sizes
+                - { size: "165x37.5/40/42.5/45", mount: Trunnion }
+                - { size: "190x37.5/40/42.5/45", mount: Standard }
+                - { size: "185x47.5/50/52.5/55", mount: Trunnion }
+                - { size: "210x47.5/50/52.5/55", mount: Standard }
+                - { size: "205x57.5/60/62.5/65", mount: Trunnion }
+                - { size: "230x57.5/60/62.5/65", mount: Standard }
+                - { size: "225x67.5/70/72.5/75", mount: Trunnion }
+                - { size: "250x67.5/70/72.5/75", mount: Standard }
           - label: Select+
             level: trim
             specs: { spring: DebonAir }
             adjustments: *air_spring
             options:
               damper: [rc2t]
+              size: *metric_sizes
             note: OEM only
           - label: Select
             level: trim
@@ -299,6 +324,7 @@ nodes:
             adjustments: *air_spring
             options:
               damper: [rc2t]
+              size: *metric_sizes
             note: OEM only
       - label: "2017–2022"
         level: generation
@@ -337,7 +363,9 @@ nodes:
         id: "2023"
         years: "2023-2026"
         url: https://www.sram.com/en/rockshox/series/super-deluxe-coil
+        setup_guide: https://www.sram.com/en/rockshox/learn/suspension-welcome-guide
         specs: { spring: Coil }
+        mounts: [Standard, Trunnion]
         children:
           - label: Ultimate
             level: trim
@@ -345,17 +373,36 @@ nodes:
               - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
             options:
               damper: [rc2t]
+              size: &coil_strokes
+                - 37.5
+                - 40
+                - 42.5
+                - 45
+                - 47.5
+                - 50
+                - 52.5
+                - 55
+                - 57.5
+                - 60
+                - 62.5
+                - 65
+                - 67.5
+                - 70
+                - 72.5
+                - 75
           - label: Select+
             level: trim
             adjustments: *coil_spring
             options:
               damper: [rc2t]
+              size: *coil_strokes
             note: OEM only
           - label: Select
             level: trim
             adjustments: *coil_spring
             options:
               damper: [rc2t]
+              size: *coil_strokes
             note: OEM only
       - label: "2017–2022"
         level: generation
@@ -381,6 +428,7 @@ nodes:
     category: Downhill
     years: "2023-2026"
     url: https://www.sram.com/en/rockshox/series/super-deluxe-dh
+    setup_guide: https://www.sram.com/en/rockshox/learn/suspension-welcome-guide
     specs: { spring: Air }
     children:
       - label: Ultimate DH
@@ -401,6 +449,7 @@ nodes:
         id: "2024"
         years: "2024-2026"
         url: https://www.sram.com/en/rockshox/series/vivid-air
+        setup_guide: https://www.sram.com/en/rockshox/learn/vivid-air-setup
         specs: { spring: Air }
         children:
           - label: Ultimate
@@ -411,6 +460,13 @@ nodes:
               - { name: Volume Spacers, type: step, max: 6, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; snap onto the inner air can; 4 maximum on 75mm-stroke shocks" }
             options:
               damper: [vivid_ultimate]
+              size: &vivid_air_sizes
+                - { size: "185x47.5/50/52.5/55", mount: Trunnion }
+                - { size: "210x47.5/50/52.5/55", mount: Standard }
+                - { size: "205x57.5/60/62.5/65", mount: Trunnion }
+                - { size: "230x57.5/60/62.5/65", mount: Standard }
+                - { size: "225x67.5/70/72.5/75", mount: Trunnion }
+                - { size: "250x67.5/70/72.5/75", mount: Standard }
           - label: Ultimate DH
             level: trim
             specs: { spring: Vivid Air Spring }
@@ -440,13 +496,16 @@ nodes:
     category: Trail / Enduro
     years: "2024-2026"
     url: https://www.sram.com/en/rockshox/series/vivid-coil
+    setup_guide: https://www.sram.com/en/rockshox/learn/downhill-suspension-welcome-guide
     specs: { spring: Coil }
+    mounts: [Standard, Trunnion]
     children:
       - label: Ultimate
         level: trim
         adjustments: *coil_spring
         options:
           damper: [vivid_ultimate]
+          size: *coil_strokes
         note: |-
           - Five positions each of high- and low-speed compression
           - Twenty clicks of rebound and five positions of hydraulic bottom-out
@@ -457,6 +516,7 @@ nodes:
     category: Downhill
     years: "2024-2026"
     url: https://www.sram.com/en/rockshox/series/vivid-coil-dh
+    setup_guide: https://www.sram.com/en/rockshox/learn/downhill-suspension-welcome-guide
     specs: { spring: Coil }
     children:
       - label: Ultimate DH
@@ -556,6 +616,25 @@ nodes:
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):
+#   - Sizes: SRAM publishes no per-model size table. Super Deluxe (2023-2026)
+#     lists all eight eye-to-eye lengths (catalog air cans and damper bodies for
+#     "Super Deluxe C1-C2 (2023-2026)" cover 37.5-75 mm strokes). Vivid Air lists
+#     only the 185-250 mm lengths: the catalog's Vivid C1 eyelet/body parts start
+#     at 47.5 mm. Super Deluxe Coil and Vivid Coil list strokes only (parts
+#     "SUPER DELUXE COIL B1+" / "VIVID COIL C1" by stroke class, Standard and
+#     Trunnion) because no eye-to-eye is tied to the coil models.
+#   - No sizes for the DH trims (Super Deluxe Ultimate DH, Vivid Air Ultimate
+#     DH, Vivid Coil Ultimate DH): the catalog only ties the DH reservoir to the
+#     regular models, not a size list to the DH shock. Also none for Deluxe,
+#     SIDLuxe, the 2017-2022 generations, Vivid Air R2C, Monarch and Monarch
+#     Plus (Deluxe/SIDLuxe stroke classes differ, older generations have no
+#     mount statement, Monarch parts use rounded imperial names).
+#   - Vivid Air 165/190 x 37.5-45: a "Vivid C1" air can exists but no matching
+#     eyelet/body part, so it is left out.
+#   - Setup guides: no official page exists for Super Deluxe specifically; the
+#     Suspension Welcome Guide (forks and shocks) is used. Dial colors: the RC2T
+#     FAQ is the only source stating knob colors; no source states them for
+#     Vivid Ultimate, so those dials keep the default.
 #   - RCT damper (Deluxe Ultimate, SIDLuxe) click counts — the previous entry
 #     carried RC2T's numbers by inference; that has been removed. Rebound
 #     carries `max: ~`, but compression and the climb lever are undocumented,

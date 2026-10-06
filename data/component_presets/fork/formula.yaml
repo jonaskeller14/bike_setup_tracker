@@ -39,6 +39,9 @@ sources:
   - https://www.rideformula.com/wp-content/uploads/2023/06/Manuale_SELVA_R_GB-Def.pdf
   - https://www.rideformula.com/wp-content/uploads/2017/08/Nero-R-owner-manual.pdf
   - https://www.rideformula.com/wp-content/uploads/2017/08/Nero-C-Owner-manual.pdf
+  - https://www.rideformula.com/wp-content/uploads/2024/03/Manuale-Utente-Belva-ENG.pdf
+  - https://www.rideformula.com/wp-content/uploads/2018/10/Manuale_SELVA_S_GB.pdf
+  - https://www.rideformula.com/wp-content/uploads/2018/10/2021_02-FORCEL_SELVA_C_GB.pdf
   # Editorial — used for the single-dial compression design (BikeRadar) and
   # the first model years only, never for click counts
   - https://www.bikeradar.com/reviews/components/forks/suspension-forks/formula-selva-r-suspension-fork-review
@@ -47,7 +50,7 @@ sources:
   - https://www.mbr.co.uk/news/2019-formula-selva-r-377158
   - https://www.mbr.co.uk/news/formula-new-selva-v-boasts-less-stiction-450993
   - https://www.bikeradar.com/news/2024formula-belva
-updated: 2026-09-25
+updated: 2026-10-05
 
 # --------------------------------------------------------------------------
 # Dampers
@@ -62,7 +65,7 @@ option_values:
         - Compression Tuning System (CTS) valves swap in for larger changes
         - Crown-mounted lockout with an adjustable lockout force
       adjustments:
-        - { name: Compression, type: step, max: 12, notes: High and Low Speed (one combined dial) }
+        - { name: Compression, type: step, max: 12, notes: High and Low Speed (one combined dial), dialColor: blue }
         - { name: Rebound, type: step, max: 19 }
         - { name: Lockout, type: categorical, options: [Open, Locked], notes: Crown-mounted lever }
       source:
@@ -106,7 +109,7 @@ option_values:
         - Compression Tuning System (CTS) valves swap in for larger changes
         - Crown-mounted lockout, optional remote cartridge control
       adjustments:
-        - { name: Compression, type: step, max: 12, notes: High and Low Speed (one combined dial) }
+        - { name: Compression, type: step, max: 12, notes: High and Low Speed (one combined dial), dialColor: blue }
         - { name: Rebound, type: step, max: 18 }
         - { name: Lockout, type: categorical, options: [Open, Locked], notes: Crown-mounted lever }
       source: https://www.rideformula.com/products/mtb-forks/belva/
@@ -145,11 +148,13 @@ nodes:
   - label: "Selva"
     level: model
     category: Enduro / All-Mountain
+    setup_guide: https://www.rideformula.com/wp-content/uploads/2023/06/Manuale_SELVA_R_GB-Def.pdf
     children:
       - label: V
         level: trim
         years: "2025-2026"
         url: https://www.rideformula.com/products/mountain-bike/selva-v/
+        setup_guide: https://www.rideformula.com/wp-content/uploads/2025/06/Selva_V_User_Manual_EN-1.pdf
         specs: { stanchion: 35mm 7075 aluminum, spring: Air }
         offset_mm: [43]
         adjustments:
@@ -187,6 +192,7 @@ nodes:
         level: trim
         years: "2019-2026"
         url: https://www.rideformula.com/products/mountain-bike/selva-c/
+        setup_guide: https://www.rideformula.com/wp-content/uploads/2018/10/2021_02-FORCEL_SELVA_C_GB.pdf
         specs: { stanchion: 35mm 7075 aluminum, spring: Coil }
         offset_mm: [37, 43]
         adjustments:
@@ -203,6 +209,7 @@ nodes:
         level: trim
         years: "2017-2026"
         url: https://www.rideformula.com/products/mountain-bike/selva-s/
+        setup_guide: https://www.rideformula.com/wp-content/uploads/2018/10/Manuale_SELVA_S_GB.pdf
         specs: { stanchion: 35mm 7075 aluminum, spring: Air }
         offset_mm: [37, 43]
         adjustments: &air_spring
@@ -221,6 +228,7 @@ nodes:
     category: Enduro / All-Mountain
     years: "2024-2026"
     url: https://www.rideformula.com/products/mtb-forks/belva/
+    setup_guide: https://www.rideformula.com/wp-content/uploads/2024/03/Manuale-Utente-Belva-ENG.pdf
     children:
       - label: Air
         level: trim
@@ -230,6 +238,7 @@ nodes:
         options:
           damper: [belva_2024]
           travel_mm: [170, 180]
+          wheel_size: [29, 27.5]
         note: |-
           - Dual-crown enduro fork built on the Selva lowers, 43mm offset, tapered 1.5" steerer
           - Steel negative spring (triple coil technology); Neopos are optional
@@ -240,6 +249,7 @@ nodes:
     category: Downhill
     years: "2017-2026"
     url: https://www.rideformula.com/products/mountain-bike/nero-r/
+    setup_guide: https://www.rideformula.com/wp-content/uploads/2017/08/Nero-R-owner-manual.pdf
     children:
       - label: R
         level: trim
@@ -263,6 +273,7 @@ nodes:
       - label: C
         level: trim
         url: https://www.rideformula.com/products/mountain-bike/nero-c/
+        setup_guide: https://www.rideformula.com/wp-content/uploads/2017/08/Nero-C-Owner-manual.pdf
         specs: { stanchion: 35mm 7075 aluminum, spring: Coil }
         offset_mm: [50, 56]
         adjustments:
@@ -290,9 +301,12 @@ nodes:
 #     coils (soft, medium, firm, super firm). The intro's four are used.
 #   - Nero C preload: the page and manual describe a tool-free ring nut but no
 #     turn or click total, so Preload is an open-ended numerical.
-#   - Selva V wheel sizes come from the manual's max-tyre table
-#     (29x2.5 / 27.5x3.0); the page itself lists no wheel size.
-#   - Selva S / Selva C manuals and the Belva manual were not read; travel
+#   - Selva V and Belva wheel sizes come from the manuals' max-wheel-size
+#     tables (29x2.5 / 27.5x3.0); the product pages list no wheel size.
+#   - Dial colors: the Selva V and Belva manuals name the compression knob blue
+#     (gold lockout lever, black lockout-force adjuster); no manual names the
+#     rebound knob color, nor any Selva S/R/C or Nero knob.
+#   - The Selva S and Selva C manuals were not read in full; travel
 #     ranges and Neopos limits for them come from the product pages only.
 #   - Model years are first-appearance years from editorial coverage (Nero and
 #     Selva S 2017, Selva R and Selva C 2019, Belva 2024, Selva V 2025); Formula

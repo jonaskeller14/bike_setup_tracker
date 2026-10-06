@@ -27,6 +27,7 @@ sources:
   - https://rstsuspension.com/product-category/forks/
   - https://rstsuspension.com/technology/
   - https://rstsuspension.com/owner-manual/
+  - https://cdn.rstsuspension.com/image/2024/12/13154537/00-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-109%E4%B8%80%E8%88%AC%E6%A9%9F%E7%A8%AE-ALL_A3.pdf
   - https://rstsuspension.com/catalogues/2026.pdf
   - https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
   - https://rstsuspension.com/products/killah/
@@ -55,7 +56,7 @@ sources:
   - https://rstsuspension.com/products/vivo/
   - https://rstsuspension.com/products/renegade/
   - https://rstsuspension.com/products/guide/
-updated: 2026-09-25
+updated: 2026-10-05
 
 # --------------------------------------------------------------------------
 # Dampers
@@ -68,9 +69,8 @@ option_values:
     ocrc_plus:
       name: OCRC+
       description: >-
-        Open-bath hydraulic damper with external compression and rebound
-        adjusters. Adjustments incomplete: please add Compression and Rebound
-        yourself.
+        Open-bath hydraulic damper with external compression and rebound adjusters.
+      missing_adjustments: [Compression, Rebound]
       adjustments: []
       source:
         - https://rstsuspension.com/products/killah/
@@ -80,9 +80,8 @@ option_values:
     ocr2_plus:
       name: OCR2+
       description: >-
-        Open-bath hydraulic damper with external compression and rebound
-        adjusters. Adjustments incomplete: please add Compression and Rebound
-        yourself.
+        Open-bath hydraulic damper with external compression and rebound adjusters.
+      missing_adjustments: [Compression, Rebound]
       adjustments: []
       source:
         - https://rstsuspension.com/products/r-evo-29/
@@ -94,9 +93,9 @@ option_values:
     ocr2_plus_lockout:
       name: OCR2+ (Lock-Out)
       description: >-
-        Open-bath hydraulic damper with external compression and rebound
-        adjusters plus a hydraulic lockout (handlebar remote on TRL trims).
-        Adjustments incomplete: please add Compression and Rebound yourself.
+        Open-bath hydraulic damper with external compression and rebound adjusters
+        plus a hydraulic lockout (handlebar remote on TRL trims).
+      missing_adjustments: [Compression, Rebound]
       adjustments: []
       source:
         - https://rstsuspension.com/products/rogue-v2-2/
@@ -104,9 +103,8 @@ option_values:
     ocr_plus:
       name: OCR+
       description: >-
-        Open-bath hydraulic damper with external compression and rebound
-        adjusters. Adjustments incomplete: please add Compression and Rebound
-        yourself.
+        Open-bath hydraulic damper with external compression and rebound adjusters.
+      missing_adjustments: [Compression, Rebound]
       adjustments: []
       source:
         - https://rstsuspension.com/products/rebel-v2/
@@ -115,9 +113,9 @@ option_values:
     ocr_plus_lockout:
       name: OCR+ (Lock-Out)
       description: >-
-        Open-bath hydraulic damper with external compression and rebound
-        adjusters plus a crown-mounted hydraulic lockout. Adjustments
-        incomplete: please add Compression and Rebound yourself.
+        Open-bath hydraulic damper with external compression and rebound adjusters
+        plus a crown-mounted hydraulic lockout.
+      missing_adjustments: [Compression, Rebound]
       adjustments: []
       source:
         - https://rstsuspension.com/products/rebel-v2/
@@ -126,8 +124,8 @@ option_values:
       name: OCR+ (Remote Lock-Out)
       description: >-
         Open-bath hydraulic damper with external rebound adjuster and a
-        handlebar-remote hydraulic lockout. Adjustments incomplete: please add
-        Rebound yourself.
+        handlebar-remote hydraulic lockout.
+      missing_adjustments: [Rebound]
       adjustments: []
       source:
         - https://rstsuspension.com/products/rebel-v2/
@@ -135,9 +133,8 @@ option_values:
     ocr2:
       name: OCR2
       description: >-
-        Open-bath hydraulic damper with external compression and rebound
-        adjusters. Adjustments incomplete: please add Compression and Rebound
-        yourself.
+        Open-bath hydraulic damper with external compression and rebound adjusters.
+      missing_adjustments: [Compression, Rebound]
       adjustments: []
       source:
         - https://rstsuspension.com/products/slope/
@@ -145,9 +142,9 @@ option_values:
     bo_tnl_crl:
       name: BO-TNL
       description: >-
-        Blow-off protected damper with external compression adjust, hydraulic
-        lockout and rebound adjust. Adjustments incomplete: please add
-        Compression and Rebound yourself.
+        Blow-off protected damper with external compression adjust, hydraulic lockout
+        and rebound adjust.
+      missing_adjustments: [Compression, Rebound]
       adjustments: []
       source:
         - https://rstsuspension.com/products/f1rst/
@@ -160,8 +157,9 @@ option_values:
     bo_tnl_rl:
       name: BO-TNL (Remote Lock-Out)
       description: >-
-        Blow-off protected damper with rebound adjust and a handlebar-remote
-        hydraulic lockout. Adjustments incomplete: please add Rebound yourself.
+        Blow-off protected damper with rebound adjust and a handlebar-remote hydraulic
+        lockout.
+      missing_adjustments: [Rebound]
       adjustments: []
       source:
         - https://rstsuspension.com/products/f1rst/
@@ -174,9 +172,9 @@ option_values:
     hcr:
       name: HCR
       description: >-
-        Hydraulic compression damper with external compression and rebound
-        adjusters, no lockout. Adjustments incomplete: please add Compression
-        and Rebound yourself.
+        Hydraulic compression damper with external compression and rebound adjusters,
+        no lockout.
+      missing_adjustments: [Compression, Rebound]
       adjustments: []
       source:
         - https://rstsuspension.com/products/blade-pro/
@@ -186,8 +184,8 @@ option_values:
     tnl:
       name: TNL
       description: >-
-        Hydraulic lockout damper. Adjustments incomplete: please add the
-        Lockout control yourself.
+        Hydraulic lockout damper.
+      missing_adjustments: [Lockout control]
       adjustments: []
       source:
         - https://rstsuspension.com/products/aerial/
@@ -203,7 +201,7 @@ option_values:
       name: TNL-F
       description: >-
         Hydraulic lockout damper with fixed (non-adjustable) rebound.
-        Adjustments incomplete: please add the Lockout control yourself.
+      missing_adjustments: [Lockout control]
       adjustments: []
       source:
         - https://rstsuspension.com/products/blade/
@@ -211,8 +209,8 @@ option_values:
     tnl_r:
       name: TNL-R
       description: >-
-        Hydraulic lockout damper with external rebound adjust. Adjustments
-        incomplete: please add Rebound and the Lockout control yourself.
+        Hydraulic lockout damper with external rebound adjust.
+      missing_adjustments: [Rebound, Lockout control]
       adjustments: []
       source:
         - https://rstsuspension.com/products/blade/
@@ -232,8 +230,8 @@ option_values:
     ra:
       name: RA
       description: >-
-        Simple damper with external rebound adjust. Adjustments incomplete:
-        please add Rebound yourself.
+        Simple damper with external rebound adjust.
+      missing_adjustments: [Rebound]
       adjustments: []
       source:
         - https://rstsuspension.com/products/vibe-v2/
@@ -253,6 +251,7 @@ nodes:
     draft: true
     category: Downhill
     url: https://rstsuspension.com/products/killah/
+    setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
     children:
       - label: Air
         level: trim
@@ -289,6 +288,7 @@ nodes:
     draft: true
     category: Downhill
     url: https://rstsuspension.com/products/r-evo-29/
+    setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
     children:
       - label: Air
         level: trim
@@ -323,6 +323,7 @@ nodes:
     draft: true
     category: Enduro
     url: https://rstsuspension.com/products/stitch/
+    setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
     children:
       - label: Air
         level: trim
@@ -351,6 +352,7 @@ nodes:
     level: model
     category: Enduro
     url: https://rstsuspension.com/products/stitch-29-limited-edition/
+    setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
     children:
       - label: Air
         level: trim
@@ -370,6 +372,7 @@ nodes:
     draft: true
     category: Enduro
     url: https://rstsuspension.com/products/stitch-2/
+    setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
     children:
       - label: Air
         level: trim
@@ -399,6 +402,7 @@ nodes:
     draft: true
     category: Enduro
     url: https://rstsuspension.com/products/rogue-v2-2/
+    setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
     children:
       - label: Air
         level: trim
@@ -437,6 +441,7 @@ nodes:
     draft: true
     category: Trail
     url: https://rstsuspension.com/products/vibe-v2/
+    setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
     children:
       - label: Air-RA
         level: trim
@@ -496,6 +501,7 @@ nodes:
     draft: true
     category: Trail
     url: https://rstsuspension.com/products/rebel-v2/
+    setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
     children:
       - label: Air
         level: trim
@@ -536,6 +542,7 @@ nodes:
     draft: true
     category: Trail
     url: https://rstsuspension.com/products/blade-pro/
+    setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
     children:
       - label: Air
         level: trim
@@ -576,6 +583,7 @@ nodes:
     draft: true
     category: Trail
     url: https://rstsuspension.com/products/blade/
+    setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
     children:
       - label: Air-TNL-F
         level: trim
@@ -668,6 +676,7 @@ nodes:
     level: model
     category: Enduro
     url: https://rstsuspension.com/products/storm/
+    setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
     children:
       - label: RA
         level: trim
@@ -688,6 +697,7 @@ nodes:
     draft: true
     category: XC / Trail
     url: https://rstsuspension.com/products/f1rst/
+    setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
     children:
       - label: 110-15 Air
         level: trim
@@ -736,6 +746,7 @@ nodes:
     draft: true
     category: XC / Trail
     url: https://rstsuspension.com/products/f1rst-3/
+    setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
     children:
       - label: Air
         level: trim
@@ -762,6 +773,7 @@ nodes:
     level: model
     category: XC / Trail
     url: https://rstsuspension.com/products/aerial/
+    setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
     children:
       - label: 110-15 TNL
         level: trim
@@ -808,6 +820,7 @@ nodes:
     level: model
     category: XC / Trail
     url: https://rstsuspension.com/products/aerial-2/
+    setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
     children:
       - label: RL
         level: trim
@@ -846,6 +859,7 @@ nodes:
     level: model
     category: XC / Trail
     url: https://rstsuspension.com/products/omega/
+    setup_guide: https://cdn.rstsuspension.com/image/2024/12/13154537/00-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-109%E4%B8%80%E8%88%AC%E6%A9%9F%E7%A8%AE-ALL_A3.pdf
     children:
       - label: RL
         level: trim
@@ -893,6 +907,7 @@ nodes:
     level: model
     category: XC / Trail
     url: https://rstsuspension.com/products/blaze/
+    setup_guide: https://cdn.rstsuspension.com/image/2024/12/13154537/00-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-109%E4%B8%80%E8%88%AC%E6%A9%9F%E7%A8%AE-ALL_A3.pdf
     children:
       - label: RL
         level: trim
@@ -1002,6 +1017,7 @@ nodes:
     level: model
     category: Dirt Jump
     url: https://rstsuspension.com/products/dirt/
+    setup_guide: https://cdn.rstsuspension.com/image/2024/12/13154537/00-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-109%E4%B8%80%E8%88%AC%E6%A9%9F%E7%A8%AE-ALL_A3.pdf
     children:
       - label: RA
         level: trim
@@ -1030,6 +1046,7 @@ nodes:
     draft: true
     category: Dirt Jump
     url: https://rstsuspension.com/products/snyper/
+    setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
     children:
       - label: Air
         level: trim
@@ -1059,6 +1076,7 @@ nodes:
     level: model
     category: Junior
     url: https://rstsuspension.com/products/capa/
+    setup_guide: https://cdn.rstsuspension.com/image/2024/12/13154537/00-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-109%E4%B8%80%E8%88%AC%E6%A9%9F%E7%A8%AE-ALL_A3.pdf
     children:
       - label: MLC
         level: trim
@@ -1157,6 +1175,7 @@ nodes:
     draft: true
     category: Fat Bike
     url: https://rstsuspension.com/products/renegade/
+    setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
     children:
       - label: Air
         level: trim
@@ -1196,6 +1215,7 @@ nodes:
     level: model
     category: Fat Bike
     url: https://rstsuspension.com/products/guide/
+    setup_guide: https://cdn.rstsuspension.com/image/2024/12/13154537/00-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-109%E4%B8%80%E8%88%AC%E6%A9%9F%E7%A8%AE-ALL_A3.pdf
     children:
       - label: Air-TNL
         level: trim
@@ -1256,6 +1276,14 @@ nodes:
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):
+#   - setup_guide: the "high-end models" owner's manual (XC1800-123) names AERIAL,
+#     BLADE/PRO, F1RST, KILLAH, REBEL, RENEGADE, REVO, ROGUE, SNYPER, STITCH,
+#     STORM and VIBE; the general manual (XC1800-109) names CAPA, BLAZE, GUIDE,
+#     OMEGA and mentions DIRT. SPACE, SLOPE, SHINE and VIVO are not named in
+#     either text (the Dirt Jump manual XC1800-105 is a scanned image), so they
+#     carry no setup_guide. STITCH 29 Limited Edition is assumed to share the
+#     STITCH manual.
+#   - Dial colors: no RST page or manual names an adjuster color.
 #   - RST publishes NO click/turn counts anywhere (product pages, technology
 #     page, the general/high-end owner's manuals, the 2026 catalogue). Every
 #     external compression / rebound / hydraulic-lockout adjuster (OCR+, OCR2,

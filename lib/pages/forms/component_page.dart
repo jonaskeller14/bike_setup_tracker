@@ -384,7 +384,11 @@ class _ComponentPageState extends State<ComponentPage> {
   Future<void> _openPresetPicker() async {
     final type = _componentType;
     if (type == null) return;
-    final result = await showComponentCatalogPicker(context: context, componentType: type);
+    final result = await showComponentCatalogPicker(
+      context: context,
+      componentType: type,
+      current: _resolvedPreset,
+    );
     if (result == null || !mounted) return;
     await _applyPreset(result);
   }

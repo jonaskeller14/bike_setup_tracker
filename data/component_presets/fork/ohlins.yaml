@@ -28,10 +28,11 @@ sources:
   - https://ohlins.com/storage/9C8C7FB7E305B5CED4AFC6118547113286CF63B94F14ADAB8050C2CFEA78FF38/dcb2294119c04b8da8dd7613ae7db28f/pdf/media/60aa019099bd416e8b0207e44ee4a2ac/OM_07258-09_3_FGxx%2038xx%2021xx.pdf
   - https://ohlins.com/storage/4D81EA83A21214EDFB4A57331844F3692B56F2CCA1ED9BD1BE95A5CDFE6D1B1E/9bd7e6402a3e42ff93f357c6b15e645b/pdf/media/0377e17f271d4af39560e027d515d36d/Owners%20manual%20RXF38%20m.2.pdf
   - https://www.ohlins.com/en-us/document-library
+  - https://www.ohlins.eu/download/db/Ohlins_DTC_owners-manual-rxf36-m3--00004297.pdf
   # Editorial, used only for dialColor/dialSize (adjuster knob color/size), never for click counts
   - https://www.bikeperfect.com/reviews/ohlins-rxf34-m2-review
   - https://www.pinkbike.com/news/review-ohlins-rxf36-m2-trail-fork.html
-updated: 2026-09-10
+updated: 2026-10-05
 # Click ranges taken from the individual product pages at ohlins.eu plus the
 # Öhlins owner's manuals linked above. Clicks are counted from fully closed
 # (firmest) → default `dial_ccw`.
@@ -201,6 +202,7 @@ nodes:
         id: m1
         years: "2025-2026"
         url: https://www.ohlins.eu/de/products/mountainbike/rxc34-m1-air-otx14-r--7692/
+        setup_guide: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-rxc34-m1--00003982.pdf
         note: |-
           - Two-chamber air spring, 29" only, from 1496g
           - Floating axle design lets the lowers settle before the axle is clamped
@@ -261,6 +263,7 @@ nodes:
         id: m2
         years: "2025-2026"
         url: https://www.ohlins.eu/de/products/mountainbike/rxf36-m2-air-ttx18-275--7698/
+        setup_guide: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-federgabel-rxf36--00003012.pdf
         children:
           - label: Air TTX18
             level: trim
@@ -276,6 +279,7 @@ nodes:
         id: m3
         years: "2025-2026"
         url: https://www.ohlins.eu/de/products/mountainbike/rxf36-m3-air-ttx18-275--7696/
+        setup_guide: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-federgabel-rxf36--00004180.pdf
         children:
           - label: Air TTX18
             level: trim
@@ -289,13 +293,15 @@ nodes:
           - label: Coil
             level: trim
             url: https://www.ohlins.eu/de/products/mountainbike/rxf36-m3-coil--6430/
+            setup_guide: https://www.ohlins.eu/download/db/Ohlins_DTC_owners-manual-rxf36-m3--00004297.pdf
             specs: { spring: Coil }
             adjustments: &coil_spring
               - { name: Spring Rate, type: numerical, unit: N/mm, min: 0 }
               - { name: Preload, type: numerical, unit: turns, min: 0 }
             options:
               damper: [ttx18_m3]
-              wheel_size: [29, 27.5]
+              travel_mm: [160]
+              wheel_size: [29]
 
   - label: RXF38
     level: model
@@ -306,6 +312,7 @@ nodes:
         id: m2
         years: "2025-2026"
         url: https://www.ohlins.eu/en/products/mountainbike/rxf38-m2-air-ttx18-29--7694/
+        setup_guide: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-federgabel-rxf38--00003536.pdf
         note: |-
           - Three-chamber air spring: main and ramp-up are pumped separately
           - Offsets also come in long-crown "44L" and "51L" versions
@@ -340,6 +347,7 @@ nodes:
         id: m3
         years: "2025-2026"
         url: https://www.ohlins.eu/de/products/mountainbike/rxf38-m3-air-coil-ttx18--7748/
+        setup_guide: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-federgabel-rxf38--00004275.pdf
         note: |-
           - Three-chamber air spring: main and ramp-up are pumped separately
           - Reworked internals over the m.2, with one extra click of rebound and low-speed compression
@@ -373,6 +381,7 @@ nodes:
         id: m1
         years: "2025-2026"
         url: https://www.ohlins.eu/en/products/mountainbike/dh38-m1-downhill-front-fork--7683/
+        setup_guide: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-doppelbrueckengabel-dh38--00002991.pdf
         note: |-
           - Dual-crown downhill chassis, 180 or 200mm travel, 110mm Boost with a 20mm axle
           - Max tyre 29x2.8 or 27.5x3.0, and rated for e-bike use
@@ -391,6 +400,7 @@ nodes:
         id: m2
         years: "2025-2026"
         url: https://www.ohlins.eu/de/products/mountainbike/dh38-m2-air-coil-downhill--7747/
+        setup_guide: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-downhillgabel-dh38--00004274.pdf
         note: |-
           - Dual-crown downhill chassis, 200mm travel, four offsets from 46 to 58mm
           - Max tyre 27.5x3.2 or 29x2.8, 200/203mm rotors
@@ -436,6 +446,10 @@ nodes:
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):
+#   - RXF36 m.3 Coil: the product page gives 160mm travel and 29" with 44mm
+#     offset only.
+#   - setup_guide: RXC34 m.1 only has a German manual on ohlins.eu; RXF34 m.2 and
+#     RXFDJ m.1 list workshop manuals only, so they carry no setup_guide.
 #   - OTX14 R (RXC34 m.1): Öhlins publishes the three ride modes and the
 #     7.5mm/click lockout throw, but no click totals for its rebound, low-speed
 #     or high-speed compression dials, so the three dials carry `max: ~`.

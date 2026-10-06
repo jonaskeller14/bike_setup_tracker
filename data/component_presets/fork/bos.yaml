@@ -30,7 +30,7 @@ sources:
   - https://www.bos-suspension.com/Files/125448/Quickstart_IDYLLE_39_GRABBER_EN.pdf
   - https://www.bos-suspension.com/Files/125448/Quickstart_Obsys-EN.pdf
   - https://www.bos-suspension.com/PBCPPlayer.asp?ID=2252919
-updated: 2026-09-25
+updated: 2026-10-05
 # Clicks are counted from fully closed (firmest) = 0, opening counter-clockwise
 # (BOS Quickstart guides) → default `dial_ccw`.
 
@@ -128,6 +128,7 @@ nodes:
     category: All-Mountain / Enduro
     years: "2025-2026"
     url: https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422873
+    setup_guide: https://www.bos-suspension.com/Files/125448/Quickstart_DEVILLE__35_GRABBER_EN.pdf
     note: |-
       - Magnesium lowers, 35mm 7050 aluminium stanchions, from 2020g at 150mm
       - Air pressure range 115-350 psi
@@ -150,6 +151,7 @@ nodes:
     category: Freeride / Enduro / E-Bike
     years: "2025-2026"
     url: https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422386
+    setup_guide: https://www.bos-suspension.com/Files/125448/Quickstart_KYLL_39_GRABBER_EN.pdf
     note: |-
       - Magnesium lowers, 39mm 7050 aluminium stanchions, from 2590g at 170mm
       - Tool-free air bleed valve
@@ -171,6 +173,7 @@ nodes:
     category: Downhill
     years: "2025-2026"
     url: https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422364
+    setup_guide: https://www.bos-suspension.com/Files/125448/Quickstart_IDYLLE_39_GRABBER_EN.pdf
     note: |-
       - Dual-crown chassis, 39mm 7050 aluminium stanchions, 2950g
       - Air pressure range 115-350 psi
@@ -191,6 +194,7 @@ nodes:
     category: Downhill
     years: "2025-2026"
     url: https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422906
+    setup_guide: https://www.bos-suspension.com/Files/125448/Quickstart_Obsys-EN.pdf
     note: |-
       - Dual-crown chassis with aluminium lowers, 42mm 7050 aluminium stanchions, 3260g
       - Air pressure range 135-250 psi
@@ -244,8 +248,10 @@ nodes:
 #     Obsys Quickstart mentions a separate PRELOAD valve ("range from 0 to
 #     500 gr"), but no unit/range that maps onto an adjuster is published. Not
 #     modelled.
-#   - Dial knob colours/sizes: no official photo or manual states them, so the
-#     defaults are used.
+#   - Dial knob colours/sizes: the Quickstart PDFs are image-only and no BOS page
+#     states them in text, so the defaults are used.
+#   - Setup guides: the Quickstart PDFs (EN) of the Deville 35, Kyll 39, Idylle 39
+#     and Obsys; the Toxik has no manual listed on the BOS manuals page.
 #   - Legacy forks with manuals on bos-suspension.com (Deville II 35 FCV, Deville
 #     35/34/34 AM, Idylle 39 FCV/SC, Idylle 37/36, Idylle Rare/Air/SC, Dizzy,
 #     Obsys pre-2025): the manuals only show recommended starting clicks, not

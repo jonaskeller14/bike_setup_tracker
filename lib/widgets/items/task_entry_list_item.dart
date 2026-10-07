@@ -13,6 +13,7 @@ import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/task_actions.dart';
 import '../attachment_strip.dart';
+import '../component_stats_bar.dart';
 import '../notes_text.dart';
 import 'timeline_selection_fill.dart';
 
@@ -52,24 +53,6 @@ class TaskEntryListItem extends StatefulWidget {
 
 class _TaskEntryListItemState extends State<TaskEntryListItem> {
   bool _showDelta = true;
-
-  Widget _buildStatItem(BuildContext context, IconData icon, String text) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      spacing: 2,
-      children: [
-        Icon(icon, size: 10, color: Theme.of(context).colorScheme.onPrimaryContainer.withValues(alpha: 0.7)),
-        Text(
-          text,
-          style: TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.onPrimaryContainer,
-          ),
-        ),
-      ],
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -311,46 +294,20 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
                                       setState(() => _showDelta = !_showDelta);
                                       unawaited(HapticFeedback.selectionClick());
                                     },
-                              child: Container(
+                              child: ComponentStatsBar(
+                                stats: stats,
+                                backgroundColor: colorScheme.primaryContainer.withValues(alpha: 0.5),
+                                foregroundColor: colorScheme.onPrimaryContainer,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
                                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: colorScheme.primaryContainer.withValues(alpha: 0.5),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Wrap(
-                                  spacing: 8,
-                                  runSpacing: 2,
-                                  crossAxisAlignment: WrapCrossAlignment.center,
-                                  children: [
-                                    Text(
-                                      label,
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
-                                        color: colorScheme.primary,
-                                      ),
-                                    ),
-                                    _buildStatItem(
-                                      context,
-                                      Icons.route,
-                                      '${NumberFormat.decimalPattern().format(AppSettings.convertDistanceFromMeters(stats.distance, appSettings.distanceUnit)!.round())} ${appSettings.distanceUnit}',
-                                    ),
-                                    _buildStatItem(
-                                      context,
-                                      Icons.terrain,
-                                      '${NumberFormat.decimalPattern().format(AppSettings.convertElevationFromMeters(stats.elevationGain, appSettings.altitudeUnit)!.round())} ${appSettings.altitudeUnit}',
-                                    ),
-                                    _buildStatItem(
-                                      context,
-                                      Icons.timer,
-                                      '${NumberFormat.decimalPattern().format(stats.movingTime.inHours)}h ${stats.movingTime.inMinutes.remainder(60)}m',
-                                    ),
-                                    _buildStatItem(
-                                      context,
-                                      Icons.repeat,
-                                      NumberFormat.decimalPattern().format(stats.activityCount),
-                                    ),
-                                  ],
+                                leading: Text(
+                                  label,
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                    color: colorScheme.primary,
+                                  ),
                                 ),
                               ),
                             );

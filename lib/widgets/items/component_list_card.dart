@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
@@ -14,8 +13,10 @@ import '../../services/subscription_service.dart';
 import '../../utils/automation_ids.dart';
 import '../../utils/component_actions.dart';
 import '../component_ancestors_column.dart';
+import '../component_stats_bar.dart';
 import '../lists/adjustment_compact_display/adjustment_compact_display_list.dart';
 import '../notes_text.dart';
+import 'tile_meta_row.dart';
 
 class ComponentListCard extends StatelessWidget{
   final Component component;
@@ -46,6 +47,10 @@ class ComponentListCard extends StatelessWidget{
       indicatorStatus = appRepository.componentTaskIndicatorStatus(component.id);
     }
     final indicatorBorderColor = color ?? Theme.of(context).colorScheme.surface;
+    final notes = component.notes;
+    final hasNotes = notes != null && notes.isNotEmpty;
+    final mutedColor = Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8);
+    final notesColor = Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6);
 
     return Card(
       key: ValueKey(component.id),
@@ -94,79 +99,39 @@ class ComponentListCard extends StatelessWidget{
                     ),
                 ],
               ),
+              titleAlignment: ListTileTitleAlignment.titleHeight,
               minTileHeight: 0,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 0,
-              ),
+              minVerticalPadding: 0,
+              contentPadding: EdgeInsets.fromLTRB(16, 8, 16, hasNotes ? 6 : 8),
               title: Text(
                 component.name,
-                style: const TextStyle(fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 2,
+                spacing: 6,
                 children: [
-                  ComponentAncestorsColumn(
-                    ancestors: appRepository.componentHierarchy.currentAncestors(component.id),
-                    bikes: bikes,
-                    iconSize: 13,
-                    spacing: 2,
-                    textStyle: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                      fontSize: 13,
-                    ),
+                  // The counter sits beside the whole installation stack so every
+                  // level is cut off at the same edge and no line is added.
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 8,
+                    children: [
+                      Flexible(
+                        child: ComponentAncestorsColumn(
+                          ancestors: appRepository.componentHierarchy.currentAncestors(component.id),
+                          bikes: bikes,
+                          iconSize: 12,
+                          spacing: 2,
+                          textStyle: TextStyle(color: mutedColor, fontSize: 12),
+                        ),
+                      ),
+                      if (appSettings.enableAttachments && component.attachments.isNotEmpty)
+                        TileMetaRow(icon: Icons.attach_file, text: '${component.attachments.length}'),
+                    ],
                   ),
-                  if (component.notes != null && component.notes!.isNotEmpty)
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 3),
-                          child: Icon(
-                            Icons.notes,
-                            size: 13,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                        const SizedBox(width: 2),
-                        Expanded(
-                          child: NotesText(
-                            component.notes!,
-                            fontSize: 13,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                          ),
-                        ),
-                      ],
-                    ),
-                  if (appSettings.enableAttachments && component.attachments.isNotEmpty)
-                    _StatItem(
-                      icon: Icons.attach_file,
-                      label: '${component.attachments.length}',
-                    ),
                   if (appSettings.enableStrava && subscriptionService.hasStravaEntitlement)
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 2,
-                      children: [
-                        _StatItem(
-                          icon: Icons.route,
-                          label: '${NumberFormat.decimalPattern().format(AppSettings.convertDistanceFromMeters(stats.distance, appSettings.distanceUnit)!.round())} ${appSettings.distanceUnit}',
-                        ),
-                        _StatItem(
-                          icon: Icons.terrain,
-                          label: '${NumberFormat.decimalPattern().format(AppSettings.convertElevationFromMeters(stats.elevationGain, appSettings.altitudeUnit)!.round())} ${appSettings.altitudeUnit}',
-                        ),
-                        _StatItem(
-                          icon: Icons.timer_outlined,
-                          label: '${NumberFormat.decimalPattern().format(stats.movingTime.inHours)}h ${stats.movingTime.inMinutes.remainder(60)}m',
-                        ),
-                        _StatItem(
-                          icon: Icons.repeat,
-                          label: '${stats.activityCount}',
-                        ),
-                      ],
-                    ),
+                    ComponentStatsBar(stats: stats),
                 ],
               ),
               trailing: Row(
@@ -221,6 +186,21 @@ class ComponentListCard extends StatelessWidget{
                 ],
               ),
             ),
+            if (hasNotes)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 2,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 3),
+                      child: Icon(Icons.notes, size: 12, color: notesColor),
+                    ),
+                    Expanded(child: NotesText(notes, fontSize: 12, color: notesColor)),
+                  ],
+                ),
+              ),
             if (showCurrentAdjustmentValues)
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
@@ -248,37 +228,4 @@ enum _ComponentOptions {
   final String label;
   final IconData iconData;
   const _ComponentOptions(this.label, this.iconData);
-}
-
-class _StatItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-
-  const _StatItem({
-    required this.icon,
-    required this.label,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      spacing: 2,
-      children: [
-        Icon(
-          icon,
-          size: 13,
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
-        ),
-        Text(
-          label,
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
-    );
-  }
 }

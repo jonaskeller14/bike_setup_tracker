@@ -1,4 +1,5 @@
 import 'package:bike_setup_tracker/models/app_settings.dart';
+import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/task/task_association.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/models/task/task_template.dart';
@@ -24,16 +25,22 @@ TaskRule _rule(String name, {TaskPriority priority = TaskPriority.medium, bool r
       presetKey: presetKey,
     );
 
-TaskSuggestion _suggestion(String key, String name, {bool preselected = false, TaskThreshold? stravaInterval}) =>
-    TaskSuggestion(
-      key: key,
-      name: name,
-      priority: TaskPriority.medium,
-      repeat: true,
-      preselected: preselected,
-      interval: stravaInterval == null ? const DistanceThreshold(500000) : const DurationThreshold(Duration(days: 30)),
-      stravaInterval: stravaInterval,
-    );
+TaskSuggestion _suggestion(
+  String key,
+  String name, {
+  bool preselected = false,
+  TaskThreshold? stravaInterval,
+  String? source,
+}) => TaskSuggestion(
+  key: key,
+  name: name,
+  priority: TaskPriority.medium,
+  repeat: true,
+  preselected: preselected,
+  interval: stravaInterval == null ? const DistanceThreshold(500000) : const DurationThreshold(Duration(days: 30)),
+  stravaInterval: stravaInterval,
+  source: source,
+);
 
 void main() {
   late _MockAppRepository repository;
@@ -196,7 +203,7 @@ void main() {
             _suggestion('chain:replace', 'Replace chain'),
           ],
           componentName: 'New chain',
-          componentTypeLabel: 'Chain',
+          componentType: ComponentType.chain,
         ),
       );
 
@@ -205,9 +212,45 @@ void main() {
       expect(rowValue(tester, 'Replace chain'), isFalse);
       expect(find.text('Recommended for Chain'), findsOneWidget);
       expect(find.text('Time-based · every 500 km with Strava'), findsOneWidget);
-      expect(find.text('Typical interval'), findsOneWidget);
+      expect(find.text('Typical interval for chain'), findsOneWidget);
       expect(find.text('Add 1 task'), findsOneWidget);
       expect(find.text('Skip'), findsOneWidget);
+    });
+
+    testWidgets('names the preset in the header while a manufacturer interval is shown', (tester) async {
+      await pumpSheet(
+        tester,
+        (context) => showTaskRulesSheet(
+          context,
+          suggestions: [
+            _suggestion('fork:full_service', 'Full service', source: 'FOX owner manual'),
+            _suggestion('fork:lower_service', 'Lower leg service'),
+          ],
+          componentName: 'My fork',
+          componentType: ComponentType.fork,
+          presetName: 'FOX 36',
+        ),
+      );
+
+      expect(find.text('Recommended for FOX 36'), findsOneWidget);
+      expect(find.text('FOX owner manual'), findsOneWidget);
+      expect(find.text('Typical interval for fork'), findsOneWidget);
+    });
+
+    testWidgets('falls back to the component type when no suggestion has a manufacturer interval', (tester) async {
+      await pumpSheet(
+        tester,
+        (context) => showTaskRulesSheet(
+          context,
+          suggestions: [_suggestion('fork:lower_service', 'Lower leg service')],
+          componentName: 'My fork',
+          componentType: ComponentType.fork,
+          presetName: 'FOX 36',
+        ),
+      );
+
+      expect(find.text('Recommended for Fork'), findsOneWidget);
+      expect(find.text('Recommended for FOX 36'), findsNothing);
     });
   });
 
@@ -229,7 +272,7 @@ void main() {
       copyRules: [copied],
       suggestions: suggestions,
       componentName: 'New chain',
-      componentTypeLabel: 'Chain',
+      componentType: ComponentType.chain,
     );
 
     testWidgets('a selected copy hides the suggestion with its key; unchecking reveals it unchecked', (tester) async {
@@ -277,7 +320,7 @@ void main() {
           copyRules: [copied],
           suggestions: [suggestions.first],
           componentName: 'New chain',
-          componentTypeLabel: 'Chain',
+          componentType: ComponentType.chain,
         ),
       );
 
@@ -301,7 +344,7 @@ void main() {
           copyRules: [done],
           suggestions: suggestions,
           componentName: 'New chain',
-          componentTypeLabel: 'Chain',
+          componentType: ComponentType.chain,
         ),
       );
 
@@ -320,7 +363,7 @@ void main() {
           copyRules: [copied],
           suggestions: [...suggestions, _suggestion('chain:lube', 'Clean & lube chain', preselected: true)],
           componentName: 'New chain',
-          componentTypeLabel: 'Chain',
+          componentType: ComponentType.chain,
         ),
       );
 
@@ -354,7 +397,7 @@ void main() {
         copyRules: [copied],
         suggestions: [suggestions.first],
         componentName: 'New chain',
-        componentTypeLabel: 'Chain',
+        componentType: ComponentType.chain,
       );
 
       double panelHeight(WidgetTester tester) => tester
@@ -434,7 +477,7 @@ void main() {
           ],
           suggestions: [_suggestion('chain:replace', longName, stravaInterval: const DistanceThreshold(2000000))],
           componentName: longName,
-          componentTypeLabel: 'Chain',
+          componentType: ComponentType.chain,
         ),
       );
 

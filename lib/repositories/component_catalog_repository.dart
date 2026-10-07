@@ -68,10 +68,14 @@ class ComponentCatalogRepository {
   /// The task overrides of [preset]'s catalog entry, from the cache alone:
   /// empty while its type is not loaded yet, so callers stay synchronous and
   /// fall back to the generic templates.
-  Map<String, TaskTemplateOverride> loadedTaskOverrides(ComponentPreset preset) {
+  Map<String, TaskTemplateOverride> loadedTaskOverrides(ComponentPreset preset) =>
+      loadedPreset(preset)?.taskOverrides ?? const {};
+
+  /// [resolve] from the cache alone: null while [preset]'s type is not loaded yet.
+  ResolvedPreset? loadedPreset(ComponentPreset preset) {
     final catalogs = _catalogs[preset.componentType];
-    if (catalogs == null) return const {};
-    return resolvePreset(catalogs, preset)?.taskOverrides ?? const {};
+    if (catalogs == null) return null;
+    return resolvePreset(catalogs, preset);
   }
 
   Future<List<BrandCatalog>> _load(ComponentType type) async {

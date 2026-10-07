@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
@@ -284,6 +286,7 @@ void main() {
       Component? source,
       required Component target,
       List<TaskRule> rules = const [],
+      Future<void>? targetSaved,
     }) async {
       await tester.runAsync(() async {
         await appRepository.addBikes([bike]);
@@ -296,7 +299,8 @@ void main() {
 
       await tester.pumpWidget(createWidgetUnderTest(
         label: 'offer',
-        action: (context) => ComponentActions.offerTaskRulesFor(context, source: source, target: target),
+        action: (context) =>
+            ComponentActions.offerTaskRulesFor(context, source: source, target: target, targetSaved: targetSaved),
       ));
       await tester.runAsync(() => appRepository.initialDataLoaded);
       await tester.pumpAndSettle();
@@ -320,6 +324,23 @@ void main() {
       expect(rule.presetKey, 'chain:wear_check');
       expect(rule.interval, isA<DurationThreshold>());
       expect(find.text("Added 1 task to 'Chain'."), findsOneWidget);
+    });
+
+    testWidgets('opens the sheet before the target is saved; the picked rules wait for it', (tester) async {
+      enableTaskPresets();
+      final saved = Completer<void>();
+      await pumpOffer(tester, target: chain, targetSaved: saved.future);
+
+      expect(find.text("Recommended tasks for 'Chain'"), findsOneWidget);
+
+      await tester.tap(find.text('Add 1 task'));
+      await tester.pumpAndSettle();
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+      expect(rulesOf('ch1'), isEmpty);
+
+      saved.complete();
+      await settleRepository(tester, () => rulesOf('ch1').isNotEmpty);
+      expect(rulesOf('ch1').single.presetKey, 'chain:wear_check');
     });
 
     for (final (description, configure) in [
@@ -416,6 +437,7 @@ nodes:
       );
       await pumpOffer(tester, target: fox36);
 
+      expect(find.text('Recommended for FOX 36'), findsOneWidget);
       expect(find.textContaining("FOX 36 owner's manual"), findsOneWidget);
 
       await tester.tap(find.text('Add 2 tasks'));

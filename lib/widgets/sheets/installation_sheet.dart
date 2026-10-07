@@ -128,9 +128,10 @@ class _InstallationSheetState extends State<InstallationSheet> {
       if (edits == null || !mounted) return;
       subcomponentEdits = edits;
     }
-    await appRepository.editComponents([updatedComponent, ...subcomponentEdits]);
     if (!mounted) return;
+    // Closes before saving, so the write does not hold the sheet open.
     Navigator.pop(context);
+    await appRepository.editComponents([updatedComponent, ...subcomponentEdits]);
   }
 
   bool get _hasChanges =>

@@ -33,6 +33,7 @@ import '../widgets/sheets/remove_component.dart';
 import '../widgets/sheets/replace_component.dart';
 import 'attachment_actions.dart';
 import 'bike_actions.dart';
+import 'component_catalog_application.dart';
 import 'installation_timeline_validation.dart';
 import 'task_preset_resolver.dart';
 
@@ -65,10 +66,11 @@ class ComponentActions {
     );
 
     if (component == null) return;
-    await appRepository.addComponents([component]);
-
-    if (!navigatorContext.mounted) return;
-    await offerTaskRulesFor(navigatorContext, target: component);
+    final saved = appRepository.addComponents([component]);
+    await Future.wait([
+      saved,
+      if (navigatorContext.mounted) offerTaskRulesFor(navigatorContext, target: component, targetSaved: saved),
+    ]);
   }
 
   static Future<void> editComponent(BuildContext context, {required Component component}) async {
@@ -189,11 +191,12 @@ class ComponentActions {
       return;
     }
 
-    await appRepository.addComponents([newComponent]);
-    await AttachmentActions.deleteUnsaved(deepCopied.attachments, saved: newComponent.attachments);
-
-    if (!context.mounted) return;
-    await offerTaskRulesFor(context, source: component, target: newComponent);
+    final saved = appRepository.addComponents([newComponent]);
+    await Future.wait([
+      saved,
+      AttachmentActions.deleteUnsaved(deepCopied.attachments, saved: newComponent.attachments),
+      if (context.mounted) offerTaskRulesFor(context, source: component, target: newComponent, targetSaved: saved),
+    ]);
   }
 
   static Future<Component> _deepCopyWithFiles(Component component) async {
@@ -204,11 +207,15 @@ class ComponentActions {
   /// Offers copies of [source]'s task rules and, with task presets on, the
   /// recommended tasks for [target] in one sheet. Opens nothing when there is
   /// nothing to offer.
+  ///
+  /// The sheet opens without waiting for [targetSaved], so a just-saved
+  /// [target] shows its prompt at once; the picked rules wait for it.
   @visibleForTesting
   static Future<void> offerTaskRulesFor(
     BuildContext context, {
     Component? source,
     required Component target,
+    Future<void>? targetSaved,
   }) async {
     final appSettings = context.read<AppSettings>();
     if (!appSettings.enableTask) return;
@@ -220,6 +227,8 @@ class ComponentActions {
         ? const <TaskRule>[]
         : appRepository.taskRules.values.where((rule) => rule.association.componentId == source.id).toList();
     final preset = target.preset;
+    // ComponentPage has loaded the catalog of a component with a preset.
+    final resolvedPreset = preset == null ? null : context.read<ComponentCatalogRepository>().loadedPreset(preset);
     // Not deduplicated against copyRules: the sheet hides a suggestion only while its copy is selected.
     final suggestions = !appSettings.showTaskPresets
         ? const <TaskSuggestion>[]
@@ -227,10 +236,7 @@ class ComponentActions {
             target,
             existingRules: appRepository.taskRules.values,
             hasStravaEntitlement: context.read<SubscriptionService>().hasStravaEntitlement,
-            // ComponentPage has loaded the catalog of a component with a preset.
-            overrides: preset == null
-                ? const {}
-                : context.read<ComponentCatalogRepository>().loadedTaskOverrides(preset),
+            overrides: resolvedPreset?.taskOverrides ?? const {},
           );
     if (copyRules.isEmpty && suggestions.isEmpty) return;
 
@@ -240,7 +246,8 @@ class ComponentActions {
       copyRules: copyRules,
       suggestions: suggestions,
       componentName: target.name,
-      componentTypeLabel: target.componentType.label,
+      componentType: target.componentType,
+      presetName: resolvedPreset == null ? null : presetDisplayName(resolvedPreset),
     );
     if (result == null) return;
     unawaited(HapticFeedback.lightImpact());
@@ -250,6 +257,7 @@ class ComponentActions {
       for (final suggestion in result.suggested)
         suggestion.toTaskRule(target.id, distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit),
     ];
+    await targetSaved;
     await appRepository.addTaskRules(created);
 
     if (!context.mounted) return;
@@ -374,9 +382,8 @@ class ComponentActions {
           return;
         }
 
-        await appRepository.addComponents([newComponent]);
-        await AttachmentActions.deleteUnsaved(deepCopied.attachments, saved: newComponent.attachments);
-        await appRepository.editComponents([
+        // The retired component's edit moves subcomponents onto the new one, so it has to follow the add.
+        final saved = appRepository.addComponents([newComponent]).then((_) => appRepository.editComponents([
           component.copyWith(
             installations: [
               ...component.installations,
@@ -384,10 +391,13 @@ class ComponentActions {
             ],
           ),
           ...subcomponentEdits(newComponent.id),
+        ]));
+        await Future.wait([
+          saved,
+          AttachmentActions.deleteUnsaved(deepCopied.attachments, saved: newComponent.attachments),
+          if (navigatorContext.mounted)
+            offerTaskRulesFor(navigatorContext, source: component, target: newComponent, targetSaved: saved),
         ]);
-
-        if (!navigatorContext.mounted) return;
-        await offerTaskRulesFor(navigatorContext, source: component, target: newComponent);
     }
   }
 

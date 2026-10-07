@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
+import '../../models/component/component.dart';
 import '../../models/task/task_rule.dart';
 import '../../models/task/task_template.dart';
-import '../../models/task/task_threshold/task_threshold.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/task_preset_resolver.dart';
-import '../items/task_rule_list_card.dart';
-import '../task_priority_badge.dart';
+import '../items/task_rule_sheet_tile.dart';
 import 'sheet_header.dart';
 
 @immutable
@@ -38,11 +37,12 @@ Future<TaskRulesSheetResult?> showTaskRulesSheet(BuildContext context, {
   List<TaskRule> copyRules = const [],
   List<TaskSuggestion> suggestions = const [],
   required String componentName,
-  String? componentTypeLabel,
+  ComponentType? componentType,
+  String? presetName,
 }) async {
   assert(copyRules.isNotEmpty || suggestions.isNotEmpty);
   assert(copyRules.isEmpty || copyFrom != null);
-  assert(suggestions.isEmpty || componentTypeLabel != null);
+  assert(suggestions.isEmpty || componentType != null);
 
   return showModalBottomSheet<TaskRulesSheetResult>(
     useSafeArea: true,
@@ -54,7 +54,8 @@ Future<TaskRulesSheetResult?> showTaskRulesSheet(BuildContext context, {
         copyRules: copyRules,
         suggestions: suggestions,
         componentName: componentName,
-        componentTypeLabel: componentTypeLabel,
+        componentType: componentType,
+        presetName: presetName,
       );
     },
   );
@@ -67,14 +68,16 @@ class _TaskRulesSheet extends StatefulWidget {
   final List<TaskRule> copyRules;
   final List<TaskSuggestion> suggestions;
   final String componentName;
-  final String? componentTypeLabel;
+  final ComponentType? componentType;
+  final String? presetName;
 
   const _TaskRulesSheet({
     required this.copyFrom,
     required this.copyRules,
     required this.suggestions,
     required this.componentName,
-    required this.componentTypeLabel,
+    required this.componentType,
+    required this.presetName,
   });
 
   @override
@@ -143,7 +146,7 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
   Widget _copySection() {
     final allRules = [..._openRules, ..._doneRules];
 
-    Widget tile(TaskRule rule, {required bool isDone}) => _TaskRuleSheetTile(
+    Widget tile(TaskRule rule, {required bool isDone}) => TaskRuleSheetTile(
       name: rule.name,
       priority: rule.priority,
       interval: rule.interval,
@@ -182,6 +185,7 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
 
   Widget _suggestionSection(BuildContext context, List<TaskSuggestion> visible) {
     final appSettings = context.watch<AppSettings>();
+    final typeLabel = widget.componentType!.label;
     final selectedVisible = visible.where(_selectedSuggestions.contains).length;
 
     String origin(TaskSuggestion suggestion) {
@@ -191,8 +195,13 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
           'Time-based · ${taskIntervalLabel(strava, distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit)} with Strava',
         ?suggestion.source,
       ];
-      return parts.isEmpty ? 'Typical interval' : parts.join(' · ');
+      return parts.isEmpty ? 'Typical interval for ${typeLabel.toLowerCase()}' : parts.join(' · ');
     }
+
+    final presetName = widget.presetName;
+    final recommendedFor = presetName != null && visible.any((suggestion) => suggestion.source != null)
+        ? presetName
+        : typeLabel;
 
     final colors = Theme.of(context).colorScheme;
     // Tinted like the catalog card on the component form, so recommendations
@@ -206,7 +215,7 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _SectionHeader(
-              title: 'Recommended for ${widget.componentTypeLabel}',
+              title: 'Recommended for $recommendedFor',
               icon: Icons.auto_awesome,
               color: colors.onPrimaryContainer,
               selected: selectedVisible,
@@ -220,7 +229,7 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
               }),
             ),
             ...widget.suggestions.map((suggestion) => _AnimatedReveal(
-              child: !visible.contains(suggestion) ? const SizedBox.shrink() : _TaskRuleSheetTile(
+              child: !visible.contains(suggestion) ? const SizedBox.shrink() : TaskRuleSheetTile(
                 name: suggestion.name,
                 priority: suggestion.priority,
                 interval: suggestion.interval,
@@ -383,102 +392,6 @@ class _SectionHeader extends StatelessWidget {
             onChanged: (bool? newValue) => onChanged(newValue == true),
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// One selectable row: what the created rule will be, without the source's
-/// progress (a copy starts at 0 %) or its component (the same on every row).
-class _TaskRuleSheetTile extends StatelessWidget {
-  final String name;
-  final TaskPriority priority;
-  final TaskThreshold? interval;
-  final TaskThreshold? delay;
-  final bool repeat;
-  final Set<String> tags;
-
-  /// Where a recommended interval comes from; `null` for copied rules.
-  final String? origin;
-  final bool isDone;
-  final bool isSelected;
-  final ValueChanged<bool?> onChanged;
-
-  const _TaskRuleSheetTile({
-    required this.name,
-    required this.priority,
-    required this.interval,
-    required this.delay,
-    required this.repeat,
-    required this.tags,
-    this.origin,
-    required this.isDone,
-    required this.isSelected,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final appSettings = context.watch<AppSettings>();
-    final showTags = appSettings.enableTaskTags && tags.isNotEmpty;
-    final hasSubtitle = interval != null || showTags || origin != null;
-    final mutedColor = Theme.of(context).colorScheme.onSurfaceVariant;
-
-    return Opacity(
-      opacity: isDone && !isSelected ? 0.5 : 1,
-      child: Card(
-        margin: const EdgeInsets.symmetric(vertical: 4.0),
-        child: CheckboxListTile(
-          title: Row(
-            spacing: 6,
-            children: [
-              Flexible(
-                child: Text(
-                  name,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    decoration: isDone ? TextDecoration.lineThrough : null,
-                    decorationThickness: 2,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              if (appSettings.enableTaskPriority)
-                TaskPriorityBadge(priority: priority),
-            ],
-          ),
-          subtitle: !hasSubtitle ? null : Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (interval != null)
-                TaskIntervalText(interval: interval!, delay: delay, repeat: repeat),
-              if (showTags)
-                TaskRuleListCard.tagsWidget(context, tags: tags),
-              if (origin != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 2),
-                  child: Row(
-                    spacing: 6,
-                    children: [
-                      Icon(Icons.auto_awesome, size: 14, color: mutedColor),
-                      Expanded(
-                        child: Text(
-                          origin!,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: mutedColor),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-            ],
-          ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          dense: true,
-          value: isSelected,
-          onChanged: onChanged,
-        ),
       ),
     );
   }

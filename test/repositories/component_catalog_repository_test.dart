@@ -137,6 +137,7 @@ nodes:
 
     test('is empty while the type is not loaded, without loading it', () {
       expect(ComponentCatalogRepository().loadedTaskOverrides(preset), isEmpty);
+      expect(ComponentCatalogRepository().loadedPreset(preset), isNull);
     });
 
     test('is empty for an entry that does not resolve', () {

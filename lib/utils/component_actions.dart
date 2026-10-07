@@ -201,7 +201,7 @@ class ComponentActions {
     final rules = appRepository.taskRules.values.where((rule) => rule.association.componentId == source.id).toList();
     if (rules.isEmpty) return;
 
-    final selected = await showCopyTaskRulesSheet(context, taskRules: rules, componentName: target.name);
+    final selected = await showCopyTaskRulesSheet(context, taskRules: rules, sourceName: source.name, componentName: target.name);
     if (selected == null || selected.isEmpty) return;
 
     final copies = await taskRuleCopies(selected, componentId: target.id);

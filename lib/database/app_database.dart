@@ -91,7 +91,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 22;
+  int get schemaVersion => 23;
 
   @override
   MigrationStrategy get migration {
@@ -282,6 +282,12 @@ class AppDatabase extends _$AppDatabase {
             await m.alterTable(TableMigration(components, newColumns: [components.preset]));
           } else if (!await _columnExists('components', 'preset')) {
             await m.addColumn(components, components.preset);
+          }
+        }
+        if (from < 23) {
+          // Task rules remember the task preset they were created from.
+          if (!await _columnExists('task_rules', 'preset_key')) {
+            await m.addColumn(taskRules, taskRules.presetKey);
           }
         }
       },

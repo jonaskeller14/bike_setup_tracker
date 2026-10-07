@@ -77,6 +77,7 @@ void main() {
         interval: const DistanceThreshold(500000),
         delay: const DistanceThreshold(100000),
         repeat: false,
+        presetKey: "fork:lower_leg_service",
       );
 
       final copy = await copyRuleTo(rule, target.id);
@@ -92,6 +93,7 @@ void main() {
       expect(copy.interval, rule.interval);
       expect(copy.delay, rule.delay);
       expect(copy.repeat, rule.repeat);
+      expect(copy.presetKey, "fork:lower_leg_service");
       expect(copy.attachments, isEmpty);
     });
 

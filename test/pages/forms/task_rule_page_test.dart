@@ -217,4 +217,27 @@ void main() {
       expect(saved.attachments, [manual, chart]);
     });
   });
+
+  group('TaskRulePage presetKey', () {
+    testWidgets('editing and saving a keyed rule keeps the key, even after a rename', (tester) async {
+      await openForm(tester, () => TaskRulePage.edit(taskRule: rule().copyWith(presetKey: 'fork:lower_leg_service')));
+
+      await tester.enterText(find.widgetWithText(TextFormField, 'Lower leg service'), 'Fork service');
+      await tester.tap(find.byIcon(Icons.check));
+      await tester.pumpAndSettle();
+
+      final saved = result! as TaskRule;
+      expect(saved.name, 'Fork service');
+      expect(saved.presetKey, 'fork:lower_leg_service');
+    });
+
+    testWidgets('duplicate mode keeps the key', (tester) async {
+      await openForm(tester, () => TaskRulePage.duplicate(taskRule: rule().copyWith(presetKey: 'fork:lower_leg_service')));
+
+      await tester.tap(find.byIcon(Icons.check));
+      await tester.pumpAndSettle();
+
+      expect((result! as TaskRule).presetKey, 'fork:lower_leg_service');
+    });
+  });
 }

@@ -179,6 +179,7 @@ extension TaskRuleDbMapper on TaskRuleDb {
       delay: delay != null ? TaskThreshold.fromJson(jsonDecode(delay!) as Map<String, dynamic>) : null,
       repeat: repeat,
       attachments: attachments,
+      presetKey: presetKey,
     );
   }
 }
@@ -352,6 +353,7 @@ extension TaskRuleMapper on TaskRule {
       delay: Value<String?>(delay != null ? jsonEncode(delay!.toJson()) : null),
       repeat: Value<bool>(repeat),
       attachments: Value<List<Attachment>>(attachments),
+      presetKey: Value<String?>(presetKey),
     );
   }
 }

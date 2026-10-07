@@ -47,10 +47,10 @@ void main() {
       expect(rule.association, const ComponentTaskAssociation('c1'));
     });
 
-    test('Version 3: fromJson() / toJson()', () {
+    test('Version 4: fromJson() / toJson()', () {
       final ruleA = TaskRule.fromJson(legacyJson);
       final json = ruleA.toJson();
-      expect(json['version'], 3);
+      expect(json['version'], 4);
       expect(json.containsKey('componentId'), false);
       final ruleB = TaskRule.fromJson(json);
       expect(ruleA == ruleB, true);

@@ -585,6 +585,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
         isDeleted: false,
         lastModified: DateTime.now().toUtc(),
         attachments: _attachments,
+        presetKey: widget.taskRule?.presetKey,
       ),
     );
   }

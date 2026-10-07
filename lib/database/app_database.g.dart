@@ -1923,6 +1923,17 @@ class $TaskRulesTable extends TaskRules
     requiredDuringInsert: false,
     defaultValue: const Constant('[]'),
   ).withConverter<List<Attachment>>($TaskRulesTable.$converterattachments);
+  static const VerificationMeta _presetKeyMeta = const VerificationMeta(
+    'presetKey',
+  );
+  @override
+  late final GeneratedColumn<String> presetKey = GeneratedColumn<String>(
+    'preset_key',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1938,6 +1949,7 @@ class $TaskRulesTable extends TaskRules
     delay,
     repeat,
     attachments,
+    presetKey,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2009,6 +2021,12 @@ class $TaskRulesTable extends TaskRules
         repeat.isAcceptableOrUnknown(data['repeat']!, _repeatMeta),
       );
     }
+    if (data.containsKey('preset_key')) {
+      context.handle(
+        _presetKeyMeta,
+        presetKey.isAcceptableOrUnknown(data['preset_key']!, _presetKeyMeta),
+      );
+    }
     return context;
   }
 
@@ -2078,6 +2096,10 @@ class $TaskRulesTable extends TaskRules
           data['${effectivePrefix}attachments'],
         )!,
       ),
+      presetKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}preset_key'],
+      ),
     );
   }
 
@@ -2110,6 +2132,7 @@ class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
   final String? delay;
   final bool repeat;
   final List<Attachment> attachments;
+  final String? presetKey;
   const TaskRuleDb({
     required this.id,
     required this.isDeleted,
@@ -2124,6 +2147,7 @@ class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
     this.delay,
     required this.repeat,
     required this.attachments,
+    this.presetKey,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2167,6 +2191,9 @@ class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
         $TaskRulesTable.$converterattachments.toSql(attachments),
       );
     }
+    if (!nullToAbsent || presetKey != null) {
+      map['preset_key'] = Variable<String>(presetKey);
+    }
     return map;
   }
 
@@ -2195,6 +2222,9 @@ class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
           : Value(delay),
       repeat: Value(repeat),
       attachments: Value(attachments),
+      presetKey: presetKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(presetKey),
     );
   }
 
@@ -2219,6 +2249,7 @@ class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
       delay: serializer.fromJson<String?>(json['delay']),
       repeat: serializer.fromJson<bool>(json['repeat']),
       attachments: serializer.fromJson<List<Attachment>>(json['attachments']),
+      presetKey: serializer.fromJson<String?>(json['presetKey']),
     );
   }
   @override
@@ -2240,6 +2271,7 @@ class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
       'delay': serializer.toJson<String?>(delay),
       'repeat': serializer.toJson<bool>(repeat),
       'attachments': serializer.toJson<List<Attachment>>(attachments),
+      'presetKey': serializer.toJson<String?>(presetKey),
     };
   }
 
@@ -2257,6 +2289,7 @@ class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
     Value<String?> delay = const Value.absent(),
     bool? repeat,
     List<Attachment>? attachments,
+    Value<String?> presetKey = const Value.absent(),
   }) => TaskRuleDb(
     id: id ?? this.id,
     isDeleted: isDeleted ?? this.isDeleted,
@@ -2271,6 +2304,7 @@ class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
     delay: delay.present ? delay.value : this.delay,
     repeat: repeat ?? this.repeat,
     attachments: attachments ?? this.attachments,
+    presetKey: presetKey.present ? presetKey.value : this.presetKey,
   );
   TaskRuleDb copyWithCompanion(TaskRulesCompanion data) {
     return TaskRuleDb(
@@ -2293,6 +2327,7 @@ class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
       attachments: data.attachments.present
           ? data.attachments.value
           : this.attachments,
+      presetKey: data.presetKey.present ? data.presetKey.value : this.presetKey,
     );
   }
 
@@ -2311,7 +2346,8 @@ class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
           ..write('interval: $interval, ')
           ..write('delay: $delay, ')
           ..write('repeat: $repeat, ')
-          ..write('attachments: $attachments')
+          ..write('attachments: $attachments, ')
+          ..write('presetKey: $presetKey')
           ..write(')'))
         .toString();
   }
@@ -2331,6 +2367,7 @@ class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
     delay,
     repeat,
     attachments,
+    presetKey,
   );
   @override
   bool operator ==(Object other) =>
@@ -2348,7 +2385,8 @@ class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
           other.interval == this.interval &&
           other.delay == this.delay &&
           other.repeat == this.repeat &&
-          other.attachments == this.attachments);
+          other.attachments == this.attachments &&
+          other.presetKey == this.presetKey);
 }
 
 class TaskRulesCompanion extends UpdateCompanion<TaskRuleDb> {
@@ -2365,6 +2403,7 @@ class TaskRulesCompanion extends UpdateCompanion<TaskRuleDb> {
   final Value<String?> delay;
   final Value<bool> repeat;
   final Value<List<Attachment>> attachments;
+  final Value<String?> presetKey;
   final Value<int> rowid;
   const TaskRulesCompanion({
     this.id = const Value.absent(),
@@ -2380,6 +2419,7 @@ class TaskRulesCompanion extends UpdateCompanion<TaskRuleDb> {
     this.delay = const Value.absent(),
     this.repeat = const Value.absent(),
     this.attachments = const Value.absent(),
+    this.presetKey = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   TaskRulesCompanion.insert({
@@ -2396,6 +2436,7 @@ class TaskRulesCompanion extends UpdateCompanion<TaskRuleDb> {
     this.delay = const Value.absent(),
     this.repeat = const Value.absent(),
     this.attachments = const Value.absent(),
+    this.presetKey = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        lastModified = Value(lastModified),
@@ -2414,6 +2455,7 @@ class TaskRulesCompanion extends UpdateCompanion<TaskRuleDb> {
     Expression<String>? delay,
     Expression<bool>? repeat,
     Expression<String>? attachments,
+    Expression<String>? presetKey,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -2430,6 +2472,7 @@ class TaskRulesCompanion extends UpdateCompanion<TaskRuleDb> {
       if (delay != null) 'delay': delay,
       if (repeat != null) 'repeat': repeat,
       if (attachments != null) 'attachments': attachments,
+      if (presetKey != null) 'preset_key': presetKey,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -2448,6 +2491,7 @@ class TaskRulesCompanion extends UpdateCompanion<TaskRuleDb> {
     Value<String?>? delay,
     Value<bool>? repeat,
     Value<List<Attachment>>? attachments,
+    Value<String?>? presetKey,
     Value<int>? rowid,
   }) {
     return TaskRulesCompanion(
@@ -2464,6 +2508,7 @@ class TaskRulesCompanion extends UpdateCompanion<TaskRuleDb> {
       delay: delay ?? this.delay,
       repeat: repeat ?? this.repeat,
       attachments: attachments ?? this.attachments,
+      presetKey: presetKey ?? this.presetKey,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2518,6 +2563,9 @@ class TaskRulesCompanion extends UpdateCompanion<TaskRuleDb> {
         $TaskRulesTable.$converterattachments.toSql(attachments.value),
       );
     }
+    if (presetKey.present) {
+      map['preset_key'] = Variable<String>(presetKey.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -2540,6 +2588,7 @@ class TaskRulesCompanion extends UpdateCompanion<TaskRuleDb> {
           ..write('delay: $delay, ')
           ..write('repeat: $repeat, ')
           ..write('attachments: $attachments, ')
+          ..write('presetKey: $presetKey, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -11368,6 +11417,7 @@ typedef $$TaskRulesTableCreateCompanionBuilder =
       Value<String?> delay,
       Value<bool> repeat,
       Value<List<Attachment>> attachments,
+      Value<String?> presetKey,
       Value<int> rowid,
     });
 typedef $$TaskRulesTableUpdateCompanionBuilder =
@@ -11385,6 +11435,7 @@ typedef $$TaskRulesTableUpdateCompanionBuilder =
       Value<String?> delay,
       Value<bool> repeat,
       Value<List<Attachment>> attachments,
+      Value<String?> presetKey,
       Value<int> rowid,
     });
 
@@ -11511,6 +11562,11 @@ class $$TaskRulesTableFilterComposer
   get attachments => $composableBuilder(
     column: $table.attachments,
     builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get presetKey => $composableBuilder(
+    column: $table.presetKey,
+    builder: (column) => ColumnFilters(column),
   );
 
   $$ComponentsTableFilterComposer get componentId {
@@ -11649,6 +11705,11 @@ class $$TaskRulesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get presetKey => $composableBuilder(
+    column: $table.presetKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$ComponentsTableOrderingComposer get componentId {
     final $$ComponentsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -11743,6 +11804,9 @@ class $$TaskRulesTableAnnotationComposer
         column: $table.attachments,
         builder: (column) => column,
       );
+
+  GeneratedColumn<String> get presetKey =>
+      $composableBuilder(column: $table.presetKey, builder: (column) => column);
 
   $$ComponentsTableAnnotationComposer get componentId {
     final $$ComponentsTableAnnotationComposer composer = $composerBuilder(
@@ -11861,6 +11925,7 @@ class $$TaskRulesTableTableManager
                 Value<String?> delay = const Value.absent(),
                 Value<bool> repeat = const Value.absent(),
                 Value<List<Attachment>> attachments = const Value.absent(),
+                Value<String?> presetKey = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => TaskRulesCompanion(
                 id: id,
@@ -11876,6 +11941,7 @@ class $$TaskRulesTableTableManager
                 delay: delay,
                 repeat: repeat,
                 attachments: attachments,
+                presetKey: presetKey,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -11893,6 +11959,7 @@ class $$TaskRulesTableTableManager
                 Value<String?> delay = const Value.absent(),
                 Value<bool> repeat = const Value.absent(),
                 Value<List<Attachment>> attachments = const Value.absent(),
+                Value<String?> presetKey = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => TaskRulesCompanion.insert(
                 id: id,
@@ -11908,6 +11975,7 @@ class $$TaskRulesTableTableManager
                 delay: delay,
                 repeat: repeat,
                 attachments: attachments,
+                presetKey: presetKey,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

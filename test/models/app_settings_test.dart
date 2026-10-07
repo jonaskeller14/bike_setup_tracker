@@ -187,6 +187,69 @@ void main() {
     });
   });
 
+  group('AppSettings — enableTaskPresets', () {
+    test('persists, loads and resets', () async {
+      SharedPreferences.setMockInitialValues({'${_kPrefix}enableComponentPresets': true});
+      final settings = AppSettings();
+      await settings.loadAppSettings();
+      expect(settings.enableTaskPresets, isFalse);
+
+      settings.enableTaskPresets = true;
+      await flushWrites();
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getBool('${_kPrefix}enableTaskPresets'), isTrue);
+      expect(settings.hasDefaultValues, isFalse);
+
+      final reloaded = AppSettings();
+      await reloaded.loadAppSettings();
+      expect(reloaded.enableTaskPresets, isTrue);
+
+      await reloaded.resetToDefaults();
+      expect(reloaded.enableTaskPresets, isFalse);
+      expect(prefs.getBool('${_kPrefix}enableTaskPresets'), isNull);
+    });
+
+    test('requires component presets and keeps the stored choice', () {
+      SharedPreferences.setMockInitialValues({});
+      final settings = AppSettings()..enableTaskPresets = true;
+      expect(settings.enableTaskPresets, isFalse);
+
+      settings.enableComponentPresets = true;
+      expect(settings.enableTaskPresets, isTrue);
+
+      settings.enableComponentPresets = false;
+      expect(settings.enableTaskPresets, isFalse);
+
+      settings.enableComponentPresets = true;
+      expect(settings.enableTaskPresets, isTrue);
+    });
+
+    test('showTaskPresets needs tasks, task interval and task presets', () {
+      SharedPreferences.setMockInitialValues({});
+      final settings = AppSettings()
+        ..enableComponentPresets = true
+        ..enableTask = true
+        ..enableTaskPresets = true;
+      expect(settings.enableTaskInterval, isTrue);
+      expect(settings.showTaskPresets, isTrue);
+
+      settings.enableTask = false;
+      expect(settings.showTaskPresets, isFalse);
+      settings.enableTask = true;
+
+      settings.enableTaskInterval = false;
+      expect(settings.showTaskPresets, isFalse);
+      settings.enableTaskInterval = true;
+
+      settings.enableTaskPresets = false;
+      expect(settings.showTaskPresets, isFalse);
+      settings.enableTaskPresets = true;
+
+      settings.enableComponentPresets = false;
+      expect(settings.showTaskPresets, isFalse);
+    });
+  });
+
   group('AppSettings — legacy blob migration (Option B)', () {
     test('preserves a value the user changed away from the default', () async {
       SharedPreferences.setMockInitialValues({

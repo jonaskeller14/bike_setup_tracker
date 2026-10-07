@@ -112,6 +112,20 @@ class FeaturesPage extends StatelessWidget {
                       'catalog to prefill its name, notes and adjustments (click ranges, '
                       'air pressure, SAG) automatically. You can still edit everything afterwards.',
                 ),
+              if (kDebugMode)
+                _FeatureToggleTile(
+                  enabled: appSettings.enableComponentPresets,
+                  disabledSubtitle: 'Requires Component Presets',
+                  icon: Icons.playlist_add_check,
+                  title: "Task Presets",
+                  value: appSettings.enableTaskPresets,
+                  onChanged: (v) => appSettings.enableTaskPresets = v,
+                  infoText:
+                      'Suggests recommended tasks for a component, like a chain wear check or a '
+                      'fork service, based on its type and catalog model. You pick each suggestion '
+                      'individually and can edit the created tasks freely. Requires Component Presets, '
+                      'Tasks and Task Intervals.',
+                ),
               const Divider(),
               const SectionTitle(title: 'Adjustments'),
               _FeatureGroupTile(
@@ -374,6 +388,7 @@ class _FeatureToggleTile extends StatelessWidget {
   final ValueChanged<bool> onChanged;
   final String? infoText;
   final bool enabled;
+  final String? disabledSubtitle;
 
   const _FeatureToggleTile({
     required this.icon,
@@ -382,6 +397,7 @@ class _FeatureToggleTile extends StatelessWidget {
     required this.onChanged,
     this.infoText,
     this.enabled = true,
+    this.disabledSubtitle,
   });
 
   static const Map<bool, Text> _offOnOptionWidgets = {
@@ -395,7 +411,7 @@ class _FeatureToggleTile extends StatelessWidget {
       enabled: enabled,
       leading: Icon(icon),
       title: Text(title),
-      subtitle: _offOnOptionWidgets[value],
+      subtitle: !enabled && disabledSubtitle != null ? Text(disabledSubtitle!) : _offOnOptionWidgets[value],
       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
       onTap: () => radioGroupSheet<bool>(
         context: context,

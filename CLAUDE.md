@@ -26,7 +26,7 @@ CI runs `flutter pub get` → `flutter analyze` → `flutter test` on push to `m
 
 ## Store screenshots (Git LFS)
 
-`assets/store/**` (`*.png`, `*.af`) is tracked with Git LFS; older commits hold them as plain blobs, so never rewrite that history. Each machine needs git-lfs and a one-time `git lfs install`. If images show up as pointer files, run `git lfs pull` (in a worktree: `git lfs checkout`).
+`assets/store/**` (`*.png`, `*.af`) is tracked with Git LFS; older commits hold them as plain blobs, so never rewrite that history. Each machine needs git-lfs, a one-time `git lfs install`, and `git config diff.lfs.textconv cat` (otherwise VS Code image diffs show the pointer). If images show up as pointer files, run `git lfs pull` (in a worktree: `git lfs checkout`).
 
 ## Planning and feature status
 

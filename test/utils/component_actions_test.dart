@@ -3,6 +3,9 @@ import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
+import 'package:bike_setup_tracker/models/task/task_association.dart';
+import 'package:bike_setup_tracker/models/task/task_rule.dart';
+import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
@@ -14,14 +17,17 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MockSubscriptionService extends Mock implements SubscriptionService {
+  MockSubscriptionService({this.hasStravaEntitlement = false});
+
   @override
-  bool get hasStravaEntitlement => false;
+  final bool hasStravaEntitlement;
 }
 
 void main() {
   late AppDatabase database;
   late AppRepository appRepository;
   late AppSettings appSettings;
+  late bool hasStravaEntitlement;
 
   final bike = Bike(id: 'b1', name: 'Test Bike', person: null);
   final current = Component(
@@ -44,6 +50,7 @@ void main() {
     database = AppDatabase.memory();
     appRepository = AppRepository(database);
     appSettings = AppSettings();
+    hasStravaEntitlement = false;
   });
 
   tearDown(() async {
@@ -62,7 +69,9 @@ void main() {
       providers: [
         ChangeNotifierProvider.value(value: appSettings),
         ChangeNotifierProvider.value(value: appRepository),
-        ChangeNotifierProvider<SubscriptionService>(create: (_) => MockSubscriptionService()),
+        ChangeNotifierProvider<SubscriptionService>(
+          create: (_) => MockSubscriptionService(hasStravaEntitlement: hasStravaEntitlement),
+        ),
       ],
       child: MaterialApp(
         theme: materialAppTheme,
@@ -223,6 +232,147 @@ void main() {
       expect(find.text('Move to trash'), findsNothing);
       expect(appRepository.components.keys, containsAll(['f1', 'd1', 't1']));
       expect(appRepository.deletedComponents, isEmpty);
+    });
+  });
+
+  group('offerTaskRulesFor', () {
+    final chain = Component(
+      id: 'ch1',
+      name: 'Chain',
+      componentType: ComponentType.chain,
+      installations: [Installation.sinceBeginning(parent: 'b1')],
+      adjustments: const [],
+    );
+    final newChain = Component(
+      id: 'ch2',
+      name: 'New Chain',
+      componentType: ComponentType.chain,
+      installations: [Installation.sinceBeginning(parent: 'b1')],
+      adjustments: const [],
+    );
+
+    TaskRule chainRule(String name, {String? presetKey}) => TaskRule(
+      name: name,
+      tags: const {},
+      association: const ComponentTaskAssociation('ch1'),
+      interval: const DistanceThreshold(500000),
+      repeat: true,
+      presetKey: presetKey,
+    );
+
+    void enableTaskPresets() {
+      appSettings
+        ..enableTask = true
+        ..enableComponentPresets = true
+        ..enableTaskPresets = true;
+    }
+
+    List<TaskRule> rulesOf(String componentId) =>
+        appRepository.taskRules.values.where((rule) => rule.association.componentId == componentId).toList();
+
+    Future<void> pumpOffer(
+      WidgetTester tester, {
+      Component? source,
+      required Component target,
+      List<TaskRule> rules = const [],
+    }) async {
+      await tester.runAsync(() async {
+        await appRepository.addBikes([bike]);
+        await appRepository.addComponents([?source, target]);
+        await appRepository.addTaskRules(rules);
+        await Future<void>.delayed(Duration.zero);
+      });
+      appRepository.dispose();
+      appRepository = AppRepository(database);
+
+      await tester.pumpWidget(createWidgetUnderTest(
+        label: 'offer',
+        action: (context) => ComponentActions.offerTaskRulesFor(context, source: source, target: target),
+      ));
+      await tester.runAsync(() => appRepository.initialDataLoaded);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('offer'));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('a new chain gets the recommend sheet; the defaults create chain:wear_check', (tester) async {
+      enableTaskPresets();
+      await pumpOffer(tester, target: chain);
+
+      expect(find.text("Recommended tasks for 'Chain'"), findsOneWidget);
+      // Without Strava, the ride-only chain templates are hidden.
+      expect(find.text('Replace chain'), findsNothing);
+
+      await tester.tap(find.text('Add 1 task'));
+      await settleRepository(tester, () => rulesOf('ch1').isNotEmpty);
+
+      final rule = rulesOf('ch1').single;
+      expect(rule.presetKey, 'chain:wear_check');
+      expect(rule.interval, isA<DurationThreshold>());
+      expect(find.text("Added 1 task to 'Chain'."), findsOneWidget);
+    });
+
+    for (final (description, configure) in [
+      ('task presets are off', () => appSettings.enableTask = true),
+      ('the task interval is off', () {
+        enableTaskPresets();
+        appSettings.enableTaskInterval = false;
+      }),
+    ]) {
+      testWidgets('no sheet when $description', (tester) async {
+        configure();
+        await pumpOffer(tester, target: chain);
+
+        expect(find.byType(BottomSheet), findsNothing);
+      });
+    }
+
+    testWidgets('no sheet for a component type without templates and without rules', (tester) async {
+      enableTaskPresets();
+      await pumpOffer(tester, target: chain.copyWith(componentType: ComponentType.other));
+
+      expect(find.byType(BottomSheet), findsNothing);
+    });
+
+    testWidgets('a duplicated chain gets the merged sheet without the suggestion its copy covers', (tester) async {
+      enableTaskPresets();
+      hasStravaEntitlement = true;
+      await pumpOffer(
+        tester,
+        source: chain,
+        target: newChain,
+        rules: [chainRule('Measure stretch', presetKey: 'chain:wear_check')],
+      );
+
+      expect(find.text("Tasks for 'New Chain'"), findsOneWidget);
+      expect(find.text("Copy from 'Chain'"), findsOneWidget);
+      expect(find.text('Recommended for Chain'), findsOneWidget);
+      expect(find.text('Check chain wear'), findsNothing);
+      expect(find.text('Replace chain'), findsOneWidget);
+
+      await tester.tap(find.text('Add 1 task'));
+      await settleRepository(tester, () => rulesOf('ch2').isNotEmpty);
+
+      final copy = rulesOf('ch2').single;
+      expect(copy.name, 'Measure stretch');
+      expect(copy.presetKey, 'chain:wear_check');
+      expect(find.text("Copied 1 task to 'New Chain'."), findsOneWidget);
+    });
+
+    testWidgets('UNDO removes every created rule', (tester) async {
+      enableTaskPresets();
+      await pumpOffer(tester, source: chain, target: newChain, rules: [chainRule('Wax chain')]);
+
+      await tester.tap(find.text('Add 2 tasks'));
+      await settleRepository(tester, () => rulesOf('ch2').length == 2);
+      expect(rulesOf('ch2').map((rule) => rule.presetKey), unorderedEquals([null, 'chain:wear_check']));
+      expect(find.text("Added 2 tasks to 'New Chain'."), findsOneWidget);
+
+      await tester.tap(find.text('UNDO'));
+      await settleRepository(tester, () => rulesOf('ch2').isEmpty);
+      expect(rulesOf('ch2'), isEmpty);
+      expect(rulesOf('ch1'), hasLength(1));
     });
   });
 }

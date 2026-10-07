@@ -93,7 +93,7 @@ void main() {
   );
 
   group('copy mode', () {
-    testWidgets('preselects open rules and lists completed one-offs dimmed under "Done on"', (tester) async {
+    testWidgets('preselects open rules and lists completed one-offs dimmed below them', (tester) async {
       final low = _rule('Clean chain', priority: TaskPriority.low);
       final high = _rule('Replace chain', priority: TaskPriority.high);
       final done = _rule('Fix creak', repeat: false);
@@ -112,7 +112,6 @@ void main() {
       expect(find.text('Copy tasks?'), findsOneWidget);
       expect(find.text('Tasks'), findsOneWidget);
       expect(find.text(' (2 / 3)'), findsOneWidget);
-      expect(find.text("Done on 'Old chain'"), findsOneWidget);
       expect(find.text('Copy 2 tasks'), findsOneWidget);
 
       expect(rowValue(tester, 'Replace chain'), isTrue);
@@ -124,7 +123,7 @@ void main() {
         lessThan(tester.getTopLeft(find.text('Clean chain')).dy),
       );
       expect(
-        tester.getTopLeft(find.text("Done on 'Old chain'")).dy,
+        tester.getTopLeft(find.text('Clean chain')).dy,
         lessThan(tester.getTopLeft(find.text('Fix creak')).dy),
       );
 
@@ -134,20 +133,6 @@ void main() {
       expect(rowOpacity(tester, 'Fix creak'), 1);
       expect(find.text(' (3 / 3)'), findsOneWidget);
       expect(find.text('Copy 3 tasks'), findsOneWidget);
-    });
-
-    testWidgets('hides the "Done on" sub-header without completed one-offs', (tester) async {
-      await pumpSheet(
-        tester,
-        (context) => showCopyTaskRulesSheet(
-          context,
-          taskRules: [_rule('Replace chain')],
-          sourceName: 'Old chain',
-          componentName: 'New chain',
-        ),
-      );
-
-      expect(find.text("Done on 'Old chain'"), findsNothing);
     });
 
     testWidgets('returns the selected rules, and null when continuing without copying', (tester) async {
@@ -196,7 +181,7 @@ void main() {
   });
 
   group('recommend mode', () {
-    testWidgets('preselection follows the template and fallbacks name the Strava interval', (tester) async {
+    testWidgets('preselection follows the template and each row names its interval origin', (tester) async {
       await pumpSheet(
         tester,
         (context) => showTaskRulesSheet(
@@ -218,7 +203,9 @@ void main() {
       expect(find.text("Recommended tasks for 'New chain'"), findsOneWidget);
       expect(rowValue(tester, 'Check chain wear'), isTrue);
       expect(rowValue(tester, 'Replace chain'), isFalse);
-      expect(find.text('every 500 km with Strava'), findsOneWidget);
+      expect(find.text('Recommended for Chain'), findsOneWidget);
+      expect(find.text('Time-based · every 500 km with Strava'), findsOneWidget);
+      expect(find.text('Typical interval'), findsOneWidget);
       expect(find.text('Add 1 task'), findsOneWidget);
       expect(find.text('Skip'), findsOneWidget);
     });

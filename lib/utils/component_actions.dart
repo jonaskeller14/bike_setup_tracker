@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -9,6 +12,7 @@ import '../models/component/installation.dart';
 import '../models/component/subcomponent_detach.dart';
 import '../models/task/task_association.dart';
 import '../models/task/task_rule.dart';
+import '../models/task/task_template.dart';
 import '../pages/adjustment/boolean_adjustment_page.dart';
 import '../pages/adjustment/categorical_adjustment_page.dart';
 import '../pages/adjustment/duration_adjustment_page.dart';
@@ -18,6 +22,7 @@ import '../pages/adjustment/step_adjustment_page.dart';
 import '../pages/adjustment/text_adjustment_page.dart';
 import '../pages/forms/component_page.dart';
 import '../repositories/app_repository.dart';
+import '../services/subscription_service.dart';
 import '../widgets/app_snackbar.dart';
 import '../widgets/sheets/archive_component.dart';
 import '../widgets/sheets/component_add_adjustment.dart';
@@ -28,6 +33,7 @@ import '../widgets/sheets/replace_component.dart';
 import 'attachment_actions.dart';
 import 'bike_actions.dart';
 import 'installation_timeline_validation.dart';
+import 'task_preset_resolver.dart';
 
 class ComponentActions {
   static Future<void> addComponent(BuildContext context, {Object? initialBike = const _Sentinel(), List<Installation>? initialInstallations}) async {
@@ -48,6 +54,9 @@ class ComponentActions {
     }
     final installations = initialInstallations ??
         (initialBike is _Sentinel ? null : [Installation.sinceBeginning(parent: initialBike as String?)]);
+    // Callers are often empty-state hints that disappear once the component
+    // exists, so the task prompt needs a context that outlives them.
+    final navigatorContext = Navigator.of(context).context;
 
     final component = await Navigator.push<Component>(
       context,
@@ -56,6 +65,9 @@ class ComponentActions {
 
     if (component == null) return;
     await appRepository.addComponents([component]);
+
+    if (!navigatorContext.mounted) return;
+    await offerTaskRulesFor(navigatorContext, target: component);
   }
 
   static Future<void> editComponent(BuildContext context, {required Component component}) async {
@@ -180,7 +192,7 @@ class ComponentActions {
     await AttachmentActions.deleteUnsaved(deepCopied.attachments, saved: newComponent.attachments);
 
     if (!context.mounted) return;
-    await _copyTaskRulesTo(context, source: component, target: newComponent);
+    await offerTaskRulesFor(context, source: component, target: newComponent);
   }
 
   static Future<Component> _deepCopyWithFiles(Component component) async {
@@ -188,34 +200,62 @@ class ComponentActions {
     return deepCopied.copyWith(attachments: await AttachmentActions.copyAttachmentFiles(deepCopied.attachments));
   }
 
-  static Future<void> _copyTaskRulesTo(
+  /// Offers copies of [source]'s task rules and, with task presets on, the
+  /// recommended tasks for [target] in one sheet. Opens nothing when there is
+  /// nothing to offer.
+  @visibleForTesting
+  static Future<void> offerTaskRulesFor(
     BuildContext context, {
-    required Component source,
+    Component? source,
     required Component target,
   }) async {
-    if (!context.read<AppSettings>().enableTask) return;
+    final appSettings = context.read<AppSettings>();
+    if (!appSettings.enableTask) return;
 
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);
 
-    final rules = appRepository.taskRules.values.where((rule) => rule.association.componentId == source.id).toList();
-    if (rules.isEmpty) return;
+    final copyRules = source == null
+        ? const <TaskRule>[]
+        : appRepository.taskRules.values.where((rule) => rule.association.componentId == source.id).toList();
+    // Not deduplicated against copyRules: the sheet hides a suggestion only while its copy is selected.
+    final suggestions = !appSettings.showTaskPresets
+        ? const <TaskSuggestion>[]
+        : taskSuggestionsFor(
+            target,
+            existingRules: appRepository.taskRules.values,
+            hasStravaEntitlement: context.read<SubscriptionService>().hasStravaEntitlement,
+          );
+    if (copyRules.isEmpty && suggestions.isEmpty) return;
 
-    final selected = await showCopyTaskRulesSheet(context, taskRules: rules, sourceName: source.name, componentName: target.name);
-    if (selected == null || selected.isEmpty) return;
+    final result = await showTaskRulesSheet(
+      context,
+      copyFrom: source?.name,
+      copyRules: copyRules,
+      suggestions: suggestions,
+      componentName: target.name,
+      componentTypeLabel: target.componentType.label,
+    );
+    if (result == null) return;
+    unawaited(HapticFeedback.lightImpact());
 
-    final copies = await taskRuleCopies(selected, componentId: target.id);
-    await appRepository.addTaskRules(copies);
+    final created = [
+      ...await taskRuleCopies(result.copied, componentId: target.id),
+      for (final suggestion in result.suggested)
+        suggestion.toTaskRule(target.id, distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit),
+    ];
+    await appRepository.addTaskRules(created);
 
     if (!context.mounted) return;
+    final verb = result.suggested.isEmpty ? 'Copied' : 'Added';
     messenger.showSnackBar(
       AppSnackBar.success(
         context,
-        "Copied ${copies.length} task${copies.length == 1 ? '' : 's'} to '${target.name}'.",
+        "$verb ${created.length} task${created.length == 1 ? '' : 's'} to '${target.name}'.",
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
           label: 'UNDO',
-          onPressed: () async => appRepository.removeTaskRules(copies),
+          onPressed: () async => appRepository.removeTaskRules(created),
         ),
       ),
     );
@@ -341,7 +381,7 @@ class ComponentActions {
         ]);
 
         if (!navigatorContext.mounted) return;
-        await _copyTaskRulesTo(navigatorContext, source: component, target: newComponent);
+        await offerTaskRulesFor(navigatorContext, source: component, target: newComponent);
     }
   }
 

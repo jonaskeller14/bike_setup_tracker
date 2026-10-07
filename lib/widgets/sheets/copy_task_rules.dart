@@ -127,7 +127,7 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
       "Copies start fresh — the completion history stays with '${widget.copyFrom}'. Recommended tasks become normal tasks you can edit later.",
   };
 
-  Widget _copySection(BuildContext context) {
+  Widget _copySection() {
     final allRules = [..._openRules, ..._doneRules];
 
     Widget tile(TaskRule rule, {required bool isDone}) => _TaskRuleSheetTile(
@@ -161,20 +161,8 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
           }),
         ),
         ..._openRules.map((rule) => tile(rule, isDone: false)),
-        if (_doneRules.isNotEmpty) ...[
-          Padding(
-            padding: const EdgeInsets.only(top: 12, bottom: 4),
-            child: Text(
-              "Done on '${widget.copyFrom}'",
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ),
-          ..._doneRules.map((rule) => tile(rule, isDone: true)),
-        ],
+        if (_openRules.isNotEmpty && _doneRules.isNotEmpty) const SizedBox(height: 8),
+        ..._doneRules.map((rule) => tile(rule, isDone: true)),
       ],
     );
   }
@@ -183,50 +171,62 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
     final appSettings = context.watch<AppSettings>();
     final selectedVisible = visible.where(_selectedSuggestions.contains).length;
 
-    String? hint(TaskSuggestion suggestion) {
+    String origin(TaskSuggestion suggestion) {
       final strava = suggestion.stravaInterval;
       final parts = [
         if (strava != null)
-          '${taskIntervalLabel(strava, distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit)} with Strava',
+          'Time-based · ${taskIntervalLabel(strava, distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit)} with Strava',
         ?suggestion.source,
       ];
-      return parts.isEmpty ? null : parts.join(' · ');
+      return parts.isEmpty ? 'Typical interval' : parts.join(' · ');
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _SectionHeader(
-          title: _mode == _Mode.merged ? 'Recommended for ${widget.componentTypeLabel}' : 'Tasks',
-          selected: selectedVisible,
-          total: visible.length,
-          onChanged: (selectAll) => setState(() {
-            if (selectAll) {
-              _selectedSuggestions.addAll(visible);
-            } else {
-              _selectedSuggestions.removeAll(visible);
-            }
-          }),
+    final colors = Theme.of(context).colorScheme;
+    // Tinted like the catalog card on the component form, so recommendations
+    // read apart from the copied rules.
+    return Card(
+      margin: EdgeInsets.zero,
+      color: colors.primaryContainer,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _SectionHeader(
+              title: 'Recommended for ${widget.componentTypeLabel}',
+              icon: Icons.auto_awesome,
+              color: colors.onPrimaryContainer,
+              selected: selectedVisible,
+              total: visible.length,
+              onChanged: (selectAll) => setState(() {
+                if (selectAll) {
+                  _selectedSuggestions.addAll(visible);
+                } else {
+                  _selectedSuggestions.removeAll(visible);
+                }
+              }),
+            ),
+            ...visible.map((suggestion) => _TaskRuleSheetTile(
+              name: suggestion.name,
+              priority: suggestion.priority,
+              interval: suggestion.interval,
+              delay: null,
+              repeat: suggestion.repeat,
+              tags: const {},
+              origin: origin(suggestion),
+              isDone: false,
+              isSelected: _selectedSuggestions.contains(suggestion),
+              onChanged: (checked) => setState(() {
+                if (checked == true) {
+                  _selectedSuggestions.add(suggestion);
+                } else {
+                  _selectedSuggestions.remove(suggestion);
+                }
+              }),
+            )),
+          ],
         ),
-        ...visible.map((suggestion) => _TaskRuleSheetTile(
-          name: suggestion.name,
-          priority: suggestion.priority,
-          interval: suggestion.interval,
-          delay: null,
-          repeat: suggestion.repeat,
-          tags: const {},
-          hint: hint(suggestion),
-          isDone: false,
-          isSelected: _selectedSuggestions.contains(suggestion),
-          onChanged: (checked) => setState(() {
-            if (checked == true) {
-              _selectedSuggestions.add(suggestion);
-            } else {
-              _selectedSuggestions.remove(suggestion);
-            }
-          }),
-        )),
-      ],
+      ),
     );
   }
 
@@ -246,7 +246,7 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          SheetHeader(title: _title),
+          SheetHeader(title: _title, leadingIcon: const Icon(Icons.checklist)),
           const SizedBox(height: 16),
           Flexible(
             child: SingleChildScrollView(
@@ -261,7 +261,7 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  if (widget.copyRules.isNotEmpty) _copySection(context),
+                  if (widget.copyRules.isNotEmpty) _copySection(),
                   if (widget.copyRules.isNotEmpty && visibleSuggestions.isNotEmpty) const SizedBox(height: 24),
                   if (visibleSuggestions.isNotEmpty) _suggestionSection(context, visibleSuggestions),
                 ],
@@ -295,12 +295,16 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
 
 class _SectionHeader extends StatelessWidget {
   final String title;
+  final IconData? icon;
+  final Color? color;
   final int selected;
   final int total;
   final ValueChanged<bool> onChanged;
 
   const _SectionHeader({
     required this.title,
+    this.icon,
+    this.color,
     required this.selected,
     required this.total,
     required this.onChanged,
@@ -308,11 +312,15 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold);
+    final style = Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: color);
     return Padding(
-      padding: const EdgeInsets.only(right: 12),
+      padding: EdgeInsets.only(left: icon == null ? 0 : 8, right: 12),
       child: Row(
         children: [
+          if (icon != null) ...[
+            Icon(icon, size: 20, color: color),
+            const SizedBox(width: 8),
+          ],
           Expanded(
             child: Row(
               children: [
@@ -341,7 +349,9 @@ class _TaskRuleSheetTile extends StatelessWidget {
   final TaskThreshold? delay;
   final bool repeat;
   final Set<String> tags;
-  final String? hint;
+
+  /// Where a recommended interval comes from; `null` for copied rules.
+  final String? origin;
   final bool isDone;
   final bool isSelected;
   final ValueChanged<bool?> onChanged;
@@ -353,7 +363,7 @@ class _TaskRuleSheetTile extends StatelessWidget {
     required this.delay,
     required this.repeat,
     required this.tags,
-    this.hint,
+    this.origin,
     required this.isDone,
     required this.isSelected,
     required this.onChanged,
@@ -363,7 +373,8 @@ class _TaskRuleSheetTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
     final showTags = appSettings.enableTaskTags && tags.isNotEmpty;
-    final hasSubtitle = interval != null || showTags || hint != null;
+    final hasSubtitle = interval != null || showTags || origin != null;
+    final mutedColor = Theme.of(context).colorScheme.onSurfaceVariant;
 
     return Opacity(
       opacity: isDone && !isSelected ? 0.5 : 1,
@@ -395,14 +406,22 @@ class _TaskRuleSheetTile extends StatelessWidget {
                 TaskIntervalText(interval: interval!, delay: delay, repeat: repeat),
               if (showTags)
                 TaskRuleListCard.tagsWidget(context, tags: tags),
-              if (hint != null)
-                Text(
-                  hint!,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                    fontSize: 13,
+              if (origin != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Row(
+                    spacing: 6,
+                    children: [
+                      Icon(Icons.auto_awesome, size: 14, color: mutedColor),
+                      Expanded(
+                        child: Text(
+                          origin!,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: mutedColor),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
             ],

@@ -110,7 +110,20 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
     _openRules = widget.copyRules.where((rule) => !isDone(rule)).toList()..sort(_byPriorityThenName);
     _doneRules = widget.copyRules.where(isDone).toList()..sort(_byPriorityThenName);
     _selectedCopies = {..._openRules};
-    _selectedSuggestions = {...widget.suggestions.where((suggestion) => suggestion.preselected)};
+    // Copying is the default way to carry a task over, so the source's rules
+    // win over the template's preselection.
+    _selectedSuggestions = {
+      ...widget.suggestions.where(
+        (suggestion) => suggestion.preselected && !isTaskPresetConsumed(suggestion.key, widget.copyRules),
+      ),
+    };
+  }
+
+  /// Also unchecks the suggestions these copies hide, so a suggestion revealed
+  /// by unchecking a copy later never starts checked.
+  void _selectCopies(Iterable<TaskRule> rules) {
+    _selectedCopies.addAll(rules);
+    _selectedSuggestions.removeWhere((suggestion) => isTaskPresetConsumed(suggestion.key, rules));
   }
 
   String get _title => switch (_mode) {
@@ -141,7 +154,7 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
       isSelected: _selectedCopies.contains(rule),
       onChanged: (checked) => setState(() {
         if (checked == true) {
-          _selectedCopies.add(rule);
+          _selectCopies([rule]);
         } else {
           _selectedCopies.remove(rule);
         }
@@ -157,7 +170,7 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
           total: allRules.length,
           onChanged: (selectAll) => setState(() {
             _selectedCopies.clear();
-            if (selectAll) _selectedCopies.addAll(allRules);
+            if (selectAll) _selectCopies(allRules);
           }),
         ),
         ..._openRules.map((rule) => tile(rule, isDone: false)),
@@ -206,23 +219,25 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
                 }
               }),
             ),
-            ...visible.map((suggestion) => _TaskRuleSheetTile(
-              name: suggestion.name,
-              priority: suggestion.priority,
-              interval: suggestion.interval,
-              delay: null,
-              repeat: suggestion.repeat,
-              tags: const {},
-              origin: origin(suggestion),
-              isDone: false,
-              isSelected: _selectedSuggestions.contains(suggestion),
-              onChanged: (checked) => setState(() {
-                if (checked == true) {
-                  _selectedSuggestions.add(suggestion);
-                } else {
-                  _selectedSuggestions.remove(suggestion);
-                }
-              }),
+            ...widget.suggestions.map((suggestion) => _AnimatedReveal(
+              child: !visible.contains(suggestion) ? const SizedBox.shrink() : _TaskRuleSheetTile(
+                name: suggestion.name,
+                priority: suggestion.priority,
+                interval: suggestion.interval,
+                delay: null,
+                repeat: suggestion.repeat,
+                tags: const {},
+                origin: origin(suggestion),
+                isDone: false,
+                isSelected: _selectedSuggestions.contains(suggestion),
+                onChanged: (checked) => setState(() {
+                  if (checked == true) {
+                    _selectedSuggestions.add(suggestion);
+                  } else {
+                    _selectedSuggestions.remove(suggestion);
+                  }
+                }),
+              ),
             )),
           ],
         ),
@@ -262,8 +277,12 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
                   ),
                   const SizedBox(height: 16),
                   if (widget.copyRules.isNotEmpty) _copySection(),
-                  if (widget.copyRules.isNotEmpty && visibleSuggestions.isNotEmpty) const SizedBox(height: 24),
-                  if (visibleSuggestions.isNotEmpty) _suggestionSection(context, visibleSuggestions),
+                  _AnimatedReveal(
+                    child: visibleSuggestions.isEmpty ? const SizedBox.shrink() : Padding(
+                      padding: EdgeInsets.only(top: widget.copyRules.isNotEmpty ? 24 : 0),
+                      child: _suggestionSection(context, visibleSuggestions),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -289,6 +308,35 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Grows and fades [child] in, or shrinks and fades it out, when it switches to
+/// or from an empty box. Unlike [AnimatedSize], the outgoing content stays
+/// visible while it collapses.
+class _AnimatedReveal extends StatelessWidget {
+  static const _duration = Duration(milliseconds: 200);
+  final Widget child;
+
+  const _AnimatedReveal({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSwitcher(
+      duration: MediaQuery.of(context).disableAnimations ? Duration.zero : _duration,
+      switchInCurve: Curves.easeInOut,
+      switchOutCurve: Curves.easeInOut,
+      transitionBuilder: (child, animation) => SizeTransition(
+        sizeFactor: animation,
+        alignment: Alignment.topCenter,
+        child: FadeTransition(opacity: animation, child: child),
+      ),
+      layoutBuilder: (currentChild, previousChildren) => Stack(
+        alignment: Alignment.topCenter,
+        children: [...previousChildren, ?currentChild],
+      ),
+      child: child,
     );
   }
 }

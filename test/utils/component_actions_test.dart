@@ -360,6 +360,31 @@ void main() {
       expect(find.text("Copied 1 task to 'New Chain'."), findsOneWidget);
     });
 
+    testWidgets('unchecking a keyed copy does not add its suggestion instead', (tester) async {
+      enableTaskPresets();
+      final fork = chain.copyWith(id: 'f1', name: 'Fork', componentType: ComponentType.fork);
+      final newFork = newChain.copyWith(id: 'f2', name: 'New Fork', componentType: ComponentType.fork);
+      await pumpOffer(
+        tester,
+        source: fork,
+        target: newFork,
+        rules: [
+          chainRule('Lower legs', presetKey: 'fork:lower_leg_service').copyWith(
+            association: const ComponentTaskAssociation('f1'),
+          ),
+        ],
+      );
+
+      await tester.tap(find.text('Lower legs'));
+      await tester.pumpAndSettle();
+      expect(find.text('Lower leg service'), findsOneWidget);
+
+      await tester.tap(find.text('Add 1 task'));
+      await settleRepository(tester, () => rulesOf('f2').isNotEmpty);
+
+      expect(rulesOf('f2').map((rule) => rule.presetKey), ['fork:full_service']);
+    });
+
     testWidgets('UNDO removes every created rule', (tester) async {
       enableTaskPresets();
       await pumpOffer(tester, source: chain, target: newChain, rules: [chainRule('Wax chain')]);

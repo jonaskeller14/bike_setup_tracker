@@ -232,7 +232,7 @@ void main() {
       componentTypeLabel: 'Chain',
     );
 
-    testWidgets('a selected copy hides the suggestion with its key until unchecked', (tester) async {
+    testWidgets('a selected copy hides the suggestion with its key; unchecking reveals it unchecked', (tester) async {
       await pumpSheet(tester, open);
 
       expect(find.text("Tasks for 'New chain'"), findsOneWidget);
@@ -240,12 +240,96 @@ void main() {
       expect(find.text('Recommended for Chain'), findsOneWidget);
       expect(find.text('Check chain wear'), findsNothing);
       expect(find.text('Replace chain'), findsOneWidget);
+      expect(find.text('Add 1 task'), findsOneWidget);
 
       await tester.tap(find.text('Kette prüfen'));
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       expect(find.text('Check chain wear'), findsOneWidget);
+      expect(rowValue(tester, 'Check chain wear'), isFalse);
+      expect(find.text('Add 0 tasks'), findsOneWidget);
+    });
+
+    testWidgets('a suggestion checked by hand comes back unchecked after its copy is re-selected', (tester) async {
+      await pumpSheet(tester, open);
+
+      await tester.tap(find.text('Kette prüfen'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Check chain wear'));
+      await tester.pump();
       expect(rowValue(tester, 'Check chain wear'), isTrue);
+
+      await tester.tap(find.text('Kette prüfen'));
+      await tester.pumpAndSettle();
+      expect(find.text('Check chain wear'), findsNothing);
+
+      await tester.tap(find.text('Kette prüfen'));
+      await tester.pumpAndSettle();
+      expect(rowValue(tester, 'Check chain wear'), isFalse);
+    });
+
+    testWidgets('the panel is absent while its only suggestion is hidden, and reveals it unchecked', (tester) async {
+      await pumpSheet(
+        tester,
+        (context) => showTaskRulesSheet(
+          context,
+          copyFrom: 'Old chain',
+          copyRules: [copied],
+          suggestions: [suggestions.first],
+          componentName: 'New chain',
+          componentTypeLabel: 'Chain',
+        ),
+      );
+
+      expect(find.text('Recommended for Chain'), findsNothing);
+
+      await tester.tap(find.text('Kette prüfen'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Recommended for Chain'), findsOneWidget);
+      expect(rowValue(tester, 'Check chain wear'), isFalse);
+    });
+
+    testWidgets('a completed copy with the key leaves its suggestion visible but unchecked', (tester) async {
+      final done = _rule('Kette prüfen', repeat: false, presetKey: 'chain:wear_check');
+      doneRules = {done};
+      await pumpSheet(
+        tester,
+        (context) => showTaskRulesSheet(
+          context,
+          copyFrom: 'Old chain',
+          copyRules: [done],
+          suggestions: suggestions,
+          componentName: 'New chain',
+          componentTypeLabel: 'Chain',
+        ),
+      );
+
+      expect(rowValue(tester, 'Kette prüfen'), isFalse);
+      expect(rowValue(tester, 'Check chain wear'), isFalse);
+    });
+
+    testWidgets('unchecking the copy section reveals keyed suggestions unchecked; others keep their preselection', (
+      tester,
+    ) async {
+      await pumpSheet(
+        tester,
+        (context) => showTaskRulesSheet(
+          context,
+          copyFrom: 'Old chain',
+          copyRules: [copied],
+          suggestions: [...suggestions, _suggestion('chain:lube', 'Clean & lube chain', preselected: true)],
+          componentName: 'New chain',
+          componentTypeLabel: 'Chain',
+        ),
+      );
+
+      await tester.tap(headerCheckbox("Copy from 'Old chain'"));
+      await tester.pumpAndSettle();
+
+      expect(rowValue(tester, 'Kette prüfen'), isFalse);
+      expect(rowValue(tester, 'Check chain wear'), isFalse);
+      expect(rowValue(tester, 'Clean & lube chain'), isTrue);
     });
 
     testWidgets('each section header toggles only its own section', (tester) async {
@@ -257,10 +341,55 @@ void main() {
       expect(rowValue(tester, 'Kette prüfen'), isTrue);
 
       await tester.tap(headerCheckbox("Copy from 'Old chain'"));
-      await tester.pump();
+      await tester.pumpAndSettle();
       expect(rowValue(tester, 'Kette prüfen'), isFalse);
       expect(rowValue(tester, 'Replace chain'), isTrue);
-      expect(rowValue(tester, 'Check chain wear'), isTrue);
+      expect(rowValue(tester, 'Check chain wear'), isFalse);
+    });
+
+    group('panel animation', () {
+      Future<TaskRulesSheetResult?> openWithHiddenPanel(BuildContext context) => showTaskRulesSheet(
+        context,
+        copyFrom: 'Old chain',
+        copyRules: [copied],
+        suggestions: [suggestions.first],
+        componentName: 'New chain',
+        componentTypeLabel: 'Chain',
+      );
+
+      double panelHeight(WidgetTester tester) => tester
+          .getSize(find.ancestor(of: find.text('Recommended for Chain'), matching: find.byType(SizeTransition)).first)
+          .height;
+
+      testWidgets('grows the panel in over time', (tester) async {
+        await pumpSheet(tester, openWithHiddenPanel);
+
+        await tester.tap(find.text('Kette prüfen'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+        final midHeight = panelHeight(tester);
+
+        await tester.pumpAndSettle();
+        final fullHeight = panelHeight(tester);
+        expect(midHeight, greaterThan(0));
+        expect(midHeight, lessThan(fullHeight));
+      });
+
+      testWidgets('shows the panel at full size in one frame when animations are disabled', (tester) async {
+        tester.platformDispatcher.accessibilityFeaturesTestValue = const FakeAccessibilityFeatures(
+          disableAnimations: true,
+        );
+        addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+        await pumpSheet(tester, openWithHiddenPanel);
+
+        await tester.tap(find.text('Kette prüfen'));
+        await tester.pump();
+        final firstFrameHeight = panelHeight(tester);
+
+        await tester.pumpAndSettle();
+        expect(firstFrameHeight, greaterThan(0));
+        expect(firstFrameHeight, panelHeight(tester));
+      });
     });
 
     testWidgets('splits the result into copied rules and suggestions', (tester) async {

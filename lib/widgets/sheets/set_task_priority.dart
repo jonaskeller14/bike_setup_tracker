@@ -11,6 +11,7 @@ Future<void> showSetTaskPrioritySheet({
 }) {
   return radioGroupSheet<TaskPriority>(
     context: context,
+    leadingIcon: const Icon(TaskPriority.iconData),
     title: "Task Priority",
     value: currentPriority,
     optionWidgets: Map.fromEntries(

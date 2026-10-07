@@ -3,12 +3,18 @@ import 'dart:io';
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/attachment.dart';
+import 'package:bike_setup_tracker/models/bike.dart';
+import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/component/installation.dart';
+import 'package:bike_setup_tracker/models/task/task_association.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
+import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
 import 'package:bike_setup_tracker/pages/forms/task_rule_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/attachment_strip.dart';
+import 'package:bike_setup_tracker/widgets/task_preset_chips.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -17,8 +23,10 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MockSubscriptionService extends Mock implements SubscriptionService {
+  MockSubscriptionService({this.hasStravaEntitlement = false});
+
   @override
-  bool get hasStravaEntitlement => false;
+  final bool hasStravaEntitlement;
 }
 
 void main() {
@@ -27,6 +35,7 @@ void main() {
   late AppDatabase database;
   late AppRepository appRepository;
   late AppSettings appSettings;
+  late bool hasStravaEntitlement;
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
@@ -34,6 +43,7 @@ void main() {
     appRepository = AppRepository(database);
     appSettings = AppSettings();
     appSettings.enableTaskTags = true;
+    hasStravaEntitlement = false;
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
       pathProviderChannel,
       (call) async => Directory.systemTemp.path,
@@ -72,7 +82,7 @@ void main() {
         providers: [
           ChangeNotifierProvider.value(value: appSettings),
           ChangeNotifierProvider.value(value: appRepository),
-          ChangeNotifierProvider<SubscriptionService>(create: (_) => MockSubscriptionService()),
+          ChangeNotifierProvider<SubscriptionService>(create: (_) => MockSubscriptionService(hasStravaEntitlement: hasStravaEntitlement)),
         ],
         child: MaterialApp(
           theme: theme ?? materialAppTheme,
@@ -239,5 +249,196 @@ void main() {
 
       expect((result! as TaskRule).presetKey, 'fork:lower_leg_service');
     });
+  });
+
+  group('TaskRulePage preset chips', () {
+    final bike = Bike(id: 'b1', name: 'Test Bike', person: null);
+    final chain = Component(
+      id: 'ch1',
+      name: 'Chain',
+      componentType: ComponentType.chain,
+      installations: [Installation.sinceBeginning(parent: 'b1')],
+      adjustments: const [],
+    );
+    final wheel = Component(
+      id: 'w1',
+      name: 'Rear Wheel',
+      componentType: ComponentType.wheelRear,
+      installations: [Installation.sinceBeginning(parent: 'b1')],
+      adjustments: const [],
+    );
+
+    void enableTaskPresets() {
+      appSettings
+        ..enableTask = true
+        ..enableTaskInterval = true
+        ..enableComponentPresets = true
+        ..enableTaskPresets = true;
+    }
+
+    /// Stores the test data and reloads the repository, so it is in memory
+    /// before the form opens.
+    Future<void> seed(WidgetTester tester, {List<TaskRule> rules = const []}) async {
+      await tester.runAsync(() async {
+        await appRepository.addBikes([bike]);
+        await appRepository.addComponents([chain, wheel]);
+        await appRepository.addTaskRules(rules);
+        await Future<void>.delayed(Duration.zero);
+        await appRepository.disposeAndAwaitCancellation();
+        appRepository = AppRepository(database);
+        await appRepository.initialDataLoaded;
+      });
+    }
+
+    Finder chip(String name) => find.widgetWithText(ActionChip, name);
+
+    Future<void> pickAssociation(WidgetTester tester, String label) async {
+      await tester.tap(find.ancestor(of: find.text('Linked To'), matching: find.byType(InkWell)).first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.descendant(of: find.byType(BottomSheet), matching: find.text(label)).last);
+      // The picker closes after a short delay that shows the selection.
+      await tester.pump(const Duration(milliseconds: 250));
+      await tester.pumpAndSettle();
+    }
+
+    Future<TaskRule> save(WidgetTester tester) async {
+      await tester.tap(find.byIcon(Icons.check));
+      await tester.pumpAndSettle();
+      return result! as TaskRule;
+    }
+
+    testWidgets('a chip fills the form, hides the row and saves its presetKey', (tester) async {
+      enableTaskPresets();
+      hasStravaEntitlement = true;
+      await seed(tester);
+      await openForm(tester, () => TaskRulePage.addForComponent(componentId: 'ch1'));
+
+      expect(chip('Check chain wear'), findsOneWidget);
+      expect(chip('Replace chain'), findsOneWidget);
+
+      await tester.tap(chip('Check chain wear'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(TaskPresetChips), findsNothing);
+      expect(tester.widget<PopScope>(find.byType(PopScope)).canPop, isFalse);
+      final saved = await save(tester);
+      expect(saved.name, 'Check chain wear');
+      expect(saved.presetKey, 'chain:wear_check');
+      expect(saved.association, const ComponentTaskAssociation('ch1'));
+      expect(saved.interval, const DistanceThreshold(500000));
+      expect(saved.repeat, isTrue);
+      expect(saved.notes, isNot(contains('Recommended interval')));
+    });
+
+    testWidgets('consumed templates get no chip', (tester) async {
+      enableTaskPresets();
+      hasStravaEntitlement = true;
+      await seed(
+        tester,
+        rules: [
+          TaskRule(
+            name: 'Measure stretch',
+            tags: const {},
+            association: const ComponentTaskAssociation('ch1'),
+            presetKey: 'chain:wear_check',
+          ),
+        ],
+      );
+      await openForm(tester, () => TaskRulePage.addForComponent(componentId: 'ch1'));
+
+      expect(chip('Check chain wear'), findsNothing);
+      expect(chip('Replace chain'), findsOneWidget);
+    });
+
+    testWidgets('without Strava, the fallback interval is filled and ride-only templates have no chip', (tester) async {
+      enableTaskPresets();
+      await seed(tester);
+      await openForm(tester, () => TaskRulePage.addForComponent(componentId: 'ch1'));
+
+      expect(chip('Replace chain'), findsNothing);
+      expect(chip('Clean & lube chain'), findsNothing);
+
+      await tester.tap(chip('Check chain wear'));
+      await tester.pumpAndSettle();
+      expect(find.text('month'), findsOneWidget);
+
+      final saved = await save(tester);
+      expect(saved.interval, const DurationThreshold(Duration(days: 30)));
+      expect(saved.presetKey, 'chain:wear_check');
+    });
+
+    testWidgets('no chips with presets off', (tester) async {
+      await seed(tester);
+      await openForm(tester, () => TaskRulePage.addForComponent(componentId: 'ch1'));
+
+      expect(find.byType(TaskPresetChips), findsNothing);
+    });
+
+    for (final (label, page) in [
+      ('a bike association', () => TaskRulePage.addForBike(bikeId: 'b1')),
+      ('edit mode', () => TaskRulePage.edit(taskRule: rule().copyWith(association: const ComponentTaskAssociation('ch1')))),
+    ]) {
+      testWidgets('no chips for $label', (tester) async {
+        enableTaskPresets();
+        await seed(tester);
+        await openForm(tester, page);
+
+        expect(find.byType(TaskPresetChips), findsNothing);
+      });
+    }
+
+    testWidgets('picking a component later shows its chips', (tester) async {
+      enableTaskPresets();
+      await seed(tester);
+      await openForm(tester, () => TaskRulePage.add());
+      expect(find.byType(TaskPresetChips), findsNothing);
+
+      await pickAssociation(tester, 'Rear Wheel');
+
+      expect(chip('Spoke tension check'), findsOneWidget);
+    });
+
+    testWidgets('switching to a bike after a chip tap drops the key', (tester) async {
+      enableTaskPresets();
+      await seed(tester);
+      await openForm(tester, () => TaskRulePage.addForComponent(componentId: 'ch1'));
+
+      await tester.tap(chip('Check chain wear'));
+      await tester.pumpAndSettle();
+      await pickAssociation(tester, 'Test Bike');
+
+      final saved = await save(tester);
+      expect(saved.name, 'Check chain wear');
+      expect(saved.association, const BikeTaskAssociation('b1'));
+      expect(saved.presetKey, isNull);
+    });
+
+    testWidgets('switching to a component of another type drops the key and offers its chips', (tester) async {
+      enableTaskPresets();
+      await seed(tester);
+      await openForm(tester, () => TaskRulePage.addForComponent(componentId: 'ch1'));
+
+      await tester.tap(chip('Check chain wear'));
+      await tester.pumpAndSettle();
+      await pickAssociation(tester, 'Rear Wheel');
+
+      expect(chip('Spoke tension check'), findsOneWidget);
+      expect((await save(tester)).presetKey, isNull);
+    });
+
+    for (final (label, theme) in [('light', materialAppTheme), ('dark', materialAppDarkTheme)]) {
+      testWidgets('the chip row fits a narrow screen ($label)', (tester) async {
+        tester.view.physicalSize = const Size(320, 800);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+        enableTaskPresets();
+        hasStravaEntitlement = true;
+        await seed(tester);
+        await openForm(tester, () => TaskRulePage.addForComponent(componentId: 'ch1'), theme: theme);
+
+        expect(find.byType(TaskPresetChips), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      });
+    }
   });
 }

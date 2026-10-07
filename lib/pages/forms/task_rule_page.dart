@@ -14,6 +14,7 @@ import '../../models/component/component.dart';
 import '../../models/component/component_ancestor.dart';
 import '../../models/task/task_association.dart';
 import '../../models/task/task_rule.dart';
+import '../../models/task/task_template.dart';
 import '../../models/task/task_threshold/task_threshold.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/attachment_storage_service.dart';
@@ -21,6 +22,8 @@ import '../../services/component_hierarchy_resolver.dart';
 import '../../services/subscription_service.dart';
 import '../../theme.dart';
 import '../../utils/attachment_actions.dart';
+import '../../utils/task_preset_resolver.dart';
+import '../../utils/task_presets.dart';
 import '../../widgets/attachment_strip.dart';
 import '../../widgets/component_ancestor_display.dart';
 import '../../widgets/dialogs/discard_changes.dart';
@@ -29,6 +32,7 @@ import '../../widgets/sheets/set_task_delay.dart';
 import '../../widgets/sheets/set_task_priority.dart';
 import '../../widgets/sheets/strava.dart';
 import '../../widgets/sheets/task_association_picker.dart';
+import '../../widgets/task_preset_chips.dart';
 import '../../widgets/text/section_title.dart';
 
 enum TaskRulePageMode { add, edit, duplicate }
@@ -121,6 +125,12 @@ class _TaskRulePageState extends State<TaskRulePage> {
   _DurationUnit _intervalDurationUnit = _DurationUnit.days;
   _DurationUnit _delayDurationUnit = _DurationUnit.days;
 
+  String? _presetKey;
+
+  /// Type of the component a chip filled the form for; `null` when the key
+  /// (if any) came with the rule.
+  ComponentType? _presetComponentType;
+
   List<Attachment> _attachments = [];
   String? _attachmentsDirPath;
   final List<Attachment> _importedAttachments = [];
@@ -141,6 +151,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
 
     _association = widget.taskRule?.association ?? widget.initialAssociation ?? const GeneralTaskAssociation();
     _initialAssociation = _association;
+    _presetKey = widget.taskRule?.presetKey;
 
     final appRepository = context.read<AppRepository>();
     _tags.addAll(widget.taskRule?.tags ?? appRepository.filters.taskRule.tags);
@@ -585,9 +596,59 @@ class _TaskRulePageState extends State<TaskRulePage> {
         isDeleted: false,
         lastModified: DateTime.now().toUtc(),
         attachments: _attachments,
-        presetKey: widget.taskRule?.presetKey,
+        presetKey: _presetKey,
       ),
     );
+  }
+
+  /// Suggestions for the linked component, offered until one fills the form.
+  Widget? _presetChips(AppSettings appSettings, AppRepository appRepository, bool hasStravaEntitlement) {
+    if (widget.mode != TaskRulePageMode.add || !appSettings.showTaskPresets || _presetKey != null) return null;
+    final component = appRepository.components[_association.componentId];
+    if (component == null) return null;
+    final suggestions = taskSuggestionsFor(
+      component,
+      existingRules: appRepository.taskRules.values,
+      hasStravaEntitlement: hasStravaEntitlement,
+    );
+    if (suggestions.isEmpty) return null;
+    return TaskPresetChips(
+      suggestions: suggestions,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      onSelected: (suggestion) => _applySuggestion(suggestion, component),
+    );
+  }
+
+  void _applySuggestion(TaskSuggestion suggestion, Component component) {
+    unawaited(HapticFeedback.selectionClick());
+    final appSettings = context.read<AppSettings>();
+    final rule = suggestion.toTaskRule(
+      component.id,
+      distanceUnit: appSettings.distanceUnit,
+      altitudeUnit: appSettings.altitudeUnit,
+    );
+    final interval = rule.interval;
+    setState(() {
+      _presetKey = rule.presetKey;
+      _presetComponentType = component.componentType;
+      _priority = rule.priority;
+      _repeat = rule.repeat;
+      _intervalType = _getThresholdType(interval);
+      if (interval case DurationThreshold(:final days)) _intervalDurationUnit = _DurationUnit.forDuration(days);
+    });
+    _nameController.text = rule.name;
+    _notesController.text = rule.notes ?? '';
+    _intervalValueController.text = _getThresholdValueString(interval, _intervalDurationUnit);
+  }
+
+  /// A chip's key only fits components its template applies to; a key that
+  /// came with the rule always stays.
+  bool _keepsPresetKey(TaskAssociation association) {
+    final presetType = _presetComponentType;
+    if (presetType == null) return true;
+    final type = context.read<AppRepository>().components[association.componentId]?.componentType;
+    if (type == null) return false;
+    return type == presetType || (taskPresets[type]?.any((template) => template.key == _presetKey) ?? false);
   }
 
   void _handlePopInvoked(bool didPop, dynamic result) async {
@@ -863,7 +924,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
         if (enableTaskPriority)
           ActionChip(
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            avatar: const Icon(Icons.traffic),
+            avatar: const Icon(TaskPriority.iconData),
             label: Text(_priority.label),
             backgroundColor: widget.mode == TaskRulePageMode.edit && _priority != widget.taskRule?.priority ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
             onPressed: () => showSetTaskPrioritySheet(
@@ -1017,7 +1078,13 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                       : null,
                                 );
                                 if (picked == null) return;
-                                setState(() => _association = picked);
+                                setState(() {
+                                  _association = picked;
+                                  if (!_keepsPresetKey(picked)) {
+                                    _presetKey = null;
+                                    _presetComponentType = null;
+                                  }
+                                });
                                 field.didChange(picked);
                                 _changeListener();
                               },
@@ -1044,6 +1111,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                       ],
                     ),
                   ),
+                  ?_presetChips(appSettings, appRepository, hasStravaEntitlement),
                   if (appSettings.enableTaskInterval) ...[
                     const SizedBox(height: 16),
                     const Divider(height: 1),

@@ -220,20 +220,17 @@ void main() {
       expect(created.priority, TaskPriority.high);
       expect(created.repeat, isTrue);
       expect(created.interval, const DistanceThreshold(2000000));
-      expect(created.notes, 'Recommended interval: every 2,000 km (generic)');
+      expect(created.notes, isNull);
     });
 
-    test('appends the source line to the template notes', () {
+    test('keeps the template notes without an interval line for a generic interval', () {
       final suggestion = taskSuggestionsFor(
         component(ComponentType.chain),
         existingRules: const [],
         hasStravaEntitlement: true,
       ).firstWhere((s) => s.key == 'chain:wear_check');
 
-      final notes = suggestion.toTaskRule('c1').notes!;
-
-      expect(notes, startsWith('${suggestion.notes}\n\n'));
-      expect(notes, endsWith('Recommended interval: every 500 km (generic)'));
+      expect(suggestion.toTaskRule('c1').notes, suggestion.notes);
     });
 
     test('uses the fallback wording without Strava', () {

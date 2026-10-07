@@ -233,7 +233,7 @@ class _HomePageState extends State<HomePage> {
                 actions: [
                   IconButton(
                     onPressed: _taskRuleSelection.isBusy ? null : _setPriorityForSelectedTaskRules,
-                    icon: const Icon(Icons.traffic),
+                    icon: const Icon(TaskPriority.iconData),
                     tooltip: 'Set priority',
                   ),
                   if (appSettings.enableTaskTags)

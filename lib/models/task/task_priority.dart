@@ -6,6 +6,7 @@ enum TaskPriority {
   high('High'),
   critical('Critical');
 
+  static const iconData = Icons.traffic;
   final String label;
   const TaskPriority(this.label);
 }

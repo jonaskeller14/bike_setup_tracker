@@ -96,7 +96,7 @@ class TaskSuggestion {
     final line = _recommendationLine(distanceUnit: distanceUnit, altitudeUnit: altitudeUnit);
     return TaskRule(
       name: name,
-      notes: notes == null ? line : '$notes\n\n$line',
+      notes: line == null ? notes : (notes == null ? line : '$notes\n\n$line'),
       priority: priority,
       tags: const <String>{},
       association: ComponentTaskAssociation(componentId),
@@ -106,13 +106,13 @@ class TaskSuggestion {
     );
   }
 
-  String _recommendationLine({required String distanceUnit, required String altitudeUnit}) {
-    final effective = taskIntervalLabel(interval, distanceUnit: distanceUnit, altitudeUnit: altitudeUnit);
+  /// `null` for a generic interval: the rule's own trigger already says it.
+  String? _recommendationLine({required String distanceUnit, required String altitudeUnit}) {
     final strava = stravaInterval;
+    if (strava == null && source == null) return null;
+    final effective = taskIntervalLabel(interval, distanceUnit: distanceUnit, altitudeUnit: altitudeUnit);
     final origin = strava != null
         ? ' (time-based; ${taskIntervalLabel(strava, distanceUnit: distanceUnit, altitudeUnit: altitudeUnit)} with Strava)'
-        : source == null
-        ? ' (generic)'
         : '';
     final sourceSuffix = source == null ? '' : ' — $source';
     return 'Recommended interval: $effective$origin$sourceSuffix';

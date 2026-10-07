@@ -50,32 +50,35 @@ class ComponentStatsBar extends StatelessWidget {
       ],
     );
 
-    return Container(
-      padding: padding,
-      decoration: BoxDecoration(
-        color: backgroundColor ?? colorScheme.onSurface.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Wrap(
-        spacing: 8,
-        runSpacing: 2,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        children: [
-          ?leading,
-          item(
-            Icons.route,
-            '${fmt.format(AppSettings.convertDistanceFromMeters(stats.distance, appSettings.distanceUnit)!.round())} ${appSettings.distanceUnit}',
-          ),
-          item(
-            Icons.terrain,
-            '${fmt.format(AppSettings.convertElevationFromMeters(stats.elevationGain, appSettings.altitudeUnit)!.round())} ${appSettings.altitudeUnit}',
-          ),
-          item(
-            Icons.timer_outlined,
-            '${fmt.format(stats.movingTime.inHours)}h ${stats.movingTime.inMinutes.remainder(60)}m',
-          ),
-          item(Icons.repeat, fmt.format(stats.activityCount)),
-        ],
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: Alignment.centerLeft,
+      child: Container(
+        padding: padding,
+        decoration: BoxDecoration(
+          color: backgroundColor ?? colorScheme.onSurface.withValues(alpha: 0.06),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          spacing: 8,
+          children: [
+            ?leading,
+            item(
+              Icons.route,
+              '${fmt.format(AppSettings.convertDistanceFromMeters(stats.distance, appSettings.distanceUnit)!.round())} ${appSettings.distanceUnit}',
+            ),
+            item(
+              Icons.terrain,
+              '${fmt.format(AppSettings.convertElevationFromMeters(stats.elevationGain, appSettings.altitudeUnit)!.round())} ${appSettings.altitudeUnit}',
+            ),
+            item(
+              Icons.timer_outlined,
+              '${fmt.format(stats.movingTime.inHours)}h ${stats.movingTime.inMinutes.remainder(60)}m',
+            ),
+            item(Icons.repeat, fmt.format(stats.activityCount)),
+          ],
+        ),
       ),
     );
   }

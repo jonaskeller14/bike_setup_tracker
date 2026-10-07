@@ -24,7 +24,11 @@ sources:
   # Editorial — first model years only, never for click counts
   - https://www.mbr.co.uk/news/formula-launches-its-first-air-shock-called-the-nebbia-and-it-promises-high-performance-with-simplified-set-up-437962
   - https://www.mbr.co.uk/reviews/shocks/formula-mod-coil-shock
-updated: 2026-10-05
+updated: 2026-10-07
+# Service intervals (`tasks`) come from the owner's manuals cited above: Nebbia
+# air seals every 60 hours or 6 months and oil change every 125 hours or
+# 1 year (non-Yoke frames); MOD and MOD DH a full service every 200 hours or
+# 1 year.
 
 # --------------------------------------------------------------------------
 # Dampers
@@ -89,6 +93,9 @@ nodes:
     url: https://www.rideformula.com/products/mtb-shocks/nebbia/
     setup_guide: https://www.rideformula.com/wp-content/uploads/2024/07/Manuale-Utente-Nebbia-ENG.pdf
     specs: { spring: Air }
+    tasks:
+      shock:air_can_service: { interval: { moving_time_h: 60 }, fallback: { days: 180 }, source: Formula owner's manual }
+      shock:full_service: { interval: { moving_time_h: 125 }, fallback: { days: 365 }, source: Formula owner's manual }
     children:
       - label: Air
         level: trim
@@ -109,6 +116,8 @@ nodes:
     url: https://www.rideformula.com/products/mtb-shocks/mod/
     setup_guide: https://www.rideformula.com/wp-content/uploads/2020/09/MOD-Owner-Manual.pdf
     specs: { spring: Coil }
+    tasks: &formula_mod_service
+      shock:full_service: { interval: { moving_time_h: 200 }, fallback: { days: 365 }, source: Formula owner's manual }
     children:
       - label: Coil
         level: trim
@@ -129,6 +138,7 @@ nodes:
     url: https://www.rideformula.com/products/mtb-shocks/mod-dh/
     setup_guide: https://www.rideformula.com/wp-content/uploads/2020/09/MOD-Manuale-utente.pdf
     specs: { spring: Coil }
+    tasks: *formula_mod_service
     children:
       - label: Coil
         level: trim

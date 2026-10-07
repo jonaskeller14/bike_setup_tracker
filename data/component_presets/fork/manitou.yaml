@@ -49,7 +49,13 @@ sources:
   # Secondary — editorial (article body text only)
   - https://www.pinkbike.com/news/first-ride-the-manitou-mezzer-lt-class-leading-sensitivity.html
   - https://www.pinkbike.com/news/first-look-manitous-180mm-mezzer-pro-fork-and-mara-pro-shock-garda-trentino-2019.html
-updated: 2026-10-05
+  # Primary — service intervals
+  - https://hayesbicycle.zendesk.com/hc/en-us/articles/4407665097879-Suspension-Maintenance-Schedule
+updated: 2026-10-07
+# Service intervals (`tasks`) come from the Manitou suspension maintenance
+# schedule: lower legs every 50 hours, a full service every 200 hours or
+# yearly.
+#
 # Counting conventions, taken from the "Set-up notes" of every guide above:
 #   * Damper knobs are turned fully clockwise to reach the maximum "zero"
 #     position and are counted counterclockwise (opening) from there — i.e.
@@ -221,6 +227,9 @@ nodes:
   - label: "Mezzer"
     level: model
     category: Enduro
+    tasks: &manitou_service
+      fork:lower_leg_service: { interval: { moving_time_h: 50 }, source: Manitou maintenance schedule }
+      fork:full_service: { interval: { moving_time_h: 200 }, fallback: { days: 365 }, source: Manitou maintenance schedule }
     children:
       - label: "2026"
         level: generation
@@ -301,6 +310,7 @@ nodes:
     category: Enduro
     years: "2026"
     url: https://hayesbicycle.com/collections/mezzer-forks
+    tasks: *manitou_service
     children:
       - label: Pro
         level: trim
@@ -336,6 +346,7 @@ nodes:
     category: Trail
     years: "2023-2026"
     url: https://hayesbicycle.com/products/mattoc-pro
+    tasks: *manitou_service
     children:
       - label: Pro
         level: trim
@@ -387,6 +398,7 @@ nodes:
     years: "2024-2026"
     url: https://hayesbicycle.com/products/r8-pro
     setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/24504253740951
+    tasks: *manitou_service
     children:
       - label: Pro
         level: trim
@@ -409,6 +421,7 @@ nodes:
     category: Downhill
     years: "2022-2026"
     url: https://hayesbicycle.com/products/my22-dorado-pro
+    tasks: *manitou_service
     children:
       - label: Pro
         level: trim
@@ -463,6 +476,7 @@ nodes:
     category: Fat Bike
     years: "2023-2026"
     url: https://hayesbicycle.com/products/mastodon-pro
+    tasks: *manitou_service
     children:
       - label: Pro
         level: trim

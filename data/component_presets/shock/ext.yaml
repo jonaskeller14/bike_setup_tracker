@@ -43,7 +43,10 @@ sources:
   - https://extremeshox.com/wp-content/uploads/2023/09/ARMA-STORIA_V3_quick_manual.pdf
   - https://www.pinkbike.com/news/review-ext-storia-v3-shock.html
   - https://www.pinkbike.com/news/review-ext-arma-v4-one-of-the-best-mtb-shocks-gets-even-better.html
-updated: 2026-10-05
+updated: 2026-10-07
+# Service intervals (`tasks`) come from the quick manuals (the nodes'
+# `setup_guide`): every 100 hours or 1 year for amateur use (racing: 50 hours
+# or 6 months; the amateur figure is used).
 
 # --------------------------------------------------------------------------
 # Dampers
@@ -164,6 +167,8 @@ nodes:
     setup_guide: https://extremeshox.com/wp-content/uploads/2023/09/ARMA-STORIA_V3_quick_manual.pdf
     specs: { spring: Coil }
     note: Sold as "Storia V3-S" per the official quick manual; features a spring thrust bearing between spring and collar — do not omit it during spring install.
+    tasks: &ext_service
+      shock:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: EXT quick manual }
     children:
       - label: Metric Standard
         level: trim
@@ -196,6 +201,7 @@ nodes:
       Marketed as one of the lightest coil shocks available (397g without
       spring); 30%-lighter steel spring option; inline low-pressure (55psi)
       reservoir.
+    tasks: *ext_service
     children:
       - label: Metric Standard
         level: trim
@@ -217,6 +223,7 @@ nodes:
     url: https://extremeshox.com/product/arma-v3/
     setup_guide: https://extremeshox.com/wp-content/uploads/2023/09/ARMA-STORIA_V3_quick_manual.pdf
     specs: { spring: Coil }
+    tasks: *ext_service
     children:
       - label: Metric Standard
         level: trim
@@ -245,6 +252,7 @@ nodes:
     setup_guide: https://extremeshox.com/wp-content/uploads/2024/06/Arma-Storia-V4-Quick-Manual.pdf
     specs: { spring: Coil }
     note: Uses EV2S damper fluid; DLC-coated 14mm steel shaft.
+    tasks: *ext_service
     children:
       - label: Metric Standard
         level: trim
@@ -267,6 +275,7 @@ nodes:
     setup_guide: https://extremeshox.com/wp-content/uploads/2023/08/Quick-manual-Aria-min.pdf
     specs: { spring: Air }
     note: AS3 dual-positive-chamber air spring (2 dynamic seals separating 3 chambers); 28mm hydraulic main piston.
+    tasks: *ext_service
     children:
       - label: Metric Standard
         level: trim
@@ -290,6 +299,7 @@ nodes:
     url: https://extremeshox.com/product/ext-e-storia/
     setup_guide: https://extremeshox.com/wp-content/uploads/2023/09/e-Storia-quick-manual.pdf
     specs: { spring: Coil }
+    tasks: *ext_service
     children:
       - label: Metric Standard
         level: trim
@@ -315,6 +325,7 @@ nodes:
       Riders can adjust HSC/LSC with a common multi-tool (5mm/4mm Allen);
       harder negative spring to avoid top-out knock; low-pressure (55psi)
       air reservoir; factory-tuned HBC (not externally adjustable).
+    tasks: *ext_service
     children:
       - label: Metric Standard
         level: trim

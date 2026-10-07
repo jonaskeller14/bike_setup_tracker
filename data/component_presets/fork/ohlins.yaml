@@ -32,7 +32,16 @@ sources:
   # Editorial, used only for dialColor/dialSize (adjuster knob color/size), never for click counts
   - https://www.bikeperfect.com/reviews/ohlins-rxf34-m2-review
   - https://www.pinkbike.com/news/review-ohlins-rxf36-m2-trail-fork.html
-updated: 2026-10-05
+  # Primary — service intervals
+  - https://ohlins.com/storage/F1FD2667BEF6A26936BBE79CBD7BC4023A47B74CEF08518C26294D2B1AFF0A33/24e7fcb03154439ea9ae0b6150bcede7/pdf/media/55239c8bd8da48c19d511823f9b1c5c6/OM_07258-12_4_RXF36%20m3%20air%20front%20fork.pdf
+  - https://ohlins.com/storage/B799A00056AAEF9DE3E7BAB002F50562A6D1BA21B2998148273DF3D42E6199C0/4def7de90bca493cb2a999f99d34bdbf/pdf/media/fe3f1b241587489f98caf3f73ccd9139/OM_07258-07_7_MI_RXF36_m.2_AirCoil_TTX18.pdf
+updated: 2026-10-07
+# Service intervals (`tasks`) come from the maintenance table that every
+# Öhlins fork owner's manual cited above shares: lower legs every 50 hours,
+# and the air spring, lower-leg seals and damping cartridge every 100 hours or
+# once a year. The RXF DJ has no published manual, so it keeps the generic
+# templates.
+#
 # Click ranges taken from the individual product pages at ohlins.eu plus the
 # Öhlins owner's manuals linked above. Clicks are counted from fully closed
 # (firmest) → default `dial_ccw`.
@@ -196,6 +205,9 @@ nodes:
   - label: RXC34
     level: model
     category: XC
+    tasks: &ohlins_service
+      fork:lower_leg_service: { interval: { moving_time_h: 50 }, source: Öhlins owner's manual }
+      fork:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: Öhlins owner's manual }
     children:
       - label: m.1
         level: version
@@ -236,6 +248,7 @@ nodes:
   - label: RXF34
     level: model
     category: Downcountry / Trail
+    tasks: *ohlins_service
     children:
       - label: m.2
         level: version
@@ -257,6 +270,7 @@ nodes:
   - label: RXF36
     level: model
     category: Trail
+    tasks: *ohlins_service
     children:
       - label: m.2
         level: version
@@ -306,6 +320,7 @@ nodes:
   - label: RXF38
     level: model
     category: Enduro
+    tasks: *ohlins_service
     children:
       - label: m.2
         level: version
@@ -375,6 +390,7 @@ nodes:
   - label: DH38
     level: model
     category: Downhill
+    tasks: *ohlins_service
     children:
       - label: m.1
         level: version

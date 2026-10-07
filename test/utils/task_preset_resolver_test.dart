@@ -136,7 +136,7 @@ void main() {
         expect(suggestions.firstWhere((s) => s.key == 'fork:full_service').source, isNull);
       });
 
-      test('without Strava, an override without fallback keeps the generic fallback', () {
+      test('without Strava, an override without fallback leaves the generic template unchanged', () {
         final suggestions = taskSuggestionsFor(
           fork,
           existingRules: const [],
@@ -148,7 +148,29 @@ void main() {
 
         final lowerLeg = suggestions.firstWhere((s) => s.key == 'fork:lower_leg_service');
         expect(lowerLeg.interval, const DurationThreshold(Duration(days: 180)));
-        expect(lowerLeg.stravaInterval, const MovingTimeThreshold(Duration(hours: 125)));
+        expect(lowerLeg.stravaInterval, const MovingTimeThreshold(Duration(hours: 50)));
+        expect(lowerLeg.source, isNull);
+        expect(lowerLeg.toTaskRule('c1').notes, endsWith('Recommended interval: every 6 months (time-based; every 50 h with Strava)'));
+      });
+
+      test("without Strava, an override's own fallback applies with its source", () {
+        final suggestions = taskSuggestionsFor(
+          fork,
+          existingRules: const [],
+          hasStravaEntitlement: false,
+          overrides: const {
+            'fork:full_service': TaskTemplateOverride(
+              interval: MovingTimeThreshold(Duration(hours: 125)),
+              fallbackInterval: DurationThreshold(Duration(days: 365)),
+              source: foxSource,
+            ),
+          },
+        );
+
+        final full = suggestions.firstWhere((s) => s.key == 'fork:full_service');
+        expect(full.interval, const DurationThreshold(Duration(days: 365)));
+        expect(full.stravaInterval, const MovingTimeThreshold(Duration(hours: 125)));
+        expect(full.source, foxSource);
       });
 
       test('a brand-only key is added after the generic templates', () {

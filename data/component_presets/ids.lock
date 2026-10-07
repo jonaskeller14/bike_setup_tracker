@@ -84,6 +84,8 @@ fork/cane-creek/helm-works-series/air#travel_mm=110
 fork/cane-creek/helm-works-series/air#travel_mm=120
 fork/cane-creek/helm-works-series/air#travel_mm=130
 fork/cane-creek/helm-works-series/air#wheel_size=29
+fork/cannondale#task=fork:damper_inspection
+fork/cannondale#task=fork:telescope_service
 fork/cannondale/lefty-2-0
 fork/cannondale/lefty-2-0/pbr
 fork/cannondale/lefty-2-0/pbr#damper=lefty_2_2016
@@ -542,6 +544,7 @@ fork/fox/podium/factory#travel_mm=150
 fork/fox/podium/factory#travel_mm=160
 fork/fox/podium/factory#travel_mm=170
 fork/fox/podium/factory#wheel_size=29
+fork/intend#task=fork:upper_leg_service
 fork/intend/bandit
 fork/intend/bandit/standard
 fork/intend/bandit/standard#damper=closed_cartridge
@@ -888,6 +891,7 @@ fork/ohlins/rxfdj/m1/air-ttx18
 fork/ohlins/rxfdj/m1/air-ttx18#damper=ttx18_m2
 fork/ohlins/rxfdj/m1/air-ttx18#travel_mm=90
 fork/ohlins/rxfdj/m1/air-ttx18#wheel_size=26
+fork/rockshox#task=fork:air_spring_service
 fork/rockshox/boxxer
 fork/rockshox/boxxer/2019
 fork/rockshox/boxxer/2019/select

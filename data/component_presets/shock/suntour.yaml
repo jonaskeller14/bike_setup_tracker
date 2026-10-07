@@ -16,7 +16,11 @@ sources:
   - https://www.srsuntour.com/products/rear-shock/RS24-TRIAir2-R-METRIC-8207.html
   - https://www.srsuntour.com/products/rear-shock/RS25-Raidon-R-METRIC-8157.html
   - https://www.srsuntour.com/products/rear-shock/RS25-Raidon-LO-METRIC-8156.html
-updated: 2026-10-05
+updated: 2026-10-07
+# Service intervals (`tasks`) come from the general rear shock manual cited
+# above: a full service including damper rebuild and air seal replacement
+# every 100 hours or annually.
+#
 # Function codes on SR SUNTOUR's rear-shock spec tables ("R", "RC", "2CR",
 # "3CR", "LO") follow the same PCS naming convention documented for their
 # forks (fork/suntour.yaml / the suspension-fork glossary): R = rebound-only,
@@ -124,6 +128,8 @@ nodes:
     url: https://www.srsuntour.com/products/rear-shock/RS25-EDGE-EVO-2CR-METRIC-8187.html
     setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/Rear%20Shock%20Manual/MY19_EN_General_Rear_shock_manual-20200623.pdf
     specs: { spring: Air }
+    tasks: &suntour_service
+      shock:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: SR Suntour owner's manual }
     children:
       - label: 2CR
         level: trim
@@ -160,6 +166,7 @@ nodes:
     url: https://www.srsuntour.com/products/rear-shock/RS24-EDGE-X-2CR-METRIC-8194.html
     setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/Rear%20Shock%20Manual/MY19_EN_General_Rear_shock_manual-20200623.pdf
     specs: { spring: Air }
+    tasks: *suntour_service
     children:
       - label: 2CR
         level: trim
@@ -185,6 +192,7 @@ nodes:
     url: https://www.srsuntour.com/products/rear-shock/RS24-TRIAir2-3CR-METRIC-8203.html
     setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/Rear%20Shock%20Manual/MY19_EN_General_Rear_shock_manual-20200623.pdf
     specs: { spring: Air }
+    tasks: *suntour_service
     children:
       - label: 3CR
         level: trim
@@ -218,6 +226,7 @@ nodes:
     url: https://www.srsuntour.com/products/rear-shock/RS25-Raidon-R-METRIC-8157.html
     setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/Rear%20Shock%20Manual/MY19_EN_General_Rear_shock_manual-20200623.pdf
     specs: { spring: Air }
+    tasks: *suntour_service
     children:
       - label: R
         level: trim

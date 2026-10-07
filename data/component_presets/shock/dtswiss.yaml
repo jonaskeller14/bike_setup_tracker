@@ -23,7 +23,11 @@ sources:
   - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/03/02/9/MAN_CXD10000003029S_WEB_ZZ_001.pdf
   # Secondary — editorial (article body text only)
   - https://www.pinkbike.com/news/first-ride-dt-swisss-new-232-one-platform.html
-updated: 2026-10-05
+updated: 2026-10-07
+# Service intervals (`tasks`) come from the user manuals cited above: a small
+# service every 50 operating hours (mapped to the air-can service) and a full
+# service annually or after 200 operating hours.
+#
 # Counting conventions:
 #   * Rebound: the manuals describe "rotating the red rebound wheel by around 40
 #     clicks (shock with standard mount) or 22 clicks (shock with trunnion
@@ -118,6 +122,9 @@ nodes:
     url: https://www.dtswiss.com/en/suspension/shocks/r-535-one
     setup_guide: https://setupguide.dtswiss.com/en/
     specs: { spring: Air }
+    tasks: &dtswiss_service
+      shock:air_can_service: { interval: { moving_time_h: 50 }, source: DT Swiss user manual }
+      shock:full_service: { interval: { moving_time_h: 200 }, fallback: { days: 365 }, source: DT Swiss user manual }
     children:
       - label: Standard Mount
         level: trim
@@ -144,6 +151,7 @@ nodes:
     url: https://www.dtswiss.com/en/suspension/shocks/r-535
     setup_guide: https://setupguide.dtswiss.com/en/
     specs: { spring: Air }
+    tasks: *dtswiss_service
     children:
       - label: Standard Mount
         level: trim
@@ -169,6 +177,7 @@ nodes:
     url: https://www.dtswiss.com/en/suspension/shocks/r-232-one
     setup_guide: https://setupguide.dtswiss.com/en/
     specs: { spring: Air }
+    tasks: *dtswiss_service
     children:
       - label: Standard Mount
         level: trim

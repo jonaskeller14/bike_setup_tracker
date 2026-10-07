@@ -46,7 +46,17 @@ sources:
   - https://www.bikeradar.com/news/lefty-ocho-120-fork-debuts-on-cannondale-scalpel-se-ltd
   - https://www.bikeradar.com/reviews/components/forks/suspension-forks/cannondale-oliver-lefty-carbon-gravel-fork-review
   - https://www.pinkbike.com/news/cannondale-lefty-ocho-review-2018.html
-updated: 2026-10-05
+  # Primary — service intervals
+  - https://www.cannondale.com/-/media/files/manual-uploads/manuals/015_LEFTY%20OLIVER%20OMS%20133320_EN.pdf
+updated: 2026-10-07
+# Service intervals (`tasks`) come from the Lefty owner's manual supplements:
+#   * Ocho / Ocho 120: a "100 Hour Service" (telescope lubrication, air spring
+#     service, damper inspection) every 100 hours or annually, and a full
+#     service every 200 hours or every two years.
+#   * Oliver (2016) / Lefty 2.0 (MY16): telescope lubrication every 100 hours,
+#     an air spring and damper inspection every 100 (Oliver) or 50 (2.0) hours
+#     or yearly, and a full service every 200 hours.
+# A Lefty has no lower legs, so the telescope service is a brand-only task.
 
 # --------------------------------------------------------------------------
 # Dampers
@@ -138,6 +148,14 @@ nodes:
     source:
       - https://www.cannondale.com/en-gb/owners-manuals/-/media/files/manual-uploads/my21/021_138227_oms_lefty%20ocho_120_pdfs_021_138227_oms_lefty%20ocho_en.pdf
       - https://www.bikeradar.com/news/lefty-ocho-120-fork-debuts-on-cannondale-scalpel-se-ltd
+    tasks: &lefty_ocho_service
+      fork:telescope_service:
+        name: Telescope service
+        interval: { moving_time_h: 100 }
+        fallback: { days: 365 }
+        preselected: true
+        source: Lefty Ocho owner's manual
+      fork:full_service: { interval: { moving_time_h: 200 }, fallback: { days: 730 }, source: Lefty Ocho owner's manual }
     children:
       - label: Carbon
         level: trim
@@ -168,6 +186,7 @@ nodes:
     source:
       - https://www.cannondale.com/-/media/files/manual-uploads/manuals/018_%20lefty%20ocho_134923_screen_en.pdf
       - https://www.bikeradar.com/news/everything-you-need-to-know-about-the-new-cannondale-lefty-ocho-fork
+    tasks: *lefty_ocho_service
     children:
       - label: Carbon
         level: trim
@@ -205,6 +224,10 @@ nodes:
     source:
       - https://www.cannondale.com/en/gear/components/suspension/lefty-oliver/lefty-oliver-carbon
       - https://www.bikeradar.com/reviews/components/forks/suspension-forks/cannondale-oliver-lefty-carbon-gravel-fork-review
+    tasks:
+      fork:telescope_service: { name: Telescope service, preselected: true, interval: { moving_time_h: 100 }, source: Lefty Oliver owner's manual }
+      fork:damper_inspection: { name: "Air spring & damper inspection", preselected: true, interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: Lefty Oliver owner's manual }
+      fork:full_service: { interval: { moving_time_h: 200 }, source: Lefty Oliver owner's manual }
     children:
       - label: Carbon
         level: trim
@@ -231,6 +254,10 @@ nodes:
     # Travel/wheel combinations (100/29, 100/27.5, 120/27.5, 130/27.5) and the
     # 50-225 psi pressure limits: 2016 Lefty Owner's Manual Supplement 133095 p.2, p.15.
     source: https://www.cannondale.com/-/media/files/manual-uploads/manuals/133095%20MY16%20LEFTY%20OMS_EN.pdf
+    tasks:
+      fork:telescope_service: { name: Telescope service, preselected: true, interval: { moving_time_h: 100 }, source: Lefty owner's manual }
+      fork:damper_inspection: { name: "Air spring & damper inspection", preselected: true, interval: { moving_time_h: 50 }, fallback: { days: 365 }, source: Lefty owner's manual }
+      fork:full_service: { interval: { moving_time_h: 200 }, source: Lefty owner's manual }
     children:
       - label: PBR
         level: trim

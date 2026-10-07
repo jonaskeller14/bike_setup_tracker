@@ -52,7 +52,11 @@ sources:
   # editorial coverage, which SCHEMA.md allows as a secondary tier.
   - https://www.bikeradar.com/reviews/components/forks/suspension-forks/dvo-emerald-inverted-downhill-fork-review
   - https://www.pinkbike.com/news/dvo-emerald-review-2014.html
-updated: 2026-10-05
+updated: 2026-10-07
+# Service intervals (`tasks`) come from DVO's general fork owner's manual
+# (Fork Tuning Guide 2017): lower legs every 50 hours, air spring and damper
+# cartridge every 100 hours, no time-based interval. DVO publishes no shock
+# schedule.
 
 # --------------------------------------------------------------------------
 # Dampers
@@ -248,6 +252,9 @@ nodes:
     note: >-
       Also sold as co-branded "D1 x RENEN" and "SL x WP" editions, which share this
       chassis and its adjusters.
+    tasks: &dvo_service
+      fork:lower_leg_service: { interval: { moving_time_h: 50 }, source: DVO fork owner's manual }
+      fork:full_service: { interval: { moving_time_h: 100 }, source: DVO fork owner's manual }
     children:
       - label: D1
         level: trim
@@ -300,6 +307,7 @@ nodes:
     category: Trail / Enduro
     years: "2024-2026"
     url: https://dvosuspension.com/product/diamond-36-core/
+    tasks: *dvo_service
     children:
       - label: CORE
         level: trim
@@ -339,6 +347,7 @@ nodes:
     # Max air pressure 150 PSI for D3/E3 from the DVO Fork Set-Up Guide 2020 v4,
     # p.6: "Do Not Exceed Maximum Air Pressure! ... Diamond D3-E3: 150 PSI".
     source: https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
+    tasks: *dvo_service
     children:
       - label: D3
         level: trim
@@ -369,6 +378,7 @@ nodes:
     # "Sapphire 34 D1: 150 PSI". Travel / wheel size / offset are not stated in
     # that guide and DVO's Sapphire product pages serve an empty cart page.
     source: https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
+    tasks: *dvo_service
     children:
       - label: D1
         level: trim
@@ -389,6 +399,7 @@ nodes:
     years: "2019-2026"
     url: https://tech.dvosuspension.com/setup/sapphire-series/
     setup_guide: https://tech.dvosuspension.com/setup/sapphire-series/
+    tasks: *dvo_service
     children:
       - label: D1
         level: trim
@@ -408,6 +419,7 @@ nodes:
     # Max air pressure 130 PSI from the DVO Fork Set-Up Guide 2020 v4, p.6:
     # "Onyx SC D1-D2-E1-E2: 130 PSI".
     source: https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
+    tasks: *dvo_service
     children:
       - label: D2
         level: trim
@@ -429,6 +441,7 @@ nodes:
     # Max air pressure 140 PSI from the DVO Fork Set-Up Guide 2020 v4, p.6:
     # "Onyx DC: 140 PSI".
     source: https://tech.dvosuspension.com/wp-content/uploads/2020/09/DVO-Set-Up-Guide-2020-v4.pdf
+    tasks: *dvo_service
     children:
       - label: D1
         level: trim
@@ -460,6 +473,7 @@ nodes:
       - https://tech.dvosuspension.com/setup/emerald/
       - https://www.bikeradar.com/reviews/components/forks/suspension-forks/dvo-emerald-inverted-downhill-fork-review
       - https://www.pinkbike.com/news/dvo-emerald-review-2014.html
+    tasks: *dvo_service
     children:
       - label: Standard
         level: trim

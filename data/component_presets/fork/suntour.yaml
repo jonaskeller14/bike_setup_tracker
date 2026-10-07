@@ -24,7 +24,11 @@ sources:
   - https://www.srsuntour.com/products/fork/SF25-AXON34-Werx-Boost-8059.html
   - https://www.srsuntour.com/products/fork/SF20-AXON34-Elite-Boost-8061.html
   - https://www.srsuntour.com/products/fork/SF25-RAIDON34-Boost-8070.html
-updated: 2026-10-05
+updated: 2026-10-07
+# Service intervals (`tasks`) come from the MY25 general fork manual cited
+# above, which lists every fork here: a dealer check every 50 hours and a
+# full service every 100 hours or once a year.
+#
 # SR SUNTOUR's PCS ("Piston Compensator System") cartridges are named by their
 # externally-adjustable function rather than a marketing name: RC+ / RC2 / RC
 # are continuously-adjustable dial-type compression/rebound circuits; 3CR / 2CR
@@ -139,6 +143,8 @@ nodes:
     years: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-RUX38-Boost-8390.html
     setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_25_Suspension_Fork_Manuals/MY25_General_Fork_Manual_w_5TA__English_20240628.pdf
+    tasks: &suntour_service
+      fork:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: SR Suntour owner's manual }
     children:
       - label: Boost
         level: trim
@@ -160,6 +166,7 @@ nodes:
     years: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-DUROLUX36X-Boost-8049.html
     setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_25_Suspension_Fork_Manuals/MY25_General_Fork_Manual_w_5TA__English_20240628.pdf
+    tasks: *suntour_service
     children:
       - label: Boost
         level: trim
@@ -181,6 +188,7 @@ nodes:
     years: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-DUROLUX38-Boost-8051.html
     setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_25_Suspension_Fork_Manuals/MY25_General_Fork_Manual_w_5TA__English_20240628.pdf
+    tasks: *suntour_service
     children:
       - label: Standard
         level: trim
@@ -212,6 +220,7 @@ nodes:
     years: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-AION36-Boost-8057.html
     setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_25_Suspension_Fork_Manuals/MY25_General_Fork_Manual_w_5TA__English_20240628.pdf
+    tasks: *suntour_service
     children:
       - label: Boost
         level: trim
@@ -231,6 +240,7 @@ nodes:
     years: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-AION38X-Boost-8053.html
     setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_25_Suspension_Fork_Manuals/MY25_General_Fork_Manual_w_5TA__English_20240628.pdf
+    tasks: *suntour_service
     children:
       - label: Boost
         level: trim
@@ -251,6 +261,7 @@ nodes:
     years: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-AURON36-Boost-8244.html
     setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_25_Suspension_Fork_Manuals/MY25_General_Fork_Manual_w_5TA__English_20240628.pdf
+    tasks: *suntour_service
     children:
       - label: Boost
         level: trim
@@ -270,6 +281,7 @@ nodes:
     years: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-ZERON36-Boost-8138.html
     setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_25_Suspension_Fork_Manuals/MY25_General_Fork_Manual_w_5TA__English_20240628.pdf
+    tasks: *suntour_service
     children:
       - label: Boost
         level: trim
@@ -289,6 +301,7 @@ nodes:
     years: "2026"
     url: https://www.srsuntour.com/products/fork/SF26-ZERON36X-Boost-8140.html
     setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_25_Suspension_Fork_Manuals/MY25_General_Fork_Manual_w_5TA__English_20240628.pdf
+    tasks: *suntour_service
     children:
       - label: Boost
         level: trim
@@ -312,6 +325,7 @@ nodes:
     years: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-AXON34-Boost-8060.html
     setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_25_Suspension_Fork_Manuals/MY25_General_Fork_Manual_w_5TA__English_20240628.pdf
+    tasks: *suntour_service
     children:
       - label: Boost
         level: trim
@@ -330,6 +344,7 @@ nodes:
     years: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-AXON34-Werx-Boost-8059.html
     setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_25_Suspension_Fork_Manuals/MY25_General_Fork_Manual_w_5TA__English_20240628.pdf
+    tasks: *suntour_service
     children:
       - label: Werx
         level: trim
@@ -361,6 +376,7 @@ nodes:
     years: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-RAIDON34-Boost-8070.html
     setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_25_Suspension_Fork_Manuals/MY25_General_Fork_Manual_w_5TA__English_20240628.pdf
+    tasks: *suntour_service
     children:
       - label: Boost
         level: trim

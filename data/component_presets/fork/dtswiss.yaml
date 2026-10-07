@@ -26,7 +26,11 @@ sources:
   # Secondary — editorial (article body text only)
   - https://enduro-mtb.com/en/dt-swiss-f-535-and-f-535-one-forks-test/
   - https://www.pinkbike.com/news/first-ride-dt-swisss-new-232-one-platform.html
-updated: 2026-10-05
+updated: 2026-10-07
+# Service intervals (`tasks`) come from the user manuals cited above: a small
+# service every 50 operating hours and a full service annually or after 200
+# operating hours.
+#
 # Counting conventions:
 #   * Rebound is counted from fully OPEN (fastest): the F 535 / F 535 ONE user
 #     manual's rebound-recommendation table is headed "Rebound clicks (from
@@ -110,6 +114,9 @@ nodes:
     years: "2023-2026"
     url: https://www.dtswiss.com/en/suspension/forks/f-535-one
     setup_guide: https://setupguide.dtswiss.com/en/
+    tasks: &dtswiss_service
+      fork:lower_leg_service: { interval: { moving_time_h: 50 }, source: DT Swiss user manual }
+      fork:full_service: { interval: { moving_time_h: 200 }, fallback: { days: 365 }, source: DT Swiss user manual }
     children:
       - label: Standard
         level: trim
@@ -134,6 +141,7 @@ nodes:
     years: "2023-2026"
     url: https://www.dtswiss.com/en/suspension/forks/f-535
     setup_guide: https://setupguide.dtswiss.com/en/
+    tasks: *dtswiss_service
     children:
       - label: Standard
         level: trim
@@ -156,6 +164,7 @@ nodes:
     years: "2020-2026"
     url: https://www.dtswiss.com/en/suspension/forks/f-232-one
     setup_guide: https://setupguide.dtswiss.com/en/
+    tasks: *dtswiss_service
     children:
       - label: Standard
         level: trim

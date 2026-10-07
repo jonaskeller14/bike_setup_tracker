@@ -22,7 +22,13 @@ sources:
   - https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-174-58_TuningGuide-revA.pdf
   - https://www.pinkbike.com/news/marzocchi-bomber-z1-review.html
   - https://nsmb.com/articles/marzocchi-bomber-z1-reviewed/
-updated: 2026-10-05
+  # Primary — service intervals
+  - https://tech.ridefox.com/img/help/page2839-HZFA/inline/605-00-255%20REV%20A%20-%202021%20Marzocchi%20Forks%20Owners%20Guide.pdf
+updated: 2026-10-07
+# Service intervals (`tasks`) come from the 2021 Marzocchi Forks Owner's Guide:
+# a full service (damper and air spring rebuild, bath oil and wipers) every
+# 125 hours or yearly. No separate lower-leg interval is published.
+#
 # Rebound/compression numbers below come from the official Marzocchi tuning
 # guides (PDFs hosted on tech.ridefox.com), not the marketing product pages,
 # which describe adjusters in prose only ("simple sweep adjuster") without
@@ -82,6 +88,8 @@ nodes:
     years: "2025-2026"
     url: https://bike.marzocchi.com/products/bomber-z1
     setup_guide: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-256_RevB_DJ-Z1_TuningGuide.pdf
+    tasks: &marzocchi_service
+      fork:full_service: { interval: { moving_time_h: 125 }, fallback: { days: 365 }, source: Marzocchi owner's guide }
     children:
       - label: Standard
         level: trim
@@ -102,6 +110,7 @@ nodes:
     years: "2025-2026"
     url: https://bike.marzocchi.com/products/bomber-z1-coil
     setup_guide: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-256_RevB_DJ-Z1_TuningGuide.pdf
+    tasks: *marzocchi_service
     children:
       - label: Coil
         level: trim
@@ -126,6 +135,7 @@ nodes:
     years: "2025-2026"
     url: https://bike.marzocchi.com/products/bomber-z2
     setup_guide: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-237-%20RevA_Z2_TuningGuide.pdf
+    tasks: *marzocchi_service
     children:
       - label: Standard
         level: trim
@@ -147,6 +157,7 @@ nodes:
     years: "2025-2026"
     url: https://bike.marzocchi.com/products/bomber-dj
     setup_guide: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-256_RevB_DJ-Z1_TuningGuide.pdf
+    tasks: *marzocchi_service
     children:
       - label: Standard
         level: trim
@@ -168,6 +179,7 @@ nodes:
     years: "2025-2026"
     url: https://bike.marzocchi.com/products/bomber-58
     setup_guide: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-174-58_TuningGuide-revA.pdf
+    tasks: *marzocchi_service
     children:
       - label: Standard
         level: trim

@@ -41,7 +41,7 @@ sources:
   - https://tech.ridefox.com/bike/owners-manuals/1040/fork--2020-36mm
   - https://tech.ridefox.com/bike/owners-manuals/1082/fork--2021-36mm-or-38mm
   - https://tech.ridefox.com/bike/owners-manuals/2930/fork--2024-36mm-or-38mm
-updated: 2026-10-05
+updated: 2026-10-07
 # Current-lineup click ranges were taken from the per-model spec tables on the
 # official FOX product pages (ridefox.com/pages/fox-<model>). Clicks are counted
 # from fully closed (firmest); an adjuster with "18 clicks" has range 0..18
@@ -51,6 +51,12 @@ updated: 2026-10-05
 # the FOX owner's manuals listed above — they are published PER TRAVEL, so each
 # trim's `max` is the highest figure across the travels that trim offers and the
 # per-travel breakdown is spelled out in the adjustment's `notes`.
+#
+# Service intervals (`tasks`) come from the "Recommended Minimum Fork
+# Maintenance" table, identical in every fork owner's manual from 2016 to 2027:
+# a full fork service every 125 hours or yearly, whichever comes first. That
+# service includes the bath oil and wipers; FOX publishes no separate lower-leg
+# interval, so only `fork:full_service` is overridden.
 
 # --------------------------------------------------------------------------
 # Dampers — click ranges shared across every fork that ships with the damper.
@@ -207,6 +213,8 @@ nodes:
     url: https://ridefox.com/pages/fox-32-taper-cast
     setup_guide: https://tech.ridefox.com/bike/owners-manuals/3104/fork--2026-32mm--or-34mm-(including-32-step-cast-and-32-taper-cast)
     note: 12x100 Kabolt thru-axle, integrated fender mounts
+    tasks: &fox_service
+      fork:full_service: { interval: { moving_time_h: 125 }, fallback: { days: 365 }, source: FOX owner's manual }
     children:
       - label: Factory
         level: trim
@@ -235,6 +243,7 @@ nodes:
     years: "2025-2026"
     url: https://ridefox.com/pages/fox-32-step-cast
     setup_guide: https://tech.ridefox.com/bike/owners-manuals/3104/fork--2026-32mm--or-34mm-(including-32-step-cast-and-32-taper-cast)
+    tasks: *fox_service
     children:
       - label: Factory
         level: trim
@@ -263,6 +272,7 @@ nodes:
     years: "2025-2026"
     url: https://ridefox.com/pages/fox-34-sl
     setup_guide: https://tech.ridefox.com/bike/owners-manuals/3087/fork--2026-34sl
+    tasks: *fox_service
     children:
       - label: Factory
         level: trim
@@ -301,6 +311,7 @@ nodes:
     years: "2025-2026"
     url: https://ridefox.com/pages/fox-34
     setup_guide: https://tech.ridefox.com/bike/owners-manuals/3104/fork--2026-32mm--or-34mm-(including-32-step-cast-and-32-taper-cast)
+    tasks: *fox_service
     children:
       - label: Factory
         level: trim
@@ -350,6 +361,7 @@ nodes:
     years: "2025-2026"
     url: https://ridefox.com/pages/fox-36-sl
     setup_guide: https://tech.ridefox.com/bike/owners-manuals/3088/fork--2026-36sl
+    tasks: *fox_service
     children:
       - label: Factory
         level: trim
@@ -385,6 +397,7 @@ nodes:
   - label: "36"
     level: model
     category: All-Mountain
+    tasks: *fox_service
     children:
       - label: "2025–2026"
         level: generation
@@ -530,6 +543,7 @@ nodes:
   - label: "38"
     level: model
     category: Enduro
+    tasks: *fox_service
     children:
       - label: "2025–2026"
         level: generation
@@ -625,6 +639,7 @@ nodes:
     years: "2025-2026"
     url: https://ridefox.com/pages/fox-40
     setup_guide: https://tech.ridefox.com/bike/owners-manuals/3102/fork--2026-40mm
+    tasks: *fox_service
     children:
       - label: Factory
         level: trim
@@ -644,6 +659,7 @@ nodes:
     url: https://ridefox.com/products/podium
     setup_guide: https://tech.ridefox.com/bike/owners-manuals/3108/fork--2026-podium-
     # travel options + spacer maximums: tech.ridefox.com owner's manual 3108
+    tasks: *fox_service
     children:
       - label: Factory
         level: trim
@@ -668,6 +684,7 @@ nodes:
     url: https://ridefox.com/pages/fox-awl
     setup_guide: https://tech.ridefox.com/bike/owners-manuals/3101/fork--2026-awl-or-awl-sport-and-awl-hd-or-awl-hd-sport
     # travel options + spacer maximums: tech.ridefox.com owner's manual 3101
+    tasks: *fox_service
     children:
       - label: Standard
         level: trim

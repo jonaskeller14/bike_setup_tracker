@@ -71,8 +71,8 @@ const Map<ComponentType, List<TaskTemplate>> taskPresets = {
     ),
     TaskTemplate(
       key: 'fork:full_service',
-      name: 'Damper & spring service',
-      notes: 'Full service of the damper and air spring, including seals and oil.',
+      name: 'Full service',
+      notes: 'Lower leg service plus a damper and air spring rebuild, including seals and oil.',
       interval: MovingTimeThreshold(Duration(hours: 200)),
       fallbackInterval: _year,
       preselected: true,
@@ -89,8 +89,8 @@ const Map<ComponentType, List<TaskTemplate>> taskPresets = {
     ),
     TaskTemplate(
       key: 'shock:full_service',
-      name: 'Damper service',
-      notes: 'Full damper service, including seals, oil and nitrogen charge.',
+      name: 'Full service',
+      notes: 'Damper rebuild including seals, oil and nitrogen charge, plus the air can service on air shocks.',
       interval: MovingTimeThreshold(Duration(hours: 200)),
       fallbackInterval: _year,
       preselected: true,

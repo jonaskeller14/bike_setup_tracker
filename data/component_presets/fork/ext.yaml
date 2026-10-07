@@ -35,7 +35,10 @@ sources:
   # Secondary — editorial spec lists (wheel size)
   - https://www.pinkbike.com/news/review-ext-era-v21-fork.html
   - https://www.pinkbike.com/news/review-ext-vaia-extra-adjustable-usd-fork.html
-updated: 2026-10-05
+updated: 2026-10-07
+# Service intervals (`tasks`) come from the quick manuals (the nodes'
+# `setup_guide`): every 100 hours or 1 year for amateur use (racing: 50 hours
+# or 6 months; the amateur figure is used).
 
 # --------------------------------------------------------------------------
 # Dampers
@@ -86,6 +89,8 @@ nodes:
     years: "2025-2026"
     url: https://extremeshox.com/product/ext-era-v2-1/
     setup_guide: https://extremeshox.com/wp-content/uploads/2023/08/quick-manual-Era-v2_20x30.pdf
+    tasks: &ext_service
+      fork:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: EXT quick manual }
     children:
       - label: Standard
         level: trim
@@ -105,6 +110,7 @@ nodes:
     years: "2025-2026"
     url: https://extremeshox.com/product/ext-era-v2-lt/
     setup_guide: https://extremeshox.com/wp-content/uploads/2023/09/ERA_V2S_quick_manual-5.pdf
+    tasks: *ext_service
     children:
       - label: Standard
         level: trim
@@ -124,6 +130,7 @@ nodes:
     years: "2025-2026"
     url: https://extremeshox.com/product/vaia/
     setup_guide: https://extremeshox.com/wp-content/uploads/2024/12/Vaia-Quick-Manual-1.pdf
+    tasks: *ext_service
     children:
       - label: Standard
         level: trim

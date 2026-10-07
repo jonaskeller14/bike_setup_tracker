@@ -39,7 +39,8 @@ class TaskTemplate {
 class TaskTemplateOverride {
   final TaskThreshold interval;
 
-  /// Falls back to the generic template's fallback when `null`.
+  /// When `null`, the override applies only with Strava; without it the
+  /// generic template applies unchanged (a brand-only one is hidden).
   final TaskThreshold? fallbackInterval;
   final String source;
   final String? name;

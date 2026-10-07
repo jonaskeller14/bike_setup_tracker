@@ -34,7 +34,11 @@ sources:
   - https://worldwidecyclery.com/blogs/worldwide-cyclery-blog/ohlins-ttx-22-m-rear-shock-customer-review
   - https://www.pinkbike.com/news/review-hlins-ttx2air-shock.html
   - https://www.pinkbike.com/news/first-ride-ohlins-cross-country-suspension.html
-updated: 2026-10-05
+updated: 2026-10-07
+# Service intervals (`tasks`) come from the owner's manuals cited above: the
+# TTX Air and TXC Air tables give the air spring 100 hours / 1 year and the
+# damper 100 hours / 2 years; the TTX22 manual gives 100 hours or annually.
+#
 # Click ranges taken from each model's own listing at ohlins.eu. Clicks are
 # counted from fully closed (firmest) → default `dial_ccw`.
 
@@ -184,6 +188,9 @@ nodes:
   - label: TTX1Air
     level: model
     category: Trail / Enduro
+    tasks: &ohlins_service
+      shock:air_can_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: Öhlins owner's manual }
+      shock:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 730 }, source: Öhlins owner's manual }
     children:
       - label: First generation
         level: version
@@ -222,6 +229,7 @@ nodes:
   - label: TTX2Air
     level: model
     category: Trail / Enduro
+    tasks: *ohlins_service
     children:
       - label: First generation
         level: version
@@ -263,6 +271,7 @@ nodes:
     url: https://www.ohlins.eu/en/products/mountainbike/txc1air-universal--7691/
     setup_guide: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-txc-air--00003880.pdf
     specs: { spring: Air }
+    tasks: *ohlins_service
     children:
       - label: Universal
         level: trim
@@ -281,6 +290,7 @@ nodes:
     url: https://www.ohlins.eu/en/products/mountainbike/txc2air-universal--7593/
     setup_guide: https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-txc-air--00003880.pdf
     specs: { spring: Air }
+    tasks: *ohlins_service
     children:
       - label: Universal
         level: trim
@@ -294,6 +304,8 @@ nodes:
   - label: TTX22
     level: model
     category: Enduro / Downhill
+    tasks:
+      shock:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: Öhlins owner's manual }
     children:
       - label: m.2
         level: version

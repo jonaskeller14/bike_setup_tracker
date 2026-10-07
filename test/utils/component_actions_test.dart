@@ -194,6 +194,9 @@ void main() {
 
     testWidgets('only the parent: direct children are uninstalled, deeper ones stay on their parent', (tester) async {
       await pumpRemove(tester);
+      await tester.tap(find.text("Remove only 'Fork'"));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('Move to trash'));
       await tester.tap(find.text('Move to trash'));
       await tester.pumpAndSettle();
 

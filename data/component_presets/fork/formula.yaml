@@ -50,7 +50,10 @@ sources:
   - https://www.mbr.co.uk/news/2019-formula-selva-r-377158
   - https://www.mbr.co.uk/news/formula-new-selva-v-boasts-less-stiction-450993
   - https://www.bikeradar.com/news/2024formula-belva
-updated: 2026-10-05
+updated: 2026-10-07
+# Service intervals (`tasks`) come from the owner's manuals cited above (Selva,
+# Nero, Belva share the table): leg cleaning with seal and bushing check every
+# 30 hours or 6 months, cartridge and air spring every 100 hours or 1 year.
 
 # --------------------------------------------------------------------------
 # Dampers
@@ -149,6 +152,9 @@ nodes:
     level: model
     category: Enduro / All-Mountain
     setup_guide: https://www.rideformula.com/wp-content/uploads/2023/06/Manuale_SELVA_R_GB-Def.pdf
+    tasks: &formula_service
+      fork:lower_leg_service: { interval: { moving_time_h: 30 }, fallback: { days: 180 }, source: Formula owner's manual }
+      fork:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: Formula owner's manual }
     children:
       - label: V
         level: trim
@@ -229,6 +235,7 @@ nodes:
     years: "2024-2026"
     url: https://www.rideformula.com/products/mtb-forks/belva/
     setup_guide: https://www.rideformula.com/wp-content/uploads/2024/03/Manuale-Utente-Belva-ENG.pdf
+    tasks: *formula_service
     children:
       - label: Air
         level: trim
@@ -250,6 +257,7 @@ nodes:
     years: "2017-2026"
     url: https://www.rideformula.com/products/mountain-bike/nero-r/
     setup_guide: https://www.rideformula.com/wp-content/uploads/2017/08/Nero-R-owner-manual.pdf
+    tasks: *formula_service
     children:
       - label: R
         level: trim

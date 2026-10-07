@@ -34,7 +34,9 @@ sources:
   - https://www.intend-bc.com/products/flash-38/
   - https://www.intend-bc.com/products/infinity-en/
   - https://www.intend-bc.com/products/bandit/
-updated: 2026-10-05
+updated: 2026-10-07
+# Service interval (`tasks`) from the fork setup guide: the small (upper leg)
+# service at least once a year. No hour-based interval is published.
 
 # --------------------------------------------------------------------------
 # Dampers
@@ -96,6 +98,8 @@ nodes:
     years: "2025-2026"
     url: https://www.intend-bc.com/products/samurai-xc/
     setup_guide: https://www.intend-bc.com/fork-setup/
+    tasks: &intend_service
+      fork:upper_leg_service: { name: Upper leg service, interval: { days: 365 }, preselected: true, source: Intend fork setup guide }
     children:
       - label: Standard
         level: trim
@@ -118,6 +122,7 @@ nodes:
     years: "2025-2026"
     url: https://www.intend-bc.com/products/samurai-32/
     setup_guide: https://www.intend-bc.com/fork-setup/
+    tasks: *intend_service
     children:
       - label: Standard
         level: trim
@@ -139,6 +144,7 @@ nodes:
     years: "2025-2026"
     url: https://www.intend-bc.com/products/samurai-supertr/
     setup_guide: https://www.intend-bc.com/fork-setup/
+    tasks: *intend_service
     children:
       - label: Standard
         level: trim
@@ -157,6 +163,7 @@ nodes:
     years: "2025-2026"
     url: https://www.intend-bc.com/products/intend-hero/
     setup_guide: https://www.intend-bc.com/fork-setup/
+    tasks: *intend_service
     children:
       - label: Standard
         level: trim
@@ -176,6 +183,7 @@ nodes:
     years: "2025-2026"
     url: https://www.intend-bc.com/products/essentials/
     setup_guide: https://www.intend-bc.com/fork-setup/
+    tasks: *intend_service
     children:
       - label: Standard
         level: trim
@@ -198,6 +206,7 @@ nodes:
     years: "2025-2026"
     url: https://www.intend-bc.com/products/intend-edge/
     setup_guide: https://www.intend-bc.com/fork-setup/
+    tasks: *intend_service
     children:
       - label: Standard
         level: trim
@@ -216,6 +225,7 @@ nodes:
     years: "2025-2026"
     url: https://www.intend-bc.com/products/intend-flash/
     setup_guide: https://www.intend-bc.com/fork-setup/
+    tasks: *intend_service
     children:
       - label: Standard
         level: trim
@@ -234,6 +244,7 @@ nodes:
     years: "2025-2026"
     url: https://www.intend-bc.com/products/flash-38/
     setup_guide: https://www.intend-bc.com/fork-setup/
+    tasks: *intend_service
     children:
       - label: Standard
         level: trim
@@ -253,6 +264,7 @@ nodes:
     years: "2025-2026"
     url: https://www.intend-bc.com/products/infinity-en/
     setup_guide: https://www.intend-bc.com/fork-setup/
+    tasks: *intend_service
     children:
       - label: Standard
         level: trim
@@ -272,6 +284,7 @@ nodes:
     years: "2025-2026"
     url: https://www.intend-bc.com/products/bandit/
     setup_guide: https://www.intend-bc.com/fork-setup/
+    tasks: *intend_service
     children:
       - label: Standard
         level: trim

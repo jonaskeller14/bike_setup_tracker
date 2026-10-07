@@ -38,7 +38,15 @@ List<TaskSuggestion> taskSuggestionsFor(
   ];
 }
 
-TaskSuggestion? _resolve(TaskTemplate template, TaskTemplateOverride? override, {required bool hasStravaEntitlement}) {
+TaskSuggestion? _resolve(TaskTemplate template, TaskTemplateOverride? catalogOverride, {required bool hasStravaEntitlement}) {
+  // A ride-based manufacturer interval without a published time-based
+  // fallback says nothing without Strava, so the generic template applies.
+  final override = !hasStravaEntitlement &&
+          catalogOverride != null &&
+          catalogOverride.interval.requiresActivityData &&
+          catalogOverride.fallbackInterval == null
+      ? null
+      : catalogOverride;
   final TaskThreshold interval = override?.interval ?? template.interval;
   final fallback = override?.fallbackInterval ?? template.fallbackInterval;
   final useFallback = interval.requiresActivityData && !hasStravaEntitlement;

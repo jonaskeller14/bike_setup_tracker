@@ -34,7 +34,7 @@ sources:
   - https://tech.ridefox.com/bike/owners-manuals/1036/shock--2020-float-x2
   - https://tech.ridefox.com/bike/owners-manuals/1078/shock--2021-float-x2
   - https://tech.ridefox.com/bike/owners-manuals/1038/shock--2020-all-coil-shocks-(dhx2-and-van-models)
-updated: 2026-10-05
+updated: 2026-10-07
 # Click ranges taken from the per-model spec tables on the official FOX
 # product pages (ridefox.com/pages/fox-<model>). Clicks counted from fully
 # closed (firmest) → default `dial_ccw`; an adjuster with "16 clicks" is 0..16.
@@ -44,6 +44,12 @@ updated: 2026-10-05
 # recommendation and must not be read as a range. So the legacy dampers below
 # give a range only for what FOX describes in words (lever positions, open-mode
 # detents) and declare every other adjuster with `max: ~`.
+#
+# Service intervals (`tasks`) come from the "Recommended Minimum Shock
+# Maintenance" table, identical in every shock owner's manual from 2016 to 2027:
+# a full shock service (damper rebuild, air seal replacement for air shocks)
+# every 125 hours or yearly, whichever comes first. FOX publishes no separate
+# air-can interval, so only `shock:full_service` is overridden.
 
 # --------------------------------------------------------------------------
 # Dampers
@@ -197,6 +203,8 @@ nodes:
     url: https://ridefox.com/pages/fox-float-sl
     setup_guide: https://tech.ridefox.com/bike/owners-manuals/3098/shock--2026-float-sl-and-float-x
     specs: { spring: Air }
+    tasks: &fox_service
+      shock:full_service: { interval: { moving_time_h: 125 }, fallback: { days: 365 }, source: FOX owner's manual }
     children:
       - label: Factory
         level: trim
@@ -226,6 +234,7 @@ nodes:
     url: https://ridefox.com/pages/fox-float
     setup_guide: https://tech.ridefox.com/bike/owners-manuals/3099/shock--2026-float
     specs: { spring: Air }
+    tasks: *fox_service
     children:
       - label: Factory
         level: trim
@@ -268,6 +277,7 @@ nodes:
     url: https://ridefox.com/pages/fox-float-x
     setup_guide: https://tech.ridefox.com/bike/owners-manuals/3098/shock--2026-float-sl-and-float-x
     specs: { spring: Air }
+    tasks: *fox_service
     children:
       - label: Factory
         level: trim
@@ -301,6 +311,7 @@ nodes:
   - label: "FLOAT X2"
     level: model
     category: Enduro / Gravity
+    tasks: *fox_service
     children:
       - label: "2025–2026"
         level: generation
@@ -397,6 +408,7 @@ nodes:
     url: https://ridefox.com/products/fox-dhx-factory
     setup_guide: https://tech.ridefox.com/bike/owners-manuals/3100/shock--2026-dhx-
     specs: { spring: Coil }
+    tasks: *fox_service
     children:
       - label: Factory
         level: trim
@@ -412,6 +424,7 @@ nodes:
   - label: "DHX2"
     level: model
     category: Downhill / Enduro
+    tasks: *fox_service
     children:
       - label: "2025–2026"
         level: generation
@@ -508,6 +521,7 @@ nodes:
     url: https://tech.ridefox.com/bike/owners-manuals/1079/shock--2021-float-dps-and-dpx2
     setup_guide: https://tech.ridefox.com/bike/owners-manuals/1079/shock--2021-float-dps-and-dpx2
     specs: { spring: Air }
+    tasks: *fox_service
     children:
       - label: Factory
         level: trim
@@ -550,6 +564,7 @@ nodes:
     url: https://tech.ridefox.com/bike/owners-manuals/1079/shock--2021-float-dps-and-dpx2
     setup_guide: https://tech.ridefox.com/bike/owners-manuals/1079/shock--2021-float-dps-and-dpx2
     specs: { spring: Air }
+    tasks: *fox_service
     children:
       - label: Factory
         level: trim

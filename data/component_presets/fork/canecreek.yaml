@@ -29,7 +29,12 @@ sources:
   - https://www.pinkbike.com/news/cane-creek-helm-fork-review-2017.html
   - https://www.singletracks.com/mtb-gear/cane-creeks-sleek-helm-air-fork-is-a-legit-workhorse-on-the-trail-review/
   - https://www.perpetualdisappointment.co.uk/cane-creek-helm-coil-fork-long-term-review/
-updated: 2026-10-05
+updated: 2026-10-07
+# Service intervals (`tasks`) come from the Helm and Helm MKII manuals (the
+# nodes' `setup_guide`): lower legs every 50 hours, an air spring and damper
+# rebuild every 100 hours, no time-based interval. The Helm DJ has no manual
+# with a schedule, so it keeps the generic templates.
+#
 # Click ranges below come from the "Damping Adjustments" table in each
 # generation's official Cane Creek instruction manual (see each damper's
 # `source:`). Clicks are counted from fully closed (firmest); the default
@@ -110,6 +115,9 @@ nodes:
     years: "2020-2026"
     url: https://www.canecreek.com/products/helm-mkii
     setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/HelmMKII_UserManual_04_03_2025.pdf
+    tasks: &helm_service
+      fork:lower_leg_service: { interval: { moving_time_h: 50 }, source: Cane Creek Helm manual }
+      fork:full_service: { interval: { moving_time_h: 100 }, source: Cane Creek Helm manual }
     children:
       - label: Air
         level: trim
@@ -140,6 +148,7 @@ nodes:
     years: "2023-2026"
     url: https://www.canecreek.com/products/helm-works-series
     setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/HelmMKII_UserManual_04_03_2025.pdf
+    tasks: *helm_service
     children:
       - label: Air
         level: trim
@@ -185,6 +194,7 @@ nodes:
     # Manual: cdn.shopify.com/.../Helm_UserManual_1_12_18_FINAL_...pdf
     # 2017 launch year per Pinkbike's Helm fork review; superseded by the
     # Helm MKII in 2020.
+    tasks: *helm_service
     children:
       - label: Air
         level: trim

@@ -28,12 +28,13 @@ sources:
   - https://www.sram.com/en/rockshox/learn/downhill-suspension-welcome-guide
   # Primary — SRAM service documentation (PDF)
   - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/bottomless-tokens-english.pdf
+  - https://www.sram.com/globalassets/document-hierarchy/service-manuals/sramrockshox-service-interval-counter-mat.pdf
   # Secondary — editorial, used for context only, no numbers taken from them
   - https://enduro-mtb.com/en/rockshox_vivid_coil_super_deluxe_shock_review_2025/
   - https://flowmountainbike.com/features/rockshox-shock-setup/
   - https://www.pinkbike.com/news/first-ride-the-new-rockshox-vivid-ultimate.html
   - https://freehub.com/product-reviews/2014-rockshox-pike-rct3-160mm-review
-updated: 2026-10-05
+updated: 2026-10-07
 # Counting conventions, verified per damper against SRAM material:
 #   * RC2T compression counts from the MIDDLE — SRAM: "5 positions for both HSC
 #     and LSC ... the base tune is in the middle, with two positions to increase
@@ -45,6 +46,14 @@ updated: 2026-10-05
 #   * Vivid Ultimate's compression and bottom-out adjusters are published as a
 #     count of positions without a stated zero point, so they are stored as a
 #     plain 1..5 range rather than assuming a centre detent.
+#
+# Service intervals (`tasks`) come from the SRAM/RockShox "Service Intervals"
+# chart (GEN.0000000005593 Rev H); "1 year" is the spare-parts catalog's
+# "200 HOUR/1 YEAR SERVICE KIT":
+#   * Deluxe, Super Deluxe (2017-2026), SIDLuxe: 50 h air can, 200 h damper.
+#   * Super Deluxe Coil, Vivid Coil (2025+): 200 h damper.
+#   * Vivid (2024+): 100 h air can, 200 h damper.
+#   * Monarch, Monarch Plus, Vivid Air (2011-2022): 50 h air can, 100 h damper.
 
 # --------------------------------------------------------------------------
 # Dampers
@@ -225,6 +234,9 @@ nodes:
   - label: "Deluxe"
     level: model
     category: Trail
+    tasks: &rockshox_service
+      shock:air_can_service: &rockshox_air_can_service { interval: { moving_time_h: 50 }, source: RockShox service intervals }
+      shock:full_service: &rockshox_full_service { interval: { moving_time_h: 200 }, fallback: { days: 365 }, source: RockShox service intervals }
     children:
       - label: "2023–2026"
         level: generation
@@ -286,6 +298,7 @@ nodes:
   - label: "Super Deluxe"
     level: model
     category: Trail / Enduro
+    tasks: *rockshox_service
     children:
       - label: "2023–2026"
         level: generation
@@ -357,6 +370,8 @@ nodes:
   - label: "Super Deluxe Coil"
     level: model
     category: Trail / Enduro
+    tasks:
+      shock:full_service: *rockshox_full_service
     children:
       - label: "2023–2026"
         level: generation
@@ -430,6 +445,7 @@ nodes:
     url: https://www.sram.com/en/rockshox/series/super-deluxe-dh
     setup_guide: https://www.sram.com/en/rockshox/learn/suspension-welcome-guide
     specs: { spring: Air }
+    tasks: *rockshox_service
     children:
       - label: Ultimate DH
         level: trim
@@ -451,6 +467,9 @@ nodes:
         url: https://www.sram.com/en/rockshox/series/vivid-air
         setup_guide: https://www.sram.com/en/rockshox/learn/vivid-air-setup
         specs: { spring: Air }
+        tasks:
+          shock:air_can_service: { interval: { moving_time_h: 100 }, source: RockShox service intervals }
+          shock:full_service: *rockshox_full_service
         children:
           - label: Ultimate
             level: trim
@@ -483,6 +502,9 @@ nodes:
         url: https://www.sram.com/en/rockshox/series/vivid-air
         specs: { spring: Air }
         note: Separate beginning- and ending-stroke rebound adjusters
+        tasks: &rockshox_100h_service
+          shock:air_can_service: *rockshox_air_can_service
+          shock:full_service: { interval: { moving_time_h: 100 }, source: RockShox service intervals }
         children:
           - label: R2C
             level: trim
@@ -499,6 +521,8 @@ nodes:
     setup_guide: https://www.sram.com/en/rockshox/learn/downhill-suspension-welcome-guide
     specs: { spring: Coil }
     mounts: [Standard, Trunnion]
+    tasks:
+      shock:full_service: *rockshox_full_service
     children:
       - label: Ultimate
         level: trim
@@ -518,6 +542,8 @@ nodes:
     url: https://www.sram.com/en/rockshox/series/vivid-coil-dh
     setup_guide: https://www.sram.com/en/rockshox/learn/downhill-suspension-welcome-guide
     specs: { spring: Coil }
+    tasks:
+      shock:full_service: *rockshox_full_service
     children:
       - label: Ultimate DH
         level: trim
@@ -533,6 +559,7 @@ nodes:
     years: "2024-2026"
     url: https://www.sram.com/en/rockshox/series/sidluxe
     specs: { spring: Air }
+    tasks: *rockshox_service
     children:
       - label: Ultimate Flight Attendant
         level: trim
@@ -565,6 +592,7 @@ nodes:
     url: https://www.sram.com/en/rockshox/series/monarch
     specs: { spring: Air }
     note: Inline air shock; Bottomless Rings tune the air can volume
+    tasks: *rockshox_100h_service
     children:
       - label: RT3
         level: trim
@@ -600,6 +628,7 @@ nodes:
     url: https://www.sram.com/en/rockshox/series/monarch-plus
     specs: { spring: Air }
     note: Piggyback reservoir version of the Monarch
+    tasks: *rockshox_100h_service
     children:
       - label: RC3
         level: trim

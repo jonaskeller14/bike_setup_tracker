@@ -594,11 +594,10 @@ nodes:
   - label: "36"
     level: model
     tasks:
-      fork:lower_leg_service:
+      fork:full_service:
         interval: { moving_time_h: 125 }
-        fallback: { months: 12 }
-        source: FOX 36 owner's manual https://www.ridefox.com/…
-      fork:full_service: { interval: { moving_time_h: 125 }, source: FOX 36 owner's manual }
+        fallback: { days: 365 }
+        source: FOX 36 owner's manual
       fork:air_spring_service:                     # brand-only
         name: Air spring service
         interval: { moving_time_h: 125 }
@@ -609,7 +608,7 @@ nodes:
 | Field | Required? | Meaning |
 |---|---|---|
 | `interval` | **yes** | The service interval, as one `unit: value` entry (see below) |
-| `fallback` | no | Time-based interval (`months`/`days`) used without Strava, only for a ride-based `interval`. Without it, an override keeps the generic template's fallback; a brand-only task without one is hidden without Strava |
+| `fallback` | no | Time-based interval (`months`/`days`) used without Strava, only for a ride-based `interval`. Only write the manufacturer's own time interval. Without one, the override applies only with Strava: without Strava, the generic template applies unchanged, and a brand-only task is hidden |
 | `source` | **yes** | Where the interval comes from: the document's name, its URL, or both |
 | `name` | brand-only: **yes** | The task's name |
 | `priority` | brand-only | `low`, `medium` (default), `high` or `critical` |
@@ -641,6 +640,9 @@ nodes:
 - **Only the manufacturer's published interval counts**: an owner's manual or
   an official service page (tier 1 of the [Sourcing policy](#sourcing-policy)).
   A brand that publishes none gets no `tasks`, and the generic template applies.
+  The same goes for a single service: when the manufacturer publishes only a
+  full service, override `full_service` alone and leave the lower-leg or
+  air-can template generic.
 - **`source` reaches the rider**: under the suggestion and at the end of the
   created rule's notes ("Recommended interval: every 125 h — FOX 36 owner's
   manual"). Name the document; no research meta.

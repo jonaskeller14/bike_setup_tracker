@@ -25,6 +25,7 @@ import '../../widgets/attachment_strip.dart';
 import '../../widgets/component_ancestor_display.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/sheets/set_tags.dart';
+import '../../widgets/sheets/set_task_delay.dart';
 import '../../widgets/sheets/set_task_priority.dart';
 import '../../widgets/sheets/strava.dart';
 import '../../widgets/sheets/task_association_picker.dart';
@@ -240,14 +241,14 @@ class _TaskRulePageState extends State<TaskRulePage> {
 
   bool get _hasSavedDelay => widget.taskRule?.delay != null;
 
-  /// A delay exists only once a positive value is typed. An empty field — or an
+  /// A delay exists only once a non-zero value is typed. An empty field — or an
   /// explicit zero, offered as a way to drop a delay that was already saved —
   /// means "no delay", so the preselected type never becomes a delay of zero.
   bool get _hasDelayValue {
     final raw = _delayValueController.text.trim();
     if (raw.isEmpty) return false;
     final parsed = double.tryParse(raw);
-    return parsed != null && parsed > 0;
+    return parsed != null && parsed != 0;
   }
 
   _ThresholdType get _effectiveDelayType =>
@@ -503,10 +504,21 @@ class _TaskRulePageState extends State<TaskRulePage> {
     // valid and simply means "no delay".
     final raw = value?.trim() ?? '';
     if (raw.isEmpty) return null;
+    final requiresInteger = _thresholdRequiresInteger(_delayType);
+    final num? parsed = requiresInteger ? int.tryParse(raw) : double.tryParse(raw);
+    if (parsed == null) {
+      return requiresInteger ? 'Enter a whole number' : 'Enter a valid number';
+    }
     // Zero reads as "drop the delay", which only makes sense for a delay that
     // is already saved. _saveTaskRule then stores no delay at all.
-    if (_hasSavedDelay && double.tryParse(raw) == 0) return null;
-    return _validateThresholdValue(_delayType, value);
+    if (parsed == 0) return _hasSavedDelay ? null : 'Must not be 0';
+
+    final interval = _createThreshold(_intervalType, _intervalValueController.text, _intervalDate, _intervalDurationUnit);
+    final delay = _createThreshold(_delayType, raw, null, _delayDurationUnit);
+    if (interval is AccumulatingThreshold && interval.totalTarget(delay) < 0) {
+      return 'Cannot bring it forward by more than its interval';
+    }
+    return null;
   }
 
   TaskThreshold? _createThreshold(_ThresholdType type, String value, DateTime? date, _DurationUnit durationUnit) {
@@ -543,9 +555,15 @@ class _TaskRulePageState extends State<TaskRulePage> {
     final notes = _notesController.text.trim();
     
     final interval = _createThreshold(_intervalType, _intervalValueController.text, _intervalDate, _intervalDurationUnit);
-    final delay = _hasDelayValue
-        ? _createThreshold(_delayType, _delayValueController.text, null, _delayDurationUnit)
-        : null;
+    // An untouched delay is kept as is: its text is rounded, and a delay set by
+    // "Make Due Now" rebuilt from it could fall just short of due.
+    final delayUnchanged = _effectiveDelayType == _getThresholdType(widget.taskRule?.delay) &&
+        !_valueChanged(_delayValueController, widget.taskRule?.delay, _delayDurationUnit);
+    final delay = !_hasDelayValue
+        ? null
+        : delayUnchanged
+            ? widget.taskRule!.delay
+            : _createThreshold(_delayType, _delayValueController.text, null, _delayDurationUnit);
 
     _formHasChanges = false;
     _savedAttachments = _attachments;
@@ -735,8 +753,8 @@ class _TaskRulePageState extends State<TaskRulePage> {
                         ),
                       ),
                       Tooltip(
-                        message: "A delay postpones when this task becomes due, without changing its interval. "
-                            "It only applies once: completing the task clears the delay automatically.",
+                        message: "A delay postpones when this task becomes due, or brings it forward when negative, "
+                            "without changing its interval. It only applies once: completing the task clears the delay automatically.",
                         triggerMode: TooltipTriggerMode.tap,
                         padding: const EdgeInsets.all(12),
                         margin: const EdgeInsets.symmetric(horizontal: 24),
@@ -764,13 +782,14 @@ class _TaskRulePageState extends State<TaskRulePage> {
               autovalidateMode: AutovalidateMode.onUserInteraction,
               keyboardType: TextInputType.numberWithOptions(
                 decimal: delayType == _ThresholdType.distance || delayType == _ThresholdType.elevation || delayType == _ThresholdType.kilojoules,
-                signed: false,
+                signed: true,
               ),
-              inputFormatters: _valueInputFormatters(delayType),
+              inputFormatters: [signedDelayInputFormatter(decimal: !_thresholdRequiresInteger(delayType))],
               validator: _validateDelayValue,
               onChanged: (value) => setState(() {}),
               decoration: InputDecoration(
                 labelText: "Value",
+                errorMaxLines: 3,
                 suffixText: delayType == _ThresholdType.duration
                     ? null
                     : _unitLabel(delayType, _delayDurationUnit, _delayValueController.text),

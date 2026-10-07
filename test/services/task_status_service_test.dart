@@ -236,6 +236,135 @@ void main() {
       expect(status.type, TaskStatusType.completed);
     });
   });
+
+  group('TaskStatusService.dueNowDelay', () {
+    final now = DateTime.utc(2024, 1, 1);
+    final componentId = 'comp-1';
+
+    TaskRule ruleWith(TaskThreshold interval, {TaskThreshold? delay}) => TaskRule(
+          name: 'Chain Wax',
+          association: ComponentTaskAssociation(componentId),
+          interval: interval,
+          delay: delay,
+          tags: const {},
+        );
+
+    TaskStatus statusWithDueNowDelay(
+      TaskRule rule, {
+      required ComponentStats stats,
+      DateTime? at,
+      TaskEntry? lastEntry,
+      DateTime? installedAt,
+    }) {
+      final delay = TaskStatusService.dueNowDelay(
+        rule: rule,
+        currentStats: stats,
+        now: now,
+        lastEntry: lastEntry,
+        componentInstallationDate: installedAt,
+      );
+      return TaskStatusService.calculate(
+        rule: rule.copyWith(delay: delay),
+        currentStats: stats,
+        now: at ?? now,
+        lastEntry: lastEntry,
+        componentInstallationDate: installedAt,
+      );
+    }
+
+    test('pulls a distance target in to what was ridden, despite float rounding', () {
+      final rule = ruleWith(const DistanceThreshold(300000));
+      final stats = ComponentStats.zero.copyWith(distance: 123456.789);
+
+      final delay = TaskStatusService.dueNowDelay(rule: rule, currentStats: stats, now: now);
+      expect(delay, isA<DistanceThreshold>());
+      expect((delay as DistanceThreshold).isPullForward, isTrue);
+
+      final status = statusWithDueNowDelay(rule, stats: stats);
+      expect(status.type, TaskStatusType.due);
+      expect(status.progress, closeTo(1.0, 1e-9));
+    });
+
+    test('turns overdue once riding continues past the pulled-in target', () {
+      final rule = ruleWith(const DistanceThreshold(300000));
+      final delay = TaskStatusService.dueNowDelay(
+        rule: rule,
+        currentStats: ComponentStats.zero.copyWith(distance: 100000),
+        now: now,
+      );
+
+      final status = TaskStatusService.calculate(
+        rule: rule.copyWith(delay: delay),
+        currentStats: ComponentStats.zero.copyWith(distance: 120000),
+        now: now,
+      );
+      expect(status.type, TaskStatusType.overdue);
+    });
+
+    test('is due right away when nothing was gathered yet', () {
+      final rule = ruleWith(const ActivityCountThreshold(10));
+
+      final status = statusWithDueNowDelay(rule, stats: ComponentStats.zero);
+      expect(status.type, TaskStatusType.due);
+    });
+
+    test('measures a duration from the last entry', () {
+      final rule = ruleWith(const DurationThreshold(Duration(days: 30)));
+      final entry = TaskEntry(
+        name: 'Chain Wax',
+        taskRule: rule.id,
+        association: ComponentTaskAssociation(componentId),
+        dateTimeUTC: now.subtract(const Duration(days: 12)),
+        dateTimeLocal: now.subtract(const Duration(days: 12)),
+        snapshot: ComponentStats.zero,
+      );
+
+      final delay = TaskStatusService.dueNowDelay(
+        rule: rule,
+        currentStats: ComponentStats.zero,
+        now: now,
+        lastEntry: entry,
+      );
+      expect((delay as DurationThreshold).days, const Duration(days: -18));
+
+      final status = statusWithDueNowDelay(
+        rule,
+        stats: ComponentStats.zero,
+        lastEntry: entry,
+        at: now.add(const Duration(hours: 1)),
+      );
+      expect(status.type, TaskStatusType.due);
+    });
+
+    test('replaces a delay that postponed the task', () {
+      final rule = ruleWith(const DistanceThreshold(300000), delay: const DistanceThreshold(50000));
+
+      final status = statusWithDueNowDelay(rule, stats: ComponentStats.zero.copyWith(distance: 100000));
+      expect(status.type, TaskStatusType.due);
+    });
+
+    test('needs no delay when the interval alone is already met', () {
+      final rule = ruleWith(const DistanceThreshold(300000), delay: const DistanceThreshold(50000));
+
+      final delay = TaskStatusService.dueNowDelay(
+        rule: rule,
+        currentStats: ComponentStats.zero.copyWith(distance: 320000),
+        now: now,
+      );
+      expect(delay, isNull);
+    });
+
+    test('has nothing to pull in for a deadline', () {
+      final rule = TaskRule(
+        name: 'Inspection',
+        interval: DateTimeThreshold(now.add(const Duration(days: 30))),
+        tags: const {},
+      );
+
+      final delay = TaskStatusService.dueNowDelay(rule: rule, currentStats: ComponentStats.zero, now: now);
+      expect(delay, isNull);
+    });
+  });
 }
 
 extension on ComponentStats {

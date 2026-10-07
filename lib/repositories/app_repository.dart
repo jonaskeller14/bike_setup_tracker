@@ -30,6 +30,7 @@ import '../models/strava/strava_gear.dart';
 import '../models/task/task_association.dart';
 import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
+import '../models/task/task_threshold/task_threshold.dart';
 import '../services/backup_service.dart';
 import '../services/component_hierarchy_resolver.dart';
 import '../services/rating_score_service.dart';
@@ -562,6 +563,19 @@ class AppRepository extends ChangeNotifier {
     final inputs = _taskRuleInputs(rule);
 
     return TaskStatusService.calculate(
+      rule: rule,
+      currentStats: inputs.stats,
+      now: DateTime.now().toUtc(),
+      lastEntry: inputs.lastEntry,
+      componentInstallationDate: inputs.installationDate,
+    );
+  }
+
+  /// See [TaskStatusService.dueNowDelay].
+  TaskThreshold? getTaskRuleDueNowDelay(TaskRule rule) {
+    final inputs = _taskRuleInputs(rule);
+
+    return TaskStatusService.dueNowDelay(
       rule: rule,
       currentStats: inputs.stats,
       now: DateTime.now().toUtc(),

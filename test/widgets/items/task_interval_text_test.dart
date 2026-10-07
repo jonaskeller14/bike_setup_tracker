@@ -70,6 +70,16 @@ void main() {
     expect(spanStyle(tester, ' 22')?.decoration, isNull);
   });
 
+  testWidgets('strikes the interval for a negative delay too', (tester) async {
+    // "Make Due Now" with nothing ridden yet: the cycle now runs to 0.
+    await tester.pumpWidget(wrap(const ActivityCountThreshold(25), delay: const ActivityCountThreshold(-25)));
+
+    expect(find.text('Every 25 0 rides', findRichText: true), findsOneWidget);
+    expect(find.byIcon(Icons.history), findsNothing);
+    expect(spanStyle(tester, '25')?.decoration, TextDecoration.lineThrough);
+    expect(spanStyle(tester, ' 0')?.color, ValueHighlightColors.light.changed);
+  });
+
   testWidgets('pluralises on interval and delay combined', (tester) async {
     await tester.pumpWidget(wrap(const ActivityCountThreshold(1), delay: const ActivityCountThreshold(1)));
     expect(find.text('Every 1 2 rides', findRichText: true), findsOneWidget);

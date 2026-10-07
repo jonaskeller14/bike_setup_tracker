@@ -4,6 +4,7 @@ import '../models/component_stats.dart';
 import '../models/task/task_entry.dart';
 import '../models/task/task_progress_context.dart';
 import '../models/task/task_rule.dart';
+import '../models/task/task_threshold/task_threshold.dart';
 
 class TaskStatusService {
   const TaskStatusService._();
@@ -23,17 +24,54 @@ class TaskStatusService {
       return lastEntry != null ? TaskStatus.completed : TaskStatus.open;
     }
 
-    final context = TaskProgressContext(
+    final context = _progressContext(
       currentStats: currentStats,
-      baselineStats: lastEntry?.snapshot ?? ComponentStats.zero,
       now: now,
-      baselineDate:
-          lastEntry?.dateTimeUTC ?? componentInstallationDate ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
+      lastEntry: lastEntry,
+      componentInstallationDate: componentInstallationDate,
     );
 
     // The interval that has come furthest is the one that is reached first, so
     // it decides both status and progress.
     final progress = intervals.map((interval) => interval.progress(context, delay: rule.delay)).reduce(max);
     return TaskStatus.fromProgress(progress);
+  }
+
+  /// The delay that makes [rule] due right away without touching its interval,
+  /// replacing any delay it has. Null when dropping the delay is enough, or when
+  /// the interval is a deadline with no amount to pull in.
+  static TaskThreshold? dueNowDelay({
+    required TaskRule rule,
+    required ComponentStats currentStats,
+    required DateTime now,
+    TaskEntry? lastEntry,
+    DateTime? componentInstallationDate,
+  }) {
+    final interval = rule.interval;
+    if (interval is! AccumulatingThreshold) return null;
+
+    final context = _progressContext(
+      currentStats: currentStats,
+      now: now,
+      lastEntry: lastEntry,
+      componentInstallationDate: componentInstallationDate,
+    );
+    if (interval.isMet(context)) return null;
+    return interval.dueNowDelay(context);
+  }
+
+  static TaskProgressContext _progressContext({
+    required ComponentStats currentStats,
+    required DateTime now,
+    TaskEntry? lastEntry,
+    DateTime? componentInstallationDate,
+  }) {
+    return TaskProgressContext(
+      currentStats: currentStats,
+      baselineStats: lastEntry?.snapshot ?? ComponentStats.zero,
+      now: now,
+      baselineDate:
+          lastEntry?.dateTimeUTC ?? componentInstallationDate ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
+    );
   }
 }

@@ -17,6 +17,7 @@ import '../../models/task/task_rule.dart';
 import '../../models/task/task_template.dart';
 import '../../models/task/task_threshold/task_threshold.dart';
 import '../../repositories/app_repository.dart';
+import '../../repositories/component_catalog_repository.dart';
 import '../../services/attachment_storage_service.dart';
 import '../../services/component_hierarchy_resolver.dart';
 import '../../services/subscription_service.dart';
@@ -152,6 +153,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
     _association = widget.taskRule?.association ?? widget.initialAssociation ?? const GeneralTaskAssociation();
     _initialAssociation = _association;
     _presetKey = widget.taskRule?.presetKey;
+    unawaited(_loadTaskOverrides(_association));
 
     final appRepository = context.read<AppRepository>();
     _tags.addAll(widget.taskRule?.tags ?? appRepository.filters.taskRule.tags);
@@ -606,10 +608,12 @@ class _TaskRulePageState extends State<TaskRulePage> {
     if (widget.mode != TaskRulePageMode.add || !appSettings.showTaskPresets || _presetKey != null) return null;
     final component = appRepository.components[_association.componentId];
     if (component == null) return null;
+    final preset = component.preset;
     final suggestions = taskSuggestionsFor(
       component,
       existingRules: appRepository.taskRules.values,
       hasStravaEntitlement: hasStravaEntitlement,
+      overrides: preset == null ? const {} : context.read<ComponentCatalogRepository>().loadedTaskOverrides(preset),
     );
     if (suggestions.isEmpty) return null;
     return TaskPresetChips(
@@ -617,6 +621,20 @@ class _TaskRulePageState extends State<TaskRulePage> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       onSelected: (suggestion) => _applySuggestion(suggestion, component),
     );
+  }
+
+  /// Loads the catalog of a linked catalog component, so its chips switch from
+  /// the generic intervals to the manufacturer's once it is there.
+  Future<void> _loadTaskOverrides(TaskAssociation association) async {
+    if (widget.mode != TaskRulePageMode.add || !context.read<AppSettings>().showTaskPresets) return;
+    final preset = context.read<AppRepository>().components[association.componentId]?.preset;
+    if (preset == null) return;
+    try {
+      await context.read<ComponentCatalogRepository>().resolve(preset);
+    } catch (_) {
+      return; // The generic intervals stay.
+    }
+    if (mounted) setState(() {});
   }
 
   void _applySuggestion(TaskSuggestion suggestion, Component component) {
@@ -1085,6 +1103,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                     _presetComponentType = null;
                                   }
                                 });
+                                unawaited(_loadTaskOverrides(picked));
                                 field.didChange(picked);
                                 _changeListener();
                               },

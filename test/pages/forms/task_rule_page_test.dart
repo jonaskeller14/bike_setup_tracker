@@ -5,14 +5,17 @@ import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/attachment.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/component/component_preset.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/task/task_association.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
 import 'package:bike_setup_tracker/pages/forms/task_rule_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/repositories/component_catalog_repository.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
+import 'package:bike_setup_tracker/utils/component_catalog_parser.dart';
 import 'package:bike_setup_tracker/widgets/attachment_strip.dart';
 import 'package:bike_setup_tracker/widgets/task_preset_chips.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +39,7 @@ void main() {
   late AppRepository appRepository;
   late AppSettings appSettings;
   late bool hasStravaEntitlement;
+  late ComponentCatalogRepository catalogRepository;
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
@@ -44,6 +48,7 @@ void main() {
     appSettings = AppSettings();
     appSettings.enableTaskTags = true;
     hasStravaEntitlement = false;
+    catalogRepository = ComponentCatalogRepository.withCatalogs(const []);
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
       pathProviderChannel,
       (call) async => Directory.systemTemp.path,
@@ -83,6 +88,7 @@ void main() {
           ChangeNotifierProvider.value(value: appSettings),
           ChangeNotifierProvider.value(value: appRepository),
           ChangeNotifierProvider<SubscriptionService>(create: (_) => MockSubscriptionService(hasStravaEntitlement: hasStravaEntitlement)),
+          Provider.value(value: catalogRepository),
         ],
         child: MaterialApp(
           theme: theme ?? materialAppTheme,
@@ -278,10 +284,10 @@ void main() {
 
     /// Stores the test data and reloads the repository, so it is in memory
     /// before the form opens.
-    Future<void> seed(WidgetTester tester, {List<TaskRule> rules = const []}) async {
+    Future<void> seed(WidgetTester tester, {List<TaskRule> rules = const [], List<Component> components = const []}) async {
       await tester.runAsync(() async {
         await appRepository.addBikes([bike]);
-        await appRepository.addComponents([chain, wheel]);
+        await appRepository.addComponents([chain, wheel, ...components]);
         await appRepository.addTaskRules(rules);
         await Future<void>.delayed(Duration.zero);
         await appRepository.disposeAndAwaitCancellation();
@@ -328,6 +334,42 @@ void main() {
       expect(saved.interval, const DistanceThreshold(500000));
       expect(saved.repeat, isTrue);
       expect(saved.notes, isNot(contains('Recommended interval')));
+    });
+
+    testWidgets('a catalog fork offers the manufacturer interval and its brand-only tasks', (tester) async {
+      enableTaskPresets();
+      hasStravaEntitlement = true;
+      catalogRepository = ComponentCatalogRepository.withCatalogs([
+        parseCatalogFile('''
+brand: FOX
+component_type: fork
+nodes:
+  - label: "36"
+    level: model
+    tasks:
+      fork:lower_leg_service: { interval: { moving_time_h: 125 }, source: FOX 36 owner's manual }
+      fork:air_spring_service: { name: Air spring service, interval: { moving_time_h: 125 }, source: FOX 36 owner's manual }
+'''),
+      ]);
+      final fox36 = Component(
+        id: 'f1',
+        name: 'FOX 36',
+        componentType: ComponentType.fork,
+        installations: [Installation.sinceBeginning(parent: 'b1')],
+        adjustments: const [],
+        preset: ComponentPreset(const {'brand': 'fox', 'component_type': 'fork', 'model': '36'}),
+      );
+      await seed(tester, components: [fox36]);
+      await openForm(tester, () => TaskRulePage.addForComponent(componentId: 'f1'));
+
+      expect(chip('Air spring service'), findsOneWidget);
+      await tester.tap(chip('Lower leg service'));
+      await tester.pumpAndSettle();
+
+      final saved = await save(tester);
+      expect(saved.presetKey, 'fork:lower_leg_service');
+      expect(saved.interval, const MovingTimeThreshold(Duration(hours: 125)));
+      expect(saved.notes, endsWith("Recommended interval: every 125 h — FOX 36 owner's manual"));
     });
 
     testWidgets('consumed templates get no chip', (tester) async {

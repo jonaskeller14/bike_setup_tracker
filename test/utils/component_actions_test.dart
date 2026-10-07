@@ -2,14 +2,17 @@ import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/component/component_preset.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/task/task_association.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/repositories/component_catalog_repository.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/utils/component_actions.dart';
+import 'package:bike_setup_tracker/utils/component_catalog_parser.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -28,6 +31,7 @@ void main() {
   late AppRepository appRepository;
   late AppSettings appSettings;
   late bool hasStravaEntitlement;
+  late ComponentCatalogRepository catalogRepository;
 
   final bike = Bike(id: 'b1', name: 'Test Bike', person: null);
   final current = Component(
@@ -51,6 +55,7 @@ void main() {
     appRepository = AppRepository(database);
     appSettings = AppSettings();
     hasStravaEntitlement = false;
+    catalogRepository = ComponentCatalogRepository.withCatalogs(const []);
   });
 
   tearDown(() async {
@@ -72,6 +77,7 @@ void main() {
         ChangeNotifierProvider<SubscriptionService>(
           create: (_) => MockSubscriptionService(hasStravaEntitlement: hasStravaEntitlement),
         ),
+        Provider.value(value: catalogRepository),
       ],
       child: MaterialApp(
         theme: materialAppTheme,
@@ -383,6 +389,38 @@ void main() {
       await settleRepository(tester, () => rulesOf('f2').isNotEmpty);
 
       expect(rulesOf('f2').map((rule) => rule.presetKey), ['fork:full_service']);
+    });
+
+    testWidgets('a catalog fork gets the manufacturer interval and its source', (tester) async {
+      enableTaskPresets();
+      hasStravaEntitlement = true;
+      catalogRepository = ComponentCatalogRepository.withCatalogs([
+        parseCatalogFile('''
+brand: FOX
+component_type: fork
+nodes:
+  - label: "36"
+    level: model
+    tasks:
+      fork:lower_leg_service: { interval: { moving_time_h: 125 }, source: FOX 36 owner's manual }
+'''),
+      ]);
+      final fox36 = chain.copyWith(
+        id: 'f1',
+        name: 'FOX 36',
+        componentType: ComponentType.fork,
+        preset: ComponentPreset(const {'brand': 'fox', 'component_type': 'fork', 'model': '36'}),
+      );
+      await pumpOffer(tester, target: fox36);
+
+      expect(find.textContaining("FOX 36 owner's manual"), findsOneWidget);
+
+      await tester.tap(find.text('Add 2 tasks'));
+      await settleRepository(tester, () => rulesOf('f1').length == 2);
+
+      final lowerLeg = rulesOf('f1').singleWhere((rule) => rule.presetKey == 'fork:lower_leg_service');
+      expect(lowerLeg.interval, const MovingTimeThreshold(Duration(hours: 125)));
+      expect(lowerLeg.notes, endsWith("Recommended interval: every 125 h — FOX 36 owner's manual"));
     });
 
     testWidgets('UNDO removes every created rule', (tester) async {

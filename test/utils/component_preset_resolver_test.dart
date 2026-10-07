@@ -1,10 +1,13 @@
 import 'dart:convert';
 
+import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/component_catalog.dart';
 import 'package:bike_setup_tracker/models/component/component_preset.dart';
 import 'package:bike_setup_tracker/models/component/preset_spec_keys.dart';
+import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
 import 'package:bike_setup_tracker/utils/component_catalog_parser.dart';
 import 'package:bike_setup_tracker/utils/component_preset_resolver.dart';
+import 'package:bike_setup_tracker/utils/task_preset_resolver.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// [resolvePreset] reads a persisted [ComponentPreset] back against the
@@ -267,5 +270,80 @@ void main() {
     ]);
     expect(products.map((product) => product.node.draft), [false, false, true]);
     expect(products.every((product) => product.product is CatalogProduct), isTrue);
+  });
+
+  group('taskOverrides', () {
+    const tasksYaml = '''
+brand: FOX
+component_type: fork
+option_values:
+  damper:
+    grip_x2:
+      name: GRIP X2
+      tasks:
+        fork:full_service: { interval: { moving_time_h: 100 }, source: GRIP X2 manual }
+    grip:
+      name: GRIP
+      tasks:
+        fork:lower_leg_service: ~
+nodes:
+  - label: "36"
+    level: model
+    tasks:
+      fork:lower_leg_service: { interval: { moving_time_h: 125 }, source: FOX 36 owner's manual }
+      fork:full_service: { interval: { moving_time_h: 125 }, source: FOX 36 owner's manual }
+    children:
+      - label: Factory
+        level: trim
+        options:
+          damper: [grip_x2, grip]
+''';
+
+    late ResolvedPreset factory;
+
+    setUpAll(() {
+      factory = resolvePreset([parseCatalogFile(tasksYaml)], ComponentPreset(const {
+        'brand': 'fox',
+        'component_type': 'fork',
+        'model': '36',
+        'trim': 'factory',
+      }))!;
+    });
+
+    ResolvedPreset withDamper(String id) {
+      final damper = factory.product!.options['damper']!;
+      return factory.select(damper, damper.values.firstWhere((value) => value.id == id));
+    }
+
+    test('a FOX 36 path yields the overridden interval and its source', () {
+      final lowerLeg = factory.taskOverrides['fork:lower_leg_service']!;
+
+      expect(lowerLeg.interval, const MovingTimeThreshold(Duration(hours: 125)));
+      expect(lowerLeg.source, "FOX 36 owner's manual");
+    });
+
+    test('a chosen option value overrides the node', () {
+      final overrides = withDamper('grip_x2').taskOverrides;
+
+      expect(overrides['fork:full_service']!.source, 'GRIP X2 manual');
+      expect(overrides['fork:lower_leg_service']!.source, "FOX 36 owner's manual");
+    });
+
+    test("an option value's ~ restores the generic template", () {
+      expect(withDamper('grip').taskOverrides.keys, ['fork:full_service']);
+    });
+
+    test('reach the created rule through the suggestions', () {
+      final suggestion = taskSuggestionsFor(
+        Component(id: 'c1', name: 'FOX 36', installations: const [], componentType: ComponentType.fork),
+        existingRules: const [],
+        hasStravaEntitlement: true,
+        overrides: factory.taskOverrides,
+      ).firstWhere((suggestion) => suggestion.key == 'fork:lower_leg_service');
+
+      final created = suggestion.toTaskRule('c1');
+      expect(created.interval, const MovingTimeThreshold(Duration(hours: 125)));
+      expect(created.notes, endsWith("Recommended interval: every 125 h — FOX 36 owner's manual"));
+    });
   });
 }

@@ -3,6 +3,10 @@ import 'package:yaml/yaml.dart';
 import '../models/component/component.dart';
 import '../models/component/component_catalog.dart';
 import '../models/component/preset_spec_keys.dart';
+import '../models/task/task_rule.dart';
+import '../models/task/task_template.dart';
+import '../models/task/task_threshold/task_threshold.dart';
+import 'task_presets.dart';
 
 /// Parses one brand YAML file of the generic catalog (e.g. `fork/fox.yaml`)
 /// into its node tree, with inheritance already applied.
@@ -54,6 +58,7 @@ class _Inherited {
   final String? setupGuide;
   final String? note;
   final List<String> missingAdjustments;
+  final Map<String, TaskTemplateOverride> tasks;
   final Object? adjustments;
   final Object? options;
 
@@ -68,6 +73,7 @@ class _Inherited {
     this.setupGuide,
     this.note,
     this.missingAdjustments = const [],
+    this.tasks = const {},
     this.adjustments,
     this.options,
   });
@@ -88,6 +94,17 @@ class _CatalogParser {
   static final _sizeShorthand = RegExp(
     r'^(?:(\d+(?:\.\d+)?)x)?(\d+(?:\.\d+)?(?:/\d+(?:\.\d+)?)*)$',
   );
+  static final _taskKeyPattern = RegExp(r'^([a-z][a-z0-9_]*):[a-z][a-z0-9_]*$');
+
+  /// A `tasks:` key outside these is brand-only.
+  late final Set<String> _genericTaskKeys = {
+    for (final template in taskPresets[componentType] ?? const <TaskTemplate>[]) template.key,
+  };
+
+  /// The `<type>` part a task key of this component type may start with.
+  late final Set<String> _taskKeyPrefixes = _genericTaskKeys.isEmpty
+      ? {componentType.name.replaceAllMapped(RegExp('[A-Z]'), (match) => '_${match[0]!.toLowerCase()}')}
+      : {for (final key in _genericTaskKeys) key.substring(0, key.indexOf(':'))};
 
   FormatException _error(String message) => FormatException('$message ($brand)');
 
@@ -127,6 +144,7 @@ class _CatalogParser {
       specs: _parseSpecs(raw['specs'], where),
       adjustments: _parseAdjustmentSpecs(raw['adjustments'], where),
       missingAdjustments: _parseNames(raw['missing_adjustments'], '"missing_adjustments" of $where'),
+      tasks: raw.containsKey('tasks') ? _parseTasks(raw['tasks'], where) : const {},
     );
   }
 
@@ -204,6 +222,7 @@ class _CatalogParser {
       missingAdjustments: raw.containsKey('missing_adjustments')
           ? _parseNames(raw['missing_adjustments'], '"missing_adjustments" of $where')
           : parent.missingAdjustments,
+      tasks: raw.containsKey('tasks') ? mergeTaskOverrides(parent.tasks, _parseTasks(raw['tasks'], where)) : parent.tasks,
       adjustments: raw.containsKey('adjustments') ? raw['adjustments'] : parent.adjustments,
       options: raw.containsKey('options') ? raw['options'] : parent.options,
     );
@@ -221,6 +240,7 @@ class _CatalogParser {
         setupGuide: scope.setupGuide,
         note: scope.note,
         missingAdjustments: scope.missingAdjustments,
+        tasks: scope.tasks,
         adjustments: _parseAdjustmentSpecs(scope.adjustments, where),
         options: _parseOptions(scope.options, scope),
       );
@@ -242,6 +262,7 @@ class _CatalogParser {
       setupGuide: scope.setupGuide,
       note: scope.note,
       missingAdjustments: scope.missingAdjustments,
+      tasks: scope.tasks,
       children: parseNodes(rawChildren, scope),
     );
   }
@@ -433,6 +454,102 @@ class _CatalogParser {
       throw _error('Option axis "$id" in $where does not apply to a ${componentType.name}');
     }
     return axis;
+  }
+
+  /// `tasks:` of a node or an option value, by role key. A `~` entry restores
+  /// the generic template.
+  Map<String, TaskTemplateOverride?> _parseTasks(Object? raw, String where) {
+    if (raw is! YamlMap) throw _error('"tasks" of $where is not a map');
+    final tasks = <String, TaskTemplateOverride?>{};
+    for (final entry in raw.entries) {
+      final key = entry.key.toString();
+      final prefix = _taskKeyPattern.firstMatch(key)?.group(1);
+      if (prefix == null || !_taskKeyPrefixes.contains(prefix)) {
+        throw _error('Task key "$key" of $where is not "${_taskKeyPrefixes.join('|')}:<snake_case>"');
+      }
+      tasks[key] = entry.value == null ? null : _parseTask(key, entry.value, 'task "$key" of $where');
+    }
+    return tasks;
+  }
+
+  TaskTemplateOverride _parseTask(String key, Object? raw, String where) {
+    if (raw is! YamlMap) throw _error('${_capitalize(where)} is not a map');
+    const templateFields = {'name', 'priority', 'preselected'};
+    final unknown = raw.keys
+        .map((key) => key.toString())
+        .where((key) => !const {'interval', 'fallback', 'source', ...templateFields}.contains(key));
+    if (unknown.isNotEmpty) throw _error('Unknown key(s) ${unknown.join(', ')} in $where');
+
+    final generic = _genericTaskKeys.contains(key);
+    if (generic && raw.keys.any((field) => templateFields.contains(field.toString()))) {
+      throw _error('${_capitalize(where)} overrides a generic task, which keeps its name, priority and preselection');
+    }
+    final name = raw['name']?.toString();
+    if (!generic && (name == null || name.isEmpty)) {
+      throw _error('${_capitalize(where)} is no generic ${componentType.name} task, so it needs a "name"');
+    }
+    final source = raw['source']?.toString();
+    if (source == null || source.isEmpty) throw _error('${_capitalize(where)} needs a "source"');
+
+    final interval = _parseThreshold(raw['interval'], '"interval" of $where');
+    final fallback = raw['fallback'] == null ? null : _parseThreshold(raw['fallback'], '"fallback" of $where');
+    if (fallback != null && !interval.requiresActivityData) {
+      throw _error('${_capitalize(where)} has a "fallback", but its interval is already time-based');
+    }
+    if (fallback != null && fallback.requiresActivityData) {
+      throw _error('"fallback" of $where is not in months or days');
+    }
+
+    final preselected = raw['preselected'];
+    if (preselected != null && preselected is! bool) throw _error('"preselected" of $where is not a boolean');
+    final rawPriority = raw['priority'];
+    final priority = rawPriority == null
+        ? null
+        : TaskPriority.values.firstWhere(
+            (priority) => priority.name == rawPriority,
+            orElse: () => throw _error(
+              '"priority" of $where is not one of ${TaskPriority.values.map((priority) => priority.name).join(', ')}',
+            ),
+          );
+
+    return TaskTemplateOverride(
+      interval: interval,
+      fallbackInterval: fallback,
+      source: source,
+      name: name,
+      priority: priority,
+      preselected: preselected as bool?,
+    );
+  }
+
+  static final Map<String, ({bool whole, TaskThreshold Function(num value) build})> _thresholdUnits = {
+    'distance_km': (whole: false, build: (value) => DistanceThreshold((value * 1000).toDouble())),
+    'moving_time_h': (whole: false, build: (value) => MovingTimeThreshold(_hours(value))),
+    'elapsed_time_h': (whole: false, build: (value) => ElapsedTimeThreshold(_hours(value))),
+    'elevation_m': (whole: false, build: (value) => ElevationThreshold(value.toDouble())),
+    'activities': (whole: true, build: (value) => ActivityCountThreshold(value.toInt())),
+    'kj': (whole: false, build: (value) => KilojoulesThreshold(value.toDouble())),
+    // A month is 30 days, as in the task form.
+    'months': (whole: true, build: (value) => DurationThreshold(Duration(days: 30 * value.toInt()))),
+    'days': (whole: true, build: (value) => DurationThreshold(Duration(days: value.toInt()))),
+  };
+
+  static Duration _hours(num value) => Duration(minutes: (value * 60).round());
+
+  /// A single `unit: value` entry, e.g. `{ moving_time_h: 125 }`.
+  TaskThreshold _parseThreshold(Object? raw, String where) {
+    if (raw is! YamlMap || raw.length != 1) {
+      throw _error('$where is not a single "unit: value" map like { moving_time_h: 125 }');
+    }
+    final MapEntry(key: rawUnit, :value) = raw.entries.single;
+    final unit = _thresholdUnits[rawUnit.toString()];
+    if (unit == null) {
+      throw _error('Unknown unit "$rawUnit" in $where; use one of ${_thresholdUnits.keys.join(', ')}');
+    }
+    if (value is! num || value <= 0 || (unit.whole && value is! int)) {
+      throw _error('$where needs a positive ${unit.whole ? 'whole number' : 'number'}, not "$value"');
+    }
+    return unit.build(value);
   }
 
   List<PresetAdjustmentSpec> _parseAdjustmentSpecs(Object? raw, String where) {

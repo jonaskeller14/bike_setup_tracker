@@ -147,6 +147,7 @@ grip2_2019:
 | `specs` | no | merged per key | Typed facts, see [Specs](#specs) |
 | `adjustments` | no | nearest | The spring adjustments, see [Adjustments](#adjustments--sparse-literal-lists) |
 | `options` | no | nearest | The option axes, see [Options](#options) |
+| `tasks` | no | per key | Manufacturer task intervals, see [Task intervals](#task-intervals-tasks) |
 
 Any other key (`offset_mm`, `axle`, `source`, …) is freeform metadata for
 humans and is ignored by the parser — **except** a registered spec key or
@@ -181,6 +182,8 @@ highest node it holds for:
   the **nearest** declaration: a child that writes the field replaces the
   inherited value as a whole. `options` is replaced as one map, not per axis.
 - `specs` are **merged per key**: a child adds to and overrides single keys.
+- `tasks` are **merged per key** too, and `<key>: ~` removes an inherited
+  entry.
 - An explicit `~` clears an inherited text field (`note: ~`).
 
 ### Ids
@@ -209,6 +212,8 @@ exact product. Once the feature is rolled out to users, these are frozen:
 - node `id`s (explicit or derived from the label)
 - option axis ids (`damper`, `travel_mm`, …)
 - option value ids (`grip_x2`, `160`, …)
+- brand-only task keys (`fork:air_spring_service`), which every task rule
+  created from them stores, see [Task intervals](#task-intervals-tasks)
 
 Labels, names, descriptions and notes stay free to change. Renaming a `label`
 whose id is derived from it therefore needs an explicit `id:` that keeps the old
@@ -220,8 +225,9 @@ against the old path then resolves only as far as the path still matches (the
 resolver returns the deepest matching node), so restructure before rollout, not
 after.
 
-`ids.lock` lists every node path and every option value
-(`fork/fox/36/2025/factory#damper=grip_x2`). `test/component_catalog_ids_test.dart`
+`ids.lock` lists every node path, every option value
+(`fork/fox/36/2025/factory#damper=grip_x2`) and every brand-only task key
+(`fork/fox#task=fork:air_spring_service`). `test/component_catalog_ids_test.dart`
 fails when a locked id disappears; new ids are fine. After adding data,
 regenerate the lockfile:
 
@@ -395,8 +401,8 @@ option_values:
 ```
 
 The map key (`grip_x2`) is the option value id and is frozen like a node id.
-All keys other than `name`, `description`, `specs`, `adjustments` and
-`missing_adjustments` (e.g.
+All keys other than `name`, `description`, `specs`, `adjustments`,
+`missing_adjustments` and `tasks` (e.g.
 `valves`, `firm_mode`, `remote`, `source`, `note`) are freeform informational
 metadata for humans; they are not consumed.
 
@@ -576,6 +582,69 @@ moving the definition with it.
 Where every trim of a model or generation shares one list, write `adjustments`
 once on that node instead and let the trims inherit it.
 
+## Task intervals (`tasks`)
+
+The app suggests ready-made task rules for a new component: generic templates
+per component type (`lib/utils/task_presets.dart`), each with a role key such as
+`fork:lower_leg_service`. A node or a damper can replace a generic template's
+interval with the manufacturer's, or add a task that only this brand has.
+
+```yaml
+nodes:
+  - label: "36"
+    level: model
+    tasks:
+      fork:lower_leg_service:
+        interval: { moving_time_h: 125 }
+        fallback: { months: 12 }
+        source: FOX 36 owner's manual https://www.ridefox.com/…
+      fork:full_service: { interval: { moving_time_h: 125 }, source: FOX 36 owner's manual }
+      fork:air_spring_service:                     # brand-only
+        name: Air spring service
+        interval: { moving_time_h: 125 }
+        preselected: true
+        source: FOX 36 owner's manual
+```
+
+| Field | Required? | Meaning |
+|---|---|---|
+| `interval` | **yes** | The service interval, as one `unit: value` entry (see below) |
+| `fallback` | no | Time-based interval (`months`/`days`) used without Strava, only for a ride-based `interval`. Without it, an override keeps the generic template's fallback; a brand-only task without one is hidden without Strava |
+| `source` | **yes** | Where the interval comes from: the document's name, its URL, or both |
+| `name` | brand-only: **yes** | The task's name |
+| `priority` | brand-only | `low`, `medium` (default), `high` or `critical` |
+| `preselected` | brand-only | `true` checks the suggestion by default; defaults to `false` |
+
+| Unit | Interval | Needs Strava |
+|---|---|---|
+| `distance_km` | distance ridden, in km | yes |
+| `moving_time_h` | moving time, in hours | yes |
+| `elapsed_time_h` | elapsed time, in hours | yes |
+| `elevation_m` | elevation gain, in m | yes |
+| `activities` | number of rides (whole number) | yes |
+| `kj` | work, in kJ | yes |
+| `months` | months of 30 days (whole number) | no |
+| `days` | days (whole number) | no |
+
+- **A key is `<type>:<snake_case>`**, where `<type>` is the one the generic
+  keys of the file's component type use (`fork:`, `shock:`).
+- **A generic key overrides its template**: only `interval`, `fallback` and
+  `source` change. Name, notes, priority and preselection stay generic, so a
+  generic key rejects `name`, `priority` and `preselected`.
+- **Any other key is brand-only** and needs a `name`. It is frozen once rolled
+  out, like a node id.
+- **Inheritance is per key.** The nearest declaration wins, and a chosen
+  damper's `tasks` override the product's. `<key>: ~` removes an inherited
+  entry, so the generic template applies again (or the brand-only task is no
+  longer offered). Write an interval at the highest node it holds for, usually
+  the brand's model family.
+- **Only the manufacturer's published interval counts**: an owner's manual or
+  an official service page (tier 1 of the [Sourcing policy](#sourcing-policy)).
+  A brand that publishes none gets no `tasks`, and the generic template applies.
+- **`source` reaches the rider**: under the suggestion and at the end of the
+  created rule's notes ("Recommended interval: every 125 h — FOX 36 owner's
+  manual"). Name the document; no research meta.
+
 ## User-facing text: `description` and `note`
 
 Three kinds of text in this catalog reach the rider:
@@ -675,3 +744,9 @@ in mm, a `url` is not http(s), two files claim the same product path, or a
 non-draft product offers a damper with `adjustments: []`, an adjustment counts
 `clicks` without being a `step`, or rider-facing text contains research wording
 (links, sources, reviews, "confirmed", "not published", "add … yourself").
+
+A task interval is rejected for an unknown unit, a value that is not positive
+(or not whole for `activities`, `months` and `days`), a key that is not
+`<type>:<snake_case>`, a brand-only key without `name`, a generic key with
+`name`/`priority`/`preselected`, a missing `source`, or a `fallback` that is
+ride-based or sits on a time-based interval.

@@ -3,6 +3,7 @@ import 'package:collection/collection.dart';
 import '../models/component/component_catalog.dart';
 import '../models/component/component_preset.dart';
 import '../models/component/preset_spec_keys.dart';
+import '../models/task/task_template.dart';
 
 /// A catalog selection as far as it is resolved: the node path, plus the option
 /// values chosen on the product it ends at.
@@ -45,6 +46,10 @@ class ResolvedPreset {
 
   /// The node's specs, overridden by those of the chosen option values.
   Specs get effectiveSpecs => selections.values.fold(node.specs, (specs, value) => specs.mergedWith(value.specs));
+
+  /// The node's task overrides, changed per key by the chosen option values.
+  Map<String, TaskTemplateOverride> get taskOverrides =>
+      selections.values.fold(node.tasks, (tasks, value) => mergeTaskOverrides(tasks, value.tasks));
 
   /// Every option axis of the product; empty while the path stops at a group.
   Iterable<OptionAxis> get axes => product?.options.values ?? const [];

@@ -1,4 +1,5 @@
 import '../adjustment/adjustment.dart';
+import '../task/task_template.dart';
 import 'component.dart';
 import 'component_preset.dart';
 import 'preset_spec_keys.dart';
@@ -57,6 +58,9 @@ sealed class CatalogNode {
   /// the rider is told to add them by hand.
   final List<String> missingAdjustments;
 
+  /// Task template overrides by role key, inherited per key.
+  final Map<String, TaskTemplateOverride> tasks;
+
   const CatalogNode({
     required this.id,
     required this.label,
@@ -69,6 +73,7 @@ sealed class CatalogNode {
     this.setupGuide,
     this.note,
     this.missingAdjustments = const [],
+    this.tasks = const {},
   });
 }
 
@@ -87,6 +92,7 @@ final class CatalogGroup extends CatalogNode {
     super.setupGuide,
     super.note,
     super.missingAdjustments,
+    super.tasks,
     required this.children,
   });
 }
@@ -110,6 +116,7 @@ final class CatalogProduct extends CatalogNode {
     super.setupGuide,
     super.note,
     super.missingAdjustments,
+    super.tasks,
     this.adjustments = const [],
     this.options = const {},
   });
@@ -141,6 +148,10 @@ class OptionValue {
   /// rider is told to add them by hand.
   final List<String> missingAdjustments;
 
+  /// Changes to the node's task overrides by role key; `null` restores the
+  /// generic template.
+  final Map<String, TaskTemplateOverride?> tasks;
+
   const OptionValue({
     required this.id,
     required this.label,
@@ -148,8 +159,19 @@ class OptionValue {
     this.specs = Specs.empty,
     this.adjustments = const [],
     this.missingAdjustments = const [],
+    this.tasks = const {},
   });
 }
+
+/// [base] with [changes] applied per key; a `null` change removes the key.
+Map<String, TaskTemplateOverride> mergeTaskOverrides(
+  Map<String, TaskTemplateOverride> base,
+  Map<String, TaskTemplateOverride?> changes,
+) => {
+  for (final MapEntry(:key, :value) in base.entries)
+    if (!changes.containsKey(key)) key: value,
+  for (final MapEntry(:key, :value) in changes.entries) key: ?value,
+};
 
 /// Form-fill data for a component created from the catalog.
 class CatalogApplication {

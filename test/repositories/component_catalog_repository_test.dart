@@ -112,4 +112,35 @@ void main() {
       expect(shock?.node.draft, isTrue);
     });
   });
+
+  group('loadedTaskOverrides', () {
+    final preset = ComponentPreset(const {'brand': 'fox', 'component_type': 'fork', 'model': '36', 'trim': 'factory'});
+
+    test("reads the overrides of a loaded type's entry", () {
+      final repository = ComponentCatalogRepository.withCatalogs([
+        parseCatalogFile('''
+brand: FOX
+component_type: fork
+nodes:
+  - label: "36"
+    level: model
+    tasks:
+      fork:full_service: { interval: { moving_time_h: 125 }, source: FOX manual }
+    children:
+      - label: Factory
+        level: trim
+'''),
+      ]);
+
+      expect(repository.loadedTaskOverrides(preset).keys, ['fork:full_service']);
+    });
+
+    test('is empty while the type is not loaded, without loading it', () {
+      expect(ComponentCatalogRepository().loadedTaskOverrides(preset), isEmpty);
+    });
+
+    test('is empty for an entry that does not resolve', () {
+      expect(_repository().loadedTaskOverrides(ComponentPreset(const {'brand': 'sram', 'component_type': 'fork'})), isEmpty);
+    });
+  });
 }

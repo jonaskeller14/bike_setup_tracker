@@ -2,6 +2,9 @@ import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/component_catalog.dart';
 import 'package:bike_setup_tracker/models/component/preset_spec_keys.dart';
+import 'package:bike_setup_tracker/models/task/task_rule.dart';
+import 'package:bike_setup_tracker/models/task/task_template.dart';
+import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
 import 'package:bike_setup_tracker/utils/component_catalog_parser.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -583,6 +586,218 @@ option_values:
         ),
         _throwsFormat('"36 › Factory" (FOX)'),
       );
+    });
+  });
+
+  group('tasks', () {
+    const tasksYaml = '''
+brand: FOX
+component_type: fork
+option_values:
+  damper:
+    grip_x2:
+      name: GRIP X2
+      tasks:
+        fork:full_service: { interval: { moving_time_h: 100 }, source: GRIP X2 manual }
+    grip:
+      name: GRIP
+      tasks:
+        fork:lower_leg_service: ~
+nodes:
+  - label: "36"
+    level: model
+    tasks:
+      fork:lower_leg_service: { interval: { moving_time_h: 125 }, fallback: { months: 12 }, source: FOX manual }
+      fork:full_service: { interval: { moving_time_h: 125 }, source: FOX manual }
+    children:
+      - label: Factory
+        level: trim
+        tasks:
+          fork:full_service: { interval: { moving_time_h: 250 }, source: Factory manual }
+          fork:air_spring_service:
+            name: Air spring service
+            interval: { distance_km: 1500 }
+            priority: high
+            preselected: true
+            source: https://example.com/fox
+        options:
+          damper: [grip_x2, grip]
+      - label: Rhythm
+        level: trim
+        tasks:
+          fork:lower_leg_service: ~
+''';
+
+    late CatalogGroup model;
+    late CatalogProduct factory;
+    late CatalogProduct rhythm;
+
+    setUpAll(() {
+      model = _group(parseCatalogFile(tasksYaml).nodes.single);
+      factory = _product(model.children.first);
+      rhythm = _product(model.children.last);
+    });
+
+    String fileWith(String tasks) =>
+        '''
+brand: FOX
+component_type: fork
+nodes:
+  - label: "36"
+    level: model
+    tasks: $tasks
+''';
+
+    TaskTemplateOverride taskOf(String task) => parseCatalogFile(fileWith('{ $task }')).nodes.single.tasks.values.single;
+
+    test('a node overrides a generic key with its source', () {
+      final lowerLeg = model.tasks['fork:lower_leg_service']!;
+      expect(lowerLeg.interval, const MovingTimeThreshold(Duration(hours: 125)));
+      expect(lowerLeg.fallbackInterval, const DurationThreshold(Duration(days: 360)));
+      expect(lowerLeg.source, 'FOX manual');
+      expect(lowerLeg.name, isNull);
+    });
+
+    test('are inherited per key, the nearest declaration wins', () {
+      expect(factory.tasks.keys, {'fork:lower_leg_service', 'fork:full_service', 'fork:air_spring_service'});
+      expect(factory.tasks['fork:lower_leg_service']!.source, 'FOX manual');
+      expect(factory.tasks['fork:full_service']!.interval, const MovingTimeThreshold(Duration(hours: 250)));
+    });
+
+    test('~ clears an inherited override', () {
+      expect(rhythm.tasks.keys, ['fork:full_service']);
+    });
+
+    test('a brand-only key carries its own name, priority and preselection', () {
+      final airSpring = factory.tasks['fork:air_spring_service']!;
+      expect(airSpring.name, 'Air spring service');
+      expect(airSpring.interval, const DistanceThreshold(1500000));
+      expect(airSpring.priority, TaskPriority.high);
+      expect(airSpring.preselected, isTrue);
+    });
+
+    test('an option value keeps its changes, ~ included', () {
+      final damper = factory.options['damper']!.values;
+      expect(damper.first.tasks['fork:full_service']!.source, 'GRIP X2 manual');
+      expect(damper.last.tasks, {'fork:lower_leg_service': null});
+    });
+
+    test('reads every threshold unit', () {
+      TaskThreshold interval(String unit) => taskOf('fork:full_service: { interval: { $unit }, source: s }').interval;
+
+      expect(interval('distance_km: 2.5'), const DistanceThreshold(2500));
+      expect(interval('moving_time_h: 1.5'), const MovingTimeThreshold(Duration(minutes: 90)));
+      expect(interval('elapsed_time_h: 50'), const ElapsedTimeThreshold(Duration(hours: 50)));
+      expect(interval('elevation_m: 20000'), const ElevationThreshold(20000));
+      expect(interval('activities: 5'), const ActivityCountThreshold(5));
+      expect(interval('kj: 50000'), const KilojoulesThreshold(50000));
+      expect(interval('months: 6'), const DurationThreshold(Duration(days: 180)));
+      expect(interval('days: 10'), const DurationThreshold(Duration(days: 10)));
+    });
+
+    group('rejects', () {
+      test('an unknown unit, or more than one', () {
+        expect(
+          () => taskOf('fork:full_service: { interval: { hours: 50 }, source: s }'),
+          _throwsFormat('Unknown unit "hours"'),
+        );
+        expect(
+          () => taskOf('fork:full_service: { interval: { moving_time_h: 50, days: 10 }, source: s }'),
+          _throwsFormat('single "unit: value" map'),
+        );
+      });
+
+      test('a value that is not positive, or not whole where it must be', () {
+        expect(
+          () => taskOf('fork:full_service: { interval: { moving_time_h: 0 }, source: s }'),
+          _throwsFormat('positive number'),
+        );
+        expect(
+          () => taskOf('fork:full_service: { interval: { distance_km: -5 }, source: s }'),
+          _throwsFormat('positive number'),
+        );
+        expect(
+          () => taskOf('fork:full_service: { interval: { months: 1.5 }, source: s }'),
+          _throwsFormat('positive whole number'),
+        );
+      });
+
+      test('a key that is not <type>:<snake_case> for its component type', () {
+        expect(
+          () => taskOf('full_service: { interval: { days: 10 }, source: s }'),
+          _throwsFormat('Task key "full_service"'),
+        );
+        expect(
+          () => taskOf('fork:Full-Service: { interval: { days: 10 }, source: s }'),
+          _throwsFormat('Task key "fork:Full-Service"'),
+        );
+        expect(
+          () => taskOf('shock:full_service: { interval: { days: 10 }, source: s }'),
+          _throwsFormat('is not "fork:<snake_case>"'),
+        );
+      });
+
+      test('a key that is no generic task of the type and has no name', () {
+        expect(
+          () => taskOf('fork:lower_legs: { interval: { days: 10 }, source: s }'),
+          _throwsFormat('is no generic fork task, so it needs a "name"'),
+        );
+      });
+
+      test('a name, priority or preselection on a generic key', () {
+        expect(
+          () => taskOf('fork:full_service: { name: Service, interval: { days: 10 }, source: s }'),
+          _throwsFormat('overrides a generic task'),
+        );
+        expect(
+          () => taskOf('fork:full_service: { preselected: false, interval: { days: 10 }, source: s }'),
+          _throwsFormat('overrides a generic task'),
+        );
+      });
+
+      test('a missing source or interval, or an unknown field', () {
+        expect(
+          () => taskOf('fork:full_service: { interval: { days: 10 } }'),
+          _throwsFormat('needs a "source"'),
+        );
+        expect(
+          () => taskOf('fork:full_service: { source: s }'),
+          _throwsFormat('"interval" of task "fork:full_service"'),
+        );
+        expect(
+          () => taskOf('fork:full_service: { interval: { days: 10 }, source: s, notes: x }'),
+          _throwsFormat('Unknown key(s) notes'),
+        );
+      });
+
+      test('a fallback that is ride-based, or for a time-based interval', () {
+        expect(
+          () => taskOf('fork:full_service: { interval: { moving_time_h: 50 }, fallback: { distance_km: 10 }, source: s }'),
+          _throwsFormat('not in months or days'),
+        );
+        expect(
+          () => taskOf('fork:full_service: { interval: { months: 6 }, fallback: { months: 12 }, source: s }'),
+          _throwsFormat('already time-based'),
+        );
+      });
+
+      test('an unknown priority, or a preselection that is not a boolean', () {
+        expect(
+          () => taskOf('fork:extra: { name: Extra, interval: { days: 10 }, priority: urgent, source: s }'),
+          _throwsFormat('"priority"'),
+        );
+        expect(
+          () => taskOf('fork:extra: { name: Extra, interval: { days: 10 }, preselected: maybe, source: s }'),
+          _throwsFormat('"preselected"'),
+        );
+      });
+
+      test('tasks that are not a map, naming the path', () {
+        expect(
+          () => parseCatalogFile(fileWith('[a]')),
+          _throwsFormat('"tasks" of "36" is not a map (FOX)'),
+        );
+      });
     });
   });
 }

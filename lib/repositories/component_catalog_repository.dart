@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../models/component/component.dart';
 import '../models/component/component_catalog.dart';
 import '../models/component/component_preset.dart';
+import '../models/task/task_template.dart';
 import '../utils/component_catalog_parser.dart';
 import '../utils/component_preset_resolver.dart';
 
@@ -62,6 +63,15 @@ class ComponentCatalogRepository {
     final type = preset.componentType;
     if (type == null) return null;
     return resolvePreset(await _load(type), preset);
+  }
+
+  /// The task overrides of [preset]'s catalog entry, from the cache alone:
+  /// empty while its type is not loaded yet, so callers stay synchronous and
+  /// fall back to the generic templates.
+  Map<String, TaskTemplateOverride> loadedTaskOverrides(ComponentPreset preset) {
+    final catalogs = _catalogs[preset.componentType];
+    if (catalogs == null) return const {};
+    return resolvePreset(catalogs, preset)?.taskOverrides ?? const {};
   }
 
   Future<List<BrandCatalog>> _load(ComponentType type) async {

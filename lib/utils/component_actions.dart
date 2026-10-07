@@ -22,6 +22,7 @@ import '../pages/adjustment/step_adjustment_page.dart';
 import '../pages/adjustment/text_adjustment_page.dart';
 import '../pages/forms/component_page.dart';
 import '../repositories/app_repository.dart';
+import '../repositories/component_catalog_repository.dart';
 import '../services/subscription_service.dart';
 import '../widgets/app_snackbar.dart';
 import '../widgets/sheets/archive_component.dart';
@@ -218,6 +219,7 @@ class ComponentActions {
     final copyRules = source == null
         ? const <TaskRule>[]
         : appRepository.taskRules.values.where((rule) => rule.association.componentId == source.id).toList();
+    final preset = target.preset;
     // Not deduplicated against copyRules: the sheet hides a suggestion only while its copy is selected.
     final suggestions = !appSettings.showTaskPresets
         ? const <TaskSuggestion>[]
@@ -225,6 +227,10 @@ class ComponentActions {
             target,
             existingRules: appRepository.taskRules.values,
             hasStravaEntitlement: context.read<SubscriptionService>().hasStravaEntitlement,
+            // ComponentPage has loaded the catalog of a component with a preset.
+            overrides: preset == null
+                ? const {}
+                : context.read<ComponentCatalogRepository>().loadedTaskOverrides(preset),
           );
     if (copyRules.isEmpty && suggestions.isEmpty) return;
 

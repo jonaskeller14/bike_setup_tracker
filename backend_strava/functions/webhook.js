@@ -134,6 +134,11 @@ exports.webhookWorker = onTaskDispatched(
             `https://www.strava.com/api/v3/activities/${activityId}`,
             { headers: { Authorization: `Bearer ${token}` } }
           );
+          if (response.status === 404) {
+            // Deleted/private since the event was queued; retrying can't help.
+            logger.warn("WORKER_ACTIVITY_NOT_FOUND", { activityId, athleteId });
+            return;
+          }
           checkStravaResponse(response, "Strava Activity API");
           const activity = await response.json();
 

@@ -526,11 +526,15 @@ class StravaService extends ChangeNotifier {
     } on FirebaseFunctionsException catch (e) {
       _handleError("checkAvailability", e);
       // Network-class failures: don't cache so the next sheet open re-probes
-      // immediately. Anything else (e.g. server bug) is treated as full to
-      // prevent users from buying when something is genuinely wrong upstream.
+      // immediately. Rejected App Check / auth tokens are transient on the
+      // client side, so they must not read as "full" either. Anything else
+      // (e.g. server bug) is treated as full to prevent users from buying when
+      // something is genuinely wrong upstream.
       if (e.code == 'deadline-exceeded' ||
           e.code == 'unavailable' ||
-          e.code == 'unknown') {
+          e.code == 'unknown' ||
+          e.code == 'unauthenticated' ||
+          e.code == 'failed-precondition') {
         _availability = StravaAvailability.networkError;
         _availabilityCheckedAt = null;
       } else {

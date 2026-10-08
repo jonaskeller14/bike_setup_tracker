@@ -526,11 +526,13 @@ class AppRepository extends ChangeNotifier {
     ];
     if (changed.isEmpty) return;
 
-    // One transaction: written individually, every upsert re-emits the task
-    // entry stream, which re-resolves all setups on the UI isolate.
+    // One transaction: written individually, every update re-emits the task
+    // entry stream, which re-resolves all setups on the UI isolate. Only the
+    // snapshot is written: the rows were read before the stats queries, so a
+    // full-row write would revert edits and trashing made in the meantime.
     await database.transaction(() async {
       for (final entry in changed) {
-        await database.taskDao.upsertEntry(entry.toCompanion());
+        await database.taskDao.updateEntrySnapshot(entry.id, entry.toCompanion().snapshot.value);
       }
     });
   }

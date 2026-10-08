@@ -846,6 +846,37 @@ void main() {
       expect(healed.toModel().snapshot?.distance, 100000.0); // healed
     });
 
+    test("a refresh does not revert an entry trashed while its stats are queried", () async {
+      final component = Component(name: "Chain", componentType: ComponentType.chain, installations: const []);
+      await repository.addComponents([component]);
+      final entryDate = DateTime.utc(2024, 1, 2);
+      final entry = TaskEntry(
+        name: "Waxed",
+        taskRule: "rule",
+        association: ComponentTaskAssociation(component.id),
+        dateTimeUTC: entryDate,
+        dateTimeLocal: entryDate,
+        snapshot: const ComponentStats(
+          distance: 999000.0,
+          elevationGain: 0,
+          movingTime: Duration.zero,
+          elapsedTime: Duration.zero,
+          activityCount: 99,
+        ),
+      );
+      await database.taskDao.insertEntry(entry.toCompanion());
+
+      // Not awaited: the trash lands after the refresh has read the rows but
+      // before it writes the healed snapshots back.
+      final refresh = repository.refreshTaskEntrySnapshots();
+      await repository.removeTaskEntries([entry]);
+      await refresh;
+
+      final stored = (await database.taskDao.getAllEntriesBypass()).firstWhere((e) => e.id == entry.id);
+      expect(stored.isDeleted, isTrue);
+      expect(stored.toModel().snapshot?.distance, isNot(999000.0));
+    });
+
     test("component edits refresh only that component's active and trashed entries", () async {
       final target = Component(name: "Target Chain", componentType: ComponentType.chain, installations: const []);
       final unrelated = Component(name: "Unrelated Chain", componentType: ComponentType.chain, installations: const []);

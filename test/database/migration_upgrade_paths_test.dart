@@ -36,6 +36,10 @@ void main() {
   // structural undo — their steps rewrite/recreate the affected tables
   // regardless of the starting column shape.
   Future<void> reshapeToVersion(AppDatabase db, int version) async {
+    if (version < 24) {
+      // v24 added the strava_activities gear/date index.
+      await db.customStatement('DROP INDEX strava_activities_gear_date_idx');
+    }
     if (version < 22) {
       // v22 replaced the components preset key pair with the preset map.
       await db.customStatement('ALTER TABLE components DROP COLUMN preset');
@@ -252,6 +256,13 @@ void main() {
           await columnNames(db, 'setups'),
           contains('is_bookmarked'),
           reason: 'is_bookmarked column missing after v$startVersion upgrade',
+        );
+
+        final stravaIndexes = await db.customSelect("PRAGMA index_list('strava_activities')").get();
+        expect(
+          stravaIndexes.map((r) => r.read<String>('name')),
+          contains('strava_activities_gear_date_idx'),
+          reason: 'gear/date index missing after v$startVersion upgrade',
         );
 
         // The seeded installation row (parent='b1') got the 'bike' default.

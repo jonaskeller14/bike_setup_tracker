@@ -91,7 +91,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 23;
+  int get schemaVersion => 24;
 
   @override
   MigrationStrategy get migration {
@@ -292,6 +292,12 @@ class AppDatabase extends _$AppDatabase {
           if (!await _columnExists('task_rules', 'preset_key')) {
             await m.addColumn(taskRules, taskRules.presetKey);
           }
+        }
+        if (from < 24) {
+          await customStatement(
+            'CREATE INDEX IF NOT EXISTS strava_activities_gear_date_idx '
+            'ON strava_activities (gear_id, start_date)',
+          );
         }
       }),
     );

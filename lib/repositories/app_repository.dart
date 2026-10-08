@@ -919,11 +919,9 @@ class AppRepository extends ChangeNotifier {
       if (toDelete != null && toDelete.isNotEmpty) {
         await database.stravaDao.deleteActivities(toDelete);
       }
-      for (var a in activities) {
-        // Check if we were cleared while processing
-        if (versionAtStart != _stravaOperationVersion) return;
-        await database.stravaDao.upsertActivity(a.toCompanion());
-      }
+      // Check if we were cleared while waiting for the transaction
+      if (versionAtStart != _stravaOperationVersion) return;
+      await database.stravaDao.upsertActivities(activities.map((a) => a.toCompanion()));
     });
 
     if (versionAtStart != _stravaOperationVersion) {

@@ -9668,6 +9668,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'installations_parent_lookup_idx',
     'CREATE INDEX installations_parent_lookup_idx ON installations (parent_type, parent, date_time_u_t_c)',
   );
+  late final Index stravaActivitiesGearDateIdx = Index(
+    'strava_activities_gear_date_idx',
+    'CREATE INDEX strava_activities_gear_date_idx ON strava_activities (gear_id, start_date)',
+  );
   late final BikesDao bikesDao = BikesDao(this as AppDatabase);
   late final ComponentsDao componentsDao = ComponentsDao(this as AppDatabase);
   late final SetupsDao setupsDao = SetupsDao(this as AppDatabase);
@@ -9701,6 +9705,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     stravaGears,
     installationsComponentDateIdx,
     installationsParentLookupIdx,
+    stravaActivitiesGearDateIdx,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([

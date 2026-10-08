@@ -381,6 +381,10 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
     });
   }
   Future<int> upsertActivity(StravaActivitiesCompanion entry) => into(stravaActivities).insertOnConflictUpdate(entry);
+  // One batch: a full Strava history would otherwise cost one round-trip to
+  // the database isolate per activity.
+  Future<void> upsertActivities(Iterable<StravaActivitiesCompanion> entries) =>
+      batch((b) => b.insertAllOnConflictUpdate(stravaActivities, entries));
   Future<int> deleteActivities(Iterable<int> ids) => (delete(stravaActivities)..where((t) => t.id.isIn(ids))).go();
 
   Stream<Map<String, ComponentStats>> watchComponentStats() {

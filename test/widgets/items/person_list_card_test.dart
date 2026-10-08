@@ -86,13 +86,13 @@ void main() {
       expect(await openMenu(tester), ['Edit', 'Link bikes', 'Remove']);
     });
 
-    testWidgets('tap opens edit', (tester) async {
+    testWidgets('tap opens nothing', (tester) async {
       await pumpCard(tester, PersonListCard(person: person));
 
       await tester.tap(find.text('Rider'));
       await tester.pumpAndSettle();
 
-      expect(find.byType(PersonPage), findsOneWidget);
+      expect(find.byType(PersonPage), findsNothing);
       expect(find.byType(PersonDetailsPage), findsNothing);
     });
 

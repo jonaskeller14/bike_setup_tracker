@@ -284,7 +284,7 @@ void main() {
 
       final rule = findById(export, 'taskRules', 'tr1');
       final entry = findById(export, 'taskEntries', 'te1');
-      expect(rule['version'], 3);
+      expect(rule['version'], 4);
       expect(rule['attachments'], ruleAttachments);
       expect(entry['version'], 3);
       expect(entry['attachments'], entryAttachments);

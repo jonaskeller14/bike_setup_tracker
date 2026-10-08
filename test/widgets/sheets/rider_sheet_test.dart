@@ -117,14 +117,16 @@ void main() {
     expect(find.text(linkBike), findsOneWidget);
   });
 
-  testWidgets('one rider shows the intro and the card; tap opens edit', (tester) async {
+  testWidgets('one rider shows the intro and the card; Edit opens edit', (tester) async {
     await openSheet(tester, persons: [Person(name: 'Jonas')]);
 
     expect(find.textContaining('depend on your weight'), findsOneWidget);
     expect(find.byType(PersonListCard), findsOneWidget);
     expect(find.byType(RiderNameForm), findsNothing);
 
-    await tester.tap(find.text('Jonas'));
+    await tester.tap(find.byTooltip('Show menu'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Edit'));
     await tester.pumpAndSettle();
 
     expect(find.byType(PersonPage), findsOneWidget);

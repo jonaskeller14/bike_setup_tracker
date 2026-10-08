@@ -67,6 +67,8 @@ void main() {
       await pumpPage(tester, PersonPage.add());
       await openAddAttributeSheet(tester);
 
+      await tester.ensureVisible(find.text('Numerical Attribute'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Numerical Attribute'));
       await tester.pumpAndSettle();
 

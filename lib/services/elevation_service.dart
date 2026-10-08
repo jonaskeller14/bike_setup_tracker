@@ -12,6 +12,8 @@ enum ElevationStatus {
 
 class ElevationService extends ChangeNotifier {
   final elevationAPI = const ElevationApi(userAgent: "Bike Setup Tracker App v1.0");
+  // open_meteo sets no timeout, so a stalled connection would stay "searching" forever.
+  static const _requestTimeout = Duration(seconds: 20);
   ElevationStatus _status = ElevationStatus.idle;
 
   ElevationStatus get status => _status;
@@ -24,7 +26,7 @@ class ElevationService extends ChangeNotifier {
   Future<double?> fetchElevation({required double lat, required double lon}) async {
     setStatus(ElevationStatus.searching);
     try {
-      final result = await elevationAPI.requestJson(latitudes: {lat}, longitudes: {lon});
+      final result = await elevationAPI.requestJson(latitudes: {lat}, longitudes: {lon}).timeout(_requestTimeout);
 
       if (result.containsKey('error') && result['error'] == true) {
         final String reason = result['reason'] as String? ?? 'Unknown API Error';

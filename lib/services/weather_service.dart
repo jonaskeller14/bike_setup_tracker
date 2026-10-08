@@ -41,6 +41,8 @@ class WeatherService extends ChangeNotifier {
   );
   
   static const int _maxRequestsPerHour = 12;
+  // open_meteo sets no timeout, so a stalled connection would stay "searching" forever.
+  static const _requestTimeout = Duration(seconds: 20);
   final List<DateTime> _requestTimestamps = [];
 
   WeatherStatus _status = const WeatherIdle();
@@ -98,7 +100,7 @@ class WeatherService extends ChangeNotifier {
           HistoricalHourly.soil_moisture_0_to_7cm,
           HistoricalHourly.is_day,
         },
-      );
+      ).timeout(_requestTimeout);
       final apiDatetime = datetime.copyWith(minute: 0, second: 0, millisecond: 0, microsecond: 0, isUtc: false);
       final double? currentTemperature = response.segments[0].hourlyData[HistoricalHourly.temperature_2m]!.values[apiDatetime]?.toDouble();
       final int? currentWeatherCode = response.segments[0].hourlyData[HistoricalHourly.weather_code]!.values[apiDatetime]?.toInt();
@@ -129,6 +131,9 @@ class WeatherService extends ChangeNotifier {
       return null;
     } on SocketException {
       setStatus(const WeatherError("Network Error (No Internet)."));
+      return null;
+    } on TimeoutException {
+      setStatus(const WeatherError("Network Error (Timeout)."));
       return null;
     } catch (e) {
       // Preserve the rate-limit message (thrown with the reset time); any other

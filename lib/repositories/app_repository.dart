@@ -954,9 +954,12 @@ class AppRepository extends ChangeNotifier {
   Future<void> clearStravaData() async {
     _stravaOperationVersion++;
 
-    await database.delete(database.stravaActivities).go();
-    await database.delete(database.stravaAthletes).go();
-    await database.delete(database.stravaGears).go();
+    // One transaction so the Strava watch streams re-query once, not per table.
+    await database.transaction(() async {
+      await database.delete(database.stravaActivities).go();
+      await database.delete(database.stravaAthletes).go();
+      await database.delete(database.stravaGears).go();
+    });
     _strava.clear();
     _stravaAthletes = {};
     _stravaGears = {};

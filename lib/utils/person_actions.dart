@@ -167,7 +167,10 @@ class PersonActions {
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
           label: 'UNDO',
-          onPressed: () async => appRepository.restorePersons([person]),
+          onPressed: () async {
+            await appRepository.restorePersons([person]);
+            await appRepository.restoreRatings(obsoleteRatings);
+          },
         ),
       ),
     );

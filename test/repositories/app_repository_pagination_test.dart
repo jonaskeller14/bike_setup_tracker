@@ -129,5 +129,21 @@ void main() {
       expect(activities[0].id, 1);
       expect(activities[1].id, 2);
     });
+
+    test("A sync after an empty initial load re-enables paging", () async {
+      repository = AppRepository(database);
+      repository.debugSetStravaLimit(2);
+      await repository.initialStravaLoad();
+      expect(repository.hasMoreStrava, false);
+
+      await repository.setStravaActivities([
+        for (int i = 1; i <= 5; i++) createActivity(i, DateTime(2023, 1, i)),
+      ]);
+      expect(repository.stravaActivities.length, 2);
+      expect(repository.hasMoreStrava, true);
+
+      await repository.loadMoreStravaActivities();
+      expect(repository.stravaActivities.length, 4);
+    });
   });
 }

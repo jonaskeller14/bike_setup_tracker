@@ -214,7 +214,7 @@ class StravaService extends ChangeNotifier {
       if (_activeAthleteId != previousAthleteId) {
         unawaited(_stopDataListeners());
         if (_activeAthleteId != null) {
-          unawaited(_startDataListeners());
+          _startDataListeners();
         } else {
           unawaited(_appRepository.clearStravaData());
         }
@@ -225,26 +225,31 @@ class StravaService extends ChangeNotifier {
     }, onError: (Object e) => _handleError("UserDoc", e, userMessage: "Connection verify failed"));
   }
 
-  Future<void> _startDataListeners() async {
-    await _listenToAthleteDocument();
+  // Start and stop swap the subscription fields synchronously: callers fire
+  // them back to back without awaiting, and a field assigned after an await
+  // could overwrite (and orphan) a subscription set by the other call.
+  void _startDataListeners() {
+    _listenToAthleteDocument();
     _listenToActivities();
   }
 
   Future<void> _stopDataListeners() async {
-    await _activitiesSubscription?.cancel();
-    await _athleteSubscription?.cancel();
+    final activitiesSubscription = _activitiesSubscription;
+    final athleteSubscription = _athleteSubscription;
     _activitiesSubscription = null;
     _athleteSubscription = null;
+    await activitiesSubscription?.cancel();
+    await athleteSubscription?.cancel();
   }
 
   /// Listens to the athlete root doc — combines profile fields with the
   /// shared sync state (status, last syncs, sync_day). All devices linked to
   /// the same athlete see the same sync state, which is the desired behavior.
-  Future<void> _listenToAthleteDocument() async {
+  void _listenToAthleteDocument() {
     final athleteId = _activeAthleteId;
     if (athleteId == null) return;
 
-    await _athleteSubscription?.cancel();
+    unawaited(_athleteSubscription?.cancel());
     _athleteSubscription = FirebaseFirestore.instance.collection('athletes').doc(athleteId).snapshots().listen((snapshot) async {
       if (_activeAthleteId != athleteId) return; // listener stale
       final data = snapshot.data();
@@ -377,11 +382,13 @@ class StravaService extends ChangeNotifier {
       debugPrint('StravaService: subscription lapsed — clearing local Strava data');
       unawaited(_stopDataListeners());
       unawaited(_appRepository.clearStravaData());
-    } else if (!_wasEntitled && isEntitled) {
+    } else if (!_wasEntitled && isEntitled && _athleteSubscription == null) {
       // Subscription restored while athlete is still linked — restart listeners
       // so data flows again without requiring a full disconnect + re-auth.
+      // Skipped when they already run (`_wasEntitled` starts false on launch):
+      // resubscribing would re-deliver and re-upsert every activity batch.
       debugPrint('StravaService: subscription restored — restarting data listeners');
-      unawaited(_startDataListeners());
+      _startDataListeners();
     }
     _wasEntitled = isEntitled;
   }

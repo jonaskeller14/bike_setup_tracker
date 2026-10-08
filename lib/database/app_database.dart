@@ -99,7 +99,10 @@ class AppDatabase extends _$AppDatabase {
       onCreate: (Migrator m) async {
         await m.createAll();
       },
-      onUpgrade: (Migrator m, int from, int to) async {
+      // Drift stamps the new version only after this returns, so a partial run
+      // would replay steps on the next launch that aren't idempotent (v2 shifts
+      // dates again, unguarded addColumn/createTable fail). All or nothing.
+      onUpgrade: (Migrator m, int from, int to) => transaction(() async {
         if (from < 2) {
           // Fix legacy local timestamps that were stored as absolute UTC epochs 
           // instead of floating face-values.
@@ -290,7 +293,7 @@ class AppDatabase extends _$AppDatabase {
             await m.addColumn(taskRules, taskRules.presetKey);
           }
         }
-      },
+      }),
     );
   }
 

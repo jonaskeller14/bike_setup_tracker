@@ -165,9 +165,9 @@ void main() {
     );
   }
 
-  // Builds a db file seeded at [startVersion] and re-opens it so drift runs the
-  // real upgrade to the current schema. Returns the upgraded database.
-  Future<AppDatabase> migrateFrom(int startVersion) async {
+  // Builds a db file seeded at [startVersion]. [extraStatements] run against the
+  // seeded schema right before the version is stamped.
+  Future<File> seedFileAt(int startVersion, {List<String> extraStatements = const []}) async {
     final file = File(p.join(tempDir.path, 'v$startVersion.sqlite'));
 
     final seed = AppDatabase.forTesting(NativeDatabase(file));
@@ -181,8 +181,18 @@ void main() {
     await seedComponent(seed);
     await seedBike(seed);
     await seedTask(seed);
+    for (final statement in extraStatements) {
+      await seed.customStatement(statement);
+    }
     await seed.customStatement('PRAGMA user_version = $startVersion');
     await seed.close();
+    return file;
+  }
+
+  // Builds a db file seeded at [startVersion] and re-opens it so drift runs the
+  // real upgrade to the current schema. Returns the upgraded database.
+  Future<AppDatabase> migrateFrom(int startVersion) async {
+    final file = await seedFileAt(startVersion);
 
     // Re-open: drift sees user_version < schemaVersion and runs onUpgrade.
     final upgraded = AppDatabase.forTesting(NativeDatabase(file));
@@ -311,6 +321,34 @@ void main() {
         expect(taskEntry.attachments, isEmpty);
       });
     }
+  });
+
+  test('a failing step rolls back the whole upgrade so the retry starts clean', () async {
+    // v16 rounds the seeded installation's off-minute instant; aborting that
+    // update fails the upgrade after the v9 and v10 steps already ran.
+    final file = await seedFileAt(8, extraStatements: [
+      'CREATE TRIGGER fail_installation_update BEFORE UPDATE ON installations '
+          "BEGIN SELECT RAISE(ABORT, 'boom'); END",
+    ]);
+
+    final failing = AppDatabase.forTesting(NativeDatabase(file));
+    await expectLater(failing.customSelect('SELECT 1').get(), throwsA(anything));
+    await failing.close();
+
+    late int userVersion;
+    late Set<String> installationColumns;
+    final retry = AppDatabase.forTesting(NativeDatabase(file, setup: (raw) {
+      userVersion = raw.userVersion;
+      installationColumns =
+          raw.select('PRAGMA table_info(installations)').map((row) => row['name'] as String).toSet();
+      raw.execute('DROP TRIGGER fail_installation_update');
+    }));
+    addTearDown(retry.close);
+    await retry.customSelect('SELECT 1').get();
+
+    expect(userVersion, 8);
+    expect(installationColumns, isNot(contains('parent_type')));
+    expect(await columnNames(retry, 'installations'), contains('parent_type'));
   });
 }
 

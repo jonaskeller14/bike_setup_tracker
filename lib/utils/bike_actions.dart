@@ -117,7 +117,8 @@ class BikeActions {
         .toList();
     final selectedTaskRules = relatedTaskRules.isEmpty
         ? const <TaskRule>[]
-        : await showDeleteTaskRulesSheet(context, taskRules: relatedTaskRules) ?? const <TaskRule>[];
+        : await showDeleteTaskRulesSheet(context, taskRules: relatedTaskRules);
+    if (selectedTaskRules == null) return;
     final selectedRuleIds = selectedTaskRules.map((rule) => rule.id).toSet();
     final obsoleteTaskEntries = appRepository.taskEntries.values
         .where((entry) => selectedRuleIds.contains(entry.taskRule))

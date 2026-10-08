@@ -443,8 +443,8 @@ class ComponentActions {
         .toList();
     final selectedTaskRules = relatedTaskRules.isEmpty
         ? const <TaskRule>[]
-        : await showDeleteTaskRulesSheet(context, taskRules: relatedTaskRules, rootComponentId: component.id) ??
-            const <TaskRule>[];
+        : await showDeleteTaskRulesSheet(context, taskRules: relatedTaskRules, rootComponentId: component.id);
+    if (selectedTaskRules == null) return;
     final selectedRuleIds = selectedTaskRules.map((rule) => rule.id).toSet();
     final obsoleteTaskEntries = appRepository.taskEntries.values
         .where((entry) => selectedRuleIds.contains(entry.taskRule))

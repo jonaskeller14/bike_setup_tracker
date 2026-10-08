@@ -132,16 +132,19 @@ class FileImport {
   }
 
   static Future<void> _importDataToDb(AppDatabase database, SelectedData dataToImport) async {
-    // Reject an unusable component hierarchy before the wipe below: the deletes
-    // are not part of the insert transaction, so failing afterwards would leave
-    // the database empty. Merged data is checked, not just the incoming file —
-    // two individually sound datasets can still merge into a cycle.
+    // Reject an unusable component hierarchy before touching the database.
+    // Merged data is checked, not just the incoming file — two individually
+    // sound datasets can still merge into a cycle.
     ComponentHierarchyResolver(dataToImport.components).validate();
 
-    await database.deleteAllUserData();
+    // One transaction, so a failing insert rolls the wipe back instead of
+    // leaving the database empty.
+    await database.transaction(() async {
+      await database.deleteAllUserData();
 
-    final migrationService = DatabaseMigrationService(database);
-    await migrationService.migrateFromSelectedData(dataToImport);
+      final migrationService = DatabaseMigrationService(database);
+      await migrationService.migrateFromSelectedData(dataToImport);
+    });
   }
 
   static void _mergeInternal({

@@ -67,3 +67,7 @@ ios/Runner/client_*.plist
 
 .mcp.json
 .claude/scheduled_tasks.lock
+
+# Marketing: store metrics stay private; music licenses forbid redistribution
+docs/marketing/metrics/
+tool/marketing/assets/music/

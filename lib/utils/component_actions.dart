@@ -23,6 +23,7 @@ import '../pages/adjustment/text_adjustment_page.dart';
 import '../pages/forms/component_page.dart';
 import '../repositories/app_repository.dart';
 import '../repositories/component_catalog_repository.dart';
+import '../services/component_hierarchy_resolver.dart';
 import '../services/subscription_service.dart';
 import '../widgets/app_snackbar.dart';
 import '../widgets/sheets/archive_component.dart';
@@ -98,7 +99,16 @@ class ComponentActions {
       }
       subcomponentEdits = edits;
     }
-    await appRepository.editComponents([result.value, ...subcomponentEdits], conversions: result.conversions);
+    try {
+      await appRepository.editComponents([result.value, ...subcomponentEdits], conversions: result.conversions);
+    } on ComponentHierarchyValidationException {
+      await AttachmentActions.deleteUnsaved(result.value.attachments, saved: component.attachments);
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        AppSnackBar.error(context, 'Not saved: this would create a loop of components.'),
+      );
+      return;
+    }
     await AttachmentActions.deleteUnsaved(component.attachments, saved: result.value.attachments);
   }
 

@@ -17,6 +17,7 @@ import '../models/setup.dart';
 import '../models/timeline_entry.dart';
 import '../models/timeline_row.dart';
 import '../repositories/app_repository.dart';
+import '../services/component_hierarchy_resolver.dart';
 import '../services/subscription_service.dart';
 import '../utils/automation_ids.dart';
 import '../utils/installation_timeline_validation.dart';
@@ -561,10 +562,15 @@ class _CalendarPageState extends State<CalendarPage> {
       return;
     }
 
-    await appRepository.editComponents([
-      removedComponent.copyWith(installations: updatedRemoved),
-      installedComponent.copyWith(installations: updatedInstalled),
-    ]);
+    try {
+      await appRepository.editComponents([
+        removedComponent.copyWith(installations: updatedRemoved),
+        installedComponent.copyWith(installations: updatedInstalled),
+      ]);
+    } on ComponentHierarchyValidationException {
+      _rejectMove("Can't move this replacement there: it would create a loop of components.");
+      return;
+    }
     _showMoveUndoSnackBar(
       calendarSubjectForRow(row),
       oldLocal,
@@ -608,7 +614,12 @@ class _CalendarPageState extends State<CalendarPage> {
           _rejectMove("Can't move this installation there.");
           return;
         }
-        await appRepository.editComponents([originalComponent.copyWith(installations: updatedInstallations)]);
+        try {
+          await appRepository.editComponents([originalComponent.copyWith(installations: updatedInstallations)]);
+        } on ComponentHierarchyValidationException {
+          _rejectMove("Can't move this installation there: it would create a loop of components.");
+          return;
+        }
         _showMoveUndoSnackBar(
           calendarSubjectFor(entry),
           oldLocal,

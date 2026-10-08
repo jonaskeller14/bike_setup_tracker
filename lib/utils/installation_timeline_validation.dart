@@ -118,38 +118,32 @@ InstallationTimelineIssue? _hierarchyIssue(
   String componentId,
   Map<String, Component> components,
 ) {
-  final resolver = ComponentHierarchyResolver(components);
-
   for (int index = 0; index < installations.length; index++) {
     final installation = installations[index];
-    if (installation is! ComponentInstallation) continue;
-
-    if (installation.parentComponentId == componentId) {
+    if (installation is ComponentInstallation && installation.parentComponentId == componentId) {
       return InstallationTimelineIssue(
         message: 'A component cannot be installed on itself',
         parentIndices: {index},
       );
     }
+  }
 
-    // Walk the ancestors as they stand at this row's instant; arriving back at
-    // the edited component closes a loop. The visited set also terminates on a
-    // loop further up that this component is not part of.
-    final visited = <String>{};
-    var currentId = installation.parentComponentId;
-    while (visited.add(currentId)) {
-      if (currentId == componentId) {
-        return InstallationTimelineIssue(
-          message: 'This installation creates a loop of components',
-          parentIndices: {index},
-        );
-      }
-      final parent = components[currentId];
-      // An unknown parent is kept as off-bike history, not rejected.
-      if (parent == null) break;
-      final parentInstallation = resolver.installationAt(parent, installation.dateTimeUTC);
-      if (parentInstallation is! ComponentInstallation) break;
-      currentId = parentInstallation.parentComponentId;
-    }
+  // Validates the whole candidate hierarchy instead of each row's own instant:
+  // a loop can also close later, when an ancestor moves while the row applies.
+  final edited = components[componentId]?.copyWith(installations: installations) ??
+      Component(id: componentId, name: '', installations: installations, componentType: ComponentType.other);
+  final resolver = ComponentHierarchyResolver({...components, componentId: edited});
+  try {
+    resolver.validate();
+  } on ComponentHierarchyValidationException catch (e) {
+    // A loop elsewhere that this component is not part of is not this timeline's issue.
+    final at = e.dateTimeUTC;
+    if (at == null || !e.componentIds.contains(componentId)) return null;
+    final active = resolver.installationAt(edited, at);
+    return InstallationTimelineIssue(
+      message: 'This installation creates a loop of components',
+      parentIndices: {if (active != null) installations.indexOf(active)},
+    );
   }
 
   return null;

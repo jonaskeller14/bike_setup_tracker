@@ -9,8 +9,10 @@ import '../../models/component/component_ancestor.dart';
 import '../../models/component/installation.dart';
 import '../../models/component/resolved_installation.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/component_hierarchy_resolver.dart';
 import '../../utils/component_actions.dart';
 import '../../utils/installation_timeline_validation.dart';
+import '../app_snackbar.dart';
 import '../component_ancestors_column.dart';
 import '../set_installation_timeline.dart';
 import 'sheet_header.dart';
@@ -129,9 +131,18 @@ class _InstallationSheetState extends State<InstallationSheet> {
       subcomponentEdits = edits;
     }
     if (!mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
     // Closes before saving, so the write does not hold the sheet open.
     Navigator.pop(context);
-    await appRepository.editComponents([updatedComponent, ...subcomponentEdits]);
+    try {
+      await appRepository.editComponents([updatedComponent, ...subcomponentEdits]);
+    } on ComponentHierarchyValidationException {
+      final messengerContext = messenger.context;
+      if (!messengerContext.mounted) return;
+      messenger.showSnackBar(
+        AppSnackBar.error(messengerContext, 'Not saved: this would create a loop of components.'),
+      );
+    }
   }
 
   bool get _hasChanges =>

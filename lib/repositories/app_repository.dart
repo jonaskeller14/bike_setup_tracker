@@ -1367,7 +1367,7 @@ class AppRepository extends ChangeNotifier {
       candidateComponents[updated.id] = updated;
     }
     final candidateHierarchy = ComponentHierarchyResolver(candidateComponents);
-    candidateHierarchy.validate();  //FIXME: is error caught here or in parent?
+    candidateHierarchy.validate();
     final affectedIds = <String>{...changedComponentIds};
     for (final componentId in changedComponentIds) {
       affectedIds

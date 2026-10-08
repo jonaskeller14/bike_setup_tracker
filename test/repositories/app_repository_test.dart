@@ -1,4 +1,5 @@
 import 'package:bike_setup_tracker/database/app_database.dart';
+import 'package:bike_setup_tracker/database/mappers.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
@@ -1435,6 +1436,31 @@ void main() {
       await pumpEventQueue();
 
       expect(await repository.hasStravaActivitiesWithPosition(), false);
+    });
+  });
+
+  group("AppRepository - Initial load", () {
+    late AppDatabase database;
+
+    setUp(() {
+      database = AppDatabase.memory();
+    });
+
+    tearDown(() async {
+      await database.close();
+    });
+
+    test("a row that fails to decode fails initialDataLoaded instead of hanging", () async {
+      final rule = TaskRule(name: "Chain Wax", tags: const {});
+      await database.taskDao.insertRule(rule.toCompanion());
+      await database.customStatement("UPDATE task_rules SET interval = 'not json' WHERE id = ?", [rule.id]);
+
+      final repository = AppRepository(database);
+
+      await expectLater(
+        repository.initialDataLoaded.timeout(const Duration(seconds: 5)),
+        throwsA(isA<FormatException>()),
+      );
     });
   });
 }

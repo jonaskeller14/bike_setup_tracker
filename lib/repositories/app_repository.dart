@@ -88,6 +88,31 @@ class AppRepository extends ChangeNotifier {
     }
   }
 
+  /// Listens to a stream [initialDataLoaded] waits for. A failure before the
+  /// initial load completes (e.g. a corrupt row that fails to decode) fails
+  /// [initialDataLoaded], so startup shows the error page instead of spinning
+  /// forever. Later failures surface as uncaught errors, as before.
+  void _listenInitial<T>(Stream<T> stream, void Function(T) onData) {
+    void fail(Object error, StackTrace stack) {
+      if (_initialDataCompleter.isCompleted) Error.throwWithStackTrace(error, stack);
+      _initialDataCompleter.completeError(error, stack);
+      // Startup awaits this only after migration; without a listener until
+      // then the error would also be reported as uncaught.
+      _initialDataCompleter.future.ignore();
+    }
+
+    _subscriptions.add(stream.listen(
+      (data) {
+        try {
+          onData(data);
+        } catch (e, s) {
+          fail(e, s);
+        }
+      },
+      onError: fail,
+    ));
+  }
+
   AppRepository(this.database) {
     filters = FilterController(
       onChanged: () {
@@ -242,13 +267,13 @@ class AppRepository extends ChangeNotifier {
   // ---------------------------------------------------------------------------
 
   void _initStreams() {
-    _subscriptions.add(database.bikesDao.watchAllBikes().listen((list) {
+    _listenInitial(database.bikesDao.watchAllBikes(), (list) {
       _bikes = {for (var b in list) b.id: b.toModel()};
       _markInitialStreamFired('bikes');
       _dataChanged();
-    }));
+    });
 
-    _subscriptions.add(database.componentsDao.watchAllComponentsWithData().listen((list) {
+    _listenInitial(database.componentsDao.watchAllComponentsWithData(), (list) {
       _componentHierarchyCache = null;
       _components = {for (var c in list) c.component.id: c.component.toModel(
         adjustments: c.adjustments.map((a) => a.toModel()).toList(),
@@ -256,35 +281,35 @@ class AppRepository extends ChangeNotifier {
       )};
       _markInitialStreamFired('components');
       _dataChanged();
-    }));
+    });
 
-    _subscriptions.add(database.personsDao.watchAllPersonsWithData().listen((list) {
+    _listenInitial(database.personsDao.watchAllPersonsWithData(), (list) {
       _persons = {for (var p in list) p.person.id: p.person.toModel(
         adjustments: p.adjustments.map((a) => a.toModel()).toList(),
       )};
       _markInitialStreamFired('persons');
       _dataChanged();
-    }));
+    });
 
-    _subscriptions.add(database.ratingsDao.watchAllRatingsWithData().listen((list) {
+    _listenInitial(database.ratingsDao.watchAllRatingsWithData(), (list) {
       _ratings = {for (var r in list) r.rating.id: r.rating.toModel(
         metrics: r.metrics.map((m) => m.toModel()).toList(),
       )};
       _markInitialStreamFired('ratings');
       _dataChanged();
-    }));
+    });
 
-    _subscriptions.add(database.taskDao.watchAllRules().listen((list) {
+    _listenInitial(database.taskDao.watchAllRules(), (list) {
       _taskRules = {for (var r in list) r.id: r.toModel()};
       _markInitialStreamFired('taskRules');
       _dataChanged();
-    }));
+    });
 
-    _subscriptions.add(database.taskDao.watchAllEntries().listen((list) {
+    _listenInitial(database.taskDao.watchAllEntries(), (list) {
       _taskEntries = {for (var e in list) e.id: e.toModel()};
       _markInitialStreamFired('taskEntries');
       _dataChanged();
-    }));
+    });
 
     _subscriptions.add(database.stravaDao.watchAllAthletes().listen((list) {
       _stravaAthletes = {for (var a in list) a.id: a.toModel()};
@@ -321,17 +346,17 @@ class AppRepository extends ChangeNotifier {
       _dataChanged();
     }));
 
-    _subscriptions.add(database.setupsDao.watchAllSetupsWithValues().listen((list) {
+    _listenInitial(database.setupsDao.watchAllSetupsWithValues(), (list) {
       _setups = {for (var s in list) s.setup.id: s.setup.toModel(values: s.values)};
       _markInitialStreamFired('setups');
       _dataChanged();
-    }));
+    });
 
-    _subscriptions.add(database.ratingEntriesDao.watchAllRatingEntriesWithValues().listen((list) {
+    _listenInitial(database.ratingEntriesDao.watchAllRatingEntriesWithValues(), (list) {
       _ratingEntries = {for (var e in list) e.entry.id: e.entry.toModel(values: e.values)};
       _markInitialStreamFired('ratingEntries');
       _dataChanged();
-    }));
+    });
 
     // Deleted item streams
     _subscriptions.add(database.bikesDao.watchDeletedBikes().listen((list) {

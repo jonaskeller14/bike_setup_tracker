@@ -31,6 +31,21 @@ class ComponentStatsBar extends StatelessWidget {
     this.padding = const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
   });
 
+  /// Minutes are dropped from 100 h on: they are noise at that magnitude and cost width.
+  @visibleForTesting
+  static String formatDuration(Duration duration, NumberFormat fmt) {
+    final hours = '${fmt.format(duration.inHours)}h';
+    if (duration.inHours >= 100) return hours;
+    return '$hours ${duration.inMinutes.remainder(60)}m';
+  }
+
+  /// Switches to a compact form (e.g. 123K) from 100,000 on to keep the bar narrow.
+  @visibleForTesting
+  static String formatAmount(num value, NumberFormat fmt) {
+    final rounded = value.round();
+    return rounded.abs() >= 100000 ? NumberFormat.compact().format(rounded) : fmt.format(rounded);
+  }
+
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
@@ -66,16 +81,13 @@ class ComponentStatsBar extends StatelessWidget {
             ?leading,
             item(
               Icons.route,
-              '${fmt.format(AppSettings.convertDistanceFromMeters(stats.distance, appSettings.distanceUnit)!.round())} ${appSettings.distanceUnit}',
+              '${formatAmount(AppSettings.convertDistanceFromMeters(stats.distance, appSettings.distanceUnit)!, fmt)} ${appSettings.distanceUnit}',
             ),
             item(
               Icons.terrain,
-              '${fmt.format(AppSettings.convertElevationFromMeters(stats.elevationGain, appSettings.altitudeUnit)!.round())} ${appSettings.altitudeUnit}',
+              '${formatAmount(AppSettings.convertElevationFromMeters(stats.elevationGain, appSettings.altitudeUnit)!, fmt)} ${appSettings.altitudeUnit}',
             ),
-            item(
-              Icons.timer_outlined,
-              '${fmt.format(stats.movingTime.inHours)}h ${stats.movingTime.inMinutes.remainder(60)}m',
-            ),
+            item(Icons.timer_outlined, formatDuration(stats.movingTime, fmt)),
             item(Icons.repeat, fmt.format(stats.activityCount)),
           ],
         ),

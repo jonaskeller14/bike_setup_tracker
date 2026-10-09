@@ -86,6 +86,17 @@ federgabel,dämpfer,einstellen,luftdruck,zugstufe,wartung,fahrrad,mtb,enduro,dow
 https://jonaskeller14.de/bike_setup_tracker/support.html
 ```
 
+## Marketing URL
+```
+https://jonaskeller14.com/bike_setup_tracker/home.html
+```
+
+## Copyright
+Not localized: set once on the version page, below the Marketing URL.
+```
+2025-2026 Jonas Keller
+```
+
 ## Media order
 
 ### iPhone (`app-store/iPhone-17-Pro-Max/`)

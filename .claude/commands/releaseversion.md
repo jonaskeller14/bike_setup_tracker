@@ -1,7 +1,7 @@
 ---
 description: Prepare a signed Flutter release, open it as a GitHub PR, and publish it once merged
 argument-hint: "[optional explicit version, e.g. 1.4.0] [--push to skip the PR and push main directly]"
-allowed-tools: Read, Edit, Grep, WebFetch, AskUserQuestion, Bash(flutter:*), Bash(git add:*), Bash(git branch:*), Bash(git commit:*), Bash(git describe:*), Bash(git diff:*), Bash(git fetch:*), Bash(git log:*), Bash(git pull:*), Bash(git push:*), Bash(git status:*), Bash(git switch:*), Bash(git tag:*), Bash(gh:*)
+allowed-tools: Read, Write, Edit, Grep, WebFetch, AskUserQuestion, Bash(flutter:*), Bash(git add:*), Bash(git branch:*), Bash(git commit:*), Bash(git describe:*), Bash(git diff:*), Bash(git fetch:*), Bash(git log:*), Bash(git pull:*), Bash(git push:*), Bash(git status:*), Bash(git switch:*), Bash(git tag:*), Bash(gh:*)
 ---
 
 Cut a new release for this Flutter app. Argument (optional): `$ARGUMENTS` = an explicit
@@ -37,8 +37,8 @@ create a GitHub release until the applicable confirmation gate has been approved
 - If the diff is large enough that you delegate this review to a subagent, have that same subagent
   also summarize the user-facing changes it saw (new/changed features, fixed bugs, feature-flag
   state — e.g. "debug only, not exposed yet") while it's already reading every file. Bring that
-  summary back for use in steps 6–7 instead of inferring notes from commit subjects alone, and
-  cross-check it against `git log <prevTag>..HEAD --oneline` (step 6) so nothing gets missed and
+  summary back for use in steps 4–5 instead of inferring notes from commit subjects alone, and
+  cross-check it against `git log <prevTag>..HEAD --oneline` (step 4) so nothing gets missed and
   nothing gets attributed to the wrong commit. Commit subjects alone are not a reliable source for
   release notes — they routinely overstate what's actually user-visible (e.g. a feature still gated
   behind a debug flag, or a doc claiming a UI element that was never added).
@@ -64,30 +64,10 @@ create a GitHub release until the applicable confirmation gate has been approved
   opening a PR. Everything else below (build order, tagging, release) still applies, just
   without the PR/merge-wait steps.
 
-## 4. Update the version in both files
-- Edit `pubspec.yaml`: replace the version in the `version:` line. Keep the trailing
-  `# TODO: Update AppInfo …` comment intact.
-- Edit `lib/utils/app_info.dart`: set `appVersion` = new `X.Y.Z`, `buildNumber` = new `B`
-  (as an int), and `releaseDate` = the current month and year in `"Month YYYY"` form
-  (e.g. `July 2026`).
-- If the release ships a major feature users would not discover on their own, add a
-  hint to `releaseHintBuilds` in `lib/models/app_hint.dart` with build `B`.
-
-## 5. Create the release commit
-- Commit only the two version files (plus `app_hint.dart` if touched) with
-  `Release vX.Y.Z+B`. This commit is local only so far — not pushed yet.
-
-## 6. Build before opening the PR
-- Run `flutter build appbundle --release` and verify
-  `build/app/outputs/bundle/release/app-release.aab`. On macOS also run
-  `flutter build ipa --release` and verify the IPA under `build/ios/ipa/`.
-- **If either build fails, stop.** Do not push the branch or open the PR — report the failure
-  so it can be fixed on the exact commit that would otherwise ship.
-
-## 7. GitHub release notes
+## 4. GitHub release notes
 - List user-facing commits since the previous tag: `git log <prevTag>..HEAD --oneline`
-  (this already includes the just-created `Release …` commit's parent range correctly since
-  the release commit itself has no user-facing content).
+  (the release commit doesn't exist yet at this point, so the range is exactly the user-facing
+  work).
 - Cross-reference this list against the change summary gathered in step 2 (if a subagent produced
   one) — that's what tells you whether a commit's feature actually shipped to users or is still
   behind a debug flag.
@@ -116,7 +96,7 @@ create a GitHub release until the applicable confirmation gate has been approved
     solely on a subagent's shipped/gated call for the specific commits it names — a feature can
     ride along inside a broader bullet (bulk actions, tooltips) without its own commit.
 
-## 8. App Store / Play Store release notes
+## 5. App Store / Play Store release notes
 - Print a separate, concise "What's New" block as **bullet points** (`• ` prefix), inside its own
   ``` code block (plain text, not markdown) so it's easy to copy-paste as-is. Write each bullet as
   a user story / benefit — what the person can now do or notice — not a technical feature
@@ -127,7 +107,13 @@ create a GitHub release until the applicable confirmation gate has been approved
   Keep each language's complete release-note text at **500 characters or fewer**, including
   bullets, punctuation, and line breaks. Report the character count beside each generated language
   block.
-- Only bullet features that are actually shipped/default-on per the step 7 flag check — never
+- **Languages:** write every block in **English (en-US)** and **German (de-DE)**, matching the
+  two store locales in `assets/store/*/listing/`. The German text is a natural rewrite, not a
+  literal translation: informal "du" form like the German listings, proper umlauts, and German
+  ride/bike vocabulary (Fahrwerk, Federgabel, Dämpfer, Reifendruck, Wartung). The UI is English
+  until #18, so keep names of screens and buttons as they appear in the app. German runs longer
+  than English — re-count it and trim until it fits 500 characters.
+- Only bullet features that are actually shipped/default-on per the step 4 flag check — never
   translate a gated/prototype bullet into user-facing store copy.
 - **Platform-specific split:** check whether this release contains changes that only apply to one
   store's platform.
@@ -138,29 +124,62 @@ create a GitHub release until the applicable confirmation gate has been approved
   (Android)** — and put each platform-specific bullet only in the matching block. The Play Store
   notes must never mention iOS-only features (e.g. no "Improved Siri / Apple Shortcuts
   integration"), and the App Store notes must never mention Android-only features. Shared bullets
-  appear in both.
-- If the release has no platform-specific changes, print a single combined "What's New" code block
-  as before.
+  appear in both. Each platform block exists in both languages (4 code blocks in total).
+- If the release has no platform-specific changes, print one combined code block per language
+  (**English** and **German**, 2 in total), each labeled with its locale and character count.
+- **Write the file and get manual approval (gate).** Print the blocks as described above, then use
+  `AskUserQuestion` to ask whether the English and German release notes are approved as printed
+  (options: approve / needs changes). If changes are needed, revise, re-count the characters,
+  re-print, and ask again. Do not continue until they are approved. Proofread the German text for
+  typos and umlauts before asking, since the step 2 review ran before it existed.
+- Only after approval, create `assets/store/release-notes/vX.Y.Z+B.md` with the approved text. This
+  file is part of the release commit (step 7). Structure:
+  - `# Release notes vX.Y.Z+B`
+  - one `## en-US (N/500)` and one `## de-DE (N/500)` section, each holding its text in a plain
+    ``` code block
+  - when the platform split applies, each locale section holds `### App Store (iOS)` and
+    `### Play Store (Android)` subsections with one code block each, instead of a single block.
+
+## 6. Update the version in both files
+- Edit `pubspec.yaml`: replace the version in the `version:` line. Keep the trailing
+  `# TODO: Update AppInfo …` comment intact.
+- Edit `lib/utils/app_info.dart`: set `appVersion` = new `X.Y.Z`, `buildNumber` = new `B`
+  (as an int), and `releaseDate` = the current month and year in `"Month YYYY"` form
+  (e.g. `July 2026`).
+- If the release ships a major feature users would not discover on their own, add a
+  hint to `releaseHintBuilds` in `lib/models/app_hint.dart` with build `B`.
+
+## 7. Create the release commit
+- Commit only the two version files, the approved `assets/store/release-notes/vX.Y.Z+B.md`
+  (plus `app_hint.dart` if touched) with `Release vX.Y.Z+B`. This commit is local only so far —
+  not pushed yet.
+
+## 8. Build before opening the PR
+- Run `flutter build appbundle --release` and verify
+  `build/app/outputs/bundle/release/app-release.aab`. On macOS also run
+  `flutter build ipa --release` and verify the IPA under `build/ios/ipa/`.
+- **If either build fails, stop.** Do not push the branch or open the PR — report the failure
+  so it can be fixed on the exact commit that would otherwise ship.
 
 ## 9. Push the branch and open the PR
 - Push the branch: `git push -u origin <branch>`.
-- Open the PR: `gh pr create --base main --head <branch> --title "Release vX.Y.Z+B" --body-file <notes-file-from-step-7>`.
-- Save the exact GitHub release notes from step 7 in a temporary UTF-8 Markdown file if not
+- Open the PR: `gh pr create --base main --head <branch> --title "Release vX.Y.Z+B" --body-file <notes-file-from-step-4>`.
+- Save the exact GitHub release notes from step 4 in a temporary UTF-8 Markdown file if not
   already saved; this file is the single source of truth for the eventual GitHub release notes
   too — revise it after user feedback and pass it unchanged to `gh release create` later.
-- Print the PR URL alongside the release notes and store-note blocks from steps 7–8.
+- Print the PR URL alongside the release notes and store-note blocks from steps 4–5.
 
 ## 10. Wait for the merge, then tag and publish
 - Use `AskUserQuestion` to ask: has the PR been merged into `main` using "Create a merge
   commit", and are the release notes approved as printed (or with edits)? Do not proceed until
   confirmed — this may span an arbitrary amount of real time while the PR is reviewed.
 - Once confirmed: `git fetch origin main`, `git switch main`, `git pull --ff-only origin main`.
-- Verify the exact release commit from step 5 is reachable on `main` (its SHA is unchanged by
+- Verify the exact release commit from step 7 is reachable on `main` (its SHA is unchanged by
   a merge commit). If it is not found — e.g. because the PR was squashed or rebased instead —
   **stop and report this**; do not guess at or re-tag a different commit.
 - Tag it: `git tag vX.Y.Z+B <sha>` (lightweight, no `-a`/`-m`). Push only the tag:
   `git push origin vX.Y.Z+B`. Never push `main` — it was already updated by the merged PR.
-- Create and verify the draft release using the built assets from step 6: `gh release create
+- Create and verify the draft release using the built assets from step 8: `gh release create
   vX.Y.Z+B <assets...> --verify-tag --draft --title "vX.Y.Z+B" --notes-file <notes-file>`, then
   `gh release view`. Never publish the draft automatically.
 
@@ -173,8 +192,8 @@ create a GitHub release until the applicable confirmation gate has been approved
   pre-review instead of after merge.
 - The step 2 typo review is a hard gate: if it finds anything, abort before editing/committing/tagging
   and surface the findings — do not silently fix typos and continue.
-- The release commit must contain ONLY `pubspec.yaml`, `lib/utils/app_info.dart` (and
-  `lib/models/app_hint.dart` if a hint was added).
+- The release commit must contain ONLY `pubspec.yaml`, `lib/utils/app_info.dart`,
+  `assets/store/release-notes/vX.Y.Z+B.md` (and `lib/models/app_hint.dart` if a hint was added).
 - Release tags must be lightweight and message-free; GitHub release notes are their only
   human-readable release description.
 - Never silently resolve merge conflicts, force-push, or overwrite a release asset.

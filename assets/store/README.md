@@ -10,6 +10,7 @@ its status live in [#69](https://github.com/jonaskeller14/bike_setup_tracker/iss
 | `<store>/listing/<locale>.md` | Listing text and per-device media order (previews, screenshots) per language, one code block per console field |
 | `<store>/listing/<locale>_B.md` | Variant B of a running A/B test: a full copy of the listing with the tested field changed |
 | `app-store/review-notes.md` | App Review notes (locale-independent) |
+| `release-notes/vX.Y.Z+B.md` | Store "What's New" text per release, EN + DE, written by `/releaseversion` |
 | `captions/<locale>.md` | Screenshot captions, shared by both stores |
 | `screenshots.af` | Affinity composition; links the raws and holds the caption layer |
 | `app-store/<device>/`, `play-store/<device>/` | Raws (`0N_raw.png`, from `tool/screenshots/`), exported frames (`0N.png`) and app previews (`preview_N.mp4`) |
@@ -28,6 +29,8 @@ screenshot layout is planned in #69.
 | App Store | Keywords | 100 | yes |
 | App Store | Promotional Text | 170 | no; editable without review |
 | App Store | Description | 4000 | no |
+| App Store | Marketing URL | n/a | no; link to the landing page, not indexed |
+| App Store | Copyright | n/a | no; "year owner" without ©, same as `LICENSE`. Update the year range in January |
 | Play | Title | 30 | yes |
 | Play | Short Description | 80 | yes |
 | Play | Long Description | 4000 | yes |

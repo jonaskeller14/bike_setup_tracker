@@ -26,7 +26,7 @@ create a GitHub release until the applicable confirmation gate has been approved
   to fix.
 - Read the diff and look for **typos** in:
   - user-facing strings (`Text(...)`, snackbars, dialog/button labels, error messages, enum labels),
-  - store/README copy, and
+  - store listing copy (`assets/store/`), and
   - code comments and identifiers.
   Misspellings in user-visible strings (e.g. `'Tash'` for `'Trash'`, `occured` for `occurred`) are
   the priority.

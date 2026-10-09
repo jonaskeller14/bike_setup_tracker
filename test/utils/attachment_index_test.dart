@@ -12,13 +12,13 @@ void main() {
 
   Setup setup(String id, DateTime datetime, List<Attachment> attachments) => Setup(
     id: id,
-    tags: {},
+    tags: const {},
     datetime: datetime.toUtc(),
     datetimeLocal: datetime,
     bike: 'bike',
     person: null,
-    bikeAdjustmentValues: {},
-    personAdjustmentValues: {},
+    bikeAdjustmentValues: const {},
+    personAdjustmentValues: const {},
     attachments: attachments,
   );
 

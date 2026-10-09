@@ -13,7 +13,13 @@ sources:
   - https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-269_REV_A%202022%20Marzocchi%20Bomber%20Air%20Shock%20Owners%20Guide%20Rev%20A_FINAL.pdf
   - https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-205_Marzocchi-BomberCR-Tuning-Guide-white-RevA.pdf
   - https://flowmountainbike.com/tests/marzocchi-bomber-air-shock-review/
-updated: 2026-07-18
+  # Primary — service intervals
+  - https://tech.ridefox.com/img/help/page2840-6BL4/inline/605-00-201_RevA%202019%20Marzocchi%20Rear%20Shock%20User%20Manual.pdf
+updated: 2026-10-07
+# Service intervals (`tasks`) come from the Marzocchi rear shock owner's
+# guides: a full service every 125 hours or yearly. No separate air-can
+# interval is published.
+#
 # Click counts (where known) come from the official owner's/tuning guide
 # PDFs on tech.ridefox.com, not the marketing product pages. Clicks counted
 # from fully closed (firmest) → default `dial_ccw` visualization.
@@ -21,83 +27,100 @@ updated: 2026-07-18
 # --------------------------------------------------------------------------
 # Dampers
 # --------------------------------------------------------------------------
-dampers:
-  bomber_air:
-    name: Bomber Air
-    description: >
-      Rebound clicks are published in the official 2022 Bomber Air Shock
-      Owner's Guide (rebound table tops out at 10). Low-Speed Compression is
-      a continuously-turning knob (not a positional lever); the guide gives
-      direction of adjustment only (CW = firmer) and no click count, so no
-      Compression adjustment is listed — never guessed.
-    adjustments:
-      - { name: Rebound, type: step, max: 10, dialColor: red }
+option_values:
+  damper:
+    bomber_air:
+      name: Bomber Air
+      description: >
+        Air shock with a 10-click rebound dial and a low-speed compression knob.
+      missing_adjustments: [Compression]
+      adjustments:
+        - { name: Rebound, type: step, max: 10, dialColor: red }
+      source: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-269_REV_A%202022%20Marzocchi%20Bomber%20Air%20Shock%20Owners%20Guide%20Rev%20A_FINAL.pdf
+      note: >-
+        2022 Bomber Air Shock Owner's Guide (rebound table tops out at 10). The
+        low-speed compression knob turns continuously; the guide gives only the
+        direction (CW = firmer) and no click count.
 
-  bomber_cr:
-    name: Bomber CR
-    description: >
-      Official tuning guide (605-00-205) documents Low-Speed Compression and
-      Rebound only by direction (turn CW to increase damping) with no click
-      counts. Some third-party reviews cite 15-16 clicks for each, but that
-      is not an official Marzocchi/FOX spec, so it is intentionally left out
-      here — see Follow-ups. Coil spring preload is also adjustable (turn
-      CCW to increase sag; do not turn CW more than two full turns) but isn't
-      modeled as an Adjustment — the schema has no preload/turns field.
-    adjustments: []
+    bomber_cr:
+      name: Bomber CR
+      description: >
+        Coil shock with low-speed compression and rebound adjusters and
+        adjustable spring preload.
+      missing_adjustments: [Compression, Rebound, Preload]
+      adjustments: []
+      source: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-205_Marzocchi-BomberCR-Tuning-Guide-white-RevA.pdf
+      note: >-
+        The tuning guide (605-00-205) documents compression and rebound only by
+        direction (turn CW to increase damping), no click counts. Reviews cite
+        15-16 clicks each, which is not an official spec. Preload: turn CCW to
+        increase sag, never more than two full turns CW.
 
 # --------------------------------------------------------------------------
 # Shocks — current Marzocchi lineup. Sold by eye-to-eye x stroke to match a
-# frame, not a fixed "travel"; `stroke_mm` lists the sizes published per
-# mount type on each product page.
+# frame, not a fixed "travel"; `options.size` lists the sizes published per
+# mount type on each product page. Imperial sizes are stored in mm and keep
+# Marzocchi's inch figures as their label.
 # --------------------------------------------------------------------------
-shocks:
-  - model: "Bomber Air"
+nodes:
+  - label: "Bomber Air"
+    level: model
     category: Trail / Enduro
-    spring: Air
-    year_range: "2025-2026"
+    years: "2025-2026"
     url: https://bike.marzocchi.com/products/bomber-air
-    trims:
-      - trim: Metric
-        key: shock-marzocchi-bomber-air-metric-2025
-        mount: Metric (compatible with FOX bearing mounts)
-        stroke_mm: ["190x45", "210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x65", "250x75"]
-        dampers: [bomber_air]
+    setup_guide: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-269_REV_A%202022%20Marzocchi%20Bomber%20Air%20Shock%20Owners%20Guide%20Rev%20A_FINAL.pdf
+    specs: { spring: Air }
+    tasks: &marzocchi_service
+      shock:full_service: { interval: { moving_time_h: 125 }, fallback: { days: 365 }, source: Marzocchi owner's guide }
+    children:
+      - label: Metric
+        level: trim
+        specs: { mount: Metric (compatible with FOX bearing mounts) }
         adjustments: &air_spring
           - { name: Pressure, type: numerical, unit: psi, min: 0 }
+        options:
+          damper: [bomber_air]
+          size: ["190x45", "210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x65", "250x75"]
         note: >
           Max air pressure 350psi. Adjustable volume spacers in 0.1 in³
-          increments; max spacer count not published.
-      - trim: Trunnion
-        key: shock-marzocchi-bomber-air-trunnion-2025
-        mount: Trunnion
-        stroke_mm: ["185x52.5", "185x55", "205x60", "205x62.5", "225x75"]
-        dampers: [bomber_air]
+          increments.
+      - label: Trunnion
+        level: trim
+        specs: { mount: Trunnion }
         adjustments: *air_spring
+        options:
+          damper: [bomber_air]
+          size: ["185x52.5", "185x55", "205x60", "205x62.5", "225x75"]
 
-  - model: "Bomber CR"
-    complete: false
+  - label: "Bomber CR"
+    level: model
+    draft: true
     category: Enduro / Downhill
-    spring: Coil
-    year_range: "2025-2026"
+    years: "2025-2026"
     url: https://bike.marzocchi.com/products/bomber-cr-rear-shock
-    trims:
-      - trim: Standard
-        key: shock-marzocchi-bomber-cr-standard-2025
-        mount: Standard eyelet
-        stroke_mm: ["210x50", "210x55", "230x60", "230x65", "250x75", "7.5x2.0in", "7.875x2.0in", "7.875x2.25in", "8.5x2.5in", "8.75x2.75in"]
-        dampers: [bomber_cr]
+    setup_guide: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-205_Marzocchi-BomberCR-Tuning-Guide-white-RevA.pdf
+    specs: { spring: Coil }
+    tasks: *marzocchi_service
+    children:
+      - label: Standard
+        level: trim
+        specs: { mount: Standard eyelet }
         adjustments: &coil_spring
           - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
+        options:
+          damper: [bomber_cr]
+          size: ["210x50", "210x55", "230x60", "230x65", "250x75", { eye_to_eye_mm: 190.5, stroke_mm: 50.8, label: "7.5x2.0in" }, { eye_to_eye_mm: 200.025, stroke_mm: 50.8, label: "7.875x2.0in" }, { eye_to_eye_mm: 200.025, stroke_mm: 57.15, label: "7.875x2.25in" }, { eye_to_eye_mm: 215.9, stroke_mm: 63.5, label: "8.5x2.5in" }, { eye_to_eye_mm: 222.25, stroke_mm: 69.85, label: "8.75x2.75in" }]
         note: >
           Coil spring sold separately, color-coded to rider weight
           (Purple/Blue/Green/Yellow ~ Soft/Medium/Firm/X-Firm); Marzocchi
           does not publish the actual lbs/in rate per color.
-      - trim: Trunnion
-        key: shock-marzocchi-bomber-cr-trunnion-2025
-        mount: Trunnion (threaded reservoir end)
-        stroke_mm: ["185x52.5", "185x55", "205x60", "205x65", "225x75", "9.5x3.0in"]
-        dampers: [bomber_cr]
+      - label: Trunnion
+        level: trim
+        specs: { mount: Trunnion (threaded reservoir end) }
         adjustments: *coil_spring
+        options:
+          damper: [bomber_cr]
+          size: ["185x52.5", "185x55", "205x60", "205x65", "225x75", { eye_to_eye_mm: 241.3, stroke_mm: 76.2, label: "9.5x3.0in" }]
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):

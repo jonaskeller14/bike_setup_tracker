@@ -170,7 +170,7 @@ void main() {
           Installation(parent: null, dateTimeUTC: uninstallDate, dateTimeLocal: uninstallDate.toLocal()),
         ],
       );
-      await repository.editComponent(componentInArchive);
+      await repository.editComponents([componentInArchive]);
       await pumpEventQueue();
 
       final activityA2 = StravaActivity(
@@ -197,12 +197,12 @@ void main() {
       // 4. Move to Bike B (Jan 3rd) and Ride Bike B
       final reinstallDate = DateTime.utc(2024, 1, 3, 10);
       final componentOnB = repository.components[component.id]!;
-      await repository.editComponent(componentOnB.copyWith(
+      await repository.editComponents([componentOnB.copyWith(
         installations: [
           ...componentOnB.installations,
           Installation(parent: bikeB.id, dateTimeUTC: reinstallDate, dateTimeLocal: reinstallDate.toLocal()),
         ],
-      ));
+      )]);
       await pumpEventQueue();
 
       final activityB = StravaActivity(
@@ -297,7 +297,7 @@ void main() {
       expect(repository.taskEntries[entry.id]?.snapshot?.distance, 0.0);
 
       // 4. Link the gear to the bike. This should heal the task entry snapshot.
-      await repository.editBike(bike.copyWith(stravaGear: "g123"));
+      await repository.editBikes([bike.copyWith(stravaGear: "g123")]);
       await pumpEventQueue();
 
       // 5. The snapshot now reflects the gear's activity (100km, 1 activity).
@@ -357,7 +357,7 @@ void main() {
       expect(repository.taskEntries[entry.id]?.snapshot?.distance, 100000.0);
 
       // 3. Unlink the gear. The snapshot should fall back to 0km.
-      await repository.editBike(bike.copyWith(stravaGear: null));
+      await repository.editBikes([bike.copyWith(stravaGear: null)]);
       await pumpEventQueue();
 
       final updated = repository.taskEntries[entry.id];
@@ -431,9 +431,9 @@ void main() {
 
       // Move the component onto the gear-linked bike (since the beginning), so
       // the 100km activity now counts toward it.
-      await repository.editComponent(component.copyWith(
+      await repository.editComponents([component.copyWith(
         installations: [Installation.sinceBeginning(parent: bikeWithGear.id)],
-      ));
+      )]);
       await pumpEventQueue();
 
       final updated = repository.taskEntries[entry.id];
@@ -472,9 +472,9 @@ void main() {
 
       // Bump the component's initial distance (e.g. a used part). The snapshot,
       // which includes initial stats, must reflect the new baseline.
-      await repository.editComponent(component.copyWith(
+      await repository.editComponents([component.copyWith(
         initialStats: const ComponentStats(distance: 25000.0),
-      ));
+      )]);
       await pumpEventQueue();
 
       expect(repository.taskEntries[entry.id]?.snapshot?.distance, 25000.0);
@@ -610,13 +610,13 @@ void main() {
       expect(repository.taskEntries[entry.id]?.snapshot?.distance, 0.0);
 
       // Link the gear -> the bike-linked snapshot picks up the 100km activity.
-      await repository.editBike(bike.copyWith(stravaGear: "g123"));
+      await repository.editBikes([bike.copyWith(stravaGear: "g123")]);
       await pumpEventQueue();
       expect(repository.taskEntries[entry.id]?.snapshot?.distance, 100000.0);
       expect(repository.taskEntries[entry.id]?.snapshot?.activityCount, 1);
 
       // Unlink again -> back to 0km.
-      await repository.editBike(bike.copyWith(stravaGear: null));
+      await repository.editBikes([bike.copyWith(stravaGear: null)]);
       await pumpEventQueue();
       expect(repository.taskEntries[entry.id]?.snapshot?.distance, 0.0);
       expect(repository.taskEntries[entry.id]?.snapshot?.activityCount, 0);
@@ -688,7 +688,7 @@ void main() {
       expect(repository.taskEntries[bikeEntry.id]?.snapshot?.distance, 100000.0);
       expect(repository.taskEntries[componentEntry.id]?.snapshot?.distance, 100000.0);
 
-      await repository.editBike(bike.copyWith(initialStats: const ComponentStats(distance: 500000, activityCount: 10)));
+      await repository.editBikes([bike.copyWith(initialStats: const ComponentStats(distance: 500000, activityCount: 10))]);
       await pumpEventQueue();
 
       expect(repository.taskEntries[bikeEntry.id]?.snapshot?.distance, 600000.0);
@@ -846,6 +846,37 @@ void main() {
       expect(healed.toModel().snapshot?.distance, 100000.0); // healed
     });
 
+    test("a refresh does not revert an entry trashed while its stats are queried", () async {
+      final component = Component(name: "Chain", componentType: ComponentType.chain, installations: const []);
+      await repository.addComponents([component]);
+      final entryDate = DateTime.utc(2024, 1, 2);
+      final entry = TaskEntry(
+        name: "Waxed",
+        taskRule: "rule",
+        association: ComponentTaskAssociation(component.id),
+        dateTimeUTC: entryDate,
+        dateTimeLocal: entryDate,
+        snapshot: const ComponentStats(
+          distance: 999000.0,
+          elevationGain: 0,
+          movingTime: Duration.zero,
+          elapsedTime: Duration.zero,
+          activityCount: 99,
+        ),
+      );
+      await database.taskDao.insertEntry(entry.toCompanion());
+
+      // Not awaited: the trash lands after the refresh has read the rows but
+      // before it writes the healed snapshots back.
+      final refresh = repository.refreshTaskEntrySnapshots();
+      await repository.removeTaskEntries([entry]);
+      await refresh;
+
+      final stored = (await database.taskDao.getAllEntriesBypass()).firstWhere((e) => e.id == entry.id);
+      expect(stored.isDeleted, isTrue);
+      expect(stored.toModel().snapshot?.distance, isNot(999000.0));
+    });
+
     test("component edits refresh only that component's active and trashed entries", () async {
       final target = Component(name: "Target Chain", componentType: ComponentType.chain, installations: const []);
       final unrelated = Component(name: "Unrelated Chain", componentType: ComponentType.chain, installations: const []);
@@ -868,9 +899,9 @@ void main() {
       await database.taskDao.insertEntry(unrelatedEntry.toCompanion());
       await database.taskDao.insertEntry(bikeOnlyEntry.toCompanion());
 
-      await repository.editComponent(target.copyWith(
+      await repository.editComponents([target.copyWith(
         initialStats: const ComponentStats(distance: 1000.0),
-      ));
+      )]);
 
       final entries = {
         for (final entry in await database.taskDao.getAllEntriesBypass()) entry.id: entry.toModel(),
@@ -1010,8 +1041,8 @@ void main() {
       if (batched) {
         await repository.editComponents([installed, retired]);
       } else {
-        await repository.editComponent(installed);
-        await repository.editComponent(retired);
+        await repository.editComponents([installed]);
+        await repository.editComponents([retired]);
       }
       await pumpEventQueue();
       repository.removeListener(countNotification);

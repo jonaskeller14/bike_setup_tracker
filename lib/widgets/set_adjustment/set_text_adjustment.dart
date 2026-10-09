@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 import '../display_adjustment/adjustment_icon_name_notes.dart';
+import '../display_adjustment/previous_value_line.dart';
 
 class SetTextAdjustmentWidget extends StatefulWidget {
   final TextAdjustment adjustment;
@@ -89,56 +90,65 @@ class _SetTextAdjustmentWidgetState extends State<SetTextAdjustmentWidget> {
       decoration: BoxDecoration(
         color: isChanged ? (isInitial ? highlights?.initialFill ?? Colors.green.withValues(alpha: 0.08) : highlights?.changedFill ?? Colors.orange.withValues(alpha: 0.08)) : null,
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        spacing: 20,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 8,
         children: [
-          Flexible(
-            flex: 2,
-            child: AdjustmentIconNameNotes(adjustment: widget.adjustment, color: highlightColor),
-          ),
-          Flexible(
-            flex: 3,
-            child: TextFormField(
-              controller: _controller,
-              textInputAction: TextInputAction.newline,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              onChanged: _handleChanged,
-              onFieldSubmitted: _handleChanged,
-              maxLines: null,
-              decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                isDense: true,
-                hintText: 'Enter Text',
-                contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                suffixStyle: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                  fontWeight: FontWeight.normal,
-                ),
-                suffixText: widget.adjustment.unit != null ? widget.adjustment.unitSuffix() : null,
-                suffixIcon: _resetWouldChange
-                    ? IconButton(
-                        onPressed: () {
-                          _controller.text = widget.optional ? '' : widget.initialValue?.value ?? '';
-                          _handleChanged(_controller.text.trim());
-                        },
-                        icon: const Icon(Icons.replay),
-                        visualDensity: VisualDensity.compact,
-                      )
-                    : const SizedBox.shrink(),
-                suffixIconConstraints: const BoxConstraints(minHeight: 48, minWidth: 0),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            spacing: 20,
+            children: [
+              Flexible(
+                flex: 2,
+                child: AdjustmentIconNameNotes(adjustment: widget.adjustment, value: widget.value, color: highlightColor),
               ),
-              validator: (String? newValue) {
-                if ((newValue == null || newValue.trim().isEmpty) && !widget.optional && widget.initialValue != null) {
-                  return 'Please enter a value';
-                }
-                if (DurationAdjustment.tryParseDurationString(newValue) != null) {
-                  return "Pure Duration Format not allowed. Add characters or use Duration Adjustment type.";
-                }
-                return null;
-              },
-            ),
+              Flexible(
+                flex: 3,
+                child: TextFormField(
+                  controller: _controller,
+                  textInputAction: TextInputAction.newline,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  onChanged: _handleChanged,
+                  onFieldSubmitted: _handleChanged,
+                  maxLines: null,
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    isDense: true,
+                    hintText: 'Enter Text',
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    suffixStyle: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                      fontWeight: FontWeight.normal,
+                    ),
+                    suffixText: widget.adjustment.unit != null ? widget.adjustment.unitSuffix() : null,
+                    suffixIcon: _resetWouldChange
+                        ? IconButton(
+                            onPressed: () {
+                              _controller.text = widget.optional ? '' : widget.initialValue?.value ?? '';
+                              _handleChanged(_controller.text.trim());
+                            },
+                            icon: const Icon(Icons.replay),
+                            visualDensity: VisualDensity.compact,
+                          )
+                        : const SizedBox.shrink(),
+                    suffixIconConstraints: const BoxConstraints(minHeight: 48, minWidth: 0),
+                  ),
+                  validator: (String? newValue) {
+                    if ((newValue == null || newValue.trim().isEmpty) && !widget.optional && widget.initialValue != null) {
+                      return 'Please enter a value';
+                    }
+                    if (DurationAdjustment.tryParseDurationString(newValue) != null) {
+                      return "Pure Duration Format not allowed. Add characters or use Duration Adjustment type.";
+                    }
+                    return null;
+                  },
+                ),
+              ),
+            ],
           ),
+          if (widget.highlighting && PreviousValueLine.appliesTo(widget.adjustment, widget.initialValue, widget.value))
+            PreviousValueLine(adjustment: widget.adjustment, previousValue: widget.initialValue!, value: widget.value!),
         ],
       ),
     );

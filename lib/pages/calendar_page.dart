@@ -17,6 +17,7 @@ import '../models/setup.dart';
 import '../models/timeline_entry.dart';
 import '../models/timeline_row.dart';
 import '../repositories/app_repository.dart';
+import '../services/component_hierarchy_resolver.dart';
 import '../services/subscription_service.dart';
 import '../utils/automation_ids.dart';
 import '../utils/installation_timeline_validation.dart';
@@ -98,14 +99,22 @@ List<EntryRow> buildCalendarRows(List<TimelineEntry> entries, AppSettings settin
   return rows;
 }
 
-IconData setupCalendarIcon(Setup setup, {required bool showSetupBookmark}) {
-  if (setup.isCurrent) return Icons.flag;
+IconData setupCalendarIcon(Setup setup, {required bool isCurrent, required bool showSetupBookmark}) {
+  if (isCurrent) return Icons.flag;
   if (showSetupBookmark && setup.isBookmarked) return Icons.bookmark;
   return Setup.iconData;
 }
 
-IconData calendarIconFor(TimelineEntry entry, {bool showSetupBookmark = false}) => switch (entry) {
-      SetupEntry() => setupCalendarIcon(entry.setup, showSetupBookmark: showSetupBookmark),
+IconData calendarIconFor(
+  TimelineEntry entry, {
+  Set<String> currentSetupIds = const {},
+  bool showSetupBookmark = false,
+}) => switch (entry) {
+      SetupEntry() => setupCalendarIcon(
+          entry.setup,
+          isCurrent: currentSetupIds.contains(entry.setup.id),
+          showSetupBookmark: showSetupBookmark,
+        ),
       StravaEntry() => entry.activity.workout.isNotable
           ? entry.activity.workout.icon
           : SimpleIcons.strava,
@@ -138,8 +147,16 @@ String calendarSubjectFor(TimelineEntry entry) => switch (entry) {
       RatingEntryTimelineEntry() => entry.ratingEntry.displayName,
     };
 
-IconData calendarIconForRow(EntryRow row, {bool showSetupBookmark = false}) => switch (row) {
-      SingleEntryRow(:final entry) => calendarIconFor(entry, showSetupBookmark: showSetupBookmark),
+IconData calendarIconForRow(
+  EntryRow row, {
+  Set<String> currentSetupIds = const {},
+  bool showSetupBookmark = false,
+}) => switch (row) {
+      SingleEntryRow(:final entry) => calendarIconFor(
+          entry,
+          currentSetupIds: currentSetupIds,
+          showSetupBookmark: showSetupBookmark,
+        ),
       ReplacementRow() => Icons.swap_horiz,
       SetupGroupRow() => Setup.iconData,
     };
@@ -545,16 +562,20 @@ class _CalendarPageState extends State<CalendarPage> {
       return;
     }
 
-    await appRepository.editComponent(removedComponent.copyWith(installations: updatedRemoved));
-    await appRepository.editComponent(installedComponent.copyWith(installations: updatedInstalled));
+    try {
+      await appRepository.editComponents([
+        removedComponent.copyWith(installations: updatedRemoved),
+        installedComponent.copyWith(installations: updatedInstalled),
+      ]);
+    } on ComponentHierarchyValidationException {
+      _rejectMove("Can't move this replacement there: it would create a loop of components.");
+      return;
+    }
     _showMoveUndoSnackBar(
       calendarSubjectForRow(row),
       oldLocal,
       newLocal,
-      () async {
-        await appRepository.editComponent(removedComponent);
-        await appRepository.editComponent(installedComponent);
-      },
+      () => appRepository.editComponents([removedComponent, installedComponent]),
     );
   }
 
@@ -593,12 +614,17 @@ class _CalendarPageState extends State<CalendarPage> {
           _rejectMove("Can't move this installation there.");
           return;
         }
-        await appRepository.editComponent(originalComponent.copyWith(installations: updatedInstallations));
+        try {
+          await appRepository.editComponents([originalComponent.copyWith(installations: updatedInstallations)]);
+        } on ComponentHierarchyValidationException {
+          _rejectMove("Can't move this installation there: it would create a loop of components.");
+          return;
+        }
         _showMoveUndoSnackBar(
           calendarSubjectFor(entry),
           oldLocal,
           newLocal,
-          () => appRepository.editComponent(originalComponent),
+          () => appRepository.editComponents([originalComponent]),
         );
       case RatingEntryTimelineEntry():
         final original = entry.ratingEntry;
@@ -876,9 +902,10 @@ class _CalendarPageState extends State<CalendarPage> {
     }
     if (row is! EntryRow) return const SizedBox.shrink();
     final showSetupBookmark = context.read<AppSettings>().enableSetupBookmark;
+    final currentSetupIds = context.read<AppRepository>().setupHistory.currentSetupIds;
     return CalendarEntryAppointment(
       details: details,
-      icon: calendarIconForRow(row, showSetupBookmark: showSetupBookmark),
+      icon: calendarIconForRow(row, currentSetupIds: currentSetupIds, showSetupBookmark: showSetupBookmark),
       subject: calendarSubjectForRow(row),
       color: calendarColorForRow(row, cs),
       contentColor: calendarOnColorForRow(row, cs),

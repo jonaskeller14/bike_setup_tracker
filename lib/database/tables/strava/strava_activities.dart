@@ -5,6 +5,8 @@ import '../../converters/local_floating_datetime_converter.dart';
 import '../../converters/utc_datetime_converter.dart'; 
 
 @DataClassName('StravaActivityDb')
+// Stats, rates and the activity list join on the gear and range over the date.
+@TableIndex(name: 'strava_activities_gear_date_idx', columns: {#gearId, #startDate})
 class StravaActivities extends Table {
   IntColumn get id => integer()();
   DateTimeColumn get lastModified => dateTime().map(const UtcDateTimeConverter())();

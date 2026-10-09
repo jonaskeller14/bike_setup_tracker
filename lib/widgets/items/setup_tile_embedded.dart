@@ -126,7 +126,7 @@ class _SetupTileEmbeddedState extends State<SetupTileEmbedded> {
     final Widget? badge = score != null
         ? _scoreBadge(context, score)
         : widget.showCurrentBadge
-        ? setup.isCurrent
+        ? appRepository.setupHistory.isCurrent(setup.id)
               ? const CurrentSetupBadge()
               : null
         : null;
@@ -254,10 +254,7 @@ class _SetupTileEmbeddedState extends State<SetupTileEmbedded> {
       ...setup.bikeAdjustmentValues,
       ...setup.personAdjustmentValues,
     };
-    final previousAdjustmentValues = {
-      ...setup.previousBikeAdjustmentValues,
-      ...setup.previousPersonAdjustmentValues,
-    };
+    final previousAdjustmentValues = appRepository.setupHistory.previousValuesOf(setup.id);
     final displayPerson = widget.displayPersonAdjustmentValues && appSettings.enablePerson;
 
     final summary = AdjustmentCompactDisplayList.summarize(
@@ -290,7 +287,7 @@ class _SetupTileEmbeddedState extends State<SetupTileEmbedded> {
       child: _buildEmbedded(context, setup, summary, adjustmentList),
     );
 
-    return setup.isCurrent
+    return appRepository.setupHistory.isCurrent(setup.id)
         ? CurrentSetupHighlight(
             barLeft: widget.currentBarLeft,
             padding: widget.edgeInset,

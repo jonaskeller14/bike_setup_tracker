@@ -55,6 +55,7 @@ class SetupPage extends StatefulWidget {
   final DateTime? initialDateTimeUtc;
   final DateTime? initialDateTimeLocal;
   final Bike? initialBike;
+  final bool openRiderTab;
 
   const SetupPage._({
     super.key,
@@ -63,18 +64,23 @@ class SetupPage extends StatefulWidget {
     this.initialDateTimeUtc,
     this.initialDateTimeLocal,
     this.initialBike,
+    this.openRiderTab = false,
   });
 
   factory SetupPage.add({
     Key? key,
     DateTime? initialDateTimeUtc,
     DateTime? initialDateTimeLocal,
+    Bike? initialBike,
+    bool openRiderTab = false,
   }) =>
       SetupPage._(
         key: key,
         mode: SetupPageMode.add,
         initialDateTimeUtc: initialDateTimeUtc,
         initialDateTimeLocal: initialDateTimeLocal,
+        initialBike: initialBike,
+        openRiderTab: openRiderTab,
       );
 
   factory SetupPage.addFromStravaActivity({
@@ -128,6 +134,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   List<Attachment> _initialAttachments = [];
   String? _attachmentsDirPath;
   final List<Attachment> _importedAttachments = [];
+  bool _importingAttachments = false;
   List<Attachment>? _savedAttachments;
 
   late DateTime _selectedDateTimeUtc;
@@ -204,14 +211,15 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     super.didChangeDependencies();
     final int newLength = 1 + (context.read<AppSettings>().enablePerson ? 1 : 0);
     if (_tabControllerLength == null || _tabControllerLength != newLength) {
-      if (_tabControllerLength != null) {
+      final isFirstController = _tabControllerLength == null;
+      if (!isFirstController) {
         _tabController.removeListener(_onTabIndexChanged);
         _tabController.dispose();
       }
       _tabControllerLength = newLength;
-      _tabIndex = 0;
+      _tabIndex = isFirstController && widget.openRiderTab && newLength > 1 ? 1 : 0;
       _tabController = TabController(
-        initialIndex: 0,
+        initialIndex: _tabIndex,
         length: newLength,
         vsync: this,
       )..addListener(_onTabIndexChanged);
@@ -426,7 +434,15 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   }
 
   Future<void> _addAttachments() async {
-    final attachments = await AttachmentActions.pickAttachments(context);
+    final List<Attachment> attachments;
+    try {
+      attachments = await AttachmentActions.pickAttachments(
+        context,
+        onImportStarted: () => setState(() => _importingAttachments = true),
+      );
+    } finally {
+      if (mounted) setState(() => _importingAttachments = false);
+    }
     if (attachments.isEmpty || !mounted) return;
     _onAttachmentsAdded(attachments);
   }
@@ -761,7 +777,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     final updated = component.adjustments
         .map((a) => a.id == adjustment.id && a is CategoricalAdjustment ? a.copyWith(options: {...a.options, option}) : a)
         .toList();
-    await appRepository.editComponent(component.copyWith(adjustments: updated));
+    await appRepository.editComponents([component.copyWith(adjustments: updated)]);
   }
 
   Future<void> _onAddPersonCategoricalOption({required CategoricalAdjustment adjustment, required String option}) async {
@@ -1075,7 +1091,10 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                 padding: EdgeInsets.zero,
                 avatar: const Icon(Icons.attach_file),
                 tooltip: 'Add Attachment',
-                onPressed: _addAttachments,
+                backgroundColor: widget.mode == SetupPageMode.edit && !listEquals(_attachments, _initialAttachments)
+                    ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
+                    : null,
+                onPressed: _importingAttachments ? null : _addAttachments,
               ),
           ],
         );
@@ -1251,17 +1270,32 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                         ),
                         const SizedBox(height: 12),
                         _wrap(),
-                        if (context.read<AppSettings>().enableAttachments && _attachmentsDirPath != null && _attachments.isNotEmpty) ...[
-                          const SizedBox(height: 12),
-                          AttachmentStrip(
-                            attachments: _attachments,
-                            attachmentsDir: _attachmentsDirPath!,
-                            mode: AttachmentStripMode.edit,
-                            onRemove: _onAttachmentRemoved,
-                            onReorder: _onAttachmentReorder,
-                            onRename: _onAttachmentRenamed,
-                          ),
-                        ],
+                      ],
+                    ),
+                  ),
+                ),
+                if (context.read<AppSettings>().enableAttachments && _attachmentsDirPath != null && (_attachments.isNotEmpty || _importingAttachments))
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: AttachmentStrip(
+                        attachments: _attachments,
+                        attachmentsDir: _attachmentsDirPath!,
+                        mode: AttachmentStripMode.edit,
+                        isLoading: _importingAttachments,
+                        onRemove: _onAttachmentRemoved,
+                        onReorder: _onAttachmentReorder,
+                        onRename: _onAttachmentRenamed,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                      ),
+                    ),
+                  ),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         const SizedBox(height: 18),
                         _bikeField(bikes: bikes),
                         const SizedBox(height: 12),

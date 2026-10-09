@@ -34,6 +34,7 @@ void main() {
     ThemeData? theme,
     double width = 240,
     double textScale = 1,
+    AdjustmentValue? currentValue,
   }) {
     return MaterialApp(
       theme: theme ?? materialAppTheme,
@@ -44,7 +45,7 @@ void main() {
             alignment: Alignment.topLeft,
             child: SizedBox(
               width: width,
-              child: AdjustmentActivityHistogramChart(histogram: data),
+              child: AdjustmentActivityHistogramChart(histogram: data, currentValue: currentValue),
             ),
           ),
         ),
@@ -97,6 +98,41 @@ void main() {
     );
 
     expect(tooltipItem?.text, 'An exceptionally long category name\n12345 activities');
+  });
+
+  testWidgets('highlights only the bar of the current value', (tester) async {
+    List<Color?> rodColors() => tester
+        .widget<BarChart>(find.byType(BarChart))
+        .data
+        .barGroups
+        .map((group) => group.barRods.single.color)
+        .toList();
+    final full = materialAppTheme.colorScheme.primaryContainer;
+
+    await tester.pumpWidget(harness(histogram()));
+    expect(rodColors(), [full, full]);
+
+    await tester.pumpWidget(harness(histogram(), currentValue: const NumericalValue(99)));
+    expect(rodColors(), [full, full]);
+
+    final semantics = tester.ensureSemantics();
+    await tester.pumpWidget(harness(histogram(), currentValue: const NumericalValue(30)));
+    expect(rodColors(), [full.withValues(alpha: 0.4), full]);
+    expect(
+      find.bySemanticsLabel(
+        'Activity distribution. An exceptionally long category name: 12345 activities, 30 psi: 7 activities (current)',
+      ),
+      findsOneWidget,
+    );
+    final chart = tester.widget<BarChart>(find.byType(BarChart));
+    final tooltipItem = chart.data.barTouchData.touchTooltipData.getTooltipItem(
+      chart.data.barGroups.last,
+      1,
+      chart.data.barGroups.last.barRods.first,
+      0,
+    );
+    expect(tooltipItem?.text, '30 psi\n7 activities\nCurrent value');
+    semantics.dispose();
   });
 
   testWidgets('empty histogram renders no chart', (tester) async {

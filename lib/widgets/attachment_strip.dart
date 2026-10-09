@@ -48,6 +48,8 @@ class AttachmentStrip extends StatefulWidget {
   final void Function(List<Attachment> newAttachments)? onAdd;
   final void Function(int index, String name)? onRename;
   final String heroTagPrefix;
+  final EdgeInsets? padding;
+  final bool isLoading;
 
   const AttachmentStrip({
     super.key,
@@ -59,6 +61,8 @@ class AttachmentStrip extends StatefulWidget {
     this.onAdd,
     this.onRename,
     this.heroTagPrefix = 'attachment',
+    this.padding,
+    this.isLoading = false,
   });
 
   @override
@@ -68,6 +72,7 @@ class AttachmentStrip extends StatefulWidget {
 class _AttachmentStripState extends State<AttachmentStrip> with TickerProviderStateMixin {
   final Map<String, AnimationController> _enterControllers = {};
   final Map<String, AnimationController> _exitControllers = {};
+  bool _importing = false;
 
   @override
   void didUpdateWidget(AttachmentStrip oldWidget) {
@@ -175,9 +180,32 @@ class _AttachmentStripState extends State<AttachmentStrip> with TickerProviderSt
   }
 
   Future<void> _pickAttachments(BuildContext context) async {
-    final attachments = await AttachmentActions.pickAttachments(context);
-    if (attachments.isEmpty) return;
-    widget.onAdd?.call(attachments);
+    try {
+      final attachments = await AttachmentActions.pickAttachments(
+        context,
+        onImportStarted: () => setState(() => _importing = true),
+      );
+      if (attachments.isEmpty || !mounted) return;
+      widget.onAdd?.call(attachments);
+    } finally {
+      if (mounted) setState(() => _importing = false);
+    }
+  }
+
+  Widget _loadingTile(BuildContext context) {
+    return Container(
+      width: 80,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: const Center(
+        child: SizedBox.square(
+          dimension: 24,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+      ),
+    );
   }
 
   Widget _placeholder(BuildContext context) {
@@ -248,6 +276,10 @@ class _AttachmentStripState extends State<AttachmentStrip> with TickerProviderSt
     if (widget.attachments.isEmpty && widget.mode == AttachmentStripMode.view) return const SizedBox.shrink();
 
     if (widget.mode == AttachmentStripMode.edit) {
+      final showLoading = widget.isLoading || _importing;
+      final loadingIndex = widget.attachments.length;
+      final addIndex = loadingIndex + (showLoading ? 1 : 0);
+
       Widget proxyDecorator(Widget child, int index, Animation<double> animation) {
         return ScaleTransition(
           scale: Tween(begin: 1.0, end: 1.1).animate(CurvedAnimation(parent: animation, curve: Curves.easeOut)),
@@ -292,18 +324,26 @@ class _AttachmentStripState extends State<AttachmentStrip> with TickerProviderSt
         height: tileSize,
         child: ReorderableListView.builder(
           scrollDirection: Axis.horizontal,
+          padding: widget.padding,
           buildDefaultDragHandles: false,
           proxyDecorator: proxyDecorator,
           onReorderStart: (_) => unawaited(HapticFeedback.lightImpact()),
           onReorderItem: (oldIndex, newIndex) {
             widget.onReorder?.call(oldIndex, newIndex);
           },
-          itemCount: widget.attachments.length + (widget.onAdd != null ? 1 : 0),
+          itemCount: addIndex + (widget.onAdd != null ? 1 : 0),
           itemBuilder: (context, index) {
-            if (widget.onAdd != null && index == widget.attachments.length) {
+            if (showLoading && index == loadingIndex) {
+              return Padding(
+                key: const ValueKey('loading_tile'),
+                padding: const EdgeInsets.only(right: spacing),
+                child: _loadingTile(context),
+              );
+            }
+            if (widget.onAdd != null && index == addIndex) {
               return Padding(
                 key: const ValueKey('add_button'),
-                padding: EdgeInsets.only(left: widget.attachments.isEmpty ? 0 : spacing),
+                padding: EdgeInsets.only(left: widget.attachments.isEmpty || showLoading ? 0 : spacing),
                 child: GestureDetector(
                   onTap: () => _pickAttachments(context),
                   child: Container(
@@ -358,6 +398,7 @@ class _AttachmentStripState extends State<AttachmentStrip> with TickerProviderSt
       height: tileSize,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
+        padding: widget.padding,
         itemCount: widget.attachments.length,
         separatorBuilder: (_, _) => const SizedBox(width: spacing),
         itemBuilder: (context, index) {

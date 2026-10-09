@@ -17,11 +17,11 @@ void main() {
         name: 'Test Setup',
         datetime: localTime,
         datetimeLocal: localTime,
-        tags: {},
+        tags: const {},
         bike: 'bike1',
         person: null,
-        bikeAdjustmentValues: {},
-        personAdjustmentValues: {},
+        bikeAdjustmentValues: const {},
+        personAdjustmentValues: const {},
       );
 
       expect(setup.datetime.isUtc, isTrue);

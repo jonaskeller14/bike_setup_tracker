@@ -101,6 +101,7 @@ class _TextMetricPageState extends State<TextMetricPage> {
         name: name,
         notes: notes.isEmpty ? null : notes,
         unit: _initialAdj?.unit,
+        presetKey: _initialAdj?.presetKey,
       ),
       weight: _weight,
     ));
@@ -161,6 +162,7 @@ class _TextMetricPageState extends State<TextMetricPage> {
                                       name: value ?? '',
                                       notes: _previewAdjustment.notes,
                                       unit: _previewAdjustment.unit,
+                                      presetKey: _initialAdj?.presetKey,
                                     );
                                   });
                                 },
@@ -205,6 +207,7 @@ class _TextMetricPageState extends State<TextMetricPage> {
                                             name: _previewAdjustment.name,
                                             notes: (value == null || value.isEmpty) ? null : value,
                                             unit: _previewAdjustment.unit,
+                                            presetKey: _initialAdj?.presetKey,
                                           );
                                         });
                                       },

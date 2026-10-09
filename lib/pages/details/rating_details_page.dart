@@ -83,7 +83,7 @@ class RatingDetailsPage extends StatelessWidget {
                     style: bikes[bikeId] == null ? TextStyle(color: Theme.of(context).colorScheme.error) : null,
                   ),
                   PersonRatingAssociation(:final personId) => Text(
-                    persons[personId]?.name ?? "PERSON NOT FOUND", 
+                    persons[personId]?.name ?? "RIDER NOT FOUND", 
                     overflow: TextOverflow.ellipsis,
                     style: persons[personId] == null ? TextStyle(color: Theme.of(context).colorScheme.error) : null,
                   ),

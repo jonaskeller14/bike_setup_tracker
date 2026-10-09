@@ -48,6 +48,7 @@ class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin, SoftDel
   
   Future<int> insertEntry(TaskEntriesCompanion entry) => into(taskEntries).insert(entry);
   Future<bool> updateEntry(TaskEntriesCompanion entry) => update(taskEntries).replace(entry);
-  Future<int> upsertEntry(TaskEntriesCompanion entry) => into(taskEntries).insertOnConflictUpdate(entry);
+  Future<int> updateEntrySnapshot(String id, String? snapshot) =>
+      (update(taskEntries)..where((t) => t.id.equals(id))).write(TaskEntriesCompanion(snapshot: Value(snapshot)));
   Future<int> deleteEntry(String id) => (update(taskEntries)..where((t) => t.id.equals(id))).write(TaskEntriesCompanion(isDeleted: const Value(true), lastModified: Value(DateTime.now().toUtc())));
 }

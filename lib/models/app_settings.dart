@@ -22,6 +22,7 @@ class AppSettings extends ChangeNotifier {
   bool _enableMultiSelect = false;
   bool _enableCountedSelect = false;
   bool _enablePerson = false;
+  bool _enablePersonAdvanced = false;
   bool _enableRating = false;
   bool _enableSetupTags = false;
   bool _enableTaskTags = false;
@@ -36,9 +37,11 @@ class AppSettings extends ChangeNotifier {
   bool _enableInstallationTimeline = false;
   bool _useMapBoxTiles = false;
   bool _enableCalendar = false;
+  bool _enableAdvancedFilters = false;
   bool _enableAttachments = false;
   bool _enableSetupBookmark = false;
   bool _enableComponentPresets = false;
+  bool _enableTaskPresets = false;
   bool _enableInstallOnComponent = false;
   bool _enablePressureAssistant = false;
   // Setup timeline grouping passes (debug-only, see FeaturesPage)
@@ -61,6 +64,8 @@ class AppSettings extends ChangeNotifier {
   bool get enableMultiSelect => _enableMultiSelect;
   bool get enableCountedSelect => _enableCountedSelect;
   bool get enablePerson => _enablePerson;
+  bool get enablePersonAdvanced => _enablePersonAdvanced;
+  bool get showAdvancedPersonUi => _enablePerson && _enablePersonAdvanced;
   bool get enableRating => _enableRating;
   bool get enableSetupTags => _enableSetupTags;
   bool get enableTaskTags => _enableTaskTags;
@@ -75,9 +80,13 @@ class AppSettings extends ChangeNotifier {
   bool get enableInstallationTimeline => _enableInstallationTimeline;
   bool get useMapBoxTiles => _useMapBoxTiles;
   bool get enableCalendar => _enableCalendar;
+  bool get enableAdvancedFilters => _enableAdvancedFilters;
   bool get enableAttachments => _enableAttachments;
   bool get enableSetupBookmark => _enableSetupBookmark;
   bool get enableComponentPresets => _enableComponentPresets;
+  // Requires component presets; the stored choice survives toggling them off and on.
+  bool get enableTaskPresets => _enableTaskPresets && _enableComponentPresets;
+  bool get showTaskPresets => _enableTask && _enableTaskInterval && enableTaskPresets;
   bool get enableInstallOnComponent => _enableInstallOnComponent;
   bool get enablePressureAssistant => _enablePressureAssistant;
   bool get enableTimelineSetupGrouping => _enableTimelineSetupGrouping;
@@ -183,6 +192,13 @@ class AppSettings extends ChangeNotifier {
     _persistBool('enablePerson', newValue);
   }
 
+  set enablePersonAdvanced(bool newValue) {
+    if (newValue == _enablePersonAdvanced) return;
+    _enablePersonAdvanced = newValue;
+    notifyListeners();
+    _persistBool('enablePersonAdvanced', newValue);
+  }
+
   set enableRating(bool newValue) {
     if (newValue == _enableRating) return;
     _enableRating = newValue;
@@ -274,6 +290,13 @@ class AppSettings extends ChangeNotifier {
     _persistBool('enableCalendar', newValue);
   }
 
+  set enableAdvancedFilters(bool newValue) {
+    if (newValue == _enableAdvancedFilters) return;
+    _enableAdvancedFilters = newValue;
+    notifyListeners();
+    _persistBool('enableAdvancedFilters', newValue);
+  }
+
   set enableAttachments(bool newValue) {
     if (newValue == _enableAttachments) return;
     _enableAttachments = newValue;
@@ -293,6 +316,13 @@ class AppSettings extends ChangeNotifier {
     _enableComponentPresets = newValue;
     notifyListeners();
     _persistBool('enableComponentPresets', newValue);
+  }
+
+  set enableTaskPresets(bool newValue) {
+    if (newValue == _enableTaskPresets) return;
+    _enableTaskPresets = newValue;
+    notifyListeners();
+    _persistBool('enableTaskPresets', newValue);
   }
 
   set enableInstallOnComponent(bool newValue) {
@@ -377,6 +407,7 @@ class AppSettings extends ChangeNotifier {
       _enableMultiSelect = prefs.getBool('${_kPrefix}enableMultiSelect') ?? _enableMultiSelect;
       _enableCountedSelect = prefs.getBool('${_kPrefix}enableCountedSelect') ?? _enableCountedSelect;
       _enablePerson = prefs.getBool('${_kPrefix}enablePerson') ?? _enablePerson;
+      _enablePersonAdvanced = prefs.getBool('${_kPrefix}enablePersonAdvanced') ?? _enablePersonAdvanced;
       _enableRating = prefs.getBool('${_kPrefix}enableRating') ?? _enableRating;
       _enableSetupTags = prefs.getBool('${_kPrefix}enableSetupTags') ?? _enableSetupTags;
       _enableTaskTags = prefs.getBool('${_kPrefix}enableTaskTags') ?? _enableTaskTags;
@@ -393,9 +424,11 @@ class AppSettings extends ChangeNotifier {
           prefs.getBool('${_kPrefix}enableInstallationTimeline') ?? _enableInstallationTimeline;
       _useMapBoxTiles = prefs.getBool('${_kPrefix}useMapBoxTiles') ?? _useMapBoxTiles;
       _enableCalendar = prefs.getBool('${_kPrefix}enableCalendar') ?? _enableCalendar;
+      _enableAdvancedFilters = prefs.getBool('${_kPrefix}enableAdvancedFilters') ?? _enableAdvancedFilters;
       _enableAttachments = prefs.getBool('${_kPrefix}enableAttachments') ?? _enableAttachments;
       _enableSetupBookmark = prefs.getBool('${_kPrefix}enableSetupBookmark') ?? _enableSetupBookmark;
       _enableComponentPresets = prefs.getBool('${_kPrefix}enableComponentPresets') ?? _enableComponentPresets;
+      _enableTaskPresets = prefs.getBool('${_kPrefix}enableTaskPresets') ?? _enableTaskPresets;
       _enableInstallOnComponent = prefs.getBool('${_kPrefix}enableInstallOnComponent') ?? _enableInstallOnComponent;
       _enablePressureAssistant = prefs.getBool('${_kPrefix}enablePressureAssistant') ?? _enablePressureAssistant;
       _enableTimelineSetupGrouping =
@@ -432,6 +465,7 @@ class AppSettings extends ChangeNotifier {
     _enableMultiSelect = defaults._enableMultiSelect;
     _enableCountedSelect = defaults._enableCountedSelect;
     _enablePerson = defaults._enablePerson;
+    _enablePersonAdvanced = defaults._enablePersonAdvanced;
     _enableRating = defaults._enableRating;
     _enableSetupTags = defaults._enableSetupTags;
     _enableTaskTags = defaults._enableTaskTags;
@@ -445,9 +479,11 @@ class AppSettings extends ChangeNotifier {
     _enableInstallationTimeline = defaults._enableInstallationTimeline;
     _useMapBoxTiles = defaults._useMapBoxTiles;
     _enableCalendar = defaults._enableCalendar;
+    _enableAdvancedFilters = defaults._enableAdvancedFilters;
     _enableAttachments = defaults._enableAttachments;
     _enableSetupBookmark = defaults._enableSetupBookmark;
     _enableComponentPresets = defaults._enableComponentPresets;
+    _enableTaskPresets = defaults._enableTaskPresets;
     _enableInstallOnComponent = defaults._enableInstallOnComponent;
     _enablePressureAssistant = defaults._enablePressureAssistant;
     _enableTimelineSetupGrouping = defaults._enableTimelineSetupGrouping;
@@ -476,6 +512,7 @@ class AppSettings extends ChangeNotifier {
     _enableMultiSelect,
     _enableCountedSelect,
     _enablePerson,
+    _enablePersonAdvanced,
     _enableRating,
     _enableSetupTags,
     _enableTaskTags,
@@ -489,9 +526,11 @@ class AppSettings extends ChangeNotifier {
     _enableInstallationTimeline,
     _useMapBoxTiles,
     _enableCalendar,
+    _enableAdvancedFilters,
     _enableAttachments,
     _enableSetupBookmark,
     _enableComponentPresets,
+    _enableTaskPresets,
     _enableInstallOnComponent,
     _enablePressureAssistant,
     _enableTimelineSetupGrouping,

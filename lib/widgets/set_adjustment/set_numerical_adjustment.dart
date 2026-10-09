@@ -9,6 +9,7 @@ import '../../utils/automation_ids.dart';
 import '../../utils/number_input_formatters.dart';
 import '../../utils/unit_conversion.dart';
 import '../display_adjustment/adjustment_icon_name_notes.dart';
+import '../display_adjustment/previous_value_line.dart';
 
 class SetNumericalAdjustmentWidget extends StatefulWidget {
   final NumericalAdjustment adjustment;
@@ -206,56 +207,65 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
       decoration: BoxDecoration(
         color: isChanged ? (isInitial ? highlights?.initialFill ?? Colors.green.withValues(alpha: 0.08) : highlights?.changedFill ?? Colors.orange.withValues(alpha: 0.08)) : null,
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        spacing: 20,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 8,
         children: [
-          Flexible(
-            flex: 2,
-            child: AdjustmentIconNameNotes(adjustment: widget.adjustment, color: highlightColor),
-          ),
-          Flexible(
-            flex: 3,
-            child: Semantics(
-              container: true,
-              identifier: AutomationIds.setAdjustment(widget.adjustment.id),
-              child: TextFormField(
-                keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-                inputFormatters: const [SignedDecimalInputFormatter()],
-                controller: _controller,
-                textInputAction: TextInputAction.next,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                onChanged: _handleChanged,
-                onFieldSubmitted: _handleChanged,
-                decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
-                  isDense: true,
-                  hintText: 'Please enter',
-                  helperText: helperText,
-                  helperMaxLines: 2,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                  suffixIcon: _buildSuffix(context),
-                  suffixIconConstraints: const BoxConstraints(minHeight: 48, minWidth: 0),
-                ),
-                validator: (String? newValue) {
-                  if ((newValue == null || newValue.trim().isEmpty) && !widget.optional && widget.initialValue != null) {
-                    return 'Please enter a value';
-                  }
-                  if (newValue != null && newValue.trim().isNotEmpty) {
-                    final parsedValue = double.tryParse(newValue);
-                    if (parsedValue == null) return "Please enter a valid number";
-                    final unitLabel = _activeLabel;
-                    final unitSuffix = unitLabel == null ? "" : " $unitLabel";
-                    final max = _boundInActiveUnit(widget.adjustment.max);
-                    if (parsedValue > max) return "Max ${formatConverted(max)}$unitSuffix";
-                    final min = _boundInActiveUnit(widget.adjustment.min);
-                    if (parsedValue < min) return "Min ${formatConverted(min)}$unitSuffix";
-                  }
-                  return null;
-                },
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            spacing: 20,
+            children: [
+              Flexible(
+                flex: 2,
+                child: AdjustmentIconNameNotes(adjustment: widget.adjustment, value: widget.value, color: highlightColor),
               ),
-            ),
+              Flexible(
+                flex: 3,
+                child: Semantics(
+                  container: true,
+                  identifier: AutomationIds.setAdjustment(widget.adjustment.id),
+                  child: TextFormField(
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
+                    inputFormatters: const [SignedDecimalInputFormatter()],
+                    controller: _controller,
+                    textInputAction: TextInputAction.next,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    onChanged: _handleChanged,
+                    onFieldSubmitted: _handleChanged,
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      isDense: true,
+                      hintText: 'Please enter',
+                      helperText: helperText,
+                      helperMaxLines: 2,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                      suffixIcon: _buildSuffix(context),
+                      suffixIconConstraints: const BoxConstraints(minHeight: 48, minWidth: 0),
+                    ),
+                    validator: (String? newValue) {
+                      if ((newValue == null || newValue.trim().isEmpty) && !widget.optional && widget.initialValue != null) {
+                        return 'Please enter a value';
+                      }
+                      if (newValue != null && newValue.trim().isNotEmpty) {
+                        final parsedValue = double.tryParse(newValue);
+                        if (parsedValue == null) return "Please enter a valid number";
+                        final unitLabel = _activeLabel;
+                        final unitSuffix = unitLabel == null ? "" : " $unitLabel";
+                        final max = _boundInActiveUnit(widget.adjustment.max);
+                        if (parsedValue > max) return "Max ${formatConverted(max)}$unitSuffix";
+                        final min = _boundInActiveUnit(widget.adjustment.min);
+                        if (parsedValue < min) return "Min ${formatConverted(min)}$unitSuffix";
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+              ),
+            ],
           ),
+          if (widget.highlighting && PreviousValueLine.appliesTo(widget.adjustment, widget.initialValue, widget.value))
+            PreviousValueLine(adjustment: widget.adjustment, previousValue: widget.initialValue!, value: widget.value!),
         ],
       ),
     );

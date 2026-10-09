@@ -220,8 +220,12 @@ class _TaskRuleDetailsPageContentState extends State<TaskRuleDetailsPageContent>
           ),
           if (attachments.isNotEmpty && _attachmentsDirPath != null)
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-              child: AttachmentStrip(attachments: attachments, attachmentsDir: _attachmentsDirPath!),
+              padding: const EdgeInsets.only(top: 8, bottom: 16),
+              child: AttachmentStrip(
+                attachments: attachments,
+                attachmentsDir: _attachmentsDirPath!,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+              ),
             )
           else
             const SizedBox(height: 16),

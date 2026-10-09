@@ -10,24 +10,26 @@ import 'adjustment_page.dart';
 class DurationAdjustmentPage extends StatefulWidget {
   final DurationAdjustment? adjustment;
   final AdjustmentPageMode mode;
+  final AdjustmentTerm term;
 
   const DurationAdjustmentPage._({
     super.key,
     this.adjustment,
     required this.mode,
+    this.term = AdjustmentTerm.adjustment,
   });
 
-  factory DurationAdjustmentPage.add({Key? key}) =>
-      DurationAdjustmentPage._(key: key, mode: AdjustmentPageMode.add);
+  factory DurationAdjustmentPage.add({Key? key, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
+      DurationAdjustmentPage._(key: key, mode: AdjustmentPageMode.add, term: term);
 
-  factory DurationAdjustmentPage.edit({Key? key, required DurationAdjustment adjustment}) =>
-      DurationAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit);
+  factory DurationAdjustmentPage.edit({Key? key, required DurationAdjustment adjustment, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
+      DurationAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit, term: term);
 
-  factory DurationAdjustmentPage.duplicate({Key? key, required DurationAdjustment adjustment}) =>
-      DurationAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate);
+  factory DurationAdjustmentPage.duplicate({Key? key, required DurationAdjustment adjustment, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
+      DurationAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate, term: term);
 
-  factory DurationAdjustmentPage.template({Key? key, required DurationAdjustment adjustment}) =>
-      DurationAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.template);
+  factory DurationAdjustmentPage.template({Key? key, required DurationAdjustment adjustment, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
+      DurationAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.template, term: term);
 
   @override
   State<DurationAdjustmentPage> createState() => _DurationAdjustmentPageState();
@@ -113,6 +115,7 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
       min: _previewAdjustment.min,
       max: _previewAdjustment.max,
       unit: widget.adjustment?.unit,
+      presetKey: widget.adjustment?.presetKey,
     ));
   }
 
@@ -133,6 +136,7 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
         name: _nameController.text.trim(),
         notes: notes.isEmpty ? null : notes,
         unit: _previewAdjustment.unit,
+        presetKey: widget.adjustment?.presetKey,
         min: min,
         max: max,
       );
@@ -149,8 +153,8 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
           title: switch (widget.mode) {
             AdjustmentPageMode.add ||
             AdjustmentPageMode.duplicate ||
-            AdjustmentPageMode.template => const Text('Add Duration Adjustment'),
-            AdjustmentPageMode.edit => const Text('Edit Duration Adjustment'),
+            AdjustmentPageMode.template => Text('Add Duration ${widget.term.label}'),
+            AdjustmentPageMode.edit => Text('Edit Duration ${widget.term.label}'),
           },
           actions: [
             IconButton(icon: const Icon(Icons.check), onPressed: _saveDurationAdjustment),
@@ -180,8 +184,8 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                             autovalidateMode: AutovalidateMode.onUserInteraction,
                             autofocus: widget.mode == AdjustmentPageMode.add,
                             decoration: InputDecoration(
-                              labelText: 'Adjustment Name',
-                              hintText: 'Enter Adjustment Name',
+                              labelText: '${widget.term.label} Name',
+                              hintText: 'Enter ${widget.term.label} Name',
                               border: const OutlineInputBorder(),
                               helper: adjustmentNameLengthWarning(context, _nameController.text),
                               fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,

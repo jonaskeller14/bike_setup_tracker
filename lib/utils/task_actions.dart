@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../models/attachment.dart';
 import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
+import '../models/task/task_threshold/task_threshold.dart';
 import '../pages/forms/task_entry_page.dart';
 import '../pages/forms/task_rule_page.dart';
 import '../repositories/app_repository.dart';
@@ -78,10 +79,22 @@ class TaskActions {
   static Future<void> setTaskDelay(BuildContext context, {required TaskRule taskRule}) async {
     final appRepository = context.read<AppRepository>();
 
-    final updatedRule = await showSetTaskDelaySheet(context: context, taskRule: taskRule);
+    final updatedRule = await showSetTaskDelaySheet(
+      context: context,
+      taskRule: taskRule,
+      dueNowDelay: _canMakeTaskRuleDueNow(appRepository, taskRule)
+          ? () => appRepository.getTaskRuleDueNowDelay(taskRule)
+          : null,
+    );
     if (updatedRule == null) return;
 
     await appRepository.editTaskRules([updatedRule]);
+  }
+
+  /// Only an open task has a due point left to pull in.
+  static bool _canMakeTaskRuleDueNow(AppRepository appRepository, TaskRule taskRule) {
+    final status = appRepository.getTaskRuleStatus(taskRule);
+    return status.type == TaskStatusType.upcoming && taskRule.interval is AccumulatingThreshold;
   }
 
   /// Opens a priority picker and applies the chosen priority to all [taskRuleIds].

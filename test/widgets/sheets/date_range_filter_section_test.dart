@@ -3,6 +3,7 @@ import 'package:bike_setup_tracker/models/filters/local_date_range.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/repositories/filter_controller.dart';
 import 'package:bike_setup_tracker/theme.dart';
+import 'package:bike_setup_tracker/utils/filter_actions.dart';
 import 'package:bike_setup_tracker/widgets/sheets/filter/date_range_filter_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,6 +14,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 class _FakeAppRepository extends ChangeNotifier implements AppRepository {
   @override
   late final FilterController filters = FilterController(onChanged: notifyListeners);
+
+  @override
+  DateTime? firstEntryDay;
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
@@ -154,6 +158,101 @@ void main() {
     final picker = tester.widget<DateRangePickerDialog>(find.byType(DateRangePickerDialog));
 
     expect(DateUtils.isSameDay(picker.lastDate, DateTime.now()), true);
+  });
+
+  group('with dated entries', () {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final firstDay = DateTime(today.year, today.month, today.day - 100);
+
+    setUp(() => repository.firstEntryDay = firstDay);
+
+    RangeSlider slider(WidgetTester tester) => tester.widget(find.byType(RangeSlider));
+
+    Future<void> release(WidgetTester tester, RangeValues values) async {
+      slider(tester).onChanged!(values);
+      slider(tester).onChangeEnd!(values);
+      await tester.pump();
+    }
+
+    testWidgets('a slider spans the first entry to today and is open by default', (tester) async {
+      await pumpSection(tester);
+
+      expect(find.byType(FilterChip), findsNothing);
+      expect(find.text('Any date'), findsOneWidget);
+      expect(slider(tester).values, const RangeValues(0, 100));
+      expect(slider(tester).max, 100);
+    });
+
+    testWidgets('a drag previews the days and writes them on release only', (tester) async {
+      await pumpSection(tester);
+
+      slider(tester).onChanged!(const RangeValues(10.4, 20.6));
+      await tester.pump();
+      final start = DateTime(firstDay.year, firstDay.month, firstDay.day + 10);
+      final end = DateTime(firstDay.year, firstDay.month, firstDay.day + 21);
+      final label = FilterActions.dateRangeLabel(LocalDateRange(start: start, end: end), dateFormat: 'yyyy-MM-dd')!;
+      expect(find.text(label), findsOneWidget);
+      expect(filters.dateRange, null);
+
+      slider(tester).onChangeEnd!(const RangeValues(10.4, 20.6));
+      await tester.pump();
+      expect(filters.dateRange, LocalDateRange(start: start, end: end));
+      expect(slider(tester).values, const RangeValues(10, 21));
+    });
+
+    testWidgets('an end of the slider stands for the first day or today', (tester) async {
+      await pumpSection(tester);
+
+      await release(tester, const RangeValues(0, 50));
+      expect(filters.dateRange?.start, firstDay);
+
+      await release(tester, const RangeValues(50, 100));
+      expect(filters.dateRange?.end, today);
+
+      await release(tester, const RangeValues(0, 100));
+      expect(filters.dateRange, null);
+      expect(find.text('Any date'), findsOneWidget);
+    });
+
+    testWidgets('a picked range beyond the track keeps its label', (tester) async {
+      filters.dateRange = may;
+      repository.firstEntryDay = DateTime(2025, 1, 1);
+      await pumpSection(tester);
+
+      expect(slider(tester).values.start, 0);
+      expect(find.text('2024-05-10 – 2024-05-12'), findsOneWidget);
+    });
+
+    testWidgets('the calendar button opens the picker for exact days', (tester) async {
+      await pumpSection(tester);
+
+      await tester.tap(find.byTooltip('Pick exact dates'));
+      await tester.pumpAndSettle();
+      expect(find.byType(DateRangePickerDialog), findsOneWidget);
+    });
+
+    testWidgets('only the chip is left when every entry is from today', (tester) async {
+      repository.firstEntryDay = today;
+      await pumpSection(tester);
+
+      expect(find.byType(RangeSlider), findsNothing);
+      expect(find.byType(FilterChip), findsOneWidget);
+    });
+
+    for (final theme in [materialAppTheme, materialAppDarkTheme]) {
+      testWidgets('fits a narrow screen with a long date format (${theme.brightness.name})', (tester) async {
+        await tester.binding.setSurfaceSize(const Size(200, 600));
+        addTearDown(() => tester.binding.setSurfaceSize(null));
+        settings.dateFormat = 'EEEE, d MMMM yyyy';
+        filters.dateRange = may;
+
+        await pumpSection(tester, theme: theme);
+
+        expect(tester.takeException(), null);
+        expect(find.text('Friday, 10 May 2024 – Sunday, 12 May 2024'), findsOneWidget);
+      });
+    }
   });
 
   for (final theme in [materialAppTheme, materialAppDarkTheme]) {

@@ -18,8 +18,6 @@ class ToggleableUnitValue extends StatefulWidget {
   /// catalog conversion. Entry 0 must be the storage unit.
   final List<UnitCycleEntry>? cycle;
 
-  final CrossAxisAlignment crossAxisAlignment;
-
   /// Extra widgets appended after the value block (e.g. a step's `[min..max]`
   /// range line).
   final List<Widget> trailing;
@@ -32,7 +30,6 @@ class ToggleableUnitValue extends StatefulWidget {
     this.cycle,
     this.highlightColor,
     this.showPreviousValue = false,
-    this.crossAxisAlignment = CrossAxisAlignment.center,
     this.trailing = const [],
   });
 
@@ -41,6 +38,8 @@ class ToggleableUnitValue extends StatefulWidget {
 }
 
 class _ToggleableUnitValueState extends State<ToggleableUnitValue> {
+  static const double _unitPadding = 6;
+
   int _index = 0;
 
   // Recomputed rather than cached: the cycle's conversions close over widget
@@ -95,11 +94,18 @@ class _ToggleableUnitValueState extends State<ToggleableUnitValue> {
       borderRadius: BorderRadius.circular(4),
       onTap: _cycleUnit,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6),
+        padding: const EdgeInsets.symmetric(horizontal: _unitPadding),
         child: Text(label, style: style),
       ),
     );
   }
+
+  /// Insets a line below the value by the tappable unit's padding so its text
+  /// ends flush with the unit label's text rather than its tap target.
+  Widget _alignedWithUnitText(Widget child) => Padding(
+    padding: EdgeInsets.only(right: _toggleEnabled && _activeLabel != null ? _unitPadding : 0),
+    child: child,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -113,7 +119,7 @@ class _ToggleableUnitValueState extends State<ToggleableUnitValue> {
 
     return Column(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: widget.crossAxisAlignment,
+      crossAxisAlignment: CrossAxisAlignment.end,
       spacing: 2,
       children: [
         Row(
@@ -130,14 +136,14 @@ class _ToggleableUnitValueState extends State<ToggleableUnitValue> {
           ],
         ),
         if (_isConverting && widget.value != null)
-          Text(
+          _alignedWithUnitText(Text(
             '= ${widget.value!.display} $_storageLabel',
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
             ),
-          ),
+          )),
         if (widget.showPreviousValue)
-          Opacity(
+          _alignedWithUnitText(Opacity(
             opacity: 0.7,
             child: Text(
               _formatInActive(widget.initialValue) + _activeSuffix,
@@ -149,7 +155,7 @@ class _ToggleableUnitValueState extends State<ToggleableUnitValue> {
                 fontFeatures: [const FontFeature.tabularFigures()],
               ),
             ),
-          ),
+          )),
         ...widget.trailing,
       ],
     );

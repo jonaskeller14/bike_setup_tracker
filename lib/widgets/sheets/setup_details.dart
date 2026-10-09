@@ -10,13 +10,13 @@ Future<void> showSetupDetailsSheet({
   required String setupId,
   bool showViewOnMap = true,
 }) async {
-  final setup = context.read<AppRepository>().setups[setupId];
+  final isCurrent = context.read<AppRepository>().setupHistory.isCurrent(setupId);
 
   return showModalBottomSheet<void>(
     useSafeArea: true,
     isScrollControlled: true,
     context: context,
-    backgroundColor: setup?.isCurrent ?? false
+    backgroundColor: isCurrent
         ? CurrentSetupHighlight.opaqueFill(Theme.of(context).colorScheme)
         : Theme.of(context).colorScheme.surface,
     builder: (BuildContext context) => SafeArea(

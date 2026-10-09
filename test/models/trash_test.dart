@@ -37,13 +37,13 @@ void main() {
       );
       setup1 = Setup(
         name: "Setup #1",
-        tags: {},
+        tags: const {},
         datetime: DateTime(2000).toUtc(),
         datetimeLocal: DateTime(2000).toLocal(),
         bike: bike1.id,
         person: null,
-        bikeAdjustmentValues: {},
-        personAdjustmentValues: {},
+        bikeAdjustmentValues: const {},
+        personAdjustmentValues: const {},
       );
       ratingEntry1 = RatingEntry(
         name: "Rating Entry #1",

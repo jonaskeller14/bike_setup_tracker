@@ -9,6 +9,8 @@ abstract final class AutomationIds {
   static const navSetups = 'nav.setups';
   static const navTasks = 'nav.tasks';
 
+  static const appBarRider = 'appBar.rider';
+
   static const addSetupFab = 'setups.add';
   static const setupListCalendar = 'setups.calendar';
 

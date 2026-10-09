@@ -43,9 +43,9 @@ void main() {
       datetimeLocal: at,
       bike: 'bike',
       person: null,
-      tags: {},
-      personAdjustmentValues: {},
-      bikeAdjustmentValues: {},
+      tags: const {},
+      personAdjustmentValues: const {},
+      bikeAdjustmentValues: const {},
     );
 
     test('subcomponent counts as installed once its parent is on the bike', () {
@@ -75,8 +75,8 @@ void main() {
         datetimeLocal: DateTime(2026, 1, 10),
         bike: 'bike',
         person: null,
-        tags: {},
-        personAdjustmentValues: {},
+        tags: const {},
+        personAdjustmentValues: const {},
         bikeAdjustmentValues: {lockout.id: const BooleanValue(true), 'removed': const UnresolvedValue('5400000000')},
       );
 

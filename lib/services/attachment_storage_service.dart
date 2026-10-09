@@ -151,15 +151,25 @@ class AttachmentStorageService {
     final exportData = await DataExportService.backupDatabaseToJson(database, subset: selectedData);
     final jsonString = const JsonEncoder.withIndent('  ').convert(exportData);
 
+    // When a subset is requested, only include attachments referenced by its setups, bikes, components and tasks.
+    final Set<String>? allowedFilenames = selectedData == null ? null : _attachmentFilenames(selectedData);
+
+    return _writeBundle(jsonString, 'bike_setup_bundle', allowedFilenames: allowedFilenames);
+  }
+
+  /// Bundles an on-disk backup with every attachment without touching the database,
+  /// so it still works when the database failed to load.
+  Future<File> exportRecoveryBundle(File backupJson) async {
+    return _writeBundle(await backupJson.readAsString(), 'recovered_bundle');
+  }
+
+  Future<File> _writeBundle(String jsonString, String nameSuffix, {Set<String>? allowedFilenames}) async {
     final tempDir = await getTemporaryDirectory();
     final timestamp = _timestamp();
-    final zipPath = p.join(tempDir.path, '${timestamp}_bike_setup_bundle.zip');
+    final zipPath = p.join(tempDir.path, '${timestamp}_$nameSuffix.zip');
 
     final jsonTempFile = File(p.join(tempDir.path, 'data.json'));
     await jsonTempFile.writeAsString(jsonString);
-
-    // When a subset is requested, only include attachments referenced by its setups, bikes, components and tasks.
-    final Set<String>? allowedFilenames = selectedData == null ? null : _attachmentFilenames(selectedData);
 
     final encoder = ZipFileEncoder();
     encoder.create(zipPath);

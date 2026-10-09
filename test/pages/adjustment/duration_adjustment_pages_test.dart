@@ -4,6 +4,8 @@ import 'package:bike_setup_tracker/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'preset_key_test_utils.dart';
+
 void main() {
   testWidgets('DurationAdjustmentPage edit returns equal adjustment when unchanged', (WidgetTester tester) async {
     final initial = DurationAdjustment(
@@ -252,4 +254,11 @@ void main() {
     expect(result, isNotNull);
     expect(result!.unit?.label, 'hours');
   });
+
+  final preset = DurationAdjustment(name: 'Preset', notes: null, unit: null, presetKey: testPresetKey);
+  presetKeyTests(
+    template: () => DurationAdjustmentPage.template(adjustment: preset),
+    edit: () => DurationAdjustmentPage.edit(adjustment: preset),
+    add: () => DurationAdjustmentPage.add(),
+  );
 }

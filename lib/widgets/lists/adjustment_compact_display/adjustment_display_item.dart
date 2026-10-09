@@ -55,7 +55,7 @@ class PersonDisplayItem extends AdjustmentDisplayItem {
   @override List<Adjustment> get adjustments => _person.adjustments;
   @override String get name => _person.name;
   @override String? get notes => _person.notes;
-  @override String? get errorDescription => isError ? "Person is not linked to this setup" : null;
+  @override String? get errorDescription => isError ? "Rider is not linked to this setup" : null;
   @override
   Widget buildIcon(BuildContext context) {
     final icon = Icon(

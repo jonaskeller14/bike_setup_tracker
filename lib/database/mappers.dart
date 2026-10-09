@@ -8,6 +8,7 @@ import '../models/adjustment/adjustment.dart';
 import '../models/attachment.dart';
 import '../models/bike.dart';
 import '../models/component/component.dart';
+import '../models/component/component_preset.dart';
 import '../models/component/installation.dart';
 import '../models/component_stats.dart';
 import '../models/context/context_position.dart';
@@ -76,8 +77,7 @@ extension ComponentDbMapper on ComponentDb {
         activityCount: initialActivityCount,
         kilojoules: initialKilojoules,
       ),
-      presetKey: presetKey,
-      presetDamperKey: presetDamperKey,
+      preset: preset,
       attachments: attachments,
     );
   }
@@ -179,6 +179,7 @@ extension TaskRuleDbMapper on TaskRuleDb {
       delay: delay != null ? TaskThreshold.fromJson(jsonDecode(delay!) as Map<String, dynamic>) : null,
       repeat: repeat,
       attachments: attachments,
+      presetKey: presetKey,
     );
   }
 }
@@ -241,8 +242,7 @@ extension ComponentMapper on Component {
       initialElapsedTime: Value<Duration>(initialStats.elapsedTime),
       initialActivityCount: Value<int>(initialStats.activityCount),
       initialKilojoules: Value<double>(initialStats.kilojoules),
-      presetKey: Value<String?>(presetKey),
-      presetDamperKey: Value<String?>(presetDamperKey),
+      preset: Value<ComponentPreset?>(preset),
       attachments: Value<List<Attachment>>(attachments),
     );
   }
@@ -353,6 +353,7 @@ extension TaskRuleMapper on TaskRule {
       delay: Value<String?>(delay != null ? jsonEncode(delay!.toJson()) : null),
       repeat: Value<bool>(repeat),
       attachments: Value<List<Attachment>>(attachments),
+      presetKey: Value<String?>(presetKey),
     );
   }
 }

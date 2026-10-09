@@ -172,13 +172,13 @@ void main() {
         attachments: [kept, shared],
       );
       final setup = Setup(
-        tags: {},
+        tags: const {},
         datetime: DateTime(2026).toUtc(),
         datetimeLocal: DateTime(2026),
         bike: bike.id,
         person: null,
-        bikeAdjustmentValues: {},
-        personAdjustmentValues: {},
+        bikeAdjustmentValues: const {},
+        personAdjustmentValues: const {},
         attachments: [shared],
       );
       await appRepository.addBikes([bike, otherBike]);

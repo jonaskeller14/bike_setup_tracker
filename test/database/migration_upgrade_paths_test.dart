@@ -36,6 +36,17 @@ void main() {
   // structural undo — their steps rewrite/recreate the affected tables
   // regardless of the starting column shape.
   Future<void> reshapeToVersion(AppDatabase db, int version) async {
+    if (version < 24) {
+      // v24 added the strava_activities gear/date index.
+      await db.customStatement('DROP INDEX strava_activities_gear_date_idx');
+    }
+    if (version < 22) {
+      // v22 replaced the components preset key pair with the preset map.
+      await db.customStatement('ALTER TABLE components DROP COLUMN preset');
+      for (final column in _componentPresetKeyColumns) {
+        await db.customStatement('ALTER TABLE components ADD COLUMN $column TEXT');
+      }
+    }
     if (version < 21) {
       // v21 added attachments to task_rules and task_entries.
       await db.customStatement('ALTER TABLE task_rules DROP COLUMN attachments');
@@ -49,8 +60,8 @@ void main() {
       await db.customStatement('ALTER TABLE components DROP COLUMN attachments');
     }
     if (version < 19) {
-      // v19 added the components preset-provenance columns.
-      for (final column in _componentPresetColumns) {
+      // v19 added the components preset key pair.
+      for (final column in _componentPresetKeyColumns) {
         await db.customStatement('ALTER TABLE components DROP COLUMN $column');
       }
     }
@@ -125,8 +136,8 @@ void main() {
     );
   }
 
-  // Seeds the component the installation above points at, without the v19
-  // preset-provenance columns, so the upgrade has a pre-existing row to widen.
+  // Seeds the component the installation above points at, without any preset
+  // column, so the upgrade has a pre-existing row to widen.
   Future<void> seedComponent(AppDatabase db) async {
     const epochSeconds = 1700000000;
     await db.customStatement(
@@ -158,9 +169,9 @@ void main() {
     );
   }
 
-  // Builds a db file seeded at [startVersion] and re-opens it so drift runs the
-  // real upgrade to the current schema. Returns the upgraded database.
-  Future<AppDatabase> migrateFrom(int startVersion) async {
+  // Builds a db file seeded at [startVersion]. [extraStatements] run against the
+  // seeded schema right before the version is stamped.
+  Future<File> seedFileAt(int startVersion, {List<String> extraStatements = const []}) async {
     final file = File(p.join(tempDir.path, 'v$startVersion.sqlite'));
 
     final seed = AppDatabase.forTesting(NativeDatabase(file));
@@ -174,8 +185,18 @@ void main() {
     await seedComponent(seed);
     await seedBike(seed);
     await seedTask(seed);
+    for (final statement in extraStatements) {
+      await seed.customStatement(statement);
+    }
     await seed.customStatement('PRAGMA user_version = $startVersion');
     await seed.close();
+    return file;
+  }
+
+  // Builds a db file seeded at [startVersion] and re-opens it so drift runs the
+  // real upgrade to the current schema. Returns the upgraded database.
+  Future<AppDatabase> migrateFrom(int startVersion) async {
+    final file = await seedFileAt(startVersion);
 
     // Re-open: drift sees user_version < schemaVersion and runs onUpgrade.
     final upgraded = AppDatabase.forTesting(NativeDatabase(file));
@@ -196,7 +217,7 @@ void main() {
   group('onUpgrade from every prior version to the current schema', () {
     // Covers the full range of jump sizes: the v12 case is a single step, the
     // v1 case crosses every TableMigration in the strategy.
-    for (final startVersion in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]) {
+    for (final startVersion in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]) {
       test('v$startVersion -> current completes and preserves seed rows', () async {
         final db = await migrateFrom(startVersion);
         addTearDown(db.close);
@@ -235,6 +256,13 @@ void main() {
           await columnNames(db, 'setups'),
           contains('is_bookmarked'),
           reason: 'is_bookmarked column missing after v$startVersion upgrade',
+        );
+
+        final stravaIndexes = await db.customSelect("PRAGMA index_list('strava_activities')").get();
+        expect(
+          stravaIndexes.map((r) => r.read<String>('name')),
+          contains('strava_activities_gear_date_idx'),
+          reason: 'gear/date index missing after v$startVersion upgrade',
         );
 
         // The seeded installation row (parent='b1') got the 'bike' default.
@@ -281,11 +309,13 @@ void main() {
         expect(bike.initialMovingTime, Duration.zero);
         expect(bike.initialActivityCount, 0);
 
-        // The v19 step adds preset provenance; rows that predate it stay null.
-        expect(await columnNames(db, 'components'), containsAll(_componentPresetColumns));
+        // Every path ends with exactly the v22 `preset` column, whether the v22
+        // step recreated the table or added it, and without the v19 key pair.
+        expect(await columnCount(db, 'components', 'preset'), 1);
+        expect(await columnNames(db, 'components'), isNot(contains(anyOf(_componentPresetKeyColumns))));
         final component = await (db.select(db.components)..where((t) => t.id.equals('c1'))).getSingle();
-        expect(component.presetKey, isNull);
-        expect(component.presetDamperKey, isNull);
+        expect(component.name, 'Fork');
+        expect(component.preset, isNull);
 
         // The v20 step adds attachments to bikes and components.
         expect(await columnNames(db, 'bikes'), contains('attachments'));
@@ -303,6 +333,34 @@ void main() {
       });
     }
   });
+
+  test('a failing step rolls back the whole upgrade so the retry starts clean', () async {
+    // v16 rounds the seeded installation's off-minute instant; aborting that
+    // update fails the upgrade after the v9 and v10 steps already ran.
+    final file = await seedFileAt(8, extraStatements: [
+      'CREATE TRIGGER fail_installation_update BEFORE UPDATE ON installations '
+          "BEGIN SELECT RAISE(ABORT, 'boom'); END",
+    ]);
+
+    final failing = AppDatabase.forTesting(NativeDatabase(file));
+    await expectLater(failing.customSelect('SELECT 1').get(), throwsA(anything));
+    await failing.close();
+
+    late int userVersion;
+    late Set<String> installationColumns;
+    final retry = AppDatabase.forTesting(NativeDatabase(file, setup: (raw) {
+      userVersion = raw.userVersion;
+      installationColumns =
+          raw.select('PRAGMA table_info(installations)').map((row) => row['name'] as String).toSet();
+      raw.execute('DROP TRIGGER fail_installation_update');
+    }));
+    addTearDown(retry.close);
+    await retry.customSelect('SELECT 1').get();
+
+    expect(userVersion, 8);
+    expect(installationColumns, isNot(contains('parent_type')));
+    expect(await columnNames(retry, 'installations'), contains('parent_type'));
+  });
 }
 
 const _bikeInitialStatsColumns = [
@@ -314,7 +372,7 @@ const _bikeInitialStatsColumns = [
   'initial_kilojoules',
 ];
 
-const _componentPresetColumns = [
+const _componentPresetKeyColumns = [
   'preset_key',
   'preset_damper_key',
 ];

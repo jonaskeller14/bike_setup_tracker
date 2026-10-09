@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 import '../display_adjustment/adjustment_icon_name_notes.dart';
+import '../display_adjustment/previous_value_line.dart';
 import '../sheets/set_categorical.dart';
 
 class SetCategoricalAdjustmentWidget extends StatelessWidget {
@@ -63,87 +64,96 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: isChanged ? (isInitial ? highlights?.initialFill ?? Colors.green.withValues(alpha: 0.08) : highlights?.changedFill ?? Colors.orange.withValues(alpha: 0.08)) : null,
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        spacing: 20,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 8,
         children: [
-          Flexible(
-            flex: 2,
-            child: AdjustmentIconNameNotes(adjustment: adjustment, color: highlightColor),
-          ),
-          Flexible(
-            flex: 3,
-            child: FormField<List<String>>(
-              initialValue: value?.options,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              validator: (_) {
-                final selection = value?.options ?? const <String>[];
-                if (selection.any((e) => !adjustment.options.contains(e))) {
-                  return 'Contains options that no longer exist';
-                }
-                final distinct = selection.toSet();
-                if (!adjustment.multiSelect && distinct.length > 1) {
-                  return 'Only one option can be selected';
-                }
-                if (!adjustment.counted && selection.length != distinct.length) {
-                  return 'An option cannot be selected more than once';
-                }
-                return null;
-              },
-              builder: (FormFieldState<List<String>> field) {
-                return InkWell(
-                  onTap: () => showSetCategoricalSheet(
-                    context: context,
-                    adjustment: adjustment,
-                    selected: selected,
-                    initialValue: initialValue?.options,
-                    highlighting: highlighting,
-                    onAddOption: onAddOption,
-                    onChanged: (List<String> newSelection) {
-                      field.didChange(newSelection);
-                      onChanged(CategoricalValue(newSelection));
-                    },
-                  ),
-                  child: InputDecorator(
-                    decoration: InputDecoration(
-                      border: const OutlineInputBorder(),
-                      isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                      errorText: field.errorText,
-                      suffixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 48),
-                      suffixIcon: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.only(right: canReset ? 0 : 8),
-                            child: Icon(Icons.arrow_drop_down, color: highlightColor),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            spacing: 20,
+            children: [
+              Flexible(
+                flex: 2,
+                child: AdjustmentIconNameNotes(adjustment: adjustment, value: value, color: highlightColor),
+              ),
+              Flexible(
+                flex: 3,
+                child: FormField<List<String>>(
+                  initialValue: value?.options,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  validator: (_) {
+                    final selection = value?.options ?? const <String>[];
+                    if (selection.any((e) => !adjustment.options.contains(e))) {
+                      return 'Contains options that no longer exist';
+                    }
+                    final distinct = selection.toSet();
+                    if (!adjustment.multiSelect && distinct.length > 1) {
+                      return 'Only one option can be selected';
+                    }
+                    if (!adjustment.counted && selection.length != distinct.length) {
+                      return 'An option cannot be selected more than once';
+                    }
+                    return null;
+                  },
+                  builder: (FormFieldState<List<String>> field) {
+                    return InkWell(
+                      onTap: () => showSetCategoricalSheet(
+                        context: context,
+                        adjustment: adjustment,
+                        selected: selected,
+                        initialValue: initialValue?.options,
+                        highlighting: highlighting,
+                        onAddOption: onAddOption,
+                        onChanged: (List<String> newSelection) {
+                          field.didChange(newSelection);
+                          onChanged(CategoricalValue(newSelection));
+                        },
+                      ),
+                      child: InputDecorator(
+                        decoration: InputDecoration(
+                          border: const OutlineInputBorder(),
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                          errorText: field.errorText,
+                          suffixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 48),
+                          suffixIcon: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(right: canReset ? 0 : 8),
+                                child: Icon(Icons.arrow_drop_down, color: highlightColor),
+                              ),
+                              if (canReset)
+                                IconButton(
+                                  onPressed: () {
+                                    final resetValue = optional ? null : initialValue;
+                                    field.didChange(resetValue?.options);
+                                    onChanged(resetValue);
+                                  },
+                                  icon: const Icon(Icons.replay),
+                                  visualDensity: VisualDensity.compact,
+                                  tooltip: 'Revert',
+                                ),
+                            ],
                           ),
-                          if (canReset)
-                            IconButton(
-                              onPressed: () {
-                                final resetValue = optional ? null : initialValue;
-                                field.didChange(resetValue?.options);
-                                onChanged(resetValue);
-                              },
-                              icon: const Icon(Icons.replay),
-                              visualDensity: VisualDensity.compact,
-                              tooltip: 'Revert',
-                            ),
-                        ],
+                        ),
+                        child: Text(
+                          hasValidValue ? CategoricalValue(validSelected).display : "Please select",
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: hasValidValue ? highlightColor : Theme.of(context).hintColor,
+                          ),
+                        ),
                       ),
-                    ),
-                    child: Text(
-                      hasValidValue ? CategoricalValue(validSelected).display : "Please select",
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: hasValidValue ? highlightColor : Theme.of(context).hintColor,
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
+          if (highlighting && PreviousValueLine.appliesTo(adjustment, initialValue, value))
+            PreviousValueLine(adjustment: adjustment, previousValue: initialValue!, value: value!),
         ],
       ),
     );

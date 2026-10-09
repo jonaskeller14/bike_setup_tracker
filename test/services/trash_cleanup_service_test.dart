@@ -64,11 +64,11 @@ void main() {
       isDeleted: isDeleted,
       datetime: now,
       datetimeLocal: now,
-      tags: <String>{},
+      tags: const <String>{},
       bike: 'bike',
       person: null,
-      bikeAdjustmentValues: {},
-      personAdjustmentValues: {},
+      bikeAdjustmentValues: const {},
+      personAdjustmentValues: const {},
       attachments: attachments,
     );
   }

@@ -137,7 +137,7 @@ class AppHintService extends ChangeNotifier {
   AppHint? _setupTaskHint() {
     final eligible =
         !_appSettings.enableTask &&
-        _appRepository.view.setups.isNotEmpty &&
+        _appRepository.setups.isNotEmpty &&
         statusOf(AppHint.setupTasksV1) == AppHintStatus.unseen;
     return eligible ? AppHint.setupTasksV1 : null;
   }

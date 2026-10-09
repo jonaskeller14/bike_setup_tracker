@@ -162,7 +162,29 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
-      children: [for (final adjustment in widget.adjustments) _row(adjustment)],
+      children: [
+        for (final adjustment in widget.adjustments)
+          if (_isSliderStep(adjustment))
+            _row(adjustment)
+          else
+            AnimatedSize(
+              key: ValueKey(adjustment.id),
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeInOut,
+              alignment: Alignment.topCenter,
+              child: _row(adjustment),
+            ),
+      ],
     );
   }
+
+  /// Resizing a row while its slider thumb is dragged makes the thumb's
+  /// tooltip glitch, so these rows change size without animating.
+  bool _isSliderStep(Adjustment adjustment) =>
+      adjustment is StepAdjustment &&
+      const {
+        StepAdjustmentVisualization.slider,
+        StepAdjustmentVisualization.sliderWithClockwiseDial,
+        StepAdjustmentVisualization.sliderWithCounterclockwiseDial,
+      }.contains(adjustment.visualization);
 }

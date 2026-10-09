@@ -7,7 +7,9 @@ import '../../models/adjustment/adjustment.dart';
 import '../../models/setup_comparison.dart' as comparison;
 import '../../theme.dart';
 import '../../utils/unit_conversion.dart';
+import '../set_adjustment/set_step_adjustment_dial.dart';
 import 'adjustment_icon_name_notes.dart';
+import 'step_pips.dart';
 
 enum DisplayAdjustmentDiffSide { both, a, b }
 
@@ -80,6 +82,7 @@ class _DisplayAdjustmentDiffState extends State<DisplayAdjustmentDiff> {
                     child: _DiffValue(
                       key: Key('compare-panel-a-$id'),
                       value: _display(row.valueA, row.adjustmentA ?? adjustment),
+                      footer: _pips(row.valueA, row.adjustmentA ?? adjustment),
                       color: changedColor,
                       canToggleUnit: _canToggleUnit,
                       onToggleUnit: _toggleUnit,
@@ -91,6 +94,7 @@ class _DisplayAdjustmentDiffState extends State<DisplayAdjustmentDiff> {
                     child: _DiffValue(
                       key: Key('compare-panel-b-$id'),
                       value: _display(row.valueB, row.adjustmentB ?? adjustment),
+                      footer: _pips(row.valueB, row.adjustmentB ?? adjustment),
                       color: changedColor,
                       canToggleUnit: _canToggleUnit,
                       onToggleUnit: _toggleUnit,
@@ -138,6 +142,15 @@ class _DisplayAdjustmentDiffState extends State<DisplayAdjustmentDiff> {
     );
   }
 
+  /// A step value over its pips, which only fill up to the value: the coloured
+  /// values already say that the sides differ.
+  Widget? _pips(comparison.SetupComparisonSideValue side, Adjustment definition) {
+    final value = side.value;
+    if (side.provenance == comparison.SetupComparisonValueProvenance.unavailable) return null;
+    if (definition is! StepAdjustment || value is! StepValue) return null;
+    return StepPips(adjustment: definition, value: value, color: resolveStepAccentColor(context, definition));
+  }
+
   bool _supportsUnitToggle(Adjustment value) => value is NumericalAdjustment || value is StepAdjustment;
 
   bool _usesMonospaceValue(Adjustment value) => value is NumericalAdjustment || value is StepAdjustment;
@@ -151,6 +164,7 @@ class _DisplayAdjustmentDiffState extends State<DisplayAdjustmentDiff> {
 
 class _DiffValue extends StatelessWidget {
   final _DisplayedValue value;
+  final Widget? footer;
   final Color? color;
   final bool canToggleUnit;
   final VoidCallback onToggleUnit;
@@ -158,6 +172,7 @@ class _DiffValue extends StatelessWidget {
   const _DiffValue({
     super.key,
     required this.value,
+    this.footer,
     required this.color,
     required this.canToggleUnit,
     required this.onToggleUnit,
@@ -206,6 +221,7 @@ class _DiffValue extends StatelessWidget {
                   color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                 ),
               ),
+            if (footer case final footer?) Padding(padding: const EdgeInsets.only(top: 6), child: footer),
           ],
         ),
       ),

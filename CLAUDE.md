@@ -24,6 +24,10 @@ CI runs `flutter pub get` → `flutter analyze` → `flutter test` on push to `m
 
 **Do not stage or unstage files unprompted.** Only stage files when you are explicitly asked to commit. After making changes, ask for confirmation before staging and committing — show a summary of what will be committed and wait for approval. This includes changes made as part of task completion.
 
+## Store screenshots (Git LFS)
+
+`assets/store/**` (`*.png`, `*.af`) is tracked with Git LFS; older commits hold them as plain blobs, so never rewrite that history. Each machine needs git-lfs, a one-time `git lfs install`, and `git config diff.lfs.textconv cat` (otherwise VS Code image diffs show the pointer). If images show up as pointer files, run `git lfs pull` (in a worktree: `git lfs checkout`).
+
 ## Planning and feature status
 
 GitHub Issues are the canonical planning and status tracker:

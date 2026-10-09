@@ -4,6 +4,7 @@ import 'sheet_header.dart';
 
 Future<void> radioGroupSheet<T>({
   required BuildContext context,
+  Widget? leadingIcon,
   required String title,
   required T value,
   required ValueChanged<T?> onChanged,
@@ -24,7 +25,7 @@ Future<void> radioGroupSheet<T>({
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                SheetHeader(title: title),
+                SheetHeader(title: title, leadingIcon: leadingIcon),
                 const SizedBox(height: 16),
                 if (infoText != null)
                   ListTile(

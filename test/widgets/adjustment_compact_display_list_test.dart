@@ -95,8 +95,6 @@ void main() {
   Setup makeSetup({
     required Map<String, AdjustmentValue> bikeValues,
     Map<String, AdjustmentValue> personValues = const {},
-    Map<String, AdjustmentValue> previousBikeValues = const {},
-    Map<String, AdjustmentValue> previousPersonValues = const {},
   }) {
     final t = DateTime(2025, 6, 1).toUtc();
     return Setup(
@@ -106,18 +104,21 @@ void main() {
       datetimeLocal: t.toLocal(),
       bike: myBike.id,
       person: me.id,
-      tags: {},
+      tags: const {},
       bikeAdjustmentValues: bikeValues,
       personAdjustmentValues: personValues,
-    )
-      ..previousBikeAdjustmentValues = Map.from(previousBikeValues)
-      ..previousPersonAdjustmentValues = Map.from(previousPersonValues);
+    );
   }
 
   /// Builds the widget exactly the way SetupListTile does: run the setup through
   /// [DanglingAdjustmentService.analyzeSetup] and feed the resulting normal /
   /// dangling groups into the provider-free list.
-  Widget compactFor(Setup setup, {required bool displayOnlyChanges, bool displayPerson = true}) {
+  Widget compactFor(
+    Setup setup, {
+    Map<String, AdjustmentValue> previous = const {},
+    required bool displayOnlyChanges,
+    bool displayPerson = true,
+  }) {
     final breakdown = DanglingAdjustmentService.analyzeSetup(
       setup: setup,
       components: [fork, shock],
@@ -129,7 +130,7 @@ void main() {
       danglingComponents: breakdown.danglingComponents,
       danglingPersons: breakdown.danglingPersons,
       adjustmentValues: {...setup.bikeAdjustmentValues, ...setup.personAdjustmentValues},
-      previousAdjustmentValues: {...setup.previousBikeAdjustmentValues, ...setup.previousPersonAdjustmentValues},
+      previousAdjustmentValues: previous,
       showRowIcons: true,
       highlightInitialValues: true,
       displayOnlyChanges: displayOnlyChanges,
@@ -160,14 +161,17 @@ void main() {
           deletedAdjId: TextValue.orNull('999')!,
         },
         personValues: {weight.id: TextValue.orNull('70')!},
-        previousBikeValues: {pressure.id: TextValue.orNull('85')!, compression.id: TextValue.orNull('3')!},
-        previousPersonValues: {weight.id: TextValue.orNull('72')!},
       );
+  Map<String, AdjustmentValue> mixedPrevious() => {
+        pressure.id: TextValue.orNull('85')!,
+        compression.id: TextValue.orNull('3')!,
+        weight.id: TextValue.orNull('72')!,
+      };
 
   // --- Widget: expanded ----------------------------------------------------
   group('AdjustmentCompactDisplayList expanded', () {
     testWidgets('shows every existing value, hides deleted, with correct colours', (tester) async {
-      await tester.pumpWidget(compactFor(mixedSetup(), displayOnlyChanges: false));
+      await tester.pumpWidget(compactFor(mixedSetup(), previous: mixedPrevious(), displayOnlyChanges: false));
 
       // Existing values are all visible.
       expect(find.text('80'), findsOneWidget);
@@ -187,7 +191,7 @@ void main() {
     });
 
     testWidgets('dangling component icon is red, normal component icon is not', (tester) async {
-      await tester.pumpWidget(compactFor(mixedSetup(), displayOnlyChanges: false));
+      await tester.pumpWidget(compactFor(mixedSetup(), previous: mixedPrevious(), displayOnlyChanges: false));
 
       final forkIcon = tester.widget<Icon>(find.byIcon(ComponentType.fork.getIconData()));
       final shockIcon = tester.widget<Icon>(find.byIcon(ComponentType.shock.getIconData()));
@@ -197,7 +201,7 @@ void main() {
     });
 
     testWidgets('person values are omitted when disabled', (tester) async {
-      await tester.pumpWidget(compactFor(mixedSetup(), displayOnlyChanges: false, displayPerson: false));
+      await tester.pumpWidget(compactFor(mixedSetup(), previous: mixedPrevious(), displayOnlyChanges: false, displayPerson: false));
 
       expect(find.text('80'), findsOneWidget);
       expect(find.text('70'), findsNothing);
@@ -207,7 +211,7 @@ void main() {
   // --- Widget: collapsed ---------------------------------------------------
   group('AdjustmentCompactDisplayList collapsed (displayOnlyChanges)', () {
     testWidgets('keeps only changed/initial values and hides unchanged + dangling', (tester) async {
-      await tester.pumpWidget(compactFor(mixedSetup(), displayOnlyChanges: true));
+      await tester.pumpWidget(compactFor(mixedSetup(), previous: mixedPrevious(), displayOnlyChanges: true));
 
       // Changed / initial remain.
       expect(find.text('80'), findsOneWidget);
@@ -240,12 +244,12 @@ void main() {
             datetimeLocal: t.toLocal(),
             bike: myBike.id,
             person: me.id,
-            tags: {},
-            personAdjustmentValues: {},
+            tags: const {},
+            personAdjustmentValues: const {},
             bikeAdjustmentValues: {pressure.id: TextValue.orNull(pressureVal)!},
           );
 
-      final resolved = SetupResolutionService.resolveSetups(
+      final result = SetupResolutionService.resolveSetups(
         setups: {
           's1': mk('s1', t1, '80'), // first ever -> initial
           's2': mk('s2', t2, '85'), // 80 -> 85 -> changed
@@ -255,15 +259,17 @@ void main() {
         persons: {me.id: me},
         components: {fork.id: fork},
         ratings: {},
-      ).setups;
+      );
+      Widget compactAt(String id) =>
+          compactFor(result.setups[id]!, previous: result.history.previousValuesOf(id), displayOnlyChanges: false);
 
-      await tester.pumpWidget(compactFor(resolved['s1']!, displayOnlyChanges: false));
+      await tester.pumpWidget(compactAt('s1'));
       expect(valueColor(tester, '80'), _highlights.initial, reason: 's1 has no previous -> initial');
 
-      await tester.pumpWidget(compactFor(resolved['s2']!, displayOnlyChanges: false));
+      await tester.pumpWidget(compactAt('s2'));
       expect(valueColor(tester, '85'), _highlights.changed, reason: 's2 changed from 80');
 
-      await tester.pumpWidget(compactFor(resolved['s3']!, displayOnlyChanges: false));
+      await tester.pumpWidget(compactAt('s3'));
       expect(valueColor(tester, '85'), isNull, reason: 's3 unchanged from s2');
     });
   });
@@ -346,11 +352,9 @@ void main() {
   // is still present. Dangling (uninstalled) owners never surface such values.
   group('inherited values from previous setups', () {
     testWidgets('installed component: a value only in a previous setup is shown, unchanged colour', (tester) async {
-      final setup = makeSetup(
-        bikeValues: {pressure.id: TextValue.orNull('80')!},
-        previousBikeValues: {pressure.id: TextValue.orNull('85')!, compression.id: TextValue.orNull('3')!},
-      );
-      await tester.pumpWidget(compactFor(setup, displayOnlyChanges: false));
+      final setup = makeSetup(bikeValues: {pressure.id: TextValue.orNull('80')!});
+      final previous = {pressure.id: TextValue.orNull('85')!, compression.id: TextValue.orNull('3')!};
+      await tester.pumpWidget(compactFor(setup, previous: previous, displayOnlyChanges: false));
 
       // The change on this setup is still highlighted...
       expect(valueColor(tester, '80'), _highlights.changed, reason: 'current change');
@@ -360,11 +364,9 @@ void main() {
     });
 
     testWidgets('inherited-only value is hidden when collapsed to changes', (tester) async {
-      final setup = makeSetup(
-        bikeValues: {pressure.id: TextValue.orNull('80')!},
-        previousBikeValues: {pressure.id: TextValue.orNull('85')!, compression.id: TextValue.orNull('3')!},
-      );
-      await tester.pumpWidget(compactFor(setup, displayOnlyChanges: true));
+      final setup = makeSetup(bikeValues: {pressure.id: TextValue.orNull('80')!});
+      final previous = {pressure.id: TextValue.orNull('85')!, compression.id: TextValue.orNull('3')!};
+      await tester.pumpWidget(compactFor(setup, previous: previous, displayOnlyChanges: true));
 
       expect(find.text('80'), findsOneWidget, reason: 'changed stays');
       expect(find.text('3'), findsNothing, reason: 'inherited unchanged is hidden');
@@ -373,11 +375,9 @@ void main() {
     testWidgets('a not-installed (dangling) component does not surface its previous value', (tester) async {
       // sag belongs to shock, which is never installed on myBike. With only a
       // previous value (no current), shock is not iterated at all -> nothing shown.
-      final setup = makeSetup(
-        bikeValues: {pressure.id: TextValue.orNull('80')!},
-        previousBikeValues: {pressure.id: TextValue.orNull('80')!, sag.id: TextValue.orNull('30')!},
-      );
-      await tester.pumpWidget(compactFor(setup, displayOnlyChanges: false));
+      final setup = makeSetup(bikeValues: {pressure.id: TextValue.orNull('80')!});
+      final previous = {pressure.id: TextValue.orNull('80')!, sag.id: TextValue.orNull('30')!};
+      await tester.pumpWidget(compactFor(setup, previous: previous, displayOnlyChanges: false));
 
       expect(find.text('30'), findsNothing);
     });
@@ -411,7 +411,7 @@ void main() {
       required Map<String, AdjustmentValue> previous,
       required bool onlyChanges,
     }) {
-      final setup = makeSetup(bikeValues: bikeValues, previousBikeValues: previous);
+      final setup = makeSetup(bikeValues: bikeValues);
       final breakdown = DanglingAdjustmentService.analyzeSetup(
         setup: setup,
         components: [controller],
@@ -421,7 +421,7 @@ void main() {
         components: breakdown.components,
         danglingComponents: breakdown.danglingComponents,
         adjustmentValues: setup.bikeAdjustmentValues,
-        previousAdjustmentValues: setup.previousBikeAdjustmentValues,
+        previousAdjustmentValues: previous,
         showRowIcons: true,
         highlightInitialValues: true,
         displayOnlyChanges: onlyChanges,

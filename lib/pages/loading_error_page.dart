@@ -58,6 +58,15 @@ class LoadingErrorPage extends StatelessWidget {
                         await FileExport.exportLatestBackup(context);
                       },
                     ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.folder_zip_outlined),
+                      title: const Text('Download Backup with Attachments'),
+                      subtitle: const Text('Latest backup and attachment files as ZIP bundle'),
+                      onTap: () async {
+                        await FileExport.exportLatestBackupBundle(context);
+                      },
+                    ),
                   ],
                 ),
               ),

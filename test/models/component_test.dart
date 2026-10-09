@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:bike_setup_tracker/models/attachment.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/component/component_preset.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -156,12 +159,21 @@ void main() {
   });
 
   group('preset provenance', () {
+    final preset = ComponentPreset(const {
+      'brand': 'fox',
+      'component_type': 'fork',
+      'model': '36',
+      'generation': '2025',
+      'trim': 'factory',
+      'damper': 'grip_x2',
+      'travel_mm': 160,
+    });
+
     Component fork() => Component(
           name: 'FOX 36 Factory',
           componentType: ComponentType.fork,
           installations: const [],
-          presetKey: 'fork-fox-36-factory-2025',
-          presetDamperKey: 'grip_x2',
+          preset: preset,
         );
 
     test('defaults to null for a hand-built component', () {
@@ -170,41 +182,46 @@ void main() {
         componentType: ComponentType.fork,
         installations: const [],
       );
-      expect(component.presetKey, isNull);
-      expect(component.presetDamperKey, isNull);
+      expect(component.preset, isNull);
     });
 
     test('deepCopy keeps it — a duplicate is still that preset', () {
-      final copy = fork().deepCopy();
-      expect(copy.presetKey, 'fork-fox-36-factory-2025');
-      expect(copy.presetDamperKey, 'grip_x2');
+      expect(fork().deepCopy().preset, preset);
     });
 
     test('copyWith leaves it alone, overwrites it, or clears it', () {
-      expect(fork().copyWith(name: 'Renamed').presetKey, 'fork-fox-36-factory-2025');
-      expect(fork().copyWith(presetKey: 'fork-fox-36-performance-2025').presetKey,
-          'fork-fox-36-performance-2025');
-      expect(fork().copyWith(presetKey: null).presetKey, isNull);
+      final other = ComponentPreset({...preset.toJson(), 'damper': 'grip_x'});
+      expect(fork().copyWith(name: 'Renamed').preset, preset);
+      expect(fork().copyWith(preset: other).preset, other);
+      expect(fork().copyWith(preset: null).preset, isNull);
     });
 
-    test('survives a json round trip', () {
-      final restored = Component.fromJson(json: fork().toJson());
-      expect(restored.presetKey, 'fork-fox-36-factory-2025');
-      expect(restored.presetDamperKey, 'grip_x2');
+    test('survives a json round trip, numbers included', () {
+      final restored = Component.fromJson(json: jsonDecode(jsonEncode(fork().toJson())) as Map<String, dynamic>);
+      expect(restored.preset, preset);
     });
 
-    test('a backup written before provenance existed reads as null', () {
+    test('a backup written before the preset existed reads as null', () {
+      final legacy = fork().toJson()..remove('preset');
+      expect(Component.fromJson(json: legacy).preset, isNull);
+    });
+
+    test('a v1.6.0 backup with presetKey / presetDamperKey imports without a preset', () {
       final legacy = fork().toJson()
-        ..remove('presetKey')
-        ..remove('presetDamperKey');
-      final restored = Component.fromJson(json: legacy);
-      expect(restored.presetKey, isNull);
-      expect(restored.presetDamperKey, isNull);
+        ..remove('preset')
+        ..['presetKey'] = 'fork-fox-36-factory-2025'
+        ..['presetDamperKey'] = 'grip_x2';
+      expect(Component.fromJson(json: legacy).preset, isNull);
+    });
+
+    test('a malformed preset reads as null', () {
+      final json = fork().toJson()..['preset'] = 'fox';
+      expect(Component.fromJson(json: json).preset, isNull);
     });
 
     test('distinguishes two otherwise identical components', () {
       final a = fork();
-      final b = a.copyWith(presetDamperKey: 'grip_x');
+      final b = a.copyWith(preset: ComponentPreset({...preset.toJson(), 'damper': 'grip_x'}));
       expect(a == b, isFalse);
       expect(a.hashCode == b.hashCode, isFalse);
     });

@@ -149,7 +149,7 @@ class SpreadsheetExport {
     final person = personId != null ? data.persons[personId] : null;
     if (person != null) {
       final int personStart = colIndex;
-      row1.add('Person: ${person.name}');
+      row1.add('Rider: ${person.name}');
       row2.add('Name');
       columnMap['p_name'] = colIndex++;
 
@@ -158,7 +158,7 @@ class SpreadsheetExport {
         row2.add('${adj.name}${adj.unit != null ? ' [${adj.unit!.label}]' : ''}');
         columnMap['p_adj_${adj.id}'] = colIndex++;
       }
-      merges.add(_MergeInfo(personStart, colIndex - 1, 'Person'));
+      merges.add(_MergeInfo(personStart, colIndex - 1, 'Rider'));
     }
 
     // Component Adjustments

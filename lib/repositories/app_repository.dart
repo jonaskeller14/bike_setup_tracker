@@ -21,6 +21,8 @@ import '../models/rating/rating_entry.dart';
 import '../models/rating/rating_metric.dart';
 import '../models/selected_data.dart';
 import '../models/setup.dart';
+import '../models/setup_history.dart';
+import '../models/strava/activity_bounds.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/strava/strava_activity_query.dart';
 import '../models/strava/strava_athlete.dart';
@@ -28,6 +30,7 @@ import '../models/strava/strava_gear.dart';
 import '../models/task/task_association.dart';
 import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
+import '../models/task/task_threshold/task_threshold.dart';
 import '../services/backup_service.dart';
 import '../services/component_hierarchy_resolver.dart';
 import '../services/rating_score_service.dart';
@@ -83,6 +86,31 @@ class AppRepository extends ChangeNotifier {
     if (_firedInitialStreams.containsAll(_requiredInitialStreams)) {
       _initialDataCompleter.complete();
     }
+  }
+
+  /// Listens to a stream [initialDataLoaded] waits for. A failure before the
+  /// initial load completes (e.g. a corrupt row that fails to decode) fails
+  /// [initialDataLoaded], so startup shows the error page instead of spinning
+  /// forever. Later failures surface as uncaught errors, as before.
+  void _listenInitial<T>(Stream<T> stream, void Function(T) onData) {
+    void fail(Object error, StackTrace stack) {
+      if (_initialDataCompleter.isCompleted) Error.throwWithStackTrace(error, stack);
+      _initialDataCompleter.completeError(error, stack);
+      // Startup awaits this only after migration; without a listener until
+      // then the error would also be reported as uncaught.
+      _initialDataCompleter.future.ignore();
+    }
+
+    _subscriptions.add(stream.listen(
+      (data) {
+        try {
+          onData(data);
+        } catch (e, s) {
+          fail(e, s);
+        }
+      },
+      onError: fail,
+    ));
   }
 
   AppRepository(this.database) {
@@ -147,7 +175,9 @@ class AppRepository extends ChangeNotifier {
   Map<String, ComponentStats> _componentStats = {};
   Map<String, ComponentStats> _bikeStats = {};
   Map<String, ActivityRateWindow> _bikeActivityRates = {};
+  ActivityBounds _activityBounds = ActivityBounds.empty;
   Map<String, AdjustmentValue> _currentAdjustmentValues = {};
+  SetupHistory _setupHistory = SetupHistory.empty;
 
   Map<String, Person> get persons => _persons;
   Map<String, Bike> get bikes => _bikes;
@@ -169,7 +199,28 @@ class AppRepository extends ChangeNotifier {
       _components[componentId]?.initialStats ??
       ComponentStats.zero;
   Map<String, ActivityRateWindow> get bikeActivityRates => _bikeActivityRates;
+  ActivityBounds get activityBounds => _activityBounds;
+
+  /// The earliest local day the date range can narrow: of setups, rating
+  /// entries, task entries and activities. Installations are left out, as a
+  /// "since the beginning" install is dated at the epoch. `null` without any.
+  DateTime? get firstEntryDay {
+    var first = _activityBounds.firstStartLocal;
+    final dates = _setups.values
+        .map((s) => s.datetimeLocal)
+        .followedBy(_ratingEntries.values.map((e) => e.dateTimeLocal))
+        .followedBy(_taskEntries.values.map((e) => e.dateTimeLocal));
+    for (final date in dates) {
+      if (first == null || date.isBefore(first)) first = date;
+    }
+    return first == null ? null : DateTime(first.year, first.month, first.day);
+  }
+
   Map<String, AdjustmentValue> get currentAdjustmentValues => _currentAdjustmentValues;
+  SetupHistory get setupHistory => _setupHistory;
+
+  @visibleForTesting
+  set setupHistory(SetupHistory history) => _setupHistory = history;
 
   bool get hasSetupsWithPosition =>
       _setups.values.any((setup) => !setup.isDeleted && _isMappable(setup.position));
@@ -216,13 +267,13 @@ class AppRepository extends ChangeNotifier {
   // ---------------------------------------------------------------------------
 
   void _initStreams() {
-    _subscriptions.add(database.bikesDao.watchAllBikes().listen((list) {
+    _listenInitial(database.bikesDao.watchAllBikes(), (list) {
       _bikes = {for (var b in list) b.id: b.toModel()};
       _markInitialStreamFired('bikes');
       _dataChanged();
-    }));
+    });
 
-    _subscriptions.add(database.componentsDao.watchAllComponentsWithData().listen((list) {
+    _listenInitial(database.componentsDao.watchAllComponentsWithData(), (list) {
       _componentHierarchyCache = null;
       _components = {for (var c in list) c.component.id: c.component.toModel(
         adjustments: c.adjustments.map((a) => a.toModel()).toList(),
@@ -230,35 +281,35 @@ class AppRepository extends ChangeNotifier {
       )};
       _markInitialStreamFired('components');
       _dataChanged();
-    }));
+    });
 
-    _subscriptions.add(database.personsDao.watchAllPersonsWithData().listen((list) {
+    _listenInitial(database.personsDao.watchAllPersonsWithData(), (list) {
       _persons = {for (var p in list) p.person.id: p.person.toModel(
         adjustments: p.adjustments.map((a) => a.toModel()).toList(),
       )};
       _markInitialStreamFired('persons');
       _dataChanged();
-    }));
+    });
 
-    _subscriptions.add(database.ratingsDao.watchAllRatingsWithData().listen((list) {
+    _listenInitial(database.ratingsDao.watchAllRatingsWithData(), (list) {
       _ratings = {for (var r in list) r.rating.id: r.rating.toModel(
         metrics: r.metrics.map((m) => m.toModel()).toList(),
       )};
       _markInitialStreamFired('ratings');
       _dataChanged();
-    }));
+    });
 
-    _subscriptions.add(database.taskDao.watchAllRules().listen((list) {
+    _listenInitial(database.taskDao.watchAllRules(), (list) {
       _taskRules = {for (var r in list) r.id: r.toModel()};
       _markInitialStreamFired('taskRules');
       _dataChanged();
-    }));
+    });
 
-    _subscriptions.add(database.taskDao.watchAllEntries().listen((list) {
+    _listenInitial(database.taskDao.watchAllEntries(), (list) {
       _taskEntries = {for (var e in list) e.id: e.toModel()};
       _markInitialStreamFired('taskEntries');
       _dataChanged();
-    }));
+    });
 
     _subscriptions.add(database.stravaDao.watchAllAthletes().listen((list) {
       _stravaAthletes = {for (var a in list) a.id: a.toModel()};
@@ -280,6 +331,11 @@ class AppRepository extends ChangeNotifier {
       _dataChanged();
     }));
 
+    _subscriptions.add(database.stravaDao.watchActivityBounds().listen((bounds) {
+      _activityBounds = bounds;
+      _dataChanged();
+    }));
+
     _subscriptions.add(database.stravaDao
         .watchBikeActivityRates(
           sampleSize: TaskForecastService.sampleSize,
@@ -290,17 +346,17 @@ class AppRepository extends ChangeNotifier {
       _dataChanged();
     }));
 
-    _subscriptions.add(database.setupsDao.watchAllSetupsWithValues().listen((list) {
+    _listenInitial(database.setupsDao.watchAllSetupsWithValues(), (list) {
       _setups = {for (var s in list) s.setup.id: s.setup.toModel(values: s.values)};
       _markInitialStreamFired('setups');
       _dataChanged();
-    }));
+    });
 
-    _subscriptions.add(database.ratingEntriesDao.watchAllRatingEntriesWithValues().listen((list) {
+    _listenInitial(database.ratingEntriesDao.watchAllRatingEntriesWithValues(), (list) {
       _ratingEntries = {for (var e in list) e.entry.id: e.entry.toModel(values: e.values)};
       _markInitialStreamFired('ratingEntries');
       _dataChanged();
-    }));
+    });
 
     // Deleted item streams
     _subscriptions.add(database.bikesDao.watchDeletedBikes().listen((list) {
@@ -383,6 +439,7 @@ class AppRepository extends ChangeNotifier {
     );
     _setups = result.setups;
     _currentAdjustmentValues = result.globalState;
+    _setupHistory = result.history;
 
     _setupTags = SetupResolutionService.extractAllTags(_setups.values);
     _taskRuleTags = _taskRules.values.map((tr) => tr.tags).expand((tags) => tags).toSet();
@@ -494,11 +551,13 @@ class AppRepository extends ChangeNotifier {
     ];
     if (changed.isEmpty) return;
 
-    // One transaction: written individually, every upsert re-emits the task
-    // entry stream, which re-resolves all setups on the UI isolate.
+    // One transaction: written individually, every update re-emits the task
+    // entry stream, which re-resolves all setups on the UI isolate. Only the
+    // snapshot is written: the rows were read before the stats queries, so a
+    // full-row write would revert edits and trashing made in the meantime.
     await database.transaction(() async {
       for (final entry in changed) {
-        await database.taskDao.upsertEntry(entry.toCompanion());
+        await database.taskDao.updateEntrySnapshot(entry.id, entry.toCompanion().snapshot.value);
       }
     });
   }
@@ -531,6 +590,19 @@ class AppRepository extends ChangeNotifier {
     final inputs = _taskRuleInputs(rule);
 
     return TaskStatusService.calculate(
+      rule: rule,
+      currentStats: inputs.stats,
+      now: DateTime.now().toUtc(),
+      lastEntry: inputs.lastEntry,
+      componentInstallationDate: inputs.installationDate,
+    );
+  }
+
+  /// See [TaskStatusService.dueNowDelay].
+  TaskThreshold? getTaskRuleDueNowDelay(TaskRule rule) {
+    final inputs = _taskRuleInputs(rule);
+
+    return TaskStatusService.dueNowDelay(
       rule: rule,
       currentStats: inputs.stats,
       now: DateTime.now().toUtc(),
@@ -847,11 +919,9 @@ class AppRepository extends ChangeNotifier {
       if (toDelete != null && toDelete.isNotEmpty) {
         await database.stravaDao.deleteActivities(toDelete);
       }
-      for (var a in activities) {
-        // Check if we were cleared while processing
-        if (versionAtStart != _stravaOperationVersion) return;
-        await database.stravaDao.upsertActivity(a.toCompanion());
-      }
+      // Check if we were cleared while waiting for the transaction
+      if (versionAtStart != _stravaOperationVersion) return;
+      await database.stravaDao.upsertActivities(activities.map((a) => a.toCompanion()));
     });
 
     if (versionAtStart != _stravaOperationVersion) {
@@ -882,9 +952,12 @@ class AppRepository extends ChangeNotifier {
   Future<void> clearStravaData() async {
     _stravaOperationVersion++;
 
-    await database.delete(database.stravaActivities).go();
-    await database.delete(database.stravaAthletes).go();
-    await database.delete(database.stravaGears).go();
+    // One transaction so the Strava watch streams re-query once, not per table.
+    await database.transaction(() async {
+      await database.delete(database.stravaActivities).go();
+      await database.delete(database.stravaAthletes).go();
+      await database.delete(database.stravaGears).go();
+    });
     _strava.clear();
     _stravaAthletes = {};
     _stravaGears = {};
@@ -1261,46 +1334,27 @@ class AppRepository extends ChangeNotifier {
     });
   }
 
-  Future<void> editBike(Bike bike) async {
-    final gearChanged = _bikes[bike.id]?.stravaGear != bike.stravaGear;
-    // Also moves every component inheriting them (installed since beginning).
-    final initialStatsChanged = _bikes[bike.id]?.initialStats != bike.initialStats;
+  Future<void> editBikes(Iterable<Bike> bikes) async {
+    final bikeList = bikes.toList();
+    if (bikeList.isEmpty) return;
+    // Initial stats also move every component inheriting them (installed since beginning).
+    final statsInputsChanged = bikeList.any((bike) =>
+        _bikes[bike.id]?.stravaGear != bike.stravaGear ||
+        _bikes[bike.id]?.initialStats != bike.initialStats);
+    final now = DateTime.now().toUtc();
 
-    final updated = bike.copyWith(lastModified: DateTime.now().toUtc());
-    await database.bikesDao.updateBike(updated.toCompanion());
-
-    if (gearChanged || initialStatsChanged) await refreshTaskEntrySnapshots();
-  }
-
-  Future<void> editComponent(Component component, {List<ValueUnitConversion> conversions = const []}) async {
-    final statsInputsChanged = _componentStatsInputsChanged(component);
-    final oldDescendants = componentHierarchy.historicalDescendantsOf(component.id);
-
-    final updated = component.copyWith(lastModified: DateTime.now().toUtc());
-    final candidateComponents = {..._components, updated.id: updated};
-    final candidateHierarchy = ComponentHierarchyResolver(candidateComponents);
-    candidateHierarchy.validate();  //FIXME: is error caught here or in parent?
     await database.transaction(() async {
-      await _writeComponentWithData(updated);
-      for (final c in conversions) {
-        await database.setupsDao.convertAdjustmentValues(
-          c.adjustmentId,
-          (v) => NumericalValue(convertUnit(v.value, c.from, c.to)),
-        );
+      for (final bike in bikeList) {
+        await database.bikesDao.updateBike(bike.copyWith(lastModified: now).toCompanion());
       }
     });
 
-    if (statsInputsChanged) {
-      await refreshTaskEntrySnapshots(componentIds: {
-        component.id,
-        ...oldDescendants,
-        ...candidateHierarchy.historicalDescendantsOf(component.id),
-      });
-    }
+    if (statsInputsChanged) await refreshTaskEntrySnapshots();
   }
 
-  Future<void> editComponents(Iterable<Component> components) async {
+  Future<void> editComponents(Iterable<Component> components, {List<ValueUnitConversion> conversions = const []}) async {
     final componentList = components.toList();
+    if (componentList.isEmpty) return;
     final changedComponentIds = componentList
         .where(_componentStatsInputsChanged)
         .map((component) => component.id)
@@ -1313,7 +1367,7 @@ class AppRepository extends ChangeNotifier {
       candidateComponents[updated.id] = updated;
     }
     final candidateHierarchy = ComponentHierarchyResolver(candidateComponents);
-    candidateHierarchy.validate();  //FIXME: is error caught here or in parent?
+    candidateHierarchy.validate();
     final affectedIds = <String>{...changedComponentIds};
     for (final componentId in changedComponentIds) {
       affectedIds
@@ -1324,6 +1378,12 @@ class AppRepository extends ChangeNotifier {
     await database.transaction(() async {
       for (final updated in updates) {
         await _writeComponentWithData(updated);
+      }
+      for (final c in conversions) {
+        await database.setupsDao.convertAdjustmentValues(
+          c.adjustmentId,
+          (v) => NumericalValue(convertUnit(v.value, c.from, c.to)),
+        );
       }
     });
 
@@ -1362,9 +1422,9 @@ class AppRepository extends ChangeNotifier {
       dateTimeUTC: when.toUtc(),
       dateTimeLocal: when,
     );
-    await editComponent(
+    await editComponents([
       component.copyWith(installations: [...component.installations, event]),
-    );
+    ]);
   }
 
   Future<void> unarchiveComponent(Component component) async {
@@ -1372,7 +1432,7 @@ class AppRepository extends ChangeNotifier {
     final idx = updated.lastIndexWhere((i) => i is Archival);
     if (idx == -1) return;
     updated.removeAt(idx);
-    await editComponent(component.copyWith(installations: updated));
+    await editComponents([component.copyWith(installations: updated)]);
   }
 
   Future<void> editRating(Rating rating, {List<ValueUnitConversion> conversions = const []}) async {

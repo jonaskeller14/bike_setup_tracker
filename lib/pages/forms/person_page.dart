@@ -15,6 +15,7 @@ import '../../widgets/empty_state_placeholder2.dart';
 import '../../widgets/lists/adjustment_edit_list.dart';
 import '../../widgets/sheets/person_add_adjustment.dart';
 import '../../widgets/text/section_title.dart';
+import '../adjustment/adjustment_page.dart';
 import '../adjustment/boolean_adjustment_page.dart';
 import '../adjustment/categorical_adjustment_page.dart';
 import '../adjustment/duration_adjustment_page.dart';
@@ -75,11 +76,8 @@ class _PersonPageState extends State<PersonPage> {
 
     if (widget.mode != PersonPageMode.add) _expanded = true;
 
-    _adjustments = widget.person == null 
-        ? [
-            NumericalAdjustment(name: 'Body weight', notes: null, unit: AdjustmentUnit.fromLegacy('kg'), min: 0.0),
-            NumericalAdjustment(name: 'Height', notes: null, unit: AdjustmentUnit.fromLegacy('cm'), min: 0.0),
-          ] 
+    _adjustments = widget.person == null
+        ? [ridingWeightPreset.deepCopy()]
         : List.from(widget.person!.adjustments);
     _initialAdjustments = List.from(_adjustments);
   }
@@ -109,12 +107,12 @@ class _PersonPageState extends State<PersonPage> {
     final adjustment = await Navigator.push<T>(
       context,
       MaterialPageRoute(builder: (context) => switch(T) {
-        const (BooleanAdjustment)       => BooleanAdjustmentPage.add(),
-        const (CategoricalAdjustment)   => CategoricalAdjustmentPage.add(),
-        const (StepAdjustment)          => StepAdjustmentPage.add(),
-        const (NumericalAdjustment)     => NumericalAdjustmentPage.add(),
-        const (TextAdjustment)          => TextAdjustmentPage.add(),
-        const (DurationAdjustment)      => DurationAdjustmentPage.add(),
+        const (BooleanAdjustment)       => BooleanAdjustmentPage.add(term: AdjustmentTerm.attribute),
+        const (CategoricalAdjustment)   => CategoricalAdjustmentPage.add(term: AdjustmentTerm.attribute),
+        const (StepAdjustment)          => StepAdjustmentPage.add(term: AdjustmentTerm.attribute),
+        const (NumericalAdjustment)     => NumericalAdjustmentPage.add(term: AdjustmentTerm.attribute),
+        const (TextAdjustment)          => TextAdjustmentPage.add(term: AdjustmentTerm.attribute),
+        const (DurationAdjustment)      => DurationAdjustmentPage.add(term: AdjustmentTerm.attribute),
         Type() => throw UnimplementedError(),
       }),
     );
@@ -128,13 +126,13 @@ class _PersonPageState extends State<PersonPage> {
     final newAdjustment = await Navigator.push<Adjustment>(
       context,
       MaterialPageRoute(builder: (context) => switch (adjustment.deepCopy()) {
-        final BooleanAdjustment a     => BooleanAdjustmentPage.template(adjustment: a),
-        final CategoricalAdjustment a => CategoricalAdjustmentPage.template(adjustment: a),
-        final StepAdjustment a        => StepAdjustmentPage.template(adjustment: a),
-        final SagAdjustment a         => SagAdjustmentPage.template(adjustment: a),
-        final NumericalAdjustment a   => NumericalAdjustmentPage.template(adjustment: a),
-        final TextAdjustment a        => TextAdjustmentPage.template(adjustment: a),
-        final DurationAdjustment a    => DurationAdjustmentPage.template(adjustment: a),
+        final BooleanAdjustment a     => BooleanAdjustmentPage.template(adjustment: a, term: AdjustmentTerm.attribute),
+        final CategoricalAdjustment a => CategoricalAdjustmentPage.template(adjustment: a, term: AdjustmentTerm.attribute),
+        final StepAdjustment a        => StepAdjustmentPage.template(adjustment: a, term: AdjustmentTerm.attribute),
+        final SagAdjustment a         => SagAdjustmentPage.template(adjustment: a, term: AdjustmentTerm.attribute),
+        final NumericalAdjustment a   => NumericalAdjustmentPage.template(adjustment: a, term: AdjustmentTerm.attribute),
+        final TextAdjustment a        => TextAdjustmentPage.template(adjustment: a, term: AdjustmentTerm.attribute),
+        final DurationAdjustment a    => DurationAdjustmentPage.template(adjustment: a, term: AdjustmentTerm.attribute),
       }),
     );
     if (newAdjustment == null) return;
@@ -147,13 +145,13 @@ class _PersonPageState extends State<PersonPage> {
     final result = await Navigator.push<Object>(
       context,
       MaterialPageRoute(builder: (context) => switch (adjustment) {
-        final BooleanAdjustment a     => BooleanAdjustmentPage.edit(adjustment: a),
-        final CategoricalAdjustment a => CategoricalAdjustmentPage.edit(adjustment: a),
-        final StepAdjustment a        => StepAdjustmentPage.edit(adjustment: a),
-        final SagAdjustment a         => SagAdjustmentPage.edit(adjustment: a),
-        final NumericalAdjustment a   => NumericalAdjustmentPage.edit(adjustment: a),
-        final TextAdjustment a        => TextAdjustmentPage.edit(adjustment: a),
-        final DurationAdjustment a    => DurationAdjustmentPage.edit(adjustment: a),
+        final BooleanAdjustment a     => BooleanAdjustmentPage.edit(adjustment: a, term: AdjustmentTerm.attribute),
+        final CategoricalAdjustment a => CategoricalAdjustmentPage.edit(adjustment: a, term: AdjustmentTerm.attribute),
+        final StepAdjustment a        => StepAdjustmentPage.edit(adjustment: a, term: AdjustmentTerm.attribute),
+        final SagAdjustment a         => SagAdjustmentPage.edit(adjustment: a, term: AdjustmentTerm.attribute),
+        final NumericalAdjustment a   => NumericalAdjustmentPage.edit(adjustment: a, term: AdjustmentTerm.attribute),
+        final TextAdjustment a        => TextAdjustmentPage.edit(adjustment: a, term: AdjustmentTerm.attribute),
+        final DurationAdjustment a    => DurationAdjustmentPage.edit(adjustment: a, term: AdjustmentTerm.attribute),
       }),
     );
     if (result == null) return;
@@ -190,13 +188,13 @@ class _PersonPageState extends State<PersonPage> {
     final newAdjustment = await Navigator.push<Adjustment>(
       context,
       MaterialPageRoute(builder: (context) => switch (adjustment.deepCopy()) {
-        final BooleanAdjustment a     => BooleanAdjustmentPage.duplicate(adjustment: a),
-        final CategoricalAdjustment a => CategoricalAdjustmentPage.duplicate(adjustment: a),
-        final StepAdjustment a        => StepAdjustmentPage.duplicate(adjustment: a),
-        final SagAdjustment a         => SagAdjustmentPage.duplicate(adjustment: a),
-        final NumericalAdjustment a   => NumericalAdjustmentPage.duplicate(adjustment: a),
-        final TextAdjustment a        => TextAdjustmentPage.duplicate(adjustment: a),
-        final DurationAdjustment a    => DurationAdjustmentPage.duplicate(adjustment: a),
+        final BooleanAdjustment a     => BooleanAdjustmentPage.duplicate(adjustment: a, term: AdjustmentTerm.attribute),
+        final CategoricalAdjustment a => CategoricalAdjustmentPage.duplicate(adjustment: a, term: AdjustmentTerm.attribute),
+        final StepAdjustment a        => StepAdjustmentPage.duplicate(adjustment: a, term: AdjustmentTerm.attribute),
+        final SagAdjustment a         => SagAdjustmentPage.duplicate(adjustment: a, term: AdjustmentTerm.attribute),
+        final NumericalAdjustment a   => NumericalAdjustmentPage.duplicate(adjustment: a, term: AdjustmentTerm.attribute),
+        final TextAdjustment a        => TextAdjustmentPage.duplicate(adjustment: a, term: AdjustmentTerm.attribute),
+        final DurationAdjustment a    => DurationAdjustmentPage.duplicate(adjustment: a, term: AdjustmentTerm.attribute),
       }),
     );
     if (newAdjustment == null) return;
@@ -263,9 +261,9 @@ class _PersonPageState extends State<PersonPage> {
       autofocus: widget.mode == PersonPageMode.add,
       onChanged: (value) => setState(() {}), // see filled/fillColor
       decoration: InputDecoration(
-        labelText: 'Person Name',
+        labelText: 'Rider Name',
         border: const OutlineInputBorder(),
-        hintText: 'Enter Person name',
+        hintText: 'Enter rider name',
         fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == PersonPageMode.edit && _nameController.text.trim() != widget.person?.name,
       ),
@@ -285,7 +283,7 @@ class _PersonPageState extends State<PersonPage> {
       onChanged: (value) => setState(() {}), // see filled/fillColor
       decoration: InputDecoration(
         labelText: 'Notes (optional)',
-        hintText: 'Enter notes about the person...',
+        hintText: 'Enter notes about the rider...',
         border: const OutlineInputBorder(),
         fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == PersonPageMode.edit && _notesController.text.trim() != (widget.person?.notes ?? ""),
@@ -303,7 +301,7 @@ class _PersonPageState extends State<PersonPage> {
         border: const OutlineInputBorder(),
         hintText: "Link Strava Athlete",
         helperText: existingPersons.values.any((p) => p.id != widget.person?.id && p.stravaAthlete != null && p.stravaAthlete == _stravaAthlete)
-          ? "WARNING: Strava Athlete already assigned to another Person"
+          ? "WARNING: Strava Athlete already assigned to another rider"
           : null,
         helperMaxLines: 2,
         fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
@@ -360,6 +358,7 @@ class _PersonPageState extends State<PersonPage> {
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
     final subscriptionService = context.watch<SubscriptionService>();
+    final appSettings = context.watch<AppSettings>();
     final existingPersons = appRepository.persons;
     final stravaAthletes = appRepository.stravaAthletes;
 
@@ -369,8 +368,8 @@ class _PersonPageState extends State<PersonPage> {
       child: Scaffold(
         appBar: AppBar(
           title: switch (widget.mode) {
-            PersonPageMode.add || PersonPageMode.duplicate => const Text('Add Person'),
-            PersonPageMode.edit => const Text('Edit Person'),
+            PersonPageMode.add || PersonPageMode.duplicate => const Text('Add Rider'),
+            PersonPageMode.edit => const Text('Edit Rider'),
           },
           actions: [
             IconButton(icon: const Icon(Icons.check), onPressed: _savePerson),
@@ -410,7 +409,9 @@ class _PersonPageState extends State<PersonPage> {
                           child: Column(
                             children: [
                               _notesField(),
-                              if (context.read<AppSettings>().enableStrava && subscriptionService.hasStravaEntitlement) ...[
+                              if (appSettings.showAdvancedPersonUi &&
+                                  appSettings.enableStrava &&
+                                  subscriptionService.hasStravaEntitlement) ...[
                                 const SizedBox(height: 12),
                                 _stravaAthleteDropdown(existingPersons: existingPersons, stravaAthletes: stravaAthletes),
                               ],
@@ -452,7 +453,7 @@ class _PersonPageState extends State<PersonPage> {
                                 : EmptyStatePlaceholder2(
                                     title: "No attributes yet",
                                     errorTitle: field.errorText,
-                                    subtitle: "Tap 'Add Attribute' to define parameters for this person",
+                                    subtitle: "Tap 'Add Attribute' to define parameters for this rider",
                                     errorSubtitle: "Tap here to add the first attribute",
                                     onTap: showAddBottomSheet,
                                   ),

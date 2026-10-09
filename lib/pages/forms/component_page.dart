@@ -10,18 +10,20 @@ import '../../models/app_settings.dart';
 import '../../models/attachment.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
+import '../../models/component/component_catalog.dart';
 import '../../models/component/component_preset.dart';
 import '../../models/component/installation.dart';
 import '../../models/component_stats.dart';
 import '../../repositories/app_repository.dart';
-import '../../repositories/component_preset_repository.dart';
+import '../../repositories/component_catalog_repository.dart';
 import '../../services/attachment_storage_service.dart';
 import '../../services/subscription_service.dart';
 import '../../theme.dart';
 import '../../utils/attachment_actions.dart';
 import '../../utils/automation_ids.dart';
-import '../../utils/component_preset_application.dart';
-import '../../utils/component_preset_search.dart';
+import '../../utils/component_catalog_application.dart';
+import '../../utils/component_catalog_search.dart';
+import '../../utils/component_preset_resolver.dart';
 import '../../utils/installation_timeline_validation.dart';
 import '../../widgets/app_snackbar.dart';
 import '../../widgets/attachment_strip.dart';
@@ -32,7 +34,7 @@ import '../../widgets/lists/adjustment_edit_list.dart';
 import '../../widgets/preset_catalog_card.dart';
 import '../../widgets/set_installation_timeline.dart';
 import '../../widgets/sheets/component_add_adjustment.dart';
-import '../../widgets/sheets/component_preset_picker.dart';
+import '../../widgets/sheets/component_catalog_picker.dart';
 import '../../widgets/sheets/component_type_picker.dart';
 import '../../widgets/sheets/set_initial_stats.dart';
 import '../../widgets/text/section_title.dart';
@@ -93,15 +95,15 @@ class _ComponentPageState extends State<ComponentPage> {
   late List<Installation> _initialInstallations;
   late ComponentStats _initialStats;
   bool _expanded = false;
-  String? _presetKey;
-  String? _presetDamperKey;
-  ComponentPresetVariant? _presetVariant;
+  ComponentPreset? _preset;
+  ResolvedPreset? _resolvedPreset;
   Set<String> _presetAdjustmentIds = {};
   String? _appendedPresetNotes;
 
   List<Attachment> _attachments = [];
   String? _attachmentsDirPath;
   final List<Attachment> _importedAttachments = [];
+  bool _importingAttachments = false;
   List<Attachment>? _savedAttachments;
 
   List<Adjustment>? _lastPresetAdjustments;
@@ -110,7 +112,7 @@ class _ComponentPageState extends State<ComponentPage> {
 
   /// Cross-type catalog index for the name-field autocomplete (C2), loaded once
   /// and cached
-  List<ComponentPresetVariant>? _presetIndex;
+  List<ResolvedPreset>? _presetIndex;
   bool _presetIndexLoading = false;
   String? _typedName;
 
@@ -149,8 +151,7 @@ class _ComponentPageState extends State<ComponentPage> {
     _componentType = widget.component?.componentType;
     _initialComponentType = _componentType;
 
-    _presetKey = widget.component?.presetKey;
-    _presetDamperKey = widget.component?.presetDamperKey;
+    _preset = widget.component?.preset;
 
     _notesController = TextEditingController(text: widget.component?.notes);
     _notesController.addListener(_changeListener);
@@ -168,9 +169,9 @@ class _ComponentPageState extends State<ComponentPage> {
     if (widget.mode != ComponentPageMode.edit && appSettings.enableComponentPresets) {
       unawaited(_loadPresetIndex());
     }
-    final presetKey = _presetKey;
-    if (presetKey != null && appSettings.enableComponentPresets) {
-      unawaited(_loadAppliedPreset(presetKey));
+    final preset = _preset;
+    if (preset != null && appSettings.enableComponentPresets) {
+      unawaited(_loadAppliedPreset(preset));
     }
   }
 
@@ -181,7 +182,15 @@ class _ComponentPageState extends State<ComponentPage> {
   }
 
   Future<void> _addAttachments() async {
-    final attachments = await AttachmentActions.pickAttachments(context);
+    final List<Attachment> attachments;
+    try {
+      attachments = await AttachmentActions.pickAttachments(
+        context,
+        onImportStarted: () => setState(() => _importingAttachments = true),
+      );
+    } finally {
+      if (mounted) setState(() => _importingAttachments = false);
+    }
     if (attachments.isEmpty || !mounted) return;
     _importedAttachments.addAll(attachments);
     setState(() => _attachments.addAll(attachments));
@@ -206,13 +215,13 @@ class _ComponentPageState extends State<ComponentPage> {
     _changeListener();
   }
 
-  Future<void> _loadAppliedPreset(String key) async {
+  Future<void> _loadAppliedPreset(ComponentPreset preset) async {
     try {
-      final variant = await context.read<ComponentPresetRepository>().byKey(key);
-      if (!mounted || variant == null || _presetKey != key) return;
-      setState(() => _presetVariant = variant);
+      final resolved = await context.read<ComponentCatalogRepository>().resolve(preset);
+      if (!mounted || resolved == null || _preset != preset) return;
+      setState(() => _resolvedPreset = resolved);
     } catch (_) {
-      // Provenance display is optional; an unresolvable key just shows nothing.
+      // Provenance display is optional; an unresolvable preset just shows nothing.
     }
   }
 
@@ -220,9 +229,9 @@ class _ComponentPageState extends State<ComponentPage> {
     if (_presetIndex != null || _presetIndexLoading) return;
     _presetIndexLoading = true;
     try {
-      final variants = await context.read<ComponentPresetRepository>().all();
+      final products = await context.read<ComponentCatalogRepository>().all();
       if (!mounted) return;
-      setState(() => _presetIndex = variants);
+      setState(() => _presetIndex = products);
     } catch (_) {
       // Autocomplete is an optional convenience; ignore load failures.
     } finally {
@@ -237,8 +246,7 @@ class _ComponentPageState extends State<ComponentPage> {
         !listEquals(_installations, _initialInstallations) ||
         !listEquals(_adjustments, _initialAdjustments) ||
         _initialStats != (widget.component?.initialStats ?? ComponentStats.zero) ||
-        _presetKey != widget.component?.presetKey ||
-        _presetDamperKey != widget.component?.presetDamperKey ||
+        _preset != widget.component?.preset ||
         !listEquals(_attachments, widget.component?.attachments ?? const []);
 
     if (_formHasChanges != hasChanges) {
@@ -376,16 +384,20 @@ class _ComponentPageState extends State<ComponentPage> {
   Future<void> _openPresetPicker() async {
     final type = _componentType;
     if (type == null) return;
-    final result = await showComponentPresetPicker(context: context, componentType: type);
+    final result = await showComponentCatalogPicker(
+      context: context,
+      componentType: type,
+      current: _resolvedPreset,
+    );
     if (result == null || !mounted) return;
-    await _applyPreset(result.variant, result.damper);
+    await _applyPreset(result);
   }
 
   /// [typedName] overrides the name UNDO restores: the autocomplete has already
   /// replaced the typed query with the suggestion by the time it calls back.
-  Future<void> _applyPreset(ComponentPresetVariant variant, DamperSpec? damper, {String? typedName}) async {
-    final app = buildApplication(variant, damper);
-    if (widget.mode == ComponentPageMode.edit) return _extendFromPreset(variant, app);
+  Future<void> _applyPreset(ResolvedPreset resolved, {String? typedName}) async {
+    final app = buildCatalogApplication(resolved);
+    if (widget.mode == ComponentPageMode.edit) return _extendFromPreset(resolved, app);
     final untouched = _adjustments.isEmpty ||
         (_lastPresetAdjustments != null && listEquals(_adjustments, _lastPresetAdjustments));
 
@@ -405,9 +417,8 @@ class _ComponentPageState extends State<ComponentPage> {
       _nameController.text = app.name;
       _notesController.text = app.notes;
       _componentType ??= app.componentType;
-      _presetKey = app.presetKey;
-      _presetDamperKey = app.presetDamperKey;
-      _presetVariant = variant;
+      _preset = app.preset;
+      _resolvedPreset = resolved;
       _presetAdjustmentIds = {for (final a in app.adjustments) a.id};
       if (append) {
         _adjustments = [..._adjustments, ...app.adjustments];
@@ -428,7 +439,7 @@ class _ComponentPageState extends State<ComponentPage> {
   /// Edit mode only extends: setups store values by adjustment id, so saved
   /// adjustments are never replaced; the name stays the user's and the preset
   /// notes are appended (a re-pick swaps the block the previous pick appended).
-  void _extendFromPreset(ComponentPresetVariant variant, PresetApplication app) {
+  void _extendFromPreset(ResolvedPreset resolved, CatalogApplication app) {
     final snapshot = _snapshot();
     // Only what an earlier pick in this session added is dropped — it was never saved.
     final kept = _adjustments.where((a) => !_presetAdjustmentIds.contains(a.id)).toList();
@@ -445,9 +456,8 @@ class _ComponentPageState extends State<ComponentPage> {
         _appendedPresetNotes = null;
         _notesController.text = keptNotes;
       }
-      _presetKey = app.presetKey;
-      _presetDamperKey = app.presetDamperKey;
-      _presetVariant = variant;
+      _preset = app.preset;
+      _resolvedPreset = resolved;
       _presetAdjustmentIds = {for (final a in added) a.id};
       _adjustments = [...kept, ...added];
     });
@@ -465,21 +475,20 @@ class _ComponentPageState extends State<ComponentPage> {
   }
 
   void _unlinkPreset() {
-    final variant = _presetVariant;
-    if (variant == null) return;
+    final resolved = _resolvedPreset;
+    if (resolved == null) return;
     final snapshot = _snapshot();
     setState(_clearPresetLink);
     _changeListener();
     _showPresetUndoSnackBar(
-      'Unlinked from ${presetVariantDisplayName(variant, variant.damperByKey(snapshot.presetDamperKey))} — values kept',
+      'Unlinked from ${presetDisplayName(resolved)} — values kept',
       snapshot,
     );
   }
 
   void _clearPresetLink() {
-    _presetKey = null;
-    _presetDamperKey = null;
-    _presetVariant = null;
+    _preset = null;
+    _resolvedPreset = null;
     _presetAdjustmentIds = {};
     _appendedPresetNotes = null;
     // The list no longer matches a linked preset → next pick will prompt.
@@ -494,9 +503,8 @@ class _ComponentPageState extends State<ComponentPage> {
         lastPresetAdjustments: _lastPresetAdjustments,
         presetAdjustmentIds: _presetAdjustmentIds,
         appendedPresetNotes: _appendedPresetNotes,
-        presetKey: _presetKey,
-        presetDamperKey: _presetDamperKey,
-        presetVariant: _presetVariant,
+        preset: _preset,
+        resolvedPreset: _resolvedPreset,
         expanded: _expanded,
       );
 
@@ -509,9 +517,8 @@ class _ComponentPageState extends State<ComponentPage> {
       _lastPresetAdjustments = snapshot.lastPresetAdjustments;
       _presetAdjustmentIds = snapshot.presetAdjustmentIds;
       _appendedPresetNotes = snapshot.appendedPresetNotes;
-      _presetKey = snapshot.presetKey;
-      _presetDamperKey = snapshot.presetDamperKey;
-      _presetVariant = snapshot.presetVariant;
+      _preset = snapshot.preset;
+      _resolvedPreset = snapshot.resolvedPreset;
       _expanded = snapshot.expanded;
     });
     _adjustmentsFieldNotify?.call();
@@ -553,8 +560,7 @@ class _ComponentPageState extends State<ComponentPage> {
       adjustments: _adjustments,
       initialStats: _initialStats,
       orderIndex: widget.component?.orderIndex ?? 0,
-      presetKey: _presetKey,
-      presetDamperKey: _presetDamperKey,
+      preset: _preset,
       attachments: _attachments,
     );
     _savedAttachments = _attachments;
@@ -591,18 +597,18 @@ class _ComponentPageState extends State<ComponentPage> {
     if (!presetsEnabled) {
       return _nameTextField(presetsEnabled: false);
     }
-    return RawAutocomplete<PresetSuggestion>(
+    return RawAutocomplete<ResolvedPreset>(
       textEditingController: _nameController,
       focusNode: _nameFocusNode,
       optionsBuilder: (TextEditingValue value) {
         final index = _presetIndex;
-        if (index == null) return const Iterable<PresetSuggestion>.empty();
+        if (index == null) return const Iterable<ResolvedPreset>.empty();
         return suggestPresets(index, value.text);
       },
-      displayStringForOption: (suggestion) => suggestion.displayName,
+      displayStringForOption: presetDisplayName,
       onSelected: (suggestion) {
         _nameFocusNode.unfocus();
-        unawaited(_applyPreset(suggestion.variant, suggestion.damper, typedName: _typedName));
+        unawaited(_applyPreset(suggestion, typedName: _typedName));
       },
       fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) =>
           _nameTextField(presetsEnabled: true, onFieldSubmitted: onFieldSubmitted),
@@ -637,8 +643,8 @@ class _ComponentPageState extends State<ComponentPage> {
   }
 
   Widget _suggestionsOverlay(
-    AutocompleteOnSelected<PresetSuggestion> onSelected,
-    List<PresetSuggestion> options,
+    AutocompleteOnSelected<ResolvedPreset> onSelected,
+    List<ResolvedPreset> options,
   ) {
     // Anchor the overlay to the field's left edge and match its width (the
     // field spans the page's 16px horizontal padding).
@@ -660,10 +666,10 @@ class _ComponentPageState extends State<ComponentPage> {
               itemBuilder: (context, i) {
                 final suggestion = options[i];
                 final subtitle = presetSuggestionSubtitle(suggestion);
-                final yearRange = suggestion.variant.yearRange;
+                final yearRange = suggestion.node.years;
                 return ListTile(
                   dense: true,
-                  title: Text(suggestion.displayName),
+                  title: Text(presetDisplayName(suggestion)),
                   subtitle: subtitle == null ? null : Text(subtitle, maxLines: 1, overflow: TextOverflow.ellipsis),
                   trailing: yearRange == null || yearRange.isEmpty ? null : _PresetYearBadge(yearRange),
                   onTap: () => onSelected(suggestion),
@@ -760,7 +766,7 @@ class _ComponentPageState extends State<ComponentPage> {
     setState(() {
       _componentType = picked;
       // A fork preset link is meaningless on a shock; the prefilled values stay.
-      if (_presetVariant != null && _presetVariant!.componentType != picked) _clearPresetLink();
+      if (_resolvedPreset != null && _resolvedPreset!.catalog.componentType != picked) _clearPresetLink();
     });
     field.didChange(picked);
     _changeListener();
@@ -825,17 +831,17 @@ class _ComponentPageState extends State<ComponentPage> {
       backgroundColor: widget.mode == ComponentPageMode.edit && !listEquals(_attachments, widget.component!.attachments)
           ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
           : null,
-      onPressed: _addAttachments,
+      onPressed: _importingAttachments ? null : _addAttachments,
     );
   }
 
   String? _presetAdjustmentsCaption() {
-    final variant = _presetVariant;
-    if (variant == null) return null;
+    final resolved = _resolvedPreset;
+    if (resolved == null) return null;
     final fromPreset = _adjustments.where((a) => _presetAdjustmentIds.contains(a.id)).length;
     if (fromPreset == 0) return null;
     final others = _adjustments.length - fromPreset;
-    final name = presetVariantDisplayName(variant, variant.damperByKey(_presetDamperKey));
+    final name = presetDisplayName(resolved);
     final caption = Intl.plural(
       fromPreset,
       one: '1 adjustment prefilled from $name',
@@ -1008,7 +1014,7 @@ class _ComponentPageState extends State<ComponentPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
@@ -1020,8 +1026,7 @@ class _ComponentPageState extends State<ComponentPage> {
                           PresetCatalogCard(
                             componentType: _componentType!,
                             onTap: _openPresetPicker,
-                            appliedVariant: _presetVariant,
-                            appliedDamper: _presetVariant?.damperByKey(_presetDamperKey),
+                            applied: _resolvedPreset,
                             onUnlink: _unlinkPreset,
                           ),
                           const SizedBox(height: 12),
@@ -1070,27 +1075,36 @@ class _ComponentPageState extends State<ComponentPage> {
                                   ),
                                 ),
                               ],
-                              if (showAttachments && _attachments.isNotEmpty) ...[
-                                const SizedBox(height: 12),
-                                AttachmentStrip(
-                                  attachments: _attachments,
-                                  attachmentsDir: _attachmentsDirPath!,
-                                  mode: AttachmentStripMode.edit,
-                                  onRemove: _onAttachmentRemoved,
-                                  onReorder: _onAttachmentReorder,
-                                  onRename: _onAttachmentRenamed,
-                                ),
-                              ],
                             ],
                           ),
                         ),
-                        if (!appSettings.enableInstallationTimeline && !_isComplexInstallation) ...[
-                          SizedBox(height: _expanded && (showInitialStats || showAttachments) ? 18 : 12),
-                          _bikesDropdownField(bikes: bikes),
-                        ],
                       ],
                     ),
                   ),
+                  if (showAttachments && (_attachments.isNotEmpty || _importingAttachments))
+                    Visibility(
+                      visible: _expanded,
+                      maintainState: true,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: AttachmentStrip(
+                          attachments: _attachments,
+                          attachmentsDir: _attachmentsDirPath!,
+                          mode: AttachmentStripMode.edit,
+                          isLoading: _importingAttachments,
+                          onRemove: _onAttachmentRemoved,
+                          onReorder: _onAttachmentReorder,
+                          onRename: _onAttachmentRenamed,
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                        ),
+                      ),
+                    ),
+                  if (!appSettings.enableInstallationTimeline && !_isComplexInstallation)
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(16, _expanded && (showInitialStats || showAttachments) ? 18 : 12, 16, 0),
+                      child: _bikesDropdownField(bikes: bikes),
+                    ),
+                  const SizedBox(height: 12),
                   if (appSettings.enableInstallationTimeline || _isComplexInstallation) ...[
                     // const Divider(height: 1),
                     SetInstallationTimeline(
@@ -1209,9 +1223,8 @@ class _PresetSnapshot {
   final List<Adjustment>? lastPresetAdjustments;
   final Set<String> presetAdjustmentIds;
   final String? appendedPresetNotes;
-  final String? presetKey;
-  final String? presetDamperKey;
-  final ComponentPresetVariant? presetVariant;
+  final ComponentPreset? preset;
+  final ResolvedPreset? resolvedPreset;
   final bool expanded;
 
   const _PresetSnapshot({
@@ -1222,9 +1235,8 @@ class _PresetSnapshot {
     required this.lastPresetAdjustments,
     required this.presetAdjustmentIds,
     required this.appendedPresetNotes,
-    required this.presetKey,
-    required this.presetDamperKey,
-    required this.presetVariant,
+    required this.preset,
+    required this.resolvedPreset,
     required this.expanded,
   });
 }

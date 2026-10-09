@@ -25,9 +25,9 @@ class PersonList extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             child: EmptyStatePlaceholder(
               icon: Person.iconData,
-              title: 'No profile yet',
-              subtitle: 'Add a rider profile to link to your setups.',
-              actionLabel: 'Add a profile',
+              title: 'No rider yet',
+              subtitle: 'Add a rider to link to your bikes and setups.',
+              actionLabel: 'Add a rider',
               onAction: () => PersonActions.addPerson(context),
             ),
           ),

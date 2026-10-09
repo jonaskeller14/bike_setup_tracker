@@ -70,20 +70,13 @@ class FileExport {
     await _runSave(
       context: context,
       save: () async {
-        final dir = await getApplicationDocumentsDirectory();
-        final backupDir = Directory('${dir.path}/backup');
-        final files = await backupDir.exists()
-            ? backupDir.listSync().whereType<File>().where((f) => f.path.endsWith('.json')).toList()
-            : <File>[];
-
-        if (files.isEmpty) {
+        final latestBackup = await _latestBackupFile();
+        if (latestBackup == null) {
           if (!context.mounted) return FileSaveOutcome.cancelled;
           scaffoldMessenger.showSnackBar(AppSnackBar.error(context, 'No backup found yet.'));
           return FileSaveOutcome.cancelled;
         }
 
-        files.sort((a, b) => b.statSync().modified.compareTo(a.statSync().modified));
-        final latestBackup = files.first;
         final bytes = await latestBackup.readAsBytes();
 
         return (fileSaveService ?? FileSaveService()).saveFile(
@@ -93,6 +86,45 @@ class FileExport {
         );
       },
     );
+  }
+
+  static Future<void> exportLatestBackupBundle(
+    BuildContext context, {
+    FileSaveService? fileSaveService,
+  }) async {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    await _runSave(
+      context: context,
+      save: () async {
+        final latestBackup = await _latestBackupFile();
+        if (latestBackup == null) {
+          if (!context.mounted) return FileSaveOutcome.cancelled;
+          scaffoldMessenger.showSnackBar(AppSnackBar.error(context, 'No backup found yet.'));
+          return FileSaveOutcome.cancelled;
+        }
+
+        final file = await AttachmentStorageService().exportRecoveryBundle(latestBackup);
+        final bytes = await file.readAsBytes();
+
+        return (fileSaveService ?? FileSaveService()).saveFile(
+          fileName: file.uri.pathSegments.last,
+          bytes: bytes,
+          extension: 'zip',
+        );
+      },
+    );
+  }
+
+  static Future<File?> _latestBackupFile() async {
+    final dir = await getApplicationDocumentsDirectory();
+    final backupDir = Directory('${dir.path}/backup');
+    if (!await backupDir.exists()) return null;
+
+    final files = backupDir.listSync().whereType<File>().where((f) => f.path.endsWith('.json')).toList();
+    if (files.isEmpty) return null;
+
+    files.sort((a, b) => b.statSync().modified.compareTo(a.statSync().modified));
+    return files.first;
   }
 
   static Future<FileSaveOutcome> _saveJson({

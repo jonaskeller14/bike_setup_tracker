@@ -4,6 +4,7 @@ import 'package:bike_setup_tracker/pages/forms/setup_page.dart';
 import 'package:bike_setup_tracker/pages/home_page.dart';
 import 'package:bike_setup_tracker/services/strava_service.dart';
 import 'package:bike_setup_tracker/utils/automation_ids.dart';
+import 'package:bike_setup_tracker/widgets/sheets/rider_sheet.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
@@ -77,6 +78,26 @@ void main() {
       );
       expect(duplicate, findsOne);
       expect(duplicate.evaluate().single.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
+      semantics.dispose();
+    });
+
+    testWidgets('HomePage exposes the rider button identifier', (tester) async {
+      useGoldenViewport(tester);
+      harness.settings.enablePerson = true;
+      final semantics = tester.ensureSemantics();
+      await tester.pumpWidget(
+        ChangeNotifierProvider<StravaService>(
+          create: (_) => StravaService(harness.repository, harness.settings),
+          child: harness.wrap(brightness: Brightness.light, child: const HomePage()),
+        ),
+      );
+      await settleGolden(tester);
+
+      final riderButton = find.bySemanticsIdentifier(AutomationIds.appBarRider);
+      expect(riderButton, findsOneWidget);
+      await tester.tap(riderButton);
+      await settleGolden(tester);
+      expect(find.byType(RiderSheetContent), findsOneWidget);
       semantics.dispose();
     });
 

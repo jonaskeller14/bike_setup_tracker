@@ -1,7 +1,7 @@
 # DT Swiss mountain-bike forks — adjustment preset database
 #
 # Same design as fork/fox.yaml and fork/rockshox.yaml: click ranges belong to
-# the DAMPER cartridge, defined once under `dampers:` and referenced by key from
+# the DAMPER cartridge, defined once under `option_values.damper` and referenced by id from
 # each fork's trims. See SCHEMA.md in this folder.
 #
 # DT Swiss sells one model per family and no trim tiers, so every fork has a
@@ -15,6 +15,7 @@ sources:
   - https://www.dtswiss.com/en/suspension/forks/f-535
   - https://www.dtswiss.com/en/suspension/forks/f-232-one
   - https://www.dtswiss.com/en/support/manuals
+  - https://setupguide.dtswiss.com/en/
   # Primary — DT Swiss official user / technical manuals (PDF)
   - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/04/85/7/MAN_FXD10000004857S_WEB_ZZ_001.pdf
   - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/04/85/8/MAN_FXD10000004858S_WEB_EN_001.pdf
@@ -25,7 +26,11 @@ sources:
   # Secondary — editorial (article body text only)
   - https://enduro-mtb.com/en/dt-swiss-f-535-and-f-535-one-forks-test/
   - https://www.pinkbike.com/news/first-ride-dt-swisss-new-232-one-platform.html
-updated: 2026-09-25
+updated: 2026-10-07
+# Service intervals (`tasks`) come from the user manuals cited above: a small
+# service every 50 operating hours and a full service annually or after 200
+# operating hours.
+#
 # Counting conventions:
 #   * Rebound is counted from fully OPEN (fastest): the F 535 / F 535 ONE user
 #     manual's rebound-recommendation table is headed "Rebound clicks (from
@@ -42,122 +47,134 @@ updated: 2026-09-25
 # --------------------------------------------------------------------------
 # Dampers
 # --------------------------------------------------------------------------
-dampers:
-  incontrol_odl_plushport_2023:
-    name: INCONTROL O.D.L. with PLUSHPORT
-    description: |-
-      - Travel-dependent low-speed compression: the first 30% of travel runs through an open bypass port for small-bump sensitivity, then closes progressively for mid-stroke support and bottom-out control
-      - Lever with three modes: Open, Drive (partly closed compression) and Lock (with a blow-off valve)
-      - External low-speed compression and rebound adjusters
-    adjustments:
-      - { name: Compression Mode, type: categorical, options: [Open, Drive, Lock] }
-      - { name: Compression, type: step, max: 12, notes: "Low-Speed Compression; Counted from fully open (softest); DT Swiss recommends fully open" }
-      - { name: Rebound, type: step, max: 29, notes: Counted from fully open (fastest) }
-    source:
-      - https://enduro-mtb.com/en/dt-swiss-f-535-and-f-535-one-forks-test/
-      - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/04/85/7/MAN_FXD10000004857S_WEB_ZZ_001.pdf
-    note: >-
-      Enduro-MTB (21 Jun 2023): "Both forks offer 12 clicks of low-speed
-      compression and 29 clicks of rebound." Three modes per the same article
-      and the F 535 / F 535 ONE user manual V2023.05 (sec. 4.2). Compression
-      and rebound direction and counting from the same manual (secs. 4.4, 4.5).
+option_values:
+  damper:
+    incontrol_odl_plushport_2023:
+      name: INCONTROL O.D.L. with PLUSHPORT
+      description: |-
+        - Travel-dependent low-speed compression: the first 30% of travel runs through an open bypass port for small-bump sensitivity, then closes progressively for mid-stroke support and bottom-out control
+        - Lever with three modes: Open, Drive (partly closed compression) and Lock (with a blow-off valve)
+        - External low-speed compression and rebound adjusters
+      adjustments:
+        - { name: Compression Mode, type: categorical, options: [Open, Drive, Lock] }
+        - { name: Compression, type: step, max: 12, notes: "Low-Speed Compression; Counted from fully open (softest); DT Swiss recommends fully open" }
+        - { name: Rebound, type: step, max: 29, notes: Counted from fully open (fastest) }
+      source:
+        - https://enduro-mtb.com/en/dt-swiss-f-535-and-f-535-one-forks-test/
+        - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/04/85/7/MAN_FXD10000004857S_WEB_ZZ_001.pdf
+      note: >-
+        Enduro-MTB (21 Jun 2023): "Both forks offer 12 clicks of low-speed
+        compression and 29 clicks of rebound." Three modes per the same article
+        and the F 535 / F 535 ONE user manual V2023.05 (sec. 4.2). Compression
+        and rebound direction and counting from the same manual (secs. 4.4, 4.5).
 
-  incontrol_ol_2023:
-    name: INCONTROL O.L.
-    description: |-
-      - Conventional (not travel-dependent) low-speed compression damper
-      - Two-position lever: Open and Lock (with a blow-off valve)
-      - External low-speed compression and rebound adjusters
-    adjustments:
-      - { name: Compression Mode, type: categorical, options: [Open, Lock] }
-      - { name: Compression, type: step, max: 12, notes: "Low-Speed Compression; Counted from fully open (softest); DT Swiss recommends fully open" }
-      - { name: Rebound, type: step, max: 29, notes: Counted from fully open (fastest) }
-    source:
-      - https://enduro-mtb.com/en/dt-swiss-f-535-and-f-535-one-forks-test/
-      - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/04/85/7/MAN_FXD10000004857S_WEB_ZZ_001.pdf
-    note: >-
-      Enduro-MTB (21 Jun 2023): both new forks offer 12 clicks of low-speed
-      compression and 29 clicks of rebound; the base F 535 only has Open and
-      Lock. Two modes per the F 535 / F 535 ONE user manual V2023.05 (sec. 4.3).
+    incontrol_ol_2023:
+      name: INCONTROL O.L.
+      description: |-
+        - Conventional (not travel-dependent) low-speed compression damper
+        - Two-position lever: Open and Lock (with a blow-off valve)
+        - External low-speed compression and rebound adjusters
+      adjustments:
+        - { name: Compression Mode, type: categorical, options: [Open, Lock] }
+        - { name: Compression, type: step, max: 12, notes: "Low-Speed Compression; Counted from fully open (softest); DT Swiss recommends fully open" }
+        - { name: Rebound, type: step, max: 29, notes: Counted from fully open (fastest) }
+      source:
+        - https://enduro-mtb.com/en/dt-swiss-f-535-and-f-535-one-forks-test/
+        - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/04/85/7/MAN_FXD10000004857S_WEB_ZZ_001.pdf
+      note: >-
+        Enduro-MTB (21 Jun 2023): both new forks offer 12 clicks of low-speed
+        compression and 29 clicks of rebound; the base F 535 only has Open and
+        Lock. Two modes per the F 535 / F 535 ONE user manual V2023.05 (sec. 4.3).
 
-  incontrol_odl_232_2020:
-    name: INCONTROL O.D.L. (XC)
-    description: >-
-      Lightweight cross-country damper with a three-position lever (Open, Drive,
-      Lock) and external rebound and low-speed compression adjusters.
-      Adjustments incomplete: please add Compression and Rebound yourself.
-    adjustments:
-      - { name: Compression Mode, type: categorical, options: [Open, Drive, Lock] }
-    source:
-      - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/02/81/9/MAN_FXD10000002819S_WEB_ZZ_001.pdf
-      - https://www.pinkbike.com/news/first-ride-dt-swisss-new-232-one-platform.html
-    note: >-
-      Lever modes and the blue compression adjuster (T10 Torx, affects Open
-      mode only) from the F 232 ONE user manual V2021.09 (sec. 4.3). The
-      manual's rebound table lists recommended settings only; no total click
-      count for compression or rebound is published, so none is recorded.
+    incontrol_odl_232_2020:
+      name: INCONTROL O.D.L. (XC)
+      description: >-
+        Lightweight cross-country damper with a three-position lever (Open, Drive,
+        Lock) and external rebound and low-speed compression adjusters.
+      adjustments:
+        - { name: Compression Mode, type: categorical, options: [Open, Drive, Lock] }
+        - { name: Compression, type: step, max: ~, notes: "Low-Speed Compression; blue T10 Torx adjuster, affects Open mode only", dialColor: blue }
+        - { name: Rebound, type: step, max: ~ }
+      source:
+        - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/02/81/9/MAN_FXD10000002819S_WEB_ZZ_001.pdf
+        - https://www.pinkbike.com/news/first-ride-dt-swisss-new-232-one-platform.html
+      note: >-
+        Lever modes and the blue compression adjuster (T10 Torx, affects Open
+        mode only) from the F 232 ONE user manual V2021.09 (sec. 4.3). The
+        manual's rebound table lists recommended settings only; no total click
+        count for compression or rebound is published, so both carry `max: ~`.
 
 # --------------------------------------------------------------------------
 # Forks — current lineup. DT Swiss only offers 29" versions of all three.
 # --------------------------------------------------------------------------
-forks:
-  - model: "F 535 ONE"
+nodes:
+  - label: "F 535 ONE"
+    level: model
     category: Trail / All-Mountain
-    year_range: "2023-2026"
+    years: "2023-2026"
     url: https://www.dtswiss.com/en/suspension/forks/f-535-one
-    wheel_size: [29]
-    trims:
-      - trim: Standard
-        key: fork-dtswiss-f-535-one-standard-2023
-        travel_mm: [120, 130, 140, 150, 160]
-        stanchion: 35mm
-        spring: Air
+    setup_guide: https://setupguide.dtswiss.com/en/
+    tasks: &dtswiss_service
+      fork:lower_leg_service: { interval: { moving_time_h: 50 }, source: DT Swiss user manual }
+      fork:full_service: { interval: { moving_time_h: 200 }, fallback: { days: 365 }, source: DT Swiss user manual }
+    children:
+      - label: Standard
+        level: trim
+        specs: { stanchion: 35mm, spring: Air }
         offset_mm: [44]
-        dampers: [incontrol_odl_plushport_2023]
         adjustments: &air_spring_apt
           - { name: Pressure, type: numerical, unit: psi, min: 0 }
           - { name: Volume Spacers, type: step, max: 3, visualization: stepper, notes: APT volume spacers }
+        options:
+          damper: [incontrol_odl_plushport_2023]
+          travel_mm: [120, 130, 140, 150, 160]
+          wheel_size: [29]
         note: |-
           - COILPAIR spring: a small coil works with the air spring over the first 30mm of travel
           - PLUSHPORT travel-dependent damping
           - One APT volume spacer fitted as delivered, two more in the box
           - 15mm Boost thru-axle, magnesium lowers
 
-  - model: "F 535"
+  - label: "F 535"
+    level: model
     category: Trail / All-Mountain
-    year_range: "2023-2026"
+    years: "2023-2026"
     url: https://www.dtswiss.com/en/suspension/forks/f-535
-    wheel_size: [29]
-    trims:
-      - trim: Standard
-        key: fork-dtswiss-f-535-standard-2023
-        travel_mm: [120, 130, 140, 150, 160]
-        stanchion: 35mm
-        spring: Air
+    setup_guide: https://setupguide.dtswiss.com/en/
+    tasks: *dtswiss_service
+    children:
+      - label: Standard
+        level: trim
+        specs: { stanchion: 35mm, spring: Air }
         offset_mm: [44]
-        dampers: [incontrol_ol_2023]
         adjustments: *air_spring_apt
+        options:
+          damper: [incontrol_ol_2023]
+          travel_mm: [120, 130, 140, 150, 160]
+          wheel_size: [29]
         note: |-
           - Lower-priced sibling of the F 535 ONE without COILPAIR or PLUSHPORT
           - Two-mode lever (Open / Lock)
           - One APT volume spacer fitted as delivered, two more in the box
           - 15mm Boost thru-axle, magnesium lowers
 
-  - model: "F 232 ONE"
-    complete: false
+  - label: "F 232 ONE"
+    level: model
     category: XC
-    year_range: "2020-2026"
+    years: "2020-2026"
     url: https://www.dtswiss.com/en/suspension/forks/f-232-one
-    wheel_size: [29]
-    trims:
-      - trim: Standard
-        key: fork-dtswiss-f-232-one-standard-2020
-        travel_mm: [100, 110, 120]
-        stanchion: 32mm
-        spring: Air
+    setup_guide: https://setupguide.dtswiss.com/en/
+    tasks: *dtswiss_service
+    children:
+      - label: Standard
+        level: trim
+        specs: { stanchion: 32mm, spring: Air }
         offset_mm: [44, 51]
-        dampers: [incontrol_odl_232_2020]
         adjustments: *air_spring_apt
+        options:
+          damper: [incontrol_odl_232_2020]
+          travel_mm: [100, 110, 120]
+          wheel_size: [29]
         note: |-
           - Topology-optimised lowers, from 1,480g
           - XC-tuned LINEAIR dual-chamber air spring
@@ -165,9 +182,13 @@ forks:
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):
+#   - Fork rebound dial color: none of the F 535 / F 535 ONE / F 232 ONE
+#     manuals or the approved reviews name it (the shock manuals do say "red
+#     rebound wheel"), so the fork rebound adjusters carry no `dialColor`.
+#     The F 232 ONE manual (sec. 4.3) names the compression adjuster "blue".
 #   - F 232 ONE compression and rebound click counts: DT Swiss's product page,
 #     user manual (V2021.09) and technical manual publish neither, and none of
-#     the approved outlets state them, so the fork stays `complete: false`.
+#     the approved outlets state them, so both carry `max: ~`.
 #     (Non-approved outlets — off-road.cc, Bike Perfect — quote figures; do not
 #     use them without a primary or approved secondary source.)
 #   - Pre-2023 F 535 ONE (2018-2022; 27.5" / 29", 44 or 51mm offset, HSC/LSC

@@ -22,6 +22,7 @@ class TaskRules extends Table {
   TextColumn get delay => text().nullable()();    // JSON serialized TaskThreshold
   BoolColumn get repeat => boolean().withDefault(const Constant(true))();
   TextColumn get attachments => text().map(const AttachmentListConverter()).withDefault(const Constant('[]'))();
+  TextColumn get presetKey => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};

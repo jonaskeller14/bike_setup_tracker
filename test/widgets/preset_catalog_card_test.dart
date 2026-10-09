@@ -1,33 +1,27 @@
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/component_preset.dart';
-import 'package:bike_setup_tracker/repositories/component_preset_repository.dart';
+import 'package:bike_setup_tracker/repositories/component_catalog_repository.dart';
+import 'package:bike_setup_tracker/utils/component_catalog_parser.dart';
+import 'package:bike_setup_tracker/utils/component_preset_resolver.dart';
 import 'package:bike_setup_tracker/widgets/preset_catalog_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
-
-/// Stub repository that returns one variant per supplied brand, in the exact
-/// order given. The real repository loads brands alphabetically, so ordering
-/// here mimics that to prove the card reorders popular brands to the front.
-class _FakePresetRepository extends ComponentPresetRepository {
-  _FakePresetRepository(this.brands);
-
-  final List<String> brands;
-
-  @override
-  Future<List<ComponentPresetVariant>> forType(ComponentType type) async {
-    return [
-      for (final brand in brands)
-        ComponentPresetVariant(
-          key: '${type.name}-$brand-base',
-          brand: brand,
-          model: '$brand model',
-          trim: 'base',
-          componentType: type,
-        ),
-    ];
-  }
+/// One product per supplied brand, in the exact order given. The real
+/// repository loads brands alphabetically, so ordering here mimics that to
+/// prove the card reorders popular brands to the front.
+ComponentCatalogRepository _repository(List<String> brands, ComponentType type) {
+  return ComponentCatalogRepository.withCatalogs([
+    for (final brand in brands)
+      parseCatalogFile('''
+brand: $brand
+component_type: ${type.name}
+nodes:
+  - label: Base
+    level: model
+'''),
+  ]);
 }
 
 Future<void> _pumpCard(
@@ -36,8 +30,8 @@ Future<void> _pumpCard(
   ComponentType type = ComponentType.fork,
 }) async {
   await tester.pumpWidget(
-    Provider<ComponentPresetRepository>.value(
-      value: _FakePresetRepository(brands),
+    Provider<ComponentCatalogRepository>.value(
+      value: _repository(brands, type),
       child: MaterialApp(
         home: Scaffold(
           body: PresetCatalogCard(componentType: type, onTap: () {}, onUnlink: () {}),
@@ -101,26 +95,44 @@ void main() {
   });
 
   group('PresetCatalogCard applied state', () {
-    const variant = ComponentPresetVariant(
-      key: 'fox/38/factory',
-      brand: 'FOX',
-      model: '38',
-      trim: 'Factory',
-      componentType: ComponentType.fork,
-      yearRange: '2021–2024',
-    );
+    final catalog = parseCatalogFile('''
+brand: FOX
+component_type: fork
+option_values:
+  damper:
+    grip_x2: { name: GRIP X2, adjustments: [{ name: HSC, type: step, max: 8 }] }
+    grip_x: { name: GRIP X, adjustments: [{ name: LSC, type: step, max: 16 }] }
+nodes:
+  - label: "38"
+    level: model
+    children:
+      - label: "2021–2024"
+        level: generation
+        id: "2021"
+        years: "2021-2024"
+        children:
+          - label: Factory
+            level: trim
+            options:
+              damper: [grip_x2, grip_x]
+              travel_mm: [170, 180]
+''');
 
-    Future<void> pumpApplied(WidgetTester tester, {required VoidCallback onUnlink}) async {
+    Future<void> pumpApplied(
+      WidgetTester tester, {
+      required Map<String, Object> preset,
+      VoidCallback? onUnlink,
+    }) async {
       await tester.pumpWidget(
-        Provider<ComponentPresetRepository>.value(
-          value: _FakePresetRepository(['FOX']),
+        Provider<ComponentCatalogRepository>.value(
+          value: ComponentCatalogRepository.withCatalogs([catalog]),
           child: MaterialApp(
             home: Scaffold(
               body: PresetCatalogCard(
                 componentType: ComponentType.fork,
                 onTap: () {},
-                appliedVariant: variant,
-                onUnlink: onUnlink,
+                applied: resolvePreset([catalog], ComponentPreset(preset)),
+                onUnlink: onUnlink ?? () {},
               ),
             ),
           ),
@@ -129,18 +141,42 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    testWidgets('shows the applied preset instead of the catalog teaser',
-        (tester) async {
-      await pumpApplied(tester, onUnlink: () {});
+    const fullPreset = <String, Object>{
+      'brand': 'fox',
+      'component_type': 'fork',
+      'model': '38',
+      'generation': '2021',
+      'trim': 'factory',
+      'damper': 'grip_x2',
+      'travel_mm': 180,
+    };
 
-      expect(find.text('FOX 38 Factory'), findsOneWidget);
-      expect(_subtitle(tester), 'From catalog · 2021–2024 · Tap to change');
+    testWidgets('shows the path and the required choice in the title, the optional ones below',
+        (tester) async {
+      await pumpApplied(tester, preset: fullPreset);
+
+      expect(find.text('FOX 38 Factory GRIP X2'), findsOneWidget);
+      expect(_subtitle(tester), '180 mm · 2021-2024 · Tap to change');
       expect(find.text('Choose from catalog'), findsNothing);
+    });
+
+    testWidgets('leaves a skipped optional choice out', (tester) async {
+      await pumpApplied(tester, preset: {...fullPreset}..remove('travel_mm'));
+
+      expect(_subtitle(tester), '2021-2024 · Tap to change');
+    });
+
+    testWidgets('a partial resolution shows the deepest node', (tester) async {
+      await pumpApplied(tester, preset: {...fullPreset, 'trim': 'retired'});
+
+      expect(find.text('FOX 38'), findsOneWidget);
+      // The generation the map still matches carries the years.
+      expect(_subtitle(tester), '2021-2024 · Tap to change');
     });
 
     testWidgets('unlink button fires onUnlink', (tester) async {
       var unlinked = 0;
-      await pumpApplied(tester, onUnlink: () => unlinked++);
+      await pumpApplied(tester, preset: fullPreset, onUnlink: () => unlinked++);
 
       await tester.tap(find.byTooltip('Unlink preset (keeps values)'));
       expect(unlinked, 1);

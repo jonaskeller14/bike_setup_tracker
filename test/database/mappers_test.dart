@@ -5,6 +5,7 @@ import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/attachment.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/component/component_preset.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/person.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
@@ -139,19 +140,18 @@ void main() {
     test('Component Mapping carries preset provenance both ways', () {
       // `updateComponent` replaces the whole row, so a mapper that dropped
       // these would silently clear the provenance on every component edit.
+      final preset = ComponentPreset(const {'brand': 'fox', 'component_type': 'fork', 'model': '36', 'damper': 'grip_x2'});
       final component = Component(
         id: 'comp1',
         name: 'FOX 36 Factory',
         componentType: ComponentType.fork,
         installations: const [],
         lastModified: DateTime(2023, 1, 1).toUtc(),
-        presetKey: 'fork-fox-36-factory-2025',
-        presetDamperKey: 'grip_x2',
+        preset: preset,
       );
 
       final companion = component.toCompanion();
-      expect(companion.presetKey.value, 'fork-fox-36-factory-2025');
-      expect(companion.presetDamperKey.value, 'grip_x2');
+      expect(companion.preset.value, preset);
 
       final model = ComponentDb(
         id: 'comp1',
@@ -166,12 +166,10 @@ void main() {
         initialElapsedTime: Duration.zero,
         initialActivityCount: 0,
         initialKilojoules: 0.0,
-        presetKey: 'fork-fox-36-factory-2025',
-        presetDamperKey: 'grip_x2',
+        preset: preset,
         attachments: const [],
       ).toModel();
-      expect(model.presetKey, 'fork-fox-36-factory-2025');
-      expect(model.presetDamperKey, 'grip_x2');
+      expect(model.preset, preset);
     });
 
     test('Setup Mapping', () {
@@ -180,11 +178,11 @@ void main() {
         name: 'Race Setup',
         datetime: DateTime(2023, 1, 1).toUtc(),
         datetimeLocal: DateTime(2023, 1, 1),
-        tags: {'race'},
+        tags: const {'race'},
         bike: 'bike1',
         person: 'person1',
-        bikeAdjustmentValues: {'adj1': const StepValue(10)},
-        personAdjustmentValues: {'adj2': const StepValue(5)},
+        bikeAdjustmentValues: const {'adj1': StepValue(10)},
+        personAdjustmentValues: const {'adj2': StepValue(5)},
       );
 
       // Model -> Companion

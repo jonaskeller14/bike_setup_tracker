@@ -12,24 +12,26 @@ import 'adjustment_page.dart';
 class CategoricalAdjustmentPage extends StatefulWidget {
   final CategoricalAdjustment? adjustment;
   final AdjustmentPageMode mode;
+  final AdjustmentTerm term;
 
   const CategoricalAdjustmentPage._({
     super.key,
     this.adjustment,
     required this.mode,
+    this.term = AdjustmentTerm.adjustment,
   });
 
-  factory CategoricalAdjustmentPage.add({Key? key}) =>
-      CategoricalAdjustmentPage._(key: key, mode: AdjustmentPageMode.add);
+  factory CategoricalAdjustmentPage.add({Key? key, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
+      CategoricalAdjustmentPage._(key: key, mode: AdjustmentPageMode.add, term: term);
 
-  factory CategoricalAdjustmentPage.edit({Key? key, required CategoricalAdjustment adjustment}) =>
-      CategoricalAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit);
+  factory CategoricalAdjustmentPage.edit({Key? key, required CategoricalAdjustment adjustment, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
+      CategoricalAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit, term: term);
 
-  factory CategoricalAdjustmentPage.duplicate({Key? key, required CategoricalAdjustment adjustment}) =>
-      CategoricalAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate);
+  factory CategoricalAdjustmentPage.duplicate({Key? key, required CategoricalAdjustment adjustment, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
+      CategoricalAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate, term: term);
 
-  factory CategoricalAdjustmentPage.template({Key? key, required CategoricalAdjustment adjustment}) =>
-      CategoricalAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.template);
+  factory CategoricalAdjustmentPage.template({Key? key, required CategoricalAdjustment adjustment, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
+      CategoricalAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.template, term: term);
 
   @override
   State<CategoricalAdjustmentPage> createState() => _CategoricalAdjustmentPageState();
@@ -81,6 +83,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
       name: _nameController.text.trim(),
       notes: notes.isEmpty ? null : notes,
       unit: widget.adjustment?.unit,
+      presetKey: widget.adjustment?.presetKey,
       options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toSet(),
       multiSelect: _multiSelect,
       counted: _counted,
@@ -194,6 +197,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
       name: name,
       notes: notes.isEmpty ? null : notes,
       unit: widget.adjustment?.unit,
+      presetKey: widget.adjustment?.presetKey,
       options: options,
       multiSelect: _multiSelect,
       counted: _counted,
@@ -220,8 +224,8 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
           title: switch (widget.mode) {
             AdjustmentPageMode.add ||
             AdjustmentPageMode.duplicate ||
-            AdjustmentPageMode.template => const Text('Add Categorical Adjustment'),
-            AdjustmentPageMode.edit => const Text('Edit Categorical Adjustment'),
+            AdjustmentPageMode.template => Text('Add Categorical ${widget.term.label}'),
+            AdjustmentPageMode.edit => Text('Edit Categorical ${widget.term.label}'),
           },
           actions: [
             IconButton(icon: const Icon(Icons.check), onPressed: _saveCategoricalAdjustment),
@@ -251,8 +255,8 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                             autovalidateMode: AutovalidateMode.onUserInteraction,
                             autofocus: widget.mode == AdjustmentPageMode.add,
                             decoration: InputDecoration(
-                              labelText: 'Adjustment Name',
-                              hintText: 'Enter Adjustment Name',
+                              labelText: '${widget.term.label} Name',
+                              hintText: 'Enter ${widget.term.label} Name',
                               border: const OutlineInputBorder(),
                               helper: adjustmentNameLengthWarning(context, _nameController.text),
                               fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,

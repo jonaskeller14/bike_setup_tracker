@@ -158,7 +158,7 @@ void main() {
   group('fromJson passes adjustment types through', () {
     test('Setup.fromJson decodes bike and person values by type', () {
       final setup = Setup.fromJson(
-        json: {
+        json: const {
           'version': 7,
           'id': 's1',
           'datetime': '2026-09-27T09:00:00.000Z',
@@ -167,7 +167,7 @@ void main() {
           'bikeAdjustmentValues': {'note': '0:10:00', 'cat': 'Front'},
           'personAdjustmentValues': {'weight': 72},
         },
-        adjustmentTypes: {
+        adjustmentTypes: const {
           'note': AdjustmentType.text,
           'cat': AdjustmentType.categorical,
           'weight': AdjustmentType.numerical,

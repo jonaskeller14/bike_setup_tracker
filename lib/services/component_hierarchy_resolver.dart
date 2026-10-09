@@ -258,13 +258,18 @@ class ComponentHierarchyResolver {
     return component == null ? null : installationAt(component, currentTimeUTC);
   }
 
-  Set<String> descendantsOf(String parentComponentId, {DateTime? atUTC}) {
+  Set<String> childrenOf(String parentComponentId, {DateTime? atUTC}) =>
+      _childrenAtCached(atUTC)[parentComponentId] ?? const <String>{};
+
+  Set<String> descendantsOf(String parentComponentId, {DateTime? atUTC}) =>
+      _descendantsFrom(parentComponentId, _childrenAtCached(atUTC));
+
+  Map<String, Set<String>> _childrenAtCached(DateTime? atUTC) {
     final when = (atUTC ?? currentTimeUTC).toUtc();
-    final children = _childrenAtCache.putIfAbsent(
+    return _childrenAtCache.putIfAbsent(
       when.microsecondsSinceEpoch,
       () => _childrenAt(when),
     );
-    return _descendantsFrom(parentComponentId, children);
   }
 
   Map<String, Set<String>> _childrenAt(DateTime atUTC) {

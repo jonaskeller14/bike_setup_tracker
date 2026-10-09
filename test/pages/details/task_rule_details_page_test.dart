@@ -116,9 +116,10 @@ void main() {
 
       expect(tester.takeException(), isNull);
       expect(find.byType(AttachmentStrip), findsNWidgets(2));
-      // The rule's strip starts at the card's left edge, without a leading icon.
+      // The rule's strip scrolls edge-to-edge, its first item inset to the card's left edge.
       final ruleStrip = tester.getTopLeft(find.byType(AttachmentStrip).first);
-      expect(ruleStrip.dx, tester.getTopLeft(find.byType(TaskRuleDisplayCard)).dx);
+      expect(ruleStrip.dx, 0);
+      expect(tester.getTopLeft(find.text('Service Manual')).dx, greaterThanOrEqualTo(tester.getTopLeft(find.byType(TaskRuleDisplayCard)).dx));
       expect(ruleStrip.dy, lessThan(tester.getTopLeft(find.text('ENTRIES')).dy));
 
       await tester.tap(find.text('Service Manual'));

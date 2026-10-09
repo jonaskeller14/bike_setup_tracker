@@ -149,28 +149,15 @@ class $ComponentsTable extends Components
         requiredDuringInsert: false,
         defaultValue: const Constant(0.0),
       );
-  static const VerificationMeta _presetKeyMeta = const VerificationMeta(
-    'presetKey',
-  );
   @override
-  late final GeneratedColumn<String> presetKey = GeneratedColumn<String>(
-    'preset_key',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _presetDamperKeyMeta = const VerificationMeta(
-    'presetDamperKey',
-  );
-  @override
-  late final GeneratedColumn<String> presetDamperKey = GeneratedColumn<String>(
-    'preset_damper_key',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
+  late final GeneratedColumnWithTypeConverter<ComponentPreset?, String> preset =
+      GeneratedColumn<String>(
+        'preset',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      ).withConverter<ComponentPreset?>($ComponentsTable.$converterpreset);
   @override
   late final GeneratedColumnWithTypeConverter<List<Attachment>, String>
   attachments = GeneratedColumn<String>(
@@ -196,8 +183,7 @@ class $ComponentsTable extends Components
     initialElapsedTime,
     initialActivityCount,
     initialKilojoules,
-    presetKey,
-    presetDamperKey,
+    preset,
     attachments,
   ];
   @override
@@ -279,21 +265,6 @@ class $ComponentsTable extends Components
         ),
       );
     }
-    if (data.containsKey('preset_key')) {
-      context.handle(
-        _presetKeyMeta,
-        presetKey.isAcceptableOrUnknown(data['preset_key']!, _presetKeyMeta),
-      );
-    }
-    if (data.containsKey('preset_damper_key')) {
-      context.handle(
-        _presetDamperKeyMeta,
-        presetDamperKey.isAcceptableOrUnknown(
-          data['preset_damper_key']!,
-          _presetDamperKeyMeta,
-        ),
-      );
-    }
     return context;
   }
 
@@ -363,13 +334,11 @@ class $ComponentsTable extends Components
         DriftSqlType.double,
         data['${effectivePrefix}initial_kilojoules'],
       )!,
-      presetKey: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}preset_key'],
-      ),
-      presetDamperKey: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}preset_damper_key'],
+      preset: $ComponentsTable.$converterpreset.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}preset'],
+        ),
       ),
       attachments: $ComponentsTable.$converterattachments.fromSql(
         attachedDatabase.typeMapping.read(
@@ -393,6 +362,8 @@ class $ComponentsTable extends Components
       const DurationConverter();
   static TypeConverter<Duration, int> $converterinitialElapsedTime =
       const DurationConverter();
+  static TypeConverter<ComponentPreset?, String?> $converterpreset =
+      const ComponentPresetConverter();
   static TypeConverter<List<Attachment>, String> $converterattachments =
       const AttachmentListConverter();
 }
@@ -411,8 +382,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
   final Duration initialElapsedTime;
   final int initialActivityCount;
   final double initialKilojoules;
-  final String? presetKey;
-  final String? presetDamperKey;
+  final ComponentPreset? preset;
   final List<Attachment> attachments;
   const ComponentDb({
     required this.id,
@@ -428,8 +398,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     required this.initialElapsedTime,
     required this.initialActivityCount,
     required this.initialKilojoules,
-    this.presetKey,
-    this.presetDamperKey,
+    this.preset,
     required this.attachments,
   });
   @override
@@ -466,11 +435,10 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     }
     map['initial_activity_count'] = Variable<int>(initialActivityCount);
     map['initial_kilojoules'] = Variable<double>(initialKilojoules);
-    if (!nullToAbsent || presetKey != null) {
-      map['preset_key'] = Variable<String>(presetKey);
-    }
-    if (!nullToAbsent || presetDamperKey != null) {
-      map['preset_damper_key'] = Variable<String>(presetDamperKey);
+    if (!nullToAbsent || preset != null) {
+      map['preset'] = Variable<String>(
+        $ComponentsTable.$converterpreset.toSql(preset),
+      );
     }
     {
       map['attachments'] = Variable<String>(
@@ -497,12 +465,9 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
       initialElapsedTime: Value(initialElapsedTime),
       initialActivityCount: Value(initialActivityCount),
       initialKilojoules: Value(initialKilojoules),
-      presetKey: presetKey == null && nullToAbsent
+      preset: preset == null && nullToAbsent
           ? const Value.absent()
-          : Value(presetKey),
-      presetDamperKey: presetDamperKey == null && nullToAbsent
-          ? const Value.absent()
-          : Value(presetDamperKey),
+          : Value(preset),
       attachments: Value(attachments),
     );
   }
@@ -536,8 +501,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
         json['initialActivityCount'],
       ),
       initialKilojoules: serializer.fromJson<double>(json['initialKilojoules']),
-      presetKey: serializer.fromJson<String?>(json['presetKey']),
-      presetDamperKey: serializer.fromJson<String?>(json['presetDamperKey']),
+      preset: serializer.fromJson<ComponentPreset?>(json['preset']),
       attachments: serializer.fromJson<List<Attachment>>(json['attachments']),
     );
   }
@@ -560,8 +524,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
       'initialElapsedTime': serializer.toJson<Duration>(initialElapsedTime),
       'initialActivityCount': serializer.toJson<int>(initialActivityCount),
       'initialKilojoules': serializer.toJson<double>(initialKilojoules),
-      'presetKey': serializer.toJson<String?>(presetKey),
-      'presetDamperKey': serializer.toJson<String?>(presetDamperKey),
+      'preset': serializer.toJson<ComponentPreset?>(preset),
       'attachments': serializer.toJson<List<Attachment>>(attachments),
     };
   }
@@ -580,8 +543,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     Duration? initialElapsedTime,
     int? initialActivityCount,
     double? initialKilojoules,
-    Value<String?> presetKey = const Value.absent(),
-    Value<String?> presetDamperKey = const Value.absent(),
+    Value<ComponentPreset?> preset = const Value.absent(),
     List<Attachment>? attachments,
   }) => ComponentDb(
     id: id ?? this.id,
@@ -597,10 +559,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     initialElapsedTime: initialElapsedTime ?? this.initialElapsedTime,
     initialActivityCount: initialActivityCount ?? this.initialActivityCount,
     initialKilojoules: initialKilojoules ?? this.initialKilojoules,
-    presetKey: presetKey.present ? presetKey.value : this.presetKey,
-    presetDamperKey: presetDamperKey.present
-        ? presetDamperKey.value
-        : this.presetDamperKey,
+    preset: preset.present ? preset.value : this.preset,
     attachments: attachments ?? this.attachments,
   );
   ComponentDb copyWithCompanion(ComponentsCompanion data) {
@@ -636,10 +595,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
       initialKilojoules: data.initialKilojoules.present
           ? data.initialKilojoules.value
           : this.initialKilojoules,
-      presetKey: data.presetKey.present ? data.presetKey.value : this.presetKey,
-      presetDamperKey: data.presetDamperKey.present
-          ? data.presetDamperKey.value
-          : this.presetDamperKey,
+      preset: data.preset.present ? data.preset.value : this.preset,
       attachments: data.attachments.present
           ? data.attachments.value
           : this.attachments,
@@ -662,8 +618,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
           ..write('initialElapsedTime: $initialElapsedTime, ')
           ..write('initialActivityCount: $initialActivityCount, ')
           ..write('initialKilojoules: $initialKilojoules, ')
-          ..write('presetKey: $presetKey, ')
-          ..write('presetDamperKey: $presetDamperKey, ')
+          ..write('preset: $preset, ')
           ..write('attachments: $attachments')
           ..write(')'))
         .toString();
@@ -684,8 +639,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     initialElapsedTime,
     initialActivityCount,
     initialKilojoules,
-    presetKey,
-    presetDamperKey,
+    preset,
     attachments,
   );
   @override
@@ -705,8 +659,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
           other.initialElapsedTime == this.initialElapsedTime &&
           other.initialActivityCount == this.initialActivityCount &&
           other.initialKilojoules == this.initialKilojoules &&
-          other.presetKey == this.presetKey &&
-          other.presetDamperKey == this.presetDamperKey &&
+          other.preset == this.preset &&
           other.attachments == this.attachments);
 }
 
@@ -724,8 +677,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
   final Value<Duration> initialElapsedTime;
   final Value<int> initialActivityCount;
   final Value<double> initialKilojoules;
-  final Value<String?> presetKey;
-  final Value<String?> presetDamperKey;
+  final Value<ComponentPreset?> preset;
   final Value<List<Attachment>> attachments;
   final Value<int> rowid;
   const ComponentsCompanion({
@@ -742,8 +694,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     this.initialElapsedTime = const Value.absent(),
     this.initialActivityCount = const Value.absent(),
     this.initialKilojoules = const Value.absent(),
-    this.presetKey = const Value.absent(),
-    this.presetDamperKey = const Value.absent(),
+    this.preset = const Value.absent(),
     this.attachments = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -761,8 +712,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     this.initialElapsedTime = const Value.absent(),
     this.initialActivityCount = const Value.absent(),
     this.initialKilojoules = const Value.absent(),
-    this.presetKey = const Value.absent(),
-    this.presetDamperKey = const Value.absent(),
+    this.preset = const Value.absent(),
     this.attachments = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
@@ -783,8 +733,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     Expression<int>? initialElapsedTime,
     Expression<int>? initialActivityCount,
     Expression<double>? initialKilojoules,
-    Expression<String>? presetKey,
-    Expression<String>? presetDamperKey,
+    Expression<String>? preset,
     Expression<String>? attachments,
     Expression<int>? rowid,
   }) {
@@ -805,8 +754,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
       if (initialActivityCount != null)
         'initial_activity_count': initialActivityCount,
       if (initialKilojoules != null) 'initial_kilojoules': initialKilojoules,
-      if (presetKey != null) 'preset_key': presetKey,
-      if (presetDamperKey != null) 'preset_damper_key': presetDamperKey,
+      if (preset != null) 'preset': preset,
       if (attachments != null) 'attachments': attachments,
       if (rowid != null) 'rowid': rowid,
     });
@@ -826,8 +774,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     Value<Duration>? initialElapsedTime,
     Value<int>? initialActivityCount,
     Value<double>? initialKilojoules,
-    Value<String?>? presetKey,
-    Value<String?>? presetDamperKey,
+    Value<ComponentPreset?>? preset,
     Value<List<Attachment>>? attachments,
     Value<int>? rowid,
   }) {
@@ -845,8 +792,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
       initialElapsedTime: initialElapsedTime ?? this.initialElapsedTime,
       initialActivityCount: initialActivityCount ?? this.initialActivityCount,
       initialKilojoules: initialKilojoules ?? this.initialKilojoules,
-      presetKey: presetKey ?? this.presetKey,
-      presetDamperKey: presetDamperKey ?? this.presetDamperKey,
+      preset: preset ?? this.preset,
       attachments: attachments ?? this.attachments,
       rowid: rowid ?? this.rowid,
     );
@@ -908,11 +854,10 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     if (initialKilojoules.present) {
       map['initial_kilojoules'] = Variable<double>(initialKilojoules.value);
     }
-    if (presetKey.present) {
-      map['preset_key'] = Variable<String>(presetKey.value);
-    }
-    if (presetDamperKey.present) {
-      map['preset_damper_key'] = Variable<String>(presetDamperKey.value);
+    if (preset.present) {
+      map['preset'] = Variable<String>(
+        $ComponentsTable.$converterpreset.toSql(preset.value),
+      );
     }
     if (attachments.present) {
       map['attachments'] = Variable<String>(
@@ -941,8 +886,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
           ..write('initialElapsedTime: $initialElapsedTime, ')
           ..write('initialActivityCount: $initialActivityCount, ')
           ..write('initialKilojoules: $initialKilojoules, ')
-          ..write('presetKey: $presetKey, ')
-          ..write('presetDamperKey: $presetDamperKey, ')
+          ..write('preset: $preset, ')
           ..write('attachments: $attachments, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -1979,6 +1923,17 @@ class $TaskRulesTable extends TaskRules
     requiredDuringInsert: false,
     defaultValue: const Constant('[]'),
   ).withConverter<List<Attachment>>($TaskRulesTable.$converterattachments);
+  static const VerificationMeta _presetKeyMeta = const VerificationMeta(
+    'presetKey',
+  );
+  @override
+  late final GeneratedColumn<String> presetKey = GeneratedColumn<String>(
+    'preset_key',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1994,6 +1949,7 @@ class $TaskRulesTable extends TaskRules
     delay,
     repeat,
     attachments,
+    presetKey,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2065,6 +2021,12 @@ class $TaskRulesTable extends TaskRules
         repeat.isAcceptableOrUnknown(data['repeat']!, _repeatMeta),
       );
     }
+    if (data.containsKey('preset_key')) {
+      context.handle(
+        _presetKeyMeta,
+        presetKey.isAcceptableOrUnknown(data['preset_key']!, _presetKeyMeta),
+      );
+    }
     return context;
   }
 
@@ -2134,6 +2096,10 @@ class $TaskRulesTable extends TaskRules
           data['${effectivePrefix}attachments'],
         )!,
       ),
+      presetKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}preset_key'],
+      ),
     );
   }
 
@@ -2166,6 +2132,7 @@ class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
   final String? delay;
   final bool repeat;
   final List<Attachment> attachments;
+  final String? presetKey;
   const TaskRuleDb({
     required this.id,
     required this.isDeleted,
@@ -2180,6 +2147,7 @@ class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
     this.delay,
     required this.repeat,
     required this.attachments,
+    this.presetKey,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2223,6 +2191,9 @@ class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
         $TaskRulesTable.$converterattachments.toSql(attachments),
       );
     }
+    if (!nullToAbsent || presetKey != null) {
+      map['preset_key'] = Variable<String>(presetKey);
+    }
     return map;
   }
 
@@ -2251,6 +2222,9 @@ class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
           : Value(delay),
       repeat: Value(repeat),
       attachments: Value(attachments),
+      presetKey: presetKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(presetKey),
     );
   }
 
@@ -2275,6 +2249,7 @@ class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
       delay: serializer.fromJson<String?>(json['delay']),
       repeat: serializer.fromJson<bool>(json['repeat']),
       attachments: serializer.fromJson<List<Attachment>>(json['attachments']),
+      presetKey: serializer.fromJson<String?>(json['presetKey']),
     );
   }
   @override
@@ -2296,6 +2271,7 @@ class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
       'delay': serializer.toJson<String?>(delay),
       'repeat': serializer.toJson<bool>(repeat),
       'attachments': serializer.toJson<List<Attachment>>(attachments),
+      'presetKey': serializer.toJson<String?>(presetKey),
     };
   }
 
@@ -2313,6 +2289,7 @@ class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
     Value<String?> delay = const Value.absent(),
     bool? repeat,
     List<Attachment>? attachments,
+    Value<String?> presetKey = const Value.absent(),
   }) => TaskRuleDb(
     id: id ?? this.id,
     isDeleted: isDeleted ?? this.isDeleted,
@@ -2327,6 +2304,7 @@ class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
     delay: delay.present ? delay.value : this.delay,
     repeat: repeat ?? this.repeat,
     attachments: attachments ?? this.attachments,
+    presetKey: presetKey.present ? presetKey.value : this.presetKey,
   );
   TaskRuleDb copyWithCompanion(TaskRulesCompanion data) {
     return TaskRuleDb(
@@ -2349,6 +2327,7 @@ class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
       attachments: data.attachments.present
           ? data.attachments.value
           : this.attachments,
+      presetKey: data.presetKey.present ? data.presetKey.value : this.presetKey,
     );
   }
 
@@ -2367,7 +2346,8 @@ class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
           ..write('interval: $interval, ')
           ..write('delay: $delay, ')
           ..write('repeat: $repeat, ')
-          ..write('attachments: $attachments')
+          ..write('attachments: $attachments, ')
+          ..write('presetKey: $presetKey')
           ..write(')'))
         .toString();
   }
@@ -2387,6 +2367,7 @@ class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
     delay,
     repeat,
     attachments,
+    presetKey,
   );
   @override
   bool operator ==(Object other) =>
@@ -2404,7 +2385,8 @@ class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
           other.interval == this.interval &&
           other.delay == this.delay &&
           other.repeat == this.repeat &&
-          other.attachments == this.attachments);
+          other.attachments == this.attachments &&
+          other.presetKey == this.presetKey);
 }
 
 class TaskRulesCompanion extends UpdateCompanion<TaskRuleDb> {
@@ -2421,6 +2403,7 @@ class TaskRulesCompanion extends UpdateCompanion<TaskRuleDb> {
   final Value<String?> delay;
   final Value<bool> repeat;
   final Value<List<Attachment>> attachments;
+  final Value<String?> presetKey;
   final Value<int> rowid;
   const TaskRulesCompanion({
     this.id = const Value.absent(),
@@ -2436,6 +2419,7 @@ class TaskRulesCompanion extends UpdateCompanion<TaskRuleDb> {
     this.delay = const Value.absent(),
     this.repeat = const Value.absent(),
     this.attachments = const Value.absent(),
+    this.presetKey = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   TaskRulesCompanion.insert({
@@ -2452,6 +2436,7 @@ class TaskRulesCompanion extends UpdateCompanion<TaskRuleDb> {
     this.delay = const Value.absent(),
     this.repeat = const Value.absent(),
     this.attachments = const Value.absent(),
+    this.presetKey = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        lastModified = Value(lastModified),
@@ -2470,6 +2455,7 @@ class TaskRulesCompanion extends UpdateCompanion<TaskRuleDb> {
     Expression<String>? delay,
     Expression<bool>? repeat,
     Expression<String>? attachments,
+    Expression<String>? presetKey,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -2486,6 +2472,7 @@ class TaskRulesCompanion extends UpdateCompanion<TaskRuleDb> {
       if (delay != null) 'delay': delay,
       if (repeat != null) 'repeat': repeat,
       if (attachments != null) 'attachments': attachments,
+      if (presetKey != null) 'preset_key': presetKey,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -2504,6 +2491,7 @@ class TaskRulesCompanion extends UpdateCompanion<TaskRuleDb> {
     Value<String?>? delay,
     Value<bool>? repeat,
     Value<List<Attachment>>? attachments,
+    Value<String?>? presetKey,
     Value<int>? rowid,
   }) {
     return TaskRulesCompanion(
@@ -2520,6 +2508,7 @@ class TaskRulesCompanion extends UpdateCompanion<TaskRuleDb> {
       delay: delay ?? this.delay,
       repeat: repeat ?? this.repeat,
       attachments: attachments ?? this.attachments,
+      presetKey: presetKey ?? this.presetKey,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2574,6 +2563,9 @@ class TaskRulesCompanion extends UpdateCompanion<TaskRuleDb> {
         $TaskRulesTable.$converterattachments.toSql(attachments.value),
       );
     }
+    if (presetKey.present) {
+      map['preset_key'] = Variable<String>(presetKey.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -2596,6 +2588,7 @@ class TaskRulesCompanion extends UpdateCompanion<TaskRuleDb> {
           ..write('delay: $delay, ')
           ..write('repeat: $repeat, ')
           ..write('attachments: $attachments, ')
+          ..write('presetKey: $presetKey, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -9675,6 +9668,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'installations_parent_lookup_idx',
     'CREATE INDEX installations_parent_lookup_idx ON installations (parent_type, parent, date_time_u_t_c)',
   );
+  late final Index stravaActivitiesGearDateIdx = Index(
+    'strava_activities_gear_date_idx',
+    'CREATE INDEX strava_activities_gear_date_idx ON strava_activities (gear_id, start_date)',
+  );
   late final BikesDao bikesDao = BikesDao(this as AppDatabase);
   late final ComponentsDao componentsDao = ComponentsDao(this as AppDatabase);
   late final SetupsDao setupsDao = SetupsDao(this as AppDatabase);
@@ -9708,6 +9705,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     stravaGears,
     installationsComponentDateIdx,
     installationsParentLookupIdx,
+    stravaActivitiesGearDateIdx,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -9813,8 +9811,7 @@ typedef $$ComponentsTableCreateCompanionBuilder =
       Value<Duration> initialElapsedTime,
       Value<int> initialActivityCount,
       Value<double> initialKilojoules,
-      Value<String?> presetKey,
-      Value<String?> presetDamperKey,
+      Value<ComponentPreset?> preset,
       Value<List<Attachment>> attachments,
       Value<int> rowid,
     });
@@ -9833,8 +9830,7 @@ typedef $$ComponentsTableUpdateCompanionBuilder =
       Value<Duration> initialElapsedTime,
       Value<int> initialActivityCount,
       Value<double> initialKilojoules,
-      Value<String?> presetKey,
-      Value<String?> presetDamperKey,
+      Value<ComponentPreset?> preset,
       Value<List<Attachment>> attachments,
       Value<int> rowid,
     });
@@ -9994,14 +9990,10 @@ class $$ComponentsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get presetKey => $composableBuilder(
-    column: $table.presetKey,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get presetDamperKey => $composableBuilder(
-    column: $table.presetDamperKey,
-    builder: (column) => ColumnFilters(column),
+  ColumnWithTypeConverterFilters<ComponentPreset?, ComponentPreset, String>
+  get preset => $composableBuilder(
+    column: $table.preset,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnWithTypeConverterFilters<List<Attachment>, List<Attachment>, String>
@@ -10185,13 +10177,8 @@ class $$ComponentsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get presetKey => $composableBuilder(
-    column: $table.presetKey,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get presetDamperKey => $composableBuilder(
-    column: $table.presetDamperKey,
+  ColumnOrderings<String> get preset => $composableBuilder(
+    column: $table.preset,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -10271,13 +10258,8 @@ class $$ComponentsTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<String> get presetKey =>
-      $composableBuilder(column: $table.presetKey, builder: (column) => column);
-
-  GeneratedColumn<String> get presetDamperKey => $composableBuilder(
-    column: $table.presetDamperKey,
-    builder: (column) => column,
-  );
+  GeneratedColumnWithTypeConverter<ComponentPreset?, String> get preset =>
+      $composableBuilder(column: $table.preset, builder: (column) => column);
 
   GeneratedColumnWithTypeConverter<List<Attachment>, String> get attachments =>
       $composableBuilder(
@@ -10432,8 +10414,7 @@ class $$ComponentsTableTableManager
                 Value<Duration> initialElapsedTime = const Value.absent(),
                 Value<int> initialActivityCount = const Value.absent(),
                 Value<double> initialKilojoules = const Value.absent(),
-                Value<String?> presetKey = const Value.absent(),
-                Value<String?> presetDamperKey = const Value.absent(),
+                Value<ComponentPreset?> preset = const Value.absent(),
                 Value<List<Attachment>> attachments = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ComponentsCompanion(
@@ -10450,8 +10431,7 @@ class $$ComponentsTableTableManager
                 initialElapsedTime: initialElapsedTime,
                 initialActivityCount: initialActivityCount,
                 initialKilojoules: initialKilojoules,
-                presetKey: presetKey,
-                presetDamperKey: presetDamperKey,
+                preset: preset,
                 attachments: attachments,
                 rowid: rowid,
               ),
@@ -10470,8 +10450,7 @@ class $$ComponentsTableTableManager
                 Value<Duration> initialElapsedTime = const Value.absent(),
                 Value<int> initialActivityCount = const Value.absent(),
                 Value<double> initialKilojoules = const Value.absent(),
-                Value<String?> presetKey = const Value.absent(),
-                Value<String?> presetDamperKey = const Value.absent(),
+                Value<ComponentPreset?> preset = const Value.absent(),
                 Value<List<Attachment>> attachments = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ComponentsCompanion.insert(
@@ -10488,8 +10467,7 @@ class $$ComponentsTableTableManager
                 initialElapsedTime: initialElapsedTime,
                 initialActivityCount: initialActivityCount,
                 initialKilojoules: initialKilojoules,
-                presetKey: presetKey,
-                presetDamperKey: presetDamperKey,
+                preset: preset,
                 attachments: attachments,
                 rowid: rowid,
               ),
@@ -11444,6 +11422,7 @@ typedef $$TaskRulesTableCreateCompanionBuilder =
       Value<String?> delay,
       Value<bool> repeat,
       Value<List<Attachment>> attachments,
+      Value<String?> presetKey,
       Value<int> rowid,
     });
 typedef $$TaskRulesTableUpdateCompanionBuilder =
@@ -11461,6 +11440,7 @@ typedef $$TaskRulesTableUpdateCompanionBuilder =
       Value<String?> delay,
       Value<bool> repeat,
       Value<List<Attachment>> attachments,
+      Value<String?> presetKey,
       Value<int> rowid,
     });
 
@@ -11587,6 +11567,11 @@ class $$TaskRulesTableFilterComposer
   get attachments => $composableBuilder(
     column: $table.attachments,
     builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get presetKey => $composableBuilder(
+    column: $table.presetKey,
+    builder: (column) => ColumnFilters(column),
   );
 
   $$ComponentsTableFilterComposer get componentId {
@@ -11725,6 +11710,11 @@ class $$TaskRulesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get presetKey => $composableBuilder(
+    column: $table.presetKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$ComponentsTableOrderingComposer get componentId {
     final $$ComponentsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -11819,6 +11809,9 @@ class $$TaskRulesTableAnnotationComposer
         column: $table.attachments,
         builder: (column) => column,
       );
+
+  GeneratedColumn<String> get presetKey =>
+      $composableBuilder(column: $table.presetKey, builder: (column) => column);
 
   $$ComponentsTableAnnotationComposer get componentId {
     final $$ComponentsTableAnnotationComposer composer = $composerBuilder(
@@ -11937,6 +11930,7 @@ class $$TaskRulesTableTableManager
                 Value<String?> delay = const Value.absent(),
                 Value<bool> repeat = const Value.absent(),
                 Value<List<Attachment>> attachments = const Value.absent(),
+                Value<String?> presetKey = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => TaskRulesCompanion(
                 id: id,
@@ -11952,6 +11946,7 @@ class $$TaskRulesTableTableManager
                 delay: delay,
                 repeat: repeat,
                 attachments: attachments,
+                presetKey: presetKey,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -11969,6 +11964,7 @@ class $$TaskRulesTableTableManager
                 Value<String?> delay = const Value.absent(),
                 Value<bool> repeat = const Value.absent(),
                 Value<List<Attachment>> attachments = const Value.absent(),
+                Value<String?> presetKey = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => TaskRulesCompanion.insert(
                 id: id,
@@ -11984,6 +11980,7 @@ class $$TaskRulesTableTableManager
                 delay: delay,
                 repeat: repeat,
                 attachments: attachments,
+                presetKey: presetKey,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

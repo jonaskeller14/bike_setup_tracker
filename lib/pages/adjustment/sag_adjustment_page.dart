@@ -14,26 +14,28 @@ import 'numerical_adjustment_page.dart';
 class SagAdjustmentPage extends StatefulWidget {
   final SagAdjustment? adjustment;
   final AdjustmentPageMode mode;
+  final AdjustmentTerm term;
   final ComponentType? componentType;
 
   const SagAdjustmentPage._({
     super.key,
     this.adjustment,
     required this.mode,
+    this.term = AdjustmentTerm.adjustment,
     this.componentType,
   });
 
-  factory SagAdjustmentPage.add({Key? key, ComponentType? componentType}) =>
-      SagAdjustmentPage._(key: key, mode: AdjustmentPageMode.add, componentType: componentType);
+  factory SagAdjustmentPage.add({Key? key, ComponentType? componentType, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
+      SagAdjustmentPage._(key: key, mode: AdjustmentPageMode.add, componentType: componentType, term: term);
 
-  factory SagAdjustmentPage.edit({Key? key, required SagAdjustment adjustment, ComponentType? componentType}) =>
-      SagAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit, componentType: componentType);
+  factory SagAdjustmentPage.edit({Key? key, required SagAdjustment adjustment, ComponentType? componentType, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
+      SagAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit, componentType: componentType, term: term);
 
-  factory SagAdjustmentPage.duplicate({Key? key, required SagAdjustment adjustment, ComponentType? componentType}) =>
-      SagAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate, componentType: componentType);
+  factory SagAdjustmentPage.duplicate({Key? key, required SagAdjustment adjustment, ComponentType? componentType, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
+      SagAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate, componentType: componentType, term: term);
 
-  factory SagAdjustmentPage.template({Key? key, required SagAdjustment adjustment, ComponentType? componentType}) =>
-      SagAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.template, componentType: componentType);
+  factory SagAdjustmentPage.template({Key? key, required SagAdjustment adjustment, ComponentType? componentType, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
+      SagAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.template, componentType: componentType, term: term);
 
   @override
   State<SagAdjustmentPage> createState() => _SagAdjustmentPageState();
@@ -126,6 +128,7 @@ class _SagAdjustmentPageState extends State<SagAdjustmentPage> {
       id: widget.mode == AdjustmentPageMode.edit ? widget.adjustment!.id : null,
       name: name,
       notes: notes.isEmpty ? null : notes,
+      presetKey: widget.adjustment?.presetKey,
       referenceTravelMm: _travel(),
     );
     Navigator.pop(context, adjustment);
@@ -140,13 +143,14 @@ class _SagAdjustmentPageState extends State<SagAdjustmentPage> {
       name: name,
       notes: notes.isEmpty ? null : notes,
       unit: SagAdjustment.percentUnit,
+      presetKey: widget.adjustment!.presetKey,
       min: SagAdjustment.minPercent,
       max: SagAdjustment.maxPercent,
     );
     final result = await Navigator.push<Object>(
       context,
       MaterialPageRoute(
-        builder: (context) => NumericalAdjustmentPage.edit(adjustment: numerical),
+        builder: (context) => NumericalAdjustmentPage.edit(adjustment: numerical, term: widget.term),
       ),
     );
     if (result == null || !mounted) return;
@@ -168,6 +172,7 @@ class _SagAdjustmentPageState extends State<SagAdjustmentPage> {
       id: _previewAdjustment.id,
       name: _nameController.text.trim(),
       notes: notes.isEmpty ? null : notes,
+      presetKey: widget.adjustment?.presetKey,
       referenceTravelMm: _validateTravel(_travelController.text) == null ? _travel() : null,
     );
   }
@@ -189,8 +194,8 @@ class _SagAdjustmentPageState extends State<SagAdjustmentPage> {
           title: switch (widget.mode) {
             AdjustmentPageMode.add ||
             AdjustmentPageMode.duplicate ||
-            AdjustmentPageMode.template => const Text('Add SAG Adjustment'),
-            AdjustmentPageMode.edit => const Text('Edit SAG Adjustment'),
+            AdjustmentPageMode.template => Text('Add SAG ${widget.term.label}'),
+            AdjustmentPageMode.edit => Text('Edit SAG ${widget.term.label}'),
           },
           actions: [
             if (widget.mode == AdjustmentPageMode.edit)
@@ -230,8 +235,8 @@ class _SagAdjustmentPageState extends State<SagAdjustmentPage> {
                             autovalidateMode: AutovalidateMode.onUserInteraction,
                             autofocus: widget.mode == AdjustmentPageMode.add,
                             decoration: InputDecoration(
-                              labelText: 'Adjustment Name',
-                              hintText: 'Enter Adjustment Name',
+                              labelText: '${widget.term.label} Name',
+                              hintText: 'Enter ${widget.term.label} Name',
                               helper: adjustmentNameLengthWarning(context, _nameController.text),
                               border: const OutlineInputBorder(),
                               fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,

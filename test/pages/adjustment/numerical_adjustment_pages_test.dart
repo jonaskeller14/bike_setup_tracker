@@ -4,6 +4,8 @@ import 'package:bike_setup_tracker/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'preset_key_test_utils.dart';
+
 void main() {
   testWidgets('NumericalAdjustmentPage edit returns equal adjustment when unchanged', (WidgetTester tester) async {
     final initial = NumericalAdjustment(
@@ -247,5 +249,37 @@ void main() {
 
     expect(result, isNotNull);
     expect(result!.name, 'Volume');
+  });
+
+  final preset = NumericalAdjustment(
+    name: 'Preset',
+    notes: null,
+    unit: const KnownUnit(quantity: UnitQuantity.mass, unitId: 'kilograms'),
+    min: 0,
+    presetKey: testPresetKey,
+  );
+  presetKeyTests(
+    template: () => NumericalAdjustmentPage.template(adjustment: preset),
+    edit: () => NumericalAdjustmentPage.edit(adjustment: preset),
+    add: () => NumericalAdjustmentPage.add(),
+  );
+
+  testWidgets('presetKey survives a unit change on edit', (tester) async {
+    final saved = savedAdjustment(await pushAndSave(
+      tester,
+      NumericalAdjustmentPage.edit(adjustment: preset),
+      interact: () async {
+        await tester.tap(find.byKey(const Key('unit_picker_field')));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('lb'));
+        await tester.pumpAndSettle();
+      },
+      afterSave: () async {
+        await tester.tap(find.text('Keep numbers'));
+        await tester.pumpAndSettle();
+      },
+    ));
+    expect(saved.unit, isNot(preset.unit));
+    expect(saved.presetKey, testPresetKey);
   });
 }

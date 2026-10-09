@@ -4,6 +4,7 @@ import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/setup_comparison.dart' as comparison;
+import 'package:bike_setup_tracker/models/setup_history.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/compare_setups/setup_comparison_header.dart';
 import 'package:bike_setup_tracker/widgets/compare_setups/setup_comparison_owner_card.dart';
@@ -58,6 +59,15 @@ void main() {
     await harness.addSetups(tester, [older, newer]);
     await harness.reload(tester);
     return (older.id, newer.id);
+  }
+
+  void markCurrent(Set<String> setupIds) {
+    final history = harness.repository.setupHistory;
+    harness.repository.setupHistory = SetupHistory(
+      currentSetupIds: setupIds,
+      previousBikeValues: history.previousBikeValues,
+      previousPersonValues: history.previousPersonValues,
+    );
   }
 
   Future<void> pumpComparison(
@@ -136,7 +146,7 @@ void main() {
       id: 'inherited',
       name: 'Inherited',
       local: DateTime(2026, 8, 2, 10),
-    )..previousBikeAdjustmentValues = {CompareSetupsHarness.changedAdjustmentId: const StepValue(4)};
+    );
     await harness.addSetups(tester, [explicit, inherited]);
     await harness.reload(tester);
     await pumpComparison(tester, explicit.id, inherited.id);
@@ -278,8 +288,7 @@ void main() {
     );
 
     for (final dimensions in [(320.0, null), (700.0, 320.0)]) {
-      harness.repository.setups[setupAId]!.isCurrent = dimensions.$2 == null;
-      harness.repository.setups[setupBId]!.isCurrent = dimensions.$2 != null;
+      markCurrent({dimensions.$2 == null ? setupAId : setupBId});
       await pumpComparison(
         tester,
         setupAId,
@@ -651,8 +660,7 @@ void main() {
 
   testWidgets('shows both identity lines and highlights only the current setup', (tester) async {
     final (setupAId, setupBId) = await seedPair(tester);
-    harness.repository.setups[setupAId]!.isCurrent = true;
-    harness.repository.setups[setupBId]!.isCurrent = false;
+    markCurrent({setupAId});
     await pumpComparison(tester, setupAId, setupBId);
 
     final identityA = find.byKey(const Key('compare-identity-a'));

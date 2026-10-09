@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -7,6 +8,7 @@ import '../../models/app_settings.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/backup_service.dart';
 import '../../utils/data_actions.dart';
+import '../loading_error_page.dart';
 
 class ResetPage extends StatefulWidget {
   const ResetPage({super.key});
@@ -85,6 +87,15 @@ class _ResetPageState extends State<ResetPage> {
                   );
                 },
               ),
+              if (kDebugMode)
+                ListTile(
+                  leading: const Icon(Icons.bug_report_outlined),
+                  title: const Text('Show Loading Error Page'),
+                  subtitle: const Text('Debug only: preview the page shown when the app fails to load'),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(builder: (_) => const LoadingErrorPage()),
+                  ),
+                ),
             ],
           ),
         ),

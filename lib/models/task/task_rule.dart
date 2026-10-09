@@ -24,6 +24,7 @@ class TaskRule {
   final TaskThreshold? delay;
   final bool repeat;
   final List<Attachment> attachments;
+  final String? presetKey;
 
   TaskRule({
     String? id,
@@ -38,6 +39,7 @@ class TaskRule {
     this.delay,
     this.repeat = true,
     List<Attachment>? attachments,
+    this.presetKey,
   }) : id = id ?? const Uuid().v4(),
       attachments = attachments ?? const [],
       isDeleted = isDeleted ?? false,
@@ -47,7 +49,7 @@ class TaskRule {
   }
 
   Map<String, dynamic> toJson() => {
-    'version': 3,
+    'version': 4,
     'id': id,
     "isDeleted": isDeleted,
     "lastModified": lastModified.toUtc().toIso8601String(),
@@ -60,6 +62,7 @@ class TaskRule {
     'delay': delay?.toJson(),
     'repeat': repeat,
     'attachments': attachments.map((a) => a.toJson()).toList(),
+    'presetKey': presetKey,
   };
 
   factory TaskRule.fromJson(Map<String, dynamic> json) {
@@ -89,7 +92,7 @@ class TaskRule {
               : null,
           repeat: json["repeat"] as bool? ?? true,
         );
-      case 2 || 3:
+      case 2 || 3 || 4:
         return TaskRule(
           id: json["id"] as String,
           isDeleted: json["isDeleted"] as bool,
@@ -112,6 +115,7 @@ class TaskRule {
           attachments: (json['attachments'] as List?) // since version 3
               ?.map((e) => Attachment.fromJson(e as Map<String, dynamic>))
               .toList(),
+          presetKey: json['presetKey'] as String?, // since version 4
         );
       default: throw Exception("Json Version $version of TaskRule incompatible.");
     }
@@ -133,7 +137,8 @@ class TaskRule {
         interval == other.interval &&
         delay == other.delay &&
         repeat == other.repeat &&
-        listEquals(attachments, other.attachments);
+        listEquals(attachments, other.attachments) &&
+        presetKey == other.presetKey;
   }
 
   @override
@@ -151,6 +156,7 @@ class TaskRule {
       delay,
       repeat,
       Object.hashAll(attachments),
+      presetKey,
     );
   }
 
@@ -167,6 +173,7 @@ class TaskRule {
       delay: delay,
       repeat: repeat,
       attachments: List.from(attachments),
+      presetKey: presetKey,
     );
   }
 
@@ -183,6 +190,7 @@ class TaskRule {
     Object? delay = const _Sentinel(),
     Object? repeat = const _Sentinel(),
     Object? attachments = const _Sentinel(),
+    Object? presetKey = const _Sentinel(),
   }) {
     return TaskRule(
       id: id is _Sentinel 
@@ -221,6 +229,9 @@ class TaskRule {
       attachments: attachments is _Sentinel
           ? this.attachments
           : (attachments as List<Attachment>),
+      presetKey: presetKey is _Sentinel
+          ? this.presetKey
+          : (presetKey as String?),
     );
   }
 }

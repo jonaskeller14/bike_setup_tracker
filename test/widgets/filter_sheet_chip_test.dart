@@ -3,6 +3,7 @@ import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/filters/layer_filter.dart';
 import 'package:bike_setup_tracker/models/filters/local_date_range.dart';
 import 'package:bike_setup_tracker/models/filters/setup_filter.dart';
+import 'package:bike_setup_tracker/models/strava/activity_bounds.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/repositories/filter_controller.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
@@ -36,6 +37,7 @@ void main() {
     filters = FilterController(onChanged: () {});
     when(() => mockRepository.filters).thenReturn(filters);
     when(() => mockRepository.bikes).thenReturn({'b1': bike1});
+    when(() => mockRepository.activityBounds).thenReturn(ActivityBounds.empty);
     when(() => mockSubscription.hasStravaEntitlement).thenReturn(false);
   });
 
@@ -172,13 +174,14 @@ void main() {
       filterBookmarked();
       await tester.pumpWidget(createWidgetUnderTest(bookmarkChip));
 
-      // Not "All Bikes": debug builds also offer the date range on this page.
-      expect(find.text('Filter'), findsOneWidget);
+      expect(find.text('All Bikes'), findsOneWidget);
       expect(find.text('Bookmarked'), findsNothing);
     });
   });
 
   group('FilterSheetChip label — date range filter', () {
+    setUp(() => appSettings.enableAdvancedFilters = true);
+
     void selectDays() =>
         filters.dateRange = LocalDateRange(start: DateTime(2024, 5, 10), end: DateTime(2024, 5, 12));
 
@@ -198,6 +201,14 @@ void main() {
       await tester.pumpWidget(createWidgetUnderTest(FilterSheetChip.componentDetailsPage));
 
       expect(find.text('Bike 1 + 2024-05-10 – 2024-05-12 + 1 Tag'), findsOneWidget);
+    });
+
+    testWidgets('ignores the range while advanced filters are off', (tester) async {
+      appSettings.enableAdvancedFilters = false;
+      selectDays();
+      await tester.pumpWidget(createWidgetUnderTest(FilterSheetChip.componentDetailsPage));
+
+      expect(find.text('All Bikes'), findsOneWidget);
     });
 
     testWidgets('ignores the range on a page without a date range section', (tester) async {
@@ -366,6 +377,7 @@ void main() {
     });
 
     testWidgets('offers the date range on the pages that show timeline entries', (tester) async {
+      appSettings.enableAdvancedFilters = true;
       for (final chip in [
         FilterSheetChip.setupList,
         FilterSheetChip.map,
@@ -380,6 +392,7 @@ void main() {
     });
 
     testWidgets('does not offer the date range on the other pages', (tester) async {
+      appSettings.enableAdvancedFilters = true;
       appSettings.enableSetupBookmark = true;
       for (final chip in [FilterSheetChip.garageList, FilterSheetChip.taskList, FilterSheetChip.bikeDetailsPage]) {
         await openSheet(tester, chip);
@@ -391,6 +404,7 @@ void main() {
     });
 
     testWidgets('offers the activity ranges while Strava is active', (tester) async {
+      appSettings.enableAdvancedFilters = true;
       when(() => mockSubscription.hasStravaEntitlement).thenReturn(true);
       await openSheet(tester, FilterSheetChip.setupList);
 
@@ -398,7 +412,17 @@ void main() {
       expect(find.text('Elevation Gain'), findsOneWidget);
     });
 
+    testWidgets('hides the date and activity ranges while advanced filters are off', (tester) async {
+      when(() => mockSubscription.hasStravaEntitlement).thenReturn(true);
+      await openSheet(tester, FilterSheetChip.setupList);
+
+      expect(find.text('Visibility'), findsOneWidget);
+      expect(find.text('Any date'), findsNothing);
+      expect(find.text('Distance'), findsNothing);
+    });
+
     testWidgets('hides the activity ranges while Strava is not active', (tester) async {
+      appSettings.enableAdvancedFilters = true;
       appSettings.enableTask = true;
       await openSheet(tester, FilterSheetChip.setupList);
 

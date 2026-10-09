@@ -6,6 +6,7 @@ import 'package:bike_setup_tracker/services/strava_service.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/onboarding/onboarding_slide_1.dart';
+import 'package:bike_setup_tracker/widgets/rider_name_form.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -245,27 +246,40 @@ void main() {
       expect(appRepository.persons, isEmpty);
     });
 
-  //   testWidgets('A valid name persists the rider and advances', (WidgetTester tester) async {
-  //     await goToRiderSlide(tester);
+    testWidgets('Uses the shared rider name field', (WidgetTester tester) async {
+      await goToRiderSlide(tester);
 
-  //     await tester.enterText(find.byType(TextFormField), "Jonas");
-  //     await tester.tap(find.text("Continue"));
-  //     await tester.pumpAndSettle();
+      expect(find.byType(RiderNameField), findsOneWidget);
+      expect(find.text("Your name"), findsOneWidget);
+    });
 
-  //     expect(appRepository.persons.values.map((person) => person.name), contains("Jonas"));
-  //     expect(appRepository.persons.values.single.adjustments, hasLength(1));
-  //     expect(find.text("STEP 1"), findsOneWidget);
-  //   });
+    testWidgets('A valid name persists the rider and advances', (WidgetTester tester) async {
+      await goToRiderSlide(tester);
 
-  //   testWidgets('Not now advances without creating a rider', (WidgetTester tester) async {
-  //     await goToRiderSlide(tester);
+      await tester.enterText(find.byType(RiderNameField), "Jonas");
+      await tester.tap(find.text("Continue"));
+      // The rider is persisted through the database, which only progresses in
+      // real time, while the slide resumes on the fake clock.
+      for (var i = 0; i < 3; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
+      }
+      await tester.pumpAndSettle();
 
-  //     await tester.tap(find.text("Not now"));
-  //     await tester.pumpAndSettle();
+      expect(appRepository.persons.values.map((person) => person.name), contains("Jonas"));
+      expect(appRepository.persons.values.single.adjustments, hasLength(1));
+      expect(find.text("STEP 1"), findsOneWidget);
+    });
 
-  //     expect(find.text("STEP 1"), findsOneWidget);
-  //     expect(appRepository.persons, isEmpty);
-  //     expect(appSettings.showOnboarding, isTrue);
-  //   });
+    testWidgets('Not now advances without creating a rider', (WidgetTester tester) async {
+      await goToRiderSlide(tester);
+
+      await tester.tap(find.text("Not now"));
+      await tester.pumpAndSettle();
+
+      expect(find.text("STEP 1"), findsOneWidget);
+      expect(appRepository.persons, isEmpty);
+      expect(appSettings.showOnboarding, isTrue);
+    });
   });
 }

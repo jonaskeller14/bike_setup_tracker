@@ -46,6 +46,7 @@ class SetupComparisonIdentities extends StatelessWidget {
   final Iterable<Setup>? setups;
   final bool showBikeNames;
   final Map<String, String> bikeNamesById;
+  final Set<String> currentSetupIds;
   final ValueChanged<Setup>? onSetupAChanged;
   final ValueChanged<Setup>? onSetupBChanged;
   final VoidCallback? onSwap;
@@ -58,6 +59,7 @@ class SetupComparisonIdentities extends StatelessWidget {
     this.setups,
     this.showBikeNames = false,
     this.bikeNamesById = const {},
+    this.currentSetupIds = const {},
     this.onSetupAChanged,
     this.onSetupBChanged,
     this.onSwap,
@@ -82,8 +84,8 @@ class SetupComparisonIdentities extends StatelessWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Expanded(child: _CurrentColumn(isCurrent: setupA.isCurrent)),
-                      Expanded(child: _CurrentColumn(isCurrent: setupB.isCurrent, barAtEnd: true)),
+                      Expanded(child: _CurrentColumn(isCurrent: currentSetupIds.contains(setupA.id))),
+                      Expanded(child: _CurrentColumn(isCurrent: currentSetupIds.contains(setupB.id), barAtEnd: true)),
                     ],
                   ),
                 ),
@@ -102,6 +104,7 @@ class SetupComparisonIdentities extends StatelessWidget {
                           setups: setups,
                           showBikeNames: showBikeNames,
                           bikeNamesById: bikeNamesById,
+                          currentSetupIds: currentSetupIds,
                           highlightedSetupId: setupB.id,
                           onSetupChanged: onSetupAChanged,
                           animateSwap: animateSwap,
@@ -117,6 +120,7 @@ class SetupComparisonIdentities extends StatelessWidget {
                           setups: setups,
                           showBikeNames: showBikeNames,
                           bikeNamesById: bikeNamesById,
+                          currentSetupIds: currentSetupIds,
                           highlightedSetupId: setupA.id,
                           onSetupChanged: onSetupBChanged,
                           animateSwap: animateSwap,
@@ -199,6 +203,7 @@ class _SetupIdentity extends StatelessWidget {
   final Iterable<Setup>? setups;
   final bool showBikeNames;
   final Map<String, String> bikeNamesById;
+  final Set<String> currentSetupIds;
   final String? highlightedSetupId;
   final ValueChanged<Setup>? onSetupChanged;
   final bool animateSwap;
@@ -212,6 +217,7 @@ class _SetupIdentity extends StatelessWidget {
     this.setups,
     this.showBikeNames = false,
     this.bikeNamesById = const {},
+    this.currentSetupIds = const {},
     this.highlightedSetupId,
     this.onSetupChanged,
     this.animateSwap = false,
@@ -386,7 +392,7 @@ class _SetupIdentity extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Flexible(child: Text(candidate.displayName, overflow: TextOverflow.ellipsis)),
-                          if (candidate.isCurrent) ...[
+                          if (currentSetupIds.contains(candidate.id)) ...[
                             const SizedBox(width: 4),
                             const CurrentSetupBadge(compact: true),
                           ],

@@ -82,11 +82,11 @@ void main() {
       isDeleted: isDeleted,
       datetime: now,
       datetimeLocal: now,
-      tags: <String>{},
+      tags: const <String>{},
       bike: 'b1',
       person: null,
-      bikeAdjustmentValues: {},
-      personAdjustmentValues: {},
+      bikeAdjustmentValues: const {},
+      personAdjustmentValues: const {},
       attachments: attachments,
     );
   }
@@ -157,6 +157,25 @@ void main() {
       );
 
       // The wipe runs before the insert, so a late failure would empty the database.
+      final personsInDb = await database.select(database.persons).get();
+      expect(personsInDb, hasLength(1));
+      expect(personsInDb.first.name, 'Local Person');
+    });
+
+    test('rolls back the wipe when the insert fails', () async {
+      final localPerson = createPerson(id: 'p1', name: 'Local Person');
+      await database.into(database.persons).insert(localPerson.toCompanion());
+      await database.customStatement(
+        "CREATE TRIGGER fail_bike_insert BEFORE INSERT ON bikes BEGIN SELECT RAISE(ABORT, 'boom'); END",
+      );
+
+      final remoteData = SelectedData(bikes: {'b1': createBike(id: 'b1', name: 'Remote Bike')});
+
+      await expectLater(
+        FileImport.replace(remoteData: remoteData, database: database),
+        throwsA(anything),
+      );
+
       final personsInDb = await database.select(database.persons).get();
       expect(personsInDb, hasLength(1));
       expect(personsInDb.first.name, 'Local Person');

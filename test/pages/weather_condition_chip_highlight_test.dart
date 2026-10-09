@@ -89,11 +89,11 @@ void main() {
       final setup = Setup(
         datetime: baseWeather.currentDateTime,
         datetimeLocal: baseWeather.currentDateTime,
-        tags: {},
+        tags: const {},
         bike: bike.id,
         person: null,
-        bikeAdjustmentValues: {},
-        personAdjustmentValues: {},
+        bikeAdjustmentValues: const {},
+        personAdjustmentValues: const {},
         weather: baseWeather,
       );
 
@@ -121,11 +121,11 @@ void main() {
       final setup = Setup(
         datetime: baseWeather.currentDateTime,
         datetimeLocal: baseWeather.currentDateTime,
-        tags: {},
+        tags: const {},
         bike: bike.id,
         person: null,
-        bikeAdjustmentValues: {},
-        personAdjustmentValues: {},
+        bikeAdjustmentValues: const {},
+        personAdjustmentValues: const {},
         weather: baseWeather,
       );
 

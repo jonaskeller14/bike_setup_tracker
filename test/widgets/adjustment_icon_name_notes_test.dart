@@ -4,6 +4,7 @@ import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/adjustment_activity_histogram.dart';
 import 'package:bike_setup_tracker/services/setup_activity_analysis_service.dart';
 import 'package:bike_setup_tracker/widgets/display_adjustment/adjustment_icon_name_notes.dart';
+import 'package:bike_setup_tracker/widgets/display_data/adjustment_activity_histogram_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -35,7 +36,7 @@ void main() {
       home: Scaffold(
         body: SizedBox(
           width: 400,
-          child: AdjustmentIconNameNotes(adjustment: adjustment),
+          child: AdjustmentIconNameNotes(adjustment: adjustment, value: const StepValue(4)),
         ),
       ),
     );
@@ -74,6 +75,10 @@ void main() {
     await tester.pump();
     expect(find.byType(CircularProgressIndicator), findsNothing);
     expect(find.byKey(const ValueKey('adjustment-activity-histogram')), findsOneWidget);
+    expect(
+      tester.widget<AdjustmentActivityHistogramChart>(find.byType(AdjustmentActivityHistogramChart)).currentValue,
+      const StepValue(4),
+    );
     expect(find.text('Start from fully closed'), findsOneWidget);
   });
 

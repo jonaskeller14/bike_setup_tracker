@@ -260,7 +260,7 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                                     if (widget.bike.person != null)
                                       Flexible(
                                         child: Text(
-                                          persons[widget.bike.person]?.name ?? "PERSON NOT FOUND",
+                                          persons[widget.bike.person]?.name ?? "RIDER NOT FOUND",
                                           style: TextStyle(
                                             color: widget.bike.person == null || persons.containsKey(widget.bike.person)
                                                 ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)

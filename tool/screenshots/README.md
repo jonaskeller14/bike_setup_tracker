@@ -30,6 +30,14 @@ tool/screenshots/run_android.ps1                       # phone + tablet, all 8 s
 tool/screenshots/run_android.ps1 -Device phone -Screens 3,7 -SkipBuild -KeepRunning
 ```
 
+On macOS/Linux use the bash equivalents (`create_avds.sh` uses the `arm64-v8a` image on Apple Silicon):
+
+```bash
+tool/screenshots/create_avds.sh                        # one-time setup
+tool/screenshots/run_android.sh                        # phone + tablet, all 8 screens
+tool/screenshots/run_android.sh phone --screens 3,7 --skip-build --keep-running
+```
+
 The run does the following:
 
 1. Builds `flutter build apk --debug -t lib/main_screenshots.dart`.
@@ -84,7 +92,7 @@ The iPhone flows run with `DEVICE=phone` and the iPad flows with `DEVICE=tablet`
 2. Create `flows/NN_name.yaml`:
    - Start it with `- runFlow: _launch.yaml`.
    - End it with `takeScreenshot: { path: NN_raw }`. The run script collects it from Maestro's `--test-output-dir`.
-3. Iterate with `maestro studio`, or with `run_android.ps1 -Screens NN -SkipBuild -KeepRunning` / `run_ios.sh --screens NN --skip-build --keep-running`. Running a flow by hand needs `-e APP_ID=<bundle id>` (plus `-e DEVICE=…` for screen 05).
+3. Iterate with `maestro studio`, or with `run_android.ps1 -Screens NN -SkipBuild -KeepRunning` / `run_android.sh --screens NN --skip-build --keep-running` / `run_ios.sh --screens NN --skip-build --keep-running`. Running a flow by hand needs `-e APP_ID=<bundle id>` (plus `-e DEVICE=…` for screen 05).
 4. Update `SCREEN_COUNT` in `check_output.py` if the total changes.
 
 ## Recording (App Store previews, later)

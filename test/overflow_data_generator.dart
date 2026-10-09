@@ -131,13 +131,13 @@ void main() async {
       Setup(
         name: idx == 0 ? "Setup #0: $loremIpsum" : "Setup #$idx",
         notes: idx == 0 ? loremIpsum : null,
-        tags: {},
+        tags: const {},
         bike: bikes[idx % bikes.length].id,
         datetime: DateTime(2000).add(Duration(minutes: idx)).toUtc(),
         datetimeLocal: DateTime(2000).add(Duration(minutes: idx)),
         person: idx == 0 ? data.persons.values.first.id : null,
-        bikeAdjustmentValues: {},
-        personAdjustmentValues: {},
+        bikeAdjustmentValues: const {},
+        personAdjustmentValues: const {},
       ),
   ];
   await data.addSetups(setups);

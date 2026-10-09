@@ -561,7 +561,11 @@ class TaskIntervalText extends StatelessWidget {
     final mutedColor = Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8);
     final delayColor = Theme.of(context).extension<ValueHighlightColors>()!.changed;
     final prefix = repeat ? 'Every ' : 'After ';
-    final activeDelay = delay != null && delay!.isPositive ? delay : null;
+    final activeDelay = switch (delay) {
+      AccumulatingThreshold(:final isPullForward) when isPullForward => delay,
+      final delay? when delay.isPositive => delay,
+      _ => null,
+    };
 
     final combined = activeDelay == null ? null : _combined(interval, activeDelay);
     final plural = _isPlural(combined ?? interval);

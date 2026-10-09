@@ -329,7 +329,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                   if (appSettings.enablePerson || widget.allData.persons.isNotEmpty) ...[
                     const SizedBox(height: 16),
                     ExpansionTile(
-                      title: Text("Profiles (${selectedPersons.length} / ${widget.allData.persons.length})", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                      title: Text("Riders (${selectedPersons.length} / ${widget.allData.persons.length})", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                       tilePadding: const EdgeInsets.only(left: 16, right: 16+12),
                       controlAffinity: ListTileControlAffinity.leading,
                       childrenPadding: const EdgeInsets.symmetric(horizontal: 16),

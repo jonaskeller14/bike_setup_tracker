@@ -6,14 +6,14 @@ import '../models/component/component.dart';
 import '../models/person.dart';
 import '../models/rating/rating.dart';
 import '../models/setup.dart';
-import '../utils/file_import.dart';
+import '../models/setup_history.dart';
 import 'component_hierarchy_resolver.dart';
 
 typedef AdjustmentProvenance = ({AdjustmentValue value, Setup setup});
 
 class SetupResolutionService {
   /// Sorts setups chronologically and calculates inherited adjustment values.
-  static ({Map<String, Setup> setups, Map<String, AdjustmentValue> globalState}) resolveSetups({
+  static ({Map<String, Setup> setups, Map<String, AdjustmentValue> globalState, SetupHistory history}) resolveSetups({
     required Map<String, Setup> setups,
     required Map<String, Bike> bikes,
     required Map<String, Person> persons,
@@ -27,10 +27,12 @@ class SetupResolutionService {
     final hierarchy = ComponentHierarchyResolver(components);
     
     // 2. Determine Current status
-    FileImport.determineCurrentSetups(setups: sortedSetups.values.toList(), bikes: bikes);
+    final currentSetupIds = _determineCurrentSetups(setups: sortedSetups.values.toList(), bikes: bikes);
     
     // 3. Global State Pass (Look-back resolution)
     final Map<String, AdjustmentValue> globalLastKnownState = {};
+    final Map<String, Map<String, AdjustmentValue>> previousBikeValues = {};
+    final Map<String, Map<String, AdjustmentValue>> previousPersonValues = {};
     
     // Performance optimization: Pre-group adjustments by their category to avoid repeated component iterations
     // However, since components move between bikes, we must check bikeAt(T) for each setup.
@@ -61,29 +63,45 @@ class SetupResolutionService {
       }
 
       // 3.3. Populate previous adjustment values from global state
-      setup.previousBikeAdjustmentValues = {};
-      for (final id in bikeAdjustmentIds) {
-        if (globalLastKnownState.containsKey(id)) {
-          setup.previousBikeAdjustmentValues[id] = globalLastKnownState[id]!;
-        }
-      }
-      
-      setup.previousPersonAdjustmentValues = {};
-      for (final id in personAdjustmentIds) {
-        if (globalLastKnownState.containsKey(id)) {
-          setup.previousPersonAdjustmentValues[id] = globalLastKnownState[id]!;
-        }
-      }
+      previousBikeValues[setup.id] = {
+        for (final id in bikeAdjustmentIds)
+          if (globalLastKnownState.containsKey(id)) id: globalLastKnownState[id]!,
+      };
+      previousPersonValues[setup.id] = {
+        for (final id in personAdjustmentIds)
+          if (globalLastKnownState.containsKey(id)) id: globalLastKnownState[id]!,
+      };
 
       // 3.4. Update global state with bike and person values from this setup.
-      // This populates previousPersonAdjustmentValues for history display in the list card.
+      // This populates the previous person values for history display in the list card.
       // SetupPage uses resolveHistoricalStateAt (bike-only) for pre-population, so person
       // fields stay blank when adding a new setup.
       globalLastKnownState.addAll(setup.bikeAdjustmentValues);
       globalLastKnownState.addAll(setup.personAdjustmentValues);
     }
 
-    return (setups: sortedSetups, globalState: globalLastKnownState);
+    return (
+      setups: sortedSetups,
+      globalState: globalLastKnownState,
+      history: SetupHistory(
+        currentSetupIds: currentSetupIds,
+        previousBikeValues: previousBikeValues,
+        previousPersonValues: previousPersonValues,
+      ),
+    );
+  }
+
+  /// The latest non-deleted setup of every non-deleted bike. Assumes [setups] is sorted chronologically.
+  static Set<String> _determineCurrentSetups({required List<Setup> setups, required Map<String, Bike> bikes}) {
+    final Set<String> currentSetupIds = {};
+    final Set<String> remainingBikes = Set.of(bikes.values.where((b) => !b.isDeleted).map((b) => b.id));
+    for (final setup in setups.reversed.where((s) => !s.isDeleted)) {
+      if (remainingBikes.remove(setup.bike)) {
+        currentSetupIds.add(setup.id);
+        if (remainingBikes.isEmpty) break;
+      }
+    }
+    return currentSetupIds;
   }
 
   /// Calculates which tags to show in the global filter list based on all resolved setups.

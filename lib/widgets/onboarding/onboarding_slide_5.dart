@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/person.dart';
 import '../../utils/person_actions.dart';
+import '../rider_name_form.dart';
 import 'onboarding_slide_scaffold.dart';
 import 'onboarding_slide_utils.dart';
 
@@ -79,7 +80,7 @@ class _OnboardingSlide5State extends State<OnboardingSlide5> {
     _focusNode.unfocus();
 
     setState(() => _saving = true);
-    final person = await PersonActions.createOnboardingRider(context, name: name);
+    final person = await PersonActions.createRider(context, name: name);
     if (!mounted) return;
     setState(() => _saving = false);
     if (person == null) return;
@@ -117,45 +118,20 @@ class _OnboardingSlide5State extends State<OnboardingSlide5> {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 32),
-          if (savedName != null) _SavedRider(name: savedName) else _nameField(context),
+          if (savedName != null) _SavedRider(name: savedName) else _nameField(),
         ],
       ),
     );
   }
 
-  Widget _nameField(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    // A single line to write on rather than a boxed form field: this is the one
-    // thing the slide asks for, so it gets the weight of a headline.
-    final style = Theme.of(context).textTheme.headlineSmall;
-
+  Widget _nameField() {
     return Form(
       key: _formKey,
-      child: TextFormField(
+      child: RiderNameField(
         controller: widget.controller,
         focusNode: _focusNode,
         enabled: !_saving,
-        textAlign: TextAlign.center,
-        style: style,
-        cursorHeight: style?.fontSize,
-        textCapitalization: TextCapitalization.words,
-        textInputAction: TextInputAction.done,
-        autovalidateMode: AutovalidateMode.onUserInteraction,
-        decoration: InputDecoration(
-          hintText: "Your name",
-          hintStyle: style?.copyWith(color: scheme.onSurfaceVariant.withValues(alpha: 0.4)),
-          errorStyle: TextStyle(color: scheme.error),
-          errorMaxLines: 2,
-          contentPadding: const EdgeInsets.symmetric(vertical: 12),
-          enabledBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: scheme.outlineVariant, width: 2),
-          ),
-          focusedBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: scheme.primary, width: 2),
-          ),
-        ),
-        validator: (value) => (value ?? "").trim().isEmpty ? "Enter a name to continue." : null,
-        onFieldSubmitted: (_) => _save(),
+        onSubmitted: _save,
       ),
     );
   }

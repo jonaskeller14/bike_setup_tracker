@@ -285,9 +285,9 @@ class StravaActivityPageContent extends StatelessWidget {
                                 menuChildren: unlinkedBikes
                                     .map(
                                       (bike) => MenuItemButton(
-                                        onPressed: () => appRepository.editBike(
+                                        onPressed: () => appRepository.editBikes([
                                           bike.copyWith(stravaGear: stravaGear.id),
-                                        ),
+                                        ]),
                                         child: Text(
                                           bike.name,
                                           overflow: TextOverflow.ellipsis,
@@ -353,7 +353,7 @@ class StravaActivityPageContent extends StatelessWidget {
             // Add Setups related to this activity
             Builder(
               builder: (context) {
-                final allSetupsForGear = appRepository.view.setups.values
+                final allSetupsForGear = appRepository.setups.values
                     .where((s) => appRepository.bikes[s.bike]?.stravaGear == stravaGear.id)
                     .toList();
                 

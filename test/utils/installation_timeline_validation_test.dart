@@ -370,6 +370,48 @@ void main() {
       expect(issue?.parentIndices, {0});
     });
 
+    test('rejects a backdated entry whose loop closes after its own instant', () {
+      // wheel is on rim from day 5 to 7; rim on wheel from day 2 overlaps that.
+      final issue = installationTimelineIssue(
+        [installOn('bike', 1), installOnComponent('wheel', 2)],
+        componentId: 'rim',
+        components: {
+          'rim': component('rim', [installOn('bike', 1)]),
+          'wheel': component('wheel', [installOn('bike', 1), installOnComponent('rim', 5), uninstall(7)]),
+        },
+      );
+
+      expect(issue?.message, 'This installation creates a loop of components');
+      expect(issue?.parentIndices, {1});
+    });
+
+    test('points at the entry that applies when the loop closes', () {
+      final issue = installationTimelineIssue(
+        [installOnComponent('wheel', 4), installOnComponent('other', 2), installOn('bike', 1)],
+        componentId: 'rim',
+        components: {
+          'other': component('other', [installOn('bike', 1)]),
+          'wheel': component('wheel', [installOn('bike', 1), installOnComponent('rim', 5)]),
+        },
+      );
+
+      expect(issue?.message, 'This installation creates a loop of components');
+      expect(issue?.parentIndices, {0});
+    });
+
+    test('accepts a backdated entry that ends before the loop would close', () {
+      final issue = installationTimelineIssue(
+        [installOn('bike', 1), installOnComponent('wheel', 2), installOn('bike', 4)],
+        componentId: 'rim',
+        components: {
+          'rim': component('rim', [installOn('bike', 1)]),
+          'wheel': component('wheel', [installOn('bike', 1), installOnComponent('rim', 5), uninstall(7)]),
+        },
+      );
+
+      expect(issue, isNull);
+    });
+
     test('accepts nesting that does not loop back', () {
       final issue = installationTimelineIssue(
         [installOnComponent('wheel', 2)],

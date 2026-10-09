@@ -4,23 +4,23 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/component/component.dart';
-import '../models/component/component_preset.dart';
-import '../repositories/component_preset_repository.dart';
-import '../utils/component_preset_application.dart';
+import '../repositories/component_catalog_repository.dart';
+import '../utils/component_catalog_application.dart';
+import '../utils/component_preset_resolver.dart';
 
 class PresetCatalogCard extends StatefulWidget {
   final ComponentType componentType;
   final VoidCallback onTap;
-  final ComponentPresetVariant? appliedVariant;
-  final DamperSpec? appliedDamper;
+
+  /// What the component links to, as deep as its preset still resolves.
+  final ResolvedPreset? applied;
   final VoidCallback onUnlink;
 
   const PresetCatalogCard({
     super.key,
     required this.componentType,
     required this.onTap,
-    this.appliedVariant,
-    this.appliedDamper,
+    this.applied,
     required this.onUnlink,
   });
 
@@ -49,12 +49,12 @@ class _PresetCatalogCardState extends State<PresetCatalogCard> {
 
   Future<void> _loadTeaser() async {
     try {
-      final variants =
-          await context.read<ComponentPresetRepository>().forType(widget.componentType);
+      final products =
+          await context.read<ComponentCatalogRepository>().forType(widget.componentType);
       if (!mounted) return;
       final brands = <String>[];
-      for (final v in variants) {
-        if (!brands.contains(v.brand)) brands.add(v.brand);
+      for (final product in products) {
+        if (!brands.contains(product.catalog.brand)) brands.add(product.catalog.brand);
       }
       if (brands.isEmpty) return; // Keep the generic subtitle.
       // Surface popular brands first, keeping the alphabetical order otherwise.
@@ -73,11 +73,12 @@ class _PresetCatalogCardState extends State<PresetCatalogCard> {
     }
   }
 
-  String _appliedSubtitle(ComponentPresetVariant variant) {
-    final yearRange = variant.yearRange;
+  /// The title names the required choices; the optional ones follow here.
+  String _appliedSubtitle(ResolvedPreset applied) {
+    final years = applied.node.years;
     return [
-      'From catalog',
-      if (yearRange != null && yearRange.isNotEmpty) yearRange,
+      for (final axis in applied.optionalAxes) ?applied.selections[axis.id]?.label,
+      if (years != null && years.isNotEmpty) years,
       'Tap to change',
     ].join(' · ');
   }
@@ -85,7 +86,7 @@ class _PresetCatalogCardState extends State<PresetCatalogCard> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final applied = widget.appliedVariant;
+    final applied = widget.applied;
     final isApplied = applied != null;
     // Neutral surface once applied: picking a preset is no longer the page's primary action.
     final foreground = isApplied ? colors.onSurface : colors.onPrimaryContainer;
@@ -96,7 +97,7 @@ class _PresetCatalogCardState extends State<PresetCatalogCard> {
       child: ListTile(
         leading: Icon(Icons.auto_awesome, color: isApplied ? null : colors.onPrimaryContainer),
         title: Text(
-          isApplied ? presetVariantDisplayName(applied, widget.appliedDamper) : 'Choose from catalog',
+          isApplied ? presetDisplayName(applied) : 'Choose from catalog',
           maxLines: isApplied ? 1 : null,
           overflow: isApplied ? TextOverflow.ellipsis : null,
           style: TextStyle(fontWeight: FontWeight.w600, color: foreground),

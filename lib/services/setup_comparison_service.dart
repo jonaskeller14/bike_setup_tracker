@@ -3,6 +3,7 @@ import '../models/component/component.dart';
 import '../models/person.dart';
 import '../models/setup.dart';
 import '../models/setup_comparison.dart';
+import '../models/setup_history.dart';
 import 'component_hierarchy_resolver.dart';
 import 'component_similarity.dart';
 import 'component_slot.dart';
@@ -28,6 +29,7 @@ class SetupComparisonService {
     Setup? setupA,
     required Setup setupB,
     required Iterable<Setup> setups,
+    required SetupHistory history,
   }) {
     if (setupA != null) {
       return setupA.id == setupB.id
@@ -38,7 +40,7 @@ class SetupComparisonService {
     Setup? latestOther;
     for (final candidate in setups) {
       if (candidate.id == setupB.id || candidate.bike != setupB.bike) continue;
-      if (candidate.isCurrent) return SetupComparisonTargets(setupA: candidate, setupB: setupB);
+      if (history.isCurrent(candidate.id)) return SetupComparisonTargets(setupA: candidate, setupB: setupB);
       if (latestOther == null || candidate.datetime.isAfter(latestOther.datetime)) latestOther = candidate;
     }
     // setupB is the current setup: compare against the next most recent one, or itself if it is the only setup.
@@ -50,6 +52,7 @@ class SetupComparisonService {
     required Setup setupB,
     required Iterable<Component> components,
     required Iterable<Person> persons,
+    required SetupHistory history,
   }) {
     final allComponents = List<Component>.of(components);
     final allPersons = List<Person>.of(persons);
@@ -64,10 +67,10 @@ class SetupComparisonService {
       persons: allPersons,
     );
 
-    final componentOwnersA = _componentOwners(breakdownA, setupA);
-    final componentOwnersB = _componentOwners(breakdownB, setupB);
-    final personOwnersA = _personOwners(breakdownA, setupA);
-    final personOwnersB = _personOwners(breakdownB, setupB);
+    final componentOwnersA = _componentOwners(breakdownA, setupA, history);
+    final componentOwnersB = _componentOwners(breakdownB, setupB, history);
+    final personOwnersA = _personOwners(breakdownA, setupA, history);
+    final personOwnersB = _personOwners(breakdownB, setupB, history);
 
     return SetupComparison(
       groups: [
@@ -86,13 +89,13 @@ class SetupComparisonService {
     );
   }
 
-  static List<_OwnerData> _componentOwners(SetupAdjustmentBreakdown breakdown, Setup setup) {
+  static List<_OwnerData> _componentOwners(SetupAdjustmentBreakdown breakdown, Setup setup, SetupHistory history) {
     return [
       for (final component in breakdown.components)
         _ComponentOwnerData(
           component: component,
           currentValues: setup.bikeAdjustmentValues,
-          previousValues: setup.previousBikeAdjustmentValues,
+          previousValues: history.previousBikeValuesOf(setup.id),
         ),
     ];
   }
@@ -178,13 +181,13 @@ class SetupComparisonService {
     return result;
   }
 
-  static List<_OwnerData> _personOwners(SetupAdjustmentBreakdown breakdown, Setup setup) {
+  static List<_OwnerData> _personOwners(SetupAdjustmentBreakdown breakdown, Setup setup, SetupHistory history) {
     return [
       if (breakdown.person != null)
         _PersonOwnerData(
           person: breakdown.person!,
           currentValues: setup.personAdjustmentValues,
-          previousValues: setup.previousPersonAdjustmentValues,
+          previousValues: history.previousPersonValuesOf(setup.id),
         ),
     ];
   }

@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -6,8 +9,10 @@ import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
 import '../models/component/component.dart';
 import '../models/component/installation.dart';
+import '../models/component/subcomponent_detach.dart';
 import '../models/task/task_association.dart';
 import '../models/task/task_rule.dart';
+import '../models/task/task_template.dart';
 import '../pages/adjustment/boolean_adjustment_page.dart';
 import '../pages/adjustment/categorical_adjustment_page.dart';
 import '../pages/adjustment/duration_adjustment_page.dart';
@@ -17,15 +22,21 @@ import '../pages/adjustment/step_adjustment_page.dart';
 import '../pages/adjustment/text_adjustment_page.dart';
 import '../pages/forms/component_page.dart';
 import '../repositories/app_repository.dart';
+import '../repositories/component_catalog_repository.dart';
+import '../services/component_hierarchy_resolver.dart';
+import '../services/subscription_service.dart';
 import '../widgets/app_snackbar.dart';
-import '../widgets/dialogs/component_descendant_warning.dart';
+import '../widgets/sheets/archive_component.dart';
 import '../widgets/sheets/component_add_adjustment.dart';
 import '../widgets/sheets/copy_task_rules.dart';
 import '../widgets/sheets/delete_task_rules.dart';
+import '../widgets/sheets/remove_component.dart';
 import '../widgets/sheets/replace_component.dart';
 import 'attachment_actions.dart';
 import 'bike_actions.dart';
+import 'component_catalog_application.dart';
 import 'installation_timeline_validation.dart';
+import 'task_preset_resolver.dart';
 
 class ComponentActions {
   static Future<void> addComponent(BuildContext context, {Object? initialBike = const _Sentinel(), List<Installation>? initialInstallations}) async {
@@ -46,6 +57,9 @@ class ComponentActions {
     }
     final installations = initialInstallations ??
         (initialBike is _Sentinel ? null : [Installation.sinceBeginning(parent: initialBike as String?)]);
+    // Callers are often empty-state hints that disappear once the component
+    // exists, so the task prompt needs a context that outlives them.
+    final navigatorContext = Navigator.of(context).context;
 
     final component = await Navigator.push<Component>(
       context,
@@ -53,7 +67,11 @@ class ComponentActions {
     );
 
     if (component == null) return;
-    await appRepository.addComponents([component]);
+    final saved = appRepository.addComponents([component]);
+    await Future.wait([
+      saved,
+      if (navigatorContext.mounted) offerTaskRulesFor(navigatorContext, target: component, targetSaved: saved),
+    ]);
   }
 
   static Future<void> editComponent(BuildContext context, {required Component component}) async {
@@ -67,21 +85,100 @@ class ComponentActions {
     );
     if (result == null) return;
     if (!context.mounted) return;
+    var subcomponentEdits = const <Component>[];
     if (!component.isArchived && result.value.isArchived) {
-      final confirmed = await confirmComponentDescendantImpact(
+      final edits = await archiveSubcomponentEdits(
         context,
         component: component,
-        descendants: appRepository.affectedDescendants(component.id),
-        action: 'Archive',
+        atUTC: result.value.latestInstallation!.dateTimeUTC,
       );
-      if (!confirmed || !context.mounted) {
+      if (edits == null || !context.mounted) {
         // The edit is dropped, so files added in the form would be left unlinked.
         await AttachmentActions.deleteUnsaved(result.value.attachments, saved: component.attachments);
         return;
       }
+      subcomponentEdits = edits;
     }
-    await appRepository.editComponent(result.value, conversions: result.conversions);
+    try {
+      await appRepository.editComponents([result.value, ...subcomponentEdits], conversions: result.conversions);
+    } on ComponentHierarchyValidationException {
+      await AttachmentActions.deleteUnsaved(result.value.attachments, saved: component.attachments);
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        AppSnackBar.error(context, 'Not saved: this would create a loop of components.'),
+      );
+      return;
+    }
     await AttachmentActions.deleteUnsaved(component.attachments, saved: result.value.attachments);
+  }
+
+  /// Asks what happens to the subcomponents mounted on [component] when it is
+  /// archived at [atUTC]. Returns the subcomponent edits to save alongside the
+  /// archival (empty when they follow it), or null when cancelled.
+  static Future<List<Component>?> archiveSubcomponentEdits(
+    BuildContext context, {
+    required Component component,
+    required DateTime atUTC,
+  }) async {
+    final appRepository = context.read<AppRepository>();
+    final hierarchy = appRepository.componentHierarchy;
+    if (hierarchy.descendantsOf(component.id, atUTC: atUTC).isEmpty) return const [];
+
+    final choice = await showArchiveComponentSheet(context, component: component, atUTC: atUTC);
+    if (choice == null) return null;
+    if (choice.withSubcomponents) return const [];
+    return detachSubcomponents(
+      _componentsOf(appRepository, hierarchy.childrenOf(component.id, atUTC: atUTC)),
+      mode: choice.detach,
+      bikeId: hierarchy.bikeAt(component.id, atUTC),
+      at: atUTC.toLocal(),
+    );
+  }
+
+  /// Archives [component] as its only installation entry, for components
+  /// without an installation timeline.
+  static Future<void> archiveWithoutTimeline(BuildContext context, {required Component component}) async {
+    final appRepository = context.read<AppRepository>();
+    final archival = Archival(
+      dateTimeUTC: DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
+      dateTimeLocal: DateTime.fromMillisecondsSinceEpoch(0),
+    );
+    final subcomponentEdits = await archiveSubcomponentEdits(
+      context,
+      component: component,
+      atUTC: archival.dateTimeUTC,
+    );
+    if (subcomponentEdits == null) return;
+    await appRepository.editComponents([component.copyWith(installations: [archival]), ...subcomponentEdits]);
+  }
+
+  static List<Component> _componentsOf(AppRepository appRepository, Iterable<String> ids) =>
+      ids.map((id) => appRepository.components[id]).whereType<Component>().toList();
+
+  /// Edited copies of [directChildren] taken off their parent at [at].
+  ///
+  /// Only direct children get an event; deeper descendants stay on their own
+  /// parent and follow it. A child on a component always has a timeline, so the
+  /// event is appended rather than replacing its history.
+  @visibleForTesting
+  static List<Component> detachSubcomponents(
+    Iterable<Component> directChildren, {
+    required SubcomponentDetach mode,
+    required String? bikeId,
+    required DateTime at,
+  }) {
+    if (mode == SubcomponentDetach.keepLinked) return const [];
+    final target = mode == SubcomponentDetach.installOnBike ? bikeId : null;
+
+    return [
+      for (final child in directChildren)
+        child.copyWith(installations: [...child.installations, _detachEvent(child, target, at)]),
+    ];
+  }
+
+  static Installation _detachEvent(Component child, String? bikeId, DateTime at) {
+    final stamp = stampInstallationNow(child.installations, now: at);
+    return Installation(parent: bikeId, dateTimeUTC: stamp.utc, dateTimeLocal: stamp.local);
   }
 
   static Future<void> duplicateComponent(BuildContext context, {required Component component}) async {
@@ -104,11 +201,12 @@ class ComponentActions {
       return;
     }
 
-    await appRepository.addComponents([newComponent]);
-    await AttachmentActions.deleteUnsaved(deepCopied.attachments, saved: newComponent.attachments);
-
-    if (!context.mounted) return;
-    await _copyTaskRulesTo(context, source: component, target: newComponent);
+    final saved = appRepository.addComponents([newComponent]);
+    await Future.wait([
+      saved,
+      AttachmentActions.deleteUnsaved(deepCopied.attachments, saved: newComponent.attachments),
+      if (context.mounted) offerTaskRulesFor(context, source: component, target: newComponent, targetSaved: saved),
+    ]);
   }
 
   static Future<Component> _deepCopyWithFiles(Component component) async {
@@ -116,34 +214,72 @@ class ComponentActions {
     return deepCopied.copyWith(attachments: await AttachmentActions.copyAttachmentFiles(deepCopied.attachments));
   }
 
-  static Future<void> _copyTaskRulesTo(
+  /// Offers copies of [source]'s task rules and, with task presets on, the
+  /// recommended tasks for [target] in one sheet. Opens nothing when there is
+  /// nothing to offer.
+  ///
+  /// The sheet opens without waiting for [targetSaved], so a just-saved
+  /// [target] shows its prompt at once; the picked rules wait for it.
+  @visibleForTesting
+  static Future<void> offerTaskRulesFor(
     BuildContext context, {
-    required Component source,
+    Component? source,
     required Component target,
+    Future<void>? targetSaved,
   }) async {
-    if (!context.read<AppSettings>().enableTask) return;
+    final appSettings = context.read<AppSettings>();
+    if (!appSettings.enableTask) return;
 
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);
 
-    final rules = appRepository.taskRules.values.where((rule) => rule.association.componentId == source.id).toList();
-    if (rules.isEmpty) return;
+    final copyRules = source == null
+        ? const <TaskRule>[]
+        : appRepository.taskRules.values.where((rule) => rule.association.componentId == source.id).toList();
+    final preset = target.preset;
+    // ComponentPage has loaded the catalog of a component with a preset.
+    final resolvedPreset = preset == null ? null : context.read<ComponentCatalogRepository>().loadedPreset(preset);
+    // Not deduplicated against copyRules: the sheet hides a suggestion only while its copy is selected.
+    final suggestions = !appSettings.showTaskPresets
+        ? const <TaskSuggestion>[]
+        : taskSuggestionsFor(
+            target,
+            existingRules: appRepository.taskRules.values,
+            hasStravaEntitlement: context.read<SubscriptionService>().hasStravaEntitlement,
+            overrides: resolvedPreset?.taskOverrides ?? const {},
+          );
+    if (copyRules.isEmpty && suggestions.isEmpty) return;
 
-    final selected = await showCopyTaskRulesSheet(context, taskRules: rules, componentName: target.name);
-    if (selected == null || selected.isEmpty) return;
+    final result = await showTaskRulesSheet(
+      context,
+      copyFrom: source?.name,
+      copyRules: copyRules,
+      suggestions: suggestions,
+      componentName: target.name,
+      componentType: target.componentType,
+      presetName: resolvedPreset == null ? null : presetDisplayName(resolvedPreset),
+    );
+    if (result == null) return;
+    unawaited(HapticFeedback.lightImpact());
 
-    final copies = await taskRuleCopies(selected, componentId: target.id);
-    await appRepository.addTaskRules(copies);
+    final created = [
+      ...await taskRuleCopies(result.copied, componentId: target.id),
+      for (final suggestion in result.suggested)
+        suggestion.toTaskRule(target.id, distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit),
+    ];
+    await targetSaved;
+    await appRepository.addTaskRules(created);
 
     if (!context.mounted) return;
+    final verb = result.suggested.isEmpty ? 'Copied' : 'Added';
     messenger.showSnackBar(
       AppSnackBar.success(
         context,
-        "Copied ${copies.length} task${copies.length == 1 ? '' : 's'} to '${target.name}'.",
+        "$verb ${created.length} task${created.length == 1 ? '' : 's'} to '${target.name}'.",
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
           label: 'UNDO',
-          onPressed: () async => appRepository.removeTaskRules(copies),
+          onPressed: () async => appRepository.removeTaskRules(created),
         ),
       ),
     );
@@ -256,9 +392,8 @@ class ComponentActions {
           return;
         }
 
-        await appRepository.addComponents([newComponent]);
-        await AttachmentActions.deleteUnsaved(deepCopied.attachments, saved: newComponent.attachments);
-        await appRepository.editComponents([
+        // The retired component's edit moves subcomponents onto the new one, so it has to follow the add.
+        final saved = appRepository.addComponents([newComponent]).then((_) => appRepository.editComponents([
           component.copyWith(
             installations: [
               ...component.installations,
@@ -266,10 +401,13 @@ class ComponentActions {
             ],
           ),
           ...subcomponentEdits(newComponent.id),
+        ]));
+        await Future.wait([
+          saved,
+          AttachmentActions.deleteUnsaved(deepCopied.attachments, saved: newComponent.attachments),
+          if (navigatorContext.mounted)
+            offerTaskRulesFor(navigatorContext, source: component, target: newComponent, targetSaved: saved),
         ]);
-
-        if (!navigatorContext.mounted) return;
-        await _copyTaskRulesTo(navigatorContext, source: component, target: newComponent);
     }
   }
 
@@ -287,28 +425,60 @@ class ComponentActions {
   static Future<void> removeComponent(BuildContext context, {required Component component}) async {
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);
+    final hierarchy = appRepository.componentHierarchy;
 
-    final confirmed = await confirmComponentDescendantImpact(
-      context,
-      component: component,
-      descendants: appRepository.affectedDescendants(component.id),
-      action: 'Move to trash',
-    );
-    if (!confirmed || !context.mounted) return;
+    final descendants = appRepository.affectedDescendants(component.id);
+    RemoveComponentChoice? choice;
+    if (descendants.isNotEmpty) {
+      choice = await showRemoveComponentSheet(context, component: component);
+      if (choice == null || !context.mounted) return;
+    }
 
-    final relatedTaskRules = appRepository.taskRules.values.where((rule) => rule.association.componentId == component.id).toList();
+    final withSubcomponents = choice?.withSubcomponents ?? false;
+    final removed = [component, if (withSubcomponents) ...descendants];
+    final bikeId = hierarchy.currentBike(component.id);
+    final originalChildren = _componentsOf(appRepository, hierarchy.childrenOf(component.id));
+    final detached = choice == null || withSubcomponents
+        ? const <Component>[]
+        : detachSubcomponents(
+            originalChildren,
+            mode: choice.detach,
+            bikeId: bikeId,
+            at: DateTime.now(),
+          );
+
+    final removedIds = removed.map((c) => c.id).toSet();
+    final relatedTaskRules = appRepository.taskRules.values
+        .where((rule) => removedIds.contains(rule.association.componentId))
+        .toList();
     final selectedTaskRules = relatedTaskRules.isEmpty
         ? const <TaskRule>[]
-        : await showDeleteTaskRulesSheet(context, taskRules: relatedTaskRules) ?? const <TaskRule>[];
+        : await showDeleteTaskRulesSheet(context, taskRules: relatedTaskRules, rootComponentId: component.id);
+    if (selectedTaskRules == null) return;
     final selectedRuleIds = selectedTaskRules.map((rule) => rule.id).toSet();
     final obsoleteTaskEntries = appRepository.taskEntries.values
         .where((entry) => selectedRuleIds.contains(entry.taskRule))
         .toList();
 
-    await appRepository.removeComponents([component]);
+    if (detached.isNotEmpty) await appRepository.editComponents(detached);
+    await appRepository.removeComponents(removed);
     await appRepository.removeTaskRules(selectedTaskRules);
     await appRepository.removeTaskEntries(obsoleteTaskEntries);
 
+    final subcomponentCount = withSubcomponents ? descendants.length : detached.length;
+    final subcomponents = Intl.plural(
+      subcomponentCount,
+      one: '1 subcomponent',
+      other: '$subcomponentCount subcomponents',
+    );
+    final subcomponentSummary = switch (choice) {
+      _ when subcomponentCount == 0 => '',
+      (withSubcomponents: true, detach: _) => '\nAlso moved to trash: $subcomponents.',
+      (withSubcomponents: false, detach: SubcomponentDetach.uninstall) => '\n$subcomponents uninstalled.',
+      (withSubcomponents: false, detach: SubcomponentDetach.installOnBike) =>
+        "\n$subcomponents installed on '${appRepository.bikes[bikeId]?.name}'.",
+      _ => '',
+    };
     final taskSummary = selectedTaskRules.isEmpty
         ? ''
         : '\nAlso moved to trash: ${Intl.plural(
@@ -320,12 +490,14 @@ class ComponentActions {
     messenger.showSnackBar(
       AppSnackBar.info(
         context,
-        "Component '${component.name}' moved to trash.$taskSummary",
+        "Component '${component.name}' moved to trash.$subcomponentSummary$taskSummary",
         duration: const Duration(seconds: 5),
         action: AppSnackBarAction(
           label: 'UNDO',
           onPressed: () async {
-            await appRepository.restoreComponents([component]);
+            final detachedIds = detached.map((c) => c.id).toSet();
+            await appRepository.restoreComponents(removed);
+            await appRepository.editComponents(originalChildren.where((c) => detachedIds.contains(c.id)));
             await appRepository.restoreTaskRules(selectedTaskRules);
             await appRepository.restoreTaskEntries(obsoleteTaskEntries);
           },
@@ -386,7 +558,7 @@ class ComponentActions {
           ),
         );
         if (newAdjustment == null) return;
-        await appRepository.editComponent(component.copyWith(adjustments: [...component.adjustments, newAdjustment]));
+        await appRepository.editComponents([component.copyWith(adjustments: [...component.adjustments, newAdjustment])]);
       },
       addAdjustment: <T extends Adjustment>() async {
         final appRepository = context.read<AppRepository>();
@@ -405,7 +577,7 @@ class ComponentActions {
           ),
         );
         if (newAdjustment == null) return;
-        await appRepository.editComponent(component.copyWith(adjustments: [...component.adjustments, newAdjustment]));
+        await appRepository.editComponents([component.copyWith(adjustments: [...component.adjustments, newAdjustment])]);
       },
     );
   }

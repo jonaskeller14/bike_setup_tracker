@@ -48,7 +48,7 @@ class SetBooleanAdjustmentWidget extends StatelessWidget {
         children: [
           Flexible(
             flex: 3,
-            child: AdjustmentIconNameNotes(adjustment: adjustment, color: highlightColor),
+            child: AdjustmentIconNameNotes(adjustment: adjustment, value: value, color: highlightColor),
           ),
           Flexible(
             flex: 2,

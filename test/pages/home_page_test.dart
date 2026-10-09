@@ -6,6 +6,7 @@ import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/filters/task_rule_filter.dart';
+import 'package:bike_setup_tracker/models/person.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
 import 'package:bike_setup_tracker/pages/onboarding_page.dart';
@@ -19,8 +20,12 @@ import 'package:bike_setup_tracker/widgets/items/adjustment_list_card.dart';
 import 'package:bike_setup_tracker/widgets/items/component_list_card.dart';
 import 'package:bike_setup_tracker/widgets/items/garage_bike_card.dart';
 import 'package:bike_setup_tracker/widgets/items/garage_component_icon_card.dart';
+import 'package:bike_setup_tracker/widgets/items/person_list_card.dart';
 import 'package:bike_setup_tracker/widgets/lists/garage_list.dart';
+import 'package:bike_setup_tracker/widgets/lists/person_list.dart';
 import 'package:bike_setup_tracker/widgets/lists/task_list.dart';
+import 'package:bike_setup_tracker/widgets/rider_name_form.dart';
+import 'package:bike_setup_tracker/widgets/sheets/rider_sheet.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -402,6 +407,88 @@ void main() {
     expect(_appBarTitle(tester), 'Tasks');
   });
 
+  group('Rider layout', () {
+    Future<void> pumpWithTaskRule(WidgetTester tester) async {
+      appSettings
+        ..enableTask = true
+        ..enablePerson = true;
+      final rule = TaskRule(name: 'Plain', tags: const {});
+      await tester.runAsync(() => appRepository.addTaskRules([rule]));
+      await tester.pumpWidget(createWidgetUnderTest());
+      await _waitForRepositoryUpdate(
+        tester,
+        until: (repository) => repository.taskRules.containsKey(rule.id),
+      );
+    }
+
+    // Selection mode only engages when the Tasks page sits at taskPageIndex.
+    Future<void> expectTasksTabIndexed(WidgetTester tester) async {
+      await tester.tap(_navigationDestination('Tasks'));
+      await tester.pumpAndSettle();
+      expect(_appBarTitle(tester), 'Tasks');
+      await tester.longPress(find.text('Plain'));
+      await tester.pumpAndSettle();
+      expect(_appBarTitle(tester), '1 selected');
+    }
+
+    testWidgets('simple layout has no Profile tab', (tester) async {
+      await pumpWithTaskRule(tester);
+
+      expect(_navigationDestination('Riders'), findsNothing);
+      expect(find.byType(PersonList), findsNothing);
+      expect(find.byTooltip('Add Rider'), findsNothing);
+      await expectTasksTabIndexed(tester);
+    });
+
+    testWidgets('advanced layout restores the Profile tab', (tester) async {
+      appSettings.enablePersonAdvanced = true;
+      await pumpWithTaskRule(tester);
+
+      await tester.tap(_navigationDestination('Riders'));
+      await tester.pumpAndSettle();
+      expect(_appBarTitle(tester), 'Riders');
+      expect(find.byType(PersonList), findsOneWidget);
+      expect(find.byTooltip('Add Rider'), findsOneWidget);
+      await expectTasksTabIndexed(tester);
+    });
+
+    testWidgets('advanced setting alone shows no Profile tab', (tester) async {
+      appSettings.enablePersonAdvanced = true;
+      await tester.pumpWidget(createWidgetUnderTest());
+      await tester.pumpAndSettle();
+
+      expect(_navigationDestination('Riders'), findsNothing);
+    });
+
+    testWidgets('no rider button without enablePerson', (tester) async {
+      await tester.pumpWidget(createWidgetUnderTest());
+      await tester.pumpAndSettle();
+
+      expect(find.byTooltip('Rider'), findsNothing);
+    });
+
+    testWidgets('rider button shows a badge until a rider exists and opens the sheet', (tester) async {
+      appSettings.enablePerson = true;
+      await tester.pumpWidget(createWidgetUnderTest());
+      await tester.pumpAndSettle();
+
+      expect(find.byTooltip('Rider'), findsOneWidget);
+      expect(tester.widget<Badge>(_riderBadge()).isLabelVisible, isTrue);
+
+      await tester.tap(find.byTooltip('Rider'));
+      await tester.pumpAndSettle();
+      expect(find.byType(RiderSheetContent), findsOneWidget);
+      expect(find.byType(RiderNameForm), findsOneWidget);
+
+      await tester.runAsync(() => appRepository.addPersons([Person(name: 'Jonas')]));
+      await _waitForRepositoryUpdate(tester, until: (repository) => repository.persons.isNotEmpty);
+      await tester.pumpAndSettle();
+
+      expect(find.widgetWithText(PersonListCard, 'Jonas'), findsOneWidget);
+      expect(tester.widget<Badge>(_riderBadge()).isLabelVisible, isFalse);
+    });
+  });
+
   group('Garage multi-select', () {
     Future<void> seedBikes(WidgetTester tester) async {
       await tester.runAsync(() async {
@@ -484,6 +571,11 @@ Future<void> _liftAndDrop(WidgetTester tester, Finder finder, {Offset? moveBy}) 
 Finder _navigationDestination(String label) => find.descendant(
   of: find.byType(NavigationBar),
   matching: find.text(label),
+);
+
+Finder _riderBadge() => find.descendant(
+  of: find.byTooltip('Rider'),
+  matching: find.byType(Badge),
 );
 
 Finder _taskBadge() => find.ancestor(

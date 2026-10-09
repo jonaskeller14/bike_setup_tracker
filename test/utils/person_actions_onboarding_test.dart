@@ -1,5 +1,6 @@
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
+import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/person.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/theme.dart';
@@ -26,8 +27,8 @@ void main() {
     await database.close();
   });
 
-  /// Runs [PersonActions.createOnboardingRider] with a real provider scope, the
-  /// way the rider slide calls it.
+  /// Runs [create] with a real provider scope, the way the rider slide and the
+  /// inline rider name form call it.
   ///
   /// The write goes through drift's real sqlite3 FFI bindings, which never
   /// resolve on the fake timer queue a plain `testWidgets` body runs on — the
@@ -36,7 +37,7 @@ void main() {
   /// timer, not the fake one `pump(duration)` controls, so it needs a beat
   /// of real time (inside another `runAsync`) before `appRepository.persons`
   /// reflects the write.
-  Future<Person?> createRider(WidgetTester tester, String name) async {
+  Future<Person?> runCreate(WidgetTester tester, Future<Person?> Function(BuildContext context) create) async {
     late BuildContext context;
 
     await tester.pumpWidget(
@@ -55,7 +56,7 @@ void main() {
     );
 
     final created = await tester.runAsync(
-      () => PersonActions.createOnboardingRider(context, name: name),
+      () => create(context),
     );
     // The write ran inside runAsync, so any internal debounce/notification
     // timer it scheduled is a real one, not the fake one testWidgets
@@ -66,6 +67,15 @@ void main() {
 
     return created;
   }
+
+  /// Seeds a rider-less bike and waits until the repository has picked it up.
+  Future<void> seedBike(WidgetTester tester) => tester.runAsync(() async {
+    await appRepository.addBikes([Bike(id: 'bike', name: 'Test Bike', person: null)]);
+    await Future<void>.delayed(const Duration(milliseconds: 50));
+  });
+
+  Future<Person?> createRider(WidgetTester tester, String name) =>
+      runCreate(tester, (context) => PersonActions.createRider(context, name: name));
 
   testWidgets('creates a rider carrying only a Riding weight definition', (WidgetTester tester) async {
     final person = await createRider(tester, 'Jonas');
@@ -80,6 +90,7 @@ void main() {
     final adjustment = stored.adjustments.single;
     expect(adjustment, isA<NumericalAdjustment>());
     expect(adjustment.name, 'Riding weight');
+    expect(adjustment.presetKey, 'person:riding_weight');
 
     // A definition only — onboarding never collects a value for it.
     final values = await database.select(database.setupAdjustmentValues).get();
@@ -97,5 +108,31 @@ void main() {
 
     expect(person, isNull);
     expect(appRepository.persons, isEmpty);
+  });
+
+  testWidgets('createRiderForBike links the new rider to the bike', (WidgetTester tester) async {
+    await seedBike(tester);
+
+    final person = await runCreate(
+      tester,
+      (context) => PersonActions.createRiderForBike(context, name: 'Jonas', bikeId: 'bike'),
+    );
+
+    expect(person, isNotNull);
+    expect(appRepository.persons.keys, [person!.id]);
+    expect(appRepository.bikes['bike']!.person, person.id);
+  });
+
+  testWidgets('createRiderForBike with a blank name neither creates nor links', (WidgetTester tester) async {
+    await seedBike(tester);
+
+    final person = await runCreate(
+      tester,
+      (context) => PersonActions.createRiderForBike(context, name: '  ', bikeId: 'bike'),
+    );
+
+    expect(person, isNull);
+    expect(appRepository.persons, isEmpty);
+    expect(appRepository.bikes['bike']!.person, isNull);
   });
 }

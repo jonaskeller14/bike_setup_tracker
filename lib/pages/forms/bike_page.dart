@@ -68,6 +68,7 @@ class _BikePageState extends State<BikePage> {
   List<Attachment> _attachments = [];
   String? _attachmentsDirPath;
   final List<Attachment> _importedAttachments = [];
+  bool _importingAttachments = false;
   List<Attachment>? _savedAttachments;
 
   @override
@@ -106,7 +107,15 @@ class _BikePageState extends State<BikePage> {
   }
 
   Future<void> _addAttachments() async {
-    final attachments = await AttachmentActions.pickAttachments(context);
+    final List<Attachment> attachments;
+    try {
+      attachments = await AttachmentActions.pickAttachments(
+        context,
+        onImportStarted: () => setState(() => _importingAttachments = true),
+      );
+    } finally {
+      if (mounted) setState(() => _importingAttachments = false);
+    }
     if (attachments.isEmpty || !mounted) return;
     _importedAttachments.addAll(attachments);
     setState(() => _attachments.addAll(attachments));
@@ -215,11 +224,11 @@ class _BikePageState extends State<BikePage> {
       isExpanded: true,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       decoration: InputDecoration(
-        labelText: 'Bike Owner',
+        labelText: 'Rider',
         border: const OutlineInputBorder(),
-        hintText: "Choose an owner for this bike",
+        hintText: "Choose a rider for this bike",
         helperText: persons.isEmpty
-            ? "You can assign an owner later, as soon as you've created a person."
+            ? "You can assign a rider later, as soon as you've created one."
             : null,
         helperMaxLines: 99,
         fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
@@ -227,7 +236,7 @@ class _BikePageState extends State<BikePage> {
       ),
       validator: (String? newPerson) {
         if (newPerson == null) return null;
-        if (!persons.containsKey(newPerson)) return "Please select valid person";
+        if (!persons.containsKey(newPerson)) return "Please select a valid rider";
         return null;
       },
       items: [
@@ -237,7 +246,7 @@ class _BikePageState extends State<BikePage> {
             spacing: 8,
             children: [
               Icon(Icons.person_off),
-              Expanded(child: Text("No Owner", overflow: TextOverflow.ellipsis))
+              Expanded(child: Text("No rider", overflow: TextOverflow.ellipsis))
             ],
           ),
         ),
@@ -260,7 +269,7 @@ class _BikePageState extends State<BikePage> {
             spacing: 8,
             children: [
               Icon(Icons.person, color: Theme.of(context).colorScheme.error),
-              Expanded(child: Text("PERSON NOT FOUND", overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.error)))
+              Expanded(child: Text("RIDER NOT FOUND", overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.error)))
             ],
           ),
         ), 
@@ -331,7 +340,7 @@ class _BikePageState extends State<BikePage> {
       backgroundColor: widget.mode == BikePageMode.edit && !listEquals(_attachments, widget.bike!.attachments)
           ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
           : null,
-      onPressed: _addAttachments,
+      onPressed: _importingAttachments ? null : _addAttachments,
     );
   }
 
@@ -428,69 +437,84 @@ class _BikePageState extends State<BikePage> {
         ),
         body: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.symmetric(vertical: 16.0),
             child: Form(
               key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _nameField(),
-                  if (appSettings.enablePerson) ...[
-                    const SizedBox(height: 12),
-                    _personField(persons: persons),
-                  ],
-                  if (appSettings.enableStrava && (subscriptionService.hasStravaEntitlement)) ...[
-                    const SizedBox(height: 12),
-                    _stravaGearField(existingBikes: existingBikes, stravaGears: stravaGears),
-                  ],
-                  Center(
-                    child: TextButton.icon(
-                      onPressed: () => setState(() => _expanded = !_expanded),
-                      icon: Icon(_expanded 
-                          ? Icons.expand_less 
-                          : Icons.expand_more,
-                      ),
-                      label: Text(_expanded 
-                          ? "Hide Additional Fields" 
-                          : "Show Additional Fields"
-                      ),
-                    ),
-                  ),
-                  Visibility(
-                    visible: _expanded,
-                    maintainState: true,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _notesField(),
-                        if (showInitialStats || showAttachments) ...[
+                        _nameField(),
+                        if (appSettings.enablePerson) ...[
                           const SizedBox(height: 12),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Wrap(
-                              spacing: 8.0,
-                              runSpacing: 8.0,
-                              crossAxisAlignment: WrapCrossAlignment.center,
-                              children: [
-                                if (showInitialStats) _initialStatsChip(),
-                                if (showAttachments) _attachChip(),
-                              ],
+                          _personField(persons: persons),
+                        ],
+                        if (appSettings.enableStrava && (subscriptionService.hasStravaEntitlement)) ...[
+                          const SizedBox(height: 12),
+                          _stravaGearField(existingBikes: existingBikes, stravaGears: stravaGears),
+                        ],
+                        Center(
+                          child: TextButton.icon(
+                            onPressed: () => setState(() => _expanded = !_expanded),
+                            icon: Icon(_expanded 
+                                ? Icons.expand_less 
+                                : Icons.expand_more,
+                            ),
+                            label: Text(_expanded 
+                                ? "Hide Additional Fields" 
+                                : "Show Additional Fields"
                             ),
                           ),
-                        ],
-                        if (showAttachments && _attachments.isNotEmpty) ...[
-                          const SizedBox(height: 12),
-                          AttachmentStrip(
-                            attachments: _attachments,
-                            attachmentsDir: _attachmentsDirPath!,
-                            mode: AttachmentStripMode.edit,
-                            onRemove: _onAttachmentRemoved,
-                            onReorder: _onAttachmentReorder,
-                            onRename: _onAttachmentRenamed,
+                        ),
+                        Visibility(
+                          visible: _expanded,
+                          maintainState: true,
+                          child: Column(
+                            children: [
+                              _notesField(),
+                              if (showInitialStats || showAttachments) ...[
+                                const SizedBox(height: 12),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Wrap(
+                                    spacing: 8.0,
+                                    runSpacing: 8.0,
+                                    crossAxisAlignment: WrapCrossAlignment.center,
+                                    children: [
+                                      if (showInitialStats) _initialStatsChip(),
+                                      if (showAttachments) _attachChip(),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
-                        ],
+                        ),
                       ],
                     ),
                   ),
+                  if (showAttachments && (_attachments.isNotEmpty || _importingAttachments))
+                    Visibility(
+                      visible: _expanded,
+                      maintainState: true,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: AttachmentStrip(
+                          attachments: _attachments,
+                          attachmentsDir: _attachmentsDirPath!,
+                          mode: AttachmentStripMode.edit,
+                          isLoading: _importingAttachments,
+                          onRemove: _onAttachmentRemoved,
+                          onReorder: _onAttachmentReorder,
+                          onRename: _onAttachmentRenamed,
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),

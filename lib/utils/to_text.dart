@@ -24,7 +24,7 @@ String toText({
 
   final persons = selectedData.persons.values;
   if (appSettings.enablePerson && persons.isNotEmpty) {
-    buffer.writeln("PROFILES:");
+    buffer.writeln("RIDERS:");
     for (final p in persons) {
       buffer.writeln("👤 ${p.name}${p.isDeleted ? ' [DELETED]' : ''}");
     }

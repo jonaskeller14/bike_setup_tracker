@@ -30,6 +30,11 @@ Color resolveDialColor(
   };
 }
 
+Color resolveStepAccentColor(BuildContext context, StepAdjustment adjustment) =>
+    adjustment.visualization.hasDial
+        ? resolveDialColor(context, adjustment.dialColor)
+        : Theme.of(context).colorScheme.primary;
+
 /// Contrasting color for whatever sits on top of [dialColor].
 Color resolveDialOnColor(BuildContext context, Color dialColor) {
   final colorScheme = Theme.of(context).colorScheme;

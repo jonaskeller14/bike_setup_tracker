@@ -6,6 +6,7 @@ import '../../icons/bike_icons.dart';
 import '../adjustment/adjustment.dart';
 import '../attachment.dart';
 import '../component_stats.dart';
+import 'component_preset.dart';
 import 'installation.dart';
 
 part 'component_type.dart';
@@ -22,8 +23,7 @@ class Component {
   final String? notes;
   final int orderIndex;
   final ComponentStats initialStats;
-  final String? presetKey;
-  final String? presetDamperKey;
+  final ComponentPreset? preset;
   final List<Attachment> attachments;
 
   String? get parentId => parentIdAt(DateTime.now().toUtc());
@@ -66,8 +66,7 @@ class Component {
     required this.componentType,
     this.notes,
     this.orderIndex = 0,
-    this.presetKey,
-    this.presetDamperKey,
+    this.preset,
     List<Adjustment>? adjustments,
     this.initialStats = ComponentStats.zero,
     List<Attachment>? attachments,
@@ -88,8 +87,7 @@ class Component {
       orderIndex: orderIndex,
       adjustments: adjustments.map((a) => a.deepCopy()).toList(),
       initialStats: initialStats,
-      presetKey: presetKey,
-      presetDamperKey: presetDamperKey,
+      preset: preset,
       attachments: List.from(attachments),
     );
   }
@@ -113,8 +111,7 @@ class Component {
     Object? installations = const _Sentinel(),
     Object? orderIndex = const _Sentinel(),
     Object? initialStats = const _Sentinel(),
-    Object? presetKey = const _Sentinel(),
-    Object? presetDamperKey = const _Sentinel(),
+    Object? preset = const _Sentinel(),
     Object? attachments = const _Sentinel(),
   }) {
     return Component(
@@ -148,12 +145,9 @@ class Component {
       initialStats: initialStats is _Sentinel
           ? this.initialStats
           : (initialStats as ComponentStats),
-      presetKey: presetKey is _Sentinel
-          ? this.presetKey
-          : (presetKey as String?),
-      presetDamperKey: presetDamperKey is _Sentinel
-          ? this.presetDamperKey
-          : (presetDamperKey as String?),
+      preset: preset is _Sentinel
+          ? this.preset
+          : (preset as ComponentPreset?),
       attachments: attachments is _Sentinel
           ? this.attachments
           : (attachments as List<Attachment>),
@@ -172,8 +166,7 @@ class Component {
     'orderIndex': orderIndex,
     'adjustments': adjustments.map((a) => a.toJson()).toList(),
     'initialStats': initialStats.toJson(),
-    'presetKey': presetKey,
-    'presetDamperKey': presetDamperKey,
+    'preset': preset?.toJson(),
     'attachments': attachments.map((a) => a.toJson()).toList(),
   };
 
@@ -230,8 +223,8 @@ class Component {
             ?? <Adjustment>[],
           orderIndex: json["orderIndex"] as int? ?? 0,
           initialStats: _initialStatsFromJson(json),
-          presetKey: json["presetKey"] as String?,
-          presetDamperKey: json["presetDamperKey"] as String?,
+          // `presetKey` / `presetDamperKey` (v1.6.0) predate [ComponentPreset] and are ignored.
+          preset: ComponentPreset.tryFromJson(json["preset"]),
           attachments: (json["attachments"] as List<dynamic>?) // since version 6
             ?.map((a) => Attachment.fromJson(a as Map<String, dynamic>))
             .toList(),
@@ -254,8 +247,7 @@ class Component {
         notes == other.notes &&
         listEquals(adjustments, other.adjustments) &&
         initialStats == other.initialStats &&
-        presetKey == other.presetKey &&
-        presetDamperKey == other.presetDamperKey &&
+        preset == other.preset &&
         listEquals(attachments, other.attachments);
   }
 
@@ -271,8 +263,7 @@ class Component {
       notes,
       Object.hashAll(adjustments),
       initialStats,
-      presetKey,
-      presetDamperKey,
+      preset,
       Object.hashAll(attachments),
     );
   }

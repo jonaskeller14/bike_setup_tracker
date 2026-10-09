@@ -66,6 +66,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
   List<Attachment> _attachments = [];
   String? _attachmentsDirPath;
   final List<Attachment> _importedAttachments = [];
+  bool _importingAttachments = false;
   List<Attachment>? _savedAttachments;
 
   final _formKey = GlobalKey<FormState>();
@@ -105,7 +106,15 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
   }
 
   Future<void> _addAttachments() async {
-    final attachments = await AttachmentActions.pickAttachments(context);
+    final List<Attachment> attachments;
+    try {
+      attachments = await AttachmentActions.pickAttachments(
+        context,
+        onImportStarted: () => setState(() => _importingAttachments = true),
+      );
+    } finally {
+      if (mounted) setState(() => _importingAttachments = false);
+    }
     if (attachments.isEmpty || !mounted) return;
     _importedAttachments.addAll(attachments);
     setState(() => _attachments.addAll(attachments));
@@ -384,134 +393,146 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
         ),
         body: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.symmetric(vertical: 16.0),
             child: Form(
               key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  TaskRuleDisplayCard(
-                    taskRule: widget.taskRule,
-                    showStatus: false,
-                    heroTag: widget.heroTag,
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _nameController,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    autofocus: widget.mode == TaskEntryPageMode.add,
-                    onChanged: (value) => setState(() {}),
-                    decoration: InputDecoration(
-                      labelText: 'Task Entry Name',
-                      border: const OutlineInputBorder(),
-                      hintText: 'Enter task entry name',
-                      fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
-                      filled: widget.mode == TaskEntryPageMode.edit && _nameController.text.trim() != widget.taskEntry?.name,
-                    ),
-                    validator: _validateName,
-                    onFieldSubmitted: (_) => _saveTaskEntry(),
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _notesController,
-                    minLines: 2,
-                    maxLines: null,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    decoration: InputDecoration(
-                      labelText: 'Notes (optional)',
-                      hintText: 'Add additional details...',
-                      border: const OutlineInputBorder(),
-                      fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
-                      filled: widget.mode == TaskEntryPageMode.edit && _notesController.text.trim() != (widget.taskEntry?.notes ?? ""),
-                    ),
-                  ),
-                  if (widget.mode == TaskEntryPageMode.edit) ...[
-                    const SizedBox(height: 12),
-                    FormField<TaskAssociation>(
-                      initialValue: _association,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      builder: (field) {
-                        return InkWell(
-                          onTap: () async {
-                            final picked = await showTaskAssociationSheet(
-                              context: context,
-                              selected: _association,
-                              initial: _initialAssociation,
-                            );
-                            if (picked == null) return;
-                            setState(() => _association = picked);
-                            field.didChange(picked);
-                            _changeListener();
-                          },
-                          child: InputDecorator(
-                            decoration: InputDecoration(
-                              labelText: 'Linked To',
-                              border: const OutlineInputBorder(),
-                              suffixIcon: Icon(
-                                Icons.arrow_drop_down,
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                              ),
-                              fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
-                              filled: _association != _initialAssociation,
-                              helperText: _selectionHelperText(bikes, components),
-                              helperMaxLines: 3,
-                              helperStyle: TextStyle(color: Theme.of(context).colorScheme.error),
-                            ),
-                            child: _associationDisplay(bikes, components, appRepository.componentHierarchy),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TaskRuleDisplayCard(
+                          taskRule: widget.taskRule,
+                          showStatus: false,
+                          heroTag: widget.heroTag,
+                        ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _nameController,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          autofocus: widget.mode == TaskEntryPageMode.add,
+                          onChanged: (value) => setState(() {}),
+                          decoration: InputDecoration(
+                            labelText: 'Task Entry Name',
+                            border: const OutlineInputBorder(),
+                            hintText: 'Enter task entry name',
+                            fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
+                            filled: widget.mode == TaskEntryPageMode.edit && _nameController.text.trim() != widget.taskEntry?.name,
                           ),
-                        );
-                      },
+                          validator: _validateName,
+                          onFieldSubmitted: (_) => _saveTaskEntry(),
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _notesController,
+                          minLines: 2,
+                          maxLines: null,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          decoration: InputDecoration(
+                            labelText: 'Notes (optional)',
+                            hintText: 'Add additional details...',
+                            border: const OutlineInputBorder(),
+                            fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
+                            filled: widget.mode == TaskEntryPageMode.edit && _notesController.text.trim() != (widget.taskEntry?.notes ?? ""),
+                          ),
+                        ),
+                        if (widget.mode == TaskEntryPageMode.edit) ...[
+                          const SizedBox(height: 12),
+                          FormField<TaskAssociation>(
+                            initialValue: _association,
+                            autovalidateMode: AutovalidateMode.onUserInteraction,
+                            builder: (field) {
+                              return InkWell(
+                                onTap: () async {
+                                  final picked = await showTaskAssociationSheet(
+                                    context: context,
+                                    selected: _association,
+                                    initial: _initialAssociation,
+                                  );
+                                  if (picked == null) return;
+                                  setState(() => _association = picked);
+                                  field.didChange(picked);
+                                  _changeListener();
+                                },
+                                child: InputDecorator(
+                                  decoration: InputDecoration(
+                                    labelText: 'Linked To',
+                                    border: const OutlineInputBorder(),
+                                    suffixIcon: Icon(
+                                      Icons.arrow_drop_down,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    ),
+                                    fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
+                                    filled: _association != _initialAssociation,
+                                    helperText: _selectionHelperText(bikes, components),
+                                    helperMaxLines: 3,
+                                    helperStyle: TextStyle(color: Theme.of(context).colorScheme.error),
+                                  ),
+                                  child: _associationDisplay(bikes, components, appRepository.componentHierarchy),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 8.0,
+                          runSpacing: 8.0,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            ActionChip(
+                              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              avatar: const Icon(Icons.calendar_month),
+                              label: Text(
+                                DateFormat(appSettings.dateFormat).format(_selectedDateTimeLocal),
+                              ),
+                              backgroundColor: widget.mode == TaskEntryPageMode.edit && (_selectedDateTimeUtc.year != _initialDateTimeUtc.year || _selectedDateTimeUtc.month != _initialDateTimeUtc.month || _selectedDateTimeUtc.day != _initialDateTimeUtc.day) ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
+                              onPressed: _pickDate,
+                            ),
+                            ActionChip(
+                              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              avatar: const Icon(Icons.access_time),
+                              label: Text(
+                                DateFormat(appSettings.timeFormat).format(_selectedDateTimeLocal),
+                              ),
+                              backgroundColor: widget.mode == TaskEntryPageMode.edit && (_selectedDateTimeUtc.hour != _initialDateTimeUtc.hour || _selectedDateTimeUtc.minute != _initialDateTimeUtc.minute) ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
+                              onPressed: _pickTime,
+                            ),
+                            if (showAttachments)
+                              ActionChip(
+                                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                label: const SizedBox.shrink(),
+                                labelPadding: const EdgeInsets.symmetric(vertical: 2),
+                                padding: EdgeInsets.zero,
+                                avatar: const Icon(Icons.attach_file),
+                                tooltip: 'Add Attachment',
+                                backgroundColor: widget.mode == TaskEntryPageMode.edit && !listEquals(_attachments, widget.taskEntry!.attachments) ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
+                                onPressed: _importingAttachments ? null : _addAttachments,
+                              ),
+                          ],
+                        ),
+                      ],
                     ),
-                  ],
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8.0,
-                    runSpacing: 8.0,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      ActionChip(
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        avatar: const Icon(Icons.calendar_month),
-                        label: Text(
-                          DateFormat(appSettings.dateFormat).format(_selectedDateTimeLocal),
-                        ),
-                        backgroundColor: widget.mode == TaskEntryPageMode.edit && (_selectedDateTimeUtc.year != _initialDateTimeUtc.year || _selectedDateTimeUtc.month != _initialDateTimeUtc.month || _selectedDateTimeUtc.day != _initialDateTimeUtc.day) ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
-                        onPressed: _pickDate,
-                      ),
-                      ActionChip(
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        avatar: const Icon(Icons.access_time),
-                        label: Text(
-                          DateFormat(appSettings.timeFormat).format(_selectedDateTimeLocal),
-                        ),
-                        backgroundColor: widget.mode == TaskEntryPageMode.edit && (_selectedDateTimeUtc.hour != _initialDateTimeUtc.hour || _selectedDateTimeUtc.minute != _initialDateTimeUtc.minute) ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
-                        onPressed: _pickTime,
-                      ),
-                      if (showAttachments)
-                        ActionChip(
-                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          label: const SizedBox.shrink(),
-                          labelPadding: const EdgeInsets.symmetric(vertical: 2),
-                          padding: EdgeInsets.zero,
-                          avatar: const Icon(Icons.attach_file),
-                          tooltip: 'Add Attachment',
-                          backgroundColor: widget.mode == TaskEntryPageMode.edit && !listEquals(_attachments, widget.taskEntry!.attachments) ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
-                          onPressed: _addAttachments,
-                        ),
-                    ],
                   ),
-                  if (showAttachments && _attachments.isNotEmpty) ...[
-                    const SizedBox(height: 12),
-                    AttachmentStrip(
-                      attachments: _attachments,
-                      attachmentsDir: _attachmentsDirPath!,
-                      mode: AttachmentStripMode.edit,
-                      onRemove: _onAttachmentRemoved,
-                      onReorder: _onAttachmentReorder,
-                      onRename: _onAttachmentRenamed,
+                  if (showAttachments && (_attachments.isNotEmpty || _importingAttachments))
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: AttachmentStrip(
+                        attachments: _attachments,
+                        attachmentsDir: _attachmentsDirPath!,
+                        mode: AttachmentStripMode.edit,
+                        isLoading: _importingAttachments,
+                        onRemove: _onAttachmentRemoved,
+                        onReorder: _onAttachmentReorder,
+                        onRename: _onAttachmentRenamed,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                      ),
                     ),
-                  ],
                 ],
               ),
             ),

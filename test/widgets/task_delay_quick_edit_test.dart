@@ -278,7 +278,7 @@ void main() {
       await tester.tap(find.widgetWithText(FilledButton, 'Save'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Must be greater than 0'), findsOneWidget);
+      expect(find.text('Must not be 0'), findsOneWidget);
       expect(appRepository.taskRules[rule.id]?.delay, isNull);
     });
 
@@ -294,7 +294,7 @@ void main() {
       await tester.enterText(find.byType(TextFormField), '0');
       await tester.pump();
 
-      expect(find.text('Must be greater than 0'), findsNothing);
+      expect(find.text('Must not be 0'), findsNothing);
       await tester.tap(find.widgetWithText(FilledButton, 'Save'));
       await waitForRepositoryUpdate(tester);
 
@@ -321,6 +321,108 @@ void main() {
       await waitForRepositoryUpdate(tester);
 
       expect(appRepository.taskRules[rule.id]?.delay, isNull);
+    });
+
+    // A bike rule without stats has ridden nothing yet, so a ride-count trigger
+    // is still upcoming — whereas a duration counts from the epoch and is long due.
+    testWidgets('does not offer "Make Due Now" in the card menu', (tester) async {
+      await pumpCardMenu(tester, ruleWith(interval: const ActivityCountThreshold(10)));
+
+      expect(findMenuOption('Add Delay'), findsOneWidget);
+      expect(find.text('Make Due Now'), findsNothing);
+    });
+
+    testWidgets('"Make Due Now" in the sheet pulls an upcoming task in', (tester) async {
+      final rule = ruleWith(interval: const ActivityCountThreshold(10));
+      await pumpCardMenu(tester, rule);
+
+      await tester.tap(findMenuOption('Add Delay'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Make Due Now'));
+      await tester.pumpAndSettle();
+
+      // Only fills in the value: nothing is saved until confirmed.
+      expect(find.widgetWithText(TextFormField, '-10'), findsOneWidget);
+      expect(appRepository.taskRules[rule.id]?.delay, isNull);
+
+      await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+      await waitForRepositoryUpdate(tester);
+
+      final saved = appRepository.taskRules[rule.id]!;
+      expect(saved.delay, const ActivityCountThreshold(-10));
+      expect(saved.interval, const ActivityCountThreshold(10)); // the interval stays as it was
+      expect(appRepository.getTaskRuleStatus(saved).isDue, isTrue);
+    });
+
+    testWidgets('"Make Due Now" keeps the exact value behind the rounded text', (tester) async {
+      final rule = ruleWith(interval: const DistanceThreshold(300000));
+      await pumpCardMenu(tester, rule);
+
+      await tester.tap(findMenuOption('Add Delay'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Make Due Now'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+      await waitForRepositoryUpdate(tester);
+
+      final saved = appRepository.taskRules[rule.id]!;
+      // Rebuilt from the text "-300" it would be exactly -300 km.
+      expect((saved.delay as DistanceThreshold).meters, lessThan(-300000));
+      expect(appRepository.getTaskRuleStatus(saved).isDue, isTrue);
+    });
+
+    testWidgets('hides "Make Due Now" for a task that is already due', (tester) async {
+      await pumpCardMenu(tester, ruleWith(interval: const DurationThreshold(Duration(days: 30))));
+
+      await tester.tap(findMenuOption('Add Delay'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Make Due Now'), findsNothing);
+    });
+
+    testWidgets('saves a negative delay typed into the sheet', (tester) async {
+      final rule = ruleWith(interval: const ActivityCountThreshold(10));
+      await pumpCardMenu(tester, rule);
+
+      await tester.tap(findMenuOption('Add Delay'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextFormField), '-4');
+      await tester.pump();
+      await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+      await waitForRepositoryUpdate(tester);
+
+      expect(appRepository.taskRules[rule.id]?.delay, const ActivityCountThreshold(-4));
+    });
+
+    testWidgets('rejects a negative delay beyond the interval', (tester) async {
+      final rule = ruleWith(interval: const ActivityCountThreshold(10));
+      await pumpCardMenu(tester, rule);
+
+      await tester.tap(findMenuOption('Add Delay'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextFormField), '-11');
+      await tester.pump();
+      await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Cannot bring it forward by more than its interval'), findsOneWidget);
+      expect(appRepository.taskRules[rule.id]?.delay, isNull);
+    });
+
+    testWidgets('keeps an untouched "Make Due Now" delay exactly', (tester) async {
+      // Rebuilt from the rounded field text it could fall just short of due.
+      final rule = ruleWith(
+        interval: const DistanceThreshold(300000),
+        delay: const DistanceThreshold(-123456.789123),
+      );
+      await pumpCardMenu(tester, rule);
+
+      await tester.tap(findMenuOption('Edit Delay'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+      await waitForRepositoryUpdate(tester);
+
+      expect(appRepository.taskRules[rule.id]?.delay, const DistanceThreshold(-123456.789123));
     });
   });
 
@@ -504,7 +606,7 @@ void main() {
       await tester.tap(find.byIcon(Icons.check));
       await tester.pumpAndSettle();
 
-      expect(find.text('Must be greater than 0'), findsOneWidget);
+      expect(find.text('Must not be 0'), findsOneWidget);
       expect(find.byType(TaskRulePage), findsOneWidget); // save blocked
     });
 
@@ -516,7 +618,7 @@ void main() {
 
       await tester.enterText(delayValueField(), '0');
       await tester.pump();
-      expect(find.text('Must be greater than 0'), findsNothing);
+      expect(find.text('Must not be 0'), findsNothing);
 
       await tester.tap(find.byIcon(Icons.check));
       await tester.pumpAndSettle();
@@ -540,6 +642,44 @@ void main() {
       expect(popped, isNotNull);
       expect((popped!.interval as DurationThreshold).days, const Duration(days: 365));
       expect((popped!.delay as DurationThreshold).days, const Duration(days: 14));
+    });
+
+    testWidgets('accepts a negative delay', (tester) async {
+      await openEditPage(tester, ruleWith(interval: const DurationThreshold(Duration(days: 30))));
+
+      await tester.enterText(delayValueField(), '-7');
+      await tester.pump();
+      await tester.tap(find.byIcon(Icons.check));
+      await tester.pumpAndSettle();
+
+      expect(popped, isNotNull);
+      expect((popped!.delay as DurationThreshold).days, const Duration(days: -7));
+    });
+
+    testWidgets('rejects a negative delay beyond the interval', (tester) async {
+      await openEditPage(tester, ruleWith(interval: const DurationThreshold(Duration(days: 30))));
+
+      await tester.enterText(delayValueField(), '-31');
+      await tester.pump();
+      await tester.tap(find.byIcon(Icons.check));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Cannot bring it forward by more than its interval'), findsOneWidget);
+      expect(find.byType(TaskRulePage), findsOneWidget); // save blocked
+    });
+
+    testWidgets('keeps an untouched negative delay exactly', (tester) async {
+      await openEditPage(tester, ruleWith(
+        interval: const DistanceThreshold(300000),
+        delay: const DistanceThreshold(-123456.789123),
+      ));
+
+      expect(find.descendant(of: delayValueField(), matching: find.text('-123.45679')), findsOneWidget);
+      await tester.tap(find.byIcon(Icons.check));
+      await tester.pumpAndSettle();
+
+      expect(popped, isNotNull);
+      expect(popped!.delay, const DistanceThreshold(-123456.789123));
     });
   });
 

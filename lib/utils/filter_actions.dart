@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -25,13 +24,11 @@ class FilterActions {
   }) {
     bool enabled(FilterSection section) => switch (section) {
       FilterSection.bike => true,
-      // Not shipped yet: release builds do not offer the date range.
-      FilterSection.dateRange => kDebugMode,
+      FilterSection.dateRange => appSettings.enableAdvancedFilters,
       FilterSection.setups => appSettings.enableSetupTags || appSettings.enableSetupBookmark,
       FilterSection.taskPriority => appSettings.enableTaskPriority,
       FilterSection.taskTags => appSettings.enableTaskTags,
-      // Not shipped yet: release builds do not offer the activity ranges.
-      FilterSection.activity => kDebugMode && stravaActive,
+      FilterSection.activity => appSettings.enableAdvancedFilters && stravaActive,
       // Layer toggles are only offered when a layer other than setups can be shown at all.
       FilterSection.mapLayers => appSettings.enableRating || stravaActive,
       FilterSection.timelineLayers =>

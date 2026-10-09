@@ -80,13 +80,13 @@ void main() {
   }
 
   Setup setup(String bikeId, List<Attachment> attachments) => Setup(
-    tags: {},
+    tags: const {},
     datetime: DateTime(2026).toUtc(),
     datetimeLocal: DateTime(2026),
     bike: bikeId,
     person: null,
-    bikeAdjustmentValues: {},
-    personAdjustmentValues: {},
+    bikeAdjustmentValues: const {},
+    personAdjustmentValues: const {},
     attachments: attachments,
   );
 

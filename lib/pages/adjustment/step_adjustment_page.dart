@@ -20,24 +20,26 @@ const double _dialFieldWidth = 68;
 class StepAdjustmentPage extends StatefulWidget {
   final StepAdjustment? adjustment;
   final AdjustmentPageMode mode;
+  final AdjustmentTerm term;
 
   const StepAdjustmentPage._({
     super.key,
     this.adjustment,
     required this.mode,
+    this.term = AdjustmentTerm.adjustment,
   });
 
-  factory StepAdjustmentPage.add({Key? key}) =>
-      StepAdjustmentPage._(key: key, mode: AdjustmentPageMode.add);
+  factory StepAdjustmentPage.add({Key? key, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
+      StepAdjustmentPage._(key: key, mode: AdjustmentPageMode.add, term: term);
 
-  factory StepAdjustmentPage.edit({Key? key, required StepAdjustment adjustment}) =>
-      StepAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit);
+  factory StepAdjustmentPage.edit({Key? key, required StepAdjustment adjustment, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
+      StepAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit, term: term);
 
-  factory StepAdjustmentPage.duplicate({Key? key, required StepAdjustment adjustment}) =>
-      StepAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate);
+  factory StepAdjustmentPage.duplicate({Key? key, required StepAdjustment adjustment, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
+      StepAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate, term: term);
 
-  factory StepAdjustmentPage.template({Key? key, required StepAdjustment adjustment}) =>
-      StepAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.template);
+  factory StepAdjustmentPage.template({Key? key, required StepAdjustment adjustment, AdjustmentTerm term = AdjustmentTerm.adjustment}) =>
+      StepAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.template, term: term);
 
   @override
   State<StepAdjustmentPage> createState() => _StepAdjustmentPageState();
@@ -139,6 +141,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
       name: name,
       notes: notes.isEmpty ? null : notes,
       unit: widget.adjustment?.unit,
+      presetKey: widget.adjustment?.presetKey,
       step: step,
       min: min,
       max: max,
@@ -156,6 +159,10 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
     if (!shouldDiscard) return;
     Navigator.of(context).pop(null);
   }
+
+  Iterable<StepAdjustmentVisualization> get _selectableVisualizations =>
+      StepAdjustmentVisualization.values.where((v) =>
+          widget.term != AdjustmentTerm.attribute || !v.hasDial || v == widget.adjustment?.visualization);
 
   String? _validateStep(String? value) {
     if (value == null || value.trim().isEmpty) return 'Step is required';
@@ -199,6 +206,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
       name: _nameController.text.trim(),
       notes: notes.isEmpty ? null : notes,
       unit: widget.adjustment?.unit,
+      presetKey: widget.adjustment?.presetKey,
       step: step,
       min: min,
       max: max,
@@ -284,8 +292,8 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
           title: switch (widget.mode) {
             AdjustmentPageMode.add ||
             AdjustmentPageMode.duplicate ||
-            AdjustmentPageMode.template => const Text('Add Step Adjustment'),
-            AdjustmentPageMode.edit => const Text('Edit Step Adjustment'),
+            AdjustmentPageMode.template => Text('Add Step ${widget.term.label}'),
+            AdjustmentPageMode.edit => Text('Edit Step ${widget.term.label}'),
           },
           actions: [
             IconButton(icon: const Icon(Icons.check), onPressed: _saveStepAdjustment),
@@ -311,8 +319,8 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                             autovalidateMode: AutovalidateMode.onUserInteraction,
                             autofocus: widget.mode == AdjustmentPageMode.add,
                             decoration: InputDecoration(
-                              labelText: 'Adjustment Name',
-                              hintText: 'Enter Adjustment Name',
+                              labelText: '${widget.term.label} Name',
+                              hintText: 'Enter ${widget.term.label} Name',
                               border: const OutlineInputBorder(),
                               helper: adjustmentNameLengthWarning(context, _nameController.text),
                               fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
@@ -404,11 +412,11 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                                         decoration: InputDecoration(
                                           labelText: 'Visualization',
                                           border: const OutlineInputBorder(),
-                                          hintText: "Choose a visualization for this adjustment",
+                                          hintText: "Choose a visualization for this ${widget.term.label.toLowerCase()}",
                                           fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                           filled: widget.mode == AdjustmentPageMode.edit && visualization != widget.adjustment?.visualization,
                                         ),
-                                        items: StepAdjustmentVisualization.values.map((v) {
+                                        items: _selectableVisualizations.map((v) {
                                           return DropdownMenuItem<StepAdjustmentVisualization>(
                                             value: v,
                                             child: Row(

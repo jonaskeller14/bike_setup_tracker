@@ -4,8 +4,8 @@ import 'package:provider/provider.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../utils/adjustment_preset_consumption.dart';
-import '../items/adjustment_properties.dart';
 import '../sticky_section.dart';
+import 'adjustment_preset_list.dart';
 import 'sheet.dart';
 import 'sheet_header.dart';
 
@@ -15,7 +15,12 @@ final NumericalAdjustment ridingWeightPreset = NumericalAdjustment(name: 'Riding
 final List<Adjustment> _adjustmentPresets = [
   ridingWeightPreset,
   NumericalAdjustment(name: 'Height', unit: AdjustmentUnit.fromLegacy('cm'), min: 0.0, notes: "Body height", presetKey: "person:height"),
-  CategoricalAdjustment(name: 'Riding Style', unit: null, options: const {'Plush/Comfort', 'Balanced', 'Aggressive/Race'}, notes: "Aggressive riders usually require higher support (more compression damping).", presetKey: "person:riding_style"),
+  NumericalAdjustment(name: 'Inseam', unit: AdjustmentUnit.fromLegacy('cm'), min: 0.0, notes: "Crotch to floor, barefoot. Helps with dropper post length and saddle height.", presetKey: "person:inseam"),
+  NumericalAdjustment(name: 'FTP', unit: AdjustmentUnit.fromLegacy('W'), min: 0.0, notes: "Functional Threshold Power: the highest power you can sustain for about one hour.", presetKey: "person:ftp"),
+  NumericalAdjustment(name: 'Max heart rate', unit: AdjustmentUnit.fromLegacy('bpm'), min: 0.0, notes: "Highest heart rate reached in an all-out effort. Basis for heart rate zones.", presetKey: "person:max_heart_rate"),
+  NumericalAdjustment(name: 'Resting heart rate', unit: AdjustmentUnit.fromLegacy('bpm'), min: 0.0, notes: "Heart rate at rest, ideally measured right after waking up.", presetKey: "person:resting_heart_rate"),
+  NumericalAdjustment(name: 'LTHR', unit: AdjustmentUnit.fromLegacy('bpm'), min: 0.0, notes: "Lactate Threshold Heart Rate: the average heart rate you can sustain for about one hour.", presetKey: "person:lthr"),
+  CategoricalAdjustment(name: 'Riding style', unit: null, options: const {'Comfort', 'Balanced', 'Race'}, notes: "Race-oriented riders usually require higher support (more compression damping).", presetKey: "person:riding_style"),
 ];
 
 void showPersonAddAdjustmentBottomSheet({
@@ -29,6 +34,7 @@ void showPersonAddAdjustmentBottomSheet({
     isScrollControlled: true,
     context: context, 
     builder: (BuildContext context) {
+      final consumedCount = _adjustmentPresets.where((preset) => isAdjustmentPresetConsumed(preset, existingAdjustments)).length;
       return SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -42,36 +48,21 @@ void showPersonAddAdjustmentBottomSheet({
                   children: [
                     if (_adjustmentPresets.isNotEmpty)
                       StickySection(
-                        header: sheetSectionHeader(context, "Pre-filled Templates"),
+                        header: sheetSectionHeader(context,
+                          consumedCount == 0
+                              ? "Pre-filled Templates"
+                              : "Pre-filled Templates · $consumedCount/${_adjustmentPresets.length} added",
+                        ),
                         content: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            ..._adjustmentPresets.map((adjustmentPreset) {
-                              final isConsumed = isAdjustmentPresetConsumed(adjustmentPreset, existingAdjustments);
-                              return Opacity(
-                                // Soft-disable: already-added presets stay tappable for
-                                // a deliberate second copy.
-                                opacity: isConsumed ? 0.5 : 1.0,
-                                child: ListTile(
-                                  leading: Icon(adjustmentPreset.getIconData()),
-                                  title: Text(adjustmentPreset.name),
-                                  subtitle: AdjustmentProperties(adjustmentPreset, singleLine: true, compact: true),
-                                  trailing: Icon(
-                                    isConsumed ? Icons.check : Icons.arrow_forward_ios,
-                                    size: 16.0,
-                                    color: isConsumed ? Theme.of(context).colorScheme.onSurfaceVariant : null,
-                                  ),
-                                  onTap: () async {
-                                    Navigator.pop(context);
-                                    await addAdjustmentFromPreset(adjustmentPreset);
-                                  },
-                                ),
-                              );
-                            }),
-                            const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 8.0),
-                              child: Divider(),
+                            AdjustmentPresetList(
+                              presets: _adjustmentPresets,
+                              existingAdjustments: existingAdjustments,
+                              allAddedHint: "Add a custom attribute below.",
+                              onSelected: addAdjustmentFromPreset,
                             ),
+                            const Divider(height: 16),
                           ],
                         ),
                       ),

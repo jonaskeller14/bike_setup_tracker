@@ -83,11 +83,11 @@ void main() {
     name: name,
     datetime: DateTime(2024).toUtc(),
     datetimeLocal: DateTime(2024),
-    tags: {},
+    tags: const {},
     bike: bike,
     person: null,
-    bikeAdjustmentValues: {},
-    personAdjustmentValues: {},
+    bikeAdjustmentValues: const {},
+    personAdjustmentValues: const {},
   );
 
   /// Seeds the database, then rebuilds the repository so it loads the rows into
@@ -211,11 +211,11 @@ void main() {
       name: id,
       datetime: DateTime.utc(2026, 1, day, 12),
       datetimeLocal: DateTime.utc(2026, 1, day, 12).toLocal(),
-      tags: {},
+      tags: const {},
       bike: 'bike1',
       person: null,
       bikeAdjustmentValues: values,
-      personAdjustmentValues: {},
+      personAdjustmentValues: const {},
     );
 
     /// Tire A is replaced by tire B on the front wheel on day 5.

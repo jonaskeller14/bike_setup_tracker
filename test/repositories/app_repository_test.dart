@@ -1,4 +1,5 @@
 import 'package:bike_setup_tracker/database/app_database.dart';
+import 'package:bike_setup_tracker/database/mappers.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
@@ -166,13 +167,13 @@ void main() {
       await pumpEventQueue();
       setup1 = Setup(
         name: "Setup #1", 
-        tags: {},
+        tags: const {},
         datetime: DateTime(2000).toUtc(),
         datetimeLocal: DateTime(2000).toLocal(),
         bike: bike1.id, 
         person: null, 
-        bikeAdjustmentValues: {}, 
-        personAdjustmentValues: {},
+        bikeAdjustmentValues: const {}, 
+        personAdjustmentValues: const {},
       );
     });
 
@@ -287,13 +288,13 @@ void main() {
       final bookmarked = setup1.copyWith(isBookmarked: true);
       final plain = Setup(
         name: "Setup #2",
-        tags: {},
+        tags: const {},
         datetime: DateTime(2001).toUtc(),
         datetimeLocal: DateTime(2001).toLocal(),
         bike: bike1.id,
         person: null,
-        bikeAdjustmentValues: {},
-        personAdjustmentValues: {},
+        bikeAdjustmentValues: const {},
+        personAdjustmentValues: const {},
       );
 
       await repository.addBikes([bike1]);
@@ -497,7 +498,7 @@ void main() {
 
     Setup buildSetup(String bikeId, {String? personId, Map<String, AdjustmentValue>? bikeValues, Map<String, AdjustmentValue>? personValues}) => Setup(
       name: "Setup",
-      tags: {},
+      tags: const {},
       datetime: DateTime(2020).toUtc(),
       datetimeLocal: DateTime(2020),
       bike: bikeId,
@@ -506,7 +507,7 @@ void main() {
       personAdjustmentValues: personValues ?? {},
     );
 
-    test("editComponent with Convert rewrites setup values and bumps lastModified", () async {
+    test("editComponents with Convert rewrites setup values and bumps lastModified", () async {
       final bike = Bike(name: "B", person: null);
       final adj = NumericalAdjustment(name: "Pressure", notes: null, unit: psi, min: 0, max: 300);
       final component = Component(
@@ -531,8 +532,8 @@ void main() {
 
       // Bounds are left as typed; only stored setup values convert.
       final convertedComponent = component.copyWith(adjustments: [adj.copyWith(unit: bar)]);
-      await repository.editComponent(
-        convertedComponent,
+      await repository.editComponents(
+        [convertedComponent],
         conversions: [ValueUnitConversion(adjustmentId: adj.id, from: psi, to: bar)],
       );
       await pumpEventQueue();
@@ -542,7 +543,7 @@ void main() {
       expect(repository.setups[setup.id]!.lastModified.isAfter(before), isTrue);
     });
 
-    test("editComponent without conversions leaves setup values and lastModified untouched", () async {
+    test("editComponents without conversions leaves setup values and lastModified untouched", () async {
       final bike = Bike(name: "B", person: null);
       final adj = NumericalAdjustment(name: "Pressure", notes: null, unit: psi);
       final component = Component(
@@ -561,7 +562,7 @@ void main() {
       final before = repository.setups[setup.id]!.lastModified;
 
       // "Keep numbers": unit changes but no conversion staged.
-      await repository.editComponent(component.copyWith(adjustments: [adj.copyWith(unit: bar)]));
+      await repository.editComponents([component.copyWith(adjustments: [adj.copyWith(unit: bar)])]);
       await pumpEventQueue();
 
       expect(repository.setups[setup.id]!.bikeAdjustmentValues[adj.id], const NumericalValue(65.0));
@@ -1207,13 +1208,13 @@ void main() {
 
     Setup buildSetup(String bikeId, DateTime datetime) => Setup(
       name: "Setup",
-      tags: {},
+      tags: const {},
       datetime: datetime.toUtc(),
       datetimeLocal: datetime.toLocal(),
       bike: bikeId,
       person: null,
-      bikeAdjustmentValues: {},
-      personAdjustmentValues: {},
+      bikeAdjustmentValues: const {},
+      personAdjustmentValues: const {},
     );
 
     test("returns null when the bike has no setups", () async {
@@ -1303,13 +1304,13 @@ void main() {
 
     Setup buildSetup(String bikeId, {ContextPosition? position}) => Setup(
       name: "Setup",
-      tags: {},
+      tags: const {},
       datetime: DateTime(2025, 6, 1).toUtc(),
       datetimeLocal: DateTime(2025, 6, 1).toLocal(),
       bike: bikeId,
       person: null,
-      bikeAdjustmentValues: {},
-      personAdjustmentValues: {},
+      bikeAdjustmentValues: const {},
+      personAdjustmentValues: const {},
       position: position,
     );
 
@@ -1435,6 +1436,31 @@ void main() {
       await pumpEventQueue();
 
       expect(await repository.hasStravaActivitiesWithPosition(), false);
+    });
+  });
+
+  group("AppRepository - Initial load", () {
+    late AppDatabase database;
+
+    setUp(() {
+      database = AppDatabase.memory();
+    });
+
+    tearDown(() async {
+      await database.close();
+    });
+
+    test("a row that fails to decode fails initialDataLoaded instead of hanging", () async {
+      final rule = TaskRule(name: "Chain Wax", tags: const {});
+      await database.taskDao.insertRule(rule.toCompanion());
+      await database.customStatement("UPDATE task_rules SET interval = 'not json' WHERE id = ?", [rule.id]);
+
+      final repository = AppRepository(database);
+
+      await expectLater(
+        repository.initialDataLoaded.timeout(const Duration(seconds: 5)),
+        throwsA(isA<FormatException>()),
+      );
     });
   });
 }

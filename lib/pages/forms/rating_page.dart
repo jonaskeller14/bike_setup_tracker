@@ -296,7 +296,7 @@ class _RatingPageState extends State<RatingPage> {
               FilterType.bike => "BIKE NOT FOUND",
               FilterType.component => "COMPONENT NOT FOUND",
               FilterType.componentType => "COMPONENTTYPE NOT FOUND",
-              FilterType.person => "PERSON NOT FOUND",
+              FilterType.person => "RIDER NOT FOUND",
               FilterType.global => "OBJECT NOT FOUND",
             },
             overflow: TextOverflow.ellipsis,
@@ -513,7 +513,7 @@ class _RatingPageState extends State<RatingPage> {
     );
 
     // Persons
-    items.add(_dropdownMenuSection("Persons"));
+    items.add(_dropdownMenuSection("Riders"));
     if (!filterOptions.contains(_ratingAssociation) && _ratingAssociation.filterType == FilterType.person) {
       items.add(_invalidFilterDropdownMenuItem(_ratingAssociation));
     }

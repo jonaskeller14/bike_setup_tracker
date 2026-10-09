@@ -69,20 +69,16 @@ class _ReplacementSheetState extends State<ReplacementSheet> {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
     final appRepository = context.read<AppRepository>();
-    if (!listEquals(_removedInstallations, widget.removed.component.installations)) {
-      await appRepository.editComponent(
+    await appRepository.editComponents([
+      if (!listEquals(_removedInstallations, widget.removed.component.installations))
         widget.removed.component.copyWith(
           installations: _removedInstallations,
         ),
-      );
-    }
-    if (!listEquals(_installedInstallations, widget.installed.component.installations)) {
-      await appRepository.editComponent(
+      if (!listEquals(_installedInstallations, widget.installed.component.installations))
         widget.installed.component.copyWith(
           installations: _installedInstallations,
         ),
-      );
-    }
+    ]);
     if (!mounted) return;
     Navigator.pop(context);
   }

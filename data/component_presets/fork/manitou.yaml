@@ -1,7 +1,7 @@
 # Manitou mountain-bike forks — adjustment preset database
 #
 # Same design as fork/fox.yaml and fork/rockshox.yaml: click ranges belong to the
-# DAMPER cartridge, defined once under `dampers:` and referenced by key from
+# DAMPER cartridge, defined once under `option_values.damper` and referenced by id from
 # each fork's trims. See SCHEMA.md in this folder.
 
 brand: Manitou
@@ -49,7 +49,13 @@ sources:
   # Secondary — editorial (article body text only)
   - https://www.pinkbike.com/news/first-ride-the-manitou-mezzer-lt-class-leading-sensitivity.html
   - https://www.pinkbike.com/news/first-look-manitous-180mm-mezzer-pro-fork-and-mara-pro-shock-garda-trentino-2019.html
-updated: 2026-09-25
+  # Primary — service intervals
+  - https://hayesbicycle.zendesk.com/hc/en-us/articles/4407665097879-Suspension-Maintenance-Schedule
+updated: 2026-10-07
+# Service intervals (`tasks`) come from the Manitou suspension maintenance
+# schedule: lower legs every 50 hours, a full service every 200 hours or
+# yearly.
+#
 # Counting conventions, taken from the "Set-up notes" of every guide above:
 #   * Damper knobs are turned fully clockwise to reach the maximum "zero"
 #     position and are counted counterclockwise (opening) from there — i.e.
@@ -64,405 +70,443 @@ updated: 2026-09-25
 # --------------------------------------------------------------------------
 # Dampers
 # --------------------------------------------------------------------------
-dampers:
-  mc2_pro_x_2026:
-    name: MC2 Pro-X
-    description: |-
-      - Four independent damping adjusters: high- and low-speed compression, high- and low-speed rebound
-      - Air-backed bladder cartridge for low breakaway friction
-      - Non-adjustable hydraulic bottom-out over the last 30 mm of travel
-    adjustments:
-      - { name: HSC, type: step, max: 8, notes: High-Speed Compression }
-      - { name: LSC, type: step, max: 10, notes: Low-Speed Compression }
-      - { name: HSR, type: step, max: 8, notes: "High-Speed Rebound; Counted from fully closed (slowest)" }
-      - { name: LSR, type: step, max: 10, notes: "Low-Speed Rebound; Counted from fully closed (slowest)" }
-    source:
-      - https://hayesbicycle.zendesk.com/hc/article_attachments/43742231652503
-      - https://www.pinkbike.com/news/first-ride-the-manitou-mezzer-lt-class-leading-sensitivity.html
-    note: >-
-      Ranges "10-0" (LSC, LSR) and "8-0" (HSC, HSR) read off the Mezzer G2 Pro &
-      LT Pro set-up guide (2025). Pinkbike's May 2026 first ride independently
-      states 8 clicks HSC, 10 LSC, 8 HSR, 10 LSR.
+option_values:
+  damper:
+    mc2_pro_x_2026:
+      name: MC2 Pro-X
+      description: |-
+        - Four independent damping adjusters: high- and low-speed compression, high- and low-speed rebound
+        - Air-backed bladder cartridge for low breakaway friction
+        - Non-adjustable hydraulic bottom-out over the last 30 mm of travel
+      adjustments:
+        - { name: HSC, type: step, max: 8, notes: High-Speed Compression }
+        - { name: LSC, type: step, max: 10, notes: Low-Speed Compression }
+        - { name: HSR, type: step, max: 8, notes: "High-Speed Rebound; Counted from fully closed (slowest)" }
+        - { name: LSR, type: step, max: 10, notes: "Low-Speed Rebound; Counted from fully closed (slowest)" }
+      source:
+        - https://hayesbicycle.zendesk.com/hc/article_attachments/43742231652503
+        - https://www.pinkbike.com/news/first-ride-the-manitou-mezzer-lt-class-leading-sensitivity.html
+      note: >-
+        Ranges "10-0" (LSC, LSR) and "8-0" (HSC, HSR) read off the Mezzer G2 Pro &
+        LT Pro set-up guide (2025). Pinkbike's May 2026 first ride independently
+        states 8 clicks HSC, 10 LSC, 8 HSR, 10 LSR.
 
-  mc2_mezzer_2019:
-    name: MC2
-    description: |-
-      - Bladder cartridge with independent high- and low-speed compression
-      - Single rebound adjuster
-      - Non-adjustable hydraulic bottom-out over the final stretch of travel
-    adjustments:
-      - { name: HSC, type: step, max: 4, notes: "High-Speed Compression; Outer knob" }
-      - { name: LSC, type: step, max: 10, notes: "Low-Speed Compression; Inner knob" }
-      - { name: Rebound, type: step, max: 10, notes: Counted from fully closed (slowest) }
-    source: https://hayesbicycle.zendesk.com/hc/article_attachments/43742473560727
-    note: >-
-      Mezzer Pro (Gen 1) set-up guide Rev A 3/2019: rebound "10-0"; the row for
-      unsprung wheel movement (Hi-speed, outer knob) is "4-0"; the row for sprung
-      chassis movement (Lo-speed, inner knob) is "10-0".
+    mc2_mezzer_2019:
+      name: MC2
+      description: |-
+        - Bladder cartridge with independent high- and low-speed compression
+        - Single rebound adjuster
+        - Non-adjustable hydraulic bottom-out over the final stretch of travel
+      adjustments:
+        - { name: HSC, type: step, max: 4, notes: "High-Speed Compression; Outer knob" }
+        - { name: LSC, type: step, max: 10, notes: "Low-Speed Compression; Inner knob" }
+        - { name: Rebound, type: step, max: 10, notes: Counted from fully closed (slowest) }
+      source: https://hayesbicycle.zendesk.com/hc/article_attachments/43742473560727
+      note: >-
+        Mezzer Pro (Gen 1) set-up guide Rev A 3/2019: rebound "10-0"; the row for
+        unsprung wheel movement (Hi-speed, outer knob) is "4-0"; the row for sprung
+        chassis movement (Lo-speed, inner knob) is "10-0".
 
-  vtt6_mezzer_g1:
-    name: VTT-6
-    description: |-
-      - Single six-position compression dial that shapes high- and low-speed damping together
-      - Separate rebound dial
-    adjustments:
-      - { name: Compression, type: step, min: 1, max: 6, visualization: dial_cw, notes: "VTT-6 position; Counted clockwise from position 1 (minimum); adjusts high- and low-speed damping together" }
-      - { name: Rebound, type: step, max: 10, notes: Counted from fully closed (slowest) }
-    source: https://hayesbicycle.zendesk.com/hc/article_attachments/43742488803479
-    note: Mezzer Expert (Gen 1) set-up guide Rev A 5/2021 — VTT "1-6", TPC rebound "10-0".
+    vtt6_mezzer_g1:
+      name: VTT-6
+      description: |-
+        - Single six-position compression dial that shapes high- and low-speed damping together
+        - Separate rebound dial
+      adjustments:
+        - { name: Compression, type: step, min: 1, max: 6, visualization: dial_cw, notes: "VTT-6 position; Counted clockwise from position 1 (minimum); adjusts high- and low-speed damping together" }
+        - { name: Rebound, type: step, max: 10, notes: Counted from fully closed (slowest) }
+      source: https://hayesbicycle.zendesk.com/hc/article_attachments/43742488803479
+      note: Mezzer Expert (Gen 1) set-up guide Rev A 5/2021 — VTT "1-6", TPC rebound "10-0".
 
-  vtt6_mezzer_g2:
-    name: VTT-6
-    description: |-
-      - Single six-position compression dial that shapes high- and low-speed damping together
-      - Separate rebound dial with 12 clicks
-    adjustments:
-      - { name: Compression, type: step, min: 1, max: 6, visualization: dial_cw, notes: "VTT-6 position; Counted clockwise from position 1 (minimum); adjusts high- and low-speed damping together" }
-      - { name: Rebound, type: step, max: 12, notes: Counted from fully closed (slowest) }
-    source: https://hayesbicycle.zendesk.com/hc/article_attachments/41067689282071
-    note: Mezzer G2 Expert set-up guide (2025) — VTT-6 "1-6", TPC rebound "12-0".
+    vtt6_mezzer_g2:
+      name: VTT-6
+      description: |-
+        - Single six-position compression dial that shapes high- and low-speed damping together
+        - Separate rebound dial with 12 clicks
+      adjustments:
+        - { name: Compression, type: step, min: 1, max: 6, visualization: dial_cw, notes: "VTT-6 position; Counted clockwise from position 1 (minimum); adjusts high- and low-speed damping together" }
+        - { name: Rebound, type: step, max: 12, notes: Counted from fully closed (slowest) }
+      source: https://hayesbicycle.zendesk.com/hc/article_attachments/41067689282071
+      note: Mezzer G2 Expert set-up guide (2025) — VTT-6 "1-6", TPC rebound "12-0".
 
-  abs_plus_mezzer_lt_2026:
-    name: ABS+
-    description: |-
-      - Simple single-knob compression adjustment
-      - Separate rebound knob with 10 clicks
-    adjustments:
-      - { name: Compression, type: step, max: 10, notes: Counted from fully closed (firmest) }
-      - { name: Rebound, type: step, max: 10, notes: Counted from fully closed (slowest) }
-    source: https://hayesbicycle.zendesk.com/hc/article_attachments/43742211211927
-    note: Mezzer G2 LT Comp set-up guide — ABS+ "10-0", TPC rebound "10-0".
+    abs_plus_mezzer_lt_2026:
+      name: ABS+
+      description: |-
+        - Simple single-knob compression adjustment
+        - Separate rebound knob with 10 clicks
+      adjustments:
+        - { name: Compression, type: step, max: 10, notes: Counted from fully closed (firmest) }
+        - { name: Rebound, type: step, max: 10, notes: Counted from fully closed (slowest) }
+      source: https://hayesbicycle.zendesk.com/hc/article_attachments/43742211211927
+      note: Mezzer G2 LT Comp set-up guide — ABS+ "10-0", TPC rebound "10-0".
 
-  mc2_mattoc_2023:
-    name: MC2
-    description: |-
-      - Sealed bladder cartridge with independent high- and low-speed compression
-      - Rebound adjuster on the bottom of the leg with 20 clicks
-      - Non-adjustable hydraulic bottom-out over the last 30 mm of travel
-    adjustments:
-      - { name: HSC, type: step, max: 4, notes: "High-Speed Compression; Outer knob" }
-      - { name: LSC, type: step, max: 10, notes: "Low-Speed Compression; Inner knob" }
-      - { name: Rebound, type: step, max: 20, notes: Counted from fully closed (slowest) }
-    source: https://hayesbicycle.zendesk.com/hc/article_attachments/14639548710935
-    note: Mattoc Pro set-up guide Rev 1 2/2023 — rebound "20-0", Hi-speed "4-0", Lo-speed "10-0".
+    mc2_mattoc_2023:
+      name: MC2
+      description: |-
+        - Sealed bladder cartridge with independent high- and low-speed compression
+        - Rebound adjuster on the bottom of the leg with 20 clicks
+        - Non-adjustable hydraulic bottom-out over the last 30 mm of travel
+      adjustments:
+        - { name: HSC, type: step, max: 4, notes: "High-Speed Compression; Outer knob" }
+        - { name: LSC, type: step, max: 10, notes: "Low-Speed Compression; Inner knob" }
+        - { name: Rebound, type: step, max: 20, notes: Counted from fully closed (slowest) }
+      source: https://hayesbicycle.zendesk.com/hc/article_attachments/14639548710935
+      note: Mattoc Pro set-up guide Rev 1 2/2023 — rebound "20-0", Hi-speed "4-0", Lo-speed "10-0".
 
-  vtt6_2023:
-    name: VTT-6
-    description: |-
-      - Single six-position compression dial that shapes high- and low-speed damping together
-      - Separate rebound dial with 20 clicks
-    adjustments:
-      - { name: Compression, type: step, min: 1, max: 6, visualization: dial_cw, notes: "VTT-6 position; Counted clockwise from position 1 (minimum); adjusts high- and low-speed damping together" }
-      - { name: Rebound, type: step, max: 20, notes: Counted from fully closed (slowest) }
-    source:
-      - https://hayesbicycle.zendesk.com/hc/article_attachments/14639542611479
-      - https://hayesbicycle.zendesk.com/hc/article_attachments/17493411154967
-    note: Mattoc Expert (Rev 1 2/2023) and Mastodon Pro (Rev 1 6/2023) set-up guides — VTT-6 "1-6", rebound "20-0".
+    vtt6_2023:
+      name: VTT-6
+      description: |-
+        - Single six-position compression dial that shapes high- and low-speed damping together
+        - Separate rebound dial with 20 clicks
+      adjustments:
+        - { name: Compression, type: step, min: 1, max: 6, visualization: dial_cw, notes: "VTT-6 position; Counted clockwise from position 1 (minimum); adjusts high- and low-speed damping together" }
+        - { name: Rebound, type: step, max: 20, notes: Counted from fully closed (slowest) }
+      source:
+        - https://hayesbicycle.zendesk.com/hc/article_attachments/14639542611479
+        - https://hayesbicycle.zendesk.com/hc/article_attachments/17493411154967
+      note: Mattoc Expert (Rev 1 2/2023) and Mastodon Pro (Rev 1 6/2023) set-up guides — VTT-6 "1-6", rebound "20-0".
 
-  abs_plus_2023:
-    name: ABS+
-    description: |-
-      - Simple single-knob compression adjustment with 9 clicks
-      - Rebound knob has no click stops
-    adjustments:
-      - { name: Compression, type: step, max: 9, notes: Counted from fully closed (firmest) }
-      - { name: Rebound, type: numerical, notes: "Not detented; recommended settings are given as clock positions from 12 o'clock (minimum) to 6 o'clock (maximum)" }
-    source:
-      - https://hayesbicycle.zendesk.com/hc/article_attachments/14639496469143
-      - https://hayesbicycle.zendesk.com/hc/article_attachments/17493359414167
-    note: Mattoc Comp (Rev 1 2/2023) and Mastodon Comp (Rev 1 6/2023) set-up guides — Absolute+ "9-0"; rebound is not detented.
+    abs_plus_2023:
+      name: ABS+
+      description: |-
+        - Simple single-knob compression adjustment with 9 clicks
+        - Rebound knob has no click stops
+      adjustments:
+        - { name: Compression, type: step, max: 9, notes: Counted from fully closed (firmest) }
+        - { name: Rebound, type: numerical, notes: "Not detented; recommended settings are given as clock positions from 12 o'clock (minimum) to 6 o'clock (maximum)" }
+      source:
+        - https://hayesbicycle.zendesk.com/hc/article_attachments/14639496469143
+        - https://hayesbicycle.zendesk.com/hc/article_attachments/17493359414167
+      note: Mattoc Comp (Rev 1 2/2023) and Mastodon Comp (Rev 1 6/2023) set-up guides — Absolute+ "9-0"; rebound is not detented.
 
-  vtt_pro_x_r8:
-    name: VTT Pro-X
-    description: |-
-      - Three factory-tuned compression modes: Open, Firm and Lock
-      - Open-mode adjuster fine-tunes the Open setting with a 3 mm hex key
-      - Compatible with the Deuce remote lockout
-    adjustments:
-      - { name: Compression Mode, type: categorical, options: [Open, Firm, Lock] }
-      - { name: Open Mode Compression, type: step, max: 20, notes: Counted from fully closed (firmest); only affects Open mode }
-      - { name: Rebound, type: step, max: 18, notes: Counted from fully closed (slowest) }
-    source: https://hayesbicycle.zendesk.com/hc/article_attachments/24504253740951
-    note: R8 Pro set-up guide (2024) — rebound "18-0", open-mode adjust "20-0".
+    vtt_pro_x_r8:
+      name: VTT Pro-X
+      description: |-
+        - Three factory-tuned compression modes: Open, Firm and Lock
+        - Open-mode adjuster fine-tunes the Open setting with a 3 mm hex key
+        - Compatible with the Deuce remote lockout
+      adjustments:
+        - { name: Compression Mode, type: categorical, options: [Open, Firm, Lock] }
+        - { name: Open Mode Compression, type: step, max: 20, notes: Counted from fully closed (firmest); only affects Open mode }
+        - { name: Rebound, type: step, max: 18, notes: Counted from fully closed (slowest) }
+      source: https://hayesbicycle.zendesk.com/hc/article_attachments/24504253740951
+      note: R8 Pro set-up guide (2024) — rebound "18-0", open-mode adjust "20-0".
 
-  tpc_plus_dorado_2022:
-    name: TPC+
-    description: |-
-      - Independent high-speed (outer) and low-speed (inner) compression, plus rebound
-      - Non-adjustable hydraulic bottom-out over the last 30 mm of travel
-    adjustments:
-      - { name: HSC, type: step, max: 15, notes: "High-Speed Compression; Outer knob" }
-      - { name: LSC, type: step, max: 15, notes: "Low-Speed Compression; TPC+ inner knob" }
-      - { name: Rebound, type: step, max: 24, notes: Counted from fully closed (slowest) }
-    source:
-      - https://hayesbicycle.zendesk.com/hc/article_attachments/4404709083799
-      - https://hayesbicycle.zendesk.com/hc/article_attachments/4404701744407
-    note: Dorado Pro (Rev 1 2/2021) and Dorado Expert (Rev 1 11/2020) set-up guides — rebound "24-0", Hi-speed "15-0", TPC+ "15-0".
+    tpc_plus_dorado_2022:
+      name: TPC+
+      description: |-
+        - Independent high-speed (outer) and low-speed (inner) compression, plus rebound
+        - Non-adjustable hydraulic bottom-out over the last 30 mm of travel
+      adjustments:
+        - { name: HSC, type: step, max: 15, notes: "High-Speed Compression; Outer knob" }
+        - { name: LSC, type: step, max: 15, notes: "Low-Speed Compression; TPC+ inner knob" }
+        - { name: Rebound, type: step, max: 24, notes: Counted from fully closed (slowest) }
+      source:
+        - https://hayesbicycle.zendesk.com/hc/article_attachments/4404709083799
+        - https://hayesbicycle.zendesk.com/hc/article_attachments/4404701744407
+      note: Dorado Pro (Rev 1 2/2021) and Dorado Expert (Rev 1 11/2020) set-up guides — rebound "24-0", Hi-speed "15-0", TPC+ "15-0".
 
-  abs_plus_dorado_2022:
-    name: ABS+
-    description: |-
-      - Single-knob compression adjustment with 20 clicks
-      - Separate rebound knob with 20 clicks
-    adjustments:
-      - { name: Compression, type: step, max: 20, notes: "Low-Speed Compression; Counted from fully closed (firmest)" }
-      - { name: Rebound, type: step, max: 20, notes: Counted from fully closed (slowest) }
-    source:
-      - https://hayesbicycle.zendesk.com/hc/article_attachments/4404709071767
-      - https://hayesbicycle.com/products/new-dorado-coil
-    note: Dorado Comp set-up guide Rev 1 1/2021 — rebound "20-0", ABS+ "20-0"; the product page lists the compression adjuster as "LS Compression".
+    abs_plus_dorado_2022:
+      name: ABS+
+      description: |-
+        - Single-knob compression adjustment with 20 clicks
+        - Separate rebound knob with 20 clicks
+      adjustments:
+        - { name: Compression, type: step, max: 20, notes: "Low-Speed Compression; Counted from fully closed (firmest)" }
+        - { name: Rebound, type: step, max: 20, notes: Counted from fully closed (slowest) }
+      source:
+        - https://hayesbicycle.zendesk.com/hc/article_attachments/4404709071767
+        - https://hayesbicycle.com/products/new-dorado-coil
+      note: Dorado Comp set-up guide Rev 1 1/2021 — rebound "20-0", ABS+ "20-0"; the product page lists the compression adjuster as "LS Compression".
 
 # --------------------------------------------------------------------------
-# Forks — newest generation first, then earlier generations.
+# Forks — a model with an earlier generation (Mezzer) nests both as
+# `generation` nodes, newest first.
 # --------------------------------------------------------------------------
-forks:
-  - model: "Mezzer"
+nodes:
+  - label: "Mezzer"
+    level: model
     category: Enduro
-    year_range: "2026"
-    url: https://hayesbicycle.com/collections/mezzer-forks
-    wheel_size: [29]
-    trims:
-      - trim: Pro
-        key: fork-manitou-mezzer-pro-2026
-        url: https://hayesbicycle.com/products/mezzer-pro-g2
-        travel_mm: [140, 150, 160, 170]
-        stanchion: 37mm
-        spring: Air
-        dampers: [mc2_pro_x_2026]
-        adjustments: &mezzer_irt_spring
-          - { name: Pressure, type: numerical, unit: psi, min: 0, notes: Max 120 psi }
-          - { name: IRT Pressure, type: numerical, unit: psi, min: 0, notes: "Infinite Rate Tune chamber; fill before the main chamber; max 150 psi" }
-        offset_mm: [44]
-        note: |-
-          - Reverse Arch 37mm chassis, 44mm offset
-          - Dorado Air spring with Active Spring Piston (ASP) and IRT
-          - Travel adjusted internally with the supplied 10mm spacers
-      - trim: Expert
-        key: fork-manitou-mezzer-expert-2026
-        url: https://hayesbicycle.com/products/mezzer-expert-1
-        travel_mm: [140, 150, 160, 170]
-        stanchion: 37mm
-        spring: Air
-        dampers: [vtt6_mezzer_g2]
-        adjustments: &expert_air_spring
-          - { name: Pressure, type: numerical, unit: psi, min: 0, notes: Max 120 psi }
-        offset_mm: [44]
-        note: |-
-          - Reverse Arch 37mm chassis, 44mm offset
-          - Expert Air spring with Incremental Volume Adjust (IVA)
-          - IRT is available as an option
+    tasks: &manitou_service
+      fork:lower_leg_service: { interval: { moving_time_h: 50 }, source: Manitou maintenance schedule }
+      fork:full_service: { interval: { moving_time_h: 200 }, fallback: { days: 365 }, source: Manitou maintenance schedule }
+    children:
+      - label: "2026"
+        level: generation
+        years: "2026"
+        url: https://hayesbicycle.com/collections/mezzer-forks
+        children:
+          - label: Pro
+            level: trim
+            url: https://hayesbicycle.com/products/mezzer-pro-g2
+            setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/43742231652503
+            specs: { stanchion: 37mm, spring: Air }
+            offset_mm: [44]
+            adjustments: &mezzer_irt_spring
+              - { name: Pressure, type: numerical, unit: psi, min: 0, notes: Max 120 psi }
+              - { name: IRT Pressure, type: numerical, unit: psi, min: 0, notes: "Infinite Rate Tune chamber; fill before the main chamber; max 150 psi" }
+            options:
+              damper: [mc2_pro_x_2026]
+              travel_mm: [140, 150, 160, 170]
+              wheel_size: [29]
+            note: |-
+              - Reverse Arch 37mm chassis, 44mm offset
+              - Dorado Air spring with Active Spring Piston (ASP) and IRT
+              - Travel adjusted internally with the supplied 10mm spacers
+          - label: Expert
+            level: trim
+            url: https://hayesbicycle.com/products/mezzer-expert-1
+            setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/41067689282071
+            specs: { stanchion: 37mm, spring: Air }
+            offset_mm: [44]
+            adjustments: &expert_air_spring
+              - { name: Pressure, type: numerical, unit: psi, min: 0, notes: Max 120 psi }
+            options:
+              damper: [vtt6_mezzer_g2]
+              travel_mm: [140, 150, 160, 170]
+              wheel_size: [29]
+            note: |-
+              - Reverse Arch 37mm chassis, 44mm offset
+              - Expert Air spring with Incremental Volume Adjust (IVA)
+              - IRT is available as an option
+      - label: "2019–2025"
+        level: generation
+        id: "2019"
+        years: "2019-2025"
+        url: https://hayesbicycle.zendesk.com/hc/en-us/articles/41067566085911-Mezzer-Gen-1-Set-Up-Guide
+        children:
+          - label: Pro
+            level: trim
+            setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/43742473560727
+            specs: { stanchion: 37mm, spring: Air }
+            offset_mm: [37, 44, 51]
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, notes: Max 120 psi }
+              - { name: IRT Pressure, type: numerical, unit: psi, min: 0, notes: "Infinite Rate Tune chamber; fill before the main chamber; max 200 psi" }
+            options:
+              damper: [mc2_mezzer_2019]
+              travel_mm: [140, 150, 160, 170, 180]
+              wheel_size: [29, 27.5]
+            note: |-
+              - Reverse Arch 37mm chassis, Boost only
+              - Dorado Air spring with Infinite Rate Tune (IRT)
+              - Travel adjusted internally with spacer clips
+          - label: Expert
+            level: trim
+            setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/43742488803479
+            specs: { stanchion: 37mm, spring: Air }
+            offset_mm: [37, 44, 51]
+            adjustments: *expert_air_spring
+            options:
+              damper: [vtt6_mezzer_g1]
+              travel_mm: [140, 150, 160, 170, 180]
+              wheel_size: [29, 27.5]
+            note: |-
+              - Reverse Arch 37mm chassis, Boost only
+              - Expert Air spring with Incremental Volume Adjust (IVA)
 
-  - model: "Mezzer LT"
+  - label: "Mezzer LT"
+    level: model
     category: Enduro
-    year_range: "2026"
+    years: "2026"
     url: https://hayesbicycle.com/collections/mezzer-forks
-    wheel_size: [29]
-    trims:
-      - trim: Pro
-        key: fork-manitou-mezzer-lt-pro-2026
+    tasks: *manitou_service
+    children:
+      - label: Pro
+        level: trim
         url: https://hayesbicycle.com/products/mezzer-lt-pro-g2
-        travel_mm: [150, 160, 170, 180, 190]
-        stanchion: 37mm
-        spring: Air
-        dampers: [mc2_pro_x_2026]
-        adjustments: *mezzer_irt_spring
+        setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/43742231652503
+        specs: { stanchion: 37mm, spring: Air }
         offset_mm: [44]
+        adjustments: *mezzer_irt_spring
+        options:
+          damper: [mc2_pro_x_2026]
+          travel_mm: [150, 160, 170, 180, 190]
+          wheel_size: [29]
         note: |-
           - Reinforced LT crown and thick-wall legs for up to 190mm travel
           - Dorado Air spring with Active Spring Piston (ASP) and IRT
-      - trim: Comp
-        key: fork-manitou-mezzer-lt-comp-2026
+      - label: Comp
+        level: trim
         url: https://hayesbicycle.com/products/mezzer-lt-comp-g2
-        travel_mm: [140, 150, 160, 170, 180, 190]
-        stanchion: 37mm
-        spring: Air
-        dampers: [abs_plus_mezzer_lt_2026]
-        adjustments: *expert_air_spring
+        setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/43742211211927
+        specs: { stanchion: 37mm, spring: Air }
         offset_mm: [44]
+        adjustments: *expert_air_spring
+        options:
+          damper: [abs_plus_mezzer_lt_2026]
+          travel_mm: [140, 150, 160, 170, 180, 190]
+          wheel_size: [29]
         note: |-
           - Straight-wall LT legs for higher-GVWR e-bike use, up to 190mm travel
           - Expert Air spring with Incremental Volume Adjust (IVA)
 
-  - model: "Mattoc"
+  - label: "Mattoc"
+    level: model
     category: Trail
-    year_range: "2023-2026"
+    years: "2023-2026"
     url: https://hayesbicycle.com/products/mattoc-pro
-    wheel_size: [29, 27.5]
-    trims:
-      - trim: Pro
-        key: fork-manitou-mattoc-pro-2023
+    tasks: *manitou_service
+    children:
+      - label: Pro
+        level: trim
         url: https://hayesbicycle.com/products/mattoc-pro
-        travel_mm: [110, 120, 130, 140, 150]
-        stanchion: 34mm
-        spring: Air
-        dampers: [mc2_mattoc_2023]
+        setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/14639548710935
+        specs: { stanchion: 34mm, spring: Air }
         adjustments:
           - { name: Pressure, type: numerical, unit: psi, min: 0, notes: Max 120 psi }
           - { name: IRT Pressure, type: numerical, unit: psi, min: 0, notes: "Infinite Rate Tune chamber; fill before the main chamber; max 150 psi" }
+        options:
+          damper: [mc2_mattoc_2023]
+          travel_mm: [110, 120, 130, 140, 150]
+          wheel_size: [29, 27.5]
         note: |-
           - Reverse Arch 34mm chassis, 44mm offset (37mm also offered on 27.5")
           - Dorado Air spring with Infinite Rate Tune (IRT)
           - Travel adjusted internally in 10mm steps
-      - trim: Expert
-        key: fork-manitou-mattoc-expert-2023
+      - label: Expert
+        level: trim
         url: https://hayesbicycle.com/products/mattoc-expert
-        travel_mm: [110, 120, 130, 140, 150]
-        stanchion: 34mm
-        spring: Air
-        dampers: [vtt6_2023]
+        setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/14639542611479
+        specs: { stanchion: 34mm, spring: Air }
         adjustments: *expert_air_spring
+        options:
+          damper: [vtt6_2023]
+          travel_mm: [110, 120, 130, 140, 150]
+          wheel_size: [29, 27.5]
         note: |-
           - Expert Air spring with Incremental Volume Adjust (IVA)
           - IRT is available as an aftermarket upgrade
-      - trim: Comp
-        key: fork-manitou-mattoc-comp-2023
+      - label: Comp
+        level: trim
         url: https://hayesbicycle.com/products/mattoc-comp
-        travel_mm: [110, 120, 130, 140, 150]
-        stanchion: 34mm
-        spring: Air
-        dampers: [abs_plus_2023]
+        setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/14639496469143
+        specs: { stanchion: 34mm, spring: Air }
         adjustments: *expert_air_spring
+        options:
+          damper: [abs_plus_2023]
+          travel_mm: [110, 120, 130, 140, 150]
+          wheel_size: [29, 27.5]
         note: |-
           - Straight-wall 6000-series legs
           - Expert Air spring with Incremental Volume Adjust (IVA)
           - IRT is available as an aftermarket upgrade
 
-  - model: "R8"
+  - label: "R8"
+    level: model
     category: XC
-    year_range: "2024-2026"
+    years: "2024-2026"
     url: https://hayesbicycle.com/products/r8-pro
-    wheel_size: [29]
-    trims:
-      - trim: Pro
-        key: fork-manitou-r8-pro-2024
-        travel_mm: [80, 90, 100, 110, 120]
-        stanchion: 34mm
-        spring: Air
-        dampers: [vtt_pro_x_r8]
+    setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/24504253740951
+    tasks: *manitou_service
+    children:
+      - label: Pro
+        level: trim
+        specs: { stanchion: 34mm, spring: Air }
+        offset_mm: [44]
         adjustments:
           - { name: Pressure, type: numerical, unit: psi, min: 0, notes: Max 150 psi }
           - { name: IVA Position, type: step, min: 1, max: 3, visualization: stepper, notes: "Incremental Volume Adjust piston; 1 = most linear, 3 = most progressive" }
-        offset_mm: [44]
+        options:
+          damper: [vtt_pro_x_r8]
+          travel_mm: [80, 90, 100, 110, 120]
+          wheel_size: [29]
         note: |-
           - Hyperlite 34mm chassis, 1450g
           - Dorado Air spring with Incremental Volume Adjust (IVA XC)
           - Manual knob or Deuce remote lockout
 
-  - model: "Dorado"
+  - label: "Dorado"
+    level: model
     category: Downhill
-    year_range: "2022-2026"
+    years: "2022-2026"
     url: https://hayesbicycle.com/products/my22-dorado-pro
-    wheel_size: [29, 27.5]
-    trims:
-      - trim: Pro
-        key: fork-manitou-dorado-pro-2022
+    tasks: *manitou_service
+    children:
+      - label: Pro
+        level: trim
         url: https://hayesbicycle.com/products/my22-dorado-pro
-        travel_mm: [180, 190, 203]
-        stanchion: 37mm
-        spring: Air
-        dampers: [tpc_plus_dorado_2022]
+        setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/4404709083799
+        specs: { stanchion: 37mm, spring: Air }
+        offset_mm: [47, 57]
         adjustments:
           - { name: Pressure, type: numerical, unit: psi, min: 0, notes: Max 120 psi }
           - { name: IRT Pressure, type: numerical, unit: psi, min: 0, notes: "Infinite Rate Tune chamber; fill before the main chamber; max 200 psi" }
-        offset_mm: [47, 57]
+        options:
+          damper: [tpc_plus_dorado_2022]
+          travel_mm: [180, 190, 203]
+          wheel_size: [29, 27.5]
         note: |-
           - 37mm downhill chassis with carbon outer legs, 20mm x 110mm Boost axle
           - Dorado Air spring with Infinite Rate Tune (IRT)
           - Trail Side Relief (TSR) button equalizes casting pressure
-      - trim: Expert
-        key: fork-manitou-dorado-expert-2022
+      - label: Expert
+        level: trim
         url: https://hayesbicycle.com/products/new-my22-dorado-expert
-        travel_mm: [180, 190, 203]
-        stanchion: 37mm
-        spring: Air
-        dampers: [tpc_plus_dorado_2022]
+        setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/4404701744407
+        specs: { stanchion: 37mm, spring: Air }
+        offset_mm: [47, 57]
         adjustments:
           - { name: Pressure, type: numerical, unit: psi, min: 0, notes: Max 120 psi }
           - { name: IVA Position, type: step, min: 1, max: 3, visualization: stepper, notes: "Incremental Volume Adjust piston; 1 = largest volume (most linear), 3 = smallest volume (most progressive)" }
-        offset_mm: [47, 57]
+        options:
+          damper: [tpc_plus_dorado_2022]
+          travel_mm: [180, 190, 203]
+          wheel_size: [29, 27.5]
         note: |-
           - 37mm downhill chassis, 20mm x 110mm Boost axle
           - Dorado Air spring with Incremental Volume Adjust (IVA)
-      - trim: Comp Coil
-        key: fork-manitou-dorado-comp-coil-2022
+      - label: Comp Coil
+        level: trim
         url: https://hayesbicycle.com/products/new-dorado-coil
-        stanchion: 37mm
-        spring: Coil
-        dampers: [abs_plus_dorado_2022]
+        setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/4404709071767
+        specs: { stanchion: 37mm, spring: Coil }
+        offset_mm: [47, 57]
         adjustments:
           - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0, notes: "Six rates offered, 25-52 lb/in; ships with the Medium (35 lb/in) spring" }
-        offset_mm: [47, 57]
+        options:
+          damper: [abs_plus_dorado_2022]
+          wheel_size: [29, 27.5]
         note: |-
           - Fixed-travel coil fork on the 37mm downhill chassis
           - Preload adjuster on the bottom of the spring leg
 
-  - model: "Mastodon"
+  - label: "Mastodon"
+    level: model
     category: Fat Bike
-    year_range: "2023-2026"
+    years: "2023-2026"
     url: https://hayesbicycle.com/products/mastodon-pro
-    wheel_size: [27.5, 26]
-    trims:
-      - trim: Pro
-        key: fork-manitou-mastodon-pro-2023
+    tasks: *manitou_service
+    children:
+      - label: Pro
+        level: trim
         url: https://hayesbicycle.com/products/mastodon-pro
-        travel_mm: [80, 90, 100, 110, 120, 130, 140, 150, 160]
-        stanchion: 34mm
-        spring: Air
-        dampers: [vtt6_2023]
+        setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/17493411154967
+        specs: { stanchion: 34mm, spring: Air }
+        offset_mm: [44]
         adjustments:
           - { name: Pressure, type: numerical, unit: psi, min: 0, notes: Max 150 psi }
-        offset_mm: [44]
+        options:
+          damper: [vtt6_2023]
+          travel_mm: [80, 90, 100, 110, 120, 130, 140, 150, 160]
+          wheel_size: [27.5, 26]
         note: |-
           - Gen 3 fat-bike fork with 15mm x 150mm Hexlock SL axle
           - Dorado Air spring with Incremental Volume Adjust (IVA)
-      - trim: Comp
-        key: fork-manitou-mastodon-comp-2023
+      - label: Comp
+        level: trim
         url: https://hayesbicycle.com/products/mastodon-comp
-        travel_mm: [80, 90, 100, 110, 120, 130, 140]
-        stanchion: 34mm
-        spring: Air
-        dampers: [abs_plus_2023]
+        setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/17493359414167
+        specs: { stanchion: 34mm, spring: Air }
+        offset_mm: [44]
         adjustments:
           - { name: Pressure, type: numerical, unit: psi, min: 0, notes: Max 150 psi }
-        offset_mm: [44]
+        options:
+          damper: [abs_plus_2023]
+          travel_mm: [80, 90, 100, 110, 120, 130, 140]
+          wheel_size: [27.5, 26]
         note: |-
           - Gen 3 fat-bike fork with straight-wall legs and 15mm x 150mm Hexlock SL axle
-          - Expert Air spring with Incremental Volume Adjust (IVA)
-
-  # ------------------------------------------------------------------------
-  # Earlier generations. They repeat the current model name and are told apart
-  # by `year_range`, so the picker merges them into one model row.
-  # ------------------------------------------------------------------------
-  - model: "Mezzer"
-    category: Enduro
-    year_range: "2019-2025"
-    url: https://hayesbicycle.zendesk.com/hc/en-us/articles/41067566085911-Mezzer-Gen-1-Set-Up-Guide
-    wheel_size: [29, 27.5]
-    trims:
-      - trim: Pro
-        key: fork-manitou-mezzer-pro-2019
-        travel_mm: [140, 150, 160, 170, 180]
-        stanchion: 37mm
-        spring: Air
-        dampers: [mc2_mezzer_2019]
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, notes: Max 120 psi }
-          - { name: IRT Pressure, type: numerical, unit: psi, min: 0, notes: "Infinite Rate Tune chamber; fill before the main chamber; max 200 psi" }
-        offset_mm: [37, 44, 51]
-        note: |-
-          - Reverse Arch 37mm chassis, Boost only
-          - Dorado Air spring with Infinite Rate Tune (IRT)
-          - Travel adjusted internally with spacer clips
-      - trim: Expert
-        key: fork-manitou-mezzer-expert-2019
-        travel_mm: [140, 150, 160, 170, 180]
-        stanchion: 37mm
-        spring: Air
-        dampers: [vtt6_mezzer_g1]
-        adjustments: *expert_air_spring
-        offset_mm: [37, 44, 51]
-        note: |-
-          - Reverse Arch 37mm chassis, Boost only
           - Expert Air spring with Incremental Volume Adjust (IVA)
 
 # --------------------------------------------------------------------------
@@ -486,6 +530,10 @@ forks:
 #   - Not covered: Machete, Markhor (Kwik Toggle / TPC rebound, no click counts
 #     in the service guides), JUNIT and Circus (youth / dirt-jump / BMX), Magnum,
 #     Dorado 36 and the 2018-2022 Mattoc generations.
-#   - Dial colors and sizes were not confirmed from product photos, so all dials
-#     use the default blue / normal.
+#   - Dial colors and sizes: no set-up guide or product page states a knob colour in
+#     text, so all dials use the default blue / normal.
+#   - Dorado Comp Coil `travel_mm`: the product page says only "Travel: Fixed Travel"
+#     and the Comp set-up guide gives no travel figure, so none is declared.
+#   - Setup guides link the per-trim PDF attachments (the help-center articles
+#     themselves are bot-blocked); Mezzer G2 / LT Pro share one guide.
 # --------------------------------------------------------------------------

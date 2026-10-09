@@ -36,9 +36,13 @@ class AttachmentActions {
 
   /// Asks for a source, then imports the picked images or files. Files that are over the size
   /// cap or fail to import are skipped with an error SnackBar each; the others still import.
-  static Future<List<Attachment>> pickAttachments(BuildContext context) async {
+  ///
+  /// [onImportStarted] fires once a source is chosen. On iOS the picker returns only after it has
+  /// loaded every image out of Photos, which can take seconds — long enough to need a loading state.
+  static Future<List<Attachment>> pickAttachments(BuildContext context, {VoidCallback? onImportStarted}) async {
     final source = await showPickAttachmentSourceSheet(context);
     if (source == null || !context.mounted) return [];
+    onImportStarted?.call();
 
     final service = AttachmentStorageService();
     final List<({String name, Future<Attachment> Function() run})> imports;
@@ -125,10 +129,12 @@ class AttachmentActions {
           .map((setup) => setup.copyWith(attachments: without(setup.attachments)))
           .toList(),
     );
-    final bikes = appRepository.bikes.values.where((bike) => references(bike.attachments)).toList();
-    for (final bike in bikes) {
-      await appRepository.editBike(bike.copyWith(attachments: without(bike.attachments)));
-    }
+    await appRepository.editBikes(
+      appRepository.bikes.values
+          .where((bike) => references(bike.attachments))
+          .map((bike) => bike.copyWith(attachments: without(bike.attachments)))
+          .toList(),
+    );
     await appRepository.editComponents(
       appRepository.components.values
           .where((component) => references(component.attachments))

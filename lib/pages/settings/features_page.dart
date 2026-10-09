@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../../icons/simple_icons.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
+import '../../models/filters/activity_filter.dart';
 import '../../models/filters/layer_filter.dart';
 import '../../models/task/task_rule.dart';
 import '../../repositories/app_repository.dart';
@@ -111,6 +112,20 @@ class FeaturesPage extends StatelessWidget {
                       'catalog to prefill its name, notes and adjustments (click ranges, '
                       'air pressure, SAG) automatically. You can still edit everything afterwards.',
                 ),
+              if (kDebugMode)
+                _FeatureToggleTile(
+                  enabled: appSettings.enableComponentPresets,
+                  disabledSubtitle: 'Requires Component Presets',
+                  icon: Icons.playlist_add_check,
+                  title: "Task Presets",
+                  value: appSettings.enableTaskPresets,
+                  onChanged: (v) => appSettings.enableTaskPresets = v,
+                  infoText:
+                      'Suggests recommended tasks for a component, like a chain wear check or a '
+                      'fork service, based on its type and catalog model. You pick each suggestion '
+                      'individually and can edit the created tasks freely. Requires Component Presets, '
+                      'Tasks and Task Intervals.',
+                ),
               const Divider(),
               const SectionTitle(title: 'Adjustments'),
               _FeatureGroupTile(
@@ -197,12 +212,26 @@ class FeaturesPage extends StatelessWidget {
                     if (!v) _showLayer(context, TimelineLayer.ratingEntries);
                   },
                 ),
-              if (kDebugMode)
+              _FeatureToggleTile(
+                icon: Icons.person,
+                title: "Rider",
+                value: appSettings.enablePerson,
+                onChanged: (v) => appSettings.enablePerson = v,
+                infoText:
+                    'Adds a rider profile, opened with the rider button in the app bar. Link the rider '
+                    'to your bikes to record riding weight and other rider attributes with each setup. '
+                    'A new rider starts with a "Riding weight" attribute. Turning this off hides the '
+                    'rider but keeps its data.',
+              ),
+              if (kDebugMode && appSettings.enablePerson)
                 _FeatureToggleTile(
-                  icon: Icons.person,
-                  title: "Profile",
-                  value: appSettings.enablePerson,
-                  onChanged: (v) => appSettings.enablePerson = v,
+                  icon: Icons.groups_outlined,
+                  title: "Advanced Rider Layout",
+                  value: appSettings.enablePersonAdvanced,
+                  onChanged: (v) => appSettings.enablePersonAdvanced = v,
+                  infoText:
+                      'Restores the multi-rider UI: a Riders tab with reorder and bike filter, '
+                      'Duplicate, the rider details page and the Strava athlete link.',
                 ),
               const Divider(),
               const SectionTitle(title: 'Setup History'),
@@ -243,6 +272,21 @@ class FeaturesPage extends StatelessWidget {
                 onChanged: (v) => appSettings.enableCalendar = v,
                 infoText:
                     "Adds a calendar view, reachable from the Setup History page via the calendar button next to search and map buttons.",
+              ),
+              _FeatureToggleTile(
+                icon: Icons.filter_alt_outlined,
+                title: "Advanced Filters",
+                value: appSettings.enableAdvancedFilters,
+                onChanged: (v) {
+                  appSettings.enableAdvancedFilters = v;
+                  if (v) return;
+                  final filters = context.read<AppRepository>().filters;
+                  filters.dateRange = null;
+                  filters.activity = const ActivityFilter();
+                },
+                infoText:
+                    'Adds a date range and, with Strava connected, activity distance and elevation filters '
+                    'to the filter sheet of the Setup History, map and calendar.',
               ),
               const Divider(),
               const SectionTitle(title: 'Tasks'),
@@ -344,6 +388,7 @@ class _FeatureToggleTile extends StatelessWidget {
   final ValueChanged<bool> onChanged;
   final String? infoText;
   final bool enabled;
+  final String? disabledSubtitle;
 
   const _FeatureToggleTile({
     required this.icon,
@@ -352,6 +397,7 @@ class _FeatureToggleTile extends StatelessWidget {
     required this.onChanged,
     this.infoText,
     this.enabled = true,
+    this.disabledSubtitle,
   });
 
   static const Map<bool, Text> _offOnOptionWidgets = {
@@ -365,7 +411,7 @@ class _FeatureToggleTile extends StatelessWidget {
       enabled: enabled,
       leading: Icon(icon),
       title: Text(title),
-      subtitle: _offOnOptionWidgets[value],
+      subtitle: !enabled && disabledSubtitle != null ? Text(disabledSubtitle!) : _offOnOptionWidgets[value],
       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
       onTap: () => radioGroupSheet<bool>(
         context: context,

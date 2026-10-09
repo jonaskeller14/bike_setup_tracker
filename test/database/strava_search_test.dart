@@ -2,6 +2,7 @@ import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/filters/activity_filter.dart';
 import 'package:bike_setup_tracker/models/filters/local_date_range.dart';
 import 'package:bike_setup_tracker/models/filters/numeric_range.dart';
+import 'package:bike_setup_tracker/models/strava/activity_bounds.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity_query.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -247,6 +248,35 @@ void main() {
       final results = await database.stravaDao.searchActivitiesByName('on the', days(10, 11));
 
       expect(results.map((activity) => activity.id), unorderedEquals([2, 3]));
+    });
+  });
+
+  group('Strava activity bounds', () {
+    late AppDatabase database;
+
+    setUp(() => database = AppDatabase.memory());
+
+    tearDown(() => database.close());
+
+    test('are empty without activities', () async {
+      expect(await database.stravaDao.watchActivityBounds().first, ActivityBounds.empty);
+    });
+
+    test('span every activity, whatever its gear, and skip missing values', () async {
+      final activities = [
+        _activity(1, 'Short', day: 12, gearId: 'g1', distance: 5000, elevationGain: 50),
+        _activity(2, 'Long', day: 20, gearId: 'g2', distance: 143000, elevationGain: 900),
+        _activity(3, 'Climb', day: 9, elevationGain: 1840),
+        _activity(4, 'Indoor', day: 15, gearId: 'g1'),
+      ];
+      for (final activity in activities) {
+        await database.into(database.stravaActivities).insert(activity);
+      }
+
+      expect(
+        await database.stravaDao.watchActivityBounds().first,
+        ActivityBounds(firstStartLocal: DateTime(2024, 1, 9), maxDistance: 143000, maxElevationGain: 1840),
+      );
     });
   });
 }

@@ -132,6 +132,7 @@ class _DurationMetricPageState extends State<DurationMetricPage> {
         min: _previewAdjustment.min,
         max: _previewAdjustment.max,
         unit: _initialAdj?.unit,
+        presetKey: _initialAdj?.presetKey,
       ),
       weight: weight,
     ));
@@ -166,6 +167,7 @@ class _DurationMetricPageState extends State<DurationMetricPage> {
         name: _nameController.text.trim(),
         notes: notes.isEmpty ? null : notes,
         unit: _previewAdjustment.unit,
+        presetKey: _initialAdj?.presetKey,
         min: min,
         max: max,
       );

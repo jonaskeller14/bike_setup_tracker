@@ -8,6 +8,7 @@ import 'package:bike_setup_tracker/models/filters/setup_filter.dart';
 import 'package:bike_setup_tracker/models/filters/task_rule_filter.dart';
 import 'package:bike_setup_tracker/models/rating/rating_entry.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
+import 'package:bike_setup_tracker/models/setup_history.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:bike_setup_tracker/pages/map_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
@@ -60,6 +61,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     repository = MockAppRepository();
     when(() => repository.bikes).thenReturn(<String, Bike>{});
+    when(() => repository.setupHistory).thenReturn(SetupHistory.empty);
     filters = FilterController(onChanged: () {});
     when(() => repository.filters).thenReturn(filters);
     stubView();

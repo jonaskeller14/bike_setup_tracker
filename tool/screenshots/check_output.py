@@ -28,6 +28,8 @@ EXPECTED_SIZES = {
 def png_size(path):
     with path.open("rb") as f:
         header = f.read(24)
+    if header.startswith(b"version https://git-lfs"):
+        raise ValueError("Git LFS pointer, run 'git lfs pull'")
     if header[:8] != b"\x89PNG\r\n\x1a\n" or header[12:16] != b"IHDR":
         raise ValueError("not a PNG")
     return struct.unpack(">II", header[16:24])

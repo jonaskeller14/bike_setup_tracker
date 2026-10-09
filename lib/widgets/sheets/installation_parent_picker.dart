@@ -7,7 +7,7 @@ import '../../models/bike.dart';
 import '../../models/component/component_ancestor.dart';
 import '../../models/component/installation.dart';
 import '../../theme.dart';
-import '../../utils/component_preset_search.dart';
+import '../../utils/component_catalog_search.dart';
 import '../component_ancestors_column.dart';
 import '../sticky_section.dart';
 import 'sheet.dart';

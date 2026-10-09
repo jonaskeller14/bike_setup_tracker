@@ -46,9 +46,9 @@ class ContextBikePersonCardDiff extends StatelessWidget {
             _OwnerRow(
               icon: setupA.person == null && setupB.person == null ? Icons.person_off : Person.iconData,
               valueA:
-                  personA?.name ?? (setupA.person == null ? 'No person linked to this setup.' : 'PERSON NOT FOUND'),
+                  personA?.name ?? (setupA.person == null ? 'No rider linked to this setup.' : 'RIDER NOT FOUND'),
               valueB:
-                  personB?.name ?? (setupB.person == null ? 'No person linked to this setup.' : 'PERSON NOT FOUND'),
+                  personB?.name ?? (setupB.person == null ? 'No rider linked to this setup.' : 'RIDER NOT FOUND'),
               errorA: setupA.person != null && personA == null,
               errorB: setupB.person != null && personB == null,
             ),

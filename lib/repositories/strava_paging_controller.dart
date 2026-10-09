@@ -89,7 +89,13 @@ class StravaPagingController {
     _isLoadingMore = true;
     onLoadingChanged();
 
-    final list = await _page(limit: _limit, offset: 0);
+    final List<StravaActivity> list;
+    try {
+      list = await _page(limit: _limit, offset: 0);
+    } catch (_) {
+      _endFailedLoad(request);
+      rethrow;
+    }
     if (_isDisposed) return;
     // A newer filter took over while we were querying; drop these stale results.
     if (request != _lastRequest) return;
@@ -119,9 +125,9 @@ class StravaPagingController {
     if (request != _lastRequest) return;
     _activities = {for (var a in list) a.id: a};
     _offset = list.length;
-    // Only ever narrows: a short page means the window shrank (deletions);
-    // a full page leaves [_hasMore] as-is so paging keeps working.
-    if (list.length < reloadLimit) _hasMore = false;
+    // A short page means the window shrank (deletions); a full one means a
+    // sync may have added rows beyond it, even if an earlier load ran dry.
+    _hasMore = list.length >= reloadLimit;
     onWindowChanged();
   }
 
@@ -138,7 +144,13 @@ class StravaPagingController {
     onLoadingChanged();
 
     final request = _lastRequest;
-    final list = await _page(limit: _limit, offset: _offset);
+    final List<StravaActivity> list;
+    try {
+      list = await _page(limit: _limit, offset: _offset);
+    } catch (_) {
+      _endFailedLoad(request);
+      rethrow;
+    }
     if (_isDisposed) return;
     // The filter changed mid-load; these belong to a stale window.
     if (request != _lastRequest) return;
@@ -147,6 +159,14 @@ class StravaPagingController {
     if (list.length < _limit) _hasMore = false;
     _isLoadingMore = false;
     onWindowChanged();
+  }
+
+  /// Clears the spinner after a failed page, which would otherwise block
+  /// [loadMore] until the next [initialLoad]. A newer load owns the flag.
+  void _endFailedLoad((StravaActivityQuery?, bool) request) {
+    if (_isDisposed || request != _lastRequest) return;
+    _isLoadingMore = false;
+    onLoadingChanged();
   }
 
   /// Drops the loaded window after the underlying tables were wiped.

@@ -4,6 +4,7 @@ import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/person.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/setup_comparison.dart';
+import 'package:bike_setup_tracker/models/setup_history.dart';
 import 'package:bike_setup_tracker/services/setup_comparison_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -19,23 +20,19 @@ void main() {
     Set<String> tags = const {},
     Map<String, AdjustmentValue> bikeValues = const {},
     Map<String, AdjustmentValue> personValues = const {},
-    Map<String, AdjustmentValue> previousBikeValues = const {},
-    Map<String, AdjustmentValue> previousPersonValues = const {},
     DateTime? at,
   }) {
     return Setup(
-        id: id,
-        datetime: at ?? DateTime.utc(2026, 1, 2),
-        datetimeLocal: (at ?? DateTime.utc(2026, 1, 2)).toLocal(),
-        notes: notes,
-        tags: tags,
-        bike: bike,
-        person: person,
-        bikeAdjustmentValues: bikeValues,
-        personAdjustmentValues: personValues,
-      )
-      ..previousBikeAdjustmentValues = previousBikeValues
-      ..previousPersonAdjustmentValues = previousPersonValues;
+      id: id,
+      datetime: at ?? DateTime.utc(2026, 1, 2),
+      datetimeLocal: (at ?? DateTime.utc(2026, 1, 2)).toLocal(),
+      notes: notes,
+      tags: tags,
+      bike: bike,
+      person: person,
+      bikeAdjustmentValues: bikeValues,
+      personAdjustmentValues: personValues,
+    );
   }
 
   Component component({
@@ -67,12 +64,14 @@ void main() {
     required Setup b,
     Iterable<Component> components = const [],
     Iterable<Person> persons = const [],
+    SetupHistory history = SetupHistory.empty,
   }) {
     return SetupComparisonService.build(
       setupA: a,
       setupB: b,
       components: components,
       persons: persons,
+      history: history,
     );
   }
 
@@ -82,8 +81,9 @@ void main() {
       final fork = component(id: 'fork', name: 'Fork', bike: bikeA, adjustments: [adjustment]);
       final result = compare(
         a: setup(id: 'current', bike: bikeA, bikeValues: {'pressure': const StepValue(80)}),
-        b: setup(id: 'older', bike: bikeA, previousBikeValues: {'pressure': const StepValue(80)}),
+        b: setup(id: 'older', bike: bikeA),
         components: [fork],
+        history: const SetupHistory(previousBikeValues: {'older': {'pressure': StepValue(80)}}),
       );
 
       final row = result.groups.single.rows.single;
@@ -532,11 +532,12 @@ void main() {
   group('SetupComparisonService.resolveTargets', () {
     test('selects only a distinct current setup on B bike for implicit targets', () {
       final historical = setup(id: 'historical', bike: bikeA);
-      final current = setup(id: 'current', bike: bikeA)..isCurrent = true;
-      final otherCurrent = setup(id: 'other-current', bike: bikeB)..isCurrent = true;
+      final current = setup(id: 'current', bike: bikeA);
+      final otherCurrent = setup(id: 'other-current', bike: bikeB);
       final result = SetupComparisonService.resolveTargets(
         setupB: historical,
         setups: [otherCurrent, current, historical],
+        history: const SetupHistory(currentSetupIds: {'current', 'other-current'}),
       );
 
       expect(result, isA<SetupComparisonTargets>());
@@ -548,10 +549,11 @@ void main() {
       final oldest = setup(id: 'oldest', bike: bikeA, at: DateTime.utc(2026, 1, 1));
       final previous = setup(id: 'previous', bike: bikeA, at: DateTime.utc(2026, 1, 5));
       final otherBike = setup(id: 'other-bike', bike: bikeB, at: DateTime.utc(2026, 1, 8));
-      final current = setup(id: 'current', bike: bikeA, at: DateTime.utc(2026, 1, 10))..isCurrent = true;
+      final current = setup(id: 'current', bike: bikeA, at: DateTime.utc(2026, 1, 10));
       final result = SetupComparisonService.resolveTargets(
         setupB: current,
         setups: [previous, oldest, otherBike, current],
+        history: const SetupHistory(currentSetupIds: {'current'}),
       );
 
       expect(result, isA<SetupComparisonTargets>());
@@ -560,9 +562,13 @@ void main() {
     });
 
     test('compares a setup against itself when it is the only setup on its bike', () {
-      final current = setup(id: 'current', bike: bikeA)..isCurrent = true;
+      final current = setup(id: 'current', bike: bikeA);
       final otherBike = setup(id: 'other-bike', bike: bikeB);
-      final result = SetupComparisonService.resolveTargets(setupB: current, setups: [current, otherBike]);
+      final result = SetupComparisonService.resolveTargets(
+        setupB: current,
+        setups: [current, otherBike],
+        history: const SetupHistory(currentSetupIds: {'current'}),
+      );
 
       expect(result, isA<SetupComparisonTargets>());
       expect((result as SetupComparisonTargets).setupA, same(current));
@@ -573,10 +579,15 @@ void main() {
       final a = setup(id: 'a', bike: bikeA);
       final b = setup(id: 'b', bike: bikeB);
       expect(
-        SetupComparisonService.resolveTargets(setupA: a, setupB: a, setups: const []),
+        SetupComparisonService.resolveTargets(setupA: a, setupB: a, setups: const [], history: SetupHistory.empty),
         isA<SetupComparisonTargetsEqualInput>(),
       );
-      final result = SetupComparisonService.resolveTargets(setupA: a, setupB: b, setups: const []);
+      final result = SetupComparisonService.resolveTargets(
+        setupA: a,
+        setupB: b,
+        setups: const [],
+        history: SetupHistory.empty,
+      );
       expect(result, isA<SetupComparisonTargets>());
       expect((result as SetupComparisonTargets).setupA, same(a));
       expect(result.setupB, same(b));

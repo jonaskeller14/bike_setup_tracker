@@ -15,6 +15,7 @@ import '../models/rating/rating_association.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/task/task_rule.dart';
 import 'converters/attachment_list_converter.dart';
+import 'converters/component_preset_converter.dart';
 import 'converters/context_position_converter.dart';
 import 'converters/duration_converter.dart';
 import 'converters/local_floating_datetime_converter.dart';
@@ -90,7 +91,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 21;
+  int get schemaVersion => 24;
 
   @override
   MigrationStrategy get migration {
@@ -98,7 +99,10 @@ class AppDatabase extends _$AppDatabase {
       onCreate: (Migrator m) async {
         await m.createAll();
       },
-      onUpgrade: (Migrator m, int from, int to) async {
+      // Drift stamps the new version only after this returns, so a partial run
+      // would replay steps on the next launch that aren't idempotent (v2 shifts
+      // dates again, unguarded addColumn/createTable fail). All or nothing.
+      onUpgrade: (Migrator m, int from, int to) => transaction(() async {
         if (from < 2) {
           // Fix legacy local timestamps that were stored as absolute UTC epochs 
           // instead of floating face-values.
@@ -243,20 +247,9 @@ class AppDatabase extends _$AppDatabase {
             }
           }
         }
-        if (from < 19) {
-          // Components remember the preset trim (and damper) they were created
-          // from, so the catalog can later offer setup guides and service
-          // intervals for that exact product.
-          final columns = <String, GeneratedColumn>{
-            'preset_key': components.presetKey,
-            'preset_damper_key': components.presetDamperKey,
-          };
-          for (final MapEntry(key: name, value: column) in columns.entries) {
-            if (!await _columnExists('components', name)) {
-              await m.addColumn(components, column);
-            }
-          }
-        }
+        // v19 added `preset_key` and `preset_damper_key` to components, which
+        // v22 replaces with `preset`; upgrades from below v19 gain the latter
+        // in that step.
         if (from < 20) {
           // Setup images generalise to attachments on setups, bikes and
           // components. The image feature never shipped, so `images` is
@@ -282,7 +275,31 @@ class AppDatabase extends _$AppDatabase {
             await m.addColumn(taskEntries, taskEntries.attachments);
           }
         }
-      },
+        if (from < 22) {
+          // The preset key pair becomes one `preset` map of the catalog path and
+          // chosen options. The preset UI was debug-only, so the old columns
+          // are dropped rather than converted: recreating the table from the
+          // current schema removes both `preset_key` and `preset_damper_key`.
+          // Only databases that ran the v19 step have them; it added both.
+          if (await _columnExists('components', 'preset_key')) {
+            await m.alterTable(TableMigration(components, newColumns: [components.preset]));
+          } else if (!await _columnExists('components', 'preset')) {
+            await m.addColumn(components, components.preset);
+          }
+        }
+        if (from < 23) {
+          // Task rules remember the task preset they were created from.
+          if (!await _columnExists('task_rules', 'preset_key')) {
+            await m.addColumn(taskRules, taskRules.presetKey);
+          }
+        }
+        if (from < 24) {
+          await customStatement(
+            'CREATE INDEX IF NOT EXISTS strava_activities_gear_date_idx '
+            'ON strava_activities (gear_id, start_date)',
+          );
+        }
+      }),
     );
   }
 

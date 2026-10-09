@@ -204,7 +204,7 @@ class TimelineDaySection extends StatelessWidget{
     // A setup tile takes the inset itself so its current-setup highlight paints
     // over it; every other row takes it as plain outer padding.
     final bool isSetupEntry = row is SingleEntryRow && row.entry is SetupEntry;
-    final bool isCurrentSeteup = isSetupEntry && (row.entry as SetupEntry).setup.isCurrent;
+    final bool isCurrentSeteup = isSetupEntry && appRepository.setupHistory.isCurrent((row.entry as SetupEntry).setup.id);
 
     // Every row is full-bleed and owns its own 16 px content inset; the Strava
     // bar is painted into that gutter rather than insetting the row further.

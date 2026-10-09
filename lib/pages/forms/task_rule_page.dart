@@ -14,20 +14,26 @@ import '../../models/component/component.dart';
 import '../../models/component/component_ancestor.dart';
 import '../../models/task/task_association.dart';
 import '../../models/task/task_rule.dart';
+import '../../models/task/task_template.dart';
 import '../../models/task/task_threshold/task_threshold.dart';
 import '../../repositories/app_repository.dart';
+import '../../repositories/component_catalog_repository.dart';
 import '../../services/attachment_storage_service.dart';
 import '../../services/component_hierarchy_resolver.dart';
 import '../../services/subscription_service.dart';
 import '../../theme.dart';
 import '../../utils/attachment_actions.dart';
+import '../../utils/task_preset_resolver.dart';
+import '../../utils/task_presets.dart';
 import '../../widgets/attachment_strip.dart';
 import '../../widgets/component_ancestor_display.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/sheets/set_tags.dart';
+import '../../widgets/sheets/set_task_delay.dart';
 import '../../widgets/sheets/set_task_priority.dart';
 import '../../widgets/sheets/strava.dart';
 import '../../widgets/sheets/task_association_picker.dart';
+import '../../widgets/task_preset_chips.dart';
 import '../../widgets/text/section_title.dart';
 
 enum TaskRulePageMode { add, edit, duplicate }
@@ -120,9 +126,16 @@ class _TaskRulePageState extends State<TaskRulePage> {
   _DurationUnit _intervalDurationUnit = _DurationUnit.days;
   _DurationUnit _delayDurationUnit = _DurationUnit.days;
 
+  String? _presetKey;
+
+  /// Type of the component a chip filled the form for; `null` when the key
+  /// (if any) came with the rule.
+  ComponentType? _presetComponentType;
+
   List<Attachment> _attachments = [];
   String? _attachmentsDirPath;
   final List<Attachment> _importedAttachments = [];
+  bool _importingAttachments = false;
   List<Attachment>? _savedAttachments;
 
   final _formKey = GlobalKey<FormState>();
@@ -139,6 +152,8 @@ class _TaskRulePageState extends State<TaskRulePage> {
 
     _association = widget.taskRule?.association ?? widget.initialAssociation ?? const GeneralTaskAssociation();
     _initialAssociation = _association;
+    _presetKey = widget.taskRule?.presetKey;
+    unawaited(_loadTaskOverrides(_association));
 
     final appRepository = context.read<AppRepository>();
     _tags.addAll(widget.taskRule?.tags ?? appRepository.filters.taskRule.tags);
@@ -187,7 +202,15 @@ class _TaskRulePageState extends State<TaskRulePage> {
   }
 
   Future<void> _addAttachments() async {
-    final attachments = await AttachmentActions.pickAttachments(context);
+    final List<Attachment> attachments;
+    try {
+      attachments = await AttachmentActions.pickAttachments(
+        context,
+        onImportStarted: () => setState(() => _importingAttachments = true),
+      );
+    } finally {
+      if (mounted) setState(() => _importingAttachments = false);
+    }
     if (attachments.isEmpty || !mounted) return;
     _importedAttachments.addAll(attachments);
     setState(() => _attachments.addAll(attachments));
@@ -231,14 +254,14 @@ class _TaskRulePageState extends State<TaskRulePage> {
 
   bool get _hasSavedDelay => widget.taskRule?.delay != null;
 
-  /// A delay exists only once a positive value is typed. An empty field — or an
+  /// A delay exists only once a non-zero value is typed. An empty field — or an
   /// explicit zero, offered as a way to drop a delay that was already saved —
   /// means "no delay", so the preselected type never becomes a delay of zero.
   bool get _hasDelayValue {
     final raw = _delayValueController.text.trim();
     if (raw.isEmpty) return false;
     final parsed = double.tryParse(raw);
-    return parsed != null && parsed > 0;
+    return parsed != null && parsed != 0;
   }
 
   _ThresholdType get _effectiveDelayType =>
@@ -494,10 +517,21 @@ class _TaskRulePageState extends State<TaskRulePage> {
     // valid and simply means "no delay".
     final raw = value?.trim() ?? '';
     if (raw.isEmpty) return null;
+    final requiresInteger = _thresholdRequiresInteger(_delayType);
+    final num? parsed = requiresInteger ? int.tryParse(raw) : double.tryParse(raw);
+    if (parsed == null) {
+      return requiresInteger ? 'Enter a whole number' : 'Enter a valid number';
+    }
     // Zero reads as "drop the delay", which only makes sense for a delay that
     // is already saved. _saveTaskRule then stores no delay at all.
-    if (_hasSavedDelay && double.tryParse(raw) == 0) return null;
-    return _validateThresholdValue(_delayType, value);
+    if (parsed == 0) return _hasSavedDelay ? null : 'Must not be 0';
+
+    final interval = _createThreshold(_intervalType, _intervalValueController.text, _intervalDate, _intervalDurationUnit);
+    final delay = _createThreshold(_delayType, raw, null, _delayDurationUnit);
+    if (interval is AccumulatingThreshold && interval.totalTarget(delay) < 0) {
+      return 'Cannot bring it forward by more than its interval';
+    }
+    return null;
   }
 
   TaskThreshold? _createThreshold(_ThresholdType type, String value, DateTime? date, _DurationUnit durationUnit) {
@@ -534,9 +568,15 @@ class _TaskRulePageState extends State<TaskRulePage> {
     final notes = _notesController.text.trim();
     
     final interval = _createThreshold(_intervalType, _intervalValueController.text, _intervalDate, _intervalDurationUnit);
-    final delay = _hasDelayValue
-        ? _createThreshold(_delayType, _delayValueController.text, null, _delayDurationUnit)
-        : null;
+    // An untouched delay is kept as is: its text is rounded, and a delay set by
+    // "Make Due Now" rebuilt from it could fall just short of due.
+    final delayUnchanged = _effectiveDelayType == _getThresholdType(widget.taskRule?.delay) &&
+        !_valueChanged(_delayValueController, widget.taskRule?.delay, _delayDurationUnit);
+    final delay = !_hasDelayValue
+        ? null
+        : delayUnchanged
+            ? widget.taskRule!.delay
+            : _createThreshold(_delayType, _delayValueController.text, null, _delayDurationUnit);
 
     _formHasChanges = false;
     _savedAttachments = _attachments;
@@ -558,8 +598,75 @@ class _TaskRulePageState extends State<TaskRulePage> {
         isDeleted: false,
         lastModified: DateTime.now().toUtc(),
         attachments: _attachments,
+        presetKey: _presetKey,
       ),
     );
+  }
+
+  /// Suggestions for the linked component, offered until one fills the form.
+  Widget? _presetChips(AppSettings appSettings, AppRepository appRepository, bool hasStravaEntitlement) {
+    if (widget.mode != TaskRulePageMode.add || !appSettings.showTaskPresets || _presetKey != null) return null;
+    final component = appRepository.components[_association.componentId];
+    if (component == null) return null;
+    final preset = component.preset;
+    final suggestions = taskSuggestionsFor(
+      component,
+      existingRules: appRepository.taskRules.values,
+      hasStravaEntitlement: hasStravaEntitlement,
+      overrides: preset == null ? const {} : context.read<ComponentCatalogRepository>().loadedTaskOverrides(preset),
+    );
+    if (suggestions.isEmpty) return null;
+    return TaskPresetChips(
+      suggestions: suggestions,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      onSelected: (suggestion) => _applySuggestion(suggestion, component),
+    );
+  }
+
+  /// Loads the catalog of a linked catalog component, so its chips switch from
+  /// the generic intervals to the manufacturer's once it is there.
+  Future<void> _loadTaskOverrides(TaskAssociation association) async {
+    if (widget.mode != TaskRulePageMode.add || !context.read<AppSettings>().showTaskPresets) return;
+    final preset = context.read<AppRepository>().components[association.componentId]?.preset;
+    if (preset == null) return;
+    try {
+      await context.read<ComponentCatalogRepository>().resolve(preset);
+    } catch (_) {
+      return; // The generic intervals stay.
+    }
+    if (mounted) setState(() {});
+  }
+
+  void _applySuggestion(TaskSuggestion suggestion, Component component) {
+    unawaited(HapticFeedback.selectionClick());
+    final appSettings = context.read<AppSettings>();
+    final rule = suggestion.toTaskRule(
+      component.id,
+      distanceUnit: appSettings.distanceUnit,
+      altitudeUnit: appSettings.altitudeUnit,
+    );
+    final interval = rule.interval;
+    setState(() {
+      _presetKey = rule.presetKey;
+      _presetComponentType = component.componentType;
+      _priority = rule.priority;
+      _repeat = rule.repeat;
+      _intervalType = _getThresholdType(interval);
+      if (interval case DurationThreshold(:final days)) _intervalDurationUnit = _DurationUnit.forDuration(days);
+    });
+    _nameController.text = rule.name;
+    _notesController.text = rule.notes ?? '';
+    _intervalValueController.text = _getThresholdValueString(interval, _intervalDurationUnit);
+  }
+
+  /// A chip's key only fits components its template applies to; a key that
+  /// came with the rule always stays.
+  bool _keepsPresetKey(TaskAssociation association) {
+    final presetType = _presetComponentType;
+    if (presetType == null) return true;
+    final type = context.read<AppRepository>().components[association.componentId]?.componentType;
+    if (type == null) return false;
+    return type == presetType || (taskPresets[type]?.any((template) => template.key == _presetKey) ?? false);
   }
 
   void _handlePopInvoked(bool didPop, dynamic result) async {
@@ -726,8 +833,8 @@ class _TaskRulePageState extends State<TaskRulePage> {
                         ),
                       ),
                       Tooltip(
-                        message: "A delay postpones when this task becomes due, without changing its interval. "
-                            "It only applies once: completing the task clears the delay automatically.",
+                        message: "A delay postpones when this task becomes due, or brings it forward when negative, "
+                            "without changing its interval. It only applies once: completing the task clears the delay automatically.",
                         triggerMode: TooltipTriggerMode.tap,
                         padding: const EdgeInsets.all(12),
                         margin: const EdgeInsets.symmetric(horizontal: 24),
@@ -755,13 +862,14 @@ class _TaskRulePageState extends State<TaskRulePage> {
               autovalidateMode: AutovalidateMode.onUserInteraction,
               keyboardType: TextInputType.numberWithOptions(
                 decimal: delayType == _ThresholdType.distance || delayType == _ThresholdType.elevation || delayType == _ThresholdType.kilojoules,
-                signed: false,
+                signed: true,
               ),
-              inputFormatters: _valueInputFormatters(delayType),
+              inputFormatters: [signedDelayInputFormatter(decimal: !_thresholdRequiresInteger(delayType))],
               validator: _validateDelayValue,
               onChanged: (value) => setState(() {}),
               decoration: InputDecoration(
                 labelText: "Value",
+                errorMaxLines: 3,
                 suffixText: delayType == _ThresholdType.duration
                     ? null
                     : _unitLabel(delayType, _delayDurationUnit, _delayValueController.text),
@@ -834,7 +942,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
         if (enableTaskPriority)
           ActionChip(
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            avatar: const Icon(Icons.traffic),
+            avatar: const Icon(TaskPriority.iconData),
             label: Text(_priority.label),
             backgroundColor: widget.mode == TaskRulePageMode.edit && _priority != widget.taskRule?.priority ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
             onPressed: () => showSetTaskPrioritySheet(
@@ -895,7 +1003,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
             avatar: const Icon(Icons.attach_file),
             tooltip: 'Add Attachment',
             backgroundColor: widget.mode == TaskRulePageMode.edit && !listEquals(_attachments, widget.taskRule!.attachments) ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
-            onPressed: _addAttachments,
+            onPressed: _importingAttachments ? null : _addAttachments,
           ),
       ],
     );
@@ -932,7 +1040,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
@@ -942,17 +1050,29 @@ class _TaskRulePageState extends State<TaskRulePage> {
                         _notesTextFormField(),
                         const SizedBox(height: 12),
                         _wrap(),
-                        if (appSettings.enableAttachments && _attachmentsDirPath != null && _attachments.isNotEmpty) ...[
-                          const SizedBox(height: 12),
-                          AttachmentStrip(
-                            attachments: _attachments,
-                            attachmentsDir: _attachmentsDirPath!,
-                            mode: AttachmentStripMode.edit,
-                            onRemove: _onAttachmentRemoved,
-                            onReorder: _onAttachmentReorder,
-                            onRename: _onAttachmentRenamed,
-                          ),
-                        ],
+                      ],
+                    ),
+                  ),
+                  if (appSettings.enableAttachments && _attachmentsDirPath != null && (_attachments.isNotEmpty || _importingAttachments))
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: AttachmentStrip(
+                        attachments: _attachments,
+                        attachmentsDir: _attachmentsDirPath!,
+                        mode: AttachmentStripMode.edit,
+                        isLoading: _importingAttachments,
+                        onRemove: _onAttachmentRemoved,
+                        onReorder: _onAttachmentReorder,
+                        onRename: _onAttachmentRenamed,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                      ),
+                    ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
                         const SizedBox(height: 18),
                         FormField<TaskAssociation>(
                           initialValue: _association,
@@ -976,7 +1096,14 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                       : null,
                                 );
                                 if (picked == null) return;
-                                setState(() => _association = picked);
+                                setState(() {
+                                  _association = picked;
+                                  if (!_keepsPresetKey(picked)) {
+                                    _presetKey = null;
+                                    _presetComponentType = null;
+                                  }
+                                });
+                                unawaited(_loadTaskOverrides(picked));
                                 field.didChange(picked);
                                 _changeListener();
                               },
@@ -1003,6 +1130,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                       ],
                     ),
                   ),
+                  ?_presetChips(appSettings, appRepository, hasStravaEntitlement),
                   if (appSettings.enableTaskInterval) ...[
                     const SizedBox(height: 16),
                     const Divider(height: 1),

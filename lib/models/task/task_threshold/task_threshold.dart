@@ -74,6 +74,26 @@ sealed class AccumulatingThreshold extends TaskThreshold {
   double _delayTarget(TaskThreshold? delay) =>
       delay is AccumulatingThreshold && delay.runtimeType == runtimeType ? delay.target : 0;
 
+  /// Whether this delay brings the target in rather than pushing it out.
+  bool get isPullForward => target < 0;
+
+  /// A delay of this kind that pulls the target in to what [context] has
+  /// gathered so far, so the task is due right away.
+  AccumulatingThreshold dueNowDelay(TaskProgressContext context) =>
+      // The nudge keeps float rounding from landing the combined target a hair
+      // above what was gathered, which would leave the task just short of due.
+      _withTarget(accumulated(context) - target - 1e-6);
+
+  AccumulatingThreshold _withTarget(double value) => switch (this) {
+        DistanceThreshold() => DistanceThreshold(value),
+        ElevationThreshold() => ElevationThreshold(value),
+        MovingTimeThreshold() => MovingTimeThreshold(Duration(microseconds: value.round())),
+        ElapsedTimeThreshold() => ElapsedTimeThreshold(Duration(microseconds: value.round())),
+        DurationThreshold() => DurationThreshold(Duration(microseconds: value.round())),
+        ActivityCountThreshold() => ActivityCountThreshold(value.round()),
+        KilojoulesThreshold() => KilojoulesThreshold(value),
+      };
+
   @override
   bool get requiresActivityData => true;
 

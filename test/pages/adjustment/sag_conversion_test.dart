@@ -6,6 +6,8 @@ import 'package:bike_setup_tracker/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'preset_key_test_utils.dart';
+
 /// Phase 2: existing users upgrade a plain "SAG" percentage numerical to the
 /// SagAdjustment subtype (and back), keeping the same adjustment id so setup
 /// values, history and charts stay attached. See doc/20260715_sag_adjustment_type.md §7.
@@ -98,7 +100,7 @@ void main() {
                 context,
                 MaterialPageRoute(
                   builder: (context) => NumericalAdjustmentPage.edit(
-                    adjustment: percentSag(),
+                    adjustment: percentSag().copyWith(presetKey: testPresetKey),
                     enableSagConversion: true,
                     componentType: ComponentType.fork,
                   ),
@@ -130,6 +132,7 @@ void main() {
     expect(sag.name, 'SAG');
     expect(sag.notes, 'measured static');
     expect(sag.referenceTravelMm, 160);
+    expect(sag.presetKey, testPresetKey);
   });
 
   testWidgets('downgrading returns a plain numerical (% / 0..100, no travel, same id)',
@@ -140,6 +143,7 @@ void main() {
       name: 'SAG',
       notes: 'measured static',
       referenceTravelMm: 160,
+      presetKey: testPresetKey,
     );
     await tester.pumpWidget(
       MaterialApp(
@@ -181,5 +185,13 @@ void main() {
     expect(numerical.unit, const CustomUnit('%'));
     expect((numerical as NumericalAdjustment).min, 0);
     expect(numerical.max, 100);
+    expect(numerical.presetKey, testPresetKey);
   });
+
+  final sagPreset = SagAdjustment(name: 'Preset', notes: null, presetKey: testPresetKey);
+  presetKeyTests(
+    template: () => SagAdjustmentPage.template(adjustment: sagPreset),
+    edit: () => SagAdjustmentPage.edit(adjustment: sagPreset),
+    add: () => SagAdjustmentPage.add(),
+  );
 }

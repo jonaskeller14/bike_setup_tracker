@@ -9,9 +9,11 @@ import '../../models/component/component_ancestor.dart';
 import '../../models/component/installation.dart';
 import '../../models/component/resolved_installation.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/component_hierarchy_resolver.dart';
+import '../../utils/component_actions.dart';
 import '../../utils/installation_timeline_validation.dart';
+import '../app_snackbar.dart';
 import '../component_ancestors_column.dart';
-import '../dialogs/component_descendant_warning.dart';
 import '../set_installation_timeline.dart';
 import 'sheet_header.dart';
 
@@ -118,18 +120,29 @@ class _InstallationSheetState extends State<InstallationSheet> {
       installations: _installations,
     );
     final appRepository = context.read<AppRepository>();
+    var subcomponentEdits = const <Component>[];
     if (!widget.component.isArchived && updatedComponent.isArchived) {
-      final confirmed = await confirmComponentDescendantImpact(
+      final edits = await ComponentActions.archiveSubcomponentEdits(
         context,
         component: widget.component,
-        descendants: appRepository.affectedDescendants(widget.component.id),
-        action: 'Archive',
+        atUTC: _editableInstallation.dateTimeUTC,
       );
-      if (!confirmed || !mounted) return;
+      if (edits == null || !mounted) return;
+      subcomponentEdits = edits;
     }
-    await appRepository.editComponent(updatedComponent);
     if (!mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    // Closes before saving, so the write does not hold the sheet open.
     Navigator.pop(context);
+    try {
+      await appRepository.editComponents([updatedComponent, ...subcomponentEdits]);
+    } on ComponentHierarchyValidationException {
+      final messengerContext = messenger.context;
+      if (!messengerContext.mounted) return;
+      messenger.showSnackBar(
+        AppSnackBar.error(messengerContext, 'Not saved: this would create a loop of components.'),
+      );
+    }
   }
 
   bool get _hasChanges =>

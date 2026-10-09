@@ -38,7 +38,7 @@ class BikeActions {
     );
     if (editedBike == null) return;
 
-    await appRepository.editBike(editedBike);
+    await appRepository.editBikes([editedBike]);
     await AttachmentActions.deleteUnsaved(bike.attachments, saved: editedBike.attachments);
   }
 
@@ -117,7 +117,8 @@ class BikeActions {
         .toList();
     final selectedTaskRules = relatedTaskRules.isEmpty
         ? const <TaskRule>[]
-        : await showDeleteTaskRulesSheet(context, taskRules: relatedTaskRules) ?? const <TaskRule>[];
+        : await showDeleteTaskRulesSheet(context, taskRules: relatedTaskRules);
+    if (selectedTaskRules == null) return;
     final selectedRuleIds = selectedTaskRules.map((rule) => rule.id).toSet();
     final obsoleteTaskEntries = appRepository.taskEntries.values
         .where((entry) => selectedRuleIds.contains(entry.taskRule))

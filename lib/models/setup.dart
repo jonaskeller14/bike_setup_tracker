@@ -12,6 +12,7 @@ import 'context/context_place.dart';
 import 'context/context_position.dart';
 import 'context/context_weather.dart';
 
+@immutable
 class Setup {
   final String id;
   final bool isDeleted;
@@ -30,11 +31,6 @@ class Setup {
   final geo.Placemark? place;
   final ContextWeather? weather;
   final List<Attachment> attachments;
-
-  // Transient values resolved at runtime
-  bool isCurrent = false;
-  Map<String, AdjustmentValue> previousBikeAdjustmentValues = {};
-  Map<String, AdjustmentValue> previousPersonAdjustmentValues = {};
 
   static const IconData iconData = Icons.tune;
 
@@ -211,8 +207,7 @@ class Setup {
       bikeAdjustmentValues: Map.from(bikeAdjustmentValues),
       personAdjustmentValues: Map.from(personAdjustmentValues),
       attachments: List.from(attachments),
-    )..previousBikeAdjustmentValues = Map.from(previousBikeAdjustmentValues)
-     ..previousPersonAdjustmentValues = Map.from(previousPersonAdjustmentValues);
+    );
   }
 
   Setup copyWith({
@@ -233,9 +228,6 @@ class Setup {
     Object? place = const _Sentinel(),
     Object? weather = const _Sentinel(),
     Object? attachments = const _Sentinel(),
-    Object? isCurrent = const _Sentinel(),
-    Object? previousBikeAdjustmentValues = const _Sentinel(),
-    Object? previousPersonAdjustmentValues = const _Sentinel(),
   }) {
     return Setup(
       id: id is _Sentinel
@@ -289,21 +281,10 @@ class Setup {
       attachments: attachments is _Sentinel
           ? this.attachments
           : (attachments as List<Attachment>),
-    )..isCurrent = isCurrent is _Sentinel
-          ? this.isCurrent
-          : (isCurrent as bool)
-     ..previousBikeAdjustmentValues = previousBikeAdjustmentValues is _Sentinel
-          ? this.previousBikeAdjustmentValues
-          : (previousBikeAdjustmentValues as Map<String, AdjustmentValue>)
-     ..previousPersonAdjustmentValues = previousPersonAdjustmentValues is _Sentinel
-          ? this.previousPersonAdjustmentValues
-          : (previousPersonAdjustmentValues as Map<String, AdjustmentValue>);
+    );
   }
 
-  // Not @immutable: the transient fields are assigned after construction and
-  // deliberately left out of equality.
   @override
-  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
     return identical(this, other) ||
         other is Setup &&
@@ -328,7 +309,6 @@ class Setup {
   }
 
   @override
-  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
     return Object.hashAll([
       id,

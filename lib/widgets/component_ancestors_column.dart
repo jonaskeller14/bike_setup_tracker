@@ -11,6 +11,7 @@ class ComponentAncestorsColumn extends StatelessWidget {
   final double spacing;
   final CrossAxisAlignment crossAxisAlignment;
   final TextStyle? textStyle;
+  final Color? color;
 
   const ComponentAncestorsColumn({
     super.key,
@@ -20,12 +21,13 @@ class ComponentAncestorsColumn extends StatelessWidget {
     this.spacing = 4,
     this.crossAxisAlignment = CrossAxisAlignment.start,
     this.textStyle,
+    this.color,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final variantColor = theme.colorScheme.onSurfaceVariant;
+    final variantColor = color ?? theme.colorScheme.onSurfaceVariant;
     final errorColor = theme.colorScheme.error;
     final style = textStyle ?? theme.textTheme.bodySmall?.copyWith(color: variantColor);
     return Column(

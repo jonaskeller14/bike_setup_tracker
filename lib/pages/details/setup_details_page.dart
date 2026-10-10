@@ -14,6 +14,7 @@ import '../../services/dangling_adjustment_service.dart';
 import '../../utils/map_actions.dart';
 import '../../utils/setup_actions.dart';
 import '../../utils/url.dart';
+import '../../widgets/component_ancestors_column.dart';
 import '../../widgets/current_setup_badge.dart';
 import '../../widgets/current_setup_highlight.dart';
 import '../../widgets/display_adjustment/display_adjustment_list.dart';
@@ -515,7 +516,9 @@ class SetupDetailsPageContent extends StatelessWidget {
     required Map<String, AdjustmentValue> danglingDeletedPersonAdjustmentValues,
   }) {
     final appSettings = context.read<AppSettings>();
-    final setupHistory = context.watch<AppRepository>().setupHistory;
+    final appRepository = context.watch<AppRepository>();
+    final setupHistory = appRepository.setupHistory;
+    final mutedColor = Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8);
     return SliverToBoxAdapter(
       child: Padding(
         padding: const EdgeInsets.only(left: 16, right: 16),
@@ -530,6 +533,7 @@ class SetupDetailsPageContent extends StatelessWidget {
               )
             else
               ...bikeComponents.map((bikeComponent) {
+                final ancestors = appRepository.componentHierarchy.ancestorsBelowBikeAt(bikeComponent.id, setup.datetimeLocal.toUtc());
                 return Card.outlined(
                   margin: const EdgeInsets.symmetric(vertical: 4),
                   clipBehavior: Clip.antiAlias,
@@ -540,12 +544,26 @@ class SetupDetailsPageContent extends StatelessWidget {
                         color: Theme.of(context).colorScheme.outlineVariant,
                         child: ListTile(
                           title: SelectableText(bikeComponent.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                          subtitle: Text(Intl.plural(
-                            bikeComponent.adjustments.length,
-                            zero: "No adjustments yet.",
-                            one: "1 adjustment",
-                            other: '${bikeComponent.adjustments.length} adjustments',
-                          )),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (ancestors.isNotEmpty)
+                                ComponentAncestorsColumn(
+                                  ancestors: ancestors,
+                                  bikes: appRepository.bikes,
+                                  iconSize: 12,
+                                  spacing: 2,
+                                  textStyle: TextStyle(color: mutedColor, fontSize: 12),
+                                ),
+                              Text(Intl.plural(
+                                bikeComponent.adjustments.length,
+                                zero: "No adjustments yet.",
+                                one: "1 adjustment",
+                                other: '${bikeComponent.adjustments.length} adjustments',
+                              )),
+                            ],
+                          ),
                           leading: ComponentTooltip(
                             component: bikeComponent,
                             triggerMode: TooltipTriggerMode.tap,

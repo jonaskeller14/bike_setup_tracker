@@ -242,6 +242,7 @@ class _SetupTileState extends State<SetupTile> {
       highlightInitialValues: true,
       displayOnlyChanges: _displayOnlyChanges,
       displayPersonAdjustmentValues: appSettings.enablePerson,
+      ancestorsOf: (componentId) => appRepository.componentHierarchy.ancestorsBelowBikeAt(componentId, setup.datetimeLocal.toUtc()),
     );
 
     // Whether the list renders anything in its current state — its padding

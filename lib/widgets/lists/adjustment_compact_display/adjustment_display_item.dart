@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../models/adjustment/adjustment.dart';
 import '../../../models/component/component.dart';
+import '../../../models/component/component_ancestor.dart';
 import '../../../models/person.dart';
 import '../../tooltips/component_tooltip.dart';
 import '../../tooltips/person_tooltip.dart';
@@ -26,6 +27,7 @@ sealed class AdjustmentDisplayItem {
 
 class ComponentDisplayItem extends AdjustmentDisplayItem {
   final Component _component;
+  final List<ComponentAncestor> ancestors;
   @override List<Adjustment> get adjustments => _component.adjustments;
   @override String get name => _component.name;
   @override String? get notes => _component.notes;
@@ -46,8 +48,8 @@ class ComponentDisplayItem extends AdjustmentDisplayItem {
   }
   @override
   Widget wrapTooltip(BuildContext context, {required Widget child, TooltipStyle? style}) =>
-      ComponentTooltip(component: _component, isError: isError, style: style, child: child);
-  ComponentDisplayItem(this._component, {super.isError});
+      ComponentTooltip(component: _component, ancestors: ancestors, isError: isError, style: style, child: child);
+  ComponentDisplayItem(this._component, {this.ancestors = const [], super.isError});
 }
 
 class PersonDisplayItem extends AdjustmentDisplayItem {

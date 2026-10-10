@@ -2,17 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/component/component.dart';
+import '../../models/component/component_ancestor.dart';
 import '../../models/component_stats.dart';
 import '../../repositories/app_repository.dart';
 import 'entity_tooltip_content.dart';
 import 'info_tooltip.dart';
 import 'tooltip_style.dart';
 
-/// Tooltip for a [Component]: name, notes, and (when entitled) Strava usage
-/// stats.
+/// Tooltip for a [Component]: name, optional [ancestors], notes, and (when
+/// entitled) Strava usage stats.
 class ComponentTooltip extends StatelessWidget {
   final Component component;
   final Widget child;
+  final List<ComponentAncestor> ancestors;
   final bool isError;
   final TooltipStyle? style;
   final TooltipTriggerMode triggerMode;
@@ -21,6 +23,7 @@ class ComponentTooltip extends StatelessWidget {
     super.key,
     required this.component,
     required this.child,
+    this.ancestors = const [],
     this.isError = false,
     this.style,
     this.triggerMode = TooltipTriggerMode.longPress,
@@ -39,6 +42,7 @@ class ComponentTooltip extends StatelessWidget {
       message: EntityTooltipContent(
         style: resolvedStyle,
         name: component.name,
+        ancestors: ancestors,
         notes: component.notes,
         stats: stats,
         errorDescription: isError ? "Component was not installed at setup time" : null,

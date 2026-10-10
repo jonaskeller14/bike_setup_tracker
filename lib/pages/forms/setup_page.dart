@@ -1185,6 +1185,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       header: _pressureCheck(bikeComponents),
       bikeComponents: bikeComponents,
       allComponents: appRepository.components,
+      bikes: appRepository.bikes,
+      ancestorsOf: (componentId) => appRepository.componentHierarchy.ancestorsBelowBikeAt(componentId, _selectedDateTimeUtc),
       bikeAdjustmentValues: _bikeAdjustmentValues,
       previousBikeAdjustmentValues: _previousBikeAdjustmentValues,
       initialBikeAdjustmentValues: _initialBikeAdjustmentValues,

@@ -3,16 +3,20 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/app_settings.dart';
+import '../../models/component/component_ancestor.dart';
 import '../../models/component_stats.dart';
+import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
+import '../component_ancestors_column.dart';
 import '../notes_text.dart';
 import 'tooltip_style.dart';
 
-/// The name/notes/Strava-stats/error content shown inside a component or
-/// person tooltip.
+/// The name/ancestors/notes/Strava-stats/error content shown inside a
+/// component or person tooltip.
 class EntityTooltipContent extends StatelessWidget {
   final TooltipStyle style;
   final String name;
+  final List<ComponentAncestor> ancestors;
   final String? notes;
   final ComponentStats? stats;
   final String? errorDescription;
@@ -21,6 +25,7 @@ class EntityTooltipContent extends StatelessWidget {
     super.key,
     required this.style,
     required this.name,
+    this.ancestors = const [],
     this.notes,
     this.stats,
     this.errorDescription,
@@ -62,6 +67,15 @@ class EntityTooltipContent extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
+        if (ancestors.isNotEmpty)
+          ComponentAncestorsColumn(
+            ancestors: ancestors,
+            bikes: context.read<AppRepository>().bikes,
+            iconSize: 13,
+            spacing: 2,
+            color: style.foreground,
+            textStyle: TextStyle(color: style.foreground, fontSize: 12),
+          ),
         if (notes != null && notes!.isNotEmpty)
           Row(
             mainAxisSize: MainAxisSize.min,

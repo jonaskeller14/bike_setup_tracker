@@ -156,6 +156,11 @@ class ComponentHierarchyResolver {
   List<ComponentAncestor> currentAncestors(String componentId) =>
       ancestorsAt(componentId, currentTimeUTC);
 
+  /// [ancestorsAt] without the closing [BikeAncestor], for views that already
+  /// show the bike. Empty for a component mounted directly on a bike.
+  List<ComponentAncestor> ancestorsBelowBikeAt(String componentId, DateTime atUTC) =>
+      ancestorsAt(componentId, atUTC).where((ancestor) => ancestor is! BikeAncestor).toList();
+
   /// The top of the hierarchy: the bike, or whatever ends the chain when the
   /// component is not on one. Never a [ParentComponentAncestor].
   ComponentAncestor rootAt(String componentId, DateTime atUTC) =>

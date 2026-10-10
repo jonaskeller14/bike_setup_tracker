@@ -143,6 +143,19 @@ void main() {
       expect(resolver.ancestorsAt('a', at).map((a) => (a as ParentComponentAncestor).component.id), ['b']);
       expect(resolver.ancestorsAt('unknown', at), isEmpty);
     });
+
+    test('ancestorsBelowBikeAt drops only the bike', () {
+      final resolver = ComponentHierarchyResolver({
+        'wheel': component('wheel', [onBike('bike', 1)]),
+        'tire': component('tire', [onComponent('wheel', 1)]),
+        'loose': component('loose', []),
+      });
+
+      expect(parentIds(resolver.ancestorsBelowBikeAt('tire', at)), ['wheel']);
+      expect(resolver.ancestorsBelowBikeAt('tire', at), hasLength(1));
+      expect(resolver.ancestorsBelowBikeAt('wheel', at), isEmpty);
+      expect(resolver.ancestorsBelowBikeAt('loose', at).single, isA<UninstalledAncestor>());
+    });
   });
 
   test('rejects temporal cycles', () {

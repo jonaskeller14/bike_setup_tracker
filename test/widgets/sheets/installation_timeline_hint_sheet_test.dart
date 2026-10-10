@@ -69,4 +69,21 @@ void main() {
 
     expect(await result, isFalse);
   });
+
+  testWidgets('settings variant shows Off/On radios and returns the selection', (tester) async {
+    final context = await pumpHost(tester);
+    final result = showInstallationTimelineSettingSheet(context, value: false);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Example timeline'), findsOneWidget);
+    expect(find.text('Trail bike'), findsOneWidget);
+    expect(find.textContaining('You can change this anytime in Settings.'), findsNothing);
+    expect(find.text('Activate now'), findsNothing);
+    expect(tester.widget<RadioGroup<bool>>(find.byType(RadioGroup<bool>)).groupValue, isFalse);
+
+    await tester.tap(find.text('On'));
+    await tester.pumpAndSettle();
+
+    expect(await result, isTrue);
+  });
 }

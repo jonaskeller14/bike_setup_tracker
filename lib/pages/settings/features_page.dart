@@ -13,7 +13,9 @@ import '../../models/task/task_rule.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../widgets/sheets/checkbox_group.dart';
+import '../../widgets/sheets/installation_timeline_hint_sheet.dart';
 import '../../widgets/sheets/radio_group.dart';
+import '../../widgets/sheets/subcomponents_hint_sheet.dart';
 import '../../widgets/text/section_title.dart';
 
 class FeaturesPage extends StatelessWidget {
@@ -84,10 +86,7 @@ class FeaturesPage extends StatelessWidget {
                   appSettings.enableInstallationTimeline = v;
                   if (!v) _showLayer(context, TimelineLayer.installations);
                 },
-                infoText:
-                    'By default, Components are linked to a Bike. '
-                    'When this setting is enabled, you can track exactly when a component was installed and uninstalled. '
-                    'This allows you to uninstall components and move them between different bikes without losing track of their history, usage, or setups.',
+                sheet: (context, value) => showInstallationTimelineSettingSheet(context, value: value),
               ),
               if (kDebugMode)
                 _FeatureToggleTile(
@@ -96,10 +95,7 @@ class FeaturesPage extends StatelessWidget {
                   title: "Subcomponents",
                   value: appSettings.enableInstallOnComponent,
                   onChanged: (v) => appSettings.enableInstallOnComponent = v,
-                  infoText:
-                      'Install components on other components in the Installation Timeline, '
-                      'e.g. a tire on a wheel. The subcomponent follows its parent between bikes '
-                      'and is credited with the same activities. Requires the Installation Timeline.',
+                  sheet: (context, value) => showSubcomponentsSettingSheet(context, value: value),
                 ),
               if (kDebugMode)
                 _FeatureToggleTile(
@@ -389,6 +385,7 @@ class _FeatureToggleTile extends StatelessWidget {
   final String? infoText;
   final bool enabled;
   final String? disabledSubtitle;
+  final Future<bool?> Function(BuildContext context, bool value)? sheet;
 
   const _FeatureToggleTile({
     required this.icon,
@@ -398,7 +395,13 @@ class _FeatureToggleTile extends StatelessWidget {
     this.infoText,
     this.enabled = true,
     this.disabledSubtitle,
+    this.sheet,
   });
+
+  Future<void> _openSheet(BuildContext context, Future<bool?> Function(BuildContext, bool) sheet) async {
+    final newValue = await sheet(context, value);
+    if (newValue != null && newValue != value) onChanged(newValue);
+  }
 
   static const Map<bool, Text> _offOnOptionWidgets = {
     false: Text('Off'),
@@ -413,7 +416,7 @@ class _FeatureToggleTile extends StatelessWidget {
       title: Text(title),
       subtitle: !enabled && disabledSubtitle != null ? Text(disabledSubtitle!) : _offOnOptionWidgets[value],
       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-      onTap: () => radioGroupSheet<bool>(
+      onTap: () => sheet != null ? _openSheet(context, sheet!) : radioGroupSheet<bool>(
         context: context,
         title: title,
         value: value,

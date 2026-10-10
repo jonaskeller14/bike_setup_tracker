@@ -19,10 +19,24 @@ Future<bool> showInstallationTimelineHintSheet(
       false;
 }
 
-class _InstallationTimelineHintSheet extends StatelessWidget {
-  const _InstallationTimelineHintSheet({required this.component});
+/// Settings variant with Off/On radios; resolves to the selected value, or null if dismissed.
+Future<bool?> showInstallationTimelineSettingSheet(
+  BuildContext context, {
+  required bool value,
+}) {
+  return showModalBottomSheet<bool>(
+    useSafeArea: true,
+    isScrollControlled: true,
+    context: context,
+    builder: (context) => _InstallationTimelineHintSheet(value: value),
+  );
+}
 
-  final Component component;
+class _InstallationTimelineHintSheet extends StatelessWidget {
+  const _InstallationTimelineHintSheet({this.component, this.value});
+
+  final Component? component;
+  final bool? value;
 
   static final _exampleBikes = {
     'trail-bike': Bike(id: 'trail-bike', name: 'Trail bike', person: null),
@@ -41,7 +55,8 @@ class _InstallationTimelineHintSheet extends StatelessWidget {
       );
     }
 
-    return component.copyWith(
+    final base = component ?? Component(name: 'Fork', componentType: ComponentType.fork, installations: const []);
+    return base.copyWith(
       installations: [
         event('trail-bike', const Duration(days: 90)),
         event(null, const Duration(days: 45)),
@@ -54,6 +69,7 @@ class _InstallationTimelineHintSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final exampleComponent = _exampleComponent();
+    final value = this.value;
 
     return SafeArea(
       child: Column(
@@ -80,7 +96,8 @@ class _InstallationTimelineHintSheet extends StatelessWidget {
                   const SizedBox(height: 12),
                   Text(
                     'Without installation history, the app only saves the bike where this component is installed now. '
-                    'It does not save past installs or removals. You can change this anytime in Settings.',
+                    'It does not save past installs or removals.'
+                    '${value == null ? ' You can change this anytime in Settings.' : ''}',
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
@@ -114,23 +131,35 @@ class _InstallationTimelineHintSheet extends StatelessWidget {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                FilledButton.icon(
-                  onPressed: () => Navigator.pop(context, true),
-                  icon: const Icon(Icons.arrow_forward),
-                  label: const Text('Activate now'),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.pop(context, false),
-                  child: const Text('Continue without tracking'),
-                ),
-              ],
+          if (value == null)
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  FilledButton.icon(
+                    onPressed: () => Navigator.pop(context, true),
+                    icon: const Icon(Icons.arrow_forward),
+                    label: const Text('Activate now'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: const Text('Continue without tracking'),
+                  ),
+                ],
+              ),
+            )
+          else
+            RadioGroup<bool>(
+              groupValue: value,
+              onChanged: (selected) => Navigator.pop(context, selected),
+              child: const Column(
+                children: [
+                  RadioListTile(value: false, title: Text('Off')),
+                  RadioListTile(value: true, title: Text('On')),
+                ],
+              ),
             ),
-          ),
         ],
       ),
     );

@@ -16,11 +16,9 @@
 # Compression, High-Speed Compression, Rebound) and confirm the counting
 # convention (turning fully clockwise = fully closed = click 0; opening is
 # counterclockwise — the same convention as the schema's default `dial_ccw`),
-# but neither publishes a maximum click count for any of the three adjusters.
-# The quick manuals only print a rider-weight-based table of *suggested
-# starting* clicks (well short of the mechanical max), which is not the same
-# thing as the click range — so, per SCHEMA.md's "never guess a number" rule,
-# every adjuster is declared with `max: ~`. See "Follow-ups".
+# but publish no maximum click count. The totals below therefore come from
+# staff-written magazine reviews (secondary tier of SCHEMA.md): Pinkbike and
+# Enduro-MTB for the Era V2.1, Pinkbike for the Vaia. See "Follow-ups".
 brand: EXT
 component_type: fork
 sources:
@@ -35,7 +33,9 @@ sources:
   # Secondary — editorial spec lists (wheel size)
   - https://www.pinkbike.com/news/review-ext-era-v21-fork.html
   - https://www.pinkbike.com/news/review-ext-vaia-extra-adjustable-usd-fork.html
-updated: 2026-10-07
+  # Secondary — editorial click totals (rebound / LSC / HSC)
+  - https://enduro-mtb.com/en/ext-era-v2-1-best-mtb-fork-test/
+updated: 2026-10-10
 # Service intervals (`tasks`) come from the quick manuals (the nodes'
 # `setup_guide`): every 100 hours or 1 year for amateur use (racing: 50 hours
 # or 6 months; the amateur figure is used).
@@ -54,10 +54,19 @@ option_values:
         Compression, High-Speed Compression and Rebound, all counted from fully
         closed (click 0).
       adjustments:
-        - { name: LSC, type: step, max: ~, notes: Low-Speed Compression }
-        - { name: HSC, type: step, max: ~, notes: High-Speed Compression }
-        - { name: Rebound, type: step, max: ~, dialColor: red }
+        - { name: LSC, type: step, max: 16, notes: Low-Speed Compression }
+        - { name: HSC, type: step, max: 14, notes: High-Speed Compression }
+        - { name: Rebound, type: step, max: 20, dialColor: red }
       adjusters: LSC (nickel dial, top of right leg) / HSC (black dial, top of right leg) / Rebound (red dial, bottom of right leg)
+      source:
+        - https://www.pinkbike.com/news/review-ext-era-v21-fork.html
+        - https://enduro-mtb.com/en/ext-era-v2-1-best-mtb-fork-test/
+      note: >-
+        Click totals are not published by EXT; taken from the body text of
+        Pinkbike's Era V2.1 review ("low-speed and high-speed compression
+        adjustment (16 and 14 clicks, respectively) plus 20 clicks of rebound")
+        and Enduro-MTB's Era V2.1 test, which gives the same figures. Applied
+        to the Era V2 LT, which EXT lists with the same 3-way cartridge.
 
     vaia_cartridge:
       name: EXT Vaia 3-Way Cartridge
@@ -67,10 +76,15 @@ option_values:
         all counted from fully closed (click 0) with the same clockwise-closes
         convention as Era.
       adjustments:
-        - { name: LSC, type: step, max: ~, notes: Low-Speed Compression }
-        - { name: HSC, type: step, max: ~, notes: High-Speed Compression }
-        - { name: Rebound, type: step, max: ~, dialColor: red }
+        - { name: LSC, type: step, max: 16, notes: Low-Speed Compression }
+        - { name: HSC, type: step, max: 10, notes: High-Speed Compression }
+        - { name: Rebound, type: step, max: 18, dialColor: red }
       adjusters: LSC (nickel dial) / HSC (black dial) / Rebound (red dial), all on the fork's left leg
+      source: https://www.pinkbike.com/news/review-ext-vaia-extra-adjustable-usd-fork.html
+      note: >-
+        Click totals are not published by EXT; read off the setup block of
+        Pinkbike's Vaia review ("Rebound: -18/18 (open) LSC -12/16 HSC -8/10"),
+        where each entry reads clicks from closed / total clicks.
 
 # --------------------------------------------------------------------------
 # Forks — current EXT MTB lineup (extremeshox.com, checked 2026-07-17).
@@ -109,7 +123,7 @@ nodes:
     category: Enduro
     years: "2025-2026"
     url: https://extremeshox.com/product/ext-era-v2-lt/
-    setup_guide: https://extremeshox.com/wp-content/uploads/2023/09/ERA_V2S_quick_manual-5.pdf
+    setup_guide: https://extremeshox.com/wp-content/uploads/2023/08/quick-manual-Era-v2_20x30.pdf  # the manual linked on the Era V2 LT product page
     tasks: *ext_service
     children:
       - label: Standard
@@ -150,20 +164,23 @@ nodes:
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):
-#   - No maximum click counts are published anywhere for LSC/HSC/Rebound on
-#     either Era (V2.1/V2 LT) or Vaia. The Era quick manual's rider-weight
-#     table gives only a *suggested starting point* (e.g. HSC-LSC-R = 10-10-18
-#     for a <60kg rider), which is not the mechanical max, so all three carry
-#     `max: ~`. Verify the real range with EXT support/dealer.
+#   - Era V2.1 / V2 LT (16 / 14 / 20) and Vaia (16 / 10 / 18) totals come from
+#     staff-written reviews, not from EXT. The LT carries the V2.1 numbers
+#     because EXT lists the same 3-way cartridge; no review gives LT counts.
 #   - Era V2.1/V2 LT: published max inflation is a single combined figure
 #     (200 psi / 14 bar) rather than separate + / ++ chamber limits like the
-#     Aria shock (280/600 psi) — not modeled as a per-chamber `max` to avoid
-#     misattributing the number to the wrong valve.
-#   - Vaia: same ambiguity, single combined ceiling of 250 psi / 17 bar.
+#     Aria shock — not modeled as a per-chamber `max` to avoid misattributing
+#     the number to the wrong valve. The Era quick manual's weight table
+#     (< 60 kg 45 / 70 psi up to > 100 kg 85 / 130 psi) is a suggestion only.
+#   - Vaia: same ambiguity, single combined ceiling of 250 psi / 17 bar. The
+#     Vaia takes positive and negative volume spacers (stock 4 positive, 2
+#     negative per the Pinkbike review) but EXT states no maximum count.
+#   - Era V2 LT: no wheel size source (Pinkbike's launch article lists none),
+#     so the axis is omitted. Era V2S (single air chamber, 4 compression
+#     clicks, 20 rebound clicks per its quick manual) is not on EXT's current
+#     MTB product list and is not modeled.
 #   - Wheel size is not stated on EXT's product pages. Era V2.1 (29" only) and
-#     Vaia (designed for 29") come from Pinkbike's review spec lists; Era V2 LT
-#     has no approved source (Pinkbike's launch article lists no wheel size),
-#     so the axis is omitted there.
+#     Vaia (designed for 29") come from Pinkbike's review spec lists.
 #   - Dial colors: EXT's quick manuals describe the LSC adjuster as nickel-colored
 #     and the HSC adjuster as black; neither maps to a palette color, so only
 #     the red rebound dials carry `dialColor`.

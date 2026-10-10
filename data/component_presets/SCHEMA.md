@@ -98,11 +98,38 @@ Every number in this catalog must be traceable to a named source. Two tiers:
    counts — never reader comments, forum posts, YouTube, retailer listings,
    or AI summaries.
 
-Both tiers must be cited (see [Citing a source](#citing-a-source)). Never
-guess, interpolate, or infer a click count from a setup-recommendation chart's
-column count. When an adjuster exists but its range is not published, declare
-it with `max: ~` (see [Unknown click range](#unknown-click-range-max-)); never
-write a guessed number.
+3. **Tertiary — retailer listings**, only for facts neither the manufacturer
+   nor a magazine states: shock sizes (eye-to-eye × stroke, mount), travel
+   options, wheel sizes and published click counts. Use the retailer's
+   structured spec table or variant list, preferably from a well-known shop
+   (Bike24, Bike-Components, Chain Reaction, Jenson, Canyon, ...). Never take a
+   damper range from a shop's marketing text when a manufacturer page exists.
+
+All tiers must be cited (see [Citing a source](#citing-a-source)); state the
+tier in the damper's or node's `note:`/`source:` when it is not the
+manufacturer. Never guess. When a click range is published nowhere, use the
+estimate rule below, and when even that is impossible declare it with
+`max: ~` (see [Unknown click range](#unknown-click-range-max-)).
+
+### Estimating a click range from a setup table
+
+Manufacturers often publish a setup table (air pressure / rider weight →
+recommended clicks) but no total range. Such a table is evidence for the
+**minimum** total: the recommended values are counted from the closed end stop,
+so the dial has at least as many clicks as the largest value in the table.
+
+- Set `max` to the **highest value that occurs in the table** for that adjuster
+  (the top of the widest range, e.g. `16-18` → `18`). It is an estimate, the
+  true total may be higher.
+- Put the warning in the adjustment's rider-facing `notes`, after the circuit
+  name: `"High-Speed Compression; estimated maximum, check your dial and edit it
+  if it differs"`. Use this exact wording so it stays greppable.
+- Say how the number came about in the damper's `source:`/`note:` (document,
+  pressure span, counting direction). Never in `notes`.
+- Only for adjusters counted from the closed end stop. A table that counts from
+  open, from the middle or in turns is not usable; use `max: ~` / draft.
+- A table that is absent, or lists only a lever position, gives no estimate:
+  `max: ~`.
 
 ### Citing a source
 
@@ -460,7 +487,11 @@ The node-level `adjustments:` list holds the **spring** adjustments (air
 pressure, published volume-spacer count, coil spring-rate/preload). Add only
 what is certain: every air spring has a Pressure; every coil has a Spring Rate.
 Volume spacers are listed **only where the max is published** — otherwise omit
-them and add a follow-up note rather than guessing a range.
+them and add a follow-up note rather than guessing a range. A size option cannot
+carry its own adjustments, so where the maximum depends on the size (shocks) or
+travel (forks), `max` is the highest value and `notes` lists the per-size
+maxima: `Maximum depends on the size: metric 210x50/55 3, 230x57.5/60/65 4`.
+Always write them as `{ name: Volume Spacers, type: step, max: N, visualization: stepper }`.
 
 ### Fields & defaults
 

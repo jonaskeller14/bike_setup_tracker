@@ -24,7 +24,7 @@ sources:
   - https://nsmb.com/articles/marzocchi-bomber-z1-reviewed/
   # Primary — service intervals
   - https://tech.ridefox.com/img/help/page2839-HZFA/inline/605-00-255%20REV%20A%20-%202021%20Marzocchi%20Forks%20Owners%20Guide.pdf
-updated: 2026-10-07
+updated: 2026-10-10
 # Service intervals (`tasks`) come from the 2021 Marzocchi Forks Owner's Guide:
 # a full service (damper and air spring rebuild, bath oil and wipers) every
 # 125 hours or yearly. No separate lower-leg interval is published.
@@ -45,22 +45,27 @@ option_values:
       name: RAIL
       description: >
         Damper on Bomber Z1 (Air), Bomber Z1 Coil and Bomber Z2: a simple sweep
-        compression lever and a 9-click rebound dial.
+        compression lever and a clicked rebound dial.
       adjustments: &sweep_2pos
         - { name: Compression Mode, type: categorical, options: [Open, Firm], notes: "Sweep lever, continuously variable between Open and Firm" }
-        - { name: Rebound, type: step, max: 9, dialColor: red }
+        - { name: Rebound, type: step, max: 13, notes: "Counted from fully closed (slowest); estimated maximum, check your dial and edit it if it differs", dialColor: red }
       source:
         - https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-256_RevB_DJ-Z1_TuningGuide.pdf
         - https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-237-%20RevA_Z2_TuningGuide.pdf
       note: >-
-        Numbers from the 2020 Bomber Z1/DJ tuning guide (then labelled "GRIP")
-        and the 2019 Bomber Z2 tuning guide, which show the identical sweep +
-        9-click rebound spec under both names. Current Z2 copy mentions a "new
-        RAIL damper", so this may have changed since without a republished spec.
+        Sweep lever from the 2020 Bomber Z1/DJ tuning guide (then labelled
+        "GRIP") and the 2019 Bomber Z2 tuning guide, which show the identical
+        spec under both names. Rebound maximum is an estimate: both guides'
+        rebound tables ("turn the rebound knob clockwise until it stops, then
+        counter-clockwise to the number of clicks", 120-250 lbs) start at 13
+        clicks, so the dial has at least 13 clicks counted from fully closed.
+        The guides' printed "OPEN 9 ... 1 CLOSED" scale does not match their own
+        table. Current Z2 copy mentions a "new RAIL damper" without a republished
+        spec.
 
     grip:
       name: GRIP
-      description: Damper on Bomber DJ with a sweep compression lever and a 9-click rebound dial.
+      description: Damper on Bomber DJ with a sweep compression lever and a clicked rebound dial.
       adjustments: *sweep_2pos
       source: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-256_RevB_DJ-Z1_TuningGuide.pdf
       note: Same spec as `rail`, per the shared 2020 "Bomber Z1 & DJ" tuning guide, which calls it GRIP.
@@ -69,12 +74,17 @@ option_values:
       name: GRIP
       description: >
         Damper on the dual-crown Bomber 58: a clicked low-speed compression dial
-        plus a 9-click rebound dial.
+        plus a clicked rebound dial.
       adjustments:
-        - { name: Compression, type: step, max: 8, notes: Low-Speed Compression }
-        - { name: Rebound, type: step, max: 9 }
+        - { name: Compression, type: step, max: 8, notes: "Low-Speed Compression; counted from fully closed (firmest)" }
+        - { name: Rebound, type: step, max: 13, notes: "Counted from fully closed (slowest); estimated maximum, check your dial and edit it if it differs" }
       source: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-174-58_TuningGuide-revA.pdf
-      note: Official Bomber 58 tuning guide. Despite the shared GRIP name, not the same cartridge as Bomber DJ's.
+      note: >-
+        Official Bomber 58 tuning guide (605-00-174): the low-speed compression
+        diagram shows 8 clicks from fully closed. Rebound maximum is an estimate:
+        the guide's rebound table (120-250 lbs, counted counter-clockwise from
+        fully closed) starts at 13 clicks. Despite the shared GRIP name, not the
+        same cartridge as Bomber DJ's.
 
 # --------------------------------------------------------------------------
 # Forks — current (2025/2026) Marzocchi lineup. Every model below is air- or
@@ -96,8 +106,9 @@ nodes:
         specs: { stanchion: "36mm, Black Anodized", spring: Air }
         offset_mm: 44
         axle: 15QRx110
-        adjustments: &air_spring
-          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
+          - { name: Volume Spacers, type: step, max: 8, visualization: stepper, notes: "Clip-on spacers; maximum depends on travel: 130/140mm 8, 150/160mm 7, 170mm 6, 180mm 5" }
         options:
           damper: [rail]
           travel_mm: [100, 150, 160]
@@ -142,7 +153,9 @@ nodes:
         specs: { stanchion: "34mm, Black Anodized", spring: Air }
         offset_mm: 44
         axle: 15QRx110
-        adjustments: *air_spring
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 140, notes: "Maximum 120 psi; 140 psi on the E-Bike+ tune" }
+          - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Clip-on spacers; maximum depends on travel: 100/110mm 6, 120/130mm 5, 140/150mm 4" }
         options:
           damper: [rail]
           travel_mm: [120, 130, 140, 150]
@@ -165,7 +178,7 @@ nodes:
         offset_mm: 37
         axle: 20x110 non-boost (15x100 conversion kit available)
         adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
           - { name: Volume Spacers, type: step, visualization: stepper, max: 10, notes: Factory installed 8 }
         options:
           damper: [grip]
@@ -187,7 +200,7 @@ nodes:
         offset_mm: 51
         axle: 20x110 DH (non-Boost)
         adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
           - { name: Volume Spacers, type: step, visualization: stepper, max: 7, notes: Factory installed 4 }
         options:
           damper: [grip_58]
@@ -197,23 +210,13 @@ nodes:
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):
-#   - Bomber Z1 and Bomber Z2 volume-spacer counts ARE published, but per
-#     travel setting rather than one fixed number per trim (Z1: factory 1-5 /
-#     max 5-8 clip-on spacers across its 130-180mm chart, of which only
-#     150/160mm are currently sold; Z2: factory 0-4 / max 4-6 across its
-#     100-150mm chart, of which 120-150mm are currently sold) — see the
-#     tuning-guide sources above. The current schema only has one `max` per
-#     trim, so no Volume Spacers entry was added for these two models rather
-#     than picking a single travel's number and mislabeling it as universal.
-#     Revisit once the schema supports a per-travel table, or once a single
-#     travel is confirmed as the only one Marzocchi still sells.
-#   - The `rail` damper's 9-click rebound / 2-position sweep numbers are
-#     taken from tuning-guide PDFs dated 2019-2020; current Bomber Z2 product
-#     copy advertises a "new RAIL damper" without a republished click-count
-#     spec, so these numbers should be reverified against updated
-#     documentation if Marzocchi publishes one.
-#   - Bomber Z1's 100mm/27.5in configuration is listed as a current selector
-#     option on the product page but isn't broken out separately in the
-#     tuning guide's volume-spacer table (only Bomber DJ's 100mm row is) —
-#     flagged above rather than assumed identical to DJ's spacer counts.
+#   - Volume spacers: the Z1 and Z2 guides publish a maximum per travel (Z1
+#     130-180mm, Z2 100-150mm); Volume Spacers carries the highest value and
+#     the per-travel maxima in its notes. The Z1's 100mm configuration is not
+#     in the Z1 table (only the DJ's 100mm row is), so its maximum is unknown.
+#   - Rebound click totals: no Marzocchi page or guide states the total. The
+#     13 for the RAIL / GRIP / GRIP 58 rebound is the top of the guides' rebound
+#     tables (estimate); the guides' printed 9-position scale contradicts it.
+#   - Z2 E-Bike+ tune: travel and spacer counts come from the Z2 guide; the
+#     tune is not a separate catalog product.
 # --------------------------------------------------------------------------

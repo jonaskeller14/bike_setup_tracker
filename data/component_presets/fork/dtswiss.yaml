@@ -26,7 +26,7 @@ sources:
   # Secondary — editorial (article body text only)
   - https://enduro-mtb.com/en/dt-swiss-f-535-and-f-535-one-forks-test/
   - https://www.pinkbike.com/news/first-ride-dt-swisss-new-232-one-platform.html
-updated: 2026-10-07
+updated: 2026-10-10
 # Service intervals (`tasks`) come from the user manuals cited above: a small
 # service every 50 operating hours and a full service annually or after 200
 # operating hours.
@@ -94,15 +94,17 @@ option_values:
       adjustments:
         - { name: Compression Mode, type: categorical, options: [Open, Drive, Lock] }
         - { name: Compression, type: step, max: ~, notes: "Low-Speed Compression; blue T10 Torx adjuster, affects Open mode only", dialColor: blue }
-        - { name: Rebound, type: step, max: ~ }
+        - { name: Rebound, type: step, max: 25, notes: "Counted from fully open (fastest); estimated maximum, check your dial and edit it if it differs" }
       source:
         - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/02/81/9/MAN_FXD10000002819S_WEB_ZZ_001.pdf
         - https://www.pinkbike.com/news/first-ride-dt-swisss-new-232-one-platform.html
       note: >-
         Lever modes and the blue compression adjuster (T10 Torx, affects Open
-        mode only) from the F 232 ONE user manual V2021.09 (sec. 4.3). The
-        manual's rebound table lists recommended settings only; no total click
-        count for compression or rebound is published, so both carry `max: ~`.
+        mode only) from the F 232 ONE user manual V2021.09 (sec. 4.3). No total
+        click count is published for compression or rebound, so compression keeps
+        `max: ~`. Rebound is an estimate: the manual's rebound table (sec. 4.4,
+        "Rebound klicks (from fully opened)", 29-138 psi) tops out at 25 clicks,
+        so the dial has at least 25 clicks counted from fully open.
 
 # --------------------------------------------------------------------------
 # Forks — current lineup. DT Swiss only offers 29" versions of all three.
@@ -122,8 +124,8 @@ nodes:
         level: trim
         specs: { stanchion: 35mm, spring: Air }
         offset_mm: [44]
-        adjustments: &air_spring_apt
-          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 197, notes: "Maximum depends on travel: 120mm 197 psi, 130mm 186, 140mm 175, 150mm 164, 160mm 154" }
           - { name: Volume Spacers, type: step, max: 3, visualization: stepper, notes: APT volume spacers }
         options:
           damper: [incontrol_odl_plushport_2023]
@@ -147,7 +149,9 @@ nodes:
         level: trim
         specs: { stanchion: 35mm, spring: Air }
         offset_mm: [44]
-        adjustments: *air_spring_apt
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 191, notes: "Maximum depends on travel: 120mm 191 psi, 130mm 180, 140mm 170, 150mm 158, 160mm 148" }
+          - { name: Volume Spacers, type: step, max: 3, visualization: stepper, notes: APT volume spacers }
         options:
           damper: [incontrol_ol_2023]
           travel_mm: [120, 130, 140, 150, 160]
@@ -170,7 +174,9 @@ nodes:
         level: trim
         specs: { stanchion: 32mm, spring: Air }
         offset_mm: [44, 51]
-        adjustments: *air_spring_apt
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 152, notes: "Maximum depends on travel: 100mm 152 psi, 110mm 149, 120mm 145" }
+          - { name: Volume Spacers, type: step, max: 3, visualization: stepper, notes: APT volume spacers }
         options:
           damper: [incontrol_odl_232_2020]
           travel_mm: [100, 110, 120]
@@ -186,19 +192,20 @@ nodes:
 #     manuals or the approved reviews name it (the shock manuals do say "red
 #     rebound wheel"), so the fork rebound adjusters carry no `dialColor`.
 #     The F 232 ONE manual (sec. 4.3) names the compression adjuster "blue".
-#   - F 232 ONE compression and rebound click counts: DT Swiss's product page,
-#     user manual (V2021.09) and technical manual publish neither, and none of
-#     the approved outlets state them, so both carry `max: ~`.
-#     (Non-approved outlets — off-road.cc, Bike Perfect — quote figures; do not
+#   - F 232 ONE compression click count: DT Swiss's product page, user manual
+#     (V2021.09) and technical manual publish no total and the manual has no
+#     compression table, so it carries `max: ~`. The rebound maximum of 25 is
+#     an estimate from the manual's rebound table (counted from fully open).
+#     (Non-approved outlets - off-road.cc, Bike Perfect - quote figures; do not
 #     use them without a primary or approved secondary source.)
 #   - Pre-2023 F 535 ONE (2018-2022; 27.5" / 29", 44 or 51mm offset, HSC/LSC
 #     knob under the crown cap): no click count is published by DT Swiss or an
 #     approved outlet for that generation, and Enduro-MTB's 12/29 figures are
 #     for the 2023 forks, so the generation is not listed. The user manual
 #     V2021.08 (MAN_FXWXXXXX2019UMXXS_WEB_ZZ_001.pdf) would be the start point.
-#   - F 535 / F 535 ONE maximum air pressure is printed per rider weight in the
-#     user manual's pressure table but not as a single limit, so Pressure is
-#     left unbounded.
+#   - Maximum air pressure is printed per travel in the user manuals (F 535
+#     ONE 13.6-10.6 bar, F 535 13.2-10.2 bar, F 232 ONE 10.5-10 bar); Pressure
+#     carries the highest value and the per-travel maxima in its notes.
 #   - F 132 ONE (gravel/bikepacking) is not a mountain-bike fork and is not
 #     covered.
 # --------------------------------------------------------------------------

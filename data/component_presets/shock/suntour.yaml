@@ -16,7 +16,9 @@ sources:
   - https://www.srsuntour.com/products/rear-shock/RS24-TRIAir2-R-METRIC-8207.html
   - https://www.srsuntour.com/products/rear-shock/RS25-Raidon-R-METRIC-8157.html
   - https://www.srsuntour.com/products/rear-shock/RS25-Raidon-LO-METRIC-8156.html
-updated: 2026-10-07
+  - https://www.srsuntour.com/products/rear-shock/RS25-EDGE-EVO-R-METRIC-8188.html
+  - https://www.srsuntour.com/products/rear-shock/RS24-EDGE-X-R-METRIC-8196.html
+updated: 2026-10-10
 # Service intervals (`tasks`) come from the general rear shock manual cited
 # above: a full service including damper rebuild and air seal replacement
 # every 100 hours or annually.
@@ -27,11 +29,10 @@ updated: 2026-10-07
 # 2CR/3CR = discrete-position on-the-fly compression lever + rebound, LO =
 # hydraulic lockout. All current models are air-sprung.
 #
-# Click counts are almost never published on official product pages — the one
-# confirmed exception is the TRIAIR2 family, whose spec table explicitly
-# states "8 clicks rebound" for every variant (R/2CR/3CR). Every other
-# rebound/compression dial below is left as adjustments: [] rather than
-# guessed — see the Follow-ups footer.
+# Click counts are published only as a key feature on some product pages: the
+# TRIAIR2 spec table, and the EDGE Evo / EDGE X pages, state "8 click rebound"
+# (R / 2CR variants). RAIDON pages state none, so its rebound dial is left
+# undeclared rather than guessed — see the Follow-ups footer.
 
 # --------------------------------------------------------------------------
 # Dampers
@@ -43,9 +44,12 @@ option_values:
       description: >
         Rebound-only cartridge on the EDGE Evo/EDGE X shocks. External low-speed
         rebound dial; no user compression adjustment.
-      missing_adjustments: [Rebound]
-      adjustments: []
-      note: Rebound click count is not published by SR SUNTOUR.
+      adjustments:
+        - { name: Rebound, type: step, max: 8 }
+      source:
+        - https://www.srsuntour.com/products/rear-shock/RS25-EDGE-EVO-R-METRIC-8188.html
+        - https://www.srsuntour.com/products/rear-shock/RS24-EDGE-X-R-METRIC-8196.html
+      note: Product pages list "8 click rebound" as a key feature of the R function.
 
     edge_2cr:
       name: EDGE 2CR
@@ -53,20 +57,24 @@ option_values:
         2-position on-the-fly compression lever (Open, Firm settings) plus a low-speed
         rebound dial. Shared cartridge naming/function across both EDGE Evo (XC/Trail)
         and EDGE X (reinforced eMTB) shocks.
-      missing_adjustments: [Rebound]
       adjustments:
         - { name: Compression Mode, type: categorical, options: [Open, Firm], notes: 2-position on-the-fly lever }
-      note: Low-speed rebound click count is not published by SR SUNTOUR.
+        - { name: Rebound, type: step, max: 8 }
+      source:
+        - https://www.srsuntour.com/products/rear-shock/RS25-EDGE-EVO-2CR-METRIC-8187.html
+        - https://www.srsuntour.com/products/rear-shock/RS24-EDGE-X-2CR-METRIC-8194.html
+      note: Product pages of EDGE Evo 2CR and EDGE X 2CR list "8 click rebound" as a key feature.
 
     edge_evo_r_2cr:
       name: EDGE Evo R-2CR
       description: >
         Handlebar-remote version of EDGE 2CR: a remote-actuated 2-position compression
         lever (Open, Firm settings) plus a low-speed rebound dial.
-      missing_adjustments: [Rebound]
       adjustments:
         - { name: Compression Mode, type: categorical, options: [Open, Firm], notes: Handlebar-remote 2-position lever }
-      note: Low-speed rebound click count is not published by SR SUNTOUR.
+        - { name: Rebound, type: step, max: 8 }
+      source: https://www.srsuntour.com/products/rear-shock/RS25-EDGE-EVO-R-METRIC-8188.html
+      note: The EDGE Evo family page (R / 2CR / R-2CR) lists "8 click rebound"; the R-2CR page itself could not be loaded.
 
     triair2_r:
       name: TRIAIR2 R
@@ -117,12 +125,12 @@ option_values:
 # Shocks — current (2025/2026) SR SUNTOUR MTB lineup. Shocks are sold by
 # eye-to-eye/stroke length to fit a given frame; `options.size` lists the
 # combinations published on the official product page. All current models are
-# air-sprung, so trims share the &air_spring anchor (Pressure only).
+# air-sprung, so trims share the &air_spring anchor (Pressure, max 300 psi per
+# the MY19 general rear shock manual's basic-setting table and warnings).
 # --------------------------------------------------------------------------
 nodes:
   - label: "EDGE Evo"
     level: model
-    draft: true
     category: XC / Trail
     years: "2025-2026"
     url: https://www.srsuntour.com/products/rear-shock/RS25-EDGE-EVO-2CR-METRIC-8187.html
@@ -135,7 +143,7 @@ nodes:
         level: trim
         mounts: [Metric, Trunnion, Standard eyelet]
         adjustments: &air_spring
-          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 300 }
         options:
           damper: [edge_2cr]
           size: ["230x57.5/60/62.5/65", "210x47.5/50/52.5/55", "190x37.5/40/42.5/45"]
@@ -160,7 +168,6 @@ nodes:
 
   - label: "EDGE X"
     level: model
-    draft: true
     category: Trail (eMTB, reinforced)
     years: "2024-2026"
     url: https://www.srsuntour.com/products/rear-shock/RS24-EDGE-X-2CR-METRIC-8194.html
@@ -249,15 +256,15 @@ nodes:
 # Follow-ups (not yet captured — avoid guessing):
 #   - setup_guide is the MY19 general rear shock manual for every model; no
 #     adjuster knob colors are published, so none are set.
-#   - No official SR SUNTOUR source publishes rebound/compression click
-#     counts for EDGE Evo, EDGE X or RAIDON — only TRIAIR2's spec table states
-#     an explicit "8 clicks rebound" (confirmed identical across its R/2CR/3CR
-#     variants), which is captured above; everything else is left as
-#     adjustments: [] rather than guessed.
-#   - Volume-spacer max counts (mentioned as a tuning feature on EDGE Evo/EDGE
-#     X/TRIAIR2 product pages) are not broken out per stroke length on the
-#     pages fetched — no Volume Spacers adjustment was added rather than
-#     guessing a number.
+#   - Click counts: EDGE Evo (R, 2CR, R-2CR), EDGE X (R, 2CR) and TRIAIR2 pages
+#     state "8 click rebound". The EDGE Evo R-2CR page (and the TRIAIR2 2CR
+#     page) returned HTTP 503 on the last check, so R-2CR relies on the family
+#     listing. RAIDON R / LO pages state no rebound count, so RAIDON R stays
+#     `draft: true` with its rebound undeclared. No compression click counts
+#     exist (all compression is a 2/3-position lever).
+#   - Volume spacers: the EDGE / TRIAIR2 pages and the MY19 manual (p.9) describe
+#     air volume spacers (LV / LVN / SV air sleeves) but state no maximum count,
+#     so no Volume Spacers adjustment is added.
 #   - The original TRIAIR (pre-TRIAIR2) product pages returned server errors
 #     (HTTP 500) during verification and appear to have been superseded by
 #     TRIAIR2 in the current catalog — not included as a separate model.

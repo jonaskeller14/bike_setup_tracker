@@ -25,11 +25,13 @@ sources:
   - https://hayesbicycle.zendesk.com/hc/article_attachments/25871643572375
   - https://hayesbicycle.zendesk.com/hc/en-us/articles/360047142633-Mara-Pro-PB-Gen-1-Set-up-Guide
   - https://hayesbicycle.zendesk.com/hc/article_attachments/360066638914
+  # Tertiary — retailer listing, for volume ring kit only (no figure used)
+  - https://shockcraft.co.nz/manitou/tuning-upgrade/king-cans
   # Secondary — editorial (article body text only)
   - https://www.pinkbike.com/news/first-look-manitous-180mm-mezzer-pro-fork-and-mara-pro-shock-garda-trentino-2019.html
   # Primary — service intervals
   - https://hayesbicycle.zendesk.com/hc/en-us/articles/4407665097879-Suspension-Maintenance-Schedule
-updated: 2026-10-07
+updated: 2026-10-10
 # Service intervals (`tasks`) come from the Manitou suspension maintenance
 # schedule: air can every 50 hours, a full service (IFP damper) every 200
 # hours or yearly.
@@ -148,6 +150,8 @@ nodes:
       shock:air_can_service: { interval: { moving_time_h: 50 }, source: Manitou maintenance schedule }
       shock:full_service: { interval: { moving_time_h: 200 }, fallback: { days: 365 }, source: Manitou maintenance schedule }
     children:
+      # `size`: eye-to-eye x stroke with mount from the Hayes product pages. The
+      # stroke-only ids of the earlier data were dropped before rollout.
       - label: "2024–2026"
         level: generation
         id: "2024"
@@ -161,10 +165,16 @@ nodes:
             setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/28476110600727
             mounts: [Eyelet, Trunnion]
             adjustments: &mara_air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0, notes: "Max 350 psi; raise in 75 psi increments, cycling the shock between steps" }
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 350, notes: "Raise in 75 psi increments, cycling the shock between steps" }
             options:
               damper: [mara_pb_g2]
-              size: [45, 50, 52.5, 55, 57.5, 60, 62.5, 65]
+              size:
+                - { size: "190x45", mount: Standard }
+                - { size: "210x50/52.5/55", mount: Standard }
+                - { size: "230x57.5/60/62.5/65", mount: Standard }
+                - { size: "165x45", mount: Trunnion }
+                - { size: "185x50/52.5/55", mount: Trunnion }
+                - { size: "205x57.5/60/62.5/65", mount: Trunnion }
             note: |-
               - Balance Groove King Can air spring
               - Piggyback reservoir with Work / Party lever
@@ -177,7 +187,9 @@ nodes:
             adjustments: *mara_air_spring
             options:
               damper: [mara_pb_dh_g2]
-              size: [70, 72.5, 75]
+              size:
+                - { size: "250x70/72.5/75", mount: Standard }
+                - { size: "225x70/75", mount: Trunnion }
             note: |-
               - Balance Groove King Can air spring
               - Piggyback reservoir without the Work / Party lever
@@ -189,7 +201,14 @@ nodes:
             adjustments: *mara_air_spring
             options:
               damper: [ipa_pro_g2]
-              size: [30, 35, 37.5, 40, 42.5, 45, 50, 52.5, 55, 57.5, 60, 62.5, 65]
+              size:
+                - { size: "170x30/35", mount: Standard }
+                - { size: "190x37.5/40/42.5/45", mount: Standard }
+                - { size: "210x50/52.5/55", mount: Standard }
+                - { size: "230x57.5/60/62.5/65", mount: Standard }
+                - { size: "165x40/40.5/45", mount: Trunnion }
+                - { size: "185x50/52.5/55", mount: Trunnion }
+                - { size: "205x57.5/60/62.5/65", mount: Trunnion }
             note: |-
               - Balance Groove King Can air spring
               - SKF flexible internal floating piston
@@ -202,7 +221,9 @@ nodes:
             adjustments: *mara_air_spring
             options:
               damper: [ipa_xc_g2]
-              size: [40, 45]
+              size:
+                - { size: "190x40/45", mount: Standard }
+                - { size: "165x40/45", mount: Trunnion }
             note: |-
               - Balance Groove Lite Can air spring
               - XC shim stack with a very firm lockout
@@ -215,7 +236,14 @@ nodes:
             adjustments: *mara_air_spring
             options:
               damper: [ipa_comp_g2]
-              size: [30, 35, 37.5, 40, 42.5, 45, 50, 52.5, 55, 57.5, 60, 62.5, 65]
+              size:
+                - { size: "170x30/35", mount: Standard }
+                - { size: "190x37.5/40/42.5/45", mount: Standard }
+                - { size: "210x50/52.5/55", mount: Standard }
+                - { size: "230x57.5/60/62.5/65", mount: Standard }
+                - { size: "165x40/40.5/45", mount: Trunnion }
+                - { size: "185x50/52.5/55", mount: Trunnion }
+                - { size: "205x57.5/60/62.5/65", mount: Trunnion }
             note: |-
               - Balance Groove King Can air spring
               - Simplified architecture with a non-detented rebound knob
@@ -230,7 +258,7 @@ nodes:
             level: trim
             setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/360066638914
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, notes: Max 250 psi }
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 250 }
             options:
               damper: [mara_pb_g1]
             note: |-
@@ -248,7 +276,14 @@ nodes:
 #     not confirmed by a Manitou source, and Gen 1 stroke lengths were not
 #     collected.
 #   - Air-volume spacer ("volume ring") maximums for the King Can / Lite Can are
-#     not published as a single count, so no volume adjustment is offered.
+#     published nowhere by Manitou: the Gen 2 set-up guides only say "1 volume
+#     ring" steps, and a retailer lists a 5-ring kit at 1.15cc each with no
+#     per-side maximum. No Volume Spacers adjustment is offered.
+#   - Gen 2 `size` values came from the Hayes variant lists (Eyelet is written
+#     as Standard). Hayes' own text says the grid runs 45-65mm for the Pro
+#     Piggyback and 45-75mm in total; the 70/72.5/75 strokes are the DH only.
+#     The 250x70 variant of the DH shows a conflicting "255x70" image label;
+#     the variant name (250x70) is used.
 #   - Not covered: the earlier Mara IL (Gen 1, 4-position IPA, listing "Mara")
 #     and the discontinued McLeod — the McLeod tuning guide gives the four IPA
 #     positions but no rebound click count.

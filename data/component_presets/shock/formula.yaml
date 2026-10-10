@@ -24,7 +24,7 @@ sources:
   # Editorial — first model years only, never for click counts
   - https://www.mbr.co.uk/news/formula-launches-its-first-air-shock-called-the-nebbia-and-it-promises-high-performance-with-simplified-set-up-437962
   - https://www.mbr.co.uk/reviews/shocks/formula-mod-coil-shock
-updated: 2026-10-07
+updated: 2026-10-10
 # Service intervals (`tasks`) come from the owner's manuals cited above: Nebbia
 # air seals every 60 hours or 6 months and oil change every 125 hours or
 # 1 year (non-Yoke frames); MOD and MOD DH a full service every 200 hours or
@@ -123,7 +123,7 @@ nodes:
         level: trim
         adjustments:
           - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
-          - { name: Preload, type: numerical }
+          - { name: Preload, type: numerical, unit: mm, min: 2, max: 5, notes: "Ring nut, 1.25mm per turn" }
         options:
           damper: [mod_2020]
           size: [{ size: "210x47.5/50/52.5/55", mount: Standard }, { size: "230x57.5/60/62.5/65", mount: Standard }, { size: "185x47.5/50/52.5/55", mount: Trunnion }, { size: "205x57.5/60/62.5/65", mount: Trunnion }]
@@ -144,7 +144,7 @@ nodes:
         level: trim
         adjustments:
           - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
-          - { name: Preload, type: numerical }
+          - { name: Preload, type: numerical, unit: mm, min: 2, max: 5, notes: "Ring nut, 1.25mm per turn" }
         options:
           damper: [mod_dh]
           size: [{ size: "250x67.5/70/72.5/75", mount: Standard }, { size: "225x67.5/70/72.5/75", mount: Trunnion }]
@@ -159,8 +159,9 @@ nodes:
 #     pages, so the default `dial_ccw` is used.
 #   - Nebbia volume spacers: the page says the shock is "Compatible" but gives
 #     no spacer count, so no Volume Spacers adjustment is generated.
-#   - MOD / MOD DH preload: the spec tables list "Preload" without a turn or
-#     click total, so Preload is an open-ended numerical.
+#   - MOD / MOD DH preload: the MOD user manual (also used for the DH) gives a
+#     permissible preload of 2-5 mm at 1.25 mm per turn; the spec tables list
+#     "Preload" without a click total, so it is a numerical in mm.
 #   - MOD spring rates: the MOD page lists 300-700 lbs/in and the MOD DH page
 #     250-550 lbs/in in 50 lbs/in steps; no sag-by-weight chart was read, so
 #     Spring Rate stays open-ended.

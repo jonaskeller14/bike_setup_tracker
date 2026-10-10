@@ -30,7 +30,7 @@ sources:
   - https://www.bos-suspension.com/Files/125448/Quickstart_IDYLLE_39_GRABBER_EN.pdf
   - https://www.bos-suspension.com/Files/125448/Quickstart_Obsys-EN.pdf
   - https://www.bos-suspension.com/PBCPPlayer.asp?ID=2252919
-updated: 2026-10-05
+updated: 2026-10-10
 # Clicks are counted from fully closed (firmest) = 0, opening counter-clockwise
 # (BOS Quickstart guides) → default `dial_ccw`.
 
@@ -139,7 +139,7 @@ nodes:
         specs: { spring: Air }
         offset_mm: [48]
         adjustments: &air_spring_tokens
-          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 350 }
           - { name: Volume Spacers, type: step, max: 5, unit: tokens, visualization: stepper, notes: Tokens clip onto the air-chamber cap; one stock token fitted }
         options:
           damper: [grabber_2025]
@@ -205,7 +205,7 @@ nodes:
         specs: { spring: Air }
         offset_mm: [48]
         adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 250 }
         options:
           damper: [obsys_2025]
           travel_mm: [200]
@@ -242,8 +242,12 @@ nodes:
 #     carry no explicit model-year; `years: "2025-2026"` follows that label.
 #     The Vital MTB "2025 range" press release could not be loaded to confirm
 #     it.
-#   - Toxik volume spacers: the page lists "Progressivité (via entretoises
-#     antivolume)" but no maximum, so no Volume Spacers adjustment is generated.
+#   - Toxik volume spacers and pressure: the page lists "Progressivité (via
+#     entretoises antivolume)" but no maximum and no pressure range, so no
+#     Volume Spacers adjustment is generated and Pressure is unbounded.
+#   - Pressure maxima: the Quickstarts state "between 115 and 350 psi" (Deville,
+#     Kyll, Idylle) and "between 135 and 250 psi" (Obsys); the upper bound is
+#     used as `max`.
 #   - Preload: the Grabber, Obsys and Toxik pages list "Précontrainte" and the
 #     Obsys Quickstart mentions a separate PRELOAD valve ("range from 0 to
 #     500 gr"), but no unit/range that maps onto an adjuster is published. Not
@@ -254,6 +258,8 @@ nodes:
 #     and Obsys; the Toxik has no manual listed on the BOS manuals page.
 #   - Legacy forks with manuals on bos-suspension.com (Deville II 35 FCV, Deville
 #     35/34/34 AM, Idylle 39 FCV/SC, Idylle 37/36, Idylle Rare/Air/SC, Dizzy,
-#     Obsys pre-2025): the manuals only show recommended starting clicks, not
-#     total click counts, so no older generation is listed.
+#     Obsys pre-2025): the manuals and Quickstarts only show single recommended
+#     starting clicks (e.g. Deville 35 10/10/14, Void 2 12/12/12), not total
+#     click counts or a setup table, and no approved editorial states totals,
+#     so no older generation is listed.
 # --------------------------------------------------------------------------

@@ -50,7 +50,7 @@ sources:
   - https://www.mbr.co.uk/news/2019-formula-selva-r-377158
   - https://www.mbr.co.uk/news/formula-new-selva-v-boasts-less-stiction-450993
   - https://www.bikeradar.com/news/2024formula-belva
-updated: 2026-10-07
+updated: 2026-10-10
 # Service intervals (`tasks`) come from the owner's manuals cited above (Selva,
 # Nero, Belva share the table): leg cleaning with seal and bushing check every
 # 30 hours or 6 months, cartridge and air spring every 100 hours or 1 year.
@@ -182,14 +182,15 @@ nodes:
         specs: { stanchion: 35mm 7075 aluminum, spring: Air }
         offset_mm: [37, 43]
         adjustments:
-          - { name: Main Chamber Pressure, type: numerical, unit: psi, min: 0, notes: Silver chamber (positive) }
-          - { name: Negative Chamber Pressure, type: numerical, unit: psi, min: 0, notes: Bronze chamber (sensitivity) }
+          - { name: Main Chamber Pressure, type: numerical, unit: psi, min: 0, max: 125, notes: Silver chamber (positive) }
+          - { name: Negative Chamber Pressure, type: numerical, unit: psi, min: 0, max: 125, notes: Bronze chamber (sensitivity) }
           - { name: Neopos, type: step, max: 3, visualization: stepper, unit: tokens, notes: Sponge-like tokens in the positive chamber for mid-stroke support; one included }
         options:
           damper: [selva_2017]
           travel_mm: [120, 130, 140, 160, 170, 180]
           wheel_size: [29, 27.5]
-        # Neopos count: Selva R manual ("max. three Neopos"); Silver/Bronze
+        # Neopos count: Selva R manual ("max. three Neopos"); max pressure
+        # 125 psi: Selva R manual; Silver/Bronze
         # naming: Selva R page ("Silver (main), Bronze (sensitivity)")
         note: |-
           - 2Air spring: separate positive (Silver) and negative (Bronze) chambers, each set with a shock pump
@@ -218,8 +219,9 @@ nodes:
         setup_guide: https://www.rideformula.com/wp-content/uploads/2018/10/Manuale_SELVA_S_GB.pdf
         specs: { stanchion: 35mm 7075 aluminum, spring: Air }
         offset_mm: [37, 43]
-        adjustments: &air_spring
-          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 125 }
+          - { name: Neopos, type: step, max: 3, visualization: stepper, unit: tokens, notes: Sponge-like tokens in the positive chamber for mid-stroke support }
         options:
           damper: [selva_2017]
           travel_mm: [120, 160, 170, 180]
@@ -241,7 +243,8 @@ nodes:
         level: trim
         specs: { stanchion: 35mm 7075 aluminum, spring: Air }
         offset_mm: [43]
-        adjustments: *air_spring
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 85 }
         options:
           damper: [belva_2024]
           travel_mm: [170, 180]
@@ -301,21 +304,28 @@ nodes:
 #     clicks are counted from for the Selva V, Belva or Nero dials. The
 #     manuals only say clockwise adds damping; only BikeRadar's Selva R review
 #     counts rebound "from closed". The default `dial_ccw` is used everywhere.
-#   - Neopos maximum for the Selva S and Belva (both listed as "optional"):
-#     only the Selva V, Selva R and Nero R manuals state the three-Neopos
-#     limit, so the S and Belva have no Neopos adjuster until one is published.
+#   - Neopos: the Selva S manual states "max. three Neopos"; the Belva manual
+#     only says to "add a Neopos" (optional) with no limit, so the Belva has no
+#     Neopos adjuster until one is published.
+#   - Maximum air pressure: Selva S and R manuals "maximum allowable pressure is
+#     125psi"; Belva manual "maximum suggested pressure is 85 psi". The Selva V
+#     and Nero R manuals and all product pages state none, so Pressure is
+#     unbounded there.
+#   - Travel: the product pages give ranges ("120-160mm internally adjustable"
+#     for the Selva S, "140-160mm, 120-130mm optional" for the Selva R). The
+#     intermediate steps (Selva S 130/140/150mm, Selva R 150mm) are not listed
+#     one by one, so they are left out.
 #   - Selva C spring options: the spec table lists "Hyper Soft / Super Soft,
 #     Soft, Medium (default), Firm, Super Firm" while the intro text names four
 #     coils (soft, medium, firm, super firm). The intro's four are used.
 #   - Nero C preload: the page and manual describe a tool-free ring nut but no
-#     turn or click total, so Preload is an open-ended numerical.
+#     turn or click total, so Preload is an open-ended numerical. (The Selva C
+#     page lists a "10-click adjustment" preload, used for its Preload.)
 #   - Selva V and Belva wheel sizes come from the manuals' max-wheel-size
 #     tables (29x2.5 / 27.5x3.0); the product pages list no wheel size.
 #   - Dial colors: the Selva V and Belva manuals name the compression knob blue
 #     (gold lockout lever, black lockout-force adjuster); no manual names the
 #     rebound knob color, nor any Selva S/R/C or Nero knob.
-#   - The Selva S and Selva C manuals were not read in full; travel
-#     ranges and Neopos limits for them come from the product pages only.
 #   - Model years are first-appearance years from editorial coverage (Nero and
 #     Selva S 2017, Selva R and Selva C 2019, Belva 2024, Selva V 2025); Formula
 #     publishes no model-year table.

@@ -24,7 +24,7 @@ sources:
   - https://www.srsuntour.com/products/fork/SF25-AXON34-Werx-Boost-8059.html
   - https://www.srsuntour.com/products/fork/SF20-AXON34-Elite-Boost-8061.html
   - https://www.srsuntour.com/products/fork/SF25-RAIDON34-Boost-8070.html
-updated: 2026-10-07
+updated: 2026-10-10
 # Service intervals (`tasks`) come from the MY25 general fork manual cited
 # above, which lists every fork here: a dealer check every 50 hours and a
 # full service every 100 hours or once a year.
@@ -131,10 +131,11 @@ option_values:
 
 # --------------------------------------------------------------------------
 # Forks — current (2025/2026) higher-end/externally-adjustable SR SUNTOUR MTB
-# lineup. Every model below uses SR SUNTOUR's "EQ" dual-chamber air spring, so
-# all trims share the &air_spring anchor (Pressure only; per-travel volume
-# spacer max counts are published but vary by travel setting — see
-# Follow-ups, same limitation as fork/marzocchi.yaml).
+# lineup. Every model below uses SR SUNTOUR's "EQ" dual-chamber air spring.
+# Maximum pressure and the maximum rubber-clip spacer count per travel come
+# from the "Air pressure adjust" and "Air volume adjust" tables of the MY25
+# general fork manual (pp. 14-16); the spacer `max` is the highest count of
+# the travels offered, the per-travel maxima are listed in the notes.
 # --------------------------------------------------------------------------
 nodes:
   - label: "RUX"
@@ -152,8 +153,9 @@ nodes:
         specs: { stanchion: 38mm (Alloy), spring: Air }
         offset_mm: 50
         axle: ø20-110 (Q-LOC2 tool-type or tool-free)
-        adjustments: &air_spring
-          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 105 }
+          - { name: Volume Spacers, type: step, max: 7, visualization: stepper, notes: "Rubber clip spacers" }
         options:
           damper: [rc_plus_pcs]
           travel_mm: [200]
@@ -174,7 +176,9 @@ nodes:
         specs: { stanchion: 36mm (Alloy), spring: Air }
         offset_mm: 44
         axle: ø15-110 (15AH4)
-        adjustments: *air_spring
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
+          - { name: Volume Spacers, type: step, max: 10, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 160mm 9, 150mm 10" }
         options:
           damper: [rc_plus_pcs]
           travel_mm: [150, 160]
@@ -195,7 +199,9 @@ nodes:
         specs: { stanchion: 38mm (Alloy), spring: Air }
         offset_mm: 44
         axle: ø15-110 (15AH4)
-        adjustments: *air_spring
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 105 }
+          - { name: Volume Spacers, type: step, max: 8, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 180mm 6, 170mm 7, 160mm 8" }
         options:
           damper: [rc_plus_pcs]
           travel_mm: [160, 170, 180]
@@ -207,7 +213,9 @@ nodes:
         specs: { stanchion: 38mm (Alloy), spring: Air }
         offset_mm: 44
         axle: ø15-110 (15AH4)
-        adjustments: *air_spring
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 110 }
+          - { name: Volume Spacers, type: step, max: 8, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 180mm 6, 170mm 7, 160mm 8" }
         options:
           damper: [rc_plus_pcs]
           travel_mm: [160, 170, 180]
@@ -228,7 +236,9 @@ nodes:
         specs: { stanchion: 36mm (Alloy), spring: Air }
         offset_mm: 44
         axle: ø15-110 (15AH4)
-        adjustments: *air_spring
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 130 }
+          - { name: Volume Spacers, type: step, max: 16, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 160mm 12, 150mm 13, 140mm 14, 130mm 15, 120mm 16" }
         options:
           damper: [cr3_pcs, cr2_pcs, rc_pcs]
           travel_mm: [120, 130, 140, 150, 160]
@@ -248,7 +258,9 @@ nodes:
         specs: { stanchion: 38mm (Alloy), spring: Air }
         offset_mm: 44
         axle: ø15-110 (15AH4)
-        adjustments: *air_spring
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 110 }
+          - { name: Volume Spacers, type: step, max: 8, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 29in: 180mm 6, 170mm 7, 160mm 8; 27.5in: 170mm 5, 160mm 6" }
         options:
           damper: [cr3_pcs, cr2_pcs, rc_pcs]
           travel_mm: [160, 170, 180]
@@ -269,7 +281,9 @@ nodes:
         specs: { stanchion: 36mm (Alloy), spring: Air }
         offset_mm: 44
         axle: ø15-110 (15AH4)
-        adjustments: *air_spring
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
+          - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 160mm 4, 150mm 5" }
         options:
           damper: [rc_plus_pcs]
           travel_mm: [140, 150, 160]
@@ -289,7 +303,9 @@ nodes:
         specs: { stanchion: 36mm (Alloy), spring: Air }
         offset_mm: 44
         axle: ø15-110 (15AH4)
-        adjustments: *air_spring
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 145 }
+          - { name: Volume Spacers, type: step, max: 16, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 160mm 12, 150mm 13, 140mm 14, 130mm 15, 120mm 16" }
         options:
           damper: [cr3_pcs, cr2_pcs, rc_pcs]
           travel_mm: [120, 130, 140, 150, 160]
@@ -309,7 +325,9 @@ nodes:
         specs: { stanchion: 36mm (Alloy), spring: Air }
         offset_mm: 44
         axle: ø15-110 (15AH4)
-        adjustments: *air_spring
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 145 }
+          - { name: Volume Spacers, type: step, max: 12, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 160mm 9, 150mm 10, 140mm 11, 130mm 12" }
         options:
           damper: [cr3_pcs, cr2_pcs, rc_pcs]
           travel_mm: [130, 140, 150, 160]
@@ -332,7 +350,9 @@ nodes:
         specs: { stanchion: 34mm (Alloy), spring: Air }
         offset_mm: 44
         axle: ø15-110 (15AH4)
-        adjustments: *air_spring
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
+          - { name: Volume Spacers, type: step, max: 13, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 140mm 10, 130mm 11, 120mm 12, 100mm 13" }
         options:
           damper: [rlrc_pcs, lorc_pcs]
           travel_mm: [100, 120, 130, 140]
@@ -351,7 +371,9 @@ nodes:
         specs: { stanchion: 34mm (Alloy), spring: Air }
         offset_mm: 51
         axle: ø15-110 (15AHL)
-        adjustments: *air_spring
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 130 }
+          - { name: Volume Spacers, type: step, max: 11, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 120mm 9, 110mm 10, 100mm 11" }
         options:
           damper: [rlrc_pcs]
           travel_mm: [100, 110, 120]
@@ -363,7 +385,8 @@ nodes:
         specs: { stanchion: 34mm (Alloy), spring: Air }
         offset_mm: 51
         axle: ø15-110 (15AHL)
-        adjustments: *air_spring
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 130 }
         options:
           damper: [rlrc_pcs]
           travel_mm: [100, 110, 120]
@@ -383,7 +406,9 @@ nodes:
         specs: { stanchion: 34mm (Alloy), spring: Air }
         offset_mm: 44
         axle: ø15-110 (15AH4)
-        adjustments: *air_spring
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 130 }
+          - { name: Volume Spacers, type: step, max: 9, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 140mm 5, 130mm 6, 120mm 7, 100mm 9" }
         options:
           damper: [r_2cr_pcs, cr2_pcs]
           travel_mm: [100, 120, 130, 140]
@@ -412,12 +437,19 @@ nodes:
 #   - AION 36X (an eMTB-tuned 36mm sibling of AION 36/ZERON 36X, per the SF26
 #     product listing) repeatedly failed to load (HTTP 503/timeout) during
 #     verification — not included rather than guessing its travel options.
-#   - Volume spacer counts: the general fork manual's "Air Volume Adjust"
-#     tables list factory/max rubber-spacer counts per travel setting for
-#     several of these forks, but (like fork/marzocchi.yaml's Bomber Z1/Z2)
-#     the count varies by travel and the schema only supports one `max` per
-#     trim — no Volume Spacers adjustment was added rather than picking one
-#     travel's number and mislabeling it as universal.
+#   - Volume spacers: the manual's spacer table is a PDF grid whose travel rows
+#     are offset from their labels; rows were assigned to travels by counting
+#     (ZERON 36X is read as 160-130mm = 9-12, a 120mm row with 13 also exists).
+#     Elite (alloy steerer) has no spacer row of its own in the table, so only
+#     its max pressure is declared. Product pages are JavaScript-rendered and
+#     return no specs, so the manual is the only source for these numbers.
+#   - AION 36X, MOBIE 36 and RAIDON 34X have spacer rows in the manual but no
+#     product page could be loaded, so they are not added as products.
+#   - Click counts for RC+ / RC / 3CR / 2CR / RLRC / LORC dials: neither the
+#     manual nor the product pages state them. Magazine tests only cover the
+#     older 34mm Auron RC2 (different damper), so no number is used and the
+#     dampers stay without a click adjuster (3CR/2CR/RC/RLRC/LORC products
+#     whose dials are missing remain declared via `missing_adjustments`).
 #   - RAIDON32, XCR, XCM, XCT, EPIXON32, GVX, NCX/NVX/NRX/NEX, MOBIE and M3010
 #     lines are SR SUNTOUR's entry-level/hybrid/e-city/kids forks (fixed
 #     dampers or no externally adjustable compression circuit) and were

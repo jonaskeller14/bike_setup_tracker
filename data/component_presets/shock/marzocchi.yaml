@@ -13,9 +13,11 @@ sources:
   - https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-269_REV_A%202022%20Marzocchi%20Bomber%20Air%20Shock%20Owners%20Guide%20Rev%20A_FINAL.pdf
   - https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-205_Marzocchi-BomberCR-Tuning-Guide-white-RevA.pdf
   - https://flowmountainbike.com/tests/marzocchi-bomber-air-shock-review/
+  - https://nsmb.com/articles/marzocchi-bomber-cr-coil-shock-review/
+  - https://www.mtb-mag.com/en/tested-marzocchi-bomber-cr/
   # Primary — service intervals
   - https://tech.ridefox.com/img/help/page2840-6BL4/inline/605-00-201_RevA%202019%20Marzocchi%20Rear%20Shock%20User%20Manual.pdf
-updated: 2026-10-07
+updated: 2026-10-10
 # Service intervals (`tasks`) come from the Marzocchi rear shock owner's
 # guides: a full service every 125 hours or yearly. No separate air-can
 # interval is published.
@@ -32,29 +34,47 @@ option_values:
     bomber_air:
       name: Bomber Air
       description: >
-        Air shock with a 10-click rebound dial and a low-speed compression knob.
-      missing_adjustments: [Compression]
+        Air shock with a 10-click rebound dial and a tool-free low-speed
+        compression sweep between Open and Firm.
       adjustments:
-        - { name: Rebound, type: step, max: 10, dialColor: red }
-      source: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-269_REV_A%202022%20Marzocchi%20Bomber%20Air%20Shock%20Owners%20Guide%20Rev%20A_FINAL.pdf
+        - { name: Compression Mode, type: categorical, options: [Open, Firm], notes: "Low-Speed Compression; non-indexed sweep, clockwise is firmer" }
+        - { name: Rebound, type: step, max: 10, notes: Counted from fully closed (slowest), dialColor: red }
+      source:
+        - https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-269_REV_A%202022%20Marzocchi%20Bomber%20Air%20Shock%20Owners%20Guide%20Rev%20A_FINAL.pdf
+        - https://flowmountainbike.com/tests/marzocchi-bomber-air-shock-review/
+        - https://bike.marzocchi.com/products/bomber-air
       note: >-
-        2022 Bomber Air Shock Owner's Guide (rebound table tops out at 10). The
-        low-speed compression knob turns continuously; the guide gives only the
-        direction (CW = firmer) and no click count.
+        Flow Mountain Bike review (Nov 2022): "There are 10 clicks of adjustment
+        for low-speed rebound damping"; the compression dial "uses a non-indexed
+        sweep between 'Soft' and 'Firm'" (product page: "2-position, non-indexed
+        compression sweep adjust"). The 2022 Bomber Air Shock Owner's Guide
+        rebound table (counted counter-clockwise from fully closed) tops out at
+        10, consistent with the review.
 
     bomber_cr:
       name: Bomber CR
       description: >
-        Coil shock with low-speed compression and rebound adjusters and
+        Coil shock with indexed low-speed compression and rebound adjusters and
         adjustable spring preload.
-      missing_adjustments: [Compression, Rebound, Preload]
-      adjustments: []
-      source: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-205_Marzocchi-BomberCR-Tuning-Guide-white-RevA.pdf
+      missing_adjustments: [Preload]
+      adjustments:
+        - { name: Compression, type: step, max: 16, notes: "Low-Speed Compression; clockwise is firmer" }
+        - { name: Rebound, type: step, max: 16, notes: "Clockwise is slower; some units may have 15 clicks, check your dial and edit the maximum if it differs" }
+      source:
+        - https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-205_Marzocchi-BomberCR-Tuning-Guide-white-RevA.pdf
+        - https://www.mtb-mag.com/en/tested-marzocchi-bomber-cr/
+        - https://nsmb.com/articles/marzocchi-bomber-cr-coil-shock-review/
       note: >-
-        The tuning guide (605-00-205) documents compression and rebound only by
-        direction (turn CW to increase damping), no click counts. Reviews cite
-        15-16 clicks each, which is not an official spec. Preload: turn CCW to
-        increase sag, never more than two full turns CW.
+        The tuning guide (605-00-205) gives only directions (clockwise
+        increases damping), no click counts. Counts are from magazine reviews
+        (tier 2): MTB-Mag says "16 crisp, clear detents" for low-speed
+        compression and "a similar 15 clicks" for rebound; NSMB (Jan 2019) says
+        "16 noticeable clicks" on each dial. The two disagree on rebound
+        (15 vs 16); the higher count is used so no valid setting is excluded.
+        The counting origin is not stated; counted from fully closed
+        (clockwise to the stop) as for the brand's other dampers. Preload: turn
+        counter-clockwise to increase sag, never more than two full turns
+        clockwise (no click count).
 
 # --------------------------------------------------------------------------
 # Shocks — current Marzocchi lineup. Sold by eye-to-eye x stroke to match a
@@ -77,7 +97,7 @@ nodes:
         level: trim
         specs: { mount: Metric (compatible with FOX bearing mounts) }
         adjustments: &air_spring
-          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 350 }
         options:
           damper: [bomber_air]
           size: ["190x45", "210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x65", "250x75"]
@@ -94,7 +114,6 @@ nodes:
 
   - label: "Bomber CR"
     level: model
-    draft: true
     category: Enduro / Downhill
     years: "2025-2026"
     url: https://bike.marzocchi.com/products/bomber-cr-rear-shock
@@ -124,17 +143,13 @@ nodes:
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):
-#   - Bomber CR's Low-Speed Compression and Rebound click counts are not
-#     published in any official Marzocchi/FOX document found (only adjust
-#     direction is documented). Third-party reviews cite ~15-16 clicks for
-#     each, but per the research rules for this catalog only official
-#     sources count — add real numbers once Marzocchi publishes a spec table
-#     with click counts (or a per-part spec sheet on tech.ridefox.com).
-#   - Bomber Air's Low-Speed Compression click count is likewise unpublished
-#     (continuously-turning knob per the owner's guide, no detents listed).
+#   - Bomber CR click counts are from MTB-Mag (compression 16, rebound 15) and
+#     NSMB (16 each) reviews; Marzocchi publishes none. Preload has no
+#     published range and stays a missing adjuster.
+#   - Bomber Air's compression is a non-indexed sweep (Flow Mountain Bike,
+#     product page), so it is a two-state mode rather than a click count.
 #   - Bomber Air's volume-spacer max count (spacers sold in 0.1 in³
-#     increments) isn't published as a "max spacers" number the way the fork
-#     tuning guides publish one — omitted rather than guessed.
+#     increments) is not published as a "max spacers" number - omitted.
 #   - Neither shock's coil Spring Rate color-code table (Purple/Blue/Green/
 #     Yellow) gives an actual lbs/in number, only a rider-weight band and a
 #     relative label (Soft/Medium/Firm/X-Firm) — same treatment as FOX/Öhlins

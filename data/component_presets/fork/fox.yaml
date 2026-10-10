@@ -41,7 +41,8 @@ sources:
   - https://tech.ridefox.com/bike/owners-manuals/1040/fork--2020-36mm
   - https://tech.ridefox.com/bike/owners-manuals/1082/fork--2021-36mm-or-38mm
   - https://tech.ridefox.com/bike/owners-manuals/2930/fork--2024-36mm-or-38mm
-updated: 2026-10-07
+  - https://tech.ridefox.com/bike/owners-manuals/2979/fork--2025-36mm-or-38mm
+updated: 2026-10-10
 # Current-lineup click ranges were taken from the per-model spec tables on the
 # official FOX product pages (ridefox.com/pages/fox-<model>). Clicks are counted
 # from fully closed (firmest); an adjuster with "18 clicks" has range 0..18
@@ -110,11 +111,11 @@ option_values:
       source: https://ridefox.com/pages/fox-awl
 
     # ------------------------------------------------------------------------
-    # Legacy dampers. FOX's owner's manuals for these years publish the usable
-    # GRIP2 high-speed compression range and the FIT4 open-mode adjust range, but
-    # give rebound and low-speed compression only as rider-weight starting-point
-    # tables — those are recommendations, not ranges, so those adjusters are
-    # declared with `max: ~` (placeholder range).
+    # Legacy dampers. FOX's owner's manuals for these years publish the GRIP2
+    # compression ranges as a diagram and the FIT4 open-mode adjust range, but
+    # give rebound only as a rider-weight starting-point table. A rebound total
+    # is therefore the highest value of that table (counted from fully closed,
+    # flagged "estimated maximum" in the adjustment notes).
     # Each generation keeps its own id even where the badge did not change.
     # ------------------------------------------------------------------------
     grip2_2018:
@@ -124,31 +125,37 @@ option_values:
         - Only the 16 high-speed compression clicks nearest fully closed change damping
       adjustments:
         - { name: HSC, type: step, max: 16, notes: "High-Speed Compression; clicks past 16 out from fully closed have no damping effect", dialColor: blue }
-        - { name: LSC, type: step, max: ~, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
-        - { name: HSR, type: step, max: ~, notes: High-Speed Rebound, dialColor: red }
-        - { name: LSR, type: step, max: ~, notes: Low-Speed Rebound, dialColor: red, dialSize: small }
+        - { name: LSC, type: step, max: 12, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
+        - { name: HSR, type: step, max: 8, notes: "High-Speed Rebound; estimated maximum, check your dial and edit it if it differs", dialColor: red }
+        - { name: LSR, type: step, max: 9, notes: "Low-Speed Rebound; estimated maximum, check your dial and edit it if it differs", dialColor: red, dialSize: small }
       source: https://tech.ridefox.com/bike/owners-manuals/1040/fork--2020-36mm
       note: >-
         "Factory and Performance-Elite Series GRIP2 Compression Adjusters" section
-        states the 16 usable HSC clicks. LSC/HSR/LSR totals are not stated
-        anywhere in the 2018-2020 manuals — only a suggested-settings table.
+        states the 16 usable HSC clicks and its setting diagram gives an
+        adjustment range of 12 clicks for LSC. HSR and LSR are not stated: the
+        maxima are the highest values of the 36mm rebound starting-point table
+        (55-106 psi, counted from fully closed): LSR 9, HSR 8.
 
     grip2_vvc_2021:
       name: GRIP2 VVC (2021-2024)
       description: |-
         - Four-way descent damper with Variable Valve Control high-speed circuits
-        - Only the 16 high-speed compression clicks nearest fully closed change damping
       adjustments:
-        - { name: HSC, type: step, max: 16, notes: "High-Speed Compression; clicks past 16 out from fully closed have no damping effect", dialColor: blue }
-        - { name: LSC, type: step, max: ~, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
-        - { name: HSR, type: step, max: ~, notes: High-Speed Rebound, dialColor: red }
-        - { name: LSR, type: step, max: ~, notes: Low-Speed Rebound, dialColor: red, dialSize: small }
+        - { name: HSC, type: step, max: 8, notes: High-Speed Compression, dialColor: blue }
+        - { name: LSC, type: step, max: 16, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
+        - { name: HSR, type: step, max: 8, notes: "High-Speed Rebound; estimated maximum, check your dial and edit it if it differs", dialColor: red }
+        - { name: LSR, type: step, max: 9, notes: "Low-Speed Rebound; estimated maximum, check your dial and edit it if it differs", dialColor: red, dialSize: small }
       source:
         - https://tech.ridefox.com/bike/owners-manuals/1082/fork--2021-36mm-or-38mm
         - https://tech.ridefox.com/bike/owners-manuals/2930/fork--2024-36mm-or-38mm
       note: >-
-        Same 16-usable-HSC-click wording as the 2018-2020 manuals; LSC/HSR/LSR
-        totals still unstated across the 2021 and 2024 manuals.
+        The setting diagram in the GRIP2 compression section of the 2021 and
+        2024 manuals gives 8 clicks for HSC and 16 for LSC (start 5 and 10 clicks
+        out, matching the text). The paragraph above it still carries the
+        2018-2020 wording about 16 usable HSC clicks; the diagram is the
+        figure for this VVC cartridge. HSR and LSR are not stated: the maxima
+        are the highest values of the rebound starting-point table (120-250 lb,
+        counted from fully closed): LSR 9, HSR 8.
 
     fit4_2018:
       name: FIT4 (2018-2020)
@@ -156,14 +163,15 @@ option_values:
         - Three-position compression lever: Open, Medium, Firm
         - Open mode carries 22 extra clicks of low-speed fine tuning (22 plushest, 1 firmest)
       adjustments:
-        - { name: Rebound, type: step, max: ~, dialColor: red }
+        - { name: Rebound, type: step, max: 8, notes: "estimated maximum, check your dial and edit it if it differs", dialColor: red }
         - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm] }
         - { name: Open Mode Adjust, type: step, max: 22, notes: "Low-Speed Compression in Open mode; Factory and Performance Elite forks only", dialColor: blue, dialSize: small }
       source: https://tech.ridefox.com/bike/owners-manuals/1040/fork--2020-36mm
       note: >-
         "OPEN mode adjust provides 22 additional fine tuning adjustments for the
-        OPEN mode." Rebound total is not stated — the manual gives only a
-        pressure-vs-clicks starting-point table.
+        OPEN mode." Rebound total is not stated: the maximum is the highest
+        FIT4 value of the 36mm rebound starting-point table (55-106 psi,
+        counted from fully closed), 8.
 
     fit4_2021:
       name: FIT4 (2021-2024)
@@ -171,13 +179,17 @@ option_values:
         - Three-position compression lever: Open, Medium, Firm
         - Open mode carries 22 extra clicks of low-speed fine tuning (22 plushest, 1 firmest)
       adjustments:
-        - { name: Rebound, type: step, max: ~, dialColor: red }
+        - { name: Rebound, type: step, max: 14, notes: "estimated maximum, check your dial and edit it if it differs", dialColor: red }
         - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm] }
         - { name: Open Mode Adjust, type: step, max: 22, notes: "Low-Speed Compression in Open mode; Factory and Performance Elite forks only", dialColor: blue, dialSize: small }
       source:
         - https://tech.ridefox.com/bike/owners-manuals/1082/fork--2021-36mm-or-38mm
         - https://tech.ridefox.com/bike/owners-manuals/2930/fork--2024-36mm-or-38mm
-      note: Separate key from fit4_2018 per SCHEMA.md; the published 22-position open-mode range is identical.
+      note: >-
+        Separate key from fit4_2018 per SCHEMA.md; the published 22-position
+        open-mode range is identical. Rebound total is not stated: the maximum
+        is the highest FIT4 value of the rebound starting-point table (120-250
+        lb, counted from fully closed), 14.
 
     grip_2018:
       name: GRIP (2018-2024)
@@ -185,7 +197,7 @@ option_values:
         - Three-position compression lever: Open, Medium, Firm
         - The detents between the three modes are usable for fine tuning
       adjustments:
-        - { name: Rebound, type: step, max: ~, dialColor: red }
+        - { name: Rebound, type: step, max: 13, notes: "estimated maximum, check your dial and edit it if it differs", dialColor: red }
         - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm] }
       source:
         - https://tech.ridefox.com/bike/owners-manuals/1040/fork--2020-36mm
@@ -193,7 +205,9 @@ option_values:
       note: >-
         Rebound total unstated for this cartridge generation; the current GRIP
         (10 clicks) figure comes from a 2025+ product page and must not be
-        carried backwards.
+        carried backwards. The maximum is the highest GRIP value of the 36/38
+        rebound starting-point tables (55-106 psi in the 2020 manual, 120-250 lb
+        in the 2021 and 2024 manuals, counted from fully closed), 13 in both.
 
 # --------------------------------------------------------------------------
 # Forks — the current (2025/2026) FOX lineup. A model that also has legacy
@@ -220,7 +234,7 @@ nodes:
         level: trim
         specs: { stanchion: Kashima, spring: Air }
         adjustments:
-          - &pressure { name: Pressure, type: numerical, unit: psi, min: 0 }
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 150 }
           - { name: Volume Spacers, type: step, max: 4, visualization: stepper, notes: "Maximum 4 at both 40mm and 50mm travel" }
         options:
           damper: [grip_sl]
@@ -230,7 +244,7 @@ nodes:
         level: trim
         specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
         adjustments:
-          - *pressure
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 150 }
           - { name: Volume Spacers, type: step, max: 4, visualization: stepper }
         options:
           damper: [grip]
@@ -249,7 +263,7 @@ nodes:
         level: trim
         specs: { stanchion: Kashima, spring: Air }
         adjustments:
-          - *pressure
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 140 }
           - { name: Volume Spacers, type: step, max: 4, visualization: stepper, notes: "Maximum 4 at 100mm travel" }
         options:
           damper: [grip_sl]
@@ -259,7 +273,7 @@ nodes:
         level: trim
         specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
         adjustments:
-          - *pressure
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 140 }
           - { name: Volume Spacers, type: step, max: 4, visualization: stepper, notes: "Maximum 4 at 100mm travel" }
         options:
           damper: [grip]
@@ -278,7 +292,7 @@ nodes:
         level: trim
         specs: { stanchion: Kashima, spring: Air }
         adjustments:
-          - *pressure
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
           - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Max per travel: 5 at 120mm, 4 at 130mm" }
         options:
           damper: [grip_sl]
@@ -288,7 +302,7 @@ nodes:
         level: trim
         specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
         adjustments:
-          - *pressure
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
           - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Maximum 5 at 120mm travel" }
         options:
           damper: [grip_sl]
@@ -298,7 +312,7 @@ nodes:
         level: trim
         specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
         adjustments:
-          - *pressure
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
           - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Maximum 5 at 120mm travel" }
         options:
           damper: [grip]
@@ -317,7 +331,7 @@ nodes:
         level: trim
         specs: { stanchion: Kashima, spring: Air }
         adjustments:
-          - *pressure
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
           - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Max per travel: 5 at 130mm and 140mm, 6 at 120mm" }
         options:
           damper: [grip_x]
@@ -327,7 +341,7 @@ nodes:
         level: trim
         specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
         adjustments:
-          - *pressure
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
           - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Maximum 5 at 130mm travel" }
         options:
           damper: [grip_x]
@@ -337,7 +351,7 @@ nodes:
         level: trim
         specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
         adjustments:
-          - *pressure
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
           - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Maximum 5 at 130mm travel" }
         options:
           damper: [grip]
@@ -347,7 +361,7 @@ nodes:
         level: trim
         specs: { stanchion: "6000-series alloy, black anodized", spring: Air }
         adjustments:
-          - *pressure
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
           - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Max per travel: 5 at 130mm, 4 at 140mm and 150mm" }
         options:
           damper: [grip]
@@ -367,7 +381,7 @@ nodes:
         level: trim
         specs: { stanchion: Kashima, spring: Air }
         adjustments:
-          - *pressure
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
           - { name: Volume Spacers, type: step, max: 7, visualization: stepper, notes: "Max per travel: 8 at 120mm, 7 at 130mm, 6 at 140mm" }
         options:
           damper: [grip_x]
@@ -377,7 +391,7 @@ nodes:
         level: trim
         specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
         adjustments:
-          - *pressure
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
           - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Maximum 6 at 140mm travel" }
         options:
           damper: [grip_x]
@@ -387,7 +401,7 @@ nodes:
         level: trim
         specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
         adjustments:
-          - *pressure
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
           - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Maximum 6 at 140mm travel" }
         options:
           damper: [grip]
@@ -410,7 +424,7 @@ nodes:
             level: trim
             specs: { stanchion: Kashima, spring: Air }
             adjustments:
-              - *pressure
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
               - { name: Volume Spacers, type: step, max: 7, visualization: stepper, notes: "Max per travel: 8 at 140mm, 7 at 150mm, 6 at 160mm" }
             options:
               damper: [grip_x2, grip_x]   # buyer-selectable damper
@@ -420,7 +434,7 @@ nodes:
             level: trim
             specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
             adjustments:
-              - *pressure
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
               - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Maximum 6 at 160mm travel" }
             options:
               damper: [grip_x]
@@ -430,7 +444,7 @@ nodes:
             level: trim
             specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
             adjustments:
-              - *pressure
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
               - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Maximum 6 at 160mm travel" }
             options:
               damper: [grip]
@@ -439,19 +453,19 @@ nodes:
           - label: Rhythm
             level: trim
             specs: { stanchion: "6000-series alloy, black anodized", spring: Air }
-            # The 2026 36mm manual tabulates 36mm and 36mm E-Bike+ only — no 36
-            # Rhythm spacer table for this generation, so no Volume Spacers entry.
+            # Spacer table: 36 RHYTHM Volume Spacer Configurations in the 2025
+            # 36mm/38mm manual (the 2026 36mm manual omits the Rhythm table).
             adjustments:
-              - *pressure
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, type: step, max: 7, visualization: stepper, notes: "Max per travel: 7 at 150mm and 160mm" }
             options:
               damper: [grip]
               travel_mm: [150, 160]
               wheel_size: [29, 27.5]
             note: OEM complete bikes only
       # Legacy generations, here and on the 38. Keep them below the current
-      # generation. FOX never published the rebound (and, on GRIP2, the
-      # LSC/HSR/LSR) click totals for these cartridges, so those adjusters
-      # carry `max: ~`.
+      # generation. FOX publishes no rebound totals for these cartridges, so
+      # those maxima are estimates from the rebound starting-point tables.
       - label: "2018–2020"
         level: generation
         id: "2018"
@@ -463,7 +477,7 @@ nodes:
             level: trim
             specs: { stanchion: Kashima, spring: Air }
             adjustments:
-              - *pressure
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
               - { name: Volume Spacers, type: step, max: 8, visualization: stepper, notes: "Max per travel: 8 at 140mm, 7 at 150mm, 6 at 160mm, 5 at 170mm, 4 at 180mm" }
             options:
               damper: [grip2_2018, fit4_2018]   # buyer-selectable damper
@@ -474,7 +488,7 @@ nodes:
             level: trim
             specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
             adjustments:
-              - *pressure
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
               - { name: Volume Spacers, type: step, max: 8, visualization: stepper, notes: "Max per travel: 8 at 140mm, 7 at 150mm, 6 at 160mm, 5 at 170mm, 4 at 180mm" }
             options:
               damper: [grip2_2018, fit4_2018]
@@ -484,7 +498,7 @@ nodes:
             level: trim
             specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
             adjustments:
-              - *pressure
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
               - { name: Volume Spacers, type: step, max: 8, visualization: stepper, notes: "Max per travel: 8 at 140mm, 7 at 150mm, 6 at 160mm, 5 at 170mm, 4 at 180mm" }
             options:
               damper: [grip_2018]
@@ -501,7 +515,7 @@ nodes:
             level: trim
             specs: { stanchion: Kashima, spring: Air }
             adjustments:
-              - *pressure
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
               - { name: Volume Spacers, type: step, max: 9, visualization: stepper, notes: "Max per travel: 9 at 130mm, 8 at 140mm, 7 at 150mm, 6 at 160mm, 5 at 170mm" }
             options:
               damper: [grip2_vvc_2021, fit4_2021]   # buyer-selectable damper
@@ -512,7 +526,7 @@ nodes:
             level: trim
             specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
             adjustments:
-              - *pressure
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
               - { name: Volume Spacers, type: step, max: 9, visualization: stepper, notes: "Max per travel: 9 at 130mm, 8 at 140mm, 7 at 150mm, 6 at 160mm, 5 at 170mm" }
             options:
               damper: [grip2_vvc_2021, fit4_2021]
@@ -522,7 +536,7 @@ nodes:
             level: trim
             specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
             adjustments:
-              - *pressure
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
               - { name: Volume Spacers, type: step, max: 9, visualization: stepper, notes: "Max per travel: 9 at 130mm, 8 at 140mm, 7 at 150mm, 6 at 160mm, 5 at 170mm" }
             options:
               damper: [grip_2018]
@@ -532,7 +546,7 @@ nodes:
             level: trim
             specs: { stanchion: "6000-series alloy, black anodized", spring: Air }
             adjustments:
-              - *pressure
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
               - { name: Volume Spacers, type: step, max: 8, visualization: stepper, notes: "Max per travel: 8 at 130mm and 140mm, 7 at 150mm, 6 at 160mm and 170mm" }
             options:
               damper: [grip_2018]
@@ -556,7 +570,7 @@ nodes:
             level: trim
             specs: { stanchion: Kashima, spring: Air }
             adjustments:
-              - *pressure
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 140 }
               - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Max per travel: 6 at 150mm and 160mm, 5 at 170mm, 4 at 180mm" }
             options:
               damper: [grip_x2]
@@ -566,7 +580,7 @@ nodes:
             level: trim
             specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
             adjustments:
-              - *pressure
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 140 }
               - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Maximum 5 at 170mm travel" }
             options:
               damper: [grip_x2]
@@ -576,7 +590,7 @@ nodes:
             level: trim
             specs: { stanchion: "6000-series alloy, black anodized", spring: Air }
             adjustments:
-              - *pressure
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
               - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Max per travel: 7 at 150mm, 6 at 160mm, 5 at 170mm, 4 at 180mm" }
             options:
               damper: [grip]
@@ -594,7 +608,7 @@ nodes:
             level: trim
             specs: { stanchion: Kashima, spring: Air }
             adjustments:
-              - *pressure
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 140 }
               - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Max per travel: 6 at 150mm and 160mm, 5 at 170mm, 4 at 180mm" }
             options:
               damper: [grip2_vvc_2021]
@@ -605,7 +619,7 @@ nodes:
             level: trim
             specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
             adjustments:
-              - *pressure
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 140 }
               - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Max per travel: 6 at 150mm and 160mm, 5 at 170mm, 4 at 180mm" }
             options:
               damper: [grip2_vvc_2021]
@@ -615,7 +629,7 @@ nodes:
             level: trim
             specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
             adjustments:
-              - *pressure
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 140 }
               - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Max per travel: 6 at 150mm and 160mm, 5 at 170mm, 4 at 180mm" }
             options:
               damper: [grip_2018]
@@ -625,7 +639,7 @@ nodes:
             level: trim
             specs: { stanchion: "6000-series alloy, black anodized", spring: Air }
             adjustments:
-              - *pressure
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
               - { name: Volume Spacers, type: step, max: 7, visualization: stepper, notes: "Max per travel: 7 at 150mm, 6 at 160mm, 5 at 170mm, 4 at 180mm" }
             options:
               damper: [grip_2018]
@@ -645,7 +659,7 @@ nodes:
         level: trim
         specs: { stanchion: Kashima, spring: Air }
         adjustments:
-          - *pressure
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
           - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Max per travel: 5 at 203mm, 7 at 190mm" }
         options:
           damper: [grip_x2]
@@ -665,7 +679,7 @@ nodes:
         level: trim
         specs: { stanchion: Kashima, spring: Air }
         adjustments:
-          - *pressure
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 130 }
           - { name: Volume Spacers, type: step, max: 8, visualization: stepper, notes: "Maximum 8 at 150mm, 160mm and 170mm travel" }
         options:
           damper: [grip_x2]
@@ -690,7 +704,7 @@ nodes:
         level: trim
         specs: { stanchion: 34mm, spring: Air }
         adjustments:
-          - *pressure
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 140 }
           - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Max per travel: 6 at 100mm and 110mm, 5 at 120mm and 130mm, 4 at 140mm and 150mm" }
         options:
           damper: [rail]
@@ -701,7 +715,7 @@ nodes:
         level: trim
         specs: { stanchion: 36mm, spring: Air }
         adjustments:
-          - *pressure
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
           - { name: Volume Spacers, type: step, max: 9, visualization: stepper, notes: "Max per travel: 9 at 130mm, 8 at 140mm, 7 at 150mm, 6 at 160mm" }
         options:
           damper: [rail]
@@ -711,24 +725,28 @@ nodes:
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):
-#   - Legacy rebound totals. The 2018-2024 owner's manuals give rebound (and
-#     GRIP2 LSC/HSR/LSR) only as pressure-vs-clicks starting-point tables, never
-#     as a range, so grip2_2018 / grip2_vvc_2021 / fit4_2018 / fit4_2021 /
-#     grip_2018 declare those adjusters with `max: ~`. A FOX service manual or a
-#     staff-written magazine bench test that states the totals outright would
-#     replace the placeholders.
-#   - 36 Rhythm (2025-2026) has no Volume Spacer Configurations table in the
-#     2026 36mm manual (it tabulates 36mm and 36mm E-Bike+ only), so that trim
-#     carries Pressure alone. The 2024-2027 36mm Rhythm spec sheet is published
-#     as images only and could not be read.
+#   - Legacy rebound totals. The 2018-2024 owner's manuals give rebound only as
+#     starting-point tables, never as a range, so grip2_2018 / grip2_vvc_2021
+#     (LSR, HSR), fit4_2018 / fit4_2021 and grip_2018 use the highest table
+#     value (estimates, flagged in the adjustment notes). A FOX service manual
+#     or a staff-written bench test stating the totals would replace them.
+#   - grip2_vvc_2021: the 2021 and 2024 manuals carry a 16-usable-HSC-click
+#     paragraph from the 2018 cartridge next to a diagram giving 8 HSC and 16
+#     LSC clicks. The diagram is recorded; check a physical 2021-2024 GRIP2
+#     dial if possible.
+#   - 36 Rhythm 2025-2026: spacer maximum comes from the 2025 manual, the 2026
+#     36mm manual has no Rhythm table; the travels beyond 150/160mm in that
+#     table (130, 140, 170mm) are not offered as options.
 #   - E-Bike+ / E-Optimized chassis variants have their own factory-installed
 #     and maximum spacer counts. They are not modelled as separate trims yet;
 #     the maximums recorded here are the non-e figures.
 #   - AWL Sport and AWL HD Sport are separate FOX SKUs (34mm and 36mm). They
 #     share the AWL/AWL HD spacer tables but their damper spec was not found,
 #     so only the Standard and HD trims are listed.
-#   - Pre-2018 generations (32/34/36/40 with FIT4, RC2, CTD) are not covered:
-#     the 2014-2017 archived material on tech.ridefox.com is spec DRAWINGS
-#     (geometry only) plus manuals that again publish starting-point tables
-#     rather than click ranges.
+#   - Pre-2025 generations of the 32, 34, 40 and the SL forks (FIT4, GRIP2 on
+#     the 40, RC2, CTD) are not covered. Adding a generation level to those
+#     models would change the paths of their existing trims, so it waits for
+#     the rollout decision. The 2018-2024 40mm manuals publish spacer tables
+#     and GRIP2/FIT4 starting-point tables, the 2014-2017 archive only spec
+#     drawings.
 # --------------------------------------------------------------------------

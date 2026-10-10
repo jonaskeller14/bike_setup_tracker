@@ -35,7 +35,18 @@ sources:
   # Primary — service intervals
   - https://ohlins.com/storage/F1FD2667BEF6A26936BBE79CBD7BC4023A47B74CEF08518C26294D2B1AFF0A33/24e7fcb03154439ea9ae0b6150bcede7/pdf/media/55239c8bd8da48c19d511823f9b1c5c6/OM_07258-12_4_RXF36%20m3%20air%20front%20fork.pdf
   - https://ohlins.com/storage/B799A00056AAEF9DE3E7BAB002F50562A6D1BA21B2998148273DF3D42E6199C0/4def7de90bca493cb2a999f99d34bdbf/pdf/media/fe3f1b241587489f98caf3f73ccd9139/OM_07258-07_7_MI_RXF36_m.2_AirCoil_TTX18.pdf
-updated: 2026-10-07
+  # Primary - owner's manuals used for volume spacers, setup tables and coil spring rates
+  - https://www.ohlins.com/storage/B9AC95E58353CFA82EC9840F30F16E6AD76B61BF05DB8A5B7CDE65BC9E15C8D0/469d00f818d54e0ca34230baa6eaa34e/pdf/media/fa74b243c1a34513a89ddb391dd8a5c7/Owners%20manual%20RXF34%20m2.pdf
+  - https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-rxc34-m1--00003982.pdf
+  - https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-federgabel-rxf36--00003012.pdf
+  - https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-federgabel-rxf36--00004180.pdf
+  - https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-federgabel-rxf38--00003536.pdf
+  - https://www.ohlins.eu/download/db/Ohlins_DTC_benutzerhandbuch-oehlins-mtb-federgabel-rxf38--00004275.pdf
+  - https://ohlins.pl/sites/default/files/mtb_rxf34_rxf36_27.5-29-1.pdf
+  - https://www.ohlins.eu/de/products/mountainbike/mtb-forks/?show_unavailable=1
+  # Editorial, used only for the RXC34 m.1 rebound and low-speed compression totals
+  - https://www.ambmag.com.au/feature/ohlins-xc-suspension-review
+updated: 2026-10-10
 # Service intervals (`tasks`) come from the maintenance table that every
 # Öhlins fork owner's manual cited above shares: lower legs every 50 hours,
 # and the air spring, lower-leg seals and damping cartridge every 100 hours or
@@ -44,7 +55,8 @@ updated: 2026-10-07
 #
 # Click ranges taken from the individual product pages at ohlins.eu plus the
 # Öhlins owner's manuals linked above. Clicks are counted from fully closed
-# (firmest) → default `dial_ccw`.
+# (firmest) → default `dial_ccw`. Where only a setup table exists, the maximum is
+# estimated from it (see SCHEMA.md) and the damper's `note:` says so.
 
 # --------------------------------------------------------------------------
 # Dampers
@@ -58,30 +70,44 @@ option_values:
         - Rebound, low-speed and high-speed compression each get their own dial
       adjustments:
         - { name: HSC, type: step, max: ~, notes: High-Speed Compression }
-        - { name: LSC, type: step, max: ~, notes: Low-Speed Compression }
-        - { name: Rebound, type: step, max: ~ }
+        - { name: LSC, type: step, max: 10, notes: "Low-Speed Compression; manual-lever version" }
+        - { name: Rebound, type: step, max: 12 }
         - { name: Ride Mode, type: categorical, options: [Open, Pedal, Lockout], notes: "Crown lever or bar remote; 7.5mm cable pull per click, 5.5mm/click adapter available" }
-      source: https://www.ohlins.eu/en/products/mountainbike/rxc34-m1-air-otx14-r--7692/
+      source:
+        - https://www.ohlins.eu/en/products/mountainbike/rxc34-m1-air-otx14-r--7692/
+        - https://www.ambmag.com.au/feature/ohlins-xc-suspension-review
       note: >-
         RXC34 m.1 page lists "3 Ride Modes: open, pedal, lockout", "Lockout
         Funktion (7,5 mm per Klick)" and "Getrennt einstellbare Zug- und
-        Druckstufendämpfung", but no click totals for the rebound, low-speed or
-        high-speed compression dials, so those three carry `max: ~`.
+        Druckstufendämpfung", but no click totals, and the RXC34 manual
+        (00003982) gives none either. Secondary (tier 2): the AMB article body
+        says the remote version is "limited to the 3 modes of compression damping
+        and 12 clicks of rebound, while the non-remote version sees an added 10
+        clicks of low-speed compression". Rebound 12 and LSC 10 come from that
+        text; retailer listings quote 16 rebound clicks, which is not used. No
+        source gives a high-speed compression total, so HSC carries `max: ~`.
 
     otx18:
       name: OTX18
       description: |-
         - Trail/downcountry cartridge; damping and air spring live in opposite legs
-        - High-speed compression is a four-position dial, 0 being fully closed
+        - High-speed compression is a three-position dial, 0 being fully closed
         - Every click is counted from fully closed, opening counter-clockwise
       adjustments:
-        - { name: HSC, type: step, max: 3, notes: High-Speed Compression, dialColor: grey }
+        - { name: HSC, type: step, max: 2, notes: High-Speed Compression, dialColor: grey }
         - { name: LSC, type: step, max: 15, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
         - { name: Rebound, type: step, max: 15, dialColor: orange }
-      source: https://www.ohlins.eu/en/products/mountainbike/rxf34-m2-air-otx18-29--7685/
+      source:
+        - https://www.ohlins.eu/en/products/mountainbike/rxf34-m2-air-otx18-29--7685/
+        - https://www.ohlins.com/storage/B9AC95E58353CFA82EC9840F30F16E6AD76B61BF05DB8A5B7CDE65BC9E15C8D0/469d00f818d54e0ca34230baa6eaa34e/pdf/media/fa74b243c1a34513a89ddb391dd8a5c7/Owners%20manual%20RXF34%20m2.pdf
       note: >-
         RXF34 m.2 page: "3-fach High-Speed Druckstufeneinstellung", "15-fach
-        Low-Speed Druckstufeneinstellung", "15-fach Zugstufeneinstellung".
+        Low-Speed Druckstufeneinstellung", "15-fach Zugstufeneinstellung". The
+        owner's manual, chapter "4 OTX 18 SETUP", reads "The high speed adjuster
+        has three positions. When the adjuster is fully closed it has position 0
+        [zero] and when the adjuster is fully open it has position 2", so HSC is
+        0-2 here (the TTX18's is 0-3). If the page's "3-fach" counts positions
+        rather than clicks, both agree.
 
     ttx18_m2:
       name: TTX18 (m.2 generation)
@@ -144,8 +170,8 @@ option_values:
         - High-speed compression runs 0 fully closed to 5 fully open, shipped at 5
       adjustments:
         - { name: HSC, type: step, max: 5, notes: "High-Speed Compression; 0 is fully closed, 5 fully open" }
-        - { name: LSC, type: step, max: ~, notes: Low-Speed Compression }
-        - { name: Rebound, type: step, max: ~ }
+        - { name: LSC, type: step, max: 8, notes: "Low-Speed Compression; estimated maximum, check your dial and edit it if it differs" }
+        - { name: Rebound, type: step, max: 8, notes: "Low-Speed Rebound; estimated maximum, check your dial and edit it if it differs" }
       source: https://ohlins.pl/sites/default/files/mtb_rxf34_rxf36_27.5-29-1.pdf
       note: >-
         Öhlins "Front Fork RXF34/RXF36 Owner's Manual / Mounting Instructions",
@@ -154,9 +180,12 @@ option_values:
         position 5." The same paragraph also calls it "five positions"; the
         explicit 0-5 endpoints are taken as written and the wording conflict is
         left standing rather than resolved by picking a number. That manual
-        states no totals for low-speed compression or rebound. PDF is the Öhlins
-        document hosted by the Öhlins Poland importer — ohlins.com no longer
-        publishes this generation.
+        states no totals for low-speed compression or rebound. Estimate: its
+        "SETUP DATA" table (p. 13/16) lists Rebound 7-8 clicks and Compression
+        low 7-8 clicks, counted from fully closed (turn clockwise to closed, then
+        count clicks open), so both are set to 8, the table's highest value; the
+        true totals may be higher. PDF is the Öhlins document hosted by the
+        Öhlins Poland importer — ohlins.com no longer publishes this generation.
 
     stx22_fork:
       name: STX22 (fork cartridge)
@@ -164,15 +193,17 @@ option_values:
         - Simpler cartridge sold alongside the TTX22 in the original RXF36
         - Low-speed compression and rebound only, both shipped at 7 clicks from closed
       adjustments:
-        - { name: Compression, type: step, max: ~, notes: Low-Speed Compression }
-        - { name: Rebound, type: step, max: ~ }
+        - { name: Compression, type: step, max: 8, notes: "Low-Speed Compression; estimated maximum, check your dial and edit it if it differs" }
+        - { name: Rebound, type: step, max: 8, notes: "Low-Speed Rebound; estimated maximum, check your dial and edit it if it differs" }
       source: https://ohlins.pl/sites/default/files/mtb_rxf34_rxf36_27.5-29-1.pdf
       note: >-
         Same manual, chapter "SETTING UP STX22", p. 11/16: "The front forks are
         delivered with the low speed compression and rebound adjuster at 7
-        clicks." That is a delivery setting, not a maximum, so both circuits
-        carry `max: ~`. The chapter describes no high-speed compression
-        adjuster on this cartridge.
+        clicks." That is a delivery setting, not a maximum. Estimate: the "SETUP
+        DATA" table (p. 13/16) lists the RXF36 STX22 at Rebound 7-8 clicks and
+        Compression low 7-8 clicks, counted from fully closed, so both are set to
+        8, the table's highest value; the true totals may be higher. The chapter
+        describes no high-speed compression adjuster on this cartridge.
 
     ttx18_dh38_m1:
       name: TTX18 (DH38 m.1)
@@ -197,9 +228,9 @@ option_values:
 # family has a separately pumped main and ramp-up chamber, so it uses
 # `&dual_chamber_air`. Coil trims list a Spring Rate in N/mm, the unit Öhlins
 # stamps on its MTB coil springs.
-# Öhlins tunes air-spring progression with the pressurised ramp-up chamber
-# rather than tokens, so no Volume Spacers adjustment is generated — except
-# that the RXF34 lists a spacer without publishing a maximum. See follow-ups.
+# Volume Spacers are listed where an owner's manual publishes the maximum (RXC34
+# m.1, RXF34 m.2). The RXF36/RXF38/DH38 manuals describe no spacer system; they
+# tune progression with the pressurised ramp-up chamber instead.
 # --------------------------------------------------------------------------
 nodes:
   - label: RXC34
@@ -222,8 +253,9 @@ nodes:
           - label: Aluminum (remote)
             level: trim
             specs: { spring: Air }
-            adjustments: &air_spring
+            adjustments: &rxc34_air_spring
               - { name: Pressure, type: numerical, unit: psi, min: 0 }
+              - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "8 ml spacers in the positive chamber. Maximum depends on the travel: 100 mm 4, 110 mm 5, 120 mm 5" }
             options:
               damper: [otx14_r]
               travel_mm: [100, 110, 120]
@@ -231,7 +263,7 @@ nodes:
           - label: Carbon crown (remote)
             level: trim
             specs: { spring: Air }
-            adjustments: *air_spring
+            adjustments: *rxc34_air_spring
             options:
               damper: [otx14_r]
               travel_mm: [100, 110, 120]
@@ -239,7 +271,7 @@ nodes:
           - label: Carbon crown (manual)
             level: trim
             specs: { spring: Air }
-            adjustments: *air_spring
+            adjustments: *rxc34_air_spring
             options:
               damper: [otx14_r]
               travel_mm: [100, 110, 120]
@@ -255,17 +287,34 @@ nodes:
         id: m2
         years: "2025-2026"
         url: https://www.ohlins.eu/de/products/mountainbike/rxf34-m2-air-otx18-29--7685/
+        setup_guide: https://www.ohlins.com/storage/B9AC95E58353CFA82EC9840F30F16E6AD76B61BF05DB8A5B7CDE65BC9E15C8D0/469d00f818d54e0ca34230baa6eaa34e/pdf/media/fa74b243c1a34513a89ddb391dd8a5c7/Owners%20manual%20RXF34%20m2.pdf
         children:
           - label: Air OTX18
             level: trim
             specs: { spring: Air }
             offset_mm: [44]
-            adjustments: *air_spring
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0 }
+              - { name: Volume Spacers, type: step, max: 7, visualization: stepper, notes: "8 ml spacers in the top cap. Maximum depends on the travel: 120 mm 7, 130 mm 6, 140 mm 5 (one fewer on 120 and 130 mm forks sold with a 130 mm maximum)" }
             options:
               damper: [otx18]
               travel_mm: [120, 130, 140]
               wheel_size: [29]
             note: Air-spring progression is tuned with volume spacers; from 1698g without one.
+      - label: m.1
+        level: version
+        id: m1
+        url: https://ohlins.pl/sites/default/files/mtb_rxf34_rxf36_27.5-29-1.pdf   # owner's manual, no product page
+        children:
+          - label: Air TTX22
+            level: trim
+            specs: { spring: Air }
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0 }
+            options:
+              damper: [ttx22_fork]
+              travel_mm: [120, 140, 160]
+              wheel_size: [29]
 
   - label: RXF36
     level: model
@@ -283,11 +332,27 @@ nodes:
             level: trim
             specs: { spring: Air }
             offset_mm: [38, 44, 51]
-            adjustments: *air_spring
+            adjustments: &air_spring
+              - { name: Pressure, type: numerical, unit: psi, min: 0 }
             options:
               damper: [ttx18_m2]
               travel_mm: [140, 150, 160, 170]
               wheel_size: [29, 27.5]
+          - label: Coil
+            level: trim
+            # Spring rate chart and strokes: Owner's Manual RXF36 m.2 (00003012), pp. 8 and 13
+            specs: { spring: Coil }
+            adjustments: &coil_spring
+              - { name: Spring Rate, type: numerical, unit: N/mm, min: 0 }
+              - { name: Preload, type: numerical, unit: turns, min: 0 }
+            options:
+              damper: [ttx18_m2]
+              travel_mm: [120, 130, 140, 150, 160, 165]
+              wheel_size: [29, 27.5]
+            note: |-
+              - Coil springs run 6.1 to 11.5 N/mm in seven steps, colour-coded on the tube
+              - The longest strokes are limited by the heaviest springs and by added preload
+              - Set the preload knob to minimum, then dial in 15-20% sag
       - label: m.3
         level: version
         id: m3
@@ -309,13 +374,37 @@ nodes:
             url: https://www.ohlins.eu/de/products/mountainbike/rxf36-m3-coil--6430/
             setup_guide: https://www.ohlins.eu/download/db/Ohlins_DTC_owners-manual-rxf36-m3--00004297.pdf
             specs: { spring: Coil }
-            adjustments: &coil_spring
-              - { name: Spring Rate, type: numerical, unit: N/mm, min: 0 }
-              - { name: Preload, type: numerical, unit: turns, min: 0 }
+            adjustments: *coil_spring
             options:
               damper: [ttx18_m3]
               travel_mm: [160]
               wheel_size: [29]
+      - label: m.1
+        level: version
+        id: m1
+        url: https://ohlins.pl/sites/default/files/mtb_rxf34_rxf36_27.5-29-1.pdf   # owner's manual, no product page
+        note: |-
+          - Original RXF36 chassis, sold with the TTX22 or the simpler STX22 damper
+          - Strokes from 120mm (29") or 140mm (27.5") up to 170mm
+        children:
+          - label: Air TTX22
+            level: trim
+            specs: { spring: Air }
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0 }
+            options:
+              damper: [ttx22_fork]
+              travel_mm: [120, 140, 150, 160, 170]   # 29": 120/140/150/160, 27.5": 140/150/160/170
+              wheel_size: [29, 27.5]
+          - label: Air STX22
+            level: trim
+            specs: { spring: Air }
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0 }
+            options:
+              damper: [stx22_fork]
+              travel_mm: [150, 160, 170]   # 29": 150/160, 27.5": 150/170
+              wheel_size: [29, 27.5]
 
   - label: RXF38
     level: model
@@ -464,23 +553,34 @@ nodes:
 # Follow-ups (not yet captured — avoid guessing):
 #   - RXF36 m.3 Coil: the product page gives 160mm travel and 29" with 44mm
 #     offset only.
-#   - setup_guide: RXC34 m.1 only has a German manual on ohlins.eu; RXF34 m.2 and
-#     RXFDJ m.1 list workshop manuals only, so they carry no setup_guide.
-#   - OTX14 R (RXC34 m.1): Öhlins publishes the three ride modes and the
-#     7.5mm/click lockout throw, but no click totals for its rebound, low-speed
-#     or high-speed compression dials, so the three dials carry `max: ~`.
+#   - setup_guide: RXC34 m.1 only has a German manual on ohlins.eu; RXFDJ m.1
+#     lists workshop manuals only, so it carries no setup_guide.
+#   - OTX14 R (RXC34 m.1): rebound 12 and low-speed compression 10 come from the
+#     AMB article (tier 2); Öhlins and its manual give no totals. The high-speed
+#     compression dial exists on the product page but no source gives its total,
+#     so it carries `max: ~`. The LSC is described for the manual-lever version
+#     only; the remote versions may not have it.
+#   - OTX18 (RXF34 m.2) HSC is 0-2 per the owner's manual while the product page
+#     says "3-fach"; the manual's wording is used.
 #   - RXF38 m.1: the owner's manual gives the four-position high-speed dial but
-#     no low-speed compression or rebound totals. `ttx18_rxf38_m1` is defined
-#     with `max: ~` for those two; the m.1 fork itself is not listed yet.
-#   - RXF34 m.2 volume spacers: the page weighs the fork "ohne Volumenspacer"
-#     but never states how many the air spring accepts. No Volume Spacers
-#     adjustment is generated until a maximum is published.
-#   - Coil preload: RXF36 m.3 / RXF38 coil forks have a preload knob, but no
-#     manual states its total turns, so Preload is an open-ended numerical.
-#   - Öhlins coil spring rate charts are only confirmed for the RXF38 family
-#     (7.0-12.4 N/mm, Owner's Manual RXF38 m.2 p. 12); the RXF36 m.3 coil
-#     chart has not been located.
-#   - Legacy generations still missing: RXF34 m.1, RXF36 m.1 and m.2 of the
-#     2016-2019 era, and the original 2016 RXF 36. Their click tables are not
-#     on any current Öhlins page and no archived manual has been located.
+#     no low-speed compression or rebound totals and no setup table. `ttx18_rxf38_m1`
+#     is defined with `max: ~` for those two; the m.1 fork itself is not listed yet.
+#   - Volume spacers: the RXF36 m.2/m.3, RXF38 m.2/m.3 and DH38 manuals describe no
+#     spacer system; RXFDJ has no manual. Nothing is declared for them.
+#   - RXF36 m.1 Air TTX22/STX22 and RXF34 m.1: strokes read off the Öhlins Poland
+#     copy of the RXF34/RXF36 manual (setup-data table). Its kit list shows the
+#     27.5" TTX22 only at 150/170mm while the setup table gives 140-170mm; the
+#     table is used. Production years are not stated, so `years` is omitted. The
+#     STX22/TTX22 Rebound and low-speed compression totals are estimates from the
+#     7-8 click setup table.
+#   - Coil preload: RXF36 m.2/m.3 and RXF38 coil forks have a preload knob, but
+#     no manual states its total turns, so Preload is an open-ended numerical.
+#   - Öhlins coil spring rate charts: RXF38 (7.0-12.4 N/mm, Owner's Manual RXF38
+#     m.2 p. 12 and m.3 p. 12), RXF36 m.3 Coil (7.0-12.4 N/mm, manual 00004297
+#     p. 12) and RXF36 m.2 Coil (6.1-11.5 N/mm, manual 00003012 p. 8). The m.2
+#     manual lists air strokes of 150-180mm in its setup data while the product
+#     page gives 140-170mm; the page is used.
+#   - Legacy generations still missing: the 2016-2018 RXF36 Air EVO (separate
+#     ohlins.eu listings, no damper table located) and the RXF34 Air 29 120/140/160
+#     listings, whose damper click table is not on those pages.
 # --------------------------------------------------------------------------

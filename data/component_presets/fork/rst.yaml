@@ -56,7 +56,10 @@ sources:
   - https://rstsuspension.com/products/vivo/
   - https://rstsuspension.com/products/renegade/
   - https://rstsuspension.com/products/guide/
-updated: 2026-10-05
+  # Secondary — consulted, no figure taken over (see Follow-ups)
+  - https://theloamwolf.com/reviews/components/review-rst-suspension-stitch-coil-fork/
+  - https://www.bikeradar.com/reviews/components/forks/suspension-forks/rst-rogue-fork-review
+updated: 2026-10-10
 
 # --------------------------------------------------------------------------
 # Dampers
@@ -1312,6 +1315,15 @@ nodes:
 #         TNL-F and RL-R variants to TNL-R.
 #       * ROGUE V2: the "Compress adjust / Lock-Out / Rebound adjust" cell
 #         spans Air and Air-TRL; Air-TRL is mapped to the same damper.
+#   - Click counts, second pass (2026-10-10): rstsuspension.com answered HTTP 403
+#     to every fetch, so the product pages and manuals could not be re-read.
+#     The only editorial figures found are The Loam Wolf's review of the 2018
+#     Stitch Coil (ORC+ damper: "compression adjuster has 20 clicks of
+#     adjustment, rebound 17", counting direction not stated). That is an older
+#     generation than the current OCRC+ / OCR2+ dampers and the byline is a
+#     contributor's, so the numbers are not applied. BikeRadar's Rogue review
+#     gives no counts. Volume spacers: BikeRadar's Rogue review says spacers
+#     can be added, but no count or maximum is published, so none is declared.
 #   - Model years are not published by RST; no `years` set.
 #   - Left out: JUNIOR F1RST / AERIAL 16-26" forks (spec table too garbled to
 #     map dampers reliably), SIGMA / GUIDE DC e-moto forks,

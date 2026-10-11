@@ -112,7 +112,7 @@ class FeaturesPage extends StatelessWidget {
                 _FeatureToggleTile(
                   enabled: appSettings.enableComponentPresets,
                   disabledSubtitle: 'Requires Component Presets',
-                  icon: Icons.playlist_add_check,
+                  icon: Icons.auto_awesome_outlined,
                   title: "Task Presets",
                   value: appSettings.enableTaskPresets,
                   onChanged: (v) => appSettings.enableTaskPresets = v,

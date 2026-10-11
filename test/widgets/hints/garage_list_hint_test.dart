@@ -14,8 +14,9 @@ void main() {
       ),
     );
 
-    expect(find.text('Gestures in Garage'), findsOneWidget);
-    await tester.tap(find.byTooltip('Dismiss'));
+    expect(find.text('Gestures in Garage').hitTestable(), findsOneWidget);
+    await tester.tap(find.text('Skip').hitTestable());
+    await tester.pumpAndSettle();
 
     expect(dismissed, isTrue);
   });

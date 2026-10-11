@@ -4,26 +4,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  Widget wrap(Widget hint) => MaterialApp(home: Scaffold(body: hint));
+
   testWidgets('Task hint delegates activation and dismissal', (tester) async {
     var activated = false;
     var dismissed = false;
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: SetupTaskHint(
-            onActivate: () async => activated = true,
-            onDismiss: () => dismissed = true,
-          ),
-        ),
-      ),
+      wrap(SetupTaskHint(onActivate: () async => activated = true, onDismiss: () => dismissed = true)),
     );
-
     await tester.tap(find.text('Activate Tasks'));
-    await tester.tap(find.byTooltip('Dismiss'));
+    await tester.pumpAndSettle();
+    expect((activated, dismissed), (true, false));
 
-    expect(activated, isTrue);
-    expect(dismissed, isTrue);
+    await tester.pumpWidget(const SizedBox());
+    await tester.pumpWidget(
+      wrap(SetupTaskHint(onActivate: () async => activated = false, onDismiss: () => dismissed = true)),
+    );
+    await tester.tap(find.text('No thanks'));
+    await tester.pumpAndSettle();
+    expect((activated, dismissed), (true, true));
   });
 
   testWidgets('Calendar hint delegates activation and dismissal', (tester) async {
@@ -31,20 +31,18 @@ void main() {
     var dismissed = false;
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: SetupCalendarHint(
-            onActivate: () async => activated = true,
-            onDismiss: () => dismissed = true,
-          ),
-        ),
-      ),
+      wrap(SetupCalendarHint(onActivate: () async => activated = true, onDismiss: () => dismissed = true)),
     );
-
     await tester.tap(find.text('Turn on Calendar'));
-    await tester.tap(find.byTooltip('Dismiss'));
+    await tester.pumpAndSettle();
+    expect((activated, dismissed), (true, false));
 
-    expect(activated, isTrue);
-    expect(dismissed, isTrue);
+    await tester.pumpWidget(const SizedBox());
+    await tester.pumpWidget(
+      wrap(SetupCalendarHint(onActivate: () async => activated = false, onDismiss: () => dismissed = true)),
+    );
+    await tester.tap(find.text('No thanks'));
+    await tester.pumpAndSettle();
+    expect((activated, dismissed), (true, true));
   });
 }

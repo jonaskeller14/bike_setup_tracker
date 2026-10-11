@@ -3,9 +3,11 @@ import 'package:provider/provider.dart';
 import 'package:timelines_plus/timelines_plus.dart';
 
 import '../../repositories/app_repository.dart';
+import '../../theme.dart';
 import '../../utils/bike_actions.dart';
 import '../../utils/component_actions.dart';
 import '../../utils/setup_actions.dart';
+import 'app_hint_deck.dart';
 
 class GettingStartedGuideHint extends StatelessWidget {
   const GettingStartedGuideHint({super.key, this.onDismiss});
@@ -24,152 +26,94 @@ class GettingStartedGuideHint extends StatelessWidget {
 
     if (steps.every((step) => step.isCompleted)) return const SizedBox.shrink();
 
-    final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final animate = !MediaQuery.of(context).disableAnimations;
-
-    final tintBg = Color.alphaBlend(
-      colorScheme.primary.withValues(alpha: 0.08),
-      colorScheme.surface,
+    final hint = HintColors.of(context);
+    // The step indicator reads primary/surface roles; point them at the hint palette.
+    final colorScheme = Theme.of(context).colorScheme.copyWith(
+      primary: hint.accent,
+      onPrimary: hint.onAccent,
+      surfaceContainerHighest: hint.container,
+      onSurfaceVariant: hint.onContainer,
     );
-    final tintBorder = colorScheme.primary.withValues(alpha: 0.25);
     final currentIndex = steps.indexWhere((s) => !s.isCompleted);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: tintBg,
-        border: Border.all(color: tintBorder),
-        borderRadius: BorderRadius.circular(14),
+    return AppHintDeck(
+      icon: Icons.flag_outlined,
+      label: 'Steps to get started',
+      onDismiss: onDismiss,
+      dismissLabel: 'Hide guide',
+      action: AppHintAction(
+        label: steps[currentIndex].label,
+        icon: Icons.add,
+        completesHint: false,
+        onPressed: () async {
+          switch (currentIndex) {
+            case 0: await BikeActions.addBike(context);
+            case 1: await ComponentActions.addComponent(context);
+            case 2: await SetupActions.addSetup(context);
+          }
+        },
       ),
-      clipBehavior: Clip.antiAlias,
-      child: Stack(
-        children: [
-          Positioned(
-            top: 0,
-            bottom: 0,
-            left: 0,
-            child: Container(width: 4, color: colorScheme.primary.withValues(alpha: 0.6)),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 12, 4, 4),
-                      child: Row(
-                        spacing: 6,
-                        children: [
-                          Icon(Icons.flag_outlined, size: 14, color: colorScheme.primary),
-                          Text(
-                            'STEPS TO GET STARTED',
-                            style: textTheme.labelSmall?.copyWith(
-                              color: colorScheme.primary,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.8,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  if (onDismiss != null)
-                    IconButton(
-                      onPressed: onDismiss,
-                      icon: const Icon(Icons.close, size: 18),
-                      color: colorScheme.primary,
-                      visualDensity: VisualDensity.compact,
-                      tooltip: 'Dismiss',
-                    ),
-                ],
+      pages: [
+        Padding(
+          padding: const EdgeInsets.only(top: 6),
+          child: FixedTimeline.tileBuilder(
+            theme: TimelineThemeData(
+              nodePosition: 0,
+              indicatorPosition: 0, // Aligns indicator to the top of the content
+              indicatorTheme: const IndicatorThemeData(size: 26.0),
+              connectorTheme: ConnectorThemeData(
+                thickness: 2.0,
+                color: colorScheme.primary.withValues(alpha: 0.25),
               ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                child: FixedTimeline.tileBuilder(
-                  theme: TimelineThemeData(
-                    nodePosition: 0,
-                    indicatorPosition: 0, // Aligns indicator to the top of the content
-                    indicatorTheme: const IndicatorThemeData(size: 26.0),
-                    connectorTheme: ConnectorThemeData(
-                      thickness: 2.0,
-                      color: colorScheme.primary.withValues(alpha: 0.25),
-                    ),
-                  ),
-                  builder: TimelineTileBuilder.connected(
-                    connectionDirection: ConnectionDirection.after,
-                    itemCount: steps.length,
-                    contentsBuilder: (context, index) {
-                      final step = steps[index];
-                      final isCurrent = index == currentIndex;
+            ),
+            builder: TimelineTileBuilder.connected(
+              connectionDirection: ConnectionDirection.after,
+              itemCount: steps.length,
+              contentsBuilder: (context, index) {
+                final step = steps[index];
+                final isCurrent = index == currentIndex;
 
-                      return Padding(
-                        padding: const EdgeInsets.only(left: 14.0, bottom: 24.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(top: 2.0),
-                              child: Text(
-                                step.label,
-                                style: textTheme.bodyMedium?.copyWith(
-                                  color: step.isCompleted
-                                      ? colorScheme.onSurfaceVariant.withValues(alpha: 0.45)
-                                      : isCurrent
-                                          ? colorScheme.onSurface
-                                          : colorScheme.onSurfaceVariant.withValues(alpha: 0.65),
-                                  fontWeight: isCurrent ? FontWeight.w600 : FontWeight.normal,
-                                  decoration: step.isCompleted ? TextDecoration.lineThrough : null,
-                                  decorationColor: colorScheme.onSurfaceVariant.withValues(alpha: 0.35),
-                                ),
-                              ),
-                            ),
-                            if (isCurrent) ...[
-                              const SizedBox(height: 10),
-                              FilledButton.icon(
-                                onPressed: () async {
-                                  switch (index) {
-                                    case 0: await BikeActions.addBike(context);
-                                    case 1: await ComponentActions.addComponent(context);
-                                    case 2: await SetupActions.addSetup(context);
-                                  }
-                                },
-                                icon: const Icon(Icons.add, size: 16),
-                                label: Text(step.label),
-                                style: FilledButton.styleFrom(visualDensity: VisualDensity.compact),
-                              ),
-                            ],
-                          ],
-                        ),
-                      );
-                    },
-                    indicatorBuilder: (context, index) {
-                      final step = steps[index];
-                      return _StepTransitionIndicator(
-                        index: index,
-                        isCompleted: step.isCompleted,
-                        isCurrent: index == currentIndex,
-                        colors: colorScheme,
-                        textTheme: textTheme,
-                        duration: Duration(milliseconds: animate ? 600 : 1),
-                      );
-                    },
-                    connectorBuilder: (context, index, type) {
-                      return SolidLineConnector(
-                        color: steps[index].isCompleted
-                            ? colorScheme.primary
-                            : colorScheme.primary.withValues(alpha: 0.25),
-                      );
-                    },
+                return Padding(
+                  padding: EdgeInsets.only(left: 14.0, top: 2.0, bottom: index == steps.length - 1 ? 8.0 : 20.0),
+                  child: Text(
+                    step.label,
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: step.isCompleted
+                          ? hint.onContainer.withValues(alpha: 0.45)
+                          : isCurrent
+                              ? hint.onContainer
+                              : hint.onContainer.withValues(alpha: 0.65),
+                      fontWeight: isCurrent ? FontWeight.w600 : FontWeight.normal,
+                      decoration: step.isCompleted ? TextDecoration.lineThrough : null,
+                      decorationColor: hint.onContainer.withValues(alpha: 0.35),
+                    ),
                   ),
-                ),
-              ),
-            ],
+                );
+              },
+              indicatorBuilder: (context, index) {
+                final step = steps[index];
+                return _StepTransitionIndicator(
+                  index: index,
+                  isCompleted: step.isCompleted,
+                  isCurrent: index == currentIndex,
+                  colors: colorScheme,
+                  textTheme: textTheme,
+                  duration: Duration(milliseconds: animate ? 600 : 1),
+                );
+              },
+              connectorBuilder: (context, index, type) {
+                return SolidLineConnector(
+                  color: steps[index].isCompleted
+                      ? colorScheme.primary
+                      : colorScheme.primary.withValues(alpha: 0.25),
+                );
+              },
+            ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

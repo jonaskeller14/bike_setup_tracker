@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'app_hint_deck.dart';
+
 class StravaGearLinkHint extends StatelessWidget {
   const StravaGearLinkHint({super.key, required this.onDismiss});
 
@@ -7,82 +9,14 @@ class StravaGearLinkHint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-    final tintBg = Color.alphaBlend(
-      colors.tertiary.withValues(alpha: 0.10),
-      colors.surface,
-    );
-
-    return Container(
-      decoration: BoxDecoration(
-        color: tintBg,
-        border: Border.all(color: colors.tertiary.withValues(alpha: 0.30)),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Stack(
-        children: [
-          Positioned(
-            top: 0,
-            bottom: 0,
-            left: 0,
-            child: Container(width: 4, color: colors.tertiary),
-          ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 4, 12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        spacing: 6,
-                        children: [
-                          Icon(Icons.info_outline, size: 14, color: colors.tertiary),
-                          Text(
-                            'INFO',
-                            style: textTheme.labelSmall?.copyWith(
-                              color: colors.tertiary,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.8,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Link your Strava gear',
-                        style: textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: colors.onSurface,
-                        ),
-                      ),
-                      const SizedBox(height: 3),
-                      Text(
-                        'Choose a bike for each gear. Your setups are then matched with the '
-                        'right Strava activities.',
-                        style: textTheme.bodySmall?.copyWith(
-                          color: colors.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              IconButton(
-                onPressed: onDismiss,
-                icon: const Icon(Icons.close, size: 18),
-                color: colors.tertiary,
-                visualDensity: VisualDensity.compact,
-                tooltip: 'Dismiss',
-              ),
-            ],
-          ),
-        ],
-      ),
+    return AppHintDeck(
+      icon: Icons.info_outline,
+      label: 'Info',
+      title: 'Link your Strava gear',
+      pages: const [
+        Text('Choose a bike for each gear. Your setups are then matched with the right Strava activities.'),
+      ],
+      onDismiss: onDismiss,
     );
   }
 }

@@ -280,6 +280,7 @@ class _HomePageState extends State<HomePage> {
                         onPressed: () => showRiderSheet(context),
                         icon: Badge(
                           isLabelVisible: appRepository.persons.isEmpty,
+                          backgroundColor: Theme.of(context).primaryColor,
                           child: const Icon(Person.iconData),
                         ),
                         tooltip: 'Rider',

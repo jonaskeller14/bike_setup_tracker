@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
 
+import 'app_hint_deck.dart';
+
 class GarageListHint extends StatelessWidget {
   static const _tips = [
     'Drag component icons to reorder, swap them to other bikes, or drop them into Uninstalled.',
@@ -15,122 +17,12 @@ class GarageListHint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
-    final tintBg = Color.alphaBlend(
-      colors.tertiary.withValues(alpha: 0.10),
-      colors.surface,
-    );
-    final tintBorder = colors.tertiary.withValues(alpha: 0.30);
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(14),
-      child: Container(
-        decoration: BoxDecoration(
-          color: tintBg,
-          border: Border.all(color: tintBorder),
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Stack(
-          children: [
-            Positioned(
-              top: 0,
-              bottom: 0,
-              left: 0,
-              child: Container(width: 4, color: colors.tertiary),
-            ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 12, 4, 12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          spacing: 6,
-                          children: [
-                            Icon(
-                              Icons.touch_app_outlined,
-                              size: 14,
-                              color: colors.tertiary,
-                            ),
-                            Text(
-                              'TIPS',
-                              style: textTheme.labelSmall?.copyWith(
-                                color: colors.tertiary,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 0.8,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Gestures in Garage',
-                          style: textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: colors.onSurface,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        ..._tips.map(
-                          (tip) => Padding(
-                            padding: const EdgeInsets.only(bottom: 4),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              spacing: 8,
-                              children: [
-                                Container(
-                                  width: 18,
-                                  height: 18,
-                                  decoration: BoxDecoration(
-                                    color: colors.tertiary.withValues(
-                                      alpha: 0.15,
-                                    ),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    '${_tips.indexOf(tip) + 1}',
-                                    style: textTheme.labelSmall?.copyWith(
-                                      color: colors.tertiary,
-                                      fontWeight: FontWeight.bold,
-                                      height: 1.0,
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    tip,
-                                    style: textTheme.bodySmall?.copyWith(
-                                      color: colors.onSurfaceVariant,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                if (onDismiss != null)
-                  IconButton(
-                    onPressed: onDismiss,
-                    icon: const Icon(Icons.close, size: 18),
-                    color: colors.tertiary,
-                    visualDensity: VisualDensity.compact,
-                    tooltip: 'Dismiss',
-                  ),
-              ],
-            ),
-          ],
-        ),
-      ),
+    return AppHintDeck(
+      icon: Icons.touch_app_outlined,
+      label: 'Tip',
+      title: 'Gestures in Garage',
+      pages: [for (final tip in _tips) Text(tip)],
+      onDismiss: onDismiss,
     );
   }
 }

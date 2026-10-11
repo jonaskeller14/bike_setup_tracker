@@ -90,9 +90,9 @@ void main() {
   testWidgets('dismisses the Garage hint and persists its status', (tester) async {
     await tester.pumpWidget(buildSubject());
 
-    expect(find.text('Gestures in Garage'), findsOneWidget);
-    await tester.tap(find.byTooltip('Dismiss'));
-    await tester.pump();
+    expect(find.text('Gestures in Garage').hitTestable(), findsOneWidget);
+    await tester.tap(find.text('Skip').hitTestable());
+    await tester.pumpAndSettle();
 
     expect(find.text('Gestures in Garage'), findsNothing);
     expect(service.statusOf(AppHint.garageGesturesV1), AppHintStatus.dismissed);
@@ -105,7 +105,7 @@ void main() {
 
     expect(find.text('Activate Tasks'), findsOneWidget);
     await tester.tap(find.text('Activate Tasks'));
-    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pumpAndSettle();
 
     expect(settings.enableTask, isTrue);
     expect(service.statusOf(AppHint.setupTasksV1), AppHintStatus.completed);

@@ -14,7 +14,8 @@ void main() {
       ),
     );
 
-    await tester.tap(find.byTooltip('Dismiss'));
+    await tester.tap(find.text('Got it'));
+    await tester.pumpAndSettle();
 
     expect(dismissed, isTrue);
   });

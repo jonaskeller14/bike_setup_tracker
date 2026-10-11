@@ -119,6 +119,62 @@ class SnackBarColors extends ThemeExtension<SnackBarColors> {
   }
 }
 
+/// Dedicated "Sand" palette for app hints so they read as guidance, not regular UI.
+/// Primary roles of `ColorScheme.fromSeed(seedColor: Color(0xFFC8A165))` (tonal spot), matching the app theme's tonality.
+class HintColors extends ThemeExtension<HintColors> {
+  final Color accent;
+  final Color onAccent;
+  final Color container;
+  final Color onContainer;
+
+  const HintColors({
+    required this.accent,
+    required this.onAccent,
+    required this.container,
+    required this.onContainer,
+  });
+
+  static const light = HintColors(
+    accent: Color(0xFF7D570E),
+    onAccent: Color(0xFFFFFFFF),
+    container: Color(0xFFFFDEAE),
+    onContainer: Color(0xFF604100),
+  );
+
+  static const dark = HintColors(
+    accent: Color(0xFFF1BE6D),
+    onAccent: Color(0xFF432C00),
+    container: Color(0xFF604100),
+    onContainer: Color(0xFFFFDEAE),
+  );
+
+  static HintColors of(BuildContext context) {
+    final theme = Theme.of(context);
+    return theme.extension<HintColors>() ?? (theme.brightness == Brightness.dark ? dark : light);
+  }
+
+  @override
+  HintColors copyWith({Color? accent, Color? onAccent, Color? container, Color? onContainer}) {
+    return HintColors(
+      accent: accent ?? this.accent,
+      onAccent: onAccent ?? this.onAccent,
+      container: container ?? this.container,
+      onContainer: onContainer ?? this.onContainer,
+    );
+  }
+
+  @override
+  HintColors lerp(HintColors? other, double t) {
+    if (other == null) return this;
+    return HintColors(
+      accent: Color.lerp(accent, other.accent, t)!,
+      onAccent: Color.lerp(onAccent, other.onAccent, t)!,
+      container: Color.lerp(container, other.container, t)!,
+      onContainer: Color.lerp(onContainer, other.onContainer, t)!,
+    );
+  }
+}
+
 class DialColors extends ThemeExtension<DialColors> {
   final Color blue;
   final Color red;
@@ -212,7 +268,7 @@ final materialAppTheme = ThemeData(
     headlineLarge: TextStyle(fontWeight: FontWeight.bold),
     titleLarge: TextStyle(fontWeight: FontWeight.bold),
   ),
-  extensions: const [ValueHighlightColors.light, TaskStatusColors.light, SnackBarColors.light, DialColors.light],
+  extensions: const [ValueHighlightColors.light, TaskStatusColors.light, SnackBarColors.light, DialColors.light, HintColors.light],
 );
 
 final _darkColorScheme = ColorScheme.fromSeed(
@@ -231,7 +287,7 @@ final materialAppDarkTheme = ThemeData(
     headlineLarge: TextStyle(fontWeight: FontWeight.bold),
     titleLarge: TextStyle(fontWeight: FontWeight.bold),
   ),
-  extensions: const [ValueHighlightColors.dark, TaskStatusColors.dark, SnackBarColors.dark, DialColors.dark],
+  extensions: const [ValueHighlightColors.dark, TaskStatusColors.dark, SnackBarColors.dark, DialColors.dark, HintColors.dark],
 );
 
 List<Color> chartColors(Color primary, int count, {int hueStep = 137}) {

@@ -93,7 +93,7 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
                         hint: stravaService.isConnected
                             ? const AppHintSlot(
                                 placement: AppHintPlacement.stravaDashboardGear,
-                                padding: EdgeInsets.only(bottom: 4),
+                                padding: EdgeInsets.only(top: 6),
                               )
                             : null,
                       ),

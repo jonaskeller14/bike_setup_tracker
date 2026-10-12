@@ -29,6 +29,7 @@ class NumericalAdjustment extends Adjustment {
     );
   }
 
+  @override
   NumericalAdjustment copyWith({
     Object? id = const _Sentinel(),
     Object? name = const _Sentinel(),

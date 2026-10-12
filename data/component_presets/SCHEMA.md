@@ -498,6 +498,7 @@ Always write them as `{ name: Volume Spacers, type: step, max: N, visualization:
 | Field | Applies to | Required? | Default |
 |---|---|---|---|
 | `name` | all | **yes** | — |
+| `id` | all | no | the slug of `name`, see [Adjuster ids](#adjuster-ids) |
 | `type` | all | **yes** | — (`step` \| `numerical` \| `categorical` \| `boolean`) |
 | `notes` | all | no | none |
 | `unit` | all | no | none (e.g. `psi`, `bar`, `lbs/in`, `mm`, `°`; blessed customs `clicks`, `%`, `turns`, `tokens`) |
@@ -511,6 +512,25 @@ Always write them as `{ name: Volume Spacers, type: step, max: N, visualization:
 | `multiSelect` | categorical | no | `false` |
 
 `text` and `duration` adjustments are intentionally **not** supported in data.
+
+### Adjuster ids
+
+Every adjuster has an id. It is stamped onto the adjustment the rider gets as
+`Adjustment.presetKey` (`<type>:<id>`, e.g. `fork:hsc`) and survives renames, so
+setup guides can find "the HSC" of a component no matter what the rider calls it.
+
+- It defaults to the slug of `name`: lowercase ASCII, **underscore**-separated
+  (`HSC` → `hsc`, `Volume Spacers` → `volume_spacers`). That is the id space of
+  the generic template keys (`fork:hsc`, `shock:volume_spacers`), so a
+  component built by hand from templates resolves to the same ids.
+- Write an explicit `id:` when the slug would mislead: the name is the
+  manufacturer's, but the circuit is another one (a FOX GRIP `Rebound` that is
+  technically the low-speed rebound is `id: lsr`), or the name has no usable
+  slug (`"2-Step"`).
+- Ids are unique within what a rider ends up with: the product's adjusters plus
+  one value of each required axis. `sag` is reserved for the SAG adjuster the
+  app adds to every fork and shock.
+- Ids stay free to change until the lockfile rollout, like guide ids.
 
 ### `visualization` values (step only)
 

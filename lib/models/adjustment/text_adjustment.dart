@@ -21,6 +21,7 @@ class TextAdjustment extends Adjustment {
     );
   }
 
+  @override
   TextAdjustment copyWith({
     Object? id = const _Sentinel(),
     Object? name = const _Sentinel(),

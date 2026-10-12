@@ -130,6 +130,7 @@ SagAdjustment _buildSag(ResolvedPreset resolved) {
     name: 'SAG',
     notes: isShock ? kShockSagNotes : kForkSagNotes,
     referenceTravelMm: travel?.toDouble(),
+    presetKey: '${resolved.catalog.componentType.name}:$kSagAdjusterId',
   );
 }
 

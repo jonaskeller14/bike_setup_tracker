@@ -589,6 +589,93 @@ option_values:
     });
   });
 
+  group('adjuster ids', () {
+    String fork(String adjustments, {String damper = 'grip_x2: { name: GRIP X2 }'}) =>
+        '''
+brand: FOX
+component_type: fork
+option_values:
+  damper:
+    $damper
+nodes:
+  - label: "36"
+    level: model
+    adjustments:
+$adjustments
+    options:
+      damper: [grip_x2]
+''';
+
+    CatalogProduct only(String yaml) => _product(parseCatalogFile(yaml).nodes.single);
+
+    test('default to the underscore slug of the name', () {
+      final yaml = fork('''
+      - { name: Volume Spacers, type: step, max: 6 }
+      - { name: HSC, type: step, max: 6 }
+      - { name: Pressure (main), type: numerical }''');
+
+      expect(only(yaml).adjustments.map((spec) => spec.id), ['volume_spacers', 'hsc', 'pressure_main']);
+    });
+
+    test('an explicit id wins and is not an adjuster key', () {
+      final spec = only(fork('      - { name: Rebound, id: lsr, type: step, max: 6 }')).adjustments.single;
+      final built = spec.build();
+
+      expect(spec.id, 'lsr');
+      expect(built.name, 'Rebound');
+      expect(built.presetKey, 'fork:lsr');
+    });
+
+    test('a damper adjuster carries its id too', () {
+      final product = only(fork(
+        '      - { name: Pressure, type: numerical }',
+        damper: 'grip_x2: { name: GRIP X2, adjustments: [{ name: LSR, type: step, max: 8 }] }',
+      ));
+
+      expect(product.options['damper']!.values.single.adjustments.single.build().presetKey, 'fork:lsr');
+    });
+
+    test('reject a duplicate within the product', () {
+      expect(
+        () => parseCatalogFile(fork('''
+      - { name: Pressure, type: numerical }
+      - { name: pressure, type: numerical }''')),
+        _throwsFormat('Adjuster id "pressure" is used twice'),
+      );
+    });
+
+    test('reject a duplicate between the product and its damper', () {
+      expect(
+        () => parseCatalogFile(fork(
+          '      - { name: HSC, type: step, max: 6 }',
+          damper: 'grip_x2: { name: GRIP X2, adjustments: [{ name: HSC, type: step, max: 8 }] }',
+        )),
+        _throwsFormat('Adjuster id "hsc" is used twice'),
+      );
+    });
+
+    test('reject a catalog adjuster that would collide with the injected SAG', () {
+      expect(
+        () => parseCatalogFile(fork('      - { name: SAG, type: numerical }')),
+        _throwsFormat('Adjuster id "sag" is used twice'),
+      );
+    });
+
+    test('reject an id that is not lower_snake_case', () {
+      expect(
+        () => parseCatalogFile(fork('      - { name: Rebound, id: LSR, type: step, max: 6 }')),
+        _throwsFormat('lower_snake_case'),
+      );
+    });
+
+    test('reject a name that needs an explicit id', () {
+      expect(
+        () => parseCatalogFile(fork('      - { name: "2-Step", type: step, max: 6 }')),
+        _throwsFormat('needs an explicit "id"'),
+      );
+    });
+  });
+
   group('tasks', () {
     const tasksYaml = '''
 brand: FOX

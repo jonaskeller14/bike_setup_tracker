@@ -1,6 +1,8 @@
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/component_preset.dart';
+import 'package:bike_setup_tracker/utils/adjustment_preset_consumption.dart';
+import 'package:bike_setup_tracker/utils/adjustment_role.dart';
 import 'package:bike_setup_tracker/utils/component_catalog_application.dart';
 import 'package:bike_setup_tracker/utils/component_catalog_parser.dart';
 import 'package:bike_setup_tracker/utils/component_preset_resolver.dart';
@@ -241,6 +243,42 @@ void main() {
         '- Size: 185x55 mm',
         '- Spring: Coil · Mount: Trunnion',
       ]);
+    });
+  });
+
+  group('catalog adjuster ids', () {
+    test('every adjustment, the injected SAG included, carries its catalog preset key', () {
+      final app = buildCatalogApplication(_preset(_foxYaml, choices: {'damper': 'grip_x2', 'travel_mm': 160}));
+
+      expect(
+        {for (final adjustment in app.adjustments) adjustment.name: adjustment.presetKey},
+        {
+          'Pressure': 'fork:pressure',
+          'Volume Spacers': 'fork:volume_spacers',
+          'SAG': 'fork:sag',
+          'HSC': 'fork:hsc',
+          'LSC': 'fork:lsc',
+        },
+      );
+    });
+
+    test('the id survives a rename, a JSON round trip and a copy', () {
+      final app = buildCatalogApplication(_preset(_foxYaml, choices: {'damper': 'grip_x'}));
+      final rebound = app.adjustments.firstWhere((a) => a.name == 'Rebound') as StepAdjustment;
+
+      final restored = Adjustment.fromJson(rebound.copyWith(name: 'Slow rebound').toJson());
+
+      expect(restored.presetKey, 'fork:rebound');
+      expect(restored.deepCopy().presetKey, 'fork:rebound');
+      expect(adjustmentRole(restored), 'rebound');
+    });
+
+    test('a catalog adjuster consumes the generic template of the same role', () {
+      final app = buildCatalogApplication(_preset(_foxYaml, choices: {'damper': 'grip_x2'}));
+      SagAdjustment template(String presetKey) => SagAdjustment(name: 'SAG', notes: null, presetKey: presetKey);
+
+      expect(isAdjustmentPresetConsumed(template('fork:sag'), app.adjustments), isTrue);
+      expect(isAdjustmentPresetConsumed(template('shock:sag'), app.adjustments), isFalse);
     });
   });
 

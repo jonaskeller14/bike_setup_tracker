@@ -101,9 +101,13 @@ class _CatalogParser {
     for (final template in taskPresets[componentType] ?? const <TaskTemplate>[]) template.key,
   };
 
+  /// The `<type>` part of an adjuster preset key, e.g. `fork` in `fork:hsc`.
+  late final String _adjusterKeyPrefix =
+      componentType.name.replaceAllMapped(RegExp('[A-Z]'), (match) => '_${match[0]!.toLowerCase()}');
+
   /// The `<type>` part a task key of this component type may start with.
   late final Set<String> _taskKeyPrefixes = _genericTaskKeys.isEmpty
-      ? {componentType.name.replaceAllMapped(RegExp('[A-Z]'), (match) => '_${match[0]!.toLowerCase()}')}
+      ? {_adjusterKeyPrefix}
       : {for (final key in _genericTaskKeys) key.substring(0, key.indexOf(':'))};
 
   FormatException _error(String message) => FormatException('$message ($brand)');
@@ -228,7 +232,7 @@ class _CatalogParser {
     );
 
     if (!raw.containsKey('children')) {
-      return CatalogProduct(
+      final product = CatalogProduct(
         id: id,
         label: label,
         level: level,
@@ -244,6 +248,8 @@ class _CatalogParser {
         adjustments: _parseAdjustmentSpecs(scope.adjustments, where),
         options: _parseOptions(scope.options, scope),
       );
+      _checkAdjusterIds(product, where);
+      return product;
     }
 
     final rawChildren = raw['children'];
@@ -560,8 +566,49 @@ class _CatalogParser {
       if (normalized is! Map<String, dynamic>) {
         throw _error('An adjustment of $where is not a map');
       }
-      return PresetAdjustmentSpec(normalized);
+      return PresetAdjustmentSpec(normalized, presetKey: '$_adjusterKeyPrefix:${_adjusterId(normalized, where)}');
     }).toList();
+  }
+
+  /// The explicit `id:`, else the slug of `name` with underscores, which is the
+  /// id space of the generic template keys (`fork:volume_spacers`).
+  String _adjusterId(Map<String, dynamic> raw, String where) {
+    final name = raw['name'];
+    final explicit = raw['id'];
+    if (explicit != null && (explicit is! String || !_levelPattern.hasMatch(explicit))) {
+      throw _error('The "id" of adjustment "$name" in $where is not lower_snake_case');
+    }
+    if (explicit != null) return explicit as String;
+    if (name is! String || name.isEmpty) return '';
+    final id = _slug(name).replaceAll('-', '_');
+    if (!_levelPattern.hasMatch(id)) {
+      throw _error('Adjustment "$name" in $where needs an explicit "id"');
+    }
+    return id;
+  }
+
+  /// Ids must be unique within every adjuster set a rider can end up with: the
+  /// product's own adjusters plus one choice per required axis.
+  void _checkAdjusterIds(CatalogProduct product, String where) {
+    final reserved = componentType == ComponentType.fork || componentType == ComponentType.shock
+        ? const {kSagAdjusterId}
+        : const <String>{};
+    void check(Iterable<PresetAdjustmentSpec> specs, String scope) {
+      final seen = {...reserved};
+      for (final spec in specs) {
+        if (!seen.add(spec.id)) {
+          throw _error('Adjuster id "${spec.id}" is used twice in $scope of $where; give one an explicit "id"');
+        }
+      }
+    }
+
+    check(product.adjustments, 'the product');
+    for (final axis in product.options.values) {
+      for (final value in axis.values) {
+        if (value.adjustments.isEmpty) continue;
+        check([...product.adjustments, ...value.adjustments], 'option "${axis.id}.${value.id}"');
+      }
+    }
   }
 }
 

@@ -7,13 +7,24 @@ import 'preset_spec_keys.dart';
 /// In-memory model of the generic component catalog (`data/component_presets/`):
 /// a node tree names the product, option axes configure it.
 
+/// The id of the SAG adjuster the application injects for forks and shocks.
+const String kSagAdjusterId = 'sag';
+
 /// Defers instantiation to selection time
 class PresetAdjustmentSpec {
   final Map<String, dynamic> raw;
 
-  const PresetAdjustmentSpec(this.raw);
+  /// `<type>:<id>`, where the id is the authored `id:`, else the slug of `name`.
+  /// The same key space as the generic templates (`fork:hsc`), stamped onto the
+  /// built adjustment as [Adjustment.presetKey].
+  final String presetKey;
 
-  Adjustment build() => Adjustment.fromYaml(raw);
+  const PresetAdjustmentSpec(this.raw, {required this.presetKey});
+
+  String get id => presetKey.substring(presetKey.indexOf(':') + 1);
+
+  Adjustment build() =>
+      Adjustment.fromYaml({...raw}..remove('id')).copyWith(presetKey: presetKey);
 }
 
 /// One brand file, e.g. `fork/fox.yaml`.

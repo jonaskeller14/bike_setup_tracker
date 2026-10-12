@@ -33,6 +33,7 @@ class TimelineDaySection extends StatelessWidget{
   final AppRepository appRepository;
   final Set<TimelineSelectionId> selection;
   final ValueChanged<Iterable<TimelineSelectionId>>? onSelectionChanged;
+  final Widget? leading;
 
   const TimelineDaySection({
     super.key,
@@ -44,6 +45,7 @@ class TimelineDaySection extends StatelessWidget{
     required this.appRepository,
     this.selection = const {},
     this.onSelectionChanged,
+    this.leading,
   });
 
   bool get _selectionMode => selection.isNotEmpty;
@@ -228,6 +230,10 @@ class TimelineDaySection extends StatelessWidget{
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (leading != null) ...[
+            leading!,
+            if (rows.isNotEmpty) const Divider(height: 1),
+          ],
           for (var i = 0; i < rows.length; i++) ...[
             KeyedSubtree(
               key: rows[i].key,

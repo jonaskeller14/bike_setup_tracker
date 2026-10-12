@@ -942,4 +942,32 @@ void main() {
       expect(rows, hasLength(3));
     });
   });
+
+  group('todaySectionSlot', () {
+    final today = DateTime(2026, 10, 12);
+
+    test('returns the existing section of today', () {
+      final slot = todaySectionSlot([DateTime(2026, 10, 13), today, DateTime(2026, 10, 10)], today);
+      expect(slot, (index: 1, exists: true));
+    });
+
+    test('inserts at the top when only past days exist', () {
+      final slot = todaySectionSlot([DateTime(2026, 10, 11), DateTime(2026, 10, 1)], today);
+      expect(slot, (index: 0, exists: false));
+    });
+
+    test('inserts after future-dated sections', () {
+      final slot = todaySectionSlot([DateTime(2026, 10, 20), DateTime(2026, 10, 13), DateTime(2026, 10, 11)], today);
+      expect(slot, (index: 2, exists: false));
+    });
+
+    test('appends when every section lies in the future', () {
+      final slot = todaySectionSlot([DateTime(2026, 10, 14), DateTime(2026, 10, 13)], today);
+      expect(slot, (index: 2, exists: false));
+    });
+
+    test('inserts at index 0 into an empty list', () {
+      expect(todaySectionSlot(const <DateTime>[], today), (index: 0, exists: false));
+    });
+  });
 }

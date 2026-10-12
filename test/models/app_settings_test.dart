@@ -250,6 +250,44 @@ void main() {
     });
   });
 
+  group('AppSettings — enableSetupGuides', () {
+    test('persists, loads and resets', () async {
+      SharedPreferences.setMockInitialValues({'${_kPrefix}enableComponentPresets': true});
+      final settings = AppSettings();
+      await settings.loadAppSettings();
+      expect(settings.enableSetupGuides, isFalse);
+
+      settings.enableSetupGuides = true;
+      await flushWrites();
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getBool('${_kPrefix}enableSetupGuides'), isTrue);
+      expect(settings.hasDefaultValues, isFalse);
+
+      final reloaded = AppSettings();
+      await reloaded.loadAppSettings();
+      expect(reloaded.enableSetupGuides, isTrue);
+
+      await reloaded.resetToDefaults();
+      expect(reloaded.enableSetupGuides, isFalse);
+      expect(prefs.getBool('${_kPrefix}enableSetupGuides'), isNull);
+    });
+
+    test('requires component presets and keeps the stored choice', () {
+      SharedPreferences.setMockInitialValues({});
+      final settings = AppSettings()..enableSetupGuides = true;
+      expect(settings.enableSetupGuides, isFalse);
+
+      settings.enableComponentPresets = true;
+      expect(settings.enableSetupGuides, isTrue);
+
+      settings.enableComponentPresets = false;
+      expect(settings.enableSetupGuides, isFalse);
+
+      settings.enableComponentPresets = true;
+      expect(settings.enableSetupGuides, isTrue);
+    });
+  });
+
   group('AppSettings — legacy blob migration (Option B)', () {
     test('preserves a value the user changed away from the default', () async {
       SharedPreferences.setMockInitialValues({

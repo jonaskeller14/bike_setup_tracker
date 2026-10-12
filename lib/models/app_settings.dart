@@ -42,6 +42,7 @@ class AppSettings extends ChangeNotifier {
   bool _enableSetupBookmark = false;
   bool _enableComponentPresets = false;
   bool _enableTaskPresets = false;
+  bool _enableSetupGuides = false;
   bool _enableInstallOnComponent = false;
   bool _enablePressureAssistant = false;
   // Setup timeline grouping passes (debug-only, see FeaturesPage)
@@ -87,6 +88,7 @@ class AppSettings extends ChangeNotifier {
   // Requires component presets; the stored choice survives toggling them off and on.
   bool get enableTaskPresets => _enableTaskPresets && _enableComponentPresets;
   bool get showTaskPresets => _enableTask && _enableTaskInterval && enableTaskPresets;
+  bool get enableSetupGuides => _enableSetupGuides && _enableComponentPresets;
   bool get enableInstallOnComponent => _enableInstallOnComponent;
   bool get enablePressureAssistant => _enablePressureAssistant;
   bool get enableTimelineSetupGrouping => _enableTimelineSetupGrouping;
@@ -325,6 +327,13 @@ class AppSettings extends ChangeNotifier {
     _persistBool('enableTaskPresets', newValue);
   }
 
+  set enableSetupGuides(bool newValue) {
+    if (newValue == _enableSetupGuides) return;
+    _enableSetupGuides = newValue;
+    notifyListeners();
+    _persistBool('enableSetupGuides', newValue);
+  }
+
   set enableInstallOnComponent(bool newValue) {
     if (newValue == _enableInstallOnComponent) return;
     _enableInstallOnComponent = newValue;
@@ -429,6 +438,7 @@ class AppSettings extends ChangeNotifier {
       _enableSetupBookmark = prefs.getBool('${_kPrefix}enableSetupBookmark') ?? _enableSetupBookmark;
       _enableComponentPresets = prefs.getBool('${_kPrefix}enableComponentPresets') ?? _enableComponentPresets;
       _enableTaskPresets = prefs.getBool('${_kPrefix}enableTaskPresets') ?? _enableTaskPresets;
+      _enableSetupGuides = prefs.getBool('${_kPrefix}enableSetupGuides') ?? _enableSetupGuides;
       _enableInstallOnComponent = prefs.getBool('${_kPrefix}enableInstallOnComponent') ?? _enableInstallOnComponent;
       _enablePressureAssistant = prefs.getBool('${_kPrefix}enablePressureAssistant') ?? _enablePressureAssistant;
       _enableTimelineSetupGrouping =
@@ -484,6 +494,7 @@ class AppSettings extends ChangeNotifier {
     _enableSetupBookmark = defaults._enableSetupBookmark;
     _enableComponentPresets = defaults._enableComponentPresets;
     _enableTaskPresets = defaults._enableTaskPresets;
+    _enableSetupGuides = defaults._enableSetupGuides;
     _enableInstallOnComponent = defaults._enableInstallOnComponent;
     _enablePressureAssistant = defaults._enablePressureAssistant;
     _enableTimelineSetupGrouping = defaults._enableTimelineSetupGrouping;
@@ -531,6 +542,7 @@ class AppSettings extends ChangeNotifier {
     _enableSetupBookmark,
     _enableComponentPresets,
     _enableTaskPresets,
+    _enableSetupGuides,
     _enableInstallOnComponent,
     _enablePressureAssistant,
     _enableTimelineSetupGrouping,

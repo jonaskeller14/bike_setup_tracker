@@ -122,6 +122,20 @@ class FeaturesPage extends StatelessWidget {
                       'individually and can edit the created tasks freely. Requires Component Presets, '
                       'Tasks and Task Intervals.',
                 ),
+              if (kDebugMode)
+                _FeatureToggleTile(
+                  enabled: appSettings.enableComponentPresets,
+                  disabledSubtitle: 'Requires Component Presets',
+                  icon: Icons.auto_awesome_outlined,
+                  title: "Setup Guides",
+                  value: appSettings.enableSetupGuides,
+                  onChanged: (v) => appSettings.enableSetupGuides = v,
+                  infoText:
+                      'Suggests recommended values for the first setup of a component, like air '
+                      'pressure or rebound clicks, based on your riding weight and the component model. '
+                      'These are starting points, so check the manufacturer manual. '
+                      'Requires Component Presets.',
+                ),
               const Divider(),
               const SectionTitle(title: 'Adjustments'),
               _FeatureGroupTile(

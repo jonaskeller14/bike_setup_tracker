@@ -2,6 +2,7 @@ import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/component_catalog.dart';
 import 'package:bike_setup_tracker/models/component/preset_spec_keys.dart';
+import 'package:bike_setup_tracker/models/component/setup_guide.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/models/task/task_template.dart';
 import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
@@ -884,6 +885,452 @@ nodes:
           () => parseCatalogFile(fileWith('[a]')),
           _throwsFormat('"tasks" of "36" is not a map (FOX)'),
         );
+      });
+    });
+  });
+
+  group('guides', () {
+    String guideFork(String rules, {String guideHeader = ''}) =>
+        '''
+brand: FOX
+component_type: fork
+guides:
+  fox_36:
+    label: FOX 36 owner's manual (2027)
+    source: https://tech.ridefox.com/fox-36
+$guideHeader    rules:
+$rules
+option_values:
+  damper:
+    grip_x2:
+      name: GRIP X2
+      adjustments:
+        - { name: HSC, type: step, max: 8 }
+        - { name: LSR, type: step, max: 16 }
+        - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm] }
+        - { name: Lockout, type: boolean }
+    grip:
+      name: GRIP
+      adjustments:
+        - { name: Rebound, type: step, max: 13 }
+        - { name: LSC, type: step, max: ~ }
+nodes:
+  - label: "36"
+    level: model
+    guide: fox_36
+    adjustments:
+      - { name: Pressure, type: numerical, unit: psi, min: 0, max: 150 }
+      - { name: Volume Spacers, type: step, max: 6, visualization: stepper }
+      - { name: Preload, type: numerical, unit: mm }
+    children:
+      - label: Factory
+        level: trim
+        options:
+          damper: [grip_x2]
+          travel_mm: [150, 160]
+          wheel_size: [29, 27.5]
+      - label: Rhythm
+        level: trim
+        options:
+          damper: [grip]
+          travel_mm: [150, 160]
+      - label: Performance
+        level: trim
+        guide: ~
+''';
+
+    const pressureRule = '''
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        rows: { 130-140: 58, 120-130: 54, 140-150: 62 }''';
+
+    List<CatalogNode> trims(String rules) => _group(parseCatalogFile(guideFork(rules)).nodes.single).children;
+    List<GuideRule> rulesOf(String rules) => trims(rules).first.guide!.rules;
+    GuideRule ruleOf(String rule) => rulesOf(rule).single;
+    List<GuideRow> rowsOf(String rule) => (ruleOf(rule).output as LookupOutput).rows;
+
+    group('reads', () {
+      test('the guide on every node below its reference, until "guide: ~" clears it', () {
+        final [factory, rhythm, performance] = trims(pressureRule);
+
+        expect(factory.guide, same(rhythm.guide));
+        expect(factory.guide!.id, 'fox_36');
+        expect(factory.guide!.label, "FOX 36 owner's manual (2027)");
+        expect(factory.guide!.source, 'https://tech.ridefox.com/fox-36');
+        expect(performance.guide, isNull);
+      });
+
+      test('bracket rows sorted ascending, with units and input', () {
+        final rule = ruleOf(pressureRule);
+        final rows = (rule.output as LookupOutput).rows;
+
+        expect(rule.target, 'pressure');
+        expect(rule.unit, AdjustmentUnit.fromLegacy('psi'));
+        expect((rule.input! as RiderGuideInput).key, GuideInputKey.riderWeight);
+        expect(rule.inputUnit, AdjustmentUnit.fromLegacy('lb'));
+        expect(rule.when, isEmpty);
+        expect([for (final row in rows) ((row.key as GuideBracket).from, (row.key as GuideBracket).to)], [
+          (120, 130),
+          (130, 140),
+          (140, 150),
+        ]);
+        expect([for (final row in rows) (row.cell as GuideNumber).value], [54, 58, 62]);
+      });
+
+      test('open-ended edge rows', () {
+        final rows = rowsOf('''
+      - { target: pressure, unit: psi, input: rider_weight, input_unit: kg, rows: { 60-70: 60, <60: 55, 70+: 66 } }''');
+
+        expect([for (final row in rows) ((row.key as GuideBracket).from, (row.key as GuideBracket).to)], [
+          (null, 60),
+          (60, 70),
+          (70, null),
+        ]);
+      });
+
+      test('band cells', () {
+        final rows = rowsOf('''
+      - { target: pressure, unit: psi, input: rider_weight, input_unit: kg, rows: { 60-70: [85, 95] } }''');
+
+        expect(
+          rows.single.cell,
+          isA<GuideBand>()
+              .having((band) => (band.min as GuideNumber).value, 'min', 85)
+              .having((band) => (band.max as GuideNumber).value, 'max', 95),
+        );
+      });
+
+      test('range references, alone and as band ends', () {
+        final rows = rowsOf('''
+      - target: lsr
+        input: pressure
+        input_unit: psi
+        rows: { 60: max, 70: max-3, 80: [10, max], 90: min+2, 100: min, 110: mid, 120: mid-0.5 }''');
+        (GuideAnchor, num) ref(GuideCell cell) => ((cell as GuideRangeRef).anchor, cell.offset);
+
+        expect([for (final row in rows) if (row.cell is! GuideBand) ref(row.cell)], [
+          (GuideAnchor.max, 0),
+          (GuideAnchor.max, -3),
+          (GuideAnchor.min, 2),
+          (GuideAnchor.min, 0),
+          (GuideAnchor.mid, 0),
+          (GuideAnchor.mid, -0.5),
+        ]);
+        final band = rows[2].cell as GuideBand;
+        expect((band.min as GuideNumber).value, 10);
+        expect(ref(band.max), (GuideAnchor.max, 0));
+      });
+
+      test('range references on a numerical adjuster with a published range, offset in the rule unit', () {
+        expect(ruleOf('      - { target: pressure, unit: bar, value: max-1 }').output, isA<ConstantOutput>());
+        expect(ruleOf('      - { target: sag, value: [mid, max] }').output, isA<ConstantOutput>());
+      });
+
+      test('an option axis, a numeric spec or a rider input as input', () {
+        final [byTravel, bySize] = rulesOf('''
+      - { target: volume_spacers, input: travel_mm, rows: { 150: 3, 160: 2 } }
+      - { target: volume_spacers, input: wheel_size, when: { trim: factory }, rows: { 29: 2 } }''');
+
+        expect(byTravel.input, isA<PresetGuideInput>().having((input) => (input.id, input.numeric), 'input', ('travel_mm', true)));
+        expect(bySize.input, isA<PresetGuideInput>().having((input) => (input.id, input.numeric), 'input', ('wheel_size', false)));
+      });
+
+      test('a range whose comfort end is declared', () {
+        final [plain, sag] = rulesOf('''
+      - { target: pressure, unit: psi, range: [60, 70] }
+      - { target: sag, range: [15, 20], comfort_at: max }''');
+
+        expect((plain.output as RangeOutput).comfortAt, isNull);
+        expect((sag.output as RangeOutput).comfortAt, GuideAnchor.max);
+      });
+
+      test('options of a categorical and states of a boolean adjuster', () {
+        final [mode, lockout] = rulesOf('''
+      - { target: compression_mode, value: Open }
+      - { target: lockout, value: false }''');
+
+        expect((mode.output as ConstantOutput).value, isA<GuideOption>().having((cell) => cell.option, 'option', 'Open'));
+        expect((lockout.output as ConstantOutput).value, isA<GuideBoolean>().having((cell) => cell.value, 'value', false));
+      });
+
+      test('any click count on an adjuster with an unknown max', () {
+        expect((ruleOf('      - { target: lsc, value: 25 }').output as ConstantOutput).value, isA<GuideNumber>());
+      });
+
+      test('literal points of a numeric input, sorted ascending', () {
+        final rows = rowsOf('''
+      - { target: volume_spacers, input: travel_mm, rows: { 160: 2, 150: 3 } }''');
+
+        expect([for (final row in rows) (row.key as GuidePoint).value], [150, 160]);
+      });
+
+      test('constants, ranges and notes', () {
+        final [hsc, sag] = rulesOf('''
+      - { target: hsc, value: 5, when: { damper: grip_x2 }, note: Base tune }
+      - { target: sag, range: [15, 20], unit: "%" }''');
+
+        expect((hsc.output as ConstantOutput).value, isA<GuideNumber>().having((cell) => cell.value, 'value', 5));
+        expect(hsc.note, 'Base tune');
+        expect(hsc.specificity, 1);
+        expect(sag.output, isA<RangeOutput>().having((range) => (range.min, range.max), 'range', (15, 20)));
+      });
+
+      test('literal inputs keyed by value id', () {
+        final [bySize, byStyle] = rulesOf('''
+      - { target: volume_spacers, input: wheel_size, rows: { 29: 2, 27.5: 3 } }
+      - { target: sag, input: riding_style, rows: { comfort: 20, race: 15 } }''');
+
+        expect([for (final row in (bySize.output as LookupOutput).rows) (row.key as GuidePoint).value], ['29', '27.5']);
+        expect([for (final row in (byStyle.output as LookupOutput).rows) (row.key as GuidePoint).value], [
+          'comfort',
+          'race',
+        ]);
+      });
+
+      test('when values typed like the persisted preset entries', () {
+        final rule = ruleOf('''
+      - { target: pressure, unit: psi, value: 80, when: { trim: [factory, rhythm], travel_mm: 160, wheel_size: 29, riding_style: race } }''');
+
+        expect(rule.when, {
+          'trim': ['factory', 'rhythm'],
+          'travel_mm': [160],
+          'wheel_size': ['29'],
+          'riding_style': ['race'],
+        });
+        expect(rule.specificity, 4);
+      });
+
+      test('an adjuster input, ordered after the rules that target it', () {
+        final rules = rulesOf('''
+      - { target: rebound, input: pressure, input_unit: psi, when: { damper: grip }, rows: { 60-80: 10, 80-100: 8 } }
+$pressureRule''');
+
+        expect(rules.map((rule) => rule.target), ['pressure', 'rebound']);
+        expect(rules.last.input, isA<AdjusterGuideInput>().having((input) => input.adjusterId, 'id', 'pressure'));
+      });
+
+      test('a SAG rule authored as a length', () {
+        expect(ruleOf('      - { target: sag, unit: mm, range: [24, 32] }').unit, AdjustmentUnit.fromLegacy('mm'));
+      });
+
+      test('a more specific rule next to a general one for the same target', () {
+        expect(
+          rulesOf('''
+      - { target: sag, range: [15, 20] }
+      - { target: sag, value: 15, when: { riding_style: race } }'''),
+          hasLength(2),
+        );
+      });
+    });
+
+    group('rejects', () {
+      void rejects(String rules, String fragment) =>
+          expect(() => parseCatalogFile(guideFork(rules)), _throwsFormat(fragment));
+
+      test('a reference to an undefined guide, or a guide no product uses', () {
+        expect(
+          () => parseCatalogFile(guideFork(pressureRule).replaceFirst('guide: fox_36', 'guide: fox_38')),
+          _throwsFormat('"36" references undefined guide "fox_38"'),
+        );
+        expect(
+          () => parseCatalogFile(guideFork(pressureRule).replaceFirst('guide: fox_36', 'guide: ~')),
+          _throwsFormat('Guide "fox_36" is not referenced by any product'),
+        );
+      });
+
+      test('unknown keys, a missing label or source, and empty rules', () {
+        expect(
+          () => parseCatalogFile(guideFork(pressureRule, guideHeader: '    year: 2027\n')),
+          _throwsFormat('Unknown key(s) year in guide "fox_36"'),
+        );
+        rejects('      - { target: pressure, unit: psi, value: 80, unti: psi }', 'Unknown key(s) unti in rule 1');
+        expect(
+          () => parseCatalogFile(guideFork(pressureRule).replaceFirst(RegExp(r'    label: .*\n'), '')),
+          _throwsFormat('Guide "fox_36" needs a "label"'),
+        );
+        expect(
+          () => parseCatalogFile(guideFork(pressureRule).replaceFirst(RegExp(r'    source: .*\n'), '')),
+          _throwsFormat('Guide "fox_36" needs a "source"'),
+        );
+        rejects('        []', '"rules" of guide "fox_36" is not a non-empty list');
+      });
+
+      test('a gap or an overlap between brackets', () {
+        rejects(
+          '      - { target: pressure, unit: psi, input: rider_weight, input_unit: lb, rows: { 120-130: 54, 140-150: 62 } }',
+          'have a gap between 130 and 140',
+        );
+        rejects(
+          '      - { target: pressure, unit: psi, input: rider_weight, input_unit: lb, rows: { 120-135: 54, 130-150: 62 } }',
+          'overlap below 135',
+        );
+      });
+
+      test('brackets mixed with points, a bracket that does not ascend, or a key that is neither', () {
+        rejects(
+          '      - { target: pressure, unit: psi, input: rider_weight, input_unit: lb, rows: { 120-130: 54, 140: 62 } }',
+          'mix brackets and points',
+        );
+        rejects(
+          '      - { target: pressure, unit: psi, input: rider_weight, input_unit: lb, rows: { 130-120: 54 } }',
+          'Bracket "130-120"',
+        );
+        rejects(
+          '      - { target: pressure, unit: psi, input: rider_weight, input_unit: lb, rows: { light: 54 } }',
+          '"light" in "rows"',
+        );
+      });
+
+      test('an open-ended row in the middle, or two at one edge', () {
+        rejects(
+          '      - { target: pressure, unit: psi, input: rider_weight, input_unit: lb, rows: { "<130": 50, 120-130: 54, 130-140: 58 } }',
+          'Open-ended row "<130"',
+        );
+        rejects(
+          '      - { target: pressure, unit: psi, input: rider_weight, input_unit: lb, rows: { 120-130: 54, 120+: 58 } }',
+          'Open-ended row "120+"',
+        );
+        rejects(
+          '      - { target: pressure, unit: psi, input: rider_weight, input_unit: lb, rows: { "<120": 50, "< 110": 48, 120-130: 54 } }',
+          'two open-ended rows',
+        );
+      });
+
+      test('a target no product of the guide has', () {
+        rejects('      - { target: hsr, value: 5 }', 'targets an adjuster that no product it applies to has');
+        rejects('      - { target: rebound, value: 5, when: { damper: grip_x2 } }', 'targets an adjuster');
+      });
+
+      test('a rule that matches no product the guide is attached to', () {
+        rejects('      - { target: pressure, unit: psi, value: 80, when: { trim: performance } }', 'matches no product');
+      });
+
+      test('an unknown input, or one of another component type', () {
+        rejects(
+          '      - { target: pressure, unit: psi, input: rider_wieght, rows: { 60-70: 60 } }',
+          'reads adjuster "rider_wieght", which "36/factory" does not have',
+        );
+        rejects('      - { target: pressure, unit: psi, input: stroke_mm, rows: { 50: 60 } }', 'does not apply to a fork');
+        rejects('      - { target: pressure, unit: psi, input: stanchion, rows: { 50: 60 } }', 'is a text spec');
+        rejects('      - { target: pressure, unit: psi, input: Weight, rows: { 50: 60 } }', 'neither a known input');
+      });
+
+      test('an adjuster input that an applicable product lacks', () {
+        rejects(
+          '      - { target: pressure, unit: psi, input: lsr, rows: { 5: 60, 10: 70 } }',
+          'reads adjuster "lsr", which "36/rhythm" does not have',
+        );
+      });
+
+      test('an unknown when key or value', () {
+        rejects('      - { target: pressure, unit: psi, value: 80, when: { chassis: ebike } }', 'Unknown "when" key "chassis"');
+        rejects('      - { target: pressure, unit: psi, value: 80, when: { damper: grip_x3 } }', 'names unknown "grip_x3"');
+        rejects('      - { target: pressure, unit: psi, value: 80, when: { travel_mm: 170 } }', 'names unknown "170"');
+        rejects('      - { target: pressure, unit: psi, value: 80, when: { riding_style: xc } }', 'names unknown "xc"');
+        rejects('      - { target: pressure, unit: psi, value: 80, when: { damper: [] } }', 'not a value or a non-empty list');
+      });
+
+      test('literal row keys that are no value of their input', () {
+        rejects('      - { target: sag, input: riding_style, rows: { trail: 18 } }', '"trail" in "rows"');
+        rejects('      - { target: volume_spacers, input: wheel_size, rows: { 26: 2 } }', 'Row "26"');
+      });
+
+      test('a unit of another quantity than the adjuster, or a missing one', () {
+        rejects('      - { target: pressure, unit: kg, value: 80 }', 'needs a unit of pressure');
+        rejects('      - { target: pressure, value: 80 }', 'needs a unit of pressure');
+        rejects('      - { target: hsc, unit: psi, value: 5 }', 'has no convertible unit');
+        rejects('      - { target: sag, unit: psi, value: 20 }', 'neither % nor a length');
+        rejects('      - { target: hsc, unit: furlongs, value: 5 }', 'Unknown unit "furlongs"');
+      });
+
+      test('an input unit that is missing, of another quantity, or not expected', () {
+        rejects('      - { target: pressure, unit: psi, input: rider_weight, rows: { 60-70: 60 } }', 'needs an "input_unit" of mass');
+        rejects(
+          '      - { target: pressure, unit: psi, input: rider_weight, input_unit: psi, rows: { 60-70: 60 } }',
+          'needs an "input_unit" of mass',
+        );
+        rejects('      - { target: volume_spacers, input: travel_mm, input_unit: mm, rows: { 150: 3 } }', 'takes no "input_unit"');
+        rejects('      - { target: hsc, input: pressure, rows: { 60-70: 5 } }', '"input_unit" of a "hsc" rule');
+        rejects('      - { target: hsc, value: 5, input_unit: kg }', '"input_unit" of rule 1 of guide "fox_36" needs an "input"');
+      });
+
+      test('two rules for one target with equal specificity that can both match', () {
+        rejects('''
+      - { target: pressure, unit: psi, value: 80, when: { trim: factory } }
+      - { target: pressure, unit: psi, value: 85, when: { damper: [grip_x2, grip] } }''', 'Rules 1 and 2 of guide "fox_36" can both recommend "pressure"');
+        rejects('''
+      - { target: sag, range: [15, 20] }
+      - { target: sag, range: [20, 25] }''', 'Rules 1 and 2');
+      });
+
+      test('display_only, which no longer exists', () {
+        rejects('      - { target: hsc, value: 5, display_only: true }', 'Unknown key(s) display_only');
+      });
+
+      test('a value outside the adjuster range, compared in its unit', () {
+        rejects('      - { target: hsc, value: 9 }', 'recommends 9, above the adjuster maximum 8');
+        rejects('      - { target: hsc, value: [6, 9] }', 'above the adjuster maximum 8');
+        rejects('      - { target: pressure, unit: psi, value: -5 }', 'below the adjuster minimum 0');
+        rejects('      - { target: pressure, unit: bar, value: 10.5 }', 'recommends 10.5, above the adjuster maximum 150');
+        rejects('      - { target: sag, value: 120 }', 'above the adjuster maximum 100');
+        expect(ruleOf('      - { target: pressure, unit: bar, value: 10 }').unit, AdjustmentUnit.fromLegacy('bar'));
+        expect(ruleOf('      - { target: sag, unit: mm, value: 120 }').target, 'sag');
+      });
+
+      test('a cell the adjuster type cannot take', () {
+        rejects('      - { target: hsc, value: Open }', 'recommends "Open", which a StepAdjustment "HSC" cannot take');
+        rejects('      - { target: hsc, value: true }', 'recommends true');
+        rejects('      - { target: compression_mode, value: max }', 'recommends max, which a CategoricalAdjustment');
+        rejects('      - { target: lockout, value: [min, max] }', 'which a BooleanAdjustment');
+        rejects('      - { target: compression_mode, value: 2 }', 'recommends 2, which a CategoricalAdjustment');
+        rejects('      - { target: lockout, value: Open }', 'which a BooleanAdjustment');
+      });
+
+      test('a range reference outside the range or to an unpublished bound', () {
+        rejects('      - { target: hsc, value: min-2 }', '"min-2" lies outside the adjuster range');
+        rejects('      - { target: hsc, value: max+1 }', '"max+1" lies outside the adjuster range');
+        rejects('      - { target: hsc, value: max-9 }', 'recommends max-9, below the adjuster minimum 0');
+        rejects('      - { target: hsc, value: min+9 }', 'recommends min+9, above the adjuster maximum 8');
+        rejects('      - { target: pressure, unit: bar, value: min+11 }', 'above the adjuster maximum 150');
+        rejects('      - { target: preload, unit: mm, value: max }', '"Preload" publishes no maximum');
+        rejects('      - { target: preload, unit: mm, value: mid }', '"Preload" publishes no range');
+        expect(ruleOf('      - { target: lsc, value: [mid, max-2] }').target, 'lsc');
+      });
+
+      test('comfort_at that is not min or max, or not on a range', () {
+        rejects('      - { target: sag, range: [15, 20], comfort_at: mid }', '"comfort_at" of rule 1 of guide "fox_36" is neither');
+        rejects('      - { target: sag, value: 15, comfort_at: max }', 'only applies to a "range"');
+      });
+
+      test('an option the categorical adjuster does not offer', () {
+        rejects('      - { target: compression_mode, value: Soft }', 'recommends "Soft", which is no option of "Compression Mode"');
+      });
+
+      test('a cycle between adjuster inputs', () {
+        rejects('''
+      - { target: pressure, unit: psi, input: volume_spacers, rows: { 1: 60, 2: 70 } }
+      - { target: volume_spacers, input: pressure, input_unit: psi, rows: { 60: 1, 70: 2 } }''', 'form a cycle: volume_spacers → pressure, pressure → volume_spacers');
+        rejects('      - { target: pressure, unit: psi, input: pressure, input_unit: psi, rows: { 60: 60 } }', 'form a cycle');
+      });
+
+      test('rows without an input, or an input without rows', () {
+        rejects('      - { target: hsc, rows: { 1: 5 } }', '"rows" of rule 1 of guide "fox_36" need an "input"');
+        rejects('      - { target: hsc, input: travel_mm, value: 5 }', '"input" of rule 1 of guide "fox_36" only applies to "rows"');
+        rejects('      - { target: hsc }', 'needs exactly one of "value", "rows" or "range"');
+        rejects('      - { target: hsc, value: 5, range: [1, 2] }', 'needs exactly one of');
+      });
+
+      test('a malformed range or cell', () {
+        rejects('      - { target: sag, range: [20, 15] }', '"range" of rule 1');
+        rejects('      - { target: hsc, value: [5, 3] }', '"value" of rule 1 of guide "fox_36" is not an ascending');
+        rejects('      - { target: hsc, value: [max, 3] }', 'not an ascending');
+        rejects('      - { target: hsc, value: [max, max-3] }', 'not an ascending');
+        rejects('      - { target: hsc, value: [2, min] }', 'not an ascending');
+        rejects('      - { target: hsc, value: [mid, mid] }', 'not an ascending');
+        rejects('      - { target: hsc, value: [1, Open] }', 'not an ascending');
+        rejects('      - { target: hsc, value: "" }', '"value" of rule 1');
       });
     });
   });

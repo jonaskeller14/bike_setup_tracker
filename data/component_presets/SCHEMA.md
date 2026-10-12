@@ -48,6 +48,7 @@ every product that uses it gets it.
 | `sources` | List of URLs the data was collected from (landing page + individual product pages) |
 | `updated` | ISO date of last verification |
 | `option_values` | Map of axis id → value id → definition, for axes whose values are defined once and referenced (today: `damper`) |
+| `guides` | Map of guide id → structured setup guide, referenced from nodes by `guide:`, see [Setup guides](#setup-guides-guides) |
 | `nodes` | The product tree |
 
 ```yaml
@@ -169,6 +170,7 @@ grip2_2019:
 | `years` | no | nearest | Model years the specs apply to, `"2025-2026"` or `"2026"` |
 | `url` | no | nearest | Product page, for data editors; not shown to the rider |
 | `setup_guide` | no | nearest | Official rider setup or tuning guide (page or PDF), linked at the end of the generated component's notes |
+| `guide` | no | nearest | Id of an entry under `guides`: the guide's numbers as data, see [Setup guides](#setup-guides-guides) |
 | `note` | no | nearest | User-facing text, see [User-facing text](#user-facing-text-description-and-note) |
 | `missing_adjustments` | no | nearest | Adjusters the product has but that cannot be declared, see [Missing adjusters](#missing-adjusters-missing_adjustments) |
 | `specs` | no | merged per key | Typed facts, see [Specs](#specs) |
@@ -204,14 +206,15 @@ repeat a level name on one path; the parser rejects both.
 A node hands its fields down to its subtree, so a value is written once at the
 highest node it holds for:
 
-- `draft`, `category`, `years`, `url`, `setup_guide`, `note`,
+- `draft`, `category`, `years`, `url`, `setup_guide`, `guide`, `note`,
   `missing_adjustments`, `adjustments` and `options` use
   the **nearest** declaration: a child that writes the field replaces the
   inherited value as a whole. `options` is replaced as one map, not per axis.
 - `specs` are **merged per key**: a child adds to and overrides single keys.
 - `tasks` are **merged per key** too, and `<key>: ~` removes an inherited
   entry.
-- An explicit `~` clears an inherited text field (`note: ~`).
+- An explicit `~` clears an inherited text field (`note: ~`) or guide
+  (`guide: ~`).
 
 ### Ids
 
@@ -698,6 +701,238 @@ nodes:
   created rule's notes ("Recommended interval: every 125 h — FOX 36 owner's
   manual"). Name the document; no research meta.
 
+## Setup guides (`guides`)
+
+A manufacturer's setup guide says "at this rider weight, run this pressure and
+this many clicks". `guides` holds those numbers as data, so the app can show the
+rider **recommended values** for their own component. Nothing in it is specific
+to suspension: any component type with adjusters (an e-bike motor's assist
+levels, a chain guide's settings) can carry a guide. The raw material for every
+brand is collected in `docs/research/setup_guides/`; encoding a guide is
+transcribing that file.
+
+`setup_guide:` and `guide:` are two different things:
+
+- `setup_guide:` is the **link** to the document. It ends up in the component
+  notes, and stays the fallback for every product without structured data.
+- `guide:` names an entry under `guides`, the document's **numbers**. A node
+  can have the link without the data, which is the common case.
+
+```yaml
+guides:
+  fox_38_2027:
+    label: FOX 38 owner's manual (2027)
+    source: https://tech.ridefox.com/bike/owners-manuals/3166/fork--2027-38mm
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { trim: [factory, performance-elite] }
+        rows: { 120-130: 54, 130-140: 58, 140-150: 62 }
+      - { target: hsc, value: 5, when: { damper: grip_x2 } }
+      - { target: sag, range: [15, 20], comfort_at: max }
+nodes:
+  - label: "38"
+    level: model
+    setup_guide: https://tech.ridefox.com/bike/owners-manuals/3166/fork--2027-38mm
+    guide: fox_38_2027
+```
+
+- **One entry per document** (manual and year). The id is lower_snake_case,
+  `<brand>_<product>_<year>` as in the research files. Several generations can
+  share one guide, and a new manual year is a new entry.
+- `label` names the document neutrally; the app shows it as the basis of a
+  recommendation. `source` is its URL, shown next to it.
+- `guide:` is inherited like `setup_guide`, and `guide: ~` clears it. Every
+  entry must be referenced by at least one product.
+
+### Rules
+
+Each rule recommends one value for one adjuster, as one published column does.
+Write one rule per column, so a review against the manual stays easy.
+
+**Every rule must give a value the rider can apply.** Advice that can't be
+applied ("Open while setting sag", "Firm for tarmac climbs") goes into a
+`note`, or is left out.
+
+| Field | Required? | Meaning |
+|---|---|---|
+| `target` | **yes** | The adjuster id, see [Adjuster ids](#adjuster-ids). `sag` is the injected SAG adjuster |
+| `value` / `rows` / `range` | exactly one | A constant, a lookup table, or a band (below) |
+| `input` | with `rows` | What the rows are keyed by (below) |
+| `unit` | see [Units](#units) | The unit the values are written in |
+| `input_unit` | see [Units](#units) | The unit numeric row keys are written in |
+| `when` | no | The products and options the rule applies to (below) |
+| `comfort_at` | no, `range` only | `min` or `max`: the end of the band a `comfort` rider gets |
+| `note` | no | One short line for the rider, in our words |
+
+Outputs:
+
+- **`value`** is a constant cell, e.g. a base tune (`value: 5`).
+- **`rows`** is a lookup table from input to cell.
+- **`range: [min, max]`** is a numeric band such as SAG 15–20 %. Its midpoint
+  is applied, and the full band counts as on guide. With `comfort_at`, the
+  rider's riding style picks a point in it: `comfort` gets that end, `race` the
+  other, `balanced` the midpoint. Which end is the comfortable one depends on
+  the adjuster (more SAG is plusher, `comfort_at: max`), so the rule has to say.
+
+### Cells
+
+A cell is what `value` and each row hold. It must fit the target adjuster's
+type; the parser checks this on every product the rule applies to.
+
+| Cell | Example | Target | Applied as |
+|---|---|---|---|
+| number | `76`, `5` | step, numerical | the number, converted and rounded |
+| band | `[85, 95]` | step, numerical | its midpoint; the band counts as on guide |
+| range reference | `min`, `max`, `min+2`, `max-3`, `mid`, `mid-0.5` | step, numerical with a published range | resolved against the rider's adjuster range |
+| band with range references | `[22, max]`, `[min, 3]` | step, numerical with a published range | as a band |
+| option | `Open`, `"1× 10cc + 1× 5cc"` | categorical | that option; it must be one of the adjuster's `options` |
+| boolean | `true`, `false` | boolean | that state |
+
+- **Range references** point into the target adjuster's own range: `min`,
+  `max`, `mid` (the middle), each with an optional offset in the rule's `unit`
+  (`max-3`, `min+2`, `mid+0.5`). On a damper dial counted from closed, `min` is
+  fully closed and `max` fully open. The app resolves them against the rider's
+  adjustment, so a corrected `max` corrects the recommendation.
+  - The referenced bound must be published: a numerical adjuster without a
+    `max` cannot take `max` or `mid`.
+  - While a `max: ~` adjuster still has its placeholder max, the app asks the
+    rider for the real count instead of recommending.
+  - `min-2` and `max+1` lie outside every range and are rejected.
+- **Numbers and band ends must lie inside the adjuster's `min`/`max`**, after
+  converting the cell's `unit` into the adjuster's. An adjuster with `max: ~`
+  has no upper limit to check. SAG authored in mm is not checked.
+- A band ascends: `[95, 85]`, `[max, 3]` and `[2, min]` are rejected.
+- `min`, `max` and `mid` are lowercase keywords. Any other text is an option,
+  so a categorical option that reads `max` would need another spelling.
+
+### Inputs
+
+| `input` | Row keys | Reads |
+|---|---|---|
+| `rider_weight` | brackets or points, in `input_unit` (`kg` or `lb`) | the rider's weight |
+| `riding_style` | `comfort`, `balanced`, `race` | the rider's style |
+| an option axis with numeric values (`travel_mm`) | brackets or points, in the spec's unit | the selected value |
+| any other option axis (`wheel_size`, `size`, `damper`) | value ids of this file (`29`, `210x55`) | the selected value |
+| a numeric spec key (`stroke_mm`) | brackets or points, in the spec's unit | the product's spec, merged with the selected options' specs |
+| any adjuster id | brackets or points, in `input_unit` where the adjuster has a unit | the adjuster's current value |
+
+Option axes and spec keys are the ones registered in
+`lib/models/component/preset_spec_keys.dart` for the file's component type, so
+a new axis or spec becomes a guide input without schema changes. Text specs
+(`stanchion`) are not inputs.
+
+An adjuster id as `input` reads that adjuster's current value: rebound keyed by
+air pressure (`input: pressure`), clicks keyed by spring rate (`input:
+spring_rate`). Every product the rule applies to must have that adjuster. The
+app evaluates the rule after the rules that target its input, so a cycle
+(`pressure` keyed by `rebound` keyed by `pressure`) is rejected.
+
+Row keys of a numeric input:
+
+| Key | Meaning |
+|---|---|
+| `120-130` | A bracket from 120 up to, but not including, 130 |
+| `<120` | Everything below 120 (only at the lower edge) |
+| `250+` | 250 and above (only at the upper edge) |
+| `160` | A single point |
+
+- Brackets must be **contiguous**: no gap, no overlap. Write the bounds exactly
+  as published, even where the manual prints `120-129`, `130-139`: then they
+  are `120-130`, `130-140`.
+- Don't mix brackets and points in one rule. An open-ended row continues the
+  table at its edge (`<120` next to `120-130`, or next to the point `120`).
+- A cell that is itself an inequality becomes a band to a limit (see
+  [Authoring rules](#authoring-rules)).
+
+How the app reads a table (for reviewing a rule, not for authoring): between two
+rows it interpolates linearly, bracket midpoints being the points. Inside the
+outermost brackets the bracket value applies, and an open-ended row applies its
+value beyond the edge. Outside the table there is no recommendation; the app
+never extrapolates. `spring_rate` and `volume_spacers` never interpolate: a value
+between two springs or spacer counts doesn't exist.
+
+### `when`
+
+`when` restricts a rule to some products or options of the products the guide
+is attached to. Keys are the file's level names (`model`, `trim`), its option
+axes (`damper`, `travel_mm`, `wheel_size`, `size`) and `riding_style`. Values
+are ids of the same file, one or a list:
+
+```yaml
+when: { trim: [factory, performance-elite], damper: grip_x2, travel_mm: 170 }
+```
+
+- Without `when` the rule applies to every product the guide is attached to.
+- A rule must match at least one product the guide is attached to, and its
+  `target` must exist on one of them.
+- An option the rider skipped never matches a rule that names it.
+- **The most specific rule wins**: the one with more `when` keys. Two rules for
+  the same target with the same number of keys that can both match are an
+  error. A general `{ target: sag, range: [15, 20] }` next to a
+  `{ target: sag, value: 15, when: { riding_style: race } }` is fine.
+
+### Units
+
+- A target with a convertible unit (pressure, spring rate) needs `unit` of the
+  same quantity: `psi` or `bar` for a pressure, `lbs/in` or `N/mm` for a spring
+  rate. Write the unit of the source; the app converts.
+- A target without one (clicks, spacer counts) takes no convertible unit.
+  `unit: clicks` is allowed but optional.
+- `sag` is in `%` (the default) or a length (`mm`).
+- `input_unit` follows the same rule for an adjuster input. `rider_weight`
+  always needs one (`kg` or `lb`); the other inputs take none.
+
+### Authoring rules
+
+- **Facts only.** Re-type the numbers, never copy manual prose, images or
+  PDFs. `note` is in our own words and reaches the rider: what the value
+  means, not where it comes from.
+- **Counting direction.** Numbers are written in the catalog adjuster's
+  direction, counted up from its `min` (for a damper dial: from closed). A
+  source that counts from the other end is written with range references:
+  "5 clicks from open" is `max-5`, never a precomputed number.
+- **End-of-range cells** keep the source's meaning: `Closed` → `min`, `Open` →
+  `max`, `22-Open` → `[22, max]`, "middle of the range" → `mid`.
+- **Inequality cells** (`<71`, `>20`, `215 or more`) become a band to the end
+  of the range: `>20` → `[20, max]`, `<71` → `[min, 71]`. That needs the
+  bound to be published (a Lefty's 50 psi minimum); where it isn't, leave the
+  row out, so that rider is outside the table.
+- **The catalog adjuster's type follows the guide**, decided per brand or
+  model by what the manufacturer publishes:
+  - spacers of one size: a step count (`2`);
+  - spacer configurations of mixed sizes (FOX 38 2027: 10 cc + 5 cc) or by
+    part number: categorical, with the published configurations as options
+    (`"1× 10cc + 1× 5cc"`);
+  - named dial positions (`1 / 2 / P`, clock face): categorical;
+  - a lever or lockout: its categorical or boolean adjuster.
+- **Formulas** ("pressure = rider weight in lb"): write rows calculated at
+  5 kg steps across the source's stated rider range (or 50–120 kg when none is
+  stated), with `note: Calculated from the manufacturer's formula`. A linear
+  formula is reproduced exactly by interpolation, and a percentage band
+  becomes `[min, max]` cells.
+- **Riding styles.** A guide that publishes values per style gets one rule per
+  style with `when: { riding_style: … }`. Map the brand's wording:
+
+  | Brand wording | `riding_style` |
+  |---|---|
+  | Plush, Soft, Comfort | `comfort` |
+  | Balanced, Medium, Standard | `balanced` |
+  | Firm, Stiff, Aggressive, Race | `race` |
+  | Discipline names (XC, Trail, Enduro, DH) | none: they say what is ridden, not how firm. No rule; a `note` at most |
+
+  Say in `note` which brand term a rule stands for ("Firm").
+- **E-bike columns** (E-Bike+, E-Optimized) are not encoded while the catalog
+  has no e-bike option for the product. Relative offsets (e-bike +10 psi) are
+  a `note` or left out.
+- **Fix the catalog first.** A cell outside the adjuster's range is rejected,
+  so apply the catalog fixes the brand's research file lists (maxima below the
+  table, missing adjusters, adjuster types, damper ids) before its guide.
+- **Skip conflicting sources.** A guide the research file lists under "don't
+  encode until resolved" stays out until the conflict is settled.
+
 ## User-facing text: `description` and `note`
 
 Three kinds of text in this catalog reach the rider:
@@ -707,6 +942,7 @@ Three kinds of text in this catalog reach the rider:
 | damper `description` | under the damper in the picker, to choose between dampers |
 | node `note` | in the generated component notes: a dash list keeps its lines, prose becomes one bullet |
 | adjustment `notes` | next to the adjustment on every setup; keep it to one short line |
+| guide rule `note` | next to the recommended value; one short line |
 
 The generated component notes are a short dash list the app builds from the
 selection: the chosen options, the spring and stanchion, the model years, the
@@ -803,3 +1039,15 @@ A task interval is rejected for an unknown unit, a value that is not positive
 `<type>:<snake_case>`, a brand-only key without `name`, a generic key with
 `name`/`priority`/`preselected`, a missing `source`, or a `fallback` that is
 ride-based or sits on a time-based interval.
+
+A setup guide is rejected for an unknown key, a missing `label` or `source`, a
+guide no product references, or a `guide:` naming an undefined entry. A rule is
+rejected for a gap or an overlap between brackets, an open-ended row that is not
+at an edge, an unknown target, input or `when` id, a unit of the wrong quantity,
+a cell the target adjuster cannot take (an option on a step adjuster, an option
+that is not offered, a range reference to an unpublished bound), a number or
+range reference outside the adjuster's range, a `comfort_at` other than `min` or
+`max`,
+two rules that can both match with equal specificity, an adjuster input that
+an applicable product lacks, or a cycle between adjuster inputs. Guide sources
+must be http(s), and rule notes follow the rider-facing text rules.

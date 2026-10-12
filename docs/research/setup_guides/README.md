@@ -37,6 +37,10 @@ These files are working notes for data editors. Nothing here ships in the app.
     column, and say so;
   - opposite direction, `max: ~` → `display_only`, keep the source's wording
     ("5 from closed").
+- **End-stop cells** (`Open`, `Closed`, `22-Open`): keep them in the
+  transcribed table, and below it state the range references to encode
+  (#37 R9): `Closed` → `min`, `Open` → `max`, `22-Open` → `[22, max]`.
+  The app resolves them against the rider's adjuster range.
 - **Formulas** (Q1): record the formula verbatim (in our words), plus a
   calculated table at 5 kg steps across the source's stated rider range (or
   50–120 kg when none is stated), marked "calculated from the published
@@ -295,7 +299,7 @@ One row per product family. **found** = a structured table we can encode,
 | FOX | fork | Podium | found | `fox_podium_2027`: weight → psi, pressure → LSR/HSR |
 | FOX | fork | AWL | found | `fox_awl_2027`: rebound rows above `rail` max 9 |
 | FOX | shock | FLOAT | found | `fox_float_2027`: psi = lb formula, pressure → rebound, SAG 25–30 % |
-| FOX | shock | FLOAT SL | found | `fox_float_sl_float_x_2027`: formula, pressure → rebound (Open/Closed cells) |
+| FOX | shock | FLOAT SL | found | `fox_float_sl_float_x_2027`: formula, pressure → rebound (Open/Closed cells as range references) |
 | FOX | shock | FLOAT X | found | `fox_float_sl_float_x_2027` |
 | FOX | shock | FLOAT X2 (2025–2026) | found | `fox_float_x2_2027`: pressure → LSR/HSR/LSC/HSC ranges |
 | FOX | shock | FLOAT X2 (2016–2020) | found | `fox_float_x2_2020` (+ 2018, 2016/17 variants) |

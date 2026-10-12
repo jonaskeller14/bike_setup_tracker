@@ -25,8 +25,9 @@ Researched: 2026-10-11 – 2026-10-12
   - SAG 25-30 % (FLOAT, FLOAT SL, FLOAT X, DPS/DPX2) or ~30 % (FLOAT X2, DHX2, DHX), with a mm table;
   - constants: open-mode adjust 1, levers in Open.
 - B3 cannot hold (details per guide): spring-rate input, the A/B/C selector (stroke × rear-wheel travel),
-  E-Bike+/E-Optimized columns (no catalog option), the 2027 38 mixed 10 cc/5 cc spacers, "Open"/"Closed"
-  cells and "22-Open" ranges, and pressure-keyed rebound (needs `input: pressure`, which B3 lists).
+  E-Bike+/E-Optimized columns (no catalog option), the 2027 38 mixed 10 cc/5 cc spacers, and pressure-keyed
+  rebound (needs `input: pressure`, which B3 lists). "Open"/"Closed" cells and "22-Open" ranges are
+  encoded as range references (see the tables).
 - Counting direction: every FOX table counts clicks out from fully closed (clockwise to the stop, then
   counter-clockwise), the catalog's `dial_ccw` default. No table needs `max − N`.
 - **Catalog conflicts found** (rows above the catalog `max`): `grip` rebound (catalog max 10; every GRIP
@@ -1655,6 +1656,8 @@ max 12, `dial_ccw` → same direction.
 | 260-280 | 3 |
 | 280-300 | Closed (clockwise) |
 
+Encode as range references: `<100` → `max`, `280-300` → `min`.
+
 ### Rebound — FLOAT X
 
 Source direction: from closed. Catalog `float_x` `rebound` max 16, `dial_ccw` → same direction.
@@ -1825,6 +1828,8 @@ printed "10-14" (2018 image: 12-14).
 | 290 | 4-6 | 5-7 | 7-9 | 7-9 |
 | 300 | 3-5 | 4-6 | 6-8 | 7-9 |
 
+Encode as range references: LSR at 90 psi `22-Open` → `[22, max]`.
+
 ### Damper settings 2016-2017 (image, same direction)
 
 | Air pressure (psi) | LSR | HSR | LSC | HSC |
@@ -1846,6 +1851,8 @@ printed "10-14" (2018 image: 12-14).
 | 230 | 12-14 | 12-14 | 15-17 | 13-15 |
 | 240 | 11-13 | 11-13 | 14-16 | 13-15 |
 | 250 | 10-12 | 11-13 | 14-16 | 12-14 |
+
+If encoded, as range references: `Open` → `max`; `22-Open` → `[22, max]`, `23-Open` → `[23, max]`.
 
 ### Constants / base tune
 
@@ -2085,7 +2092,7 @@ No rebound or compression starting values (adjuster descriptions only).
 ### Damper settings (keyed on spring rate; one range for HSC, LSC, HSR, LSR)
 
 Source direction: from closed (fully clockwise, then counter-clockwise). Catalog `x2_2016` max 23/24/23/24,
-`dial_ccw` → same direction. "20-Open" → `display_only`.
+`dial_ccw` → same direction. "20-Open" (Table A, 200) → `[20, max]`.
 
 | Spring rate | Table A | Table B | Table C |
 |---|---|---|---|

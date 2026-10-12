@@ -3,6 +3,7 @@ import '../task/task_template.dart';
 import 'component.dart';
 import 'component_preset.dart';
 import 'preset_spec_keys.dart';
+import 'setup_guide.dart';
 
 /// In-memory model of the generic component catalog (`data/component_presets/`):
 /// a node tree names the product, option axes configure it.
@@ -63,6 +64,8 @@ sealed class CatalogNode {
 
   /// Official setup or tuning guide, the link the generated notes carry.
   final String? setupGuide;
+
+  final SetupGuide? guide;
   final String? note;
 
   /// Adjusters the product is known to have but that cannot be declared yet;
@@ -82,6 +85,7 @@ sealed class CatalogNode {
     this.years,
     this.url,
     this.setupGuide,
+    this.guide,
     this.note,
     this.missingAdjustments = const [],
     this.tasks = const {},
@@ -101,6 +105,7 @@ final class CatalogGroup extends CatalogNode {
     super.years,
     super.url,
     super.setupGuide,
+    super.guide,
     super.note,
     super.missingAdjustments,
     super.tasks,
@@ -125,6 +130,7 @@ final class CatalogProduct extends CatalogNode {
     super.years,
     super.url,
     super.setupGuide,
+    super.guide,
     super.note,
     super.missingAdjustments,
     super.tasks,

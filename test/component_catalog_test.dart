@@ -79,7 +79,7 @@ void main() {
       });
 
       test('rider-facing text carries no research notes', () {
-        // Node notes, value descriptions and adjustment notes reach the rider;
+        // Node notes, value descriptions, adjustment and guide notes reach the rider;
         // sourcing belongs in `source:` / `note:` keys and comments, and a
         // missing adjuster in `missing_adjustments`.
         final texts = <String, String?>{
@@ -91,6 +91,8 @@ void main() {
                 for (final value in axis.values) '${axis.id} ${value.id} description': value.description,
             },
           },
+          for (final guide in {for (final node in nodes.values) ?node.guide})
+            for (final (index, rule) in guide.rules.indexed) 'guide ${guide.id} rule ${index + 1} note': rule.note,
         };
         for (final MapEntry(key: where, value: text) in texts.entries) {
           final match = text == null ? null : _researchNote.firstMatch(text);
@@ -127,7 +129,7 @@ void main() {
 
       test('urls are http(s)', () {
         for (final MapEntry(key: path, value: node) in nodes.entries) {
-          for (final url in [node.url, node.setupGuide].nonNulls) {
+          for (final url in [node.url, node.setupGuide, node.guide?.source].nonNulls) {
             final uri = Uri.tryParse(url);
             expect(
               uri != null && (uri.scheme == 'http' || uri.scheme == 'https'),

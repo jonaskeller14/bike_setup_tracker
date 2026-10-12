@@ -7,6 +7,7 @@ class ListScrollController extends ChangeNotifier {
   final ScrollController scrollController = ScrollController();
 
   bool _showBackToTop = false;
+  bool _isNearTop = true;
   final List<VoidCallback> _scrollToTopListeners = [];
 
   ListScrollController() {
@@ -15,12 +16,16 @@ class ListScrollController extends ChangeNotifier {
 
   bool get showBackToTop => _showBackToTop && scrollController.hasClients;
 
+  bool get isNearTop => _isNearTop || !scrollController.hasClients;
+
   void _updateBackToTopVisibility() {
     if (!scrollController.hasClients) return;
     final position = scrollController.position;
     final show = position.pixels > position.viewportDimension * 2;
-    if (show == _showBackToTop) return;
+    final nearTop = position.pixels < position.viewportDimension * 0.5;
+    if (show == _showBackToTop && nearTop == _isNearTop) return;
     _showBackToTop = show;
+    _isNearTop = nearTop;
     notifyListeners();
   }
 

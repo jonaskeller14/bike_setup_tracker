@@ -30,6 +30,7 @@ import '../../widgets/attachment_strip.dart';
 import '../../widgets/dialogs/apply_preset_adjustments.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/empty_state_placeholder2.dart';
+import '../../widgets/installation_parent_field.dart';
 import '../../widgets/lists/adjustment_edit_list.dart';
 import '../../widgets/preset_catalog_card.dart';
 import '../../widgets/set_installation_timeline.dart';
@@ -872,96 +873,40 @@ class _ComponentPageState extends State<ComponentPage> {
     );
   }
 
-  Widget _bikesDropdownField({required Map<String, Bike> bikes}) {
-    final lastInstallation = _installations.lastOrNull;
-    return DropdownButtonFormField<Installation?>(
-      initialValue: lastInstallation,
-      isExpanded: true,
+  Widget _parentField({required Map<String, Bike> bikes, required AppRepository appRepository}) {
+    final isEdit = widget.mode == ComponentPageMode.edit;
+    return FormField<Installation>(
       autovalidateMode: AutovalidateMode.onUserInteraction,
-      decoration: InputDecoration(
-        labelText: 'Bike',
-        border: const OutlineInputBorder(),
-        hintText: "Choose a bike for this component",
-        helperText: lastInstallation?.parentType == InstallationParentType.none ? "WARNING: Select Bike to install Component." : null,
-        fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
-        filled: widget.mode == ComponentPageMode.edit && lastInstallation != _initialInstallations.lastOrNull,
-      ),
-      validator: (Installation? newInstallation) {
-        if (newInstallation is BikeInstallation && !bikes.containsKey(newInstallation.bikeId)) {
+      validator: (_) {
+        final current = _installations.lastOrNull;
+        if (current is BikeInstallation && !bikes.containsKey(current.bikeId)) {
           return "Please select valid bike";
         }
         return null;
       },
-      items: [
-        ...bikes.values.map((b) {
-          final matchingInstallation = lastInstallation is BikeInstallation && lastInstallation.bikeId == b.id
-              ? lastInstallation
-              : BikeInstallation(
-                  bikeId: b.id,
-                  dateTimeUTC: DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
-                  dateTimeLocal: DateTime.fromMillisecondsSinceEpoch(0, isUtc: false),
-                );
-          return DropdownMenuItem<Installation?>(
-            value: matchingInstallation,
-            child: Row(
-              spacing: 8,
-              children: [
-                const Icon(Bike.iconData),
-                Expanded(child: Text(b.name, overflow: TextOverflow.ellipsis))
-              ],
-            ),
-          );
-        }),
-        DropdownMenuItem<Installation?>(
-          value: lastInstallation is Uninstallation ? lastInstallation : Uninstallation(
-            dateTimeUTC: DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
-            dateTimeLocal: DateTime.fromMillisecondsSinceEpoch(0, isUtc: false),
-          ),
-          child: const Row(
-            spacing: 8,
-            children: [
-              Icon(Icons.shelves),
-              Expanded(child: Text("NOT INSTALLED", overflow: TextOverflow.ellipsis))
-            ],
-          ),
-        ),
-        if (widget.mode != ComponentPageMode.add)
-          DropdownMenuItem<Installation?>(
-            value: lastInstallation is Archival ? lastInstallation : Archival(
-              dateTimeUTC: DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
-              dateTimeLocal: DateTime.fromMillisecondsSinceEpoch(0, isUtc: false),
-            ),
-            child: const Row(
-              spacing: 8,
-              children: [
-                Icon(Icons.inventory_2_outlined),
-                Expanded(child: Text("ARCHIVED", overflow: TextOverflow.ellipsis))
-              ],
-            ),
-          ),
-        if (lastInstallation is BikeInstallation && !bikes.containsKey(lastInstallation.bikeId))
-          DropdownMenuItem<Installation?>(
-            value: lastInstallation,
-            child: Row(
-              spacing: 8,
-              children: [
-                Icon(Bike.iconData, color: Theme.of(context).colorScheme.error),
-                Expanded(
-                  child: Text(
-                    "BIKE NOT FOUND",
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: Theme.of(context).colorScheme.error),
-                  ),
-                )
-              ],
-            ),
-          ),
-      ],
-      // Locked like the timeline: the replace flow relies on this placement.
-      onChanged: widget.mode == ComponentPageMode.replace ? null : (Installation? newInstallation) {
-        if (newInstallation == null) return;
-        setState(() => _installations = [newInstallation.copyWith()]);
-        _changeListener();
+      builder: (state) {
+        // Legacy components can have no entries; they show as not installed.
+        final current = _installations.lastOrNull ?? Installation.sinceBeginning();
+        return InstallationParentField(
+          installation: current,
+          initial: isEdit ? _initialInstallations.lastOrNull : null,
+          componentId: isEdit ? widget.component?.id : null,
+          componentType: _componentType,
+          currentBikeId: InstallationParentField.bikeIdOf(current, appRepository.componentHierarchy),
+          allowArchive: widget.mode != ComponentPageMode.add,
+          // Locked like the timeline: the replace flow relies on this placement.
+          enabled: widget.mode != ComponentPageMode.replace,
+          changed: isEdit && current != _initialInstallations.lastOrNull,
+          labelText: 'Installed on',
+          helperText: current.parentType == InstallationParentType.none ? "WARNING: Select Bike to install Component." : null,
+          errorText: state.errorText,
+          timelineOfferInstallations: isEdit ? widget.component?.installations : null,
+          onChanged: (picked) {
+            setState(() => _installations = [picked]);
+            state.didChange(picked);
+            _changeListener();
+          },
+        );
       },
     );
   }
@@ -1102,7 +1047,7 @@ class _ComponentPageState extends State<ComponentPage> {
                   if (!appSettings.enableInstallationTimeline && !_isComplexInstallation)
                     Padding(
                       padding: EdgeInsets.fromLTRB(16, _expanded && (showInitialStats || showAttachments) ? 18 : 12, 16, 0),
-                      child: _bikesDropdownField(bikes: bikes),
+                      child: _parentField(bikes: bikes, appRepository: appRepository),
                     ),
                   const SizedBox(height: 12),
                   if (appSettings.enableInstallationTimeline || _isComplexInstallation) ...[

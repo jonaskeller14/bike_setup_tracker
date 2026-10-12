@@ -6,6 +6,7 @@ import 'package:bike_setup_tracker/models/component/resolved_installation.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/component_hierarchy_resolver.dart';
 import 'package:bike_setup_tracker/theme.dart';
+import 'package:bike_setup_tracker/widgets/installation_parent_field.dart';
 import 'package:bike_setup_tracker/widgets/set_installation_timeline.dart';
 import 'package:bike_setup_tracker/widgets/sheets/installation_sheet.dart';
 import 'package:flutter/material.dart';
@@ -362,10 +363,8 @@ void main() {
 
         expect(find.byIcon(Icons.arrow_forward), findsNWidgets(2));
         expect(find.text('Uninstalled'), findsAtLeast(1));
-        final dropdowns = tester.widgetList<DropdownButtonFormField<Installation>>(
-          find.byType(DropdownButtonFormField<Installation>),
-        );
-        expect(dropdowns.map((dropdown) => dropdown.onChanged != null), [false, true, true, false]);
+        final parentFields = tester.widgetList<InstallationParentField>(find.byType(InstallationParentField));
+        expect(parentFields.map((field) => field.enabled), [false, true, true, false]);
       });
     });
   });
@@ -387,17 +386,13 @@ void main() {
       ));
 
       // Check first entry (index 0)
-      // The dropdown for the first entry should be disabled (onChanged is null)
-      final firstDropdown = tester.widget<DropdownButtonFormField<Installation>>(
-        find.byType(DropdownButtonFormField<Installation>).first
-      );
-      expect(firstDropdown.onChanged, isNull);
+      // The parent field for the first entry should be disabled
+      final firstField = tester.widget<InstallationParentField>(find.byType(InstallationParentField).first);
+      expect(firstField.enabled, isFalse);
 
       // Check second entry (index 1)
-      final secondDropdown = tester.widget<DropdownButtonFormField<Installation>>(
-        find.byType(DropdownButtonFormField<Installation>).at(1)
-      );
-      expect(secondDropdown.onChanged, isNotNull);
+      final secondField = tester.widget<InstallationParentField>(find.byType(InstallationParentField).at(1));
+      expect(secondField.enabled, isTrue);
 
       // Add button should be disabled when isEntryEditable is provided
       final addButton = find.byIcon(Icons.add);

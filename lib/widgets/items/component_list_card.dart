@@ -161,8 +161,7 @@ class ComponentListCard extends StatelessWidget{
                       itemBuilder: (BuildContext context) => _ComponentOptions.values.where((option) {
                         if (option == _ComponentOptions.replace) {
                           final installation = appRepository.componentHierarchy.currentInstallation(component.id);
-                          return (installation is BikeInstallation || installation is ComponentInstallation) &&
-                              appSettings.enableInstallationTimeline;
+                          return installation is BikeInstallation || installation is ComponentInstallation;
                         }
 
                         return true;

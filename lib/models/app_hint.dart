@@ -6,6 +6,7 @@ enum AppHint {
   setupComparisonV1,
   stravaLinkGearV1,
   installationTimelineV1,
+  subcomponentsV1,
 }
 
 /// "What's new" hints, keyed by the `AppInfo.buildNumber` they shipped in.

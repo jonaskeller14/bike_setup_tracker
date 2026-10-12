@@ -87,8 +87,6 @@ class _SubcomponentsHintSheet extends StatelessWidget {
                     'In the Garage, they are grouped with their parent.',
                     style: theme.textTheme.bodyMedium,
                   ),
-                  const SizedBox(height: 12),
-                  Text('Requires the Installation Timeline.', style: captionStyle),
                   const SizedBox(height: 20),
                   const _ExampleLabel('Without subcomponents'),
                   const SizedBox(height: 8),

@@ -7,6 +7,7 @@ void main() {
     List<Widget> pages = const [Text('Only page')],
     VoidCallback? onDismiss,
     AppHintAction? action,
+    Future<bool?> Function()? onLearnMore,
   }) => MaterialApp(
     home: Scaffold(
       body: AppHintDeck(
@@ -16,6 +17,7 @@ void main() {
         pages: pages,
         onDismiss: onDismiss,
         action: action,
+        onLearnMore: onLearnMore,
       ),
     ),
   );
@@ -72,6 +74,30 @@ void main() {
       await tester.tap(find.text('Step'));
       await tester.pump();
       expect(activated, 2);
+    });
+
+    testWidgets('"Learn more" runs the action only when the explainer confirms it', (tester) async {
+      var activated = 0;
+      bool? explainerResult;
+      final action = AppHintAction(label: 'Activate', icon: Icons.add, onPressed: () async => activated++);
+
+      await tester.pumpWidget(buildDeck(action: action, onLearnMore: () async => explainerResult));
+      for (final result in [null, false]) {
+        explainerResult = result;
+        await tester.tap(find.byTooltip('Learn more'));
+        await tester.pumpAndSettle();
+      }
+      expect(activated, 0);
+
+      explainerResult = true;
+      await tester.tap(find.byTooltip('Learn more'));
+      await tester.pumpAndSettle();
+      expect(activated, 1);
+    });
+
+    testWidgets('shows "Learn more" only with onLearnMore', (tester) async {
+      await tester.pumpWidget(buildDeck());
+      expect(find.byTooltip('Learn more'), findsNothing);
     });
 
     testWidgets('shows no dismiss buttons without onDismiss', (tester) async {

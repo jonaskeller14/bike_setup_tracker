@@ -13,6 +13,7 @@ import 'setup_calendar_hint.dart';
 import 'setup_comparison_hint.dart';
 import 'setup_task_hint.dart';
 import 'strava_gear_link_hint.dart';
+import 'subcomponents_hint.dart';
 
 class AppHintSlot extends StatelessWidget {
   static const _sizeAnimationDuration = Duration(milliseconds: 200);
@@ -51,6 +52,10 @@ class AppHintSlot extends StatelessWidget {
         onDismiss: () => unawaited(hintService.dismiss(AppHint.stravaLinkGearV1)),
       ),
       AppHint.installationTimelineV1 => const SizedBox.shrink(),
+      AppHint.subcomponentsV1 => SubcomponentsHint(
+        onDismiss: () => unawaited(hintService.dismiss(AppHint.subcomponentsV1)),
+        onActivate: () => _enableSubcomponents(context, hintService),
+      ),
     };
 
     return AnimatedSize(
@@ -82,6 +87,18 @@ class AppHintSlot extends StatelessWidget {
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       AppSnackBar.success(context, 'Calendar enabled — find it next to the search button on the Setups tab'),
+    );
+  }
+
+  Future<void> _enableSubcomponents(
+    BuildContext context,
+    AppHintService hintService,
+  ) async {
+    context.read<AppSettings>().enableInstallOnComponent = true;
+    await hintService.complete(AppHint.subcomponentsV1);
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      AppSnackBar.success(context, 'Subcomponents enabled — edit a part and pick its parent under "Installed on"'),
     );
   }
 }

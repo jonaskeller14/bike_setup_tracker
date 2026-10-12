@@ -90,7 +90,6 @@ class FeaturesPage extends StatelessWidget {
               ),
               if (kDebugMode)
                 _FeatureToggleTile(
-                  enabled: appSettings.enableInstallationTimeline,
                   icon: Icons.account_tree_outlined,
                   title: "Subcomponents",
                   value: appSettings.enableInstallOnComponent,

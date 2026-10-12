@@ -319,6 +319,110 @@ void main() {
     expect(service.activeHintFor(AppHintPlacement.setupComparison), isNull);
   });
 
+  group('component feature offers', () {
+    late Bike bike;
+
+    Component part(String name, ComponentType type, {String? bikeId, String? parentComponentId}) => Component(
+          name: name,
+          componentType: type,
+          installations: [
+            if (parentComponentId != null)
+              Installation.componentSinceBeginning(parentComponentId: parentComponentId)
+            else
+              Installation.sinceBeginning(parent: bikeId),
+          ],
+        );
+
+    Future<void> addComponents(List<Component> components) async {
+      await repository.addComponents(components);
+      await pumpEventQueue();
+    }
+
+    setUp(() async {
+      bike = Bike(name: 'Trail', person: null);
+      await repository.addBikes([bike]);
+      await pumpEventQueue();
+    });
+
+    test('Subcomponents is offered for a part once its typical parent exists', () async {
+      final service = createService();
+      await service.load();
+      expect(service.subcomponentsMountParent(ComponentType.tire), isNull);
+
+      final wheel = part('Front Wheel', ComponentType.wheelFront, bikeId: bike.id);
+      await addComponents([wheel]);
+
+      expect(service.subcomponentsMountParent(ComponentType.tire, currentBikeId: bike.id)?.id, wheel.id);
+      // The frame is the bike itself, and a chain has no typical parent.
+      expect(service.subcomponentsMountParent(ComponentType.wheelFront), isNull);
+      expect(service.subcomponentsMountParent(ComponentType.chain), isNull);
+    });
+
+    test('Subcomponents is not offered once enabled or handled, or to a part carrying parts', () async {
+      final fork = part('Fork', ComponentType.fork, bikeId: bike.id);
+      final calliper = part('Calliper', ComponentType.brakeCalliper, bikeId: bike.id);
+      await addComponents([fork, calliper]);
+      await addComponents([part('Pad', ComponentType.brakePad, parentComponentId: calliper.id)]);
+      final service = createService();
+      await service.load();
+
+      expect(service.subcomponentsMountParent(ComponentType.brakeCalliper)?.id, fork.id);
+      expect(service.subcomponentsMountParent(ComponentType.brakeCalliper, componentId: calliper.id), isNull);
+
+      settings.enableInstallOnComponent = true;
+      expect(service.subcomponentsMountParent(ComponentType.brakeCalliper), isNull);
+
+      settings.enableInstallOnComponent = false;
+      await service.dismiss(AppHint.subcomponentsV1);
+      expect(service.subcomponentsMountParent(ComponentType.brakeCalliper), isNull);
+    });
+
+    test('the timeline is offered on a move once there is a second bike', () async {
+      final service = createService();
+      await service.load();
+      final installed = [Installation.sinceBeginning(parent: bike.id)];
+
+      expect(service.shouldOfferInstallationTimelineOnMove(installed), isFalse);
+
+      await repository.addBikes([Bike(name: 'Enduro', person: null)]);
+      await pumpEventQueue();
+      expect(service.shouldOfferInstallationTimelineOnMove(installed), isTrue);
+      expect(service.shouldOfferInstallationTimelineOnMove([Installation.sinceBeginning()]), isFalse);
+
+      settings.enableInstallationTimeline = true;
+      expect(service.shouldOfferInstallationTimelineOnMove(installed), isFalse);
+    });
+
+    test('the Garage suggests Subcomponents for a crowded bike with a part and its parent', () async {
+      final now = DateTime.now();
+      await repository.addSetups([
+        Setup(
+          datetime: now.toUtc(),
+          datetimeLocal: now,
+          tags: const {},
+          bike: bike.id,
+          person: null,
+          bikeAdjustmentValues: const {},
+          personAdjustmentValues: const {},
+        ),
+      ]);
+      await addComponents([
+        part('Front Wheel', ComponentType.wheelFront, bikeId: bike.id),
+        part('Front Tire', ComponentType.tire, bikeId: bike.id),
+        for (var i = 0; i < 5; i++) part('Bearing $i', ComponentType.bearing, bikeId: null),
+        for (var i = 0; i < 5; i++) part('Spoke $i', ComponentType.other, bikeId: bike.id),
+      ]);
+      final service = createService();
+      await service.load();
+      service.update(appRepository: repository, appSettings: settings);
+      expect(service.activeHintFor(AppHintPlacement.garageHeader), isNull, reason: '7 parts on the bike');
+
+      await addComponents([part('Spoke 5', ComponentType.other, bikeId: bike.id)]);
+      service.update(appRepository: repository, appSettings: settings);
+      expect(service.activeHintFor(AppHintPlacement.garageHeader), AppHint.subcomponentsV1);
+    });
+  });
+
   group('release hints', () {
     // Stand-ins for real announcements: hints that no other eligibility rule
     // offers in the Garage or Setup header, so only the release rule can.

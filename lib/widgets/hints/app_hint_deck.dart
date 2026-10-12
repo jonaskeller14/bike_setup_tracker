@@ -32,6 +32,7 @@ class AppHintDeck extends StatefulWidget {
     this.title,
     this.onDismiss,
     this.action,
+    this.onLearnMore,
     this.dismissLabel = 'No thanks',
   }) : assert(pages.length > 0);
 
@@ -41,6 +42,9 @@ class AppHintDeck extends StatefulWidget {
   final List<Widget> pages;
   final VoidCallback? onDismiss;
   final AppHintAction? action;
+  /// Opens an explainer, e.g. the sheet of the Features page. Resolving to
+  /// true runs [action] as if it had been tapped.
+  final Future<bool?> Function()? onLearnMore;
   final String dismissLabel;
 
   @override
@@ -140,6 +144,13 @@ class _AppHintDeckState extends State<AppHintDeck> with SingleTickerProviderStat
       return;
     }
     unawaited(_flyAway(action.onPressed));
+  }
+
+  Future<void> _learnMore() async {
+    final activate = await widget.onLearnMore!();
+    final action = widget.action;
+    if (activate != true || action == null || !mounted) return;
+    _onAction(action);
   }
 
   void _onDragUpdate(DragUpdateDetails details) {
@@ -251,45 +262,75 @@ class _AppHintDeckState extends State<AppHintDeck> with SingleTickerProviderStat
           ),
         ],
       ),
-      padding: const EdgeInsets.fromLTRB(16, 12, 12, 6),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
+        fit: StackFit.passthrough,
         children: [
-          Row(
-            spacing: 6,
-            children: [
-              Icon(widget.icon, size: 16, color: hint.accent),
-              Flexible(
-                child: Text(
-                  label,
-                  style: textTheme.labelSmall?.copyWith(
-                    color: hint.accent,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.8,
-                  ),
-                ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 12, 6),
+            child: _buildContent(index, hint, textTheme, title, label),
+          ),
+          // Positioned so its touch target doesn't push the header down; the icon
+          // sits as far from the top edge as from the right one.
+          if (widget.onLearnMore != null)
+            Positioned(
+              top: 4,
+              right: 4,
+              child: IconButton(
+                onPressed: () => unawaited(_learnMore()),
+                tooltip: 'Learn more',
+                icon: const Icon(Icons.info_outline_rounded),
+                iconSize: 18,
+                color: hint.accent,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints.tightFor(width: 32, height: 32),
+                style: IconButton.styleFrom(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
               ),
-            ],
-          ),
-          if (title != null) ...[
-            const SizedBox(height: 2),
-            Text(
-              title,
-              style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold, color: hint.onContainer),
             ),
-          ],
-          const SizedBox(height: 6),
-          DefaultTextStyle.merge(
-            style: textTheme.bodyMedium?.copyWith(color: hint.onContainer),
-            child: widget.pages[index],
-          ),
-          if (_paged) const Spacer(),
-          const SizedBox(height: 4),
-          _buildFooter(index, hint),
         ],
       ),
     );
     return interactive ? card : IgnorePointer(child: ExcludeSemantics(child: card));
+  }
+
+  Widget _buildContent(int index, HintColors hint, TextTheme textTheme, String? title, String label) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          spacing: 6,
+          children: [
+            Icon(widget.icon, size: 16, color: hint.accent),
+            Flexible(
+              child: Text(
+                label,
+                style: textTheme.labelSmall?.copyWith(
+                  color: hint.accent,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.8,
+                ),
+              ),
+            ),
+            // Keeps the label clear of the corner info button.
+            if (widget.onLearnMore != null) const SizedBox(width: 24),
+          ],
+        ),
+        if (title != null) ...[
+          const SizedBox(height: 2),
+          Text(
+            title,
+            style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold, color: hint.onContainer),
+          ),
+        ],
+        const SizedBox(height: 6),
+        DefaultTextStyle.merge(
+          style: textTheme.bodyMedium?.copyWith(color: hint.onContainer),
+          child: widget.pages[index],
+        ),
+        if (_paged) const Spacer(),
+        const SizedBox(height: 4),
+        _buildFooter(index, hint),
+      ],
+    );
   }
 
   Widget _buildFooter(int index, HintColors hint) {

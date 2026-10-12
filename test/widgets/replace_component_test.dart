@@ -3,6 +3,7 @@ import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/component_stats.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/services/app_hint_service.dart';
 import 'package:bike_setup_tracker/services/component_hierarchy_resolver.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
@@ -31,7 +32,7 @@ void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     mockRepository = MockAppRepository();
-    appSettings = AppSettings();
+    appSettings = AppSettings()..enableInstallationTimeline = true;
 
     // Installed on b1 -> bike != null (the component being replaced).
     currentComponent = Component(
@@ -75,6 +76,7 @@ void main() {
       providers: [
         ChangeNotifierProvider.value(value: appSettings),
         ChangeNotifierProvider<AppRepository>.value(value: mockRepository),
+        ChangeNotifierProvider(create: (_) => AppHintService(appRepository: mockRepository, appSettings: appSettings)),
         ChangeNotifierProvider<SubscriptionService>.value(value: MockSubscriptionService()),
       ],
       child: MaterialApp(
@@ -275,6 +277,59 @@ void main() {
       // "exactly one item with value <id>" and throws here.
       expect(tester.takeException(), isNull);
       expect(find.text('Spare Fork'), findsWidgets);
+    });
+
+    group('without the installation timeline', () {
+      setUp(() => appSettings.enableInstallationTimeline = false);
+
+      testWidgets('hides the date and suggests the timeline', (tester) async {
+        await tester.pumpWidget(harness(onResult: (_) {}));
+        await openSheet(tester);
+
+        expect(find.text('Replacement Date'), findsNothing);
+        expect(find.text('Track installation history'), findsOneWidget);
+      });
+
+      testWidgets('activating the timeline reveals the date in place', (tester) async {
+        await tester.pumpWidget(harness(onResult: (_) {}));
+        await openSheet(tester);
+
+        await tester.tap(find.text('Activate Timeline'));
+        await tester.pumpAndSettle();
+
+        expect(appSettings.enableInstallationTimeline, isTrue);
+        expect(find.text('Track installation history'), findsNothing);
+        expect(find.text('Replacement Date'), findsOneWidget);
+      });
+
+      testWidgets('"Learn more" opens the timeline explainer, whose "On" reveals the date', (tester) async {
+        await tester.pumpWidget(harness(onResult: (_) {}));
+        await openSheet(tester);
+
+        await tester.tap(find.byTooltip('Learn more'));
+        await tester.pumpAndSettle();
+        expect(find.text('Example timeline'), findsOneWidget);
+
+        await tester.tap(find.text('On'));
+        await tester.pumpAndSettle();
+
+        expect(appSettings.enableInstallationTimeline, isTrue);
+        expect(find.text('Replacement Date'), findsOneWidget);
+      });
+
+      testWidgets('shows the date for a component that already has a history', (tester) async {
+        final past = DateTime.now().subtract(const Duration(days: 5));
+        currentComponent = currentComponent.copyWith(installations: [
+          Installation(parent: 'b1', dateTimeUTC: past.toUtc(), dateTimeLocal: past),
+        ]);
+        componentsMap = {currentComponent.id: currentComponent};
+
+        await tester.pumpWidget(harness(onResult: (_) {}));
+        await openSheet(tester);
+
+        expect(find.text('Replacement Date'), findsOneWidget);
+        expect(find.text('Track installation history'), findsNothing);
+      });
     });
   });
 }

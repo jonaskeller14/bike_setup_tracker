@@ -1,15 +1,21 @@
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../models/app_hint.dart';
 import '../../models/app_settings.dart';
 import '../../models/component/component.dart';
 import '../../models/component/component_ancestor.dart';
 import '../../models/component/installation.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/app_hint_service.dart';
 import '../../services/subscription_service.dart';
+import '../../utils/installation_timeline_validation.dart';
 import '../component_tree_preview.dart';
+import '../hints/installation_timeline_hint.dart';
 import 'radio_option_card.dart';
 import 'sheet.dart';
 import 'sheet_header.dart';
@@ -209,7 +215,12 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
     final subscriptionService = context.watch<SubscriptionService>();
+    final hintService = context.watch<AppHintService>();
     final showStrava = appSettings.enableStrava && subscriptionService.hasStravaEntitlement;
+    // Without the timeline the swap happens now and nothing is dated.
+    final tracksDates = appSettings.enableInstallationTimeline ||
+        isComplexInstallationTimeline(widget.component.installations);
+    final offerTimeline = !tracksDates && hintService.shouldOfferInstallationTimeline(widget.component.installations);
 
     final componentHierarchy = appRepository.componentHierarchy;
     // Ancestors are excluded: installing one on its own descendant would form a loop.
@@ -279,14 +290,30 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      switch (_mode) {
-                        _ReplaceMode.existing =>  "Pick an already uninstalled component to install in place of this one, and set the replacement date. This is when the current component is retired and the selected one installed.",
-                        _ReplaceMode.create => "Set the replacement date. This is when the current component will be retired and a new one installed. In the next step, you can configure the new component, which will be pre-filled with details from this one.",
+                      switch ((_mode, tracksDates)) {
+                        (_ReplaceMode.existing, true) =>  "Pick an already uninstalled component to install in place of this one, and set the replacement date. This is when the current component is retired and the selected one installed.",
+                        (_ReplaceMode.create, true) => "Set the replacement date. This is when the current component will be retired and a new one installed. In the next step, you can configure the new component, which will be pre-filled with details from this one.",
+                        (_ReplaceMode.existing, false) => "Pick an already uninstalled component to install in place of this one. The current component is uninstalled.",
+                        (_ReplaceMode.create, false) => "The current component is uninstalled and a new one installed in its place. In the next step, you can configure the new component, which will be pre-filled with details from this one.",
                       },
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
+                    if (offerTimeline) ...[
+                      const SizedBox(height: 16),
+                      InstallationTimelineHint(
+                        message: "Without a swap date, the new part counts as installed from the start. "
+                            "Past setups then no longer show the old part and the values you recorded for it. "
+                            "Date the swap to keep both histories intact.",
+                        onDismiss: () => unawaited(hintService.dismiss(AppHint.installationTimelineV1)),
+                        onActivate: () async {
+                          // Reveals the date field in place.
+                          context.read<AppSettings>().enableInstallationTimeline = true;
+                          await hintService.complete(AppHint.installationTimelineV1);
+                        },
+                      ),
+                    ],
                     if (noExistingAvailable) ...[
                       const SizedBox(height: 16),
                       SheetFilterEmptyHint(
@@ -323,8 +350,8 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
                         },
                       ),
                     ],
-                    if (!noExistingAvailable) const SizedBox(height: 16),
-                    if (!noExistingAvailable) FormField<DateTime>(
+                    if (!noExistingAvailable && tracksDates) const SizedBox(height: 16),
+                    if (!noExistingAvailable && tracksDates) FormField<DateTime>(
                       initialValue: _replaceDate,
                       validator: (value) {
                         if (value == null) return null;

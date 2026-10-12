@@ -11,6 +11,7 @@ import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/repositories/component_catalog_repository.dart';
+import 'package:bike_setup_tracker/services/app_hint_service.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/utils/component_actions.dart';
@@ -76,6 +77,7 @@ void main() {
       providers: [
         ChangeNotifierProvider.value(value: appSettings),
         ChangeNotifierProvider.value(value: appRepository),
+        ChangeNotifierProvider(create: (_) => AppHintService(appRepository: appRepository, appSettings: appSettings)),
         ChangeNotifierProvider<SubscriptionService>(
           create: (_) => MockSubscriptionService(hasStravaEntitlement: hasStravaEntitlement),
         ),
@@ -104,7 +106,8 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('replaceComponent installs the picked component and retires the current one', (tester) async {
+  /// Swaps the installed fork for the uninstalled spare through the sheet.
+  Future<void> replaceWithSpare(WidgetTester tester) async {
     await tester.runAsync(() async {
       await appRepository.addBikes([bike]);
       await appRepository.addComponents([current, spare]);
@@ -133,6 +136,11 @@ void main() {
     await tester.pumpAndSettle();
 
     await settleRepository(tester, () => appRepository.components['c2']?.parentId == 'b1');
+  }
+
+  testWidgets('replaceComponent installs the picked component and retires the current one', (tester) async {
+    appSettings.enableInstallationTimeline = true;
+    await replaceWithSpare(tester);
 
     final installed = appRepository.components['c2']!;
     final retired = appRepository.components['c1']!;
@@ -148,6 +156,19 @@ void main() {
     expect(retired.installations.last.dateTimeUTC, installed.installations.single.dateTimeUTC);
 
     expect(find.textContaining("Replaced 'Current Fork' with 'Spare Fork'"), findsOneWidget);
+  });
+
+  testWidgets('replaceComponent without the timeline keeps both histories to a single entry', (tester) async {
+    await replaceWithSpare(tester);
+
+    final installed = appRepository.components['c2']!;
+    final retired = appRepository.components['c1']!;
+
+    expect(installed.installations.single, isA<BikeInstallation>());
+    expect(installed.installations.single.parent, 'b1');
+    expect(installed.installations.single.isFromBeginning, isTrue);
+    expect(retired.installations.single, isA<Uninstallation>());
+    expect(retired.installations.single.isFromBeginning, isTrue);
   });
 
   group('removeComponent with subcomponents', () {

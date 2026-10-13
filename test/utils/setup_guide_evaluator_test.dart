@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/component/setup_guide.dart';
 import 'package:bike_setup_tracker/utils/component_catalog_application.dart';
@@ -5,6 +7,7 @@ import 'package:bike_setup_tracker/utils/component_catalog_parser.dart';
 import 'package:bike_setup_tracker/utils/component_preset_resolver.dart';
 import 'package:bike_setup_tracker/utils/setup_guide_evaluator.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:path/path.dart' as p;
 
 /// [evaluateSetupGuide] over small inline catalogs run through the real
 /// parser, so every rule shape is exercised as authored.
@@ -636,5 +639,79 @@ nodes:
       - { name: Pressure, type: numerical, unit: psi, min: 0 }
 ''';
     expect(_evaluate(_preset(plain, '34')), isEmpty);
+  });
+
+  group('FOX catalog data', () {
+    // Expected values are hand-computed from docs/research/setup_guides/fox.md:
+    // 82 kg = 180.78 lb, 57.8 % of the way from the 170-180 lb midpoint (175)
+    // to the 180-190 lb midpoint (185).
+    const weight = GuideInputs(riderWeight: 82);
+
+    ResolvedPreset real(String file, String path, Map<String, Object> options) {
+      final yaml = File(p.join('data', 'component_presets', file)).readAsStringSync();
+      var preset = catalogProducts(
+        parseCatalogFile(yaml),
+      ).firstWhere((preset) => preset.path.map((node) => node.id).join('/') == path);
+      for (final MapEntry(key: axisId, value: valueId) in options.entries) {
+        final axis = preset.axes.firstWhere((axis) => axis.id == axisId);
+        preset = preset.select(axis, axis.values.firstWhere((value) => value.id == valueId));
+      }
+      return preset;
+    }
+
+    test('38 FLOAT GRIP X2 (2025-2026) at 82 kg', () {
+      final results = _evaluate(
+        real('fork/fox.yaml', '38/2025/factory', {'damper': 'grip_x2', 'travel_mm': 170, 'wheel_size': '29'}),
+        inputs: weight,
+      );
+      expect(_of(results, 'pressure').value, const NumericalValue(95)); // 93 → 97 psi
+      expect(_of(results, 'pressure').basis, "FOX 38 owner's manual (2026) · 82 kg · interpolated");
+      expect(_of(results, 'lsr').value, const StepValue(6)); // 7 → 6
+      expect(_of(results, 'hsr').value, const StepValue(4)); // 5 → 4
+      expect(_of(results, 'hsc').value, const StepValue(5));
+      expect(_of(results, 'lsc').value, const StepValue(10));
+      expect(_of(results, 'volume_spacers').value, const StepValue(2));
+    });
+
+    test('38 FLOAT (2027) takes the revised pressure table and spacer configurations', () {
+      final results = _evaluate(
+        real('fork/fox.yaml', '38/2027/factory', {'damper': 'grip_x2', 'travel_mm': 160, 'wheel_size': '29'}),
+        inputs: weight,
+      );
+      expect(_of(results, 'pressure').value, const NumericalValue(78)); // 75 → 80 psi
+      expect(_of(results, 'volume_spacers').value, CategoricalValue(const ['1× 10cc + 1× 5cc']));
+    });
+
+    test('36 Rhythm GRIP (2025-2026) at 82 kg', () {
+      final results = _evaluate(
+        real('fork/fox.yaml', '36/2025/rhythm', {'damper': 'grip', 'travel_mm': 160, 'wheel_size': '29'}),
+        inputs: weight,
+      );
+      expect(_of(results, 'pressure').value, const NumericalValue(78)); // 76 → 80 psi
+      expect(_of(results, 'rebound').value, const StepValue(7)); // 8 → 7
+      expect(_of(results, 'volume_spacers').value, const StepValue(2));
+    });
+
+    test('a 130 kg rider is outside the published range', () {
+      final results = _evaluate(
+        real('fork/fox.yaml', '38/2025/factory', {'damper': 'grip_x2', 'travel_mm': 170, 'wheel_size': '29'}),
+        inputs: const GuideInputs(riderWeight: 130),
+      );
+      for (final target in ['pressure', 'lsr', 'hsr']) {
+        expect(_of(results, target).value, isNull, reason: target);
+        expect(_of(results, target).issue, GuideIssue.outsideRange, reason: target);
+      }
+      expect(_of(results, 'hsc').value, const StepValue(5));
+    });
+
+    test('FLOAT X2 (2025-2026) reads its damper settings off the recommended pressure', () {
+      final results = _evaluate(
+        real('shock/fox.yaml', 'float-x2/2025/factory', {'damper': 'vvc2'}),
+        inputs: const GuideInputs(riderWeight: 95),
+      );
+      expect(_of(results, 'pressure').value, const NumericalValue(209)); // psi = lb
+      expect(_of(results, 'lsr').value, const StepValue(7)); // 200-220 psi
+      expect(_of(results, 'lsc').value, const StepValue(10)); // [9, 10], midpoint rounded
+    });
   });
 }

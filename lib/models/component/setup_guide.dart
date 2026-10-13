@@ -240,3 +240,119 @@ final class GuideBoolean extends GuideCell {
 
   const GuideBoolean(this.value);
 }
+
+/// What the rider tells the evaluator about themselves.
+class GuideInputs {
+  /// Null while no weight is known: weight-keyed rules then give no value, only
+  /// [GuideRecommendation.riderWeightRange].
+  final double? riderWeight;
+
+  /// The unit of [riderWeight] and of [GuideRecommendation.riderWeightRange].
+  final KnownUnit riderWeightUnit;
+  final GuideRidingStyle? ridingStyle;
+
+  const GuideInputs({
+    this.riderWeight,
+    this.riderWeightUnit = const KnownUnit(quantity: UnitQuantity.mass, unitId: 'kilograms'),
+    this.ridingStyle,
+  });
+}
+
+/// Why a recommendation has no value to apply.
+enum GuideIssue {
+  /// The rule's input is unknown: no rider weight, riding style, option or
+  /// value of the adjuster it reads.
+  missingInput,
+
+  /// The input lies outside the published table; the evaluator never
+  /// extrapolates.
+  outsideRange,
+
+  /// The value refers to the adjuster's `max`, which is still the placeholder
+  /// of a `max: ~` catalog adjuster.
+  placeholderMax,
+
+  /// Above the adjuster's `max`, so it can't be applied.
+  aboveMax,
+
+  /// Below the adjuster's `min`, so it can't be applied.
+  belowMin,
+
+  /// The rider's adjustment can't take the value: another type or unit, a
+  /// removed option, or no published range for a range reference.
+  incompatible,
+}
+
+/// One guide rule evaluated for one adjustment of the rider's component.
+class GuideRecommendation {
+  final SetupGuide guide;
+  final GuideRule rule;
+  final Adjustment adjustment;
+
+  /// Valid for [adjustment]; null when [issue] says why not.
+  final AdjustmentValue? value;
+  final GuideIssue? issue;
+
+  /// In [adjustment]'s unit: values in it count as on guide. Null where only
+  /// [value] itself is.
+  final ({double min, double max})? band;
+
+  /// The value the rider has now, which [deviation] compares with.
+  final AdjustmentValue? current;
+
+  /// The input the value was looked up for, e.g. `82 kg`.
+  final String? inputText;
+
+  /// The value lies between two published rows.
+  final bool interpolated;
+
+  /// For a rule keyed by rider weight: the weights, in
+  /// [GuideInputs.riderWeightUnit], whose recommendation [current] is on guide
+  /// for. An open-ended row makes an end infinite.
+  final ({double min, double max})? riderWeightRange;
+
+  const GuideRecommendation({
+    required this.guide,
+    required this.rule,
+    required this.adjustment,
+    this.value,
+    this.issue,
+    this.band,
+    this.current,
+    this.inputText,
+    this.interpolated = false,
+    this.riderWeightRange,
+  });
+
+  /// "FOX 38 owner's manual (2027) · 82 kg · interpolated"
+  String get basis => [guide.label, ?inputText, if (interpolated) 'interpolated'].join(' · ');
+
+  GuideDeviation? get deviation {
+    final current = this.current;
+    final value = this.value;
+    if (current == null || value == null) return null;
+    final (now, recommended) = (current.asNum, value.asNum);
+    if (now == null || recommended == null || value is BooleanValue) {
+      return GuideDeviation(delta: null, onGuide: current == value);
+    }
+
+    // Unit conversions are not exact.
+    const tolerance = 1e-6;
+    final delta = (now - recommended).toDouble();
+    final band = this.band;
+    final onGuide = band == null
+        ? delta.abs() < tolerance
+        : now >= band.min - tolerance && now <= band.max + tolerance;
+    return GuideDeviation(delta: delta, onGuide: onGuide);
+  }
+}
+
+/// How far the rider's value is from the recommendation.
+class GuideDeviation {
+  /// Current minus recommended, in the adjustment's unit; null for options
+  /// and booleans.
+  final double? delta;
+  final bool onGuide;
+
+  const GuideDeviation({required this.delta, required this.onGuide});
+}

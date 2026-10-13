@@ -32,6 +32,10 @@ class SetupBikeTab extends StatefulWidget {
   final Future<void> Function({required CategoricalAdjustment adjustment, required String option})? onAddCategoricalOption;
   final Widget? header;
 
+  /// Changes when [bikeAdjustmentValues] were written from outside the fields,
+  /// so they re-read them.
+  final int valuesRevision;
+
   const SetupBikeTab({
     super.key,
     required this.bike,
@@ -48,6 +52,7 @@ class SetupBikeTab extends StatefulWidget {
     required this.onDanglingRemove,
     this.onAddCategoricalOption,
     this.header,
+    this.valuesRevision = 0,
   });
 
   @override
@@ -164,7 +169,11 @@ class _SetupBikeTabState extends State<SetupBikeTab> {
                     ),
                   ),
                   AdjustmentSetList(
-                    key: ValueKey(Object.hash(bikeComponent.id, Object.hashAll(widget.previousBikeAdjustmentValues.values))),
+                    key: ValueKey(Object.hash(
+                      bikeComponent.id,
+                      Object.hashAll(widget.previousBikeAdjustmentValues.values),
+                      widget.valuesRevision,
+                    )),
                     adjustments: bikeComponent.adjustments,
                     initialAdjustmentValues: widget.previousBikeAdjustmentValues,
                     adjustmentValues: widget.bikeAdjustmentValues,

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -12,6 +13,7 @@ import '../../models/app_settings.dart';
 import '../../models/attachment.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
+import '../../models/component/setup_guide.dart';
 import '../../models/context/context_place.dart';
 import '../../models/context/context_position.dart';
 import '../../models/context/context_weather.dart';
@@ -19,6 +21,7 @@ import '../../models/person.dart';
 import '../../models/setup.dart';
 import '../../models/strava/strava_activity.dart';
 import '../../repositories/app_repository.dart';
+import '../../repositories/component_catalog_repository.dart';
 import '../../services/address_service.dart';
 import '../../services/attachment_storage_service.dart';
 import '../../services/elevation_service.dart';
@@ -29,12 +32,14 @@ import '../../services/weather_service.dart';
 import '../../theme.dart';
 import '../../utils/attachment_actions.dart';
 import '../../utils/automation_ids.dart';
+import '../../utils/setup_guide_actions.dart';
 import '../../widgets/app_snackbar.dart';
 import '../../widgets/attachment_strip.dart';
 import '../../widgets/chips/utils.dart';
 import '../../widgets/dialogs/confirmation.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/pressure_drift_card.dart';
+import '../../widgets/setup_guide_card.dart';
 import '../../widgets/setup_page_tab_bike.dart';
 import '../../widgets/setup_page_tab_person.dart';
 import '../../widgets/sheets/set_condition.dart';
@@ -152,6 +157,14 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   final Map<String, AdjustmentValue> _danglingPersonAdjustmentValues = {};
 
   Map<String, AdjustmentProvenance>? _pressureDriftProvenance;
+
+  /// Bumped on every adjustment value change, so the setup guide card follows
+  /// the values (and the riding weight) as they are entered.
+  final ValueNotifier<int> _adjustmentValuesRevision = ValueNotifier(0);
+
+  /// Bumped when the setup guide writes values, so the bike tab's fields
+  /// re-read them.
+  int _appliedGuideRevision = 0;
 
   final LocationService _locationService = LocationService();
   final ElevationService _elevationService = ElevationService();
@@ -358,6 +371,26 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       _setDanglingAdjustmentValues();
     });
     _changeListener();
+    unawaited(_loadSetupGuides());
+  }
+
+  /// Loads the catalog of the bike's linked components, so the setup guide
+  /// card appears once their guides are there.
+  Future<void> _loadSetupGuides() async {
+    if (!context.read<AppSettings>().enableSetupGuides) return;
+    final appRepository = context.read<AppRepository>();
+    final catalog = context.read<ComponentCatalogRepository>();
+    final presets = appRepository.components.values
+        .where((component) => appRepository.componentHierarchy.bikeAt(component.id, _selectedDateTimeUtc) == _bike)
+        .map((component) => component.preset)
+        .nonNulls;
+    if (presets.every((preset) => catalog.loadedPreset(preset) != null)) return;
+    try {
+      await Future.wait(presets.map(catalog.resolve));
+    } catch (_) {
+      return; // No card without the catalog.
+    }
+    if (mounted) setState(() {});
   }
 
   Future<void> fetchLocationAddressWeather() async {
@@ -507,6 +540,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     _currentLocation.dispose();
     _currentPlace.dispose();
     _currentWeather.dispose();
+    _adjustmentValuesRevision.dispose();
     // Files imported here but not saved with the setup would be left unlinked.
     unawaited(AttachmentActions.deleteUnsaved(_importedAttachments, saved: _savedAttachments));
     super.dispose();
@@ -752,21 +786,25 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
   void _onBikeAdjustmentValueChanged({required Adjustment adjustment, required AdjustmentValue newValue}) {
     _bikeAdjustmentValues[adjustment.id] = newValue;
+    _adjustmentValuesRevision.value++;
     _changeListener();
   }
 
   void _onPersonAdjustmentValueChanged({required Adjustment adjustment, required AdjustmentValue newValue}) {
     _personAdjustmentValues[adjustment.id] = newValue;
+    _adjustmentValuesRevision.value++;
     _changeListener();
   }
 
   void _removeFromBikeAdjustmentValues({required Adjustment adjustment}) {
     _bikeAdjustmentValues.remove(adjustment.id);
+    _adjustmentValuesRevision.value++;
     _changeListener();
   }
 
   void _removeFromPersonAdjustmentValues({required Adjustment adjustment}) {
     _personAdjustmentValues.remove(adjustment.id);
+    _adjustmentValuesRevision.value++;
     _changeListener();
   }
 
@@ -1179,10 +1217,81 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     );
   }
 
+  Widget? _setupGuide(List<Component> bikeComponents) {
+    if (!context.read<AppSettings>().enableSetupGuides) return null;
+    final catalog = context.read<ComponentCatalogRepository>();
+    final guided = guidedComponentsWithoutValues(
+      bikeComponents,
+      resolve: (component) => catalog.loadedPreset(component.preset!),
+      previousValues: _previousBikeAdjustmentValues,
+    );
+    if (guided.isEmpty) return null;
+
+    return ListenableBuilder(
+      listenable: _adjustmentValuesRevision,
+      builder: (context, child) {
+        final inputs = _guideInputs();
+        final sections = [
+          for (final component in guided)
+            if (component.evaluate(inputs, _bikeAdjustmentValues) case final recommendations
+                when recommendations.isNotEmpty)
+              SetupGuideSection(component, recommendations),
+        ];
+        final canApplyAll = sections.any(
+          (section) => section.recommendations.any((r) => r.value != null && r.current != r.value),
+        );
+        return SetupGuideCard(
+          sections: sections,
+          inputs: inputs,
+          onApply: _applyGuideValue,
+          onApplyAll: canApplyAll ? () => _applyAllGuideValues(sections, inputs) : null,
+        );
+      },
+    );
+  }
+
+  GuideInputs _guideInputs() => guideInputsFor(
+    context.read<AppRepository>().persons[_person],
+    values: _personAdjustmentValues,
+    previousValues: _previousPersonAdjustmentValues,
+  );
+
+  void _applyGuideValue(GuideRecommendation recommendation) {
+    unawaited(HapticFeedback.selectionClick());
+    setState(() => _appliedGuideRevision++);
+    _onBikeAdjustmentValueChanged(adjustment: recommendation.adjustment, newValue: recommendation.value!);
+  }
+
+  void _applyAllGuideValues(List<SetupGuideSection> sections, GuideInputs inputs) {
+    final values = {
+      for (final section in sections) ...guideValuesToApply(section.guided, inputs, _bikeAdjustmentValues),
+    };
+    if (values.isEmpty) return;
+    unawaited(HapticFeedback.mediumImpact());
+    setState(() => _appliedGuideRevision++);
+    for (final MapEntry(key: adjustment, value: value) in values.entries) {
+      _onBikeAdjustmentValueChanged(adjustment: adjustment, newValue: value);
+    }
+    _notesController.text = appendNotesLine(
+      _notesController.text,
+      guideNotesLine(sections.map((section) => section.guided.guide), inputs),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(
+      AppSnackBar.success(
+        context,
+        Intl.plural(values.length, one: 'Applied 1 recommended value', other: 'Applied ${values.length} recommended values'),
+      ),
+    );
+  }
+
   Widget _bikeTab(AppRepository appRepository, List<Component> bikeComponents) {
+    final headers = [?_setupGuide(bikeComponents), ?_pressureCheck(bikeComponents)];
     return SetupBikeTab(
       bike: _bike,
-      header: _pressureCheck(bikeComponents),
+      header: headers.length > 1
+          ? Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: headers)
+          : headers.firstOrNull,
+      valuesRevision: _appliedGuideRevision,
       bikeComponents: bikeComponents,
       allComponents: appRepository.components,
       bikes: appRepository.bikes,

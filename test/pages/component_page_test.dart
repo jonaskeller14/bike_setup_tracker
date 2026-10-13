@@ -441,7 +441,17 @@ nodes:
         name: 'My Fork',
         componentType: ComponentType.fork,
         installations: const [],
-        adjustments: [BooleanAdjustment(name: 'rebound', notes: '', unit: null)],
+        adjustments: [
+          StepAdjustment(
+            name: 'rebound',
+            notes: '',
+            unit: null,
+            step: 1,
+            min: 0,
+            max: 20,
+            visualization: StepAdjustmentVisualization.slider,
+          ),
+        ],
         notes: 'Serial 123',
       );
       await tester.pumpWidget(createWidgetUnderTest(component: component, mode: ComponentPageMode.edit));
@@ -450,6 +460,8 @@ nodes:
       await tester.tap(find.text('Choose from catalog'));
       await tester.pumpAndSettle();
       await pickFoxFactory(tester);
+      await tester.tap(find.widgetWithText(FilledButton, 'Merge'));
+      await tester.pumpAndSettle();
 
       // Existing "rebound" matches the preset's "Rebound" by name → only SAG is added.
       expect(find.text('Linked to $presetName · 1 adjustment added'), findsOneWidget);
@@ -463,6 +475,8 @@ nodes:
       await tester.tap(find.widgetWithText(ListTile, presetName));
       await tester.pumpAndSettle();
       await pickFoxFactory(tester);
+      await tester.tap(find.widgetWithText(FilledButton, 'Merge'));
+      await tester.pumpAndSettle();
       expect(notesText(tester), 'Serial 123\n\n- Preset note');
     });
 

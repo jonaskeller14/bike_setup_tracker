@@ -25,6 +25,7 @@ import '../../utils/component_catalog_application.dart';
 import '../../utils/component_catalog_search.dart';
 import '../../utils/component_preset_resolver.dart';
 import '../../utils/installation_timeline_validation.dart';
+import '../../utils/preset_merge.dart';
 import '../../widgets/app_snackbar.dart';
 import '../../widgets/attachment_strip.dart';
 import '../../widgets/dialogs/apply_preset_adjustments.dart';
@@ -37,6 +38,7 @@ import '../../widgets/set_installation_timeline.dart';
 import '../../widgets/sheets/component_add_adjustment.dart';
 import '../../widgets/sheets/component_catalog_picker.dart';
 import '../../widgets/sheets/component_type_picker.dart';
+import '../../widgets/sheets/preset_merge_sheet.dart';
 import '../../widgets/sheets/set_initial_stats.dart';
 import '../../widgets/text/section_title.dart';
 import '../adjustment/boolean_adjustment_page.dart';
@@ -437,15 +439,31 @@ class _ComponentPageState extends State<ComponentPage> {
     _showPresetUndoSnackBar('Filled from ${app.name}', snapshot);
   }
 
-  /// Edit mode only extends: setups store values by adjustment id, so saved
-  /// adjustments are never replaced; the name stays the user's and the preset
-  /// notes are appended (a re-pick swaps the block the previous pick appended).
-  void _extendFromPreset(ResolvedPreset resolved, CatalogApplication app) {
-    final snapshot = _snapshot();
+  /// Edit mode extends: setups store values by adjustment id, so the rider
+  /// decides in the merge sheet whether saved adjustments merge with the catalog
+  /// adjusters or are replaced; the name stays the user's and the preset notes
+  /// are appended (a re-pick swaps the block the previous pick appended).
+  Future<void> _extendFromPreset(ResolvedPreset resolved, CatalogApplication app) async {
     // Only what an earlier pick in this session added is dropped — it was never saved.
     final kept = _adjustments.where((a) => !_presetAdjustmentIds.contains(a.id)).toList();
-    final keptNames = {for (final a in kept) a.name.trim().toLowerCase()};
-    final added = app.adjustments.where((a) => !keptNames.contains(a.name.trim().toLowerCase())).toList();
+    var merge = applyPresetMerge(kept, [for (final a in app.adjustments) PresetMergeRow.newAdjustment(a)], const {});
+    if (kept.isNotEmpty) {
+      final recordedValues = convertRecordedValues(
+        context.read<AppRepository>().recordedAdjustmentValues({for (final a in kept) a.id}),
+        _pendingConversions,
+      );
+      final confirmed = await showPresetMergeSheet(
+        context,
+        productName: app.name,
+        existing: kept,
+        proposal: proposePresetMerge(kept, app.adjustments),
+        recordedValues: recordedValues,
+      );
+      if (confirmed == null || !mounted) return;
+      merge = confirmed;
+    }
+    final added = merge.newAdjustments;
+    final snapshot = _snapshot();
     final previousBlock = _appendedPresetNotes;
     final keptNotes = (previousBlock == null ? _notesController.text : _notesController.text.replaceFirst(previousBlock, '')).trimRight();
     final appendNotes = app.notes.isNotEmpty && !keptNotes.contains(app.notes);
@@ -460,14 +478,14 @@ class _ComponentPageState extends State<ComponentPage> {
       _preset = app.preset;
       _resolvedPreset = resolved;
       _presetAdjustmentIds = {for (final a in added) a.id};
-      _adjustments = [...kept, ...added];
+      _adjustments = merge.adjustments;
     });
     _adjustmentsFieldNotify?.call();
     _changeListener();
     _showPresetUndoSnackBar(
-      Intl.plural(
+      merge.removed.isNotEmpty ? 'Replaced adjustments with ${app.name}' : Intl.plural(
         added.length,
-        zero: 'Linked to ${app.name} · all adjustments already exist',
+        zero: 'Linked to ${app.name} · no adjustments added',
         one: 'Linked to ${app.name} · 1 adjustment added',
         other: 'Linked to ${app.name} · ${added.length} adjustments added',
       ),
@@ -973,6 +991,7 @@ class _ComponentPageState extends State<ComponentPage> {
                             onTap: _openPresetPicker,
                             applied: _resolvedPreset,
                             onUnlink: _unlinkPreset,
+                            showGuideHint: appSettings.enableSetupGuides,
                           ),
                           const SizedBox(height: 12),
                         ],

@@ -16,12 +16,17 @@ class PresetCatalogCard extends StatefulWidget {
   final ResolvedPreset? applied;
   final VoidCallback onUnlink;
 
+  /// Tells an unlinked component that linking a product with a setup guide
+  /// gets it recommended values.
+  final bool showGuideHint;
+
   const PresetCatalogCard({
     super.key,
     required this.componentType,
     required this.onTap,
     this.applied,
     required this.onUnlink,
+    this.showGuideHint = false,
   });
 
   @override
@@ -30,6 +35,7 @@ class PresetCatalogCard extends StatefulWidget {
 
 class _PresetCatalogCardState extends State<PresetCatalogCard> {
   String? _teaser;
+  bool _hasGuides = false;
   static const List<String> _popularBrands = ['fox', 'rockshox'];
 
   @override
@@ -43,6 +49,7 @@ class _PresetCatalogCardState extends State<PresetCatalogCard> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.componentType != widget.componentType) {
       _teaser = null;
+      _hasGuides = false;
       unawaited(_loadTeaser());
     }
   }
@@ -52,6 +59,8 @@ class _PresetCatalogCardState extends State<PresetCatalogCard> {
       final products =
           await context.read<ComponentCatalogRepository>().forType(widget.componentType);
       if (!mounted) return;
+      final hasGuides = products.any((product) => product.node.guide != null);
+      if (hasGuides != _hasGuides) setState(() => _hasGuides = hasGuides);
       final brands = <String>[];
       for (final product in products) {
         if (!brands.contains(product.catalog.brand)) brands.add(product.catalog.brand);
@@ -105,7 +114,10 @@ class _PresetCatalogCardState extends State<PresetCatalogCard> {
         subtitle: Text(
           isApplied
               ? _appliedSubtitle(applied)
-              : _teaser ?? 'Prefill from a ${widget.componentType.label.toLowerCase()} model',
+              : [
+                  _teaser ?? 'Prefill from a ${widget.componentType.label.toLowerCase()} model',
+                  if (widget.showGuideHint && _hasGuides) 'Link to a catalog product to get recommended values',
+                ].join('\n'),
           maxLines: isApplied ? 1 : null,
           overflow: isApplied ? TextOverflow.ellipsis : null,
           style: TextStyle(color: subtitleColor),

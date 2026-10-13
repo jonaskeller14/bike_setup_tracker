@@ -13,8 +13,13 @@ String? adjustmentRole(Adjustment adjustment) {
     final role = presetKey.substring(presetKey.indexOf(':') + 1);
     if (role.isNotEmpty) return role;
   }
+  return adjustmentNameSlug(adjustment.name);
+}
 
-  final slug = adjustment.name
+/// [name] lowercased with every run of other characters than ASCII letters and
+/// digits collapsed to `_`; `null` when nothing is left.
+String? adjustmentNameSlug(String name) {
+  final slug = name
       .toLowerCase()
       .replaceAll(RegExp('[^a-z0-9]+'), '_')
       .replaceAll(RegExp('^_+|_+\$'), '');

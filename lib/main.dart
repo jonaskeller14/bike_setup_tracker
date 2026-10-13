@@ -20,6 +20,7 @@ import 'pages/loading_error_page.dart';
 import 'pages/onboarding_page.dart';
 import 'repositories/app_repository.dart';
 import 'repositories/component_catalog_repository.dart';
+import 'repositories/filter_persistence.dart';
 import 'services/app_hint_service.dart';
 import 'services/backup_service.dart';
 import 'services/database_migration_service.dart';
@@ -162,11 +163,24 @@ class _LoadingGateState extends State<LoadingGate> {
           (Object e, StackTrace s) => recordBootError(e, s, reason: 'App hints failed to load'),
         ),
       ]);
+      await _restoreFilters();
     } catch (e, s) {
       if (!kDebugMode) unawaited(FirebaseAnalytics.instance.logEvent(name: 'app_init_failed'));
       recordBootError(e, s, reason: 'App initialization failed');
       rethrow;
     }
+  }
+
+  /// Runs once settings and data are loaded: restoring earlier would let the
+  /// first recompute drop a bike whose row has not been read yet. Saving starts
+  /// only afterwards, so nothing overwrites the saved criteria before they are read.
+  Future<void> _restoreFilters() async {
+    final appRepository = widget.appRepository;
+    if (widget.appSettings.rememberFilters) {
+      final saved = await FilterPersistence.load();
+      if (saved != null) appRepository.filters.restore(saved);
+    }
+    appRepository.onFiltersChanged = () => unawaited(FilterPersistence.save(appRepository.filters));
   }
 
   Future<void> _loadAndMigrate() async {

@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import '../models/bike.dart';
 import '../models/filters/activity_filter.dart';
 import '../models/filters/layer_filter.dart';
@@ -68,6 +70,37 @@ class FilterController {
   set activity(ActivityFilter value) {
     if (value == _activity) return;
     _activity = value;
+    onChanged();
+  }
+
+  Map<String, Object?> toJson() => {
+    'bikeId': _bikeId,
+    'setup': _setup.toJson(),
+    'taskRule': _taskRule.toJson(),
+    'layers': _layers.toJson(),
+    'activity': _activity.toJson(),
+  };
+
+  /// Applies criteria saved by [toJson] and fires [onChanged] once. Malformed
+  /// [json] leaves every criterion as it is. A bike or tag that no longer
+  /// exists is dropped by the next [normalize].
+  void restore(Map<String, Object?> json) {
+    try {
+      Map<String, Object?> section(String key) => json[key] as Map<String, Object?>? ?? const {};
+      final bikeId = json['bikeId'] as String?;
+      final setup = SetupFilter.fromJson(section('setup'));
+      final taskRule = TaskRuleFilter.fromJson(section('taskRule'));
+      final layers = LayerFilter.fromJson(section('layers'));
+      final activity = ActivityFilter.fromJson(section('activity'));
+      _bikeId = bikeId;
+      _setup = setup;
+      _taskRule = taskRule;
+      _layers = layers;
+      _activity = activity;
+    } catch (e) {
+      debugPrint("Ignoring malformed saved filters: $e");
+      return;
+    }
     onChanged();
   }
 

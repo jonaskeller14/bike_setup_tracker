@@ -11,6 +11,8 @@ import '../services/backup_service.dart';
 import '../services/strava_service.dart';
 import '../widgets/app_snackbar.dart';
 import '../widgets/dialogs/confirmation.dart';
+import '../widgets/sheets/filter.dart';
+import 'filter_actions.dart';
 
 class DataActions {
   static Future<void> resetAppSettings(BuildContext context) async {
@@ -21,7 +23,7 @@ class DataActions {
     final confirmed = await showConfirmationDialog(
       context,
       title: 'Reset settings?',
-      content: 'All preferences and features are restored to their defaults. Your data is not affected.',
+      content: 'All preferences, features and filters are restored to their defaults. Your data is not affected.',
       trueText: 'Reset',
       isDestructive: true,
     );
@@ -29,6 +31,7 @@ class DataActions {
     unawaited(HapticFeedback.heavyImpact());
 
     try {
+      FilterActions.clear(context, FilterSection.values.toSet());
       await appSettings.resetToDefaults();
       if (strava.isConnected) {
         unawaited(strava.setStravaNotificationsEnabled(appSettings.enableStravaNotifications));

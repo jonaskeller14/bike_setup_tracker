@@ -118,6 +118,7 @@ class AppRepository extends ChangeNotifier {
       onChanged: () {
         _filter();
         notifyListeners();
+        onFiltersChanged?.call();
       },
     );
     _view = _buildView();
@@ -450,6 +451,7 @@ class AppRepository extends ChangeNotifier {
   // ---------------------------------------------------------------------------
 
   late final FilterController filters;
+  void Function()? onFiltersChanged;
   Set<String> _setupTags = {};
   Set<String> _taskRuleTags = {};
 

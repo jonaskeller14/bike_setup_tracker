@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/filters/activity_filter.dart';
 import 'package:bike_setup_tracker/models/filters/layer_filter.dart';
@@ -190,6 +192,96 @@ void main() {
         filters.dateRange = null;
         expect(filters.stravaQuery(null), const StravaActivityQuery(activity: activity));
       });
+    });
+  });
+
+  group("toJson / restore", () {
+    late FilterController restored;
+    late int restoredChanges;
+
+    setUp(() {
+      restoredChanges = 0;
+      restored = FilterController(onChanged: () => restoredChanges++);
+    });
+
+    test("round-trips every criterion except the date range", () {
+      filters.toggleBike("b1");
+      filters.setup = const SetupFilter(tags: {"race"}, bookmarkedOnly: true);
+      filters.taskRule = TaskRuleFilter(priorities: const {TaskPriority.high}, tags: const {"fork"});
+      filters.layers = const LayerFilter(hidden: {TimelineLayer.activities, TimelineLayer.tasks});
+      filters.activity = const ActivityFilter(
+        distance: NumericRange(min: 10000, max: 50000),
+        elevationGain: NumericRange(max: 500),
+      );
+      filters.dateRange = LocalDateRange(start: DateTime(2024, 5), end: DateTime(2024, 5, 31));
+
+      // Through a JSON string, as it is stored.
+      restored.restore(jsonDecode(jsonEncode(filters.toJson())) as Map<String, Object?>);
+
+      expect(restored.bikeId, "b1");
+      expect(restored.setup, filters.setup);
+      expect(restored.taskRule, filters.taskRule);
+      expect(restored.layers, filters.layers);
+      expect(restored.activity, filters.activity);
+      expect(restored.dateRange, null);
+    });
+
+    test("round-trips the defaults", () {
+      restored.restore(jsonDecode(jsonEncode(filters.toJson())) as Map<String, Object?>);
+
+      expect(restored.bikeId, null);
+      expect(restored.setup, const SetupFilter());
+      expect(restored.taskRule, TaskRuleFilter());
+      expect(restored.layers, const LayerFilter());
+      expect(restored.activity, const ActivityFilter());
+    });
+
+    test("fires the callback exactly once", () {
+      filters.toggleBike("b1");
+      filters.layers = const LayerFilter(hidden: {TimelineLayer.activities});
+
+      restored.restore(filters.toJson());
+      expect(restoredChanges, 1);
+    });
+
+    test("skips unknown layer and priority names", () {
+      restored.restore({
+        'layers': {'hidden': ['activities', 'removedLayer']},
+        'taskRule': {'priorities': ['high', 'removedPriority']},
+      });
+
+      expect(restored.layers, const LayerFilter(hidden: {TimelineLayer.activities}));
+      expect(restored.taskRule.priorities, {TaskPriority.high});
+    });
+
+    test("missing sections fall back to their defaults", () {
+      restored.restore({'bikeId': "b1"});
+
+      expect(restored.bikeId, "b1");
+      expect(restored.taskRule, TaskRuleFilter());
+      expect(restored.layers, const LayerFilter());
+    });
+
+    test("malformed json keeps the criteria and does not fire", () {
+      restored.toggleBike("b1");
+      restoredChanges = 0;
+
+      restored.restore({'bikeId': 42, 'layers': "activities"});
+
+      expect(restored.bikeId, "b1");
+      expect(restored.layers, const LayerFilter());
+      expect(restoredChanges, 0);
+    });
+
+    test("a restored bike or tag that no longer exists is dropped by normalize", () {
+      restored.restore({
+        'bikeId': "deleted",
+        'setup': {'tags': ['race', 'gone']},
+      });
+      restored.normalize(bikeIds: ["b1"], setupTags: {"race"}, taskRuleTags: {});
+
+      expect(restored.bikeId, null);
+      expect(restored.setup.tags, {"race"});
     });
   });
 

@@ -7,6 +7,7 @@ import 'package:units_converter/units_converter.dart';
 class AppSettings extends ChangeNotifier {
   static const String _kPrefix = 'app_settings.';
   static const String _kLegacyBlobKey = 'app_settings';
+  static const String kFiltersKey = '${_kPrefix}filters';
 
   bool _showOnboarding = true;
   ThemeMode _themeMode = ThemeMode.system;
@@ -50,6 +51,7 @@ class AppSettings extends ChangeNotifier {
   bool _enableTimelineReplacementDetection = true;
   bool _enableTimelineStravaContext = false;
   int _firstDayOfWeek = DateTime.monday; // 1 = Monday … 7 = Sunday
+  bool _rememberFilters = true;
 
   bool get showOnboarding => _showOnboarding;
   ThemeMode get themeMode => _themeMode;
@@ -95,6 +97,7 @@ class AppSettings extends ChangeNotifier {
   bool get enableTimelineReplacementDetection => _enableTimelineReplacementDetection;
   bool get enableTimelineStravaContext => _enableTimelineStravaContext;
   int get firstDayOfWeek => _firstDayOfWeek;
+  bool get rememberFilters => _rememberFilters;
 
   set showOnboarding(bool newShowOnboarding) {
     if (_showOnboarding == newShowOnboarding) return;
@@ -376,6 +379,13 @@ class AppSettings extends ChangeNotifier {
     _persistInt('firstDayOfWeek', newValue);
   }
 
+  set rememberFilters(bool newValue) {
+    if (newValue == _rememberFilters) return;
+    _rememberFilters = newValue;
+    notifyListeners();
+    _persistBool('rememberFilters', newValue);
+  }
+
   void _persistBool(String name, bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('$_kPrefix$name', value);
@@ -448,6 +458,7 @@ class AppSettings extends ChangeNotifier {
       _enableTimelineStravaContext =
           prefs.getBool('${_kPrefix}enableTimelineStravaContext') ?? _enableTimelineStravaContext;
       _firstDayOfWeek = prefs.getInt('${_kPrefix}firstDayOfWeek') ?? _firstDayOfWeek;
+      _rememberFilters = prefs.getBool('${_kPrefix}rememberFilters') ?? _rememberFilters;
     } catch (e, st) {
       debugPrint("ERROR loading App Settings: $e\n$st");
       rethrow;
@@ -501,6 +512,7 @@ class AppSettings extends ChangeNotifier {
     _enableTimelineReplacementDetection = defaults._enableTimelineReplacementDetection;
     _enableTimelineStravaContext = defaults._enableTimelineStravaContext;
     _firstDayOfWeek = defaults._firstDayOfWeek;
+    _rememberFilters = defaults._rememberFilters;
     defaults.dispose();
     notifyListeners();
   }
@@ -549,6 +561,7 @@ class AppSettings extends ChangeNotifier {
     _enableTimelineReplacementDetection,
     _enableTimelineStravaContext,
     _firstDayOfWeek,
+    _rememberFilters,
   ];
 
   /// Migrates the pre-existing monolithic `app_settings` JSON blob to per-key

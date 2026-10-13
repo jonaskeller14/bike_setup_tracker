@@ -2,9 +2,17 @@ import 'dart:async';
 
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/adjustment_activity_histogram.dart';
+import 'package:bike_setup_tracker/models/component/component.dart';
+import 'package:bike_setup_tracker/models/component/setup_guide.dart';
 import 'package:bike_setup_tracker/services/setup_activity_analysis_service.dart';
+import 'package:bike_setup_tracker/utils/component_catalog_application.dart';
+import 'package:bike_setup_tracker/utils/component_catalog_parser.dart';
+import 'package:bike_setup_tracker/utils/component_preset_resolver.dart';
+import 'package:bike_setup_tracker/utils/setup_guide_actions.dart';
 import 'package:bike_setup_tracker/widgets/display_adjustment/adjustment_icon_name_notes.dart';
 import 'package:bike_setup_tracker/widgets/display_data/adjustment_activity_histogram_chart.dart';
+import 'package:bike_setup_tracker/widgets/setup_guide_card.dart';
+import 'package:bike_setup_tracker/widgets/setup_guide_scope.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -141,4 +149,127 @@ void main() {
     await tester.pump();
     expect(tester.takeException(), isNull);
   });
+
+  group('with a setup guide scope', () {
+    final preset = catalogProducts(parseCatalogFile(_guideCatalog)).single;
+    final application = buildCatalogApplication(preset);
+    final guided = GuidedComponent(
+      Component(
+        name: application.name,
+        componentType: application.componentType,
+        installations: const [],
+        adjustments: application.adjustments,
+        preset: application.preset,
+      ),
+      preset,
+    );
+    final pressure = guided.component.adjustments.firstWhere((a) => a.name == 'Pressure');
+
+    Widget scoped({
+      AdjustmentValue? current,
+      GuideInputs inputs = const GuideInputs(riderWeight: 82),
+      SetupActivityAnalysisService? service,
+    }) {
+      final child = MaterialApp(
+        home: Scaffold(
+          body: SetupGuideScope(
+            sections: [
+              SetupGuideSection(guided, guided.evaluate(inputs, {pressure.id: ?current})),
+            ],
+            child: SizedBox(
+              width: 400,
+              child: AdjustmentIconNameNotes(adjustment: pressure, value: current),
+            ),
+          ),
+        ),
+      );
+      return service == null
+          ? child
+          : ListenableProvider<SetupActivityAnalysisService>.value(value: service, child: child);
+    }
+
+    Future<void> openTooltip(WidgetTester tester, Widget widget) async {
+      await tester.pumpWidget(widget);
+      await tester.tap(find.byType(Tooltip));
+      await tester.pump();
+    }
+
+    testWidgets('shows the recommended value without a histogram', (tester) async {
+      await openTooltip(tester, scoped());
+      expect(find.text('Recommended: 77 psi'), findsOneWidget);
+
+      await openTooltip(tester, scoped(current: const NumericalValue(77)));
+      expect(find.text('Recommended: 77 psi · on guide'), findsOneWidget);
+
+      await openTooltip(tester, scoped(current: const NumericalValue(90)));
+      expect(find.text('Recommended: 77 psi · +13 psi'), findsOneWidget);
+    });
+
+    testWidgets('shows why there is no value', (tester) async {
+      await openTooltip(tester, scoped(inputs: const GuideInputs()));
+      expect(find.text('Recommended: – · Needs your riding weight'), findsOneWidget);
+    });
+
+    testWidgets('passes the recommended value to the histogram', (tester) async {
+      final histogram = AdjustmentActivityHistogram(
+        adjustmentId: pressure.id,
+        bars: const [
+          AdjustmentActivityHistogramBar.exact(label: '77 psi', activityCount: 2, exactValue: NumericalValue(77)),
+        ],
+        isBinned: false,
+      );
+      final service = serviceWith(gate: true, load: () async => histogram);
+      await openTooltip(tester, scoped(current: const NumericalValue(77), service: service));
+      await tester.pump();
+
+      expect(
+        tester.widget<AdjustmentActivityHistogramChart>(find.byType(AdjustmentActivityHistogramChart)).guideValue,
+        const NumericalValue(77),
+      );
+    });
+
+    testWidgets('an adjuster without a guide rule shows no line', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SetupGuideScope(
+              sections: [SetupGuideSection(guided, guided.evaluate(const GuideInputs(riderWeight: 82), const {}))],
+              child: SizedBox(width: 400, child: AdjustmentIconNameNotes(adjustment: adjustment)),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.byType(Tooltip));
+      await tester.pump();
+      expect(find.textContaining('Recommended'), findsNothing);
+    });
+  });
+
+  testWidgets('shows no recommendation without a scope', (tester) async {
+    await tester.pumpWidget(harness());
+    await tester.tap(find.byType(Tooltip));
+    await tester.pump();
+    expect(find.textContaining('Recommended'), findsNothing);
+  });
 }
+
+const _guideCatalog = '''
+brand: Acme
+component_type: fork
+guides:
+  acme:
+    label: Acme owner's manual (2027)
+    source: https://example.com/acme
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        rows: { 70-80: 70, 80-90: 80, 90-100: 90 }
+nodes:
+  - label: Guided
+    level: model
+    guide: acme
+    adjustments:
+      - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
+''';

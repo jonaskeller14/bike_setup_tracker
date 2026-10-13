@@ -9,6 +9,7 @@ import '../../services/setup_activity_analysis_service.dart';
 import '../display_data/adjustment_activity_histogram_chart.dart';
 import '../items/adjustment_properties.dart';
 import '../items/adjustment_type_icon.dart';
+import '../setup_guide_scope.dart';
 
 class AdjustmentIconNameNotes extends StatefulWidget {
   final Adjustment adjustment;
@@ -93,6 +94,7 @@ class _AdjustmentIconNameNotesState extends State<AdjustmentIconNameNotes> {
         ? textTheme.bodyMedium?.copyWith(color: widget.color)
         : textTheme.bodyLarge?.copyWith(color: widget.color);
     final colorScheme = Theme.of(context).colorScheme;
+    final guide = SetupGuideScope.recommendationFor(context, widget.adjustment.id);
 
     return Row(
       mainAxisSize: MainAxisSize.max,
@@ -157,6 +159,24 @@ class _AdjustmentIconNameNotesState extends State<AdjustmentIconNameNotes> {
                           ),
                         ],
                       ),
+                    if (guide case (final recommendation, final component))
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(top: 3),
+                            child: Icon(Icons.tips_and_updates_outlined, size: 13, color: colorScheme.onSecondary),
+                          ),
+                          const SizedBox(width: 2),
+                          Flexible(
+                            child: Text(
+                              recommendedValueLine(recommendation, component),
+                              style: TextStyle(color: colorScheme.onSecondary, fontSize: 13),
+                            ),
+                          ),
+                        ],
+                      ),
                     if (_analysisService?.hasAnyActivity == true && _isLoading)
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
@@ -170,7 +190,11 @@ class _AdjustmentIconNameNotesState extends State<AdjustmentIconNameNotes> {
                     if (_analysisService?.hasAnyActivity == true && _histogram?.isEmpty == false)
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
-                        child: AdjustmentActivityHistogramChart(histogram: _histogram!, currentValue: widget.value),
+                        child: AdjustmentActivityHistogramChart(
+                          histogram: _histogram!,
+                          currentValue: widget.value,
+                          guideValue: guide?.$1.value,
+                        ),
                       ),
                   ],
                 ),

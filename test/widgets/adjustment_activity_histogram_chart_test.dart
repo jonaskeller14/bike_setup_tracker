@@ -35,6 +35,7 @@ void main() {
     double width = 240,
     double textScale = 1,
     AdjustmentValue? currentValue,
+    AdjustmentValue? guideValue,
   }) {
     return MaterialApp(
       theme: theme ?? materialAppTheme,
@@ -45,7 +46,11 @@ void main() {
             alignment: Alignment.topLeft,
             child: SizedBox(
               width: width,
-              child: AdjustmentActivityHistogramChart(histogram: data, currentValue: currentValue),
+              child: AdjustmentActivityHistogramChart(
+                histogram: data,
+                currentValue: currentValue,
+                guideValue: guideValue,
+              ),
             ),
           ),
         ),
@@ -132,6 +137,49 @@ void main() {
       0,
     );
     expect(tooltipItem?.text, '30 psi\n7 activities\nCurrent value');
+    semantics.dispose();
+  });
+
+  testWidgets('outlines the bar of the recommended value, next to the current one', (tester) async {
+    List<BorderSide> rodBorders() => tester
+        .widget<BarChart>(find.byType(BarChart))
+        .data
+        .barGroups
+        .map((group) => group.barRods.single.borderSide)
+        .toList();
+
+    await tester.pumpWidget(harness(histogram()));
+    expect(rodBorders().map((side) => side.width), [0, 0]);
+
+    final semantics = tester.ensureSemantics();
+    for (final theme in [materialAppTheme, materialAppDarkTheme]) {
+      await tester.pumpWidget(
+        harness(
+          histogram(),
+          theme: theme,
+          currentValue: CategoricalValue(const ['long']),
+          guideValue: const NumericalValue(30),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(rodBorders().map((side) => side.width), [0, 2]);
+      expect(rodBorders().last.color, theme.colorScheme.tertiaryContainer);
+    }
+    expect(
+      find.bySemanticsLabel(
+        'Activity distribution. An exceptionally long category name: 12345 activities (current), '
+        '30 psi: 7 activities (recommended)',
+      ),
+      findsOneWidget,
+    );
+    final chart = tester.widget<BarChart>(find.byType(BarChart));
+    final tooltipItem = chart.data.barTouchData.touchTooltipData.getTooltipItem(
+      chart.data.barGroups.last,
+      1,
+      chart.data.barGroups.last.barRods.first,
+      0,
+    );
+    expect(tooltipItem?.text, '30 psi\n7 activities\nRecommended value');
     semantics.dispose();
   });
 

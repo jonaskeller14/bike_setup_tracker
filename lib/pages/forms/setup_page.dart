@@ -40,6 +40,7 @@ import '../../widgets/dialogs/confirmation.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/pressure_drift_card.dart';
 import '../../widgets/setup_guide_card.dart';
+import '../../widgets/setup_guide_scope.dart';
 import '../../widgets/setup_page_tab_bike.dart';
 import '../../widgets/setup_page_tab_person.dart';
 import '../../widgets/sheets/set_condition.dart';
@@ -1250,6 +1251,33 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     );
   }
 
+  /// Provides every guided component's recommendations to the adjuster
+  /// tooltips below, including components that already have values. Always
+  /// in the tree, so the bike tab keeps its state when the catalog loads.
+  Widget _setupGuideScope(List<Component> bikeComponents, Widget child) {
+    final guided = context.read<AppSettings>().enableSetupGuides
+        ? guidedComponents(
+            bikeComponents,
+            resolve: (component) => context.read<ComponentCatalogRepository>().loadedPreset(component.preset!),
+          )
+        : const <GuidedComponent>[];
+
+    return ListenableBuilder(
+      listenable: _adjustmentValuesRevision,
+      builder: (context, child) {
+        final inputs = _guideInputs();
+        return SetupGuideScope(
+          sections: [
+            for (final component in guided)
+              SetupGuideSection(component, component.evaluate(inputs, _bikeAdjustmentValues)),
+          ],
+          child: child!,
+        );
+      },
+      child: child,
+    );
+  }
+
   GuideInputs _guideInputs() => guideInputsFor(
     context.read<AppRepository>().persons[_person],
     values: _personAdjustmentValues,
@@ -1286,7 +1314,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
   Widget _bikeTab(AppRepository appRepository, List<Component> bikeComponents) {
     final headers = [?_setupGuide(bikeComponents), ?_pressureCheck(bikeComponents)];
-    return SetupBikeTab(
+    final tab = SetupBikeTab(
       bike: _bike,
       header: headers.length > 1
           ? Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: headers)
@@ -1311,6 +1339,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         _changeListener();
       },
     );
+    return _setupGuideScope(bikeComponents, tab);
   }
 
   Widget _personTab(AppRepository appRepository) {

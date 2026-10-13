@@ -22,19 +22,27 @@ class GuidedComponent {
       evaluateSetupGuide(preset, component.adjustments, inputs, currentValues);
 }
 
-/// The components of [components] that get the setup guide card: linked to a
-/// catalog product with a guide, and without any recorded value yet, since the
-/// card is for setting the first values. [resolve] reads a preset from the
-/// loaded catalog; null while it isn't loaded.
+/// The components of [components] linked to a catalog product with a guide.
+/// [resolve] reads a preset from the loaded catalog; null while it isn't loaded.
+List<GuidedComponent> guidedComponents(
+  Iterable<Component> components, {
+  required ResolvedPreset? Function(Component component) resolve,
+}) => [
+  for (final component in components)
+    if (component.preset != null)
+      if (resolve(component) case final preset? when preset.node.guide != null) GuidedComponent(component, preset),
+];
+
+/// The [guidedComponents] that get the setup guide card: those without any
+/// recorded value yet, since the card is for setting the first values.
 List<GuidedComponent> guidedComponentsWithoutValues(
   Iterable<Component> components, {
   required ResolvedPreset? Function(Component component) resolve,
   required Map<String, AdjustmentValue> previousValues,
-}) => [
-  for (final component in components)
-    if (component.preset != null && component.adjustments.none((a) => previousValues.containsKey(a.id)))
-      if (resolve(component) case final preset? when preset.node.guide != null) GuidedComponent(component, preset),
-];
+}) => guidedComponents(
+  components.where((component) => component.adjustments.none((a) => previousValues.containsKey(a.id))),
+  resolve: resolve,
+);
 
 /// The rider's weight and riding style as [person]'s attributes hold them:
 /// the value entered on this setup, else the last recorded one.

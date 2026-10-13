@@ -90,6 +90,24 @@ void main() {
     expect(find.byType(SetupGuideCard), findsNothing);
   });
 
+  testWidgets('the adjuster tooltip shows the recommendation once values are recorded', (tester) async {
+    await open(tester, forkHasValues: true);
+
+    await tester.tap(find.text('Pressure', findRichText: true));
+    await _settle(tester);
+
+    expect(find.text('Recommended: 77 psi · -7 psi'), findsOneWidget);
+  });
+
+  testWidgets('the adjuster tooltip shows no recommendation while the flag is off', (tester) async {
+    await open(tester, enabled: false, forkHasValues: true);
+
+    await tester.tap(find.text('Pressure', findRichText: true));
+    await _settle(tester);
+
+    expect(find.textContaining('Recommended'), findsNothing);
+  });
+
   testWidgets('follows the riding weight entered on the rider tab', (tester) async {
     await open(tester);
 

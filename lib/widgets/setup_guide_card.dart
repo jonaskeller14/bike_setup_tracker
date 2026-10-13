@@ -169,7 +169,7 @@ class _RecommendationRow extends StatelessWidget {
       (_, null) => ("Not set", scheme.onSurfaceVariant),
       (_, GuideDeviation(onGuide: true)) => ("On guide", highlights?.initial),
       (_, GuideDeviation(:final delta)) => (
-        "Now ${_valueText(adjustment, recommendation.current!)}${delta == null ? '' : ' (${_signed(delta)})'}",
+        "Now ${guideValueText(adjustment, recommendation.current!)}${delta == null ? '' : ' (${guideSignedDelta(delta)})'}",
         highlights?.changed,
       ),
     };
@@ -194,7 +194,7 @@ class _RecommendationRow extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    _detailText(recommendation, component),
+                    guideDetailText(recommendation, component),
                     style: mutedStyle,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -211,7 +211,7 @@ class _RecommendationRow extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    value == null ? "–" : _valueText(adjustment, value),
+                    value == null ? "–" : guideValueText(adjustment, value),
                     style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -243,13 +243,13 @@ String _inputsText(GuideInputs inputs) {
   ].join(" · ");
 }
 
-String _valueText(Adjustment adjustment, AdjustmentValue value) => switch (value) {
+String guideValueText(Adjustment adjustment, AdjustmentValue value) => switch (value) {
   NumericalValue() || StepValue() => "${value.display}${adjustment.unitSuffix()}",
   _ => value.display,
 };
 
 /// The input the value was looked up for, or why there is none.
-String _detailText(GuideRecommendation recommendation, Component component) {
+String guideDetailText(GuideRecommendation recommendation, Component component) {
   final issue = recommendation.issue;
   if (issue == null) {
     final basis = [?recommendation.inputText, if (recommendation.interpolated) "interpolated"];
@@ -284,12 +284,12 @@ String? _reverseLookupText(GuideRecommendation recommendation, KnownUnit unit) {
     (false, false) => null,
   };
   if (weights == null) return null;
-  return "${_valueText(recommendation.adjustment, current)} ≈ $weights ${unit.label}";
+  return "${guideValueText(recommendation.adjustment, current)} ≈ $weights ${unit.label}";
 }
 
 String _number(double value) => value.round().toString();
 
-String _signed(double delta) {
+String guideSignedDelta(double delta) {
   final rounded = double.parse(delta.toStringAsFixed(1));
   final text = rounded == rounded.roundToDouble() ? rounded.abs().round().toString() : rounded.abs().toString();
   return "${rounded < 0 ? '-' : '+'}$text";

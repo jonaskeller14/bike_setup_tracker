@@ -11,7 +11,10 @@ class AdjustmentActivityHistogramChart extends StatelessWidget {
   final AdjustmentActivityHistogram histogram;
   final AdjustmentValue? currentValue;
 
-  const AdjustmentActivityHistogramChart({super.key, required this.histogram, this.currentValue});
+  /// The setup guide's recommended value, marked with an outline.
+  final AdjustmentValue? guideValue;
+
+  const AdjustmentActivityHistogramChart({super.key, required this.histogram, this.currentValue, this.guideValue});
 
   @override
   Widget build(BuildContext context) {
@@ -24,10 +27,12 @@ class AdjustmentActivityHistogramChart extends StatelessWidget {
     final tickInterval = math.max(1, (maxCount / 4).ceil());
     final chartMaximum = math.max(tickInterval, (maxCount / tickInterval).ceil() * tickInterval).toDouble();
     final highlighted = adjustmentHistogramBarIndexesFor(histogram, currentValue);
+    final recommended = adjustmentHistogramBarIndexesFor(histogram, guideValue);
     final labelStyle = textTheme.labelSmall?.copyWith(color: colorScheme.onSecondary);
     final summary = [
       for (var index = 0; index < bars.length; index++)
-        '${bars[index].label}: ${bars[index].activityCount} activities${highlighted.contains(index) ? ' (current)' : ''}',
+        '${bars[index].label}: ${bars[index].activityCount} activities${highlighted.contains(index) ? ' (current)' : ''}'
+            '${recommended.contains(index) ? ' (recommended)' : ''}',
     ].join(', ');
 
     return Semantics(
@@ -109,7 +114,8 @@ class AdjustmentActivityHistogramChart extends StatelessWidget {
                       getTooltipItem: (group, groupIndex, rod, rodIndex) {
                         final bar = bars[group.x];
                         return BarTooltipItem(
-                          '${bar.label}\n${bar.activityCount} activities${highlighted.contains(group.x) ? '\nCurrent value' : ''}',
+                          '${bar.label}\n${bar.activityCount} activities${highlighted.contains(group.x) ? '\nCurrent value' : ''}'
+                          '${recommended.contains(group.x) ? '\nRecommended value' : ''}',
                           textTheme.labelSmall?.copyWith(color: colorScheme.onSecondaryContainer) ??
                               TextStyle(color: colorScheme.onSecondaryContainer),
                         );
@@ -127,6 +133,9 @@ class AdjustmentActivityHistogramChart extends StatelessWidget {
                             color: highlighted.isEmpty || highlighted.contains(index)
                                 ? colorScheme.primaryContainer
                                 : colorScheme.primaryContainer.withValues(alpha: 0.4),
+                            borderSide: recommended.contains(index)
+                                ? BorderSide(color: colorScheme.tertiaryContainer, width: 2)
+                                : null,
                             borderRadius: const BorderRadius.vertical(top: Radius.circular(3)),
                           ),
                         ],

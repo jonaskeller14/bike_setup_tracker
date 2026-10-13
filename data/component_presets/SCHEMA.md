@@ -900,6 +900,9 @@ when: { trim: [factory, performance-elite], damper: grip_x2, travel_mm: 170 }
   of the range: `>20` → `[20, max]`, `<71` → `[min, 71]`. That needs the
   bound to be published (a Lefty's 50 psi minimum); where it isn't, leave the
   row out, so that rider is outside the table.
+  - Leave the row out as well where the value keeps growing with the input,
+    such as a pressure decal's `110+` edge cell: `[110, max]` would apply its
+    midpoint, far above where the table is heading. Say so in a YAML comment.
 - **The catalog adjuster's type follows the guide**, decided per brand or
   model by what the manufacturer publishes:
   - spacers of one size: a step count (`2`);

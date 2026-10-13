@@ -647,21 +647,9 @@ nodes:
     // to the 180-190 lb midpoint (185).
     const weight = GuideInputs(riderWeight: 82);
 
-    ResolvedPreset real(String file, String path, Map<String, Object> options) {
-      final yaml = File(p.join('data', 'component_presets', file)).readAsStringSync();
-      var preset = catalogProducts(
-        parseCatalogFile(yaml),
-      ).firstWhere((preset) => preset.path.map((node) => node.id).join('/') == path);
-      for (final MapEntry(key: axisId, value: valueId) in options.entries) {
-        final axis = preset.axes.firstWhere((axis) => axis.id == axisId);
-        preset = preset.select(axis, axis.values.firstWhere((value) => value.id == valueId));
-      }
-      return preset;
-    }
-
     test('38 FLOAT GRIP X2 (2025-2026) at 82 kg', () {
       final results = _evaluate(
-        real('fork/fox.yaml', '38/2025/factory', {'damper': 'grip_x2', 'travel_mm': 170, 'wheel_size': '29'}),
+        _real('fork/fox.yaml', '38/2025/factory', {'damper': 'grip_x2', 'travel_mm': 170, 'wheel_size': '29'}),
         inputs: weight,
       );
       expect(_of(results, 'pressure').value, const NumericalValue(95)); // 93 → 97 psi
@@ -675,7 +663,7 @@ nodes:
 
     test('38 FLOAT (2027) takes the revised pressure table and spacer configurations', () {
       final results = _evaluate(
-        real('fork/fox.yaml', '38/2027/factory', {'damper': 'grip_x2', 'travel_mm': 160, 'wheel_size': '29'}),
+        _real('fork/fox.yaml', '38/2027/factory', {'damper': 'grip_x2', 'travel_mm': 160, 'wheel_size': '29'}),
         inputs: weight,
       );
       expect(_of(results, 'pressure').value, const NumericalValue(78)); // 75 → 80 psi
@@ -684,7 +672,7 @@ nodes:
 
     test('36 Rhythm GRIP (2025-2026) at 82 kg', () {
       final results = _evaluate(
-        real('fork/fox.yaml', '36/2025/rhythm', {'damper': 'grip', 'travel_mm': 160, 'wheel_size': '29'}),
+        _real('fork/fox.yaml', '36/2025/rhythm', {'damper': 'grip', 'travel_mm': 160, 'wheel_size': '29'}),
         inputs: weight,
       );
       expect(_of(results, 'pressure').value, const NumericalValue(78)); // 76 → 80 psi
@@ -694,7 +682,7 @@ nodes:
 
     test('a 130 kg rider is outside the published range', () {
       final results = _evaluate(
-        real('fork/fox.yaml', '38/2025/factory', {'damper': 'grip_x2', 'travel_mm': 170, 'wheel_size': '29'}),
+        _real('fork/fox.yaml', '38/2025/factory', {'damper': 'grip_x2', 'travel_mm': 170, 'wheel_size': '29'}),
         inputs: const GuideInputs(riderWeight: 130),
       );
       for (final target in ['pressure', 'lsr', 'hsr']) {
@@ -706,7 +694,7 @@ nodes:
 
     test('FLOAT X2 (2025-2026) reads its damper settings off the recommended pressure', () {
       final results = _evaluate(
-        real('shock/fox.yaml', 'float-x2/2025/factory', {'damper': 'vvc2'}),
+        _real('shock/fox.yaml', 'float-x2/2025/factory', {'damper': 'vvc2'}),
         inputs: const GuideInputs(riderWeight: 95),
       );
       expect(_of(results, 'pressure').value, const NumericalValue(209)); // psi = lb
@@ -714,4 +702,73 @@ nodes:
       expect(_of(results, 'lsc').value, const StepValue(10)); // [9, 10], midpoint rounded
     });
   });
+
+  group('RockShox catalog data', () {
+    // Expected values are hand-computed from docs/research/setup_guides/rockshox.md:
+    // 82 kg = 180.78 lb, 53.9 % of the way from the 160-180 lb midpoint (170)
+    // to the 180-200 lb midpoint (190); rebound sits between the 80 and 85 kg rows.
+    const weight = GuideInputs(riderWeight: 82);
+    final pike = _real('fork/rockshox.yaml', 'pike/2025/ultimate', {
+      'damper': 'charger_3_1',
+      'travel_mm': 130,
+      'wheel_size': '29',
+    });
+
+    test('Pike Ultimate (2025-2027) at 82 kg', () {
+      final results = _evaluate(pike, inputs: weight);
+      final pressure = _of(results, 'pressure');
+      expect(pressure.value, const NumericalValue(80)); // [70, 80] → [80, 90] psi
+      expect(pressure.band!.min, closeTo(75.39, 0.01));
+      expect(pressure.band!.max, closeTo(85.39, 0.01));
+      expect(pressure.basis, 'RockShox Front Suspension Specifications (2027) · 82 kg · interpolated');
+      expect(_of(results, 'rebound').value, const StepValue(8)); // 10 clicks from closed on an 18-click dial
+      expect(_of(results, 'hsc').value, const StepValue(0));
+      expect(_of(results, 'lsc').value, const StepValue(0));
+      expect(_of(results, 'volume_spacers').value, const StepValue(0));
+    });
+
+    test('a rider above the last printed bracket gets no pressure', () {
+      final results = _evaluate(pike, inputs: const GuideInputs(riderWeight: 105));
+      expect(_of(results, 'pressure').issue, GuideIssue.outsideRange); // 231 lb, the decal's "100+" cell
+      expect(_of(results, 'rebound').value, const StepValue(11)); // 7 clicks from closed
+    });
+
+    test('SID SL E1 and D1 read their own decals', () {
+      ResolvedPreset sidSl(String generation) => _real('fork/rockshox.yaml', 'sid-sl/$generation/ultimate', {
+        'damper': 'charger_race_day_2',
+        'travel_mm': 100,
+        'wheel_size': '29',
+      });
+      final e1 = _evaluate(sidSl('2026'), inputs: weight);
+      expect(_of(e1, 'pressure').value, const NumericalValue(120)); // [108, 120] → [120, 132] psi
+      expect(_of(e1, 'rebound').issue, GuideIssue.placeholderMax);
+      final d1 = _evaluate(sidSl('2025'), inputs: weight);
+      expect(_of(d1, 'pressure').value, const NumericalValue(121)); // [105, 120] → [120, 135] psi
+      expect(_of(d1, 'sag').value, const NumericalValue(20)); // the general 10-30 % band
+    });
+
+    test('Super Deluxe Select (SoloAir) at 82 kg', () {
+      final results = _evaluate(
+        _real('shock/rockshox.yaml', 'super-deluxe/2023/select', {'damper': 'rc2t'}),
+        inputs: weight,
+      );
+      expect(_of(results, 'pressure').value, const NumericalValue(180)); // psi = lb
+      expect(_of(results, 'rebound').value, const StepValue(6)); // 9 → 8 clicks from closed on a 15-click dial
+      expect(_of(results, 'hsc').value, const StepValue(0));
+      expect(_of(results, 'lsc').value, const StepValue(0));
+      expect(_of(results, 'sag').value, const NumericalValue(25)); // SoloAir: 20-30 %
+    });
+  });
+}
+
+ResolvedPreset _real(String file, String path, Map<String, Object> options) {
+  final yaml = File(p.join('data', 'component_presets', file)).readAsStringSync();
+  var preset = catalogProducts(
+    parseCatalogFile(yaml),
+  ).firstWhere((preset) => preset.path.map((node) => node.id).join('/') == path);
+  for (final MapEntry(key: axisId, value: valueId) in options.entries) {
+    final axis = preset.axes.firstWhere((axis) => axis.id == axisId);
+    preset = preset.select(axis, axis.values.firstWhere((value) => value.id == valueId));
+  }
+  return preset;
 }

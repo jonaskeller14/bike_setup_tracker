@@ -56,7 +56,7 @@ sources:
   - https://flowmountainbike.com/features/rockshox-shock-setup/
   - https://www.pinkbike.com/news/first-ride-the-new-rockshox-vivid-ultimate.html
   - https://freehub.com/product-reviews/2014-rockshox-pike-rct3-160mm-review
-updated: 2026-10-10
+updated: 2026-10-13
 # Counting conventions, verified per damper against SRAM material:
 #   * RC2T compression counts from the MIDDLE — SRAM: "5 positions for both HSC
 #     and LSC ... the base tune is in the middle, with two positions to increase
@@ -259,6 +259,62 @@ option_values:
         publishes its click counts, so both rebound adjusters carry `max: ~`.
 
 # --------------------------------------------------------------------------
+# Setup guide — transcribed from docs/research/setup_guides/rockshox.md. SRAM
+# publishes no per-shock chart: TrailHead's shock tune needs a serial number and
+# the frame's rear-wheel travel. What is generic is the User Manual's starting
+# pressure, its SAG targets per spring, the middle base tune of RC2T and Vivid
+# Ultimate, and TrailHead's rebound formula, which only needs the damper's
+# click count. Rebound dials with `max: ~` get no rule: the formula's N itself
+# depends on that count.
+# --------------------------------------------------------------------------
+guides:
+  rockshox_rear_shock_um:
+    label: RockShox Suspension User Manual
+    source: https://docs.sram.com/en-US/publications/5ODr3E6BhL1uWDnWhq4ATB
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        rows: {
+          50: 110, 55: 121, 60: 132, 65: 143, 70: 154,
+          75: 165, 80: 176, 85: 187, 90: 198, 95: 209,
+          100: 220, 105: 231, 110: 243, 115: 254, 120: 265
+        }
+        note: Calculated from RockShox's starting point (psi = rider weight in lb, with gear); set the final pressure by SAG
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: [rc2t, super_deluxe_d1] }
+        rows: {
+          50: max-12, 55: max-12, 60: max-11, 65: max-11, 70: max-10,
+          75: max-9, 80: max-9, 85: max-8, 90: max-8, 95: max-7,
+          100: max-6, 105: max-6, 110: max-5, 115: max-5, 120: max-4
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: vivid_ultimate }
+        rows: {
+          50: max-17, 55: max-16, 60: max-15, 65: max-14, 70: max-13,
+          75: max-13, 80: max-12, 85: max-11, 90: max-10, 95: max-9,
+          100: max-8, 105: max-8, 110: max-7, 115: max-6, 120: max-5
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - { target: hsc, value: 0, when: { damper: [rc2t, vivid_ultimate] } }
+      - { target: lsc, value: 0, when: { damper: [rc2t, vivid_ultimate] } }
+      # DebonAir, DebonAir+ and coil springs.
+      - { target: sag, range: [25, 35], comfort_at: max, note: "Around 30 %, ±5 %" }
+      # SoloAir springs, then the Linear XL Super Deluxe and the classic Vivid
+      # Air, for which SRAM states only its general 20-30 % band.
+      - { target: sag, range: [20, 30], comfort_at: max, note: "Around 25 %, ±5 %", when: { model: [monarch, monarch-plus], trim: [rt3, xx, r] } }
+      - { target: sag, range: [20, 30], comfort_at: max, note: "Around 25 %, ±5 %", when: { model: [deluxe, super-deluxe], trim: [select, rl, rc3] } }
+      - { target: sag, range: [20, 30], comfort_at: max, note: "RockShox's general band for air shocks", when: { model: super-deluxe, generation: "2027", trim: [ultimate, select-plus] } }
+      - { target: sag, range: [20, 30], comfort_at: max, note: "RockShox's general band for air shocks", when: { model: vivid-air, generation: "2010" } }
+      - { target: sag, value: 30, when: { model: vivid-air, generation: "2024" } }
+
+# --------------------------------------------------------------------------
 # Shocks — current lineup first, then the models that only exist as an earlier
 # generation (Monarch, Monarch Plus). A model with several generations nests
 # them as `generation` nodes, newest first. Each generation gets its own
@@ -283,6 +339,7 @@ nodes:
   - label: "Deluxe"
     level: model
     category: Trail
+    guide: rockshox_rear_shock_um
     tasks: &rockshox_service
       shock:air_can_service: &rockshox_air_can_service { interval: { moving_time_h: 50 }, source: RockShox service intervals }
       shock:full_service: &rockshox_full_service { interval: { moving_time_h: 200 }, fallback: { days: 365 }, source: RockShox service intervals }
@@ -380,6 +437,7 @@ nodes:
   - label: "Super Deluxe"
     level: model
     category: Trail / Enduro
+    guide: rockshox_rear_shock_um
     tasks: *rockshox_service
     children:
       - label: "2027"
@@ -498,6 +556,7 @@ nodes:
   - label: "Super Deluxe Coil"
     level: model
     category: Trail / Enduro
+    guide: rockshox_rear_shock_um
     tasks:
       shock:full_service: *rockshox_full_service
     children:
@@ -572,6 +631,7 @@ nodes:
     years: "2023-2026"
     url: https://www.sram.com/en/rockshox/series/super-deluxe-dh
     setup_guide: https://www.sram.com/en/rockshox/learn/suspension-welcome-guide
+    guide: rockshox_rear_shock_um
     specs: { spring: Air }
     tasks: *rockshox_service
     children:
@@ -588,6 +648,7 @@ nodes:
   - label: "Vivid Air"
     level: model
     category: Trail / Enduro
+    guide: rockshox_rear_shock_um
     children:
       - label: "2024–2026"
         level: generation
@@ -650,6 +711,7 @@ nodes:
     years: "2024-2026"
     url: https://www.sram.com/en/rockshox/series/vivid-coil
     setup_guide: https://www.sram.com/en/rockshox/learn/downhill-suspension-welcome-guide
+    guide: rockshox_rear_shock_um
     specs: { spring: Coil }
     mounts: [Standard, Trunnion]
     tasks:
@@ -672,6 +734,7 @@ nodes:
     years: "2024-2026"
     url: https://www.sram.com/en/rockshox/series/vivid-coil-dh
     setup_guide: https://www.sram.com/en/rockshox/learn/downhill-suspension-welcome-guide
+    guide: rockshox_rear_shock_um
     specs: { spring: Coil }
     tasks:
       shock:full_service: *rockshox_full_service
@@ -689,6 +752,7 @@ nodes:
     category: XC
     years: "2024-2026"
     url: https://www.sram.com/en/rockshox/series/sidluxe
+    guide: rockshox_rear_shock_um
     specs: { spring: Air }
     mounts: [Standard, Trunnion]
     tasks: *rockshox_service
@@ -731,6 +795,7 @@ nodes:
     category: XC / Trail
     years: "2013-2018"
     url: https://www.sram.com/en/rockshox/series/monarch
+    guide: rockshox_rear_shock_um
     specs: { spring: Air }
     note: Inline air shock; Bottomless Rings tune the air can volume
     tasks: *rockshox_100h_service
@@ -780,6 +845,7 @@ nodes:
     category: Enduro / Gravity
     years: "2013-2018"
     url: https://www.sram.com/en/rockshox/series/monarch-plus
+    guide: rockshox_rear_shock_um
     specs: { spring: Air }
     note: Piggyback reservoir version of the Monarch
     tasks: *rockshox_100h_service

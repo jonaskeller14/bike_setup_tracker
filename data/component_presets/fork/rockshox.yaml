@@ -14,7 +14,13 @@ sources:
   # Primary — SRAM service manuals / technical specifications (PDF)
   - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-zeb-lyrik-pike-service-manual.pdf
   - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-front-suspension-oil-air-coil-token-specifications-english.pdf
+  - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2024-front-suspension-specifications.pdf
+  - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2025-front-suspension-specifications.pdf
+  - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2026-front-suspension-specifications.pdf
+  - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
   - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2021-2023-sid-and-sid-sl-service-manual.pdf
+  # Primary — RockShox TrailHead setup app (rebound formulas in the page data)
+  - https://trailhead.rockshox.com/
   - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/bottomless-tokens-english.pdf
   - https://www.sram.com/globalassets/document-hierarchy/service-manuals/sramrockshox-service-interval-counter-mat.pdf
   - https://www.sram.com/globalassets/document-hierarchy/spare-parts/spare-parts-catalog/2026-rockshox-spare-part-catalog.pdf
@@ -52,7 +58,7 @@ sources:
   - https://flowmountainbike.com/tests/2025-rockshox-zeb-lyrik-pike-fork-review/
   - https://enduro-mtb.com/en/rockshox-2025-fork-charger-review/
   - https://freehub.com/product-reviews/2014-rockshox-pike-rct3-160mm-review
-updated: 2026-10-10
+updated: 2026-10-13
 # Counting conventions, verified per damper against SRAM material:
 #   * Charger 3 / 3.1 / 3.2 compression counts from the MIDDLE detent — HSC has
 #     5 positions (-2..+2), LSC has 15 positions (-7..+7). Stored with those
@@ -291,13 +297,1122 @@ option_values:
         rebound carries `max: ~`.
 
 # --------------------------------------------------------------------------
+# Setup guides — transcribed from docs/research/setup_guides/rockshox.md.
+#   * Pressure: the decal tables of SRAM's yearly Front Suspension
+#     Specifications, one rule per printed travel column, psi bands per rider
+#     weight bracket (lb). The decal's edge cells are left out: `<60` has no
+#     published minimum, and `110+` as `[110, max]` would apply the midpoint
+#     up to the fork's maximum pressure, far above the decal's trend. Riders
+#     outside the printed brackets (mostly 120-220 lb) get no pressure value.
+#     The "E-Bikes add 10 psi" header is not encoded (no e-bike option, #72).
+#   * Rebound: no PDF prints clicks. RockShox TrailHead computes them from
+#     rider weight per model code and travel, counted from closed; the rows are
+#     calculated at 5 kg steps and written as `max-N` because every catalog
+#     rebound dial counts from open.
+#   * HSC / LSC 0 and `lockout: false` are the User Manual's starting positions.
+# --------------------------------------------------------------------------
+guides:
+  rockshox_sid_sl_2026:
+    label: RockShox Front Suspension Specifications (2027)
+    source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        rows: { 120-140: [85, 95], 140-160: [95, 108], 160-180: [108, 120], 180-200: [120, 132] }
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        rows: {
+          50: max-11, 55: max-11, 60: max-10, 65: max-9, 70: max-8,
+          75: max-7, 80: max-7, 85: max-6, 90: max-5, 95: max-4,
+          100: max-3, 105: max-3, 110: max-2, 115: max-1, 120: max
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - { target: volume_spacers, value: 0 }
+
+  rockshox_sid_sl_2025:
+    label: RockShox Front Suspension Specifications (2025)
+    source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2025-front-suspension-specifications.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        rows: &sid_sl_debonair { 120-140: [70, 90], 140-160: [90, 105], 160-180: [105, 120], 180-200: [120, 135] }
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        rows: &th_sid_d1 {
+          50: max-12, 55: max-11, 60: max-10, 65: max-10, 70: max-9,
+          75: max-8, 80: max-7, 85: max-7, 90: max-6, 95: max-5,
+          100: max-4, 105: max-4, 110: max-3, 115: max-2, 120: max-2
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - &rockshox_fork_sag { target: sag, range: [10, 30], comfort_at: max, note: "RockShox's general band: toward 30 % on long travel, toward 10 % on short travel" }
+
+  rockshox_sid_sl_2021:
+    label: RockShox Front Suspension Specifications (2023)
+    source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-front-suspension-oil-air-coil-token-specifications-english.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 100 }
+        rows: *sid_sl_debonair
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: charger_race_day, travel_mm: 100 }
+        rows: {
+          50: max-9, 55: max-8, 60: max-7, 65: max-7, 70: max-6,
+          75: max-6, 80: max-5, 85: max-5, 90: max-4, 95: max-3,
+          100: max-3, 105: max-2, 110: max-2, 115: max-1, 120: max-1
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: charger_2_rl, travel_mm: 100 }
+        rows: {
+          50: max-17, 55: max-17, 60: max-16, 65: max-15, 70: max-14,
+          75: max-13, 80: max-12, 85: max-11, 90: max-11, 95: max-10,
+          100: max-9, 105: max-8, 110: max-7, 115: max-6, 120: max-5
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: charger_rl, travel_mm: 100 }
+        rows: {
+          50: max-17, 55: max-16, 60: max-16, 65: max-15, 70: max-14,
+          75: max-14, 80: max-13, 85: max-12, 90: max-12, 95: max-11,
+          100: max-10, 105: max-10, 110: max-9, 115: max-8, 120: max-8
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: rush_rl, travel_mm: 100 }
+        rows: {
+          50: max-10, 55: max-9, 60: max-9, 65: max-8, 70: max-8,
+          75: max-7, 80: max-7, 85: max-7, 90: max-6, 95: max-6,
+          100: max-5, 105: max-5, 110: max-4, 115: max-4, 120: max-3
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - &rockshox_lockout_open { target: lockout, value: false, when: { damper: [charger_2_rl, charger_rl, rush_rl] } }
+      - *rockshox_fork_sag
+      - { target: volume_spacers, value: 0, when: { travel_mm: 100 } }
+
+  rockshox_sid_2025:
+    label: RockShox Front Suspension Specifications (2027)
+    source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        rows: {
+          100-120: [39, 51], 120-140: [51, 64], 140-160: [64, 76],
+          160-180: [76, 87], 180-200: [87, 99]
+        }
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        rows: *th_sid_d1
+        note: Calculated from RockShox TrailHead's formula
+      - target: volume_spacers
+        input: travel_mm
+        rows: { 100: 1, 110: 1, 120: 0 }
+
+  rockshox_sid_2021:
+    label: RockShox Front Suspension Specifications (2023)
+    source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-front-suspension-oil-air-coil-token-specifications-english.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: [110, 120] }
+        rows: { 120-140: [45, 59], 140-160: [59, 73], 160-180: [73, 87], 180-200: [87, 101] }
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: charger_race_day }
+        rows: {
+          50: max-12, 55: max-11, 60: max-10, 65: max-9, 70: max-8,
+          75: max-8, 80: max-7, 85: max-6, 90: max-5, 95: max-4,
+          100: max-3, 105: max-2, 110: max-1, 115: max, 120: max
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: charger_2_rl }
+        rows: {
+          50: max-13, 55: max-13, 60: max-12, 65: max-11, 70: max-10,
+          75: max-10, 80: max-9, 85: max-8, 90: max-8, 95: max-7,
+          100: max-6, 105: max-5, 110: max-5, 115: max-4, 120: max-3
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: charger_rl }
+        rows: {
+          50: max-13, 55: max-13, 60: max-12, 65: max-11, 70: max-11,
+          75: max-10, 80: max-10, 85: max-9, 90: max-9, 95: max-8,
+          100: max-8, 105: max-7, 110: max-7, 115: max-6, 120: max-5
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: rush_rl }
+        rows: {
+          50: max-9, 55: max-8, 60: max-8, 65: max-7, 70: max-7,
+          75: max-6, 80: max-6, 85: max-5, 90: max-5, 95: max-4,
+          100: max-4, 105: max-3, 110: max-3, 115: max-2, 120: max-2
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - *rockshox_lockout_open
+      - *rockshox_fork_sag
+      - target: volume_spacers
+        input: travel_mm
+        rows: { 110: 1, 120: 0 }
+
+  rockshox_reba_2024:
+    label: RockShox Front Suspension Specifications (2024)
+    source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2024-front-suspension-specifications.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        rows: *sid_sl_debonair
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { travel_mm: 100 }
+        rows: {
+          50: max-13, 55: max-13, 60: max-12, 65: max-11, 70: max-10,
+          75: max-10, 80: max-9, 85: max-8, 90: max-7, 95: max-7,
+          100: max-6, 105: max-5, 110: max-4, 115: max-4, 120: max-3
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { travel_mm: [110, 120] }
+        rows: {
+          50: max-13, 55: max-13, 60: max-12, 65: max-11, 70: max-10,
+          75: max-10, 80: max-9, 85: max-8, 90: max-8, 95: max-7,
+          100: max-6, 105: max-5, 110: max-5, 115: max-4, 120: max-3
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - *rockshox_fork_sag
+      - target: volume_spacers
+        input: travel_mm
+        rows: { 100: 0, 110: 1, 120: 0 }
+
+  rockshox_pike_2025:
+    label: RockShox Front Suspension Specifications (2027)
+    source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 120 }
+        rows: &debonair_plus_60 {
+          120-140: [60, 70], 140-160: [70, 80], 160-180: [80, 90],
+          180-200: [90, 100], 200-220: [100, 110]
+        }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: [130, 140] }
+        rows: &debonair_plus_50 {
+          120-140: [50, 60], 140-160: [60, 70], 160-180: [70, 80],
+          180-200: [80, 90], 200-220: [90, 100]
+        }
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: charger_3_1, travel_mm: 120 }
+        rows: &th_c3_a {
+          50: max-13, 55: max-12, 60: max-12, 65: max-11, 70: max-10,
+          75: max-10, 80: max-9, 85: max-8, 90: max-7, 95: max-7,
+          100: max-6, 105: max-5, 110: max-5, 115: max-4, 120: max-3
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: charger_3_1, travel_mm: [130, 140] }
+        rows: &th_c3_b {
+          50: max-14, 55: max-14, 60: max-13, 65: max-12, 70: max-12,
+          75: max-11, 80: max-10, 85: max-10, 90: max-9, 95: max-8,
+          100: max-8, 105: max-7, 110: max-6, 115: max-6, 120: max-5
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: rush_rc, travel_mm: 120 }
+        rows: &th_rush_p120 {
+          50: max-13, 55: max-13, 60: max-12, 65: max-12, 70: max-11,
+          75: max-11, 80: max-10, 85: max-10, 90: max-9, 95: max-9,
+          100: max-8, 105: max-8, 110: max-7, 115: max-7, 120: max-6
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: rush_rc, travel_mm: [130, 140] }
+        rows: &th_rush_p130 {
+          50: max-14, 55: max-13, 60: max-13, 65: max-12, 70: max-12,
+          75: max-12, 80: max-11, 85: max-11, 90: max-10, 95: max-10,
+          100: max-9, 105: max-9, 110: max-8, 115: max-8, 120: max-7
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - { target: hsc, value: 0, when: { damper: charger_3_1 } }
+      - { target: lsc, value: 0, when: { damper: charger_3_1 } }
+      - target: volume_spacers
+        input: travel_mm
+        rows: &pike_tokens { 120: 1, 130: 0, 140: 0 }
+
+  rockshox_pike_2023:
+    label: RockShox Front Suspension Specifications (2023)
+    source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-front-suspension-oil-air-coil-token-specifications-english.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 120 }
+        rows: {
+          120-140: [55, 65], 140-160: [65, 75], 160-180: [75, 85],
+          180-200: [85, 95], 200-220: [95, 105]
+        }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: [130, 140] }
+        rows: {
+          120-140: [45, 55], 140-160: [55, 65], 160-180: [65, 75],
+          180-200: [75, 85], 200-220: [85, 95]
+        }
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: charger_3, travel_mm: 120 }
+        rows: *th_c3_a
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: charger_3, travel_mm: [130, 140] }
+        rows: *th_c3_b
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: rush_rc, travel_mm: 120 }
+        rows: *th_rush_p120
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: rush_rc, travel_mm: [130, 140] }
+        rows: *th_rush_p130
+        note: Calculated from RockShox TrailHead's formula
+      - { target: hsc, value: 0, when: { damper: charger_3 } }
+      - { target: lsc, value: 0, when: { damper: charger_3 } }
+      - target: volume_spacers
+        input: travel_mm
+        rows: *pike_tokens
+
+  rockshox_lyrik_2027:
+    label: RockShox Front Suspension Specifications (2027)
+    source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 140 }
+        rows: {
+          120-140: [114, 133], 140-160: [133, 150], 160-180: [150, 163],
+          180-200: [163, 174], 200-220: [174, 181]
+        }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 150 }
+        rows: {
+          120-140: [104, 123], 140-160: [123, 140], 160-180: [140, 153],
+          180-200: [153, 164], 200-220: [164, 171]
+        }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 160 }
+        rows: {
+          120-140: [94, 113], 140-160: [113, 130], 160-180: [130, 143],
+          180-200: [143, 154], 200-220: [154, 161]
+        }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 170 }
+        rows: {
+          120-140: [84, 103], 140-160: [103, 120], 160-180: [120, 133],
+          180-200: [133, 144], 200-220: [144, 151]
+        }
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { travel_mm: [140, 150] }
+        rows: *th_c3_a
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { travel_mm: [160, 170] }
+        rows: *th_c3_b
+        note: Calculated from RockShox TrailHead's formula
+      - { target: hsc, value: 0 }
+      - { target: lsc, value: 0 }
+      - target: volume_spacers
+        input: travel_mm
+        rows: { 140: 1, 150: 0, 160: 0, 170: 0 }
+
+  rockshox_lyrik_2025:
+    label: RockShox Front Suspension Specifications (2026)
+    source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2026-front-suspension-specifications.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 140 }
+        rows: *debonair_plus_60
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: [150, 160] }
+        rows: *debonair_plus_50
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: charger_3_1, travel_mm: 140 }
+        rows: *th_c3_a
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: charger_3_1, travel_mm: [150, 160] }
+        rows: *th_c3_b
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: rush_rc, travel_mm: 140 }
+        rows: &th_base_a {
+          50: max-13, 55: max-12, 60: max-12, 65: max-11, 70: max-11,
+          75: max-10, 80: max-10, 85: max-9, 90: max-9, 95: max-9,
+          100: max-8, 105: max-8, 110: max-7, 115: max-7, 120: max-6
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: rush_rc, travel_mm: [150, 160] }
+        rows: &th_base_b {
+          50: max-13, 55: max-13, 60: max-12, 65: max-12, 70: max-12,
+          75: max-11, 80: max-11, 85: max-10, 90: max-10, 95: max-9,
+          100: max-9, 105: max-9, 110: max-8, 115: max-8, 120: max-7
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - { target: hsc, value: 0, when: { damper: charger_3_1 } }
+      - { target: lsc, value: 0, when: { damper: charger_3_1 } }
+      - target: volume_spacers
+        input: travel_mm
+        rows: &lyrik_tokens { 140: 1, 150: 0, 160: 0 }
+
+  rockshox_lyrik_2023:
+    label: RockShox Front Suspension Specifications (2023)
+    source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-front-suspension-oil-air-coil-token-specifications-english.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 140 }
+        rows: *debonair_plus_60
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: [150, 160] }
+        rows: *debonair_plus_50
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: charger_3, travel_mm: 140 }
+        rows: *th_c3_a
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: charger_3, travel_mm: [150, 160] }
+        rows: *th_c3_b
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: rush_rc, travel_mm: 140 }
+        rows: *th_base_a
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: rush_rc, travel_mm: [150, 160] }
+        rows: *th_base_b
+        note: Calculated from RockShox TrailHead's formula
+      - { target: hsc, value: 0, when: { damper: charger_3 } }
+      - { target: lsc, value: 0, when: { damper: charger_3 } }
+      - target: volume_spacers
+        input: travel_mm
+        rows: *lyrik_tokens
+
+  rockshox_zeb_2027:
+    label: RockShox Front Suspension Specifications (2027)
+    source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 150 }
+        rows: {
+          120-140: [106, 125], 140-160: [125, 142], 160-180: [142, 157],
+          180-200: [157, 170], 200-220: [170, 181]
+        }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 160 }
+        rows: {
+          120-140: [96, 115], 140-160: [115, 132], 160-180: [132, 147],
+          180-200: [147, 160], 200-220: [160, 171]
+        }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 170 }
+        rows: {
+          120-140: [86, 105], 140-160: [105, 122], 160-180: [122, 137],
+          180-200: [137, 150], 200-220: [150, 161]
+        }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 180 }
+        rows: {
+          120-140: [76, 95], 140-160: [95, 112], 160-180: [112, 127],
+          180-200: [127, 140], 200-220: [140, 151]
+        }
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { travel_mm: [150, 160] }
+        rows: *th_c3_a
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { travel_mm: [170, 180] }
+        rows: *th_c3_b
+        note: Calculated from RockShox TrailHead's formula
+      - { target: hsc, value: 0 }
+      - { target: lsc, value: 0 }
+      - target: volume_spacers
+        input: travel_mm
+        rows: { 150: 1, 160: 1, 170: 0, 180: 0 }
+
+  # ZEB Base rebound is left out: the specification PDFs name its damper
+  # Charger R, the catalog `rush_rc` (see Follow-ups).
+  rockshox_zeb_2025:
+    label: RockShox Front Suspension Specifications (2026)
+    source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2026-front-suspension-specifications.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: [150, 160] }
+        rows: &zeb_debonair_plus_150 {
+          120-140: [45, 54], 140-160: [54, 62], 160-180: [62, 70],
+          180-200: [70, 78], 200-220: [78, 87]
+        }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: [170, 180] }
+        rows: &zeb_debonair_plus_170 {
+          120-140: [37, 45], 140-160: [45, 54], 160-180: [54, 62],
+          180-200: [62, 70], 200-220: [70, 78]
+        }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 190 }
+        rows: &zeb_debonair_plus_190 {
+          120-140: [29, 37], 140-160: [37, 46], 160-180: [46, 54],
+          180-200: [54, 62], 200-220: [62, 70]
+        }
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: charger_3_1, travel_mm: [150, 160] }
+        rows: *th_c3_a
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: charger_3_1, travel_mm: [170, 180] }
+        rows: *th_c3_b
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: charger_3_1, travel_mm: 190 }
+        rows: &th_c3_c {
+          50: max-16, 55: max-15, 60: max-14, 65: max-14, 70: max-13,
+          75: max-12, 80: max-12, 85: max-11, 90: max-10, 95: max-10,
+          100: max-9, 105: max-8, 110: max-8, 115: max-7, 120: max-6
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - { target: hsc, value: 0, when: { damper: charger_3_1 } }
+      - { target: lsc, value: 0, when: { damper: charger_3_1 } }
+      - target: volume_spacers
+        input: travel_mm
+        rows: &zeb_tokens { 150: 2, 160: 1, 170: 1, 180: 0, 190: 0 }
+
+  rockshox_zeb_2023:
+    label: RockShox Front Suspension Specifications (2023)
+    source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-front-suspension-oil-air-coil-token-specifications-english.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: [150, 160] }
+        rows: *zeb_debonair_plus_150
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: [170, 180] }
+        rows: *zeb_debonair_plus_170
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 190 }
+        rows: *zeb_debonair_plus_190
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: charger_3, travel_mm: [150, 160] }
+        rows: *th_c3_a
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: charger_3, travel_mm: [170, 180] }
+        rows: *th_c3_b
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: charger_3, travel_mm: 190 }
+        rows: *th_c3_c
+        note: Calculated from RockShox TrailHead's formula
+      - { target: hsc, value: 0, when: { damper: charger_3 } }
+      - { target: lsc, value: 0, when: { damper: charger_3 } }
+      - target: volume_spacers
+        input: travel_mm
+        rows: *zeb_tokens
+
+  rockshox_psylo_2027:
+    label: RockShox Front Suspension Specifications (2027)
+    source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 130 }
+        rows: {
+          120-140: [100, 110], 140-160: [110, 120], 160-180: [120, 130],
+          180-200: [130, 140], 200-220: [140, 150]
+        }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: [140, 150, 160] }
+        rows: {
+          120-140: [75, 85], 140-160: [85, 95], 160-180: [95, 105],
+          180-200: [105, 115], 200-220: [115, 125]
+        }
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { travel_mm: 130 }
+        rows: {
+          50: max-6, 55: max-6, 60: max-5, 65: max-5, 70: max-4,
+          75: max-3, 80: max-3, 85: max-2, 90: max-2, 95: max-1,
+          100: max-1, 105: max, 110: max, 115: max, 120: max
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { travel_mm: [140, 150, 160] }
+        rows: {
+          50: max-6, 55: max-6, 60: max-5, 65: max-5, 70: max-4,
+          75: max-3, 80: max-3, 85: max-2, 90: max-2, 95: max-1,
+          100: max-1, 105: max, 110: max, 115: max, 120: max
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - *rockshox_fork_sag
+      - { target: volume_spacers, value: 0 }
+
+  rockshox_domain_2027:
+    label: RockShox Front Suspension Specifications (2027)
+    source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 150 }
+        rows: *zeb_debonair_plus_150
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: [160, 170, 180] }
+        rows: *zeb_debonair_plus_170
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { travel_mm: 150 }
+        rows: {
+          50: max-10, 55: max-9, 60: max-9, 65: max-8, 70: max-7,
+          75: max-7, 80: max-6, 85: max-6, 90: max-5, 95: max-5,
+          100: max-4, 105: max-4, 110: max-3, 115: max-2, 120: max-2
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { travel_mm: [160, 170, 180] }
+        rows: {
+          50: max-11, 55: max-10, 60: max-10, 65: max-9, 70: max-8,
+          75: max-8, 80: max-7, 85: max-7, 90: max-6, 95: max-6,
+          100: max-5, 105: max-5, 110: max-4, 115: max-3, 120: max-3
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - *rockshox_fork_sag
+      - target: volume_spacers
+        input: travel_mm
+        rows: { 150: 2, 160: 2, 170: 1, 180: 0 }
+
+  rockshox_boxxer_2027:
+    label: RockShox Front Suspension Specifications (2027)
+    source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 180 }
+        rows: &boxxer_d_180 {
+          120-140: [115, 140], 140-160: [140, 165], 160-180: [165, 190],
+          180-200: [190, 215], 200-220: [215, 240]
+        }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: [190, 200] }
+        rows: &boxxer_d_190 {
+          120-140: [90, 110], 140-160: [110, 130], 160-180: [130, 150],
+          180-200: [150, 170], 200-220: [170, 190]
+        }
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { travel_mm: 180 }
+        rows: &th_bxr_d_180 {
+          50: max-13, 55: max-12, 60: max-11, 65: max-11, 70: max-10,
+          75: max-9, 80: max-8, 85: max-7, 90: max-6, 95: max-5,
+          100: max-5, 105: max-4, 110: max-3, 115: max-2, 120: max-1
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { travel_mm: [190, 200] }
+        rows: &th_bxr_d_190 {
+          50: max-15, 55: max-14, 60: max-14, 65: max-13, 70: max-12,
+          75: max-11, 80: max-10, 85: max-9, 90: max-8, 95: max-7,
+          100: max-6, 105: max-5, 110: max-4, 115: max-3, 120: max-2
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - { target: hsc, value: 0 }
+      - { target: lsc, value: 0 }
+      - target: volume_spacers
+        input: travel_mm
+        rows: &boxxer_d_tokens { 180: 1, 190: 0, 200: 0 }
+
+  rockshox_boxxer_2024:
+    label: RockShox Front Suspension Specifications (2026)
+    source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2026-front-suspension-specifications.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 180 }
+        rows: *boxxer_d_180
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: [190, 200] }
+        rows: *boxxer_d_190
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { travel_mm: 180 }
+        rows: *th_bxr_d_180
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { travel_mm: [190, 200] }
+        rows: *th_bxr_d_190
+        note: Calculated from RockShox TrailHead's formula
+      - { target: hsc, value: 0 }
+      - { target: lsc, value: 0 }
+      - target: volume_spacers
+        input: travel_mm
+        rows: *boxxer_d_tokens
+
+  rockshox_boxxer_2019:
+    label: RockShox Front Suspension Specifications (2023)
+    source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-front-suspension-oil-air-coil-token-specifications-english.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 180 }
+        rows: {
+          120-140: [105, 115], 140-160: [115, 125], 160-180: [125, 135],
+          180-200: [135, 145], 200-220: [145, 155]
+        }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: [190, 200] }
+        rows: {
+          120-140: [95, 105], 140-160: [105, 115], 160-180: [115, 125],
+          180-200: [125, 135], 200-220: [135, 145]
+        }
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { travel_mm: 180 }
+        rows: {
+          50: max-11, 55: max-10, 60: max-10, 65: max-9, 70: max-9,
+          75: max-8, 80: max-8, 85: max-7, 90: max-7, 95: max-6,
+          100: max-6, 105: max-5, 110: max-5, 115: max-4, 120: max-4
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { travel_mm: [190, 200] }
+        rows: {
+          50: max-12, 55: max-11, 60: max-11, 65: max-10, 70: max-10,
+          75: max-9, 80: max-9, 85: max-8, 90: max-8, 95: max-7,
+          100: max-7, 105: max-6, 110: max-6, 115: max-5, 120: max-5
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - *rockshox_fork_sag
+      - target: volume_spacers
+        input: travel_mm
+        rows: { 180: 2, 190: 1, 200: 0 }
+
+  rockshox_rudy_xplr_2027:
+    label: RockShox Front Suspension Specifications (2027)
+    source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        rows: { 120-140: [90, 110], 140-160: [110, 130], 160-180: [130, 150], 180-200: [150, 170] }
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        rows: {
+          50: max-13, 55: max-12, 60: max-11, 65: max-10, 70: max-9,
+          75: max-8, 80: max-7, 85: max-6, 90: max-4, 95: max-3,
+          100: max-2, 105: max-1, 110: max, 115: max, 120: max
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - { target: sag, value: 5 }
+
+  rockshox_rudy_xl_2027:
+    label: RockShox Front Suspension Specifications (2027)
+    source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        rows: { 120-140: [75, 85], 140-160: [85, 98], 160-180: [98, 110], 180-200: [110, 122] }
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        rows: {
+          50: max-16, 55: max-16, 60: max-15, 65: max-15, 70: max-14,
+          75: max-14, 80: max-13, 85: max-13, 90: max-12, 95: max-12,
+          100: max-11, 105: max-10, 110: max-10, 115: max-9, 120: max-9
+        }
+        note: Calculated from RockShox TrailHead's formula
+
+  rockshox_yari_2024:
+    label: RockShox Front Suspension Specifications (2024)
+    source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2024-front-suspension-specifications.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: [150, 160] }
+        rows: {
+          120-140: [55, 65], 140-160: [65, 75], 160-180: [75, 85],
+          180-200: [85, 95], 200-220: [95, 105]
+        }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: [170, 180] }
+        rows: {
+          120-140: [45, 55], 140-160: [55, 65], 160-180: [65, 75],
+          180-200: [75, 85], 200-220: [85, 95]
+        }
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { travel_mm: [150, 160] }
+        rows: {
+          50: max-17, 55: max-16, 60: max-15, 65: max-14, 70: max-13,
+          75: max-13, 80: max-12, 85: max-11, 90: max-10, 95: max-9,
+          100: max-9, 105: max-8, 110: max-7, 115: max-6, 120: max-5
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { travel_mm: [170, 180] }
+        rows: {
+          50: max-17, 55: max-17, 60: max-16, 65: max-16, 70: max-15,
+          75: max-14, 80: max-13, 85: max-13, 90: max-12, 95: max-11,
+          100: max-10, 105: max-9, 110: max-9, 115: max-8, 120: max-7
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - *rockshox_fork_sag
+      - target: volume_spacers
+        input: travel_mm
+        rows: { 150: 2, 160: 2, 170: 1, 180: 0 }
+
+  # The 160 mm column and token count are printed for 27.5" only.
+  rockshox_revelation_2024:
+    label: RockShox Front Suspension Specifications (2024)
+    source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2024-front-suspension-specifications.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 120 }
+        rows: {
+          120-140: [75, 85], 140-160: [85, 95], 160-180: [95, 105],
+          180-200: [105, 115], 200-220: [115, 125]
+        }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: [130, 140] }
+        rows: {
+          120-140: [65, 75], 140-160: [75, 85], 160-180: [85, 95],
+          180-200: [95, 105], 200-220: [105, 115]
+        }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 150 }
+        rows: &revelation_150 {
+          120-140: [55, 65], 140-160: [65, 75], 160-180: [75, 85],
+          180-200: [85, 95], 200-220: [95, 105]
+        }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 160, wheel_size: "27.5" }
+        rows: *revelation_150
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { travel_mm: 120 }
+        rows: {
+          50: max-11, 55: max-11, 60: max-10, 65: max-9, 70: max-9,
+          75: max-8, 80: max-8, 85: max-7, 90: max-7, 95: max-6,
+          100: max-5, 105: max-5, 110: max-4, 115: max-4, 120: max-3
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { travel_mm: [130, 140] }
+        rows: {
+          50: max-11, 55: max-10, 60: max-9, 65: max-9, 70: max-8,
+          75: max-7, 80: max-7, 85: max-6, 90: max-5, 95: max-5,
+          100: max-4, 105: max-3, 110: max-3, 115: max-2, 120: max-1
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { travel_mm: [150, 160] }
+        rows: {
+          50: max-11, 55: max-10, 60: max-10, 65: max-9, 70: max-9,
+          75: max-8, 80: max-7, 85: max-7, 90: max-6, 95: max-5,
+          100: max-5, 105: max-4, 110: max-3, 115: max-3, 120: max-2
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - *rockshox_fork_sag
+      - target: volume_spacers
+        input: travel_mm
+        rows: { 120: 4, 130: 3, 140: 2, 150: 1 }
+      - target: volume_spacers
+        input: travel_mm
+        when: { wheel_size: "27.5" }
+        rows: { 120: 4, 130: 3, 140: 2, 150: 1, 160: 0 }
+
+  # The newer PDFs print the 130-150 mm, <140 lb cell as "130-150 psi"; the
+  # 2022/2024 editions print 40-60, which fits the column, so 40-60 is used.
+  rockshox_recon_gold_2027:
+    label: RockShox Front Suspension Specifications (2027)
+    source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 80 }
+        rows: { "<140": [90, 110], 140-160: [110, 125], 160-180: [125, 140], 180-200: [140, 160] }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: [100, 120] }
+        rows: { "<140": [50, 70], 140-160: [70, 85], 160-180: [85, 100], 180-200: [100, 120] }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: [130, 140, 150] }
+        rows: { "<140": [40, 60], 140-160: [60, 75], 160-180: [75, 90], 180-200: [90, 105] }
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { travel_mm: 80 }
+        rows: {
+          50: max-15, 55: max-14, 60: max-14, 65: max-13, 70: max-12,
+          75: max-12, 80: max-11, 85: max-11, 90: max-10, 95: max-9,
+          100: max-9, 105: max-8, 110: max-8, 115: max-7, 120: max-7
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { travel_mm: [100, 120] }
+        rows: {
+          50: max-17, 55: max-17, 60: max-17, 65: max-17, 70: max-16,
+          75: max-15, 80: max-14, 85: max-13, 90: max-12, 95: max-11,
+          100: max-10, 105: max-10, 110: max-9, 115: max-8, 120: max-7
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { travel_mm: 130 }
+        rows: {
+          50: max-17, 55: max-17, 60: max-17, 65: max-17, 70: max-17,
+          75: max-17, 80: max-17, 85: max-16, 90: max-16, 95: max-15,
+          100: max-14, 105: max-14, 110: max-13, 115: max-13, 120: max-12
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { travel_mm: [140, 150] }
+        rows: {
+          50: max-17, 55: max-17, 60: max-17, 65: max-17, 70: max-17,
+          75: max-16, 80: max-16, 85: max-15, 90: max-15, 95: max-14,
+          100: max-13, 105: max-13, 110: max-12, 115: max-11, 120: max-11
+        }
+        note: Calculated from RockShox TrailHead's formula
+      - *rockshox_fork_sag
+      - { target: volume_spacers, value: 0 }
+
+# --------------------------------------------------------------------------
 # Forks — current lineup first, then the models that only exist as an earlier
 # generation (Yari, Revelation, Recon Gold). A model with several generations
 # nests them as `generation` nodes, newest first. Each generation gets its own
 # damper id — SRAM revises internals under an unchanged badge.
-# Every fork here is air-sprung, so trims share the `&air_spring` anchor
-# (Pressure only). Trims whose Bottomless Token maximum IS published carry their
-# own literal list with a Volume Spacers entry instead of the alias.
+# Every fork here is air-sprung: each generation writes its Pressure (with the
+# published maximum) and, where the Bottomless Token maximum is published, a
+# Volume Spacers entry once as an anchor that its trims alias.
 # --------------------------------------------------------------------------
 nodes:
   - label: "SID SL"
@@ -306,18 +1421,20 @@ nodes:
     tasks:
       fork:full_service: &rockshox_full_service { interval: { moving_time_h: 200 }, fallback: { days: 365 }, source: RockShox service intervals }
     children:
-      - label: "2025–2026"
+      - label: "2026–2027"
         level: generation
-        id: "2025"
+        id: "2026"
         draft: true
-        years: "2025-2026"
+        years: "2026-2027"
         url: https://www.sram.com/en/rockshox/series/sid-sl
+        guide: rockshox_sid_sl_2026
         children:
           - label: Ultimate
             level: trim
             specs: { stanchion: 32mm, spring: Air }
-            adjustments: &air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0 }
+            adjustments: &sid_sl_e1_air_spring
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 195 }
+              - { name: Volume Spacers, type: step, max: 3, unit: tokens, visualization: stepper, notes: Bottomless Tokens }
             options:
               damper: [charger_race_day_2]
               travel_mm: [100, 110]
@@ -325,7 +1442,33 @@ nodes:
           - label: Select+
             level: trim
             specs: { stanchion: 32mm, spring: Air }
-            adjustments: *air_spring
+            adjustments: *sid_sl_e1_air_spring
+            options:
+              damper: [charger_race_day_2]
+              travel_mm: [100, 110]
+              wheel_size: [29]
+            note: OEM only
+      - label: "2024–2025"
+        level: generation
+        id: "2025"
+        draft: true
+        years: "2024-2025"
+        url: https://www.sram.com/en/rockshox/series/sid-sl
+        guide: rockshox_sid_sl_2025
+        children:
+          - label: Ultimate
+            level: trim
+            specs: { stanchion: 32mm, spring: Air }
+            adjustments: &sid_sl_d1_air_spring
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 195 }
+            options:
+              damper: [charger_race_day_2]
+              travel_mm: [100, 110]
+              wheel_size: [29]
+          - label: Select+
+            level: trim
+            specs: { stanchion: 32mm, spring: Air }
+            adjustments: *sid_sl_d1_air_spring
             options:
               damper: [charger_race_day_2]
               travel_mm: [100, 110]
@@ -336,13 +1479,14 @@ nodes:
         id: "2021"
         years: "2021-2023"
         url: https://www.sram.com/en/rockshox/series/sid-sl
+        guide: rockshox_sid_sl_2021
         children:
           - label: Ultimate
             level: trim
             draft: true
             specs: { stanchion: 32mm, spring: Air }
-            adjustments: &sid_c1_air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0 }
+            adjustments: &sid_sl_c1_air_spring
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 195 }
               - { name: Volume Spacers, type: step, max: 3, unit: tokens, visualization: stepper, notes: Bottomless Tokens }
             options:
               damper: [charger_race_day]
@@ -351,7 +1495,7 @@ nodes:
           - label: Select+
             level: trim
             specs: { stanchion: 32mm, spring: Air }
-            adjustments: *sid_c1_air_spring
+            adjustments: *sid_sl_c1_air_spring
             options:
               damper: [charger_2_rl]
               travel_mm: [80, 100]
@@ -359,7 +1503,7 @@ nodes:
           - label: Select
             level: trim
             specs: { stanchion: 32mm, spring: Air }
-            adjustments: *sid_c1_air_spring
+            adjustments: *sid_sl_c1_air_spring
             options:
               damper: [charger_rl]
               travel_mm: [80, 100]
@@ -367,7 +1511,7 @@ nodes:
           - label: Base
             level: trim
             specs: { stanchion: 32mm, spring: Air }
-            adjustments: *sid_c1_air_spring
+            adjustments: *sid_sl_c1_air_spring
             options:
               damper: [rush_rl]
               travel_mm: [80, 100]
@@ -387,11 +1531,14 @@ nodes:
         draft: true
         years: "2025-2026"
         url: https://www.sram.com/en/rockshox/series/sid
+        guide: rockshox_sid_2025
         children:
           - label: Ultimate
             level: trim
             specs: { stanchion: 35mm, spring: Air }
-            adjustments: *air_spring
+            adjustments: &sid_d1_air_spring
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 150 }
+              - { name: Volume Spacers, type: step, max: 3, unit: tokens, visualization: stepper, notes: Bottomless Tokens }
             options:
               damper: [charger_race_day_2]
               travel_mm: [100, 110, 120]
@@ -399,7 +1546,7 @@ nodes:
           - label: Select+
             level: trim
             specs: { stanchion: 35mm, spring: Air }
-            adjustments: *air_spring
+            adjustments: *sid_d1_air_spring
             options:
               damper: [charger_race_day_2]
               travel_mm: [100, 110, 120]
@@ -410,12 +1557,15 @@ nodes:
         id: "2021"
         years: "2021-2023"
         url: https://www.sram.com/en/rockshox/series/sid
+        guide: rockshox_sid_2021
         children:
           - label: Ultimate
             level: trim
             draft: true
             specs: { stanchion: 35mm, spring: Air }
-            adjustments: *sid_c1_air_spring
+            adjustments: &sid_c1_air_spring
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 146 }
+              - { name: Volume Spacers, type: step, max: 3, unit: tokens, visualization: stepper, notes: Bottomless Tokens }
             options:
               damper: [charger_race_day]
               travel_mm: [100, 110, 120]
@@ -451,6 +1601,7 @@ nodes:
     category: XC / Trail
     years: "2018-2024"
     url: https://www.sram.com/en/rockshox/series/reba
+    guide: rockshox_reba_2024
     tasks:
       fork:lower_leg_service: *rockshox_lower_leg_service
       fork:full_service: *rockshox_full_service
@@ -459,7 +1610,7 @@ nodes:
         level: trim
         specs: { stanchion: 32mm, spring: Air }
         adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 195 }
           - { name: Volume Spacers, type: step, max: 4, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 3 maximum at 100mm travel" }
         options:
           damper: [motion_control_rl]
@@ -469,7 +1620,7 @@ nodes:
         level: trim
         specs: { stanchion: 32mm, spring: Air }
         adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 195 }
           - { name: Volume Spacers, type: step, max: 4, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 3 maximum at 100mm travel" }
         options:
           damper: [motion_control_rl]
@@ -490,12 +1641,13 @@ nodes:
         id: "2025"
         years: "2025-2027"
         url: https://www.sram.com/en/rockshox/series/pike
+        guide: rockshox_pike_2025
         children:
           - label: Ultimate
             level: trim
             specs: { stanchion: 35mm, spring: Air }
-            adjustments: &pike_air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0 }
+            adjustments: &pike_c2_air_spring
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 163 }
               - { name: Volume Spacers, type: step, max: 6, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 6 maximum at 120-130mm travel, 5 at 140mm" }
             options:
               damper: [charger_3_1]
@@ -504,7 +1656,7 @@ nodes:
           - label: Ultimate Flight Attendant
             level: trim
             specs: { stanchion: 35mm, spring: Air }
-            adjustments: *pike_air_spring
+            adjustments: *pike_c2_air_spring
             options:
               damper: [charger_3_1]
               travel_mm: [120, 130, 140]
@@ -513,7 +1665,7 @@ nodes:
           - label: Select+
             level: trim
             specs: { stanchion: 35mm, spring: Air }
-            adjustments: *pike_air_spring
+            adjustments: *pike_c2_air_spring
             options:
               damper: [charger_3_1]
               travel_mm: [120, 130, 140]
@@ -521,7 +1673,7 @@ nodes:
           - label: Base
             level: trim
             specs: { stanchion: 35mm, spring: Air }
-            adjustments: *pike_air_spring
+            adjustments: *pike_c2_air_spring
             options:
               damper: [rush_rc]
               travel_mm: [120, 130, 140]
@@ -532,11 +1684,14 @@ nodes:
         id: "2023"
         years: "2023-2024"
         url: https://www.sram.com/en/rockshox/series/pike
+        guide: rockshox_pike_2023
         children:
           - label: Ultimate
             level: trim
             specs: { stanchion: 35mm, spring: Air }
-            adjustments: *pike_air_spring
+            adjustments: &pike_air_spring
+              - { name: Pressure, type: numerical, unit: psi, min: 0 }
+              - { name: Volume Spacers, type: step, max: 6, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 6 maximum at 120-130mm travel, 5 at 140mm" }
             options:
               damper: [charger_3]
               travel_mm: [120, 130, 140]
@@ -571,12 +1726,14 @@ nodes:
         level: generation
         years: "2027"
         url: https://www.sram.com/en/rockshox/series/lyrik
+        guide: rockshox_lyrik_2027
         children:
           - label: Ultimate
             level: trim
             specs: { stanchion: 35mm, spring: Linear XL }
             adjustments: &lyrik_e1_air_spring
               - { name: Pressure, type: numerical, unit: psi, min: 0, max: 300 }
+              - { name: Volume Spacers, type: step, max: 5, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 5 maximum at 140mm travel, 4 at 150-160mm, 3 at 170mm" }
             options:
               damper: [charger_3_2]
               travel_mm: [140, 150, 160, 170]
@@ -603,12 +1760,13 @@ nodes:
         id: "2025"
         years: "2025-2026"
         url: https://www.sram.com/en/rockshox/series/lyrik
+        guide: rockshox_lyrik_2025
         children:
           - label: Ultimate
             level: trim
             specs: { stanchion: 35mm, spring: Air }
             adjustments: &lyrik_air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0 }
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 163 }
               - { name: Volume Spacers, type: step, max: 5, unit: tokens, visualization: stepper, notes: Bottomless Tokens }
             options:
               damper: [charger_3_1]
@@ -645,6 +1803,7 @@ nodes:
         id: "2023"
         years: "2023-2024"
         url: https://www.sram.com/en/rockshox/series/lyrik
+        guide: rockshox_lyrik_2023
         children:
           - label: Ultimate
             level: trim
@@ -684,12 +1843,14 @@ nodes:
         level: generation
         years: "2027"
         url: https://www.sram.com/en/rockshox/series/zeb
+        guide: rockshox_zeb_2027
         children:
           - label: Ultimate
             level: trim
             specs: { stanchion: 38mm, spring: Linear XL }
             adjustments: &zeb_b1_air_spring
               - { name: Pressure, type: numerical, unit: psi, min: 0, max: 300 }
+              - { name: Volume Spacers, type: step, max: 5, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 5 maximum at 150mm travel, 4 at 160-170mm, 3 at 180mm" }
             options:
               damper: [charger_3_2]
               travel_mm: [150, 160, 170, 180]
@@ -716,12 +1877,13 @@ nodes:
         id: "2025"
         years: "2025-2026"
         url: https://www.sram.com/en/rockshox/series/zeb
+        guide: rockshox_zeb_2025
         children:
           - label: Ultimate
             level: trim
             specs: { stanchion: 38mm, spring: Air }
             adjustments: &zeb_air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0 }
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 148 }
               - { name: Volume Spacers, type: step, max: 5, unit: tokens, visualization: stepper, notes: "Bottomless Tokens; 5 maximum at 150-160mm travel, 4 at 170-190mm" }
             options:
               damper: [charger_3_1]
@@ -758,6 +1920,7 @@ nodes:
         id: "2023"
         years: "2023-2024"
         url: https://www.sram.com/en/rockshox/series/zeb
+        guide: rockshox_zeb_2023
         children:
           - label: Ultimate
             level: trim
@@ -790,13 +1953,16 @@ nodes:
     category: Trail
     years: "2025-2026"
     url: https://www.sram.com/en/rockshox/series/psylo
+    guide: rockshox_psylo_2027
     tasks:
       fork:full_service: *rockshox_full_service
     children:
       - label: Gold RC
         level: trim
         specs: { stanchion: 35mm, spring: Air }
-        adjustments: *air_spring
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 194 }
+          - { name: Volume Spacers, type: step, max: 2, unit: tokens, visualization: stepper, notes: Bottomless Tokens }
         options:
           damper: [isolator]
           travel_mm: [130, 140, 150, 160]
@@ -808,6 +1974,7 @@ nodes:
     category: Enduro
     years: "2025-2026"
     url: https://www.sram.com/en/rockshox/series/domain
+    guide: rockshox_domain_2027
     tasks:
       fork:lower_leg_service: *rockshox_lower_leg_service
       fork:full_service: *rockshox_full_service
@@ -815,7 +1982,9 @@ nodes:
       - label: Gold RC
         level: trim
         specs: { stanchion: 38mm, spring: Air }
-        adjustments: *air_spring
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 148 }
+          - { name: Volume Spacers, type: step, max: 3, unit: tokens, visualization: stepper, notes: Bottomless Tokens }
         options:
           damper: [isolator]
           travel_mm: [150, 160, 170, 180]
@@ -834,6 +2003,7 @@ nodes:
         years: "2024-2026"
         url: https://www.sram.com/en/rockshox/series/boxxer
         setup_guide: https://www.sram.com/en/rockshox/learn/charger-3-setup
+        guide: rockshox_boxxer_2024
         tasks:
           fork:air_spring_service: &boxxer_air_spring_service
             name: Air spring service
@@ -845,7 +2015,9 @@ nodes:
             level: trim
             specs: { stanchion: 38mm (dual-crown), spring: Air }
             offset_mm: [44, 48, 52]
-            adjustments: *air_spring
+            adjustments: &boxxer_d1_air_spring
+              - { name: Pressure, type: numerical, unit: psi, min: 0 }
+              - &boxxer_volume_spacers { name: Volume Spacers, type: step, max: 6, unit: tokens, visualization: stepper, notes: Bottomless Tokens }
             options:
               damper: [charger_3_1, charger_3]
               travel_mm: [180, 190, 200]
@@ -858,7 +2030,7 @@ nodes:
             level: trim
             specs: { stanchion: 38mm (dual-crown), spring: Air }
             offset_mm: [44, 48, 52]
-            adjustments: *air_spring
+            adjustments: *boxxer_d1_air_spring
             options:
               damper: [charger_3_1, charger_3]
               travel_mm: [180, 190, 200]
@@ -869,6 +2041,7 @@ nodes:
         years: "2027"
         url: https://www.sram.com/en/rockshox/series/boxxer
         setup_guide: https://www.sram.com/en/rockshox/learn/downhill-suspension-welcome-guide
+        guide: rockshox_boxxer_2027
         tasks:
           fork:air_spring_service: *boxxer_air_spring_service
         children:
@@ -878,6 +2051,7 @@ nodes:
             offset_mm: [44, 48, 52]
             adjustments: &boxxer_linear_xl_air_spring
               - { name: Pressure, type: numerical, unit: psi, min: 0, max: 260 }
+              - *boxxer_volume_spacers
             options:
               damper: [charger_3_2]
               travel_mm: [180, 190, 200]
@@ -901,13 +2075,14 @@ nodes:
         years: "2019-2023"
         url: https://www.sram.com/en/rockshox/series/boxxer
         setup_guide: https://www.sram.com/en/rockshox/learn/downhill-suspension-welcome-guide
+        guide: rockshox_boxxer_2019
         children:
           - label: Ultimate
             level: trim
             specs: { stanchion: 35mm (dual-crown), spring: Air }
             offset_mm: [36, 46, 56]
             adjustments: &boxxer_c2_air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0 }
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 200 }
               - { name: Volume Spacers, type: step, max: 6, unit: tokens, visualization: stepper, notes: Bottomless Tokens }
             options:
               damper: [charger_2_1_rc2]
@@ -933,6 +2108,7 @@ nodes:
     category: Gravel / Bikepacking
     years: "2022-2026"
     url: https://www.sram.com/en/rockshox/series/rudy-xplr
+    guide: rockshox_rudy_xplr_2027
     tasks:
       fork:lower_leg_service: *rockshox_lower_leg_service
       fork:full_service: *rockshox_full_service
@@ -942,7 +2118,8 @@ nodes:
         draft: true
         specs: { stanchion: 30mm, spring: Air }
         offset_mm: [45, 51]
-        adjustments: *air_spring
+        adjustments: &rudy_air_spring
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 200 }
         options:
           damper: [charger_race_day_2, charger_race_day]
           travel_mm: [30, 40]
@@ -955,6 +2132,7 @@ nodes:
     years: "2025-2026"
     url: https://www.sram.com/en/rockshox/series/rudy-xl
     note: Fits 29x2.2" tires max
+    guide: rockshox_rudy_xl_2027
     tasks:
       fork:full_service: *rockshox_full_service
     children:
@@ -962,7 +2140,7 @@ nodes:
         level: trim
         draft: true
         specs: { stanchion: 30mm, spring: Air }
-        adjustments: *air_spring
+        adjustments: *rudy_air_spring
         options:
           damper: [charger_race_day_2]
           travel_mm: [50, 60]
@@ -973,6 +2151,7 @@ nodes:
     category: Enduro
     years: "2016-2023"
     url: https://www.sram.com/en/rockshox/series/yari
+    guide: rockshox_yari_2024
     tasks:
       fork:lower_leg_service: *rockshox_lower_leg_service
       fork:full_service: *rockshox_full_service
@@ -996,6 +2175,7 @@ nodes:
     category: Trail
     years: "2018-2023"
     url: https://www.sram.com/en/rockshox/series/revelation
+    guide: rockshox_revelation_2024
     tasks:
       fork:lower_leg_service: *rockshox_lower_leg_service
       fork:full_service: *rockshox_full_service
@@ -1019,6 +2199,7 @@ nodes:
     category: XC / Trail
     years: "2018-2024"
     url: https://www.sram.com/en/rockshox/series/recon
+    guide: rockshox_recon_gold_2027
     tasks:
       fork:lower_leg_service: *rockshox_lower_leg_service
       fork:full_service: *rockshox_full_service
@@ -1064,15 +2245,20 @@ nodes:
 #   - Rebound totals of Charger 2 RL, Charger RL and Motion Control RL (SID /
 #     SID SL Select+ and Select, Reba, Recon Gold) — not published, so rebound
 #     carries `max: ~`.
-#   - Bottomless Token maxima are recorded per model from the 2023 Front
+#   - Bottomless Token maxima are recorded per model from the 2023-2027 Front
 #     Suspension Specifications, the 2019-2023 BoXXer and 2023-2027
-#     ZEB/Lyrik/Pike service manuals. Still missing: BoXXer D1/D2 (38mm), Psylo,
-#     Domain C1, SID/SID SL D1/E1 and the Linear XL forks (ZEB B1, Lyrik E1,
-#     BoXXer D2). The 2024 SID and BoXXer service manuals sit behind a SRAM ID
-#     login and were not read.
-#   - Maximum air pressure: only the MY27 figures (BoXXer 260, ZEB 300, Lyrik
-#     300 psi) are published in the support knowledge base; the earlier
-#     generations carry no Pressure maximum.
+#     ZEB/Lyrik/Pike service manuals. Still missing: SID SL D1 (2024-2025),
+#     whose MY24/25 token page was not transcribed.
+#   - Maximum air pressure: from the Front Suspension Specifications where one
+#     figure covers the whole generation. Pike C1, Yari, Revelation and Recon
+#     Gold print a different maximum per travel and carry none. BoXXer D1/D2:
+#     the PDFs print 300 psi, TrailHead and the support knowledge base 260, so
+#     D2 keeps 260 and D1 none until SRAM confirms one.
+#   - ZEB Base (2023-2026): the specification PDFs name its damper Charger R,
+#     not Rush RC. Its rebound has no guide rule until the damper is confirmed.
+#   - SID SL 2024-2025 (D1, DebonAir) and 2026-2027 (E1, DebonAir+) are split
+#     by their different pressure decals; the travel and damper options of the
+#     earlier single generation are carried over to both.
 #   - Reba Gold/RL B1 (2026+, 80-130 mm, Isolator RL damper) is not modelled:
 #     no adjuster ranges are published for the RL variant.
 #   - The BoXXer "2027" generation is labelled by the earlier research; SRAM's

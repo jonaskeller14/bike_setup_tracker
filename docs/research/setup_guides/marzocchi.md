@@ -19,11 +19,12 @@ Researched: 2026-10-11
     input, and a 25-30 % SAG band.
   - Bomber CR: a 30 % SAG constant. The bike.marzocchi.com spring calculator is a spring-rate formula
     that needs rear-wheel travel and stroke.
-- B3 cannot hold:
-  - the Z2 E-Bike+ column, which has no catalog option;
-  - the Bomber Air rebound, keyed on pressure;
-  - the Bomber CR spring formula, which needs a bike input (rear wheel travel);
-  - the Z1 Coil spring colours, which carry no rate.
+- Encoding:
+  - the Bomber Air rebound, keyed on pressure, is an adjuster input (R4) with an open `<100` row (R1);
+  - the Z1 Coil spring colours become a categorical `Spring` adjuster (R9), once the editions agree.
+- No rule, note only:
+  - the Z2 E-Bike+ column, which has no catalog option (#72);
+  - the Bomber CR spring formula, which needs a bike input (rear wheel travel, #71).
 - No click-direction conflicts: every click table counts from closed (clockwise to the stop, then
   counter-clockwise), the same as the catalog `dial_ccw` default.
 
@@ -100,8 +101,9 @@ with the 13-click table. The table is the data; the graphic is decorative.
 ### Coil spring — Z1 Coil
 
 Input: rider weight · Output: spring colour / label (no rate) · `fork/marzocchi/z1-coil/coil`.
-The catalog `spring_rate` is lbs/in. The guide gives no rate, so this is `display_only` (a note naming the
-colour).
+The catalog `spring_rate` is lbs/in. The guide gives no rate, only colours, so the catalog type follows the
+guide (R9): a categorical `Spring` adjuster with the published colour labels as options, replacing the
+numerical `spring_rate` on this trim. The two editions disagree (below), so neither is encoded until resolved.
 
 2024 guide (p. 9). The header row is misprinted as "BOMBER Z1 Pressure" / "BOMBER Z1 Rebound Setting";
 the columns hold the colour and the label:
@@ -129,7 +131,7 @@ the first four weight rows of the air table). Follow-up: confirm with Marzocchi 
 
 | Target | Value | Direction | `when:` |
 |---|---|---|---|
-| `compression_mode` | Open (while setting sag) | — | `damper: rail`; `display_only` (procedure, not a riding setting) |
+| `compression_mode` | Open (while setting sag) | — | `damper: rail`; procedure, not a riding setting: no rule, `note` only (R9) |
 
 ### SAG
 
@@ -179,7 +181,7 @@ None.
 
 ### Does not fit B3
 
-- Coil spring colours carry no rate in the catalog's unit → `display_only` note.
+- Coil spring colours carry no rate in the catalog's unit → a categorical `Spring` adjuster with the colour options (R9), once the edition conflict is resolved.
 
 ## Guide `marzocchi_z1_dj_2020` — Bomber Z1 & DJ Tuning Guide
 
@@ -570,9 +572,9 @@ Pressure (psi) ≈ rider weight in lb. Calculated from the published formula (no
 
 - Rebound keyed on air pressure: a rule with `input: pressure` (the rider's current or recommended
   `pressure` value). It chains off the formula result. Proposed: `target: rebound`, `input: pressure`,
-  `rows` as above, with `<100` as an open lower bound.
-- The formula is linear (psi = lb). B3 needs either a formula rule or the calculated rows above as
-  `rider_weight` rows.
+  `rows` as above, with `<100` as an open lower bound (R1, R4).
+- The formula is linear (psi = lb): the calculated rows above as `rider_weight` rows (Q1), reproduced exactly
+  by interpolation.
 
 ## Guide `marzocchi_bomber_cr_2018` — Bomber CR Tuning Guide
 
@@ -650,15 +652,23 @@ of rear wheel travel, 50-120 kg (no range stated):
 ### Does not fit B3
 
 - The spring-rate formula needs rear wheel travel, a bike input with no catalog or B3 input, plus stroke
-  (derivable from the `size` option). Proposed: a formula rule `target: spring_rate`,
-  `inputs: [rider_weight, rear_wheel_travel_mm, size]`, rounded to 50. Otherwise leave it out and link the
-  calculator. Catalog `spring_rate` is lbs/in ✓ (same unit).
+  (derivable from the `size` option). No rule until bike-level inputs exist (#71); the calculator link stays
+  in the notes. Catalog `spring_rate` is lbs/in ✓ (same unit).
 
 ## Products without a structured guide
 
 | Catalog path | Reason |
 |---|---|
 | — | Every catalog product has at least a SAG band. The Bomber CR has no click or spring table in its PDF (only the web calculator formula above). |
+
+## Catalog changes before encoding (R8, R9)
+
+R8 fixes: none found; every click table fits the catalog maxima.
+
+R9 type changes:
+- `fork/marzocchi/z1-coil/coil`: a categorical `Spring` adjuster with the
+  published colour labels instead of the numerical `spring_rate`, once the
+  2020 / 2024 charts are reconciled.
 
 ## Follow-ups
 

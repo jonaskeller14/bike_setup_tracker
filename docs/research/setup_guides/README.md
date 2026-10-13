@@ -29,18 +29,31 @@ These files are working notes for data editors. Nothing here ships in the app.
   `Volume Spacers` → `volume_spacers`, `HSC` → `hsc`, `Rebound` → `rebound`).
   The auto-injected SAG adjuster is `sag`. A target the catalog lacks is
   flagged in the gaps.
+- **Every cell must be applicable** (#37 R9). There is no display-only data:
+  each published value becomes one of the encodings below, or explicitly
+  "no rule, note only" with the reason (situational advice, a procedure, an
+  input the catalog lacks, a source conflict).
 - **Counting direction** (Q5 of #37): guide values are encoded in the catalog
   adjuster's own direction. For every click table, state the source direction
   and compare it with the catalog adjuster (`visualization`, `max`, `notes`):
   - same direction → encode as published;
-  - opposite direction, `max` known → pre-compute `max − N` here, column by
-    column, and say so;
-  - opposite direction, `max: ~` → `display_only`, keep the source's wording
-    ("5 from closed").
+  - opposite direction → range reference `max-N`, never a precomputed
+    number. It is resolved against the rider's adjuster, so it works for an
+    estimated max and for `max: ~` (the app asks for the real click count
+    first).
 - **End-stop cells** (`Open`, `Closed`, `22-Open`): keep them in the
   transcribed table, and below it state the range references to encode
   (#37 R9): `Closed` → `min`, `Open` → `max`, `22-Open` → `[22, max]`.
   The app resolves them against the rider's adjuster range.
+- **Inequality cells** (`<71`, `>20`, `215 or more`) become a band to a
+  published limit: `>20` → `[20, max]`, `<71` → `[min, 71]`. Without a
+  published limit the row is dropped for that target, so that rider is outside
+  the table.
+- **Catalog type follows the guide** (R9): spacer configurations of mixed
+  sizes or by part number, and named dial positions (1 / 2 / P, clock face),
+  become categorical options; a lever or lockout is its categorical or boolean
+  adjuster. A sourced adjuster the catalog lacks is added. List these per brand
+  under "Catalog changes before encoding (R8, R9)", next to the R8 fixes.
 - **Formulas** (Q1): record the formula verbatim (in our words), plus a
   calculated table at 5 kg steps across the source's stated rider range (or
   50–120 kg when none is stated), marked "calculated from the published
@@ -128,6 +141,11 @@ Second-order inputs, two air chambers, coil spring rates … with a proposed enc
 | Catalog path | Reason |
 |---|---|
 
+## Catalog changes before encoding (R8, R9)
+
+R8 fixes (maxima below the tables, missing adjusters, damper ids) and R9 type
+changes (categorical spacer configurations, dial positions, added adjusters).
+
 ## Follow-ups
 
 - …
@@ -208,10 +226,10 @@ One row per product family. **found** = a structured table we can encode,
 | DVO | fork | Onyx DC D1 | found | `dvo_fork_2020` |
 | DVO | fork | Emerald (Inverted) | found | `dvo_emerald_tech` |
 | DVO | shock | Jade X (T3, Prime) | partial | `dvo_jadex_2024`: bladder, SAG, T3 chart; no spring/damping chart |
-| DVO | shock | Jade X WP CV | partial | `dvo_jadexwp_2023`: spring rate, bladder, SAG; damping display-only |
+| DVO | shock | Jade X WP CV | partial | `dvo_jadexwp_2023`: spring rate, SAG; HSC/LSC once the catalog adds them; bladder gradient not encodable |
 | DVO | shock | Jade | found | `dvo_jade_tech`: base tune for 3 of 19 catalog sizes, bladder chart |
 | DVO | shock | Topaz (Pro, Prime) | found | `dvo_topaz_2024` |
-| DVO | shock | Topaz WP CV | partial | `dvo_topazwp_2023`: air, bladder, SAG; damping display-only |
+| DVO | shock | Topaz WP CV | partial | `dvo_topazwp_2023`: air, SAG; HSC/LSC once the catalog adds them; bladder gradient not encodable |
 | DVO | shock | Topaz 2 (T3Air, Maestro HV) | found | `dvo_topaz_2020` |
 | DVO | shock | Opal HV T3 | none | no guide PDF; setup page 404; product page has no settings |
 | Manitou | fork | Mezzer G2 Pro / Mezzer LT Pro | found | `manitou_mezzer_g2_pro_2025` |
@@ -271,8 +289,8 @@ One row per product family. **found** = a structured table we can encode,
 | Cane Creek | shock | DBcoil IL G1 | partial | `canecreek_db_il_g1_2022`: SAG, preload |
 | Cane Creek | shock | DB Kitsuma Air G1 | partial | `canecreek_db_kitsuma_g1_2022`: 75–100 % formula, SAG |
 | Cane Creek | shock | DB Kitsuma Coil G1 | partial | `canecreek_db_kitsuma_g1_2022`: SAG + spring formula |
-| Cane Creek | shock | DB Air CS | found | `canecreek_double_barrel_tfg`: base tune (from open → max − N), weight − 20 psi formula, SAG 28–33 % |
-| Cane Creek | shock | DBcoil | found | `canecreek_double_barrel_tfg`: base tune (from open → max − N), SAG 28–33 % |
+| Cane Creek | shock | DB Air CS | found | `canecreek_double_barrel_tfg`: base tune (from open → `max-N`), weight − 20 psi formula, SAG 28–33 % |
+| Cane Creek | shock | DBcoil | found | `canecreek_double_barrel_tfg`: base tune (from open → `max-N`), SAG 28–33 % |
 | Cane Creek | shock | DB Inline | partial | `canecreek_double_barrel_tfg`: base tune blocked (18-click scale vs catalog 25); air formula + SAG usable |
 | EXT | fork | Era V2.1 | found | `ext_era_v2_2023`: weight → + / ++ psi + HSC/LSC/R, SAG 15–20 % |
 | EXT | fork | Era V2 LT | found | `ext_era_v2_2023` |

@@ -333,7 +333,7 @@ Minimum 50 psi, maximum 225 psi. Matches catalog `min: 50`, `max: 225`.
 
 ### Does not fit B3
 
-- Open-ended rows ("<120 → <71", ">240 → >162") print an inequality, not a value. Proposal: encode the bounded rows as points and the open ends as `display_only` notes, or clamp to the first/last value with a note. The 120/130 mm columns print a real value (65) on the "<120" row.
+- Open-ended rows ("<120 → <71", ">240 → >162") print an inequality, not a value. Encode them as R9 inequality bands against the published 50–225 psi limits: the rows become `<120` and `240+` (R1), `<71` → `[min, 71]`, `>162` → `[162, max]`, `>147` → `[147, max]`. The 120/130 mm columns print a real value (65) on the "<120" row, which stays a number.
 - Two inputs (rider weight × travel/wheel) are handled with `when: { travel_mm, wheel_size }` per column. That fits B3.
 
 ## Products without a structured guide
@@ -341,6 +341,16 @@ Minimum 50 psi, maximum 225 psi. Matches catalog `min: 50`, `max: 225`.
 | Catalog path | Reason |
 |---|---|
 | — | All catalog Lefty nodes have a pressure table. Compression start points are missing for the Ocho and Ocho 120 (the manuals give direction only). |
+
+## Catalog changes before encoding (R8, R9)
+
+R8 fixes:
+- Lefty Oliver 40 mm rebound max 10 → 11 (the 2025 manual's table), with the
+  40 mm generation itself.
+- Lefty 2.0 `Pressure` keeps `min: 50`, `max: 225`: the inequality bands
+  resolve against them.
+
+R9 type changes: none.
 
 ## Follow-ups
 

@@ -30,7 +30,8 @@ file is named after the YAML filename (`suntour`).
 - No dial click tables are published for any fork.
 - Gaps for B3:
   - value cells with an open end (`< 40`, `85 +`) and an open bracket
-    (`95 <`);
+    (`95 <`): resolved by R1 and R9 (`95+` row, `[85, max]`, `< 40` rows
+    dropped, see Does not fit B3);
   - overlapping travel brackets in the fork SAG table;
   - in-between strokes (52.5 / 57.5 mm) and 27.5 mm in the shock SAG table;
   - a second air chamber (the TRIAIR2 reservoir) the catalog does not model;
@@ -104,7 +105,7 @@ Not encoded (no catalog node). AION36X: 40 - 55 / 55 - 65 / 65 - 75 / 75 - 85 /
 ### Constants / base tune
 
 Factory air pressure is what the fork ships with, not a rider
-recommendation. Proposal: `display_only` note on `pressure`.
+recommendation, so it is no rule (R9); a `note` at most.
 
 | Target | Value | Direction | `when:` |
 |---|---|---|---|
@@ -253,15 +254,17 @@ but no catalog fork is coil.
 ### Does not fit B3
 
 - **Open-ended values**: `< 40` (upper bound only) and `85 +` (lower bound
-  only). The weight bracket `95 <` maps to `95+`, and `< 55` maps to `<55`.
-  A value with only one bound needs a schema decision: `range` with one
-  missing end, or `display_only`.
+  only). The weight bracket `95 <` maps to `95+`, and `< 55` maps to `<55`
+  (R1). R9: `85 +`, `105 +`, `125 +`, … → `[N, max]` against each column's printed max pressure
+  (set as the catalog `pressure` max first, R8). No minimum pressure is
+  printed for forks, so `< 40` (and the other `<N` cells) can't become a band
+  and the `<55` row is left out of those columns.
 - **Overlapping SAG travel brackets**: see the resolution table under SAG.
 - **AXON 34 Elite** has a spacer row (MY26) but the catalog trim has no
   `Volume Spacers` adjuster, so it can't be encoded until the adjuster is
   added (max 11).
-- Factory pressure is a constant that is not a recommendation. Proposal:
-  `display_only`.
+- Factory pressure is a constant that is not a recommendation: no rule, a
+  `note` at most (R9).
 
 ## Guide `suntour_shocks_my27` — SR SUNTOUR General Rear Shock Manual MY27
 
@@ -308,12 +311,13 @@ two-click increments to taste. No target click is given.
 Catalog: `rebound` is `type: step, max: 8` on `edge_r`, `edge_2cr`,
 `edge_evo_r_2cr` and `triair2_*`, with no `visualization` or notes stating the
 counting origin. The direction cannot be compared, and there is no value to
-encode. At most this is a `display_only` note ("start closed, open 2 clicks at
-a time"). `raidon_shock_r` has no rebound adjuster.
+encode. It is a procedure, not a value, so no rule (R9); at most a `note`
+("start closed, open 2 clicks at a time"). `raidon_shock_r` has no rebound adjuster.
 
 ### Constants / base tune
 
-Factory settings, `display_only`:
+Factory settings: shipping values, not recommendations, so no rule (R9). Kept for reference and the
+`notes`:
 
 | Target | Value | Direction | `when:` |
 |---|---|---|---|
@@ -324,7 +328,8 @@ Factory settings, `display_only`:
 Not mapped: TRIAIR main 180 / reservoir 190, MB 110.
 
 Set SAG with the compression lever OPEN. In catalog terms that is
-`compression_mode` = `Open` on 2CR/3CR dampers, as a precondition note.
+`compression_mode` = `Open` on 2CR/3CR dampers: a procedure, so a `note`
+(R9).
 
 ### SAG
 
@@ -387,13 +392,14 @@ None.
 ### Does not fit B3
 
 - **Two air chambers:** the TRIAIR2 reservoir (IFP) has its own factory /
-  min / max pressure (180 / 170 / 200 psi). It needs a catalog adjuster
-  (e.g. `Reservoir Pressure`) before it can be encoded.
-- **Stroke as input:** the SAG band depends on stroke, which is only reachable
-  through the `size` option id. In-between strokes 52.5 and 57.5 are
+  min / max pressure (180 / 170 / 200 psi). Adding a `Reservoir Pressure`
+  adjuster (min 170, max 200) is sourced (R9), but its only value is the
+  factory one, so it still gets no rule.
+- **Stroke as input:** the SAG band depends on stroke, read as the
+  `stroke_mm` spec of the selected size (R5). In-between strokes 52.5 and 57.5 are
   ambiguous, and 27.5 is not covered.
 - **Rebound start rule** ("closed, then out in 2-click steps") is a
-  procedure, not a value. `display_only` at most.
+  procedure, not a value: a `note` at most (R9).
 
 ### Older editions (for reference)
 
@@ -419,6 +425,19 @@ DUROLUX36, Durolux38, TRIAIR1). They are image-only marketing PDFs with no
 text layer and were not read further. Product pages were checked only for
 the spring type (AIR(EQ)).
 
+## Catalog changes before encoding (R8, R9)
+
+R8 fixes:
+- Fork `pressure` max per column from the printed maxima (AION 36: 145 psi,
+  catalog 130), so the `N +` cells have an end.
+- AURON 36 `volume_spacers` max 5 → 6 (MY26).
+- AXON 34 Elite: add `Volume Spacers` (max 11) before its spacer row.
+- `setup_guide` URLs to the MY26 fork and MY27 shock manuals.
+
+R9 type changes:
+- Optional: TRIAIR2 `Reservoir Pressure` (min 170, max 200). Sourced, but
+  without a recommended value it adds no rule.
+
 ## Follow-ups
 
 - **Catalog AION 36 `max: 130`** conflicts with the MY25/MY26 manual (145
@@ -433,6 +452,7 @@ the spring type (AIR(EQ)).
 - **Fork SAG brackets** overlap: decide the convention for 180 / 160 / 120 mm.
 - **Shock SAG** for strokes 52.5 / 57.5 / 27.5: decide whether to interpolate,
   take the union band, or skip.
-- **One-sided values** (`< 40`, `85 +`) need a schema decision.
+- **One-sided values** (`< 40`, `85 +`): decided by R9, `[85, max]` and the
+  `<55` row dropped where no minimum is printed.
 - **TRIAIR2 reservoir pressure** needs a catalog adjuster before its constants
   and limits can be encoded.

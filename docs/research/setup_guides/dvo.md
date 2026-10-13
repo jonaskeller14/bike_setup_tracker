@@ -26,20 +26,25 @@ Researched: 2026-10-11
     cell chart on the 2020 Topaz guide, a literal table for the Jade).
   - **Rebound** (Topaz): the clicks chart is labelled "Air Pressure PSI", but its rows
     look like rider-weight brackets. See Does not fit B3.
-  - **T3 lever:** a trail-style chart (riding-style input, categorical target).
+  - **T3 lever:** a trail-style chart (terrain × descent/climb → lever position).
+    It is situational, so a `note`, not a rule (R9).
   - **Coil spring rate:** a weight → lb/in chart for the Jade X WP1. The Jade gives one
     rate per **shock size**.
   - **Jade:** full base tunes **per shock size** (rider weight → bladder psi, rebound,
     HSC, LSC, spring rate).
   - **SAG:** 20–30 % (Topaz), 25–30 % (Jade, Jade X).
-- **Not covered by B3:**
-  - pressure as an input (rebound, HSC, OTT);
-  - E-bike and E1/E2 columns that have no catalog option;
+- **Encoding (R4, R9):**
+  - pressure as an input (rebound, HSC, OTT) is an adjuster input (R4);
+  - a size-keyed coil table is a literal `size` input (R10);
+  - the WP CV shocks get the HSC / LSC adjusters their guides print strips
+    for (catalog change, R9), so their starting points become constants.
+- **No rule, note only:**
+  - E-bike and E1/E2 columns that have no catalog option (#72);
   - an internal 3-position OTT that has no catalog adjuster;
-  - a size-keyed coil table;
-  - trail-style columns whose names are not riding-style ids;
-  - targets on WP CV shocks, which declare `missing_adjustments`;
-  - gradient bladder charts with no exact bounds.
+  - trail-style columns (terrain and descent/climb, not riding styles);
+  - gradient bladder charts with no exact bounds (approximate reads are not
+    published numbers);
+  - the Topaz rebound charts, until DVO says what their input is.
 
 ---
 
@@ -398,7 +403,7 @@ Max 100 psi. This matches the catalog.
 | Catalog path | `when:` | Notes |
 |---|---|---|
 | `fork/dvo/sapphire-34/d1` | `damper: quick_range_d1e1` | air, OTT (D1/E1 chart), rebound, HSC |
-| `fork/dvo/onyx-sc/d2` | `damper: quick_range_d2e2` | air (D1/D2 column), rebound; internal OTT display only |
+| `fork/dvo/onyx-sc/d2` | `damper: quick_range_d2e2` | air (D1/D2 column), rebound; internal OTT: no rule, note only |
 | `fork/dvo/onyx-dc/d1` | `damper: quick_range_d1e1` | air, OTT (D1/E1 chart), rebound, HSC |
 | `fork/dvo/diamond/d3` | `damper: diamond_d3e3` | air (D3 column), rebound (D3/E3) |
 | `fork/dvo/diamond/e3` | `damper: diamond_d3e3` | air (E3 column), rebound (D3/E3) |
@@ -440,7 +445,8 @@ There is no 190-200 row (as printed). The axis is 1–12.
 | 170-200+ | Max Setting |
 
 The catalog has no OTT adjuster on `fork/dvo/onyx-sc/d2`. The `onyx-sc/d2` YAML note
-already says "OTT is set internally". Encode as `display_only` / `note`.
+already says "OTT is set internally". No rule: the rider can't set it, so it is a
+`note` at most (R9).
 
 ### Air pressure — Sapphire 34 D1 (`fork/dvo/sapphire-34/d1`)
 
@@ -606,8 +612,11 @@ LSC (p.14) is text only, not a weight table:
 - D2/E2: "SOFT" for descending, "FIRM" for climbing.
 - D3/E3: start from full open.
 
-These could become `note`s. With a `riding_style` id for climbing, they could become
-`lsc: 6` / `compression: 4` rules. See Follow-ups.
+R9 encoding:
+- D1/E1 and D2/E2: situational (descending vs climbing), so a `note` only. Climbing
+  is not a riding style (R7).
+- D3/E3: "start from full open" → `compression` `value: min`. The catalog adjuster
+  counts turns of support from fully open (0), so `min` is fully open.
 
 ### SAG
 
@@ -892,12 +901,14 @@ positions of the PLUSH and FIRM labels on the axis.
 | 240+ | 109+ | 170 | 180 |
 
 This chart is the same one printed in the Topaz and WP1 guides. The intermediate values
-are read off a gradient, so mark them approximate or encode them as `display_only`.
+are read off a gradient, not printed, so there is no rule (R9): a `note` with the
+printed end labels at most. Ask DVO for exact numbers.
 
 ### T3 compression — trail style (`jade_x_t3`)
 
 Target `compression_mode`; catalog options [Open, Mid, Firm] match the guide's
-OPEN/MID/FIRM.
+OPEN/MID/FIRM. The rows are terrain × descent/climb, which is situational and not a
+riding style (R7), so this is a `note`, not a rule (R9).
 
 | Trail style | Open | Mid | Firm |
 |---|---|---|---|
@@ -966,8 +977,9 @@ The older Jade X guide (tech site, 2019: https://tech.dvosuspension.com/wp-conte
 |---|---|---|
 | `shock/dvo/jade-x/wp-cv` | `size: 205x65` | spring rate, bladder, SAG |
 
-Gaps: the catalog node declares `missing_adjustments: [Rebound, Compression]`, so the
-HSC/LSC starting points below are display-only.
+Gaps: the catalog node declares `missing_adjustments: [Rebound, Compression]`. The
+guide prints the HSC and LSC strips, so add the adjusters (catalog change, R9) and
+encode the starting points below as constants.
 
 ### Coil spring rate — "Spring Force Base Setting Chart"
 
@@ -985,14 +997,15 @@ Input: rider weight · Output: `spring_rate` (lb/in; kg/cm also printed)
 
 The gradient chart is identical to `dvo_jadex_2024`.
 
-### Constants / base tune (display only)
+### Constants / base tune
 
 | Target | Value | Direction | `when:` |
 |---|---|---|---|
 | HSC | 4 ("Starting Point") | from closed; strip "Open 6 5 4 3 2 1 0 Closed", counted from fully clockwise | — |
 | LSC | 6 ("Starting Point") | from closed; strip "Open 18 15 12 9 6 3 0 Closed" | — |
 
-The catalog has no adjuster on this node, so encode these as a `note` / `display_only`.
+Catalog change (R9): add `HSC` (step, max 6) and `LSC` (step, max 18), counted from
+closed like the strips. Then encode `hsc: 4` and `lsc: 6` as constants.
 The rebound strip "Open 18+ … 0 Closed" has no recommendation.
 
 ### SAG
@@ -1103,8 +1116,8 @@ Air max 300 psi and bladder 140–180 psi. Both match the catalog.
 
 - **Rebound input ambiguity:** the column header says "Air Pressure PSI", but the rows
   are the same brackets as the rider-weight column of the air chart. Read as psi, they
-  would cover only 120–240+ psi, while the air chart recommends 140–250 psi. Ask DVO,
-  or encode as `display_only`.
+  would cover only 120–240+ psi, while the air chart recommends 140–250 psi. Don't
+  encode until DVO answers.
 - The air bands overlap.
 - The bladder chart is a gradient.
 
@@ -1125,8 +1138,9 @@ Air max 300 psi and bladder 140–180 psi. Both match the catalog.
 |---|---|---|
 | `shock/dvo/topaz/wp-cv` | `size: 205x60` | air, bladder, SAG |
 
-Gaps: `missing_adjustments: [Rebound, Compression]` in the catalog, so the HSC, LSC and
-rebound values are display-only.
+Gaps: `missing_adjustments: [Rebound, Compression]` in the catalog. Add HSC and LSC
+from the printed strips (catalog change, R9) so their starting points become
+constants. Rebound stays out: its chart has the Topaz input ambiguity.
 
 ### Air pressure (differs from the Topaz v2.1 chart)
 
@@ -1147,10 +1161,11 @@ The axis is the same as Topaz v2.1.
 The gradient chart is identical to `dvo_jadex_2024`. Its axis title reads "Bladder
 Pressure (psi)".
 
-### Constants (display only)
+### Constants
 
 - HSC starting point 4 and LSC starting point 6, both counted from closed. Strips:
-  HSC "Open 6 … 0 Closed", LSC "Open 18 15 12 9 6 3 0 Closed".
+  HSC "Open 6 … 0 Closed", LSC "Open 18 15 12 9 6 3 0 Closed". Encode `hsc: 4` and
+  `lsc: 6` once the adjusters exist (HSC step max 6, LSC step max 18).
 - The rebound chart is the same as the Topaz "for all Topaz models" chart (8-9 … 1-2).
 
 ### SAG
@@ -1267,22 +1282,34 @@ Partial only (see the coverage rows): `fork/dvo/sapphire-32/d1` has an air chart
 the 2018 guide. Its rebound, HSC and OTT charts in that guide predate the catalog damper
 (HSC in clicks), so they are not used.
 
+## Catalog changes before encoding (R8, R9)
+
+R8 fixes:
+- Sapphire 32 `Pressure` max 170 psi (2018 guide; only in the notes today).
+- Onyx 38 `volume_spacers`: the guide says SL forks only, the catalog gives the
+  adjuster to D1, D2 and D3. Check before encoding the factory count.
+
+R9 type changes:
+- `shock/dvo/jade-x/wp-cv` and `shock/dvo/topaz/wp-cv`: add `HSC` (step, max 6)
+  and `LSC` (step, max 18), counted from closed as the printed strips, and drop
+  `Compression` from `missing_adjustments`. Their starting points (4 / 6) then
+  become constants. Rebound stays missing (no usable chart).
+
 ## Follow-ups
 
 - **Topaz rebound charts (2020, 2023, 2024):** the input header says "Air Pressure PSI"
   but the rows look like rider-weight brackets. Confirm with DVO before encoding; until
-  then use `display_only`.
+  then no rule.
 - **Bladder gradient chart** (Jade X, Topaz, WP1): the intermediate values are read off
-  a gradient. Ask DVO for exact numbers, or encode the ends only (120-139 ≈ 140–150,
-  240+ ≈ 170–180) as `display_only`.
+  a gradient. Ask DVO for exact numbers; until then no rule (the ends 120-139 ≈ 140–150,
+  240+ ≈ 170–180 are reads, not published values).
 - **Onyx 38 volume spacers:** the guide says spacers are for SL forks only, but the
   catalog gives `volume_spacers` to D1, D2 and D3. Catalog editors should check.
 - **Sapphire 32 max pressure:** the 2018 guide says 170 psi; the catalog has none.
 - **Jade table 2:** the 140-160 HSC cell reads "3&nbsp;", possibly a truncated "3½".
-- **Riding-style ids:**
-  - T3 "trail style" rows (Rough/Smooth/Sandy/Mud × Descent/Climb);
-  - 2020 LSC guidance (climb → firmest Quick Range setting).
-  Both need riding-style ids, or they stay notes.
+- **Situational guidance stays notes (R7, R9):** T3 "trail style" rows
+  (Rough/Smooth/Sandy/Mud × Descent/Climb) and the 2020 LSC guidance (climb →
+  firmest Quick Range setting) describe terrain, not riding styles.
 - **The 2018 generic fork rebound/HSC/OTT charts** (unnamed fork, HSC 1–29 clicks):
   they probably belong to the pre-2019 Diamond/Sapphire damper, which is not in the
   catalog. Not used.

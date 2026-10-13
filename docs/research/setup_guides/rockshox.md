@@ -10,8 +10,10 @@ Researched: 2026-10-12
   the air-pressure decal on the fork leg).
   - Rows are travel bands. Columns are rider-weight brackets with lb and kg
     printed.
-  - Each cell is a psi band, encoded as a `range`. The edge cells are
-    open-ended (`<60 psi`, `110+ psi`).
+  - Each cell is a psi band, encoded as a `[min, max]` band cell (R2). The
+    edge cells are inequalities (`<60 psi`, `110+ psi`): `110+` becomes
+    `[110, max]` against the printed max psi; `<60` has no published minimum,
+    so that row is dropped (R9).
   - Each table gives a max psi.
   - Every table has the header "E-Bikes add 10 psi". The catalog has no e-bike
     option, so that offset is not encoded.
@@ -22,9 +24,11 @@ Researched: 2026-10-12
   with a linear formula per model code and travel. Its coefficients are shipped
   in the page data. The result is **counted from closed** ("full
   clockwise/full slow"). Every catalog rebound adjuster counts from open, so:
-  - Charger 3 / 3.1 / 3.2 (max 18), Rush RC / Rush RL and Isolator (max 16)
-    get `max − N`.
-  - Every `max: ~` damper becomes `display_only`.
+  - Every damper is encoded as the range reference `max-N` (R9), resolved
+    against the rider's click count. Charger 3 / 3.1 / 3.2 (max 18), Rush RC /
+    Rush RL and Isolator (max 16) apply at once.
+  - `max: ~` dampers use the same `max-N`: the app asks for the real click
+    count before it recommends a value.
   - Calculated tables at 5 kg steps are in
     [TrailHead rebound formulas](#guide-rockshox_trailhead_fork_rebound--trailhead-fork-rebound-formulas).
 - **Forks: base tune constants** (SRAM Suspension User Manual):
@@ -51,7 +55,6 @@ Researched: 2026-10-12
     total click count.
 - **Not covered by B3:**
   - an e-bike psi offset;
-  - pressure bands whose edge cells are open-ended;
   - per-trim spring variants (DebonAir vs Dual Position Air, 29+ wheels) that
     are not catalog options;
   - a shock pressure formula keyed to rear-wheel travel, stroke and leverage;
@@ -108,7 +111,7 @@ Model-code → catalog generation, from the codes each PDF lists:
 | `fork/rockshox/revelation` | FS-RVL-RC-A3 |
 | `fork/rockshox/recon-gold` | FS-RCNG-RL-C1 |
 
-All pressure tables below: input rider weight (lb, kg also printed), output psi band. Edge cells are open bands as printed. The header of every table reads "E-Bikes add 10 psi" (not encoded: the catalog has no e-bike option). TrailHead adds the same +10 psi when its E-Bike toggle is on.
+All pressure tables below: input rider weight (lb, kg also printed), output psi band. Edge cells are open bands as printed; encode `N+` as `[N, max]` (the printed max psi, which needs the catalog `Pressure` max first, R8) and drop `<N` rows, as no minimum is published. The header of every table reads "E-Bikes add 10 psi" (not encoded: the catalog has no e-bike option). TrailHead adds the same +10 psi when its E-Bike toggle is on.
 
 ---
 
@@ -154,8 +157,8 @@ TrailHead cross-check: psi = 0.5 × lb + b, with b = 0 at 120 mm and −10 at 13
 ### Rebound
 
 Source: TH, from closed. Formulas `C3-A` (120 mm) and `C3-B` (130–140 mm) for ULT/UFA/SELP-C2; `RUSH-P120` / `RUSH-P130` for BSE-C1.
-- Catalog `charger_3_1` `rebound`, `dial_ccw`, max 18, from open → opposite direction, use the precomputed `18 − N` columns.
-- Catalog `rush_rc` `rebound`, max 16 → use `16 − N`.
+- Catalog `charger_3_1` `rebound`, `dial_ccw`, max 18, from open → opposite direction, encode `max-N` (the `encode` columns).
+- Catalog `rush_rc` `rebound`, max 16 → `max-N`.
 
 ### Constants / base tune
 
@@ -221,7 +224,7 @@ The values differ from the 2025 C2 table (5 psi lower). TrailHead uses b = −5 
 
 ### Rebound
 
-TH: ULT-C1/SELP-C1 use `C3-A` (120) and `C3-B` (130–140). BSE-C1 uses `RUSH-P120` / `RUSH-P130`. Catalog `charger_3` max 18 → `18 − N`; `rush_rc` max 16 → `16 − N`.
+TH: ULT-C1/SELP-C1 use `C3-A` (120) and `C3-B` (130–140). BSE-C1 uses `RUSH-P120` / `RUSH-P130`. Catalog `charger_3` and `rush_rc` → `max-N`.
 
 ### Constants / base tune
 
@@ -282,7 +285,7 @@ TrailHead uses a quadratic: psi = −0.003646673·lb² + 1.91752141·lb + b, wit
 
 ### Rebound
 
-TH: `C3-A` at 140/150 mm, `C3-B` at 160/170 mm. Catalog `charger_3_2` rebound max 18 is an **estimate**, so `18 − N` inherits that uncertainty. Encode it only once the 3.2 total is confirmed, otherwise use `display_only`.
+TH: `C3-A` at 140/150 mm, `C3-B` at 160/170 mm. Catalog `charger_3_2` rebound max 18 is an **estimate**. Encode `max-N`: a rider who corrects the max gets corrected clicks.
 
 ### Constants / base tune
 
@@ -340,7 +343,7 @@ Gaps: Lyrik Select D1 (Charger RC) is not in the catalog.
 
 ### Rebound
 
-TH: ULT/UFA/SELP-D2 use `C3-A` (140) and `C3-B` (150–160) → `18 − N`. BSE-D1 uses `BASE-A` (140) and `BASE-B` (150–160) → `16 − N` (`rush_rc`).
+TH: ULT/UFA/SELP-D2 use `C3-A` (140) and `C3-B` (150–160) → `max-N`. BSE-D1 uses `BASE-A` (140) and `BASE-B` (150–160) → `max-N` (`rush_rc`).
 
 ### Constants / base tune
 
@@ -381,7 +384,7 @@ Numerically identical to the `rockshox_lyrik_2025` table (140 mm: <60 … 110+; 
 
 ### Rebound
 
-As in 2025: `C3-A` / `C3-B` → `18 − N` (`charger_3`); BSE-D1 uses `BASE-A` / `BASE-B` → `16 − N`.
+As in 2025: `C3-A` / `C3-B` → `max-N` (`charger_3`); BSE-D1 uses `BASE-A` / `BASE-B` → `max-N`.
 
 ### Constants, SAG, spacers
 
@@ -493,9 +496,9 @@ Gaps:
 
 TH:
 - ULT/UFA/SELP-A3 use `C3-A` (150–160), `C3-B` (170–180) and `C3-C` (190)
-  → `18 − N`. TH lists no 190 mm entry for UFA-A3.
+  → `max-N`. TH lists no 190 mm entry for UFA-A3.
 - BSE-A2 uses `BASE-A` (150–160), `BASE-B` (170–180) and `BASE-C` (190)
-  → `16 − N` if the damper really is `rush_rc`.
+  → `max-N` if the damper really is `rush_rc`.
 
 ### Constants / base tune
 
@@ -558,7 +561,7 @@ Max 148 psi.
 
 ### Rebound, constants, spacers
 
-- Rebound: ULT/SELP-A2 use `C3-A` / `C3-B` / `C3-C` → `18 − N`; BSE-A2 uses
+- Rebound: ULT/SELP-A2 use `C3-A` / `C3-B` / `C3-C` → `max-N`; BSE-A2 uses
   `BASE-A/B/C`.
 - `hsc` 0 and `lsc` 0 (`damper: charger_3`).
 - Tokens (SPEC2023 p. 25, DebonAir+): 150 → 2; 160 → 1; 170 → 1; 180 → 0;
@@ -641,7 +644,7 @@ Numerically identical to the `rockshox_boxxer_2027` table (180 mm: <115 … 240+
 
 ### Rebound
 
-TH: `BXR-D-180` / `BXR-D-190` → `18 − N` (`charger_3`, `charger_3_1`, max 18).
+TH: `BXR-D-180` / `BXR-D-190` → `max-N` (`charger_3`, `charger_3_1`, max 18).
 
 ### Constants, SAG, spacers
 
@@ -683,7 +686,7 @@ The PDF prints 300 psi. The TrailHead serial page for FS-BXR-ULT-D1 states "Maxi
 
 ### Rebound
 
-TH: `BXR-C-180` / `BXR-C-190`. Catalog `charger_2_1_rc2` rebound has `max: ~`, so it is `display_only` ("N clicks from closed").
+TH: `BXR-C-180` / `BXR-C-190`. Catalog `charger_2_1_rc2` rebound has `max: ~` → `max-N`, applicable once the rider enters the real click count.
 
 ### SAG
 
@@ -737,7 +740,7 @@ TrailHead: E1 uses 0.5457 × lb + b (b = 52.876 / 32.876 / 22.876 at 90 / 100 / 
 
 ### Rebound
 
-TH: E1 uses `SIDSL-E1`; D1 uses `SID-D1`. `charger_race_day_2` rebound has `max: ~`, so it is `display_only`.
+TH: E1 uses `SIDSL-E1`; D1 uses `SID-D1`. `charger_race_day_2` rebound has `max: ~` → `max-N`, applicable once the rider enters the real click count.
 
 ### SAG / spacers
 
@@ -782,8 +785,8 @@ Max 195 psi. `when: { travel_mm: 100 }`.
 ### Rebound
 
 TH has a per-trim formula: ULT `SIDSL-C1-ULT`, SELP `SIDSL-C1-SELP`, SEL `SIDSL-C1-SEL`, BSE `SIDSL-C1-BSE`.
-- `rush_rl` (max 16) → `16 − N`.
-- Charger Race Day, Charger 2 RL and Charger RL have `max: ~` → `display_only`.
+- `rush_rl` (max 16) → `max-N`.
+- Charger Race Day, Charger 2 RL and Charger RL have `max: ~` → `max-N`, applicable once the rider enters the real click count.
 
 ### Constants / base tune
 
@@ -833,7 +836,7 @@ Max 150 psi. Note that this table's first bracket is <100 lb, unlike most others
 
 ### Rebound
 
-TH `SID-D1` (all travels). `charger_race_day_2` has `max: ~` → `display_only`.
+TH `SID-D1` (all travels). `charger_race_day_2` has `max: ~` → `max-N`, applicable once the rider enters the real click count.
 
 ### SAG / spacers
 
@@ -876,7 +879,7 @@ Max 146 psi.
 
 ### Rebound
 
-TH per trim: `SID-C1-ULT`, `SID-C1-SELP`, `SID-C1-SEL`, `SID-C1-BSE`. `rush_rl` → `16 − N`; the others → `display_only`.
+TH per trim: `SID-C1-ULT`, `SID-C1-SELP`, `SID-C1-SEL`, `SID-C1-BSE`. All trims → `max-N` (`rush_rl` at once, the `max: ~` dampers once the rider enters the real click count).
 
 ### Constants, SAG, spacers
 
@@ -919,7 +922,7 @@ Max 195 psi.
 
 ### Rebound
 
-TH (FS-REBA-12B-A9 / -10B-A9): `REBA-100` (100 mm), `REBA-110` (110/120 mm). `motion_control_rl` has `max: ~` → `display_only`.
+TH (FS-REBA-12B-A9 / -10B-A9): `REBA-100` (100 mm), `REBA-110` (110/120 mm). `motion_control_rl` has `max: ~` → `max-N`, applicable once the rider enters the real click count.
 
 ### Constants, SAG, spacers
 
@@ -963,7 +966,7 @@ The travel cell is printed "130 (100-120)". The catalog offers 130–160. Use `t
 
 ### Rebound
 
-TH: `PSYL-130` (100/120/130 mm) and `PSYL-140` (140–160 mm). `isolator` max 16 → `16 − N`.
+TH: `PSYL-130` (100/120/130 mm) and `PSYL-140` (140–160 mm). `isolator` max 16 → `max-N`.
 
 ### Constants, SAG, spacers
 
@@ -1007,7 +1010,7 @@ The catalog travel is 150–180, so 150 falls in the first column.
 
 ### Rebound
 
-TH: `DOMN-150` (130–150 mm), `DOMN-160` (160–180 mm). `isolator` max 16 → `16 − N`.
+TH: `DOMN-150` (130–150 mm), `DOMN-160` (160–180 mm). `isolator` max 16 → `max-N`.
 
 ### SAG / spacers
 
@@ -1049,7 +1052,7 @@ Max 200 psi.
 
 ### Rebound
 
-TH `RUDY` → `display_only` (both dampers have `max: ~`).
+TH `RUDY` → `max-N` (both dampers have `max: ~`, so applicable once the rider enters the real click count).
 
 ### SAG
 
@@ -1089,7 +1092,7 @@ Max 200 psi.
 
 ### Rebound / SAG / spacers
 
-- Rebound: TH `RDYX` → `display_only`.
+- Rebound: TH `RDYX` → `max-N` (`max: ~`, applicable once the rider enters the real click count).
 - SAG: the UM 5 % rule names only Rudy XPLR, so it is not applied here.
 - Tokens: none.
 
@@ -1157,7 +1160,7 @@ Max: 163 psi (160), 148 psi (170-180).
 
 ### Rebound
 
-TH: `YARI-150` (150/160 mm), `YARI-170` (170/180 mm). `motion_control_rc` has `max: ~` → `display_only`.
+TH: `YARI-150` (150/160 mm), `YARI-170` (170/180 mm). `motion_control_rc` has `max: ~` → `max-N`, applicable once the rider enters the real click count.
 
 ### SAG / spacers
 
@@ -1196,7 +1199,7 @@ Max: 194 psi (120), 163 psi (130-160).
 
 ### Rebound
 
-TH: `RVL-120`, `RVL-130` (130/140), `RVL-150` (150/160). `motion_control_rc` → `display_only`.
+TH: `RVL-120`, `RVL-130` (130/140), `RVL-150` (150/160). `motion_control_rc` → `max-N` (`max: ~`, as for Yari).
 
 ### SAG / spacers
 
@@ -1239,7 +1242,7 @@ Max: 265 psi (80), 205 psi (100-120), 225 psi (130-150).
 
 ### Rebound
 
-TH: `RCNG-80`, `RCNG-100` (100/120), `RCNG-130`, `RCNG-140` (140/150). `motion_control_rl` → `display_only`. TH also has a 65 mm entry with no catalog travel.
+TH: `RCNG-80`, `RCNG-100` (100/120), `RCNG-130`, `RCNG-140` (140/150). `motion_control_rl` → `max-N` (`max: ~`, as for Yari). TH also has a 65 mm entry with no catalog travel.
 
 ### SAG / spacers
 
@@ -1270,11 +1273,14 @@ E-bike mode does not change rebound; it only adds 10 psi. For pressure, TrailHea
 
 Counting-direction comparison: TrailHead counts from closed. Every catalog fork rebound adjuster is "Counted from fully open (fastest)" (`dial_ccw`, `min: 0`), which is the opposite direction:
 - `charger_3`, `charger_3_1` (max 18) and `charger_3_2` (max 18, **estimated**)
-  → encode `18 − N`.
-- `rush_rc`, `rush_rl`, `isolator` (max 16) → `16 − N` (floored at 0).
+  → encode `max-N`.
+- `rush_rc`, `rush_rl`, `isolator` (max 16) → `max-N`. N never exceeds 16
+  in the 50–120 kg rows; a larger N would be `min`, since `max-17` lies
+  outside a 16-click range and the parser rejects it.
 - `charger_race_day`, `charger_race_day_2`, `charger_2_rl`, `charger_rl`,
   `charger_2_1_rc2`, `motion_control_rc`, `motion_control_rl` (`max: ~`)
-  → `display_only`, worded "N clicks from closed".
+  → `max-N` as well. The app asks for the real click count before it
+  recommends a value (R9 placeholder max).
 
 Range: TrailHead states no upper weight limit, so the calculated rows cover 50–120 kg (README default). Calculated from the published formula:
 
@@ -1324,63 +1330,63 @@ Formula coefficients (rebound = rs1 × weight_lb + rb, clamped to [-17, 0], roun
 
 #### Calculated from the published formula — Charger 3 / 3.1 / 3.2 RC2 family (clicks from closed)
 
-| kg | lb (×2.20462) | `C3-A` N | `C3-A` → catalog (18 − N) | `C3-B` N | `C3-B` → catalog (18 − N) | `C3-C` N | `C3-C` → catalog (18 − N) |
+| kg | lb (×2.20462) | `C3-A` N | `C3-A` encode | `C3-B` N | `C3-B` encode | `C3-C` N | `C3-C` encode |
 |---|---|---|---|---|---|---|---|
-| 50 | 110.2 | 13 | 5 | 14 | 4 | 16 | 2 |
-| 55 | 121.3 | 12 | 6 | 14 | 4 | 15 | 3 |
-| 60 | 132.3 | 12 | 6 | 13 | 5 | 14 | 4 |
-| 65 | 143.3 | 11 | 7 | 12 | 6 | 14 | 4 |
-| 70 | 154.3 | 10 | 8 | 12 | 6 | 13 | 5 |
-| 75 | 165.3 | 10 | 8 | 11 | 7 | 12 | 6 |
-| 80 | 176.4 | 9 | 9 | 10 | 8 | 12 | 6 |
-| 85 | 187.4 | 8 | 10 | 10 | 8 | 11 | 7 |
-| 90 | 198.4 | 7 | 11 | 9 | 9 | 10 | 8 |
-| 95 | 209.4 | 7 | 11 | 8 | 10 | 10 | 8 |
-| 100 | 220.5 | 6 | 12 | 8 | 10 | 9 | 9 |
-| 105 | 231.5 | 5 | 13 | 7 | 11 | 8 | 10 |
-| 110 | 242.5 | 5 | 13 | 6 | 12 | 8 | 10 |
-| 115 | 253.5 | 4 | 14 | 6 | 12 | 7 | 11 |
-| 120 | 264.6 | 3 | 15 | 5 | 13 | 6 | 12 |
+| 50 | 110.2 | 13 | max-13 | 14 | max-14 | 16 | max-16 |
+| 55 | 121.3 | 12 | max-12 | 14 | max-14 | 15 | max-15 |
+| 60 | 132.3 | 12 | max-12 | 13 | max-13 | 14 | max-14 |
+| 65 | 143.3 | 11 | max-11 | 12 | max-12 | 14 | max-14 |
+| 70 | 154.3 | 10 | max-10 | 12 | max-12 | 13 | max-13 |
+| 75 | 165.3 | 10 | max-10 | 11 | max-11 | 12 | max-12 |
+| 80 | 176.4 | 9 | max-9 | 10 | max-10 | 12 | max-12 |
+| 85 | 187.4 | 8 | max-8 | 10 | max-10 | 11 | max-11 |
+| 90 | 198.4 | 7 | max-7 | 9 | max-9 | 10 | max-10 |
+| 95 | 209.4 | 7 | max-7 | 8 | max-8 | 10 | max-10 |
+| 100 | 220.5 | 6 | max-6 | 8 | max-8 | 9 | max-9 |
+| 105 | 231.5 | 5 | max-5 | 7 | max-7 | 8 | max-8 |
+| 110 | 242.5 | 5 | max-5 | 6 | max-6 | 8 | max-8 |
+| 115 | 253.5 | 4 | max-4 | 6 | max-6 | 7 | max-7 |
+| 120 | 264.6 | 3 | max-3 | 5 | max-5 | 6 | max-6 |
 
 #### Calculated from the published formula — Base-trim dampers (Rush RC / Charger R) (clicks from closed)
 
-| kg | lb (×2.20462) | `RUSH-P120` N | `RUSH-P120` → catalog (16 − N) | `RUSH-P130` N | `RUSH-P130` → catalog (16 − N) | `BASE-A` N | `BASE-A` → catalog (16 − N) | `BASE-B` N | `BASE-B` → catalog (16 − N) | `BASE-C` N | `BASE-C` → catalog (16 − N) |
+| kg | lb (×2.20462) | `RUSH-P120` N | `RUSH-P120` encode | `RUSH-P130` N | `RUSH-P130` encode | `BASE-A` N | `BASE-A` encode | `BASE-B` N | `BASE-B` encode | `BASE-C` N | `BASE-C` encode |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 50 | 110.2 | 13 | 3 | 14 | 2 | 13 | 3 | 13 | 3 | 14 | 2 |
-| 55 | 121.3 | 13 | 3 | 13 | 3 | 12 | 4 | 13 | 3 | 14 | 2 |
-| 60 | 132.3 | 12 | 4 | 13 | 3 | 12 | 4 | 12 | 4 | 13 | 3 |
-| 65 | 143.3 | 12 | 4 | 12 | 4 | 11 | 5 | 12 | 4 | 13 | 3 |
-| 70 | 154.3 | 11 | 5 | 12 | 4 | 11 | 5 | 12 | 4 | 12 | 4 |
-| 75 | 165.3 | 11 | 5 | 12 | 4 | 10 | 6 | 11 | 5 | 12 | 4 |
-| 80 | 176.4 | 10 | 6 | 11 | 5 | 10 | 6 | 11 | 5 | 11 | 5 |
-| 85 | 187.4 | 10 | 6 | 11 | 5 | 9 | 7 | 10 | 6 | 11 | 5 |
-| 90 | 198.4 | 9 | 7 | 10 | 6 | 9 | 7 | 10 | 6 | 11 | 5 |
-| 95 | 209.4 | 9 | 7 | 10 | 6 | 9 | 7 | 9 | 7 | 10 | 6 |
-| 100 | 220.5 | 8 | 8 | 9 | 7 | 8 | 8 | 9 | 7 | 10 | 6 |
-| 105 | 231.5 | 8 | 8 | 9 | 7 | 8 | 8 | 9 | 7 | 9 | 7 |
-| 110 | 242.5 | 7 | 9 | 8 | 8 | 7 | 9 | 8 | 8 | 9 | 7 |
-| 115 | 253.5 | 7 | 9 | 8 | 8 | 7 | 9 | 8 | 8 | 9 | 7 |
-| 120 | 264.6 | 6 | 10 | 7 | 9 | 6 | 10 | 7 | 9 | 8 | 8 |
+| 50 | 110.2 | 13 | max-13 | 14 | max-14 | 13 | max-13 | 13 | max-13 | 14 | max-14 |
+| 55 | 121.3 | 13 | max-13 | 13 | max-13 | 12 | max-12 | 13 | max-13 | 14 | max-14 |
+| 60 | 132.3 | 12 | max-12 | 13 | max-13 | 12 | max-12 | 12 | max-12 | 13 | max-13 |
+| 65 | 143.3 | 12 | max-12 | 12 | max-12 | 11 | max-11 | 12 | max-12 | 13 | max-13 |
+| 70 | 154.3 | 11 | max-11 | 12 | max-12 | 11 | max-11 | 12 | max-12 | 12 | max-12 |
+| 75 | 165.3 | 11 | max-11 | 12 | max-12 | 10 | max-10 | 11 | max-11 | 12 | max-12 |
+| 80 | 176.4 | 10 | max-10 | 11 | max-11 | 10 | max-10 | 11 | max-11 | 11 | max-11 |
+| 85 | 187.4 | 10 | max-10 | 11 | max-11 | 9 | max-9 | 10 | max-10 | 11 | max-11 |
+| 90 | 198.4 | 9 | max-9 | 10 | max-10 | 9 | max-9 | 10 | max-10 | 11 | max-11 |
+| 95 | 209.4 | 9 | max-9 | 10 | max-10 | 9 | max-9 | 9 | max-9 | 10 | max-10 |
+| 100 | 220.5 | 8 | max-8 | 9 | max-9 | 8 | max-8 | 9 | max-9 | 10 | max-10 |
+| 105 | 231.5 | 8 | max-8 | 9 | max-9 | 8 | max-8 | 9 | max-9 | 9 | max-9 |
+| 110 | 242.5 | 7 | max-7 | 8 | max-8 | 7 | max-7 | 8 | max-8 | 9 | max-9 |
+| 115 | 253.5 | 7 | max-7 | 8 | max-8 | 7 | max-7 | 8 | max-8 | 9 | max-9 |
+| 120 | 264.6 | 6 | max-6 | 7 | max-7 | 6 | max-6 | 7 | max-7 | 8 | max-8 |
 
 #### Calculated from the published formula — BoXXer (clicks from closed)
 
-| kg | lb (×2.20462) | `BXR-D-180` N | `BXR-D-180` → catalog (18 − N) | `BXR-D-190` N | `BXR-D-190` → catalog (18 − N) | `BXR-C-180` N | `BXR-C-190` N |
+| kg | lb (×2.20462) | `BXR-D-180` N | `BXR-D-180` encode | `BXR-D-190` N | `BXR-D-190` encode | `BXR-C-180` N | `BXR-C-190` N |
 |---|---|---|---|---|---|---|---|
-| 50 | 110.2 | 13 | 5 | 15 | 3 | 11 | 12 |
-| 55 | 121.3 | 12 | 6 | 14 | 4 | 10 | 11 |
-| 60 | 132.3 | 11 | 7 | 14 | 4 | 10 | 11 |
-| 65 | 143.3 | 11 | 7 | 13 | 5 | 9 | 10 |
-| 70 | 154.3 | 10 | 8 | 12 | 6 | 9 | 10 |
-| 75 | 165.3 | 9 | 9 | 11 | 7 | 8 | 9 |
-| 80 | 176.4 | 8 | 10 | 10 | 8 | 8 | 9 |
-| 85 | 187.4 | 7 | 11 | 9 | 9 | 7 | 8 |
-| 90 | 198.4 | 6 | 12 | 8 | 10 | 7 | 8 |
-| 95 | 209.4 | 5 | 13 | 7 | 11 | 6 | 7 |
-| 100 | 220.5 | 5 | 13 | 6 | 12 | 6 | 7 |
-| 105 | 231.5 | 4 | 14 | 5 | 13 | 5 | 6 |
-| 110 | 242.5 | 3 | 15 | 4 | 14 | 5 | 6 |
-| 115 | 253.5 | 2 | 16 | 3 | 15 | 4 | 5 |
-| 120 | 264.6 | 1 | 17 | 2 | 16 | 4 | 5 |
+| 50 | 110.2 | 13 | max-13 | 15 | max-15 | 11 | 12 |
+| 55 | 121.3 | 12 | max-12 | 14 | max-14 | 10 | 11 |
+| 60 | 132.3 | 11 | max-11 | 14 | max-14 | 10 | 11 |
+| 65 | 143.3 | 11 | max-11 | 13 | max-13 | 9 | 10 |
+| 70 | 154.3 | 10 | max-10 | 12 | max-12 | 9 | 10 |
+| 75 | 165.3 | 9 | max-9 | 11 | max-11 | 8 | 9 |
+| 80 | 176.4 | 8 | max-8 | 10 | max-10 | 8 | 9 |
+| 85 | 187.4 | 7 | max-7 | 9 | max-9 | 7 | 8 |
+| 90 | 198.4 | 6 | max-6 | 8 | max-8 | 7 | 8 |
+| 95 | 209.4 | 5 | max-5 | 7 | max-7 | 6 | 7 |
+| 100 | 220.5 | 5 | max-5 | 6 | max-6 | 6 | 7 |
+| 105 | 231.5 | 4 | max-4 | 5 | max-5 | 5 | 6 |
+| 110 | 242.5 | 3 | max-3 | 4 | max-4 | 5 | 6 |
+| 115 | 253.5 | 2 | max-2 | 3 | max-3 | 4 | 5 |
+| 120 | 264.6 | 1 | max-1 | 2 | max-2 | 4 | 5 |
 
 #### Calculated from the published formula — SID / SID SL 2024+ (clicks from closed)
 
@@ -1404,63 +1410,63 @@ Formula coefficients (rebound = rs1 × weight_lb + rb, clamped to [-17, 0], roun
 
 #### Calculated from the published formula — SID SL C1 (2021-2023) (clicks from closed)
 
-| kg | lb (×2.20462) | `SIDSL-C1-ULT` N | `SIDSL-C1-SELP` N | `SIDSL-C1-SEL` N | `SIDSL-C1-BSE` N | `SIDSL-C1-BSE` → catalog (16 − N) |
+| kg | lb (×2.20462) | `SIDSL-C1-ULT` N | `SIDSL-C1-SELP` N | `SIDSL-C1-SEL` N | `SIDSL-C1-BSE` N | `SIDSL-C1-BSE` encode |
 |---|---|---|---|---|---|---|
-| 50 | 110.2 | 9 | 17 | 17 | 10 | 6 |
-| 55 | 121.3 | 8 | 17 | 16 | 9 | 7 |
-| 60 | 132.3 | 7 | 16 | 16 | 9 | 7 |
-| 65 | 143.3 | 7 | 15 | 15 | 8 | 8 |
-| 70 | 154.3 | 6 | 14 | 14 | 8 | 8 |
-| 75 | 165.3 | 6 | 13 | 14 | 7 | 9 |
-| 80 | 176.4 | 5 | 12 | 13 | 7 | 9 |
-| 85 | 187.4 | 5 | 11 | 12 | 7 | 9 |
-| 90 | 198.4 | 4 | 11 | 12 | 6 | 10 |
-| 95 | 209.4 | 3 | 10 | 11 | 6 | 10 |
-| 100 | 220.5 | 3 | 9 | 10 | 5 | 11 |
-| 105 | 231.5 | 2 | 8 | 10 | 5 | 11 |
-| 110 | 242.5 | 2 | 7 | 9 | 4 | 12 |
-| 115 | 253.5 | 1 | 6 | 8 | 4 | 12 |
-| 120 | 264.6 | 1 | 5 | 8 | 3 | 13 |
+| 50 | 110.2 | 9 | 17 | 17 | 10 | max-10 |
+| 55 | 121.3 | 8 | 17 | 16 | 9 | max-9 |
+| 60 | 132.3 | 7 | 16 | 16 | 9 | max-9 |
+| 65 | 143.3 | 7 | 15 | 15 | 8 | max-8 |
+| 70 | 154.3 | 6 | 14 | 14 | 8 | max-8 |
+| 75 | 165.3 | 6 | 13 | 14 | 7 | max-7 |
+| 80 | 176.4 | 5 | 12 | 13 | 7 | max-7 |
+| 85 | 187.4 | 5 | 11 | 12 | 7 | max-7 |
+| 90 | 198.4 | 4 | 11 | 12 | 6 | max-6 |
+| 95 | 209.4 | 3 | 10 | 11 | 6 | max-6 |
+| 100 | 220.5 | 3 | 9 | 10 | 5 | max-5 |
+| 105 | 231.5 | 2 | 8 | 10 | 5 | max-5 |
+| 110 | 242.5 | 2 | 7 | 9 | 4 | max-4 |
+| 115 | 253.5 | 1 | 6 | 8 | 4 | max-4 |
+| 120 | 264.6 | 1 | 5 | 8 | 3 | max-3 |
 
 #### Calculated from the published formula — SID C1 (2021-2023) (clicks from closed)
 
-| kg | lb (×2.20462) | `SID-C1-ULT` N | `SID-C1-SELP` N | `SID-C1-SEL` N | `SID-C1-BSE` N | `SID-C1-BSE` → catalog (16 − N) |
+| kg | lb (×2.20462) | `SID-C1-ULT` N | `SID-C1-SELP` N | `SID-C1-SEL` N | `SID-C1-BSE` N | `SID-C1-BSE` encode |
 |---|---|---|---|---|---|---|
-| 50 | 110.2 | 12 | 13 | 13 | 9 | 7 |
-| 55 | 121.3 | 11 | 13 | 13 | 8 | 8 |
-| 60 | 132.3 | 10 | 12 | 12 | 8 | 8 |
-| 65 | 143.3 | 9 | 11 | 11 | 7 | 9 |
-| 70 | 154.3 | 8 | 10 | 11 | 7 | 9 |
-| 75 | 165.3 | 8 | 10 | 10 | 6 | 10 |
-| 80 | 176.4 | 7 | 9 | 10 | 6 | 10 |
-| 85 | 187.4 | 6 | 8 | 9 | 5 | 11 |
-| 90 | 198.4 | 5 | 8 | 9 | 5 | 11 |
-| 95 | 209.4 | 4 | 7 | 8 | 4 | 12 |
-| 100 | 220.5 | 3 | 6 | 8 | 4 | 12 |
-| 105 | 231.5 | 2 | 5 | 7 | 3 | 13 |
-| 110 | 242.5 | 1 | 5 | 7 | 3 | 13 |
-| 115 | 253.5 | 0 | 4 | 6 | 2 | 14 |
-| 120 | 264.6 | 0 | 3 | 5 | 2 | 14 |
+| 50 | 110.2 | 12 | 13 | 13 | 9 | max-9 |
+| 55 | 121.3 | 11 | 13 | 13 | 8 | max-8 |
+| 60 | 132.3 | 10 | 12 | 12 | 8 | max-8 |
+| 65 | 143.3 | 9 | 11 | 11 | 7 | max-7 |
+| 70 | 154.3 | 8 | 10 | 11 | 7 | max-7 |
+| 75 | 165.3 | 8 | 10 | 10 | 6 | max-6 |
+| 80 | 176.4 | 7 | 9 | 10 | 6 | max-6 |
+| 85 | 187.4 | 6 | 8 | 9 | 5 | max-5 |
+| 90 | 198.4 | 5 | 8 | 9 | 5 | max-5 |
+| 95 | 209.4 | 4 | 7 | 8 | 4 | max-4 |
+| 100 | 220.5 | 3 | 6 | 8 | 4 | max-4 |
+| 105 | 231.5 | 2 | 5 | 7 | 3 | max-3 |
+| 110 | 242.5 | 1 | 5 | 7 | 3 | max-3 |
+| 115 | 253.5 | 0 | 4 | 6 | 2 | max-2 |
+| 120 | 264.6 | 0 | 3 | 5 | 2 | max-2 |
 
 #### Calculated from the published formula — Reba, Psylo, Domain, Rudy (clicks from closed)
 
-| kg | lb (×2.20462) | `REBA-100` N | `REBA-110` N | `PSYL-130` N | `PSYL-130` → catalog (16 − N) | `PSYL-140` N | `PSYL-140` → catalog (16 − N) | `DOMN-150` N | `DOMN-150` → catalog (16 − N) | `DOMN-160` N | `DOMN-160` → catalog (16 − N) | `RUDY` N | `RDYX` N |
+| kg | lb (×2.20462) | `REBA-100` N | `REBA-110` N | `PSYL-130` N | `PSYL-130` encode | `PSYL-140` N | `PSYL-140` encode | `DOMN-150` N | `DOMN-150` encode | `DOMN-160` N | `DOMN-160` encode | `RUDY` N | `RDYX` N |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| 50 | 110.2 | 13 | 13 | 6 | 10 | 6 | 10 | 10 | 6 | 11 | 5 | 13 | 16 |
-| 55 | 121.3 | 13 | 13 | 6 | 10 | 6 | 10 | 9 | 7 | 10 | 6 | 12 | 16 |
-| 60 | 132.3 | 12 | 12 | 5 | 11 | 5 | 11 | 9 | 7 | 10 | 6 | 11 | 15 |
-| 65 | 143.3 | 11 | 11 | 5 | 11 | 5 | 11 | 8 | 8 | 9 | 7 | 10 | 15 |
-| 70 | 154.3 | 10 | 10 | 4 | 12 | 4 | 12 | 7 | 9 | 8 | 8 | 9 | 14 |
-| 75 | 165.3 | 10 | 10 | 3 | 13 | 3 | 13 | 7 | 9 | 8 | 8 | 8 | 14 |
-| 80 | 176.4 | 9 | 9 | 3 | 13 | 3 | 13 | 6 | 10 | 7 | 9 | 7 | 13 |
-| 85 | 187.4 | 8 | 8 | 2 | 14 | 2 | 14 | 6 | 10 | 7 | 9 | 6 | 13 |
-| 90 | 198.4 | 7 | 8 | 2 | 14 | 2 | 14 | 5 | 11 | 6 | 10 | 4 | 12 |
-| 95 | 209.4 | 7 | 7 | 1 | 15 | 1 | 15 | 5 | 11 | 6 | 10 | 3 | 12 |
-| 100 | 220.5 | 6 | 6 | 1 | 15 | 1 | 15 | 4 | 12 | 5 | 11 | 2 | 11 |
-| 105 | 231.5 | 5 | 5 | 0 | 16 | 0 | 16 | 4 | 12 | 5 | 11 | 1 | 10 |
-| 110 | 242.5 | 4 | 5 | 0 | 16 | 0 | 16 | 3 | 13 | 4 | 12 | 0 | 10 |
-| 115 | 253.5 | 4 | 4 | 0 | 16 | 0 | 16 | 2 | 14 | 3 | 13 | 0 | 9 |
-| 120 | 264.6 | 3 | 3 | 0 | 16 | 0 | 16 | 2 | 14 | 3 | 13 | 0 | 9 |
+| 50 | 110.2 | 13 | 13 | 6 | max-6 | 6 | max-6 | 10 | max-10 | 11 | max-11 | 13 | 16 |
+| 55 | 121.3 | 13 | 13 | 6 | max-6 | 6 | max-6 | 9 | max-9 | 10 | max-10 | 12 | 16 |
+| 60 | 132.3 | 12 | 12 | 5 | max-5 | 5 | max-5 | 9 | max-9 | 10 | max-10 | 11 | 15 |
+| 65 | 143.3 | 11 | 11 | 5 | max-5 | 5 | max-5 | 8 | max-8 | 9 | max-9 | 10 | 15 |
+| 70 | 154.3 | 10 | 10 | 4 | max-4 | 4 | max-4 | 7 | max-7 | 8 | max-8 | 9 | 14 |
+| 75 | 165.3 | 10 | 10 | 3 | max-3 | 3 | max-3 | 7 | max-7 | 8 | max-8 | 8 | 14 |
+| 80 | 176.4 | 9 | 9 | 3 | max-3 | 3 | max-3 | 6 | max-6 | 7 | max-7 | 7 | 13 |
+| 85 | 187.4 | 8 | 8 | 2 | max-2 | 2 | max-2 | 6 | max-6 | 7 | max-7 | 6 | 13 |
+| 90 | 198.4 | 7 | 8 | 2 | max-2 | 2 | max-2 | 5 | max-5 | 6 | max-6 | 4 | 12 |
+| 95 | 209.4 | 7 | 7 | 1 | max-1 | 1 | max-1 | 5 | max-5 | 6 | max-6 | 3 | 12 |
+| 100 | 220.5 | 6 | 6 | 1 | max-1 | 1 | max-1 | 4 | max-4 | 5 | max-5 | 2 | 11 |
+| 105 | 231.5 | 5 | 5 | 0 | max | 0 | max | 4 | max-4 | 5 | max-5 | 1 | 10 |
+| 110 | 242.5 | 4 | 5 | 0 | max | 0 | max | 3 | max-3 | 4 | max-4 | 0 | 10 |
+| 115 | 253.5 | 4 | 4 | 0 | max | 0 | max | 2 | max-2 | 3 | max-3 | 0 | 9 |
+| 120 | 264.6 | 3 | 3 | 0 | max | 0 | max | 2 | max-2 | 3 | max-3 | 0 | 9 |
 
 #### Calculated from the published formula — Yari, Revelation, Recon Gold (clicks from closed)
 
@@ -1482,25 +1488,25 @@ Formula coefficients (rebound = rs1 × weight_lb + rb, clamped to [-17, 0], roun
 | 115 | 253.5 | 6 | 8 | 4 | 2 | 3 | 7 | 8 | 13 | 11 |
 | 120 | 264.6 | 5 | 7 | 3 | 1 | 2 | 7 | 7 | 12 | 11 |
 
-#### Calculated from the published formula — rear shock rebound (clicks from closed; catalog value from open = total − N)
+#### Calculated from the published formula — rear shock rebound (clicks from closed; encoded from open as `max-N`)
 
-| kg | lb | N (15-click damper) | catalog `rebound` (15 − N) | N (20-click damper) | catalog `rebound` (20 − N) |
+| kg | lb | N (15-click damper) | encode | N (20-click damper) | encode |
 |---|---|---|---|---|---|
-| 50 | 110.2 | 12 | 3 | 17 | 3 |
-| 55 | 121.3 | 12 | 3 | 16 | 4 |
-| 60 | 132.3 | 11 | 4 | 15 | 5 |
-| 65 | 143.3 | 11 | 4 | 14 | 6 |
-| 70 | 154.3 | 10 | 5 | 13 | 7 |
-| 75 | 165.3 | 9 | 6 | 13 | 7 |
-| 80 | 176.4 | 9 | 6 | 12 | 8 |
-| 85 | 187.4 | 8 | 7 | 11 | 9 |
-| 90 | 198.4 | 8 | 7 | 10 | 10 |
-| 95 | 209.4 | 7 | 8 | 9 | 11 |
-| 100 | 220.5 | 6 | 9 | 8 | 12 |
-| 105 | 231.5 | 6 | 9 | 8 | 12 |
-| 110 | 242.5 | 5 | 10 | 7 | 13 |
-| 115 | 253.5 | 5 | 10 | 6 | 14 |
-| 120 | 264.6 | 4 | 11 | 5 | 15 |
+| 50 | 110.2 | 12 | max-12 | 17 | max-17 |
+| 55 | 121.3 | 12 | max-12 | 16 | max-16 |
+| 60 | 132.3 | 11 | max-11 | 15 | max-15 |
+| 65 | 143.3 | 11 | max-11 | 14 | max-14 |
+| 70 | 154.3 | 10 | max-10 | 13 | max-13 |
+| 75 | 165.3 | 9 | max-9 | 13 | max-13 |
+| 80 | 176.4 | 9 | max-9 | 12 | max-12 |
+| 85 | 187.4 | 8 | max-8 | 11 | max-11 |
+| 90 | 198.4 | 8 | max-8 | 10 | max-10 |
+| 95 | 209.4 | 7 | max-7 | 9 | max-9 |
+| 100 | 220.5 | 6 | max-6 | 8 | max-8 |
+| 105 | 231.5 | 6 | max-6 | 8 | max-8 |
+| 110 | 242.5 | 5 | max-5 | 7 | max-7 |
+| 115 | 253.5 | 5 | max-5 | 6 | max-6 |
+| 120 | 264.6 | 4 | max-4 | 5 | max-5 |
 
 ---
 
@@ -1610,7 +1616,7 @@ Source: TH client script. It applies only after a serial lookup, but the rebound
 3. If w > 320, N = 1. If w < 80, N = a. Otherwise N = round(a + (w − 80) × (1 − a) / 240).
 4. N is counted from closed (full slow).
 
-Catalog dampers count from open: `rc2t` and `super_deluxe_d1` (max 15), `vivid_ultimate` (max 20) → encode `total − N`. All `max: ~` rebound dampers → `display_only`. The table at the end of the TrailHead section above gives N and `total − N` for 15 and 20 clicks.
+Catalog dampers count from open: `rc2t` and `super_deluxe_d1` (max 15), `vivid_ultimate` (max 20) → encode `max-N`. The table at the end of the TrailHead section above gives N and `max-N` for 15 and 20 clicks. N itself depends on the total (a = total − 1), so `max: ~` rebound dampers get no rule, only a `note` that the app can't compute clicks without the shock's real click count.
 
 Caveat: it is not verified that TrailHead's `Rebound Clicks` attribute equals the catalog totals (15 / 20). Shock model-code pages do not expose attributes. See Follow-ups.
 
@@ -1653,14 +1659,28 @@ The UM Vivid Air table (360 psi with 0-4 tokens, 300 psi at 5-6 tokens or 67.5-7
 | `fork/rockshox/sid-sl/2021` at `travel_mm: 80` | SPEC2022/2023 and TrailHead cover 100 mm only. |
 | `fork/rockshox/sid/2021` at `travel_mm: 100` | SPEC2022/2023 cover 110-120 only. |
 
+## Catalog changes before encoding (R8, R9)
+
+R8 fixes:
+- `Pressure` max per fork from the printed limits (Pike 163, …; see each
+  guide's "Pressure limits"). The `110+`-style cells become `[N, max]` bands,
+  so they need that max. BoXXer stays open until the 300 vs 260 psi question
+  is settled.
+- `volume_spacers` adjusters where factory counts are known (Lyrik 2027,
+  ZEB 2027, BoXXer 2024/2027, SID/SID SL 2025, Psylo, Domain).
+- ZEB Base damper id (`rush_rc` vs Charger R), before its rebound rows.
+
+R9 type changes: none. Rebound uses `max-N` on the existing step adjusters,
+`max: ~` ones included, and tokens are one size, so they stay a step count.
+
 ## Follow-ups
 
 - **BoXXer max psi:** SPEC2026/2027 print 300 psi for BoXXer D1 and D2, while
   TrailHead D1 and the catalog (D2, from the support KB) say 260. Confirm with
   SRAM before encoding a limit.
-- **Charger 3.2 rebound total** (`max: 18` is an estimate). The `18 − N`
-  conversion for Lyrik/ZEB 2027 and BoXXer 2027 depends on it. Until it is
-  confirmed, encode those as `display_only`.
+- **Charger 3.2 rebound total** (`max: 18` is an estimate). The `max-N`
+  references for Lyrik/ZEB 2027 and BoXXer 2027 resolve against it, so a
+  rider who corrects the max gets corrected clicks. Confirm it anyway.
 - **ZEB Base damper:** SPEC2023 and SPEC2026 name "Charger R" for
   FS-ZEB-BSE-A2, while the catalog has `rush_rc`. Re-check the service-manual
   exploded view.

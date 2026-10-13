@@ -169,7 +169,8 @@ None.
 
 - **Temperature correction:** the rebound table is for approx. 25 °C; at 0 °C
   open the rebound by 6 clicks versus the table (open at cold, close at hot).
-  Proposed: `note` on the rebound rule, no input axis.
+  A relative offset by temperature, which is no input: `note` on the rebound
+  rule (R8 "unchanged").
 - **"System weight":** the table's input is labelled "system weight" without a
   definition in §4.1; elsewhere in the manual "system weight" means rider + bike
   + equipment + luggage, which would not match a 50 kg first row. Treat as
@@ -341,7 +342,10 @@ standard mount, "22 clicks" trunnion) and that clockwise adds damping.
 ### SAG
 
 20–35 % of shock stroke (`sag`, `range`). Riding-style sub-bands as printed:
-cross country / firmer ride 20–25 %, best downhill performance 25–35 %. The
+cross country / firmer ride 20–25 %, best downhill performance 25–35 %. They
+mix disciplines and firmness and don't map 1:1 (R7), so encode `range: [20, 35]`
+with `comfort_at: max` (a firmer rider gets the 20 % end) and name the
+sub-bands in the `note`. The
 manual's SAG chart plots the 20 % and 35 % lines in mm against the sizes
 165×40/190×40 … 205×65/230×65 (graphic only, no printed mm values).
 
@@ -443,6 +447,13 @@ None.
 | Catalog path | Reason |
 |---|---|
 | — | Every catalog product is covered by one of the four guides above. |
+
+## Catalog changes before encoding (R8, R9)
+
+R8 fixes: none found; the click tables fit the catalog maxima.
+
+R9 type changes: none. `compression: 0` (fully open) and `compression_mode:
+Open` use existing adjusters.
 
 ## Follow-ups
 

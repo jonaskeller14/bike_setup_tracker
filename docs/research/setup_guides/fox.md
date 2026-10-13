@@ -24,12 +24,13 @@ Researched: 2026-10-11 – 2026-10-12
     rear-wheel travel;
   - SAG 25-30 % (FLOAT, FLOAT SL, FLOAT X, DPS/DPX2) or ~30 % (FLOAT X2, DHX2, DHX), with a mm table;
   - constants: open-mode adjust 1, levers in Open.
-- B3 cannot hold (details per guide): spring-rate input, the A/B/C selector (stroke × rear-wheel travel),
-  E-Bike+/E-Optimized columns (no catalog option), the 2027 38 mixed 10 cc/5 cc spacers, and pressure-keyed
-  rebound (needs `input: pressure`, which B3 lists). "Open"/"Closed" cells and "22-Open" ranges are
-  encoded as range references (see the tables).
+- Encoding (details per guide): spring-rate and pressure-keyed tables are adjuster inputs (R4); click
+  ranges ("11-13") are band cells (R2); "Open"/"Closed" cells and "22-Open" ranges are range references
+  (`max`, `min`, `[22, max]`, R9); the 2027 38 mixed 10 cc/5 cc spacers make `volume_spacers` categorical
+  (R9). No rule, note only: the A/B/C selector (stroke × rear-wheel travel, #71) and the
+  E-Bike+/E-Optimized columns (no catalog option, #72).
 - Counting direction: every FOX table counts clicks out from fully closed (clockwise to the stop, then
-  counter-clockwise), the catalog's `dial_ccw` default. No table needs `max − N`.
+  counter-clockwise), the catalog's `dial_ccw` default. No table needs `max-N`.
 - **Catalog conflicts found** (rows above the catalog `max`): `grip` rebound (catalog max 10; every GRIP
   table goes to 13, the 32 Taper-Cast to 22), `rail` rebound (max 9; AWL tables go to 10 and 13), and the 40's
   `grip_x2` HSR column (max 8; table goes to 10). See Follow-ups.
@@ -844,7 +845,10 @@ Identical to `fox_38_2026`.
 ### Does not fit B3
 
 - The FLOAT spacer recommendation is two counts of two spacer sizes; the catalog's `volume_spacers` is
-  one count. Proposed: `display_only` note ("1 × 10 cc + 1 × 5 cc") until the catalog models spacer sizes.
+  one count. R9: the 38 2027 `volume_spacers` becomes categorical with the published configurations as
+  options (`"1× 5cc"`, `"1× 10cc"`, `"1× 10cc + 1× 5cc"`, `"2× 10cc"`, `"2× 10cc + 1× 5cc"`), and each
+  travel row is that option (`travel_mm` input, literal points). This needs the 2027 generation decision
+  first (Follow-ups).
 
 ## Guide `fox_40_2027` — FORK- 2027 40mm
 
@@ -1699,8 +1703,8 @@ FLOAT SL EVOL and FLOAT X 350 psi; FLOAT SL non-EVOL 300 psi; catalog 350 with t
 
 ### Does not fit B3
 
-- "Open" / "Closed" cells: propose `display_only` for "Open" (fully open), and value 0 for "Closed"
-  (0 = fully closed is the catalog convention), or `display_only` for both.
+- "Open" / "Closed" cells are range references (R9): "Open" → `max`, "Closed" → `min`, resolved against
+  the rider's adjuster range.
 
 ## Guide `fox_float_x2_2027` — SHOCK- 2027 FLOAT X2
 
@@ -1852,11 +1856,11 @@ Encode as range references: LSR at 90 psi `22-Open` → `[22, max]`.
 | 240 | 11-13 | 11-13 | 14-16 | 13-15 |
 | 250 | 10-12 | 11-13 | 14-16 | 12-14 |
 
-If encoded, as range references: `Open` → `max`; `22-Open` → `[22, max]`, `23-Open` → `[23, max]`.
+Encode as range references: `Open` → `max`; `22-Open` → `[22, max]`, `23-Open` → `[23, max]`.
 
 ### Constants / base tune
 
-2-position lever (some shocks): begin in Open — no catalog adjuster.
+2-position lever (some shocks): begin in Open — no catalog adjuster, so no rule.
 
 ### SAG
 
@@ -1880,8 +1884,8 @@ Maximum spacer pairs per size only (already in the catalog `notes`); no factory/
 
 ### Does not fit B3
 
-- "Open" and "22-Open"/"23-Open" cells: `display_only` (the catalog maxima are estimates, so "Open" cannot be
-  turned into a number).
+- "Open" and "22-Open"/"23-Open" cells: range references `max`, `[22, max]`, `[23, max]` (R9). The catalog
+  maxima are estimates, so they are resolved against the rider's `max`: a corrected max corrects them.
 
 ## Guide `fox_float_x2_2024` — SHOCK- 2024 FLOAT X2
 
@@ -2024,8 +2028,8 @@ clicks; never more than two full turns to reduce sag — no catalog preload adju
 
 ### Does not fit B3
 
-- Input `spring_rate` (the catalog's `Spring Rate` adjuster value) is not in the B3 input list. Proposed: add
-  `spring_rate` as an input (same mechanics as `pressure`), literal points 200-725 in steps of 25.
+- Input `spring_rate` (the catalog's `Spring Rate` adjuster value) is an adjuster input (R4), literal points
+  200-725 in steps of 25.
 - No spring-rate recommendation per rider weight; SAG is the only spring guide.
 
 ## Guide `fox_dhx_2027` — SHOCK- 2027 DHX
@@ -2130,8 +2134,8 @@ Preload: snug, then one more full turn (2020 manual); no catalog preload adjuste
 ### Does not fit B3
 
 - Needs two bike inputs (shock stroke, rear-wheel travel) to pick A/B/C, plus `spring_rate`. The catalog has
-  no `size` option on `dhx2/2016` and no rear-wheel-travel input. Proposed: a `table` selector rule keyed on
-  `stroke_mm` × `rear_travel_mm`, or `display_only` A/B/C tables until those inputs exist.
+  no `size` option on `dhx2/2016` and no rear-wheel-travel input. No rule until bike-level inputs exist
+  (#71); then the A/B/C table can be a `when:` on stroke and rear-wheel travel. A `note` at most until then.
 
 ## Guide `fox_coil_2024` — SHOCK- 2024 All Coil Shocks (DHX2 and DHX models)
 
@@ -2308,6 +2312,21 @@ DPS EVOL / DPX2 EVOL 350 psi; non-EVOL DPS 300 psi (2018-2019 manuals); catalog 
 | `shock/fox/dhx/factory` | 2026/2027 DHX manuals give only the ~30 % SAG band and mm table; no rebound/LSC starting values, no spring-rate chart (checked 3100, 3170, and the DHX sections of the 2022-2025 coil manuals) |
 | `shock/fox/float-dpx2/*` | No rebound or Comp Adj starting value in the 2018-2021 manuals; formula + SAG band only |
 | `fork/fox/34/factory`, `fork/fox/34/performance-elite` (rebound only) | 2025-2027 32/34 manuals have no GRIP X rebound column for the 34 |
+
+## Catalog changes before encoding (R8, R9)
+
+R8 fixes:
+- `grip` rebound max 10 → 13 (every GRIP table since 2018; 32 Taper-Cast 22).
+- `rail` rebound max 9 → 10 / 13 (AWL, AWL HD).
+- 40 `grip_x2` HSR max 8 → 10.
+- GRIP X base tune 5 / 5 in the 2027 34 SL / 36 / 36 SL / 38 manuals.
+- `shock/fox/dhx2/2021` `setup_guide` → the coil manual.
+- Decide on a 38 2027 generation.
+- Published max pressures as the `pressure` adjusters' `max`.
+
+R9 type changes:
+- 38 2027 `volume_spacers`: step count → categorical with the published
+  10 cc / 5 cc configurations.
 
 ## Follow-ups
 

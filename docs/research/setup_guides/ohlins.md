@@ -26,13 +26,17 @@ Researched: 2026-10-11
   - No rider-weight → pressure or click tables for any shock.
 - The manuals point riders to Öhlins' **Performance Suspension Guide** (PSG, ohlins.com) for bike-specific
   base pressure and spacers. It is keyed by bike model, not by rider data, so nothing from it is encodable.
-- B3 cannot hold:
-  - the two-chamber pressures where the catalog lists a single `pressure` (RXF34 m.1, RXF36 m.1/m.2/m.3,
-    DH38);
-  - coil charts keyed by a weight point;
-  - RXF34 m.2 spacer charts keyed by chassis part number;
-  - shock spacer production volumes keyed by part number;
-  - the high-speed dial labelled 1/2/P or I/II/III against a catalog step counted from closed.
+- Encoding (R3, R9):
+  - the two-chamber forks where the catalog lists a single `pressure` (RXF34 m.1, RXF36 m.1/m.2/m.3,
+    DH38) switch to the catalog's main + ramp-up adjusters (catalog change), then both bands are encoded;
+  - coil charts keyed by a weight point are literal `rider_weight` points on `spring_rate`; spring rates
+    take the nearest point and never interpolate (R3);
+  - RXF34 m.2 spacer charts keyed by chassis part number: the 140 mm-max chart is encoded (it covers every
+    catalog travel), the 130 mm-max values go into the `note`;
+  - the high-speed dial labelled 1/2/P or I/II/III becomes a categorical `hsc` with those positions as
+    options (catalog change), so the delivery position is an option.
+- No rule until the catalog maps part numbers to sizes: shock spacer production volumes keyed by part
+  number. The reducer configurations (A … E+4F) would then be categorical options (R9).
 - Two count conflicts with the catalog:
   - RXF36 m.2 TTX18 rebound/LSC "14-16" is above the catalog max 15 (`ttx18_m2`);
   - RXF34/RXF36 m.1 TTX22 "Compression high 7-8 clicks" is above the 0-5 range the same manual describes.
@@ -199,8 +203,9 @@ None.
 ### Does not fit B3
 
 - Spacer rows depend on the chassis part number (130 mm-max vs 140 mm-max fork), a second input the
-  catalog lacks. Proposed: encode the 140 mm-max chart (the only one covering all three catalog travels)
-  with a note naming the 130 mm-max values, or add a chassis option.
+  catalog lacks. Encode the 140 mm-max chart (the only one covering all three catalog travels) keyed by
+  `travel_mm`, with a `note` naming the 130 mm-max values (one spacer fewer). The spacers are one size
+  (8 ml), so they stay a step count.
 
 ## Guide `ohlins_rxf34_rxf36_m1` — Front Fork RXF34/RXF36 Owner's Manual (TTX22 / STX22)
 
@@ -282,9 +287,9 @@ None.
 
 ### Does not fit B3
 
-- Two chambers on a catalog node that has one `pressure`. Proposed: switch these trims to the catalog's
-  `&dual_chamber_air` (main + ramp-up), then encode both columns. Until then, encode the main chamber on
-  `pressure` and put the ramp-up band in a `display_only` note.
+- Two chambers on a catalog node that has one `pressure`. Switch these trims to the catalog's
+  `&dual_chamber_air` (main + ramp-up) first (catalog change, R9), then encode both columns as band cells.
+  The ramp-up band is a value the rider sets, so it is a rule, not a note.
 
 ## Guide `ohlins_rxf36_m2_2023` — Owner's Manual RXF36 m.2 Air/Coil TTX18
 
@@ -341,7 +346,8 @@ Catalog comparison:
 
 ### Coil spring chart (RXF36 m.2 Coil)
 
-No rider weight. Spring rate → tube colour, travel, part number. `display_only` list:
+No rider weight, so no lookup rule. Spring rate → tube colour, travel, part number; only the factory spring
+below is encoded. The list itself is fitment information for a `note`:
 
 | Spring rate [N/mm] | Tube color | Travel [mm] | Part no |
 |---|---|---|---|
@@ -462,8 +468,8 @@ None stated. Maximum system weight is 135 kg (rider + bike + gear), per editions
 ### Does not fit B3
 
 - Two chambers vs single catalog `pressure`.
-- Coil chart: one weight **point** per rate, no brackets. Proposed: `rows` with literal points and
-  nearest-point lookup, or a `display_only` chart. Do not invent bracket bounds.
+- Coil chart: one weight **point** per rate, no brackets. Encode `rows` with literal points: `spring_rate`
+  takes the nearest point and never interpolates (R3). Do not invent bracket bounds.
 
 ## Guide `ohlins_rxf38_m2_2024` — Owner's Manual RXF38 m.2 Air/Coil
 
@@ -645,7 +651,7 @@ Gaps:
 | Target | Value | Direction | `when:` |
 |---|---|---|---|
 | `pressure` | 170 psi (start value before setting sag) | — | `damper: ttx1air_m1` / `ttx2air_m1` |
-| `hsc` | position 2 "Medium" (delivery) | dial labelled 1 Soft / 2 Medium / P Pedaling platform; catalog `hsc` step max 3 counted from closed → mapping unclear, `display_only` "2 (Medium)" | both dampers |
+| `hsc` | position 2 "Medium" (delivery) | dial labelled 1 Soft / 2 Medium / P Pedaling platform; catalog `hsc` step max 3 counted from closed doesn't fit → `hsc` becomes categorical [`1`, `2`, `P`] (R9), `value: "2"` | both dampers |
 
 Set sag with the HSC in position 1 or 2, not P. No rebound or LSC recommendation.
 
@@ -681,8 +687,8 @@ Max 300 psi (single tube, TTX1Air) / 325 psi (double tube, TTX2Air). The catalog
 
 ### Does not fit B3
 
-- The HSC position names (1/2/P) cannot be mapped to the catalog's 0-3 step → `display_only`.
-- Spacer production volume keyed by part number.
+- The HSC position names (1/2/P) don't fit the catalog's 0-3 step → categorical `hsc` (R9).
+- Spacer production volume keyed by part number: no rule until part numbers map to catalog sizes.
 
 ## Guide `ohlins_ttx_air_m2_2025` — TTXAir m.2 owner's manual
 
@@ -708,7 +714,7 @@ catalog sizes are not mapped to those part numbers.
 | Target | Value | Direction | `when:` |
 |---|---|---|---|
 | `pressure` | 170 psi (start before sag) | — | `damper: ttx1air_m2` / `ttx2air_m2` |
-| `hsc` | position 2 "Medium" (delivery) | dial 1 Soft / 2 Medium / P → `display_only` | both dampers |
+| `hsc` | position 2 "Medium" (delivery) | dial 1 Soft / 2 Medium / P → categorical `hsc` [`1`, `2`, `P`] (R9), `value: "2"` | both dampers |
 | `volume_spacers` | 1 (production 2000 mm3, MTBM 255X; 2000 mm3 per spacer; max 5) | — | `damper: ttx1air_m2` |
 
 The TTX2Air m.2 production setting is 10 000 mm3 (MTBM 2565 & 2585; max 16 000 mm3) or 12 000 mm3 (MTBM 2569
@@ -726,8 +732,8 @@ TTX2Air m.2 product page also says 325 psi.
 
 ### Does not fit B3
 
-- HSC position names → `display_only`.
-- TTX2Air spacer production volume keyed by part number.
+- HSC position names → categorical `hsc` (R9).
+- TTX2Air spacer production volume keyed by part number: no rule until part numbers map to catalog sizes.
 
 ## Guide `ohlins_txc_air_2023` — TXC Air owner's manual
 
@@ -750,7 +756,7 @@ TTX2Air m.2 product page also says 325 psi.
 | Target | Value | Direction | `when:` |
 |---|---|---|---|
 | `pressure` | 200 psi (start before sag) | — | both |
-| `ride_mode` | Open (position 1) while setting sag | — | both; `display_only` (procedure) |
+| `ride_mode` | Open (position 1) while setting sag | — | both; procedure, so no rule, `note` only (R9) |
 
 ### SAG
 
@@ -787,7 +793,7 @@ Max 350 psi (catalog `max: 350` ✓).
 
 | Target | Value | Direction | `when:` |
 |---|---|---|---|
-| `hsc` | position II "medium" (delivery) | dial I soft / II medium / III hard (pedal platform on some models); catalog `hsc` max 3 from closed → `display_only` | `damper: ttx22_m2` |
+| `hsc` | position II "medium" (delivery) | dial I soft / II medium / III hard (pedal platform on some models); catalog `hsc` max 3 from closed doesn't fit → categorical `hsc` [`I`, `II`, `III`] (R9), `value: II` | `damper: ttx22_m2` |
 
 No rebound or LSC numbers. Preload at most 2 full turns (catalog `preload` max 2 ✓). No spring chart.
 
@@ -802,6 +808,22 @@ No rebound or LSC numbers. Preload at most 2 full turns (catalog `preload` max 2
 | `fork/ohlins/rxfdj/m1/air-ttx18` | No owner's manual published; the product page and ohlins.eu list workshop manuals only |
 | `shock/ohlins/ttx22/m1/side-by-side` | Discontinued TTX22M; no owner's manual on ohlins.eu or ohlins.com. The TTX22 m.2 manual is not carried over |
 | `fork/ohlins/dh38/m1/air`, `fork/ohlins/dh38/m2/air` | partial: SAG band only, no pressure table |
+
+## Catalog changes before encoding (R8, R9)
+
+R8 fixes:
+- `ttx18_m2` rebound / LSC max 15 → at least 16 (the "14-16" base tune).
+- RXF34/RXF36 m.1 TTX22 "Compression high 7-8": conflicts with the 0-5 range
+  in the same manual, so it stays out until resolved.
+- Shock `pressure` maxima: TTX1Air 300, TTX2Air 325 psi (m.1 and m.2).
+
+R9 type changes:
+- RXF34 m.1, RXF36 m.1/m.2/m.3 and DH38: main + ramp-up chamber adjusters
+  (`&dual_chamber_air`) instead of a single `pressure`.
+- TTX Air m.1/m.2 `hsc`: categorical [`1`, `2`, `P`]; TTX22 m.2 `hsc`:
+  categorical [`I`, `II`, `III`].
+- Shock reducer volumes stay a follow-up: categorical configurations once
+  part numbers map to catalog sizes.
 
 ## Follow-ups
 

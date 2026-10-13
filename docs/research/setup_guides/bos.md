@@ -98,8 +98,9 @@ None stated. (Table steps 6 psi per 5 kg.)
 
 ### Does not fit B3
 
-- "±5 psi according to use and riding style" → `note`, or a ±5 `range`
-  around each point.
+- "±5 psi according to use and riding style" → a band cell per point,
+  `[v − 5, v + 5]` (R2): the printed value is applied and the ±5 psi counts as
+  on guide. The use / style split itself is a `note`.
 
 ## Guide `bos_kyll39_2025` — Kyll 39 Grabber Quickstart
 
@@ -187,7 +188,8 @@ None.
 ### Does not fit B3
 
 - E-MTB block: no catalog option (`ebike` axis or node) to filter on.
-- ±5 psi by use/riding style → `note`.
+- ±5 psi by use/riding style → band cells `[v − 5, v + 5]` (R2), as for the
+  Deville 35.
 
 ## Guide `bos_idylle39_2025` — Idylle 39 Grabber Quickstart
 
@@ -257,7 +259,8 @@ None.
 
 ### Does not fit B3
 
-- ±5 psi by use/riding style → `note`.
+- ±5 psi by use/riding style → band cells `[v − 5, v + 5]` (R2), as for the
+  Deville 35.
 
 ## Guide `bos_obsys42_2025` — Obsys Quickstart
 
@@ -333,7 +336,8 @@ None.
 
 - **Preload valve:** set independently "in a range from 0 to 500 gr" — unit as
   printed (grams), no catalog adjuster. Not encoded; `note` at most.
-- ±5 psi by use/riding style → `note`.
+- ±5 psi by use/riding style → band cells `[v − 5, v + 5]` (R2), as for the
+  Deville 35.
 
 ## Products without a structured guide
 
@@ -343,6 +347,15 @@ None.
 | `shock/bos/stoy-4/standard` | Manuals page lists no user manual or Quickstart for the Stoy 4 (its row links a placeholder "x" to the Stoy 3 FR user manual `22906548229023.pdf`). |
 | `shock/bos/void-4/standard`, `shock/bos/void-4/lever` | Only the French service manual (`Batch/17/VOID_manuel_de_service.pdf`) and spare parts; the service manual's p. 20 "Tableau de réglages" is a blank log (terrain / compression / rebound / psi). |
 | `shock/bos/syors-2/standard`, `shock/bos/syors-2/lever` | Only the French service manual (`Batch/01/SYORS_manuel_de_service.pdf`, blank settings log p. 19) and spare parts. The older Syors user manual / Quickstart covers the first-generation Syors. |
+
+## Catalog changes before encoding (R8, R9)
+
+R8 fixes:
+- Deville 35: the 115–350 psi window and the catalog `pressure` max 350 wait
+  for BOS (source conflict); its table stays out until then.
+
+R9 type changes: none. The Obsys preload valve (0–500 g) has no recommended
+value, so adding an adjuster for it would add no rule.
 
 ## Follow-ups
 

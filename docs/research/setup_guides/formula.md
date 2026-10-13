@@ -26,9 +26,11 @@ Researched: 2026-10-11
 - **CTS valves:** rideformula.com/technologies/cts describes the eight valves
   qualitatively (comfort → race, Titanium for e-bike racing); no numbers, and
   the catalog has no CTS adjuster. Not encodable.
-- Not covered by B3: multi-chamber pressures with inter-chamber rules (Selva R,
-  Nero R), weight-band → pressure-band (Nebbia), SAG-indicator marks (Nebbia),
-  spring-rate → rebound offset (MOD).
+- Encoding: multi-chamber pressures are one rule set per chamber, with the
+  inter-chamber rules as `note`s (Selva R, Nero R); weight-band → pressure-band
+  is brackets with band cells (Nebbia, R1/R2). No rule, note only:
+  SAG-indicator marks (Nebbia), spring-rate → rebound offset (MOD), lever
+  positions for descents vs climbs.
 
 ## Guide `formula_selva_v_2025` — Selva V user manual
 
@@ -68,7 +70,7 @@ values match the Selva S table's bar column exactly.
 | 110 | 250 | 7.2 | 100-110 |
 | 120 | 275 | 7.9 | 110-120 |
 
-Proposed encoding: `pressure` `range` (psi) per weight point.
+Encoding: `pressure` `[a, b]` band cells (psi) per weight point (R2).
 
 ### Rebound / compression
 
@@ -223,8 +225,8 @@ the table rows, not a formula.
 ### Does not fit B3
 
 - **Two chambers:** two targets from one input — fine as two rule sets. The
-  ±10 psi Bronze tolerance becomes a `range` (table value −10 … +10) or a
-  `note`.
+  ±10 psi Bronze tolerance becomes a band cell per row (`[v − 10, v + 10]`,
+  R2): the table value is applied and the tolerance counts as on guide.
 
 ## Guide `formula_belva_2024` — Belva user manual
 
@@ -376,8 +378,8 @@ Factory fill is 150 psi.
 | 90 - 100 | 200 - 220 | 170 a 190 |
 | 100+ | 220+ | 190 a 210 |
 
-Proposed encoding: half-open weight brackets `50-60`, `60-70`, … `100+` with a
-`range` output.
+Encoding: half-open weight brackets `50-60`, `60-70`, … `100+` (R1) with `[a, b]`
+band cells (R2).
 
 ### Rebound — base tune
 
@@ -397,13 +399,14 @@ direction, encode 10.
 |---|---|---|---|
 | `rebound` | 12 | from closed | `damper: nebbia_2024` |
 | `compression` | 10 | from closed | `damper: nebbia_2024` |
-| `compression_mode` | Open (descending); Platform (technical climbs); Firm (tarmac climbs) | — | situational, `display_only` note |
+| `compression_mode` | Open (descending); Platform (technical climbs); Firm (tarmac climbs) | — | situational: no rule, `note` only (R9) |
 
 ### SAG
 
 No percentage. The O-ring SAG indicator has marked positions by discipline:
 DH 1–2, Trail/AM/Enduro 3–4, XC/Down Country 5–6. These are marks on the
-indicator, not % or mm → `display_only` note per `riding_style`.
+indicator, not % or mm, and the keys are disciplines, not riding styles (R7) → no
+rule, a `note` at most.
 
 ### Volume spacers
 
@@ -468,12 +471,13 @@ same direction, encode 9.
 | `rebound` | 6 | from closed | `damper: mod_2020`, `damper: mod_dh` |
 | `compression` | 9 | from closed | `damper: mod_2020`, `damper: mod_dh` |
 | `preload` | 2–5 mm permissible window (min 2, max 5; 1.25 mm per turn per catalog note) | — | both; `range` |
-| `compression_mode` | Open for descents / technical climbs, Firm (closed) for pedalling | — | `damper: mod_2020` only, `display_only` |
+| `compression_mode` | Open for descents / technical climbs, Firm (closed) for pedalling | — | `damper: mod_2020` only; situational: no rule, `note` only (R9) |
 
 ### SAG
 
-Target 30 % for Enduro / Gravity (`sag` value 30, `when: { riding_style: enduro/gravity }`
-or as default). Formula SAG % = (eye-to-eye unloaded − loaded) / stroke × 100.
+Target 30 % for Enduro / Gravity. MOD and MOD DH are enduro / gravity shocks and
+the disciplines are no riding styles (R7), so encode `sag` `value: 30` without a
+`when`. Formula SAG % = (eye-to-eye unloaded − loaded) / stroke × 100.
 Reference table as printed (mm; decimal commas written as dots):
 
 | Stroke | 15 % | 20 % | 25 % | 30 % | 35 % | 40 % |
@@ -515,6 +519,14 @@ SAG % formula above (measurement, not a setting). No spring-rate formula.
 | `fork/formula/selva/c` | Selva C manual (https://www.rideformula.com/wp-content/uploads/2018/10/2021_02-FORCEL_SELVA_C_GB.pdf, §3.3–3.4) describes preload direction and spring swap only; product page lists spring options (Hyper Soft/Super Soft, Soft, Medium default, Firm, Super Firm) and a 10-click preload with no weight ranges. No setup numbers. |
 | `fork/formula/nero/c` | Nero C manual (https://www.rideformula.com/wp-content/uploads/2017/08/Nero-C-Owner-manual.pdf, §3.3–3.4) and product page give spring options (Medium default, Soft/Firm optional) without weight ranges. No setup numbers. |
 
+## Catalog changes before encoding (R8, R9)
+
+R8 fixes:
+- Selva V: settle the swapped PSI / BAR headers before encoding.
+- Selva R: confirm the table unit (psi assumed).
+
+R9 type changes: none. Lever and CTS guidance stays `note` text.
+
 ## Follow-ups
 
 - Selva R table prints no unit; psi assumed from the manual's psi limits.
@@ -523,8 +535,8 @@ SAG % formula above (measurement, not a setting). No spring-rate formula.
   checking a newer manual revision.
 - Neopos factory count: Selva R = 1 (page text); Nero R page says "Included"
   without a count; Selva V not stated. Only Selva R is safe to encode.
-- CTS valve guidance (eight valves, qualitative) has no catalog adjuster; if a
-  CTS categorical is added later, the page's descriptions could become
-  `display_only` notes.
+- CTS valve guidance (eight valves, qualitative) has no catalog adjuster and no
+  recommended valve per rider, so it is no rule (R9). A CTS categorical would
+  only be worth adding with a published recommendation.
 - Coil spring charts (Selva C, Nero C, MOD, MOD DH): none published; re-check
   rideformula.com tutorials/downloads if a spring calculator appears.

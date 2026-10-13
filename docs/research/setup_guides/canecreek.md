@@ -9,11 +9,11 @@ Researched: 2026-10-12
 - **SAG bands** are printed in every manual. Helm air 15–25 %, Helm coil 10–25 %, every current/G1 shock 25–35 % with 30 % as the start, classic Double Barrel 28–33 %.
 - **One weight → spring table**: Helm MKII Coil (product page), rider lb → 35/45/55/65 lb spring.
 - **Click constants**:
-  - The classic Double Barrel Tuning Field Guide has a **factory base tune** per model (DBcoil, DBair, DBair CS, DBinline). It counts **from fully open**, the opposite of the catalog. DBcoil and DBair CS are pre-computed as `max − N` below. DBinline is blocked by a catalog damper mismatch.
-  - Helm DJ: a rebound window "5–10 clicks from closed" and a 95–125 psi pressure window, neither indexed by weight.
+  - The classic Double Barrel Tuning Field Guide has a **factory base tune** per model (DBcoil, DBair, DBair CS, DBinline). It counts **from fully open**, the opposite of the catalog, so it is encoded as range references `max-N` (R9). DBinline needs its own catalog damper first.
+  - Helm DJ: a rebound window "5–10 clicks from closed" and a 95–125 psi pressure window, neither indexed by weight. Both are constant band cells (`[5, 10]`, `[95, 125]`): the midpoint is applied and the window counts as on guide.
 - Current shocks (Air IL, Coil IL, Kitsuma, Kitsuma Coil, Tigon): no click starting points in the manuals. Cane Creek moved tuning help to the ShockTuner / ForkTuner web apps, which are question-driven troubleshooters with no tables, and to frame-specific "Base Tunes" (by bike model, not encodable).
 - Coil spring rate is a **formula** with a second-order input B3 doesn't have: rate ≈ rear wheel travel ÷ shock stroke × rider weight (Tigon set-up page and the coil-spring knowledge article).
-- Not covered by B3: rear-wheel-travel input (coil formula), from-open base tunes on a catalog whose `max` doesn't match the source (DBinline), weight-free value windows (Helm DJ), riding-style SAG from a generic article.
+- Not covered: the rear-wheel-travel input of the coil formula (#71), and the discipline-named SAG split of a generic article (R7: no rule).
 
 ## Guide `canecreek_helm_mkii_2025` — Helm MKII instruction manual
 
@@ -185,6 +185,8 @@ Same four springs (35 red / 45 black / 55 green / 65 blue). The manual says expl
 |---|---|---|---|
 | `pressure` | range 95–125 psi | — | none; "based on rider weight and sag / ride-height preference", but no weight mapping |
 | `rebound` | range 5–10 | from closed | `damper: helm_dj_damper` |
+
+Encode both as constant band cells: `value: [95, 125]` (`unit: psi`) and `value: [5, 10]`. The window is on guide, its midpoint (110 psi, 8 clicks rounded) is applied.
 
 Counting direction: the source counts from closed. The catalog `helm_dj_damper` `rebound` notes say "Counted from fully closed", default `dial_ccw`, max 10 (estimated from this same window). Same direction, so encode as published.
 
@@ -468,20 +470,20 @@ The TFG reset procedure: turn every adjuster fully counter-clockwise (open), the
 
 ### Constants / base tune — catalog direction
 
-Catalog `db_classic` / `db_classic_cs`: `hsc` and `hsr` are numerical turns 0–4, notes "counted from fully closed". `lsc` and `lsr` are steps with max 25 and default `dial_ccw` (counted from closed). Opposite direction with `max` known, so pre-compute `max − N` column by column:
+Catalog `db_classic` / `db_classic_cs`: `hsc` and `hsr` are numerical turns 0–4, notes "counted from fully closed". `lsc` and `lsr` are steps with max 25 and default `dial_ccw` (counted from closed). Opposite direction, so encode range references `max-N` (R9); `hsc`/`hsr` are numerical with a published max 4, so `max-2` works there too:
 
-| Target | Value (catalog direction) | Computation | `when:` |
+| Target | Encode | Resolves to (catalog max) | `when:` |
 |---|---|---|---|
-| `hsc` | 2 | 4 − 2 | `damper: db_classic` (DBcoil) |
-| `lsc` | 13 | 25 − 12 | `damper: db_classic` |
-| `hsr` | 2 | 4 − 2 | `damper: db_classic` |
-| `lsr` | 13 | 25 − 12 | `damper: db_classic` |
-| `hsc` | 2 | 4 − 2 | path `shock/cane-creek/db-air-cs/standard` (DBair CS) |
-| `lsc` | 12 | 25 − 13 | same |
-| `hsr` | 2 | 4 − 2 | same |
-| `lsr` | 10 | 25 − 15 | same |
+| `hsc` | `max-2` | 2 (4) | `damper: db_classic` (DBcoil) |
+| `lsc` | `max-12` | 13 (25) | `damper: db_classic` |
+| `hsr` | `max-2` | 2 (4) | `damper: db_classic` |
+| `lsr` | `max-12` | 13 (25) | `damper: db_classic` |
+| `hsc` | `max-2` | 2 (4) | path `shock/cane-creek/db-air-cs/standard` (DBair CS) |
+| `lsc` | `max-13` | 12 (25) | same |
+| `hsr` | `max-2` | 2 (4) | same |
+| `lsr` | `max-15` | 10 (25) | same |
 
-DBinline: the TFG range is 4.5 turns / 18 clicks, but the catalog maps `db-inline` to `db_classic_cs` (4 turns / 25 clicks). Using catalog max gives LSC 18 / LSR 15, which would be wrong. Using the source range gives HSC 2.5, LSC 11, HSR 2.5, LSR 8. **Do not encode** until the catalog gets its own DBinline damper (see Follow-ups). The DBair CS base tune is keyed by path, not by damper, because `db_classic_cs` is shared with DB Inline.
+DBinline: `hsc` / `hsr` `max-2`, `lsc` `max-7`, `lsr` `max-10`. The TFG range is 4.5 turns / 18 clicks, but the catalog maps `db-inline` to `db_classic_cs` (4 turns / 25 clicks), where these would resolve to LSC 18 / LSR 15, which is wrong. Against the source range they give HSC 2.5, LSC 11, HSR 2.5, LSR 8. **Do not encode** until the catalog gets its own DBinline damper (R8, see Follow-ups). The DBair CS base tune is keyed by path, not by damper, because `db_classic_cs` is shared with DB Inline.
 
 ### Air pressure — formula (DBair / DBair CS / DBinline)
 
@@ -536,11 +538,11 @@ Applies to every Cane Creek coil shock with a `spring_rate` target: `shock/cane-
 
 ### SAG
 
-25–35 % of wheel travel. Per style: **DH 35 %, XC 25 %, most trail bikes 30 %** → `sag` rules `when: { riding_style: … }` (style ids to be fixed by the encoder: proposed `xc`, `trail`, `dh`).
+25–35 % of wheel travel. Per discipline: **DH 35 %, XC 25 %, most trail bikes 30 %**. Discipline names say what is ridden, not how firm (R7), so there is no style rule: `range: [25, 35]`, `comfort_at: max`, with the split in a `note`.
 
 ### Does not fit B3
 
-- Rear wheel travel (and the bike's leverage curve) is a bike-level input, not a component option. Proposed encoding: a `formula` rule with inputs `rider_weight` + `rear_travel_mm` + stroke (from `size`). Alternatively a `display_only` note quoting the formula until the bike's rear travel is captured.
+- Rear wheel travel (and the bike's leverage curve) is a bike-level input, not a component option. No rule until bike-level inputs exist (#71); at most a `note` describing the formula in our words.
 
 ## Products without a structured guide
 
@@ -548,12 +550,21 @@ Applies to every Cane Creek coil shock with a `spring_rate` target: `shock/cane-
 |---|---|
 | — | Every Cane Creek catalog product has at least a SAG band or a pressure formula. None has a weight-indexed click table. |
 
+## Catalog changes before encoding (R8, R9)
+
+R8 fixes:
+- A separate DBinline damper (18 clicks / 4.5 turns) before its base tune.
+- Helm MKII `volume_adjustment` factory position stays out until the
+  conflicting sources are resolved.
+
+R9 type changes: none. The from-open DB base tunes become `max-N` on the
+existing adjusters, and the Helm DJ windows are band cells.
+
 ## Follow-ups
 
 - Helm MKII air-volume factory position: the launch post says 2 of 8 notches down, the current support article says the piston isn't installed at the factory. Ask Cane Creek or check a new fork before encoding `volume_adjustment`.
 - Helm MKII Coil spring chart is on the product page only. Whether it applies to the MK1 Coil (same four springs) is not stated, so it is not applied.
 - DBinline: the TFG prints 18-click / 4.5-turn ranges for DBinline. The catalog maps `db-inline` to `db_classic_cs` (25 clicks / 4 turns). The catalog likely needs a separate DBinline damper (the 2014 manual's p. 36 range chart shows only the 25/4 scale). Fix that before encoding its base tune.
-- Catalog `db_classic` / `db_classic_cs` notes say HSC/HSR are "counted from fully closed". The TFG and the 2014 range chart put 0 at the soft (open) end, so the catalog's own counting note may be wrong. If the catalog is flipped to from-open, encode the TFG numbers as printed instead of `max − N`.
+- Catalog `db_classic` / `db_classic_cs` notes say HSC/HSR are "counted from fully closed". The TFG and the 2014 range chart put 0 at the soft (open) end, so the catalog's own counting note may be wrong. If the catalog is flipped to from-open, encode the TFG numbers as printed instead of `max-N`.
 - Tigon: the manual's spacer chart lists 650 lb/in for 210/185 only, while the catalog `spring_rate` max 650 applies to every size. Consider a per-size note.
 - Coil IL G2 preload text contradicts itself ("more than 2 turns (3 clicks)" vs "more than 3 turns"). Use only as a note.
-- Riding-style ids for the coil-article SAG split need to match the app's `riding_style` values.

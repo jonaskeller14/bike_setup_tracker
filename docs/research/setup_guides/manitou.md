@@ -36,14 +36,28 @@ Researched: 2026-10-11
   the guides give a value per weight × travel. B3 can express it as its own target.
 - **Shocks (Mara):** no weight → pressure chart exists anywhere. The guides give only
   constants for a 170 lb rider (rebound, HSC, LSC), the SAG band and the max pressure.
-- **Not covered by B3:**
-  - the progression-preference axis (Dorado);
-  - **IVA position on trims whose catalog has no IVA adjuster** (Mezzer Expert G1/G2,
-    LT Comp, Mattoc Expert/Comp, Mastodon);
-  - clock-face rebound on non-detented knobs;
-  - "120 mm no IVA" (an IVA "none" state);
-  - the travel columns missing for some catalog `travel_mm` values;
-  - the riding-style ids.
+- **Encoding decisions (R7, R9):**
+  - **Riding styles.** Vocabularies that name firmness map onto `riding_style`, one
+    band-cell rule per style:
+    - Plush Natural / Mid Mixed / Firm Park → `comfort` / `balanced` / `race`;
+    - Plush Comfort / Balanced Performance / Firm Support, and the 2023 Maximum
+      Comfort / Increased Support / Maximum Support → `comfort` / `balanced` / `race`;
+    - Aggressive / Compliant tune → `race` / `comfort`, plus a rule without `when`
+      whose band spans both, so `balanced` and riders without a style get its middle.
+    - Discipline names (Downhill / Enduro / Trail, Standard / DH Race / Park) get no
+      rule; their values go into a `note`.
+  - **IVA position** on trims whose catalog has no IVA adjuster (Mezzer Expert G1/G2,
+    LT Comp, Mattoc Expert/Comp, Mastodon): add an `IVA Position` step adjuster
+    (catalog change), max = the highest position the guide prints (estimated maximum).
+  - **Clock-face rebound** on non-detented knobs (Mattoc Comp, Mastodon Comp): the
+    catalog `rebound` becomes categorical with the seven clock positions as options.
+  - **Dorado progression axis** (Min / Mid / Max-Progressive): encode the Mid column
+    as the rule; Min and Max go into a `note`. It is a preference, not a catalog
+    option, and doesn't map 1:1 onto riding styles.
+  - **Offsets** (e-bike/downhill, trail) and lever positions per terrain: `note` only.
+- **Still uncovered:**
+  - "120 mm no IVA" (an IVA "none" state below the adjuster's min 1): a `note`;
+  - the travel columns missing for some catalog `travel_mm` values.
 
 All PDFs come from the Hayes Performance Systems help center (hayesbicycle.zendesk.com),
 the same attachments the catalog links. Retrieved 2026-10-11.
@@ -137,9 +151,10 @@ Main 120 psi and IRT 150 psi. The catalog states these only in the `notes` text
 ### Does not fit B3
 
 - There are two air chambers. Each needs its own rule, both keyed on weight × travel.
-- The E-bike/downhill and trail offsets are relative to the table value; B3 has no
-  "delta" shape. Encode as a `note`, or as style-specific pre-computed rows.
-- "Plush Natural / Mid Mixed / Firm Park" need riding-style ids.
+- The E-bike/downhill and trail offsets are relative to the table value: a `note`
+  (R8 "unchanged": relative offsets stay note text).
+- "Plush Natural / Mid Mixed / Firm Park" → `when: { riding_style: comfort | balanced |
+  race }`, one band-cell rule per style (R7).
 
 ---
 
@@ -158,8 +173,9 @@ Main 120 psi and IRT 150 psi. The catalog states these only in the `notes` text
 | `fork/manitou/mezzer/2026/expert` | `damper: vtt6_mezzer_g2`, `travel_mm: 140 \| 150 \| 160 \| 170` | |
 
 Gaps: the guide gives an IVA position per travel. **The catalog has no IVA adjuster on
-this trim** (see the YAML follow-up about the unknown IVA max), so IVA is
-`display_only`.
+this trim** (see the YAML follow-up about the unknown IVA max). Add an `IVA Position`
+step adjuster with the highest printed position as its estimated max (catalog
+change, R9), then encode the IVA columns.
 
 ### Air pressure, IVA and rebound
 
@@ -215,7 +231,8 @@ SAG 20–25 %. Max main 120 psi (catalog: notes only).
 |---|---|---|
 | `fork/manitou/mezzer-lt/comp` | `damper: abs_plus_mezzer_lt_2026`, `travel_mm: 140 … 190` | all six columns present |
 
-Gaps: IVA has no catalog adjuster, so it is `display_only`.
+Gaps: IVA has no catalog adjuster. Add `IVA Position` (step, estimated max from this
+table; catalog change, R9), then encode the IVA columns.
 
 ### Air pressure, IVA and rebound
 
@@ -291,6 +308,8 @@ counted from closed) → **same direction.**
 | `hsc` (outer, 4-0) | 1-2 | 2-3 | 3-4 |
 | `lsc` (inner, 10-0) | 2-5 | 3-7 | 1-4 |
 
+Discipline names, not riding styles (R7): no rule, the values go into a `note`.
+
 The rebound is for an average 170 lb [77 kg] rider.
 
 ### Offsets
@@ -317,7 +336,7 @@ IRT +10 psi [+0.7 bar] for downhill; IRT −10 psi [−0.7 bar] for trail.
 
 | Catalog path | `when:` | Notes |
 |---|---|---|
-| `fork/manitou/mezzer/2019/expert` | `damper: vtt6_mezzer_g1`, `travel_mm: 140 … 180` | IVA is display_only (no catalog adjuster) |
+| `fork/manitou/mezzer/2019/expert` | `damper: vtt6_mezzer_g1`, `travel_mm: 140 … 180` | IVA needs a catalog `IVA Position` adjuster first (R9) |
 
 ### Air pressure and IVA
 
@@ -387,7 +406,11 @@ Source "ccw from max". Catalog `hsc` max 4 and `lsc` max 10 (from closed) → **
 | `lsc` (inner, 10 - 0) | 0-5 | 6-10 |
 
 The HSC "Compliant 4-5" **exceeds the printed 4 - 0 range and the catalog `hsc` max 4**.
-Clamp it to 4 or flag it (follow-up).
+Encode it as `max` (the printed range ends at 4) and keep the follow-up.
+
+R7: Aggressive → `race`, Compliant → `comfort`, one band-cell rule each, plus a rule
+without `when` spanning both (`hsc: [1, max]`, `lsc: [0, 10]`) for `balanced` and
+riders without a style.
 
 ### Offsets
 
@@ -414,7 +437,7 @@ relative offset, so it is a `note`.
 
 | Catalog path | `when:` | Notes |
 |---|---|---|
-| `fork/manitou/mattoc/expert` | `damper: vtt6_2023`, `travel_mm: 110 … 150` | IVA display_only (no catalog adjuster) |
+| `fork/manitou/mattoc/expert` | `damper: vtt6_2023`, `travel_mm: 110 … 150` | IVA needs a catalog `IVA Position` adjuster first (R9) |
 
 ### Air pressure, IVA and rebound
 
@@ -457,7 +480,7 @@ SAG 20–25 %. Max main 120 psi.
 
 | Catalog path | `when:` | Notes |
 |---|---|---|
-| `fork/manitou/mattoc/comp` | `damper: abs_plus_2023`, `travel_mm: 110 … 150` | IVA display_only; rebound clock face display_only |
+| `fork/manitou/mattoc/comp` | `damper: abs_plus_2023`, `travel_mm: 110 … 150` | IVA needs a catalog `IVA Position` adjuster; rebound clock face becomes a categorical (R9) |
 
 ### Air pressure and IVA
 
@@ -480,8 +503,10 @@ positions:
 | 240 | 109 | MAX = 6 O'CLOCK |
 
 Catalog `rebound` is numerical with no unit; its notes match ("12 o'clock (minimum) to
-6 o'clock (maximum)"). Encode as `display_only` with the guide wording, unless the
-catalog adopts an hour-hand unit.
+6 o'clock (maximum)"). Named dial positions become categorical (R9): change the
+catalog `rebound` to a categorical with the options `12 o'clock`, `1 o'clock`, …,
+`6 o'clock`, and encode each row as that option. Options never interpolate, so a
+rider between two printed weights gets the nearer one.
 
 ### Compression — ABS+, style
 
@@ -545,7 +570,7 @@ Rebound: "18 – 0", ccw from max. Catalog `rebound` max 18, from closed → **s
 Open Mode Adjust ("20 – 0", catalog `open_mode_compression` max 20, from closed): there
 is no recommended value. Compression Mode (Open/Firm/Lock) is described per terrain:
 Open for technical terrain, Firm for flow trails and technical climbs, Lock for smooth
-climbs. These are riding-style notes only.
+climbs. Situational, so `note`s only (R9).
 
 ### SAG / limits
 
@@ -599,6 +624,8 @@ Catalog `tpc_plus_dorado_2022`: `rebound` max 24, `hsc` max 15, `lsc` (TPC+ inne
 | `rebound` (24-0) | 6-10 | 7-12 | 5-9 |
 | `hsc` (outer, 15-0) | 10-15 | 6-12 | 4-7 |
 | `lsc` (TPC+ inner, 15-0) | 5-10 | 4-7 | 3-5 |
+
+Discipline names, not riding styles (R7): no rule, the values go into a `note`.
 
 The rebound is for a 170 lb [77 kg] rider.
 
@@ -693,6 +720,8 @@ and `compression` max 20, from closed → **same.**
 | `rebound` | 6-10 | 6-10 | 4-8 |
 | `compression` (ABS+) | 13-17 | 9-13 | 6-10 |
 
+Discipline names, not riding styles (R7): no rule, the values go into a `note`.
+
 ### SAG
 
 20–30 % (standing). Preload may be added to reduce sag.
@@ -715,8 +744,9 @@ and `compression` max 20, from closed → **same.**
 
 Gaps:
 - The catalog travel options 90 and 110 have **no column**.
-- The catalog has **no IVA adjuster** on Mastodon (IVA → display_only). The YAML notes
-  that the max IVA is unknown; this guide shows IVA values up to 5.
+- The catalog has **no IVA adjuster** on Mastodon. The YAML notes that the max IVA is
+  unknown; this guide shows IVA values up to 5, so add `IVA Position` (step, estimated
+  max 5; catalog change, R9).
 
 ### Air pressure, IVA and rebound
 
@@ -755,7 +785,7 @@ SAG 20–25 %. Max main 150 psi (catalog: notes "Max 150 psi").
 
 | Catalog path | `when:` | Notes |
 |---|---|---|
-| `fork/manitou/mastodon/comp` | `damper: abs_plus_2023`, `travel_mm: 80 \| 100 \| 120 \| 130 \| 140` | 90/110 have no column; IVA display_only; rebound clock face display_only |
+| `fork/manitou/mastodon/comp` | `damper: abs_plus_2023`, `travel_mm: 80 \| 100 \| 120 \| 130 \| 140` | 90/110 have no column; IVA needs a catalog `IVA Position` adjuster; rebound clock face becomes a categorical (R9) |
 
 ### Air pressure and IVA
 
@@ -811,8 +841,9 @@ Catalog direction:
 
 → **Same direction for all, encode as published.**
 
-The aggressive/compliant pairs need a riding-style split. Otherwise, encode the HSC and
-LSC as `range` 1–3 and 10–15.
+R7: Aggressive → `race`, Compliant → `comfort`, one constant rule each. A rule without
+`when` with band cells `hsc: [1, 3]`, `lsc: [10, 15]` covers `balanced` and riders
+without a style.
 
 ### SAG
 
@@ -871,7 +902,7 @@ IPA lever (target `ipa_compression`), described per terrain only:
 - Aggressive Climb: firmest.
 - The XC lever has three positions: Descend / Trail-Technical Climb / Climb.
 
-These are riding-style notes; there are no rider-weight values.
+Situational (terrain), so `note`s only (R9); there are no rider-weight values.
 
 ### SAG / limits
 
@@ -923,6 +954,19 @@ None. Every catalog product has a Manitou guide. The Mara shocks are **partial**
 weight → pressure chart exists in any Manitou/Hayes source checked (the set-up guide
 PDFs above and a web search for a Mara pressure chart). They have constants only.
 
+## Catalog changes before encoding (R8, R9)
+
+R8 fixes:
+- Numeric `max` on `pressure` / `irt_pressure` from the limits now only in the
+  notes (120 / 150 / 200 psi).
+- Mattoc Pro HSC "Compliant 4-5": encoded as `max` (4) until Hayes confirms.
+
+R9 type changes:
+- Add `IVA Position` (step, estimated max = the highest printed position) to
+  Mezzer G1/G2 Expert, Mezzer LT Comp, Mattoc Expert/Comp and Mastodon Pro/Comp.
+- Mattoc Comp and Mastodon Comp `rebound`: numerical → categorical with the
+  clock positions `12 o'clock` … `6 o'clock`.
+
 ## Follow-ups
 
 - **Dorado Pro typo:** the 140 lb Min-Progressive Main is printed "51 [3.1]" (3.1 bar ≈
@@ -933,8 +977,8 @@ PDFs above and a web search for a Mara pressure chart). They have constants only
   max 4. Clamp it to 4 or check with Hayes.
 - **IVA position without a catalog adjuster:** Mezzer G1/G2 Expert, Mezzer LT Comp,
   Mattoc Expert/Comp and Mastodon Pro/Comp. The guides show positions up to 5
-  (Mastodon) and 4 (Mezzer). The catalog cannot encode them until an `IVA Position`
-  adjuster with a known max exists. Until then, `display_only`.
+  (Mastodon) and 4 (Mezzer). Add `IVA Position` with that estimated max (see Catalog
+  changes); confirm the real max with Hayes.
 - **Pressure maxima live only in `notes`** on the Manitou forks: 120/150/200 psi. The
   guides confirm the numbers; consider numeric `max` fields.
 - **Missing travel columns:**
@@ -942,13 +986,10 @@ PDFs above and a web search for a Mara pressure chart). They have constants only
   - Mastodon Pro: 90 and 110;
   - Mastodon Comp: 90 and 110.
   Decide whether to interpolate (#37 plan) or leave them uncovered.
-- **Riding-style ids needed:**
-  - Downhill / Enduro / Trail;
-  - Plush Natural / Mid Mixed / Firm Park;
-  - Comfort / Balanced / Support;
-  - Standard / DH Race / Park;
-  - Aggressive / Compliant tune.
-- **Dorado progression axis** (Min/Mid/Max-Progressive) has no catalog option. It could
-  become a `riding_style`-like preference, or the encoder could pick Mid as the default.
+- **Riding-style vocabularies** are decided in the summary (R7): three map onto
+  `riding_style`, the discipline-named ones (Downhill / Enduro / Trail, Standard /
+  DH Race / Park) stay notes.
+- **Dorado progression axis** (Min/Mid/Max-Progressive): Mid is encoded, Min and Max
+  are a `note`. Revisit if the catalog ever gets a progression option.
 - **Mara shocks:** ask Hayes whether a weight → pressure chart exists. The help-center
   article pages are bot-blocked; only the PDF attachments are reachable.

@@ -13,7 +13,7 @@ Researched: 2026-10-12
   - HSC / LSC / rebound (and HBC on the Aria V2) from the spring-rate bracket, shifted by trail type and riding level.
 - **Spring Calculator** (extremeshox.com/spring-calculator): an older coil formula with SAG 28 / 30 / 33 %.
 - **SAG**: fork 15–20 % of travel (Suspension Setup page). Shocks: no fixed band. RideMaster picks 28 / 30 / 33 % by trail steepness.
-- Not covered by B3: two-chamber pressure pairs (fit as two targets), equivalent-spring-rate input (Aria V1), multi-input formulas (bike weight, rear travel), click offsets per trail type and riding level, open-ended rows (`< 45 psi`), RideMaster outputs above the published pressure limits.
+- Encoding: two-chamber pressure pairs are two targets on the same rows; open-ended pressure cells are R9 inequality bands where a limit is published, else the row is dropped for that target. No rule, note only: equivalent-spring-rate input (Aria V1) and multi-input formulas (bike weight, rear travel; #71), click offsets per trail type, RideMaster outputs above the published pressure limits (source conflict).
 
 ## Guide `ext_era_v2_2023` — Era V2 / Era V2 Long Travel quick manual
 
@@ -48,7 +48,7 @@ Input: rider weight (kg, lb also printed) · Output: `main_chamber_pressure` (+)
 
 - Column order as printed: "[HSC – LSC – R]".
 - Weights are **points** (60, 70, 80, 90), not brackets. There is no 100 kg row: the table jumps from 90 to "> 100".
-- The first and last pressure rows are open bounds (`< 45`, `> 85`), not values: encode them as `display_only` notes or leave them out. Clicks on those rows are plain numbers.
+- The first and last pressure rows are open bounds (`< 45`, `> 85`), not values. R9: the weight keys become open-ended rows `<60` and `100+` (R1). `> 85` → `[85, max]` and `> 130` → `[130, max]` against the 200 psi limit (set as each chamber's `max`, see Pressure limits). `< 45` / `< 70` have no published minimum, so the `<60` row is left out of both pressure rules. Clicks on those rows are plain numbers and keep the row.
 
 Counting direction: the source says maximum clockwise = full closed = click 0, for all adjusters. Catalog `era_cartridge`: `lsc` max 16, `hsc` max 14, `rebound` max 20, default `dial_ccw` (from closed). Same direction → encode as published. All values are within the catalog max. Those maxima are secondary-source figures (Pinkbike / Enduro-MTB).
 
@@ -62,12 +62,12 @@ Travel is set with internal spacers. No volume-spacer counts are published, and 
 
 ### Pressure limits
 
-"Do not exceed 200 psi / 14 bar" (combined, not per chamber). The catalog has no per-chamber `max`; consistent.
+"Do not exceed 200 psi / 14 bar" (combined, not per chamber). The catalog has no per-chamber `max`. Neither chamber can exceed the combined limit, so set `max: 200` on both chamber adjusters (R8); the `> 85` / `> 130` bands resolve against it.
 
 ### Does not fit B3
 
 - Two air chambers: fits as two separate targets keyed on the same rows.
-- Open-ended rows (`< 45`, `> 85` psi): B3 rows need a value. Encode as `note`/`display_only`, or drop the pressure on those two rows and keep the clicks.
+- Open-ended rows (`< 45`, `> 85` psi): resolved above (R1 rows, R9 bands, `<60` dropped from the pressure rules).
 
 ## Guide `ext_vaia_2024` — Vaia quick manual
 
@@ -136,7 +136,7 @@ Counting direction: from closed (click 0 = full closed, maximum clockwise). Cata
 
 ### Does not fit B3
 
-The input is an equivalent coil rate (a property of rider + bike), not `rider_weight`. Proposed: an `input: spring_rate_equivalent` (user-entered or computed by the RideMaster formula below). Until then, `display_only` (table shown as a note).
+The input is an equivalent coil rate (a property of rider + bike), not `rider_weight`, and the air shock has no `spring_rate` adjuster to read it from (R4). It needs bike-level inputs (#71), so no rule until then; a `note` at most.
 
 ## Guide `ext_ridemaster_2026` — EXT RideMaster web app (Vecta; Aria V2 / Aria V2 DH)
 
@@ -176,7 +176,7 @@ The input is an equivalent coil rate (a property of rider + bike), not `rider_we
 
 ### SAG
 
-SAG target by trail steepness: **High → 33 %, Medium → 30 %, Low → 28 %**. Vecta shows it as the result "SAG recommended %". → `sag` rows `when: { trail_steepness: … }`; that input doesn't exist in B3.
+SAG target by trail steepness: **High → 33 %, Medium → 30 %, Low → 28 %**. Vecta shows it as the result "SAG recommended %". Trail steepness is no input and no riding style, so encode `sag` `range: [28, 33]`, `comfort_at: max`, with the steepness split in the `note`.
 
 ### Formulas — spring rate
 
@@ -278,9 +278,9 @@ Counting direction: result captions say "adjustment from fully close". Catalog `
 
 - Inputs B3 lacks: bike weight, rear wheel travel, trail steepness, trail type, riding level (only `riding_style` exists, as one axis), desired feeling.
 - Second-order chain: rider → spring rate → clicks / pressure.
-- Proposal:
-  - Encode the click tables with `input: spring_rate`, read from the component's own `spring_rate` adjuster (Vecta), plus `when: { riding_style: … }` offsets if riding level maps onto `riding_style`.
-  - For Aria V2, which has no `spring_rate` adjuster, use `display_only` with a link to RideMaster, or add a formula rule type with bike-level inputs.
+- Encoding:
+  - Vecta: the click tables with `input: spring_rate`, read from the component's own `spring_rate` adjuster (R4). Trail-type and riding-level offsets stay a `note`: they are relative offsets (R8), and the riding level is skill (Beginner / Expert), not firmness, so it doesn't map onto `riding_style` (R7).
+  - Aria V2 has no `spring_rate` adjuster: no rule until bike-level inputs exist (#71).
 
 ## Guide `ext_spring_calculator_2026` — EXT Spring Calculator (web)
 
@@ -299,7 +299,7 @@ Rate (lb/in) = (bike_kg + rider_kg − 14) × 9.81 × 0.65 × 5.7 × rear_travel
 
 ### Does not fit B3
 
-Same bike-level inputs as RideMaster. Proposed: `display_only` note with a link, or a formula rule type.
+Same bike-level inputs as RideMaster: no rule until #71; at most a `note` describing the formula in our words.
 
 ## Guide `ext_arma_storia_v3_2023` — Arma / Storia V3 quick manual (+ Storia V3-S quick manual)
 
@@ -360,6 +360,15 @@ Catalog `arma_v4`: `lsc` 14, `hsc` 15, `rebound` 14, `hbc` 10 → same direction
 | `shock/ext/e-storia/metric-standard`, `shock/ext/e-storia/metric-trunnion` | e-Storia quick manual (https://extremeshox.com/wp-content/uploads/2023/09/e-Storia-quick-manual.pdf) prints no starting clicks and no table. Only the generic Spring Calculator applies; max preload 2 mm; high-rate springs (> 600 lb/in / 105 N/mm) need EXT adapters. |
 | `fork/ext/vaia/standard` | Quick manual has no table or clicks (QR to the qualitative "Porter tips"). Only the generic fork SAG 15–20 % and the 250 psi limit. |
 
+## Catalog changes before encoding (R8, R9)
+
+R8 fixes:
+- Era V2 chambers (`+` and `++`): `max: 200` psi each, the published combined
+  limit, so the `> 85` / `> 130` bands have an end.
+- Storia V3 vs V3-S constants: decide or split the node before encoding.
+
+R9 type changes: none.
+
 ## Follow-ups
 
 - Storia V3 vs V3-S starting clicks conflict (BH10 BL6 R4 vs BH7 BL6 R7) under one catalog node. The catalog note says it is sold as "V3-S". Decide which applies, or split the node.
@@ -368,4 +377,4 @@ Catalog `arma_v4`: `lsc` 14, `hsc` 15, `rebound` 14, `hbc` 10 → same direction
 - RideMaster's steepness option values are ordered Low 0 / High 1 / Medium 2. The mapping above follows the formula (value 1 → 33 %, 2 → 30 %, else 28 %), i.e. High 33 / Medium 30 / Low 28.
 - Aria V1 table ++ bar typos (400 / 450 rows). Encode psi only.
 - The Era V2S quick manual (https://extremeshox.com/wp-content/uploads/2023/09/ERA_V2S_quick_manual-5.pdf) isn't researched further: the Era V2S isn't in the catalog.
-- Shock SAG has no fixed band on the EXT site (only a 30 % worked example). Use the RideMaster steepness rule or a 28–33 % range note.
+- Shock SAG has no fixed band on the EXT site (only a 30 % worked example). The RideMaster steepness values give the `range: [28, 33]` rule above.

@@ -8,7 +8,7 @@ Researched: 2026-10-11
 - INTEND publishes one setup page for all its forks (`intend-bc.com/fork-setup/`). There are no per-model owner's manuals or PDFs.
 - **Pressure is a formula**, not a table: psi per kg of rider weight, with one factor per model group (1.0 or 1.3). It covers Samurai, Hero, Edge, Flash, Infinity EN and Bandit. Essential is not listed.
 - **Compression has one starting click** (6, counted from fully closed). It is the same for every model and matches the catalog `Compression` direction (`max: ~`, counted from closed).
-- **Rebound** guidance is only "start in the middle of the range". The catalog has no Rebound adjuster (`missing_adjustments`), so this can only be a `display_only` note.
+- **Rebound** guidance is only "start in the middle of the range": the range reference `mid` (R9). The catalog has no Rebound adjuster yet (`missing_adjustments`); adding one with `max: ~` makes it applicable once the rider enters the click count.
 - No SAG target, no pressure limits and no rider-weight click tables are published.
 - **Volume:** the factory pre-installed progression cap/spacer position is known (Essential: mid position of 3), but the catalog has no `volume_spacers` adjuster.
 - Shapes B3 doesn't cover: the formula (encode as calculated rows), and the Linearizer accessory (a third air chamber whose pressure is a ratio of the main pressure; not in the catalog).
@@ -55,7 +55,7 @@ See Formulas below for the calculated rows.
 
 ### Rebound
 
-The source gives no click number: start mid-range, then adjust until the front wheel doesn't lift when the fork is pushed down and released quickly. The catalog has no `rebound` adjuster on `closed_cartridge` or `open_bath` (it is listed in `missing_adjustments`), so this can only be encoded as a `display_only` note.
+The source gives no click number: start mid-range, then adjust until the front wheel doesn't lift when the fork is pushed down and released quickly. Encode `rebound` `value: mid` (R9). The middle doesn't depend on the counting direction, which the page doesn't state. The catalog has no `rebound` adjuster on `closed_cartridge` or `open_bath` (it is listed in `missing_adjustments`), so add `Rebound` (step, `max: ~`) first; the app asks for the real click count before it recommends the middle.
 
 ### Constants / base tune
 
@@ -107,9 +107,9 @@ psi = factor × rider weight in kg (factor 1.0 or 1.3, see the table above). The
 
 ### Does not fit B3
 
-- **Formula.** B3 has no multiplier rule. Proposal: encode as `rows` at 5 kg steps from the table above, with a `note` naming the formula. Alternatively, B3 could add a `factor` rule (`value = k × input`).
+- **Formula.** Encoded as `rows` at 5 kg steps from the table above, with `note: Calculated from the manufacturer's formula` (Q1). A linear formula is reproduced exactly by interpolation.
 - **Linearizer (retrofit 3-chamber air spring)**, https://www.intend-bc.com/products/linearizer/. It adds a second positive chamber. The published starting point is a chamber ratio of 1:2: Linearizer chamber = regular pressure × 1.8, main chamber = half of the Linearizer pressure. Worked example on the page: 80 psi regular → 144 psi Linearizer / 72 psi main. Alternatives are also printed for an 80 kg rider (65/144 and 70/130 psi). The catalog has no Linearizer option and no second pressure adjuster → not encodable. If it is added later, use `input: pressure` (regular) → `target: linearizer_pressure`.
-- **Rebound "middle of range"** has no adjuster and no click total → `display_only` text only.
+- **Rebound "middle of range"** → `mid` once a `Rebound` adjuster (`max: ~`) is added.
 
 ## Products without a structured guide
 
@@ -121,8 +121,15 @@ psi = factor × rider weight in kg (factor 1.0 or 1.3, see the table above). The
 
 Checked: the setup page, all product pages (Bandit and Infinity EN product URLs in the YAML return "Page not found"; the setup page covers both), the fork chart, the Smooth Operator guide (installation steps only, no settings) and the Linearizer page. INTEND links no PDF manuals.
 
+## Catalog changes before encoding (R8, R9)
+
+R9 type changes:
+- `closed_cartridge` and `open_bath`: add `Rebound` (step, `max: ~`) and drop it
+  from `missing_adjustments`, so the `mid` rule has a target.
+- Optional: a progression-cap adjuster (see Follow-ups).
+
 ## Follow-ups
 
 - The Bandit and Infinity EN product URLs in `fork/intend.yaml` (`/products/bandit/`, `/products/infinity-en/`) now return 404. The live pages are linked from the site menu via `?post_type=product-pages&p=…` ids, which also returned "Not Found" to curl. Recheck in a browser.
 - Essential pressure: ask INTEND, or check whether a later version of the setup page adds an Essential row.
-- If the catalog gains a `volume_spacers` (or "progression cap") adjuster, encode Essential's factory mid position. Hero/Edge/Flash need a named cap position rather than a count.
+- If the catalog gains a "progression cap" adjuster, encode Essential's factory mid position as `mid` (a 3-position step 0–2) or the middle option (categorical). Hero/Edge/Flash need a named cap position rather than a count, so a categorical with the published positions (R9).

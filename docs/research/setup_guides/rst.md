@@ -303,7 +303,8 @@ rebound adjuster on `mono_dpu` / `mono_r`.
 
 - Before setting SAG, the lockout lever goes to DOWN HILL (DPU / DU only). In
   catalog terms that is `compression_mode` = `Downhill` on `mono_dpu`, as a
-  setup precondition. It could become a `display_only` note.
+  setup precondition. A procedure, not a riding setting: no rule, a `note` at
+  most (R9).
 - The manual says to adjust pressure in 10 psi increments while setting SAG.
 
 ### SAG
@@ -332,9 +333,9 @@ None.
 
 - `60 ↓` and `100 ↑` are open-ended weight brackets. They map to `<60` and
   `100+`.
-- `215 +` is an open-ended value. Encode it as a lower bound only (`range:
-  215-`?) or as `display_only` with the note "215 or more". This needs a
-  schema decision.
+- `215 +` is an inequality cell: `[215, max]` (R9), against the MONO's
+  `pressure` max. That max is in conflict (300 vs 400 psi), so until it is
+  settled the `100+` row is left out and those riders are outside the table.
 
 ## Products without a structured guide
 
@@ -358,6 +359,15 @@ Also checked with no setup data: the 2026 catalogue
 (https://rstsuspension.com/catalogues/2026.pdf, 80 pages) and the product
 pages for KILLAH, STITCH, SPACE, VIVO, MONO DPU and MEZZO.
 
+## Catalog changes before encoding (R8, R9)
+
+R8 fixes:
+- MONO `pressure` max: settle 300 vs 400 psi, then set it, so the `215 +`
+  cell can become `[215, max]`.
+- SPACE (Jump) and the Table B last row stay out until RST confirms them.
+
+R9 type changes: none.
+
 ## Follow-ups
 
 - **SPACE Jump conflict:** XC1800-123 Table B ("STITCH, SPACE Jump") and
@@ -370,8 +380,8 @@ pages for KILLAH, STITCH, SPACE, VIVO, MONO DPU and MEZZO.
   "STITCH". The manual does not name the 29" chassis separately.
 - **MONO max pressure** is 300 psi in the text and 400 psi in the table.
   Leave `max` unset.
-- The open-ended value `215 +` needs a schema decision: a lower-bound-only
-  range, or `display_only`.
+- The open-ended value `215 +` is `[215, max]` (R9) once the MONO max is
+  settled; until then its row is left out.
 - A "DU" MONO variant exists in the manual but not in the catalog.
 - No click tables means nothing for the counting-direction check. If RST ever
   publishes counts, the directions recorded above apply.

@@ -46,8 +46,8 @@ class _InstallationTimelineHintSheet extends StatelessWidget {
   Component _exampleComponent() {
     final now = DateTime.now();
 
-    Installation event(String? bikeId, Duration ago) {
-      final localDate = now.subtract(ago);
+    Installation event(String? bikeId, int daysAgo, int hour, int minute) {
+      final localDate = DateTime(now.year, now.month, now.day - daysAgo, hour, minute);
       return Installation(
         parent: bikeId,
         dateTimeUTC: localDate.toUtc(),
@@ -58,9 +58,9 @@ class _InstallationTimelineHintSheet extends StatelessWidget {
     final base = component ?? Component(name: 'Fork', componentType: ComponentType.fork, installations: const []);
     return base.copyWith(
       installations: [
-        event('trail-bike', const Duration(days: 90)),
-        event(null, const Duration(days: 45)),
-        event('enduro-bike', const Duration(days: 14)),
+        event('trail-bike', 88, 9, 30),
+        event(null, 43, 14, 15),
+        event('enduro-bike', 11, 18, 45),
       ],
     );
   }

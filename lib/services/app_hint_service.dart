@@ -10,6 +10,7 @@ import '../models/component/installation.dart';
 import '../repositories/app_repository.dart';
 import '../utils/app_info.dart';
 import '../utils/installation_timeline_validation.dart';
+import '../widgets/sheets/set_task_delay.dart';
 
 class AppHintService extends ChangeNotifier {
   static const _preferencePrefix = 'app_hint.';
@@ -121,6 +122,7 @@ class AppHintService extends ChangeNotifier {
       AppHintPlacement.setupHeader => _gettingStartedHint() ?? _releaseHint() ?? _setupTaskHint() ?? _setupCalendarHint(),
       AppHintPlacement.setupComparison => _setupComparisonHint(),
       AppHintPlacement.stravaDashboardGear => _stravaLinkGearHint(),
+      AppHintPlacement.taskHeader => _gettingStartedHint() ?? _releaseHint() ?? _taskGesturesHint(),
     };
   }
 
@@ -165,6 +167,13 @@ class AppHintService extends ChangeNotifier {
         _appRepository.components.isNotEmpty &&
         statusOf(AppHint.garageGesturesV1) == AppHintStatus.unseen;
     return eligible ? AppHint.garageGesturesV1 : null;
+  }
+
+  AppHint? _taskGesturesHint() {
+    final eligible =
+        statusOf(AppHint.taskGesturesV1) == AppHintStatus.unseen &&
+        _appRepository.actionableTaskRules.any((task) => canQuickEditTaskDelay(task.rule, _appSettings));
+    return eligible ? AppHint.taskGesturesV1 : null;
   }
 
   AppHint? _gettingStartedHint() {

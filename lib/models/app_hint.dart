@@ -7,6 +7,7 @@ enum AppHint {
   stravaLinkGearV1,
   installationTimelineV1,
   subcomponentsV1,
+  taskGesturesV1,
 }
 
 /// "What's new" hints, keyed by the `AppInfo.buildNumber` they shipped in.
@@ -25,6 +26,7 @@ enum AppHintPlacement {
   setupHeader,
   setupComparison,
   stravaDashboardGear,
+  taskHeader,
 }
 
 enum AppHintStatus {

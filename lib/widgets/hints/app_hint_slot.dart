@@ -14,6 +14,7 @@ import 'setup_comparison_hint.dart';
 import 'setup_task_hint.dart';
 import 'strava_gear_link_hint.dart';
 import 'subcomponents_hint.dart';
+import 'task_list_hint.dart';
 
 class AppHintSlot extends StatelessWidget {
   static const _sizeAnimationDuration = Duration(milliseconds: 200);
@@ -55,6 +56,9 @@ class AppHintSlot extends StatelessWidget {
       AppHint.subcomponentsV1 => SubcomponentsHint(
         onDismiss: () => unawaited(hintService.dismiss(AppHint.subcomponentsV1)),
         onActivate: () => _enableSubcomponents(context, hintService),
+      ),
+      AppHint.taskGesturesV1 => TaskListHint(
+        onDismiss: () => unawaited(hintService.dismiss(AppHint.taskGesturesV1)),
       ),
     };
 

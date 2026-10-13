@@ -5,6 +5,8 @@ import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
+import 'package:bike_setup_tracker/models/task/task_rule.dart';
+import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/app_hint_service.dart';
 import 'package:drift/drift.dart' show Value;
@@ -187,6 +189,54 @@ void main() {
       service.activeHintFor(AppHintPlacement.garageHeader),
       AppHint.garageGesturesV1,
     );
+  });
+
+  test('Task gestures hint requires a due task that can be delayed', () async {
+    final service = createService();
+    await service.load();
+
+    final bike = Bike(name: 'Bike', person: null);
+    await repository.addBikes([bike]);
+    await repository.addComponents([
+      Component(
+        name: 'Chain',
+        componentType: ComponentType.chain,
+        installations: [Installation.sinceBeginning(parent: bike.id)],
+      ),
+    ]);
+    final now = DateTime.now();
+    await repository.addSetups([
+      Setup(
+        datetime: now.toUtc(),
+        datetimeLocal: now,
+        tags: const {},
+        bike: bike.id,
+        person: null,
+        bikeAdjustmentValues: const {},
+        personAdjustmentValues: const {},
+      ),
+    ]);
+    await repository.addTaskRules([TaskRule(name: 'No interval', tags: const {})]);
+    await pumpEventQueue();
+    service.update(appRepository: repository, appSettings: settings);
+    expect(service.activeHintFor(AppHintPlacement.taskHeader), isNull);
+
+    await repository.addTaskRules([
+      TaskRule(name: 'Monthly', tags: const {}, interval: const DurationThreshold(Duration(days: 30))),
+    ]);
+    await pumpEventQueue();
+    service.update(appRepository: repository, appSettings: settings);
+    expect(service.activeHintFor(AppHintPlacement.taskHeader), AppHint.taskGesturesV1);
+
+    settings.enableTaskDelay = false;
+    service.update(appRepository: repository, appSettings: settings);
+    expect(service.activeHintFor(AppHintPlacement.taskHeader), isNull);
+
+    settings.enableTaskDelay = true;
+    await service.dismiss(AppHint.taskGesturesV1);
+    final reloaded = createService();
+    await reloaded.load();
+    expect(reloaded.activeHintFor(AppHintPlacement.taskHeader), isNull);
   });
 
   test('handling a hint suppresses the session and notifies only on changes', () async {

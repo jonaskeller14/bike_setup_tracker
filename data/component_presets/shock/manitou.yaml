@@ -31,7 +31,7 @@ sources:
   - https://www.pinkbike.com/news/first-look-manitous-180mm-mezzer-pro-fork-and-mara-pro-shock-garda-trentino-2019.html
   # Primary — service intervals
   - https://hayesbicycle.zendesk.com/hc/en-us/articles/4407665097879-Suspension-Maintenance-Schedule
-updated: 2026-10-10
+updated: 2026-10-13
 # Service intervals (`tasks`) come from the Manitou suspension maintenance
 # schedule: air can every 50 hours, a full service (IFP damper) every 200
 # hours or yearly.
@@ -139,6 +139,54 @@ option_values:
       note: Mara Inline Comp Gen 2 set-up guide (2024) — "360 degrees of adjustment"; the product page confirms the Comp has no rebound detents.
 
 # --------------------------------------------------------------------------
+# Setup guides — the Hayes set-up guides' starting points as data (SCHEMA.md,
+# "Setup guides"), transcribed from docs/research/setup_guides/manitou.md.
+# No Mara guide prints a rider weight → pressure chart: the damper settings
+# are constants for a 170 lb rider, in the catalog dampers' own directions
+# (HSC from open, LSC and rebound from closed). The IPA lever positions are
+# described by terrain only and get no rule.
+# --------------------------------------------------------------------------
+guides:
+  # Compression by tune (two-way, not encoded): Aggressive HSC 3 / LSC 10,
+  # Compliant HSC 1 / LSC 15.
+  manitou_mara_pb_2024:
+    label: Manitou Mara Pro set-up guide (2024)
+    source: https://hayesbicycle.zendesk.com/hc/article_attachments/28476110600727
+    rules:
+      - { target: rebound, value: 6, note: &mara_170_lb Starting point for a 170 lb (77 kg) rider }
+      - { target: sag, range: [25, 30], comfort_at: max, note: The frame maker's SAG figure comes first where there is one }
+
+  manitou_mara_il_pro_2024:
+    label: Manitou Mara Pro Inline set-up guide (2024)
+    source: https://hayesbicycle.zendesk.com/hc/article_attachments/25871616439319
+    rules:
+      - &mara_il_rebound { target: rebound, value: 7, note: *mara_170_lb }
+      - &mara_il_sag { target: sag, range: [20, 30], comfort_at: max, note: The frame maker's SAG figure comes first where there is one }
+
+  manitou_mara_il_pro_xc_2024:
+    label: Manitou Mara Pro Inline XC set-up guide (2024)
+    source: https://hayesbicycle.zendesk.com/hc/article_attachments/25871600341655
+    rules:
+      - *mara_il_rebound
+      - *mara_il_sag
+
+  manitou_mara_il_comp_2024:
+    label: Manitou Mara Inline Comp set-up guide (2024)
+    source: https://hayesbicycle.zendesk.com/hc/article_attachments/25871643572375
+    rules:
+      - { target: rebound, value: 0.5, note: *mara_170_lb }
+      - *mara_il_sag
+
+  manitou_mara_pb_2019:
+    label: Manitou Mara Pro set-up guide (2020)
+    source: https://hayesbicycle.zendesk.com/hc/article_attachments/360066638914
+    rules:
+      - { target: rebound, value: 5, note: *mara_170_lb }
+      - { target: hsc, value: 3, note: *mara_170_lb }
+      - { target: lsc, value: 15, note: *mara_170_lb }
+      - { target: sag, range: [20, 30], comfort_at: max }
+
+# --------------------------------------------------------------------------
 # Shocks — a model with an earlier generation (Mara) nests both as
 # `generation` nodes, newest first.
 # --------------------------------------------------------------------------
@@ -163,6 +211,7 @@ nodes:
             level: trim
             url: https://hayesbicycle.com/products/mara-pro-piggyback
             setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/28476110600727
+            guide: manitou_mara_pb_2024
             mounts: [Eyelet, Trunnion]
             adjustments: &mara_air_spring
               - { name: Pressure, type: numerical, unit: psi, min: 0, max: 350, notes: "Raise in 75 psi increments, cycling the shock between steps" }
@@ -183,6 +232,7 @@ nodes:
             level: trim
             url: https://hayesbicycle.com/products/mara-pro-piggyback-dh
             setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/28476110600727
+            guide: manitou_mara_pb_2024
             mounts: [Eyelet, Trunnion]
             adjustments: *mara_air_spring
             options:
@@ -197,6 +247,7 @@ nodes:
             level: trim
             url: https://hayesbicycle.com/products/mara-pro-inline
             setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/25871616439319
+            guide: manitou_mara_il_pro_2024
             mounts: [Eyelet, Trunnion]
             adjustments: *mara_air_spring
             options:
@@ -217,6 +268,7 @@ nodes:
             level: trim
             url: https://hayesbicycle.com/products/mara-pro-inline-xc
             setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/25871600341655
+            guide: manitou_mara_il_pro_xc_2024
             mounts: [Eyelet, Trunnion]
             adjustments: *mara_air_spring
             options:
@@ -232,6 +284,7 @@ nodes:
             level: trim
             url: https://hayesbicycle.com/products/mara-comp
             setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/25871643572375
+            guide: manitou_mara_il_comp_2024
             mounts: [Eyelet, Trunnion]
             adjustments: *mara_air_spring
             options:
@@ -257,6 +310,7 @@ nodes:
           - label: Pro Piggyback
             level: trim
             setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/360066638914
+            guide: manitou_mara_pb_2019
             adjustments:
               - { name: Pressure, type: numerical, unit: psi, min: 0, max: 250 }
             options:

@@ -51,7 +51,7 @@ sources:
   - https://www.pinkbike.com/news/first-look-manitous-180mm-mezzer-pro-fork-and-mara-pro-shock-garda-trentino-2019.html
   # Primary — service intervals
   - https://hayesbicycle.zendesk.com/hc/en-us/articles/4407665097879-Suspension-Maintenance-Schedule
-updated: 2026-10-07
+updated: 2026-10-13
 # Service intervals (`tasks`) come from the Manitou suspension maintenance
 # schedule: lower legs every 50 hours, a full service every 200 hours or
 # yearly.
@@ -173,7 +173,7 @@ option_values:
         - Rebound knob has no click stops
       adjustments:
         - { name: Compression, type: step, max: 9, notes: Counted from fully closed (firmest) }
-        - { name: Rebound, type: numerical, notes: "Not detented; recommended settings are given as clock positions from 12 o'clock (minimum) to 6 o'clock (maximum)" }
+        - { name: Rebound, type: categorical, options: ["12 o'clock", "1 o'clock", "2 o'clock", "3 o'clock", "4 o'clock", "5 o'clock", "6 o'clock"], notes: "Not detented; set by clock position from 12 o'clock (minimum) to 6 o'clock (maximum)" }
       source:
         - https://hayesbicycle.zendesk.com/hc/article_attachments/14639496469143
         - https://hayesbicycle.zendesk.com/hc/article_attachments/17493359414167
@@ -220,6 +220,673 @@ option_values:
       note: Dorado Comp set-up guide Rev 1 1/2021 — rebound "20-0", ABS+ "20-0"; the product page lists the compression adjuster as "LS Compression".
 
 # --------------------------------------------------------------------------
+# Setup guides — the Hayes set-up guides' starting points as data (SCHEMA.md,
+# "Setup guides"), transcribed from docs/research/setup_guides/manitou.md.
+#   * Pressure (and IRT / IVA): one rule per printed travel column. Travels a
+#     guide prints no column for (R8 80/90/110 mm, Mastodon 90/110 mm) get no
+#     pressure or IVA value.
+#   * Rider weight is in lb. The Gen 1 Mezzer and Dorado tables end in a ">220"
+#     row; it is left out (an open-ended row would apply one pressure to every
+#     heavier rider while the table keeps rising), so riders above 200 lb are
+#     outside the published range.
+#   * Every click table counts from fully closed, as the catalog dampers do;
+#     VTT-6 positions run 1-6 on both sides. Encoded as published.
+#   * Compression by riding style: Plush / Mid / Firm and Comfort / Balanced /
+#     Support wordings map onto `riding_style`. Discipline names (Downhill /
+#     Enduro / Trail, Standard / DH Race / Park) and the Mattoc Pro's two-way
+#     Aggressive / Compliant tune don't map 1:1 and get no rule; their values
+#     are kept in comments next to the guide.
+#   * E-bike / downhill and trail pressure offsets are relative: notes only.
+# --------------------------------------------------------------------------
+guides:
+  manitou_mezzer_g2_pro_2025:
+    label: Manitou Mezzer G2 Pro & LT Pro set-up guide (2025)
+    source: https://hayesbicycle.zendesk.com/hc/article_attachments/43742231652503
+    rules:
+      # 140 mm is the Mezzer Pro only; 180 and 190 mm are the Mezzer LT Pro only.
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 140 }
+        rows: { 120-140: 40, 140-160: 49, 160-180: 59, 180-200: 68, 200-220: 77, 220-240: 86, 240-260: 95 }
+        note: &mezzer_g2_pro_main_offset E-bike or downhill riding takes 3-4 psi more, trail riding 3-4 psi less
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 150 }
+        rows: { 120-140: 39, 140-160: 48, 160-180: 57, 180-200: 66, 200-220: 75, 220-240: 84, 240-260: 93 }
+        note: *mezzer_g2_pro_main_offset
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 160 }
+        rows: { 120-140: 38, 140-160: 47, 160-180: 55, 180-200: 64, 200-220: 73, 220-240: 82, 240-260: 91 }
+        note: *mezzer_g2_pro_main_offset
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 170 }
+        rows: { 120-140: 37, 140-160: 45, 160-180: 54, 180-200: 62, 200-220: 71, 220-240: 80, 240-260: 88 }
+        note: *mezzer_g2_pro_main_offset
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 180 }
+        rows: { 120-140: 35, 140-160: 44, 160-180: 52, 180-200: 61, 200-220: 69, 220-240: 77, 240-260: 86 }
+        note: *mezzer_g2_pro_main_offset
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 190 }
+        rows: { 120-140: 34, 140-160: 42, 160-180: 51, 180-200: 59, 200-220: 67, 220-240: 75, 240-260: 83 }
+        note: *mezzer_g2_pro_main_offset
+      - target: irt_pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 140 }
+        rows: { 120-140: 61, 140-160: 74, 160-180: 87, 180-200: 100, 200-220: 113, 220-240: 126, 240-260: 139 }
+        note: &mezzer_g2_pro_irt_offset E-bike or downhill riding takes 5-10 psi more, trail riding 5-10 psi less
+      - target: irt_pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 150 }
+        rows: { 120-140: 59, 140-160: 72, 160-180: 85, 180-200: 98, 200-220: 111, 220-240: 124, 240-260: 137 }
+        note: *mezzer_g2_pro_irt_offset
+      - target: irt_pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 160 }
+        rows: { 120-140: 57, 140-160: 70, 160-180: 83, 180-200: 96, 200-220: 109, 220-240: 122, 240-260: 135 }
+        note: *mezzer_g2_pro_irt_offset
+      - target: irt_pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 170 }
+        rows: { 120-140: 55, 140-160: 68, 160-180: 81, 180-200: 94, 200-220: 107, 220-240: 120, 240-260: 133 }
+        note: *mezzer_g2_pro_irt_offset
+      - target: irt_pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 180 }
+        rows: { 120-140: 53, 140-160: 66, 160-180: 79, 180-200: 92, 200-220: 105, 220-240: 118, 240-260: 131 }
+        note: *mezzer_g2_pro_irt_offset
+      - target: irt_pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 190 }
+        rows: { 120-140: 51, 140-160: 64, 160-180: 77, 180-200: 90, 200-220: 103, 220-240: 116, 240-260: 129 }
+        note: *mezzer_g2_pro_irt_offset
+      - target: lsr
+        input: rider_weight
+        input_unit: lb
+        rows: &mezzer_g2_rebound {
+          120-140: [9, 10], 140-160: [8, 9], 160-180: [7, 8], 180-200: [6, 7],
+          200-220: [4, 5], 220-240: [3, 4], 240-260: [2, 3]
+        }
+      - target: hsr
+        input: rider_weight
+        input_unit: lb
+        rows: {
+          120-140: [7, 8], 140-160: [6, 8], 160-180: [5, 7], 180-200: [4, 6],
+          200-220: [3, 6], 220-240: [2, 5], 240-260: [1, 4]
+        }
+      - { target: lsc, range: [6, 9], when: { riding_style: comfort }, note: Plush Natural }
+      - { target: lsc, range: [4, 6], when: { riding_style: balanced }, note: Mid Mixed }
+      - { target: lsc, range: [2, 4], when: { riding_style: race }, note: Firm Park }
+      - { target: hsc, range: [5, 7], when: { riding_style: comfort }, note: Plush Natural }
+      - { target: hsc, range: [4, 6], when: { riding_style: balanced }, note: Mid Mixed }
+      - { target: hsc, range: [2, 4], when: { riding_style: race }, note: Firm Park }
+      - &manitou_fork_sag_20_25 { target: sag, range: [20, 25], comfort_at: max }
+
+  manitou_mezzer_g2_expert_2025:
+    label: Manitou Mezzer G2 Expert set-up guide (2025)
+    source: https://hayesbicycle.zendesk.com/hc/article_attachments/41067689282071
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 140 }
+        rows: { 120-140: 46, 140-160: 57, 160-180: 68, 180-200: 79, 200-220: 90, 220-240: 101, 240-260: 112 }
+        note: *mezzer_g2_pro_main_offset
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 150 }
+        rows: { 120-140: 44, 140-160: 54, 160-180: 64, 180-200: 74, 200-220: 84, 220-240: 94, 240-260: 104 }
+        note: *mezzer_g2_pro_main_offset
+      # The 160 mm column is above the 150 mm one in every row, as printed.
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 160 }
+        rows: { 120-140: 44, 140-160: 55, 160-180: 65, 180-200: 75, 200-220: 85, 220-240: 96, 240-260: 106 }
+        note: *mezzer_g2_pro_main_offset
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 170 }
+        rows: { 120-140: 40, 140-160: 50, 160-180: 59, 180-200: 69, 200-220: 78, 220-240: 88, 240-260: 97 }
+        note: *mezzer_g2_pro_main_offset
+      - { target: iva_position, value: 4, when: { travel_mm: [140, 150] } }
+      - { target: iva_position, value: 3, when: { travel_mm: [160, 170] } }
+      - target: rebound
+        input: rider_weight
+        input_unit: lb
+        rows: *mezzer_g2_rebound
+      - { target: compression, range: [1, 2], when: { riding_style: comfort }, note: Plush Comfort }
+      - { target: compression, range: [3, 4], when: { riding_style: balanced }, note: Balanced Performance }
+      - { target: compression, range: [5, 6], when: { riding_style: race }, note: Firm Support }
+      - *manitou_fork_sag_20_25
+
+  manitou_mezzer_g2_ltcomp_2025:
+    label: Manitou Mezzer G2 LT Comp set-up guide (2025)
+    source: https://hayesbicycle.zendesk.com/hc/article_attachments/43742211211927
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 140 }
+        rows: { 120-140: 56, 140-160: 67, 160-180: 77, 180-200: 88, 200-220: 98, 220-240: 108, 240-260: 119 }
+        note: &mezzer_ltcomp_main_offset E-bike or downhill riding takes 3-5 psi more, trail riding 3-5 psi less
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 150 }
+        rows: { 120-140: 55, 140-160: 65, 160-180: 76, 180-200: 86, 200-220: 96, 220-240: 106, 240-260: 116 }
+        note: *mezzer_ltcomp_main_offset
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 160 }
+        rows: { 120-140: 54, 140-160: 64, 160-180: 74, 180-200: 84, 200-220: 94, 220-240: 104, 240-260: 114 }
+        note: *mezzer_ltcomp_main_offset
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 170 }
+        rows: { 120-140: 51, 140-160: 61, 160-180: 71, 180-200: 81, 200-220: 91, 220-240: 100, 240-260: 110 }
+        note: *mezzer_ltcomp_main_offset
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 180 }
+        rows: { 120-140: 49, 140-160: 59, 160-180: 68, 180-200: 78, 200-220: 88, 220-240: 97, 240-260: 107 }
+        note: *mezzer_ltcomp_main_offset
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 190 }
+        rows: { 120-140: 46, 140-160: 56, 160-180: 65, 180-200: 74, 200-220: 83, 220-240: 92, 240-260: 102 }
+        note: *mezzer_ltcomp_main_offset
+      - { target: iva_position, value: 3, when: { travel_mm: [140, 150] } }
+      - { target: iva_position, value: 2, when: { travel_mm: [160, 170] } }
+      - { target: iva_position, value: 1, when: { travel_mm: [180, 190] } }
+      - target: rebound
+        input: rider_weight
+        input_unit: lb
+        rows: {
+          120-140: [8, 10], 140-160: [7, 10], 160-180: [6, 9], 180-200: [5, 8],
+          200-220: [4, 7], 220-240: [3, 6], 240-260: [2, 5]
+        }
+      - { target: compression, range: [6, 9], when: { riding_style: comfort }, note: Plush Comfort }
+      - { target: compression, range: [3, 6], when: { riding_style: balanced }, note: Balanced Performance }
+      - { target: compression, range: [1, 3], when: { riding_style: race }, note: Firm Support }
+      - *manitou_fork_sag_20_25
+
+  # Damping by discipline (Downhill / Enduro / Trail, for a 170 lb rider), not
+  # encoded: rebound 3-6 / 4-7 / 5-8, HSC 1-2 / 2-3 / 3-4, LSC 2-5 / 3-7 / 1-4.
+  manitou_mezzer_pro_2019:
+    label: Manitou Mezzer Pro set-up guide (2019)
+    source: https://hayesbicycle.zendesk.com/hc/article_attachments/43742473560727
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 140 }
+        rows: { 120: 44, 140: 52, 160: 60, 180: 68, 200: 75 }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 150 }
+        rows: { 120: 42, 140: 49, 160: 56, 180: 63, 200: 70 }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 160 }
+        rows: { 120: 40, 140: 46, 160: 52, 180: 59, 200: 66 }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 170 }
+        rows: { 120: 38, 140: 44, 160: 50, 180: 56, 200: 62 }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 180 }
+        rows: { 120: 35, 140: 41, 160: 46, 180: 52, 200: 58 }
+      - target: irt_pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 140 }
+        rows: { 120: 79, 140: 84, 160: 90, 180: 97, 200: 107 }
+        note: &mezzer_g1_irt_offset Downhill riding takes about 10 psi more, trail riding about 10 psi less
+      - target: irt_pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 150 }
+        rows: { 120: 72, 140: 77, 160: 85, 180: 93, 200: 101 }
+        note: *mezzer_g1_irt_offset
+      - target: irt_pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 160 }
+        rows: { 120: 70, 140: 76, 160: 84, 180: 90, 200: 97 }
+        note: *mezzer_g1_irt_offset
+      - target: irt_pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 170 }
+        rows: { 120: 65, 140: 71, 160: 77, 180: 83, 200: 91 }
+        note: *mezzer_g1_irt_offset
+      - target: irt_pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 180 }
+        rows: { 120: 60, 140: 67, 160: 73, 180: 78, 200: 85 }
+        note: *mezzer_g1_irt_offset
+      - *manitou_fork_sag_20_25
+
+  # Rebound by discipline (Downhill / Enduro / Trail, for a 170 lb rider), not
+  # encoded: 3-6 / 4-7 / 5-8.
+  manitou_mezzer_expert_2021:
+    label: Manitou Mezzer Expert set-up guide (2021)
+    source: https://hayesbicycle.zendesk.com/hc/article_attachments/43742488803479
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 140 }
+        rows: { 120: 40, 140: 47, 160: 55, 180: 64, 200: 73 }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 150 }
+        rows: { 120: 37, 140: 44, 160: 52, 180: 60, 200: 69 }
+      # The 140 lb cell prints "41 [3.8]"; the bar value is the typo, the psi is used.
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 160 }
+        rows: { 120: 35, 140: 41, 160: 49, 180: 57, 200: 66 }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 170 }
+        rows: { 120: 32, 140: 38, 160: 46, 180: 54, 200: 62 }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 180 }
+        rows: { 120: 30, 140: 36, 160: 43, 180: 51, 200: 59 }
+      - { target: iva_position, value: 4, when: { travel_mm: [140, 150] } }
+      - { target: iva_position, value: 3, when: { travel_mm: [160, 170] } }
+      - { target: iva_position, value: 2, when: { travel_mm: 180 } }
+      - &vtt6_comfort { target: compression, range: [1, 2], when: { riding_style: comfort }, note: Maximum Comfort }
+      - &vtt6_balanced { target: compression, range: [3, 4], when: { riding_style: balanced }, note: Increased Support }
+      - &vtt6_race { target: compression, range: [5, 6], when: { riding_style: race }, note: Maximum Support }
+      - *manitou_fork_sag_20_25
+
+  # Compression by tune (two-way, not encoded): Aggressive HSC 1-2 / LSC 0-5,
+  # Compliant HSC 4-5 (above the printed 4-0 range) / LSC 6-10.
+  manitou_mattoc_pro_2023:
+    label: Manitou Mattoc Pro set-up guide (2023)
+    source: https://hayesbicycle.zendesk.com/hc/article_attachments/14639548710935
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 110 }
+        rows: { 120: 44, 140: 54, 160: 65, 180: 75, 200: 86, 220: 96, 240: 112 }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 120 }
+        rows: { 120: 42, 140: 51, 160: 61, 180: 70, 200: 80, 220: 89, 240: 104 }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 130 }
+        rows: { 120: 42, 140: 52, 160: 62, 180: 71, 200: 81, 220: 91, 240: 106 }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: [140, 150] }
+        rows: { 120: 38, 140: 48, 160: 56, 180: 66, 200: 74, 220: 84, 240: 97 }
+      - target: irt_pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 110 }
+        rows: { 120: 59, 140: 74, 160: 90, 180: 101, 200: 124, 220: 141, 240: 150 }
+        note: &mattoc_irt_offset About 10 % more for extra mid- and end-stroke support, 10 % less for a more linear feel
+      - target: irt_pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 120 }
+        rows: { 120: 56, 140: 70, 160: 85, 180: 95, 200: 116, 220: 132, 240: 148 }
+        note: *mattoc_irt_offset
+      - target: irt_pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 130 }
+        rows: { 120: 56, 140: 72, 160: 86, 180: 96, 200: 117, 220: 134, 240: 150 }
+        note: *mattoc_irt_offset
+      - target: irt_pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: [140, 150] }
+        rows: { 120: 51, 140: 65, 160: 78, 180: 88, 200: 107, 220: 123, 240: 138 }
+        note: *mattoc_irt_offset
+      - target: rebound
+        input: rider_weight
+        input_unit: lb
+        rows: &manitou_rebound_20 { 120: 14, 140: 12, 160: 10, 180: 8, 200: 6, 220: 4, 240: 2 }
+      - *manitou_fork_sag_20_25
+
+  manitou_mattoc_expert_2023:
+    label: Manitou Mattoc Expert set-up guide (2023)
+    source: https://hayesbicycle.zendesk.com/hc/article_attachments/14639542611479
+    rules:
+      - &mattoc_expert_air_110
+        target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 110 }
+        rows: { 120: 46, 140: 57, 160: 68, 180: 79, 200: 90, 220: 101, 240: 112 }
+      - &mattoc_expert_air_120
+        target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 120 }
+        rows: { 120: 44, 140: 54, 160: 64, 180: 74, 200: 84, 220: 94, 240: 104 }
+      - &mattoc_expert_air_130
+        target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 130 }
+        rows: { 120: 44, 140: 55, 160: 65, 180: 75, 200: 85, 220: 96, 240: 106 }
+      - &mattoc_expert_air_140
+        target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: [140, 150] }
+        rows: { 120: 40, 140: 50, 160: 59, 180: 69, 200: 78, 220: 88, 240: 97 }
+      - &mattoc_iva_3 { target: iva_position, value: 3, when: { travel_mm: [110, 120] } }
+      - &mattoc_iva_2 { target: iva_position, value: 2, when: { travel_mm: [130, 140] } }
+      - &mattoc_iva_1 { target: iva_position, value: 1, when: { travel_mm: 150 } }
+      - target: rebound
+        input: rider_weight
+        input_unit: lb
+        rows: *manitou_rebound_20
+      - *vtt6_comfort
+      - *vtt6_balanced
+      - *vtt6_race
+      - *manitou_fork_sag_20_25
+
+  # Pressure and IVA are the Mattoc Expert's table, cell for cell.
+  manitou_mattoc_comp_2023:
+    label: Manitou Mattoc Comp set-up guide (2023)
+    source: https://hayesbicycle.zendesk.com/hc/article_attachments/14639496469143
+    rules:
+      - *mattoc_expert_air_110
+      - *mattoc_expert_air_120
+      - *mattoc_expert_air_130
+      - *mattoc_expert_air_140
+      - *mattoc_iva_3
+      - *mattoc_iva_2
+      - *mattoc_iva_1
+      - target: rebound
+        input: rider_weight
+        input_unit: lb
+        rows: &manitou_rebound_clock {
+          120: "12 o'clock", 140: "1 o'clock", 160: "2 o'clock", 180: "3 o'clock",
+          200: "4 o'clock", 220: "5 o'clock", 240: "6 o'clock"
+        }
+      - &abs_plus_9_comfort { target: compression, range: [6, 9], when: { riding_style: comfort }, note: Maximum Comfort }
+      - &abs_plus_9_balanced { target: compression, range: [3, 5], when: { riding_style: balanced }, note: Increased Support }
+      - &abs_plus_9_race { target: compression, range: [0, 2], when: { riding_style: race }, note: Maximum Support }
+      - *manitou_fork_sag_20_25
+
+  # The "120 mm, no IVA" column (riders up to 160 lb) and the Open / Firm / Lock
+  # mode by terrain are not encoded; Open Mode Compression has no start value.
+  manitou_r8_pro_2024:
+    label: Manitou R8 Pro set-up guide (2024)
+    source: https://hayesbicycle.zendesk.com/hc/article_attachments/24504253740951
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 100 }
+        rows: { 100: 50, 120: 63, 140: 74, 160: 85, 180: 97, 200: 109, 220: 122 }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 120 }
+        rows: { 100: 46, 120: 56, 140: 66, 160: 76, 180: 87, 200: 97, 220: 108 }
+      - { target: iva_position, value: 2, when: { travel_mm: 100 } }
+      - { target: iva_position, value: 1, when: { travel_mm: 120 }, note: Lighter riders can also run 120 mm without the IVA piston }
+      - target: rebound
+        input: rider_weight
+        input_unit: lb
+        rows: { 100: 18, 120: 16, 140: 14, 160: 12, 180: 10, 200: 8, 220: 6 }
+      - { target: sag, range: [15, 20], comfort_at: max }
+
+  # Only the Mid-Progressive column is encoded. Not encoded: Min-Progressive
+  # (main 40 / 51 / 50 / 55 / 60 / 70, IRT 55-90; its 140 lb main prints
+  # "51 [3.1]", 3.1 bar being 45 psi) and Max-Progressive (main 50-80, IRT
+  # 100-155), and the damping by discipline (Standard / DH Race / Park, 170 lb
+  # rider): rebound 6-10 / 7-12 / 5-9, HSC 10-15 / 6-12 / 4-7, LSC 5-10 / 4-7 / 3-5.
+  manitou_dorado_pro_2021:
+    label: Manitou Dorado Pro set-up guide (2021)
+    source: https://hayesbicycle.zendesk.com/hc/article_attachments/4404709083799
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        rows: { 120: 45, 140: 50, 160: 55, 180: 60, 200: 65 }
+        note: &dorado_mid_prog Mid-progressive setting; Manitou also lists a more linear and a more progressive one
+      - target: irt_pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        rows: { 120: 70, 140: 77, 160: 84, 180: 91, 200: 98 }
+        note: *dorado_mid_prog
+      - &manitou_fork_sag_20_30 { target: sag, range: [20, 30], comfort_at: max }
+
+  # Only the Mid-Progressive column is encoded (IVA 2). Not encoded:
+  # Min-Progressive (IVA 1, main 3 psi above Mid) and Max-Progressive (IVA 3,
+  # main 3 psi below Mid), and the damping by discipline, the same as the
+  # Dorado Pro's.
+  manitou_dorado_expert_2020:
+    label: Manitou Dorado Expert set-up guide (2020)
+    source: https://hayesbicycle.zendesk.com/hc/article_attachments/4404701744407
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        rows: { 120: 38, 140: 48, 160: 59, 180: 69, 200: 78 }
+        note: *dorado_mid_prog
+      - { target: iva_position, value: 2, note: "Mid-progressive setting; 1 is more linear, 3 more progressive" }
+      - *manitou_fork_sag_20_30
+
+  # Damping by discipline (Standard / DH Race / Park), not encoded: rebound
+  # 6-10 / 6-10 / 4-8, compression 13-17 / 9-13 / 6-10.
+  manitou_dorado_comp_2021:
+    label: Manitou Dorado Comp set-up guide (2021)
+    source: https://hayesbicycle.zendesk.com/hc/article_attachments/4404709071767
+    rules:
+      - target: spring_rate
+        unit: lbs/in
+        input: rider_weight
+        input_unit: lb
+        rows: { <125: 25, 125-150: 30, 150-175: 35, 175-200: 40, 200-225: 45, 225+: 52 }
+      - *manitou_fork_sag_20_30
+
+  manitou_mastodon_pro_2023:
+    label: Manitou Mastodon Pro set-up guide (2023)
+    source: https://hayesbicycle.zendesk.com/hc/article_attachments/17493411154967
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 80 }
+        rows: { 120: 70, 140: 83, 160: 97, 180: 111, 200: 124, 220: 138, 240: 150 }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 100 }
+        rows: { 120: 63, 140: 75, 160: 88, 180: 100, 200: 113, 220: 125, 240: 138 }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: [120, 130] }
+        rows: { 120: 54, 140: 65, 160: 76, 180: 87, 200: 98, 220: 110, 240: 121 }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 140 }
+        rows: { 120: 50, 140: 60, 160: 71, 180: 81, 200: 91, 220: 102, 240: 112 }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 150 }
+        rows: { 120: 51, 140: 62, 160: 73, 180: 83, 200: 93, 220: 104, 240: 114 }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 160 }
+        rows: { 120: 49, 140: 59, 160: 69, 180: 79, 200: 89, 220: 98, 240: 109 }
+      - &mastodon_iva_5 { target: iva_position, value: 5, when: { travel_mm: 80 } }
+      - &mastodon_iva_4 { target: iva_position, value: 4, when: { travel_mm: 100 } }
+      - &mastodon_iva_3 { target: iva_position, value: 3, when: { travel_mm: 120 } }
+      - { target: iva_position, value: 2, when: { travel_mm: [130, 140] } }
+      - { target: iva_position, value: 1, when: { travel_mm: [150, 160] } }
+      - target: rebound
+        input: rider_weight
+        input_unit: lb
+        rows: *manitou_rebound_20
+      - *vtt6_comfort
+      - *vtt6_balanced
+      - *vtt6_race
+      - *manitou_fork_sag_20_25
+
+  manitou_mastodon_comp_2023:
+    label: Manitou Mastodon Comp set-up guide (2023)
+    source: https://hayesbicycle.zendesk.com/hc/article_attachments/17493359414167
+    rules:
+      # The 240 lb / 80 mm cell is "-": the pressure would exceed the 150 psi limit.
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 80 }
+        rows: { 120: 79, 140: 93, 160: 108, 180: 123, 200: 138, 220: 150 }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 100 }
+        rows: { 120: 70, 140: 83, 160: 96, 180: 110, 200: 124, 220: 137, 240: 150 }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 120 }
+        rows: { 120: 59, 140: 71, 160: 83, 180: 95, 200: 106, 220: 118, 240: 130 }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 130 }
+        rows: { 120: 59, 140: 70, 160: 82, 180: 94, 200: 105, 220: 117, 240: 129 }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 140 }
+        rows: { 120: 54, 140: 65, 160: 75, 180: 86, 200: 97, 220: 108, 240: 119 }
+      - *mastodon_iva_5
+      - *mastodon_iva_4
+      - *mastodon_iva_3
+      - { target: iva_position, value: 2, when: { travel_mm: [130, 140] } }
+      - target: rebound
+        input: rider_weight
+        input_unit: lb
+        rows: *manitou_rebound_clock
+      - *abs_plus_9_comfort
+      - *abs_plus_9_balanced
+      - *abs_plus_9_race
+      - *manitou_fork_sag_20_25
+
+# --------------------------------------------------------------------------
 # Forks — a model with an earlier generation (Mezzer) nests both as
 # `generation` nodes, newest first.
 # --------------------------------------------------------------------------
@@ -240,11 +907,12 @@ nodes:
             level: trim
             url: https://hayesbicycle.com/products/mezzer-pro-g2
             setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/43742231652503
+            guide: manitou_mezzer_g2_pro_2025
             specs: { stanchion: 37mm, spring: Air }
             offset_mm: [44]
             adjustments: &mezzer_irt_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0, notes: Max 120 psi }
-              - { name: IRT Pressure, type: numerical, unit: psi, min: 0, notes: "Infinite Rate Tune chamber; fill before the main chamber; max 150 psi" }
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120, notes: Max 120 psi }
+              - { name: IRT Pressure, type: numerical, unit: psi, min: 0, max: 150, notes: "Infinite Rate Tune chamber; fill before the main chamber; max 150 psi" }
             options:
               damper: [mc2_pro_x_2026]
               travel_mm: [140, 150, 160, 170]
@@ -257,10 +925,12 @@ nodes:
             level: trim
             url: https://hayesbicycle.com/products/mezzer-expert-1
             setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/41067689282071
+            guide: manitou_mezzer_g2_expert_2025
             specs: { stanchion: 37mm, spring: Air }
             offset_mm: [44]
             adjustments: &expert_air_spring
-              - { name: Pressure, type: numerical, unit: psi, min: 0, notes: Max 120 psi }
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120, notes: Max 120 psi }
+              - { name: IVA Position, type: step, min: 1, max: 4, visualization: stepper, notes: "Incremental Volume Adjust position; estimated maximum, check your dial and edit it if it differs" }
             options:
               damper: [vtt6_mezzer_g2]
               travel_mm: [140, 150, 160, 170]
@@ -278,11 +948,12 @@ nodes:
           - label: Pro
             level: trim
             setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/43742473560727
+            guide: manitou_mezzer_pro_2019
             specs: { stanchion: 37mm, spring: Air }
             offset_mm: [37, 44, 51]
             adjustments:
-              - { name: Pressure, type: numerical, unit: psi, min: 0, notes: Max 120 psi }
-              - { name: IRT Pressure, type: numerical, unit: psi, min: 0, notes: "Infinite Rate Tune chamber; fill before the main chamber; max 200 psi" }
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120, notes: Max 120 psi }
+              - { name: IRT Pressure, type: numerical, unit: psi, min: 0, max: 200, notes: "Infinite Rate Tune chamber; fill before the main chamber; max 200 psi" }
             options:
               damper: [mc2_mezzer_2019]
               travel_mm: [140, 150, 160, 170, 180]
@@ -294,6 +965,7 @@ nodes:
           - label: Expert
             level: trim
             setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/43742488803479
+            guide: manitou_mezzer_expert_2021
             specs: { stanchion: 37mm, spring: Air }
             offset_mm: [37, 44, 51]
             adjustments: *expert_air_spring
@@ -316,6 +988,7 @@ nodes:
         level: trim
         url: https://hayesbicycle.com/products/mezzer-lt-pro-g2
         setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/43742231652503
+        guide: manitou_mezzer_g2_pro_2025
         specs: { stanchion: 37mm, spring: Air }
         offset_mm: [44]
         adjustments: *mezzer_irt_spring
@@ -330,9 +1003,12 @@ nodes:
         level: trim
         url: https://hayesbicycle.com/products/mezzer-lt-comp-g2
         setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/43742211211927
+        guide: manitou_mezzer_g2_ltcomp_2025
         specs: { stanchion: 37mm, spring: Air }
         offset_mm: [44]
-        adjustments: *expert_air_spring
+        adjustments: &iva3_air_spring
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120, notes: Max 120 psi }
+          - { name: IVA Position, type: step, min: 1, max: 3, visualization: stepper, notes: "Incremental Volume Adjust position; estimated maximum, check your dial and edit it if it differs" }
         options:
           damper: [abs_plus_mezzer_lt_2026]
           travel_mm: [140, 150, 160, 170, 180, 190]
@@ -352,10 +1028,11 @@ nodes:
         level: trim
         url: https://hayesbicycle.com/products/mattoc-pro
         setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/14639548710935
+        guide: manitou_mattoc_pro_2023
         specs: { stanchion: 34mm, spring: Air }
         adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, notes: Max 120 psi }
-          - { name: IRT Pressure, type: numerical, unit: psi, min: 0, notes: "Infinite Rate Tune chamber; fill before the main chamber; max 150 psi" }
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120, notes: Max 120 psi }
+          - { name: IRT Pressure, type: numerical, unit: psi, min: 0, max: 150, notes: "Infinite Rate Tune chamber; fill before the main chamber; max 150 psi" }
         options:
           damper: [mc2_mattoc_2023]
           travel_mm: [110, 120, 130, 140, 150]
@@ -368,8 +1045,9 @@ nodes:
         level: trim
         url: https://hayesbicycle.com/products/mattoc-expert
         setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/14639542611479
+        guide: manitou_mattoc_expert_2023
         specs: { stanchion: 34mm, spring: Air }
-        adjustments: *expert_air_spring
+        adjustments: *iva3_air_spring
         options:
           damper: [vtt6_2023]
           travel_mm: [110, 120, 130, 140, 150]
@@ -381,8 +1059,9 @@ nodes:
         level: trim
         url: https://hayesbicycle.com/products/mattoc-comp
         setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/14639496469143
+        guide: manitou_mattoc_comp_2023
         specs: { stanchion: 34mm, spring: Air }
-        adjustments: *expert_air_spring
+        adjustments: *iva3_air_spring
         options:
           damper: [abs_plus_2023]
           travel_mm: [110, 120, 130, 140, 150]
@@ -398,6 +1077,7 @@ nodes:
     years: "2024-2026"
     url: https://hayesbicycle.com/products/r8-pro
     setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/24504253740951
+    guide: manitou_r8_pro_2024
     tasks: *manitou_service
     children:
       - label: Pro
@@ -405,7 +1085,7 @@ nodes:
         specs: { stanchion: 34mm, spring: Air }
         offset_mm: [44]
         adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, notes: Max 150 psi }
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 150, notes: Max 150 psi }
           - { name: IVA Position, type: step, min: 1, max: 3, visualization: stepper, notes: "Incremental Volume Adjust piston; 1 = most linear, 3 = most progressive" }
         options:
           damper: [vtt_pro_x_r8]
@@ -427,11 +1107,12 @@ nodes:
         level: trim
         url: https://hayesbicycle.com/products/my22-dorado-pro
         setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/4404709083799
+        guide: manitou_dorado_pro_2021
         specs: { stanchion: 37mm, spring: Air }
         offset_mm: [47, 57]
         adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, notes: Max 120 psi }
-          - { name: IRT Pressure, type: numerical, unit: psi, min: 0, notes: "Infinite Rate Tune chamber; fill before the main chamber; max 200 psi" }
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120, notes: Max 120 psi }
+          - { name: IRT Pressure, type: numerical, unit: psi, min: 0, max: 200, notes: "Infinite Rate Tune chamber; fill before the main chamber; max 200 psi" }
         options:
           damper: [tpc_plus_dorado_2022]
           travel_mm: [180, 190, 203]
@@ -444,10 +1125,11 @@ nodes:
         level: trim
         url: https://hayesbicycle.com/products/new-my22-dorado-expert
         setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/4404701744407
+        guide: manitou_dorado_expert_2020
         specs: { stanchion: 37mm, spring: Air }
         offset_mm: [47, 57]
         adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, notes: Max 120 psi }
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120, notes: Max 120 psi }
           - { name: IVA Position, type: step, min: 1, max: 3, visualization: stepper, notes: "Incremental Volume Adjust piston; 1 = largest volume (most linear), 3 = smallest volume (most progressive)" }
         options:
           damper: [tpc_plus_dorado_2022]
@@ -460,6 +1142,7 @@ nodes:
         level: trim
         url: https://hayesbicycle.com/products/new-dorado-coil
         setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/4404709071767
+        guide: manitou_dorado_comp_2021
         specs: { stanchion: 37mm, spring: Coil }
         offset_mm: [47, 57]
         adjustments:
@@ -482,10 +1165,12 @@ nodes:
         level: trim
         url: https://hayesbicycle.com/products/mastodon-pro
         setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/17493411154967
+        guide: manitou_mastodon_pro_2023
         specs: { stanchion: 34mm, spring: Air }
         offset_mm: [44]
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, notes: Max 150 psi }
+        adjustments: &mastodon_air_spring
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 150, notes: Max 150 psi }
+          - { name: IVA Position, type: step, min: 1, max: 5, visualization: stepper, notes: "Incremental Volume Adjust position; estimated maximum, check your dial and edit it if it differs" }
         options:
           damper: [vtt6_2023]
           travel_mm: [80, 90, 100, 110, 120, 130, 140, 150, 160]
@@ -497,10 +1182,10 @@ nodes:
         level: trim
         url: https://hayesbicycle.com/products/mastodon-comp
         setup_guide: https://hayesbicycle.zendesk.com/hc/article_attachments/17493359414167
+        guide: manitou_mastodon_comp_2023
         specs: { stanchion: 34mm, spring: Air }
         offset_mm: [44]
-        adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, notes: Max 150 psi }
+        adjustments: *mastodon_air_spring
         options:
           damper: [abs_plus_2023]
           travel_mm: [80, 90, 100, 110, 120, 130, 140]
@@ -522,11 +1207,13 @@ nodes:
 #     not confirmed by a Manitou source.
 #   - IVA (Incremental Volume Adjust) maximum position on Mezzer / Mezzer LT
 #     Expert & Comp, Mattoc Expert & Comp and Mastodon: the set-up-guide tables
-#     only list recommended positions (up to 4 on Mezzer, 5 on Mastodon), never
-#     the maximum, so no IVA adjustment is offered on those trims. Published
-#     positions (1-3) are captured for R8 and Dorado Expert only.
+#     only list recommended positions, never the maximum. The IVA Position
+#     maximum is estimated from each trim's own guide table (Mezzer Expert 4,
+#     Mezzer LT Comp 3, Mattoc Expert / Comp 3, Mastodon 5); confirm with Hayes.
+#     Published positions (1-3) are captured for R8 and Dorado Expert.
 #   - Rebound on Mattoc Comp / Mastodon Comp is a non-detented knob; no click
-#     count exists, so it is a plain numerical adjustment.
+#     count exists, so it is a categorical of the guides' clock positions.
+#   - Pressure / IRT maxima (120 / 150 / 200 psi) are the set-up guides' limits.
 #   - Not covered: Machete, Markhor (Kwik Toggle / TPC rebound, no click counts
 #     in the service guides), JUNIT and Circus (youth / dirt-jump / BMX), Magnum,
 #     Dorado 36 and the 2018-2022 Mattoc generations.

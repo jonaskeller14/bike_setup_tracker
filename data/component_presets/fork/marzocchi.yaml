@@ -17,6 +17,7 @@ sources:
   - https://bike.marzocchi.com/products/bomber-z2
   - https://bike.marzocchi.com/products/bomber-dj
   - https://bike.marzocchi.com/products/bomber-58
+  - https://cdn.shopify.com/s/files/1/0618/4989/5143/files/605-00-311_REV_B_-_Marzocchi_BOMBER_Z1_Owners_Guide.pdf
   - https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-256_RevB_DJ-Z1_TuningGuide.pdf
   - https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-237-%20RevA_Z2_TuningGuide.pdf
   - https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-174-58_TuningGuide-revA.pdf
@@ -24,7 +25,7 @@ sources:
   - https://nsmb.com/articles/marzocchi-bomber-z1-reviewed/
   # Primary — service intervals
   - https://tech.ridefox.com/img/help/page2839-HZFA/inline/605-00-255%20REV%20A%20-%202021%20Marzocchi%20Forks%20Owners%20Guide.pdf
-updated: 2026-10-10
+updated: 2026-10-13
 # Service intervals (`tasks`) come from the 2021 Marzocchi Forks Owner's Guide:
 # a full service (damper and air spring rebuild, bath oil and wipers) every
 # 125 hours or yearly. No separate lower-leg interval is published.
@@ -87,6 +88,110 @@ option_values:
         same cartridge as Bomber DJ's.
 
 # --------------------------------------------------------------------------
+# Setup guides — the tuning and owner's guides' starting points as data
+# (SCHEMA.md, "Setup guides"), transcribed from
+# docs/research/setup_guides/marzocchi.md. Every rebound table counts from
+# fully closed, the catalog's direction. Setting SAG with the compression lever
+# open is a procedure, not a riding setting, so it gets no rule.
+# --------------------------------------------------------------------------
+guides:
+  marzocchi_z1_2024:
+    label: Marzocchi Bomber Z1 owner's guide (2024)
+    source: https://cdn.shopify.com/s/files/1/0618/4989/5143/files/605-00-311_REV_B_-_Marzocchi_BOMBER_Z1_Owners_Guide.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        rows: &marzocchi_z1_pressure {
+          120-130: 55, 130-140: 59, 140-150: 63, 150-160: 67, 160-170: 72,
+          170-180: 76, 180-190: 80, 190-200: 85, 200-210: 89, 210-220: 93,
+          220-230: 97, 230-240: 102, 240-250: 106
+        }
+      # The rebound column sits in the air pressure table, so the Z1 Coil gets
+      # none.
+      - target: rebound
+        input: rider_weight
+        input_unit: lb
+        when: { model: z1 }
+        rows: &marzocchi_rebound {
+          120-130: 13, 130-140: 12, 140-150: 11, 150-160: 10, 160-170: 9,
+          170-180: 8, 180-190: 7, 190-200: 6, 200-210: 5, 210-220: 4,
+          220-230: 3, 230-240: 2, 240-250: 1
+        }
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is Marzocchi's firm end, 20 % the plush end" }
+      # Factory spacers for the catalog travels; the guide prints no 100 mm row.
+      - target: volume_spacers
+        input: travel_mm
+        rows: { 150: 3, 160: 2 }
+      # The Z1 Coil spring chart (colour per rider weight, no rate) is left
+      # out: the 2024 and 2020 guides print different weight bands.
+
+  marzocchi_z1_dj_2020:
+    label: Marzocchi Bomber Z1 and DJ tuning guide (2020)
+    source: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-256_RevB_DJ-Z1_TuningGuide.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        rows: *marzocchi_z1_pressure
+      - target: rebound
+        input: rider_weight
+        input_unit: lb
+        rows: *marzocchi_rebound
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is Marzocchi's firm end, 20 % the plush end" }
+      - { target: volume_spacers, value: 8 }
+
+  marzocchi_z2_2019:
+    label: Marzocchi Bomber Z2 tuning guide (2019)
+    source: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-237-%20RevA_Z2_TuningGuide.pdf
+    # Standard column only: the E-Bike+ column waits for an e-bike option (#72).
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        rows: {
+          120-130: 58, 130-140: 63, 140-150: 68, 150-160: 72, 160-170: 77,
+          170-180: 82, 180-190: 86, 190-200: 91, 200-210: 96, 210-220: 100,
+          220-230: 105, 230-240: 110, 240-250: 114
+        }
+      - target: rebound
+        input: rider_weight
+        input_unit: lb
+        rows: {
+          120-130: 13, 130-140: 10, 140-150: 9, 150-160: 9, 160-170: 8,
+          170-180: 8, 180-190: 8, 190-200: 7, 200-210: 7, 210-220: 6,
+          220-230: 4, 230-240: 3, 240-250: 2
+        }
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is Marzocchi's firm end, 20 % the plush end" }
+      - target: volume_spacers
+        input: travel_mm
+        rows: { 120: 2, 130: 1, 140: 0, 150: 0 }
+
+  marzocchi_58_2017:
+    label: Marzocchi Bomber 58 tuning guide (2017)
+    source: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-174-58_TuningGuide-revA.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        rows: {
+          120-130: 49, 130-140: 53, 140-150: 57, 150-160: 61, 160-170: 65,
+          170-180: 69, 180-190: 73, 190-200: 76, 200-210: 80, 210-220: 84,
+          220-230: 88, 230-240: 92, 240-250: 96
+        }
+      - target: rebound
+        input: rider_weight
+        input_unit: lb
+        rows: *marzocchi_rebound
+      - { target: compression, value: 4 }
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is Marzocchi's firm end, 20 % the plush end" }
+      - { target: volume_spacers, value: 4 }
+
+# --------------------------------------------------------------------------
 # Forks — current (2025/2026) Marzocchi lineup. Every model below is air- or
 # coil-sprung and single-trim (Marzocchi doesn't sell multiple build kits per
 # model the way Fox does), so each model has one trim named for the spring.
@@ -97,7 +202,8 @@ nodes:
     category: Trail / All-Mountain
     years: "2025-2026"
     url: https://bike.marzocchi.com/products/bomber-z1
-    setup_guide: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-256_RevB_DJ-Z1_TuningGuide.pdf
+    setup_guide: https://cdn.shopify.com/s/files/1/0618/4989/5143/files/605-00-311_REV_B_-_Marzocchi_BOMBER_Z1_Owners_Guide.pdf
+    guide: marzocchi_z1_2024
     tasks: &marzocchi_service
       fork:full_service: { interval: { moving_time_h: 125 }, fallback: { days: 365 }, source: Marzocchi owner's guide }
     children:
@@ -120,7 +226,8 @@ nodes:
     category: Trail / All-Mountain
     years: "2025-2026"
     url: https://bike.marzocchi.com/products/bomber-z1-coil
-    setup_guide: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-256_RevB_DJ-Z1_TuningGuide.pdf
+    setup_guide: https://cdn.shopify.com/s/files/1/0618/4989/5143/files/605-00-311_REV_B_-_Marzocchi_BOMBER_Z1_Owners_Guide.pdf
+    guide: marzocchi_z1_2024
     tasks: *marzocchi_service
     children:
       - label: Coil
@@ -146,6 +253,7 @@ nodes:
     years: "2025-2026"
     url: https://bike.marzocchi.com/products/bomber-z2
     setup_guide: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-237-%20RevA_Z2_TuningGuide.pdf
+    guide: marzocchi_z2_2019
     tasks: *marzocchi_service
     children:
       - label: Standard
@@ -170,6 +278,7 @@ nodes:
     years: "2025-2026"
     url: https://bike.marzocchi.com/products/bomber-dj
     setup_guide: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-256_RevB_DJ-Z1_TuningGuide.pdf
+    guide: marzocchi_z1_dj_2020
     tasks: *marzocchi_service
     children:
       - label: Standard
@@ -192,6 +301,7 @@ nodes:
     years: "2025-2026"
     url: https://bike.marzocchi.com/products/bomber-58
     setup_guide: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-174-58_TuningGuide-revA.pdf
+    guide: marzocchi_58_2017
     tasks: *marzocchi_service
     children:
       - label: Standard

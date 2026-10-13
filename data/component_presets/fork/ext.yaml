@@ -35,7 +35,7 @@ sources:
   - https://www.pinkbike.com/news/review-ext-vaia-extra-adjustable-usd-fork.html
   # Secondary — editorial click totals (rebound / LSC / HSC)
   - https://enduro-mtb.com/en/ext-era-v2-1-best-mtb-fork-test/
-updated: 2026-10-10
+updated: 2026-10-13
 # Service intervals (`tasks`) come from the quick manuals (the nodes'
 # `setup_guide`): every 100 hours or 1 year for amateur use (racing: 50 hours
 # or 6 months; the amateur figure is used).
@@ -87,11 +87,53 @@ option_values:
         where each entry reads clicks from closed / total clicks.
 
 # --------------------------------------------------------------------------
+# Setup guide — the Era V2 quick manual's suggested setup as data (SCHEMA.md,
+# "Setup guides"), transcribed from docs/research/setup_guides/ext.md. The
+# table keys rider weight by points (60-90 kg) and prints open rows below
+# 60 kg and above 100 kg. Clicks count from fully closed, the catalog's
+# direction. The Vaia quick manual prints no setup values.
+# --------------------------------------------------------------------------
+guides:
+  ext_era_v2_2023:
+    label: EXT Era V2 quick manual (2023)
+    source: https://extremeshox.com/wp-content/uploads/2023/08/quick-manual-Era-v2_20x30.pdf
+    # The "> 100 kg" row is left out of every rule: an open row must continue
+    # the table at its edge, and the table jumps from the 90 kg point to it.
+    # The "< 60 kg" pressure cells (< 45 / < 70 psi) have no published
+    # minimum, so that row stays only in the click rules.
+    rules:
+      - target: main_chamber_pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        rows: { 60: 45, 70: 55, 80: 65, 90: 75 }
+      - target: secondary_chamber_pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        rows: { 60: 70, 70: 85, 80: 100, 90: 115 }
+      - target: hsc
+        input: rider_weight
+        input_unit: kg
+        rows: { "<60": 10, 60: 9, 70: 8, 80: 7, 90: 6 }
+      - target: lsc
+        input: rider_weight
+        input_unit: kg
+        rows: { "<60": 10, 60: 9, 70: 8, 80: 7, 90: 6 }
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        rows: { "<60": 18, 60: 16, 70: 14, 80: 12, 90: 10 }
+      # EXT's Suspension Setup page, which names the Era V2.1 and Era V2 LT.
+      - { target: sag, range: [15, 20], comfort_at: max }
+
+# --------------------------------------------------------------------------
 # Forks — current EXT MTB lineup (extremeshox.com, checked 2026-07-17).
 # Both forks share the HS3 hybrid air spring (Main "+" / Secondary "++"
 # chambers), so trims share the &hs3_air_spring anchor. EXT states an overall
 # max inflation pressure per fork (not broken out per chamber the way the
-# Aria shock's is) — recorded as a note rather than a per-chamber `max`.
+# Aria shock's is). Neither chamber can exceed it, so the Era's 200 psi is
+# each chamber's `max`; the Vaia's 250 psi stays a note.
 # Wheel size isn't stated on the product pages: Era V2.1 and Vaia take it from
 # Pinkbike's review spec lists (29" only / "Designed for 29" wheels"); Era V2 LT
 # has no source and is omitted — see Follow-ups.
@@ -103,6 +145,7 @@ nodes:
     years: "2025-2026"
     url: https://extremeshox.com/product/ext-era-v2-1/
     setup_guide: https://extremeshox.com/wp-content/uploads/2023/08/quick-manual-Era-v2_20x30.pdf
+    guide: ext_era_v2_2023
     tasks: &ext_service
       fork:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: EXT quick manual }
     children:
@@ -110,8 +153,8 @@ nodes:
         level: trim
         specs: { stanchion: "36mm, forged AL 7050 T6 crown", spring: Air }
         adjustments: &hs3_air_spring
-          - { name: Main Chamber Pressure, type: numerical, unit: psi, min: 0 }
-          - { name: Secondary Chamber Pressure, type: numerical, unit: psi, min: 0, notes: Inflate ++ (secondary) chamber before + (main) chamber; do not exceed 200 psi / 14 bar combined per the product warning label (not broken out per chamber) }
+          - { name: Main Chamber Pressure, type: numerical, unit: psi, min: 0, max: 200 }
+          - { name: Secondary Chamber Pressure, type: numerical, unit: psi, min: 0, max: 200, notes: Inflate ++ (secondary) chamber before + (main) chamber; do not exceed 200 psi / 14 bar combined per the product warning label (not broken out per chamber) }
         options:
           damper: [era_cartridge]
           travel_mm: [130, 140, 150, 160, 170]
@@ -124,6 +167,7 @@ nodes:
     years: "2025-2026"
     url: https://extremeshox.com/product/ext-era-v2-lt/
     setup_guide: https://extremeshox.com/wp-content/uploads/2023/08/quick-manual-Era-v2_20x30.pdf  # the manual linked on the Era V2 LT product page
+    guide: ext_era_v2_2023
     tasks: *ext_service
     children:
       - label: Standard
@@ -169,9 +213,9 @@ nodes:
 #     because EXT lists the same 3-way cartridge; no review gives LT counts.
 #   - Era V2.1/V2 LT: published max inflation is a single combined figure
 #     (200 psi / 14 bar) rather than separate + / ++ chamber limits like the
-#     Aria shock — not modeled as a per-chamber `max` to avoid misattributing
-#     the number to the wrong valve. The Era quick manual's weight table
-#     (< 60 kg 45 / 70 psi up to > 100 kg 85 / 130 psi) is a suggestion only.
+#     Aria shock; it is set as both chambers' `max`, the limit neither can
+#     exceed. The Era V2.1 uses the Era V2 quick manual's table, which EXT
+#     links from the V2.1 page; no V2.1-specific table was found.
 #   - Vaia: same ambiguity, single combined ceiling of 250 psi / 17 bar. The
 #     Vaia takes positive and negative volume spacers (stock 4 positive, 2
 #     negative per the Pinkbike review) but EXT states no maximum count.

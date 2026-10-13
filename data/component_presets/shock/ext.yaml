@@ -48,7 +48,8 @@ sources:
   - https://extremeshox.com/product/aria-v2/
   - https://extremeshox.com/product/aria-v2-dh/
   - https://extremeshox.com/wp-content/uploads/2026/09/Quick-manual-Aria-V2-3.pdf
-updated: 2026-10-10
+  - https://extremeshox.com/vecta-ridemaster/
+updated: 2026-10-13
 # Service intervals (`tasks`) come from the quick manuals (the nodes'
 # `setup_guide`): every 100 hours or 1 year for amateur use (racing: 50 hours
 # or 6 months; the amateur figure is used).
@@ -215,6 +216,73 @@ option_values:
         - https://extremeshox.com/wp-content/uploads/2026/09/Quick-manual-Aria-V2-3.pdf
 
 # --------------------------------------------------------------------------
+# Setup guides — the quick manuals' and RideMaster's starting points as data
+# (SCHEMA.md, "Setup guides"), transcribed from docs/research/setup_guides/ext.md.
+# Every EXT source counts clicks from fully closed, the catalog's direction.
+# Not encoded:
+#   * Storia V3: the Arma / Storia V3 and the Storia V3-S quick manuals print
+#     different starting clicks (BH10 BL6 R4 against BH7 BL6 R7).
+#   * Aria (V1): its table is keyed by an equivalent coil spring rate, which
+#     the air shock has no adjuster for.
+#   * Aria V2 / Aria V2 DH: RideMaster derives their pressures from rider and
+#     bike weight, rear travel and stroke, and some results exceed the
+#     published chamber limits.
+#   * Spring rates: RideMaster and the Spring Calculator need the bike's
+#     weight and rear travel (#71).
+#   * e-Storia: its quick manual prints no starting point.
+# --------------------------------------------------------------------------
+guides:
+  ext_arma_storia_v3_2023:
+    label: EXT Arma / Storia V3 quick manual (2023)
+    source: https://extremeshox.com/wp-content/uploads/2023/09/ARMA-STORIA_V3_quick_manual.pdf
+    # No HBC starting point is printed.
+    rules:
+      - { target: hsc, value: 10 }
+      - { target: lsc, value: 6 }
+      - { target: rebound, value: 4 }
+
+  ext_arma_storia_v4_2024:
+    label: EXT Arma / Storia V4 quick manual (2024)
+    source: https://extremeshox.com/wp-content/uploads/2024/06/Arma-Storia-V4-Quick-Manual.pdf
+    rules:
+      - { target: hsc, value: 10 }
+      - { target: lsc, value: 10 }
+      - { target: rebound, value: 9 }
+      - { target: hbc, value: 5, note: Close it step by step if the shock bottoms out often }
+
+  ext_ridemaster_2026:
+    label: EXT RideMaster (Vecta)
+    source: https://extremeshox.com/vecta-ridemaster/
+    # RideMaster's starting clicks per spring rate, before its trail type and
+    # riding level offsets. Its riding levels are skill, not firmness, so they
+    # get no riding-style rule.
+    rules:
+      - target: hsc
+        input: spring_rate
+        input_unit: lbs/in
+        rows: &ext_ridemaster_compression {
+          325: 8, 350: 8, 375: 8, 400: 8, 425: 7, 450: 7, 475: 7, 500: 7,
+          525: 6, 550: 6, 575: 6, 600: 6, 625: 5, 650: 5, 675: 5, 700: 5,
+          725: 4, 750: 4, 775: 4, 800: 4
+        }
+        note: "RideMaster's start; technical trails +2, jumps and flow -2"
+      - target: lsc
+        input: spring_rate
+        input_unit: lbs/in
+        rows: *ext_ridemaster_compression
+        note: "RideMaster's start; technical trails +1, jumps and flow -1"
+      - target: rebound
+        input: spring_rate
+        input_unit: lbs/in
+        rows: {
+          325: 12, 350: 12, 375: 11, 400: 11, 425: 10, 450: 10, 475: 9, 500: 9,
+          525: 8, 550: 8, 575: 7, 600: 7, 625: 6, 650: 6, 675: 5, 700: 5,
+          725: 4, 750: 4, 775: 3, 800: 3
+        }
+        note: "RideMaster's start; technical trails +2, jumps and flow -2"
+      - { target: sag, range: [28, 33], comfort_at: max, note: "RideMaster picks 28 % for gentle, 30 % for medium and 33 % for steep trails" }
+
+# --------------------------------------------------------------------------
 # Shocks — current EXT MTB lineup (extremeshox.com, checked 2026-07-17).
 # All shocks below are coil except Aria (air). Coil trims share the
 # &coil_spring anchor (Spring Rate; springs are sold separately for every
@@ -258,6 +326,7 @@ nodes:
     years: "2025-2026"
     url: https://extremeshox.com/product/storia-v4/
     setup_guide: https://extremeshox.com/wp-content/uploads/2024/06/Arma-Storia-V4-Quick-Manual.pdf
+    guide: ext_arma_storia_v4_2024
     specs: { spring: Coil }
     note: >
       Marketed as one of the lightest coil shocks available (397g without
@@ -284,6 +353,7 @@ nodes:
     years: "2025-2026"
     url: https://extremeshox.com/product/arma-v3/
     setup_guide: https://extremeshox.com/wp-content/uploads/2023/09/ARMA-STORIA_V3_quick_manual.pdf
+    guide: ext_arma_storia_v3_2023
     specs: { spring: Coil }
     tasks: *ext_service
     children:
@@ -312,6 +382,7 @@ nodes:
     years: "2025-2026"
     url: https://extremeshox.com/product/arma-v4/
     setup_guide: https://extremeshox.com/wp-content/uploads/2024/06/Arma-Storia-V4-Quick-Manual.pdf
+    guide: ext_arma_storia_v4_2024
     specs: { spring: Coil }
     note: Uses EV2S damper fluid; DLC-coated 14mm steel shaft.
     tasks: *ext_service
@@ -430,6 +501,7 @@ nodes:
     years: "2025-2026"
     url: https://extremeshox.com/product/vecta/
     setup_guide: https://extremeshox.com/wp-content/uploads/2025/06/EXT-Vecta-Quick-Manual.pdf
+    guide: ext_ridemaster_2026
     specs: { spring: Coil }
     note: >
       Riders can adjust HSC/LSC with a common multi-tool (5mm/4mm Allen);

@@ -10,6 +10,7 @@ sources:
   - https://www.srsuntour.com/products/fork/
   - https://www.srsuntour.com/uploads/pics/SR_SUNTOUR-SF-Glossary_v1-08-2025_Final.pdf
   - https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_25_Suspension_Fork_Manuals/MY25_General_Fork_Manual_w_5TA__English_20240628.pdf
+  - https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_26_Suspension_Fork_Manuals/MY26_General_Fork_Manual_English_20250930.pdf
   - https://www.srsuntour.com/products/fork/SF25-RUX38-Boost-8390.html
   - https://www.srsuntour.com/products/fork/SF25-DUROLUX36X-Boost-8049.html
   - https://www.srsuntour.com/products/fork/SF25-DUROLUX38-Boost-8051.html
@@ -24,7 +25,7 @@ sources:
   - https://www.srsuntour.com/products/fork/SF25-AXON34-Werx-Boost-8059.html
   - https://www.srsuntour.com/products/fork/SF20-AXON34-Elite-Boost-8061.html
   - https://www.srsuntour.com/products/fork/SF25-RAIDON34-Boost-8070.html
-updated: 2026-10-10
+updated: 2026-10-13
 # Service intervals (`tasks`) come from the MY25 general fork manual cited
 # above, which lists every fork here: a dealer check every 50 hours and a
 # full service every 100 hours or once a year.
@@ -130,12 +131,124 @@ option_values:
       note: "Low-speed rebound click count unconfirmed"
 
 # --------------------------------------------------------------------------
+# Setup guides — transcribed from docs/research/setup_guides/suntour.md.
+#   * Pressure: the MY26 manual's "EQ air system forks" table, rider weight
+#     (kg) → psi band, one rule per printed column. The `95 <` row (`85 +`,
+#     `105 +` …) is left out: as a band to the fork's maximum it would apply a
+#     midpoint far above the table's trend. The `< 40` cells of the 38mm
+#     columns have no published minimum, so those columns start at 55 kg.
+#     Factory pressures are shipping values, not recommendations.
+#   * SAG: the band by fork travel. Its travel brackets share their bounds,
+#     so 120, 160 and 180mm sit in two rows; they get the band spanning both.
+#   * Volume spacers: the "Factory setting" count per travel (and wheel size
+#     on the AION 38X), not the maximum.
+# --------------------------------------------------------------------------
+guides:
+  suntour_forks_my26:
+    label: SR SUNTOUR general fork manual (MY26)
+    source: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_26_Suspension_Fork_Manuals/MY26_General_Fork_Manual_English_20250930.pdf
+    rules:
+      # The RUX38 / DUROLUX38 and DUROLUX38X / AION38X columns print the same values.
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        when: { model: [rux, durolux-38, aion-38x] }
+        rows: { 55-65: [40, 50], 65-75: [50, 60], 75-85: [60, 70], 85-95: [70, 85] }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        when: { model: [durolux-36x, auron-36] }
+        rows: &suntour_eq_36 { "<55": [35, 50], 55-65: [50, 60], 65-75: [60, 70], 75-85: [70, 85], 85-95: [85, 105] }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        when: { model: [aion-36, zeron-36, zeron-36x] }
+        rows: { "<55": [50, 70], 55-65: [70, 80], 65-75: [80, 90], 75-85: [90, 100], 85-95: [100, 125] }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        when: { model: axon-34-werx }
+        rows: { "<55": [40, 55], 55-65: [55, 65], 65-75: [65, 75], 75-85: [75, 85], 85-95: [85, 100] }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        when: { model: axon-34 }
+        rows: { "<55": [35, 50], 55-65: [50, 60], 65-75: [60, 70], 75-85: [70, 80], 85-95: [80, 100] }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        when: { model: raidon-34 }
+        rows: *suntour_eq_36
+      - target: sag
+        input: travel_mm
+        rows: { 100: [15, 20], 110: [15, 20], 130: [20, 25], 140: [20, 25], 150: [20, 25], 170: [25, 30], 200: [30, 35] }
+        note: Measured with the compression open
+      - target: sag
+        input: travel_mm
+        when: { travel_mm: [120, 160, 180] }
+        rows: { 120: [15, 25], 160: [20, 30], 180: [25, 35] }
+        note: This travel sits between two SAG bands; the range spans both
+      - target: volume_spacers
+        input: travel_mm
+        when: { model: rux }
+        rows: { 200: 5 }
+      - target: volume_spacers
+        input: travel_mm
+        when: { model: durolux-38 }
+        rows: &suntour_spacers_38 { 160: 4, 170: 3, 180: 2 }
+      - target: volume_spacers
+        input: travel_mm
+        when: { model: durolux-36x }
+        rows: { 150: 5, 160: 4 }
+      - target: volume_spacers
+        input: travel_mm
+        when: { model: aion-38x, wheel_size: "29" }
+        rows: *suntour_spacers_38
+      # 27.5in at 180mm has no printed row.
+      - target: volume_spacers
+        input: travel_mm
+        when: { model: aion-38x, wheel_size: "27.5" }
+        rows: { 160: 2, 170: 1 }
+      - target: volume_spacers
+        input: travel_mm
+        when: { model: [aion-36, zeron-36] }
+        rows: { 120: 7, 130: 6, 140: 5, 150: 4, 160: 3 }
+      - target: volume_spacers
+        input: travel_mm
+        when: { model: auron-36 }
+        rows: { 140: 5, 150: 4, 160: 3 }
+      - target: volume_spacers
+        input: travel_mm
+        when: { model: zeron-36x }
+        rows: { 130: 6, 140: 5, 150: 4, 160: 3 }
+      - target: volume_spacers
+        input: travel_mm
+        when: { model: axon-34-werx }
+        rows: { 100: 5, 110: 4, 120: 3 }
+      - target: volume_spacers
+        input: travel_mm
+        when: { model: axon-34 }
+        rows: { 100: 6, 120: 4, 130: 3, 140: 2 }
+      - target: volume_spacers
+        input: travel_mm
+        when: { model: raidon-34 }
+        rows: { 100: 5, 120: 3, 130: 2, 140: 1 }
+
+# --------------------------------------------------------------------------
 # Forks — current (2025/2026) higher-end/externally-adjustable SR SUNTOUR MTB
 # lineup. Every model below uses SR SUNTOUR's "EQ" dual-chamber air spring.
 # Maximum pressure and the maximum rubber-clip spacer count per travel come
 # from the "Air pressure adjust" and "Air volume adjust" tables of the MY25
-# general fork manual (pp. 14-16); the spacer `max` is the highest count of
-# the travels offered, the per-travel maxima are listed in the notes.
+# general fork manual (pp. 14-16), and from the MY26 edition (pp. 13-16) for
+# the AION 36 pressure, the AURON 36 140mm row and the AXON 34 Elite; the
+# spacer `max` is the highest count of the travels offered, the per-travel
+# maxima are listed in the notes.
 # --------------------------------------------------------------------------
 nodes:
   - label: "RUX"
@@ -143,7 +256,8 @@ nodes:
     category: Downhill
     years: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-RUX38-Boost-8390.html
-    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_25_Suspension_Fork_Manuals/MY25_General_Fork_Manual_w_5TA__English_20240628.pdf
+    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_26_Suspension_Fork_Manuals/MY26_General_Fork_Manual_English_20250930.pdf
+    guide: suntour_forks_my26
     tasks: &suntour_service
       fork:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: SR Suntour owner's manual }
     children:
@@ -167,7 +281,8 @@ nodes:
     category: All-Mountain (eMTB)
     years: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-DUROLUX36X-Boost-8049.html
-    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_25_Suspension_Fork_Manuals/MY25_General_Fork_Manual_w_5TA__English_20240628.pdf
+    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_26_Suspension_Fork_Manuals/MY26_General_Fork_Manual_English_20250930.pdf
+    guide: suntour_forks_my26
     tasks: *suntour_service
     children:
       - label: Boost
@@ -191,7 +306,8 @@ nodes:
     category: Enduro
     years: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-DUROLUX38-Boost-8051.html
-    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_25_Suspension_Fork_Manuals/MY25_General_Fork_Manual_w_5TA__English_20240628.pdf
+    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_26_Suspension_Fork_Manuals/MY26_General_Fork_Manual_English_20250930.pdf
+    guide: suntour_forks_my26
     tasks: *suntour_service
     children:
       - label: Standard
@@ -227,7 +343,8 @@ nodes:
     category: All-Mountain
     years: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-AION36-Boost-8057.html
-    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_25_Suspension_Fork_Manuals/MY25_General_Fork_Manual_w_5TA__English_20240628.pdf
+    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_26_Suspension_Fork_Manuals/MY26_General_Fork_Manual_English_20250930.pdf
+    guide: suntour_forks_my26
     tasks: *suntour_service
     children:
       - label: Boost
@@ -237,7 +354,7 @@ nodes:
         offset_mm: 44
         axle: ø15-110 (15AH4)
         adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 130 }
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 145 }
           - { name: Volume Spacers, type: step, max: 16, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 160mm 12, 150mm 13, 140mm 14, 130mm 15, 120mm 16" }
         options:
           damper: [cr3_pcs, cr2_pcs, rc_pcs]
@@ -249,7 +366,8 @@ nodes:
     category: All-Mountain (eMTB)
     years: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-AION38X-Boost-8053.html
-    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_25_Suspension_Fork_Manuals/MY25_General_Fork_Manual_w_5TA__English_20240628.pdf
+    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_26_Suspension_Fork_Manuals/MY26_General_Fork_Manual_English_20250930.pdf
+    guide: suntour_forks_my26
     tasks: *suntour_service
     children:
       - label: Boost
@@ -272,7 +390,8 @@ nodes:
     category: All-Mountain
     years: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-AURON36-Boost-8244.html
-    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_25_Suspension_Fork_Manuals/MY25_General_Fork_Manual_w_5TA__English_20240628.pdf
+    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_26_Suspension_Fork_Manuals/MY26_General_Fork_Manual_English_20250930.pdf
+    guide: suntour_forks_my26
     tasks: *suntour_service
     children:
       - label: Boost
@@ -283,7 +402,7 @@ nodes:
         axle: ø15-110 (15AH4)
         adjustments:
           - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
-          - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 160mm 4, 150mm 5" }
+          - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 160mm 4, 150mm 5, 140mm 6" }
         options:
           damper: [rc_plus_pcs]
           travel_mm: [140, 150, 160]
@@ -294,7 +413,8 @@ nodes:
     category: All-Mountain
     years: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-ZERON36-Boost-8138.html
-    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_25_Suspension_Fork_Manuals/MY25_General_Fork_Manual_w_5TA__English_20240628.pdf
+    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_26_Suspension_Fork_Manuals/MY26_General_Fork_Manual_English_20250930.pdf
+    guide: suntour_forks_my26
     tasks: *suntour_service
     children:
       - label: Boost
@@ -316,7 +436,8 @@ nodes:
     category: All-Mountain (eMTB)
     years: "2026"
     url: https://www.srsuntour.com/products/fork/SF26-ZERON36X-Boost-8140.html
-    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_25_Suspension_Fork_Manuals/MY25_General_Fork_Manual_w_5TA__English_20240628.pdf
+    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_26_Suspension_Fork_Manuals/MY26_General_Fork_Manual_English_20250930.pdf
+    guide: suntour_forks_my26
     tasks: *suntour_service
     children:
       - label: Boost
@@ -342,7 +463,8 @@ nodes:
     category: Trail / XC
     years: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-AXON34-Boost-8060.html
-    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_25_Suspension_Fork_Manuals/MY25_General_Fork_Manual_w_5TA__English_20240628.pdf
+    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_26_Suspension_Fork_Manuals/MY26_General_Fork_Manual_English_20250930.pdf
+    guide: suntour_forks_my26
     tasks: *suntour_service
     children:
       - label: Boost
@@ -363,7 +485,8 @@ nodes:
     category: Trail / XC
     years: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-AXON34-Werx-Boost-8059.html
-    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_25_Suspension_Fork_Manuals/MY25_General_Fork_Manual_w_5TA__English_20240628.pdf
+    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_26_Suspension_Fork_Manuals/MY26_General_Fork_Manual_English_20250930.pdf
+    guide: suntour_forks_my26
     tasks: *suntour_service
     children:
       - label: Werx
@@ -387,6 +510,7 @@ nodes:
         axle: ø15-110 (15AHL)
         adjustments:
           - { name: Pressure, type: numerical, unit: psi, min: 0, max: 130 }
+          - { name: Volume Spacers, type: step, max: 11, visualization: stepper, notes: "Rubber clip spacers; Maximum depends on the travel: 120mm 9, 110mm 10, 100mm 11" }
         options:
           damper: [rlrc_pcs]
           travel_mm: [100, 110, 120]
@@ -398,7 +522,8 @@ nodes:
     category: Trail / XC
     years: "2025-2026"
     url: https://www.srsuntour.com/products/fork/SF25-RAIDON34-Boost-8070.html
-    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_25_Suspension_Fork_Manuals/MY25_General_Fork_Manual_w_5TA__English_20240628.pdf
+    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_26_Suspension_Fork_Manuals/MY26_General_Fork_Manual_English_20250930.pdf
+    guide: suntour_forks_my26
     tasks: *suntour_service
     children:
       - label: Boost
@@ -416,7 +541,7 @@ nodes:
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):
-#   - setup_guide is the MY25 general fork manual for every model (the product
+#   - setup_guide is the MY26 general fork manual for every model (the product
 #     pages link per-model manuals only as part of that family document).
 #   - Dial colors: no SR SUNTOUR page or manual names an adjuster knob color
 #     (the pages only say "forged alloy dial knobs"), so none are set.
@@ -440,8 +565,8 @@ nodes:
 #   - Volume spacers: the manual's spacer table is a PDF grid whose travel rows
 #     are offset from their labels; rows were assigned to travels by counting
 #     (ZERON 36X is read as 160-130mm = 9-12, a 120mm row with 13 also exists).
-#     Elite (alloy steerer) has no spacer row of its own in the table, so only
-#     its max pressure is declared. Product pages are JavaScript-rendered and
+#     Elite (alloy steerer) has no spacer row in MY25; MY26 names it next to
+#     the Werx (same counts, max 11). Product pages are JavaScript-rendered and
 #     return no specs, so the manual is the only source for these numbers.
 #   - AION 36X, MOBIE 36 and RAIDON 34X have spacer rows in the manual but no
 #     product page could be loaded, so they are not added as products.

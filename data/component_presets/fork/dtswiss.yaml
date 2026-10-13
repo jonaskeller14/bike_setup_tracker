@@ -26,7 +26,7 @@ sources:
   # Secondary — editorial (article body text only)
   - https://enduro-mtb.com/en/dt-swiss-f-535-and-f-535-one-forks-test/
   - https://www.pinkbike.com/news/first-ride-dt-swisss-new-232-one-platform.html
-updated: 2026-10-10
+updated: 2026-10-13
 # Service intervals (`tasks`) come from the user manuals cited above: a small
 # service every 50 operating hours and a full service annually or after 200
 # operating hours.
@@ -107,6 +107,225 @@ option_values:
         so the dial has at least 25 clicks counted from fully open.
 
 # --------------------------------------------------------------------------
+# Setup guides — the user manuals' starting points as data (SCHEMA.md,
+# "Setup guides"), transcribed from docs/research/setup_guides/dtswiss.md.
+#   * Pressure: one rule per printed travel column, psi at 5 kg points. The
+#     F 535 / F 535 ONE table is headed "system weight" without a definition;
+#     it is read as rider weight with gear (its first row is 50 kg).
+#   * Rebound: keyed by the fork's air pressure, counted from fully open as the
+#     catalog dials are. The F 535 bands share their printed edges, so they are
+#     written as contiguous brackets. The tables hold for about 25 °C; the cold
+#     correction (open 6 clicks at 0 °C) is a note, temperature is no input.
+#   * The setupguide.dtswiss.com app stays the `setup_guide` link: it is DT
+#     Swiss's own rider-facing guide; the manuals are each guide's `source`.
+# --------------------------------------------------------------------------
+guides:
+  dtswiss_f535_2023:
+    label: DT Swiss F 535 / F 535 ONE user manual (2023)
+    source: https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/04/85/7/MAN_FXD10000004857S_WEB_ZZ_001.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        when: { damper: incontrol_odl_plushport_2023, travel_mm: 120 }
+        rows: {
+          50: 46, 55: 54, 60: 59, 65: 67, 70: 73,
+          75: 80, 80: 86, 85: 93, 90: 99, 95: 106,
+          100: 112, 105: 119, 110: 125, 115: 132, 120: 138,
+          125: 145, 130: 151, 135: 158, 140: 164, 145: 171,
+          150: 177
+        }
+        note: &dt_system_weight DT Swiss keys this table by system weight; enter your weight with riding gear
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        when: { damper: incontrol_odl_plushport_2023, travel_mm: 130 }
+        rows: {
+          50: 42, 55: 48, 60: 54, 65: 61, 70: 67,
+          75: 73, 80: 78, 85: 84, 90: 91, 95: 97,
+          100: 103, 105: 109, 110: 115, 115: 122, 120: 128,
+          125: 133, 130: 139, 135: 145, 140: 152, 145: 158,
+          150: 164
+        }
+        note: *dt_system_weight
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        when: { damper: incontrol_odl_plushport_2023, travel_mm: 140 }
+        rows: {
+          50: 38, 55: 44, 60: 49, 65: 55, 70: 61,
+          75: 67, 80: 73, 85: 78, 90: 84, 95: 90,
+          100: 96, 105: 102, 110: 107, 115: 113, 120: 117,
+          125: 123, 130: 129, 135: 135, 140: 141, 145: 146,
+          150: 152
+        }
+        note: *dt_system_weight
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        when: { damper: incontrol_odl_plushport_2023, travel_mm: 150 }
+        rows: {
+          50: 35, 55: 41, 60: 46, 65: 52, 70: 57,
+          75: 62, 80: 68, 85: 73, 90: 78, 95: 84,
+          100: 90, 105: 94, 110: 100, 115: 106, 120: 110,
+          125: 116, 130: 122, 135: 128, 140: 132, 145: 138,
+          150: 144
+        }
+        note: *dt_system_weight
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        when: { damper: incontrol_odl_plushport_2023, travel_mm: 160 }
+        rows: {
+          50: 33, 55: 38, 60: 44, 65: 48, 70: 54,
+          75: 58, 80: 64, 85: 68, 90: 74, 95: 78,
+          100: 84, 105: 88, 110: 94, 115: 99, 120: 104,
+          125: 109, 130: 115, 135: 119, 140: 125, 145: 129,
+          150: 135
+        }
+        note: *dt_system_weight
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        when: { damper: incontrol_ol_2023, travel_mm: 120 }
+        rows: {
+          50: 41, 55: 48, 60: 54, 65: 61, 70: 67,
+          75: 74, 80: 80, 85: 87, 90: 93, 95: 100,
+          100: 106, 105: 113, 110: 119, 115: 126, 120: 132,
+          125: 139, 130: 145, 135: 152, 140: 158, 145: 165,
+          150: 171
+        }
+        note: *dt_system_weight
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        when: { damper: incontrol_ol_2023, travel_mm: 130 }
+        rows: {
+          50: 36, 55: 42, 60: 48, 65: 55, 70: 61,
+          75: 67, 80: 73, 85: 78, 90: 86, 95: 91,
+          100: 97, 105: 103, 110: 109, 115: 116, 120: 122,
+          125: 128, 130: 133, 135: 139, 140: 146, 145: 152,
+          150: 158
+        }
+        note: *dt_system_weight
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        when: { damper: incontrol_ol_2023, travel_mm: 140 }
+        rows: {
+          50: 32, 55: 38, 60: 44, 65: 49, 70: 55,
+          75: 61, 80: 67, 85: 73, 90: 78, 95: 84,
+          100: 90, 105: 96, 110: 102, 115: 107, 120: 112,
+          125: 117, 130: 123, 135: 129, 140: 135, 145: 141,
+          150: 146
+        }
+        note: *dt_system_weight
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        when: { damper: incontrol_ol_2023, travel_mm: 150 }
+        rows: {
+          50: 29, 55: 35, 60: 41, 65: 46, 70: 51,
+          75: 57, 80: 62, 85: 67, 90: 73, 95: 78,
+          100: 84, 105: 88, 110: 94, 115: 100, 120: 104,
+          125: 110, 130: 116, 135: 122, 140: 126, 145: 132,
+          150: 138
+        }
+        note: *dt_system_weight
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        when: { damper: incontrol_ol_2023, travel_mm: 160 }
+        rows: {
+          50: 28, 55: 32, 60: 38, 65: 42, 70: 48,
+          75: 52, 80: 58, 85: 62, 90: 68, 95: 73,
+          100: 78, 105: 83, 110: 88, 115: 93, 120: 99,
+          125: 103, 130: 109, 135: 113, 140: 119, 145: 123,
+          150: 129
+        }
+        note: *dt_system_weight
+      - target: rebound
+        input: pressure
+        input_unit: psi
+        when: { damper: incontrol_odl_plushport_2023 }
+        rows: {
+          30-32: 10, 32-35: 11, 35-38: 12, 38-44: 13, 44-49: 14, 49-58: 15,
+          58-67: 16, 67-77: 17, 77-88: 18, 88-100: 19, 100-115: 20, 115-129: 21,
+          129-145: 22, 145-177: 23
+        }
+        note: &dt_rebound_temperature For about 25 °C; open about 6 clicks more at 0 °C, close a little when hot
+      - target: rebound
+        input: pressure
+        input_unit: psi
+        when: { damper: incontrol_ol_2023 }
+        rows: {
+          25-26: 10, 26-29: 11, 29-32: 12, 32-38: 13, 38-44: 14, 44-52: 15,
+          52-61: 16, 61-71: 17, 71-83: 18, 83-94: 19, 94-109: 20, 109-123: 21,
+          123-139: 22, 139-171: 23
+        }
+        note: *dt_rebound_temperature
+      - { target: compression, value: 0, note: Fully open }
+      - { target: compression_mode, value: Open }
+      - { target: volume_spacers, value: 1, note: "As delivered; 0 for a more linear feel, 2-3 for a more progressive one" }
+
+  dtswiss_f232one_2021:
+    label: DT Swiss F 232 ONE user manual (2021)
+    source: https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/02/81/9/MAN_FXD10000002819S_WEB_ZZ_001.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        when: { travel_mm: 100 }
+        rows: {
+          40: 41, 45: 47, 50: 54, 55: 60, 60: 66,
+          65: 72, 70: 78, 75: 84, 80: 90, 85: 97,
+          90: 103, 95: 109, 100: 115, 105: 121, 110: 127
+        }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        when: { travel_mm: 110 }
+        rows: {
+          40: 39, 45: 45, 50: 51, 55: 57, 60: 63,
+          65: 69, 70: 75, 75: 81, 80: 87, 85: 93,
+          90: 98, 95: 104, 100: 110, 105: 116, 110: 122
+        }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        when: { travel_mm: 120 }
+        rows: {
+          40: 37, 45: 42, 50: 48, 55: 54, 60: 60,
+          65: 66, 70: 71, 75: 77, 80: 83, 85: 89,
+          90: 94, 95: 100, 100: 106, 105: 112, 110: 118
+        }
+      - target: rebound
+        input: pressure
+        input_unit: psi
+        rows: {
+          29: 11, 36: 12, 44: 13, 51: 15, 58: 16, 65: 17, 73: 18, 80: 20,
+          87: 21, 94: 22, 102: 23, 109: 24, 116: 24, 123: 25, 131: 25, 138: 25
+        }
+        note: *dt_rebound_temperature
+      # The blue compression adjuster has no published setting and no click
+      # total (`max: ~`), so it gets no rule.
+      - { target: compression_mode, value: Open }
+      - { target: volume_spacers, value: 2, note: "As delivered; fewer for a more linear feel, 3 for a more progressive one" }
+
+# --------------------------------------------------------------------------
 # Forks — current lineup. DT Swiss only offers 29" versions of all three.
 # --------------------------------------------------------------------------
 nodes:
@@ -116,6 +335,7 @@ nodes:
     years: "2023-2026"
     url: https://www.dtswiss.com/en/suspension/forks/f-535-one
     setup_guide: https://setupguide.dtswiss.com/en/
+    guide: dtswiss_f535_2023
     tasks: &dtswiss_service
       fork:lower_leg_service: { interval: { moving_time_h: 50 }, source: DT Swiss user manual }
       fork:full_service: { interval: { moving_time_h: 200 }, fallback: { days: 365 }, source: DT Swiss user manual }
@@ -143,6 +363,7 @@ nodes:
     years: "2023-2026"
     url: https://www.dtswiss.com/en/suspension/forks/f-535
     setup_guide: https://setupguide.dtswiss.com/en/
+    guide: dtswiss_f535_2023
     tasks: *dtswiss_service
     children:
       - label: Standard
@@ -168,6 +389,7 @@ nodes:
     years: "2020-2026"
     url: https://www.dtswiss.com/en/suspension/forks/f-232-one
     setup_guide: https://setupguide.dtswiss.com/en/
+    guide: dtswiss_f232one_2021
     tasks: *dtswiss_service
     children:
       - label: Standard

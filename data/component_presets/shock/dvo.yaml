@@ -50,7 +50,7 @@ sources:
   - https://dvosuspension.com/product/opal-hv-t3/
   # Secondary — staff-written review stating the Topaz Gen 3 rebound total
   - https://www.pinkbike.com/news/review-dvo-topaz-3-air-shock.html
-updated: 2026-10-10
+updated: 2026-10-13
 
 # --------------------------------------------------------------------------
 # Dampers
@@ -181,6 +181,220 @@ option_values:
         `max: ~`; the lever's position names are unpublished, so every model using this
         damper stays `draft: true`.
 
+    jade_x_wp_cv:
+      name: WP CV (Jade X)
+      description: |-
+        - WP Suspension's Cone Valve damper with separate High and Low Speed Compression dials
+        - Both are counted from fully closed: HSC 6 clicks, LSC 18 clicks
+      missing_adjustments: [Rebound]
+      adjustments: &wp_cv_compression
+        - { name: HSC, type: step, max: 6, notes: "High-Speed Compression; Counted from fully closed (firmest)" }
+        - { name: LSC, type: step, max: 18, notes: "Low-Speed Compression; Counted from fully closed (firmest)" }
+      source:
+        - https://dvosuspension.com/wp-content/uploads/2024/02/DVO-Jade-X-WP-Setup_Guide_Dec5_2023.pdf
+      note: >-
+        Jade X WP1 Set-Up Guide (Dec 2023), p.11 scale strips: HSC "Open 6 5 4 3 2 1 0 Closed"
+        and LSC "Open 18 15 12 9 6 3 0 Closed", counted from fully clockwise. The rebound strip
+        "Open 18+ ... 0 Closed" is open-ended, so rebound is not declared.
+
+    topaz_wp_cv:
+      name: WP CV (Topaz)
+      description: |-
+        - WP Suspension's Cone Valve damper with separate High and Low Speed Compression dials
+        - Both are counted from fully closed: HSC 6 clicks, LSC 18 clicks
+      missing_adjustments: [Rebound]
+      adjustments: *wp_cv_compression
+      source:
+        - https://dvosuspension.com/wp-content/uploads/2024/02/DVO-Topaz-WP-Setup_Guide_Dec5_2023.pdf
+      note: >-
+        Topaz WP1 Set-Up Guide (Dec 2023), p.11 scale strips: HSC "Open 6 ... 0 Closed" and LSC
+        "Open 18 15 12 9 6 3 0 Closed", counted from closed. Rebound is not declared: its p.12
+        chart gives no total and its input is unclear.
+
+# --------------------------------------------------------------------------
+# Setup guides — transcribed from docs/research/setup_guides/dvo.md.
+#   * Air pressure (Topaz): each rider-weight row shades a Plush-to-Firm span
+#     of psi columns. One rule holds the span as a band (its midpoint for a
+#     rider without a riding style); a `comfort` rule takes the Plush end and
+#     a `race` rule the Firm end. Brackets are the printed lb columns
+#     (`120-139` → `120-140`).
+#   * Not encoded: the Topaz rebound charts (their header says air pressure,
+#     their rows read like rider-weight brackets; asked of DVO), the
+#     gradient bladder charts of the 2023+ guides (positions on a gradient,
+#     not printed numbers) and the T3 trail-style charts (terrain and
+#     climb/descent, not a riding style).
+# --------------------------------------------------------------------------
+guides:
+  dvo_jadex_2024:
+    label: DVO Jade X Set-Up Guide (v2.0, 2024)
+    source: https://dvosuspension.com/wp-content/uploads/2024/05/DVO-Jade-X-Setup-Guide-May16.pdf
+    rules:
+      - &dvo_jade_x_sag { target: sag, range: [25, 30], comfort_at: max }
+
+  dvo_jadexwp_2023:
+    label: DVO Jade X WP1 Set-Up Guide (2023)
+    source: https://dvosuspension.com/wp-content/uploads/2024/02/DVO-Jade-X-WP-Setup_Guide_Dec5_2023.pdf
+    rules:
+      - target: spring_rate
+        unit: lbs/in
+        input: rider_weight
+        input_unit: kg
+        rows: { 54-60: 300, 60-70: 350, 70-80: 400, 80-100: 450, 100+: 500 }
+      - &dvo_wp_hsc { target: hsc, value: 4 }
+      - &dvo_wp_lsc { target: lsc, value: 6 }
+      - *dvo_jade_x_sag
+
+  dvo_jade_tech:
+    label: DVO Jade set-up page
+    source: https://tech.dvosuspension.com/setup/jade/
+    # The base tunes cover three catalog sizes. Table 3 (10.5x3.5in) and the
+    # 9.5x3in size of table 2 are not catalog sizes; every other size gets
+    # the bladder chart and SAG only. The table 2 HSC cell of 140-160 lb is
+    # printed "3" followed by a blank, possibly a cut-off "3½"; kept as 3.
+    rules:
+      - target: bladder_pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        rows: { 120-140: 170, 140-160: 175, 160-180: 180, 180-200: 185, 200-220: 190, 220+: 200 }
+      - target: bladder_pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { size: ["200.025x57.15", "215.9x63.5", "222.25x69.85"] }
+        rows: { 120-140: [170, 175], 140-160: [175, 180], 160-180: [180, 185], 180-200: [185, 190], 200-220: [190, 200] }
+      - target: spring_rate
+        unit: lbs/in
+        input: rider_weight
+        input_unit: lb
+        when: { size: ["200.025x57.15", "215.9x63.5"] }
+        rows: { 120-140: 400, 140-160: 450, 160-180: 500, 180-200: 550, 200-220: 600 }
+      - target: spring_rate
+        unit: lbs/in
+        input: rider_weight
+        input_unit: lb
+        when: { size: "222.25x69.85" }
+        rows: { 120-140: 350, 140-160: 400, 160-180: 450, 180-200: 500, 200-220: 550 }
+      # Printed slow to fast ("34-32"), written as ascending bands.
+      - target: rebound
+        input: rider_weight
+        input_unit: lb
+        when: { size: ["200.025x57.15", "215.9x63.5", "222.25x69.85"] }
+        rows: { 120-140: [32, 34], 140-160: [31, 33], 160-180: [29, 32], 180-200: [28, 31], 200-220: [26, 29] }
+      - target: hsc
+        input: rider_weight
+        input_unit: lb
+        when: { size: ["200.025x57.15", "215.9x63.5"] }
+        rows: { 120-140: 3, 140-160: 4, 160-180: [4, 6], 180-200: [6, 9], 200-220: [6, 9] }
+      - target: hsc
+        input: rider_weight
+        input_unit: lb
+        when: { size: "222.25x69.85" }
+        rows: { 120-140: 2, 140-160: 3, 160-180: [3, 5], 180-200: [5, 8], 200-220: [5, 8] }
+      - target: lsc
+        input: rider_weight
+        input_unit: lb
+        when: { size: ["200.025x57.15", "215.9x63.5"] }
+        rows: { 120-140: 1, 140-160: 2, 160-180: [3, 5], 180-200: [5, 8], 200-220: [5, 8] }
+      - target: lsc
+        input: rider_weight
+        input_unit: lb
+        when: { size: "222.25x69.85" }
+        rows: { 120-140: 1, 140-160: 2, 160-180: [2, 5], 180-200: [5, 8], 200-220: [5, 8] }
+      - { target: sag, range: [25, 30], comfort_at: max, note: Measured in the attack position }
+
+  dvo_topaz_2024:
+    label: DVO Topaz Set-Up Guide (v2.1, 2024)
+    source: https://dvosuspension.com/wp-content/uploads/2024/05/DVO-Topaz-Setup-Guide-May9.pdf
+    # The 240+ row's Firm end is printed "250+", so that row is left out of
+    # the band and the Firm rule. The 180-199 and 200-219 bands overlap, as
+    # printed.
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        rows: { 120-140: [140, 150], 140-160: [150, 165], 160-180: [165, 175], 180-200: [180, 200], 200-220: [190, 210], 220-240: [210, 230] }
+        note: The band runs from DVO's Plush to its Firm setting; the frame's leverage shifts it a lot
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { riding_style: comfort }
+        rows: { 120-140: 140, 140-160: 150, 160-180: 165, 180-200: 180, 200-220: 190, 220-240: 210, 240+: 230 }
+        note: DVO's Plush setting
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { riding_style: race }
+        rows: { 120-140: 150, 140-160: 165, 160-180: 175, 180-200: 200, 200-220: 210, 220-240: 230 }
+        note: DVO's Firm setting
+      - &dvo_topaz_sag { target: sag, range: [20, 30], comfort_at: max, note: "20 % is DVO's supportive end, 30 % the plush end" }
+
+  dvo_topazwp_2023:
+    label: DVO Topaz WP1 Set-Up Guide (2023)
+    source: https://dvosuspension.com/wp-content/uploads/2024/02/DVO-Topaz-WP-Setup_Guide_Dec5_2023.pdf
+    # The 240+ row has no Firm label (240 and 250+ shaded), so it is left out
+    # of the band and the Firm rule.
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        rows: { 120-140: [145, 160], 140-160: [160, 170], 160-180: [170, 180], 180-200: [190, 210], 200-220: [200, 220], 220-240: [220, 240] }
+        note: The band runs from DVO's Plush to its Firm setting; the frame's leverage shifts it a lot
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { riding_style: comfort }
+        rows: { 120-140: 145, 140-160: 160, 160-180: 170, 180-200: 190, 200-220: 200, 220-240: 220, 240+: 240 }
+        note: DVO's Plush setting
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { riding_style: race }
+        rows: { 120-140: 160, 140-160: 170, 160-180: 180, 180-200: 210, 200-220: 220, 220-240: 240 }
+        note: DVO's Firm setting
+      - *dvo_wp_hsc
+      - *dvo_wp_lsc
+      - *dvo_topaz_sag
+
+  dvo_topaz_2020:
+    label: DVO Topaz Air Set Up Guide (2020)
+    source: https://tech.dvosuspension.com/wp-content/uploads/2020/10/DVO-Set-Up-Guide-shock-2020.pdf
+    # The 240+ row's Firm end is printed "250+", so that row is left out of
+    # the band and the Firm rule.
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        rows: { 120-140: [140, 150], 140-160: [150, 165], 160-180: [165, 175], 180-200: [175, 190], 200-220: [190, 210], 220-240: [210, 230] }
+        note: The band runs from DVO's Plush to its Firm setting
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { riding_style: comfort }
+        rows: { 120-140: 140, 140-160: 150, 160-180: 165, 180-200: 175, 200-220: 190, 220-240: 210, 240+: 230 }
+        note: DVO's Plush setting
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { riding_style: race }
+        rows: { 120-140: 150, 140-160: 165, 160-180: 175, 180-200: 190, 200-220: 210, 220-240: 230 }
+        note: DVO's Firm setting
+      - target: bladder_pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        rows: { 120-140: 170, 140-160: 170, 160-180: 180, 180-200: 180, 200-220: 190, 220-240: 190, 240+: 200 }
+      - { target: sag, range: [20, 30], comfort_at: max }
+
 # --------------------------------------------------------------------------
 # Shocks — current DVO lineup, then the previous-generation Topaz. Shocks are
 # sold by eye-to-eye/stroke length to fit a given frame; `options.size` lists
@@ -193,6 +407,7 @@ nodes:
     years: "2023-2026"
     url: https://dvosuspension.com/product/jade-x/
     setup_guide: https://dvosuspension.com/wp-content/uploads/2024/05/DVO-Jade-X-Setup-Guide-May16.pdf
+    guide: dvo_jadex_2024
     specs: { spring: Coil }
     # Bladder 140-180psi and the 6mm preload limit: Jade X Set-Up Guide v2.0,
     # p.8 "BLADDER PRESSURE RANGE 140-180PSI / DO NOT EXCEED 180PSI" and p.11
@@ -236,13 +451,14 @@ nodes:
         level: trim
         url: https://dvosuspension.com/product/jade-x-wp/
         setup_guide: https://dvosuspension.com/wp-content/uploads/2024/02/DVO-Jade-X-WP-Setup_Guide_Dec5_2023.pdf
+        guide: dvo_jadexwp_2023
         adjustments: *jade_coil_spring
         options:
+          damper: [jade_x_wp_cv]
           size:
             - { size: "205x65", mount: Trunnion }
         note: >-
           Built with WP Suspension and running WP's Cone Valve damper internals.
-        missing_adjustments: [Rebound, Compression]
 
   - label: Jade
     level: model
@@ -250,6 +466,7 @@ nodes:
     years: "2019-2026"
     url: https://dvosuspension.com/product/jade/
     setup_guide: https://tech.dvosuspension.com/setup/jade/
+    guide: dvo_jade_tech
     specs: { spring: Coil }
     # Bladder 170-200psi and the 5mm preload limit: tech.dvosuspension.com/setup/jade
     # ("Air Pressure Range: 170-200psi", "The maximum amount of preload length is 5mm.").
@@ -284,6 +501,7 @@ nodes:
     years: "2023-2026"
     url: https://dvosuspension.com/product/topaz-gen-3/
     setup_guide: https://dvosuspension.com/wp-content/uploads/2024/05/DVO-Topaz-Setup-Guide-May9.pdf
+    guide: dvo_topaz_2024
     specs: { spring: Air }
     # Max air 300psi and bladder 140-180psi: Topaz Set-Up Guide (May 2024), p.10
     # "DO NOT EXCEED MAXIMUM AIR PRESSURE! 300PSI" and p.9 "BLADDER PRESSURE
@@ -324,13 +542,14 @@ nodes:
         level: trim
         url: https://dvosuspension.com/product/topaz-wp-cv/
         setup_guide: https://dvosuspension.com/wp-content/uploads/2024/02/DVO-Topaz-WP-Setup_Guide_Dec5_2023.pdf
+        guide: dvo_topazwp_2023
         adjustments: *topaz_air_spring
         options:
+          damper: [topaz_wp_cv]
           size:
             - { size: "205x60", mount: Trunnion }
         note: >-
           Built with WP Suspension and running WP's Cone Valve damper internals.
-        missing_adjustments: [Rebound, Compression]
 
   - label: Opal
     level: model
@@ -356,7 +575,8 @@ nodes:
     category: XC / Trail
     years: "2016-2022"
     url: https://dvosuspension.com/product/topaz-2/
-    setup_guide: https://tech.dvosuspension.com/setup/topaz-2/
+    setup_guide: https://tech.dvosuspension.com/wp-content/uploads/2020/10/DVO-Set-Up-Guide-shock-2020.pdf
+    guide: dvo_topaz_2020
     specs: { spring: Air }
     # Max air 300psi and bladder 170-200psi: 2020 Topaz Air Owner's Guide, p.4
     # "Do Not Exceed Maximum Air Pressure! 300PSI" and p.5 "Do Not Exceed
@@ -396,9 +616,9 @@ nodes:
 #     Prime and the T3Air carry 9 as an estimate from the guides' "Rebound
 #     Clicks from Closed" chart (1-9), which DVO's own Diamond figures show can
 #     overshoot the real range (chart 22 vs. 20 clicks total).
-#   - Jade X WP CV / Topaz WP CV: WP Suspension's Cone Valve internals. DVO
-#     publishes no counts for them and they have no page under
-#     tech.dvosuspension.com/setup — would need WP's own documentation.
+#   - Jade X WP CV / Topaz WP CV: WP Suspension's Cone Valve internals. The
+#     WP1 Set-Up Guides print the HSC / LSC strips but no rebound total, and
+#     they have no page under tech.dvosuspension.com/setup.
 #   - Per-trim stroke / eye-to-eye tables: the Jade X, Jade and Topaz lists
 #     follow each product page's size dropdown and its "Standard / Metric /
 #     Trunnion Sizes" text. The Topaz Gen 3 (Pro) page also sells HV (high

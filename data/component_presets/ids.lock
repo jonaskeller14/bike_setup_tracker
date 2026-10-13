@@ -2143,7 +2143,7 @@ shock/cane-creek/db-air-il-g1
 shock/cane-creek/db-air-il-g1#damper=il_twin_tube_g1
 shock/cane-creek/db-inline
 shock/cane-creek/db-inline/standard
-shock/cane-creek/db-inline/standard#damper=db_classic_cs
+shock/cane-creek/db-inline/standard#damper=db_inline
 shock/cane-creek/db-kitsuma-air-g1
 shock/cane-creek/db-kitsuma-air-g1#damper=kitsuma_g1
 shock/cane-creek/db-kitsuma-air-g1#size=185x50
@@ -2325,6 +2325,7 @@ shock/dvo/jade-x/t3#size=230x60
 shock/dvo/jade-x/t3#size=230x62.5
 shock/dvo/jade-x/t3#size=230x65
 shock/dvo/jade-x/wp-cv
+shock/dvo/jade-x/wp-cv#damper=jade_x_wp_cv
 shock/dvo/jade-x/wp-cv#size=205x65
 shock/dvo/jade/standard
 shock/dvo/jade/standard#damper=jade_coil
@@ -2413,6 +2414,7 @@ shock/dvo/topaz/pro#size=230x60
 shock/dvo/topaz/pro#size=230x62.5
 shock/dvo/topaz/pro#size=230x65
 shock/dvo/topaz/wp-cv
+shock/dvo/topaz/wp-cv#damper=topaz_wp_cv
 shock/dvo/topaz/wp-cv#size=205x60
 shock/ext/aria
 shock/ext/aria-v2

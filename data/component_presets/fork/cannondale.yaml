@@ -51,7 +51,7 @@ sources:
   - https://www.cannondale.com/-/media/files/manual-uploads/MY21/137390%20Rev%201%20CD%20OMS%20MY21%20Lefty%20Oliver%20Folder_137390%20Rev%201%20CD%20OMS%20MY21%20Lefty%20Oliver_EU_EN.pdf
   # Primary — service intervals
   - https://www.cannondale.com/-/media/files/manual-uploads/manuals/015_LEFTY%20OLIVER%20OMS%20133320_EN.pdf
-updated: 2026-10-10
+updated: 2026-10-13
 # Service intervals (`tasks`) come from the Lefty owner's manual supplements:
 #   * Ocho / Ocho 120: a "100 Hour Service" (telescope lubrication, air spring
 #     service, damper inspection) every 100 hours or annually, and a full
@@ -116,7 +116,7 @@ option_values:
         Gravel-specific damper with a rebound knob at the bottom of the leg and a
         top-of-leg lockout that blows off if you hit an obstacle while locked.
       adjustments:
-        - { name: Rebound, type: step, max: 10, notes: "Counted in clicks out from fully closed (slowest); estimated maximum, check your dial and edit it if it differs" }
+        - { name: Rebound, type: step, max: 11, notes: "Counted in clicks out from fully closed (slowest); estimated maximum, check your dial and edit it if it differs" }
       source:
         - https://www.cannondale.com/en/gear/components/suspension/lefty-oliver/lefty-oliver-carbon
         - https://www.bikeradar.com/reviews/components/forks/suspension-forks/cannondale-oliver-lefty-carbon-gravel-fork-review
@@ -126,8 +126,9 @@ option_values:
         adjustments"; BikeRadar's review says "Rebound damping can be adjusted via a knob
         at the bottom of the fork leg". No total is published. Estimate: the 2020 Lefty
         Oliver owner's manual supplement 137390 (p.10) recommends 10 down to 4 clicks "out
-        from slow" for 55-114 kg riders; counted from the closed (slow) end, so the highest
-        value (10) is used as the minimum total.
+        from slow" for 55-114 kg riders, and the 2025 Lefty Oliver 40mm owner's manual
+        195403 (p.10) starts at 11; counted from the closed (slow) end, so the highest
+        value (11) is used as the minimum total.
 
     lefty_2_2016:
       name: Lefty 2.0 (PBR / XLR)
@@ -142,6 +143,98 @@ option_values:
         2016 Lefty Owner's Manual Supplement 133095 p.13-14 describes the rebound dial
         (rotate toward "+" to slow, "-" to speed up) for both control systems but gives no
         click count and no recommended-clicks table.
+
+# --------------------------------------------------------------------------
+# Setup guides — transcribed from docs/research/setup_guides/cannondale.md.
+#   * Every Lefty table is printed as single rider + gear weight points in lb
+#     (kg rounded alongside), so rows are points in lb.
+#   * Rebound is printed in clicks out from closed (slow), the catalog's own
+#     counting direction, so it is encoded as published.
+#   * The Lefty Ocho 120 manual (138227) is not encoded: its 230 lb row
+#     (209 psi) exceeds the 200 psi limit printed on the same page, and its
+#     two pressure maxima (250 / 200 psi) disagree.
+#   * The Lefty Oliver 40mm manual (195403, 2025) has no catalog generation
+#     (40mm travel, 700c only) and its second column is for e-bikes; not
+#     encoded.
+# --------------------------------------------------------------------------
+guides:
+  cannondale_lefty_ocho_2018:
+    label: Lefty Ocho owner's manual supplement (2018)
+    source: https://www.cannondale.com/-/media/files/manual-uploads/manuals/018_%20lefty%20ocho_134923_screen_en.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        rows: {
+          100: 81, 110: 89, 120: 97, 130: 105, 140: 112, 150: 120, 160: 128,
+          170: 136, 180: 143, 190: 151, 200: 159, 210: 167, 220: 174, 230: 182
+        }
+        note: Rider weight including riding gear
+      - target: rebound
+        input: rider_weight
+        input_unit: lb
+        rows: {
+          100: 16, 110: 15, 120: 14, 130: 13, 140: 11, 150: 10, 160: 9,
+          170: 8, 180: 7, 190: 6, 200: 5, 210: 4, 220: 3, 230: 2
+        }
+      - { target: sag, value: 25 }
+
+  cannondale_lefty_oliver_2020:
+    label: Lefty Oliver owner's manual supplement (2020)
+    source: https://www.cannondale.com/-/media/files/manual-uploads/MY21/137390%20Rev%201%20CD%20OMS%20MY21%20Lefty%20Oliver%20Folder_137390%20Rev%201%20CD%20OMS%20MY21%20Lefty%20Oliver_EU_EN.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        rows: {
+          120: 70, 130: 76, 140: 79, 150: 85, 160: 88, 170: 94, 180: 97,
+          190: 102, 200: 106, 210: 111, 220: 115, 230: 120, 240: 124, 250: 129
+        }
+        note: Rider weight including riding gear
+      - target: rebound
+        input: rider_weight
+        input_unit: lb
+        rows: {
+          120: 10, 130: 9, 140: 9, 150: 8, 160: 8, 170: 7, 180: 7,
+          190: 6, 200: 6, 210: 5, 220: 5, 230: 4, 240: 4, 250: 4
+        }
+      - { target: sag, value: 0, note: The fork is set up to ride at the top of its travel }
+      # Stock Ramp Ring count at 30mm travel (650b and 700c).
+      - { target: volume_spacers, value: 3 }
+
+  cannondale_lefty_2_0_2016:
+    label: Lefty owner's manual supplement (2016)
+    source: https://www.cannondale.com/-/media/files/manual-uploads/manuals/133095%20MY16%20LEFTY%20OMS_EN.pdf
+    rules:
+      # One column per printed travel / wheel combination; 120 and 130mm on
+      # 29in wheels have no column. The `>240` row (`>162` / `>147` psi) is
+      # left out: as a band to the 225 psi maximum it would apply a midpoint
+      # far above the table's trend, so heavier riders are outside the table.
+      # The `<120` row's `<71` becomes a band to the published 50 psi minimum.
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: 100 }
+        rows: {
+          "<120": [min, 71], 120: 71, 130: 79, 140: 87, 150: 94, 160: 102, 170: 109,
+          180: 117, 190: 125, 200: 132, 210: 140, 220: 147, 230: 155, 240: 162
+        }
+        note: Rider weight including riding gear
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { travel_mm: [120, 130], wheel_size: "27.5" }
+        rows: {
+          "<120": 65, 120: 71, 130: 77, 140: 83, 150: 90, 160: 96, 170: 102,
+          180: 109, 190: 115, 200: 121, 210: 128, 220: 134, 230: 140, 240: 147
+        }
+        note: Rider weight including riding gear
+      - { target: sag, unit: mm, range: [25, 30], when: { travel_mm: 100 } }
+      - { target: sag, unit: mm, range: [30, 35], when: { travel_mm: [120, 130], wheel_size: "27.5" } }
 
 # --------------------------------------------------------------------------
 # Forks — current Lefty lineup, then legacy.
@@ -190,6 +283,8 @@ nodes:
     category: Cross-Country
     years: "2018-2026"
     url: https://www.cannondale.com/en/gear/components/suspension/lefty-ocho
+    setup_guide: https://www.cannondale.com/-/media/files/manual-uploads/manuals/018_%20lefty%20ocho_134923_screen_en.pdf
+    guide: cannondale_lefty_ocho_2018
     # 100mm travel, 27.5in / 29in, offset 50mm (27.5) / 55mm (29), recommended sag
     # 25% (25mm), air pressure limits 50-250 psi, Lefty 60 hub: owner's manual
     # 134923 p.6. Ramp Clamps: BikeRadar's launch article (max count not stated).
@@ -229,6 +324,8 @@ nodes:
     level: model
     category: Gravel
     url: https://www.cannondale.com/en/gear/components/suspension/lefty-oliver/lefty-oliver-carbon
+    setup_guide: https://www.cannondale.com/-/media/files/manual-uploads/MY21/137390%20Rev%201%20CD%20OMS%20MY21%20Lefty%20Oliver%20Folder_137390%20Rev%201%20CD%20OMS%20MY21%20Lefty%20Oliver_EU_EN.pdf
+    guide: cannondale_lefty_oliver_2020
     # 30mm travel, tire clearance 700c (45mm) / 650b (47mm), Lefty 50 hub: Cannondale
     # product page. 55mm offset and ramp-ring volume tuning: BikeRadar review (Apr 2024).
     # Ramp rings (three stock, six maximum) and 50-200 psi limits: 2020 Lefty Oliver
@@ -263,6 +360,8 @@ nodes:
     draft: true
     category: Cross-Country
     url: https://www.cannondale.com/en-us/owners-manuals/lefty
+    setup_guide: https://www.cannondale.com/-/media/files/manual-uploads/manuals/133095%20MY16%20LEFTY%20OMS_EN.pdf
+    guide: cannondale_lefty_2_0_2016
     # Travel/wheel combinations (100/29, 100/27.5, 120/27.5, 130/27.5) and the
     # 50-225 psi pressure limits: 2016 Lefty Owner's Manual Supplement 133095 p.2, p.15.
     source: https://www.cannondale.com/-/media/files/manual-uploads/manuals/133095%20MY16%20LEFTY%20OMS_EN.pdf
@@ -308,10 +407,10 @@ nodes:
 #     maximum is set.
 #   - Lefty Ocho 100 Ramp Clamp maximum count is not published (the Ocho 120's is 6),
 #     so no Volume Spacers adjustment is declared for the 100mm trims.
-#   - Lefty Oliver rebound maximum (10) is an ESTIMATE from the 2020 manual's
-#     rebound table. The 2025 40mm Oliver supplement (195403) is a viewer-only
-#     download and could not be read, so the 40mm variant and its ramp-ring
-#     count are not captured. The 2020 supplement lists wheel sizes 650b and
+#   - Lefty Oliver rebound maximum (11) is an ESTIMATE: the highest value of the
+#     2020 (10) and 2025 40mm (11) manuals' rebound tables. The 40mm Oliver
+#     (manual 195403: 700c only, Carbon/Alloy, Analog-Bike and E-Bike tables)
+#     is not added as a generation yet. The 2020 supplement lists wheel sizes 650b and
 #     700c, but the existing `29` / `27.5` option ids are kept. No `years` set
 #     because the first year of this generation is not confirmed.
 #   - Lefty Oliver (2016, original dual-crown, PBR) and Lefty Supermax / Supermax 2.0

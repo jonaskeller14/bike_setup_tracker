@@ -29,7 +29,7 @@ sources:
   - https://www.pinkbike.com/news/cane-creek-helm-fork-review-2017.html
   - https://www.singletracks.com/mtb-gear/cane-creeks-sleek-helm-air-fork-is-a-legit-workhorse-on-the-trail-review/
   - https://www.perpetualdisappointment.co.uk/cane-creek-helm-coil-fork-long-term-review/
-updated: 2026-10-10
+updated: 2026-10-13
 # Service intervals (`tasks`) come from the Helm and Helm MKII manuals (the
 # nodes' `setup_guide`): lower legs every 50 hours, an air spring and damper
 # rebuild every 100 hours, no time-based interval. The Helm DJ has no manual
@@ -105,6 +105,67 @@ option_values:
         higher. It is not inherited from the MKII's 10/10/10.
 
 # --------------------------------------------------------------------------
+# Setup guides — the manuals' starting points as data (SCHEMA.md, "Setup
+# guides"), transcribed from docs/research/setup_guides/canecreek.md. Cane
+# Creek prints no weight table for the air spring, only a share of the rider's
+# weight in lb read as psi; the rows are calculated from it at 5 kg steps.
+# No Helm manual prints damper starting clicks.
+# --------------------------------------------------------------------------
+guides:
+  canecreek_helm_mkii_2025:
+    label: Cane Creek Helm MKII user manual (2025)
+    source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/HelmMKII_UserManual_04_03_2025.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        rows: {
+          50: [33, 44], 55: [36, 49], 60: [40, 53], 65: [43, 57], 70: [46, 62],
+          75: [50, 66], 80: [53, 71], 85: [56, 75], 90: [60, 79], 95: [63, 84],
+          100: [66, 88], 105: [69, 93], 110: [73, 97], 115: [76, 101], 120: [79, 106]
+        }
+        note: Calculated from Cane Creek's starting point (30-40 % of rider weight in lb, as psi); set the final pressure by SAG
+      # Rider weight to spring from the Helm MKII Coil product page. Its bounds
+      # overlap as printed (90-120, 120-160 ...), read as half-open brackets.
+      - target: spring_rate
+        unit: lbs/in
+        input: rider_weight
+        input_unit: lb
+        rows: { 90-120: 35, 120-160: 45, 160-200: 55, 200-240: 65 }
+      - { target: sag, range: [15, 25], comfort_at: max, when: { trim: air } }
+      - { target: sag, range: [10, 25], comfort_at: max, when: { trim: coil } }
+      # The factory Volume Adjustment position is left out: the launch post
+      # says 2 of 8 notches, the current support article says no piston.
+
+  canecreek_helm_mk1_2018:
+    label: Cane Creek Helm user manual (2018)
+    source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/Helm_UserManual_1_12_18_FINAL_4a8c4476-2bc0-4f03-ae32-0ced7f5f3137.pdf
+    # The manual maps no spring rate to rider weight; the Helm MKII Coil chart
+    # is not applied to the MK1.
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        rows: {
+          50: 55, 55: 61, 60: 66, 65: 72, 70: 77,
+          75: 83, 80: 88, 85: 94, 90: 99, 95: 105,
+          100: 110, 105: 116, 110: 121, 115: 127, 120: 132
+        }
+        note: Calculated from Cane Creek's starting point (half the rider weight in lb, as psi); set the final pressure by SAG
+      - { target: sag, range: [15, 25], comfort_at: max, when: { trim: air } }
+      - { target: sag, range: [10, 25], comfort_at: max, when: { trim: coil } }
+
+  canecreek_helm_dj_2025:
+    label: Cane Creek Helm DJ setup recommendations
+    source: https://www.canecreek.com/products/helm-dj
+    # Windows without a rider weight mapping: the midpoint is applied.
+    rules:
+      - { target: pressure, unit: psi, value: [95, 125], note: Pick the end that suits your weight and preferred ride height }
+      - { target: rebound, value: [5, 10] }
+
+# --------------------------------------------------------------------------
 # Forks — current (2025/2026) lineup plus the first-generation Helm. Cane
 # Creek's carbon "Invert" gravel fork is out of scope (drop-bar gravel, not a
 # mountain-bike suspension fork).
@@ -116,6 +177,7 @@ nodes:
     years: "2020-2026"
     url: https://www.canecreek.com/products/helm-mkii
     setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/HelmMKII_UserManual_04_03_2025.pdf
+    guide: canecreek_helm_mkii_2025
     tasks: &helm_service
       fork:lower_leg_service: { interval: { moving_time_h: 50 }, source: Cane Creek Helm manual }
       fork:full_service: { interval: { moving_time_h: 100 }, source: Cane Creek Helm manual }
@@ -149,6 +211,7 @@ nodes:
     years: "2023-2026"
     url: https://www.canecreek.com/products/helm-works-series
     setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/HelmMKII_UserManual_04_03_2025.pdf
+    guide: canecreek_helm_mkii_2025
     tasks: *helm_service
     children:
       - label: Air
@@ -169,6 +232,7 @@ nodes:
     category: Dirt Jump / Dual Slalom / Street
     years: "2025-2026"
     url: https://www.canecreek.com/products/helm-dj
+    guide: canecreek_helm_dj_2025
     children:
       - label: Standard
         level: trim
@@ -192,6 +256,7 @@ nodes:
     years: "2017-2019"
     url: https://www.canecreek.com/pages/legacy-products-product-support
     setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/Helm_UserManual_1_12_18_FINAL_4a8c4476-2bc0-4f03-ae32-0ced7f5f3137.pdf
+    guide: canecreek_helm_mk1_2018
     # Manual: cdn.shopify.com/.../Helm_UserManual_1_12_18_FINAL_...pdf
     # 2017 launch year per Pinkbike's Helm fork review; superseded by the
     # Helm MKII in 2020.

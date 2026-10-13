@@ -17,7 +17,7 @@ sources:
   - https://www.mtb-mag.com/en/tested-marzocchi-bomber-cr/
   # Primary — service intervals
   - https://tech.ridefox.com/img/help/page2840-6BL4/inline/605-00-201_RevA%202019%20Marzocchi%20Rear%20Shock%20User%20Manual.pdf
-updated: 2026-10-10
+updated: 2026-10-13
 # Service intervals (`tasks`) come from the Marzocchi rear shock owner's
 # guides: a full service every 125 hours or yearly. No separate air-can
 # interval is published.
@@ -77,6 +77,47 @@ option_values:
         clockwise (no click count).
 
 # --------------------------------------------------------------------------
+# Setup guides — the owner's and tuning guides' starting points as data
+# (SCHEMA.md, "Setup guides"), transcribed from
+# docs/research/setup_guides/marzocchi.md.
+# --------------------------------------------------------------------------
+guides:
+  marzocchi_bomber_air_2022:
+    label: Marzocchi Bomber Air shock owner's guide (2022)
+    source: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-269_REV_A%202022%20Marzocchi%20Bomber%20Air%20Shock%20Owners%20Guide%20Rev%20A_FINAL.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        rows: {
+          50: 110, 55: 121, 60: 132, 65: 143, 70: 154,
+          75: 165, 80: 176, 85: 187, 90: 198, 95: 209,
+          100: 220, 105: 231, 110: 243, 115: 254, 120: 265
+        }
+        note: Calculated from Marzocchi's starting point (psi = rider weight in lb); set the final pressure by SAG
+      # Counted from fully closed, the catalog's direction.
+      - target: rebound
+        input: pressure
+        input_unit: psi
+        rows: {
+          "<100": 10, 100-120: 10, 120-140: 9, 140-160: 8, 160-180: 7,
+          180-200: 6, 200-220: 5, 220-240: 4, 240-260: 3, 260-280: 2,
+          280-300: 1
+        }
+      - { target: compression_mode, value: Open }
+      - { target: sag, range: [25, 30], comfort_at: max, note: "25 % is Marzocchi's firm end, 30 % the plush end" }
+
+  marzocchi_bomber_cr_2018:
+    label: Marzocchi Bomber CR tuning guide (2018)
+    source: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-205_Marzocchi-BomberCR-Tuning-Guide-white-RevA.pdf
+    # The guide prints no click starting points. Marzocchi's web spring
+    # calculator needs the bike's rear wheel travel, so its rate is not
+    # encoded until bike-level inputs exist (#71).
+    rules:
+      - { target: sag, value: 30 }
+
+# --------------------------------------------------------------------------
 # Shocks — current Marzocchi lineup. Sold by eye-to-eye x stroke to match a
 # frame, not a fixed "travel"; `options.size` lists the sizes published per
 # mount type on each product page. Imperial sizes are stored in mm and keep
@@ -89,6 +130,7 @@ nodes:
     years: "2025-2026"
     url: https://bike.marzocchi.com/products/bomber-air
     setup_guide: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-269_REV_A%202022%20Marzocchi%20Bomber%20Air%20Shock%20Owners%20Guide%20Rev%20A_FINAL.pdf
+    guide: marzocchi_bomber_air_2022
     specs: { spring: Air }
     tasks: &marzocchi_service
       shock:full_service: { interval: { moving_time_h: 125 }, fallback: { days: 365 }, source: Marzocchi owner's guide }
@@ -118,6 +160,7 @@ nodes:
     years: "2025-2026"
     url: https://bike.marzocchi.com/products/bomber-cr-rear-shock
     setup_guide: https://tech.ridefox.com/img/help/page2836-KNVM/inline/605-00-205_Marzocchi-BomberCR-Tuning-Guide-white-RevA.pdf
+    guide: marzocchi_bomber_cr_2018
     specs: { spring: Coil }
     tasks: *marzocchi_service
     children:

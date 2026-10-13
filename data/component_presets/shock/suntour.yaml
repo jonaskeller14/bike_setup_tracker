@@ -9,6 +9,7 @@ component_type: shock
 sources:
   - https://www.srsuntour.com/products/rear-shock/
   - https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/Rear%20Shock%20Manual/MY19_EN_General_Rear_shock_manual-20200623.pdf
+  - https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_27_Rear_Shock_Manuals/SRS-2602-MY27-General-Rear-Shock-Manual-English-Web_Final.pdf
   - https://www.srsuntour.com/products/rear-shock/RS25-EDGE-EVO-2CR-METRIC-8187.html
   - https://www.srsuntour.com/products/rear-shock/RS24-EDGE-X-2CR-METRIC-8194.html
   - https://www.srsuntour.com/products/rear-shock/RS24-TRIAir2-3CR-METRIC-8203.html
@@ -18,7 +19,7 @@ sources:
   - https://www.srsuntour.com/products/rear-shock/RS25-Raidon-LO-METRIC-8156.html
   - https://www.srsuntour.com/products/rear-shock/RS25-EDGE-EVO-R-METRIC-8188.html
   - https://www.srsuntour.com/products/rear-shock/RS24-EDGE-X-R-METRIC-8196.html
-updated: 2026-10-10
+updated: 2026-10-13
 # Service intervals (`tasks`) come from the general rear shock manual cited
 # above: a full service including damper rebuild and air seal replacement
 # every 100 hours or annually.
@@ -122,6 +123,28 @@ option_values:
         - { name: Lockout, type: boolean, notes: Hydraulic lockout lever }
 
 # --------------------------------------------------------------------------
+# Setup guides — transcribed from docs/research/setup_guides/suntour.md.
+#   * The MY27 manual prints no rider-weight table; only the SAG band per
+#     shock stroke is a recommendation. Strokes between two printed rows are
+#     interpolated (52.5 and 57.5mm fall between bands); 27.5mm is below the
+#     table. Factory pressures (main 180 / reservoir 180 psi on TRIAIR2,
+#     110 psi elsewhere) are shipping values, and the rebound advice (start
+#     closed, open two clicks at a time) is a procedure, so neither is a rule.
+# --------------------------------------------------------------------------
+guides:
+  suntour_shocks_my27:
+    label: SR SUNTOUR general rear shock manual (MY27)
+    source: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_27_Rear_Shock_Manuals/SRS-2602-MY27-General-Rear-Shock-Manual-English-Web_Final.pdf
+    rules:
+      - target: sag
+        input: stroke_mm
+        rows: {
+          30: [20, 25], 35: [20, 25], 40: [20, 25], 45: [20, 25], 50: [20, 25],
+          55: [25, 30], 60: [25, 35], 65: [25, 35], 70: [25, 35], 75: [25, 35]
+        }
+        note: Measured with the compression open
+
+# --------------------------------------------------------------------------
 # Shocks — current (2025/2026) SR SUNTOUR MTB lineup. Shocks are sold by
 # eye-to-eye/stroke length to fit a given frame; `options.size` lists the
 # combinations published on the official product page. All current models are
@@ -134,7 +157,8 @@ nodes:
     category: XC / Trail
     years: "2025-2026"
     url: https://www.srsuntour.com/products/rear-shock/RS25-EDGE-EVO-2CR-METRIC-8187.html
-    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/Rear%20Shock%20Manual/MY19_EN_General_Rear_shock_manual-20200623.pdf
+    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_27_Rear_Shock_Manuals/SRS-2602-MY27-General-Rear-Shock-Manual-English-Web_Final.pdf
+    guide: suntour_shocks_my27
     specs: { spring: Air }
     tasks: &suntour_service
       shock:full_service: { interval: { moving_time_h: 100 }, fallback: { days: 365 }, source: SR Suntour owner's manual }
@@ -171,7 +195,8 @@ nodes:
     category: Trail (eMTB, reinforced)
     years: "2024-2026"
     url: https://www.srsuntour.com/products/rear-shock/RS24-EDGE-X-2CR-METRIC-8194.html
-    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/Rear%20Shock%20Manual/MY19_EN_General_Rear_shock_manual-20200623.pdf
+    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_27_Rear_Shock_Manuals/SRS-2602-MY27-General-Rear-Shock-Manual-English-Web_Final.pdf
+    guide: suntour_shocks_my27
     specs: { spring: Air }
     tasks: *suntour_service
     children:
@@ -197,14 +222,17 @@ nodes:
     category: Enduro (eMTB)
     years: "2024-2026"
     url: https://www.srsuntour.com/products/rear-shock/RS24-TRIAir2-3CR-METRIC-8203.html
-    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/Rear%20Shock%20Manual/MY19_EN_General_Rear_shock_manual-20200623.pdf
+    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_27_Rear_Shock_Manuals/SRS-2602-MY27-General-Rear-Shock-Manual-English-Web_Final.pdf
+    guide: suntour_shocks_my27
     specs: { spring: Air }
     tasks: *suntour_service
     children:
       - label: 3CR
         level: trim
         mounts: [Metric, Trunnion, Standard eyelet]
-        adjustments: *air_spring
+        adjustments: &triair2_air_spring
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 300 }
+          - { name: Reservoir Pressure, type: numerical, unit: psi, min: 170, max: 200, notes: "Air-backed piggyback reservoir (IFP); ships at 180 psi" }
         options:
           damper: [triair2_3cr]
           size: ["250x67.5/70/72.5/75", "230x57.5/60/62.5/65", "210x47.5/50/52.5/55", "190x37.5/40/42.5/45"]
@@ -213,7 +241,7 @@ nodes:
         level: trim
         url: https://www.srsuntour.com/products/rear-shock/RS24-TRIAir2-2CR-METRIC-8205.html
         mounts: [Metric, Trunnion, Standard eyelet]
-        adjustments: *air_spring
+        adjustments: *triair2_air_spring
         options:
           damper: [triair2_2cr]
           size: ["250x67.5/70/72.5/75", "230x57.5/60/62.5/65", "210x47.5/50/52.5/55", "190x37.5/40/42.5/45"]
@@ -221,7 +249,7 @@ nodes:
         level: trim
         url: https://www.srsuntour.com/products/rear-shock/RS24-TRIAir2-R-METRIC-8207.html
         mounts: [Metric, Trunnion, Standard eyelet]
-        adjustments: *air_spring
+        adjustments: *triair2_air_spring
         options:
           damper: [triair2_r]
           size: ["250x67.5/70/72.5/75", "230x57.5/60/62.5/65", "210x47.5/50/52.5/55", "190x37.5/40/42.5/45"]
@@ -231,7 +259,8 @@ nodes:
     category: XC / Trail
     years: "2025-2026"
     url: https://www.srsuntour.com/products/rear-shock/RS25-Raidon-R-METRIC-8157.html
-    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/Rear%20Shock%20Manual/MY19_EN_General_Rear_shock_manual-20200623.pdf
+    setup_guide: https://www.srsuntour.com/fileadmin/user_upload/Downloads/Consumer/Bike/Owners%20manuals/MY_27_Rear_Shock_Manuals/SRS-2602-MY27-General-Rear-Shock-Manual-English-Web_Final.pdf
+    guide: suntour_shocks_my27
     specs: { spring: Air }
     tasks: *suntour_service
     children:
@@ -254,8 +283,9 @@ nodes:
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):
-#   - setup_guide is the MY19 general rear shock manual for every model; no
-#     adjuster knob colors are published, so none are set.
+#   - setup_guide is the MY27 general rear shock manual for every model; no
+#     adjuster knob colors are published, so none are set. Pressure maxima
+#     and the TRIAIR2 reservoir limits (170-200 psi) match the MY27 edition.
 #   - Click counts: EDGE Evo (R, 2CR, R-2CR), EDGE X (R, 2CR) and TRIAIR2 pages
 #     state "8 click rebound". The EDGE Evo R-2CR page (and the TRIAIR2 2CR
 #     page) returned HTTP 503 on the last check, so R-2CR relies on the family

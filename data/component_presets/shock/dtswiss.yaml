@@ -23,7 +23,7 @@ sources:
   - https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/03/02/9/MAN_CXD10000003029S_WEB_ZZ_001.pdf
   # Secondary — editorial (article body text only)
   - https://www.pinkbike.com/news/first-ride-dt-swisss-new-232-one-platform.html
-updated: 2026-10-10
+updated: 2026-10-13
 # Service intervals (`tasks`) come from the user manuals cited above: a small
 # service every 50 operating hours (mapped to the air-can service) and a full
 # service annually or after 200 operating hours.
@@ -112,6 +112,48 @@ option_values:
       note: R 232 ONE user manual V2021.10 sec. 4.5 and 4.6.
 
 # --------------------------------------------------------------------------
+# Setup guides — the user manuals' starting points as data (SCHEMA.md,
+# "Setup guides"), transcribed from docs/research/setup_guides/dtswiss.md.
+# The pressure tables have no size or mount column and assume an average
+# leverage ratio (2.5 on the R 535); the final pressure is set by SAG. The
+# manuals publish no rebound setting.
+# --------------------------------------------------------------------------
+guides:
+  dtswiss_r535_2023:
+    label: DT Swiss R 535 / R 535 ONE user manual (2023)
+    source: https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/04/86/2/MAN_CXD10000004862S_WEB_ZZ_001.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        rows: {
+          40: 143, 45: 157, 50: 171, 55: 184, 60: 198,
+          65: 211, 70: 225, 75: 239, 80: 252, 85: 266,
+          90: 279, 95: 293, 100: 307, 105: 320, 110: 330
+        }
+        note: &dt_shock_pressure A starting point that varies with the frame; set the final pressure by SAG
+      - &dt_shock_mode { target: compression_mode, value: Open }
+      - &dt_shock_sag { target: sag, range: [20, 35], comfort_at: max, note: "DT Swiss: 20-25 % for a firmer cross-country feel, 25-35 % for downhill" }
+
+  dtswiss_r232one_2021:
+    label: DT Swiss R 232 ONE user manual (2021)
+    source: https://d2a13k6araex7u.cloudfront.net/pmt/00/00/00/00/00/00/00/10/00/00/03/02/9/MAN_CXD10000003029S_WEB_ZZ_001.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        rows: {
+          40: 83, 45: 92, 50: 100, 55: 109, 60: 117,
+          65: 126, 70: 134, 75: 142, 80: 151, 85: 159,
+          90: 168, 95: 176, 100: 185, 105: 193, 110: 201
+        }
+        note: *dt_shock_pressure
+      - *dt_shock_mode
+      - *dt_shock_sag
+
+# --------------------------------------------------------------------------
 # Shocks — all metric sizes; strokes and mounts from the DT Swiss product pages.
 # --------------------------------------------------------------------------
 nodes:
@@ -121,6 +163,7 @@ nodes:
     years: "2021-2026"
     url: https://www.dtswiss.com/en/suspension/shocks/r-535-one
     setup_guide: https://setupguide.dtswiss.com/en/
+    guide: dtswiss_r535_2023
     specs: { spring: Air }
     tasks: &dtswiss_service
       shock:air_can_service: { interval: { moving_time_h: 50 }, source: DT Swiss user manual }
@@ -150,6 +193,7 @@ nodes:
     years: "2023-2026"
     url: https://www.dtswiss.com/en/suspension/shocks/r-535
     setup_guide: https://setupguide.dtswiss.com/en/
+    guide: dtswiss_r535_2023
     specs: { spring: Air }
     tasks: *dtswiss_service
     children:
@@ -176,6 +220,7 @@ nodes:
     years: "2020-2026"
     url: https://www.dtswiss.com/en/suspension/shocks/r-232-one
     setup_guide: https://setupguide.dtswiss.com/en/
+    guide: dtswiss_r232one_2021
     specs: { spring: Air }
     tasks: *dtswiss_service
     children:

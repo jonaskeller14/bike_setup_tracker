@@ -122,6 +122,20 @@ void main() {
       expect(inputs.ridingStyle, GuideRidingStyle.race);
     });
 
+    test('uses the card weight, in kg, only while no weight is entered or recorded', () {
+      final fallback = guideInputsFor(null, values: {}, previousValues: {}, fallbackWeight: 90);
+      expect(fallback.riderWeight, 90);
+      expect(fallback.riderWeightUnit.label, 'kg');
+
+      final recorded = guideInputsFor(
+        person,
+        values: {},
+        previousValues: {weight.id: const NumericalValue(75)},
+        fallbackWeight: 90,
+      );
+      expect(recorded.riderWeight, 75);
+    });
+
     test('has no weight without a person, a value or a mass unit', () {
       expect(guideInputsFor(null, values: {}, previousValues: {}).riderWeight, isNull);
       expect(guideInputsFor(person, values: {}, previousValues: {}).riderWeight, isNull);

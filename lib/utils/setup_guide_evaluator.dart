@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:units_converter/units_converter.dart';
 
 import '../models/adjustment/adjustment.dart';
+import '../models/component/component_catalog.dart';
 import '../models/component/preset_spec_keys.dart';
 import '../models/component/setup_guide.dart';
 import 'adjustment_role.dart';
@@ -79,7 +80,23 @@ bool _matches(GuideRule rule, ResolvedPreset preset, GuideInputs inputs) => rule
 class _Failure implements Exception {
   final GuideIssue issue;
 
-  const _Failure(this.issue);
+  /// What the guide asks for, where that is known but can't be applied.
+  final AdjustmentValue? unapplied;
+
+  const _Failure(this.issue, [this.unapplied]);
+}
+
+/// How the catalog dial's counting relates to the rider's step adjuster.
+enum _Counting {
+  /// Both count from the same end; the ranges may be shifted.
+  same,
+
+  /// The dials turn the other way, so one counts from closed, the other from
+  /// open.
+  mirrored,
+
+  /// A stepper or slider on another range: which end it counts from is unknown.
+  unknown,
 }
 
 /// A cell resolved against the rider's adjustment.
@@ -146,6 +163,7 @@ class _RuleEvaluation {
 
   String? _inputText;
   bool _interpolated = false;
+  bool _converted = false;
   ({double min, double max})? _riderWeightRange;
 
   GuideRecommendation evaluate() {
@@ -157,7 +175,7 @@ class _RuleEvaluation {
       };
       return _recommendation(value: value, band: band);
     } on _Failure catch (failure) {
-      return _recommendation(issue: failure.issue);
+      return _recommendation(issue: failure.issue, unappliedValue: failure.unapplied);
     }
   }
 
@@ -165,13 +183,16 @@ class _RuleEvaluation {
     AdjustmentValue? value,
     ({double min, double max})? band,
     GuideIssue? issue,
+    AdjustmentValue? unappliedValue,
   }) => GuideRecommendation(
     guide: guide,
     rule: rule,
     adjustment: adjustment,
     value: value,
     issue: issue,
-    band: band,
+    unappliedValue: unappliedValue,
+    converted: _converted,
+    band: band == null ? null : _settableBand(band),
     current: current,
     inputText: _inputText,
     interpolated: _interpolated,
@@ -180,9 +201,10 @@ class _RuleEvaluation {
 
   (AdjustmentValue, ({double min, double max})?) _fromRange() {
     final RangeOutput(:min, :max, :comfortAt) = rule.output as RangeOutput;
-    final cell = _NumericCell(_toAdjustmentUnit(min), _toAdjustmentUnit(max), isBand: true);
-    final comfort = comfortAt == GuideAnchor.min ? cell.min : cell.max;
-    final race = comfortAt == GuideAnchor.min ? cell.max : cell.min;
+    final (low, high) = (_toRiderDial(_toAdjustmentUnit(min)), _toRiderDial(_toAdjustmentUnit(max)));
+    final cell = _bandCell(low, high);
+    final comfort = comfortAt == GuideAnchor.min ? low : high;
+    final race = comfortAt == GuideAnchor.min ? high : low;
     final point = switch (comfortAt == null ? null : inputs.ridingStyle) {
       GuideRidingStyle.comfort => comfort,
       GuideRidingStyle.race => race,
@@ -393,14 +415,14 @@ class _RuleEvaluation {
 
   _Cell _resolve(GuideCell cell) => switch (cell) {
     GuideNumber(:final value) => () {
-      final number = _toAdjustmentUnit(value);
+      final number = _toRiderDial(_toAdjustmentUnit(value));
       return _NumericCell(number, number, isBand: false);
     }(),
     GuideRangeRef() => () {
       final number = _resolveRangeRef(cell);
       return _NumericCell(number, number, isBand: false);
     }(),
-    GuideBand(:final min, :final max) => _NumericCell(_resolveScalar(min), _resolveScalar(max), isBand: true),
+    GuideBand(:final min, :final max) => _bandCell(_resolveScalar(min), _resolveScalar(max)),
     GuideOption(:final option) => switch (adjustment) {
       CategoricalAdjustment(:final options) when options.contains(option) => _DiscreteCell(CategoricalValue([option])),
       _ => throw const _Failure(GuideIssue.incompatible),
@@ -411,37 +433,107 @@ class _RuleEvaluation {
     },
   };
 
+  /// A step band with its ends on the nearest clicks, as the value is rounded;
+  /// otherwise a click the band reaches by less than half could count as off.
+  ({double min, double max}) _settableBand(({double min, double max}) band) {
+    final adjustment = this.adjustment;
+    if (adjustment is! StepAdjustment) return band;
+    final (min, step) = (adjustment.min, adjustment.step);
+    double snap(double value) => (min + ((value - min) / step).round() * step).toDouble();
+    return (min: snap(band.min), max: snap(band.max));
+  }
+
+  /// Mirrored ends of a band trade places.
+  static _NumericCell _bandCell(double a, double b) => _NumericCell(a < b ? a : b, a < b ? b : a, isBand: true);
+
   double _resolveScalar(GuideScalar scalar) => switch (scalar) {
-    GuideNumber(:final value) => _toAdjustmentUnit(value),
+    GuideNumber(:final value) => _toRiderDial(_toAdjustmentUnit(value)),
     GuideRangeRef() => _resolveRangeRef(scalar),
   };
 
-  /// Against the rider's range, so a corrected `max` corrects the value.
+  /// Against the rider's range, so a corrected `max` corrects the value. On a
+  /// mirrored dial the catalog's `max` end is the rider's `min`.
   double _resolveRangeRef(GuideRangeRef ref) {
+    final dial = _dial;
+    if (dial != null && dial.counting == _Counting.unknown) {
+      // Only shown, in the catalog's counting.
+      if (ref.anchor != GuideAnchor.min && _catalogMaxUnknown) throw const _Failure(GuideIssue.placeholderMax);
+      return _anchored(dial.catalog.min.toDouble(), dial.catalog.max.toDouble(), ref.anchor, ref.offset);
+    }
     final (min, max) = switch (adjustment) {
       StepAdjustment(:final min, :final max) => (min.toDouble(), max.toDouble()),
       NumericalAdjustment(:final min, :final max) => (min, max),
       _ => throw const _Failure(GuideIssue.incompatible),
     };
     if (ref.anchor != GuideAnchor.min && _hasPlaceholderMax) throw const _Failure(GuideIssue.placeholderMax);
-    final base = switch (ref.anchor) {
+    if (dial?.counting != _Counting.mirrored) return _anchored(min, max, ref.anchor, ref.offset);
+    _converted = true;
+    final anchor = switch (ref.anchor) {
+      GuideAnchor.min => GuideAnchor.max,
+      GuideAnchor.max => GuideAnchor.min,
+      GuideAnchor.mid => GuideAnchor.mid,
+    };
+    return _anchored(min, max, anchor, -ref.offset);
+  }
+
+  double _anchored(double min, double max, GuideAnchor anchor, num offset) {
+    final base = switch (anchor) {
       GuideAnchor.min => min,
       GuideAnchor.max => max,
       GuideAnchor.mid => (min + max) / 2,
     };
     if (!base.isFinite) throw const _Failure(GuideIssue.incompatible);
-    return base + _toAdjustmentUnit(ref.offset) - _toAdjustmentUnit(0);
+    return base + _toAdjustmentUnit(offset) - _toAdjustmentUnit(0);
+  }
+
+  /// The catalog adjuster [rule] targets.
+  late final PresetAdjustmentSpec? _catalogSpec = [
+    ...?preset.product?.adjustments,
+    for (final value in preset.selections.values) ...value.adjustments,
+  ].firstWhereOrNull((spec) => spec.id == rule.target);
+
+  /// The catalog says `max: ~`.
+  bool get _catalogMaxUnknown {
+    final spec = _catalogSpec;
+    return spec != null && spec.raw.containsKey('max') && spec.raw['max'] == null;
   }
 
   /// The catalog says `max: ~` and the rider hasn't entered the real count.
   bool get _hasPlaceholderMax {
     final adjustment = this.adjustment;
     if (adjustment is! StepAdjustment || adjustment.max != StepAdjustment.unknownMaxPlaceholder) return false;
-    final spec = [
-      ...?preset.product?.adjustments,
-      for (final value in preset.selections.values) ...value.adjustments,
-    ].firstWhereOrNull((spec) => spec.id == rule.target);
-    return spec != null && spec.raw.containsKey('max') && spec.raw['max'] == null;
+    return _catalogMaxUnknown;
+  }
+
+  /// Guide clicks are authored on the catalog's dial; a turning direction is
+  /// known from a dial visualization only.
+  late final ({_Counting counting, StepAdjustment catalog})? _dial = () {
+    final (adjustment, catalog) = (this.adjustment, _catalogSpec?.build());
+    if (adjustment is! StepAdjustment || catalog is! StepAdjustment) return null;
+    final (own, theirs) = (adjustment.visualization, catalog.visualization);
+    final counting = own.hasDial && theirs.hasDial
+        ? (own.isClockwiseDial == theirs.isClockwiseDial ? _Counting.same : _Counting.mirrored)
+        : (adjustment.min == catalog.min ? _Counting.same : _Counting.unknown);
+    return (counting: counting, catalog: catalog);
+  }();
+
+  /// A position on the catalog's dial as one on the rider's: the same number
+  /// of clicks from the same end.
+  double _toRiderDial(double value) {
+    final dial = _dial;
+    if (dial == null) return value;
+    final (rider, clicks) = (adjustment as StepAdjustment, value - dial.catalog.min);
+    switch (dial.counting) {
+      case _Counting.same:
+        if (rider.min != dial.catalog.min) _converted = true;
+        return rider.min + clicks;
+      case _Counting.mirrored:
+        if (_hasPlaceholderMax) throw const _Failure(GuideIssue.placeholderMax);
+        _converted = true;
+        return rider.max - clicks;
+      case _Counting.unknown:
+        return value;
+    }
   }
 
   /// From the rule's `unit` into the adjustment's; SAG may be authored as a
@@ -463,17 +555,24 @@ class _RuleEvaluation {
     };
   }
 
-  /// Rounded to what the rider can set: the nearest click, capped to the
-  /// dial; 1 psi or 0.1 bar.
+  /// Rounded to what the rider can set: the nearest click; 1 psi or 0.1 bar.
+  /// Never capped, so a value beyond the range shows as itself.
   AdjustmentValue _numericValue(double value) {
     switch (adjustment) {
       case StepAdjustment(:final min, :final max, :final step):
-        final clicks = ((value - min) / step).round().clamp(0, (max - min) ~/ step);
-        return StepValue(min + clicks * step);
+        if (_dial case (counting: _Counting.unknown, :final catalog)) {
+          final clicks = ((value - catalog.min) / catalog.step).round();
+          throw _Failure(GuideIssue.directionUnknown, StepValue(catalog.min + clicks * catalog.step));
+        }
+        final clicks = ((value - min) / step).round();
+        final rounded = StepValue(min + clicks * step);
+        if (clicks > (max - min) ~/ step) throw _Failure(GuideIssue.aboveMax, rounded);
+        if (clicks < 0) throw _Failure(GuideIssue.belowMin, rounded);
+        return rounded;
       case NumericalAdjustment(:final min, :final max, :final unit):
         final rounded = _round(value, _decimals(unit));
-        if (rounded > max + _epsilon) throw const _Failure(GuideIssue.aboveMax);
-        if (rounded < min - _epsilon) throw const _Failure(GuideIssue.belowMin);
+        if (rounded > max + _epsilon) throw _Failure(GuideIssue.aboveMax, NumericalValue(rounded));
+        if (rounded < min - _epsilon) throw _Failure(GuideIssue.belowMin, NumericalValue(rounded));
         return NumericalValue(rounded);
       default:
         throw const _Failure(GuideIssue.incompatible);

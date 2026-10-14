@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import '../models/component/component.dart';
 import '../models/component/setup_guide.dart';
 import 'setup_guide_card.dart';
+import 'setup_guide_status.dart';
 
 /// The setup guide's recommendations for the adjusters below it, so their
 /// tooltips can show the recommended value. Only the setup page provides one.
@@ -29,16 +30,14 @@ class SetupGuideScope extends InheritedWidget {
       !identical(sections, oldWidget.sections) && (sections.isNotEmpty || oldWidget.sections.isNotEmpty);
 }
 
-/// "Recommended: 76 psi · on guide", "Recommended: 76 psi · +6 psi", or the
-/// reason there is no value: "Recommended: – · Outside the published range".
+/// "Recommended: 76 psi", or with the reason it can't be applied:
+/// "Recommended: – · Outside the published range", "Recommended: 18 · Above
+/// this adjuster's maximum". [GuideStatus] says how the current value relates.
 String recommendedValueLine(GuideRecommendation recommendation, Component component) {
+  final adjustment = recommendation.adjustment;
   final value = recommendation.value;
-  if (value == null) return "Recommended: – · ${guideDetailText(recommendation, component)}";
-  final status = switch (recommendation.deviation) {
-    null => null,
-    GuideDeviation(onGuide: true) => "on guide",
-    GuideDeviation(delta: null) => "off guide",
-    GuideDeviation(:final delta?) => "${guideSignedDelta(delta)}${recommendation.adjustment.unitSuffix()}",
-  };
-  return ["Recommended: ${guideValueText(recommendation.adjustment, value)}", ?status].join(" · ");
+  if (value != null) return "Recommended: ${guideValueText(adjustment, value)}";
+  final unapplied = recommendation.unappliedValue;
+  final shown = unapplied == null ? "–" : guideValueText(adjustment, unapplied);
+  return "Recommended: $shown · ${guideDetailText(recommendation, component)}";
 }

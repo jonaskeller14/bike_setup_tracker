@@ -30,6 +30,7 @@ import '../../services/pressure_drift_service.dart';
 import '../../services/setup_resolution_service.dart';
 import '../../services/weather_service.dart';
 import '../../theme.dart';
+import '../../utils/adjustment_role.dart';
 import '../../utils/attachment_actions.dart';
 import '../../utils/automation_ids.dart';
 import '../../utils/setup_guide_actions.dart';
@@ -43,6 +44,7 @@ import '../../widgets/setup_guide_card.dart';
 import '../../widgets/setup_guide_scope.dart';
 import '../../widgets/setup_page_tab_bike.dart';
 import '../../widgets/setup_page_tab_person.dart';
+import '../../widgets/sheets/person_add_adjustment.dart';
 import '../../widgets/sheets/set_condition.dart';
 import '../../widgets/sheets/set_location_place.dart';
 import '../../widgets/sheets/set_tags.dart';
@@ -56,6 +58,9 @@ enum SetupPageMode {
 }
 
 class SetupPage extends StatefulWidget {
+  @visibleForTesting
+  static bool showSetupGuideForAllComponents = kDebugMode;
+
   final Setup? setup;
   final SetupPageMode mode;
   final DateTime? initialDateTimeUtc;
@@ -166,6 +171,14 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   /// Bumped when the setup guide writes values, so the bike tab's fields
   /// re-read them.
   int _appliedGuideRevision = 0;
+
+  /// Bumped when the setup guide card writes the riding weight, so the rider
+  /// tab's fields re-read it.
+  int _guideWeightRevision = 0;
+
+  /// A riding weight in kg entered on the setup guide card where the rider has
+  /// no riding-weight attribute; only used for the recommendations.
+  double? _guideFallbackWeight;
 
   final LocationService _locationService = LocationService();
   final ElevationService _elevationService = ElevationService();
@@ -1221,11 +1234,13 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   Widget? _setupGuide(List<Component> bikeComponents) {
     if (!context.read<AppSettings>().enableSetupGuides) return null;
     final catalog = context.read<ComponentCatalogRepository>();
-    final guided = guidedComponentsWithoutValues(
-      bikeComponents,
-      resolve: (component) => catalog.loadedPreset(component.preset!),
-      previousValues: _previousBikeAdjustmentValues,
-    );
+    final guided = SetupPage.showSetupGuideForAllComponents
+        ? guidedComponents(bikeComponents, resolve: (component) => catalog.loadedPreset(component.preset!))
+        : guidedComponentsWithoutValues(
+            bikeComponents,
+            resolve: (component) => catalog.loadedPreset(component.preset!),
+            previousValues: _previousBikeAdjustmentValues,
+          );
     if (guided.isEmpty) return null;
 
     return ListenableBuilder(
@@ -1244,6 +1259,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         return SetupGuideCard(
           sections: sections,
           inputs: inputs,
+          weightInput: _guideWeightInput(),
           onApply: _applyGuideValue,
           onApplyAll: canApplyAll ? () => _applyAllGuideValues(sections, inputs) : null,
         );
@@ -1282,7 +1298,67 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     context.read<AppRepository>().persons[_person],
     values: _personAdjustmentValues,
     previousValues: _previousPersonAdjustmentValues,
+    fallbackWeight: _guideFallbackWeight,
   );
+
+  /// The card's weight field while the rider has no recorded riding weight. It
+  /// writes the rider's attribute where there is one, else a weight that only
+  /// lives on this page.
+  GuideWeightInput? _guideWeightInput() {
+    final person = context.read<AppSettings>().enablePerson ? context.read<AppRepository>().persons[_person] : null;
+    final weightAdjustment = person?.adjustments.firstWhereOrNull((a) => adjustmentRole(a) == 'riding_weight');
+    if (weightAdjustment != null && _previousPersonAdjustmentValues.containsKey(weightAdjustment.id)) return null;
+
+    if ((person, weightAdjustment) case (final rider?, NumericalAdjustment(unit: final KnownUnit unit) && final attribute)
+        when unit.quantity == UnitQuantity.mass) {
+      return GuideWeightInput(
+        weight: _personAdjustmentValues[attribute.id]?.asNum?.toDouble(),
+        unit: unit,
+        hint: "Saved with this setup as ${rider.name}'s riding weight",
+        onChanged: (weight) {
+          setState(() => _guideWeightRevision++);
+          if (weight == null) {
+            _removeFromPersonAdjustmentValues(adjustment: attribute);
+          } else {
+            _onPersonAdjustmentValueChanged(adjustment: attribute, newValue: NumericalValue(weight));
+          }
+        },
+      );
+    }
+    return GuideWeightInput(
+      weight: _guideFallbackWeight,
+      unit: const GuideInputs().riderWeightUnit,
+      hint: "Only used for these recommendations",
+      onChanged: (weight) {
+        _guideFallbackWeight = weight;
+        _adjustmentValuesRevision.value++;
+      },
+      onAddToRider: person != null && weightAdjustment == null ? () => unawaited(_addRidingWeightTo(person)) : null,
+      addToRiderLabel: person == null ? null : "Add riding weight to ${person.name}",
+    );
+  }
+
+  /// Gives [person] a riding-weight attribute and moves the card's weight into
+  /// this setup's value of it.
+  Future<void> _addRidingWeightTo(Person person) async {
+    unawaited(HapticFeedback.selectionClick());
+    final adjustment = ridingWeightPreset.deepCopy();
+    await context.read<AppRepository>().editPerson(
+      person.copyWith(adjustments: [...person.adjustments, adjustment]),
+    );
+    if (!mounted) return;
+    final weight = _guideFallbackWeight;
+    _guideFallbackWeight = null;
+    setState(() => _guideWeightRevision++);
+    if (weight == null) {
+      _adjustmentValuesRevision.value++;
+    } else {
+      _onPersonAdjustmentValueChanged(adjustment: adjustment, newValue: NumericalValue(weight));
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      AppSnackBar.success(context, "Added riding weight to ${person.name}"),
+    );
+  }
 
   void _applyGuideValue(GuideRecommendation recommendation) {
     unawaited(HapticFeedback.selectionClick());
@@ -1349,6 +1425,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       persons: appRepository.persons,
       personAdjustmentValues: _personAdjustmentValues,
       previousPersonAdjustmentValues: _previousPersonAdjustmentValues,
+      valuesRevision: _guideWeightRevision,
       initialPersonAdjustmentValues: _initialPersonAdjustmentValues,
       danglingPersonAdjustmentValues: _danglingPersonAdjustmentValues,
       onAdjustmentValueChanged: _onPersonAdjustmentValueChanged,

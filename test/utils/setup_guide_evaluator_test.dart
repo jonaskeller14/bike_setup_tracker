@@ -468,7 +468,7 @@ void main() {
   });
 
   group('rounding and limits', () {
-    test('step values round to the nearest click and are capped', () {
+    test('step values round to the nearest click and are never capped', () {
       final narrow = [
         StepAdjustment(
           name: 'HSC',
@@ -488,7 +488,9 @@ void main() {
           adjustment is StepAdjustment && adjustment.name == 'LSR' ? adjustment.copyWith(max: 10) : adjustment,
       ];
       final lsr = _of(_evaluate(factoryX2, adjustments: short, current: {'Pressure': const NumericalValue(40)}), 'lsr');
-      expect(lsr.value, const StepValue(10));
+      expect(lsr.value, isNull);
+      expect(lsr.issue, GuideIssue.aboveMax);
+      expect(lsr.unappliedValue, const StepValue(14));
     });
 
     test('a numerical value above the adjuster max is not applied', () {
@@ -504,6 +506,73 @@ void main() {
       );
       expect(result.value, isNull);
       expect(result.issue, GuideIssue.aboveMax);
+      expect(result.unappliedValue, const NumericalValue(80));
+    });
+  });
+
+  group('dial counting', () {
+    /// The catalog adjustments with [name]'s step adjuster edited.
+    List<Adjustment> withStep(String name, StepAdjustment Function(StepAdjustment) edit) => [
+      for (final adjustment in buildCatalogApplication(factoryX2).adjustments)
+        adjustment is StepAdjustment && adjustment.name == name ? edit(adjustment) : adjustment,
+    ];
+
+    GuideRecommendation lsrAt(double pressure, List<Adjustment> adjustments) => _of(
+      _evaluate(factoryX2, adjustments: adjustments, current: {'Pressure': NumericalValue(pressure)}),
+      'lsr',
+    );
+
+    const clockwise = StepAdjustmentVisualization.sliderWithClockwiseDial;
+
+    test('a clockwise -16…0 dial counts the catalog\'s clicks from closed down from 0', () {
+      final adjustments = withStep('LSR', (a) => a.copyWith(min: -16, max: 0, visualization: clockwise));
+      final lsr = lsrAt(85, adjustments);
+      expect(lsr.value, const StepValue(-8));
+      expect(lsr.converted, isTrue);
+      expect(lsrAt(75, adjustments).value, const StepValue(-12));
+    });
+
+    test('the same range turning the other way is mirrored', () {
+      final lsr = lsrAt(75, withStep('LSR', (a) => a.copyWith(visualization: clockwise)));
+      expect(lsr.value, const StepValue(4));
+      expect(lsr.converted, isTrue);
+    });
+
+    test('a shifted range turning the same way keeps the clicks from its min', () {
+      final lsr = lsrAt(75, withStep('LSR', (a) => a.copyWith(min: -16, max: 0)));
+      expect(lsr.value, const StepValue(-4));
+      expect(lsr.converted, isTrue);
+    });
+
+    test('the catalog\'s own dial is not converted', () {
+      final lsr = lsrAt(75, buildCatalogApplication(factoryX2).adjustments);
+      expect(lsr.value, const StepValue(12));
+      expect(lsr.converted, isFalse);
+    });
+
+    test('range references and bands swap ends on a mirrored dial', () {
+      final hsc = _of(
+        _evaluate(factoryX2, adjustments: withStep('HSC', (a) => a.copyWith(visualization: clockwise))),
+        'hsc',
+      );
+      expect(hsc.band, (min: 0.0, max: 6.0));
+      expect(hsc.value, const StepValue(3));
+
+      final lsc = withStep('LSC', (a) => a.copyWith(visualization: clockwise));
+      expect(_of(_evaluate(factoryX2, adjustments: lsc), 'lsc').issue, GuideIssue.placeholderMax);
+      final edited = withStep('LSC', (a) => a.copyWith(max: 18, visualization: clockwise));
+      expect(_of(_evaluate(factoryX2, adjustments: edited), 'lsc').value, const StepValue(3));
+    });
+
+    test('a stepper on another range is shown in the catalog\'s counting but not applied', () {
+      final adjustments = withStep(
+        'LSR',
+        (a) => a.copyWith(min: -16, max: 0, visualization: StepAdjustmentVisualization.minusButtonValuePlusButton),
+      );
+      final lsr = lsrAt(75, adjustments);
+      expect(lsr.value, isNull);
+      expect(lsr.issue, GuideIssue.directionUnknown);
+      expect(lsr.unappliedValue, const StepValue(12));
     });
   });
 
@@ -561,7 +630,20 @@ void main() {
       expect(result.band, (min: 75.0, max: 85.0));
       expect(result.deviation!.delta, 4);
       expect(result.deviation!.onGuide, isTrue);
+      expect(result.deviation!.exact, isFalse);
+      expect(pressure(weight: 85, now: 80).deviation!.exact, isTrue);
       expect(pressure(weight: 85, now: 86).deviation!.onGuide, isFalse);
+    });
+
+    test('a step band snaps to whole clicks, like the value', () {
+      // 77 psi → 11.2 clicks ± 2 → 9.2–13.2, which a dial can only set as 9–13.
+      final lsr = _of(
+        _evaluate(factoryX2, current: {'Pressure': const NumericalValue(77), 'LSR': const StepValue(9)}),
+        'lsr',
+      );
+      expect(lsr.value, const StepValue(11));
+      expect(lsr.band, (min: 9.0, max: 13.0));
+      expect(lsr.deviation!.onGuide, isTrue);
     });
 
     test('an outermost bracket uses its inner neighbour', () {

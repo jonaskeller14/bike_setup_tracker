@@ -199,10 +199,16 @@ void main() {
       expect(find.text('Recommended: 77 psi'), findsOneWidget);
 
       await openTooltip(tester, scoped(current: const NumericalValue(77)));
-      expect(find.text('Recommended: 77 psi · on guide'), findsOneWidget);
+      expect(find.text('Recommended: 77 psi'), findsOneWidget);
+      expect(find.text('Matches'), findsOneWidget);
+
+      await openTooltip(tester, scoped(current: const NumericalValue(80)));
+      expect(find.text('In range'), findsOneWidget);
+      expect(find.textContaining('In range:'), findsNothing);
 
       await openTooltip(tester, scoped(current: const NumericalValue(90)));
-      expect(find.text('Recommended: 77 psi · +13 psi'), findsOneWidget);
+      expect(find.text('+13 psi'), findsOneWidget);
+      expect(find.text('In range: 72–82 psi'), findsOneWidget);
     });
 
     testWidgets('shows why there is no value', (tester) async {

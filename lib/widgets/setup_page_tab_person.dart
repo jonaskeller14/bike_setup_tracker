@@ -23,6 +23,10 @@ class SetupPersonTab extends StatelessWidget {
   final Map<String, AdjustmentValue> previousPersonAdjustmentValues;
   final Map<String, AdjustmentValue> initialPersonAdjustmentValues;
   final Map<String, AdjustmentValue> danglingPersonAdjustmentValues;
+
+  /// Changes when values are written from outside the fields, so they re-read
+  /// them.
+  final int valuesRevision;
   final void Function({required Adjustment adjustment, required AdjustmentValue newValue}) onAdjustmentValueChanged;
   final void Function({required Adjustment adjustment}) onRemoveFromAdjustmentValues;
   final VoidCallback changeListener;
@@ -38,6 +42,7 @@ class SetupPersonTab extends StatelessWidget {
     required this.previousPersonAdjustmentValues,
     required this.initialPersonAdjustmentValues,
     required this.danglingPersonAdjustmentValues,
+    this.valuesRevision = 0,
     required this.onAdjustmentValueChanged,
     required this.onRemoveFromAdjustmentValues,
     required this.changeListener,
@@ -89,7 +94,7 @@ class SetupPersonTab extends StatelessWidget {
                   ),
                 ),
                 AdjustmentSetList(
-                  key: ValueKey(Object.hash(personId, Object.hashAll(previousPersonAdjustmentValues.values))),
+                  key: ValueKey(Object.hash(personId, Object.hashAll(previousPersonAdjustmentValues.values), valuesRevision)),
                   adjustments: person.adjustments,
                   initialAdjustmentValues: previousPersonAdjustmentValues,
                   adjustmentValues: personAdjustmentValues,

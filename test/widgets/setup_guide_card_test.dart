@@ -59,6 +59,7 @@ void main() {
     Map<String, AdjustmentValue> current = const {},
     void Function(GuideRecommendation)? onApply,
     VoidCallback? onApplyAll,
+    GuideWeightInput? weightInput,
     ThemeData? theme,
   }) {
     return tester.pumpWidget(
@@ -71,6 +72,7 @@ void main() {
               inputs: inputs,
               onApply: onApply ?? (_) {},
               onApplyAll: onApplyAll,
+              weightInput: weightInput,
             ),
           ),
         ),
@@ -104,7 +106,7 @@ void main() {
     expect(applied?.value, const NumericalValue(77));
   });
 
-  testWidgets('a value already set shows on guide and does not apply again', (tester) async {
+  testWidgets('a value already set shows it matches and does not apply again', (tester) async {
     final component = guided();
     GuideRecommendation? applied;
     await pumpCard(
@@ -114,7 +116,7 @@ void main() {
       onApply: (r) => applied = r,
     );
 
-    expect(find.text('On guide'), findsOneWidget);
+    expect(find.text('Matches'), findsOneWidget);
     await tester.tap(find.text('Pressure'));
     expect(applied, isNull);
   });
@@ -123,7 +125,37 @@ void main() {
     final component = guided();
     await pumpCard(tester, guided: component, current: {pressureOf(component).id: const NumericalValue(90)});
 
-    expect(find.text('Now 90 psi (+13)'), findsOneWidget);
+    expect(find.text('+13 psi'), findsOneWidget);
+    expect(find.textContaining('Now 90 psi'), findsOneWidget);
+  });
+
+  testWidgets('a value within the tolerance is in range, not a match', (tester) async {
+    final component = guided();
+    await pumpCard(tester, guided: component, current: {pressureOf(component).id: const NumericalValue(80)});
+
+    expect(find.text('In range'), findsOneWidget);
+    expect(find.text('Now 80 psi · in range 72–82 psi'), findsOneWidget);
+  });
+
+  testWidgets('a value beyond the adjuster range shows but does not apply', (tester) async {
+    final base = guided();
+    final component = GuidedComponent(
+      base.component.copyWith(
+        adjustments: [
+          for (final adjustment in base.component.adjustments)
+            adjustment is NumericalAdjustment && adjustment.name == 'Pressure' ? adjustment.copyWith(max: 70.0) : adjustment,
+        ],
+      ),
+      preset,
+    );
+    GuideRecommendation? applied;
+    await pumpCard(tester, guided: component, onApply: (r) => applied = r);
+
+    expect(find.text('77 psi'), findsOneWidget);
+    expect(find.text("Can't apply"), findsOneWidget);
+    expect(find.text("Above this adjuster's maximum"), findsOneWidget);
+    await tester.tap(find.text('Pressure'));
+    expect(applied, isNull);
   });
 
   testWidgets('Apply all calls back, and is disabled without a callback', (tester) async {
@@ -162,7 +194,7 @@ void main() {
     expect(applied, isNull);
   });
 
-  testWidgets('the info dialog cites the guide', (tester) async {
+  testWidgets('the info sheet explains the statuses and cites the guide', (tester) async {
     await pumpCard(tester, guided: guided());
 
     await tester.tap(find.byTooltip('About recommended values'));
@@ -170,6 +202,9 @@ void main() {
 
     expect(find.text('Recommended values'), findsOneWidget);
     expect(find.textContaining('check your manual'), findsWidgets);
+    expect(find.text('In range'), findsOneWidget);
+    expect(find.text("Acme owner's manual (2027)"), findsOneWidget);
+    expect(find.textContaining('For Acme'), findsOneWidget);
     expect(find.text('example.com/acme'), findsOneWidget);
   });
 
@@ -186,9 +221,43 @@ void main() {
         theme: theme,
         current: {pressureOf(component).id: const NumericalValue(118.5)},
         onApplyAll: () {},
+        weightInput: GuideWeightInput(
+          weight: null,
+          unit: const GuideInputs().riderWeightUnit,
+          onChanged: (_) {},
+          hint: 'Only used for these recommendations',
+          onAddToRider: () {},
+          addToRiderLabel: 'Add riding weight to a rider with a very long name indeed',
+        ),
       );
 
       expect(tester.takeException(), isNull);
     });
   }
+
+  testWidgets('the weight field reports the entered weight and offers to add it to the rider', (tester) async {
+    final weights = <double?>[];
+    var added = 0;
+    await pumpCard(
+      tester,
+      guided: guided(),
+      inputs: const GuideInputs(),
+      weightInput: GuideWeightInput(
+        weight: null,
+        unit: const GuideInputs().riderWeightUnit,
+        onChanged: weights.add,
+        hint: 'Only used for these recommendations',
+        onAddToRider: () => added++,
+        addToRiderLabel: 'Add riding weight to Rider',
+      ),
+    );
+
+    expect(find.text('Only used for these recommendations'), findsOneWidget);
+    await tester.enterText(find.byType(TextField), '82,5');
+    await tester.enterText(find.byType(TextField), '');
+    expect(weights, [82.5, null]);
+
+    await tester.tap(find.text('Add riding weight to Rider'));
+    expect(added, 1);
+  });
 }

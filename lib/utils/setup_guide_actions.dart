@@ -45,11 +45,13 @@ List<GuidedComponent> guidedComponentsWithoutValues(
 );
 
 /// The rider's weight and riding style as [person]'s attributes hold them:
-/// the value entered on this setup, else the last recorded one.
+/// the value entered on this setup, else the last recorded one, else
+/// [fallbackWeight] (kg), entered on the setup guide card only.
 GuideInputs guideInputsFor(
   Person? person, {
   required Map<String, AdjustmentValue> values,
   required Map<String, AdjustmentValue> previousValues,
+  double? fallbackWeight,
 }) {
   AdjustmentValue? valueOf(String role) {
     final adjustment = person?.adjustments.firstWhereOrNull((a) => adjustmentRole(a) == role);
@@ -61,7 +63,8 @@ GuideInputs guideInputsFor(
     final KnownUnit unit when unit.quantity == UnitQuantity.mass => unit,
     _ => null,
   };
-  final weight = weightUnit == null ? null : valueOf('riding_weight')?.asNum?.toDouble();
+  final recorded = weightUnit == null ? null : valueOf('riding_weight')?.asNum?.toDouble();
+  final weight = recorded ?? fallbackWeight;
   final style = switch (valueOf(kRidingStyleKey)) {
     CategoricalValue(:final options) when options.length == 1 => GuideRidingStyle.values.firstWhereOrNull(
       (style) => style.label == options.single,
@@ -70,7 +73,7 @@ GuideInputs guideInputsFor(
   };
   return GuideInputs(
     riderWeight: weight,
-    riderWeightUnit: weightUnit ?? const GuideInputs().riderWeightUnit,
+    riderWeightUnit: (recorded == null && fallbackWeight != null ? null : weightUnit) ?? const GuideInputs().riderWeightUnit,
     ridingStyle: style,
   );
 }

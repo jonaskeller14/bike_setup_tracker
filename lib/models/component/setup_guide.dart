@@ -281,6 +281,10 @@ enum GuideIssue {
   /// The rider's adjustment can't take the value: another type or unit, a
   /// removed option, or no published range for a range reference.
   incompatible,
+
+  /// The rider's step adjuster has another range than the catalog's and no
+  /// dial direction, so which end the guide counts from is unknown.
+  directionUnknown,
 }
 
 /// One guide rule evaluated for one adjustment of the rider's component.
@@ -292,6 +296,15 @@ class GuideRecommendation {
   /// Valid for [adjustment]; null when [issue] says why not.
   final AdjustmentValue? value;
   final GuideIssue? issue;
+
+  /// The value the guide asks for where it can't be applied: beyond the
+  /// adjuster's range ([GuideIssue.aboveMax], [GuideIssue.belowMin]), or in
+  /// the catalog's counting for [GuideIssue.directionUnknown].
+  final AdjustmentValue? unappliedValue;
+
+  /// A step value was converted from the catalog dial's counting into the
+  /// rider's: another range or the other turning direction.
+  final bool converted;
 
   /// In [adjustment]'s unit: values in it count as on guide. Null where only
   /// [value] itself is.
@@ -317,6 +330,8 @@ class GuideRecommendation {
     required this.adjustment,
     this.value,
     this.issue,
+    this.unappliedValue,
+    this.converted = false,
     this.band,
     this.current,
     this.inputText,
@@ -333,7 +348,7 @@ class GuideRecommendation {
     if (current == null || value == null) return null;
     final (now, recommended) = (current.asNum, value.asNum);
     if (now == null || recommended == null || value is BooleanValue) {
-      return GuideDeviation(delta: null, onGuide: current == value);
+      return GuideDeviation(delta: null, onGuide: current == value, exact: current == value);
     }
 
     // Unit conversions are not exact.
@@ -343,7 +358,7 @@ class GuideRecommendation {
     final onGuide = band == null
         ? delta.abs() < tolerance
         : now >= band.min - tolerance && now <= band.max + tolerance;
-    return GuideDeviation(delta: delta, onGuide: onGuide);
+    return GuideDeviation(delta: delta, onGuide: onGuide, exact: delta.abs() < tolerance);
   }
 }
 
@@ -352,7 +367,12 @@ class GuideDeviation {
   /// Current minus recommended, in the adjustment's unit; null for options
   /// and booleans.
   final double? delta;
+
+  /// Within the band or the tolerance around the recommendation.
   final bool onGuide;
 
-  const GuideDeviation({required this.delta, required this.onGuide});
+  /// The recommended value itself.
+  final bool exact;
+
+  const GuideDeviation({required this.delta, required this.onGuide, required this.exact});
 }

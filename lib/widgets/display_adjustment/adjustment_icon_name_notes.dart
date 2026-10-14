@@ -6,10 +6,12 @@ import 'package:provider/provider.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/adjustment_activity_histogram.dart';
 import '../../services/setup_activity_analysis_service.dart';
+import '../../theme.dart';
 import '../display_data/adjustment_activity_histogram_chart.dart';
 import '../items/adjustment_properties.dart';
 import '../items/adjustment_type_icon.dart';
 import '../setup_guide_scope.dart';
+import '../setup_guide_status.dart';
 
 class AdjustmentIconNameNotes extends StatefulWidget {
   final Adjustment adjustment;
@@ -95,6 +97,7 @@ class _AdjustmentIconNameNotesState extends State<AdjustmentIconNameNotes> {
         : textTheme.bodyLarge?.copyWith(color: widget.color);
     final colorScheme = Theme.of(context).colorScheme;
     final guide = SetupGuideScope.recommendationFor(context, widget.adjustment.id);
+    final guideStatus = guide == null ? null : GuideStatus.of(guide.$1);
 
     return Row(
       mainAxisSize: MainAxisSize.max,
@@ -175,7 +178,23 @@ class _AdjustmentIconNameNotesState extends State<AdjustmentIconNameNotes> {
                               style: TextStyle(color: colorScheme.onSecondary, fontSize: 13),
                             ),
                           ),
+                          if (guideStatus != null) ...[
+                            const SizedBox(width: 6),
+                            // The tooltip is an inverse surface, so the pill takes the other
+                            // theme's status colours.
+                            Theme(
+                              data: Theme.of(context).brightness == Brightness.light
+                                  ? materialAppDarkTheme
+                                  : materialAppTheme,
+                              child: GuideStatusPill(guideStatus),
+                            ),
+                          ],
                         ],
+                      ),
+                    if (guideStatus?.detail case final detail?)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 15),
+                        child: Text(detail, style: TextStyle(color: colorScheme.onSecondary, fontSize: 12)),
                       ),
                     if (_analysisService?.hasAnyActivity == true && _isLoading)
                       Padding(

@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:units_converter/units_converter.dart';
 
+import 'component/component.dart';
+
 class AppSettings extends ChangeNotifier {
   static const String _kPrefix = 'app_settings.';
   static const String _kLegacyBlobKey = 'app_settings';
@@ -46,6 +48,8 @@ class AppSettings extends ChangeNotifier {
   bool _enableSetupGuides = false;
   bool _enableInstallOnComponent = false;
   bool _enablePressureAssistant = false;
+  int _pressureCheckThresholdPercent = 3;
+  Set<ComponentType> _pressureCheckHiddenComponentTypes = const {};
   // Setup timeline grouping passes (debug-only, see FeaturesPage)
   bool _enableTimelineSetupGrouping = false;
   bool _enableTimelineReplacementDetection = true;
@@ -93,6 +97,9 @@ class AppSettings extends ChangeNotifier {
   bool get enableSetupGuides => _enableSetupGuides && _enableComponentPresets;
   bool get enableInstallOnComponent => _enableInstallOnComponent;
   bool get enablePressureAssistant => _enablePressureAssistant;
+  int get pressureCheckThresholdPercent => _pressureCheckThresholdPercent;
+  double get pressureCheckThreshold => _pressureCheckThresholdPercent / 100;
+  Set<ComponentType> get pressureCheckHiddenComponentTypes => _pressureCheckHiddenComponentTypes;
   bool get enableTimelineSetupGrouping => _enableTimelineSetupGrouping;
   bool get enableTimelineReplacementDetection => _enableTimelineReplacementDetection;
   bool get enableTimelineStravaContext => _enableTimelineStravaContext;
@@ -351,6 +358,20 @@ class AppSettings extends ChangeNotifier {
     _persistBool('enablePressureAssistant', newValue);
   }
 
+  set pressureCheckThresholdPercent(int newValue) {
+    if (newValue == _pressureCheckThresholdPercent) return;
+    _pressureCheckThresholdPercent = newValue;
+    notifyListeners();
+    _persistInt('pressureCheckThresholdPercent', newValue);
+  }
+
+  set pressureCheckHiddenComponentTypes(Set<ComponentType> newValue) {
+    if (setEquals(newValue, _pressureCheckHiddenComponentTypes)) return;
+    _pressureCheckHiddenComponentTypes = Set.unmodifiable(newValue);
+    notifyListeners();
+    _persistStringList('pressureCheckHiddenComponentTypes', newValue.map((type) => type.name).toList());
+  }
+
   set enableTimelineSetupGrouping(bool newValue) {
     if (newValue == _enableTimelineSetupGrouping) return;
     _enableTimelineSetupGrouping = newValue;
@@ -399,6 +420,11 @@ class AppSettings extends ChangeNotifier {
   void _persistInt(String name, int value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('$_kPrefix$name', value);
+  }
+
+  void _persistStringList(String name, List<String> value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('$_kPrefix$name', value);
   }
 
   Future<void> loadAppSettings() async {
@@ -451,6 +477,14 @@ class AppSettings extends ChangeNotifier {
       _enableSetupGuides = prefs.getBool('${_kPrefix}enableSetupGuides') ?? _enableSetupGuides;
       _enableInstallOnComponent = prefs.getBool('${_kPrefix}enableInstallOnComponent') ?? _enableInstallOnComponent;
       _enablePressureAssistant = prefs.getBool('${_kPrefix}enablePressureAssistant') ?? _enablePressureAssistant;
+      _pressureCheckThresholdPercent =
+          prefs.getInt('${_kPrefix}pressureCheckThresholdPercent') ?? _pressureCheckThresholdPercent;
+      final hiddenPressureCheckTypes = prefs.getStringList('${_kPrefix}pressureCheckHiddenComponentTypes');
+      if (hiddenPressureCheckTypes != null) {
+        _pressureCheckHiddenComponentTypes = Set.unmodifiable(
+          ComponentType.values.where((type) => hiddenPressureCheckTypes.contains(type.name)),
+        );
+      }
       _enableTimelineSetupGrouping =
           prefs.getBool('${_kPrefix}enableTimelineSetupGrouping') ?? _enableTimelineSetupGrouping;
       _enableTimelineReplacementDetection =
@@ -508,6 +542,8 @@ class AppSettings extends ChangeNotifier {
     _enableSetupGuides = defaults._enableSetupGuides;
     _enableInstallOnComponent = defaults._enableInstallOnComponent;
     _enablePressureAssistant = defaults._enablePressureAssistant;
+    _pressureCheckThresholdPercent = defaults._pressureCheckThresholdPercent;
+    _pressureCheckHiddenComponentTypes = defaults._pressureCheckHiddenComponentTypes;
     _enableTimelineSetupGrouping = defaults._enableTimelineSetupGrouping;
     _enableTimelineReplacementDetection = defaults._enableTimelineReplacementDetection;
     _enableTimelineStravaContext = defaults._enableTimelineStravaContext;
@@ -557,6 +593,9 @@ class AppSettings extends ChangeNotifier {
     _enableSetupGuides,
     _enableInstallOnComponent,
     _enablePressureAssistant,
+    _pressureCheckThresholdPercent,
+    // Sets compare by identity, so compare the sorted type names instead.
+    (_pressureCheckHiddenComponentTypes.map((type) => type.name).toList()..sort()).join(','),
     _enableTimelineSetupGrouping,
     _enableTimelineReplacementDetection,
     _enableTimelineStravaContext,

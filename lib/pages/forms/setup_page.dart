@@ -1217,15 +1217,18 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   Widget? _pressureCheck(List<Component> bikeComponents) {
     final provenance = _pressureDriftProvenance;
     if (provenance == null) return null;
+    final appSettings = context.read<AppSettings>();
+    final hiddenTypes = appSettings.pressureCheckHiddenComponentTypes;
 
     return ListenableBuilder(
       listenable: Listenable.merge([_currentLocation, _currentWeather]),
       builder: (context, child) => PressureDriftCard(
         entries: PressureDriftService.compute(
-          components: bikeComponents,
+          components: bikeComponents.where((component) => !hiddenTypes.contains(component.componentType)),
           provenance: provenance,
           currentWeather: _currentWeather.value,
           currentPosition: _currentLocation.value,
+          significanceThreshold: appSettings.pressureCheckThreshold,
         ),
       ),
     );

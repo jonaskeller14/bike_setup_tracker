@@ -14,6 +14,7 @@ import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../widgets/sheets/checkbox_group.dart';
 import '../../widgets/sheets/installation_timeline_hint_sheet.dart';
+import '../../widgets/sheets/pressure_check_setting_sheet.dart';
 import '../../widgets/sheets/radio_group.dart';
 import '../../widgets/sheets/subcomponents_hint_sheet.dart';
 import '../../widgets/text/section_title.dart';
@@ -198,17 +199,17 @@ class FeaturesPage extends StatelessWidget {
                 ],
               ),
               if (kDebugMode)
-                _FeatureToggleTile(
-                  icon: Icons.compress,
-                  title: "Pressure Check",
-                  value: appSettings.enablePressureAssistant,
-                  onChanged: (v) => appSettings.enablePressureAssistant = v,
-                  infoText:
-                      'When adding a setup, compares each pressure adjustment against the '
-                      'temperature and altitude of the setup that last changed it. A pump '
-                      'measures against the surrounding air, so colder or thinner air makes '
-                      'the same sealed chamber read differently — this tells you what your '
-                      'pump would read now, and whether the difference is worth correcting.',
+                ListTile(
+                  leading: const Icon(Icons.compress),
+                  title: const Text("Pressure Check"),
+                  subtitle: Text(
+                    appSettings.enablePressureAssistant
+                        ? 'On · ${appSettings.pressureCheckThresholdPercent} % · '
+                              '${pressureCheckComponentTypesSummary(appSettings.pressureCheckHiddenComponentTypes)}'
+                        : 'Off',
+                  ),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () => showPressureCheckSettingSheet(context),
                 ),
               if (kDebugMode)
                 _FeatureToggleTile(

@@ -163,6 +163,29 @@ void main() {
       expect(entry.adjustmentName, 'Air Pressure');
     });
 
+    test('the significance threshold is configurable', () {
+      // Intention: Riders pick their own threshold in the feature settings.
+      // Desired outcome: The same ~3.5 % drift is flagged at 3 % but not at 5 %.
+      // Not desired outcome: The default threshold applied regardless of the setting.
+      final setups = [
+        _setup(id: 's1', datetime: referenceDateTime, bikeAdjustmentValues: {forkPressure.id: const NumericalValue(80.0)}),
+      ];
+      final provenance = SetupResolutionService.resolveHistoricalProvenanceAt(
+        datetime: DateTime(2025, 4, 20).toUtc(),
+        setups: setups,
+      );
+      PressureDriftEntry entryAt(double threshold) => PressureDriftService.compute(
+        components: [fork],
+        provenance: provenance,
+        currentWeather: _currentWeather(),
+        currentPosition: _currentPosition(),
+        significanceThreshold: threshold,
+      ).single;
+
+      expect(entryAt(0.03).isSignificant, isTrue);
+      expect(entryAt(0.05).isSignificant, isFalse);
+    });
+
     test('the two causes are reported separately and add up to the total', () {
       // Intention: The split is the point of the card — cold and altitude pull in
       // opposite directions, so a big temperature swing can still be harmless.

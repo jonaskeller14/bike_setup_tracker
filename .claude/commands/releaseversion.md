@@ -182,6 +182,7 @@ create a GitHub release until the applicable confirmation gate has been approved
 - Create and verify the draft release using the built assets from step 8: `gh release create
   vX.Y.Z+B <assets...> --verify-tag --draft --title "vX.Y.Z+B" --notes-file <notes-file>`, then
   `gh release view`. Never publish the draft automatically.
+- Finish by pointing the user to `assets/store/release-steps.md` for the manual store submission.
 
 ## Constraints
 - **Default is a PR into `main`, never a direct push** — a direct push only happens if `--push`

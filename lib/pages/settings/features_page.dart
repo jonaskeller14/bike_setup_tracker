@@ -88,14 +88,13 @@ class FeaturesPage extends StatelessWidget {
                 },
                 sheet: (context, value) => showInstallationTimelineSettingSheet(context, value: value),
               ),
-              if (kDebugMode)
-                _FeatureToggleTile(
-                  icon: Icons.account_tree_outlined,
-                  title: "Subcomponents",
-                  value: appSettings.enableInstallOnComponent,
-                  onChanged: (v) => appSettings.enableInstallOnComponent = v,
-                  sheet: (context, value) => showSubcomponentsSettingSheet(context, value: value),
-                ),
+              _FeatureToggleTile(
+                icon: Icons.account_tree_outlined,
+                title: "Subcomponents",
+                value: appSettings.enableInstallOnComponent,
+                onChanged: (v) => appSettings.enableInstallOnComponent = v,
+                sheet: (context, value) => showSubcomponentsSettingSheet(context, value: value),
+              ),
               if (kDebugMode)
                 _FeatureToggleTile(
                   icon: Icons.auto_awesome_outlined,

@@ -286,6 +286,24 @@ void main() {
       expect(archive.files.map((f) => f.name), contains('attachments/${unlinked.filename}'));
     });
 
+    test('a bundle stores already-compressed attachments and deflates compressible ones', () async {
+      final database = AppDatabase.memory();
+      addTearDown(database.close);
+      final photo = Attachment(extension: '.JPG', name: 'photo.JPG');
+      final notes = Attachment(extension: '.txt', name: 'notes.txt');
+      final content = utf8.encode('rebound ' * 200);
+      await storeFile(photo, content);
+      await storeFile(notes, content);
+
+      final bundle = await service.exportBundle(database);
+      final archive = ZipDecoder().decodeBytes(await bundle.readAsBytes());
+
+      expect(archive.findFile('attachments/${photo.filename}')!.compressionType, ArchiveFile.STORE);
+      expect(archive.findFile('attachments/${notes.filename}')!.compressionType, ArchiveFile.DEFLATE);
+      expect(archive.findFile('data.json')!.compressionType, ArchiveFile.DEFLATE);
+      expect(archive.findFile('attachments/${photo.filename}')!.content, content);
+    });
+
     test('a recovery bundle holds the backup file as data.json and every stored file', () async {
       final attachment = Attachment(extension: '.jpg', name: 'photo.jpg');
       await storeFile(attachment, [1, 2]);

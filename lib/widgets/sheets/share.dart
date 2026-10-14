@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../database/app_database.dart';
@@ -9,18 +12,24 @@ import '../../utils/file_export.dart';
 import '../../utils/to_text.dart';
 import 'data_select.dart';
 import 'share_format.dart';
+import 'sheet_progress_content.dart';
 
 Future<void> shareData(BuildContext context) async {
-  final shareResult = await showModalBottomSheet<ShareResult?>(
+  await showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
     builder: (sheetContext) {
-      return ShareSheetFlow(appRepository: context.read<AppRepository>());
+      return ShareSheetFlow(
+        appRepository: context.read<AppRepository>(),
+        onShare: (shareResult) => _runShare(context, shareResult),
+      );
     },
   );
+}
 
-  if (shareResult == null) return;
+// Uses the caller's context (not the sheet's) so snackbars and the share sheet outlive the sheet.
+Future<void> _runShare(BuildContext context, ShareResult shareResult) async {
   if (!context.mounted) return;
 
   switch (shareResult.format) {
@@ -66,12 +75,14 @@ enum ShareSheetFlowSteps {
   step1SelectFormat,
   step2SelectDataMehod,
   step3SelectDataItems,
+  step4Sharing,
 }
 
 class ShareSheetFlow extends StatefulWidget {
   final AppRepository appRepository;
+  final Future<void> Function(ShareResult shareResult) onShare;
 
-  const ShareSheetFlow({super.key, required this.appRepository});
+  const ShareSheetFlow({super.key, required this.appRepository, required this.onShare});
 
   @override
   State<StatefulWidget> createState() => _ShareSheetFlowState();
@@ -81,6 +92,27 @@ class _ShareSheetFlowState extends State<ShareSheetFlow> {
   ShareSheetFlowSteps _step = ShareSheetFlowSteps.step1SelectFormat;
   ShareFormats? _shareFormat;
 
+  SelectedData get _allData => SelectedData(
+    persons: widget.appRepository.persons,
+    bikes: widget.appRepository.bikes,
+    components: widget.appRepository.components,
+    setups: widget.appRepository.setups,
+    ratings: widget.appRepository.ratings,
+    ratingEntries: widget.appRepository.ratingEntries,
+    taskRules: widget.appRepository.taskRules,
+    taskEntries: widget.appRepository.taskEntries,
+  );
+
+  Future<void> _share(SelectedData selectedData) async {
+    unawaited(HapticFeedback.mediumImpact());
+    setState(() => _step = ShareSheetFlowSteps.step4Sharing);
+    try {
+      await widget.onShare(ShareResult(format: _shareFormat!, selectedData: selectedData));
+    } finally {
+      if (mounted) Navigator.of(context).pop();
+    }
+  }
+
   void _onBack() {
     switch (_step) {
       case ShareSheetFlowSteps.step1SelectFormat:
@@ -89,6 +121,8 @@ class _ShareSheetFlowState extends State<ShareSheetFlow> {
         setState(() => _step = ShareSheetFlowSteps.step1SelectFormat);
       case ShareSheetFlowSteps.step3SelectDataItems:
         setState(() => _step = ShareSheetFlowSteps.step2SelectDataMehod);
+      case ShareSheetFlowSteps.step4Sharing:
+        break;
     }
   }
 
@@ -122,39 +156,23 @@ class _ShareSheetFlowState extends State<ShareSheetFlow> {
             },
           ),
           ShareSheetFlowSteps.step2SelectDataMehod => SelectDataMethodSheetContent(
-            onAllSelected: () => Navigator.of(context).pop(
-              ShareResult(
-              format: _shareFormat!, 
-              selectedData: SelectedData(
-                persons: widget.appRepository.persons,
-                bikes: widget.appRepository.bikes,
-                components: widget.appRepository.components,
-                setups: widget.appRepository.setups,
-                ratings: widget.appRepository.ratings,
-                ratingEntries: widget.appRepository.ratingEntries,
-                taskRules: widget.appRepository.taskRules,
-                taskEntries: widget.appRepository.taskEntries,
-                ),
-              ),
-            ),
+            onAllSelected: () => _share(_allData),
             onManualSelected: () => setState(() => _step = ShareSheetFlowSteps.step3SelectDataItems),
             onBack: _onBack, 
           ),
           ShareSheetFlowSteps.step3SelectDataItems => SelectDataItemsSheetContent(
-            allData: SelectedData(
-              persons: widget.appRepository.persons,
-              bikes: widget.appRepository.bikes,
-              components: widget.appRepository.components,
-              setups: widget.appRepository.setups,
-              ratings: widget.appRepository.ratings,
-              ratingEntries: widget.appRepository.ratingEntries,
-              taskRules: widget.appRepository.taskRules,
-              taskEntries: widget.appRepository.taskEntries,
-            ),
-            onConfirm: (SelectedData selected) {
-              Navigator.of(context).pop(ShareResult(format: _shareFormat!, selectedData: selected));
-            },
+            allData: _allData,
+            onConfirm: _share,
             onBack: _onBack,
+          ),
+          ShareSheetFlowSteps.step4Sharing => SheetProgressContent(
+            title: 'Share Data',
+            message: switch (_shareFormat!) {
+              ShareFormats.json => "Preparing JSON file…",
+              ShareFormats.text => "Preparing text…",
+              ShareFormats.csv => "Preparing CSV file…",
+              ShareFormats.xlsx => "Preparing Excel file…",
+            },
           ),
         },
       ),

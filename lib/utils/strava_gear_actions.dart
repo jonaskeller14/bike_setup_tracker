@@ -13,19 +13,9 @@ import '../widgets/app_snackbar.dart';
 class StravaGearActions {
   static Future<void> linkBike(BuildContext context, {required StravaGear gear, required Bike bike}) async {
     final appRepository = context.read<AppRepository>();
-    final messenger = ScaffoldMessenger.of(context);
 
     unawaited(HapticFeedback.selectionClick());
     await appRepository.editBikes([bike.copyWith(stravaGear: gear.id)]);
-
-    if (!context.mounted) return;
-    messenger.showSnackBar(
-      AppSnackBar.success(
-        context,
-        "Linked '${gear.name}' to '${bike.name}'.",
-        action: AppSnackBarAction(label: 'UNDO', onPressed: () => unawaited(appRepository.editBikes([bike]))),
-      ),
-    );
   }
 
   static Future<void> unlinkBike(BuildContext context, {required StravaGear gear, required Bike bike}) async {
@@ -47,7 +37,6 @@ class StravaGearActions {
 
   static Future<void> addAsNewBike(BuildContext context, {required StravaGear gear}) async {
     final appRepository = context.read<AppRepository>();
-    final messenger = ScaffoldMessenger.of(context);
     final newBike = Bike(
       name: gear.name,
       person: appRepository.persons.values.firstOrNull?.id,
@@ -56,14 +45,5 @@ class StravaGearActions {
 
     unawaited(HapticFeedback.selectionClick());
     await appRepository.addBikes([newBike]);
-
-    if (!context.mounted) return;
-    messenger.showSnackBar(
-      AppSnackBar.success(
-        context,
-        "Added bike '${newBike.name}' and linked it to '${gear.name}'.",
-        action: AppSnackBarAction(label: 'UNDO', onPressed: () => unawaited(appRepository.removeBikes([newBike]))),
-      ),
-    );
   }
 }

@@ -203,7 +203,7 @@ class AttachmentStorageService {
     }.map((a) => a.filename).toSet();
   }
 
-  Future<ImportBundleResult> importBundle() async {
+  Future<ImportBundleResult> importBundle({void Function()? onPicked}) async {
     final pickedFile = await FilePicker.pickFile(
       type: FileType.custom,
       allowedExtensions: ['zip'],
@@ -211,6 +211,7 @@ class AttachmentStorageService {
     if (pickedFile == null) {
       return ImportBundleResult.cancelled();
     }
+    onPicked?.call();
 
     try {
       final bytes = await pickedFile.readAsBytes();

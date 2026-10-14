@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../database/app_database.dart';
@@ -11,18 +14,24 @@ import '../../services/google_drive_service.dart';
 import '../../utils/file_export.dart';
 import 'data_select.dart';
 import 'sheet_header.dart';
+import 'sheet_progress_content.dart';
 
 Future<void> exportData(BuildContext context) async {
-  final ExportResult? exportResult = await showModalBottomSheet<ExportResult?>(
+  await showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
     builder: (sheetContext) {
-      return ExportSheetFlow(allData: context.read<AppRepository>());
+      return ExportSheetFlow(
+        allData: context.read<AppRepository>(),
+        onExport: (exportResult) => _runExport(context, exportResult),
+      );
     },
   );
+}
 
-  if (exportResult == null) return;
+// Uses the caller's context (not the sheet's) so snackbars outlive the sheet.
+Future<void> _runExport(BuildContext context, ExportResult exportResult) async {
   if (!context.mounted) return;
 
   switch (exportResult.exportDestination) {
@@ -61,12 +70,14 @@ class ExportResult {
 enum ExportSheetFlowSteps {
   step1SelectDestination,
   step2SelectDataMethod,
-  step3SelectDataItems
+  step3SelectDataItems,
+  step4Exporting
 }
 
 class ExportSheetFlow extends StatefulWidget {
   final AppRepository allData;
-  const ExportSheetFlow({super.key, required this.allData});
+  final Future<void> Function(ExportResult exportResult) onExport;
+  const ExportSheetFlow({super.key, required this.allData, required this.onExport});
 
   @override
   State<ExportSheetFlow> createState() => _ExportSheetFlowState();
@@ -87,6 +98,16 @@ class _ExportSheetFlowState extends State<ExportSheetFlow> {
     taskEntries: widget.allData.taskEntries,
   );
 
+  Future<void> _export(ExportDestination destination, SelectedData selectedData) async {
+    unawaited(HapticFeedback.mediumImpact());
+    setState(() => _step = ExportSheetFlowSteps.step4Exporting);
+    try {
+      await widget.onExport(ExportResult(exportDestination: destination, selectedData: selectedData));
+    } finally {
+      if (mounted) Navigator.of(context).pop();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -97,6 +118,7 @@ class _ExportSheetFlowState extends State<ExportSheetFlow> {
           case ExportSheetFlowSteps.step1SelectDestination: return;
           case ExportSheetFlowSteps.step2SelectDataMethod: setState(() => _step = ExportSheetFlowSteps.step1SelectDestination);
           case ExportSheetFlowSteps.step3SelectDataItems: setState(() => _step = ExportSheetFlowSteps.step2SelectDataMethod);
+          case ExportSheetFlowSteps.step4Exporting: return;
         }
       },
       child: AnimatedSwitcher(
@@ -107,43 +129,24 @@ class _ExportSheetFlowState extends State<ExportSheetFlow> {
               _destination = ExportDestination.file;
               setState(() => _step = ExportSheetFlowSteps.step2SelectDataMethod);
             },
-            onBackup: () => Navigator.of(context).pop(
-              ExportResult(
-              exportDestination: ExportDestination.backup,
-              selectedData: _allData,
-              ),
-            ),
-            onGoogleDriveBackup: () => Navigator.of(context).pop(
-              ExportResult(
-              exportDestination: ExportDestination.googleDriveBackup,
-              selectedData: _allData,
-              ),
-            ),
+            onBackup: () => _export(ExportDestination.backup, _allData),
+            onGoogleDriveBackup: () => _export(ExportDestination.googleDriveBackup, _allData),
             onAttachmentBundle: () {
               _destination = ExportDestination.attachmentBundle;
               setState(() => _step = ExportSheetFlowSteps.step2SelectDataMethod);
             },
           ),
           ExportSheetFlowSteps.step2SelectDataMethod => SelectDataMethodSheetContent(
-            onAllSelected: () => Navigator.of(context).pop(
-              ExportResult(
-              exportDestination: _destination,
-              selectedData: _allData,
-              ),
-            ),
+            onAllSelected: () => _export(_destination, _allData),
             onManualSelected: () => setState(() => _step = ExportSheetFlowSteps.step3SelectDataItems),
             onBack: () => setState(() => _step = ExportSheetFlowSteps.step1SelectDestination),
           ),
           ExportSheetFlowSteps.step3SelectDataItems => SelectDataItemsSheetContent(
             allData: _allData,
-            onConfirm: (SelectedData selected) => Navigator.of(context).pop(
-              ExportResult(
-              exportDestination: _destination,
-              selectedData: selected,
-              ),
-            ),
+            onConfirm: (SelectedData selected) => _export(_destination, selected),
             onBack: () => setState(() => _step = ExportSheetFlowSteps.step2SelectDataMethod),
           ),
+          ExportSheetFlowSteps.step4Exporting => ExportProgressSheetContent(destination: _destination),
         },
       ),
     );
@@ -215,5 +218,23 @@ class SelectExportDestinationSheetContent extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class ExportProgressSheetContent extends StatelessWidget {
+  final ExportDestination destination;
+
+  const ExportProgressSheetContent({super.key, required this.destination});
+
+  @override
+  Widget build(BuildContext context) {
+    final message = switch (destination) {
+      ExportDestination.file => "Preparing JSON file…",
+      ExportDestination.backup => "Saving backup…",
+      ExportDestination.googleDriveBackup => "Uploading backup to Google Drive…",
+      ExportDestination.attachmentBundle => "Packing data and attachments…",
+    };
+
+    return SheetProgressContent(title: 'Export Data', message: message);
   }
 }

@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../database/app_database.dart';
@@ -12,20 +15,25 @@ import 'backup.dart';
 import 'data_select.dart';
 import 'import_merge_overwrite.dart';
 import 'sheet_header.dart';
+import 'sheet_progress_content.dart';
 
 Future<void> importData(BuildContext context) async {
-  final scaffoldMessenger = ScaffoldMessenger.of(context);
-  final ImportResult? importResult = await showModalBottomSheet<ImportResult?>(
+  await showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
     builder: (sheetContext) {
-      return const ImportSheetFlow();
+      return ImportSheetFlow(
+        onImport: (importResult) => _runImport(context, importResult),
+      );
     },
   );
+}
 
-  if (importResult == null) return;
+// Uses the caller's context (not the sheet's) so snackbars outlive the sheet.
+Future<void> _runImport(BuildContext context, ImportResult importResult) async {
   if (!context.mounted) return;
+  final scaffoldMessenger = ScaffoldMessenger.of(context);
 
   try {
     final database = context.read<AppDatabase>();
@@ -91,10 +99,12 @@ enum ImportSheetFlowSteps {
   step3SelectDataMethod,
   step4SelectDataItems,
   step5SelectImportMethod,
+  step6Importing,
 }
 
 class ImportSheetFlow extends StatefulWidget {
-  const ImportSheetFlow({super.key});
+  final Future<void> Function(ImportResult importResult) onImport;
+  const ImportSheetFlow({super.key, required this.onImport});
 
   @override
   State<ImportSheetFlow> createState() => _ImportSheetFlowState();
@@ -106,6 +116,20 @@ class _ImportSheetFlowState extends State<ImportSheetFlow> {
 
   SelectedData? _remoteAllData;
   SelectedData? _remoteSelectedData;
+  ImportMethod? _importMethod;
+
+  Future<void> _import(ImportMethod importMethod) async {
+    unawaited(HapticFeedback.mediumImpact());
+    setState(() {
+      _importMethod = importMethod;
+      _step = ImportSheetFlowSteps.step6Importing;
+    });
+    try {
+      await widget.onImport(ImportResult(importMethod: importMethod, dataToImport: _remoteSelectedData!));
+    } finally {
+      if (mounted) Navigator.of(context).pop();
+    }
+  }
 
   void _setNextStep(ImportSheetFlowSteps nextStep) {
     setState(() {
@@ -132,6 +156,8 @@ class _ImportSheetFlowState extends State<ImportSheetFlow> {
         break;
       case ImportSheetFlowSteps.step5SelectImportMethod:
         break;
+      case ImportSheetFlowSteps.step6Importing:
+        return;
     }
 
     setState(() {
@@ -196,25 +222,18 @@ class _ImportSheetFlowState extends State<ImportSheetFlow> {
             onBack: _onBack,
           ),
           ImportSheetFlowSteps.step5SelectImportMethod => SelectImportMethodSheetContent(
-            onOverwrite: () => Navigator.of(context).pop(
-              ImportResult(
-                importMethod: ImportMethod.overwrite,
-                dataToImport: _remoteSelectedData!,
-              ),
-            ),
-            onMerge: () => Navigator.of(context).pop(
-              ImportResult(
-                importMethod: ImportMethod.merge,
-                dataToImport: _remoteSelectedData!,
-              ),
-            ),
-            onReplace: () => Navigator.of(context).pop(
-              ImportResult(
-                importMethod: ImportMethod.replace,
-                dataToImport: _remoteSelectedData!,
-              ),
-            ),
+            onOverwrite: () => _import(ImportMethod.overwrite),
+            onMerge: () => _import(ImportMethod.merge),
+            onReplace: () => _import(ImportMethod.replace),
             onBack: _onBack,
+          ),
+          ImportSheetFlowSteps.step6Importing => SheetProgressContent(
+            title: 'Import Data',
+            message: switch (_importMethod!) {
+              ImportMethod.merge => "Merging data…",
+              ImportMethod.overwrite => "Overwriting data…",
+              ImportMethod.replace => "Replacing data…",
+            },
           ),
         },
       ),
@@ -238,9 +257,17 @@ class SelectImportSourceSheetContent extends StatefulWidget {
 
 class _SelectImportSourceSheetContentState extends State<SelectImportSourceSheetContent> {
   String? _filePickingError;
+  String? _readingMessage;
 
   @override
   Widget build(BuildContext context) {
+    if (_readingMessage != null) {
+      return PopScope(
+        canPop: false,
+        child: SheetProgressContent(title: 'Import Data', message: _readingMessage!),
+      );
+    }
+
     return SafeArea(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -266,7 +293,12 @@ class _SelectImportSourceSheetContentState extends State<SelectImportSourceSheet
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                     onTap: () async {
                       final appDatabase = context.read<AppDatabase>();
-                      final result = await FileImport.pickAndReadJsonFile(appDatabase: appDatabase);
+                      final result = await FileImport.pickAndReadJsonFile(
+                        appDatabase: appDatabase,
+                        onPicked: () => setState(() => _readingMessage = "Reading file…"),
+                      );
+                      if (!mounted) return;
+                      setState(() => _readingMessage = null);
                       if (result.isError) {
                         setState(() => _filePickingError = result.errorMessage);
                       } else {
@@ -288,7 +320,11 @@ class _SelectImportSourceSheetContentState extends State<SelectImportSourceSheet
                       subtitle: const Text("Restore data and attachments from a ZIP bundle"),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: () async {
-                        final result = await AttachmentStorageService().importBundle();
+                        final result = await AttachmentStorageService().importBundle(
+                          onPicked: () => setState(() => _readingMessage = "Unpacking data and attachments…"),
+                        );
+                        if (!mounted) return;
+                        setState(() => _readingMessage = null);
                         if (result.isCancelled) return;
                         if (result.isError) {
                           setState(() => _filePickingError = result.errorMessage);

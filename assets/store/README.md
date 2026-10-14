@@ -50,6 +50,19 @@ screenshot layout is planned in #69.
   `lib/pages/settings/features_page.dart` stay out of the copy until they ship.
 - **Subtitle and keyword changes ship with an app version.** Watch the two weeks after the release.
 
+## Screenshot sizes
+
+| Folder | Raw `0N_raw.png` | Exported `0N.png` |
+|---|---|---|
+| `app-store/iPhone-17-Pro-Max` | 1320×2868 | 1206×2622 |
+| `app-store/iPad-Pro-13-inch_M5` | 2064×2752 | n/a, not checked |
+| `play-store/phone` | 1080×2400 | n/a, not checked |
+| `play-store/tablet_10-inch` | 1200×1920 | n/a, not checked |
+
+The iPhone exports are 1206×2622, the only size (besides 1179×2556) App Store Connect accepts in the
+6.1″/6.3″ slot. One set serves the default page and all custom product pages.
+`tool/screenshots/check_output.py` checks both columns where a size is listed.
+
 ## App previews
 
 App Store, iPhone only: 886×1920 HEVC, 30 s, 30 fps, recorded with v1.3.7. They are tracked in Git

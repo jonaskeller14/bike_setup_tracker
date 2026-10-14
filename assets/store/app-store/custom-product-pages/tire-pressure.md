@@ -9,7 +9,7 @@ cpp-tire-pressure
 
 ## URL
 ```
-pending review
+https://apps.apple.com/us/app/bike-setup-tracker/id6759974325?ppid=c4b6a4de-67fd-490e-978d-c6e1cbf579ec
 ```
 
 ## Linked from

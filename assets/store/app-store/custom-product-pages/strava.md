@@ -9,7 +9,7 @@ cpp-strava
 
 ## URL
 ```
-pending review
+https://apps.apple.com/us/app/bike-setup-tracker/id6759974325?ppid=56b17fd4-2343-4d6a-addc-0f859fbb0cee
 ```
 
 ## Linked from
@@ -22,12 +22,10 @@ strava-club, strava-jk, strava-directory
 
 ### en-US
 ```
-strava
 ```
 
 ### de-DE
 ```
-strava
 ```
 
 ## Promotional Text

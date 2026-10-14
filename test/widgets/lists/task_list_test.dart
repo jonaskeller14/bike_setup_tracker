@@ -5,6 +5,7 @@ import 'package:bike_setup_tracker/models/task/task_entry.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/services/app_hint_service.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/chips/task_list_filter_widget.dart';
@@ -25,12 +26,14 @@ void main() {
   late AppRepository repository;
   late AppSettings settings;
   late MockSubscriptionService subscription;
+  late AppHintService hintService;
 
   setUp(() {
     database = AppDatabase.memory();
     repository = AppRepository(database);
     settings = AppSettings();
     subscription = MockSubscriptionService();
+    hintService = AppHintService(appRepository: repository, appSettings: settings);
     when(() => subscription.hasStravaEntitlement).thenReturn(false);
   });
 
@@ -51,6 +54,7 @@ void main() {
         ChangeNotifierProvider<AppRepository>.value(value: repository),
         ChangeNotifierProvider<AppSettings>.value(value: settings),
         ChangeNotifierProvider<SubscriptionService>.value(value: subscription),
+        ChangeNotifierProvider<AppHintService>.value(value: hintService),
       ],
       child: MaterialApp(
         theme: materialAppTheme,

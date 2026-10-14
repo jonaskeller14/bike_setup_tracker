@@ -3,7 +3,8 @@
 Usage: python tool/screenshots/check_output.py [folder ...]
 
 Folders are keys of EXPECTED_SIZES (e.g. play-store/phone); default is all.
-Exits 1 if any raw is missing or has an unexpected size.
+Folders in FRAMED_SIZES also have their exported frames (0N.png) checked.
+Exits 1 if any raw or checked frame is missing or has an unexpected size.
 """
 
 import struct
@@ -22,6 +23,12 @@ EXPECTED_SIZES = {
     "play-store/tablet_10-inch": (1200, 1920),
     "app-store/iPhone-17-Pro-Max": (1320, 2868),
     "app-store/iPad-Pro-13-inch_M5": (2064, 2752),
+}
+
+# App Store Connect's 6.1"/6.3" iPhone slot (default page and custom product
+# pages) only accepts 1179x2556 and 1206x2622.
+FRAMED_SIZES = {
+    "app-store/iPhone-17-Pro-Max": (1206, 2622),
 }
 
 
@@ -56,21 +63,25 @@ def main(argv):
 
     problems = []
     for folder in folders:
-        expected = EXPECTED_SIZES[folder]
-        for index in range(1, SCREEN_COUNT + 1):
-            path = STORE_DIR / folder / f"{index:02d}_raw.png"
-            if not path.exists():
-                problems.append(f"{folder}/{path.name}: missing")
-                continue
-            try:
-                size = png_size(path)
-            except ValueError as error:
-                problems.append(f"{folder}/{path.name}: {error}")
-                continue
-            if size != expected:
-                problems.append(
-                    f"{folder}/{path.name}: {size[0]}x{size[1]}, expected {expected[0]}x{expected[1]}"
-                )
+        checks = [("_raw.png", EXPECTED_SIZES[folder])]
+        if folder in FRAMED_SIZES:
+            checks.append((".png", FRAMED_SIZES[folder]))
+        for suffix, expected in checks:
+            for index in range(1, SCREEN_COUNT + 1):
+                path = STORE_DIR / folder / f"{index:02d}{suffix}"
+                if not path.exists():
+                    problems.append(f"{folder}/{path.name}: missing")
+                    continue
+                try:
+                    size = png_size(path)
+                except ValueError as error:
+                    problems.append(f"{folder}/{path.name}: {error}")
+                    continue
+                if size != expected:
+                    problems.append(
+                        f"{folder}/{path.name}: {size[0]}x{size[1]}, "
+                        f"expected {expected[0]}x{expected[1]}"
+                    )
 
     changed = changed_raws(folders)
     print(f"Changed raws vs HEAD ({len(changed)}):")
@@ -81,8 +92,9 @@ def main(argv):
         print()
         print("!" * 72)
         print("SIZE CHECK FAILED - the Affinity device frames in")
-        print("assets/store/screenshots.af assume the expected sizes. Fix the")
-        print("device/AVD, or adjust the frames before recomposing:")
+        print("assets/store/screenshots.af assume the expected raw sizes. Fix the")
+        print("device/AVD, or adjust the frames before recomposing. Wrong frame")
+        print("exports (0N.png) need re-exporting from Affinity:")
         for problem in problems:
             print(f"  {problem}")
         print("!" * 72)

@@ -9,7 +9,7 @@ cpp-service
 
 ## URL
 ```
-pending review
+https://apps.apple.com/us/app/bike-setup-tracker/id6759974325?ppid=a8569e78-a07a-4f14-a6f1-99695df7cf6d
 ```
 
 ## Linked from

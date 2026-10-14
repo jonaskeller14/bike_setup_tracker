@@ -104,10 +104,18 @@ class GuideStatusPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = status.color(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(color: color.withValues(alpha: 0.14), borderRadius: BorderRadius.circular(12)),
-      child: GuideStatusBadge(status),
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 250),
+      transitionBuilder: (child, animation) => FadeTransition(
+        opacity: animation,
+        child: ScaleTransition(scale: Tween(begin: 0.85, end: 1.0).animate(animation), child: child),
+      ),
+      child: Container(
+        key: ValueKey((status.kind, status.label)),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        decoration: BoxDecoration(color: color.withValues(alpha: 0.14), borderRadius: BorderRadius.circular(12)),
+        child: GuideStatusBadge(status),
+      ),
     );
   }
 }

@@ -140,16 +140,11 @@ void main() {
     semantics.dispose();
   });
 
-  testWidgets('outlines the bar of the recommended value, next to the current one', (tester) async {
-    List<BorderSide> rodBorders() => tester
-        .widget<BarChart>(find.byType(BarChart))
-        .data
-        .barGroups
-        .map((group) => group.barRods.single.borderSide)
-        .toList();
+  testWidgets('marks the recommended value with an icon, next to the current one', (tester) async {
+    final icon = find.byIcon(Icons.tips_and_updates_outlined);
 
     await tester.pumpWidget(harness(histogram()));
-    expect(rodBorders().map((side) => side.width), [0, 0]);
+    expect(icon, findsNothing);
 
     final semantics = tester.ensureSemantics();
     for (final theme in [materialAppTheme, materialAppDarkTheme]) {
@@ -162,8 +157,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(rodBorders().map((side) => side.width), [0, 2]);
-      expect(rodBorders().last.color, theme.colorScheme.tertiaryContainer);
+      expect(icon, findsOneWidget);
     }
     expect(
       find.bySemanticsLabel(

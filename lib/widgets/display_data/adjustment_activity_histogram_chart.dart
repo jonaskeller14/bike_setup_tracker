@@ -11,7 +11,7 @@ class AdjustmentActivityHistogramChart extends StatelessWidget {
   final AdjustmentActivityHistogram histogram;
   final AdjustmentValue? currentValue;
 
-  /// The setup guide's recommended value, marked with an outline.
+  /// The setup guide's recommended value, marked with an icon above its bar.
   final AdjustmentValue? guideValue;
 
   const AdjustmentActivityHistogramChart({super.key, required this.histogram, this.currentValue, this.guideValue});
@@ -61,7 +61,21 @@ class AdjustmentActivityHistogramChart extends StatelessWidget {
                     ),
                   ),
                   titlesData: FlTitlesData(
-                    topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    topTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: recommended.isNotEmpty,
+                        reservedSize: 20,
+                        getTitlesWidget: (value, meta) {
+                          final index = value.toInt();
+                          if (!recommended.contains(index)) return const SizedBox.shrink();
+                          return SideTitleWidget(
+                            meta: meta,
+                            space: 4,
+                            child: Icon(Icons.tips_and_updates_outlined, size: 16, color: colorScheme.onSecondary),
+                          );
+                        },
+                      ),
+                    ),
                     rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                     leftTitles: AxisTitles(
                       axisNameSize: 18,
@@ -133,9 +147,6 @@ class AdjustmentActivityHistogramChart extends StatelessWidget {
                             color: highlighted.isEmpty || highlighted.contains(index)
                                 ? colorScheme.primaryContainer
                                 : colorScheme.primaryContainer.withValues(alpha: 0.4),
-                            borderSide: recommended.contains(index)
-                                ? BorderSide(color: colorScheme.tertiaryContainer, width: 2)
-                                : null,
                             borderRadius: const BorderRadius.vertical(top: Radius.circular(3)),
                           ),
                         ],

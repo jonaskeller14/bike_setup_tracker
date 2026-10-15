@@ -110,6 +110,8 @@ tool/screenshots/run_ios.sh iphone --preview           # records flows/preview_*
 - **Recording.** Maestro's `startRecording: <name>` and `stopRecording` wrap `simctl io recordVideo`. The clip has the simulator's full resolution (1320×2868 on the iPhone, 2064×2752 on the iPad), H.264, no audio track, and a variable frame rate, because the simulator only writes a frame when the screen changes.
 - **Pacing.** Maestro has no sleep command. `flows/_pause.yaml` waits `MS` milliseconds for an element that never appears. Without pauses the flow runs faster than a viewer can follow.
 - **Touch dots.** With `--preview`, the app draws a dot under every tap and drag (`lib/screenshots/touch_indicator.dart`).
+  - Maestro's taps last a few milliseconds, so each dot stays at least 450 ms, with a ring expanding from it, before it fades out.
+  - Each dot is drawn up to 6 px off the touch, so taps don't all land on the exact centre of a button. Only the drawing moves; the tap itself stays where the flow put it. The offsets come from a fixed seed, so every recording of a flow looks the same.
   - The Simulator's own *Show Single Touches* setting can't do this. It only follows the mouse in the Simulator window, so it is neither part of the recorded video nor triggered by Maestro's synthesized touches.
   - The run script switches the dots on by creating the marker file `Documents/screenshot_show_touches` in the app's data container, and deletes it at the end. A file is used because Dart can't read environment variables on iOS. Every run deletes a leftover marker first, so the raws stay free of dots.
   - `run_android.sh --demo` creates the same marker in the app's `app_flutter` folder with `adb shell run-as`, so both platforms show the same dots.

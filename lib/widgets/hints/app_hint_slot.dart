@@ -9,6 +9,7 @@ import '../../services/app_hint_service.dart';
 import '../app_snackbar.dart';
 import 'garage_list_hint.dart';
 import 'getting_started_guide_hint.dart';
+import 'release_44_hint.dart';
 import 'setup_calendar_hint.dart';
 import 'setup_comparison_hint.dart';
 import 'setup_task_hint.dart';
@@ -18,6 +19,8 @@ import 'task_list_hint.dart';
 
 class AppHintSlot extends StatelessWidget {
   static const _sizeAnimationDuration = Duration(milliseconds: 200);
+  static const _subcomponentsEnabledMessage =
+      'Subcomponents enabled — edit a part and pick its parent under "Installed on"';
   final EdgeInsetsGeometry padding;
 
   const AppHintSlot({super.key, required this.placement, this.padding = EdgeInsetsGeometry.zero});
@@ -59,6 +62,11 @@ class AppHintSlot extends StatelessWidget {
       ),
       AppHint.taskGesturesV1 => TaskListHint(
         onDismiss: () => unawaited(hintService.dismiss(AppHint.taskGesturesV1)),
+      ),
+      AppHint.release44 => Release44Hint(
+        onDismiss: () => unawaited(hintService.dismiss(AppHint.release44)),
+        onEnableSubcomponents: () async => _turnOnSubcomponents(context),
+        onEnableAttachments: () => _enableAttachments(context, hintService),
       ),
     };
 
@@ -102,7 +110,27 @@ class AppHintSlot extends StatelessWidget {
     await hintService.complete(AppHint.subcomponentsV1);
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      AppSnackBar.success(context, 'Subcomponents enabled — edit a part and pick its parent under "Installed on"'),
+      AppSnackBar.success(context, _subcomponentsEnabledMessage),
+    );
+  }
+
+  /// Leaves the hint pending, so a deck can move on to its next card.
+  void _turnOnSubcomponents(BuildContext context) {
+    context.read<AppSettings>().enableInstallOnComponent = true;
+    ScaffoldMessenger.of(context).showSnackBar(
+      AppSnackBar.success(context, _subcomponentsEnabledMessage),
+    );
+  }
+
+  Future<void> _enableAttachments(
+    BuildContext context,
+    AppHintService hintService,
+  ) async {
+    context.read<AppSettings>().enableAttachments = true;
+    await hintService.complete(AppHint.release44);
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      AppSnackBar.success(context, 'Attachments enabled — add photos and files to bikes, components, setups and tasks'),
     );
   }
 }

@@ -515,16 +515,15 @@ void main() {
       await pumpEventQueue();
     }
 
-    test('a first run announces the installed build only', () async {
+    test('a new install announces nothing, not even the installed build', () async {
       await seedContent();
       final service = createReleaseService();
       await service.load();
       service.update(appRepository: repository, appSettings: settings);
 
       final preferences = await SharedPreferences.getInstance();
-      expect(preferences.getInt('app_hint.releaseBaselineBuild'), 41);
-      // Older features count as seen — nobody gets a backlog on the first run.
-      expect(service.activeHintFor(AppHintPlacement.garageHeader), currentFeature);
+      expect(preferences.getInt('app_hint.releaseBaselineBuild'), 42);
+      expect(service.activeHintFor(AppHintPlacement.garageHeader), isNull);
     });
 
     test('the same hint shows in Garage and Setups until it is dismissed', () async {
@@ -553,8 +552,12 @@ void main() {
 
     test('the baseline is pinned once, so an ignored hint survives an update', () async {
       await seedContent();
-      final service = createReleaseService();
-      await service.load();
+      await createReleaseService(currentBuild: 41).load();
+
+      final updated = createReleaseService();
+      await updated.load();
+      updated.update(appRepository: repository, appSettings: settings);
+      expect(updated.activeHintFor(AppHintPlacement.garageHeader), currentFeature);
 
       // Closing the app without acting on the hint, then updating again.
       final reloaded = createReleaseService(currentBuild: 43);
@@ -590,17 +593,18 @@ void main() {
       expect(service.activeHintFor(AppHintPlacement.garageHeader), AppHint.gettingStartedV1);
     });
 
-    test('resetAll replays every release hint', () async {
+    test('resetAll starts over like a new install, without a release backlog', () async {
+      SharedPreferences.setMockInitialValues({'app_hint.releaseBaselineBuild': 39});
       await seedContent();
       final service = createReleaseService();
       await service.load();
-      await service.dismiss(currentFeature);
+      await service.dismiss(oldFeature);
       await service.resetAll();
       service.update(appRepository: repository, appSettings: settings);
 
       final preferences = await SharedPreferences.getInstance();
-      expect(preferences.getInt('app_hint.releaseBaselineBuild'), 0);
-      expect(service.activeHintFor(AppHintPlacement.garageHeader), oldFeature);
+      expect(preferences.getInt('app_hint.releaseBaselineBuild'), 42);
+      expect(service.activeHintFor(AppHintPlacement.garageHeader), isNull);
     });
   });
 }

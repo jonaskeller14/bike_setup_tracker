@@ -20,7 +20,20 @@ class AppHintAction {
 
   /// Whether the card flies away before [onPressed] runs. Set to false for
   /// actions that keep the hint on screen (e.g. one step of a checklist).
+  /// On a card before the last one, the deck advances after [onPressed] instead.
   final bool completesHint;
+}
+
+class AppHintPage {
+  const AppHintPage({required this.content, this.title, this.action, this.onLearnMore});
+
+  final Widget content;
+  final String? title;
+  final AppHintAction? action;
+
+  /// Opens an explainer, e.g. the sheet of the Features page. Resolving to
+  /// true runs [action] as if it had been tapped.
+  final Future<bool?> Function()? onLearnMore;
 }
 
 class AppHintDeck extends StatefulWidget {
@@ -29,22 +42,14 @@ class AppHintDeck extends StatefulWidget {
     required this.icon,
     required this.label,
     required this.pages,
-    this.title,
     this.onDismiss,
-    this.action,
-    this.onLearnMore,
     this.dismissLabel = 'No thanks',
   }) : assert(pages.length > 0);
 
   final IconData icon;
   final String label;
-  final String? title;
-  final List<Widget> pages;
+  final List<AppHintPage> pages;
   final VoidCallback? onDismiss;
-  final AppHintAction? action;
-  /// Opens an explainer, e.g. the sheet of the Features page. Resolving to
-  /// true runs [action] as if it had been tapped.
-  final Future<bool?> Function()? onLearnMore;
   final String dismissLabel;
 
   @override
@@ -143,13 +148,21 @@ class _AppHintDeckState extends State<AppHintDeck> with SingleTickerProviderStat
       unawaited(action.onPressed());
       return;
     }
+    if (!_isLast) return unawaited(_advanceAfter(action.onPressed));
     unawaited(_flyAway(action.onPressed));
   }
 
+  Future<void> _advanceAfter(Future<void> Function() onPressed) async {
+    await onPressed();
+    if (mounted) await _fly(forward: true);
+  }
+
   Future<void> _learnMore() async {
-    final activate = await widget.onLearnMore!();
-    final action = widget.action;
-    if (activate != true || action == null || !mounted) return;
+    final index = _index;
+    final page = widget.pages[index];
+    final activate = await page.onLearnMore!();
+    final action = page.action;
+    if (activate != true || action == null || !mounted || index != _index) return;
     _onAction(action);
   }
 
@@ -247,7 +260,8 @@ class _AppHintDeckState extends State<AppHintDeck> with SingleTickerProviderStat
     final hint = HintColors.of(context);
     final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final title = widget.title;
+    final page = widget.pages[index];
+    final hasLearnMore = page.onLearnMore != null;
     final label = _paged ? '${widget.label.toUpperCase()} ${index + 1} / $_count' : widget.label.toUpperCase();
 
     final card = Container(
@@ -267,11 +281,11 @@ class _AppHintDeckState extends State<AppHintDeck> with SingleTickerProviderStat
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 12, 6),
-            child: _buildContent(index, hint, textTheme, title, label),
+            child: _buildContent(index, hint, textTheme, page, label),
           ),
           // Positioned so its touch target doesn't push the header down; the icon
           // sits as far from the top edge as from the right one.
-          if (widget.onLearnMore != null)
+          if (hasLearnMore)
             Positioned(
               top: 4,
               right: 4,
@@ -292,7 +306,8 @@ class _AppHintDeckState extends State<AppHintDeck> with SingleTickerProviderStat
     return interactive ? card : IgnorePointer(child: ExcludeSemantics(child: card));
   }
 
-  Widget _buildContent(int index, HintColors hint, TextTheme textTheme, String? title, String label) {
+  Widget _buildContent(int index, HintColors hint, TextTheme textTheme, AppHintPage page, String label) {
+    final title = page.title;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -311,7 +326,7 @@ class _AppHintDeckState extends State<AppHintDeck> with SingleTickerProviderStat
               ),
             ),
             // Keeps the label clear of the corner info button.
-            if (widget.onLearnMore != null) const SizedBox(width: 24),
+            if (page.onLearnMore != null) const SizedBox(width: 24),
           ],
         ),
         if (title != null) ...[
@@ -324,7 +339,7 @@ class _AppHintDeckState extends State<AppHintDeck> with SingleTickerProviderStat
         const SizedBox(height: 6),
         DefaultTextStyle.merge(
           style: textTheme.bodyMedium?.copyWith(color: hint.onContainer),
-          child: widget.pages[index],
+          child: page.content,
         ),
         if (_paged) const Spacer(),
         const SizedBox(height: 4),
@@ -341,15 +356,14 @@ class _AppHintDeckState extends State<AppHintDeck> with SingleTickerProviderStat
         Expanded(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
-            children: _buildButtons(isLast, hint),
+            children: _buildButtons(isLast, widget.pages[index].action, hint),
           ),
         ),
       ],
     );
   }
 
-  List<Widget> _buildButtons(bool isLast, HintColors hint) {
-    final action = widget.action;
+  List<Widget> _buildButtons(bool isLast, AppHintAction? action, HintColors hint) {
     final canDismiss = widget.onDismiss != null;
     final filledStyle = FilledButton.styleFrom(
       backgroundColor: hint.accent,
@@ -361,24 +375,32 @@ class _AppHintDeckState extends State<AppHintDeck> with SingleTickerProviderStat
       visualDensity: VisualDensity.compact,
     );
 
+    final actionButton = action == null
+        ? null
+        : Flexible(
+            child: FilledButton.icon(
+              onPressed: () => _onAction(action),
+              style: filledStyle,
+              icon: Icon(action.icon, size: 18),
+              label: Text(action.label, overflow: TextOverflow.ellipsis),
+            ),
+          );
+
     return [
-      if (!isLast) ...[
+      // "Next" doubles as "not now" here; a third "Skip" button would crowd out the action.
+      if (!isLast && actionButton != null) ...[
+        TextButton(onPressed: () => unawaited(_fly(forward: true)), style: textStyle, child: const Text('Next')),
+        actionButton,
+      ] else if (!isLast) ...[
         if (canDismiss) TextButton(onPressed: _fadeOut, style: textStyle, child: const Text('Skip')),
         FilledButton(
           onPressed: () => unawaited(_fly(forward: true)),
           style: filledStyle,
           child: const Text('Next'),
         ),
-      ] else if (action != null) ...[
+      ] else if (actionButton != null) ...[
         if (canDismiss) TextButton(onPressed: _fadeOut, style: textStyle, child: Text(widget.dismissLabel)),
-        Flexible(
-          child: FilledButton.icon(
-            onPressed: () => _onAction(action),
-            style: filledStyle,
-            icon: Icon(action.icon, size: 18),
-            label: Text(action.label, overflow: TextOverflow.ellipsis),
-          ),
-        ),
+        actionButton,
       ] else if (canDismiss)
         FilledButton(
           onPressed: () => unawaited(_flyAway(() async => widget.onDismiss?.call())),

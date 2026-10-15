@@ -15,10 +15,14 @@ class SetupCalendarHint extends StatelessWidget {
     return AppHintDeck(
       icon: Icons.event,
       label: 'Suggestion',
-      title: 'See your history at a glance',
-      pages: const [Text('Turn on the Calendar to browse your setups and entries by date.')],
+      pages: [
+        AppHintPage(
+          title: 'See your history at a glance',
+          action: AppHintAction(label: 'Turn on Calendar', icon: Icons.calendar_month, onPressed: onActivate),
+          content: const Text('Turn on the Calendar to browse your setups and entries by date.'),
+        ),
+      ],
       onDismiss: onDismiss,
-      action: AppHintAction(label: 'Turn on Calendar', icon: Icons.calendar_month, onPressed: onActivate),
     );
   }
 }

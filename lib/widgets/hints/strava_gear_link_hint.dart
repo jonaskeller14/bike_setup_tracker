@@ -12,9 +12,11 @@ class StravaGearLinkHint extends StatelessWidget {
     return AppHintDeck(
       icon: Icons.info_outline,
       label: 'Info',
-      title: 'Link your Strava gear',
       pages: const [
-        Text('Choose a bike for each gear. Your setups are then matched with the right Strava activities.'),
+        AppHintPage(
+          title: 'Link your Strava gear',
+          content: Text('Choose a bike for each gear. Your setups are then matched with the right Strava activities.'),
+        ),
       ],
       onDismiss: onDismiss,
     );

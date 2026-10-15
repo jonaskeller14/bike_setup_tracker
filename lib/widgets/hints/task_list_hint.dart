@@ -14,9 +14,11 @@ class TaskListHint extends StatelessWidget {
     return AppHintDeck(
       icon: Icons.swipe_left_outlined,
       label: 'Tip',
-      title: 'Postpone a task',
       pages: const [
-        Text('Swipe a task to the left to add a delay. This works for every interval type except a fixed date.'),
+        AppHintPage(
+          title: 'Postpone a task',
+          content: Text('Swipe a task to the left to add a delay. This works for every interval type except a fixed date.'),
+        ),
       ],
       onDismiss: onDismiss,
     );

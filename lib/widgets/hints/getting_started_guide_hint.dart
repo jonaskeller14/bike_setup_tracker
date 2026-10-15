@@ -43,73 +43,75 @@ class GettingStartedGuideHint extends StatelessWidget {
       label: 'Steps to get started',
       onDismiss: onDismiss,
       dismissLabel: 'Hide guide',
-      action: AppHintAction(
-        label: steps[currentIndex].label,
-        icon: Icons.add,
-        completesHint: false,
-        onPressed: () async {
-          switch (currentIndex) {
-            case 0: await BikeActions.addBike(context);
-            case 1: await ComponentActions.addComponent(context);
-            case 2: await SetupActions.addSetup(context);
-          }
-        },
-      ),
       pages: [
-        Padding(
-          padding: const EdgeInsets.only(top: 6),
-          child: FixedTimeline.tileBuilder(
-            theme: TimelineThemeData(
-              nodePosition: 0,
-              indicatorPosition: 0, // Aligns indicator to the top of the content
-              indicatorTheme: const IndicatorThemeData(size: 26.0),
-              connectorTheme: ConnectorThemeData(
-                thickness: 2.0,
-                color: colorScheme.primary.withValues(alpha: 0.25),
+        AppHintPage(
+          action: AppHintAction(
+            label: steps[currentIndex].label,
+            icon: Icons.add,
+            completesHint: false,
+            onPressed: () async {
+              switch (currentIndex) {
+                case 0: await BikeActions.addBike(context);
+                case 1: await ComponentActions.addComponent(context);
+                case 2: await SetupActions.addSetup(context);
+              }
+            },
+          ),
+          content: Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: FixedTimeline.tileBuilder(
+              theme: TimelineThemeData(
+                nodePosition: 0,
+                indicatorPosition: 0, // Aligns indicator to the top of the content
+                indicatorTheme: const IndicatorThemeData(size: 26.0),
+                connectorTheme: ConnectorThemeData(
+                  thickness: 2.0,
+                  color: colorScheme.primary.withValues(alpha: 0.25),
+                ),
               ),
-            ),
-            builder: TimelineTileBuilder.connected(
-              connectionDirection: ConnectionDirection.after,
-              itemCount: steps.length,
-              contentsBuilder: (context, index) {
-                final step = steps[index];
-                final isCurrent = index == currentIndex;
+              builder: TimelineTileBuilder.connected(
+                connectionDirection: ConnectionDirection.after,
+                itemCount: steps.length,
+                contentsBuilder: (context, index) {
+                  final step = steps[index];
+                  final isCurrent = index == currentIndex;
 
-                return Padding(
-                  padding: EdgeInsets.only(left: 14.0, top: 2.0, bottom: index == steps.length - 1 ? 8.0 : 20.0),
-                  child: Text(
-                    step.label,
-                    style: textTheme.bodyMedium?.copyWith(
-                      color: step.isCompleted
-                          ? hint.onContainer.withValues(alpha: 0.45)
-                          : isCurrent
-                              ? hint.onContainer
-                              : hint.onContainer.withValues(alpha: 0.65),
-                      fontWeight: isCurrent ? FontWeight.w600 : FontWeight.normal,
-                      decoration: step.isCompleted ? TextDecoration.lineThrough : null,
-                      decorationColor: hint.onContainer.withValues(alpha: 0.35),
+                  return Padding(
+                    padding: EdgeInsets.only(left: 14.0, top: 2.0, bottom: index == steps.length - 1 ? 8.0 : 20.0),
+                    child: Text(
+                      step.label,
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: step.isCompleted
+                            ? hint.onContainer.withValues(alpha: 0.45)
+                            : isCurrent
+                                ? hint.onContainer
+                                : hint.onContainer.withValues(alpha: 0.65),
+                        fontWeight: isCurrent ? FontWeight.w600 : FontWeight.normal,
+                        decoration: step.isCompleted ? TextDecoration.lineThrough : null,
+                        decorationColor: hint.onContainer.withValues(alpha: 0.35),
+                      ),
                     ),
-                  ),
-                );
-              },
-              indicatorBuilder: (context, index) {
-                final step = steps[index];
-                return _StepTransitionIndicator(
-                  index: index,
-                  isCompleted: step.isCompleted,
-                  isCurrent: index == currentIndex,
-                  colors: colorScheme,
-                  textTheme: textTheme,
-                  duration: Duration(milliseconds: animate ? 600 : 1),
-                );
-              },
-              connectorBuilder: (context, index, type) {
-                return SolidLineConnector(
-                  color: steps[index].isCompleted
-                      ? colorScheme.primary
-                      : colorScheme.primary.withValues(alpha: 0.25),
-                );
-              },
+                  );
+                },
+                indicatorBuilder: (context, index) {
+                  final step = steps[index];
+                  return _StepTransitionIndicator(
+                    index: index,
+                    isCompleted: step.isCompleted,
+                    isCurrent: index == currentIndex,
+                    colors: colorScheme,
+                    textTheme: textTheme,
+                    duration: Duration(milliseconds: animate ? 600 : 1),
+                  );
+                },
+                connectorBuilder: (context, index, type) {
+                  return SolidLineConnector(
+                    color: steps[index].isCompleted
+                        ? colorScheme.primary
+                        : colorScheme.primary.withValues(alpha: 0.25),
+                  );
+                },
+              ),
             ),
           ),
         ),

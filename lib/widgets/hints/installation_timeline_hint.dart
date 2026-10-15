@@ -16,11 +16,15 @@ class InstallationTimelineHint extends StatelessWidget {
     return AppHintDeck(
       icon: Icons.lightbulb_outline,
       label: 'Suggestion',
-      title: 'Track installation history',
-      pages: [Text(message)],
+      pages: [
+        AppHintPage(
+          title: 'Track installation history',
+          onLearnMore: () => showInstallationTimelineSettingSheet(context, value: false),
+          action: AppHintAction(label: 'Activate Timeline', icon: Icons.timeline, onPressed: onActivate),
+          content: Text(message),
+        ),
+      ],
       onDismiss: onDismiss,
-      onLearnMore: () => showInstallationTimelineSettingSheet(context, value: false),
-      action: AppHintAction(label: 'Activate Timeline', icon: Icons.timeline, onPressed: onActivate),
     );
   }
 }

@@ -15,12 +15,16 @@ class SetupTaskHint extends StatelessWidget {
     return AppHintDeck(
       icon: Icons.checklist,
       label: 'Suggestion',
-      title: 'Organize your bike tasks',
-      pages: const [
-        Text('Turn on Task Management to note anything bike related — maintenance, tweaks to try, or trails to ride.'),
+      pages: [
+        AppHintPage(
+          title: 'Organize your bike tasks',
+          action: AppHintAction(label: 'Activate Tasks', icon: Icons.add_task, onPressed: onActivate),
+          content: const Text(
+            'Turn on Task Management to note anything bike related — maintenance, tweaks to try, or trails to ride.',
+          ),
+        ),
       ],
       onDismiss: onDismiss,
-      action: AppHintAction(label: 'Activate Tasks', icon: Icons.add_task, onPressed: onActivate),
     );
   }
 }

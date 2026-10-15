@@ -20,8 +20,7 @@ class GarageListHint extends StatelessWidget {
     return AppHintDeck(
       icon: Icons.touch_app_outlined,
       label: 'Tip',
-      title: 'Gestures in Garage',
-      pages: [for (final tip in _tips) Text(tip)],
+      pages: [for (final tip in _tips) AppHintPage(title: 'Gestures in Garage', content: Text(tip))],
       onDismiss: onDismiss,
     );
   }

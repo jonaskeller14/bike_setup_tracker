@@ -16,7 +16,6 @@ class AppHintService extends ChangeNotifier {
   static const _preferencePrefix = 'app_hint.';
   static const _legacyPreferencePrefix = 'app_settings.';
   static const _releaseBaselineKey = '${_preferencePrefix}releaseBaselineBuild';
-  static const _replayBaselineBuild = 0;  // Baseline written by [resetAll]
   static const _crowdedBikeComponentCount = 8;
   static const _legacyHints = {
     AppHint.garageGesturesV1: 'showGarageListHint',
@@ -129,15 +128,17 @@ class AppHintService extends ChangeNotifier {
   Future<void> dismiss(AppHint hint) => _setStatus(hint, AppHintStatus.dismissed);
   Future<void> complete(AppHint hint) => _setStatus(hint, AppHintStatus.completed);
 
+  /// Starts over like a new install: contextual hints return, release hints
+  /// up to the installed build do not.
   Future<void> resetAll() async {
-    final changed = _statuses.isNotEmpty || _hintHandledThisSession || _releaseBaselineBuild != _replayBaselineBuild;
+    final changed = _statuses.isNotEmpty || _hintHandledThisSession || _releaseBaselineBuild != _currentBuild;
     if (!changed) return;
 
     _statuses.clear();
     _hintHandledThisSession = false;
-    _releaseBaselineBuild = _replayBaselineBuild;
+    _releaseBaselineBuild = _currentBuild;
     await _removePersistedStatuses();
-    await _persistReleaseBaseline(_replayBaselineBuild);
+    await _persistReleaseBaseline(_currentBuild);
     _cacheActiveHints();
     notifyListeners();
   }
@@ -221,9 +222,7 @@ class AppHintService extends ChangeNotifier {
     return eligible ? AppHint.subcomponentsV1 : null;
   }
 
-  // kDebugMode mirrors the Features page toggle until Subcomponents ships.
   bool get _canOfferSubcomponents =>
-      kDebugMode &&
       !_appSettings.enableInstallOnComponent &&
       statusOf(AppHint.subcomponentsV1) == AppHintStatus.unseen;
 
@@ -282,8 +281,10 @@ class AppHintService extends ChangeNotifier {
       return;
     }
 
-    _releaseBaselineBuild = _currentBuild - 1;
-    await _persistReleaseBaseline(_releaseBaselineBuild!);
+    // A new install has nothing to catch up on. Updates from before build 40,
+    // which stored no baseline, look the same and miss their announcements.
+    _releaseBaselineBuild = _currentBuild;
+    await _persistReleaseBaseline(_currentBuild);
   }
 
   Future<void> _removePersistedStatuses() async {

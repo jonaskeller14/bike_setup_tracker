@@ -22,49 +22,51 @@ class StravaNoGearsHint extends StatelessWidget {
     return AppHintDeck(
       icon: Icons.directions_bike_outlined,
       label: 'No gear found',
-      title: 'Add a bike in Strava',
-      action: AppHintAction(
-        label: 'Open Strava',
-        icon: Icons.open_in_new,
-        completesHint: false,
-        onPressed: () => launchStrava(context),
-      ),
       pages: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 6,
-          children: [
-            for (final (index, step) in _noGearsSteps.indexed)
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 8,
-                children: [
-                  Container(
-                    width: 20,
-                    height: 20,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(color: hint.accent, shape: BoxShape.circle),
-                    child: Text(
-                      '${index + 1}',
-                      style: textTheme.labelSmall?.copyWith(
-                        color: hint.onAccent,
-                        fontWeight: FontWeight.bold,
-                        height: 1.0,
+        AppHintPage(
+          title: 'Add a bike in Strava',
+          action: AppHintAction(
+            label: 'Open Strava',
+            icon: Icons.open_in_new,
+            completesHint: false,
+            onPressed: () => launchStrava(context),
+          ),
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 6,
+            children: [
+              for (final (index, step) in _noGearsSteps.indexed)
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 8,
+                  children: [
+                    Container(
+                      width: 20,
+                      height: 20,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(color: hint.accent, shape: BoxShape.circle),
+                      child: Text(
+                        '${index + 1}',
+                        style: textTheme.labelSmall?.copyWith(
+                          color: hint.onAccent,
+                          fontWeight: FontWeight.bold,
+                          height: 1.0,
+                        ),
                       ),
                     ),
-                  ),
-                  Expanded(child: Text(step)),
-                ],
+                    Expanded(child: Text(step)),
+                  ],
+                ),
+              const SizedBox(height: 2),
+              Text(
+                'Tip: you can also assign the bike to existing activities in Strava.',
+                style: textTheme.bodySmall?.copyWith(
+                  color: hint.onContainer.withValues(alpha: 0.75),
+                  fontStyle: FontStyle.italic,
+                ),
               ),
-            const SizedBox(height: 2),
-            Text(
-              'Tip: you can also assign the bike to existing activities in Strava.',
-              style: textTheme.bodySmall?.copyWith(
-                color: hint.onContainer.withValues(alpha: 0.75),
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ],
     );

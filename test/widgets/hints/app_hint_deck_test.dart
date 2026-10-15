@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   Widget buildDeck({
-    List<Widget> pages = const [Text('Only page')],
+    List<AppHintPage>? pages,
     VoidCallback? onDismiss,
     AppHintAction? action,
     Future<bool?> Function()? onLearnMore,
@@ -13,11 +13,10 @@ void main() {
       body: AppHintDeck(
         icon: Icons.lightbulb_outline,
         label: 'Tip',
-        title: 'Deck title',
-        pages: pages,
+        pages:
+            pages ??
+            [AppHintPage(title: 'Deck title', action: action, onLearnMore: onLearnMore, content: const Text('Only page'))],
         onDismiss: onDismiss,
-        action: action,
-        onLearnMore: onLearnMore,
       ),
     ),
   );
@@ -109,7 +108,11 @@ void main() {
   });
 
   group('multiple cards', () {
-    const pages = [Text('First tip'), Text('Second tip'), Text('Third tip')];
+    const pages = [
+      AppHintPage(content: Text('First tip')),
+      AppHintPage(content: Text('Second tip')),
+      AppHintPage(content: Text('Third tip')),
+    ];
 
     // Cards behind the top one are rendered but ignore pointers.
     Finder topCard(String label) => find.text(label).hitTestable();
@@ -156,6 +159,56 @@ void main() {
       await tester.tap(topCard('Skip'));
       await tester.pumpAndSettle();
       expect(dismissed, 1);
+    });
+
+    testWidgets('a page action on an earlier card runs, then advances without dismissing', (tester) async {
+      var activated = 0;
+      var dismissed = 0;
+      await tester.pumpWidget(
+        buildDeck(
+          onDismiss: () => dismissed++,
+          pages: [
+            AppHintPage(
+              title: 'Page title',
+              action: AppHintAction(label: 'Turn on', icon: Icons.add, onPressed: () async => activated++),
+              content: const Text('First tip'),
+            ),
+            const AppHintPage(title: 'Deck title', content: Text('Second tip')),
+          ],
+        ),
+      );
+      expect(topCard('Page title'), findsOneWidget);
+      expect(topCard('Skip'), findsNothing);
+
+      await tester.tap(topCard('Turn on'));
+      await tester.pumpAndSettle();
+      expect((activated, dismissed), (1, 0));
+      expect(topCard('TIP 2 / 2'), findsOneWidget);
+      expect(topCard('Deck title'), findsOneWidget);
+      expect(topCard('Turn on'), findsNothing);
+    });
+
+    testWidgets('"Learn more" belongs to its page and runs that page\'s action', (tester) async {
+      var activated = 0;
+      await tester.pumpWidget(
+        buildDeck(
+          pages: [
+            const AppHintPage(content: Text('First tip')),
+            AppHintPage(
+              onLearnMore: () async => true,
+              action: AppHintAction(label: 'Turn on', icon: Icons.add, onPressed: () async => activated++),
+              content: const Text('Second tip'),
+            ),
+          ],
+        ),
+      );
+      expect(find.byTooltip('Learn more').hitTestable(), findsNothing);
+
+      await tester.tap(topCard('Next'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('Learn more').hitTestable());
+      await tester.pumpAndSettle();
+      expect(activated, 1);
     });
   });
 }

@@ -111,4 +111,29 @@ void main() {
     expect(service.statusOf(AppHint.setupTasksV1), AppHintStatus.completed);
     expect(find.text('Activate Tasks'), findsNothing);
   });
+
+  testWidgets('the build 44 deck turns on Subcomponents mid-deck and completes with Attachments', (tester) async {
+    SharedPreferences.setMockInitialValues({'app_hint.releaseBaselineBuild': 43});
+    service.dispose();
+    service = AppHintService(appRepository: repository, appSettings: settings, currentBuild: 44);
+    await tester.runAsync(service.load);
+    service.update(appRepository: repository, appSettings: settings);
+
+    await tester.pumpWidget(buildSubject());
+    expect(find.text('Your filters are remembered').hitTestable(), findsOneWidget);
+    await tester.tap(find.text('Next').hitTestable());
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Turn on').hitTestable());
+    await tester.pumpAndSettle();
+    expect(settings.enableInstallOnComponent, isTrue);
+    expect(service.statusOf(AppHint.release44), AppHintStatus.unseen);
+    expect(find.text('Attachments').hitTestable(), findsOneWidget);
+
+    await tester.tap(find.text('Turn on').hitTestable());
+    await tester.pumpAndSettle();
+    expect(settings.enableAttachments, isTrue);
+    expect(service.statusOf(AppHint.release44), AppHintStatus.completed);
+    expect(find.text('Attachments'), findsNothing);
+  });
 }

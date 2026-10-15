@@ -18,15 +18,21 @@ class SubcomponentsHint extends StatelessWidget {
     return AppHintDeck(
       icon: Icons.lightbulb_outline,
       label: 'Suggestion',
-      title: parentName == null ? 'Group parts under their parent' : 'Mount it on $parentName?',
-      pages: const [
-        Text(
-          'Turn on Subcomponents to install parts on other parts, like a tire on a wheel. They move along with their parent.',
+      pages: [
+        AppHintPage(
+          title: parentName == null ? 'Group parts under their parent' : 'Mount it on $parentName?',
+          onLearnMore: () => showSubcomponentsSettingSheet(context, value: false),
+          action: AppHintAction(
+            label: 'Activate Subcomponents',
+            icon: Icons.account_tree_outlined,
+            onPressed: onActivate,
+          ),
+          content: const Text(
+            'Turn on Subcomponents to install parts on other parts, like a tire on a wheel. They move along with their parent.',
+          ),
         ),
       ],
       onDismiss: onDismiss,
-      onLearnMore: () => showSubcomponentsSettingSheet(context, value: false),
-      action: AppHintAction(label: 'Activate Subcomponents', icon: Icons.account_tree_outlined, onPressed: onActivate),
     );
   }
 }

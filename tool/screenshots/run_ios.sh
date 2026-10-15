@@ -13,6 +13,8 @@
 #   --tile-wait-ms N      Fixed wait for live map tiles on screen 07 (default 20000).
 #   --preview             Record the preview_*.yaml flows instead, with touch dots,
 #                         to build/store_previews/<device>/*.mp4.
+#   --demo                Record the demo_*.yaml flows instead, on the iPhone with
+#                         touch dots, to build/marketing/raw/ios/*.mp4.
 set -euo pipefail
 
 script_dir="$(cd "$(dirname "$0")" && pwd)"
@@ -30,6 +32,7 @@ skip_build=0
 keep_running=0
 tile_wait_ms=20000
 preview=0
+demo=0
 while [ $# -gt 0 ]; do
   case "$1" in
     iphone | ipad | all) device="$1" ;;
@@ -38,6 +41,7 @@ while [ $# -gt 0 ]; do
     --keep-running) keep_running=1 ;;
     --tile-wait-ms) tile_wait_ms="$2"; shift ;;
     --preview) preview=1 ;;
+    --demo) demo=1 ;;
     *) echo "Unknown argument: $1" >&2; exit 2 ;;
   esac
   shift
@@ -51,6 +55,10 @@ device_config() {
   esac
 }
 if [ "$device" = all ]; then selected='iphone ipad'; else selected="$device"; fi
+# Marketing clips are iPhone-only.
+if [ "$demo" -eq 1 ]; then selected='iphone'; fi
+# Recording modes collect each flow's mp4 instead of a screenshot.
+record=$((preview || demo))
 
 maestro="$(command -v maestro || true)"
 if [ -z "$maestro" ]; then
@@ -61,8 +69,9 @@ export MAESTRO_CLI_NO_ANALYTICS=1
 export MAESTRO_CLI_ANALYSIS_NOTIFICATION_DISABLED=true
 
 flows=()
-if [ "$preview" -eq 1 ]; then
-  for flow in "$flows_dir"/preview_*.yaml; do
+if [ "$record" -eq 1 ]; then
+  if [ "$demo" -eq 1 ]; then pattern='demo_*.yaml'; else pattern='preview_*.yaml'; fi
+  for flow in "$flows_dir"/$pattern; do
     flows+=("$(basename "$flow")")
   done
 else
@@ -127,8 +136,12 @@ for name in $selected; do
   # removed first, in case an aborted preview run left it behind.
   touch_marker="$(xcrun simctl get_app_container "$udid" "$app_id" data)/Documents/screenshot_show_touches"
   rm -f "$touch_marker"
-  if [ "$preview" -eq 1 ]; then
-    target_dir="$repo_root/build/store_previews/$name"
+  if [ "$record" -eq 1 ]; then
+    if [ "$demo" -eq 1 ]; then
+      target_dir="$repo_root/build/marketing/raw/ios"
+    else
+      target_dir="$repo_root/build/store_previews/$name"
+    fi
     mkdir -p "$target_dir" "$(dirname "$touch_marker")"
     touch "$touch_marker"
   fi
@@ -149,7 +162,7 @@ for name in $selected; do
       fi
     done
 
-    if [ "$preview" -eq 1 ]; then
+    if [ "$record" -eq 1 ]; then
       shot="$(find "$out_dir" -name "${flow%.yaml}.mp4" | head -n 1)"
     else
       shot="$(find "$out_dir" -name "$(echo "$flow" | cut -c1-2)_raw.png" | head -n 1)"
@@ -170,7 +183,9 @@ for name in $selected; do
 done
 
 check_exit=0
-if [ "$preview" -eq 1 ]; then
+if [ "$demo" -eq 1 ]; then
+  echo "Recordings: $repo_root/build/marketing/raw/ios"
+elif [ "$preview" -eq 1 ]; then
   echo "Recordings: $repo_root/build/store_previews"
 else
   python3 "$script_dir/check_output.py" "${checked_folders[@]}" || check_exit=$?

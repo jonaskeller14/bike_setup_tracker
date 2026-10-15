@@ -36,3 +36,21 @@ The screens stay English in both locales, like the screenshots, until #18.
 
 **Before upload**, check the App Store Connect preview in light and dark mode, EN and DE, for
 cropped text.
+
+## Video variants
+
+`python tool/marketing/build_kit.py appstore` renders both templates with `?video` and plays the
+iOS recording `build/store_previews/iphone/preview_setup.mp4` in the front phone (`data-video`),
+cut as in [`docs/marketing/kits/appstore.json`](../../../../docs/marketing/kits/appstore.json).
+Record it first with `tool/screenshots/run_ios.sh iphone --preview`.
+
+| | Search results | Header |
+|---|---|---|
+| Output | `build/marketing/appstore/search_{en-US,de-DE}.mp4` | `build/marketing/appstore/header_{en-US,de-DE}.mp4` |
+| Size | 2880×1920 | 3840×1646 |
+
+- H.264, 30 fps, 5–30 s, no audio track (search results always play muted).
+- The search video is 2880×1920 rather than 3840×2560: 3840×2560 is over H.264's largest frame
+  size (level 5.2), and 2880×1920 is inside Apple's 3:2 range.
+- The same kit renders the App Store app preview, `preview_iphone.mp4` (886×1920, silent stereo
+  track). Videos aren't committed; they stay in `build/`.

@@ -1,0 +1,77 @@
+/* Shared styles of the marketing templates. Colors match the store screenshots and
+   assets/store/app-store/creative/creative.css. */
+:root {
+  --bg-top: #dde3e8;
+  --bg-band: #a9c4d6;
+  --ink: #0e1113;
+  --ink-muted: #33434d;
+  /* lib/theme.dart: light primary. */
+  --primary: #106681;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(to bottom, var(--bg-top) 35%, var(--bg-band));
+  font-family: 'Roboto', sans-serif;
+  font-weight: 500;
+  color: var(--ink);
+}
+h1, .headline {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -1px;
+  text-wrap: balance;
+}
+em { font-style: normal; color: var(--primary); }
+
+.brand { display: flex; align-items: center; }
+.brand img { border-radius: 22%; box-shadow: 0 8px 24px rgba(0, 0, 0, .18); }
+.brand span { color: var(--ink-muted); }
+
+/* iPhone from the App Store screenshots: frame.png has a transparent 1320×2868 screen hole at
+   (75, 66), the Simulator's recording size. Place it with left/top and size it with
+   transform: scale(). */
+.phone {
+  position: absolute;
+  width: 1470px; height: 3000px;
+  transform-origin: top left;
+  filter: drop-shadow(0 40px 60px rgba(0, 0, 0, .22));
+}
+.phone .screen {
+  position: absolute;
+  left: 75px; top: 66px;
+  width: 1320px; height: 2868px;
+  /* The hole's corners have a radius of about 188 px; a little less tucks under the bezel. */
+  border-radius: 185px;
+}
+.phone .frame { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+/* Official store badges. The Google Play PNG has a transparent margin around the badge, so it
+   is cropped to the same height as the App Store badge. */
+.badges { display: flex; justify-content: center; gap: calc(var(--badge-h) * .3); }
+.badges .app-store { height: var(--badge-h); }
+.badges .google-play {
+  height: var(--badge-h);
+  width: calc(var(--badge-h) * 566 / 166);
+  overflow: hidden;
+}
+.badges .google-play img {
+  height: calc(var(--badge-h) * 250 / 166);
+  margin: calc(var(--badge-h) * -42 / 166) 0 0 calc(var(--badge-h) * -40 / 166);
+}
+
+/* ?endcard: logo, tagline, badges and link instead of the regular content. */
+.endcard { display: none; }
+body.mode-endcard > :not(.endcard, script) { display: none; }
+body.mode-endcard .endcard {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}

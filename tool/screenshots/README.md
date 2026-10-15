@@ -131,17 +131,7 @@ Check these against App Store Connect's current *App preview specifications* bef
 
 ### Trim, resize and encode
 
-This step isn't scripted, and the command below is untested here (ffmpeg isn't a prerequisite of the tooling). It cuts the clip to 30 s, scales it to the iPhone preview size at a constant 30 fps and adds a silent stereo track:
-
-```bash
-ffmpeg -i build/store_previews/iphone/preview_setup.mp4 \
-  -f lavfi -i anullsrc=channel_layout=stereo:sample_rate=44100 \
-  -t 30 -vf "scale=886:1920,fps=30,format=yuv420p" \
-  -c:v libx264 -profile:v high -level 4.0 -b:v 10M \
-  -c:a aac -b:a 256k -shortest preview_iphone.mp4
-```
-
-For the iPad, use `scale=1200:1600`. Both scales keep the recording's aspect ratio (the iPhone's to within 0.3 %). Check the result with `ffprobe preview_iphone.mp4`.
+`python tool/marketing/build_kit.py appstore` cuts `preview_setup.mp4` as set in `docs/marketing/kits/appstore.json`, scales it to 886×1920 at a constant 30 fps (H.264 High, level 4.0) and adds a silent stereo AAC track: `build/marketing/appstore/preview_iphone.mp4`. See `tool/marketing/README.md`. The kit has no iPad preview yet; `render_video.appstore_preview` takes the size (`(1200, 1600)`) for one.
 
 ## Demo clips (marketing)
 
@@ -151,9 +141,12 @@ tool/screenshots/run_android.ps1 -Demo                 # records flows/demo_*.ya
 
 ```bash
 tool/screenshots/run_android.sh --demo
+tool/screenshots/run_ios.sh iphone --demo              # the clips the marketing kits use
 ```
 
-`-Demo` / `--demo` records the `demo_*.yaml` flows on the phone AVD, with touch dots and the same build, seeded data, status bar and GPS as the screenshots. Each recording lands in `build/marketing/raw/<flow name>.mp4` (1080×2400, H.264, no audio, variable frame rate). The marketing renderer turns them into Shorts, GIFs and store videos. `-Screens` / `--screens` don't apply.
+`-Demo` / `--demo` records the `demo_*.yaml` flows with touch dots and the same build, seeded data, status bar and GPS as the screenshots. Each recording lands in `build/marketing/raw/<flow name>.mp4` on the phone AVD (1080×2400) and in `build/marketing/raw/ios/<flow name>.mp4` on the iPhone (1320×2868); both H.264, no audio, variable frame rate. `-Screens` / `--screens` don't apply.
+
+The marketing kits use the iPhone clips: the iPhone frame's screen hole is exactly 1320×2868, so the recording fits without cropping, and an iPhone looks familiar on social media. The Android clips stay available for a kit that sets `"recordings": "build/marketing/raw"`.
 
 | Flow | Shows |
 |---|---|
@@ -169,6 +162,6 @@ tool/screenshots/run_android.sh --demo
 
 - **Only released features.** Demo flows don't show anything behind a debug-only feature flag, such as the component preset catalog.
 - **Pacing.** Each flow starts recording once the app is on its first screen and holds key moments with `_pause.yaml`, aiming for 15–30 s.
-- **Ending.** Flows end with `_stop_recording.yaml` instead of `stopRecording`. The Android encoder keeps the last frames before a still screen until the screen changes again, and `stopRecording` drops them, so a clip would end before its final transition. The subflow holds the screen, then presses *Volume Up*, which shows the volume panel in the last half second; trim it when rendering. A tap can't do this: the status bar opens the notification shade, and an in-app tap depends on the page.
+- **Ending.** Flows end with `_stop_recording.yaml` instead of `stopRecording`. Both the Android encoder and the iOS Simulator keep the last frames before a still screen until the screen changes again, and `stopRecording` drops them, so a clip would end before its final transition. The subflow holds the screen, then presses *Volume Up* (Android) or *Home* (iOS). The volume panel or home animation that follows stays in the file; `tool/marketing/build_kit.py` cuts it off automatically. A tap can't do this: the status bar opens the notification shade, and an in-app tap depends on the page.
 - **Map tiles.** `demo_map` waits `TILE_WAIT_MS` before it starts recording, so the clip doesn't show tiles loading.
 - Running a demo flow by hand needs `-e APP_ID=<bundle id>`, plus `-e TILE_WAIT_MS=<ms>` for `demo_map`; `maestro test --test-output-dir <dir>` keeps the mp4.

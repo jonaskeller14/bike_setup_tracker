@@ -8,6 +8,7 @@
 
   URL parameters (append in Chrome; the page reloads):
     ?lang=de   German texts (default: English)
+    ?video     hide the front phone for the video variant (tool/marketing/build_kit.py)
     ?safe      draw the art safe area
 
   Render (Windows and macOS, repo root):
@@ -44,7 +45,7 @@
     <img class="screen" src="../iPhone-17-Pro-Max/03_raw.png" alt="">
     <img class="frame" src="../iPhone-17-Pro-Max/frame.png" alt="">
   </div>
-  <div class="phone front">
+  <div class="phone front" data-video>
     <img class="screen" src="../iPhone-17-Pro-Max/04_raw.png" alt="">
     <img class="frame" src="../iPhone-17-Pro-Max/frame.png" alt="">
   </div>
@@ -63,5 +64,6 @@
   });
   if (params.has('safe')) document.body.classList.add('show-safe');
 </script>
+<script src="../../../../docs/marketing/templates/template.js"></script>
 </body>
 </html>

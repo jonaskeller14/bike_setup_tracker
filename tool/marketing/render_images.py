@@ -75,21 +75,27 @@ def render(chrome, template, size, outputs):
     for file_name, query in outputs.items():
         out = page.parent / file_name
         out.unlink(missing_ok=True)
-        subprocess.run(
-            [
-                str(chrome),
-                "--headless",
-                "--hide-scrollbars",
-                "--force-device-scale-factor=1",
-                f"--window-size={size[0]},{size[1]}",
-                # Gives the web fonts time to load before the screenshot.
-                "--virtual-time-budget=5000",
-                f"--screenshot={out}",
-                page.as_uri() + query,
-            ],
-            capture_output=True,
-            timeout=120,
-        )
+        # Chrome occasionally hangs (e.g. on a stalled font request); one retry is enough.
+        for _ in range(2):
+            try:
+                subprocess.run(
+                    [
+                        str(chrome),
+                        "--headless",
+                        "--hide-scrollbars",
+                        "--force-device-scale-factor=1",
+                        f"--window-size={size[0]},{size[1]}",
+                        # Gives the web fonts time to load before the screenshot.
+                        "--virtual-time-budget=5000",
+                        f"--screenshot={out}",
+                        page.as_uri() + query,
+                    ],
+                    capture_output=True,
+                    timeout=120,
+                )
+                break
+            except subprocess.TimeoutExpired:
+                out.unlink(missing_ok=True)
         rel = out.relative_to(REPO_ROOT).as_posix()
         if not out.is_file():
             problems.append(f"{rel}: Chrome wrote no file")

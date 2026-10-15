@@ -114,6 +114,17 @@
     "demo_tasks",
     "demo_strava"
   ],
+  "web": [
+    "demo_add_bike",
+    "demo_add_component",
+    "demo_add_setup",
+    "demo_setup_history",
+    "demo_analysis",
+    "demo_map",
+    "demo_calendar",
+    "demo_tasks",
+    "demo_strava"
+  ],
   "images": {
     "carousel": [
       {
@@ -136,6 +147,11 @@
     "og": {
       "title": "Never Lose Your *Suspension Sweet Spot*",
       "sub": "Log suspension, tire pressure and trail conditions for every ride.",
+      "shots": "04,03"
+    },
+    "og_de": {
+      "title": "Nie wieder den *Sweet Spot* deines Fahrwerks verlieren",
+      "sub": "Fahrwerk, Reifendruck und Trail-Bedingungen für jede Fahrt festhalten.",
       "shots": "04,03"
     },
     "forum_header": {

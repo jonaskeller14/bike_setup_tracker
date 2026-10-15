@@ -3,13 +3,14 @@
 Usage: python tool/marketing/build_kit.py <kit> [part ...]
 
 Reads docs/marketing/kits/<kit>.json and writes build/marketing/<kit>/. Parts: shorts,
-walkthrough, gifs, images, appstore; the default is every part the kit defines. Only a full
+walkthrough, gifs, web, images, appstore; the default is every part the kit defines. Only a full
 run clears the kit folder and writes POST.md, including the channel posts from
 docs/marketing/kits/<kit>.posts.md. The part `post` alone rewrites POST.md from the last full run,
 for edited posts.
 
-Needs ffmpeg and ffprobe on PATH, plus Chrome and network access (see render_images.py).
-Exits 1 if an output misses its spec (size, length, chapter length, GIF size) or a post breaks
+Needs ffmpeg and ffprobe on PATH, plus Chrome and network access (see render_images.py). The web
+part also needs img2webp and cwebp (libwebp).
+Exits 1 if an output misses its spec (size, length, chapter length, GIF or loop size) or a post breaks
 its channel's rules (see posts.py).
 """
 
@@ -37,6 +38,7 @@ CAROUSEL = (f"{TEMPLATES}/carousel.html", (1080, 1350))
 BANNERS = {
     "thumbnail": (f"{TEMPLATES}/banner.html", (1280, 720), "thumb.png"),
     "og": (f"{TEMPLATES}/banner.html", (1200, 630), "og.png"),
+    "og_de": (f"{TEMPLATES}/banner.html", (1200, 630), "og_de-DE.png"),
     "forum_header": (f"{TEMPLATES}/banner.html", (1920, 640), "forum_header.png"),
 }
 # App Store creative videos: template, template size, video size. 3840×2560 is over H.264's
@@ -50,10 +52,11 @@ LOCALES = {"en-US": "en", "de-DE": "de"}
 SHORT_MAX = 60
 CHAPTER_MIN = 10  # YouTube ignores chapters shorter than 10 s.
 CAROUSEL_MAX = 10
+WEB_LIMIT_MB = 2  # Per website loop; the landing page shows nine.
 PREVIEW_SIZE = (886, 1920)
 PREVIEW_LENGTH = (15, 30)
 CREATIVE_LENGTH = (5, 30)
-PARTS = ["shorts", "walkthrough", "gifs", "images", "appstore"]
+PARTS = ["shorts", "walkthrough", "gifs", "web", "images", "appstore"]
 POST = "post"
 MANIFEST = "manifest.json"  # What a full run built, so `post` can rewrite POST.md without it.
 
@@ -190,6 +193,23 @@ class Kit:
             fps, width = step
             self.files.append((out, f"{width} px wide, {fps} fps, {size_mb:.1f} MB"))
             print(f"OK   {rel(out)} ({width} px, {fps} fps, {size_mb:.1f} MB)")
+
+    def build_web(self):
+        missing = [tool for tool in ("img2webp", "cwebp") if shutil.which(tool) is None]
+        if missing:
+            self.problems.append(f"web: {', '.join(missing)} not found on PATH (libwebp)")
+            return
+        for name in self.spec["web"]:
+            clip, _, _ = self.clip(name)
+            out = self.out / "web" / f"{name}.webp"
+            still = self.out / "web" / f"{name}_still.webp"
+            rv.web_loop(clip, self.work / "web" / name, out, still)
+            size_mb = out.stat().st_size / 1024 / 1024
+            if size_mb > WEB_LIMIT_MB:
+                self.problems.append(f"{rel(out)}: {size_mb:.1f} MB, limit {WEB_LIMIT_MB} MB")
+            self.files.append((out, f"{rv.WEB_WIDTH} px wide, {rv.WEB_FPS} fps, {size_mb:.1f} MB"))
+            self.files.append((still, f"{rv.WEB_WIDTH} px wide, last frame"))
+            print(f"OK   {rel(out)} ({rv.WEB_WIDTH} px, {rv.WEB_FPS} fps, {size_mb:.1f} MB)")
 
     def build_images(self):
         images = self.spec["images"]

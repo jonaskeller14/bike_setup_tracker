@@ -5,7 +5,7 @@ post; its `### <Field>` headings are followed by a ```text block with the text t
 around the blocks is kept as posting notes. Placeholders anywhere in a section:
 
   {ios:<channel>} {android:<channel>}  campaign links from docs/marketing/links.md
-  {smart:<channel>}                    the website smart link (live with Phase 5)
+  {smart:<channel>}                    the website smart link
   {version}                            the app version from pubspec.yaml
   {chapters}                           the walkthrough chapter timestamps
 

@@ -15,8 +15,8 @@ and when a post gets removed.
   trips Reddit's filters.
 - **Store links are always campaign links** from [`links.md`](links.md); `build_kit.py` rejects
   any other App Store or Play link. Bios use the smart link
-  `jonaskeller14.com/bike_setup_tracker/get?c=<channel>`, which goes live with Phase 5. Post
-  nothing that uses it before then.
+  `jonaskeller14.com/bike_setup_tracker/get?c=<channel>` (Phase 5). Check that it redirects
+  before posting the first bio.
 - **Only state what release builds do.** No presets, ratings, pressure check, riders or bookmarks
   (debug-only). Tasks, the calendar and setup tags are user toggles under Settings → Features; say
   so when a post leans on them.

@@ -10,6 +10,7 @@ Working docs live in [`docs/marketing/`](../../docs/marketing/README.md).
 - Network access: the templates load Google Fonts.
 - For videos: `ffmpeg` and `ffprobe` on `PATH` (`brew install ffmpeg`, `winget install Gyan.FFmpeg`).
   No libass or drawtext needed: captions are rendered by Chrome.
+- For the `web` part: `img2webp` and `cwebp` from libwebp on `PATH` (`brew install webp`; Windows: [libwebp downloads](https://developers.google.com/speed/webp/download)).
 
 ## `build_kit.py`
 
@@ -18,11 +19,12 @@ Builds a content kit from `docs/marketing/kits/<kit>.json` into `build/marketing
 ```
 python tool/marketing/build_kit.py launch                   # everything the kit defines
 python tool/marketing/build_kit.py launch shorts gifs       # some parts only
+python tool/marketing/build_kit.py launch web               # website loops (copy them to the website repo)
 python tool/marketing/build_kit.py appstore                 # App Store preview + creative videos
 python tool/marketing/build_kit.py launch post              # only rewrite POST.md after editing posts
 ```
 
-Parts: `shorts`, `walkthrough`, `gifs`, `images`, `appstore`. A full run clears the kit folder and
+Parts: `shorts`, `walkthrough`, `gifs`, `web`, `images`, `appstore`. A full run clears the kit folder and
 writes `POST.md` (file list, Shorts titles, YouTube chapter timestamps, warnings, channel posts) and
 `manifest.json`. A partial run replaces only its own files. `post` runs alone and rewrites `POST.md`
 from `manifest.json`, so edited posts don't need a rebuild. The script exits 1 and prints `FAIL` lines when an output misses its
@@ -33,7 +35,8 @@ spec. The launch kit takes about 10 minutes on an M-series Mac.
 | `shorts` | `shorts/<name>_9x16.mp4` | 1080×1920, ≤60 s, audio track |
 | `walkthrough` | `walkthrough_16x9.mp4` | 1920×1080, every chapter ≥10 s |
 | `gifs` | `gif/<clip>.gif` | ≤8 MB (steps down from 360 px / 15 fps) |
-| `images` | `carousel/NN.png`, `thumb.png`, `og.png`, `forum_header.png` | size, RGB, ≤10 slides |
+| `web` | `web/<clip>.webp`, `web/<clip>_still.webp` | lossy animated WebP, 400 px, 12 fps, ≤2 MB each; the still is the last frame |
+| `images` | `carousel/NN.png`, `thumb.png`, `og.png`, `og_de-DE.png`, `forum_header.png` | size, RGB, ≤10 slides |
 | `appstore` | `preview_iphone.mp4`, `{search,header}_{en-US,de-DE}.mp4` | 886×1920 15–30 s with audio; 2880×1920 / 3840×1646, 5–30 s |
 
 ### Recordings
@@ -70,9 +73,10 @@ home animation starts (the end of the last frame gap of ≥1 s) and every demo c
   "shorts": { "core": { "title": "…", "clips": ["…"], "hook": "replaces the first caption" } },
   "walkthrough": ["clip", "…"],
   "gifs": ["clip", "…"],
+  "web": ["clip", "…"],         // website loops, see the website repo's CLAUDE.md
   "images": {
     "carousel": [{ "kind": "cover|screen|cta", "title": "…", "sub": "…", "shots": "04,03" }],
-    "thumbnail": { "title": "…", "shots": "04,03" }, "og": { … }, "forum_header": { … }
+    "thumbnail": { "title": "…", "shots": "04,03" }, "og": { … }, "og_de": { … }, "forum_header": { … }
   },
   "appstore": { "preview": "clip", "creative": "clip" }
 }
@@ -88,7 +92,7 @@ is pasted as is; prose around the blocks stays as posting notes.
 | Placeholder | Becomes |
 |---|---|
 | `{ios:<channel>}`, `{android:<channel>}` | The channel's campaign link from `links.md` |
-| `{smart:<channel>}` | `https://jonaskeller14.com/bike_setup_tracker/get?c=<channel>` (live with Phase 5) |
+| `{smart:<channel>}` | `https://jonaskeller14.com/bike_setup_tracker/get?c=<channel>` |
 | `{version}` | The app version from `pubspec.yaml` |
 | `{chapters}` | The walkthrough chapter timestamps |
 | `[[…]]` | Left as is, and listed as a "Fill in" checkbox |
@@ -125,7 +129,7 @@ the claim with the Pixabay license certificate, `beats-app-184141-license.txt` n
 ## `render_video.py`
 
 The ffmpeg side of `build_kit.py`: cutting and speed ramps, compositing a clip into a template's
-phone, caption crossfades, end card, audio, App Store preview encoding and GIFs.
+phone, caption crossfades, end card, audio, App Store preview encoding, GIFs and website loops.
 
 Templates are plain HTML (`docs/marketing/templates/`, `assets/store/app-store/creative/`) that load
 [`template.js`](../../docs/marketing/templates/template.js). For each video it renders the template

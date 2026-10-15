@@ -1,4 +1,4 @@
-"""Turns screen recordings into marketing videos and GIFs with ffmpeg (Windows and macOS).
+"""Turns screen recordings into marketing videos, GIFs and website loops with ffmpeg (Windows and macOS).
 
 Library for build_kit.py. Backgrounds, captions and end cards are HTML templates rendered with
 headless Chrome (render_images.py), not ffmpeg text: common ffmpeg builds (Homebrew's among
@@ -11,6 +11,7 @@ import html
 import json
 import math
 import re
+import shutil
 import subprocess
 from pathlib import Path
 from urllib.parse import urlencode, urlparse
@@ -26,6 +27,11 @@ MUSIC_CROSSFADE = 4.0
 GIF_LIMIT = 8 * 1024 * 1024
 # (fps, width) tried in order until a GIF fits GIF_LIMIT.
 GIF_STEPS = [(15, 360), (12, 320), (10, 270)]
+# Website loops: lossy animated WebP, about a quarter of the GIF's size.
+WEB_FPS = 12
+WEB_WIDTH = 400
+WEB_QUALITY = 55
+WEB_STILL_QUALITY = 75
 
 # Near-lossless intermediates; only the final files are encoded for delivery.
 INTERMEDIATE = ["-c:v", "libx264", "-preset", "fast", "-crf", "12", "-pix_fmt", "yuv420p"]
@@ -41,6 +47,12 @@ def ffmpeg(*args):
     )
     if result.returncode:
         raise RuntimeError(f"ffmpeg failed:\n{result.stderr.strip()[-3000:]}")
+
+
+def libwebp(tool, *args, cwd=None):
+    result = subprocess.run([tool, *map(str, args)], capture_output=True, text=True, cwd=cwd)
+    if result.returncode:
+        raise RuntimeError(f"{tool} failed:\n{result.stderr.strip()[-3000:]}")
 
 
 def ffprobe(path, *args):
@@ -295,3 +307,18 @@ def gif(clip, out):
         if out.stat().st_size <= GIF_LIMIT:
             return fps, width
     return None
+
+
+def web_loop(clip, work, out, still):
+    """Animated WebP of the screen alone for the website, plus a still of its last frame that
+    the page shows instead with prefers-reduced-motion. Needs img2webp and cwebp (libwebp)."""
+    shutil.rmtree(work, ignore_errors=True)
+    work.mkdir(parents=True)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    ffmpeg("-i", clip, "-vf", f"fps={WEB_FPS},scale={WEB_WIDTH}:-2:flags=lanczos", work / "%04d.png")
+    frames = sorted(p.name for p in work.glob("*.png"))
+    # An argument file keeps the command line short enough for Windows.
+    args = ["-loop", "0", "-lossy", "-q", WEB_QUALITY, "-d", round(1000 / WEB_FPS), *frames, "-o", out.resolve()]
+    (work / "args.txt").write_text(" ".join(map(str, args)), encoding="utf-8")
+    libwebp("img2webp", "args.txt", cwd=work)
+    libwebp("cwebp", "-quiet", "-q", WEB_STILL_QUALITY, work / frames[-1], "-o", still)

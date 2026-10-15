@@ -19,11 +19,13 @@ Builds a content kit from `docs/marketing/kits/<kit>.json` into `build/marketing
 python tool/marketing/build_kit.py launch                   # everything the kit defines
 python tool/marketing/build_kit.py launch shorts gifs       # some parts only
 python tool/marketing/build_kit.py appstore                 # App Store preview + creative videos
+python tool/marketing/build_kit.py launch post              # only rewrite POST.md after editing posts
 ```
 
 Parts: `shorts`, `walkthrough`, `gifs`, `images`, `appstore`. A full run clears the kit folder and
-writes `POST.md` (file list, Shorts titles, YouTube chapter timestamps, warnings). A partial run
-replaces only its own files. The script exits 1 and prints `FAIL` lines when an output misses its
+writes `POST.md` (file list, Shorts titles, YouTube chapter timestamps, warnings, channel posts) and
+`manifest.json`. A partial run replaces only its own files. `post` runs alone and rewrites `POST.md`
+from `manifest.json`, so edited posts don't need a rebuild. The script exits 1 and prints `FAIL` lines when an output misses its
 spec. The launch kit takes about 10 minutes on an M-series Mac.
 
 | Part | Output | Spec checked |
@@ -76,6 +78,25 @@ home animation starts (the end of the last frame gap of ≥1 s) and every demo c
 }
 ```
 
+### Posts
+
+`docs/marketing/kits/<kit>.posts.md` holds the post drafts; `posts.py` renders them into the
+"Posts" part of `POST.md`. One `## <channel> · <label>` section per post, where `<channel>` is an
+id from `docs/marketing/links.md`. Each `### <Field>` is followed by a ```` ```text ```` block that
+is pasted as is; prose around the blocks stays as posting notes.
+
+| Placeholder | Becomes |
+|---|---|
+| `{ios:<channel>}`, `{android:<channel>}` | The channel's campaign link from `links.md` |
+| `{smart:<channel>}` | `https://jonaskeller14.com/bike_setup_tracker/get?c=<channel>` (live with Phase 5) |
+| `{version}` | The app version from `pubspec.yaml` |
+| `{chapters}` | The walkthrough chapter timestamps |
+| `[[…]]` | Left as is, and listed as a "Fill in" checkbox |
+
+The build fails on an unresolved placeholder, a store link that isn't a campaign link, a field
+over its platform's length limit, too many hashtags, or `<`/`>` in YouTube text. The limits are
+documented in [`docs/marketing/channels.md`](../../docs/marketing/channels.md).
+
 To time an edit, make a contact sheet with one frame per second and read the times off it:
 
 ```
@@ -98,7 +119,8 @@ you post to.
 | `the_mountain-app-184141.mp3` | `launch` | ["App" by The_Mountain](https://pixabay.com/music/beats-app-184141/), Pixabay, 2:00 | Pixabay Content License: commercial use, no attribution required |
 
 The track is registered with Content ID. If YouTube or another platform flags an upload, dispute
-the claim with the license from the track page.
+the claim with the Pixabay license certificate, `beats-app-184141-license.txt` next to the track
+(gitignored like the track; download it again from the track page if it's missing).
 
 ## `render_video.py`
 
@@ -110,6 +132,11 @@ Templates are plain HTML (`docs/marketing/templates/`, `assets/store/app-store/c
 once as a background and once per caption, and asks the template (`?video`) where its
 `data-video` phone sits, including scale and rotation. A template needs no other changes to get a
 video variant.
+
+## `posts.py`
+
+Renders a kit's post drafts for `build_kit.py` (see [Posts](#posts)). It has no command line of
+its own.
 
 ## `render_images.py`
 

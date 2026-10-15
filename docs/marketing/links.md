@@ -68,4 +68,5 @@ One tagged link per channel, so installs can be attributed (Phase 0 of #69).
 ```
 https://apps.apple.com/app/apple-store/id6759974325?pt=128610953&ct=<channel>&mt=8
 https://play.google.com/store/apps/details?id=com.jonaskeller14.bike_setup_tracker&referrer=utm_source%3D<channel>%26utm_medium%3D<web|video|social|forum|directory>
+https://jonaskeller14.com/bike_setup_tracker/get?c=<channel>    (smart link, live with Phase 5)
 ```

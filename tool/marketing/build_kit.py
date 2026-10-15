@@ -4,10 +4,13 @@ Usage: python tool/marketing/build_kit.py <kit> [part ...]
 
 Reads docs/marketing/kits/<kit>.json and writes build/marketing/<kit>/. Parts: shorts,
 walkthrough, gifs, images, appstore; the default is every part the kit defines. Only a full
-run clears the kit folder and writes POST.md.
+run clears the kit folder and writes POST.md, including the channel posts from
+docs/marketing/kits/<kit>.posts.md. The part `post` alone rewrites POST.md from the last full run,
+for edited posts.
 
 Needs ffmpeg and ffprobe on PATH, plus Chrome and network access (see render_images.py).
-Exits 1 if an output misses its spec (size, length, chapter length, GIF size).
+Exits 1 if an output misses its spec (size, length, chapter length, GIF size) or a post breaks
+its channel's rules (see posts.py).
 """
 
 import datetime
@@ -16,6 +19,7 @@ import shutil
 import sys
 from urllib.parse import urlencode
 
+import posts
 import render_images
 import render_video as rv
 
@@ -50,6 +54,8 @@ PREVIEW_SIZE = (886, 1920)
 PREVIEW_LENGTH = (15, 30)
 CREATIVE_LENGTH = (5, 30)
 PARTS = ["shorts", "walkthrough", "gifs", "images", "appstore"]
+POST = "post"
+MANIFEST = "manifest.json"  # What a full run built, so `post` can rewrite POST.md without it.
 
 
 def rel(path):
@@ -224,6 +230,26 @@ class Kit:
                     rv.assemble([segment], out, audio=False)
                     self.check(out, video_size, CREATIVE_LENGTH)
 
+    def save_manifest(self):
+        manifest = {
+            "files": [[path.relative_to(self.out).as_posix(), spec] for path, spec in self.files],
+            "shorts": [[path.relative_to(self.out).as_posix(), title, length] for path, title, length in self.shorts],
+            "chapters": self.chapters,
+            "music_note": self.music_note,
+        }
+        (self.out / MANIFEST).write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+    def load_manifest(self):
+        path = self.out / MANIFEST
+        if not path.is_file():
+            return False
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+        self.files = [(self.out / file, spec) for file, spec in manifest["files"]]
+        self.shorts = [(self.out / file, title, length) for file, title, length in manifest["shorts"]]
+        self.chapters = [tuple(chapter) for chapter in manifest["chapters"]]
+        self.music_note = manifest["music_note"]
+        return True
+
     def write_post(self):
         lines = [
             f"# Content kit: {self.name}",
@@ -244,6 +270,13 @@ class Kit:
             lines += ["", "## YouTube walkthrough chapters", "", "Paste into the video description:", "", "```text"]
             lines += [f"{timestamp(start)} {title}" for start, title in self.chapters]
             lines += ["```"]
+        source = KITS / f"{self.name}.posts.md"
+        if source.is_file():
+            chapters = "\n".join(f"{timestamp(start)} {title}" for start, title in self.chapters)
+            text, problems = posts.render(source.read_text(encoding="utf-8"), chapters)
+            self.problems += problems
+            lines += ["", "## Posts", "", f"App version {posts.app_version()}. Drafts: `{rel(source)}`; "
+                      "posting rules: `docs/marketing/channels.md`.", "", text.rstrip()]
         (self.out / "POST.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
         print(f"OK   {rel(self.out / 'POST.md')}")
 
@@ -257,10 +290,22 @@ def main(argv):
         known = ", ".join(sorted(p.stem for p in KITS.glob("*.json")))
         print(f"Unknown kit '{name}'. Known: {known}")
         return 2
-    unknown = [part for part in parts if part not in PARTS]
+    unknown = [part for part in parts if part not in PARTS + [POST]]
     if unknown:
-        print(f"Unknown part(s): {', '.join(unknown)}. Known: {', '.join(PARTS)}")
+        print(f"Unknown part(s): {', '.join(unknown)}. Known: {', '.join(PARTS + [POST])}")
         return 2
+    if POST in parts:
+        if parts != [POST]:
+            print(f"The part '{POST}' runs alone.")
+            return 2
+        kit = Kit(name, None)
+        if not kit.load_manifest():
+            print(f"No {rel(kit.out / MANIFEST)}. Run a full build first.")
+            return 1
+        kit.write_post()
+        for problem in kit.problems:
+            print(f"FAIL {problem}")
+        return 1 if kit.problems else 0
     for tool in ("ffmpeg", "ffprobe"):
         if shutil.which(tool) is None:
             print(f"{tool} not found on PATH.")
@@ -275,6 +320,7 @@ def main(argv):
     for part in parts or [part for part in PARTS if part in kit.spec]:
         getattr(kit, f"build_{part}")()
     if not parts:
+        kit.save_manifest()
         kit.write_post()
     shutil.rmtree(kit.work, ignore_errors=True)
 

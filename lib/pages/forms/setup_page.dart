@@ -1463,7 +1463,11 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
             SetupPageMode.edit => const Text('Edit Setup'),
           },
           actions: [
-            IconButton(icon: const Icon(Icons.check), onPressed: _saveSetup),
+            Semantics(
+              container: true,
+              identifier: AutomationIds.setupFormSave,
+              child: IconButton(icon: const Icon(Icons.check), onPressed: _saveSetup),
+            ),
           ],
         ),
         body: SafeArea(

@@ -7,7 +7,10 @@
 // Firebase is deliberately never initialized, so screenshot runs send no
 // analytics, crash reports or push registrations; Strava and the subscription
 // are served by offline fakes instead.
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'database/app_database.dart';
 import 'main.dart';
@@ -15,6 +18,7 @@ import 'models/app_settings.dart';
 import 'repositories/app_repository.dart';
 import 'screenshots/screenshot_seed.dart';
 import 'screenshots/screenshot_services.dart';
+import 'screenshots/touch_indicator.dart';
 import 'services/app_hint_service.dart';
 import 'services/weather_service.dart';
 
@@ -35,14 +39,17 @@ void main() async {
   await ScreenshotSeed.resetPreferences(appHintService);
   await ScreenshotSeed.seedDatabase(appRepository, today: DateTime.now());
 
-  runApp(
-    LoadingGate(
-      appSettings: appSettings,
-      appRepository: appRepository,
-      appHintService: appHintService,
-      createSubscriptionService: ScreenshotSubscriptionService.new,
-      createStravaService: ScreenshotStravaService.new,
-      enablePushNotifications: false,
-    ),
+  final app = LoadingGate(
+    appSettings: appSettings,
+    appRepository: appRepository,
+    appHintService: appHintService,
+    createSubscriptionService: ScreenshotSubscriptionService.new,
+    createStravaService: ScreenshotStravaService.new,
+    enablePushNotifications: false,
   );
+  // `run_ios.sh --preview` drops this marker for recordings; screenshots stay
+  // dot-free. A file, because Dart can't read environment variables on iOS.
+  final documents = await getApplicationDocumentsDirectory();
+  final showTouches = File('${documents.path}/${TouchIndicator.markerFile}').existsSync();
+  runApp(showTouches ? TouchIndicator(child: app) : app);
 }

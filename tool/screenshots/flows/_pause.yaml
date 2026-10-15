@@ -1,0 +1,10 @@
+# Shared subflow: hold the screen for MS milliseconds, so a recording gives the
+# viewer time to read. Maestro has no sleep command; waiting for an element
+# that never appears is the fixed wait.
+appId: ${APP_ID}
+---
+- extendedWaitUntil:
+    visible:
+      id: never.present
+    timeout: ${MS}
+    optional: true

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/component/component.dart';
 import '../../theme.dart';
+import '../../utils/automation_ids.dart';
 import '../../utils/number_input_formatters.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/dialogs/unit_conversion_dialog.dart';
@@ -356,7 +357,11 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
             AdjustmentPageMode.edit => Text('Edit Numerical ${widget.term.label}'),
           },
           actions: [
-            IconButton(icon: const Icon(Icons.check), onPressed: _saveNumericalAdjustment),
+            Semantics(
+              container: true,
+              identifier: AutomationIds.adjustmentFormSave,
+              child: IconButton(icon: const Icon(Icons.check), onPressed: _saveNumericalAdjustment),
+            ),
           ],
         ),
         body: SafeArea(

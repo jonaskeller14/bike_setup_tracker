@@ -22,6 +22,10 @@
 
 .PARAMETER TileWaitMs
   Fixed wait for live map tiles on screen 07.
+
+.PARAMETER Demo
+  Record the demo_*.yaml flows instead, on the phone with touch dots, to
+  build/marketing/raw/*.mp4.
 #>
 param(
     [ValidateSet('phone', 'tablet', 'all')]
@@ -29,7 +33,8 @@ param(
     [int[]]$Screens,
     [switch]$SkipBuild,
     [switch]$KeepRunning,
-    [int]$TileWaitMs = 20000
+    [int]$TileWaitMs = 20000,
+    [switch]$Demo
 )
 
 $ErrorActionPreference = 'Stop'
@@ -47,7 +52,7 @@ $devices = @{
     phone  = @{ Avd = 'screenshots_phone'; Port = 5580; Folder = 'play-store/phone' }
     tablet = @{ Avd = 'screenshots_tablet'; Port = 5582; Folder = 'play-store/tablet_10-inch' }
 }
-$selected = if ($Device -eq 'all') { @('phone', 'tablet') } else { @($Device) }
+$selected = if ($Demo) { @('phone') } elseif ($Device -eq 'all') { @('phone', 'tablet') } else { @($Device) }
 
 $sdk = if ($env:ANDROID_HOME) { $env:ANDROID_HOME } else { $env:ANDROID_SDK_ROOT }
 if (-not $sdk) { throw 'ANDROID_HOME (or ANDROID_SDK_ROOT) is not set.' }
@@ -62,8 +67,9 @@ if (-not $maestro) {
 $env:MAESTRO_CLI_NO_ANALYTICS = '1'
 $env:MAESTRO_CLI_ANALYSIS_NOTIFICATION_DISABLED = 'true'
 
-$flows = Get-ChildItem $flowsDir -Filter '*.yaml' | Where-Object Name -Match '^\d\d_' | Sort-Object Name
-if ($Screens) {
+$flowPattern = if ($Demo) { '^demo_' } else { '^\d\d_' }
+$flows = Get-ChildItem $flowsDir -Filter '*.yaml' | Where-Object Name -Match $flowPattern | Sort-Object Name
+if ($Screens -and -not $Demo) {
     $flows = $flows | Where-Object { [int]$_.Name.Substring(0, 2) -in $Screens }
 }
 if (-not $flows) { throw 'No flows selected.' }
@@ -124,6 +130,17 @@ function Initialize-Device([string]$serial) {
     Invoke-Adb $serial @('shell', 'settings', 'put', 'secure', 'stylus_handwriting_enabled', '0')
 }
 
+# lib/main_screenshots.dart draws touch dots while this marker exists in the
+# app's documents directory (app_flutter). `run-as` works on the debug build.
+$touchMarker = 'app_flutter/screenshot_show_touches'
+function Set-TouchDots([string]$serial, [bool]$enabled) {
+    if ($enabled) {
+        Invoke-Adb $serial @('shell', 'run-as', $appId, 'sh', '-c', "'mkdir -p app_flutter && touch $touchMarker'")
+    } else {
+        Invoke-Adb $serial @('shell', 'run-as', $appId, 'rm', '-f', $touchMarker)
+    }
+}
+
 # Maestro connects to every entry in `adb devices` and reports no device at all
 # when a single one is not ready (offline, authorizing, unauthorized), even an
 # unrelated emulator.
@@ -153,6 +170,13 @@ foreach ($name in $selected) {
         Remove-Item $outDir -Recurse -Force -ErrorAction SilentlyContinue
         New-Item -ItemType Directory -Path $outDir | Out-Null
         $targetDir = Join-Path $repoRoot "assets\store\$($config.Folder)"
+        if ($Demo) {
+            $targetDir = Join-Path $repoRoot 'build\marketing\raw'
+            New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
+        }
+        # Cleared first, in case an aborted demo run left the marker behind.
+        Set-TouchDots $serial $false
+        if ($Demo) { Set-TouchDots $serial $true }
 
         foreach ($flow in $flows) {
             # The emulator's adb transport can drop briefly (seen right after
@@ -174,7 +198,8 @@ foreach ($name in $selected) {
                 if ($ok) { break }
             }
 
-            $shot = Get-ChildItem $outDir -Recurse -Filter "$($flow.Name.Substring(0, 2))_raw.png" | Select-Object -First 1
+            $output = if ($Demo) { "$($flow.BaseName).mp4" } else { "$($flow.Name.Substring(0, 2))_raw.png" }
+            $shot = Get-ChildItem $outDir -Recurse -Filter $output | Select-Object -First 1
             if ($ok -and $shot) {
                 Copy-Item $shot.FullName $targetDir -Force
             } else {
@@ -184,16 +209,22 @@ foreach ($name in $selected) {
         $checkedFolders += $config.Folder
     } finally {
         # Best effort: a dropped adb transport here must not abort the next device.
+        & $adb -s $serial shell run-as $appId rm -f $touchMarker 2>&1 | Out-Null
         & $adb -s $serial shell am broadcast -a com.android.systemui.demo -e command exit 2>&1 | Out-Null
         if (-not $KeepRunning) { & $adb -s $serial emu kill 2>&1 | Out-Null }
     }
 }
 
-python (Join-Path $PSScriptRoot 'check_output.py') @checkedFolders
-$checkExit = $LASTEXITCODE
+$checkExit = 0
+if ($Demo) {
+    Write-Host "Recordings: $(Join-Path $repoRoot 'build\marketing\raw')"
+} else {
+    python (Join-Path $PSScriptRoot 'check_output.py') @checkedFolders
+    $checkExit = $LASTEXITCODE
+}
 
 if ($failed) {
-    Write-Host "Failed flows (raws left unchanged): $($failed -join ', ')" -ForegroundColor Red
+    Write-Host "Failed flows (outputs left unchanged): $($failed -join ', ')" -ForegroundColor Red
     exit 1
 }
 exit $checkExit

@@ -1,0 +1,32 @@
+# Demo: add a bike to the garage. Run it with `run_android.sh --demo`, which
+# records it with touch dots to build/marketing/raw/demo_add_bike.mp4.
+appId: ${APP_ID}
+---
+- runFlow: _launch.yaml
+- tapOn:
+    id: nav.bikes
+- waitForAnimationToEnd:
+    timeout: 5000
+- startRecording: demo_add_bike
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+
+# The name field is focused when the form opens. Typing during the page
+# transition can double the first letter.
+- tapOn:
+    id: garage.addBike
+- waitForAnimationToEnd:
+    timeout: 3000
+- inputText: Yeti SB160
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+- tapOn:
+    id: bikeForm.save
+- runFlow:
+    file: _stop_recording.yaml
+    env:
+      MS: 2500

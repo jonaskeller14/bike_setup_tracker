@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../icons/simple_icons.dart';
 import '../services/strava_service.dart';
+import '../utils/automation_ids.dart';
 import 'sheets/strava.dart';
 
 class StravaSyncButton extends StatelessWidget {
@@ -15,9 +16,13 @@ class StravaSyncButton extends StatelessWidget {
     return Stack(
       alignment: Alignment.center,
       children: [
-        IconButton(
-          icon: const Icon(SimpleIcons.strava),
-          onPressed: () => showStravaSheet(context: context),
+        Semantics(
+          container: true,
+          identifier: AutomationIds.appBarStrava,
+          child: IconButton(
+            icon: const Icon(SimpleIcons.strava),
+            onPressed: () => showStravaSheet(context: context),
+          ),
         ),
         
         // The "Badge" with loading circle (only shown if isSyncing is true)

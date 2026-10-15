@@ -1,0 +1,53 @@
+# Demo: the Finale Ligure ride on the map, with the setups ridden on it.
+# Recording starts once the map is open, after TILE_WAIT_MS (set by the run
+# scripts) for the live CyclOSM tiles.
+appId: ${APP_ID}
+---
+- runFlow: _launch.yaml
+# Finale Ligure - NATO Trail
+- scrollUntilVisible:
+    element:
+      id: stravaActivity.18000000011
+    direction: DOWN
+    timeout: 60000
+- tapOn:
+    id: stravaActivity.18000000011
+- tapOn:
+    id: stravaActivity.actions
+- tapOn:
+    id: stravaActivity.viewOnMap
+- extendedWaitUntil:
+    visible:
+      id: map.focusActivity
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: never.present
+    timeout: ${TILE_WAIT_MS}
+    optional: true
+
+- startRecording: demo_map
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+- tapOn:
+    id: map.focusActivity
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 2000
+- tapOn:
+    id: stravaActivity.setups
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+- swipe:
+    start: 50%, 85%
+    end: 50%, 45%
+    duration: 1500
+- runFlow:
+    file: _stop_recording.yaml
+    env:
+      MS: 2500

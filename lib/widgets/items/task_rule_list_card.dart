@@ -16,6 +16,7 @@ import '../../pages/details/task_rule_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/component_hierarchy_resolver.dart';
 import '../../theme.dart';
+import '../../utils/automation_ids.dart';
 import '../../utils/task_actions.dart';
 import '../component_ancestor_display.dart';
 import '../notes_text.dart';
@@ -280,24 +281,28 @@ class TaskRuleListCard extends StatelessWidget {
         margin: const EdgeInsets.symmetric(vertical: 4.0),
         clipBehavior: Clip.antiAlias, // Borderradius for InkWell,
         child: ListTile(
-          leading: Checkbox(
-            value: isCompleted,
-            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            visualDensity: VisualDensity.compact,
-            onChanged: isCompleted || (selectionMode && (!selected || onSelectedTaskRulesCompleted == null))
-                ? null
-                : (bool? value) async {
-                    unawaited(HapticFeedback.lightImpact());
-                    if (selectionMode) {
-                      onSelectedTaskRulesCompleted!();
-                      return;
-                    }
-                    await TaskActions.addTaskEntry(
-                      context,
-                      taskRule: taskRule,
-                      heroTag: resolvedHeroTag,
-                    );
-                  },
+          leading: Semantics(
+            container: true,
+            identifier: AutomationIds.taskRuleComplete(taskRuleId),
+            child: Checkbox(
+              value: isCompleted,
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              visualDensity: VisualDensity.compact,
+              onChanged: isCompleted || (selectionMode && (!selected || onSelectedTaskRulesCompleted == null))
+                  ? null
+                  : (bool? value) async {
+                      unawaited(HapticFeedback.lightImpact());
+                      if (selectionMode) {
+                        onSelectedTaskRulesCompleted!();
+                        return;
+                      }
+                      await TaskActions.addTaskEntry(
+                        context,
+                        taskRule: taskRule,
+                        heroTag: resolvedHeroTag,
+                      );
+                    },
+            ),
           ),
           contentPadding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
           minTileHeight: 0,

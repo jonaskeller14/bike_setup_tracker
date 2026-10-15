@@ -97,6 +97,76 @@ The iPhone flows run with `DEVICE=phone` and the iPad flows with `DEVICE=tablet`
 3. Iterate with `maestro studio`, or with `run_android.ps1 -Screens NN -SkipBuild -KeepRunning` / `run_android.sh --screens NN --skip-build --keep-running` / `run_ios.sh --screens NN --skip-build --keep-running`. Running a flow by hand needs `-e APP_ID=<bundle id>` (plus `-e DEVICE=…` for screen 05).
 4. Update `SCREEN_COUNT` in `check_output.py` if the total changes.
 
-## Recording (App Store previews, later)
+## Recording (App Store previews)
 
-Maestro's `startRecording` and `stopRecording` work in the same flows, so a preview flow can reuse `_launch.yaml` and the same identifiers.
+```bash
+tool/screenshots/run_ios.sh iphone --preview           # records flows/preview_*.yaml
+```
+
+`--preview` runs the `preview_*.yaml` flows instead of the numbered ones, on the same build, seeded data and status bar. Each flow's recording lands in `build/store_previews/<iphone|ipad>/<flow name>.mp4`. That folder is not tracked, and `flutter clean` deletes it.
+
+`flows/preview_setup.yaml` is an example that proves recording works: Garage → Add Setup → Setup History in about 27 s on the iPhone. It is not a finished preview.
+
+- **Recording.** Maestro's `startRecording: <name>` and `stopRecording` wrap `simctl io recordVideo`. The clip has the simulator's full resolution (1320×2868 on the iPhone, 2064×2752 on the iPad), H.264, no audio track, and a variable frame rate, because the simulator only writes a frame when the screen changes.
+- **Pacing.** Maestro has no sleep command. `flows/_pause.yaml` waits `MS` milliseconds for an element that never appears. Without pauses the flow runs faster than a viewer can follow.
+- **Touch dots.** With `--preview`, the app draws a dot under every tap and drag (`lib/screenshots/touch_indicator.dart`).
+  - The Simulator's own *Show Single Touches* setting can't do this. It only follows the mouse in the Simulator window, so it is neither part of the recorded video nor triggered by Maestro's synthesized touches.
+  - The run script switches the dots on by creating the marker file `Documents/screenshot_show_touches` in the app's data container, and deletes it at the end. A file is used because Dart can't read environment variables on iOS. Every run deletes a leftover marker first, so the raws stay free of dots.
+  - `run_android.sh --demo` creates the same marker in the app's `app_flutter` folder with `adb shell run-as`, so both platforms show the same dots.
+
+### App Store preview specs
+
+Check these against App Store Connect's current *App preview specifications* before producing real previews:
+
+| | 6.9" iPhone | 13" iPad |
+|---|---|---|
+| Resolution (portrait) | 886×1920 | 1200×1600 |
+| Length | 15–30 s | 15–30 s |
+
+- H.264 (High profile, level 4.0, 10–12 Mbps) or ProRes 422 HQ, at most 30 fps, at most 500 MB, as `.mov`, `.m4v` or `.mp4`.
+- Stereo AAC audio at 256 kbps, 44.1 or 48 kHz. Uploads without an audio track tend to be rejected, so add a silent one.
+- Up to three previews per device size and localization.
+
+### Trim, resize and encode
+
+This step isn't scripted, and the command below is untested here (ffmpeg isn't a prerequisite of the tooling). It cuts the clip to 30 s, scales it to the iPhone preview size at a constant 30 fps and adds a silent stereo track:
+
+```bash
+ffmpeg -i build/store_previews/iphone/preview_setup.mp4 \
+  -f lavfi -i anullsrc=channel_layout=stereo:sample_rate=44100 \
+  -t 30 -vf "scale=886:1920,fps=30,format=yuv420p" \
+  -c:v libx264 -profile:v high -level 4.0 -b:v 10M \
+  -c:a aac -b:a 256k -shortest preview_iphone.mp4
+```
+
+For the iPad, use `scale=1200:1600`. Both scales keep the recording's aspect ratio (the iPhone's to within 0.3 %). Check the result with `ffprobe preview_iphone.mp4`.
+
+## Demo clips (marketing)
+
+```powershell
+tool/screenshots/run_android.ps1 -Demo                 # records flows/demo_*.yaml
+```
+
+```bash
+tool/screenshots/run_android.sh --demo
+```
+
+`-Demo` / `--demo` records the `demo_*.yaml` flows on the phone AVD, with touch dots and the same build, seeded data, status bar and GPS as the screenshots. Each recording lands in `build/marketing/raw/<flow name>.mp4` (1080×2400, H.264, no audio, variable frame rate). The marketing renderer turns them into Shorts, GIFs and store videos. `-Screens` / `--screens` don't apply.
+
+| Flow | Shows |
+|---|---|
+| `demo_add_bike` | A new bike in the garage |
+| `demo_add_component` | A fork with Pressure and Rebound from the type's suggestions |
+| `demo_add_setup` | Location and weather filling in, tags, one adjustment, save |
+| `demo_setup_history` | The Hightower's history, then its newest setup compared with the one before |
+| `demo_analysis` | The Lyrik's line and radial charts over all setups |
+| `demo_tasks` | Ticking off a due task |
+| `demo_map` | The Finale Ligure ride on the map with its setups |
+| `demo_calendar` | The month view |
+| `demo_strava` | The Strava dashboard, then a ride with the setup ridden on it |
+
+- **Only released features.** Demo flows don't show anything behind a debug-only feature flag, such as the component preset catalog.
+- **Pacing.** Each flow starts recording once the app is on its first screen and holds key moments with `_pause.yaml`, aiming for 15–30 s.
+- **Ending.** Flows end with `_stop_recording.yaml` instead of `stopRecording`. The Android encoder keeps the last frames before a still screen until the screen changes again, and `stopRecording` drops them, so a clip would end before its final transition. The subflow holds the screen, then presses *Volume Up*, which shows the volume panel in the last half second; trim it when rendering. A tap can't do this: the status bar opens the notification shade, and an in-app tap depends on the page.
+- **Map tiles.** `demo_map` waits `TILE_WAIT_MS` before it starts recording, so the clip doesn't show tiles loading.
+- Running a demo flow by hand needs `-e APP_ID=<bundle id>`, plus `-e TILE_WAIT_MS=<ms>` for `demo_map`; `maestro test --test-output-dir <dir>` keeps the mp4.

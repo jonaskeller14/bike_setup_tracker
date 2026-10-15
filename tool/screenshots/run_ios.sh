@@ -11,6 +11,8 @@
 #   --skip-build          Reuse the last built Runner.app.
 #   --keep-running        Leave simulators booted by this script running.
 #   --tile-wait-ms N      Fixed wait for live map tiles on screen 07 (default 20000).
+#   --preview             Record the preview_*.yaml flows instead, with touch dots,
+#                         to build/store_previews/<device>/*.mp4.
 set -euo pipefail
 
 script_dir="$(cd "$(dirname "$0")" && pwd)"
@@ -27,6 +29,7 @@ screens=''
 skip_build=0
 keep_running=0
 tile_wait_ms=20000
+preview=0
 while [ $# -gt 0 ]; do
   case "$1" in
     iphone | ipad | all) device="$1" ;;
@@ -34,6 +37,7 @@ while [ $# -gt 0 ]; do
     --skip-build) skip_build=1 ;;
     --keep-running) keep_running=1 ;;
     --tile-wait-ms) tile_wait_ms="$2"; shift ;;
+    --preview) preview=1 ;;
     *) echo "Unknown argument: $1" >&2; exit 2 ;;
   esac
   shift
@@ -57,12 +61,18 @@ export MAESTRO_CLI_NO_ANALYTICS=1
 export MAESTRO_CLI_ANALYSIS_NOTIFICATION_DISABLED=true
 
 flows=()
-for flow in "$flows_dir"/[0-9][0-9]_*.yaml; do
-  number=$((10#$(basename "$flow" | cut -c1-2)))
-  if [ -z "$screens" ] || [[ ",$screens," == *",$number,"* ]]; then
+if [ "$preview" -eq 1 ]; then
+  for flow in "$flows_dir"/preview_*.yaml; do
     flows+=("$(basename "$flow")")
-  fi
-done
+  done
+else
+  for flow in "$flows_dir"/[0-9][0-9]_*.yaml; do
+    number=$((10#$(basename "$flow" | cut -c1-2)))
+    if [ -z "$screens" ] || [[ ",$screens," == *",$number,"* ]]; then
+      flows+=("$(basename "$flow")")
+    fi
+  done
+fi
 [ ${#flows[@]} -gt 0 ] || { echo 'No flows selected.' >&2; exit 1; }
 
 # The newest available runtime wins if a name exists more than once.
@@ -113,6 +123,15 @@ for name in $selected; do
 
   out_dir="$(mktemp -d -t "screenshots_$name")"
   target_dir="$repo_root/assets/store/$folder"
+  # lib/main_screenshots.dart draws touch dots while this marker exists. It is
+  # removed first, in case an aborted preview run left it behind.
+  touch_marker="$(xcrun simctl get_app_container "$udid" "$app_id" data)/Documents/screenshot_show_touches"
+  rm -f "$touch_marker"
+  if [ "$preview" -eq 1 ]; then
+    target_dir="$repo_root/build/store_previews/$name"
+    mkdir -p "$target_dir" "$(dirname "$touch_marker")"
+    touch "$touch_marker"
+  fi
 
   for flow in "${flows[@]}"; do
     ok=0
@@ -130,7 +149,11 @@ for name in $selected; do
       fi
     done
 
-    shot="$(find "$out_dir" -name "$(echo "$flow" | cut -c1-2)_raw.png" | head -n 1)"
+    if [ "$preview" -eq 1 ]; then
+      shot="$(find "$out_dir" -name "${flow%.yaml}.mp4" | head -n 1)"
+    else
+      shot="$(find "$out_dir" -name "$(echo "$flow" | cut -c1-2)_raw.png" | head -n 1)"
+    fi
     if [ "$ok" -eq 1 ] && [ -n "$shot" ]; then
       cp "$shot" "$target_dir/"
     else
@@ -139,6 +162,7 @@ for name in $selected; do
   done
   checked_folders+=("$folder")
 
+  rm -f "$touch_marker"
   xcrun simctl status_bar "$udid" clear || true
   if [ "$booted_here" -eq 1 ] && [ "$keep_running" -eq 0 ]; then
     xcrun simctl shutdown "$udid" || true
@@ -146,10 +170,14 @@ for name in $selected; do
 done
 
 check_exit=0
-python3 "$script_dir/check_output.py" "${checked_folders[@]}" || check_exit=$?
+if [ "$preview" -eq 1 ]; then
+  echo "Recordings: $repo_root/build/store_previews"
+else
+  python3 "$script_dir/check_output.py" "${checked_folders[@]}" || check_exit=$?
+fi
 
 if [ ${#failed[@]} -gt 0 ]; then
-  echo "Failed flows (raws left unchanged): ${failed[*]}" >&2
+  echo "Failed flows (outputs left unchanged): ${failed[*]}" >&2
   exit 1
 fi
 exit "$check_exit"

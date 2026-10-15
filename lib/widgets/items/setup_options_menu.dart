@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../../models/rating/rating_entry.dart';
 import '../../models/setup.dart';
+import '../../utils/automation_ids.dart';
 import '../../utils/setup_actions.dart';
 import '../sheets/compare_setups.dart';
 
@@ -30,7 +31,10 @@ class SetupOptionsMenu extends StatelessWidget {
                 spacing: 10,
                 children: [
                   Icon(_iconData(option), size: 20),
-                  Text(option.label),
+                  Semantics(
+                    identifier: option == _SetupOption.compare ? AutomationIds.setupActionsCompare : null,
+                    child: Text(option.label),
+                  ),
                 ],
               ),
             ),

@@ -1,0 +1,22 @@
+# Shared subflow: hold the final screen for MS milliseconds, then stop the
+# recording. The Android encoder keeps the last frames before a still screen
+# until the next screen change, and stopRecording drops them, so a clip would
+# end before its final transition. Pressing Volume Up makes that change on any
+# page (the AVD has no audio); its volume panel shows only in the clip's last
+# half second.
+appId: ${APP_ID}
+---
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: ${MS}
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - pressKey: Volume Up
+      - runFlow:
+          file: _pause.yaml
+          env:
+            MS: 500
+- stopRecording

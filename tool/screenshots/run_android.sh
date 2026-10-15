@@ -6,11 +6,13 @@
 # then runs check_output.py.
 #
 # Usage: run_android.sh [phone|tablet|all] [--screens 3,7] [--skip-build]
-#                       [--keep-running] [--tile-wait-ms N]
+#                       [--keep-running] [--tile-wait-ms N] [--demo]
 #   --screens N,N         Screen numbers to capture. Default: all flows.
 #   --skip-build          Reuse the last built APK.
 #   --keep-running        Leave the emulators running (faster reruns).
 #   --tile-wait-ms N      Fixed wait for live map tiles on screen 07 (default 20000).
+#   --demo                Record the demo_*.yaml flows instead, on the phone with
+#                         touch dots, to build/marketing/raw/*.mp4.
 set -euo pipefail
 
 script_dir="$(cd "$(dirname "$0")" && pwd)"
@@ -28,6 +30,7 @@ screens=''
 skip_build=0
 keep_running=0
 tile_wait_ms=20000
+demo=0
 while [ $# -gt 0 ]; do
   case "$1" in
     phone | tablet | all) device="$1" ;;
@@ -35,6 +38,7 @@ while [ $# -gt 0 ]; do
     --skip-build) skip_build=1 ;;
     --keep-running) keep_running=1 ;;
     --tile-wait-ms) tile_wait_ms="$2"; shift ;;
+    --demo) demo=1 ;;
     *) echo "Unknown argument: $1" >&2; exit 2 ;;
   esac
   shift
@@ -47,7 +51,13 @@ device_config() {
     tablet) echo 'screenshots_tablet|5582|play-store/tablet_10-inch' ;;
   esac
 }
-if [ "$device" = all ]; then selected='phone tablet'; else selected="$device"; fi
+if [ "$demo" -eq 1 ]; then
+  selected='phone'
+elif [ "$device" = all ]; then
+  selected='phone tablet'
+else
+  selected="$device"
+fi
 
 sdk="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
 [ -n "$sdk" ] || { echo 'ANDROID_HOME (or ANDROID_SDK_ROOT) is not set.' >&2; exit 1; }
@@ -63,12 +73,18 @@ export MAESTRO_CLI_NO_ANALYTICS=1
 export MAESTRO_CLI_ANALYSIS_NOTIFICATION_DISABLED=true
 
 flows=()
-for flow in "$flows_dir"/[0-9][0-9]_*.yaml; do
-  number=$((10#$(basename "$flow" | cut -c1-2)))
-  if [ -z "$screens" ] || [[ ",$screens," == *",$number,"* ]]; then
+if [ "$demo" -eq 1 ]; then
+  for flow in "$flows_dir"/demo_*.yaml; do
     flows+=("$(basename "$flow")")
-  fi
-done
+  done
+else
+  for flow in "$flows_dir"/[0-9][0-9]_*.yaml; do
+    number=$((10#$(basename "$flow" | cut -c1-2)))
+    if [ -z "$screens" ] || [[ ",$screens," == *",$number,"* ]]; then
+      flows+=("$(basename "$flow")")
+    fi
+  done
+fi
 [ ${#flows[@]} -gt 0 ] || { echo 'No flows selected.' >&2; exit 1; }
 
 start_avd() {
@@ -118,6 +134,18 @@ initialize_device() {
   "$adb" -s "$serial" shell settings put secure stylus_handwriting_enabled 0
 }
 
+# lib/main_screenshots.dart draws touch dots while this marker exists in the
+# app's documents directory (app_flutter). `run-as` works on the debug build.
+touch_marker='app_flutter/screenshot_show_touches'
+set_touch_dots() {
+  local serial="$1" enabled="$2"
+  if [ "$enabled" -eq 1 ]; then
+    "$adb" -s "$serial" shell run-as "$app_id" sh -c "'mkdir -p app_flutter && touch $touch_marker'"
+  else
+    "$adb" -s "$serial" shell run-as "$app_id" rm -f "$touch_marker"
+  fi
+}
+
 # Maestro connects to every entry in `adb devices` and reports no device at all
 # when a single one is not ready (offline, authorizing, unauthorized), even an
 # unrelated emulator.
@@ -141,8 +169,15 @@ for name in $selected; do
 
   out_dir="$(mktemp -d -t "screenshots_$name")"
   target_dir="$repo_root/assets/store/$folder"
+  if [ "$demo" -eq 1 ]; then
+    target_dir="$repo_root/build/marketing/raw"
+    mkdir -p "$target_dir"
+  fi
 
   initialize_device "$serial"
+  # Cleared first, in case an aborted demo run left the marker behind.
+  set_touch_dots "$serial" 0
+  set_touch_dots "$serial" "$demo"
   for flow in "${flows[@]}"; do
     ok=0
     # The emulator's adb transport can drop briefly (seen right after
@@ -162,7 +197,11 @@ for name in $selected; do
       fi
     done
 
-    shot="$(find "$out_dir" -name "$(echo "$flow" | cut -c1-2)_raw.png" | head -n 1)"
+    if [ "$demo" -eq 1 ]; then
+      shot="$(find "$out_dir" -name "${flow%.yaml}.mp4" | head -n 1)"
+    else
+      shot="$(find "$out_dir" -name "$(echo "$flow" | cut -c1-2)_raw.png" | head -n 1)"
+    fi
     if [ "$ok" -eq 1 ] && [ -n "$shot" ]; then
       cp "$shot" "$target_dir/"
     else
@@ -172,15 +211,20 @@ for name in $selected; do
   checked_folders+=("$folder")
 
   # Best effort: a dropped adb transport here must not abort the next device.
+  set_touch_dots "$serial" 0 || true
   "$adb" -s "$serial" shell am broadcast -a com.android.systemui.demo -e command exit > /dev/null 2>&1 || true
   if [ "$keep_running" -eq 0 ]; then "$adb" -s "$serial" emu kill > /dev/null 2>&1 || true; fi
 done
 
 check_exit=0
-python3 "$script_dir/check_output.py" "${checked_folders[@]}" || check_exit=$?
+if [ "$demo" -eq 1 ]; then
+  echo "Recordings: $repo_root/build/marketing/raw"
+else
+  python3 "$script_dir/check_output.py" "${checked_folders[@]}" || check_exit=$?
+fi
 
 if [ ${#failed[@]} -gt 0 ]; then
-  echo "Failed flows (raws left unchanged): ${failed[*]}" >&2
+  echo "Failed flows (outputs left unchanged): ${failed[*]}" >&2
   exit 1
 fi
 exit "$check_exit"

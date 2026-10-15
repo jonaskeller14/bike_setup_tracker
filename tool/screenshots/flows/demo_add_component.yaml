@@ -1,0 +1,75 @@
+# Demo: give a new bike its fork, with Pressure and Rebound from the
+# suggestions for the type. The name comes last: returning from an adjustment
+# page refocuses the name field, which would bring the keyboard back up.
+appId: ${APP_ID}
+---
+- runFlow: _launch.yaml
+- tapOn:
+    id: nav.bikes
+- tapOn:
+    id: garage.addBike
+- waitForAnimationToEnd:
+    timeout: 3000
+- inputText: Yeti SB160
+- pressKey: Enter
+- waitForAnimationToEnd:
+    timeout: 5000
+- startRecording: demo_add_component
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+
+# New bikes get orderIndex 0, like the seeded Hightower, and sort right after
+# it: the second add-component button is the new bike's.
+- tapOn:
+    id: garage\.addComponent\..*
+    index: 1
+- tapOn:
+    id: componentForm.type
+- tapOn:
+    id: componentType.fork
+
+- tapOn:
+    id: componentForm.addAdjustment
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+- tapOn:
+    id: adjustmentPreset.fork:pressure
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 800
+- tapOn:
+    id: adjustmentForm.save
+- tapOn:
+    id: componentForm.addAdjustment
+- tapOn:
+    id: adjustmentPreset.fork:rebound
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 800
+- tapOn:
+    id: adjustmentForm.save
+
+- tapOn:
+    id: componentForm.name
+# Typing while the keyboard slides in can double the first letter.
+- waitForAnimationToEnd:
+    timeout: 3000
+- inputText: Fox 38 Factory
+- runFlow: _hide_keyboard_android.yaml
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+# Back in the garage with the fork on the new bike.
+- tapOn:
+    id: componentForm.save
+- runFlow:
+    file: _stop_recording.yaml
+    env:
+      MS: 2500

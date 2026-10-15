@@ -19,6 +19,7 @@ import '../../services/attachment_storage_service.dart';
 import '../../services/component_hierarchy_resolver.dart';
 import '../../theme.dart';
 import '../../utils/attachment_actions.dart';
+import '../../utils/automation_ids.dart';
 import '../../widgets/app_snackbar.dart';
 import '../../widgets/attachment_strip.dart';
 import '../../widgets/component_ancestor_display.dart';
@@ -388,7 +389,11 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
             if (_isSaving)
               const Center(child: Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2))))
             else
-              IconButton(icon: const Icon(Icons.check), onPressed: _saveTaskEntry),
+              Semantics(
+                container: true,
+                identifier: AutomationIds.taskEntryFormSave,
+                child: IconButton(icon: const Icon(Icons.check), onPressed: _saveTaskEntry),
+              ),
           ],
         ),
         body: SafeArea(

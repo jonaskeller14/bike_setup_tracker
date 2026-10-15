@@ -982,7 +982,11 @@ class _ComponentPageState extends State<ComponentPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        _componentTypeField(existingComponentsCount: existingComponentsCount),
+                        Semantics(
+                          container: true,
+                          identifier: AutomationIds.componentFormType,
+                          child: _componentTypeField(existingComponentsCount: existingComponentsCount),
+                        ),
                         if (appSettings.enableComponentPresets &&
                             (_componentType == ComponentType.fork || _componentType == ComponentType.shock)) ...[
                           const SizedBox(height: 12),
@@ -996,10 +1000,14 @@ class _ComponentPageState extends State<ComponentPage> {
                           const SizedBox(height: 12),
                         ],
                         const SizedBox(height: 12),
-                        _nameField(
-                          // Off in edit mode: renaming shouldn't pop suggestions that overwrite name and notes.
-                          presetsEnabled: appSettings.enableComponentPresets &&
-                              widget.mode != ComponentPageMode.edit,
+                        Semantics(
+                          container: true,
+                          identifier: AutomationIds.componentFormName,
+                          child: _nameField(
+                            // Off in edit mode: renaming shouldn't pop suggestions that overwrite name and notes.
+                            presetsEnabled: appSettings.enableComponentPresets &&
+                                widget.mode != ComponentPageMode.edit,
+                          ),
                         ),
                         Center(
                           child: Semantics(
@@ -1147,10 +1155,14 @@ class _ComponentPageState extends State<ComponentPage> {
                             const SizedBox(height: 8),
                             SizedBox(
                               width: double.infinity,
-                              child: FilledButton.icon(
-                                onPressed: showAddBottomSheet,
-                                icon: const Icon(Icons.add),
-                                label: const Text("Add Adjustment"),
+                              child: Semantics(
+                                container: true,
+                                identifier: AutomationIds.componentFormAddAdjustment,
+                                child: FilledButton.icon(
+                                  onPressed: showAddBottomSheet,
+                                  icon: const Icon(Icons.add),
+                                  label: const Text("Add Adjustment"),
+                                ),
                               ),
                             ),
                             if (field.hasError && _adjustments.isNotEmpty)

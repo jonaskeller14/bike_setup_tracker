@@ -1,0 +1,54 @@
+# Demo: the Lyrik's details page, comparing all its setups in the line and
+# radial charts.
+appId: ${APP_ID}
+---
+- runFlow: _launch.yaml
+- tapOn:
+    id: nav.bikes
+- waitForAnimationToEnd:
+    timeout: 5000
+- startRecording: demo_analysis
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+# RockShox Lyrik Ultimate: double-tap opens its details page
+- doubleTapOn:
+    id: garage.component.e47480ee-0f71-453e-bb97-61d2041d05f5
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+
+# The charts compare the table's selected setups, by default only the latest
+# three.
+- scrollUntilVisible:
+    element:
+      id: setupTable.selectAll
+    direction: DOWN
+- tapOn:
+    id: setupTable.selectAll
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+- scrollUntilVisible:
+    element:
+      id: componentDetails.lineChart
+    direction: DOWN
+    centerElement: true
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 2000
+# Highlight the newest setup in the radial chart.
+- scrollUntilVisible:
+    element:
+      id: radialChart.legend.0
+    direction: DOWN
+- tapOn:
+    id: radialChart.legend.0
+- runFlow:
+    file: _stop_recording.yaml
+    env:
+      MS: 2500

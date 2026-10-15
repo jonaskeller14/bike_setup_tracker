@@ -200,7 +200,7 @@ class SetupList extends StatelessWidget {
         const SliverToBoxAdapter(
           child: AppHintSlot(
             placement: AppHintPlacement.setupHeader,
-            padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
+            padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
           ),
         ),
         const SliverToBoxAdapter(child: SetupListFilterWidget()),

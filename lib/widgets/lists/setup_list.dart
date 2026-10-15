@@ -1,5 +1,4 @@
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -21,8 +20,6 @@ import '../chips/setup_list_filter_widget.dart';
 import '../empty_state_placeholder.dart';
 import '../hints/app_hint_slot.dart';
 import '../items/timeline_day_section.dart';
-import '../items/today_add_setup_button.dart';
-import '../sheets/filter.dart';
 import 'list_scroll_controller.dart';
 
 class SetupList extends StatelessWidget {
@@ -197,30 +194,6 @@ class SetupList extends StatelessWidget {
       }
     }
 
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final showTodayPrompt =
-        kDebugMode &&
-        !sortAscending &&
-        layers.shows(TimelineLayer.setups) &&
-        selection.isEmpty &&
-        !FilterActions.isFiltered(
-          FilterSheetChip.setupList.sections.difference({FilterSection.bike}),
-          appRepository: appRepository,
-          appSettings: appSettings,
-          stravaActive: appSettings.enableStrava && subscriptionService.hasStravaEntitlement,
-        ) &&
-        !setupsList.any((s) {
-          final local = s.datetimeLocal;
-          return local.year == today.year && local.month == today.month && local.day == today.day;
-        });
-    int? todayIndex;
-    if (showTodayPrompt) {
-      final slot = todaySectionSlot([for (final s in sections) s.header.day], today);
-      if (!slot.exists) sections.insert(slot.index, (header: DayHeaderRow(today), rows: []));
-      todayIndex = slot.index;
-    }
-
     return CustomScrollView(
       controller: controller?.scrollController,
       slivers: [
@@ -246,7 +219,6 @@ class SetupList extends StatelessWidget {
                 setupsList: setupsList,
                 selection: selection,
                 onSelectionChanged: onSelectionChanged,
-                leading: index == todayIndex ? const TodayAddSetupButton() : null,
               ),
             );
           },

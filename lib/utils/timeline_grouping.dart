@@ -286,17 +286,6 @@ List<EntryRow> collapseIntoRows(
   return rows;
 }
 
-/// Where today's section sits among the day sections of a descending
-/// timeline: its index when present, otherwise the index it would be
-/// inserted at (below any future-dated days).
-({int index, bool exists}) todaySectionSlot(List<DateTime> sectionDays, DateTime today) {
-  for (var i = 0; i < sectionDays.length; i++) {
-    if (sectionDays[i] == today) return (index: i, exists: true);
-    if (sectionDays[i].isBefore(today)) return (index: i, exists: false);
-  }
-  return (index: sectionDays.length, exists: false);
-}
-
 List<TimelineRow> buildTimelineRows(
   List<TimelineEntry> sortedEntries, {
   required bool sortAscending,

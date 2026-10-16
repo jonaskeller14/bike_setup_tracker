@@ -5,14 +5,14 @@
 [![Flutter Test Check](https://github.com/jonaskeller14/bike_setup_tracker/actions/workflows/flutter_test.yml/badge.svg)](https://github.com/jonaskeller14/bike_setup_tracker/actions)
 [![codecov](https://codecov.io/gh/jonaskeller14/bike_setup_tracker/graph/badge.svg)](https://codecov.io/gh/jonaskeller14/bike_setup_tracker)
 [![License: All Rights Reserved](https://img.shields.io/badge/License-All_Rights_Reserved-red.svg)](LICENSE)
-[![Play Store Downloads](https://playbadges.pavi2410.com/badge/downloads?id=com.jonaskeller14.bike_setup_tracker&pretty)](https://play.google.com/store/apps/details?id=com.jonaskeller14.bike_setup_tracker)
-[![Play Store Ratings](https://playbadges.pavi2410.com/badge/ratings?id=com.jonaskeller14.bike_setup_tracker&pretty)](https://play.google.com/store/apps/details?id=com.jonaskeller14.bike_setup_tracker)
+[![Play Store Downloads](https://playbadges.pavi2410.com/badge/downloads?id=com.jonaskeller14.bike_setup_tracker&pretty)](https://play.google.com/store/apps/details?id=com.jonaskeller14.bike_setup_tracker&referrer=utm_source%3Dgithub-readme%26utm_medium%3Dweb)
+[![Play Store Ratings](https://playbadges.pavi2410.com/badge/ratings?id=com.jonaskeller14.bike_setup_tracker&pretty)](https://play.google.com/store/apps/details?id=com.jonaskeller14.bike_setup_tracker&referrer=utm_source%3Dgithub-readme%26utm_medium%3Dweb)
 
 <p align="left">
-  <a href='https://play.google.com/store/apps/details?id=com.jonaskeller14.bike_setup_tracker'>
+  <a href='https://play.google.com/store/apps/details?id=com.jonaskeller14.bike_setup_tracker&referrer=utm_source%3Dgithub-readme%26utm_medium%3Dweb'>
     <img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png' style="width: 155px; vertical-align: middle;"/>
   </a>
-  <a href="https://apps.apple.com/us/app/bike-setup-tracker/id6759974325?itscg=30200&itsct=apps_box_badge&mttnsubad=6759974325">
+  <a href="https://apps.apple.com/app/apple-store/id6759974325?pt=128610953&ct=github-readme&mt=8">
     <img src="https://toolbox.marketingtools.apple.com/api/v2/badges/download-on-the-app-store/black/en-us?releaseDate=1772755200" alt="Download on the App Store" style="width: 120px; vertical-align: middle;"/>
   </a>
 </p>

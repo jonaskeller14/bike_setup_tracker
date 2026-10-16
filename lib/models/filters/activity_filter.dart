@@ -13,6 +13,13 @@ class ActivityFilter {
 
   bool get isActive => distance.isActive || elevationGain.isActive;
 
+  Map<String, Object?> toJson() => {'distance': distance.toJson(), 'elevationGain': elevationGain.toJson()};
+
+  factory ActivityFilter.fromJson(Map<String, Object?> json) => ActivityFilter(
+    distance: NumericRange.fromJson(json['distance'] as Map<String, Object?>? ?? const {}),
+    elevationGain: NumericRange.fromJson(json['elevationGain'] as Map<String, Object?>? ?? const {}),
+  );
+
   ActivityFilter copyWith({NumericRange? distance, NumericRange? elevationGain}) =>
       ActivityFilter(distance: distance ?? this.distance, elevationGain: elevationGain ?? this.elevationGain);
 

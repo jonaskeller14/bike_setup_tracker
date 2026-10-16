@@ -49,8 +49,18 @@ void main() {
       );
     });
 
+    test('treats a single from-beginning component parent as simple', () {
+      expect(
+        isComplexInstallationTimeline([
+          Installation.componentSinceBeginning(parentComponentId: 'wheel'),
+        ]),
+        isFalse,
+      );
+    });
+
     test('treats a dated entry as complex', () {
       expect(isComplexInstallationTimeline([installOn('b1', 1)]), isTrue);
+      expect(isComplexInstallationTimeline([installOnComponent('wheel', 1)]), isTrue);
     });
 
     test('treats multiple entries as complex', () {

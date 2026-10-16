@@ -24,7 +24,7 @@ sources:
   # Coil spring rates are quoted in lbs/inch on BOS's spring page
   - https://www.bos-suspension.com/PBCPPlayer.asp?ID=2229099
   - https://www.bos-suspension.com/PBCPPlayer.asp?ID=2252919
-updated: 2026-10-05
+updated: 2026-10-10
 # The BOS product pages for these three shocks do not restate the counting
 # direction. BOS's own Quickstart/user manuals for the Grabber forks and the
 # earlier Syors, Stoy 3 and Void 3 shocks all count clicks from fully closed
@@ -175,7 +175,9 @@ nodes:
 #     and the 2025 BOS range launch; not independently confirmed per shock.
 #   - Void 4 volume spacers: the page lists positive/negative chamber volume
 #     adjustment "via entretoises" (MKP4 kit) but no maximum count, so no
-#     Volume Spacers adjustment is generated.
+#     Volume Spacers adjustment is generated. (The Void 3 user manual says
+#     0-4 O-rings usual, up to 10; that is a different generation and is not
+#     carried over.)
 #   - Lever versions: the pages mention an optional pedalling-platform lever but
 #     no position count for the Void 4 / Syors 2, so no lever adjuster is
 #     modelled.
@@ -193,5 +195,7 @@ nodes:
 #   - Legacy shocks with manuals on bos-suspension.com (Kirk, Kirk 2, VIP'R,
 #     VIP'R 2, Void, Void 2, Void 3, Stoy Rare, Stoy 3, Syors): the manuals
 #     show recommended starting clicks in diagrams, not total counts, so no
-#     older generation is listed. "Stoy 4"/"Void 4" are BOS's own names.
+#     older generation is listed. "Stoy 4"/"Void 4" are BOS's own names. The
+#     Void 3 / Syors user manuals also only give single basic settings
+#     (10/10/10 clicks, from fully closed).
 # --------------------------------------------------------------------------

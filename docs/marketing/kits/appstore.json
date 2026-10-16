@@ -1,0 +1,12 @@
+{
+  "clips": {
+    "preview_setup": {
+      "source": "build/store_previews/iphone/preview_setup.mp4",
+      "segments": [[0, 8, 1], [8, 11, 2.5], [11, 24.7, 1]]
+    }
+  },
+  "appstore": {
+    "preview": "preview_setup",
+    "creative": "preview_setup"
+  }
+}

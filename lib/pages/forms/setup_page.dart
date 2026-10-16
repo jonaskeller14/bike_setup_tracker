@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -12,6 +13,7 @@ import '../../models/app_settings.dart';
 import '../../models/attachment.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
+import '../../models/component/setup_guide.dart';
 import '../../models/context/context_place.dart';
 import '../../models/context/context_position.dart';
 import '../../models/context/context_weather.dart';
@@ -19,6 +21,7 @@ import '../../models/person.dart';
 import '../../models/setup.dart';
 import '../../models/strava/strava_activity.dart';
 import '../../repositories/app_repository.dart';
+import '../../repositories/component_catalog_repository.dart';
 import '../../services/address_service.dart';
 import '../../services/attachment_storage_service.dart';
 import '../../services/elevation_service.dart';
@@ -27,16 +30,21 @@ import '../../services/pressure_drift_service.dart';
 import '../../services/setup_resolution_service.dart';
 import '../../services/weather_service.dart';
 import '../../theme.dart';
+import '../../utils/adjustment_role.dart';
 import '../../utils/attachment_actions.dart';
 import '../../utils/automation_ids.dart';
+import '../../utils/setup_guide_actions.dart';
 import '../../widgets/app_snackbar.dart';
 import '../../widgets/attachment_strip.dart';
 import '../../widgets/chips/utils.dart';
 import '../../widgets/dialogs/confirmation.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/pressure_drift_card.dart';
+import '../../widgets/setup_guide_card.dart';
+import '../../widgets/setup_guide_scope.dart';
 import '../../widgets/setup_page_tab_bike.dart';
 import '../../widgets/setup_page_tab_person.dart';
+import '../../widgets/sheets/person_add_adjustment.dart';
 import '../../widgets/sheets/set_condition.dart';
 import '../../widgets/sheets/set_location_place.dart';
 import '../../widgets/sheets/set_tags.dart';
@@ -50,6 +58,9 @@ enum SetupPageMode {
 }
 
 class SetupPage extends StatefulWidget {
+  @visibleForTesting
+  static bool showSetupGuideForAllComponents = kDebugMode;
+
   final Setup? setup;
   final SetupPageMode mode;
   final DateTime? initialDateTimeUtc;
@@ -152,6 +163,22 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   final Map<String, AdjustmentValue> _danglingPersonAdjustmentValues = {};
 
   Map<String, AdjustmentProvenance>? _pressureDriftProvenance;
+
+  /// Bumped on every adjustment value change, so the setup guide card follows
+  /// the values (and the riding weight) as they are entered.
+  final ValueNotifier<int> _adjustmentValuesRevision = ValueNotifier(0);
+
+  /// Bumped when the setup guide writes values, so the bike tab's fields
+  /// re-read them.
+  int _appliedGuideRevision = 0;
+
+  /// Bumped when the setup guide card writes the riding weight, so the rider
+  /// tab's fields re-read it.
+  int _guideWeightRevision = 0;
+
+  /// A riding weight in kg entered on the setup guide card where the rider has
+  /// no riding-weight attribute; only used for the recommendations.
+  double? _guideFallbackWeight;
 
   final LocationService _locationService = LocationService();
   final ElevationService _elevationService = ElevationService();
@@ -358,6 +385,26 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       _setDanglingAdjustmentValues();
     });
     _changeListener();
+    unawaited(_loadSetupGuides());
+  }
+
+  /// Loads the catalog of the bike's linked components, so the setup guide
+  /// card appears once their guides are there.
+  Future<void> _loadSetupGuides() async {
+    if (!context.read<AppSettings>().enableSetupGuides) return;
+    final appRepository = context.read<AppRepository>();
+    final catalog = context.read<ComponentCatalogRepository>();
+    final presets = appRepository.components.values
+        .where((component) => appRepository.componentHierarchy.bikeAt(component.id, _selectedDateTimeUtc) == _bike)
+        .map((component) => component.preset)
+        .nonNulls;
+    if (presets.every((preset) => catalog.loadedPreset(preset) != null)) return;
+    try {
+      await Future.wait(presets.map(catalog.resolve));
+    } catch (_) {
+      return; // No card without the catalog.
+    }
+    if (mounted) setState(() {});
   }
 
   Future<void> fetchLocationAddressWeather() async {
@@ -507,6 +554,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     _currentLocation.dispose();
     _currentPlace.dispose();
     _currentWeather.dispose();
+    _adjustmentValuesRevision.dispose();
     // Files imported here but not saved with the setup would be left unlinked.
     unawaited(AttachmentActions.deleteUnsaved(_importedAttachments, saved: _savedAttachments));
     super.dispose();
@@ -752,21 +800,25 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
   void _onBikeAdjustmentValueChanged({required Adjustment adjustment, required AdjustmentValue newValue}) {
     _bikeAdjustmentValues[adjustment.id] = newValue;
+    _adjustmentValuesRevision.value++;
     _changeListener();
   }
 
   void _onPersonAdjustmentValueChanged({required Adjustment adjustment, required AdjustmentValue newValue}) {
     _personAdjustmentValues[adjustment.id] = newValue;
+    _adjustmentValuesRevision.value++;
     _changeListener();
   }
 
   void _removeFromBikeAdjustmentValues({required Adjustment adjustment}) {
     _bikeAdjustmentValues.remove(adjustment.id);
+    _adjustmentValuesRevision.value++;
     _changeListener();
   }
 
   void _removeFromPersonAdjustmentValues({required Adjustment adjustment}) {
     _personAdjustmentValues.remove(adjustment.id);
+    _adjustmentValuesRevision.value++;
     _changeListener();
   }
 
@@ -1165,26 +1217,192 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   Widget? _pressureCheck(List<Component> bikeComponents) {
     final provenance = _pressureDriftProvenance;
     if (provenance == null) return null;
+    final appSettings = context.read<AppSettings>();
+    final hiddenTypes = appSettings.pressureCheckHiddenComponentTypes;
 
     return ListenableBuilder(
       listenable: Listenable.merge([_currentLocation, _currentWeather]),
       builder: (context, child) => PressureDriftCard(
         entries: PressureDriftService.compute(
-          components: bikeComponents,
+          components: bikeComponents.where((component) => !hiddenTypes.contains(component.componentType)),
           provenance: provenance,
           currentWeather: _currentWeather.value,
           currentPosition: _currentLocation.value,
+          significanceThreshold: appSettings.pressureCheckThreshold,
         ),
       ),
     );
   }
 
+  Widget? _setupGuide(List<Component> bikeComponents) {
+    if (!context.read<AppSettings>().enableSetupGuides) return null;
+    final catalog = context.read<ComponentCatalogRepository>();
+    final guided = SetupPage.showSetupGuideForAllComponents
+        ? guidedComponents(bikeComponents, resolve: (component) => catalog.loadedPreset(component.preset!))
+        : guidedComponentsWithoutValues(
+            bikeComponents,
+            resolve: (component) => catalog.loadedPreset(component.preset!),
+            previousValues: _previousBikeAdjustmentValues,
+          );
+    if (guided.isEmpty) return null;
+
+    return ListenableBuilder(
+      listenable: _adjustmentValuesRevision,
+      builder: (context, child) {
+        final inputs = _guideInputs();
+        final sections = [
+          for (final component in guided)
+            if (component.evaluate(inputs, _bikeAdjustmentValues) case final recommendations
+                when recommendations.isNotEmpty)
+              SetupGuideSection(component, recommendations),
+        ];
+        final canApplyAll = sections.any(
+          (section) => section.recommendations.any((r) => r.value != null && r.current != r.value),
+        );
+        return SetupGuideCard(
+          sections: sections,
+          inputs: inputs,
+          weightInput: _guideWeightInput(),
+          onApply: _applyGuideValue,
+          onApplyAll: canApplyAll ? () => _applyAllGuideValues(sections, inputs) : null,
+        );
+      },
+    );
+  }
+
+  /// Provides every guided component's recommendations to the adjuster
+  /// tooltips below, including components that already have values. Always
+  /// in the tree, so the bike tab keeps its state when the catalog loads.
+  Widget _setupGuideScope(List<Component> bikeComponents, Widget child) {
+    final guided = context.read<AppSettings>().enableSetupGuides
+        ? guidedComponents(
+            bikeComponents,
+            resolve: (component) => context.read<ComponentCatalogRepository>().loadedPreset(component.preset!),
+          )
+        : const <GuidedComponent>[];
+
+    return ListenableBuilder(
+      listenable: _adjustmentValuesRevision,
+      builder: (context, child) {
+        final inputs = _guideInputs();
+        return SetupGuideScope(
+          sections: [
+            for (final component in guided)
+              SetupGuideSection(component, component.evaluate(inputs, _bikeAdjustmentValues)),
+          ],
+          child: child!,
+        );
+      },
+      child: child,
+    );
+  }
+
+  GuideInputs _guideInputs() => guideInputsFor(
+    context.read<AppRepository>().persons[_person],
+    values: _personAdjustmentValues,
+    previousValues: _previousPersonAdjustmentValues,
+    fallbackWeight: _guideFallbackWeight,
+  );
+
+  /// The card's weight field while the rider has no recorded riding weight. It
+  /// writes the rider's attribute where there is one, else a weight that only
+  /// lives on this page.
+  GuideWeightInput? _guideWeightInput() {
+    final person = context.read<AppSettings>().enablePerson ? context.read<AppRepository>().persons[_person] : null;
+    final weightAdjustment = person?.adjustments.firstWhereOrNull((a) => adjustmentRole(a) == 'riding_weight');
+    if (weightAdjustment != null && _previousPersonAdjustmentValues.containsKey(weightAdjustment.id)) return null;
+
+    if ((person, weightAdjustment) case (final rider?, NumericalAdjustment(unit: final KnownUnit unit) && final attribute)
+        when unit.quantity == UnitQuantity.mass) {
+      return GuideWeightInput(
+        weight: _personAdjustmentValues[attribute.id]?.asNum?.toDouble(),
+        unit: unit,
+        hint: "Saved with this setup as ${rider.name}'s riding weight",
+        onChanged: (weight) {
+          setState(() => _guideWeightRevision++);
+          if (weight == null) {
+            _removeFromPersonAdjustmentValues(adjustment: attribute);
+          } else {
+            _onPersonAdjustmentValueChanged(adjustment: attribute, newValue: NumericalValue(weight));
+          }
+        },
+      );
+    }
+    return GuideWeightInput(
+      weight: _guideFallbackWeight,
+      unit: const GuideInputs().riderWeightUnit,
+      hint: "Only used for these recommendations",
+      onChanged: (weight) {
+        _guideFallbackWeight = weight;
+        _adjustmentValuesRevision.value++;
+      },
+      onAddToRider: person != null && weightAdjustment == null ? () => unawaited(_addRidingWeightTo(person)) : null,
+      addToRiderLabel: person == null ? null : "Add riding weight to ${person.name}",
+    );
+  }
+
+  /// Gives [person] a riding-weight attribute and moves the card's weight into
+  /// this setup's value of it.
+  Future<void> _addRidingWeightTo(Person person) async {
+    unawaited(HapticFeedback.selectionClick());
+    final adjustment = ridingWeightPreset.deepCopy();
+    await context.read<AppRepository>().editPerson(
+      person.copyWith(adjustments: [...person.adjustments, adjustment]),
+    );
+    if (!mounted) return;
+    final weight = _guideFallbackWeight;
+    _guideFallbackWeight = null;
+    setState(() => _guideWeightRevision++);
+    if (weight == null) {
+      _adjustmentValuesRevision.value++;
+    } else {
+      _onPersonAdjustmentValueChanged(adjustment: adjustment, newValue: NumericalValue(weight));
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      AppSnackBar.success(context, "Added riding weight to ${person.name}"),
+    );
+  }
+
+  void _applyGuideValue(GuideRecommendation recommendation) {
+    unawaited(HapticFeedback.selectionClick());
+    setState(() => _appliedGuideRevision++);
+    _onBikeAdjustmentValueChanged(adjustment: recommendation.adjustment, newValue: recommendation.value!);
+  }
+
+  void _applyAllGuideValues(List<SetupGuideSection> sections, GuideInputs inputs) {
+    final values = {
+      for (final section in sections) ...guideValuesToApply(section.guided, inputs, _bikeAdjustmentValues),
+    };
+    if (values.isEmpty) return;
+    unawaited(HapticFeedback.mediumImpact());
+    setState(() => _appliedGuideRevision++);
+    for (final MapEntry(key: adjustment, value: value) in values.entries) {
+      _onBikeAdjustmentValueChanged(adjustment: adjustment, newValue: value);
+    }
+    _notesController.text = appendNotesLine(
+      _notesController.text,
+      guideNotesLine(sections.map((section) => section.guided.guide), inputs),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(
+      AppSnackBar.success(
+        context,
+        Intl.plural(values.length, one: 'Applied 1 recommended value', other: 'Applied ${values.length} recommended values'),
+      ),
+    );
+  }
+
   Widget _bikeTab(AppRepository appRepository, List<Component> bikeComponents) {
-    return SetupBikeTab(
+    final headers = [?_setupGuide(bikeComponents), ?_pressureCheck(bikeComponents)];
+    final tab = SetupBikeTab(
       bike: _bike,
-      header: _pressureCheck(bikeComponents),
+      header: headers.length > 1
+          ? Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: headers)
+          : headers.firstOrNull,
+      valuesRevision: _appliedGuideRevision,
       bikeComponents: bikeComponents,
       allComponents: appRepository.components,
+      bikes: appRepository.bikes,
+      ancestorsOf: (componentId) => appRepository.componentHierarchy.ancestorsBelowBikeAt(componentId, _selectedDateTimeUtc),
       bikeAdjustmentValues: _bikeAdjustmentValues,
       previousBikeAdjustmentValues: _previousBikeAdjustmentValues,
       initialBikeAdjustmentValues: _initialBikeAdjustmentValues,
@@ -1200,6 +1418,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         _changeListener();
       },
     );
+    return _setupGuideScope(bikeComponents, tab);
   }
 
   Widget _personTab(AppRepository appRepository) {
@@ -1209,6 +1428,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       persons: appRepository.persons,
       personAdjustmentValues: _personAdjustmentValues,
       previousPersonAdjustmentValues: _previousPersonAdjustmentValues,
+      valuesRevision: _guideWeightRevision,
       initialPersonAdjustmentValues: _initialPersonAdjustmentValues,
       danglingPersonAdjustmentValues: _danglingPersonAdjustmentValues,
       onAdjustmentValueChanged: _onPersonAdjustmentValueChanged,
@@ -1243,7 +1463,11 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
             SetupPageMode.edit => const Text('Edit Setup'),
           },
           actions: [
-            IconButton(icon: const Icon(Icons.check), onPressed: _saveSetup),
+            Semantics(
+              container: true,
+              identifier: AutomationIds.setupFormSave,
+              child: IconButton(icon: const Icon(Icons.check), onPressed: _saveSetup),
+            ),
           ],
         ),
         body: SafeArea(

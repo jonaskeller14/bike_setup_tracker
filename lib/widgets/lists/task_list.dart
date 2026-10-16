@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 
+import '../../models/app_hint.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/filter_actions.dart';
 import '../../utils/task_actions.dart';
 import '../chips/task_list_filter_widget.dart';
 import '../empty_state_placeholder.dart';
+import '../hints/app_hint_slot.dart';
 import '../items/task_rule_list_card.dart';
 import '../sheets/filter.dart';
 import '../sticky_section.dart';
@@ -42,6 +45,7 @@ class _TaskListState extends State<TaskList> {
   final GlobalKey _completedSectionKey = GlobalKey();
   bool _showAllUpcoming = false;
   bool _showAllCompleted = false;
+  double _hintHeight = 0;
 
   @override
   void initState() {
@@ -236,6 +240,7 @@ class _TaskListState extends State<TaskList> {
       builder: (context, constraints) {
         final compactDueHeight =
             (constraints.maxHeight -
+                    _hintHeight -
                     _filterHeight -
                     _sectionHeaderHeight -
                     (upcoming.isNotEmpty || completed.isNotEmpty ? _sectionHeaderHeight : 0))
@@ -245,6 +250,17 @@ class _TaskListState extends State<TaskList> {
           key: const PageStorageKey('task-list-scroll'),
           controller: _controller.scrollController,
           slivers: [
+            SliverToBoxAdapter(
+              child: _SizeReporter(
+                onHeightChanged: (height) {
+                  if (mounted) setState(() => _hintHeight = height);
+                },
+                child: const AppHintSlot(
+                  placement: AppHintPlacement.taskHeader,
+                  padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
+                ),
+              ),
+            ),
             const SliverToBoxAdapter(child: TaskListFilterWidget()),
             SliverList.list(
               children: [
@@ -330,5 +346,38 @@ class _TaskListState extends State<TaskList> {
         );
       },
     );
+  }
+}
+
+/// Reports its child's height after each layout that changes it, so the Due
+/// section can still fill the viewport while the hint above it wraps or
+/// animates away.
+class _SizeReporter extends SingleChildRenderObjectWidget {
+  final ValueChanged<double> onHeightChanged;
+
+  const _SizeReporter({required this.onHeightChanged, required super.child});
+
+  @override
+  RenderObject createRenderObject(BuildContext context) => _RenderSizeReporter(onHeightChanged);
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderSizeReporter renderObject) {
+    renderObject.onHeightChanged = onHeightChanged;
+  }
+}
+
+class _RenderSizeReporter extends RenderProxyBox {
+  _RenderSizeReporter(this.onHeightChanged);
+
+  ValueChanged<double> onHeightChanged;
+  double? _reportedHeight;
+
+  @override
+  void performLayout() {
+    super.performLayout();
+    final height = size.height;
+    if (height == _reportedHeight) return;
+    _reportedHeight = height;
+    WidgetsBinding.instance.addPostFrameCallback((_) => onHeightChanged(height));
   }
 }

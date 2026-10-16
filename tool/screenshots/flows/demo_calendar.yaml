@@ -1,0 +1,36 @@
+# Demo: setups, rides and tasks in the calendar's month view.
+appId: ${APP_ID}
+---
+- runFlow: _launch.yaml
+- startRecording: demo_calendar
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+- tapOn:
+    id: setups.calendar
+- extendedWaitUntil:
+    visible:
+      id: calendar.today
+    timeout: 15000
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+- runScript: scripts/calendar_months_back.js
+# Swiping right pages the month view back by one month.
+- repeat:
+    times: ${output.monthsBack}
+    commands:
+      - swipe:
+          start: 15%, 55%
+          end: 85%, 55%
+          duration: 600
+      - runFlow:
+          file: _pause.yaml
+          env:
+            MS: 1500
+- runFlow:
+    file: _stop_recording.yaml
+    env:
+      MS: 1500

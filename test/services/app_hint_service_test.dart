@@ -5,6 +5,8 @@ import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
+import 'package:bike_setup_tracker/models/task/task_rule.dart';
+import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/app_hint_service.dart';
 import 'package:drift/drift.dart' show Value;
@@ -189,6 +191,54 @@ void main() {
     );
   });
 
+  test('Task gestures hint requires a due task that can be delayed', () async {
+    final service = createService();
+    await service.load();
+
+    final bike = Bike(name: 'Bike', person: null);
+    await repository.addBikes([bike]);
+    await repository.addComponents([
+      Component(
+        name: 'Chain',
+        componentType: ComponentType.chain,
+        installations: [Installation.sinceBeginning(parent: bike.id)],
+      ),
+    ]);
+    final now = DateTime.now();
+    await repository.addSetups([
+      Setup(
+        datetime: now.toUtc(),
+        datetimeLocal: now,
+        tags: const {},
+        bike: bike.id,
+        person: null,
+        bikeAdjustmentValues: const {},
+        personAdjustmentValues: const {},
+      ),
+    ]);
+    await repository.addTaskRules([TaskRule(name: 'No interval', tags: const {})]);
+    await pumpEventQueue();
+    service.update(appRepository: repository, appSettings: settings);
+    expect(service.activeHintFor(AppHintPlacement.taskHeader), isNull);
+
+    await repository.addTaskRules([
+      TaskRule(name: 'Monthly', tags: const {}, interval: const DurationThreshold(Duration(days: 30))),
+    ]);
+    await pumpEventQueue();
+    service.update(appRepository: repository, appSettings: settings);
+    expect(service.activeHintFor(AppHintPlacement.taskHeader), AppHint.taskGesturesV1);
+
+    settings.enableTaskDelay = false;
+    service.update(appRepository: repository, appSettings: settings);
+    expect(service.activeHintFor(AppHintPlacement.taskHeader), isNull);
+
+    settings.enableTaskDelay = true;
+    await service.dismiss(AppHint.taskGesturesV1);
+    final reloaded = createService();
+    await reloaded.load();
+    expect(reloaded.activeHintFor(AppHintPlacement.taskHeader), isNull);
+  });
+
   test('handling a hint suppresses the session and notifies only on changes', () async {
     final service = createService();
     await service.load();
@@ -319,6 +369,110 @@ void main() {
     expect(service.activeHintFor(AppHintPlacement.setupComparison), isNull);
   });
 
+  group('component feature offers', () {
+    late Bike bike;
+
+    Component part(String name, ComponentType type, {String? bikeId, String? parentComponentId}) => Component(
+          name: name,
+          componentType: type,
+          installations: [
+            if (parentComponentId != null)
+              Installation.componentSinceBeginning(parentComponentId: parentComponentId)
+            else
+              Installation.sinceBeginning(parent: bikeId),
+          ],
+        );
+
+    Future<void> addComponents(List<Component> components) async {
+      await repository.addComponents(components);
+      await pumpEventQueue();
+    }
+
+    setUp(() async {
+      bike = Bike(name: 'Trail', person: null);
+      await repository.addBikes([bike]);
+      await pumpEventQueue();
+    });
+
+    test('Subcomponents is offered for a part once its typical parent exists', () async {
+      final service = createService();
+      await service.load();
+      expect(service.subcomponentsMountParent(ComponentType.tire), isNull);
+
+      final wheel = part('Front Wheel', ComponentType.wheelFront, bikeId: bike.id);
+      await addComponents([wheel]);
+
+      expect(service.subcomponentsMountParent(ComponentType.tire, currentBikeId: bike.id)?.id, wheel.id);
+      // The frame is the bike itself, and a chain has no typical parent.
+      expect(service.subcomponentsMountParent(ComponentType.wheelFront), isNull);
+      expect(service.subcomponentsMountParent(ComponentType.chain), isNull);
+    });
+
+    test('Subcomponents is not offered once enabled or handled, or to a part carrying parts', () async {
+      final fork = part('Fork', ComponentType.fork, bikeId: bike.id);
+      final calliper = part('Calliper', ComponentType.brakeCalliper, bikeId: bike.id);
+      await addComponents([fork, calliper]);
+      await addComponents([part('Pad', ComponentType.brakePad, parentComponentId: calliper.id)]);
+      final service = createService();
+      await service.load();
+
+      expect(service.subcomponentsMountParent(ComponentType.brakeCalliper)?.id, fork.id);
+      expect(service.subcomponentsMountParent(ComponentType.brakeCalliper, componentId: calliper.id), isNull);
+
+      settings.enableInstallOnComponent = true;
+      expect(service.subcomponentsMountParent(ComponentType.brakeCalliper), isNull);
+
+      settings.enableInstallOnComponent = false;
+      await service.dismiss(AppHint.subcomponentsV1);
+      expect(service.subcomponentsMountParent(ComponentType.brakeCalliper), isNull);
+    });
+
+    test('the timeline is offered on a move once there is a second bike', () async {
+      final service = createService();
+      await service.load();
+      final installed = [Installation.sinceBeginning(parent: bike.id)];
+
+      expect(service.shouldOfferInstallationTimelineOnMove(installed), isFalse);
+
+      await repository.addBikes([Bike(name: 'Enduro', person: null)]);
+      await pumpEventQueue();
+      expect(service.shouldOfferInstallationTimelineOnMove(installed), isTrue);
+      expect(service.shouldOfferInstallationTimelineOnMove([Installation.sinceBeginning()]), isFalse);
+
+      settings.enableInstallationTimeline = true;
+      expect(service.shouldOfferInstallationTimelineOnMove(installed), isFalse);
+    });
+
+    test('the Garage suggests Subcomponents for a crowded bike with a part and its parent', () async {
+      final now = DateTime.now();
+      await repository.addSetups([
+        Setup(
+          datetime: now.toUtc(),
+          datetimeLocal: now,
+          tags: const {},
+          bike: bike.id,
+          person: null,
+          bikeAdjustmentValues: const {},
+          personAdjustmentValues: const {},
+        ),
+      ]);
+      await addComponents([
+        part('Front Wheel', ComponentType.wheelFront, bikeId: bike.id),
+        part('Front Tire', ComponentType.tire, bikeId: bike.id),
+        for (var i = 0; i < 5; i++) part('Bearing $i', ComponentType.bearing, bikeId: null),
+        for (var i = 0; i < 5; i++) part('Spoke $i', ComponentType.other, bikeId: bike.id),
+      ]);
+      final service = createService();
+      await service.load();
+      service.update(appRepository: repository, appSettings: settings);
+      expect(service.activeHintFor(AppHintPlacement.garageHeader), isNull, reason: '7 parts on the bike');
+
+      await addComponents([part('Spoke 5', ComponentType.other, bikeId: bike.id)]);
+      service.update(appRepository: repository, appSettings: settings);
+      expect(service.activeHintFor(AppHintPlacement.garageHeader), AppHint.subcomponentsV1);
+    });
+  });
+
   group('release hints', () {
     // Stand-ins for real announcements: hints that no other eligibility rule
     // offers in the Garage or Setup header, so only the release rule can.
@@ -361,16 +515,15 @@ void main() {
       await pumpEventQueue();
     }
 
-    test('a first run announces the installed build only', () async {
+    test('a new install announces nothing, not even the installed build', () async {
       await seedContent();
       final service = createReleaseService();
       await service.load();
       service.update(appRepository: repository, appSettings: settings);
 
       final preferences = await SharedPreferences.getInstance();
-      expect(preferences.getInt('app_hint.releaseBaselineBuild'), 41);
-      // Older features count as seen — nobody gets a backlog on the first run.
-      expect(service.activeHintFor(AppHintPlacement.garageHeader), currentFeature);
+      expect(preferences.getInt('app_hint.releaseBaselineBuild'), 42);
+      expect(service.activeHintFor(AppHintPlacement.garageHeader), isNull);
     });
 
     test('the same hint shows in Garage and Setups until it is dismissed', () async {
@@ -399,8 +552,12 @@ void main() {
 
     test('the baseline is pinned once, so an ignored hint survives an update', () async {
       await seedContent();
-      final service = createReleaseService();
-      await service.load();
+      await createReleaseService(currentBuild: 41).load();
+
+      final updated = createReleaseService();
+      await updated.load();
+      updated.update(appRepository: repository, appSettings: settings);
+      expect(updated.activeHintFor(AppHintPlacement.garageHeader), currentFeature);
 
       // Closing the app without acting on the hint, then updating again.
       final reloaded = createReleaseService(currentBuild: 43);
@@ -436,17 +593,18 @@ void main() {
       expect(service.activeHintFor(AppHintPlacement.garageHeader), AppHint.gettingStartedV1);
     });
 
-    test('resetAll replays every release hint', () async {
+    test('resetAll starts over like a new install, without a release backlog', () async {
+      SharedPreferences.setMockInitialValues({'app_hint.releaseBaselineBuild': 39});
       await seedContent();
       final service = createReleaseService();
       await service.load();
-      await service.dismiss(currentFeature);
+      await service.dismiss(oldFeature);
       await service.resetAll();
       service.update(appRepository: repository, appSettings: settings);
 
       final preferences = await SharedPreferences.getInstance();
-      expect(preferences.getInt('app_hint.releaseBaselineBuild'), 0);
-      expect(service.activeHintFor(AppHintPlacement.garageHeader), oldFeature);
+      expect(preferences.getInt('app_hint.releaseBaselineBuild'), 42);
+      expect(service.activeHintFor(AppHintPlacement.garageHeader), isNull);
     });
   });
 }

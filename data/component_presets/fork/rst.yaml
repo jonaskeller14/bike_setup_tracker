@@ -56,7 +56,10 @@ sources:
   - https://rstsuspension.com/products/vivo/
   - https://rstsuspension.com/products/renegade/
   - https://rstsuspension.com/products/guide/
-updated: 2026-10-05
+  # Secondary — consulted, no figure taken over (see Follow-ups)
+  - https://theloamwolf.com/reviews/components/review-rst-suspension-stitch-coil-fork/
+  - https://www.bikeradar.com/reviews/components/forks/suspension-forks/rst-rogue-fork-review
+updated: 2026-10-13
 
 # --------------------------------------------------------------------------
 # Dampers
@@ -241,6 +244,40 @@ option_values:
         - https://rstsuspension.com/products/dirt/
 
 # --------------------------------------------------------------------------
+# Setup guides — transcribed from docs/research/setup_guides/rst.md.
+#   * The high-end owner's manual (XC1800-123) prints rider weight (kg) →
+#     psi tables headed by model lists. "ROGUE … SLOPE … F1RST series …
+#     AERIAL series" maps to ROGUE V2, SLOPE, F1RST (110) and AERIAL (110);
+#     "STITCH, SPACE Jump" maps to the STITCH family (STITCH 29 and the
+#     Limited Edition are assumed to share it). Its F1RST Platinum and VOGUE
+#     tables have no catalog node.
+#   * The brackets share their printed bounds (40-60, 60-80), read half-open.
+#   * SPACE Jump is left out: the Dirt Jump manual (XC1800-105) gives it a
+#     different table, and which one applies is unresolved.
+#   * The SAG band covers every fork the manual names, coil trims included.
+# --------------------------------------------------------------------------
+guides:
+  rst_highend_forks:
+    label: RST owner's manual, high-end models (XC1800-123)
+    source: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        when: { model: [rogue-v2, slope, f1rst, f1rst-110, aerial, aerial-110] }
+        rows: { 40-60: 60, 60-80: [60, 80], 80-100: [80, 100], 100-110: [100, 120], 110-120: [120, 150] }
+      # The last printed row (100-120 kg → 120 psi, right after 55-65 psi)
+      # looks misprinted, so it is left out until RST confirms it.
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        when: { model: [stitch, stitch-29, stitch-29-limited-edition] }
+        rows: { 20-40: [30, 40], 40-60: [35, 40], 60-80: [45, 55], 80-100: [55, 65] }
+      - { target: sag, range: [15, 25] }
+
+# --------------------------------------------------------------------------
 # Forks — RST's current MTB lineup (2026 catalogue): downhill, enduro,
 # XC/trail, dirt jump, junior and fat-bike forks.
 # --------------------------------------------------------------------------
@@ -252,6 +289,7 @@ nodes:
     category: Downhill
     url: https://rstsuspension.com/products/killah/
     setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
+    guide: rst_highend_forks
     children:
       - label: Air
         level: trim
@@ -289,6 +327,7 @@ nodes:
     category: Downhill
     url: https://rstsuspension.com/products/r-evo-29/
     setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
+    guide: rst_highend_forks
     children:
       - label: Air
         level: trim
@@ -324,6 +363,7 @@ nodes:
     category: Enduro
     url: https://rstsuspension.com/products/stitch/
     setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
+    guide: rst_highend_forks
     children:
       - label: Air
         level: trim
@@ -353,6 +393,7 @@ nodes:
     category: Enduro
     url: https://rstsuspension.com/products/stitch-29-limited-edition/
     setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
+    guide: rst_highend_forks
     children:
       - label: Air
         level: trim
@@ -373,6 +414,7 @@ nodes:
     category: Enduro
     url: https://rstsuspension.com/products/stitch-2/
     setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
+    guide: rst_highend_forks
     children:
       - label: Air
         level: trim
@@ -403,6 +445,7 @@ nodes:
     category: Enduro
     url: https://rstsuspension.com/products/rogue-v2-2/
     setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
+    guide: rst_highend_forks
     children:
       - label: Air
         level: trim
@@ -442,6 +485,7 @@ nodes:
     category: Trail
     url: https://rstsuspension.com/products/vibe-v2/
     setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
+    guide: rst_highend_forks
     children:
       - label: Air-RA
         level: trim
@@ -502,6 +546,7 @@ nodes:
     category: Trail
     url: https://rstsuspension.com/products/rebel-v2/
     setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
+    guide: rst_highend_forks
     children:
       - label: Air
         level: trim
@@ -543,6 +588,7 @@ nodes:
     category: Trail
     url: https://rstsuspension.com/products/blade-pro/
     setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
+    guide: rst_highend_forks
     children:
       - label: Air
         level: trim
@@ -584,6 +630,7 @@ nodes:
     category: Trail
     url: https://rstsuspension.com/products/blade/
     setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
+    guide: rst_highend_forks
     children:
       - label: Air-TNL-F
         level: trim
@@ -677,6 +724,7 @@ nodes:
     category: Enduro
     url: https://rstsuspension.com/products/storm/
     setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
+    guide: rst_highend_forks
     children:
       - label: RA
         level: trim
@@ -698,6 +746,7 @@ nodes:
     category: XC / Trail
     url: https://rstsuspension.com/products/f1rst/
     setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
+    guide: rst_highend_forks
     children:
       - label: 110-15 Air
         level: trim
@@ -747,6 +796,7 @@ nodes:
     category: XC / Trail
     url: https://rstsuspension.com/products/f1rst-3/
     setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
+    guide: rst_highend_forks
     children:
       - label: Air
         level: trim
@@ -774,6 +824,7 @@ nodes:
     category: XC / Trail
     url: https://rstsuspension.com/products/aerial/
     setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
+    guide: rst_highend_forks
     children:
       - label: 110-15 TNL
         level: trim
@@ -821,6 +872,7 @@ nodes:
     category: XC / Trail
     url: https://rstsuspension.com/products/aerial-2/
     setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
+    guide: rst_highend_forks
     children:
       - label: RL
         level: trim
@@ -983,6 +1035,8 @@ nodes:
     level: model
     category: Dirt Jump
     url: https://rstsuspension.com/products/slope/
+    setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
+    guide: rst_highend_forks
     children:
       - label: HC
         level: trim
@@ -1047,6 +1101,7 @@ nodes:
     category: Dirt Jump
     url: https://rstsuspension.com/products/snyper/
     setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
+    guide: rst_highend_forks
     children:
       - label: Air
         level: trim
@@ -1176,6 +1231,7 @@ nodes:
     category: Fat Bike
     url: https://rstsuspension.com/products/renegade/
     setup_guide: https://rstsuspension.com/wp-content/uploads/2026/02/01-%E8%AA%AA%E6%98%8E%E6%9B%B8-XC1800-123%E9%AB%98%E9%9A%8E%E6%A9%9F%E7%A8%AE-%E8%8B%B1%E6%96%87ENGLISH_A4.pdf
+    guide: rst_highend_forks
     children:
       - label: Air
         level: trim
@@ -1279,9 +1335,10 @@ nodes:
 #   - setup_guide: the "high-end models" owner's manual (XC1800-123) names AERIAL,
 #     BLADE/PRO, F1RST, KILLAH, REBEL, RENEGADE, REVO, ROGUE, SNYPER, STITCH,
 #     STORM and VIBE; the general manual (XC1800-109) names CAPA, BLAZE, GUIDE,
-#     OMEGA and mentions DIRT. SPACE, SLOPE, SHINE and VIVO are not named in
-#     either text (the Dirt Jump manual XC1800-105 is a scanned image), so they
-#     carry no setup_guide. STITCH 29 Limited Edition is assumed to share the
+#     OMEGA and mentions DIRT. SLOPE is named in a pressure table of the
+#     high-end manual, so it carries that link. SPACE, SHINE and VIVO are not
+#     named in either text (the Dirt Jump manual XC1800-105 is a scanned
+#     image), so they carry no setup_guide. STITCH 29 Limited Edition is assumed to share the
 #     STITCH manual.
 #   - Dial colors: no RST page or manual names an adjuster color.
 #   - RST publishes NO click/turn counts anywhere (product pages, technology
@@ -1312,6 +1369,15 @@ nodes:
 #         TNL-F and RL-R variants to TNL-R.
 #       * ROGUE V2: the "Compress adjust / Lock-Out / Rebound adjust" cell
 #         spans Air and Air-TRL; Air-TRL is mapped to the same damper.
+#   - Click counts, second pass (2026-10-10): rstsuspension.com answered HTTP 403
+#     to every fetch, so the product pages and manuals could not be re-read.
+#     The only editorial figures found are The Loam Wolf's review of the 2018
+#     Stitch Coil (ORC+ damper: "compression adjuster has 20 clicks of
+#     adjustment, rebound 17", counting direction not stated). That is an older
+#     generation than the current OCRC+ / OCR2+ dampers and the byline is a
+#     contributor's, so the numbers are not applied. BikeRadar's Rogue review
+#     gives no counts. Volume spacers: BikeRadar's Rogue review says spacers
+#     can be added, but no count or maximum is published, so none is declared.
 #   - Model years are not published by RST; no `years` set.
 #   - Left out: JUNIOR F1RST / AERIAL 16-26" forks (spec table too garbled to
 #     map dampers reliably), SIGMA / GUIDE DC e-moto forks,

@@ -41,9 +41,12 @@ class InstallationParentOption {
   });
 }
 
+/// [optionsBuilder] and [hintBuilder] run on every build of the sheet, so the
+/// options follow settings changed while it is open (e.g. from the hint).
 Future<Installation?> showInstallationParentPickerSheet({
   required BuildContext context,
-  required List<InstallationParentOption> options,
+  required List<InstallationParentOption> Function(BuildContext context) optionsBuilder,
+  Widget? Function(BuildContext context)? hintBuilder,
   required Map<String, Bike> bikes,
   required Installation selected,
   Installation? initial,
@@ -56,7 +59,8 @@ Future<Installation?> showInstallationParentPickerSheet({
     isScrollControlled: true,
     context: context,
     builder: (_) => _InstallationParentPickerSheet(
-      options: options,
+      optionsBuilder: optionsBuilder,
+      hintBuilder: hintBuilder,
       bikes: bikes,
       selected: selected,
       initial: initial,
@@ -70,7 +74,8 @@ Future<Installation?> showInstallationParentPickerSheet({
 const int _searchThreshold = 8;
 
 class _InstallationParentPickerSheet extends StatefulWidget {
-  final List<InstallationParentOption> options;
+  final List<InstallationParentOption> Function(BuildContext context) optionsBuilder;
+  final Widget? Function(BuildContext context)? hintBuilder;
   final Map<String, Bike> bikes;
   final Installation selected;
   final Installation? initial;
@@ -79,7 +84,8 @@ class _InstallationParentPickerSheet extends StatefulWidget {
   final String? componentTypeLabel;
 
   const _InstallationParentPickerSheet({
-    required this.options,
+    required this.optionsBuilder,
+    this.hintBuilder,
     required this.bikes,
     required this.selected,
     this.initial,
@@ -161,11 +167,14 @@ class _InstallationParentPickerSheetState extends State<_InstallationParentPicke
   @override
   Widget build(BuildContext context) {
     // Searching also looks through the hidden options.
+    final options = widget.optionsBuilder(context);
     final showOthers = _showAll || _query.isNotEmpty;
-    final sections = _buildSections(showOthers: showOthers);
-    final hiddenCount = showOthers ? 0 : widget.options.where((o) => !o.isSuggested).length;
-    final showSearch = widget.options.length > _searchThreshold;
+    final sections = _buildSections(options, showOthers: showOthers);
+    final hiddenCount = showOthers ? 0 : options.where((o) => !o.isSuggested).length;
+    final showSearch = options.length > _searchThreshold;
     final showDepthCapHint = widget.depthCapHint != null && _query.isEmpty;
+    final hint = _query.isEmpty ? widget.hintBuilder?.call(context) : null;
+    final hasBikesSection = sections.any((s) => s.isBikes);
     var selectedKeyUsed = false;
 
     Widget row(InstallationParentOption option) {
@@ -229,7 +238,9 @@ class _InstallationParentPickerSheetState extends State<_InstallationParentPicke
                                   title: widget.depthCapHint!,
                                 ),
                               ),
+                            if (s.isBikes && hint != null) _hintPadding(hint),
                           ],
+                          if (!hasBikesSection && hint != null) _hintPadding(hint),
                           if (hiddenCount > 0) _showAllRow(hiddenCount),
                         ],
                       ),
@@ -240,6 +251,11 @@ class _InstallationParentPickerSheetState extends State<_InstallationParentPicke
       ),
     );
   }
+
+  Widget _hintPadding(Widget hint) => Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+        child: hint,
+      );
 
   Widget _showAllRow(int hiddenCount) {
     final theme = Theme.of(context);
@@ -297,15 +313,15 @@ class _InstallationParentPickerSheetState extends State<_InstallationParentPicke
   /// components. Empty sections are left out. With [showOthers], unsuggested
   /// components join their section after the suggested ones, so expanding
   /// doesn't reshuffle the rows already shown.
-  List<_Section> _buildSections({required bool showOthers}) {
+  List<_Section> _buildSections(List<InstallationParentOption> allOptions, {required bool showOthers}) {
     final notInstalled = <InstallationParentOption>[];
     final bikeOptions = <InstallationParentOption>[];
     // Keyed by bike id, or by a [_Root] for chains that don't end on a bike.
     final componentsByRoot = <Object, List<InstallationParentOption>>{};
 
     final options = [
-      ...widget.options.where((o) => o.isSuggested),
-      if (showOthers) ...widget.options.where((o) => !o.isSuggested),
+      ...allOptions.where((o) => o.isSuggested),
+      if (showOthers) ...allOptions.where((o) => !o.isSuggested),
     ];
     for (final option in options.where(_matches)) {
       switch (option.value) {

@@ -3,17 +3,29 @@ import '../task/task_template.dart';
 import 'component.dart';
 import 'component_preset.dart';
 import 'preset_spec_keys.dart';
+import 'setup_guide.dart';
 
 /// In-memory model of the generic component catalog (`data/component_presets/`):
 /// a node tree names the product, option axes configure it.
+
+/// The id of the SAG adjuster the application injects for forks and shocks.
+const String kSagAdjusterId = 'sag';
 
 /// Defers instantiation to selection time
 class PresetAdjustmentSpec {
   final Map<String, dynamic> raw;
 
-  const PresetAdjustmentSpec(this.raw);
+  /// `<type>:<id>`, where the id is the authored `id:`, else the slug of `name`.
+  /// The same key space as the generic templates (`fork:hsc`), stamped onto the
+  /// built adjustment as [Adjustment.presetKey].
+  final String presetKey;
 
-  Adjustment build() => Adjustment.fromYaml(raw);
+  const PresetAdjustmentSpec(this.raw, {required this.presetKey});
+
+  String get id => presetKey.substring(presetKey.indexOf(':') + 1);
+
+  Adjustment build() =>
+      Adjustment.fromYaml({...raw}..remove('id')).copyWith(presetKey: presetKey);
 }
 
 /// One brand file, e.g. `fork/fox.yaml`.
@@ -52,6 +64,8 @@ sealed class CatalogNode {
 
   /// Official setup or tuning guide, the link the generated notes carry.
   final String? setupGuide;
+
+  final SetupGuide? guide;
   final String? note;
 
   /// Adjusters the product is known to have but that cannot be declared yet;
@@ -71,6 +85,7 @@ sealed class CatalogNode {
     this.years,
     this.url,
     this.setupGuide,
+    this.guide,
     this.note,
     this.missingAdjustments = const [],
     this.tasks = const {},
@@ -90,6 +105,7 @@ final class CatalogGroup extends CatalogNode {
     super.years,
     super.url,
     super.setupGuide,
+    super.guide,
     super.note,
     super.missingAdjustments,
     super.tasks,
@@ -114,6 +130,7 @@ final class CatalogProduct extends CatalogNode {
     super.years,
     super.url,
     super.setupGuide,
+    super.guide,
     super.note,
     super.missingAdjustments,
     super.tasks,

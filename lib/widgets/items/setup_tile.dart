@@ -9,6 +9,7 @@ import '../../models/rating/rating_entry.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/dangling_adjustment_service.dart';
+import '../../utils/automation_ids.dart';
 import '../bookmark_ribbon.dart';
 import '../current_setup_badge.dart';
 import '../current_setup_highlight.dart';
@@ -180,7 +181,11 @@ class _SetupTileState extends State<SetupTile> {
             Positioned(
               top: 0,
               right: 0,
-              child: SetupOptionsMenu(setup: setup),
+              child: Semantics(
+                container: true,
+                identifier: AutomationIds.setupActions(setup.id),
+                child: SetupOptionsMenu(setup: setup),
+              ),
             ),
           if (showInlineExpandIcon)
             Positioned(
@@ -242,6 +247,7 @@ class _SetupTileState extends State<SetupTile> {
       highlightInitialValues: true,
       displayOnlyChanges: _displayOnlyChanges,
       displayPersonAdjustmentValues: appSettings.enablePerson,
+      ancestorsOf: (componentId) => appRepository.componentHierarchy.ancestorsBelowBikeAt(componentId, setup.datetimeLocal.toUtc()),
     );
 
     // Whether the list renders anything in its current state — its padding

@@ -127,7 +127,7 @@ void main() {
       lessThan(tester.getRect(find.text('CONTEXT')).top),
     );
 
-    await tester.tap(find.byTooltip('Dismiss'));
+    await tester.tap(find.text('Got it'));
     await settle(tester);
     expect(find.byKey(const Key('compare-setups-hint')), findsNothing);
     expect(harness.hintService.statusOf(AppHint.setupComparisonV1), AppHintStatus.dismissed);

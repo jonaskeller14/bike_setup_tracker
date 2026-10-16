@@ -10,13 +10,20 @@ abstract final class AutomationIds {
   static const navTasks = 'nav.tasks';
 
   static const appBarRider = 'appBar.rider';
+  static const appBarStrava = 'appBar.strava';
 
   static const addSetupFab = 'setups.add';
   static const setupListCalendar = 'setups.calendar';
+  static const setupListMap = 'setups.map';
+  static String setupActions(String setupId) => 'setup.actions.$setupId';
+  static const setupActionsCompare = 'setup.compare';
 
   static const addBikeFab = 'garage.addBike';
   static String garageBike(String bikeId) => 'garage.bike.$bikeId';
   static String garageComponent(String componentId) => 'garage.component.$componentId';
+  static String garageAddComponent(String bikeId) => 'garage.addComponent.$bikeId';
+
+  static const bikeFormSave = 'bikeForm.save';
 
   static const componentActions = 'component.actions';
   static const componentActionsDuplicate = 'component.actions.duplicate';
@@ -32,7 +39,14 @@ abstract final class AutomationIds {
 
   static const componentFormSave = 'componentForm.save';
   static const componentFormAdditionalFields = 'componentForm.additionalFields';
+  static const componentFormType = 'componentForm.type';
+  static const componentFormName = 'componentForm.name';
+  static const componentFormAddAdjustment = 'componentForm.addAdjustment';
+  static String componentType(String typeName) => 'componentType.$typeName';
+  static String adjustmentPreset(String presetKey) => 'adjustmentPreset.$presetKey';
+  static const adjustmentFormSave = 'adjustmentForm.save';
 
+  static const setupFormSave = 'setupForm.save';
   static const setupFormName = 'setupForm.name';
   static const setupFormNotes = 'setupForm.notes';
   static const setupFormAddTags = 'setupForm.addTags';
@@ -41,6 +55,10 @@ abstract final class AutomationIds {
   static String stravaActivity(int activityId) => 'stravaActivity.$activityId';
   static const stravaActivityActions = 'stravaActivity.actions';
   static const stravaActivityViewOnMap = 'stravaActivity.viewOnMap';
+  static const stravaActivitySetups = 'stravaActivity.setups';
+
+  static String taskRuleComplete(String taskRuleId) => 'taskRule.complete.$taskRuleId';
+  static const taskEntryFormSave = 'taskEntryForm.save';
 
   static const mapFocusActivity = 'map.focusActivity';
 

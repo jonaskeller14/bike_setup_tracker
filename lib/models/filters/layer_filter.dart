@@ -16,6 +16,14 @@ class LayerFilter {
   /// feature is off is not offered to the user, so it does not count as a filter.
   bool isActiveFor(Set<TimelineLayer> available) => hidden.any(available.contains);
 
+  Map<String, Object?> toJson() => {'hidden': [for (final layer in hidden) layer.name]};
+
+  /// Skips layer names this version does not know.
+  factory LayerFilter.fromJson(Map<String, Object?> json) {
+    final names = (json['hidden'] as List<Object?>? ?? const []).toSet();
+    return LayerFilter(hidden: TimelineLayer.values.where((layer) => names.contains(layer.name)).toSet());
+  }
+
   LayerFilter copyWith({Set<TimelineLayer>? hidden}) => LayerFilter(hidden: hidden ?? this.hidden);
 
   @override

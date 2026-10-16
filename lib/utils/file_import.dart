@@ -51,7 +51,7 @@ class FileImport {
     }
   }
 
-  static Future<ReadJsonFileResult> pickAndReadJsonFile({required AppDatabase appDatabase}) async {
+  static Future<ReadJsonFileResult> pickAndReadJsonFile({required AppDatabase appDatabase, VoidCallback? onPicked}) async {
     try {
       // Step 1 — pick a file
       final pickedFile = await FilePicker.pickFile(
@@ -59,6 +59,7 @@ class FileImport {
         allowedExtensions: ['json'],
       );
       if (pickedFile == null) return ReadJsonFileResult.failure("No file was selected.");  // no error message
+      onPicked?.call();
 
       final fileBytes = await pickedFile.readAsBytes();
 

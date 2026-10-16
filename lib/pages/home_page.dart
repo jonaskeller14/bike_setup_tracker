@@ -280,6 +280,7 @@ class _HomePageState extends State<HomePage> {
                         onPressed: () => showRiderSheet(context),
                         icon: Badge(
                           isLabelVisible: appRepository.persons.isEmpty,
+                          backgroundColor: Theme.of(context).primaryColor,
                           child: const Icon(Person.iconData),
                         ),
                         tooltip: 'Rider',
@@ -460,13 +461,21 @@ class _HomePageState extends State<HomePage> {
                 key: const ValueKey(AutomationIds.addSetupFab),
                 container: true,
                 identifier: AutomationIds.addSetupFab,
-                child: FloatingActionButton(
-                  heroTag: "addSetup",
-                  onPressed: () async {
-                    await SetupActions.addSetup(context);
-                  },
-                  tooltip: 'Add Setup',
-                  child: const Icon(Icons.add),
+                child: AnimatedSize(
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeOutCubic,
+                  child: FloatingActionButton.extended(
+                    heroTag: "addSetup",
+                    onPressed: () async {
+                      await SetupActions.addSetup(context);
+                    },
+                    tooltip: 'Add Setup',
+                    isExtended: _setupListController.isNearTop,
+                    // Collapsed, the default asymmetric extended padding would leave it wider than a plain FAB.
+                    extendedPadding: _setupListController.isNearTop ? null : const EdgeInsets.symmetric(horizontal: 16),
+                    icon: const Icon(Icons.add),
+                    label: const Text('Add Setup'),
+                  ),
                 ),
               ),
             ],

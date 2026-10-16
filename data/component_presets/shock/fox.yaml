@@ -34,16 +34,25 @@ sources:
   - https://tech.ridefox.com/bike/owners-manuals/1036/shock--2020-float-x2
   - https://tech.ridefox.com/bike/owners-manuals/1078/shock--2021-float-x2
   - https://tech.ridefox.com/bike/owners-manuals/1038/shock--2020-all-coil-shocks-(dhx2-and-van-models)
-updated: 2026-10-07
+  - https://tech.ridefox.com/bike/owners-manuals/556/shock--2016-float-x2
+  - https://tech.ridefox.com/bike/owners-manuals/695/shock--2017-float-x2
+  - https://tech.ridefox.com/bike/owners-manuals/825/shock--2018-float-x2
+  - https://tech.ridefox.com/bike/owners-manuals/941/shock--2019-float-x2
+  - https://tech.ridefox.com/bike/owners-manuals/1080/shock--2021-all-coil-shocks-(dhx2-and-van-models)
+  - https://tech.ridefox.com/bike/owners-manuals/824/shock--2018-float-dps-and-dpx2
+  - https://tech.ridefox.com/bike/owners-manuals/2926/shock--2024-float-x2
+  - https://tech.ridefox.com/bike/owners-manuals/2833/shock--2023-float-dps-and-float-x
+updated: 2026-10-13
 # Click ranges taken from the per-model spec tables on the official FOX
 # product pages (ridefox.com/pages/fox-<model>). Clicks counted from fully
 # closed (firmest) → default `dial_ccw`; an adjuster with "16 clicks" is 0..16.
 #
 # The FOX owner's manuals never state a total click range for a shock adjuster —
-# they publish a pressure-vs-clicks starting-point table, which is a
-# recommendation and must not be read as a range. So the legacy dampers below
-# give a range only for what FOX describes in words (lever positions, open-mode
-# detents) and declare every other adjuster with `max: ~`.
+# they publish a pressure-vs-clicks (or spring-rate) starting-point table. Where
+# a legacy damper has such a table counted from fully closed, its maximum is the
+# highest value of that table (see SCHEMA.md, "Estimating a click range"), and
+# every such adjuster carries the "estimated maximum" warning. Adjusters without
+# a table stay `max: ~`.
 #
 # Service intervals (`tasks`) come from the "Recommended Minimum Shock
 # Maintenance" table, identical in every shock owner's manual from 2016 to 2027:
@@ -127,16 +136,24 @@ option_values:
         - Four-way gravity damper shared by FLOAT X2 and DHX2 of these years
         - Hex-key adjusters: 6mm for the high-speed circuits, 3mm for the low-speed
       adjustments:
-        - { name: HSC, type: step, max: ~, notes: High-Speed Compression, dialColor: blue }
-        - { name: LSC, type: step, max: ~, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
-        - { name: HSR, type: step, max: ~, notes: High-Speed Rebound, dialColor: red }
-        - { name: LSR, type: step, max: ~, notes: Low-Speed Rebound, dialColor: red, dialSize: small }
+        - { name: HSC, type: step, max: 23, notes: "High-Speed Compression; estimated maximum, check your dial and edit it if it differs", dialColor: blue }
+        - { name: LSC, type: step, max: 24, notes: "Low-Speed Compression; estimated maximum, check your dial and edit it if it differs", dialColor: blue, dialSize: small }
+        - { name: HSR, type: step, max: 23, notes: "High-Speed Rebound; estimated maximum, check your dial and edit it if it differs", dialColor: red }
+        - { name: LSR, type: step, max: 24, notes: "Low-Speed Rebound; estimated maximum, check your dial and edit it if it differs", dialColor: red, dialSize: small }
       source:
+        - https://tech.ridefox.com/bike/owners-manuals/556/shock--2016-float-x2
+        - https://tech.ridefox.com/bike/owners-manuals/695/shock--2017-float-x2
+        - https://tech.ridefox.com/bike/owners-manuals/825/shock--2018-float-x2
+        - https://tech.ridefox.com/bike/owners-manuals/941/shock--2019-float-x2
         - https://tech.ridefox.com/bike/owners-manuals/1036/shock--2020-float-x2
         - https://tech.ridefox.com/bike/owners-manuals/1038/shock--2020-all-coil-shocks-(dhx2-and-van-models)
       note: >-
-        The 2020 manuals describe each adjuster and its hex size but publish only
-        a pressure-vs-clicks starting-point table, so no total range is recorded.
+        No stated click range. Maxima are the highest values of the
+        starting-point tables in the FLOAT X2 manuals (90-250 psi in 2016-2018,
+        90-300 psi in 2019-2020, counted from fully closed): 2016-2017 LSR 23,
+        HSR 23, LSC 24, HSC 23; 2018-2020 LSR 24, HSR 19, LSC 22, HSC 23. The
+        DHX2 manuals list 23 as the top of one combined range for all four
+        adjusters.
 
     x2_vvc_2021:
       name: X2 VVC 4-Way (2021-2024)
@@ -144,21 +161,45 @@ option_values:
         - Four-way gravity damper with Variable Valve Control high-speed circuits
         - Shared by FLOAT X2 and DHX2 of these years
       adjustments:
-        - { name: HSC, type: step, max: ~, notes: High-Speed Compression, dialColor: blue }
-        - { name: LSC, type: step, max: ~, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
-        - { name: HSR, type: step, max: ~, notes: High-Speed Rebound, dialColor: red }
-        - { name: LSR, type: step, max: ~, notes: Low-Speed Rebound, dialColor: red, dialSize: small }
-      source: https://tech.ridefox.com/bike/owners-manuals/1078/shock--2021-float-x2
-      note: Same gap as x2_2016 — starting-point tables only, no stated click range.
+        - { name: HSC, type: step, max: 8, notes: "High-Speed Compression; estimated maximum, check your dial and edit it if it differs", dialColor: blue }
+        - { name: LSC, type: step, max: 18, notes: "Low-Speed Compression; estimated maximum, check your dial and edit it if it differs", dialColor: blue, dialSize: small }
+        - { name: HSR, type: step, max: 8, notes: "High-Speed Rebound; estimated maximum, check your dial and edit it if it differs", dialColor: red }
+        - { name: LSR, type: step, max: 18, notes: "Low-Speed Rebound; estimated maximum, check your dial and edit it if it differs", dialColor: red, dialSize: small }
+      source:
+        - https://tech.ridefox.com/bike/owners-manuals/1078/shock--2021-float-x2
+        - https://tech.ridefox.com/bike/owners-manuals/2926/shock--2024-float-x2
+        - https://tech.ridefox.com/bike/owners-manuals/1080/shock--2021-all-coil-shocks-(dhx2-and-van-models)
+      note: >-
+        No stated click range. Maxima are the highest values of the starting-point
+        table in the 2024 FLOAT X2 manual (90-300 psi, counted from fully closed):
+        LSR 16-18, HSR 7-8, LSC 16-18, HSC 7-8. The 2021 DHX2 manual's spring-rate
+        tables top out at LSR 15-16, HSR 7-8, LSC 16-17, HSC 7-8, which is within
+        these figures.
+
+    x2_vvc_2021_ls:
+      name: X2 VVC Low-Speed (2021-2024)
+      description: Performance Elite version of the X2 damper. Low-speed compression and rebound only, no high-speed adjusters.
+      adjustments:
+        - { name: Compression, type: step, max: 18, notes: "Low-Speed Compression; estimated maximum, check your dial and edit it if it differs", dialColor: blue }
+        - { name: Rebound, type: step, max: 18, notes: "Low-Speed Rebound; estimated maximum, check your dial and edit it if it differs", dialColor: red }
+      source: https://tech.ridefox.com/bike/owners-manuals/2926/shock--2024-float-x2
+      note: >-
+        HSR and HSC are Factory Series only. Maxima are the highest values of the
+        manual's starting-point table (LSR 16-18, LSC 16-18).
 
     x2_2016_ls:
       name: X2 Low-Speed (2016-2020)
       description: Performance Elite version of the X2 damper. Low-speed compression and rebound only, no high-speed adjusters.
       adjustments:
-        - { name: Compression, type: step, max: ~, notes: Low-Speed Compression, dialColor: blue }
-        - { name: Rebound, type: step, max: ~, notes: Low-Speed Rebound, dialColor: red }
-      source: https://tech.ridefox.com/bike/owners-manuals/1036/shock--2020-float-x2
-      note: The 2020 FLOAT X2 manual reserves the high-speed adjusters for the Factory Series.
+        - { name: Compression, type: step, max: 24, notes: "Low-Speed Compression; estimated maximum, check your dial and edit it if it differs", dialColor: blue }
+        - { name: Rebound, type: step, max: 24, notes: "Low-Speed Rebound; estimated maximum, check your dial and edit it if it differs", dialColor: red }
+      source:
+        - https://tech.ridefox.com/bike/owners-manuals/556/shock--2016-float-x2
+        - https://tech.ridefox.com/bike/owners-manuals/1036/shock--2020-float-x2
+      note: >-
+        The FLOAT X2 manuals reserve the high-speed adjusters for the Factory
+        Series. Maxima are the highest LSC (24) and LSR (24) values of the
+        starting-point tables, counted from fully closed (see x2_2016).
 
     dps_2016:
       name: DPS (2016-2023)
@@ -166,11 +207,17 @@ option_values:
         - Dual Piston System trail damper with an EVOL negative air sleeve
         - 3-position lever (Open/Medium/Firm) plus a 3-position open-mode adjust
       adjustments:
-        - { name: Rebound, type: step, max: ~, dialColor: red }
+        - { name: Rebound, type: step, max: 11, notes: "estimated maximum, check your dial and edit it if it differs", dialColor: red }
         - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm] }
         - { name: Open Mode Adjust, type: categorical, options: ["1", "2", "3"], notes: "Low-Speed Compression in Open mode; Factory and Performance Elite non-remote shocks only" }
-      source: https://tech.ridefox.com/bike/owners-manuals/1079/shock--2021-float-dps-and-dpx2
-      note: Open-mode adjust described as "3 additional fine tuning adjustments"; rebound total never stated.
+      source:
+        - https://tech.ridefox.com/bike/owners-manuals/1079/shock--2021-float-dps-and-dpx2
+        - https://tech.ridefox.com/bike/owners-manuals/824/shock--2018-float-dps-and-dpx2
+      note: >-
+        Open-mode adjust described as "3 additional fine tuning adjustments".
+        Rebound total is not stated: the maximum is the highest number of the
+        manual's rebound starting-point table (100-300 psi, 11 clicks from fully
+        closed; below 100 psi the table says Open).
 
     dpx2_2018:
       name: DPX2 (2018-2021)
@@ -185,15 +232,345 @@ option_values:
       note: Neither the Comp Adj knob's detent count nor the rebound total is stated in the 2018-2021 manuals.
 
 # --------------------------------------------------------------------------
+# Setup guides — the owner's manuals' starting points as data (SCHEMA.md,
+# "Setup guides"), transcribed from docs/research/setup_guides/fox.md.
+# --------------------------------------------------------------------------
+guides:
+  fox_float_2027:
+    label: FOX FLOAT owner's manual (2027)
+    source: https://tech.ridefox.com/bike/owners-manuals/3172/shock--2027-float
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        rows: &fox_air_shock_start {
+          50: 110, 55: 121, 60: 132, 65: 143, 70: 154,
+          75: 165, 80: 176, 85: 187, 90: 198, 95: 209,
+          100: 220, 105: 231, 110: 243, 115: 254, 120: 265
+        }
+        note: Calculated from FOX's starting point (psi = rider weight in lb); set the final pressure by SAG
+      - target: rebound
+        input: pressure
+        input_unit: psi
+        rows: {
+          "<100": 10, 100-120: 10, 120-140: 9, 140-160: 8, 160-180: 7,
+          180-200: 6, 200-220: 5, 220-240: 4, 240-260: 3, 260-280: 2,
+          280-300: 1
+        }
+      - { target: compression_mode, value: Open }
+      - { target: open_mode_adjust, value: "1", when: { trim: [factory, performance-elite] } }
+      - { target: sag, range: [25, 30], comfort_at: max, note: "25 % is FOX's firm end, 30 % the plush end" }
+
+  fox_float_sl_float_x_2027:
+    label: FOX FLOAT SL and FLOAT X owner's manual (2027)
+    source: https://tech.ridefox.com/bike/owners-manuals/3173/shock--2027-float-sl-and-float-x
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        rows: *fox_air_shock_start
+        note: Calculated from FOX's starting point (psi = rider weight in lb); set the final pressure by SAG
+      - target: rebound
+        input: pressure
+        input_unit: psi
+        when: { damper: float_sl }
+        rows: {
+          "<100": max, 100-120: 11, 120-140: 10, 140-160: 9, 160-180: 8,
+          180-200: 7, 200-220: 6, 220-240: 5, 240-260: 4, 260-280: 3,
+          280-300: min
+        }
+      - target: rebound
+        input: pressure
+        input_unit: psi
+        when: { damper: float_x }
+        rows: {
+          "<100": 10, 100-120: 10, 120-140: 9, 140-160: 8, 160-180: 7,
+          180-200: 6, 200-220: 5, 220-240: 4, 240-260: 3, 260-280: 2,
+          280-300: 1
+        }
+      - { target: compression_mode, value: Open, when: { damper: float_sl } }
+      - { target: open_mode_adjust, value: "1", when: { damper: float_sl } }
+      - { target: sag, range: [25, 30], comfort_at: max, note: "25 % is FOX's firm end, 30 % the plush end" }
+
+  fox_float_x2_2027:
+    label: FOX FLOAT X2 owner's manual (2027)
+    source: https://tech.ridefox.com/bike/owners-manuals/3183/shock--2027-float-x2
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        rows: *fox_air_shock_start
+        note: Calculated from FOX's starting point (psi = rider weight in lb); set the final pressure by SAG
+      - target: lsr
+        input: pressure
+        input_unit: psi
+        rows: {
+          "<100": 13, 100-120: 12, 120-140: 11, 140-160: 10, 160-180: 9,
+          180-200: 8, 200-220: 7, 220-240: 6, 240-260: 5, 260-280: 4,
+          280-300: 3
+        }
+      - target: hsr
+        input: pressure
+        input_unit: psi
+        when: { trim: factory }
+        rows: {
+          "<100": 7, 100-120: 7, 120-140: 6, 140-160: 6, 160-180: 5,
+          180-200: 4, 200-220: 4, 220-240: 3, 240-260: 2, 260-280: 2,
+          280-300: 1
+        }
+      - target: lsc
+        input: pressure
+        input_unit: psi
+        rows: {
+          "<100": [11, 13], 100-120: [11, 13], 120-140: [11, 13], 140-160: [9, 10], 160-180: [9, 10],
+          180-200: [9, 10], 200-220: [9, 10], 220-240: [9, 10], 240-260: [7, 8], 260-280: [7, 8],
+          280-300: [7, 8]
+        }
+      - target: hsc
+        input: pressure
+        input_unit: psi
+        when: { trim: factory }
+        rows: {
+          "<100": [6, 7], 100-120: [6, 7], 120-140: [6, 7], 140-160: [4, 5], 160-180: [4, 5],
+          180-200: [4, 5], 200-220: [4, 5], 220-240: [4, 5], 240-260: [2, 3], 260-280: [2, 3],
+          280-300: [2, 3]
+        }
+      - { target: sag, value: 30 }
+
+  fox_float_x2_2020:
+    label: FOX FLOAT X2 owner's manual (2020)
+    source: https://tech.ridefox.com/bike/owners-manuals/1036/shock--2020-float-x2
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        rows: *fox_air_shock_start
+        note: Calculated from FOX's starting point (psi = rider weight in lb); set the final pressure by SAG
+      - target: lsr
+        input: pressure
+        input_unit: psi
+        when: { damper: x2_2016 }
+        rows: &fox_x2_2020_lsr {
+          90: [22, max], 100: [22, 24], 110: [19, 21], 120: [18, 20], 130: [18, 20],
+          140: [17, 19], 150: [16, 18], 160: [16, 18], 170: [15, 17], 180: [15, 17],
+          190: [14, 16], 200: [13, 15], 210: [12, 14], 220: [11, 13], 230: [10, 12],
+          240: [9, 11], 250: [8, 10], 260: [7, 9], 270: [6, 8], 280: [5, 7],
+          290: [4, 6], 300: [3, 5]
+        }
+      - target: hsr
+        input: pressure
+        input_unit: psi
+        when: { damper: x2_2016 }
+        rows: {
+          90: [17, 19], 100: [16, 18], 110: [15, 17], 120: [14, 16], 130: [13, 15],
+          140: [12, 14], 150: [12, 14], 160: [11, 13], 170: [11, 13], 180: [10, 12],
+          190: [10, 12], 200: [9, 11], 210: [9, 11], 220: [8, 10], 230: [8, 10],
+          240: [7, 9], 250: [7, 9], 260: [6, 8], 270: [6, 8], 280: [5, 7],
+          290: [5, 7], 300: [4, 6]
+        }
+      - target: lsc
+        input: pressure
+        input_unit: psi
+        when: { damper: x2_2016 }
+        rows: &fox_x2_2020_lsc {
+          90: [20, 22], 100: [19, 21], 110: [18, 20], 120: [18, 20], 130: [17, 19],
+          140: [17, 19], 150: [16, 18], 160: [16, 18], 170: [15, 17], 180: [14, 16],
+          190: [14, 16], 200: [13, 15], 210: [12, 14], 220: [12, 14], 230: [11, 13],
+          240: [10, 12], 250: [10, 12], 260: [9, 11], 270: [8, 10], 280: [8, 10],
+          290: [7, 9], 300: [6, 8]
+        }
+      - target: hsc
+        input: pressure
+        input_unit: psi
+        when: { damper: x2_2016 }
+        rows: {
+          90: [21, 23], 100: [19, 21], 110: [18, 20], 120: [17, 19], 130: [16, 18],
+          140: [16, 18], 150: [15, 17], 160: [15, 17], 170: [14, 16], 180: [13, 15],
+          190: [13, 15], 200: [10, 14], 210: [11, 13], 220: [11, 13], 230: [10, 12],
+          240: [10, 12], 250: [9, 11], 260: [9, 11], 270: [8, 10], 280: [8, 10],
+          290: [7, 9], 300: [7, 9]
+        }
+      - target: rebound
+        input: pressure
+        input_unit: psi
+        when: { damper: x2_2016_ls }
+        rows: *fox_x2_2020_lsr
+      - target: compression
+        input: pressure
+        input_unit: psi
+        when: { damper: x2_2016_ls }
+        rows: *fox_x2_2020_lsc
+      - { target: sag, value: 30 }
+
+  fox_float_x2_2024:
+    label: FOX FLOAT X2 owner's manual (2024)
+    source: https://tech.ridefox.com/bike/owners-manuals/2926/shock--2024-float-x2
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        rows: *fox_air_shock_start
+        note: Calculated from FOX's starting point (psi = rider weight in lb); set the final pressure by SAG
+      - target: lsr
+        input: pressure
+        input_unit: psi
+        when: { damper: x2_vvc_2021 }
+        rows: &fox_x2_2024_lsr {
+          90: [16, 18], 100: [15, 17], 110: [14, 16], 120: [13, 15], 130: [12, 14],
+          140: [11, 13], 150: [10, 12], 160: [9, 11], 170: [8, 10], 180: [7, 9],
+          190: [7, 9], 200: [6, 8], 210: [6, 8], 220: [5, 7], 230: [4, 6],
+          240: [3, 5], 250: [2, 4], 260: [2, 4], 270: [1, 3], 280: [1, 3],
+          290: [1, 3], 300: [1, 2]
+        }
+      - target: hsr
+        input: pressure
+        input_unit: psi
+        when: { damper: x2_vvc_2021 }
+        rows: {
+          90: [7, 8], 100: [7, 8], 110: [6, 7], 120: [6, 7], 130: [5, 6],
+          140: [5, 6], 150: [5, 6], 160: [4, 5], 170: [4, 5], 180: [4, 5],
+          190: [3, 4], 200: [3, 4], 210: [3, 4], 220: [2, 3], 230: [2, 3],
+          240: [2, 3], 250: [2, 3], 260: [1, 2], 270: [1, 2], 280: [1, 2],
+          290: [0, 1], 300: [0, 1]
+        }
+      - target: lsc
+        input: pressure
+        input_unit: psi
+        when: { damper: x2_vvc_2021 }
+        rows: &fox_x2_2024_lsc {
+          90: [16, 18], 100: [16, 18], 110: [15, 17], 120: [15, 17], 130: [14, 16],
+          140: [14, 16], 150: [13, 15], 160: [13, 15], 170: [12, 14], 180: [11, 13],
+          190: [10, 12], 200: [9, 11], 210: [8, 10], 220: [7, 9], 230: [6, 8],
+          240: [5, 7], 250: [4, 6], 260: [2, 4], 270: [2, 4], 280: [2, 4],
+          290: [1, 3], 300: [1, 3]
+        }
+      - target: hsc
+        input: pressure
+        input_unit: psi
+        when: { damper: x2_vvc_2021 }
+        rows: {
+          90: [7, 8], 100: [7, 8], 110: [7, 8], 120: [7, 8], 130: [6, 7],
+          140: [6, 7], 150: [6, 7], 160: [6, 7], 170: [5, 6], 180: [5, 6],
+          190: [5, 6], 200: [4, 5], 210: [4, 5], 220: [4, 5], 230: [4, 5],
+          240: [3, 4], 250: [3, 4], 260: [3, 4], 270: [3, 4], 280: [2, 3],
+          290: [2, 3], 300: [2, 3]
+        }
+      - target: rebound
+        input: pressure
+        input_unit: psi
+        when: { damper: x2_vvc_2021_ls }
+        rows: *fox_x2_2024_lsr
+      - target: compression
+        input: pressure
+        input_unit: psi
+        when: { damper: x2_vvc_2021_ls }
+        rows: *fox_x2_2024_lsc
+      - { target: sag, value: 30 }
+
+  fox_dhx2_2027:
+    label: FOX DHX2 owner's manual (2027)
+    source: https://tech.ridefox.com/bike/owners-manuals/3171/shock--2027-dhx2
+    rules:
+      - target: lsr
+        input: spring_rate
+        input_unit: lbs/in
+        rows: {
+          200: 14, 225: 14, 250: 13, 275: 13, 300: 12,
+          325: 11, 350: 11, 375: 10, 400: 10, 425: 9,
+          450: 8, 475: 8, 500: 7, 525: 6, 550: 6,
+          575: 5, 600: 4, 625: 4, 650: 4, 675: 3,
+          700: 2, 725: 2
+        }
+      - target: hsr
+        input: spring_rate
+        input_unit: lbs/in
+        when: { trim: factory }
+        rows: {
+          200: 8, 225: 8, 250: 7, 275: 7, 300: 7,
+          325: 6, 350: 6, 375: 5, 400: 5, 425: 5,
+          450: 4, 475: 4, 500: 3, 525: 3, 550: 2,
+          575: 2, 600: 2, 625: 1, 650: 1, 675: 1,
+          700: 1, 725: 0
+        }
+      - target: lsc
+        input: spring_rate
+        input_unit: lbs/in
+        rows: {
+          200: [11, 12], 225: [11, 12], 250: [11, 12], 275: [11, 12], 300: [11, 12],
+          325: [11, 12], 350: [9, 10], 375: [9, 10], 400: [9, 10], 425: [9, 10],
+          450: [9, 10], 475: [9, 10], 500: [9, 10], 525: [7, 8], 550: [7, 8],
+          575: [7, 8], 600: [7, 8], 625: [7, 8], 650: [7, 8], 675: [7, 8],
+          700: [7, 8], 725: [7, 8]
+        }
+      - target: hsc
+        input: spring_rate
+        input_unit: lbs/in
+        when: { trim: factory }
+        rows: {
+          200: [6, 7], 225: [6, 7], 250: [6, 7], 275: [6, 7], 300: [6, 7],
+          325: [6, 7], 350: [4, 5], 375: [4, 5], 400: [4, 5], 425: [4, 5],
+          450: [4, 5], 475: [4, 5], 500: [4, 5], 525: [2, 3], 550: [2, 3],
+          575: [2, 3], 600: [2, 3], 625: [2, 3], 650: [2, 3], 675: [2, 3],
+          700: [2, 3], 725: [2, 3]
+        }
+      - { target: sag, value: 30 }
+
+  fox_coil_2024:
+    label: FOX coil shock owner's manual (2024)
+    source: https://tech.ridefox.com/bike/owners-manuals/2928/shock--2024-all-coil-shocks-(dhx2-and-dhx-models)
+    rules:
+      - { target: sag, value: 30 }
+
+  fox_coil_2020:
+    label: FOX coil shock owner's manual (2020)
+    source: https://tech.ridefox.com/bike/owners-manuals/1038/shock--2020-all-coil-shocks-(dhx2-and-van-models)
+    rules:
+      - { target: sag, value: 30 }
+
+  fox_dhx_2027:
+    label: FOX DHX owner's manual (2027)
+    source: https://tech.ridefox.com/bike/owners-manuals/3170/shock--2027-dhx-
+    rules:
+      - { target: sag, value: 30 }
+
+  fox_float_dps_dpx2_2021:
+    label: FOX FLOAT DPS and DPX2 owner's manual (2021)
+    source: https://tech.ridefox.com/bike/owners-manuals/1079/shock--2021-float-dps-and-dpx2
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        rows: *fox_air_shock_start
+        note: Calculated from FOX's starting point (psi = rider weight in lb); set the final pressure by SAG
+      - target: rebound
+        input: pressure
+        input_unit: psi
+        when: { damper: dps_2016 }
+        rows: {
+          "<100": max, 100-120: 11, 120-140: 10, 140-160: 9, 160-180: 8,
+          180-200: 7, 200-220: 6, 220-240: 5, 240-260: 4, 260-280: 3,
+          280-300: min
+        }
+      - { target: compression_mode, value: Open }
+      - { target: open_mode_adjust, value: "1", when: { damper: dps_2016, trim: [factory, performance-elite] } }
+      - { target: sag, range: [25, 30], comfort_at: max, note: "25 % is FOX's firm end, 30 % the plush end" }
+
+# --------------------------------------------------------------------------
 # Shocks — current (2025/2026) FOX lineup, then legacy generations.
 # Shocks are sold by eye-to-eye/stroke length to match a given frame, not by a
 # fixed "travel" like forks — `options.size` lists commonly offered strokes
 # rather than an exhaustive per-frame spec.
 #
 # The model-level `specs.spring` names the spring type: air shocks share the
-# `&air_spring` anchor (Pressure), coil shocks list a Spring Rate. FOX ships
-# rear-shock volume spacers as tuning kits rather than a per-model maximum
-# table, so no Volume Spacers adjustment is generated — see follow-ups.
+# `&air_spring` anchor (Pressure), coil shocks list a Spring Rate. Volume
+# Spacers appear only on the FLOAT X2 2016-2024 generations, the only shocks
+# whose manual publishes a maximum spacer count — see follow-ups.
 # --------------------------------------------------------------------------
 nodes:
   - label: "FLOAT SL"
@@ -201,7 +578,8 @@ nodes:
     category: XC
     years: "2025-2026"
     url: https://ridefox.com/pages/fox-float-sl
-    setup_guide: https://tech.ridefox.com/bike/owners-manuals/3098/shock--2026-float-sl-and-float-x
+    setup_guide: https://tech.ridefox.com/bike/owners-manuals/3173/shock--2027-float-sl-and-float-x
+    guide: fox_float_sl_float_x_2027
     specs: { spring: Air }
     tasks: &fox_service
       shock:full_service: { interval: { moving_time_h: 125 }, fallback: { days: 365 }, source: FOX owner's manual }
@@ -209,8 +587,8 @@ nodes:
       - label: Factory
         level: trim
         specs: { stanchion: Kashima }
-        adjustments: &air_spring
-          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+        adjustments: &air_spring_sl
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 350, notes: Maximum 300 psi on shocks without EVOL air sleeve }
         options:
           damper: [float_sl]
           size:
@@ -220,7 +598,7 @@ nodes:
       - label: Performance
         level: trim
         specs: { stanchion: "7000-series alloy, black anodized" }
-        adjustments: *air_spring
+        adjustments: *air_spring_sl
         options:
           damper: [float_sl]
           size:
@@ -232,14 +610,16 @@ nodes:
     category: XC / Trail
     years: "2025-2026"
     url: https://ridefox.com/pages/fox-float
-    setup_guide: https://tech.ridefox.com/bike/owners-manuals/3099/shock--2026-float
+    setup_guide: https://tech.ridefox.com/bike/owners-manuals/3172/shock--2027-float
+    guide: fox_float_2027
     specs: { spring: Air }
     tasks: *fox_service
     children:
       - label: Factory
         level: trim
         specs: { stanchion: Kashima }
-        adjustments: *air_spring
+        adjustments: &air_spring
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 350 }
         options:
           damper: [float]
           size:
@@ -275,7 +655,8 @@ nodes:
     category: All-Mountain
     years: "2025-2026"
     url: https://ridefox.com/pages/fox-float-x
-    setup_guide: https://tech.ridefox.com/bike/owners-manuals/3098/shock--2026-float-sl-and-float-x
+    setup_guide: https://tech.ridefox.com/bike/owners-manuals/3173/shock--2027-float-sl-and-float-x
+    guide: fox_float_sl_float_x_2027
     specs: { spring: Air }
     tasks: *fox_service
     children:
@@ -318,7 +699,8 @@ nodes:
         id: "2025"
         years: "2025-2026"
         url: https://ridefox.com/pages/fox-float-x2
-        setup_guide: https://tech.ridefox.com/bike/owners-manuals/3023/shock--2026-float-x2
+        setup_guide: https://tech.ridefox.com/bike/owners-manuals/3183/shock--2027-float-x2
+        guide: fox_float_x2_2027
         specs: { spring: Air }
         children:
           - label: Factory
@@ -357,39 +739,68 @@ nodes:
         years: "2016-2020"
         url: https://tech.ridefox.com/bike/owners-manuals/1036/shock--2020-float-x2
         setup_guide: https://tech.ridefox.com/bike/owners-manuals/1036/shock--2020-float-x2
+        guide: fox_float_x2_2020
         specs: { spring: Air }
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 300, notes: Maximum 250 psi on 2016-2018 shocks }
+          - { name: Volume Spacers, type: step, max: 7, visualization: stepper, notes: "Maximum depends on the size (2019-2020): metric 185x50/55 2, 205x60/62.5/65 3, 210x50/55 4, 225x70/75 4, 230x57.5/60/65 5, 250x70/75 6; imperial 7.875x2 and 7.875x2.25 2, 8.5x2.25 4, 8.5x2.5 3, 8.75x2.75 3, 9.5x3 4, 10.5x3.5 5. 2016-2018 shocks are listed by stroke only, up to 7 at 70mm" }
         children:
           - label: Factory
             level: trim
             specs: { stanchion: Kashima }
-            adjustments: *air_spring
+            mounts: [Standard, Trunnion]
             options:
               damper: [x2_2016]
+              size: &x2_sizes_2016
+                - "185x50/55"
+                - "205x60/62.5/65"
+                - "210x50/55"
+                - "225x70/75"
+                - "230x57.5/60/65"
+                - "250x70/75"
+                - { eye_to_eye_mm: 200.025, stroke_mm: 50.8, label: 7.875x2in }
+                - { eye_to_eye_mm: 200.025, stroke_mm: 57.15, label: 7.875x2.25in }
+                - { eye_to_eye_mm: 215.9, stroke_mm: 57.15, label: 8.5x2.25in }
+                - { eye_to_eye_mm: 215.9, stroke_mm: 63.5, label: 8.5x2.5in }
+                - { eye_to_eye_mm: 222.25, stroke_mm: 69.85, label: 8.75x2.75in }
+                - { eye_to_eye_mm: 241.3, stroke_mm: 76.2, label: 9.5x3in }
+                - { eye_to_eye_mm: 266.7, stroke_mm: 88.9, label: 10.5x3.5in }
             note: |-
               - Four-way adjustable; a 2-position Firm lever was offered on some shocks
               - High-speed compression and rebound are Factory Series only
           - label: Performance Elite
             level: trim
             specs: { stanchion: "7000-series alloy, black anodized" }
-            adjustments: *air_spring
+            mounts: [Standard, Trunnion]
             options:
               damper: [x2_2016_ls]
+              size: *x2_sizes_2016
             note: Low-speed compression and rebound only — no high-speed adjusters.
       - label: "2021–2024"
         level: generation
         id: "2021"
         years: "2021-2024"
-        url: https://tech.ridefox.com/bike/owners-manuals/1078/shock--2021-float-x2
-        setup_guide: https://tech.ridefox.com/bike/owners-manuals/1078/shock--2021-float-x2
+        url: https://tech.ridefox.com/bike/owners-manuals/2926/shock--2024-float-x2
+        setup_guide: https://tech.ridefox.com/bike/owners-manuals/2926/shock--2024-float-x2
+        guide: fox_float_x2_2024
         specs: { spring: Air }
+        adjustments:
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 300 }
+          - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Maximum depends on the size: metric 210x50/55 3, 230x57.5/60/65 4, 250x70/75 5; trunnion 185x50/55 1, 205x60/62.5/65 2, 225x70/75 3; imperial 7.5x2 and 7.875x2 1, 8.5x2.5 2, 9.5x3 3, 10.5x3.5 4" }
         children:
           - label: Factory
             level: trim
             specs: { stanchion: Kashima }
-            adjustments: *air_spring
             options:
               damper: [x2_vvc_2021]
-              size:
+              size: &x2_sizes_2021
+                - { size: "210x50/55", mount: Standard }
+                - { size: "230x57.5/60/65", mount: Standard }
+                - { size: "250x70/75", mount: Standard }
+                - { size: "185x50/55", mount: Trunnion }
+                - { size: "205x60/62.5/65", mount: Trunnion }
+                - { size: "225x70/75", mount: Trunnion }
+                - { eye_to_eye_mm: 190.5, stroke_mm: 50.8, label: 7.5x2in }
                 - { eye_to_eye_mm: 200.025, stroke_mm: 50.8, label: 7.875x2in }
                 - { eye_to_eye_mm: 215.9, stroke_mm: 63.5, label: 8.5x2.5in }
                 - { eye_to_eye_mm: 241.3, stroke_mm: 76.2, label: 9.5x3in }
@@ -397,16 +808,17 @@ nodes:
           - label: Performance Elite
             level: trim
             specs: { stanchion: "7000-series alloy, black anodized" }
-            adjustments: *air_spring
             options:
-              damper: [x2_vvc_2021]
+              damper: [x2_vvc_2021_ls]
+              size: *x2_sizes_2021
 
   - label: "DHX"
     level: model
     category: Trail / Enduro
     years: "2025-2026"
     url: https://ridefox.com/products/fox-dhx-factory
-    setup_guide: https://tech.ridefox.com/bike/owners-manuals/3100/shock--2026-dhx-
+    setup_guide: https://tech.ridefox.com/bike/owners-manuals/3170/shock--2027-dhx-
+    guide: fox_dhx_2027
     specs: { spring: Coil }
     tasks: *fox_service
     children:
@@ -431,7 +843,8 @@ nodes:
         id: "2025"
         years: "2025-2026"
         url: https://ridefox.com/pages/fox-dhx2
-        setup_guide: https://tech.ridefox.com/bike/owners-manuals/3090/shock--2026-dhx2
+        setup_guide: https://tech.ridefox.com/bike/owners-manuals/3171/shock--2027-dhx2
+        guide: fox_dhx2_2027
         specs: { spring: Coil }
         children:
           - label: Factory
@@ -466,6 +879,7 @@ nodes:
         years: "2016-2020"
         url: https://tech.ridefox.com/bike/owners-manuals/1038/shock--2020-all-coil-shocks-(dhx2-and-van-models)
         setup_guide: https://tech.ridefox.com/bike/owners-manuals/1038/shock--2020-all-coil-shocks-(dhx2-and-van-models)
+        guide: fox_coil_2020
         specs: { spring: Coil }
         children:
           - label: Factory
@@ -486,7 +900,8 @@ nodes:
         id: "2021"
         years: "2021-2024"
         url: https://tech.ridefox.com/bike/owners-manuals/1078/shock--2021-float-x2
-        setup_guide: https://tech.ridefox.com/bike/owners-manuals/1078/shock--2021-float-x2
+        setup_guide: https://tech.ridefox.com/bike/owners-manuals/2928/shock--2024-all-coil-shocks-(dhx2-and-dhx-models)
+        guide: fox_coil_2024
         specs: { spring: Coil }
         children:
           - label: Factory
@@ -520,13 +935,15 @@ nodes:
     years: "2016-2023"
     url: https://tech.ridefox.com/bike/owners-manuals/1079/shock--2021-float-dps-and-dpx2
     setup_guide: https://tech.ridefox.com/bike/owners-manuals/1079/shock--2021-float-dps-and-dpx2
+    guide: fox_float_dps_dpx2_2021
     specs: { spring: Air }
     tasks: *fox_service
     children:
       - label: Factory
         level: trim
         specs: { stanchion: Kashima }
-        adjustments: *air_spring
+        adjustments: &air_spring_dps
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 350, notes: Maximum 300 psi on shocks without EVOL air sleeve }
         options:
           damper: [dps_2016]
           size:
@@ -539,13 +956,13 @@ nodes:
       - label: Performance Elite
         level: trim
         specs: { stanchion: "7000-series alloy, black anodized" }
-        adjustments: *air_spring
+        adjustments: *air_spring_dps
         options:
           damper: [dps_2016]
       - label: Performance
         level: trim
         specs: { stanchion: "7000-series alloy, black anodized" }
-        adjustments: *air_spring
+        adjustments: *air_spring_dps
         options:
           damper: [dps_2016]
           size:
@@ -563,6 +980,7 @@ nodes:
     years: "2018-2021"
     url: https://tech.ridefox.com/bike/owners-manuals/1079/shock--2021-float-dps-and-dpx2
     setup_guide: https://tech.ridefox.com/bike/owners-manuals/1079/shock--2021-float-dps-and-dpx2
+    guide: fox_float_dps_dpx2_2021
     specs: { spring: Air }
     tasks: *fox_service
     children:
@@ -588,33 +1006,44 @@ nodes:
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):
-#   - Legacy click totals. FOX's shock owner's manuals (2016-2024) describe each
-#     adjuster but publish only pressure-vs-clicks starting-point tables, so
-#     x2_2016, x2_2016_ls, x2_vvc_2021, dps_2016 and dpx2_2018 declare their
-#     click adjusters with `max: ~`. A FOX service manual or a staff-written
-#     magazine bench test stating the totals outright would replace the
-#     placeholders.
-#   - Rear-shock volume spacers are sold as per-shaft tuning kits (FLOAT DPS
-#     9mm PN 803-01-250, FLOAT DPX2 1/2in PN 803-01-251) with no published
-#     per-model maximum, unlike the fork tables. Add a Volume Spacers
-#     adjustment per air trim if FOX ever tabulates a maximum.
+#   - Click totals. FOX's shock owner's manuals never state a total range.
+#     x2_2016, x2_2016_ls, x2_vvc_2021, x2_vvc_2021_ls and dps_2016 use the
+#     highest value of the manual's starting-point table (estimates, flagged
+#     in the adjustment notes). Still `max: ~`: the FLOAT DPX2 rebound and Comp
+#     Adj knob (dpx2_2018; the 2018-2021 manuals only tabulate FLOAT DPS). A
+#     FOX service manual or a staff-written bench test stating the totals would
+#     replace the estimates.
+#   - Volume spacers. FLOAT, FLOAT SL, FLOAT X and FLOAT DPS/DPX2 are tuned
+#     with volume-graded spacer kits (compression-ratio tables keyed to size
+#     and eyelet), and the 2025-2026 FLOAT X2 uses 1 cc and 2 cc spacers
+#     limited by ribs inside the sleeve, so FOX publishes no maximum spacer
+#     count for them. The FLOAT X2 2016-2020 and 2021-2024 counts are
+#     recorded. Coil shocks have none.
 #   - Live Valve Neo variants (FLOAT X Live Valve Neo, FLOAT X2 Live Valve
 #     Neo, DHX Live Valve Neo) are electronically controlled — no manual
 #     click-based adjustment model. Would need modes/profiles (categorical
 #     entries) instead of click counts if added.
 #   - Shock sizes come from the per-variant listings on the ridefox.com shop
-#     (currently sold trims, "Metric" read as the Standard mount). Not listed
-#     there, so left without `size`: FLOAT Performance Elite and Rhythm, FLOAT X
-#     Performance, FLOAT X2 Performance (2025-2026), DHX2 Performance Elite and
-#     Performance (2025-2026), FLOAT X2 and DHX2 Performance Elite (2021-2024),
-#     both 2016-2020 generations of FLOAT X2 / DHX2, FLOAT DPS Performance Elite
-#     and FLOAT DPX2 (all trims). The tech.ridefox.com spec sheets are images only.
-#     Imperial sizes carry no stated mount. The 2021-2024 X2/DHX2 Factory and the
-#     DPS sizes come from the MY24 / current shop listings; older frame-specific
-#     sizes may exist.
+#     (currently sold trims, "Metric" read as the Standard mount) and, for the
+#     FLOAT X2 2016-2020 and 2021-2024, from the owner's manuals' spacer
+#     tables (mount not stated there for 2016-2020, hence `mounts`). Not
+#     listed, so left without `size`: FLOAT Performance Elite and Rhythm,
+#     FLOAT X Performance, FLOAT X2 Performance (2025-2026), DHX2 Performance
+#     Elite and Performance (2025-2026), both DHX2 2016-2020 trims and the
+#     DHX2 2021-2024 Performance Elite (the coil manuals give strokes only),
+#     FLOAT DPS Performance Elite and FLOAT DPX2 (all trims). The
+#     tech.ridefox.com spec sheets are images only. Imperial sizes carry no
+#     stated mount. The 2021-2024 DHX2 Factory and the DPS sizes come from the
+#     MY24 / current shop listings; older frame-specific sizes may exist.
 #   - FLOAT X "Performance": whether that trim keeps the 11-click low-speed
 #     compression dial or ships with a fixed setting is still unresolved, so its
 #     trim note was removed rather than left as an unverified claim.
+#   - Setup guides: the DHX2 2016-2024 damper tables are picked by shock
+#     stroke × rear-wheel travel (tables A/B/C), a bike-level input the
+#     catalog lacks (#71), so those guides carry SAG only. The FLOAT X2
+#     2025-2026 and DHX2 2025-2026 manuals reserve HSR/HSC for the Factory
+#     trim; their rules say so with `when: { trim: factory }` until the
+#     damper is split.
 #   - Pre-2016 CTD-era shocks (FLOAT CTD, FLOAT X CTD, DHX RC4, VAN R/RC) are
 #     not covered: the 2014-2015 archived material is spec drawings plus
 #     manuals with no click ranges.

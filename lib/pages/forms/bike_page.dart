@@ -17,6 +17,7 @@ import '../../services/attachment_storage_service.dart';
 import '../../services/subscription_service.dart';
 import '../../theme.dart';
 import '../../utils/attachment_actions.dart';
+import '../../utils/automation_ids.dart';
 import '../../widgets/attachment_strip.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/sheets/set_initial_stats.dart';
@@ -429,9 +430,13 @@ class _BikePageState extends State<BikePage> {
             BikePageMode.edit => const Text('Edit Bike'),
           },
           actions: [
-            IconButton(
-              icon: const Icon(Icons.check), 
-              onPressed: _saveBike
+            Semantics(
+              container: true,
+              identifier: AutomationIds.bikeFormSave,
+              child: IconButton(
+                icon: const Icon(Icons.check), 
+                onPressed: _saveBike
+              ),
             ),
           ],
         ),

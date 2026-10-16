@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../models/adjustment/adjustment.dart';
 import '../../../models/component/component.dart';
+import '../../../models/component/component_ancestor.dart';
 import '../../../models/person.dart';
 import 'adjustment_cell.dart';
 import 'adjustment_display_item.dart';
@@ -37,6 +38,8 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
   final bool displayPersonAdjustmentValues;
   final bool missingValuesPlaceholder;
 
+  final List<ComponentAncestor> Function(String componentId)? ancestorsOf;
+
   const AdjustmentCompactDisplayList({
     super.key,
     this.components = const [],
@@ -51,6 +54,7 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
     this.displayBikeAdjustmentValues = true,
     this.displayPersonAdjustmentValues = true,
     this.missingValuesPlaceholder = false,
+    this.ancestorsOf,
   });
 
   static List<AdjustmentCellGroup> _resolveGroups({
@@ -64,10 +68,11 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
     required bool displayBikeAdjustmentValues,
     required bool displayPersonAdjustmentValues,
     required bool missingValuesPlaceholder,
+    List<ComponentAncestor> Function(String componentId)? ancestorsOf,
   }) {
     final owners = <AdjustmentDisplayItem>[
       if (displayBikeAdjustmentValues) ...[
-        ...components.map((c) => ComponentDisplayItem(c)),
+        ...components.map((c) => ComponentDisplayItem(c, ancestors: ancestorsOf?.call(c.id) ?? const [])),
         ...danglingComponents.map((c) => ComponentDisplayItem(c, isError: true)),
       ],
       if (displayPersonAdjustmentValues) ...[
@@ -159,6 +164,7 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
       displayBikeAdjustmentValues: displayBikeAdjustmentValues,
       displayPersonAdjustmentValues: displayPersonAdjustmentValues,
       missingValuesPlaceholder: missingValuesPlaceholder,
+      ancestorsOf: ancestorsOf,
     );
     if (groups.isEmpty) return const SizedBox.shrink();
 

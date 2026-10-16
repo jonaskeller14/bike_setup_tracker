@@ -25,7 +25,7 @@ sources:
   - https://rstsuspension.com/products/elementor-12676/
   - https://rstsuspension.com/products/elementor-12687/
   - https://rstsuspension.com/products/elementor-12887/
-updated: 2026-10-05
+updated: 2026-10-10
 
 # --------------------------------------------------------------------------
 # Dampers
@@ -150,6 +150,11 @@ nodes:
 #   - MONO owner's manual gives contradictory air limits (text: "should not
 #     exceed 300 PSI"; table: "Maximum pressure is 400 psi"), so no Pressure
 #     `max` is set.
+#   - Second pass (2026-10-10): rstsuspension.com answered HTTP 403 to every
+#     fetch (product pages, MONO manual, catalogue), and the general fork
+#     manual on cdn.rstsuspension.com contains no shock figures. No editorial
+#     review of a MONO or MEZZO with click counts or volume-spacer maxima was
+#     found, so nothing was added.
 #   - MEZZO spring rate unit is printed as "lb" only; assumed lbs/in.
 #   - Eye-to-eye x stroke pairs are listed as RST prints them (e.g. 170x30/35
 #     means 170mm eye-to-eye with 30mm or 35mm stroke, per the size list);

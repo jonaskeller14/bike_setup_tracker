@@ -42,6 +42,9 @@ class PressureDriftEntry {
   final double temperatureShare;
   final double altitudeShare;
 
+  /// Relative drift from which correcting the pressure is worthwhile.
+  final double significanceThreshold;
+
   const PressureDriftEntry({
     required this.adjustmentId,
     required this.adjustmentName,
@@ -56,6 +59,7 @@ class PressureDriftEntry {
     required this.predictedReading,
     required this.temperatureShare,
     required this.altitudeShare,
+    this.significanceThreshold = PressureDriftService.defaultSignificanceThreshold,
   });
 
   /// How far the pump reading has moved. Positive means it now reads high, so
@@ -65,7 +69,7 @@ class PressureDriftEntry {
   double get relativeDelta => delta / referenceValue;
 
   /// Whether the difference is worth getting the pump out for.
-  bool get isSignificant => relativeDelta.abs() >= PressureDriftService.significanceThreshold;
+  bool get isSignificant => relativeDelta.abs() >= significanceThreshold;
 
   double get temperatureDeltaC => currentTemperatureC - referenceTemperatureC;
   double get altitudeDeltaM => currentAltitudeM - referenceAltitudeM;
@@ -90,7 +94,7 @@ class PressureDriftEntry {
 /// progression under a different absolute pressure, damper oil viscosity, and
 /// the air a pump hose swallows when it is connected.
 class PressureDriftService {
-  static const double significanceThreshold = 0.03;
+  static const double defaultSignificanceThreshold = 0.03;
   static const double _seaLevelPressurePa = 101325;
 
   static final KnownUnit _pascal = KnownUnit(
@@ -139,6 +143,7 @@ class PressureDriftService {
     required Map<String, AdjustmentProvenance> provenance,
     required ContextWeather? currentWeather,
     required ContextPosition? currentPosition,
+    double significanceThreshold = defaultSignificanceThreshold,
   }) {
     final currentTemperatureC = currentWeather?.currentTemperature;
     final currentAltitudeM = currentPosition?.altitude;
@@ -192,6 +197,7 @@ class PressureDriftService {
           // Derived from the total so the two shares always add up to it.
           temperatureShare: predictedReading - referenceValue - altitudeShare,
           altitudeShare: altitudeShare,
+          significanceThreshold: significanceThreshold,
         ));
       }
     }

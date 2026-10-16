@@ -118,6 +118,7 @@ class AppRepository extends ChangeNotifier {
       onChanged: () {
         _filter();
         notifyListeners();
+        onFiltersChanged?.call();
       },
     );
     _view = _buildView();
@@ -218,6 +219,16 @@ class AppRepository extends ChangeNotifier {
 
   Map<String, AdjustmentValue> get currentAdjustmentValues => _currentAdjustmentValues;
   SetupHistory get setupHistory => _setupHistory;
+
+  Map<String, List<AdjustmentValue>> recordedAdjustmentValues(Set<String> adjustmentIds) {
+    final values = <String, List<AdjustmentValue>>{};
+    for (final setup in _setups.values) {  // Soft-Deleted included
+      for (final MapEntry(:key, :value) in setup.bikeAdjustmentValues.entries) {
+        if (adjustmentIds.contains(key)) (values[key] ??= []).add(value);
+      }
+    }
+    return values;
+  }
 
   @visibleForTesting
   set setupHistory(SetupHistory history) => _setupHistory = history;
@@ -450,6 +461,7 @@ class AppRepository extends ChangeNotifier {
   // ---------------------------------------------------------------------------
 
   late final FilterController filters;
+  void Function()? onFiltersChanged;
   Set<String> _setupTags = {};
   Set<String> _taskRuleTags = {};
 

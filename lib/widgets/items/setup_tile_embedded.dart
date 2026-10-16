@@ -280,6 +280,7 @@ class _SetupTileEmbeddedState extends State<SetupTileEmbedded> {
       displayOnlyChanges: _displayOnlyChanges,
       displayBikeAdjustmentValues: widget.displayBikeAdjustmentValues,
       displayPersonAdjustmentValues: displayPerson,
+      ancestorsOf: (componentId) => appRepository.componentHierarchy.ancestorsBelowBikeAt(componentId, setup.datetimeLocal.toUtc()),
     );
 
     final Widget content = TimelineSelectionFill(

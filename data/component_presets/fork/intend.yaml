@@ -13,9 +13,12 @@
 # official fork-setup guide (intend-bc.com/fork-setup/) describes Low-Speed
 # Compression as having two *feel zones* ("clicks 1-6" coarser for racers,
 # then a finer zone continuing to "fully open" for comfort riders) but never
-# states a total maximum — so, per the "never guess a number" rule, no step
-# adjustment is generated for Rebound/Compression on any INTEND damper. See
-# the Follow-ups footer.
+# states a total maximum. That guide shows the compression dial is click-
+# indexed and counted from fully closed, so it is declared with `max: ~`; the
+# setup guide's "click 6" is NOT a total (the finer zone continues beyond it),
+# so no estimate is made from it. Rebound is only described as "start in the
+# middle of the range", with no click indexing, and stays a missing adjuster.
+# See the Follow-ups footer.
 
 brand: INTEND
 component_type: fork
@@ -34,7 +37,9 @@ sources:
   - https://www.intend-bc.com/products/flash-38/
   - https://www.intend-bc.com/products/infinity-en/
   - https://www.intend-bc.com/products/bandit/
-updated: 2026-10-07
+  # Secondary — editorial first look (damper design, no click counts)
+  - https://www.pinkbike.com/news/first-look-intend-flash-38-fork-and-smooth-operator-compression-valve.html
+updated: 2026-10-13
 # Service interval (`tasks`) from the fork setup guide: the small (upper leg)
 # service at least once a year. No hour-based interval is published.
 
@@ -53,16 +58,22 @@ option_values:
         compression valve as standard equipment on Hero/Edge/Flash 35/Flash
         38/Infinity EN/Bandit (not on Samurai or Essential, and not on older
         units — retrofittable separately).
-      missing_adjustments: [Rebound, Compression]
-      adjustments: []
+      missing_adjustments: [Rebound]
+      adjustments:
+        - { name: Compression, type: step, max: ~, notes: Counted from fully closed (firmest) }
+      source: https://www.intend-bc.com/fork-setup/
+      note: Fork setup guide describes compression clicks counted from fully closed (1-6 coarse zone, then a finer zone to fully open) with no total.
 
     open_bath:
       name: Open Bath (self-bleeding)
       description: >
         Essential's entry-level open-bath damper. External Low-Speed Rebound and
         Low-Speed Compression dials.
-      missing_adjustments: [Rebound, Compression]
-      adjustments: []
+      missing_adjustments: [Rebound]
+      adjustments:
+        - { name: Compression, type: step, max: ~, notes: "Low-Speed Compression; Counted from fully closed (firmest)" }
+      source: https://www.intend-bc.com/fork-setup/
+      note: Same compression counting as the closed cartridge per the fork setup guide; no total published.
 
     energizer:
       name: INTEND Energizer
@@ -85,6 +96,49 @@ option_values:
       adjustments: []
 
 # --------------------------------------------------------------------------
+# Setup guide — transcribed from docs/research/setup_guides/intend.md.
+#   * Pressure: INTEND publishes a formula (psi = factor × rider weight in kg,
+#     1.0 or 1.3 per model) with no rider range, so the rows are calculated at
+#     5 kg steps over 50-120 kg. Essential has no factor.
+#   * Compression: 6 clicks from closed on every model with a click dial.
+#   * Rebound "start in the middle of the range" is not encoded: the catalog
+#     has no Rebound adjuster, since no source states that the dial is
+#     click-indexed or which end it counts from.
+#   * No SAG target, pressure limit or spacer count is published.
+# --------------------------------------------------------------------------
+guides:
+  intend_fork_setup_2025:
+    label: INTEND fork setup guide (2025)
+    source: https://www.intend-bc.com/fork-setup/
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        when: { model: [samurai-xc-29, samurai-xc-32, samurai-super-tr, hero, edge, flash-35, flash-38] }
+        rows: {
+          50: 50, 55: 55, 60: 60, 65: 65, 70: 70,
+          75: 75, 80: 80, 85: 85, 90: 90, 95: 95,
+          100: 100, 105: 105, 110: 110, 115: 115, 120: 120
+        }
+        note: "Calculated from INTEND's formula: 1.0 psi per kg of rider weight"
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        when: { model: [infinity-en, bandit] }
+        rows: {
+          50: 65, 55: 71.5, 60: 78, 65: 84.5, 70: 91,
+          75: 97.5, 80: 104, 85: 110.5, 90: 117, 95: 123.5,
+          100: 130, 105: 136.5, 110: 143, 115: 149.5, 120: 156
+        }
+        note: "Calculated from INTEND's formula: 1.3 psi per kg of rider weight"
+      - target: compression
+        value: 6
+        when: { damper: [closed_cartridge, open_bath] }
+        note: Clicks 1-6 are coarse steps for race support; past 6 they get finer for comfort
+
+# --------------------------------------------------------------------------
 # Forks — current INTEND lineup (all inverted, all air-sprung).
 # Every trim shares the `&air_spring` anchor (Pressure only); INTEND's
 # swappable "progression" bottom caps are a relative soft/firm choice with no
@@ -98,6 +152,7 @@ nodes:
     years: "2025-2026"
     url: https://www.intend-bc.com/products/samurai-xc/
     setup_guide: https://www.intend-bc.com/fork-setup/
+    guide: intend_fork_setup_2025
     tasks: &intend_service
       fork:upper_leg_service: { name: Upper leg service, interval: { days: 365 }, preselected: true, source: Intend fork setup guide }
     children:
@@ -122,6 +177,7 @@ nodes:
     years: "2025-2026"
     url: https://www.intend-bc.com/products/samurai-32/
     setup_guide: https://www.intend-bc.com/fork-setup/
+    guide: intend_fork_setup_2025
     tasks: *intend_service
     children:
       - label: Standard
@@ -144,6 +200,7 @@ nodes:
     years: "2025-2026"
     url: https://www.intend-bc.com/products/samurai-supertr/
     setup_guide: https://www.intend-bc.com/fork-setup/
+    guide: intend_fork_setup_2025
     tasks: *intend_service
     children:
       - label: Standard
@@ -163,6 +220,7 @@ nodes:
     years: "2025-2026"
     url: https://www.intend-bc.com/products/intend-hero/
     setup_guide: https://www.intend-bc.com/fork-setup/
+    guide: intend_fork_setup_2025
     tasks: *intend_service
     children:
       - label: Standard
@@ -183,6 +241,7 @@ nodes:
     years: "2025-2026"
     url: https://www.intend-bc.com/products/essentials/
     setup_guide: https://www.intend-bc.com/fork-setup/
+    guide: intend_fork_setup_2025
     tasks: *intend_service
     children:
       - label: Standard
@@ -206,6 +265,7 @@ nodes:
     years: "2025-2026"
     url: https://www.intend-bc.com/products/intend-edge/
     setup_guide: https://www.intend-bc.com/fork-setup/
+    guide: intend_fork_setup_2025
     tasks: *intend_service
     children:
       - label: Standard
@@ -225,6 +285,7 @@ nodes:
     years: "2025-2026"
     url: https://www.intend-bc.com/products/intend-flash/
     setup_guide: https://www.intend-bc.com/fork-setup/
+    guide: intend_fork_setup_2025
     tasks: *intend_service
     children:
       - label: Standard
@@ -244,6 +305,7 @@ nodes:
     years: "2025-2026"
     url: https://www.intend-bc.com/products/flash-38/
     setup_guide: https://www.intend-bc.com/fork-setup/
+    guide: intend_fork_setup_2025
     tasks: *intend_service
     children:
       - label: Standard
@@ -264,6 +326,7 @@ nodes:
     years: "2025-2026"
     url: https://www.intend-bc.com/products/infinity-en/
     setup_guide: https://www.intend-bc.com/fork-setup/
+    guide: intend_fork_setup_2025
     tasks: *intend_service
     children:
       - label: Standard
@@ -284,6 +347,7 @@ nodes:
     years: "2025-2026"
     url: https://www.intend-bc.com/products/bandit/
     setup_guide: https://www.intend-bc.com/fork-setup/
+    guide: intend_fork_setup_2025
     tasks: *intend_service
     children:
       - label: Standard
@@ -301,18 +365,25 @@ nodes:
 # Follow-ups (not yet captured — avoid guessing):
 #   - Rebound/Compression click counts (closed_cartridge, open_bath): INTEND
 #     does not publish a total click count anywhere on their official site.
-#     The fork-setup guide only describes Low-Speed Compression as having a
-#     coarser zone (clicks 1-6) followed by a finer zone continuing to fully
-#     open, with no stated maximum. If INTEND ever publishes an exact number
-#     (or it's confirmed via an official spec sheet/PDF rather than a review),
-#     add `{ name: Compression, type: step, max: N }` / `Rebound` accordingly.
+#     The fork-setup guide describes Low-Speed Compression as a coarser zone
+#     (clicks 1-6 from fully closed) followed by a finer zone continuing to
+#     fully open, with no stated maximum, so Compression carries `max: ~`.
+#     The only totals in circulation are forum posts (an older needle with 11
+#     clicks, a later one with 17), which are not an admissible source. Rebound
+#     has no stated click indexing or counting direction, so it remains in
+#     `missing_adjustments` and every trim stays `draft: true`.
 #   - RockShox Charger Raceday (rs_charger_raceday): click/damping specs are
 #     RockShox's own, not published on the INTEND product pages — would need
 #     to come from RockShox's own documentation, out of scope here.
 #   - Progression / volume bottom caps: every model ships with 2 interchangeable
 #     bottom caps (a "less" and "more" progression option, one pre-installed)
 #     but no numeric volume (cc) is published per model, so no Volume Spacers
-#     adjustment is generated.
+#     adjustment is generated. The fork-setup guide (1.0 psi per kg of rider
+#     weight on Hero/Edge/Flash/Samurai, 1.3 on Infinity EN/Bandit) gives no
+#     maximum pressure either.
+#   - The fork-setup guide's Travelizer table lists Samurai TR 100-130mm and
+#     Samurai XC 90-120mm, which differs from the Samurai XC / Super TR travels
+#     on the product pages used above; the product pages were kept.
 #   - Smooth Operator compression valve: standard equipment on current-
 #     production Hero/Edge/Flash 35/Flash 38/Infinity EN/Bandit (since ~Dec
 #     2025) and separately retrofittable to older units; purely a shim-stack

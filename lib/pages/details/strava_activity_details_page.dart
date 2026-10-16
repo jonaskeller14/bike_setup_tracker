@@ -392,9 +392,12 @@ class StravaActivityPageContent extends StatelessWidget {
                   shape: const Border(),
                   collapsedShape: const Border(),
                   initiallyExpanded: false,
-                  title: Text(
-                    "Setups (${uniqueSetups.length})",
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                  title: Semantics(
+                    identifier: AutomationIds.stravaActivitySetups,
+                    child: Text(
+                      "Setups (${uniqueSetups.length})",
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                    ),
                   ),
                   childrenPadding: const EdgeInsets.symmetric(vertical: 8),
                   children: [

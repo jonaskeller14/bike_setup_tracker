@@ -11,7 +11,8 @@ canonical plan and status tracker; this folder holds the reusable material.
 | `docs/marketing/links.md` | Campaign-tagged store links per channel | yes |
 | `docs/marketing/channels.md` | Posting rules per channel (Phase 4) | yes |
 | `docs/marketing/backlog.md` | Evergreen Short topics (Phase 8) | yes |
-| `docs/marketing/templates/` | HTML/CSS image templates (Phase 3) | yes |
+| `docs/marketing/templates/` | HTML/CSS templates for video backgrounds, carousel and banners (Phase 3) | yes |
+| `docs/marketing/kits/` | One JSON per content kit: clip edits, captions, Shorts, images (Phase 3); `<kit>.posts.md`: post drafts per channel (Phase 4) | yes |
 | `docs/marketing/metrics/` | Store exports and baseline/monthly numbers | **no — gitignored** |
 | `tool/marketing/` | Record and render scripts (Phase 3) | yes |
 | `tool/marketing/assets/music/` | Licensed music beds | **no — gitignored** |

@@ -70,6 +70,11 @@ class PreferencesPage extends StatelessWidget {
     'in': Text('Inches (in)'),
   };
 
+  static const Map<bool, Text> _offOnOptionWidgets = {
+    false: Text('Off'),
+    true: Text('On'),
+  };
+
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
@@ -97,6 +102,26 @@ class PreferencesPage extends StatelessWidget {
                     appSettings.themeMode = newValue;
                     Navigator.pop(context);
                   },
+                ),
+              ),
+              const Divider(),
+              const SectionTitle(title: 'Filters'),
+              ListTile(
+                leading: const Icon(Icons.filter_alt),
+                title: const Text("Remember Filters"),
+                subtitle: _offOnOptionWidgets[appSettings.rememberFilters],
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                onTap: () => radioGroupSheet<bool>(
+                  context: context,
+                  title: "Remember Filters",
+                  value: appSettings.rememberFilters,
+                  optionWidgets: _offOnOptionWidgets,
+                  onChanged: (bool? newValue) {
+                    if (newValue == null) return;
+                    appSettings.rememberFilters = newValue;
+                    Navigator.pop(context);
+                  },
+                  infoText: 'Keep the selected bike and filters when reopening the app. Date ranges are not kept.',
                 ),
               ),
               const Divider(),

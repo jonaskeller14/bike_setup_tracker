@@ -12,10 +12,12 @@ import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/pages/forms/component_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/repositories/component_catalog_repository.dart';
+import 'package:bike_setup_tracker/services/app_hint_service.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/utils/component_catalog_parser.dart';
 import 'package:bike_setup_tracker/widgets/attachment_strip.dart';
+import 'package:bike_setup_tracker/widgets/installation_parent_field.dart';
 import 'package:bike_setup_tracker/widgets/set_installation_timeline.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -89,6 +91,7 @@ nodes:
       providers: [
         ChangeNotifierProvider.value(value: appSettings),
         ChangeNotifierProvider.value(value: appRepository),
+        ChangeNotifierProvider(create: (_) => AppHintService(appRepository: appRepository, appSettings: appSettings)),
         if (subscriptionService != null)
           ChangeNotifierProvider<SubscriptionService>.value(value: subscriptionService)
         else
@@ -129,7 +132,7 @@ nodes:
 
       expect(find.text('Add Component'), findsOneWidget);
       expect(find.text('Component Name'), findsOneWidget);
-      expect(find.text('NOT INSTALLED'), findsOneWidget);
+      expect(find.text('UNINSTALLED'), findsOneWidget);
       expect(find.text('Please select type'), findsOneWidget);
       expect(find.text('No adjustments yet'), findsOneWidget);
     });
@@ -271,7 +274,50 @@ nodes:
       await tester.pumpAndSettle();
 
       expect(find.byType(SetInstallationTimeline), findsOneWidget);
-      expect(find.byType(DropdownButtonFormField<Installation?>), findsNothing);
+      expect(find.byType(InstallationParentField), findsNWidgets(2), reason: 'one per timeline row, no simple field');
+    });
+
+    testWidgets('the simple parent picker suggests the timeline and switches the form to it', (WidgetTester tester) async {
+      await tester.runAsync(() async {
+        await appRepository.addBikes([
+          Bike(id: 'bike1', name: 'Trail', person: null),
+          Bike(id: 'bike2', name: 'Enduro', person: null),
+        ]);
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      });
+      final component = Component(
+        id: 'c1',
+        name: 'My Fork',
+        componentType: ComponentType.fork,
+        installations: [Installation.sinceBeginning(parent: 'bike1')],
+      );
+
+      await tester.pumpWidget(createWidgetUnderTest(component: component, mode: ComponentPageMode.edit));
+      await tester.pumpAndSettle();
+      expect(find.byType(SetInstallationTimeline), findsNothing);
+
+      await tester.tap(find.byType(InstallationParentField));
+      await tester.pumpAndSettle();
+      expect(find.text('Track installation history'), findsOneWidget);
+
+      await tester.ensureVisible(find.text('Activate Timeline'));
+      await tester.tap(find.text('Activate Timeline'));
+      await tester.pumpAndSettle();
+
+      expect(appSettings.enableInstallationTimeline, isTrue);
+      expect(find.text('Track installation history'), findsNothing);
+      expect(find.byType(SetInstallationTimeline), findsOneWidget);
+    });
+
+    testWidgets('the simple parent picker hides "ARCHIVED" while adding', (WidgetTester tester) async {
+      await tester.pumpWidget(createWidgetUnderTest(mode: ComponentPageMode.add));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(InstallationParentField));
+      await tester.pumpAndSettle();
+
+      expect(find.text('ARCHIVED'), findsNothing);
+      expect(find.text('UNINSTALLED'), findsWidgets);
     });
 
     testWidgets('displays "BIKE NOT FOUND" when initial bike is missing', (WidgetTester tester) async {
@@ -395,7 +441,17 @@ nodes:
         name: 'My Fork',
         componentType: ComponentType.fork,
         installations: const [],
-        adjustments: [BooleanAdjustment(name: 'rebound', notes: '', unit: null)],
+        adjustments: [
+          StepAdjustment(
+            name: 'rebound',
+            notes: '',
+            unit: null,
+            step: 1,
+            min: 0,
+            max: 20,
+            visualization: StepAdjustmentVisualization.slider,
+          ),
+        ],
         notes: 'Serial 123',
       );
       await tester.pumpWidget(createWidgetUnderTest(component: component, mode: ComponentPageMode.edit));
@@ -404,6 +460,8 @@ nodes:
       await tester.tap(find.text('Choose from catalog'));
       await tester.pumpAndSettle();
       await pickFoxFactory(tester);
+      await tester.tap(find.widgetWithText(FilledButton, 'Merge'));
+      await tester.pumpAndSettle();
 
       // Existing "rebound" matches the preset's "Rebound" by name → only SAG is added.
       expect(find.text('Linked to $presetName · 1 adjustment added'), findsOneWidget);
@@ -417,6 +475,8 @@ nodes:
       await tester.tap(find.widgetWithText(ListTile, presetName));
       await tester.pumpAndSettle();
       await pickFoxFactory(tester);
+      await tester.tap(find.widgetWithText(FilledButton, 'Merge'));
+      await tester.pumpAndSettle();
       expect(notesText(tester), 'Serial 123\n\n- Preset note');
     });
 
@@ -430,6 +490,7 @@ nodes:
           providers: [
             ChangeNotifierProvider.value(value: appSettings),
             ChangeNotifierProvider.value(value: appRepository),
+            ChangeNotifierProvider(create: (_) => AppHintService(appRepository: appRepository, appSettings: appSettings)),
             ChangeNotifierProvider<SubscriptionService>(create: (_) => SubscriptionService()),
             Provider<ComponentCatalogRepository>.value(value: presetRepository),
           ],
@@ -573,6 +634,7 @@ nodes:
           providers: [
             ChangeNotifierProvider.value(value: appSettings),
             ChangeNotifierProvider.value(value: appRepository),
+            ChangeNotifierProvider(create: (_) => AppHintService(appRepository: appRepository, appSettings: appSettings)),
             ChangeNotifierProvider<SubscriptionService>(create: (_) => SubscriptionService()),
             Provider<ComponentCatalogRepository>.value(value: presetRepository),
           ],

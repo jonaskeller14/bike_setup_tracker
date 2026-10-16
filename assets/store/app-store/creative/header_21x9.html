@@ -1,0 +1,69 @@
+<!doctype html>
+<!--
+  App Store product page header ("Kopfzeile"), 21:9, 3840×1646 PNG. Phase 1b of #69.
+  Notes and texts: README.md.
+
+  On iPhone only the center is visible (Apple's art safe area, 1097, 493, 1646×661), so the
+  headline sits there. The phones are decoration for the wider iPad and Mac crops and may be cut.
+
+  URL parameters (append in Chrome; the page reloads):
+    ?lang=de   German texts (default: English)
+    ?video     hide the front phone for the video variant (tool/marketing/build_kit.py)
+    ?safe      draw the art safe area
+
+  Render (Windows and macOS, repo root):
+    python tool/marketing/render_images.py appstore-header
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>App Store Header Asset</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&display=block" rel="stylesheet">
+<link rel="stylesheet" href="creative.css">
+<style>
+  html, body { width: 3840px; height: 1646px; }
+  .safe-area { left: 1097px; top: 493px; width: 1646px; height: 661px; }
+  h1 {
+    position: absolute;
+    left: 1097px; top: 493px;
+    width: 1646px; height: 661px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 175px;
+  }
+  html[lang="de"] h1 { font-size: 150px; }
+  .phone.back { left: 180px; top: 330px; transform: scale(.5) rotate(-6deg); }
+  .phone.front { left: 2990px; top: 300px; transform: scale(.5) rotate(6deg); }
+</style>
+</head>
+<body>
+  <div class="phone back">
+    <img class="screen" src="../iPhone-17-Pro-Max/03_raw.png" alt="">
+    <img class="frame" src="../iPhone-17-Pro-Max/frame.png" alt="">
+  </div>
+  <div class="phone front" data-video>
+    <img class="screen" src="../iPhone-17-Pro-Max/04_raw.png" alt="">
+    <img class="frame" src="../iPhone-17-Pro-Max/frame.png" alt="">
+  </div>
+  <h1 data-i18n="headline"></h1>
+  <div class="safe-area"></div>
+<script>
+  const strings = {
+    en: { headline: '<span>Never Lose Your <em>Suspension Sweet Spot</em></span>' },
+    de: { headline: '<span>Nie wieder den <em>Sweet Spot</em> deines Fahrwerks verlieren</span>' },
+  };
+  const params = new URLSearchParams(location.search);
+  const lang = params.get('lang') === 'de' ? 'de' : 'en';
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-i18n]').forEach((el) => {
+    el.innerHTML = strings[lang][el.dataset.i18n];
+  });
+  if (params.has('safe')) document.body.classList.add('show-safe');
+</script>
+<script src="../../../../docs/marketing/templates/template.js"></script>
+</body>
+</html>

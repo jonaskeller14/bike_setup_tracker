@@ -1,0 +1,62 @@
+# Example App Store preview: Garage -> Add Setup -> Setup History, under 30 s.
+# It proves that recording works; it is not a finished preview. Run it with
+# `run_ios.sh --preview`, which also turns on the touch dots.
+appId: ${APP_ID}
+---
+- runFlow: _launch.yaml
+- tapOn:
+    id: nav.bikes
+- waitForAnimationToEnd:
+    timeout: 5000
+- startRecording: preview_setup
+
+# Garage: expand the RockShox Lyrik Ultimate's detail card.
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+- tapOn:
+    id: garage.component.e47480ee-0f71-453e-bb97-61d2041d05f5
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+
+# Add Setup: name it, tag it and change one adjustment.
+- tapOn:
+    id: nav.setups
+- tapOn:
+    id: setups.add
+- extendedWaitUntil:
+    visible:
+      id: setupForm.name
+    timeout: 15000
+- tapOn:
+    id: setupForm.name
+- eraseText: 80
+- inputText: Finale Ligure - NATO Trail
+- tapOn:
+    id: setupForm.addTags
+- tapOn: Finale
+- tapOn: Trip
+- runFlow: _dismiss_sheet.yaml
+# Lyrik LSC (step slider): tapping the centre moves it to mid-range
+- scrollUntilVisible:
+    element:
+      id: setAdjustment.2fae94d6-16d2-4b79-ad4b-55f6b9fa6e1d
+    direction: DOWN
+- tapOn:
+    id: setAdjustment.2fae94d6-16d2-4b79-ad4b-55f6b9fa6e1d
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+
+# Setup History: saving returns to the timeline with the new setup on top.
+- tapOn:
+    id: setupForm.save
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 2500
+- stopRecording

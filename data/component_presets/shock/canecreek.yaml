@@ -32,9 +32,11 @@ sources:
   - https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DBKitsuma-Manual_2022_02_25_1_c25c4778-7d40-4977-a021-ac43a3c30070.pdf
   - https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB_owners-manual_2014_v11-web_8703fe9e-d4d7-4766-b7db-3350db90bbfb.pdf
   - https://cdn.shopify.com/s/files/1/0579/5987/4639/files/tfg_english_30a0cfe9-1830-4f4f-8436-09f3bfd14390.pdf
+  - https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DBair_air_volume_adjustment_cd87a217-3067-41a6-8e9a-0745b9e18c7b.pdf
+  - https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DBAir-IL-Dimensions_1_ad177c50-8668-4c5b-8cf3-71fbdd762323.pdf
   - https://singletrackworld.com/2020/09/your-suspension-is-set-up-wrong-cane-creeks-kitsuma-is-here-to-help-that/
   - https://www.pinkbike.com/news/Cane-Creek-DBair-CS-Tested-2013.html
-updated: 2026-10-07
+updated: 2026-10-13
 # Service intervals (`tasks`) come from each shock's manual (its `setup_guide`):
 # the current and G1 manuals service damper and air spring together every
 # 100 hours or annually. The 2014 Double Barrel manual gives the air spring
@@ -194,6 +196,133 @@ option_values:
         documented on that manual's "How CS Works" page, p. 21, which shows the
         two lever positions as ON and OFF for both DBinline and DBair CS.
 
+    db_inline:
+      name: Double Barrel Inline (Classic)
+      description: |-
+        - The original four-way Double Barrel damper in an inline body, plus the Climb Switch lever
+        - Low-speed compression and rebound run 18 clicks each; high-speed adjusters are continuous, 4.5 turns end to end
+      adjustments:
+        - { name: LSC, type: step, max: 18, notes: Low-Speed Compression, dialColor: grey, dialSize: small }
+        - { name: HSC, type: numerical, unit: turns, min: 0, max: 4.5, notes: "High-Speed Compression; Continuous (no clicks); counted from fully closed" }
+        - { name: LSR, type: step, max: 18, notes: Low-Speed Rebound, dialColor: grey, dialSize: small }
+        - { name: HSR, type: numerical, unit: turns, min: 0, max: 4.5, notes: "High-Speed Rebound; Continuous (no clicks); counted from fully closed" }
+        - { name: Climb Switch, type: categorical, options: ["Off", "On"], notes: "On engages climb mode (firmer low-speed damping)" }
+      source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/tfg_english_30a0cfe9-1830-4f4f-8436-09f3bfd14390.pdf
+      note: >-
+        Own id because the Tuning Field Guide's DBinline range bars run 0-18
+        clicks and 0-4.5 turns, against 25 clicks and 4 turns on the DBair CS
+        and DBcoil. The 2014 owner's manual range chart prints only the 25/4
+        scale. CS lever positions as on db_classic_cs.
+
+# --------------------------------------------------------------------------
+# Setup guides — the manuals' starting points as data (SCHEMA.md, "Setup
+# guides"), transcribed from docs/research/setup_guides/canecreek.md.
+#   * Air pressure: Cane Creek prints a share of the rider's weight in lb,
+#     read as psi, not a table; the rows are calculated from it at 5 kg steps.
+#   * No current or G1 manual prints damper starting clicks; only the classic
+#     Double Barrel's Tuning Field Guide has a factory base tune.
+#   * Coil spring rate: Cane Creek's formula (rear wheel travel / stroke x
+#     rider weight) needs the bike's rear travel, so no rule until bike-level
+#     inputs exist (#71). The coil preload windows (at least one turn, a
+#     stiffer spring past two or three) are limits, not starting points.
+# --------------------------------------------------------------------------
+guides:
+  canecreek_air_coil_il_g2_2025:
+    label: Cane Creek Air IL and Coil IL manual (2025)
+    source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB_IL_G2_Manual_2025_04_01.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        rows: {
+          50: 132, 55: 146, 60: 159, 65: 172, 70: 185,
+          75: 198, 80: 212, 85: 225, 90: 238, 95: 251,
+          100: 265, 105: 278, 110: 291, 115: 304, 120: 317
+        }
+        note: Calculated from Cane Creek's starting point (120 % of rider weight in lb, as psi); set the final pressure by SAG
+      - &canecreek_sag { target: sag, range: [25, 35], comfort_at: max, note: "Cane Creek starts at 30 %" }
+
+  canecreek_kitsuma_g2_2025:
+    label: Cane Creek Kitsuma manual (2025)
+    source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/Kitsuma_Manual_2025_04_01.pdf
+    rules:
+      - &canecreek_kitsuma_pressure
+        target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        rows: {
+          50: [83, 110], 55: [91, 121], 60: [99, 132], 65: [107, 143], 70: [116, 154],
+          75: [124, 165], 80: [132, 176], 85: [141, 187], 90: [149, 198], 95: [157, 209],
+          100: [165, 220], 105: [174, 231], 110: [182, 243], 115: [190, 254], 120: [198, 265]
+        }
+        note: Calculated from Cane Creek's starting point (75-100 % of rider weight in lb, as psi); set the final pressure by SAG
+      - *canecreek_sag
+      # Five volume spacer strips ship with the shock, but the manual doesn't
+      # say they are installed, so there is no factory count.
+
+  canecreek_tigon_2025:
+    label: Cane Creek Tigon manual and set-up procedure (2025)
+    source: https://www.canecreek.com/pages/tigon-set-up-procedure
+    rules:
+      - { target: ramp_tube_pressure, unit: psi, value: 0, note: "Set SAG and damping first, then add 5-10 psi at a time" }
+      - *canecreek_sag
+
+  canecreek_db_il_g1_2022:
+    label: Cane Creek DB Air IL and DBcoil IL manual (2022)
+    source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB-IL-Manual_2022_02_25_1_d8229608-3c4e-406c-bf6f-5b97afc6b6f8.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        rows: {
+          50: 110, 55: 121, 60: 132, 65: 143, 70: 154,
+          75: 165, 80: 176, 85: 187, 90: 198, 95: 209,
+          100: 220, 105: 231, 110: 243, 115: 254, 120: 265
+        }
+        note: Calculated from Cane Creek's starting point (psi = rider weight in lb); set the final pressure by SAG
+      - *canecreek_sag
+
+  canecreek_db_kitsuma_g1_2022:
+    label: Cane Creek DB Kitsuma manual (2022)
+    source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DBKitsuma-Manual_2022_02_25_1_c25c4778-7d40-4977-a021-ac43a3c30070.pdf
+    rules:
+      - *canecreek_kitsuma_pressure
+      - *canecreek_sag
+
+  canecreek_double_barrel_tfg:
+    label: Cane Creek Double Barrel Tuning Field Guide
+    source: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/tfg_english_30a0cfe9-1830-4f4f-8436-09f3bfd14390.pdf
+    # The factory base tune counts turns and clicks from fully open, so it is
+    # written as range references from the catalog's closed end. The guide's
+    # plain DBair tune has no catalog node.
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        rows: {
+          50: 90, 55: 101, 60: 112, 65: 123, 70: 134,
+          75: 145, 80: 156, 85: 167, 90: 178, 95: 189,
+          100: 200, 105: 211, 110: 223, 115: 234, 120: 245
+        }
+        note: Calculated from Cane Creek's starting point (rider weight with gear in lb, minus 20, as psi); set the final pressure by SAG
+      - { target: hsc, value: max-2, when: { damper: db_classic } }
+      - { target: lsc, value: max-12, when: { damper: db_classic } }
+      - { target: hsr, value: max-2, when: { damper: db_classic } }
+      - { target: lsr, value: max-12, when: { damper: db_classic } }
+      - { target: hsc, value: max-2, when: { damper: db_classic_cs } }
+      - { target: lsc, value: max-13, when: { damper: db_classic_cs } }
+      - { target: hsr, value: max-2, when: { damper: db_classic_cs } }
+      - { target: lsr, value: max-15, when: { damper: db_classic_cs } }
+      - { target: hsc, value: max-2, when: { damper: db_inline } }
+      - { target: lsc, value: max-7, when: { damper: db_inline } }
+      - { target: hsr, value: max-2, when: { damper: db_inline } }
+      - { target: lsr, value: max-10, when: { damper: db_inline } }
+      - { target: sag, range: [28, 33], comfort_at: max }
+
 # --------------------------------------------------------------------------
 # Shocks — current Cane Creek MTB lineup first, then the legacy generations
 # (G1 IL, G1 Kitsuma, classic Double Barrel), which Cane Creek still supports
@@ -210,6 +339,7 @@ nodes:
     years: "2025-2026"
     url: https://www.canecreek.com/products/air-il
     setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB_IL_G2_Manual_2025_04_01.pdf
+    guide: canecreek_air_coil_il_g2_2025
     specs: { spring: Air }
     note: For bikes with 100-140mm rear travel; ~385g. Lightest shock in the Cane Creek lineup.
     tasks: &canecreek_service
@@ -237,6 +367,7 @@ nodes:
     years: "2025-2026"
     url: https://www.canecreek.com/products/coil-il
     setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB_IL_G2_Manual_2025_04_01.pdf
+    guide: canecreek_air_coil_il_g2_2025
     specs: { spring: Coil }
     note: |-
       - ~280g without a spring
@@ -267,6 +398,7 @@ nodes:
     years: "2025-2026"
     url: https://www.canecreek.com/products/kitsuma-g2-air
     setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/Kitsuma_Manual_2025_04_01.pdf
+    guide: canecreek_kitsuma_g2_2025
     specs: { spring: Air }
     note: "~585g. \"Gravity-first\" shock for long-travel trail/enduro/DH bikes; 2nd generation (G2)."
     tasks: *canecreek_service
@@ -276,6 +408,7 @@ nodes:
         specs: { mount: Standard }
         adjustments: &kitsuma_g2_air_spring
           - { name: Pressure, type: numerical, unit: psi, min: 50, max: 300, notes: "50 psi minimum, 300 psi maximum; Cane Creek recommends 25-35% sag" }
+          - { name: Volume Spacers, type: step, max: 11, visualization: stepper, notes: "Single-width strips, 5 included with the shock. Maximum depends on the size: 185, 205, 210 and 230 mm 9, 225 and 250 mm 11" }
         options:
           damper: [kitsuma_g2]
           size: ["210x50", "210x52.5", "210x55", "230x57.5", "230x60", "230x62.5", "230x65", "250x70", "250x75"]
@@ -293,6 +426,7 @@ nodes:
     years: "2025-2026"
     url: https://www.canecreek.com/products/kisuma-g2-coil
     setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/Kitsuma_Manual_2025_04_01.pdf
+    guide: canecreek_kitsuma_g2_2025
     specs: { spring: Coil }
     note: ~417g without spring; 2nd generation (G2).
     tasks: *canecreek_service
@@ -320,16 +454,20 @@ nodes:
     years: "2025-2026"
     url: https://www.canecreek.com/products/tigon
     setup_guide: https://www.canecreek.com/pages/tigon-set-up-procedure
+    guide: canecreek_tigon_2025
     tasks: *canecreek_service
     specs: { spring: Coil }
-    mounts: [Standard, Trunnion]
     adjustments:
-      - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0, notes: Cane Creek VALT linear coil spring only — not compatible with progressive or third-party springs }
+      - { name: Spring Rate, type: numerical, unit: lbs/in, min: 350, max: 650, notes: Cane Creek VALT linear coil spring only — not compatible with progressive or third-party springs }
       - { name: Preload, type: numerical, unit: turns, min: 1, max: 6, notes: "Set sag with 0 psi in the RAMP Tube; keep at least 1 full turn engaged, 6 turns maximum" }
       - { name: RAMP Tube Pressure, type: numerical, unit: psi, min: 0, max: 30, notes: "Air-assist chamber that adds mid-stroke/end-stroke support alongside the VALT coil spring, independent of coil preload. Add in 5-10psi increments." }
     options:
       damper: [tigon_damper]
-      size: ["185x50", "185x52.5", "185x55", "205x60", "205x62.5", "205x65", "210x50", "210x52.5", "210x55", "230x60", "230x62.5", "230x65"]
+      size:
+        - { size: "185x50/52.5/55", mount: Trunnion }
+        - { size: "205x60/62.5/65", mount: Trunnion }
+        - { size: "210x50/52.5/55", mount: Standard }
+        - { size: "230x60/62.5/65", mount: Standard }
     note: |-
       - "Air-charged coil": a RAMP Tube air spring supplements the coil spring for tunable progression
       - 441g in the 210 size, without a spring
@@ -341,6 +479,7 @@ nodes:
     category: Trail / Enduro
     url: https://www.canecreek.com/pages/legacy-products-product-support
     setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB-IL-Manual_2022_02_25_1_d8229608-3c4e-406c-bf6f-5b97afc6b6f8.pdf
+    guide: canecreek_db_il_g1_2022
     tasks: *canecreek_service
     specs: { spring: Air }
     mounts: [Standard, Trunnion]
@@ -360,6 +499,7 @@ nodes:
     category: Trail / Enduro
     url: https://www.canecreek.com/pages/legacy-products-product-support
     setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB-IL-Manual_2022_02_25_1_d8229608-3c4e-406c-bf6f-5b97afc6b6f8.pdf
+    guide: canecreek_db_il_g1_2022
     tasks: *canecreek_service
     specs: { spring: Coil }
     mounts: [Standard, Trunnion]
@@ -375,6 +515,7 @@ nodes:
     category: Enduro / Downhill
     url: https://www.canecreek.com/blogs/journal/introducing-db-kitsuma
     setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DBKitsuma-Manual_2022_02_25_1_c25c4778-7d40-4977-a021-ac43a3c30070.pdf
+    guide: canecreek_db_kitsuma_g1_2022
     tasks: *canecreek_service
     specs: { spring: Air }
     # Manual: cdn.shopify.com/.../DBKitsuma-Manual_2022_02_25_1_...pdf
@@ -394,6 +535,7 @@ nodes:
     category: Enduro / Downhill
     url: https://www.canecreek.com/blogs/journal/introducing-db-kitsuma
     setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DBKitsuma-Manual_2022_02_25_1_c25c4778-7d40-4977-a021-ac43a3c30070.pdf
+    guide: canecreek_db_kitsuma_g1_2022
     tasks: *canecreek_service
     specs: { spring: Coil }
     adjustments:
@@ -416,6 +558,7 @@ nodes:
     years: "2014-2019"
     url: https://www.canecreek.com/pages/legacy-products-product-support
     setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB_owners-manual_2014_v11-web_8703fe9e-d4d7-4766-b7db-3350db90bbfb.pdf
+    guide: canecreek_double_barrel_tfg
     specs: { spring: Air }
     note: |-
       - The Double Barrel packed into an inline body, no piggyback reservoir
@@ -433,13 +576,14 @@ nodes:
         adjustments:
           - { name: Pressure, type: numerical, unit: psi, min: 0 }
         options:
-          damper: [db_classic_cs]
+          damper: [db_inline]
 
   - label: "DB Air CS"
     level: model
     category: Trail / Enduro
     url: https://www.canecreek.com/pages/legacy-products-product-support
     setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB_owners-manual_2014_v11-web_8703fe9e-d4d7-4766-b7db-3350db90bbfb.pdf
+    guide: canecreek_double_barrel_tfg
     specs: { spring: Air }
     tasks: *double_barrel_air_service
     children:
@@ -460,6 +604,7 @@ nodes:
     category: Enduro / Downhill
     url: https://www.canecreek.com/pages/legacy-products-product-support
     setup_guide: https://cdn.shopify.com/s/files/1/0579/5987/4639/files/DB_owners-manual_2014_v11-web_8703fe9e-d4d7-4766-b7db-3350db90bbfb.pdf
+    guide: canecreek_double_barrel_tfg
     specs: { spring: Coil }
     note: Piggyback coil Double Barrel, four-way adjustable, without a Climb Switch lever.
     tasks:
@@ -479,8 +624,15 @@ nodes:
 #   - Legacy eye-to-eye / stroke options: DB Kitsuma G1 Air and Coil sizes (with
 #     per-size mounts) are read off the variant list of their canecreek.com
 #     product pages. DB Air IL G1, DBcoil IL G1, DB Inline, DB Air CS and DBcoil
-#     have no product page, and their dimension drawings and manuals only say
-#     "refer to owner's manual" without listing sizes, so no `size` axis is declared.
+#     have no product page, and their manuals and dimension drawings only say
+#     "refer to owner's manual" without listing sizes, so no `size` axis is
+#     declared. Retailer listings show only a few DBair IL / DBcoil IL sizes
+#     (165x42.5, 185x50, 185x52.5, 200x50), which is not enough to list.
+#   - Volume spacers: only the Kitsuma G2 manual states a maximum (9 or 11
+#     single-width strips by size). The Air IL G2, DB Air IL G1 and DB Kitsuma G1
+#     manuals explain installing volume reducers but state no count, and the
+#     2014 Double Barrel manual never states how many its air can accepts, so no
+#     Volume Spacers adjustment is generated for them.
 #   - Setup guides: Tigon links Cane Creek's set-up procedure page; every other
 #     shock links its instruction manual. No dial colours are stated in text.
 #   - Legacy production year ranges: Cane Creek publishes none except the
@@ -489,9 +641,6 @@ nodes:
 #     entries rather than estimated. The DB Air IL/DBcoil IL G1 manual and the
 #     DB Kitsuma G1 manual are both revision 02/25/2022, which dates the
 #     generation but not its start or end.
-#   - Classic Double Barrel air-volume spacers: the 2014 manual explains how
-#     to add and remove them but never states how many the can accepts, so no
-#     Volume Spacers adjustment is generated for DB Inline / DB Air CS.
 #   - Classic Double Barrel air pressure: the 2014 manual gives no minimum or
 #     maximum in a spec table (the 200 psi figure on p. 3 is part of a
 #     stuck-down troubleshooting procedure, not a pressure limit), so those
@@ -500,6 +649,10 @@ nodes:
 #     are separate SKUs on Cane Creek's legacy support page. They share the
 #     classic Double Barrel damper ranges but were not added as their own
 #     models; the XV difference is noted on the DB Air CS trim instead.
+#
+# Tigon (2026-10-10): the manual's spring chart gives 350-650 lbs/in and ties
+# the mount to the eye-to-eye length (210 and 230 Standard, 185 and 205
+# Trunnion), so sizes now carry their mount.
 #
 # Resolved 2026-09-10 (all against official Cane Creek PDF manuals):
 #   - Every current-lineup click count now comes from a printed manual rather

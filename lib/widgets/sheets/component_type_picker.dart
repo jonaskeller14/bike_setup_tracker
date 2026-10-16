@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import '../../models/component/component.dart';
 import '../../theme.dart';
+import '../../utils/automation_ids.dart';
 import '../text/sheet_section_title.dart';
 import 'sheet_header.dart';
 
@@ -169,6 +170,11 @@ class _TypeChip extends StatelessWidget {
       onSelected: (_) => onTap(),
     );
 
-    return isPrevious ? Tooltip(message: 'Previous value', child: chip) : chip;
+    final identified = Semantics(
+      container: true,
+      identifier: AutomationIds.componentType(componentType.name),
+      child: chip,
+    );
+    return isPrevious ? Tooltip(message: 'Previous value', child: identified) : identified;
   }
 }

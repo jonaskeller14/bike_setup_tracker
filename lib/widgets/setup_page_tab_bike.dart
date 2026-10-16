@@ -3,9 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../models/adjustment/adjustment.dart';
+import '../models/bike.dart';
 import '../models/component/component.dart';
+import '../models/component/component_ancestor.dart';
 import '../services/dangling_adjustment_service.dart';
 import '../utils/component_actions.dart';
+import 'component_ancestors_column.dart';
 import 'display_adjustment/display_adjustment_list.dart';
 import 'empty_state_placeholder2.dart';
 import 'items/card_header_tile.dart';
@@ -17,6 +20,8 @@ class SetupBikeTab extends StatefulWidget {
   final String bike;
   final List<Component> bikeComponents;
   final Map<String, Component> allComponents;
+  final Map<String, Bike> bikes;
+  final List<ComponentAncestor> Function(String componentId) ancestorsOf;
   final Map<String, AdjustmentValue> bikeAdjustmentValues;
   final Map<String, AdjustmentValue> previousBikeAdjustmentValues;
   final Map<String, AdjustmentValue> initialBikeAdjustmentValues;
@@ -27,11 +32,17 @@ class SetupBikeTab extends StatefulWidget {
   final Future<void> Function({required CategoricalAdjustment adjustment, required String option})? onAddCategoricalOption;
   final Widget? header;
 
+  /// Changes when [bikeAdjustmentValues] were written from outside the fields,
+  /// so they re-read them.
+  final int valuesRevision;
+
   const SetupBikeTab({
     super.key,
     required this.bike,
     required this.bikeComponents,
     required this.allComponents,
+    required this.bikes,
+    required this.ancestorsOf,
     required this.bikeAdjustmentValues,
     required this.previousBikeAdjustmentValues,
     required this.initialBikeAdjustmentValues,
@@ -41,6 +52,7 @@ class SetupBikeTab extends StatefulWidget {
     required this.onDanglingRemove,
     this.onAddCategoricalOption,
     this.header,
+    this.valuesRevision = 0,
   });
 
   @override
@@ -97,6 +109,7 @@ class _SetupBikeTabState extends State<SetupBikeTab> {
       danglingValues: widget.danglingBikeAdjustmentValues,
       components: widget.allComponents.values,
     );
+    final mutedColor = Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8);
 
     return SetupTabScaffold(
       showLegend: widget.bikeComponents.isNotEmpty || widget.danglingBikeAdjustmentValues.isNotEmpty,
@@ -106,6 +119,7 @@ class _SetupBikeTabState extends State<SetupBikeTab> {
           _buildEmptyComponentsPlaceholder(context, widget.bike),
         ] else ...[
           ...widget.bikeComponents.map((bikeComponent) {
+            final ancestors = widget.ancestorsOf(bikeComponent.id);
             return Card(
               margin: const EdgeInsets.symmetric(vertical: 4),
               clipBehavior: Clip.antiAlias,
@@ -116,12 +130,26 @@ class _SetupBikeTabState extends State<SetupBikeTab> {
                     color: Theme.of(context).colorScheme.surfaceContainerHighest,
                     child: ListTile(
                       title: Text(bikeComponent.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Text(Intl.plural(
-                        bikeComponent.adjustments.length,
-                        zero: "No adjustments yet.",
-                        one: "1 adjustment",
-                        other: '${bikeComponent.adjustments.length} adjustments',
-                      )),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (ancestors.isNotEmpty)
+                            ComponentAncestorsColumn(
+                              ancestors: ancestors,
+                              bikes: widget.bikes,
+                              iconSize: 12,
+                              spacing: 2,
+                              textStyle: TextStyle(color: mutedColor, fontSize: 12),
+                            ),
+                          Text(Intl.plural(
+                            bikeComponent.adjustments.length,
+                            zero: "No adjustments yet.",
+                            one: "1 adjustment",
+                            other: '${bikeComponent.adjustments.length} adjustments',
+                          )),
+                        ],
+                      ),
                       leading: ComponentTooltip(
                         component: bikeComponent,
                         triggerMode: TooltipTriggerMode.tap,
@@ -141,7 +169,11 @@ class _SetupBikeTabState extends State<SetupBikeTab> {
                     ),
                   ),
                   AdjustmentSetList(
-                    key: ValueKey(Object.hash(bikeComponent.id, Object.hashAll(widget.previousBikeAdjustmentValues.values))),
+                    key: ValueKey(Object.hash(
+                      bikeComponent.id,
+                      Object.hashAll(widget.previousBikeAdjustmentValues.values),
+                      widget.valuesRevision,
+                    )),
                     adjustments: bikeComponent.adjustments,
                     initialAdjustmentValues: widget.previousBikeAdjustmentValues,
                     adjustmentValues: widget.bikeAdjustmentValues,

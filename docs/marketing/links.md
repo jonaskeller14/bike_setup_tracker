@@ -4,7 +4,7 @@ One tagged link per channel, so installs can be attributed (Phase 0 of #69).
 
 - **iOS** results: App Store Connect → App Analytics → Acquisition → Campaigns (by `ct`). Apple only reports a campaign once it has enough users (privacy threshold).
 - **Android** results: Play Console → Store listing acquisition → UTM-tagged traffic (by `utm_source`); Firebase records the campaign on `first_open`.
-- **Smart link** (one URL that picks the right store): pending, see Phase 5 of #69. Until it exists, post both links or the website.
+- **Smart link** (one URL that picks the right store): `https://jonaskeller14.com/bike_setup_tracker/get?c=<channel>` on the website (Phase 5 of #69). Phones go straight to their store with `ct=<channel>` (iOS) or `utm_source=<channel>&utm_medium=smartlink` (Android); desktops see both badges, tagged the same way. Any lowercase id works, but use one from the tables below so results stay comparable.
 - New channel: copy a row, pick a lowercase `kebab-case` id (≤40 chars), and use it in both URLs.
 
 ## Own pages
@@ -12,6 +12,7 @@ One tagged link per channel, so installs can be attributed (Phase 0 of #69).
 | Channel | Used for | iOS | Android |
 |---|---|---|---|
 | `website` | jonaskeller14.com landing page badges | [App Store](https://apps.apple.com/app/apple-store/id6759974325?pt=128610953&ct=website&mt=8) | [Google Play](https://play.google.com/store/apps/details?id=com.jonaskeller14.bike_setup_tracker&referrer=utm_source%3Dwebsite%26utm_medium%3Dweb) |
+| `website-qr` | QR code on the landing page (desktop visitors), via the smart link | [App Store](https://apps.apple.com/app/apple-store/id6759974325?pt=128610953&ct=website-qr&mt=8) | [Google Play](https://play.google.com/store/apps/details?id=com.jonaskeller14.bike_setup_tracker&referrer=utm_source%3Dwebsite-qr%26utm_medium%3Dsmartlink) |
 | `github-readme` | GitHub README badges | [App Store](https://apps.apple.com/app/apple-store/id6759974325?pt=128610953&ct=github-readme&mt=8) | [Google Play](https://play.google.com/store/apps/details?id=com.jonaskeller14.bike_setup_tracker&referrer=utm_source%3Dgithub-readme%26utm_medium%3Dweb) |
 
 ## YouTube
@@ -68,4 +69,5 @@ One tagged link per channel, so installs can be attributed (Phase 0 of #69).
 ```
 https://apps.apple.com/app/apple-store/id6759974325?pt=128610953&ct=<channel>&mt=8
 https://play.google.com/store/apps/details?id=com.jonaskeller14.bike_setup_tracker&referrer=utm_source%3D<channel>%26utm_medium%3D<web|video|social|forum|directory>
+https://jonaskeller14.com/bike_setup_tracker/get?c=<channel>    (smart link; Android medium is always smartlink)
 ```

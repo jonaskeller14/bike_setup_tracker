@@ -1,0 +1,53 @@
+# Demo: the Hightower's setup history, then its newest setup compared with
+# the one before.
+appId: ${APP_ID}
+---
+- runFlow: _launch.yaml
+- tapOn:
+    id: nav.bikes
+# Santa Cruz Hightower: double-tap sets the bike filter
+- doubleTapOn:
+    id: garage.bike.93f93d45-3a56-43ae-8936-5cfcbd768c9b
+- tapOn:
+    id: nav.setups
+- waitForAnimationToEnd:
+    timeout: 5000
+- startRecording: demo_setup_history
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+
+# Slow drags read as scrolling instead of a jump.
+- swipe:
+    start: 50%, 75%
+    end: 50%, 30%
+    duration: 2500
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+- swipe:
+    start: 50%, 30%
+    end: 50%, 80%
+    duration: 1500
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Hometrails - back to neutral: compare it with the setup before.
+- tapOn:
+    id: setup.actions.7bd910e8-e09f-4168-9217-e0583bbbdcdd
+- tapOn:
+    id: setup.compare
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 2000
+- swipe:
+    start: 50%, 80%
+    end: 50%, 35%
+    duration: 2000
+- runFlow:
+    file: _stop_recording.yaml
+    env:
+      MS: 2500

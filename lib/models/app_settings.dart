@@ -4,9 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:units_converter/units_converter.dart';
 
+import 'component/component.dart';
+
 class AppSettings extends ChangeNotifier {
   static const String _kPrefix = 'app_settings.';
   static const String _kLegacyBlobKey = 'app_settings';
+  static const String kFiltersKey = '${_kPrefix}filters';
 
   bool _showOnboarding = true;
   ThemeMode _themeMode = ThemeMode.system;
@@ -42,13 +45,17 @@ class AppSettings extends ChangeNotifier {
   bool _enableSetupBookmark = false;
   bool _enableComponentPresets = false;
   bool _enableTaskPresets = false;
+  bool _enableSetupGuides = false;
   bool _enableInstallOnComponent = false;
   bool _enablePressureAssistant = false;
+  int _pressureCheckThresholdPercent = 3;
+  Set<ComponentType> _pressureCheckHiddenComponentTypes = const {};
   // Setup timeline grouping passes (debug-only, see FeaturesPage)
   bool _enableTimelineSetupGrouping = false;
   bool _enableTimelineReplacementDetection = true;
   bool _enableTimelineStravaContext = false;
   int _firstDayOfWeek = DateTime.monday; // 1 = Monday … 7 = Sunday
+  bool _rememberFilters = true;
 
   bool get showOnboarding => _showOnboarding;
   ThemeMode get themeMode => _themeMode;
@@ -87,12 +94,17 @@ class AppSettings extends ChangeNotifier {
   // Requires component presets; the stored choice survives toggling them off and on.
   bool get enableTaskPresets => _enableTaskPresets && _enableComponentPresets;
   bool get showTaskPresets => _enableTask && _enableTaskInterval && enableTaskPresets;
+  bool get enableSetupGuides => _enableSetupGuides && _enableComponentPresets;
   bool get enableInstallOnComponent => _enableInstallOnComponent;
   bool get enablePressureAssistant => _enablePressureAssistant;
+  int get pressureCheckThresholdPercent => _pressureCheckThresholdPercent;
+  double get pressureCheckThreshold => _pressureCheckThresholdPercent / 100;
+  Set<ComponentType> get pressureCheckHiddenComponentTypes => _pressureCheckHiddenComponentTypes;
   bool get enableTimelineSetupGrouping => _enableTimelineSetupGrouping;
   bool get enableTimelineReplacementDetection => _enableTimelineReplacementDetection;
   bool get enableTimelineStravaContext => _enableTimelineStravaContext;
   int get firstDayOfWeek => _firstDayOfWeek;
+  bool get rememberFilters => _rememberFilters;
 
   set showOnboarding(bool newShowOnboarding) {
     if (_showOnboarding == newShowOnboarding) return;
@@ -325,6 +337,13 @@ class AppSettings extends ChangeNotifier {
     _persistBool('enableTaskPresets', newValue);
   }
 
+  set enableSetupGuides(bool newValue) {
+    if (newValue == _enableSetupGuides) return;
+    _enableSetupGuides = newValue;
+    notifyListeners();
+    _persistBool('enableSetupGuides', newValue);
+  }
+
   set enableInstallOnComponent(bool newValue) {
     if (newValue == _enableInstallOnComponent) return;
     _enableInstallOnComponent = newValue;
@@ -337,6 +356,20 @@ class AppSettings extends ChangeNotifier {
     _enablePressureAssistant = newValue;
     notifyListeners();
     _persistBool('enablePressureAssistant', newValue);
+  }
+
+  set pressureCheckThresholdPercent(int newValue) {
+    if (newValue == _pressureCheckThresholdPercent) return;
+    _pressureCheckThresholdPercent = newValue;
+    notifyListeners();
+    _persistInt('pressureCheckThresholdPercent', newValue);
+  }
+
+  set pressureCheckHiddenComponentTypes(Set<ComponentType> newValue) {
+    if (setEquals(newValue, _pressureCheckHiddenComponentTypes)) return;
+    _pressureCheckHiddenComponentTypes = Set.unmodifiable(newValue);
+    notifyListeners();
+    _persistStringList('pressureCheckHiddenComponentTypes', newValue.map((type) => type.name).toList());
   }
 
   set enableTimelineSetupGrouping(bool newValue) {
@@ -367,6 +400,13 @@ class AppSettings extends ChangeNotifier {
     _persistInt('firstDayOfWeek', newValue);
   }
 
+  set rememberFilters(bool newValue) {
+    if (newValue == _rememberFilters) return;
+    _rememberFilters = newValue;
+    notifyListeners();
+    _persistBool('rememberFilters', newValue);
+  }
+
   void _persistBool(String name, bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('$_kPrefix$name', value);
@@ -380,6 +420,11 @@ class AppSettings extends ChangeNotifier {
   void _persistInt(String name, int value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('$_kPrefix$name', value);
+  }
+
+  void _persistStringList(String name, List<String> value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('$_kPrefix$name', value);
   }
 
   Future<void> loadAppSettings() async {
@@ -429,8 +474,17 @@ class AppSettings extends ChangeNotifier {
       _enableSetupBookmark = prefs.getBool('${_kPrefix}enableSetupBookmark') ?? _enableSetupBookmark;
       _enableComponentPresets = prefs.getBool('${_kPrefix}enableComponentPresets') ?? _enableComponentPresets;
       _enableTaskPresets = prefs.getBool('${_kPrefix}enableTaskPresets') ?? _enableTaskPresets;
+      _enableSetupGuides = prefs.getBool('${_kPrefix}enableSetupGuides') ?? _enableSetupGuides;
       _enableInstallOnComponent = prefs.getBool('${_kPrefix}enableInstallOnComponent') ?? _enableInstallOnComponent;
       _enablePressureAssistant = prefs.getBool('${_kPrefix}enablePressureAssistant') ?? _enablePressureAssistant;
+      _pressureCheckThresholdPercent =
+          prefs.getInt('${_kPrefix}pressureCheckThresholdPercent') ?? _pressureCheckThresholdPercent;
+      final hiddenPressureCheckTypes = prefs.getStringList('${_kPrefix}pressureCheckHiddenComponentTypes');
+      if (hiddenPressureCheckTypes != null) {
+        _pressureCheckHiddenComponentTypes = Set.unmodifiable(
+          ComponentType.values.where((type) => hiddenPressureCheckTypes.contains(type.name)),
+        );
+      }
       _enableTimelineSetupGrouping =
           prefs.getBool('${_kPrefix}enableTimelineSetupGrouping') ?? _enableTimelineSetupGrouping;
       _enableTimelineReplacementDetection =
@@ -438,6 +492,7 @@ class AppSettings extends ChangeNotifier {
       _enableTimelineStravaContext =
           prefs.getBool('${_kPrefix}enableTimelineStravaContext') ?? _enableTimelineStravaContext;
       _firstDayOfWeek = prefs.getInt('${_kPrefix}firstDayOfWeek') ?? _firstDayOfWeek;
+      _rememberFilters = prefs.getBool('${_kPrefix}rememberFilters') ?? _rememberFilters;
     } catch (e, st) {
       debugPrint("ERROR loading App Settings: $e\n$st");
       rethrow;
@@ -484,12 +539,16 @@ class AppSettings extends ChangeNotifier {
     _enableSetupBookmark = defaults._enableSetupBookmark;
     _enableComponentPresets = defaults._enableComponentPresets;
     _enableTaskPresets = defaults._enableTaskPresets;
+    _enableSetupGuides = defaults._enableSetupGuides;
     _enableInstallOnComponent = defaults._enableInstallOnComponent;
     _enablePressureAssistant = defaults._enablePressureAssistant;
+    _pressureCheckThresholdPercent = defaults._pressureCheckThresholdPercent;
+    _pressureCheckHiddenComponentTypes = defaults._pressureCheckHiddenComponentTypes;
     _enableTimelineSetupGrouping = defaults._enableTimelineSetupGrouping;
     _enableTimelineReplacementDetection = defaults._enableTimelineReplacementDetection;
     _enableTimelineStravaContext = defaults._enableTimelineStravaContext;
     _firstDayOfWeek = defaults._firstDayOfWeek;
+    _rememberFilters = defaults._rememberFilters;
     defaults.dispose();
     notifyListeners();
   }
@@ -531,12 +590,17 @@ class AppSettings extends ChangeNotifier {
     _enableSetupBookmark,
     _enableComponentPresets,
     _enableTaskPresets,
+    _enableSetupGuides,
     _enableInstallOnComponent,
     _enablePressureAssistant,
+    _pressureCheckThresholdPercent,
+    // Sets compare by identity, so compare the sorted type names instead.
+    (_pressureCheckHiddenComponentTypes.map((type) => type.name).toList()..sort()).join(','),
     _enableTimelineSetupGrouping,
     _enableTimelineReplacementDetection,
     _enableTimelineStravaContext,
     _firstDayOfWeek,
+    _rememberFilters,
   ];
 
   /// Migrates the pre-existing monolithic `app_settings` JSON blob to per-key

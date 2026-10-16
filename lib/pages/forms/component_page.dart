@@ -25,17 +25,20 @@ import '../../utils/component_catalog_application.dart';
 import '../../utils/component_catalog_search.dart';
 import '../../utils/component_preset_resolver.dart';
 import '../../utils/installation_timeline_validation.dart';
+import '../../utils/preset_merge.dart';
 import '../../widgets/app_snackbar.dart';
 import '../../widgets/attachment_strip.dart';
 import '../../widgets/dialogs/apply_preset_adjustments.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/empty_state_placeholder2.dart';
+import '../../widgets/installation_parent_field.dart';
 import '../../widgets/lists/adjustment_edit_list.dart';
 import '../../widgets/preset_catalog_card.dart';
 import '../../widgets/set_installation_timeline.dart';
 import '../../widgets/sheets/component_add_adjustment.dart';
 import '../../widgets/sheets/component_catalog_picker.dart';
 import '../../widgets/sheets/component_type_picker.dart';
+import '../../widgets/sheets/preset_merge_sheet.dart';
 import '../../widgets/sheets/set_initial_stats.dart';
 import '../../widgets/text/section_title.dart';
 import '../adjustment/boolean_adjustment_page.dart';
@@ -436,15 +439,31 @@ class _ComponentPageState extends State<ComponentPage> {
     _showPresetUndoSnackBar('Filled from ${app.name}', snapshot);
   }
 
-  /// Edit mode only extends: setups store values by adjustment id, so saved
-  /// adjustments are never replaced; the name stays the user's and the preset
-  /// notes are appended (a re-pick swaps the block the previous pick appended).
-  void _extendFromPreset(ResolvedPreset resolved, CatalogApplication app) {
-    final snapshot = _snapshot();
+  /// Edit mode extends: setups store values by adjustment id, so the rider
+  /// decides in the merge sheet whether saved adjustments merge with the catalog
+  /// adjusters or are replaced; the name stays the user's and the preset notes
+  /// are appended (a re-pick swaps the block the previous pick appended).
+  Future<void> _extendFromPreset(ResolvedPreset resolved, CatalogApplication app) async {
     // Only what an earlier pick in this session added is dropped — it was never saved.
     final kept = _adjustments.where((a) => !_presetAdjustmentIds.contains(a.id)).toList();
-    final keptNames = {for (final a in kept) a.name.trim().toLowerCase()};
-    final added = app.adjustments.where((a) => !keptNames.contains(a.name.trim().toLowerCase())).toList();
+    var merge = applyPresetMerge(kept, [for (final a in app.adjustments) PresetMergeRow.newAdjustment(a)], const {});
+    if (kept.isNotEmpty) {
+      final recordedValues = convertRecordedValues(
+        context.read<AppRepository>().recordedAdjustmentValues({for (final a in kept) a.id}),
+        _pendingConversions,
+      );
+      final confirmed = await showPresetMergeSheet(
+        context,
+        productName: app.name,
+        existing: kept,
+        proposal: proposePresetMerge(kept, app.adjustments),
+        recordedValues: recordedValues,
+      );
+      if (confirmed == null || !mounted) return;
+      merge = confirmed;
+    }
+    final added = merge.newAdjustments;
+    final snapshot = _snapshot();
     final previousBlock = _appendedPresetNotes;
     final keptNotes = (previousBlock == null ? _notesController.text : _notesController.text.replaceFirst(previousBlock, '')).trimRight();
     final appendNotes = app.notes.isNotEmpty && !keptNotes.contains(app.notes);
@@ -459,14 +478,14 @@ class _ComponentPageState extends State<ComponentPage> {
       _preset = app.preset;
       _resolvedPreset = resolved;
       _presetAdjustmentIds = {for (final a in added) a.id};
-      _adjustments = [...kept, ...added];
+      _adjustments = merge.adjustments;
     });
     _adjustmentsFieldNotify?.call();
     _changeListener();
     _showPresetUndoSnackBar(
-      Intl.plural(
+      merge.removed.isNotEmpty ? 'Replaced adjustments with ${app.name}' : Intl.plural(
         added.length,
-        zero: 'Linked to ${app.name} · all adjustments already exist',
+        zero: 'Linked to ${app.name} · no adjustments added',
         one: 'Linked to ${app.name} · 1 adjustment added',
         other: 'Linked to ${app.name} · ${added.length} adjustments added',
       ),
@@ -872,96 +891,40 @@ class _ComponentPageState extends State<ComponentPage> {
     );
   }
 
-  Widget _bikesDropdownField({required Map<String, Bike> bikes}) {
-    final lastInstallation = _installations.lastOrNull;
-    return DropdownButtonFormField<Installation?>(
-      initialValue: lastInstallation,
-      isExpanded: true,
+  Widget _parentField({required Map<String, Bike> bikes, required AppRepository appRepository}) {
+    final isEdit = widget.mode == ComponentPageMode.edit;
+    return FormField<Installation>(
       autovalidateMode: AutovalidateMode.onUserInteraction,
-      decoration: InputDecoration(
-        labelText: 'Bike',
-        border: const OutlineInputBorder(),
-        hintText: "Choose a bike for this component",
-        helperText: lastInstallation?.parentType == InstallationParentType.none ? "WARNING: Select Bike to install Component." : null,
-        fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
-        filled: widget.mode == ComponentPageMode.edit && lastInstallation != _initialInstallations.lastOrNull,
-      ),
-      validator: (Installation? newInstallation) {
-        if (newInstallation is BikeInstallation && !bikes.containsKey(newInstallation.bikeId)) {
+      validator: (_) {
+        final current = _installations.lastOrNull;
+        if (current is BikeInstallation && !bikes.containsKey(current.bikeId)) {
           return "Please select valid bike";
         }
         return null;
       },
-      items: [
-        ...bikes.values.map((b) {
-          final matchingInstallation = lastInstallation is BikeInstallation && lastInstallation.bikeId == b.id
-              ? lastInstallation
-              : BikeInstallation(
-                  bikeId: b.id,
-                  dateTimeUTC: DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
-                  dateTimeLocal: DateTime.fromMillisecondsSinceEpoch(0, isUtc: false),
-                );
-          return DropdownMenuItem<Installation?>(
-            value: matchingInstallation,
-            child: Row(
-              spacing: 8,
-              children: [
-                const Icon(Bike.iconData),
-                Expanded(child: Text(b.name, overflow: TextOverflow.ellipsis))
-              ],
-            ),
-          );
-        }),
-        DropdownMenuItem<Installation?>(
-          value: lastInstallation is Uninstallation ? lastInstallation : Uninstallation(
-            dateTimeUTC: DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
-            dateTimeLocal: DateTime.fromMillisecondsSinceEpoch(0, isUtc: false),
-          ),
-          child: const Row(
-            spacing: 8,
-            children: [
-              Icon(Icons.shelves),
-              Expanded(child: Text("NOT INSTALLED", overflow: TextOverflow.ellipsis))
-            ],
-          ),
-        ),
-        if (widget.mode != ComponentPageMode.add)
-          DropdownMenuItem<Installation?>(
-            value: lastInstallation is Archival ? lastInstallation : Archival(
-              dateTimeUTC: DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
-              dateTimeLocal: DateTime.fromMillisecondsSinceEpoch(0, isUtc: false),
-            ),
-            child: const Row(
-              spacing: 8,
-              children: [
-                Icon(Icons.inventory_2_outlined),
-                Expanded(child: Text("ARCHIVED", overflow: TextOverflow.ellipsis))
-              ],
-            ),
-          ),
-        if (lastInstallation is BikeInstallation && !bikes.containsKey(lastInstallation.bikeId))
-          DropdownMenuItem<Installation?>(
-            value: lastInstallation,
-            child: Row(
-              spacing: 8,
-              children: [
-                Icon(Bike.iconData, color: Theme.of(context).colorScheme.error),
-                Expanded(
-                  child: Text(
-                    "BIKE NOT FOUND",
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: Theme.of(context).colorScheme.error),
-                  ),
-                )
-              ],
-            ),
-          ),
-      ],
-      // Locked like the timeline: the replace flow relies on this placement.
-      onChanged: widget.mode == ComponentPageMode.replace ? null : (Installation? newInstallation) {
-        if (newInstallation == null) return;
-        setState(() => _installations = [newInstallation.copyWith()]);
-        _changeListener();
+      builder: (state) {
+        // Legacy components can have no entries; they show as not installed.
+        final current = _installations.lastOrNull ?? Installation.sinceBeginning();
+        return InstallationParentField(
+          installation: current,
+          initial: isEdit ? _initialInstallations.lastOrNull : null,
+          componentId: isEdit ? widget.component?.id : null,
+          componentType: _componentType,
+          currentBikeId: InstallationParentField.bikeIdOf(current, appRepository.componentHierarchy),
+          allowArchive: widget.mode != ComponentPageMode.add,
+          // Locked like the timeline: the replace flow relies on this placement.
+          enabled: widget.mode != ComponentPageMode.replace,
+          changed: isEdit && current != _initialInstallations.lastOrNull,
+          labelText: 'Installed on',
+          helperText: current.parentType == InstallationParentType.none ? "WARNING: Select Bike to install Component." : null,
+          errorText: state.errorText,
+          timelineOfferInstallations: isEdit ? widget.component?.installations : null,
+          onChanged: (picked) {
+            setState(() => _installations = [picked]);
+            state.didChange(picked);
+            _changeListener();
+          },
+        );
       },
     );
   }
@@ -1019,7 +982,11 @@ class _ComponentPageState extends State<ComponentPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        _componentTypeField(existingComponentsCount: existingComponentsCount),
+                        Semantics(
+                          container: true,
+                          identifier: AutomationIds.componentFormType,
+                          child: _componentTypeField(existingComponentsCount: existingComponentsCount),
+                        ),
                         if (appSettings.enableComponentPresets &&
                             (_componentType == ComponentType.fork || _componentType == ComponentType.shock)) ...[
                           const SizedBox(height: 12),
@@ -1028,14 +995,19 @@ class _ComponentPageState extends State<ComponentPage> {
                             onTap: _openPresetPicker,
                             applied: _resolvedPreset,
                             onUnlink: _unlinkPreset,
+                            showGuideHint: appSettings.enableSetupGuides,
                           ),
                           const SizedBox(height: 12),
                         ],
                         const SizedBox(height: 12),
-                        _nameField(
-                          // Off in edit mode: renaming shouldn't pop suggestions that overwrite name and notes.
-                          presetsEnabled: appSettings.enableComponentPresets &&
-                              widget.mode != ComponentPageMode.edit,
+                        Semantics(
+                          container: true,
+                          identifier: AutomationIds.componentFormName,
+                          child: _nameField(
+                            // Off in edit mode: renaming shouldn't pop suggestions that overwrite name and notes.
+                            presetsEnabled: appSettings.enableComponentPresets &&
+                                widget.mode != ComponentPageMode.edit,
+                          ),
                         ),
                         Center(
                           child: Semantics(
@@ -1102,7 +1074,7 @@ class _ComponentPageState extends State<ComponentPage> {
                   if (!appSettings.enableInstallationTimeline && !_isComplexInstallation)
                     Padding(
                       padding: EdgeInsets.fromLTRB(16, _expanded && (showInitialStats || showAttachments) ? 18 : 12, 16, 0),
-                      child: _bikesDropdownField(bikes: bikes),
+                      child: _parentField(bikes: bikes, appRepository: appRepository),
                     ),
                   const SizedBox(height: 12),
                   if (appSettings.enableInstallationTimeline || _isComplexInstallation) ...[
@@ -1183,10 +1155,14 @@ class _ComponentPageState extends State<ComponentPage> {
                             const SizedBox(height: 8),
                             SizedBox(
                               width: double.infinity,
-                              child: FilledButton.icon(
-                                onPressed: showAddBottomSheet,
-                                icon: const Icon(Icons.add),
-                                label: const Text("Add Adjustment"),
+                              child: Semantics(
+                                container: true,
+                                identifier: AutomationIds.componentFormAddAdjustment,
+                                child: FilledButton.icon(
+                                  onPressed: showAddBottomSheet,
+                                  icon: const Icon(Icons.add),
+                                  label: const Text("Add Adjustment"),
+                                ),
                               ),
                             ),
                             if (field.hasError && _adjustments.isNotEmpty)

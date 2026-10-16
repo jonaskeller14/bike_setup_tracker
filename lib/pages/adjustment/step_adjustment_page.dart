@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
+import '../../utils/automation_ids.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/set_adjustment/set_step_adjustment.dart';
 import '../../widgets/set_adjustment/set_step_adjustment_dial.dart';
@@ -296,7 +297,11 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
             AdjustmentPageMode.edit => Text('Edit Step ${widget.term.label}'),
           },
           actions: [
-            IconButton(icon: const Icon(Icons.check), onPressed: _saveStepAdjustment),
+            Semantics(
+              container: true,
+              identifier: AutomationIds.adjustmentFormSave,
+              child: IconButton(icon: const Icon(Icons.check), onPressed: _saveStepAdjustment),
+            ),
           ],
         ),
         body: SafeArea(

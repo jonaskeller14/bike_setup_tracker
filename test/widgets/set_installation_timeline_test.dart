@@ -4,6 +4,7 @@ import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/component/installation.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/services/app_hint_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/set_installation_timeline.dart';
 import 'package:flutter/material.dart';
@@ -43,6 +44,7 @@ void main() {
       providers: [
         ChangeNotifierProvider.value(value: appRepository),
         ChangeNotifierProvider.value(value: appSettings),
+        ChangeNotifierProvider(create: (_) => AppHintService(appRepository: appRepository, appSettings: appSettings)),
       ],
       child: MaterialApp(
         theme: theme ?? materialAppTheme,
@@ -274,8 +276,8 @@ void main() {
         expect(label.style?.color, errorColor);
       }
 
-      // The menu offers the fix, so its entries keep their normal color.
-      await tester.tap(find.byType(DropdownButtonFormField<Installation>).first);
+      // The picker sheet offers the fix, so its entries keep their normal color.
+      await tester.tap(find.byIcon(Icons.arrow_drop_down).at(1));
       await tester.pumpAndSettle();
       expect(
         tester.widgetList<Text>(find.text('Bike A')).where((t) => t.style?.color == null),
@@ -310,8 +312,7 @@ void main() {
         });
       }
 
-      /// Opens the first row's parent dropdown (flag off) or picker sheet (flag on);
-      /// the date field's arrow comes first.
+      /// Opens the first row's parent picker sheet; the date field's arrow comes first.
       Future<void> openParentMenu(WidgetTester tester) async {
         await tester.tap(find.byIcon(Icons.arrow_drop_down).at(1));
         await tester.pumpAndSettle();
@@ -356,6 +357,51 @@ void main() {
         await openParentMenu(tester);
 
         expect(find.text('Front Wheel'), findsNothing);
+      });
+
+      testWidgets('suggests Subcomponents in the sheet and lists components once activated', (WidgetTester tester) async {
+        await seed(tester, nestedComponents);
+
+        await tester.pumpWidget(createWidgetUnderTest(
+          componentType: ComponentType.tire,
+          initialInstallations: [Installation.sinceBeginning(parent: 'bike1')],
+        ));
+        await tester.pumpAndSettle();
+        await openParentMenu(tester);
+
+        expect(find.text('Mount it on Front Wheel?'), findsOneWidget);
+        expect(find.text('Front Wheel'), findsNothing);
+
+        await tester.ensureVisible(find.text('Activate Subcomponents'));
+        await tester.tap(find.text('Activate Subcomponents'));
+        await tester.pumpAndSettle();
+
+        expect(appSettings.enableInstallOnComponent, isTrue);
+        expect(find.text('Mount it on Front Wheel?'), findsNothing);
+        expect(find.text('Front Wheel'), findsOneWidget);
+      });
+
+      testWidgets('"Learn more" opens the Subcomponents explainer, whose "On" activates it', (WidgetTester tester) async {
+        await seed(tester, nestedComponents);
+
+        await tester.pumpWidget(createWidgetUnderTest(
+          componentType: ComponentType.tire,
+          initialInstallations: [Installation.sinceBeginning(parent: 'bike1')],
+        ));
+        await tester.pumpAndSettle();
+        await openParentMenu(tester);
+
+        await tester.ensureVisible(find.byTooltip('Learn more'));
+        await tester.tap(find.byTooltip('Learn more'));
+        await tester.pumpAndSettle();
+        expect(find.text('With subcomponents'), findsOneWidget);
+
+        await tester.tap(find.text('On'));
+        await tester.pumpAndSettle();
+
+        expect(appSettings.enableInstallOnComponent, isTrue);
+        expect(find.text('Mount it on Front Wheel?'), findsNothing);
+        expect(find.text('Front Wheel'), findsOneWidget);
       });
 
       testWidgets('offers no components to a component that carries children', (WidgetTester tester) async {

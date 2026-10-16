@@ -323,7 +323,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                 const Divider(height: 1),
               ],
 
-              if (appSettings.enableInstallOnComponent) ...[
+              if (appSettings.enableInstallOnComponent && (descendants.isNotEmpty || component.latestInstallation is! ComponentInstallation)) ...[
                 ExpansionTile(
                   shape: const Border(),
                   collapsedShape: const Border(),

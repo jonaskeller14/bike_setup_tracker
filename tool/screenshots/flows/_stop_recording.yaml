@@ -1,0 +1,32 @@
+# Shared subflow: hold the final screen for MS milliseconds, then stop the
+# recording. Both the Android encoder and the iOS Simulator keep the last frames
+# before a still screen until the next screen change, and stopRecording drops
+# them, so a clip would end before its final transition. A key press makes that
+# change on any page: Volume Up on Android (the AVD has no audio), Home on iOS.
+# Its volume panel or home animation ends the clip;
+# tool/marketing/render_video.py cuts the clip where it starts.
+appId: ${APP_ID}
+---
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: ${MS}
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - pressKey: Volume Up
+      - runFlow:
+          file: _pause.yaml
+          env:
+            MS: 500
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - pressKey: Home
+      - runFlow:
+          file: _pause.yaml
+          env:
+            MS: 500
+- stopRecording

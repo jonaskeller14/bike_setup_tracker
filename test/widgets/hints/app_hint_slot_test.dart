@@ -90,9 +90,9 @@ void main() {
   testWidgets('dismisses the Garage hint and persists its status', (tester) async {
     await tester.pumpWidget(buildSubject());
 
-    expect(find.text('Gestures in Garage'), findsOneWidget);
-    await tester.tap(find.byTooltip('Dismiss'));
-    await tester.pump();
+    expect(find.text('Gestures in Garage').hitTestable(), findsOneWidget);
+    await tester.tap(find.text('Skip').hitTestable());
+    await tester.pumpAndSettle();
 
     expect(find.text('Gestures in Garage'), findsNothing);
     expect(service.statusOf(AppHint.garageGesturesV1), AppHintStatus.dismissed);
@@ -105,10 +105,35 @@ void main() {
 
     expect(find.text('Activate Tasks'), findsOneWidget);
     await tester.tap(find.text('Activate Tasks'));
-    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pumpAndSettle();
 
     expect(settings.enableTask, isTrue);
     expect(service.statusOf(AppHint.setupTasksV1), AppHintStatus.completed);
     expect(find.text('Activate Tasks'), findsNothing);
+  });
+
+  testWidgets('the build 44 deck turns on Subcomponents mid-deck and completes with Attachments', (tester) async {
+    SharedPreferences.setMockInitialValues({'app_hint.releaseBaselineBuild': 43});
+    service.dispose();
+    service = AppHintService(appRepository: repository, appSettings: settings, currentBuild: 44);
+    await tester.runAsync(service.load);
+    service.update(appRepository: repository, appSettings: settings);
+
+    await tester.pumpWidget(buildSubject());
+    expect(find.text('Your filters are remembered').hitTestable(), findsOneWidget);
+    await tester.tap(find.text('Next').hitTestable());
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Turn on').hitTestable());
+    await tester.pumpAndSettle();
+    expect(settings.enableInstallOnComponent, isTrue);
+    expect(service.statusOf(AppHint.release44), AppHintStatus.unseen);
+    expect(find.text('Attachments').hitTestable(), findsOneWidget);
+
+    await tester.tap(find.text('Turn on').hitTestable());
+    await tester.pumpAndSettle();
+    expect(settings.enableAttachments, isTrue);
+    expect(service.statusOf(AppHint.release44), AppHintStatus.completed);
+    expect(find.text('Attachments'), findsNothing);
   });
 }

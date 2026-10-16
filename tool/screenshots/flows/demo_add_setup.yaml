@@ -1,0 +1,68 @@
+# Demo: record a setup. Location and weather fill in on their own (the run
+# scripts pin the GPS to Finale Ligure; the screenshot build's weather is
+# fixed), then the flow tags it, changes one adjustment, names it and saves it.
+appId: ${APP_ID}
+---
+- runFlow: _launch.yaml
+- startRecording: demo_add_setup
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+- tapOn:
+    id: setups.add
+- runFlow:
+    when:
+      platform: Android
+    file: _accept_location_accuracy.yaml
+- extendedWaitUntil:
+    visible:
+      id: setupForm.name
+    timeout: 15000
+# Let the place and weather chips fill in.
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+
+# The name comes last: closing the tags sheet refocuses the name field, which
+# would bring the keyboard back up over the adjustments.
+- tapOn:
+    id: setupForm.addTags
+- tapOn: Finale
+- tapOn: Trip
+- runFlow: _dismiss_sheet.yaml
+# Lyrik LSC (step slider): tapping the centre moves it to mid-range
+- scrollUntilVisible:
+    element:
+      id: setAdjustment.2fae94d6-16d2-4b79-ad4b-55f6b9fa6e1d
+    direction: DOWN
+- tapOn:
+    id: setAdjustment.2fae94d6-16d2-4b79-ad4b-55f6b9fa6e1d
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+- scrollUntilVisible:
+    element:
+      id: setupForm.name
+    direction: UP
+- tapOn:
+    id: setupForm.name
+# Typing while the keyboard slides in can double the first letter.
+- waitForAnimationToEnd:
+    timeout: 3000
+- inputText: Finale Ligure - NATO Trail
+- runFlow: _hide_keyboard_android.yaml
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+
+# Saving returns to the history with the new setup on top.
+- tapOn:
+    id: setupForm.save
+- runFlow:
+    file: _stop_recording.yaml
+    env:
+      MS: 2500

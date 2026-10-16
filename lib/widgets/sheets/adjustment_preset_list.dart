@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/adjustment/adjustment.dart';
 import '../../utils/adjustment_preset_consumption.dart';
+import '../../utils/automation_ids.dart';
 import '../items/adjustment_properties.dart';
 import '../items/adjustment_type_icon.dart';
 import 'sheet.dart';
@@ -36,7 +37,11 @@ class AdjustmentPresetList extends StatelessWidget {
         await onSelected(preset);
       },
     );
-    return consumed ? Opacity(opacity: 0.6, child: tile) : tile;
+    final presetKey = preset.presetKey;
+    final identified = presetKey == null
+        ? tile
+        : Semantics(container: true, identifier: AutomationIds.adjustmentPreset(presetKey), child: tile);
+    return consumed ? Opacity(opacity: 0.6, child: identified) : identified;
   }
 
   Widget _consumedGroup(BuildContext context, List<Adjustment> consumed) {

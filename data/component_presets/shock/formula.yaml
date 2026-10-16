@@ -24,7 +24,7 @@ sources:
   # Editorial — first model years only, never for click counts
   - https://www.mbr.co.uk/news/formula-launches-its-first-air-shock-called-the-nebbia-and-it-promises-high-performance-with-simplified-set-up-437962
   - https://www.mbr.co.uk/reviews/shocks/formula-mod-coil-shock
-updated: 2026-10-07
+updated: 2026-10-13
 # Service intervals (`tasks`) come from the owner's manuals cited above: Nebbia
 # air seals every 60 hours or 6 months and oil change every 125 hours or
 # 1 year (non-Yoke frames); MOD and MOD DH a full service every 200 hours or
@@ -83,6 +83,42 @@ option_values:
         lists no compression switch.
 
 # --------------------------------------------------------------------------
+# Setup guides — the owner's manuals' starting points as data (SCHEMA.md,
+# "Setup guides"), transcribed from docs/research/setup_guides/formula.md.
+#   * Rebound and compression are the manuals' base tunes, counted from fully
+#     closed as the catalog dials are.
+#   * Not encoded: the compression switch positions (situational: open for
+#     descents, firmer for climbs), the Nebbia's SAG-indicator marks (keyed by
+#     discipline, not a SAG value) and the MOD preload window (2-5 mm, a
+#     limit the Preload range already holds, not a setting).
+#   * No spring-rate chart is published for the MOD / MOD DH.
+# --------------------------------------------------------------------------
+guides:
+  formula_nebbia_2024:
+    label: Formula Nebbia user manual
+    source: https://www.rideformula.com/wp-content/uploads/2024/07/Manuale-Utente-Nebbia-ENG.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        rows: {
+          50-60: [120, 130], 60-70: [130, 140], 70-80: [140, 150],
+          80-90: [150, 170], 90-100: [170, 190], 100+: [190, 210]
+        }
+        note: Frames can differ by up to 30 psi; set the final pressure by SAG
+      - { target: rebound, value: 12 }
+      - { target: compression, value: 10 }
+
+  formula_mod_2020:
+    label: Formula MOD owner's manual
+    source: https://www.rideformula.com/wp-content/uploads/2020/09/MOD-Owner-Manual.pdf
+    rules:
+      - { target: rebound, value: 6, note: "A stiffer spring needs a little more: 1-2 clicks going from 400 to 450 lbs/in" }
+      - { target: compression, value: 9 }
+      - { target: sag, value: 30, note: "Set with preload between 2 and 5 mm; beyond that, change the spring" }
+
+# --------------------------------------------------------------------------
 # Shocks
 # --------------------------------------------------------------------------
 nodes:
@@ -92,6 +128,7 @@ nodes:
     years: "2024-2026"
     url: https://www.rideformula.com/products/mtb-shocks/nebbia/
     setup_guide: https://www.rideformula.com/wp-content/uploads/2024/07/Manuale-Utente-Nebbia-ENG.pdf
+    guide: formula_nebbia_2024
     specs: { spring: Air }
     tasks:
       shock:air_can_service: { interval: { moving_time_h: 60 }, fallback: { days: 180 }, source: Formula owner's manual }
@@ -115,6 +152,7 @@ nodes:
     years: "2020-2026"
     url: https://www.rideformula.com/products/mtb-shocks/mod/
     setup_guide: https://www.rideformula.com/wp-content/uploads/2020/09/MOD-Owner-Manual.pdf
+    guide: formula_mod_2020
     specs: { spring: Coil }
     tasks: &formula_mod_service
       shock:full_service: { interval: { moving_time_h: 200 }, fallback: { days: 365 }, source: Formula owner's manual }
@@ -123,7 +161,7 @@ nodes:
         level: trim
         adjustments:
           - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
-          - { name: Preload, type: numerical }
+          - { name: Preload, type: numerical, unit: mm, min: 2, max: 5, notes: "Ring nut, 1.25mm per turn" }
         options:
           damper: [mod_2020]
           size: [{ size: "210x47.5/50/52.5/55", mount: Standard }, { size: "230x57.5/60/62.5/65", mount: Standard }, { size: "185x47.5/50/52.5/55", mount: Trunnion }, { size: "205x57.5/60/62.5/65", mount: Trunnion }]
@@ -137,6 +175,7 @@ nodes:
     category: Downhill
     url: https://www.rideformula.com/products/mtb-shocks/mod-dh/
     setup_guide: https://www.rideformula.com/wp-content/uploads/2020/09/MOD-Manuale-utente.pdf
+    guide: formula_mod_2020
     specs: { spring: Coil }
     tasks: *formula_mod_service
     children:
@@ -144,7 +183,7 @@ nodes:
         level: trim
         adjustments:
           - { name: Spring Rate, type: numerical, unit: lbs/in, min: 0 }
-          - { name: Preload, type: numerical }
+          - { name: Preload, type: numerical, unit: mm, min: 2, max: 5, notes: "Ring nut, 1.25mm per turn" }
         options:
           damper: [mod_dh]
           size: [{ size: "250x67.5/70/72.5/75", mount: Standard }, { size: "225x67.5/70/72.5/75", mount: Trunnion }]
@@ -159,8 +198,9 @@ nodes:
 #     pages, so the default `dial_ccw` is used.
 #   - Nebbia volume spacers: the page says the shock is "Compatible" but gives
 #     no spacer count, so no Volume Spacers adjustment is generated.
-#   - MOD / MOD DH preload: the spec tables list "Preload" without a turn or
-#     click total, so Preload is an open-ended numerical.
+#   - MOD / MOD DH preload: the MOD user manual (also used for the DH) gives a
+#     permissible preload of 2-5 mm at 1.25 mm per turn; the spec tables list
+#     "Preload" without a click total, so it is a numerical in mm.
 #   - MOD spring rates: the MOD page lists 300-700 lbs/in and the MOD DH page
 #     250-550 lbs/in in 50 lbs/in steps; no sag-by-weight chart was read, so
 #     Spring Rate stays open-ended.

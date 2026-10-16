@@ -300,10 +300,17 @@ class ComponentActions {
 
   static Future<void> replaceComponent(BuildContext context, {required Component component}) async {
     final appRepository = context.read<AppRepository>();
+    final appSettings = context.read<AppSettings>();
     final messenger = ScaffoldMessenger.of(context);
 
     final result = await showReplaceComponentSheet(context, component: component);
     if (result == null) return;
+
+    // Read after the sheet, which can enable the timeline.
+    final simple = !shouldUseInstallationTimeline(
+      featureEnabled: appSettings.enableInstallationTimeline,
+      installations: component.installations,
+    );
 
     final currentInstallation = appRepository.componentHierarchy.currentInstallation(component.id);
     if (currentInstallation == null ||
@@ -321,15 +328,13 @@ class ComponentActions {
     // Without an explicit move, subcomponents would stay on the retired parent.
     List<Component> subcomponentEdits(String replacementId) => [
       for (final child in result.movedSubcomponents)
-        child.copyWith(installations: [
-          ...child.installations,
+        _withInstallation(
+          child,
           _stampedInstallation(child, result.replacementDate, parentComponentId: replacementId),
-        ]),
+          simple: simple,
+        ),
       for (final child in result.uninstalledSubcomponents)
-        child.copyWith(installations: [
-          ...child.installations,
-          _stampedInstallation(child, result.replacementDate),
-        ]),
+        _withInstallation(child, _stampedInstallation(child, result.replacementDate), simple: simple),
     ];
 
     switch (result) {
@@ -338,21 +343,15 @@ class ComponentActions {
         // (bike or component) and retire the current one, both at the replacement date.
         final installedAt = stampInstallationNow(existingComponent.installations, now: replacementDate);
         await appRepository.editComponents([
-          existingComponent.copyWith(
-            installations: [
-              ...existingComponent.installations,
-              currentInstallation.samePlacementAt(
-                dateTimeUTC: installedAt.utc,
-                dateTimeLocal: installedAt.local,
-              ),
-            ],
+          _withInstallation(
+            existingComponent,
+            currentInstallation.samePlacementAt(
+              dateTimeUTC: installedAt.utc,
+              dateTimeLocal: installedAt.local,
+            ),
+            simple: simple,
           ),
-          component.copyWith(
-            installations: [
-              ...component.installations,
-              uninstallation,
-            ],
-          ),
+          _withInstallation(component, uninstallation, simple: simple),
           ...subcomponentEdits(existingComponent.id),
         ]);
 
@@ -381,7 +380,7 @@ class ComponentActions {
           MaterialPageRoute(
             builder: (context) => ComponentPage.replace(
               component: deepCopied,
-              replacementDate: replacementDate,
+              replacementDate: simple ? Installation.sinceBeginning().dateTimeUTC : replacementDate,
               replacedInstallation: currentInstallation,
               replacedComponentId: component.id,
             ),
@@ -394,12 +393,7 @@ class ComponentActions {
 
         // The retired component's edit moves subcomponents onto the new one, so it has to follow the add.
         final saved = appRepository.addComponents([newComponent]).then((_) => appRepository.editComponents([
-          component.copyWith(
-            installations: [
-              ...component.installations,
-              uninstallation,
-            ],
-          ),
+          _withInstallation(component, uninstallation, simple: simple),
           ...subcomponentEdits(newComponent.id),
         ]));
         await Future.wait([
@@ -409,6 +403,18 @@ class ComponentActions {
             offerTaskRulesFor(navigatorContext, source: component, target: newComponent, targetSaved: saved),
         ]);
     }
+  }
+
+  /// Appends [entry]. Without the timeline ([simple]), a single-entry history
+  /// is replaced by the same placement "from beginning" so it stays simple.
+  static Component _withInstallation(Component component, Installation entry, {required bool simple}) {
+    if (!simple || isComplexInstallationTimeline(component.installations)) {
+      return component.copyWith(installations: [...component.installations, entry]);
+    }
+    final fromBeginning = Installation.sinceBeginning();
+    return component.copyWith(installations: [
+      entry.samePlacementAt(dateTimeUTC: fromBeginning.dateTimeUTC, dateTimeLocal: fromBeginning.dateTimeLocal),
+    ]);
   }
 
   static Installation _stampedInstallation(Component component, DateTime at, {String? parentComponentId}) {

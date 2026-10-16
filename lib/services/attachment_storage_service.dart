@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:archive/archive_io.dart';
@@ -149,7 +150,7 @@ class AttachmentStorageService {
 
   Future<File> exportBundle(AppDatabase database, {SelectedData? selectedData}) async {
     final exportData = await DataExportService.backupDatabaseToJson(database, subset: selectedData);
-    final jsonString = const JsonEncoder.withIndent('  ').convert(exportData);
+    final jsonString = await _encodeJson(exportData);
 
     // When a subset is requested, only include attachments referenced by its setups, bikes, components and tasks.
     final Set<String>? allowedFilenames = selectedData == null ? null : _attachmentFilenames(selectedData);
@@ -163,34 +164,66 @@ class AttachmentStorageService {
     return _writeBundle(await backupJson.readAsString(), 'recovered_bundle');
   }
 
+  /// Deflating is worth its CPU cost only for these; photos, videos and PDFs are already compressed.
+  static const _compressibleExtensions = {
+    '.txt', '.csv', '.json', '.xml', '.md', '.log', '.html', '.svg', '.gpx', '.tcx', '.bmp', '.tif', '.tiff',
+  };
+
+  // ZipFileEncoder reads and deflates synchronously despite its async API, so encoding
+  // runs in a background isolate to keep the UI responsive. Static so the closures
+  // capture only sendable values; path_provider is resolved beforehand on the main isolate.
+  static Future<String> _encodeJson(Map<String, dynamic> data) {
+    return Isolate.run(() => const JsonEncoder.withIndent('  ').convert(data));
+  }
+
   Future<File> _writeBundle(String jsonString, String nameSuffix, {Set<String>? allowedFilenames}) async {
-    final tempDir = await getTemporaryDirectory();
-    final timestamp = _timestamp();
-    final zipPath = p.join(tempDir.path, '${timestamp}_$nameSuffix.zip');
+    final tempPath = (await getTemporaryDirectory()).path;
+    final zipPath = p.join(tempPath, '${_timestamp()}_$nameSuffix.zip');
+    await _encodeZip(
+      zipPath: zipPath,
+      tempPath: tempPath,
+      attachmentsPath: await _attachmentsPath(),
+      jsonString: jsonString,
+      allowedFilenames: allowedFilenames,
+    );
+    return File(zipPath);
+  }
 
-    final jsonTempFile = File(p.join(tempDir.path, 'data.json'));
-    await jsonTempFile.writeAsString(jsonString);
+  static Future<void> _encodeZip({
+    required String zipPath,
+    required String tempPath,
+    required String attachmentsPath,
+    required String jsonString,
+    Set<String>? allowedFilenames,
+  }) {
+    return Isolate.run(() async {
+      final jsonTempFile = File(p.join(tempPath, 'data.json'));
+      await jsonTempFile.writeAsString(jsonString);
 
-    final encoder = ZipFileEncoder();
-    encoder.create(zipPath);
-    await encoder.addFile(jsonTempFile, 'data.json');
+      final encoder = ZipFileEncoder();
+      encoder.create(zipPath);
+      await encoder.addFile(jsonTempFile, 'data.json');
 
-    final attachmentsDir = Directory(await _attachmentsPath());
-    if (attachmentsDir.existsSync()) {
-      await for (final entity in attachmentsDir.list()) {
-        if (entity is File) {
-          final filename = p.basename(entity.path);
-          if (allowedFilenames == null || allowedFilenames.contains(filename)) {
-            await encoder.addFile(entity, '$_attachmentsDir/$filename');
+      final attachmentsDir = Directory(attachmentsPath);
+      if (attachmentsDir.existsSync()) {
+        await for (final entity in attachmentsDir.list()) {
+          if (entity is File) {
+            final filename = p.basename(entity.path);
+            if (allowedFilenames == null || allowedFilenames.contains(filename)) {
+              final compressible = _compressibleExtensions.contains(p.extension(filename).toLowerCase());
+              await encoder.addFile(
+                entity,
+                '$_attachmentsDir/$filename',
+                compressible ? ZipFileEncoder.GZIP : ZipFileEncoder.STORE,
+              );
+            }
           }
         }
       }
-    }
 
-    await encoder.close();
-    await jsonTempFile.delete();
-
-    return File(zipPath);
+      await encoder.close();
+      await jsonTempFile.delete();
+    });
   }
 
   static Set<String> _attachmentFilenames(SelectedData data) {
@@ -203,7 +236,7 @@ class AttachmentStorageService {
     }.map((a) => a.filename).toSet();
   }
 
-  Future<ImportBundleResult> importBundle() async {
+  Future<ImportBundleResult> importBundle({void Function()? onPicked}) async {
     final pickedFile = await FilePicker.pickFile(
       type: FileType.custom,
       allowedExtensions: ['zip'],
@@ -211,6 +244,7 @@ class AttachmentStorageService {
     if (pickedFile == null) {
       return ImportBundleResult.cancelled();
     }
+    onPicked?.call();
 
     try {
       final bytes = await pickedFile.readAsBytes();

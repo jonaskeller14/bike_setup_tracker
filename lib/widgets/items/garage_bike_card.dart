@@ -421,26 +421,30 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                                         width: 1.0,
                                       ),
                                     ),
-                                    child: InkWell(
-                                      onTap: () => ComponentActions.addComponent(context, initialBike: widget.bike.id),
-                                      borderRadius: BorderRadius.circular(12),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(10),
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          mainAxisSize: MainAxisSize.min,
-                                          spacing: 8,
-                                          children: [
-                                            Icon(Icons.add, size: 24, color: Theme.of(context).colorScheme.primary),
-                                            if (bikeComponents.isEmpty)
-                                              Text(
-                                                "Add Component",
-                                                style: TextStyle(
-                                                  color: Theme.of(context).colorScheme.primary,
-                                                  fontWeight: FontWeight.w600,
+                                    child: Semantics(
+                                      container: true,
+                                      identifier: AutomationIds.garageAddComponent(widget.bike.id),
+                                      child: InkWell(
+                                        onTap: () => ComponentActions.addComponent(context, initialBike: widget.bike.id),
+                                        borderRadius: BorderRadius.circular(12),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(10),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            mainAxisSize: MainAxisSize.min,
+                                            spacing: 8,
+                                            children: [
+                                              Icon(Icons.add, size: 24, color: Theme.of(context).colorScheme.primary),
+                                              if (bikeComponents.isEmpty)
+                                                Text(
+                                                  "Add Component",
+                                                  style: TextStyle(
+                                                    color: Theme.of(context).colorScheme.primary,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
                                                 ),
-                                              ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     ),

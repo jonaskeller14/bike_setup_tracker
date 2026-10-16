@@ -57,6 +57,8 @@ sealed class Adjustment {
     DurationAdjustment() => AdjustmentType.duration,
   };
 
+  Adjustment copyWith({Object? id, Object? name, Object? notes, Object? unit, Object? presetKey});
+
   String unitSuffix() {
     return unit == null ? "" : " ${unit!.label}";
   }

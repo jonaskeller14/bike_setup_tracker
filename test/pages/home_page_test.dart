@@ -9,6 +9,7 @@ import 'package:bike_setup_tracker/models/filters/task_rule_filter.dart';
 import 'package:bike_setup_tracker/models/person.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
+import 'package:bike_setup_tracker/pages/forms/setup_page.dart';
 import 'package:bike_setup_tracker/pages/onboarding_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/app_hint_service.dart';
@@ -231,7 +232,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithIcon(FloatingActionButton, Icons.add));
     await tester.pumpAndSettle();
-    expect(find.text('Add Setup'), findsNothing);
+    expect(find.byType(SetupPage), findsNothing);
 
     final bike = Bike(name: 'Test bike', person: null);
     await tester.runAsync(() async {
@@ -259,7 +260,7 @@ void main() {
     await tester.tap(find.widgetWithIcon(FloatingActionButton, Icons.add));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
-    expect(find.text('Add Setup'), findsOneWidget);
+    expect(find.byType(SetupPage), findsOneWidget);
   });
 
   testWidgets('Settings help can re-enable onboarding', (tester) async {

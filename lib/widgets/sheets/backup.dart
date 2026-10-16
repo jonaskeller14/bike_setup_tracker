@@ -31,12 +31,14 @@ class _BackupSheetContentState extends State<BackupSheetContent> {
   String? _localBackupError;
   String? _googleDriveBackupError;
   String? _readBackupError;
+  Backup? _restoringBackup;
 
   ListTile _backupListTile({
     required BuildContext context,
     required Backup backup,
     required DateFormat timeFormat,
   }) {
+    final isRestoring = identical(backup, _restoringBackup);
     return ListTile(
       leading: switch (backup) {
         LocalBackup() => const Icon(Icons.phone_android),
@@ -46,13 +48,24 @@ class _BackupSheetContentState extends State<BackupSheetContent> {
         LocalBackup() => const Text("Local Backup"),
         GoogleDriveBackup() => const Text("Google Drive Backup"),
       },
-      subtitle: Text("Created at: ${timeFormat.format(backup.createdAt.toLocal())}"),
-      trailing: IconButton(
-        onPressed: () async {
+      subtitle: Text(isRestoring
+          ? switch (backup) {
+              LocalBackup() => "Reading backup…",
+              GoogleDriveBackup() => "Downloading backup…",
+            }
+          : "Created at: ${timeFormat.format(backup.createdAt.toLocal())}"),
+      trailing: isRestoring ? const Padding(
+        padding: EdgeInsets.all(12),
+        child: SizedBox.square(dimension: 24, child: CircularProgressIndicator(strokeWidth: 2)),
+      ) : IconButton(
+        onPressed: _restoringBackup != null ? null : () async {
+          setState(() => _restoringBackup = backup);
           switch (backup) {
             case LocalBackup():
               final appDatabase = context.read<AppDatabase>();
               final result = await FileImport.readBackup(path: backup.filepath, appDatabase: appDatabase);
+              if (!mounted) return;
+              setState(() => _restoringBackup = null);
               if (result.isError) {
                 setState(() => _readBackupError = result.errorMessage);
               } else {
@@ -61,6 +74,8 @@ class _BackupSheetContentState extends State<BackupSheetContent> {
             case GoogleDriveBackup(): 
               final appDatabase = context.read<AppDatabase>();
               final result = await context.read<GoogleDriveService>().readBackup(fileId: backup.fileId, appDatabase: appDatabase);
+              if (!mounted) return;
+              setState(() => _restoringBackup = null);
               if (result.isError) {
                 setState(() => _readBackupError = result.errorMessage);
               } else {

@@ -13,7 +13,10 @@ import '../../models/task/task_rule.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../widgets/sheets/checkbox_group.dart';
+import '../../widgets/sheets/installation_timeline_hint_sheet.dart';
+import '../../widgets/sheets/pressure_check_setting_sheet.dart';
 import '../../widgets/sheets/radio_group.dart';
+import '../../widgets/sheets/subcomponents_hint_sheet.dart';
 import '../../widgets/text/section_title.dart';
 
 class FeaturesPage extends StatelessWidget {
@@ -84,23 +87,15 @@ class FeaturesPage extends StatelessWidget {
                   appSettings.enableInstallationTimeline = v;
                   if (!v) _showLayer(context, TimelineLayer.installations);
                 },
-                infoText:
-                    'By default, Components are linked to a Bike. '
-                    'When this setting is enabled, you can track exactly when a component was installed and uninstalled. '
-                    'This allows you to uninstall components and move them between different bikes without losing track of their history, usage, or setups.',
+                sheet: (context, value) => showInstallationTimelineSettingSheet(context, value: value),
               ),
-              if (kDebugMode)
-                _FeatureToggleTile(
-                  enabled: appSettings.enableInstallationTimeline,
-                  icon: Icons.account_tree_outlined,
-                  title: "Subcomponents",
-                  value: appSettings.enableInstallOnComponent,
-                  onChanged: (v) => appSettings.enableInstallOnComponent = v,
-                  infoText:
-                      'Install components on other components in the Installation Timeline, '
-                      'e.g. a tire on a wheel. The subcomponent follows its parent between bikes '
-                      'and is credited with the same activities. Requires the Installation Timeline.',
-                ),
+              _FeatureToggleTile(
+                icon: Icons.account_tree_outlined,
+                title: "Subcomponents",
+                value: appSettings.enableInstallOnComponent,
+                onChanged: (v) => appSettings.enableInstallOnComponent = v,
+                sheet: (context, value) => showSubcomponentsSettingSheet(context, value: value),
+              ),
               if (kDebugMode)
                 _FeatureToggleTile(
                   icon: Icons.auto_awesome_outlined,
@@ -116,7 +111,7 @@ class FeaturesPage extends StatelessWidget {
                 _FeatureToggleTile(
                   enabled: appSettings.enableComponentPresets,
                   disabledSubtitle: 'Requires Component Presets',
-                  icon: Icons.playlist_add_check,
+                  icon: Icons.auto_awesome_outlined,
                   title: "Task Presets",
                   value: appSettings.enableTaskPresets,
                   onChanged: (v) => appSettings.enableTaskPresets = v,
@@ -125,6 +120,20 @@ class FeaturesPage extends StatelessWidget {
                       'fork service, based on its type and catalog model. You pick each suggestion '
                       'individually and can edit the created tasks freely. Requires Component Presets, '
                       'Tasks and Task Intervals.',
+                ),
+              if (kDebugMode)
+                _FeatureToggleTile(
+                  enabled: appSettings.enableComponentPresets,
+                  disabledSubtitle: 'Requires Component Presets',
+                  icon: Icons.auto_awesome_outlined,
+                  title: "Setup Guides",
+                  value: appSettings.enableSetupGuides,
+                  onChanged: (v) => appSettings.enableSetupGuides = v,
+                  infoText:
+                      'Suggests recommended values for the first setup of a component, like air '
+                      'pressure or rebound clicks, based on your riding weight and the component model. '
+                      'These are starting points, so check the manufacturer manual. '
+                      'Requires Component Presets.',
                 ),
               const Divider(),
               const SectionTitle(title: 'Adjustments'),
@@ -190,17 +199,17 @@ class FeaturesPage extends StatelessWidget {
                 ],
               ),
               if (kDebugMode)
-                _FeatureToggleTile(
-                  icon: Icons.compress,
-                  title: "Pressure Check",
-                  value: appSettings.enablePressureAssistant,
-                  onChanged: (v) => appSettings.enablePressureAssistant = v,
-                  infoText:
-                      'When adding a setup, compares each pressure adjustment against the '
-                      'temperature and altitude of the setup that last changed it. A pump '
-                      'measures against the surrounding air, so colder or thinner air makes '
-                      'the same sealed chamber read differently — this tells you what your '
-                      'pump would read now, and whether the difference is worth correcting.',
+                ListTile(
+                  leading: const Icon(Icons.compress),
+                  title: const Text("Pressure Check"),
+                  subtitle: Text(
+                    appSettings.enablePressureAssistant
+                        ? 'On · ${appSettings.pressureCheckThresholdPercent} % · '
+                              '${pressureCheckComponentTypesSummary(appSettings.pressureCheckHiddenComponentTypes)}'
+                        : 'Off',
+                  ),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () => showPressureCheckSettingSheet(context),
                 ),
               if (kDebugMode)
                 _FeatureToggleTile(
@@ -389,6 +398,7 @@ class _FeatureToggleTile extends StatelessWidget {
   final String? infoText;
   final bool enabled;
   final String? disabledSubtitle;
+  final Future<bool?> Function(BuildContext context, bool value)? sheet;
 
   const _FeatureToggleTile({
     required this.icon,
@@ -398,7 +408,13 @@ class _FeatureToggleTile extends StatelessWidget {
     this.infoText,
     this.enabled = true,
     this.disabledSubtitle,
+    this.sheet,
   });
+
+  Future<void> _openSheet(BuildContext context, Future<bool?> Function(BuildContext, bool) sheet) async {
+    final newValue = await sheet(context, value);
+    if (newValue != null && newValue != value) onChanged(newValue);
+  }
 
   static const Map<bool, Text> _offOnOptionWidgets = {
     false: Text('Off'),
@@ -413,7 +429,7 @@ class _FeatureToggleTile extends StatelessWidget {
       title: Text(title),
       subtitle: !enabled && disabledSubtitle != null ? Text(disabledSubtitle!) : _offOnOptionWidgets[value],
       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-      onTap: () => radioGroupSheet<bool>(
+      onTap: () => sheet != null ? _openSheet(context, sheet!) : radioGroupSheet<bool>(
         context: context,
         title: title,
         value: value,

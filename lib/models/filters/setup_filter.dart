@@ -15,6 +15,13 @@ class SetupFilter {
 
   bool matches(Setup setup) => setup.tags.containsAll(tags) && (!bookmarkedOnly || setup.isBookmarked);
 
+  Map<String, Object?> toJson() => {'tags': tags.toList(), 'bookmarkedOnly': bookmarkedOnly};
+
+  factory SetupFilter.fromJson(Map<String, Object?> json) => SetupFilter(
+    tags: (json['tags'] as List<Object?>? ?? const []).whereType<String>().toSet(),
+    bookmarkedOnly: json['bookmarkedOnly'] as bool? ?? false,
+  );
+
   SetupFilter copyWith({Set<String>? tags, bool? bookmarkedOnly}) =>
       SetupFilter(tags: tags ?? this.tags, bookmarkedOnly: bookmarkedOnly ?? this.bookmarkedOnly);
 

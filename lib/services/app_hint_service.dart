@@ -1,18 +1,22 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/app_hint.dart';
 import '../models/app_settings.dart';
+import '../models/component/component.dart';
+import '../models/component/component_parent_types.dart';
 import '../models/component/installation.dart';
 import '../repositories/app_repository.dart';
 import '../utils/app_info.dart';
 import '../utils/installation_timeline_validation.dart';
+import '../widgets/sheets/set_task_delay.dart';
 
 class AppHintService extends ChangeNotifier {
   static const _preferencePrefix = 'app_hint.';
   static const _legacyPreferencePrefix = 'app_settings.';
   static const _releaseBaselineKey = '${_preferencePrefix}releaseBaselineBuild';
-  static const _replayBaselineBuild = 0;  // Baseline written by [resetAll]
+  static const _crowdedBikeComponentCount = 8;
   static const _legacyHints = {
     AppHint.garageGesturesV1: 'showGarageListHint',
     AppHint.gettingStartedV1: 'showGettingStartedGuideHint',
@@ -63,6 +67,41 @@ class AppHintService extends ChangeNotifier {
         statusOf(AppHint.installationTimelineV1) == AppHintStatus.unseen;
   }
 
+  /// Moving an installed part is when a dated history starts to matter: with
+  /// several bikes, or with Strava rides credited to it.
+  bool shouldOfferInstallationTimelineOnMove(List<Installation> savedInstallations) {
+    final isInstalled = switch (savedInstallations.lastOrNull) {
+      BikeInstallation() || ComponentInstallation() => true,
+      _ => false,
+    };
+    return isInstalled &&
+        (_appRepository.bikes.length >= 2 || _appRepository.stravaActivities.isNotEmpty) &&
+        shouldOfferInstallationTimeline(savedInstallations);
+  }
+
+  /// A component a [componentType] could be mounted on once Subcomponents is
+  /// enabled, preferring one on [currentBikeId]; null when the offer is not
+  /// eligible. Only components the parent picker would offer qualify.
+  Component? subcomponentsMountParent(
+    ComponentType? componentType, {
+    String? componentId,
+    String? currentBikeId,
+  }) {
+    if (!_canOfferSubcomponents) return null;
+    final parentTypes = _mountParentTypes(componentType);
+    if (parentTypes.isEmpty) return null;
+    if (componentId != null && _appRepository.affectedDescendantIds(componentId).isNotEmpty) return null;
+
+    final hierarchy = _appRepository.componentHierarchy;
+    final candidates = _appRepository.components.values.where((c) =>
+        c.id != componentId &&
+        !c.isArchived &&
+        c.latestInstallation is! ComponentInstallation &&
+        parentTypes.contains(c.componentType));
+    return candidates.firstWhereOrNull((c) => currentBikeId != null && hierarchy.currentBike(c.id) == currentBikeId) ??
+        candidates.firstOrNull;
+  }
+
   void update({
     required AppRepository appRepository,
     required AppSettings appSettings,
@@ -77,25 +116,29 @@ class AppHintService extends ChangeNotifier {
     if (_hintHandledThisSession) return null;
 
     return switch (placement) {
-      AppHintPlacement.garageHeader => _gettingStartedHint() ?? _releaseHint() ?? _garageGesturesHint(),
+      AppHintPlacement.garageHeader =>
+        _gettingStartedHint() ?? _releaseHint() ?? _garageGesturesHint() ?? _subcomponentsGarageHint(),
       AppHintPlacement.setupHeader => _gettingStartedHint() ?? _releaseHint() ?? _setupTaskHint() ?? _setupCalendarHint(),
       AppHintPlacement.setupComparison => _setupComparisonHint(),
       AppHintPlacement.stravaDashboardGear => _stravaLinkGearHint(),
+      AppHintPlacement.taskHeader => _gettingStartedHint() ?? _releaseHint() ?? _taskGesturesHint(),
     };
   }
 
   Future<void> dismiss(AppHint hint) => _setStatus(hint, AppHintStatus.dismissed);
   Future<void> complete(AppHint hint) => _setStatus(hint, AppHintStatus.completed);
 
+  /// Starts over like a new install: contextual hints return, release hints
+  /// up to the installed build do not.
   Future<void> resetAll() async {
-    final changed = _statuses.isNotEmpty || _hintHandledThisSession || _releaseBaselineBuild != _replayBaselineBuild;
+    final changed = _statuses.isNotEmpty || _hintHandledThisSession || _releaseBaselineBuild != _currentBuild;
     if (!changed) return;
 
     _statuses.clear();
     _hintHandledThisSession = false;
-    _releaseBaselineBuild = _replayBaselineBuild;
+    _releaseBaselineBuild = _currentBuild;
     await _removePersistedStatuses();
-    await _persistReleaseBaseline(_replayBaselineBuild);
+    await _persistReleaseBaseline(_currentBuild);
     _cacheActiveHints();
     notifyListeners();
   }
@@ -127,6 +170,13 @@ class AppHintService extends ChangeNotifier {
     return eligible ? AppHint.garageGesturesV1 : null;
   }
 
+  AppHint? _taskGesturesHint() {
+    final eligible =
+        statusOf(AppHint.taskGesturesV1) == AppHintStatus.unseen &&
+        _appRepository.actionableTaskRules.any((task) => canQuickEditTaskDelay(task.rule, _appSettings));
+    return eligible ? AppHint.taskGesturesV1 : null;
+  }
+
   AppHint? _gettingStartedHint() {
     final hasCompletedSteps =
         _appRepository.bikes.isNotEmpty && _appRepository.components.isNotEmpty && _appRepository.setups.isNotEmpty;
@@ -154,6 +204,31 @@ class AppHintService extends ChangeNotifier {
     final eligible = statusOf(AppHint.setupComparisonV1) == AppHintStatus.unseen;
     return eligible ? AppHint.setupComparisonV1 : null;
   }
+
+  /// A crowded bike that already holds a part and its typical parent, e.g. a
+  /// wheel and a tire, would read better grouped.
+  AppHint? _subcomponentsGarageHint() {
+    if (!_canOfferSubcomponents) return null;
+    final hierarchy = _appRepository.componentHierarchy;
+    final byBike = groupBy(
+      _appRepository.components.values.where((c) => !c.isArchived),
+      (Component c) => hierarchy.currentBike(c.id),
+    );
+    final eligible = byBike.entries.any((entry) {
+      if (entry.key == null || entry.value.length < _crowdedBikeComponentCount) return false;
+      final types = entry.value.map((c) => c.componentType).toSet();
+      return types.any((type) => _mountParentTypes(type).any(types.contains));
+    });
+    return eligible ? AppHint.subcomponentsV1 : null;
+  }
+
+  bool get _canOfferSubcomponents =>
+      !_appSettings.enableInstallOnComponent &&
+      statusOf(AppHint.subcomponentsV1) == AppHintStatus.unseen;
+
+  /// Every suggested parent type except the frame, which is the bike itself.
+  static Set<ComponentType> _mountParentTypes(ComponentType? type) =>
+      {...?kSuggestedParentTypes[type]}..remove(ComponentType.frame);
 
   AppHint? _stravaLinkGearHint() {
     final hasUnlinkedGears = _appRepository.stravaGears.values.any(
@@ -206,8 +281,10 @@ class AppHintService extends ChangeNotifier {
       return;
     }
 
-    _releaseBaselineBuild = _currentBuild - 1;
-    await _persistReleaseBaseline(_releaseBaselineBuild!);
+    // A new install has nothing to catch up on. Updates from before build 40,
+    // which stored no baseline, look the same and miss their announcements.
+    _releaseBaselineBuild = _currentBuild;
+    await _persistReleaseBaseline(_currentBuild);
   }
 
   Future<void> _removePersistedStatuses() async {

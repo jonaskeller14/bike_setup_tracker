@@ -10,7 +10,10 @@ its status live in [#69](https://github.com/jonaskeller14/bike_setup_tracker/iss
 | `<store>/listing/<locale>.md` | Listing text and per-device media order (previews, screenshots) per language, one code block per console field |
 | `<store>/listing/<locale>_B.md` | Variant B of a running A/B test: a full copy of the listing with the tested field changed |
 | `app-store/review-notes.md` | App Review notes (locale-independent) |
+| `app-store/custom-product-pages/` | One file per custom product page (same layout as `listing/`), rules and page tests |
+| `app-store/creative/` | Header and search-results assets: HTML sources, shared `creative.css`, rendered PNGs and `README.md` |
 | `release-notes/vX.Y.Z+B.md` | Store "What's New" text per release, EN + DE, written by `/releaseversion` |
+| `release-steps.md` | Manual console steps per release (new version, build, texts, submit) |
 | `captions/<locale>.md` | Screenshot captions, shared by both stores |
 | `screenshots.af` | Affinity composition; links the raws and holds the caption layer |
 | `app-store/<device>/`, `play-store/<device>/` | Raws (`0N_raw.png`, from `tool/screenshots/`), exported frames (`0N.png`) and app previews (`preview_N.mp4`) |
@@ -46,6 +49,19 @@ screenshot layout is planned in #69.
 - **Only features that are live in release builds.** Debug-only features in
   `lib/pages/settings/features_page.dart` stay out of the copy until they ship.
 - **Subtitle and keyword changes ship with an app version.** Watch the two weeks after the release.
+
+## Screenshot sizes
+
+| Folder | Raw `0N_raw.png` | Exported `0N.png` |
+|---|---|---|
+| `app-store/iPhone-17-Pro-Max` | 1320×2868 | 1206×2622 |
+| `app-store/iPad-Pro-13-inch_M5` | 2064×2752 | n/a, not checked |
+| `play-store/phone` | 1080×2400 | n/a, not checked |
+| `play-store/tablet_10-inch` | 1200×1920 | n/a, not checked |
+
+The iPhone exports are 1206×2622, the only size (besides 1179×2556) App Store Connect accepts in the
+6.1″/6.3″ slot. One set serves the default page and all custom product pages.
+`tool/screenshots/check_output.py` checks both columns where a size is listed.
 
 ## App previews
 

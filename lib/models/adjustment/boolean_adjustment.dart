@@ -21,6 +21,7 @@ class BooleanAdjustment extends Adjustment {
     );
   }
 
+  @override
   BooleanAdjustment copyWith({
     Object? id = const _Sentinel(),
     Object? name = const _Sentinel(),

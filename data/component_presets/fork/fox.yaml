@@ -41,7 +41,8 @@ sources:
   - https://tech.ridefox.com/bike/owners-manuals/1040/fork--2020-36mm
   - https://tech.ridefox.com/bike/owners-manuals/1082/fork--2021-36mm-or-38mm
   - https://tech.ridefox.com/bike/owners-manuals/2930/fork--2024-36mm-or-38mm
-updated: 2026-10-07
+  - https://tech.ridefox.com/bike/owners-manuals/2979/fork--2025-36mm-or-38mm
+updated: 2026-10-13
 # Current-lineup click ranges were taken from the per-model spec tables on the
 # official FOX product pages (ridefox.com/pages/fox-<model>). Clicks are counted
 # from fully closed (firmest); an adjuster with "18 clicks" has range 0..18
@@ -97,24 +98,61 @@ option_values:
       name: GRIP
       description: Updated GRIP cartridge (Performance/Rhythm trims). Three on-the-fly compression positions with micro-adjust detents.
       adjustments:
-        - { name: Rebound, type: step, max: 10, dialColor: red }
+        - { name: Rebound, type: step, max: 13, notes: "estimated maximum, check your dial and edit it if it differs", dialColor: red }
         - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm] }
-      source: https://ridefox.com/pages/fox-34
+      source:
+        - https://ridefox.com/pages/fox-34
+        - https://tech.ridefox.com/bike/owners-manuals/3164/fork--2027-36mm
+      note: >-
+        The product page lists 10 rebound clicks, but every GRIP rebound
+        starting-point table of the 2025-2027 owner's manuals (34, 34 SL, 36,
+        36 SL, 38, counted from fully closed) runs to 13, so the maximum is
+        that table's highest value.
+
+    grip_tc:
+      name: GRIP (32 Taper-Cast)
+      description: GRIP cartridge of the 32 Taper-Cast gravel fork. Three on-the-fly compression positions with micro-adjust detents.
+      adjustments:
+        - { name: Rebound, type: step, max: 22, notes: "estimated maximum, check your dial and edit it if it differs", dialColor: red }
+        - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm] }
+      source: https://tech.ridefox.com/bike/owners-manuals/3162/fork--2027-32mm--or-34mm-(including-32-step-cast-and-32-taper-cast)
+      note: >-
+        Own id because its rebound table differs from every other GRIP: the
+        32mm Taper-Cast GRIP column of the 2026-2027 32/34 manuals runs to 22
+        clicks from fully closed (120-250 lb), the maximum used here.
 
     rail:
       name: RAIL
       description: Adventure/e-bike damper (AWL). Tool-free external adjusters.
       adjustments:
-        - { name: Rebound, type: step, max: 9, dialColor: red }
+        - { name: Rebound, type: step, max: 10, notes: "estimated maximum, check your dial and edit it if it differs", dialColor: red }
         - { name: Compression Mode, type: categorical, options: ["1", "2"], notes: 2-position SWEEP ADJUST compression }
-      source: https://ridefox.com/pages/fox-awl
+      source:
+        - https://ridefox.com/pages/fox-awl
+        - https://tech.ridefox.com/bike/owners-manuals/3168/fork--2027-awl-or-awl-sport-and-awl-hd-or-awl-hd-sport
+      note: >-
+        The product page lists 9 rebound clicks; the 34mm AWL rebound table of
+        the 2025-2027 manuals (120-250 lb, counted from fully closed) runs to
+        10, the maximum used here.
+
+    rail_hd:
+      name: RAIL (AWL HD)
+      description: Adventure/e-bike damper of the 36mm AWL HD. Tool-free external adjusters.
+      adjustments:
+        - { name: Rebound, type: step, max: 13, notes: "estimated maximum, check your dial and edit it if it differs", dialColor: red }
+        - { name: Compression Mode, type: categorical, options: ["1", "2"], notes: 2-position SWEEP ADJUST compression }
+      source: https://tech.ridefox.com/bike/owners-manuals/3168/fork--2027-awl-or-awl-sport-and-awl-hd-or-awl-hd-sport
+      note: >-
+        Own id because the 36mm AWL HD rebound table of the 2025-2027 manuals
+        (120-250 lb, counted from fully closed) runs to 13, against 10 on the
+        34mm AWL; 13 is the maximum used here.
 
     # ------------------------------------------------------------------------
-    # Legacy dampers. FOX's owner's manuals for these years publish the usable
-    # GRIP2 high-speed compression range and the FIT4 open-mode adjust range, but
-    # give rebound and low-speed compression only as rider-weight starting-point
-    # tables — those are recommendations, not ranges, so those adjusters are
-    # declared with `max: ~` (placeholder range).
+    # Legacy dampers. FOX's owner's manuals for these years publish the GRIP2
+    # compression ranges as a diagram and the FIT4 open-mode adjust range, but
+    # give rebound only as a rider-weight starting-point table. A rebound total
+    # is therefore the highest value of that table (counted from fully closed,
+    # flagged "estimated maximum" in the adjustment notes).
     # Each generation keeps its own id even where the badge did not change.
     # ------------------------------------------------------------------------
     grip2_2018:
@@ -124,31 +162,37 @@ option_values:
         - Only the 16 high-speed compression clicks nearest fully closed change damping
       adjustments:
         - { name: HSC, type: step, max: 16, notes: "High-Speed Compression; clicks past 16 out from fully closed have no damping effect", dialColor: blue }
-        - { name: LSC, type: step, max: ~, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
-        - { name: HSR, type: step, max: ~, notes: High-Speed Rebound, dialColor: red }
-        - { name: LSR, type: step, max: ~, notes: Low-Speed Rebound, dialColor: red, dialSize: small }
+        - { name: LSC, type: step, max: 12, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
+        - { name: HSR, type: step, max: 8, notes: "High-Speed Rebound; estimated maximum, check your dial and edit it if it differs", dialColor: red }
+        - { name: LSR, type: step, max: 9, notes: "Low-Speed Rebound; estimated maximum, check your dial and edit it if it differs", dialColor: red, dialSize: small }
       source: https://tech.ridefox.com/bike/owners-manuals/1040/fork--2020-36mm
       note: >-
         "Factory and Performance-Elite Series GRIP2 Compression Adjusters" section
-        states the 16 usable HSC clicks. LSC/HSR/LSR totals are not stated
-        anywhere in the 2018-2020 manuals — only a suggested-settings table.
+        states the 16 usable HSC clicks and its setting diagram gives an
+        adjustment range of 12 clicks for LSC. HSR and LSR are not stated: the
+        maxima are the highest values of the 36mm rebound starting-point table
+        (55-106 psi, counted from fully closed): LSR 9, HSR 8.
 
     grip2_vvc_2021:
       name: GRIP2 VVC (2021-2024)
       description: |-
         - Four-way descent damper with Variable Valve Control high-speed circuits
-        - Only the 16 high-speed compression clicks nearest fully closed change damping
       adjustments:
-        - { name: HSC, type: step, max: 16, notes: "High-Speed Compression; clicks past 16 out from fully closed have no damping effect", dialColor: blue }
-        - { name: LSC, type: step, max: ~, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
-        - { name: HSR, type: step, max: ~, notes: High-Speed Rebound, dialColor: red }
-        - { name: LSR, type: step, max: ~, notes: Low-Speed Rebound, dialColor: red, dialSize: small }
+        - { name: HSC, type: step, max: 8, notes: High-Speed Compression, dialColor: blue }
+        - { name: LSC, type: step, max: 16, notes: Low-Speed Compression, dialColor: blue, dialSize: small }
+        - { name: HSR, type: step, max: 8, notes: "High-Speed Rebound; estimated maximum, check your dial and edit it if it differs", dialColor: red }
+        - { name: LSR, type: step, max: 9, notes: "Low-Speed Rebound; estimated maximum, check your dial and edit it if it differs", dialColor: red, dialSize: small }
       source:
         - https://tech.ridefox.com/bike/owners-manuals/1082/fork--2021-36mm-or-38mm
         - https://tech.ridefox.com/bike/owners-manuals/2930/fork--2024-36mm-or-38mm
       note: >-
-        Same 16-usable-HSC-click wording as the 2018-2020 manuals; LSC/HSR/LSR
-        totals still unstated across the 2021 and 2024 manuals.
+        The setting diagram in the GRIP2 compression section of the 2021 and
+        2024 manuals gives 8 clicks for HSC and 16 for LSC (start 5 and 10 clicks
+        out, matching the text). The paragraph above it still carries the
+        2018-2020 wording about 16 usable HSC clicks; the diagram is the
+        figure for this VVC cartridge. HSR and LSR are not stated: the maxima
+        are the highest values of the rebound starting-point table (120-250 lb,
+        counted from fully closed): LSR 9, HSR 8.
 
     fit4_2018:
       name: FIT4 (2018-2020)
@@ -156,14 +200,15 @@ option_values:
         - Three-position compression lever: Open, Medium, Firm
         - Open mode carries 22 extra clicks of low-speed fine tuning (22 plushest, 1 firmest)
       adjustments:
-        - { name: Rebound, type: step, max: ~, dialColor: red }
+        - { name: Rebound, type: step, max: 8, notes: "estimated maximum, check your dial and edit it if it differs", dialColor: red }
         - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm] }
         - { name: Open Mode Adjust, type: step, max: 22, notes: "Low-Speed Compression in Open mode; Factory and Performance Elite forks only", dialColor: blue, dialSize: small }
       source: https://tech.ridefox.com/bike/owners-manuals/1040/fork--2020-36mm
       note: >-
         "OPEN mode adjust provides 22 additional fine tuning adjustments for the
-        OPEN mode." Rebound total is not stated — the manual gives only a
-        pressure-vs-clicks starting-point table.
+        OPEN mode." Rebound total is not stated: the maximum is the highest
+        FIT4 value of the 36mm rebound starting-point table (55-106 psi,
+        counted from fully closed), 8.
 
     fit4_2021:
       name: FIT4 (2021-2024)
@@ -171,13 +216,17 @@ option_values:
         - Three-position compression lever: Open, Medium, Firm
         - Open mode carries 22 extra clicks of low-speed fine tuning (22 plushest, 1 firmest)
       adjustments:
-        - { name: Rebound, type: step, max: ~, dialColor: red }
+        - { name: Rebound, type: step, max: 14, notes: "estimated maximum, check your dial and edit it if it differs", dialColor: red }
         - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm] }
         - { name: Open Mode Adjust, type: step, max: 22, notes: "Low-Speed Compression in Open mode; Factory and Performance Elite forks only", dialColor: blue, dialSize: small }
       source:
         - https://tech.ridefox.com/bike/owners-manuals/1082/fork--2021-36mm-or-38mm
         - https://tech.ridefox.com/bike/owners-manuals/2930/fork--2024-36mm-or-38mm
-      note: Separate key from fit4_2018 per SCHEMA.md; the published 22-position open-mode range is identical.
+      note: >-
+        Separate key from fit4_2018 per SCHEMA.md; the published 22-position
+        open-mode range is identical. Rebound total is not stated: the maximum
+        is the highest FIT4 value of the rebound starting-point table (120-250
+        lb, counted from fully closed), 14.
 
     grip_2018:
       name: GRIP (2018-2024)
@@ -185,7 +234,7 @@ option_values:
         - Three-position compression lever: Open, Medium, Firm
         - The detents between the three modes are usable for fine tuning
       adjustments:
-        - { name: Rebound, type: step, max: ~, dialColor: red }
+        - { name: Rebound, type: step, max: 13, notes: "estimated maximum, check your dial and edit it if it differs", dialColor: red }
         - { name: Compression Mode, type: categorical, options: [Open, Medium, Firm] }
       source:
         - https://tech.ridefox.com/bike/owners-manuals/1040/fork--2020-36mm
@@ -193,7 +242,668 @@ option_values:
       note: >-
         Rebound total unstated for this cartridge generation; the current GRIP
         (10 clicks) figure comes from a 2025+ product page and must not be
-        carried backwards.
+        carried backwards. The maximum is the highest GRIP value of the 36/38
+        rebound starting-point tables (55-106 psi in the 2020 manual, 120-250 lb
+        in the 2021 and 2024 manuals, counted from fully closed), 13 in both.
+
+# --------------------------------------------------------------------------
+# Setup guides — the owner's manuals' starting points as data (SCHEMA.md,
+# "Setup guides"), transcribed from docs/research/setup_guides/fox.md.
+# --------------------------------------------------------------------------
+guides:
+  fox_32_34_2027:
+    label: FOX 32/34 owner's manual (2027)
+    source: https://tech.ridefox.com/bike/owners-manuals/3162/fork--2027-32mm--or-34mm-(including-32-step-cast-and-32-taper-cast)
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { model: 32-taper-cast }
+        rows: {
+          120-130: 100, 130-140: 104, 140-150: 108, 150-160: 113, 160-170: 117,
+          170-180: 121, 180-190: 125, 190-200: 129, 200-210: 133, 210-220: 138,
+          220-230: 142, 230-240: 146, 240-250: 150
+        }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { model: 32-step-cast }
+        rows: {
+          120-130: 65, 130-140: 70, 140-150: 74, 150-160: 80, 160-170: 85,
+          170-180: 90, 180-190: 96, 190-200: 101, 200-210: 106, 210-220: 111,
+          220-230: 116, 230-240: 121, 240-250: 126
+        }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { model: "34", trim: [factory, performance-elite, performance] }
+        rows: {
+          120-130: 64, 130-140: 69, 140-150: 74, 150-160: 78, 160-170: 83,
+          170-180: 88, 180-190: 92, 190-200: 97, 200-210: 102, 210-220: 106,
+          220-230: 111, 230-240: 116, 240-250: 120
+        }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { model: "34", trim: rhythm }
+        rows: {
+          120-130: 58, 130-140: 63, 140-150: 68, 150-160: 72, 160-170: 77,
+          170-180: 82, 180-190: 86, 190-200: 91, 200-210: 96, 210-220: 100,
+          220-230: 105, 230-240: 110, 240-250: 114
+        }
+      - target: rebound
+        input: rider_weight
+        input_unit: lb
+        when: { model: 32-taper-cast, damper: grip_tc }
+        rows: {
+          120-130: 22, 130-140: 21, 140-150: 20, 150-160: 19, 160-170: 18,
+          170-180: 17, 180-190: 16, 190-200: 15, 200-210: 13, 210-220: 11,
+          220-230: 10, 230-240: 9, 240-250: 8
+        }
+      - target: rebound
+        input: rider_weight
+        input_unit: lb
+        when: { model: 32-taper-cast, damper: grip_sl }
+        rows: {
+          120-130: 17, 130-140: 16, 140-150: 15, 150-160: 14, 160-170: 13,
+          170-180: 12, 180-190: 11, 190-200: 10, 200-210: 9, 210-220: 8,
+          220-230: 7, 230-240: 6, 240-250: 5
+        }
+      - target: rebound
+        input: rider_weight
+        input_unit: lb
+        when: { model: 32-step-cast }
+        rows: {
+          120-130: 13, 130-140: 12, 140-150: 11, 150-160: 10, 160-170: 9,
+          170-180: 8, 180-190: 7, 190-200: 6, 200-210: 5, 210-220: 4,
+          220-230: 3, 230-240: 2, 240-250: 1
+        }
+      - target: rebound
+        input: rider_weight
+        input_unit: lb
+        when: { model: "34", damper: grip }
+        rows: {
+          120-130: 13, 130-140: 12, 140-150: 11, 150-160: 10, 160-170: 9,
+          170-180: 8, 180-190: 7, 190-200: 6, 200-210: 5, 210-220: 4,
+          220-230: 3, 230-240: 2, 240-250: 1
+        }
+      - { target: hsc, value: 10, when: { damper: grip_x } }
+      - { target: lsc, value: 10, when: { damper: grip_x } }
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end" }
+      - target: volume_spacers
+        input: travel_mm
+        when: { model: 32-taper-cast }
+        rows: { 40: 3, 50: 2 }
+      - target: volume_spacers
+        input: travel_mm
+        when: { model: 32-step-cast }
+        rows: { 100: 1 }
+      - target: volume_spacers
+        input: travel_mm
+        when: { model: "34", trim: [factory, performance-elite, performance] }
+        rows: { 130: 2, 140: 1 }
+      - target: volume_spacers
+        input: travel_mm
+        when: { model: "34", trim: rhythm }
+        rows: { 130: 1, 150: 0 }
+
+  fox_34sl_2027:
+    label: FOX 34 SL owner's manual (2027)
+    source: https://tech.ridefox.com/bike/owners-manuals/3163/fork--2027-34sl
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        rows: {
+          120-130: 64, 130-140: 69, 140-150: 74, 150-160: 78, 160-170: 83,
+          170-180: 88, 180-190: 92, 190-200: 97, 200-210: 102, 210-220: 106,
+          220-230: 111, 230-240: 116, 240-250: 120
+        }
+      - target: rebound
+        input: rider_weight
+        input_unit: lb
+        rows: {
+          120-130: 13, 130-140: 12, 140-150: 11, 150-160: 10, 160-170: 9,
+          170-180: 8, 180-190: 7, 190-200: 6, 200-210: 5, 210-220: 4,
+          220-230: 3, 230-240: 2, 240-250: 1
+        }
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end" }
+      - target: volume_spacers
+        input: travel_mm
+        rows: { 120: 2, 130: 1 }
+
+  fox_36sl_2027:
+    label: FOX 36 SL owner's manual (2027)
+    source: https://tech.ridefox.com/bike/owners-manuals/3165/fork--2027-36sl
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        rows: {
+          120-130: 65, 130-140: 68, 140-150: 72, 150-160: 76, 160-170: 79,
+          170-180: 83, 180-190: 87, 190-200: 90, 200-210: 94, 210-220: 97,
+          220-230: 101, 230-240: 105, 240-250: 108
+        }
+        note: Some riders need up to 10 psi more or less than the table value
+      - target: rebound
+        input: rider_weight
+        input_unit: lb
+        when: { damper: grip }
+        rows: {
+          120-130: 13, 130-140: 12, 140-150: 11, 150-160: 10, 160-170: 9,
+          170-180: 8, 180-190: 7, 190-200: 6, 200-210: 5, 210-220: 4,
+          220-230: 3, 230-240: 2, 240-250: 1
+        }
+      - target: rebound
+        input: rider_weight
+        input_unit: lb
+        when: { damper: grip_x }
+        rows: {
+          120-130: 16, 130-140: 14, 140-150: 12, 150-160: 10, 160-170: 9,
+          170-180: 8, 180-190: 7, 190-200: 6, 200-210: 5, 210-220: 4,
+          220-230: 3, 230-240: 2, 240-250: 1
+        }
+      - { target: hsc, value: 5, when: { damper: grip_x } }
+      - { target: lsc, value: 5, when: { damper: grip_x } }
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end" }
+      - target: volume_spacers
+        input: travel_mm
+        rows: { 130: 2, 140: 1 }
+
+  fox_36_2027:
+    label: FOX 36 owner's manual (2027)
+    source: https://tech.ridefox.com/bike/owners-manuals/3164/fork--2027-36mm
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        rows: {
+          120-130: 66, 130-140: 70, 140-150: 74, 150-160: 78, 160-170: 82,
+          170-180: 86, 180-190: 89, 190-200: 94, 200-210: 99, 210-220: 105,
+          220-230: 109, 230-240: 113, 240-250: 117
+        }
+        note: Some riders need up to 10 psi more or less than the table value
+      - target: rebound
+        input: rider_weight
+        input_unit: lb
+        when: { damper: grip }
+        rows: {
+          120-130: 13, 130-140: 12, 140-150: 11, 150-160: 10, 160-170: 9,
+          170-180: 8, 180-190: 7, 190-200: 6, 200-210: 5, 210-220: 4,
+          220-230: 3, 230-240: 2, 240-250: 1
+        }
+      - target: rebound
+        input: rider_weight
+        input_unit: lb
+        when: { damper: grip_x }
+        rows: {
+          120-130: 16, 130-140: 14, 140-150: 12, 150-160: 10, 160-170: 9,
+          170-180: 8, 180-190: 7, 190-200: 6, 200-210: 5, 210-220: 4,
+          220-230: 3, 230-240: 2, 240-250: 1
+        }
+      - target: lsr
+        input: rider_weight
+        input_unit: lb
+        when: { damper: grip_x2 }
+        rows: {
+          120-130: 9, 130-140: 8, 140-150: 7, 150-160: 7, 160-170: 7,
+          170-180: 7, 180-190: 6, 190-200: 5, 200-210: 4, 210-220: 3,
+          220-230: 3, 230-240: 2, 240-250: 1
+        }
+      - target: hsr
+        input: rider_weight
+        input_unit: lb
+        when: { damper: grip_x2 }
+        rows: {
+          120-130: 8, 130-140: 7, 140-150: 7, 150-160: 6, 160-170: 6,
+          170-180: 5, 180-190: 4, 190-200: 4, 200-210: 3, 210-220: 2,
+          220-230: 1, 230-240: 0, 240-250: 0
+        }
+      - { target: hsc, value: 5, when: { damper: grip_x } }
+      - { target: lsc, value: 5, when: { damper: grip_x } }
+      - { target: hsc, value: 5, when: { damper: grip_x2 } }
+      - { target: lsc, value: 10, when: { damper: grip_x2 } }
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end" }
+      - target: volume_spacers
+        input: travel_mm
+        rows: { 150: 2, 160: 1 }
+
+  fox_36_38_2025:
+    label: FOX 36/38 owner's manual (2025)
+    source: https://tech.ridefox.com/bike/owners-manuals/2979/fork--2025-36mm-or-38mm
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        rows: {
+          120-130: 55, 130-140: 59, 140-150: 63, 150-160: 67, 160-170: 72,
+          170-180: 76, 180-190: 80, 190-200: 85, 200-210: 89, 210-220: 93,
+          220-230: 97, 230-240: 102, 240-250: 106
+        }
+      - target: rebound
+        input: rider_weight
+        input_unit: lb
+        rows: {
+          120-130: 13, 130-140: 12, 140-150: 11, 150-160: 10, 160-170: 9,
+          170-180: 8, 180-190: 7, 190-200: 6, 200-210: 5, 210-220: 4,
+          220-230: 3, 230-240: 2, 240-250: 1
+        }
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end" }
+      - target: volume_spacers
+        input: travel_mm
+        rows: { 150: 3, 160: 2 }
+
+  fox_38_2027:
+    label: FOX 38 owner's manual (2027)
+    source: https://tech.ridefox.com/bike/owners-manuals/3166/fork--2027-38mm
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { trim: [factory, performance-elite] }
+        rows: {
+          120-130: 54, 130-140: 58, 140-150: 62, 150-160: 67, 160-170: 71,
+          170-180: 75, 180-190: 80, 190-200: 84, 200-210: 88, 210-220: 93,
+          220-230: 97, 230-240: 100, 240-250: 104
+        }
+        note: Some riders need up to 10 psi more or less than the table value
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { trim: rhythm }
+        rows: {
+          120-130: 59, 130-140: 63, 140-150: 67, 150-160: 72, 160-170: 76,
+          170-180: 80, 180-190: 84, 190-200: 88, 200-210: 92, 210-220: 97,
+          220-230: 101, 230-240: 105, 240-250: 109
+        }
+        note: Some riders need up to 10 psi more or less than the table value
+      - target: rebound
+        input: rider_weight
+        input_unit: lb
+        when: { damper: grip }
+        rows: {
+          120-130: 13, 130-140: 12, 140-150: 11, 150-160: 10, 160-170: 9,
+          170-180: 8, 180-190: 7, 190-200: 6, 200-210: 5, 210-220: 4,
+          220-230: 3, 230-240: 2, 240-250: 1
+        }
+      - target: lsr
+        input: rider_weight
+        input_unit: lb
+        when: { damper: grip_x2 }
+        rows: {
+          120-130: 9, 130-140: 8, 140-150: 7, 150-160: 7, 160-170: 7,
+          170-180: 7, 180-190: 6, 190-200: 5, 200-210: 4, 210-220: 3,
+          220-230: 3, 230-240: 2, 240-250: 1
+        }
+      - target: hsr
+        input: rider_weight
+        input_unit: lb
+        when: { damper: grip_x2 }
+        rows: {
+          120-130: 8, 130-140: 7, 140-150: 7, 150-160: 6, 160-170: 6,
+          170-180: 5, 180-190: 4, 190-200: 4, 200-210: 3, 210-220: 2,
+          220-230: 1, 230-240: 0, 240-250: 0
+        }
+      - { target: hsc, value: 5, when: { damper: grip_x2 } }
+      - { target: lsc, value: 10, when: { damper: grip_x2 } }
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end" }
+      - target: volume_spacers
+        input: travel_mm
+        when: { trim: [factory, performance-elite] }
+        rows: { 160: "1× 10cc + 1× 5cc", 170: "1× 10cc", 180: "1× 5cc" }
+      - target: volume_spacers
+        input: travel_mm
+        when: { trim: rhythm }
+        rows: { 160: 2, 170: 1, 180: 0 }
+
+  fox_38_2026:
+    label: FOX 38 owner's manual (2026)
+    source: https://tech.ridefox.com/bike/owners-manuals/3103/fork--2026-38mm
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { trim: [factory, performance-elite] }
+        rows: {
+          120-130: 72, 130-140: 76, 140-150: 80, 150-160: 84, 160-170: 89,
+          170-180: 93, 180-190: 97, 190-200: 102, 200-210: 106, 210-220: 110,
+          220-230: 114, 230-240: 119, 240-250: 123
+        }
+        note: Some riders need up to 10 psi more or less than the table value
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { trim: rhythm }
+        rows: {
+          120-130: 59, 130-140: 63, 140-150: 67, 150-160: 72, 160-170: 76,
+          170-180: 80, 180-190: 84, 190-200: 88, 200-210: 92, 210-220: 97,
+          220-230: 101, 230-240: 105, 240-250: 109
+        }
+        note: Some riders need up to 10 psi more or less than the table value
+      - target: rebound
+        input: rider_weight
+        input_unit: lb
+        when: { damper: grip }
+        rows: {
+          120-130: 13, 130-140: 12, 140-150: 11, 150-160: 10, 160-170: 9,
+          170-180: 8, 180-190: 7, 190-200: 6, 200-210: 5, 210-220: 4,
+          220-230: 3, 230-240: 2, 240-250: 1
+        }
+      - target: lsr
+        input: rider_weight
+        input_unit: lb
+        when: { damper: grip_x2 }
+        rows: {
+          120-130: 9, 130-140: 8, 140-150: 7, 150-160: 7, 160-170: 7,
+          170-180: 7, 180-190: 6, 190-200: 5, 200-210: 4, 210-220: 3,
+          220-230: 3, 230-240: 2, 240-250: 1
+        }
+      - target: hsr
+        input: rider_weight
+        input_unit: lb
+        when: { damper: grip_x2 }
+        rows: {
+          120-130: 8, 130-140: 7, 140-150: 7, 150-160: 6, 160-170: 6,
+          170-180: 5, 180-190: 4, 190-200: 4, 200-210: 3, 210-220: 2,
+          220-230: 1, 230-240: 0, 240-250: 0
+        }
+      - { target: hsc, value: 5, when: { damper: grip_x2 } }
+      - { target: lsc, value: 10, when: { damper: grip_x2 } }
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end" }
+      - target: volume_spacers
+        input: travel_mm
+        when: { trim: [factory, performance-elite] }
+        rows: { 160: 3, 170: 2, 180: 1 }
+      - target: volume_spacers
+        input: travel_mm
+        when: { trim: rhythm }
+        rows: { 160: 2, 170: 1, 180: 0 }
+
+  fox_40_2027:
+    label: FOX 40 owner's manual (2027)
+    source: https://tech.ridefox.com/bike/owners-manuals/3167/fork--2027-40mm
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        rows: { 120-150: [52, 64], 150-180: [64, 76], 180-210: [76, 87], 210-250: [87, 101] }
+      - target: lsr
+        input: rider_weight
+        input_unit: lb
+        when: { damper: grip_x2 }
+        rows: {
+          120-130: 10, 130-140: 9, 140-150: 8, 150-160: 8, 160-170: 7,
+          170-180: 7, 180-190: 6, 190-200: 5, 200-210: 5, 210-220: 4,
+          220-230: 3, 230-240: 3, 240-250: 2
+        }
+      - { target: hsc, value: 5, when: { damper: grip_x2 } }
+      - { target: lsc, value: 10, when: { damper: grip_x2 } }
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end" }
+      - target: volume_spacers
+        input: travel_mm
+        rows: { 203: 2 }
+
+  fox_podium_2027:
+    label: FOX Podium owner's manual (2027)
+    source: https://tech.ridefox.com/bike/owners-manuals/3169/fork--2027-podium-
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        rows: {
+          120-130: 55, 130-140: 61, 140-150: 67, 150-160: 73, 160-170: 78,
+          170-180: 84, 180-190: 90, 190-200: 96, 200-210: 102, 210-220: 108,
+          220-230: 113, 230-240: 119, 240-250: 125
+        }
+      - target: lsr
+        input: pressure
+        input_unit: psi
+        when: { damper: grip_x2 }
+        rows: {
+          55: 15, 61: 13, 67: 13, 73: 12, 78: 10,
+          84: 9, 90: 8, 96: 6, 102: 5, 108: 5,
+          113: 3, 119: 2, 125: 1
+        }
+      - target: hsr
+        input: pressure
+        input_unit: psi
+        when: { damper: grip_x2 }
+        rows: {
+          55: 8, 61: 7, 67: 7, 73: 6, 78: 6,
+          84: 5, 90: 4, 96: 4, 102: 3, 108: 2,
+          113: 1, 119: 0, 125: 0
+        }
+      - { target: hsc, value: 6, when: { damper: grip_x2 } }
+      - { target: lsc, value: 8, when: { damper: grip_x2 } }
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end" }
+      - target: volume_spacers
+        input: travel_mm
+        rows: { 150: 4, 160: 3, 170: 2 }
+
+  fox_awl_2027:
+    label: FOX AWL owner's manual (2027)
+    source: https://tech.ridefox.com/bike/owners-manuals/3168/fork--2027-awl-or-awl-sport-and-awl-hd-or-awl-hd-sport
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { trim: standard }
+        rows: {
+          120-130: 65, 130-140: 70, 140-150: 74, 150-160: 80, 160-170: 85,
+          170-180: 90, 180-190: 96, 190-200: 101, 200-210: 106, 210-220: 111,
+          220-230: 116, 230-240: 121, 240-250: 126
+        }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { trim: hd }
+        rows: {
+          120-130: 71, 130-140: 76, 140-150: 81, 150-160: 85, 160-170: 90,
+          170-180: 95, 180-190: 99, 190-200: 104, 200-210: 109, 210-220: 113,
+          220-230: 115, 230-240: 117, 240-250: 120
+        }
+      - target: rebound
+        input: rider_weight
+        input_unit: lb
+        when: { trim: standard }
+        rows: {
+          120-130: 10, 130-140: 9, 140-150: 9, 150-160: 8, 160-170: 8,
+          170-180: 7, 180-190: 7, 190-200: 6, 200-210: 5, 210-220: 3,
+          220-230: 2, 230-240: 1, 240-250: 1
+        }
+      - target: rebound
+        input: rider_weight
+        input_unit: lb
+        when: { trim: hd }
+        rows: {
+          120-130: 13, 130-140: 12, 140-150: 11, 150-160: 10, 160-170: 9,
+          170-180: 8, 180-190: 7, 190-200: 6, 200-210: 5, 210-220: 4,
+          220-230: 3, 230-240: 2, 240-250: 1
+        }
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end" }
+      - target: volume_spacers
+        input: travel_mm
+        when: { trim: standard }
+        rows: {
+          100: 6, 110: 5, 120: 4, 130: 4, 140: 3,
+          150: 2
+        }
+      - target: volume_spacers
+        input: travel_mm
+        when: { trim: hd }
+        rows: { 130: 5, 140: 4, 150: 4, 160: 3 }
+
+  fox_36_2020:
+    label: FOX 36 owner's manual (2020)
+    source: https://tech.ridefox.com/bike/owners-manuals/1040/fork--2020-36mm
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        rows: { 120-150: [55, 63], 150-180: [67, 76], 180-210: [80, 89], 210-250: [93, 106] }
+      - target: rebound
+        input: pressure
+        input_unit: psi
+        when: { damper: fit4_2018 }
+        rows: {
+          55: 8, 59: 8, 63: 7, 67: 7, 75: 6,
+          76: 6, 80: 5, 85: 5, 89: 4, 93: 4,
+          97: 3, 102: 2, 106: 1
+        }
+      - target: rebound
+        input: pressure
+        input_unit: psi
+        when: { damper: grip_2018 }
+        rows: {
+          55: 13, 59: 12, 63: 11, 67: 10, 75: 9,
+          76: 8, 80: 7, 85: 6, 89: 5, 93: 4,
+          97: 3, 102: 2, 106: 1
+        }
+      - target: lsr
+        input: pressure
+        input_unit: psi
+        when: { damper: grip2_2018 }
+        rows: {
+          55: 9, 59: 8, 63: 7, 67: 7, 75: 6,
+          76: 6, 80: 5, 85: 4, 89: 4, 93: 3,
+          97: 2, 102: 2, 106: 1
+        }
+      - target: hsr
+        input: pressure
+        input_unit: psi
+        when: { damper: grip2_2018 }
+        rows: {
+          55: 8, 59: 7, 63: 6, 67: 6, 75: 5,
+          76: 5, 80: 4, 85: 3, 89: 3, 93: 2,
+          97: 1, 102: 1, 106: 0
+        }
+      - { target: compression_mode, value: Open, when: { damper: [fit4_2018, grip_2018] } }
+      - { target: open_mode_adjust, value: 18, when: { damper: fit4_2018 } }
+      - { target: hsc, value: 10, when: { damper: grip2_2018 } }
+      - { target: lsc, value: 6, when: { damper: grip2_2018 } }
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end" }
+      - target: volume_spacers
+        input: travel_mm
+        rows: { 140: 4, 150: 2, 160: 1, 170: 0, 180: 0 }
+
+  fox_36_38_2024:
+    label: FOX 36/38 owner's manual (2024)
+    source: https://tech.ridefox.com/bike/owners-manuals/2930/fork--2024-36mm-or-38mm
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { model: "36", trim: [factory, performance-elite, performance] }
+        rows: {
+          120-130: 66, 130-140: 70, 140-150: 74, 150-160: 78, 160-170: 82,
+          170-180: 86, 180-190: 89, 190-200: 94, 200-210: 99, 210-220: 105,
+          220-230: 109, 230-240: 113, 240-250: 117
+        }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { model: "36", trim: rhythm }
+        rows: {
+          120-130: 55, 130-140: 59, 140-150: 63, 150-160: 67, 160-170: 72,
+          170-180: 76, 180-190: 80, 190-200: 85, 200-210: 89, 210-220: 93,
+          220-230: 97, 230-240: 102, 240-250: 106
+        }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { model: "38", trim: [factory, performance-elite, performance] }
+        rows: {
+          120-130: 72, 130-140: 76, 140-150: 80, 150-160: 84, 160-170: 89,
+          170-180: 93, 180-190: 97, 190-200: 102, 200-210: 106, 210-220: 110,
+          220-230: 114, 230-240: 119, 240-250: 123
+        }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { model: "38", trim: rhythm }
+        rows: {
+          120-130: 59, 130-140: 63, 140-150: 67, 150-160: 72, 160-170: 76,
+          170-180: 80, 180-190: 84, 190-200: 88, 200-210: 92, 210-220: 97,
+          220-230: 101, 230-240: 105, 240-250: 109
+        }
+      - target: rebound
+        input: rider_weight
+        input_unit: lb
+        when: { damper: fit4_2021 }
+        rows: {
+          120-130: 14, 130-140: 13, 140-150: 12, 150-160: 11, 160-170: 9,
+          170-180: 8, 180-190: 7, 190-200: 6, 200-210: 5, 210-220: 4,
+          220-230: 3, 230-240: 2, 240-250: 1
+        }
+      - target: rebound
+        input: rider_weight
+        input_unit: lb
+        when: { damper: grip_2018 }
+        rows: {
+          120-130: 13, 130-140: 12, 140-150: 11, 150-160: 10, 160-170: 9,
+          170-180: 8, 180-190: 7, 190-200: 6, 200-210: 5, 210-220: 4,
+          220-230: 3, 230-240: 2, 240-250: 1
+        }
+      - target: lsr
+        input: rider_weight
+        input_unit: lb
+        when: { damper: grip2_vvc_2021 }
+        rows: {
+          120-130: 9, 130-140: 8, 140-150: 7, 150-160: 7, 160-170: 6,
+          170-180: 6, 180-190: 5, 190-200: 4, 200-210: 4, 210-220: 3,
+          220-230: 2, 230-240: 2, 240-250: 1
+        }
+      - target: hsr
+        input: rider_weight
+        input_unit: lb
+        when: { damper: grip2_vvc_2021 }
+        rows: {
+          120-130: 8, 130-140: 7, 140-150: 6, 150-160: 6, 160-170: 5,
+          170-180: 5, 180-190: 4, 190-200: 3, 200-210: 3, 210-220: 2,
+          220-230: 1, 230-240: 1, 240-250: 0
+        }
+      - { target: compression_mode, value: Open, when: { damper: [fit4_2021, grip_2018] } }
+      - { target: open_mode_adjust, value: 18, when: { damper: fit4_2021 } }
+      - { target: hsc, value: 5, when: { damper: grip2_vvc_2021 } }
+      - { target: lsc, value: 10, when: { damper: grip2_vvc_2021 } }
+      - { target: sag, range: [15, 20], comfort_at: max, note: "15 % is FOX's firm end, 20 % the plush end" }
+      - target: volume_spacers
+        input: travel_mm
+        when: { model: "36", trim: [factory, performance-elite, performance] }
+        rows: { 130: 5, 140: 4, 150: 2, 160: 1, 170: 0 }
+      - target: volume_spacers
+        input: travel_mm
+        when: { model: "36", trim: rhythm }
+        rows: { 130: 5, 140: 4, 150: 3, 160: 2, 170: 1 }
+      - target: volume_spacers
+        input: travel_mm
+        when: { model: "38", trim: [factory, performance-elite, performance] }
+        rows: { 150: 4, 160: 3, 170: 2, 180: 1 }
+      - target: volume_spacers
+        input: travel_mm
+        when: { model: "38", trim: rhythm }
+        rows: { 150: 3, 160: 2, 170: 1, 180: 0 }
 
 # --------------------------------------------------------------------------
 # Forks — the current (2025/2026) FOX lineup. A model that also has legacy
@@ -211,7 +921,8 @@ nodes:
     category: Gravel
     years: "2025-2026"
     url: https://ridefox.com/pages/fox-32-taper-cast
-    setup_guide: https://tech.ridefox.com/bike/owners-manuals/3104/fork--2026-32mm--or-34mm-(including-32-step-cast-and-32-taper-cast)
+    setup_guide: https://tech.ridefox.com/bike/owners-manuals/3162/fork--2027-32mm--or-34mm-(including-32-step-cast-and-32-taper-cast)
+    guide: fox_32_34_2027
     note: 12x100 Kabolt thru-axle, integrated fender mounts
     tasks: &fox_service
       fork:full_service: { interval: { moving_time_h: 125 }, fallback: { days: 365 }, source: FOX owner's manual }
@@ -220,7 +931,7 @@ nodes:
         level: trim
         specs: { stanchion: Kashima, spring: Air }
         adjustments:
-          - &pressure { name: Pressure, type: numerical, unit: psi, min: 0 }
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 150 }
           - { name: Volume Spacers, type: step, max: 4, visualization: stepper, notes: "Maximum 4 at both 40mm and 50mm travel" }
         options:
           damper: [grip_sl]
@@ -230,10 +941,10 @@ nodes:
         level: trim
         specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
         adjustments:
-          - *pressure
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 150 }
           - { name: Volume Spacers, type: step, max: 4, visualization: stepper }
         options:
-          damper: [grip]
+          damper: [grip_tc]
           travel_mm: [40]
           wheel_size: [700c, 650b]
 
@@ -242,14 +953,15 @@ nodes:
     category: XC
     years: "2025-2026"
     url: https://ridefox.com/pages/fox-32-step-cast
-    setup_guide: https://tech.ridefox.com/bike/owners-manuals/3104/fork--2026-32mm--or-34mm-(including-32-step-cast-and-32-taper-cast)
+    setup_guide: https://tech.ridefox.com/bike/owners-manuals/3162/fork--2027-32mm--or-34mm-(including-32-step-cast-and-32-taper-cast)
+    guide: fox_32_34_2027
     tasks: *fox_service
     children:
       - label: Factory
         level: trim
         specs: { stanchion: Kashima, spring: Air }
         adjustments:
-          - *pressure
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 140 }
           - { name: Volume Spacers, type: step, max: 4, visualization: stepper, notes: "Maximum 4 at 100mm travel" }
         options:
           damper: [grip_sl]
@@ -259,7 +971,7 @@ nodes:
         level: trim
         specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
         adjustments:
-          - *pressure
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 140 }
           - { name: Volume Spacers, type: step, max: 4, visualization: stepper, notes: "Maximum 4 at 100mm travel" }
         options:
           damper: [grip]
@@ -271,14 +983,15 @@ nodes:
     category: Downcountry
     years: "2025-2026"
     url: https://ridefox.com/pages/fox-34-sl
-    setup_guide: https://tech.ridefox.com/bike/owners-manuals/3087/fork--2026-34sl
+    setup_guide: https://tech.ridefox.com/bike/owners-manuals/3163/fork--2027-34sl
+    guide: fox_34sl_2027
     tasks: *fox_service
     children:
       - label: Factory
         level: trim
         specs: { stanchion: Kashima, spring: Air }
         adjustments:
-          - *pressure
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
           - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Max per travel: 5 at 120mm, 4 at 130mm" }
         options:
           damper: [grip_sl]
@@ -288,7 +1001,7 @@ nodes:
         level: trim
         specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
         adjustments:
-          - *pressure
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
           - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Maximum 5 at 120mm travel" }
         options:
           damper: [grip_sl]
@@ -298,7 +1011,7 @@ nodes:
         level: trim
         specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
         adjustments:
-          - *pressure
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
           - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Maximum 5 at 120mm travel" }
         options:
           damper: [grip]
@@ -310,14 +1023,15 @@ nodes:
     category: Trail
     years: "2025-2026"
     url: https://ridefox.com/pages/fox-34
-    setup_guide: https://tech.ridefox.com/bike/owners-manuals/3104/fork--2026-32mm--or-34mm-(including-32-step-cast-and-32-taper-cast)
+    setup_guide: https://tech.ridefox.com/bike/owners-manuals/3162/fork--2027-32mm--or-34mm-(including-32-step-cast-and-32-taper-cast)
+    guide: fox_32_34_2027
     tasks: *fox_service
     children:
       - label: Factory
         level: trim
         specs: { stanchion: Kashima, spring: Air }
         adjustments:
-          - *pressure
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
           - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Max per travel: 5 at 130mm and 140mm, 6 at 120mm" }
         options:
           damper: [grip_x]
@@ -327,7 +1041,7 @@ nodes:
         level: trim
         specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
         adjustments:
-          - *pressure
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
           - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Maximum 5 at 130mm travel" }
         options:
           damper: [grip_x]
@@ -337,7 +1051,7 @@ nodes:
         level: trim
         specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
         adjustments:
-          - *pressure
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
           - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Maximum 5 at 130mm travel" }
         options:
           damper: [grip]
@@ -347,7 +1061,7 @@ nodes:
         level: trim
         specs: { stanchion: "6000-series alloy, black anodized", spring: Air }
         adjustments:
-          - *pressure
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
           - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Max per travel: 5 at 130mm, 4 at 140mm and 150mm" }
         options:
           damper: [grip]
@@ -360,14 +1074,15 @@ nodes:
     category: Trail
     years: "2025-2026"
     url: https://ridefox.com/pages/fox-36-sl
-    setup_guide: https://tech.ridefox.com/bike/owners-manuals/3088/fork--2026-36sl
+    setup_guide: https://tech.ridefox.com/bike/owners-manuals/3165/fork--2027-36sl
+    guide: fox_36sl_2027
     tasks: *fox_service
     children:
       - label: Factory
         level: trim
         specs: { stanchion: Kashima, spring: Air }
         adjustments:
-          - *pressure
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
           - { name: Volume Spacers, type: step, max: 7, visualization: stepper, notes: "Max per travel: 8 at 120mm, 7 at 130mm, 6 at 140mm" }
         options:
           damper: [grip_x]
@@ -377,7 +1092,7 @@ nodes:
         level: trim
         specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
         adjustments:
-          - *pressure
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
           - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Maximum 6 at 140mm travel" }
         options:
           damper: [grip_x]
@@ -387,7 +1102,7 @@ nodes:
         level: trim
         specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
         adjustments:
-          - *pressure
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
           - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Maximum 6 at 140mm travel" }
         options:
           damper: [grip]
@@ -404,13 +1119,14 @@ nodes:
         id: "2025"
         years: "2025-2026"
         url: https://ridefox.com/pages/fox-36
-        setup_guide: https://tech.ridefox.com/bike/owners-manuals/3089/fork--2026-36mm
+        setup_guide: https://tech.ridefox.com/bike/owners-manuals/3164/fork--2027-36mm
+        guide: fox_36_2027
         children:
           - label: Factory
             level: trim
             specs: { stanchion: Kashima, spring: Air }
             adjustments:
-              - *pressure
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
               - { name: Volume Spacers, type: step, max: 7, visualization: stepper, notes: "Max per travel: 8 at 140mm, 7 at 150mm, 6 at 160mm" }
             options:
               damper: [grip_x2, grip_x]   # buyer-selectable damper
@@ -420,7 +1136,7 @@ nodes:
             level: trim
             specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
             adjustments:
-              - *pressure
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
               - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Maximum 6 at 160mm travel" }
             options:
               damper: [grip_x]
@@ -430,7 +1146,7 @@ nodes:
             level: trim
             specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
             adjustments:
-              - *pressure
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
               - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Maximum 6 at 160mm travel" }
             options:
               damper: [grip]
@@ -439,31 +1155,34 @@ nodes:
           - label: Rhythm
             level: trim
             specs: { stanchion: "6000-series alloy, black anodized", spring: Air }
-            # The 2026 36mm manual tabulates 36mm and 36mm E-Bike+ only — no 36
-            # Rhythm spacer table for this generation, so no Volume Spacers entry.
+            # Spacer table: 36 RHYTHM Volume Spacer Configurations in the 2025
+            # 36mm/38mm manual (the 2026 36mm manual omits the Rhythm table).
+            setup_guide: https://tech.ridefox.com/bike/owners-manuals/2979/fork--2025-36mm-or-38mm
+            guide: fox_36_38_2025
             adjustments:
-              - *pressure
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, type: step, max: 7, visualization: stepper, notes: "Max per travel: 7 at 150mm and 160mm" }
             options:
               damper: [grip]
               travel_mm: [150, 160]
               wheel_size: [29, 27.5]
             note: OEM complete bikes only
       # Legacy generations, here and on the 38. Keep them below the current
-      # generation. FOX never published the rebound (and, on GRIP2, the
-      # LSC/HSR/LSR) click totals for these cartridges, so those adjusters
-      # carry `max: ~`.
+      # generation. FOX publishes no rebound totals for these cartridges, so
+      # those maxima are estimates from the rebound starting-point tables.
       - label: "2018–2020"
         level: generation
         id: "2018"
         years: "2018-2020"
         url: https://tech.ridefox.com/bike/owners-manuals/1040/fork--2020-36mm
         setup_guide: https://tech.ridefox.com/bike/owners-manuals/1040/fork--2020-36mm
+        guide: fox_36_2020
         children:
           - label: Factory
             level: trim
             specs: { stanchion: Kashima, spring: Air }
             adjustments:
-              - *pressure
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
               - { name: Volume Spacers, type: step, max: 8, visualization: stepper, notes: "Max per travel: 8 at 140mm, 7 at 150mm, 6 at 160mm, 5 at 170mm, 4 at 180mm" }
             options:
               damper: [grip2_2018, fit4_2018]   # buyer-selectable damper
@@ -474,7 +1193,7 @@ nodes:
             level: trim
             specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
             adjustments:
-              - *pressure
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
               - { name: Volume Spacers, type: step, max: 8, visualization: stepper, notes: "Max per travel: 8 at 140mm, 7 at 150mm, 6 at 160mm, 5 at 170mm, 4 at 180mm" }
             options:
               damper: [grip2_2018, fit4_2018]
@@ -484,7 +1203,7 @@ nodes:
             level: trim
             specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
             adjustments:
-              - *pressure
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
               - { name: Volume Spacers, type: step, max: 8, visualization: stepper, notes: "Max per travel: 8 at 140mm, 7 at 150mm, 6 at 160mm, 5 at 170mm, 4 at 180mm" }
             options:
               damper: [grip_2018]
@@ -495,13 +1214,14 @@ nodes:
         id: "2021"
         years: "2021-2024"
         url: https://tech.ridefox.com/bike/owners-manuals/1082/fork--2021-36mm-or-38mm
-        setup_guide: https://tech.ridefox.com/bike/owners-manuals/1082/fork--2021-36mm-or-38mm
+        setup_guide: https://tech.ridefox.com/bike/owners-manuals/2930/fork--2024-36mm-or-38mm
+        guide: fox_36_38_2024
         children:
           - label: Factory
             level: trim
             specs: { stanchion: Kashima, spring: Air }
             adjustments:
-              - *pressure
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
               - { name: Volume Spacers, type: step, max: 9, visualization: stepper, notes: "Max per travel: 9 at 130mm, 8 at 140mm, 7 at 150mm, 6 at 160mm, 5 at 170mm" }
             options:
               damper: [grip2_vvc_2021, fit4_2021]   # buyer-selectable damper
@@ -512,7 +1232,7 @@ nodes:
             level: trim
             specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
             adjustments:
-              - *pressure
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
               - { name: Volume Spacers, type: step, max: 9, visualization: stepper, notes: "Max per travel: 9 at 130mm, 8 at 140mm, 7 at 150mm, 6 at 160mm, 5 at 170mm" }
             options:
               damper: [grip2_vvc_2021, fit4_2021]
@@ -522,7 +1242,7 @@ nodes:
             level: trim
             specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
             adjustments:
-              - *pressure
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
               - { name: Volume Spacers, type: step, max: 9, visualization: stepper, notes: "Max per travel: 9 at 130mm, 8 at 140mm, 7 at 150mm, 6 at 160mm, 5 at 170mm" }
             options:
               damper: [grip_2018]
@@ -532,7 +1252,7 @@ nodes:
             level: trim
             specs: { stanchion: "6000-series alloy, black anodized", spring: Air }
             adjustments:
-              - *pressure
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
               - { name: Volume Spacers, type: step, max: 8, visualization: stepper, notes: "Max per travel: 8 at 130mm and 140mm, 7 at 150mm, 6 at 160mm and 170mm" }
             options:
               damper: [grip_2018]
@@ -545,18 +1265,61 @@ nodes:
     category: Enduro
     tasks: *fox_service
     children:
+      # 2027: same trims and dampers (the manual's rebound tables and GRIP X2
+      # base tune are unchanged), but a revised FLOAT air spring with its own
+      # pressure table and mixed 10cc/5cc volume spacers.
+      - label: "2027"
+        level: generation
+        years: "2027"
+        url: https://ridefox.com/pages/fox-38
+        setup_guide: https://tech.ridefox.com/bike/owners-manuals/3166/fork--2027-38mm
+        guide: fox_38_2027
+        children:
+          - label: Factory
+            level: trim
+            specs: { stanchion: Kashima, spring: Air }
+            adjustments: &fox_38_2027_float
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 140 }
+              - name: Volume Spacers
+                type: categorical
+                options: ["1× 5cc", "1× 10cc", "1× 10cc + 1× 5cc", "2× 10cc", "2× 10cc + 1× 5cc"]
+                notes: "10cc and 5cc spacers. Maximum spacers in total: 6 at 160mm, 5 at 170mm, 4 at 180mm"
+            options:
+              damper: [grip_x2]
+              travel_mm: [160, 170, 180]
+              wheel_size: [29, 27.5]
+          - label: Performance Elite
+            level: trim
+            specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
+            adjustments: *fox_38_2027_float
+            options:
+              damper: [grip_x2]
+              travel_mm: [170]
+              wheel_size: [29, 27.5]
+          - label: Rhythm
+            level: trim
+            specs: { stanchion: "6000-series alloy, black anodized", spring: Air }
+            adjustments:
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Max per travel: 6 at 160mm, 5 at 170mm, 4 at 180mm" }
+            options:
+              damper: [grip]
+              travel_mm: [160, 170, 180]
+              wheel_size: [29, 27.5]
+            note: OEM complete bikes only
       - label: "2025–2026"
         level: generation
         id: "2025"
         years: "2025-2026"
         url: https://ridefox.com/pages/fox-38
         setup_guide: https://tech.ridefox.com/bike/owners-manuals/3103/fork--2026-38mm
+        guide: fox_38_2026
         children:
           - label: Factory
             level: trim
             specs: { stanchion: Kashima, spring: Air }
             adjustments:
-              - *pressure
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 140 }
               - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Max per travel: 6 at 150mm and 160mm, 5 at 170mm, 4 at 180mm" }
             options:
               damper: [grip_x2]
@@ -566,7 +1329,7 @@ nodes:
             level: trim
             specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
             adjustments:
-              - *pressure
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 140 }
               - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Maximum 5 at 170mm travel" }
             options:
               damper: [grip_x2]
@@ -576,7 +1339,7 @@ nodes:
             level: trim
             specs: { stanchion: "6000-series alloy, black anodized", spring: Air }
             adjustments:
-              - *pressure
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
               - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Max per travel: 7 at 150mm, 6 at 160mm, 5 at 170mm, 4 at 180mm" }
             options:
               damper: [grip]
@@ -588,13 +1351,14 @@ nodes:
         id: "2021"
         years: "2021-2024"
         url: https://tech.ridefox.com/bike/owners-manuals/1082/fork--2021-36mm-or-38mm
-        setup_guide: https://tech.ridefox.com/bike/owners-manuals/1082/fork--2021-36mm-or-38mm
+        setup_guide: https://tech.ridefox.com/bike/owners-manuals/2930/fork--2024-36mm-or-38mm
+        guide: fox_36_38_2024
         children:
           - label: Factory
             level: trim
             specs: { stanchion: Kashima, spring: Air }
             adjustments:
-              - *pressure
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 140 }
               - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Max per travel: 6 at 150mm and 160mm, 5 at 170mm, 4 at 180mm" }
             options:
               damper: [grip2_vvc_2021]
@@ -605,7 +1369,7 @@ nodes:
             level: trim
             specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
             adjustments:
-              - *pressure
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 140 }
               - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Max per travel: 6 at 150mm and 160mm, 5 at 170mm, 4 at 180mm" }
             options:
               damper: [grip2_vvc_2021]
@@ -615,7 +1379,7 @@ nodes:
             level: trim
             specs: { stanchion: "7000-series alloy, black anodized", spring: Air }
             adjustments:
-              - *pressure
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 140 }
               - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Max per travel: 6 at 150mm and 160mm, 5 at 170mm, 4 at 180mm" }
             options:
               damper: [grip_2018]
@@ -625,7 +1389,7 @@ nodes:
             level: trim
             specs: { stanchion: "6000-series alloy, black anodized", spring: Air }
             adjustments:
-              - *pressure
+              - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
               - { name: Volume Spacers, type: step, max: 7, visualization: stepper, notes: "Max per travel: 7 at 150mm, 6 at 160mm, 5 at 170mm, 4 at 180mm" }
             options:
               damper: [grip_2018]
@@ -638,14 +1402,15 @@ nodes:
     category: Downhill
     years: "2025-2026"
     url: https://ridefox.com/pages/fox-40
-    setup_guide: https://tech.ridefox.com/bike/owners-manuals/3102/fork--2026-40mm
+    setup_guide: https://tech.ridefox.com/bike/owners-manuals/3167/fork--2027-40mm
+    guide: fox_40_2027
     tasks: *fox_service
     children:
       - label: Factory
         level: trim
         specs: { stanchion: Kashima, spring: Air }
         adjustments:
-          - *pressure
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
           - { name: Volume Spacers, type: step, max: 5, visualization: stepper, notes: "Max per travel: 5 at 203mm, 7 at 190mm" }
         options:
           damper: [grip_x2]
@@ -657,7 +1422,8 @@ nodes:
     category: Enduro
     years: "2026"
     url: https://ridefox.com/products/podium
-    setup_guide: https://tech.ridefox.com/bike/owners-manuals/3108/fork--2026-podium-
+    setup_guide: https://tech.ridefox.com/bike/owners-manuals/3169/fork--2027-podium-
+    guide: fox_podium_2027
     # travel options + spacer maximums: tech.ridefox.com owner's manual 3108
     tasks: *fox_service
     children:
@@ -665,7 +1431,7 @@ nodes:
         level: trim
         specs: { stanchion: Kashima, spring: Air }
         adjustments:
-          - *pressure
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 130 }
           - { name: Volume Spacers, type: step, max: 8, visualization: stepper, notes: "Maximum 8 at 150mm, 160mm and 170mm travel" }
         options:
           damper: [grip_x2]
@@ -682,7 +1448,8 @@ nodes:
     category: Adventure / eMTB
     years: "2025-2026"
     url: https://ridefox.com/pages/fox-awl
-    setup_guide: https://tech.ridefox.com/bike/owners-manuals/3101/fork--2026-awl-or-awl-sport-and-awl-hd-or-awl-hd-sport
+    setup_guide: https://tech.ridefox.com/bike/owners-manuals/3168/fork--2027-awl-or-awl-sport-and-awl-hd-or-awl-hd-sport
+    guide: fox_awl_2027
     # travel options + spacer maximums: tech.ridefox.com owner's manual 3101
     tasks: *fox_service
     children:
@@ -690,7 +1457,7 @@ nodes:
         level: trim
         specs: { stanchion: 34mm, spring: Air }
         adjustments:
-          - *pressure
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 140 }
           - { name: Volume Spacers, type: step, max: 6, visualization: stepper, notes: "Max per travel: 6 at 100mm and 110mm, 5 at 120mm and 130mm, 4 at 140mm and 150mm" }
         options:
           damper: [rail]
@@ -701,34 +1468,46 @@ nodes:
         level: trim
         specs: { stanchion: 36mm, spring: Air }
         adjustments:
-          - *pressure
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
           - { name: Volume Spacers, type: step, max: 9, visualization: stepper, notes: "Max per travel: 9 at 130mm, 8 at 140mm, 7 at 150mm, 6 at 160mm" }
         options:
-          damper: [rail]
+          damper: [rail_hd]
           travel_mm: [130, 140, 150, 160]
           wheel_size: [29, 27.5]
         note: 29in only; higher-load chassis for e-bikes.
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):
-#   - Legacy rebound totals. The 2018-2024 owner's manuals give rebound (and
-#     GRIP2 LSC/HSR/LSR) only as pressure-vs-clicks starting-point tables, never
-#     as a range, so grip2_2018 / grip2_vvc_2021 / fit4_2018 / fit4_2021 /
-#     grip_2018 declare those adjusters with `max: ~`. A FOX service manual or a
-#     staff-written magazine bench test that states the totals outright would
-#     replace the placeholders.
-#   - 36 Rhythm (2025-2026) has no Volume Spacer Configurations table in the
-#     2026 36mm manual (it tabulates 36mm and 36mm E-Bike+ only), so that trim
-#     carries Pressure alone. The 2024-2027 36mm Rhythm spec sheet is published
-#     as images only and could not be read.
+#   - Legacy rebound totals. The 2018-2024 owner's manuals give rebound only as
+#     starting-point tables, never as a range, so grip2_2018 / grip2_vvc_2021
+#     (LSR, HSR), fit4_2018 / fit4_2021 and grip_2018 use the highest table
+#     value (estimates, flagged in the adjustment notes). A FOX service manual
+#     or a staff-written bench test stating the totals would replace them.
+#   - grip2_vvc_2021: the 2021 and 2024 manuals carry a 16-usable-HSC-click
+#     paragraph from the 2018 cartridge next to a diagram giving 8 HSC and 16
+#     LSC clicks. The diagram is recorded; check a physical 2021-2024 GRIP2
+#     dial if possible.
+#   - 36 Rhythm 2025-2026: spacer maximum comes from the 2025 manual, the 2026
+#     36mm manual has no Rhythm table; the travels beyond 150/160mm in that
+#     table (130, 140, 170mm) are not offered as options.
 #   - E-Bike+ / E-Optimized chassis variants have their own factory-installed
 #     and maximum spacer counts. They are not modelled as separate trims yet;
 #     the maximums recorded here are the non-e figures.
 #   - AWL Sport and AWL HD Sport are separate FOX SKUs (34mm and 36mm). They
 #     share the AWL/AWL HD spacer tables but their damper spec was not found,
 #     so only the Standard and HD trims are listed.
-#   - Pre-2018 generations (32/34/36/40 with FIT4, RC2, CTD) are not covered:
-#     the 2014-2017 archived material on tech.ridefox.com is spec DRAWINGS
-#     (geometry only) plus manuals that again publish starting-point tables
-#     rather than click ranges.
+#   - Pre-2025 generations of the 32, 34, 40 and the SL forks (FIT4, GRIP2 on
+#     the 40, RC2, CTD) are not covered. Adding a generation level to those
+#     models would change the paths of their existing trims, so it waits for
+#     the rollout decision. The 2018-2024 40mm manuals publish spacer tables
+#     and GRIP2/FIT4 starting-point tables, the 2014-2017 archive only spec
+#     drawings.
+#   - Rebound maxima of grip, grip_tc, rail and rail_hd are the highest values
+#     of the owner's manuals' setup tables (the product pages state 10 and 9).
+#     A physical dial count would settle them.
+#   - Setup guides: the 40's GRIP X2 HSR column (10 at 120-130 lb) exceeds the
+#     8-click HSR dial and repeats the LSR column, so it is not encoded. The
+#     E-Bike+ / E-Optimized columns wait for an e-bike option (#72).
+#   - 38 2027 wheel sizes: neither the 2027 manual nor the product page states
+#     them; carried over from 2025-2026.
 # --------------------------------------------------------------------------

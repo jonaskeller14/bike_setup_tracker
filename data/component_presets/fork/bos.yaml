@@ -30,7 +30,7 @@ sources:
   - https://www.bos-suspension.com/Files/125448/Quickstart_IDYLLE_39_GRABBER_EN.pdf
   - https://www.bos-suspension.com/Files/125448/Quickstart_Obsys-EN.pdf
   - https://www.bos-suspension.com/PBCPPlayer.asp?ID=2252919
-updated: 2026-10-05
+updated: 2026-10-13
 # Clicks are counted from fully closed (firmest) = 0, opening counter-clockwise
 # (BOS Quickstart guides) → default `dial_ccw`.
 
@@ -116,6 +116,103 @@ option_values:
         pages, since the open cartridge is a different part.
 
 # --------------------------------------------------------------------------
+# Setup guides — the BOS Quickstarts' starting points as data (SCHEMA.md,
+# "Setup guides"), transcribed from docs/research/setup_guides/bos.md.
+#   * Pressure: rider weight (kg) → psi, as printed points. The "±5 psi by use
+#     and riding style" advice is a note, as FOX's ±10 psi is.
+#   * Standard settings are counted from fully closed, as the catalog dampers
+#     are; the stock token count is the volume spacer value.
+#   * Deville 35: its table (55-121 psi) contradicts the same Quickstart's
+#     115-350 psi window, so no guide until BOS clarifies.
+#   * Kyll 39: the e-MTB ("VTTAE") pressure block has no catalog option.
+#   * Obsys 42: the separate preload valve (0-500 g) has no catalog adjuster
+#     and no recommended value.
+# --------------------------------------------------------------------------
+guides:
+  bos_kyll39_2025:
+    label: BOS Kyll 39 Grabber Quickstart (2025)
+    source: https://www.bos-suspension.com/Files/125448/Quickstart_KYLL_39_GRABBER_EN.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        when: { travel_mm: 160 }
+        rows: {
+          60: 167, 65: 182, 70: 196, 75: 210, 80: 224, 85: 237,
+          90: 251, 95: 265, 100: 279, 105: 293, 110: 307
+        }
+        note: &bos_pressure_style Up to 5 psi more or less depending on use and riding style
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        when: { travel_mm: 170 }
+        rows: {
+          60: 159, 65: 171, 70: 184, 75: 196, 80: 208, 85: 220,
+          90: 233, 95: 245, 100: 257, 105: 269, 110: 282
+        }
+        note: *bos_pressure_style
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        when: { travel_mm: 180 }
+        rows: {
+          60: 150, 65: 162, 70: 173, 75: 185, 80: 197, 85: 208,
+          90: 220, 95: 231, 100: 243, 105: 255, 110: 266
+        }
+        note: *bos_pressure_style
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        when: { travel_mm: 190 }
+        rows: {
+          60: 142, 65: 153, 70: 164, 75: 175, 80: 186, 85: 197,
+          90: 208, 95: 220, 100: 231, 105: 242, 110: 253
+        }
+        note: *bos_pressure_style
+      - &grabber_lsc { target: lsc, value: 11 }
+      - &grabber_hsc { target: hsc, value: 10 }
+      - &grabber_rebound { target: rebound, value: 10 }
+      - &grabber_tokens { target: volume_spacers, value: 1, note: The factory-fitted token }
+
+  bos_idylle39_2025:
+    label: BOS Idylle 39 Grabber Quickstart (2025)
+    source: https://www.bos-suspension.com/Files/125448/Quickstart_IDYLLE_39_GRABBER_EN.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        rows: {
+          60: 151, 65: 164, 70: 177, 75: 190, 80: 203, 85: 217,
+          90: 230, 95: 243, 100: 256, 105: 270, 110: 283
+        }
+        note: *bos_pressure_style
+      - *grabber_lsc
+      - *grabber_hsc
+      - *grabber_rebound
+      - *grabber_tokens
+
+  bos_obsys42_2025:
+    label: BOS Obsys Quickstart
+    source: https://www.bos-suspension.com/Files/125448/Quickstart_Obsys-EN.pdf
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        rows: {
+          55: 149, 60: 160, 65: 169, 70: 179, 75: 187, 80: 195, 85: 202,
+          90: 209, 95: 216, 100: 221, 105: 226, 110: 231, 115: 235, 120: 238
+        }
+        note: *bos_pressure_style
+      - { target: compression, value: 20 }
+      - { target: rebound, value: 13 }
+
+# --------------------------------------------------------------------------
 # Forks — current BOS MTB lineup (2025 air-spring cartridge).
 # The Deville, Kyll and Idylle share `&air_spring_tokens` (a single Pressure plus
 # up to 5 tokens, per the BOS Quickstarts). The Obsys and Toxik list a Pressure
@@ -139,7 +236,7 @@ nodes:
         specs: { spring: Air }
         offset_mm: [48]
         adjustments: &air_spring_tokens
-          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 350 }
           - { name: Volume Spacers, type: step, max: 5, unit: tokens, visualization: stepper, notes: Tokens clip onto the air-chamber cap; one stock token fitted }
         options:
           damper: [grabber_2025]
@@ -152,6 +249,7 @@ nodes:
     years: "2025-2026"
     url: https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422386
     setup_guide: https://www.bos-suspension.com/Files/125448/Quickstart_KYLL_39_GRABBER_EN.pdf
+    guide: bos_kyll39_2025
     note: |-
       - Magnesium lowers, 39mm 7050 aluminium stanchions, from 2590g at 170mm
       - Tool-free air bleed valve
@@ -174,6 +272,7 @@ nodes:
     years: "2025-2026"
     url: https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422364
     setup_guide: https://www.bos-suspension.com/Files/125448/Quickstart_IDYLLE_39_GRABBER_EN.pdf
+    guide: bos_idylle39_2025
     note: |-
       - Dual-crown chassis, 39mm 7050 aluminium stanchions, 2950g
       - Air pressure range 115-350 psi
@@ -195,6 +294,7 @@ nodes:
     years: "2025-2026"
     url: https://www.bos-suspension.com/PBCPPlayer.asp?ID=2422906
     setup_guide: https://www.bos-suspension.com/Files/125448/Quickstart_Obsys-EN.pdf
+    guide: bos_obsys42_2025
     note: |-
       - Dual-crown chassis with aluminium lowers, 42mm 7050 aluminium stanchions, 3260g
       - Air pressure range 135-250 psi
@@ -205,7 +305,7 @@ nodes:
         specs: { spring: Air }
         offset_mm: [48]
         adjustments:
-          - { name: Pressure, type: numerical, unit: psi, min: 0 }
+          - { name: Pressure, type: numerical, unit: psi, min: 0, max: 250 }
         options:
           damper: [obsys_2025]
           travel_mm: [200]
@@ -242,8 +342,12 @@ nodes:
 #     carry no explicit model-year; `years: "2025-2026"` follows that label.
 #     The Vital MTB "2025 range" press release could not be loaded to confirm
 #     it.
-#   - Toxik volume spacers: the page lists "Progressivité (via entretoises
-#     antivolume)" but no maximum, so no Volume Spacers adjustment is generated.
+#   - Toxik volume spacers and pressure: the page lists "Progressivité (via
+#     entretoises antivolume)" but no maximum and no pressure range, so no
+#     Volume Spacers adjustment is generated and Pressure is unbounded.
+#   - Pressure maxima: the Quickstarts state "between 115 and 350 psi" (Deville,
+#     Kyll, Idylle) and "between 135 and 250 psi" (Obsys); the upper bound is
+#     used as `max`.
 #   - Preload: the Grabber, Obsys and Toxik pages list "Précontrainte" and the
 #     Obsys Quickstart mentions a separate PRELOAD valve ("range from 0 to
 #     500 gr"), but no unit/range that maps onto an adjuster is published. Not
@@ -254,6 +358,8 @@ nodes:
 #     and Obsys; the Toxik has no manual listed on the BOS manuals page.
 #   - Legacy forks with manuals on bos-suspension.com (Deville II 35 FCV, Deville
 #     35/34/34 AM, Idylle 39 FCV/SC, Idylle 37/36, Idylle Rare/Air/SC, Dizzy,
-#     Obsys pre-2025): the manuals only show recommended starting clicks, not
-#     total click counts, so no older generation is listed.
+#     Obsys pre-2025): the manuals and Quickstarts only show single recommended
+#     starting clicks (e.g. Deville 35 10/10/14, Void 2 12/12/12), not total
+#     click counts or a setup table, and no approved editorial states totals,
+#     so no older generation is listed.
 # --------------------------------------------------------------------------

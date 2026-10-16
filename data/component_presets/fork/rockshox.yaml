@@ -853,8 +853,8 @@ guides:
         input: travel_mm
         rows: { 150: 1, 160: 1, 170: 0, 180: 0 }
 
-  # ZEB Base rebound is left out: the specification PDFs name its damper
-  # Charger R, the catalog `rush_rc` (see Follow-ups).
+  # ZEB Base (FS-ZEB-BSE-A2) is the Rush RC on SRAM's model page, although the
+  # specification PDFs print "Charger R". The A3 Base (Delta RC) is of the 2027 spec.
   rockshox_zeb_2025:
     label: RockShox Front Suspension Specifications (2026)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2026-front-suspension-specifications.pdf
@@ -908,6 +908,28 @@ guides:
           100: max-9, 105: max-8, 110: max-8, 115: max-7, 120: max-6
         }
         note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: rush_rc, travel_mm: [150, 160] }
+        rows: *th_base_a
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: rush_rc, travel_mm: [170, 180] }
+        rows: *th_base_b
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: rush_rc, travel_mm: 190 }
+        rows: &th_base_c {
+          50: max-14, 55: max-14, 60: max-13, 65: max-13, 70: max-12,
+          75: max-12, 80: max-11, 85: max-11, 90: max-11, 95: max-10,
+          100: max-10, 105: max-9, 110: max-9, 115: max-9, 120: max-8
+        }
+        note: Calculated from RockShox TrailHead's formula
       - { target: hsc, value: 0, when: { damper: charger_3_1 } }
       - { target: lsc, value: 0, when: { damper: charger_3_1 } }
       - target: volume_spacers
@@ -953,6 +975,24 @@ guides:
         input_unit: kg
         when: { damper: charger_3, travel_mm: 190 }
         rows: *th_c3_c
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: rush_rc, travel_mm: [150, 160] }
+        rows: *th_base_a
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: rush_rc, travel_mm: [170, 180] }
+        rows: *th_base_b
+        note: Calculated from RockShox TrailHead's formula
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        when: { damper: rush_rc, travel_mm: 190 }
+        rows: *th_base_c
         note: Calculated from RockShox TrailHead's formula
       - { target: hsc, value: 0, when: { damper: charger_3 } }
       - { target: lsc, value: 0, when: { damper: charger_3 } }
@@ -2254,8 +2294,10 @@ nodes:
 #     Gold print a different maximum per travel and carry none. BoXXer D1/D2:
 #     the PDFs print 300 psi, TrailHead and the support knowledge base 260, so
 #     D2 keeps 260 and D1 none until SRAM confirms one.
-#   - ZEB Base (2023-2026): the specification PDFs name its damper Charger R,
-#     not Rush RC. Its rebound has no guide rule until the damper is confirmed.
+#   - ZEB Base (2023-2026, FS-ZEB-BSE-A2): the specification PDFs print its damper
+#     as Charger R, while SRAM's model page lists the Rush RC, which the catalog
+#     and the rebound rules follow. FS-ZEB-BSE-A3 (Delta RC, 2027 spec) is not
+#     listed, like the other Delta RC trims.
 #   - SID SL 2024-2025 (D1, DebonAir) and 2026-2027 (E1, DebonAir+) are split
 #     by their different pressure decals; the travel and damper options of the
 #     earlier single generation are carried over to both.

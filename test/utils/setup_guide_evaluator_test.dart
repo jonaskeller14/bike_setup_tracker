@@ -827,6 +827,22 @@ nodes:
       expect(_of(results, 'rebound').value, const StepValue(11)); // 7 clicks from closed
     });
 
+    test('ZEB Base rebound follows the Base formulas by travel', () {
+      for (final generation in ['2023', '2025']) {
+        ResolvedPreset base(int travel) => _real('fork/rockshox.yaml', 'zeb/$generation/base', {
+          'damper': 'rush_rc',
+          'travel_mm': travel,
+          'wheel_size': '29',
+        });
+        expect(_of(_evaluate(base(150), inputs: weight), 'rebound').value, const StepValue(6)); // 10 clicks from closed
+        expect(_of(_evaluate(base(170), inputs: weight), 'rebound').value, const StepValue(5)); // 11
+        expect(
+          _of(_evaluate(base(190), inputs: const GuideInputs(riderWeight: 110)), 'rebound').value,
+          const StepValue(7), // 9
+        );
+      }
+    });
+
     test('SID SL E1 and D1 read their own decals', () {
       ResolvedPreset sidSl(String generation) => _real('fork/rockshox.yaml', 'sid-sl/$generation/ultimate', {
         'damper': 'charger_race_day_2',

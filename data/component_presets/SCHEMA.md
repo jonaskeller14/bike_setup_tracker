@@ -291,7 +291,22 @@ generation is only worth adding when its numbers can actually be sourced.
 - **Trims that are not generations of each other are siblings.** Where a model
   grew by trims launched in different years (Formula Selva V / R / C / S), keep
   them as direct children of the model and give each its own `years` and `url`.
-- **Give each generation its own damper id** (`fit4_2018`, `grip2_vvc_2021`,
+- **A generation starts where the owner's manuals change something the
+  catalog encodes, not at every model year.** Compare the manuals of
+  consecutive years: pressure and click tables, base tunes, damper ranges,
+  pressure limits, spacer tables. Years that match on all of it share one
+  generation, and `years` spans them (`"2021-2025"`); one changed number, a
+  base tune included, starts a new one. The generation's `setup_guide` and
+  `guide` are the **latest manual of its span**.
+- **A trim that exists for only part of a generation's years carries its own
+  `years`** (a 38 Rhythm that first appears in the 2023 manual of a 2021-2024
+  generation: `years: "2023-2024"`). A model year with no manual has no source,
+  so a generation never starts or ends on a year the manuals do not show.
+- **Trims two generations have in common are written once**: anchor the trim
+  (`- &fox_36_factory` before `label:`) in the first generation and alias it in
+  the other (`- *fox_36_factory`). Only the generation's own `years`, `guide`
+  and extra trims differ.
+- **Give each generation its own damper id** (`fit4_2019`, `grip2_vvc_2021`,
   `charger_2_1`, `ttx18_m2`) even when the cartridge kept its name — brands
   revise internals and click counts under an unchanged badge.
 - **Don't inherit numbers across generations.** If the older damper's counts
@@ -627,9 +642,10 @@ adjustments: &air_spring
 adjustments: *air_spring
 ```
 
-Anchors are sugar for **identical** lists only; YAML cannot extend an aliased
-list. A trim that deviates in any way (extra chamber, published spacer count,
-different max) simply writes its own literal list instead of the alias. An
+Anchors are sugar for **identical** lists (or whole trims, see
+[Generations](#generations)) only; YAML cannot extend an aliased list. A trim
+that deviates in any way (extra chamber, published spacer count, different
+max) simply writes its own literal list instead of the alias. An
 anchor has to be defined above its first alias, so moving a node can require
 moving the definition with it.
 

@@ -1279,6 +1279,29 @@ $pressureRule''');
         expect(ruleOf('      - { target: sag, unit: mm, value: 120 }').target, 'sag');
       });
 
+      test('a value above the range of a damper the rule can apply to', () {
+        // Factory now offers GRIP X (15 HSC clicks) next to GRIP X2 (8).
+        String twoDampers(String rules) => guideFork(rules)
+            .replaceFirst(
+              '    grip:\n      name: GRIP\n',
+              '    grip_x:\n      name: GRIP X\n      adjustments:\n        - { name: HSC, type: step, max: 15 }\n    grip:\n      name: GRIP\n',
+            )
+            .replaceFirst('damper: [grip_x2]', 'damper: [grip_x2, grip_x]');
+
+        expect(
+          () => parseCatalogFile(twoDampers('      - { target: hsc, value: 10, when: { damper: grip_x } }')),
+          returnsNormally,
+        );
+        expect(
+          () => parseCatalogFile(twoDampers('      - { target: hsc, value: 10, when: { damper: grip_x2 } }')),
+          _throwsFormat('recommends 10, above the adjuster maximum 8'),
+        );
+        expect(
+          () => parseCatalogFile(twoDampers('      - { target: hsc, value: 10 }')),
+          _throwsFormat('recommends 10, above the adjuster maximum 8'),
+        );
+      });
+
       test('a cell the adjuster type cannot take', () {
         rejects('      - { target: hsc, value: Open }', 'recommends "Open", which a StepAdjustment "HSC" cannot take');
         rejects('      - { target: hsc, value: true }', 'recommends true');

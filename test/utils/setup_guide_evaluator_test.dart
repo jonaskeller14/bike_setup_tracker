@@ -752,7 +752,7 @@ nodes:
       expect(_of(results, 'volume_spacers').value, CategoricalValue(const ['1× 10cc + 1× 5cc']));
     });
 
-    test('36 Rhythm GRIP (2025-2026) at 82 kg', () {
+    test('36 Rhythm GRIP (2025) at 82 kg', () {
       final results = _evaluate(
         _real('fork/fox.yaml', '36/2025/rhythm', {'damper': 'grip', 'travel_mm': 160, 'wheel_size': '29'}),
         inputs: weight,
@@ -774,9 +774,21 @@ nodes:
       expect(_of(results, 'hsc').value, const StepValue(5));
     });
 
-    test('FLOAT X2 (2025-2026) reads its damper settings off the recommended pressure', () {
+    test('36 GRIP X starts on 10 clicks in 2025-2026 and on 5 from 2027', () {
+      ResolvedPreset grip(String generation) =>
+          _real('fork/fox.yaml', '36/$generation/factory', {'damper': 'grip_x', 'travel_mm': 160, 'wheel_size': '29'});
+      for (final generation in ['2025', '2027']) {
+        final results = _evaluate(grip(generation), inputs: weight);
+        final clicks = generation == '2025' ? 10 : 5;
+        expect(_of(results, 'hsc').value, StepValue(clicks), reason: generation);
+        expect(_of(results, 'lsc').value, StepValue(clicks), reason: generation);
+        expect(_of(results, 'pressure').value, const NumericalValue(88), reason: generation); // 86 → 89 psi
+      }
+    });
+
+    test('FLOAT X2 (2026-2027) reads its damper settings off the recommended pressure', () {
       final results = _evaluate(
-        _real('shock/fox.yaml', 'float-x2/2025/factory', {'damper': 'vvc2'}),
+        _real('shock/fox.yaml', 'float-x2/2026/factory', {'damper': 'vvc2'}),
         inputs: const GuideInputs(riderWeight: 95),
       );
       expect(_of(results, 'pressure').value, const NumericalValue(209)); // psi = lb

@@ -1017,7 +1017,7 @@ class _CatalogParser {
     final applicable = attachments.where((attachment) => _canApply(rule, attachment)).toList();
     if (applicable.isEmpty) throw _error('${_capitalize(where)} matches no product the guide is attached to');
 
-    final targets = [for (final attachment in applicable) ?_adjuster(attachment.product, rule.target)];
+    final targets = [for (final attachment in applicable) ..._adjusters(attachment.product, rule.target, rule.when)];
     if (targets.isEmpty) {
       throw _error('${_capitalize(where)} targets an adjuster that no product it applies to has');
     }
@@ -1147,17 +1147,26 @@ class _CatalogParser {
 
   /// Adjuster [id] of [product] (option values included) as built, or null
   /// when the product has no such adjuster.
-  _Target? _adjuster(CatalogProduct product, String id) {
+  _Target? _adjuster(CatalogProduct product, String id) => _adjusters(product, id, const {}).firstOrNull;
+
+  /// Every adjuster [id] a rider of [product] can end up with under [when]:
+  /// the product's own, plus those of the option values the rule allows. A rule
+  /// has to fit all of them, so a `when: { damper: grip_x }` rule is checked
+  /// against the GRIP X adjuster and not against another damper's.
+  List<_Target> _adjusters(CatalogProduct product, String id, Map<String, List<Object>> when) {
     if (id == kSagAdjusterId && _injectsSag) {
-      return (adjustment: SagAdjustment(name: 'SAG', notes: null), unknownMax: false);
+      return [(adjustment: SagAdjustment(name: 'SAG', notes: null), unknownMax: false)];
     }
-    final spec = [
-      ...product.adjustments,
-      for (final axis in product.options.values)
-        for (final value in axis.values) ...value.adjustments,
-    ].firstWhereOrNull((spec) => spec.id == id);
-    if (spec == null) return null;
-    return (adjustment: spec.build(), unknownMax: spec.raw.containsKey('max') && spec.raw['max'] == null);
+    return [
+      for (final spec in [
+        ...product.adjustments,
+        for (final MapEntry(key: axis, value: axisValues) in product.options.entries)
+          for (final value in axisValues.values)
+            if (when[axis]?.contains(value.id) ?? true) ...value.adjustments,
+      ])
+        if (spec.id == id)
+          (adjustment: spec.build(), unknownMax: spec.raw.containsKey('max') && spec.raw['max'] == null),
+    ];
   }
 
   /// A guide value converts into the adjuster's unit, so both must measure the

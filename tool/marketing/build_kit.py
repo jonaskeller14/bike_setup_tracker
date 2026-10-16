@@ -58,6 +58,7 @@ PREVIEW_LENGTH = (15, 30)
 CREATIVE_LENGTH = (5, 30)
 PARTS = ["shorts", "walkthrough", "gifs", "web", "images", "appstore"]
 POST = "post"
+POSTS = "posts"  # Folder with one Markdown file per post.
 MANIFEST = "manifest.json"  # What a full run built, so `post` can rewrite POST.md without it.
 
 
@@ -293,10 +294,17 @@ class Kit:
         source = KITS / f"{self.name}.posts.md"
         if source.is_file():
             chapters = "\n".join(f"{timestamp(start)} {title}" for start, title in self.chapters)
-            text, problems = posts.render(source.read_text(encoding="utf-8"), chapters)
+            files = [path.relative_to(self.out).as_posix() for path, _ in self.files]
+            rendered, problems = posts.render(source.read_text(encoding="utf-8"), chapters, files)
             self.problems += problems
-            lines += ["", "## Posts", "", f"App version {posts.app_version()}. Drafts: `{rel(source)}`; "
-                      "posting rules: `docs/marketing/channels.md`.", "", text.rstrip()]
+            shutil.rmtree(self.out / POSTS, ignore_errors=True)
+            (self.out / POSTS).mkdir()
+            lines += ["", "## Posts", "", f"App version {posts.app_version()}. One file per post with its checklist; "
+                      f"drafts: `{rel(source)}`; posting rules: `docs/marketing/channels.md`.", ""]
+            for number, (heading, text) in enumerate(rendered, 1):
+                name = posts.slug(heading, number)
+                (self.out / POSTS / name).write_text(text, encoding="utf-8")
+                lines.append(f"- [{heading}]({POSTS}/{name})")
         (self.out / "POST.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
         print(f"OK   {rel(self.out / 'POST.md')}")
 

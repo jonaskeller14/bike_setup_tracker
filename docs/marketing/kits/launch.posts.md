@@ -55,7 +55,8 @@ bike setup tracker,mtb suspension setup,suspension setup app,mtb app,tire pressu
 
 ## yt-shorts · core_9x16.mp4
 
-Links in Shorts descriptions aren't clickable. Set the walkthrough as the related video instead.
+- [ ] Set the walkthrough as the related video (links in Shorts descriptions aren't clickable)
+- [ ] Post the pinned comment and pin it
 
 ### Title
 ```text
@@ -71,7 +72,17 @@ Bike Setup Tracker is free on iOS and Android. Search "Bike Setup Tracker" in th
 #mountainbike #suspension
 ```
 
+### Pinned comment
+```text
+Bike Setup Tracker is free on iOS and Android:
+App Store: {ios:yt-shorts}
+Google Play: {android:yt-shorts}
+```
+
 ## yt-shorts · garage_9x16.mp4
+
+- [ ] Set the walkthrough as the related video (links in Shorts descriptions aren't clickable)
+- [ ] Post the pinned comment and pin it
 
 ### Title
 ```text
@@ -87,7 +98,17 @@ Bike Setup Tracker is free on iOS and Android. Search "Bike Setup Tracker" in th
 #mountainbike #bikegarage
 ```
 
+### Pinned comment
+```text
+Bike Setup Tracker is free on iOS and Android:
+App Store: {ios:yt-shorts}
+Google Play: {android:yt-shorts}
+```
+
 ## yt-shorts · analysis_9x16.mp4
+
+- [ ] Set the walkthrough as the related video (links in Shorts descriptions aren't clickable)
+- [ ] Post the pinned comment and pin it
 
 ### Title
 ```text
@@ -103,7 +124,17 @@ Bike Setup Tracker is free on iOS and Android. Search "Bike Setup Tracker" in th
 #mountainbike #suspension
 ```
 
+### Pinned comment
+```text
+Bike Setup Tracker is free on iOS and Android:
+App Store: {ios:yt-shorts}
+Google Play: {android:yt-shorts}
+```
+
 ## yt-shorts · tasks_9x16.mp4
+
+- [ ] Set the walkthrough as the related video (links in Shorts descriptions aren't clickable)
+- [ ] Post the pinned comment and pin it
 
 ### Title
 ```text
@@ -119,7 +150,17 @@ Bike Setup Tracker is free on iOS and Android. Search "Bike Setup Tracker" in th
 #mountainbike #bikeservice
 ```
 
+### Pinned comment
+```text
+Bike Setup Tracker is free on iOS and Android:
+App Store: {ios:yt-shorts}
+Google Play: {android:yt-shorts}
+```
+
 ## yt-shorts · rides_9x16.mp4
+
+- [ ] Set the walkthrough as the related video (links in Shorts descriptions aren't clickable)
+- [ ] Post the pinned comment and pin it
 
 ### Title
 ```text
@@ -135,7 +176,17 @@ Bike Setup Tracker is free on iOS and Android. Search "Bike Setup Tracker" in th
 #mountainbike #enduro
 ```
 
+### Pinned comment
+```text
+Bike Setup Tracker is free on iOS and Android:
+App Store: {ios:yt-shorts}
+Google Play: {android:yt-shorts}
+```
+
 ## yt-shorts · strava_9x16.mp4
+
+- [ ] Set the walkthrough as the related video (links in Shorts descriptions aren't clickable)
+- [ ] Post the pinned comment and pin it
 
 ### Title
 ```text
@@ -149,6 +200,13 @@ Sync your rides from Strava and see which setup you rode on every one. Strava Sy
 Search "Bike Setup Tracker" in the App Store or on Google Play.
 
 #mountainbike #mtbsetup
+```
+
+### Pinned comment
+```text
+Bike Setup Tracker is free on iOS and Android:
+App Store: {ios:yt-shorts}
+Google Play: {android:yt-shorts}
 ```
 
 ## yt-jk · Community post (jonaskeller14 channel)

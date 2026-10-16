@@ -16,7 +16,7 @@ canonical plan and status tracker; this folder holds the reusable material.
 | `docs/marketing/metrics/` | Store exports and baseline/monthly numbers | **no — gitignored** |
 | `tool/marketing/` | Record and render scripts (Phase 3) | yes |
 | `tool/marketing/assets/music/` | Licensed music beds | **no — gitignored** |
-| `build/marketing/<kit>/` | Rendered media + `POST.md` per kit | no (`build/`) |
+| `build/marketing/<kit>/` | Rendered media + `POST.md` (index) and `posts/` (one checklist file per post) per kit | no (`build/`) |
 
 ## Rules
 

@@ -25,9 +25,9 @@ python tool/marketing/build_kit.py launch post              # only rewrite POST.
 ```
 
 Parts: `shorts`, `walkthrough`, `gifs`, `web`, `images`, `appstore`. A full run clears the kit folder and
-writes `POST.md` (file list, Shorts titles, YouTube chapter timestamps, warnings, channel posts) and
-`manifest.json`. A partial run replaces only its own files. `post` runs alone and rewrites `POST.md`
-from `manifest.json`, so edited posts don't need a rebuild. The script exits 1 and prints `FAIL` lines when an output misses its
+writes `POST.md` (file list, Shorts titles, YouTube chapter timestamps, warnings, links to the
+`posts/` files) and `manifest.json`. A partial run replaces only its own files. `post` runs alone and
+rewrites `POST.md` and `posts/` from `manifest.json`, so edited posts don't need a rebuild. The script exits 1 and prints `FAIL` lines when an output misses its
 spec. The launch kit takes about 10 minutes on an M-series Mac.
 
 | Part | Output | Spec checked |
@@ -84,10 +84,12 @@ home animation starts (the end of the last frame gap of ≥1 s) and every demo c
 
 ### Posts
 
-`docs/marketing/kits/<kit>.posts.md` holds the post drafts; `posts.py` renders them into the
-"Posts" part of `POST.md`. One `## <channel> · <label>` section per post, where `<channel>` is an
-id from `docs/marketing/links.md`. Each `### <Field>` is followed by a ```` ```text ```` block that
-is pasted as is; prose around the blocks stays as posting notes.
+`docs/marketing/kits/<kit>.posts.md` holds the post drafts; `posts.py` renders each one into its
+own file `build/marketing/<kit>/posts/NN-<channel>-<label>.md`, and `POST.md` links them. One
+`## <channel> · <label>` section per post, where `<channel>` is an id from `docs/marketing/links.md`.
+Each `### <Field>` is followed by a ```` ```text ```` block that is pasted as is; prose around the
+blocks stays as posting notes. A post's file starts with its checklist: upload the video named in
+the heading, the `[[…]]` fill-ins, the `- [ ]` lines from the prose, and "Posted".
 
 | Placeholder | Becomes |
 |---|---|

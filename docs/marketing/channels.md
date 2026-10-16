@@ -2,7 +2,7 @@
 
 Posting rules per channel for the content kits (Phase 4 of
 [#69](https://github.com/jonaskeller14/bike_setup_tracker/issues/69)). Post drafts live in
-`kits/<kit>.posts.md`. `build_kit.py` renders them into `POST.md` and fails if a post breaks a
+`kits/<kit>.posts.md`. `build_kit.py` renders them into one file per post under `posts/` and fails if a post breaks a
 limit below. Rules were checked on **2026-10-15**; re-check a channel's rules before its first post
 and when a post gets removed.
 

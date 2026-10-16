@@ -1,8 +1,9 @@
 # Strava Club
 
 ## Website
+Smart link (channel `strava-club`, see [`docs/marketing/links.md`](../../docs/marketing/links.md)):
 ```
-https://jonaskeller14.com/bike_setup_tracker/home.html
+https://jonaskeller14.com/bike_setup_tracker/get?c=strava-club
 ```
 
 ## Club Description

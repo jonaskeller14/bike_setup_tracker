@@ -87,15 +87,15 @@ Ditch the notebook. Download Bike Setup Tracker and tune your ride with precisio
 
 #### Android (Play Store)
 <p align="center">
-  <img src="docs/store/play-store/phone/01.png" width="23%">
-  <img src="docs/store/play-store/phone/02.png" width="23%">
-  <img src="docs/store/play-store/phone/03.png" width="23%">
-  <img src="docs/store/play-store/phone/04.png" width="23%">
+  <img src="docs/store/play-store/metadata/en-US/images/phoneScreenshots/01.png" width="23%">
+  <img src="docs/store/play-store/metadata/en-US/images/phoneScreenshots/02.png" width="23%">
+  <img src="docs/store/play-store/metadata/en-US/images/phoneScreenshots/03.png" width="23%">
+  <img src="docs/store/play-store/metadata/en-US/images/phoneScreenshots/04.png" width="23%">
   <br>
-  <img src="docs/store/play-store/phone/05.png" width="23%">
-  <img src="docs/store/play-store/phone/06.png" width="23%">
-  <img src="docs/store/play-store/phone/07.png" width="23%">
-  <img src="docs/store/play-store/phone/08.png" width="23%">
+  <img src="docs/store/play-store/metadata/en-US/images/phoneScreenshots/05.png" width="23%">
+  <img src="docs/store/play-store/metadata/en-US/images/phoneScreenshots/06.png" width="23%">
+  <img src="docs/store/play-store/metadata/en-US/images/phoneScreenshots/07.png" width="23%">
+  <img src="docs/store/play-store/metadata/en-US/images/phoneScreenshots/08.png" width="23%">
 </p>
 
 #### iOS (App Store - iPhone 17 Pro Max)
@@ -115,16 +115,16 @@ Ditch the notebook. Download Bike Setup Tracker and tune your ride with precisio
 
 #### Android (Play Store - 10")
 <p align="center">
-  <img src="docs/store/play-store/tablet_10-inch/01.png" width="31%">
-  <img src="docs/store/play-store/tablet_10-inch/02.png" width="31%">
-  <img src="docs/store/play-store/tablet_10-inch/03.png" width="31%">
+  <img src="docs/store/play-store/metadata/en-US/images/tenInchScreenshots/01.png" width="31%">
+  <img src="docs/store/play-store/metadata/en-US/images/tenInchScreenshots/02.png" width="31%">
+  <img src="docs/store/play-store/metadata/en-US/images/tenInchScreenshots/03.png" width="31%">
   <br>
-  <img src="docs/store/play-store/tablet_10-inch/04.png" width="31%">
-  <img src="docs/store/play-store/tablet_10-inch/05.png" width="31%">
-  <img src="docs/store/play-store/tablet_10-inch/06.png" width="31%">
+  <img src="docs/store/play-store/metadata/en-US/images/tenInchScreenshots/04.png" width="31%">
+  <img src="docs/store/play-store/metadata/en-US/images/tenInchScreenshots/05.png" width="31%">
+  <img src="docs/store/play-store/metadata/en-US/images/tenInchScreenshots/06.png" width="31%">
   <br>
-  <img src="docs/store/play-store/tablet_10-inch/07.png" width="31%">
-  <img src="docs/store/play-store/tablet_10-inch/08.png" width="31%">
+  <img src="docs/store/play-store/metadata/en-US/images/tenInchScreenshots/07.png" width="31%">
+  <img src="docs/store/play-store/metadata/en-US/images/tenInchScreenshots/08.png" width="31%">
 </p>
 
 #### iOS (App Store - iPad Pro 13")

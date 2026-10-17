@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'add_tag_chip.dart';
+import 'partial_chip_fill.dart';
 import 'sheet_header.dart';
 
 class BulkTagChanges {
@@ -15,8 +16,6 @@ class BulkTagChanges {
 }
 
 enum _TagState { none, some, all }
-
-const _chipShape = RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8)));
 
 Future<BulkTagChanges?> showSetTagsBulkSheet({
   required BuildContext context,
@@ -125,22 +124,7 @@ class _SetTagsBulkSheetContentState extends State<SetTagsBulkSheetContent> {
     return null;
   }
 
-  Widget _partialTagSwatch() {
-    final colors = Theme.of(context).colorScheme;
-    return SizedBox(
-      width: 28,
-      height: 18,
-      child: CustomPaint(
-        painter: _PartialTagFillPainter(color: colors.secondaryContainer),
-        child: DecoratedBox(
-          decoration: ShapeDecoration(shape: _chipShape.copyWith(side: BorderSide(color: colors.outlineVariant))),
-        ),
-      ),
-    );
-  }
-
   Widget _tagChip(String tag, double maxLabelWidth) {
-    final colors = Theme.of(context).colorScheme;
     final state = _stateOf(tag);
 
     final chip = FilterChip(
@@ -151,7 +135,7 @@ class _SetTagsBulkSheetContentState extends State<SetTagsBulkSheetContent> {
       ),
       selected: state == _TagState.all,
       showCheckmark: false,
-      shape: _chipShape,
+      shape: bulkChipShape,
       // Lets the diagonal fill behind the chip show through.
       backgroundColor: state == _TagState.some ? Colors.transparent : null,
       // Without the tap-target padding the chip box matches its painted bounds,
@@ -169,16 +153,7 @@ class _SetTagsBulkSheetContentState extends State<SetTagsBulkSheetContent> {
     if (state != _TagState.some) return chip;
 
     // A tag only some items carry gets half the selected fill, split diagonally.
-    // The chip's own Material falls back to an opaque canvasColor, which would
-    // hide the fill behind it, so it is made transparent for these chips only.
-    return CustomPaint(
-      key: ValueKey('tag-partial-$tag'),
-      painter: _PartialTagFillPainter(color: colors.secondaryContainer),
-      child: Theme(
-        data: Theme.of(context).copyWith(canvasColor: Colors.transparent),
-        child: chip,
-      ),
-    );
+    return PartialChipFill(key: ValueKey('tag-partial-$tag'), child: chip);
   }
 
   @override
@@ -198,9 +173,9 @@ class _SetTagsBulkSheetContentState extends State<SetTagsBulkSheetContent> {
             dense: true,
           ),
           if (_hasPartialTags)
-            ListTile(
-              leading: _partialTagSwatch(),
-              title: const Text(
+            const ListTile(
+              leading: PartialChipSwatch(),
+              title: Text(
                 'Half-filled tags apply to only part of your selection — they stay that way '
                 'unless you tap them.',
               ),
@@ -260,29 +235,4 @@ class _SetTagsBulkSheetContentState extends State<SetTagsBulkSheetContent> {
       ),
     );
   }
-}
-
-class _PartialTagFillPainter extends CustomPainter {
-  const _PartialTagFillPainter({required this.color});
-
-  final Color color;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final rect = Offset.zero & size;
-    canvas.save();
-    canvas.clipPath(_chipShape.getOuterPath(rect));
-    canvas.drawPath(
-      Path()
-        ..moveTo(rect.right, rect.top)
-        ..lineTo(rect.right, rect.bottom)
-        ..lineTo(rect.left, rect.bottom)
-        ..close(),
-      Paint()..color = color,
-    );
-    canvas.restore();
-  }
-
-  @override
-  bool shouldRepaint(_PartialTagFillPainter oldDelegate) => oldDelegate.color != color;
 }

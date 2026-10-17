@@ -12,6 +12,7 @@ import '../pages/forms/bike_page.dart';
 import '../repositories/app_repository.dart';
 import '../widgets/app_snackbar.dart';
 import '../widgets/sheets/delete_task_rules.dart';
+import '../widgets/sheets/set_bike_person.dart';
 import 'attachment_actions.dart';
 
 class BikeActions {
@@ -83,6 +84,53 @@ class BikeActions {
     if (newBike != null) await appRepository.addBikes([newBike]);
     await AttachmentActions.deleteUnsaved(copiedAttachments, saved: newBike?.attachments);
     return newBike;
+  }
+
+  static Future<bool> setBikesPerson(BuildContext context, {required Iterable<String> bikeIds}) async {
+    final appRepository = context.read<AppRepository>();
+    final messenger = ScaffoldMessenger.of(context);
+
+    final bikes = bikeIds.map((id) => appRepository.bikes[id]).whereType<Bike>().toList();
+    if (bikes.isEmpty) return false;
+
+    final result = await showSetBikePersonSheet(
+      context: context,
+      bikePersons: bikes.map((bike) => bike.person).toList(),
+      persons: appRepository.persons,
+    );
+    if (result == null) return false;
+    final newPerson = result.person;
+
+    final bikesToUpdate = bikes.where((bike) => bike.person != newPerson).toList();
+    if (bikesToUpdate.isEmpty) return true;
+
+    final updatedBikes = bikesToUpdate.map((bike) => bike.copyWith(person: newPerson)).toList();
+    await appRepository.editBikes(updatedBikes);
+
+    if (!context.mounted) return true;
+    final personName = appRepository.persons[newPerson]?.name;
+    messenger.showSnackBar(
+      AppSnackBar.success(
+        context,
+        personName == null
+            ? Intl.plural(
+                updatedBikes.length,
+                one: "Rider removed from 1 Bike.",
+                other: "Rider removed from ${updatedBikes.length} Bikes.",
+              )
+            : Intl.plural(
+                updatedBikes.length,
+                one: "Rider set to '$personName' for 1 Bike.",
+                other: "Rider set to '$personName' for ${updatedBikes.length} Bikes.",
+              ),
+        duration: const Duration(seconds: 5),
+        action: AppSnackBarAction(
+          label: 'UNDO',
+          onPressed: () async => appRepository.editBikes(bikesToUpdate),
+        ),
+      ),
+    );
+    return true;
   }
 
   static Future<void> removeBike(BuildContext context, {required Bike bike}) =>

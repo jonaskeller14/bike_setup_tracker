@@ -72,6 +72,10 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  Future<void> _setPersonForSelectedBikes() {
+    return _bikeSelection.runIfApplied((bikeIds) => BikeActions.setBikesPerson(context, bikeIds: bikeIds));
+  }
+
   Future<void> _deleteSelectedTaskRules() {
     return _taskRuleSelection.run((ids) => TaskActions.removeTaskRules(context, taskRuleIds: ids));
   }
@@ -187,6 +191,12 @@ class _HomePageState extends State<HomePage> {
                 ),
                 title: Text('${_bikeSelection.length} selected'),
                 actions: [
+                  if (appSettings.enablePerson)
+                    IconButton(
+                      onPressed: _bikeSelection.isBusy ? null : _setPersonForSelectedBikes,
+                      icon: const Icon(Person.iconData),
+                      tooltip: 'Set rider',
+                    ),
                   IconButton(
                     onPressed: _bikeSelection.isBusy ? null : _deleteSelectedBikes,
                     icon: const Icon(Icons.delete),

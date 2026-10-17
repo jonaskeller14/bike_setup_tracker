@@ -51,12 +51,12 @@ void main() {
       expect(find.text("Please select"), findsNothing);
     });
 
-    testWidgets('a dangling value is invalid and not shown in the field', (WidgetTester tester) async {
+    testWidgets('a dangling value is invalid and shown as stored in the field', (WidgetTester tester) async {
       final formKey = GlobalKey<FormState>();
       await tester.pumpWidget(buildWidget(initialValue: null, value: [invalidOption1], formKey: formKey));
       expect(formKey.currentState!.validate(), isFalse);
-      expect(find.text(invalidOption1), findsNothing);
-      expect(find.text("Please select"), findsOneWidget);
+      expect(find.text(invalidOption1), findsOneWidget);
+      expect(find.text("Please select"), findsNothing);
       await tester.pump();
       expect(find.text('Contains options that no longer exist'), findsOneWidget);
     });
@@ -65,8 +65,8 @@ void main() {
       final formKey = GlobalKey<FormState>();
       await tester.pumpWidget(buildWidget(initialValue: [validOption], value: [invalidOption1], formKey: formKey));
       expect(formKey.currentState!.validate(), isFalse);
-      expect(find.text(invalidOption1), findsNothing);
-      expect(find.text("Please select"), findsOneWidget);
+      expect(find.text(invalidOption1), findsOneWidget);
+      expect(find.text("Please select"), findsNothing);
     });
 
     testWidgets('single-select rejects more than one selected option', (WidgetTester tester) async {
@@ -107,7 +107,7 @@ void main() {
       expect(formKey.currentState!.validate(), isTrue);
     });
 
-    testWidgets('ignores dangling values in the field but flags them invalid', (WidgetTester tester) async {
+    testWidgets('shows dangling values as stored and flags them invalid', (WidgetTester tester) async {
       final formKey = GlobalKey<FormState>();
       await tester.pumpWidget(buildWidget(
         initialValue: null,
@@ -115,10 +115,8 @@ void main() {
         formKey: formKey,
         multiSelect: true,
       ));
-      // Only the still-valid option is shown; the dangling one surfaces in the sheet.
-      expect(find.text("Option #2"), findsOneWidget);
-      expect(find.text(invalidOption1), findsNothing);
-      // ...but the dangling value still makes the field invalid.
+      // An outdated selection is shown in full, as stored.
+      expect(find.text("Option #2, $invalidOption1"), findsOneWidget);
       expect(formKey.currentState!.validate(), isFalse);
     });
   });

@@ -182,6 +182,16 @@ create a GitHub release until the applicable confirmation gate has been approved
 - Create and verify the draft release using the built assets from step 8: `gh release create
   vX.Y.Z+B <assets...> --verify-tag --draft --title "vX.Y.Z+B" --notes-file <notes-file>`, then
   `gh release view`. Never publish the draft automatically.
+
+## 11. Open the marketing issue
+- Build the body from the template in `docs/marketing/release-issue.md` and fill in the version.
+- **Accounts:** read every `docs/marketing/accounts/*.md` and list each bio, description or link
+  that this release's shipped changes (step 4 flag check) make outdated.
+- **Retire:** read the "Retire when" of every `scheduled` or `live` file in `docs/marketing/posts/`
+  and list each post whose condition this release meets.
+- Keep the template lines under **Publish** and **Once live**; they get one line per post file once
+  the posts are drafted. Write `- Nothing for this release.` under any other section with nothing to do.
+- `gh issue create --title "vX.Y.Z: Marketing" --body-file <tmp-file>` and print the issue URL.
 - Finish by pointing the user to `assets/store/release-steps.md` for the manual store submission.
 
 ## Constraints

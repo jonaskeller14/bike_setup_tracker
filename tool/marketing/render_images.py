@@ -30,6 +30,11 @@ ASSETS = {
         (3840, 1646),
         {"header_en-US.png": "?lang=en", "header_de-DE.png": "?lang=de"},
     ),
+    "play-feature": (
+        "assets/store/play-store/feature_graphic.html",
+        (1024, 500),
+        {"feature_graphic_en-US.png": "?lang=en", "feature_graphic_de-DE.png": "?lang=de"},
+    ),
 }
 
 CHROME_CANDIDATES = {

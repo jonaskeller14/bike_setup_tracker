@@ -1,4 +1,20 @@
+# YouTube · jonaskeller14 (`yt-jk`)
+
+https://www.youtube.com/@JonasKeller
+
+## Links
+
+Bike Setup Tracker App
+
+```text
+https://jonaskeller14.com/bike_setup_tracker/get?c=yt-jk
 ```
+
+## Video Description Suffix
+
+Appended to the description of every video on this channel.
+
+```text
 ⠀
 
 BIKE SETUP TRACKER APP

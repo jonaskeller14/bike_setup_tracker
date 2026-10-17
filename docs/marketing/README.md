@@ -9,6 +9,9 @@ canonical plan and status tracker; this folder holds the reusable material.
 | Path | Content | Tracked |
 |---|---|---|
 | `docs/marketing/links.md` | Campaign-tagged store links per channel | yes |
+| `docs/marketing/accounts/<channel>.md` | Live profile text per account (bio, description, links) | yes |
+| `docs/marketing/posts/` | One file per post with its text, media and status | yes, once posted |
+| `docs/marketing/release-issue.md` | Template for the `vX.Y.Z: Marketing` issue `/releaseversion` opens | yes |
 | `docs/marketing/channels.md` | Posting rules per channel (Phase 4) | yes |
 | `docs/marketing/backlog.md` | Evergreen Short topics (Phase 8) | yes |
 | `docs/marketing/templates/` | HTML/CSS templates for video backgrounds, carousel and banners (Phase 3) | yes |

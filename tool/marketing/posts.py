@@ -35,7 +35,10 @@ LIMITS = {
 # Platform: max hashtags per post (all fields of a section).
 MAX_HASHTAGS = {"instagram": 5, "youtube": 60}
 
-LINK_ROW = re.compile(r"^\| `([a-z0-9-]+)` \|.*?\]\((https://apps\.apple\.com[^)]+)\).*?\]\((https://play\.google\.com[^)]+)\)")
+LINK_ROW = re.compile(r"^\| `([a-z0-9-]+)` \| `([a-z]+)` \|")
+IOS_LINK = "https://apps.apple.com/app/apple-store/id6759974325?pt=128610953&ct={channel}&mt=8"
+ANDROID_LINK = ("https://play.google.com/store/apps/details?id=com.jonaskeller14.bike_setup_tracker"
+                "&referrer=utm_source%3D{channel}%26utm_medium%3D{medium}")
 PLACEHOLDER = re.compile(r"\{(ios|android|smart):([a-z0-9-]+)\}")
 LEFTOVER = re.compile(r"\{[a-z]+(?::[^}\s]*)?\}")
 STORE_URL = re.compile(r"https://(?:apps\.apple\.com|play\.google\.com)[^\s)\]>]*")
@@ -47,12 +50,13 @@ STEP = re.compile(r"^- \[ \] .+\n", re.MULTILINE)
 
 
 def load_links():
-    """{channel: (iOS link, Android link)} from links.md."""
+    """{channel: (iOS link, Android link)} from the channel table in links.md."""
     links = {}
     for line in LINKS.read_text(encoding="utf-8").splitlines():
         match = LINK_ROW.match(line)
         if match:
-            links[match[1]] = (match[2], match[3])
+            channel, medium = match[1], match[2]
+            links[channel] = (IOS_LINK.format(channel=channel), ANDROID_LINK.format(channel=channel, medium=medium))
     return links
 
 

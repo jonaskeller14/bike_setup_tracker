@@ -1,13 +1,18 @@
-# Strava Club
+# Strava · Bike Setup Tracker Club (`strava-club`)
+
+https://www.strava.com/clubs/bike_setup_tracker
+
+## Profile Picture
+
+`assets/icons/logo_512_white.png`
 
 ## Website
-Smart link (channel `strava-club`, see [`docs/marketing/links.md`](../../docs/marketing/links.md)):
-```
+```text
 https://jonaskeller14.com/bike_setup_tracker/get?c=strava-club
 ```
 
 ## Club Description
-```
+```text
 Bike Setup Tracker — Community & Feedback Club
 
 This is the official Strava club for Bike Setup Tracker users and anyone interested in systematic bike setup.

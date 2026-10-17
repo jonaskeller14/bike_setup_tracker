@@ -39,7 +39,7 @@ and when a post gets removed.
 | YouTube | Title | 100 | About 60 characters show in search. No `<` or `>` in titles or descriptions. |
 | YouTube | Description | 5,000 | Over 60 hashtags per video: YouTube ignores all of them (checked) |
 | YouTube | Tags | 500 | Comma-separated, commas count |
-| YouTube | Post (community) | 5,000 | Up to 10 images |
+| YouTube | Post (community) | 5,000 | Up to 10 images. Multi-image posts are cropped to **1:1**: render square, don't crop the 4:5 carousel |
 | Instagram | Bio | 150 | The link goes in the separate "Links" field |
 | Instagram | Caption | 2,200 | About 125 characters show before "more". **≤5 hashtags** (checked; limit since late 2025) |
 | TikTok | Bio | 80 | |

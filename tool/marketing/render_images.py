@@ -21,17 +21,17 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 # name: (template, (width, height), {output file name: URL query})
 ASSETS = {
     "appstore-search": (
-        "assets/store/app-store/creative/search_3x2.html",
+        "docs/store/app-store/creative/search_3x2.html",
         (3840, 2560),
         {"search_en-US.png": "?lang=en", "search_de-DE.png": "?lang=de"},
     ),
     "appstore-header": (
-        "assets/store/app-store/creative/header_21x9.html",
+        "docs/store/app-store/creative/header_21x9.html",
         (3840, 1646),
         {"header_en-US.png": "?lang=en", "header_de-DE.png": "?lang=de"},
     ),
     "play-feature": (
-        "assets/store/play-store/feature_graphic.html",
+        "docs/store/play-store/feature_graphic.html",
         (1024, 500),
         {"feature_graphic_en-US.png": "?lang=en", "feature_graphic_de-DE.png": "?lang=de"},
     ),

@@ -16,7 +16,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 STORE_DIR = REPO_ROOT / "assets" / "store"
 SCREEN_COUNT = 8
 
-# assets/store/screenshots.af links these raws; its device frames assume
+# docs/store/screenshots.af links these raws; its device frames assume
 # exactly these pixel sizes.
 EXPECTED_SIZES = {
     "play-store/phone": (1080, 2400),
@@ -92,7 +92,7 @@ def main(argv):
         print()
         print("!" * 72)
         print("SIZE CHECK FAILED - the Affinity device frames in")
-        print("assets/store/screenshots.af assume the expected raw sizes. Fix the")
+        print("docs/store/screenshots.af assume the expected raw sizes. Fix the")
         print("device/AVD, or adjust the frames before recomposing. Wrong frame")
         print("exports (0N.png) need re-exporting from Affinity:")
         for problem in problems:

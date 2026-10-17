@@ -6,7 +6,7 @@ Each post and account gets one item that names its file, which holds the text, m
 Tick items as they're done and keep the files in [`posts/`](posts/README.md) and `accounts/` in step.
 
 ````markdown
-Part of #69. Release notes: [`vX.Y.Z+B`](https://github.com/jonaskeller14/bike_setup_tracker/blob/main/assets/store/release-notes/vX.Y.Z+B.md)
+Part of #69. Release notes: [`vX.Y.Z+B`](https://github.com/jonaskeller14/bike_setup_tracker/blob/main/docs/store/release-notes/vX.Y.Z+B.md)
 
 Text, media and steps per item: `docs/marketing/posts/` and `docs/marketing/accounts/`.
 

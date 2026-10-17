@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-  Regenerates the Play Store raw screenshots (assets/store/play-store/**/0N_raw.png).
+  Regenerates the Play Store raw screenshots (docs/store/play-store/**/0N_raw.png).
 
 .DESCRIPTION
   Builds the screenshot entry point (lib/main_screenshots.dart), boots each

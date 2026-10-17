@@ -2,6 +2,6 @@
 * text=auto
 
 # Store screenshots, app previews and the Affinity source live in Git LFS.
-assets/store/**/*.png filter=lfs diff=lfs merge=lfs -text
-assets/store/**/*.af filter=lfs diff=lfs merge=lfs -text
-assets/store/**/*.mp4 filter=lfs diff=lfs merge=lfs -text
+docs/store/**/*.png filter=lfs diff=lfs merge=lfs -text
+docs/store/**/*.af filter=lfs diff=lfs merge=lfs -text
+docs/store/**/*.mp4 filter=lfs diff=lfs merge=lfs -text

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Regenerates the Play Store raw screenshots (assets/store/play-store/**/0N_raw.png).
+# Regenerates the Play Store raw screenshots (docs/store/play-store/**/0N_raw.png).
 # macOS/Linux counterpart of run_android.ps1: builds lib/main_screenshots.dart,
 # boots each dedicated AVD (see create_avds.sh), pins the status bar via
 # SystemUI demo mode, runs the Maestro flows and overwrites the raws in place,
@@ -168,7 +168,7 @@ for name in $selected; do
   serial="$(start_avd "$avd" "$port")"
 
   out_dir="$(mktemp -d -t "screenshots_$name")"
-  target_dir="$repo_root/assets/store/$folder"
+  target_dir="$repo_root/docs/store/$folder"
   if [ "$demo" -eq 1 ]; then
     target_dir="$repo_root/build/marketing/raw"
     mkdir -p "$target_dir"

@@ -133,7 +133,7 @@ the claim with the Pixabay license certificate, `beats-app-184141-license.txt` n
 The ffmpeg side of `build_kit.py`: cutting and speed ramps, compositing a clip into a template's
 phone, caption crossfades, end card, audio, App Store preview encoding, GIFs and website loops.
 
-Templates are plain HTML (`docs/marketing/templates/`, `assets/store/app-store/creative/`) that load
+Templates are plain HTML (`docs/marketing/templates/`, `docs/store/app-store/creative/`) that load
 [`template.js`](../../docs/marketing/templates/template.js). For each video it renders the template
 once as a background and once per caption, and asks the template (`?video`) where its
 `data-video` phone sits, including scale and rotation. A template needs no other changes to get a
@@ -156,8 +156,8 @@ python tool/marketing/render_images.py appstore-search      # one asset
 
 | Asset | Template | Output |
 |---|---|---|
-| `appstore-search` | `assets/store/app-store/creative/search_3x2.html` | `search_{en-US,de-DE}.png` next to the template, 3840×2560 |
-| `appstore-header` | `assets/store/app-store/creative/header_21x9.html` | `header_{en-US,de-DE}.png` next to the template, 3840×1646 |
+| `appstore-search` | `docs/store/app-store/creative/search_3x2.html` | `search_{en-US,de-DE}.png` next to the template, 3840×2560 |
+| `appstore-header` | `docs/store/app-store/creative/header_21x9.html` | `header_{en-US,de-DE}.png` next to the template, 3840×1646 |
 
 New template: add an entry to `ASSETS` (template, size, output file → URL query). Kit images
 (carousel, thumbnail, OG image, forum header) are rendered by `build_kit.py` instead.

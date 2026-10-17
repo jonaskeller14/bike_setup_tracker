@@ -420,7 +420,7 @@ Your Strava rides, matched to your bike setup 🔗 Link in bio. #mtb #mtbtok #st
 
 ## reddit-mtb · r/MTB
 
-Image post with the raws `assets/store/app-store/iPhone-17-Pro-Max/03_raw.png`, `04_raw.png`,
+Image post with the raws `docs/store/app-store/iPhone-17-Pro-Max/03_raw.png`, `04_raw.png`,
 `05_raw.png` (plain screens look less like an ad than the framed carousel). Only after a mod OK.
 
 ### Title

@@ -29,7 +29,7 @@ KITS = REPO_ROOT / "docs/marketing/kits"
 RAW = "build/marketing/raw"  # Default "recordings" folder of a kit.
 MUSIC = REPO_ROOT / "tool/marketing/assets/music"
 TEMPLATES = "docs/marketing/templates"
-CREATIVE = "assets/store/app-store/creative"
+CREATIVE = "docs/store/app-store/creative"
 
 SHORT = (f"{TEMPLATES}/video_9x16.html", (1080, 1920))
 WALKTHROUGH = (f"{TEMPLATES}/video_16x9.html", (1920, 1080))

@@ -1,5 +1,5 @@
 // Shared by the marketing templates in this folder and the App Store creative templates
-// (assets/store/app-store/creative/). Load it at the end of <body>.
+// (docs/store/app-store/creative/). Load it at the end of <body>.
 //
 // - Fills every [data-param] element from the URL parameter of that name. *Words* in stars
 //   become <em>; an element whose parameter is missing or empty is hidden.
@@ -21,7 +21,7 @@
   const shots = (params.get('shots') || '').split(',').filter(Boolean);
   document.querySelectorAll('img[data-shot]').forEach((img) => {
     const shot = shots[Number(img.dataset.shot)] || shots[0] || '01';
-    img.src = new URL(`../../../assets/store/app-store/iPhone-17-Pro-Max/${shot}_raw.png`, document.currentScript?.src ?? location.href).href;
+    img.src = new URL(`../../../docs/store/app-store/iPhone-17-Pro-Max/${shot}_raw.png`, document.currentScript?.src ?? location.href).href;
   });
 
   for (const mode of ['endcard', 'video']) {

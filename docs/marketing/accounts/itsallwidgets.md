@@ -13,7 +13,7 @@ Bike Setup Tracker
 Mobile (iOS, Android).
 
 ## Screenshots
-Android frames from `assets/store/play-store/phone/` (1080 × 1920, the size the form asks for).
+Android frames from `docs/store/play-store/phone/` (1080 × 1920, the size the form asks for).
 
 | Slot | File |
 |---|---|
@@ -39,7 +39,7 @@ Leave unchecked (the app is not a template or UI kit).
 
 ## Page Style
 
-Colors from `assets/store/app-store/creative/creative.css`, same as the store creatives. Background
+Colors from `docs/store/app-store/creative/creative.css`, same as the store creatives. Background
 Rotation 0 (vertical gradient, lighter on top).
 
 | Use | Hex | RGB |

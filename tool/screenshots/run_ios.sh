@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Regenerates the App Store raw screenshots (assets/store/app-store/**/0N_raw.png).
+# Regenerates the App Store raw screenshots (docs/store/app-store/**/0N_raw.png).
 #
 # Builds the screenshot entry point (lib/main_screenshots.dart) for the
 # simulator, boots each simulator, pins the status bar via `simctl status_bar`,
@@ -131,7 +131,7 @@ for name in $selected; do
   xcrun simctl location "$udid" set "$gps"
 
   out_dir="$(mktemp -d -t "screenshots_$name")"
-  target_dir="$repo_root/assets/store/$folder"
+  target_dir="$repo_root/docs/store/$folder"
   # lib/main_screenshots.dart draws touch dots while this marker exists. It is
   # removed first, in case an aborted preview run left it behind.
   touch_marker="$(xcrun simctl get_app_container "$udid" "$app_id" data)/Documents/screenshot_show_touches"

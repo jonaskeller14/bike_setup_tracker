@@ -1,6 +1,6 @@
 /* Shared styles of the App Store creative assets (header + search results). */
 :root {
-  /* Background matches the screenshot frames in assets/store/screenshots.af. */
+  /* Background matches the screenshot frames in docs/store/screenshots.af. */
   --bg-top: #dde3e8;
   --bg-band: #a9c4d6;
   --ink: #0e1113;

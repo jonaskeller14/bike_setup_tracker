@@ -87,58 +87,58 @@ Ditch the notebook. Download Bike Setup Tracker and tune your ride with precisio
 
 #### Android (Play Store)
 <p align="center">
-  <img src="assets/store/play-store/phone/01.png" width="23%">
-  <img src="assets/store/play-store/phone/02.png" width="23%">
-  <img src="assets/store/play-store/phone/03.png" width="23%">
-  <img src="assets/store/play-store/phone/04.png" width="23%">
+  <img src="docs/store/play-store/phone/01.png" width="23%">
+  <img src="docs/store/play-store/phone/02.png" width="23%">
+  <img src="docs/store/play-store/phone/03.png" width="23%">
+  <img src="docs/store/play-store/phone/04.png" width="23%">
   <br>
-  <img src="assets/store/play-store/phone/05.png" width="23%">
-  <img src="assets/store/play-store/phone/06.png" width="23%">
-  <img src="assets/store/play-store/phone/07.png" width="23%">
-  <img src="assets/store/play-store/phone/08.png" width="23%">
+  <img src="docs/store/play-store/phone/05.png" width="23%">
+  <img src="docs/store/play-store/phone/06.png" width="23%">
+  <img src="docs/store/play-store/phone/07.png" width="23%">
+  <img src="docs/store/play-store/phone/08.png" width="23%">
 </p>
 
 #### iOS (App Store - iPhone 17 Pro Max)
 <p align="center">
-  <img src="assets/store/app-store/iPhone-17-Pro-Max/01.png" width="23%">
-  <img src="assets/store/app-store/iPhone-17-Pro-Max/02.png" width="23%">
-  <img src="assets/store/app-store/iPhone-17-Pro-Max/03.png" width="23%">
-  <img src="assets/store/app-store/iPhone-17-Pro-Max/04.png" width="23%">
+  <img src="docs/store/app-store/iPhone-17-Pro-Max/01.png" width="23%">
+  <img src="docs/store/app-store/iPhone-17-Pro-Max/02.png" width="23%">
+  <img src="docs/store/app-store/iPhone-17-Pro-Max/03.png" width="23%">
+  <img src="docs/store/app-store/iPhone-17-Pro-Max/04.png" width="23%">
   <br>
-  <img src="assets/store/app-store/iPhone-17-Pro-Max/05.png" width="23%">
-  <img src="assets/store/app-store/iPhone-17-Pro-Max/06.png" width="23%">
-  <img src="assets/store/app-store/iPhone-17-Pro-Max/07.png" width="23%">
-  <img src="assets/store/app-store/iPhone-17-Pro-Max/08.png" width="23%">
+  <img src="docs/store/app-store/iPhone-17-Pro-Max/05.png" width="23%">
+  <img src="docs/store/app-store/iPhone-17-Pro-Max/06.png" width="23%">
+  <img src="docs/store/app-store/iPhone-17-Pro-Max/07.png" width="23%">
+  <img src="docs/store/app-store/iPhone-17-Pro-Max/08.png" width="23%">
 </p>
 
 ### Tablet
 
 #### Android (Play Store - 10")
 <p align="center">
-  <img src="assets/store/play-store/tablet_10-inch/01.png" width="31%">
-  <img src="assets/store/play-store/tablet_10-inch/02.png" width="31%">
-  <img src="assets/store/play-store/tablet_10-inch/03.png" width="31%">
+  <img src="docs/store/play-store/tablet_10-inch/01.png" width="31%">
+  <img src="docs/store/play-store/tablet_10-inch/02.png" width="31%">
+  <img src="docs/store/play-store/tablet_10-inch/03.png" width="31%">
   <br>
-  <img src="assets/store/play-store/tablet_10-inch/04.png" width="31%">
-  <img src="assets/store/play-store/tablet_10-inch/05.png" width="31%">
-  <img src="assets/store/play-store/tablet_10-inch/06.png" width="31%">
+  <img src="docs/store/play-store/tablet_10-inch/04.png" width="31%">
+  <img src="docs/store/play-store/tablet_10-inch/05.png" width="31%">
+  <img src="docs/store/play-store/tablet_10-inch/06.png" width="31%">
   <br>
-  <img src="assets/store/play-store/tablet_10-inch/07.png" width="31%">
-  <img src="assets/store/play-store/tablet_10-inch/08.png" width="31%">
+  <img src="docs/store/play-store/tablet_10-inch/07.png" width="31%">
+  <img src="docs/store/play-store/tablet_10-inch/08.png" width="31%">
 </p>
 
 #### iOS (App Store - iPad Pro 13")
 <p align="center">
-  <img src="assets/store/app-store/iPad-Pro-13-inch_M5/01.png" width="31%">
-  <img src="assets/store/app-store/iPad-Pro-13-inch_M5/02.png" width="31%">
-  <img src="assets/store/app-store/iPad-Pro-13-inch_M5/03.png" width="31%">
+  <img src="docs/store/app-store/iPad-Pro-13-inch_M5/01.png" width="31%">
+  <img src="docs/store/app-store/iPad-Pro-13-inch_M5/02.png" width="31%">
+  <img src="docs/store/app-store/iPad-Pro-13-inch_M5/03.png" width="31%">
   <br>
-  <img src="assets/store/app-store/iPad-Pro-13-inch_M5/04.png" width="31%">
-  <img src="assets/store/app-store/iPad-Pro-13-inch_M5/05.png" width="31%">
-  <img src="assets/store/app-store/iPad-Pro-13-inch_M5/06.png" width="31%">
+  <img src="docs/store/app-store/iPad-Pro-13-inch_M5/04.png" width="31%">
+  <img src="docs/store/app-store/iPad-Pro-13-inch_M5/05.png" width="31%">
+  <img src="docs/store/app-store/iPad-Pro-13-inch_M5/06.png" width="31%">
   <br>
-  <img src="assets/store/app-store/iPad-Pro-13-inch_M5/07.png" width="31%">
-  <img src="assets/store/app-store/iPad-Pro-13-inch_M5/08.png" width="31%">
+  <img src="docs/store/app-store/iPad-Pro-13-inch_M5/07.png" width="31%">
+  <img src="docs/store/app-store/iPad-Pro-13-inch_M5/08.png" width="31%">
 </p>
 
 ## ⚖️ License & Contributions

@@ -26,7 +26,7 @@ create a GitHub release until the applicable confirmation gate has been approved
   to fix.
 - Read the diff and look for **typos** in:
   - user-facing strings (`Text(...)`, snackbars, dialog/button labels, error messages, enum labels),
-  - store listing copy (`assets/store/`), and
+  - store listing copy (`docs/store/`), and
   - code comments and identifiers.
   Misspellings in user-visible strings (e.g. `'Tash'` for `'Trash'`, `occured` for `occurred`) are
   the priority.
@@ -108,7 +108,7 @@ create a GitHub release until the applicable confirmation gate has been approved
   bullets, punctuation, and line breaks. Report the character count beside each generated language
   block.
 - **Languages:** write every block in **English (en-US)** and **German (de-DE)**, matching the
-  two store locales in `assets/store/*/listing/`. The German text is a natural rewrite, not a
+  two store locales in `docs/store/*/listing/`. The German text is a natural rewrite, not a
   literal translation: informal "du" form like the German listings, proper umlauts, and German
   ride/bike vocabulary (Fahrwerk, Federgabel, Dämpfer, Reifendruck, Wartung). The UI is English
   until #18, so keep names of screens and buttons as they appear in the app. German runs longer
@@ -132,7 +132,7 @@ create a GitHub release until the applicable confirmation gate has been approved
   (options: approve / needs changes). If changes are needed, revise, re-count the characters,
   re-print, and ask again. Do not continue until they are approved. Proofread the German text for
   typos and umlauts before asking, since the step 2 review ran before it existed.
-- Only after approval, create `assets/store/release-notes/vX.Y.Z+B.md` with the approved text. This
+- Only after approval, create `docs/store/release-notes/vX.Y.Z+B.md` with the approved text. This
   file is part of the release commit (step 7). Structure:
   - `# Release notes vX.Y.Z+B`
   - one `## en-US (N/500)` and one `## de-DE (N/500)` section, each holding its text in a plain
@@ -150,7 +150,7 @@ create a GitHub release until the applicable confirmation gate has been approved
   hint to `releaseHintBuilds` in `lib/models/app_hint.dart` with build `B`.
 
 ## 7. Create the release commit
-- Commit only the two version files, the approved `assets/store/release-notes/vX.Y.Z+B.md`
+- Commit only the two version files, the approved `docs/store/release-notes/vX.Y.Z+B.md`
   (plus `app_hint.dart` if touched) with `Release vX.Y.Z+B`. This commit is local only so far —
   not pushed yet.
 
@@ -192,7 +192,7 @@ create a GitHub release until the applicable confirmation gate has been approved
 - Keep the template lines under **Publish** and **Once live**; they get one line per post file once
   the posts are drafted. Write `- Nothing for this release.` under any other section with nothing to do.
 - `gh issue create --title "vX.Y.Z: Marketing" --body-file <tmp-file>` and print the issue URL.
-- Finish by pointing the user to `assets/store/release-steps.md` for the manual store submission.
+- Finish by pointing the user to `docs/store/release-steps.md` for the manual store submission.
 
 ## Constraints
 - **Default is a PR into `main`, never a direct push** — a direct push only happens if `--push`
@@ -204,7 +204,7 @@ create a GitHub release until the applicable confirmation gate has been approved
 - The step 2 typo review is a hard gate: if it finds anything, abort before editing/committing/tagging
   and surface the findings — do not silently fix typos and continue.
 - The release commit must contain ONLY `pubspec.yaml`, `lib/utils/app_info.dart`,
-  `assets/store/release-notes/vX.Y.Z+B.md` (and `lib/models/app_hint.dart` if a hint was added).
+  `docs/store/release-notes/vX.Y.Z+B.md` (and `lib/models/app_hint.dart` if a hint was added).
 - Release tags must be lightweight and message-free; GitHub release notes are their only
   human-readable release description.
 - Never silently resolve merge conflicts, force-push, or overwrite a release asset.

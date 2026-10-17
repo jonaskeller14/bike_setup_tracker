@@ -1,6 +1,6 @@
 # Screenshot captions — English
 
-Caption layer of `assets/store/screenshots.af`, shared by App Store and Play Store. The first three
+Caption layer of `docs/store/screenshots.af`, shared by App Store and Play Store. The first three
 frames show in search results, so they carry the core promise.
 
 | Frame | Screen | Caption |

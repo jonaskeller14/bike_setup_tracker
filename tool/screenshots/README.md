@@ -1,6 +1,6 @@
 # Store screenshots
 
-This tooling regenerates the store raws (`assets/store/**/0N_raw.png`) from seeded data. `assets/store/screenshots.af` links the raws, so after a run, recomposing in Affinity takes one click.
+This tooling regenerates the store raws (`docs/store/**/0N_raw.png`) from seeded data. `docs/store/screenshots.af` links the raws, so after a run, recomposing in Affinity takes one click.
 
 | Folder | Device | Size (px) |
 |---|---|---|

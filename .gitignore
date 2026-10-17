@@ -74,3 +74,8 @@ tool/marketing/assets/music/
 
 # Affinity lock files while a document is open
 *.af~lock~
+
+# Store upload credentials
+*.p8
+fastlane/.env
+fastlane/report.xml
